@@ -106,28 +106,18 @@ namespace Xtensive.Core.Reflection
           return bmi ?? mi.GetInterfaceMember();
         }
         if (pi!=null) {
-          if (pi.DeclaringType.IsInterface)
+          var anyAccessor = (pi.GetGetMethod(true) ?? pi.GetSetMethod(true));
+          var anyInterfaceAccessor = (MethodInfo) anyAccessor.GetBaseMember();
+          if (anyInterfaceAccessor==null)
             return null;
-          var getter = pi.GetGetMethod(false);
-          var setter = pi.GetSetMethod(false);
-          if (getter!=null && (getter.IsAbstract || !getter.IsVirtual))
-            return null;
-          if (setter!=null && (setter.IsAbstract || !setter.IsVirtual))
-            return null;
-          return pi.DeclaringType.UnderlyingSystemType.BaseType
-            .GetProperty(pi.Name, pi.GetBindingFlags());
+          return anyInterfaceAccessor.GetProperty();
         }
         if (ei!=null) {
-          if (ei.DeclaringType.IsInterface)
+          var anyAccessor = (ei.GetAddMethod(true) ?? ei.GetRemoveMethod(true));
+          var anyInterfaceAccessor = (MethodInfo) anyAccessor.GetBaseMember();
+          if (anyInterfaceAccessor==null)
             return null;
-          var add = ei.GetAddMethod(false);
-          var remove = ei.GetAddMethod(false);
-          if (add!=null && (add.IsAbstract || !add.IsVirtual))
-            return null;
-          if (remove!=null && (remove.IsAbstract || !remove.IsVirtual))
-            return null;
-          return ei.DeclaringType.UnderlyingSystemType.BaseType
-            .GetEvent(ei.Name, ei.GetBindingFlags());
+          return anyInterfaceAccessor.GetEvent();
         }
       }
       catch {
@@ -238,13 +228,15 @@ namespace Xtensive.Core.Reflection
       if (mi!=null) {
         var type = mi.DeclaringType.UnderlyingSystemType;
         foreach (var iType in type.GetInterfaces(true)) {
-          var map = type.GetInterfaceMap(iType);
+          var map = type.GetInterfaceMap(iType.UnderlyingSystemType);
           for (int i = 0; i < map.InterfaceMethods.Length; i++) {
             var tmi = map.TargetMethods[i];
             if (mi==tmi)
               return map.InterfaceMethods[i];
-            if (mi.MethodHandle.Value==tmi.MethodHandle.Value)
-              return map.InterfaceMethods[i];
+            if (mi.GetType().FullName==WellKnown.RuntimeMethodInfoName && 
+                tmi.GetType().FullName==WellKnown.RuntimeMethodInfoName &&
+                mi.MethodHandle.Value==tmi.MethodHandle.Value)
+                return map.InterfaceMethods[i];
           }
         }
         return null;

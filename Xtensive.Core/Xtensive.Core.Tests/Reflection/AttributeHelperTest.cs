@@ -67,6 +67,9 @@ namespace Xtensive.Core.Tests.Reflection
         set { Property = value; }
       }
 
+      [Id("Base.NewProperty")]
+      int NewProperty { get; set; }
+
       [Id("Base.Method(object)")]
       protected virtual void Method(object o)
       {
@@ -88,6 +91,9 @@ namespace Xtensive.Core.Tests.Reflection
           return base.Property;
         }
       }
+
+      [Id("Derived.NewProperty")]
+      int NewProperty { get; set; }
 
       [Id("Derived.Method(string)")]
       protected virtual void Method(string s)
@@ -143,6 +149,14 @@ namespace Xtensive.Core.Tests.Reflection
       Type b = typeof (Base);
       Type d = typeof (Derived);
       Type l = typeof (Last);
+
+      ValidateIds(() => d.GetProperty("NewProperty", BindingFlags.Instance | BindingFlags.NonPublic)
+        .GetAttributes<IdAttribute>(AttributeSearchOptions.InheritAll),
+        "Derived.NewProperty");
+
+      ValidateIds(() => b.GetProperty("NewProperty", BindingFlags.Instance | BindingFlags.NonPublic)
+        .GetAttributes<IdAttribute>(AttributeSearchOptions.InheritAll),
+        "Base.NewProperty");
 
       ValidateId(() => b.GetAttribute<IdAttribute>(AttributeSearchOptions.InheritAll), 
         "Base");

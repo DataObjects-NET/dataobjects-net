@@ -33,5 +33,10 @@ namespace Xtensive.Core.Reflection
     /// Returns "remove_".
     /// </summary>
     public static readonly string RemoveEventHandlerPrefix = "remove_";
+
+    /// <summary>
+    /// Returns "System.Reflection.RuntimeMethodInfo".
+    /// </summary>
+    public static readonly string RuntimeMethodInfoName = "System.Reflection.RuntimeMethodInfo";
   }
 }
