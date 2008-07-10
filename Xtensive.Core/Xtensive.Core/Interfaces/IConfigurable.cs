@@ -25,7 +25,7 @@ namespace Xtensive.Core
     bool IsConfigured { get; }
 
     /// <summary>
-    /// Gets or sets the configuration of configurable.
+    /// Gets or sets the configuration of this instance.
     /// </summary>
     TConfiguration Configuration { get; set; }
 
