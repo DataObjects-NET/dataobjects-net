@@ -21,9 +21,9 @@ namespace Xtensive.Storage.Providers
     /// </summary>
     public Session Session { get; internal set; }
 
-    public abstract void Insert(EntityData data);
-    public abstract void Update(EntityData data);
-    public abstract void Remove(EntityData data);
+    protected abstract void Insert(EntityData data);
+    protected abstract void Update(EntityData data);
+    protected abstract void Remove(EntityData data);
     public abstract Tuple Fetch(Key key, IEnumerable<ColumnInfo> columns);
 
     public IEnumerable Select(TypeInfo type)
