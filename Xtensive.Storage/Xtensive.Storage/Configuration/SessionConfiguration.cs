@@ -5,73 +5,74 @@
 // Created:    2007.08.29
 
 using System;
+using Xtensive.Core;
 using Xtensive.Core.Helpers;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Storage.Configuration
 {
   [Serializable]
   public class SessionConfiguration : ConfigurationBase
   {
-    private string userName;
-    private object[] authParams;
-
     /// <summary>
     /// Gets user name to authenticate.
     /// </summary>
-    public string UserName
-    {
-      get { return userName; }
-    }
+    public string UserName { get; private set; }
 
     /// <summary>
     /// Gets authentication params.
     /// </summary>
-    public object[] AuthParams
-    {
-      get { return authParams; }
-    }
+    public object[] AuthParams { get; private set; }
 
-    public int TupleCacheSize
-    {
-      get { throw new NotImplementedException(); }
-    }
+    /// <summary>
+    /// Gets or sets the size of the session cache.
+    /// </summary>
+    public int CacheSize { get; set; }
 
     /// <inheritdoc/>
     public override void Validate()
     {
+      ArgumentValidator.EnsureArgumentIsInRange(CacheSize, 0, Int32.MaxValue, "CacheSize");
     }
 
     /// <inheritdoc/>
     protected override ConfigurationBase CreateClone()
     {
-      return new SessionConfiguration();
+      SessionConfiguration clone = new SessionConfiguration();
+      clone.Clone(this);
+      return clone;
     }
 
+    /// <inheritdoc/>
     protected override void Clone(ConfigurationBase source)
     {
       base.Clone(source);
-      SessionConfiguration configuration = (SessionConfiguration)source;
-      userName = configuration.UserName;
-      authParams = configuration.AuthParams;
+      SessionConfiguration configuration = (SessionConfiguration) source;
+      UserName = configuration.UserName;
+      AuthParams = configuration.AuthParams;
     }
 
 
+    // Constructors
+
     /// <summary>
-    /// Initializes a new instance of the <see cref="SessionConfiguration"/> class.
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="userName">User name to authenticate (use <see cref="String.Empty"/> to omit authentication).</param>
+    /// <param name="userName">User name to authenticate (use <see cref="string.Empty"/> to omit authentication).</param>
     /// <param name="authParams">Authentication params (e.g. password).</param>
     public SessionConfiguration(string userName, object[] authParams)
+      : this()
     {
-      this.userName = userName;
-      this.authParams = authParams;
+      UserName = userName;
+      AuthParams = authParams;
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="SessionConfiguration"/> class.
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     public SessionConfiguration()
     {
+      CacheSize = 1024;
     }
   }
 }

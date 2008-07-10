@@ -11,6 +11,7 @@ using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Aspects;
@@ -22,26 +23,14 @@ using Xtensive.Storage.Rse;
 namespace Xtensive.Storage
 {
   [Storage]
-  public class Session : IResource,
+  public class Session : ConfigurableBase<SessionConfiguration>,
+    IResource,
     IContext<SessionScope>,
     IContextBound<Session>
   {
-    private const int CacheSize = 1024 * 1024;
     private readonly Set<object> consumers = new Set<object>();
-    private readonly WeakCache<Key, EntityData> identityMap = new WeakCache<Key, EntityData>(CacheSize, item => item.Key);
+    private WeakCache<Key, EntityData> identityMap;
     private readonly FlagRegistry<PersistenceState, EntityData> dirtyItems = new FlagRegistry<PersistenceState, EntityData>(data => data.PersistenceState);
-    private SessionHandler handler;
-
-    /// <summary>
-    /// Gets the session configuration.
-    /// </summary>
-    [DebuggerHidden]
-    public SessionConfiguration Configuration {
-      [SuppressContextActivation(typeof (Session))]
-      get;
-      [SuppressContextActivation(typeof (Session))]
-      internal set;
-    }
 
     /// <summary>
     /// Gets the <see cref="Domain"/> to which this instance belongs.
@@ -77,12 +66,15 @@ namespace Xtensive.Storage
         return;
 
       Handler.Persist(dirtyItems);
+
       HashSet<EntityData> @new = dirtyItems.GetItems(PersistenceState.New);
       HashSet<EntityData> modified = dirtyItems.GetItems(PersistenceState.Modified);
       HashSet<EntityData> removed = dirtyItems.GetItems(PersistenceState.Removed);
+
       HashSet<EntityData> persisted = new HashSet<EntityData>(@new.Union(modified).Except(removed));
       foreach (EntityData data in persisted)
         data.PersistenceState = PersistenceState.Persisted;
+
       dirtyItems.Clear();
     }
 
@@ -118,9 +110,9 @@ namespace Xtensive.Storage
     internal SessionHandler Handler
     {
       [SuppressContextActivation(typeof (Session))]
-      get { return handler; }
+      get;
       [SuppressContextActivation(typeof (Session))]
-      set { handler = value; }
+      set;
     }
 
     #endregion
@@ -196,6 +188,14 @@ namespace Xtensive.Storage
     }
 
     #endregion
+
+    /// <inheritdoc/>
+    protected override void OnConfigured()
+    {
+      base.OnConfigured();
+      identityMap = new WeakCache<Key, EntityData>(Configuration.CacheSize, item => item.Key);
+    }
+
 
     // Constructors
 
