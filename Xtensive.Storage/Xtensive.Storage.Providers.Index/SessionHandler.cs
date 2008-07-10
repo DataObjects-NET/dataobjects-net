@@ -18,7 +18,7 @@ namespace Xtensive.Storage.Providers.Index
 {
   public class SessionHandler : Providers.SessionHandler
   {
-    public override void Insert(EntityData data)
+    protected override void Insert(EntityData data)
     {
       Index.DomainHandler handler = (Index.DomainHandler)Session.Domain.Handler;
 
@@ -29,13 +29,13 @@ namespace Xtensive.Storage.Providers.Index
       }
     }
 
-    public override void Update(EntityData data)
+    protected override void Update(EntityData data)
     {
       Remove(data);
       Insert(data);
     }
 
-    public override void Remove(EntityData data)
+    protected override void Remove(EntityData data)
     {
       Index.DomainHandler handler = (Index.DomainHandler)Session.Domain.Handler;
 

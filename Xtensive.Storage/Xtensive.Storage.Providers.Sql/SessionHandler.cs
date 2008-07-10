@@ -30,7 +30,7 @@ namespace Xtensive.Storage.Providers.Sql
     private readonly Dictionary<IndexInfo, long> indexVersions = new Dictionary<IndexInfo, long>();
 
     /// <inheritdoc/>
-    public override void Insert(EntityData data)
+    protected override void Insert(EntityData data)
     {
       EnsureConnection();
       IncreaseVersion(data.Type.AffectedIndexes);
@@ -81,7 +81,7 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <inheritdoc/>
-    public override void Remove(EntityData data)
+    protected override void Remove(EntityData data)
     {
       EnsureConnection();
       IncreaseVersion(data.Key.Type.AffectedIndexes);
@@ -103,7 +103,7 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <inheritdoc/>
-    public override void Update(EntityData data)
+    protected override void Update(EntityData data)
     {
       EnsureConnection();
       SqlBatch batch = Xtensive.Sql.Dom.Sql.Batch();
