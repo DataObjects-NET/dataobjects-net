@@ -51,11 +51,15 @@ namespace Xtensive.Storage.Providers
 
     public void Persist(FlagRegistry<PersistenceState, EntityData> registry)
     {
-      foreach (EntityData data in registry.GetItems(PersistenceState.New))
+      HashSet<EntityData> @new = registry.GetItems(PersistenceState.New);
+      HashSet<EntityData> modified = registry.GetItems(PersistenceState.Modified);
+      HashSet<EntityData> removed = registry.GetItems(PersistenceState.Removed);
+
+      foreach (EntityData data in @new)
         Insert(data);
-      foreach (EntityData data in registry.GetItems(PersistenceState.Modified))
+      foreach (EntityData data in modified.Except(@new))
         Update(data);
-      foreach (EntityData data in registry.GetItems(PersistenceState.Removed))
+      foreach (EntityData data in removed)
         Remove(data);
     }
   }

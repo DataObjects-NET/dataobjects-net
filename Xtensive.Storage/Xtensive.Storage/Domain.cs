@@ -4,7 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2007.08.03
 
-using System;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
@@ -73,7 +72,7 @@ namespace Xtensive.Storage
     public SessionScope OpenSession(SessionConfiguration configuration)
     {
       Session session = new Session(this);
-      session.Configuration = configuration;
+      session.Configure(configuration);
       SessionHandler sessionHandler = HandlerProvider.GetHandler<SessionHandler>();
       sessionHandler.Session = session;
       session.Handler = sessionHandler;

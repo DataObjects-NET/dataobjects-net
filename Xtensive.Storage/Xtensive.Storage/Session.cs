@@ -30,7 +30,7 @@ namespace Xtensive.Storage
   {
     private readonly Set<object> consumers = new Set<object>();
     private WeakCache<Key, EntityData> identityMap;
-    private readonly FlagRegistry<PersistenceState, EntityData> dirtyItems = new FlagRegistry<PersistenceState, EntityData>(data => data.PersistenceState);
+    private readonly FlagRegistry<PersistenceState, EntityData> dirty = new FlagRegistry<PersistenceState, EntityData>(data => data.PersistenceState);
 
     /// <summary>
     /// Gets the <see cref="Domain"/> to which this instance belongs.
@@ -62,20 +62,20 @@ namespace Xtensive.Storage
     /// </remarks>
     public void Persist()
     {
-      if (dirtyItems.GetCount()==0)
+      if (dirty.GetCount()==0)
         return;
 
-      Handler.Persist(dirtyItems);
+      Handler.Persist(dirty);
 
-      HashSet<EntityData> @new = dirtyItems.GetItems(PersistenceState.New);
-      HashSet<EntityData> modified = dirtyItems.GetItems(PersistenceState.Modified);
-      HashSet<EntityData> removed = dirtyItems.GetItems(PersistenceState.Removed);
+      HashSet<EntityData> @new = dirty.GetItems(PersistenceState.New);
+      HashSet<EntityData> modified = dirty.GetItems(PersistenceState.Modified);
+      HashSet<EntityData> removed = dirty.GetItems(PersistenceState.Removed);
 
       HashSet<EntityData> persisted = new HashSet<EntityData>(@new.Union(modified).Except(removed));
       foreach (EntityData data in persisted)
         data.PersistenceState = PersistenceState.Persisted;
 
-      dirtyItems.Clear();
+      dirty.Clear();
     }
 
     public RecordSet QueryIndex(IndexInfo indexInfo)
@@ -103,7 +103,7 @@ namespace Xtensive.Storage
     {
       if (entity.PersistenceState == PersistenceState.New)
         IdentityMap.Add(entity.Data);
-      dirtyItems.Register(entity.Data);
+      dirty.Register(entity.Data);
     }
 
     [DebuggerHidden]
@@ -190,6 +190,7 @@ namespace Xtensive.Storage
     #endregion
 
     /// <inheritdoc/>
+    [SuppressContextActivation(typeof (Session))]
     protected override void OnConfigured()
     {
       base.OnConfigured();
