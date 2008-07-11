@@ -32,17 +32,7 @@ namespace Xtensive.Storage.Rse.Providers.Declaration
 
     protected override RecordHeader BuildHeader()
     {
-      DirectionCollection<ColumnInfo> orderingRule;
-      if (index.IsUnique | index.IsPrimary)
-        orderingRule = new DirectionCollection<ColumnInfo>(index.KeyColumns);
-      else
-        orderingRule = new DirectionCollection<ColumnInfo>(
-          index.KeyColumns
-            .Union(index.ValueColumns.Select(info => new KeyValuePair<ColumnInfo, Direction>(info, Direction.Positive))));
-      var orderedBy = new DirectionCollection<int>(orderingRule.Select((pair, i) => new KeyValuePair<int, Direction>(i, pair.Value)));
-      var tupleDescriptor = TupleDescriptor.Create(index.Columns.Select(columnInfo => columnInfo.ValueType));
-      var keyDescriptor = TupleDescriptor.Create(orderedBy.Select(pair => tupleDescriptor[pair.Key]));
-      return new RecordHeader(index.Columns, keyDescriptor, orderedBy);
+      return new RecordHeader(index);
     }
 
     // Constructor

@@ -8,6 +8,7 @@ using System;
 using System.Globalization;
 using Xtensive.Core;
 using Xtensive.Core.Helpers;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Storage.Rse
 {
@@ -104,6 +105,12 @@ namespace Xtensive.Storage.Rse
 
     // Constructors
 
+    /// <summary>
+    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="name">Initial <see cref="Name"/> value.</param>
+    /// <param name="index">Initial <see cref="Index"/> value.</param>
+    /// <param name="type">Initial <see cref="Type"/> value.</param>
     public RecordColumn(string name, int index, Type type)
       : this(name, index, type, ColumnType.Unbound)
     {}

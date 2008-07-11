@@ -40,7 +40,7 @@ namespace Xtensive.Storage.Rse.Providers.Declaration
         if (Source.Header.OrderInfo.OrderedBy.TryGetValue(columnIndex, out direction))
           orderBy.Add(i, direction);
       }
-      return new RecordHeader(tupleDescriptor, columns, keyDescriptor, orderBy);
+      return new RecordHeader(tupleDescriptor, columns, keyDescriptor, ArrayUtils<KeyInfo>.EmptyArray, orderBy);
     }
 
 

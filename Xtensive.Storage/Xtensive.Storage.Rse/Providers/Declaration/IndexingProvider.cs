@@ -20,7 +20,7 @@ namespace Xtensive.Storage.Rse.Providers.Declaration
 
     protected override RecordHeader BuildHeader()
     {
-      return new RecordHeader(Source.Header.TupleDescriptor, Source.Header.RecordColumnCollection, Source.Header.OrderInfo.KeyDescriptor, ColumnIndexes);
+      return new RecordHeader(Source.Header.TupleDescriptor, Source.Header.RecordColumnCollection, Source.Header.OrderInfo.KeyDescriptor, Source.Header.Keys, ColumnIndexes);
     }
 
     // Constructor

@@ -81,7 +81,7 @@ namespace Xtensive.Storage.Providers.Sql
       catalog = handler.DomainHandler.Catalog;
       this.indexInfo = indexInfo;
       this.handler = handler;
-      recordHeader = new RecordHeader(indexInfo.Columns, null, null);
+      recordHeader = new RecordHeader(indexInfo);
       query = handler.DomainHandler.BuildQueryInternal(indexInfo);
     }
   }

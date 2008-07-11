@@ -41,13 +41,13 @@ namespace Xtensive.Storage.Providers.Index.Compilers
         }
         else if ((indexInfo.Attributes & IndexAttributes.Union)!=0) {
           var sourceProviders = indexInfo.BaseIndexes.Select(index => Compile(new Rse.Providers.Declaration.IndexProvider(index))).ToArray();
-          var header = new RecordHeader(indexInfo.Columns, sourceProviders[0].Header.OrderInfo.KeyDescriptor, sourceProviders[0].Header.OrderInfo.OrderedBy);
+          var header = new RecordHeader(indexInfo);
           result = new MergeInheritorsProvider(header, sourceProviders);
         }
         else {
           var baseIndexes = new List<IndexInfo>(indexInfo.BaseIndexes);
           var rootProvider = Compile(new Rse.Providers.Declaration.IndexProvider(indexInfo.BaseIndexes.First()));
-          var header = new RecordHeader(indexInfo.Columns, rootProvider.Header.OrderInfo.KeyDescriptor, rootProvider.Header.OrderInfo.OrderedBy);
+          var header = new RecordHeader(indexInfo);
           var inheritorsProviders = new Provider[baseIndexes.Count - 1];
           for (int i = 1; i < baseIndexes.Count; i++)
             inheritorsProviders[i - 1] = Compile(new Rse.Providers.Declaration.IndexProvider(baseIndexes[i]));

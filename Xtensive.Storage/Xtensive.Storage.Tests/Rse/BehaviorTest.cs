@@ -36,8 +36,8 @@ namespace Xtensive.Storage.Tests.Rse
           new RecordColumn("ID", 0, typeof (int)),
           new RecordColumn("Title", 1, typeof (string), ColumnType.Unbound),
         };
-      var personHeader = new RecordHeader(personTuple.Descriptor, personColumns, null, null);
-      var authorHeader = new RecordHeader(authorTuple.Descriptor, authorColumns, null, null);
+      var personHeader = new RecordHeader(personTuple.Descriptor, personColumns, null, new[] { new KeyInfo(new []{ personColumns[0] } ), }, null);
+      var authorHeader = new RecordHeader(authorTuple.Descriptor, authorColumns, null, new[] { new KeyInfo(new[] { personColumns[0] }), }, null);
 
       var persons = new Tuple[personCount];
       var authors = new Tuple[personCount / 2];
@@ -85,8 +85,8 @@ namespace Xtensive.Storage.Tests.Rse
           new RecordColumn("IDAuthor", 1, typeof (int)),
           new RecordColumn("Title", 2, typeof (string), ColumnType.Unbound),
         };
-      var authorHeader = new RecordHeader(authorTuple.Descriptor, authorColumns, TupleDescriptor.Empty, new DirectionCollection<int>());
-      var bookHeader = new RecordHeader(bookTuple.Descriptor, bookColumns, null, null);
+      var authorHeader = new RecordHeader(authorTuple.Descriptor, authorColumns, TupleDescriptor.Empty, ArrayUtils<KeyInfo>.EmptyArray, new DirectionCollection<int>());
+      var bookHeader = new RecordHeader(bookTuple.Descriptor, bookColumns, null, null, null);
 
       var authors = new Tuple[authorCount];
       var books = new Tuple[authorCount * booksPerAuthor];

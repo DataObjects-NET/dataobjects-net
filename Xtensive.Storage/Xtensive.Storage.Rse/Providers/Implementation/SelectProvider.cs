@@ -29,17 +29,6 @@ namespace Xtensive.Storage.Rse.Providers.Implementation
     public SelectProvider(RecordHeader header, Provider source, int[] columnIndexes)
       : base(header, source)
     {
-      IEnumerable<RecordColumn> columns = columnIndexes.Select(i => source.Header.RecordColumnCollection[i]);
-      TupleDescriptor tupleDescriptor = TupleDescriptor.Create(columnIndexes.Select(i => source.Header.TupleDescriptor[i]));
-      TupleDescriptor keyDescriptor = TupleDescriptor.Create(columnIndexes.Select(i => source.Header.TupleDescriptor[i]));
-      var orderBy = new DirectionCollection<int>();
-      for (int i = 0; i < columnIndexes.Length; i++) {
-        int columnIndex = columnIndexes[i];
-        Direction direction;
-        if (source.Header.OrderInfo.OrderedBy.TryGetValue(columnIndex, out direction))
-          orderBy.Add(i, direction);
-      }
-      header = new RecordHeader(tupleDescriptor, columns, keyDescriptor, orderBy);
     }
   }
 }
