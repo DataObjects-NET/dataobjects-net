@@ -16,6 +16,7 @@ namespace Xtensive.Storage
   /// used objects such as <see cref="Domain"/>, <see cref="DomainHandler"/>,
   /// <see cref="Session"/>, <see cref="SessionHandler"/> and so on.
   /// </summary>
+  /// <remarks>Implements pattern 'Mediator'.</remarks>
   public sealed class ExecutionContext
   {
     private readonly Registry<HierarchyInfo, IKeyProvider> keyProviders = new Registry<HierarchyInfo, IKeyProvider>();
