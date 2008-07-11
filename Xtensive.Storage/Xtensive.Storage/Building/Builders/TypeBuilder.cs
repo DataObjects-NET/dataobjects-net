@@ -325,13 +325,14 @@ namespace Xtensive.Storage.Building.Builders
       foreach (FieldInfo field in @interface.Fields) {
         FieldInfo implField;
         string explicitName = BuildingScope.Context.NameProvider.BuildExplicitName(field.DeclaringType, field.Name);
-        if (!implementor.Fields.TryGetValue(explicitName, out implField)) 
+
+        if (implementor.Fields.TryGetValue(explicitName, out implField)) 
+          implField.IsExplicit = true;
+        else
           if (!implementor.Fields.TryGetValue(field.Name, out implField))
             throw new DomainBuilderException(
               string.Format(Resources.Strings.TypeXDoesNotImplementYZField, implementor.Name, @interface.Name, field.Name));                    
-        else
-          implField.IsExplicit = true;
-
+        
         implField.IsInterfaceImplementation = true;
 
         if (!implementor.FieldMap.ContainsKey(field))
