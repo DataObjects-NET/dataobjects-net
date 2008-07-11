@@ -17,5 +17,13 @@ namespace Xtensive.Storage.Rse.Compilation.DefaultCompilers
         provider.Header, 
         provider.Tuples);
     }
+
+
+    // Constructor
+
+    public RawProviderCompiler(CompilerResolver resolver)
+      : base(resolver)
+    {
+    }
   }
 }

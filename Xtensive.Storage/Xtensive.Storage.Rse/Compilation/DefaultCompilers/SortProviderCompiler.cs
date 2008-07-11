@@ -18,5 +18,13 @@ namespace Xtensive.Storage.Rse.Compilation.DefaultCompilers
         provider.Provider.Compile(), 
         provider.TupleSortOrder);
     }
+
+
+    // Constructor
+
+    public SortProviderCompiler(CompilerResolver resolver)
+      : base(resolver)
+    {
+    }
   }
 }

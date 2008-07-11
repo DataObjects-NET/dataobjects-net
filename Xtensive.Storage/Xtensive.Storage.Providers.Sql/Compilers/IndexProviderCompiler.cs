@@ -53,5 +53,12 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
       throw new NotImplementedException();
     }
 
+
+    // Constructor
+
+    public IndexProviderCompiler(Rse.Compilation.CompilerResolver resolver)
+      : base(resolver)
+    {
+    }
   }
 }

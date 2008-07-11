@@ -18,5 +18,13 @@ namespace Xtensive.Storage.Rse.Compilation.DefaultCompilers
         provider.Source.Compile(), 
         provider.ColumnIndexes);
     }
+
+
+    // Constructor
+
+    public SelectProviderCompiler(CompilerResolver resolver)
+      : base(resolver)
+    {
+    }
   }
 }

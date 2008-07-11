@@ -74,7 +74,6 @@ namespace Xtensive.Storage.Rse.Compilation
     protected CompilerResolver()
     {
       TypeSuffixes = new[] { "Compiler" };
-      ConstructorParams = ArrayUtils<object>.EmptyArray;
       Type t = GetType();
       AddHighPriorityLocation(t.Assembly, t.Namespace);
     }

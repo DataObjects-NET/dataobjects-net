@@ -18,5 +18,13 @@ namespace Xtensive.Storage.Rse.Compilation.DefaultCompilers
         provider.Provider.Compile(), 
         provider.Predicate.Compile());
     }
+
+
+    // Constructor
+
+    public WhereProviderCompiler(CompilerResolver resolver)
+      : base(resolver)
+    {
+    }
   }
 }

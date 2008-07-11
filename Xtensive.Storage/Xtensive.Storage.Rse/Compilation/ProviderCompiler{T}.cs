@@ -20,5 +20,13 @@ namespace Xtensive.Storage.Rse.Compilation
     }
 
     protected abstract Provider Compile(TProvider provider);
+
+
+    // Constructor
+
+    protected ProviderCompiler(CompilerResolver resolver)
+      : base(resolver)
+    {
+    }
   }
 }

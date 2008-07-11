@@ -57,5 +57,13 @@ namespace Xtensive.Storage.Providers.Index.Compilers
       }
       return result;
     }
+
+
+    // Constructors
+
+    public IndexProviderCompiler(Rse.Compilation.CompilerResolver resolver)
+      : base(resolver)
+    {
+    }
   }
 }

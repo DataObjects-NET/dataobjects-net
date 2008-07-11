@@ -20,5 +20,13 @@ namespace Xtensive.Storage.Rse.Compilation.DefaultCompilers
         provider.LeftJoin, 
         provider.JoiningPairs);
     }
+
+
+    // Constructor
+
+    public JoinProviderCompiler(CompilerResolver resolver)
+      : base(resolver)
+    {
+    }
   }
 }
