@@ -14,7 +14,7 @@ namespace Xtensive.Storage
 {
   public static class RecordSetExtensions
   {
-    public static IEnumerable<T> ToEntities<T>(this RecordSet source, params string[] keyColumnNames) 
+    public static IEnumerable<T> AsEntities<T>(this RecordSet source, params string[] keyColumnNames) 
       where T : Entity
     {
       SessionScope scope = SessionScope.Current;
@@ -35,7 +35,7 @@ namespace Xtensive.Storage
       }
     }
 
-    public static IEnumerable<Entity> ToEntities(this RecordSet source, Type entityType) 
+    public static IEnumerable<Entity> AsEntities(this RecordSet source, Type entityType) 
     {
       if (!source.Provider.Options.IsIndexed)
         throw new InvalidOperationException();

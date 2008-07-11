@@ -30,7 +30,7 @@ namespace Xtensive.Storage
   {
     private readonly Set<object> consumers = new Set<object>();
     private WeakCache<Key, EntityData> identityMap;
-    private readonly FlagRegistry<PersistenceState, EntityData> dirty = new FlagRegistry<PersistenceState, EntityData>(data => data.PersistenceState);
+    private readonly FlagRegistry<PersistenceState, EntityData> dirtyItems = new FlagRegistry<PersistenceState, EntityData>(data => data.PersistenceState);
 
     /// <summary>
     /// Gets the <see cref="Domain"/> to which this instance belongs.
@@ -71,20 +71,19 @@ namespace Xtensive.Storage
     /// </remarks>
     public void Persist()
     {
-      if (dirty.GetCount()==0)
+      if (dirtyItems.GetCount()==0)
         return;
 
-      Handler.Persist(dirty);
+      Handler.Persist(dirtyItems);
 
-      HashSet<EntityData> @new = dirty.GetItems(PersistenceState.New);
-      HashSet<EntityData> modified = dirty.GetItems(PersistenceState.Modified);
-      HashSet<EntityData> removed = dirty.GetItems(PersistenceState.Removed);
+      HashSet<EntityData> @new = dirtyItems.GetItems(PersistenceState.New);
+      HashSet<EntityData> modified = dirtyItems.GetItems(PersistenceState.Modified);
+      HashSet<EntityData> removed = dirtyItems.GetItems(PersistenceState.Removed);
 
-      HashSet<EntityData> persisted = new HashSet<EntityData>(@new.Union(modified).Except(removed));
-      foreach (EntityData data in persisted)
+      foreach (EntityData data in @new.Union(modified).Except(removed))
         data.PersistenceState = PersistenceState.Persisted;
 
-      dirty.Clear();
+      dirtyItems.Clear();
     }
 
     public RecordSet QueryIndex(IndexInfo indexInfo)
@@ -99,7 +98,7 @@ namespace Xtensive.Storage
       TypeInfo type = ExecutionContext.Model.Types[typeof (T)];
       foreach (Tuple tuple in Handler.Select(type)) {
         Key key = ExecutionContext.KeyManager.BuildPrimaryKey(type.Hierarchy, tuple);
-        T item = key.Resolve<T>();
+        T item = (T)key.Resolve(tuple);
         if (item == null)
           throw new InvalidOperationException();
         yield return item;
@@ -112,7 +111,7 @@ namespace Xtensive.Storage
     {
       if (entity.PersistenceState == PersistenceState.New)
         IdentityMap.Add(entity.Data);
-      dirty.Register(entity.Data);
+      dirtyItems.Register(entity.Data);
     }
 
     [DebuggerHidden]

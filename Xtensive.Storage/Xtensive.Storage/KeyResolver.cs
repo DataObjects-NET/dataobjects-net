@@ -33,19 +33,33 @@ namespace Xtensive.Storage
       if (key.Type == null)
         ResolveKeyType(key);
 
-      Session session = Session.Current;
-      EntityData data = session.IdentityMap[key, false];
-      if (data != null)
+      EntityData data;
+      if (TryResolveKey(key, out data))
         return data.Entity ?? Entity.Activate(data.Type.UnderlyingType, data);
 
-      Tuple tuple = session.Handler.Fetch(key);
+      return Resolve(key, Session.Current.Handler.Fetch(key));
+    }
+
+    internal static Entity Resolve(Key key, Tuple tuple)
+    {
       if (tuple == null)
         return null;
 
+      EntityData data;
+      if (TryResolveKey(key, out data))
+        return data.Entity ?? Entity.Activate(data.Type.UnderlyingType, data);
+
       data = new EntityData(key, new DifferentialTuple(tuple));
-      session.IdentityMap.Add(data);
+      Session.Current.IdentityMap.Add(data);
 
       return Entity.Activate(data.Type.UnderlyingType, data);
+    }
+
+    private static bool TryResolveKey(Key key, out EntityData data)
+    {
+      Session session = Session.Current;
+      data = session.IdentityMap[key, false];
+      return data!=null;
     }
 
     private static void ResolveKeyType(Key key)

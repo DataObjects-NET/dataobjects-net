@@ -94,6 +94,11 @@ namespace Xtensive.Storage
       return KeyResolver.Resolve(this);
     }
 
+    internal Entity Resolve(Tuple tuple)
+    {
+      return KeyResolver.Resolve(this, tuple);
+    }
+
     internal void ResolveType(Tuple tuple)
     {
       int columnIndex = Hierarchy.Root.Fields[Session.Current.ExecutionContext.NameProvider.TypeId].MappingInfo.Offset;
