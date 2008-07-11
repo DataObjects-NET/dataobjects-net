@@ -44,24 +44,18 @@ namespace Xtensive.Storage.Building.Builders
       Log.Info("Defining hierarchy for type '{0}'", typeDef.UnderlyingType.FullName);
 
       TypeDef root = buildingContext.Definition.FindRoot(typeDef);
-      if (root!=null) {
-        Log.Error("TypeDef '{0}' is already belongs to hierarchy with the root = '{1}'.",
-          typeDef.UnderlyingType.FullName,
-          root.UnderlyingType.FullName);
-        return null;
-      }
+      if (root!=null)
+        throw new DomainBuilderException(
+          string.Format(Resources.Strings.ExTypeDefXIsAlreadyBelongsToHierarchyWithTheRootY,  
+          typeDef.UnderlyingType.FullName,  root.UnderlyingType.FullName));              
 
       foreach (HierarchyDef hierarchy in buildingContext.Definition.Hierarchies)
-        if (hierarchy.Root.UnderlyingType.IsSubclassOf(typeDef.UnderlyingType)) {
-          Log.Error("'{0}' descendant is already a root of another hierarchy.",
-            hierarchy.Root.UnderlyingType);
-          return null;
-        }
+        if (hierarchy.Root.UnderlyingType.IsSubclassOf(typeDef.UnderlyingType)) 
+          throw new DomainBuilderException(
+            string.Format(Resources.Strings.ExXDescendantIsAlreadyARootOfAnotherHierarchy, hierarchy.Root.UnderlyingType));              
 
-      HierarchyDef hierarchyDef = new HierarchyDef(typeDef);
-      hierarchyDef.Schema = inheritanceSchema;
-
-      return hierarchyDef;
+      return 
+        new HierarchyDef(typeDef) {Schema = inheritanceSchema};
     }
 
     public static HierarchyInfo BuildHierarchy(TypeInfo root, HierarchyDef hierarchyDef)
@@ -70,10 +64,12 @@ namespace Xtensive.Storage.Building.Builders
 
       foreach (KeyValuePair<KeyField, Direction> pair in hierarchyDef.KeyFields) {
         FieldInfo field;
+
         if (!root.Fields.TryGetValue(pair.Key.Name, out field))
-          Log.Error(String.Format("Key field '{0}' was not found in type '{1}'.", pair.Key.Name, root.Name));
-        else
-          hierarchy.Fields.Add(field, pair.Value);
+          throw new DomainBuilderException(
+            string.Format(Resources.Strings.ExKeyFieldXWasNotFoundInTypeY, pair.Key.Name, root.Name));
+          
+        hierarchy.Fields.Add(field, pair.Value);
       }
 
       BuildingScope.Context.Model.Hierarchies.Add(hierarchy);

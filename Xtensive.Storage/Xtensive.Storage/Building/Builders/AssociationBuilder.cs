@@ -30,18 +30,17 @@ namespace Xtensive.Storage.Building.Builders
     public static void BuildPairedAssociation(AssociationInfo pairedAssociation, string masterFieldName)
     {
       FieldInfo masterField;
-      if (!pairedAssociation.ReferencedType.Fields.TryGetValue(masterFieldName, out masterField)) {
-        Log.Error(string.Format("Paired field '{0}' was not found in '{1}' type.", masterFieldName, pairedAssociation.ReferencedType.Name));
-        return;
-      }
-      if (masterField.IsPrimitive || masterField.IsStructure) {
-        Log.Error(string.Format("Paired field '{0}' has insufficient type. It should be reference to Entity or a EntitySet.", masterFieldName));
-        return;
-      }
-      if (pairedAssociation.ReferencingField == masterField) {
-        Log.Error("Referenced field and paired field are equal.");
-        return;
-      }
+      if (!pairedAssociation.ReferencedType.Fields.TryGetValue(masterFieldName, out masterField))
+        throw new DomainBuilderException(
+          string.Format(Resources.Strings.ExPairedFieldXWasNotFoundInYType, masterFieldName, pairedAssociation.ReferencedType.Name));
+
+      if (masterField.IsPrimitive || masterField.IsStructure)
+        throw new DomainBuilderException(
+          string.Format(Resources.Strings.PairedFieldXHasInsufficientTypeItShouldBeReferenceToEntityOrAEntitySet, masterFieldName));
+
+      if (pairedAssociation.ReferencingField == masterField)
+        throw new DomainBuilderException(
+          string.Format(Resources.Strings.ReferencedFieldXAndPairedFieldAreEqual, pairedAssociation.ReferencingField.Name));
 
       FieldInfo pairedField = pairedAssociation.ReferencingField;
       AssociationInfo masterAssociation = masterField.Association;
@@ -58,6 +57,7 @@ namespace Xtensive.Storage.Building.Builders
           pairedAssociation.PairTo = masterAssociation;
         }
       }
+
       if (masterField.IsEntitySet) {
         if (pairedField.IsEntity) {
           masterAssociation.Multiplicity = Multiplicity.ManyToOne;

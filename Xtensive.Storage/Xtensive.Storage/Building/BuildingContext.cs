@@ -11,6 +11,7 @@ using Xtensive.Core.Diagnostics;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Building
 {
@@ -19,6 +20,17 @@ namespace Xtensive.Storage.Building
   /// </summary>
   public sealed class BuildingContext
   {
+    /// <summary>
+    /// Gets the current <see cref="BuildingContext"/>.
+    /// </summary>    
+    public static BuildingContext Current
+    {
+      get
+      {
+        return BuildingScope.Context;
+      }
+    }
+
     /// <summary>
     /// Gets the configuration.
     /// </summary>
@@ -50,7 +62,21 @@ namespace Xtensive.Storage.Building
 
     internal List<FieldInfo> ComplexFields { get; private set; }
 
+    private List<DomainBuilderException> errors = new List<DomainBuilderException>();
+
     internal List<Pair<AssociationInfo, string>> PairedAssociations { get; private set; }
+
+    internal void RegistError(DomainBuilderException exception)
+    {
+      Log.Error(exception);
+      errors.Add(exception);
+    }
+
+    internal void EnsureBuildSucceed()
+    {
+      if (errors.Count != 0)
+        throw new AggregateException(Strings.ExErrorsDuringStorageBuild, (IEnumerable<Exception>) errors);
+    }    
 
     /// <summary>
     /// Initializes a new instance of the <see cref="BuildingContext"/> class.

@@ -4,11 +4,9 @@
 // Created by: Dmitri Maximov
 // Created:    2007.10.02
 
-using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Reflection;
-using Xtensive.Core.Diagnostics;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Model;
@@ -21,37 +19,24 @@ namespace Xtensive.Storage.Building.Builders
   {
     public static IList<FieldDef> DefineFields(TypeDef typeDef)
     {
-      BuildingContext buildingContext = BuildingScope.Context;
       Log.Info("Defining fields.");
 
       var fields = new List<FieldDef>();
-      var properties = typeDef.UnderlyingType.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-      foreach (var propertyInfo in properties) {
-        using (var scope = new LogCaptureScope(buildingContext.Logger)) {
+      var properties = 
+        typeDef.UnderlyingType.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 
-          // [Field] attribute must be applied on any persistent field
-          var fieldAttribute = propertyInfo.GetAttribute<FieldAttribute>(false);
-          if (fieldAttribute==null)
-            continue;
-
-          if (propertyInfo.DeclaringType!=propertyInfo.ReflectedType)
-            continue;
-
+      foreach (PropertyInfo propertyInfo in properties)
+        try {
           FieldDef field = DefineField(typeDef, propertyInfo);
-          if (!scope.IsCaptured(LogEventTypes.Error))
+
+          if (field!=null)
             fields.Add(field);
         }
-      }
-
+        catch (DomainBuilderException e) {
+          BuildingScope.Context.RegistError(e);
+        }        
+      
       return fields;
-    }
-
-    public static FieldDef DefineField(TypeDef typeDef, string name, Type valueType)
-    {
-      Log.Info("Defining field '{0}'", name);
-      FieldDef fieldDef = new FieldDef(valueType);
-      fieldDef.Name = name;
-      return fieldDef;
     }
 
     public static FieldDef DefineField(TypeDef typeDef, PropertyInfo propertyInfo)
@@ -59,19 +44,24 @@ namespace Xtensive.Storage.Building.Builders
       BuildingContext context = BuildingScope.Context;
       Log.Info("Defining field '{0}'", propertyInfo.Name);
 
+      // [Field] attribute must be applied on any persistent field
+      var fieldAttribute = propertyInfo.GetAttribute<FieldAttribute>(false);
+      if (fieldAttribute==null)
+        return null;
+
+      if (propertyInfo.DeclaringType!=propertyInfo.ReflectedType)
+        return null;
+
       // We do not support "persistent" indexers
       ParameterInfo[] indexParameters = propertyInfo.GetIndexParameters();
-      if (indexParameters.Length > 0) {
-        Log.Error("Indexed properties are not supported.");
-        return null;
-      }
+
+      if (indexParameters.Length > 0)
+        throw new DomainBuilderException(Resources.Strings.IndexedPropertiesAreNotSupported);
 
       FieldDef fieldDef = new FieldDef(propertyInfo);
       fieldDef.Name = context.NameProvider.BuildName(fieldDef);
-
-      var fieldAttribute = propertyInfo.GetAttribute<FieldAttribute>(false);
-      if (fieldAttribute!=null)
-        AttributeProcessor.Process(fieldDef, fieldAttribute);
+      
+      AttributeProcessor.Process(fieldDef, fieldAttribute);
 
 //      foreach (ConstraintAttribute attribute in propertyInfo.GetAttributes<ConstraintAttribute>(false)) 
 //        AttributeProcessor.Process(fieldDef, attribute);
@@ -92,16 +82,14 @@ namespace Xtensive.Storage.Building.Builders
       field.Length = fieldDef.Length;
 
       if (field.IsEntitySet) {
-        if (!BuildReferencedType(fieldDef))
-          return null;
+        BuildReferencedType(fieldDef);          
 
         AssociationBuilder.BuildAssociation(fieldDef, field);
         return field;
       }
 
       if (field.IsEntity) {
-        if (!BuildReferencedType(fieldDef))
-          return null;
+        BuildReferencedType(fieldDef);
 
         AssociationBuilder.BuildAssociation(fieldDef, field);
 
@@ -112,30 +100,29 @@ namespace Xtensive.Storage.Building.Builders
       }
 
       if (field.IsStructure) {
-        if (!BuildReferencedType(fieldDef))
-          return null;
+        BuildReferencedType(fieldDef);          
         context.ComplexFields.Add(field);
       }
 
       if (field.IsPrimitive)
         field.Column = ColumnBuilder.BuildColumn(field);
 
-      ValidationResult vrLazyLoad = Validator.ValidateLazyLoad(field);
-      if (!vrLazyLoad.Success) {
-        Log.Error(vrLazyLoad.Message);
-      }
+      if (field.IsPrimaryKey && field.LazyLoad)
+        throw new DomainBuilderException(
+          string.Format(Resources.Strings.FieldXCanTBeLoadOnDemandAsItIsIncludedInPrimaryKey, field.Name));
+
       return field;
     }
 
-    private static bool BuildReferencedType(FieldDef fieldDef)
+    private static void BuildReferencedType(FieldDef fieldDef)
     {
       TypeDef typeDef;
-      if (!BuildingScope.Context.Definition.Types.TryGetValue(fieldDef.ValueType, out typeDef)) {
-        Log.Error("Type '{0}' is not registered in the model.", fieldDef.ValueType.FullName);
-        return false;
-      }
-      TypeBuilder.BuildType(typeDef);
-      return true;
+
+      if (!BuildingScope.Context.Definition.Types.TryGetValue(fieldDef.ValueType, out typeDef))
+        throw new DomainBuilderException(
+          string.Format(Resources.Strings.ExTypeXIsNotRegisteredInTheModel, fieldDef.ValueType.FullName));
+
+      TypeBuilder.BuildType(typeDef);      
     }
 
     public static FieldInfo BuildInheritedField(TypeInfo type, FieldInfo ancsField)
@@ -146,10 +133,12 @@ namespace Xtensive.Storage.Building.Builders
       field.ReflectedType = type;
       field.DeclaringType = ancsField.DeclaringType;
       field.IsInherited = true;
+
       if (field.IsStructure || field.IsEntity)
         buildingContext.ComplexFields.Add(field);
-      else if (ancsField.Column!=null)
-        field.Column = ColumnBuilder.BuildInheritedColumn(field, ancsField.Column);
+      else 
+        if (ancsField.Column!=null)
+          field.Column = ColumnBuilder.BuildInheritedColumn(field, ancsField.Column);
 
       return field;
     }

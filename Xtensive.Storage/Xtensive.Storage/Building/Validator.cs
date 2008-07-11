@@ -27,7 +27,16 @@ namespace Xtensive.Storage.Building
     private static readonly Type stringType = typeof (string);
     private static readonly ValidationResult successResult = new ValidationResult(true);
 
-    public static ValidationResult ValidateName(string name, ValidationRule rule)
+
+    /// <summary>
+    /// Determines whether the specified name is valid.
+    /// </summary>
+    /// <param name="name">The name to validate.</param>
+    /// <param name="rule">The validation rule.</param>
+    /// <returns>
+    /// 	<see langword="true"/> if the specified name is valid; otherwise, <see langword="false"/>.
+    /// </returns>
+    public static bool IsNameValid(string name, ValidationRule rule)
     {
       switch (rule) {
       case ValidationRule.Type:
@@ -35,15 +44,12 @@ namespace Xtensive.Storage.Building
       case ValidationRule.Field:
       case ValidationRule.Column:
       case ValidationRule.Index:
-        if (string.IsNullOrEmpty(name))
-          return failureResult;
-        if (regexps.ContainsKey(rule)) {
-          Regex regexp = regexps[rule];
-          return regexp.IsMatch(name) ? successResult : failureResult;
-        }
-        return successResult;
+
+        return !string.IsNullOrEmpty(name) && regexps[rule].IsMatch(name);
       }
-      return failureResult;
+
+      throw new ArgumentOutOfRangeException("rule",
+        string.Format("Unknown validation rule '{0}'.", rule));
     }
 
 //    public static ValidationResult ValidateConverter(FieldDef field,  Type type)
@@ -151,22 +157,20 @@ namespace Xtensive.Storage.Building
       return length <= 0 ? failureResult : successResult;
     }
 
-    public static ValidationResult ValidateFillFactor(double fillFactor)
+
+    public static void ValidateFillFactor(double fillFactor)
     {
-      return
-        fillFactor >= 0 && fillFactor <= 1
-          ? successResult
-          : new ValidationResult(false,
-            string.Format(CultureInfo.CurrentCulture,
-              "Invalid fill factor '{0}'. Value must be between 0 and 1.",
-              fillFactor));
+      if (fillFactor < 0 || fillFactor > 1)   
+        throw new DomainBuilderException(
+          string.Format(Strings.ExInvalidFillFactorXValueMustBeBetween0And1, fillFactor));
     }
 
     public static ValidationResult ValidateAttribute(TypeDef typeDef, MappingAttribute attribute)
     {
       ArgumentValidator.EnsureArgumentNotNull(attribute, "attribute");
-      bool isRootEntity = attribute is EntityAttribute;
-      if (typeDef.IsStructure && isRootEntity)
+      bool isEntity = attribute is EntityAttribute;
+
+      if (typeDef.IsStructure && isEntity)
         return
           new ValidationResult(false,
             string.Format(CultureInfo.CurrentCulture,
@@ -203,15 +207,6 @@ namespace Xtensive.Storage.Building
       if (hierarchy.KeyFields.Count==0)
         return new ValidationResult(false,
           string.Format(CultureInfo.CurrentCulture, "Hierarchy '{0}' must contain at least one key field.", hierarchy.Root.Name));
-      return successResult;
-    }
-
-    public static ValidationResult ValidateLazyLoad(FieldInfo fieldInfo)
-    {
-      if (fieldInfo.IsPrimaryKey && fieldInfo.LazyLoad) {
-        return new ValidationResult(false,
-          string.Format(CultureInfo.CurrentCulture, "Field '{0}' can't be load on demand as it is included in primary key.", fieldInfo.Name));
-      }
       return successResult;
     }
 

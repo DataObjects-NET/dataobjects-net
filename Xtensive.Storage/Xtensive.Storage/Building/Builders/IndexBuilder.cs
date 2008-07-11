@@ -8,8 +8,8 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using Xtensive.Core;
-using Xtensive.Core.Collections;
 using Xtensive.Core.Diagnostics;
+using Xtensive.Storage;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Configuration;
@@ -22,33 +22,39 @@ namespace Xtensive.Storage.Building.Builders
   {
     public static void DefineIndexes(TypeDef typeDef)
     {
-      BuildingContext buildingContext = BuildingScope.Context;
-      Log.Info("Defining indexes.");
-      var indexes = new List<IndexDef>();
+      using(Log.InfoRegion("Defining indexes.")) {
 
-      var indexAttributes = typeDef.UnderlyingType.GetAttributes<IndexAttribute>(false);
-      foreach (IndexAttribute attribute in indexAttributes) {
-        using (var scope = new LogCaptureScope(buildingContext.Logger)) {
-          ValidationResult vr = Validator.ValidateAttribute(typeDef, attribute);
-          if (!vr.Success)
-            Log.Error(vr.Message);
-          else {
-            var index = new IndexDef();
-            AttributeProcessor.Process(index, attribute);
-            if (string.IsNullOrEmpty(index.Name) && index.KeyFields.Count > 0)
-              index.Name = BuildingScope.Context.NameProvider.BuildName(typeDef, index);
-            if (!scope.IsCaptured(LogEventTypes.Error))
-              indexes.Add(index);
+        var indexAttributes = typeDef.UnderlyingType.GetAttributes<IndexAttribute>(false);
+
+        foreach (IndexAttribute attribute in indexAttributes)
+          try {
+            DefineIndex(typeDef, attribute);
           }
-        }
+          catch (DomainBuilderException e) {
+            BuildingContext.Current.RegistError(e);
+          }
       }
-
-      foreach (IndexDef indexDef in indexes)
-        if (typeDef.Indexes.Contains(indexDef.Name))
-          Log.Error("Index with name '{0}' is already registered.", indexDef.Name);
-        else
-          typeDef.Indexes.Add(indexDef);
     }
+
+      private static void DefineIndex(TypeDef typeDef, IndexAttribute attribute)
+    {      
+      ValidationResult vr = Validator.ValidateAttribute(typeDef, attribute);
+      if (!vr.Success)
+        throw new DomainBuilderException(vr.Message);        
+      
+      IndexDef index = new IndexDef();
+      AttributeProcessor.Process(index, attribute);
+
+      if (string.IsNullOrEmpty(index.Name) && index.KeyFields.Count > 0)
+        index.Name = BuildingScope.Context.NameProvider.BuildName(typeDef, index);
+
+      if (typeDef.Indexes.Contains(index.Name))
+        throw new DomainBuilderException(
+          string.Format(Resources.Strings.IndexWithNameXIsAlreadyRegistered, index.Name));
+          
+      typeDef.Indexes.Add(index);
+    }
+
 
     public static IndexDef DefineForeignKey(TypeDef type, FieldDef field)
     {
@@ -63,7 +69,9 @@ namespace Xtensive.Storage.Building.Builders
     {
       BuildingContext buildingContext = BuildingScope.Context;
       foreach (HierarchyInfo hierarchy in buildingContext.Model.Hierarchies) {
+        
         CreateInterfaceIndexes(hierarchy);
+        
         switch(hierarchy.Schema) {
         case InheritanceSchema.Default:
           BuildClassTableIndexes(hierarchy.Root);
@@ -85,44 +93,50 @@ namespace Xtensive.Storage.Building.Builders
     {
       BuildingContext buildingContext = BuildingScope.Context;
       TypeDef rootDef = buildingContext.Definition.Types[hierarchy.Root.UnderlyingType];
-      foreach (var @interface in buildingContext.Model.Types.Find(TypeAttributes.Interface).Where(i => i.Hierarchy == hierarchy)) {
+
+
+      foreach (var @interface in buildingContext.Model.Types.Find(TypeAttributes.Interface).Where(i => i.Hierarchy==hierarchy)) {
+
         TypeDef interfaceDef = buildingContext.Definition.Types[@interface.UnderlyingType];
         IndexDef primaryIndexDefinition = rootDef.Indexes.Where(i => i.IsPrimary).First();
+        BuildVirtualPrimaryInterfaceIndex(@interface, primaryIndexDefinition);
 
-        // Build virtual primary interface index
-        using (var scope = new LogCaptureScope(buildingContext.Logger)) {
-          var index = BuildIndex(@interface, primaryIndexDefinition);
-          if (!scope.IsCaptured(LogEventTypes.Error)) {
-            @interface.Indexes.Add(index);
-            if ((@interface.Attributes & TypeAttributes.Materialized) != 0)
-              buildingContext.Model.RealIndexes.Add(index);
-          }
-        }
-        
         // Build virtual declared interface index
         foreach (IndexDef indexDescriptor in interfaceDef.Indexes)
-          using (var scope = new LogCaptureScope(buildingContext.Logger)) {
-            var index = BuildIndex(@interface, indexDescriptor);
-            if (!scope.IsCaptured(LogEventTypes.Error)) {
-              @interface.Indexes.Add(index);
-              if ((@interface.Attributes & TypeAttributes.Materialized) != 0)
-                buildingContext.Model.RealIndexes.Add(index);
-            }
-          }
+          BuildVirtualDeclaredInterfaceIndex(@interface, indexDescriptor);
+
         // Build virtual inherited interface index
-        foreach (var parent in @interface.GetInterfaces()) {
-          foreach (var parentIndex in parent.Indexes.Find(IndexAttributes.Primary, MatchType.None)) {
-            using (var scope = new LogCaptureScope(buildingContext.Logger)) {
-              var index = BuildInheritedIndex(@interface, parentIndex);
-              if (!scope.IsCaptured(LogEventTypes.Error)) {
-                @interface.Indexes.Add(index);
-                if ((@interface.Attributes & TypeAttributes.Materialized) != 0)
-                  buildingContext.Model.RealIndexes.Add(index);
-              }
-            }
-          }
-        }
+        foreach (var parent in @interface.GetInterfaces())
+          foreach (var parentIndex in parent.Indexes.Find(IndexAttributes.Primary, MatchType.None))
+            BuildVirtualInheritedInterfaceIndex(@interface, parentIndex);
       }
+    }
+
+    private static void BuildVirtualPrimaryInterfaceIndex(TypeInfo @interface, IndexDef primaryIndexDefinition)
+    {
+      var index = BuildIndex(@interface, primaryIndexDefinition);
+        
+      @interface.Indexes.Add(index);
+      if ((@interface.Attributes & TypeAttributes.Materialized) != 0)
+        BuildingScope.Context.Model.RealIndexes.Add(index);
+    }
+
+    private static void BuildVirtualDeclaredInterfaceIndex(TypeInfo @interface, IndexDef indexDescriptor)
+    {
+      var index = BuildIndex(@interface, indexDescriptor);
+      
+      @interface.Indexes.Add(index);
+      if ((@interface.Attributes & TypeAttributes.Materialized) != 0)
+        BuildingScope.Context.Model.RealIndexes.Add(index);           
+    }
+
+    private static void BuildVirtualInheritedInterfaceIndex(TypeInfo @interface, IndexInfo parentIndex)
+    {            
+      var index = BuildInheritedIndex(@interface, parentIndex);
+      
+      @interface.Indexes.Add(index);
+      if ((@interface.Attributes & TypeAttributes.Materialized) != 0)
+        BuildingScope.Context.Model.RealIndexes.Add(index);
     }
 
     private static void BuildInterfaceIndexes(HierarchyInfo hierarchy)
@@ -180,31 +194,18 @@ namespace Xtensive.Storage.Building.Builders
         return;
 
       BuildingContext buildingContext = BuildingScope.Context;
-      TypeDef typeDef = buildingContext.Definition.Types[type.UnderlyingType];
-      TypeInfo root = type.Hierarchy.Root;
+      TypeDef typeDef = buildingContext.Definition.Types[type.UnderlyingType];      
 
       IndexDef primaryIndexDefinition = typeDef.Indexes.Where(i => i.IsPrimary).FirstOrDefault();
       var indexDefinitions = typeDef.Indexes.Where(i => !i.IsPrimary).ToList();
 
       //Building primary index for root of the hierarchy
-      if (primaryIndexDefinition != null)
-        using (var scope = new LogCaptureScope(buildingContext.Logger)) {
-          var primaryIndex = BuildIndex(root, primaryIndexDefinition);
-          if (!scope.IsCaptured(LogEventTypes.Error)) {
-            type.Indexes.Add(primaryIndex);
-            buildingContext.Model.RealIndexes.Add(primaryIndex);
-          }
-        }
+      if (primaryIndexDefinition != null)        
+        BuildHierarchyPrimaryIndex(type, primaryIndexDefinition);        
 
       //Building declared indexes
-      foreach (IndexDef indexDescriptor in indexDefinitions)
-        using (var scope = new LogCaptureScope(buildingContext.Logger)) {
-          IndexInfo indexInfo = BuildIndex(type, indexDescriptor); 
-          if (!scope.IsCaptured(LogEventTypes.Error)) {
-            type.Indexes.Add(indexInfo);
-            buildingContext.Model.RealIndexes.Add(indexInfo);
-          }
-        }
+      foreach (IndexDef indexDescriptor in indexDefinitions)        
+        BuildDeclaredIndex(type, indexDescriptor);        
 
       //Building primary index for non root entities
       TypeInfo parent = type.GetAncestor();
@@ -245,7 +246,6 @@ namespace Xtensive.Storage.Building.Builders
       foreach (TypeInfo descendant in type.GetDescendants())
         BuildClassTableIndexes(descendant);
 
-
       //Process inherited indexes
       if (type.IsEntity) {
         var primaryIndex = type.Indexes.FindFirst(IndexAttributes.Primary | IndexAttributes.Real);
@@ -275,6 +275,22 @@ namespace Xtensive.Storage.Building.Builders
             type.Indexes.Add(virtualSecondaryIndex);
           }
       }
+    }
+
+    private static void BuildDeclaredIndex(TypeInfo type, IndexDef indexDescriptor)
+    {      
+      IndexInfo indexInfo = BuildIndex(type, indexDescriptor); 
+          
+      type.Indexes.Add(indexInfo);
+      BuildingScope.Context.Model.RealIndexes.Add(indexInfo);
+    }
+
+    private static void BuildHierarchyPrimaryIndex(TypeInfo type, IndexDef primaryIndexDefinition)
+    {      
+      var primaryIndex = BuildIndex(type.Hierarchy.Root, primaryIndexDefinition);
+          
+      type.Indexes.Add(primaryIndex);
+      BuildingScope.Context.Model.RealIndexes.Add(primaryIndex);
     }
 
     private static void BuildConcreteTableIndexes(TypeInfo type)
@@ -466,7 +482,7 @@ namespace Xtensive.Storage.Building.Builders
 
       Action<FieldInfo, IList<ColumnInfo>> columnsExtractor = null;
       columnsExtractor = delegate(FieldInfo field, IList<ColumnInfo> columns) {
-        if (field.Column == null) {
+        if (field.Column==null) {
           if (field.IsEntity)
             foreach (FieldInfo childField in field.Fields)
               columnsExtractor(childField, columns);
@@ -474,7 +490,6 @@ namespace Xtensive.Storage.Building.Builders
         else
           columns.Add(field.Column);
       };
-      
 
       // Adding key columns
       foreach (KeyValuePair<string, Direction> pair in indexDef.KeyFields) {
@@ -482,10 +497,10 @@ namespace Xtensive.Storage.Building.Builders
         IList<ColumnInfo> columns = new List<ColumnInfo>();
         columnsExtractor(fieldInfo, columns);
 
-        if (columns.Count == 0) {
-          Log.Error("Column '{0}' is not found.", pair.Key);
-          continue;
-        }
+        if (columns.Count==0)
+          throw new DomainBuilderException(
+            string.Format(Resources.Strings.ExColumnXIsNotFound, pair.Key));
+
         foreach (ColumnInfo column in columns)
           result.KeyColumns.Add(column, pair.Value);
       }
@@ -496,10 +511,10 @@ namespace Xtensive.Storage.Building.Builders
         IList<ColumnInfo> columns = new List<ColumnInfo>();
         columnsExtractor(fieldInfo, columns);
 
-        if (columns.Count == 0) {
-          Log.Error("Column '{0}' is not found.", fieldName);
-          continue;
-        }
+        if (columns.Count==0)
+          throw new DomainBuilderException(
+            string.Format(Resources.Strings.ExColumnXIsNotFound, fieldName));
+
         foreach (ColumnInfo column in columns)
           result.IncludedColumns.Add(column);
       }
@@ -539,10 +554,10 @@ namespace Xtensive.Storage.Building.Builders
           IList<ColumnInfo> columns = new List<ColumnInfo>();
           columnsExtractor(fieldInfo, columns);
 
-          if (columns.Count == 0) {
-            Log.Error("Field '{0}' is not found.", fieldName);
-            continue;
-          }
+          if (columns.Count==0)
+            throw new DomainBuilderException(
+              string.Format(Resources.Strings.ExColumnXIsNotFound, fieldName));
+
           foreach (ColumnInfo column in columns)
             if (!result.KeyColumns.ContainsKey(column))
               result.ValueColumns.Add(column);
@@ -551,7 +566,7 @@ namespace Xtensive.Storage.Building.Builders
       }
 
       result.Name = buildingContext.NameProvider.BuildName(typeInfo, result);
-      
+
       return result;
     }
 

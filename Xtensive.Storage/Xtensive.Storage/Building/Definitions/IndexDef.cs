@@ -80,9 +80,7 @@ namespace Xtensive.Storage.Building.Definitions
       get { return fillFactor; }
       set
       {
-        ValidationResult vr = Validator.ValidateFillFactor(value);
-        if (!vr.Success)
-          throw new ArgumentOutOfRangeException("value", value, vr.Message);
+        Validator.ValidateFillFactor(value);        
         fillFactor = value;
       }
     }
@@ -110,8 +108,8 @@ namespace Xtensive.Storage.Building.Definitions
     protected override void Validate(string nameToValidate)
     {
       base.Validate(nameToValidate);
-      if (!Validator.ValidateName(nameToValidate, ValidationRule.Index).Success)
-        throw new ArgumentOutOfRangeException(nameToValidate);
+      
+      Validator.IsNameValid(nameToValidate, ValidationRule.Index);      
     }
 
 

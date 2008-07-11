@@ -66,7 +66,8 @@ namespace Xtensive.Storage.Building.Builders
     {
       if (field.IsPrimitive || field.IsStructure) {
         if (!string.IsNullOrEmpty(attribute.PairTo))
-          Log.Error(string.Format("Invalid usage of 'PairTo' attribute."));
+          throw new DomainBuilderException(
+            string.Format(Strings.ExPairToAttributeCanNotBeUsedWithXField, field.Name));          
       }
       else
         field.PairTo = attribute.PairTo;
@@ -82,27 +83,29 @@ namespace Xtensive.Storage.Building.Builders
       KeyProviderAttribute ks =
         (KeyProviderAttribute)
           Attribute.GetCustomAttribute(hierarchy.KeyProvider, typeof (KeyProviderAttribute), true);
-      if (ks==null) {
-        Log.Error(string.Format("Key provider '{0}' should define at least one key field.", attribute.KeyProvider));
-        return;
-      }
-      if (attribute.KeyFields.Length!=ks.Fields.Length) {
-        Log.Error(
-          string.Format("Key provider '{0}' and hierarchy {1} key field amount mismatch.",
-            attribute.KeyProvider,
-            hierarchy.Root.Name));
-        return;
-      }
+
+      if (ks==null)
+        throw new DomainBuilderException(
+          string.Format(Strings.ExKeyProviderXShouldDefineAtLeastOneKeyField, attribute.KeyProvider));
+      
+      if (attribute.KeyFields.Length!=ks.Fields.Length)
+        throw new DomainBuilderException(
+          string.Format(Strings.ExKeyProviderXAndHierarchyYKeyFieldAmountMismatch, 
+          attribute.KeyProvider, hierarchy.Root.Name));
+      
       for (int index = 0; index < attribute.KeyFields.Length; index++) {
         Pair<string, Direction> result = ParseFieldName(attribute.KeyFields[index]);
         KeyField field = new KeyField(result.First, ks.Fields[index]);
 
-        if (!Validator.ValidateName(result.First, ValidationRule.Field).Success)
-          Log.Error(Strings.ExIndexFieldValidationError, attribute.KeyFields[index]);
-        else if (hierarchy.KeyFields.ContainsKey(field))
-          Log.Error(Strings.ExIndexAlreadyContainsField, attribute.KeyFields[index]);
-        else
-          hierarchy.KeyFields.Add(field, result.Second);
+        if (!Validator.IsNameValid(result.First, ValidationRule.Field))
+          throw new DomainBuilderException(
+            string.Format(Strings.ExIndexFieldXIsIncorrect, attribute.KeyFields[index]));        
+
+        if (hierarchy.KeyFields.ContainsKey(field))
+          throw new DomainBuilderException(
+            string.Format(Strings.ExIndexAlreadyContainsField, attribute.KeyFields[index]));
+        
+        hierarchy.KeyFields.Add(field, result.Second);
       }
     }
 
@@ -119,21 +122,26 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void ProcessLength(FieldDef field, FieldAttribute attribute)
     {
-      if (attribute.length!=null)
-        if (!Validator.ValidateLength(attribute.Length).Success)
-          Log.Error("Invalid 'Length' attribute");
-        else
-          field.Length = attribute.Length;
+      if (attribute.length==null)
+        return;
+
+      if (!Validator.ValidateLength(attribute.Length).Success)
+        throw new DomainBuilderException(
+          string.Format(Strings.ExInvalidLengthAttributeOnXField, field.Name));
+      
+      field.Length = attribute.Length;
     }
 
     private static void ProcessOnDelete(FieldDef field, FieldAttribute attribute)
     {
-      if (attribute.referentialAction!=null) {
-        if (!field.IsEntity)
-          Log.Error("Invalid 'OnDelete' attribute usage. Field is not entity reference.");
-        else
-          field.OnDelete = attribute.OnDelete;
-      }
+      if (attribute.referentialAction==null)
+        return;
+
+      if (!field.IsEntity)        
+        throw new DomainBuilderException(
+          string.Format(Strings.InvalidOnDeleteAttributeUsageOnFieldXFieldIsNotEntityReference, field.Name));
+
+      field.OnDelete = attribute.OnDelete;
     }
 
     private static void ProcessIsCollatable(FieldDef field, FieldAttribute attribute)
@@ -154,11 +162,12 @@ namespace Xtensive.Storage.Building.Builders
         if (field.UnderlyingProperty.PropertyType.IsGenericType &&
           field.UnderlyingProperty.PropertyType.GetGenericTypeDefinition()==typeof (Nullable<>))
           if (attribute.IsNullable)
-            Log.Warning("Explicit 'IsNullable' attribute is redundant");
+            Log.Warning(Strings.ExplicitIsNullableAttributeIsRedundant);
           else
-            Log.Error(
-              "Field has '{0}' type but is marked as not nullable.",
-              field.UnderlyingProperty.PropertyType.Name);
+            throw new DomainBuilderException(
+              string.Format(
+                Strings.ExFieldXHasYTypeButIsMarkedAsNotNullable,
+                field.Name, field.UnderlyingProperty.PropertyType.Name));
         else
           field.IsNullable = attribute.IsNullable;
     }
@@ -167,65 +176,74 @@ namespace Xtensive.Storage.Building.Builders
     {
       field.LazyLoad = attribute.LazyLoad;
       if (!field.IsPrimitive && field.LazyLoad) {
-        Log.Warning("Explicit 'LazyLoad' attribute is redundant");
+        Log.Warning(Strings.ExplicitLazyLoadAttributeOnFieldXIsRedundant, field.Name);
       }
     }
 
     private static void ProcessMappingName(MappingNode node, MappingAttribute attribute, ValidationRule rule)
     {
-      if (!String.IsNullOrEmpty(attribute.MappingName))
-        if (Validator.ValidateName(attribute.MappingName, rule).Success) {
-          if (comparer.Compare(node.MappingName, attribute.MappingName)==0)
-            Log.Warning(
-              "Explicit mapping name setting is redundant. The same name will be generated automatically.");
-          else
-            node.MappingName = attribute.MappingName;
-        }
-        else
-          Log.Error("Invalid mapping name '{0}'.", attribute.MappingName);
+      if (String.IsNullOrEmpty(attribute.MappingName))
+        return;
+
+      if (!Validator.IsNameValid(attribute.MappingName, rule))
+        throw new DomainBuilderException(
+          string.Format(Strings.InvalidMappingNameX, attribute.MappingName));
+
+      if (comparer.Compare(node.MappingName, attribute.MappingName)==0)
+        Log.Warning(
+          Strings.ExplicitMappingNameSettingIsRedundantTheSameNameXWillBeGeneratedAutomatically, node.MappingName);
+      else
+        node.MappingName = attribute.MappingName;
     }
 
     private static void ProcessKeyFields(string[] source, IDictionary<string, Direction> target)
     {
       if (source==null || source.Length==0)
-        Log.Error("Index must contain at least one field.");
-      else
-        for (int index = 0; index < source.Length; index++) {
-          Pair<string, Direction> result = ParseFieldName(source[index]);
-          if (!Validator.ValidateName(result.First, ValidationRule.Column).Success)
-            Log.Error(Strings.ExIndexFieldValidationError, source[index]);
-          else if (target.ContainsKey(result.First))
-            Log.Error(Strings.ExIndexAlreadyContainsField, source[index]);
-          else
-            target.Add(result.First, result.Second);
-        }
+        throw new DomainBuilderException(
+          string.Format(Strings.ExIndexMustContainAtLeastOneField));
+
+      for (int index = 0; index < source.Length; index++) {
+        Pair<string, Direction> result = ParseFieldName(source[index]);
+
+        if (!Validator.IsNameValid(result.First, ValidationRule.Column))
+          throw new DomainBuilderException(
+            string.Format(Strings.ExIndexFieldXIsIncorrect, source[index]));
+        
+        if (target.ContainsKey(result.First))
+          throw new DomainBuilderException(
+            string.Format(Strings.ExIndexAlreadyContainsField, source[index]));
+        
+        target.Add(result.First, result.Second);
+      }
     }
 
     private static void ProcessIncludedFields(string[] source, IList<string> target)
     {
       if (source==null || source.Length==0)
         return;
+
       for (int index = 0; index < source.Length; index++) {
         string fieldName = source[index];
 
-        if (!Validator.ValidateName(fieldName, ValidationRule.Column).Success)
-          Log.Error(Strings.ExIndexFieldValidationError, source[index]);
-        else if (target.Contains(fieldName))
-          Log.Error(Strings.ExIndexAlreadyContainsField, source[index]);
-        else
-          target.Add(fieldName);
+        if (!Validator.IsNameValid(fieldName, ValidationRule.Column))
+          throw new DomainBuilderException(
+            string.Format(Strings.ExIndexFieldXIsIncorrect, source[index]));
+        
+        if (target.Contains(fieldName))
+          throw new DomainBuilderException(
+            string.Format(Strings.ExIndexAlreadyContainsField, source[index]));
+        
+        target.Add(fieldName);
       }
     }    
 
     private static void ProcessFillFactor(IndexDef index, IndexAttribute attribute)
     {
-      if (attribute.fillFactor.HasValue) {
-        ValidationResult vr = Validator.ValidateFillFactor(attribute.FillFactor);
-        if (!vr.Success)
-          Log.Error(vr.Message);
-        else
-          index.FillFactor = attribute.FillFactor;
-      }
+      if (!attribute.fillFactor.HasValue)
+        return;
+
+      Validator.ValidateFillFactor(attribute.FillFactor);        
+      index.FillFactor = attribute.FillFactor;
     }
 
     private static Pair<string, Direction> ParseFieldName(string fieldName)

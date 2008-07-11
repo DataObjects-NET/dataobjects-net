@@ -60,6 +60,7 @@ namespace Xtensive.Storage.Building.Definitions
         throw new ArgumentOutOfRangeException("type", vr.Message);
 
       using (var scope = new LogCaptureScope(BuildingScope.Context.Logger)) {
+
         TypeDef typeDef = TypeBuilder.DefineType(type);
         if (scope.IsCaptured(LogEventTypes.Error))
           throw new DomainBuilderException(

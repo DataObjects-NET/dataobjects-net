@@ -101,20 +101,12 @@ namespace Xtensive.Storage.Building.Definitions
     /// <exception cref="ArgumentOutOfRangeException">Argument "name" is invalid.</exception>
     public IndexDef DefineIndex(string name)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
+      if (!Validator.IsNameValid(name, ValidationRule.Index))
+        throw new ArgumentOutOfRangeException("name", name, "Index name '{0}' is invalid.");
 
-      ValidationResult vr = Validator.ValidateName(name, ValidationRule.Index);
-      if (!vr.Success)
-        throw new ArgumentOutOfRangeException("name", name, vr.Message);
-
-      using (var scope = new LogCaptureScope(BuildingScope.Context.Logger)) {
-        var indexDef = new IndexDef {Name = name};
-        if (scope.IsCaptured(LogEventTypes.Error))
-          throw new DomainBuilderException(
-            "Some errors have been occurred during index definition process. See error log for details.");
-        indexes.Add(indexDef);
-        return indexDef;
-      }
+      IndexDef indexDef = new IndexDef {Name = name};    
+      indexes.Add(indexDef);
+      return indexDef;      
     }
 
     /// <summary>
@@ -132,14 +124,10 @@ namespace Xtensive.Storage.Building.Definitions
           string.Format("Property must be declared in type '{0}'.",
             UnderlyingType.FullName));
 
-      using (var scope = new LogCaptureScope(BuildingScope.Context.Logger)) {
-        FieldDef fieldDef = FieldBuilder.DefineField(this, property);
-        if (scope.IsCaptured(LogEventTypes.Error))
-          throw new DomainBuilderException(
-            "Some errors have been occurred during field definition process. See error log for details.");
-        fields.Add(fieldDef);
-        return fieldDef;
-      }
+            
+      FieldDef fieldDef = FieldBuilder.DefineField(this, property);
+      fields.Add(fieldDef);
+      return fieldDef;      
     }
 
     /// <summary>
@@ -151,15 +139,10 @@ namespace Xtensive.Storage.Building.Definitions
     public FieldDef DefineField(string name, Type valueType)
     {
       ArgumentValidator.EnsureArgumentNotNull(valueType, "type");
-
-      using (var scope = new LogCaptureScope(BuildingScope.Context.Logger)) {
-        FieldDef fieldDef = FieldBuilder.DefineField(this, name, valueType);
-        if (scope.IsCaptured(LogEventTypes.Error))
-          throw new DomainBuilderException(
-            "Some errors have been occurred during field definition process. See error log for details.");
-        fields.Add(fieldDef);
-        return fieldDef;
-      }
+            
+      FieldDef fieldDef = new FieldDef(valueType) {Name = name};
+      fields.Add(fieldDef);
+      return fieldDef; 
     }
 
     /// <summary>
@@ -169,7 +152,7 @@ namespace Xtensive.Storage.Building.Definitions
     protected override void Validate(string nameToValidate)
     {
       base.Validate(nameToValidate);
-      if (!Validator.ValidateName(nameToValidate, ValidationRule.Type).Success)
+      if (!Validator.IsNameValid(nameToValidate, ValidationRule.Type))
         throw new ArgumentOutOfRangeException(nameToValidate);
     }
 
@@ -189,8 +172,8 @@ namespace Xtensive.Storage.Building.Definitions
         Attributes = TypeAttributes.Structure;
       else
         Attributes = type.IsAbstract
-                       ? TypeAttributes.Entity | TypeAttributes.Abstract
-                       : TypeAttributes.Entity;
+          ? TypeAttributes.Entity | TypeAttributes.Abstract
+          : TypeAttributes.Entity;
       fields = new NodeCollection<FieldDef>();
       indexes = new NodeCollection<IndexDef>();
     }

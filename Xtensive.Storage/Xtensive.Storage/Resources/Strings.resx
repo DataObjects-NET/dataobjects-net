@@ -150,7 +150,7 @@
   <data name="ExIndexAlreadyContainsField" xml:space="preserve">
     <value>Index already contains field '{0}'.</value>
   </data>
-  <data name="ExIndexFieldValidationError" xml:space="preserve">
+  <data name="ExIndexFieldXIsIncorrect" xml:space="preserve">
     <value>Index field '{0}' is incorrect.</value>
   </data>
   <data name="ExTransactionRequired" xml:space="preserve">
@@ -243,13 +243,103 @@
   <data name="ExErrorsDuringStorageBuild" xml:space="preserve">
     <value>Some errors have been occurred during storage build. See error log for details.</value>
   </data>
+  <data name="ExKeyFieldXWasNotFoundInTypeY" xml:space="preserve">
+    <value>Key field '{0}' was not found in type '{1}'.</value>
+  </data>
+  <data name="ValueTypeMismatchForFieldX" xml:space="preserve">
+    <value>Value type mismatch for field '{0}'</value>
+  </data>
+  <data name="FieldWithNameXIsAlreadyRegistered" xml:space="preserve">
+    <value>Field with name '{0}' is already registered.</value>
+  </data>
+  <data name="FieldXIsAlreadyDefinedInTypeXOrItsAncestor" xml:space="preserve">
+    <value>Field {0} is already defined in type {1} or its ancestor.</value>
+  </data>
+  <data name="InterfaceXDoesNotBelongToXHierarchy" xml:space="preserve">
+    <value>Interface '{0}' does not belong to '{1}' hierarchy.</value>
+  </data>
+  <data name="TypeXDoesNotImplementYZField" xml:space="preserve">
+    <value>Type {0} does not implement '{1}.{2} field.'</value>
+  </data>
   <data name="ExConstraintViolation" xml:space="preserve">
     <value>Constraint violation: constraint {0} on field '{1}.{2}' of object '{3}' failed on value {4}.</value>
   </data>
   <data name="ValueCanNotBeRemovedEntity" xml:space="preserve">
     <value>Value can not be an entity that is already removed.</value>
   </data>
+  <data name="IndexedPropertiesAreNotSupported" xml:space="preserve">
+    <value>Indexed properties are not supported.</value>
+  </data>
+  <data name="ExTypeXIsNotRegisteredInTheModel" xml:space="preserve">
+    <value>Type '{0}' is not registered in the model.</value>
+  </data>
+  <data name="FieldXCanTBeLoadOnDemandAsItIsIncludedInPrimaryKey" xml:space="preserve">
+    <value>Field '{0}' can't be load on demand as it is included in primary key.</value>
+  </data>
+  <data name="TypeWithNameXIsAlreadyDefined" xml:space="preserve">
+    <value>Type with name '{0}' is already defined.</value>
+  </data>
+  <data name="TypeXIsAlreadyDefined" xml:space="preserve">
+    <value>Type '{0}' is already defined.</value>
+  </data>
+  <data name="IndexWithNameXIsAlreadyRegistered" xml:space="preserve">
+    <value>Index with name '{0}' is already registered.</value>
+  </data>
   <data name="TypeXWasNotRegisteredForActivation" xml:space="preserve">
     <value>Type '{0}' was not registered for activation</value>
+  </data>
+  <data name="ExTypeDefXIsAlreadyBelongsToHierarchyWithTheRootY" xml:space="preserve">
+    <value>TypeDef '{0}' is already belongs to hierarchy with the root = '{1}'.</value>
+  </data>
+  <data name="ExXDescendantIsAlreadyARootOfAnotherHierarchy" xml:space="preserve">
+    <value>'{0}' descendant is already a root of another hierarchy.</value>
+  </data>
+  <data name="PairedFieldXHasInsufficientTypeItShouldBeReferenceToEntityOrAEntitySet" xml:space="preserve">
+    <value>Paired field '{0}' has insufficient type. It should be reference to Entity or a EntitySet.</value>
+  </data>
+  <data name="ReferencedFieldXAndPairedFieldAreEqual" xml:space="preserve">
+    <value>Referenced field '{0}' and paired field are equal.</value>
+  </data>
+  <data name="ExPairedFieldXWasNotFoundInYType" xml:space="preserve">
+    <value>Paired field '{0}' was not found in '{1}' type.</value>
+  </data>
+  <data name="ExPairToAttributeCanNotBeUsedWithXField" xml:space="preserve">
+    <value>'PairTo' attribute can not be used with '{0}' field.</value>
+  </data>
+  <data name="ExKeyProviderXShouldDefineAtLeastOneKeyField" xml:space="preserve">
+    <value>Key provider '{0}' should define at least one key field.</value>
+  </data>
+  <data name="ExKeyProviderXAndHierarchyYKeyFieldAmountMismatch" xml:space="preserve">
+    <value>Key provider '{0}' and hierarchy {1} key field amount mismatch.</value>
+  </data>
+  <data name="ExInvalidLengthAttributeOnXField" xml:space="preserve">
+    <value>Invalid 'Length' attribute on '{0}' field.</value>
+  </data>
+  <data name="InvalidOnDeleteAttributeUsageOnFieldXFieldIsNotEntityReference" xml:space="preserve">
+    <value>Invalid 'OnDelete' attribute usage on field '{0}'. Field is not entity reference.</value>
+  </data>
+  <data name="ExplicitIsNullableAttributeIsRedundant" xml:space="preserve">
+    <value>Explicit 'IsNullable' attribute is redundant</value>
+  </data>
+  <data name="ExFieldXHasYTypeButIsMarkedAsNotNullable" xml:space="preserve">
+    <value>Field {0} has '{1}' type but is marked as not nullable.</value>
+  </data>
+  <data name="ExplicitLazyLoadAttributeOnFieldXIsRedundant" xml:space="preserve">
+    <value>Explicit 'LazyLoad' attribute on field '{0}' is redundant</value>
+  </data>
+  <data name="ExplicitMappingNameSettingIsRedundantTheSameNameXWillBeGeneratedAutomatically" xml:space="preserve">
+    <value>Explicit mapping name setting is redundant. The same name '{0}' will be generated automatically.</value>
+  </data>
+  <data name="InvalidMappingNameX" xml:space="preserve">
+    <value>Invalid mapping name '{0}'.</value>
+  </data>
+  <data name="ExIndexMustContainAtLeastOneField" xml:space="preserve">
+    <value>Index must contain at least one field.</value>
+  </data>
+  <data name="ExInvalidFillFactorXValueMustBeBetween0And1" xml:space="preserve">
+    <value>Invalid fill factor '{0}'. Value must be between 0 and 1.</value>
+  </data>
+  <data name="ExColumnXIsNotFound" xml:space="preserve">
+    <value>Column '{0}' is not found.</value>
   </data>
 </root>

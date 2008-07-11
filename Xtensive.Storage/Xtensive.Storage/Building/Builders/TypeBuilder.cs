@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Diagnostics;
@@ -23,31 +22,56 @@ namespace Xtensive.Storage.Building.Builders
   {
     public static TypeDef DefineType(Type type)
     {
-      BuildingContext buildingContext = BuildingScope.Context;
+      BuildingContext context = BuildingScope.Context;
 
       using (Log.InfoRegion(String.Format("Defining type '{0}'", type.FullName))) {
+
+        if (context.Definition.Types.Contains(type))
+          throw new DomainBuilderException(
+            string.Format(Resources.Strings.TypeXIsAlreadyDefined, type.FullName));
+
         TypeDef typeDef = new TypeDef(type);
 
-        var entityAttribute = type.GetAttribute<EntityAttribute>(true);
-        if (entityAttribute != null)
-          AttributeProcessor.Process(typeDef, entityAttribute);
+        ProcessEntityAtribute(type, typeDef);
+        ProcessMaterializedViewAttribute(type, typeDef);
 
-        var materializedViewAttribute =type.GetAttribute<MaterializedViewAttribute>(false);
-        if (materializedViewAttribute != null)
-          AttributeProcessor.Process(typeDef, materializedViewAttribute);
+        typeDef.Name = context.NameProvider.BuildName(typeDef);
 
-        typeDef.Name = buildingContext.NameProvider.BuildName(typeDef);
+        if (context.Definition.Types.Contains(typeDef.Name))
+          throw new DomainBuilderException(
+            string.Format(Resources.Strings.TypeWithNameXIsAlreadyDefined, typeDef.Name));
 
-        var fields = FieldBuilder.DefineFields(typeDef);
-        foreach (FieldDef fieldDef in fields) {
-          if (typeDef.Fields.Contains(fieldDef.Name))
-            Log.Error("Field with name '{0}' is already registered.", fieldDef.Name);
-          else
-            typeDef.Fields.Add(fieldDef);
-        }
+        DefineFields(typeDef);
 
         return typeDef;
       }
+    }
+
+    private static void DefineFields(TypeDef typeDef)
+    {
+      var fields = FieldBuilder.DefineFields(typeDef);
+
+      foreach (FieldDef fieldDef in fields) {
+        if (typeDef.Fields.Contains(fieldDef.Name))
+          throw new DomainBuilderException(
+            string.Format(Resources.Strings.FieldWithNameXIsAlreadyRegistered, fieldDef.Name));
+
+        typeDef.Fields.Add(fieldDef);
+      }
+    }
+
+    private static void ProcessMaterializedViewAttribute(Type type, TypeDef typeDef)
+    {
+      var materializedViewAttribute =type.GetAttribute<MaterializedViewAttribute>(false);
+      if (materializedViewAttribute != null)
+        AttributeProcessor.Process(typeDef, materializedViewAttribute);
+    }
+
+    private static void ProcessEntityAtribute(Type type, TypeDef typeDef)
+    {
+      var entityAttribute = type.GetAttribute<EntityAttribute>(true);
+      if (entityAttribute != null)
+        AttributeProcessor.Process(typeDef, entityAttribute);
     }
 
     public static void BuildType(TypeDef typeDef)
@@ -92,11 +116,11 @@ namespace Xtensive.Storage.Building.Builders
 
       BuildAnsector(typeDef);
 
-      using (Log.InfoRegion(String.Format("Building entity '{0}'", typeDef.UnderlyingType.FullName))) {
+      using (Log.InfoRegion(String.Format("Building entity '{0}'", typeDef.UnderlyingType.GetShortName()))) {
 
         TypeInfo type = CreateType(typeDef);
 
-        if (type.UnderlyingType == hierarchy.Root.UnderlyingType) {
+        if (type.UnderlyingType==hierarchy.Root.UnderlyingType) {
           ProcessSkippedAncestors(typeDef);
           BuildHierarchyRoot(type, typeDef, hierarchy);
           BuildSystemFields(type);
@@ -145,26 +169,31 @@ namespace Xtensive.Storage.Building.Builders
       if (type.GetAncestor() != null)
         return;
       var typeId = new FieldDef(typeof(int)) {Name = BuildingScope.Context.NameProvider.TypeId, IsSystem = true};
+      
       FieldInfo field = FieldBuilder.BuildDeclaredField(type, typeId);
-      type.Fields.Add(field);
+      type.Fields.Add(field);     
     }
 
     private static void BuildDeclaredFields(TypeInfo type, TypeDef srcType)
     {
-      foreach (FieldDef srcField in srcType.Fields) {
-        FieldInfo field;
-        if (type.Fields.TryGetValue(srcField.Name, out field)) {
-          if (type.Fields[srcField.Name].ValueType!=srcField.ValueType)
-            Log.Error("Field {0} is already defined in type {1} or its ancestor.", srcField.Name, type.Name);
-        }
-        else
-          using (var scope = new LogCaptureScope(BuildingScope.Context.Logger)) {
-            field = FieldBuilder.BuildDeclaredField(type, srcField);
-            if (!scope.IsCaptured(LogEventTypes.Error))
-              type.Fields.Add(field);
+      foreach (FieldDef srcField in srcType.Fields)
+        try {
+          FieldInfo field;
+          if (type.Fields.TryGetValue(srcField.Name, out field)) {
+            if (type.Fields[srcField.Name].ValueType!=srcField.ValueType)
+              throw new DomainBuilderException(
+                string.Format(Resources.Strings.FieldXIsAlreadyDefinedInTypeXOrItsAncestor, srcField.Name, type.Name));
           }
-      }
+          else {
+            field = FieldBuilder.BuildDeclaredField(type, srcField);
+            type.Fields.Add(field);
+          }
+        }
+        catch(DomainBuilderException e) {
+          BuildingContext.Current.RegistError(e);
+        }
     }
+
 
     private static void ProcessAncestor(TypeInfo type)
     {
@@ -176,11 +205,9 @@ namespace Xtensive.Storage.Building.Builders
         FieldInfo field;
         if (type.Fields.TryGetValue(srcField.Name, out field))
           continue;
-        using (var scope = new LogCaptureScope(BuildingScope.Context.Logger)) {
-          field = FieldBuilder.BuildInheritedField(type, srcField);
-          if (!scope.IsCaptured(LogEventTypes.Error))
-            type.Fields.Add(field);
-        }
+        
+        field = FieldBuilder.BuildInheritedField(type, srcField);      
+        type.Fields.Add(field);        
       }
       foreach (KeyValuePair<FieldInfo, FieldInfo> pair in ancestor.FieldMap)
         if (!pair.Value.IsExplicit)
@@ -193,54 +220,58 @@ namespace Xtensive.Storage.Building.Builders
         FieldInfo field;
         if (@interface.Fields.TryGetValue(ancsField.Name, out field))
           continue;
-        using (var scope = new LogCaptureScope(BuildingScope.Context.Logger)) {
-          field = FieldBuilder.BuildInheritedField(@interface, ancsField);
-          if (!scope.IsCaptured(LogEventTypes.Error)) {
-            @interface.Fields.Add(field);
-          }
-        }
+                
+        field = FieldBuilder.BuildInheritedField(@interface, ancsField);
+        @interface.Fields.Add(field);                  
       }
     }
 
     private static void BuildHierarchyRoot(TypeInfo type, TypeDef typeDef, HierarchyDef hierarchy)
-    {
-      foreach (KeyField keyField in hierarchy.KeyFields.Keys) {
-        FieldDef srcField;
-        if (!typeDef.Fields.TryGetValue(keyField.Name, out srcField))
-          Log.Error(String.Format("Key field '{0}' was not found in type '{1}'.", keyField.Name, typeDef.Name));
-        else if (srcField.ValueType != keyField.ValueType)
-          Log.Error("Value type mismatch for field '{0}'", keyField.Name);
-        else {
-          using (var scope = new LogCaptureScope(BuildingScope.Context.Logger)) {
-            FieldInfo field = FieldBuilder.BuildDeclaredField(type, srcField);
-            if (!scope.IsCaptured(LogEventTypes.Error)) {
-              field.IsPrimaryKey = true;
-              type.Fields.Add(field);
-            }
-          }
-        }
-      }
+    {      
+      foreach (KeyField keyField in hierarchy.KeyFields.Keys)
+        BuildHierarchyKeyField( typeDef, keyField, type);
+                 
       type.Hierarchy = HierarchyBuilder.BuildHierarchy(type, hierarchy);
 
-      IndexDef index = new IndexDef();
-      index.IsPrimary = true;
+      IndexDef index = new IndexDef {IsPrimary = true};
       index.Name = BuildingScope.Context.NameProvider.BuildName(typeDef, index);
       if (typeDef.Indexes.Contains(index.Name))
         return;
+
       foreach (KeyValuePair<KeyField, Direction> pair in hierarchy.KeyFields)
         index.KeyFields.Add(pair.Key.Name, pair.Value);
+
       typeDef.Indexes.Add(index);
+    }
+
+    private static void BuildHierarchyKeyField(TypeDef typeDef, KeyField keyField, TypeInfo typeInfo)
+    {
+      FieldDef srcField;
+
+      if (!typeDef.Fields.TryGetValue(keyField.Name, out srcField))
+        throw new DomainBuilderException(
+          string.Format(Resources.Strings.ExKeyFieldXWasNotFoundInTypeY, keyField.Name, typeDef.Name));
+
+      if (srcField.ValueType!=keyField.ValueType)
+        throw new DomainBuilderException(
+          string.Format(Resources.Strings.ValueTypeMismatchForFieldX, keyField.Name));
+
+      FieldInfo field = FieldBuilder.BuildDeclaredField(typeInfo, srcField);      
+
+      field.IsPrimaryKey = true;
+      typeInfo.Fields.Add(field);
     }
 
     private static TypeInfo BuildInterface(TypeDef typeDef, TypeInfo implementor)
     {
       BuildingContext buildingContext = BuildingScope.Context;
+
+      // EnsureBelongsToHierarchy
       TypeInfo type;
       if (buildingContext.Model.Types.TryGetValue(typeDef.UnderlyingType, out type))
-        if (type.Hierarchy!=implementor.Hierarchy) {
-          Log.Error("Interface '{0}' does not belong to '{1}' hierarchy.", type.Name, implementor.Hierarchy.Root.Name);
-          return null;
-        }
+        if (type.Hierarchy!=implementor.Hierarchy) 
+          throw new DomainBuilderException(
+            string.Format(Resources.Strings.InterfaceXDoesNotBelongToXHierarchy, type.Name, implementor.Hierarchy.Root.Name));
 
       if (buildingContext.SkippedTypes.Contains(typeDef.UnderlyingType))
         return null;
@@ -276,8 +307,10 @@ namespace Xtensive.Storage.Building.Builders
           FieldInfo implField;
           string explicitName = buildingContext.NameProvider.BuildExplicitName(type, fieldDef.Name);
           if (!implementor.Fields.TryGetValue(explicitName, out implField))
-            if (!implementor.Fields.TryGetValue(fieldDef.Name, out implField)) 
-              Log.Error("Type {0} does not implement '{1}.{2} field.'", implementor.Name, type.Name, fieldDef.Name);
+            if (!implementor.Fields.TryGetValue(fieldDef.Name, out implField))
+              throw new DomainBuilderException(
+                string.Format(Resources.Strings.TypeXDoesNotImplementYZField, implementor.Name, type.Name, fieldDef.Name));
+              
           if (implField != null) {
             FieldInfo field = FieldBuilder.BuildInterfaceField(type, implField, fieldDef);
             type.Fields.Add(field);
@@ -292,12 +325,13 @@ namespace Xtensive.Storage.Building.Builders
       foreach (FieldInfo field in @interface.Fields) {
         FieldInfo implField;
         string explicitName = BuildingScope.Context.NameProvider.BuildExplicitName(field.DeclaringType, field.Name);
-        if (!implementor.Fields.TryGetValue(explicitName, out implField)) {
+        if (!implementor.Fields.TryGetValue(explicitName, out implField)) 
           if (!implementor.Fields.TryGetValue(field.Name, out implField))
-            Log.Error("Type {0} does not implement '{1}.{2} field.'", implementor.Name, @interface.Name, field.Name);
-        }
+            throw new DomainBuilderException(
+              string.Format(Resources.Strings.TypeXDoesNotImplementYZField, implementor.Name, @interface.Name, field.Name));                    
         else
           implField.IsExplicit = true;
+
         implField.IsInterfaceImplementation = true;
 
         if (!implementor.FieldMap.ContainsKey(field))

@@ -151,7 +151,7 @@ namespace Xtensive.Storage.Tests.Model
   public class PlacementPolicyTest
   {
     [Test]
-    public void Default()
+    public void   Default()
     {
       DomainConfiguration configuration = new DomainConfiguration(@"memory://localhost/DefaultPlacement");
       configuration.Types.Register(typeof (A).Assembly, "Xtensive.Storage.Tests.Model.DefaultPlacement");

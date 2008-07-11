@@ -45,15 +45,13 @@ namespace Xtensive.Storage.Building
       BuildingContext buildingContext = new BuildingContext(configuration);
       buildingContext.NameProvider = new NameProvider(configuration.NamingConvention);
 
-      using (new BuildingScope(buildingContext)) {
-        using (var scope = new LogCaptureScope(BuildingScope.Context.Logger)) {
-          BuildModel();
-          BuildDomain();
-          BuildHandlerProvider();
-          BuildKeyProviders();
-          if (scope.IsCaptured(LogEventTypes.Error))
-            throw new DomainBuilderException(Strings.ExErrorsDuringStorageBuild);
-        }
+      using (new BuildingScope(buildingContext)) {        
+        BuildModel();
+        BuildDomain();
+        BuildHandlerProvider();
+        BuildKeyProviders();
+
+        buildingContext.EnsureBuildSucceed();
       }
       return buildingContext.Domain;
     }
@@ -88,14 +86,9 @@ namespace Xtensive.Storage.Building
     {
       Log.Info(Strings.LogBuildingKeyProviders);
       Registry<HierarchyInfo, IKeyProvider> providers = BuildingScope.Context.Domain.ExecutionContext.KeyProviders;
-      foreach (HierarchyInfo hierarchy in BuildingScope.Context.Model.Hierarchies) {
-        try {
-          IKeyProvider keyProvider = (IKeyProvider)Activator.CreateInstance(hierarchy.KeyProvider);
-          providers.Register(hierarchy, keyProvider);
-        }
-        catch (Exception ex) {
-          Log.Error(ex.ToString());
-        }
+      foreach (HierarchyInfo hierarchy in BuildingScope.Context.Model.Hierarchies) {        
+        IKeyProvider keyProvider = (IKeyProvider)Activator.CreateInstance(hierarchy.KeyProvider);
+        providers.Register(hierarchy, keyProvider);        
       }
       providers.Lock();
     }
@@ -107,21 +100,18 @@ namespace Xtensive.Storage.Building
       lock (pluginManager) {
         string protocol = execContext.Configuration.ConnectionInfo.Protocol;
         Type handlerProviderType = pluginManager[new HandlerProviderAttribute(protocol)];
+
         if (handlerProviderType==null)
           throw new DomainBuilderException(
             string.Format(Strings.ExStorageProviderNotFound,
               protocol,
               Environment.CurrentDirectory));
-        try {
-          Delegate costructorDelegate = DelegateHelper.CreateClassConstructorDelegate(handlerProviderType);
-          execContext.HandlerProvider = (HandlerProvider)costructorDelegate.DynamicInvoke();
-          execContext.DomainHandler = execContext.HandlerProvider.GetHandler<DomainHandler>();
-          execContext.DomainHandler.ExecutionContext = execContext;
-          execContext.DomainHandler.Build();
-        }
-        catch (Exception ex) {
-          Log.Error(ex.ToString());
-        }
+        
+        Delegate costructorDelegate = DelegateHelper.CreateClassConstructorDelegate(handlerProviderType);
+        execContext.HandlerProvider = (HandlerProvider)costructorDelegate.DynamicInvoke();
+        execContext.DomainHandler = execContext.HandlerProvider.GetHandler<DomainHandler>();
+        execContext.DomainHandler.ExecutionContext = execContext;
+        execContext.DomainHandler.Build();        
       }
     }
   }
