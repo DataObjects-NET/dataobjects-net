@@ -20,7 +20,7 @@ namespace Xtensive.Indexing.Measures
   [Serializable]
   public abstract class MeasureBase<TItem, TResult> : IMeasure<TItem, TResult>
   {
-    private readonly string name;
+    private string name;
     private readonly Converter<TItem, TResult> resultExtractor;
     private TResult result;
     private bool hasResult;
@@ -85,6 +85,15 @@ namespace Xtensive.Indexing.Measures
 
     /// <inheritdoc/>
     public abstract IMeasure<TItem> CreateNew();
+
+    /// <inheritdoc/>
+    public IMeasure<TItem> CreateNew(string newName)
+    {
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(newName, "newName");
+      MeasureBase<TItem, TResult> measure = (MeasureBase<TItem, TResult>)CreateNew();
+      measure.name = newName;
+      return measure;
+    }
 
     /// <inheritdoc/>
     public abstract IMeasure<TItem, TResult> CreateNew(TResult result);

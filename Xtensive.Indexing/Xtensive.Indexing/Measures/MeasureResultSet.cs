@@ -110,7 +110,7 @@ namespace Xtensive.Indexing.Measures
       int measureCount = (int) measures.Count;
       items = new List<IMeasure<TItem>>(measureCount);
       for (int index = 0, count = measureCount; index < count; index++)
-        items.Add(measures[index].CreateNew());
+        items.Add(measures[index].CreateNew(measures[index].Name));
     }
   }
 }

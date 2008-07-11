@@ -79,5 +79,11 @@ namespace Xtensive.Indexing.Measures
     /// Creates new instance of current measure.
     /// </summary>
     IMeasure<TItem> CreateNew();
+
+    /// <summary>
+    /// Creates new instance of current measure with the specified name.
+    /// </summary>
+    /// <param name="newName">The new measure name.</param>
+    IMeasure<TItem> CreateNew(string newName);
   }
 }

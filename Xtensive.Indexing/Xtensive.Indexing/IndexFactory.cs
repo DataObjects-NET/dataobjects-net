@@ -112,19 +112,10 @@ namespace Xtensive.Indexing
       Composite.IndexConfiguration<TKey, TItem> compositeConfig = configuration;
       IndexConfigurationBase<TKey,TItem> implConfig = configuration.UniqueIndexConfiguration;
 
-      // Shared measures
+      // Measures
       if (compositeConfig.Measures[CountMeasure<object, long>.CommonName] == null)
         compositeConfig.Measures.Add(new CountMeasure<TItem, long>());
 
-      long count = compositeConfig.Measures.Count;
-      for (int i = 0; i < count; i++)
-      {
-        IMeasure<TItem> measure = compositeConfig.Measures[i];
-        if (implConfig.Measures[measure.Name] == null)
-          implConfig.Measures.Add(measure);
-      }
-
-      // Segment configuration & measures
       int segmentNumber = 0;
       foreach (IndexSegmentConfiguration<TKey, TItem> segmentConfig in compositeConfig.Segments)
       {
@@ -134,15 +125,6 @@ namespace Xtensive.Indexing
 
         if (segmentConfig.Measures[CountMeasure<object, long>.CommonName] == null)
           segmentConfig.Measures.Add(new CountMeasure<TItem, long>());
-
-        count = compositeConfig.Measures.Count;
-        for (int i = 0; i < count; i++)
-        {
-          IMeasure<TItem> segmentMeasure = segmentConfig.Measures[i];
-          string implMeasureName = segmentConfig.SegmentName + segmentMeasure.Name;
-          //implConfig.Measures.Add(segmentMeasure);`
-          segmentConfig.MeasureMapping[segmentMeasure.Name] = implMeasureName;
-        }
       }
 
       if (implConfig.KeyExtractor == null)
@@ -150,7 +132,6 @@ namespace Xtensive.Indexing
         {
           CutInTransform<int> keyTransform = new CutInTransform<int>(false, compositeConfig.KeyExtractor(compositeItem).Count, compositeConfig.KeyExtractor(compositeItem).Descriptor, (int)compositeItem[compositeConfig.KeyExtractor(compositeItem).Count]);
           return (TKey) keyTransform.Apply(TupleTransformType.TransformedTuple, compositeConfig.KeyExtractor(compositeItem), (int) compositeItem[compositeConfig.KeyExtractor(compositeItem).Count]);
-            
         };
       if (implConfig.KeyComparer == null)
         implConfig.KeyComparer = compositeConfig.KeyComparer.Provider.GetComparer<TKey>();

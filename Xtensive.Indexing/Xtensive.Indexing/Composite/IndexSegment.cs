@@ -11,10 +11,14 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Indexing.Composite;
+using Xtensive.Indexing.Measures;
+using Xtensive.Indexing.Resources;
 
 namespace Xtensive.Indexing.Composite
 {
-  public class IndexSegment<TKey, TItem> : UniqueOrderedIndexBase<TKey, TItem> where TKey : Tuple where TItem : Tuple
+  public class IndexSegment<TKey, TItem> : UniqueOrderedIndexBase<TKey, TItem>
+    where TKey : Tuple
+    where TItem : Tuple
   {
     private CompositeIndex<TKey, TItem>                             compositeIndex;
     private string                                                  segmentName;
@@ -22,9 +26,10 @@ namespace Xtensive.Indexing.Composite
     private Converter<TKey, TKey>                                   keyConverter;
     private Converter<TItem,TItem>                                  itemConverter;
     private Converter<IEntire<TKey>, IEntire<TKey>>                 entireConverter;
-    private Dictionary<string, string>                              measureMapping;
+    private IMeasureResultSet<TItem>                                measureResults;
 
-    #region Properties: SegmentName, SegmentNumber, CompositeIndex, EntireConverter
+
+    #region Properties: SegmentName, SegmentNumber, CompositeIndex, EntireConverter,MeasureResults
 
     /// <summary>
     /// Gets the name of the segment.
@@ -62,6 +67,13 @@ namespace Xtensive.Indexing.Composite
       get { return entireConverter; }
     }
 
+
+    /// <inheritdoc/>
+    public IMeasureResultSet<TItem> MeasureResults
+    {
+      get { return measureResults; }
+    }
+
     #endregion
 
     #region GetItem, Contains, ContainsKey methods
@@ -96,15 +108,38 @@ namespace Xtensive.Indexing.Composite
       Ray<IEntire<TKey>> compositeRay = GetCompositeIndexRay(ray);
 
       SeekResult<TItem> result = compositeIndex.implementation.Seek(compositeRay);
-      if ((int) result.Result[compositeRay.Point.Value.Count]/*.SegmentNumber*/ == segmentNumber)
-        return new SeekResult<TItem>(result.ResultType, result.Result);
+      if (result.ResultType != SeekResultType.None) {
+        SeekResult<TItem> seekResult = new SeekResult<TItem>();
+        if ((int) result.Result[compositeRay.Point.Value.Count - 1]==segmentNumber) {
+          seekResult = new SeekResult<TItem>(result.ResultType, result.Result);
+          CutOutTransform itemTransform = new CutOutTransform(true, seekResult.Result.Descriptor, new Segment<int>(compositeRay.Point.Value.Count - 1, 1));
+          Tuple resultTuple = itemTransform.Apply(TupleTransformType.TransformedTuple, seekResult.Result);
+          return new SeekResult<TItem>(result.ResultType, (TItem) resultTuple);
+        }
+      }
+      IEntire<TKey> xPoint;
+      IEntire<TKey> yPoint;
 
-      throw new NotImplementedException();
-//      IndexSegmentReader<TKey, TItem> reader = new IndexSegmentReader<TKey, TItem>(this, ray.Direction);
-//      reader.MoveTo(ray.Point);
-//      if (reader.HasCurrent)
-//        return new SeekResult<TItem>(SeekResultType.Nearest, reader.Current);
-//      return new SeekResult<TItem>(SeekResultType.None, default(TItem));
+      if (compositeRay.Direction == Direction.Negative) {
+        xPoint = Entire<TKey>.Create(InfinityType.Negative);
+        yPoint = Entire<TKey>.Create(compositeRay.Point.Value, compositeRay.Point.ValueTypes);
+      }
+      else
+        if (compositeRay.Direction == Direction.Positive) {
+          yPoint = Entire<TKey>.Create(InfinityType.Positive);
+          xPoint = Entire<TKey>.Create(compositeRay.Point.Value, compositeRay.Point.ValueTypes);
+        }
+      else {
+        xPoint = Entire<TKey>.Create(compositeRay.Point.Value, compositeRay.Point.ValueTypes);
+        yPoint = xPoint;
+      }
+      
+      Range<IEntire<TKey>> readerRange = new Range<IEntire<TKey>>(xPoint, yPoint);
+      IndexSegmentReader<TKey, TItem> reader = new IndexSegmentReader<TKey, TItem>(this, readerRange);
+      reader.MoveTo(compositeRay.Point);
+      if (reader.MoveNext())
+        return new SeekResult<TItem>(SeekResultType.Nearest, reader.Current);
+      return new SeekResult<TItem>(SeekResultType.None, default(TItem));
     }
 
     /// <inheritdoc/>
@@ -121,12 +156,17 @@ namespace Xtensive.Indexing.Composite
     public override void Add(TItem item)
     {
       compositeIndex.implementation.Add(itemConverter(item));
+      measureResults.Add(item);
     }
 
     /// <inheritdoc/>
     public override bool Remove(TItem item)
     {
-      return compositeIndex.implementation.Remove(itemConverter(item));
+      bool result = compositeIndex.implementation.Remove(itemConverter(item));
+      if (result) 
+         measureResults.Subtract(item);
+      return result;
+      
     }
 
     /// <inheritdoc/>
@@ -138,7 +178,12 @@ namespace Xtensive.Indexing.Composite
     /// <inheritdoc/>
     public override bool RemoveKey(TKey key)
     {
-      return compositeIndex.implementation.RemoveKey(keyConverter(key));
+      bool result = compositeIndex.implementation.RemoveKey(keyConverter(key));
+      if (result) {
+        TItem item = itemConverter(GetItem(key));
+        measureResults.Subtract(item);
+      }
+      return result;
     }
 
     /// <inheritdoc/>
@@ -146,36 +191,32 @@ namespace Xtensive.Indexing.Composite
     {
       foreach (TItem item in this)
         Remove(item);
+      measureResults.Reset();
     }
 
     #endregion
 
     #region Measure related methods
 
-    private string GetCompositeIndexMeasureName(string name)
-    {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
-      string resolvedName;
-      if (!measureMapping.TryGetValue(name, out resolvedName))
-        throw new ArgumentOutOfRangeException("name", "Unknown measure."); // TODO: To resource
-      return resolvedName;
-    }
-
-    private string[] GetCompositeIndexMeasureNames(params string[] names)
-    {
-      string[] result = new string[names.Length];
-      for(int i = 0, count = names.Length; i < count; i++)
-        result[i] = GetCompositeIndexMeasureName(names[i]);
-
-      return result;
-    }
-
     /// <inheritdoc/>
     public override object GetMeasureResult(Range<IEntire<TKey>> range, string name)
     {
       Range<IEntire<TKey>> compositeRange = new Range<IEntire<TKey>>(
         entireConverter(range.EndPoints.First), entireConverter(range.EndPoints.Second));
-      return compositeIndex.implementation.GetMeasureResult(compositeRange, GetCompositeIndexMeasureName(name));
+      //string compositeName = GetCompositeIndexMeasureName(name);
+
+      IMeasure<TItem> measure = Measures[name];
+      if (measure == null)
+        throw new InvalidOperationException(String.Format(Strings.ExMeasureIsNotDefined, name));
+      if (compositeRange.IsEmpty)
+        return measure.CreateNew().Result;
+
+      if (range.Equals(this.GetFullRange()))
+        return measureResults[name].Result;
+
+      IMeasure<TItem> result = MeasureUtils<TItem>.BatchCalculate(measure, GetItems(compositeRange));
+      return result.Result;
+
     }
 
     /// <inheritdoc/>
@@ -183,19 +224,44 @@ namespace Xtensive.Indexing.Composite
     {
       Range<IEntire<TKey>> compositeRange = new Range<IEntire<TKey>>(
         entireConverter(range.EndPoints.First), entireConverter(range.EndPoints.Second));
-      return compositeIndex.implementation.GetMeasureResults(compositeRange,GetCompositeIndexMeasureNames(names));
+      
+     IMeasure<TItem> measure;
+     foreach (string name in names)
+      {
+        measure = Measures[name];
+        if (measure == null)
+          throw new InvalidOperationException(String.Format(Strings.ExMeasureIsNotDefined, name));
+      }
+
+      if (range.IsEmpty) {
+        object[] empty = new object[names.Length];
+        int i = 0;
+        foreach (string name in names)
+        {
+          measure = Measures[name];
+          empty[i++] = measure.CreateNew().Result;
+        }
+        return empty;
+      }
+
+      if (compositeRange.Equals(this.GetFullRange()))
+        return MeasureUtils<TItem>.GetMeasurements(measureResults, names);
+
+      IMeasureSet<TItem> measureSet = MeasureUtils<TItem>.GetMeasures(Measures, names);
+      IMeasureResultSet<TItem> result = MeasureUtils<TItem>.BatchCalculate(measureSet, GetItems(compositeRange));
+      return MeasureUtils<TItem>.GetMeasurements(result, names);
     }
 
     /// <inheritdoc/>
     public override object GetMeasureResult(string name)
     {
-      return compositeIndex.implementation.GetMeasureResult(GetCompositeIndexMeasureName(name));
+      return measureResults[name].Result;
     }
 
     /// <inheritdoc/>
     public override object[] GetMeasureResults(params string[] names)
     {
-      return compositeIndex.implementation.GetMeasureResults(GetCompositeIndexMeasureNames(names));
+      return MeasureUtils<TItem>.GetMeasurements(measureResults,names);
     }
 
     #endregion
@@ -225,19 +291,16 @@ namespace Xtensive.Indexing.Composite
       IndexSegmentConfiguration<TKey, TItem> indexConfiguration =
         (IndexSegmentConfiguration<TKey, TItem>)configuration;
       segmentName = indexConfiguration.SegmentName;
-      keyConverter = delegate(TKey key)
-      {
+      keyConverter = delegate(TKey key) {
         CutInTransform<int> keyTransform = new CutInTransform<int>(false, key.Count, key.Descriptor, segmentNumber);
         return (TKey) keyTransform.Apply(TupleTransformType.TransformedTuple, key, segmentNumber);
       };
-      itemConverter = delegate(TItem item)
-      {
+      itemConverter = delegate(TItem item) {
         Tuple key = KeyExtractor(item);
         CutInTransform<int> keyTransform = new CutInTransform<int>(false, key.Count, item.Descriptor, segmentNumber);
         return (TItem)keyTransform.Apply(TupleTransformType.TransformedTuple, item, segmentNumber);
       };
-      entireConverter = delegate(IEntire<TKey> entire)
-      {
+      entireConverter = delegate(IEntire<TKey> entire) {
         CutInTransform<int> entireTransform = new CutInTransform<int>(false, entire.Value.Count, entire.Value.Descriptor, segmentNumber);
         Tuple key = entireTransform.Apply(TupleTransformType.TransformedTuple, entire.Value, segmentNumber);
         EntireValueType[] valueType = new EntireValueType[entire.Count + 1];
@@ -246,7 +309,7 @@ namespace Xtensive.Indexing.Composite
         IEntire<TKey> result = Entire<TKey>.Create((TKey)key, valueType);
         return result;
       }; 
-      measureMapping = new Dictionary<string, string>(indexConfiguration.MeasureMapping);
+      measureResults = new MeasureResultSet<TItem>(Measures);
     }
 
 

@@ -6,6 +6,7 @@
 
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Tuples;
+using Xtensive.Indexing.Measures;
 
 namespace Xtensive.Indexing.Composite
 {
@@ -14,11 +15,14 @@ namespace Xtensive.Indexing.Composite
   /// </summary>
   /// <typeparam name="TKey">The type of the key.</typeparam>
   /// <typeparam name="TItem">The type of the item.</typeparam>
-  public class CompositeIndex<TKey, TItem>: ConfigurableBase<IndexConfiguration<TKey, TItem>> where TKey : Tuple where TItem : Tuple
+  public class CompositeIndex<TKey, TItem>: ConfigurableBase<IndexConfiguration<TKey, TItem>>
+    where TKey : Tuple
+    where TItem : Tuple
   {
     internal IUniqueOrderedIndex<TKey, TItem> implementation;
 
     private IndexSegmentSet<TKey, TItem> segments = new IndexSegmentSet<TKey, TItem>();
+
 
     /// <inheritdoc/>
     protected override void OnConfigured()

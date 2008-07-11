@@ -19,7 +19,9 @@ namespace Xtensive.Indexing.Composite
   /// <typeparam name="TKey">The type of the key.</typeparam>
   /// <typeparam name="TItem">The type of the Item.</typeparam>
   [Serializable]
-  public class IndexConfiguration<TKey, TItem> : UniqueIndexWrapperConfiguration<TKey, TItem, TKey, TItem> where TKey : Tuple where TItem : Tuple
+  public class IndexConfiguration<TKey, TItem> : UniqueIndexWrapperConfiguration<TKey, TItem, TKey, TItem> 
+    where TKey : Tuple 
+    where TItem : Tuple
   {
     private IndexSegmentConfigurationSet<TKey, TItem> segments = new IndexSegmentConfigurationSet<TKey, TItem>();
 

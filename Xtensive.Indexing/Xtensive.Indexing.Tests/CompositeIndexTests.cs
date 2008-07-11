@@ -23,7 +23,6 @@ namespace Xtensive.Indexing.Tests
     private static IInstanceGenerator<Tuple> instanceGenerator = InstanceGeneratorProvider.Default.GetInstanceGenerator<Tuple>();
 
     [Test]
-    [Explicit]
     public void TestConstruction()
     {
       AdvancedComparer<IEntire<Tuple>> comparer =
@@ -51,40 +50,34 @@ namespace Xtensive.Indexing.Tests
       Assert.IsNotNull(indexSegment1);
       Assert.IsNotNull(indexSegment2);
 
-      PopulateIndex(indexSegment1, indexSegment2);
-//      int count1 = (int) indexSegment1.Count;
-//      Assert.AreEqual(0, indexSegment2.Count);
-//      PopulateIndex(indexSegment2);
-//      int count2 = (int) indexSegment2.Count;
-//      Assert.AreEqual(count1, indexSegment1.Count);
-//      indexSegment1.Clear();
-//      Assert.AreEqual(0, indexSegment1.Count);
-//      Assert.AreEqual(count2, indexSegment2.Count);
-//      indexSegment2.Clear();
-//      Assert.AreEqual(0, indexSegment1.Count);
-//      Assert.AreEqual(0, indexSegment2.Count);
+      PopulateIndex(indexSegment1);
+      int count1 = (int) indexSegment1.Count;
+      Assert.AreEqual(0, indexSegment2.Count);
+      PopulateIndex(indexSegment2);
+      int count2 = (int) indexSegment2.Count;
+      Assert.AreEqual(count1, indexSegment1.Count);
+      indexSegment1.Clear();
+      Assert.AreEqual(0, indexSegment1.Count);
+      Assert.AreEqual(count2, indexSegment2.Count);
+      indexSegment2.Clear();
+      Assert.AreEqual(0, indexSegment1.Count);
+      Assert.AreEqual(0, indexSegment2.Count);
 
-//      PopulateIndex(indexSegment1);
-//      count1 = (int) indexSegment1.Count;
+      PopulateIndex(indexSegment1);
+      count1 = (int) indexSegment1.Count;
       IndexTest.TestIndex(indexSegment1,
                           new IndexTest.Configuration(RandomManager.CreateRandom(SeedVariatorType.CallingMethod), 100));
-//      Assert.AreEqual(count1, indexSegment1.Count);
 
     }
 
-    private static void PopulateIndex(IIndex<Tuple, Tuple> index1, IIndex<Tuple, Tuple> index2)
+    private static void PopulateIndex(IIndex<Tuple, Tuple> index)
     {
-      IEnumerator<Tuple> enumerator = instanceGenerator.GetInstances(RandomManager.CreateRandom(SeedVariatorType.CallingMethod), 5).GetEnumerator();
+      IEnumerator<Tuple> enumerator = instanceGenerator.GetInstances(RandomManager.CreateRandom(SeedVariatorType.CallingMethod), 100).GetEnumerator();
       while (enumerator.MoveNext())
       {
         Tuple item = enumerator.Current;
-        if (!index1.Contains(item))
-          index1.Add(item);
-        if (enumerator.MoveNext()) {
-          item = enumerator.Current;
-          if (!index2.Contains(item))
-            index2.Add(item);
-        }
+          if (!index.Contains(item))
+            index.Add(item);
       }
       
     }

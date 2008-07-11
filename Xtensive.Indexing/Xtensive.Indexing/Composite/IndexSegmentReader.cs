@@ -88,6 +88,7 @@ namespace Xtensive.Indexing.Composite
       this.range = range;
       reader = index.CompositeIndex.implementation.CreateReader(index.GetCompositeIndexRange(range));
     }
+    
 
     public void Dispose()
     {

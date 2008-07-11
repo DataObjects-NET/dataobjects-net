@@ -96,15 +96,15 @@ namespace Xtensive.Indexing.Tests
     {
       PopulateIndex(index);
       TryDumpIndex(index);
-//      Assert.Greater(index.Size, 0);
+      Assert.Greater(index.Size, 0);
       if (index is IUniqueOrderedIndex<TKey, TItem>)
         TestGetItems((IUniqueOrderedIndex<TKey, TItem>) index);
       TestIndexReader(index);
       TestEnumerable(index);
       TestContains(index);
-      //TestModification(index);
-      //TestSeek(index);
-      //TestRemovableIterator(index);
+      TestModification(index);
+      TestSeek(index);
+      TestRemovableIterator(index);
     }
 
 
@@ -112,10 +112,10 @@ namespace Xtensive.Indexing.Tests
     {
       Context<TKey, TItem> context = Scope<TKey, TItem>.CurrentContext;
       index.Clear();
-//      Assert.AreEqual(0, index.Count);
+      Assert.AreEqual(0, index.Count);
       foreach (TItem item in context.SortedItems)
         index.Add(item);
-//      Assert.AreEqual(context.SortedItems.Count, index.Count);
+      Assert.AreEqual(context.SortedItems.Count, index.Count);
     }
 
     private static void TestEnumerable<TKey, TItem>(IIndex<TKey, TItem> index)
