@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see license.
 
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Xtensive.Core;
 
@@ -60,6 +61,13 @@ namespace Xtensive.Sql.Dom.Dml
         ArgumentValidator.EnsureArgumentNotNull(c, "column");
         base.Add(c);
       }
+    }
+
+    public void AddRange(IEnumerable<SqlColumn> columns)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(columns, "columns");
+      foreach (SqlColumn c in columns)
+        base.Add(c);
     }
   }
 }

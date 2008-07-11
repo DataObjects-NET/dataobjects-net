@@ -6,6 +6,7 @@
 
 using System.Collections.Generic;
 using Xtensive.Core.Tuples;
+using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers;
@@ -14,6 +15,13 @@ namespace Xtensive.Storage.Providers.Sql.Providers
 {
   public class SqlProvider : ProviderImplementation
   {
+    private readonly SqlSelect sqlSelect;
+
+    public SqlSelect Select
+    {
+      get { return sqlSelect; }
+    }
+
     public override IEnumerator<Tuple> GetEnumerator()
     {
       throw new System.NotImplementedException();
@@ -22,9 +30,10 @@ namespace Xtensive.Storage.Providers.Sql.Providers
 
     // Constructor
 
-    public SqlProvider(RecordHeader header)
+    public SqlProvider(RecordHeader header, SqlSelect sqlSelect)
       : base(header)
     {
+      this.sqlSelect = sqlSelect;
     }
   }
 }

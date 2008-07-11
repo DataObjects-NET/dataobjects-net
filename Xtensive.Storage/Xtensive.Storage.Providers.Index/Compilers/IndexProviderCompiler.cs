@@ -18,11 +18,13 @@ namespace Xtensive.Storage.Providers.Index.Compilers
 {
   public class IndexProviderCompiler : ProviderCompiler<Rse.Providers.Declaration.IndexProvider>
   {
+    private ExecutionContext executionContext;
+
     protected override Provider Compile(Rse.Providers.Declaration.IndexProvider provider)
     {
       Provider result;
       var indexInfo = provider.Index;
-      var handler = (DomainHandler)SessionScope.Current.Session.ExecutionContext.DomainHandler;
+      var handler = (DomainHandler)executionContext.DomainHandler;
       if (!indexInfo.IsVirtual)
         result = new IndexProvider(provider.Header, indexInfo, handler.GetRealIndex);
       else {
@@ -30,14 +32,14 @@ namespace Xtensive.Storage.Providers.Index.Compilers
           var source = Compile(new Rse.Providers.Declaration.IndexProvider(indexInfo.BaseIndexes.First()));
           int columnIndex;
           if (indexInfo.IsPrimary) {
-            FieldInfo typeIDField = indexInfo.ReflectedType.Fields[SessionScope.Current.Session.ExecutionContext.NameProvider.TypeId];
+            FieldInfo typeIDField = indexInfo.ReflectedType.Fields[executionContext.NameProvider.TypeId];
             columnIndex = typeIDField.MappingInfo.Offset;
           }
           else
-            columnIndex = indexInfo.Columns.Select((c, i) => c.Field.Name==SessionScope.Current.Session.ExecutionContext.NameProvider.TypeId ? i : 0).Sum();
+            columnIndex = indexInfo.Columns.Select((c, i) => c.Field.Name==executionContext.NameProvider.TypeId ? i : 0).Sum();
           List<int> typeIDList = indexInfo.ReflectedType.GetDescendants(true).Select(info => info.TypeId).ToList();
           typeIDList.Add(indexInfo.ReflectedType.TypeId);
-          result = new FilterInheritorsProvider(source, columnIndex, SessionScope.Current.Session.ExecutionContext.Model.Types.Count, typeIDList.ToArray());
+          result = new FilterInheritorsProvider(source, columnIndex, executionContext.Model.Types.Count, typeIDList.ToArray());
         }
         else if ((indexInfo.Attributes & IndexAttributes.Union)!=0) {
           var sourceProviders = indexInfo.BaseIndexes.Select(index => Compile(new Rse.Providers.Declaration.IndexProvider(index))).ToArray();
@@ -64,6 +66,7 @@ namespace Xtensive.Storage.Providers.Index.Compilers
     public IndexProviderCompiler(Rse.Compilation.CompilerResolver resolver)
       : base(resolver)
     {
+      executionContext = ((CompilerResolver)resolver).ExecutionContext;
     }
   }
 }

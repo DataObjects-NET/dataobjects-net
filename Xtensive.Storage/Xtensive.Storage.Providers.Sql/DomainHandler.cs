@@ -17,6 +17,8 @@ using Xtensive.Sql.Dom.Database;
 using Xtensive.Sql.Dom.Database.Providers;
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Rse.Compilation;
+using Xtensive.Storage.Rse.Compilation.DefaultCompilers;
 using ColumnInfo=Xtensive.Storage.Model.ColumnInfo;
 using IndexInfo=Xtensive.Storage.Model.IndexInfo;
 using Xtensive.Storage.Providers.Sql.Resources;
@@ -51,6 +53,11 @@ namespace Xtensive.Storage.Providers.Sql
         model = Xtensive.Sql.Dom.Database.Model.Build(modelProvider);
         catalog = model.DefaultServer.Catalogs[catalogName];
       }
+    }
+
+    protected override CompilationContext GetCompilationContext()
+    {
+      return new CompilationContext(new CompilerResolver[] { new Compilers.CompilerResolver(ExecutionContext), new DefaultCompilerResolver() });
     }
 
     /// <summary>

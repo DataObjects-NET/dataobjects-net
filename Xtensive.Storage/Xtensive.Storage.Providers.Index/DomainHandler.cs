@@ -33,6 +33,11 @@ namespace Xtensive.Storage.Providers.Index
       }
     }
 
+    protected override CompilationContext GetCompilationContext()
+    {
+      return new CompilationContext(new CompilerResolver[] { new Compilers.CompilerResolver(ExecutionContext), new DefaultCompilerResolver() });
+    }
+
     private MapTransform BuildIndexTransform(IndexInfo indexInfo)
     {
       TupleDescriptor descriptor = TupleDescriptor.Create(indexInfo.Columns.Select(columnInfo => columnInfo.ValueType));
@@ -70,11 +75,6 @@ namespace Xtensive.Storage.Providers.Index
     internal MapTransform GetIndexTransform(IndexInfo indexInfo)
     {
       return indexTransforms[indexInfo];
-    }
-
-    public DomainHandler()
-    {
-      Compiler = new CompilationContext(new CompilerResolver[]{new Compilers.CompilerResolver(), new DefaultCompilerResolver()});
     }
   }
 }

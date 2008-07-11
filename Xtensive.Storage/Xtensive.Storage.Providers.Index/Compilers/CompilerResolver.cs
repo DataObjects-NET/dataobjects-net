@@ -7,5 +7,15 @@
 namespace Xtensive.Storage.Providers.Index.Compilers
 {
   public sealed class CompilerResolver : Rse.Compilation.CompilerResolver
-  {}
+  {
+    public ExecutionContext ExecutionContext { get; private set; }
+
+
+    // Constructor
+
+    public CompilerResolver(ExecutionContext context)
+    {
+      ExecutionContext = context;
+    }
+  }
 }

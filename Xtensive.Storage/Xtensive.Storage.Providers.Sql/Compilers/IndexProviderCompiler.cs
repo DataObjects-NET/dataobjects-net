@@ -5,52 +5,104 @@
 // Created:    2008.07.11
 
 using System;
+using System.Collections.Generic;
+using Xtensive.Sql.Dom.Database;
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Providers.Sql.Providers;
 using Xtensive.Storage.Providers.Sql.Resources;
+using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Declaration;
+using System.Linq;
+using SQL = Xtensive.Sql.Dom.Sql;
 
 namespace Xtensive.Storage.Providers.Sql.Compilers
 {
   public class IndexProviderCompiler : ProviderCompiler<IndexProvider>
   {
+    private readonly ExecutionContext executionContext;
+    private readonly DomainHandler domainHandler;
+
     protected override Provider Compile(IndexProvider provider)
     {
       var index = provider.Index;
+      SqlSelect query = BuildProviderQuery(index);
+      return new SqlProvider(new RecordHeader(index), query);
+    }
+
+    private SqlSelect BuildProviderQuery(IndexInfo index)
+    {
       if (index.IsVirtual) {
         if ((index.Attributes & IndexAttributes.Union) > 0)
-          return BuildUnionProvider(index);
+          return BuildUnionQuery(index);
         if ((index.Attributes & IndexAttributes.Join) > 0)
-          return BuildJoinProvider(index);
+          return BuildJoinQuery(index);
         if ((index.Attributes & IndexAttributes.Filtered) > 0)
-          return BuildFilteredProvider(index);
+          return BuildFilteredQuery(index);
         throw new NotSupportedException(String.Format(Strings.ExUnsupportedIndex, index.Name, index.Attributes));
       }
-      return BuildRealProvider(index);
-//      SqlTableRef tableRef = GetTableRef(index);
-//      return new QueryBuildResult(tableRef, null, tableRef, GetSqlColumns(index.Columns, tableRef));
+      return BuildTableQuery(index);
     }
 
-    private Provider BuildRealProvider(IndexInfo index)
+    private SqlSelect BuildTableQuery(IndexInfo index)
+    {
+      Table table = domainHandler.Catalog.DefaultSchema.Tables[index.ReflectedType.MappingName];
+      SqlTableRef tableRef = Xtensive.Sql.Dom.Sql.TableRef(table);
+      SqlSelect query = Xtensive.Sql.Dom.Sql.Select(tableRef);
+      query.Columns.AddRange(index.Columns.Select(c => (SqlColumn)tableRef.Columns[c.Name]));
+      return query;
+    }
+
+    private SqlSelect BuildUnionQuery(IndexInfo index)
+    {
+      var baseQueries = index.BaseIndexes.Select(i => BuildProviderQuery(i)).ToList();
+      SqlTable table = null;
+//      table.UnionJoin()
+
+      /*SqlTable table = null;
+            SqlExpression expression = null;
+            SqlTable primaryTable = null;
+            IEnumerable<SqlColumn> columns = null;
+            foreach (IndexInfo baseIndex in index.BaseIndexes) {
+              QueryBuildResult baseTable = BuildQueryParts(baseIndex);
+              if (table == null) {
+                table = baseTable.Table;
+                expression = baseTable.Expression;
+                primaryTable = baseTable.PrimaryTable;
+                columns = baseTable.Columns;
+              }
+              else {
+                table = table.UnionJoin(baseTable.Table);
+                expression = CombineExpression(expression, baseTable.Expression);
+              }
+            }
+            return new QueryBuildResult(table, expression, primaryTable, columns);*/
+
+
+      throw new NotImplementedException();
+    }
+
+    private SqlSelect BuildJoinQuery(IndexInfo index)
     {
       throw new NotImplementedException();
     }
 
-    private Provider BuildUnionProvider(IndexInfo index)
+    private SqlSelect BuildFilteredQuery(IndexInfo index)
     {
-      throw new NotImplementedException();
-    }
+      var descendants = new List<TypeInfo> {index.ReflectedType};
+      descendants.AddRange(index.ReflectedType.GetDescendants(true));
+      var typeIds = descendants.Select(t => t.TypeId).ToArray();
 
-    private Provider BuildJoinProvider(IndexInfo index)
-    {
-      throw new NotImplementedException();
-    }
-
-    private Provider BuildFilteredProvider(IndexInfo index)
-    {
-      throw new NotImplementedException();
+      var baseQuery = BuildProviderQuery(index.BaseIndexes[0]);
+      SqlColumn typeIdColumn = baseQuery.Columns[executionContext.Domain.NameProvider.TypeId];
+      SqlBinary inQuery = SQL.In(typeIdColumn, SQL.Array(typeIds));
+      SqlSelect query = SQL.Select(SQL.QueryRef(baseQuery));
+      query.Columns.AddRange(index.Columns.Select(c => baseQuery.Columns[c.Name]));
+      query.Where = inQuery;
+      
+      return query;
     }
 
 
@@ -59,6 +111,8 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
     public IndexProviderCompiler(Rse.Compilation.CompilerResolver resolver)
       : base(resolver)
     {
+      executionContext = ((CompilerResolver) resolver).ExecutionContext;
+      domainHandler = (DomainHandler)executionContext.DomainHandler;
     }
   }
 }

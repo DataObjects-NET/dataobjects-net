@@ -22,6 +22,14 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
+    /// Gets the name provider.
+    /// </summary>
+    public NameProvider NameProvider
+    {
+      get { return ExecutionContext.NameProvider; }
+    }
+
+    /// <summary>
     /// Gets the configuration.
     /// </summary>
     public DomainConfiguration Configuration
