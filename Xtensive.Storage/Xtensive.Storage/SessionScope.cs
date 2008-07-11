@@ -43,7 +43,7 @@ namespace Xtensive.Storage
     {
       Resource = session;
       ((IResource)Resource).AddConsumer(this);
-      compilationScope = Session.Domain.Handler.Compiler.Activate();
+      compilationScope = Session.ExecutionContext.DomainHandler.Compiler.Activate();
     }
 
     public override void Dispose()

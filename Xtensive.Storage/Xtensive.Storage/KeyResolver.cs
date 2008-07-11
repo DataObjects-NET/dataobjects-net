@@ -51,7 +51,7 @@ namespace Xtensive.Storage
     private static void ResolveKeyType(Key key)
     {
       Session session = Session.Current;
-      if (!session.Domain.Model.Types.FindDescendants(key.Hierarchy.Root).GetEnumerator().MoveNext())
+      if (!session.ExecutionContext.Model.Types.FindDescendants(key.Hierarchy.Root).GetEnumerator().MoveNext())
         key.Type = key.Hierarchy.Root;
       else
         key.ResolveType(session.Handler.FetchKey(key));

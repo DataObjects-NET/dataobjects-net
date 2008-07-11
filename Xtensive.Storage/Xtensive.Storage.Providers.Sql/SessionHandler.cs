@@ -188,7 +188,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     internal DomainHandler DomainHandler
     {
-      get { return ((DomainHandler)Session.Domain.Handler); }
+      get { return ((DomainHandler)ExecutionContext.DomainHandler); }
     }
 
     #endregion
@@ -204,8 +204,8 @@ namespace Xtensive.Storage.Providers.Sql
 
     private Tuple GetTuple(IDataRecord reader, SqlSelect select)
     {
-      var typeId = (int) reader[Session.Domain.NameProvider.TypeId];
-      TypeInfo actualType = DomainHandler.Domain.Model.Types[typeId];
+      var typeId = (int) reader[ExecutionContext.NameProvider.TypeId];
+      TypeInfo actualType = ExecutionContext.Model.Types[typeId];
       Tuple result = Tuple.Create(actualType.TupleDescriptor);
       for (int i = 0; i < actualType.Columns.Count; i++) {
         ColumnInfo column = actualType.Columns[i];
@@ -218,9 +218,8 @@ namespace Xtensive.Storage.Providers.Sql
 
     private SqlTableRef GetTableRef(IndexInfo index)
     {
-      var handler = (DomainHandler) Session.Domain.Handler;
       Table table;
-      if (!handler.RealIndexes.TryGetValue(index, out table))
+      if (!DomainHandler.RealIndexes.TryGetValue(index, out table))
         throw new InvalidOperationException(String.Format(Strings.ExTypeDoesntHavePrimaryIndex, index.Name));
       return Xtensive.Sql.Dom.Sql.TableRef(table);
     }
@@ -229,7 +228,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       if (connection==null || transaction==null || connection.State!=ConnectionState.Open) {
         var provider = new SqlConnectionProvider();
-        connection = provider.CreateConnection(DomainHandler.Domain.Configuration.ConnectionInfo.ToString()) as SqlConnection;
+        connection = provider.CreateConnection(ExecutionContext.Configuration.ConnectionInfo.ToString()) as SqlConnection;
         if (connection==null)
           throw new InvalidOperationException(Strings.ExUnableToCreateConnection);
         connection.Open();

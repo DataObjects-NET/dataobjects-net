@@ -165,7 +165,7 @@ namespace Xtensive.Storage
     /// </summary>
     protected Structure()
     {
-      type = Session.Domain.Model.Types[GetType()];
+      type = Session.ExecutionContext.Model.Types[GetType()];
       tuple = Tuple.Create(type.TupleDescriptor);
     }
 
@@ -176,7 +176,7 @@ namespace Xtensive.Storage
     /// <param name="field">The owner field that describes this instance.</param>
     protected Structure(Persistent owner, FieldInfo field)
     {
-      type = Session.Domain.Model.Types[GetType()];
+      type = Session.ExecutionContext.Model.Types[GetType()];
       this.owner = owner;
       this.field = field;
       tuple = new SegmentTransform(false, owner.Tuple.Descriptor, new Segment<int>(field.MappingInfo.Offset, field.MappingInfo.Length)).Apply(TupleTransformType.TransformedTuple, owner.Tuple);

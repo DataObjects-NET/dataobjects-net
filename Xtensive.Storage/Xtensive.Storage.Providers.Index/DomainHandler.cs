@@ -27,7 +27,7 @@ namespace Xtensive.Storage.Providers.Index
     public override void Build()
     {
       BuildRealIndexes();
-      foreach (IndexInfo indexInfo in Domain.Model.Types.SelectMany(type => type.Indexes)) {
+      foreach (IndexInfo indexInfo in ExecutionContext.Model.Types.SelectMany(type => type.Indexes)) {
         MapTransform transform = BuildIndexTransform(indexInfo);
         indexTransforms.Add(indexInfo, transform);
       }
@@ -42,7 +42,7 @@ namespace Xtensive.Storage.Providers.Index
 
     private void BuildRealIndexes()
     {
-      foreach (IndexInfo indexInfo in Domain.Model.RealIndexes) {
+      foreach (IndexInfo indexInfo in ExecutionContext.Model.RealIndexes) {
         var indexConfig = new IndexConfiguration<Tuple, Tuple>();
         DirectionCollection<ColumnInfo> orderingRule;
         if (indexInfo.IsUnique | indexInfo.IsPrimary)

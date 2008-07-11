@@ -96,9 +96,9 @@ namespace Xtensive.Storage
 
     internal void ResolveType(Tuple tuple)
     {
-      int columnIndex = Hierarchy.Root.Fields[Session.Current.Domain.NameProvider.TypeId].MappingInfo.Offset;
+      int columnIndex = Hierarchy.Root.Fields[Session.Current.ExecutionContext.NameProvider.TypeId].MappingInfo.Offset;
       int typeId = tuple.GetValue<int>(columnIndex);
-      Type = Session.Current.Domain.Model.Types[typeId];
+      Type = Session.Current.ExecutionContext.Model.Types[typeId];
     }
 
     /// <summary>
@@ -121,7 +121,7 @@ namespace Xtensive.Storage
     /// <returns>Newly created <see cref="Key"/> instance.</returns>
     public static Key Build(Type type, params object[] keyData)
     {
-      return Session.Current.Domain.KeyManager.Build(type, keyData);
+      return Session.Current.ExecutionContext.KeyManager.Build(type, keyData);
     }
 
     #region Equals & GetHashCode

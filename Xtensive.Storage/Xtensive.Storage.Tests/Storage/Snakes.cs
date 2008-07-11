@@ -288,28 +288,6 @@ namespace Xtensive.Storage.Tests
     }
 
     [Test]
-    public void TypeIdTest()
-    {
-      DomainConfiguration config = new DomainConfiguration("memory://localhost/Snakes");
-      config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.SnakeModel");
-
-      Domain domain = Domain.Build(config);
-      using (domain.OpenSession()) {
-        TypeInfo creatureTypeInfo = domain.Model.Types[typeof (Creature)];
-        Assert.AreNotEqual(null, creatureTypeInfo.Fields[domain.NameProvider.TypeId]);
-        Assert.IsTrue((creatureTypeInfo.Fields[domain.NameProvider.TypeId].Attributes & FieldAttributes.Declared) > 0);
-        Assert.IsTrue((creatureTypeInfo.Fields[domain.NameProvider.TypeId].Attributes & FieldAttributes.System) > 0);
-        Assert.IsTrue(creatureTypeInfo.Fields[domain.NameProvider.TypeId].IsSystem);
-
-        TypeInfo snakeTypeInfo = domain.Model.Types[typeof (Snake)];
-        Assert.AreNotEqual(null, snakeTypeInfo.Fields[domain.NameProvider.TypeId]);
-        Assert.IsTrue((snakeTypeInfo.Fields[domain.NameProvider.TypeId].Attributes & FieldAttributes.Inherited) > 0);
-        Assert.IsTrue((snakeTypeInfo.Fields[domain.NameProvider.TypeId].Attributes & FieldAttributes.System) > 0);
-        Assert.IsTrue(snakeTypeInfo.Fields[domain.NameProvider.TypeId].IsSystem);
-      }
-    }
-
-    [Test]
     public void HierarchyInfoTest()
     {
       DomainConfiguration config = new DomainConfiguration("memory://localhost/Snakes");

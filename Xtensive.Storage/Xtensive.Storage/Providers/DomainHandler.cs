@@ -8,7 +8,7 @@ using Xtensive.Storage.Rse.Compilation;
 
 namespace Xtensive.Storage.Providers
 {
-  public abstract class DomainHandler
+  public abstract class DomainHandler : HandlerBase
   {
     public abstract void Build();
 

@@ -20,7 +20,7 @@ namespace Xtensive.Storage.Providers.Index
   {
     protected override void Insert(EntityData data)
     {
-      var handler = (DomainHandler)Session.Domain.Handler;
+      var handler = (DomainHandler)ExecutionContext.DomainHandler;
       foreach (IndexInfo indexInfo in data.Type.AffectedIndexes) {
         var index = handler.GetRealIndex(indexInfo);
         var transform = handler.GetIndexTransform(indexInfo);
@@ -36,7 +36,7 @@ namespace Xtensive.Storage.Providers.Index
 
     protected override void Remove(EntityData data)
     {
-      var handler = (DomainHandler)Session.Domain.Handler;
+      var handler = (DomainHandler)ExecutionContext.DomainHandler;
       IndexInfo primaryIndex = data.Type.Indexes.PrimaryIndex;
       var indexProvider = new IndexProvider(primaryIndex);
       SeekResult<Tuple> result = indexProvider.GetService<IOrderedEnumerable<Tuple,Tuple>>().Seek(new Ray<IEntire<Tuple>>(Entire<Tuple>.Create(data.Key.Tuple)));

@@ -14,7 +14,6 @@ using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Resources;
-using TypeInfo=Xtensive.Storage.Model.TypeInfo;
 
 namespace Xtensive.Storage.Building
 {
@@ -27,10 +26,10 @@ namespace Xtensive.Storage.Building
       new PluginManager<HandlerProviderAttribute>(typeof (HandlerProvider), Environment.CurrentDirectory);
 
     /// <summary>
-    /// Builds the new <see cref="Storage"/> according to specified configuration.
+    /// Builds the new <see cref="Domain"/> according to specified configuration.
     /// </summary>
     /// <param name="configuration">The storage configuration.</param>
-    /// <returns>Newly created <see cref="Storage"/>.</returns>
+    /// <returns>Newly created <see cref="Domain"/>.</returns>
     /// <exception cref="ArgumentNullException">When <paramref name="configuration"/> is null.</exception>
     /// <exception cref="DomainBuilderException">When at least one error have been occurred 
     /// during storage building process.</exception>
@@ -49,7 +48,7 @@ namespace Xtensive.Storage.Building
       using (new BuildingScope(buildingContext)) {
         using (var scope = new LogCaptureScope(BuildingScope.Context.Logger)) {
           BuildModel();
-          BuildStorage();
+          BuildDomain();
           BuildHandlerProvider();
           BuildKeyProviders();
           if (scope.IsCaptured(LogEventTypes.Error))
@@ -75,19 +74,20 @@ namespace Xtensive.Storage.Building
         }
     }
 
-    private static void BuildStorage()
+    private static void BuildDomain()
     {
       Domain domain = new Domain();
-      domain.Configuration = BuildingScope.Context.Configuration;
-      domain.Model = BuildingScope.Context.Model;
-      domain.NameProvider = BuildingScope.Context.NameProvider;
+      domain.ExecutionContext = new ExecutionContext(domain);
+      domain.ExecutionContext.Configuration = BuildingScope.Context.Configuration;
+      domain.ExecutionContext.Model = BuildingScope.Context.Model;
+      domain.ExecutionContext.NameProvider = BuildingScope.Context.NameProvider;
       BuildingScope.Context.Domain = domain;
     }
 
     private static void BuildKeyProviders()
     {
       Log.Info(Strings.LogBuildingKeyProviders);
-      Registry<HierarchyInfo, IKeyProvider> providers = BuildingScope.Context.Domain.KeyProviders;
+      Registry<HierarchyInfo, IKeyProvider> providers = BuildingScope.Context.Domain.ExecutionContext.KeyProviders;
       foreach (HierarchyInfo hierarchy in BuildingScope.Context.Model.Hierarchies) {
         try {
           IKeyProvider keyProvider = (IKeyProvider)Activator.CreateInstance(hierarchy.KeyProvider);
@@ -103,9 +103,9 @@ namespace Xtensive.Storage.Building
     private static void BuildHandlerProvider()
     {
       Log.Info(Strings.LogBuildingHandlerProvider);
-      Domain domain = BuildingScope.Context.Domain;
+      ExecutionContext execContext = BuildingScope.Context.Domain.ExecutionContext;
       lock (pluginManager) {
-        string protocol = domain.Configuration.ConnectionInfo.Protocol;
+        string protocol = execContext.Configuration.ConnectionInfo.Protocol;
         Type handlerProviderType = pluginManager[new HandlerProviderAttribute(protocol)];
         if (handlerProviderType==null)
           throw new DomainBuilderException(
@@ -114,10 +114,10 @@ namespace Xtensive.Storage.Building
               Environment.CurrentDirectory));
         try {
           Delegate costructorDelegate = DelegateHelper.CreateClassConstructorDelegate(handlerProviderType);
-          domain.HandlerProvider = (HandlerProvider)costructorDelegate.DynamicInvoke();
-          domain.Handler = domain.HandlerProvider.GetHandler<DomainHandler>();
-          domain.Handler.Domain = domain;
-          domain.Handler.Build();
+          execContext.HandlerProvider = (HandlerProvider)costructorDelegate.DynamicInvoke();
+          execContext.DomainHandler = execContext.HandlerProvider.GetHandler<DomainHandler>();
+          execContext.DomainHandler.ExecutionContext = execContext;
+          execContext.DomainHandler.Build();
         }
         catch (Exception ex) {
           Log.Error(ex.ToString());

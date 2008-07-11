@@ -36,15 +36,24 @@ namespace Xtensive.Storage
     /// Gets the <see cref="Domain"/> to which this instance belongs.
     /// </summary>
     [DebuggerHidden]
-    public Domain Domain {
+    public Domain Domain
+    {
+      [SuppressContextActivation(typeof (Session))]
+      get { return ExecutionContext.Domain; }
+    }
+
+    [DebuggerHidden]
+    internal ExecutionContext ExecutionContext {
       [SuppressContextActivation(typeof (Session))]
       get;
       [SuppressContextActivation(typeof (Session))]
       private set; 
     }
 
+    [DebuggerHidden]
     internal WeakCache<Key, EntityData> IdentityMap
     {
+      [SuppressContextActivation(typeof (Session))]
       get { return identityMap; }
     }
 
@@ -87,9 +96,9 @@ namespace Xtensive.Storage
     public IEnumerable<T> All<T>() where T : Entity
     {
       Persist();
-      TypeInfo type = Domain.Model.Types[typeof (T)];
+      TypeInfo type = ExecutionContext.Model.Types[typeof (T)];
       foreach (Tuple tuple in Handler.Select(type)) {
-        Key key = Domain.KeyManager.BuildPrimaryKey(type.Hierarchy, tuple);
+        Key key = ExecutionContext.KeyManager.BuildPrimaryKey(type.Hierarchy, tuple);
         T item = key.Resolve<T>();
         if (item == null)
           throw new InvalidOperationException();
@@ -200,9 +209,11 @@ namespace Xtensive.Storage
 
     // Constructors
 
-    internal Session(Domain domain)
+    internal Session(ExecutionContext executionContext, SessionHandler handler, SessionConfiguration configuration)
     {
-      Domain = domain;
+      ExecutionContext = executionContext;
+      Handler = handler;
+      Configure(configuration);
     }
 
     /// <see cref="ClassDocTemplate.Dispose" copy="true"/>

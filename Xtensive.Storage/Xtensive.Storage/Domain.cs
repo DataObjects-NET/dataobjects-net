@@ -13,30 +13,20 @@ namespace Xtensive.Storage
 {
   public sealed class Domain
   {
-    private readonly Registry<HierarchyInfo, IKeyProvider> keyProviders = new Registry<HierarchyInfo, IKeyProvider>();
-    private readonly KeyManager keyManager;
-
     /// <summary>
-    /// Gets or sets the configuration.
+    /// Gets the domain model.
     /// </summary>
-    public DomainConfiguration Configuration { get; internal set; }
-
-    /// <summary>
-    /// Gets or sets the model.
-    /// </summary>
-    public DomainInfo Model { get; internal set; }
-
-    /// <summary>
-    /// Gets or sets the handler.
-    /// </summary>
-    public DomainHandler Handler { get; internal set; }
-
-    /// <summary>
-    /// Gets the key providers.
-    /// </summary>
-    public Registry<HierarchyInfo, IKeyProvider> KeyProviders
+    public DomainInfo Model 
     {
-      get { return keyProviders; }
+      get { return ExecutionContext.Model; }
+    }
+
+    /// <summary>
+    /// Gets the configuration.
+    /// </summary>
+    public DomainConfiguration Configuration
+    {
+      get { return ExecutionContext.Configuration; }
     }
 
     /// <summary>
@@ -44,15 +34,13 @@ namespace Xtensive.Storage
     /// </summary>
     public KeyManager KeyManager
     {
-      get { return keyManager; }
+      get { return ExecutionContext.KeyManager; }
     }
 
-    internal HandlerProvider HandlerProvider { get; set; }
-
     /// <summary>
-    /// Gets or sets the name provider.
+    /// Gets the execution context.
     /// </summary>
-    public NameProvider NameProvider { get; internal set; }
+    internal ExecutionContext ExecutionContext { get; set; }
 
     /// <summary>
     /// Creates the session.
@@ -71,12 +59,10 @@ namespace Xtensive.Storage
     /// <returns>New <see cref="SessionScope"/> object.</returns>
     public SessionScope OpenSession(SessionConfiguration configuration)
     {
-      Session session = new Session(this);
-      session.Configure(configuration);
-      SessionHandler sessionHandler = HandlerProvider.GetHandler<SessionHandler>();
-      sessionHandler.Session = session;
-      session.Handler = sessionHandler;
-      return new SessionScope(session);
+      SessionHandler handler = ExecutionContext.HandlerProvider.GetHandler<SessionHandler>();
+      handler.ExecutionContext = ExecutionContext;
+      handler.Session = new Session(ExecutionContext, handler, configuration);
+      return new SessionScope(handler.Session);
     }
 
     /// <summary>
@@ -105,7 +91,6 @@ namespace Xtensive.Storage
 
     internal Domain()
     {
-      keyManager = new KeyManager(this);
     }
   }
 }

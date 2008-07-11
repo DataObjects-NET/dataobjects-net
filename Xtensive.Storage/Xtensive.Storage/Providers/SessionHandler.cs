@@ -14,7 +14,7 @@ using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Providers
 {
-  public abstract class SessionHandler
+  public abstract class SessionHandler : HandlerBase
   {
     /// <summary>
     /// Gets the current <see cref="Session"/>.

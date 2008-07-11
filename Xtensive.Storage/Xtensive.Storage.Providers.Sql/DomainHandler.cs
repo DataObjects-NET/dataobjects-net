@@ -35,13 +35,13 @@ namespace Xtensive.Storage.Providers.Sql
     public override void Build()
     {
       var provider = new SqlConnectionProvider();
-      using (connection = provider.CreateConnection(Domain.Configuration.ConnectionInfo.ToString()) as SqlConnection) {
+      using (connection = provider.CreateConnection(ExecutionContext.Configuration.ConnectionInfo.ToString()) as SqlConnection) {
         if (connection==null)
           throw new InvalidOperationException(Strings.ExUnableToCreateConnection);
         connection.Open();
         var modelProvider = new SqlModelProvider(connection);
         model = Xtensive.Sql.Dom.Database.Model.Build(modelProvider);
-        string catalogName = Domain.Configuration.ConnectionInfo.Resource;
+        string catalogName = ExecutionContext.Configuration.ConnectionInfo.Resource;
         catalog = model.DefaultServer.Catalogs[catalogName];
         using (transaction = connection.BeginTransaction()) {
           ClearCatalog();
@@ -177,7 +177,7 @@ namespace Xtensive.Storage.Providers.Sql
       IEnumerable<TypeInfo> descendants = index.ReflectedType.GetDescendants(true).Union(Enumerable.Repeat(index.ReflectedType, 1));
       IEnumerable<int> descendantTypes = descendants.Convert(typeInfo => typeInfo.TypeId);
       int[] typeIds = descendantTypes.ToArray();
-      SqlTableColumn typeIdColumn = buildResult.Table.Columns[Domain.NameProvider.TypeId];
+      SqlTableColumn typeIdColumn = buildResult.Table.Columns[ExecutionContext.NameProvider.TypeId];
       SqlArray<int> typIdValues = Xtensive.Sql.Dom.Sql.Array(typeIds);
       SqlBinary inQuery = Xtensive.Sql.Dom.Sql.In(typeIdColumn, typIdValues);
       SqlExpression expression = CombineExpression(buildResult.Expression, inQuery);
@@ -211,7 +211,7 @@ namespace Xtensive.Storage.Providers.Sql
           table = table.LeftOuterJoin(baseTable.Table, joinExpression);
           expression = CombineExpression(expression, baseTable.Expression);
           IEnumerable<SqlColumn> nonKeyColumns = baseTable.Columns.Skip(baseIndex.KeyColumns.Count);
-          IEnumerable<SqlColumn> dataColumns = nonKeyColumns.Where(sqlColumn => sqlColumn.Name != Domain.NameProvider.TypeId);
+          IEnumerable<SqlColumn> dataColumns = nonKeyColumns.Where(sqlColumn => sqlColumn.Name != ExecutionContext.NameProvider.TypeId);
           columns = columns.Union(dataColumns);
         }
       }
@@ -279,7 +279,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       SqlBatch batch = Xtensive.Sql.Dom.Sql.Batch();
       // Build tables
-      foreach (TypeInfo type in Domain.Model.Types) {
+      foreach (TypeInfo type in ExecutionContext.Model.Types) {
         IndexInfo primaryIndex = type.Indexes.FindFirst(IndexAttributes.Real | IndexAttributes.Primary);
         if (primaryIndex!=null && !realIndexes.ContainsKey(primaryIndex)) {
           Table table = catalog.DefaultSchema.CreateTable(primaryIndex.ReflectedType.Name);
