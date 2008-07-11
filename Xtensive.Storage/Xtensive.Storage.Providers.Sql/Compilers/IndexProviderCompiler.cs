@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Database;
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Model;
@@ -57,31 +58,28 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
 
     private SqlSelect BuildUnionQuery(IndexInfo index)
     {
+      ISqlQueryExpression result = null;
+
       var baseQueries = index.BaseIndexes.Select(i => BuildProviderQuery(i)).ToList();
-      SqlTable table = null;
-//      table.UnionJoin()
+      foreach (var baseQuery in baseQueries) {
+        SqlSelect select = SQL.Select(SQL.QueryRef(baseQuery));
+        foreach (var columnInfo in index.Columns) {
+          var column = baseQuery.Columns[columnInfo.Name];
+          if (SqlExpression.IsNull(column))
+            select.Columns.Add(SQL.Null, columnInfo.Name);
+          else
+            select.Columns.Add(column);
+        }
+        if (result == null)
+          result = select;
+        else
+          result = result.Union(select);
+      }
 
-      /*SqlTable table = null;
-            SqlExpression expression = null;
-            SqlTable primaryTable = null;
-            IEnumerable<SqlColumn> columns = null;
-            foreach (IndexInfo baseIndex in index.BaseIndexes) {
-              QueryBuildResult baseTable = BuildQueryParts(baseIndex);
-              if (table == null) {
-                table = baseTable.Table;
-                expression = baseTable.Expression;
-                primaryTable = baseTable.PrimaryTable;
-                columns = baseTable.Columns;
-              }
-              else {
-                table = table.UnionJoin(baseTable.Table);
-                expression = CombineExpression(expression, baseTable.Expression);
-              }
-            }
-            return new QueryBuildResult(table, expression, primaryTable, columns);*/
-
-
-      throw new NotImplementedException();
+      var unionRef = SQL.QueryRef(result);
+      SqlSelect query = SQL.Select(unionRef);
+      query.Columns.AddRange(unionRef.Columns.Select(column => (SqlColumn)column));
+      return query;
     }
 
     private SqlSelect BuildJoinQuery(IndexInfo index)
