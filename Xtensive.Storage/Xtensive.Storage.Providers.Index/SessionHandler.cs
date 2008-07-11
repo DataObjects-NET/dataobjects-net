@@ -20,8 +20,7 @@ namespace Xtensive.Storage.Providers.Index
   {
     protected override void Insert(EntityData data)
     {
-      Index.DomainHandler handler = (Index.DomainHandler)Session.Domain.Handler;
-
+      var handler = (DomainHandler)Session.Domain.Handler;
       foreach (IndexInfo indexInfo in data.Type.AffectedIndexes) {
         var index = handler.GetRealIndex(indexInfo);
         var transform = handler.GetIndexTransform(indexInfo);
@@ -37,8 +36,7 @@ namespace Xtensive.Storage.Providers.Index
 
     protected override void Remove(EntityData data)
     {
-      Index.DomainHandler handler = (Index.DomainHandler)Session.Domain.Handler;
-
+      var handler = (DomainHandler)Session.Domain.Handler;
       IndexInfo primaryIndex = data.Type.Indexes.PrimaryIndex;
       var indexProvider = new IndexProvider(primaryIndex);
       SeekResult<Tuple> result = indexProvider.GetService<IOrderedEnumerable<Tuple,Tuple>>().Seek(new Ray<IEntire<Tuple>>(Entire<Tuple>.Create(data.Key.Tuple)));
@@ -55,7 +53,6 @@ namespace Xtensive.Storage.Providers.Index
 
     public override Tuple Fetch(Key key, IEnumerable<ColumnInfo> columns)
     {
-      Index.DomainHandler handler = (Index.DomainHandler)Session.Domain.Handler;
       var index = new IndexProvider(key.Type.Indexes.PrimaryIndex);
       SeekResult<Tuple> seek = index.GetService<IOrderedEnumerable<Tuple, Tuple>>().Seek(new Ray<IEntire<Tuple>>(Entire<Tuple>.Create(key.Tuple)));
       if (seek.ResultType!=SeekResultType.Exact)
@@ -69,7 +66,6 @@ namespace Xtensive.Storage.Providers.Index
       IndexInfo indexInfo = primaryIndex.IsVirtual && (primaryIndex.Attributes & IndexAttributes.Union) == 0
         ? primaryIndex.BaseIndexes[0]
         : primaryIndex;
-      Index.DomainHandler handler = (Index.DomainHandler)Session.Domain.Handler;
       var index = new IndexProvider(indexInfo);
       SeekResult<Tuple> seek = index.GetService<IOrderedEnumerable<Tuple, Tuple>>().Seek(new Ray<IEntire<Tuple>>(Entire<Tuple>.Create(key.Tuple)));
       if (seek.ResultType != SeekResultType.Exact)

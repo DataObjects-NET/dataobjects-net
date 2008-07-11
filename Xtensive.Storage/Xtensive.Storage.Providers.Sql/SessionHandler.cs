@@ -23,7 +23,7 @@ using Xtensive.Storage.Rse.Providers.Declaration;
 
 namespace Xtensive.Storage.Providers.Sql
 {
-  public class SessionHandler : Providers.SessionHandler
+  public class SessionHandler : Storage.Providers.SessionHandler
   {
     private SqlConnection connection;
     private DbTransaction transaction;
@@ -32,7 +32,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     protected override void Insert(EntityData data)
     {
-      EnsureConnection();
+      EnsureConnectionIsOpen();
       IncreaseVersion(data.Type.AffectedIndexes);
       SqlBatch batch = Xtensive.Sql.Dom.Sql.Batch();
       foreach (IndexInfo primaryIndex in GetParentPrimaryIndexes(data.Type.Indexes.PrimaryIndex)) {
@@ -51,7 +51,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     public override Tuple Fetch(Key key, IEnumerable<ColumnInfo> columns)
     {
-      EnsureConnection();
+      EnsureConnectionIsOpen();
       IndexInfo primaryIndex = key.Type.Indexes.PrimaryIndex;
       SqlSelect select = BuildQuery(primaryIndex, columns);
       select.Where = DomainHandler.GetWhereStatement(select.Columns[0].SqlTable, GetStatementMapping(primaryIndex, columnInfo => columnInfo.IsPrimaryKey), key);
@@ -83,7 +83,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     protected override void Remove(EntityData data)
     {
-      EnsureConnection();
+      EnsureConnectionIsOpen();
       IncreaseVersion(data.Key.Type.AffectedIndexes);
       SqlBatch batch = Xtensive.Sql.Dom.Sql.Batch();
       int tableCount = 0;
@@ -105,7 +105,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     protected override void Update(EntityData data)
     {
-      EnsureConnection();
+      EnsureConnectionIsOpen();
       SqlBatch batch = Xtensive.Sql.Dom.Sql.Batch();
       IncreaseVersion(data.Type.AffectedIndexes);
       foreach (IndexInfo primaryIndex in GetRealPrimaryIndexes(data.Type.Indexes.PrimaryIndex)) {
@@ -125,7 +125,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     public override IEnumerable<Tuple> Select(TypeInfo type, IEnumerable<ColumnInfo> columns)
     {
-      EnsureConnection();
+      EnsureConnectionIsOpen();
       var results = new List<Tuple>();
       IndexInfo primaryIndex = type.Indexes.PrimaryIndex;
       SqlSelect select = BuildQuery(primaryIndex, columns);
@@ -166,7 +166,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     internal int ExecuteNonQuery(ISqlCompileUnit statement)
     {
-      EnsureConnection();
+      EnsureConnectionIsOpen();
       using (var command = new SqlCommand(connection)) {
         command.Statement = statement;
         command.Prepare();
@@ -177,7 +177,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     internal DbDataReader ExecuteReader(ISqlCompileUnit statement)
     {
-      EnsureConnection();
+      EnsureConnectionIsOpen();
       using (var command = new SqlCommand(connection)) {
         command.Statement = statement;
         command.Prepare();
@@ -225,7 +225,7 @@ namespace Xtensive.Storage.Providers.Sql
       return Xtensive.Sql.Dom.Sql.TableRef(table);
     }
 
-    private void EnsureConnection()
+    private void EnsureConnectionIsOpen()
     {
       if (connection==null || transaction==null || connection.State!=ConnectionState.Open) {
         var provider = new SqlConnectionProvider();

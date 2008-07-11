@@ -23,7 +23,7 @@ using Xtensive.Storage.Providers.Sql.Resources;
 
 namespace Xtensive.Storage.Providers.Sql
 {
-  public abstract class DomainHandler : Providers.DomainHandler
+  public abstract class DomainHandler : Storage.Providers.DomainHandler
   {
     private DbTransaction transaction;
     private Catalog catalog;
@@ -44,9 +44,9 @@ namespace Xtensive.Storage.Providers.Sql
         string catalogName = Domain.Configuration.ConnectionInfo.Resource;
         catalog = model.DefaultServer.Catalogs[catalogName];
         using (transaction = connection.BeginTransaction()) {
-//          ClearCatalog();
-//          BuildCatalog();
-//          transaction.Commit();
+          ClearCatalog();
+          BuildCatalog();
+          transaction.Commit();
         }
         model = Xtensive.Sql.Dom.Database.Model.Build(modelProvider);
         catalog = model.DefaultServer.Catalogs[catalogName];

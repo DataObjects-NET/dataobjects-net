@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Declaration;
+using System.Linq;
 
 namespace Xtensive.Storage.Rse.Compilation
 {
@@ -49,6 +50,11 @@ namespace Xtensive.Storage.Rse.Compilation
     public CompilationContext(IEnumerable<CompilerResolver> compilerResolvers)
     {
       CompilerResolvers = compilerResolvers;
+    }
+
+    public CompilationContext(CompilationContext baseContext, IEnumerable<CompilerResolver> compilerResolvers)
+    {
+      CompilerResolvers = compilerResolvers.Union(baseContext.CompilerResolvers).ToList();
     }
   }
 }
