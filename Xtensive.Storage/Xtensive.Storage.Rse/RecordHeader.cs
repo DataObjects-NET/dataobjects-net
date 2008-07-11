@@ -158,6 +158,7 @@ namespace Xtensive.Storage.Rse
     {
       RecordColumnCollection = new RecordColumnCollection(header.RecordColumnCollection, alias);
       TupleDescriptor = header.TupleDescriptor;
+      Keys = header.Keys;
 
       OrderInfo = new RecordOrderInfo(
         header.OrderInfo.OrderedBy,
@@ -167,12 +168,22 @@ namespace Xtensive.Storage.Rse
     public RecordHeader(RecordHeader header, IEnumerable<string> includedColumns)
     {
       IList<RecordColumn> list = new List<RecordColumn>();
+      var keyIndicesByColumn =
+        header.Keys.SelectMany(
+          (keyInfo, i) => keyInfo.KeyColumns.Select(column => new KeyValuePair<RecordColumn, int>(column, i))).
+          ToDictionary(pair => pair.Key, pair => pair.Value);
+     
       foreach (string includedColumn in includedColumns) {
         RecordColumn recordColumn = header.RecordColumnCollection[includedColumn];
         list.Add(recordColumn);
       }
+
+      var excludedKeys =
+        header.RecordColumnCollection.Except(list).Select(column => header.Keys[keyIndicesByColumn[column]]);
+
       RecordColumnCollection = new RecordColumnCollection(list);
       TupleDescriptor = header.TupleDescriptor;
+      Keys = new CollectionBaseSlim<KeyInfo>(header.Keys.Except(excludedKeys));
 
       OrderInfo = new RecordOrderInfo(
         header.OrderInfo.OrderedBy,

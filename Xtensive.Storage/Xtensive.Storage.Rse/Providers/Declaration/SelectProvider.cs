@@ -34,13 +34,23 @@ namespace Xtensive.Storage.Rse.Providers.Declaration
       TupleDescriptor tupleDescriptor = TupleDescriptor.Create(columnIndexes.Select(i => Source.Header.TupleDescriptor[i]));
       TupleDescriptor keyDescriptor = TupleDescriptor.Create(columnIndexes.Select(i => Source.Header.TupleDescriptor[i]));
       var orderBy = new DirectionCollection<int>();
+      var keyIndicesByColumn =
+        Source.Header.Keys.SelectMany(
+          (keyInfo, i) => keyInfo.KeyColumns.Select(column => new KeyValuePair<RecordColumn, int>(column, i))).
+          ToDictionary(pair => pair.Key, pair => pair.Value);
+
+      var excludedKeys =
+        Source.Header.RecordColumnCollection.Except(columns)
+          .Select(column => Source.Header.Keys[keyIndicesByColumn[column]]);
+      
       for (int i = 0; i < columnIndexes.Length; i++) {
         int columnIndex = columnIndexes[i];
         Direction direction;
         if (Source.Header.OrderInfo.OrderedBy.TryGetValue(columnIndex, out direction))
           orderBy.Add(i, direction);
       }
-      return new RecordHeader(tupleDescriptor, columns, keyDescriptor, ArrayUtils<KeyInfo>.EmptyArray, orderBy);
+
+      return new RecordHeader(tupleDescriptor, columns, keyDescriptor, Source.Header.Keys.Except(excludedKeys), orderBy);
     }
 
 
