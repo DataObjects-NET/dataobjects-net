@@ -17,7 +17,7 @@ namespace Xtensive.Storage.Providers.Sql.Providers
   {
     private readonly SqlSelect sqlSelect;
 
-    public SqlSelect Select
+    public SqlSelect Query
     {
       get { return sqlSelect; }
     }

@@ -25,6 +25,15 @@ namespace Xtensive.Storage.Rse.Providers.Declaration
       }
     }
 
+    public Provider Compiled
+    {
+      get
+      {
+        EnsureIsCompiled();
+        return compiled;
+      }
+    }
+
     /// <inheritdoc/>
     public override T GetService<T>()
     {

@@ -78,13 +78,43 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
 
       var unionRef = SQL.QueryRef(result);
       SqlSelect query = SQL.Select(unionRef);
-      query.Columns.AddRange(unionRef.Columns.Select(column => (SqlColumn)column));
+      query.Columns.AddRange(unionRef.Columns.Cast<SqlColumn>());
       return query;
     }
 
     private SqlSelect BuildJoinQuery(IndexInfo index)
     {
-      throw new NotImplementedException();
+      SqlTable result = null;
+      SqlTable rootTable = null;
+      IEnumerable<SqlColumn> columns = null;
+      int keyColumnCount = index.KeyColumns.Count;
+      int nonValueColumnsCount = keyColumnCount + index.IncludedColumns.Count;
+      var baseQueries = index.BaseIndexes.Select(i => BuildProviderQuery(i)).ToList();
+      foreach (var baseQuery in baseQueries) {
+        if (result==null) {
+          result = SQL.QueryRef(baseQuery);
+          rootTable = result;
+          columns = rootTable.Columns.Cast<SqlColumn>();
+        }
+        else {
+          var queryRef = SQL.QueryRef(baseQuery);
+          SqlExpression joinExpression = null;
+          for (int i = 0; i < keyColumnCount; i++) {
+            SqlBinary binary = (queryRef.Columns[i] == rootTable.Columns[i]);
+            if (joinExpression == null)
+              joinExpression = binary;
+            else
+              joinExpression &= binary;
+          }
+          result = result.LeftOuterJoin(queryRef, joinExpression);
+          columns = columns.Union(queryRef.Columns.Skip(nonValueColumnsCount).Cast<SqlColumn>());
+        }
+      }
+
+      SqlSelect query = SQL.Select(result);
+      query.Columns.AddRange(columns);
+
+      return query;
     }
 
     private SqlSelect BuildFilteredQuery(IndexInfo index)

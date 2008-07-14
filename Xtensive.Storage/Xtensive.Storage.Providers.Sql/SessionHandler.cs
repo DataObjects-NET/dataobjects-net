@@ -15,6 +15,7 @@ using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Database;
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Providers.Sql.Providers;
 using Xtensive.Storage.Providers.Sql.Resources;
 using Xtensive.Storage.Rse;
 using System.Linq;
@@ -27,13 +28,11 @@ namespace Xtensive.Storage.Providers.Sql
   {
     private SqlConnection connection;
     private DbTransaction transaction;
-    private readonly Dictionary<IndexInfo, long> indexVersions = new Dictionary<IndexInfo, long>();
 
     /// <inheritdoc/>
     protected override void Insert(EntityData data)
     {
       EnsureConnectionIsOpen();
-      IncreaseVersion(data.Type.AffectedIndexes);
       SqlBatch batch = Xtensive.Sql.Dom.Sql.Batch();
       foreach (IndexInfo primaryIndex in GetParentPrimaryIndexes(data.Type.Indexes.PrimaryIndex)) {
         SqlTableRef tableRef = GetTableRef(primaryIndex);
@@ -53,7 +52,9 @@ namespace Xtensive.Storage.Providers.Sql
     {
       EnsureConnectionIsOpen();
       IndexInfo primaryIndex = key.Type.Indexes.PrimaryIndex;
-      SqlSelect select = BuildQuery(primaryIndex, columns);
+      var provider = new IndexProvider(primaryIndex);
+      var compiled = (SqlProvider)provider.Compiled;
+      SqlSelect select = Xtensive.Sql.Dom.Sql.Select(Xtensive.Sql.Dom.Sql.QueryRef(compiled.Query));
       select.Where = DomainHandler.GetWhereStatement(select.Columns[0].SqlTable, GetStatementMapping(primaryIndex, columnInfo => columnInfo.IsPrimaryKey), key);
       using (DbDataReader reader = ExecuteReader(select)) {
         if (reader.RecordsAffected > 1)
@@ -66,25 +67,29 @@ namespace Xtensive.Storage.Providers.Sql
       }
     }
 
-    private static IEnumerable<StatementMapping> GetStatementMapping(IndexInfo index, Func<ColumnInfo, bool> predicate)
+    /// <inheritdoc/>
+    protected override void Update(EntityData data)
     {
-      return index.Columns.Where(predicate).Select((columnInfo, columnIndex) => new StatementMapping(columnIndex, columnInfo.Field.MappingInfo.Offset));
-    }
-
-    private SqlSelect BuildQuery(IndexInfo index, IEnumerable<ColumnInfo> columns)
-    {
-      var fullQuery = DomainHandler.BuildQueryInternal(index);
-      IEnumerable<SqlColumn> columnsToRemove = fullQuery.Columns.Where(sqlColumn => !columns.Any(columnInfo=>columnInfo.Name==sqlColumn.Name));
-      foreach (SqlColumn column in columnsToRemove)
-        fullQuery.Columns.Remove(column);
-      return fullQuery;
+      EnsureConnectionIsOpen();
+      SqlBatch batch = Xtensive.Sql.Dom.Sql.Batch();
+      foreach (IndexInfo primaryIndex in GetRealPrimaryIndexes(data.Type.Indexes.PrimaryIndex)) {
+        SqlTableRef tableRef = GetTableRef(primaryIndex);
+        SqlUpdate update = Xtensive.Sql.Dom.Sql.Update(tableRef);
+        foreach (Pair<int, SqlExpression> pair in SetValues(primaryIndex, data.Tuple, data.Type)) {
+          update.Values[tableRef[pair.First]] = pair.Second;
+        }
+        update.Where = DomainHandler.GetWhereStatement(tableRef, GetStatementMapping(data.Type.Indexes.PrimaryIndex, columnInfo => columnInfo.IsPrimaryKey), data.Key);
+        batch.Add(update);
+      }
+      int rowsAffected = ExecuteNonQuery(batch);
+      if (rowsAffected!=batch.Count)
+        throw new InvalidOperationException(String.Format(Strings.ExUpdateInvalid, data.Type.Name, rowsAffected, batch.Count));
     }
 
     /// <inheritdoc/>
     protected override void Remove(EntityData data)
     {
       EnsureConnectionIsOpen();
-      IncreaseVersion(data.Key.Type.AffectedIndexes);
       SqlBatch batch = Xtensive.Sql.Dom.Sql.Batch();
       int tableCount = 0;
       foreach (IndexInfo index in GetParentPrimaryIndexes(data.Key.Type.Indexes.PrimaryIndex)) {
@@ -102,30 +107,24 @@ namespace Xtensive.Storage.Providers.Sql
           throw new InvalidOperationException(String.Format(Strings.ExInstanceMultipleResults, data.Key.Type.Name));
     }
 
-    /// <inheritdoc/>
-    protected override void Update(EntityData data)
+    private static IEnumerable<StatementMapping> GetStatementMapping(IndexInfo index, Func<ColumnInfo, bool> predicate)
     {
-      EnsureConnectionIsOpen();
-      SqlBatch batch = Xtensive.Sql.Dom.Sql.Batch();
-      IncreaseVersion(data.Type.AffectedIndexes);
-      foreach (IndexInfo primaryIndex in GetRealPrimaryIndexes(data.Type.Indexes.PrimaryIndex)) {
-        SqlTableRef tableRef = GetTableRef(primaryIndex);
-        SqlUpdate update = Xtensive.Sql.Dom.Sql.Update(tableRef);
-        foreach (Pair<int, SqlExpression> pair in SetValues(primaryIndex, data.Tuple, data.Type)) {
-          update.Values[tableRef[pair.First]] = pair.Second;
-        }
-        update.Where = DomainHandler.GetWhereStatement(tableRef, GetStatementMapping(data.Type.Indexes.PrimaryIndex, columnInfo => columnInfo.IsPrimaryKey), data.Key);
-        batch.Add(update);
-      }
-      int rowsAffected = ExecuteNonQuery(batch);
-      if (rowsAffected!=batch.Count)
-        throw new InvalidOperationException(String.Format(Strings.ExUpdateInvalid, data.Type.Name, rowsAffected, batch.Count));
+      return index.Columns.Where(predicate).Select((columnInfo, columnIndex) => new StatementMapping(columnIndex, columnInfo.Field.MappingInfo.Offset));
     }
+
+//    private SqlSelect BuildQuery(IndexInfo index, IEnumerable<ColumnInfo> columns)
+//    {
+//      var fullQuery = DomainHandler.BuildQueryInternal(index);
+//      IEnumerable<SqlColumn> columnsToRemove = fullQuery.Columns.Where(sqlColumn => !columns.Any(columnInfo=>columnInfo.Name==sqlColumn.Name));
+//      foreach (SqlColumn column in columnsToRemove)
+//        fullQuery.Columns.Remove(column);
+//      return fullQuery;
+//    }
 
     /// <inheritdoc/>
     public override IEnumerable<Tuple> Select(TypeInfo type, IEnumerable<ColumnInfo> columns)
     {
-      EnsureConnectionIsOpen();
+      /*EnsureConnectionIsOpen();
       var results = new List<Tuple>();
       IndexInfo primaryIndex = type.Indexes.PrimaryIndex;
       SqlSelect select = BuildQuery(primaryIndex, columns);
@@ -133,7 +132,8 @@ namespace Xtensive.Storage.Providers.Sql
         while (reader.Read())
           results.Add(GetTuple(reader, select));
       }
-      return results;
+      return results;*/
+      throw new NotImplementedException();
     }
 
     /// <inheritdoc/>
@@ -156,13 +156,6 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     #region Internals
-
-    internal long GetIndexVersion(IndexInfo indexInfo)
-    {
-      long result;
-      indexVersions.TryGetValue(indexInfo, out result);
-      return result;
-    }
 
     internal int ExecuteNonQuery(ISqlCompileUnit statement)
     {
@@ -192,15 +185,6 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     #endregion
-
-    private void IncreaseVersion(IEnumerable<IndexInfo> indexes)
-    {
-      foreach (IndexInfo index in indexes) {
-        long currentVersion;
-        indexVersions.TryGetValue(index, out currentVersion);
-        indexVersions[index] = currentVersion + 1;
-      }
-    }
 
     private Tuple GetTuple(IDataRecord reader, SqlSelect select)
     {
