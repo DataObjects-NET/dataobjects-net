@@ -25,10 +25,7 @@ namespace Xtensive.Storage.Building
     /// </summary>    
     public static BuildingContext Current
     {
-      get
-      {
-        return BuildingScope.Context;
-      }
+      get { return BuildingScope.Context; }
     }
 
     /// <summary>
@@ -76,7 +73,7 @@ namespace Xtensive.Storage.Building
     {
       if (errors.Count != 0)
         throw new AggregateException(Strings.ExErrorsDuringStorageBuild, (IEnumerable<Exception>) errors);
-    }    
+    }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="BuildingContext"/> class.

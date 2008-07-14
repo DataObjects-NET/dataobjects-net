@@ -42,18 +42,18 @@ namespace Xtensive.Storage.Building
 
       Validate(configuration);
 
-      BuildingContext buildingContext = new BuildingContext(configuration);
-      buildingContext.NameProvider = new NameProvider(configuration.NamingConvention);
+      BuildingContext context = new BuildingContext(configuration);
+      context.NameProvider = new NameProvider(configuration.NamingConvention);
 
-      using (new BuildingScope(buildingContext)) {        
+      using (new BuildingScope(context)) {        
         BuildModel();
         BuildDomain();
         BuildHandlerProvider();
         BuildKeyProviders();
 
-        buildingContext.EnsureBuildSucceed();
+        context.EnsureBuildSucceed();
       }
-      return buildingContext.Domain;
+      return context.Domain;
     }
 
     private static void BuildModel()

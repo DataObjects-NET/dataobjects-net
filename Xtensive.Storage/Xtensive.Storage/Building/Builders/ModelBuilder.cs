@@ -85,15 +85,6 @@ namespace Xtensive.Storage.Building.Builders
             context.RegistError(e);
           }
 
-        // Complex fields
-        foreach (FieldInfo field in context.ComplexFields)
-          try {
-            FieldBuilder.BuildComplexField(field);
-          }
-          catch (DomainBuilderException e) {
-            context.RegistError(e);
-          }
-
         // Associations
         foreach (Pair<AssociationInfo, string> pair in context.PairedAssociations)
           try {

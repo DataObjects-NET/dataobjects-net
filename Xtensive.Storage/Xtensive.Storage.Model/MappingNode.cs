@@ -5,11 +5,14 @@
 // Created:    2008.01.13
 
 using System;
-using Xtensive.Core;
 using Xtensive.Core.Helpers;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Storage.Model
 {
+  /// <summary>
+  /// A <see cref="Node"/> that can be mapped to existing schema node.
+  /// </summary>
   [Serializable]
   public abstract class MappingNode : Node
   {
@@ -29,15 +32,26 @@ namespace Xtensive.Storage.Model
       }
     }
 
+    /// <inheritdoc/>
+    public override void Lock(bool recursive)
+    {
+      if (string.IsNullOrEmpty(MappingName))
+        MappingName = Name;
+      base.Lock(recursive);
+    }
+
+
+    // Constructors
+
     /// <summary>
-    /// Initializes a new instance of the <see cref="MappingNode"/> class.
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     protected MappingNode()
     {
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="MappingNode"/> class.
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="name">The name of this instance.</param>
     protected MappingNode(string name) : base(name)

@@ -77,7 +77,7 @@ namespace Xtensive.Storage.Tests.Model.Relations
 namespace Xtensive.Storage.Tests.Model
 {
   [TestFixture]
-  public class ReferenceTests
+  public class AssociationTests
   {
     private Domain domain;
 

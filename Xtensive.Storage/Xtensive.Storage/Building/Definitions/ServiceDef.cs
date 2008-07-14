@@ -10,7 +10,7 @@ using Xtensive.Storage.Model;
 namespace Xtensive.Storage.Building.Definitions
 {
   [Serializable]
-  public class ServiceDef : MappingNode
+  public class ServiceDef : Node
   {
     private readonly Type underlyingType;
 

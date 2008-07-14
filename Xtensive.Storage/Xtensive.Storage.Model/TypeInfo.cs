@@ -7,8 +7,8 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Xtensive.Core;
 using Xtensive.Core.Helpers;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 
 namespace Xtensive.Storage.Model
@@ -260,8 +260,6 @@ namespace Xtensive.Storage.Model
     /// <inheritdoc/>
     public override void Lock(bool recursive)
     {
-      if (MappingName == null)
-        MappingName = Name;
       base.Lock(recursive);
       if (recursive) {
         affectedIndexes.Lock(true);
@@ -273,14 +271,12 @@ namespace Xtensive.Storage.Model
       if (IsInterface)
         return;
       List<Type> columnTypes = new List<Type>();
-      if (IsEntity) {
+      if (IsEntity)
         foreach (ColumnInfo column in Indexes.PrimaryIndex.Columns)
           columnTypes.Add(column.ValueType);
-      }
-      else if (IsStructure) {
+      else if (IsStructure)
         foreach (ColumnInfo column in Columns)
           columnTypes.Add(column.ValueType);
-      }
       tupleDescriptor = TupleDescriptor.Create(columnTypes);
     }
 
@@ -288,7 +284,7 @@ namespace Xtensive.Storage.Model
     // Constructors
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="TypeInfo"/> class.
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="model">The model.</param>
     /// <param name="typeAttributes">The type attributes.</param>

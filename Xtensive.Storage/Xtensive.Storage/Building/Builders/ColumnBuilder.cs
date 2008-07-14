@@ -12,9 +12,8 @@ namespace Xtensive.Storage.Building.Builders
   {
     public static ColumnInfo BuildColumn(FieldInfo field)
     {
-      BuildingContext buildingContext = BuildingScope.Context;
       ColumnInfo column = new ColumnInfo(field);
-      column.Name = buildingContext.NameProvider.BuildName(field, column);
+      column.Name = BuildingScope.Context.NameProvider.BuildName(field, column);
       if (field.IsEntity)
         column.IsNullable = true;      
 
@@ -28,7 +27,6 @@ namespace Xtensive.Storage.Building.Builders
       column.Name = BuildingScope.Context.NameProvider.BuildName(field, ancestor);
       column.IsDeclared = field.IsDeclared;
       column.IsPrimaryKey = field.IsPrimaryKey;
-//      column.IsInherited = true;
 
       return column;
     }

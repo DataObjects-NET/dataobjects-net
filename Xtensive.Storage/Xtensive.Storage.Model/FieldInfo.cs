@@ -170,6 +170,7 @@ namespace Xtensive.Storage.Model
         this.EnsureNotLocked();
         ArgumentValidator.EnsureArgumentNotNull(value, "Parent");
         parent = value;
+        parent.Fields.Add(this);
         reflectedType = value.ReflectedType;
         declaringType = value.DeclaringType;
         IsDeclared = value.IsDeclared;

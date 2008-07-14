@@ -4,6 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2007.10.02
 
+using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Reflection;
@@ -63,45 +64,41 @@ namespace Xtensive.Storage.Building.Builders
       
       AttributeProcessor.Process(fieldDef, fieldAttribute);
 
-//      foreach (ConstraintAttribute attribute in propertyInfo.GetAttributes<ConstraintAttribute>(false)) 
-//        AttributeProcessor.Process(fieldDef, attribute);
-     
       return fieldDef;
     }
 
-    public static FieldInfo BuildDeclaredField(TypeInfo typeInfo, FieldDef fieldDef)
+    public static void BuildDeclaredField(TypeInfo type, FieldDef fieldDef)
     {
-      BuildingContext context = BuildingScope.Context;
-      Log.Info("Building declared field '{0}.{1}'", typeInfo.Name, fieldDef.Name);
+      Log.Info("Building declared field '{0}.{1}'", type.Name, fieldDef.Name);
 
-      FieldInfo field = new FieldInfo(typeInfo, fieldDef.Attributes);
+      FieldInfo field = new FieldInfo(type, fieldDef.Attributes);
       field.UnderlyingProperty = fieldDef.UnderlyingProperty;
       field.Name = fieldDef.Name;
       field.MappingName = fieldDef.MappingName;
       field.ValueType = fieldDef.ValueType;
       field.Length = fieldDef.Length;
+      type.Fields.Add(field);
 
       if (field.IsEntitySet) {
-        BuildReferencedType(fieldDef);          
+        TypeBuilder.BuildType(field.ValueType);
 
         AssociationBuilder.BuildAssociation(fieldDef, field);
-        return field;
+        return;
       }
 
       if (field.IsEntity) {
-        BuildReferencedType(fieldDef);
+        TypeBuilder.BuildType(field.ValueType);
+        BuildReferenceField(field);
 
         AssociationBuilder.BuildAssociation(fieldDef, field);
 
         TypeDef typeDef = BuildingScope.Context.Definition.Types[field.DeclaringType.UnderlyingType];
         typeDef.Indexes.Add(IndexBuilder.DefineForeignKey(typeDef, fieldDef));
-
-        context.ComplexFields.Add(field);
       }
 
       if (field.IsStructure) {
-        BuildReferencedType(fieldDef);          
-        context.ComplexFields.Add(field);
+        TypeBuilder.BuildType(field.ValueType);
+        BuildStructureField(field);
       }
 
       if (field.IsPrimitive)
@@ -111,39 +108,28 @@ namespace Xtensive.Storage.Building.Builders
         throw new DomainBuilderException(
           string.Format(Resources.Strings.FieldXCanTBeLoadOnDemandAsItIsIncludedInPrimaryKey, field.Name));
 
-      return field;
+      return;
     }
 
-    private static void BuildReferencedType(FieldDef fieldDef)
+    public static void BuildInheritedField(TypeInfo type, FieldInfo inheritedField)
     {
-      TypeDef typeDef;
+      BuildingContext context = BuildingScope.Context;
+      Log.Info("Building inherited field '{0}.{1}'", type.Name, inheritedField.Name);
+      FieldInfo field = inheritedField.Clone();
+      type.Fields.Add(field);
+      if (inheritedField.Parent!=null)
+        field.Parent = type.Fields[inheritedField.Parent.Name];
+      else {
+        field.ReflectedType = type;
+        field.DeclaringType = inheritedField.DeclaringType;
+        field.IsInherited = true;
+      }
 
-      if (!BuildingScope.Context.Definition.Types.TryGetValue(fieldDef.ValueType, out typeDef))
-        throw new DomainBuilderException(
-          string.Format(Resources.Strings.ExTypeXIsNotRegisteredInTheModel, fieldDef.ValueType.FullName));
-
-      TypeBuilder.BuildType(typeDef);      
+      if (inheritedField.Column!=null)
+        field.Column = ColumnBuilder.BuildInheritedColumn(field, inheritedField.Column);
     }
 
-    public static FieldInfo BuildInheritedField(TypeInfo type, FieldInfo ancsField)
-    {
-      BuildingContext buildingContext = BuildingScope.Context;
-      Log.Info("Building inherited field '{0}.{1}'", type.Name, ancsField.Name);
-      FieldInfo field = ancsField.Clone();
-      field.ReflectedType = type;
-      field.DeclaringType = ancsField.DeclaringType;
-      field.IsInherited = true;
-
-      if (field.IsStructure || field.IsEntity)
-        buildingContext.ComplexFields.Add(field);
-      else 
-        if (ancsField.Column!=null)
-          field.Column = ColumnBuilder.BuildInheritedColumn(field, ancsField.Column);
-
-      return field;
-    }
-
-    public static FieldInfo BuildInterfaceField(TypeInfo type, FieldInfo implField, FieldDef fieldDef) 
+    public static void BuildInterfaceField(TypeInfo type, FieldInfo implField, FieldDef fieldDef) 
     {
       string name = fieldDef!=null ? fieldDef.Name : implField.Name;
       Log.Info("Building interface field '{0}.{1}'", type.Name, name);
@@ -152,38 +138,28 @@ namespace Xtensive.Storage.Building.Builders
       field.ReflectedType = type;
       field.DeclaringType = type;
       field.IsInherited = false;
-      if (field.IsStructure || field.IsEntity)
-        BuildingScope.Context.ComplexFields.Add(field);
-      else if (implField.Column!=null)
-        field.Column = ColumnBuilder.BuildInterfaceColumn(field, implField.Column);
+      type.Fields.Add(field);
 
-      return field;
+      if (implField.Column!=null)
+        field.Column = ColumnBuilder.BuildInterfaceColumn(field, implField.Column);
     }
 
-    public static void BuildComplexField(FieldInfo field)
+    public static void BuildReferenceField(FieldInfo field)
     {
-      BuildingContext buildingContext = BuildingScope.Context;
+      BuildingContext context = BuildingScope.Context;
+      TypeInfo type = context.Model.Types[field.ValueType];
+      IEnumerable<FieldInfo> fields = type.Hierarchy.Fields.Keys.Join(type.Fields, key => key.Name,
+        fld => fld.Name, (key, fld) => fld);
 
-      if (field.IsInherited) {
-        FieldInfo parent = field.DeclaringType.Fields[field.Name];
-        BuildNestedFields(field, parent.Fields);
-      }
-      else {
-        TypeInfo type = buildingContext.Model.Types[field.ValueType];
+      BuildNestedFields(field, fields);
+    }
 
-        if (field.IsStructure)
-          BuildNestedFields(field, type.Fields);
+    public static void BuildStructureField(FieldInfo field)
+    {
+      BuildingContext context = BuildingScope.Context;
+      TypeInfo type = context.Model.Types[field.ValueType];
 
-        if (field.IsEntity) {
-          IEnumerable<FieldInfo> fields = type.Hierarchy.Fields.Keys.Join(type.Fields, key => key.Name,
-            fld => fld.Name, (key, fld) => fld);
-          BuildNestedFields(field, fields);
-        }
-      }
-
-      int index = field.ReflectedType.Fields.IndexOf(field);
-      foreach (FieldInfo nestedField in field.Fields.Find(NestingLevel.All))
-        field.ReflectedType.Fields.Insert(++index, nestedField);
+      BuildNestedFields(field, type.Fields);
     }
 
     private static void BuildNestedFields(FieldInfo target, IEnumerable<FieldInfo> sourceFields)
@@ -201,7 +177,7 @@ namespace Xtensive.Storage.Building.Builders
           clone.Parent = target;
           if (srcField.Column!=null)
             clone.Column = ColumnBuilder.BuildInheritedColumn(clone, srcField.Column);
-          target.Fields.Add(clone);
+          target.ReflectedType.Fields.Add(clone);
         }
       }
     }

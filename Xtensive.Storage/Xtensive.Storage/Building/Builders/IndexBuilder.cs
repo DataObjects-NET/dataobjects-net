@@ -67,8 +67,8 @@ namespace Xtensive.Storage.Building.Builders
 
     public static void BuildIndexes()
     {
-      BuildingContext buildingContext = BuildingScope.Context;
-      foreach (HierarchyInfo hierarchy in buildingContext.Model.Hierarchies) {
+      BuildingContext context = BuildingScope.Context;
+      foreach (HierarchyInfo hierarchy in context.Model.Hierarchies) {
         
         CreateInterfaceIndexes(hierarchy);
         
@@ -91,13 +91,13 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void CreateInterfaceIndexes(HierarchyInfo hierarchy)
     {
-      BuildingContext buildingContext = BuildingScope.Context;
-      TypeDef rootDef = buildingContext.Definition.Types[hierarchy.Root.UnderlyingType];
+      BuildingContext context = BuildingScope.Context;
+      TypeDef rootDef = context.Definition.Types[hierarchy.Root.UnderlyingType];
 
 
-      foreach (var @interface in buildingContext.Model.Types.Find(TypeAttributes.Interface).Where(i => i.Hierarchy==hierarchy)) {
+      foreach (var @interface in context.Model.Types.Find(TypeAttributes.Interface).Where(i => i.Hierarchy==hierarchy)) {
 
-        TypeDef interfaceDef = buildingContext.Definition.Types[@interface.UnderlyingType];
+        TypeDef interfaceDef = context.Definition.Types[@interface.UnderlyingType];
         IndexDef primaryIndexDefinition = rootDef.Indexes.Where(i => i.IsPrimary).First();
         BuildVirtualPrimaryInterfaceIndex(@interface, primaryIndexDefinition);
 
@@ -131,7 +131,7 @@ namespace Xtensive.Storage.Building.Builders
     }
 
     private static void BuildVirtualInheritedInterfaceIndex(TypeInfo @interface, IndexInfo parentIndex)
-    {            
+    {
       var index = BuildInheritedIndex(@interface, parentIndex);
       
       @interface.Indexes.Add(index);
@@ -141,8 +141,8 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void BuildInterfaceIndexes(HierarchyInfo hierarchy)
     {
-      BuildingContext buildingContext = BuildingScope.Context;
-      foreach (var @interface in buildingContext.Model.Types.Find(TypeAttributes.Interface).Where(i => i.Hierarchy == hierarchy)) {
+      BuildingContext context = BuildingScope.Context;
+      foreach (var @interface in context.Model.Types.Find(TypeAttributes.Interface).Where(i => i.Hierarchy == hierarchy)) {
         var implementors = new List<TypeInfo>(@interface.GetImplementors(false));
         
         foreach (var index in @interface.Indexes) {
@@ -193,8 +193,8 @@ namespace Xtensive.Storage.Building.Builders
       if (type.IsStructure)
         return;
 
-      BuildingContext buildingContext = BuildingScope.Context;
-      TypeDef typeDef = buildingContext.Definition.Types[type.UnderlyingType];      
+      BuildingContext context = BuildingScope.Context;
+      TypeDef typeDef = context.Definition.Types[type.UnderlyingType];      
 
       IndexDef primaryIndexDefinition = typeDef.Indexes.Where(i => i.IsPrimary).FirstOrDefault();
       var indexDefinitions = typeDef.Indexes.Where(i => !i.IsPrimary).ToList();
@@ -221,7 +221,7 @@ namespace Xtensive.Storage.Building.Builders
 
         //Registering built primary index
         type.Indexes.Add(primaryIndex);
-        buildingContext.Model.RealIndexes.Add(primaryIndex);
+        context.Model.RealIndexes.Add(primaryIndex);
       }
 
       //Building inherited from interfaces indexes
@@ -229,14 +229,14 @@ namespace Xtensive.Storage.Building.Builders
         foreach (var parentIndex in @interface.Indexes.Find(IndexAttributes.Primary, MatchType.None)) {
 
           if (parentIndex.DeclaringIndex == parentIndex)
-            using (var scope = new LogCaptureScope(buildingContext.Logger)) {
+            using (var scope = new LogCaptureScope(context.Logger)) {
               var index = BuildInheritedIndex(type, parentIndex);
               //TODO: AK: discover this check
               if ((parent != null && parent.Indexes.Contains(index.Name)) || type.Indexes.Contains(index.Name))
                 continue;
               if (!scope.IsCaptured(LogEventTypes.Error)) {
                 type.Indexes.Add(index);
-                buildingContext.Model.RealIndexes.Add(index);
+                context.Model.RealIndexes.Add(index);
               }
             }
         }
@@ -301,8 +301,8 @@ namespace Xtensive.Storage.Building.Builders
       if (type.IsStructure)
         return;
 
-      BuildingContext buildingContext = BuildingScope.Context;
-      TypeDef typeDef = buildingContext.Definition.Types[type.UnderlyingType];
+      BuildingContext context = BuildingScope.Context;
+      TypeDef typeDef = context.Definition.Types[type.UnderlyingType];
       TypeInfo root = type.Hierarchy.Root;
 
       IndexDef primaryIndexDefinition = typeDef.Indexes.Where(i => i.IsPrimary).FirstOrDefault();
@@ -310,21 +310,21 @@ namespace Xtensive.Storage.Building.Builders
 
       //Building primary index for root of the hierarchy
       if (primaryIndexDefinition != null)
-        using (var scope = new LogCaptureScope(buildingContext.Logger)) {
+        using (var scope = new LogCaptureScope(context.Logger)) {
           var primaryIndex = BuildIndex(root, primaryIndexDefinition);
           if (!scope.IsCaptured(LogEventTypes.Error)) {
             type.Indexes.Add(primaryIndex);
-            buildingContext.Model.RealIndexes.Add(primaryIndex);
+            context.Model.RealIndexes.Add(primaryIndex);
           }
         }
 
       //Building declared indexes
       foreach (IndexDef indexDescriptor in indexDefinitions)
-        using (var scope = new LogCaptureScope(buildingContext.Logger)) {
+        using (var scope = new LogCaptureScope(context.Logger)) {
           IndexInfo indexInfo = BuildIndex(type, indexDescriptor); 
           if (!scope.IsCaptured(LogEventTypes.Error)) {
             type.Indexes.Add(indexInfo);
-            buildingContext.Model.RealIndexes.Add(indexInfo);
+            context.Model.RealIndexes.Add(indexInfo);
           }
         }
 
@@ -339,7 +339,7 @@ namespace Xtensive.Storage.Building.Builders
 
         //Registering built primary index
         type.Indexes.Add(primaryIndex);
-        buildingContext.Model.RealIndexes.Add(primaryIndex);
+        context.Model.RealIndexes.Add(primaryIndex);
       }
 
       //Building inherited from interfaces indexes
@@ -347,14 +347,14 @@ namespace Xtensive.Storage.Building.Builders
         foreach (var parentIndex in @interface.Indexes.Find(IndexAttributes.Primary, MatchType.None)) {
 
           if (parentIndex.DeclaringIndex == parentIndex)
-            using (var scope = new LogCaptureScope(buildingContext.Logger)) {
+            using (var scope = new LogCaptureScope(context.Logger)) {
               var index = BuildInheritedIndex(type, parentIndex);
               //TODO: AK: discover this check
               if ((parent != null && parent.Indexes.Contains(index.Name)) || type.Indexes.Contains(index.Name))
                 continue;
               if (!scope.IsCaptured(LogEventTypes.Error)) {
                 type.Indexes.Add(index);
-                buildingContext.Model.RealIndexes.Add(index);
+                context.Model.RealIndexes.Add(index);
               }
             }
         }
@@ -383,7 +383,7 @@ namespace Xtensive.Storage.Building.Builders
             if (ancestorSecondaryIndex.DeclaringIndex == ancestorSecondaryIndex) {
               var secondaryIndex = BuildInheritedIndex(type, ancestorSecondaryIndex);
               type.Indexes.Add(secondaryIndex);
-              buildingContext.Model.RealIndexes.Add(secondaryIndex);
+              context.Model.RealIndexes.Add(secondaryIndex);
             }
           }
 
@@ -406,8 +406,8 @@ namespace Xtensive.Storage.Building.Builders
       if (type.IsStructure)
         return;
 
-      BuildingContext buildingContext = BuildingScope.Context;
-      TypeDef typeDef = buildingContext.Definition.Types[type.UnderlyingType];
+      BuildingContext context = BuildingScope.Context;
+      TypeDef typeDef = context.Definition.Types[type.UnderlyingType];
       TypeInfo root = type.Hierarchy.Root;
 
       IndexDef primaryIndexDefinition = typeDef.Indexes.Where(i => i.IsPrimary).FirstOrDefault();
@@ -415,21 +415,21 @@ namespace Xtensive.Storage.Building.Builders
 
       //Building primary index for root of the hierarchy
       if (primaryIndexDefinition != null)
-        using (var scope = new LogCaptureScope(buildingContext.Logger)) {
+        using (var scope = new LogCaptureScope(context.Logger)) {
           var primaryIndex = BuildIndex(root, primaryIndexDefinition);
           if (!scope.IsCaptured(LogEventTypes.Error)) {
             root.Indexes.Add(primaryIndex);
-            buildingContext.Model.RealIndexes.Add(primaryIndex);
+            context.Model.RealIndexes.Add(primaryIndex);
           }
         }
 
       //Building declared indexes
       foreach (IndexDef indexDescriptor in indexDefinitions)
-        using (var scope = new LogCaptureScope(buildingContext.Logger)) {
+        using (var scope = new LogCaptureScope(context.Logger)) {
           IndexInfo indexInfo = BuildIndex(type, indexDescriptor); 
           if (!scope.IsCaptured(LogEventTypes.Error)) {
             root.Indexes.Add(indexInfo);
-            buildingContext.Model.RealIndexes.Add(indexInfo);
+            context.Model.RealIndexes.Add(indexInfo);
           }
         }
 
@@ -438,14 +438,14 @@ namespace Xtensive.Storage.Building.Builders
       foreach (var @interface in type.GetInterfaces(true)) {
         foreach (var parentIndex in @interface.Indexes.Find(IndexAttributes.Primary, MatchType.None)) {
           if (parentIndex.DeclaringIndex == parentIndex)
-            using (var scope = new LogCaptureScope(buildingContext.Logger)) {
+            using (var scope = new LogCaptureScope(context.Logger)) {
               var index = BuildInheritedIndex(type, parentIndex);
               //TODO: AK: discover this check
               if ((parent != null && parent.Indexes.Contains(index.Name)) || type.Indexes.Contains(index.Name))
                 continue;
               if (!scope.IsCaptured(LogEventTypes.Error)) {
                 root.Indexes.Add(index);
-                buildingContext.Model.RealIndexes.Add(index);
+                context.Model.RealIndexes.Add(index);
               }
             }
         }
@@ -473,7 +473,7 @@ namespace Xtensive.Storage.Building.Builders
 
     private static IndexInfo BuildIndex(TypeInfo typeInfo, IndexDef indexDef)
     {
-      BuildingContext buildingContext = BuildingScope.Context;
+      BuildingContext context = BuildingScope.Context;
       Log.Info("Building index '{0}'", indexDef.Name);
       var result = new IndexInfo(typeInfo, indexDef.Attributes);
       result.FillFactor = indexDef.FillFactor;
@@ -565,7 +565,7 @@ namespace Xtensive.Storage.Building.Builders
         result.ValueColumns.AddRange(result.IncludedColumns);
       }
 
-      result.Name = buildingContext.NameProvider.BuildName(typeInfo, result);
+      result.Name = context.NameProvider.BuildName(typeInfo, result);
 
       return result;
     }
@@ -730,8 +730,8 @@ namespace Xtensive.Storage.Building.Builders
 
     public static void BuildAffectedIndexes()
     {
-      BuildingContext buildingContext = BuildingScope.Context;
-      foreach (TypeInfo typeInfo in buildingContext.Model.Types) {
+      BuildingContext context = BuildingScope.Context;
+      foreach (TypeInfo typeInfo in context.Model.Types) {
         if (typeInfo.IsEntity) {
           var ancestors = new Dictionary<TypeInfo, string>();
           ProcessAncestors(typeInfo, ancestor => ancestors.Add(ancestor, string.Empty));
@@ -787,17 +787,17 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void ProcessAncestors(TypeInfo typeInfo, Action<TypeInfo> ancestorProcessor)
     {
-      BuildingContext buildingContext = BuildingScope.Context;
+      BuildingContext context = BuildingScope.Context;
       TypeInfo root = typeInfo.Hierarchy.Root;
 
       if (root != typeInfo) {
-        TypeInfo ancestorTypeInfo = buildingContext.Model.Types.FindAncestor(typeInfo);
+        TypeInfo ancestorTypeInfo = context.Model.Types.FindAncestor(typeInfo);
         if (ancestorTypeInfo != null)
           do {
             ancestorProcessor(ancestorTypeInfo);
             if (ancestorTypeInfo == root)
               break;
-            ancestorTypeInfo = buildingContext.Model.Types.FindAncestor(ancestorTypeInfo);
+            ancestorTypeInfo = context.Model.Types.FindAncestor(ancestorTypeInfo);
           } while (ancestorTypeInfo != null);
       }
     }

@@ -9,7 +9,7 @@ using System;
 namespace Xtensive.Storage.Model
 {
   [Serializable]
-  public sealed class ServiceInfo: MappingNode
+  public sealed class ServiceInfo: Node
   {
     private DomainInfo domain;
     private readonly Type underlyingType;

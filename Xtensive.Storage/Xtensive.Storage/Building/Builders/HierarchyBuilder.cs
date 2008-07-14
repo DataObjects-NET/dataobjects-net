@@ -39,17 +39,17 @@ namespace Xtensive.Storage.Building.Builders
 
     public static HierarchyDef DefineHierarchy(TypeDef typeDef, InheritanceSchema inheritanceSchema)
     {
-      BuildingContext buildingContext = BuildingScope.Context;
+      BuildingContext context = BuildingScope.Context;
 
       Log.Info("Defining hierarchy for type '{0}'", typeDef.UnderlyingType.FullName);
 
-      TypeDef root = buildingContext.Definition.FindRoot(typeDef);
+      TypeDef root = context.Definition.FindRoot(typeDef);
       if (root!=null)
         throw new DomainBuilderException(
           string.Format(Resources.Strings.ExTypeDefXIsAlreadyBelongsToHierarchyWithTheRootY,  
           typeDef.UnderlyingType.FullName,  root.UnderlyingType.FullName));              
 
-      foreach (HierarchyDef hierarchy in buildingContext.Definition.Hierarchies)
+      foreach (HierarchyDef hierarchy in context.Definition.Hierarchies)
         if (hierarchy.Root.UnderlyingType.IsSubclassOf(typeDef.UnderlyingType)) 
           throw new DomainBuilderException(
             string.Format(Resources.Strings.ExXDescendantIsAlreadyARootOfAnotherHierarchy, hierarchy.Root.UnderlyingType));              

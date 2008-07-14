@@ -160,8 +160,8 @@ namespace Xtensive.Storage.Tests.Model.Library
   {
     private static void VerifyTypeCollection()
     {
-      BuildingContext buildingContext = BuildingScope.Context;
-      TypeDefCollection types = buildingContext.Definition.Types;
+      BuildingContext context = BuildingScope.Context;
+      TypeDefCollection types = context.Definition.Types;
       Assert.IsNull(types.FindAncestor(types[typeof (Entity)]));
       Assert.IsNull(types.FindAncestor(types[typeof (IEntity)]));
       Assert.IsNull(types.FindAncestor(types[typeof (Structure)]));
@@ -175,17 +175,17 @@ namespace Xtensive.Storage.Tests.Model.Library
 
     private static void RedefineTypes()
     {
-      BuildingContext buildingContext = BuildingScope.Context;
-      buildingContext.Definition.Types.Clear();
-      buildingContext.Definition.DefineType(typeof (BookReview));
-      buildingContext.Definition.DefineType(typeof (Book));
-      buildingContext.Definition.DefineType(typeof (Person));
-      buildingContext.Definition.DefineType(typeof (Author));
-      buildingContext.Definition.DefineType(typeof (Structure));
-      buildingContext.Definition.DefineType(typeof (Passport));
-      buildingContext.Definition.DefineType(typeof (IdentityCard));
-      buildingContext.Definition.DefineType(typeof (Entity));
-      buildingContext.Definition.DefineType(typeof (IEntity));
+      BuildingContext context = BuildingScope.Context;
+      context.Definition.Types.Clear();
+      context.Definition.DefineType(typeof (BookReview));
+      context.Definition.DefineType(typeof (Book));
+      context.Definition.DefineType(typeof (Person));
+      context.Definition.DefineType(typeof (Author));
+      context.Definition.DefineType(typeof (Structure));
+      context.Definition.DefineType(typeof (Passport));
+      context.Definition.DefineType(typeof (IdentityCard));
+      context.Definition.DefineType(typeof (Entity));
+      context.Definition.DefineType(typeof (IEntity));
     }
 
     private static void RedefineFields()
@@ -228,13 +228,13 @@ namespace Xtensive.Storage.Tests.Model.Library
 
     private static void VerifyDefinition()
     {
-      BuildingContext buildingContext = BuildingScope.Context;
-      Assert.IsNotNull(buildingContext.Definition.Types[typeof (Entity)]);
-      Assert.IsNotNull(buildingContext.Definition.Types[typeof (IEntity)]);
+      BuildingContext context = BuildingScope.Context;
+      Assert.IsNotNull(context.Definition.Types[typeof (Entity)]);
+      Assert.IsNotNull(context.Definition.Types[typeof (IEntity)]);
 
       #region IdentityCard
 
-      TypeDef typeDef = buildingContext.Definition.Types[typeof (IdentityCard)];
+      TypeDef typeDef = context.Definition.Types[typeof (IdentityCard)];
       Assert.IsNotNull(typeDef);
       Assert.IsNotNull(typeDef.Fields["FirstName"]);
       Assert.AreEqual("FirstName", typeDef.Fields["FirstName"].Name);
@@ -250,7 +250,7 @@ namespace Xtensive.Storage.Tests.Model.Library
 
       #region Passport
 
-      typeDef = buildingContext.Definition.Types[typeof (Passport)];
+      typeDef = context.Definition.Types[typeof (Passport)];
       Assert.IsNotNull(typeDef.Fields["Number"]);
       Assert.AreEqual("Number", typeDef.Fields["Number"].Name);
       Assert.IsNotNull(typeDef.Fields["Card"]);
@@ -260,10 +260,10 @@ namespace Xtensive.Storage.Tests.Model.Library
 
       #region Person
 
-      typeDef = buildingContext.Definition.Types[typeof (Person)];
+      typeDef = context.Definition.Types[typeof (Person)];
       Assert.IsNotNull(typeDef);
-      Assert.IsNotNull(buildingContext.Definition.Types["Person"]);
-      Assert.AreEqual(typeDef, buildingContext.Definition.Types["Person"]);
+      Assert.IsNotNull(context.Definition.Types["Person"]);
+      Assert.AreEqual(typeDef, context.Definition.Types["Person"]);
       Assert.AreEqual("Person", typeDef.Name);
 
       // Fields
@@ -277,10 +277,10 @@ namespace Xtensive.Storage.Tests.Model.Library
 
       #region Author
 
-      typeDef = buildingContext.Definition.Types[typeof (Author)];
+      typeDef = context.Definition.Types[typeof (Author)];
       Assert.IsNotNull(typeDef);
-      Assert.IsNotNull(buildingContext.Definition.Types["Author"]);
-      Assert.AreEqual(typeDef, buildingContext.Definition.Types["Author"]);
+      Assert.IsNotNull(context.Definition.Types["Author"]);
+      Assert.AreEqual(typeDef, context.Definition.Types["Author"]);
       Assert.AreEqual("Author", typeDef.Name);
 
       // Fields
@@ -302,10 +302,10 @@ namespace Xtensive.Storage.Tests.Model.Library
 
       #region Book
 
-      typeDef = buildingContext.Definition.Types[typeof (Book)];
+      typeDef = context.Definition.Types[typeof (Book)];
       Assert.IsNotNull(typeDef);
-      Assert.IsNotNull(buildingContext.Definition.Types["Book"]);
-      Assert.AreEqual(typeDef, buildingContext.Definition.Types["Book"]);
+      Assert.IsNotNull(context.Definition.Types["Book"]);
+      Assert.AreEqual(typeDef, context.Definition.Types["Book"]);
       Assert.AreEqual("Book", typeDef.Name);
 
       // Fields
@@ -332,10 +332,10 @@ namespace Xtensive.Storage.Tests.Model.Library
 
       #region BookReview
 
-      typeDef = buildingContext.Definition.Types[typeof (BookReview)];
+      typeDef = context.Definition.Types[typeof (BookReview)];
       Assert.IsNotNull(typeDef);
-      Assert.IsNotNull(buildingContext.Definition.Types["BookReview"]);
-      Assert.AreEqual(typeDef, buildingContext.Definition.Types["BookReview"]);
+      Assert.IsNotNull(context.Definition.Types["BookReview"]);
+      Assert.AreEqual(typeDef, context.Definition.Types["BookReview"]);
       Assert.AreEqual("BookReview", typeDef.Name);
 
       // Fields
