@@ -158,6 +158,8 @@ namespace Xtensive.Storage.Providers.Sql
       Type type = tuple.Descriptor[index];
       if (type == typeof(Boolean))
         return tuple.GetValue<bool>(index);
+      if (type == typeof(Char))
+        return tuple.GetValue<char>(index);
       if (type == typeof(SByte))
         return tuple.GetValue<SByte>(index);
       if (type == typeof(Byte))
@@ -182,6 +184,8 @@ namespace Xtensive.Storage.Providers.Sql
         return tuple.GetValue<double>(index);
       if (type == typeof(DateTime))
         return tuple.GetValue<DateTime>(index);
+      if (type == typeof(TimeSpan))
+        return tuple.GetValue<TimeSpan>(index);
       if (type == typeof(String))
         return tuple.GetValue<String>(index);
       if (type == typeof(byte[]))

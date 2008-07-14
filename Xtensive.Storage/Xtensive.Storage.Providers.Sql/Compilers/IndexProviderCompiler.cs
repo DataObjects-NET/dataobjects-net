@@ -10,7 +10,6 @@ using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Database;
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Model;
-using Xtensive.Storage.Providers.Sql.Providers;
 using Xtensive.Storage.Providers.Sql.Resources;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Compilation;
@@ -101,7 +100,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
           SqlExpression joinExpression = null;
           for (int i = 0; i < keyColumnCount; i++) {
             SqlBinary binary = (queryRef.Columns[i] == rootTable.Columns[i]);
-            if (joinExpression == null)
+            if (SqlExpression.IsNull(joinExpression == null))
               joinExpression = binary;
             else
               joinExpression &= binary;

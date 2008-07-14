@@ -15,7 +15,6 @@ using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Database;
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Model;
-using Xtensive.Storage.Providers.Sql.Providers;
 using Xtensive.Storage.Providers.Sql.Resources;
 using Xtensive.Storage.Rse;
 using System.Linq;
@@ -54,7 +53,12 @@ namespace Xtensive.Storage.Providers.Sql
       IndexInfo primaryIndex = key.Type.Indexes.PrimaryIndex;
       var provider = new IndexProvider(primaryIndex);
       var compiled = (SqlProvider)provider.Compiled;
-      SqlSelect select = Xtensive.Sql.Dom.Sql.Select(Xtensive.Sql.Dom.Sql.QueryRef(compiled.Query));
+      var queryRef = Xtensive.Sql.Dom.Sql.QueryRef(compiled.Query);
+      SqlSelect select = Xtensive.Sql.Dom.Sql.Select(queryRef);
+      IEnumerable<SqlColumn> columnsToAdd = queryRef.Columns.Cast<SqlColumn>().Where(sqlColumn => columns.Any(columnInfo => columnInfo.Name == sqlColumn.Name));
+      foreach (SqlColumn column in columnsToAdd)
+        select.Columns.Add(column);
+
       select.Where = DomainHandler.GetWhereStatement(select.Columns[0].SqlTable, GetStatementMapping(primaryIndex, columnInfo => columnInfo.IsPrimaryKey), key);
       using (DbDataReader reader = ExecuteReader(select)) {
         if (reader.RecordsAffected > 1)

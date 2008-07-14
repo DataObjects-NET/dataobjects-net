@@ -260,6 +260,8 @@ namespace Xtensive.Storage.Model
     /// <inheritdoc/>
     public override void Lock(bool recursive)
     {
+      if (MappingName == null)
+        MappingName = Name;
       base.Lock(recursive);
       if (recursive) {
         affectedIndexes.Lock(true);
