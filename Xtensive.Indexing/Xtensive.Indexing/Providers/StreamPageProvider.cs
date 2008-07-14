@@ -337,6 +337,7 @@ namespace Xtensive.Indexing.Providers
       BaseInitialize();
     }
 
+
     // Constructors
 
     /// <summary>
