@@ -6,9 +6,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Xtensive.Core;
-using Xtensive.Core.Diagnostics;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Model;
@@ -92,16 +92,25 @@ namespace Xtensive.Storage.Building.Builders
       if (typeDef.IsInterface)
         return;
 
-      if (context.Model.Types.Contains(typeDef.UnderlyingType))
-        return;
-
       if (context.SkippedTypes.Contains(typeDef.UnderlyingType))
         return;
 
-      if (typeDef.IsStructure)
-        BuildStructure(typeDef);
-      else if (typeDef.IsEntity)
-        BuildEntity(typeDef);
+      if (typeDef.IsEntity)
+        if (!context.Model.Types.Contains(typeDef.UnderlyingType))
+          BuildEntity(typeDef);
+
+      if (typeDef.IsStructure) {
+        if (context.TraversalPath.Contains(typeDef.UnderlyingType)) {
+          context.TraversalPath.Add(typeDef.UnderlyingType);
+          string result = String.Join(" -> ", context.TraversalPath.ToArray().Select(t => t.GetShortName()).ToArray());
+          context.TraversalPath.Remove(typeDef.UnderlyingType);
+          throw new DomainBuilderException(string.Format("Cyclic reference is not allowed for structures ({0}).", result));
+        }
+        context.TraversalPath.Add(typeDef.UnderlyingType);
+        if (!context.Model.Types.Contains(typeDef.UnderlyingType))
+          BuildStructure(typeDef);
+        context.TraversalPath.Remove(typeDef.UnderlyingType);
+      }
     }
 
     private static void BuildStructure(TypeDef typeDef)

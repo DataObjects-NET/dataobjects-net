@@ -71,6 +71,7 @@ namespace Xtensive.Storage.Building.Builders
     {
       Log.Info("Building declared field '{0}.{1}'", type.Name, fieldDef.Name);
 
+      BuildingContext context = BuildingScope.Context;
       FieldInfo field = new FieldInfo(type, fieldDef.Attributes);
       field.UnderlyingProperty = fieldDef.UnderlyingProperty;
       field.Name = fieldDef.Name;

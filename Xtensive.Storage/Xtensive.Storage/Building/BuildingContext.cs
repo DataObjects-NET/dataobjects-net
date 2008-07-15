@@ -20,6 +20,8 @@ namespace Xtensive.Storage.Building
   /// </summary>
   public sealed class BuildingContext
   {
+    private readonly List<Exception> errors = new List<Exception>();
+
     /// <summary>
     /// Gets the current <see cref="BuildingContext"/>.
     /// </summary>    
@@ -57,11 +59,9 @@ namespace Xtensive.Storage.Building
 
     internal Domain Domain { get; set; }
 
-    internal List<FieldInfo> ComplexFields { get; private set; }
-
-    private List<DomainBuilderException> errors = new List<DomainBuilderException>();
-
     internal List<Pair<AssociationInfo, string>> PairedAssociations { get; private set; }
+
+    internal List<Type> TraversalPath { get; private set;}
 
     internal void RegistError(DomainBuilderException exception)
     {
@@ -72,7 +72,7 @@ namespace Xtensive.Storage.Building
     internal void EnsureBuildSucceed()
     {
       if (errors.Count != 0)
-        throw new AggregateException(Strings.ExErrorsDuringStorageBuild, (IEnumerable<Exception>) errors);
+        throw new AggregateException(Strings.ExErrorsDuringStorageBuild, errors);
     }
 
     /// <summary>
@@ -87,8 +87,8 @@ namespace Xtensive.Storage.Building
       SkippedTypes.Add(typeof (IEntity));
       SkippedTypes.Add(typeof (Structure));
       PairedAssociations = new List<Pair<AssociationInfo, string>>();
-      ComplexFields = new List<FieldInfo>();
       Logger = StringLog.Create("DomainBuilder");
+      TraversalPath = new List<Type>();
     }
   }
 }

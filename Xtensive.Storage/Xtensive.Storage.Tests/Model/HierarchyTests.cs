@@ -5,9 +5,7 @@
 // Created:    2007.12.26
 
 using System;
-using System.IO;
 using NUnit.Framework;
-using Xtensive.Core.Serialization.Binary;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Building.Definitions;
@@ -105,26 +103,16 @@ namespace Xtensive.Storage.Tests.Model.Schemas
 namespace Xtensive.Storage.Tests.Model
 {
   [TestFixture]
-  public class SchemaTests
+  public class HierarchyTests
   {
     [Test]
-    public void SchemaTest()
+    public void MainTest()
     {
-      Domain domain = CreateStorage();
+      Domain domain = CreateDomain();
       domain.Model.Dump();
     }
 
-    [Test]
-    [Ignore]
-    public void SerializationTest()
-    {
-      Domain domain = CreateStorage();
-      BinarySerializer serializer = new BinarySerializer();
-      using (MemoryStream stream = new MemoryStream())
-        serializer.Serialize(stream, domain.Model);
-    }
-
-    private Domain CreateStorage()
+    private Domain CreateDomain()
     {
       DomainConfiguration configuration =
         new DomainConfiguration(@"memory://localhost\sql2005/ABC");
