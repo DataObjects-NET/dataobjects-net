@@ -4,7 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2008.06.16
 
-using System;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
@@ -15,6 +14,8 @@ using Xtensive.Storage.KeyProviders;
 
 namespace Xtensive.Storage.Tests.Model.ReferenceTestsModel
 {
+  #region SelfReferenced Entity
+
   [HierarchyRoot(typeof (Int32Provider), "Id")]
   public class A : Entity
   {
@@ -25,11 +26,19 @@ namespace Xtensive.Storage.Tests.Model.ReferenceTestsModel
     public A Parent { get; set; }
   }
 
-  public class S : Structure
+  #endregion
+
+  #region SelfContained Structure
+
+  public class SelfContained : Structure
   {
     [Field]
-    public S Value { get; set; }
+    public SelfContained Value { get; set; }
   }
+
+  #endregion
+
+  #region Cyclic Referenced Structures
 
   public class S1 : Structure
   {
@@ -49,6 +58,10 @@ namespace Xtensive.Storage.Tests.Model.ReferenceTestsModel
     public S1 Value { get; set; }
   }
 
+  #endregion
+
+  #region Cyclic Referenced Structures with Inheritance
+
   public class Parent : Structure
   {
     [Field]
@@ -58,6 +71,8 @@ namespace Xtensive.Storage.Tests.Model.ReferenceTestsModel
   public class Child : Parent
   {
   }
+
+  #endregion
 }
 
 namespace Xtensive.Storage.Tests.Model
@@ -74,7 +89,7 @@ namespace Xtensive.Storage.Tests.Model
         Domain.Build(config);
       }
       catch (AggregateException e) {
-        Assert.AreEqual(4, e.Exceptions.Count());
+        Assert.AreEqual(3, e.Exceptions.Count());
       }
     }
   }

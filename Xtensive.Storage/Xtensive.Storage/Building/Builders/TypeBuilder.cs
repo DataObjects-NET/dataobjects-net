@@ -99,18 +99,10 @@ namespace Xtensive.Storage.Building.Builders
         if (!context.Model.Types.Contains(typeDef.UnderlyingType))
           BuildEntity(typeDef);
 
-      if (typeDef.IsStructure) {
-        if (context.TraversalPath.Contains(typeDef.UnderlyingType)) {
-          context.TraversalPath.Add(typeDef.UnderlyingType);
-          string result = String.Join(" -> ", context.TraversalPath.ToArray().Select(t => t.GetShortName()).ToArray());
-          context.TraversalPath.Remove(typeDef.UnderlyingType);
-          throw new DomainBuilderException(string.Format("Cyclic reference is not allowed for structures ({0}).", result));
-        }
-        context.TraversalPath.Add(typeDef.UnderlyingType);
-        if (!context.Model.Types.Contains(typeDef.UnderlyingType))
-          BuildStructure(typeDef);
-        context.TraversalPath.Remove(typeDef.UnderlyingType);
-      }
+      if (typeDef.IsStructure)
+        using (context.DependencyTracker.Enter(typeDef.UnderlyingType))
+          if (!context.Model.Types.Contains(typeDef.UnderlyingType))
+            BuildStructure(typeDef);
     }
 
     private static void BuildStructure(TypeDef typeDef)

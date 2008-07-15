@@ -8,7 +8,9 @@ using System;
 using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Core.Diagnostics;
+using Xtensive.Core.Reflection;
 using Xtensive.Storage.Building.Definitions;
+using Xtensive.Storage.Building.Internals;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
@@ -61,7 +63,7 @@ namespace Xtensive.Storage.Building
 
     internal List<Pair<AssociationInfo, string>> PairedAssociations { get; private set; }
 
-    internal List<Type> TraversalPath { get; private set;}
+    internal GraphAnalyzer<Type> DependencyTracker { get; private set;}
 
     internal void RegistError(DomainBuilderException exception)
     {
@@ -88,7 +90,7 @@ namespace Xtensive.Storage.Building
       SkippedTypes.Add(typeof (Structure));
       PairedAssociations = new List<Pair<AssociationInfo, string>>();
       Logger = StringLog.Create("DomainBuilder");
-      TraversalPath = new List<Type>();
+      DependencyTracker = new GraphAnalyzer<Type>(TypeHelper.GetShortName);
     }
   }
 }

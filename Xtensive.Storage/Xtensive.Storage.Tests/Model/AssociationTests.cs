@@ -39,6 +39,9 @@ namespace Xtensive.Storage.Tests.Model.Relations
 
     [Field]
     public EntitySet<G> ManyToMany { get; private set; }
+
+    [Field]
+    public IntermediateStructure Parent { get; set; }
   }
 
   public class B : Root
@@ -71,6 +74,12 @@ namespace Xtensive.Storage.Tests.Model.Relations
   {
     [Field(PairTo = "ManyToMany")]
     public EntitySet<A> As { get; private set; }
+  }
+
+  public class IntermediateStructure : Structure
+  {
+    [Field]
+    public A A { get; set; }
   }
 }
 
