@@ -45,11 +45,17 @@ namespace Xtensive.Storage.Building
       BuildingContext context = new BuildingContext(configuration);
       context.NameProvider = new NameProvider(configuration.NamingConvention);
 
-      using (new BuildingScope(context)) {        
-        BuildModel();
-        BuildDomain();
-        BuildHandlerProvider();
-        BuildKeyProviders();
+      using (new BuildingScope(context)) {
+
+        try {
+          BuildModel();
+          BuildDomain();
+          BuildHandlerProvider();
+          BuildKeyProviders();
+        }
+        catch (DomainBuilderException e) {          
+          BuildingContext.Current.RegistError(e);
+        }        
 
         context.EnsureBuildSucceed();
       }

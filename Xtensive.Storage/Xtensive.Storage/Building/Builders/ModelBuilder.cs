@@ -13,7 +13,7 @@ using Xtensive.Storage.Model;
 namespace Xtensive.Storage.Building.Builders
 {
   internal static class ModelBuilder
-  {    
+  {
     public static void Build()
     {
       BuildDefinition();
@@ -24,9 +24,15 @@ namespace Xtensive.Storage.Building.Builders
     {
       using (Log.InfoRegion("Building storage definition")) {
         BuildingContext context = BuildingContext.Current;
-        context.Definition = new DomainDef();
-        DefineTypes();        
-        DefineServices();
+
+        try {
+          context.Definition = new DomainDef();
+          DefineTypes();
+          DefineServices();
+        }
+        catch (DomainBuilderException e) {
+          context.RegistError(e);
+        }
 
         context.EnsureBuildSucceed();
 
@@ -64,7 +70,7 @@ namespace Xtensive.Storage.Building.Builders
           }
           catch (DomainBuilderException e) {
             context.RegistError(e);
-          }        
+          }
       }
     }
 
