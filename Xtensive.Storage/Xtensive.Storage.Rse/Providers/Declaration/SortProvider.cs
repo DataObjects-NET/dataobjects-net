@@ -10,12 +10,12 @@ namespace Xtensive.Storage.Rse.Providers.Declaration
 {
   public class SortProvider : CompilableProvider
   {
-    public CompilableProvider Provider { get; private set; }
+    public CompilableProvider Source { get; private set; }
     public DirectionCollection<int> TupleSortOrder { get; private set; }
 
     protected override RecordHeader BuildHeader()
     {
-      return new RecordHeader(Provider.Header.TupleDescriptor, Provider.Header.RecordColumnCollection, Provider.Header.OrderInfo.KeyDescriptor, Provider.Header.Keys, TupleSortOrder);
+      return new RecordHeader(Source.Header.TupleDescriptor, Source.Header.RecordColumnCollection, Source.Header.OrderInfo.KeyDescriptor, Source.Header.Keys, TupleSortOrder);
     }
 
 
@@ -24,7 +24,7 @@ namespace Xtensive.Storage.Rse.Providers.Declaration
     public SortProvider(CompilableProvider provider, DirectionCollection<int> tupleSortOrder)
       : base(provider)
     {
-      Provider = provider;
+      Source = provider;
       TupleSortOrder = tupleSortOrder;
     }
   }
