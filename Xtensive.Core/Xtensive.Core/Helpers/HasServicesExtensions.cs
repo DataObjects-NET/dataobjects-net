@@ -11,9 +11,9 @@ using Xtensive.Core.Resources;
 namespace Xtensive.Core.Helpers
 {
   /// <summary>
-  /// <see cref="IServiceProvider"/> related extension methods.
+  /// <see cref="IHasServices"/> related extension methods.
   /// </summary>
-  public static class ServiceProviderExtensions
+  public static class HasServicesExtensions
   {
     /// <summary>
     /// Gets the service of specified type <typeparamref name="T"/>;
@@ -28,7 +28,7 @@ namespace Xtensive.Core.Helpers
     /// and there is no requested service.</returns>
     /// <exception cref="InvalidOperationException">Thrown if <paramref name="failIfNone"/>==<see langword="true" /> 
     /// and there is no requested service.</exception>
-    public static T GetService<T>(this IServiceProvider serviceProvider, bool failIfNone)
+    public static T GetService<T>(this IHasServices serviceProvider, bool failIfNone)
       where T: class
     {
       ArgumentValidator.EnsureArgumentNotNull(serviceProvider, "serviceProvider");
@@ -52,10 +52,10 @@ namespace Xtensive.Core.Helpers
     /// and there is no requested service.</returns>
     /// <exception cref="InvalidOperationException">Thrown if <paramref name="failIfNone"/>==<see langword="true" /> 
     /// and there is no requested service.</exception>
-    public static object GetService(this IServiceProvider serviceProvider, Type serviceType, bool failIfNone)
+    public static object GetService(this IHasServices serviceProvider, Type serviceType, bool failIfNone)
     {
-      var getServiceInternal = DelegateHelper.CreateDelegate<Func<IServiceProvider, bool, object>>(
-        null, typeof (ServiceProviderExtensions), "GetServiceInternal", serviceType);
+      var getServiceInternal = DelegateHelper.CreateDelegate<Func<IHasServices, bool, object>>(
+        null, typeof (HasServicesExtensions), "GetServiceInternal", serviceType);
       return getServiceInternal(serviceProvider, failIfNone);
     }
 
@@ -65,12 +65,12 @@ namespace Xtensive.Core.Helpers
     /// <param name="serviceProvider">The service provider to query for the service.</param>
     /// <param name="serviceType">Type of the service to get.</param>
     /// <returns>The service of specified type.</returns>
-    public static object GetService(this IServiceProvider serviceProvider, Type serviceType)
+    public static object GetService(this IHasServices serviceProvider, Type serviceType)
     {
       return serviceProvider.GetService(serviceType, false);
     }
 
-    private static object GetServiceInternal<T>(this IServiceProvider serviceProvider, bool failIfNone)
+    private static object GetServiceInternal<T>(this IHasServices serviceProvider, bool failIfNone)
       where T: class
     {
       return serviceProvider.GetService<T>(failIfNone);

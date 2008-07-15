@@ -11,7 +11,7 @@ namespace Xtensive.Core
   /// <summary>
   /// Service provider contract.
   /// </summary>
-  public interface IServiceProvider
+  public interface IHasServices
   {
     /// <summary>
     /// Gets the service of the specified type <typeparamref name="T"/>.
