@@ -4,8 +4,11 @@
 // Created by: Dmitri Maximov
 // Created:    2008.06.16
 
+using System;
+using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
+using Xtensive.Core;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.KeyProviders;
@@ -45,6 +48,16 @@ namespace Xtensive.Storage.Tests.Model.ReferenceTestsModel
     [Field]
     public S1 Value { get; set; }
   }
+
+  public class Parent : Structure
+  {
+    [Field]
+    public Child Value { get; set; }
+  }
+
+  public class Child : Parent
+  {
+  }
 }
 
 namespace Xtensive.Storage.Tests.Model
@@ -57,7 +70,13 @@ namespace Xtensive.Storage.Tests.Model
     {
       DomainConfiguration config = new DomainConfiguration("memory://localhost/Bugs");
       config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.Model.ReferenceTestsModel");
-      Domain d = Domain.Build(config);
+      Domain d = null;
+      try {
+        d = Domain.Build(config);
+      }
+      catch (AggregateException e) {
+          Assert.AreEqual(4, e.Exceptions.Count());
+      }
       d.Model.Dump();
     }
   }
