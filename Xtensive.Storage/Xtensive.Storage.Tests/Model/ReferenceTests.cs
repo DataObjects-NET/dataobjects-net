@@ -70,14 +70,12 @@ namespace Xtensive.Storage.Tests.Model
     {
       DomainConfiguration config = new DomainConfiguration("memory://localhost/Bugs");
       config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.Model.ReferenceTestsModel");
-      Domain d = null;
       try {
-        d = Domain.Build(config);
+        Domain.Build(config);
       }
       catch (AggregateException e) {
-          Assert.AreEqual(4, e.Exceptions.Count());
+        Assert.AreEqual(4, e.Exceptions.Count());
       }
-      d.Model.Dump();
     }
   }
 }
