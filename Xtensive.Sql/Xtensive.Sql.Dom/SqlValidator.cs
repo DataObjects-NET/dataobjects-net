@@ -8,11 +8,14 @@ using Xtensive.Core;
 using Xtensive.Sql.Common;
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Sql.Dom.Resources;
+using System.Linq;
 
 namespace Xtensive.Sql.Dom
 {
   internal static class SqlValidator
   {
+    private static readonly Dictionary<Type,Type> supportedTypes;
+
     internal static void EnsureAreSqlRowArguments(IEnumerable<SqlExpression> nodes)
     {
       ArgumentValidator.EnsureArgumentNotNull(nodes, "expressions");
@@ -50,6 +53,12 @@ namespace Xtensive.Sql.Dom
       ArgumentValidator.EnsureArgumentNotNull(node, "expression");
       if (!(node is SqlSubQuery))
         throw new ArgumentException(Strings.ExInvalidExpressionType);
+    }
+
+    internal static void EnsureLiteralTypeIsSupported(Type type)
+    {
+      if (!supportedTypes.ContainsKey(type))
+        throw new InvalidOperationException(string.Format(Strings.ExLiteralTypeXIsNotSupported, type));
     }
 
     internal static bool IsBooleanExpression(SqlExpression node)
@@ -152,6 +161,34 @@ namespace Xtensive.Sql.Dom
         default:
           return false;
       }
+    }
+
+
+    // Static constructor
+
+    static SqlValidator()
+    {
+      supportedTypes = new[]
+        {
+          typeof (int),
+          typeof (long),
+          typeof (short),
+          typeof (string),
+          typeof (bool),
+          typeof (char),
+          typeof (sbyte),
+          typeof (byte),
+          typeof (ushort),
+          typeof (uint),
+          typeof (ulong),
+          typeof (decimal),
+          typeof (float),
+          typeof (double),
+          typeof (DateTime),
+          typeof (TimeSpan),
+          typeof (byte[]),
+          typeof (Guid)
+        }.ToDictionary(type => type);
     }
   }
 }

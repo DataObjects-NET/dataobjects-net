@@ -1065,6 +1065,12 @@ namespace Xtensive.Sql.Dom
 
     #region Literal
 
+    public static SqlLiteral<T> Literal<T>(T value)
+    {
+      SqlValidator.EnsureLiteralTypeIsSupported(typeof(T));
+      return new SqlLiteral<T>(value);
+    }
+
     public static SqlLiteral<bool> Literal(bool value)
     {
       return new SqlLiteral<bool>(value);

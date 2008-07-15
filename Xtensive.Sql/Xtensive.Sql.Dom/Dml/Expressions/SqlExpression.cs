@@ -32,18 +32,20 @@ namespace Xtensive.Sql.Dom.Dml
 
     public static SqlExpression operator &(SqlExpression left, SqlExpression right)
     {
+      if(IsNull(left))
+        return right;
       if (SqlValidator.IsBooleanExpression(left))
         return Sql.And(left, right);
-      else
-        return Sql.BitAnd(left, right);
+      return Sql.BitAnd(left, right);
     }
 
     public static SqlExpression operator |(SqlExpression left, SqlExpression right)
     {
+      if (IsNull(left))
+        return right;
       if (SqlValidator.IsBooleanExpression(left))
         return Sql.Or(left, right);
-      else
-        return Sql.BitOr(left, right);
+      return Sql.BitOr(left, right);
     }
 
     public static SqlExpression operator ^(SqlExpression left, SqlExpression right)

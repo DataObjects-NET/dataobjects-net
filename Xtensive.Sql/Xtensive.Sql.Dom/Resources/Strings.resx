@@ -171,4 +171,7 @@
   <data name="ExDriverIsNotProperlyInitialized" xml:space="preserve">
     <value>Driver is not properly initialized.</value>
   </data>
+  <data name="ExLiteralTypeXIsNotSupported" xml:space="preserve">
+    <value>Literal type '{0}' is not supported.</value>
+  </data>
 </root>

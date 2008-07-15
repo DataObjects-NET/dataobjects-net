@@ -5,6 +5,7 @@
 // Created:    2008.07.14
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Comparison;
@@ -19,8 +20,67 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
 {
   public class RangeProviderCompiler : ProviderCompiler<RangeProvider>
   {
-    private readonly ExecutionContext executionContext;
-    private DomainHandler domainHandler;
+    private struct ExpressionData
+    {
+      public SqlExpression Expression;
+      public readonly IEntire<Tuple> RangeBound;
+      public readonly bool IsLowerBound;
+      public readonly IList<SqlColumn> KeyColumns;
+
+      public ExpressionData(SqlExpression expression, IEntire<Tuple> rangeBound, IList<SqlColumn> keyColumns, bool isLowerBound)
+      {
+        Expression = expression;
+        RangeBound = rangeBound;
+        KeyColumns = keyColumns;
+        IsLowerBound = isLowerBound;
+      }
+    }
+
+    private struct ExpressionHandler : ITupleActionHandler<ExpressionData>
+    {
+      public bool Execute<TFieldType>(ref ExpressionData actionData, int fieldIndex)
+      {
+        if (actionData.IsLowerBound)
+        {
+          var entireValueType = actionData.RangeBound.GetValueType(fieldIndex);
+          switch (entireValueType) {
+            case EntireValueType.PositiveInfinitesimal:
+              actionData.Expression &= actionData.KeyColumns[fieldIndex] > Xtensive.Sql.Dom.Sql.Literal(actionData.RangeBound.GetValue<TFieldType>(fieldIndex));
+              return false;
+            case EntireValueType.NegativeInfinitesimal:
+              actionData.Expression &= actionData.KeyColumns[fieldIndex] >= Xtensive.Sql.Dom.Sql.Literal(actionData.RangeBound.GetValue<TFieldType>(fieldIndex));
+              return false;
+            case EntireValueType.PositiveInfinity:
+              actionData.Expression &= Xtensive.Sql.Dom.Sql.Constant("1") != Xtensive.Sql.Dom.Sql.Constant("1");
+              return true;
+            case EntireValueType.NegativeInfinity:
+              return false;
+            default:
+              actionData.Expression &= actionData.KeyColumns[fieldIndex] >= Xtensive.Sql.Dom.Sql.Literal(actionData.RangeBound.GetValue<TFieldType>(fieldIndex));
+              return false;
+          }
+        }
+        else {
+          var entireValueType = actionData.RangeBound.GetValueType(fieldIndex);
+          switch (entireValueType) {
+            case EntireValueType.PositiveInfinitesimal:
+              actionData.Expression &= actionData.KeyColumns[fieldIndex] <= Xtensive.Sql.Dom.Sql.Literal(actionData.RangeBound.GetValue<TFieldType>(fieldIndex));
+              return false;
+            case EntireValueType.NegativeInfinitesimal:
+              actionData.Expression &= actionData.KeyColumns[fieldIndex] < Xtensive.Sql.Dom.Sql.Literal(actionData.RangeBound.GetValue<TFieldType>(fieldIndex));
+              return false;
+            case EntireValueType.PositiveInfinity:
+              return false;
+            case EntireValueType.NegativeInfinity:
+              actionData.Expression &= Xtensive.Sql.Dom.Sql.Constant("1")!=Xtensive.Sql.Dom.Sql.Constant("1");
+              return true;
+            default:
+              actionData.Expression &= actionData.KeyColumns[fieldIndex] <= Xtensive.Sql.Dom.Sql.Literal(actionData.RangeBound.GetValue<TFieldType>(fieldIndex));
+              return false;
+            }
+        }
+      }
+    }
 
     protected override Provider Compile(RangeProvider provider)
     {
@@ -31,6 +91,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
       var queryRef = Xtensive.Sql.Dom.Sql.QueryRef(source.Query);
       SqlSelect query = Xtensive.Sql.Dom.Sql.Select(queryRef);
       query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
+
       var direction = provider.Range.GetDirection(AdvancedComparer<IEntire<Tuple>>.Default);
       var from = direction == Direction.Positive ? 
         provider.Range.EndPoints.First : 
@@ -39,29 +100,15 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
         provider.Range.EndPoints.Second :
         provider.Range.EndPoints.First;
 
-      SqlExpression rangeExpression = Xtensive.Sql.Dom.Sql.Constant("1") == Xtensive.Sql.Dom.Sql.Constant("1");
+      var keyColumns = provider.Header.OrderInfo.OrderedBy.Select(pair => query.Columns[pair.Key]).ToList();
+      var expressionData = new ExpressionData(null, from, keyColumns, true);
+      var expressionHandler = new ExpressionHandler();
+      from.Descriptor.Execute(expressionHandler, ref expressionData, Direction.Positive);
+      to.Descriptor.Execute(expressionHandler, ref expressionData, Direction.Positive);
+      
+      query.Where = expressionData.Expression;
 
-      for (int i = 0; i < from.Count; i++) {
-        var valueType = from.GetValueType(i);
-        switch (valueType) {
-        case EntireValueType.PositiveInfinitesimal:
-          break;
-        case EntireValueType.NegativeInfinitesimal:
-//          from.GetValue(i);
-//          rangeExpression &= 
-          break;
-        case EntireValueType.PositiveInfinity:
-          rangeExpression &= Xtensive.Sql.Dom.Sql.Constant("1") != Xtensive.Sql.Dom.Sql.Constant("1");
-          continue;
-        case EntireValueType.NegativeInfinity:
-          continue;
-        default:
-          break;
-        }
-      }
-
-
-      throw new System.NotImplementedException();
+      return new SqlProvider(provider.Header, query);
     }
 
     // Constructors
@@ -69,8 +116,6 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
     public RangeProviderCompiler(Rse.Compilation.CompilerResolver resolver)
       : base(resolver)
     {
-      executionContext = ((CompilerResolver)resolver).ExecutionContext;
-      domainHandler = (DomainHandler)executionContext.DomainHandler;
     }
   }
 }
