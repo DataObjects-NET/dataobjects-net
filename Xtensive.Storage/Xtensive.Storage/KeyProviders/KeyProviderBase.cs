@@ -12,13 +12,16 @@ namespace Xtensive.Storage
   public abstract class KeyProviderBase : IKeyProvider
   {
     /// <summary>
-    ///  Fills the key tuple with the unique values.
-    ///  </summary><param name="keyTuple">The target key tuple to fill with values.</param>
+    /// Fills the key tuple with the unique values.
+    /// </summary>
+    /// <param name="keyTuple">The target key tuple to fill with values.</param>
     public abstract void GetNext(Tuple keyTuple);
 
     /// <summary>
-    ///  Fills the key tuple with specified set of key data.
-    ///  </summary><param name="keyTuple">The target key tuple to fill with key data.</param><param name="keyData">Key field values.</param>
+    /// Fills the key tuple with specified set of key data.
+    /// </summary>
+    /// <param name="keyTuple">The target key tuple to fill with key data.</param>
+    /// <param name="keyData">Key field values.</param>
     public virtual void Build(Tuple keyTuple, params object[] keyData)
     {
       ArgumentValidator.EnsureArgumentNotNull(keyTuple, "keyTuple");
