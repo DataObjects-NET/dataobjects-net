@@ -835,6 +835,15 @@ namespace Xtensive.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Service &apos;{0}&apos; is not found..
+        /// </summary>
+        internal static string ExServiceNotFound {
+            get {
+                return ResourceManager.GetString("ExServiceNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The specified capacity value is less than collection count..
         /// </summary>
         internal static string ExSpecifiedCapacityIsLessThenCollectionCount {

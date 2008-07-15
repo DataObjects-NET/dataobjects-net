@@ -507,4 +507,7 @@
   <data name="ExASetOfExceptionsIsCaught" xml:space="preserve">
     <value>A set of exceptions is caught.</value>
   </data>
+  <data name="ExServiceNotFound" xml:space="preserve">
+    <value>Service '{0}' is not found.</value>
+  </data>
 </root>
