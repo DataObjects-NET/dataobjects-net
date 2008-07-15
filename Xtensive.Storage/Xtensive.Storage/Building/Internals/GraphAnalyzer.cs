@@ -20,9 +20,9 @@ namespace Xtensive.Storage.Building.Internals
     {
       if (Path.Contains(node)) {
         Path.Push(node);
-        string result = String.Join(" -> ", Path.ToArray().Select(toString).ToArray());
+        string result = String.Join(" -> ", Path.ToArray().Reverse().Select(toString).ToArray());
         Path.Pop();
-        throw new DomainBuilderException(string.Format("Cyclic reference was detected ({0}).", result));
+        throw new DomainBuilderException(string.Format("Circular reference was detected ({0}).", result));
       }
       Path.Push(node);
       return new GraphAnalyzerScope<TNode>(this, node);
