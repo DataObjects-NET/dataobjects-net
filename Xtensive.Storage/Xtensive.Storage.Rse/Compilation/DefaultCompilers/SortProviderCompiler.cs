@@ -15,7 +15,7 @@ namespace Xtensive.Storage.Rse.Compilation.DefaultCompilers
     {
       return new Providers.Implementation.SortProvider(
         provider.Header, 
-        provider.Provider.Compile(), 
+        provider.Source.Compile(), 
         provider.TupleSortOrder);
     }
 

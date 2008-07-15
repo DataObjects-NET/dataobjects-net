@@ -4,9 +4,12 @@
 // Created by: Alexey Kochetov
 // Created:    2008.07.11
 
+using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using Xtensive.Core.Tuples;
 using Xtensive.Sql.Dom.Dml;
+using Xtensive.Storage.Providers.Sql.Resources;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers;
 
@@ -23,6 +26,19 @@ namespace Xtensive.Storage.Providers.Sql
 
     public override IEnumerator<Tuple> GetEnumerator()
     {
+/*
+      using (DbDataReader reader = ExecuteReader(Query))
+      {
+        if (reader.RecordsAffected > 1)
+          throw new InvalidOperationException(Strings.ExQueryMultipleResults);
+        if (reader.Read())
+        {
+          Tuple tuple = GetTuple(reader, select);
+          return tuple;
+        }
+        return null;
+      }
+*/
       throw new System.NotImplementedException();
     }
 
