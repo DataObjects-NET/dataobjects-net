@@ -17,7 +17,7 @@ using System.Linq;
 
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
-  public sealed class SortProvider : ProviderCalculator,
+  internal sealed class SortProvider : ExecutableProvider,
     ISupportRandomAccess<Tuple>,
     ICountable
   {
@@ -26,10 +26,6 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     private MapTransform transform;
     private AdvancedComparer<Tuple> keyComparer;
 
-    public override ProviderOptionsStruct Options
-    {
-      get { return ProviderOptions.RandomAccess | ProviderOptions.Ordered; }
-    }
 
     long ICountable.Count
     {
@@ -50,13 +46,14 @@ namespace Xtensive.Storage.Rse.Providers.Executable
       }
     }
 
-    protected override IEnumerable<Tuple> Calculate()
+    protected override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
       list = source.ToList();
 
       var rules = new ComparisonRules[Header.OrderInfo.OrderedBy.Count];
       var columnIndexes = new int[Header.OrderInfo.OrderedBy.Count];
-      for (int i = 0; i < Header.OrderInfo.OrderedBy.Count; i++) {
+      for (int i = 0; i < Header.OrderInfo.OrderedBy.Count; i++)
+      {
         KeyValuePair<int, Direction> sortItem = Header.OrderInfo.OrderedBy[i];
         CultureInfo culture = Header.RecordColumnCollection[sortItem.Key].ColumnInfoRef != null
                                 ? Header.RecordColumnCollection[sortItem.Key].ColumnInfoRef.CultureInfo
@@ -83,8 +80,8 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 
     // Constructors
 
-    public SortProvider(RecordHeader header, Provider source, DirectionCollection<int> tupleSortOrder)
-      : base(header, source)
+    public SortProvider(CompilableProvider origin, ExecutableProvider source)
+      : base(origin, source)
     {
       this.source = source;
     }

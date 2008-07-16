@@ -17,18 +17,16 @@ using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
-  internal sealed class LeftMergeJoinProvider: ExecutableProvider
+  internal sealed class LeftMergeJoinProvider: BinaryExecutableProvider
   {
-    private readonly Provider left;
-    private readonly Provider right;
     private readonly MergeTransform transform;
 
     protected override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
-      var leftOrdered = left.GetService<IOrderedEnumerable<Tuple, Tuple>>();
-      var rightOrdered = right.GetService<IOrderedEnumerable<Tuple, Tuple>>();
+      var leftOrdered = Left.GetService<IOrderedEnumerable<Tuple, Tuple>>();
+      var rightOrdered = Right.GetService<IOrderedEnumerable<Tuple, Tuple>>();
       foreach (Pair<Tuple, Tuple> pair in Joiner.MergeJoinLeft(leftOrdered, rightOrdered)) {
-        Tuple rightTuple = pair.Second ?? Tuple.Create(right.Header.TupleDescriptor);
+        Tuple rightTuple = pair.Second ?? Tuple.Create(Right.Header.TupleDescriptor);
         yield return transform.Apply(TupleTransformType.Auto, pair.First, rightTuple);
       }
     }
@@ -39,8 +37,6 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     public LeftMergeJoinProvider(CompilableProvider origin, ExecutableProvider left, ExecutableProvider right)
       : base (origin, left, right)
     {
-      this.left = left;
-      this.right = right;
       transform = new MergeTransform(true, left.Header.TupleDescriptor, right.Header.TupleDescriptor);
     }
   }

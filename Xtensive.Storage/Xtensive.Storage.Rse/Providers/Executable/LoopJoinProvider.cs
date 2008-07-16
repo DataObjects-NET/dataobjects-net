@@ -16,21 +16,19 @@ using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
-  internal sealed class LoopJoinProvider : ExecutableProvider
+  internal sealed class LoopJoinProvider : BinaryExecutableProvider
   {
-    private readonly Provider left;
-    private readonly Provider right;
     private readonly bool leftJoin;
     private readonly MergeTransform transform;
     private readonly MapTransform leftKeyTransform;
 
     protected override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
-      var rightOrdered = right.GetService<IOrderedEnumerable<Tuple, Tuple>>(true);
+      var rightOrdered = Right.GetService<IOrderedEnumerable<Tuple, Tuple>>(true);
       foreach (Pair<Tuple, Tuple> pair in leftJoin ? Joiner.LoopJoinLeft(left, rightOrdered, KeyExtractorLeft) : Joiner.LoopJoin(left, rightOrdered, KeyExtractorLeft)) {
         Tuple rightTuple = pair.Second;
         if (rightTuple == null)
-          rightTuple = Tuple.Create(right.Header.TupleDescriptor);
+          rightTuple = Tuple.Create(Right.Header.TupleDescriptor);
         yield return transform.Apply(TupleTransformType.Auto, pair.First, rightTuple);
       }
     }
@@ -46,8 +44,6 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     public LoopJoinProvider(CompilableProvider origin, ExecutableProvider left, ExecutableProvider right, bool leftJoin, params Pair<int>[] joiningPairs)
       : base(origin, left, right)
     {
-      this.left = left;
-      this.right = right;
       this.leftJoin = leftJoin;
       transform = new MergeTransform(true, left.Header.TupleDescriptor, right.Header.TupleDescriptor);
       int[] map = joiningPairs.Select(pair => pair.First).ToArray();

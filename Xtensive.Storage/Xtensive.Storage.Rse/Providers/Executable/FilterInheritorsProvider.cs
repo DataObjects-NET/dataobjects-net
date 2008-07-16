@@ -13,17 +13,17 @@ using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
 using Xtensive.Storage.Rse;
 using System.Linq;
+using Xtensive.Storage.Rse.Providers.Executable;
 using Xtensive.Storage.Rse.Providers.Internals;
 using Xtensive.Core.Helpers;
 
 namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
 {
-  public sealed class FilterInheritorsProvider : ExecutableProvider,
+  public sealed class FilterInheritorsProvider : UnaryExecutableProvider,
     IOrderedEnumerable<Tuple,Tuple>,
     ICountable
   {
     private readonly IOrderedEnumerable<Tuple,Tuple> source;
-    private readonly ExecutableProvider sourceProvider;
     private readonly Func<Tuple, bool> predicate;
     private readonly bool[] typeIDMatch;
 
@@ -31,7 +31,7 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
     {
       get
       {
-        var countable = sourceProvider.GetService<ICountable>(true);
+        var countable = Source.GetService<ICountable>(true);
         return countable.Count;
       }
     }
@@ -91,7 +91,7 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
     /// <inheritdoc/>
     public IIndexReader<Tuple, Tuple> CreateReader(Range<IEntire<Tuple>> range)
     {
-      return new FilteringReader(this, range, sourceProvider, predicate);
+      return new FilteringReader(this, range, Source, predicate);
     }
 
     /// <inheritdoc/>
@@ -107,10 +107,9 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     public FilterInheritorsProvider(CompilableProvider origin, ExecutableProvider provider,  int typeIDColumn, int typesCount,  params int[] typeIDs)
-      : base(origin)
+      : base(origin, provider)
     {
-      sourceProvider = provider;
-      source = sourceProvider.GetService<IOrderedEnumerable<Tuple,Tuple>>(true);
+      source = provider.GetService<IOrderedEnumerable<Tuple,Tuple>>(true);
       typeIDMatch = new bool[typesCount + 1];
       foreach (int typeID in typeIDs)
         typeIDMatch[typeID] = true;

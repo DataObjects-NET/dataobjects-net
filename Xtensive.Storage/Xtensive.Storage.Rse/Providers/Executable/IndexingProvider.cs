@@ -16,9 +16,8 @@ using System.Linq;
 
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
-  public sealed class IndexingProvider : ExecutableProvider
+  public sealed class IndexingProvider : UnaryExecutableProvider
   {
-    private readonly Provider source;
     private IOrderedIndex<Tuple, Tuple> index;
     private MapTransform transform;
 
@@ -62,10 +61,9 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 
     // Constructors
 
-    public IndexingProvider(RecordHeader header, Provider source)
-      : base(header, source)
+    public IndexingProvider(CompilableProvider origin, ExecutableProvider source)
+      : base(origin, source)
     {
-      this.source = source;
     }
   }
 }
