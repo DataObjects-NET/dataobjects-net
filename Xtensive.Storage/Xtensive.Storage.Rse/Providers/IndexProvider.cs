@@ -25,11 +25,6 @@ namespace Xtensive.Storage.Rse.Providers
       get { return index; }
     }
 
-    public override ProviderOptionsStruct Options
-    {
-      get { return ProviderOptions.Indexed | ProviderOptions.Ordered; }
-    }
-
     protected override RecordHeader BuildHeader()
     {
       return new RecordHeader(index);

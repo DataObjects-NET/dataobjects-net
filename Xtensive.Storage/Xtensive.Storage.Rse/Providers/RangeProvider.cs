@@ -14,11 +14,6 @@ namespace Xtensive.Storage.Rse.Providers
     public CompilableProvider Source { get; private set; }
     public Range<IEntire<Tuple>> Range { get; private set; }
 
-    public override ProviderOptionsStruct Options
-    {
-      get { return ProviderOptions.Indexed | ProviderOptions.Ordered | ProviderOptions.FastCount; }
-    }
-
     protected override RecordHeader BuildHeader()
     {
       return Source.Header; 

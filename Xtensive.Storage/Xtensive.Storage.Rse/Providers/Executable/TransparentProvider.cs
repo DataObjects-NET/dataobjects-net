@@ -4,35 +4,25 @@
 // Created by: Alexey Kochetov
 // Created:    2008.05.20
 
+using Xtensive.Core.Internals.DocTemplates;
+
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
-  public abstract class TransparentProvider : ExecutableProvider
+  public abstract class TransparentProvider : UnaryExecutableProvider
   {
-    private readonly Provider source;
-
-    public Provider Source
-    {
-      get { return source; }
-    }
-
-    public override ProviderOptionsStruct Options
-    {
-      get { return source.Options; }
-    }
-
     /// <inheritdoc/>
     public override T GetService<T>()
     {
-      return source.GetService<T>();
+      return Source.GetService<T>();
     }
 
 
     // Constructor
 
-    protected TransparentProvider(RecordHeader header, Provider source)
-      : base(header, source)
+    /// <inheritdoc/>
+    protected TransparentProvider(CompilableProvider origin, Provider source)
+      : base(origin, source)
     {
-      this.source = source;
     }
   }
 }

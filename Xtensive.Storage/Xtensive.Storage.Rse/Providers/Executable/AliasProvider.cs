@@ -12,16 +12,12 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 {
   public sealed class AliasProvider : TransparentProvider
   {
-    /// <inheritdoc/>
-    public override IEnumerator<Tuple> GetEnumerator()
-    {
-      return Source.GetEnumerator();
-    }
+    
 
     // Constructor
 
-    public AliasProvider(RecordHeader header, Provider source)
-      : base(header, source)
+    public AliasProvider(CompilableProvider origin, Provider source)
+      : base(origin, source)
     {
     }
   }

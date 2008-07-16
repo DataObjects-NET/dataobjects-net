@@ -55,7 +55,7 @@ namespace Xtensive.Storage.Rse.Providers
       if (compiled == null) lock (this) if (compiled == null) {
         context = CompilationScope.CurrentContext;
         if (context == null) {
-          using (new CompilationContext(new [] {new DefaultCompiler()}).Activate()) {
+          using (new CompilationContext(new DefaultCompiler()).Activate()) {
             context = CompilationScope.CurrentContext;
             do {
               compiled = context.Compile(this);

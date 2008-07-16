@@ -13,12 +13,6 @@ namespace Xtensive.Storage.Rse.Providers
     private readonly RecordHeader header;
     public Tuple[] Tuples { get; private set; }
 
-    /// <inheritdoc/>
-    public override ProviderOptionsStruct Options
-    {
-      get { return ProviderOptions.FastCount | ProviderOptions.FastFirst | ProviderOptions.RandomAccess; }
-    }
-
     protected override RecordHeader BuildHeader()
     {
       return header;

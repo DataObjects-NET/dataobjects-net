@@ -14,11 +14,6 @@ namespace Xtensive.Storage.Rse.Providers
     public CompilableProvider Source { get; private set; }
     public string Alias { get; private set; }
 
-    public override ProviderOptionsStruct Options
-    {
-      get { return Source.Options; }
-    }
-
     protected override RecordHeader BuildHeader()
     {
       return new RecordHeader(Source.Header, Alias);
