@@ -21,7 +21,7 @@ using Xtensive.Storage.Rse.Providers.Internals;
 
 namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
 {
-  internal sealed class JoinInheritorsProvider : ExecutableProvider,
+  public sealed class JoinInheritorsProvider : ExecutableProvider,
     IOrderedEnumerable<Tuple,Tuple>,
     ICountable
   {

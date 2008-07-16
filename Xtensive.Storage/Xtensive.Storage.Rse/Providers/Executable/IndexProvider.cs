@@ -16,7 +16,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
   /// <summary>
   /// General index provider for all indexing storage handlers.
   /// </summary>
-  internal sealed class IndexProvider : ExecutableProvider
+  public sealed class IndexProvider : ExecutableProvider
   {
     private readonly Func<IndexInfo, IOrderedIndex<Tuple, Tuple>> indexResolver;
     private readonly IndexInfo indexDescriptor;

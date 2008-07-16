@@ -21,7 +21,7 @@ using Xtensive.Core.Helpers;
 
 namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
 {
-  internal sealed class MergeInheritorsProvider : ExecutableProvider,
+  public sealed class MergeInheritorsProvider : ExecutableProvider,
     IOrderedEnumerable<Tuple,Tuple>,
     ICountable
   {

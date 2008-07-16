@@ -18,12 +18,12 @@ using Xtensive.Core.Helpers;
 
 namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
 {
-  internal sealed class FilterInheritorsProvider : ExecutableProvider,
+  public sealed class FilterInheritorsProvider : ExecutableProvider,
     IOrderedEnumerable<Tuple,Tuple>,
     ICountable
   {
     private readonly IOrderedEnumerable<Tuple,Tuple> source;
-    private readonly CompilableProvider sourceProvider;
+    private readonly ExecutableProvider sourceProvider;
     private readonly Func<Tuple, bool> predicate;
     private readonly bool[] typeIDMatch;
 
@@ -106,10 +106,10 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public FilterInheritorsProvider(CompilableProvider origin, int typeIDColumn, int typesCount,  params int[] typeIDs)
+    public FilterInheritorsProvider(CompilableProvider origin, ExecutableProvider provider,  int typeIDColumn, int typesCount,  params int[] typeIDs)
       : base(origin)
     {
-      sourceProvider = origin;
+      sourceProvider = provider;
       source = sourceProvider.GetService<IOrderedEnumerable<Tuple,Tuple>>(true);
       typeIDMatch = new bool[typesCount + 1];
       foreach (int typeID in typeIDs)
