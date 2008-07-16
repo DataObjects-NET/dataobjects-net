@@ -11,9 +11,10 @@ using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Comparison;
+using Xtensive.Core.Helpers;
 using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
-using Xtensive.Storage.Rse.Providers.Declaration;
+using Xtensive.Storage.Rse.Providers;
 
 namespace Xtensive.Storage.Rse
 {

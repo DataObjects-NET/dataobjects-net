@@ -17,7 +17,7 @@ using Xtensive.Storage.Rse.Providers.Internals;
 
 namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
 {
-  public sealed class FilterInheritorsProvider : ProviderImplementation,
+  public sealed class FilterInheritorsProvider : ExecutableProvider,
     IOrderedEnumerable<Tuple,Tuple>,
     ICountable
   {

@@ -15,7 +15,7 @@ using Xtensive.Storage.Rse.Providers;
 
 namespace Xtensive.Storage.Providers.Sql
 {
-  public class SqlProvider : ProviderImplementation
+  public class SqlProvider : ExecutableProvider
   {
     private readonly SqlSelect sqlSelect;
 

@@ -14,15 +14,15 @@ using Xtensive.Storage.Providers.Sql.Resources;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
-using Xtensive.Storage.Rse.Providers.Declaration;
+using Xtensive.Storage.Rse.Providers;
 using System.Linq;
 using SQL = Xtensive.Sql.Dom.Sql;
 
 namespace Xtensive.Storage.Providers.Sql.Compilers
 {
-  public class IndexProviderCompiler : ProviderCompiler<IndexProvider>
+  public class IndexProviderCompiler : TypeCompiler<IndexProvider>
   {
-    private readonly ExecutionContext executionContext;
+    private readonly HandlerAccessor handlerAccessor;
     private readonly DomainHandler domainHandler;
 
     protected override Provider Compile(IndexProvider provider)
@@ -123,7 +123,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
       var typeIds = descendants.Select(t => t.TypeId).ToArray();
 
       var baseQuery = BuildProviderQuery(index.BaseIndexes[0]);
-      SqlColumn typeIdColumn = baseQuery.Columns[executionContext.Domain.NameProvider.TypeId];
+      SqlColumn typeIdColumn = baseQuery.Columns[handlerAccessor.Domain.NameProvider.TypeId];
       SqlBinary inQuery = SQL.In(typeIdColumn, SQL.Array(typeIds));
       SqlSelect query = SQL.Select(SQL.QueryRef(baseQuery));
       query.Columns.AddRange(index.Columns.Select(c => baseQuery.Columns[c.Name]));
@@ -135,11 +135,11 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
 
     // Constructor
 
-    public IndexProviderCompiler(Rse.Compilation.CompilerResolver resolver)
-      : base(resolver)
+    public IndexProviderCompiler(Rse.Compilation.Compiler provider)
+      : base(provider)
     {
-      executionContext = ((CompilerResolver) resolver).ExecutionContext;
-      domainHandler = (DomainHandler)executionContext.DomainHandler;
+      handlerAccessor = ((CompilerResolver) provider).HandlerAccessor;
+      domainHandler = (DomainHandler)handlerAccessor.DomainHandler;
     }
   }
 }

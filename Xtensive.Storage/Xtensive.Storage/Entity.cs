@@ -63,12 +63,12 @@ namespace Xtensive.Storage
     [DebuggerHidden]
     internal int TypeId
     {
-      get { return GetValue<int>(Session.ExecutionContext.NameProvider.TypeId); }
+      get { return GetValue<int>(Session.HandlerAccessor.NameProvider.TypeId); }
       set
       {
         if (TypeId > 0)
-          throw Exceptions.AlreadyInitialized(Session.ExecutionContext.NameProvider.TypeId);
-        FieldInfo field = Type.Fields[Session.ExecutionContext.NameProvider.TypeId];
+          throw Exceptions.AlreadyInitialized(Session.HandlerAccessor.NameProvider.TypeId);
+        FieldInfo field = Type.Fields[Session.HandlerAccessor.NameProvider.TypeId];
         field.GetAccessor<int>().SetValue(this, field, value);
       }
     }
@@ -246,8 +246,8 @@ namespace Xtensive.Storage
     /// <remarks>Use this type of constructor when you need to explicitly build key for this instance.</remarks>
     protected Entity(params object[] keyData)
     {
-      TypeInfo type = Session.ExecutionContext.Model.Types[GetType()];
-      Key key = Session.ExecutionContext.KeyManager.BuildPrimaryKey(type, keyData);
+      TypeInfo type = Session.HandlerAccessor.Model.Types[GetType()];
+      Key key = Session.HandlerAccessor.KeyManager.BuildPrimaryKey(type, keyData);
       DifferentialTuple tuple = new DifferentialTuple(Tuple.Create(type.TupleDescriptor));
       key.Tuple.Copy(tuple, 0);
 

@@ -120,4 +120,13 @@
   <data name="ExInvalidFieldName" xml:space="preserve">
     <value>There are no '{0}' field in the record.</value>
   </data>
+  <data name="ExCompilerNotFound" xml:space="preserve">
+    <value>Compiler supporting provider '{0}' is not found.</value>
+  </data>
+  <data name="ExHeaderIsNotAvailableSinceOriginIsNotProvided" xml:space="preserve">
+    <value>Header is not available, since origin is not provided.</value>
+  </data>
+  <data name="ExActiveExecutionContextIsNecessary" xml:space="preserve">
+    <value>Active ExecutionContext is necessary to perform the current operation.</value>
+  </data>
 </root>

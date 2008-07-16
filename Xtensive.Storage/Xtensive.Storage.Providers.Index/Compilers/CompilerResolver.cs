@@ -6,16 +6,16 @@
 
 namespace Xtensive.Storage.Providers.Index.Compilers
 {
-  public sealed class CompilerResolver : Rse.Compilation.CompilerResolver
+  public sealed class CompilerResolver : Rse.Compilation.Compiler
   {
-    public ExecutionContext ExecutionContext { get; private set; }
+    public HandlerAccessor HandlerAccessor { get; private set; }
 
 
     // Constructor
 
-    public CompilerResolver(ExecutionContext context)
+    public CompilerResolver(HandlerAccessor handlerAccessor)
     {
-      ExecutionContext = context;
+      HandlerAccessor = handlerAccessor;
     }
   }
 }

@@ -81,17 +81,17 @@ namespace Xtensive.Storage.Building
     private static void BuildDomain()
     {
       Domain domain = new Domain();
-      domain.ExecutionContext = new ExecutionContext(domain);
-      domain.ExecutionContext.Configuration = BuildingScope.Context.Configuration;
-      domain.ExecutionContext.Model = BuildingScope.Context.Model;
-      domain.ExecutionContext.NameProvider = BuildingScope.Context.NameProvider;
+      domain.HandlerAccessor = new HandlerAccessor(domain);
+      domain.HandlerAccessor.Configuration = BuildingScope.Context.Configuration;
+      domain.HandlerAccessor.Model = BuildingScope.Context.Model;
+      domain.HandlerAccessor.NameProvider = BuildingScope.Context.NameProvider;
       BuildingScope.Context.Domain = domain;
     }
 
     private static void BuildKeyProviders()
     {
       Log.Info(Strings.LogBuildingKeyProviders);
-      Registry<HierarchyInfo, IKeyProvider> providers = BuildingScope.Context.Domain.ExecutionContext.KeyProviders;
+      Registry<HierarchyInfo, IKeyProvider> providers = BuildingScope.Context.Domain.HandlerAccessor.KeyProviders;
       foreach (HierarchyInfo hierarchy in BuildingScope.Context.Model.Hierarchies) {        
         IKeyProvider keyProvider = (IKeyProvider)Activator.CreateInstance(hierarchy.KeyProvider);
         providers.Register(hierarchy, keyProvider);        
@@ -102,9 +102,9 @@ namespace Xtensive.Storage.Building
     private static void BuildHandlerProvider()
     {
       Log.Info(Strings.LogBuildingHandlerProvider);
-      ExecutionContext execContext = BuildingScope.Context.Domain.ExecutionContext;
+      HandlerAccessor handlerAccessor = BuildingScope.Context.Domain.HandlerAccessor;
       lock (pluginManager) {
-        string protocol = execContext.Configuration.ConnectionInfo.Protocol;
+        string protocol = handlerAccessor.Configuration.ConnectionInfo.Protocol;
         Type handlerProviderType = pluginManager[new HandlerProviderAttribute(protocol)];
 
         if (handlerProviderType==null)
@@ -114,10 +114,10 @@ namespace Xtensive.Storage.Building
               Environment.CurrentDirectory));
         
         Delegate costructorDelegate = DelegateHelper.CreateClassConstructorDelegate(handlerProviderType);
-        execContext.HandlerProvider = (HandlerProvider)costructorDelegate.DynamicInvoke();
-        execContext.DomainHandler = execContext.HandlerProvider.GetHandler<DomainHandler>();
-        execContext.DomainHandler.ExecutionContext = execContext;
-        execContext.DomainHandler.Build();        
+        handlerAccessor.HandlerProvider = (HandlerProvider)costructorDelegate.DynamicInvoke();
+        handlerAccessor.DomainHandler = handlerAccessor.HandlerProvider.GetHandler<DomainHandler>();
+        handlerAccessor.DomainHandler.HandlerAccessor = handlerAccessor;
+        handlerAccessor.DomainHandler.Build();        
       }
     }
   }

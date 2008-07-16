@@ -7,12 +7,12 @@
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
-using Xtensive.Storage.Rse.Providers.Declaration;
+using Xtensive.Storage.Rse.Providers;
 using System.Linq;
 
 namespace Xtensive.Storage.Providers.Sql.Compilers
 {
-  public class SelectProviderCompiler : ProviderCompiler<SelectProvider>
+  public class SelectProviderCompiler : TypeCompiler<SelectProvider>
   {
     protected override Provider Compile(SelectProvider provider)
     {
@@ -29,8 +29,8 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
 
     // Constructors
 
-    public SelectProviderCompiler(Rse.Compilation.CompilerResolver resolver)
-      : base(resolver)
+    public SelectProviderCompiler(Rse.Compilation.Compiler provider)
+      : base(provider)
     {
     }
   }

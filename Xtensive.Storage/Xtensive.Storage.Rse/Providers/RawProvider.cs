@@ -2,17 +2,16 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kochetov
-// Created:    2008.05.08
+// Created:    2008.07.09
 
-using System.Collections.Generic;
-using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 
 namespace Xtensive.Storage.Rse.Providers
 {
-  public sealed class RawProvider : ProviderImplementation
+  public class RawProvider : CompilableProvider
   {
-    private readonly Tuple[] tuples;
+    private readonly RecordHeader header;
+    public Tuple[] Tuples { get; private set; }
 
     /// <inheritdoc/>
     public override ProviderOptionsStruct Options
@@ -20,23 +19,18 @@ namespace Xtensive.Storage.Rse.Providers
       get { return ProviderOptions.FastCount | ProviderOptions.FastFirst | ProviderOptions.RandomAccess; }
     }
 
-    public override IEnumerator<Tuple> GetEnumerator()
+    protected override RecordHeader BuildHeader()
     {
-      return ((IEnumerable<Tuple>)tuples).GetEnumerator();
+      return header;
     }
 
 
-    // Constructors
+    // Constructor
 
-    /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true" />
-    /// </summary>
-    /// <param name="header">Record header.</param>
-    /// <param name="tuples">Source tuples.</param>
     public RawProvider(RecordHeader header, params Tuple[] tuples)
-      : base(header)
     {
-      this.tuples = tuples;
+      Tuples = tuples;
+      this.header = header;
     }
   }
 }

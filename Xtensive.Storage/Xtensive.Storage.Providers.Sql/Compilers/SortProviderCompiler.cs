@@ -9,12 +9,12 @@ using Xtensive.Core;
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
-using Xtensive.Storage.Rse.Providers.Declaration;
+using Xtensive.Storage.Rse.Providers;
 using System.Linq;
 
 namespace Xtensive.Storage.Providers.Sql.Compilers
 {
-  public class SortProviderCompiler : ProviderCompiler<SortProvider>
+  public class SortProviderCompiler : TypeCompiler<SortProvider>
   {
     protected override Provider Compile(SortProvider provider)
     {
@@ -33,8 +33,8 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
 
     // Constructors
 
-    public SortProviderCompiler(Rse.Compilation.CompilerResolver resolver)
-      : base(resolver)
+    public SortProviderCompiler(Rse.Compilation.Compiler provider)
+      : base(provider)
     {
     }
   }

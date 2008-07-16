@@ -7,12 +7,12 @@
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
-using Xtensive.Storage.Rse.Providers.Declaration;
+using Xtensive.Storage.Rse.Providers;
 using System.Linq;
 
 namespace Xtensive.Storage.Providers.Sql.Compilers
 {
-  public class JoinProviderCompiler : ProviderCompiler<JoinProvider>
+  public class JoinProviderCompiler : TypeCompiler<JoinProvider>
   {
     /// <inheritdoc/>
     protected override Provider Compile(JoinProvider provider)
@@ -38,8 +38,8 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
 
     // Constructors
     
-    public JoinProviderCompiler(Rse.Compilation.CompilerResolver resolver)
-      : base(resolver)
+    public JoinProviderCompiler(Rse.Compilation.Compiler provider)
+      : base(provider)
     {
     }
   }

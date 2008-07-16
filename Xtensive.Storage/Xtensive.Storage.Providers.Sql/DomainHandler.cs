@@ -18,7 +18,7 @@ using Xtensive.Sql.Dom.Database.Providers;
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse.Compilation;
-using Xtensive.Storage.Rse.Compilation.DefaultCompilers;
+using Xtensive.Storage.Rse.Compilation;
 using ColumnInfo=Xtensive.Storage.Model.ColumnInfo;
 using IndexInfo=Xtensive.Storage.Model.IndexInfo;
 using Xtensive.Storage.Providers.Sql.Resources;
@@ -35,20 +35,20 @@ namespace Xtensive.Storage.Providers.Sql
 
     protected override CompilationContext GetCompilationContext()
     {
-      return new CompilationContext(new CompilerResolver[] { new Compilers.CompilerResolver(ExecutionContext), new DefaultCompilerResolver() });
+      return new CompilationContext(new Compiler[] { new Compilers.CompilerResolver(HandlerAccessor), new DefaultCompiler() });
     }
 
     /// <inheritdoc/>
     public override void Build()
     {
       var provider = new SqlConnectionProvider();
-      using (connection = provider.CreateConnection(ExecutionContext.Configuration.ConnectionInfo.ToString()) as SqlConnection) {
+      using (connection = provider.CreateConnection(HandlerAccessor.Configuration.ConnectionInfo.ToString()) as SqlConnection) {
         if (connection==null)
           throw new InvalidOperationException(Strings.ExUnableToCreateConnection);
         connection.Open();
         var modelProvider = new SqlModelProvider(connection);
         model = Xtensive.Sql.Dom.Database.Model.Build(modelProvider);
-        string catalogName = ExecutionContext.Configuration.ConnectionInfo.Resource;
+        string catalogName = HandlerAccessor.Configuration.ConnectionInfo.Resource;
         catalog = model.DefaultServer.Catalogs[catalogName];
         using (transaction = connection.BeginTransaction()) {
           ClearCatalog();
@@ -79,7 +79,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       SqlBatch batch = Xtensive.Sql.Dom.Sql.Batch();
       // Build tables
-      foreach (TypeInfo type in ExecutionContext.Model.Types) {
+      foreach (TypeInfo type in HandlerAccessor.Model.Types) {
         IndexInfo primaryIndex = type.Indexes.FindFirst(IndexAttributes.Real | IndexAttributes.Primary);
         if (primaryIndex!=null && !realIndexes.ContainsKey(primaryIndex)) {
           Table table = catalog.DefaultSchema.CreateTable(primaryIndex.ReflectedType.Name);

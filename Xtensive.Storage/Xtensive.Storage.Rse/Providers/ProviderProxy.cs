@@ -8,9 +8,9 @@ using System.Collections.Generic;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Rse;
 
-namespace Xtensive.Storage.Rse.Providers.Implementation
+namespace Xtensive.Storage.Rse.Providers.Executable
 {
-  public abstract class ProviderProxy : ProviderImplementation
+  public abstract class ProviderProxy : ExecutableProvider
   {
     private Provider realProvider;
     public abstract Provider GetRealProvider();

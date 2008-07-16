@@ -7,59 +7,90 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Xtensive.Core;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 
 namespace Xtensive.Storage.Rse.Providers
 {
-  public abstract class Provider : IEnumerable<Tuple>
+  /// <summary>
+  /// Abstract base class for any <see cref="RecordSet"/> <see cref="RecordSet.Provider"/>.
+  /// </summary>
+  [Serializable]
+  public abstract class Provider : 
+    IEnumerable<Tuple>,
+    IHasServices
   {
     private RecordHeader header;
 
-    public RecordHeader Header
-    {
-      get
-      {
-        if (header == null) lock (this) if (header == null)
-          header = BuildHeader();
+    /// <summary>
+    /// Gets or sets the source providers 
+    /// "consumed" by this provider to produce the <see cref="Result"/>.
+    /// </summary>
+    public Provider[] Sources { get; private set; }
+
+    /// <summary>
+    /// Gets the header of the record sequence this provide produces.
+    /// </summary>
+    public RecordHeader Header {
+      get {
+        EnsureHeaderIsBuilt();
         return header;
       }
     }
 
-    public Provider[] SourceProviders { get; private set; }
-
-    public virtual ProviderOptionsStruct Options
-    {
-      get { return ProviderOptions.Default; }
+    /// <summary>
+    /// Creates the <see cref="RecordSet"/> wrapping this provider.
+    /// </summary>
+    public RecordSet Result {
+      get {
+        return new RecordSet(this);
+      }
     }
 
-    public virtual T GetService<T>() where T : class
-    {
-      return this as T;
-    }
+    /// <inheritdoc/>
+    public abstract T GetService<T>()
+      where T : class;
 
-    public T GetService<T>(bool throwException) where T: class
-    {
-      var service = GetService<T>();
-      if (throwException && service == null)
-        throw new InvalidOperationException();
-      return service;
-    }
-
+    /// <summary>
+    /// Builds the <see cref="Header"/>.
+    /// This method is invoked just once on each provider.
+    /// </summary>
+    /// <returns>Newly created <see cref="RecordHeader"/> to assign to <see cref="Header"/> property.</returns>
     protected abstract RecordHeader BuildHeader();
 
+    #region IEnumerable<...> methods
+
+    /// <inheritdoc/>
     public abstract IEnumerator<Tuple> GetEnumerator();
-    
+
     IEnumerator IEnumerable.GetEnumerator()
     {
       return GetEnumerator();
     }
 
+    #endregion
+
+    #region Private \ internal methods
+
+    private void EnsureHeaderIsBuilt()
+    {
+      if (header == null) lock (this) if (header == null)
+        header = BuildHeader();
+    }
+
+    #endregion
+
 
     // Constructor
 
-    protected Provider(params Provider[] sourceProviders)
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="sources">The <see cref="Sources"/> property value.</param>
+    protected Provider(params Provider[] sources)
     {
-      SourceProviders = sourceProviders;
+      Sources = sources;
     }
   }
 }

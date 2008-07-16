@@ -4,52 +4,65 @@
 // Created by: Alexey Kochetov
 // Created:    2007.08.22
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers;
-using Xtensive.Storage.Rse.Providers.Declaration;
+using Xtensive.Storage.Rse.Providers;
 
 namespace Xtensive.Storage.Rse
 {
+  /// <summary>
+  /// Provides access to a sequence of <see cref="Tuple"/>s
+  /// exposed by its <see cref="Provider"/>, as well as wide
+  /// range of extension methods (see <see cref="RecordSetExtensions"/>)
+  /// to operate with them.
+  /// </summary>
+  [Serializable]
   public sealed class RecordSet : IEnumerable<Tuple>
   {
-    private readonly CompilableProvider provider;
-
-    /// <inheritdoc/>
+    /// <summary>
+    /// Gets the header of the <see cref="RecordSet"/>.
+    /// </summary>
     public RecordHeader Header
     {
       get { return Provider.Header; }
     }
 
-    /// <inheritdoc/>
-    public CompilableProvider Provider
-    {
-      get { return provider; }
-    }
+    /// <summary>
+    /// Gets the provider this <see cref="RecordSet"/> is bound to.
+    /// </summary>
+    public Provider Provider { get; private set; }
+
+    #region IEnumerable<...> methods
 
     /// <inheritdoc/>
     public IEnumerator<Tuple> GetEnumerator()
     {
-      return provider.GetEnumerator();
+      return Provider.GetEnumerator();
     }
 
+    /// <inheritdoc/>
     IEnumerator IEnumerable.GetEnumerator()
     {
       return GetEnumerator();
     }
 
+    #endregion
+
 
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    internal RecordSet(CompilableProvider provider)
+    /// <param name="provider"><see cref="Provider"/> property value.</param>
+    internal RecordSet(Provider provider)
     {
-      this.provider = provider;
+      Provider = provider;
     }
   }
 }

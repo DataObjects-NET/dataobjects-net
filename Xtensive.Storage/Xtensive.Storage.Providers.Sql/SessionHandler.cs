@@ -19,7 +19,7 @@ using Xtensive.Storage.Providers.Sql.Resources;
 using Xtensive.Storage.Rse;
 using System.Linq;
 using Xtensive.Indexing;
-using Xtensive.Storage.Rse.Providers.Declaration;
+using Xtensive.Storage.Rse.Providers;
 
 namespace Xtensive.Storage.Providers.Sql
 {
@@ -185,15 +185,15 @@ namespace Xtensive.Storage.Providers.Sql
 
     internal DomainHandler DomainHandler
     {
-      get { return ((DomainHandler)ExecutionContext.DomainHandler); }
+      get { return ((DomainHandler)HandlerAccessor.DomainHandler); }
     }
 
     #endregion
 
     private Tuple GetTuple(IDataRecord reader, SqlSelect select)
     {
-      var typeId = (int) reader[ExecutionContext.NameProvider.TypeId];
-      TypeInfo actualType = ExecutionContext.Model.Types[typeId];
+      var typeId = (int) reader[HandlerAccessor.NameProvider.TypeId];
+      TypeInfo actualType = HandlerAccessor.Model.Types[typeId];
       Tuple result = Tuple.Create(actualType.TupleDescriptor);
       for (int i = 0; i < actualType.Columns.Count; i++) {
         ColumnInfo column = actualType.Columns[i];
@@ -216,7 +216,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       if (connection==null || transaction==null || connection.State!=ConnectionState.Open) {
         var provider = new SqlConnectionProvider();
-        connection = provider.CreateConnection(ExecutionContext.Configuration.ConnectionInfo.ToString()) as SqlConnection;
+        connection = provider.CreateConnection(HandlerAccessor.Configuration.ConnectionInfo.ToString()) as SqlConnection;
         if (connection==null)
           throw new InvalidOperationException(Strings.ExUnableToCreateConnection);
         connection.Open();

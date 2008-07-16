@@ -15,7 +15,7 @@ using Xtensive.Core.Tuples.Transform;
 using Xtensive.Indexing;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse.Compilation;
-using Xtensive.Storage.Rse.Compilation.DefaultCompilers;
+using Xtensive.Storage.Rse.Compilation;
 
 namespace Xtensive.Storage.Providers.Index
 {
@@ -27,7 +27,7 @@ namespace Xtensive.Storage.Providers.Index
     public override void Build()
     {
       BuildRealIndexes();
-      foreach (IndexInfo indexInfo in ExecutionContext.Model.Types.SelectMany(type => type.Indexes)) {
+      foreach (IndexInfo indexInfo in HandlerAccessor.Model.Types.SelectMany(type => type.Indexes)) {
         MapTransform transform = BuildIndexTransform(indexInfo);
         indexTransforms.Add(indexInfo, transform);
       }
@@ -35,7 +35,7 @@ namespace Xtensive.Storage.Providers.Index
 
     protected override CompilationContext GetCompilationContext()
     {
-      return new CompilationContext(new CompilerResolver[] { new Compilers.CompilerResolver(ExecutionContext), new DefaultCompilerResolver() });
+      return new CompilationContext(new Compiler[] { new Compilers.CompilerResolver(HandlerAccessor), new DefaultCompiler() });
     }
 
     private MapTransform BuildIndexTransform(IndexInfo indexInfo)
@@ -47,7 +47,7 @@ namespace Xtensive.Storage.Providers.Index
 
     private void BuildRealIndexes()
     {
-      foreach (IndexInfo indexInfo in ExecutionContext.Model.RealIndexes) {
+      foreach (IndexInfo indexInfo in HandlerAccessor.Model.RealIndexes) {
         var indexConfig = new IndexConfiguration<Tuple, Tuple>();
         DirectionCollection<ColumnInfo> orderingRule;
         if (indexInfo.IsUnique | indexInfo.IsPrimary)

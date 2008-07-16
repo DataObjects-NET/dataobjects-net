@@ -11,6 +11,6 @@ namespace Xtensive.Storage.Providers
     /// <summary>
     /// Gets the execution context.
     /// </summary>
-    protected internal ExecutionContext ExecutionContext { get; internal set; }
+    protected internal HandlerAccessor HandlerAccessor { get; internal set; }
   }
 }

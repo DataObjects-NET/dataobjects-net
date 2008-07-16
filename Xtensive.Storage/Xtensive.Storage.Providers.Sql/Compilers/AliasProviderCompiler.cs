@@ -7,12 +7,12 @@
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
-using Xtensive.Storage.Rse.Providers.Declaration;
+using Xtensive.Storage.Rse.Providers;
 using System.Linq;
 
 namespace Xtensive.Storage.Providers.Sql.Compilers
 {
-  public class AliasProviderCompiler : ProviderCompiler<AliasProvider>
+  public class AliasProviderCompiler : TypeCompiler<AliasProvider>
   {
     /// <inheritdoc/>
     protected override Provider Compile(AliasProvider provider)
@@ -30,8 +30,8 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
 
     // Constructor
 
-    public AliasProviderCompiler(Rse.Compilation.CompilerResolver resolver)
-      : base(resolver)
+    public AliasProviderCompiler(Rse.Compilation.Compiler provider)
+      : base(provider)
     {
     }
   }

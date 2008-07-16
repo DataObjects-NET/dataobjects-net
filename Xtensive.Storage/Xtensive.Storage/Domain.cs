@@ -13,42 +13,41 @@ namespace Xtensive.Storage
 {
   public sealed class Domain
   {
-    /// <summary>
-    /// Gets the domain model.
-    /// </summary>
-    public DomainInfo Model 
-    {
-      get { return ExecutionContext.Model; }
-    }
-
-    /// <summary>
-    /// Gets the name provider.
-    /// </summary>
-    public NameProvider NameProvider
-    {
-      get { return ExecutionContext.NameProvider; }
-    }
+    private readonly Registry<HierarchyInfo, IKeyProvider> keyProviders = new Registry<HierarchyInfo, IKeyProvider>();
+    private readonly KeyManager keyManager;
 
     /// <summary>
     /// Gets the configuration.
     /// </summary>
-    public DomainConfiguration Configuration
-    {
-      get { return ExecutionContext.Configuration; }
-    }
+    public DomainConfiguration Configuration { get; private set; }
+
+    /// <summary>
+    /// Gets the domain model.
+    /// </summary>
+    public DomainInfo Model { get; private set; }
+
+    /// <summary>
+    /// Gets the name provider.
+    /// </summary>
+    public NameProvider NameProvider { get; private set; }
 
     /// <summary>
     /// Gets the key manager.
     /// </summary>
-    public KeyManager KeyManager
+    public KeyManager KeyManager { get; private set; }
+
+    /// <summary>
+    /// Gets the key providers.
+    /// </summary>
+    public Registry<HierarchyInfo, IKeyProvider> KeyProviders
     {
-      get { return ExecutionContext.KeyManager; }
+      get { return keyProviders; }
     }
 
     /// <summary>
     /// Gets the execution context.
     /// </summary>
-    internal ExecutionContext ExecutionContext { get; set; }
+    internal HandlerAccessor HandlerAccessor { get; private set; }
 
     /// <summary>
     /// Creates the session.
@@ -67,9 +66,9 @@ namespace Xtensive.Storage
     /// <returns>New <see cref="SessionScope"/> object.</returns>
     public SessionScope OpenSession(SessionConfiguration configuration)
     {
-      SessionHandler handler = ExecutionContext.HandlerProvider.GetHandler<SessionHandler>();
-      handler.ExecutionContext = ExecutionContext;
-      handler.Session = new Session(ExecutionContext, handler, configuration);
+      SessionHandler handler = HandlerAccessor.HandlerProvider.GetHandler<SessionHandler>();
+      handler.HandlerAccessor = HandlerAccessor;
+      handler.Session = new Session(HandlerAccessor, handler, configuration);
       return new SessionScope(handler.Session);
     }
 

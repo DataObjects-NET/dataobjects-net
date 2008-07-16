@@ -14,11 +14,11 @@ using Xtensive.Indexing;
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
-using Xtensive.Storage.Rse.Providers.Declaration;
+using Xtensive.Storage.Rse.Providers;
 
 namespace Xtensive.Storage.Providers.Sql.Compilers
 {
-  public class RangeProviderCompiler : ProviderCompiler<RangeProvider>
+  public class RangeProviderCompiler : TypeCompiler<RangeProvider>
   {
     private struct ExpressionData
     {
@@ -113,8 +113,8 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
 
     // Constructors
 
-    public RangeProviderCompiler(Rse.Compilation.CompilerResolver resolver)
-      : base(resolver)
+    public RangeProviderCompiler(Rse.Compilation.Compiler provider)
+      : base(provider)
     {
     }
   }

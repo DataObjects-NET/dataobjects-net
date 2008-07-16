@@ -35,7 +35,7 @@ namespace Xtensive.Storage
     public override T GetValue(Persistent obj, FieldInfo field)
     {
       ValidateType(field);
-      Key key = obj.Session.ExecutionContext.KeyManager.BuildForeignKey(obj, field);
+      Key key = obj.Session.HandlerAccessor.KeyManager.BuildForeignKey(obj, field);
       if (key == null)
         return default(T);
       return (T) (object) key.Resolve();

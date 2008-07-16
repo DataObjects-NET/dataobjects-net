@@ -39,11 +39,11 @@ namespace Xtensive.Storage
     public Domain Domain
     {
       [SuppressContextActivation(typeof (Session))]
-      get { return ExecutionContext.Domain; }
+      get { return HandlerAccessor.Domain; }
     }
 
     [DebuggerHidden]
-    internal ExecutionContext ExecutionContext {
+    internal HandlerAccessor HandlerAccessor {
       [SuppressContextActivation(typeof (Session))]
       get;
       [SuppressContextActivation(typeof (Session))]
@@ -95,9 +95,9 @@ namespace Xtensive.Storage
     public IEnumerable<T> All<T>() where T : Entity
     {
       Persist();
-      TypeInfo type = ExecutionContext.Model.Types[typeof (T)];
+      TypeInfo type = HandlerAccessor.Model.Types[typeof (T)];
       foreach (Tuple tuple in Handler.Select(type)) {
-        Key key = ExecutionContext.KeyManager.BuildPrimaryKey(type.Hierarchy, tuple);
+        Key key = HandlerAccessor.KeyManager.BuildPrimaryKey(type.Hierarchy, tuple);
         T item = (T)key.Resolve(tuple);
         if (item == null)
           throw new InvalidOperationException();
@@ -208,9 +208,9 @@ namespace Xtensive.Storage
 
     // Constructors
 
-    internal Session(ExecutionContext executionContext, SessionHandler handler, SessionConfiguration configuration)
+    internal Session(HandlerAccessor handlerAccessor, SessionHandler handler, SessionConfiguration configuration)
     {
-      ExecutionContext = executionContext;
+      HandlerAccessor = handlerAccessor;
       Handler = handler;
       Configure(configuration);
     }
