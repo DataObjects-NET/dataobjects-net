@@ -10,16 +10,11 @@ using Xtensive.Core.Tuples;
 
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
-  public sealed class RawProvider : ExecutableProvider,
+  internal sealed class RawProvider : ExecutableProvider,
     ISupportRandomAccess<Tuple>
   {
     private readonly Tuple[] tuples;
 
-    /// <inheritdoc/>
-    public override ProviderOptionsStruct Options
-    {
-      get { return ProviderOptions.FastCount | ProviderOptions.FastFirst | ProviderOptions.RandomAccess; }
-    }
 
     /// <inheritdoc/>
     public Tuple this[int index]
@@ -27,21 +22,16 @@ namespace Xtensive.Storage.Rse.Providers.Executable
       get { return tuples[index]; }
     }
 
-    public override IEnumerator<Tuple> GetEnumerator()
+    protected override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
-      return ((IEnumerable<Tuple>)tuples).GetEnumerator();
+      return tuples;
     }
 
 
     // Constructors
 
-    /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true" />
-    /// </summary>
-    /// <param name="header">Record header.</param>
-    /// <param name="tuples">Source tuples.</param>
-    public RawProvider(RecordHeader header, params Tuple[] tuples)
-      : base(header)
+    public RawProvider(CompilableProvider origin, params Tuple[] tuples)
+      : base(origin)
     {
       this.tuples = tuples;
     }

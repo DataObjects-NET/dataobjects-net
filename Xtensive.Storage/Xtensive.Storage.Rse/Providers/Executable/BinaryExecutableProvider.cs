@@ -18,12 +18,12 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     /// <summary>
     /// Gets the "left" data source of this provider.
     /// </summary>
-    public Provider Left { get; private set; }
+    public ExecutableProvider Left { get; private set; }
 
     /// <summary>
     /// Gets the "right" data source of this provider.
     /// </summary>
-    public Provider Right { get; private set; }
+    public ExecutableProvider Right { get; private set; }
 
 
     // Constructors
@@ -34,7 +34,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     /// <param name="origin">The <see cref="ExecutableProvider.Origin"/> property value.</param>
     /// <param name="left">The <see cref="Left"/> property value.</param>
     /// <param name="right">The <see cref="Right"/> property value.</param>
-    public BinaryExecutableProvider(CompilableProvider origin, Provider left, Provider right)
+    protected BinaryExecutableProvider(CompilableProvider origin, ExecutableProvider left, ExecutableProvider right)
       : base(origin, left, right)
     {
       Left = left;

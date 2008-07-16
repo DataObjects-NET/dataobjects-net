@@ -4,10 +4,12 @@
 // Created by: Alexey Kochetov
 // Created:    2008.07.09
 
+using System;
 using Xtensive.Core.Tuples;
 
 namespace Xtensive.Storage.Rse.Providers
 {
+  [Serializable]
   public class RawProvider : CompilableProvider
   {
     private readonly RecordHeader header;

@@ -4,31 +4,24 @@
 // Created by: Alexey Kochetov
 // Created:    2008.05.20
 
+using System;
 using System.Collections.Generic;
-using Xtensive.Core.Collections;
 using Xtensive.Core.Tuples;
-using Xtensive.Indexing;
-using Xtensive.Storage.Rse;
-using System.Linq;
-using Xtensive.Core;
 
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
-  public sealed class SelectProvider : TransparentProvider
+  internal sealed class SelectProvider : TransparentProvider
   {
-    private readonly RecordHeader header;
-
-    public override IEnumerator<Tuple> GetEnumerator()
-    {
-      throw new System.NotImplementedException();
-    }
-
-
     // Constructors
 
-    public SelectProvider(RecordHeader header, Provider source, int[] columnIndexes)
-      : base(header, source)
+    public SelectProvider(CompilableProvider origin, ExecutableProvider source, int[] columnIndexes)
+      : base(origin, source)
     {
+    }
+
+    protected override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
+    {
+      throw new NotImplementedException();
     }
   }
 }

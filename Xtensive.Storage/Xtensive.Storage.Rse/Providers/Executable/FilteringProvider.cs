@@ -14,35 +14,27 @@ using System.Linq;
 
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
-  public sealed class FilteringProvider : ExecutableProvider
+  internal sealed class FilteringProvider : UnaryExecutableProvider
   {
-    private readonly Provider source;
     private readonly Func<Tuple, bool> predicate;
 
-    /// <inheritdoc/>
-    public override ProviderOptionsStruct Options
+    protected override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
-      get { return source.Options.Internal & ~ProviderOptions.FastCount; }
+      return Source.Enumerate(context).Where(predicate);
     }
 
-    /// <inheritdoc/>
-    public override IEnumerator<Tuple> GetEnumerator()
-    {
-      return source.Where(predicate).GetEnumerator();
-    }
 
     // Constructors
 
     /// <summary>
     ///   <see cref="ClassDocTemplate.Ctor" copy="true" />
     /// </summary>
-    ///<param name="header">Result header.</param>
-    ///<param name="source">Source provider.</param>
+    /// <param name="origin">The <see cref="ExecutableProvider.Origin"/> property value.</param>
+    /// <param name="source">The <see cref="UnaryExecutableProvider.Source"/> property value.</param>
     ///<param name="predicate">Filtering predicate.</param>
-    public FilteringProvider(RecordHeader header, Provider source, Func<Tuple, bool> predicate)
-      : base(header, source)
+    public FilteringProvider(CompilableProvider origin, ExecutableProvider source, Func<Tuple, bool> predicate)
+      : base(origin, source)
     {
-      this.source = source;
       this.predicate = predicate;
     }
   }

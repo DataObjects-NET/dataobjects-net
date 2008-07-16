@@ -16,16 +16,10 @@ namespace Xtensive.Storage.Rse.Providers.Executable
   /// <summary>
   /// General index provider for all indexing storage handlers.
   /// </summary>
-  public sealed class IndexProvider : ExecutableProvider
+  internal sealed class IndexProvider : ExecutableProvider
   {
     private readonly Func<IndexInfo, IOrderedIndex<Tuple, Tuple>> indexResolver;
     private readonly IndexInfo indexDescriptor;
-
-    /// <inheritdoc/>
-    public override ProviderOptionsStruct Options
-    {
-      get { return ProviderOptions.Indexed | ProviderOptions.Ordered | ProviderOptions.FastFirst | ProviderOptions.FastCount; }
-    }
 
     /// <inheritdoc/>
     public override T GetService<T>()
@@ -35,23 +29,17 @@ namespace Xtensive.Storage.Rse.Providers.Executable
       return result;
     }
 
-    public override IEnumerator<Tuple> GetEnumerator()
+    protected override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
       var index = indexResolver(indexDescriptor);
-      return index.GetEnumerator();
+      return index;
     }
 
 
     // Constructors
 
-    /// <summary>
-    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="indexResolver">Delegate that returns <see cref="IOrderedIndex{TKey,TItem}"/> by provided <see cref="IndexInfo"/>.</param>
-    /// <param name="indexDescriptor">Descriptor of the index.</param>
-    /// <param name="header">Result header.</param>
-    public IndexProvider(RecordHeader header, IndexInfo indexDescriptor, Func<IndexInfo,IOrderedIndex<Tuple,Tuple>> indexResolver)
-      : base(header)
+    public IndexProvider(CompilableProvider origin, IndexInfo indexDescriptor, Func<IndexInfo,IOrderedIndex<Tuple,Tuple>> indexResolver)
+      : base(origin)
     {
       this.indexResolver = indexResolver;
       this.indexDescriptor = indexDescriptor;

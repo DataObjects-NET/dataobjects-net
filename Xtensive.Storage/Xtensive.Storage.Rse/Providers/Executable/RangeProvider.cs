@@ -13,6 +13,7 @@ using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
 using Xtensive.Indexing.Measures;
 using Xtensive.Storage.Rse;
+using Xtensive.Core.Helpers;
 
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
@@ -163,18 +164,17 @@ namespace Xtensive.Storage.Rse.Providers.Executable
       return this as T;
     }
 
-    /// <inheritdoc/>
-    public override IEnumerator<Tuple> GetEnumerator()
+    protected override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
       var sourceEnumerable = Source.GetService<IOrderedEnumerable<Tuple, Tuple>>(true);
-      return sourceEnumerable.GetItems(tupleRange).GetEnumerator();
+      return sourceEnumerable.GetItems(tupleRange);
     }
 
 
     // Constructors
 
-    public RangeProvider(RecordHeader header, Provider provider, Range<IEntire<Tuple>> range) 
-      : base (header, provider)
+    public RangeProvider(CompilableProvider origin, ExecutableProvider provider, Range<IEntire<Tuple>> range) 
+      : base (origin, provider)
     {
       tupleRange = range;
     }

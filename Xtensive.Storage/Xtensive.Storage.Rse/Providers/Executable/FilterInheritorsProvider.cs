@@ -14,24 +14,18 @@ using Xtensive.Indexing;
 using Xtensive.Storage.Rse;
 using System.Linq;
 using Xtensive.Storage.Rse.Providers.Internals;
+using Xtensive.Core.Helpers;
 
 namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
 {
-  public sealed class FilterInheritorsProvider : ExecutableProvider,
+  internal sealed class FilterInheritorsProvider : ExecutableProvider,
     IOrderedEnumerable<Tuple,Tuple>,
     ICountable
   {
     private readonly IOrderedEnumerable<Tuple,Tuple> source;
-    private readonly Provider sourceProvider;
-    private readonly ProviderOptions options;
+    private readonly CompilableProvider sourceProvider;
     private readonly Func<Tuple, bool> predicate;
     private readonly bool[] typeIDMatch;
-
-    /// <inheritdoc/>
-    public override ProviderOptionsStruct Options
-    {
-      get { return options; }
-    }
 
     public long Count
     {
@@ -101,9 +95,9 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
     }
 
     /// <inheritdoc/>
-    public override IEnumerator<Tuple> GetEnumerator()
+    protected override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
-      return source.Where(predicate).GetEnumerator();
+      return source.Where(predicate);
     }
 
 
@@ -112,11 +106,10 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public FilterInheritorsProvider(Provider sourceProvider, int typeIDColumn, int typesCount,  params int[] typeIDs)
-      : base(sourceProvider.Header, sourceProvider)
+    public FilterInheritorsProvider(CompilableProvider origin, int typeIDColumn, int typesCount,  params int[] typeIDs)
+      : base(origin)
     {
-      this.sourceProvider = sourceProvider;
-      options = sourceProvider.Options.Internal & ~ProviderOptions.FastCount;
+      sourceProvider = origin;
       source = sourceProvider.GetService<IOrderedEnumerable<Tuple,Tuple>>(true);
       typeIDMatch = new bool[typesCount + 1];
       foreach (int typeID in typeIDs)

@@ -4,10 +4,12 @@
 // Created by: Alexey Kochetov
 // Created:    2008.07.03
 
+using System;
 using Xtensive.Core;
 
 namespace Xtensive.Storage.Rse.Providers
 {
+  [Serializable]
   public class JoinProvider : CompilableProvider
   {
     private readonly Pair<int>[] joiningPairs;

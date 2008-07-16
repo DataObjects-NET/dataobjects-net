@@ -14,14 +14,13 @@ using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
-  public sealed class MergeJoinProvider : ExecutableProvider
+  internal sealed class MergeJoinProvider : ExecutableProvider
   {
     private readonly Provider left;
     private readonly Provider right;
     private readonly MergeTransform transform;
 
-
-    public override IEnumerator<Tuple> GetEnumerator()
+    protected override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
       var leftOrdered = left.GetService<IOrderedEnumerable<Tuple, Tuple>>();
       var rightOrdered = right.GetService<IOrderedEnumerable<Tuple, Tuple>>();
@@ -32,8 +31,8 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 
     // Constructor
 
-    public MergeJoinProvider(RecordHeader header, Provider left, Provider right)
-      : base (header, left, right)
+    public MergeJoinProvider(CompilableProvider origin, ExecutableProvider left, ExecutableProvider right)
+      : base (origin, left, right)
     {
       this.left = left;
       this.right = right;

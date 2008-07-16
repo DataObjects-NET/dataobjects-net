@@ -21,7 +21,7 @@ using Xtensive.Storage.Rse.Providers.Internals;
 
 namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
 {
-  public sealed class JoinInheritorsProvider : ExecutableProvider,
+  internal sealed class JoinInheritorsProvider : ExecutableProvider,
     IOrderedEnumerable<Tuple,Tuple>,
     ICountable
   {
@@ -31,12 +31,6 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
     private readonly MapTransform mapTransform;
 
     #region Root delegating members
-
-    /// <inheritdoc/>
-    public override ProviderOptionsStruct Options
-    {
-      get { return root.Options; }
-    }
 
     public long Count
     {
@@ -124,30 +118,27 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
           );
     }
 
-    /// <inheritdoc/>
-    public override IEnumerator<Tuple> GetEnumerator()
+    protected override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
       return InheritanceJoiner.Join(
-        root, 
-        rootEnumerable.KeyExtractor, 
-        rootEnumerable.KeyComparer, 
+        root,
+        rootEnumerable.KeyExtractor,
+        rootEnumerable.KeyComparer,
         mapTransform,
         inheritors
-          .Select(provider => new Pair<Provider,IOrderedEnumerable<Tuple,Tuple>>(provider, provider.GetService<IOrderedEnumerable<Tuple,Tuple>>(true)))
+          .Select(provider => new Pair<Provider, IOrderedEnumerable<Tuple, Tuple>>(provider, provider.GetService<IOrderedEnumerable<Tuple, Tuple>>(true)))
           .Select(pair => new Triplet<IEnumerable<Tuple>, Converter<Tuple, Tuple>, TupleDescriptor>(
-            pair.Second, pair.Second.KeyExtractor, pair.First.Header.TupleDescriptor)).ToList())
-        .GetEnumerator();
-        
+            pair.Second, pair.Second.KeyExtractor, pair.First.Header.TupleDescriptor)).ToList());
     }
 
-  
+
     // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public JoinInheritorsProvider(RecordHeader header, int includedColumnsCount, Provider root, Provider[] inheritors)
-      : base(header, new[]{root}.Union(inheritors).ToArray())
+    public JoinInheritorsProvider(CompilableProvider origin, int includedColumnsCount, ExecutableProvider root, ExecutableProvider[] inheritors)
+      : base(origin, new[]{root}.Union(inheritors).ToArray())
     {
       this.root = root;
       rootEnumerable = root.GetService<IOrderedEnumerable<Tuple, Tuple>>(true);
@@ -158,7 +149,7 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
       for (int i = 0; i < inheritors.Length; i++)
         for (int j = inheritors[i].Header.OrderInfo.OrderedBy.Count + includedColumnsCount; j < inheritors[i].Header.RecordColumnCollection.Count; j++)
           map.Add(new Pair<int, int>(i + 1, j));
-      mapTransform = new MapTransform(true, header.TupleDescriptor, map.ToArray());
+      mapTransform = new MapTransform(true, Header.TupleDescriptor, map.ToArray());
     }
   }
 }

@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Rse.Compilation;
-using Xtensive.Storage.Rse.Compilation;
 
 namespace Xtensive.Storage.Rse.Providers
 {

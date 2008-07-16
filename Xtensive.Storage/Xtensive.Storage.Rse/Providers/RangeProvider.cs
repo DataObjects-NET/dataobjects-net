@@ -4,11 +4,13 @@
 // Created by: Alexey Kochetov
 // Created:    2008.07.03
 
+using System;
 using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
 
 namespace Xtensive.Storage.Rse.Providers
 {
+  [Serializable]
   public class RangeProvider : CompilableProvider
   {
     public CompilableProvider Source { get; private set; }

@@ -16,16 +16,11 @@ using System.Linq;
 
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
-  public sealed class IndexingProvider : ProviderCalculator
+  public sealed class IndexingProvider : ExecutableProvider
   {
     private readonly Provider source;
     private IOrderedIndex<Tuple, Tuple> index;
     private MapTransform transform;
-
-    public override ProviderOptionsStruct Options
-    {
-      get { return ProviderOptions.Indexed | ProviderOptions.Ordered | ProviderOptions.FastCount; }
-    }
 
     public override T GetService<T>()
     {

@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Comparison;
+using Xtensive.Core.Helpers;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Indexing;
@@ -15,7 +16,7 @@ using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
-  public sealed class LoopJoinProvider : ExecutableProvider
+  internal sealed class LoopJoinProvider : ExecutableProvider
   {
     private readonly Provider left;
     private readonly Provider right;
@@ -23,9 +24,9 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     private readonly MergeTransform transform;
     private readonly MapTransform leftKeyTransform;
 
-    public override IEnumerator<Tuple> GetEnumerator()
+    protected override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
-      var rightOrdered = right.GetService<IOrderedEnumerable<Tuple, Tuple>>();
+      var rightOrdered = right.GetService<IOrderedEnumerable<Tuple, Tuple>>(true);
       foreach (Pair<Tuple, Tuple> pair in leftJoin ? Joiner.LoopJoinLeft(left, rightOrdered, KeyExtractorLeft) : Joiner.LoopJoin(left, rightOrdered, KeyExtractorLeft)) {
         Tuple rightTuple = pair.Second;
         if (rightTuple == null)
@@ -42,8 +43,8 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 
     // Constructors
 
-    public LoopJoinProvider(RecordHeader header, Provider left, Provider right, bool leftJoin, params Pair<int>[] joiningPairs)
-      : base(header, left, right)
+    public LoopJoinProvider(CompilableProvider origin, ExecutableProvider left, ExecutableProvider right, bool leftJoin, params Pair<int>[] joiningPairs)
+      : base(origin, left, right)
     {
       this.left = left;
       this.right = right;

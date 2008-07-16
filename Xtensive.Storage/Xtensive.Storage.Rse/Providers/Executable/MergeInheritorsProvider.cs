@@ -17,28 +17,20 @@ using Xtensive.Indexing.Measures;
 using Xtensive.Storage.Rse;
 using System.Linq;
 using Xtensive.Storage.Rse.Providers.Internals;
+using Xtensive.Core.Helpers;
 
 namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
 {
-  public sealed class MergeInheritorsProvider : ExecutableProvider,
+  internal sealed class MergeInheritorsProvider : ExecutableProvider,
     IOrderedEnumerable<Tuple,Tuple>,
     ICountable
   {
     private readonly Provider[] sourceProviders;
     private readonly MapTransform keyTransform;
     private readonly Converter<Tuple, Tuple> keyExtractor;
-    private readonly ProviderOptions providerOptions;
     private readonly MapTransform[] transforms;
 
-    /// <inheritdoc/>
-    public override ProviderOptionsStruct Options
-    {
-      get 
-      {
-        return providerOptions; 
-      }
-    }
-
+    
     /// <inheritdoc/>
     public long Count
     {
@@ -135,14 +127,13 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
         );
     }
 
-    /// <inheritdoc/>
-    public override IEnumerator<Tuple> GetEnumerator()
+    protected override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
       return InheritanceMerger.Merge(
-        sourceProviders[0].GetService<IOrderedEnumerable<Tuple,Tuple>>(true).KeyComparer,
+        sourceProviders[0].GetService<IOrderedEnumerable<Tuple, Tuple>>(true).KeyComparer,
         sourceProviders.Select((provider, i) => new Triplet<IEnumerable<Tuple>, Converter<Tuple, Tuple>, MapTransform>(
           provider, provider.GetService<IOrderedEnumerable<Tuple, Tuple>>(true).KeyExtractor, transforms[i])).ToList()
-        ).GetEnumerator();
+        );
     }
 
 
@@ -151,22 +142,19 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public MergeInheritorsProvider(RecordHeader header, params Provider[] sourceProviders)
-      : base(header, sourceProviders)
+    public MergeInheritorsProvider(CompilableProvider origin, params ExecutableProvider[] sourceProviders)
+      : base(origin, sourceProviders)
     {
       this.sourceProviders = sourceProviders;
-      keyTransform = new MapTransform(true, header.TupleDescriptor, Header.OrderInfo.OrderedBy.Select(pair => pair.Key).ToArray());
+      keyTransform = new MapTransform(true, Header.TupleDescriptor, Header.OrderInfo.OrderedBy.Select(pair => pair.Key).ToArray());
       keyExtractor = (input => keyTransform.Apply(TupleTransformType.TransformedTuple, input));
-      providerOptions = sourceProviders
-        .Select(provider => provider.Options.Internal)
-        .Aggregate(~ProviderOptions.Default, (o, po) => o & po);
 
-      RecordColumnCollection targetColumns = header.RecordColumnCollection;
+      RecordColumnCollection targetColumns = Header.RecordColumnCollection;
       transforms = new MapTransform[sourceProviders.Length];
       for (int sourceIndex = 0; sourceIndex < transforms.Length; sourceIndex++) {
         Provider source = sourceProviders[sourceIndex];
         RecordColumnCollection sourceColumns = source.Header.RecordColumnCollection;
-        var map = new int[header.TupleDescriptor.Count];
+        var map = new int[Header.TupleDescriptor.Count];
         for (int i = 0; i < map.Length; i++) {
           map[i] = -1;
           ColumnInfoRef columnRef = targetColumns[i].ColumnInfoRef;
@@ -177,7 +165,7 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
             }
           }
         }
-        transforms[sourceIndex] = new MapTransform(true, header.TupleDescriptor, map);
+        transforms[sourceIndex] = new MapTransform(true, Header.TupleDescriptor, map);
       }
     }
   }

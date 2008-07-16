@@ -6,17 +6,20 @@
 
 using System.Collections.Generic;
 using Xtensive.Core.Tuples;
-using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
-  public sealed class AliasProvider : TransparentProvider
+  internal sealed class AliasProvider : TransparentProvider
   {
-    
+    protected override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
+    {
+      return Source.Enumerate(context);
+    }
+
 
     // Constructor
 
-    public AliasProvider(CompilableProvider origin, Provider source)
+    public AliasProvider(CompilableProvider origin, ExecutableProvider source)
       : base(origin, source)
     {
     }

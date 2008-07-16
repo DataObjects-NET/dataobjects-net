@@ -4,6 +4,7 @@
 // Created by: Alexey Kochetov
 // Created:    2008.07.03
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
@@ -12,6 +13,7 @@ using Xtensive.Core.Tuples;
 
 namespace Xtensive.Storage.Rse.Providers
 {
+  [Serializable]
   public class SelectProvider : CompilableProvider
   {
     private readonly int[] columnIndexes;

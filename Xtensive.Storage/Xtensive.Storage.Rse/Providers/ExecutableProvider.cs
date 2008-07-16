@@ -196,7 +196,7 @@ namespace Xtensive.Storage.Rse.Providers
     /// </summary>
     /// <param name="origin">The <see cref="Origin"/> property value.</param>
     /// <param name="sources">The <see cref="Provider.Sources"/> property value.</param>
-    protected ExecutableProvider(CompilableProvider origin, params Provider[] sources)
+    protected ExecutableProvider(CompilableProvider origin, params ExecutableProvider[] sources)
       : base(sources)
     {
       Origin = origin;

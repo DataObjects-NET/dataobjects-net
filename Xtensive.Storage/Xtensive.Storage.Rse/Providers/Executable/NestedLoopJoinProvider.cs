@@ -16,7 +16,7 @@ using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
-  public sealed class NestedLoopJoinProvider : ExecutableProvider
+  internal sealed class NestedLoopJoinProvider : ExecutableProvider
   {
     private readonly Provider left;
     private readonly Provider right;
@@ -24,7 +24,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     private readonly MapTransform leftKeyTransform;
     private readonly MapTransform rightKeyTransform;
 
-    public override IEnumerator<Tuple> GetEnumerator()
+    protected override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
       AdvancedComparer<Tuple> comparer = AdvancedComparer<Tuple>.Default;
       int leftCount = left.Count();
@@ -53,8 +53,8 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 
     // Constructors
 
-    public NestedLoopJoinProvider(RecordHeader header, Provider left, Provider right, bool leftJoin, params Pair<int>[] joiningPairs)
-      : base(header, left, right)
+    public NestedLoopJoinProvider(CompilableProvider origin, ExecutableProvider left, ExecutableProvider right, bool leftJoin, params Pair<int>[] joiningPairs)
+      : base(origin, left, right)
     {
       this.left = left;
       this.right = right;

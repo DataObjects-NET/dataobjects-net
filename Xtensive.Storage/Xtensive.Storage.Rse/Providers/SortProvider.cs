@@ -4,10 +4,12 @@
 // Created by: Alexey Kochetov
 // Created:    2008.07.04
 
+using System;
 using Xtensive.Core.Collections;
 
 namespace Xtensive.Storage.Rse.Providers
 {
+  [Serializable]
   public class SortProvider : CompilableProvider
   {
     public CompilableProvider Source { get; private set; }

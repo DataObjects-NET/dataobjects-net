@@ -10,6 +10,7 @@ using Xtensive.Core.Tuples;
 
 namespace Xtensive.Storage.Rse.Providers
 {
+  [Serializable]
   public class WhereProvider : CompilableProvider
   {
     public CompilableProvider Source { get; private set; }
