@@ -61,7 +61,7 @@ namespace Xtensive.Storage.Rse.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Active ExecutionContext is necessary to perform the current operation..
+        ///   Looks up a localized string similar to Active EnumerationContext is necessary to perform the current operation..
         /// </summary>
         internal static string ExActiveExecutionContextIsNecessary {
             get {

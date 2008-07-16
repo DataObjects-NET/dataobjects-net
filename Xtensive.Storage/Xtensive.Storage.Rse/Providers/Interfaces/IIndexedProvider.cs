@@ -12,7 +12,7 @@ namespace Xtensive.Storage.Rse.Providers
 {
   public interface IIndexedProvider: 
     IOrderedProvider,
-    IOrderedIndex<Tuple, Tuple>
+    IOrderedEnumerable<Tuple, Tuple>
   {
   }
 }

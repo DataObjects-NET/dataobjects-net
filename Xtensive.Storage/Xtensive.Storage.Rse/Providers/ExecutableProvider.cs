@@ -6,11 +6,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Rse.Resources;
+using Xtensive.Core.Helpers;
 
 namespace Xtensive.Storage.Rse.Providers
 {
@@ -20,9 +20,9 @@ namespace Xtensive.Storage.Rse.Providers
   /// </summary>
   [Serializable]
   public abstract class ExecutableProvider : Provider,
-    IPreparingProvider
+    ICachingProvider
   {
-    private const string PreparedPropertyKey = "Prepared";
+    private const string CachedResultKey = "Prepared";
     private HashSet<Type> supportedServices = new HashSet<Type>();
 
     /// <summary>
@@ -39,41 +39,54 @@ namespace Xtensive.Storage.Rse.Providers
     }
 
     /// <summary>
-    /// Gets the sequence this provider provides.
+    /// Gets the sequence this provider provides in the specified <see cref="EnumerationContext"/>.
+    /// Returns either cached result (if available), or a result of <see cref="OnEnumerate"/>.
     /// </summary>
-    protected abstract IEnumerable<Tuple> Execute();
+    /// <param name="context">The enumeration context.</param>
+    public IEnumerable<Tuple> Enumerate(EnumerationContext context)
+    {
+      var cp = GetService<ICachingProvider>();
+      if (cp!=null) {
+        cp.EnsureResultIsCached(context);
+        return GetCachedResult(context);
+      }
+      else
+        return OnEnumerate(context);
+    }
 
-    #region SetCachedValue, GetCachedValue methods
+    #region OnXxxEnumerate methods (to override)
 
     /// <summary>
-    /// Caches the value in the current <see cref="ExecutionContext"/>.
+    /// Called when enumerator is created on this provider.
     /// </summary>
-    /// <typeparam name="T">The type of the value.</typeparam>
-    /// <param name="key">The cache key.</param>
-    /// <param name="value">The value to cache.</param>
-    protected void SetCachedValue<T>(string key, T value)
-      where T: class
+    /// <param name="context">The enumeration context.</param>
+    protected internal virtual void OnBeforeEnumerate(EnumerationContext context)
     {
-      var c = ExecutionContext.Current;
-      if (c==null)
-        return;
-      c.SetCachedValue(new Pair<object, string>(this, key), value);
+      foreach (Provider source in Sources) {
+        var ep = source as ExecutableProvider;
+        if (ep!=null)
+          ep.OnBeforeEnumerate(context);
+      }
     }
 
     /// <summary>
-    /// Gets the cached value from the current <see cref="ExecutionContext"/>.
+    /// Gets the sequence this provider provides in the specified <see cref="EnumerationContext"/>.
+    /// Invoked by <see cref="Enumerate"/> method in case there is no cached result for the specified context.
     /// </summary>
-    /// <typeparam name="T">The type of the value.</typeparam>
-    /// <param name="key">The cache key.</param>
-    /// <returns>Cached value with the specified key;
-    /// <see langword="null"/>, if no cached value is found, or it is already expired.</returns>
-    protected T GetCachedValue<T>(string key)
-      where T: class
+    /// <param name="context">The enumeration context.</param>
+    protected abstract IEnumerable<Tuple> OnEnumerate(EnumerationContext context);
+
+    /// <summary>
+    /// Called when this provider's enumerator is disposed.
+    /// </summary>
+    /// <param name="context">The enumeration context.</param>
+    protected internal virtual void OnAfterEnumerate(EnumerationContext context)
     {
-      var c = ExecutionContext.Current;
-      if (c==null)
-        return null;
-      return c.GetCachedValue<T>(new Pair<object, string>(this, key));
+      foreach (Provider source in Sources) {
+        var ep = source as ExecutableProvider;
+        if (ep!=null)
+          ep.OnAfterEnumerate(context);
+      }
     }
 
     #endregion
@@ -112,36 +125,27 @@ namespace Xtensive.Storage.Rse.Providers
 
     #endregion
 
-    #region IPreparingProvider methods
-
-    private IEnumerable<Tuple> Prepared {
-      get {
-        return GetCachedValue<IEnumerable<Tuple>>(PreparedPropertyKey);
-      }
-      set {
-        SetCachedValue(PreparedPropertyKey, value);
-      }
-    }
+    #region ICachingProvider methods
 
     /// <inheritdoc/>
-    public bool IsPrepared {
-      get {
-        var pp = GetService<IPreparingProvider>();
-        if (pp==null)
-          return true;
-        return Prepared!=null;
-      }
-    }
-
-    /// <inheritdoc/>
-    public void Prepare()
+    bool ICachingProvider.IsResultCached(EnumerationContext context) 
     {
-      var pp = GetService<IPreparingProvider>();
-      if (pp==null)
+      ArgumentValidator.EnsureArgumentNotNull(context, "context");
+      var cp = GetService<ICachingProvider>();
+      if (cp==null)
+        return true;
+      return GetCachedResult(context)!=null;
+    }
+
+    /// <inheritdoc/>
+    void ICachingProvider.EnsureResultIsCached(EnumerationContext context) 
+    {
+      ArgumentValidator.EnsureArgumentNotNull(context, "context");
+      var cp = GetService<ICachingProvider>();
+      if (cp==null)
         return;
-      ExecutionContext.GetCurrent(true);
-      if (Prepared==null)
-        Prepared = Execute();
+      if (GetCachedResult(context)==null)
+        SetCachedResult(context, OnEnumerate(context));
     }
 
     #endregion
@@ -151,18 +155,35 @@ namespace Xtensive.Storage.Rse.Providers
     /// <inheritdoc/>
     public sealed override IEnumerator<Tuple> GetEnumerator()
     {
-      var c = ExecutionContext.Current;
-      IDisposable d = null;
-      if (c==null) {
-        c = new ExecutionContext();
-        d = c.Activate();
+      var context = new EnumerationContext(this);
+      try {
+        return CreateDisposingEnumerator(Enumerate(context), context);
       }
-      using (d) {
-        if (Prepared!=null)
-          return Prepared.GetEnumerator();
-        else
-          return Execute().GetEnumerator();
+      catch {
+        context.Dispose();
+        throw;
       }
+    }
+
+    #endregion
+
+    #region Private \ internal methods
+
+    private IEnumerable<Tuple> GetCachedResult(EnumerationContext context)
+    {
+      return context.GetValue<IEnumerable<Tuple>>(new Pair<object, object>(this, CachedResultKey));
+    }
+
+    private void SetCachedResult(EnumerationContext context, IEnumerable<Tuple> value) 
+    {
+      context.SetValue(new Pair<object, object>(this, CachedResultKey), value);
+    }
+
+    private IEnumerator<Tuple> CreateDisposingEnumerator(IEnumerable<Tuple> sourceEnumerable, IDisposable toDispose)
+    {
+      foreach (var item in sourceEnumerable)
+        yield return item;
+      toDispose.DisposeSafely();
     }
 
     #endregion
