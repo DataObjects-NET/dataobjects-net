@@ -28,7 +28,7 @@ namespace Xtensive.Storage.Rse.Providers
     /// <summary>
     /// Gets the provider this provider is compiled from.
     /// </summary>
-    public CompilableProvider Origin { get; private set; }
+    public Provider Origin { get; private set; }
 
     /// <exception cref="InvalidOperationException">Thrown if <see cref="Origin"/> is <see langword="null" />.</exception>
     protected override RecordHeader BuildHeader()
@@ -196,7 +196,7 @@ namespace Xtensive.Storage.Rse.Providers
     /// </summary>
     /// <param name="origin">The <see cref="Origin"/> property value.</param>
     /// <param name="sources">The <see cref="Provider.Sources"/> property value.</param>
-    protected ExecutableProvider(CompilableProvider origin, params ExecutableProvider[] sources)
+    protected ExecutableProvider(Provider origin, params ExecutableProvider[] sources)
       : base(sources)
     {
       Origin = origin;
