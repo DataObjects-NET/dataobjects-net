@@ -29,7 +29,7 @@ namespace Xtensive.Storage.Rse.Compilation
     /// </summary>
     /// <param name="provider">Compilable provider to get the compiler for.</param>
     /// <returns>The compiler.</returns>
-    protected TypeCompiler GetCompiler(CompilableProvider provider)
+    protected TypeCompiler GetCompiler(Provider provider)
     {
       if (provider == null)
         return null;
@@ -68,48 +68,28 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <typeparam name="TProvider">The type of provider to get the compiler for.</typeparam>
     /// <returns>The compiler.</returns>
     protected TypeCompiler<TProvider> GetCompiler<TProvider>() 
-      where TProvider : CompilableProvider
+      where TProvider : Provider
     {
       return GetAssociate<TProvider, TypeCompiler<TProvider>, TypeCompiler<TProvider>>();
     }
 
-    /// <summary>
-    /// Ensures the specified provider is compiled 
-    /// by the compiler provided by this provider.
-    /// </summary>
-    /// <param name="provider">The provider to compile.</param>
-    /// <returns>Compiled provider; 
-    /// the original <paramref name="provider"/>, if it is already compiled.</returns>
+    /// <inheritdoc/>
     public Provider Compile(Provider provider)
     {
       if (provider==null)
         return null;
-      var cp = provider as CompilableProvider;
-      if (cp!=null)
-        return Compile(GetCompiler(cp).Compile(cp));
-      if (IsCompiled(provider))
-        return provider;
-      return Wrap(provider);
+      var c = GetCompiler(provider);
+      if (c!=null)
+        return c.Compile(provider);
+      else
+        return null;
     }
 
-    /// <summary>
-    /// Determines whether the specified provider can be considered as compiled by this compiler.
-    /// </summary>
-    /// <param name="provider">The provider to check.</param>
-    /// <returns>
-    /// <see langword="true"/> if the specified provider is compiled; 
-    /// otherwise, <see langword="false"/>.
-    /// </returns>
-    protected abstract bool IsCompiled(Provider provider);
+    /// <inheritdoc/>
+    public abstract bool IsCompatible(Provider provider);
 
-    /// <summary>
-    /// Wraps the specified provider to a provider that "appears" as the 
-    /// result of compilation by this provider (i.e. call of <see cref="IsCompiled"/>
-    /// on the result of this method should always return <see langword="true" />).
-    /// </summary>
-    /// <param name="provider">The provider to wrap.</param>
-    /// <returns>Wrapping provider.</returns>
-    protected abstract Provider Wrap(Provider provider);
+    /// <inheritdoc/>
+    public abstract Provider ToCompatible(Provider provider);
 
     /// <inheritdoc/>
     protected override TResult ConvertAssociate<TKey, TAssociate, TResult>(TAssociate associate)

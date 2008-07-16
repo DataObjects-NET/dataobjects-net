@@ -20,5 +20,27 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <returns>Compiled provider, if compiler can handle the compilation of specified provider;
     /// otherwise, <see langword="null"/>.</returns>
     Provider Compile(Provider provider);
+
+    /// <summary>
+    /// Determines whether the <paramref name="provider"/> can be considered 
+    /// as compatible with the providers produced by the current compiler.
+    /// </summary>
+    /// <param name="provider">The provider to check.</param>
+    /// <returns>
+    /// <see langword="true"/> if the specified provider is compatible; 
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    bool IsCompatible(Provider provider);
+
+    /// <summary>
+    /// Wraps the specified <paramref name="provider"/>
+    /// to a provider that appears as the result of compilation 
+    /// by this compiler (i.e. call of <see cref="IsCompatible"/> 
+    /// on the result of this method should always return <see langword="true" />).
+    /// </summary>
+    /// <param name="provider">The provider to wrap to a compatible provider.</param>
+    /// <returns>Wrapping provider compatible with this compiler;
+    /// <see langword="null"/>, if wrapping is not possible.</returns>
+    Provider ToCompatible(Provider provider);
   }
 }

@@ -26,7 +26,7 @@ namespace Xtensive.Storage.Rse.Compilation
     /// </summary>
     /// <param name="provider">The provider to compile.</param>
     /// <returns>Compiled provider.</returns>
-    public abstract Provider Compile(CompilableProvider provider);
+    public abstract Provider Compile(Provider provider);
 
 
     // Constructor

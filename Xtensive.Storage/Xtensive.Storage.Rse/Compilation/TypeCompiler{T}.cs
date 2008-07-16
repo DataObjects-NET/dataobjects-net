@@ -6,7 +6,6 @@
 
 using System;
 using Xtensive.Storage.Rse.Providers;
-using Xtensive.Storage.Rse.Providers;
 
 namespace Xtensive.Storage.Rse.Compilation
 {
@@ -15,10 +14,10 @@ namespace Xtensive.Storage.Rse.Compilation
   /// </summary>
   /// <typeparam name="TProvider">The type of the provider this compiler can compile.</typeparam>
   public abstract class TypeCompiler<TProvider> : TypeCompiler
-    where TProvider : CompilableProvider
+    where TProvider : Provider
   {
     /// <inheritdoc/>
-    public sealed override Provider Compile(CompilableProvider provider)
+    public sealed override Provider Compile(Provider provider)
     {
       return Compile((TProvider) provider);
     }

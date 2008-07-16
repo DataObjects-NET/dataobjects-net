@@ -16,13 +16,13 @@ namespace Xtensive.Storage.Rse.Compilation
   public sealed class DefaultCompiler : Compiler
   {
     /// <inheritdoc/>
-    protected override bool IsCompiled(Provider provider)
+    public override bool IsCompatible(Provider provider)
     {
       return (provider is ExecutableProvider);
     }
 
     /// <inheritdoc/>
-    protected override Provider Wrap(Provider provider)
+    public override Provider ToCompatible(Provider provider)
     {
       return new TransparentProvider(provider);
     }
