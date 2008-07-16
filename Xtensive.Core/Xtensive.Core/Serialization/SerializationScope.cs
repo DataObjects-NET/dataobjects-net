@@ -14,7 +14,6 @@ namespace Xtensive.Core.Serialization
   /// </summary>
   public abstract class SerializationScope : Scope<SerializationContext>
   {
-
     // Constructors
 
     /// <summary>

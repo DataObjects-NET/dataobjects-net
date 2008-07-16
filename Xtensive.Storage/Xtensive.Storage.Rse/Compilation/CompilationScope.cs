@@ -6,21 +6,26 @@
 
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Storage.Rse.Providers;
 
 namespace Xtensive.Storage.Rse.Compilation
 {
   /// <summary>
-  /// RecordSet provider compilation scope. 
+  /// <see cref="CompilationContext"/> activation scope. 
   /// </summary>
   public class CompilationScope : Scope<CompilationContext>
   {
-    /// <inheritdoc/>
+    /// <summary>
+    /// Gets the current context.
+    /// </summary>
     public new static CompilationContext CurrentContext
     {
       get { return Scope<CompilationContext>.CurrentContext; }
     }
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// Gets the context of this scope.
+    /// </summary>
     public new CompilationContext Context
     {
       get { return base.Context; }
@@ -29,16 +34,7 @@ namespace Xtensive.Storage.Rse.Compilation
 
     // Constructors
 
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    public CompilationScope()
-    {}
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="context">The context of this scope.</param>
+    /// <inheritdoc/>
     public CompilationScope(CompilationContext context)
       : base(context)
     {

@@ -61,20 +61,11 @@ namespace Xtensive.Storage.Rse.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Active EnumerationContext is necessary to perform the current operation..
+        ///   Looks up a localized string similar to Can&apos;t compile the provider &apos;{0}&apos;..
         /// </summary>
-        internal static string ExActiveExecutionContextIsNecessary {
+        internal static string ExCantCompileProviderX {
             get {
-                return ResourceManager.GetString("ExActiveExecutionContextIsNecessary", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Compiler supporting provider &apos;{0}&apos; is not found..
-        /// </summary>
-        internal static string ExCompilerNotFound {
-            get {
-                return ResourceManager.GetString("ExCompilerNotFound", resourceCulture);
+                return ResourceManager.GetString("ExCantCompileProviderX", resourceCulture);
             }
         }
         
@@ -88,11 +79,11 @@ namespace Xtensive.Storage.Rse.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to There are no &apos;{0}&apos; field in the record..
+        ///   Looks up a localized string similar to Invalid field name &apos;{0}&apos;..
         /// </summary>
-        internal static string ExInvalidFieldName {
+        internal static string ExInvalidFieldNameX {
             get {
-                return ResourceManager.GetString("ExInvalidFieldName", resourceCulture);
+                return ResourceManager.GetString("ExInvalidFieldNameX", resourceCulture);
             }
         }
     }

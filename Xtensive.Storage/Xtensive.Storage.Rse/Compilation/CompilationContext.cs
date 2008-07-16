@@ -16,34 +16,30 @@ using Xtensive.Storage.Rse.Resources;
 namespace Xtensive.Storage.Rse.Compilation
 {
   /// <summary>
-  /// The context of <see cref="Provider"/> compilation.
+  /// The context for <see cref="Provider"/> compilation.
   /// </summary>
   public sealed class CompilationContext : Context<CompilationScope>
   {
     /// <summary>
-    /// Gets the chain of compilers used by <see cref="Compile"/> method.
+    /// Gets the compiler used by <see cref="Compile"/> method of this context.
     /// </summary>
-    public IEnumerable<ICompiler> Compilers { get; private set; }
+    public ICompiler Compiler { get; private set; }
 
     /// <summary>
-    /// Compiles the specified provider by trying to sequentially 
-    /// apply all the <see cref="Compilers"/> until some of them will be 
-    /// able to compile the specified <paramref name="provider"/>.
+    /// Compiles the specified provider by passing it to <see cref="Compiler"/>.<see cref="ICompiler.Compile"/> method.
     /// </summary>
     /// <param name="provider">The provider to compile.</param>
     /// <returns>The result of the compilation.</returns>
-    /// <exception cref="InvalidOperationException">Compiler supporting provider <paramref name="provider"/> is not found.</exception>
+    /// <exception cref="InvalidOperationException">Can't compile the specified <paramref name="provider"/>.</exception>
     public Provider Compile(Provider provider)
     {
       if (provider == null)
         return null;
-      foreach (var compiler in Compilers) {
-        var result = compiler.Compile(provider);
-        if (result != null)
-          return result;
-      }
-      throw new InvalidOperationException(string.Format(
-        Strings.ExCompilerNotFound, provider));
+      var result = Compiler.Compile(provider);
+      if (result==null)
+        throw new InvalidOperationException(string.Format(
+          Strings.ExCantCompileProviderX, provider));
+      return result;
     }
 
     #region IContext<...> members
@@ -68,10 +64,10 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="compilers"><see cref="Compilers"/> property value.</param>
-    public CompilationContext(IEnumerable<ICompiler> compilers)
+    /// <param name="compiler"><see cref="Compiler"/> property value.</param>
+    public CompilationContext(ICompiler compiler)
     {
-      Compilers = compilers;
+      Compiler = compiler;
     }
   }
 }

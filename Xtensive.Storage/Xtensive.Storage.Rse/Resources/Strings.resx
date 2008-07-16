@@ -117,16 +117,13 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ExInvalidFieldName" xml:space="preserve">
-    <value>There are no '{0}' field in the record.</value>
+  <data name="ExInvalidFieldNameX" xml:space="preserve">
+    <value>Invalid field name '{0}'.</value>
   </data>
-  <data name="ExCompilerNotFound" xml:space="preserve">
-    <value>Compiler supporting provider '{0}' is not found.</value>
+  <data name="ExCantCompileProviderX" xml:space="preserve">
+    <value>Can't compile the provider '{0}'.</value>
   </data>
   <data name="ExHeaderIsNotAvailableSinceOriginIsNotProvided" xml:space="preserve">
     <value>Header is not available, since origin is not provided.</value>
-  </data>
-  <data name="ExActiveExecutionContextIsNecessary" xml:space="preserve">
-    <value>Active ExecutionContext is necessary to perform the current operation.</value>
   </data>
 </root>
