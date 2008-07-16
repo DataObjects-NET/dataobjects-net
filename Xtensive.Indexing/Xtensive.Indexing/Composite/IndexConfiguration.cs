@@ -9,7 +9,6 @@ using Xtensive.Core;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
-using Xtensive.Indexing.Composite;
 
 namespace Xtensive.Indexing.Composite
 {
@@ -19,8 +18,8 @@ namespace Xtensive.Indexing.Composite
   /// <typeparam name="TKey">The type of the key.</typeparam>
   /// <typeparam name="TItem">The type of the Item.</typeparam>
   [Serializable]
-  public class IndexConfiguration<TKey, TItem> : UniqueIndexWrapperConfiguration<TKey, TItem, TKey, TItem> 
-    where TKey : Tuple 
+  public class IndexConfiguration<TKey, TItem> : UniqueIndexWrapperConfiguration<TKey, TItem, TKey, TItem>
+    where TKey : Tuple
     where TItem : Tuple
   {
     private IndexSegmentConfigurationSet<TKey, TItem> segments = new IndexSegmentConfigurationSet<TKey, TItem>();
@@ -52,8 +51,8 @@ namespace Xtensive.Indexing.Composite
     protected override void Clone(ConfigurationBase source)
     {
       base.Clone(source);
-      IndexConfiguration<TKey, TItem> indexConfiguration = (IndexConfiguration<TKey, TItem>)source;
-      segments = (IndexSegmentConfigurationSet<TKey, TItem>)indexConfiguration.segments.Clone();
+      IndexConfiguration<TKey, TItem> indexConfiguration = (IndexConfiguration<TKey, TItem>) source;
+      segments = (IndexSegmentConfigurationSet<TKey, TItem>) indexConfiguration.segments.Clone();
     }
 
 
@@ -70,7 +69,7 @@ namespace Xtensive.Indexing.Composite
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="uniqueIndexConfiguration">The unique index configuration.</param>
-    public IndexConfiguration(Indexing.IndexConfigurationBase<TKey, TItem> uniqueIndexConfiguration)
+    public IndexConfiguration(IndexConfigurationBase<TKey, TItem> uniqueIndexConfiguration)
       : base(uniqueIndexConfiguration)
     {
     }

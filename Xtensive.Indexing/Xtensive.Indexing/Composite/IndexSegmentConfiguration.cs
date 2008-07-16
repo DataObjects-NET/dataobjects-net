@@ -21,11 +21,13 @@ namespace Xtensive.Indexing.Composite
   /// <seealso cref="IndexConfigurationBase{TKey,TITem}"/>
   /// <seealso cref="CompositeIndex{TKey,TItem}"/>
   [Serializable]
-  public class IndexSegmentConfiguration<TKey, TItem> : IndexConfigurationBase<TKey, TItem> where TKey : Tuple where TItem : Tuple
+  public class IndexSegmentConfiguration<TKey, TItem> : IndexConfigurationBase<TKey, TItem>
+    where TKey : Tuple
+    where TItem : Tuple
   {
     private string segmentName;
     private int segmentNumber;
-    private Dictionary<string, string> measureMapping = new Dictionary<string, string>();
+    private readonly Dictionary<string, string> measureMapping = new Dictionary<string, string>();
 
     /// <summary>
     /// Gets or sets the name of the segment.
@@ -85,12 +87,11 @@ namespace Xtensive.Indexing.Composite
     protected override void Clone(ConfigurationBase source)
     {
       base.Clone(source);
-      IndexSegmentConfiguration<TKey, TItem> indexConfiguration = (IndexSegmentConfiguration<TKey, TItem>)source;
+      IndexSegmentConfiguration<TKey, TItem> indexConfiguration = (IndexSegmentConfiguration<TKey, TItem>) source;
       segmentName = indexConfiguration.SegmentName;
     }
 
     #endregion
-
 
     // Constructors
 

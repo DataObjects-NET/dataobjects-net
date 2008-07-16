@@ -4,7 +4,6 @@
 // Created by: Alexey Kochetov
 // Created:    2008.02.15
 
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using Xtensive.Core;
@@ -13,12 +12,14 @@ using Xtensive.Core.Tuples.Transform;
 
 namespace Xtensive.Indexing.Composite
 {
-  internal struct IndexSegmentReader<TKey,TItem> : IIndexReader<TKey,TItem> where TKey : Tuple where TItem : Tuple
+  internal struct IndexSegmentReader<TKey, TItem> : IIndexReader<TKey, TItem>
+    where TKey : Tuple
+    where TItem : Tuple
   {
     private readonly IndexSegment<TKey, TItem> index;
     private Range<IEntire<TKey>> range; // Non-readonly - to avoid stack growth
     private readonly IIndexReader<TKey, TItem> reader;
-    
+
     public IIndex<TKey, TItem> Index
     {
       get { return index; }
@@ -38,7 +39,7 @@ namespace Xtensive.Indexing.Composite
     {
       get
       {
-        CutOutTransform currentTransform = new CutOutTransform(false, reader.Current.Descriptor,new Segment<int>(index.KeyExtractor(reader.Current).Count,1));
+        CutOutTransform currentTransform = new CutOutTransform(false, reader.Current.Descriptor, new Segment<int>(index.KeyExtractor(reader.Current).Count, 1));
         return (TItem) currentTransform.Apply(TupleTransformType.TransformedTuple, reader.Current);
       }
     }
@@ -52,7 +53,7 @@ namespace Xtensive.Indexing.Composite
     {
       // TODO: Optimize this
       while (reader.MoveNext()) {
-        if ((int)reader.Current[index.KeyExtractor(reader.Current).Count] != index.SegmentNumber)
+        if ((int) reader.Current[index.KeyExtractor(reader.Current).Count]!=index.SegmentNumber)
           continue;
         return true;
       }
@@ -86,9 +87,9 @@ namespace Xtensive.Indexing.Composite
     {
       this.index = index;
       this.range = range;
-      reader = index.CompositeIndex.implementation.CreateReader(index.GetCompositeIndexRange(range));
+      reader = index.CompositeIndex.Implementation.CreateReader(index.GetCompositeIndexRange(range));
     }
-    
+
 
     public void Dispose()
     {

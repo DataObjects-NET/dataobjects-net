@@ -11,13 +11,15 @@ using Xtensive.Core.Tuples;
 namespace Xtensive.Indexing.Composite
 {
   /// <summary>
-  /// A set of <see cref="IndexSegmentConfiguration{TKey,TItem}"/> instances.
+  /// A set of <see cref="IndexSegmentConfiguration{TKey,TItem}"/> items.
   /// </summary>
   /// <typeparam name="TKey">The type of the key.</typeparam>
   /// <typeparam name="TItem">The type of the item.</typeparam>
   /// <seealso cref="IndexConfigurationBase{TKey,TITem}"/>
   [Serializable]
-  public class IndexSegmentConfigurationSet<TKey, TItem> : ConfigurationSetBase<IndexSegmentConfiguration<TKey, TItem>> where TKey : Tuple where TItem : Tuple
+  public class IndexSegmentConfigurationSet<TKey, TItem> : ConfigurationSetBase<IndexSegmentConfiguration<TKey, TItem>>
+    where TKey : Tuple 
+    where TItem : Tuple
   {
     /// <inheritdoc/>
     protected override string GetItemName(IndexSegmentConfiguration<TKey, TItem> item)
@@ -31,11 +33,11 @@ namespace Xtensive.Indexing.Composite
       return new IndexSegmentConfigurationSet<TKey, TItem>();
     }
 
+    /// <inheritdoc/>
     protected override void Clone(ConfigurationBase source)
     {
       base.Clone(source);
-      IndexSegmentConfigurationSet<TKey, TItem> set =
-        (IndexSegmentConfigurationSet<TKey, TItem>)source;
+      IndexSegmentConfigurationSet<TKey, TItem> set = (IndexSegmentConfigurationSet<TKey, TItem>)source;
       foreach (IndexSegmentConfiguration<TKey, TItem> configuration in set)
         Add((IndexSegmentConfiguration<TKey, TItem>)configuration.Clone());
     }

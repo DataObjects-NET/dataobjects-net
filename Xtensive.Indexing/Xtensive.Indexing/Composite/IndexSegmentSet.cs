@@ -9,7 +9,9 @@ using Xtensive.Core.Tuples;
 
 namespace Xtensive.Indexing.Composite
 {
-  public class IndexSegmentSet<TKey, TItem> : ConfigurationSetBase<IndexSegment<TKey, TItem>> where TKey : Tuple where TItem : Tuple
+  public class IndexSegmentSet<TKey, TItem> : ConfigurationSetBase<IndexSegment<TKey, TItem>>
+    where TKey : Tuple
+    where TItem : Tuple
   {
     /// <inheritdoc/>
     protected override string GetItemName(IndexSegment<TKey, TItem> item)
@@ -27,7 +29,7 @@ namespace Xtensive.Indexing.Composite
     protected override void Clone(ConfigurationBase source)
     {
       base.Clone(source);
-      IndexSegmentSet<TKey, TItem> set = (IndexSegmentSet<TKey, TItem>)source;
+      IndexSegmentSet<TKey, TItem> set = (IndexSegmentSet<TKey, TItem>) source;
       foreach (IndexSegment<TKey, TItem> segment in set)
         Add(segment);
     }

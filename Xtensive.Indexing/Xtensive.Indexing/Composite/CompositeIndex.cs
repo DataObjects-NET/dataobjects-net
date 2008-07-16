@@ -6,23 +6,34 @@
 
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Tuples;
-using Xtensive.Indexing.Measures;
 
 namespace Xtensive.Indexing.Composite
 {
   /// <summary>
-  /// Composite index wrapper.
+  /// Composite index.
   /// </summary>
   /// <typeparam name="TKey">The type of the key.</typeparam>
   /// <typeparam name="TItem">The type of the item.</typeparam>
-  public class CompositeIndex<TKey, TItem>: ConfigurableBase<IndexConfiguration<TKey, TItem>>
+  public class CompositeIndex<TKey, TItem> : ConfigurableBase<IndexConfiguration<TKey, TItem>>
     where TKey : Tuple
     where TItem : Tuple
   {
-    internal IUniqueOrderedIndex<TKey, TItem> implementation;
+    private IUniqueOrderedIndex<TKey, TItem> implementation;
 
-    private IndexSegmentSet<TKey, TItem> segments = new IndexSegmentSet<TKey, TItem>();
+    private readonly IndexSegmentSet<TKey, TItem> segments = new IndexSegmentSet<TKey, TItem>();
 
+    /// <summary>
+    /// Gets the index segments.
+    /// </summary>
+    public IndexSegmentSet<TKey, TItem> Segments
+    {
+      get { return segments; }
+    }
+
+    internal IUniqueOrderedIndex<TKey, TItem> Implementation
+    {
+      get { return implementation; }
+    }
 
     /// <inheritdoc/>
     protected override void OnConfigured()
@@ -30,21 +41,12 @@ namespace Xtensive.Indexing.Composite
       base.OnConfigured();
       implementation = Configuration.UniqueIndex;
 
-      for (int i = 0, count = (int) Configuration.Segments.Count; i < count; i++) {
-        IndexSegmentConfiguration<TKey, TItem> segmentConfiguration = Configuration.Segments[i];
-        IndexSegment<TKey, TItem> segment = new IndexSegment<TKey, TItem>(segmentConfiguration, this, i);
+      for (int index = 0, count = (int) Configuration.Segments.Count; index < count; index++) {
+        IndexSegmentConfiguration<TKey, TItem> segmentConfiguration = Configuration.Segments[index];
+        IndexSegment<TKey, TItem> segment = new IndexSegment<TKey, TItem>(segmentConfiguration, this, index);
         segments.Add(segment);
       }
       segments.Lock(true);
-    }
-
-    /// <summary>
-    /// Gets the index segments.
-    /// </summary>
-    /// <value>The index segments.</value>
-    public IndexSegmentSet<TKey, TItem> Segments
-    {
-      get { return segments; }
     }
   }
 }
