@@ -24,7 +24,6 @@ namespace Xtensive.Indexing
     UniqueOrderedIndexBase<TKey, TItem>,
     IDisposable
   {
-    private IIndexPageProvider<TKey, TItem> provider;
     private DescriptorPage<TKey, TItem> descriptorPage;
     private IPageRef cachedRootPageRef;
     private IPageRef cachedLeftmostPageRef;
@@ -178,15 +177,6 @@ namespace Xtensive.Indexing
     }
 
     #endregion
-
-    /// <summary>
-    /// Serializes items from specified <see cref="IEnumerable{T}"/> into the index.
-    /// </summary>
-    /// <param name="source">Items to serialize into the index.</param>
-    public void Serialize(IEnumerable<TItem> source)
-    {
-      provider.Serialize(source);
-    }
 
     /// <inheritdoc/>
     public override void Configure(IndexConfigurationBase<TKey, TItem> configuration)

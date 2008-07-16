@@ -164,35 +164,11 @@ namespace Xtensive.Indexing.Providers
     /// <inheritdoc/>
     public override void Serialize(IEnumerable<TItem> source)
     {
-//      if (streamProvider.FileExists)
-//        throw new InvalidOperationException(Strings.ExStreamIsNotEmpty);
-
       if (index==null)
         throw new InvalidOperationException(Strings.ExIndexPageProviderIsUnboundToTheIndex);
       if ((Features & IndexFeatures.Serialize)==0)
         throw new InvalidOperationException(Strings.ExIndexPageProviderDoesntSupportSerialize);
-      bool useBloomFilter = index.DescriptorPage.Configuration.UseBloomFilter;
-      double bloomFilterBitsPerValue = index.DescriptorPage.Configuration.BloomFilterBitsPerValue;
-      IBloomFilter<TKey> bloomFilter = null;
-      if (useBloomFilter) {
-        // Try to get item's count
-        long count;
-        if (source is ICountable) {
-          count = ((ICountable)source).Count;
-        }
-        else if (source is ICollection) {
-          count = ((ICollection)source).Count;
-        }
-        else if (source is ICollection<TItem>) {
-          count = ((ICollection<TItem>)source).Count;
-        }
-        else {
-          throw new ArgumentException(Strings.ExUnableToGetCountForBloomFilter, "source");
-        }
-        if (count > 0) {
-          bloomFilter = new MemoryBloomFilter<TKey>(count, BloomFilter<TKey>.GetOptimalHashCount(bloomFilterBitsPerValue));
-        }
-      }
+
       DescriptorPage<TKey, TItem> descriptorPage = index.DescriptorPage;
       int pageSize = index.DescriptorPage.PageSize;
       AdvancedComparer<TKey> comparer = index.KeyComparer;
@@ -203,6 +179,7 @@ namespace Xtensive.Indexing.Providers
       LeafPage<TKey, TItem> leafPage = new LeafPage<TKey, TItem>(this);
       IList<InnerPage<TKey, TItem>> branch = new List<InnerPage<TKey, TItem>>();
       descriptorPage.LeftmostPageRef = StreamPageRef<TKey, TItem>.Create((long)0);
+      IBloomFilter<TKey> bloomFilter = GetBloomFilter(source);
 
       using (Stream stream = new FileStream(streamProvider.FileName, FileMode.OpenOrCreate, FileSystemRights.Write, FileShare.ReadWrite, 65535, FileOptions.RandomAccess))
       {

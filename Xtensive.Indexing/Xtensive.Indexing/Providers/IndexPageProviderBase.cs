@@ -5,9 +5,12 @@
 // Created:    2007.12.13
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using Xtensive.Core;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Indexing.BloomFilter;
 using Xtensive.Indexing.Implementation;
 using Xtensive.Indexing.Resources;
 
@@ -48,7 +51,6 @@ namespace Xtensive.Indexing.Providers
       get { return IndexFeatures.Default; }
     }
 
-
     // Abstract methods
     /// <inheritdoc/>
     public abstract void AssignIdentifier(Page<TKey, TItem> page);
@@ -76,20 +78,6 @@ namespace Xtensive.Indexing.Providers
         throw new InvalidOperationException(Strings.ExIndexPageProviderDoesntSupportSerialize);
       Initialize();
 
-//      AdvancedComparer<TKey> comparer = index.KeyComparer;
-//      Converter<TItem, TKey> extractor = index.KeyExtractor;
-//      bool bFirstPair = true;
-//      TKey previousKey = default(TKey);
-//      foreach (TItem item in source) {
-//        TKey key = extractor(item);
-//        int comparisonResult = bFirstPair ? 1 : comparer.Compare(key, previousKey);
-//        if (comparisonResult < 0)
-//          throw new InvalidOperationException(Strings.ExWrongKeyOrder);
-//        index.Add(item);
-//        previousKey = key;
-//        bFirstPair = false;
-//      }
-
       foreach (TItem item in source)
         index.Add(item);
     }
@@ -112,6 +100,44 @@ namespace Xtensive.Indexing.Providers
     /// <see cref="ClassDocTemplate.Dispose" copy="true"/>
     public virtual void Dispose()
     {
+    }
+
+    /// <summary>
+    /// Gets the bloom filter for specified <paramref name="source"/>.
+    /// </summary>
+    /// <param name="source">The source.</param>
+    /// <returns>The bloom filter.</returns>
+    protected IBloomFilter<TKey> GetBloomFilter(IEnumerable<TItem> source){
+      {
+        bool useBloomFilter = index.DescriptorPage.Configuration.UseBloomFilter;
+        double bloomFilterBitsPerValue = index.DescriptorPage.Configuration.BloomFilterBitsPerValue;
+        if (useBloomFilter)
+        {
+          // Try to get item's count
+          long count;
+          if (source is ICountable)
+          {
+            count = ((ICountable)source).Count;
+          }
+          else if (source is ICollection)
+          {
+            count = ((System.Collections.ICollection)source).Count;
+          }
+          else if (source is ICollection<TItem>)
+          {
+            count = ((ICollection<TItem>)source).Count;
+          }
+          else
+          {
+            throw new ArgumentException(Strings.ExUnableToGetCountForBloomFilter, "source");
+          }
+          if (count > 0)
+          {
+            return new MemoryBloomFilter<TKey>(count, BloomFilter<TKey>.GetOptimalHashCount(bloomFilterBitsPerValue));
+          }
+        }
+        return null;
+      }
     }
   }
 }

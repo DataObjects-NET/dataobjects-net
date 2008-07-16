@@ -55,12 +55,21 @@ namespace Xtensive.Indexing.Tests.Index
     [Test]
     public void SerializeTest()
     {
+      //StreamPageProvider
       SerializeInternal<short>(GetCount());
       SerializeInternal<int>(GetCount());
       SerializeInternal<ulong>(GetCount());
       SerializeInternal<Guid>(GetCount());
       SerializeInternal<string>(GetCount());
       SerializeInternal<byte>(GetCount());
+      //MemoryPageProvider
+      MemorySerializeInternal<short>(GetCount());
+      MemorySerializeInternal<int>(GetCount());
+      MemorySerializeInternal<ulong>(GetCount());
+      MemorySerializeInternal<Guid>(GetCount());
+      MemorySerializeInternal<string>(GetCount());
+      MemorySerializeInternal<byte>(GetCount());
+
     }
 
     private void SerializeInternal<T>(int count)
@@ -106,6 +115,40 @@ namespace Xtensive.Indexing.Tests.Index
         File.Delete(fileName);
       }
     }
+
+    private void MemorySerializeInternal<T>(int count)
+    {
+      Index<T, T> index = GetIndex<T>();
+      ISet<T> instances = GetUniqueInstances<T>(count);
+
+      foreach (T item in instances)
+      {
+        index.Add(item);
+      }
+
+      IndexConfiguration<T, T> configuration = GetConfiguration<T>();
+        using (Index<T, T> serializedIndex = new Index<T, T>(configuration))
+        {
+          using (new Measurement("Serializing index."))
+            serializedIndex.Serialize(index);
+          IEnumerator<T> serializedEnumerator = serializedIndex.GetEnumerator();
+          IEnumerator<T> indexEnumerator = index.GetEnumerator();
+          while (indexEnumerator.MoveNext())
+          {
+            Assert.IsTrue(serializedEnumerator.MoveNext());
+            Assert.AreEqual(indexEnumerator.Current, serializedEnumerator.Current);
+          }
+          Assert.AreEqual(index.Count, serializedIndex.Count);
+        }
+
+        using (Index<T, T> serializedIndex = new Index<T, T>(configuration))
+        {
+          serializedIndex.Serialize(new T[] { });
+          IEnumerator<T> serializedEnum = serializedIndex.GetEnumerator();
+          Assert.IsFalse(serializedEnum.MoveNext());
+        }
+    }
+
 
     [Test]
     public void DeserializeTest()
