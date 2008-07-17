@@ -18,10 +18,8 @@ namespace Xtensive.Storage.Building.Definitions
   public class FieldDef : MappingNode
   {
     private readonly PropertyInfo underlyingProperty;
-    private FieldAttributes attributes;
-    private Type valueConverter;
-    private ReferentialAction onDelete;
-    private readonly List<IFieldConstraint> constraints = new List<IFieldConstraint>();
+    private FieldAttributes attributes;    
+    private ReferentialAction onDelete;    
     private string pairTo;
 
     /// <summary>
@@ -120,7 +118,7 @@ namespace Xtensive.Storage.Building.Definitions
     /// <summary>
     /// Gets or sets the type of the value of this instance.
     /// </summary>
-    public Type ValueType { get; set; }
+    public Type ValueType { get; private set; }
 
     /// <summary>
     /// Gets the attributes.

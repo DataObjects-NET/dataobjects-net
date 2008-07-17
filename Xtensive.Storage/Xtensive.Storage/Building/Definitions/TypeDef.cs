@@ -8,7 +8,8 @@ using System;
 using System.Diagnostics;
 using System.Reflection;
 using Xtensive.Core;
-using Xtensive.Core.Diagnostics;
+using Xtensive.Core.Reflection;
+using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Building.Builders;
 using Xtensive.Storage.Model;
 using TypeAttributes=Xtensive.Storage.Model.TypeAttributes;
@@ -102,11 +103,12 @@ namespace Xtensive.Storage.Building.Definitions
     public IndexDef DefineIndex(string name)
     {
       if (!Validator.IsNameValid(name, ValidationRule.Index))
-        throw new ArgumentOutOfRangeException("name", name, "Index name '{0}' is invalid.");
+        throw new DomainBuilderException(
+          string.Format(Resources.Strings.IndexNameXIsInvalid, name));
 
-      IndexDef indexDef = new IndexDef {Name = name};    
+      IndexDef indexDef = new IndexDef {Name = name};
       indexes.Add(indexDef);
-      return indexDef;      
+      return indexDef;
     }
 
     /// <summary>
@@ -119,11 +121,8 @@ namespace Xtensive.Storage.Building.Definitions
       ArgumentValidator.EnsureArgumentNotNull(property, "property");
 
       if (property.DeclaringType != UnderlyingType)
-        throw new ArgumentOutOfRangeException("property",
-          property,
-          string.Format("Property must be declared in type '{0}'.",
-            UnderlyingType.FullName));
-
+        throw new DomainBuilderException(
+          string.Format(Resources.Strings.ExPropertyXMustBeDeclaredInTypeY, property.Name, UnderlyingType.FullName));
             
       FieldDef fieldDef = FieldBuilder.DefineField(this, property);
       fields.Add(fieldDef);
@@ -139,10 +138,11 @@ namespace Xtensive.Storage.Building.Definitions
     public FieldDef DefineField(string name, Type valueType)
     {
       ArgumentValidator.EnsureArgumentNotNull(valueType, "type");
-            
-      FieldDef fieldDef = new FieldDef(valueType) {Name = name};
-      fields.Add(fieldDef);
-      return fieldDef; 
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
+
+      FieldDef field = FieldBuilder.DefineField(name, valueType, underlyingType);
+      fields.Add(field);
+      return field;
     }
 
     /// <summary>

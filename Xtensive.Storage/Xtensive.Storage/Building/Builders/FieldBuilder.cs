@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Reflection;
+using Xtensive.Core;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Model;
@@ -27,31 +28,41 @@ namespace Xtensive.Storage.Building.Builders
         typeDef.UnderlyingType.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 
       foreach (PropertyInfo propertyInfo in properties)
-        try {
-          FieldDef field = DefineField(typeDef, propertyInfo);
-
-          if (field!=null)
-            fields.Add(field);
-        }
-        catch (DomainBuilderException e) {
-          BuildingScope.Context.RegistError(e);
-        }        
+        if (IsDeclaredAsPersistent(propertyInfo))
+          try {
+            fields.Add(
+              DefineField(typeDef, propertyInfo));
+          }
+          catch (DomainBuilderException e) {
+            BuildingScope.Context.RegistError(e);
+          }        
       
       return fields;
     }
 
+    private static bool IsDeclaredAsPersistent(PropertyInfo propertyInfo)
+    {            
+      if (propertyInfo.GetAttribute<FieldAttribute>(false)==null)
+        return false;
+
+      if (propertyInfo.DeclaringType!=propertyInfo.ReflectedType)
+        return false;
+
+      return true;
+    }
+
+    /// <summary>
+    /// Defines the field by specified property.
+    /// </summary>
+    /// <param name="typeDef">The type definition.</param>
+    /// <param name="propertyInfo">The <see cref="PropertyInfo"/> of the property.</param>
+    /// <returns>Defined field.</returns>
     public static FieldDef DefineField(TypeDef typeDef, PropertyInfo propertyInfo)
     {
       BuildingContext context = BuildingScope.Context;
-      Log.Info("Defining field '{0}'", propertyInfo.Name);
-
-      // [Field] attribute must be applied on any persistent field
-      var fieldAttribute = propertyInfo.GetAttribute<FieldAttribute>(false);
-      if (fieldAttribute==null)
-        return null;
-
-      if (propertyInfo.DeclaringType!=propertyInfo.ReflectedType)
-        return null;
+      Log.Info("Defining field '{0}'", propertyInfo.Name);            
+      
+      ValidateValueType(propertyInfo.PropertyType, typeDef.UnderlyingType);
 
       // We do not support "persistent" indexers
       ParameterInfo[] indexParameters = propertyInfo.GetIndexParameters();
@@ -61,23 +72,47 @@ namespace Xtensive.Storage.Building.Builders
 
       FieldDef fieldDef = new FieldDef(propertyInfo);
       fieldDef.Name = context.NameProvider.BuildName(fieldDef);
-      
-      AttributeProcessor.Process(fieldDef, fieldAttribute);
+
+      AttributeProcessor.Process(fieldDef, 
+        propertyInfo.GetAttribute<FieldAttribute>(false));
 
       return fieldDef;
     }
 
+    /// <summary>
+    /// Defines the field manually (without property).
+    /// </summary>
+    /// <param name="name">The field name.</param>
+    /// <param name="valueType">The value type.</param>
+    /// <param name="declaringType">The type where this field is declaring.</param>
+    /// <returns>Defined field.</returns>
+    public static FieldDef DefineField(string name, Type valueType, Type declaringType)
+    {
+      ValidateValueType(valueType, declaringType);
+      return new FieldDef(valueType) {Name = name};
+    }
+
+    /// <summary>
+    /// Builds the declared field.
+    /// </summary>
+    /// <param name="type">The type field belongs to.</param>
+    /// <param name="fieldDef">The field definition.</param>
     public static void BuildDeclaredField(TypeInfo type, FieldDef fieldDef)
     {
       Log.Info("Building declared field '{0}.{1}'", type.Name, fieldDef.Name);
+      
+      FieldInfo field = new FieldInfo(type, fieldDef.Attributes)
+        {
+          UnderlyingProperty = fieldDef.UnderlyingProperty, 
+          Name = fieldDef.Name, 
+          MappingName = fieldDef.MappingName, 
+          ValueType = fieldDef.ValueType, 
+          Length = fieldDef.Length
+        };
 
-      FieldInfo field = new FieldInfo(type, fieldDef.Attributes);
-      field.UnderlyingProperty = fieldDef.UnderlyingProperty;
-      field.Name = fieldDef.Name;
-      field.MappingName = fieldDef.MappingName;
-      field.ValueType = fieldDef.ValueType;
-      field.Length = fieldDef.Length;
       type.Fields.Add(field);
+
+      ValidateValueType(field.ValueType, type.UnderlyingType);
 
       if (field.IsEntitySet) {
         TypeBuilder.BuildType(field.ValueType);
@@ -88,7 +123,7 @@ namespace Xtensive.Storage.Building.Builders
 
       if (field.IsEntity) {
         TypeBuilder.BuildType(field.ValueType);
-        BuildReferenceField(field);
+        BuildReferenceField(field); 
 
         AssociationBuilder.BuildAssociation(fieldDef, field);
 
@@ -99,7 +134,7 @@ namespace Xtensive.Storage.Building.Builders
       if (field.IsStructure) {
         TypeBuilder.BuildType(field.ValueType);
         BuildStructureField(field);
-      }
+      }      
 
       if (field.IsPrimitive)
         field.Column = ColumnBuilder.BuildColumn(field);
@@ -109,6 +144,32 @@ namespace Xtensive.Storage.Building.Builders
           string.Format(Resources.Strings.FieldXCanTBeLoadOnDemandAsItIsIncludedInPrimaryKey, field.Name));
 
       return;
+    }
+
+    private static void ValidateValueType(Type valueType, Type declaringType)
+    {
+      if (valueType.IsPrimitive || valueType.IsEnum || typeof (string)==valueType 
+        || typeof(byte[])==valueType || typeof(Guid)==valueType)
+        return;
+
+      if (typeof (Entity).IsAssignableFrom(valueType))
+        return;            
+
+      if (valueType.IsSubclassOf(typeof (Structure)))
+        return;
+
+      if (valueType.IsInterface && typeof(IEntity).IsAssignableFrom(valueType) && valueType!=typeof(IEntity))
+        return;
+
+      if (valueType.IsGenericType && valueType.GetGenericTypeDefinition()==typeof (EntitySet<>)) {
+        if (declaringType.IsSubclassOf(typeof(Structure)))
+          throw new DomainBuilderException(
+            string.Format("Structures do not support fields of type '{0}'.", valueType.Name));
+
+        return;        
+      }        
+      throw new DomainBuilderException(
+        string.Format(Resources.Strings.UnsupportedFieldTypeX, valueType.Name));
     }
 
     public static void BuildInheritedField(TypeInfo type, FieldInfo inheritedField)

@@ -9,6 +9,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using Xtensive.Core.Collections;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Building.Definitions
 {
@@ -80,7 +81,10 @@ namespace Xtensive.Storage.Building.Definitions
       get { return fillFactor; }
       set
       {
-        Validator.ValidateFillFactor(value);        
+        if (fillFactor < 0 || fillFactor > 1)   
+          throw new DomainBuilderException(
+            string.Format(Strings.ExInvalidFillFactorXValueMustBeBetween0And1, fillFactor));
+
         fillFactor = value;
       }
     }

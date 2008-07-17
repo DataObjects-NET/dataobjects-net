@@ -33,12 +33,15 @@ namespace Xtensive.Storage.Tests.Storage.Vehicles
     /// <summary>
     /// Gets or sets division number. Stores <see cref="int"/> value as <see cref="string"/> in storage.
     /// </summary>
-    [Field]
+    
     public int Number
     {
-      get { return int.Parse(GetValue<string>("Number")); }
-      set { SetValue("Number", value.ToString()); }
+      get { return int.Parse(NumberString); }
+      set { NumberString = value.ToString(); }
     }
+
+    [Field]
+    private string NumberString { get; set;}
 
     /// <summary>
     /// Gets collection of fleets. Every division can contains several truck fleets.

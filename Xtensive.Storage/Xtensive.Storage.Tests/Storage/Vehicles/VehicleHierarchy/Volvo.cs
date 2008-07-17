@@ -29,8 +29,8 @@ namespace Xtensive.Storage.Tests.Storage.Vehicles
     /// </summary>
     public override int Power
     {
-      get { return Int32.Parse(GetValue<string>("Power")); }
-      set { SetValue("Power", value.ToString()); }
+      get { return GetValue<int>("Power"); }
+      set { SetValue("Power", value); }
     }
   }
 }

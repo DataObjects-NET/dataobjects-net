@@ -33,21 +33,23 @@ namespace Xtensive.Storage.Tests.Storage.Vehicles
     /// <summary>
     /// Country flag.
     /// </summary>
-    [Field(LazyLoad = true, Length = 100, IsNullable = true)]
+    
     public Bitmap Flag
     {
       get
-      {
-        MemoryStream ms = new MemoryStream(GetValue<byte[]>("Flag"));
-        return (Bitmap) Image.FromStream(ms);
+      {        
+        return (Bitmap) Image.FromStream(new MemoryStream(FlagBytes));
       }
       set
       {
         MemoryStream ms = new MemoryStream();
         value.Save(ms, ImageFormat.Jpeg);
-        SetValue("Flag", ms.ToArray());
+        FlagBytes = ms.ToArray();        
       }
     }
+
+    [Field(LazyLoad = true, Length = 100, IsNullable = true)]
+    private byte[] FlagBytes { get; set;}    
 
     public Country(string countryName)
       : base(countryName)

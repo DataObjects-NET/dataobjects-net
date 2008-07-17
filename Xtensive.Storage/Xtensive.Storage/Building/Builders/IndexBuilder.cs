@@ -36,11 +36,9 @@ namespace Xtensive.Storage.Building.Builders
       }
     }
 
-      private static void DefineIndex(TypeDef typeDef, IndexAttribute attribute)
-    {      
-      ValidationResult vr = Validator.ValidateAttribute(typeDef, attribute);
-      if (!vr.Success)
-        throw new DomainBuilderException(vr.Message);        
+    private static void DefineIndex(TypeDef typeDef, IndexAttribute attribute)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(attribute, "attribute");      
       
       IndexDef index = new IndexDef();
       AttributeProcessor.Process(index, attribute);

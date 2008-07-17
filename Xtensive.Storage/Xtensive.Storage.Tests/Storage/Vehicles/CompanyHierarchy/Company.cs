@@ -35,9 +35,13 @@ namespace Xtensive.Storage.Tests.Storage.Vehicles
     [Field]
     public int RegNumber
     {
-      get { return Int32.Parse(GetValue<string>("RegNumber")); }
-      set { SetValue("RegNumber", value.ToString()); }
+      get { return Int32.Parse(RegNumberString); }
+      set { RegNumberString = value.ToString(); }
     }
+
+    [Field]
+    private string RegNumberString { get; set;}
+    
 
     /// <summary>
     /// Gets collection of <see cref="Division"/> of this company.

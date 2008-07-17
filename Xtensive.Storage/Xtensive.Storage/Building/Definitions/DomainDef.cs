@@ -11,6 +11,7 @@ using Xtensive.Core.Notifications;
 using Xtensive.Storage.Building.Builders;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Building.Definitions
 {
@@ -55,22 +56,19 @@ namespace Xtensive.Storage.Building.Definitions
     /// <returns>Newly created <see cref="TypeDef"/> instance.</returns>
     public TypeDef DefineType(Type type)
     {
-      ValidationResult vr = Validator.ValidateType(type, ValidationRule.Type);
-      if (!vr.Success)
-        throw new ArgumentOutOfRangeException("type", vr.Message);
+      bool isValidClass = type.IsClass && type.IsSubclassOf(typeof (Persistent));
+      bool isValidInterface = type.IsInterface && typeof (IEntity).IsAssignableFrom(type);
 
-      using (var scope = new LogCaptureScope(BuildingScope.Context.Logger)) {
+      if (!isValidClass && !isValidInterface)
+        throw new DomainBuilderException(
+          string.Format(Strings.ExUnsupportedType, type));
 
-        TypeDef typeDef = TypeBuilder.DefineType(type);
-        if (scope.IsCaptured(LogEventTypes.Error))
-          throw new DomainBuilderException(
-            "Some errors have been occured during type definition process. See error log for details.");
-        types.Add(typeDef);
+      TypeDef typeDef = TypeBuilder.DefineType(type);
+      types.Add(typeDef);
+      IndexBuilder.DefineIndexes(typeDef);
 
-        IndexBuilder.DefineIndexes(typeDef);
+      return typeDef;
 
-        return typeDef;
-      }
     }
 
     /// <summary>
@@ -117,9 +115,6 @@ namespace Xtensive.Storage.Building.Definitions
     /// <returns>Newly created <see cref="ServiceDef"/> instance.</returns>
     public ServiceDef DefineService(Type type)
     {
-      ValidationResult vr = Validator.ValidateType(type, ValidationRule.Service);
-      if (!vr.Success)
-        throw new ArgumentOutOfRangeException("type", vr.Message);
       throw new NotImplementedException();
     }
 

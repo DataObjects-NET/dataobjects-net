@@ -32,6 +32,6 @@ namespace Xtensive.Storage.Tests.Storage.Vehicles
     /// Attention. Property is abstract and override in inherited classes.
     /// </summary>
     [Field(IsNullable = true)]
-    public abstract int Power { get; set; }
+    public abstract int Power { get; set; }    
   }
 }

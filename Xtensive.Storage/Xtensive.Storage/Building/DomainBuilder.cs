@@ -5,6 +5,8 @@
 // Created:    2007.08.03
 
 using System;
+using System.Globalization;
+using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Reflection;
@@ -54,7 +56,7 @@ namespace Xtensive.Storage.Building
           BuildKeyProviders();
         }
         catch (DomainBuilderException e) {          
-          BuildingContext.Current.RegistError(e);
+          context.RegistError(e);
         }        
 
         context.EnsureBuildSucceed();
@@ -71,11 +73,25 @@ namespace Xtensive.Storage.Building
     {
       Core.Log.Info(Strings.LogValidatingConfiguration);
       if (configuration.Builders.Count > 0)
-        foreach (Type type in configuration.Builders) {
-          ValidationResult vr = Validator.ValidateBuilder(type);
-          if (!vr.Success)
-            throw new DomainBuilderException(vr.Message);
-        }
+        foreach (Type type in configuration.Builders)
+          ValidateBuilder(type);         
+    }
+
+    private static void ValidateBuilder(Type type)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(type, "type");
+
+      ConstructorInfo constructor =
+        type.GetConstructor(BindingFlags.Public | BindingFlags.Instance, null, new Type[0], null);
+
+      if (constructor==null)
+        throw new DomainBuilderException(
+          string.Format(Strings.ExTypeXMustHavePublicInstanceParameterlessConstructorInOrderToBeUsedAsStorageDefinitionBuilder, type.FullName));
+
+      if (!typeof (IDomainBuilder).IsAssignableFrom(type))
+        throw new DomainBuilderException(
+          string.Format(CultureInfo.CurrentCulture,
+            Strings.ExTypeXDoesNotImplementYInterface, type.FullName, typeof (IDomainBuilder).FullName));      
     }
 
     private static void BuildDomain()

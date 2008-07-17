@@ -88,7 +88,7 @@ namespace Xtensive.Storage.Tests.Storage.Vehicles
     {
       Domain domain = GetSqlStorage();
       TestInternal(domain, 10);
-    }
+    } 
 
     [Test]
     [Explicit, Category("Debug")]
@@ -482,8 +482,7 @@ namespace Xtensive.Storage.Tests.Storage.Vehicles
       foreach (FieldInfo info in model.Types[typeof (CompanyAddress)].Fields) {
         Assert.IsTrue(company.Fields["Address." + info.Name]!=null);
       }
-      Assert.IsTrue(company.Fields["WebSite"].ValueType==typeof (string));
-      Assert.IsTrue(company.Fields["RegNumber"].ValueType==typeof (string));
+      Assert.IsTrue(company.Fields["WebSite"].ValueType==typeof (string));      
 
       // TruckFleet
       TypeInfo truckFleet = model.Types[typeof (TruckFleet)];

@@ -79,8 +79,10 @@ namespace Xtensive.Storage.Building.Builders
     public static void BuildHierarchyColumns(HierarchyInfo hierarchyInfo)
     {
       DirectionCollection<ColumnInfo> columnsCollection = hierarchyInfo.Root.Indexes.PrimaryIndex.KeyColumns;
+
       for (int i = 0; i < columnsCollection.Count; i++)
         hierarchyInfo.Columns.Add(columnsCollection[i].Key);
+
       hierarchyInfo.Columns.Lock();
     }
   }

@@ -125,7 +125,7 @@ namespace Xtensive.Storage.Building.Builders
       if (attribute.length==null)
         return;
 
-      if (!Validator.ValidateLength(attribute.Length).Success)
+      if (attribute.Length <= 0)
         throw new DomainBuilderException(
           string.Format(Strings.ExInvalidLengthAttributeOnXField, field.Name));
       
@@ -241,8 +241,7 @@ namespace Xtensive.Storage.Building.Builders
     {
       if (!attribute.fillFactor.HasValue)
         return;
-
-      Validator.ValidateFillFactor(attribute.FillFactor);        
+      
       index.FillFactor = attribute.FillFactor;
     }
 
