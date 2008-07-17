@@ -5,11 +5,8 @@
 // Created:    2008.05.22
 
 using System;
-using System.Collections;
-using Xtensive.Core.Comparison;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Resources;
-using Xtensive.Core.Tuples.Internals;
 
 namespace Xtensive.Core.Tuples
 {
@@ -49,11 +46,12 @@ namespace Xtensive.Core.Tuples
     public Tuple Difference
     {
       get { return difference; }
-      set {
+      set
+      {
         ArgumentValidator.EnsureArgumentNotNull(origin, "value");
         if (value.Descriptor!=Descriptor)
           throw new ArgumentException(
-            String.Format(Strings.ExInvalidTupleDescriptorExpectedDescriptorIs, Descriptor), 
+            String.Format(Strings.ExInvalidTupleDescriptorExpectedDescriptorIs, Descriptor),
             "value");
         difference = value;
       }
@@ -114,7 +112,7 @@ namespace Xtensive.Core.Tuples
     }
 
     #endregion
-    
+
     #region CreateNew, Clone, Reset methods
 
     /// <inheritdoc/>
@@ -145,28 +143,29 @@ namespace Xtensive.Core.Tuples
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true" />
     /// </summary>
-    /// <param name="baseTuple">Initial <see cref="Origin"/> property value.</param>
-    public DifferentialTuple(Tuple baseTuple)
+    /// <param name="origin">Initial <see cref="Origin"/> property value.</param>
+    public DifferentialTuple(Tuple origin)
     {
-      ArgumentValidator.EnsureArgumentNotNull(baseTuple, "baseTuple");
-      this.origin = baseTuple;
+      ArgumentValidator.EnsureArgumentNotNull(origin, "origin");
+      this.origin = origin;
       difference = Origin.CreateNew();
     }
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true" />
     /// </summary>
-    /// <param name="baseTuple">Initial <see cref="Origin"/> property value.</param>
-    /// <param name="differenceTuple">Initial <see cref="Difference"/> property value.</param>
-    public DifferentialTuple(Tuple baseTuple, Tuple differenceTuple)
+    /// <param name="origin">Initial <see cref="Origin"/> property value.</param>
+    /// <param name="difference">Initial <see cref="Difference"/> property value.</param>
+    /// <exception cref="ArgumentException">Tuple descriptors mismatch.</exception>
+    public DifferentialTuple(Tuple origin, Tuple difference)
     {
-      ArgumentValidator.EnsureArgumentNotNull(baseTuple, "baseTuple");
-      if (baseTuple.Descriptor!=differenceTuple.Descriptor)
+      ArgumentValidator.EnsureArgumentNotNull(origin, "origin");
+      if (origin.Descriptor!=difference.Descriptor)
         throw new ArgumentException(
-          String.Format(Strings.ExInvalidTupleDescriptorExpectedDescriptorIs, baseTuple.Descriptor), 
-          "differenceTuple");
-      this.origin = baseTuple;
-      this.difference = differenceTuple;
+          String.Format(Strings.ExInvalidTupleDescriptorExpectedDescriptorIs, origin.Descriptor),
+          "difference");
+      this.origin = origin;
+      this.difference = difference;
     }
   }
 }
