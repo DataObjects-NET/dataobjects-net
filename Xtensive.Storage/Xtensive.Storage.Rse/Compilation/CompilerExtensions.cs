@@ -28,7 +28,7 @@ namespace Xtensive.Storage.Rse.Compilation
     public static Provider Compile(this ICompiler compiler, Provider provider, bool toCompatibleOnFailure)
     {
       var result = compiler.Compile(provider);
-      if (result==null)
+      if (result==null && toCompatibleOnFailure)
         result = compiler.ToCompatible(provider);
       return result;
     }

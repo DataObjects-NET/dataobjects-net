@@ -24,6 +24,29 @@ namespace Xtensive.Storage.Rse.Compilation
     private readonly object _lock = new object();
     private readonly ThreadSafeDictionary<Type, TypeCompiler> cache = ThreadSafeDictionary<Type, TypeCompiler>.Create();
 
+    #region ICompiler methods
+
+    /// <inheritdoc/>
+    public Provider Compile(Provider provider)
+    {
+      if (provider==null)
+        return null;
+      var c = GetCompiler(provider);
+      if (c==null)
+        return null;
+      return c.Compile(provider);
+    }
+
+    /// <inheritdoc/>
+    public abstract bool IsCompatible(Provider provider);
+
+    /// <inheritdoc/>
+    public abstract Provider ToCompatible(Provider provider);
+
+    #endregion
+
+    #region GetCompiler(...) methods (protected)
+
     /// <summary>
     /// Gets the compiler responsible for compilation of specified <paramref name="provider"/>.
     /// </summary>
@@ -73,23 +96,10 @@ namespace Xtensive.Storage.Rse.Compilation
       return GetAssociate<TProvider, TypeCompiler<TProvider>, TypeCompiler<TProvider>>();
     }
 
-    /// <inheritdoc/>
-    public Provider Compile(Provider provider)
-    {
-      if (provider==null)
-        return null;
-      var c = GetCompiler(provider);
-      if (c!=null)
-        return c.Compile(provider);
-      else
-        return null;
-    }
 
-    /// <inheritdoc/>
-    public abstract bool IsCompatible(Provider provider);
+    #endregion
 
-    /// <inheritdoc/>
-    public abstract Provider ToCompatible(Provider provider);
+    #region Protected methods
 
     /// <inheritdoc/>
     protected override TResult ConvertAssociate<TKey, TAssociate, TResult>(TAssociate associate)
@@ -98,6 +108,8 @@ namespace Xtensive.Storage.Rse.Compilation
         return default(TResult);
       return (TResult)(object) associate;
     }
+
+    #endregion
 
 
     // Constructor

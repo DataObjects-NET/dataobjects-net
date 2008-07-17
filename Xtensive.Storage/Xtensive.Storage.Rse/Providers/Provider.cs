@@ -87,10 +87,11 @@ namespace Xtensive.Storage.Rse.Providers
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="sources">The <see cref="Sources"/> property value.</param>
+    /// <param name="sources"><see cref="Sources"/> property value.</param>
     protected Provider(params Provider[] sources)
     {
       Sources = sources;
+      BuildHeader();
     }
   }
 }

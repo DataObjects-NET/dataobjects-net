@@ -15,7 +15,7 @@ namespace Xtensive.Storage.Rse.Compilation
     {
       return new Providers.Executable.FilteringProvider(
         provider.Header, 
-        Compiler.Compile(provider.Source), 
+        Compiler.Compile(provider.Source, true), 
         provider.Predicate.Compile());
     }
 

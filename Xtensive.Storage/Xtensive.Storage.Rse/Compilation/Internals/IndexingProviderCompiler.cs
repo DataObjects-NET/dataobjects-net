@@ -14,7 +14,7 @@ namespace Xtensive.Storage.Rse.Compilation
     {
       return new Providers.Executable.IndexingProvider(
         provider.Header, 
-        Compiler.Compile(provider.Source));
+        Compiler.Compile(provider.Source, true));
     }
 
 
