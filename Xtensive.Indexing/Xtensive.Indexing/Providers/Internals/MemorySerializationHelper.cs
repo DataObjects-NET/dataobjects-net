@@ -4,28 +4,29 @@
 // Created by: Elena Vakhtina
 // Created:    2008.07.16
 
+using System;
 using Xtensive.Core;
 using Xtensive.Indexing.Implementation;
 
 
 namespace Xtensive.Indexing.Providers.Internals
 {
-  internal sealed class MemorySerializationHelper<TKey, TItem>
+  internal sealed class MemorySerializationHelper<TKey, TItem> : SerializationHelperBase<TKey, TItem>
   {
     private LeafPage<TKey, TItem> lastLeafPage;
-    private Page<TKey, TItem> lastPageRef = default(Page<TKey,TItem>);
+    private Page<TKey, TItem> lastPageRef = default(Page<TKey, TItem>);
 
-    public Page<TKey, TItem> LastLeafPageRef
+    public override IPageRef LastLeafPageRef
     {
-      get { return lastLeafPage==null ? null : (Page<TKey, TItem>)lastLeafPage.Identifier; }
+      get { return lastLeafPage==null ? null : (Page<TKey, TItem>) lastLeafPage.Identifier; }
     }
 
-    public Page<TKey, TItem> LastPageRef
+    public override IPageRef LastPageRef
     {
       get { return lastPageRef; }
     }
 
-    public void SerializeLeafPage(LeafPage<TKey, TItem> page)
+    public override void SerializeLeafPage(LeafPage<TKey, TItem> page)
     {
       ArgumentValidator.EnsureArgumentNotNull(page, "page");
       page.LeftPageRef = null;
@@ -39,14 +40,14 @@ namespace Xtensive.Indexing.Providers.Internals
       lastPageRef = page;
     }
 
-    public void SerializeInnerPage(InnerPage<TKey, TItem> page)
+    public override void SerializeInnerPage(InnerPage<TKey, TItem> page)
     {
       ArgumentValidator.EnsureArgumentNotNull(page, "page");
       page.Identifier = page;
       lastPageRef = page;
     }
 
-    public void SerializeDescriptorPage(DescriptorPage<TKey, TItem> page)
+    public override void SerializeDescriptorPage(DescriptorPage<TKey, TItem> page)
     {
       ArgumentValidator.EnsureArgumentNotNull(page, "page");
       page.Identifier = page;
@@ -54,12 +55,20 @@ namespace Xtensive.Indexing.Providers.Internals
       page.RightmostPageRef = LastLeafPageRef;
     }
 
+    public override IDisposable CreateSerializer(IIndexPageProvider<TKey, TItem> provider)
+    {
+      return null;
+    }
+
+    public override void Dispose()
+    {
+    }
+
 
     // Constructors
 
     public MemorySerializationHelper()
-  {
-  }
-
+    {
+    }
   }
 }

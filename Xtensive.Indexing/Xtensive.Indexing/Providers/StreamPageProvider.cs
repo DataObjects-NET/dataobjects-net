@@ -5,20 +5,17 @@
 // Created:    2007.12.26
 
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.IO;
-using System.Security.AccessControl;
 using System.Threading;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
-using Xtensive.Core.Comparison;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.IO;
 using Xtensive.Core.Serialization.Binary;
 using Xtensive.Core.Threading;
 using Xtensive.Indexing.BloomFilter;
 using Xtensive.Indexing.Implementation;
+using Xtensive.Indexing.Implementation.Interfaces;
 using Xtensive.Indexing.Providers.Internals;
 using Xtensive.Indexing.Resources;
 using Xtensive.Core.Helpers;
@@ -39,7 +36,13 @@ namespace Xtensive.Indexing.Providers
     private readonly ReaderWriterLockSlim pageCacheLock = new ReaderWriterLockSlim();
     private bool descriptorPageIdentifierAssigned;
     private bool rootPageIdentifierAssigned;
+    private readonly StreamSerializationHelper<TKey, TItem> serializeHelper;
 
+    /// <inheritdoc/>
+    public override ISerializationHelper<TKey, TItem> SerializationHelper
+    {
+      get { return serializeHelper; }
+    }
 
     /// <inheritdoc/>
     public override IndexFeatures Features
@@ -47,26 +50,35 @@ namespace Xtensive.Indexing.Providers
       get { return IndexFeatures.SerializeAndRead; }
     }
 
+    /// <summary>
+    /// Gets the stream provider.
+    /// </summary>
+    /// <value>The stream provider.</value>
+    public StreamProvider StreamProvider
+    {
+      get { return streamProvider; }
+    }
+
     #region PageCache access methods
 
-    protected void AddToCache(Page<TKey, TItem> page)
+    /// <inheritdoc/>
+    public override void AddToCache(Page<TKey, TItem> page)
     {
-      if(pageCache!=null) {
+      if (pageCache!=null) {
         LockCookie? cookie = pageCacheLock.BeginWrite();
-        try
-        {
+        try {
           pageCache.Add(page);
         }
-        finally
-        {
+        finally {
           pageCacheLock.EndWrite(cookie);
         }
       }
     }
 
-    protected void RemoveFromCache(Page<TKey, TItem> page)
+    /// <inheritdoc/>
+    public override void RemoveFromCache(Page<TKey, TItem> page)
     {
-      if (pageCache != null) {
+      if (pageCache!=null) {
         LockCookie? cookie = pageCacheLock.BeginWrite();
         try {
           pageCache.Remove(page);
@@ -80,9 +92,10 @@ namespace Xtensive.Indexing.Providers
       }
     }
 
-    protected Page<TKey, TItem> GetFromCache(IPageRef pageRef)
+    /// <inheritdoc/>
+    public override Page<TKey, TItem> GetFromCache(IPageRef pageRef)
     {
-      if (pageCache != null) {
+      if (pageCache!=null) {
         pageCacheLock.BeginRead();
         try {
           return pageCache[pageRef, true];
@@ -111,7 +124,7 @@ namespace Xtensive.Indexing.Providers
         descriptorPageIdentifierAssigned = true;
       }
       else if (!rootPageIdentifierAssigned && (page is LeafPage<TKey, TItem>)) {
-        page.Identifier = StreamPageRef<TKey, TItem>.Create((long)0);
+        page.Identifier = StreamPageRef<TKey, TItem>.Create((long) 0);
         rootPageIdentifierAssigned = true;
       }
       else
@@ -126,7 +139,7 @@ namespace Xtensive.Indexing.Providers
       Page<TKey, TItem> page = identifier as Page<TKey, TItem>;
       if (page!=null) // Cached page
         return page;
-      StreamPageRef<TKey, TItem> streamPageRef = (StreamPageRef<TKey, TItem>)identifier;
+      StreamPageRef<TKey, TItem> streamPageRef = (StreamPageRef<TKey, TItem>) identifier;
       if (!streamPageRef.IsDefined)
         throw Exceptions.InternalError(String.Format("Undefined {0}.", streamPageRef), Log.Instance);
       page = GetFromCache(identifier);
@@ -137,9 +150,7 @@ namespace Xtensive.Indexing.Providers
             throw Exceptions.InternalError(String.Format("StreamPageRef {0} points to null page.", streamPageRef), Log.Instance);
           page.Provider = this;
           page.Identifier = identifier;
-          pageCacheLock.ExecuteWriter(delegate {
-                pageCache.Add(page);
-            });
+          pageCacheLock.ExecuteWriter(delegate { pageCache.Add(page); });
         }
         catch (Exception e) {
           Log.Error(Strings.ExCantDeserializeIndexPage, streamPageRef, e);
@@ -161,103 +172,6 @@ namespace Xtensive.Indexing.Providers
       throw new NotSupportedException(Strings.ExIndexPageProviderDoesntSupportWrite);
     }
 
-    /// <inheritdoc/>
-    public override void Serialize(IEnumerable<TItem> source)
-    {
-      if (index==null)
-        throw new InvalidOperationException(Strings.ExIndexPageProviderIsUnboundToTheIndex);
-      if ((Features & IndexFeatures.Serialize)==0)
-        throw new InvalidOperationException(Strings.ExIndexPageProviderDoesntSupportSerialize);
-
-      DescriptorPage<TKey, TItem> descriptorPage = index.DescriptorPage;
-      int pageSize = index.DescriptorPage.PageSize;
-      AdvancedComparer<TKey> comparer = index.KeyComparer;
-      Converter<TItem, TKey> extractor = index.KeyExtractor;
-      bool bFirstPair = true;
-      TKey previousKey = default(TKey);
-
-      LeafPage<TKey, TItem> leafPage = new LeafPage<TKey, TItem>(this);
-      IList<InnerPage<TKey, TItem>> branch = new List<InnerPage<TKey, TItem>>();
-      descriptorPage.LeftmostPageRef = StreamPageRef<TKey, TItem>.Create((long)0);
-      IBloomFilter<TKey> bloomFilter = GetBloomFilter(source);
-
-      using (Stream stream = new FileStream(streamProvider.FileName, FileMode.OpenOrCreate, FileSystemRights.Write, FileShare.ReadWrite, 65535, FileOptions.RandomAccess))
-      {
-        StreamSerializationHelper<TKey, TItem> serializationHelper =
-          new StreamSerializationHelper<TKey, TItem>(stream, serializer, offsetSerializer);
-
-        foreach (TItem item in source) {
-          TKey key = extractor(item);
-          if (bloomFilter!=null) {
-            bloomFilter.AddValue(key);
-          }
-          int comparisonResult = bFirstPair ? 1 : comparer.Compare(key, previousKey);
-          if (comparisonResult <= 0)
-            throw new InvalidOperationException(Strings.ExIncorrectKeyOrder);
-          leafPage.Insert(leafPage.CurrentSize, item);
-          leafPage.AddToMeasures(item);
-          previousKey = key;
-          bFirstPair = false;
-
-          if (pageSize==leafPage.CurrentSize) {
-            SerializePages(serializationHelper, branch, leafPage, false);
-            leafPage = new LeafPage<TKey, TItem>(this);
-          }
-        }
-
-        if (leafPage.CurrentSize > 0 || bFirstPair)
-          SerializePages(serializationHelper, branch, leafPage, true);
-        else
-          SerializePages(serializationHelper, branch, null, true);
-
-        descriptorPage.BloomFilter = bloomFilter;
-        serializationHelper.SerializeDescriptorPage(descriptorPage);
-        serializationHelper.MarkEOF(descriptorPage);
-      }
-    }
-
-    private void SerializePages(StreamSerializationHelper<TKey, TItem> serializationHelper, IList<InnerPage<TKey, TItem>> branch, LeafPage<TKey, TItem> leafPage,
-      bool isTailBranch)
-    {
-      int level = 0;
-      DataPage<TKey, TItem> page = leafPage;
-      while (true) {
-        if (page!=null) {
-          if (level==0)
-            serializationHelper.SerializeLeafPage(leafPage);
-          else {
-            InnerPage<TKey, TItem> innerPage = (InnerPage<TKey, TItem>)page;
-            serializationHelper.SerializeInnerPage(innerPage);
-            AddToCache(innerPage);
-          }
-        }
-        else if (level==0 && branch.Count==0) // Empty index
-          serializationHelper.SerializeLeafPage(leafPage);
-
-        if (branch.Count==level) {
-          if (isTailBranch)
-            break;
-          branch.Add(new InnerPage<TKey, TItem>(this));
-        }
-        InnerPage<TKey, TItem> abovePage = branch[level];
-
-        if (page!=null) {
-          // Insertion to abovePage
-          int insertionIndex = abovePage.CurrentSize;
-          if (insertionIndex==0 && abovePage.GetPageRef(-1)==null)
-            insertionIndex = -1;
-          abovePage.Insert(insertionIndex, page.Key, page.Identifier);
-          abovePage.AddToMeasures(page);
-        }
-
-        if (!isTailBranch && abovePage.CurrentSize < index.DescriptorPage.PageSize)
-          break;
-        // Creating new InnerPage, if not tail; increasing level
-        page = abovePage;
-        branch[level++] = isTailBranch ? null : new InnerPage<TKey, TItem>(this);
-      }
-    }
-
     private Page<TKey, TItem> Deserialize(StreamPageRef<TKey, TItem> pageRef)
     {
       if (pageRef==null)
@@ -270,7 +184,7 @@ namespace Xtensive.Indexing.Providers
       Stream stream = streamProvider.GetStream();
       try {
         stream.Seek(offset, SeekOrigin.Begin);
-        Page<TKey, TItem> page = (Page<TKey, TItem>)serializer.Deserialize(stream);
+        Page<TKey, TItem> page = (Page<TKey, TItem>) serializer.Deserialize(stream);
         LeafPage<TKey, TItem> leafPage = page as LeafPage<TKey, TItem>;
         if (leafPage!=null)
           leafPage.RightPageRef = StreamPageRef<TKey, TItem>.Create(offsetSerializer.Deserialize(stream));
@@ -289,7 +203,7 @@ namespace Xtensive.Indexing.Providers
         stream.Seek(-StreamSerializationHelper<TKey, TItem>.OffsetLength, SeekOrigin.End);
         long offset = offsetSerializer.Deserialize(stream);
         stream.Seek(offset, SeekOrigin.Begin);
-        DescriptorPage<TKey, TItem> descriptorPage = (DescriptorPage<TKey, TItem>)serializer.Deserialize(stream);
+        DescriptorPage<TKey, TItem> descriptorPage = (DescriptorPage<TKey, TItem>) serializer.Deserialize(stream);
 
         if (descriptorPage.Configuration.UseBloomFilter)
           descriptorPage.BloomFilter = new MemoryBloomFilter<TKey>(stream);
@@ -314,6 +228,13 @@ namespace Xtensive.Indexing.Providers
       BaseInitialize();
     }
 
+    /// <inheritdoc/>
+    public override void Dispose()
+    {
+      streamProvider.DisposeSafely();
+      streamProvider = null;
+    }
+
 
     // Constructors
 
@@ -329,20 +250,14 @@ namespace Xtensive.Indexing.Providers
       streamProvider = new StreamProvider(fileName);
       serializer = ValueSerializationScope.CurrentSerializer; // BinarySerializer by default
       offsetSerializer = ValueSerializer<long>.Default;
-      if (cacheSize>0) {
-        pageCache = 
+      serializeHelper = new StreamSerializationHelper<TKey, TItem>(serializer, offsetSerializer);
+      if (cacheSize > 0) {
+        pageCache =
           new WeakCache<IPageRef, Page<TKey, TItem>>(
             cacheSize,
             value => value.Identifier,
             value => 1);
       }
-    }
-
-    /// <inheritdoc/>
-    public override void Dispose()
-    {
-      streamProvider.DisposeSafely();
-      streamProvider = null;
     }
   }
 }

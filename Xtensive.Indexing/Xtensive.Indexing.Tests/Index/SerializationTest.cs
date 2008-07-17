@@ -17,8 +17,6 @@ using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Serialization.Binary;
 using Xtensive.Core.Testing;
 using Xtensive.Indexing;
-using Xtensive.Indexing.Implementation;
-using Xtensive.Indexing.Measures;
 using Xtensive.Indexing.Tests;
 
 namespace Xtensive.Indexing.Tests.Index

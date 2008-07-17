@@ -4,20 +4,22 @@
 // Created by: Nick Svetlov
 // Created:    2008.01.02
 
-
+using System;
 using System.IO;
+using System.Security.AccessControl;
 using Xtensive.Core;
-using Xtensive.Core.Serialization;
+using Xtensive.Core.Helpers;
 using Xtensive.Core.Serialization.Binary;
 using Xtensive.Indexing.Implementation;
+using Xtensive.Indexing.Implementation.Interfaces;
 
 namespace Xtensive.Indexing.Providers.Internals
 {
-  internal sealed class StreamSerializationHelper<TKey, TItem>
+  internal sealed class StreamSerializationHelper<TKey, TItem> : SerializationHelperBase<TKey, TItem>
   {
     public const long OffsetLength = 8;
 
-    private readonly Stream streamToWrite;
+    private Stream streamToWrite;
     private readonly IValueSerializer serializer;
     private readonly ValueSerializer<long> offsetSerializer;
 
@@ -27,6 +29,10 @@ namespace Xtensive.Indexing.Providers.Internals
     private StreamPageRef<TKey, TItem> lastPageRef = StreamPageRef<TKey, TItem>.Create(StreamPageRefType.Undefined);
     private StreamPageRef<TKey, TItem> descriptorPageRef;
 
+    public Stream Stream
+    {
+      get { return streamToWrite; }
+    }
 
     public IValueSerializer Serializer
     {
@@ -38,17 +44,17 @@ namespace Xtensive.Indexing.Providers.Internals
       get { return offsetSerializer; }
     }
 
-    public StreamPageRef<TKey, TItem> LastLeafPageRef
+    public override IPageRef LastLeafPageRef
     {
-      get { return lastLeafPage==null ? null : (StreamPageRef<TKey, TItem>)lastLeafPage.Identifier; }
+      get { return lastLeafPage==null ? null : lastLeafPage.Identifier; }
     }
 
-    public StreamPageRef<TKey, TItem> LastPageRef
+    public override IPageRef LastPageRef
     {
       get { return lastPageRef; }
     }
 
-    public StreamPageRef<TKey, TItem> DescriptorPageRef
+    public override IPageRef DescriptorPageRef
     {
       get { return descriptorPageRef; }
     }
@@ -58,7 +64,7 @@ namespace Xtensive.Indexing.Providers.Internals
       get { return StreamPageRef<TKey, TItem>.Create(streamToWrite.Position + reservedLength + innerPagesStream.Position); }
     }
 
-    public void SerializeLeafPage(LeafPage<TKey, TItem> page)
+    public override void SerializeLeafPage(LeafPage<TKey, TItem> page)
     {
       ArgumentValidator.EnsureArgumentNotNull(page, "page");
       page.LeftPageRef = null;
@@ -77,7 +83,7 @@ namespace Xtensive.Indexing.Providers.Internals
       lastPageRef = pageRef;
     }
 
-    public void SerializeInnerPage(InnerPage<TKey, TItem> page)
+    public override void SerializeInnerPage(InnerPage<TKey, TItem> page)
     {
       ArgumentValidator.EnsureArgumentNotNull(page, "page");
       StreamPageRef<TKey, TItem> pageRef = NextPageRef;
@@ -89,14 +95,14 @@ namespace Xtensive.Indexing.Providers.Internals
     public void SerializeCachedInnerPage(InnerPage<TKey, TItem> page)
     {
       ArgumentValidator.EnsureArgumentNotNull(page, "page");
-      StreamPageRef<TKey, TItem> pageRef = (StreamPageRef<TKey, TItem>)page.Identifier;
+      StreamPageRef<TKey, TItem> pageRef = (StreamPageRef<TKey, TItem>) page.Identifier;
       OffsetSerializer.Serialize(streamToWrite, pageRef.Offset);
       StreamPageRef<TKey, TItem> nextPageRef = NextPageRef;
       serializer.Serialize(streamToWrite, page);
       lastPageRef = nextPageRef;
     }
 
-    public void SerializeDescriptorPage(DescriptorPage<TKey, TItem> page)
+    public override void SerializeDescriptorPage(DescriptorPage<TKey, TItem> page)
     {
       ArgumentValidator.EnsureArgumentNotNull(page, "page");
       FlushInnerPagesStream(null);
@@ -105,16 +111,16 @@ namespace Xtensive.Indexing.Providers.Internals
       page.RootPageRef = LastPageRef;
       page.RightmostPageRef = LastLeafPageRef;
       serializer.Serialize(streamToWrite, page);
-      if(page.BloomFilter!=null) {
+      if (page.BloomFilter!=null) {
         page.BloomFilter.Serialize(streamToWrite);
       }
     }
 
-    public void MarkEOF(DescriptorPage<TKey, TItem> descriptorPage)
+    public override void MarkEOF(DescriptorPage<TKey, TItem> descriptorPage)
     {
       // Writing "EOF" mark
-      OffsetSerializer.Serialize(streamToWrite, (long)StreamPageRefType.Null); // "End of cached pages data" mark
-      OffsetSerializer.Serialize(streamToWrite, ((StreamPageRef<TKey, TItem>)descriptorPage.Identifier).Offset);
+      OffsetSerializer.Serialize(streamToWrite, (long) StreamPageRefType.Null); // "End of cached pages data" mark
+      OffsetSerializer.Serialize(streamToWrite, ((StreamPageRef<TKey, TItem>) descriptorPage.Identifier).Offset);
     }
 
     private void FlushInnerPagesStream(StreamPageRef<TKey, TItem> leafPageRef)
@@ -125,7 +131,7 @@ namespace Xtensive.Indexing.Providers.Internals
           lastLeafPage.RightPageRef = leafPageRef;
         }
         else {
-          offsetSerializer.Serialize(streamToWrite, (long)StreamPageRefType.Null);
+          offsetSerializer.Serialize(streamToWrite, (long) StreamPageRefType.Null);
           lastLeafPage.RightPageRef = null;
         }
         reservedLength = 0;
@@ -136,15 +142,26 @@ namespace Xtensive.Indexing.Providers.Internals
       innerPagesStream.SetLength(0);
     }
 
+    public override IDisposable CreateSerializer(IIndexPageProvider<TKey, TItem> provider)
+    {
+      StreamPageProvider<TKey, TItem> streamPageProvider = (StreamPageProvider<TKey, TItem>) provider;
+      streamToWrite = new FileStream(streamPageProvider.StreamProvider.FileName, FileMode.OpenOrCreate, FileSystemRights.Write, FileShare.ReadWrite, 65535, FileOptions.RandomAccess);
+      return streamToWrite;
+    }
+
+    public override void Dispose()
+    {
+      streamToWrite.DisposeSafely();
+      streamToWrite = null;
+    }
+
 
     // Constructors
 
-    public StreamSerializationHelper(Stream streamToWrite, IValueSerializer serializer, ValueSerializer<long> offsetSerializer)
+    public StreamSerializationHelper(IValueSerializer serializer, ValueSerializer<long> offsetSerializer)
     {
-      ArgumentValidator.EnsureArgumentNotNull(streamToWrite, "streamToWrite");
       ArgumentValidator.EnsureArgumentNotNull(serializer, "serializer");
       ArgumentValidator.EnsureArgumentNotNull(offsetSerializer, "offsetSerializer");
-      this.streamToWrite = streamToWrite;
       this.serializer = serializer;
       this.offsetSerializer = offsetSerializer;
     }

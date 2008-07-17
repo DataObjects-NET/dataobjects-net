@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Indexing.BloomFilter;
+using Xtensive.Indexing.Implementation.Interfaces;
 
 namespace Xtensive.Indexing.Implementation
 {
@@ -61,8 +62,40 @@ namespace Xtensive.Indexing.Implementation
     void Serialize(IEnumerable<TItem> source);
 
     /// <summary>
+    /// Gets the <see cref="SerializationHelper"/> for index serialization.
+    /// </summary>
+    ISerializationHelper<TKey, TItem> SerializationHelper { get; }
+
+    /// <summary>
     /// Initializes the index.
     /// </summary>
     void Initialize();
+
+    /// <summary>
+    /// Gets the bloom filter for specified <paramref name="source"/>.
+    /// </summary>
+    /// <param name="source">The source.</param>
+    /// <returns>The bloom filter.</returns>
+    IBloomFilter<TKey> GetBloomFilter(IEnumerable<TItem> source);
+
+    /// <summary>
+    /// Adds the specified page to cache.
+    /// </summary>
+    /// <param name="page">The page.</param>
+    void AddToCache(Page<TKey, TItem> page);
+
+    /// <summary>
+    /// Removes the specified page from cache.
+    /// </summary>
+    /// <param name="page">The page.</param>
+    void RemoveFromCache(Page<TKey, TItem> page);
+    
+    /// <summary>
+    /// Gets the page from cache by specified <paramref name="pageRef"/>.
+    /// </summary>
+    /// <param name="pageRef">The page reference.</param>
+    /// <returns></returns>
+    Page<TKey, TItem> GetFromCache(IPageRef pageRef);
+
   }
 }

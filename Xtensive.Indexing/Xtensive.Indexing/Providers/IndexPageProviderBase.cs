@@ -12,6 +12,7 @@ using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Indexing.BloomFilter;
 using Xtensive.Indexing.Implementation;
+using Xtensive.Indexing.Implementation.Interfaces;
 using Xtensive.Indexing.Resources;
 
 namespace Xtensive.Indexing.Providers
@@ -52,6 +53,19 @@ namespace Xtensive.Indexing.Providers
     }
 
     // Abstract methods
+
+    /// <inheritdoc/>
+    public abstract void AddToCache(Page<TKey, TItem> page);
+
+    /// <inheritdoc/>
+    public abstract void RemoveFromCache(Page<TKey, TItem> page);
+
+    /// <inheritdoc/>
+    public abstract Page<TKey, TItem> GetFromCache(IPageRef pageRef);
+
+    /// <inheritdoc/>
+    public abstract ISerializationHelper<TKey, TItem> SerializationHelper { get; }
+
     /// <inheritdoc/>
     public abstract void AssignIdentifier(Page<TKey, TItem> page);
 
@@ -102,37 +116,28 @@ namespace Xtensive.Indexing.Providers
     {
     }
 
-    /// <summary>
-    /// Gets the bloom filter for specified <paramref name="source"/>.
-    /// </summary>
-    /// <param name="source">The source.</param>
-    /// <returns>The bloom filter.</returns>
-    protected IBloomFilter<TKey> GetBloomFilter(IEnumerable<TItem> source){
+    /// <inheritdoc/>
+    public virtual IBloomFilter<TKey> GetBloomFilter(IEnumerable<TItem> source)
+    {
       {
         bool useBloomFilter = index.DescriptorPage.Configuration.UseBloomFilter;
         double bloomFilterBitsPerValue = index.DescriptorPage.Configuration.BloomFilterBitsPerValue;
-        if (useBloomFilter)
-        {
+        if (useBloomFilter) {
           // Try to get item's count
           long count;
-          if (source is ICountable)
-          {
-            count = ((ICountable)source).Count;
+          if (source is ICountable) {
+            count = ((ICountable) source).Count;
           }
-          else if (source is ICollection)
-          {
-            count = ((System.Collections.ICollection)source).Count;
+          else if (source is ICollection) {
+            count = ((ICollection) source).Count;
           }
-          else if (source is ICollection<TItem>)
-          {
-            count = ((ICollection<TItem>)source).Count;
+          else if (source is ICollection<TItem>) {
+            count = ((ICollection<TItem>) source).Count;
           }
-          else
-          {
+          else {
             throw new ArgumentException(Strings.ExUnableToGetCountForBloomFilter, "source");
           }
-          if (count > 0)
-          {
+          if (count > 0) {
             return new MemoryBloomFilter<TKey>(count, BloomFilter<TKey>.GetOptimalHashCount(bloomFilterBitsPerValue));
           }
         }
