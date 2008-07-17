@@ -11,6 +11,7 @@ using PostSharp.Laos;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.Resources;
 using Xtensive.Core.Helpers;
+using Xtensive.Core.Reflection;
 
 namespace Xtensive.Core.Aspects.Internals
 {
@@ -19,13 +20,11 @@ namespace Xtensive.Core.Aspects.Internals
   {
     public static bool CompileTimeValidate(Attribute aspect, MethodBase method)
     {
-      foreach(SuppressContextActivationAttribute attribute in method.GetCustomAttributes(typeof(SuppressContextActivationAttribute), false))
-      {
-        if (attribute.ContextType == null || attribute.ContextType == typeof(TContext))
+      foreach (var attribute in method.GetAttributes<SuppressActivationAttribute>(false))
+        if (attribute.ContextType == typeof(TContext))
           return false;
-      }
 
-      MethodInfo methodInfo = method as MethodInfo;
+      var methodInfo = method as MethodInfo;
       if (methodInfo == null) {
         AspectsMessageSource.Instance.Write(SeverityType.Error, "AspectExCannotBeAppliedToConstructor",
             new object[] { aspect.GetType().Name, method.DeclaringType.FullName });
