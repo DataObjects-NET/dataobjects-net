@@ -19,7 +19,7 @@ namespace Xtensive.Storage.Model
     /// </summary>
     /// <param name="referencedType"><see cref="TypeInfo"/> to find associations for.</param>
     /// <returns></returns>
-    public IEnumerable<AssociationInfo> FindAssociations(TypeInfo referencedType)
+    public IEnumerable<AssociationInfo> Find(TypeInfo referencedType)
     {
       List<AssociationInfo> associations;
       if (typeIndex.TryGetValue(referencedType, out associations))

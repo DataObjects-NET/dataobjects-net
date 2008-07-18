@@ -100,7 +100,7 @@ namespace Xtensive.Storage.Building.Builders
           BuildEntity(typeDef);
 
       if (typeDef.IsStructure)
-        using (context.DependencyTracker.Enter(typeDef.UnderlyingType))
+        using (context.CircularReferenceFinder.Enter(typeDef.UnderlyingType))
           if (!context.Model.Types.Contains(typeDef.UnderlyingType))
             BuildStructure(typeDef);
     }
@@ -333,8 +333,8 @@ namespace Xtensive.Storage.Building.Builders
         else
           if (!implementor.Fields.TryGetValue(field.Name, out implField))
             throw new DomainBuilderException(
-              string.Format(Resources.Strings.TypeXDoesNotImplementYZField, implementor.Name, @interface.Name, field.Name));                    
-        
+              string.Format(Resources.Strings.TypeXDoesNotImplementYZField, implementor.Name, @interface.Name, field.Name));
+
         implField.IsInterfaceImplementation = true;
 
         if (!implementor.FieldMap.ContainsKey(field))

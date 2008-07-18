@@ -9,13 +9,14 @@ using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Providers;
 using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage
 {
   public class KeyManager
   {
-    private readonly HandlerAccessor handlerAccessor;
+    private readonly Domain domain;
     private readonly WeakSetSlim<Key> cache = new WeakSetSlim<Key>();
 
     /// <summary>
@@ -65,13 +66,13 @@ namespace Xtensive.Storage
       ArgumentValidator.EnsureArgumentNotNull(keyData, "keyData");
       if (!type.IsSubclassOf(typeof(Entity)))
         throw new ArgumentException(Strings.ExTypeMustBeEntityDescendant, "type");
-      TypeInfo typeInfo = handlerAccessor.Model.Types[type];
+      TypeInfo typeInfo = domain.Model.Types[type];
       return BuildPrimaryKey(typeInfo, keyData);
     }
 
     internal Key BuildPrimaryKey(TypeInfo type, params object[] keyData)
     {
-      IKeyProvider keyProvider = handlerAccessor.KeyProviders[type.Hierarchy];
+      IKeyProvider keyProvider = domain.KeyProviders[type.Hierarchy];
       Tuple tuple = Tuple.Create(type.Hierarchy.TupleDescriptor);
       if (keyData == null || keyData.Length==0)
         keyProvider.GetNext(tuple);
@@ -92,7 +93,7 @@ namespace Xtensive.Storage
 
     internal Key BuildForeignKey(Persistent obj, FieldInfo field)
     {
-      TypeInfo typeInfo = handlerAccessor.Model.Types[field.ValueType];
+      TypeInfo typeInfo = domain.Model.Types[field.ValueType];
       for (int i = field.MappingInfo.Offset; i < field.MappingInfo.EndOffset; i++)
         if (obj.Tuple.IsNull(i))
           return null;
@@ -112,9 +113,9 @@ namespace Xtensive.Storage
 
     // Constructors
 
-    internal KeyManager(HandlerAccessor handlerAccessor)
+    internal KeyManager(Domain domain)
     {
-      this.handlerAccessor = handlerAccessor;
+      this.domain = domain;
     }
   }
 }

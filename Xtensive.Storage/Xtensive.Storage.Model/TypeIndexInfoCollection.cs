@@ -51,7 +51,7 @@ namespace Xtensive.Storage.Model
     {
       if (!IsLocked)
         throw new InvalidOperationException();
-      
+
       var names = new List<string>();
       names.Add(fieldName);
       names.AddRange(fieldNames);

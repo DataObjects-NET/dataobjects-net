@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
+using Xtensive.Core.Helpers;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Tests
@@ -132,7 +133,7 @@ namespace Xtensive.Storage.Tests
 
     private static void DumpMappingName(this MappingNode target, int indent)
     {
-      if (string.IsNullOrEmpty(target.MappingName))
+      if (target.MappingName.IsNullOrEmpty())
         return;
       WriteLine(indent, "MappingName: " + target.MappingName);
     }
@@ -203,7 +204,7 @@ namespace Xtensive.Storage.Tests
       WriteLine(indent, "ReflectedType: " + target.ReflectedType.Name);
       if (target.IsVirtual) {
         WriteLine(indent, "BaseIndexes:");
-        foreach (IndexInfo baseIndex in target.BaseIndexes) {
+        foreach (IndexInfo baseIndex in target.UnderlyingIndexes) {
           baseIndex.DumpName(indent + 1);
           WriteLine(indent + 2, "Attributes: " + baseIndex.Attributes);
         }

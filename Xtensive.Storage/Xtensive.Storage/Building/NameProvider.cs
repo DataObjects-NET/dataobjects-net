@@ -6,11 +6,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using Xtensive.Core;
+using Xtensive.Core.Helpers;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
@@ -56,16 +56,16 @@ namespace Xtensive.Storage.Building
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
 
       string result;
-      if (!string.IsNullOrEmpty(type.MappingName))
+      if (!type.MappingName.IsNullOrEmpty())
         result = type.MappingName;
       else {
         string underlyingName = type.UnderlyingType.FullName.Substring(type.UnderlyingType.Namespace.Length + 1, type.UnderlyingType.FullName.Length - type.UnderlyingType.Namespace.Length - 1);
-        result = string.IsNullOrEmpty(type.Name) ? underlyingName : type.Name;
+        result = type.Name.IsNullOrEmpty() ? underlyingName : type.Name;
         if (NamingConvention.NamespacePolicy == NamespacePolicy.UseNamespaceSynonym) {
           string namespacePrefix;
           try {
             namespacePrefix = NamingConvention.NamespaceSynonyms[type.UnderlyingType.Namespace];
-            if (string.IsNullOrEmpty(namespacePrefix))
+            if (namespacePrefix.IsNullOrEmpty())
               throw new ApplicationException("Incorrect namespace synonyms.");
           }
           catch (KeyNotFoundException) {
@@ -164,13 +164,13 @@ namespace Xtensive.Storage.Building
       ArgumentValidator.EnsureArgumentNotNull(index, "index");
 
       string result = string.Empty;
-      if (!string.IsNullOrEmpty(index.Name))
+      if (!index.Name.IsNullOrEmpty())
         result = index.Name;
       else if (index.IsPrimary)
         result = string.Format("PK_{0}", type.Name);
       else if (index.KeyFields.Count == 0)
         result = string.Empty;
-      else if (!string.IsNullOrEmpty(index.MappingName))
+      else if (!index.MappingName.IsNullOrEmpty())
         result = index.MappingName;
       else {
         if (index.KeyFields.Count == 1) {
@@ -178,7 +178,7 @@ namespace Xtensive.Storage.Building
           if (field.IsEntity)
             result = string.Format("FK_{0}", field.Name);
         }
-        if (string.IsNullOrEmpty(result)) {
+        if (result.IsNullOrEmpty()) {
           string[] names = new string[index.KeyFields.Keys.Count];
           index.KeyFields.Keys.CopyTo(names, 0);
           result = string.Format("IX_{0}", string.Join("", names));
@@ -200,18 +200,18 @@ namespace Xtensive.Storage.Building
       ArgumentValidator.EnsureArgumentNotNull(index, "index");
 
       string result = string.Empty;
-      if (!string.IsNullOrEmpty(index.Name))
+      if (!index.Name.IsNullOrEmpty())
         result = index.Name;
       else if (index.IsPrimary)
         result = string.Concat("PK_", type.Name);
-      else if (!string.IsNullOrEmpty(index.MappingName))
+      else if (!index.MappingName.IsNullOrEmpty())
         result = string.Format("{0}.{1}", type.Name,index.MappingName);
       else if (!index.ReflectedType.IsInterface && index.KeyColumns.Count == 0)
         return string.Empty;
       else {
-        if (index.IsForeignKey)
+        if (index.IsSecondary)
           result = string.Format("{0}.{1}", type.Name, index.ShortName);
-        if (string.IsNullOrEmpty(result)) {
+        if (result.IsNullOrEmpty()) {
           Func<FieldInfo, FieldInfo> fieldSeeker = null;
           fieldSeeker = (field => field.Parent==null ? field : fieldSeeker(field.Parent));
           var fieldList = new List<FieldInfo>();

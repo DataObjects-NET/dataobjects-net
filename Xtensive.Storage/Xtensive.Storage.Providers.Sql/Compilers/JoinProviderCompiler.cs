@@ -28,7 +28,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
         provider.LeftJoin ? SqlJoinType.LeftOuterJoin : SqlJoinType.InnerJoin,
         leftQuery,
         rightQuery);
-      
+
       SqlSelect query = Xtensive.Sql.Dom.Sql.Select(joinedTable);
       query.Columns.AddRange(joinedTable.Columns.Cast<SqlColumn>());
 
@@ -37,7 +37,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
 
 
     // Constructors
-    
+
     public JoinProviderCompiler(Rse.Compilation.Compiler provider)
       : base(provider)
     {

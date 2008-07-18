@@ -27,7 +27,7 @@ namespace Xtensive.Storage.Model
     private readonly ColumnInfoCollection valueColumns = new ColumnInfoCollection();
     private readonly ColumnInfoCollection includedColumns = new ColumnInfoCollection();
     //TODO: Don't create instances for physical indexes
-    private readonly CollectionBaseSlim<IndexInfo> baseIndexes = new CollectionBaseSlim<IndexInfo>();
+    private readonly CollectionBaseSlim<IndexInfo> underlyingIndexes = new CollectionBaseSlim<IndexInfo>();
     private readonly TypeInfo declaringType;
     private readonly TypeInfo reflectedType;
     private readonly IndexInfo declaringIndex;
@@ -59,9 +59,9 @@ namespace Xtensive.Storage.Model
     {
       get
       {
-        if (IsLocked)
-          return columns;
-        throw new InvalidOperationException();
+        if (!IsLocked)
+          throw new InvalidOperationException();
+        return columns;
       }
     }
 
@@ -89,9 +89,12 @@ namespace Xtensive.Storage.Model
       get { return includedColumns; }
     }
 
-    public CollectionBaseSlim<IndexInfo> BaseIndexes
+    /// <summary>
+    /// Gets the underlying indexes for this instance. 
+    /// </summary>
+    public CollectionBaseSlim<IndexInfo> UnderlyingIndexes
     {
-      get { return baseIndexes; }
+      get { return underlyingIndexes; }
     }
 
     /// <summary>
@@ -102,6 +105,9 @@ namespace Xtensive.Storage.Model
       get { return declaringType; }
     }
 
+    /// <summary>
+    /// Gets the type that was used to obtain this instance.
+    /// </summary>
     public TypeInfo ReflectedType
     {
       get { return reflectedType; }
@@ -145,11 +151,21 @@ namespace Xtensive.Storage.Model
     }
 
     /// <summary>
-    /// Gets a value indicating whether this instance is foreign key index.
+    /// Gets a value indicating whether this instance is secondary index.
     /// </summary>
-    public bool IsForeignKey
+    public bool IsSecondary
     {
-      get { return (attributes & IndexAttributes.ForeignKey) > 0; }
+      get { return (attributes & IndexAttributes.Secondary) > 0; }
+    }
+
+    /// <summary>
+    /// Gets the root <see cref="IndexInfo"/> for virtual indexes.
+    /// </summary>
+    public IndexInfo GetRoot()
+    {
+      return IsVirtual && (Attributes & IndexAttributes.Union)==0
+        ? UnderlyingIndexes[0]
+        : this;
     }
 
     /// <inheritdoc/>
@@ -171,9 +187,9 @@ namespace Xtensive.Storage.Model
         return;
       keyColumns.Lock(true);
       valueColumns.Lock(true);
-      foreach (IndexInfo baseIndex in baseIndexes)
+      foreach (IndexInfo baseIndex in underlyingIndexes)
         baseIndex.Lock();
-      baseIndexes.Lock();
+      underlyingIndexes.Lock();
     }
 
     /// <inheritdoc/>
@@ -258,9 +274,9 @@ namespace Xtensive.Storage.Model
       attributes = baseIndex.Attributes &
                    ~(IndexAttributes.Join | IndexAttributes.Union | IndexAttributes.Filtered | IndexAttributes.Real) |
                    indexAttributes | IndexAttributes.Virtual;
-      BaseIndexes.Add(baseIndex);
+      UnderlyingIndexes.Add(baseIndex);
       foreach (IndexInfo info in baseIndexes)
-        BaseIndexes.Add(info);
+        UnderlyingIndexes.Add(info);
       declaringIndex = baseIndex.DeclaringIndex;
       this.reflectedType = reflectedType;
     }

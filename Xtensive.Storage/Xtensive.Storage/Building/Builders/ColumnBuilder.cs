@@ -15,7 +15,7 @@ namespace Xtensive.Storage.Building.Builders
       ColumnInfo column = new ColumnInfo(field);
       column.Name = BuildingScope.Context.NameProvider.BuildName(field, column);
       if (field.IsEntity)
-        column.IsNullable = true;      
+        column.IsNullable = true;
 
       return column;
     }

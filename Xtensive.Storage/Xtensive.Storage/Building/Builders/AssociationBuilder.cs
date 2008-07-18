@@ -4,15 +4,17 @@
 // Created by: Dmitri Maximov
 // Created:    2008.07.03
 
+using System.Linq;
 using Xtensive.Core;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Model;
+using Xtensive.Core.Helpers;
 
 namespace Xtensive.Storage.Building.Builders
 {
   internal static class AssociationBuilder
   {
-    public static AssociationInfo BuildAssociation(FieldDef fieldDef, FieldInfo field)
+    public static void BuildAssociation(FieldDef fieldDef, FieldInfo field)
     {
       BuildingContext context = BuildingScope.Context;
       TypeInfo referencedType = context.Model.Types[field.ValueType];
@@ -20,11 +22,21 @@ namespace Xtensive.Storage.Building.Builders
       AssociationInfo association = new AssociationInfo(field, referencedType, m, fieldDef.OnDelete);
       association.Name = context.NameProvider.BuildName(association);
       context.Model.Associations.Add(association);
-
-      if (!string.IsNullOrEmpty(fieldDef.PairTo))
+      
+      if (!fieldDef.PairTo.IsNullOrEmpty())
         context.PairedAssociations.Add(new Pair<AssociationInfo, string>(association, fieldDef.PairTo));
+    }
 
-      return association;
+    public static void BuildAssociation(AssociationInfo origin, FieldInfo field)
+    {
+      BuildingContext context = BuildingScope.Context;
+      AssociationInfo association = new AssociationInfo(field, origin.ReferencedType, origin.Multiplicity, origin.OnDelete);
+      association.Name = context.NameProvider.BuildName(association);
+      context.Model.Associations.Add(association);
+
+      Pair<AssociationInfo, string> pairTo = context.PairedAssociations.Where(p => p.First==origin).FirstOrDefault();
+      if (pairTo.First != null)
+        context.PairedAssociations.Add(new Pair<AssociationInfo, string>(association, pairTo.Second));
     }
 
     public static void BuildPairedAssociation(AssociationInfo pairedAssociation, string masterFieldName)

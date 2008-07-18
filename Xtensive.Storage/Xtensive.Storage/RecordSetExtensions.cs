@@ -30,7 +30,7 @@ namespace Xtensive.Storage
       foreach (Tuple tuple in source) {
         for (int i = 0; i < keyValue.Length; i++)
           keyValue[i] = tuple.GetValue(columnsMap[i]);
-        Key key = scope.Session.HandlerAccessor.KeyManager.Build<T>(keyValue);
+        Key key = scope.Session.HandlerAccessor.Domain.KeyManager.Build<T>(keyValue);
         yield return key.Resolve<T>();
       }
     }
@@ -46,9 +46,9 @@ namespace Xtensive.Storage
       if (scope.Session == null)
         throw new InvalidOperationException();
 
-      TypeInfo type = scope.Session.HandlerAccessor.Model.Types[entityType];
+      TypeInfo type = scope.Session.HandlerAccessor.Domain.Model.Types[entityType];
       var keyColumns = type.Indexes.PrimaryIndex.KeyColumns;
-      
+
       object[] keyValue = new object[keyColumns.Count];
       int[] columnsMap = new int[keyColumns.Count];
       for (int j = 0; j < columnsMap.Length; j++)
@@ -56,7 +56,7 @@ namespace Xtensive.Storage
       foreach (Tuple tuple in source) {
         for (int i = 0; i < keyValue.Length; i++)
           keyValue[i] = tuple.GetValue(columnsMap[i]);
-        Key key = scope.Session.HandlerAccessor.KeyManager.Build(entityType, keyValue);
+        Key key = scope.Session.HandlerAccessor.Domain.KeyManager.Build(entityType, keyValue);
         yield return key.Resolve();
       }
     }

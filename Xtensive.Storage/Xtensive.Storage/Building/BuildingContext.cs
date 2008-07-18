@@ -26,7 +26,7 @@ namespace Xtensive.Storage.Building
 
     /// <summary>
     /// Gets the current <see cref="BuildingContext"/>.
-    /// </summary>    
+    /// </summary>
     public static BuildingContext Current
     {
       get { return BuildingScope.Context; }
@@ -63,7 +63,9 @@ namespace Xtensive.Storage.Building
 
     internal List<Pair<AssociationInfo, string>> PairedAssociations { get; private set; }
 
-    internal GraphAnalyzer<Type> DependencyTracker { get; private set;}
+    internal CircularReferenceFinder<Type> CircularReferenceFinder { get; private set; }
+
+    internal HashSet<AssociationInfo> DiscardedAssociations { get; private set; }
 
     internal void RegistError(DomainBuilderException exception)
     {
@@ -90,7 +92,8 @@ namespace Xtensive.Storage.Building
       SkippedTypes.Add(typeof (Structure));
       PairedAssociations = new List<Pair<AssociationInfo, string>>();
       Logger = StringLog.Create("DomainBuilder");
-      DependencyTracker = new GraphAnalyzer<Type>(TypeHelper.GetShortName);
+      CircularReferenceFinder = new CircularReferenceFinder<Type>(TypeHelper.GetShortName);
+      DiscardedAssociations = new HashSet<AssociationInfo>();
     }
   }
 }

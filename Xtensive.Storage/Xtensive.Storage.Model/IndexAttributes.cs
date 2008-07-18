@@ -20,6 +20,6 @@ namespace Xtensive.Storage.Model
     Union = 0x20,
     Join = 0x40,
     Filtered = 0x80,
-    ForeignKey = 0x100
+    Secondary = 0x100
   }
 }

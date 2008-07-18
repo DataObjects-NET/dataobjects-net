@@ -98,7 +98,7 @@ namespace Xtensive.Storage.Configuration
     /// <inheritdoc/>
     public override void Validate()
     {
-      
+
     }
 
     protected override ConfigurationBase CreateClone()

@@ -9,6 +9,6 @@ namespace Xtensive.Storage.Providers.MsSql
   [HandlerProvider("mssql2005", Description = "General storage provider for MS SQL 2005 based storages.")]
   public class HandlerProvider : Providers.HandlerProvider
   {
-    
+
   }
 }

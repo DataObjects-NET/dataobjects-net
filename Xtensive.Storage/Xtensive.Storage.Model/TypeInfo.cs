@@ -254,7 +254,7 @@ namespace Xtensive.Storage.Model
     /// </summary>
     public IEnumerable<AssociationInfo> GetAssociations()
     {
-      return model.Associations.FindAssociations(this);
+      return model.Associations.Find(this);
     }
 
     /// <inheritdoc/>

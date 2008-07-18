@@ -59,7 +59,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
     {
       ISqlQueryExpression result = null;
 
-      var baseQueries = index.BaseIndexes.Select(i => BuildProviderQuery(i)).ToList();
+      var baseQueries = index.UnderlyingIndexes.Select(i => BuildProviderQuery(i)).ToList();
       foreach (var baseQuery in baseQueries) {
         SqlSelect select = SQL.Select(SQL.QueryRef(baseQuery));
         foreach (var columnInfo in index.Columns) {
@@ -88,7 +88,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
       IEnumerable<SqlColumn> columns = null;
       int keyColumnCount = index.KeyColumns.Count;
       int nonValueColumnsCount = keyColumnCount + index.IncludedColumns.Count;
-      var baseQueries = index.BaseIndexes.Select(i => BuildProviderQuery(i)).ToList();
+      var baseQueries = index.UnderlyingIndexes.Select(i => BuildProviderQuery(i)).ToList();
       foreach (var baseQuery in baseQueries) {
         if (result==null) {
           result = SQL.QueryRef(baseQuery);
@@ -122,13 +122,13 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
       descendants.AddRange(index.ReflectedType.GetDescendants(true));
       var typeIds = descendants.Select(t => t.TypeId).ToArray();
 
-      var baseQuery = BuildProviderQuery(index.BaseIndexes[0]);
+      var baseQuery = BuildProviderQuery(index.UnderlyingIndexes[0]);
       SqlColumn typeIdColumn = baseQuery.Columns[handlerAccessor.Domain.NameProvider.TypeId];
       SqlBinary inQuery = SQL.In(typeIdColumn, SQL.Array(typeIds));
       SqlSelect query = SQL.Select(SQL.QueryRef(baseQuery));
       query.Columns.AddRange(index.Columns.Select(c => baseQuery.Columns[c.Name]));
       query.Where = inQuery;
-      
+
       return query;
     }
 

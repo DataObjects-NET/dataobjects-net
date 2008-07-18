@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Core;
+using Xtensive.Core.Comparison;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
@@ -31,9 +32,8 @@ namespace Xtensive.Storage
   {
     private static readonly Dictionary<Type, Func<Persistent, FieldInfo, Structure>> activators = new Dictionary<Type, Func<Persistent, FieldInfo, Structure>>();
 
-    private Persistent owner;
-    private FieldInfo field;
-    private bool isEmpty = true;
+    private readonly Persistent owner;
+    private readonly FieldInfo field;
     private readonly Tuple tuple;
     private readonly TypeInfo type;
 
@@ -46,23 +46,26 @@ namespace Xtensive.Storage
 
     /// <inheritdoc/>
     [DebuggerHidden]
+    public Persistent Owner
+    {
+      get { return owner; }
+    }
+
+    /// <inheritdoc/>
+    [DebuggerHidden]
+    public FieldInfo Field
+    {
+      get { return field; }
+    }
+
+    /// <inheritdoc/>
+    [DebuggerHidden]
     protected internal override Tuple Tuple
     {
       get { return tuple; }
     }
 
-    public bool IsEmpty
-    {
-      get { return isEmpty; }
-    }
-
-    public void Clear()
-    {
-      for (int i = 0; i < Tuple.Count; i++) {
-        Tuple.SetValue(i, null);
-      }
-      isEmpty = true;
-    }
+    #region GetHashCode, Equals
 
     /// <inheritdoc/>
     public override int GetHashCode()
@@ -86,25 +89,12 @@ namespace Xtensive.Storage
         return false;
       if (ReferenceEquals(this, other))
         return true;
-      if (isEmpty!=other.isEmpty)
-        return false;
-      else
-        return CompareTuples(Tuple, other.Tuple);
+      return AdvancedComparer<Tuple>.Default.Equals(Tuple, other.Tuple);
     }
 
-    /// <inheritdoc/>
-    [DebuggerHidden]
-    public Persistent Owner
-    {
-      get { return owner; }
-    }
+    #endregion
 
-    /// <inheritdoc/>
-    [DebuggerHidden]
-    public FieldInfo Field
-    {
-      get { return field; }
-    }
+    #region Inner events
 
     /// <inheritdoc/>
     protected internal override sealed void OnGetting(FieldInfo fieldInfo)
@@ -123,22 +113,12 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     protected internal override sealed void OnSet(FieldInfo fieldInfo)
     {
-      if (owner!=null) {
-        owner.OnSet(field);
-        isEmpty = false;
-      }
+      if (owner==null)
+        return;
+      owner.OnSet(field);
     }
 
-    private bool CompareTuples(Tuple tuple1, Tuple tuple2)
-    {
-      if (tuple1.Count!=tuple2.Count)
-        return false;
-      for (int i = 0; i < tuple1.Count; i++) {
-        if (!Equals(tuple1.GetValueOrDefault(i), tuple2.GetValueOrDefault(i)))
-          return false;
-      }
-      return true;
-    }
+    #endregion
 
     protected static void RegisterActivator(Type type, Func<Persistent, FieldInfo, Structure> activator)
     {
@@ -161,11 +141,11 @@ namespace Xtensive.Storage
     // Constructors
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Structure"/> class.
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     protected Structure()
     {
-      type = Session.HandlerAccessor.Model.Types[GetType()];
+      type = Session.Domain.Model.Types[GetType()];
       tuple = Tuple.Create(type.TupleDescriptor);
     }
 
@@ -176,15 +156,10 @@ namespace Xtensive.Storage
     /// <param name="field">The owner field that describes this instance.</param>
     protected Structure(Persistent owner, FieldInfo field)
     {
-      type = Session.HandlerAccessor.Model.Types[GetType()];
+      type = Session.Domain.Model.Types[GetType()];
       this.owner = owner;
       this.field = field;
       tuple = new SegmentTransform(false, owner.Tuple.Descriptor, new Segment<int>(field.MappingInfo.Offset, field.MappingInfo.Length)).Apply(TupleTransformType.TransformedTuple, owner.Tuple);
-      for (int i = 0; i < tuple.Count; i++)
-        if (tuple.HasValue(i)) {
-          isEmpty = false;
-          break;
-        }
     }
   }
 }

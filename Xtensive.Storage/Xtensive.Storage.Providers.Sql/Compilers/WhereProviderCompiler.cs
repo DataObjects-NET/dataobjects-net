@@ -8,6 +8,6 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
 {
   public class WhereProviderCompiler
   {
-    
+
   }
 }

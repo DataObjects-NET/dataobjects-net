@@ -63,12 +63,12 @@ namespace Xtensive.Storage
     [DebuggerHidden]
     internal int TypeId
     {
-      get { return GetValue<int>(Session.HandlerAccessor.NameProvider.TypeId); }
+      get { return GetValue<int>(Session.Domain.NameProvider.TypeId); }
       set
       {
         if (TypeId > 0)
-          throw Exceptions.AlreadyInitialized(Session.HandlerAccessor.NameProvider.TypeId);
-        FieldInfo field = Type.Fields[Session.HandlerAccessor.NameProvider.TypeId];
+          throw Exceptions.AlreadyInitialized(Session.Domain.NameProvider.TypeId);
+        FieldInfo field = Type.Fields[Session.Domain.NameProvider.TypeId];
         field.GetAccessor<int>().SetValue(this, field, value);
       }
     }
@@ -76,24 +76,26 @@ namespace Xtensive.Storage
     /// <summary>
     /// Removes the instance.
     /// </summary>
-    public virtual void Remove()
+    public void Remove()
     {
-      // This method is made virtual so customer can override it and add business logic 
-      // before & after this entity will be marked for removal.
+      EnsureIsNotRemoved();
+      Session.Persist();
 
       OnRemoving();
       ReferenceManager.ClearReferencesTo(this);
+      PersistenceState = PersistenceState.Removed;
       OnRemoved();
     }
 
-    #region Events
+    #region Inner events
 
     /// <inheritdoc/>
     protected internal override sealed void OnCreating()
     {
+      Session.IdentityMap.Add(Data);
+      Session.DirtyItems.Register(Data);
       if (TypeId == 0)
         TypeId = Type.TypeId;
-      PersistenceState = PersistenceState.New;
     }
 
     /// <inheritdoc/>
@@ -101,7 +103,7 @@ namespace Xtensive.Storage
     protected internal override sealed void OnGetting(FieldInfo fieldInfo)
     {
       EnsureIsNotRemoved();
-      ProcessLazyLoad(fieldInfo);
+      EnsureIsFetched(fieldInfo);
     }
 
     /// <inheritdoc/>
@@ -114,20 +116,15 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     protected internal override sealed void OnSet(FieldInfo fieldInfo)
     {
-      if (PersistenceState==PersistenceState.Modified)
-        return;
       PersistenceState = PersistenceState.Modified;
     }
 
-    internal void OnRemoving()
+    protected virtual void OnRemoving()
     {
-      EnsureIsNotRemoved();
-      Session.Persist();
     }
 
-    internal void OnRemoved()
+    protected virtual void OnRemoved()
     {
-      PersistenceState = PersistenceState.Removed;
     }
 
     #endregion
@@ -142,8 +139,10 @@ namespace Xtensive.Storage
       get { return Data.PersistenceState; }
       internal set
       {
+        if (Data.PersistenceState == value)
+          return;
         Data.PersistenceState = value;
-        Session.RegisterDirty(this);
+        Session.DirtyItems.Register(Data);
         OnPersistentStateChanged();
       }
     }
@@ -174,31 +173,13 @@ namespace Xtensive.Storage
     #region Private
 
     // TODO: Refactor
-    private void ProcessLazyLoad(FieldInfo fieldInfo)
+    private void EnsureIsFetched(FieldInfo field)
     {
-//      if (PersistenceState==PersistenceState.Modified || PersistenceState==PersistenceState.Persisted) {
-//        bool isAvailable = true;
-//        int fieldOffset = fieldInfo.MappingInfo.Offset;
-//        int fieldLength = fieldInfo.MappingInfo.Length;
-//        for (int i = fieldOffset; i < fieldOffset + fieldLength; i++) {
-//          if (!Tuple.IsAvailable(i)) {
-//            isAvailable = false;
-//            break;
-//          }
-//        }
-//        if (!isAvailable) {
-//          List<ColumnInfo> columns = new List<ColumnInfo>();
-//          for (int i = 0; i < Type.Columns.Count; i++) {
-//            ColumnInfo column = Type.Columns[i];
-//            int columnOffset = column.Field.MappingInfo.Offset;
-//            if ((!column.LazyLoad && !Tuple.IsAvailable(columnOffset))
-//              || (columnOffset >= fieldOffset && fieldOffset + fieldLength - 1 <= columnOffset)) {
-//              columns.Add(column);
-//            }
-//          }
-//          Session.ResolveEntityPart(this, columns);
-//        }
-//      }
+      if (Session.DirtyItems.GetItems(PersistenceState.New).Contains(Data))
+        return;
+      if (Data.Tuple.IsAvailable(field.MappingInfo.Offset))
+        return;
+      Fetcher.Fetch(Key, field);
     }
 
     private void EnsureIsNotRemoved()
@@ -246,8 +227,8 @@ namespace Xtensive.Storage
     /// <remarks>Use this type of constructor when you need to explicitly build key for this instance.</remarks>
     protected Entity(params object[] keyData)
     {
-      TypeInfo type = Session.HandlerAccessor.Model.Types[GetType()];
-      Key key = Session.HandlerAccessor.KeyManager.BuildPrimaryKey(type, keyData);
+      TypeInfo type = Session.Domain.Model.Types[GetType()];
+      Key key = Session.Domain.KeyManager.BuildPrimaryKey(type, keyData);
       DifferentialTuple tuple = new DifferentialTuple(Tuple.Create(type.TupleDescriptor));
       key.Tuple.Copy(tuple, 0);
 

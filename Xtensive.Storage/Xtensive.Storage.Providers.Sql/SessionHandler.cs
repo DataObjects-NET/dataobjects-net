@@ -8,8 +8,8 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Linq;
 using Xtensive.Core;
-using Xtensive.Core.Collections;
 using Xtensive.Core.Tuples;
 using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Database;
@@ -17,13 +17,11 @@ using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers.Sql.Resources;
 using Xtensive.Storage.Rse;
-using System.Linq;
-using Xtensive.Indexing;
 using Xtensive.Storage.Rse.Providers;
 
 namespace Xtensive.Storage.Providers.Sql
 {
-  public class SessionHandler : Storage.Providers.SessionHandler
+  public class SessionHandler : Providers.SessionHandler
   {
     private SqlConnection connection;
     private DbTransaction transaction;
@@ -47,7 +45,7 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <inheritdoc/>
-    public override Tuple Fetch(Key key, IEnumerable<ColumnInfo> columns)
+    public override Tuple Fetch(IndexInfo index, Key key, IEnumerable<ColumnInfo> columns)
     {
       EnsureConnectionIsOpen();
       IndexInfo primaryIndex = key.Type.Indexes.PrimaryIndex;
@@ -55,11 +53,11 @@ namespace Xtensive.Storage.Providers.Sql
       var compiled = (SqlProvider)provider.Compiled;
       var queryRef = Xtensive.Sql.Dom.Sql.QueryRef(compiled.Query);
       SqlSelect select = Xtensive.Sql.Dom.Sql.Select(queryRef);
-      IEnumerable<SqlColumn> columnsToAdd = queryRef.Columns.Cast<SqlColumn>().Where(sqlColumn => columns.Any(columnInfo => columnInfo.Name == sqlColumn.Name));
+      IEnumerable<SqlColumn> columnsToAdd = queryRef.Columns.Cast<SqlColumn>().Where(sqlColumn => columns.Any(columnInfo => columnInfo.Name==sqlColumn.Name));
       foreach (SqlColumn column in columnsToAdd)
         select.Columns.Add(column);
 
-      select.Where = DomainHandler.GetWhereStatement(select.Columns[0].SqlTable, GetStatementMapping(primaryIndex, columnInfo => columnInfo.IsPrimaryKey), key);
+      select.Where = DomainHandler.GetWhereStatement(select.Columns[0].SqlTable, GetStatementMapping(index, columnInfo => columnInfo.IsPrimaryKey), key);
       using (DbDataReader reader = ExecuteReader(select)) {
         if (reader.RecordsAffected > 1)
           throw new InvalidOperationException(Strings.ExQueryMultipleResults);
@@ -100,7 +98,7 @@ namespace Xtensive.Storage.Providers.Sql
       foreach (IndexInfo index in GetParentPrimaryIndexes(data.Key.Type.Indexes.PrimaryIndex)) {
         SqlTableRef tableRef = GetTableRef(index);
         SqlDelete delete = Xtensive.Sql.Dom.Sql.Delete(tableRef);
-        delete.Where = DomainHandler.GetWhereStatement(tableRef, GetStatementMapping(data.Key.Type.Indexes.PrimaryIndex, columnInfo=>columnInfo.IsPrimaryKey), data.Key);
+        delete.Where = DomainHandler.GetWhereStatement(tableRef, GetStatementMapping(data.Key.Type.Indexes.PrimaryIndex, columnInfo => columnInfo.IsPrimaryKey), data.Key);
         batch.Add(delete);
         tableCount++;
       }
@@ -127,24 +125,9 @@ namespace Xtensive.Storage.Providers.Sql
 //    }
 
     /// <inheritdoc/>
-    public override IEnumerable<Tuple> Select(TypeInfo type, IEnumerable<ColumnInfo> columns)
+    public override RecordSet Select(IndexInfo index)
     {
-      /*EnsureConnectionIsOpen();
-      var results = new List<Tuple>();
-      IndexInfo primaryIndex = type.Indexes.PrimaryIndex;
-      SqlSelect select = BuildQuery(primaryIndex, columns);
-      using (DbDataReader reader = ExecuteReader(select)) {
-        while (reader.Read())
-          results.Add(GetTuple(reader, select));
-      }
-      return results;*/
-      throw new NotImplementedException();
-    }
-
-    /// <inheritdoc/>
-    public override RecordSet QueryIndex(IndexInfo info)
-    {
-      var provider = new IndexProvider(info);
+      var provider = new IndexProvider(index);
       return provider.Result;
     }
 
@@ -199,7 +182,7 @@ namespace Xtensive.Storage.Providers.Sql
       for (int i = 0; i < actualType.Columns.Count; i++) {
         ColumnInfo column = actualType.Columns[i];
         int ordinal = select.Columns.IndexOf(select.Columns[column.Name]);
-        if (ordinal>=0) 
+        if (ordinal >= 0)
           result.SetValue(column.Field.MappingInfo.Offset, reader[ordinal]);
       }
       return result;
@@ -250,15 +233,12 @@ namespace Xtensive.Storage.Providers.Sql
         yield return indexInfo;
       }
       else {
-        foreach (IndexInfo baseIndex in indexInfo.BaseIndexes) {
+        foreach (IndexInfo baseIndex in indexInfo.UnderlyingIndexes) {
           foreach (IndexInfo realPrimaryIndex in GetRealPrimaryIndexes(baseIndex)) {
             yield return realPrimaryIndex;
           }
         }
       }
     }
-
-
-    
   }
 }

@@ -10,6 +10,7 @@ using PostSharp.Extensibility;
 using PostSharp.Laos;
 using Xtensive.Core;
 using Xtensive.Core.Aspects;
+using Xtensive.Core.Aspects.Helpers;
 using Xtensive.Core.Reflection;
 using Xtensive.Storage.Attributes;
 using FieldInfo = Xtensive.Storage.Model.FieldInfo;
@@ -46,7 +47,7 @@ namespace Xtensive.Storage.Aspects
         BindingFlags.Instance |
         BindingFlags.DeclaredOnly))
       {
-        SuppressContextActivationAttribute fieldAttribute = mi.GetAttribute<SuppressContextActivationAttribute>(false);
+        SuppressActivationAttribute fieldAttribute = mi.GetAttribute<SuppressActivationAttribute>(false);
         if (fieldAttribute != null && 
           (fieldAttribute.ContextType == null || 
           fieldAttribute.ContextType == typeof(Session)))
@@ -87,9 +88,9 @@ namespace Xtensive.Storage.Aspects
                                               new object[] { pi.GetShortName(), typeof(FieldAttribute).GetShortName() });
         }
         if (pi.GetGetMethod(true) != null)
-          collection.AddAspect(pi.GetGetMethod(true), new ImplementAutoPropertyAspect(persistentType));
+          collection.AddAspect(pi.GetGetMethod(true), new ImplementAutoPropertyReplacementAspect(persistentType, pi.Name));
         if (pi.GetSetMethod(true) != null)
-          collection.AddAspect(pi.GetSetMethod(true), new ImplementAutoPropertyAspect(persistentType));
+          collection.AddAspect(pi.GetSetMethod(true), new ImplementAutoPropertyReplacementAspect(persistentType, pi.Name));
       }
     }
 
@@ -98,9 +99,8 @@ namespace Xtensive.Storage.Aspects
       Type[] parameterTypes = type.IsSubclassOf(structureType)
                                 ? new Type[] {persistentType, typeof (FieldInfo)}
                                 : new[] {typeof (EntityData)}; 
-      ImplementConstructorAspect ica = ImplementConstructorAspect.FindOrCreate(
+      ImplementConstructorAspect ica = ImplementConstructorAspect.ApplyOnce(
         type,
-        baseType,
         parameterTypes
         );
       collection.AddAspect(type, ica);
@@ -110,27 +110,23 @@ namespace Xtensive.Storage.Aspects
     {
       Type baseType = persistentType;
 
-      ConstructorDelegateAspect cda = null;
+      ImplementConstructorAspect cda = null;
       if (type.IsSubclassOf(structureType)) {
         baseType = structureType;
-        
+
         if (!type.IsAbstract)
-          cda = ConstructorDelegateAspect.FindOrCreate(
+          cda = ImplementConstructorAspect.ApplyOnce(
             type,
-            structureType, 
-            new [] { persistentType, typeof(FieldInfo) },
-            typeof(Func<Persistent, FieldInfo, Structure>));
+            new [] { persistentType, typeof(FieldInfo) });
       }
 
       if (type.IsSubclassOf(entityType)) {
         baseType = entityType;
 
         if (!type.IsAbstract)
-          cda = ConstructorDelegateAspect.FindOrCreate(
+          cda = ImplementConstructorAspect.ApplyOnce(
             type,
-            entityType,
-            new [] { typeof(EntityData) },
-            typeof(Func<EntityData, Entity>));
+            new [] { typeof(EntityData) });
       }
 
       if (cda != null)

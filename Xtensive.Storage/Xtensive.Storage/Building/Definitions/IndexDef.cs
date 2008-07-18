@@ -51,16 +51,16 @@ namespace Xtensive.Storage.Building.Definitions
     }
 
     /// <summary>
-    /// Gets or sets a value indicating whether this instance is foreign key index.
+    /// Gets or sets a value indicating whether this instance is secondary index.
     /// </summary>
-    public bool IsForeignKey
+    public bool IsSecondary
     {
-      get { return (attributes & IndexAttributes.ForeignKey) > 0; }
+      get { return (attributes & IndexAttributes.Secondary) > 0; }
       set
       {
         attributes = value
-                       ? attributes | IndexAttributes.ForeignKey
-                       : attributes & ~IndexAttributes.ForeignKey;
+                       ? attributes | IndexAttributes.Secondary
+                       : attributes & ~IndexAttributes.Secondary;
       }
     }
 
@@ -112,8 +112,8 @@ namespace Xtensive.Storage.Building.Definitions
     protected override void Validate(string nameToValidate)
     {
       base.Validate(nameToValidate);
-      
-      Validator.IsNameValid(nameToValidate, ValidationRule.Index);      
+
+      Validator.IsNameValid(nameToValidate, ValidationRule.Index);
     }
 
 

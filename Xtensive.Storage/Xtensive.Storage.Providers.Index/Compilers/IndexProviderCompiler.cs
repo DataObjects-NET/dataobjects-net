@@ -26,7 +26,7 @@ namespace Xtensive.Storage.Providers.Index.Compilers
         result = new Rse.Providers.Executable.IndexProvider(provider, indexInfo, handler.GetRealIndex);
       else {
         if ((indexInfo.Attributes & IndexAttributes.Filtered)!=0) {
-          Provider source = Compile(new IndexProvider(indexInfo.BaseIndexes.First()));
+          Provider source = Compile(new IndexProvider(indexInfo.UnderlyingIndexes.First()));
           int columnIndex;
           if (indexInfo.IsPrimary) {
             FieldInfo typeIDField = indexInfo.ReflectedType.Fields[handlerAccessor.Domain.NameProvider.TypeId];
@@ -39,12 +39,12 @@ namespace Xtensive.Storage.Providers.Index.Compilers
           result = new FilterInheritorsProvider(provider, source, columnIndex, handlerAccessor.Domain.Model.Types.Count, typeIDList.ToArray());
         }
         else if ((indexInfo.Attributes & IndexAttributes.Union)!=0) {
-          Provider[] sourceProviders = indexInfo.BaseIndexes.Select(index => Compile(new IndexProvider(index))).ToArray();
+          Provider[] sourceProviders = indexInfo.UnderlyingIndexes.Select(index => Compile(new IndexProvider(index))).ToArray();
           result = new MergeInheritorsProvider(provider, sourceProviders);
         }
         else {
-          var baseIndexes = new List<IndexInfo>(indexInfo.BaseIndexes);
-          Provider rootProvider = Compile(new IndexProvider(indexInfo.BaseIndexes.First()));
+          var baseIndexes = new List<IndexInfo>(indexInfo.UnderlyingIndexes);
+          Provider rootProvider = Compile(new IndexProvider(indexInfo.UnderlyingIndexes.First()));
           var inheritorsProviders = new Provider[baseIndexes.Count - 1];
           for (int i = 1; i < baseIndexes.Count; i++)
             inheritorsProviders[i - 1] = Compile(new IndexProvider(baseIndexes[i]));

@@ -10,7 +10,6 @@ using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Indexing;
 using Xtensive.Storage.Model;
-using System.Linq;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers;
 
@@ -39,9 +38,9 @@ namespace Xtensive.Storage.Providers.Index
       var handler = (DomainHandler)HandlerAccessor.DomainHandler;
       IndexInfo primaryIndex = data.Type.Indexes.PrimaryIndex;
       var indexProvider = new IndexProvider(primaryIndex);
-      SeekResult<Tuple> result = indexProvider.GetService<IOrderedEnumerable<Tuple,Tuple>>().Seek(new Ray<IEntire<Tuple>>(Entire<Tuple>.Create(data.Key.Tuple)));
+      SeekResult<Tuple> result = indexProvider.GetService<IOrderedEnumerable<Tuple, Tuple>>().Seek(new Ray<IEntire<Tuple>>(Entire<Tuple>.Create(data.Key.Tuple)));
 
-      if (result.ResultType != SeekResultType.Exact)
+      if (result.ResultType!=SeekResultType.Exact)
         throw new InvalidOperationException();
 
       foreach (IndexInfo indexInfo in data.Type.AffectedIndexes) {
@@ -51,37 +50,18 @@ namespace Xtensive.Storage.Providers.Index
       }
     }
 
-    public override Tuple Fetch(Key key, IEnumerable<ColumnInfo> columns)
+    public override Tuple Fetch(IndexInfo index, Key key, IEnumerable<ColumnInfo> columns)
     {
-      var index = new IndexProvider(key.Type.Indexes.PrimaryIndex);
-      SeekResult<Tuple> seek = index.GetService<IOrderedEnumerable<Tuple, Tuple>>().Seek(new Ray<IEntire<Tuple>>(Entire<Tuple>.Create(key.Tuple)));
+      var indexProvider = new IndexProvider(index);
+      SeekResult<Tuple> seek = indexProvider.GetService<IOrderedEnumerable<Tuple, Tuple>>().Seek(new Ray<IEntire<Tuple>>(Entire<Tuple>.Create(key.Tuple)));
       if (seek.ResultType!=SeekResultType.Exact)
         return null;
       return seek.Result;
     }
 
-    public override Tuple FetchKey(Key key)
+    public override RecordSet Select(IndexInfo index)
     {
-      IndexInfo primaryIndex = key.Hierarchy.Root.Indexes.PrimaryIndex;
-      IndexInfo indexInfo = primaryIndex.IsVirtual && (primaryIndex.Attributes & IndexAttributes.Union) == 0
-        ? primaryIndex.BaseIndexes[0]
-        : primaryIndex;
-      var index = new IndexProvider(indexInfo);
-      SeekResult<Tuple> seek = index.GetService<IOrderedEnumerable<Tuple, Tuple>>().Seek(new Ray<IEntire<Tuple>>(Entire<Tuple>.Create(key.Tuple)));
-      if (seek.ResultType != SeekResultType.Exact)
-        throw new InvalidOperationException();
-
-      return seek.Result;
-    }
-
-    public override IEnumerable<Tuple> Select(TypeInfo type, IEnumerable<ColumnInfo> columns)
-    {
-      return new IndexProvider(type.Indexes.PrimaryIndex).Result;
-    }
-
-    public override RecordSet QueryIndex(IndexInfo info)
-    {
-      return new IndexProvider(info).Result;
+      return new IndexProvider(index).Result;
     }
   }
 }

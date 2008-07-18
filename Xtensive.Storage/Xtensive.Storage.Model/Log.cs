@@ -16,7 +16,7 @@ namespace Xtensive.Storage.Model
   {
     // Copy-paste this code!
     public static readonly string Name;
-    
+
     static Log()
     {
       string className = MethodInfo.GetCurrentMethod().DeclaringType.FullName;

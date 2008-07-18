@@ -38,23 +38,8 @@ namespace Xtensive.Storage
     [DebuggerHidden]
     public Domain Domain
     {
-      [SuppressContextActivation(typeof (Session))]
+      [SuppressActivation(typeof (Session))]
       get { return HandlerAccessor.Domain; }
-    }
-
-    [DebuggerHidden]
-    internal HandlerAccessor HandlerAccessor {
-      [SuppressContextActivation(typeof (Session))]
-      get;
-      [SuppressContextActivation(typeof (Session))]
-      private set; 
-    }
-
-    [DebuggerHidden]
-    internal WeakCache<Key, EntityData> IdentityMap
-    {
-      [SuppressContextActivation(typeof (Session))]
-      get { return identityMap; }
     }
 
     /// <summary>
@@ -71,33 +56,34 @@ namespace Xtensive.Storage
     /// </remarks>
     public void Persist()
     {
-      if (dirtyItems.GetCount()==0)
+      if (DirtyItems.GetCount()==0)
         return;
 
-      Handler.Persist(dirtyItems);
+      Handler.Persist(DirtyItems);
 
-      HashSet<EntityData> @new = dirtyItems.GetItems(PersistenceState.New);
-      HashSet<EntityData> modified = dirtyItems.GetItems(PersistenceState.Modified);
-      HashSet<EntityData> removed = dirtyItems.GetItems(PersistenceState.Removed);
+      HashSet<EntityData> @new = DirtyItems.GetItems(PersistenceState.New);
+      HashSet<EntityData> modified = DirtyItems.GetItems(PersistenceState.Modified);
+      HashSet<EntityData> removed = DirtyItems.GetItems(PersistenceState.Removed);
 
       foreach (EntityData data in @new.Union(modified).Except(removed))
         data.PersistenceState = PersistenceState.Persisted;
 
-      dirtyItems.Clear();
+      DirtyItems.Clear();
     }
 
-    public RecordSet QueryIndex(IndexInfo indexInfo)
+    public RecordSet Select(IndexInfo index)
     {
       Persist();
-      return Handler.QueryIndex(indexInfo);
+      return Handler.Select(index);
     }
 
     public IEnumerable<T> All<T>() where T : Entity
     {
       Persist();
-      TypeInfo type = HandlerAccessor.Model.Types[typeof (T)];
-      foreach (Tuple tuple in Handler.Select(type)) {
-        Key key = HandlerAccessor.KeyManager.BuildPrimaryKey(type.Hierarchy, tuple);
+      TypeInfo type = Domain.Model.Types[typeof (T)];
+      RecordSet result = Handler.Select(type.Indexes.PrimaryIndex);
+      foreach (Tuple tuple in result) {
+        Key key = Domain.KeyManager.BuildPrimaryKey(type.Hierarchy, tuple);
         T item = (T)key.Resolve(tuple);
         if (item == null)
           throw new InvalidOperationException();
@@ -107,20 +93,35 @@ namespace Xtensive.Storage
 
     #region Internals & private
 
-    internal void RegisterDirty(Entity entity)
+    [DebuggerHidden]
+    internal HandlerAccessor HandlerAccessor {
+      [SuppressActivation(typeof (Session))]
+      get;
+      [SuppressActivation(typeof (Session))]
+      private set; 
+    }
+
+    [DebuggerHidden]
+    internal WeakCache<Key, EntityData> IdentityMap
     {
-      if (entity.PersistenceState == PersistenceState.New)
-        IdentityMap.Add(entity.Data);
-      dirtyItems.Register(entity.Data);
+      [SuppressActivation(typeof (Session))]
+      get { return identityMap; }
     }
 
     [DebuggerHidden]
     internal SessionHandler Handler
     {
-      [SuppressContextActivation(typeof (Session))]
+      [SuppressActivation(typeof (Session))]
       get;
-      [SuppressContextActivation(typeof (Session))]
+      [SuppressActivation(typeof (Session))]
       set;
+    }
+
+    [DebuggerHidden]
+    internal FlagRegistry<PersistenceState, EntityData> DirtyItems
+    {
+      [SuppressActivation(typeof (Session))]
+      get { return dirtyItems; }
     }
 
     #endregion
@@ -157,12 +158,12 @@ namespace Xtensive.Storage
     [DebuggerHidden]
     public static Session Current
     {
-      [SuppressContextActivation(typeof (Session))]
+      [SuppressActivation(typeof (Session))]
       get { return SessionScope.Current==null ? null : SessionScope.Current.Session; }
     }
 
     /// <inheritdoc/>
-    [SuppressContextActivation(typeof (Session))]
+    [SuppressActivation(typeof (Session))]
     public SessionScope Activate()
     {
       if (IsActive)
@@ -171,7 +172,7 @@ namespace Xtensive.Storage
     }
 
     /// <inheritdoc/>
-    [SuppressContextActivation(typeof (Session))]
+    [SuppressActivation(typeof (Session))]
     IDisposable IContext.Activate()
     {
       return Activate();
@@ -180,7 +181,7 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     public bool IsActive
     {
-      [SuppressContextActivation(typeof (Session))]
+      [SuppressActivation(typeof (Session))]
       get { return SessionScope.Current.Session==this; }
     }
 
@@ -191,14 +192,14 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     public Session Context
     {
-      [SuppressContextActivation(typeof (Session))]
+      [SuppressActivation(typeof (Session))]
       get { return this; }
     }
 
     #endregion
 
     /// <inheritdoc/>
-    [SuppressContextActivation(typeof (Session))]
+    [SuppressActivation(typeof (Session))]
     protected override void OnConfigured()
     {
       base.OnConfigured();

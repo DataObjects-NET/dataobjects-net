@@ -6,12 +6,12 @@
 
 using Xtensive.Core.Tuples;
 
-namespace Xtensive.Storage
+namespace Xtensive.Storage.Internals
 {
   /// <summary>
   /// Resolves a <see cref="Key"/> to <see cref="Entity"/> descendant.
   /// </summary>
-  public static class KeyResolver
+  internal static class KeyResolver
   {
     /// <summary>
     /// Resolves the specified key.
@@ -31,13 +31,13 @@ namespace Xtensive.Storage
     public static Entity Resolve(Key key) 
     {
       if (key.Type == null)
-        ResolveKeyType(key);
+        ResolveType(key);
 
       EntityData data;
       if (TryResolveKey(key, out data))
         return data.Entity ?? Entity.Activate(data.Type.UnderlyingType, data);
 
-      return Resolve(key, Session.Current.Handler.Fetch(key));
+      return Resolve(key, Fetcher.Fetch(key));
     }
 
     internal static Entity Resolve(Key key, Tuple tuple)
@@ -62,13 +62,13 @@ namespace Xtensive.Storage
       return data!=null;
     }
 
-    private static void ResolveKeyType(Key key)
+    private static void ResolveType(Key key)
     {
       Session session = Session.Current;
-      if (!session.HandlerAccessor.Model.Types.FindDescendants(key.Hierarchy.Root).GetEnumerator().MoveNext())
+      if (!session.Domain.Model.Types.FindDescendants(key.Hierarchy.Root).GetEnumerator().MoveNext())
         key.Type = key.Hierarchy.Root;
       else
-        key.ResolveType(session.Handler.FetchKey(key));
+        key.ResolveType(Fetcher.FetchKey(key));
     }
   }
 }

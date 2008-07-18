@@ -35,7 +35,7 @@ namespace Xtensive.Storage.Model
     /// <inheritdoc/>
     public override void Lock(bool recursive)
     {
-      if (string.IsNullOrEmpty(MappingName))
+      if (MappingName.IsNullOrEmpty())
         MappingName = Name;
       base.Lock(recursive);
     }

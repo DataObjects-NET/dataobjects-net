@@ -8,25 +8,25 @@ using System;
 
 namespace Xtensive.Storage.Building.Internals
 {
-  internal class GraphAnalyzerScope<TNode> : IDisposable
+  internal class CircularReferenceFinderScope<TNode> : IDisposable
     where TNode : class 
   {
     public TNode Node { get; private set; }
-    public GraphAnalyzer<TNode> Analyzer { get; private set; }
+    public CircularReferenceFinder<TNode> Finder { get; private set; }
 
 
     // Constructors
 
-    public GraphAnalyzerScope(GraphAnalyzer<TNode> analyzer, TNode node)
+    public CircularReferenceFinderScope(CircularReferenceFinder<TNode> finder, TNode node)
     {
-      Analyzer = analyzer;
+      Finder = finder;
       Node = node;
     }
 
     public void Dispose()
     {
-      if (Analyzer.Path.Peek() == Node)
-        Analyzer.Path.Pop();
+      if (Finder.Path.Peek() == Node)
+        Finder.Path.Pop();
     }
   }
 }

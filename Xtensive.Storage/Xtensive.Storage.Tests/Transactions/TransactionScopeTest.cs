@@ -165,15 +165,15 @@
 //    public void InvalidOuterTransactionTest()
 //    {
 //      using (TransactionScope transactionScope = new TransactionScope(SessionScope.Current.Session)) {
-//        transactionScope.Complete();  
+//        transactionScope.Complete();
 //        using (TransactionScope nestedTransactionScope = new TransactionScope(SessionScope.Current.Session, TransactionScopeOptions.NewTransactionRequired)) {
 //          nestedTransactionScope.Complete();
 //        }
 //      }
 //    }
-//  
+//
 //#endif
-//    
+//
 //
 //
 //  }

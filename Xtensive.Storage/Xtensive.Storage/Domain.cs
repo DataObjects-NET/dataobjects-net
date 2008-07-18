@@ -19,17 +19,17 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets the configuration.
     /// </summary>
-    public DomainConfiguration Configuration { get; private set; }
+    public DomainConfiguration Configuration { get; internal set; }
 
     /// <summary>
     /// Gets the domain model.
     /// </summary>
-    public DomainInfo Model { get; private set; }
+    public DomainInfo Model { get; internal set; }
 
     /// <summary>
     /// Gets the name provider.
     /// </summary>
-    public NameProvider NameProvider { get; private set; }
+    public NameProvider NameProvider { get; internal set; }
 
     /// <summary>
     /// Gets the key manager.
@@ -47,7 +47,7 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets the execution context.
     /// </summary>
-    internal HandlerAccessor HandlerAccessor { get; private set; }
+    internal HandlerAccessor HandlerAccessor { get; set; }
 
     /// <summary>
     /// Creates the session.
@@ -98,6 +98,7 @@ namespace Xtensive.Storage
 
     internal Domain()
     {
+      keyManager = new KeyManager(this);
     }
   }
 }

@@ -4,7 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2008.05.19
 
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core.Collections;
@@ -21,32 +20,12 @@ namespace Xtensive.Storage.Providers
     /// </summary>
     public Session Session { get; internal set; }
 
-    protected abstract void Insert(EntityData data);
-    protected abstract void Update(EntityData data);
-    protected abstract void Remove(EntityData data);
-    public abstract Tuple Fetch(Key key, IEnumerable<ColumnInfo> columns);
+    public abstract Tuple Fetch(IndexInfo index, Key key, IEnumerable<ColumnInfo> columns);
 
-    public IEnumerable Select(TypeInfo type)
-    {
-      return Select(type, type.Columns.Where(columnInfo => !columnInfo.LazyLoad));
-    }
-
-    public abstract IEnumerable<Tuple> Select(TypeInfo type, IEnumerable<ColumnInfo> columns);
-
-    public abstract RecordSet QueryIndex(IndexInfo info);
+    public abstract RecordSet Select(IndexInfo index);
 
     public virtual void Commit()
     {
-    }
-
-    public Tuple Fetch(Key key)
-    {
-      return Fetch(key, key.Type.Indexes.PrimaryIndex.Columns.Where(columnInfo => !columnInfo.LazyLoad));
-    }
-
-    public virtual Tuple FetchKey(Key key)
-    {
-      return Fetch(key, key.Type.Indexes.PrimaryIndex.Columns.Where(columnInfo => columnInfo.IsPrimaryKey));
     }
 
     public void Persist(FlagRegistry<PersistenceState, EntityData> registry)
@@ -62,5 +41,11 @@ namespace Xtensive.Storage.Providers
       foreach (EntityData data in removed)
         Remove(data);
     }
+
+    protected abstract void Insert(EntityData data);
+
+    protected abstract void Update(EntityData data);
+
+    protected abstract void Remove(EntityData data);
   }
 }

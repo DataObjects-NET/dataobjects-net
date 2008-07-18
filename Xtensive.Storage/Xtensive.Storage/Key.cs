@@ -9,6 +9,7 @@ using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
+using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage
@@ -101,9 +102,9 @@ namespace Xtensive.Storage
 
     internal void ResolveType(Tuple tuple)
     {
-      int columnIndex = Hierarchy.Root.Fields[Session.Current.HandlerAccessor.NameProvider.TypeId].MappingInfo.Offset;
+      int columnIndex = Hierarchy.Root.Fields[Session.Current.HandlerAccessor.Domain.NameProvider.TypeId].MappingInfo.Offset;
       int typeId = tuple.GetValue<int>(columnIndex);
-      Type = Session.Current.HandlerAccessor.Model.Types[typeId];
+      Type = Session.Current.HandlerAccessor.Domain.Model.Types[typeId];
     }
 
     /// <summary>
@@ -126,7 +127,7 @@ namespace Xtensive.Storage
     /// <returns>Newly created <see cref="Key"/> instance.</returns>
     public static Key Build(Type type, params object[] keyData)
     {
-      return Session.Current.HandlerAccessor.KeyManager.Build(type, keyData);
+      return Session.Current.HandlerAccessor.Domain.KeyManager.Build(type, keyData);
     }
 
     #region Equals & GetHashCode

@@ -27,6 +27,6 @@ namespace Xtensive.Storage.Providers
     }
 
     protected abstract CompilationContext GetCompilationContext();
-    
+
   }
 }

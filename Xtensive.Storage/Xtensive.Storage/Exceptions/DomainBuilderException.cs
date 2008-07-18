@@ -25,7 +25,7 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
-    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="message">The error message.</param>
     /// <param name="innerException">The inner exception.</param>

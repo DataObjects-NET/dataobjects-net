@@ -46,13 +46,13 @@ namespace Xtensive.Storage.Building.Builders
       TypeDef root = context.Definition.FindRoot(typeDef);
       if (root!=null)
         throw new DomainBuilderException(
-          string.Format(Resources.Strings.ExTypeDefXIsAlreadyBelongsToHierarchyWithTheRootY,  
-          typeDef.UnderlyingType.FullName,  root.UnderlyingType.FullName));              
+          string.Format(Resources.Strings.ExTypeDefXIsAlreadyBelongsToHierarchyWithTheRootY,
+          typeDef.UnderlyingType.FullName,  root.UnderlyingType.FullName));
 
       foreach (HierarchyDef hierarchy in context.Definition.Hierarchies)
         if (hierarchy.Root.UnderlyingType.IsSubclassOf(typeDef.UnderlyingType)) 
           throw new DomainBuilderException(
-            string.Format(Resources.Strings.ExXDescendantIsAlreadyARootOfAnotherHierarchy, hierarchy.Root.UnderlyingType));              
+            string.Format(Resources.Strings.ExXDescendantIsAlreadyARootOfAnotherHierarchy, hierarchy.Root.UnderlyingType));
 
       return 
         new HierarchyDef(typeDef) {Schema = inheritanceSchema};
@@ -68,7 +68,7 @@ namespace Xtensive.Storage.Building.Builders
         if (!root.Fields.TryGetValue(pair.Key.Name, out field))
           throw new DomainBuilderException(
             string.Format(Resources.Strings.ExKeyFieldXWasNotFoundInTypeY, pair.Key.Name, root.Name));
-          
+
         hierarchy.Fields.Add(field, pair.Value);
       }
 

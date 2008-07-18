@@ -105,7 +105,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
       var expressionHandler = new ExpressionHandler();
       from.Descriptor.Execute(expressionHandler, ref expressionData, Direction.Positive);
       to.Descriptor.Execute(expressionHandler, ref expressionData, Direction.Positive);
-      
+
       query.Where = expressionData.Expression;
 
       return new SqlProvider(provider.Header, query);

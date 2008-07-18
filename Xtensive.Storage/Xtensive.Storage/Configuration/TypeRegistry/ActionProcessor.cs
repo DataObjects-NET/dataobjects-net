@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using Xtensive.Core.Helpers;
 using Xtensive.Core.Reflection;
 
 namespace Xtensive.Storage.Configuration.TypeRegistry
@@ -36,7 +37,7 @@ namespace Xtensive.Storage.Configuration.TypeRegistry
       IList<Type> types;
 
       // Find all types from the assembly that are subsclasses of Persistent and are not generic type definitions.
-      if (string.IsNullOrEmpty(action.Namespace))
+      if (action.Namespace.IsNullOrEmpty())
         types =
           AssemblyHelper.FindTypes(action.Assembly,
                                    BaseType,

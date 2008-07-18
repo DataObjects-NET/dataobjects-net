@@ -8,7 +8,7 @@ using System;
 using Xtensive.Core;
 
 namespace Xtensive.Storage
-{  
+{
   /// <summary>
   /// Should be implemented by any persistent entity.
   /// </summary>

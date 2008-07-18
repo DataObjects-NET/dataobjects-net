@@ -10,13 +10,13 @@ using System.Linq;
 
 namespace Xtensive.Storage.Building.Internals
 {
-  internal class GraphAnalyzer<TNode> 
+  internal class CircularReferenceFinder<TNode> 
     where TNode : class 
   {
     internal Stack<TNode> Path { get; private set; }
     private readonly Func<TNode, string> toString;
 
-    public GraphAnalyzerScope<TNode> Enter(TNode node)
+    public CircularReferenceFinderScope<TNode> Enter(TNode node)
     {
       if (Path.Contains(node)) {
         Path.Push(node);
@@ -25,15 +25,15 @@ namespace Xtensive.Storage.Building.Internals
         throw new DomainBuilderException(string.Format("Circular reference was detected ({0}).", result));
       }
       Path.Push(node);
-      return new GraphAnalyzerScope<TNode>(this, node);
+      return new CircularReferenceFinderScope<TNode>(this, node);
     }
 
-    public GraphAnalyzer()
+    public CircularReferenceFinder()
     {
       Path = new Stack<TNode>();
     }
 
-    public GraphAnalyzer(Func<TNode, string> toString)
+    public CircularReferenceFinder(Func<TNode, string> toString)
       : this()
     {
       this.toString = toString;

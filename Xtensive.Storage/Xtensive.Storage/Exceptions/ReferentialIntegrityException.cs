@@ -23,7 +23,7 @@ namespace Xtensive.Storage
     /// </summary>
     public ReferentialIntegrityException()
       : base("Referential integrity violation.") {}
-    
+
     /// <summary>
     ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>

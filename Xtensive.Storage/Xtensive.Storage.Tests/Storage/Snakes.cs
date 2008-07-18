@@ -209,10 +209,10 @@ namespace Xtensive.Storage.Tests
         Tuple fromName = Tuple.Create("Kaa");
         Tuple toName = Tuple.Create("Kaa900");
         TypeInfo snakeType = session.Domain.Model.Types[typeof (Snake)];
-        RecordSet rsSnakePrimary = session.QueryIndex(snakeType.Indexes.GetIndex("ID"));
+        RecordSet rsSnakePrimary = session.Select(snakeType.Indexes.GetIndex("ID"));
 
         using (new Measurement("Query performance")) {
-          RecordSet rsSnakeName = session.QueryIndex(snakeType.Indexes.GetIndex("Name"));
+          RecordSet rsSnakeName = session.Select(snakeType.Indexes.GetIndex("Name"));
           rsSnakeName = rsSnakeName
             .Range(fromName, toName)
             .IndexBy(OrderBy.Asc(rsSnakeName.Map("ID")))
@@ -223,7 +223,7 @@ namespace Xtensive.Storage.Tests
           RecordSet where = join.Where(tuple => tuple.GetValue<int>(rsSnakePrimary.Map("Length")) >= 100);
           RecordSet orderBy = where.OrderBy(OrderBy.Desc(rsSnakePrimary.Map("Name")));
           var snakesRse = orderBy.AsEntities<Snake>("ID");
-          
+
           /*// debug
           long rsSnakePrimaryCount = rsSnakePrimary.Provider.GetService<ICountable>(true).Count;
           long joinCount = join.Provider.Count();
@@ -233,7 +233,7 @@ namespace Xtensive.Storage.Tests
           Assert.AreEqual(20, snakesRse.Count());
         }
 
-        
+
         //        RecordSet r = session.Indexes[...];
         //        r = r.Range(...).Where(...);
         //        var snakes = r.ToEntities<Snake>("Id");

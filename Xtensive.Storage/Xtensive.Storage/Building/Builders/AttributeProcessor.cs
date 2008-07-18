@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using Xtensive.Core;
+using Xtensive.Core.Helpers;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Model;
@@ -65,9 +66,9 @@ namespace Xtensive.Storage.Building.Builders
     public static void ProcessPairTo(FieldDef field, FieldAttribute attribute)
     {
       if (field.IsPrimitive || field.IsStructure) {
-        if (!string.IsNullOrEmpty(attribute.PairTo))
+        if (!attribute.PairTo.IsNullOrEmpty())
           throw new DomainBuilderException(
-            string.Format(Strings.ExPairToAttributeCanNotBeUsedWithXField, field.Name));          
+            string.Format(Strings.ExPairToAttributeCanNotBeUsedWithXField, field.Name));
       }
       else
         field.PairTo = attribute.PairTo;
@@ -87,24 +88,24 @@ namespace Xtensive.Storage.Building.Builders
       if (ks==null)
         throw new DomainBuilderException(
           string.Format(Strings.ExKeyProviderXShouldDefineAtLeastOneKeyField, attribute.KeyProvider));
-      
+
       if (attribute.KeyFields.Length!=ks.Fields.Length)
         throw new DomainBuilderException(
           string.Format(Strings.ExKeyProviderXAndHierarchyYKeyFieldAmountMismatch, 
           attribute.KeyProvider, hierarchy.Root.Name));
-      
+
       for (int index = 0; index < attribute.KeyFields.Length; index++) {
         Pair<string, Direction> result = ParseFieldName(attribute.KeyFields[index]);
         KeyField field = new KeyField(result.First, ks.Fields[index]);
 
         if (!Validator.IsNameValid(result.First, ValidationRule.Field))
           throw new DomainBuilderException(
-            string.Format(Strings.ExIndexFieldXIsIncorrect, attribute.KeyFields[index]));        
+            string.Format(Strings.ExIndexFieldXIsIncorrect, attribute.KeyFields[index]));
 
         if (hierarchy.KeyFields.ContainsKey(field))
           throw new DomainBuilderException(
             string.Format(Strings.ExIndexAlreadyContainsField, attribute.KeyFields[index]));
-        
+
         hierarchy.KeyFields.Add(field, result.Second);
       }
     }
@@ -128,7 +129,7 @@ namespace Xtensive.Storage.Building.Builders
       if (attribute.Length <= 0)
         throw new DomainBuilderException(
           string.Format(Strings.ExInvalidLengthAttributeOnXField, field.Name));
-      
+
       field.Length = attribute.Length;
     }
 
@@ -137,7 +138,7 @@ namespace Xtensive.Storage.Building.Builders
       if (attribute.referentialAction==null)
         return;
 
-      if (!field.IsEntity)        
+      if (!field.IsEntity)
         throw new DomainBuilderException(
           string.Format(Strings.InvalidOnDeleteAttributeUsageOnFieldXFieldIsNotEntityReference, field.Name));
 
@@ -182,7 +183,7 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void ProcessMappingName(MappingNode node, MappingAttribute attribute, ValidationRule rule)
     {
-      if (String.IsNullOrEmpty(attribute.MappingName))
+      if (attribute.MappingName.IsNullOrEmpty())
         return;
 
       if (!Validator.IsNameValid(attribute.MappingName, rule))
@@ -208,11 +209,11 @@ namespace Xtensive.Storage.Building.Builders
         if (!Validator.IsNameValid(result.First, ValidationRule.Column))
           throw new DomainBuilderException(
             string.Format(Strings.ExIndexFieldXIsIncorrect, source[index]));
-        
+
         if (target.ContainsKey(result.First))
           throw new DomainBuilderException(
             string.Format(Strings.ExIndexAlreadyContainsField, source[index]));
-        
+
         target.Add(result.First, result.Second);
       }
     }
@@ -228,14 +229,14 @@ namespace Xtensive.Storage.Building.Builders
         if (!Validator.IsNameValid(fieldName, ValidationRule.Column))
           throw new DomainBuilderException(
             string.Format(Strings.ExIndexFieldXIsIncorrect, source[index]));
-        
+
         if (target.Contains(fieldName))
           throw new DomainBuilderException(
             string.Format(Strings.ExIndexAlreadyContainsField, source[index]));
-        
+
         target.Add(fieldName);
       }
-    }    
+    }
 
     private static void ProcessFillFactor(IndexDef index, IndexAttribute attribute)
     {

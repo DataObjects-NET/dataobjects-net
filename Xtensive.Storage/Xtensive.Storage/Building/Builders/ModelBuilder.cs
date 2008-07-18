@@ -92,13 +92,19 @@ namespace Xtensive.Storage.Building.Builders
           }
 
         // Associations
-        foreach (Pair<AssociationInfo, string> pair in context.PairedAssociations)
+        foreach (Pair<AssociationInfo, string> pair in context.PairedAssociations) {
+          if (context.DiscardedAssociations.Contains(pair.First))
+            continue;
           try {
             AssociationBuilder.BuildPairedAssociation(pair.First, pair.Second);
           }
           catch (DomainBuilderException e) {
             context.RegistError(e);
           }
+        }
+
+        foreach (AssociationInfo ai in context.DiscardedAssociations)
+          context.Model.Associations.Remove(ai);
 
         // Columns
         foreach (TypeInfo type in context.Model.Types) {

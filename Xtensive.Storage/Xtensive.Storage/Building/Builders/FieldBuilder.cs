@@ -223,22 +223,32 @@ namespace Xtensive.Storage.Building.Builders
       BuildNestedFields(field, type.Fields);
     }
 
-    private static void BuildNestedFields(FieldInfo target, IEnumerable<FieldInfo> sourceFields)
+    private static void BuildNestedFields(FieldInfo target, IEnumerable<FieldInfo> fields)
     {
-      foreach (FieldInfo srcField in sourceFields) {
+      BuildingContext context = BuildingScope.Context;
 
-        if (srcField.IsStructure)
-          BuildNestedFields(target, srcField.Fields);
+      foreach (FieldInfo field in fields) {
+
+        if (field.IsStructure)
+          BuildNestedFields(target, field.Fields);
         else {
-          FieldInfo clone = srcField.Clone();
+          FieldInfo clone = field.Clone();
           if (target.IsDeclared)
-            clone.Name = BuildingScope.Context.NameProvider.BuildName(target, srcField);
+            clone.Name = BuildingScope.Context.NameProvider.BuildName(target, field);
           if (target.Fields.Contains(clone.Name))
             continue;
           clone.Parent = target;
-          if (srcField.Column!=null)
-            clone.Column = ColumnBuilder.BuildInheritedColumn(clone, srcField.Column);
+          if (field.Column!=null)
+            clone.Column = ColumnBuilder.BuildInheritedColumn(clone, field.Column);
           target.ReflectedType.Fields.Add(clone);
+          if (clone.IsEntity) {
+            FieldInfo refField = field;
+            AssociationInfo origin = context.Model.Associations.Find(context.Model.Types[field.ValueType]).Where(a => a.ReferencingField==refField).FirstOrDefault();
+            if (origin != null) {
+              AssociationBuilder.BuildAssociation(origin, clone);
+              context.DiscardedAssociations.Add(origin);
+            }
+          }
         }
       }
     }

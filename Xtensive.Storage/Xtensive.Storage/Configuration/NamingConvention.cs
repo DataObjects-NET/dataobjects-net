@@ -82,7 +82,7 @@ namespace Xtensive.Storage.Configuration
     {
       // TODO: AK: Move this method to NamingManager
       string result = name;
-      result = result.Replace('+', '_');  
+      result = result.Replace('+', '_');
       if (LetterCasePolicy == LetterCasePolicy.Uppercase)
         //TODO: clarify with CultureInfo
         result = result.ToUpper();
