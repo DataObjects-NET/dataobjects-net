@@ -13,7 +13,7 @@ using Xtensive.Core.Resources;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Reflection;
 
-namespace Xtensive.Core.Aspects.Internals
+namespace Xtensive.Core.Aspects.Helpers
 {
   public static class ContextBoundAspectValidator<TContext>
     where TContext : class, IContext

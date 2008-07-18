@@ -37,6 +37,12 @@ namespace Xtensive.Core.Reflection
     public static readonly string AspectedPrivateFieldSetterPrefix =
       "~Xtensive.Core.Aspects.ImplementPrivateFieldAccessorAspect~Set_";
 
+    /// <summary>
+    /// Aspected protected constructor caller name.
+    /// </summary>
+    public static readonly string AspectedProtectedConstructorCallerName =
+      "~Xtensive.Core.Aspects.ImplementProtectedConstructorAccessor";
+
 
     /// <summary>
     /// Creates get member delegate.

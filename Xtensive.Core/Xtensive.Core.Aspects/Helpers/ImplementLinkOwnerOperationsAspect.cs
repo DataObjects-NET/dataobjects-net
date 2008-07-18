@@ -5,15 +5,12 @@
 // Created:    2007.07.26
 
 using System;
-using System.Collections.Generic;
 using System.Reflection;
 using PostSharp.Extensibility;
 using PostSharp.Laos;
-using Xtensive.Core.Aspects;
-using Xtensive.Core.Collections;
 using Xtensive.Core.Links;
 
-namespace Xtensive.Core.Aspects.Internals
+namespace Xtensive.Core.Aspects.Helpers
 {
   [MulticastAttributeUsage(MulticastTargets.Method)]
   [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]

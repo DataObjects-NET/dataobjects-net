@@ -6,15 +6,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using PostSharp.Extensibility;
 using PostSharp.Laos;
-using Xtensive.Core.Aspects;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Links;
 using Xtensive.Core.Notifications;
 
-namespace Xtensive.Core.Aspects.Internals
+namespace Xtensive.Core.Aspects.Helpers
 {
   [MulticastAttributeUsage(MulticastTargets.Class)]
   [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
@@ -44,31 +40,10 @@ namespace Xtensive.Core.Aspects.Internals
     {
     }
 
-    internal static ImplementChangeNotifierAspect FindOrCreate(Type type, out bool isNew)
+    internal static ImplementChangeNotifierAspect ApplyOnce(Type type)
     {
-      lock (aspects) {
-        ImplementChangeNotifierAspect aspect = Find(type);
-        if (aspect == null) {
-          aspect = new ImplementChangeNotifierAspect();
-          aspects.Add(type, aspect);
-          isNew = true;
-        }
-        else
-          isNew = false;
-        return aspect;
-      }
-    }
-
-    private static ImplementChangeNotifierAspect Find(Type type)
-    {
-      if (type==typeof(object))
-        return null;
-      ImplementChangeNotifierAspect aspect = null;
-      aspects.TryGetValue(type, out aspect);
-      if (aspect!=null)
-        return aspect;
-      else
-        return Find(type.BaseType);
+      ArgumentValidator.EnsureArgumentNotNull(type, "type");
+      return AppliedAspectSet.Add(type, () => new ImplementChangeNotifierAspect());
     }
 
     

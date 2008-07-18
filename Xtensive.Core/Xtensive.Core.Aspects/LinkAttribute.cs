@@ -8,7 +8,7 @@ using System;
 using System.Reflection;
 using PostSharp.Extensibility;
 using PostSharp.Laos;
-using Xtensive.Core.Aspects.Internals;
+using Xtensive.Core.Aspects.Helpers;
 using Xtensive.Core.Links;
 
 namespace Xtensive.Core.Aspects
@@ -40,10 +40,11 @@ namespace Xtensive.Core.Aspects
     {
       FieldInfo field = (FieldInfo)element;
       if ((field.Attributes & (FieldAttributes.Private | FieldAttributes.FamORAssem)) != 0) {
-        ImplementPrivateFieldAccessorAspect ipfaa = ImplementPrivateFieldAccessorAspect.FindOrCreate(field);
-        collection.AddAspect(field.DeclaringType, ipfaa);
+        ImplementPrivateFieldAccessorsAspect ipfaa = ImplementPrivateFieldAccessorsAspect.ApplyOnce(field);
+        if (ipfaa!=null)
+          collection.AddAspect(field.DeclaringType, ipfaa);
       }
-      ImplementLinkOwnerAspect iloa = ImplementLinkOwnerAspect.FindOrCreate(field.DeclaringType);
+      ImplementLinkOwnerAspect iloa = ImplementLinkOwnerAspect.ApplyOnce(field.DeclaringType);
       bool bNewIloa = iloa.Links.Count == 0;
       iloa.Links[field] = this;
       if (bNewIloa) {

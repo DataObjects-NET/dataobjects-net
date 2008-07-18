@@ -10,10 +10,9 @@ using System.Reflection;
 using PostSharp.Extensibility;
 using PostSharp.Laos;
 using Xtensive.Core.Aspects;
-using Xtensive.Core.Collections;
 using Xtensive.Core.Links;
 
-namespace Xtensive.Core.Aspects.Internals
+namespace Xtensive.Core.Aspects.Helpers
 {
   [MulticastAttributeUsage(MulticastTargets.Class)]
   [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
@@ -77,18 +76,10 @@ namespace Xtensive.Core.Aspects.Internals
       }
     }
 
-    internal static ImplementLinkOwnerAspect FindOrCreate(Type type)
+    public static ImplementLinkOwnerAspect ApplyOnce(Type type)
     {
-      lock (aspects) {
-        ImplementLinkOwnerAspect aspect = null;
-        aspects.TryGetValue(type, out aspect);
-        if (aspect == null)
-        {
-          aspect = new ImplementLinkOwnerAspect();
-          aspects.Add(type, aspect);
-        }
-        return aspect;
-      }
+      ArgumentValidator.EnsureArgumentNotNull(type, "type");
+      return AppliedAspectSet.Add(type, () => new ImplementLinkOwnerAspect());
     }
 
     

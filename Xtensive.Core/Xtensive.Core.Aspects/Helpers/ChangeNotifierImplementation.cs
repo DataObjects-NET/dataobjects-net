@@ -7,7 +7,7 @@
 using System;
 using Xtensive.Core.Notifications;
 
-namespace Xtensive.Core.Aspects.Internals
+namespace Xtensive.Core.Aspects.Helpers
 {
   // TODO: AY: Provide atomicity (i.e. allow to pass initial state info from Changing to Changed event)
 

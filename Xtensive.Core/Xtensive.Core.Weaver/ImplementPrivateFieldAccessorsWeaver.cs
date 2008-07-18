@@ -7,24 +7,22 @@
 using System.Collections.Generic;
 using System.Reflection;
 using PostSharp.CodeModel;
-using PostSharp.Extensibility;
 using PostSharp.Laos.Weaver;
 using Xtensive.Core.Reflection;
 
 namespace Xtensive.Core.Weaver
 {
-  internal class ImplementPrivateFieldAccessorWeaver : TypeLevelAspectWeaver
+  internal class ImplementPrivateFieldAccessorsWeaver : TypeLevelAspectWeaver
   {
-    private readonly Dictionary<string, bool> fieldsToProcess;
+    private readonly HashSet<string> targetFields;
 
     public override void Implement()
     {
       TypeDefDeclaration typeDef = (TypeDefDeclaration)TargetType;
 
       foreach (FieldDefDeclaration fieldDef in typeDef.Fields) {
-        if (!fieldsToProcess.ContainsKey(fieldDef.Name))
+        if (!targetFields.Contains(fieldDef.Name))
           continue;
-
         ImplementGetter(fieldDef);
         ImplementSetter(fieldDef);
       }
@@ -101,9 +99,9 @@ namespace Xtensive.Core.Weaver
     
     // Constructors
 
-    internal ImplementPrivateFieldAccessorWeaver(Dictionary<string, bool> fields)
+    internal ImplementPrivateFieldAccessorsWeaver(string[] targetFields)
     {
-      this.fieldsToProcess = fields;
+      this.targetFields = new HashSet<string>(targetFields);
     }
   }
 }

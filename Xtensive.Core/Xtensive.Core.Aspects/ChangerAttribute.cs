@@ -8,7 +8,7 @@ using System;
 using System.Reflection;
 using PostSharp.Extensibility;
 using PostSharp.Laos;
-using Xtensive.Core.Aspects.Internals;
+using Xtensive.Core.Aspects.Helpers;
 
 namespace Xtensive.Core.Aspects
 {
@@ -24,9 +24,8 @@ namespace Xtensive.Core.Aspects
         return; // Will be anyway called for get\set methods with MethodInfo element further
       MethodInfo mi = (MethodInfo)element;
       Type t = mi.DeclaringType;
-      bool isNew;
-      ImplementChangeNotifierAspect icna = ImplementChangeNotifierAspect.FindOrCreate(t, out isNew);
-      if (isNew)
+      ImplementChangeNotifierAspect icna = ImplementChangeNotifierAspect.ApplyOnce(t);
+      if (icna!=null)
         collection.AddAspect(t, icna);
       // AspectDebug.WriteLine("Providing ImplementChangerAspect for {0}.{1}", t.Name, mi.Name);
       collection.AddAspect(mi, new ImplementChangerAspect(this));

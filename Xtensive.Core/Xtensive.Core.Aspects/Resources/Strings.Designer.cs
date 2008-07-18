@@ -70,6 +70,15 @@ namespace Xtensive.Core.Aspects.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Error in type {{{1}}}. {{{0}}} attribute can be applied on constructors only..
+        /// </summary>
+        internal static string AspectExCanBeAppliedToConstructorOnly {
+            get {
+                return ResourceManager.GetString("AspectExCanBeAppliedToConstructorOnly", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Error in type {{{1}}}. Cannot apply {{{0}}} attribute on constructors..
         /// </summary>
         internal static string AspectExCannotBeAppliedToConstructor {
@@ -106,6 +115,24 @@ namespace Xtensive.Core.Aspects.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Error in type {{{1}}}. {{{0}}} attribute requires {{{2}}} to have {{{3}}} field..
+        /// </summary>
+        internal static string AspectExNoField {
+            get {
+                return ResourceManager.GetString("AspectExNoField", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error in type {{{1}}}. {{{0}}} attribute requires {{{2}}} to have {{{3}}} method..
+        /// </summary>
+        internal static string AspectExNoMethod {
+            get {
+                return ResourceManager.GetString("AspectExNoMethod", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Warning in type {{{1}}}. Aspect {{{0}}} is possibly wrongly applied on member {{{2}}}..
         /// </summary>
         internal static string AspectExPossiblyMissapplied {
@@ -129,6 +156,15 @@ namespace Xtensive.Core.Aspects.Resources {
         internal static string AspectExTypeShouldImplementXxx {
             get {
                 return ResourceManager.GetString("AspectExTypeShouldImplementXxx", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Member must be a field..
+        /// </summary>
+        internal static string ExMemberMustBeField {
+            get {
+                return ResourceManager.GetString("ExMemberMustBeField", resourceCulture);
             }
         }
         

@@ -15,7 +15,7 @@ using Xtensive.Core.Links.LinkedSet;
 using FieldInfo=System.Reflection.FieldInfo;
 using MethodInfo=System.Reflection.MethodInfo;
 
-namespace Xtensive.Core.Aspects.Internals
+namespace Xtensive.Core.Aspects.Helpers
 {
   public class LinkOwnerImplementation: ILinkOwner
   {

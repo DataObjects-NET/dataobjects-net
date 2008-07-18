@@ -10,9 +10,8 @@ using System.Reflection;
 using PostSharp.Extensibility;
 using PostSharp.Laos;
 using Xtensive.Core.Notifications;
-using Xtensive.Core.Resources;
 
-namespace Xtensive.Core.Aspects.Internals
+namespace Xtensive.Core.Aspects.Helpers
 {
   [MulticastAttributeUsage(MulticastTargets.Property | MulticastTargets.Method)]
   [AttributeUsage(AttributeTargets.Property | AttributeTargets.Method, AllowMultiple = false, Inherited = false)]

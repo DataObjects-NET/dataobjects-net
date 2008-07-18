@@ -150,4 +150,16 @@
   <data name="LogAttributeInitializationError" xml:space="preserve">
     <value>LogAttribute initialization failed.</value>
   </data>
+  <data name="AspectExCanBeAppliedToConstructorOnly" xml:space="preserve">
+    <value>Error in type {{{1}}}. {{{0}}} attribute can be applied on constructors only.</value>
+  </data>
+  <data name="AspectExNoMethod" xml:space="preserve">
+    <value>Error in type {{{1}}}. {{{0}}} attribute requires {{{2}}} to have {{{3}}} method.</value>
+  </data>
+  <data name="ExMemberMustBeField" xml:space="preserve">
+    <value>Member must be a field.</value>
+  </data>
+  <data name="AspectExNoField" xml:space="preserve">
+    <value>Error in type {{{1}}}. {{{0}}} attribute requires {{{2}}} to have {{{3}}} field.</value>
+  </data>
 </root>
