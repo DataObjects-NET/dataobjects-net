@@ -4,14 +4,13 @@
 // Created by: Nick Svetlov
 // Created:    2007.10.23
 
-using System;
+using System.Linq;
+using System.Reflection;
 using PostSharp.CodeModel;
 using PostSharp.Extensibility;
 using PostSharp.Laos;
 using PostSharp.Laos.Weaver;
-using Xtensive.Core.Aspects;
 using Xtensive.Core.Aspects.Helpers;
-using System.Linq;
 
 namespace Xtensive.Core.Weaver
 {
@@ -29,39 +28,41 @@ namespace Xtensive.Core.Weaver
     /// is not recognized by the current factory.</returns>
     public LaosAspectWeaver CreateAspectWeaver(ILaosAspect aspect)
     {
-      var privateFieldAccessorsAspect        = aspect as ImplementPrivateFieldAccessorsAspect;
-      var autoPropertyReplacementAspect      = aspect as ImplementAutoPropertyReplacementAspect;
-      var constructorEpilogueAspect          = aspect as ImplementConstructorEpilogueAspect;
-      var constructorAspect                  = aspect as ImplementConstructorAspect;
+      var privateFieldAccessorsAspect = aspect as ImplementPrivateFieldAccessorsAspect;
+      var autoPropertyReplacementAspect = aspect as ImplementAutoPropertyReplacementAspect;
+      var constructorEpilogueAspect = aspect as ImplementConstructorEpilogueAspect;
+      var constructorAspect = aspect as ImplementConstructorAspect;
       var protectedConstructorAccessorAspect = aspect as ImplementProtectedConstructorAccessorAspect;
 
       // Trying ImplementPrivateFieldAccessorsWeaver
-      if (privateFieldAccessorsAspect != null)
+      if (privateFieldAccessorsAspect!=null)
         return new ImplementPrivateFieldAccessorsWeaver(privateFieldAccessorsAspect.TargetFields);
 
       // Trying ImplementAutoPropertyReplacementWeaver
-      if (autoPropertyReplacementAspect != null)
+      if (autoPropertyReplacementAspect!=null)
         return new ImplementAutoPropertyReplacementWeaver(
           Project.Module.Cache.GetType(autoPropertyReplacementAspect.HandlerType),
           autoPropertyReplacementAspect.HandlerMethodSuffix);
 
       // Trying ImplementConstructorEpilogueWeaver
-      if (constructorEpilogueAspect != null)
+      if (constructorEpilogueAspect!=null)
         return new ImplementConstructorEpilogueWeaver(
           Project.Module.Cache.GetType(constructorEpilogueAspect.HandlerType), constructorEpilogueAspect.HandlerMethodName);
-      
+
       // Trying ImplementConstructorAspect
-      if (constructorAspect != null)
+      if (constructorAspect!=null)
         return new ImplementConstructorWeaver(
           constructorAspect.ParameterTypes.Select(t => Project.Module.Cache.GetType(t)).ToArray());
 
       // Trying ImplementProtectedConstructorAccessorWeaver
-      if (protectedConstructorAccessorAspect != null)
-        return new ImplementProtectedConstructorAccessorWeaver(
-          Project.Module.Cache.GetType(protectedConstructorAccessorAspect.AccessorType));
-      
+      if (protectedConstructorAccessorAspect!=null) {
+        MethodInfo mi = protectedConstructorAccessorAspect.AccessorType.GetMethod("Invoke");
+        ITypeSignature returnParameter = Project.Module.Cache.GetType(mi.ReturnParameter.GetType());
+        ITypeSignature[] parameters = mi.GetParameters().Select(p => Project.Module.Cache.GetType(p.GetType())).ToArray();
+        return new ImplementProtectedConstructorAccessorWeaver(parameters, returnParameter);
+      }
+
       return null;
     }
   }
-
 }

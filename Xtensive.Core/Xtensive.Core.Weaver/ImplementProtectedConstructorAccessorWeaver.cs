@@ -107,11 +107,5 @@ namespace Xtensive.Core.Weaver
       this.parameterTypeSignatures = parameterTypeSignatures;
       this.returnTypeSignature = returnTypeSignature;
     }
-
-    internal ImplementProtectedConstructorAccessorWeaver(
-      ITypeSignature accessorType)
-    {
-      // TODO: implement
-    }
   }
 }
