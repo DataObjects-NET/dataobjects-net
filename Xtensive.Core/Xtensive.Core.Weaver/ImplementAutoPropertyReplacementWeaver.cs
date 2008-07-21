@@ -55,7 +55,7 @@ namespace Xtensive.Core.Weaver
       if (!isGetter)
         writer.EmitInstruction(OpCodeNumber.Ldarg_1);
 
-      MethodSignature methodSignature =
+      MethodSignature replacementMethodSignature =
         new MethodSignature(CallingConvention.HasThis,
           isGetter
             ? (ITypeSignature) module.Cache.GetGenericParameter(0, GenericParameterKind.Method)
@@ -68,14 +68,21 @@ namespace Xtensive.Core.Weaver
                   GenericParameterTypeSignature.GetInstance(module, 0, GenericParameterKind.Method)
                 }, 1);
 
-      MethodRefDeclaration methodRef = (MethodRefDeclaration) handlerTypeDef.Methods.GetMethod(
+      var replacementMethod = handlerTypeDef.Methods.GetMethod(
         (isGetter ? HandlerGetMethodPrefix : HandlerSetMethodPrefix) + handlerMethodSuffix,
-        methodSignature,
+        replacementMethodSignature,
         BindingOptions.Default).Translate(module);
+      var replacementMethodDef = replacementMethod as MethodDefDeclaration;
+      var replacementMethodRef = replacementMethod as MethodRefDeclaration;
 
-      writer.EmitInstructionMethod(OpCodeNumber.Callvirt,
-        methodRef.FindGenericInstance(new [] {fieldDef.FieldType},
-        BindingOptions.Default));
+      if (replacementMethodRef!=null)
+        writer.EmitInstructionMethod(OpCodeNumber.Callvirt,
+          replacementMethodRef.FindGenericInstance(new [] {fieldDef.FieldType},
+          BindingOptions.Default));
+      else
+        writer.EmitInstructionMethod(OpCodeNumber.Callvirt,
+          replacementMethodDef.FindGenericInstance(new [] {fieldDef.FieldType},
+          BindingOptions.Default));
       writer.EmitInstruction(OpCodeNumber.Ret);
       writer.DetachInstructionSequence();
 

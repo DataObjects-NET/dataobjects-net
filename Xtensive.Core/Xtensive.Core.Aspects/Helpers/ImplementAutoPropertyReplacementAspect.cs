@@ -20,8 +20,8 @@ namespace Xtensive.Core.Aspects.Helpers
   /// <summary>
   /// Replaces auto-property implementation to invocation of property get and set generic handlers.
   /// </summary>
-  [MulticastAttributeUsage(MulticastTargets.Property)]
-  [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
+  [MulticastAttributeUsage(MulticastTargets.Method)]
+  [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
   [Serializable]
   public sealed class ImplementAutoPropertyReplacementAspect : LaosMethodLevelAspect
   {
