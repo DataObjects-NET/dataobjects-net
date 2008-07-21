@@ -4,7 +4,9 @@
 // Created by: Alex Yakunin
 // Created:    2008.05.31
 
+using System;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Resources;
 using Xtensive.Core.Tuples.Internals;
 using Xtensive.Core.Tuples.Transform;
 
@@ -16,6 +18,7 @@ namespace Xtensive.Core.Tuples
   public static class TupleExtensions
   {
     private static PartCopyHandler   partCopyHandler   = new PartCopyHandler();
+    private static MergeHandler      mergeHandler   = new MergeHandler();
     private static MapOneCopyHandler mapOneCopyHandler = new MapOneCopyHandler();
     private static MapCopyHandler    mapCopyHandler    = new MapCopyHandler();
     private static Map3CopyHandler   map3CopyHandler   = new Map3CopyHandler();
@@ -166,6 +169,95 @@ namespace Xtensive.Core.Tuples
       return ReadOnlyTransform.Instance.Apply(transformType, source);
     }
 
+    #region Merge methods
+
+    /// <summary>
+    /// Merges a range of fields from <paramref name="source"/>
+    /// <see cref="ITuple"/> starting at the specified index with the fields from
+    /// <paramref name="target"/> <see cref="ITuple"/> with the specified
+    /// <paramref name="behavior"/>.
+    /// </summary>
+    /// <param name="target">Tuple that receives the data.</param>
+    /// <param name="source">Source tuple to merge with.</param>
+    /// <param name="startIndex">The index in the <paramref name="source"/> tuple at which merging begins.</param>
+    /// <param name="length">The number of elements to process.</param>
+    /// <param name="behavior">The merge behavior that will be used to resolve conflicts when both values 
+    /// from <paramref name="source"/> and <paramref name="target"/> are available.</param>
+    /// <exception cref="ArgumentException">Tuple descriptors mismatch.</exception>
+    public static void MergeWith(this ITuple target, ITuple source, int startIndex, int length, MergeConflictBehavior behavior)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      ArgumentValidator.EnsureArgumentNotNull(target, "target");
+      ArgumentValidator.EnsureArgumentIsInRange(startIndex, 0, source.Count, "startIndex");
+      if (target.Descriptor!=source.Descriptor)
+        throw new ArgumentException(
+          String.Format(Strings.ExInvalidTupleDescriptorExpectedDescriptorIs, target.Descriptor),
+          "source");
+
+      MergeData actionData = new MergeData(source, target, startIndex, length, behavior);
+      source.Descriptor.Execute(mergeHandler, ref actionData, Direction.Positive);
+    }
+
+    /// <summary>
+    /// Merges a range of fields from <paramref name="source"/>
+    /// <see cref="ITuple"/> starting at the specified index with the fields from
+    /// <paramref name="target"/> <see cref="ITuple"/> with the default <see cref="MergeConflictBehavior"/>.
+    /// </summary>
+    /// <param name="target">Tuple that receives the data.</param>
+    /// <param name="source">Source tuple to merge with.</param>
+    /// <param name="startIndex">The index in the <paramref name="source"/> tuple at which merging begins.</param>
+    /// <param name="length">The number of elements to process.</param>
+    /// from <paramref name="source"/> and <paramref name="target"/> are available.</param>
+    public static void MergeWith(this ITuple target, ITuple source, int startIndex, int length)
+    {
+      MergeWith(target, source, startIndex, length, MergeConflictBehavior.Default);
+    }
+
+    /// <summary>
+    /// Merges a range of fields from <paramref name="source"/>
+    /// <see cref="ITuple"/> starting at the specified index with the fields from
+    /// <paramref name="target"/> <see cref="ITuple"/> with the specified
+    /// <paramref name="behavior"/>.
+    /// </summary>
+    /// <param name="target">Tuple that receives the data.</param>
+    /// <param name="source">Source tuple to process.</param>
+    /// <param name="startIndex">The index in the <paramref name="source"/> tuple at which merging begins.</param>
+    /// <param name="behavior">The merge behavior that will be used to resolve conflicts when both values 
+    /// from <paramref name="source"/> and <paramref name="target"/> are available.</param>
+    public static void MergeWith(this ITuple target, ITuple source, int startIndex, MergeConflictBehavior behavior)
+    {
+      MergeWith(target, source, startIndex, target.Count, behavior);
+    }
+
+    /// <summary>
+    /// Merges a range of fields from <paramref name="source"/>
+    /// <see cref="ITuple"/> starting at the specified index with the fields from
+    /// <paramref name="target"/> <see cref="ITuple"/> with the default value of <see cref="MergeConflictBehavior"/>.
+    /// </summary>
+    /// <param name="target">Tuple that receives the data.</param>
+    /// <param name="source">Source tuple to process.</param>
+    /// <param name="startIndex">The index in the <paramref name="source"/> tuple at which merging begins.</param>
+    /// from <paramref name="source"/> and <paramref name="target"/> are available.</param>
+    public static void MergeWith(this ITuple target, ITuple source, int startIndex)
+    {
+      MergeWith(target, source, startIndex, target.Count, MergeConflictBehavior.Default);
+    }
+
+    /// <summary>
+    /// Merges a range of fields from <paramref name="source"/>
+    /// <see cref="ITuple"/> starting at the specified index with the fields from
+    /// <paramref name="target"/> <see cref="ITuple"/> with the default value of <see cref="MergeConflictBehavior"/>.
+    /// </summary>
+    /// <param name="target">Tuple that receives the data.</param>
+    /// <param name="source">Source tuple to process.</param>
+    /// from <paramref name="source"/> and <paramref name="target"/> are available.</param>
+    public static void MergeWith(this ITuple target, ITuple source, MergeConflictBehavior behavior)
+    {
+      MergeWith(target, source, 0, target.Count, behavior);
+    }
+
+    #endregion
+
     #region Private: Part copy: Data & Handler
 
     private struct PartCopyData
@@ -310,6 +402,50 @@ namespace Xtensive.Core.Tuples
           else
             actionData.Target.SetValue(fieldIndex, sourceTuple.GetValue<TFieldType>(mappedTo.Second));
         }
+        return false;
+      }
+    }
+
+    #endregion
+
+    #region Private: Merge: Data & Handler
+
+    private struct MergeData
+    {
+      public ITuple Source;
+      public ITuple Target;
+      public int StartIndex;
+      public int EndIndex;
+      public MergeConflictBehavior Behavior;
+
+      public MergeData(ITuple source, ITuple target, int startIndex, int length, MergeConflictBehavior behavior)
+      {
+        Source = source;
+        Target = target;
+        StartIndex = startIndex;
+        EndIndex   = startIndex + length-1;
+        Behavior = behavior;
+      }
+    }
+
+    private class MergeHandler: ITupleActionHandler<MergeData>
+    {
+      public bool Execute<TFieldType>(ref MergeData actionData, int fieldIndex)
+      {
+        if (fieldIndex < actionData.StartIndex)
+          return false;
+        if (fieldIndex > actionData.EndIndex)
+          return true;
+        if (!actionData.Source.IsAvailable(fieldIndex))
+          return false;
+        if (actionData.Source.IsAvailable(fieldIndex) && actionData.Target.IsAvailable(fieldIndex) 
+          && actionData.Behavior == MergeConflictBehavior.PreferTarget)
+          return false;
+
+        if (actionData.Source.Descriptor[fieldIndex].IsValueType && actionData.Source.IsNull(fieldIndex))
+          actionData.Target.SetValue(fieldIndex, null);
+        else
+          actionData.Target.SetValue(fieldIndex, actionData.Source.GetValue<TFieldType>(fieldIndex));
         return false;
       }
     }
