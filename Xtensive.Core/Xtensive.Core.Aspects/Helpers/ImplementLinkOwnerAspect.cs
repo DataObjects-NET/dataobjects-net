@@ -19,7 +19,6 @@ namespace Xtensive.Core.Aspects.Helpers
   [Serializable]
   internal sealed class ImplementLinkOwnerAspect: CompositionAspect
   {
-    private static Dictionary<Type, ImplementLinkOwnerAspect> aspects = new Dictionary<Type, ImplementLinkOwnerAspect>();
     private static Dictionary<Type, LinkOwnerImplementation> implementations = new Dictionary<Type, LinkOwnerImplementation>();
     [NonSerialized]
     private LinkOwnerImplementation implementation;
@@ -76,10 +75,14 @@ namespace Xtensive.Core.Aspects.Helpers
       }
     }
 
-    public static ImplementLinkOwnerAspect ApplyOnce(Type type)
+    public static ImplementLinkOwnerAspect ApplyOnce(Type type, FieldInfo field, LinkAttribute link)
     {
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
-      return AppliedAspectSet.Add(type, () => new ImplementLinkOwnerAspect());
+      ArgumentValidator.EnsureArgumentNotNull(field, "field");
+      ArgumentValidator.EnsureArgumentNotNull(link, "link");
+
+      return AppliedAspectSet.AddOrCombine(new Pair<Type, FieldInfo>(type, field), new ImplementLinkOwnerAspect(), 
+        (a,na) => a.Links[field] = link);
     }
 
     

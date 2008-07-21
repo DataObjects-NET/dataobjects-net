@@ -44,13 +44,10 @@ namespace Xtensive.Core.Aspects
         if (ipfaa!=null)
           collection.AddAspect(field.DeclaringType, ipfaa);
       }
-      ImplementLinkOwnerAspect iloa = ImplementLinkOwnerAspect.ApplyOnce(field.DeclaringType);
-      bool bNewIloa = iloa.Links.Count == 0;
-      iloa.Links[field] = this;
-      if (bNewIloa) {
-        collection.AddAspect(field.DeclaringType, iloa);
+      var iloa = ImplementLinkOwnerAspect.ApplyOnce(field.DeclaringType, field, this);
+      if (iloa!=null) {
         if (typeof(ILinkOwner).IsAssignableFrom(field.DeclaringType)) {
-          // TODO: Improve code below
+          // TODO: Improve the code below
           MethodInfo operationsMethod = field.DeclaringType.GetInterfaceMap(typeof(ILinkOwner)).TargetMethods[0];
           collection.AddAspect(operationsMethod, new ImplementLinkOwnerOperationsAspect(iloa));
         }
