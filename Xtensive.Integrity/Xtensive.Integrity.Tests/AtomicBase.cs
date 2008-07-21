@@ -156,5 +156,15 @@ namespace Xtensive.Integrity.Tests
     }
 
     #endregion
+
+    public void OnValidate(HashSet<string> regions)
+    {
+      throw new System.NotImplementedException();
+    }
+
+    public bool IsCompatibleWith(ValidationContextBase context)
+    {
+      throw new System.NotImplementedException();
+    }
   }
 }

@@ -42,5 +42,11 @@ namespace Xtensive.Integrity.Validation
         throw new ArgumentOutOfRangeException("mode");
       }
     }
+
+    public static ValidationMode Validate(this IValidationAware target)
+    {
+
+      return ValidationMode.Default;
+    }
   }
 }

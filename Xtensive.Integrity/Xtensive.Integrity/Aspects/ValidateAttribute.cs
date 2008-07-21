@@ -9,7 +9,7 @@ using System.Reflection;
 using PostSharp.Extensibility;
 using PostSharp.Laos;
 using Xtensive.Core;
-using Xtensive.Core.Aspects.Helpers;
+using Xtensive.Core.Aspects.Internals;
 using Xtensive.Core.Helpers;
 using Xtensive.Integrity.Validation;
 

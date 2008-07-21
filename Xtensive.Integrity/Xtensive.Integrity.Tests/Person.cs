@@ -28,7 +28,7 @@ namespace Xtensive.Integrity.Tests
       [Trace(TraceOptions.All)]
       set {
         ArgumentValidator.EnsureArgumentNotNullOrEmpty(value, "value");
-        this.Validate(true);
+        this.Validate();
         this["Name"] = value;
       }
     }
@@ -41,7 +41,7 @@ namespace Xtensive.Integrity.Tests
       [Trace(TraceOptions.All)]
       set {
         ArgumentValidator.EnsureArgumentIsInRange(value, 0, 200, "value");
-        this.Validate(true);
+        this.Validate();
         this["Age"] = value;
       }
     }
