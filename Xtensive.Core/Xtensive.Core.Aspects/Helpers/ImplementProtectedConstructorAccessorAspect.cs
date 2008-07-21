@@ -21,11 +21,14 @@ namespace Xtensive.Core.Aspects.Helpers
   public sealed class ImplementProtectedConstructorAccessorAspect : LaosTypeLevelAspect
   {
     /// <summary>
-    /// Gets the type of the constructor accessor - the delegate type
-    /// with the same arguments as of accessed constructor and with compatible 
-    /// return type (e.g. some base type of aspected type).
+    /// Gets the compatible return type (e.g. some base type of aspected type).
     /// </summary>
-    public Type AccessorType { get; private set; }
+    public Type ReturnType { get; private set; }
+
+    /// <summary>
+    /// Gets the protected constructor argument types.
+    /// </summary>
+    public Type[] ArgumentTypes { get; private set; }
 
     /// <inheritdoc/>
     public override bool CompileTimeValidate(Type type)
@@ -54,9 +57,12 @@ namespace Xtensive.Core.Aspects.Helpers
     {
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
       var tAccessor = typeof (TAccessor);
+      var tAccessorArguments = tAccessor.GetGenericArguments();
+      var tReturnType = tAccessorArguments[tAccessorArguments.Length - 1];
+      Array.Resize(ref tAccessorArguments, tAccessorArguments.Length - 1);
 
-      return AppliedAspectSet.Add(new Pair<Type, Type>(type, tAccessor), 
-        () => new ImplementProtectedConstructorAccessorAspect(tAccessor));
+      return AppliedAspectSet.Add(new Pair<Type, Type>(type, tAccessor),
+        () => new ImplementProtectedConstructorAccessorAspect(tAccessorArguments, tReturnType));
     }
 
 
@@ -65,10 +71,12 @@ namespace Xtensive.Core.Aspects.Helpers
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="accessorType"><see cref="AccessorType"/> property value.</param>
-    public ImplementProtectedConstructorAccessorAspect(Type accessorType)
+    /// <param name="argumentTypes"><see cref="ArgumentTypes"/> property value.</param>
+    /// <param name="returnType"><see cref="ReturnType"/> property value.</param>
+    public ImplementProtectedConstructorAccessorAspect(Type[] argumentTypes, Type returnType)
     {
-      AccessorType = accessorType;
+      ReturnType = returnType;
+      ArgumentTypes = argumentTypes;
     }
   }
 }

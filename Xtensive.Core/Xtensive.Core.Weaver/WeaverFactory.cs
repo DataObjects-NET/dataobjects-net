@@ -56,10 +56,8 @@ namespace Xtensive.Core.Weaver
 
       // Trying ImplementProtectedConstructorAccessorWeaver
       if (protectedConstructorAccessorAspect!=null) {
-        MethodInfo mi = protectedConstructorAccessorAspect.AccessorType.GetMethod("Invoke");
-        ITypeSignature returnParameter = Project.Module.Cache.GetType(mi.ReturnParameter.GetType());
-        ITypeSignature[] parameters = mi.GetParameters().Select(p => Project.Module.Cache.GetType(p.GetType())).ToArray();
-        return new ImplementProtectedConstructorAccessorWeaver(parameters, returnParameter);
+        ITypeSignature returnParameter = Project.Module.Cache.GetType(protectedConstructorAccessorAspect.ReturnType);
+        return new ImplementProtectedConstructorAccessorWeaver(protectedConstructorAccessorAspect.ArgumentTypes, returnParameter);
       }
 
       return null;

@@ -14,8 +14,8 @@ namespace Xtensive.Core.Aspects.Tests
   [TestFixture]
   public class ImplementProtectedConstructorAccessorTest
   {
-//    [ImplementProtectedConstructorAccessorAspect(typeof(Func<int, ProtectedCtorClassA>))]
-    public class ProtectedCtorClassB: ProtectedCtorClassA
+    [ImplementProtectedConstructorAccessorAspect(new [] { typeof(int) }, typeof(ProtectedCtorClassA))]
+    public class ProtectedCtorClassB : ProtectedCtorClassA
     {
       protected ProtectedCtorClassB(int i)
         : base(i)
@@ -23,13 +23,14 @@ namespace Xtensive.Core.Aspects.Tests
       }
     }
 
-//    [ImplementProtectedConstructorAccessorAspect(typeof(Func<int, ProtectedCtorClassA>))]
+    [ImplementProtectedConstructorAccessorAspect(new [] { typeof(int) }, typeof(ProtectedCtorClassA))]
     public class ProtectedCtorClassA
     {
       public int I { get; set; }
 
       protected ProtectedCtorClassA(int i)
       {
+        I = i;
       }
     }
 
@@ -41,7 +42,7 @@ namespace Xtensive.Core.Aspects.Tests
       var createB = DelegateHelper.CreateProtectedConstructorDelegate<Func<int, ProtectedCtorClassA>>(typeof (ProtectedCtorClassB));
       Assert.IsNotNull(createB);
 
-      int i = 1;
+      int i = 1; 
       ProtectedCtorClassA a = createA(i);
       Assert.IsNotNull(a);
       Assert.AreSame(typeof(ProtectedCtorClassA), a.GetType());

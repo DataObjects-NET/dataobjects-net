@@ -6,6 +6,7 @@
 
 using System;
 using System.Reflection;
+using System.Text;
 using PostSharp.CodeModel;
 using PostSharp.Laos.Weaver;
 using PostSharp.ModuleWriter;
@@ -18,7 +19,7 @@ namespace Xtensive.Core.Weaver
     private const string CtorName = ".ctor";
     private const string ParameterNamePrefix = "arg";
 
-    private readonly ITypeSignature[] parameterTypeSignatures;
+    private readonly Type[] parameterTypes;
     private readonly ITypeSignature returnTypeSignature;
 
     public override void Implement()
@@ -31,8 +32,8 @@ namespace Xtensive.Core.Weaver
 
     private void ImplementDelegateMethodBody(TypeDefDeclaration typeDef, ModuleDeclaration module)
     {
-      IMethod tupleConstructor = FindConstructor(typeDef, module);
-      if (tupleConstructor == null)
+      IMethod constructor = FindConstructor(typeDef, module);
+      if (constructor == null)
         return;
 
       var callerDef = new MethodDefDeclaration();
@@ -46,9 +47,9 @@ namespace Xtensive.Core.Weaver
       callerDef.ReturnParameter.Attributes = ParameterAttributes.Retval;
       callerDef.CustomAttributes.Add(Task.WeavingHelper.GetDebuggerNonUserCodeAttribute());
 
-      for (int i = 0; i < parameterTypeSignatures.Length; i++) {
+      for (int i = 0; i < parameterTypes.Length; i++) {
         ParameterDeclaration parameter =
-          new ParameterDeclaration(i, ParameterNamePrefix+i, parameterTypeSignatures[i]);
+          new ParameterDeclaration(i, ParameterNamePrefix+i, module.Cache.GetType(parameterTypes[i]));
         callerDef.Parameters.Add(parameter);
       }
 
@@ -61,10 +62,10 @@ namespace Xtensive.Core.Weaver
       InstructionWriter writer = Task.InstructionWriter;
       writer.AttachInstructionSequence(sequence);
 
-      for (short i = 0; i < parameterTypeSignatures.Length; i++)
+      for (short i = 0; i < parameterTypes.Length; i++)
         writer.EmitInstructionParameter(OpCodeNumber.Ldarg, callerDef.Parameters[i]);
 
-      writer.EmitInstructionMethod(OpCodeNumber.Newobj, tupleConstructor);
+      writer.EmitInstructionMethod(OpCodeNumber.Newobj, constructor);
       writer.EmitInstruction(OpCodeNumber.Ret);
       writer.DetachInstructionSequence();
     }
@@ -73,18 +74,28 @@ namespace Xtensive.Core.Weaver
     {
       IMethod foundConstructor = null;
       foreach (IMethod constructor in typeDef.Methods.GetByName(CtorName)) {
-        if (constructor.ParameterCount == parameterTypeSignatures.Length) {
+        if (constructor.ParameterCount == parameterTypes.Length) {
           int i = 0;
-          for (; i < parameterTypeSignatures.Length; i++)
-            if (constructor.GetParameterType(i).GetType() != parameterTypeSignatures[i].GetType())
+          for (; i < parameterTypes.Length; i++) {
+            var parameterName = GetTypeName(constructor.GetParameterType(i));
+            var targetParameterName = parameterTypes[i].FullName;
+            if (parameterName != targetParameterName)
               break;
-          if (i == parameterTypeSignatures.Length) {
+          }
+          if (i == parameterTypes.Length) {
             foundConstructor = (IMethod) constructor.Translate(module);
             break;
           }
         }
       }
       return foundConstructor;
+    }
+
+    private static string GetTypeName(ITypeSignature parareterTypeSignature)
+    {
+      var nameBuilder = new StringBuilder();
+      parareterTypeSignature.WriteReflectionTypeName(nameBuilder, ReflectionNameOptions.None);
+      return nameBuilder.ToString();
     }
 
     public override void EmitCompileTimeInitialization(InstructionEmitter writer)
@@ -101,10 +112,10 @@ namespace Xtensive.Core.Weaver
     // Constructors
 
     internal ImplementProtectedConstructorAccessorWeaver(
-      ITypeSignature[] parameterTypeSignatures, 
+      Type[] parameterTypes, 
       ITypeSignature returnTypeSignature)
     {
-      this.parameterTypeSignatures = parameterTypeSignatures;
+      this.parameterTypes = parameterTypes;
       this.returnTypeSignature = returnTypeSignature;
     }
   }

@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
@@ -274,10 +275,9 @@ namespace Xtensive.Core.Reflection
         bindingFlags |= BindingFlags.Instance;
       string[] genericArgumentNames = new string[genericArgumentTypes.Length]; // Actual names doesn't matter
       ParameterInfo[] parameterInfos = tDelegate.GetMethod("Invoke").GetParameters();
-      Type[] parameterTypes = new Type[parameterInfos.Length];
-      int i = 0;
-      foreach (ParameterInfo parameterInfo in parameterInfos)
-        parameterTypes[i++] = parameterInfo.ParameterType;
+
+      Type[] parameterTypes = parameterInfos.Select(parameterInfo => parameterInfo.ParameterType).ToArray();
+      
       MethodInfo methodInfo = MethodHelper.GetMethod(type, methodName, bindingFlags, genericArgumentNames, parameterTypes);
       if (methodInfo==null)
         return null;
@@ -285,8 +285,8 @@ namespace Xtensive.Core.Reflection
         methodInfo = methodInfo.MakeGenericMethod(genericArgumentTypes);
       if (callTarget==null)
         return (TDelegate)(object)Delegate.CreateDelegate(tDelegate, methodInfo, true);
-      else
-        return (TDelegate)(object)Delegate.CreateDelegate(tDelegate, callTarget, methodInfo, true);
+
+      return (TDelegate)(object)Delegate.CreateDelegate(tDelegate, callTarget, methodInfo, true);
     }
 
     /// <summary>
