@@ -256,6 +256,19 @@ namespace Xtensive.Core.Tuples
       MergeWith(target, source, 0, target.Count, behavior);
     }
 
+    /// <summary>
+    /// Merges a range of fields from <paramref name="source"/>
+    /// <see cref="ITuple"/> starting at the specified index with the fields from
+    /// <paramref name="target"/> <see cref="ITuple"/> with the default value of <see cref="MergeConflictBehavior"/>.
+    /// </summary>
+    /// <param name="target">Tuple that receives the data.</param>
+    /// <param name="source">Source tuple to process.</param>
+    /// from <paramref name="source"/> and <paramref name="target"/> are available.</param>
+    public static void MergeWith(this ITuple target, ITuple source)
+    {
+      MergeWith(target, source, 0, target.Count, MergeConflictBehavior.Default);
+    }
+
     #endregion
 
     #region Private: Part copy: Data & Handler
