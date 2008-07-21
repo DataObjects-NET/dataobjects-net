@@ -24,6 +24,7 @@ namespace Xtensive.Core.Reflection
     private static readonly Dictionary<Type, OpCode> opCodeConv = new Dictionary<Type, OpCode>();
     private static readonly Dictionary<Type, Type> typeOnStack = new Dictionary<Type, Type>();
     private static readonly string primitiveCastMethodName = "PrimitiveCast";
+    private static readonly string ctorMethodName = "Ctor";
 
     /// <summary>
     /// Aspected private field getter prefix.
@@ -372,43 +373,26 @@ namespace Xtensive.Core.Reflection
     }
 
     /// <summary>
-    /// Creates constructor invocation delegate.
+    /// Creates protected constructor invocation delegate.
     /// </summary>
-    /// <typeparam name="TObject">Type to create.</typeparam>
-    /// <returns>Constructor delegate.</returns>
-    public static Func<TObject> CreateClassConstructorDelegate<TObject>()
-      where TObject : new()
+    /// <param name="type">The type to create the protected constructor invocation delegate for.</param>
+    /// <returns>Protected constructor invocation delegate.</returns>
+    public static TDelegate CreateProtectedConstructorDelegate<TDelegate>(Type type)
+      where TDelegate : class
     {
-      return (Func<TObject>)CreateClassConstructorDelegate(typeof(TObject), typeof(Func<TObject>));
-    }
-
-    public static Delegate CreateClassConstructorDelegate(Type type)
-    {
-      return CreateClassConstructorDelegate(type, typeof (Func<>).MakeGenericType(type));
-    }
-
-    public static Delegate CreateClassConstructorDelegate(Type type, Type delegateType)
-    {
-      string methodKey = GetMethodCallDelegateKey(type.FullName + " .ctor");
-
+      Type delegateType = typeof (TDelegate);
+      string methodKey  = GetMethodCallDelegateKey(ctorMethodName, type, delegateType);
       Delegate result = GetCachedDelegate(methodKey);
       if (result == null)
         lock (cachedDelegates) {
           result = GetCachedDelegate(methodKey);
           if (result != null)
-            return result;
+            return (TDelegate) (object) result;
           methodKey = String.Intern(methodKey);
-
-          DynamicMethod dm = new DynamicMethod("Create " + type.FullName,
-                                               type, new Type[] { });
-          ILGenerator il = dm.GetILGenerator();
-          il.Emit(OpCodes.Newobj, type.GetConstructor(new Type[]{}));
-          il.Emit(OpCodes.Ret);
-
-          result = dm.CreateDelegate(delegateType);
+          result = (Delegate) (object) CreateDelegate<TDelegate>(null, type, AspectedProtectedConstructorCallerName, null);
           cachedDelegates[methodKey] = result;
         }
-      return result;
+      return (TDelegate) (object) result;
     }
 
     #region Private members

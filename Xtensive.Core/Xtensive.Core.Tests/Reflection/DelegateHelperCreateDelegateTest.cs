@@ -80,7 +80,7 @@ namespace Xtensive.Core.Tests.Reflection
     private void ConstructType<T>()
       where T: new ()
     {
-      Func<T> constructorDelegate = DelegateHelper.CreateClassConstructorDelegate<T>();
+      Func<T> constructorDelegate = DelegateHelper.CreateProtectedConstructorDelegate<T>();
       Assert.IsNotNull(constructorDelegate);
       T t = constructorDelegate();
       Assert.AreNotEqual(t, default(T));
