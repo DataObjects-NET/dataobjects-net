@@ -4,6 +4,8 @@
 // Created by: Alex Yakunin
 // Created:    2008.06.30
 
+using System;
+using System.Collections.Generic;
 using Xtensive.Integrity.Validation.Interfaces;
 
 namespace Xtensive.Integrity.Validation
@@ -17,15 +19,28 @@ namespace Xtensive.Integrity.Validation
     /// Validates the specified <paramref name="target"/>, or enqueues it for delayed validation.
     /// </summary>
     /// <param name="target">The object to validate.</param>
-    /// <param name="useContext">If set to <see langword="true"/>, 
-    /// <see cref="ValidationContextBase.Validate"/> methods will be used instead of
-    /// <see cref="IValidationAware.Validate"/>.</param>
-    public static void Validate(this IValidationAware target, bool useContext)
+    /// <param name="regions">The set of regions to validate;
+    /// <see langword="null" /> means all the regions.</param>
+    /// <param name="mode">Validation mode to use.</param>
+    /// <returns>Actually used validation mode.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Invalid <paramref name="mode"/> value.</exception>
+    public static ValidationMode Validate(this IValidationAware target, HashSet<string> regions, ValidationMode mode)
     {
-      if (useContext)
+      switch (mode) {
+      case ValidationMode.Immediate:
+        target.OnValidate(regions);
+        return mode;
+      case ValidationMode.Delayed:
         ValidationScope.CurrentContext.Validate(target);
-      else
-        target.Validate();
+        return mode;
+      case ValidationMode.ImmediateOrDelayed:
+        if (ValidationScope.CurrentContext.IsConsistent)
+          return target.Validate(regions, ValidationMode.Immediate);
+        else
+          return target.Validate(regions, ValidationMode.Delayed);
+      default:
+        throw new ArgumentOutOfRangeException("mode");
+      }
     }
   }
 }

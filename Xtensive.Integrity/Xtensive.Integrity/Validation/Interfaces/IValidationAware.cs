@@ -4,7 +4,9 @@
 // Created by: Alex Yakunin
 // Created:    2008.01.05
 
+using System.Collections.Generic;
 using Xtensive.Core;
+using Xtensive.Core.Collections;
 
 namespace Xtensive.Integrity.Validation.Interfaces
 {
@@ -12,9 +14,16 @@ namespace Xtensive.Integrity.Validation.Interfaces
   /// Implemented by objects supporting validation framework.
   /// </summary>
   public interface IValidationAware : 
-    IValidatable,
     IContextBound<ValidationContextBase>
   {
+    /// <summary>
+    /// Validates the object state.
+    /// </summary>
+    /// <remarks>
+    /// Throws an exception on validation failure.
+    /// </remarks>
+    void OnValidate(HashSet<string> regions);
+
     /// <summary>
     /// Determines whether the specified context is compatible 
     /// with the current <see cref="IValidationAware"/> object.
@@ -25,6 +34,6 @@ namespace Xtensive.Integrity.Validation.Interfaces
     /// with the current <see cref="IValidationAware"/> object; 
     /// otherwise, <see langword="false"/>.
     /// </returns>
-    bool IsCompatible(ValidationContextBase context);
+    bool IsCompatibleWith(ValidationContextBase context);
   }
 }

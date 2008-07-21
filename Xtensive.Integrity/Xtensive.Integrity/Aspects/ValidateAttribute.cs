@@ -5,17 +5,12 @@
 // Created:    2007.07.16
 
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Reflection;
-using System.Runtime.Serialization;
 using PostSharp.Extensibility;
 using PostSharp.Laos;
 using Xtensive.Core;
-using Xtensive.Core.Aspects.Internals;
+using Xtensive.Core.Aspects.Helpers;
 using Xtensive.Core.Helpers;
-using Xtensive.Integrity.Aspects.Internals;
-using Xtensive.Integrity.Resources;
 using Xtensive.Integrity.Validation;
 
 namespace Xtensive.Integrity.Aspects

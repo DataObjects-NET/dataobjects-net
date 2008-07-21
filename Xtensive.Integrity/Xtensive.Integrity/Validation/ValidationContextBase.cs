@@ -88,7 +88,7 @@ namespace Xtensive.Integrity.Validation
     /// <param name="target">The <see cref="IValidationAware"/> object to ensure the validity of.</param>
     public virtual void Validate(IValidationAware target)
     {
-      if (!target.IsCompatible(this))
+      if (!target.IsCompatibleWith(this))
         throw new ArgumentException(Strings.ExObjectAndContextAreIncompatible, "target");
       if (IsConsistent)
         target.Validate();
