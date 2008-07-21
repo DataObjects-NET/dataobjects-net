@@ -90,7 +90,7 @@ namespace Xtensive.Storage
         if (Data.PersistenceState == value)
           return;
         Data.PersistenceState = value;
-        Session.DirtyItems.Register(Data);
+        Session.DirtyData.Register(Data);
       }
     }
 
@@ -136,7 +136,7 @@ namespace Xtensive.Storage
     protected internal override sealed void OnCreating()
     {
       Session.IdentityMap.Add(Data);
-      Session.DirtyItems.Register(Data);
+      Session.DirtyData.Register(Data);
       if (TypeId == 0)
         TypeId = Type.TypeId;
     }
@@ -183,7 +183,7 @@ namespace Xtensive.Storage
 
     private void EnsureIsFetched(FieldInfo field)
     {
-      if (Session.DirtyItems.GetItems(PersistenceState.New).Contains(Data))
+      if (Session.DirtyData.GetItems(PersistenceState.New).Contains(Data))
         return;
       if (Data.Tuple.IsAvailable(field.MappingInfo.Offset))
         return;

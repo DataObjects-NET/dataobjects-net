@@ -30,7 +30,7 @@ namespace Xtensive.Storage
   {
     private readonly Set<object> consumers = new Set<object>();
     private WeakCache<Key, EntityData> identityMap;
-    private readonly FlagRegistry<PersistenceState, EntityData> dirtyItems = new FlagRegistry<PersistenceState, EntityData>(data => data.PersistenceState);
+    private readonly FlagRegistry<PersistenceState, EntityData> dirtyData = new FlagRegistry<PersistenceState, EntityData>(data => data.PersistenceState);
 
     /// <summary>
     /// Gets the <see cref="Domain"/> to which this instance belongs.
@@ -56,19 +56,19 @@ namespace Xtensive.Storage
     /// </remarks>
     public void Persist()
     {
-      if (DirtyItems.GetCount()==0)
+      if (DirtyData.GetCount()==0)
         return;
 
-      Handler.Persist(DirtyItems);
+      Handler.Persist(DirtyData);
 
-      HashSet<EntityData> @new = DirtyItems.GetItems(PersistenceState.New);
-      HashSet<EntityData> modified = DirtyItems.GetItems(PersistenceState.Modified);
-      HashSet<EntityData> removed = DirtyItems.GetItems(PersistenceState.Removed);
+      HashSet<EntityData> @new = DirtyData.GetItems(PersistenceState.New);
+      HashSet<EntityData> modified = DirtyData.GetItems(PersistenceState.Modified);
+      HashSet<EntityData> removed = DirtyData.GetItems(PersistenceState.Removed);
 
       foreach (EntityData data in @new.Union(modified).Except(removed))
         data.PersistenceState = PersistenceState.Persisted;
 
-      DirtyItems.Clear();
+      DirtyData.Clear();
     }
 
     public RecordSet Select(IndexInfo index)
@@ -118,10 +118,10 @@ namespace Xtensive.Storage
     }
 
     [DebuggerHidden]
-    internal FlagRegistry<PersistenceState, EntityData> DirtyItems
+    internal FlagRegistry<PersistenceState, EntityData> DirtyData
     {
       [SuppressActivation(typeof (Session))]
-      get { return dirtyItems; }
+      get { return dirtyData; }
     }
 
     #endregion
