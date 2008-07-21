@@ -25,7 +25,7 @@ namespace Xtensive.Storage.Rse.Providers
 
     /// <summary>
     /// Gets or sets the source providers 
-    /// "consumed" by this provider to produce the <see cref="Result"/>.
+    /// "consumed" by this provider to produce results of current provider.
     /// </summary>
     public Provider[] Sources { get; private set; }
 
@@ -36,15 +36,6 @@ namespace Xtensive.Storage.Rse.Providers
       get {
         EnsureHeaderIsBuilt();
         return header;
-      }
-    }
-
-    /// <summary>
-    /// Creates the <see cref="RecordSet"/> wrapping this provider.
-    /// </summary>
-    public RecordSet Result {
-      get {
-        return new RecordSet(this);
       }
     }
 

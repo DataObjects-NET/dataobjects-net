@@ -11,23 +11,15 @@ using Xtensive.Core.Comparison;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Indexing;
-using Xtensive.Storage.Rse;
 using System.Linq;
 
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
   public sealed class IndexingProvider : UnaryExecutableProvider
   {
-    private IOrderedIndex<Tuple, Tuple> index;
     private MapTransform transform;
 
-    public override T GetService<T>()
-    {
-      EnsureIsCalculated();
-      return index as T;
-    }
-
-    protected override IEnumerable<Tuple> Calculate()
+    protected override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
       var configuration = new IndexConfiguration<Tuple, Tuple>();
       var rules = new ComparisonRules[Header.OrderInfo.OrderedBy.Count];
@@ -41,13 +33,14 @@ namespace Xtensive.Storage.Rse.Providers.Executable
         columnIndexes[i] = sortItem.Key;
       }
 
-      configuration.KeyComparer = AdvancedComparer<Tuple>.Default.ApplyRules(new ComparisonRules(ComparisonRule.Positive, rules, ComparisonRules.None));
       TupleDescriptor keyDescriptor = TupleDescriptor.Create(columnIndexes.Select(column => Header.TupleDescriptor[column]));
       transform = new MapTransform(true, keyDescriptor, columnIndexes);
+
+      configuration.KeyComparer = AdvancedComparer<Tuple>.Default.ApplyRules(new ComparisonRules(ComparisonRule.Positive, rules, ComparisonRules.None));
       configuration.KeyExtractor = ExtractKey;
 
-      index = new Index<Tuple, Tuple>(configuration);
-      foreach (Tuple tuple in source)
+      var index = new Index<Tuple, Tuple>(configuration);
+      foreach (Tuple tuple in Source.Enumerate(context))
         index.Add(tuple);
 
       return index;
@@ -58,10 +51,18 @@ namespace Xtensive.Storage.Rse.Providers.Executable
       return transform.Apply(TupleTransformType.Auto, input); ;
     }
 
+    /// <inheritdoc/>
+    public override T GetService<T>()
+    {
+      var context = EnumerationScope.CurrentContext;
+      var result = Enumerate(context);
+      return result as T;
+    }
+
 
     // Constructors
 
-    public IndexingProvider(CompilableProvider origin, ExecutableProvider source)
+    public IndexingProvider(Provider origin, ExecutableProvider source)
       : base(origin, source)
     {
     }

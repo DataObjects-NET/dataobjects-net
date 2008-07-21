@@ -5,16 +5,15 @@
 // Created:    2008.07.08
 
 using Xtensive.Storage.Rse.Providers;
-using Xtensive.Storage.Rse.Providers;
 
 namespace Xtensive.Storage.Rse.Compilation
 {
   internal class AliasProviderCompiler : TypeCompiler<AliasProvider>
   {
-    protected override Provider Compile(AliasProvider provider)
+    protected override ExecutableProvider Compile(AliasProvider provider)
     {
       return new Providers.Executable.AliasProvider(
-        provider.Header,
+        provider, 
         Compiler.Compile(provider.Source, true));
     }
 

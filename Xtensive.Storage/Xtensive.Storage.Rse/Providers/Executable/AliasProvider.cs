@@ -9,7 +9,7 @@ using Xtensive.Core.Tuples;
 
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
-  internal sealed class AliasProvider : TransparentProvider
+  internal sealed class AliasProvider : UnaryExecutableProvider
   {
     protected override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {

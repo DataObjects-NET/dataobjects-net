@@ -27,7 +27,7 @@ namespace Xtensive.Storage.Rse.Compilation
     #region ICompiler methods
 
     /// <inheritdoc/>
-    public Provider Compile(Provider provider)
+    public ExecutableProvider Compile(Provider provider)
     {
       if (provider==null)
         return null;
@@ -41,7 +41,7 @@ namespace Xtensive.Storage.Rse.Compilation
     public abstract bool IsCompatible(Provider provider);
 
     /// <inheritdoc/>
-    public abstract Provider ToCompatible(Provider provider);
+    public abstract ExecutableProvider ToCompatible(Provider provider);
 
     #endregion
 

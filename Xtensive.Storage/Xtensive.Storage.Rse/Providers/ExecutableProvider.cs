@@ -23,7 +23,7 @@ namespace Xtensive.Storage.Rse.Providers
     ICachingProvider
   {
     private const string CachedResultKey = "Prepared";
-    private HashSet<Type> supportedServices = new HashSet<Type>();
+    private readonly HashSet<Type> supportedServices = new HashSet<Type>();
 
     /// <summary>
     /// Gets the provider this provider is compiled from.
@@ -50,8 +50,7 @@ namespace Xtensive.Storage.Rse.Providers
         cp.EnsureResultIsCached(context);
         return GetCachedResult(context);
       }
-      else
-        return OnEnumerate(context);
+      return OnEnumerate(context);
     }
 
     #region OnXxxEnumerate methods (to override)
@@ -75,19 +74,6 @@ namespace Xtensive.Storage.Rse.Providers
     /// </summary>
     /// <param name="context">The enumeration context.</param>
     protected abstract IEnumerable<Tuple> OnEnumerate(EnumerationContext context);
-
-    /// <summary>
-    /// Called when this provider's enumerator is disposed.
-    /// </summary>
-    /// <param name="context">The enumeration context.</param>
-    protected internal virtual void OnAfterEnumerate(EnumerationContext context)
-    {
-      foreach (Provider source in Sources) {
-        var ep = source as ExecutableProvider;
-        if (ep!=null)
-          ep.OnAfterEnumerate(context);
-      }
-    }
 
     #endregion
 
@@ -117,15 +103,20 @@ namespace Xtensive.Storage.Rse.Providers
       var serviceType = typeof (T);
       var objectType = typeof (object);
       while (serviceType!=objectType) {
-        supportedServices.Add(serviceType);
+        if (!supportedServices.Contains(serviceType))
+          supportedServices.Add(serviceType);
         serviceType = serviceType.BaseType;
       }
-      // TODO: Add all supported interfaces as well
+      var interfaces = serviceType.GetInterfaces();
+      foreach (var interfaceType in interfaces) {
+        if (!supportedServices.Contains(interfaceType))
+          supportedServices.Add(interfaceType);
+      }
     }
 
     #endregion
 
-    #region ICachingProvider methods
+    #region ICachingProvider & cache related methods methods
 
     /// <inheritdoc/>
     bool ICachingProvider.IsResultCached(EnumerationContext context) 
@@ -148,6 +139,21 @@ namespace Xtensive.Storage.Rse.Providers
         SetCachedResult(context, OnEnumerate(context));
     }
 
+    protected T GetCachedValue<T>(object key, EnumerationContext context)
+      where T : class
+    {
+      if (context.IsActive)
+        return context.GetValue<T>(key);
+      return null;
+    }
+
+    protected void SetCachedValue<T>(object key, T value, EnumerationContext context)
+      where T : class
+    {
+      if (context.IsActive)
+        context.SetValue(key, value);
+    }
+
     #endregion
 
     #region IEnumerable<...> methods
@@ -155,14 +161,9 @@ namespace Xtensive.Storage.Rse.Providers
     /// <inheritdoc/>
     public sealed override IEnumerator<Tuple> GetEnumerator()
     {
-      var context = new EnumerationContext(this);
-      try {
-        return CreateDisposingEnumerator(Enumerate(context), context);
-      }
-      catch {
-        context.Dispose();
-        throw;
-      }
+      var context = EnumerationScope.CurrentContext;
+      OnBeforeEnumerate(context);
+      return Enumerate(context).GetEnumerator();
     }
 
     #endregion
@@ -177,13 +178,6 @@ namespace Xtensive.Storage.Rse.Providers
     private void SetCachedResult(EnumerationContext context, IEnumerable<Tuple> value) 
     {
       context.SetValue(new Pair<object, object>(this, CachedResultKey), value);
-    }
-
-    private IEnumerator<Tuple> CreateDisposingEnumerator(IEnumerable<Tuple> sourceEnumerable, IDisposable toDispose)
-    {
-      foreach (var item in sourceEnumerable)
-        yield return item;
-      toDispose.DisposeSafely();
     }
 
     #endregion

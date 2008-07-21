@@ -11,10 +11,10 @@ namespace Xtensive.Storage.Rse.Compilation
 {
   internal class JoinProviderCompiler : TypeCompiler<JoinProvider>
   {
-    protected override Provider Compile(JoinProvider provider)
+    protected override ExecutableProvider Compile(JoinProvider provider)
     {
       return new Providers.Executable.JoinProvider(
-        provider.Header, 
+        provider, 
         Compiler.Compile(provider.Left, true), 
         Compiler.Compile(provider.Right, true), 
         provider.LeftJoin, 

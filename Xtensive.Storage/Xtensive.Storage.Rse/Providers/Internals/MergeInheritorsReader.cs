@@ -12,6 +12,7 @@ using Xtensive.Core.Collections;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Indexing;
+using Xtensive.Core.Helpers;
 
 namespace Xtensive.Storage.Rse.Providers.Internals
 {

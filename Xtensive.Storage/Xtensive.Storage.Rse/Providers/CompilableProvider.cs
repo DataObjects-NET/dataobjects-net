@@ -31,6 +31,14 @@ namespace Xtensive.Storage.Rse.Providers
       }
     }
 
+    /// <summary>
+    /// Creates the <see cref="RecordSet"/> wrapping this provider.
+    /// </summary>
+    public RecordSet Result
+    {
+      get { return new RecordSet(this); }
+    }
+
     /// <inheritdoc/>
     public override T GetService<T>()
     {

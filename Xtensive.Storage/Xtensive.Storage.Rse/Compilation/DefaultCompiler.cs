@@ -22,9 +22,9 @@ namespace Xtensive.Storage.Rse.Compilation
     }
 
     /// <inheritdoc/>
-    public override Provider ToCompatible(Provider provider)
+    public override ExecutableProvider ToCompatible(Provider provider)
     {
-      return new TransparentProvider(provider);
+      throw new NotSupportedException();
     }
   }
 }

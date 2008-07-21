@@ -17,7 +17,7 @@ using Xtensive.Core.Helpers;
 
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
-  public sealed class RangeProvider : TransparentProvider,
+  public sealed class RangeProvider : UnaryExecutableProvider,
     IOrderedEnumerable<Tuple,Tuple>,
     IRangeMeasurable<Tuple,Tuple>
   {

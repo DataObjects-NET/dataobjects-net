@@ -5,16 +5,15 @@
 // Created:    2008.07.09
 
 using Xtensive.Storage.Rse.Providers;
-using Xtensive.Storage.Rse.Providers;
 
 namespace Xtensive.Storage.Rse.Compilation
 {
   internal class RawProviderCompiler : TypeCompiler<RawProvider>
   {
-    protected override Provider Compile(RawProvider provider)
+    protected override ExecutableProvider Compile(RawProvider provider)
     {
       return new Providers.Executable.RawProvider(
-        provider.Header, 
+        provider, 
         provider.Tuples);
     }
 

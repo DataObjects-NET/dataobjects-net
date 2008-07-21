@@ -6,16 +6,14 @@
 
 using System.Collections.Generic;
 using Xtensive.Core.Tuples;
-using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
   public abstract class ProviderProxy : ExecutableProvider
   {
-    private Provider realProvider;
-    public abstract Provider GetRealProvider();
+    private ExecutableProvider realProvider;
 
-    public Provider Real
+    public ExecutableProvider Real
     {
       get
       {
@@ -23,6 +21,8 @@ namespace Xtensive.Storage.Rse.Providers.Executable
         return realProvider;
       }
     }
+
+    public abstract ExecutableProvider GetRealProvider();
 
     private void EnsureRealProviderIsReady()
     {
@@ -38,17 +38,16 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     }
 
     /// <inheritdoc/>
-    public override IEnumerator<Tuple> GetEnumerator()
+    protected override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
-      EnsureRealProviderIsReady();
-      return Real.GetEnumerator();
+      return Real.Enumerate(context);
     }
 
-
+   
     // Constructors
 
-    protected ProviderProxy(RecordHeader header, params Provider[] sourceProviders)
-      : base(header, sourceProviders)
+    protected ProviderProxy(Provider origin, params ExecutableProvider[] sourceProviders)
+      : base(origin, sourceProviders)
     {
     }
 

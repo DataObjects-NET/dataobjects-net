@@ -34,7 +34,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     /// <param name="origin">The <see cref="ExecutableProvider.Origin"/> property value.</param>
     /// <param name="left">The <see cref="Left"/> property value.</param>
     /// <param name="right">The <see cref="Right"/> property value.</param>
-    protected BinaryExecutableProvider(CompilableProvider origin, ExecutableProvider left, ExecutableProvider right)
+    protected BinaryExecutableProvider(Provider origin, ExecutableProvider left, ExecutableProvider right)
       : base(origin, left, right)
     {
       Left = left;

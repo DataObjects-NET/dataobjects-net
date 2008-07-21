@@ -10,10 +10,10 @@ namespace Xtensive.Storage.Rse.Compilation
 {
   internal class IndexingProviderCompiler : TypeCompiler<IndexingProvider>
   {
-    protected override Provider Compile(IndexingProvider provider)
+    protected override ExecutableProvider Compile(IndexingProvider provider)
     {
       return new Providers.Executable.IndexingProvider(
-        provider.Header, 
+        provider, 
         Compiler.Compile(provider.Source, true));
     }
 

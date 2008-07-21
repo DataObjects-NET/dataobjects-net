@@ -28,7 +28,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     /// </summary>
     /// <param name="origin">The <see cref="ExecutableProvider.Origin"/> property value.</param>
     /// <param name="source">The <see cref="Source"/> property value.</param>
-    protected UnaryExecutableProvider(CompilableProvider origin, ExecutableProvider source)
+    protected UnaryExecutableProvider(Provider origin, ExecutableProvider source)
       : base(origin, source)
     {
       Source = source;

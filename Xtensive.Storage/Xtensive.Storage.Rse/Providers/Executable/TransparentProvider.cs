@@ -20,8 +20,8 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     // Constructor
 
     /// <inheritdoc/>
-    protected TransparentProvider(CompilableProvider origin, ExecutableProvider source)
-      : base(origin, source)
+    internal TransparentProvider(ExecutableProvider source)
+      : base(source.Origin, source)
     {
     }
   }

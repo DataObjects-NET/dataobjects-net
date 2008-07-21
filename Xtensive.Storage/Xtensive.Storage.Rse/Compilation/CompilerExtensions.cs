@@ -25,7 +25,7 @@ namespace Xtensive.Storage.Rse.Compilation
     /// to wrap it to a compatible provider (using <see cref="ICompiler.ToCompatible"/> method)
     /// on failure.</param>
     /// <returns>A compiled provider, a compatible </returns>
-    public static Provider Compile(this ICompiler compiler, Provider provider, bool toCompatibleOnFailure)
+    public static ExecutableProvider Compile(this ICompiler compiler, Provider provider, bool toCompatibleOnFailure)
     {
       var result = compiler.Compile(provider);
       if (result==null && toCompatibleOnFailure)

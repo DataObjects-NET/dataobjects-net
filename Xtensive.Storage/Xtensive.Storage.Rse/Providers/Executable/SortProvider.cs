@@ -18,11 +18,10 @@ using System.Linq;
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
   internal sealed class SortProvider : ExecutableProvider,
-    ISupportRandomAccess<Tuple>,
-    ICountable
+    IListProvider
   {
     private readonly Provider source;
-    private List<Tuple> list;
+//    private List<Tuple> list;
     private MapTransform transform;
     private AdvancedComparer<Tuple> keyComparer;
 
@@ -31,24 +30,27 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     {
       get
       {
-        EnsureIsCalculated();
-        return list.Count;
+        var context = EnumerationScope.CurrentContext;
+        var list = Enumerate(context) as ICountable;
+        if (list != null)
+          return list.Count;
+        return -1;
       }
     }
 
-
-    Tuple ISupportRandomAccess<Tuple>.this[int index]
+    public Tuple GetItem(int index)
     {
-      get
-      {
-        EnsureIsCalculated();
-        return list[index];
-      }
+      var context = EnumerationScope.CurrentContext;
+      var list = Enumerate(context) as IListProvider;
+      if (list!=null)
+        return list.GetItem(index);
+      return null;
     }
+
 
     protected override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
-      list = source.ToList();
+      var list = source.ToList();
 
       var rules = new ComparisonRules[Header.OrderInfo.OrderedBy.Count];
       var columnIndexes = new int[Header.OrderInfo.OrderedBy.Count];

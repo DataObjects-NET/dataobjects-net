@@ -35,7 +35,7 @@ namespace Xtensive.Storage.Rse
     /// <summary>
     /// Gets the provider this <see cref="RecordSet"/> is bound to.
     /// </summary>
-    public Provider Provider { get; private set; }
+    public CompilableProvider Provider { get; private set; }
 
     #region IEnumerable<...> methods
 
@@ -60,7 +60,7 @@ namespace Xtensive.Storage.Rse
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="provider"><see cref="Provider"/> property value.</param>
-    internal RecordSet(Provider provider)
+    internal RecordSet(CompilableProvider provider)
     {
       Provider = provider;
     }

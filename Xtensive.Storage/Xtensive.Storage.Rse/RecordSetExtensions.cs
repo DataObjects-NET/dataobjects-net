@@ -22,15 +22,11 @@ namespace Xtensive.Storage.Rse
   {
     public static Tuple GetRecord(this RecordSet recordSet, int index)
     {
-      if (!recordSet.Provider.Options.RandomAccess)
-        throw new InvalidOperationException();
-      return recordSet.Provider.GetService<ISupportRandomAccess<Tuple>>(true)[index];
+      return recordSet.Provider.GetService<IListProvider>(true).GetItem(index);
     }
 
     public static RecordSet Range(this RecordSet recordSet, Range<IEntire<Tuple>> range)
     {
-      if (!recordSet.Provider.Options.IsIndexed)
-        throw new InvalidOperationException();
       return new RangeProvider(recordSet.Provider, range).Result;
     }
 

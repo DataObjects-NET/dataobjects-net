@@ -11,15 +11,19 @@ using Xtensive.Core.Tuples;
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
   internal sealed class RawProvider : ExecutableProvider,
-    ISupportRandomAccess<Tuple>
+    IListProvider
   {
     private readonly Tuple[] tuples;
 
 
-    /// <inheritdoc/>
-    public Tuple this[int index]
+    public long Count
     {
-      get { return tuples[index]; }
+      get { return tuples.Length; }
+    }
+
+    public Tuple GetItem(int index)
+    {
+      return tuples[index];
     }
 
     protected override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)

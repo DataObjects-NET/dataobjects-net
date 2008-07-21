@@ -24,14 +24,14 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     {
       var leftOrdered = left.GetService<IOrderedEnumerable<Tuple, Tuple>>();
       var rightOrdered = right.GetService<IOrderedEnumerable<Tuple, Tuple>>();
-      foreach (Pair<Tuple, Tuple> pair in Joiner.MergeJoin(leftOrdered, rightOrdered))
+      foreach (Pair<Tuple, Tuple> pair in leftOrdered.MergeJoin(rightOrdered))
         yield return transform.Apply(TupleTransformType.Auto, pair.First, pair.Second);
     }
 
 
     // Constructor
 
-    public MergeJoinProvider(CompilableProvider origin, ExecutableProvider left, ExecutableProvider right)
+    public MergeJoinProvider(Provider origin, ExecutableProvider left, ExecutableProvider right)
       : base (origin, left, right)
     {
       this.left = left;

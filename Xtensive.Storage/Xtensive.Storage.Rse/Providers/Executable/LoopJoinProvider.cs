@@ -25,7 +25,8 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     protected override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
       var rightOrdered = Right.GetService<IOrderedEnumerable<Tuple, Tuple>>(true);
-      foreach (Pair<Tuple, Tuple> pair in leftJoin ? Joiner.LoopJoinLeft(left, rightOrdered, KeyExtractorLeft) : Joiner.LoopJoin(left, rightOrdered, KeyExtractorLeft)) {
+      var left = Left.Enumerate(context);
+      foreach (Pair<Tuple, Tuple> pair in leftJoin ? left.LoopJoinLeft(rightOrdered, KeyExtractorLeft) : left.LoopJoin(rightOrdered, KeyExtractorLeft)) {
         Tuple rightTuple = pair.Second;
         if (rightTuple == null)
           rightTuple = Tuple.Create(Right.Header.TupleDescriptor);
@@ -41,7 +42,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 
     // Constructors
 
-    public LoopJoinProvider(CompilableProvider origin, ExecutableProvider left, ExecutableProvider right, bool leftJoin, params Pair<int>[] joiningPairs)
+    public LoopJoinProvider(Provider origin, ExecutableProvider left, ExecutableProvider right, bool leftJoin, params Pair<int>[] joiningPairs)
       : base(origin, left, right)
     {
       this.leftJoin = leftJoin;

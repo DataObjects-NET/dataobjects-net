@@ -5,16 +5,15 @@
 // Created:    2008.07.08
 
 using Xtensive.Storage.Rse.Providers;
-using Xtensive.Storage.Rse.Providers;
 
 namespace Xtensive.Storage.Rse.Compilation
 {
   internal class SelectProviderCompiler : TypeCompiler<SelectProvider>
   {
-    protected override Provider Compile(SelectProvider provider)
+    protected override ExecutableProvider Compile(SelectProvider provider)
     {
       return new Providers.Executable.SelectProvider(
-        provider.Header, 
+        provider, 
         Compiler.Compile(provider.Source, true), 
         provider.ColumnIndexes);
     }

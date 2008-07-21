@@ -17,14 +17,9 @@ namespace Xtensive.Storage.Rse.Providers
   /// The single enumeration attempt context for the <see cref="ExecutableProvider"/>.
   /// </summary>
   [Serializable]
-  public sealed class EnumerationContext: IDisposable
+  public sealed class EnumerationContext: Context<EnumerationScope>
   {
-    private Dictionary<Pair<object, object>, object> cache = new Dictionary<Pair<object, object>, object>();
-
-    /// <summary>
-    /// Gets the provider which enumeration lead to creation of this context.
-    /// </summary>
-    public ExecutableProvider Provider { get; private set; }
+    private readonly Dictionary<Pair<object, object>, object> cache = new Dictionary<Pair<object, object>, object>();
 
     /// <summary>
     /// Caches the value in the current <see cref="EnumerationContext"/>.
@@ -66,6 +61,17 @@ namespace Xtensive.Storage.Rse.Providers
       else
         return null;
     }
+    
+    protected override EnumerationScope CreateActiveScope()
+    {
+      return new EnumerationScope(this);
+    }
+
+    /// <inheritdoc/>
+    public override bool IsActive
+    {
+      get { return EnumerationScope.CurrentContext==this; }
+    }
 
 
     // Constructors
@@ -73,11 +79,10 @@ namespace Xtensive.Storage.Rse.Providers
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="provider"><see cref="Provider"/> property value.</param>
-    internal EnumerationContext(ExecutableProvider provider)
+    internal EnumerationContext()
     {
-      Provider = provider;
-      Provider.OnBeforeEnumerate(this);
+//      Provider = provider;
+//      Provider.OnBeforeEnumerate(this);
     }
 
     // IDisposable methods
@@ -85,7 +90,7 @@ namespace Xtensive.Storage.Rse.Providers
     /// <see cref="ClassDocTemplate.Dispose" copy="true"/>
     public void Dispose()
     {
-      Provider.OnAfterEnumerate(this);
+//      Provider.OnAfterEnumerate(this);
     }
   }
 }

@@ -5,18 +5,16 @@
 // Created:    2008.07.08
 
 using Xtensive.Storage.Rse.Providers;
-using Xtensive.Storage.Rse.Providers;
 
 namespace Xtensive.Storage.Rse.Compilation
 {
   internal class SortProviderCompiler : TypeCompiler<SortProvider>
   {
-    protected override Provider Compile(SortProvider provider)
+    protected override ExecutableProvider Compile(SortProvider provider)
     {
       return new Providers.Executable.SortProvider(
-        provider.Header, 
-        Compiler.Compile(provider.Source, true), 
-        provider.TupleSortOrder);
+        provider, 
+        Compiler.Compile(provider.Source, true));
     }
 
 

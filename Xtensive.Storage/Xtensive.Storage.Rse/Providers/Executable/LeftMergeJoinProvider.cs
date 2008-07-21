@@ -34,7 +34,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 
     // Constructor
     
-    public LeftMergeJoinProvider(CompilableProvider origin, ExecutableProvider left, ExecutableProvider right)
+    public LeftMergeJoinProvider(Provider origin, ExecutableProvider left, ExecutableProvider right)
       : base (origin, left, right)
     {
       transform = new MergeTransform(true, left.Header.TupleDescriptor, right.Header.TupleDescriptor);

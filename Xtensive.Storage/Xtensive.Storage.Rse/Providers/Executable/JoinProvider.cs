@@ -15,33 +15,37 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 {
   public sealed class JoinProvider : ProviderProxy
   {
-    private readonly Provider left;
-    private readonly Provider right;
+    private readonly ExecutableProvider left;
+    private readonly ExecutableProvider right;
     private readonly bool leftJoin;
     private readonly Pair<int>[] joiningPairs;
 
-    public override Provider GetRealProvider()
+    public override ExecutableProvider GetRealProvider()
     {
-      if (!left.Options.IsIndexed) {
+      var leftEnumerable = left.GetService<IOrderedEnumerable<Tuple>>();
+      var rightEnumerable = right.GetService<IOrderedEnumerable<Tuple>>();
+      if (leftEnumerable == null) {
         if (CheckAbilityToRange())
-          return new LoopJoinProvider(Header, left, right, leftJoin, joiningPairs);
-        return new NestedLoopJoinProvider(Header, left, right, leftJoin, joiningPairs);
+          return new LoopJoinProvider(Origin, left, right, leftJoin, joiningPairs);
+        return new NestedLoopJoinProvider(Origin, left, right, leftJoin, joiningPairs);
       }
-      if (!right.Options.IsIndexed)
-        return new NestedLoopJoinProvider(Header, left, right, leftJoin, joiningPairs);
+      if (rightEnumerable == null)
+        return new NestedLoopJoinProvider(Origin, left, right, leftJoin, joiningPairs);
       if (CheckAbilityToMerge()) {
         if (leftJoin)
-          return new LeftMergeJoinProvider(Header, left, right);
-        return new MergeJoinProvider(Header, left, right);
+          return new LeftMergeJoinProvider(Origin, left, right);
+        return new MergeJoinProvider(Origin, left, right);
       }
       if (CheckAbilityToRange())
-        return new LoopJoinProvider(Header, left, right, leftJoin, joiningPairs);
-      return new NestedLoopJoinProvider(Header, left, right, leftJoin, joiningPairs);
+        return new LoopJoinProvider(Origin, left, right, leftJoin, joiningPairs);
+      return new NestedLoopJoinProvider(Origin, left, right, leftJoin, joiningPairs);
     }
 
     private bool CheckAbilityToMerge()
     {
-      if (left.Options.IsIndexed && right.Options.IsIndexed) {
+      var leftEnumerable = left.GetService<IOrderedEnumerable<Tuple>>();
+      var rightEnumerable = right.GetService<IOrderedEnumerable<Tuple>>();
+      if (leftEnumerable != null && rightEnumerable != null) {
         if (left.Header.OrderInfo.OrderedBy.Count == right.Header.OrderInfo.OrderedBy.Count) {
           for (int i = 0; i < left.Header.OrderInfo.OrderedBy.Count; i++) {
             var leftOrderItem = left.Header.OrderInfo.OrderedBy[i];
@@ -62,15 +66,12 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     private bool CheckAbilityToRange()
     {
       DirectionCollection<int> orderedBy = left.Header.OrderInfo.OrderedBy;
-      var orderedByCount = orderedBy.Count();
-      IEnumerable<int> select = orderedBy.Select(pair => pair.Key);
-      var selectCount = select.Count();
-      IEnumerable<int> take = select.Take(joiningPairs.Length);
-      var takeCount = take.Count();
-      IEnumerable<int> joiningPairsFirst = joiningPairs.Select(joiningPair => joiningPair.First);
-      var joiningPairsCount = joiningPairsFirst.Count();
-      bool sequenceEqual = take.SequenceEqual(joiningPairsFirst);
-      if (left.Options.IsIndexed)
+      bool sequenceEqual = orderedBy
+        .Select(pair => pair.Key)
+        .Take(joiningPairs.Length)
+        .SequenceEqual(joiningPairs.Select(joiningPair => joiningPair.First));
+      var orderedEnumerable = left.GetService<IOrderedEnumerable<Tuple>>();
+      if (orderedEnumerable != null)
         return sequenceEqual;
       return false;
     }
@@ -78,8 +79,8 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 
     // Constructor
 
-    public JoinProvider(RecordHeader header, Provider left, Provider right, bool leftJoin, params Pair<int>[] joiningPairs)
-      : base (header, left, right)
+    public JoinProvider(Provider origin, ExecutableProvider left, ExecutableProvider right, bool leftJoin, params Pair<int>[] joiningPairs)
+      : base (origin, left, right)
     {
       this.left = left;
       this.right = right;

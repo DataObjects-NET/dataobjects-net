@@ -13,6 +13,7 @@ using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Diagnostics;
+using Xtensive.Core.Helpers;
 using Xtensive.Core.Testing;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;

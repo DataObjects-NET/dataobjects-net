@@ -5,16 +5,15 @@
 // Created:    2008.07.08
 
 using Xtensive.Storage.Rse.Providers;
-using Xtensive.Storage.Rse.Providers;
 
 namespace Xtensive.Storage.Rse.Compilation
 {
   internal class RangeProviderCompiler : TypeCompiler<RangeProvider>
   {
-    protected override Provider Compile(RangeProvider provider)
+    protected override ExecutableProvider Compile(RangeProvider provider)
     {
       return new Providers.Executable.RangeProvider(
-        provider.Header, 
+        provider, 
         Compiler.Compile(provider.Source, true), 
         provider.Range);
     }

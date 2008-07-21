@@ -17,7 +17,7 @@ namespace Xtensive.Storage.Rse.Compilation
     where TProvider : Provider
   {
     /// <inheritdoc/>
-    public sealed override Provider Compile(Provider provider)
+    public sealed override ExecutableProvider Compile(Provider provider)
     {
       return Compile((TProvider) provider);
     }
@@ -27,7 +27,7 @@ namespace Xtensive.Storage.Rse.Compilation
     /// </summary>
     /// <param name="provider">The provider to compile.</param>
     /// <returns>Compiled provider.</returns>
-    protected abstract Provider Compile(TProvider provider);
+    protected abstract ExecutableProvider Compile(TProvider provider);
 
 
     // Constructor

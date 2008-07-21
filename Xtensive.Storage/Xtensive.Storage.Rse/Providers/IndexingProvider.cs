@@ -13,17 +13,14 @@ namespace Xtensive.Storage.Rse.Providers
     public CompilableProvider Source { get; private set; }
     public DirectionCollection<int> ColumnIndexes { get; private set; }
 
-    public override ProviderOptionsStruct Options
-    {
-      get { return ProviderOptions.Indexed | ProviderOptions.Ordered | ProviderOptions.FastCount; }
-    }
-
     protected override RecordHeader BuildHeader()
     {
       return new RecordHeader(Source.Header.TupleDescriptor, Source.Header.RecordColumnCollection, Source.Header.OrderInfo.KeyDescriptor, Source.Header.Keys, ColumnIndexes);
     }
 
+
     // Constructor
+
     public IndexingProvider(CompilableProvider source, DirectionCollection<int> columnIndexes)
       : base(source)
     {

@@ -37,8 +37,8 @@ namespace Xtensive.Storage
 
     public static IEnumerable<Entity> AsEntities(this RecordSet source, Type entityType) 
     {
-      if (!source.Provider.Options.IsIndexed)
-        throw new InvalidOperationException();
+//      if (!source.Provider.Options.IsIndexed)
+//        throw new InvalidOperationException();
 
       SessionScope scope = SessionScope.Current;
       if (scope == null)

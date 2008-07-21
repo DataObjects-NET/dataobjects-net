@@ -10,7 +10,7 @@ using Xtensive.Core.Tuples;
 
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
-  internal sealed class SelectProvider : TransparentProvider
+  internal sealed class SelectProvider : UnaryExecutableProvider
   {
     // Constructors
 
