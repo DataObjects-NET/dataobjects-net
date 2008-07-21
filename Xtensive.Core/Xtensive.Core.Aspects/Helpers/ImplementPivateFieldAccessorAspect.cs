@@ -40,7 +40,7 @@ namespace Xtensive.Core.Aspects.Helpers
       foreach (var fieldName in targetFields) {
         FieldInfo field = null;
         try {
-          field = type.GetField(fieldName,
+          field = type.UnderlyingSystemType.GetField(fieldName,
             BindingFlags.Public | BindingFlags.NonPublic |
             BindingFlags.Instance | BindingFlags.Static |
             BindingFlags.DeclaredOnly);
