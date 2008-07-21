@@ -71,21 +71,6 @@ namespace Xtensive.Core.Tests.Reflection
         });
     }
 
-    [Test]
-    public void ConstructorDelegatesTest()
-    {
-      ConstructType<DelegateHelperCreateDelegateTest>();
-    }
-
-    private void ConstructType<T>()
-      where T: new ()
-    {
-      Func<T> constructorDelegate = DelegateHelper.CreateProtectedConstructorDelegate<T>();
-      Assert.IsNotNull(constructorDelegate);
-      T t = constructorDelegate();
-      Assert.AreNotEqual(t, default(T));
-    }
-
     private void TestTypes(Type[] types)
     {
       TupleDescriptor descriptor = TupleDescriptor.Create(types);

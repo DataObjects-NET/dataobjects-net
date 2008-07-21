@@ -15,8 +15,8 @@ namespace Xtensive.Core.Aspects.Helpers
   /// Protected constructor accessors aspect - provides an accessor (delegate)
   /// for the specified protected constructor of a type.
   /// </summary>
-  [MulticastAttributeUsage(MulticastTargets.Class)]
-  [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = false)]
+  [MulticastAttributeUsage(MulticastTargets.Class | MulticastTargets.Struct)]
+  [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = true, Inherited = false)]
   [Serializable]
   public sealed class ImplementProtectedConstructorAccessorAspect : LaosTypeLevelAspect
   {
@@ -66,7 +66,7 @@ namespace Xtensive.Core.Aspects.Helpers
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="accessorType"><see cref="AccessorType"/> property value.</param>
-    internal ImplementProtectedConstructorAccessorAspect(Type accessorType)
+    public ImplementProtectedConstructorAccessorAspect(Type accessorType)
     {
       AccessorType = accessorType;
     }
