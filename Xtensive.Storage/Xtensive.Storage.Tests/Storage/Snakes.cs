@@ -222,7 +222,7 @@ namespace Xtensive.Storage.Tests
           RecordSet join = range.Join(rsSnakeName, new Pair<int>(rsSnakePrimary.Map("ID"), rsSnakeName.Map("NameIndex.ID")));
           RecordSet where = join.Where(tuple => tuple.GetValue<int>(rsSnakePrimary.Map("Length")) >= 100);
           RecordSet orderBy = where.OrderBy(OrderBy.Desc(rsSnakePrimary.Map("Name")));
-          var snakesRse = orderBy.AsEntities<Snake>("ID");
+          var snakesRse = orderBy.AsEntities<Snake>();
 
           /*// debug
           long rsSnakePrimaryCount = rsSnakePrimary.Provider.GetService<ICountable>(true).Count;

@@ -14,32 +14,15 @@ namespace Xtensive.Storage
 {
   public static class RecordSetExtensions
   {
-    public static IEnumerable<T> AsEntities<T>(this RecordSet source, params string[] keyColumnNames) 
+    public static IEnumerable<T> AsEntities<T>(this RecordSet source) 
       where T : Entity
     {
-      SessionScope scope = SessionScope.Current;
-      if (scope == null)
-        throw new InvalidOperationException();
-      if (scope.Session == null)
-        throw new InvalidOperationException();
-
-      object[] keyValue = new object[keyColumnNames.Length];
-      int[] columnsMap = new int[keyColumnNames.Length];
-      for (int j = 0; j < columnsMap.Length; j++)
-        columnsMap[j] = source.Map(keyColumnNames[j]);
-      foreach (Tuple tuple in source) {
-        for (int i = 0; i < keyValue.Length; i++)
-          keyValue[i] = tuple.GetValue(columnsMap[i]);
-        Key key = scope.Session.HandlerAccessor.Domain.KeyManager.Build<T>(keyValue);
-        yield return key.Resolve<T>();
-      }
+      foreach (Entity entity in AsEntities(source, typeof (T)))
+        yield return entity as T;
     }
 
     public static IEnumerable<Entity> AsEntities(this RecordSet source, Type entityType) 
     {
-//      if (!source.Provider.Options.IsIndexed)
-//        throw new InvalidOperationException();
-
       SessionScope scope = SessionScope.Current;
       if (scope == null)
         throw new InvalidOperationException();
