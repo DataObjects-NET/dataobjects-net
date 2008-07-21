@@ -389,7 +389,7 @@ namespace Xtensive.Core.Reflection
           if (result != null)
             return (TDelegate) (object) result;
           methodKey = String.Intern(methodKey);
-          result = (Delegate) (object) CreateDelegate<TDelegate>(null, type, AspectedProtectedConstructorCallerName, null);
+          result = (Delegate) (object) CreateDelegate<TDelegate>(null, type, AspectedProtectedConstructorCallerName, new Type[] {});
           cachedDelegates[methodKey] = result;
         }
       return (TDelegate) (object) result;
