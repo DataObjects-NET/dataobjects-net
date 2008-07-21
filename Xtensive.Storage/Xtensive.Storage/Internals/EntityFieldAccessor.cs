@@ -21,11 +21,9 @@ namespace Xtensive.Storage
 
     public override void SetValue(Persistent obj, FieldInfo field, T value)
     {
-      if (ReferenceEquals(value, null)) {
-        for (int i = field.MappingInfo.Offset; i < field.MappingInfo.Offset + field.MappingInfo.Length; i++) {
+      if (ReferenceEquals(value, null))
+        for (int i = field.MappingInfo.Offset; i < field.MappingInfo.Offset + field.MappingInfo.Length; i++)
           obj.Tuple.SetValue(i, null);
-        }
-      }
       else {
         ValidateType(field);
         ((Entity) (object) value).Key.Tuple.Copy(obj.Tuple, 0, field.MappingInfo.Offset, field.MappingInfo.Length);

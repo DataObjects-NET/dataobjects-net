@@ -112,6 +112,8 @@ namespace Xtensive.Storage
 
     #endregion
 
+    #region Remove method =)
+
     /// <summary>
     /// Removes the instance.
     /// </summary>
@@ -126,6 +128,8 @@ namespace Xtensive.Storage
       OnRemoved();
     }
 
+    #endregion
+
     #region Protected event-like methods
 
     /// <inheritdoc/>
@@ -139,21 +143,21 @@ namespace Xtensive.Storage
 
     /// <inheritdoc/>
     /// <exception cref="InvalidOperationException">Entity is removed.</exception>
-    protected internal override sealed void OnGettingValue(FieldInfo fieldInfo)
+    protected internal override sealed void OnGettingValue(FieldInfo field)
     {
       EnsureIsNotRemoved();
-      EnsureIsFetched(fieldInfo);
+      EnsureIsFetched(field);
     }
 
     /// <inheritdoc/>
     /// <exception cref="InvalidOperationException">Entity is removed.</exception>
-    protected internal override sealed void OnSettingValue(FieldInfo fieldInfo)
+    protected internal override sealed void OnSettingValue(FieldInfo field)
     {
       EnsureIsNotRemoved();
     }
 
     /// <inheritdoc/>
-    protected internal override sealed void OnSetValue(FieldInfo fieldInfo)
+    protected internal override sealed void OnSetValue(FieldInfo field)
     {
       PersistenceState = PersistenceState.Modified;
     }
@@ -183,7 +187,8 @@ namespace Xtensive.Storage
         return;
       if (Data.Tuple.IsAvailable(field.MappingInfo.Offset))
         return;
-      Fetcher.Fetch(Key, field);
+      Tuple result = Fetcher.Fetch(Key, field);
+      Data.Tuple.Origin.MergeWith(result, field.MappingInfo.Offset, field.MappingInfo.Length, MergeConflictBehavior.PreferTarget);
     }
 
     private void EnsureIsNotRemoved()

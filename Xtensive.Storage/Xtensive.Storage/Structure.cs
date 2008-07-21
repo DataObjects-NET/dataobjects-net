@@ -97,25 +97,25 @@ namespace Xtensive.Storage
     #region Inner events
 
     /// <inheritdoc/>
-    protected internal override sealed void OnGettingValue(FieldInfo fieldInfo)
+    protected internal override sealed void OnGettingValue(FieldInfo field)
     {
       if (owner!=null)
-        owner.OnGettingValue(field);
+        owner.OnGettingValue(this.field);
     }
 
     /// <inheritdoc/>
-    protected internal override sealed void OnSettingValue(FieldInfo fieldInfo)
+    protected internal override sealed void OnSettingValue(FieldInfo field)
     {
       if (owner!=null)
-        owner.OnSettingValue(field);
+        owner.OnSettingValue(this.field);
     }
 
     /// <inheritdoc/>
-    protected internal override sealed void OnSetValue(FieldInfo fieldInfo)
+    protected internal override sealed void OnSetValue(FieldInfo field)
     {
       if (owner==null)
         return;
-      owner.OnSetValue(field);
+      owner.OnSetValue(this.field);
     }
 
     #endregion

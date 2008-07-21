@@ -20,7 +20,7 @@ namespace Xtensive.Storage.ReferentialIntegrity
       RemovalContext context = RemovalScope.Context ?? new RemovalContext();
 
       using (context.Activate()) {
-        RemovalScope.Context.RemovalQueue.Add(referencedObject);
+        context.RemovalQueue.Add(referencedObject);
         ApplyAction(referencedObject, ReferentialAction.Restrict);
         ApplyAction(referencedObject, ReferentialAction.SetNull);
         ApplyAction(referencedObject, ReferentialAction.Cascade);

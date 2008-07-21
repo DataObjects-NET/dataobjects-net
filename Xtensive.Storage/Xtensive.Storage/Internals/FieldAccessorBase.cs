@@ -13,6 +13,7 @@ namespace Xtensive.Storage
   internal abstract class FieldAccessorBase<T>
   {
     public abstract void SetValue(Persistent obj, FieldInfo field, T value);
+
     public abstract T GetValue(Persistent obj, FieldInfo field);
 
     public static void ValidateType(FieldInfo fieldInfo)

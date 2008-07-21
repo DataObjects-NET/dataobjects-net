@@ -84,19 +84,19 @@ namespace Xtensive.Storage
     {
     }
 
-    protected internal virtual void OnGettingValue(FieldInfo fieldInfo)
+    protected internal virtual void OnGettingValue(FieldInfo field)
     {
     }
 
-    protected internal virtual void OnGet(FieldInfo fieldInfo)
+    protected internal virtual void OnGet(FieldInfo field)
     {
     }
 
-    protected internal virtual void OnSettingValue(FieldInfo fieldInfo)
+    protected internal virtual void OnSettingValue(FieldInfo field)
     {
     }
 
-    protected internal virtual void OnSetValue(FieldInfo fieldInfo)
+    protected internal virtual void OnSetValue(FieldInfo field)
     {
     }
 

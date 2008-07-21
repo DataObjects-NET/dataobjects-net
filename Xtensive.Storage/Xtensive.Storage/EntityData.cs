@@ -46,8 +46,6 @@ namespace Xtensive.Storage
         if (persistenceState == value)
           return;
         persistenceState = value;
-        if (Entity != null)
-          Entity.OnPersistentStateChanged();
       }
     }
 
