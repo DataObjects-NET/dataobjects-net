@@ -18,10 +18,5 @@ namespace Xtensive.Storage
     /// Gets persistence state of the entity.
     /// </summary>
     PersistenceState PersistenceState { get; }
-
-    /// <summary>
-    /// Raised when <see cref="PersistenceState"/> of persistent object is changed.
-    /// </summary>
-    event EventHandler PersistenceStateChanged;
   }
 }

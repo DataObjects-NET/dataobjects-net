@@ -31,11 +31,32 @@ namespace Xtensive.Storage
     private static readonly Dictionary<Type, Func<EntityData, Entity>> activators = new Dictionary<Type, Func<EntityData, Entity>>();
     private readonly EntityData data;
 
+    #region Internal properties
+
     [DebuggerHidden]
     internal EntityData Data
     {
       get { return data; }
     }
+
+    /// <exception cref="Exception">Property is already initialized.</exception>
+    [Field]
+    [DebuggerHidden]
+    internal int TypeId
+    {
+      get { return GetValue<int>(Session.Domain.NameProvider.TypeId); }
+      set
+      {
+        if (TypeId > 0)
+          throw Exceptions.AlreadyInitialized(Session.Domain.NameProvider.TypeId);
+        FieldInfo field = Type.Fields[Session.Domain.NameProvider.TypeId];
+        field.GetAccessor<int>().SetValue(this, field, value);
+      }
+    }
+
+    #endregion
+
+    #region Properties: Key, Type, Tuple, PersistenceState
 
     /// <exception cref="Exception">Property is already initialized.</exception>
     [DebuggerHidden]
@@ -58,20 +79,38 @@ namespace Xtensive.Storage
       get { return Data.Tuple; }
     }
 
-    /// <exception cref="Exception">Property is already initialized.</exception>
-    [Field]
-    [DebuggerHidden]
-    internal int TypeId
+    /// <summary>
+    /// Gets persistence state of the entity.
+    /// </summary>
+    public PersistenceState PersistenceState
     {
-      get { return GetValue<int>(Session.Domain.NameProvider.TypeId); }
-      set
+      get { return Data.PersistenceState; }
+      internal set
       {
-        if (TypeId > 0)
-          throw Exceptions.AlreadyInitialized(Session.Domain.NameProvider.TypeId);
-        FieldInfo field = Type.Fields[Session.Domain.NameProvider.TypeId];
-        field.GetAccessor<int>().SetValue(this, field, value);
+        if (Data.PersistenceState == value)
+          return;
+        Data.PersistenceState = value;
+        Session.DirtyItems.Register(Data);
       }
     }
+
+    #endregion
+
+    #region IIdentifier members
+
+    /// <inheritdoc/>
+    Key IIdentified<Key>.Identifier
+    {
+      get { return Key; }
+    }
+
+    /// <inheritdoc/>
+    object IIdentified.Identifier
+    {
+      get { return Key; }
+    }
+
+    #endregion
 
     /// <summary>
     /// Removes the instance.
@@ -87,7 +126,7 @@ namespace Xtensive.Storage
       OnRemoved();
     }
 
-    #region Inner events
+    #region Protected event-like methods
 
     /// <inheritdoc/>
     protected internal override sealed void OnCreating()
@@ -100,7 +139,7 @@ namespace Xtensive.Storage
 
     /// <inheritdoc/>
     /// <exception cref="InvalidOperationException">Entity is removed.</exception>
-    protected internal override sealed void OnGetting(FieldInfo fieldInfo)
+    protected internal override sealed void OnGettingValue(FieldInfo fieldInfo)
     {
       EnsureIsNotRemoved();
       EnsureIsFetched(fieldInfo);
@@ -108,13 +147,13 @@ namespace Xtensive.Storage
 
     /// <inheritdoc/>
     /// <exception cref="InvalidOperationException">Entity is removed.</exception>
-    protected internal override sealed void OnSetting(FieldInfo fieldInfo)
+    protected internal override sealed void OnSettingValue(FieldInfo fieldInfo)
     {
       EnsureIsNotRemoved();
     }
 
     /// <inheritdoc/>
-    protected internal override sealed void OnSet(FieldInfo fieldInfo)
+    protected internal override sealed void OnSetValue(FieldInfo fieldInfo)
     {
       PersistenceState = PersistenceState.Modified;
     }
@@ -129,50 +168,15 @@ namespace Xtensive.Storage
 
     #endregion
 
-    #region IEntity Members
+    #region Private \ internal methods
 
-    /// <summary>
-    /// Gets persistence state of the entity.
-    /// </summary>
-    public PersistenceState PersistenceState
+    internal static Entity Activate(Type type, EntityData data)
     {
-      get { return Data.PersistenceState; }
-      internal set
-      {
-        if (Data.PersistenceState == value)
-          return;
-        Data.PersistenceState = value;
-        Session.DirtyItems.Register(Data);
-        OnPersistentStateChanged();
-      }
+      if (!activators.ContainsKey(type))
+        throw new ArgumentException(String.Format("Type '{0}' was not registered for activation", type));
+      return activators[type](data);
     }
 
-    /// <summary>
-    /// Raised when <see cref="PersistenceState"/> of persistent object is changed.
-    /// </summary>
-    public event EventHandler PersistenceStateChanged;
-
-    /// <summary>
-    /// Gets object identifier.
-    /// </summary>
-    public Key Identifier
-    {
-      get { return Key; }
-    }
-
-    /// <summary>
-    /// Gets object identifier.
-    /// </summary>
-    object IIdentified.Identifier
-    {
-      get { return Identifier; }
-    }
-
-    #endregion
-
-    #region Private
-
-    // TODO: Refactor
     private void EnsureIsFetched(FieldInfo field)
     {
       if (Session.DirtyItems.GetItems(PersistenceState.New).Contains(Data))
@@ -188,26 +192,7 @@ namespace Xtensive.Storage
         throw new InvalidOperationException(Strings.ExEntityIsRemoved);
     }
 
-    internal void OnPersistentStateChanged()
-    {
-      if (PersistenceStateChanged!=null)
-        PersistenceStateChanged(this, EventArgs.Empty);
-    }
-
     #endregion
-
-    protected static void RegisterActivator(Type type, Func<EntityData, Entity> activator)
-    {
-      if (!activators.ContainsKey(type))
-        activators.Add(type, activator);
-    }
-
-    internal static Entity Activate(Type type, EntityData data)
-    {
-      if (!activators.ContainsKey(type))
-        throw new ArgumentException(String.Format("Type '{0}' was not registered for activation", type));
-      return activators[type](data);
-    }
 
 
     // Constructors

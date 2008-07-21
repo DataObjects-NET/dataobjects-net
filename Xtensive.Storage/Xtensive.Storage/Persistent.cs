@@ -62,7 +62,7 @@ namespace Xtensive.Storage
     protected T GetValue<T>(string name)
     {
       FieldInfo field = Type.Fields[name];
-      OnGetting(field);
+      OnGettingValue(field);
       T result = field.GetAccessor<T>().GetValue(this, field);
       OnGet(field);
       return result;
@@ -71,9 +71,9 @@ namespace Xtensive.Storage
     protected void SetValue<T>(string name, T value)
     {
       FieldInfo field = Type.Fields[name];
-      OnSetting(field);
+      OnSettingValue(field);
       field.GetAccessor<T>().SetValue(this, field, value);
-      OnSet(field);
+      OnSetValue(field);
     }
 
     protected internal virtual void OnCreating()
@@ -84,7 +84,7 @@ namespace Xtensive.Storage
     {
     }
 
-    protected internal virtual void OnGetting(FieldInfo fieldInfo)
+    protected internal virtual void OnGettingValue(FieldInfo fieldInfo)
     {
     }
 
@@ -92,11 +92,11 @@ namespace Xtensive.Storage
     {
     }
 
-    protected internal virtual void OnSetting(FieldInfo fieldInfo)
+    protected internal virtual void OnSettingValue(FieldInfo fieldInfo)
     {
     }
 
-    protected internal virtual void OnSet(FieldInfo fieldInfo)
+    protected internal virtual void OnSetValue(FieldInfo fieldInfo)
     {
     }
 

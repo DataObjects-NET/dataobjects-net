@@ -32,10 +32,10 @@ namespace Xtensive.Storage.Rse.Providers
     /// <typeparam name="T">The type of the value.</typeparam>
     /// <param name="key">The cache key.</param>
     /// <param name="value">The value to cache.</param>
-    public void SetValue<T>(Pair<object, object> key, T value)
+    public void SetValue<T>(object key, T value)
       where T: class
     {
-      cache[key] = value;
+      SetValue(new Pair<object, object>(null, key), value);
     }
 
     /// <summary>
@@ -45,7 +45,19 @@ namespace Xtensive.Storage.Rse.Providers
     /// <param name="key">The cache key.</param>
     /// <returns>Cached value with the specified key;
     /// <see langword="null"/>, if no cached value is found, or it is already expired.</returns>
-    public T GetValue<T>(Pair<object, object> key)
+    public T GetValue<T>(object key)
+      where T: class
+    {
+      return GetValue<T>(new Pair<object, object>(null, key));
+    }
+
+    internal void SetValue<T>(Pair<object, object> key, T value)
+      where T: class
+    {
+      cache[key] = value;
+    }
+
+    internal T GetValue<T>(Pair<object, object> key)
       where T: class
     {
       object result;
