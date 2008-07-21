@@ -21,8 +21,8 @@ namespace Xtensive.Core.Aspects.Helpers
   /// <summary>
   /// Implements epilogue call in constructor.
   /// </summary>
-  [MulticastAttributeUsage(MulticastTargets.Method)]
-  [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
+  [MulticastAttributeUsage(MulticastTargets.Constructor)]
+  [AttributeUsage(AttributeTargets.Constructor, AllowMultiple = false, Inherited = false)]
   [Serializable]
   public sealed class ImplementConstructorEpilogueAspect : LaosMethodLevelAspect
   {
