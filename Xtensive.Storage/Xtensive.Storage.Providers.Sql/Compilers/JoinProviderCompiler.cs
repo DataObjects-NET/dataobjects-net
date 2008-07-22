@@ -9,18 +9,17 @@ using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers;
 using System.Linq;
+using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Providers.Sql.Compilers
 {
   public class JoinProviderCompiler : TypeCompiler<JoinProvider>
   {
     /// <inheritdoc/>
-    protected override Provider Compile(JoinProvider provider)
+    protected override ExecutableProvider Compile(JoinProvider provider)
     {
-      var left = provider.Left.Compile() as SqlProvider;
-      var right = provider.Right.Compile() as SqlProvider;
-      if (left == null || right == null)
-        return null; // Fallback to base compiler.
+      var left = (SqlProvider)Compiler.Compile(provider.Left, true);
+      var right = (SqlProvider)Compiler.Compile(provider.Right, true);
 
       var leftQuery = Xtensive.Sql.Dom.Sql.QueryRef(left.Query);
       var rightQuery = Xtensive.Sql.Dom.Sql.QueryRef(right.Query);
@@ -32,7 +31,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
       SqlSelect query = Xtensive.Sql.Dom.Sql.Select(joinedTable);
       query.Columns.AddRange(joinedTable.Columns.Cast<SqlColumn>());
 
-      return new SqlProvider(provider.Header, query);
+      return new SqlProvider(provider, query);
     }
 
 

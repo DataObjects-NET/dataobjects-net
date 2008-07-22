@@ -15,7 +15,7 @@ using Xtensive.Storage.Rse.Providers;
 
 namespace Xtensive.Storage.Providers.Sql
 {
-  public class SqlProvider : ExecutableProvider
+  internal sealed class SqlProvider : ExecutableProvider
   {
     private readonly SqlSelect sqlSelect;
 
@@ -24,29 +24,19 @@ namespace Xtensive.Storage.Providers.Sql
       get { return sqlSelect; }
     }
 
-    public override IEnumerator<Tuple> GetEnumerator()
+    protected override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
-/*
-      using (DbDataReader reader = ExecuteReader(Query))
-      {
-        if (reader.RecordsAffected > 1)
-          throw new InvalidOperationException(Strings.ExQueryMultipleResults);
-        if (reader.Read())
-        {
-          Tuple tuple = GetTuple(reader, select);
-          return tuple;
-        }
-        return null;
-      }
-*/
       throw new System.NotImplementedException();
     }
+
+    protected override void Initialize()
+    {}
 
 
     // Constructor
 
-    public SqlProvider(RecordHeader header, SqlSelect sqlSelect)
-      : base(header)
+    public SqlProvider(Provider origin, SqlSelect sqlSelect)
+      : base(origin)
     {
       this.sqlSelect = sqlSelect;
     }

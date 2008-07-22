@@ -35,7 +35,7 @@ namespace Xtensive.Storage.Providers.Index
 
     protected override CompilationContext GetCompilationContext()
     {
-      return new CompilationContext(new Compilers.CompilerResolver(HandlerAccessor));
+      return new CompilationContext(new Compilers.Compiler(HandlerAccessor));
     }
 
     private MapTransform BuildIndexTransform(IndexInfo indexInfo)

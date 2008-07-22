@@ -9,26 +9,23 @@ using Xtensive.Core;
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
-using Xtensive.Storage.Rse.Providers;
 using System.Linq;
+using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Providers.Sql.Compilers
 {
-  public class SortProviderCompiler : TypeCompiler<SortProvider>
+  internal sealed class SortProviderCompiler : TypeCompiler<SortProvider>
   {
-    protected override Provider Compile(SortProvider provider)
+    protected override ExecutableProvider Compile(SortProvider provider)
     {
-      var source = provider.Source.Compile() as SqlProvider;
-      if (source == null)
-        return null;
-
+      var source = (SqlProvider)Compiler.Compile(provider.Source, true);
       var queryRef = Xtensive.Sql.Dom.Sql.QueryRef(source.Query);
       SqlSelect query = Xtensive.Sql.Dom.Sql.Select(queryRef);
       query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
-      foreach (KeyValuePair<int, Direction> sortOrder in provider.TupleSortOrder)
+      foreach (KeyValuePair<int, Direction> sortOrder in provider.SortOrder)
         query.OrderBy.Add(sortOrder.Key, sortOrder.Value==Direction.Positive);
 
-      return new SqlProvider(provider.Header, query);
+      return new SqlProvider(provider, query);
     }
 
     // Constructors

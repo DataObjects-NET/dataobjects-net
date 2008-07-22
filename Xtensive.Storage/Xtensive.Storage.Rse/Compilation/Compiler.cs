@@ -102,7 +102,7 @@ namespace Xtensive.Storage.Rse.Compilation
     #region Protected methods
 
     /// <inheritdoc/>
-    protected override TResult ConvertAssociate<TKey, TAssociate, TResult>(TAssociate associate)
+    protected sealed override TResult ConvertAssociate<TKey, TAssociate, TResult>(TAssociate associate)
     {
       if (ReferenceEquals(associate, null))
         return default(TResult);

@@ -40,7 +40,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 
     // Constructors
 
-    public RawProvider(CompilableProvider origin, params Tuple[] tuples)
+    public RawProvider(Provider origin, params Tuple[] tuples)
       : base(origin)
     {
       this.tuples = tuples;

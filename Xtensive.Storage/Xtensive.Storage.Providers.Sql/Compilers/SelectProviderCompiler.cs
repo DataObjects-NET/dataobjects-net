@@ -7,24 +7,21 @@
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
-using Xtensive.Storage.Rse.Providers;
 using System.Linq;
+using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Providers.Sql.Compilers
 {
-  public class SelectProviderCompiler : TypeCompiler<SelectProvider>
+  internal sealed class SelectProviderCompiler : TypeCompiler<SelectProvider>
   {
-    protected override Provider Compile(SelectProvider provider)
+    protected override ExecutableProvider Compile(SelectProvider provider)
     {
-      var source = provider.Source.Compile() as SqlProvider;
-      if (source == null)
-        return null;
-
+      var source = (SqlProvider)Compiler.Compile(provider.Source, true);
       var queryRef = Xtensive.Sql.Dom.Sql.QueryRef(source.Query);
       SqlSelect query = Xtensive.Sql.Dom.Sql.Select(queryRef);
-      query.Columns.AddRange(provider.ColumnIndexes.Select(i => (SqlColumn)queryRef.Columns[i]));
+      query.Columns.AddRange(provider.ColumnsToSelect.Select(i => (SqlColumn)queryRef.Columns[i]));
 
-      return new SqlProvider(provider.Header, query);
+      return new SqlProvider(provider, query);
     }
 
     // Constructors

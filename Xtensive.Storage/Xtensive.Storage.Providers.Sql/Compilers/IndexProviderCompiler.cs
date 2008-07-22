@@ -11,25 +11,24 @@ using Xtensive.Sql.Dom.Database;
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers.Sql.Resources;
-using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
-using Xtensive.Storage.Rse.Providers;
 using System.Linq;
+using Xtensive.Storage.Rse.Providers.Compilable;
 using SQL = Xtensive.Sql.Dom.Sql;
 
 namespace Xtensive.Storage.Providers.Sql.Compilers
 {
-  public class IndexProviderCompiler : TypeCompiler<IndexProvider>
+  internal sealed class IndexProviderCompiler : TypeCompiler<IndexProvider>
   {
     private readonly HandlerAccessor handlerAccessor;
     private readonly DomainHandler domainHandler;
 
-    protected override Provider Compile(IndexProvider provider)
+    protected override ExecutableProvider Compile(IndexProvider provider)
     {
-      var index = provider.Index;
+      var index = provider.Index.Resolve(handlerAccessor.Domain.Model);
       SqlSelect query = BuildProviderQuery(index);
-      return new SqlProvider(new RecordHeader(index), query);
+      return new SqlProvider(provider, query);
     }
 
     private SqlSelect BuildProviderQuery(IndexInfo index)
@@ -138,7 +137,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
     public IndexProviderCompiler(Rse.Compilation.Compiler provider)
       : base(provider)
     {
-      handlerAccessor = ((CompilerResolver) provider).HandlerAccessor;
+      handlerAccessor = ((Compiler) provider).HandlerAccessor;
       domainHandler = (DomainHandler)handlerAccessor.DomainHandler;
     }
   }

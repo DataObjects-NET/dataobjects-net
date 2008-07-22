@@ -4,7 +4,6 @@
 // Created by: Alexey Kochetov
 // Created:    2008.07.14
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
@@ -14,11 +13,11 @@ using Xtensive.Indexing;
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
-using Xtensive.Storage.Rse.Providers;
+using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Providers.Sql.Compilers
 {
-  public class RangeProviderCompiler : TypeCompiler<RangeProvider>
+  internal sealed class RangeProviderCompiler : TypeCompiler<RangeProvider>
   {
     private struct ExpressionData
     {
@@ -82,9 +81,9 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
       }
     }
 
-    protected override Provider Compile(RangeProvider provider)
+    protected override ExecutableProvider Compile(RangeProvider provider)
     {
-      var source = provider.Source.Compile() as SqlProvider;
+      var source = (SqlProvider)Compiler.Compile(provider.Source, true);
       if (source == null)
         return null;
 
@@ -108,7 +107,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
 
       query.Where = expressionData.Expression;
 
-      return new SqlProvider(provider.Header, query);
+      return new SqlProvider(provider, query);
     }
 
     // Constructors

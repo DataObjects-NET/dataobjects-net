@@ -7,6 +7,7 @@
 using System;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Executable;
+using System.Linq;
 
 namespace Xtensive.Storage.Rse.Compilation
 {
@@ -24,7 +25,7 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <inheritdoc/>
     public override ExecutableProvider ToCompatible(Provider provider)
     {
-      throw new NotSupportedException();
+      return new RawProvider(provider, provider.ToArray());
     }
   }
 }

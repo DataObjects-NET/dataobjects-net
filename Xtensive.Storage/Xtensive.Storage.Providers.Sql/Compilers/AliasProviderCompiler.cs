@@ -4,28 +4,25 @@
 // Created by: Alexey Kochetov
 // Created:    2008.07.14
 
+using System.Linq;
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
-using Xtensive.Storage.Rse.Providers;
-using System.Linq;
+using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Providers.Sql.Compilers
 {
-  public class AliasProviderCompiler : TypeCompiler<AliasProvider>
+  internal class AliasProviderCompiler : TypeCompiler<AliasProvider>
   {
     /// <inheritdoc/>
-    protected override Provider Compile(AliasProvider provider)
+    protected override ExecutableProvider Compile(AliasProvider provider)
     {
-      var source = provider.Source.Compile() as SqlProvider;
-      if (source == null)
-        return null; // Fallback to base compiler.
-
+      var source = (SqlProvider)Compiler.Compile(provider.Source, true);
       var queryRef = Xtensive.Sql.Dom.Sql.QueryRef(source.Query, provider.Alias);
       SqlSelect query = Xtensive.Sql.Dom.Sql.Select(queryRef);
       query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
 
-      return new SqlProvider(provider.Header, query);
+      return new SqlProvider(provider, query);
     }
 
     // Constructor

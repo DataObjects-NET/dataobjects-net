@@ -4,12 +4,15 @@
 // Created by: Alexey Kochetov
 // Created:    2008.07.08
 
+using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
 
 namespace Xtensive.Storage.Providers.Index.Compilers
 {
-  public sealed class CompilerResolver : Rse.Compilation.Compiler
+  internal sealed class Compiler : Rse.Compilation.Compiler
   {
+    private readonly DefaultCompiler fallbackCompiler;
+
     public HandlerAccessor HandlerAccessor { get; private set; }
 
     public override bool IsCompatible(Provider provider)
@@ -19,15 +22,16 @@ namespace Xtensive.Storage.Providers.Index.Compilers
 
     public override ExecutableProvider ToCompatible(Provider provider)
     {
-      throw new System.NotImplementedException();
+      return fallbackCompiler.Compile(provider);
     }
 
 
     // Constructor
 
-    public CompilerResolver(HandlerAccessor handlerAccessor)
+    public Compiler(HandlerAccessor handlerAccessor)
     {
       HandlerAccessor = handlerAccessor;
+      fallbackCompiler = new DefaultCompiler();
     }    
   }
 }
