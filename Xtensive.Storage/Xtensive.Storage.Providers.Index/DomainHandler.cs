@@ -14,7 +14,7 @@ using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Indexing;
 using Xtensive.Storage.Model;
-using Xtensive.Storage.Rse.Compilation;
+using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Compilation;
 
 namespace Xtensive.Storage.Providers.Index
@@ -65,6 +65,12 @@ namespace Xtensive.Storage.Providers.Index
         IUniqueOrderedIndex<Tuple, Tuple> index = IndexFactory.CreateUniqueOrdered<Tuple, Tuple, Index<Tuple, Tuple>>(indexConfig);
         realIndexes[indexInfo] = index;
       }
+    }
+
+    internal IUniqueOrderedIndex<Tuple, Tuple> GetRealIndex(IndexInfoRef indexInfoRef)
+    {
+      var index = indexInfoRef.Resolve(HandlerAccessor.Domain.Model);
+      return realIndexes[index];
     }
 
     internal IUniqueOrderedIndex<Tuple, Tuple> GetRealIndex(IndexInfo indexInfo)

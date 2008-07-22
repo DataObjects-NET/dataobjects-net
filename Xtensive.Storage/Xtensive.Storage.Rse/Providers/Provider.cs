@@ -62,6 +62,11 @@ namespace Xtensive.Storage.Rse.Providers
 
     #endregion
 
+    /// <summary>
+    /// Performs initialization of the provider.
+    /// </summary>
+    protected abstract void Initialize();
+
     #region Private \ internal methods
 
     private void EnsureHeaderIsBuilt()
@@ -71,7 +76,7 @@ namespace Xtensive.Storage.Rse.Providers
     }
 
     #endregion
-
+    
 
     // Constructor
 

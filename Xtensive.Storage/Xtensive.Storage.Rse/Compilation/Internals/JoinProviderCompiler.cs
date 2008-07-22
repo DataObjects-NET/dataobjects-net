@@ -6,6 +6,7 @@
 
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers;
+using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Rse.Compilation
 {

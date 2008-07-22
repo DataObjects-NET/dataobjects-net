@@ -6,18 +6,16 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Core;
-using Xtensive.Core.Collections;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
 using Xtensive.Indexing.Measures;
-using Xtensive.Storage.Rse;
 using Xtensive.Core.Helpers;
 
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
-  public sealed class RangeProvider : UnaryExecutableProvider,
+  [Serializable]
+  internal sealed class RangeProvider : UnaryExecutableProvider,
     IOrderedEnumerable<Tuple,Tuple>,
     IRangeMeasurable<Tuple,Tuple>
   {
@@ -168,6 +166,10 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     {
       var sourceEnumerable = Source.GetService<IOrderedEnumerable<Tuple, Tuple>>(true);
       return sourceEnumerable.GetItems(tupleRange);
+    }
+
+    protected override void Initialize()
+    {
     }
 
 

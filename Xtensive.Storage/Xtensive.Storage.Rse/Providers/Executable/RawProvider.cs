@@ -4,12 +4,14 @@
 // Created by: Alexey Kochetov
 // Created:    2008.05.08
 
+using System;
 using System.Collections.Generic;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
+  [Serializable]
   internal sealed class RawProvider : ExecutableProvider,
     IListProvider
   {
@@ -29,6 +31,10 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     protected override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
       return tuples;
+    }
+
+    protected override void Initialize()
+    {
     }
 
 

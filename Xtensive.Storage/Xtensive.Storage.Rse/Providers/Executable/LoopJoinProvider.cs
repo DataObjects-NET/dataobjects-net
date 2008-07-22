@@ -4,32 +4,31 @@
 // Created by: Alexey Kochetov
 // Created:    2008.05.21
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
-using Xtensive.Core.Comparison;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Indexing;
-using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
+  [Serializable]
   internal sealed class LoopJoinProvider : BinaryExecutableProvider
   {
     private readonly bool leftJoin;
-    private readonly MergeTransform transform;
-    private readonly MapTransform leftKeyTransform;
+    private readonly Pair<int>[] joiningPairs;
+    private MergeTransform transform;
+    private MapTransform leftKeyTransform;
 
     protected override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
       var rightOrdered = Right.GetService<IOrderedEnumerable<Tuple, Tuple>>(true);
       var left = Left.Enumerate(context);
       foreach (Pair<Tuple, Tuple> pair in leftJoin ? left.LoopJoinLeft(rightOrdered, KeyExtractorLeft) : left.LoopJoin(rightOrdered, KeyExtractorLeft)) {
-        Tuple rightTuple = pair.Second;
-        if (rightTuple == null)
-          rightTuple = Tuple.Create(Right.Header.TupleDescriptor);
+        Tuple rightTuple = pair.Second ?? Tuple.Create(Right.Header.TupleDescriptor);
         yield return transform.Apply(TupleTransformType.Auto, pair.First, rightTuple);
       }
     }
@@ -39,6 +38,14 @@ namespace Xtensive.Storage.Rse.Providers.Executable
       return leftKeyTransform.Apply(TupleTransformType.Auto, input);
     }
 
+    protected override void Initialize()
+    {
+      transform = new MergeTransform(true, Left.Header.TupleDescriptor, Right.Header.TupleDescriptor);
+      int[] map = joiningPairs.Select(pair => pair.First).ToArray();
+      TupleDescriptor leftKeyDescriptor = TupleDescriptor.Create(map.Select(i => Left.Header.TupleDescriptor[i]));
+      leftKeyTransform = new MapTransform(true, leftKeyDescriptor, map);
+    }
+
 
     // Constructors
 
@@ -46,10 +53,8 @@ namespace Xtensive.Storage.Rse.Providers.Executable
       : base(origin, left, right)
     {
       this.leftJoin = leftJoin;
-      transform = new MergeTransform(true, left.Header.TupleDescriptor, right.Header.TupleDescriptor);
-      int[] map = joiningPairs.Select(pair => pair.First).ToArray();
-      TupleDescriptor leftKeyDescriptor = TupleDescriptor.Create(map.Select(i => left.Header.TupleDescriptor[i]));
-      leftKeyTransform = new MapTransform(true, leftKeyDescriptor, map);
+      this.joiningPairs = joiningPairs;
+      Initialize();
     }
   }
 }

@@ -9,6 +9,7 @@ using System.Linq;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
+using Xtensive.Storage.Rse.Providers.Compilable;
 using Xtensive.Storage.Rse.Providers.InheritanceSupport;
 
 namespace Xtensive.Storage.Providers.Index.Compilers
@@ -20,10 +21,10 @@ namespace Xtensive.Storage.Providers.Index.Compilers
     protected override ExecutableProvider Compile(IndexProvider provider)
     {
       ExecutableProvider result;
-      IndexInfo indexInfo = provider.Index;
+      IndexInfo indexInfo = provider.Index.Resolve(handlerAccessor.Domain.Model);
       var handler = (DomainHandler) handlerAccessor.DomainHandler;
       if (!indexInfo.IsVirtual)
-        result = new Rse.Providers.Executable.IndexProvider(provider, indexInfo, handler.GetRealIndex);
+        result = new Rse.Providers.Executable.IndexProvider(provider, provider.Index, handler.GetRealIndex);
       else {
         if ((indexInfo.Attributes & IndexAttributes.Filtered)!=0) {
           ExecutableProvider source = Compile(new IndexProvider(indexInfo.UnderlyingIndexes.First()));

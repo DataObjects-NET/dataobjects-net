@@ -11,7 +11,6 @@ using Xtensive.Core.Comparison;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
-using Xtensive.Storage.Rse;
 using System.Linq;
 using Xtensive.Storage.Rse.Providers.Executable;
 using Xtensive.Storage.Rse.Providers.Internals;
@@ -19,6 +18,7 @@ using Xtensive.Core.Helpers;
 
 namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
 {
+  [Serializable]
   public sealed class FilterInheritorsProvider : UnaryExecutableProvider,
     IOrderedEnumerable<Tuple,Tuple>,
     ICountable
@@ -98,6 +98,10 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
     protected override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
       return source.Where(predicate);
+    }
+
+    protected override void Initialize()
+    {
     }
 
 

@@ -13,7 +13,6 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Indexing;
-using Xtensive.Indexing.Measures;
 using Xtensive.Storage.Rse;
 using System.Linq;
 using Xtensive.Storage.Rse.Providers.Internals;
@@ -21,14 +20,15 @@ using Xtensive.Core.Helpers;
 
 namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
 {
+  [Serializable]
   public sealed class MergeInheritorsProvider : ExecutableProvider,
     IOrderedEnumerable<Tuple,Tuple>,
     ICountable
   {
     private readonly Provider[] sourceProviders;
-    private readonly MapTransform keyTransform;
-    private readonly Converter<Tuple, Tuple> keyExtractor;
-    private readonly MapTransform[] transforms;
+    private MapTransform keyTransform;
+    private Converter<Tuple, Tuple> keyExtractor;
+    private MapTransform[] transforms;
 
     
     /// <inheritdoc/>
@@ -136,16 +136,8 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
         );
     }
 
-
-    // Constructor
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    public MergeInheritorsProvider(CompilableProvider origin, params ExecutableProvider[] sourceProviders)
-      : base(origin, sourceProviders)
+    protected override void Initialize()
     {
-      this.sourceProviders = sourceProviders;
       keyTransform = new MapTransform(true, Header.TupleDescriptor, Header.OrderInfo.OrderedBy.Select(pair => pair.Key).ToArray());
       keyExtractor = (input => keyTransform.Apply(TupleTransformType.TransformedTuple, input));
 
@@ -167,6 +159,19 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
         }
         transforms[sourceIndex] = new MapTransform(true, Header.TupleDescriptor, map);
       }
+    }
+
+
+    // Constructor
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    public MergeInheritorsProvider(CompilableProvider origin, params ExecutableProvider[] sourceProviders)
+      : base(origin, sourceProviders)
+    {
+      this.sourceProviders = sourceProviders;
+      Initialize();
     }
   }
 }

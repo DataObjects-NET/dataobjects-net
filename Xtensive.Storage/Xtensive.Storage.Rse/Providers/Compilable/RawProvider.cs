@@ -5,14 +5,22 @@
 // Created:    2008.07.09
 
 using System;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 
-namespace Xtensive.Storage.Rse.Providers
+namespace Xtensive.Storage.Rse.Providers.Compilable
 {
+  /// <summary>
+  /// Compilable provider that wraps an array of <see cref="Tuple"/> instances.
+  /// </summary>
   [Serializable]
   public class RawProvider : CompilableProvider
   {
     private readonly RecordHeader header;
+
+    /// <summary>
+    /// Source tuples.
+    /// </summary>
     public Tuple[] Tuples { get; private set; }
 
     protected override RecordHeader BuildHeader()
@@ -20,9 +28,16 @@ namespace Xtensive.Storage.Rse.Providers
       return header;
     }
 
+    protected override void Initialize()
+    {
+    }
+
 
     // Constructor
 
+    /// <summary>
+    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
     public RawProvider(RecordHeader header, params Tuple[] tuples)
     {
       Tuples = tuples;

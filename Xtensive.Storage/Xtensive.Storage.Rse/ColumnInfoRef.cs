@@ -8,6 +8,7 @@ using System;
 using System.Globalization;
 using Xtensive.Core;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Rse.Resources;
 
 namespace Xtensive.Storage.Rse
 {
@@ -17,41 +18,42 @@ namespace Xtensive.Storage.Rse
   [Serializable]
   public sealed class ColumnInfoRef: IEquatable<ColumnInfoRef>
   {
-    private readonly string columnName;
-    private readonly string fieldName;
-    private readonly string typeName;
-    private readonly CultureInfo cultureInfo;
-
     /// <summary>
     /// Gets type name of reflecting <see cref="TypeInfo"/>.
     /// </summary>
-    public string TypeName
-    {
-      get { return typeName; }
-    }
-  
+    public string TypeName { get; private set; }
+
     /// <summary>
     /// Gets name of the <see cref="FieldInfo"/>.
     /// </summary>
-    public string FieldName
-    {
-      get { return fieldName; }
-    }
+    public string FieldName { get; private set; }
 
     /// <summary>
     /// Gets name of the <see cref="ColumnInfo"/>.
     /// </summary>
-    public string ColumnName
-    {
-      get { return columnName; }
-    }
+    public string ColumnName { get; private set; }
 
     /// <summary>
     /// Gets <see cref="CultureInfo"/> info of the <see cref="ColumnInfo"/>.
     /// </summary>
-    public CultureInfo CultureInfo
+    public CultureInfo CultureInfo { get; private set; }
+
+    /// <summary>
+    /// Resolves this instance to <see cref="ColumnInfo"/> object within specified <paramref name="domainInfo"/>.
+    /// </summary>
+    /// <param name="domainInfo">Domain information.</param>
+    public ColumnInfo Resolve(DomainInfo domainInfo)
     {
-      get { return cultureInfo; }
+      var type = domainInfo.Types[TypeName];
+      if (type == null)
+        throw new InvalidOperationException(string.Format(Strings.ExCouldNotResolveXYWithinDomain, "type", TypeName));
+      var field = type.Fields[FieldName];
+      if (field == null)
+        throw new InvalidOperationException(string.Format(Strings.ExCouldNotResolveXYWithinDomain, "field", FieldName));
+      var column = field.Column;
+      if (column == null)
+        throw new InvalidOperationException(string.Format(Strings.ExCouldNotResolveXYWithinDomain, "column", ColumnName));
+      return column;
     }
 
     /// <summary>
@@ -62,23 +64,35 @@ namespace Xtensive.Storage.Rse
       return new ColumnInfoRef(columnInfo);
     }
 
+    /// <summary>
+    ///   Equality operator. Returns <see langword="true"/> if arguments are equal; otherwise <see langword="false"/>.
+    /// </summary>
+    /// <param name="x">First.</param>
+    /// <param name="y">Second</param>
     public static bool operator !=(ColumnInfoRef x, ColumnInfoRef y)
     {
       return !Equals(x, y);
     }
 
+    /// <summary>
+    ///   Inequality operator. Returns <see langword="false"/> if arguments are equal; otherwise <see langword="true"/>.
+    /// </summary>
+    /// <param name="x">First.</param>
+    /// <param name="y">Second</param>
     public static bool operator ==(ColumnInfoRef x, ColumnInfoRef y)
     {
       return Equals(x, y);
     }
 
+    /// <inheritdoc/>
     public bool Equals(ColumnInfoRef other)
     {
       if (ReferenceEquals(other,null))
         return false;
-      return Equals(fieldName, other.fieldName) && Equals(typeName, other.typeName);
+      return Equals(FieldName, other.FieldName) && Equals(TypeName, other.TypeName);
     }
 
+    /// <inheritdoc/>
     public override bool Equals(object obj)
     {
       if (ReferenceEquals(this, obj))
@@ -86,9 +100,16 @@ namespace Xtensive.Storage.Rse
       return Equals(obj as ColumnInfoRef);
     }
 
+    /// <inheritdoc/>
     public override int GetHashCode()
     {
-      return fieldName.GetHashCode() + 29*typeName.GetHashCode();
+      return FieldName.GetHashCode() + 29*TypeName.GetHashCode();
+    }
+
+    /// <inheritdoc/>
+    public override string ToString()
+    {
+      return string.Format("TypeName: {1}, FieldName: {0}, ColumnName: {2}", TypeName, FieldName, ColumnName);
     }
 
 
@@ -101,23 +122,21 @@ namespace Xtensive.Storage.Rse
     public ColumnInfoRef(ColumnInfo columnInfo)
     {
       ArgumentValidator.EnsureArgumentNotNull(columnInfo, "columnInfo");
-      typeName = columnInfo.Field.DeclaringType.Name;
-      fieldName = columnInfo.Field.Name;
-      columnName = columnInfo.Name;
-      cultureInfo = columnInfo.CultureInfo;
+      TypeName = columnInfo.Field.DeclaringType.Name;
+      FieldName = columnInfo.Field.Name;
+      ColumnName = columnInfo.Name;
+      CultureInfo = columnInfo.CultureInfo;
     }
 
     /// <summary>
     /// Initializes a new instance of <see cref="ColumnInfoRef"/> structure.
     /// </summary>
-    /// <param name="typeName"></param>
-    /// <param name="columnName"></param>
     public ColumnInfoRef(string typeName, string columnName, CultureInfo cultureInfo)
     {
-      this.typeName = typeName;
-      fieldName = columnName;
-      this.columnName = columnName;
-      this.cultureInfo = cultureInfo;
+      TypeName = typeName;
+      FieldName = columnName;
+      ColumnName = columnName;
+      CultureInfo = cultureInfo;
     }
   }
 }

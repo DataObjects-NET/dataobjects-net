@@ -17,7 +17,7 @@ using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers.Sql.Resources;
 using Xtensive.Storage.Rse;
-using Xtensive.Storage.Rse.Providers;
+using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Providers.Sql
 {

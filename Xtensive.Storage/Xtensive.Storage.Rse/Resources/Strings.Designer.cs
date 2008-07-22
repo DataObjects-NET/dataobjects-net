@@ -70,6 +70,15 @@ namespace Xtensive.Storage.Rse.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Could not resolve {0} &apos;{0}&apos; within the domain..
+        /// </summary>
+        internal static string ExCouldNotResolveXYWithinDomain {
+            get {
+                return ResourceManager.GetString("ExCouldNotResolveXYWithinDomain", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Header is not available, since origin is not provided..
         /// </summary>
         internal static string ExHeaderIsNotAvailableSinceOriginIsNotProvided {

@@ -12,16 +12,15 @@ using Xtensive.Core.Collections;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
-using Xtensive.Storage.Rse;
 using System.Linq;
 
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
+  [Serializable]
   internal sealed class SortProvider : ExecutableProvider,
     IListProvider
   {
     private readonly Provider source;
-//    private List<Tuple> list;
     private MapTransform transform;
     private AdvancedComparer<Tuple> keyComparer;
 
@@ -79,10 +78,14 @@ namespace Xtensive.Storage.Rse.Providers.Executable
       return keyComparer.Compare(xKey, yKey);
     }
 
+    protected override void Initialize()
+    {
+    }
+
 
     // Constructors
 
-    public SortProvider(CompilableProvider origin, ExecutableProvider source)
+    public SortProvider(Provider origin, ExecutableProvider source)
       : base(origin, source)
     {
       this.source = source;

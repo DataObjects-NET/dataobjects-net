@@ -5,30 +5,32 @@
 // Created:    2008.05.30
 
 using System;
-using System.Linq;
 using System.Collections.Generic;
 using Xtensive.Core;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Comparison;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Indexing;
-using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
+  [Serializable]
   internal sealed class LeftMergeJoinProvider: BinaryExecutableProvider
   {
-    private readonly MergeTransform transform;
+    private MergeTransform transform;
 
     protected override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
       var leftOrdered = Left.GetService<IOrderedEnumerable<Tuple, Tuple>>();
       var rightOrdered = Right.GetService<IOrderedEnumerable<Tuple, Tuple>>();
-      foreach (Pair<Tuple, Tuple> pair in Joiner.MergeJoinLeft(leftOrdered, rightOrdered)) {
+      foreach (Pair<Tuple, Tuple> pair in leftOrdered.MergeJoinLeft(rightOrdered)) {
         Tuple rightTuple = pair.Second ?? Tuple.Create(Right.Header.TupleDescriptor);
         yield return transform.Apply(TupleTransformType.Auto, pair.First, rightTuple);
       }
+    }
+
+    protected override void Initialize()
+    {
+      transform = new MergeTransform(true, Left.Header.TupleDescriptor, Right.Header.TupleDescriptor);
     }
 
 
@@ -37,7 +39,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     public LeftMergeJoinProvider(Provider origin, ExecutableProvider left, ExecutableProvider right)
       : base (origin, left, right)
     {
-      transform = new MergeTransform(true, left.Header.TupleDescriptor, right.Header.TupleDescriptor);
+      Initialize();
     }
   }
 }

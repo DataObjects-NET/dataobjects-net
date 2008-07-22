@@ -6,14 +6,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
-using Xtensive.Storage.Rse;
 using System.Linq;
 
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
+  [Serializable]
   internal sealed class FilteringProvider : UnaryExecutableProvider
   {
     private readonly Func<Tuple, bool> predicate;
@@ -23,6 +22,9 @@ namespace Xtensive.Storage.Rse.Providers.Executable
       return Source.Enumerate(context).Where(predicate);
     }
 
+    protected override void Initialize()
+    {
+    }
 
     // Constructors
 

@@ -12,16 +12,19 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 {
   internal sealed class SelectProvider : UnaryExecutableProvider
   {
+    protected override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
+    {
+      throw new NotImplementedException();
+    }
+
+    protected override void Initialize()
+    {}
+
     // Constructors
 
     public SelectProvider(CompilableProvider origin, ExecutableProvider source, int[] columnIndexes)
       : base(origin, source)
     {
-    }
-
-    protected override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
-    {
-      throw new NotImplementedException();
     }
   }
 }

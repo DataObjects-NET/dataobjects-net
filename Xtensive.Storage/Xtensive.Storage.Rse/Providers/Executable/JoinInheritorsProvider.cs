@@ -14,21 +14,21 @@ using Xtensive.Core.Helpers;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Indexing;
-using Xtensive.Indexing.Measures;
-using Xtensive.Storage.Rse;
 using System.Linq;
 using Xtensive.Storage.Rse.Providers.Internals;
 
 namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
 {
+  [Serializable]
   public sealed class JoinInheritorsProvider : ExecutableProvider,
     IOrderedEnumerable<Tuple,Tuple>,
     ICountable
   {
+    private readonly int includedColumnsCount;
     private readonly Provider root;
     private readonly IOrderedEnumerable<Tuple, Tuple> rootEnumerable;
     private readonly Provider[] inheritors;
-    private readonly MapTransform mapTransform;
+    private MapTransform mapTransform;
 
     #region Root delegating members
 
@@ -131,6 +131,17 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
             pair.Second, pair.Second.KeyExtractor, pair.First.Header.TupleDescriptor)).ToList());
     }
 
+    protected override void Initialize()
+    {
+      var map = new List<Pair<int, int>>();
+      for (int i = 0; i < root.Header.RecordColumnCollection.Count; i++)
+        map.Add(new Pair<int, int>(0, i));
+      for (int i = 0; i < inheritors.Length; i++)
+        for (int j = inheritors[i].Header.OrderInfo.OrderedBy.Count + includedColumnsCount; j < inheritors[i].Header.RecordColumnCollection.Count; j++)
+          map.Add(new Pair<int, int>(i + 1, j));
+      mapTransform = new MapTransform(true, Header.TupleDescriptor, map.ToArray());
+    }
+
 
     // Constructors
 
@@ -140,16 +151,11 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
     public JoinInheritorsProvider(CompilableProvider origin, int includedColumnsCount, ExecutableProvider root, ExecutableProvider[] inheritors)
       : base(origin, new[]{root}.Union(inheritors).ToArray())
     {
+      this.includedColumnsCount = includedColumnsCount;
       this.root = root;
       rootEnumerable = root.GetService<IOrderedEnumerable<Tuple, Tuple>>(true);
       this.inheritors = inheritors;
-      var map = new List<Pair<int, int>>();
-      for (int i = 0; i < root.Header.RecordColumnCollection.Count; i++)
-        map.Add(new Pair<int, int>(0, i));
-      for (int i = 0; i < inheritors.Length; i++)
-        for (int j = inheritors[i].Header.OrderInfo.OrderedBy.Count + includedColumnsCount; j < inheritors[i].Header.RecordColumnCollection.Count; j++)
-          map.Add(new Pair<int, int>(i + 1, j));
-      mapTransform = new MapTransform(true, Header.TupleDescriptor, map.ToArray());
+      Initialize();
     }
   }
 }

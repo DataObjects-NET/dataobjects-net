@@ -22,7 +22,7 @@ namespace Xtensive.Storage.Rse.Providers
   public abstract class ExecutableProvider : Provider,
     ICachingProvider
   {
-    private const string CachedResultKey = "Prepared";
+    private const string CachedResultKey = "Results";
     private readonly HashSet<Type> supportedServices = new HashSet<Type>();
 
     /// <summary>
@@ -64,6 +64,19 @@ namespace Xtensive.Storage.Rse.Providers
       foreach (Provider source in Sources) {
         var ep = source as ExecutableProvider;
         if (ep!=null)
+          ep.OnBeforeEnumerate(context);
+      }
+    }
+
+    /// <summary>
+    /// Called when enumeration is finished.
+    /// </summary>
+    /// <param name="context">The enumeration context.</param>
+    protected internal virtual void OnAfterEnumerate(EnumerationContext context)
+    {
+      foreach (Provider source in Sources) {
+        var ep = source as ExecutableProvider;
+        if (ep != null)
           ep.OnBeforeEnumerate(context);
       }
     }
@@ -143,7 +156,7 @@ namespace Xtensive.Storage.Rse.Providers
       where T : class
     {
       if (context.IsActive)
-        return context.GetValue<T>(key);
+        return context.GetValue<T>(new Pair<object, object>(this, key));
       return null;
     }
 
@@ -151,7 +164,7 @@ namespace Xtensive.Storage.Rse.Providers
       where T : class
     {
       if (context.IsActive)
-        context.SetValue(key, value);
+        context.SetValue(new Pair<object, object>(this, key), value);
     }
 
     #endregion
@@ -162,8 +175,19 @@ namespace Xtensive.Storage.Rse.Providers
     public sealed override IEnumerator<Tuple> GetEnumerator()
     {
       var context = EnumerationScope.CurrentContext;
+      if (context == null)
+        context = new EnumerationContext();
+      var scope = context.Activate();
       OnBeforeEnumerate(context);
-      return Enumerate(context).GetEnumerator();
+      try {
+        foreach (var tuple in Enumerate(context))
+          yield return tuple;
+      }
+      finally {
+        OnAfterEnumerate(context);
+        scope.DisposeSafely();
+      }
+      
     }
 
     #endregion
@@ -182,11 +206,11 @@ namespace Xtensive.Storage.Rse.Providers
 
     #endregion
 
-
+    
     // Constructor
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="origin">The <see cref="Origin"/> property value.</param>
     /// <param name="sources">The <see cref="Provider.Sources"/> property value.</param>

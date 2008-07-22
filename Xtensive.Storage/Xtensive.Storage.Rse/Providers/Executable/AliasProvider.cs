@@ -4,16 +4,22 @@
 // Created by: Alexey Kochetov
 // Created:    2008.05.20
 
+using System;
 using System.Collections.Generic;
 using Xtensive.Core.Tuples;
 
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
+  [Serializable]
   internal sealed class AliasProvider : UnaryExecutableProvider
   {
     protected override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
       return Source.Enumerate(context);
+    }
+
+    protected override void Initialize()
+    {
     }
 
 

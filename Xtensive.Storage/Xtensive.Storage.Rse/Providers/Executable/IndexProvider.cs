@@ -9,17 +9,17 @@ using System.Collections.Generic;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
-using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
   /// <summary>
   /// General index provider for all indexing storage handlers.
   /// </summary>
+  [Serializable]
   public sealed class IndexProvider : ExecutableProvider
   {
-    private readonly Func<IndexInfo, IOrderedIndex<Tuple, Tuple>> indexResolver;
-    private readonly IndexInfo indexDescriptor;
+    private readonly Func<IndexInfoRef, IOrderedIndex<Tuple, Tuple>> indexResolver;
+    private readonly IndexInfoRef indexDescriptor;
 
     /// <inheritdoc/>
     public override T GetService<T>()
@@ -35,10 +35,13 @@ namespace Xtensive.Storage.Rse.Providers.Executable
       return index;
     }
 
+    protected override void Initialize()
+    {
+    }
 
     // Constructors
 
-    public IndexProvider(CompilableProvider origin, IndexInfo indexDescriptor, Func<IndexInfo,IOrderedIndex<Tuple,Tuple>> indexResolver)
+    public IndexProvider(CompilableProvider origin, IndexInfoRef indexDescriptor, Func<IndexInfoRef,IOrderedIndex<Tuple,Tuple>> indexResolver)
       : base(origin)
     {
       this.indexResolver = indexResolver;

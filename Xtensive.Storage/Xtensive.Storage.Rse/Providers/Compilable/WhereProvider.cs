@@ -6,14 +6,21 @@
 
 using System;
 using System.Linq.Expressions;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
+using Xtensive.Storage.Rse.Providers.Compilable;
 
-namespace Xtensive.Storage.Rse.Providers
+namespace Xtensive.Storage.Rse.Providers.Compilable
 {
+  /// <summary>
+  /// Compilable provider that declares filtering operation over the <see cref="UnaryProvider.Source"/>.
+  /// </summary>
   [Serializable]
-  public class WhereProvider : CompilableProvider
+  public class WhereProvider : UnaryProvider
   {
-    public CompilableProvider Source { get; private set; }
+    /// <summary>
+    /// Filtering predicate expression.
+    /// </summary>
     public Expression<Func<Tuple, bool>> Predicate { get; private set; }
 
     protected override RecordHeader BuildHeader()
@@ -21,13 +28,18 @@ namespace Xtensive.Storage.Rse.Providers
       return Source.Header;
     }
 
+    protected override void Initialize()
+    {}
+
 
     // Constructor
 
+    /// <summary>
+    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
     public WhereProvider(CompilableProvider source, Expression<Func<Tuple, bool>> predicate)
       : base(source)
     {
-      Source = source;
       Predicate = predicate;
     }
   }

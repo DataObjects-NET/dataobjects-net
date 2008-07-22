@@ -4,6 +4,7 @@
 // Created by: Alexey Kochetov
 // Created:    2008.05.13
 
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using Xtensive.Core;
@@ -15,6 +16,7 @@ using System.Linq;
 
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
+  [Serializable]
   public sealed class IndexingProvider : UnaryExecutableProvider
   {
     private MapTransform transform;
@@ -59,6 +61,9 @@ namespace Xtensive.Storage.Rse.Providers.Executable
       return result as T;
     }
 
+    protected override void Initialize()
+    {
+    }
 
     // Constructors
 

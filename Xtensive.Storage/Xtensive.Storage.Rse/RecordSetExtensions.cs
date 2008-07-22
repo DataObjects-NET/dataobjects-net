@@ -15,6 +15,7 @@ using Xtensive.Core.Helpers;
 using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
 using Xtensive.Storage.Rse.Providers;
+using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Rse
 {

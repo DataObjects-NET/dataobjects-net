@@ -5,6 +5,7 @@
 // Created:    2008.07.08
 
 using Xtensive.Storage.Rse.Providers;
+using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Rse.Compilation
 {
@@ -15,7 +16,7 @@ namespace Xtensive.Storage.Rse.Compilation
       return new Providers.Executable.SelectProvider(
         provider, 
         Compiler.Compile(provider.Source, true), 
-        provider.ColumnIndexes);
+        provider.ColumnsToSelect);
     }
 
 

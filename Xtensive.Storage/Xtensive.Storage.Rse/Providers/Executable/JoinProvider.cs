@@ -76,6 +76,10 @@ namespace Xtensive.Storage.Rse.Providers.Executable
       return false;
     }
 
+    protected override void Initialize()
+    {
+    }
+
 
     // Constructor
 
