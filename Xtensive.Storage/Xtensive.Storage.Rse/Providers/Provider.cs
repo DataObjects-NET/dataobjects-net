@@ -87,7 +87,6 @@ namespace Xtensive.Storage.Rse.Providers
     protected Provider(params Provider[] sources)
     {
       Sources = sources;
-      BuildHeader();
     }
   }
 }

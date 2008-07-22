@@ -5,7 +5,6 @@
 // Created:    2007.10.23
 
 using System.Linq;
-using System.Reflection;
 using PostSharp.CodeModel;
 using PostSharp.Extensibility;
 using PostSharp.Laos;

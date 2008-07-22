@@ -24,6 +24,7 @@ namespace Xtensive.Storage.Aspects
     private static readonly Type persistentType = typeof(Persistent);
     private static readonly Type entityType     = typeof(Entity);
     private static readonly Type structureType  = typeof(Structure);
+    private static readonly string handlerMethodSuffix = "Value";
 
     public override void ProvideAspects(object element, LaosReflectionAspectCollection collection)
     {
@@ -32,7 +33,7 @@ namespace Xtensive.Storage.Aspects
       if (type == null)
         return;
 
-      if (typeof(IContextBound<Session>).IsAssignableFrom(type))
+      if (typeof(IContextBound<Session>).IsAssignableFrom(type) && type != typeof(Session))
         ProvideSessionBoundAspects(type, collection);
 
       if (type.IsSubclassOf(persistentType))
@@ -62,9 +63,9 @@ namespace Xtensive.Storage.Aspects
 
     private void ProvidePersistentAspects(Type type, LaosReflectionAspectCollection collection)
     {
-      Type baseType = ProvideConstructorDelegateAspect(type, collection);
+      ProvideConstructorDelegateAspect(type, collection);
 
-      ProvideConstructorAspect(type, collection, baseType);
+      ProvideConstructorAspect(type, collection);
 
       ProvideAutoPropertyAspects(type, collection);
     }
@@ -88,13 +89,13 @@ namespace Xtensive.Storage.Aspects
                                               new object[] { pi.GetShortName(), typeof(FieldAttribute).GetShortName() });
         }
         if (pi.GetGetMethod(true) != null)
-          collection.AddAspect(pi.GetGetMethod(true), new ImplementAutoPropertyReplacementAspect(persistentType, pi.Name));
+          collection.AddAspect(pi.GetGetMethod(true), new ImplementAutoPropertyReplacementAspect(persistentType, handlerMethodSuffix));
         if (pi.GetSetMethod(true) != null)
-          collection.AddAspect(pi.GetSetMethod(true), new ImplementAutoPropertyReplacementAspect(persistentType, pi.Name));
+          collection.AddAspect(pi.GetSetMethod(true), new ImplementAutoPropertyReplacementAspect(persistentType, handlerMethodSuffix));
       }
     }
 
-    private void ProvideConstructorAspect(Type type, LaosReflectionAspectCollection collection, Type baseType)
+    private void ProvideConstructorAspect(Type type, LaosReflectionAspectCollection collection)
     {
       Type[] parameterTypes = type.IsSubclassOf(structureType)
                                 ? new Type[] {persistentType, typeof (FieldInfo)}
@@ -103,17 +104,27 @@ namespace Xtensive.Storage.Aspects
         type,
         parameterTypes
         );
-      collection.AddAspect(type, ica);
+
+      if (ica != null) {
+        //Type baseType = type.BaseType;
+        //while (null != baseType && null == baseType.GetConstructor(
+        //  BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.CreateInstance,
+        //  null,
+        //  parameterTypes,
+        //  null)) {
+        //  baseType = baseType.BaseType;
+        //  ica.AspectPriority--;
+        //}
+        //AspectsMessageSource.Instance.Write(SeverityType.Debug, "AspectDebugMessage", new object[]
+        //  { String.Format("\nConstructor for '{0}' has priority of '{1}'", type.FullName, ica.AspectPriority) } );
+        collection.AddAspect(type, ica);
+      }
     }
 
-    private Type ProvideConstructorDelegateAspect(Type type, LaosReflectionAspectCollection collection)
+    private void ProvideConstructorDelegateAspect(Type type, LaosReflectionAspectCollection collection)
     {
-      Type baseType = persistentType;
-
       ImplementConstructorAspect cda = null;
       if (type.IsSubclassOf(structureType)) {
-        baseType = structureType;
-
         if (!type.IsAbstract)
           cda = ImplementConstructorAspect.ApplyOnce(
             type,
@@ -121,8 +132,6 @@ namespace Xtensive.Storage.Aspects
       }
 
       if (type.IsSubclassOf(entityType)) {
-        baseType = entityType;
-
         if (!type.IsAbstract)
           cda = ImplementConstructorAspect.ApplyOnce(
             type,
@@ -131,7 +140,6 @@ namespace Xtensive.Storage.Aspects
 
       if (cda != null)
         collection.AddAspect(type, cda);
-      return baseType;
     }
 
 

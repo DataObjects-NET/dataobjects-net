@@ -38,7 +38,6 @@ namespace Xtensive.Storage
     [DebuggerHidden]
     public Domain Domain
     {
-      [SuppressActivation(typeof (Session))]
       get { return HandlerAccessor.Domain; }
     }
 
@@ -95,32 +94,26 @@ namespace Xtensive.Storage
 
     [DebuggerHidden]
     internal HandlerAccessor HandlerAccessor {
-      [SuppressActivation(typeof (Session))]
       get;
-      [SuppressActivation(typeof (Session))]
       private set; 
     }
 
     [DebuggerHidden]
     internal WeakCache<Key, EntityData> IdentityMap
     {
-      [SuppressActivation(typeof (Session))]
       get { return identityMap; }
     }
 
     [DebuggerHidden]
     internal SessionHandler Handler
     {
-      [SuppressActivation(typeof (Session))]
       get;
-      [SuppressActivation(typeof (Session))]
       set;
     }
 
     [DebuggerHidden]
     internal FlagRegistry<PersistenceState, EntityData> DirtyData
     {
-      [SuppressActivation(typeof (Session))]
       get { return dirtyData; }
     }
 
@@ -158,12 +151,10 @@ namespace Xtensive.Storage
     [DebuggerHidden]
     public static Session Current
     {
-      [SuppressActivation(typeof (Session))]
       get { return SessionScope.Current==null ? null : SessionScope.Current.Session; }
     }
 
     /// <inheritdoc/>
-    [SuppressActivation(typeof (Session))]
     public SessionScope Activate()
     {
       if (IsActive)
@@ -172,7 +163,6 @@ namespace Xtensive.Storage
     }
 
     /// <inheritdoc/>
-    [SuppressActivation(typeof (Session))]
     IDisposable IContext.Activate()
     {
       return Activate();
@@ -181,7 +171,6 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     public bool IsActive
     {
-      [SuppressActivation(typeof (Session))]
       get { return SessionScope.Current.Session==this; }
     }
 
@@ -192,14 +181,12 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     public Session Context
     {
-      [SuppressActivation(typeof (Session))]
       get { return this; }
     }
 
     #endregion
 
     /// <inheritdoc/>
-    [SuppressActivation(typeof (Session))]
     protected override void OnConfigured()
     {
       base.OnConfigured();

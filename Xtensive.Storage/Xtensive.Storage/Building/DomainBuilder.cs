@@ -129,8 +129,7 @@ namespace Xtensive.Storage.Building
               protocol,
               Environment.CurrentDirectory));
 
-        Delegate costructorDelegate = DelegateHelper.CreateClassConstructorDelegate(handlerProviderType);
-        handlerAccessor.HandlerProvider = (HandlerProvider)costructorDelegate.DynamicInvoke();
+        handlerAccessor.HandlerProvider = (HandlerProvider)Activator.CreateInstance(handlerProviderType);
         handlerAccessor.DomainHandler = handlerAccessor.HandlerProvider.GetHandler<DomainHandler>();
         handlerAccessor.DomainHandler.HandlerAccessor = handlerAccessor;
         handlerAccessor.DomainHandler.Build();        

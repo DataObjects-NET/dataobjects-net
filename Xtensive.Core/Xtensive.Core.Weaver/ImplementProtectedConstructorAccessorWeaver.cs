@@ -91,7 +91,7 @@ namespace Xtensive.Core.Weaver
       return foundConstructor;
     }
 
-    private static string GetTypeName(ITypeSignature parareterTypeSignature)
+    internal static string GetTypeName(ITypeSignature parareterTypeSignature)
     {
       var nameBuilder = new StringBuilder();
       parareterTypeSignature.WriteReflectionTypeName(nameBuilder, ReflectionNameOptions.None);

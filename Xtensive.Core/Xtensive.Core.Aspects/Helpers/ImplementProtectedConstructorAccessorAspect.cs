@@ -8,6 +8,7 @@ using System;
 using PostSharp.Extensibility;
 using PostSharp.Laos;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Reflection;
 
 namespace Xtensive.Core.Aspects.Helpers
 {
@@ -57,9 +58,8 @@ namespace Xtensive.Core.Aspects.Helpers
     {
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
       var tAccessor = typeof (TAccessor);
-      var tAccessorArguments = tAccessor.GetGenericArguments();
-      var tReturnType = tAccessorArguments[tAccessorArguments.Length - 1];
-      Array.Resize(ref tAccessorArguments, tAccessorArguments.Length - 1);
+      Type tReturnType;
+      Type[] tAccessorArguments = DelegateHelper.GetAccessorArguments(tAccessor, out tReturnType);
 
       return AppliedAspectSet.Add(new Pair<Type, Type>(type, tAccessor),
         () => new ImplementProtectedConstructorAccessorAspect(tAccessorArguments, tReturnType));

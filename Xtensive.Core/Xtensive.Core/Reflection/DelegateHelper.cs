@@ -26,6 +26,10 @@ namespace Xtensive.Core.Reflection
     private static readonly Dictionary<Type, Type> typeOnStack = new Dictionary<Type, Type>();
     private static readonly string primitiveCastMethodName = "PrimitiveCast";
     private static readonly string ctorMethodName = "Ctor";
+    private static readonly string createProtectedConstructorDelegateMethodName = "CreateProtectedConstructorDelegate";
+    private static readonly MethodInfo createProtectedConstructorDelegateMethod =
+      typeof(DelegateHelper).GetMethod(createProtectedConstructorDelegateMethodName);
+    private static readonly string createMethodName = "~Create ";
 
     /// <summary>
     /// Aspected private field getter prefix.
@@ -372,6 +376,45 @@ namespace Xtensive.Core.Reflection
       }
     }
 
+
+    /// <summary>
+    /// Creates constructor invocation delegate.
+    /// </summary>
+    /// <param name="type">The type to create the constructor invocation delegate for.</param>
+    /// <returns>Constructor invocation delegate.</returns>
+    public static Delegate CreateConstructorDelegate(Type type, Type delegateType, bool isProtected)
+    {
+      if (isProtected)
+        return (Delegate)createProtectedConstructorDelegateMethod.MakeGenericMethod(new [] {delegateType}).Invoke(null, new object[] { type } );
+
+      string methodKey  = GetMethodCallDelegateKey(ctorMethodName, type, delegateType);
+      Delegate result = GetCachedDelegate(methodKey);
+      if (result == null)
+        lock (cachedDelegates) {
+          result = GetCachedDelegate(methodKey);
+          if (result != null)
+            return result;
+
+          DynamicMethod dm = new DynamicMethod(createMethodName + type.FullName,
+                                               type, new Type[] { });
+          ILGenerator il = dm.GetILGenerator();
+          il.Emit(OpCodes.Newobj, type.GetConstructor(new Type[] { }));
+          il.Emit(OpCodes.Ret);
+
+          result = dm.CreateDelegate(delegateType);
+        }
+      return result;
+    }
+
+
+    public static Type[] GetAccessorArguments(Type accessor, out Type returnType)
+    {
+      var tAccessorArguments = accessor.GetGenericArguments();
+      returnType = tAccessorArguments[tAccessorArguments.Length - 1];
+      Array.Resize(ref tAccessorArguments, tAccessorArguments.Length - 1);
+      return tAccessorArguments;
+    }
+
     /// <summary>
     /// Creates protected constructor invocation delegate.
     /// </summary>
@@ -407,7 +450,7 @@ namespace Xtensive.Core.Reflection
 
     private static string GetMethodCallDelegateKey(string methodName, params Type[] argumentTypes)
     {
-      StringBuilder sb = new StringBuilder(128);
+      var sb = new StringBuilder(128);
       sb.Append(methodName);
       for (int i = 0; i < argumentTypes.Length; i++) {
         sb.Append(", ");

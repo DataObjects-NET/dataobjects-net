@@ -60,10 +60,24 @@ namespace Xtensive.Core.Weaver
       for(short i = 0; i < parameterTypeSignatures.Length; i++)
         writer.EmitInstructionParameter(OpCodeNumber.Ldarg, ctorDef.Parameters[i]);
 
+      IMethod baseConstructor = null;
+      try {
+        baseConstructor = baseTypeDef.Methods.GetMethod(CtorName,
+                                      ctorSignature.Translate(module),
+                                      BindingOptions.OnlyExisting);
+      } catch {}
+      while (baseConstructor == null && baseType != null)
+      {
+        baseType = baseTypeDef.BaseType;
+        baseTypeDef = baseType.GetTypeDefinition();
+        try {
+          baseConstructor = baseType.Methods.GetMethod(CtorName,
+                                                            ctorSignature.Translate(module),
+                                                            BindingOptions.OnlyExisting);
+        } catch {}
+      }
       writer.EmitInstructionMethod(OpCodeNumber.Call,
-        (IMethod) baseTypeDef.Methods.GetMethod(CtorName,
-          ctorSignature.Translate(module),
-          BindingOptions.Default).Translate(module));
+        (IMethod)baseConstructor.Translate(module));
       writer.EmitInstruction(OpCodeNumber.Ret);
       writer.DetachInstructionSequence();
     }
