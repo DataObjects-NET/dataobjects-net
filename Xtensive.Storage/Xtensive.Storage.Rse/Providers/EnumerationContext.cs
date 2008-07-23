@@ -19,7 +19,7 @@ namespace Xtensive.Storage.Rse.Providers
   [Serializable]
   public sealed class EnumerationContext: Context<EnumerationScope>
   {
-    private readonly Dictionary<Pair<object, object>, object> cache = new Dictionary<Pair<object, object>, object>();
+    private readonly Dictionary<Pair<Guid, string>, object> cache = new Dictionary<Pair<Guid, string>, object>();
 
     /// <summary>
     /// Caches the value in the current <see cref="EnumerationContext"/>.
@@ -27,10 +27,10 @@ namespace Xtensive.Storage.Rse.Providers
     /// <typeparam name="T">The type of the value.</typeparam>
     /// <param name="key">The cache key.</param>
     /// <param name="value">The value to cache.</param>
-    public void SetValue<T>(object key, T value)
+    public void SetValue<T>(string key, T value)
       where T: class
     {
-      SetValue(new Pair<object, object>(null, key), value);
+      SetValue(new Pair<Guid, string>(Guid.Empty, key), value);
     }
 
     /// <summary>
@@ -40,26 +40,25 @@ namespace Xtensive.Storage.Rse.Providers
     /// <param name="key">The cache key.</param>
     /// <returns>Cached value with the specified key;
     /// <see langword="null"/>, if no cached value is found, or it is already expired.</returns>
-    public T GetValue<T>(object key)
+    public T GetValue<T>(string key)
       where T: class
     {
-      return GetValue<T>(new Pair<object, object>(null, key));
+      return GetValue<T>(new Pair<Guid, string>(Guid.Empty, key));
     }
 
-    internal void SetValue<T>(Pair<object, object> key, T value)
+    internal void SetValue<T>(Pair<Guid, string> key, T value)
       where T: class
     {
       cache[key] = value;
     }
 
-    internal T GetValue<T>(Pair<object, object> key)
+    internal T GetValue<T>(Pair<Guid, string> key)
       where T: class
     {
       object result;
       if (cache.TryGetValue(key, out result))
         return result as T;
-      else
-        return null;
+      return null;
     }
     
     protected override EnumerationScope CreateActiveScope()
@@ -81,16 +80,6 @@ namespace Xtensive.Storage.Rse.Providers
     /// </summary>
     internal EnumerationContext()
     {
-//      Provider = provider;
-//      Provider.OnBeforeEnumerate(this);
-    }
-
-    // IDisposable methods
-
-    /// <see cref="ClassDocTemplate.Dispose" copy="true"/>
-    public void Dispose()
-    {
-//      Provider.OnAfterEnumerate(this);
     }
   }
 }

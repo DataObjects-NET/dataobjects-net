@@ -20,10 +20,12 @@ namespace Xtensive.Storage.Rse.Providers
   /// </summary>
   [Serializable]
   public abstract class ExecutableProvider : Provider,
-    ICachingProvider
+    ICachingProvider,
+    IIdentified<Guid>
   {
     private const string CachedResultKey = "Results";
     private readonly HashSet<Type> supportedServices = new HashSet<Type>();
+    private readonly Guid identifier;
 
     /// <summary>
     /// Gets the provider this provider is compiled from.
@@ -37,6 +39,22 @@ namespace Xtensive.Storage.Rse.Providers
         return Origin.Header;
       throw new InvalidOperationException(Strings.ExHeaderIsNotAvailableSinceOriginIsNotProvided);
     }
+
+    #region IIdentified members
+
+    object IIdentified.Identifier
+    {
+      get { return Identifier; }
+    }
+
+    /// <inheritdoc/>
+    public virtual Guid Identifier
+    {
+      get { return identifier; }
+    }
+
+    #endregion
+
 
     /// <summary>
     /// Gets the sequence this provider provides in the specified <see cref="EnumerationContext"/>.
@@ -152,19 +170,19 @@ namespace Xtensive.Storage.Rse.Providers
         SetCachedResult(context, OnEnumerate(context));
     }
 
-    protected T GetCachedValue<T>(object key, EnumerationContext context)
+    protected T GetCachedValue<T>(string key, EnumerationContext context)
       where T : class
     {
       if (context.IsActive)
-        return context.GetValue<T>(new Pair<object, object>(this, key));
+        return context.GetValue<T>(new Pair<Guid, string>(Identifier, key));
       return null;
     }
 
-    protected void SetCachedValue<T>(object key, T value, EnumerationContext context)
+    protected void SetCachedValue<T>(string key, T value, EnumerationContext context)
       where T : class
     {
       if (context.IsActive)
-        context.SetValue(new Pair<object, object>(this, key), value);
+        context.SetValue(new Pair<Guid, string>(Identifier, key), value);
     }
 
     #endregion
@@ -180,7 +198,8 @@ namespace Xtensive.Storage.Rse.Providers
       var scope = context.Activate();
       OnBeforeEnumerate(context);
       try {
-        foreach (var tuple in Enumerate(context))
+        var enumerable = Enumerate(context);
+        foreach (var tuple in enumerable)
           yield return tuple;
       }
       finally {
@@ -192,19 +211,15 @@ namespace Xtensive.Storage.Rse.Providers
 
     #endregion
 
-    #region Private \ internal methods
-
-    private IEnumerable<Tuple> GetCachedResult(EnumerationContext context)
+    protected IEnumerable<Tuple> GetCachedResult(EnumerationContext context)
     {
-      return context.GetValue<IEnumerable<Tuple>>(new Pair<object, object>(this, CachedResultKey));
+      return context.GetValue<IEnumerable<Tuple>>(new Pair<Guid, string>(Identifier, CachedResultKey));
     }
 
     private void SetCachedResult(EnumerationContext context, IEnumerable<Tuple> value) 
     {
-      context.SetValue(new Pair<object, object>(this, CachedResultKey), value);
+      context.SetValue(new Pair<Guid, string>(Identifier, CachedResultKey), value);
     }
-
-    #endregion
 
     
     // Constructor
@@ -218,6 +233,7 @@ namespace Xtensive.Storage.Rse.Providers
       : base(sources)
     {
       Origin = origin;
+      identifier = Guid.NewGuid();
     }
   }
 }

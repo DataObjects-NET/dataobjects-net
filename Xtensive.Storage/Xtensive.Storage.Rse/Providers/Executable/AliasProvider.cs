@@ -13,6 +13,12 @@ namespace Xtensive.Storage.Rse.Providers.Executable
   [Serializable]
   internal sealed class AliasProvider : UnaryExecutableProvider
   {
+    /// <inheritdoc/>
+    public override Guid Identifier
+    {
+      get { return Source.Identifier; }
+    }
+
     protected override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
       return Source.Enumerate(context);
