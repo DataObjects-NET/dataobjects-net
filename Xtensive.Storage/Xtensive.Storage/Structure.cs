@@ -128,8 +128,7 @@ namespace Xtensive.Storage
 
     internal static Structure Activate(Type type, Persistent owner, FieldInfo field)
     {
-      if (!activators.ContainsKey(type))
-      {
+      if (!activators.ContainsKey(type)) {
         Activator.CreateInstance(type);
         if (!activators.ContainsKey(type))
           throw new ArgumentException(String.Format(Resources.Strings.TypeXWasNotRegisteredForActivation, type));

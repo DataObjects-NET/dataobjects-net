@@ -123,21 +123,24 @@ namespace Xtensive.Storage.Aspects
 
     private void ProvideConstructorDelegateAspect(Type type, LaosReflectionAspectCollection collection)
     {
-      ImplementConstructorAspect cda = null;
+      ImplementProtectedConstructorAccessorAspect cda = null;
       if (type.IsSubclassOf(structureType)) {
         if (!type.IsAbstract)
-          cda = ImplementConstructorAspect.ApplyOnce(
+          cda = ImplementProtectedConstructorAccessorAspect.ApplyOnce(
             type,
-            new [] { persistentType, typeof(FieldInfo) });
+            new [] { persistentType, typeof(FieldInfo) },
+            structureType);
       }
 
       if (type.IsSubclassOf(entityType)) {
         if (!type.IsAbstract)
-          cda = ImplementConstructorAspect.ApplyOnce(
+          cda = ImplementProtectedConstructorAccessorAspect.ApplyOnce(
             type,
-            new [] { typeof(EntityData) });
+            new [] { typeof(EntityData) },
+            entityType);
       }
 
+    );
       if (cda != null)
         collection.AddAspect(type, cda);
     }

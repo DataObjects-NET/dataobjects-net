@@ -10,6 +10,7 @@ using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Internals;
@@ -176,8 +177,14 @@ namespace Xtensive.Storage
 
     internal static Entity Activate(Type type, EntityData data)
     {
-      if (!activators.ContainsKey(type))
-        throw new ArgumentException(String.Format("Type '{0}' was not registered for activation", type));
+      if (!activators.ContainsKey(type)) {
+        var constructorInvocationDelegate =
+          (Func<EntityData, Entity>) DelegateHelper.CreateConstructorDelegate(
+                                       type,
+                                       typeof (Func<EntityData, Entity>), true);
+        activators.Add(type, constructorInvocationDelegate);
+        return constructorInvocationDelegate(data);
+      }
       return activators[type](data);
     }
 

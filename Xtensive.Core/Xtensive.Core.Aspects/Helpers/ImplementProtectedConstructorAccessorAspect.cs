@@ -50,19 +50,17 @@ namespace Xtensive.Core.Aspects.Helpers
     /// <summary>
     /// Applies this aspect to the specified <paramref name="type"/>.
     /// </summary>
-    /// <typeparam name="TAccessor">The accessor delegate specifying constructor arguments and required return type.</typeparam>
     /// <param name="type">The type to apply the aspect to.</param>
     /// <returns>If it was the first application with the specified set of arguments, the newly created aspect;
     /// otherwise, <see langword="null" />.</returns>
-    public static ImplementProtectedConstructorAccessorAspect ApplyOnce<TAccessor>(Type type)
+    public static ImplementProtectedConstructorAccessorAspect ApplyOnce(Type type, Type[] argumentTypes, Type returnType)
     {
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
-      var tAccessor = typeof (TAccessor);
-      Type tReturnType;
-      Type[] tAccessorArguments = DelegateHelper.GetAccessorArguments(tAccessor, out tReturnType);
 
-      return AppliedAspectSet.Add(new Pair<Type, Type>(type, tAccessor),
-        () => new ImplementProtectedConstructorAccessorAspect(tAccessorArguments, tReturnType));
+      var aspect = AppliedAspectSet.Add(new Pair<Type, Type>(type, returnType),
+                                                                             () => new ImplementProtectedConstructorAccessorAspect(argumentTypes, returnType));
+      AspectDebug.WriteLine("Applying ProtectedConstructorAccessor aspect for type '{0}' = '{1}'", type.FullName, aspect);
+      return aspect;
     }
 
 
