@@ -222,7 +222,16 @@ namespace Xtensive.Storage.Building
           result = string.Format("{1}.IX_{0}", string.Join("", fieldList.ConvertAll(f => f.Name).ToArray()), type.Name);
         }
       }
-      return NamingConvention.Apply(string.Concat(result, index.IsVirtual ? ".VIRTUAL" : string.Empty));
+      string suffix = string.Empty;
+      if (index.IsVirtual) {
+        if ((index.Attributes & IndexAttributes.Filtered)!=IndexAttributes.None)
+          suffix = ".FILTERED";
+        else if ((index.Attributes & IndexAttributes.Join)!=IndexAttributes.None)
+          suffix = ".JOIN";
+        else if ((index.Attributes & IndexAttributes.Union)!=IndexAttributes.None)
+          suffix = ".UNION";
+      }
+      return NamingConvention.Apply(string.Concat(result, suffix));
     }
 
     /// <summary>

@@ -22,7 +22,7 @@ namespace Xtensive.Storage.Model
   [Serializable]
   public sealed class IndexInfo : MappingNode
   {
-    private readonly IndexAttributes attributes;
+    private IndexAttributes attributes;
     private readonly DirectionCollection<ColumnInfo> keyColumns = new DirectionCollection<ColumnInfo>();
     private readonly ColumnInfoCollection valueColumns = new ColumnInfoCollection();
     private readonly ColumnInfoCollection includedColumns = new ColumnInfoCollection();
@@ -124,6 +124,12 @@ namespace Xtensive.Storage.Model
     public bool IsPrimary
     {
       get { return (attributes & IndexAttributes.Primary) > 0; }
+      set { 
+        this.EnsureNotLocked();
+        attributes = value
+          ? (Attributes | IndexAttributes.Primary) & ~IndexAttributes.Secondary
+          : (Attributes & ~IndexAttributes.Primary) | IndexAttributes.Secondary;
+      }
     }
 
     /// <summary>

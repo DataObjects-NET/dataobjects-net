@@ -127,6 +127,6 @@
     <value>Header is not available, since origin is not provided.</value>
   </data>
   <data name="ExCouldNotResolveXYWithinDomain" xml:space="preserve">
-    <value>Could not resolve {0} '{0}' within the domain.</value>
+    <value>Could not resolve {0} '{1}' within the domain.</value>
   </data>
 </root>

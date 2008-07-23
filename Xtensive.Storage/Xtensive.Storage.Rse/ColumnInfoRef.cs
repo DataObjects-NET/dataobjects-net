@@ -44,13 +44,13 @@ namespace Xtensive.Storage.Rse
     /// <param name="domainInfo">Domain information.</param>
     public ColumnInfo Resolve(DomainInfo domainInfo)
     {
-      var type = domainInfo.Types[TypeName];
-      if (type == null)
+      TypeInfo type;
+      if (!domainInfo.Types.TryGetValue(TypeName, out type))
         throw new InvalidOperationException(string.Format(Strings.ExCouldNotResolveXYWithinDomain, "type", TypeName));
-      var field = type.Fields[FieldName];
-      if (field == null)
+      FieldInfo field;
+      if (!type.Fields.TryGetValue(FieldName, out field))
         throw new InvalidOperationException(string.Format(Strings.ExCouldNotResolveXYWithinDomain, "field", FieldName));
-      var column = field.Column;
+      ColumnInfo column = field.Column;
       if (column == null)
         throw new InvalidOperationException(string.Format(Strings.ExCouldNotResolveXYWithinDomain, "column", ColumnName));
       return column;

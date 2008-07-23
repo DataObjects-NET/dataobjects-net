@@ -256,6 +256,7 @@ namespace Xtensive.Storage.Building.Builders
           foreach (TypeInfo ancestor in ancestors) {
             IndexInfo ancestorIndex = ancestor.Indexes.Find(IndexAttributes.Primary | IndexAttributes.Real, MatchType.Full).First();
             IndexInfo baseIndex = BuildVirtualIndex(type, IndexAttributes.Filtered, ancestorIndex);
+            baseIndex.IsPrimary = false;
             baseIndexes.Add(baseIndex);
           }
           baseIndexes.Add(primaryIndex);

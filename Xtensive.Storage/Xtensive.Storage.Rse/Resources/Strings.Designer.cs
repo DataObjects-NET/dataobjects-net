@@ -70,7 +70,7 @@ namespace Xtensive.Storage.Rse.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Could not resolve {0} &apos;{0}&apos; within the domain..
+        ///   Looks up a localized string similar to Could not resolve {0} &apos;{1}&apos; within the domain..
         /// </summary>
         internal static string ExCouldNotResolveXYWithinDomain {
             get {

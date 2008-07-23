@@ -33,11 +33,11 @@ namespace Xtensive.Storage.Rse
     /// <param name="domainInfo">Domain information.</param>
     public IndexInfo Resolve(DomainInfo domainInfo)
     {
-      var type = domainInfo.Types[TypeName];
-      if (type == null)
+      TypeInfo type;
+      if (!domainInfo.Types.TryGetValue(TypeName, out type))
         throw new InvalidOperationException(string.Format(Strings.ExCouldNotResolveXYWithinDomain, "type", TypeName));
-      var index = type.Indexes[IndexName];
-      if (index == null)
+      IndexInfo index;
+      if (!type.Indexes.TryGetValue(IndexName, out index))
         throw new InvalidOperationException(string.Format(Strings.ExCouldNotResolveXYWithinDomain, "index", IndexName));
 
       return index;
