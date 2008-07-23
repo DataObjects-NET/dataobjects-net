@@ -256,6 +256,7 @@ namespace Xtensive.Storage.Building.Builders
           foreach (TypeInfo ancestor in ancestors) {
             IndexInfo ancestorIndex = ancestor.Indexes.Find(IndexAttributes.Primary | IndexAttributes.Real, MatchType.Full).First();
             IndexInfo baseIndex = BuildVirtualIndex(type, IndexAttributes.Filtered, ancestorIndex);
+            type.Indexes.Add(baseIndex);
             baseIndex.IsPrimary = false;
             baseIndexes.Add(baseIndex);
           }
@@ -265,6 +266,7 @@ namespace Xtensive.Storage.Building.Builders
             baseIndexes.Add(descendantIndex);
           }
           IndexInfo virtualPrimaryIndex = BuildVirtualIndex(type, IndexAttributes.Join, baseIndexes[0], baseIndexes.Skip(1).ToArray());
+          virtualPrimaryIndex.IsPrimary = true;
           type.Indexes.Add(virtualPrimaryIndex);
         }
 

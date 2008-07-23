@@ -30,10 +30,10 @@ namespace Xtensive.Storage.Building.Builders
       type.Attributes |= TypeAttributes.Materialized;
     }
 
-    public static void Process(HierarchyDef hierarchy, HierarchyRootAttribute attribute)
+    public static void Process(HierarchyDef hierarchy, TypeDef type, HierarchyRootAttribute attribute)
     {
       ProcessGenerator(hierarchy, attribute);
-      ProcessKeyFields(hierarchy, attribute);
+      ProcessKeyFields(hierarchy, type, attribute);
       ProcessInheritanceSchema(hierarchy, attribute);
     }
 
@@ -79,25 +79,24 @@ namespace Xtensive.Storage.Building.Builders
       hierarchy.Generator = attribute.Generator;
     }
 
-    private static void ProcessKeyFields(HierarchyDef hierarchy, HierarchyRootAttribute attribute)
+    private static void ProcessKeyFields(HierarchyDef hierarchy, TypeDef type, HierarchyRootAttribute attribute)
     {
-      return;
-      KeyProviderAttribute ks =
-        (KeyProviderAttribute)
-          Attribute.GetCustomAttribute(hierarchy.Generator, typeof (KeyProviderAttribute), true);
-
-      if (ks==null)
-        throw new DomainBuilderException(
-          string.Format(Strings.ExKeyProviderXShouldDefineAtLeastOneKeyField, attribute.Generator));
-
-      if (attribute.KeyFields.Length!=ks.Fields.Length)
-        throw new DomainBuilderException(
-          string.Format(Strings.ExKeyProviderXAndHierarchyYKeyFieldAmountMismatch, 
-          attribute.Generator, hierarchy.Root.Name));
+//      KeyProviderAttribute ks =
+//        (KeyProviderAttribute)
+//          Attribute.GetCustomAttribute(hierarchy.Generator, typeof (KeyProviderAttribute), true);
+//
+//      if (ks==null)
+//        throw new DomainBuilderException(
+//          string.Format(Strings.ExKeyProviderXShouldDefineAtLeastOneKeyField, attribute.Generator));
+//
+//      if (attribute.KeyFields.Length!=ks.Fields.Length)
+//        throw new DomainBuilderException(
+//          string.Format(Strings.ExKeyProviderXAndHierarchyYKeyFieldAmountMismatch, 
+//          attribute.Generator, hierarchy.Root.Name));
 
       for (int index = 0; index < attribute.KeyFields.Length; index++) {
         Pair<string, Direction> result = ParseFieldName(attribute.KeyFields[index]);
-        KeyField field = new KeyField(result.First, ks.Fields[index]);
+        KeyField field = new KeyField(result.First, type.Fields[result.First].ValueType);
 
         if (!Validator.IsNameValid(result.First, ValidationRule.Field))
           throw new DomainBuilderException(

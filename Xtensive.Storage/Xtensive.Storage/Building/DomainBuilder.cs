@@ -111,7 +111,7 @@ namespace Xtensive.Storage.Building
       Log.Info(Strings.LogBuildingKeyProviders);
       Registry<HierarchyInfo, Generator> generators = BuildingScope.Context.Domain.KeyManager.Generators;
       foreach (HierarchyInfo hierarchy in BuildingScope.Context.Model.Hierarchies) {
-        Generator generator = (Generator)Activator.CreateInstance(hierarchy.Generator);
+        Generator generator = (Generator)Activator.CreateInstance(hierarchy.Generator, new object[] {hierarchy});
         generators.Register(hierarchy, generator);
       }
       generators.Lock();

@@ -17,22 +17,22 @@ namespace Xtensive.Storage.Building.Builders
 {
   internal static class HierarchyBuilder
   {
-    public static HierarchyDef TryDefineHierarchy(TypeDef typeDef)
+    public static HierarchyDef TryDefineHierarchy(TypeDef type)
     {
-      if (!typeDef.IsEntity)
+      if (!type.IsEntity)
         return null;
       Log.Info("Detecting hierarchy.");
 
-      var hierarchyRootAttribute = typeDef.UnderlyingType.GetAttribute<HierarchyRootAttribute>(true);
+      var hierarchyRootAttribute = type.UnderlyingType.GetAttribute<HierarchyRootAttribute>(true);
       if (hierarchyRootAttribute==null)
         return null;
 
-      TypeDef root = BuildingScope.Context.Definition.FindRoot(typeDef);
+      TypeDef root = BuildingScope.Context.Definition.FindRoot(type);
       if (root!=null)
         return null;
 
-      HierarchyDef hierarchy = new HierarchyDef(typeDef);
-      AttributeProcessor.Process(hierarchy, hierarchyRootAttribute);
+      HierarchyDef hierarchy = new HierarchyDef(type);
+      AttributeProcessor.Process(hierarchy, type, hierarchyRootAttribute);
       return hierarchy;
     }
 
