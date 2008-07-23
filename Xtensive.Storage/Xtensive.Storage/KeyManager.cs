@@ -8,8 +8,8 @@ using System;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Tuples;
+using Xtensive.Storage.KeyProviders;
 using Xtensive.Storage.Model;
-using Xtensive.Storage.Providers;
 using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage
@@ -19,16 +19,9 @@ namespace Xtensive.Storage
     private readonly Domain domain;
     private readonly WeakSetSlim<Key> cache = new WeakSetSlim<Key>();
 
-    /// <summary>
-    /// Gets the next key in key sequence.
-    /// </summary>
-    /// <typeparam name="T">Type of <see cref="Entity"/> descendant to get <see cref="Key"/> for.</typeparam>
-    /// <returns>Newly created <see cref="Key"/> instance.</returns>
-    public Key GetNext<T>() 
-      where T: Entity
-    {
-      return GetNext(typeof (T));
-    }
+    internal Registry<HierarchyInfo, Generator> Generators { get; private set; }
+
+    #region Next methods
 
     /// <summary>
     /// Gets the next key in key sequence.
@@ -36,78 +29,94 @@ namespace Xtensive.Storage
     /// <param name="type">The type of <see cref="Entity"/> descendant to create a <see cref="Key"/> for.</param>
     /// <returns>Newly created <see cref="Key"/> instance.</returns>
     /// <exception cref="ArgumentException"><paramref name="type"/> is not <see cref="Entity"/> descendant.</exception>
-    public Key GetNext(Type type)
+    public Key Next(Type type)
     {
-      return Build(type, null);
+      EnsureIsValid(type);
+      return Next(domain.Model.Types[type]);
     }
 
-    /// <summary>
-    /// Builds the <see cref="Key"/> according to specified key data.
-    /// </summary>
-    /// <typeparam name="T">Type of <see cref="Entity"/> descendant to get <see cref="Key"/> for.</typeparam>
-    /// <param name="keyData">The key data.</param>
-    /// <returns>Newly created <see cref="Key"/> instance.</returns>
-    public Key Build<T>(params object[] keyData) 
-      where T: Entity
+    internal Key Next(TypeInfo type)
     {
-      return Build(typeof (T), keyData);
+      Generator provider = Generators[type.Hierarchy];
+      Key key = new Key(type.Hierarchy, provider.Next());
+      key.Type = type;
+      cache.Add(key);
+      return key;
     }
 
+    #endregion
+
+    #region Get methods
+
     /// <summary>
-    /// Builds the <see cref="Key"/> according to specified key data.
+    /// Builds the <see cref="Key"/> according to specified <paramref name="tuple"/>.
     /// </summary>
     /// <param name="type">The type of <see cref="Entity"/> descendant to create a <see cref="Key"/> for.</param>
-    /// <param name="keyData">The key data.</param>
+    /// <param name="tuple"><see cref="Tuple"/> with key values.</param>
     /// <returns>Newly created <see cref="Key"/> instance.</returns>
     /// <exception cref="ArgumentException"><paramref name="type"/> is not <see cref="Entity"/> descendant.</exception>
-    public Key Build(Type type, params object[] keyData)
+    public Key Get(Type type, Tuple tuple)
+    {
+      EnsureIsValid(type);
+      return Get(domain.Model.Types[type], tuple);
+    }
+
+    internal Key Get(TypeInfo type, Tuple tuple)
+    {
+      if (!Validate(tuple))
+        return null;
+
+      Key key = new Key(type.Hierarchy, tuple);
+      key.Type = type;
+      return GetCached(key);
+    }
+
+    internal Key Get(FieldInfo field, Tuple tuple)
+    {
+      if (!Validate(tuple))
+        return null;
+
+      TypeInfo type = domain.Model.Types[field.ValueType];
+      return GetCached(new Key(type.Hierarchy, tuple));
+    }
+
+    #endregion
+
+//    internal Key BuildPrimaryKey(HierarchyInfo hierarchy, Tuple data)
+//    {
+//      Generator generator = domain.Generators[hierarchy];
+//      Key candidate = generator.Build(data);
+//      candidate.ResolveType(data);
+//      return GetCached(candidate);
+//    }
+
+    #region Validation methods
+
+    private static void EnsureIsValid(Type type)
     {
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
-      ArgumentValidator.EnsureArgumentNotNull(keyData, "keyData");
       if (!type.IsSubclassOf(typeof(Entity)))
         throw new ArgumentException(Strings.ExTypeMustBeEntityDescendant, "type");
-      TypeInfo typeInfo = domain.Model.Types[type];
-      return BuildPrimaryKey(typeInfo, keyData);
     }
 
-    internal Key BuildPrimaryKey(TypeInfo type, params object[] keyData)
+    private static bool Validate(Tuple tuple)
     {
-      IKeyProvider keyProvider = domain.KeyProviders[type.Hierarchy];
-      Tuple tuple = Tuple.Create(type.Hierarchy.TupleDescriptor);
-      if (keyData == null || keyData.Length==0)
-        keyProvider.GetNext(tuple);
-      else
-        keyProvider.Build(tuple, keyData);
-
-      return ResolveKeyCandidate(new Key(type, tuple));
+      // Only not null values can be used to build key.
+      for (int i = 0; i < tuple.Count; i++)
+        if (tuple.IsNull(i))
+          return false;
+      return true;
     }
 
-    internal Key BuildPrimaryKey(HierarchyInfo hierarchy, Tuple data)
-    {
-      Tuple tuple = Tuple.Create(hierarchy.TupleDescriptor);
-      data.Copy(tuple, 0, 0, hierarchy.Columns.Count);
-      Key candidate = new Key(hierarchy, tuple);
-      candidate.ResolveType(data);
-      return ResolveKeyCandidate(candidate);
-    }
+    #endregion
 
-    internal Key BuildForeignKey(Persistent obj, FieldInfo field)
+    private Key GetCached(Key key)
     {
-      TypeInfo typeInfo = domain.Model.Types[field.ValueType];
-      for (int i = field.MappingInfo.Offset; i < field.MappingInfo.EndOffset; i++)
-        if (obj.Tuple.IsNull(i))
-          return null;
-      Tuple tuple = Tuple.Create(typeInfo.Hierarchy.TupleDescriptor);
-      obj.Tuple.Copy(tuple, field.MappingInfo.Offset, 0, field.MappingInfo.Length);
-      return ResolveKeyCandidate(new Key(typeInfo.Hierarchy, tuple));
-    }
+      if (cache.Contains(key))
+        return cache[key];
 
-    private Key ResolveKeyCandidate(Key candidate)
-    {
-      if (cache.Contains(candidate))
-        return cache[candidate];
-      cache.Add(candidate);
-      return candidate;
+      cache.Add(key);
+      return key;
     }
 
 
@@ -116,6 +125,7 @@ namespace Xtensive.Storage
     internal KeyManager(Domain domain)
     {
       this.domain = domain;
+      Generators = new Registry<HierarchyInfo, Generator>();
     }
   }
 }

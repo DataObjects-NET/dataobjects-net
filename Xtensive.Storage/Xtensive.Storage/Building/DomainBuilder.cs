@@ -13,6 +13,7 @@ using Xtensive.Core.Reflection;
 using Xtensive.PluginManager;
 using Xtensive.Storage.Building.Builders;
 using Xtensive.Storage.Configuration;
+using Xtensive.Storage.KeyProviders;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Resources;
@@ -53,7 +54,7 @@ namespace Xtensive.Storage.Building
           BuildModel();
           BuildDomain();
           BuildHandlerProvider();
-          BuildKeyProviders();
+          BuildGenerators();
         }
         catch (DomainBuilderException e) {          
           context.RegistError(e);
@@ -101,18 +102,19 @@ namespace Xtensive.Storage.Building
       domain.Configuration = BuildingScope.Context.Configuration;
       domain.Model = BuildingScope.Context.Model;
       domain.NameProvider = BuildingScope.Context.NameProvider;
+      domain.KeyManager = new KeyManager(domain);
       BuildingScope.Context.Domain = domain;
     }
 
-    private static void BuildKeyProviders()
+    private static void BuildGenerators()
     {
       Log.Info(Strings.LogBuildingKeyProviders);
-      Registry<HierarchyInfo, IKeyProvider> providers = BuildingScope.Context.Domain.KeyProviders;
+      Registry<HierarchyInfo, Generator> generators = BuildingScope.Context.Domain.KeyManager.Generators;
       foreach (HierarchyInfo hierarchy in BuildingScope.Context.Model.Hierarchies) {
-        IKeyProvider keyProvider = (IKeyProvider)Activator.CreateInstance(hierarchy.KeyProvider);
-        providers.Register(hierarchy, keyProvider);
+        Generator generator = (Generator)Activator.CreateInstance(hierarchy.Generator);
+        generators.Register(hierarchy, generator);
       }
-      providers.Lock();
+      generators.Lock();
     }
 
     private static void BuildHandlerProvider()

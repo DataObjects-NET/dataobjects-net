@@ -19,12 +19,6 @@ namespace Xtensive.Storage.Internals
       return Session.Current.Handler.Fetch(index, key, index.Columns.Where(c => !c.LazyLoad));
     }
 
-    public static Tuple FetchKey(Key key)
-    {
-      IndexInfo index = key.Hierarchy.Root.Indexes.PrimaryIndex.GetRoot();
-      return Session.Current.Handler.Fetch(index, key, index.Columns.Where(c => c.IsPrimaryKey));
-    }
-
     public static Tuple Fetch(Key key, FieldInfo field)
     {
       IndexInfo index = key.Hierarchy.Root.Indexes.PrimaryIndex;

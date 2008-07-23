@@ -4,7 +4,9 @@
 // Created by: Alexey Gamzov
 // Created:    2008.05.26
 
+using Xtensive.Core;
 using Xtensive.Core.Tuples;
+using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 
@@ -33,7 +35,7 @@ namespace Xtensive.Storage
     public override T GetValue(Persistent obj, FieldInfo field)
     {
       ValidateType(field);
-      Key key = obj.Session.Domain.KeyManager.BuildForeignKey(obj, field);
+      Key key = obj.Session.Domain.KeyManager.Get(field, new SegmentTransform(false, obj.Tuple.Descriptor, new Segment<int>(field.MappingInfo.Offset, field.MappingInfo.Length)).Apply(TupleTransformType.TransformedTuple, obj.Tuple));
       if (key == null)
         return default(T);
       return (T) (object) key.Resolve();

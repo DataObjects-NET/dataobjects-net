@@ -13,8 +13,6 @@ namespace Xtensive.Storage
 {
   public sealed class Domain
   {
-    private readonly Registry<HierarchyInfo, IKeyProvider> keyProviders = new Registry<HierarchyInfo, IKeyProvider>();
-
     /// <summary>
     /// Gets the configuration.
     /// </summary>
@@ -33,15 +31,7 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets the key manager.
     /// </summary>
-    public KeyManager KeyManager { get; private set; }
-
-    /// <summary>
-    /// Gets the key providers.
-    /// </summary>
-    public Registry<HierarchyInfo, IKeyProvider> KeyProviders
-    {
-      get { return keyProviders; }
-    }
+    public KeyManager KeyManager { get; internal set; }
 
     /// <summary>
     /// Gets the execution context.
@@ -97,7 +87,6 @@ namespace Xtensive.Storage
 
     internal Domain()
     {
-      KeyManager = new KeyManager(this);
     }
   }
 }

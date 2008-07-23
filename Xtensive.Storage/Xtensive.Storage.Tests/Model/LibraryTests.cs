@@ -42,7 +42,7 @@ namespace Xtensive.Storage.Tests.Model.Library
     public IdentityCard Card { get; set; }
   }
 
-  [HierarchyRoot(typeof (Int32Provider), "Number")]
+  [HierarchyRoot(typeof (Int32Generator), "Number")]
   public class Person : Entity
   {
     [Field]
@@ -98,7 +98,7 @@ namespace Xtensive.Storage.Tests.Model.Library
     public int Rating { get; set; }
 
     public Book(string isbn)
-      : base(isbn)
+      : base(Tuple.Create(isbn))
     {
     }
 
@@ -121,38 +121,36 @@ namespace Xtensive.Storage.Tests.Model.Library
     [Field(Length = 4096)]
     public string Text { get; set; }
 
-    public BookReview(Book book, Person reviewer)
-      : base(book, reviewer)
-    {
-    }
+//    public BookReview(Key book, Key reviewer)
+//      : base()
+//    {
+//    }
   }
 
   [KeyProvider(typeof (Book), typeof (Person))]
-  internal class BookReviewProvider : IKeyProvider
+  internal class BookReviewProvider
   {
-    public void GetNext(Tuple keyTuple)
+    public Key GetNext()
     {
       throw new NotSupportedException();
-    }
-
-    public void Build(Tuple keyTuple, params object[] keyData)
-    {
-      Book book = (Book) keyData[0];
-      Person reviewer = (Person) keyData[1];
-      book.Key.Tuple.Copy(keyTuple);
-      reviewer.Key.Tuple.Copy(keyTuple, 0, book.Key.Tuple.Count, reviewer.Key.Tuple.Count);
     }
   }
 
   [KeyProvider(typeof (string))]
-  public class IsbnKeyProvider : KeyProviderBase
+  public class IsbnKeyProvider : Generator
   {
     private int counter;
 
-    public override void GetNext(Tuple keyTuple)
+    public override Tuple Next()
     {
-      keyTuple.SetValue(0, counter.ToString());
+      Tuple result = Tuple.Create(counter.ToString());
       counter++;
+      return result;
+    }
+
+    public IsbnKeyProvider(HierarchyInfo hierarchy)
+      : base(hierarchy)
+    {
     }
   }
 
@@ -695,9 +693,9 @@ namespace Xtensive.Storage.Tests.Model
         Person reviewer = new Person();
         reviewer.Passport.Card.LastName = "Kochetov";
         reviewer.Passport.Card.FirstName = "Alexius";
-        BookReview review = new BookReview(book, reviewer);
-        Assert.AreEqual((object) book, review.Book);
-        Assert.AreEqual((object) reviewer, review.Reviewer);
+//        BookReview review = new BookReview(book, reviewer);
+//        Assert.AreEqual((object) book, review.Book);
+//        Assert.AreEqual((object) reviewer, review.Reviewer);
       }
     }
   }

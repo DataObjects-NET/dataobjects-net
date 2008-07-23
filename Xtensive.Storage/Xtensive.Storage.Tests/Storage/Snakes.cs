@@ -35,7 +35,7 @@ namespace Xtensive.Storage.Tests.SnakeModel
 
   [DebuggerDisplay("Name = '{Name}'")]
   [Index("Name")]
-  [HierarchyRoot(typeof (Int32Provider), "ID")]
+  [HierarchyRoot(typeof (Int32Generator), "ID")]
   public class Creature : Entity
   {
     [Field]
@@ -105,7 +105,7 @@ namespace Xtensive.Storage.Tests
         Assert.AreEqual(PersistenceState.Modified, snake.PersistenceState);
         Assert.AreEqual(32, snake.Length);
 
-        Key key = domain.KeyManager.Build<Snake>(1);
+        Key key = Key.Get<Snake>(Tuple.Create(1));
         Assert.IsTrue(snake.Key.Equals(key));
         Assert.IsTrue(ReferenceEquals(snake.Key, key));
 

@@ -13,7 +13,7 @@ using Xtensive.Storage.KeyProviders;
 
 namespace Xtensive.Storage.Tests.Model.Relations
 {
-  [HierarchyRoot(typeof (Int32Provider), "Id")]
+  [HierarchyRoot(typeof (Int32Generator), "Id")]
   public abstract class Root : Entity
   {
     [Field]

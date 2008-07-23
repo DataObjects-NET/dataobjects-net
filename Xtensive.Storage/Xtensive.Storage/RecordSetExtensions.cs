@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
@@ -32,14 +33,14 @@ namespace Xtensive.Storage
       TypeInfo type = scope.Session.HandlerAccessor.Domain.Model.Types[entityType];
       var keyColumns = type.Indexes.PrimaryIndex.KeyColumns;
 
-      object[] keyValue = new object[keyColumns.Count];
+      Tuple t = Tuple.Create(type.Hierarchy.TupleDescriptor);
       int[] columnsMap = new int[keyColumns.Count];
       for (int j = 0; j < columnsMap.Length; j++)
         columnsMap[j] = source.Map(keyColumns[j].Key.Name);
       foreach (Tuple tuple in source) {
-        for (int i = 0; i < keyValue.Length; i++)
-          keyValue[i] = tuple.GetValue(columnsMap[i]);
-        Key key = scope.Session.HandlerAccessor.Domain.KeyManager.Build(entityType, keyValue);
+        for (int i = 0; i < t.Count; i++)
+          t.SetValue(i, tuple.GetValue(columnsMap[i]));
+        Key key = Key.Get(entityType, t);
         yield return key.Resolve();
       }
     }

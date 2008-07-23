@@ -52,7 +52,7 @@ namespace Xtensive.Storage.Tests.Storage.Vehicles
     private byte[] FlagBytes { get; set;}    
 
     public Country(string countryName)
-      : base(countryName)
+      : base(Core.Tuples.Tuple.Create(countryName))
     {
     }
   }

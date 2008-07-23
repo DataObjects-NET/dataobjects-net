@@ -7,19 +7,28 @@
 using System;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Attributes;
+using Xtensive.Storage.KeyProviders;
+using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Tests.Storage.Internals
 {
   [KeyProvider(typeof (Guid), typeof (long), typeof (Guid))]
-  public class GuidLongGuidKeyProvider : KeyProviderBase
+  public class GuidLongGuidKeyProvider : Generator
   {
     private long currentLongValue = 1;
 
-    public override void GetNext(Tuple keyTuple)
+    public override Tuple Next()
     {
-      keyTuple.SetValue(0, Guid.NewGuid());
-      keyTuple.SetValue(1, currentLongValue++);
-      keyTuple.SetValue(2, Guid.NewGuid());
+      Tuple tuple = Tuple.Create(Hierarchy.TupleDescriptor);
+      tuple.SetValue(0, Guid.NewGuid());
+      tuple.SetValue(1, currentLongValue++);
+      tuple.SetValue(2, Guid.NewGuid());
+      return tuple;
+    }
+
+    public GuidLongGuidKeyProvider(HierarchyInfo hierarchy)
+      : base(hierarchy)
+    {
     }
   }
 }

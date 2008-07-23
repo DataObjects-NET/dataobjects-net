@@ -32,7 +32,7 @@ namespace Xtensive.Storage.Building.Builders
 
     public static void Process(HierarchyDef hierarchy, HierarchyRootAttribute attribute)
     {
-      ProcessKeyProvider(hierarchy, attribute);
+      ProcessGenerator(hierarchy, attribute);
       ProcessKeyFields(hierarchy, attribute);
       ProcessInheritanceSchema(hierarchy, attribute);
     }
@@ -74,25 +74,26 @@ namespace Xtensive.Storage.Building.Builders
         field.PairTo = attribute.PairTo;
     }
 
-    private static void ProcessKeyProvider(HierarchyDef hierarchy, HierarchyRootAttribute attribute)
+    private static void ProcessGenerator(HierarchyDef hierarchy, HierarchyRootAttribute attribute)
     {
-      hierarchy.KeyProvider = attribute.KeyProvider;
+      hierarchy.Generator = attribute.Generator;
     }
 
     private static void ProcessKeyFields(HierarchyDef hierarchy, HierarchyRootAttribute attribute)
     {
+      return;
       KeyProviderAttribute ks =
         (KeyProviderAttribute)
-          Attribute.GetCustomAttribute(hierarchy.KeyProvider, typeof (KeyProviderAttribute), true);
+          Attribute.GetCustomAttribute(hierarchy.Generator, typeof (KeyProviderAttribute), true);
 
       if (ks==null)
         throw new DomainBuilderException(
-          string.Format(Strings.ExKeyProviderXShouldDefineAtLeastOneKeyField, attribute.KeyProvider));
+          string.Format(Strings.ExKeyProviderXShouldDefineAtLeastOneKeyField, attribute.Generator));
 
       if (attribute.KeyFields.Length!=ks.Fields.Length)
         throw new DomainBuilderException(
           string.Format(Strings.ExKeyProviderXAndHierarchyYKeyFieldAmountMismatch, 
-          attribute.KeyProvider, hierarchy.Root.Name));
+          attribute.Generator, hierarchy.Root.Name));
 
       for (int index = 0; index < attribute.KeyFields.Length; index++) {
         Pair<string, Direction> result = ParseFieldName(attribute.KeyFields[index]);

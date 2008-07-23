@@ -7,15 +7,24 @@
 using System;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Attributes;
+using Xtensive.Storage.KeyProviders;
+using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Tests.Storage.Internals
 {
   [KeyProvider(typeof (string))]
-  public class StringProvider : KeyProviderBase
+  public class StringProvider : Generator
   {
-    public override void GetNext(Tuple keyTuple)
+    public override Tuple Next()
     {
-      keyTuple.SetValue(0, Guid.NewGuid().ToString());
+      Tuple tuple = Tuple.Create(Hierarchy.TupleDescriptor);
+      tuple.SetValue(0, Guid.NewGuid().ToString());
+      return tuple;
+    }
+
+    public StringProvider(HierarchyInfo hierarchy)
+      : base(hierarchy)
+    {
     }
   }
 }

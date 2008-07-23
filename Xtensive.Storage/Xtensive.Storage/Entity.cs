@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Core;
-using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
@@ -213,23 +212,29 @@ namespace Xtensive.Storage
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     protected Entity()
-      : this(ArrayUtils<object>.EmptyArray)
     {
+      TypeInfo type = Session.Domain.Model.Types[GetType()];
+      Key key = Session.Domain.KeyManager.Next(type);
+      Tuple origin = Tuple.Create(type.TupleDescriptor);
+      key.Tuple.Copy(origin, 0);
+
+      data = new EntityData(key, new DifferentialTuple(origin), this);
+      OnCreating();
     }
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="keyData">The values that will be used for key building.</param>
-    /// <remarks>Use this type of constructor when you need to explicitly build key for this instance.</remarks>
-    protected Entity(params object[] keyData)
+    /// <param name="tuple">The <see cref="Tuple"/> that will be used for key building.</param>
+    /// <remarks>Use this kind of constructor when you need to explicitly build key for this instance.</remarks>
+    protected Entity(Tuple tuple)
     {
       TypeInfo type = Session.Domain.Model.Types[GetType()];
-      Key key = Session.Domain.KeyManager.BuildPrimaryKey(type, keyData);
-      DifferentialTuple tuple = new DifferentialTuple(Tuple.Create(type.TupleDescriptor));
-      key.Tuple.Copy(tuple, 0);
+      Key key = Session.Domain.KeyManager.Get(type, tuple);
+      Tuple origin = Tuple.Create(type.TupleDescriptor);
+      key.Tuple.Copy(origin, 0);
 
-      data = new EntityData(key, tuple, this);
+      data = new EntityData(key, new DifferentialTuple(origin), this);
       OnCreating();
     }
 
@@ -241,7 +246,7 @@ namespace Xtensive.Storage
       : base(data)
     {
       this.data = data;
-      data.Entity = this;
+      OnCreating();
     }
   }
 }

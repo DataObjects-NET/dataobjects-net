@@ -21,7 +21,6 @@ namespace Xtensive.Storage
   public sealed class Key : IEquatable<Key>
   {
     private TypeInfo type;
-    private readonly HierarchyInfo hierarchy;
     private readonly int hashCode;
 
     /// <summary>
@@ -34,10 +33,7 @@ namespace Xtensive.Storage
     /// Gets the hierarchy this instance belongs to.
     /// </summary>
     [DebuggerHidden]
-    public HierarchyInfo Hierarchy
-    {
-      get { return hierarchy; }
-    }
+    public HierarchyInfo Hierarchy { get; private set; }
 
     /// <summary>
     /// Gets the type of <see cref="Entity"/> this instance identifies.
@@ -48,33 +44,10 @@ namespace Xtensive.Storage
       get { return type; }
       internal set
       {
-        if (type!=null) {
+        if (type!=null)
           throw Exceptions.AlreadyInitialized("Type");
-        }
         type = value;
       }
-    }
-
-    /// <summary>
-    /// Gets the value field value by its index.
-    /// </summary>
-    /// <param name="fieldIndex">Index of the field to get value of.</param>
-    /// <returns>Field value.</returns>
-    /// <typeparam name="T">The type of value to get.</typeparam>
-    /// <remarks>
-    public T GetValue<T>(int fieldIndex)
-    {
-      return Tuple.GetValue<T>(fieldIndex);
-    }
-
-    /// <summary>
-    /// Gets the value field value by its index.
-    /// </summary>
-    /// <param name="fieldIndex">Index of the field to get value of.</param>
-    /// <returns>Field value.</returns>
-    public object GetValue(int fieldIndex)
-    {
-      return Tuple.GetValue(fieldIndex);
     }
 
     /// <summary>
@@ -84,7 +57,7 @@ namespace Xtensive.Storage
     public T Resolve<T>()
       where T : Entity
     {
-      return KeyResolver.Resolve<T>(this);
+      return (T)Resolve();
     }
 
     /// <summary>
@@ -95,39 +68,28 @@ namespace Xtensive.Storage
       return KeyResolver.Resolve(this);
     }
 
-    internal Entity Resolve(Tuple tuple)
-    {
-      return KeyResolver.Resolve(this, tuple);
-    }
-
-    internal void ResolveType(Tuple tuple)
-    {
-      int columnIndex = Hierarchy.Root.Fields[Session.Current.HandlerAccessor.Domain.NameProvider.TypeId].MappingInfo.Offset;
-      int typeId = tuple.GetValue<int>(columnIndex);
-      Type = Session.Current.HandlerAccessor.Domain.Model.Types[typeId];
-    }
-
     /// <summary>
-    /// Builds the <see cref="Key"/> according to specified key data.
+    /// Builds the <see cref="Key"/> according to specified <paramref name="tuple"/>.
     /// </summary>
     /// <typeparam name="T">Type of <see cref="Entity"/> descendant to get <see cref="Key"/> for.</typeparam>
-    /// <param name="keyData">The key data.</param>
+    /// <param name="tuple"><see cref="Tuple"/> with key values.</param>
     /// <returns>Newly created <see cref="Key"/> instance.</returns>
-    public static Key Build<T>(params object[] keyData) 
+    public static Key Get<T>(Tuple tuple) 
       where T: Entity
     {
-      return Build(typeof (T), keyData);
+      return Get(typeof (T), tuple);
     }
 
     /// <summary>
-    /// Builds the <see cref="Key"/> according to specified key data.
+    /// Builds the <see cref="Key"/> according to specified <paramref name="tuple"/>.
     /// </summary>
     /// <param name="type">The type of <see cref="Entity"/> descendant to create a <see cref="Key"/> for.</param>
-    /// <param name="keyData">The key data.</param>
+    /// <param name="tuple"><see cref="Tuple"/> with key values.</param>
     /// <returns>Newly created <see cref="Key"/> instance.</returns>
-    public static Key Build(Type type, params object[] keyData)
+    /// <exception cref="ArgumentException"><paramref name="type"/> is not <see cref="Entity"/> descendant.</exception>
+    public static Key Get(Type type, Tuple tuple)
     {
-      return Session.Current.HandlerAccessor.Domain.KeyManager.Build(type, keyData);
+      return Session.Current.Domain.KeyManager.Get(type, tuple);
     }
 
     #region Equals & GetHashCode
@@ -143,7 +105,7 @@ namespace Xtensive.Storage
       }
       if (hashCode!=other.hashCode)
         return false;
-      return Tuple.Equals(other.Tuple) && hierarchy.Equals(other.hierarchy);
+      return Tuple.Equals(other.Tuple) && Hierarchy.Equals(other.Hierarchy);
     }
 
     /// <inheritdoc/>
@@ -168,16 +130,10 @@ namespace Xtensive.Storage
 
     // Constructors
 
-    internal Key(TypeInfo type, Tuple tuple)
-      : this(type.Hierarchy, tuple)
-    {
-      this.type = type;
-    }
-
     internal Key(HierarchyInfo hierarchy, Tuple tuple)
     {
+      Hierarchy = hierarchy;
       Tuple = tuple.ToReadOnly(TupleTransformType.TransformedTuple);
-      this.hierarchy = hierarchy;
       hashCode = tuple.GetHashCode() ^ hierarchy.GetHashCode();
     }
   }

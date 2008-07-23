@@ -12,9 +12,9 @@ using Xtensive.Storage.Model;
 namespace Xtensive.Storage.KeyProviders
 {
   [Serializable]
-  public class Int64Provider : Generator
+  public class Int32Generator : Generator
   {
-    private long counter = 1;
+    private int counter = 1;
 
     /// <inheritdoc/>
     public override Tuple Next()
@@ -26,10 +26,10 @@ namespace Xtensive.Storage.KeyProviders
     // Constructors
 
     /// <summary>
-    ///  <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="hierarchy">The hierarchy to serve.</param>
-    public Int64Provider(HierarchyInfo hierarchy)
+    public Int32Generator(HierarchyInfo hierarchy)
       : base(hierarchy)
     {
     }

@@ -14,7 +14,7 @@ using Xtensive.Storage.Tests.LazyLoadTests;
 
 namespace Xtensive.Storage.Tests.LazyLoadTests
 {
-  [HierarchyRoot(typeof(Int32Provider), "ID")]
+  [HierarchyRoot(typeof(Int32Generator), "ID")]
   public class Book : Entity
   {
     [Field]

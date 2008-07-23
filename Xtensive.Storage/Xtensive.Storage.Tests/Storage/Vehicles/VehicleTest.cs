@@ -15,6 +15,7 @@ using Xtensive.Core.Collections;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Testing;
+using Xtensive.Core.Tuples;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
@@ -455,7 +456,7 @@ namespace Xtensive.Storage.Tests.Storage.Vehicles
     private Country GetCountry(string countryName)
     {
       Session session = SessionScope.Current.Session;
-      Key key = session.Domain.KeyManager.Build(typeof (Country), countryName);
+      Key key = Key.Get(typeof (Country), Tuple.Create<string>(countryName));
       Country result = key.Resolve<Country>();
       if (result == null) {
         result = new Country(countryName);

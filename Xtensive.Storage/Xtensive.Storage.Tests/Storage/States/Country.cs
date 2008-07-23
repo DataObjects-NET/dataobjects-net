@@ -9,7 +9,7 @@ using Xtensive.Storage.KeyProviders;
 
 namespace Xtensive.Storage.Tests.Storage.States
 {
-  [HierarchyRoot(typeof (Int32Provider), "Id")]
+  [HierarchyRoot(typeof (Int32Generator), "Id")]
   public class Country : Entity
   {
     /// <summary>

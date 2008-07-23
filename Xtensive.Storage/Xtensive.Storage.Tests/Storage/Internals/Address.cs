@@ -9,7 +9,7 @@ using Xtensive.Storage.KeyProviders;
 
 namespace Xtensive.Storage.Tests.Storage.Internals.Address
 {
-  [HierarchyRoot(typeof (GuidProvider), "ID")]
+  [HierarchyRoot(typeof (GuidGenerator), "ID")]
   public class Address : Entity
   {
     public decimal Age

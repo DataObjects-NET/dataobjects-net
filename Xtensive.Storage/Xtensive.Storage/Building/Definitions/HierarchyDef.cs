@@ -16,7 +16,7 @@ namespace Xtensive.Storage.Building.Definitions
   public sealed class HierarchyDef : Node
   {
     private readonly DirectionCollection<KeyField> keyFields = new DirectionCollection<KeyField>();
-    private Type keyProvider;
+    private Type generator;
 
     /// <summary>
     /// Gets the fields that are included in the key for this instance.
@@ -29,13 +29,13 @@ namespace Xtensive.Storage.Building.Definitions
     /// <summary>
     /// Gets or sets the type instance of which is responsible for key generation.
     /// </summary>
-    public Type KeyProvider
+    public Type Generator
     {
-      get { return keyProvider; }
+      get { return generator; }
       set
       {
         ArgumentValidator.EnsureArgumentNotNull(value, "value");
-        keyProvider = value;
+        generator = value;
       }
     }
 

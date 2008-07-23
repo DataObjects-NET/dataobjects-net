@@ -366,6 +366,9 @@
   <data name="UnsupportedFieldTypeX" xml:space="preserve">
     <value>Unsupported field type: '{0}'</value>
   </data>
+  <data name="ExKeyXWasNotFoundInStorage" xml:space="preserve">
+    <value>Key '{0}' was not found in storage.</value>
+  </data>
   <data name="AspectDebugMessage" xml:space="preserve">
     <value>{0}</value>
   </data>

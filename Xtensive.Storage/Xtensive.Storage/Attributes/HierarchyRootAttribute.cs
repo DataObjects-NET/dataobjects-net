@@ -16,7 +16,7 @@ namespace Xtensive.Storage.Attributes
   {
     private InheritanceSchema inheritanceSchema;
     private string[] keyFields;
-    private Type keyProvider;
+    private Type generator;
 
     /// <summary>
     /// Key fields that are included into the index.
@@ -39,10 +39,10 @@ namespace Xtensive.Storage.Attributes
     /// <summary>
     /// Gets or sets the key provider.
     /// </summary>
-    public Type KeyProvider
+    public Type Generator
     {
-      get { return keyProvider; }
-      set { keyProvider = value; }
+      get { return generator; }
+      set { generator = value; }
     }
 
     /// <summary>
@@ -52,7 +52,7 @@ namespace Xtensive.Storage.Attributes
     public HierarchyRootAttribute(Type keyProvider)
     {
       ArgumentValidator.EnsureArgumentNotNull(keyProvider, "keyProvider");
-      this.keyProvider = keyProvider;
+      this.generator = keyProvider;
     }
 
     /// <summary>

@@ -295,6 +295,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Key &apos;{0}&apos; was not found in storage..
+        /// </summary>
+        internal static string ExKeyXWasNotFoundInStorage {
+            get {
+                return ResourceManager.GetString("ExKeyXWasNotFoundInStorage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Object outside of initial transaction scope..
         /// </summary>
         internal static string ExOutOfTransactionScope {

@@ -12,7 +12,7 @@ namespace Xtensive.Storage.Tests.Storage.States
   /// <summary>
   /// States(regions) of country.
   /// </summary>
-  [HierarchyRoot(typeof (Int32Provider), "Id")]
+  [HierarchyRoot(typeof (Int32Generator), "Id")]
   public class State : Entity
   {
     /// <summary>

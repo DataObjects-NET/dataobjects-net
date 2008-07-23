@@ -9,7 +9,7 @@ using Xtensive.Storage.KeyProviders;
 
 namespace Xtensive.Storage.Tests.Storage.Internals.Person
 {
-  [HierarchyRoot(typeof (GuidProvider), "ID")]
+  [HierarchyRoot(typeof (GuidGenerator), "ID")]
   public class Person : Entity
   {
     [Field]

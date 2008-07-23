@@ -16,6 +16,7 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Aspects;
 using Xtensive.Storage.Configuration;
+using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Rse;
@@ -82,8 +83,8 @@ namespace Xtensive.Storage
       TypeInfo type = Domain.Model.Types[typeof (T)];
       RecordSet result = Handler.Select(type.Indexes.PrimaryIndex);
       foreach (Tuple tuple in result) {
-        Key key = Domain.KeyManager.BuildPrimaryKey(type.Hierarchy, tuple);
-        T item = (T)key.Resolve(tuple);
+        Key key = ProcessFetched(type.Hierarchy, tuple);
+        T item = (T)key.Resolve();
         if (item == null)
           throw new InvalidOperationException();
         yield return item;
@@ -91,6 +92,21 @@ namespace Xtensive.Storage
     }
 
     #region Internals & private
+
+    internal Key ProcessFetched(HierarchyInfo hierarchy, Tuple tuple)
+    {
+      Tuple t = Tuple.Create(hierarchy.TupleDescriptor);
+      tuple.Copy(t, 0, t.Count);
+      Key key = new Key(hierarchy, t);
+      EntityData data = IdentityMap[key, false];
+      if (data != null)
+        data.Tuple.Origin.MergeWith(tuple);
+      else {
+        data = new EntityData(key, new DifferentialTuple(tuple));
+        IdentityMap.Add(data);
+      }
+      return key;
+    }
 
     [DebuggerHidden]
     internal HandlerAccessor HandlerAccessor {

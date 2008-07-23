@@ -8,67 +8,41 @@ using Xtensive.Core.Tuples;
 
 namespace Xtensive.Storage.Internals
 {
-  /// <summary>
-  /// Resolves a <see cref="Key"/> to <see cref="Entity"/> descendant.
-  /// </summary>
   internal static class KeyResolver
   {
-    /// <summary>
-    /// Resolves the specified key.
-    /// </summary>
-    /// <typeparam name="T">Type of <see cref="Entity"/> descendant to resolve the <paramref name="key"/> to.</typeparam>
-    /// <param name="key">The key.</param>
-    public static T Resolve<T>(Key key) 
-      where T : Entity
+    public static Entity Resolve(Key key)
     {
-      return (T)Resolve(key);
-    }
+      Session session = Session.Current;
 
-    /// <summary>
-    /// Resolves the specified key.
-    /// </summary>
-    /// <param name="key">The key.</param>
-    public static Entity Resolve(Key key) 
-    {
-      if (key.Type == null)
-        ResolveType(key);
-
-      EntityData data;
-      if (TryResolveKey(key, out data))
+      EntityData data = session.IdentityMap[key, false];
+      if (data!=null)
         return data.Entity ?? Entity.Activate(data.Type.UnderlyingType, data);
 
-      return Resolve(key, Fetcher.Fetch(key));
-    }
+      Tuple tuple;
+      if (key.Type!=null) {
+        tuple = Tuple.Create(key.Type.TupleDescriptor);
+        key.Tuple.Copy(tuple);
+        data = new EntityData(key, new DifferentialTuple(tuple));
+        data.Entity = Entity.Activate(data.Type.UnderlyingType, data);
+        return data.Entity;
+      }
 
-    internal static Entity Resolve(Key key, Tuple tuple)
-    {
-      if (tuple == null)
+      tuple = Fetcher.Fetch(key);
+      if (tuple==null)
         return null;
 
-      EntityData data;
-      if (TryResolveKey(key, out data))
-        return data.Entity ?? Entity.Activate(data.Type.UnderlyingType, data);
-
+      ResolveType(key, tuple);
       data = new EntityData(key, new DifferentialTuple(tuple));
-      Session.Current.IdentityMap.Add(data);
-
-      return Entity.Activate(data.Type.UnderlyingType, data);
+      data.Entity = Entity.Activate(data.Type.UnderlyingType, data);
+      return data.Entity;
     }
 
-    private static bool TryResolveKey(Key key, out EntityData data)
+    internal static void ResolveType(Key key, Tuple tuple)
     {
       Session session = Session.Current;
-      data = session.IdentityMap[key, false];
-      return data!=null;
-    }
-
-    private static void ResolveType(Key key)
-    {
-      Session session = Session.Current;
-      if (!session.Domain.Model.Types.FindDescendants(key.Hierarchy.Root).GetEnumerator().MoveNext())
-        key.Type = key.Hierarchy.Root;
-      else
-        key.ResolveType(Fetcher.FetchKey(key));
+      int columnIndex = key.Hierarchy.Root.Fields[session.Domain.NameProvider.TypeId].MappingInfo.Offset;
+      int typeId = tuple.GetValue<int>(columnIndex);
+      key.Type = session.Domain.Model.Types[typeId];
     }
   }
 }

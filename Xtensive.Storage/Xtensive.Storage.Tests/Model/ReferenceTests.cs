@@ -16,7 +16,7 @@ namespace Xtensive.Storage.Tests.Model.ReferenceTestsModel
 {
   #region SelfReferenced Entity
 
-  [HierarchyRoot(typeof (Int32Provider), "Id")]
+  [HierarchyRoot(typeof (Int32Generator), "Id")]
   public class A : Entity
   {
     [Field]

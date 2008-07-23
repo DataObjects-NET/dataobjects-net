@@ -4,7 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2008.01.11
 
-using System;
 using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
@@ -60,7 +59,7 @@ namespace Xtensive.Storage.Building.Builders
 
     public static HierarchyInfo BuildHierarchy(TypeInfo root, HierarchyDef hierarchyDef)
     {
-      HierarchyInfo hierarchy = new HierarchyInfo(root, hierarchyDef.Schema, hierarchyDef.KeyProvider);
+      HierarchyInfo hierarchy = new HierarchyInfo(root, hierarchyDef.Schema, hierarchyDef.Generator);
 
       foreach (KeyValuePair<KeyField, Direction> pair in hierarchyDef.KeyFields) {
         FieldInfo field;

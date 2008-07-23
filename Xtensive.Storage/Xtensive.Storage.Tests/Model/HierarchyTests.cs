@@ -52,7 +52,7 @@ namespace Xtensive.Storage.Tests.Model.Schemas
   {
   }
 
-  [HierarchyRoot(typeof (GuidProvider), "ID")]
+  [HierarchyRoot(typeof (GuidGenerator), "ID")]
   public class BC : B
   {
     [Field]
@@ -69,7 +69,7 @@ namespace Xtensive.Storage.Tests.Model.Schemas
     public string AName { get; set; }
   }
 
-  [HierarchyRoot(typeof (Int32Provider), "ID")]
+  [HierarchyRoot(typeof (Int32Generator), "ID")]
   public class BE : B
   {
     [Field]

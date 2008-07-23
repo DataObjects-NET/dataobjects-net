@@ -10,7 +10,7 @@ using Xtensive.Storage.KeyProviders;
 
 namespace Xtensive.Storage.Tests.Storage.Internals.Car
 {
-  [HierarchyRoot(typeof (GuidProvider), "ID")]
+  [HierarchyRoot(typeof (GuidGenerator), "ID")]
   public class Car : Entity
   {
     [Field]

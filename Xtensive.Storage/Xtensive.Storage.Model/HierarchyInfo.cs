@@ -19,7 +19,7 @@ namespace Xtensive.Storage.Model
   {
     private readonly TypeInfo root;
     private readonly InheritanceSchema schema;
-    private readonly Type keyProvider;
+    private readonly Type generator;
     private readonly DirectionCollection<FieldInfo> fields = new DirectionCollection<FieldInfo>();
     private readonly ColumnInfoCollection columns = new ColumnInfoCollection();
     private TupleDescriptor tupleDescriptor;
@@ -43,9 +43,9 @@ namespace Xtensive.Storage.Model
     /// <summary>
     /// Gets or sets the type instance of which is responsible for key generation.
     /// </summary>
-    public Type KeyProvider
+    public Type Generator
     {
-      get { return keyProvider; }
+      get { return generator; }
     }
 
     /// <summary>
@@ -95,7 +95,7 @@ namespace Xtensive.Storage.Model
     public HierarchyInfo(TypeInfo root, InheritanceSchema schema, Type keyProvider)
     {
       this.root = root;
-      this.keyProvider = keyProvider;
+      this.generator = keyProvider;
       this.schema = schema;
     }
   }

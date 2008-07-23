@@ -1,8 +1,8 @@
 // Copyright (C) 2008 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
-// Created by: Nick Svetlov
-// Created:    2008.05.26
+// Created by: Dmitri Maximov
+// Created:    2008.05.19
 
 using System;
 using Xtensive.Core.Internals.DocTemplates;
@@ -11,25 +11,22 @@ using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.KeyProviders
 {
-  [Serializable]
-  public class Int64Provider : Generator
+  public class GuidGenerator : Generator
   {
-    private long counter = 1;
-
     /// <inheritdoc/>
     public override Tuple Next()
     {
-      return Tuple.Create(counter++);
+      return Tuple.Create(Guid.NewGuid());
     }
 
 
     // Constructors
 
     /// <summary>
-    ///  <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="hierarchy">The hierarchy to serve.</param>
-    public Int64Provider(HierarchyInfo hierarchy)
+    public GuidGenerator(HierarchyInfo hierarchy)
       : base(hierarchy)
     {
     }

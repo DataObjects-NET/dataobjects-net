@@ -4,7 +4,7 @@ using Xtensive.Storage.KeyProviders;
 
 namespace Xtensive.Storage.Tests.Storage.Vehicles
 {
-  [HierarchyRoot(typeof (GuidProvider), "Id")]
+  [HierarchyRoot(typeof (GuidGenerator), "Id")]
   public sealed class Carrier : Entity
   {
     [Field]
