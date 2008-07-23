@@ -140,7 +140,6 @@ namespace Xtensive.Storage.Aspects
             entityType);
       }
 
-    );
       if (cda != null)
         collection.AddAspect(type, cda);
     }
