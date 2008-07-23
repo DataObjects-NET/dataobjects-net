@@ -18,6 +18,12 @@ namespace Xtensive.Storage.Rse.Providers.Executable
       return Source.Enumerate(context);
     }
 
+    /// <inheritdoc/>
+    public override T GetService<T>()
+    {
+      return Source.GetService<T>();
+    }
+
     protected override void Initialize()
     {
     }

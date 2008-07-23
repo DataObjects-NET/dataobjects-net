@@ -170,6 +170,9 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
     public MergeInheritorsProvider(CompilableProvider origin, params ExecutableProvider[] sourceProviders)
       : base(origin, sourceProviders)
     {
+      AddService<IOrderedEnumerable<Tuple, Tuple>>();
+      AddService<ICountable>();
+
       this.sourceProviders = sourceProviders;
       Initialize();
     }

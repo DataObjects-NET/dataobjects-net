@@ -113,6 +113,9 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
     public FilterInheritorsProvider(CompilableProvider origin, ExecutableProvider provider,  int typeIDColumn, int typesCount,  params int[] typeIDs)
       : base(origin, provider)
     {
+      AddService<IOrderedEnumerable<Tuple, Tuple>>();
+      AddService<ICountable>();
+
       source = provider.GetService<IOrderedEnumerable<Tuple,Tuple>>(true);
       typeIDMatch = new bool[typesCount + 1];
       foreach (int typeID in typeIDs)

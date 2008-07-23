@@ -151,6 +151,9 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
     public JoinInheritorsProvider(CompilableProvider origin, int includedColumnsCount, ExecutableProvider root, ExecutableProvider[] inheritors)
       : base(origin, new[]{root}.Union(inheritors).ToArray())
     {
+      AddService<IOrderedEnumerable<Tuple, Tuple>>();
+      AddService<ICountable>();
+
       this.includedColumnsCount = includedColumnsCount;
       this.root = root;
       rootEnumerable = root.GetService<IOrderedEnumerable<Tuple, Tuple>>(true);

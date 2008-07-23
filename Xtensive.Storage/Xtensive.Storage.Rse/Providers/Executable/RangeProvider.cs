@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
@@ -156,12 +157,6 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 
     #endregion
 
-    /// <inheritdoc/>
-    public override T GetService<T>()
-    {
-      return this as T;
-    }
-
     protected override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
       var sourceEnumerable = Source.GetService<IOrderedEnumerable<Tuple, Tuple>>(true);
@@ -178,6 +173,9 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     public RangeProvider(CompilableProvider origin, ExecutableProvider provider, Range<IEntire<Tuple>> range) 
       : base (origin, provider)
     {
+      AddService<IOrderedEnumerable<Tuple, Tuple>>();
+      AddService<ICountable>();
+
       tupleRange = range;
     }
   }

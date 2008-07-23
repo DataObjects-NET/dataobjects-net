@@ -115,12 +115,12 @@ namespace Xtensive.Storage.Rse.Providers
     {
       var serviceType = typeof (T);
       var objectType = typeof (object);
-      while (serviceType!=objectType) {
+      while (serviceType!=objectType && serviceType != null) {
         if (!supportedServices.Contains(serviceType))
           supportedServices.Add(serviceType);
         serviceType = serviceType.BaseType;
       }
-      var interfaces = serviceType.GetInterfaces();
+      var interfaces = typeof(T).GetInterfaces();
       foreach (var interfaceType in interfaces) {
         if (!supportedServices.Contains(interfaceType))
           supportedServices.Add(interfaceType);

@@ -75,7 +75,7 @@ namespace Xtensive.Storage.Rse.Compilation
         if (result!=null)
           return result;
         MethodInfo innerGetCompiler = GetType()
-          .GetMethod("GetCompiler", BindingFlags.Public | BindingFlags.Instance, null, ArrayUtils<Type>.EmptyArray, null);
+          .GetMethod("GetCompiler", BindingFlags.NonPublic | BindingFlags.Instance, null, ArrayUtils<Type>.EmptyArray, null);
         innerGetCompiler = innerGetCompiler
           .GetGenericMethodDefinition()
           .MakeGenericMethod(new[] {type});

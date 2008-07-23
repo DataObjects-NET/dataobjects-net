@@ -88,6 +88,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     public SortProvider(Provider origin, ExecutableProvider source)
       : base(origin, source)
     {
+      AddService<IListProvider>();
       this.source = source;
     }
   }

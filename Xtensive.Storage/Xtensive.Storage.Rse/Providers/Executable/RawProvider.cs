@@ -43,6 +43,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     public RawProvider(Provider origin, params Tuple[] tuples)
       : base(origin)
     {
+      AddService<IListProvider>();
       this.tuples = tuples;
     }
   }
