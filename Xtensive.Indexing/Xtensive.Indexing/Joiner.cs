@@ -262,5 +262,27 @@ namespace Xtensive.Indexing
         }
       }
     }
+
+    public static IEnumerable<Pair<TValue, TRightValue>> NestedLoopJoinLeft<TKey, TValue, TRightValue>(
+      this IEnumerable<TValue> left, 
+      IEnumerable<TRightValue> right, 
+      Converter<TValue, TKey> keyExtractorLeft,
+      Converter<TRightValue, TKey> keyExtractorRight, 
+      AdvancedComparer<TKey> comparer)
+    {
+      foreach (TValue lValue in left) {
+        TKey lKey = keyExtractorLeft(lValue);
+        bool found = false;
+        foreach (TRightValue rValue in right) {
+          TKey rKey = keyExtractorRight(rValue);
+          if (comparer.Compare(lKey, rKey) == 0) {
+            found = true;
+            yield return new Pair<TValue, TRightValue>(lValue, rValue);
+          }
+        }
+        if (!found)
+          yield return new Pair<TValue, TRightValue>(lValue, default(TRightValue));
+      }
+    }
   }
 }
