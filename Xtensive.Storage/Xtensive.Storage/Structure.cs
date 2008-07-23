@@ -10,6 +10,7 @@ using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Model;
@@ -129,9 +130,12 @@ namespace Xtensive.Storage
     internal static Structure Activate(Type type, Persistent owner, FieldInfo field)
     {
       if (!activators.ContainsKey(type)) {
-        Activator.CreateInstance(type);
-        if (!activators.ContainsKey(type))
-          throw new ArgumentException(String.Format(Resources.Strings.TypeXWasNotRegisteredForActivation, type));
+        var constructorInvocationDelegate =
+          (Func<Persistent, FieldInfo, Structure>)DelegateHelper.CreateConstructorDelegate(
+                                       type,
+                                       typeof(Func<Persistent, FieldInfo, Structure>), true);
+        activators.Add(type, constructorInvocationDelegate);
+        return constructorInvocationDelegate(owner, field);
       }
       return activators[type](owner, field);
     }
