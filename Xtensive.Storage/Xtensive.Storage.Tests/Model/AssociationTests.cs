@@ -9,11 +9,10 @@ using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Generators;
 
 namespace Xtensive.Storage.Tests.Model.Relations
 {
-  [HierarchyRoot(typeof (IncrementalGenerator), "Id")]
+  [HierarchyRoot(typeof (DefaultGenerator), "Id")]
   public abstract class Root : Entity
   {
     [Field]

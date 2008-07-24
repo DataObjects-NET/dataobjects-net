@@ -10,13 +10,12 @@ using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Generators;
 
 namespace Xtensive.Storage.Tests.Model.ReferenceTestsModel
 {
   #region SelfReferenced Entity
 
-  [HierarchyRoot(typeof (IncrementalGenerator), "Id")]
+  [HierarchyRoot(typeof (DefaultGenerator), "Id")]
   public class A : Entity
   {
     [Field]

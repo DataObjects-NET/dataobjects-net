@@ -6,11 +6,10 @@
 
 using System;
 using Xtensive.Storage.Attributes;
-using Xtensive.Storage.Generators;
 
 namespace Xtensive.Storage.Tests.Storage.Internals.Car
 {
-  [HierarchyRoot(typeof (GuidGenerator), "ID")]
+  [HierarchyRoot(typeof (DefaultGenerator), "ID")]
   public class Car : Entity
   {
     [Field]

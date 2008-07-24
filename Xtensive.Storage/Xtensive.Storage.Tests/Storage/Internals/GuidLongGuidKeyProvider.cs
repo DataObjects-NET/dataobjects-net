@@ -6,14 +6,10 @@
 
 using System;
 using Xtensive.Core.Tuples;
-using Xtensive.Storage.Attributes;
-using Xtensive.Storage.Generators;
-using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Tests.Storage.Internals
 {
-  [KeyProvider(typeof (Guid), typeof (long), typeof (Guid))]
-  public class GuidLongGuidKeyProvider : GeneratorBase
+  public class GuidLongGuidKeyProvider : DefaultGenerator
   {
     private long currentLongValue = 1;
 
@@ -24,11 +20,6 @@ namespace Xtensive.Storage.Tests.Storage.Internals
       tuple.SetValue(1, currentLongValue++);
       tuple.SetValue(2, Guid.NewGuid());
       return tuple;
-    }
-
-    public GuidLongGuidKeyProvider(HierarchyInfo hierarchy)
-      : base(hierarchy)
-    {
     }
   }
 }

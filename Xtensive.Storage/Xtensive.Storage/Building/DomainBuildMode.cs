@@ -4,7 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2007.08.06
 
-namespace Xtensive.Storage
+namespace Xtensive.Storage.Building
 {
   /// <summary>
   /// Enumerates possible storage build modes.

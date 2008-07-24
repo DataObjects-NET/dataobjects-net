@@ -10,13 +10,12 @@ using NUnit.Framework;
 using Xtensive.Core.Testing;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Generators;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Tests.ReferentialIntegrityModel;
 
 namespace Xtensive.Storage.Tests.ReferentialIntegrityModel
 {
-  [HierarchyRoot(typeof (IncrementalGenerator), "Id")]
+  [HierarchyRoot(typeof (DefaultGenerator), "Id")]
   public class A : Entity
   {
     [Field]
@@ -29,7 +28,7 @@ namespace Xtensive.Storage.Tests.ReferentialIntegrityModel
     public C C { get; set; }
   }
 
-  [HierarchyRoot(typeof (IncrementalGenerator), "Id")]
+  [HierarchyRoot(typeof (DefaultGenerator), "Id")]
   public class B : Entity
   {
     [Field]
@@ -39,7 +38,7 @@ namespace Xtensive.Storage.Tests.ReferentialIntegrityModel
     public A A { get; set; }
   }
 
-  [HierarchyRoot(typeof (IncrementalGenerator), "Id")]
+  [HierarchyRoot(typeof (DefaultGenerator), "Id")]
   public class C : Entity
   {
     [Field]

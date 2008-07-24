@@ -14,7 +14,6 @@ using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Generators;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Tests.Model.Library;
 using FieldAttributes=Xtensive.Storage.Model.FieldAttributes;
@@ -42,7 +41,7 @@ namespace Xtensive.Storage.Tests.Model.Library
     public IdentityCard Card { get; set; }
   }
 
-  [HierarchyRoot(typeof (IncrementalGenerator), "Number")]
+  [HierarchyRoot(typeof (DefaultGenerator), "Number")]
   public class Person : Entity
   {
     [Field]
@@ -127,7 +126,6 @@ namespace Xtensive.Storage.Tests.Model.Library
 //    }
   }
 
-  [KeyProvider(typeof (Book), typeof (Person))]
   internal class BookReviewProvider
   {
     public Key GetNext()
@@ -136,8 +134,7 @@ namespace Xtensive.Storage.Tests.Model.Library
     }
   }
 
-  [KeyProvider(typeof (string))]
-  public class IsbnKeyProvider : GeneratorBase
+  public class IsbnKeyProvider : DefaultGenerator
   {
     private int counter;
 
@@ -146,11 +143,6 @@ namespace Xtensive.Storage.Tests.Model.Library
       Tuple result = Tuple.Create(counter.ToString());
       counter++;
       return result;
-    }
-
-    public IsbnKeyProvider(HierarchyInfo hierarchy)
-      : base(hierarchy)
-    {
     }
   }
 

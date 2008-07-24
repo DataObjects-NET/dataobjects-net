@@ -9,7 +9,6 @@ using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Generators;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Tests.Model.DefaultPlacement;
 
@@ -35,7 +34,7 @@ namespace Xtensive.Storage.Tests.Model.DefaultPlacement
   }
 
   [Entity(MappingName = "A-Root")]
-  [HierarchyRoot(typeof (IncrementalGenerator), "ID")]
+  [HierarchyRoot(typeof (DefaultGenerator), "ID")]
   public class A : Entity
   {
     [Field]
@@ -101,7 +100,7 @@ namespace Xtensive.Storage.Tests.Model.DefaultPlacement
 
   [Index("Name")]
   [Entity]
-  [HierarchyRoot(typeof (IncrementalGenerator), "ID")]
+  [HierarchyRoot(typeof (DefaultGenerator), "ID")]
   public class X : Entity
   {
     [Field]

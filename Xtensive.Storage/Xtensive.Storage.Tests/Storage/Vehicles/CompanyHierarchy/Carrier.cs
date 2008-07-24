@@ -1,10 +1,9 @@
 using System;
 using Xtensive.Storage.Attributes;
-using Xtensive.Storage.Generators;
 
 namespace Xtensive.Storage.Tests.Storage.Vehicles
 {
-  [HierarchyRoot(typeof (GuidGenerator), "Id")]
+  [HierarchyRoot(typeof (DefaultGenerator), "Id")]
   public sealed class Carrier : Entity
   {
     [Field]

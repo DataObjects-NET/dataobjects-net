@@ -6,21 +6,27 @@
 
 using System;
 using Xtensive.Core;
-using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Model;
 
-namespace Xtensive.Storage.Generators
+namespace Xtensive.Storage
 {
   ///<summary>
-  /// Base generator class.
+  /// Default key generator.
   ///</summary>
-  public abstract class GeneratorBase
+  public abstract class DefaultGenerator
   {
     /// <summary>
     /// Gets the hierarchy this instance serves.
     /// </summary>
-    public HierarchyInfo Hierarchy { get; private set; }
+    public HierarchyInfo Hierarchy { get; internal set; }
+
+    /// <summary>
+    /// Initializes this instance.
+    /// </summary>
+    public virtual void Initialize()
+    {
+    }
 
     /// <summary>
     /// Create the <see cref="Tuple"/> with the unique values in key sequence.
@@ -39,18 +45,6 @@ namespace Xtensive.Storage.Generators
       for (int index = 0; index < count; index++)
         result[index] = Next();
       return result;
-    }
-
-
-    // Constructors
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="hierarchy">The hierarchy to serve.</param>
-    protected GeneratorBase(HierarchyInfo hierarchy)
-    {
-      Hierarchy = hierarchy;
     }
   }
 }

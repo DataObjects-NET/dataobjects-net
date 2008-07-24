@@ -8,12 +8,9 @@ using System;
 using System.Globalization;
 using System.Reflection;
 using Xtensive.Core;
-using Xtensive.Core.Diagnostics;
-using Xtensive.Core.Reflection;
 using Xtensive.PluginManager;
 using Xtensive.Storage.Building.Builders;
 using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Generators;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Resources;
@@ -49,16 +46,15 @@ namespace Xtensive.Storage.Building
       context.NameProvider = new NameProvider(configuration.NamingConvention);
 
       using (new BuildingScope(context)) {
-
         try {
           BuildModel();
           BuildDomain();
           BuildHandlerProvider();
           BuildGenerators();
         }
-        catch (DomainBuilderException e) {          
+        catch (DomainBuilderException e) {
           context.RegistError(e);
-        }        
+        }
 
         context.EnsureBuildSucceed();
       }
@@ -72,10 +68,10 @@ namespace Xtensive.Storage.Building
 
     private static void Validate(DomainConfiguration configuration)
     {
-      Core.Log.Info(Strings.LogValidatingConfiguration);
+      Log.Info(Strings.LogValidatingConfiguration);
       if (configuration.Builders.Count > 0)
         foreach (Type type in configuration.Builders)
-          ValidateBuilder(type);         
+          ValidateBuilder(type);
     }
 
     private static void ValidateBuilder(Type type)
@@ -92,7 +88,7 @@ namespace Xtensive.Storage.Building
       if (!typeof (IDomainBuilder).IsAssignableFrom(type))
         throw new DomainBuilderException(
           string.Format(CultureInfo.CurrentCulture,
-            Strings.ExTypeXDoesNotImplementYInterface, type.FullName, typeof (IDomainBuilder).FullName));      
+            Strings.ExTypeXDoesNotImplementYInterface, type.FullName, typeof (IDomainBuilder).FullName));
     }
 
     private static void BuildDomain()
@@ -109,12 +105,15 @@ namespace Xtensive.Storage.Building
     private static void BuildGenerators()
     {
       Log.Info(Strings.LogBuildingKeyProviders);
-      Registry<HierarchyInfo, GeneratorBase> generators = BuildingScope.Context.Domain.KeyManager.Generators;
+      Registry<HierarchyInfo, DefaultGenerator> generators = BuildingScope.Context.Domain.KeyManager.Generators;
       foreach (HierarchyInfo hierarchy in BuildingScope.Context.Model.Hierarchies) {
-        GeneratorBase generator = (GeneratorBase)Activator.CreateInstance(hierarchy.Generator, new object[] {hierarchy});
-        IncrementalGenerator ig = generator as IncrementalGenerator;
-        if (ig != null)
-          ig.Handler = BuildingScope.Context.Domain.HandlerAccessor.HandlerProvider.GetHandler<IncrementalGeneratorHandler>();
+        DefaultGenerator generator;
+        if (hierarchy.Generator==typeof (DefaultGenerator))
+          generator = BuildingScope.Context.Domain.HandlerAccessor.HandlerProvider.GetHandler<DefaultGenerator>();
+        else
+          generator = (DefaultGenerator) Activator.CreateInstance(hierarchy.Generator);
+        generator.Hierarchy = hierarchy;
+        generator.Initialize();
         generators.Register(hierarchy, generator);
       }
       generators.Lock();
@@ -134,10 +133,10 @@ namespace Xtensive.Storage.Building
               protocol,
               Environment.CurrentDirectory));
 
-        handlerAccessor.HandlerProvider = (HandlerProvider)Activator.CreateInstance(handlerProviderType);
+        handlerAccessor.HandlerProvider = (HandlerProvider) Activator.CreateInstance(handlerProviderType);
         handlerAccessor.DomainHandler = handlerAccessor.HandlerProvider.GetHandler<DomainHandler>();
         handlerAccessor.DomainHandler.HandlerAccessor = handlerAccessor;
-        handlerAccessor.DomainHandler.Build();        
+        handlerAccessor.DomainHandler.Build();
       }
     }
   }

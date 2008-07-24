@@ -6,7 +6,7 @@
 
 namespace Xtensive.Storage.Providers.Memory
 {
-  public class IncrementalGeneratorHandler : Index.IncrementalGeneratorHandler
+  public class DefaultGenerator : Index.DefaultGenerator
   {
     
   }
