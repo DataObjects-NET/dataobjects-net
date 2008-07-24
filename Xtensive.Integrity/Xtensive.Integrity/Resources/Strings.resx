@@ -168,4 +168,7 @@
   <data name="LogRelationSyncUndoError" xml:space="preserve">
     <value>Error during undoing the relation synchronization.</value>
   </data>
+  <data name="StringXDoesNotMatchRegexPatternY" xml:space="preserve">
+    <value>String '{0}' does not match regex pattern '{1}'.</value>
+  </data>
 </root>

@@ -5,7 +5,6 @@
 // Created:    2008.06.30
 
 using System;
-using System.Collections.Generic;
 using Xtensive.Integrity.Validation.Interfaces;
 
 namespace Xtensive.Integrity.Validation
@@ -16,37 +15,48 @@ namespace Xtensive.Integrity.Validation
   public static class ValidationAwareExtensions
   {
     /// <summary>
-    /// Validates the specified <paramref name="target"/>, or enqueues it for delayed validation.
+    /// Partially validates the <paramref name="target"/> with specified delegate, or enqueues it for delayed validation.
     /// </summary>
     /// <param name="target">The object to validate.</param>
-    /// <param name="regions">The set of regions to validate;
-    /// <see langword="null" /> means all the regions.</param>
+    /// If <paramref name="validationDelegate"/> is <see langword="null"/> whole object should be validated.</param>
     /// <param name="mode">Validation mode to use.</param>
-    /// <returns>Actually used validation mode.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">Invalid <paramref name="mode"/> value.</exception>
-    public static ValidationMode Validate(this IValidationAware target, HashSet<string> regions, ValidationMode mode)
-    {
-      switch (mode) {
-      case ValidationMode.Immediate:
-        target.OnValidate(regions);
-        return mode;
-      case ValidationMode.Delayed:
-        ValidationScope.CurrentContext.Validate(target);
-        return mode;
-      case ValidationMode.ImmediateOrDelayed:
-        if (ValidationScope.CurrentContext.IsConsistent)
-          return target.Validate(regions, ValidationMode.Immediate);
-        else
-          return target.Validate(regions, ValidationMode.Delayed);
-      default:
-        throw new ArgumentOutOfRangeException("mode");
-      }
+    /// <returns><see langword="true"/> if validation was performed immediately; <see langword="false"/> if it was enqueued.</returns>    
+    public static bool Validate(this IValidationAware target, Action validationDelegate, ValidationMode mode)
+    {      
+      return ValidationScope.CurrentContext.Validate(target, validationDelegate, mode);
     }
 
-    public static ValidationMode Validate(this IValidationAware target)
+    /// <summary>
+    /// Partially validates the <paramref name="target"/> with specified delegate using default <see cref="ValidationMode"/>.
+    /// </summary>
+    /// <param name="target">The object to validate.</param>
+    /// <param name="validationDelegate">The delegate partially validating object.
+    /// If <paramref name="validationDelegate"/> is <see langword="null"/> whole object should be validated.</param>
+    /// <returns><see langword="true"/> if validation was performed immediately; <see langword="false"/> if it was enqueued.</returns>
+    public static bool Validate(this IValidationAware target, Action validationDelegate)
     {
+      return ValidationScope.CurrentContext.Validate(target, validationDelegate);
+    }
 
-      return ValidationMode.Default;
+    /// <summary>
+    /// Validates the specified <paramref name="target"/>, or enqueues it for delayed validation.
+    /// </summary>
+    /// <param name="target">The object to validate.</param>        
+    /// <param name="mode">Validation mode to use.</param>
+    /// <returns><see langword="true"/> if validation was performed immediately; <see langword="false"/> if it was enqueued.</returns>    
+    public static bool Validate(this IValidationAware target, ValidationMode mode)
+    {
+      return ValidationScope.CurrentContext.Validate(target, mode);      
+    }
+
+    /// <summary>
+    /// Validates the specified <paramref name="target"/> using default <see cref="ValidationMode"/>.
+    /// </summary>
+    /// <param name="target">The object to validate.</param>            
+    /// <returns><see langword="true"/> if validation was performed immediately; <see langword="false"/> if it was enqueued.</returns>
+    public static bool Validate(this IValidationAware target)
+    {
+      return ValidationScope.CurrentContext.Validate(target);
     }
   }
 }

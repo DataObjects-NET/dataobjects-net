@@ -5,11 +5,9 @@
 // Created:    2008.01.06
 
 using System;
-using Xtensive.Core;
 using Xtensive.Core.Helpers;
 using Xtensive.Integrity.Atomicity;
 using Xtensive.Integrity.Atomicity.OperationLogs;
-using Xtensive.Integrity.Validation;
 
 namespace Xtensive.Integrity.Tests
 {

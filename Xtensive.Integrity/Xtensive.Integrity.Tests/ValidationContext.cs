@@ -18,7 +18,6 @@ namespace Xtensive.Integrity.Tests
       get { return session; }
     }
 
-
     // Constructors
 
     public ValidationContext(Session session) 

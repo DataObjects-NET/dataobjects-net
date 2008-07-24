@@ -96,11 +96,11 @@ namespace Xtensive.Integrity.Tests
 
     #region IValidationAware methods
 
-    public virtual void Validate()
-    {
+    public virtual void OnValidate()
+    {      
     }
 
-    public bool IsCompatible(ValidationContextBase context)
+    public bool IsCompatibleWith(ValidationContextBase context)
     {
       return session.ValidationContext==context;
     }
@@ -157,14 +157,5 @@ namespace Xtensive.Integrity.Tests
 
     #endregion
 
-    public void OnValidate(HashSet<string> regions)
-    {
-      throw new System.NotImplementedException();
-    }
-
-    public bool IsCompatibleWith(ValidationContextBase context)
-    {
-      throw new System.NotImplementedException();
-    }
   }
 }

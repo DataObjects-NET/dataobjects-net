@@ -212,5 +212,14 @@ namespace Xtensive.Integrity.Resources {
                 return ResourceManager.GetString("LogUndoError", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to String &apos;{0}&apos; does not match regex pattern &apos;{1}&apos;..
+        /// </summary>
+        internal static string StringXDoesNotMatchRegexPatternY {
+            get {
+                return ResourceManager.GetString("StringXDoesNotMatchRegexPatternY", resourceCulture);
+            }
+        }
     }
 }

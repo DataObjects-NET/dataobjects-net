@@ -6,7 +6,6 @@
 
 using System.Collections.Generic;
 using Xtensive.Core;
-using Xtensive.Core.Collections;
 
 namespace Xtensive.Integrity.Validation.Interfaces
 {
@@ -22,7 +21,7 @@ namespace Xtensive.Integrity.Validation.Interfaces
     /// <remarks>
     /// Throws an exception on validation failure.
     /// </remarks>
-    void OnValidate(HashSet<string> regions);
+    void OnValidate();
 
     /// <summary>
     /// Determines whether the specified context is compatible 

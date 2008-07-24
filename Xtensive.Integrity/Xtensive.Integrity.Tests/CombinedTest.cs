@@ -91,7 +91,7 @@ namespace Xtensive.Integrity.Tests
     [Test]
     [ExpectedException(typeof(AggregateException))]
     public void ValidationTest()
-    {
+    {     
       person1.SetAll("1", 1);
     }
 

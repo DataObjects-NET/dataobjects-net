@@ -18,21 +18,15 @@ namespace Xtensive.Integrity.Validation
     /// The same as <see cref="ImmediateOrDelayed"/>.
     /// </summary>
     Default = ImmediateOrDelayed,
+
     /// <summary>
-    /// Unknown validation mode.
+    /// Immediate or delayed (if validation context is in inconsistent state) valdation.
     /// </summary>
-    Unknown = 0,
+    ImmediateOrDelayed = 0,
+
     /// <summary>
     /// Immediate valdation.
     /// </summary>
-    Immediate = 1,
-    /// <summary>
-    /// Delayed valdation.
-    /// </summary>
-    Delayed = 2,
-    /// <summary>
-    /// Immediate or delayed valdation.
-    /// </summary>
-    ImmediateOrDelayed = 3,
+    Immediate = 1
   }
 }

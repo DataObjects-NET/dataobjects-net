@@ -18,7 +18,7 @@ using Xtensive.Integrity.Validation.Interfaces;
 namespace Xtensive.Integrity.Tests
 {
   [Serializable]
-  public class Person: AtomicBase, IValidationAware
+  public class Person: AtomicBase
   {
     [Atomic]
     [Validate]
@@ -94,13 +94,13 @@ namespace Xtensive.Integrity.Tests
       Passport.SetAll(number, issuedBy);
     }
 
-    public void Validate()
+    public override void OnValidate()
     {
       if (Name==Age.ToString())
         throw new Exception("Name==Age.ToString()");
     }
 
-    public bool IsCompatible(ValidationContextBase context)
+    public bool IsCompatible(Validation.ValidationContextBase context)
     {
       ValidationContext vc = context as ValidationContext;
       return vc!=null && vc.Session==Session;

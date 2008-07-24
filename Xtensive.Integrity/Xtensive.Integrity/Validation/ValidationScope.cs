@@ -5,7 +5,6 @@
 // Created:    2008.01.05
 
 using Xtensive.Core;
-using Xtensive.Integrity.Atomicity;
 
 namespace Xtensive.Integrity.Validation
 {
@@ -35,7 +34,6 @@ namespace Xtensive.Integrity.Validation
     {
       get { return (ValidationScope)base.OuterScope; }
     }
-
     
     public override void Activate(ValidationContextBase newContext)
     {
