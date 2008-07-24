@@ -30,7 +30,7 @@ namespace Xtensive.Core.Hashing
     private static readonly HasherProvider @default = new HasherProvider();
     private readonly object syncRoot = new object();
     private ThreadSafeDictionary<Type, IHasherBase> cache = ThreadSafeDictionary<Type, IHasherBase>.Create();
-    private IHasherBase objectHasher;
+    private Cached<IHasherBase> objectHasher;
 
     /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
     public static IHasherProvider Default
@@ -53,13 +53,10 @@ namespace Xtensive.Core.Hashing
     /// <inheritdoc/>
     public IHasherBase GetHasherByInstance(object value)
     {
-      if (value == null) {
-        if (objectHasher == null) lock (syncRoot) if (objectHasher == null) 
-          objectHasher = GetHasher<object>().Implementation;
-        return objectHasher;
-      }
-      Type type = value.GetType();
-      return GetHasherByType(type);
+      if (value == null)
+        return objectHasher.GetValue(syncRoot, me => me.GetHasher<object>().Implementation, this);
+      else
+      return GetHasherByType(value.GetType());
     }
 
     /// <inheritdoc/>

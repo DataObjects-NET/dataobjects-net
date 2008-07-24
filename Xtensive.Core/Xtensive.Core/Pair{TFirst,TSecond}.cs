@@ -5,6 +5,7 @@
 // Created:    2007.06.01
 
 using System;
+using System.Diagnostics;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Resources;
@@ -17,6 +18,7 @@ namespace Xtensive.Core
   /// <typeparam name="TFirst">The <see cref="Type"/> of first value.</typeparam>
   /// <typeparam name="TSecond">The <see cref="Type"/> of second value.</typeparam>
   [Serializable]
+  [DebuggerDisplay("{First}, {Second}")]
   public struct Pair<TFirst, TSecond> : 
     IComparable<Pair<TFirst, TSecond>>,
     IEquatable<Pair<TFirst, TSecond>>
@@ -30,11 +32,14 @@ namespace Xtensive.Core
     /// </summary>
     public readonly TSecond Second;
 
+    #region IComparable<...>, IEquatable<...> methods
+
     /// <inheritdoc/>
     public bool Equals(Pair<TFirst, TSecond> other)
     {
-      return AdvancedComparerStruct<TFirst>.System.Equals(First, other.First) && 
-        AdvancedComparerStruct<TSecond>.System.Equals(Second, other.Second);
+      if (!AdvancedComparerStruct<TFirst>.System.Equals(First, other.First))
+        return false;
+      return AdvancedComparerStruct<TSecond>.System.Equals(Second, other.Second);
     }
 
     /// <inheritdoc/>
@@ -46,24 +51,36 @@ namespace Xtensive.Core
       return AdvancedComparerStruct<TSecond>.System.Compare(Second, other.Second);
     }
 
-    #region Equals, GetHashCode
+    #endregion
+
+    #region Equals, GetHashCode, ==, !=
 
     /// <inheritdoc/>
     public override bool Equals(object obj)
     {
-      if (obj is Pair<TFirst, TSecond>) {
-        var other = (Pair<TFirst, TSecond>)obj;
-        return Equals(other);
-      }
-      return false;
+      if (obj.GetType()!=typeof (Pair<TFirst, TSecond>))
+        return false;
+      return Equals((Pair<TFirst, TSecond>) obj);
     }
 
     /// <inheritdoc/>
     public override int GetHashCode()
     {
-      int firstHash = First == null ? 0 : First.GetHashCode();
-      int secondHash = Second == null ? 0 : Second.GetHashCode();
-      return firstHash ^ 29 * secondHash;
+      unchecked {
+        return (First.GetHashCode() * 397) ^ Second.GetHashCode();
+      }
+    }
+
+    /// <see cref="ClassDocTemplate.OperatorEq"/>
+    public static bool operator ==(Pair<TFirst, TSecond> left, Pair<TFirst, TSecond> right)
+    {
+      return left.Equals(right);
+    }
+
+    /// <see cref="ClassDocTemplate.OperatorNeq"/>
+    public static bool operator !=(Pair<TFirst, TSecond> left, Pair<TFirst, TSecond> right)
+    {
+      return !left.Equals(right);
     }
 
     #endregion

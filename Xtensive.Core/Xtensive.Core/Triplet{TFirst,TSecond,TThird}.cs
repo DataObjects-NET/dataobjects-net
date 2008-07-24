@@ -5,6 +5,7 @@
 // Created:    2007.06.09
 
 using System;
+using System.Diagnostics;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Resources;
@@ -17,6 +18,8 @@ namespace Xtensive.Core
   /// <typeparam name="TFirst"><see cref="Type"/> of the first value.</typeparam>
   /// <typeparam name="TSecond"><see cref="Type"/> of the second value.</typeparam>
   /// <typeparam name="TThird"><see cref="Type"/> of the third value.</typeparam>
+  [Serializable]
+  [DebuggerDisplay("{First}, {Second}, {Third}")]
   public struct Triplet<TFirst, TSecond, TThird>: 
     IEquatable<Triplet<TFirst, TSecond, TThird>>,
     IComparable<Triplet<TFirst, TSecond, TThird>>
@@ -34,13 +37,16 @@ namespace Xtensive.Core
     /// </summary>
     public readonly TThird Third;
 
+    #region IComparable<...>, IEquatable<...> methods
+
     /// <inheritdoc/>
     public bool Equals(Triplet<TFirst, TSecond, TThird> other)
     {
-      return
-        AdvancedComparerStruct<TFirst>.System.Equals(First, other.First) &&
-        AdvancedComparerStruct<TSecond>.System.Equals(Second, other.Second) &&
-        AdvancedComparerStruct<TThird>.System.Equals(Third, other.Third);
+      if (!AdvancedComparerStruct<TFirst>.System.Equals(First, other.First))
+        return false;
+      if (!AdvancedComparerStruct<TSecond>.System.Equals(Second, other.Second))
+        return false;
+      return AdvancedComparerStruct<TThird>.System.Equals(Third, other.Third);
     }
 
     /// <inheritdoc/>
@@ -55,25 +61,39 @@ namespace Xtensive.Core
       return AdvancedComparerStruct<TThird>.System.Compare(Third, other.Third);
     }
 
-    #region Equals, GetHashCode
+    #endregion
+
+    #region Equals, GetHashCode, ==, !=
 
     /// <inheritdoc/>
     public override bool Equals(object obj)
     {
-      if (obj is Triplet<TFirst, TSecond, TThird>) {
-        var other = (Triplet<TFirst, TSecond, TThird>)obj;
-        return Equals(other);
-      }
-      return false;
+      if (obj.GetType()!=typeof (Triplet<TFirst, TSecond, TThird>))
+        return false;
+      return Equals((Triplet<TFirst, TSecond, TThird>) obj);
     }
 
     /// <inheritdoc/>
     public override int GetHashCode()
     {
-      int result = First!=null ? First.GetHashCode() : 0;
-      result = 29 * result + (Second!=null ? Second.GetHashCode() : 0);
-      result = 29 * result + (Third!=null ? Third.GetHashCode() : 0);
-      return result;
+      unchecked {
+        int result = First.GetHashCode();
+        result = (result * 397) ^ Second.GetHashCode();
+        result = (result * 397) ^ Third.GetHashCode();
+        return result;
+      }
+    }
+
+    /// <see cref="ClassDocTemplate.OperatorEq"/>
+    public static bool operator ==(Triplet<TFirst, TSecond, TThird> left, Triplet<TFirst, TSecond, TThird> right)
+    {
+      return left.Equals(right);
+    }
+
+    /// <see cref="ClassDocTemplate.OperatorNeq"/>
+    public static bool operator !=(Triplet<TFirst, TSecond, TThird> left, Triplet<TFirst, TSecond, TThird> right)
+    {
+      return !left.Equals(right);
     }
 
     #endregion

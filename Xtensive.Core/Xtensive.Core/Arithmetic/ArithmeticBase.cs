@@ -70,16 +70,8 @@ namespace Xtensive.Core.Arithmetic
     /// <returns>New instance of <see cref="IArithmetic{T}"/>.</returns>
     public Arithmetic<T> ApplyRules(ArithmeticRules rules)
     {
-      Arithmetic<T> arithmetic = cachedArithmetics.GetValue(rules);
-      if (arithmetic==null)
-        lock (this) {
-          arithmetic = cachedArithmetics.GetValue(rules);
-          if (arithmetic==null) {
-            arithmetic = new Arithmetic<T>(CreateNew(rules));
-            cachedArithmetics.SetValue(rules, arithmetic);
-          }
-        }
-      return arithmetic;
+      return cachedArithmetics.GetValue(this, rules, 
+        (r, me) => new Arithmetic<T>(me.CreateNew(r)), this);
     }
 
     /// <summary>

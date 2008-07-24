@@ -5,6 +5,7 @@
 // Created:    2008.05.30
 
 using System;
+using System.Diagnostics;
 using Xtensive.Core.Arithmetic;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Internals.DocTemplates;
@@ -17,6 +18,7 @@ namespace Xtensive.Core
   /// </summary>
   /// <typeparam name="T">The type of segment boundaries.</typeparam>
   [Serializable]
+  [DebuggerDisplay("Offset = {Offset}, Length = {Length}")]
   public struct Segment<T>
   {
     private static ArithmeticStruct<T> arithmetic = ArithmeticStruct<T>.Default;

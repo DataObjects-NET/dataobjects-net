@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace Xtensive.Core.Collections
 {
@@ -22,10 +23,88 @@ namespace Xtensive.Core.Collections
     private readonly static TItem defaultItem = default(TItem);
     private Dictionary<TKey, TItem> implementation;
 
+    #region GetValue methods with generator
+
+    /// <summary>
+    /// Gets the value or generates it using specified <paramref name="generator"/> and 
+    /// adds it to the dictionary.
+    /// </summary>
+    /// <param name="syncRoot">The object to synchronize on (<see cref="Monitor"/> class is used).</param>
+    /// <param name="key">The key to get the value for.</param>
+    /// <param name="generator">The value generator.</param>
+    /// <returns>Found or generated value.</returns>
+    public TItem GetValue(object syncRoot, TKey key, Func<TKey, TItem> generator)
+    {
+      TItem item;
+      if (implementation.TryGetValue(key, out item))
+        return item;
+      else lock (syncRoot) {
+        if (implementation.TryGetValue(key, out item))
+          return item;
+        item = generator.Invoke(key);
+        SetValue(key, item);
+        return item;
+      }
+    }
+
+    /// <summary>
+    /// Gets the value or generates it using specified <paramref name="generator"/> and 
+    /// adds it to the dictionary.
+    /// </summary>
+    /// <typeparam name="T">The type of the <paramref name="argument"/> to pass to the <paramref name="generator"/>.</typeparam>
+    /// <param name="syncRoot">The object to synchronize on (<see cref="Monitor"/> class is used).</param>
+    /// <param name="key">The key to get the value for.</param>
+    /// <param name="generator">The value generator.</param>
+    /// <param name="argument">The argument to pass to the <paramref name="generator"/>.</param>
+    /// <returns>Found or generated value.</returns>
+    public TItem GetValue<T>(object syncRoot, TKey key, Func<TKey, T, TItem> generator, T argument)
+    {
+      TItem item;
+      if (implementation.TryGetValue(key, out item))
+        return item;
+      else lock (syncRoot) {
+        if (implementation.TryGetValue(key, out item))
+          return item;
+        item = generator.Invoke(key, argument);
+        SetValue(key, item);
+        return item;
+      }
+    }
+
+    /// <summary>
+    /// Gets the value or generates it using specified <paramref name="generator"/> and 
+    /// adds it to the dictionary.
+    /// </summary>
+    /// <typeparam name="T1">The type of the <paramref name="argument1"/> to pass to the <paramref name="generator"/>.</typeparam>
+    /// <typeparam name="T2">The type of the <paramref name="argument2"/> to pass to the <paramref name="generator"/>.</typeparam>
+    /// <param name="syncRoot">The object to synchronize on (<see cref="Monitor"/> class is used).</param>
+    /// <param name="key">The key to get the value for.</param>
+    /// <param name="generator">The value generator.</param>
+    /// <param name="argument1">The first argument to pass to the <paramref name="generator"/>.</param>
+    /// <param name="argument2">The second argument to pass to the <paramref name="generator"/>.</param>
+    /// <returns>Found or generated value.</returns>
+    public TItem GetValue<T1, T2>(object syncRoot, TKey key, Func<TKey, T1, T2, TItem> generator, T1 argument1, T2 argument2)
+    {
+      TItem item;
+      if (implementation.TryGetValue(key, out item))
+        return item;
+      else lock (syncRoot) {
+        if (implementation.TryGetValue(key, out item))
+          return item;
+        item = generator.Invoke(key, argument1, argument2);
+        SetValue(key, item);
+        return item;
+      }
+    }
+
+    #endregion
+
+    #region Base methods: GetValue, SetValue, Clear
+
     /// <summary>
     /// Gets the value by its key.
     /// </summary>
-    /// <param name="key">The key to get value for.</param>
+    /// <param name="key">The key to get the value for.</param>
     /// <returns>Found value, or <see langword="default(TItem)"/>.</returns>
     public TItem GetValue(TKey key)
     {
@@ -60,6 +139,7 @@ namespace Xtensive.Core.Collections
       }
     }
 
+    #endregion
 
     /// <summary>
     /// Initializes the dictionary. 

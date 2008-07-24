@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Security.Permissions;
 using System.Text;
@@ -67,6 +68,7 @@ namespace Xtensive.Core
   /// </para>
   /// </remarks>
   [Serializable]
+  [DebuggerDisplay("{url}")]
   public class UrlInfo
     : ISerializable
   {
@@ -166,7 +168,7 @@ namespace Xtensive.Core
     /// proto://[[user[:password]@]host[:port]]/resource.
     /// Note that the empty URL would cause an exception.
     /// </remarks>
-    /// <exception cref="ArgumentException">Url cannot be parsed.</exception>
+    /// <exception cref="ArgumentException">Specified <paramref name="url"/> is invalid (cannot be parsed).</exception>
     protected virtual void ParseUrl(string url)
     {
       try {

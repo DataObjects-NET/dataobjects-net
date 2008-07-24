@@ -5,6 +5,7 @@
 // Created:    2007.06.01
 
 using System;
+using System.Diagnostics;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Resources;
@@ -17,6 +18,7 @@ namespace Xtensive.Core
   /// <typeparam name="TValue">The <see cref="Type"/> of <see cref="Value"/>.</typeparam>
   /// <typeparam name="TVersion">The <see cref="Type"/> of <see cref="Version"/>.</typeparam>
   [Serializable]
+  [DebuggerDisplay("{Value}, Version = {Version}")]
   public struct HasVersion<TValue, TVersion> : 
     IComparable<HasVersion<TValue, TVersion>>,
     IEquatable<HasVersion<TValue, TVersion>>

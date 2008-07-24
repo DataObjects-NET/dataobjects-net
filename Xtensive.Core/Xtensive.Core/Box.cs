@@ -5,7 +5,7 @@
 // Created:    2008.02.09
 
 using System;
-using System.Collections.Generic;
+using System.Diagnostics;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Resources;
@@ -13,9 +13,11 @@ using Xtensive.Core.Resources;
 namespace Xtensive.Core
 {
   /// <summary>
-  /// Structure boxing a single <see cref="Value"/>.
+  /// Packs a single <see cref="Value"/> into the <see cref="ValueType"/>.
   /// </summary>
   /// <typeparam name="T">Type of the <see cref="Value"/>.</typeparam>
+  [Serializable]
+  [DebuggerDisplay("{value}")]
   public struct Box<T> : 
     IEquatable<Box<T>>,
     IComparable<Box<T>>
@@ -25,10 +27,12 @@ namespace Xtensive.Core
     /// </summary>
     public readonly T Value;
 
+    #region IComparable<...>, IEquatable<...> methods
+
     /// <inheritdoc/>
     public bool Equals(Box<T> other)
     {
-      return AdvancedComparerStruct<T>.System.Equals(Value, other.Value);
+      return Equals(other.Value, Value);
     }
 
     /// <inheritdoc/>
@@ -37,22 +41,34 @@ namespace Xtensive.Core
       return AdvancedComparerStruct<T>.System.Compare(Value, other.Value);
     }
 
-    #region Equals, GetHashCode
+    #endregion
+
+    #region Equals, GetHashCode, ==, !=
 
     /// <inheritdoc/>
     public override bool Equals(object obj)
     {
-      if (obj is Box<T>) {
-        Box<T> other = (Box<T>)obj;
-        return Equals(other);
-      }
-      return false;
+      if (obj.GetType()!=typeof (Box<T>))
+        return false;
+      return Equals((Box<T>) obj);
     }
 
     /// <inheritdoc/>
     public override int GetHashCode()
     {
       return Value.GetHashCode();
+    }
+
+    /// <see cref="ClassDocTemplate.OperatorEq"/>
+    public static bool operator ==(Box<T> left, Box<T> right)
+    {
+      return left.Equals(right);
+    }
+
+    /// <see cref="ClassDocTemplate.OperatorNeq"/>
+    public static bool operator !=(Box<T> left, Box<T> right)
+    {
+      return !left.Equals(right);
     }
 
     #endregion

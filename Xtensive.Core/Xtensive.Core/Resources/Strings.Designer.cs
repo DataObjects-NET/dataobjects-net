@@ -88,6 +88,15 @@ namespace Xtensive.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cached({0}).
+        /// </summary>
+        internal static string CachedFormat {
+            get {
+                return ResourceManager.GetString("CachedFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to ComparisonRule({0}, {1}).
         /// </summary>
         internal static string ComparisonRuleFormat {

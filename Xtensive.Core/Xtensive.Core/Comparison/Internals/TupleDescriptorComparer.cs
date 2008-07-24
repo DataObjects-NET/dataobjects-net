@@ -16,7 +16,7 @@ namespace Xtensive.Core.Comparison
     ISystemComparer<TupleDescriptor>
   {
     [NonSerialized]
-    private ThreadSafeDictionary<Pair<TupleDescriptor>, int?> cache;
+    private ThreadSafeDictionary<Pair<TupleDescriptor>, int> cache;
 
     protected override IAdvancedComparer<TupleDescriptor> CreateNew(ComparisonRules rules)
     {
@@ -27,16 +27,8 @@ namespace Xtensive.Core.Comparison
     {
       if (x==y)
         return 0;
-      Pair<TupleDescriptor> pair = new Pair<TupleDescriptor>(x, y);
-      int? result = cache.GetValue(pair);
-      if (result==null) lock (this) {
-        result = cache.GetValue(pair);
-        if (result==null) {
-          result = BaseComparer.Compare(x.fieldTypes, y.fieldTypes);
-          cache.SetValue(pair, result);
-        }
-      }
-      return result.GetValueOrDefault();
+      return cache.GetValue(this, new Pair<TupleDescriptor>(x, y), 
+        (p, me) => me.BaseComparer.Compare(p.First.fieldTypes, p.Second.fieldTypes), this);
     }
 
     public override bool Equals(TupleDescriptor x, TupleDescriptor y)
@@ -51,7 +43,7 @@ namespace Xtensive.Core.Comparison
 
     private void Initialize()
     {
-      cache = ThreadSafeDictionary<Pair<TupleDescriptor>, int?>.Create();
+      cache = ThreadSafeDictionary<Pair<TupleDescriptor>, int>.Create();
     }
 
 

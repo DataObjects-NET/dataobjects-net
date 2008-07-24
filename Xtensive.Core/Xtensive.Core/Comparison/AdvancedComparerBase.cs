@@ -65,15 +65,8 @@ namespace Xtensive.Core.Comparison
     /// <inheritdoc/>
     public AdvancedComparer<T> ApplyRules(ComparisonRules rules)
     {
-      AdvancedComparer<T> comparer = cachedComparers.GetValue(rules);
-      if (comparer==null) lock (this) {
-        comparer = cachedComparers.GetValue(rules);
-        if (comparer==null) {
-          comparer = new AdvancedComparer<T>(CreateNew(rules));
-          cachedComparers.SetValue(rules, comparer);
-        }
-      }
-      return comparer;
+      return cachedComparers.GetValue(this, rules, 
+        (r, me) => new AdvancedComparer<T>(me.CreateNew(r)), this);
     }
 
     /// <inheritdoc/>

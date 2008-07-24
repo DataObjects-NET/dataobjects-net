@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Resources;
@@ -17,6 +18,7 @@ namespace Xtensive.Core
   /// </summary>
   /// <typeparam name="T">The type of both stored values.</typeparam>
   [Serializable]
+  [DebuggerDisplay("{First}, {Second}")]
   public struct Pair<T> : 
     IEquatable<Pair<T>>,
     IComparable<Pair<T>>
@@ -31,11 +33,14 @@ namespace Xtensive.Core
     /// </summary>
     public readonly T Second;
 
+    #region IComparable<...>, IEquatable<...> methods
+
     /// <inheritdoc/>
     public bool Equals(Pair<T> other)
     {
-      return AdvancedComparerStruct<T>.System.Equals(First, other.First) && 
-        AdvancedComparerStruct<T>.System.Equals(Second, other.Second);
+      if (!AdvancedComparerStruct<T>.System.Equals(First, other.First))
+        return false;
+      return AdvancedComparerStruct<T>.System.Equals(Second, other.Second);
     }
 
     /// <inheritdoc/>
@@ -47,24 +52,36 @@ namespace Xtensive.Core
       return AdvancedComparerStruct<T>.System.Compare(Second, other.Second);
     }
 
-    #region Equals, GetHashCode
+    #endregion
+
+    #region Equals, GetHashCode, ==, !=
 
     /// <inheritdoc/>
     public override bool Equals(object obj)
     {
-      if (obj is Pair<T>) {
-        var other = (Pair<T>)obj;
-        return Equals(other);
-      }
-      return false;
+      if (obj.GetType()!=typeof (Pair<T>))
+        return false;
+      return Equals((Pair<T>) obj);
     }
 
     /// <inheritdoc/>
     public override int GetHashCode()
     {
-      int firstHash = First == null ? 0 : First.GetHashCode();
-      int secondHash = Second == null ? 0 : Second.GetHashCode();
-      return firstHash ^ 29 * secondHash;
+      unchecked {
+        return (Second.GetHashCode() * 397) ^ First.GetHashCode();
+      }
+    }
+
+    /// <see cref="ClassDocTemplate.OperatorEq"/>
+    public static bool operator ==(Pair<T> left, Pair<T> right)
+    {
+      return left.Equals(right);
+    }
+
+    /// <see cref="ClassDocTemplate.OperatorNeq"/>
+    public static bool operator !=(Pair<T> left, Pair<T> right)
+    {
+      return !left.Equals(right);
     }
 
     #endregion

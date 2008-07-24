@@ -14,6 +14,31 @@ namespace Xtensive.Core.Internals.DocTemplates
   public class ClassDocTemplate: IDisposable
   {
     /// <summary>
+    /// Implements the equality operator.
+    /// </summary>
+    /// <param name="left">The left operand.</param>
+    /// <param name="right">The right operand.</param>
+    /// <returns>The result of the comparison for equality.</returns>
+    public static bool OperatorEq(ClassDocTemplate left, ClassDocTemplate right)
+    {
+      return Equals(left, right);
+    }
+
+    /// <summary>
+    /// Implements the inequality operator.
+    /// </summary>
+    /// <param name="left">The left operand.</param>
+    /// <param name="right">The right operand.</param>
+    /// <returns>The result of the comparison for inequality.</returns>
+    public static bool OperatorNeq(ClassDocTemplate left, ClassDocTemplate right)
+    {
+      return !Equals(left, right);
+    }
+
+
+    // Constructors
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="ClassDocTemplate"/> class.
     /// </summary>
     public static void Ctor()

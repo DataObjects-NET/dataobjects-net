@@ -12,13 +12,14 @@ namespace Xtensive.Core.Helpers
   public static class StringExtensions
   {
     /// <summary>
-    /// Indicates whether the specified <paramref name="value"/> is <see langword="null"/> 
-    /// or is <see cref="string.Empty"/>.
+    /// Indicates whether the specified  <paramref name="value"/> 
+    /// is <see langword="null"/> or is <see cref="string.Empty"/>.
     /// </summary>
-    /// <param name="value">A string.</param>
+    /// <param name="value">The string to check.</param>
     /// <returns>
-    /// <see langword="true"/> if the specified <paramref name="value"/> is <see langword="null"/> or 
-    /// is <see cref="string.Empty"/>; otherwise, <see langword="false"/>.
+    /// <see langword="true"/> if the specified <paramref name="value"/> 
+    /// is <see langword="null"/> or is <see cref="string.Empty"/>; 
+    /// otherwise, <see langword="false"/>.
     /// </returns>
     public static bool IsNullOrEmpty(this string value)
     {

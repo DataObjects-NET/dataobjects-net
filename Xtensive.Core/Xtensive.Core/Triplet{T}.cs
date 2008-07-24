@@ -5,6 +5,7 @@
 // Created:    2007.06.09
 
 using System;
+using System.Diagnostics;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Resources;
@@ -15,6 +16,8 @@ namespace Xtensive.Core
   /// Container of three values.
   /// </summary>
   /// <typeparam name="T"><see cref="Type"/> of the triplet values.</typeparam>
+  [Serializable]
+  [DebuggerDisplay("{First}, {Second}, {Third}")]
   public struct Triplet<T> :
     IEquatable<Triplet<T>>,
     IComparable<Triplet<T>>
@@ -32,13 +35,16 @@ namespace Xtensive.Core
     /// </summary>
     public readonly T Third;
 
+    #region IComparable<...>, IEquatable<...> methods
+
     /// <inheritdoc/>
     public bool Equals(Triplet<T> other)
     {
-      return
-        AdvancedComparerStruct<T>.System.Equals(First, other.First) &&
-        AdvancedComparerStruct<T>.System.Equals(Second, other.Second) &&
-        AdvancedComparerStruct<T>.System.Equals(Third, other.Third);
+      if (!AdvancedComparerStruct<T>.System.Equals(First, other.First))
+        return false;
+      if (!AdvancedComparerStruct<T>.System.Equals(Second, other.Second))
+        return false;
+      return AdvancedComparerStruct<T>.System.Equals(Third, other.Third);
     }
 
     /// <inheritdoc/>
@@ -53,25 +59,39 @@ namespace Xtensive.Core
       return AdvancedComparerStruct<T>.System.Compare(Third, other.Third);
     }
 
-    #region Equals, GetHashCode
+    #endregion
+
+    #region Equals, GetHashCode, ==, !=
 
     /// <inheritdoc/>
     public override bool Equals(object obj)
     {
-      if (obj is Triplet<T>) {
-        var other = (Triplet<T>)obj;
-        return Equals(other);
-      }
-      return false;
+      if (obj.GetType()!=typeof (Triplet<T>))
+        return false;
+      return Equals((Triplet<T>) obj);
     }
 
     /// <inheritdoc/>
     public override int GetHashCode()
     {
-      int result = First!=null ? First.GetHashCode() : 0;
-      result = 29 * result + (Second!=null ? Second.GetHashCode() : 0);
-      result = 29 * result + (Third!=null ? Third.GetHashCode() : 0);
-      return result;
+      unchecked {
+        int result = First.GetHashCode();
+        result = (result * 397) ^ Second.GetHashCode();
+        result = (result * 397) ^ Third.GetHashCode();
+        return result;
+      }
+    }
+
+    /// <see cref="ClassDocTemplate.OperatorEq"/>
+    public static bool operator ==(Triplet<T> left, Triplet<T> right)
+    {
+      return left.Equals(right);
+    }
+
+    /// <see cref="ClassDocTemplate.OperatorNeq"/>
+    public static bool operator !=(Triplet<T> left, Triplet<T> right)
+    {
+      return !left.Equals(right);
     }
 
     #endregion

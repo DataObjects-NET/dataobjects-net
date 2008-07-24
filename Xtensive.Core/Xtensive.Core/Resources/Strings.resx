@@ -510,4 +510,7 @@
   <data name="ExServiceNotFound" xml:space="preserve">
     <value>Service '{0}' is not found.</value>
   </data>
+  <data name="CachedFormat" xml:space="preserve">
+    <value>Cached({0})</value>
+  </data>
 </root>
