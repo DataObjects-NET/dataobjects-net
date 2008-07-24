@@ -47,9 +47,10 @@ namespace Xtensive.Core.Comparison
       if (x==null) {
         if (y==null)
           return 0;
-        return -DefaultDirectionMultiplier;
+        else
+          return -DefaultDirectionMultiplier;
       }
-      if (y==null)
+      else if (y==null)
         return DefaultDirectionMultiplier;
 
       var dx = x.Descriptor;
@@ -62,11 +63,13 @@ namespace Xtensive.Core.Comparison
         DelegateHelper.ExecuteDelegates(h.Handlers, ref data, Direction.Positive);
         if (data.Result==Int32.MinValue) // There is no result yet
           return 0;
-        return data.Result;
+        else
+          return data.Result;
       }
-      if (dx.Count<=dy.Count)
+      else if (dx.Count<=dy.Count)
         return Compare_DifferentDescriptors(x, y, dx, dy);
-      return -Compare_DifferentDescriptors(y, x, dy, dx);
+      else
+        return -Compare_DifferentDescriptors(y, x, dy, dx);
     }
 
     private int Compare_DifferentDescriptors(Tuple x, Tuple y, TupleDescriptor dx, TupleDescriptor dy)
@@ -76,14 +79,16 @@ namespace Xtensive.Core.Comparison
       ComparisonHandler hy = GetComparisonHandler(dy);
       data.FieldData = hy.FieldData; // Longer Tuple's data
       DelegateHelper.ExecuteDelegates(hx.Handlers /* Shorter Tuple's handlers */, ref data, Direction.Positive);
-      if (data.Result==Int32.MinValue) {
-        // There is no result yet 
+      if (data.Result==Int32.MinValue) { // There is no result yet 
         int count = data.X.Count;
         if (data.FieldData[count].First==0) // And next direction to compare is none
           return 0;
-        return -data.X.Count * DefaultDirectionMultiplier;
+        else
+          return -count
+            * DefaultDirectionMultiplier;
       }
-      return data.Result;
+      else
+        return data.Result;
     }
 
     public override bool Equals(Tuple x, Tuple y)
@@ -135,7 +140,6 @@ namespace Xtensive.Core.Comparison
         data.Result = 0;
         return true;
       }
-
       if (data.X.Count == fieldIndex)
         return true;
     

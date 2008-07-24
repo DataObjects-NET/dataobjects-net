@@ -21,7 +21,8 @@ namespace Xtensive.Integrity.Validation
   {
     private bool isConsistent = true;
     private int  activationCount;
-    private ISet<IValidationAware> registry;
+    private ISet<IValidationAware> registry; 
+    Dictionary<IValidationAware, HashSet<string>>
 
     /// <inheritdoc/>
     protected override ValidationScope CreateActiveScope()

@@ -82,9 +82,9 @@ namespace Xtensive.Indexing
       if (dx==dy)
         return Compare_SameDescriptor(x, y, dx);
       else if (dx.Count <= dy.Count)
-        return Compare_DifferentDescriptors(x, y, dy);
+        return Compare_DifferentDescriptors(x, y, dx, dy);
       else
-        return -Compare_DifferentDescriptors(y, x, dx);
+        return -Compare_DifferentDescriptors(y, x, dx, dy);
     }
 
     private int Compare_SameDescriptor(IEntire<T> x, IEntire<T> y, TupleDescriptor dx)
@@ -99,15 +99,20 @@ namespace Xtensive.Indexing
         return data.Result;
     }
 
-    private int Compare_DifferentDescriptors(IEntire<T> x, IEntire<T> y, TupleDescriptor dy)
+    private int Compare_DifferentDescriptors(IEntire<T> x, IEntire<T> y, TupleDescriptor dx, TupleDescriptor dy)
     {
       var data = new EntireComparerData<IEntire<T>, IEntire<T>>(x, y);
-      ComparisonHandler h = GetComparisonHandler(dy);
-      data.FieldData = h.FieldData; // Longer Tuple's data
-      DelegateHelper.ExecuteDelegates(h.Handlers /* Longer Tuple's handlers */, ref data, Direction.Positive);
-      if (data.Result==Int32.MinValue) // There is no result yet
-        return -data.X.Count
+      ComparisonHandler hx = GetComparisonHandler(dx);
+      ComparisonHandler hy = GetComparisonHandler(dy);
+      data.FieldData = hy.FieldData; // Longer Tuple's data
+      DelegateHelper.ExecuteDelegates(hx.Handlers /* Shorter Tuple's handlers */, ref data, Direction.Positive);
+      if (data.Result==Int32.MinValue) { // There is no result yet
+        int count = data.X.Count;
+        if (data.FieldData[count].First==0) // And next direction to compare is none
+          return 0;
+        return -count
           * DefaultDirectionMultiplier;
+      }
       else
         return data.Result;
     }
@@ -134,11 +139,11 @@ namespace Xtensive.Indexing
       var dx = x.Descriptor;
       var dy = y.Descriptor;
       var data = new EntireComparerData<TupleEntire, Tuple>(x, y);
-      ComparisonHandler h = GetComparisonHandler(dy);
+      ComparisonHandler hy = GetComparisonHandler(dy);
       if (dx==dy)
         data.Result = 0; // Sizes are the same, so result is known on completion
-      data.FieldData = h.FieldData; // Entire's data
-      DelegateHelper.ExecuteDelegates(h.AsymmetricHandlers /* Entire's handlers */, ref data, Direction.Positive);
+      data.FieldData = hy.FieldData; // Tuple's data
+      DelegateHelper.ExecuteDelegates(hy.AsymmetricHandlers /* Tuples's handlers */, ref data, Direction.Positive);
       if (data.Result==Int32.MinValue) // There is no result yet, but sizes are different
         return -data.X.Count
           * DefaultDirectionMultiplier;
@@ -159,8 +164,9 @@ namespace Xtensive.Indexing
       int result = valueComparer.Compare(x.GetValueOrDefault<T>(0), y);
       if (result!=0)
         return result;
-      return (int) xValueType 
-        * DefaultDirectionMultiplier;
+      else
+        return (int) xValueType 
+          * DefaultDirectionMultiplier;
     }
 
     public override bool Equals(IEntire<T> x, IEntire<T> y)
