@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using PostSharp.Extensibility;
 using PostSharp.Laos;
 using Xtensive.Core.Internals.DocTemplates;
@@ -33,7 +34,25 @@ namespace Xtensive.Core.Aspects.Helpers
     /// <inheritdoc/>
     public override bool CompileTimeValidate(Type type)
     {
-      // TODO: Implement
+      ConstructorInfo existingConstructor = null;
+      try {
+        existingConstructor = type.GetConstructor(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.CreateInstance,
+        null,
+        ParameterTypes,
+        null);
+      }
+      catch (NullReferenceException) { }
+      catch (ArgumentNullException) { }
+      catch (AmbiguousMatchException) { }
+      
+      if (existingConstructor != null) {
+        string arguments = "(";
+        Array.ForEach(ParameterTypes, (t) => arguments += t.FullName + ", ");
+        arguments += ")";
+        AspectsMessageSource.Instance.Write(SeverityType.Error, "AspectExConstructorAlreadyExsists", new object[] { type.FullName, arguments });
+        return false;
+      }
+
       return true;
     }
 

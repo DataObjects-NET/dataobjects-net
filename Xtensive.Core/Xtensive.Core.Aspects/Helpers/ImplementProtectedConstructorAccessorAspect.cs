@@ -30,17 +30,28 @@ namespace Xtensive.Core.Aspects.Helpers
     /// <summary>
     /// Gets the protected constructor argument types.
     /// </summary>
-    public Type[] ArgumentTypes { get; private set; }
+    public Type[] ParameterTypes { get; private set; }
 
     /// <inheritdoc/>
     public override bool CompileTimeValidate(Type type)
     {
-      var existingConstructor = type.GetConstructor(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.CreateInstance, 
+      ConstructorInfo existingConstructor = null;
+      try {
+        existingConstructor = type.GetConstructor(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.CreateInstance,
         null,
-        ArgumentTypes, null);
+        ParameterTypes,
+        null);
+      }
+      catch (NullReferenceException) { }
+      catch (ArgumentNullException) { }
+      catch (AmbiguousMatchException) { }
 
-      if (existingConstructor != null) {
-        AspectsMessageSource.Instance.Write(SeverityType.Error, "ExAsp", new object[] {});
+      if (existingConstructor == null) {
+        string arguments = "(";
+        Array.ForEach(ParameterTypes, (t) => arguments += t.FullName + ", ");
+        arguments += ")";
+        AspectsMessageSource.Instance.Write(SeverityType.Error, "AspectExConstructorDoesNotExsist", new object[] { type.FullName, arguments });
+        return false;
       }
 
       return true;
@@ -76,12 +87,12 @@ namespace Xtensive.Core.Aspects.Helpers
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="argumentTypes"><see cref="ArgumentTypes"/> property value.</param>
+    /// <param name="ParameterTypes"><see cref="ParameterTypes"/> property value.</param>
     /// <param name="returnType"><see cref="ReturnType"/> property value.</param>
-    public ImplementProtectedConstructorAccessorAspect(Type[] argumentTypes, Type returnType)
+    public ImplementProtectedConstructorAccessorAspect(Type[] ParameterTypes, Type returnType)
     {
       ReturnType = returnType;
-      ArgumentTypes = argumentTypes;
+      this.ParameterTypes = ParameterTypes;
     }
   }
 }
