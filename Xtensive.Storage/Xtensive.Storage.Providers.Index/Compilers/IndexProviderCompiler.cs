@@ -20,14 +20,21 @@ namespace Xtensive.Storage.Providers.Index.Compilers
 
     protected override ExecutableProvider Compile(IndexProvider provider)
     {
-      ExecutableProvider result;
       IndexInfo indexInfo = provider.Index.Resolve(handlerAccessor.Domain.Model);
-      var handler = (DomainHandler) handlerAccessor.DomainHandler;
+      ExecutableProvider result = CompileInternal(provider, indexInfo);
+      return result;
+    }
+
+    private ExecutableProvider CompileInternal(IndexProvider provider, IndexInfo indexInfo)
+    {
+      var handler = (DomainHandler)handlerAccessor.DomainHandler;
+      ExecutableProvider result;
       if (!indexInfo.IsVirtual)
         result = new Rse.Providers.Executable.IndexProvider(provider, provider.Index, handler.GetRealIndex);
       else {
+        var firstUnderlyingIndex = indexInfo.UnderlyingIndexes.First();
         if ((indexInfo.Attributes & IndexAttributes.Filtered)!=0) {
-          ExecutableProvider source = Compile(new IndexProvider(indexInfo.UnderlyingIndexes.First()));
+          ExecutableProvider source = CompileInternal(new IndexProvider(firstUnderlyingIndex), firstUnderlyingIndex);
           int columnIndex;
           if (indexInfo.IsPrimary) {
             FieldInfo typeIDField = indexInfo.ReflectedType.Fields[handlerAccessor.Domain.NameProvider.TypeId];
@@ -40,22 +47,22 @@ namespace Xtensive.Storage.Providers.Index.Compilers
           result = new FilterInheritorsProvider(provider, source, columnIndex, handlerAccessor.Domain.Model.Types.Count, typeIDList.ToArray());
         }
         else if ((indexInfo.Attributes & IndexAttributes.Union)!=0) {
-          ExecutableProvider[] sourceProviders = indexInfo.UnderlyingIndexes.Select(index => Compile(new IndexProvider(index))).ToArray();
+          ExecutableProvider[] sourceProviders = indexInfo.UnderlyingIndexes.Select(index => CompileInternal(new IndexProvider(index), index)).ToArray();
           result = new MergeInheritorsProvider(provider, sourceProviders);
         }
         else {
           var baseIndexes = new List<IndexInfo>(indexInfo.UnderlyingIndexes);
-          ExecutableProvider rootProvider = Compile(new IndexProvider(indexInfo.UnderlyingIndexes.First()));
+          ExecutableProvider rootProvider = CompileInternal(new IndexProvider(firstUnderlyingIndex), firstUnderlyingIndex);
           var inheritorsProviders = new ExecutableProvider[baseIndexes.Count - 1];
           for (int i = 1; i < baseIndexes.Count; i++)
-            inheritorsProviders[i - 1] = Compile(new IndexProvider(baseIndexes[i]));
+            inheritorsProviders[i - 1] = CompileInternal(new IndexProvider(baseIndexes[i]), baseIndexes[i]);
 
           result = new JoinInheritorsProvider(provider, baseIndexes[0].IncludedColumns.Count, rootProvider, inheritorsProviders);
         }
       }
       return result;
     }
-    
+
 
     // Constructors
 
