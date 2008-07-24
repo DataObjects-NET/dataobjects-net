@@ -72,11 +72,17 @@ namespace Xtensive.Core.Comparison
     private int Compare_DifferentDescriptors(Tuple x, Tuple y, TupleDescriptor dx, TupleDescriptor dy)
     {
       var data = new TupleComparerData(x, y);
+      ComparisonHandler hx = GetComparisonHandler(dx);
       ComparisonHandler hy = GetComparisonHandler(dy);
       data.FieldData = hy.FieldData; // Longer Tuple's data
-      DelegateHelper.ExecuteDelegates(hy.Handlers /* Longer Tuple's handlers */, ref data, Direction.Positive);
-      if (data.Result==Int32.MinValue) // There is no result yet
+      DelegateHelper.ExecuteDelegates(hx.Handlers /* Shorter Tuple's handlers */, ref data, Direction.Positive);
+      if (data.Result==Int32.MinValue) {
+        // There is no result yet 
+        int count = data.X.Count;
+        if (data.FieldData[count].First==0) // And next direction to compare is none
+          return 0;
         return -data.X.Count * DefaultDirectionMultiplier;
+      }
       return data.Result;
     }
 

@@ -58,7 +58,7 @@ namespace Xtensive.Core.Aspects.Helpers
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
 
       var aspect = AppliedAspectSet.Add(new Pair<Type, Type>(type, returnType),
-                                                                             () => new ImplementProtectedConstructorAccessorAspect(argumentTypes, returnType));
+        () => new ImplementProtectedConstructorAccessorAspect(argumentTypes, returnType));
       AspectDebug.WriteLine("Applying ProtectedConstructorAccessor aspect for type '{0}' = '{1}'", type.FullName, aspect);
       return aspect;
     }
