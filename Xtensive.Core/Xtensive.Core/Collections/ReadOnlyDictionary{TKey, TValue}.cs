@@ -16,8 +16,10 @@ namespace Xtensive.Core.Collections
   /// Read-only generic dictionary (<see cref="IDictionary{TKey, TValue}"/>) wrapper.
   /// </summary>
   [Serializable]
-  public class ReadOnlyDictionary<TKey, TValue>
-    : IReadOnlyDictionary, IReadOnlyDictionary<TKey, TValue>
+  public class ReadOnlyDictionary<TKey, TValue> :
+    IDictionary,
+    IDictionary<TKey, TValue>,
+    IReadOnly
   {
     private readonly IDictionary<TKey, TValue> innerDictionary;
     private readonly bool isFixedSize;

@@ -42,7 +42,7 @@ namespace Xtensive.Storage.Providers
                         {
                           DelegateHelper.CreateConstructorDelegate(
                             type,
-                            typeof (Func<>).MakeGenericType(baseType), false)
+                            typeof (Func<>).MakeGenericType(baseType))
                         });
             baseType = null;
             continue;

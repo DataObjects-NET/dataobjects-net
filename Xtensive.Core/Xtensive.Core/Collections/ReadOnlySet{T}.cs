@@ -15,7 +15,7 @@ namespace Xtensive.Core.Collections
   /// Read-only set (<see cref="ISet{T}"/>) wrapper.
   /// </summary>
   [Serializable]
-  public class ReadOnlySet<T>: IReadOnlySet<T>
+  public class ReadOnlySet<T>: ISet<T>, IReadOnly
   {
     private readonly ISet<T> innerSet;
 

@@ -17,8 +17,10 @@ namespace Xtensive.Core.Collections
   /// </summary>
   /// <typeparam name="T">The type of collection items.</typeparam>
   [Serializable]
-  public class ReadOnlyCollection<T> 
-    : IReadOnlyCollection, IReadOnlyCollection<T>
+  public class ReadOnlyCollection<T> : 
+    ICollection,
+    ICollection<T>,
+    IReadOnly
   {
     private readonly ICollection<T> innerCollection;
 

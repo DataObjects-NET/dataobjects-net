@@ -133,7 +133,7 @@ namespace Xtensive.Storage
         var constructorInvocationDelegate =
           (Func<Persistent, FieldInfo, Structure>)DelegateHelper.CreateConstructorDelegate(
                                        type,
-                                       typeof(Func<Persistent, FieldInfo, Structure>), true);
+                                       typeof(Func<Persistent, FieldInfo, Structure>));
         activators.Add(type, constructorInvocationDelegate);
         return constructorInvocationDelegate(owner, field);
       }

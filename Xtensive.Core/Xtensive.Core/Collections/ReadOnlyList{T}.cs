@@ -16,7 +16,7 @@ namespace Xtensive.Core.Collections
   /// Read-only list (<see cref="IList"/>) wrapper.
   /// </summary>
   [Serializable]
-  public class ReadOnlyList<T>: IReadOnlyList<T>
+  public class ReadOnlyList<T>: IList<T>, IReadOnly
   {
     private readonly IList<T> innerList;
     private readonly bool isFixedSize;

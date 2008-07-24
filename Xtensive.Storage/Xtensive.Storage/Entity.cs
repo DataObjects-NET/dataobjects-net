@@ -180,7 +180,7 @@ namespace Xtensive.Storage
         var constructorInvocationDelegate =
           (Func<EntityData, Entity>) DelegateHelper.CreateConstructorDelegate(
                                        type,
-                                       typeof (Func<EntityData, Entity>), true);
+                                       typeof (Func<EntityData, Entity>));
         activators.Add(type, constructorInvocationDelegate);
         return constructorInvocationDelegate(data);
       }

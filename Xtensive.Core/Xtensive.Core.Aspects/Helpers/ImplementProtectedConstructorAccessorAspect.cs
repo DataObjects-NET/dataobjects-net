@@ -5,6 +5,7 @@
 // Created:    2008.06.02
 
 using System;
+using System.Reflection;
 using PostSharp.Extensibility;
 using PostSharp.Laos;
 using Xtensive.Core.Internals.DocTemplates;
@@ -34,7 +35,14 @@ namespace Xtensive.Core.Aspects.Helpers
     /// <inheritdoc/>
     public override bool CompileTimeValidate(Type type)
     {
-      // TODO: Implement
+      var existingConstructor = type.GetConstructor(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.CreateInstance, 
+        null,
+        ArgumentTypes, null);
+
+      if (existingConstructor != null) {
+        AspectsMessageSource.Instance.Write(SeverityType.Error, "ExAsp", new object[] {});
+      }
+
       return true;
     }
 
@@ -59,7 +67,6 @@ namespace Xtensive.Core.Aspects.Helpers
 
       var aspect = AppliedAspectSet.Add(new Pair<Type, Type>(type, returnType),
         () => new ImplementProtectedConstructorAccessorAspect(argumentTypes, returnType));
-      AspectDebug.WriteLine("Applying ProtectedConstructorAccessor aspect for type '{0}' = '{1}'", type.FullName, aspect);
       return aspect;
     }
 

@@ -382,13 +382,14 @@ namespace Xtensive.Core.Reflection
     /// </summary>
     /// <param name="type">The type to create the constructor invocation delegate for.</param>
     /// <returns>Constructor invocation delegate.</returns>
-    public static Delegate CreateConstructorDelegate(Type type, Type delegateType, bool isProtected)
+    public static Delegate CreateConstructorDelegate(Type type, Type delegateType)
     {
-      if (isProtected)
-        return (Delegate)createProtectedConstructorDelegateMethod.MakeGenericMethod(new [] {delegateType}).Invoke(null, new object[] { type } );
+      Delegate result = (Delegate)createProtectedConstructorDelegateMethod.MakeGenericMethod(new [] {delegateType}).Invoke(null, new object[] { type } );
+      if (result != null)
+        return result;
 
       string methodKey  = GetMethodCallDelegateKey(ctorMethodName, type, delegateType);
-      Delegate result = GetCachedDelegate(methodKey);
+      result = GetCachedDelegate(methodKey);
       if (result == null)
         lock (cachedDelegates) {
           result = GetCachedDelegate(methodKey);
@@ -405,7 +406,6 @@ namespace Xtensive.Core.Reflection
         }
       return result;
     }
-
 
     public static Type[] GetAccessorArguments(Type accessor, out Type returnType)
     {
