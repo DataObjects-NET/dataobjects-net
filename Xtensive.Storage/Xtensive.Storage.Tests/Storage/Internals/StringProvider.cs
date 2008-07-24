@@ -7,13 +7,13 @@
 using System;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Attributes;
-using Xtensive.Storage.KeyProviders;
+using Xtensive.Storage.Generators;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Tests.Storage.Internals
 {
   [KeyProvider(typeof (string))]
-  public class StringProvider : Generator
+  public class StringProvider : GeneratorBase
   {
     public override Tuple Next()
     {

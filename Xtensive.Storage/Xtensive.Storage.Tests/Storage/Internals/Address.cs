@@ -5,7 +5,7 @@
 // Created:    2008.05.27
 
 using Xtensive.Storage.Attributes;
-using Xtensive.Storage.KeyProviders;
+using Xtensive.Storage.Generators;
 
 namespace Xtensive.Storage.Tests.Storage.Internals.Address
 {

@@ -5,7 +5,7 @@
 // Created:    2008.06.03
 
 using Xtensive.Storage.Attributes;
-using Xtensive.Storage.KeyProviders;
+using Xtensive.Storage.Generators;
 
 namespace Xtensive.Storage.Tests.Storage.Vehicles
 {
@@ -14,7 +14,7 @@ namespace Xtensive.Storage.Tests.Storage.Vehicles
   /// Usually it groups several vehicles of same type (trucks or passenger cars for example).
   /// It's a base abstract class for <see cref="TruckFleet"/> and <see cref="CarFleet"/> fleets.
   /// </summary>
-  [HierarchyRoot(typeof (Int64Provider), "Id")]
+  [HierarchyRoot(typeof (IncrementalGenerator), "Id")]
   [Index("Name", "Code")]
   public abstract class Fleet : Entity
   {

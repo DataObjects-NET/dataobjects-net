@@ -5,14 +5,14 @@
 // Created:    2008.06.26
 
 using Xtensive.Storage.Attributes;
-using Xtensive.Storage.KeyProviders;
+using Xtensive.Storage.Generators;
 
 namespace Xtensive.Storage.Tests.Storage.States
 {
   /// <summary>
   /// States(regions) of country.
   /// </summary>
-  [HierarchyRoot(typeof (Int32Generator), "Id")]
+  [HierarchyRoot(typeof (IncrementalGenerator), "Id")]
   public class State : Entity
   {
     /// <summary>

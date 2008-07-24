@@ -6,7 +6,7 @@
 
 using System;
 using Xtensive.Storage.Attributes;
-using Xtensive.Storage.KeyProviders;
+using Xtensive.Storage.Generators;
 
 namespace Xtensive.Storage.Tests.Storage.Internals.Car
 {

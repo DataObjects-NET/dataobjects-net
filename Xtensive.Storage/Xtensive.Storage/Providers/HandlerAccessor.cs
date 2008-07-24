@@ -4,9 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2008.07.11
 
-using Xtensive.Storage.Building;
-using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
 
 namespace Xtensive.Storage.Providers

@@ -5,11 +5,11 @@
 // Created:    2008.06.24
 
 using Xtensive.Storage.Attributes;
-using Xtensive.Storage.KeyProviders;
+using Xtensive.Storage.Generators;
 
 namespace Xtensive.Storage.Tests.Storage.Vehicles.Debug
 {
-  [HierarchyRoot(typeof (Int64Provider), "Id")]
+  [HierarchyRoot(typeof (IncrementalGenerator), "Id")]
   public class DebugFleet : Entity
   {
     [Field]

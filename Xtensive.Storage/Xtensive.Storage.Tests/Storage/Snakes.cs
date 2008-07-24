@@ -16,7 +16,7 @@ using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
-using Xtensive.Storage.KeyProviders;
+using Xtensive.Storage.Generators;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Tests.SnakeModel;
@@ -35,7 +35,7 @@ namespace Xtensive.Storage.Tests.SnakeModel
 
   [DebuggerDisplay("Name = '{Name}'")]
   [Index("Name")]
-  [HierarchyRoot(typeof (Int32Generator), "ID")]
+  [HierarchyRoot(typeof (IncrementalGenerator), "ID")]
   public class Creature : Entity
   {
     [Field]

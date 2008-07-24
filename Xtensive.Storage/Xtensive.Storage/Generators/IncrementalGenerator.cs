@@ -2,22 +2,29 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Dmitri Maximov
-// Created:    2008.05.19
+// Created:    2008.07.24
 
-using System;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Providers;
 
-namespace Xtensive.Storage.KeyProviders
+namespace Xtensive.Storage.Generators
 {
-  public class GuidGenerator : Generator
+  /// <summary>
+  /// Incremental generator.
+  /// </summary>
+  public class IncrementalGenerator : GeneratorBase
   {
     /// <inheritdoc/>
     public override Tuple Next()
     {
-      return Tuple.Create(Guid.NewGuid());
+      Tuple result = Tuple.Create(Hierarchy.TupleDescriptor);
+      Handler.Fill(result);
+      return result;
     }
+
+    internal IncrementalGeneratorHandler Handler { get; set; }
 
 
     // Constructors
@@ -26,7 +33,7 @@ namespace Xtensive.Storage.KeyProviders
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="hierarchy">The hierarchy to serve.</param>
-    public GuidGenerator(HierarchyInfo hierarchy)
+    public IncrementalGenerator(HierarchyInfo hierarchy)
       : base(hierarchy)
     {
     }

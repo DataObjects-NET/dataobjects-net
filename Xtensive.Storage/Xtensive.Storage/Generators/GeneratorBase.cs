@@ -10,9 +10,12 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Model;
 
-namespace Xtensive.Storage.KeyProviders
+namespace Xtensive.Storage.Generators
 {
-  public abstract class Generator
+  ///<summary>
+  /// Base generator class.
+  ///</summary>
+  public abstract class GeneratorBase
   {
     /// <summary>
     /// Gets the hierarchy this instance serves.
@@ -45,7 +48,7 @@ namespace Xtensive.Storage.KeyProviders
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="hierarchy">The hierarchy to serve.</param>
-    protected Generator(HierarchyInfo hierarchy)
+    protected GeneratorBase(HierarchyInfo hierarchy)
     {
       Hierarchy = hierarchy;
     }

@@ -6,14 +6,14 @@
 
 using System;
 using Xtensive.Storage.Attributes;
-using Xtensive.Storage.KeyProviders;
+using Xtensive.Storage.Generators;
 
 namespace Xtensive.Storage.Tests.Storage.Vehicles
 {
   /// <summary>
   /// Company.
   /// </summary>
-  [HierarchyRoot(typeof (Int64Provider), "Id")]
+  [HierarchyRoot(typeof (IncrementalGenerator), "Id")]
   public class Company : Entity
   {
     [Field]

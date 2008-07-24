@@ -13,7 +13,7 @@ using Xtensive.Core.Reflection;
 using Xtensive.PluginManager;
 using Xtensive.Storage.Building.Builders;
 using Xtensive.Storage.Configuration;
-using Xtensive.Storage.KeyProviders;
+using Xtensive.Storage.Generators;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Resources;
@@ -109,9 +109,12 @@ namespace Xtensive.Storage.Building
     private static void BuildGenerators()
     {
       Log.Info(Strings.LogBuildingKeyProviders);
-      Registry<HierarchyInfo, Generator> generators = BuildingScope.Context.Domain.KeyManager.Generators;
+      Registry<HierarchyInfo, GeneratorBase> generators = BuildingScope.Context.Domain.KeyManager.Generators;
       foreach (HierarchyInfo hierarchy in BuildingScope.Context.Model.Hierarchies) {
-        Generator generator = (Generator)Activator.CreateInstance(hierarchy.Generator, new object[] {hierarchy});
+        GeneratorBase generator = (GeneratorBase)Activator.CreateInstance(hierarchy.Generator, new object[] {hierarchy});
+        IncrementalGenerator ig = generator as IncrementalGenerator;
+        if (ig != null)
+          ig.Handler = BuildingScope.Context.Domain.HandlerAccessor.HandlerProvider.GetHandler<IncrementalGeneratorHandler>();
         generators.Register(hierarchy, generator);
       }
       generators.Lock();

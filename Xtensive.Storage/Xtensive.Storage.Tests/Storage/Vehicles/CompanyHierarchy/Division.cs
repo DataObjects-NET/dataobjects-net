@@ -5,14 +5,14 @@
 // Created:    2008.06.03
 
 using Xtensive.Storage.Attributes;
-using Xtensive.Storage.KeyProviders;
+using Xtensive.Storage.Generators;
 
 namespace Xtensive.Storage.Tests.Storage.Vehicles
 {
   /// <summary>
   /// Company division. A part of company.
   /// </summary>
-  [HierarchyRoot(typeof (Int64Provider), "Id")]
+  [HierarchyRoot(typeof (IncrementalGenerator), "Id")]
   public class Division : Entity
   {
     [Field]

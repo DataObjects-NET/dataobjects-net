@@ -14,7 +14,7 @@ using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Configuration;
-using Xtensive.Storage.KeyProviders;
+using Xtensive.Storage.Generators;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Tests.Model.Library;
 using FieldAttributes=Xtensive.Storage.Model.FieldAttributes;
@@ -42,7 +42,7 @@ namespace Xtensive.Storage.Tests.Model.Library
     public IdentityCard Card { get; set; }
   }
 
-  [HierarchyRoot(typeof (Int32Generator), "Number")]
+  [HierarchyRoot(typeof (IncrementalGenerator), "Number")]
   public class Person : Entity
   {
     [Field]
@@ -137,7 +137,7 @@ namespace Xtensive.Storage.Tests.Model.Library
   }
 
   [KeyProvider(typeof (string))]
-  public class IsbnKeyProvider : Generator
+  public class IsbnKeyProvider : GeneratorBase
   {
     private int counter;
 

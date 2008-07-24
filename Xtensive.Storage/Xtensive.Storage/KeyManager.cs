@@ -8,7 +8,7 @@ using System;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Tuples;
-using Xtensive.Storage.KeyProviders;
+using Xtensive.Storage.Generators;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 
@@ -19,7 +19,7 @@ namespace Xtensive.Storage
     private readonly Domain domain;
     private readonly WeakSetSlim<Key> cache = new WeakSetSlim<Key>();
 
-    internal Registry<HierarchyInfo, Generator> Generators { get; private set; }
+    internal Registry<HierarchyInfo, GeneratorBase> Generators { get; private set; }
 
     #region Next methods
 
@@ -37,7 +37,7 @@ namespace Xtensive.Storage
 
     internal Key Next(TypeInfo type)
     {
-      Generator provider = Generators[type.Hierarchy];
+      GeneratorBase provider = Generators[type.Hierarchy];
       Key key = new Key(type.Hierarchy, provider.Next());
       key.Type = type;
       cache.Add(key);
@@ -125,7 +125,7 @@ namespace Xtensive.Storage
     internal KeyManager(Domain domain)
     {
       this.domain = domain;
-      Generators = new Registry<HierarchyInfo, Generator>();
+      Generators = new Registry<HierarchyInfo, GeneratorBase>();
     }
   }
 }

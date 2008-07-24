@@ -7,13 +7,13 @@
 using System;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Attributes;
-using Xtensive.Storage.KeyProviders;
+using Xtensive.Storage.Generators;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Tests.Storage.Internals
 {
   [KeyProvider(typeof (Guid), typeof (long), typeof (Guid))]
-  public class GuidLongGuidKeyProvider : Generator
+  public class GuidLongGuidKeyProvider : GeneratorBase
   {
     private long currentLongValue = 1;
 

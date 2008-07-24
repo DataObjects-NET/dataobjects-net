@@ -10,7 +10,7 @@ using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Configuration;
-using Xtensive.Storage.KeyProviders;
+using Xtensive.Storage.Generators;
 using Xtensive.Storage.Tests.Model.Schemas;
 
 namespace Xtensive.Storage.Tests.Model.Schemas
@@ -34,7 +34,7 @@ namespace Xtensive.Storage.Tests.Model.Schemas
     public string AName { get; set; }
   }
 
-  [HierarchyRoot(typeof (Int64Provider), "ID:ASC")]
+  [HierarchyRoot(typeof (IncrementalGenerator), "ID")]
   public class AB : A
   {
     [Field]
@@ -59,7 +59,7 @@ namespace Xtensive.Storage.Tests.Model.Schemas
     public Guid ID { get; set; }
   }
 
-  [HierarchyRoot(typeof (Int64Provider), "ID")]
+  [HierarchyRoot(typeof (IncrementalGenerator), "ID")]
   public class BD : B
   {
     [Field]
@@ -69,7 +69,7 @@ namespace Xtensive.Storage.Tests.Model.Schemas
     public string AName { get; set; }
   }
 
-  [HierarchyRoot(typeof (Int32Generator), "ID")]
+  [HierarchyRoot(typeof (IncrementalGenerator), "ID")]
   public class BE : B
   {
     [Field]

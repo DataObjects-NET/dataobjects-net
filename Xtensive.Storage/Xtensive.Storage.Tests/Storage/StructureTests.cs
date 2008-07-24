@@ -9,7 +9,7 @@ using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
-using Xtensive.Storage.KeyProviders;
+using Xtensive.Storage.Generators;
 
 namespace Xtensive.Storage.Tests.Storage.StructureTests
 {
@@ -40,7 +40,7 @@ namespace Xtensive.Storage.Tests.Storage.StructureTests
     }
   }
 
-  [HierarchyRoot(typeof (Int32Generator), "ID")]
+  [HierarchyRoot(typeof (IncrementalGenerator), "ID")]
   public class Ray : Entity
   {
     [Field]

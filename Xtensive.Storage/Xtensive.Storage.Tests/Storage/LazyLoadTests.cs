@@ -9,12 +9,12 @@ using NUnit.Framework;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
-using Xtensive.Storage.KeyProviders;
+using Xtensive.Storage.Generators;
 using Xtensive.Storage.Tests.LazyLoadTests;
 
 namespace Xtensive.Storage.Tests.LazyLoadTests
 {
-  [HierarchyRoot(typeof(Int32Generator), "ID")]
+  [HierarchyRoot(typeof(IncrementalGenerator), "ID")]
   public class Book : Entity
   {
     [Field]
