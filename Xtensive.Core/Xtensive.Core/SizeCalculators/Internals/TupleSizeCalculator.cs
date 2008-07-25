@@ -18,7 +18,8 @@ namespace Xtensive.Core.SizeCalculators
     ITupleFunctionHandler<TupleSizeCalculator.TupleSizeCalculatorData, int>
   {
     private readonly object _lock = new object();
-    private ThreadSafeDictionary<TupleDescriptor, ISizeCalculatorBase[]> cache = ThreadSafeDictionary<TupleDescriptor, ISizeCalculatorBase[]>.Create();
+    private ThreadSafeDictionary<TupleDescriptor, ISizeCalculatorBase[]> calculators = 
+      ThreadSafeDictionary<TupleDescriptor, ISizeCalculatorBase[]>.Create();
 
     #region Nested type: TupleSizeCalculatorData 
 
@@ -49,10 +50,12 @@ namespace Xtensive.Core.SizeCalculators
       if (value==null) 
         return SizeCalculatorProvider.PointerFieldSize;
 
-      TupleSizeCalculatorData data = new TupleSizeCalculatorData(value, GetCalculators(value));
+      var data = new TupleSizeCalculatorData(value, GetCalculators(value));
       int result = value.Descriptor.Execute(this, ref data, Direction.Positive);
 
-      return result + SizeCalculatorProvider.PointerFieldSize + SizeCalculatorProvider.HeapObjectHeaderSize;
+      return result 
+        + SizeCalculatorProvider.PointerFieldSize 
+        + SizeCalculatorProvider.HeapObjectHeaderSize;
     }
 
     #region Private \ internal methods
@@ -80,26 +83,20 @@ namespace Xtensive.Core.SizeCalculators
 
     private ISizeCalculatorBase[] GetCalculators(Tuple tuple)
     {
-      TupleDescriptor descriptor = tuple.Descriptor;
-      ISizeCalculatorBase[] calculators = cache.GetValue(descriptor);
-      if (calculators!=null)
-        return calculators;
-      lock (_lock) {
-        calculators = cache.GetValue(descriptor);
-        if (calculators!=null)
+      return calculators.GetValue(_lock, tuple.Descriptor, 
+        (descriptor, me) => {
+          int count = descriptor.Count;
+          var calculators = new ISizeCalculatorBase[count];
+          for (int i = 0; i < count; i++) {
+            Type fieldType = descriptor[i];
+            ISizeCalculatorBase calculator = me.Provider.GetSizeCalculatorByType(fieldType);
+            if (!fieldType.IsFinal() && !(calculator is IFinalAssociate))
+              calculator = null;
+            calculators[i] = calculator;
+          }
           return calculators;
-        int count = descriptor.Count;
-        calculators = new ISizeCalculatorBase[count];
-        for (int i = 0; i < count; i++) {
-          Type fieldType = tuple.Descriptor[i];
-          ISizeCalculatorBase calculator = Provider.GetSizeCalculatorByType(fieldType);
-          if (!fieldType.IsFinal() && !(calculator is IFinalAssociate))
-            calculator = null;
-          calculators[i] = calculator;
-        }
-        cache.SetValue(descriptor, calculators);
-      }
-      return calculators;
+        }, 
+        this);
     }
 
     #endregion

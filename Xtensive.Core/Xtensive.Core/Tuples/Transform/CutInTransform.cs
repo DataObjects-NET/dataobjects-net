@@ -51,7 +51,7 @@ namespace Xtensive.Core.Tuples.Transform
     public override string ToString()
     {
       string description = String.Format("{0}, {1}",
-        sources.ToSeparatedString(" + "),
+        sources.ToDelimitedString(" + "),
         IsReadOnly ? Strings.ReadOnlyShort : Strings.ReadWriteShort);
       return String.Format(Strings.TupleTransformFormat,
         GetType().GetShortName(),

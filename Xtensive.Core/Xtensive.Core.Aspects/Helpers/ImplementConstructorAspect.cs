@@ -77,7 +77,7 @@ namespace Xtensive.Core.Aspects.Helpers
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
       ArgumentValidator.EnsureArgumentNotNull(parameterTypes, "parameterTypes");
 
-      return AppliedAspectSet.Add(new Pair<Type, string>(type, parameterTypes.Select(t => t.FullName).ToCommaSeparatedString()), 
+      return AppliedAspectSet.Add(new Pair<Type, string>(type, parameterTypes.Select(t => t.FullName).ToCommaDelimitedString()), 
         () => new ImplementConstructorAspect(parameterTypes));
     }
 

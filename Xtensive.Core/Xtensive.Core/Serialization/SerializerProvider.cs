@@ -26,7 +26,8 @@ namespace Xtensive.Core.Serialization
   {
     private static readonly SerializerProvider @default = new SerializerProvider();
     private readonly object _lock = new object();
-    private ThreadSafeDictionary<Type, ISerializer> cache = ThreadSafeDictionary<Type, ISerializer>.Create();
+    private ThreadSafeDictionary<Type, ISerializer> serializers = 
+      ThreadSafeDictionary<Type, ISerializer>.Create();
 
     /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
     public static ISerializerProvider Default
@@ -45,22 +46,15 @@ namespace Xtensive.Core.Serialization
     /// <inheritdoc/>
     public ISerializer GetObjectSerializer(Type type)
     {
-      ISerializer result = cache.GetValue(type);
-      if (result!=null)
-        return result;
-      lock (_lock) {
-        result = cache.GetValue(type);
-        if (result!=null)
-          return result;
-        MethodInfo methodInfo =
-          GetType()
-            .GetMethod("GetObjectSerializer", ArrayUtils<Type>.EmptyArray)
-            .GetGenericMethodDefinition()
-            .MakeGenericMethod(new Type[] {type});
-        result = (ISerializer)methodInfo.Invoke(this, null);
-        cache.SetValue(type, result);
-        return result;
-      }
+      return serializers.GetValue(_lock, type, 
+        (_type, _this) => _this
+          .GetType()
+          .GetMethod("GetObjectSerializer", ArrayUtils<Type>.EmptyArray)
+          .GetGenericMethodDefinition()
+          .MakeGenericMethod(new[] {_type})
+          .Invoke(_this, null) 
+          as ISerializer, 
+        this);
     }
 
     #endregion
@@ -85,7 +79,7 @@ namespace Xtensive.Core.Serialization
     /// </summary>
     private SerializerProvider()
     {
-      TypeSuffixes = new string[] {"Serializer"};
+      TypeSuffixes = new[] {"Serializer"};
       Type t = typeof (SerializerProvider);
       AddHighPriorityLocation(t.Assembly, t.Namespace);
     }

@@ -34,9 +34,11 @@ namespace Xtensive.Core.SizeCalculators
 
     private static readonly SizeCalculatorProvider @default = new SizeCalculatorProvider();
     private readonly object _lock = new object();
-    private ThreadSafeDictionary<Type, ISizeCalculatorBase> cache1 = ThreadSafeDictionary<Type, ISizeCalculatorBase>.Create();
-    private ThreadSafeDictionary<Type, ISizeCalculatorBase> cache2 = ThreadSafeDictionary<Type, ISizeCalculatorBase>.Create();
-    private ISizeCalculatorBase objectSizeCalculator = null;
+    private ThreadSafeDictionary<Type, ISizeCalculatorBase> calculators = 
+      ThreadSafeDictionary<Type, ISizeCalculatorBase>.Create();
+    private ThreadSafeDictionary<Type, ISizeCalculatorBase> boxingAwareCalculators = 
+      ThreadSafeDictionary<Type, ISizeCalculatorBase>.Create();
+    private Cached<ISizeCalculatorBase> objectSizeCalculator = new Cached<ISizeCalculatorBase>();
 
     /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
     public static ISizeCalculatorProvider Default
@@ -55,30 +57,21 @@ namespace Xtensive.Core.SizeCalculators
     /// <inheritdoc/>
     public ISizeCalculatorBase GetSizeCalculatorByInstance(object value)
     {
-      if (value==null) {
-        if (objectSizeCalculator==null) lock (_lock) if (objectSizeCalculator==null)
-          objectSizeCalculator = GetSizeCalculator<object>().Implementation;
-        return objectSizeCalculator;
-      }
-      else {
-        Type type = value.GetType();
-        ISizeCalculatorBase result = cache2.GetValue(type);
-        if (result!=null)
-          return result;
-        lock (_lock) {
-          result = cache2.GetValue(type);
-          if (result!=null)
-            return result;
-          MethodInfo innerGetSizeCalculatorByInstanceMethod =
-            GetType()
-              .GetMethod("InnerGetSizeCalculatorByInstance", BindingFlags.NonPublic | BindingFlags.Instance, null, ArrayUtils<Type>.EmptyArray, null)
-                .GetGenericMethodDefinition()
-                  .MakeGenericMethod(new Type[] {type});
-          result = innerGetSizeCalculatorByInstanceMethod.Invoke(this, null) as ISizeCalculatorBase;
-          cache2.SetValue(type, result);
-          return result;
-        }
-      }
+      if (value==null)
+        return objectSizeCalculator.GetValue(_lock, 
+          me => me.GetSizeCalculator<object>().Implementation, 
+          this);
+      else
+        return boxingAwareCalculators.GetValue(_lock, value.GetType(),
+          (_type, _this) => _this
+            .GetType()
+            .GetMethod("InnerGetSizeCalculatorByInstance",
+              BindingFlags.NonPublic | BindingFlags.Instance, null, ArrayUtils<Type>.EmptyArray, null)
+            .GetGenericMethodDefinition()
+            .MakeGenericMethod(new[] {_type})
+            .Invoke(_this, null)
+            as ISizeCalculatorBase,
+          this);
     }
 
 // ReSharper disable UnusedPrivateMember
@@ -95,24 +88,18 @@ namespace Xtensive.Core.SizeCalculators
     /// <inheritdoc/>
     public ISizeCalculatorBase GetSizeCalculatorByType(Type type)
     {
-      ISizeCalculatorBase result = cache1.GetValue(type);
-      if (result!=null)
-        return result;
-      lock (_lock) {
-        result = cache1.GetValue(type);
-        if (result!=null)
-          return result;
-        MethodInfo getSizeCalculatorMethod =
-          GetType()
+      return calculators.GetValue(_lock, type, 
+        (t, me) => {
+          var hsc = me
+            .GetType()
             .GetMethod("GetSizeCalculator", ArrayUtils<Type>.EmptyArray)
-              .GetGenericMethodDefinition()
-                .MakeGenericMethod(new Type[] {type});
-        IHasSizeCalculator hsc = getSizeCalculatorMethod.Invoke(this, null) as IHasSizeCalculator;
-        if (hsc!=null)
-          result = hsc.SizeCalculator;
-        cache1.SetValue(type, result);
-        return result;
-      }
+            .GetGenericMethodDefinition()
+            .MakeGenericMethod(new[] {t})
+            .Invoke(me, null)
+            as IHasSizeCalculator;
+          return hsc!=null ? hsc.SizeCalculator : null;
+        }, 
+        this);
     }
 
     #endregion
@@ -138,7 +125,7 @@ namespace Xtensive.Core.SizeCalculators
     /// </summary>
     protected SizeCalculatorProvider()
     {
-      TypeSuffixes = new string[] {"SizeCalculator"};
+      TypeSuffixes = new[] {"SizeCalculator"};
       Type t = typeof (SizeCalculatorProvider);
       AddHighPriorityLocation(t.Assembly, t.Namespace);
     }

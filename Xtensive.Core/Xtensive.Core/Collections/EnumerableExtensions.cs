@@ -119,29 +119,29 @@ namespace Xtensive.Core.Collections
     /// of all the items from <paramref name="source"/>.</returns>
     public static string ToCommaSeparatedString<TItem>(this IEnumerable<TItem> source)
     {
-      return source.ToSeparatedString(", ");
+      return source.ToDelimitedString(", ");
     }
 
     /// <summary>
-    /// Converts the <paramref name="source"/> to comma-separated string.
+    /// Converts the <paramref name="source"/> to comma-delimited string.
     /// </summary>
     /// <param name="source">The sequence to convert.</param>
-    /// <returns>Comma-separated string containing string representation 
+    /// <returns>Comma delimited string combining string representations
     /// of all the items from <paramref name="source"/>.</returns>
-    public static string ToCommaSeparatedString(this IEnumerable source)
+    public static string ToCommaDelimitedString(this IEnumerable source)
     {
-      return source.ToSeparatedString(", ");
+      return source.ToDelimitedString(", ");
     }
 
     /// <summary>
-    /// Converts the <paramref name="source"/> to separated string.
+    /// Converts the <paramref name="source"/> to a delimited string.
     /// </summary>
     /// <typeparam name="TItem">The type of item.</typeparam>
     /// <param name="source">The sequence to convert.</param>
-    /// <param name="separator">Separator.</param>
-    /// <returns>Separated string containing string representation 
+    /// <param name="delimiter">The delimiter.</param>
+    /// <returns>A delimited string combining string representations
     /// of all the items from <paramref name="source"/>.</returns>
-    public static string ToSeparatedString<TItem>(this IEnumerable<TItem> source, string separator)
+    public static string ToSeparatedString<TItem>(this IEnumerable<TItem> source, string delimiter)
     {
       if (source==null)
         return String.Empty;
@@ -149,7 +149,7 @@ namespace Xtensive.Core.Collections
       bool prefixWithComma = false;
       foreach (var item in source) {
         if (prefixWithComma)
-          sb.Append(separator);
+          sb.Append(delimiter);
         sb.Append(item.ToString());
         prefixWithComma = true;
       }
@@ -163,7 +163,7 @@ namespace Xtensive.Core.Collections
     /// <param name="separator">Separator.</param>
     /// <returns>Separated string containing string representation 
     /// of all the items from <paramref name="source"/>.</returns>
-    public static string ToSeparatedString(this IEnumerable source, string separator)
+    public static string ToDelimitedString(this IEnumerable source, string separator)
     {
       if (source==null)
         return String.Empty;

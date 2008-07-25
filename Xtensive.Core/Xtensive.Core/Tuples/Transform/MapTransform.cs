@@ -237,7 +237,7 @@ namespace Xtensive.Core.Tuples.Transform
     {
       string description = String.Format("{0}: {1}, {2}", 
         SourceCount, 
-        SourceCount==1 ? singleSourceMap.ToCommaSeparatedString() : map.ToCommaSeparatedString(),
+        SourceCount==1 ? singleSourceMap.ToCommaDelimitedString() : map.ToCommaDelimitedString(),
         isReadOnly ? Strings.ReadOnlyShort : Strings.ReadWriteShort);
       return String.Format(Strings.TupleTransformFormat, 
         GetType().GetShortName(), 
