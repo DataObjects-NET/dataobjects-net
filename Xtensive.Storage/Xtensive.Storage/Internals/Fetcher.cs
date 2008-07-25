@@ -21,7 +21,7 @@ namespace Xtensive.Storage.Internals
 
     public static Tuple Fetch(Key key, FieldInfo field)
     {
-      IndexInfo index = key.Hierarchy.Root.Indexes.PrimaryIndex;
+      IndexInfo index = key.Type != null ? key.Type.Indexes.PrimaryIndex : key.Hierarchy.Root.Indexes.PrimaryIndex;
       IEnumerable<ColumnInfo> columns = key.Type.Columns
         .Skip(field.MappingInfo.Offset)
         .Take(field.MappingInfo.Length);
