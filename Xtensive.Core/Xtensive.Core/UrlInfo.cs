@@ -11,6 +11,7 @@ using System.Runtime.Serialization;
 using System.Security.Permissions;
 using System.Text;
 using System.Text.RegularExpressions;
+using Xtensive.Core.Comparison;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Resources;
 using System.IO;
@@ -70,8 +71,9 @@ namespace Xtensive.Core
   [Serializable]
   [DebuggerDisplay("{url}")]
   public class UrlInfo : 
-    ISerializable, 
-    IEquatable<UrlInfo>
+    IEquatable<UrlInfo>,
+    IComparable<UrlInfo>,
+    ISerializable
   {
     private string url = String.Empty;
     private string protocol = String.Empty;
@@ -81,6 +83,8 @@ namespace Xtensive.Core
     private string user = String.Empty;
     private string password = String.Empty;
     private ReadOnlyDictionary<string, string> parameters;
+
+    #region Properties: Url, Protocol, Host, etc...
 
     /// <summary>
     /// Gets an URL this instance describes.
@@ -157,6 +161,8 @@ namespace Xtensive.Core
     {
       get { return parameters; }
     }
+
+    #endregion
 
     /// <summary>
     /// Splits URL into parts (protocol, host, port, resource, user, password) and set all
@@ -344,17 +350,23 @@ namespace Xtensive.Core
 
     #endregion
 
-    #region Equality members
+    #region IComparable<...>, IEquatable<...> methods
 
     /// <inheritdoc/>
-    public bool Equals(UrlInfo obj)
+    public bool Equals(UrlInfo other)
     {
-      if (ReferenceEquals(null, obj))
-        return false;
-      if (ReferenceEquals(this, obj))
-        return true;
-      return Equals(obj.url, url);
+      return AdvancedComparerStruct<string>.System.Equals(url, other.url);
     }
+
+    /// <inheritdoc/>
+    public int CompareTo(UrlInfo other)
+    {
+      return AdvancedComparerStruct<string>.System.Compare(url, other.url);
+    }
+
+    #endregion
+
+    #region Equals, GetHashCode, ==, !=
 
     /// <inheritdoc/>
     public override bool Equals(object obj)
@@ -372,6 +384,18 @@ namespace Xtensive.Core
     public override int GetHashCode()
     {
       return (url!=null ? url.GetHashCode() : 0);
+    }
+
+    /// <see cref="ClassDocTemplate.OperatorEq"/>
+    public static bool operator ==(UrlInfo left, UrlInfo right)
+    {
+      return Equals(left, right);
+    }
+
+    /// <see cref="ClassDocTemplate.OperatorNeq"/>
+    public static bool operator !=(UrlInfo left, UrlInfo right)
+    {
+      return !Equals(left, right);
     }
 
     #endregion
