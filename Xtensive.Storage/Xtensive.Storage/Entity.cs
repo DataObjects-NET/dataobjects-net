@@ -45,10 +45,8 @@ namespace Xtensive.Storage
     internal int TypeId
     {
       get { return GetValue<int>(Session.Domain.NameProvider.TypeId); }
-      set
+      private set
       {
-        if (TypeId > 0)
-          throw Exceptions.AlreadyInitialized(Session.Domain.NameProvider.TypeId);
         FieldInfo field = Type.Fields[Session.Domain.NameProvider.TypeId];
         field.GetAccessor<int>().SetValue(this, field, value);
       }
@@ -137,8 +135,7 @@ namespace Xtensive.Storage
     {
       Session.IdentityMap.Add(Data);
       Session.DirtyData.Register(Data);
-      if (TypeId == 0)
-        TypeId = Type.TypeId;
+      TypeId = Type.TypeId;
     }
 
     /// <inheritdoc/>
@@ -216,7 +213,7 @@ namespace Xtensive.Storage
       TypeInfo type = Session.Domain.Model.Types[GetType()];
       Key key = Session.Domain.KeyManager.Next(type);
       Tuple origin = Tuple.Create(type.TupleDescriptor);
-      key.Tuple.Copy(origin, 0);
+      key.Tuple.CopyTo(origin, 0);
 
       data = new EntityData(key, new DifferentialTuple(origin), this);
       OnCreating();
@@ -232,7 +229,7 @@ namespace Xtensive.Storage
       TypeInfo type = Session.Domain.Model.Types[GetType()];
       Key key = Session.Domain.KeyManager.Get(type, tuple);
       Tuple origin = Tuple.Create(type.TupleDescriptor);
-      key.Tuple.Copy(origin, 0);
+      key.Tuple.CopyTo(origin, 0);
 
       data = new EntityData(key, new DifferentialTuple(origin), this);
       OnCreating();

@@ -26,9 +26,9 @@ namespace Xtensive.Storage.Providers.Index
       counter.SetValue(0, counter.GetValueOrDefault(0));
 
       Type fieldType = Hierarchy.TupleDescriptor[0];
-      Type action = typeof (GetNext<>).MakeGenericType(new[] {fieldType});
+      Type delegateType = typeof (GetNext<>).MakeGenericType(new[] {fieldType});
 
-      getNext = Delegate.CreateDelegate(action, this, GetMethod(fieldType));
+      getNext = Delegate.CreateDelegate(delegateType, this, GetGenericMethodFor(fieldType));
     }
 
     /// <inheritdoc/>
@@ -51,7 +51,7 @@ namespace Xtensive.Storage.Providers.Index
       result.SetValue(0, Guid.NewGuid());
     }
 
-    private static MethodInfo GetMethod(Type fieldType)
+    private static MethodInfo GetGenericMethodFor(Type fieldType)
     {
       string methodName = fieldType==typeof (Guid) ? "NextGuid" : "NextInteger";
       MethodInfo mi = typeof (DefaultGenerator).GetMethod(methodName, BindingFlags.Instance | BindingFlags.NonPublic);

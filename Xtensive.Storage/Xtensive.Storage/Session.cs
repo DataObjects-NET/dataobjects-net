@@ -96,7 +96,7 @@ namespace Xtensive.Storage
     internal Key ProcessFetched(HierarchyInfo hierarchy, Tuple tuple)
     {
       Tuple t = Tuple.Create(hierarchy.TupleDescriptor);
-      tuple.Copy(t, 0, t.Count);
+      tuple.CopyTo(t, 0, t.Count);
       Key key = new Key(hierarchy, t);
       EntityData data = IdentityMap[key, false];
       if (data != null)

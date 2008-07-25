@@ -36,7 +36,7 @@ namespace Xtensive.Core.Tuples
     /// <param name="startIndex">The index in the <paramref name="source"/> tuple at which copying begins.</param>
     /// <param name="targetStartIndex">The index in the <paramref name="target"/> tuple at which copying begins.</param>
     /// <param name="length">The number of elements to copy.</param>
-    public static void Copy(this ITuple source, ITuple target, int startIndex, int targetStartIndex, int length)
+    public static void CopyTo(this ITuple source, ITuple target, int startIndex, int targetStartIndex, int length)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
       ArgumentValidator.EnsureArgumentNotNull(target, "target");
@@ -57,9 +57,9 @@ namespace Xtensive.Core.Tuples
     /// <param name="target">Tuple that receives the data.</param>
     /// <param name="startIndex">The index in the <paramref name="source"/> tuple at which copying begins.</param>
     /// <param name="length">The number of elements to copy.</param>
-    public static void Copy(this ITuple source, ITuple target, int startIndex, int length)
+    public static void CopyTo(this ITuple source, ITuple target, int startIndex, int length)
     {
-      source.Copy(target, startIndex, 0, length);
+      source.CopyTo(target, startIndex, 0, length);
     }
 
     /// <summary>
@@ -71,9 +71,9 @@ namespace Xtensive.Core.Tuples
     /// <param name="source">Source tuple to copy.</param>
     /// <param name="target">Tuple that receives the data.</param>
     /// <param name="startIndex">The index in the <paramref name="source"/> tuple at which copying begins.</param>
-    public static void Copy(this ITuple source, ITuple target, int startIndex)
+    public static void CopyTo(this ITuple source, ITuple target, int startIndex)
     {
-      source.Copy(target, startIndex, 0, source.Count - startIndex);
+      source.CopyTo(target, startIndex, 0, source.Count - startIndex);
     }
 
     /// <summary>
@@ -84,9 +84,9 @@ namespace Xtensive.Core.Tuples
     /// </summary>
     /// <param name="source">Source tuple to copy.</param>
     /// <param name="target">Tuple that receives the data.</param>
-    public static void Copy(this ITuple source, ITuple target)
+    public static void CopyTo(this ITuple source, ITuple target)
     {
-      source.Copy(target, 0, 0, source.Count);
+      source.CopyTo(target, 0, 0, source.Count);
     }
 
     /// <summary>
@@ -98,7 +98,7 @@ namespace Xtensive.Core.Tuples
     /// <param name="target">Tuple that receives the data.</param>
     /// <param name="map">Target-to-source field index map.
     /// Negative value in this map means "skip this element".</param>
-    public static void Copy(this Tuple source, Tuple target, int[] map)
+    public static void CopyTo(this Tuple source, Tuple target, int[] map)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
       ArgumentValidator.EnsureArgumentNotNull(target, "target");
@@ -116,7 +116,7 @@ namespace Xtensive.Core.Tuples
     /// <param name="target">Tuple that receives the data.</param>
     /// <param name="map">Target-to-source field index map.
     /// Negative value in this map means "skip this element".</param>
-    public static void Copy(this Tuple[] source, Tuple target, Pair<int,int>[] map)
+    public static void CopyTo(this Tuple[] source, Tuple target, Pair<int,int>[] map)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
       ArgumentValidator.EnsureArgumentNotNull(target, "target");
@@ -134,7 +134,7 @@ namespace Xtensive.Core.Tuples
     /// <param name="target">Tuple that receives the data.</param>
     /// <param name="map">Target-to-source field index map.
     /// Negative value in this map means "skip this element".</param>
-    public static void Copy(this FixedList3<Tuple> source, Tuple target, Pair<int,int>[] map)
+    public static void CopyTo(this FixedList3<Tuple> source, Tuple target, Pair<int,int>[] map)
     {
       ArgumentValidator.EnsureArgumentNotNull(target, "target");
 
@@ -154,7 +154,7 @@ namespace Xtensive.Core.Tuples
     public static RegularTuple ToRegular(this ITuple source)
     {
       RegularTuple result = Tuple.Create(source.Descriptor);
-      source.Copy(result);
+      source.CopyTo(result);
       return result;
     }
 

@@ -14,14 +14,14 @@ namespace Xtensive.Storage.Internals
     {
       Session session = Session.Current;
 
-      EntityData data = session.IdentityMap[key, false];
+      EntityData data = session.IdentityMap[key, true];
       if (data!=null)
         return data.Entity ?? Entity.Activate(data.Type.UnderlyingType, data);
 
       Tuple tuple;
       if (key.Type!=null) {
         tuple = Tuple.Create(key.Type.TupleDescriptor);
-        key.Tuple.Copy(tuple);
+        key.Tuple.CopyTo(tuple);
         data = new EntityData(key, new DifferentialTuple(tuple));
         data.Entity = Entity.Activate(data.Type.UnderlyingType, data);
         return data.Entity;

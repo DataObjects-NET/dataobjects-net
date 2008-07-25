@@ -129,7 +129,7 @@ namespace Xtensive.Core.Tuples.Transform
           return new MapTransformTuple(this, sources);
         case TupleTransformType.Tuple:
           Tuple result = Tuple.Create(Descriptor);
-          sources.Copy(result, map);
+          sources.CopyTo(result, map);
           return result;
         default:
           throw new ArgumentOutOfRangeException("transformType");
@@ -158,7 +158,7 @@ namespace Xtensive.Core.Tuples.Transform
         return new MapTransformTuple1(this, source);
       case TupleTransformType.Tuple:
         Tuple result = Tuple.Create(Descriptor);
-        source.Copy(result, singleSourceMap);
+        source.CopyTo(result, singleSourceMap);
         return result;
       default:
         throw new ArgumentOutOfRangeException("transformType");
@@ -190,7 +190,7 @@ namespace Xtensive.Core.Tuples.Transform
       case TupleTransformType.Tuple:
         FixedList3<Tuple> sources = new FixedList3<Tuple>(source1, source2);
         Tuple result = Tuple.Create(Descriptor);
-        sources.Copy(result, map);
+        sources.CopyTo(result, map);
         return result;
       default:
         throw new ArgumentOutOfRangeException("transformType");
@@ -225,7 +225,7 @@ namespace Xtensive.Core.Tuples.Transform
       case TupleTransformType.Tuple:
         FixedList3<Tuple> sources = new FixedList3<Tuple>(source1, source2, source3);
         Tuple result = Tuple.Create(Descriptor);
-        sources.Copy(result, map);
+        sources.CopyTo(result, map);
         return result;
       default:
         throw new ArgumentOutOfRangeException("transformType");

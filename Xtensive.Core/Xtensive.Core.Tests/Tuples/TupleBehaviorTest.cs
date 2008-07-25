@@ -68,11 +68,11 @@ namespace Xtensive.Core.Tests.Tuples
       int startingTargetIndex = (random.Next(loopCount / 4) + 1) * fieldTypes.Length + offset + startingIndex % fieldTypes.Length;
       int count = random.Next(fieldTypes.Length * loopCount / 4);
       
-      source.Copy(target, startingIndex, startingTargetIndex, count);
+      source.CopyTo(target, startingIndex, startingTargetIndex, count);
 
       AssertAreSame(source, target, startingIndex, startingTargetIndex, count);
 
-      source.Copy(sameTypeTarget, source.Count);
+      source.CopyTo(sameTypeTarget, source.Count);
 
       AssertAreSame(source, sameTypeTarget);
 

@@ -24,7 +24,7 @@ namespace Xtensive.Storage
     {
       ArgumentValidator.EnsureArgumentNotNull(value, "value");
       ValidateType(field);
-      ((Structure) (object) value).Tuple.Copy(obj.Tuple, 0, field.MappingInfo.Offset, field.MappingInfo.Length);
+      ((Structure) (object) value).Tuple.CopyTo(obj.Tuple, 0, field.MappingInfo.Offset, field.MappingInfo.Length);
     }
 
     /// <inheritdoc/>

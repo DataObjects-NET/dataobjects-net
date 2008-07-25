@@ -28,7 +28,7 @@ namespace Xtensive.Storage
           obj.Tuple.SetValue(i, null);
       else {
         ValidateType(field);
-        ((Entity) (object) value).Key.Tuple.Copy(obj.Tuple, 0, field.MappingInfo.Offset, field.MappingInfo.Length);
+        ((Entity) (object) value).Key.Tuple.CopyTo(obj.Tuple, 0, field.MappingInfo.Offset, field.MappingInfo.Length);
       }
     }
 
