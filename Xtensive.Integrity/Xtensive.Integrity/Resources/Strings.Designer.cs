@@ -221,5 +221,14 @@ namespace Xtensive.Integrity.Resources {
                 return ResourceManager.GetString("StringXDoesNotMatchRegexPatternY", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Value can not be empty..
+        /// </summary>
+        internal static string ValueCanNotBeEmpty {
+            get {
+                return ResourceManager.GetString("ValueCanNotBeEmpty", resourceCulture);
+            }
+        }
     }
 }

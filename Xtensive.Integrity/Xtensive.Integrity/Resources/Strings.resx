@@ -171,4 +171,7 @@
   <data name="StringXDoesNotMatchRegexPatternY" xml:space="preserve">
     <value>String '{0}' does not match regex pattern '{1}'.</value>
   </data>
+  <data name="ValueCanNotBeEmpty" xml:space="preserve">
+    <value>Value can not be empty.</value>
+  </data>
 </root>

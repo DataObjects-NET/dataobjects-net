@@ -239,7 +239,8 @@ namespace Xtensive.Core.Helpers
     /// </remarks>
     protected virtual void HandleException(Exception exception)
     {
-      exceptionHandler(exception);
+      if (exceptionHandler!=null)
+        exceptionHandler(exception);
       if (exceptions==null)
         exceptions = new List<Exception>();
       exceptions.Add(exception);

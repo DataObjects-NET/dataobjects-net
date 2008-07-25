@@ -5,7 +5,9 @@
 // Created:    2008.07.23
 
 using System;
+using System.Collections.Generic;
 using NUnit.Framework;
+using Xtensive.Core;
 using Xtensive.Core.Testing;
 using Xtensive.Integrity.Aspects.Constraints;
 using Xtensive.Integrity.Validation;
@@ -16,25 +18,20 @@ namespace Xtensive.Integrity.Tests
   [TestFixture]
   public class ConstraintsTest
   {
-    public class ConstraintsValidationContext : ValidationContextBase {}    
+    internal class ConstraintsValidationContext : ValidationContextBase {}    
 
-    public static ConstraintsValidationContext Context = new ConstraintsValidationContext();
+    internal static ConstraintsValidationContext Context = new ConstraintsValidationContext();    
 
-    public class Company : IValidationAware
+    internal class ValidatableObject : IValidatable
     {
-      public string Name { get; set;}
-
-
-      [RegexConstraint("^www.", Mode = ValidationMode.Immediate)]
-      public string WebSite { get; set;}
-
       public void OnValidate()
-      {        
+      {
+        this.CheckConstraints();        
       }
 
       public bool IsCompatibleWith(ValidationContextBase context)
       {
-        return context is ConstraintsValidationContext;
+        return context == Context;
       }
 
       public ValidationContextBase Context
@@ -42,17 +39,43 @@ namespace Xtensive.Integrity.Tests
         get { return ConstraintsTest.Context; }
       }
     }
-      
-    [Test]
-    public void Test()
-    {
-      using (new ValidationScope(Context)) {
-        Company xtensive = new Company();
 
-        AssertEx.Throws<Exception>(delegate { xtensive.WebSite = "x-tensive.com"; });
-        xtensive.WebSite = "www.x-tensive.com";
-      }     
+    internal class NamedObject : ValidatableObject
+    {
+      [RegexConstraint("^LLC", Mode = ValidationMode.Immediate)]
+      [NotNullOrEmptyConstraint(Mode = ValidationMode.ImmediateOrDelayed)]
+      public string Name { get; set;}      
     }
 
+    internal class Company : NamedObject
+    {            
+      [RegexConstraint("^www\\.", Mode = ValidationMode.ImmediateOrDelayed)]
+      public string WebSite { get; set;}
+    }
+
+    [Test]
+    public void Test()
+    {      
+      using (new ValidationScope(Context)) {
+        try {          
+          using (Context.InconsistentRegion()) {            
+            Company xtensive = new Company();
+            xtensive.WebSite = "x-tensive.com";
+          }
+        }        
+        catch (AggregateException e) {
+          List<Exception> errors = e.GetFlattenList();
+          Assert.AreEqual(2, errors.Count);
+          
+          foreach (var exception in errors)
+            Assert.AreEqual(typeof (ConstraintViolationException), exception.GetType());
+
+          return;
+        }        
+
+        throw new Exception(
+          string.Format("{0} was not thrown.", typeof(AggregateException)));
+      }
+    }
   }
 }

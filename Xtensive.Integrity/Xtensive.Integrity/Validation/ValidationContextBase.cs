@@ -14,13 +14,13 @@ using Xtensive.Integrity.Validation.Interfaces;
 namespace Xtensive.Integrity.Validation
 {
   /// <summary>
-  /// Provides consistency validation for see <see cref="IValidationAware"/> implementors.
+  /// Provides consistency validation for see <see cref="IValidatable"/> implementors.
   /// </summary>
   public abstract class ValidationContextBase: Context<ValidationScope>
   {
     private bool isConsistent = true;
     private int  activationCount;
-    private HashSet<Pair<IValidationAware, Action>> registry;
+    private HashSet<Pair<IValidatable, Action>> registry;
 
     /// <inheritdoc/>
     protected override ValidationScope CreateActiveScope()
@@ -77,84 +77,28 @@ namespace Xtensive.Integrity.Validation
       return new Disposable<ValidationContextBase>(this, (disposing, context) => context.IsConsistent = true);
     }
 
-    /// <summary>
-    /// Partially validates the <paramref name="target"/> with specified delegate, or enqueues it for delayed validation.
-    /// </summary>
-    /// <param name="target">The object to validate.</param>
-    /// If <paramref name="validationDelegate"/> is <see langword="null"/> whole object should be validated.</param>
-    /// <param name="mode">Validation mode to use.</param>
-    /// <returns><see langword="true"/> if validation was performed immediately; <see langword="false"/> if it was enqueued.</returns>    
-    public bool Validate(IValidationAware target, Action validationDelegate, ValidationMode mode)
-    {      
-      if (!target.IsCompatibleWith(this))
-        throw new ArgumentException(Strings.ExObjectAndContextAreIncompatible, "target");
-
-      bool immedate = mode==ValidationMode.Immediate || IsConsistent;
-
-      if (immedate)
-        if (validationDelegate==null)
-          target.OnValidate();
-        else
-          validationDelegate.Invoke();
-      else
-        EnqueueValidate(target, validationDelegate);        
-
-      return immedate;
-    }
-
-    /// <summary>
-    /// Partially validates the <paramref name="target"/> with specified delegate using default <see cref="ValidationMode"/>.
-    /// </summary>
-    /// <param name="target">The object to validate.</param>
-    /// <param name="validationDelegate">The delegate partially validating object.
-    /// If <paramref name="validationDelegate"/> is <see langword="null"/> whole object should be validated.</param>
-    /// <returns><see langword="true"/> if validation was performed immediately; <see langword="false"/> if it was enqueued.</returns>
-    public bool Validate(IValidationAware target, Action validationDelegate)
-    {
-      return Validate(target, validationDelegate, ValidationMode.Default);
-    }
-
-    /// <summary>
-    /// Validates the specified <paramref name="target"/>, or enqueues it for delayed validation.
-    /// </summary>
-    /// <param name="target">The object to validate.</param>        
-    /// <param name="mode">Validation mode to use.</param>
-    /// <returns><see langword="true"/> if validation was performed immediately; <see langword="false"/> if it was enqueued.</returns>    
-    public bool Validate(IValidationAware target, ValidationMode mode)
-    {
-      return Validate(target, null, mode);
-    }
-
-    /// <summary>
-    /// Validates the specified <paramref name="target"/> using default <see cref="ValidationMode"/>.
-    /// </summary>
-    /// <param name="target">The object to validate.</param>            
-    /// <returns><see langword="true"/> if validation was performed immediately; <see langword="false"/> if it was enqueued.</returns>
-    public bool Validate(IValidationAware target)
-    {
-      return Validate(target, null, ValidationMode.Default);
-    }
-
-
     #region Protected methods (to override, if necessary)    
 
     /// <summary>
     /// Enqueues the object for delayed partial validation.
     /// </summary>
-    /// <param name="target">The <see cref="IValidationAware"/> object to enqueue.</param>
+    /// <param name="target">The <see cref="IValidatable"/> object to enqueue.</param>
     /// <param name="validationDelegate">The validation delegate partially validating the <paramref name="target"/>.
     /// If <see langword="null" />, whole object should be validated.
     /// </param>    
-    protected virtual void EnqueueValidate(IValidationAware target, Action validationDelegate)
+    internal protected virtual void EnqueueValidate(IValidatable target, Action validationDelegate)
     {
-      registry.Add(new Pair<IValidationAware, Action>(target, validationDelegate));
+      if (!target.IsCompatibleWith(this))
+        throw new ArgumentException(Strings.ExObjectAndContextAreIncompatible, "target");
+
+      registry.Add(new Pair<IValidatable, Action>(target, validationDelegate));
     }
 
     /// <summary>
     /// Enqueues the object for delayed validation.
     /// </summary>
-    /// <param name="target">The <see cref="IValidationAware"/> object to enqueue.</param>    
-    protected virtual void EnqueueValidate(IValidationAware target)
+    /// <param name="target">The <see cref="IValidatable"/> object to enqueue.</param>    
+    internal protected virtual void EnqueueValidate(IValidatable target)
     {
       EnqueueValidate(target, null);
     }
@@ -164,7 +108,7 @@ namespace Xtensive.Integrity.Validation
     /// </summary>
     protected virtual void EnterInconsistentRegion()
     {
-      registry = new HashSet<Pair<IValidationAware, Action>>();
+      registry = new HashSet<Pair<IValidatable, Action>>();
     }
 
     /// <summary>
@@ -180,7 +124,7 @@ namespace Xtensive.Integrity.Validation
             if (pair.Second==null)
               pair.First.Validate();
             else
-              if (!registry.Contains(new Pair<IValidationAware, Action>(pair.First, null)))
+              if (!registry.Contains(new Pair<IValidatable, Action>(pair.First, null)))
                 pair.Second.Invoke();
           }
           catch (Exception e) {

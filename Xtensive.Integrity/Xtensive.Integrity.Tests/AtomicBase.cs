@@ -20,7 +20,7 @@ namespace Xtensive.Integrity.Tests
   public class AtomicBase: 
     ISessionBound,
     IAtomicityAware, 
-    IValidationAware, 
+    IValidatable, 
     ISerializable
   {
     [NonSerialized]
@@ -94,7 +94,7 @@ namespace Xtensive.Integrity.Tests
     {
     }
 
-    #region IValidationAware methods
+    #region IValidatable methods
 
     public virtual void OnValidate()
     {      

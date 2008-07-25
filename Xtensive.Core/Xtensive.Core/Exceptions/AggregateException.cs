@@ -22,6 +22,33 @@ namespace Xtensive.Core
   {
     private List<Exception> exceptions = new List<Exception>();
 
+    /// <summary>
+    /// Gets the exceptions count.
+    /// </summary>
+    public int Count
+    {
+      get { return exceptions.Count; }
+    }
+
+    /// <summary>
+    /// Gets the list with all aggregated exceptions. 
+    /// If other <see cref=" AggregateException"/>s was aggregated, their inner exceptions are included instead of them.
+    /// </summary>
+    /// <returns>List with aggregated exceptions</returns>
+    public List<Exception> GetFlattenList()
+    {
+      var result = new List<Exception>();
+
+      foreach (var exception in exceptions) 
+        if (exception is AggregateException)
+          result.AddRange(
+            ((AggregateException) exception).GetFlattenList());
+        else 
+          result.Add(exception);
+
+      return result;
+    }
+
     public IEnumerable<Exception> Exceptions
     {
       get { return exceptions; }
@@ -88,8 +115,10 @@ namespace Xtensive.Core
     /// </summary>
     /// <param name="exceptions">Inner exceptions.</param>
     public AggregateException(IEnumerable<Exception> exceptions) 
-      : this(Strings.ExASetOfExceptionsIsCaught, ExtractFirstException(exceptions))
+      : base(Strings.ExASetOfExceptionsIsCaught, ExtractFirstException(exceptions))
     {
+      foreach (Exception e in exceptions)
+        Add(e);
     }
 
     /// <summary>

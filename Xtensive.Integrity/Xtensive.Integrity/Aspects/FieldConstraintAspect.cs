@@ -22,6 +22,11 @@ namespace Xtensive.Integrity.Aspects
   public abstract class FieldConstraintAspect : CompoundAspect
   {
     /// <summary>
+    /// Gets the validated property.
+    /// </summary>    
+    protected PropertyInfo Property { get; private set; }
+
+    /// <summary>
     /// Gets or sets the <see cref="ValidationMode"/> to be used on setting property value.
     /// </summary>
     /// <value>The mode.</value>
@@ -32,32 +37,37 @@ namespace Xtensive.Integrity.Aspects
     /// </summary>
     /// <param name="target">The validation target.</param>
     /// <param name="value">The value to validate.</param>
-    public abstract void Validate(IValidationAware target, object value);
+    public abstract void ValidateValue(IValidatable target, object value);    
 
     /// <summary>
     /// Determines whether the specified value type is type supported.
     /// </summary>
     /// <param name="type">The type.</param>
-    public abstract bool IsTypeSupported(Type type);    
+    public abstract bool IsTypeSupported(Type type);
 
     /// <inheritdoc/>
     public override bool CompileTimeValidate(object element)
     {
-      var property = (PropertyInfo) element;
-
+      Property = (PropertyInfo) element;
+    
       return 
-        typeof (IValidationAware).IsAssignableFrom(property.DeclaringType) &&
-        IsTypeSupported(property.PropertyType);
+        typeof (IValidatable).IsAssignableFrom(Property.DeclaringType) &&
+        IsTypeSupported(Property.PropertyType);
     }
 
     /// <inheritdoc/>
     public override void ProvideAspects(object element, LaosReflectionAspectCollection collection)
     {
-      var property = (PropertyInfo) element;
+      Property = (PropertyInfo) element;      
 
       collection.AddAspect(
-        property.GetSetMethod(true),
-        new FieldSetterConstraintAspect(this));
+        Property.GetSetMethod(true),
+        new FieldSetterConstraintAspect(this));          
+    }
+
+    internal void RuntimeInitialize()
+    {
+      ConstraintsRegistry.RegisterConstraint(Property.ReflectedType, this);
     }
 
     /// <summary> 
@@ -65,11 +75,15 @@ namespace Xtensive.Integrity.Aspects
     /// </summary>
     /// <param name="target">The target.</param>
     /// <param name="value">The value.</param>
-    internal void OnSetValue(IValidationAware target, object value)
+    internal void OnSetValue(IValidatable target, object value)
     {
       target.Validate(Mode);
     }
 
+    internal void OnValidate(IValidatable target)
+    {
+      ValidateValue(target, Property.GetGetMethod().Invoke(target, new object[] {} ));
+    }
 
     // Constructor
     

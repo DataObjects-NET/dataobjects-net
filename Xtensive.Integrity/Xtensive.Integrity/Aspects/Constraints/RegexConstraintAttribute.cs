@@ -6,6 +6,7 @@
 
 using System;
 using System.Text.RegularExpressions;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Integrity.Validation.Interfaces;
 
 namespace Xtensive.Integrity.Aspects.Constraints
@@ -19,13 +20,13 @@ namespace Xtensive.Integrity.Aspects.Constraints
     private readonly Regex regex;
     
     /// <inheritdoc/>
-    public override void Validate(IValidationAware target, object value)
+    public override void ValidateValue(IValidatable target, object value)
     {
       string stringValue = (string) value;
 
       if (!string.IsNullOrEmpty(stringValue) && !regex.IsMatch(stringValue))
-        throw new Exception(
-          string.Format(Resources.Strings.StringXDoesNotMatchRegexPatternY, value, stringValue));
+        throw new ConstraintViolationException(
+          string.Format(Resources.Strings.StringXDoesNotMatchRegexPatternY, value, regex));
     }
 
     /// <inheritdoc/>
@@ -33,7 +34,11 @@ namespace Xtensive.Integrity.Aspects.Constraints
     {
       return type == typeof (string);
     }
-    
+
+    /// <summary>
+    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="regexPattern">The regular expression pattern.</param>
     public RegexConstraintAttribute(string regexPattern)
     {
       regex = new Regex(regexPattern);

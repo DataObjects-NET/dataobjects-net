@@ -18,11 +18,18 @@ namespace Xtensive.Integrity.Aspects
     public override void OnEntry(MethodExecutionEventArgs eventArgs)
     {
       constraintAspect.OnSetValue(
-        (IValidationAware) eventArgs.Instance,
+        (IValidatable) eventArgs.Instance,
         eventArgs.GetReadOnlyArgumentArray()[0]);
 
       base.OnEntry(eventArgs);
     }
+
+    public override void RuntimeInitialize(System.Reflection.MethodBase method)
+    {
+      base.RuntimeInitialize(method);
+      constraintAspect.RuntimeInitialize();
+    }
+
 
     // Constructor
 
