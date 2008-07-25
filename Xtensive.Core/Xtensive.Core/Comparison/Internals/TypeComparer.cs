@@ -26,12 +26,14 @@ namespace Xtensive.Core.Comparison
     {
       if (x==y)
         return 0;
-      return cache.GetValue(this, new Pair<Type>(x, y), (p, me) => {
-        int result = me.BaseComparer1.Compare(x.FullName, y.FullName);
-        if (result==0)
-          result = me.BaseComparer2.Compare(x.Assembly, y.Assembly);
-        return result;
-      }, this);
+      return cache.GetValue(this, new Pair<Type>(x, y), 
+        (pair, _this) => {
+          int result = _this.BaseComparer1.Compare(pair.First.FullName, pair.Second.FullName);
+          if (result==0)
+            result = _this.BaseComparer2.Compare(pair.First.Assembly, pair.Second.Assembly);
+          return result;
+        }, 
+        this);
     }
 
     public override bool Equals(Type x, Type y)

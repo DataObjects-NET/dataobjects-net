@@ -30,6 +30,7 @@ namespace Xtensive.Core.Hashing
       return data;
     }
 
+
     // Constructors
 
     public UInt32Hasher(IHasherProvider provider)

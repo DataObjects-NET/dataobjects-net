@@ -23,6 +23,7 @@ namespace Xtensive.Core.Hashing
     /// </summary>
     protected HasherStruct<TBase> BaseHasher;
 
+
     // Constructors
 
     /// <summary>

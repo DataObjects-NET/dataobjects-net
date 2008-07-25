@@ -29,6 +29,8 @@ namespace Xtensive.Core.Hashing
     protected HasherStruct<TBase2> BaseHasher2;
 
 
+    // Constructors
+
     /// <summary>
     /// Creates new instance of <see cref="WrappingHasher{T,TBase1,TBase2}"/>.
     /// </summary>

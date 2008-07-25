@@ -28,6 +28,7 @@ namespace Xtensive.Core.Hashing
       return firstHashes;
     }
 
+
     // Constructors
 
     public PairHasher(IHasherProvider provider)

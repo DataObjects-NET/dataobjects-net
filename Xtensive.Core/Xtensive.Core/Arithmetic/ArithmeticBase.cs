@@ -71,7 +71,8 @@ namespace Xtensive.Core.Arithmetic
     public Arithmetic<T> ApplyRules(ArithmeticRules rules)
     {
       return cachedArithmetics.GetValue(this, rules, 
-        (r, me) => new Arithmetic<T>(me.CreateNew(r)), this);
+        (_rules, _this) => new Arithmetic<T>(_this.CreateNew(_rules)), 
+        this);
     }
 
     /// <summary>

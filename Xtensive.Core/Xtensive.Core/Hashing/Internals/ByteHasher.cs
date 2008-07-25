@@ -23,6 +23,7 @@ namespace Xtensive.Core.Hashing
       return HashingUtils.GetHashes(new[] { value }, count, value);
     }
 
+
     // Constructors
 
     public ByteHasher(IHasherProvider provider)

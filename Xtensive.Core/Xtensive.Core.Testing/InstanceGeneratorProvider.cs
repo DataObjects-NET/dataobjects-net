@@ -42,22 +42,15 @@ namespace Xtensive.Core.Testing
     /// <inheritdoc/>
     public IInstanceGeneratorBase GetInstanceGenerator(Type type)
     {
-      IInstanceGeneratorBase result = cache.GetValue(type);
-      if (result!=null)
-        return result;
-      lock (_lock) {
-        result = cache.GetValue(type);
-        if (result!=null)
-          return result;
-        MethodInfo getInstanceGeneratorMethod =
-          GetType()
-            .GetMethod("GetInstanceGenerator", ArrayUtils<Type>.EmptyArray)
-              .GetGenericMethodDefinition()
-                .MakeGenericMethod(new Type[] {type});
-        result = (IInstanceGeneratorBase)getInstanceGeneratorMethod.Invoke(this, null);
-        cache.SetValue(type, result);
-        return result;
-      }
+      return cache.GetValue(_lock, type,
+        (_type, _this) => _this
+          .GetType()
+          .GetMethod("GetInstanceGenerator", ArrayUtils<Type>.EmptyArray)
+          .GetGenericMethodDefinition()
+          .MakeGenericMethod(new[] {_type})
+          .Invoke(_this, null)
+          as IInstanceGeneratorBase,
+        this);
     }
 
     #endregion
@@ -68,7 +61,7 @@ namespace Xtensive.Core.Testing
     
     protected InstanceGeneratorProvider()
     {
-      TypeSuffixes = new string[] {"InstanceGenerator"};
+      TypeSuffixes = new[] {"InstanceGenerator"};
       Type t = typeof (InstanceGeneratorProvider);
       AddHighPriorityLocation(t.Assembly, t.Namespace);
     }

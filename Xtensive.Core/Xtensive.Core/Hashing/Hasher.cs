@@ -53,6 +53,7 @@ namespace Xtensive.Core.Hashing
     /// </summary>
     public readonly Func<T, int, long[]> GetHashes;
     
+
     // Constructors
 
     /// <summary>

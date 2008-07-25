@@ -30,6 +30,7 @@ namespace Xtensive.Core.Hashing
       return BaseHasher.GetHashes(value.Hash, count);
     }
 
+
     // Constructors
 
     public HashableInterfaceHasher(IHasherProvider provider)

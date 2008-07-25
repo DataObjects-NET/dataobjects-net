@@ -42,6 +42,7 @@ namespace Xtensive.Core.Hashing
       return result;
     }
 
+
     // Constructors
 
     public ArrayHasher(IHasherProvider provider)

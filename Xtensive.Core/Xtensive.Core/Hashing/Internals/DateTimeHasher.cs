@@ -23,6 +23,7 @@ namespace Xtensive.Core.Hashing
       return BaseHasher.GetHashes(value.Ticks, count);
     }
 
+
     // Constructors
 
     public DateTimeHasher(IHasherProvider provider)

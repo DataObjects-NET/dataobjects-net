@@ -28,7 +28,8 @@ namespace Xtensive.Core.Comparison
       if (x==y)
         return 0;
       return cache.GetValue(this, new Pair<TupleDescriptor>(x, y), 
-        (p, me) => me.BaseComparer.Compare(p.First.fieldTypes, p.Second.fieldTypes), this);
+        (pair, _this) => _this.BaseComparer.Compare(pair.First.fieldTypes, pair.Second.fieldTypes), 
+        this);
     }
 
     public override bool Equals(TupleDescriptor x, TupleDescriptor y)

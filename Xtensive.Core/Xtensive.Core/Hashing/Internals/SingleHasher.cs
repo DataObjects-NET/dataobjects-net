@@ -29,6 +29,7 @@ namespace Xtensive.Core.Hashing
       return (((ulong) byteArray[0]) << 24) | (((ulong) byteArray[1]) << 16) | (((ulong) byteArray[2]) << 8) | byteArray[3];
     }
 
+
     // Constructors
 
     public SingleHasher(IHasherProvider provider)

@@ -28,7 +28,7 @@ namespace Xtensive.Core
     [NonSerialized]
     private static readonly object _lock = new object();
     [NonSerialized]
-    private static AdvancedComparer<Pair<Assembly, string>> positionComparer;
+    private static Cached<AdvancedComparer<Pair<Assembly, string>>> positionComparer;
     [NonSerialized]
     private TypeBasedDictionary cache;
     [ThreadStatic]
@@ -37,19 +37,6 @@ namespace Xtensive.Core
     private object[] constructorParams;
     private string[] typeSuffixes;
     private List<Pair<Assembly, string>> highPriorityLocations = new List<Pair<Assembly, string>>();
-
-    private static AdvancedComparer<Pair<Assembly, string>> PositionComparer
-    {
-      get
-      {
-        if (positionComparer==null)
-          lock (_lock)
-            if (positionComparer==null) {
-              positionComparer = AdvancedComparer<Pair<Assembly, string>>.Default;
-            }
-        return positionComparer;
-      }
-    }
 
     /// <summary>
     /// Gets associate constructor parameters.
@@ -87,7 +74,7 @@ namespace Xtensive.Core
     /// override all the others (i.e. be a first in the list of locations).</param>
     protected void AddHighPriorityLocation(Assembly assembly, string nameSpace, bool overriding)
     {
-      lock (this) {
+      lock (_lock) {
         List<Pair<Assembly, string>> newHighPriorityLocations = new List<Pair<Assembly, string>>(highPriorityLocations);
         if (overriding)
           newHighPriorityLocations.Insert(0, new Pair<Assembly, string>(assembly, nameSpace));
@@ -119,7 +106,7 @@ namespace Xtensive.Core
     {
       TResult result = cache.GetValue<TKey, TResult>();
       if (ReferenceEquals(result, default(TResult)))
-        lock (this) {
+        lock (_lock) {
           result = cache.GetValue<TKey, TResult>();
           if (!ReferenceEquals(result, default(TResult)))
             return result;
@@ -146,7 +133,7 @@ namespace Xtensive.Core
     {
       TResult result = cache.GetValue<TKey1, TResult>();
       if (ReferenceEquals(result, default(TResult)))
-        lock (this) {
+        lock (_lock) {
           result = cache.GetValue<TKey1, TResult>();
           if (!ReferenceEquals(result, default(TResult)))
             return result;
@@ -221,7 +208,7 @@ namespace Xtensive.Core
         associate.GetType().Namespace);
       List<Pair<Assembly, string>> hpl = HighPriorityLocations;
       for (int i = 0; i < hpl.Count; i++)
-        if (PositionComparer.Equals(hpl[i], entry))
+        if (AdvancedComparerStruct<Pair<Assembly, string>>.Default.Equals(hpl[i], entry))
           return i;
       return Int32.MaxValue;
     }

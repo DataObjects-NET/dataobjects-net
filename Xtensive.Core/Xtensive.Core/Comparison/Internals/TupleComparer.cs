@@ -17,6 +17,8 @@ namespace Xtensive.Core.Comparison
   internal sealed class TupleComparer : AdvancedComparerBase<Tuple>,
     ISystemComparer<Tuple>
   {
+    #region Nested type: ComparisonHandler
+
     internal class ComparisonHandler
     {
       public ExecutionSequenceHandler<TupleComparerData>[] Handlers;
@@ -29,6 +31,10 @@ namespace Xtensive.Core.Comparison
       }
     }
 
+    #endregion
+
+    [NonSerialized]
+    private object _lock;
     [NonSerialized]
     private int nullHashCode;
     [NonSerialized]
@@ -105,21 +111,16 @@ namespace Xtensive.Core.Comparison
 
     private ComparisonHandler GetComparisonHandler(TupleDescriptor descriptor)
     {
-      int identifier = descriptor.Identifier;
-      ComparisonHandler h = comparisonHandlers.GetValue(identifier);
-      if (h==null) lock (this) {
-        h = comparisonHandlers.GetValue(identifier);
-        if (h==null) {
-          var box = new Box<ComparisonHandler>(new ComparisonHandler(descriptor));
+      return comparisonHandlers.GetValue(_lock, descriptor.Identifier,
+        (indentifier, _this, _descriptor) => {
+          var box = new Box<ComparisonHandler>(new ComparisonHandler(_descriptor));
           ExecutionSequenceHandler<Box<ComparisonHandler>>[] initializers =
             DelegateHelper.CreateDelegates<ExecutionSequenceHandler<Box<ComparisonHandler>>>(
-              this, GetType(), "InitializeStep", descriptor);
+              _this, _this.GetType(), "InitializeStep", _descriptor);
           DelegateHelper.ExecuteDelegates(initializers, ref box, Direction.Positive);
-          h = box.Value;
-          comparisonHandlers.SetValue(identifier, h);
-        }
-      }
-      return h;
+          return box.Value;
+        },
+        this, descriptor);
     }
 
     #region Initialize\Compare\Equals steps
@@ -176,6 +177,7 @@ namespace Xtensive.Core.Comparison
 
     private void Initialize()
     {
+      _lock              = new object();
       nullHashCode       = SystemComparerStruct<Tuple>.Instance.GetHashCode(null);
       descriptorComparer = Provider.GetComparer<TupleDescriptor>().ApplyRules(ComparisonRules);
       comparisonHandlers.Initialize();

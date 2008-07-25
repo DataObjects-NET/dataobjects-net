@@ -350,7 +350,7 @@ namespace Xtensive.Core.Reflection
       lock (_lock) {
         if (moduleBuilder!=null)
           return;
-        AssemblyName assemblyName = new AssemblyName("Xtensive.TypeHelper.GeneratedTypes");
+        var assemblyName = new AssemblyName("Xtensive.TypeHelper.GeneratedTypes");
         assemblyBuilder =
           AppDomain.CurrentDomain.DefineDynamicAssembly(
             assemblyName,

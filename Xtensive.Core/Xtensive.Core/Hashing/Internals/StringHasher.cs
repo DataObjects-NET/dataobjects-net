@@ -24,6 +24,7 @@ namespace Xtensive.Core.Hashing
       return HashingUtils.GetHashes(Encoding.Unicode.GetBytes(value), count);      
     }
 
+
     // Constructors
 
     public StringHasher(IHasherProvider provider)

@@ -66,7 +66,8 @@ namespace Xtensive.Core.Comparison
     public AdvancedComparer<T> ApplyRules(ComparisonRules rules)
     {
       return cachedComparers.GetValue(this, rules, 
-        (r, me) => new AdvancedComparer<T>(me.CreateNew(r)), this);
+        (_rules, _this) => new AdvancedComparer<T>(_this.CreateNew(_rules)), 
+        this);
     }
 
     /// <inheritdoc/>

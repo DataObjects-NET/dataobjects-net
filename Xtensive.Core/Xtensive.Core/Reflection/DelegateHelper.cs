@@ -10,6 +10,7 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Resources;
 
 namespace Xtensive.Core.Reflection
@@ -21,7 +22,9 @@ namespace Xtensive.Core.Reflection
   public static class DelegateHelper
   {
     // TODO: AY: Cache all generated gelegates by the same way
-    private static readonly Dictionary<string, Delegate> cachedDelegates = new Dictionary<string, Delegate>();
+    private static readonly object _lock = new object();
+    private static readonly ThreadSafeDictionary<string, Delegate> cachedDelegates = 
+      ThreadSafeDictionary<string, Delegate>.Create();
     private static readonly Dictionary<Type, OpCode> opCodeConv = new Dictionary<Type, OpCode>();
     private static readonly Dictionary<Type, Type> typeOnStack = new Dictionary<Type, Type>();
     private static readonly string primitiveCastMethodName = "PrimitiveCast";
@@ -85,7 +88,7 @@ namespace Xtensive.Core.Reflection
 
       TDelegateType result = GetCachedDelegate(methodKey) as TDelegateType;
       if (result==null)
-        lock (cachedDelegates) {
+        lock (_lock) {
           result = GetCachedDelegate(methodKey) as TDelegateType;
           if (result!=null)
             return result;
@@ -128,7 +131,7 @@ namespace Xtensive.Core.Reflection
             throw new InvalidOperationException(String.Format(Strings.ExMemberIsNotPublicPropertyOrField,
               memberName, type.Name));
 
-          cachedDelegates[methodKey] = result as Delegate;
+          AddCachedDelegate(methodKey, result as Delegate);
         }
       return result;
     }
@@ -149,7 +152,7 @@ namespace Xtensive.Core.Reflection
 
       Action<TObject, TValue> result = (Action<TObject, TValue>)GetCachedDelegate(methodKey);
       if (result==null)
-        lock (cachedDelegates) {
+        lock (_lock) {
           result = (Action<TObject, TValue>)GetCachedDelegate(methodKey);
           if (result!=null)
             return result;
@@ -189,7 +192,7 @@ namespace Xtensive.Core.Reflection
           else
             throw new InvalidOperationException(String.Format(Strings.ExMemberIsNotPublicPropertyOrField,
               memberName, type.Name));
-          cachedDelegates[methodKey] = result;
+          AddCachedDelegate(methodKey, result);
         }
       return result;
     }
@@ -212,7 +215,7 @@ namespace Xtensive.Core.Reflection
 
       Converter<TSource, TTarget> result = GetCachedDelegate(methodKey) as Converter<TSource, TTarget>;
       if (result==null)
-        lock (cachedDelegates) {
+        lock (_lock) {
           result = GetCachedDelegate(methodKey) as Converter<TSource, TTarget>;
           if (result!=null)
             return result;
@@ -245,7 +248,7 @@ namespace Xtensive.Core.Reflection
           il.Emit(OpCodes.Ret);
           result = dm.CreateDelegate(typeof(Converter<TSource, TTarget>)) as Converter<TSource, TTarget>;
 
-          cachedDelegates[methodKey] = result;
+          AddCachedDelegate(methodKey, result);
         }
       return result;
     }
@@ -391,7 +394,7 @@ namespace Xtensive.Core.Reflection
       string methodKey  = GetMethodCallDelegateKey(ctorMethodName, type, delegateType);
       result = GetCachedDelegate(methodKey);
       if (result == null)
-        lock (cachedDelegates) {
+        lock (_lock) {
           result = GetCachedDelegate(methodKey);
           if (result != null)
             return result;
@@ -427,13 +430,13 @@ namespace Xtensive.Core.Reflection
       string methodKey  = GetMethodCallDelegateKey(ctorMethodName, type, delegateType);
       Delegate result = GetCachedDelegate(methodKey);
       if (result == null)
-        lock (cachedDelegates) {
+        lock (_lock) {
           result = GetCachedDelegate(methodKey);
           if (result != null)
             return (TDelegate) (object) result;
           methodKey = String.Intern(methodKey);
           result = (Delegate) (object) CreateDelegate<TDelegate>(null, type, AspectedProtectedConstructorCallerName, new Type[] {});
-          cachedDelegates[methodKey] = result;
+          AddCachedDelegate(methodKey, result);
         }
       return (TDelegate) (object) result;
     }
@@ -442,10 +445,12 @@ namespace Xtensive.Core.Reflection
 
     private static Delegate GetCachedDelegate(string delegateKey)
     {
-      Delegate result;
-      if (cachedDelegates.TryGetValue(delegateKey, out result))
-        return result;
-      return null;
+      return cachedDelegates.GetValue(delegateKey);
+    }
+
+    private static void AddCachedDelegate(string delegateKey, Delegate value)
+    {
+      cachedDelegates.SetValue(delegateKey, value);
     }
 
     private static string GetMethodCallDelegateKey(string methodName, params Type[] argumentTypes)

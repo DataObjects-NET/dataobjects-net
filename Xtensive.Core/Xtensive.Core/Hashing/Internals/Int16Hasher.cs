@@ -31,6 +31,7 @@ namespace Xtensive.Core.Hashing
       return data;
     }
 
+
     // Constructors
 
     public Int16Hasher(IHasherProvider provider)

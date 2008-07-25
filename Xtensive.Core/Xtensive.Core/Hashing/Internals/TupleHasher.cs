@@ -13,6 +13,7 @@ namespace Xtensive.Core.Hashing
     ITupleFunctionHandler<TupleHasher.SingleHashData, long>,
     ITupleFunctionHandler<TupleHasher.ArrayHashData, long[]>
   {
+    #region Nested types: SingleHashData, ArrayHashData
 
     internal struct SingleHashData : ITupleFunctionData<long>
     {
@@ -49,6 +50,8 @@ namespace Xtensive.Core.Hashing
         get { return Result; }
       }
     }
+
+    #endregion
 
     /// <inheritdoc/>
     public override long GetHash(Tuple value)
@@ -91,6 +94,9 @@ namespace Xtensive.Core.Hashing
       return false;
     }
     
+
+    // Constructors
+
     public TupleHasher(IHasherProvider provider)
       : base(provider)
     {

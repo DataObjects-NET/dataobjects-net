@@ -34,6 +34,9 @@ namespace Xtensive.Core.Hashing
     /// </summary>
     protected HasherStruct<TBase3> BaseHasher3;
 
+
+    // Constructors
+
     /// <summary>
     /// Creates new instance of <see cref="WrappingHasher{T,TBase1,TBase2}"/>.
     /// </summary>

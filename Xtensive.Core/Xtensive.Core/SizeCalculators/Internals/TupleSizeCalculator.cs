@@ -84,12 +84,12 @@ namespace Xtensive.Core.SizeCalculators
     private ISizeCalculatorBase[] GetCalculators(Tuple tuple)
     {
       return calculators.GetValue(_lock, tuple.Descriptor, 
-        (descriptor, me) => {
+        (descriptor, _this) => {
           int count = descriptor.Count;
           var result = new ISizeCalculatorBase[count];
           for (int i = 0; i < count; i++) {
             Type fieldType = descriptor[i];
-            ISizeCalculatorBase calculator = me.Provider.GetSizeCalculatorByType(fieldType);
+            ISizeCalculatorBase calculator = _this.Provider.GetSizeCalculatorByType(fieldType);
             if (!fieldType.IsFinal() && !(calculator is IFinalAssociate))
               calculator = null;
             result[i] = calculator;

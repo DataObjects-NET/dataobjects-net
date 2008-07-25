@@ -28,7 +28,7 @@ namespace Xtensive.Core.Hashing
     IHasherProvider
   {
     private static readonly HasherProvider @default = new HasherProvider();
-    private readonly object syncRoot = new object();
+    private readonly object _lock = new object();
     private ThreadSafeDictionary<Type, IHasherBase> cache = ThreadSafeDictionary<Type, IHasherBase>.Create();
     private Cached<IHasherBase> objectHasher;
 
@@ -54,30 +54,25 @@ namespace Xtensive.Core.Hashing
     public IHasherBase GetHasherByInstance(object value)
     {
       if (value == null)
-        return objectHasher.GetValue(syncRoot, me => me.GetHasher<object>().Implementation, this);
+        return objectHasher.GetValue(_lock, 
+          _this => _this.GetHasher<object>().Implementation, 
+          this);
       else
-      return GetHasherByType(value.GetType());
+        return GetHasherByType(value.GetType());
     }
 
     /// <inheritdoc/>
     public IHasherBase GetHasherByType(Type type)
     {
-      IHasherBase result = cache.GetValue(type);
-      if (result != null)
-        return result;
-      lock (syncRoot) {
-        result = cache.GetValue(type);
-        if (result != null)
-          return result;
-        System.Reflection.MethodInfo innerGetHasherByTypeMethod =
-          GetType()
-            .GetMethod("InnerGetHasherBase", BindingFlags.NonPublic | BindingFlags.Instance, null, ArrayUtils<Type>.EmptyArray, null)
-            .GetGenericMethodDefinition()
-            .MakeGenericMethod(new[] { type });
-        result = innerGetHasherByTypeMethod.Invoke(this, null) as IHasherBase;
-        cache.SetValue(type, result);
-        return result;
-      }
+      return cache.GetValue(_lock, type,
+        (_type, _this) => _this
+          .GetType()
+          .GetMethod("InnerGetHasherBase", BindingFlags.NonPublic | BindingFlags.Instance, null, ArrayUtils<Type>.EmptyArray, null)
+          .GetGenericMethodDefinition()
+          .MakeGenericMethod(new[] {_type})
+          .Invoke(_this, null)
+          as IHasherBase,
+        this);
     }
 
     #endregion

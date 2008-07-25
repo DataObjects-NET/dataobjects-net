@@ -59,7 +59,7 @@ namespace Xtensive.Core.SizeCalculators
     {
       if (value==null)
         return objectSizeCalculator.GetValue(_lock, 
-          me => me.GetSizeCalculator<object>().Implementation, 
+          _this => _this.GetSizeCalculator<object>().Implementation, 
           this);
       else
         return boxingAwareCalculators.GetValue(_lock, value.GetType(),
@@ -89,13 +89,13 @@ namespace Xtensive.Core.SizeCalculators
     public ISizeCalculatorBase GetSizeCalculatorByType(Type type)
     {
       return calculators.GetValue(_lock, type, 
-        (t, me) => {
-          var hsc = me
+        (_type, _this) => {
+          var hsc = _this
             .GetType()
             .GetMethod("GetSizeCalculator", ArrayUtils<Type>.EmptyArray)
             .GetGenericMethodDefinition()
-            .MakeGenericMethod(new[] {t})
-            .Invoke(me, null)
+            .MakeGenericMethod(new[] {_type})
+            .Invoke(_this, null)
             as IHasSizeCalculator;
           return hsc!=null ? hsc.SizeCalculator : null;
         }, 
