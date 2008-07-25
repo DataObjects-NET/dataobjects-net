@@ -69,10 +69,10 @@ namespace Xtensive.Core
   /// </remarks>
   [Serializable]
   [DebuggerDisplay("{url}")]
-  public class UrlInfo
-    : ISerializable
+  public class UrlInfo : 
+    ISerializable, 
+    IEquatable<UrlInfo>
   {
-    int? savedHashCode;
     private string url = String.Empty;
     private string protocol = String.Empty;
     private string host = String.Empty;
@@ -229,6 +229,62 @@ namespace Xtensive.Core
       }
     }
 
+    #region Nested type: UrlDecoder
+
+    private class UrlDecoder
+    {
+      // Fields
+      private int m_bufferSize;
+      private byte[] m_byteBuffer;
+      private char[] m_charBuffer;
+      private Encoding m_encoding;
+      private int m_numBytes;
+      private int m_numChars;
+
+      // Methods
+      internal UrlDecoder(int bufferSize, Encoding encoding)
+      {
+        m_bufferSize = bufferSize;
+        m_encoding = encoding;
+        m_charBuffer = new char[bufferSize];
+      }
+
+      internal void AddByte(byte b)
+      {
+        if (m_byteBuffer==null)
+          m_byteBuffer = new byte[m_bufferSize];
+        m_byteBuffer[m_numBytes++] = b;
+      }
+
+      internal void AddChar(char ch)
+      {
+        if (m_numBytes>0)
+          FlushBytes();
+        m_charBuffer[m_numChars++] = ch;
+      }
+
+      private void FlushBytes()
+      {
+        if (m_numBytes>0) {
+          m_numChars += m_encoding.GetChars(m_byteBuffer, 0, m_numBytes, m_charBuffer, m_numChars);
+          m_numBytes = 0;
+        }
+      }
+
+      internal string GetString()
+      {
+        if (m_numBytes>0)
+          FlushBytes();
+        if (m_numChars>0)
+          return new string(m_charBuffer, 0, m_numChars);
+        return string.Empty;
+      }
+    }
+
+    #endregion
+
+    #region Private \ internal methods
+
     private static string UrlDecode(string str)
     {
       return UrlDecode(str, Encoding.UTF8);
@@ -286,93 +342,45 @@ namespace Xtensive.Core
       return h-'a'+'\n';
     }
 
-    #region UrlDecoder
+    #endregion
 
-    private class UrlDecoder
+    #region Equality members
+
+    /// <inheritdoc/>
+    public bool Equals(UrlInfo obj)
     {
-      // Fields
-      private int m_bufferSize;
-      private byte[] m_byteBuffer;
-      private char[] m_charBuffer;
-      private Encoding m_encoding;
-      private int m_numBytes;
-      private int m_numChars;
+      if (ReferenceEquals(null, obj))
+        return false;
+      if (ReferenceEquals(this, obj))
+        return true;
+      return Equals(obj.url, url);
+    }
 
-      // Methods
-      internal UrlDecoder(int bufferSize, Encoding encoding)
-      {
-        m_bufferSize = bufferSize;
-        m_encoding = encoding;
-        m_charBuffer = new char[bufferSize];
-      }
-
-      internal void AddByte(byte b)
-      {
-        if (m_byteBuffer==null)
-          m_byteBuffer = new byte[m_bufferSize];
-        m_byteBuffer[m_numBytes++] = b;
-      }
-
-      internal void AddChar(char ch)
-      {
-        if (m_numBytes>0)
-          FlushBytes();
-        m_charBuffer[m_numChars++] = ch;
-      }
-
-      private void FlushBytes()
-      {
-        if (m_numBytes>0) {
-          m_numChars += m_encoding.GetChars(m_byteBuffer, 0, m_numBytes, m_charBuffer, m_numChars);
-          m_numBytes = 0;
-        }
-      }
-
-      internal string GetString()
-      {
-        if (m_numBytes>0)
-          FlushBytes();
-        if (m_numChars>0)
-          return new string(m_charBuffer, 0, m_numChars);
-        return string.Empty;
-      }
+    /// <inheritdoc/>
+    public override bool Equals(object obj)
+    {
+      if (ReferenceEquals(null, obj))
+        return false;
+      if (ReferenceEquals(this, obj))
+        return true;
+      if (obj.GetType()!=typeof (UrlInfo))
+        return false;
+      return Equals((UrlInfo) obj);
     }
 
     /// <inheritdoc/>
     public override int GetHashCode()
     {
-      if (savedHashCode==null) {
-        int result = -1;
-        result ^= resource.GetHashCode();
-        result ^= host.GetHashCode();
-        result ^= user.GetHashCode();
-        result ^= password.GetHashCode();
-        result ^= port.GetHashCode();
-        result ^= protocol.GetHashCode();
-        foreach (KeyValuePair<string, string> pair in parameters) {
-          result ^= pair.Key.GetHashCode();
-          result ^= pair.Value.GetHashCode();
-        }
-        savedHashCode = result;
-      }
-      return savedHashCode.Value;
+      return (url!=null ? url.GetHashCode() : 0);
     }
+
+    #endregion
 
     /// <inheritdoc/>
     public override string ToString()
     {
       return url;
     }
-
-    /// <inheritdoc/>
-    public override bool Equals(object obj)
-    {
-      if (obj==null)
-        return false;
-      return obj is UrlInfo && GetHashCode()==obj.GetHashCode();
-    }
-
-    #endregion
 
 
     // Constructors

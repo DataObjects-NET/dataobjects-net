@@ -33,11 +33,14 @@ namespace Xtensive.Core
     /// </summary>
     public TVersion Version;
 
+    #region IComparable<...>, IEquatable<...> methods
+
     /// <inheritdoc/>
     public bool Equals(HasVersion<TValue, TVersion> other)
     {
-      return AdvancedComparerStruct<TValue>.System.Equals(Value, other.Value) && 
-        AdvancedComparerStruct<TVersion>.System.Equals(Version, other.Version);
+      if (!AdvancedComparerStruct<TValue>.System.Equals(Value, other.Value))
+        return false;
+      return AdvancedComparerStruct<TVersion>.System.Equals(Version, other.Version);
     }
 
     /// <inheritdoc/>
@@ -49,24 +52,38 @@ namespace Xtensive.Core
       return AdvancedComparerStruct<TVersion>.System.Compare(Version, other.Version);
     }
 
-    #region Equals, GetHashCode
+    #endregion
+
+    #region Equals, GetHashCode, ==, !=
 
     /// <inheritdoc/>
     public override bool Equals(object obj)
     {
-      if (obj is HasVersion<TValue, TVersion>) {
-        var other = (HasVersion<TValue, TVersion>)obj;
-        return Equals(other);
-      }
-      return false;
+      if (obj.GetType()!=typeof (HasVersion<TValue, TVersion>))
+        return false;
+      return Equals((HasVersion<TValue, TVersion>) obj);
     }
 
     /// <inheritdoc/>
     public override int GetHashCode()
     {
-      int firstHash = Value == null ? 0 : Value.GetHashCode();
-      int secondHash = Version == null ? 0 : Version.GetHashCode();
-      return firstHash ^ 29 * secondHash;
+      unchecked {
+        return 
+          ((Value!=null ? Value.GetHashCode() : 0) * 397) ^ 
+          (Version!=null ? Version.GetHashCode() : 0);
+      }
+    }
+
+    /// <see cref="ClassDocTemplate.OperatorEq" copy="true"/>
+    public static bool operator ==(HasVersion<TValue, TVersion> left, HasVersion<TValue, TVersion> right)
+    {
+      return left.Equals(right);
+    }
+
+    /// <see cref="ClassDocTemplate.OperatorNeq" copy="true"/>
+    public static bool operator !=(HasVersion<TValue, TVersion> left, HasVersion<TValue, TVersion> right)
+    {
+      return !left.Equals(right);
     }
 
     #endregion

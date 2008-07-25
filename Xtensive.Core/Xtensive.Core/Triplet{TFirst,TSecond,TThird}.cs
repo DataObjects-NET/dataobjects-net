@@ -77,9 +77,9 @@ namespace Xtensive.Core
     public override int GetHashCode()
     {
       unchecked {
-        int result = First.GetHashCode();
-        result = (result * 397) ^ Second.GetHashCode();
-        result = (result * 397) ^ Third.GetHashCode();
+        int result = (First!=null ? First.GetHashCode() : 0);
+        result = (result * 397) ^ (Second!=null ? Second.GetHashCode() : 0);
+        result = (result * 397) ^ (Third!=null ? Third.GetHashCode() : 0);
         return result;
       }
     }

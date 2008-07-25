@@ -17,8 +17,8 @@ namespace Xtensive.Core.Collections
   /// </summary>
   [Serializable]
   public class ReadOnlyDictionary<TKey, TValue> :
-    IDictionary,
     IDictionary<TKey, TValue>,
+    IDictionary,
     IReadOnly
   {
     private readonly IDictionary<TKey, TValue> innerDictionary;
@@ -238,15 +238,15 @@ namespace Xtensive.Core.Collections
     #region GetEnumerator methods
 
     /// <inheritdoc/>
-    IEnumerator<KeyValuePair<TKey, TValue>> IEnumerable<KeyValuePair<TKey, TValue>>.GetEnumerator()
+    IEnumerator IEnumerable.GetEnumerator()
     {
-      return innerDictionary.GetEnumerator();
+      return ((IEnumerable)innerDictionary).GetEnumerator();
     }
 
     /// <inheritdoc/>
-    public IEnumerator GetEnumerator()
+    public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
     {
-      return ((IEnumerable)innerDictionary).GetEnumerator();
+      return innerDictionary.GetEnumerator();
     }
 
     /// <inheritdoc/>

@@ -32,7 +32,7 @@ namespace Xtensive.Core
     /// <inheritdoc/>
     public bool Equals(Box<T> other)
     {
-      return Equals(other.Value, Value);
+      return AdvancedComparerStruct<T>.System.Equals(Value, other.Value);
     }
 
     /// <inheritdoc/>
@@ -56,7 +56,7 @@ namespace Xtensive.Core
     /// <inheritdoc/>
     public override int GetHashCode()
     {
-      return Value.GetHashCode();
+      return Value!=null ? Value.GetHashCode() : 0;
     }
 
     /// <see cref="ClassDocTemplate.OperatorEq"/>

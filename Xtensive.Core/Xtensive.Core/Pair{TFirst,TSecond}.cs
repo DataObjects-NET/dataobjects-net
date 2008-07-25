@@ -67,7 +67,9 @@ namespace Xtensive.Core
     public override int GetHashCode()
     {
       unchecked {
-        return (First.GetHashCode() * 397) ^ Second.GetHashCode();
+        int result = (First!=null ? First.GetHashCode() : 0);
+        result = (result * 397) ^ (Second!=null ? Second.GetHashCode() : 0);
+        return result;
       }
     }
 

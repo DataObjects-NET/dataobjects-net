@@ -160,7 +160,7 @@ namespace Xtensive.Core
 
     #endregion
 
-    #region Equals, GetHashCode
+    #region Equals, GetHashCode, ==, !=
 
     /// <inheritdoc/>
     public override bool Equals(object obj)
@@ -173,7 +173,9 @@ namespace Xtensive.Core
     public override int GetHashCode()
     {
       unchecked {
-        return (isCached.GetHashCode() * 397) ^ cachedValue.GetHashCode();
+        return 
+          (isCached.GetHashCode() * 397) ^ 
+          (cachedValue!=null ? cachedValue.GetHashCode() : 0);
       }
     }
 
