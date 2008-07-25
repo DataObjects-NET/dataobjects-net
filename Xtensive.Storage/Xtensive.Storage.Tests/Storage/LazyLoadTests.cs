@@ -45,7 +45,7 @@ namespace Xtensive.Storage.Tests.Storage
       using (domain.OpenSession()) {
         Book b = key.Resolve<Book>();
         Tuple tuple = b.Tuple;
-        Assert.IsFalse(tuple.IsAvailable(1));
+        Assert.IsFalse(tuple.IsAvailable(2));
         Assert.AreEqual(text, b.Text);
       }
     }

@@ -15,12 +15,15 @@ namespace Xtensive.Storage.Internals
   {
     public static Tuple Fetch(Key key)
     {
-      IndexInfo index = key.Hierarchy.Root.Indexes.PrimaryIndex;
+      IndexInfo index = key.Type.Indexes.PrimaryIndex;
       return Session.Current.Handler.Fetch(index, key, index.Columns.Where(c => !c.LazyLoad));
     }
 
     public static Tuple Fetch(Key key, FieldInfo field)
     {
+      if (!field.LazyLoad)
+        return Fetch(key);
+
       IndexInfo index = key.Type.Indexes.PrimaryIndex;
       IEnumerable<ColumnInfo> columns = key.Type.Columns
         .Skip(field.MappingInfo.Offset)
