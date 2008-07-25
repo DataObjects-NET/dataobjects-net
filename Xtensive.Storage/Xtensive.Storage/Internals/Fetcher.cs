@@ -21,6 +21,7 @@ namespace Xtensive.Storage.Internals
 
     public static Tuple Fetch(Key key, FieldInfo field)
     {
+      // Fetching all non-lazyload fields instead of exactly one.
       if (!field.LazyLoad)
         return Fetch(key);
 
