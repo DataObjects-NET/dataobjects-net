@@ -174,10 +174,7 @@ namespace Xtensive.Storage
     internal static Entity Activate(Type type, EntityData data)
     {
       if (!activators.ContainsKey(type)) {
-        var constructorInvocationDelegate =
-          (Func<EntityData, Entity>) DelegateHelper.CreateConstructorDelegate(
-                                       type,
-                                       typeof (Func<EntityData, Entity>));
+        var constructorInvocationDelegate = DelegateHelper.CreateConstructorDelegate<Func<EntityData, Entity>>(type);
         activators.Add(type, constructorInvocationDelegate);
         return constructorInvocationDelegate(data);
       }

@@ -40,9 +40,7 @@ namespace Xtensive.Storage.Providers
               .Invoke(providerCache,
                       new object[]
                         {
-                          DelegateHelper.CreateConstructorDelegate(
-                            type,
-                            typeof (Func<>).MakeGenericType(baseType))
+                          DelegateHelper.CreateConstructorDelegate<Func<object>>(type)
                         });
             baseType = null;
             continue;

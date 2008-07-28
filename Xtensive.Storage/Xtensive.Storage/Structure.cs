@@ -130,10 +130,7 @@ namespace Xtensive.Storage
     internal static Structure Activate(Type type, Persistent owner, FieldInfo field)
     {
       if (!activators.ContainsKey(type)) {
-        var constructorInvocationDelegate =
-          (Func<Persistent, FieldInfo, Structure>)DelegateHelper.CreateConstructorDelegate(
-                                       type,
-                                       typeof(Func<Persistent, FieldInfo, Structure>));
+        var constructorInvocationDelegate = DelegateHelper.CreateConstructorDelegate<Func<Persistent, FieldInfo, Structure>>(type);
         activators.Add(type, constructorInvocationDelegate);
         return constructorInvocationDelegate(owner, field);
       }
