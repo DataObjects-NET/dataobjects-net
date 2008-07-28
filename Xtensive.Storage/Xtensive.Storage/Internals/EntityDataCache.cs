@@ -30,7 +30,11 @@ namespace Xtensive.Storage.Internals
 
     public void Update(Key key, Tuple tuple)
     {
-      
+      EntityData data;
+      if (!TryGetValue(key, out data))
+        Create(key, tuple);
+      else
+        data.Tuple.Origin.MergeWith(tuple);
     }
 
     public EntityData this[Key key]

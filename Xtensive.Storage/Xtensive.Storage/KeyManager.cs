@@ -65,9 +65,16 @@ namespace Xtensive.Storage
       if (!Validate(tuple))
         return null;
 
-      Key key = new Key(type.Hierarchy, tuple);
+      Key key = Get(type.Hierarchy, tuple);
       key.Type = type;
       return GetCached(key);
+    }
+
+    internal static Key Get(HierarchyInfo hierarchy, Tuple tuple)
+    {
+      Tuple keyTuple = Tuple.Create(hierarchy.TupleDescriptor);
+      tuple.CopyTo(keyTuple, 0, keyTuple.Count);
+      return new Key(hierarchy, keyTuple);
     }
 
     internal Key Get(FieldInfo field, Tuple tuple)
@@ -80,14 +87,6 @@ namespace Xtensive.Storage
     }
 
     #endregion
-
-//    internal Key BuildPrimaryKey(HierarchyInfo hierarchy, Tuple data)
-//    {
-//      Generator generator = domain.Generators[hierarchy];
-//      Key candidate = generator.Build(data);
-//      candidate.ResolveType(data);
-//      return GetCached(candidate);
-//    }
 
     #region Validation methods
 

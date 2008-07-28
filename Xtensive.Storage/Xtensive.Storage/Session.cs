@@ -82,29 +82,13 @@ namespace Xtensive.Storage
       TypeInfo type = Domain.Model.Types[typeof (T)];
       RecordSet result = Handler.Select(type.Indexes.PrimaryIndex);
       foreach (Tuple tuple in result) {
-        Key key = ProcessFetched(type.Hierarchy, tuple);
-        T item = (T)key.Resolve();
-        if (item == null)
-          throw new InvalidOperationException();
-        yield return item;
+        Key key = KeyManager.Get(type.Hierarchy, tuple);
+        DataCache.Update(key, tuple);
+        yield return (T)key.Resolve();
       }
     }
 
     #region Private \ internal members
-
-    internal Key ProcessFetched(HierarchyInfo hierarchy, Tuple tuple)
-    {
-      Tuple t = Tuple.Create(hierarchy.TupleDescriptor);
-      tuple.CopyTo(t, 0, t.Count);
-      Key key = new Key(hierarchy, t);
-      EntityData data;
-      if (!DataCache.TryGetValue(key, out data))
-        DataCache.Update(key, tuple);
-      else {
-        DataCache.Create(key, tuple);
-      }
-      return key;
-    }
 
     [DebuggerHidden]
     internal HandlerAccessor HandlerAccessor {

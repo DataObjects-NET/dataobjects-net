@@ -18,7 +18,7 @@ namespace Xtensive.Storage.Internals
       // Key is already resolved
       EntityData data;
       if (session.DataCache.TryGetValue(key, out data))
-        return data.Entity ?? Entity.Activate(data.Type.UnderlyingType, data);
+        return GetEntity(data);
 
       Tuple tuple;
       if (key.Type==null) {
@@ -29,19 +29,20 @@ namespace Xtensive.Storage.Internals
           return null;
         int columnIndex = key.Hierarchy.Root.Fields[session.Domain.NameProvider.TypeIdFieldName].MappingInfo.Offset;
         int typeId = tuple.GetValue<int>(columnIndex);
-        key.Type = key.Type = session.Domain.Model.Types[typeId];
+        key.Type = session.Domain.Model.Types[typeId];
+        data = session.DataCache.Create(key, tuple);
       }
       else {
         // Creating empty Entity
-        tuple = Tuple.Create(key.Type.TupleDescriptor);
-        key.Tuple.CopyTo(tuple);
+        data = session.DataCache.Create(key);
       }
 
-      // TODO: Refactor
-      // EntityData registration
-      data = new EntityData(key, new DifferentialTuple(tuple));
-      data.Entity = Entity.Activate(data.Type.UnderlyingType, data);
-      return data.Entity;
+      return GetEntity(data);
+    }
+
+    private static Entity GetEntity(EntityData data)
+    {
+      return data.Entity ?? Entity.Activate(data.Type.UnderlyingType, data);
     }
   }
 }
