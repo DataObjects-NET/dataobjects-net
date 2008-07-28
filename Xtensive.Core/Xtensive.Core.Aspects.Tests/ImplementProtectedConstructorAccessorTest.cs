@@ -34,6 +34,20 @@ namespace Xtensive.Core.Aspects.Tests
       }
     }
 
+    public class CtorClassC
+    {
+      public int I { get; set; }
+      public string Text { get; set; }
+
+      public CtorClassC(int i, ref string text)
+      {
+        I = i;
+        Text = text;
+      }
+    }
+
+    private delegate CtorClassC CtorClassCDelegate(int i, ref string text);
+
     [Test]
     public void ConstructorDelegatesTest()
     {
@@ -41,6 +55,9 @@ namespace Xtensive.Core.Aspects.Tests
       Assert.IsNotNull(createA);
       var createB = DelegateHelper.CreateProtectedConstructorDelegate<Func<int, ProtectedCtorClassA>>(typeof (ProtectedCtorClassB));
       Assert.IsNotNull(createB);
+
+      var createC = (CtorClassCDelegate)DelegateHelper.CreateConstructorDelegate(typeof(CtorClassC), typeof(CtorClassCDelegate));
+      Assert.IsNotNull(createC);
 
       int i = 1; 
       ProtectedCtorClassA a = createA(i);
@@ -52,6 +69,13 @@ namespace Xtensive.Core.Aspects.Tests
       Assert.IsNotNull(b);
       Assert.AreSame(typeof(ProtectedCtorClassB), b.GetType());
       Assert.AreEqual(i, b.I);
+
+      string text = "Text";
+      CtorClassC c = createC(i, ref text);
+      Assert.IsNotNull(c);
+      Assert.AreSame(typeof(CtorClassC), c.GetType());
+      Assert.AreEqual(i, c.I);
+      Assert.AreEqual(text, c.Text);
     }
   }
 }

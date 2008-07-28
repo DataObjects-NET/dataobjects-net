@@ -52,6 +52,8 @@ namespace Xtensive.Core.Reflection
     public static readonly string AspectedProtectedConstructorCallerName =
       "~Xtensive.Core.Aspects.ImplementProtectedConstructorAccessor";
 
+    private static readonly string InvokeMethodName = "Invoke";
+
 
     /// <summary>
     /// Creates get member delegate.
@@ -281,7 +283,7 @@ namespace Xtensive.Core.Reflection
       else 
         bindingFlags |= BindingFlags.Instance;
       string[] genericArgumentNames = new string[genericArgumentTypes.Length]; // Actual names doesn't matter
-      ParameterInfo[] parameterInfos = tDelegate.GetMethod("Invoke").GetParameters();
+      ParameterInfo[] parameterInfos = tDelegate.GetMethod(InvokeMethodName).GetParameters();
 
       Type[] parameterTypes = parameterInfos.Select(parameterInfo => parameterInfo.ParameterType).ToArray();
       
@@ -331,7 +333,7 @@ namespace Xtensive.Core.Reflection
       else 
         bindingFlags |= BindingFlags.Instance;
       string[] genericArgumentNames = new string[1]; // Actual names doesn't matter
-      ParameterInfo[] parameterInfos = tDelegate.GetMethod("Invoke").GetParameters();
+      ParameterInfo[] parameterInfos = tDelegate.GetMethod(InvokeMethodName).GetParameters();
       Type[] parameterTypes = new Type[parameterInfos.Length];
       int i = 0;
       foreach (ParameterInfo parameterInfo in parameterInfos)
@@ -399,22 +401,29 @@ namespace Xtensive.Core.Reflection
           if (result != null)
             return result;
 
+          Type returnType;
+          var arguments = GetAccessorArguments(delegateType, out returnType);
+
           DynamicMethod dm = new DynamicMethod(createMethodName + type.FullName,
-                                               type, new Type[] { });
+                                               type, arguments);
           ILGenerator il = dm.GetILGenerator();
-          il.Emit(OpCodes.Newobj, type.GetConstructor(new Type[] { }));
+          for (int i = 0; i < arguments.Length; i++)
+            il.Emit(OpCodes.Ldarg, i);
+          il.Emit(OpCodes.Newobj, type.GetConstructor(arguments));
           il.Emit(OpCodes.Ret);
 
           result = dm.CreateDelegate(delegateType);
+          AddCachedDelegate(methodKey, result);
         }
       return result;
     }
 
     public static Type[] GetAccessorArguments(Type accessor, out Type returnType)
     {
-      var tAccessorArguments = accessor.GetGenericArguments();
-      returnType = tAccessorArguments[tAccessorArguments.Length - 1];
-      Array.Resize(ref tAccessorArguments, tAccessorArguments.Length - 1);
+      var method = accessor.GetMethod(InvokeMethodName);
+      var parameters = method.GetParameters();
+      var tAccessorArguments = parameters.Select(p => p.ParameterType).ToArray();
+      returnType = method.ReturnType;
       return tAccessorArguments;
     }
 
