@@ -110,7 +110,7 @@ namespace Xtensive.Storage.Building
       foreach (HierarchyInfo hierarchy in BuildingScope.Context.Model.Hierarchies) {
         DefaultGenerator generator;
         if (hierarchy.Generator==typeof (DefaultGenerator))
-          generator = BuildingScope.Context.Domain.HandlerAccessor.Factory.CreateHandler<DefaultGenerator>(true);
+          generator = BuildingScope.Context.Domain.HandlerAccessor.Factory.CreateHandler<DefaultGenerator>();
         else
           generator = (DefaultGenerator) Activator.CreateInstance(hierarchy.Generator);
         generator.Hierarchy = hierarchy;
@@ -135,7 +135,7 @@ namespace Xtensive.Storage.Building
               Environment.CurrentDirectory));
 
         handlerAccessor.Factory = (HandlerFactory) Activator.CreateInstance(handlerProviderType);
-        handlerAccessor.DomainHandler = handlerAccessor.Factory.CreateHandler<DomainHandler>(true);
+        handlerAccessor.DomainHandler = handlerAccessor.Factory.CreateHandler<DomainHandler>();
         handlerAccessor.DomainHandler.Build();
       }
     }

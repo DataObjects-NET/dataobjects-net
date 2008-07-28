@@ -188,6 +188,7 @@ namespace Xtensive.Storage
       : base(configuration)
     {
       HandlerAccessor = handlerAccessor;
+      Handler = HandlerAccessor.Factory.CreateHandler<SessionHandler>();
     }
 
     /// <see cref="ClassDocTemplate.Dispose" copy="true"/>
