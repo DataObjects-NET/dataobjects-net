@@ -5,6 +5,7 @@
 // Created:    2008.02.05
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 
@@ -21,7 +22,7 @@ namespace Xtensive.Core.Collections
   public struct ThreadSafeDictionary<TKey, TItem>
   {
     private readonly static TItem defaultItem = default(TItem);
-    private Dictionary<TKey, TItem> implementation;
+    private Hashtable implementation;
 
     #region GetValue methods with generator
 
@@ -35,15 +36,16 @@ namespace Xtensive.Core.Collections
     /// <returns>Found or generated value.</returns>
     public TItem GetValue(object syncRoot, TKey key, Func<TKey, TItem> generator)
     {
-      TItem item;
-      if (implementation.TryGetValue(key, out item))
-        return item;
+      object value = implementation[key];
+      if (value!=null)
+        return (TItem) value;
       else lock (syncRoot) {
-        if (implementation.TryGetValue(key, out item))
-          return item;
-        item = generator.Invoke(key);
-        SetValue(key, item);
-        return item;
+        value = implementation[key];
+        if (value!=null)
+          return (TItem) value;
+        TItem newItem = generator.Invoke(key);
+        SetValue(key, newItem);
+        return newItem;
       }
     }
 
@@ -59,15 +61,16 @@ namespace Xtensive.Core.Collections
     /// <returns>Found or generated value.</returns>
     public TItem GetValue<T>(object syncRoot, TKey key, Func<TKey, T, TItem> generator, T argument)
     {
-      TItem item;
-      if (implementation.TryGetValue(key, out item))
-        return item;
+      object value = implementation[key];
+      if (value!=null)
+        return (TItem) value;
       else lock (syncRoot) {
-        if (implementation.TryGetValue(key, out item))
-          return item;
-        item = generator.Invoke(key, argument);
-        SetValue(key, item);
-        return item;
+        value = implementation[key];
+        if (value!=null)
+          return (TItem) value;
+        TItem newItem = generator.Invoke(key, argument);
+        SetValue(key, newItem);
+        return newItem;
       }
     }
 
@@ -85,15 +88,16 @@ namespace Xtensive.Core.Collections
     /// <returns>Found or generated value.</returns>
     public TItem GetValue<T1, T2>(object syncRoot, TKey key, Func<TKey, T1, T2, TItem> generator, T1 argument1, T2 argument2)
     {
-      TItem item;
-      if (implementation.TryGetValue(key, out item))
-        return item;
+      object value = implementation[key];
+      if (value!=null)
+        return (TItem) value;
       else lock (syncRoot) {
-        if (implementation.TryGetValue(key, out item))
-          return item;
-        item = generator.Invoke(key, argument1, argument2);
-        SetValue(key, item);
-        return item;
+        value = implementation[key];
+        if (value!=null)
+          return (TItem) value;
+        TItem newItem = generator.Invoke(key, argument1, argument2);
+        SetValue(key, newItem);
+        return newItem;
       }
     }
 
@@ -108,9 +112,9 @@ namespace Xtensive.Core.Collections
     /// <returns>Found value, or <see langword="default(TItem)"/>.</returns>
     public TItem GetValue(TKey key)
     {
-      TItem item;
-      if (implementation.TryGetValue(key, out item))
-        return item;
+      object value = implementation[key];
+      if (value!=null)
+        return (TItem) value;
       else
         return defaultItem;
     }
@@ -123,9 +127,7 @@ namespace Xtensive.Core.Collections
     public void  SetValue(TKey key, TItem item)
     {
       lock (implementation) {
-        Dictionary<TKey, TItem> newImplementation = new Dictionary<TKey, TItem>(implementation);
-        newImplementation[key] = item;
-        implementation = newImplementation;
+        implementation[key] = item;
       }
     }
 
@@ -135,7 +137,7 @@ namespace Xtensive.Core.Collections
     public void Clear()
     {
       lock (implementation) {
-        implementation = new Dictionary<TKey, TItem>();
+        implementation.Clear();
       }
     }
 
@@ -150,7 +152,7 @@ namespace Xtensive.Core.Collections
     {
       if (implementation!=null)
         throw Exceptions.AlreadyInitialized(null);
-      implementation = new Dictionary<TKey, TItem>();
+      implementation = new Hashtable();
     }
 
 
