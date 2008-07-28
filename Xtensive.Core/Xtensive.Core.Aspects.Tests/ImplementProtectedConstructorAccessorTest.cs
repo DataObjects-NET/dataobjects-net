@@ -36,33 +36,33 @@ namespace Xtensive.Core.Aspects.Tests
 
     public class CtorClassC
     {
-      public int I { get; set; }
-      public string Text { get; set; }
+      public double Value { get; set; }
+      public string Text  { get; set; }
 
-      public CtorClassC(int i, string text)
-        : this(i, ref text)
+      public CtorClassC(double value, string text)
+        : this(ref value, ref text)
       {
       }
 
-      public CtorClassC(int i, ref string text)
+      public CtorClassC(ref double value, ref string text)
       {
-        I = i;
-        Text = text;
+        Value = value;
+        Text  = text;
       }
     }
 
-    private delegate CtorClassC CtorClassCDelegate(int i, ref string text);
+    private delegate CtorClassC CtorClassCDelegate(ref double value, ref string text);
 
     [Test]
     public void ConstructorDelegatesTest()
     {
-      var createA = DelegateHelper.CreateProtectedConstructorDelegate<Func<int, ProtectedCtorClassA>>(typeof (ProtectedCtorClassA));
+      var createA = DelegateHelper.CreateConstructorDelegate<Func<int, ProtectedCtorClassA>>(typeof (ProtectedCtorClassA));
       Assert.IsNotNull(createA);
-      var createB = DelegateHelper.CreateProtectedConstructorDelegate<Func<int, ProtectedCtorClassA>>(typeof (ProtectedCtorClassB));
+      var createB = DelegateHelper.CreateConstructorDelegate<Func<int, ProtectedCtorClassA>>(typeof (ProtectedCtorClassB));
       Assert.IsNotNull(createB);
       var createC1 = DelegateHelper.CreateConstructorDelegate<CtorClassCDelegate>(typeof(CtorClassC));
       Assert.IsNotNull(createC1);
-      var createC2 = DelegateHelper.CreateConstructorDelegate<Func<int, string, CtorClassC>>(typeof(CtorClassC));
+      var createC2 = DelegateHelper.CreateConstructorDelegate<Func<double, string, CtorClassC>>(typeof(CtorClassC));
       Assert.IsNotNull(createC2);
 
       int i = 1; 
@@ -76,18 +76,19 @@ namespace Xtensive.Core.Aspects.Tests
       Assert.AreSame(typeof(ProtectedCtorClassB), b.GetType());
       Assert.AreEqual(i, b.I);
 
-      string text = "Text";
-      CtorClassC c1 = createC1(i, ref text);
+      double d = 2.2;
+      string s = "Text";
+      CtorClassC c1 = createC1(ref d, ref s);
       Assert.IsNotNull(c1);
       Assert.AreSame(typeof(CtorClassC), c1.GetType());
-      Assert.AreEqual(i, c1.I);
-      Assert.AreEqual(text, c1.Text);
+      Assert.AreEqual(d, c1.Value);
+      Assert.AreEqual(s, c1.Text);
 
-      CtorClassC c2 = createC2(i, text);
+      CtorClassC c2 = createC2(d, s);
       Assert.IsNotNull(c2);
       Assert.AreSame(typeof(CtorClassC), c2.GetType());
-      Assert.AreEqual(i, c2.I);
-      Assert.AreEqual(text, c2.Text);
+      Assert.AreEqual(d, c2.Value);
+      Assert.AreEqual(s, c2.Text);
     }
   }
 }

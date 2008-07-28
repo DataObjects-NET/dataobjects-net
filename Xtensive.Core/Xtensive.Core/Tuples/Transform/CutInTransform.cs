@@ -5,14 +5,12 @@
 // Created:    20.06.2008
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Resources;
 using Xtensive.Core.Tuples.Transform;
-using Xtensive.Core.Tuples.Transform.Internals;
 
 namespace Xtensive.Core.Tuples.Transform
 {

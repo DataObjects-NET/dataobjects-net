@@ -5,6 +5,7 @@
 // Created:    2008.04.30
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core.Collections;
@@ -49,7 +50,9 @@ namespace Xtensive.Core.Tuples.Transform
     {
       string description = String.Format("{0}, {1}", 
         sources.ToDelimitedString(" + "), 
-        IsReadOnly ? Strings.ReadOnlyShort : Strings.ReadWriteShort);
+        IsReadOnly ? 
+          Strings.ReadOnlyShort : 
+          Strings.ReadWriteShort);
       return String.Format(Strings.TupleTransformFormat, 
         GetType().GetShortName(), 
         description);

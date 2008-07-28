@@ -407,13 +407,8 @@ namespace Xtensive.Core.Reflection
             Type[] parameterTypes = delegateType.GetInvokeMethod().GetParameterTypes();
             DynamicMethod dm = new DynamicMethod(createMethodName, type, parameterTypes);
             ILGenerator il = dm.GetILGenerator();
-            for (int i = 0; i < parameterTypes.Length; i++) {
-              var parameterType = parameterTypes[i];
-              if (parameterType.IsByRef || parameterType.IsPointer)
-                il.Emit(OpCodes.Ldarga, i);
-              else
-                il.Emit(OpCodes.Ldarg, i);
-            }
+            for (int i = 0; i < parameterTypes.Length; i++)
+              il.Emit(OpCodes.Ldarg, i);
             il.Emit(OpCodes.Newobj, type.GetConstructor(parameterTypes));
             il.Emit(OpCodes.Ret);
             result = dm.CreateDelegate(delegateType);

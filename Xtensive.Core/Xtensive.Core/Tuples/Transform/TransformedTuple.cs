@@ -38,7 +38,10 @@ namespace Xtensive.Core.Tuples.Transform
     /// <inheritdoc/>
     public override string ToString()
     {
-      return String.Format(Strings.TransformedTupleFormat, base.ToString(), Transform, Arguments.ToCommaDelimitedString());
+      return String.Format(Strings.TransformedTupleFormat, 
+        base.ToString(), 
+        Transform, 
+        Arguments.ToCommaDelimitedString());
     }
   }
 }

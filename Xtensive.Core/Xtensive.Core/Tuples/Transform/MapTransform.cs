@@ -5,6 +5,7 @@
 // Created:    2008.05.07
 
 using System;
+using System.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Resources;
@@ -237,8 +238,12 @@ namespace Xtensive.Core.Tuples.Transform
     {
       string description = String.Format("{0}: {1}, {2}", 
         SourceCount, 
-        SourceCount==1 ? singleSourceMap.ToCommaDelimitedString() : map.ToCommaDelimitedString(),
-        isReadOnly ? Strings.ReadOnlyShort : Strings.ReadWriteShort);
+        SourceCount==1 ? 
+          singleSourceMap.ToCommaDelimitedString() : 
+          map.ToCommaDelimitedString(),
+        isReadOnly ? 
+          Strings.ReadOnlyShort : 
+          Strings.ReadWriteShort);
       return String.Format(Strings.TupleTransformFormat, 
         GetType().GetShortName(), 
         description);

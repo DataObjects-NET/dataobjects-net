@@ -111,15 +111,15 @@ namespace Xtensive.Core.Collections
     }
 
     /// <summary>
-    /// Converts the <paramref name="source"/> to comma-separated string.
+    /// Converts the <paramref name="source"/> to comma-delimited string.
     /// </summary>
     /// <typeparam name="TItem">The type of item.</typeparam>
     /// <param name="source">The sequence to convert.</param>
-    /// <returns>Comma-separated string containing string representation 
+    /// <returns>Comma-delimited string containing string representation 
     /// of all the items from <paramref name="source"/>.</returns>
-    public static string ToCommaSeparatedString<TItem>(this IEnumerable<TItem> source)
+    public static string ToCommaDelimitedString<TItem>(this IEnumerable<TItem> source)
     {
-      return source.ToDelimitedString(", ");
+      return ToDelimitedString((IEnumerable) source, ", ");
     }
 
     /// <summary>
@@ -141,7 +141,7 @@ namespace Xtensive.Core.Collections
     /// <param name="delimiter">The delimiter.</param>
     /// <returns>A delimited string combining string representations
     /// of all the items from <paramref name="source"/>.</returns>
-    public static string ToSeparatedString<TItem>(this IEnumerable<TItem> source, string delimiter)
+    public static string ToDelimitedString<TItem>(this IEnumerable<TItem> source, string delimiter)
     {
       if (source==null)
         return String.Empty;
@@ -157,11 +157,11 @@ namespace Xtensive.Core.Collections
     }
 
     /// <summary>
-    /// Converts the <paramref name="source"/> to separated string.
+    /// Converts the <paramref name="source"/> to delimited string.
     /// </summary>
     /// <param name="source">The sequence to convert.</param>
-    /// <param name="separator">Separator.</param>
-    /// <returns>Separated string containing string representation 
+    /// <param name="separator">The delimiter.</param>
+    /// <returns>Delimited string containing string representation 
     /// of all the items from <paramref name="source"/>.</returns>
     public static string ToDelimitedString(this IEnumerable source, string separator)
     {
