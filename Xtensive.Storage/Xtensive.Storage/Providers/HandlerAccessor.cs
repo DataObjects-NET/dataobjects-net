@@ -24,7 +24,7 @@ namespace Xtensive.Storage.Providers
     /// Gets the handler provider 
     /// creating handlers in the <see cref="Domain"/>.
     /// </summary>
-    public HandlerProvider Provider { get; internal set; }
+    public HandlerFactory Factory { get; internal set; }
 
     /// <summary>
     /// Gets the <see cref="Domain"/> handler.

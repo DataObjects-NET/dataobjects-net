@@ -6,13 +6,13 @@
 
 namespace Xtensive.Storage.Providers.Memory
 {
-  [HandlerProvider("memory", Description = "General storage provider for in-memory storages.")]
-  public class HandlerProvider : Providers.HandlerProvider
+  [Provider("memory", Description = "General storage provider for in-memory storages.")]
+  public class HandlerFactory : Providers.HandlerFactory
   {
     // Constructors
 
     /// <inheritdoc/>
-    public HandlerProvider(Domain domain)
+    public HandlerFactory(Domain domain)
       : base(domain)
     {
     }

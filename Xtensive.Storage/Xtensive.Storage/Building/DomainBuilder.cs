@@ -22,8 +22,8 @@ namespace Xtensive.Storage.Building
   /// </summary>
   public static class DomainBuilder
   {
-    private static readonly PluginManager<HandlerProviderAttribute> pluginManager =
-      new PluginManager<HandlerProviderAttribute>(typeof (HandlerProvider), Environment.CurrentDirectory);
+    private static readonly PluginManager<ProviderAttribute> pluginManager =
+      new PluginManager<ProviderAttribute>(typeof (HandlerFactory), Environment.CurrentDirectory);
 
     /// <summary>
     /// Builds the new <see cref="Domain"/> according to specified configuration.
@@ -110,7 +110,7 @@ namespace Xtensive.Storage.Building
       foreach (HierarchyInfo hierarchy in BuildingScope.Context.Model.Hierarchies) {
         DefaultGenerator generator;
         if (hierarchy.Generator==typeof (DefaultGenerator))
-          generator = BuildingScope.Context.Domain.HandlerAccessor.Provider.CreateHandler<DefaultGenerator>(true);
+          generator = BuildingScope.Context.Domain.HandlerAccessor.Factory.CreateHandler<DefaultGenerator>(true);
         else
           generator = (DefaultGenerator) Activator.CreateInstance(hierarchy.Generator);
         generator.Hierarchy = hierarchy;
@@ -126,7 +126,7 @@ namespace Xtensive.Storage.Building
       HandlerAccessor handlerAccessor = BuildingScope.Context.Domain.HandlerAccessor;
       lock (pluginManager) {
         string protocol = handlerAccessor.Domain.Configuration.ConnectionInfo.Protocol;
-        Type handlerProviderType = pluginManager[new HandlerProviderAttribute(protocol)];
+        Type handlerProviderType = pluginManager[new ProviderAttribute(protocol)];
 
         if (handlerProviderType==null)
           throw new DomainBuilderException(
@@ -134,8 +134,8 @@ namespace Xtensive.Storage.Building
               protocol,
               Environment.CurrentDirectory));
 
-        handlerAccessor.Provider = (HandlerProvider) Activator.CreateInstance(handlerProviderType);
-        handlerAccessor.DomainHandler = handlerAccessor.Provider.CreateHandler<DomainHandler>(true);
+        handlerAccessor.Factory = (HandlerFactory) Activator.CreateInstance(handlerProviderType);
+        handlerAccessor.DomainHandler = handlerAccessor.Factory.CreateHandler<DomainHandler>(true);
         handlerAccessor.DomainHandler.Build();
       }
     }

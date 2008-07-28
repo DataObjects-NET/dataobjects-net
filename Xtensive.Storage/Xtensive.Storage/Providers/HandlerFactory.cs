@@ -15,9 +15,9 @@ using Xtensive.Storage.Resources;
 namespace Xtensive.Storage.Providers
 {
   /// <summary>
-  /// An abstract base class for any storage handler provider.
+  /// An abstract base class for any storage factories.
   /// </summary>
-  public abstract class HandlerProvider : DomainBound
+  public abstract class HandlerFactory : DomainBound
   {
     private Dictionary<Type, Func<object>> constructors = new Dictionary<Type, Func<object>>();
     private static Type handlerBaseType = typeof(HandlerBase);
@@ -88,11 +88,11 @@ namespace Xtensive.Storage.Providers
     // Constructors
 
     /// <inheritdoc/>
-    public HandlerProvider(Domain domain)
+    public HandlerFactory(Domain domain)
       : base(domain)
     {
       Type type = GetType();
-      while (type!=typeof(HandlerProvider)) {
+      while (type!=typeof(HandlerFactory)) {
         RegisterHandlersFrom(type.Assembly);
         type = type.BaseType;
       }

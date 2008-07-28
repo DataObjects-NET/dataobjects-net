@@ -15,6 +15,7 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Providers;
 
 namespace Xtensive.Storage.Building
 {
@@ -23,7 +24,7 @@ namespace Xtensive.Storage.Building
   /// Provides names according to a set of naming rules contained in
   /// <see cref="NamingConvention"/> object.
   /// </summary>
-  public class NameProvider
+  public class NameProvider : HandlerBase
   {
     private static readonly Regex explicitFieldNameRegex = new Regex(@"(?<name>\w+\.\w+)$", 
       RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.RightToLeft);
