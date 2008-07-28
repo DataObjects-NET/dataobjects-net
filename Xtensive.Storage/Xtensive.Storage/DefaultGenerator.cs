@@ -8,25 +8,19 @@ using System;
 using Xtensive.Core;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Providers;
 
 namespace Xtensive.Storage
 {
   ///<summary>
   /// Default key generator.
   ///</summary>
-  public abstract class DefaultGenerator
+  public abstract class DefaultGenerator : HandlerBase
   {
     /// <summary>
     /// Gets the hierarchy this instance serves.
     /// </summary>
     public HierarchyInfo Hierarchy { get; internal set; }
-
-    /// <summary>
-    /// Initializes this instance.
-    /// </summary>
-    public virtual void Initialize()
-    {
-    }
 
     /// <summary>
     /// Create the <see cref="Tuple"/> with the unique values in key sequence.
@@ -42,9 +36,17 @@ namespace Xtensive.Storage
     {
       ArgumentValidator.EnsureArgumentIsInRange(count, 1, Int32.MaxValue, "count");
       Tuple[] result = new Tuple[count];
-      for (int index = 0; index < count; index++)
-        result[index] = Next();
+      for (int i = 0; i < count; i++)
+        result[i] = Next();
       return result;
+    }
+
+    // TODO: AY: Fix immediately
+    /// <summary>
+    /// Initializes this instance.
+    /// </summary>
+    public virtual void Initialize()
+    {
     }
   }
 }

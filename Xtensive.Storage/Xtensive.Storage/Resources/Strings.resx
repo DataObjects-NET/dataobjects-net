@@ -372,4 +372,7 @@
   <data name="AspectDebugMessage" xml:space="preserve">
     <value>{0}</value>
   </data>
+  <data name="ExCannotFindHandler" xml:space="preserve">
+  <value>Cannot find a hanlder of type '{0}'.</value>
+</data>
 </root>

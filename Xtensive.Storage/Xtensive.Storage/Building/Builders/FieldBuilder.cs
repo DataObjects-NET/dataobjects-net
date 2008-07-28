@@ -34,7 +34,7 @@ namespace Xtensive.Storage.Building.Builders
               DefineField(typeDef, propertyInfo));
           }
           catch (DomainBuilderException e) {
-            BuildingScope.Context.RegistError(e);
+            BuildingScope.Context.RegisterError(e);
           }        
       
       return fields;

@@ -11,6 +11,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Xtensive.Core;
 using Xtensive.Core.Helpers;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
@@ -258,7 +259,7 @@ namespace Xtensive.Storage.Building
     // Constructors
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="NameProvider"/> class.
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="namingConvention">The naming convention.</param>
     public NameProvider(NamingConvention namingConvention)

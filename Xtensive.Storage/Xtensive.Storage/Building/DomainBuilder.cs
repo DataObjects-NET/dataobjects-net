@@ -45,6 +45,7 @@ namespace Xtensive.Storage.Building
       BuildingContext context = new BuildingContext(configuration);
       context.NameProvider = new NameProvider(configuration.NamingConvention);
 
+      // TODO: AY: Fix immediately
       using (new BuildingScope(context)) {
         try {
           BuildModel();
@@ -53,7 +54,7 @@ namespace Xtensive.Storage.Building
           BuildGenerators();
         }
         catch (DomainBuilderException e) {
-          context.RegistError(e);
+          context.RegisterError(e);
         }
 
         context.EnsureBuildSucceed();
@@ -109,7 +110,7 @@ namespace Xtensive.Storage.Building
       foreach (HierarchyInfo hierarchy in BuildingScope.Context.Model.Hierarchies) {
         DefaultGenerator generator;
         if (hierarchy.Generator==typeof (DefaultGenerator))
-          generator = BuildingScope.Context.Domain.HandlerAccessor.HandlerProvider.GetHandler<DefaultGenerator>();
+          generator = BuildingScope.Context.Domain.HandlerAccessor.Provider.CreateHandler<DefaultGenerator>(true);
         else
           generator = (DefaultGenerator) Activator.CreateInstance(hierarchy.Generator);
         generator.Hierarchy = hierarchy;
@@ -133,9 +134,8 @@ namespace Xtensive.Storage.Building
               protocol,
               Environment.CurrentDirectory));
 
-        handlerAccessor.HandlerProvider = (HandlerProvider) Activator.CreateInstance(handlerProviderType);
-        handlerAccessor.DomainHandler = handlerAccessor.HandlerProvider.GetHandler<DomainHandler>();
-        handlerAccessor.DomainHandler.HandlerAccessor = handlerAccessor;
+        handlerAccessor.Provider = (HandlerProvider) Activator.CreateInstance(handlerProviderType);
+        handlerAccessor.DomainHandler = handlerAccessor.Provider.CreateHandler<DomainHandler>(true);
         handlerAccessor.DomainHandler.Build();
       }
     }

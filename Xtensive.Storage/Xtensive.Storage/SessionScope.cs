@@ -5,6 +5,7 @@
 // Created:    2007.08.29
 
 using Xtensive.Core;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Core.Helpers;
@@ -43,9 +44,11 @@ namespace Xtensive.Storage
     {
       Resource = session;
       ((IResource)Resource).AddConsumer(this);
+      // TODO: AY: Fix immediately
       compilationScope = Session.HandlerAccessor.DomainHandler.Compiler.Activate();
     }
 
+    /// <see cref="ClassDocTemplate.Dispose" copy="true" />
     public override void Dispose()
     {
       base.Dispose();

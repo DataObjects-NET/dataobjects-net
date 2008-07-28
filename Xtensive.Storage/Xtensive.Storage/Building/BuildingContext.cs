@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Core.Diagnostics;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Building.Internals;
@@ -33,17 +34,17 @@ namespace Xtensive.Storage.Building
     }
 
     /// <summary>
-    /// Gets the configuration.
+    /// Gets the configuration of the building <see cref="Storage.Domain"/>.
     /// </summary>
     public DomainConfiguration Configuration { get; private set; }
 
     /// <summary>
-    /// Gets the logger.
+    /// Gets the log used by this builder.
     /// </summary>
-    public ILog Logger { get; private set; }
+    public ILog Log { get; private set; }
 
     /// <summary>
-    /// Gets or sets the storage definition.
+    /// Gets or sets the <see cref="Storage.Domain"/> model definition.
     /// </summary>
     public DomainDef Definition { get; set; }
 
@@ -52,14 +53,13 @@ namespace Xtensive.Storage.Building
     /// </summary>
     public NameProvider NameProvider { get; set; }
 
-    /// <summary>
-    /// Gets or sets the storage model.
-    /// </summary>
-    public DomainInfo Model { get; internal set; }
+    #region Private \ internal properties and methods
 
-    internal HashSet<Type> SkippedTypes { get; private set; }
+    internal DomainInfo Model { get; set; }
 
     internal Domain Domain { get; set; }
+
+    internal HashSet<Type> SkippedTypes { get; private set; }
 
     internal List<Pair<AssociationInfo, string>> PairedAssociations { get; private set; }
 
@@ -67,9 +67,9 @@ namespace Xtensive.Storage.Building
 
     internal HashSet<AssociationInfo> DiscardedAssociations { get; private set; }
 
-    internal void RegistError(DomainBuilderException exception)
+    internal void RegisterError(DomainBuilderException exception)
     {
-      Log.Error(exception);
+      Building.Log.Error(exception);
       errors.Add(exception);
     }
 
@@ -79,8 +79,13 @@ namespace Xtensive.Storage.Building
         throw new AggregateException(Strings.ExErrorsDuringStorageBuild, errors);
     }
 
+    #endregion
+
+
+    // Constructors
+
     /// <summary>
-    /// Initializes a new instance of the <see cref="BuildingContext"/> class.
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="configuration">The configuration.</param>
     public BuildingContext(DomainConfiguration configuration)
@@ -91,7 +96,7 @@ namespace Xtensive.Storage.Building
       SkippedTypes.Add(typeof (IEntity));
       SkippedTypes.Add(typeof (Structure));
       PairedAssociations = new List<Pair<AssociationInfo, string>>();
-      Logger = StringLog.Create("DomainBuilder");
+      Log = StringLog.Create("DomainBuilder");
       CircularReferenceFinder = new CircularReferenceFinder<Type>(TypeHelper.GetShortName);
       DiscardedAssociations = new HashSet<AssociationInfo>();
     }

@@ -31,7 +31,7 @@ namespace Xtensive.Storage.Building.Builders
           DefineServices();
         }
         catch (DomainBuilderException e) {
-          context.RegistError(e);
+          context.RegisterError(e);
         }
 
         context.EnsureBuildSucceed();
@@ -69,7 +69,7 @@ namespace Xtensive.Storage.Building.Builders
             IndexBuilder.DefineIndexes(typeDef);
           }
           catch (DomainBuilderException e) {
-            context.RegistError(e);
+            context.RegisterError(e);
           }
       }
     }
@@ -88,7 +88,7 @@ namespace Xtensive.Storage.Building.Builders
             TypeBuilder.BuildType(typeDef);
           }
           catch (DomainBuilderException e) {
-            context.RegistError(e);
+            context.RegisterError(e);
           }
 
         // Associations
@@ -99,7 +99,7 @@ namespace Xtensive.Storage.Building.Builders
             AssociationBuilder.BuildPairedAssociation(pair.First, pair.Second);
           }
           catch (DomainBuilderException e) {
-            context.RegistError(e);
+            context.RegisterError(e);
           }
         }
 

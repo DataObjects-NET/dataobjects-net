@@ -199,7 +199,7 @@ namespace Xtensive.Storage.Building.Builders
             FieldBuilder.BuildDeclaredField(type, srcField);
         }
         catch(DomainBuilderException e) {
-          BuildingContext.Current.RegistError(e);
+          BuildingContext.Current.RegisterError(e);
         }
     }
 

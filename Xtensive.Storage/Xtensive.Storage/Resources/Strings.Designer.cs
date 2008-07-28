@@ -79,6 +79,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cannot find a hanlder of type &apos;{0}&apos;..
+        /// </summary>
+        internal static string ExCannotFindHandler {
+            get {
+                return ResourceManager.GetString("ExCannotFindHandler", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Value length {0} greater than column Length {1}. .
         /// </summary>
         internal static string ExColumnLength {

@@ -10,19 +10,21 @@ namespace Xtensive.Storage.Providers
 {
   /// <summary>
   /// Storage handler accessor.
-  /// Provided by protected members, such as <see cref="HandlerBase.HandlerAccessor"/> 
-  /// to provide access to other storage handlers.
+  /// Provided by protected members, such as <see cref="HandlerBase.Accessor"/> 
+  /// to provide access to other available handlers.
   public sealed class HandlerAccessor
   {
     /// <summary>
-    /// Gets the domain.
+    /// Gets the <see cref="Xtensive.Storage.Domain"/> 
+    /// this handler accessor is bound to.
     /// </summary>
     public Domain Domain { get; private set; }
 
     /// <summary>
-    /// Gets the handler provider.
+    /// Gets the handler provider 
+    /// creating handlers in the <see cref="Domain"/>.
     /// </summary>
-    public HandlerProvider HandlerProvider { get; internal set; }
+    public HandlerProvider Provider { get; internal set; }
 
     /// <summary>
     /// Gets the <see cref="Domain"/> handler.

@@ -27,7 +27,7 @@ namespace Xtensive.Storage.Providers.Index
     public override void Build()
     {
       BuildRealIndexes();
-      foreach (IndexInfo indexInfo in HandlerAccessor.Domain.Model.Types.SelectMany(type => type.Indexes)) {
+      foreach (IndexInfo indexInfo in Accessor.Domain.Model.Types.SelectMany(type => type.Indexes)) {
         MapTransform transform = BuildIndexTransform(indexInfo);
         indexTransforms.Add(indexInfo, transform);
       }
@@ -35,7 +35,7 @@ namespace Xtensive.Storage.Providers.Index
 
     protected override CompilationContext GetCompilationContext()
     {
-      return new CompilationContext(new Compilers.Compiler(HandlerAccessor));
+      return new CompilationContext(new Compilers.Compiler(Accessor));
     }
 
     private MapTransform BuildIndexTransform(IndexInfo indexInfo)
@@ -47,7 +47,7 @@ namespace Xtensive.Storage.Providers.Index
 
     private void BuildRealIndexes()
     {
-      foreach (IndexInfo indexInfo in HandlerAccessor.Domain.Model.RealIndexes) {
+      foreach (IndexInfo indexInfo in Accessor.Domain.Model.RealIndexes) {
         var indexConfig = new IndexConfiguration<Tuple, Tuple>();
         DirectionCollection<ColumnInfo> orderingRule;
         if (indexInfo.IsUnique | indexInfo.IsPrimary)
@@ -69,7 +69,7 @@ namespace Xtensive.Storage.Providers.Index
 
     internal IUniqueOrderedIndex<Tuple, Tuple> GetRealIndex(IndexInfoRef indexInfoRef)
     {
-      var index = indexInfoRef.Resolve(HandlerAccessor.Domain.Model);
+      var index = indexInfoRef.Resolve(Accessor.Domain.Model);
       return realIndexes[index];
     }
 

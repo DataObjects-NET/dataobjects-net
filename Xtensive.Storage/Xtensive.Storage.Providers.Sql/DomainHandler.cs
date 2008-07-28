@@ -43,13 +43,13 @@ namespace Xtensive.Storage.Providers.Sql
     public override void Build()
     {
       var provider = new SqlConnectionProvider();
-      using (connection = provider.CreateConnection(HandlerAccessor.Domain.Configuration.ConnectionInfo.ToString()) as SqlConnection) {
+      using (connection = provider.CreateConnection(Accessor.Domain.Configuration.ConnectionInfo.ToString()) as SqlConnection) {
         if (connection==null)
           throw new InvalidOperationException(Strings.ExUnableToCreateConnection);
         connection.Open();
         var modelProvider = new SqlModelProvider(connection);
         model = Xtensive.Sql.Dom.Database.Model.Build(modelProvider);
-        string catalogName = HandlerAccessor.Domain.Configuration.ConnectionInfo.Resource;
+        string catalogName = Accessor.Domain.Configuration.ConnectionInfo.Resource;
         catalog = model.DefaultServer.Catalogs[catalogName];
         using (transaction = connection.BeginTransaction()) {
           ClearCatalog();
@@ -80,7 +80,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       SqlBatch batch = Xtensive.Sql.Dom.Sql.Batch();
       // Build tables
-      foreach (TypeInfo type in HandlerAccessor.Domain.Model.Types) {
+      foreach (TypeInfo type in Accessor.Domain.Model.Types) {
         IndexInfo primaryIndex = type.Indexes.FindFirst(IndexAttributes.Real | IndexAttributes.Primary);
         if (primaryIndex!=null && !realIndexes.ContainsKey(primaryIndex)) {
           Table table = catalog.DefaultSchema.CreateTable(primaryIndex.ReflectedType.Name);

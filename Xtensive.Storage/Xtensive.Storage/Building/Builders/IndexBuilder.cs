@@ -32,7 +32,7 @@ namespace Xtensive.Storage.Building.Builders
             DefineIndex(typeDef, attribute);
           }
           catch (DomainBuilderException e) {
-            BuildingContext.Current.RegistError(e);
+            BuildingContext.Current.RegisterError(e);
           }
       }
     }
@@ -228,7 +228,7 @@ namespace Xtensive.Storage.Building.Builders
         foreach (var parentIndex in @interface.Indexes.Find(IndexAttributes.Primary, MatchType.None)) {
 
           if (parentIndex.DeclaringIndex == parentIndex)
-            using (var scope = new LogCaptureScope(context.Logger)) {
+            using (var scope = new LogCaptureScope(context.Log)) {
               var index = BuildInheritedIndex(type, parentIndex);
               //TODO: AK: discover this check
               if ((parent != null && parent.Indexes.Contains(index.Name)) || type.Indexes.Contains(index.Name))
@@ -312,7 +312,7 @@ namespace Xtensive.Storage.Building.Builders
 
       //Building primary index for root of the hierarchy
       if (primaryIndexDefinition != null)
-        using (var scope = new LogCaptureScope(context.Logger)) {
+        using (var scope = new LogCaptureScope(context.Log)) {
           var primaryIndex = BuildIndex(root, primaryIndexDefinition);
           if (!scope.IsCaptured(LogEventTypes.Error)) {
             type.Indexes.Add(primaryIndex);
@@ -322,7 +322,7 @@ namespace Xtensive.Storage.Building.Builders
 
       //Building declared indexes
       foreach (IndexDef indexDescriptor in indexDefinitions)
-        using (var scope = new LogCaptureScope(context.Logger)) {
+        using (var scope = new LogCaptureScope(context.Log)) {
           IndexInfo indexInfo = BuildIndex(type, indexDescriptor); 
           if (!scope.IsCaptured(LogEventTypes.Error)) {
             type.Indexes.Add(indexInfo);
@@ -349,7 +349,7 @@ namespace Xtensive.Storage.Building.Builders
         foreach (var parentIndex in @interface.Indexes.Find(IndexAttributes.Primary, MatchType.None)) {
 
           if (parentIndex.DeclaringIndex == parentIndex)
-            using (var scope = new LogCaptureScope(context.Logger)) {
+            using (var scope = new LogCaptureScope(context.Log)) {
               var index = BuildInheritedIndex(type, parentIndex);
               //TODO: AK: discover this check
               if ((parent != null && parent.Indexes.Contains(index.Name)) || type.Indexes.Contains(index.Name))
@@ -417,7 +417,7 @@ namespace Xtensive.Storage.Building.Builders
 
       //Building primary index for root of the hierarchy
       if (primaryIndexDefinition != null)
-        using (var scope = new LogCaptureScope(context.Logger)) {
+        using (var scope = new LogCaptureScope(context.Log)) {
           var primaryIndex = BuildIndex(root, primaryIndexDefinition);
           if (!scope.IsCaptured(LogEventTypes.Error)) {
             root.Indexes.Add(primaryIndex);
@@ -427,7 +427,7 @@ namespace Xtensive.Storage.Building.Builders
 
       //Building declared indexes
       foreach (IndexDef indexDescriptor in indexDefinitions)
-        using (var scope = new LogCaptureScope(context.Logger)) {
+        using (var scope = new LogCaptureScope(context.Log)) {
           IndexInfo indexInfo = BuildIndex(type, indexDescriptor); 
           if (!scope.IsCaptured(LogEventTypes.Error)) {
             root.Indexes.Add(indexInfo);
@@ -440,7 +440,7 @@ namespace Xtensive.Storage.Building.Builders
       foreach (var @interface in type.GetInterfaces(true)) {
         foreach (var parentIndex in @interface.Indexes.Find(IndexAttributes.Primary, MatchType.None)) {
           if (parentIndex.DeclaringIndex == parentIndex)
-            using (var scope = new LogCaptureScope(context.Logger)) {
+            using (var scope = new LogCaptureScope(context.Log)) {
               var index = BuildInheritedIndex(type, parentIndex);
               //TODO: AK: discover this check
               if ((parent != null && parent.Indexes.Contains(index.Name)) || type.Indexes.Contains(index.Name))

@@ -27,6 +27,7 @@ namespace Xtensive.Storage
   public class Session : ConfigurableBase<SessionConfiguration>,
     IResource,
     IContext<SessionScope>,
+    // TODO: AY: Fix immediately
     IContextBound<Session>
   {
     private readonly Set<object> consumers = new Set<object>();

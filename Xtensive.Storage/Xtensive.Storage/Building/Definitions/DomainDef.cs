@@ -87,7 +87,7 @@ namespace Xtensive.Storage.Building.Definitions
       if (!types.Contains(root))
         throw new ArgumentException("TypeDef is not registered in the storage definition.");
 
-      using (var scope = new LogCaptureScope(BuildingScope.Context.Logger)) {
+      using (var scope = new LogCaptureScope(BuildingScope.Context.Log)) {
         HierarchyDef hierarchy = HierarchyBuilder.DefineHierarchy(root, inheritanceSchema);
         if (scope.IsCaptured(LogEventTypes.Error))
           throw new DomainBuilderException(

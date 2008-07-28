@@ -4,12 +4,17 @@
 // Created by: Dmitri Maximov
 // Created:    2008.06.02
 
-using System;
-
 namespace Xtensive.Storage.Providers.Memory
 {
   [HandlerProvider("memory", Description = "General storage provider for in-memory storages.")]
   public class HandlerProvider : Providers.HandlerProvider
   {
+    // Constructors
+
+    /// <inheritdoc/>
+    public HandlerProvider(Domain domain)
+      : base(domain)
+    {
+    }
   }
 }

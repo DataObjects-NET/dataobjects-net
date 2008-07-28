@@ -6,6 +6,7 @@
 
 using System;
 using Xtensive.Core;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Storage
 {
@@ -39,7 +40,7 @@ namespace Xtensive.Storage
     // Constructors
 
     /// <summary>
-    /// Initializes a new instance of this class.
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     protected SessionBound() 
       : this(SessionScope.Current.Session)
@@ -47,10 +48,11 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
-    /// Initializes a new instance of this class.
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="session">Session, to which current instance should be bound.</param>
-    /// <exception cref="ArgumentNullException">When <paramref name="session"/> is null.</exception>
+    /// <param name="session"><see cref="Xtensive.Storage.Session"/>, to which current instance 
+    /// is bound.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="session"/> is <see langword="null" />.</exception>
     protected SessionBound(Session session)
     {
       ArgumentValidator.EnsureArgumentNotNull(session, "session");
