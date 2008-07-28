@@ -53,7 +53,7 @@ namespace Xtensive.Integrity.Validation
     }
 
     /// <summary>
-    /// Creates the "inconsistent region" - the code region, in which <see cref="Validate"/> method
+    /// Creates the "inconsistent region" - the code region, in which Validate method
     /// should just queue the validation rather then perform it immediately.
     /// </summary>
     /// <returns>

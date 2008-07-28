@@ -174,4 +174,13 @@
   <data name="ValueCanNotBeEmpty" xml:space="preserve">
     <value>Value can not be empty.</value>
   </data>
+  <data name="FieldConstraintCanNotBeAppliedToReadOnlyProperty" xml:space="preserve">
+    <value>Field constraint can not be applied to read only property.</value>
+  </data>
+  <data name="XInterfaceShouldBeImplementedToUseFieldConstraints" xml:space="preserve">
+    <value>'{0}' interface should be implemented to use field constraints.</value>
+  </data>
+  <data name="XDoesNotSupportYValueType" xml:space="preserve">
+    <value>'{0}' does not support '{1}' value type.</value>
+  </data>
 </root>

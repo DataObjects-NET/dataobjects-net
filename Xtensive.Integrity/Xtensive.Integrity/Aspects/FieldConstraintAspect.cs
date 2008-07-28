@@ -49,17 +49,24 @@ namespace Xtensive.Integrity.Aspects
     public override bool CompileTimeValidate(object element)
     {
       Property = (PropertyInfo) element;
+
+      if (Property.GetSetMethod()==null)
+        throw new Exception(Resources.Strings.FieldConstraintCanNotBeAppliedToReadOnlyProperty);
+
+      if (!typeof (IValidatable).IsAssignableFrom(Property.DeclaringType))
+        throw new Exception(
+          string.Format(Resources.Strings.XInterfaceShouldBeImplementedToUseFieldConstraints, typeof(IValidatable).Name));
     
-      return 
-        typeof (IValidatable).IsAssignableFrom(Property.DeclaringType) &&
-        IsTypeSupported(Property.PropertyType);
+      if (!IsTypeSupported(Property.PropertyType))        
+        throw new Exception(
+          string.Format(Resources.Strings.XDoesNotSupportYValueType, GetType().Name, Property.PropertyType.Name));
+      
+      return true;
     }
 
     /// <inheritdoc/>
     public override void ProvideAspects(object element, LaosReflectionAspectCollection collection)
     {
-      Property = (PropertyInfo) element;      
-
       collection.AddAspect(
         Property.GetSetMethod(true),
         new FieldSetterConstraintAspect(this));          

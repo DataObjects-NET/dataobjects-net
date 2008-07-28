@@ -196,6 +196,15 @@ namespace Xtensive.Integrity.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Field constraint can not be applied to read only property..
+        /// </summary>
+        internal static string FieldConstraintCanNotBeAppliedToReadOnlyProperty {
+            get {
+                return ResourceManager.GetString("FieldConstraintCanNotBeAppliedToReadOnlyProperty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Error during undoing the relation synchronization..
         /// </summary>
         internal static string LogRelationSyncUndoError {
@@ -228,6 +237,24 @@ namespace Xtensive.Integrity.Resources {
         internal static string ValueCanNotBeEmpty {
             get {
                 return ResourceManager.GetString("ValueCanNotBeEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &apos;{0}&apos; does not support &apos;{1}&apos; value type..
+        /// </summary>
+        internal static string XDoesNotSupportYValueType {
+            get {
+                return ResourceManager.GetString("XDoesNotSupportYValueType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &apos;{0}&apos; interface should be implemented to use field constraints..
+        /// </summary>
+        internal static string XInterfaceShouldBeImplementedToUseFieldConstraints {
+            get {
+                return ResourceManager.GetString("XInterfaceShouldBeImplementedToUseFieldConstraints", resourceCulture);
             }
         }
     }
