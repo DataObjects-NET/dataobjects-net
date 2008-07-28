@@ -33,10 +33,8 @@ namespace Xtensive.Storage
     /// </summary>
     public KeyManager KeyManager { get; internal set; }
 
-    /// <summary>
-    /// Gets the execution context.
-    /// </summary>
     internal HandlerAccessor HandlerAccessor { get; set; }
+
 
     /// <summary>
     /// Creates the session.
@@ -57,7 +55,7 @@ namespace Xtensive.Storage
     {
       SessionHandler handler = HandlerAccessor.Provider.CreateHandler<SessionHandler>(true);
       handler.Accessor = HandlerAccessor;
-      handler.Session = new Session(HandlerAccessor, handler, configuration);
+      handler.Session = new Session(HandlerAccessor, configuration);
       return new SessionScope(handler.Session);
     }
 

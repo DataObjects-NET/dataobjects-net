@@ -26,9 +26,7 @@ namespace Xtensive.Storage
   [Storage]
   public class Session : ConfigurableBase<SessionConfiguration>,
     IResource,
-    IContext<SessionScope>,
-    // TODO: AY: Fix immediately
-    IContextBound<Session>
+    IContext<SessionScope>
   {
     private readonly Set<object> consumers = new Set<object>();
     private WeakCache<Key, EntityData> identityMap;
@@ -92,7 +90,7 @@ namespace Xtensive.Storage
       }
     }
 
-    #region Internals & private
+    #region Private \ internal members
 
     internal Key ProcessFetched(HierarchyInfo hierarchy, Tuple tuple)
     {
@@ -193,16 +191,6 @@ namespace Xtensive.Storage
 
     #endregion
 
-    #region IContextBound<Session> Members
-
-    /// <inheritdoc/>
-    public Session Context
-    {
-      get { return this; }
-    }
-
-    #endregion
-
     /// <inheritdoc/>
     protected override void OnConfigured()
     {
@@ -213,10 +201,9 @@ namespace Xtensive.Storage
 
     // Constructors
 
-    internal Session(HandlerAccessor handlerAccessor, SessionHandler handler, SessionConfiguration configuration)
+    internal Session(HandlerAccessor handlerAccessor, SessionConfiguration configuration)
     {
       HandlerAccessor = handlerAccessor;
-      Handler = handler;
       Configure(configuration);
     }
 

@@ -36,7 +36,6 @@ namespace Xtensive.Storage
     }
 
 
-
     // Constructors
 
     internal SessionScope(Session session)
