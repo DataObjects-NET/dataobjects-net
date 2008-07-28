@@ -5,8 +5,9 @@
 // Created:    2007.09.04
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
-using Xtensive.Core;
+using System.Globalization;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
 
@@ -78,8 +79,7 @@ namespace Xtensive.Storage.Configuration
     /// <param name="name">Name to apply the convention to.</param>
     /// <returns>Processed name satisfying naming convention.</returns>
     public string Apply(string name)
-    {
-      // TODO: AK: Move this method to NamingManager
+    {      
       string result = name;
       result = result.Replace('+', '_');
       if (LetterCasePolicy == LetterCasePolicy.Uppercase)
@@ -138,7 +138,9 @@ namespace Xtensive.Storage.Configuration
         return false;
       if (namingRules != other.namingRules)
         return false;
-      // TODO: Compare NamespaceSynonyms as well!
+      if (!namespaceSynonyms.EqualsTo(other.namespaceSynonyms))
+        return false;
+
       return true;
     }
 

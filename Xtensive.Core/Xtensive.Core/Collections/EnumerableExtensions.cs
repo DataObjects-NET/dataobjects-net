@@ -177,5 +177,34 @@ namespace Xtensive.Core.Collections
       }
       return sb.ToString();
     }
+
+    /// <summary>
+    /// Determines whether this <see cref="IEnumerable{T}"/> equals to another, 
+    /// i.e. contains the same items in the same order.
+    /// </summary>
+    /// <typeparam name="TItem">The type of item.</typeparam>
+    /// <param name="items">This <see cref="IEnumerable"/>.</param>
+    /// <param name="other">The <see cref="IEnumerable"/> to compare with.</param>
+    /// <returns>
+    /// <see langword="true"/> if this <see cref="IEnumerable{T}"/> equals to the specified <see cref="IEnumerable{T}"/>; otherwise, <see langword="false"/>.
+    /// </returns>
+    public static bool EqualsTo<TItem>(this IEnumerable<TItem> items, IEnumerable<TItem> other)
+    {     
+      long? thisCount = items.TryGetLongCount();
+      if (thisCount.HasValue) {
+        long? otherCount = other.TryGetCount();
+        if (otherCount.HasValue && otherCount!=thisCount)
+          return false;
+      }           
+      IEnumerator<TItem> enumerator = items.GetEnumerator();
+
+      foreach (var item in other) {
+        if (!enumerator.Current.Equals(item))
+          return false;
+
+        enumerator.MoveNext();
+      }
+      return true;
+    }
   }
 }
