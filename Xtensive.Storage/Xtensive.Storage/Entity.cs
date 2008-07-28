@@ -209,7 +209,7 @@ namespace Xtensive.Storage
     {
       TypeInfo type = Session.Domain.Model.Types[GetType()];
       Key key = Session.Domain.KeyManager.Next(type);
-      data = Session.DataCache.Create(key);
+      data = Session.DataCache.Create(key, PersistenceState.New);
       OnCreating();
     }
 
@@ -222,7 +222,7 @@ namespace Xtensive.Storage
     {
       TypeInfo type = Session.Domain.Model.Types[GetType()];
       Key key = Session.Domain.KeyManager.Get(type, tuple);
-      data = Session.DataCache.Create(key, tuple);
+      data = Session.DataCache.Create(key, tuple, PersistenceState.New);
       OnCreating();
     }
 

@@ -134,7 +134,7 @@ namespace Xtensive.Storage.Building
               protocol,
               Environment.CurrentDirectory));
 
-        handlerAccessor.Factory = (HandlerFactory) Activator.CreateInstance(handlerProviderType);
+        handlerAccessor.Factory = (HandlerFactory) Activator.CreateInstance(handlerProviderType, new object[] { handlerAccessor.Domain });
         handlerAccessor.DomainHandler = handlerAccessor.Factory.CreateHandler<DomainHandler>();
         handlerAccessor.DomainHandler.Build();
       }

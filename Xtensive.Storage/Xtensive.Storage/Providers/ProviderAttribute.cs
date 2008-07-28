@@ -35,7 +35,8 @@ namespace Xtensive.Storage.Providers
         return false;
       if (ReferenceEquals(this, obj))
         return true;
-      return base.Equals(obj) && Equals(obj.Protocol, Protocol) && Equals(obj.Description, Description);
+//      return base.Equals(obj) && Equals(obj.Protocol, Protocol) && Equals(obj.Description, Description);
+      return Equals(obj.Protocol, Protocol);
     }
 
     /// <inheritdoc/>
@@ -54,7 +55,7 @@ namespace Xtensive.Storage.Providers
       unchecked {
         int result = base.GetHashCode();
         result = (result * 397) ^ (Protocol!=null ? Protocol.GetHashCode() : 0);
-        result = (result * 397) ^ (Description!=null ? Description.GetHashCode() : 0);
+//        result = (result * 397) ^ (Description!=null ? Description.GetHashCode() : 0);
         return result;
       }
     }

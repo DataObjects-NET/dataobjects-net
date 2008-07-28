@@ -14,25 +14,25 @@ namespace Xtensive.Storage.Internals
   {
     private readonly WeakCache<Key, EntityData> cache;
 
-    public EntityData Create(Key key, Tuple tuple)
+    public EntityData Create(Key key, Tuple tuple, PersistenceState state)
     {
       key.Tuple.CopyTo(tuple, 0);
-      EntityData result = new EntityData(key, new DifferentialTuple(tuple));
+      EntityData result = new EntityData(key, new DifferentialTuple(tuple), state);
       cache.Add(result);
       return result;
     }
 
-    public EntityData Create(Key key)
+    public EntityData Create(Key key, PersistenceState state)
     {
-      Tuple origin = Tuple.Create(key.Type.TupleDescriptor);
-      return Create(key, origin);
+      Tuple tuple = Tuple.Create(key.Type.TupleDescriptor);
+      return Create(key, tuple, state);
     }
 
     public void Update(Key key, Tuple tuple)
     {
       EntityData data;
       if (!TryGetValue(key, out data))
-        Create(key, tuple);
+        Create(key, tuple, PersistenceState.Persisted);
       else
         data.Tuple.Origin.MergeWith(tuple);
     }

@@ -69,19 +69,11 @@ namespace Xtensive.Storage
 
     // Constructors
 
-    internal EntityData(Key key, DifferentialTuple tuple)
+    internal EntityData(Key key, DifferentialTuple tuple, PersistenceState state)
     {
       Key = key;
       Tuple = tuple;
-      PersistenceState = PersistenceState.Persisted;
-    }
-
-    internal EntityData(Key key, DifferentialTuple tuple, Entity entity)
-    {
-      Key = key;
-      Tuple = tuple;
-      Entity = entity;
-      PersistenceState = PersistenceState.New;
+      PersistenceState = state;
     }
   }
 }

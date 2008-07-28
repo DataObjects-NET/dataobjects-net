@@ -20,22 +20,24 @@ namespace Xtensive.Storage.Internals
       if (session.DataCache.TryGetValue(key, out data))
         return GetEntity(data);
 
-      Tuple tuple;
-      if (key.Type==null) {
-        // TypeId is unknown, so 1 fetch request required
+      // Probing to get already resolved and cached key
+      Key resolvedKey = session.Domain.KeyManager[key];
+
+      // Key is not resolved yet or TypeId is unknown, so 1 fetch request required
+      if (resolvedKey == null || key.Type==null) {
         FieldInfo field = key.Hierarchy.Root.Fields[session.Domain.NameProvider.TypeIdFieldName];
-        tuple = Fetcher.Fetch(key, field);
-        if (tuple == null)
+        Tuple tuple = Fetcher.Fetch(key, field);
+
+        // Key is not found in storage
+        if (tuple==null)
           return null;
-        int columnIndex = key.Hierarchy.Root.Fields[session.Domain.NameProvider.TypeIdFieldName].MappingInfo.Offset;
-        int typeId = tuple.GetValue<int>(columnIndex);
-        key.Type = session.Domain.Model.Types[typeId];
-        data = session.DataCache.Create(key, tuple);
+
+        resolvedKey = session.Domain.KeyManager.Get(key.Hierarchy, tuple);
+        data = session.DataCache.Create(resolvedKey, tuple, PersistenceState.Persisted);
       }
-      else {
+      else
         // Creating empty Entity
-        data = session.DataCache.Create(key);
-      }
+        data = session.DataCache.Create(key, PersistenceState.Persisted);
 
       return GetEntity(data);
     }

@@ -373,6 +373,9 @@
     <value>{0}</value>
   </data>
   <data name="ExCannotFindHandler" xml:space="preserve">
-  <value>Cannot find a hanlder of type '{0}'.</value>
-</data>
+    <value>Cannot find a hanlder of type '{0}'.</value>
+  </data>
+  <data name="KeyCanNotBeNull" xml:space="preserve">
+    <value>Key can not be null.</value>
+  </data>
 </root>

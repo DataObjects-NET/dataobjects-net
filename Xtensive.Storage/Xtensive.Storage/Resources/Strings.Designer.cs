@@ -656,6 +656,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Key can not be null..
+        /// </summary>
+        internal static string KeyCanNotBeNull {
+            get {
+                return ResourceManager.GetString("KeyCanNotBeNull", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Building handler provider..
         /// </summary>
         internal static string LogBuildingHandlerProvider {

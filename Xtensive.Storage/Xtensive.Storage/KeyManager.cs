@@ -62,33 +62,49 @@ namespace Xtensive.Storage
 
     internal Key Get(TypeInfo type, Tuple tuple)
     {
-      if (!Validate(tuple))
-        return null;
+      if (HasEmptyFields(tuple))
+        throw new InvalidOperationException(string.Format("Cannot create Key from tuple: '{0}'", tuple));
 
-      Key key = Get(type.Hierarchy, tuple);
+      Key key = Create(type.Hierarchy, tuple);
       key.Type = type;
-      return GetCached(key);
+      return Cache(key);
     }
 
-    internal static Key Get(HierarchyInfo hierarchy, Tuple tuple)
+    internal Key Get(HierarchyInfo hierarchy, Tuple tuple)
     {
-      Tuple keyTuple = Tuple.Create(hierarchy.TupleDescriptor);
-      tuple.CopyTo(keyTuple, 0, keyTuple.Count);
-      return new Key(hierarchy, keyTuple);
+      Key key = Create(hierarchy, tuple);
+      if (key.Type != null)
+        return key;
+
+      ResolveType(key, tuple);
+      return key;
     }
 
     internal Key Get(FieldInfo field, Tuple tuple)
     {
-      if (!Validate(tuple))
+      // Tuple with empty values is treated as empty Entity reference
+      if (HasEmptyFields(tuple))
         return null;
 
       TypeInfo type = domain.Model.Types[field.ValueType];
-      return GetCached(new Key(type.Hierarchy, tuple));
+      return Create(type.Hierarchy, tuple);
     }
 
     #endregion
 
-    #region Validation methods
+    #region Other private \ internal methods
+
+    private Key Create(HierarchyInfo hierarchy, Tuple tuple)
+    {
+      Tuple keyTuple = Tuple.Create(hierarchy.TupleDescriptor);
+      tuple.CopyTo(keyTuple, 0, keyTuple.Count);
+      return Cache(new Key(hierarchy, keyTuple));
+    }
+
+    internal Key this[Key key]
+    {
+      get { return cache.Contains(key) ? cache[key] : null; }
+    }
 
     private static void EnsureIsValid(Type type)
     {
@@ -97,18 +113,23 @@ namespace Xtensive.Storage
         throw new ArgumentException(Strings.ExTypeMustBeEntityDescendant, "type");
     }
 
-    private static bool Validate(Tuple tuple)
+    private static bool HasEmptyFields(Tuple tuple)
     {
       // Only not null values can be used to build key.
       for (int i = 0; i < tuple.Count; i++)
         if (tuple.IsNull(i))
-          return false;
-      return true;
+          return true;
+      return false;
     }
 
-    #endregion
+    private void ResolveType(Key key, Tuple tuple)
+    {
+      int columnIndex = key.Hierarchy.Root.Fields[domain.NameProvider.TypeIdFieldName].MappingInfo.Offset;
+      int typeId = tuple.GetValue<int>(columnIndex);
+      key.Type = domain.Model.Types[typeId];
+    }
 
-    private Key GetCached(Key key)
+    private Key Cache(Key key)
     {
       if (cache.Contains(key))
         return cache[key];
@@ -116,6 +137,8 @@ namespace Xtensive.Storage
       cache.Add(key);
       return key;
     }
+
+    #endregion
 
 
     // Constructors

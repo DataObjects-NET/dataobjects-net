@@ -44,7 +44,7 @@ namespace Xtensive.Storage
       get { return type; }
       internal set
       {
-        if (type!=null)
+        if (type != null && type!=value)
           throw Exceptions.AlreadyInitialized("Type");
         type = value;
       }

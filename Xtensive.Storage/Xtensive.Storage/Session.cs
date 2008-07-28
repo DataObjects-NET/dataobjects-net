@@ -82,7 +82,7 @@ namespace Xtensive.Storage
       TypeInfo type = Domain.Model.Types[typeof (T)];
       RecordSet result = Handler.Select(type.Indexes.PrimaryIndex);
       foreach (Tuple tuple in result) {
-        Key key = KeyManager.Get(type.Hierarchy, tuple);
+        Key key = Domain.KeyManager.Get(type.Hierarchy, tuple);
         DataCache.Update(key, tuple);
         yield return (T)key.Resolve();
       }
