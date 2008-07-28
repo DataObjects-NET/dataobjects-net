@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Tuples;
+using Xtensive.Indexing;
 using Xtensive.Storage.Rse;
 using System.Linq;
 
@@ -22,8 +23,8 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 
     public override ExecutableProvider GetRealProvider()
     {
-      var leftEnumerable = left.GetService<IOrderedEnumerable<Tuple>>();
-      var rightEnumerable = right.GetService<IOrderedEnumerable<Tuple>>();
+      var leftEnumerable = left.GetService<IOrderedEnumerable<Tuple,Tuple>>();
+      var rightEnumerable = right.GetService<IOrderedEnumerable<Tuple, Tuple>>();
       if (leftEnumerable == null) {
         if (CheckAbilityToRange())
           return new LoopJoinProvider(Origin, left, right, leftJoin, joiningPairs);
@@ -43,8 +44,8 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 
     private bool CheckAbilityToMerge()
     {
-      var leftEnumerable = left.GetService<IOrderedEnumerable<Tuple>>();
-      var rightEnumerable = right.GetService<IOrderedEnumerable<Tuple>>();
+      var leftEnumerable = left.GetService<IOrderedEnumerable<Tuple,Tuple>>();
+      var rightEnumerable = right.GetService<IOrderedEnumerable<Tuple,Tuple>>();
       if (leftEnumerable != null && rightEnumerable != null) {
         if (left.Header.OrderInfo.OrderedBy.Count == right.Header.OrderInfo.OrderedBy.Count) {
           for (int i = 0; i < left.Header.OrderInfo.OrderedBy.Count; i++) {
@@ -70,7 +71,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
         .Select(pair => pair.Key)
         .Take(joiningPairs.Length)
         .SequenceEqual(joiningPairs.Select(joiningPair => joiningPair.First));
-      var orderedEnumerable = left.GetService<IOrderedEnumerable<Tuple>>();
+      var orderedEnumerable = left.GetService<IOrderedEnumerable<Tuple,Tuple>>();
       if (orderedEnumerable != null)
         return sequenceEqual;
       return false;
