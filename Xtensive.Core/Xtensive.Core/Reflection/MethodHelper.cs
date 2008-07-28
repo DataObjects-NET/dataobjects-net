@@ -68,6 +68,22 @@ namespace Xtensive.Core.Reflection
       return lastMatch;
     }
 
+    /// <summary>
+    /// Gets the types of method parameters.
+    /// </summary>
+    /// <param name="method">The method to get the types of parameters of.</param>
+    /// <returns>The array of types of method parameters.</returns>
+    public static Type[] GetParameterTypes(this MethodInfo method)
+    {
+      var parameters = method.GetParameters();
+      var types = new Type[parameters.Length];
+      for (int i = 0; i < parameters.Length; i++)
+        types[i] = parameters[i].ParameterType;
+      return types;
+    }
+
+    #region Private \ internal methods
+
     private static bool CheckMethod(this MethodInfo m, Type type, string name, string[] genericArgumentNames, object[] parameterTypes)
     {
       // Checking name
@@ -114,5 +130,7 @@ namespace Xtensive.Core.Reflection
       }
       return matchCount==parameters.Length;
     }
+
+    #endregion
   }
 }

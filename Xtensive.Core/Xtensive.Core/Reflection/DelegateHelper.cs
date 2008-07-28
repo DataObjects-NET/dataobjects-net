@@ -21,18 +21,15 @@ namespace Xtensive.Core.Reflection
   /// </summary>
   public static class DelegateHelper
   {
-    // TODO: AY: Cache all generated gelegates by the same way
-    private static readonly object _lock = new object();
-    private static readonly ThreadSafeDictionary<string, Delegate> cachedDelegates = 
-      ThreadSafeDictionary<string, Delegate>.Create();
+    #region Constants
+
     private static readonly Dictionary<Type, OpCode> opCodeConv = new Dictionary<Type, OpCode>();
     private static readonly Dictionary<Type, Type> typeOnStack = new Dictionary<Type, Type>();
     private static readonly string primitiveCastMethodName = "PrimitiveCast";
-    private static readonly string ctorMethodName = "Ctor";
-    private static readonly string createProtectedConstructorDelegateMethodName = "CreateProtectedConstructorDelegate";
+    private static readonly string ctorMethodName   = "Ctor";
+    private static readonly string createMethodName = "Create";
     private static readonly MethodInfo createProtectedConstructorDelegateMethod =
-      typeof(DelegateHelper).GetMethod(createProtectedConstructorDelegateMethodName);
-    private static readonly string createMethodName = "~Create ";
+      typeof(DelegateHelper).GetMethod("CreateProtectedConstructorDelegate");
 
     /// <summary>
     /// Aspected private field getter prefix.
@@ -52,8 +49,11 @@ namespace Xtensive.Core.Reflection
     public static readonly string AspectedProtectedConstructorCallerName =
       "~Xtensive.Core.Aspects.ImplementProtectedConstructorAccessor";
 
-    private static readonly string InvokeMethodName = "Invoke";
+    #endregion
 
+    private static readonly object _lock = new object();
+    private static ThreadSafeDictionary<string, Delegate> cachedDelegates = 
+      ThreadSafeDictionary<string, Delegate>.Create();
 
     /// <summary>
     /// Creates get member delegate.
@@ -270,8 +270,8 @@ namespace Xtensive.Core.Reflection
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(methodName, "methodName");
       ArgumentValidator.EnsureArgumentNotNull(genericArgumentTypes, "genericArgumentTypes");
-      Type tDelegate = typeof (TDelegate);
-      if (!typeof(Delegate).IsAssignableFrom(tDelegate))
+      Type delegateType = typeof (TDelegate);
+      if (!typeof(Delegate).IsAssignableFrom(delegateType))
         throw new ArgumentException(String.Format(Strings.ExGenericParameterShouldBeOfTypeT,
           "TDelegate", typeof(Delegate).GetShortName()));
 
@@ -283,19 +283,18 @@ namespace Xtensive.Core.Reflection
       else 
         bindingFlags |= BindingFlags.Instance;
       string[] genericArgumentNames = new string[genericArgumentTypes.Length]; // Actual names doesn't matter
-      ParameterInfo[] parameterInfos = tDelegate.GetMethod(InvokeMethodName).GetParameters();
-
-      Type[] parameterTypes = parameterInfos.Select(parameterInfo => parameterInfo.ParameterType).ToArray();
+      Type[] parameterTypes = delegateType.GetInvokeMethod().GetParameterTypes();
       
-      MethodInfo methodInfo = MethodHelper.GetMethod(type, methodName, bindingFlags, genericArgumentNames, parameterTypes);
+      MethodInfo methodInfo = MethodHelper.GetMethod(type, methodName, bindingFlags, 
+        genericArgumentNames, parameterTypes);
       if (methodInfo==null)
         return null;
       if (genericArgumentTypes.Length!=0)
         methodInfo = methodInfo.MakeGenericMethod(genericArgumentTypes);
       if (callTarget==null)
-        return (TDelegate)(object)Delegate.CreateDelegate(tDelegate, methodInfo, true);
+        return (TDelegate)(object)Delegate.CreateDelegate(delegateType, methodInfo, true);
 
-      return (TDelegate)(object)Delegate.CreateDelegate(tDelegate, callTarget, methodInfo, true);
+      return (TDelegate)(object)Delegate.CreateDelegate(delegateType, callTarget, methodInfo, true);
     }
 
     /// <summary>
@@ -315,8 +314,8 @@ namespace Xtensive.Core.Reflection
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(methodName, "methodName");
       ArgumentValidator.EnsureArgumentNotNull(genericArgumentVariants, "genericArgumentVariants");
-      Type tDelegate = typeof (TDelegate);
-      if (!typeof(Delegate).IsAssignableFrom(tDelegate))
+      Type delegateType = typeof (TDelegate);
+      if (!typeof(Delegate).IsAssignableFrom(delegateType))
         throw new ArgumentException(String.Format(Strings.ExGenericParameterShouldBeOfTypeT,
           "TDelegate", typeof(Delegate).GetShortName()));
 
@@ -333,21 +332,19 @@ namespace Xtensive.Core.Reflection
       else 
         bindingFlags |= BindingFlags.Instance;
       string[] genericArgumentNames = new string[1]; // Actual names doesn't matter
-      ParameterInfo[] parameterInfos = tDelegate.GetMethod(InvokeMethodName).GetParameters();
-      Type[] parameterTypes = new Type[parameterInfos.Length];
-      int i = 0;
-      foreach (ParameterInfo parameterInfo in parameterInfos)
-        parameterTypes[i++] = parameterInfo.ParameterType;
-      MethodInfo methodInfo = MethodHelper.GetMethod(type, methodName, bindingFlags, genericArgumentNames, parameterTypes);
+      Type[] parameterTypes = delegateType.GetInvokeMethod().GetParameterTypes();
+
+      MethodInfo methodInfo = MethodHelper.GetMethod(type, methodName, bindingFlags, 
+        genericArgumentNames, parameterTypes);
       if (methodInfo==null)
         return null;
 
-      for (i = 0; i<count; i++) {
+      for (int i = 0; i<count; i++) {
         MethodInfo instantiatedMethodInfo = methodInfo.MakeGenericMethod(genericArgumentVariants[i]);
         if (callTarget==null)
-          delegates[i] = (TDelegate)(object)Delegate.CreateDelegate(tDelegate, instantiatedMethodInfo, true);
+          delegates[i] = (TDelegate)(object)Delegate.CreateDelegate(delegateType, instantiatedMethodInfo, true);
         else
-          delegates[i] = (TDelegate)(object)Delegate.CreateDelegate(tDelegate, callTarget, instantiatedMethodInfo, true);
+          delegates[i] = (TDelegate)(object)Delegate.CreateDelegate(delegateType, callTarget, instantiatedMethodInfo, true);
       }
       return delegates;
     }
@@ -385,51 +382,51 @@ namespace Xtensive.Core.Reflection
     /// <summary>
     /// Creates constructor invocation delegate.
     /// </summary>
+    /// <typeparam name="TDelegate">The type of the delegate to return.</typeparam>
     /// <param name="type">The type to create the constructor invocation delegate for.</param>
     /// <returns>Constructor invocation delegate.</returns>
-    public static Delegate CreateConstructorDelegate(Type type, Type delegateType)
+    public static TDelegate CreateConstructorDelegate<TDelegate>(Type type)
+      where TDelegate : class
     {
-      Delegate result = (Delegate)createProtectedConstructorDelegateMethod.MakeGenericMethod(new [] {delegateType}).Invoke(null, new object[] { type } );
-      if (result != null)
-        return result;
-
+      Type delegateType = typeof (TDelegate);
       string methodKey  = GetMethodCallDelegateKey(ctorMethodName, type, delegateType);
-      result = GetCachedDelegate(methodKey);
+      Delegate result = GetCachedDelegate(methodKey);
       if (result == null)
         lock (_lock) {
           result = GetCachedDelegate(methodKey);
           if (result != null)
-            return result;
+            return (TDelegate) (object) result;
 
-          Type returnType;
-          var arguments = GetAccessorArguments(delegateType, out returnType);
-
-          DynamicMethod dm = new DynamicMethod(createMethodName + type.FullName,
-                                               type, arguments);
-          ILGenerator il = dm.GetILGenerator();
-          for (int i = 0; i < arguments.Length; i++)
-            il.Emit(OpCodes.Ldarg, i);
-          il.Emit(OpCodes.Newobj, type.GetConstructor(arguments));
-          il.Emit(OpCodes.Ret);
-
-          result = dm.CreateDelegate(delegateType);
+          // Trying to get protected constructor first
+          try {
+            result = (Delegate) (object) CreateProtectedConstructorDelegate<TDelegate>(type);
+          }
+          catch {}
+          if (result==null) {
+            // Nothing is found, trying the public one
+            Type[] parameterTypes = delegateType.GetInvokeMethod().GetParameterTypes();
+            DynamicMethod dm = new DynamicMethod(createMethodName, type, parameterTypes);
+            ILGenerator il = dm.GetILGenerator();
+            for (int i = 0; i < parameterTypes.Length; i++) {
+              var parameterType = parameterTypes[i];
+              if (parameterType.IsByRef || parameterType.IsPointer)
+                il.Emit(OpCodes.Ldarga, i);
+              else
+                il.Emit(OpCodes.Ldarg, i);
+            }
+            il.Emit(OpCodes.Newobj, type.GetConstructor(parameterTypes));
+            il.Emit(OpCodes.Ret);
+            result = dm.CreateDelegate(delegateType);
+          }
           AddCachedDelegate(methodKey, result);
         }
-      return result;
-    }
-
-    public static Type[] GetAccessorArguments(Type accessor, out Type returnType)
-    {
-      var method = accessor.GetMethod(InvokeMethodName);
-      var parameters = method.GetParameters();
-      var tAccessorArguments = parameters.Select(p => p.ParameterType).ToArray();
-      returnType = method.ReturnType;
-      return tAccessorArguments;
+      return (TDelegate) (object) result;
     }
 
     /// <summary>
     /// Creates protected constructor invocation delegate.
     /// </summary>
+    /// <typeparam name="TDelegate">The type of the delegate to return.</typeparam>
     /// <param name="type">The type to create the protected constructor invocation delegate for.</param>
     /// <returns>Protected constructor invocation delegate.</returns>
     public static TDelegate CreateProtectedConstructorDelegate<TDelegate>(Type type)

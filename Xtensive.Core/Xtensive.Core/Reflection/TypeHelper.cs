@@ -22,6 +22,8 @@ namespace Xtensive.Core.Reflection
   /// </summary>
   public static class TypeHelper
   {
+    private const string invokeMethodName = "Invoke";
+
     private static readonly object _lock = new object();
     private static int createDummyTypeNumber = 0;
     private static AssemblyBuilder assemblyBuilder;
@@ -282,7 +284,7 @@ namespace Xtensive.Core.Reflection
               Array.Copy(genericArguments, 0, newGenericArguments, 1, genericArguments.Length);
               associateTypeName = AddSuffix(String.Format("{0}.{1}`{2}",
                 location.Second,
-                Trim(associateTypePrefix),
+                TrimGenericSuffix(associateTypePrefix),
                 newGenericArguments.Length),
                 associateTypeSuffix);
             }
@@ -452,7 +454,7 @@ namespace Xtensive.Core.Reflection
         result = result.Substring(0, arrayBracketPosition);
       if (arguments.Length > 0) {
         StringBuilder sb = new StringBuilder();
-        sb.Append(Trim(result));
+        sb.Append(TrimGenericSuffix(result));
         sb.Append("<");
         string comma = "";
         foreach (Type argument in arguments) {
@@ -494,7 +496,7 @@ namespace Xtensive.Core.Reflection
         result = result.Substring(0, arrayBracketPosition);
       if (arguments.Length > 0) {
         StringBuilder sb = new StringBuilder();
-        sb.Append(Trim(result));
+        sb.Append(TrimGenericSuffix(result));
         sb.Append("<");
         string comma = "";
         foreach (Type argument in arguments) {
@@ -611,10 +613,23 @@ namespace Xtensive.Core.Reflection
       return IsFinal(typeof (T));
     }
 
-
-    private static string Trim(string @string)
+    /// <summary>
+    /// Gets the delegate "Invoke" method (describing the delegate) for 
+    /// the specified <paramref name="delegateType"/>.
+    /// </summary>
+    /// <param name="delegateType">Type of the delegate to get the "Invoke" method of.</param>
+    /// <returns><see cref="MethodInfo"/> object describing the delegate "Invoke" method.</returns>
+    public static MethodInfo GetInvokeMethod(this Type delegateType)
     {
-      return @string.Contains("`") ? @string.Substring(0, @string.IndexOf('`')) : @string;
+      return delegateType.GetMethod(invokeMethodName);
+    }
+
+    #region Private \ internal methods
+
+    private static string TrimGenericSuffix(string @string)
+    {
+      int i = @string.IndexOf('`');
+      return i<0 ? @string : @string.Substring(0, i);
     }
 
     private static string CorrectGenericSuffix(string typeName, int argumentCount)
@@ -628,5 +643,7 @@ namespace Xtensive.Core.Reflection
       else
         return String.Format("{0}`{1}", typeName, argumentCount);
     }
+
+    #endregion
   }
 }

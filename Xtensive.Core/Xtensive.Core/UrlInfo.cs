@@ -223,7 +223,7 @@ namespace Xtensive.Core
         password = tPassword;
         resource = tResource;
         host = tHost;
-        protocol = tProtocol.ToLower();
+        protocol = tProtocol;
         port = tPort;
         parameters = new ReadOnlyDictionary<string, string>(nvParams);
       }
