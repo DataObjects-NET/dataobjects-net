@@ -181,7 +181,7 @@ namespace Xtensive.Storage.Building.Builders
       if (type.GetAncestor() != null)
         return;
 
-      var typeId = new FieldDef(typeof(int)) {Name = BuildingScope.Context.NameProvider.TypeId, IsSystem = true};
+      var typeId = new FieldDef(typeof(int)) {Name = BuildingScope.Context.NameProvider.TypeIdFieldName, IsSystem = true};
       FieldBuilder.BuildDeclaredField(type, typeId);
     }
 

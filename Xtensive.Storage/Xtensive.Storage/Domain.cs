@@ -54,7 +54,6 @@ namespace Xtensive.Storage
     public SessionScope OpenSession(SessionConfiguration configuration)
     {
       SessionHandler handler = HandlerAccessor.Provider.CreateHandler<SessionHandler>(true);
-      handler.Accessor = HandlerAccessor;
       handler.Session = new Session(HandlerAccessor, configuration);
       return new SessionScope(handler.Session);
     }

@@ -37,14 +37,14 @@ namespace Xtensive.Storage.Providers.Index.Compilers
           ExecutableProvider source = CompileInternal(new IndexProvider(firstUnderlyingIndex), firstUnderlyingIndex);
           int columnIndex;
           if (indexInfo.IsPrimary) {
-            FieldInfo typeIDField = indexInfo.ReflectedType.Fields[handlerAccessor.Domain.NameProvider.TypeId];
-            columnIndex = typeIDField.MappingInfo.Offset;
+            FieldInfo typeIdField = indexInfo.ReflectedType.Fields[handlerAccessor.Domain.NameProvider.TypeIdFieldName];
+            columnIndex = typeIdField.MappingInfo.Offset;
           }
           else
-            columnIndex = indexInfo.Columns.Select((c, i) => c.Field.Name==handlerAccessor.Domain.NameProvider.TypeId ? i : 0).Sum();
-          List<int> typeIDList = indexInfo.ReflectedType.GetDescendants(true).Select(info => info.TypeId).ToList();
-          typeIDList.Add(indexInfo.ReflectedType.TypeId);
-          result = new FilterInheritorsProvider(provider, source, columnIndex, handlerAccessor.Domain.Model.Types.Count, typeIDList.ToArray());
+            columnIndex = indexInfo.Columns.Select((c, i) => c.Field.Name==handlerAccessor.Domain.NameProvider.TypeIdFieldName ? i : 0).Sum();
+          List<int> typeIdList = indexInfo.ReflectedType.GetDescendants(true).Select(info => info.TypeId).ToList();
+          typeIdList.Add(indexInfo.ReflectedType.TypeId);
+          result = new FilterInheritorsProvider(provider, source, columnIndex, handlerAccessor.Domain.Model.Types.Count, typeIdList.ToArray());
         }
         else if ((indexInfo.Attributes & IndexAttributes.Union)!=0) {
           ExecutableProvider[] sourceProviders = indexInfo.UnderlyingIndexes.Select(index => CompileInternal(new IndexProvider(index), index)).ToArray();

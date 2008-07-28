@@ -19,15 +19,17 @@ using Xtensive.Storage.Model;
 namespace Xtensive.Storage.Building
 {
   /// <summary>
-  /// Name provider for <see cref="DomainDef"/>. Provides names according to a set of naming rules contained in
+  /// Name provider for <see cref="DomainDef"/>. 
+  /// Provides names according to a set of naming rules contained in
   /// <see cref="NamingConvention"/> object.
   /// </summary>
   public class NameProvider
   {
-    private static readonly Regex fieldNameRe = new Regex(@"(?<name>\w+\.\w+)$", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.RightToLeft);
+    private static readonly Regex explicitFieldNameRegex = new Regex(@"(?<name>\w+\.\w+)$", 
+      RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.RightToLeft);
+    private static readonly string typeIdFieldName = "TypeId";
     private readonly NamingConvention namingConvention;
     private HashAlgorithm hashAlgorithm;
-    private const string typeId = "TypeId";
 
     /// <summary>
     /// Gets the naming convention object.
@@ -38,11 +40,11 @@ namespace Xtensive.Storage.Building
     }
 
     /// <summary>
-    /// Gets the <c>TypeId</c> field name.
+    /// Gets the <see cref="Entity.TypeId"/> field name.
     /// </summary>
-    public string TypeId
+    public string TypeIdFieldName
     {
-      get { return typeId; }
+      get { return typeIdFieldName; }
     }
 
     /// <summary>
@@ -78,7 +80,7 @@ namespace Xtensive.Storage.Building
           result = string.Format("{0}.{1}", type.UnderlyingType.Namespace, result);
         }
         else if (NamingConvention.NamespacePolicy == NamespacePolicy.UseHash) {
-          result = string.Format("{0}.{1}", ComputeHash(type.UnderlyingType.Namespace), result);
+          result = string.Format("{0}.{1}", Hash(type.UnderlyingType.Namespace), result);
         }
       }
       return NamingConvention.Apply(result);
@@ -97,8 +99,8 @@ namespace Xtensive.Storage.Building
       string result = field.Name;
       if (field.UnderlyingProperty != null)
         result = field.UnderlyingProperty.Name;
-      if (fieldNameRe.IsMatch(result))
-        result = fieldNameRe.Match(result).Groups["name"].Value.Replace('.','_');
+      if (explicitFieldNameRegex.IsMatch(result))
+        result = explicitFieldNameRegex.Match(result).Groups["name"].Value.Replace('.','_');
       return result;
     }
 
@@ -247,9 +249,9 @@ namespace Xtensive.Storage.Building
 
     /// <summary>
     /// Computes a hash for the specified string.
-    /// The lengs of the resulting hash is 8 bytes.
+    /// The length of the resulting hash is 8 characters.
     /// </summary>
-    private string ComputeHash(string source)
+    protected string Hash(string source)
     {
       byte[] hash = hashAlgorithm.ComputeHash(Encoding.UTF8.GetBytes(source)); 
       return String.Format("{0:x2}{1:x2}{2:x2}{3:x2}", hash[0], hash[1], hash[2], hash[3]);

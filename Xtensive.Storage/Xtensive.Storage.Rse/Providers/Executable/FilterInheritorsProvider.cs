@@ -25,7 +25,7 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
   {
     private readonly IOrderedEnumerable<Tuple,Tuple> source;
     private readonly Func<Tuple, bool> predicate;
-    private readonly bool[] typeIDMatch;
+    private readonly bool[] typeIdMatch;
 
     public long Count
     {
@@ -110,20 +110,20 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public FilterInheritorsProvider(CompilableProvider origin, ExecutableProvider provider,  int typeIDColumn, int typesCount,  params int[] typeIDs)
+    public FilterInheritorsProvider(CompilableProvider origin, ExecutableProvider provider,  int typeIdColumn, int typesCount,  params int[] typeIds)
       : base(origin, provider)
     {
       AddService<IOrderedEnumerable<Tuple, Tuple>>();
       AddService<ICountable>();
 
       source = provider.GetService<IOrderedEnumerable<Tuple,Tuple>>(true);
-      typeIDMatch = new bool[typesCount + 1];
-      foreach (int typeID in typeIDs)
-        typeIDMatch[typeID] = true;
+      typeIdMatch = new bool[typesCount + 1];
+      foreach (int typeId in typeIds)
+        typeIdMatch[typeId] = true;
       predicate = delegate(Tuple item)
       {
-        int typeID = item.GetValueOrDefault<int>(typeIDColumn);
-        return typeIDMatch[typeID];
+        int typeId = item.GetValueOrDefault<int>(typeIdColumn);
+        return typeIdMatch[typeId];
       };
     }
   }

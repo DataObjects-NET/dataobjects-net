@@ -23,11 +23,11 @@ namespace Xtensive.Storage.Internals
       Tuple tuple;
       if (key.Type==null) {
         // TypeId is unknown, so 1 fetch request required
-        FieldInfo field = key.Hierarchy.Root.Fields[session.Domain.NameProvider.TypeId];
+        FieldInfo field = key.Hierarchy.Root.Fields[session.Domain.NameProvider.TypeIdFieldName];
         tuple = Fetcher.Fetch(key, field);
         if (tuple == null)
           return null;
-        int columnIndex = key.Hierarchy.Root.Fields[session.Domain.NameProvider.TypeId].MappingInfo.Offset;
+        int columnIndex = key.Hierarchy.Root.Fields[session.Domain.NameProvider.TypeIdFieldName].MappingInfo.Offset;
         int typeId = tuple.GetValue<int>(columnIndex);
         key.Type = key.Type = session.Domain.Model.Types[typeId];
       }

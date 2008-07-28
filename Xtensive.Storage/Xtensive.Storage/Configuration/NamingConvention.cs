@@ -13,18 +13,17 @@ using Xtensive.Core.Helpers;
 namespace Xtensive.Storage.Configuration
 {
   /// <summary>
-  /// Represents a set of rules for model definition objects naming.
+  /// A set of rules for model definition objects naming.
   /// </summary>
   [Serializable]
-  public class NamingConvention
-    : LockableBase,
-      ICloneable,
-      IEquatable<NamingConvention>
+  public class NamingConvention : LockableBase,
+    ICloneable,
+    IEquatable<NamingConvention>
   {
     private LetterCasePolicy letterCasePolicy;
     private NamespacePolicy namespacePolicy;
-    private IDictionary<string, string> namespaceSynonyms = new Dictionary<string, string>();
     private NamingRules namingRules;
+    private IDictionary<string, string> namespaceSynonyms = new Dictionary<string, string>();
 
     /// <summary>
     /// Gets or sets the letter case policy.
@@ -74,11 +73,11 @@ namespace Xtensive.Storage.Configuration
     }
 
     /// <summary>
-    /// Applies current naming convention to specified name.
+    /// Applies current naming convention to the specified <paramref name="name"/>.
     /// </summary>
-    /// <param name="name">Name to apply policy to.</param>
-    /// <returns>Processed name that satisfies naming convention.</returns>
-    internal string Apply(string name)
+    /// <param name="name">Name to apply the convention to.</param>
+    /// <returns>Processed name satisfying naming convention.</returns>
+    public string Apply(string name)
     {
       // TODO: AK: Move this method to NamingManager
       string result = name;
@@ -95,11 +94,52 @@ namespace Xtensive.Storage.Configuration
       return result;
     }
 
+    #region ILockable methods
+
     /// <inheritdoc/>
     public override void Lock(bool recursive)
     {
       base.Lock(recursive);
       namespaceSynonyms = new ReadOnlyDictionary<string, string>(namespaceSynonyms);
+    }
+
+    #endregion
+
+    #region ICloneable members
+
+    /// <inheritdoc/>
+    public object Clone()
+    {
+      this.EnsureNotLocked();
+      NamingConvention result = new NamingConvention();
+      result.letterCasePolicy = letterCasePolicy;
+      result.namespacePolicy = namespacePolicy;
+      result.namingRules = namingRules;
+      result.namespaceSynonyms = new Dictionary<string, string>(namespaceSynonyms);
+      return result;
+    }
+
+    #endregion
+
+    #region Equals, GetHashCode methods
+
+    /// <summary>
+    /// Indicates whether the current object is equal to another object of the same type. 
+    /// </summary>
+    /// <param name="other">The object to compare with this object.</param>
+    /// <returns><see langword="true"/> if the current object is equal to the other parameter; otherwise, <see langword="false"/>.</returns>
+    public bool Equals(NamingConvention other)
+    {
+      if (other == null)
+        return false;
+      if (letterCasePolicy != other.letterCasePolicy)
+        return false;
+      if (namespacePolicy != other.namespacePolicy)
+        return false;
+      if (namingRules != other.namingRules)
+        return false;
+      // TODO: Compare NamespaceSynonyms as well!
+      return true;
     }
 
     /// <summary>
@@ -123,42 +163,6 @@ namespace Xtensive.Storage.Configuration
       int result = letterCasePolicy.GetHashCode();
       result = 29*result + namespacePolicy.GetHashCode();
       result = 29*result + namingRules.GetHashCode();
-      return result;
-    }
-
-    #region IEquatable<NamingConvention> Members
-
-    /// <summary>
-    /// Indicates whether the current object is equal to another object of the same type. 
-    /// </summary>
-    /// <param name="other">The object to compare with this object.</param>
-    /// <returns><see langword="true"/> if the current object is equal to the other parameter; otherwise, <see langword="false"/>.</returns>
-    public bool Equals(NamingConvention other)
-    {
-      if (other == null)
-        return false;
-      if (letterCasePolicy != other.letterCasePolicy)
-        return false;
-      if (namespacePolicy != other.namespacePolicy)
-        return false;
-      if (namingRules != other.namingRules)
-        return false;
-      return true;
-    }
-
-    #endregion
-
-    #region ICloneable Members
-
-    /// <inheritdoc/>
-    public object Clone()
-    {
-      this.EnsureNotLocked();
-      NamingConvention result = new NamingConvention();
-      result.letterCasePolicy = letterCasePolicy;
-      result.namespacePolicy = namespacePolicy;
-      result.namingRules = namingRules;
-      result.namespaceSynonyms = new Dictionary<string, string>(namespaceSynonyms);
       return result;
     }
 
