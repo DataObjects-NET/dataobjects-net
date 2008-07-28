@@ -36,6 +36,23 @@ namespace Xtensive.Core.Internals.DocTemplates
     }
 
 
+    // Initializers
+
+    /// <summary>
+    /// Configures a new instance of the <see cref="ClassDocTemplate"/> class.
+    /// </summary>
+    public void Configure()
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ClassDocTemplate"/> class.
+    /// </summary>
+    public void Initialize()
+    {
+    }
+
+
     // Constructors
 
     /// <summary>
