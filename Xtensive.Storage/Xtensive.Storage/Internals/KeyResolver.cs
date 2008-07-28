@@ -16,8 +16,8 @@ namespace Xtensive.Storage.Internals
       Session session = Session.Current;
 
       // Key is already resolved
-      EntityData data = session.IdentityMap[key, true];
-      if (data!=null)
+      EntityData data;
+      if (session.DataCache.TryGetValue(key, out data))
         return data.Entity ?? Entity.Activate(data.Type.UnderlyingType, data);
 
       Tuple tuple;
@@ -37,6 +37,7 @@ namespace Xtensive.Storage.Internals
         key.Tuple.CopyTo(tuple);
       }
 
+      // TODO: Refactor
       // EntityData registration
       data = new EntityData(key, new DifferentialTuple(tuple));
       data.Entity = Entity.Activate(data.Type.UnderlyingType, data);

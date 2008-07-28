@@ -29,7 +29,7 @@ namespace Xtensive.Storage
     IContext<SessionScope>
   {
     private readonly Set<object> consumers = new Set<object>();
-    private WeakCache<Key, EntityData> identityMap;
+    private EntityDataCache dataCache;
     private readonly FlagRegistry<PersistenceState, EntityData> dirtyData = new FlagRegistry<PersistenceState, EntityData>(data => data.PersistenceState);
 
     /// <summary>
@@ -97,12 +97,11 @@ namespace Xtensive.Storage
       Tuple t = Tuple.Create(hierarchy.TupleDescriptor);
       tuple.CopyTo(t, 0, t.Count);
       Key key = new Key(hierarchy, t);
-      EntityData data = IdentityMap[key, false];
-      if (data != null)
-        data.Tuple.Origin.MergeWith(tuple);
+      EntityData data;
+      if (!DataCache.TryGetValue(key, out data))
+        DataCache.Update(key, tuple);
       else {
-        data = new EntityData(key, new DifferentialTuple(tuple));
-        IdentityMap.Add(data);
+        DataCache.Create(key, tuple);
       }
       return key;
     }
@@ -114,9 +113,9 @@ namespace Xtensive.Storage
     }
 
     [DebuggerHidden]
-    internal WeakCache<Key, EntityData> IdentityMap
+    internal EntityDataCache DataCache
     {
-      get { return identityMap; }
+      get { return dataCache; }
     }
 
     [DebuggerHidden]
@@ -195,16 +194,16 @@ namespace Xtensive.Storage
     protected override void OnConfigured()
     {
       base.OnConfigured();
-      identityMap = new WeakCache<Key, EntityData>(Configuration.CacheSize, item => item.Key);
+      dataCache = new EntityDataCache(Configuration.CacheSize);
     }
 
 
     // Constructors
 
     internal Session(HandlerAccessor handlerAccessor, SessionConfiguration configuration)
+      : base(configuration)
     {
       HandlerAccessor = handlerAccessor;
-      Configure(configuration);
     }
 
     /// <see cref="ClassDocTemplate.Dispose" copy="true"/>

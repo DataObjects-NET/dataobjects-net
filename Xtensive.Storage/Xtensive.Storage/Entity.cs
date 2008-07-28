@@ -133,7 +133,7 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     protected internal override sealed void OnCreating()
     {
-      Session.IdentityMap.Add(Data);
+      Data.Entity = this;
       Session.DirtyData.Register(Data);
       TypeId = Type.TypeId;
     }
@@ -209,10 +209,7 @@ namespace Xtensive.Storage
     {
       TypeInfo type = Session.Domain.Model.Types[GetType()];
       Key key = Session.Domain.KeyManager.Next(type);
-      Tuple origin = Tuple.Create(type.TupleDescriptor);
-      key.Tuple.CopyTo(origin, 0);
-
-      data = new EntityData(key, new DifferentialTuple(origin), this);
+      data = Session.DataCache.Create(key);
       OnCreating();
     }
 
@@ -225,10 +222,7 @@ namespace Xtensive.Storage
     {
       TypeInfo type = Session.Domain.Model.Types[GetType()];
       Key key = Session.Domain.KeyManager.Get(type, tuple);
-      Tuple origin = Tuple.Create(type.TupleDescriptor);
-      key.Tuple.CopyTo(origin, 0);
-
-      data = new EntityData(key, new DifferentialTuple(origin), this);
+      data = Session.DataCache.Create(key, tuple);
       OnCreating();
     }
 
