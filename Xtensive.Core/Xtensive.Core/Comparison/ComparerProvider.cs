@@ -10,6 +10,7 @@ using System.Text;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Resources;
+using Xtensive.Core.Collections;
 
 namespace Xtensive.Core.Comparison
 {
@@ -65,15 +66,8 @@ namespace Xtensive.Core.Comparison
       // the comparer.
       IAdvancedComparerBase comparer = base.CreateAssociate<TKey, IAdvancedComparerBase>(out foundFor);
       if (foundFor==null) {
-        StringBuilder stringBuilder = new StringBuilder();
-        for (int i = 0; i < TypeSuffixes.Length; i++) {
-          if (i!=0) {
-            stringBuilder.Append(" \\ ");
-          }
-          stringBuilder.Append(TypeSuffixes[i]);
-        }
         Log.Warning(Strings.LogCantFindAssociateFor,
-          stringBuilder,
+          TypeSuffixes.ToDelimitedString(" \\ "),
           typeof (TAssociate).GetShortName(),
           typeof (TKey).GetShortName());
         return null;
@@ -121,7 +115,7 @@ namespace Xtensive.Core.Comparison
     /// </summary>
     protected ComparerProvider()
     {
-      TypeSuffixes = new string[] {"Comparer"};
+      TypeSuffixes = new[] {"Comparer"};
       ConstructorParams = new object[] {this, ComparisonRules.Positive};
       Type t = typeof (BooleanComparer);
       AddHighPriorityLocation(t.Assembly, t.Namespace);

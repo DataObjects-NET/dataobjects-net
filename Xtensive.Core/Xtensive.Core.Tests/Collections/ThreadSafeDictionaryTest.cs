@@ -17,18 +17,18 @@ namespace Xtensive.Core.Tests.Collections
   {
     private const int FillCount = 10;
     private Dictionary<int, int> d = new Dictionary<int, int>();
-    private ThreadSafeDictionary<int, int> tsd = ThreadSafeDictionary<int, int>.Create();
+    private ThreadSafeDictionary<int, int> tsd = ThreadSafeDictionary<int, int>.Create(new object());
     
 
     [Test]
     public void CombinedTest()
     {
-      ThreadSafeDictionary<int, int> d1 = ThreadSafeDictionary<int, int>.Create();
+      ThreadSafeDictionary<int, int> d1 = ThreadSafeDictionary<int, int>.Create(new object());
       Assert.AreEqual(d1.GetValue(0), 0);
       d1.SetValue(0,1);
       Assert.AreEqual(d1.GetValue(0), 1);
 
-      ThreadSafeDictionary<int, int> d2 = ThreadSafeDictionary<int, int>.Create();
+      ThreadSafeDictionary<int, int> d2 = ThreadSafeDictionary<int, int>.Create(new object());
       d2.SetValue(0,2);
       Assert.AreEqual(d2.GetValue(0), 2);
 

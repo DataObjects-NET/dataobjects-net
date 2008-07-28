@@ -33,12 +33,11 @@ namespace Xtensive.Core.SizeCalculators
     public static readonly int HeapObjectHeaderSize = RuntimeInfo.PointerSize * 2;
 
     private static readonly SizeCalculatorProvider @default = new SizeCalculatorProvider();
-    private readonly object _lock = new object();
     private ThreadSafeDictionary<Type, ISizeCalculatorBase> calculators = 
-      ThreadSafeDictionary<Type, ISizeCalculatorBase>.Create();
+      ThreadSafeDictionary<Type, ISizeCalculatorBase>.Create(new object());
     private ThreadSafeDictionary<Type, ISizeCalculatorBase> boxingAwareCalculators = 
-      ThreadSafeDictionary<Type, ISizeCalculatorBase>.Create();
-    private Cached<ISizeCalculatorBase> objectSizeCalculator = new Cached<ISizeCalculatorBase>();
+      ThreadSafeDictionary<Type, ISizeCalculatorBase>.Create(new object());
+    private ThreadSafeCached<ISizeCalculatorBase> objectSizeCalculator = new ThreadSafeCached<ISizeCalculatorBase>();
 
     /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
     public static ISizeCalculatorProvider Default
@@ -58,11 +57,11 @@ namespace Xtensive.Core.SizeCalculators
     public ISizeCalculatorBase GetSizeCalculatorByInstance(object value)
     {
       if (value==null)
-        return objectSizeCalculator.GetValue(_lock, 
+        return objectSizeCalculator.GetValue(
           _this => _this.GetSizeCalculator<object>().Implementation, 
           this);
       else
-        return boxingAwareCalculators.GetValue(_lock, value.GetType(),
+        return boxingAwareCalculators.GetValue(value.GetType(),
           (_type, _this) => _this
             .GetType()
             .GetMethod("InnerGetSizeCalculatorByInstance",
@@ -88,7 +87,7 @@ namespace Xtensive.Core.SizeCalculators
     /// <inheritdoc/>
     public ISizeCalculatorBase GetSizeCalculatorByType(Type type)
     {
-      return calculators.GetValue(_lock, type, 
+      return calculators.GetValue(type, 
         (_type, _this) => {
           var hsc = _this
             .GetType()

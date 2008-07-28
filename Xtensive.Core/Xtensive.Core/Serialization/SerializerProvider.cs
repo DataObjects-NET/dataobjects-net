@@ -5,11 +5,9 @@
 // Created:    2008.01.17
 
 using System;
-using System.Reflection;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Serialization;
-using Xtensive.Core.Serialization.Binary;
 
 namespace Xtensive.Core.Serialization
 {
@@ -25,9 +23,8 @@ namespace Xtensive.Core.Serialization
     ISerializerProvider
   {
     private static readonly SerializerProvider @default = new SerializerProvider();
-    private readonly object _lock = new object();
     private ThreadSafeDictionary<Type, ISerializer> serializers = 
-      ThreadSafeDictionary<Type, ISerializer>.Create();
+      ThreadSafeDictionary<Type, ISerializer>.Create(new object());
 
     /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
     public static ISerializerProvider Default
@@ -46,7 +43,7 @@ namespace Xtensive.Core.Serialization
     /// <inheritdoc/>
     public ISerializer GetObjectSerializer(Type type)
     {
-      return serializers.GetValue(_lock, type, 
+      return serializers.GetValue(type, 
         (_type, _this) => _this
           .GetType()
           .GetMethod("GetObjectSerializer", ArrayUtils<Type>.EmptyArray)

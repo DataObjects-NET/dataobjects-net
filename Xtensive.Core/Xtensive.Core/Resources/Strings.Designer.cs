@@ -1204,6 +1204,15 @@ namespace Xtensive.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to ThreadSafeCached({0}).
+        /// </summary>
+        internal static string ThreadSafeCachedFormat {
+            get {
+                return ResourceManager.GetString("ThreadSafeCachedFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {0}: {1} of ({2}).
         /// </summary>
         internal static string TransformedTupleFormat {

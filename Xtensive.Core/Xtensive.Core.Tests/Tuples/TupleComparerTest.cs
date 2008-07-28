@@ -20,9 +20,9 @@ namespace Xtensive.Core.Tests.Tuples
     private Type[] types1 = new Type[] { typeof(int), typeof(string) };
     private Type[] types2 = new Type[] { typeof(int), typeof(string), typeof(DateTime) };
 
-    private readonly AdvancedComparer<Tuple> advancedComparer = AdvancedComparer<Tuple>.Default;
-    readonly IEqualityComparer<Tuple> equalityComparer = EqualityComparer<Tuple>.Default;
-    readonly IComparer<Tuple> comparer = Comparer<Tuple>.Default;
+    private readonly AdvancedComparer<Tuple>  advancedComparer = AdvancedComparer<Tuple>.Default;
+    private readonly IEqualityComparer<Tuple> equalityComparer = EqualityComparer<Tuple>.Default;
+    private readonly IComparer<Tuple> comparer = Comparer<Tuple>.Default;
 
     [Test]
     public void EmptyTupleTest()

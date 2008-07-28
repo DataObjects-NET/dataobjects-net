@@ -19,7 +19,15 @@ namespace Xtensive.Core.Collections
   {
     private const int InitialSize = 16;
     private readonly static TItem defaultItem = default(TItem);
-    private TItem[] implementation;
+    private volatile TItem[] implementation;
+    private object syncRoot;
+
+    /// <summary>
+    /// Gets the synchronization root used by this instance.
+    /// </summary>
+    public object SyncRoot {
+      get { return syncRoot; }
+    }
 
     #region GetValue methods with generator
 
@@ -27,11 +35,10 @@ namespace Xtensive.Core.Collections
     /// Gets the value or generates it using specified <paramref name="generator"/> and 
     /// adds it to the list.
     /// </summary>
-    /// <param name="syncRoot">The object to synchronize on (<see cref="Monitor"/> class is used).</param>
     /// <param name="index">The index of the value to get.</param>
     /// <param name="generator">The value generator.</param>
     /// <returns>Found or generated value.</returns>
-    public TItem GetValue(object syncRoot, int index, Func<int, TItem> generator)
+    public TItem GetValue(int index, Func<int, TItem> generator)
     {
       TItem item = GetValue(index);
       if (!ReferenceEquals(item, defaultItem))
@@ -51,12 +58,11 @@ namespace Xtensive.Core.Collections
     /// adds it to the list.
     /// </summary>
     /// <typeparam name="T">The type of the <paramref name="argument"/> to pass to the <paramref name="generator"/>.</typeparam>
-    /// <param name="syncRoot">The object to synchronize on (<see cref="Monitor"/> class is used).</param>
     /// <param name="index">The index of the value to get.</param>
     /// <param name="generator">The value generator.</param>
     /// <param name="argument">The argument to pass to the <paramref name="generator"/>.</param>
     /// <returns>Found or generated value.</returns>
-    public TItem GetValue<T>(object syncRoot, int index, Func<int, T, TItem> generator, T argument)
+    public TItem GetValue<T>(int index, Func<int, T, TItem> generator, T argument)
     {
       TItem item = GetValue(index);
       if (!ReferenceEquals(item, defaultItem))
@@ -77,13 +83,12 @@ namespace Xtensive.Core.Collections
     /// </summary>
     /// <typeparam name="T1">The type of the <paramref name="argument1"/> to pass to the <paramref name="generator"/>.</typeparam>
     /// <typeparam name="T2">The type of the <paramref name="argument2"/> to pass to the <paramref name="generator"/>.</typeparam>
-    /// <param name="syncRoot">The object to synchronize on (<see cref="Monitor"/> class is used).</param>
     /// <param name="index">The index of the value to get.</param>
     /// <param name="generator">The value generator.</param>
     /// <param name="argument1">The first argument to pass to the <paramref name="generator"/>.</param>
     /// <param name="argument2">The second argument to pass to the <paramref name="generator"/>.</param>
     /// <returns>Found or generated value.</returns>
-    public TItem GetValue<T1, T2>(object syncRoot, int index, Func<int, T1, T2, TItem> generator, T1 argument1, T2 argument2)
+    public TItem GetValue<T1, T2>(int index, Func<int, T1, T2, TItem> generator, T1 argument1, T2 argument2)
     {
       TItem item = GetValue(index);
       if (!ReferenceEquals(item, defaultItem))
@@ -122,7 +127,7 @@ namespace Xtensive.Core.Collections
     /// </summary>
     /// <param name="index">The index to set value for.</param>
     /// <param name="item">The value to set.</param>
-    public void  SetValue(int index, TItem item)
+    public void SetValue(int index, TItem item)
     {
       lock (implementation) {
         if (index<0)
@@ -159,10 +164,12 @@ namespace Xtensive.Core.Collections
     /// This method should be invoked just once - before
     /// the first operation on this list.
     /// </summary>
-    public void Initialize()
+    /// <param name="syncRoot"><see cref="SyncRoot"/> property value.</param>
+    public void Initialize(object syncRoot)
     {
       if (implementation!=null)
         throw Exceptions.AlreadyInitialized(null);
+      this.syncRoot = syncRoot;
       implementation = new TItem[InitialSize];
     }
 
@@ -172,11 +179,12 @@ namespace Xtensive.Core.Collections
     /// <summary>
     /// Creates and initializes a new <see cref="ThreadSafeList{TItem}"/>.
     /// </summary>
+    /// <param name="syncRoot"><see cref="SyncRoot"/> property value.</param>
     /// <returns>New initialized <see cref="ThreadSafeList{TItem}"/>.</returns>
-    public static ThreadSafeList<TItem> Create()
+    public static ThreadSafeList<TItem> Create(object syncRoot)
     {
-      ThreadSafeList<TItem> result = new ThreadSafeList<TItem>();
-      result.Initialize();
+      var result = new ThreadSafeList<TItem>();
+      result.Initialize(syncRoot);
       return result;
     }
   }

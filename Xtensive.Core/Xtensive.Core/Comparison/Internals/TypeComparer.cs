@@ -15,7 +15,7 @@ namespace Xtensive.Core.Comparison
     ISystemComparer<Type>
   {
     [NonSerialized]
-    private ThreadSafeDictionary<Pair<Type>, int> cache;
+    private ThreadSafeDictionary<Pair<Type>, int> results;
 
     protected override IAdvancedComparer<Type> CreateNew(ComparisonRules rules)
     {
@@ -26,7 +26,7 @@ namespace Xtensive.Core.Comparison
     {
       if (x==y)
         return 0;
-      return cache.GetValue(this, new Pair<Type>(x, y), 
+      return results.GetValue(new Pair<Type>(x, y), 
         (pair, _this) => {
           int result = _this.BaseComparer1.Compare(pair.First.FullName, pair.Second.FullName);
           if (result==0)
@@ -48,7 +48,7 @@ namespace Xtensive.Core.Comparison
 
     private void Initialize()
     {
-      cache = ThreadSafeDictionary<Pair<Type>, int>.Create();
+      results = ThreadSafeDictionary<Pair<Type>, int>.Create(new object());
     }
 
 

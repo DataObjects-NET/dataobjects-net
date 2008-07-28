@@ -34,8 +34,6 @@ namespace Xtensive.Core.Comparison
     #endregion
 
     [NonSerialized]
-    private object _lock;
-    [NonSerialized]
     private int nullHashCode;
     [NonSerialized]
     private AdvancedComparer<TupleDescriptor> descriptorComparer;
@@ -111,7 +109,7 @@ namespace Xtensive.Core.Comparison
 
     private ComparisonHandler GetComparisonHandler(TupleDescriptor descriptor)
     {
-      return comparisonHandlers.GetValue(_lock, descriptor.Identifier,
+      return comparisonHandlers.GetValue(descriptor.Identifier,
         (indentifier, _this, _descriptor) => {
           var box = new Box<ComparisonHandler>(new ComparisonHandler(_descriptor));
           ExecutionSequenceHandler<Box<ComparisonHandler>>[] initializers =
@@ -177,10 +175,9 @@ namespace Xtensive.Core.Comparison
 
     private void Initialize()
     {
-      _lock              = new object();
       nullHashCode       = SystemComparerStruct<Tuple>.Instance.GetHashCode(null);
       descriptorComparer = Provider.GetComparer<TupleDescriptor>().ApplyRules(ComparisonRules);
-      comparisonHandlers.Initialize();
+      comparisonHandlers.Initialize(new object());
     }
 
 

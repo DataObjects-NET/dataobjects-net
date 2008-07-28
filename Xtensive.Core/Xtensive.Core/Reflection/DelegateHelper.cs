@@ -51,9 +51,8 @@ namespace Xtensive.Core.Reflection
 
     #endregion
 
-    private static readonly object _lock = new object();
     private static ThreadSafeDictionary<string, Delegate> cachedDelegates = 
-      ThreadSafeDictionary<string, Delegate>.Create();
+      ThreadSafeDictionary<string, Delegate>.Create(new object());
 
     /// <summary>
     /// Creates get member delegate.
@@ -90,7 +89,7 @@ namespace Xtensive.Core.Reflection
 
       TDelegateType result = GetCachedDelegate(methodKey) as TDelegateType;
       if (result==null)
-        lock (_lock) {
+        lock (cachedDelegates.SyncRoot) {
           result = GetCachedDelegate(methodKey) as TDelegateType;
           if (result!=null)
             return result;
@@ -154,7 +153,7 @@ namespace Xtensive.Core.Reflection
 
       Action<TObject, TValue> result = (Action<TObject, TValue>)GetCachedDelegate(methodKey);
       if (result==null)
-        lock (_lock) {
+        lock (cachedDelegates.SyncRoot) {
           result = (Action<TObject, TValue>)GetCachedDelegate(methodKey);
           if (result!=null)
             return result;
@@ -217,7 +216,7 @@ namespace Xtensive.Core.Reflection
 
       Converter<TSource, TTarget> result = GetCachedDelegate(methodKey) as Converter<TSource, TTarget>;
       if (result==null)
-        lock (_lock) {
+        lock (cachedDelegates.SyncRoot) {
           result = GetCachedDelegate(methodKey) as Converter<TSource, TTarget>;
           if (result!=null)
             return result;
@@ -392,7 +391,7 @@ namespace Xtensive.Core.Reflection
       string methodKey  = GetMethodCallDelegateKey(ctorMethodName, type, delegateType);
       Delegate result = GetCachedDelegate(methodKey);
       if (result == null)
-        lock (_lock) {
+        lock (cachedDelegates.SyncRoot) {
           result = GetCachedDelegate(methodKey);
           if (result != null)
             return (TDelegate) (object) result;
@@ -431,7 +430,7 @@ namespace Xtensive.Core.Reflection
       string methodKey  = GetMethodCallDelegateKey(ctorMethodName, type, delegateType);
       Delegate result = GetCachedDelegate(methodKey);
       if (result == null)
-        lock (_lock) {
+        lock (cachedDelegates.SyncRoot) {
           result = GetCachedDelegate(methodKey);
           if (result != null)
             return (TDelegate) (object) result;

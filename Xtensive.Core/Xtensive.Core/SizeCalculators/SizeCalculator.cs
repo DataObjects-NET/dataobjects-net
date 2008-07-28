@@ -19,7 +19,7 @@ namespace Xtensive.Core.SizeCalculators
     IHasSizeCalculator
   {
     private static readonly object _lock = new object();
-    private static SizeCalculator<T> @default;
+    private static volatile SizeCalculator<T> @default;
 
     /// <summary>
     /// Gets default size calculator for type <typeparamref name="T"/>

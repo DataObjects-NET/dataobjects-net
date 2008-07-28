@@ -25,14 +25,13 @@ namespace Xtensive.Core
   public abstract class AssociateProvider :
     IDeserializationCallback
   {
-    [NonSerialized]
-    private static readonly object _lock = new object();
-    [NonSerialized]
-    private static Cached<AdvancedComparer<Pair<Assembly, string>>> positionComparer;
-    [NonSerialized]
-    private TypeBasedDictionary cache;
     [ThreadStatic]
-    private static ISet<KeyValuePair<Type, Type>> inProgress = new SetSlim<KeyValuePair<Type, Type>>();
+    private static ISet<KeyValuePair<Type, Type>> inProgress = 
+      new SetSlim<KeyValuePair<Type, Type>>();
+    [NonSerialized]
+    private object _lock = new object();
+    [NonSerialized]
+    private TypeBasedDictionary cache = TypeBasedDictionary.Create();
 
     private object[] constructorParams;
     private string[] typeSuffixes;
@@ -288,13 +287,13 @@ namespace Xtensive.Core
     /// </summary>
     protected AssociateProvider()
     {
-      cache = TypeBasedDictionary.Create();
       constructorParams = new object[] {this};
     }
 
     /// <see cref="SerializableDocTemplate.OnDeserialization"/>
     public virtual void OnDeserialization(object sender)
     {
+      _lock = new object();
       cache = TypeBasedDictionary.Create();
     }
   }

@@ -17,7 +17,7 @@ namespace Xtensive.Core.Conversion
   public class AdvancedConverter<TFrom, TTo> : MethodCacheBase<IAdvancedConverter<TFrom, TTo>>
   {
     private static readonly object _lock = new object();
-    private static AdvancedConverter<TFrom, TTo> @default;
+    private static volatile AdvancedConverter<TFrom, TTo> @default;
 
     /// <summary>
     /// Gets default advanced converter for types <typeparamref name="TFrom"/> and <typeparamref name="TTo"/>.

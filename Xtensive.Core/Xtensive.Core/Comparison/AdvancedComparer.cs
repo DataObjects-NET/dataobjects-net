@@ -20,8 +20,8 @@ namespace Xtensive.Core.Comparison
   public sealed class AdvancedComparer<T>: MethodCacheBase<IAdvancedComparer<T>>
   {
     private static readonly object _lock = new object();
-    private static AdvancedComparer<T> systemComparer;
-    private static AdvancedComparer<T> defaultComparer;
+    private static volatile AdvancedComparer<T> systemComparer;
+    private static volatile AdvancedComparer<T> defaultComparer;
 
     /// <summary>
     /// Gets default advanced comparer for type <typeparamref name="T"/>

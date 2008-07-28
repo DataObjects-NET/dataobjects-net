@@ -22,8 +22,8 @@ namespace Xtensive.Core.Testing
   public class InstanceGeneratorProvider : AssociateProvider, IInstanceGeneratorProvider
   {
     private static readonly InstanceGeneratorProvider @default = new InstanceGeneratorProvider();
-    private readonly object _lock = new object();
-    private ThreadSafeDictionary<Type, IInstanceGeneratorBase> cache = ThreadSafeDictionary<Type, IInstanceGeneratorBase>.Create();
+    private ThreadSafeDictionary<Type, IInstanceGeneratorBase> generators = 
+      ThreadSafeDictionary<Type, IInstanceGeneratorBase>.Create(new object());
 
     /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
     public static InstanceGeneratorProvider Default
@@ -42,7 +42,7 @@ namespace Xtensive.Core.Testing
     /// <inheritdoc/>
     public IInstanceGeneratorBase GetInstanceGenerator(Type type)
     {
-      return cache.GetValue(_lock, type,
+      return generators.GetValue(type,
         (_type, _this) => _this
           .GetType()
           .GetMethod("GetInstanceGenerator", ArrayUtils<Type>.EmptyArray)

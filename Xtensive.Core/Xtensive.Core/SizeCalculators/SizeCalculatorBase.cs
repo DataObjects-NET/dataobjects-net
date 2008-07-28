@@ -31,7 +31,7 @@ namespace Xtensive.Core.SizeCalculators
     protected static readonly bool IsClass  = typeof (T).IsClass;
     
     private static object _lock = new object();
-    private static bool isWarningLogged;
+    private static volatile bool isWarningLogged;
 
     private ISizeCalculatorProvider provider;
     private int defaultSize;

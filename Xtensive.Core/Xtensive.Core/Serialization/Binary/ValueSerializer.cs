@@ -19,7 +19,7 @@ namespace Xtensive.Core.Serialization.Binary
   public sealed class ValueSerializer<T> : MethodCacheBase<IValueSerializer<T>>
   {
     private static readonly object _lock = new object();
-    private static ValueSerializer<T> @default;
+    private static volatile ValueSerializer<T> @default;
 
     /// <summary>
     /// Gets default serializer for type <typeparamref name="T"/>

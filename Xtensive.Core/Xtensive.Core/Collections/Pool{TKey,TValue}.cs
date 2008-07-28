@@ -443,8 +443,8 @@ namespace Xtensive.Core.Collections
     /// </summary>
     /// <param name="initialCapacity">Initial <see cref="Capacity"/> property value.</param>
     /// <param name="itemExpirationPeriod"><see cref="ItemExpirationPeriod"/> property value.</param>
-    /// <param name="cleanupPeriod"><see cref="GarbageCollectionPeriod"/> property value.</param>
-    public Pool(int initialCapacity, TimeSpan itemExpirationPeriod, TimeSpan cleanupPeriod)
+    /// <param name="garbageCollectionPeriod"><see cref="GarbageCollectionPeriod"/> property value.</param>
+    public Pool(int initialCapacity, TimeSpan itemExpirationPeriod, TimeSpan garbageCollectionPeriod)
     {
       if (initialCapacity<=0)
         throw new ArgumentOutOfRangeException("initialCapacity", Strings.ExArgumentValueMustBeGreaterThanZero);
@@ -452,8 +452,8 @@ namespace Xtensive.Core.Collections
         throw new ArgumentOutOfRangeException("itemExpirationPeriod", Strings.ExArgumentValueMustBeGreaterThanOrEqualToZero);
       capacity = initialCapacity;
       this.itemExpirationPeriod = itemExpirationPeriod;
-      this.garbageCollectionPeriod = cleanupPeriod;
-      if (cleanupPeriod>TimeSpan.Zero) {
+      this.garbageCollectionPeriod = garbageCollectionPeriod;
+      if (garbageCollectionPeriod>TimeSpan.Zero) {
         cleanupThread = new Thread(CleanupThread);
         cleanupThread.IsBackground = true;
         cleanupThread.Start();

@@ -23,7 +23,7 @@ namespace Xtensive.Core.Arithmetic
     
     [NonSerialized] 
     private ThreadSafeDictionary<ArithmeticRules, Arithmetic<T>> cachedArithmetics =
-      ThreadSafeDictionary<ArithmeticRules, Arithmetic<T>>.Create();
+      ThreadSafeDictionary<ArithmeticRules, Arithmetic<T>>.Create(new object());
 
     /// <summary>
     /// Indicates whether overflow is allowed (doesn't lead to an exception)
@@ -70,7 +70,7 @@ namespace Xtensive.Core.Arithmetic
     /// <returns>New instance of <see cref="IArithmetic{T}"/>.</returns>
     public Arithmetic<T> ApplyRules(ArithmeticRules rules)
     {
-      return cachedArithmetics.GetValue(this, rules, 
+      return cachedArithmetics.GetValue(rules, 
         (_rules, _this) => new Arithmetic<T>(_this.CreateNew(_rules)), 
         this);
     }
@@ -115,7 +115,7 @@ namespace Xtensive.Core.Arithmetic
         provider = ArithmeticProvider.Default;
       OverflowAllowed = (Rules.OverflowBehavior==OverflowBehavior.AllowOverflow);
       NullIsZero = (Rules.NullBehavior==NullBehavior.ThreatNullAsZero);
-      cachedArithmetics = ThreadSafeDictionary<ArithmeticRules, Arithmetic<T>>.Create();
+      cachedArithmetics = ThreadSafeDictionary<ArithmeticRules, Arithmetic<T>>.Create(new object());
     }
   }
 }

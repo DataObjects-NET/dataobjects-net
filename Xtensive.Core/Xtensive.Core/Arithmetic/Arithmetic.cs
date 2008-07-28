@@ -12,7 +12,7 @@ namespace Xtensive.Core.Arithmetic
   public class Arithmetic<T> : MethodCacheBase<IArithmetic<T>>
   {
     private static readonly object _lock = new object();
-    private static Arithmetic<T> @default;
+    private static volatile Arithmetic<T> @default;
 
     /// <summary>
     /// Gets default arithmetic for type <typeparamref name="T"/>

@@ -18,7 +18,7 @@ namespace Xtensive.Core.Testing
   public static class TestHelper
   {
     private const int MaxTestFolderCount = 99;
-    private static string testFolderName = null;
+    private static volatile string testFolderName = null;
     private static object _lock = new object();
 
     /// <summary>

@@ -28,9 +28,9 @@ namespace Xtensive.Core.Hashing
     IHasherProvider
   {
     private static readonly HasherProvider @default = new HasherProvider();
-    private readonly object _lock = new object();
-    private ThreadSafeDictionary<Type, IHasherBase> cache = ThreadSafeDictionary<Type, IHasherBase>.Create();
-    private Cached<IHasherBase> objectHasher;
+    private ThreadSafeDictionary<Type, IHasherBase> hashers = 
+      ThreadSafeDictionary<Type, IHasherBase>.Create(new object());
+    private ThreadSafeCached<IHasherBase> objectHasher;
 
     /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
     public static IHasherProvider Default
@@ -54,7 +54,7 @@ namespace Xtensive.Core.Hashing
     public IHasherBase GetHasherByInstance(object value)
     {
       if (value == null)
-        return objectHasher.GetValue(_lock, 
+        return objectHasher.GetValue(
           _this => _this.GetHasher<object>().Implementation, 
           this);
       else
@@ -64,7 +64,7 @@ namespace Xtensive.Core.Hashing
     /// <inheritdoc/>
     public IHasherBase GetHasherByType(Type type)
     {
-      return cache.GetValue(_lock, type,
+      return hashers.GetValue(type,
         (_type, _this) => _this
           .GetType()
           .GetMethod("InnerGetHasherBase", BindingFlags.NonPublic | BindingFlags.Instance, null, ArrayUtils<Type>.EmptyArray, null)
@@ -97,15 +97,8 @@ namespace Xtensive.Core.Hashing
       // the hasher.
       IHasherBase hasher = base.CreateAssociate<TKey, IHasherBase>(out foundFor);
       if (foundFor==null) {
-        var stringBuilder = new StringBuilder();
-        for (int i = 0; i < TypeSuffixes.Length; i++) {
-          if (i!=0) {
-            stringBuilder.Append(" \\ ");
-          }
-          stringBuilder.Append(TypeSuffixes[i]);
-        }
         Log.Warning(Strings.LogCantFindAssociateFor,
-          stringBuilder,
+          TypeSuffixes.ToDelimitedString(" \\ "),
           typeof (TAssociate).GetShortName(),
           typeof (TKey).GetShortName());
         return null;

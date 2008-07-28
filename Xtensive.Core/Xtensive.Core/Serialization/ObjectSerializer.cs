@@ -14,7 +14,7 @@ namespace Xtensive.Core.Serialization
   public sealed class Serializer<T> : MethodCacheBase<ISerializer<T>>, ISerializer
   {
     private static readonly object _lock = new object();
-    private static Serializer<T> @default;
+    private static volatile Serializer<T> @default;
 
     public static Serializer<T> Default {
       get {

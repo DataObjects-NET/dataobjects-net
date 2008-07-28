@@ -8,6 +8,7 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 using Xtensive.Core.Comparison;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Resources;
 
 namespace Xtensive.Core
@@ -18,12 +19,20 @@ namespace Xtensive.Core
   /// <typeparam name="T">Type of the value to cache.</typeparam>
   [Serializable]
   [DebuggerDisplay("{value}")]
-  public struct Cached<T> : 
-    IEquatable<Cached<T>>,
-    IComparable<Cached<T>>
+  public struct ThreadSafeCached<T> : 
+    IEquatable<ThreadSafeCached<T>>,
+    IComparable<ThreadSafeCached<T>>
   {
     private T cachedValue;
-    private bool isCached;
+    private volatile bool isCached;
+    private object syncRoot;
+
+    /// <summary>
+    /// Gets the synchronization root used by this instance.
+    /// </summary>
+    public object SyncRoot {
+      get { return syncRoot; }
+    }
 
     #region GetValue methods
 
@@ -34,7 +43,7 @@ namespace Xtensive.Core
     /// <returns>Cached value.</returns>
     public T GetValue(Func<T> generator)
     {
-      if (!isCached) {
+      if (!isCached) lock (syncRoot) if (!isCached) {
         var value = generator.Invoke();
         isCached = true;
         cachedValue = value;
@@ -51,7 +60,7 @@ namespace Xtensive.Core
     /// <returns>Cached value.</returns>
     public T GetValue<T1>(Func<T1, T> generator, T1 argument)
     {
-      if (!isCached) {
+      if (!isCached) lock (syncRoot) if (!isCached) {
         var value = generator.Invoke(argument);
         isCached = true;
         cachedValue = value;
@@ -70,7 +79,7 @@ namespace Xtensive.Core
     /// <returns>Cached value.</returns>
     public T GetValue<T1, T2>(Func<T1, T2, T> generator, T1 argument1, T2 argument2)
     {
-      if (!isCached) {
+      if (!isCached) lock (syncRoot) if (!isCached) {
         var value = generator.Invoke(argument1, argument2);
         isCached = true;
         cachedValue = value;
@@ -83,7 +92,7 @@ namespace Xtensive.Core
     #region IComparable<...>, IEquatable<...> methods
 
     /// <inheritdoc/>
-    public bool Equals(Cached<T> other)
+    public bool Equals(ThreadSafeCached<T> other)
     {
       if (isCached!=other.isCached)
         return false;
@@ -91,7 +100,7 @@ namespace Xtensive.Core
     }
 
     /// <inheritdoc/>
-    public int CompareTo(Cached<T> other)
+    public int CompareTo(ThreadSafeCached<T> other)
     {
       int result = (isCached ? 1 : 0) - (other.isCached ? 1 : 0);
       if (result!=0)
@@ -106,9 +115,9 @@ namespace Xtensive.Core
     /// <inheritdoc/>
     public override bool Equals(object obj)
     {
-      if (obj.GetType()!=typeof (Cached<T>))
+      if (obj.GetType()!=typeof (ThreadSafeCached<T>))
         return false;
-      return Equals((Cached<T>) obj);
+      return Equals((ThreadSafeCached<T>) obj);
     }
 
     public override int GetHashCode()
@@ -120,12 +129,12 @@ namespace Xtensive.Core
       }
     }
 
-    public static bool operator ==(Cached<T> left, Cached<T> right)
+    public static bool operator ==(ThreadSafeCached<T> left, ThreadSafeCached<T> right)
     {
       return left.Equals(right);
     }
 
-    public static bool operator !=(Cached<T> left, Cached<T> right)
+    public static bool operator !=(ThreadSafeCached<T> left, ThreadSafeCached<T> right)
     {
       return !left.Equals(right);
     }
@@ -146,7 +155,35 @@ namespace Xtensive.Core
     /// <inheritdoc/>
     public override string ToString()
     {
-      return String.Format(Strings.CachedFormat, cachedValue);
+      return String.Format(Strings.ThreadSafeCachedFormat, cachedValue);
+    }
+
+    /// <summary>
+    /// Initializes the cache. 
+    /// This method should be invoked just once - before
+    /// the first operation on this structure.
+    /// </summary>
+    /// <param name="syncRoot"><see cref="SyncRoot"/> property value.</param>
+    public void Initialize(object syncRoot)
+    {
+      if (this.syncRoot!=null)
+        throw Exceptions.AlreadyInitialized(null);
+      this.syncRoot = syncRoot;
+    }
+
+
+    // Static constructor replacement
+    
+    /// <summary>
+    /// Creates and initializes a new <see cref="ThreadSafeCached{T}"/>.
+    /// </summary>
+    /// <param name="syncRoot"><see cref="SyncRoot"/> property value.</param>
+    /// <returns>New initialized <see cref="ThreadSafeCached{T}"/>.</returns>
+    public static ThreadSafeCached<T> Create(object syncRoot)
+    {
+      var result = new ThreadSafeCached<T>();
+      result.Initialize(syncRoot);
+      return result;
     }
   }
 }

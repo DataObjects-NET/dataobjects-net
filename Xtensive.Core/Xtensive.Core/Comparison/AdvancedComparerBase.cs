@@ -23,7 +23,7 @@ namespace Xtensive.Core.Comparison
     private static Arithmetic<T> cachedArithmetic;
     [NonSerialized]
     private ThreadSafeDictionary<ComparisonRules, AdvancedComparer<T>> cachedComparers = 
-      ThreadSafeDictionary<ComparisonRules, AdvancedComparer<T>>.Create();
+      ThreadSafeDictionary<ComparisonRules, AdvancedComparer<T>>.Create(new object());
     private IComparerProvider provider;
     private ValueRangeInfo<T> valueRangeInfo;
 
@@ -65,7 +65,7 @@ namespace Xtensive.Core.Comparison
     /// <inheritdoc/>
     public AdvancedComparer<T> ApplyRules(ComparisonRules rules)
     {
-      return cachedComparers.GetValue(this, rules, 
+      return cachedComparers.GetValue(rules, 
         (_rules, _this) => new AdvancedComparer<T>(_this.CreateNew(_rules)), 
         this);
     }
@@ -167,7 +167,7 @@ namespace Xtensive.Core.Comparison
         provider = ComparerProvider.Default;
       else if (provider is SystemComparerProvider)
         provider = ComparerProvider.System;
-      cachedComparers = ThreadSafeDictionary<ComparisonRules, AdvancedComparer<T>>.Create();
+      cachedComparers = ThreadSafeDictionary<ComparisonRules, AdvancedComparer<T>>.Create(new object());
     }
   }
 }

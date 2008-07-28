@@ -19,7 +19,7 @@ namespace Xtensive.Core.SizeCalculators
   {
     private readonly object _lock = new object();
     private ThreadSafeDictionary<TupleDescriptor, ISizeCalculatorBase[]> calculators = 
-      ThreadSafeDictionary<TupleDescriptor, ISizeCalculatorBase[]>.Create();
+      ThreadSafeDictionary<TupleDescriptor, ISizeCalculatorBase[]>.Create(new object());
 
     #region Nested type: TupleSizeCalculatorData 
 
@@ -83,7 +83,7 @@ namespace Xtensive.Core.SizeCalculators
 
     private ISizeCalculatorBase[] GetCalculators(Tuple tuple)
     {
-      return calculators.GetValue(_lock, tuple.Descriptor, 
+      return calculators.GetValue(tuple.Descriptor, 
         (descriptor, _this) => {
           int count = descriptor.Count;
           var result = new ISizeCalculatorBase[count];
