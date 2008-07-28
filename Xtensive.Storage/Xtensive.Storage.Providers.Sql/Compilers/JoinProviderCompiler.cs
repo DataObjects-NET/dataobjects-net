@@ -4,12 +4,12 @@
 // Created by: Alexey Kochetov
 // Created:    2008.07.14
 
+using System.Linq;
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
-using Xtensive.Storage.Rse.Providers;
-using System.Linq;
 using Xtensive.Storage.Rse.Providers.Compilable;
+using SqlFactory = Xtensive.Sql.Dom.Sql;
 
 namespace Xtensive.Storage.Providers.Sql.Compilers
 {
@@ -21,14 +21,14 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
       var left = (SqlProvider)Compiler.Compile(provider.Left, true);
       var right = (SqlProvider)Compiler.Compile(provider.Right, true);
 
-      var leftQuery = Xtensive.Sql.Dom.Sql.QueryRef(left.Query);
-      var rightQuery = Xtensive.Sql.Dom.Sql.QueryRef(right.Query);
-      var joinedTable = Xtensive.Sql.Dom.Sql.Join(
+      var leftQuery = SqlFactory.QueryRef(left.Query);
+      var rightQuery = SqlFactory.QueryRef(right.Query);
+      var joinedTable = SqlFactory.Join(
         provider.LeftJoin ? SqlJoinType.LeftOuterJoin : SqlJoinType.InnerJoin,
         leftQuery,
         rightQuery);
 
-      SqlSelect query = Xtensive.Sql.Dom.Sql.Select(joinedTable);
+      SqlSelect query = SqlFactory.Select(joinedTable);
       query.Columns.AddRange(joinedTable.Columns.Cast<SqlColumn>());
 
       return new SqlProvider(provider, query);

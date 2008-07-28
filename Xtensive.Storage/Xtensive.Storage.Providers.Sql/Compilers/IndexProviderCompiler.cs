@@ -15,7 +15,7 @@ using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
 using System.Linq;
 using Xtensive.Storage.Rse.Providers.Compilable;
-using SQL = Xtensive.Sql.Dom.Sql;
+using SqlFactory = Xtensive.Sql.Dom.Sql;
 
 namespace Xtensive.Storage.Providers.Sql.Compilers
 {
@@ -48,8 +48,8 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
     private SqlSelect BuildTableQuery(IndexInfo index)
     {
       Table table = domainHandler.Catalog.DefaultSchema.Tables[index.ReflectedType.MappingName];
-      SqlTableRef tableRef = Xtensive.Sql.Dom.Sql.TableRef(table);
-      SqlSelect query = Xtensive.Sql.Dom.Sql.Select(tableRef);
+      SqlTableRef tableRef = SqlFactory.TableRef(table);
+      SqlSelect query = SqlFactory.Select(tableRef);
       query.Columns.AddRange(index.Columns.Select(c => (SqlColumn)tableRef.Columns[c.Name]));
       return query;
     }
@@ -60,11 +60,11 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
 
       var baseQueries = index.UnderlyingIndexes.Select(i => BuildProviderQuery(i)).ToList();
       foreach (var baseQuery in baseQueries) {
-        SqlSelect select = SQL.Select(SQL.QueryRef(baseQuery));
+        SqlSelect select = SqlFactory.Select(SqlFactory.QueryRef(baseQuery));
         foreach (var columnInfo in index.Columns) {
           var column = baseQuery.Columns[columnInfo.Name];
           if (SqlExpression.IsNull(column))
-            select.Columns.Add(SQL.Null, columnInfo.Name);
+            select.Columns.Add(SqlFactory.Null, columnInfo.Name);
           else
             select.Columns.Add(column);
         }
@@ -74,8 +74,8 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
           result = result.Union(select);
       }
 
-      var unionRef = SQL.QueryRef(result);
-      SqlSelect query = SQL.Select(unionRef);
+      var unionRef = SqlFactory.QueryRef(result);
+      SqlSelect query = SqlFactory.Select(unionRef);
       query.Columns.AddRange(unionRef.Columns.Cast<SqlColumn>());
       return query;
     }
@@ -90,12 +90,12 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
       var baseQueries = index.UnderlyingIndexes.Select(i => BuildProviderQuery(i)).ToList();
       foreach (var baseQuery in baseQueries) {
         if (result==null) {
-          result = SQL.QueryRef(baseQuery);
+          result = SqlFactory.QueryRef(baseQuery);
           rootTable = result;
           columns = rootTable.Columns.Cast<SqlColumn>();
         }
         else {
-          var queryRef = SQL.QueryRef(baseQuery);
+          var queryRef = SqlFactory.QueryRef(baseQuery);
           SqlExpression joinExpression = null;
           for (int i = 0; i < keyColumnCount; i++) {
             SqlBinary binary = (queryRef.Columns[i] == rootTable.Columns[i]);
@@ -109,7 +109,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
         }
       }
 
-      SqlSelect query = SQL.Select(result);
+      SqlSelect query = SqlFactory.Select(result);
       query.Columns.AddRange(columns);
 
       return query;
@@ -123,8 +123,8 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
 
       var baseQuery = BuildProviderQuery(index.UnderlyingIndexes[0]);
       SqlColumn typeIdColumn = baseQuery.Columns[handlerAccessor.Domain.NameProvider.TypeId];
-      SqlBinary inQuery = SQL.In(typeIdColumn, SQL.Array(typeIds));
-      SqlSelect query = SQL.Select(SQL.QueryRef(baseQuery));
+      SqlBinary inQuery = SqlFactory.In(typeIdColumn, SqlFactory.Array(typeIds));
+      SqlSelect query = SqlFactory.Select(SqlFactory.QueryRef(baseQuery));
       query.Columns.AddRange(index.Columns.Select(c => baseQuery.Columns[c.Name]));
       query.Where = inQuery;
 

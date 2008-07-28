@@ -14,6 +14,7 @@ using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
+using SqlFactory = Xtensive.Sql.Dom.Sql;
 
 namespace Xtensive.Storage.Providers.Sql.Compilers
 {
@@ -44,18 +45,18 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
           var entireValueType = actionData.RangeBound.GetValueType(fieldIndex);
           switch (entireValueType) {
             case EntireValueType.PositiveInfinitesimal:
-              actionData.Expression &= actionData.KeyColumns[fieldIndex] > Xtensive.Sql.Dom.Sql.Literal(actionData.RangeBound.GetValue<TFieldType>(fieldIndex));
+              actionData.Expression &= actionData.KeyColumns[fieldIndex] > SqlFactory.Literal(actionData.RangeBound.GetValue<TFieldType>(fieldIndex));
               return false;
             case EntireValueType.NegativeInfinitesimal:
-              actionData.Expression &= actionData.KeyColumns[fieldIndex] >= Xtensive.Sql.Dom.Sql.Literal(actionData.RangeBound.GetValue<TFieldType>(fieldIndex));
+              actionData.Expression &= actionData.KeyColumns[fieldIndex] >= SqlFactory.Literal(actionData.RangeBound.GetValue<TFieldType>(fieldIndex));
               return false;
             case EntireValueType.PositiveInfinity:
-              actionData.Expression &= Xtensive.Sql.Dom.Sql.Constant("1") != Xtensive.Sql.Dom.Sql.Constant("1");
+              actionData.Expression &= SqlFactory.Constant("1") != SqlFactory.Constant("1");
               return true;
             case EntireValueType.NegativeInfinity:
               return false;
             default:
-              actionData.Expression &= actionData.KeyColumns[fieldIndex] >= Xtensive.Sql.Dom.Sql.Literal(actionData.RangeBound.GetValue<TFieldType>(fieldIndex));
+              actionData.Expression &= actionData.KeyColumns[fieldIndex] >= SqlFactory.Literal(actionData.RangeBound.GetValue<TFieldType>(fieldIndex));
               return false;
           }
         }
@@ -63,18 +64,18 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
           var entireValueType = actionData.RangeBound.GetValueType(fieldIndex);
           switch (entireValueType) {
             case EntireValueType.PositiveInfinitesimal:
-              actionData.Expression &= actionData.KeyColumns[fieldIndex] <= Xtensive.Sql.Dom.Sql.Literal(actionData.RangeBound.GetValue<TFieldType>(fieldIndex));
+              actionData.Expression &= actionData.KeyColumns[fieldIndex] <= SqlFactory.Literal(actionData.RangeBound.GetValue<TFieldType>(fieldIndex));
               return false;
             case EntireValueType.NegativeInfinitesimal:
-              actionData.Expression &= actionData.KeyColumns[fieldIndex] < Xtensive.Sql.Dom.Sql.Literal(actionData.RangeBound.GetValue<TFieldType>(fieldIndex));
+              actionData.Expression &= actionData.KeyColumns[fieldIndex] < SqlFactory.Literal(actionData.RangeBound.GetValue<TFieldType>(fieldIndex));
               return false;
             case EntireValueType.PositiveInfinity:
               return false;
             case EntireValueType.NegativeInfinity:
-              actionData.Expression &= Xtensive.Sql.Dom.Sql.Constant("1")!=Xtensive.Sql.Dom.Sql.Constant("1");
+              actionData.Expression &= SqlFactory.Constant("1")!=SqlFactory.Constant("1");
               return true;
             default:
-              actionData.Expression &= actionData.KeyColumns[fieldIndex] <= Xtensive.Sql.Dom.Sql.Literal(actionData.RangeBound.GetValue<TFieldType>(fieldIndex));
+              actionData.Expression &= actionData.KeyColumns[fieldIndex] <= SqlFactory.Literal(actionData.RangeBound.GetValue<TFieldType>(fieldIndex));
               return false;
             }
         }
@@ -87,8 +88,8 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
       if (source == null)
         return null;
 
-      var queryRef = Xtensive.Sql.Dom.Sql.QueryRef(source.Query);
-      SqlSelect query = Xtensive.Sql.Dom.Sql.Select(queryRef);
+      var queryRef = SqlFactory.QueryRef(source.Query);
+      SqlSelect query = SqlFactory.Select(queryRef);
       query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
 
       var direction = provider.Range.GetDirection(AdvancedComparer<IEntire<Tuple>>.Default);
@@ -109,6 +110,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
 
       return new SqlProvider(provider, query);
     }
+
 
     // Constructors
 

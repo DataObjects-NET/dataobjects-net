@@ -18,6 +18,7 @@ using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers.Sql.Resources;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers.Compilable;
+using SqlFactory = Xtensive.Sql.Dom.Sql;
 
 namespace Xtensive.Storage.Providers.Sql
 {
@@ -30,10 +31,10 @@ namespace Xtensive.Storage.Providers.Sql
     protected override void Insert(EntityData data)
     {
       EnsureConnectionIsOpen();
-      SqlBatch batch = Xtensive.Sql.Dom.Sql.Batch();
+      SqlBatch batch = SqlFactory.Batch();
       foreach (IndexInfo primaryIndex in GetParentPrimaryIndexes(data.Type.Indexes.PrimaryIndex)) {
         SqlTableRef tableRef = GetTableRef(primaryIndex);
-        SqlInsert insert = Xtensive.Sql.Dom.Sql.Insert(tableRef);
+        SqlInsert insert = SqlFactory.Insert(tableRef);
         foreach (Pair<int, SqlExpression> pair in SetValues(primaryIndex, data.Tuple, data.Type)) {
           insert.Values[tableRef[pair.First]] = pair.Second;
         }
@@ -51,8 +52,8 @@ namespace Xtensive.Storage.Providers.Sql
       IndexInfo primaryIndex = key.Type.Indexes.PrimaryIndex;
       /*var provider = new IndexProvider(primaryIndex);
       var compiled = (SqlProvider)provider.Compiled;
-      var queryRef = Xtensive.Sql.Dom.Sql.QueryRef(compiled.Query);
-      SqlSelect select = Xtensive.Sql.Dom.Sql.Select(queryRef);
+      var queryRef = SqlFactory.QueryRef(compiled.Query);
+      SqlSelect select = SqlFactory.Select(queryRef);
       IEnumerable<SqlColumn> columnsToAdd = queryRef.Columns.Cast<SqlColumn>().Where(sqlColumn => columns.Any(columnInfo => columnInfo.Name==sqlColumn.Name));
       foreach (SqlColumn column in columnsToAdd)
         select.Columns.Add(column);
@@ -74,10 +75,10 @@ namespace Xtensive.Storage.Providers.Sql
     protected override void Update(EntityData data)
     {
       EnsureConnectionIsOpen();
-      SqlBatch batch = Xtensive.Sql.Dom.Sql.Batch();
+      SqlBatch batch = SqlFactory.Batch();
       foreach (IndexInfo primaryIndex in GetRealPrimaryIndexes(data.Type.Indexes.PrimaryIndex)) {
         SqlTableRef tableRef = GetTableRef(primaryIndex);
-        SqlUpdate update = Xtensive.Sql.Dom.Sql.Update(tableRef);
+        SqlUpdate update = SqlFactory.Update(tableRef);
         foreach (Pair<int, SqlExpression> pair in SetValues(primaryIndex, data.Tuple, data.Type)) {
           update.Values[tableRef[pair.First]] = pair.Second;
         }
@@ -93,11 +94,11 @@ namespace Xtensive.Storage.Providers.Sql
     protected override void Remove(EntityData data)
     {
       EnsureConnectionIsOpen();
-      SqlBatch batch = Xtensive.Sql.Dom.Sql.Batch();
+      SqlBatch batch = SqlFactory.Batch();
       int tableCount = 0;
       foreach (IndexInfo index in GetParentPrimaryIndexes(data.Key.Type.Indexes.PrimaryIndex)) {
         SqlTableRef tableRef = GetTableRef(index);
-        SqlDelete delete = Xtensive.Sql.Dom.Sql.Delete(tableRef);
+        SqlDelete delete = SqlFactory.Delete(tableRef);
         delete.Where = DomainHandler.GetWhereStatement(tableRef, GetStatementMapping(data.Key.Type.Indexes.PrimaryIndex, columnInfo => columnInfo.IsPrimaryKey), data.Key);
         batch.Add(delete);
         tableCount++;
@@ -193,7 +194,7 @@ namespace Xtensive.Storage.Providers.Sql
       Table table;
       if (!DomainHandler.RealIndexes.TryGetValue(index, out table))
         throw new InvalidOperationException(String.Format(Strings.ExTypeDoesntHavePrimaryIndex, index.Name));
-      return Xtensive.Sql.Dom.Sql.TableRef(table);
+      return SqlFactory.TableRef(table);
     }
 
     private void EnsureConnectionIsOpen()

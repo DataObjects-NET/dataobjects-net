@@ -6,10 +6,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Data.Common;
 using System.Linq;
-using Xtensive.Core.Collections;
 using Xtensive.Core.Tuples;
 using Xtensive.Sql.Common;
 using Xtensive.Sql.Dom;
@@ -18,10 +16,10 @@ using Xtensive.Sql.Dom.Database.Providers;
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse.Compilation;
-using Xtensive.Storage.Rse.Compilation;
-using ColumnInfo=Xtensive.Storage.Model.ColumnInfo;
-using IndexInfo=Xtensive.Storage.Model.IndexInfo;
 using Xtensive.Storage.Providers.Sql.Resources;
+using ColumnInfo = Xtensive.Storage.Model.ColumnInfo;
+using IndexInfo  = Xtensive.Storage.Model.IndexInfo;
+using SqlFactory = Xtensive.Sql.Dom.Sql;
 
 namespace Xtensive.Storage.Providers.Sql
 {
@@ -64,13 +62,13 @@ namespace Xtensive.Storage.Providers.Sql
 
     private void ClearCatalog()
     {
-      SqlBatch batch = Xtensive.Sql.Dom.Sql.Batch();
+      SqlBatch batch = SqlFactory.Batch();
       Schema schema = catalog.DefaultSchema;
       foreach (View view in schema.Views)
-        batch.Add(Xtensive.Sql.Dom.Sql.Drop(view));
+        batch.Add(SqlFactory.Drop(view));
       schema.Views.Clear();
       foreach (Table table in schema.Tables)
-        batch.Add(Xtensive.Sql.Dom.Sql.Drop(table));
+        batch.Add(SqlFactory.Drop(table));
       schema.Tables.Clear();
       if (batch.Count > 0)
         ExecuteNonQuery(batch);
@@ -78,7 +76,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     private void BuildCatalog()
     {
-      SqlBatch batch = Xtensive.Sql.Dom.Sql.Batch();
+      SqlBatch batch = SqlFactory.Batch();
       // Build tables
       foreach (TypeInfo type in Accessor.Domain.Model.Types) {
         IndexInfo primaryIndex = type.Indexes.FindFirst(IndexAttributes.Real | IndexAttributes.Primary);
@@ -93,14 +91,14 @@ namespace Xtensive.Storage.Providers.Sql
               keyColumns.Add(tableColumn);
           }
           table.CreatePrimaryKey(primaryIndex.Name, keyColumns.ToArray());
-          batch.Add(Xtensive.Sql.Dom.Sql.Create(table));
+          batch.Add(SqlFactory.Create(table));
           // Secondary indexes
           foreach (IndexInfo secondaryIndex in type.Indexes.Find(IndexAttributes.Real).Where(indexInfo => !indexInfo.IsPrimary)) {
             Index index = table.CreateIndex(secondaryIndex.Name);
             index.IsUnique = secondaryIndex.IsUnique;
             // TODO: index.FillFactor = secondaryIndex.FillFactor;
             index.Filegroup = "\"default\"";
-            batch.Add(Xtensive.Sql.Dom.Sql.Create(index));
+            batch.Add(SqlFactory.Create(index));
             foreach (ColumnInfo column in secondaryIndex.Columns.Where(columnInfo => !columnInfo.IsPrimaryKey && !columnInfo.IsSystem)) {
               ColumnInfo indexColumn = column;
               index.CreateIndexColumn(table.TableColumns.First(tableColumn => tableColumn.Name==indexColumn.Name));

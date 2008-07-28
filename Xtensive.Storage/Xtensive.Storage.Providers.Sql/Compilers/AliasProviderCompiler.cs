@@ -9,6 +9,7 @@ using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
+using SqlFactory = Xtensive.Sql.Dom.Sql;
 
 namespace Xtensive.Storage.Providers.Sql.Compilers
 {
@@ -18,12 +19,12 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
     protected override ExecutableProvider Compile(AliasProvider provider)
     {
       var source = (SqlProvider)Compiler.Compile(provider.Source, true);
-      var queryRef = Xtensive.Sql.Dom.Sql.QueryRef(source.Query, provider.Alias);
-      SqlSelect query = Xtensive.Sql.Dom.Sql.Select(queryRef);
-      query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
-
-      return new SqlProvider(provider, query);
+      var queryRef  = SqlFactory.QueryRef(source.Query, provider.Alias);
+      var sqlSelect = SqlFactory.Select(queryRef);
+      sqlSelect.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
+      return new SqlProvider(provider, sqlSelect);
     }
+
 
     // Constructor
 
