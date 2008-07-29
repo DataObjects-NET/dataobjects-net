@@ -7,8 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
 using Xtensive.Storage.Resources;
 
@@ -39,48 +37,47 @@ namespace Xtensive.Storage.Providers
     /// </summary>
     /// <param name="handlerType">Type of the handler to create.</param>
     /// <returns>A newly created handler of requested type;
-    /// <exception cref="NotSupportedException">Handler for type <paramref name="handlerType"/> was not found.</exception>
+    /// <exception cref="NotSupportedException">Handler for type <paramref name="handlerType"/> was not found.</exception>    
     public virtual HandlerBase CreateHandler(Type handlerType)
     {
-      HandlerBase handler;
-      if (!TryCreateHandler(handlerType, out handler))
+      HandlerBase handler = TryCreateHandler(handlerType);
+      
+      if (handler==null)
         throw new NotSupportedException(string.Format(Strings.ExCannotFindHandler, 
           handlerType.GetShortName()));
+
       return handler;
     }
 
     /// <summary>
-    /// Creates the handler of type <typeparamref name="T"/>.
+    /// Creates the handler of the specified type.
     /// </summary>
     /// <typeparam name="T">Type of the handler to create.</typeparam>
-    /// <param name="handler">When this method returns, contains the handler associated 
-    /// with the specified <typeparamref name="T"/>, if the handler is found; 
-    /// otherwise, <see langword="null"/>. This parameter is passed uninitialized.</param>
-    /// <returns><see langword="true"/> if the handler was found;
-    /// otherwise <see langword="false"/>.</returns>
-    public bool TryCreateHandler<T> (out HandlerBase handler)
+    /// <returns>
+    /// Created handler or <see langword="null" /> if handler of specified type was now found.
+    /// </returns>
+    public HandlerBase TryCreateHandler<T> ()
     {
-      return TryCreateHandler(typeof(T), out handler);
+      return TryCreateHandler(typeof(T));
     }
 
     /// <summary>
-    /// Creates the handler of type <param name="handlerType".
+    /// Creates the handler of type <param name="handlerType"/>.
     /// </summary>
     /// <param name="handlerType">Type of the handler to create.</param>
-    /// <param name="handler">When this method returns, contains the handler associated 
-    /// with the specified <paramref name="handlerType"/>, if the handler is found; 
-    /// otherwise, <see langword="null"/>. This parameter is passed uninitialized.</param>
-    /// <returns><see langword="true"/> if the handler was found;
-    /// otherwise <see langword="false"/>.</returns>
-    public bool TryCreateHandler(Type handlerType, out HandlerBase handler)
+    /// <returns>
+    /// Created handler or <see langword="null" /> if handler of specified type was now found.
+    /// </returns>
+    public HandlerBase TryCreateHandler(Type handlerType)
     {
       Func<object> constructor;
-      handler = null;
       if (!constructors.TryGetValue(handlerType, out constructor) || constructor==null)
-        return false;
-      handler = (HandlerBase) constructor();
-      handler.Accessor = Domain.HandlerAccessor;
-      return true;
+        return null;
+
+      HandlerBase result = (HandlerBase) constructor();
+      result.Accessor = Domain.HandlerAccessor;
+
+      return result;
     }
 
     /// <summary>
