@@ -84,8 +84,9 @@ namespace Xtensive.Core.Diagnostics.Helpers
     }
 
     /// <inheritdoc/>
-    public IDisposable DebugRegion(string title)
+    public IDisposable DebugRegion(string format, params object[] args)
     {
+      string title = string.Format(format, args);
       Debug(String.Format(Strings.LogRegionBegin, title));
       return new Disposable<IDisposable>(
         new LogIndentScope(),
@@ -115,8 +116,9 @@ namespace Xtensive.Core.Diagnostics.Helpers
     }
 
     /// <inheritdoc/>
-    public IDisposable InfoRegion(string title)
+    public IDisposable InfoRegion(string format, params object[] args)
     {
+      string title = string.Format(format, args);
       Info(String.Format(Strings.LogRegionBegin, title));
       return new Disposable<IDisposable>(
         new LogIndentScope(),

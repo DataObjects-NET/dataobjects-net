@@ -45,10 +45,11 @@ namespace Xtensive.Core.Diagnostics
     /// Creates an indented and titled region in log.
     /// The region boundaries are logged as debug messages.
     /// </summary>
-    /// <param name="title">Region title.</param>
+    /// <param name="format">The format string.</param>
+    /// <param name="args">The arguments.</param>
     /// <returns>An <see cref="IDisposable"/>, which disposal will
     /// "close" the region.</returns>
-    IDisposable DebugRegion(string title);
+    IDisposable DebugRegion(string format, params object[] args);
 
     /// <summary>
     /// Writes info message to log.
@@ -75,10 +76,12 @@ namespace Xtensive.Core.Diagnostics
     /// Creates an indented and titled region in log.
     /// The region boundaries are logged as info messages.
     /// </summary>
-    /// <param name="title">Region title.</param>
-    /// <returns>An <see cref="IDisposable"/>, which disposal will
-    /// "close" the region.</returns>
-    IDisposable InfoRegion(string title);
+    /// <param name="format">The format string.</param>
+    /// <param name="args">The arguments.</param>
+    /// <returns>
+    /// An <see cref="IDisposable"/>, which disposal will "close" the region.
+    /// </returns>
+    IDisposable InfoRegion(string format, params object[] args);
 
     /// <summary>
     /// Writes warning message to log.

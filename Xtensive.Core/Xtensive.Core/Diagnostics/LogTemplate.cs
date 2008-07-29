@@ -59,9 +59,9 @@ namespace Xtensive.Core.Diagnostics
     }
 
     /// <see cref="ILog.DebugRegion" copy="true" />
-    public static IDisposable DebugRegion(string title)
+    public static IDisposable DebugRegion(string format, params object[] args)
     {
-      return Instance.DebugRegion(title);
+      return Instance.DebugRegion(format, args);
     }
 
     /// <see cref="ILog.Info(string,object[])" copy="true" />
@@ -83,9 +83,9 @@ namespace Xtensive.Core.Diagnostics
     }
 
     /// <see cref="ILog.InfoRegion" copy="true" />
-    public static IDisposable InfoRegion(string title)
+    public static IDisposable InfoRegion(string format, params object[] args)
     {
-      return Instance.InfoRegion(title);
+      return Instance.InfoRegion(format, args);
     }
 
     /// <see cref="ILog.Warning(string,object[])" copy="true" />
