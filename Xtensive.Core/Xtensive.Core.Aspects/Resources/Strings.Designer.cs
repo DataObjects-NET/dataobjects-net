@@ -230,5 +230,14 @@ namespace Xtensive.Core.Aspects.Resources {
                 return ResourceManager.GetString("LogCantLogNoLogError", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}.
+        /// </summary>
+        internal static string X {
+            get {
+                return ResourceManager.GetString("X", resourceCulture);
+            }
+        }
     }
 }

@@ -9,15 +9,17 @@ using System.Reflection;
 using PostSharp.Extensibility;
 using PostSharp.Laos;
 using Xtensive.Core;
+using Xtensive.Core.Aspects.Helpers;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Reflection;
+using Xtensive.Integrity.Resources;
 using Xtensive.Integrity.Validation;
 using Xtensive.Integrity.Validation.Interfaces;
 
 namespace Xtensive.Integrity.Aspects
 {
   /// <summary>
-  /// Base class for all field-constraints attributes.
+  /// Base class for all property-constraints attributes.
   /// </summary>
   [Serializable]
   [AttributeUsage(AttributeTargets.Property, AllowMultiple = true, Inherited = false)]
@@ -53,7 +55,7 @@ namespace Xtensive.Integrity.Aspects
     /// <returns>Property value.</returns>
     protected object GetPropertyValue(IValidationAware target)
     {
-      return 
+      return
         getter.GetValue(
           _this => _this
             .GetType()
@@ -86,17 +88,23 @@ namespace Xtensive.Integrity.Aspects
     {
       Property = (PropertyInfo) element;
 
-      if (Property.GetSetMethod()==null)
-        throw new Exception(Resources.Strings.FieldConstraintCanNotBeAppliedToReadOnlyProperty);
+      if (Property.GetSetMethod()==null) {
+        AspectsMessageSource.Instance.WriteLine(SeverityType.Error, Strings.FieldConstraintCanNotBeAppliedToReadOnlyProperty);
+        return false;
+      }
 
-      if (!typeof (IValidationAware).IsAssignableFrom(Property.DeclaringType))
-        throw new Exception(
-          string.Format(Resources.Strings.XInterfaceShouldBeImplementedToUseFieldConstraints, typeof(IValidationAware).Name));
-    
-      if (!IsSupported(Property.PropertyType))        
-        throw new Exception(
-          string.Format(Resources.Strings.XDoesNotSupportYValueType, GetType().Name, Property.PropertyType.Name));
-      
+      if (!typeof (IValidationAware).IsAssignableFrom(Property.DeclaringType)) {
+        AspectsMessageSource.Instance.WriteLine(SeverityType.Error, 
+          Strings.XInterfaceShouldBeImplementedToUseFieldConstraints, typeof(IValidationAware).Name);
+        return false;
+      }
+
+      if (!IsSupported(Property.PropertyType)) {
+        AspectsMessageSource.Instance.WriteLine(SeverityType.Error,
+          Strings.XDoesNotSupportYValueType, GetType().Name, Property.PropertyType.Name);
+        return false;
+      }
+
       return true;
     }
 

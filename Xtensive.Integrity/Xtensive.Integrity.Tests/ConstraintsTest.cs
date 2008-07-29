@@ -27,7 +27,7 @@ namespace Xtensive.Integrity.Tests
     {
       public void OnValidate()
       {
-        this.CheckConstraints();        
+        this.CheckConstraints();
       }
 
       public bool IsCompatibleWith(ValidationContextBase context)

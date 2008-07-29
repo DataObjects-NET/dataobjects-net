@@ -241,6 +241,15 @@ namespace Xtensive.Integrity.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0}.
+        /// </summary>
+        internal static string X {
+            get {
+                return ResourceManager.GetString("X", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to &apos;{0}&apos; does not support &apos;{1}&apos; value type..
         /// </summary>
         internal static string XDoesNotSupportYValueType {

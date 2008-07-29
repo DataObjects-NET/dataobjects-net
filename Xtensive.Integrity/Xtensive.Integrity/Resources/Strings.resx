@@ -183,4 +183,7 @@
   <data name="XDoesNotSupportYValueType" xml:space="preserve">
     <value>'{0}' does not support '{1}' value type.</value>
   </data>
+  <data name="X" xml:space="preserve">
+    <value>{0}</value>
+  </data>
 </root>
