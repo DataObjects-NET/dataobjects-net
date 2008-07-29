@@ -49,8 +49,6 @@ namespace Xtensive.Indexing
     private AdvancedComparer<TupleDescriptor> descriptorComparer;
     [NonSerialized]
     private ThreadSafeList<ComparisonHandler> comparisonHandlers;
-    [NonSerialized]
-    private object _lock;
 
 
     protected override IAdvancedComparer<IEntire<T>> CreateNew(ComparisonRules rules)
@@ -186,19 +184,15 @@ namespace Xtensive.Indexing
     {
       int identifier = descriptor.Identifier;
       ComparisonHandler h = comparisonHandlers.GetValue(identifier);
-      if (h==null)
-        lock (_lock) {
-          h = comparisonHandlers.GetValue(identifier);
-          if (h==null) {
-            var box = new Box<ComparisonHandler>(new ComparisonHandler(descriptor));
-            ExecutionSequenceHandler<Box<ComparisonHandler>>[] initializers =
-              DelegateHelper.CreateDelegates<ExecutionSequenceHandler<Box<ComparisonHandler>>>(
-                this, GetType(), "InitializeStep", descriptor);
-            DelegateHelper.ExecuteDelegates(initializers, ref box, Direction.Positive);
-            h = box.Value;
-            comparisonHandlers.SetValue(identifier, h);
-          }
-        }
+      if (h==null) {
+        var box = new Box<ComparisonHandler>(new ComparisonHandler(descriptor));
+        ExecutionSequenceHandler<Box<ComparisonHandler>>[] initializers =
+          DelegateHelper.CreateDelegates<ExecutionSequenceHandler<Box<ComparisonHandler>>>(
+            this, GetType(), "InitializeStep", descriptor);
+        DelegateHelper.ExecuteDelegates(initializers, ref box, Direction.Positive);
+        h = box.Value;
+        comparisonHandlers.SetValue(identifier, h);
+      }
       return h;
     }
 
@@ -363,11 +357,10 @@ namespace Xtensive.Indexing
 
     private void Initialize()
     {
-      _lock = new object();
       nullHashCode   = SystemComparer<Tuple>.Instance.GetHashCode(null);
       valueComparer  = Provider.GetComparer<T>().ApplyRules(ComparisonRules);
       descriptorComparer = Provider.GetComparer<TupleDescriptor>().ApplyRules(ComparisonRules);
-      comparisonHandlers.Initialize();
+      comparisonHandlers.Initialize(new object());
     }
 
 
