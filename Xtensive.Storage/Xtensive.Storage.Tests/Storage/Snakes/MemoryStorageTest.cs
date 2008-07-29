@@ -5,10 +5,12 @@
 // Created:    2008.07.28
 
 using System.Reflection;
+using NUnit.Framework;
 using Xtensive.Storage.Configuration;
 
 namespace Xtensive.Storage.Tests.Storage.Snakes
 {
+  [TestFixture]
   public class MemoryStorageTest : TestBase
   {
     public override void DomainSetup()
