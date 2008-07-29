@@ -62,7 +62,7 @@ namespace Xtensive.Storage.Providers
     }
 
     /// <summary>
-    /// Creates the handler of type <param name="handlerType"/>.
+    /// Creates the handler of type <paramref name="handlerType"/>.
     /// </summary>
     /// <param name="handlerType">Type of the handler to create.</param>
     /// <returns>
