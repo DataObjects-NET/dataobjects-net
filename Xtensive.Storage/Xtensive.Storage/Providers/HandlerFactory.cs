@@ -24,7 +24,7 @@ namespace Xtensive.Storage.Providers
     /// Creates the handler of type <typeparamref name="T"/>.
     /// </summary>
     /// <typeparam name="T">Type of the handler to create.</typeparam>
-    /// <returns>A newly created handler of requested type;
+    /// <returns>A newly created handler of requested type;</returns>
     /// <exception cref="NotSupportedException">Handler for type <typeparamref name="T"/> was not found.</exception>
     public T CreateHandler<T>()
       where T: HandlerBase
@@ -36,8 +36,8 @@ namespace Xtensive.Storage.Providers
     /// Creates the handler of specified type <paramref name="handlerType"/>.
     /// </summary>
     /// <param name="handlerType">Type of the handler to create.</param>
-    /// <returns>A newly created handler of requested type;
-    /// <exception cref="NotSupportedException">Handler for type <paramref name="handlerType"/> was not found.</exception>    
+    /// <returns>A newly created handler of requested type;</returns>
+    /// <exception cref="NotSupportedException">Handler for type <paramref name="handlerType"/> was not found.</exception>
     public virtual HandlerBase CreateHandler(Type handlerType)
     {
       HandlerBase handler = TryCreateHandler(handlerType);
