@@ -11,7 +11,7 @@ using System.Collections.Generic;
 namespace Xtensive.Storage.Rse
 {
   /// <summary>
-  /// Represents a collection of <see cref="RecordColumn"/> items.
+  /// Collection of <see cref="RecordColumn"/> items.
   /// </summary>
   [Serializable]
   public class RecordColumnCollection : 

@@ -7,9 +7,9 @@
 namespace Xtensive.Storage.Rse
 {
   /// <summary>
-  /// Type of column.
+  /// Kind of column.
   /// </summary>
-  public enum ColumnType
+  public enum ColumnKind
   {
     /// <summary>
     /// Column is not bound to the key.

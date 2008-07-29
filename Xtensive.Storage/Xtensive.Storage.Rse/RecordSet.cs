@@ -11,7 +11,6 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers;
-using Xtensive.Storage.Rse.Providers;
 
 namespace Xtensive.Storage.Rse
 {

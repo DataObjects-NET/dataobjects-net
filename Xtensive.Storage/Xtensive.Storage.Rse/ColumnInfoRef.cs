@@ -7,6 +7,7 @@
 using System;
 using System.Globalization;
 using Xtensive.Core;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse.Resources;
 
@@ -116,9 +117,9 @@ namespace Xtensive.Storage.Rse
     // Constructors
 
     /// <summary>
-    /// Initializes a new instance of <see cref="ColumnInfoRef"/> structure.
+    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="columnInfo"><see cref="ColumnInfo"/> instance.</param>
+    /// <param name="columnInfo">The <see cref="ColumnInfo"/> instance.</param>
     public ColumnInfoRef(ColumnInfo columnInfo)
     {
       ArgumentValidator.EnsureArgumentNotNull(columnInfo, "columnInfo");
@@ -128,9 +129,13 @@ namespace Xtensive.Storage.Rse
       CultureInfo = columnInfo.CultureInfo;
     }
 
+
     /// <summary>
-    /// Initializes a new instance of <see cref="ColumnInfoRef"/> structure.
+    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
+    /// <param name="typeName">Column type name.</param>
+    /// <param name="columnName">Column name.</param>
+    /// <param name="cultureInfo">The culture info.</param>
     public ColumnInfoRef(string typeName, string columnName, CultureInfo cultureInfo)
     {
       TypeName = typeName;

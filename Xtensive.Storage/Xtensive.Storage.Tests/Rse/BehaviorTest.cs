@@ -28,13 +28,13 @@ namespace Xtensive.Storage.Tests.Rse
       var personColumns = new[]
         {
           new RecordColumn("ID", 0, typeof (int)),
-          new RecordColumn("FirstName", 1, typeof (string), ColumnType.Unbound),
-          new RecordColumn("LastName", 2, typeof (string), ColumnType.Unbound),
+          new RecordColumn("FirstName", 1, typeof (string), ColumnKind.Unbound),
+          new RecordColumn("LastName", 2, typeof (string), ColumnKind.Unbound),
         };
       var authorColumns = new[]
         {
           new RecordColumn("ID", 0, typeof (int)),
-          new RecordColumn("Title", 1, typeof (string), ColumnType.Unbound),
+          new RecordColumn("Title", 1, typeof (string), ColumnKind.Unbound),
         };
       var personHeader = new RecordHeader(personTuple.Descriptor, personColumns, null, new[] { new KeyInfo(new []{ personColumns[0] } ), }, null);
       var authorHeader = new RecordHeader(authorTuple.Descriptor, authorColumns, null, new[] { new KeyInfo(new[] { personColumns[0] }), }, null);
@@ -76,14 +76,14 @@ namespace Xtensive.Storage.Tests.Rse
       var authorColumns = new[]
         {
           new RecordColumn("ID", 0, typeof (int)),
-          new RecordColumn("FirstName", 1, typeof (string), ColumnType.Unbound),
-          new RecordColumn("LastName", 2, typeof (string), ColumnType.Unbound),
+          new RecordColumn("FirstName", 1, typeof (string), ColumnKind.Unbound),
+          new RecordColumn("LastName", 2, typeof (string), ColumnKind.Unbound),
         };
       var bookColumns = new[]
         {
           new RecordColumn("ID", 0, typeof (int)),
           new RecordColumn("IDAuthor", 1, typeof (int)),
-          new RecordColumn("Title", 2, typeof (string), ColumnType.Unbound),
+          new RecordColumn("Title", 2, typeof (string), ColumnKind.Unbound),
         };
       var authorHeader = new RecordHeader(authorTuple.Descriptor, authorColumns, TupleDescriptor.Empty, ArrayUtils<KeyInfo>.EmptyArray, new DirectionCollection<int>());
       var bookHeader = new RecordHeader(bookTuple.Descriptor, bookColumns, null, null, null);

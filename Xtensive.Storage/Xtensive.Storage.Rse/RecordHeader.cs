@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
@@ -16,58 +15,32 @@ using System.Linq;
 
 namespace Xtensive.Storage.Rse
 {
+  /// <summary>
+  /// Header of a RSE record.
+  /// </summary>
   [Serializable]
-  public sealed class RecordHeader : LockableBase
+  public sealed class RecordHeader
   {
-    private RecordColumnCollection recordColumnCollection;
-    private TupleDescriptor tupleDescriptor;
-    private RecordOrderInfo orderInfo;
-    private CollectionBaseSlim<KeyInfo> keys;
+    /// <summary>
+    /// Gets or sets the record columns.
+    /// </summary>
+    public RecordColumnCollection RecordColumnCollection { get; private set; }
 
-    public RecordColumnCollection RecordColumnCollection {
-      get { return recordColumnCollection; }
-      set {
-        this.EnsureNotLocked();
-        recordColumnCollection = value;
-      }
-    }
+    /// <summary>
+    /// Gets or sets the tuple descriptor.
+    /// </summary>
+    public TupleDescriptor TupleDescriptor { get; private set; }
 
-    public TupleDescriptor TupleDescriptor {
-      get { return tupleDescriptor; }
-      set {
-        this.EnsureNotLocked();
-        tupleDescriptor = value;
-      }
-    }
+    /// <summary>
+    /// Gets or sets the order info.
+    /// </summary>
+    public RecordOrderInfo OrderInfo { get; private set; }
 
-    public RecordOrderInfo OrderInfo {
-      get { return orderInfo; }
-      set {
-        this.EnsureNotLocked();
-        orderInfo = value;
-      }
-    }
-
-    public CollectionBaseSlim<KeyInfo> Keys
-    {
-      get { return keys; }
-      set {
-        this.EnsureNotLocked();
-        keys = value;
-      }
-    }
-
-    /// <inheritdoc/>
-    public override void Lock(bool recursive)
-    {
-      base.Lock(recursive);
-      if (!recursive)
-        return;
-      
-      foreach (RecordColumn column in RecordColumnCollection) {
-        column.Lock(recursive);
-      }
-    }
+    /// <summary>
+    /// Gets or sets the record's keys.
+    /// </summary>
+    /// <value>The keys.</value>
+    public CollectionBaseSlim<KeyInfo> Keys { get; private set; }
 
     private static DirectionCollection<int> BuildOrderByCollection(IndexInfo indexInfo)
     {
@@ -81,8 +54,7 @@ namespace Xtensive.Storage.Rse
 
       return
         new DirectionCollection<int>(
-          indexInfo.Columns.Select((column, i) => new KeyValuePair<int, Direction>(
-            i,
+          indexInfo.Columns.Select((column, i) => new KeyValuePair<int, Direction>(i,
             columnSortDirections.ContainsKey(column) ? columnSortDirections[column] : Direction.Positive)));
     }
 
@@ -91,16 +63,16 @@ namespace Xtensive.Storage.Rse
       var columnInfoIndices = new Dictionary<ColumnInfo, int>();
       int i = 0;
       var recordColumns = new RecordColumn[indexInfo.Columns.Count];
-      foreach(var columnInfo in indexInfo.Columns) {
+      foreach (var columnInfo in indexInfo.Columns) {
         recordColumns[i] = new RecordColumn(columnInfo, i, columnInfo.ValueType,
-                                            (columnInfo.Attributes & ColumnAttributes.PrimaryKey) > 0
-                                              ? ColumnType.PartOfKey
-                                              : ColumnType.RelatedToKey);
+          (columnInfo.Attributes & ColumnAttributes.PrimaryKey) > 0
+            ? ColumnKind.PartOfKey
+            : ColumnKind.RelatedToKey);
         columnInfoIndices.Add(columnInfo, i++);
       }
 
       return new KeyValuePair<IEnumerable<KeyInfo>, IEnumerable<RecordColumn>>(
-        new [] {new KeyInfo(indexInfo.KeyColumns.Select(pair => recordColumns[columnInfoIndices[pair.Key]]))},
+        new[] {new KeyInfo(indexInfo.KeyColumns.Select(pair => recordColumns[columnInfoIndices[pair.Key]]))},
         recordColumns);
     }
 
@@ -129,9 +101,9 @@ namespace Xtensive.Storage.Rse
       TupleDescriptor = tupleDescriptor;
       RecordColumnCollection = new RecordColumnCollection(recordColumns);
 
-      Keys = keys == null
-                    ? new CollectionBaseSlim<KeyInfo>()
-                    : new CollectionBaseSlim<KeyInfo>(keys);
+      Keys = keys==null
+        ? new CollectionBaseSlim<KeyInfo>()
+        : new CollectionBaseSlim<KeyInfo>(keys);
 
       OrderInfo = new RecordOrderInfo(
         orderedBy ?? new DirectionCollection<int>(),
