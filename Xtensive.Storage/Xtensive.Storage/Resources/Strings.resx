@@ -370,30 +370,45 @@
     <value>Creating {0}</value>
   </data>
   <data name="LogBuildingX" xml:space="preserve">
-  <value>Building {0}</value>
-</data>
+    <value>Building {0}</value>
+  </data>
   <data name="Model" xml:space="preserve">
-  <value>Model</value>
-</data>
+    <value>Model</value>
+  </data>
   <data name="Generators" xml:space="preserve">
-  <value>Generators</value>
-</data>
+    <value>Generators</value>
+  </data>
   <data name="LogValidatingX" xml:space="preserve">
-  <value>Validating {0}</value>
-</data>
+    <value>Validating {0}</value>
+  </data>
   <data name="ActualModel" xml:space="preserve">
-  <value>Actual Model</value>
-</data>
+    <value>Actual Model</value>
+  </data>
   <data name="ModelDefinition" xml:space="preserve">
-  <value>Model Definition</value>
-</data>
+    <value>Model Definition</value>
+  </data>
   <data name="CustomDefinitions" xml:space="preserve">
-  <value>Custom Definitions</value>
-</data>
+    <value>Custom Definitions</value>
+  </data>
   <data name="Types" xml:space="preserve">
-  <value>Types</value>
-</data>
+    <value>Types</value>
+  </data>
   <data name="Services" xml:space="preserve">
-  <value>Services</value>
-</data>
+    <value>Services</value>
+  </data>
+  <data name="LogDefiningX" xml:space="preserve">
+    <value>Defining '{0}'</value>
+  </data>
+  <data name="Associations" xml:space="preserve">
+    <value>Associations</value>
+  </data>
+  <data name="Indexes" xml:space="preserve">
+    <value>Indexes</value>
+  </data>
+  <data name="Columns" xml:space="preserve">
+    <value>Columns</value>
+  </data>
+  <data name="HierarchyColumns" xml:space="preserve">
+    <value>Hierarchy columns</value>
+  </data>
 </root>

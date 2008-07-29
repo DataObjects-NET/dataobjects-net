@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Storage.Attributes;
@@ -15,6 +14,7 @@ using Xtensive.Storage.Model;
 using Xtensive.Core.Reflection;
 using FieldAttributes=Xtensive.Storage.Model.FieldAttributes;
 using FieldInfo=Xtensive.Storage.Model.FieldInfo;
+using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Building.Builders
 {
@@ -23,12 +23,11 @@ namespace Xtensive.Storage.Building.Builders
     public static TypeDef DefineType(Type type)
     {
       BuildingContext context = BuildingContext.Current;
-
-      using (Log.InfoRegion(String.Format("Defining type '{0}'", type.FullName))) {
+      using (Log.InfoRegion(Strings.LogDefiningX, type.FullName)) {
 
         if (context.Definition.Types.Contains(type))
           throw new DomainBuilderException(
-            string.Format(Resources.Strings.TypeXIsAlreadyDefined, type.FullName));
+            string.Format(Strings.TypeXIsAlreadyDefined, type.FullName));
 
         TypeDef typeDef = new TypeDef(type);
 
@@ -39,7 +38,7 @@ namespace Xtensive.Storage.Building.Builders
 
         if (context.Definition.Types.Contains(typeDef.Name))
           throw new DomainBuilderException(
-            string.Format(Resources.Strings.TypeWithNameXIsAlreadyDefined, typeDef.Name));
+            string.Format(Strings.TypeWithNameXIsAlreadyDefined, typeDef.Name));
 
         DefineFields(typeDef);
 
@@ -54,7 +53,7 @@ namespace Xtensive.Storage.Building.Builders
       foreach (FieldDef fieldDef in fields) {
         if (typeDef.Fields.Contains(fieldDef.Name))
           throw new DomainBuilderException(
-            string.Format(Resources.Strings.FieldWithNameXIsAlreadyRegistered, fieldDef.Name));
+            string.Format(Strings.FieldWithNameXIsAlreadyRegistered, fieldDef.Name));
 
         typeDef.Fields.Add(fieldDef);
       }
@@ -80,7 +79,7 @@ namespace Xtensive.Storage.Building.Builders
 
       if (!BuildingContext.Current.Definition.Types.TryGetValue(type, out typeDef))
         throw new DomainBuilderException(
-          string.Format(Resources.Strings.ExTypeXIsNotRegisteredInTheModel, type.FullName));
+          string.Format(Strings.ExTypeXIsNotRegisteredInTheModel, type.FullName));
 
       BuildType(typeDef);
     }
@@ -109,7 +108,7 @@ namespace Xtensive.Storage.Building.Builders
     {
       BuildAnsector(typeDef);
 
-      using (Log.InfoRegion(String.Format("Building structure '{0}'", typeDef.UnderlyingType.FullName))) {
+      using (Log.InfoRegion(Strings.LogBuildingX, typeDef.UnderlyingType.FullName)) {
         TypeInfo type = CreateType(typeDef);
         ProcessAncestor(type);
         BuildDeclaredFields(type, typeDef);
@@ -128,7 +127,7 @@ namespace Xtensive.Storage.Building.Builders
 
       BuildAnsector(typeDef);
 
-      using (Log.InfoRegion(String.Format("Building entity '{0}'", typeDef.UnderlyingType.GetShortName()))) {
+      using (Log.InfoRegion(Strings.LogBuildingX, typeDef.UnderlyingType.GetShortName())) {
 
         TypeInfo type = CreateType(typeDef);
 
@@ -294,7 +293,7 @@ namespace Xtensive.Storage.Building.Builders
           context.Model.Types.RegisterBaseInterface(ancestor, type);
       }
 
-      using (Log.InfoRegion(String.Format("Building interface '{0}'", typeDef.UnderlyingType.FullName))) {
+      using (Log.InfoRegion(Strings.LogBuildingX, typeDef.UnderlyingType.FullName)) {
 
         foreach (TypeInfo @interface in context.Model.Types.FindInterfaces(type, false))
           ProcessBaseInterface(@interface, type);

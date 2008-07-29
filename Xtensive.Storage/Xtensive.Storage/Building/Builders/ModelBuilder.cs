@@ -17,105 +17,133 @@ namespace Xtensive.Storage.Building.Builders
   {
     public static void Build()
     {
-      using (Log.InfoRegion(String.Format(Strings.LogBuildingX, Strings.ModelDefinition)))
-        BuildDefinition();
-      using (Log.InfoRegion(String.Format(Strings.LogBuildingX, Strings.ActualModel)))
-        BuildModel();
+      BuildDefinition();
+      BuildModel();
     }
 
     private static void BuildDefinition()
     {
-      BuildingContext context = BuildingContext.Current;
-      try {
-        context.Definition = new DomainDef();
-        using (Log.InfoRegion(String.Format(Strings.LogBuildingX, Strings.Types)))
-          DefineTypes();
-        using (Log.InfoRegion(String.Format(Strings.LogBuildingX, Strings.Services)))
-          DefineServices();
-      }
-      catch (DomainBuilderException e) {
-        context.RegisterError(e);
-      }
-      context.EnsureBuildSucceed();
+      using (Log.InfoRegion(Strings.LogBuildingX, Strings.ModelDefinition)) {
+        BuildingContext context = BuildingContext.Current;
+        try {
+          context.Definition = new DomainDef();
 
-      if (context.Configuration.Builders.Count == 0)
-        return;
-      
-      using (Log.InfoRegion(String.Format(Strings.LogBuildingX, Strings.CustomDefinitions)))
+          DefineTypes();
+          DefineServices();
+        }
+        catch (DomainBuilderException e) {
+          context.RegisterError(e);
+        }
+        context.EnsureBuildSucceed();
+
+        if (context.Configuration.Builders.Count==0)
+          return;
+
+        BuildCustomDefinitions();
+      }
+    }
+
+    private static void BuildCustomDefinitions()
+    {
+      using (Log.InfoRegion(Strings.LogBuildingX, Strings.CustomDefinitions)) {
+        BuildingContext context = BuildingContext.Current;
         foreach (Type type in BuildingContext.Current.Configuration.Builders) {
-          IDomainBuilder builder = (IDomainBuilder)Activator.CreateInstance(type);
+          IDomainBuilder builder = (IDomainBuilder) Activator.CreateInstance(type);
           builder.Build(context, context.Definition);
         }
+      }
     }
 
     private static void BuildModel()
     {
-      BuildingContext context = BuildingContext.Current;
-      context.Model = new DomainInfo();
-      BuildTypes();
-      context.Model.Lock(true);
+      using (Log.InfoRegion(Strings.LogBuildingX, Strings.ActualModel)) {
+        BuildingContext context = BuildingContext.Current;
+        context.Model = new DomainInfo();
+        BuildTypes();
+        context.Model.Lock(true);
+      }
     }
 
     private static void DefineTypes()
     {
-      BuildingContext context = BuildingContext.Current;
-      foreach (Type type in context.Configuration.Types) {
-        try {
-          TypeDef typeDef = TypeBuilder.DefineType(type);
-          context.Definition.Types.Add(typeDef);
-          IndexBuilder.DefineIndexes(typeDef);
-        }
-        catch (DomainBuilderException e) {
-          context.RegisterError(e);
+      using (Log.InfoRegion(Strings.LogDefiningX, Strings.Types)) {
+        BuildingContext context = BuildingContext.Current;
+        foreach (Type type in context.Configuration.Types) {
+          try {
+            TypeDef typeDef = TypeBuilder.DefineType(type);
+            context.Definition.Types.Add(typeDef);
+            IndexBuilder.DefineIndexes(typeDef);
+          }
+          catch (DomainBuilderException e) {
+            context.RegisterError(e);
+          }
         }
       }
     }
 
     private static void DefineServices()
     {
+      using (Log.InfoRegion(Strings.LogBuildingX, Strings.Services)) {
+
+      }
     }
 
     private static void BuildTypes()
     {
-      BuildingContext context = BuildingContext.Current;
+      using (Log.InfoRegion(Strings.LogBuildingX, Strings.Types)) {
+        BuildingContext context = BuildingContext.Current;
 
-      // Types
-      foreach (TypeDef typeDef in context.Definition.Types.Where(t => !t.IsInterface))
-        try {
-          TypeBuilder.BuildType(typeDef);
-        }
-        catch (DomainBuilderException e) {
-          context.RegisterError(e);
-        }
+        foreach (TypeDef typeDef in context.Definition.Types.Where(t => !t.IsInterface))
+          try {
+            TypeBuilder.BuildType(typeDef);
+          }
+          catch (DomainBuilderException e) {
+            context.RegisterError(e);
+          }
 
-      // Associations
-      foreach (Pair<AssociationInfo, string> pair in context.PairedAssociations) {
-        if (context.DiscardedAssociations.Contains(pair.First))
-          continue;
-        try {
-          AssociationBuilder.BuildPairedAssociation(pair.First, pair.Second);
-        }
-        catch (DomainBuilderException e) {
-          context.RegisterError(e);
+        BuildAssociations();
+        BuildColumns();
+        IndexBuilder.BuildIndexes();
+        BuildHierarchyColumns();
+      }
+    }
+
+    private static void BuildHierarchyColumns()
+    {
+      using (Log.InfoRegion(Strings.LogBuildingX, Strings.HierarchyColumns)) {
+        foreach (HierarchyInfo hierarchyInfo in BuildingContext.Current.Model.Hierarchies)
+          HierarchyBuilder.BuildHierarchyColumns(hierarchyInfo);
+      }
+    }
+
+    private static void BuildColumns()
+    {
+      using (Log.InfoRegion(Strings.LogBuildingX, Strings.Columns)) {
+        foreach (TypeInfo type in BuildingContext.Current.Model.Types) {
+          type.Columns.Clear();
+          type.Columns.AddRange(type.Fields.Where(f => f.Column!=null).Select(f => f.Column));
         }
       }
+    }
 
-      foreach (AssociationInfo ai in context.DiscardedAssociations)
-        context.Model.Associations.Remove(ai);
+    private static void BuildAssociations()
+    {
+      using (Log.InfoRegion(Strings.LogBuildingX, Strings.Associations)) {
+        BuildingContext context = BuildingContext.Current;
+        foreach (Pair<AssociationInfo, string> pair in context.PairedAssociations) {
+          if (context.DiscardedAssociations.Contains(pair.First))
+            continue;
+          try {
+            AssociationBuilder.BuildPairedAssociation(pair.First, pair.Second);
+          }
+          catch (DomainBuilderException e) {
+            context.RegisterError(e);
+          }
+        }
 
-      // Columns
-      foreach (TypeInfo type in context.Model.Types) {
-        type.Columns.Clear();
-        type.Columns.AddRange(type.Fields.Where(f => f.Column!=null).Select(f => f.Column));
+        foreach (AssociationInfo ai in context.DiscardedAssociations)
+          context.Model.Associations.Remove(ai);
       }
-
-      // Indexes
-      IndexBuilder.BuildIndexes();
-      IndexBuilder.BuildAffectedIndexes();
-
-      // Hirarchy columns
-      foreach (HierarchyInfo hierarchyInfo in context.Model.Hierarchies)
-        HierarchyBuilder.BuildHierarchyColumns(hierarchyInfo);
     }
   }
 }

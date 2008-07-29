@@ -88,6 +88,24 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Associations.
+        /// </summary>
+        internal static string Associations {
+            get {
+                return ResourceManager.GetString("Associations", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Columns.
+        /// </summary>
+        internal static string Columns {
+            get {
+                return ResourceManager.GetString("Columns", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Custom Definitions.
         /// </summary>
         internal static string CustomDefinitions {
@@ -611,11 +629,29 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Hierarchy columns.
+        /// </summary>
+        internal static string HierarchyColumns {
+            get {
+                return ResourceManager.GetString("HierarchyColumns", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Indexed properties are not supported..
         /// </summary>
         internal static string IndexedPropertiesAreNotSupported {
             get {
                 return ResourceManager.GetString("IndexedPropertiesAreNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Indexes.
+        /// </summary>
+        internal static string Indexes {
+            get {
+                return ResourceManager.GetString("Indexes", resourceCulture);
             }
         }
         
@@ -706,6 +742,15 @@ namespace Xtensive.Storage.Resources {
         internal static string LogCreatingX {
             get {
                 return ResourceManager.GetString("LogCreatingX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Defining &apos;{0}&apos;.
+        /// </summary>
+        internal static string LogDefiningX {
+            get {
+                return ResourceManager.GetString("LogDefiningX", resourceCulture);
             }
         }
         

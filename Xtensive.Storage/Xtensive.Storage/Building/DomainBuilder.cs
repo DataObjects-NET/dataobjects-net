@@ -41,33 +41,28 @@ namespace Xtensive.Storage.Building
       if (!configuration.IsLocked)
         configuration.Lock(true);
 
-      using (Log.InfoRegion(String.Format(Strings.LogValidatingX, typeof(DomainConfiguration).GetShortName())))
+      using (Log.InfoRegion(Strings.LogValidatingX, typeof(DomainConfiguration).GetShortName()))
         Validate(configuration);
 
       var context = new BuildingContext(configuration);
-      using (Log.InfoRegion(String.Format(Strings.LogBuildingX, typeof(Domain).GetShortName())))
-      using (new BuildingScope(context)) {
-        try {
-          using (Log.InfoRegion(String.Format(Strings.LogCreatingX, typeof(Domain).GetShortName())))
-            CreateDomain();
-          using (Log.InfoRegion(String.Format(Strings.LogCreatingX, typeof(HandlerFactory).GetShortName())))
-            CreateHandlerFactory();
-          using (Log.InfoRegion(String.Format(Strings.LogCreatingX, typeof(NameBuilder).GetShortName())))
-            CreateNameBuilder();
-          using (Log.InfoRegion(String.Format(Strings.LogBuildingX, Strings.Model)))
-            BuildModel();
-          using (Log.InfoRegion(String.Format(Strings.LogCreatingX, typeof(DomainHandler).GetShortName())))
-            CreateDomainHandler();
-          using (Log.InfoRegion(String.Format(Strings.LogCreatingX, typeof(KeyManager).GetShortName())))
-            CreateKeyManager();
-          using (Log.InfoRegion(String.Format(Strings.LogCreatingX, Strings.Generators)))
-            CreateGenerators();
-        }
-        catch (DomainBuilderException e) {
-          context.RegisterError(e);
-        }
 
-        context.EnsureBuildSucceed();
+      using (Log.InfoRegion(Strings.LogBuildingX, typeof(Domain).GetShortName())) {
+        using (new BuildingScope(context)) {
+          try {
+            CreateDomain();
+            CreateHandlerFactory();
+            CreateNameBuilder();
+            BuildModel();
+            CreateDomainHandler();
+            CreateKeyManager();
+            CreateGenerators();
+          }
+          catch (DomainBuilderException e) {
+            context.RegisterError(e);
+          }
+
+          context.EnsureBuildSucceed();
+        }
       }
       return context.Domain;
     }
@@ -102,70 +97,84 @@ namespace Xtensive.Storage.Building
 
     private static void CreateDomain()
     {
-      var domain = new Domain(BuildingContext.Current.Configuration);
-      BuildingContext.Current.Domain = domain;
+      using (Log.InfoRegion(Strings.LogCreatingX, typeof(Domain).GetShortName())) {
+        var domain = new Domain(BuildingContext.Current.Configuration);
+        BuildingContext.Current.Domain = domain;
+      }
     }
 
     private static void CreateHandlerFactory()
     {
-      string protocol = BuildingContext.Current.Configuration.ConnectionInfo.Protocol;
-      Type handlerProviderType;
-      lock (pluginManager) {
-        handlerProviderType = pluginManager[new ProviderAttribute(protocol)];
-        if (handlerProviderType==null)
-          throw new DomainBuilderException(
-            string.Format(Strings.ExStorageProviderNotFound,
-              protocol,
-              Environment.CurrentDirectory));
+      using (Log.InfoRegion(Strings.LogCreatingX, typeof(HandlerFactory).GetShortName())) {
+        string protocol = BuildingContext.Current.Configuration.ConnectionInfo.Protocol;
+        Type handlerProviderType;
+        lock (pluginManager) {
+          handlerProviderType = pluginManager[new ProviderAttribute(protocol)];
+          if (handlerProviderType==null)
+            throw new DomainBuilderException(
+              string.Format(Strings.ExStorageProviderNotFound,
+                protocol,
+                Environment.CurrentDirectory));
+        }
+        var handlerFactory = (HandlerFactory) Activator.CreateInstance(handlerProviderType, new object[] {BuildingContext.Current.Domain});
+        var handlerAccessor = BuildingContext.Current.Domain.Handlers;
+        handlerAccessor.HandlerFactory = handlerFactory;
       }
-      var handlerFactory = (HandlerFactory) Activator.CreateInstance(handlerProviderType, new object[]{BuildingContext.Current.Domain});
-      var handlerAccessor = BuildingContext.Current.Domain.Handlers;
-      handlerAccessor.HandlerFactory = handlerFactory;
     }
 
     private static void CreateNameBuilder()
     {
-      var handlerAccessor = BuildingContext.Current.Domain.Handlers;
-      handlerAccessor.NameBuilder = handlerAccessor.HandlerFactory.CreateHandler<NameBuilder>();
-      handlerAccessor.NameBuilder.Initialize(handlerAccessor.Domain.Configuration.NamingConvention);
+      using (Log.InfoRegion(Strings.LogCreatingX, typeof(NameBuilder).GetShortName())) {
+        var handlerAccessor = BuildingContext.Current.Domain.Handlers;
+        handlerAccessor.NameBuilder = handlerAccessor.HandlerFactory.CreateHandler<NameBuilder>();
+        handlerAccessor.NameBuilder.Initialize(handlerAccessor.Domain.Configuration.NamingConvention);
+      }
     }
 
     private static void CreateDomainHandler()
     {
-      var handlerAccessor = BuildingContext.Current.Domain.Handlers;
-      handlerAccessor.DomainHandler = handlerAccessor.HandlerFactory.CreateHandler<DomainHandler>();
-      handlerAccessor.DomainHandler.Build();
+      using (Log.InfoRegion(Strings.LogCreatingX, typeof(DomainHandler).GetShortName())) {
+        var handlerAccessor = BuildingContext.Current.Domain.Handlers;
+        handlerAccessor.DomainHandler = handlerAccessor.HandlerFactory.CreateHandler<DomainHandler>();
+        handlerAccessor.DomainHandler.Build();
+      }
     }
 
     private static void BuildModel()
     {
-      ModelBuilder.Build();
-      var domain = BuildingContext.Current.Domain;
-      domain.Model = BuildingContext.Current.Model;
+      using (Log.InfoRegion(Strings.LogBuildingX, Strings.Model)) {
+        ModelBuilder.Build();
+        var domain = BuildingContext.Current.Domain;
+        domain.Model = BuildingContext.Current.Model;
+      }
     }
 
     private static void CreateKeyManager()
     {
-      var domain = BuildingContext.Current.Domain;
-      var handlerAccessor = BuildingContext.Current.Domain.Handlers;
-      handlerAccessor.KeyManager = new KeyManager(domain);
+      using (Log.InfoRegion(Strings.LogCreatingX, typeof(KeyManager).GetShortName())) {
+        var domain = BuildingContext.Current.Domain;
+        var handlerAccessor = BuildingContext.Current.Domain.Handlers;
+        handlerAccessor.KeyManager = new KeyManager(domain);
+      }
     }
 
     private static void CreateGenerators()
     {
-      var handlerAccessor = BuildingContext.Current.Domain.Handlers;
-      Registry<HierarchyInfo, DefaultGenerator> generators = BuildingContext.Current.Domain.KeyManager.Generators;
-      foreach (HierarchyInfo hierarchy in BuildingContext.Current.Model.Hierarchies) {
-        DefaultGenerator generator;
-        if (hierarchy.Generator==typeof (DefaultGenerator))
-          generator = handlerAccessor.HandlerFactory.CreateHandler<DefaultGenerator>();
-        else
-          generator = (DefaultGenerator) Activator.CreateInstance(hierarchy.Generator);
-        generator.Hierarchy = hierarchy;
-        generator.Initialize();
-        generators.Register(hierarchy, generator);
+      using (Log.InfoRegion(Strings.LogCreatingX, Strings.Generators)) {
+        var handlerAccessor = BuildingContext.Current.Domain.Handlers;
+        Registry<HierarchyInfo, DefaultGenerator> generators = BuildingContext.Current.Domain.KeyManager.Generators;
+        foreach (HierarchyInfo hierarchy in BuildingContext.Current.Model.Hierarchies) {
+          DefaultGenerator generator;
+          if (hierarchy.Generator==typeof (DefaultGenerator))
+            generator = handlerAccessor.HandlerFactory.CreateHandler<DefaultGenerator>();
+          else
+            generator = (DefaultGenerator) Activator.CreateInstance(hierarchy.Generator);
+          generator.Hierarchy = hierarchy;
+          generator.Initialize();
+          generators.Register(hierarchy, generator);
+        }
+        generators.Lock();
       }
-      generators.Lock();
     }
   }
 }

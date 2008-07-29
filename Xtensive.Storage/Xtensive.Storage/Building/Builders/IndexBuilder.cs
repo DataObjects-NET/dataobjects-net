@@ -17,6 +17,7 @@ using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
 using Xtensive.Core.Reflection;
 using Xtensive.Storage.Providers;
+using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Building.Builders
 {
@@ -67,23 +68,27 @@ namespace Xtensive.Storage.Building.Builders
 
     public static void BuildIndexes()
     {
-      BuildingContext context = BuildingContext.Current;
-      foreach (HierarchyInfo hierarchy in context.Model.Hierarchies) {
+      using (Log.InfoRegion(Strings.LogBuildingX, Strings.Indexes)) {
+        BuildingContext context = BuildingContext.Current;
+        foreach (HierarchyInfo hierarchy in context.Model.Hierarchies) {
 
-        CreateInterfaceIndexes(hierarchy);
+          CreateInterfaceIndexes(hierarchy);
 
-        switch(hierarchy.Schema) {
-        case InheritanceSchema.Default:
-          BuildClassTableIndexes(hierarchy.Root);
-          break;
-        case InheritanceSchema.SingleTableInheritance:
-          BuildSingleTableIndexes(hierarchy.Root);
-          break;
-        case InheritanceSchema.ConcreteTableInheritance:
-          BuildConcreteTableIndexes(hierarchy.Root);
-          break;
+          switch (hierarchy.Schema) {
+          case InheritanceSchema.Default:
+            BuildClassTableIndexes(hierarchy.Root);
+            break;
+          case InheritanceSchema.SingleTableInheritance:
+            BuildSingleTableIndexes(hierarchy.Root);
+            break;
+          case InheritanceSchema.ConcreteTableInheritance:
+            BuildConcreteTableIndexes(hierarchy.Root);
+            break;
+          }
+          BuildInterfaceIndexes(hierarchy);
         }
-        BuildInterfaceIndexes(hierarchy);
+
+        BuildAffectedIndexes();
       }
     }
 
