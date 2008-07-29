@@ -54,10 +54,10 @@ namespace Xtensive.Storage.Building
             CreateHandlerFactory();
           using (Log.InfoRegion(String.Format(Strings.LogCreatingX, typeof(NameBuilder).GetShortName())))
             CreateNameBuilder();
-          using (Log.InfoRegion(String.Format(Strings.LogCreatingX, typeof(DomainHandler).GetShortName())))
-            CreateDomainHandler();
           using (Log.InfoRegion(String.Format(Strings.LogBuildingX, Strings.Model)))
             BuildModel();
+          using (Log.InfoRegion(String.Format(Strings.LogCreatingX, typeof(DomainHandler).GetShortName())))
+            CreateDomainHandler();
           using (Log.InfoRegion(String.Format(Strings.LogCreatingX, typeof(KeyManager).GetShortName())))
             CreateKeyManager();
           using (Log.InfoRegion(String.Format(Strings.LogCreatingX, Strings.Generators)))
@@ -134,6 +134,7 @@ namespace Xtensive.Storage.Building
     {
       var handlerAccessor = BuildingContext.Current.Domain.HandlerAccessor;
       handlerAccessor.DomainHandler = handlerAccessor.HandlerFactory.CreateHandler<DomainHandler>();
+      handlerAccessor.DomainHandler.Build();
     }
 
     private static void BuildModel()
