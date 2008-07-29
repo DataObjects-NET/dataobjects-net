@@ -6,9 +6,17 @@
 
 using System;
 using System.Runtime.Serialization;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.Arithmetic
 {
+  /// <summary>
+  /// Provides delegates allowing to call <see cref="IArithmetic{T}"/> methods faster.
+  /// </summary>
+  /// <typeparam name="T">The type of <see cref="IArithmetic{T}"/> generic argument.</typeparam>
+  /// <remarks>
+  /// <para id="About"><see cref="HasStaticDefaultDocTemplate" copy="true" /></para>
+  /// </remarks>
   public class Arithmetic<T> : MethodCacheBase<IArithmetic<T>>
   {
     private static readonly object _lock = new object();

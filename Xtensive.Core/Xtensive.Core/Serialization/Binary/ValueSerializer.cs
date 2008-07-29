@@ -15,6 +15,9 @@ namespace Xtensive.Core.Serialization.Binary
   /// Provides delegates allowing to call serialization methods faster.
   /// </summary>
   /// <typeparam name="T">The type of <see cref="IValueSerializer{T}"/> generic argument.</typeparam>
+  /// <remarks>
+  /// <para id="About"><see cref="HasStaticDefaultDocTemplate" copy="true" /></para>
+  /// </remarks>
   [Serializable]
   public sealed class ValueSerializer<T> : MethodCacheBase<IValueSerializer<T>>
   {
@@ -67,7 +70,7 @@ namespace Xtensive.Core.Serialization.Binary
     /// </summary>
     /// <param name="info">Serialization info.</param>
     /// <param name="context">Streaming context.</param>
-    private ValueSerializer(System.Runtime.Serialization.SerializationInfo info, StreamingContext context)
+    private ValueSerializer(SerializationInfo info, StreamingContext context)
       : base(info, context)
     {
       Deserialize = Implementation.Deserialize;

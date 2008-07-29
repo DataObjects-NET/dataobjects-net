@@ -14,6 +14,9 @@ namespace Xtensive.Core.Hashing
   /// Provides delegates allowing to call hashing methods faster.
   /// </summary>
   /// <typeparam name="T">The type of <see cref="IHasher{T}"/> generic argument.</typeparam>
+  /// <remarks>
+  /// <para id="About"><see cref="HasStaticDefaultDocTemplate" copy="true" /></para>
+  /// </remarks>
   [Serializable]
   public sealed class Hasher<T> : MethodCacheBase<IHasher<T>>
   {

@@ -14,6 +14,9 @@ namespace Xtensive.Core.SizeCalculators
   /// Provides delegates allowing to call size calculator methods faster.
   /// </summary>
   /// <typeparam name="T">The type of <see cref="ISizeCalculator{T}"/> generic argument.</typeparam>
+  /// <remarks>
+  /// <para id="About"><see cref="HasStaticDefaultDocTemplate" copy="true" /></para>
+  /// </remarks>
   [Serializable]
   public sealed class SizeCalculator<T> : MethodCacheBase<ISizeCalculator<T>>,
     IHasSizeCalculator
