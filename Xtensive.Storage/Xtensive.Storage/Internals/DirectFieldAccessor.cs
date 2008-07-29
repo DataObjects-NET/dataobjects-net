@@ -6,7 +6,7 @@
 
 using Xtensive.Storage.Model;
 
-namespace Xtensive.Storage
+namespace Xtensive.Storage.Internals
 {
   internal class DirectFieldAccessor<T> : FieldAccessorBase<T>
   {

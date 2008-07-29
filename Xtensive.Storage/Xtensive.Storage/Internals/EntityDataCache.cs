@@ -4,7 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2008.07.28
 
-using System;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Tuples;
 
@@ -14,7 +13,12 @@ namespace Xtensive.Storage.Internals
   {
     private readonly WeakCache<Key, EntityData> cache;
 
-    public EntityData Create(Key key, Tuple tuple, PersistenceState state)
+    public EntityData this[Key key]
+    {
+      get { return cache[key, true]; }
+    }
+
+    public EntityData Add(Key key, Tuple tuple, PersistenceState state)
     {
       key.Tuple.CopyTo(tuple, 0);
       EntityData result = new EntityData(key, new DifferentialTuple(tuple), state);
@@ -22,36 +26,24 @@ namespace Xtensive.Storage.Internals
       return result;
     }
 
-    public EntityData Create(Key key, PersistenceState state)
+    public EntityData Add(Key key, PersistenceState state)
     {
       Tuple tuple = Tuple.Create(key.Type.TupleDescriptor);
-      return Create(key, tuple, state);
+      return Add(key, tuple, state);
     }
 
     public void Update(Key key, Tuple tuple)
     {
-      EntityData data;
-      if (!TryGetValue(key, out data))
-        Create(key, tuple, PersistenceState.Persisted);
+      EntityData data = this[key];
+      if (data == null)
+        Add(key, tuple, PersistenceState.Persisted);
       else
         data.Tuple.Origin.MergeWith(tuple);
     }
 
-    public EntityData this[Key key]
+    public void Remove(Key key)
     {
-      get
-      {
-        EntityData result;
-        if (!TryGetValue(key, out result))
-          throw new ArgumentException(String.Format(String.Format("Item '{0}' not found.", key)));
-        return result;
-      }
-    }
-
-    public bool TryGetValue(Key key, out EntityData data)
-    {
-      data = cache[key, true];
-      return data!=null;
+      cache.Remove(key);
     }
 
 

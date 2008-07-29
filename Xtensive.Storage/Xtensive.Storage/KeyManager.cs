@@ -8,6 +8,7 @@ using System;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Tuples;
+using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 
@@ -17,28 +18,16 @@ namespace Xtensive.Storage
   {
     private readonly Domain domain;
     private readonly WeakSetSlim<Key> cache = new WeakSetSlim<Key>();
-
     internal Registry<HierarchyInfo, DefaultGenerator> Generators { get; private set; }
 
     #region Next methods
 
-    /// <summary>
-    /// Gets the next key in key sequence.
-    /// </summary>
-    /// <param name="type">The type of <see cref="Entity"/> descendant to create a <see cref="Key"/> for.</param>
-    /// <returns>Newly created <see cref="Key"/> instance.</returns>
-    /// <exception cref="ArgumentException"><paramref name="type"/> is not <see cref="Entity"/> descendant.</exception>
-    public Key Next(Type type)
+    internal Key Next(Type type)
     {
-      EnsureIsValid(type);
-      return Next(domain.Model.Types[type]);
-    }
-
-    internal Key Next(TypeInfo type)
-    {
-      DefaultGenerator provider = Generators[type.Hierarchy];
-      Key key = new Key(type.Hierarchy, provider.Next());
-      key.Type = type;
+      TypeInfo typeInfo = domain.Model.Types[type];
+      DefaultGenerator provider = Generators[typeInfo.Hierarchy];
+      Key key = new Key(typeInfo.Hierarchy, provider.Next());
+      key.Type = typeInfo;
       cache.Add(key);
       return key;
     }
@@ -56,86 +45,81 @@ namespace Xtensive.Storage
     /// <exception cref="ArgumentException"><paramref name="type"/> is not <see cref="Entity"/> descendant.</exception>
     public Key Get(Type type, Tuple tuple)
     {
-      EnsureIsValid(type);
-      return Get(domain.Model.Types[type], tuple);
-    }
-
-    internal Key Get(TypeInfo type, Tuple tuple)
-    {
-      if (HasEmptyFields(tuple))
+      ArgumentValidator.EnsureArgumentNotNull(type, "type");
+      if (!type.IsSubclassOf(typeof(Entity)))
+        throw new ArgumentException(Strings.ExTypeMustBeEntityDescendant, "type");
+      if (tuple.ContainsEmptyValue())
         throw new InvalidOperationException(string.Format("Cannot create Key from tuple: '{0}'", tuple));
 
-      Key key = Create(type.Hierarchy, tuple);
-      key.Type = type;
+      TypeInfo typeInfo = domain.Model.Types[type];
+      Key key = Create(typeInfo, tuple);
       return Cache(key);
     }
 
     internal Key Get(HierarchyInfo hierarchy, Tuple tuple)
     {
       Key key = Create(hierarchy, tuple);
-      if (key.Type != null)
-        return key;
-
-      ResolveType(key, tuple);
-      return key;
+      TryGetType(key, tuple);
+      return Cache(key);
     }
 
     internal Key Get(FieldInfo field, Tuple tuple)
     {
       // Tuple with empty values is treated as empty Entity reference
-      if (HasEmptyFields(tuple))
+      if (tuple.ContainsEmptyValue())
         return null;
 
       TypeInfo type = domain.Model.Types[field.ValueType];
-      return Create(type.Hierarchy, tuple);
+      Key key = Create(type, tuple);
+      return Cache(key);
     }
 
     #endregion
 
     #region Other private \ internal methods
 
-    private Key Create(HierarchyInfo hierarchy, Tuple tuple)
+    private static Key Create(TypeInfo type, Tuple tuple)
+    {
+      Key key = Create(type.Hierarchy, tuple);
+      key.Type = type;
+      return key;
+    }
+
+    private static Key Create(HierarchyInfo hierarchy, Tuple tuple)
     {
       Tuple keyTuple = Tuple.Create(hierarchy.TupleDescriptor);
       tuple.CopyTo(keyTuple, 0, keyTuple.Count);
-      return Cache(new Key(hierarchy, keyTuple));
+      return new Key(hierarchy, keyTuple);
     }
 
-    internal Key this[Key key]
+    internal Key GetCached(Key key)
     {
-      get { return cache.Contains(key) ? cache[key] : null; }
+      return cache[key];
     }
 
-    private static void EnsureIsValid(Type type)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(type, "type");
-      if (!type.IsSubclassOf(typeof(Entity)))
-        throw new ArgumentException(Strings.ExTypeMustBeEntityDescendant, "type");
-    }
-
-    private static bool HasEmptyFields(Tuple tuple)
-    {
-      // Only not null values can be used to build key.
-      for (int i = 0; i < tuple.Count; i++)
-        if (tuple.IsNull(i))
-          return true;
-      return false;
-    }
-
-    private void ResolveType(Key key, Tuple tuple)
+    private void TryGetType(Key key, Tuple tuple)
     {
       int columnIndex = key.Hierarchy.Root.Fields[domain.NameBuilder.TypeIdFieldName].MappingInfo.Offset;
-      int typeId = tuple.GetValue<int>(columnIndex);
-      key.Type = domain.Model.Types[typeId];
+
+      if (columnIndex > tuple.Count -1)
+        return;
+
+      key.Type = domain.Model.Types[tuple.GetValue<int>(columnIndex)];
     }
 
-    private Key Cache(Key key)
+    private Key Cache(Key candidate)
     {
-      if (cache.Contains(key))
-        return cache[key];
+      Key cached = cache[candidate];
+      if (cached == null) {
+        cache.Add(candidate);
+        return candidate;
+      }
 
-      cache.Add(key);
-      return key;
+      // Updating type property
+      if (cached.Type == null && candidate.Type != null)
+        cached.Type = candidate.Type;
+
+      return cached;
     }
 
     #endregion

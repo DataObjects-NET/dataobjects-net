@@ -10,7 +10,7 @@ using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 
-namespace Xtensive.Storage
+namespace Xtensive.Storage.Internals
 {
   internal class EntityFieldAccessor<T> : FieldAccessorBase<T>
   {

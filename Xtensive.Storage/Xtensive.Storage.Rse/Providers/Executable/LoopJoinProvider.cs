@@ -20,7 +20,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
   {
     private readonly bool leftJoin;
     private readonly Pair<int>[] joiningPairs;
-    private MergeTransform transform;
+    private CombineTransform transform;
     private MapTransform leftKeyTransform;
 
     protected override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
@@ -40,7 +40,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 
     protected override void Initialize()
     {
-      transform = new MergeTransform(true, Left.Header.TupleDescriptor, Right.Header.TupleDescriptor);
+      transform = new CombineTransform(true, Left.Header.TupleDescriptor, Right.Header.TupleDescriptor);
       int[] map = joiningPairs.Select(pair => pair.First).ToArray();
       TupleDescriptor leftKeyDescriptor = TupleDescriptor.Create(map.Select(i => Left.Header.TupleDescriptor[i]));
       leftKeyTransform = new MapTransform(true, leftKeyDescriptor, map);

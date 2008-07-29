@@ -9,9 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Xtensive.Core;
-using Xtensive.Core.Aspects;
 using Xtensive.Core.Collections;
-using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Aspects;
@@ -28,7 +26,7 @@ namespace Xtensive.Storage
     IContext<SessionScope>,
     IResource
   {
-    private volatile bool isDisposed = false;
+    private volatile bool isDisposed;
     private readonly Set<object> consumers = new Set<object>();
     private object _lock = new object();
 
@@ -80,6 +78,9 @@ namespace Xtensive.Storage
       foreach (EntityData data in @new.Union(modified).Except(removed))
         data.PersistenceState = PersistenceState.Persisted;
 
+      foreach (EntityData data in removed)
+        DataCache.Remove(data.Key);
+
       DirtyData.Clear();
     }
 
@@ -97,7 +98,7 @@ namespace Xtensive.Storage
       foreach (Tuple tuple in result) {
         Key key = Domain.KeyManager.Get(type.Hierarchy, tuple);
         DataCache.Update(key, tuple);
-        yield return (T)key.Resolve();
+        yield return (T) key.Resolve();
       }
     }
 
@@ -157,7 +158,6 @@ namespace Xtensive.Storage
     }
 
     #endregion
-
 
     // Constructors
 

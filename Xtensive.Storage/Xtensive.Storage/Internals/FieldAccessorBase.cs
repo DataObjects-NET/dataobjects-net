@@ -8,7 +8,7 @@ using System;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 
-namespace Xtensive.Storage
+namespace Xtensive.Storage.Internals
 {
   internal abstract class FieldAccessorBase<T>
   {

@@ -6,9 +6,10 @@
 
 using Xtensive.Core;
 using Xtensive.Core.Tuples;
+using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 
-namespace Xtensive.Storage
+namespace Xtensive.Storage.Internals
 {
   internal class StructureFieldAccessor<T> : FieldAccessorBase<T>
   {

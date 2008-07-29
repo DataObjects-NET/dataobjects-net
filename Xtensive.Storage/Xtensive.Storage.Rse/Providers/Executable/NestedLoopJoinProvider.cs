@@ -21,7 +21,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
   {
     private readonly bool leftJoin;
     private readonly Pair<int>[] joiningPairs;
-    private MergeTransform transform;
+    private CombineTransform transform;
     private MapTransform leftKeyTransform;
     private MapTransform rightKeyTransform;
 
@@ -53,7 +53,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 
     protected override void Initialize()
     {
-      transform = new MergeTransform(true, Left.Header.TupleDescriptor, Right.Header.TupleDescriptor);
+      transform = new CombineTransform(true, Left.Header.TupleDescriptor, Right.Header.TupleDescriptor);
       int[] leftColumns = joiningPairs.Select(pair => pair.First).ToArray();
       int[] rightColumns = joiningPairs.Select(pair => pair.Second).ToArray();
       TupleDescriptor leftKeyDescriptor = TupleDescriptor.Create(leftColumns.Select(i => Left.Header.TupleDescriptor[i]));

@@ -17,7 +17,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
   [Serializable]
   internal sealed class MergeJoinProvider : BinaryExecutableProvider
   {
-    private MergeTransform transform;
+    private CombineTransform transform;
 
     protected override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
@@ -29,7 +29,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 
     protected override void Initialize()
     {
-      transform = new MergeTransform(true, Left.Header.TupleDescriptor, Right.Header.TupleDescriptor);
+      transform = new CombineTransform(true, Left.Header.TupleDescriptor, Right.Header.TupleDescriptor);
     }
 
 

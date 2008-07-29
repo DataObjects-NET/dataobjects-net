@@ -120,15 +120,15 @@ namespace Xtensive.Storage.Tests.Model.Library
     [Field(Length = 4096)]
     public string Text { get; set; }
 
-//    public BookReview(Key book, Key reviewer)
-//      : base()
-//    {
-//    }
+    public BookReview(Key book, Key reviewer)
+      : base(book.Tuple.CombineWith(reviewer.Tuple))
+    {
+    }
   }
 
-  internal class BookReviewProvider
+  internal class BookReviewProvider : DefaultGenerator
   {
-    public Key GetNext()
+    public override Tuple Next()
     {
       throw new NotSupportedException();
     }
@@ -146,7 +146,7 @@ namespace Xtensive.Storage.Tests.Model.Library
     }
   }
 
-  public class LibraryDefinitionBuilder : IDomainBuilder
+  public class LibraryDomainBuilder : IDomainBuilder
   {
     private static void VerifyTypeCollection()
     {
@@ -666,7 +666,7 @@ namespace Xtensive.Storage.Tests.Model
     public void ModelVerificationTest()
     {
       DomainConfiguration configuration = CreateStorageConfiguration();
-      configuration.Builders.Add(typeof (LibraryDefinitionBuilder));
+      configuration.Builders.Add(typeof (LibraryDomainBuilder));
       Domain domain = Domain.Build(configuration);
       domain.Model.Dump();
       VerifyModel(domain);

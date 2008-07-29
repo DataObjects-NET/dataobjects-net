@@ -187,8 +187,7 @@ namespace Xtensive.Storage
         return;
       if (Data.Tuple.IsAvailable(field.MappingInfo.Offset))
         return;
-      Tuple result = Fetcher.Fetch(Key, field);
-      Data.Tuple.Origin.MergeWith(result, field.MappingInfo.Offset, field.MappingInfo.Length, MergeConflictBehavior.PreferTarget);
+      Session.DataCache.Update(Key, Fetcher.Fetch(Key, field));
     }
 
     private void EnsureIsNotRemoved()
@@ -207,9 +206,8 @@ namespace Xtensive.Storage
     /// </summary>
     protected Entity()
     {
-      TypeInfo type = Session.Domain.Model.Types[GetType()];
-      Key key = Session.Domain.KeyManager.Next(type);
-      data = Session.DataCache.Create(key, PersistenceState.New);
+      Key key = Session.Domain.KeyManager.Next(GetType());
+      data = Session.DataCache.Add(key, PersistenceState.New);
       OnCreating();
     }
 
@@ -220,9 +218,8 @@ namespace Xtensive.Storage
     /// <remarks>Use this kind of constructor when you need to explicitly build key for this instance.</remarks>
     protected Entity(Tuple tuple)
     {
-      TypeInfo type = Session.Domain.Model.Types[GetType()];
-      Key key = Session.Domain.KeyManager.Get(type, tuple);
-      data = Session.DataCache.Create(key, tuple, PersistenceState.New);
+      Key key = Session.Domain.KeyManager.Get(GetType(), tuple);
+      data = Session.DataCache.Add(key, PersistenceState.New);
       OnCreating();
     }
 
