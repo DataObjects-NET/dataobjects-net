@@ -20,7 +20,6 @@ namespace Xtensive.Storage.Internals
 
     public EntityData Add(Key key, Tuple tuple, PersistenceState state)
     {
-      key.Tuple.CopyTo(tuple, 0);
       EntityData result = new EntityData(key, new DifferentialTuple(tuple), state);
       cache.Add(result);
       return result;
@@ -29,6 +28,7 @@ namespace Xtensive.Storage.Internals
     public EntityData Add(Key key, PersistenceState state)
     {
       Tuple tuple = Tuple.Create(key.Type.TupleDescriptor);
+      key.Tuple.CopyTo(tuple, 0);
       return Add(key, tuple, state);
     }
 
