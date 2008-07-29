@@ -26,7 +26,7 @@ namespace Xtensive.Storage.Tests.SnakeModel
     [Field]
     public int ID { get; set; }
 
-    [Field]
+    [Field(Length = 255)]
     public string Name { get; set; }
 
     [Field]
@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Tests.SnakeModel
   [DebuggerDisplay("Name = '{Name}'; Color = {Color}")]
   public class Lizard : Creature
   {
-    [Field]
+    [Field(Length = 7)]
     public string Color { get; set; }
   }
 }

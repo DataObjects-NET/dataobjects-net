@@ -261,6 +261,7 @@ namespace Xtensive.Storage.Tests.Storage.Snakes
     }
 
     [Test]
+    [Explicit]
     public void HierarchyInfoTest()
     {
       DomainConfiguration config = new DomainConfiguration("memory://localhost/Snakes");

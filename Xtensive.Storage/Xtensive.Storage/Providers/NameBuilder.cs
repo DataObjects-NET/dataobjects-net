@@ -257,6 +257,15 @@ namespace Xtensive.Storage.Providers
       return target.ReferencingType.Name + "." + target.ReferencingField.Name + "_" + target.ReferencedType.Name;
     }
 
+    /// <summary>
+    /// Builds the name for the <see cref="HierarchyInfo"/>.
+    /// </summary>
+    /// <param name="hierarchy">The <see cref="HierarchyInfo"/> instance to build name for.</param>
+    public string Build(HierarchyInfo hierarchy)
+    {
+      return NamingConvention.Apply("Gen_" + hierarchy.Name);
+    }
+
     #region Protected methods
 
     /// <summary>

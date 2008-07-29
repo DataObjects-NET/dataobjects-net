@@ -71,6 +71,8 @@ namespace Xtensive.Storage.Building.Builders
         hierarchy.Fields.Add(field, pair.Value);
       }
 
+      hierarchy.Name = root.Name;
+      hierarchy.MappingName = BuildingContext.Current.NameBuilder.Build(hierarchy);
       BuildingContext.Current.Model.Hierarchies.Add(hierarchy);
       return hierarchy;
     }

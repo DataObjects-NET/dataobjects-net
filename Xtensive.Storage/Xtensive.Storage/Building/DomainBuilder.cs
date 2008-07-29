@@ -54,8 +54,12 @@ namespace Xtensive.Storage.Building
             CreateNameBuilder();
             BuildModel();
             CreateDomainHandler();
-            CreateKeyManager();
-            CreateGenerators();
+            using (context.Domain.OpenSession()) {
+              using (Log.InfoRegion(String.Format(Strings.LogBuildingX, typeof (DomainHandler).GetShortName())))
+                context.Domain.Handler.Build();
+              CreateKeyManager();
+              CreateGenerators();
+            }
           }
           catch (DomainBuilderException e) {
             context.RegisterError(e);

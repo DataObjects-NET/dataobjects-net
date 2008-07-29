@@ -15,7 +15,7 @@ using Xtensive.Storage.Model;
 namespace Xtensive.Storage.Model
 {
   [Serializable]
-  public sealed class HierarchyInfo : Node
+  public sealed class HierarchyInfo : MappingNode
   {
     private readonly TypeInfo root;
     private readonly InheritanceSchema schema;

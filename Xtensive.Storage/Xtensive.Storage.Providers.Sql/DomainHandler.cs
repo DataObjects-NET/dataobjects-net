@@ -201,7 +201,8 @@ namespace Xtensive.Storage.Providers.Sql
       get { return realIndexes; }
     }
 
-    internal Catalog Catalog
+
+    public Catalog Catalog
     {
       get { return catalog; }
     }

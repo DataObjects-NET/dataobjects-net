@@ -4,9 +4,12 @@
 // Created by: Dmitri Maximov
 // Created:    2008.07.24
 
+using System;
+
 namespace Xtensive.Storage.Providers.Memory
 {
-  public class DefaultGenerator : Index.DefaultGenerator
+  [Serializable]
+  public sealed class DefaultGenerator : Index.DefaultGenerator
   {
     
   }
