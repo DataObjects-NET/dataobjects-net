@@ -169,6 +169,20 @@ namespace Xtensive.Core.Tuples
       return ReadOnlyTransform.Instance.Apply(transformType, source);
     }
 
+    /// <summary>
+    /// Combines the <paramref name="source1"/> with <paramref name="source2"/>.
+    /// </summary>
+    /// <param name="source1">The source <see cref="Tuple"/> to combine with the <paramref name="source2"/>.</param>
+    /// <param name="source2">The <see cref="Tuple"/> to combine with.</param>
+    /// <returns></returns>
+    public static Tuple CombineWith(this Tuple source1, Tuple source2)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(source1, "source1");
+      ArgumentValidator.EnsureArgumentNotNull(source2, "source2");
+      CombineTransform transform = new CombineTransform(false, new[] { source1.Descriptor, source2.Descriptor});
+      return transform.Apply(TupleTransformType.TransformedTuple, source1, source2);
+    }
+
     #region Merge methods
 
     /// <summary>

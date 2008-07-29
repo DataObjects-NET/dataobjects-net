@@ -5,23 +5,20 @@
 // Created:    2008.04.30
 
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Resources;
 using Xtensive.Core.Tuples.Transform;
-using Xtensive.Core.Tuples.Transform.Internals;
 
 namespace Xtensive.Core.Tuples.Transform
 {
   /// <summary>
-  /// This class is used for merge of source <see cref="Tuple"/>.
+  /// This class is used for source <see cref="Tuple"/>s combining.
   /// </summary>
   [Serializable]
-  public sealed class MergeTransform : MapTransform
+  public sealed class CombineTransform : MapTransform
   {
     private TupleDescriptor[] sources;
 
@@ -66,7 +63,7 @@ namespace Xtensive.Core.Tuples.Transform
     /// </summary>
     /// <param name="isReadOnly"><see cref="MapTransform.IsReadOnly"/> property value.</param>
     /// <param name="sources">Source tuple descriptors.</param>
-    public MergeTransform(bool isReadOnly, params TupleDescriptor[] sources)
+    public CombineTransform(bool isReadOnly, params TupleDescriptor[] sources)
       : base(isReadOnly)
     {
       int totalLength = sources.Sum(s => s.Count);

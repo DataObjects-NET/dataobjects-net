@@ -26,8 +26,8 @@ namespace Xtensive.Core.Tests.Tuples.Transform
       Tuple t2 = Tuple.Create(3, 4.0, "5");
       Log.Info("Originals: {0}, {1}", t1, t2);
 
-      MergeTransform mt   = new MergeTransform(false, t1.Descriptor, t2.Descriptor);
-      MergeTransform mtro = new MergeTransform(true,  t1.Descriptor, t2.Descriptor);
+      CombineTransform mt   = new CombineTransform(false, t1.Descriptor, t2.Descriptor);
+      CombineTransform mtro = new CombineTransform(true,  t1.Descriptor, t2.Descriptor);
 
       Tuple wt1 = mt.Apply(TupleTransformType.TransformedTuple, t1, t2);
       Log.Info("Wrapper:   {0}", wt1);
@@ -57,7 +57,7 @@ namespace Xtensive.Core.Tests.Tuples.Transform
         wtro.SetValue(2, 0);
       });
 
-      MergeTransform mt3 = new MergeTransform(false, t1.Descriptor, t1.Descriptor, t1.Descriptor);
+      CombineTransform mt3 = new CombineTransform(false, t1.Descriptor, t1.Descriptor, t1.Descriptor);
       Tuple wt3 = mt3.Apply(TupleTransformType.TransformedTuple, t1, t1, t1);
       Log.Info("Wrapper:   {0}", wt3);
       Tuple ct3 = mt3.Apply(TupleTransformType.Tuple, t1, t1, t1);
@@ -66,7 +66,7 @@ namespace Xtensive.Core.Tests.Tuples.Transform
       Assert.AreEqual(wt3[4], t1[0]);
       t1.SetValue(0,1);
 
-      MergeTransform mt4 = new MergeTransform(false, t1.Descriptor, t1.Descriptor, t1.Descriptor, t1.Descriptor);
+      CombineTransform mt4 = new CombineTransform(false, t1.Descriptor, t1.Descriptor, t1.Descriptor, t1.Descriptor);
       Tuple wt4 = mt4.Apply(TupleTransformType.TransformedTuple, t1, t1, t1, t1);
       Log.Info("Wrapper:   {0}", wt4);
       Tuple ct4 = mt4.Apply(TupleTransformType.Tuple, t1, t1, t1, t1);
@@ -83,7 +83,7 @@ namespace Xtensive.Core.Tests.Tuples.Transform
     {
       AdvancedComparerStruct<Tuple> comparer = AdvancedComparerStruct<Tuple>.Default;
       Tuple t   = Tuple.Create(1);
-      MergeTransform mt = new MergeTransform(false, t.Descriptor, t.Descriptor);
+      CombineTransform mt = new CombineTransform(false, t.Descriptor, t.Descriptor);
       Tuple wt1 = mt.Apply(TupleTransformType.TransformedTuple, t, t);
       Tuple wt2 = mt.Apply(TupleTransformType.TransformedTuple, t, t);
       Tuple ct1 = mt.Apply(TupleTransformType.Tuple, t, t);
@@ -118,7 +118,7 @@ namespace Xtensive.Core.Tests.Tuples.Transform
     {
       AdvancedComparerStruct<Tuple> comparer = AdvancedComparerStruct<Tuple>.Default;
       Tuple t   = Tuple.Create(1);
-      MergeTransform mt = new MergeTransform(false, t.Descriptor, t.Descriptor, t.Descriptor, t.Descriptor);
+      CombineTransform mt = new CombineTransform(false, t.Descriptor, t.Descriptor, t.Descriptor, t.Descriptor);
       SegmentTransform st = new SegmentTransform(false, mt.Descriptor, new Segment<int>(1,2));
       Tuple wt1 = st.Apply(TupleTransformType.TransformedTuple, mt.Apply(TupleTransformType.TransformedTuple, t, t, t, t));
       Tuple wt2 = st.Apply(TupleTransformType.TransformedTuple, mt.Apply(TupleTransformType.TransformedTuple, t, t, t, t));
