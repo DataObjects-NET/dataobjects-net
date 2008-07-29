@@ -11,7 +11,7 @@ namespace Xtensive.Storage.Providers
 {
   /// <summary>
   /// Storage handler accessor.
-  /// Provided by protected members, such as <see cref="HandlerBase.Accessor"/> 
+  /// Provided by protected members, such as <see cref="HandlerBase.Handlers"/> 
   /// to provide access to other available handlers.
   public sealed class HandlerAccessor
   {

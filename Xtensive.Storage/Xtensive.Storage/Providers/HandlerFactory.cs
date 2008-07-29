@@ -74,8 +74,8 @@ namespace Xtensive.Storage.Providers
       if (!constructors.TryGetValue(handlerType, out constructor) || constructor==null)
         return null;
 
-      HandlerBase result = (HandlerBase) constructor();
-      result.Accessor = Domain.HandlerAccessor;
+      var result = (HandlerBase) constructor();
+      result.Handlers = Domain.Handlers;
 
       return result;
     }

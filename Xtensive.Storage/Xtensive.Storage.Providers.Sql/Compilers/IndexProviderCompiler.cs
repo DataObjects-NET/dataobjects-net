@@ -21,12 +21,9 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
 {
   internal sealed class IndexProviderCompiler : TypeCompiler<IndexProvider>
   {
-    private readonly HandlerAccessor handlerAccessor;
-    private readonly DomainHandler domainHandler;
-
     protected override ExecutableProvider Compile(IndexProvider provider)
     {
-      var index = provider.Index.Resolve(handlerAccessor.Domain.Model);
+      var index = provider.Index.Resolve(Handlers.Domain.Model);
       SqlSelect query = BuildProviderQuery(index);
       return new SqlProvider(provider, query);
     }
@@ -122,7 +119,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
       var typeIds = descendants.Select(t => t.TypeId).ToArray();
 
       var baseQuery = BuildProviderQuery(index.UnderlyingIndexes[0]);
-      SqlColumn typeIdColumn = baseQuery.Columns[handlerAccessor.NameBuilder.TypeIdFieldName];
+      SqlColumn typeIdColumn = baseQuery.Columns[Handlers.NameBuilder.TypeIdFieldName];
       SqlBinary inQuery = SqlFactory.In(typeIdColumn, SqlFactory.Array(typeIds));
       SqlSelect query = SqlFactory.Select(SqlFactory.QueryRef(baseQuery));
       query.Columns.AddRange(index.Columns.Select(c => baseQuery.Columns[c.Name]));
@@ -137,8 +134,6 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
     public IndexProviderCompiler(Rse.Compilation.Compiler provider)
       : base(provider)
     {
-      handlerAccessor = ((Compiler) provider).HandlerAccessor;
-      domainHandler = (DomainHandler)handlerAccessor.DomainHandler;
     }
   }
 }

@@ -35,7 +35,7 @@ namespace Xtensive.Storage
     /// </summary>
     public HandlerFactory HandlerFactory  { 
       [DebuggerStepThrough]
-      get { return HandlerAccessor.HandlerFactory; }
+      get { return Handlers.HandlerFactory; }
     }
 
     /// <summary>
@@ -43,7 +43,7 @@ namespace Xtensive.Storage
     /// </summary>
     public NameBuilder NameBuilder { 
       [DebuggerStepThrough]
-      get { return HandlerAccessor.NameBuilder; }
+      get { return Handlers.NameBuilder; }
     }
 
     /// <summary>
@@ -51,7 +51,7 @@ namespace Xtensive.Storage
     /// </summary>
     public KeyManager KeyManager {
       [DebuggerStepThrough]
-      get { return HandlerAccessor.KeyManager; }
+      get { return Handlers.KeyManager; }
     }
 
     /// <summary>
@@ -59,11 +59,11 @@ namespace Xtensive.Storage
     /// </summary>
     internal DomainHandler Handler {
       [DebuggerStepThrough]
-      get { return HandlerAccessor.DomainHandler; }
+      get { return Handlers.DomainHandler; }
     }
 
     [DebuggerHidden]
-    internal HandlerAccessor HandlerAccessor { get; private set; }
+    internal HandlerAccessor Handlers { get; private set; }
 
 
     #region OpenSession methods
@@ -121,7 +121,7 @@ namespace Xtensive.Storage
     internal Domain(DomainConfiguration configuration)
     {
       Configuration = configuration;
-      HandlerAccessor = new HandlerAccessor(this);
+      Handlers = new HandlerAccessor(this);
     }
   }
 }

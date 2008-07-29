@@ -44,7 +44,7 @@ namespace Xtensive.Storage
       Resource = session;
       ((IResource)Resource).AddConsumer(this);
       // TODO: AY: Fix immediately
-      compilationScope = Session.HandlerAccessor.DomainHandler.Compiler.Activate();
+      compilationScope = Session.Handlers.DomainHandler.Compiler.Activate();
     }
 
     /// <see cref="ClassDocTemplate.Dispose" copy="true" />

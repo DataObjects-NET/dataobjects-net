@@ -30,7 +30,7 @@ namespace Xtensive.Storage
       if (scope.Session == null)
         throw new InvalidOperationException();
 
-      TypeInfo type = scope.Session.HandlerAccessor.Domain.Model.Types[entityType];
+      TypeInfo type = scope.Session.Handlers.Domain.Model.Types[entityType];
       var keyColumns = type.Indexes.PrimaryIndex.KeyColumns;
 
       Tuple t = Tuple.Create(type.Hierarchy.TupleDescriptor);

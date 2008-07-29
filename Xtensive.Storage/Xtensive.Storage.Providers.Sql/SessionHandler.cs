@@ -170,15 +170,15 @@ namespace Xtensive.Storage.Providers.Sql
 
     internal DomainHandler DomainHandler
     {
-      get { return ((DomainHandler)Accessor.DomainHandler); }
+      get { return ((DomainHandler)Handlers.DomainHandler); }
     }
 
     #endregion
 
     private Tuple GetTuple(IDataRecord reader, SqlSelect select)
     {
-      var typeId = (int) reader[Accessor.NameBuilder.TypeIdFieldName];
-      TypeInfo actualType = Accessor.Domain.Model.Types[typeId];
+      var typeId = (int) reader[Handlers.NameBuilder.TypeIdFieldName];
+      TypeInfo actualType = Handlers.Domain.Model.Types[typeId];
       Tuple result = Tuple.Create(actualType.TupleDescriptor);
       for (int i = 0; i < actualType.Columns.Count; i++) {
         ColumnInfo column = actualType.Columns[i];
@@ -201,7 +201,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       if (connection==null || transaction==null || connection.State!=ConnectionState.Open) {
         var provider = new SqlConnectionProvider();
-        connection = provider.CreateConnection(Accessor.Domain.Configuration.ConnectionInfo.ToString()) as SqlConnection;
+        connection = provider.CreateConnection(Handlers.Domain.Configuration.ConnectionInfo.ToString()) as SqlConnection;
         if (connection==null)
           throw new InvalidOperationException(Strings.ExUnableToCreateConnection);
         connection.Open();

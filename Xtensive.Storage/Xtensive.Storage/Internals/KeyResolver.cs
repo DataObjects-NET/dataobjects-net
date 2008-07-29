@@ -25,7 +25,7 @@ namespace Xtensive.Storage.Internals
 
       // Key is not resolved yet or TypeId is unknown, so 1 fetch request required
       if (resolvedKey == null || key.Type==null) {
-        FieldInfo field = key.Hierarchy.Root.Fields[session.HandlerAccessor.NameBuilder.TypeIdFieldName];
+        FieldInfo field = key.Hierarchy.Root.Fields[session.Handlers.NameBuilder.TypeIdFieldName];
         Tuple tuple = Fetcher.Fetch(key, field);
 
         // Key is not found in storage

@@ -35,7 +35,7 @@ namespace Xtensive.Storage
     #region Private \ internal properties
 
     [DebuggerHidden]
-    internal HandlerAccessor HandlerAccessor { get; private set; }
+    internal HandlerAccessor Handlers { get; private set; }
 
     [DebuggerHidden]
     internal SessionHandler Handler { get; private set; }
@@ -167,8 +167,8 @@ namespace Xtensive.Storage
       // Both Domain and Configuration are valid references here;
       // Configuration is already locked
       Configuration = configuration;
-      HandlerAccessor = domain.HandlerAccessor;
-      Handler = HandlerAccessor.HandlerFactory.CreateHandler<SessionHandler>();
+      Handlers = domain.Handlers;
+      Handler = Handlers.HandlerFactory.CreateHandler<SessionHandler>();
       Handler.Session = this;
       DataCache = new EntityDataCache(Configuration.CacheSize);
       DirtyData = new FlagRegistry<PersistenceState, EntityData>(e => e.PersistenceState);

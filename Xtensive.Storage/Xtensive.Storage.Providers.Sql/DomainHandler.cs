@@ -23,7 +23,7 @@ using SqlFactory = Xtensive.Sql.Dom.Sql;
 
 namespace Xtensive.Storage.Providers.Sql
 {
-  public abstract class DomainHandler : Storage.Providers.DomainHandler
+  public abstract class DomainHandler : Providers.DomainHandler
   {
     private DbTransaction transaction;
     private Catalog catalog;
@@ -34,20 +34,20 @@ namespace Xtensive.Storage.Providers.Sql
     protected override CompilationContext GetCompilationContext()
     {
       throw new NotImplementedException();
-//      return new CompilationContext(new Compiler[] { new Compilers.Compiler(HandlerAccessor), new DefaultCompiler() });
+//      return new CompilationContext(new Compiler[] { new Compilers.Compiler(Handlers), new DefaultCompiler() });
     }
 
     /// <inheritdoc/>
     public override void Build()
     {
       var provider = new SqlConnectionProvider();
-      using (connection = provider.CreateConnection(Accessor.Domain.Configuration.ConnectionInfo.ToString()) as SqlConnection) {
+      using (connection = provider.CreateConnection(Handlers.Domain.Configuration.ConnectionInfo.ToString()) as SqlConnection) {
         if (connection==null)
           throw new InvalidOperationException(Strings.ExUnableToCreateConnection);
         connection.Open();
         var modelProvider = new SqlModelProvider(connection);
         model = Xtensive.Sql.Dom.Database.Model.Build(modelProvider);
-        string catalogName = Accessor.Domain.Configuration.ConnectionInfo.Resource;
+        string catalogName = Handlers.Domain.Configuration.ConnectionInfo.Resource;
         catalog = model.DefaultServer.Catalogs[catalogName];
         using (transaction = connection.BeginTransaction()) {
           ClearCatalog();
@@ -78,7 +78,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       SqlBatch batch = SqlFactory.Batch();
       // Build tables
-      foreach (TypeInfo type in Accessor.Domain.Model.Types) {
+      foreach (TypeInfo type in Handlers.Domain.Model.Types) {
         IndexInfo primaryIndex = type.Indexes.FindFirst(IndexAttributes.Real | IndexAttributes.Primary);
         if (primaryIndex!=null && !realIndexes.ContainsKey(primaryIndex)) {
           Table table = catalog.DefaultSchema.CreateTable(primaryIndex.ReflectedType.Name);

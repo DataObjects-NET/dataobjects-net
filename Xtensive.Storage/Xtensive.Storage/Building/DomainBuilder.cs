@@ -119,20 +119,20 @@ namespace Xtensive.Storage.Building
               Environment.CurrentDirectory));
       }
       var handlerFactory = (HandlerFactory) Activator.CreateInstance(handlerProviderType, new object[]{BuildingContext.Current.Domain});
-      var handlerAccessor = BuildingContext.Current.Domain.HandlerAccessor;
+      var handlerAccessor = BuildingContext.Current.Domain.Handlers;
       handlerAccessor.HandlerFactory = handlerFactory;
     }
 
     private static void CreateNameBuilder()
     {
-      var handlerAccessor = BuildingContext.Current.Domain.HandlerAccessor;
+      var handlerAccessor = BuildingContext.Current.Domain.Handlers;
       handlerAccessor.NameBuilder = handlerAccessor.HandlerFactory.CreateHandler<NameBuilder>();
       handlerAccessor.NameBuilder.Initialize(handlerAccessor.Domain.Configuration.NamingConvention);
     }
 
     private static void CreateDomainHandler()
     {
-      var handlerAccessor = BuildingContext.Current.Domain.HandlerAccessor;
+      var handlerAccessor = BuildingContext.Current.Domain.Handlers;
       handlerAccessor.DomainHandler = handlerAccessor.HandlerFactory.CreateHandler<DomainHandler>();
       handlerAccessor.DomainHandler.Build();
     }
@@ -147,13 +147,13 @@ namespace Xtensive.Storage.Building
     private static void CreateKeyManager()
     {
       var domain = BuildingContext.Current.Domain;
-      var handlerAccessor = BuildingContext.Current.Domain.HandlerAccessor;
+      var handlerAccessor = BuildingContext.Current.Domain.Handlers;
       handlerAccessor.KeyManager = new KeyManager(domain);
     }
 
     private static void CreateGenerators()
     {
-      var handlerAccessor = BuildingContext.Current.Domain.HandlerAccessor;
+      var handlerAccessor = BuildingContext.Current.Domain.Handlers;
       Registry<HierarchyInfo, DefaultGenerator> generators = BuildingContext.Current.Domain.KeyManager.Generators;
       foreach (HierarchyInfo hierarchy in BuildingContext.Current.Model.Hierarchies) {
         DefaultGenerator generator;

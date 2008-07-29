@@ -11,7 +11,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
 {
   public sealed class Compiler : Rse.Compilation.Compiler
   {
-    public HandlerAccessor HandlerAccessor { get; private set; }
+    public HandlerAccessor Handlers { get; private set; }
 
     /// <inheritdoc/>
     public override bool IsCompatible(Provider provider)
@@ -31,9 +31,9 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
     /// <summary>
     ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public Compiler(HandlerAccessor handlerAccessor)
+    public Compiler(HandlerAccessor handlers)
     {
-      HandlerAccessor = handlerAccessor;
+      Handlers = handlers;
     }
   }
 }
