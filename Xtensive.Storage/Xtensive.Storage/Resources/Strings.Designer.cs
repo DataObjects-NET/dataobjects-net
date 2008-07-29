@@ -61,6 +61,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Actual Model.
+        /// </summary>
+        internal static string ActualModel {
+            get {
+                return ResourceManager.GetString("ActualModel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {0}.
         /// </summary>
         internal static string AspectDebugMessage {
@@ -75,6 +84,15 @@ namespace Xtensive.Storage.Resources {
         internal static string AspectExMultipleAttributesOfTypeXAreNotAllowedHere {
             get {
                 return ResourceManager.GetString("AspectExMultipleAttributesOfTypeXAreNotAllowedHere", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Custom Definitions.
+        /// </summary>
+        internal static string CustomDefinitions {
+            get {
+                return ResourceManager.GetString("CustomDefinitions", resourceCulture);
             }
         }
         
@@ -584,6 +602,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Generators.
+        /// </summary>
+        internal static string Generators {
+            get {
+                return ResourceManager.GetString("Generators", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Indexed properties are not supported..
         /// </summary>
         internal static string IndexedPropertiesAreNotSupported {
@@ -665,29 +692,20 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Building handler provider..
+        ///   Looks up a localized string similar to Building {0}.
         /// </summary>
-        internal static string LogBuildingHandlerProvider {
+        internal static string LogBuildingX {
             get {
-                return ResourceManager.GetString("LogBuildingHandlerProvider", resourceCulture);
+                return ResourceManager.GetString("LogBuildingX", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Building key providers..
+        ///   Looks up a localized string similar to Creating {0}.
         /// </summary>
-        internal static string LogBuildingKeyProviders {
+        internal static string LogCreatingX {
             get {
-                return ResourceManager.GetString("LogBuildingKeyProviders", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Building value converters..
-        /// </summary>
-        internal static string LogBuildingValueConverters {
-            get {
-                return ResourceManager.GetString("LogBuildingValueConverters", resourceCulture);
+                return ResourceManager.GetString("LogCreatingX", resourceCulture);
             }
         }
         
@@ -701,11 +719,29 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Validating configuration..
+        ///   Looks up a localized string similar to Validating {0}.
         /// </summary>
-        internal static string LogValidatingConfiguration {
+        internal static string LogValidatingX {
             get {
-                return ResourceManager.GetString("LogValidatingConfiguration", resourceCulture);
+                return ResourceManager.GetString("LogValidatingX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Model.
+        /// </summary>
+        internal static string Model {
+            get {
+                return ResourceManager.GetString("Model", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Model Definition.
+        /// </summary>
+        internal static string ModelDefinition {
+            get {
+                return ResourceManager.GetString("ModelDefinition", resourceCulture);
             }
         }
         
@@ -733,6 +769,24 @@ namespace Xtensive.Storage.Resources {
         internal static string ReferencedFieldXAndPairedFieldAreEqual {
             get {
                 return ResourceManager.GetString("ReferencedFieldXAndPairedFieldAreEqual", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Services.
+        /// </summary>
+        internal static string Services {
+            get {
+                return ResourceManager.GetString("Services", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Types.
+        /// </summary>
+        internal static string Types {
+            get {
+                return ResourceManager.GetString("Types", resourceCulture);
             }
         }
         

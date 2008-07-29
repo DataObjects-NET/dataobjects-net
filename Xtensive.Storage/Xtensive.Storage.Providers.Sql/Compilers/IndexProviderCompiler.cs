@@ -122,7 +122,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
       var typeIds = descendants.Select(t => t.TypeId).ToArray();
 
       var baseQuery = BuildProviderQuery(index.UnderlyingIndexes[0]);
-      SqlColumn typeIdColumn = baseQuery.Columns[handlerAccessor.Domain.NameProvider.TypeIdFieldName];
+      SqlColumn typeIdColumn = baseQuery.Columns[handlerAccessor.NameBuilder.TypeIdFieldName];
       SqlBinary inQuery = SqlFactory.In(typeIdColumn, SqlFactory.Array(typeIds));
       SqlSelect query = SqlFactory.Select(SqlFactory.QueryRef(baseQuery));
       query.Columns.AddRange(index.Columns.Select(c => baseQuery.Columns[c.Name]));

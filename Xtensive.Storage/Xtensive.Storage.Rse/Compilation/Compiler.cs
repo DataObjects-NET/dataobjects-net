@@ -21,8 +21,8 @@ namespace Xtensive.Storage.Rse.Compilation
   public abstract class Compiler : AssociateProvider,
     ICompiler
   {
-    private readonly object _lock = new object();
-    private readonly ThreadSafeDictionary<Type, TypeCompiler> cache = ThreadSafeDictionary<Type, TypeCompiler>.Create();
+    private readonly ThreadSafeDictionary<Type, TypeCompiler> typeCompliers = 
+      ThreadSafeDictionary<Type, TypeCompiler>.Create(new object());
 
     #region ICompiler methods
 
@@ -67,22 +67,16 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <returns>The compiler.</returns>
     protected TypeCompiler GetCompiler(Type type)
     {
-      TypeCompiler result = cache.GetValue(type);
-      if (result!=null)
-        return result;
-      lock (_lock) {
-        result = cache.GetValue(type);
-        if (result!=null)
-          return result;
-        MethodInfo innerGetCompiler = GetType()
-          .GetMethod("GetCompiler", BindingFlags.NonPublic | BindingFlags.Instance, null, ArrayUtils<Type>.EmptyArray, null);
-        innerGetCompiler = innerGetCompiler
+      return typeCompliers.GetValue(type,
+        (_type, _this) => _this
+          .GetType()
+          .GetMethod("GetCompiler",
+            BindingFlags.NonPublic | BindingFlags.Instance, null, ArrayUtils<Type>.EmptyArray, null)
           .GetGenericMethodDefinition()
-          .MakeGenericMethod(new[] {type});
-        result = innerGetCompiler.Invoke(this, null) as TypeCompiler;
-        cache.SetValue(type, result);
-        return result;
-      }
+          .MakeGenericMethod(new[] {_type})
+          .Invoke(_this, null)
+          as TypeCompiler,
+        this);
     }
 
     /// <summary>

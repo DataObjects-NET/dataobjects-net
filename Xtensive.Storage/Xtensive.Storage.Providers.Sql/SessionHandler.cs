@@ -177,7 +177,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     private Tuple GetTuple(IDataRecord reader, SqlSelect select)
     {
-      var typeId = (int) reader[Accessor.Domain.NameProvider.TypeIdFieldName];
+      var typeId = (int) reader[Accessor.NameBuilder.TypeIdFieldName];
       TypeInfo actualType = Accessor.Domain.Model.Types[typeId];
       Tuple result = Tuple.Create(actualType.TupleDescriptor);
       for (int i = 0; i < actualType.Columns.Count; i++) {

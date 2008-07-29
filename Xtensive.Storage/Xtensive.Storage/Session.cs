@@ -24,22 +24,35 @@ using Xtensive.Storage.Rse;
 namespace Xtensive.Storage
 {
   [Storage]
-  public class Session : ConfigurableBase<SessionConfiguration>,
-    IResource,
-    IContext<SessionScope>
+  public class Session : DomainBound,
+    IContext<SessionScope>,
+    IResource
   {
+    private volatile bool isDisposed = false;
     private readonly Set<object> consumers = new Set<object>();
-    private EntityDataCache dataCache;
-    private readonly FlagRegistry<PersistenceState, EntityData> dirtyData = new FlagRegistry<PersistenceState, EntityData>(data => data.PersistenceState);
+    private object _lock = new object();
+
+    #region Private \ internal properties
+
+    [DebuggerHidden]
+    internal HandlerAccessor HandlerAccessor { get; private set; }
+
+    [DebuggerHidden]
+    internal SessionHandler Handler { get; private set; }
+
+    [DebuggerHidden]
+    internal EntityDataCache DataCache { get; private set; }
+
+    [DebuggerHidden]
+    internal FlagRegistry<PersistenceState, EntityData> DirtyData { get; private set; }
+
+    #endregion
 
     /// <summary>
-    /// Gets the <see cref="Domain"/> to which this instance belongs.
+    /// Gets the configuration of the <see cref="Session"/>.
     /// </summary>
     [DebuggerHidden]
-    public Domain Domain
-    {
-      get { return HandlerAccessor.Domain; }
-    }
+    public SessionConfiguration Configuration { get; private set; }
 
     /// <summary>
     /// Persists all modified instances immediately.
@@ -87,35 +100,6 @@ namespace Xtensive.Storage
         yield return (T)key.Resolve();
       }
     }
-
-    #region Private \ internal members
-
-    [DebuggerHidden]
-    internal HandlerAccessor HandlerAccessor {
-      get;
-      private set; 
-    }
-
-    [DebuggerHidden]
-    internal EntityDataCache DataCache
-    {
-      get { return dataCache; }
-    }
-
-    [DebuggerHidden]
-    internal SessionHandler Handler
-    {
-      get;
-      set;
-    }
-
-    [DebuggerHidden]
-    internal FlagRegistry<PersistenceState, EntityData> DirtyData
-    {
-      get { return dirtyData; }
-    }
-
-    #endregion
 
     #region IResource members
 
@@ -174,28 +158,54 @@ namespace Xtensive.Storage
 
     #endregion
 
-    /// <inheritdoc/>
-    protected override void OnConfigured()
-    {
-      base.OnConfigured();
-      dataCache = new EntityDataCache(Configuration.CacheSize);
-    }
-
 
     // Constructors
 
-    internal Session(HandlerAccessor handlerAccessor, SessionConfiguration configuration)
-      : base(configuration)
+    internal Session(Domain domain, SessionConfiguration configuration)
+      : base(domain)
     {
-      HandlerAccessor = handlerAccessor;
-      Handler = HandlerAccessor.Factory.CreateHandler<SessionHandler>();
+      // Both Domain and Configuration are valid references here;
+      // Configuration is already locked
+      Configuration = configuration;
+      HandlerAccessor = domain.HandlerAccessor;
+      Handler = HandlerAccessor.HandlerFactory.CreateHandler<SessionHandler>();
+      Handler.Session = this;
+      DataCache = new EntityDataCache(Configuration.CacheSize);
     }
 
-    /// <see cref="ClassDocTemplate.Dispose" copy="true"/>
+    #region Dispose pattern
+
+    /// <see cref="DisposableDocTemplate.Dispose()" copy="true"/>
     public void Dispose()
     {
-      Persist();
-      Handler.Commit();
+      Dispose(true);
+      GC.SuppressFinalize(this);
     }
+
+    /// <see cref="DisposableDocTemplate.Dtor()" copy="true"/>
+    ~Session()
+    {
+      Dispose(false);
+    }
+
+    /// <see cref="DisposableDocTemplate.Dispose(bool)" copy="true"/>
+    protected virtual void Dispose(bool disposing)
+    {
+      if (isDisposed)
+        return;
+      lock (_lock) {
+        if (isDisposed)
+          return;
+        try {
+          Persist();
+          Handler.Commit();
+        }
+        finally {
+          isDisposed = true;
+        }
+      }
+    }
+
+    #endregion
   }
 }

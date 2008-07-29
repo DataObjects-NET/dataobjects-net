@@ -4,6 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2008.07.11
 
+using System.Diagnostics;
 using Xtensive.Storage.Providers;
 
 namespace Xtensive.Storage.Providers
@@ -18,22 +19,38 @@ namespace Xtensive.Storage.Providers
     /// Gets the <see cref="Xtensive.Storage.Domain"/> 
     /// this handler accessor is bound to.
     /// </summary>
+    [DebuggerHidden]
     public Domain Domain { get; private set; }
 
     /// <summary>
     /// Gets the handler provider 
     /// creating handlers in the <see cref="Domain"/>.
     /// </summary>
-    public HandlerFactory Factory { get; internal set; }
+    [DebuggerHidden]
+    public HandlerFactory HandlerFactory { get; internal set; }
+
+    /// <summary>
+    /// Gets the name builder.
+    /// </summary>
+    [DebuggerHidden]
+    public NameBuilder NameBuilder { get; internal set; }
+
+    /// <summary>
+    /// Gets the key manager.
+    /// </summary>
+    [DebuggerHidden]
+    public KeyManager KeyManager { get; internal set; }
 
     /// <summary>
     /// Gets the <see cref="Domain"/> handler.
     /// </summary>
+    [DebuggerHidden]
     public DomainHandler DomainHandler { get; internal set; }
 
     /// <summary>
     /// Gets the handler of the current <see cref="Session"/>.
     /// </summary>
+    [DebuggerHidden]
     public SessionHandler SessionHandler
     {
       get { return Session.Current.Handler; }

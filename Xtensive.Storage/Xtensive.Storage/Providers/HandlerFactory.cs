@@ -94,13 +94,11 @@ namespace Xtensive.Storage.Providers
           continue;
         Type baseType = type.BaseType;
         while (baseType != handlerBaseType) {
-          if (baseType.IsAbstract) {
-            // Any abstract HandlerBase descendant is considered as
-            // "key" for handler requests
-            var constructor = DelegateHelper.CreateConstructorDelegate<Func<object>>(type);
-            if (!constructors.ContainsKey(baseType))
-              constructors.Add(baseType, constructor);
-          }
+          // Any HandlerBase descendant is considered as
+          // "key" for handler requests
+          var constructor = DelegateHelper.CreateConstructorDelegate<Func<object>>(type);
+          if (!constructors.ContainsKey(baseType))
+            constructors.Add(baseType, constructor);
           baseType = baseType.BaseType;
         }
       }

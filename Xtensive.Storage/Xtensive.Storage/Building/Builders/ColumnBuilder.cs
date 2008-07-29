@@ -13,7 +13,7 @@ namespace Xtensive.Storage.Building.Builders
     public static ColumnInfo BuildColumn(FieldInfo field)
     {
       ColumnInfo column = new ColumnInfo(field);
-      column.Name = BuildingScope.Context.NameProvider.BuildName(field, column);
+      column.Name = BuildingContext.Current.NameBuilder.Build(field, column);
       if (field.IsEntity)
         column.IsNullable = true;
 
@@ -24,7 +24,7 @@ namespace Xtensive.Storage.Building.Builders
     {
       ColumnInfo column = ancestor.Clone();
       column.Field = field;
-      column.Name = BuildingScope.Context.NameProvider.BuildName(field, ancestor);
+      column.Name = BuildingContext.Current.NameBuilder.Build(field, ancestor);
       column.IsDeclared = field.IsDeclared;
       column.IsPrimaryKey = field.IsPrimaryKey;
 

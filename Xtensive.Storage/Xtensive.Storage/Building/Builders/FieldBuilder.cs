@@ -8,12 +8,11 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Reflection;
-using Xtensive.Core;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Model;
-using FieldInfo=Xtensive.Storage.Model.FieldInfo;
 using Xtensive.Core.Reflection;
+using FieldInfo = Xtensive.Storage.Model.FieldInfo;
 
 namespace Xtensive.Storage.Building.Builders
 {
@@ -34,7 +33,7 @@ namespace Xtensive.Storage.Building.Builders
               DefineField(typeDef, propertyInfo));
           }
           catch (DomainBuilderException e) {
-            BuildingScope.Context.RegisterError(e);
+            BuildingContext.Current.RegisterError(e);
           }        
       
       return fields;
@@ -59,7 +58,7 @@ namespace Xtensive.Storage.Building.Builders
     /// <returns>Defined field.</returns>
     public static FieldDef DefineField(TypeDef typeDef, PropertyInfo propertyInfo)
     {
-      BuildingContext context = BuildingScope.Context;
+      BuildingContext context = BuildingContext.Current;
       Log.Info("Defining field '{0}'", propertyInfo.Name);            
       
       ValidateValueType(propertyInfo.PropertyType, typeDef.UnderlyingType);
@@ -71,7 +70,7 @@ namespace Xtensive.Storage.Building.Builders
         throw new DomainBuilderException(Resources.Strings.IndexedPropertiesAreNotSupported);
 
       FieldDef fieldDef = new FieldDef(propertyInfo);
-      fieldDef.Name = context.NameProvider.BuildName(fieldDef);
+      fieldDef.Name = context.NameBuilder.Build(fieldDef);
 
       AttributeProcessor.Process(fieldDef, 
         propertyInfo.GetAttribute<FieldAttribute>(false));
@@ -127,7 +126,7 @@ namespace Xtensive.Storage.Building.Builders
 
         AssociationBuilder.BuildAssociation(fieldDef, field);
 
-        TypeDef typeDef = BuildingScope.Context.Definition.Types[field.DeclaringType.UnderlyingType];
+        TypeDef typeDef = BuildingContext.Current.Definition.Types[field.DeclaringType.UnderlyingType];
         typeDef.Indexes.Add(IndexBuilder.DefineForeignKey(typeDef, fieldDef));
       }
 
@@ -174,7 +173,7 @@ namespace Xtensive.Storage.Building.Builders
 
     public static void BuildInheritedField(TypeInfo type, FieldInfo inheritedField)
     {
-      BuildingContext context = BuildingScope.Context;
+      BuildingContext context = BuildingContext.Current;
       Log.Info("Building inherited field '{0}.{1}'", type.Name, inheritedField.Name);
       FieldInfo field = inheritedField.Clone();
       type.Fields.Add(field);
@@ -207,7 +206,7 @@ namespace Xtensive.Storage.Building.Builders
 
     public static void BuildReferenceField(FieldInfo field)
     {
-      BuildingContext context = BuildingScope.Context;
+      BuildingContext context = BuildingContext.Current;
       TypeInfo type = context.Model.Types[field.ValueType];
       IEnumerable<FieldInfo> fields = type.Hierarchy.Fields.Keys.Join(type.Fields, key => key.Name,
         fld => fld.Name, (key, fld) => fld);
@@ -217,7 +216,7 @@ namespace Xtensive.Storage.Building.Builders
 
     public static void BuildStructureField(FieldInfo field)
     {
-      BuildingContext context = BuildingScope.Context;
+      BuildingContext context = BuildingContext.Current;
       TypeInfo type = context.Model.Types[field.ValueType];
 
       BuildNestedFields(field, type.Fields);
@@ -225,7 +224,7 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void BuildNestedFields(FieldInfo target, IEnumerable<FieldInfo> fields)
     {
-      BuildingContext context = BuildingScope.Context;
+      BuildingContext context = BuildingContext.Current;
 
       foreach (FieldInfo field in fields) {
 
@@ -234,7 +233,7 @@ namespace Xtensive.Storage.Building.Builders
         else {
           FieldInfo clone = field.Clone();
           if (target.IsDeclared)
-            clone.Name = BuildingScope.Context.NameProvider.BuildName(target, field);
+            clone.Name = BuildingContext.Current.NameBuilder.Build(target, field);
           if (target.Fields.Contains(clone.Name))
             continue;
           clone.Parent = target;

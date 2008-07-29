@@ -124,7 +124,7 @@ namespace Xtensive.Storage
 
     private void ResolveType(Key key, Tuple tuple)
     {
-      int columnIndex = key.Hierarchy.Root.Fields[domain.NameProvider.TypeIdFieldName].MappingInfo.Offset;
+      int columnIndex = key.Hierarchy.Root.Fields[domain.NameBuilder.TypeIdFieldName].MappingInfo.Offset;
       int typeId = tuple.GetValue<int>(columnIndex);
       key.Type = domain.Model.Types[typeId];
     }

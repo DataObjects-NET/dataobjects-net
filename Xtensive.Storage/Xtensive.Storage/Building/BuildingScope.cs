@@ -5,9 +5,13 @@
 // Created:    2007.09.28
 
 using Xtensive.Core;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Storage.Building
 {
+  /// <summary>
+  /// The scope for <see cref="BuildingContext"/>.
+  /// </summary>
   public class BuildingScope: Scope<BuildingContext>
   {
     /// <summary>
@@ -18,10 +22,13 @@ namespace Xtensive.Storage.Building
       get { return CurrentContext; }
     }
 
+
+    // Constructors
+
     /// <summary>
-    /// Initializes a new instance of the <see cref="BuildingScope"/> class.
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="buildingContext">The context.</param>
+    /// <param name="buildingContext">The context to activate.</param>
     public BuildingScope(BuildingContext buildingContext)
       : base(buildingContext)
     {

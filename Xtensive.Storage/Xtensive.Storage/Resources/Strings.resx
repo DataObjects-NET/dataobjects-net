@@ -228,18 +228,6 @@
   <data name="ValueCanNotBeLessThenX" xml:space="preserve">
     <value>Value can not be less then {0}.</value>
   </data>
-  <data name="LogBuildingHandlerProvider" xml:space="preserve">
-    <value>Building handler provider.</value>
-  </data>
-  <data name="LogBuildingValueConverters" xml:space="preserve">
-    <value>Building value converters.</value>
-  </data>
-  <data name="LogBuildingKeyProviders" xml:space="preserve">
-    <value>Building key providers.</value>
-  </data>
-  <data name="LogValidatingConfiguration" xml:space="preserve">
-    <value>Validating configuration.</value>
-  </data>
   <data name="ExErrorsDuringStorageBuild" xml:space="preserve">
     <value>Some errors have been occurred during storage build. See error log for details.</value>
   </data>
@@ -378,4 +366,34 @@
   <data name="KeyCanNotBeNull" xml:space="preserve">
     <value>Key can not be null.</value>
   </data>
+  <data name="LogCreatingX" xml:space="preserve">
+    <value>Creating {0}</value>
+  </data>
+  <data name="LogBuildingX" xml:space="preserve">
+  <value>Building {0}</value>
+</data>
+  <data name="Model" xml:space="preserve">
+  <value>Model</value>
+</data>
+  <data name="Generators" xml:space="preserve">
+  <value>Generators</value>
+</data>
+  <data name="LogValidatingX" xml:space="preserve">
+  <value>Validating {0}</value>
+</data>
+  <data name="ActualModel" xml:space="preserve">
+  <value>Actual Model</value>
+</data>
+  <data name="ModelDefinition" xml:space="preserve">
+  <value>Model Definition</value>
+</data>
+  <data name="CustomDefinitions" xml:space="preserve">
+  <value>Custom Definitions</value>
+</data>
+  <data name="Types" xml:space="preserve">
+  <value>Types</value>
+</data>
+  <data name="Services" xml:space="preserve">
+  <value>Services</value>
+</data>
 </root>

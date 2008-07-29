@@ -12,24 +12,25 @@ using System.Text.RegularExpressions;
 using Xtensive.Core;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Storage.Building;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
 
-namespace Xtensive.Storage.Building
+namespace Xtensive.Storage.Providers
 {
   /// <summary>
   /// Name provider for <see cref="DomainDef"/>. 
   /// Provides names according to a set of naming rules contained in
   /// <see cref="NamingConvention"/> object.
   /// </summary>
-  public class NameProvider : HandlerBase
+  public class NameBuilder : HandlerBase
   {
     private static readonly Regex explicitFieldNameRegex = new Regex(@"(?<name>\w+\.\w+)$", 
       RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.RightToLeft);
     private static readonly string typeIdFieldName = "TypeId";
-    private readonly NamingConvention namingConvention;
+    private NamingConvention namingConvention;
     private HashAlgorithm hashAlgorithm;
 
     /// <summary>
@@ -49,13 +50,11 @@ namespace Xtensive.Storage.Building
     }
 
     /// <summary>
-    /// Gets the name for <see cref="Definitions.TypeDef"/> object.
+    /// Gets the name for <see cref="TypeDef"/> object.
     /// </summary>
-    /// <param name="type">The <see cref="Definitions.TypeDef"/> object.</param>
-    /// <returns>
-    ///   <see cref="string"/> containing name for <paramref name="type"/>.
-    /// </returns>
-    public string BuildName(TypeDef type)
+    /// <param name="type">The <see cref="TypeDef"/> object.</param>
+    /// <returns>The built name.</returns>
+    public virtual string Build(TypeDef type)
     {
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
 
@@ -81,20 +80,18 @@ namespace Xtensive.Storage.Building
           result = string.Format("{0}.{1}", type.UnderlyingType.Namespace, result);
         }
         else if (NamingConvention.NamespacePolicy == NamespacePolicy.UseHash) {
-          result = string.Format("{0}.{1}", Hash(type.UnderlyingType.Namespace), result);
+          result = string.Format("{0}.{1}", BuildHash(type.UnderlyingType.Namespace), result);
         }
       }
       return NamingConvention.Apply(result);
     }
 
     /// <summary>
-    /// Gets the name for <see cref="Definitions.FieldDef"/> object.
+    /// Gets the name for <see cref="FieldDef"/> object.
     /// </summary>
-    /// <param name="field">The <see cref="Definitions.FieldDef"/> object.</param>
-    /// <returns>
-    ///   <see cref="string"/> containing name for <paramref name="field"/>.
-    /// </returns>
-    public string BuildName(FieldDef field)
+    /// <param name="field">The <see cref="FieldDef"/> object.</param>
+    /// <returns>The built name.</returns>
+    public virtual string Build(FieldDef field)
     {
       ArgumentValidator.EnsureArgumentNotNull(field, "field");
       string result = field.Name;
@@ -105,19 +102,36 @@ namespace Xtensive.Storage.Building
       return result;
     }
 
-    internal string BuildExplicitName(TypeInfo type, string name)
+    /// <summary>
+    /// Builds the name of the explicitly implemented member.
+    /// </summary>
+    /// <param name="type">The type of interface explicit member implements.</param>
+    /// <param name="name">The member name.</param>
+    /// <returns>The built name.</returns>
+    public virtual string BuildExplicit(TypeInfo type, string name)
     {
       return type.IsInterface ? type.UnderlyingType.Name + "_" + name : name;
     }
 
-    internal string BuildExplicitName(FieldInfo field)
+    /// <summary>
+    /// Builds the name of the explicitly implemented field.
+    /// </summary>
+    /// <param name="field">The field.</param>
+    /// <returns>The built name.</returns>
+    protected virtual string BuildExplicit(FieldInfo field)
     {
       if (field.UnderlyingProperty == null || !field.UnderlyingProperty.Name.Contains("."))
         return field.Name;
       return field.UnderlyingProperty.DeclaringType.Name + "_" + field.Name;
     }
 
-    public string BuildName(FieldInfo complexField, FieldInfo childField)
+    /// <summary>
+    /// Builds the full name of the <paramref name="childField"/>.
+    /// </summary>
+    /// <param name="complexField">The complex field.</param>
+    /// <param name="childField">The child field.</param>
+    /// <returns>The built name.</returns>
+    public virtual string Build(FieldInfo complexField, FieldInfo childField)
     {
       ArgumentValidator.EnsureArgumentNotNull(complexField, "complexField");
       ArgumentValidator.EnsureArgumentNotNull(childField, "childField");
@@ -129,10 +143,8 @@ namespace Xtensive.Storage.Building
     /// </summary>
     /// <param name="field">The field info.</param>
     /// <param name="baseColumn">The <see cref="ColumnInfo"/> object.</param>
-    /// <returns>
-    ///   <see cref="string"/> containing name for <paramref name="baseColumn"/>.
-    /// </returns>
-    public string BuildName(FieldInfo field, ColumnInfo baseColumn)
+    /// <returns>The built name.</returns>
+    public virtual string Build(FieldInfo field, ColumnInfo baseColumn)
     {
       ArgumentValidator.EnsureArgumentNotNull(field, "field");
       ArgumentValidator.EnsureArgumentNotNull(baseColumn, "baseColumn");
@@ -146,7 +158,8 @@ namespace Xtensive.Storage.Building
     /// Gets the name for <see cref="ColumnInfo"/> object concatenating <see cref="TypeInfo.Name"/> with original column name.
     /// </summary>
     /// <param name="column">The <see cref="ColumnInfo"/> object.</param>
-    public string BuildName(ColumnInfo column)
+    /// <returns>The built name.</returns>
+    public virtual string Build(ColumnInfo column)
     {
       ArgumentValidator.EnsureArgumentNotNull(column, "baseColumn");
       if (column.Name.StartsWith(column.Field.DeclaringType.Name))
@@ -156,14 +169,12 @@ namespace Xtensive.Storage.Building
     }
 
     /// <summary>
-    /// Gets the name for <see cref="Definitions.IndexDef"/> object.
+    /// Gets the name for <see cref="IndexDef"/> object.
     /// </summary>
     /// <param name="type">The type def.</param>
-    /// <param name="index">The <see cref="Definitions.IndexDef"/> object.</param>
-    /// <returns>
-    ///   <see cref="string"/> containing name for <paramref name="index"/>.
-    /// </returns>
-    public string BuildName(TypeDef type, IndexDef index)
+    /// <param name="index">The <see cref="IndexDef"/> object.</param>
+    /// <returns>The built name.</returns>
+    public virtual string Build(TypeDef type, IndexDef index)
     {
       ArgumentValidator.EnsureArgumentNotNull(index, "index");
 
@@ -192,14 +203,12 @@ namespace Xtensive.Storage.Building
     }
 
     /// <summary>
-    /// Gets the name for <see cref="Definitions.IndexDef"/> object.
+    /// Gets the name for <see cref="IndexDef"/> object.
     /// </summary>
     /// <param name="type">The type def.</param>
     /// <param name="index">The <see cref="IndexInfo"/> object.</param>
-    /// <returns>
-    ///   <see cref="string"/> containing name for <paramref name="index"/>.
-    /// </returns>
-    public string BuildName(TypeInfo type, IndexInfo index)
+    /// <returns>The built name.</returns>
+    public virtual string Build(TypeInfo type, IndexInfo index)
     {
       ArgumentValidator.EnsureArgumentNotNull(index, "index");
 
@@ -242,30 +251,35 @@ namespace Xtensive.Storage.Building
     /// Builds the name for the <see cref="AssociationInfo"/>.
     /// </summary>
     /// <param name="target">The <see cref="AssociationInfo"/> instance to build name for.</param>
-    /// <returns></returns>
-    public string BuildName(AssociationInfo target)
+    /// <returns>The built name.</returns>
+    public virtual string Build(AssociationInfo target)
     {
       return target.ReferencingType.Name + "." + target.ReferencingField.Name + "_" + target.ReferencedType.Name;
     }
 
+    #region Protected methods
+
     /// <summary>
-    /// Computes a hash for the specified string.
+    /// Computes the hash for the specified <paramref name="name"/>.
     /// The length of the resulting hash is 8 characters.
     /// </summary>
-    protected string Hash(string source)
+    /// <returns>The hash.</returns>
+    protected virtual string BuildHash(string name)
     {
-      byte[] hash = hashAlgorithm.ComputeHash(Encoding.UTF8.GetBytes(source)); 
+      byte[] hash = hashAlgorithm.ComputeHash(Encoding.UTF8.GetBytes(name)); 
       return String.Format("{0:x2}{1:x2}{2:x2}{3:x2}", hash[0], hash[1], hash[2], hash[3]);
     }
 
+    #endregion
 
-    // Constructors
+
+    // Initializers
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// <see cref="ClassDocTemplate.Initialize" copy="true" />
     /// </summary>
     /// <param name="namingConvention">The naming convention.</param>
-    public NameProvider(NamingConvention namingConvention)
+    protected internal virtual void Initialize(NamingConvention namingConvention)
     {
       ArgumentValidator.EnsureArgumentNotNull(namingConvention, "namingConvention");
       this.namingConvention = namingConvention;

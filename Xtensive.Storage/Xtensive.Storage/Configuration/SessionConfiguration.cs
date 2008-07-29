@@ -11,9 +11,18 @@ using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Storage.Configuration
 {
+  /// <summary>
+  /// A configuration for the <see cref="Session"/> object.
+  /// </summary>
+  /// <remarks>
+  /// <para id="About"><see cref="HasStaticDefaultDocTemplate" copy="true" /></para>
+  /// </remarks>
   [Serializable]
   public class SessionConfiguration : ConfigurationBase
   {
+    /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
+    public readonly static SessionConfiguration Default;
+
     /// <summary>
     /// Gets user name to authenticate.
     /// </summary>
@@ -73,6 +82,14 @@ namespace Xtensive.Storage.Configuration
     public SessionConfiguration()
     {
       CacheSize = 1024;
+    }
+    
+    // Type initializer
+
+    static SessionConfiguration()
+    {
+      Default = new SessionConfiguration();
+      Default.Lock(true);
     }
   }
 }

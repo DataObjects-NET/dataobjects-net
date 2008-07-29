@@ -93,7 +93,7 @@ namespace Xtensive.Storage.Building.Definitions
       base.OnInserted(value, index);
       HierarchyDef hierarchy = HierarchyBuilder.TryDefineHierarchy(value);
       if (hierarchy != null)
-        BuildingScope.Context.Definition.Hierarchies.Add(hierarchy);
+        BuildingContext.Current.Definition.Hierarchies.Add(hierarchy);
     }
 
     /// <summary>

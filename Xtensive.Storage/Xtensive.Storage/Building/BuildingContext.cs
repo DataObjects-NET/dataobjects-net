@@ -14,6 +14,7 @@ using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Building.Internals;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Providers;
 using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Building
@@ -25,6 +26,15 @@ namespace Xtensive.Storage.Building
   {
     private readonly List<Exception> errors = new List<Exception>();
 
+    #region Internal properties
+
+    internal HashSet<Type> SkippedTypes { get; private set; }
+    internal List<Pair<AssociationInfo, string>> PairedAssociations { get; private set; }
+    internal CircularReferenceFinder<Type> CircularReferenceFinder { get; private set; }
+    internal HashSet<AssociationInfo> DiscardedAssociations { get; private set; }
+
+    #endregion
+
     /// <summary>
     /// Gets the current <see cref="BuildingContext"/>.
     /// </summary>
@@ -34,9 +44,9 @@ namespace Xtensive.Storage.Building
     }
 
     /// <summary>
-    /// Gets the configuration of the building <see cref="Storage.Domain"/>.
+    /// Gets the building stage.
     /// </summary>
-    public DomainConfiguration Configuration { get; private set; }
+    public BuildingStage Stage { get; internal set; }
 
     /// <summary>
     /// Gets the log used by this builder.
@@ -44,28 +54,40 @@ namespace Xtensive.Storage.Building
     public ILog Log { get; private set; }
 
     /// <summary>
-    /// Gets or sets the <see cref="Storage.Domain"/> model definition.
+    /// Gets the configuration of the building <see cref="Storage.Domain"/>.
     /// </summary>
-    public DomainDef Definition { get; set; }
+    public DomainConfiguration Configuration { get; private set; }
 
     /// <summary>
-    /// Gets the name provider.
+    /// Gets the <see cref="Storage.Domain"/> object.
     /// </summary>
-    public NameProvider NameProvider { get; set; }
+    public Domain Domain { get; internal set; }
 
-    #region Private \ internal properties and methods
+    /// <summary>
+    /// Gets the handler factory.
+    /// </summary>
+    public HandlerFactory HandlerFactory {
+      get { return Domain.HandlerFactory; }
+    }
 
-    internal DomainInfo Model { get; set; }
+    /// <summary>
+    /// Gets the name builder.
+    /// </summary>
+    public NameBuilder NameBuilder { 
+      get { return Domain.NameBuilder; }
+    }
 
-    internal Domain Domain { get; set; }
+    /// <summary>
+    /// Gets or sets the <see cref="Storage.Domain"/> model definition.
+    /// </summary>
+    public DomainDef Definition { get; internal set; }
 
-    internal HashSet<Type> SkippedTypes { get; private set; }
+    /// <summary>
+    /// Gets the model.
+    /// </summary>
+    public DomainInfo Model { get; internal set; }
 
-    internal List<Pair<AssociationInfo, string>> PairedAssociations { get; private set; }
-
-    internal CircularReferenceFinder<Type> CircularReferenceFinder { get; private set; }
-
-    internal HashSet<AssociationInfo> DiscardedAssociations { get; private set; }
+    #region Internal methods
 
     internal void RegisterError(DomainBuilderException exception)
     {
@@ -90,13 +112,13 @@ namespace Xtensive.Storage.Building
     /// <param name="configuration">The configuration.</param>
     public BuildingContext(DomainConfiguration configuration)
     {
+      Log = StringLog.Create("DomainBuilder");
       Configuration = configuration;
       SkippedTypes = new HashSet<Type>();
       SkippedTypes.Add(typeof (Entity));
       SkippedTypes.Add(typeof (IEntity));
       SkippedTypes.Add(typeof (Structure));
       PairedAssociations = new List<Pair<AssociationInfo, string>>();
-      Log = StringLog.Create("DomainBuilder");
       CircularReferenceFinder = new CircularReferenceFinder<Type>(TypeHelper.GetShortName);
       DiscardedAssociations = new HashSet<AssociationInfo>();
     }

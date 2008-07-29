@@ -150,7 +150,7 @@ namespace Xtensive.Storage.Tests.Model.Library
   {
     private static void VerifyTypeCollection()
     {
-      BuildingContext context = BuildingScope.Context;
+      BuildingContext context = BuildingContext.Current;
       TypeDefCollection types = context.Definition.Types;
       Assert.IsNull(types.FindAncestor(types[typeof (Entity)]));
       Assert.IsNull(types.FindAncestor(types[typeof (IEntity)]));
@@ -165,7 +165,7 @@ namespace Xtensive.Storage.Tests.Model.Library
 
     private static void RedefineTypes()
     {
-      BuildingContext context = BuildingScope.Context;
+      BuildingContext context = BuildingContext.Current;
       context.Definition.Types.Clear();
       context.Definition.DefineType(typeof (BookReview));
       context.Definition.DefineType(typeof (Book));
@@ -180,7 +180,7 @@ namespace Xtensive.Storage.Tests.Model.Library
 
     private static void RedefineFields()
     {
-      TypeDefCollection types = BuildingScope.Context.Definition.Types;
+      TypeDefCollection types = BuildingContext.Current.Definition.Types;
       foreach (TypeDef type in types) {
         type.Fields.Clear();
         type.Indexes.Clear();
@@ -218,7 +218,7 @@ namespace Xtensive.Storage.Tests.Model.Library
 
     private static void VerifyDefinition()
     {
-      BuildingContext context = BuildingScope.Context;
+      BuildingContext context = BuildingContext.Current;
       Assert.IsNotNull(context.Definition.Types[typeof (Entity)]);
       Assert.IsNotNull(context.Definition.Types[typeof (IEntity)]);
 

@@ -14,6 +14,7 @@ using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Resources;
+using Xtensive.Core.Reflection;
 
 namespace Xtensive.Storage.Building
 {
@@ -40,18 +41,27 @@ namespace Xtensive.Storage.Building
       if (!configuration.IsLocked)
         configuration.Lock(true);
 
-      Validate(configuration);
+      using (Log.InfoRegion(String.Format(Strings.LogValidatingX, typeof(DomainConfiguration).GetShortName())))
+        Validate(configuration);
 
-      BuildingContext context = new BuildingContext(configuration);
-      context.NameProvider = new NameProvider(configuration.NamingConvention);
-
-      // TODO: AY: Fix immediately
+      var context = new BuildingContext(configuration);
+      using (Log.InfoRegion(String.Format(Strings.LogBuildingX, typeof(Domain).GetShortName())))
       using (new BuildingScope(context)) {
         try {
-          BuildModel();
-          BuildDomain();
-          BuildHandlerProvider();
-          BuildGenerators();
+          using (Log.InfoRegion(String.Format(Strings.LogCreatingX, typeof(Domain).GetShortName())))
+            CreateDomain();
+          using (Log.InfoRegion(String.Format(Strings.LogCreatingX, typeof(HandlerFactory).GetShortName())))
+            CreateHandlerFactory();
+          using (Log.InfoRegion(String.Format(Strings.LogCreatingX, typeof(NameBuilder).GetShortName())))
+            CreateNameBuilder();
+          using (Log.InfoRegion(String.Format(Strings.LogCreatingX, typeof(DomainHandler).GetShortName())))
+            CreateDomainHandler();
+          using (Log.InfoRegion(String.Format(Strings.LogBuildingX, Strings.Model)))
+            BuildModel();
+          using (Log.InfoRegion(String.Format(Strings.LogCreatingX, typeof(KeyManager).GetShortName())))
+            CreateKeyManager();
+          using (Log.InfoRegion(String.Format(Strings.LogCreatingX, Strings.Generators)))
+            CreateGenerators();
         }
         catch (DomainBuilderException e) {
           context.RegisterError(e);
@@ -62,14 +72,10 @@ namespace Xtensive.Storage.Building
       return context.Domain;
     }
 
-    private static void BuildModel()
-    {
-      ModelBuilder.Build();
-    }
+    #region ValidateXxx methods
 
     private static void Validate(DomainConfiguration configuration)
     {
-      Log.Info(Strings.LogValidatingConfiguration);
       if (configuration.Builders.Count > 0)
         foreach (Type type in configuration.Builders)
           ValidateBuilder(type);
@@ -92,25 +98,65 @@ namespace Xtensive.Storage.Building
             Strings.ExTypeXDoesNotImplementYInterface, type.FullName, typeof (IDomainBuilder).FullName));
     }
 
-    private static void BuildDomain()
+    #endregion
+
+    private static void CreateDomain()
     {
-      Domain domain = new Domain();
-      domain.HandlerAccessor = new HandlerAccessor(domain);
-      domain.Configuration = BuildingScope.Context.Configuration;
-      domain.Model = BuildingScope.Context.Model;
-      domain.NameProvider = BuildingScope.Context.NameProvider;
-      domain.KeyManager = new KeyManager(domain);
-      BuildingScope.Context.Domain = domain;
+      var domain = new Domain(BuildingContext.Current.Configuration);
+      BuildingContext.Current.Domain = domain;
     }
 
-    private static void BuildGenerators()
+    private static void CreateHandlerFactory()
     {
-      Log.Info(Strings.LogBuildingKeyProviders);
-      Registry<HierarchyInfo, DefaultGenerator> generators = BuildingScope.Context.Domain.KeyManager.Generators;
-      foreach (HierarchyInfo hierarchy in BuildingScope.Context.Model.Hierarchies) {
+      string protocol = BuildingContext.Current.Configuration.ConnectionInfo.Protocol;
+      Type handlerProviderType;
+      lock (pluginManager) {
+        handlerProviderType = pluginManager[new ProviderAttribute(protocol)];
+        if (handlerProviderType==null)
+          throw new DomainBuilderException(
+            string.Format(Strings.ExStorageProviderNotFound,
+              protocol,
+              Environment.CurrentDirectory));
+      }
+      var handlerFactory = (HandlerFactory) Activator.CreateInstance(handlerProviderType);
+      var handlerAccessor = BuildingContext.Current.Domain.HandlerAccessor;
+      handlerAccessor.HandlerFactory = handlerFactory;
+    }
+
+    private static void CreateNameBuilder()
+    {
+      var handlerAccessor = BuildingContext.Current.Domain.HandlerAccessor;
+      handlerAccessor.NameBuilder = handlerAccessor.HandlerFactory.CreateHandler<NameBuilder>();
+    }
+
+    private static void CreateDomainHandler()
+    {
+      var handlerAccessor = BuildingContext.Current.Domain.HandlerAccessor;
+      handlerAccessor.DomainHandler = handlerAccessor.HandlerFactory.CreateHandler<DomainHandler>();
+    }
+
+    private static void BuildModel()
+    {
+      ModelBuilder.Build();
+      var domain = BuildingContext.Current.Domain;
+      domain.Model = BuildingContext.Current.Model;
+    }
+
+    private static void CreateKeyManager()
+    {
+      var domain = BuildingContext.Current.Domain;
+      var handlerAccessor = BuildingContext.Current.Domain.HandlerAccessor;
+      handlerAccessor.KeyManager = new KeyManager(domain);
+    }
+
+    private static void CreateGenerators()
+    {
+      var handlerAccessor = BuildingContext.Current.Domain.HandlerAccessor;
+      Registry<HierarchyInfo, DefaultGenerator> generators = BuildingContext.Current.Domain.KeyManager.Generators;
+      foreach (HierarchyInfo hierarchy in BuildingContext.Current.Model.Hierarchies) {
         DefaultGenerator generator;
         if (hierarchy.Generator==typeof (DefaultGenerator))
-          generator = BuildingScope.Context.Domain.HandlerAccessor.Factory.CreateHandler<DefaultGenerator>();
+          generator = handlerAccessor.HandlerFactory.CreateHandler<DefaultGenerator>();
         else
           generator = (DefaultGenerator) Activator.CreateInstance(hierarchy.Generator);
         generator.Hierarchy = hierarchy;
@@ -118,26 +164,6 @@ namespace Xtensive.Storage.Building
         generators.Register(hierarchy, generator);
       }
       generators.Lock();
-    }
-
-    private static void BuildHandlerProvider()
-    {
-      Log.Info(Strings.LogBuildingHandlerProvider);
-      HandlerAccessor handlerAccessor = BuildingScope.Context.Domain.HandlerAccessor;
-      lock (pluginManager) {
-        string protocol = handlerAccessor.Domain.Configuration.ConnectionInfo.Protocol;
-        Type handlerProviderType = pluginManager[new ProviderAttribute(protocol)];
-
-        if (handlerProviderType==null)
-          throw new DomainBuilderException(
-            string.Format(Strings.ExStorageProviderNotFound,
-              protocol,
-              Environment.CurrentDirectory));
-
-        handlerAccessor.Factory = (HandlerFactory) Activator.CreateInstance(handlerProviderType, new object[] { handlerAccessor.Domain });
-        handlerAccessor.DomainHandler = handlerAccessor.Factory.CreateHandler<DomainHandler>();
-        handlerAccessor.DomainHandler.Build();
-      }
     }
   }
 }

@@ -44,10 +44,10 @@ namespace Xtensive.Storage
     [DebuggerHidden]
     internal int TypeId
     {
-      get { return GetValue<int>(Session.Domain.NameProvider.TypeIdFieldName); }
+      get { return GetValue<int>(Session.HandlerAccessor.NameBuilder.TypeIdFieldName); }
       private set
       {
-        FieldInfo field = Type.Fields[Session.Domain.NameProvider.TypeIdFieldName];
+        FieldInfo field = Type.Fields[Session.HandlerAccessor.NameBuilder.TypeIdFieldName];
         field.GetAccessor<int>().SetValue(this, field, value);
       }
     }

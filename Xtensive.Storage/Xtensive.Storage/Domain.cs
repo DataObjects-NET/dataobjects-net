@@ -4,6 +4,8 @@
 // Created by: Dmitri Maximov
 // Created:    2007.08.03
 
+using System.Diagnostics;
+using Xtensive.Core;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
@@ -11,30 +13,60 @@ using Xtensive.Storage.Providers;
 
 namespace Xtensive.Storage
 {
+  /// <summary>
+  /// Provides access to a single storage.
+  /// </summary>
   public sealed class Domain
   {
     /// <summary>
     /// Gets the configuration.
     /// </summary>
-    public DomainConfiguration Configuration { get; internal set; }
+    [DebuggerHidden]
+    public DomainConfiguration Configuration { get; private set; }
 
     /// <summary>
     /// Gets the domain model.
     /// </summary>
+    [DebuggerHidden]
     public DomainInfo Model { get; internal set; }
 
     /// <summary>
-    /// Gets the name provider.
+    /// Gets the handler factory.
     /// </summary>
-    public NameProvider NameProvider { get; internal set; }
+    public HandlerFactory HandlerFactory  { 
+      [DebuggerStepThrough]
+      get { return HandlerAccessor.HandlerFactory; }
+    }
+
+    /// <summary>
+    /// Gets the name builder.
+    /// </summary>
+    public NameBuilder NameBuilder { 
+      [DebuggerStepThrough]
+      get { return HandlerAccessor.NameBuilder; }
+    }
 
     /// <summary>
     /// Gets the key manager.
     /// </summary>
-    public KeyManager KeyManager { get; internal set; }
+    public KeyManager KeyManager {
+      [DebuggerStepThrough]
+      get { return HandlerAccessor.KeyManager; }
+    }
 
-    internal HandlerAccessor HandlerAccessor { get; set; }
+    /// <summary>
+    /// Gets the domain handler.
+    /// </summary>
+    internal DomainHandler Handler {
+      [DebuggerStepThrough]
+      get { return HandlerAccessor.DomainHandler; }
+    }
 
+    [DebuggerHidden]
+    internal HandlerAccessor HandlerAccessor { get; private set; }
+
+
+    #region OpenSession methods
 
     /// <summary>
     /// Creates the session.
@@ -43,7 +75,7 @@ namespace Xtensive.Storage
     /// <returns>New <see cref="SessionScope"/> object.</returns>
     public SessionScope OpenSession()
     {
-      return OpenSession(new SessionConfiguration());
+      return OpenSession(SessionConfiguration.Default);
     }
 
     /// <summary>
@@ -53,9 +85,10 @@ namespace Xtensive.Storage
     /// <returns>New <see cref="SessionScope"/> object.</returns>
     public SessionScope OpenSession(SessionConfiguration configuration)
     {
-      SessionHandler handler = HandlerAccessor.Factory.CreateHandler<SessionHandler>();
-      handler.Session = new Session(HandlerAccessor, configuration);
-      return new SessionScope(handler.Session);
+      ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
+      configuration.Lock(true);
+      var session = new Session(this, configuration);
+      return new SessionScope(session);
     }
 
     /// <summary>
@@ -69,8 +102,11 @@ namespace Xtensive.Storage
       return OpenSession(new SessionConfiguration(userName, authParams));
     }
 
+    #endregion
+
     /// <summary>
-    /// Builds the new <see cref="Domain"/> according to specified <see cref="DomainConfiguration"/>.
+    /// Builds the new <see cref="Domain"/> according to the specified 
+    /// <see cref="DomainConfiguration"/>.
     /// </summary>
     /// <param name="configuration">The <see cref="DomainConfiguration"/>.</param>
     /// <returns>Newly built <see cref="Domain"/>.</returns>
@@ -82,8 +118,10 @@ namespace Xtensive.Storage
 
     // Constructors
 
-    internal Domain()
+    internal Domain(DomainConfiguration configuration)
     {
+      Configuration = configuration;
+      HandlerAccessor = new HandlerAccessor(this);
     }
   }
 }

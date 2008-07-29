@@ -27,7 +27,7 @@ namespace Xtensive.Storage.Building.Builders
       if (hierarchyRootAttribute==null)
         return null;
 
-      TypeDef root = BuildingScope.Context.Definition.FindRoot(type);
+      TypeDef root = BuildingContext.Current.Definition.FindRoot(type);
       if (root!=null)
         return null;
 
@@ -38,7 +38,7 @@ namespace Xtensive.Storage.Building.Builders
 
     public static HierarchyDef DefineHierarchy(TypeDef typeDef, InheritanceSchema inheritanceSchema)
     {
-      BuildingContext context = BuildingScope.Context;
+      BuildingContext context = BuildingContext.Current;
 
       Log.Info("Defining hierarchy for type '{0}'", typeDef.UnderlyingType.FullName);
 
@@ -71,7 +71,7 @@ namespace Xtensive.Storage.Building.Builders
         hierarchy.Fields.Add(field, pair.Value);
       }
 
-      BuildingScope.Context.Model.Hierarchies.Add(hierarchy);
+      BuildingContext.Current.Model.Hierarchies.Add(hierarchy);
       return hierarchy;
     }
 
