@@ -13,10 +13,10 @@ namespace Xtensive.Integrity.Aspects.Constraints
   /// Checks field value to be not null or empty.
   /// </summary>
   [Serializable]
-  public class NotNullOrEmptyConstraintAttribute : FieldConstraintAspect
+  public class NotNullOrEmptyConstraintAttribute : PropertyConstraintAspect
   {
     /// <inheritdoc/>
-    public override void ValidateValue(IValidatable target, object value)
+    public override void CheckValue(IValidationAware target, object value)
     {
       string stringValue = (string) value;
       
@@ -26,9 +26,9 @@ namespace Xtensive.Integrity.Aspects.Constraints
     }
 
     /// <inheritdoc/>
-    public override bool IsTypeSupported(Type type)
+    public override bool IsSupported(Type valueType)
     {
-      return type == typeof (string);
+      return valueType == typeof (string);
     }
   }
 }

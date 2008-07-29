@@ -23,7 +23,7 @@ namespace Xtensive.Integrity.Tests
 
     internal static ConstraintsValidationContext Context = new ConstraintsValidationContext();    
 
-    internal class ValidatableObject : IValidatable
+    internal class ValidatableObject : IValidationAware
     {
       public void OnValidate()
       {

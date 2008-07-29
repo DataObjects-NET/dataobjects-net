@@ -20,7 +20,7 @@ namespace Xtensive.Integrity.Tests
   public class AtomicBase: 
     ISessionBound,
     IAtomicityAware, 
-    IValidatable, 
+    IValidationAware, 
     ISerializable
   {
     [NonSerialized]
@@ -94,7 +94,7 @@ namespace Xtensive.Integrity.Tests
     {
     }
 
-    #region IValidatable methods
+    #region IValidationAware methods
 
     public virtual void OnValidate()
     {      
@@ -115,7 +115,7 @@ namespace Xtensive.Integrity.Tests
 
     #region IAtomicityAware methods
 
-    public bool IsCompatible(AtomicityContextBase context)
+    public bool IsCompatibleWith(AtomicityContextBase context)
     {
       return session.AtomicityContext==context;
     }

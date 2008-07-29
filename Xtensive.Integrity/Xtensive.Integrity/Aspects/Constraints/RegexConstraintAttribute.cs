@@ -15,12 +15,12 @@ namespace Xtensive.Integrity.Aspects.Constraints
   /// Checks field value with specified regular expression.
   /// </summary>
   [Serializable]
-  public class RegexConstraintAttribute : FieldConstraintAspect
+  public class RegexConstraintAttribute : PropertyConstraintAspect
   {
     private readonly Regex regex;
     
     /// <inheritdoc/>
-    public override void ValidateValue(IValidatable target, object value)
+    public override void CheckValue(IValidationAware target, object value)
     {
       string stringValue = (string) value;
 
@@ -30,9 +30,9 @@ namespace Xtensive.Integrity.Aspects.Constraints
     }
 
     /// <inheritdoc/>
-    public override bool IsTypeSupported(Type type)
+    public override bool IsSupported(Type valueType)
     {
-      return type == typeof (string);
+      return valueType == typeof (string);
     }
 
     /// <summary>

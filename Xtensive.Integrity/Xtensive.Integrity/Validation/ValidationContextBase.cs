@@ -14,13 +14,13 @@ using Xtensive.Integrity.Validation.Interfaces;
 namespace Xtensive.Integrity.Validation
 {
   /// <summary>
-  /// Provides consistency validation for see <see cref="IValidatable"/> implementors.
+  /// Provides consistency validation for see <see cref="IValidationAware"/> implementors.
   /// </summary>
   public abstract class ValidationContextBase: Context<ValidationScope>
   {
     private bool isConsistent = true;
     private int  activationCount;
-    private HashSet<Pair<IValidatable, Action>> registry;
+    private HashSet<Pair<IValidationAware, Action<IValidationAware>>> registry;
 
     /// <inheritdoc/>
     protected override ValidationScope CreateActiveScope()
@@ -82,23 +82,23 @@ namespace Xtensive.Integrity.Validation
     /// <summary>
     /// Enqueues the object for delayed partial validation.
     /// </summary>
-    /// <param name="target">The <see cref="IValidatable"/> object to enqueue.</param>
+    /// <param name="target">The <see cref="IValidationAware"/> object to enqueue.</param>
     /// <param name="validationDelegate">The validation delegate partially validating the <paramref name="target"/>.
     /// If <see langword="null" />, whole object should be validated.
     /// </param>    
-    internal protected virtual void EnqueueValidate(IValidatable target, Action validationDelegate)
+    internal protected virtual void EnqueueValidate(IValidationAware target, Action<IValidationAware> validationDelegate)
     {
       if (!target.IsCompatibleWith(this))
         throw new ArgumentException(Strings.ExObjectAndContextAreIncompatible, "target");
 
-      registry.Add(new Pair<IValidatable, Action>(target, validationDelegate));
+      registry.Add(new Pair<IValidationAware, Action<IValidationAware>>(target, validationDelegate));
     }
 
     /// <summary>
     /// Enqueues the object for delayed validation.
     /// </summary>
-    /// <param name="target">The <see cref="IValidatable"/> object to enqueue.</param>    
-    internal protected virtual void EnqueueValidate(IValidatable target)
+    /// <param name="target">The <see cref="IValidationAware"/> object to enqueue.</param>    
+    internal protected virtual void EnqueueValidate(IValidationAware target)
     {
       EnqueueValidate(target, null);
     }
@@ -108,7 +108,7 @@ namespace Xtensive.Integrity.Validation
     /// </summary>
     protected virtual void EnterInconsistentRegion()
     {
-      registry = new HashSet<Pair<IValidatable, Action>>();
+      registry = new HashSet<Pair<IValidationAware, Action<IValidationAware>>>();
     }
 
     /// <summary>
@@ -124,8 +124,8 @@ namespace Xtensive.Integrity.Validation
             if (pair.Second==null)
               pair.First.Validate();
             else
-              if (!registry.Contains(new Pair<IValidatable, Action>(pair.First, null)))
-                pair.Second.Invoke();
+              if (!registry.Contains(new Pair<IValidationAware, Action<IValidationAware>>(pair.First, null)))
+                pair.Second.Invoke(pair.First);
           }
           catch (Exception e) {
             if (exceptions==null)

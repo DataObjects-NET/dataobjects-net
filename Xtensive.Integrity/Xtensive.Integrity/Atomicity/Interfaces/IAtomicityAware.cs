@@ -23,6 +23,6 @@ namespace Xtensive.Integrity.Atomicity
     /// with the current object; 
     /// otherwise, <see langword="false"/>.
     /// </returns>
-    bool IsCompatible(AtomicityContextBase context);
+    bool IsCompatibleWith(AtomicityContextBase context);
   }
 }

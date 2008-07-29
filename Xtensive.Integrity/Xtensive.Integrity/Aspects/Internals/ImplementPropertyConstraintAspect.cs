@@ -11,14 +11,14 @@ using Xtensive.Integrity.Validation.Interfaces;
 namespace Xtensive.Integrity.Aspects
 {  
   [Serializable]
-  internal class FieldSetterConstraintAspect : OnMethodBoundaryAspect
+  internal class ImplementPropertyConstraintAspect : OnMethodBoundaryAspect
   {
-    private readonly FieldConstraintAspect constraintAspect;
+    private readonly PropertyConstraintAspect constraintAspect;
 
     public override void OnEntry(MethodExecutionEventArgs eventArgs)
     {
       constraintAspect.OnSetValue(
-        (IValidatable) eventArgs.Instance,
+        (IValidationAware) eventArgs.Instance,
         eventArgs.GetReadOnlyArgumentArray()[0]);
 
       base.OnEntry(eventArgs);
@@ -27,13 +27,13 @@ namespace Xtensive.Integrity.Aspects
     public override void RuntimeInitialize(System.Reflection.MethodBase method)
     {
       base.RuntimeInitialize(method);
-      constraintAspect.RuntimeInitialize();
+      constraintAspect.OnRuntimeInitialize();
     }
 
 
     // Constructor
 
-    public FieldSetterConstraintAspect(FieldConstraintAspect constraintAspect)
+    public ImplementPropertyConstraintAspect(PropertyConstraintAspect constraintAspect)
     {
       this.constraintAspect = constraintAspect;
     }
