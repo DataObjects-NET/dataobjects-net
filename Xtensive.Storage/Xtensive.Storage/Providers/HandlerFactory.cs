@@ -89,7 +89,7 @@ namespace Xtensive.Storage.Providers
       foreach (Type type in assembly.GetTypes()) {
         if (type.IsAbstract || !type.IsPublic || !handlerBaseType.IsAssignableFrom(type))
           continue;
-        Type baseType = type.BaseType;
+        Type baseType = type;
         while (baseType != handlerBaseType) {
           // Any HandlerBase descendant is considered as
           // "key" for handler requests
@@ -105,10 +105,11 @@ namespace Xtensive.Storage.Providers
     // Constructors
 
     /// <inheritdoc/>
-    public HandlerFactory(Domain domain)
+    protected HandlerFactory(Domain domain)
       : base(domain)
     {
       Type type = GetType();
+      RegisterHandlersFrom(Assembly.GetExecutingAssembly());
       while (type!=typeof(HandlerFactory)) {
         RegisterHandlersFrom(type.Assembly);
         type = type.BaseType;

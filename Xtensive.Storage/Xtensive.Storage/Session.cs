@@ -171,6 +171,7 @@ namespace Xtensive.Storage
       Handler = HandlerAccessor.HandlerFactory.CreateHandler<SessionHandler>();
       Handler.Session = this;
       DataCache = new EntityDataCache(Configuration.CacheSize);
+      DirtyData = new FlagRegistry<PersistenceState, EntityData>(e => e.PersistenceState);
     }
 
     #region Dispose pattern

@@ -127,6 +127,7 @@ namespace Xtensive.Storage.Building
     {
       var handlerAccessor = BuildingContext.Current.Domain.HandlerAccessor;
       handlerAccessor.NameBuilder = handlerAccessor.HandlerFactory.CreateHandler<NameBuilder>();
+      handlerAccessor.NameBuilder.Initialize(handlerAccessor.Domain.Configuration.NamingConvention);
     }
 
     private static void CreateDomainHandler()
