@@ -11,16 +11,22 @@ using Xtensive.Integrity.Validation.Interfaces;
 namespace Xtensive.Integrity.Aspects
 {  
   [Serializable]
-  internal class ImplementPropertyConstraintAspect : OnMethodBoundaryAspect
+  internal class ImplementPropertyConstraintAspect : OnMethodBoundaryAspect,
+    ILaosWeavableAspect
   {
     private readonly PropertyConstraintAspect constraintAspect;
+
+    int ILaosWeavableAspect.AspectPriority
+    {
+      get { return (int)IntegrityAspectPriority.PropertyConstraint; }
+    }
 
     public override void OnEntry(MethodExecutionEventArgs eventArgs)
     {
       constraintAspect.OnSetValue(
         (IValidationAware) eventArgs.Instance,
         eventArgs.GetReadOnlyArgumentArray()[0]);
-
+      
       base.OnEntry(eventArgs);
     }
 
@@ -29,7 +35,6 @@ namespace Xtensive.Integrity.Aspects
       base.RuntimeInitialize(method);
       constraintAspect.OnRuntimeInitialize();
     }
-
 
     // Constructor
 

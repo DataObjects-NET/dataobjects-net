@@ -8,7 +8,8 @@ namespace Xtensive.Integrity.Aspects
 {
   public enum IntegrityAspectPriority
   {
-    Validate = -99100,
-    Atomic   = -99000,
+    Validate           = -99100,
+    PropertyConstraint = -99050,
+    Atomic             = -99000
   }
 }

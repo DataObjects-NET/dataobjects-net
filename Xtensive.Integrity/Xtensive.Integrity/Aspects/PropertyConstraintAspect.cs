@@ -98,7 +98,7 @@ namespace Xtensive.Integrity.Aspects
           Strings.XInterfaceShouldBeImplementedToUseFieldConstraints, typeof(IValidationAware).Name);
         return false;
       }
-
+      
       if (!IsSupported(Property.PropertyType)) {
         AspectsMessageSource.Instance.WriteLine(SeverityType.Error,
           Strings.XDoesNotSupportYValueType, GetType().Name, Property.PropertyType.Name);
@@ -111,7 +111,7 @@ namespace Xtensive.Integrity.Aspects
     /// <inheritdoc/>
     public override void ProvideAspects(object element, LaosReflectionAspectCollection collection)
     {
-      collection.AddAspect(Property.GetSetMethod(true), new ImplementPropertyConstraintAspect(this));          
+      collection.AddAspect(Property.GetSetMethod(true), new ImplementPropertyConstraintAspect(this));
     }
 
     #region Private \ internal methods
@@ -145,6 +145,7 @@ namespace Xtensive.Integrity.Aspects
     protected PropertyConstraintAspect()
     {
       Mode = ValidationMode.Default;
+      
     }
   }
 }
