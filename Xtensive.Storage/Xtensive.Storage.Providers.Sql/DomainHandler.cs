@@ -33,8 +33,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     protected override CompilationContext GetCompilationContext()
     {
-      throw new NotImplementedException();
-//      return new CompilationContext(new Compiler[] { new Compilers.Compiler(Handlers), new DefaultCompiler() });
+      return new CompilationContext(new Compilers.Compiler(Handlers));
     }
 
     /// <inheritdoc/>

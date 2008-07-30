@@ -18,6 +18,7 @@ namespace Xtensive.Storage.Providers.MsSql
   public class DefaultGenerator : Storage.DefaultGenerator
   {
     private Table generatorTable;
+    private SqlDataType dataType;
 
     public override Tuple Next()
     {
@@ -26,10 +27,11 @@ namespace Xtensive.Storage.Providers.MsSql
       SqlInsert insert = SqlFactory.Insert(SqlFactory.TableRef(generatorTable));
       batch.Add(insert);
       SqlSelect select = SqlFactory.Select();
-      select.Columns.Add("@@identity");
+      select.Columns.Add(SqlFactory.Cast(SqlFactory.FunctionCall("SCOPE_IDENTITY"), dataType));
       batch.Add(select);
       var sessionHandler = (SessionHandler)Handlers.SessionHandler;
       using (var command = new SqlCommand(sessionHandler.Connection)) {
+        command.Transaction = sessionHandler.Transaction;
         command.Statement = batch;
         command.Prepare();
         var id = command.ExecuteScalar();
@@ -44,7 +46,6 @@ namespace Xtensive.Storage.Providers.MsSql
       var keyColumn = Hierarchy.Columns[0];
       var domainHandler = (DomainHandler)Handlers.DomainHandler;
       generatorTable = domainHandler.Catalog.DefaultSchema.CreateTable(Hierarchy.MappingName);
-      SqlDataType dataType;
       if (keyColumn.ValueType == typeof(int))
         dataType = SqlDataType.Int32;
       else if (keyColumn.ValueType == typeof(uint))
@@ -54,11 +55,12 @@ namespace Xtensive.Storage.Providers.MsSql
       else
         dataType = SqlDataType.UInt64;
       var column = generatorTable.CreateColumn("ID", new SqlValueType(dataType));
-      column.SequenceDescriptor = new SequenceDescriptor(column);
+      column.SequenceDescriptor = new SequenceDescriptor(column, 1, 1);
       SqlBatch batch = SqlFactory.Batch();
       batch.Add(SqlFactory.Create(generatorTable));
       var sessionHandler = (SessionHandler) Handlers.SessionHandler;
       using (var command = new SqlCommand(sessionHandler.Connection)) {
+        command.Transaction = sessionHandler.Transaction;
         command.Statement = batch;
         command.Prepare();
         command.ExecuteNonQuery();

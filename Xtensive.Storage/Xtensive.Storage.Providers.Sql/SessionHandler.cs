@@ -29,7 +29,20 @@ namespace Xtensive.Storage.Providers.Sql
 
     public SqlConnection Connection
     {
-      get { return connection; }
+      get
+      {
+        EnsureConnectionIsOpen();
+        return connection;
+      }
+    }
+
+    public DbTransaction Transaction
+    {
+      get
+      {
+        EnsureConnectionIsOpen();
+        return transaction;
+      }
     }
 
     /// <inheritdoc/>
