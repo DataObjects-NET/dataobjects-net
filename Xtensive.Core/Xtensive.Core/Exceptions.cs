@@ -7,6 +7,7 @@
 using System;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Resources;
+using Xtensive.Core.Reflection;
 
 namespace Xtensive.Core
 {
@@ -148,7 +149,7 @@ namespace Xtensive.Core
     {
       ArgumentValidator.EnsureArgumentNotNull(contextType, "contextType");
       ArgumentValidator.EnsureArgumentNotNull(scopeType, "scopeType");
-      return new Exception(String.Format(Strings.ExContextRequired, contextType.Name, scopeType.Name));
+      return new Exception(String.Format(Strings.ExContextRequired, contextType.GetShortName(), scopeType.GetShortName()));
     }
   }
 }

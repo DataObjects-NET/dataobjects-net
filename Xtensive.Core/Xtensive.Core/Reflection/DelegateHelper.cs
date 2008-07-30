@@ -108,7 +108,7 @@ namespace Xtensive.Core.Reflection
             }
             else
               throw new InvalidOperationException(String.Format(Strings.ExPropertyDoesNotHaveGetter,
-                memberName, type.Name));
+                memberName, type.GetShortName()));
           }
           else if (fi!=null) {
             // Member is a Field...
@@ -130,7 +130,7 @@ namespace Xtensive.Core.Reflection
           }
           else
             throw new InvalidOperationException(String.Format(Strings.ExMemberIsNotPublicPropertyOrField,
-              memberName, type.Name));
+              memberName, type.GetShortName()));
 
           AddCachedDelegate(methodKey, result as Delegate);
         }
@@ -172,7 +172,7 @@ namespace Xtensive.Core.Reflection
             }
             else
               throw new InvalidOperationException(String.Format(Strings.ExPropertyDoesNotHaveSetter,
-                memberName, type.Name));
+                memberName, type.GetShortName()));
           }
           else if (fi!=null) {
             // Member is a Field...
@@ -192,7 +192,7 @@ namespace Xtensive.Core.Reflection
           }
           else
             throw new InvalidOperationException(String.Format(Strings.ExMemberIsNotPublicPropertyOrField,
-              memberName, type.Name));
+              memberName, type.GetShortName()));
           AddCachedDelegate(methodKey, result);
         }
       return result;

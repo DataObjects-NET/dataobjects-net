@@ -13,8 +13,11 @@ using System;
 using System.Reflection;
 using PostSharp.Extensibility;
 using PostSharp.Laos;
+using Xtensive.Core.Aspects.Resources;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Aspects;
+using Xtensive.Core.Reflection;
+using Xtensive.Core.Collections;
 
 namespace Xtensive.Core.Aspects.Helpers
 {
@@ -41,27 +44,44 @@ namespace Xtensive.Core.Aspects.Helpers
     {
       var ctorInfo = method as ConstructorInfo;
       if (ctorInfo == null) {
-        AspectsMessageSource.Instance.Write(SeverityType.Error, "AspectExCanBeAppliedToConstructorOnly",
-          new object[] { GetType().Name, method.DeclaringType.FullName });
+        ErrorLog.Write(SeverityType.Error, Strings.AspectExCanBeAppliedToConstructorOnly,
+          GetType().GetShortName(), 
+          method.DeclaringType.GetShortName());
         return false;
       }
 
       if (ctorInfo.IsStatic) {
-        AspectsMessageSource.Instance.Write(SeverityType.Error, "AspectExCannotBeAppliedToStaticMember",
-          new object[] { GetType().Name, method.DeclaringType.FullName });
+        ErrorLog.Write(SeverityType.Error, Strings.AspectExCannotBeAppliedToStaticMember,
+          GetType().GetShortName(), 
+          method.DeclaringType.GetShortName());
         return false;
       }
 
       MethodInfo targetMethodInfo = null;
       try {
-        targetMethodInfo = HandlerType.GetMethod(HandlerMethodName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+        targetMethodInfo = HandlerType.GetMethod(HandlerMethodName, 
+          BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
       }
       catch (NullReferenceException) {}
       catch (ArgumentNullException) {}
       catch (AmbiguousMatchException) {}
       if (targetMethodInfo==null) {
-        AspectsMessageSource.Instance.Write(SeverityType.Error, "AspectExNoMethod",
-          new object[] {GetType().Name, method.DeclaringType.FullName, HandlerType.FullName, HandlerMethodName});
+        ErrorLog.Write(SeverityType.Error, Strings.AspectExNoMethod,
+          GetType().GetShortName(), 
+          HandlerType.GetShortName(), 
+          HandlerMethodName,
+          new[] {typeof (Type).GetShortName()}.ToCommaDelimitedString(),
+          typeof (void).GetShortName());
+        return false;
+      }
+      if (targetMethodInfo.IsVirtual) {
+        ErrorLog.Write(SeverityType.Error, Strings.AspectExMethodMustBeX,
+          GetType().GetShortName(), 
+          HandlerType.GetShortName(), 
+          HandlerMethodName,
+          new[] {typeof (Type).GetShortName()}.ToCommaDelimitedString(),
+          typeof (void).GetShortName(),
+          Strings.NonVirtual);
         return false;
       }
 

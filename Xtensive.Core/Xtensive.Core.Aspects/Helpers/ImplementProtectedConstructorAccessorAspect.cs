@@ -8,8 +8,11 @@ using System;
 using System.Reflection;
 using PostSharp.Extensibility;
 using PostSharp.Laos;
+using Xtensive.Core.Aspects.Resources;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
+using System.Linq;
+using Xtensive.Core.Collections;
 
 namespace Xtensive.Core.Aspects.Helpers
 {
@@ -22,6 +25,8 @@ namespace Xtensive.Core.Aspects.Helpers
   [Serializable]
   public sealed class ImplementProtectedConstructorAccessorAspect : LaosTypeLevelAspect
   {
+    private const string CtorName = ".ctor";
+
     /// <summary>
     /// Gets the compatible return type (e.g. some base type of aspected type).
     /// </summary>
@@ -47,10 +52,12 @@ namespace Xtensive.Core.Aspects.Helpers
       catch (AmbiguousMatchException) { }
 
       if (existingConstructor == null) {
-        string arguments = "(";
-        Array.ForEach(ParameterTypes, (t) => arguments += t.FullName + ", ");
-        arguments += ")";
-        AspectsMessageSource.Instance.Write(SeverityType.Error, "AspectExConstructorDoesNotExsist", new object[] { type.FullName, arguments });
+        ErrorLog.Write(SeverityType.Error, Strings.AspectExNoMethod,
+          GetType().GetShortName(), 
+          type.GetShortName(), 
+          CtorName,
+          ParameterTypes.Select(t => t.GetShortName()).ToCommaDelimitedString(),
+          type.GetShortName());
         return false;
       }
 

@@ -7,10 +7,8 @@
 using System;
 using System.Reflection;
 using PostSharp.Extensibility;
-using PostSharp.Laos;
 using Xtensive.Core.Aspects;
-using Xtensive.Core.Resources;
-using Xtensive.Core.Helpers;
+using Xtensive.Core.Aspects.Resources;
 using Xtensive.Core.Reflection;
 
 namespace Xtensive.Core.Aspects.Helpers
@@ -26,21 +24,25 @@ namespace Xtensive.Core.Aspects.Helpers
 
       var methodInfo = method as MethodInfo;
       if (methodInfo == null) {
-        AspectsMessageSource.Instance.Write(SeverityType.Error, "AspectExCannotBeAppliedToConstructor",
-            new object[] { aspect.GetType().Name, method.DeclaringType.FullName });
+        ErrorLog.Write(SeverityType.Error, Strings.AspectExCannotBeAppliedToConstructor,
+          aspect.GetType().GetShortName(), 
+          method.DeclaringType.GetShortName());
         return false;
       }
 
       if (methodInfo.IsStatic) {
-        AspectsMessageSource.Instance.Write(SeverityType.Error, "AspectExCannotBeAppliedToStaticMember",
-            new object[] { aspect.GetType().Name, method.DeclaringType.FullName });
+        ErrorLog.Write(SeverityType.Error, Strings.AspectExCannotBeAppliedToStaticMember,
+          aspect.GetType().GetShortName(), 
+          method.DeclaringType.GetShortName());
         return false;
       }
 
       Type type = methodInfo.DeclaringType;
       if (!typeof(IContextBound<TContext>).IsAssignableFrom(type)) {
-        AspectsMessageSource.Instance.Write(SeverityType.Error, "AspectExTypeShouldImplementXxx",
-            new object[] { aspect.GetType().Name, method.DeclaringType.FullName, typeof(IContextBound<TContext>).FullName });
+        ErrorLog.Write(SeverityType.Error, Strings.AspectExNoBaseTypeOrInterface,
+          aspect.GetType().GetShortName(), 
+          method.DeclaringType.GetShortName(), 
+          typeof(IContextBound<TContext>).GetShortName());
         return false;
       }
 

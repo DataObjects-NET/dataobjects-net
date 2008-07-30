@@ -9,7 +9,9 @@ using System.Collections.Generic;
 using System.Reflection;
 using PostSharp.Extensibility;
 using PostSharp.Laos;
+using Xtensive.Core.Aspects.Resources;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Reflection;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.Aspects.Helpers
@@ -47,8 +49,10 @@ namespace Xtensive.Core.Aspects.Helpers
         }
         catch (ArgumentNullException) {}
         if (field==null) {
-          AspectsMessageSource.Instance.Write(SeverityType.Error, "AspectExNoField",
-            new object[] {GetType().Name, type.FullName, type.FullName, field});
+          ErrorLog.Write(SeverityType.Error, Strings.AspectExNoField,
+            GetType().GetShortName(), 
+            type.GetShortName(), 
+            field);
           return false;
         }
       }

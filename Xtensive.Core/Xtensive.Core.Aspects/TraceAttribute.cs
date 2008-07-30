@@ -13,6 +13,7 @@ using PostSharp.Laos;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Aspects.Resources;
+using Xtensive.Core.Reflection;
 
 namespace Xtensive.Core.Aspects
 {
@@ -64,7 +65,7 @@ namespace Xtensive.Core.Aspects
     public override bool CompileTimeValidate(MethodBase method)
     {
       if (String.IsNullOrEmpty(title))
-        title = String.Format("{0}.{1}", method.DeclaringType.Name, method.Name);
+        title = String.Format("{0}.{1}", method.DeclaringType.GetShortName(), method.Name);
       if (logType==null) {
         // Detecting log type...
         Assembly assembly = method.DeclaringType.Assembly;
@@ -79,8 +80,10 @@ namespace Xtensive.Core.Aspects
           nameSpace = OuterNamespace(nameSpace);
         }
         if (logType==null) {
-          AspectsMessageSource.Instance.Write(SeverityType.Error, "AspectExCannotFindLogFor",
-            new object[] {this.GetType().Name, method.DeclaringType.FullName, OuterNamespace(method.DeclaringType.FullName)});
+          ErrorLog.Write(SeverityType.Error, Strings.AspectExCannotFindLogFor,
+            GetType().GetShortName(), 
+            method.DeclaringType.GetShortName(), 
+            OuterNamespace(method.DeclaringType.FullName));
           return false;
         }
       }

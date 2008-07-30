@@ -5,13 +5,14 @@
 // Created:    2008.06.02
 
 using System;
-using System.Collections.Generic;
 using System.Reflection;
+using System.Linq;
 using PostSharp.Extensibility;
 using PostSharp.Laos;
+using Xtensive.Core.Aspects.Resources;
 using Xtensive.Core.Internals.DocTemplates;
-using System.Linq;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Reflection;
 
 namespace Xtensive.Core.Aspects.Helpers
 {
@@ -24,7 +25,7 @@ namespace Xtensive.Core.Aspects.Helpers
   [Serializable]
   public sealed class ImplementConstructorAspect : LaosTypeLevelAspect
   {
-    private static readonly Dictionary<Type, ImplementConstructorAspect> aspects = new Dictionary<Type, ImplementConstructorAspect>();
+    private const string CtorName = ".ctor";
 
     /// <summary>
     /// Gets the constructor parameter types.
@@ -46,10 +47,12 @@ namespace Xtensive.Core.Aspects.Helpers
       catch (AmbiguousMatchException) { }
       
       if (existingConstructor != null) {
-        string arguments = "(";
-        Array.ForEach(ParameterTypes, (t) => arguments += t.FullName + ", ");
-        arguments += ")";
-        AspectsMessageSource.Instance.Write(SeverityType.Error, "AspectExConstructorAlreadyExsists", new object[] { type.FullName, arguments });
+        ErrorLog.Write(SeverityType.Error, Strings.AspectExNoMethod,
+          GetType().GetShortName(), 
+          type.GetShortName(), 
+          CtorName,
+          ParameterTypes.Select(t => t.GetShortName()).ToCommaDelimitedString(),
+          type.GetShortName());
         return false;
       }
 

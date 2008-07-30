@@ -9,7 +9,9 @@ using System.Diagnostics;
 using System.Reflection;
 using PostSharp.Extensibility;
 using PostSharp.Laos;
+using Xtensive.Core.Aspects.Resources;
 using Xtensive.Core.Notifications;
+using Xtensive.Core.Reflection;
 
 namespace Xtensive.Core.Aspects.Helpers
 {
@@ -29,14 +31,16 @@ namespace Xtensive.Core.Aspects.Helpers
 
       MethodInfo methodInfo = method as MethodInfo;
       if (methodInfo == null) {
-        AspectsMessageSource.Instance.Write(SeverityType.Error, "AspectExCannotBeAppliedToConstructor",
-            new object[] { originalAspectType.Name, method.DeclaringType.FullName });
+        ErrorLog.Write(SeverityType.Error, Strings.AspectExCannotBeAppliedToConstructor,
+          originalAspectType.GetShortName(), 
+          method.DeclaringType.GetShortName());
         return false;
       }
 
       if (methodInfo.IsStatic) {
-        AspectsMessageSource.Instance.Write(SeverityType.Error, "AspectExCannotBeAppliedToStaticMember",
-            new object[] { originalAspectType.Name, method.DeclaringType.FullName });
+        ErrorLog.Write(SeverityType.Error, Strings.AspectExCannotBeAppliedToStaticMember,
+          originalAspectType.GetShortName(), 
+          method.DeclaringType.GetShortName());
         return false;
       }
 
@@ -47,8 +51,10 @@ namespace Xtensive.Core.Aspects.Helpers
         if (propertyInfo!=null && Attribute.GetCustomAttribute(propertyInfo, originalAspectType, false)!=null)
           // Property itself is marked as [Changer]
           return false;
-        AspectsMessageSource.Instance.Write(SeverityType.Warning, "AspectExPossiblyMissapplied",
-            new object[] { originalAspectType.Name, method.DeclaringType.FullName, method.Name });
+        ErrorLog.Write(SeverityType.Warning, Strings.AspectExPossiblyMissapplied,
+          originalAspectType.GetShortName(), 
+          method.DeclaringType.GetShortName(), 
+          method.Name);
       }
 
       return true;
