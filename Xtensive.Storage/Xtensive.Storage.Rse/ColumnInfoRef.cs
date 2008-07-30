@@ -109,7 +109,7 @@ namespace Xtensive.Storage.Rse
     /// <inheritdoc/>
     public override string ToString()
     {
-      return string.Format("TypeName: {1}, FieldName: {0}, ColumnName: {2}", TypeName, FieldName, ColumnName);
+      return string.Format("{0}.{1} ({2})", TypeName, FieldName, ColumnName);
     }
 
 

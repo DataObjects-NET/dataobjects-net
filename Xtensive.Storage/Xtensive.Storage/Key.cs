@@ -127,6 +127,14 @@ namespace Xtensive.Storage
 
     #endregion
 
+    /// <inheritdoc/>
+    public override string ToString()
+    {
+      if (Type != null)
+        return string.Format("{0} ({1}), [{2}]", Hierarchy.Name, Type.Name, Tuple);
+      return string.Format("{0}, [{1}]", Hierarchy.Name, Tuple);
+    }
+
 
     // Constructors
 

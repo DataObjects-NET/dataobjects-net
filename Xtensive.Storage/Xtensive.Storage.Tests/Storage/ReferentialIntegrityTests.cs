@@ -16,11 +16,14 @@ using Xtensive.Storage.Tests.ReferentialIntegrityModel;
 namespace Xtensive.Storage.Tests.ReferentialIntegrityModel
 {
   [HierarchyRoot(typeof (DefaultGenerator), "Id")]
-  public class A : Entity
+  public class Root : Entity
   {
     [Field]
     private int Id { get; set; }
+  }
 
+  public class A : Root
+  {
     [Field(OnDelete = ReferentialAction.SetNull, IsNullable = true)]
     public B B { get; set; }
 
@@ -28,8 +31,7 @@ namespace Xtensive.Storage.Tests.ReferentialIntegrityModel
     public C C { get; set; }
   }
 
-  [HierarchyRoot(typeof (DefaultGenerator), "Id")]
-  public class B : Entity
+  public class B : Root
   {
     [Field]
     private int Id { get; set; }
@@ -38,8 +40,7 @@ namespace Xtensive.Storage.Tests.ReferentialIntegrityModel
     public A A { get; set; }
   }
 
-  [HierarchyRoot(typeof (DefaultGenerator), "Id")]
-  public class C : Entity
+  public class C : Root
   {
     [Field]
     private int Id { get; set; }

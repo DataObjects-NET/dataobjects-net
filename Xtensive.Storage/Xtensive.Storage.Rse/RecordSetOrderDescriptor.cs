@@ -12,13 +12,13 @@ namespace Xtensive.Storage.Rse
 {
   public struct RecordSetOrderDescriptor
   {
-    private readonly DirectionCollection<int> orderedBy;
+    private readonly DirectionCollection<int> order;
     private readonly TupleDescriptor tupleDescriptor;
 
     public DirectionCollection<int> Order
     {
       [DebuggerStepThrough]
-      get { return orderedBy; }
+      get { return order; }
     }
 
     public TupleDescriptor TupleDescriptor
@@ -32,7 +32,7 @@ namespace Xtensive.Storage.Rse
 
     public RecordSetOrderDescriptor(DirectionCollection<int> orderedBy, TupleDescriptor tupleDescriptor)
     {
-      this.orderedBy = orderedBy;
+      this.order = orderedBy;
       this.tupleDescriptor = tupleDescriptor;
     }
   }
