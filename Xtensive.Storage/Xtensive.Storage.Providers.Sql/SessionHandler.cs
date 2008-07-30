@@ -27,6 +27,11 @@ namespace Xtensive.Storage.Providers.Sql
     private SqlConnection connection;
     private DbTransaction transaction;
 
+    public SqlConnection Connection
+    {
+      get { return connection; }
+    }
+
     /// <inheritdoc/>
     protected override void Insert(EntityData data)
     {
