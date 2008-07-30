@@ -26,7 +26,7 @@ namespace Xtensive.Storage.Tests.SnakeModel
     [Field]
     public int ID { get; set; }
 
-    [Field(Length = 255)]
+    [Field(Length = 255,IsNullable = true)]
     public string Name { get; set; }
 
     [Field]

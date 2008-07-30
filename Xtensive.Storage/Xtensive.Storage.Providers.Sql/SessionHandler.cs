@@ -27,6 +27,32 @@ namespace Xtensive.Storage.Providers.Sql
     private SqlConnection connection;
     private DbTransaction transaction;
 
+    #region Helper structs
+
+    private struct ExpressionData
+    {
+      public SqlExpression Expression;
+      public readonly Tuple Data;
+
+      public ExpressionData(Tuple data)
+      {
+        Data = data;
+        Expression = null;
+      }
+    }
+
+    private struct ExpressionHandler : ITupleActionHandler<ExpressionData>
+    {
+      public bool Execute<TFieldType>(ref ExpressionData actionData, int fieldIndex)
+      {
+        if (actionData.Data.IsAvailable(fieldIndex) && !actionData.Data.IsNull(fieldIndex))
+          actionData.Expression = SqlFactory.Literal(actionData.Data.GetValueOrDefault<TFieldType>(fieldIndex));
+        return true;
+      }
+    }
+
+    #endregion
+
     public SqlConnection Connection
     {
       get
@@ -48,19 +74,71 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     protected override void Insert(EntityData data)
     {
-      EnsureConnectionIsOpen();
       SqlBatch batch = SqlFactory.Batch();
-      foreach (IndexInfo primaryIndex in GetParentPrimaryIndexes(data.Type.Indexes.PrimaryIndex)) {
+      foreach (IndexInfo primaryIndex in data.Type.AffectedIndexes.Where(i => i.IsPrimary)) {
         SqlTableRef tableRef = GetTableRef(primaryIndex);
         SqlInsert insert = SqlFactory.Insert(tableRef);
-        foreach (Pair<int, SqlExpression> pair in SetValues(primaryIndex, data.Tuple, data.Type)) {
-          insert.Values[tableRef[pair.First]] = pair.Second;
+
+        var expressionHandler = new ExpressionHandler();
+        for (int i = 0; i < primaryIndex.Columns.Count; i++) {
+          ColumnInfo column = primaryIndex.Columns[i];
+          int offset = data.Type.Fields[column.Field.Name].MappingInfo.Offset;
+          var expressionData = new ExpressionData(data.Tuple);
+          data.Tuple.Descriptor.Execute(expressionHandler, ref expressionData, offset);
+          if (!SqlExpression.IsNull(expressionData.Expression))
+            insert.Values[tableRef[i]] = expressionData.Expression;
         }
         batch.Add(insert);
       }
       int rowsAffected = ExecuteNonQuery(batch);
       if (rowsAffected!=batch.Count)
         throw new InvalidOperationException(String.Format(Strings.ExInsertInvalid, data.Type.Name, rowsAffected, batch.Count));
+    }
+
+    /// <inheritdoc/>
+    protected override void Update(EntityData data)
+    {
+      SqlBatch batch = SqlFactory.Batch();
+      foreach (IndexInfo primaryIndex in data.Type.AffectedIndexes.Where(i => i.IsPrimary)) {
+        SqlTableRef tableRef = GetTableRef(primaryIndex);
+        SqlUpdate update = SqlFactory.Update(tableRef);
+
+        var expressionHandler = new ExpressionHandler();
+        for (int i = 0; i < primaryIndex.Columns.Count; i++) {
+          ColumnInfo column = primaryIndex.Columns[i];
+          int offset = data.Type.Fields[column.Field.Name].MappingInfo.Offset;
+          var expressionData = new ExpressionData(data.Tuple);
+          data.Tuple.Descriptor.Execute(expressionHandler, ref expressionData, offset);
+          if (!SqlExpression.IsNull(expressionData.Expression))
+            update.Values[tableRef[i]] = expressionData.Expression;
+        }
+
+        update.Where = DomainHandler.GetWhereStatement(tableRef, GetStatementMapping(data.Type.Indexes.PrimaryIndex, columnInfo => columnInfo.IsPrimaryKey), data.Key);
+        batch.Add(update);
+      }
+      int rowsAffected = ExecuteNonQuery(batch);
+      if (rowsAffected!=batch.Count)
+        throw new InvalidOperationException(String.Format(Strings.ExUpdateInvalid, data.Type.Name, rowsAffected, batch.Count));
+    }
+
+    /// <inheritdoc/>
+    protected override void Remove(EntityData data)
+    {
+      SqlBatch batch = SqlFactory.Batch();
+      int tableCount = 0;
+      foreach (IndexInfo index in data.Type.AffectedIndexes.Where(i => i.IsPrimary)) {
+        SqlTableRef tableRef = GetTableRef(index);
+        SqlDelete delete = SqlFactory.Delete(tableRef);
+        delete.Where = DomainHandler.GetWhereStatement(tableRef, GetStatementMapping(data.Key.Type.Indexes.PrimaryIndex, columnInfo => columnInfo.IsPrimaryKey), data.Key);
+        batch.Add(delete);
+        tableCount++;
+      }
+      int rowsAffected = ExecuteNonQuery(batch);
+      if (rowsAffected != tableCount)
+        if (rowsAffected==0)
+          throw new InvalidOperationException(String.Format(Strings.ExInstanceNotFound, data.Key.Type.Name));
+        else
+          throw new InvalidOperationException(String.Format(Strings.ExInstanceMultipleResults, data.Key.Type.Name));
     }
 
     /// <inheritdoc/>
@@ -87,46 +165,6 @@ namespace Xtensive.Storage.Providers.Sql
         return null;
       }*/
       throw new NotImplementedException();
-    }
-
-    /// <inheritdoc/>
-    protected override void Update(EntityData data)
-    {
-      EnsureConnectionIsOpen();
-      SqlBatch batch = SqlFactory.Batch();
-      foreach (IndexInfo primaryIndex in GetRealPrimaryIndexes(data.Type.Indexes.PrimaryIndex)) {
-        SqlTableRef tableRef = GetTableRef(primaryIndex);
-        SqlUpdate update = SqlFactory.Update(tableRef);
-        foreach (Pair<int, SqlExpression> pair in SetValues(primaryIndex, data.Tuple, data.Type)) {
-          update.Values[tableRef[pair.First]] = pair.Second;
-        }
-        update.Where = DomainHandler.GetWhereStatement(tableRef, GetStatementMapping(data.Type.Indexes.PrimaryIndex, columnInfo => columnInfo.IsPrimaryKey), data.Key);
-        batch.Add(update);
-      }
-      int rowsAffected = ExecuteNonQuery(batch);
-      if (rowsAffected!=batch.Count)
-        throw new InvalidOperationException(String.Format(Strings.ExUpdateInvalid, data.Type.Name, rowsAffected, batch.Count));
-    }
-
-    /// <inheritdoc/>
-    protected override void Remove(EntityData data)
-    {
-      EnsureConnectionIsOpen();
-      SqlBatch batch = SqlFactory.Batch();
-      int tableCount = 0;
-      foreach (IndexInfo index in GetParentPrimaryIndexes(data.Key.Type.Indexes.PrimaryIndex)) {
-        SqlTableRef tableRef = GetTableRef(index);
-        SqlDelete delete = SqlFactory.Delete(tableRef);
-        delete.Where = DomainHandler.GetWhereStatement(tableRef, GetStatementMapping(data.Key.Type.Indexes.PrimaryIndex, columnInfo => columnInfo.IsPrimaryKey), data.Key);
-        batch.Add(delete);
-        tableCount++;
-      }
-      int rowsAffected = ExecuteNonQuery(batch);
-      if (rowsAffected!=tableCount)
-        if (rowsAffected==0)
-          throw new InvalidOperationException(String.Format(Strings.ExInstanceNotFound, data.Key.Type.Name));
-        else
-          throw new InvalidOperationException(String.Format(Strings.ExInstanceMultipleResults, data.Key.Type.Name));
     }
 
     private static IEnumerable<StatementMapping> GetStatementMapping(IndexInfo index, Func<ColumnInfo, bool> predicate)
@@ -164,7 +202,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     #region Internals
 
-    internal int ExecuteNonQuery(ISqlCompileUnit statement)
+    internal int  ExecuteNonQuery(ISqlCompileUnit statement)
     {
       EnsureConnectionIsOpen();
       using (var command = new SqlCommand(connection)) {
@@ -224,39 +262,6 @@ namespace Xtensive.Storage.Providers.Sql
           throw new InvalidOperationException(Strings.ExUnableToCreateConnection);
         connection.Open();
         transaction = connection.BeginTransaction();
-      }
-    }
-
-    private IEnumerable<Pair<int, SqlExpression>> SetValues(IndexInfo index, Tuple data, TypeInfo originalType)
-    {
-      var result = new List<Pair<int, SqlExpression>>();
-      for (int i = 0; i < index.Columns.Count; i++) {
-        ColumnInfo column = index.Columns[i];
-        int offset = originalType.Columns[column.Name].Field.MappingInfo.Offset;
-        SqlExpression expression = DomainHandler.GetSqlExpression(data, offset);
-        if (expression!=null)
-          result.Add(new Pair<int, SqlExpression>(i, expression));
-      }
-      return result;
-    }
-
-    private static IEnumerable<IndexInfo> GetParentPrimaryIndexes(IndexInfo indexInfo)
-    {
-      IEnumerable<TypeInfo> baseTypes = indexInfo.ReflectedType.GetAncestors().Union(Enumerable.Repeat(indexInfo.ReflectedType, 1));
-      return baseTypes.Select(typeInfo => typeInfo.Indexes.FindFirst(IndexAttributes.Real | IndexAttributes.Primary));
-    }
-
-    private static IEnumerable<IndexInfo> GetRealPrimaryIndexes(IndexInfo indexInfo)
-    {
-      if (indexInfo.IsPrimary && !indexInfo.IsVirtual) {
-        yield return indexInfo;
-      }
-      else {
-        foreach (IndexInfo baseIndex in indexInfo.UnderlyingIndexes) {
-          foreach (IndexInfo realPrimaryIndex in GetRealPrimaryIndexes(baseIndex)) {
-            yield return realPrimaryIndex;
-          }
-        }
       }
     }
   }
