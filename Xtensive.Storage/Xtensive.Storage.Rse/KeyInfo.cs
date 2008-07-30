@@ -5,26 +5,24 @@
 // Created:    2008.07.10
 
 using System.Collections.Generic;
-using Xtensive.Core.Helpers;
 
 namespace Xtensive.Storage.Rse
 {
-  public class KeyInfo : LockableBase
+  public class KeyInfo
   {
-    private RecordColumnCollection keyColumns;
+    private readonly RecordColumnCollection columns;
 
-    public RecordColumnCollection KeyColumns
+    public RecordColumnCollection Columns
     {
-      get { return keyColumns; }
-      set { keyColumns = value; }
+      get { return columns; }
     }
 
     
     // Constructors
 
-    public KeyInfo(IEnumerable<RecordColumn> keyColumns)
+    public KeyInfo(IEnumerable<RecordColumn> columns)
     {
-       this.keyColumns = new RecordColumnCollection(keyColumns, "KeyColumns");
+       this.columns = new RecordColumnCollection(columns, "columns");
     }
   }
 }

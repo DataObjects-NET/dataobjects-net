@@ -41,7 +41,7 @@ namespace Xtensive.Storage.Rse
       IEntire<Tuple> xPoint;
       IEntire<Tuple> yPoint;
       Direction rangeDirection = new Range<Tuple>(from,to).GetDirection(AdvancedComparer<Tuple>.Default);
-      DirectionCollection<int> directions = recordSet.Provider.Header.OrderInfo.OrderedBy;
+      DirectionCollection<int> directions = recordSet.Provider.Header.OrderDescriptor.Order;
 
       if (directions.Count > from.Count) {
         Direction fromDirection = directions[from.Count].Value;
@@ -102,7 +102,7 @@ namespace Xtensive.Storage.Rse
 
     public static int Map(this RecordSet recordSet, string columnName)
     {
-      RecordColumn column = recordSet.Header.RecordColumnCollection[columnName];
+      RecordColumn column = recordSet.Header.Columns[columnName];
       if (column == null)
         throw new ArgumentException("columnName");
       return column.Index;

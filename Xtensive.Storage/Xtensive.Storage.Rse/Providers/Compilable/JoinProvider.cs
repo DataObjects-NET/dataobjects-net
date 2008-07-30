@@ -27,9 +27,9 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// </summary>
     public Pair<int>[] JoiningPairs { get; private set; }
 
-    protected override RecordHeader BuildHeader()
+    protected override RecordSetHeader BuildHeader()
     {
-      return new RecordHeader(Left.Header, Right.Header);
+      return new RecordSetHeader(Left.Header, Right.Header);
     }
 
     protected override void Initialize()

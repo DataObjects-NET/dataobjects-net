@@ -47,14 +47,14 @@ namespace Xtensive.Storage.Rse.Providers.Executable
       var leftEnumerable = left.GetService<IOrderedEnumerable<Tuple,Tuple>>();
       var rightEnumerable = right.GetService<IOrderedEnumerable<Tuple,Tuple>>();
       if (leftEnumerable != null && rightEnumerable != null) {
-        if (left.Header.OrderInfo.OrderedBy.Count == right.Header.OrderInfo.OrderedBy.Count) {
-          for (int i = 0; i < left.Header.OrderInfo.OrderedBy.Count; i++) {
-            var leftOrderItem = left.Header.OrderInfo.OrderedBy[i];
-            var rightOrderItem = right.Header.OrderInfo.OrderedBy[i];
+        if (left.Header.OrderDescriptor.Order.Count == right.Header.OrderDescriptor.Order.Count) {
+          for (int i = 0; i < left.Header.OrderDescriptor.Order.Count; i++) {
+            var leftOrderItem = left.Header.OrderDescriptor.Order[i];
+            var rightOrderItem = right.Header.OrderDescriptor.Order[i];
             if (leftOrderItem.Value != rightOrderItem.Value)
               return false;
-            var leftColumn = left.Header.RecordColumnCollection[leftOrderItem.Key];
-            var rightColumn = right.Header.RecordColumnCollection[rightOrderItem.Key];
+            var leftColumn = left.Header.Columns[leftOrderItem.Key];
+            var rightColumn = right.Header.Columns[rightOrderItem.Key];
             if (leftColumn != rightColumn)
               return false;
           }
@@ -66,7 +66,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 
     private bool CheckAbilityToRange()
     {
-      DirectionCollection<int> orderedBy = left.Header.OrderInfo.OrderedBy;
+      DirectionCollection<int> orderedBy = left.Header.OrderDescriptor.Order;
       bool sequenceEqual = orderedBy
         .Select(pair => pair.Key)
         .Take(joiningPairs.Length)

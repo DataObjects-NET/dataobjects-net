@@ -138,14 +138,14 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
 
     protected override void Initialize()
     {
-      keyTransform = new MapTransform(true, Header.TupleDescriptor, Header.OrderInfo.OrderedBy.Select(pair => pair.Key).ToArray());
+      keyTransform = new MapTransform(true, Header.TupleDescriptor, Header.OrderDescriptor.Order.Select(pair => pair.Key).ToArray());
       keyExtractor = (input => keyTransform.Apply(TupleTransformType.TransformedTuple, input));
 
-      RecordColumnCollection targetColumns = Header.RecordColumnCollection;
+      RecordColumnCollection targetColumns = Header.Columns;
       transforms = new MapTransform[sourceProviders.Length];
       for (int sourceIndex = 0; sourceIndex < transforms.Length; sourceIndex++) {
         Provider source = sourceProviders[sourceIndex];
-        RecordColumnCollection sourceColumns = source.Header.RecordColumnCollection;
+        RecordColumnCollection sourceColumns = source.Header.Columns;
         var map = new int[Header.TupleDescriptor.Count];
         for (int i = 0; i < map.Length; i++) {
           map[i] = -1;

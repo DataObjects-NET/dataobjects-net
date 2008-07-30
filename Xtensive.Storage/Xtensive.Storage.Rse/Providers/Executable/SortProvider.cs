@@ -51,13 +51,13 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     {
       var list = source.ToList();
 
-      var rules = new ComparisonRules[Header.OrderInfo.OrderedBy.Count];
-      var columnIndexes = new int[Header.OrderInfo.OrderedBy.Count];
-      for (int i = 0; i < Header.OrderInfo.OrderedBy.Count; i++)
+      var rules = new ComparisonRules[Header.OrderDescriptor.Order.Count];
+      var columnIndexes = new int[Header.OrderDescriptor.Order.Count];
+      for (int i = 0; i < Header.OrderDescriptor.Order.Count; i++)
       {
-        KeyValuePair<int, Direction> sortItem = Header.OrderInfo.OrderedBy[i];
-        CultureInfo culture = Header.RecordColumnCollection[sortItem.Key].ColumnInfoRef != null
-                                ? Header.RecordColumnCollection[sortItem.Key].ColumnInfoRef.CultureInfo
+        KeyValuePair<int, Direction> sortItem = Header.OrderDescriptor.Order[i];
+        CultureInfo culture = Header.Columns[sortItem.Key].ColumnInfoRef != null
+                                ? Header.Columns[sortItem.Key].ColumnInfoRef.CultureInfo
                                 : CultureInfo.InvariantCulture;
         rules[i] = new ComparisonRule(sortItem.Value, culture);
         columnIndexes[i] = sortItem.Key;

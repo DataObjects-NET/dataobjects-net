@@ -14,16 +14,16 @@ namespace Xtensive.Storage.Rse
     /// <summary>
     /// Column is not bound to the key.
     /// </summary>
-    Unbound,
+    Regular,
     
     /// <summary>
     /// Column is part of the key.
     /// </summary>
-    PartOfKey,
+    Key,
     
     /// <summary>
     /// Column is related to the key.
     /// </summary>
-    RelatedToKey,
+    KeyRelated,
   }
 }

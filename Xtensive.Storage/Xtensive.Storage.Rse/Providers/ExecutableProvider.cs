@@ -33,7 +33,7 @@ namespace Xtensive.Storage.Rse.Providers
     public Provider Origin { get; private set; }
 
     /// <exception cref="InvalidOperationException">Thrown if <see cref="Origin"/> is <see langword="null" />.</exception>
-    protected override RecordHeader BuildHeader()
+    protected override RecordSetHeader BuildHeader()
     {
       if (Origin!=null)
         return Origin.Header;

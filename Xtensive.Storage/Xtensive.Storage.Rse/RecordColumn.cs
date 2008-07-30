@@ -115,7 +115,7 @@ namespace Xtensive.Storage.Rse
     /// <param name="index">Initial <see cref="Index"/> value.</param>
     /// <param name="type">Initial <see cref="Type"/> value.</param>
     public RecordColumn(string name, int index, Type type)
-      : this(name, index, type, ColumnKind.Unbound)
+      : this(name, index, type, ColumnKind.Regular)
     {}
 
     /// <summary>

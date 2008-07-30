@@ -17,21 +17,21 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
   [Serializable]
   public sealed class SortProvider : UnaryProvider
   {
-    private RecordHeader header;
+    private RecordSetHeader header;
 
     /// <summary>
     /// Sort order columns indexes.
     /// </summary>
     public DirectionCollection<int> SortOrder { get; private set; }
 
-    protected override RecordHeader BuildHeader()
+    protected override RecordSetHeader BuildHeader()
     {
       return header;
     }
 
     protected override void Initialize()
     {
-      header = new RecordHeader(Source.Header.TupleDescriptor, Source.Header.RecordColumnCollection, Source.Header.OrderInfo.KeyDescriptor, Source.Header.Keys, SortOrder);
+      header = new RecordSetHeader(Source.Header.TupleDescriptor, Source.Header.Columns, Source.Header.OrderDescriptor.TupleDescriptor, Source.Header.Keys, SortOrder);
     }
 
     // Constructor

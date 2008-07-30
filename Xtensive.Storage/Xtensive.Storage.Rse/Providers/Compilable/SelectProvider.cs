@@ -21,7 +21,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
   [Serializable]
   public sealed class SelectProvider : UnaryProvider
   {
-    private RecordHeader header;
+    private RecordSetHeader header;
     private readonly int[] columnToSelect;
 
     /// <summary>
@@ -37,35 +37,35 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
       }
     }
 
-    protected override RecordHeader BuildHeader()
+    protected override RecordSetHeader BuildHeader()
     {
       return header;
     }
 
     protected override void Initialize()
     {
-      IEnumerable<RecordColumn> columns = columnToSelect.Select(i => Source.Header.RecordColumnCollection[i]);
+      IEnumerable<RecordColumn> columns = columnToSelect.Select(i => Source.Header.Columns[i]);
       TupleDescriptor tupleDescriptor = TupleDescriptor.Create(columnToSelect.Select(i => Source.Header.TupleDescriptor[i]));
       TupleDescriptor keyDescriptor = TupleDescriptor.Create(columnToSelect.Select(i => Source.Header.TupleDescriptor[i]));
       var orderBy = new DirectionCollection<int>();
       var keyIndicesByColumn =
         Source.Header.Keys.SelectMany(
-          (keyInfo, i) => keyInfo.KeyColumns.Select(column => new KeyValuePair<RecordColumn, int>(column, i))).
+          (keyInfo, i) => keyInfo.Columns.Select(column => new KeyValuePair<RecordColumn, int>(column, i))).
           ToDictionary(pair => pair.Key, pair => pair.Value);
 
       var excludedKeys =
-        Source.Header.RecordColumnCollection.Except(columns)
+        Source.Header.Columns.Except(columns)
           .Select(column => Source.Header.Keys[keyIndicesByColumn[column]]);
 
       for (int i = 0; i < columnToSelect.Length; i++)
       {
         int columnIndex = columnToSelect[i];
         Direction direction;
-        if (Source.Header.OrderInfo.OrderedBy.TryGetValue(columnIndex, out direction))
+        if (Source.Header.OrderDescriptor.Order.TryGetValue(columnIndex, out direction))
           orderBy.Add(i, direction);
       }
 
-      header = new RecordHeader(tupleDescriptor, columns, keyDescriptor, Source.Header.Keys.Except(excludedKeys), orderBy); 
+      header = new RecordSetHeader(tupleDescriptor, columns, keyDescriptor, Source.Header.Keys.Except(excludedKeys), orderBy); 
     }
 
 

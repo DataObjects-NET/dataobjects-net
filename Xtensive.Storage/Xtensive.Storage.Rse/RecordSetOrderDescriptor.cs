@@ -10,30 +10,30 @@ using Xtensive.Core.Tuples;
 
 namespace Xtensive.Storage.Rse
 {
-  public struct RecordOrderInfo
+  public struct RecordSetOrderDescriptor
   {
     private readonly DirectionCollection<int> orderedBy;
-    private readonly TupleDescriptor keyDescriptor;
+    private readonly TupleDescriptor tupleDescriptor;
 
-    public DirectionCollection<int> OrderedBy
+    public DirectionCollection<int> Order
     {
       [DebuggerStepThrough]
       get { return orderedBy; }
     }
 
-    public TupleDescriptor KeyDescriptor
+    public TupleDescriptor TupleDescriptor
     {
       [DebuggerStepThrough]
-      get { return keyDescriptor; }
+      get { return tupleDescriptor; }
     }
 
 
     // Constructors
 
-    public RecordOrderInfo(DirectionCollection<int> orderedBy, TupleDescriptor keyDescriptor)
+    public RecordSetOrderDescriptor(DirectionCollection<int> orderedBy, TupleDescriptor tupleDescriptor)
     {
       this.orderedBy = orderedBy;
-      this.keyDescriptor = keyDescriptor;
+      this.tupleDescriptor = tupleDescriptor;
     }
   }
 }

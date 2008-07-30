@@ -40,21 +40,20 @@ namespace Xtensive.Storage.Rse
     public CultureInfo CultureInfo { get; private set; }
 
     /// <summary>
-    /// Resolves this instance to <see cref="ColumnInfo"/> object within specified <paramref name="domainInfo"/>.
+    /// Resolves this instance to <see cref="ColumnInfo"/> object within specified <paramref name="model"/>.
     /// </summary>
-    /// <param name="domainInfo">Domain information.</param>
-    public ColumnInfo Resolve(DomainInfo domainInfo)
+    /// <param name="model">Domain model.</param>
+    public ColumnInfo Resolve(DomainInfo model)
     {
       TypeInfo type;
-      if (!domainInfo.Types.TryGetValue(TypeName, out type))
+      if (!model.Types.TryGetValue(TypeName, out type))
         throw new InvalidOperationException(string.Format(Strings.ExCouldNotResolveXYWithinDomain, "type", TypeName));
       FieldInfo field;
       if (!type.Fields.TryGetValue(FieldName, out field))
         throw new InvalidOperationException(string.Format(Strings.ExCouldNotResolveXYWithinDomain, "field", FieldName));
-      ColumnInfo column = field.Column;
-      if (column == null)
+      if (field.Column == null)
         throw new InvalidOperationException(string.Format(Strings.ExCouldNotResolveXYWithinDomain, "column", ColumnName));
-      return column;
+      return field.Column;
     }
 
     /// <summary>

@@ -21,7 +21,7 @@ namespace Xtensive.Storage.Rse.Providers
     IEnumerable<Tuple>,
     IHasServices
   {
-    private RecordHeader header;
+    private RecordSetHeader header;
 
     /// <summary>
     /// Gets or sets the source providers 
@@ -32,7 +32,7 @@ namespace Xtensive.Storage.Rse.Providers
     /// <summary>
     /// Gets the header of the record sequence this provide produces.
     /// </summary>
-    public RecordHeader Header {
+    public RecordSetHeader Header {
       get {
         EnsureHeaderIsBuilt();
         return header;
@@ -47,8 +47,8 @@ namespace Xtensive.Storage.Rse.Providers
     /// Builds the <see cref="Header"/>.
     /// This method is invoked just once on each provider.
     /// </summary>
-    /// <returns>Newly created <see cref="RecordHeader"/> to assign to <see cref="Header"/> property.</returns>
-    protected abstract RecordHeader BuildHeader();
+    /// <returns>Newly created <see cref="RecordSetHeader"/> to assign to <see cref="Header"/> property.</returns>
+    protected abstract RecordSetHeader BuildHeader();
 
     #region IEnumerable<...> methods
 

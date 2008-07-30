@@ -22,9 +22,9 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// </summary>
     public DirectionCollection<int> IndexSortOrder { get; private set; }
 
-    protected override RecordHeader BuildHeader()
+    protected override RecordSetHeader BuildHeader()
     {
-      return new RecordHeader(Source.Header.TupleDescriptor, Source.Header.RecordColumnCollection, Source.Header.OrderInfo.KeyDescriptor, Source.Header.Keys, IndexSortOrder);
+      return new RecordSetHeader(Source.Header.TupleDescriptor, Source.Header.Columns, Source.Header.OrderDescriptor.TupleDescriptor, Source.Header.Keys, IndexSortOrder);
     }
 
     protected override void Initialize()

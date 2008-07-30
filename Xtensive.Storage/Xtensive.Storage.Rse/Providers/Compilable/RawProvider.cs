@@ -16,14 +16,14 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
   [Serializable]
   public class RawProvider : CompilableProvider
   {
-    private readonly RecordHeader header;
+    private readonly RecordSetHeader header;
 
     /// <summary>
     /// Source tuples.
     /// </summary>
     public Tuple[] Tuples { get; private set; }
 
-    protected override RecordHeader BuildHeader()
+    protected override RecordSetHeader BuildHeader()
     {
       return header;
     }
@@ -38,7 +38,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <summary>
     ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public RawProvider(RecordHeader header, params Tuple[] tuples)
+    public RawProvider(RecordSetHeader header, params Tuple[] tuples)
     {
       Tuples = tuples;
       this.header = header;

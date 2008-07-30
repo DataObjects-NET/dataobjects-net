@@ -28,13 +28,13 @@ namespace Xtensive.Storage.Rse
     public string TypeName { get; private set; }
 
     /// <summary>
-    /// Resolves this instance to <see cref="IndexInfo"/> object within specified <paramref name="domainInfo"/>.
+    /// Resolves this instance to <see cref="IndexInfo"/> object within specified <paramref name="model"/>.
     /// </summary>
-    /// <param name="domainInfo">Domain information.</param>
-    public IndexInfo Resolve(DomainInfo domainInfo)
+    /// <param name="model">Domain model.</param>
+    public IndexInfo Resolve(DomainInfo model)
     {
       TypeInfo type;
-      if (!domainInfo.Types.TryGetValue(TypeName, out type))
+      if (!model.Types.TryGetValue(TypeName, out type))
         throw new InvalidOperationException(string.Format(Strings.ExCouldNotResolveXYWithinDomain, "type", TypeName));
       IndexInfo index;
       if (!type.Indexes.TryGetValue(IndexName, out index))

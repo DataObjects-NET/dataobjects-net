@@ -16,14 +16,14 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
   [Serializable]
   public sealed class IndexProvider : CompilableProvider
   {
-    private readonly RecordHeader header;
+    private readonly RecordSetHeader header;
 
     /// <summary>
     /// Reference to the <see cref="IndexInfo"/> instance within the domain.
     /// </summary>
     public IndexInfoRef Index { get; private set; }
 
-    protected override RecordHeader BuildHeader()
+    protected override RecordSetHeader BuildHeader()
     {
       return header;
     }
@@ -40,7 +40,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// </summary>
     public IndexProvider(IndexInfo index)
     {
-      header = new RecordHeader(index);
+      header = new RecordSetHeader(index);
       Index = new IndexInfoRef(index);
     }
   }

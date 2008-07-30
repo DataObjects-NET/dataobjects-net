@@ -23,7 +23,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// </summary>
     public Expression<Func<Tuple, bool>> Predicate { get; private set; }
 
-    protected override RecordHeader BuildHeader()
+    protected override RecordSetHeader BuildHeader()
     {
       return Source.Header;
     }

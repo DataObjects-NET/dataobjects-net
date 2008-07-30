@@ -26,7 +26,7 @@ namespace Xtensive.Storage.Rse
     /// <summary>
     /// Gets the header of the <see cref="RecordSet"/>.
     /// </summary>
-    public RecordHeader Header
+    public RecordSetHeader Header
     {
       get { return Provider.Header; }
     }

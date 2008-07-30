@@ -21,9 +21,9 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// </summary>
     public string Alias { get; private set; }
 
-    protected override RecordHeader BuildHeader()
+    protected override RecordSetHeader BuildHeader()
     {
-      return new RecordHeader(Source.Header, Alias);
+      return new RecordSetHeader(Source.Header, Alias);
     }
 
     /// <inheritdoc/>
