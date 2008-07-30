@@ -207,7 +207,7 @@ namespace Xtensive.Storage
     protected Entity()
     {
       Key key = Session.Domain.KeyManager.Next(GetType());
-      data = Session.DataCache.Add(key, PersistenceState.New);
+      data = Session.DataCache.Create(key, PersistenceState.New);
       OnCreating();
     }
 
@@ -219,7 +219,7 @@ namespace Xtensive.Storage
     protected Entity(Tuple tuple)
     {
       Key key = Session.Domain.KeyManager.Get(GetType(), tuple);
-      data = Session.DataCache.Add(key, PersistenceState.New);
+      data = Session.DataCache.Create(key, PersistenceState.New);
       OnCreating();
     }
 

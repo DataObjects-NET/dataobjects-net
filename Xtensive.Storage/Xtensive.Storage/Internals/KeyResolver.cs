@@ -33,11 +33,11 @@ namespace Xtensive.Storage.Internals
           return null;
 
         resolvedKey = session.Domain.KeyManager.Get(key.Hierarchy, tuple);
-        data = session.DataCache.Add(resolvedKey, tuple, PersistenceState.Persisted);
+        data = session.DataCache.Create(resolvedKey, tuple, PersistenceState.Persisted);
       }
       else
         // Creating empty Entity
-        data = session.DataCache.Add(key, PersistenceState.Persisted);
+        data = session.DataCache.Create(key, PersistenceState.Persisted);
 
       return GetEntity(data);
     }
