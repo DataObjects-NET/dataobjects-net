@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
@@ -27,10 +26,11 @@ namespace Xtensive.Storage
       SessionScope scope = SessionScope.Current;
       if (scope == null)
         throw new InvalidOperationException();
-      if (scope.Session == null)
+      Session session = scope.Session;
+      if (session == null)
         throw new InvalidOperationException();
 
-      TypeInfo type = scope.Session.Handlers.Domain.Model.Types[entityType];
+      TypeInfo type = session.Handlers.Domain.Model.Types[entityType];
       var keyColumns = type.Indexes.PrimaryIndex.KeyColumns;
 
       Tuple t = Tuple.Create(type.Hierarchy.TupleDescriptor);
@@ -41,6 +41,7 @@ namespace Xtensive.Storage
         for (int i = 0; i < t.Count; i++)
           t.SetValue(i, tuple.GetValue(columnsMap[i]));
         Key key = Key.Get(entityType, t);
+        session.DataCache.Update(key, tuple);
         yield return key.Resolve();
       }
     }
