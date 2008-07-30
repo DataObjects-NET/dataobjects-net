@@ -22,13 +22,16 @@ namespace Xtensive.Core.Tuples.Internals
     private const string descriptorFieldName = "descriptor";
     private const string descriptorPropertyName = "Descriptor";
     private const string countPropertyName = "Count";
+    private const string valuePropertyName = "Value";
     private const string getValueOrDefaultMethodName = "GetValueOrDefault";
     private const string getValueOrDefaultGenericMethodName = "GetValueOrDefault";
+    private const string hasValuePropertyName = "HasValue";
     private const string setValueMethodName = "SetValue";
     private const string getFieldStateMethodName = "GetFieldState";
     private const string setFieldStateMathodName = "SetFieldState";
     private const string createNewMethodName = "CreateNew";
     private const string cloneMethodName = "Clone";
+
     private readonly static AssemblyName assemblyName = new AssemblyName("Xtensive.GeneratedTuples");
     private readonly static MethodInfo getFlagsMethod = typeof(Tuple).GetMethod("GetFieldState");
     private readonly static MethodInfo setFlagsMethod = typeof(GeneratedTuple).GetMethod("SetFieldState", 
@@ -213,7 +216,7 @@ namespace Xtensive.Core.Tuples.Internals
     {
       // "public override TDescriptor Descriptor {"
       MethodBuilder getDescriptorMethod = tupleType.DefineMethod(
-        "get_"+descriptorPropertyName,
+        WellKnown.GetterPrefix+descriptorPropertyName,
           MethodAttributes.Public |
           MethodAttributes.Virtual |
           MethodAttributes.SpecialName |
@@ -228,7 +231,7 @@ namespace Xtensive.Core.Tuples.Internals
       // "}"
 
       tupleType.DefineMethodOverride(getDescriptorMethod,
-        typeof(Tuple).GetMethod("get_"+descriptorPropertyName));
+        typeof(Tuple).GetMethod(WellKnown.GetterPrefix+descriptorPropertyName));
     }
 
     private void AddFields()
@@ -254,7 +257,7 @@ namespace Xtensive.Core.Tuples.Internals
     {
       // "public override int Count {"
       getCountMethod =
-        tupleType.DefineMethod("get_"+countPropertyName,
+        tupleType.DefineMethod(WellKnown.GetterPrefix+countPropertyName,
           MethodAttributes.Public |
           MethodAttributes.Virtual |
           MethodAttributes.SpecialName |
@@ -438,7 +441,7 @@ namespace Xtensive.Core.Tuples.Internals
               if (interfaceInfo.IsForNullableType) {
                 Label isNotNull = il.DefineLabel();
                 il.Emit(OpCodes.Ldarga, 2);
-                il.Emit(OpCodes.Call, nullable.GetMethod("get_HasValue"));
+                il.Emit(OpCodes.Call, nullable.GetMethod(WellKnown.GetterPrefix+hasValuePropertyName));
                 il.Emit(OpCodes.Brtrue, isNotNull);
                 il.Emit(OpCodes.Ldc_I4, (int)(TupleFieldState.IsAvailable | TupleFieldState.IsNull));
                 il.Emit(OpCodes.Stloc_0);
@@ -449,7 +452,7 @@ namespace Xtensive.Core.Tuples.Internals
               il.Emit(OpCodes.Stloc_0);
               if (interfaceInfo.IsForNullableType) {
                 il.Emit(OpCodes.Ldarga, 2);
-                il.Emit(OpCodes.Call, nullable.GetMethod("get_Value"));
+                il.Emit(OpCodes.Call, nullable.GetMethod(WellKnown.GetterPrefix+valuePropertyName));
                 il.Emit(OpCodes.Stloc_1);
                 InlineSetField(il, field, OpCodes.Ldloc_1, false);
               }

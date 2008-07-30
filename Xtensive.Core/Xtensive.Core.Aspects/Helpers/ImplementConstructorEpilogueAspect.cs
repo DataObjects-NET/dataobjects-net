@@ -42,48 +42,17 @@ namespace Xtensive.Core.Aspects.Helpers
     /// <inheritdoc/>
     public override bool CompileTimeValidate(MethodBase method)
     {
-      var ctorInfo = method as ConstructorInfo;
-      if (ctorInfo == null) {
-        ErrorLog.Write(SeverityType.Error, Strings.AspectExCanBeAppliedToConstructorOnly,
-          GetType().GetShortName(), 
-          method.DeclaringType.GetShortName());
+      if (!AspectHelper.ValidateMemberType(this, method, true, MemberTypes.Constructor))
         return false;
-      }
+      if (!AspectHelper.ValidateMethodAttributes(this, method, false, MethodAttributes.Static))
+        return false;
 
-      if (ctorInfo.IsStatic) {
-        ErrorLog.Write(SeverityType.Error, Strings.AspectExCannotBeAppliedToStaticMember,
-          GetType().GetShortName(), 
-          method.DeclaringType.GetShortName());
+      MethodInfo targetMethod = AspectHelper.ValidateMethod(this, HandlerType, true, 
+        HandlerMethodName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, typeof (Type));
+      if (targetMethod==null)
         return false;
-      }
-
-      MethodInfo targetMethodInfo = null;
-      try {
-        targetMethodInfo = HandlerType.GetMethod(HandlerMethodName, 
-          BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-      }
-      catch (NullReferenceException) {}
-      catch (ArgumentNullException) {}
-      catch (AmbiguousMatchException) {}
-      if (targetMethodInfo==null) {
-        ErrorLog.Write(SeverityType.Error, Strings.AspectExNoMethod,
-          GetType().GetShortName(), 
-          HandlerType.GetShortName(), 
-          HandlerMethodName,
-          new[] {typeof (Type).GetShortName()}.ToCommaDelimitedString(),
-          typeof (void).GetShortName());
+      if (!AspectHelper.ValidateMethodAttributes(this, targetMethod, false, MethodAttributes.Virtual))
         return false;
-      }
-      if (targetMethodInfo.IsVirtual) {
-        ErrorLog.Write(SeverityType.Error, Strings.AspectExMethodMustBeX,
-          GetType().GetShortName(), 
-          HandlerType.GetShortName(), 
-          HandlerMethodName,
-          new[] {typeof (Type).GetShortName()}.ToCommaDelimitedString(),
-          typeof (void).GetShortName(),
-          Strings.NonVirtual);
-        return false;
-      }
 
       return true;
     }

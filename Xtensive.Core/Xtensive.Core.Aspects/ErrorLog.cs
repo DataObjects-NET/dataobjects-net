@@ -40,7 +40,7 @@ namespace Xtensive.Core.Aspects
     public static void Debug(string format, params object[] args)
     {
       MessageSource.Write(SeverityType.Warning, "DebugX",
-         new object[] {String.Format(format, args) });
+        new object[] { string.Format(format, args) });
     }
 
 

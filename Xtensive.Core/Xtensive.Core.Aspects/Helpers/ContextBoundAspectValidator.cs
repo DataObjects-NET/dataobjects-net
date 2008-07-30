@@ -7,6 +7,7 @@
 using System;
 using System.Reflection;
 using PostSharp.Extensibility;
+using PostSharp.Laos;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.Aspects.Resources;
 using Xtensive.Core.Reflection;
@@ -16,35 +17,18 @@ namespace Xtensive.Core.Aspects.Helpers
   public static class ContextBoundAspectValidator<TContext>
     where TContext : class, IContext
   {
-    public static bool CompileTimeValidate(Attribute aspect, MethodBase method)
+    public static bool CompileTimeValidate(Attribute originalAspect, MethodBase method)
     {
       foreach (var attribute in method.GetAttributes<SuppressActivationAttribute>(false))
         if (attribute.ContextType == typeof(TContext))
           return false;
 
-      var methodInfo = method as MethodInfo;
-      if (methodInfo == null) {
-        ErrorLog.Write(SeverityType.Error, Strings.AspectExCannotBeAppliedToConstructor,
-          aspect.GetType().GetShortName(), 
-          method.DeclaringType.GetShortName());
+      if (!AspectHelper.ValidateMemberType(originalAspect, method, false, MemberTypes.Constructor))
         return false;
-      }
-
-      if (methodInfo.IsStatic) {
-        ErrorLog.Write(SeverityType.Error, Strings.AspectExCannotBeAppliedToStaticMember,
-          aspect.GetType().GetShortName(), 
-          method.DeclaringType.GetShortName());
+      if (!AspectHelper.ValidateMethodAttributes(originalAspect, method, false, MethodAttributes.Static))
         return false;
-      }
-
-      Type type = methodInfo.DeclaringType;
-      if (!typeof(IContextBound<TContext>).IsAssignableFrom(type)) {
-        ErrorLog.Write(SeverityType.Error, Strings.AspectExNoBaseTypeOrInterface,
-          aspect.GetType().GetShortName(), 
-          method.DeclaringType.GetShortName(), 
-          typeof(IContextBound<TContext>).GetShortName());
+      if (!AspectHelper.ValidateBaseType(originalAspect, method.DeclaringType, true, typeof(IContextBound<TContext>)))
         return false;
-      }
 
       return true;
     }

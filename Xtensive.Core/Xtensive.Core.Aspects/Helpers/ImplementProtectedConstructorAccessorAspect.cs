@@ -25,8 +25,6 @@ namespace Xtensive.Core.Aspects.Helpers
   [Serializable]
   public sealed class ImplementProtectedConstructorAccessorAspect : LaosTypeLevelAspect
   {
-    private const string CtorName = ".ctor";
-
     /// <summary>
     /// Gets the compatible return type (e.g. some base type of aspected type).
     /// </summary>
@@ -40,26 +38,10 @@ namespace Xtensive.Core.Aspects.Helpers
     /// <inheritdoc/>
     public override bool CompileTimeValidate(Type type)
     {
-      ConstructorInfo existingConstructor = null;
-      try {
-        existingConstructor = type.GetConstructor(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.CreateInstance,
-        null,
-        ParameterTypes,
-        null);
-      }
-      catch (NullReferenceException) { }
-      catch (ArgumentNullException) { }
-      catch (AmbiguousMatchException) { }
-
-      if (existingConstructor == null) {
-        ErrorLog.Write(SeverityType.Error, Strings.AspectExNoMethod,
-          GetType().GetShortName(), 
-          type.GetShortName(), 
-          CtorName,
-          ParameterTypes.Select(t => t.GetShortName()).ToCommaDelimitedString(),
-          type.GetShortName());
+      ConstructorInfo existingConstructor = AspectHelper.ValidateConstructor(this, 
+        type, false, BindingFlags.Public | BindingFlags.NonPublic, ParameterTypes);
+      if (existingConstructor != null)
         return false;
-      }
 
       return true;
     }

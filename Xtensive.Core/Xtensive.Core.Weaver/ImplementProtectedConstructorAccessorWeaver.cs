@@ -16,7 +16,6 @@ namespace Xtensive.Core.Weaver
 {
   internal class ImplementProtectedConstructorAccessorWeaver : LaosAspectWeaver
   {
-    private const string CtorName = ".ctor";
     private const string ParameterNamePrefix = "arg";
 
     private readonly Type[] parameterTypes;
@@ -73,7 +72,7 @@ namespace Xtensive.Core.Weaver
     private IMethod FindConstructor(TypeDefDeclaration typeDef, ModuleDeclaration module)
     {
       IMethod foundConstructor = null;
-      foreach (IMethod constructor in typeDef.Methods.GetByName(CtorName)) {
+      foreach (IMethod constructor in typeDef.Methods.GetByName(WellKnown.CtorName)) {
         if (constructor.ParameterCount == parameterTypes.Length) {
           int i = 0;
           for (; i < parameterTypes.Length; i++) {

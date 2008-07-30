@@ -9,13 +9,13 @@ using PostSharp.CodeModel.TypeSignatures;
 using PostSharp.Extensibility.Tasks;
 using PostSharp.Laos.Weaver;
 using PostSharp.ModuleWriter;
+using Xtensive.Core.Reflection;
 
 namespace Xtensive.Core.Weaver
 {
   internal class ImplementAutoPropertyReplacementWeaver : MethodLevelAspectWeaver
   {
     private const string AutoPropertyBackingFieldFormat = "<{0}>k__BackingField";
-    private const string GetterNamePrefix = "get";
     private const string HandlerGetMethodPrefix = "Get";
     private const string HandlerSetMethodPrefix = "Set";
 
@@ -33,7 +33,7 @@ namespace Xtensive.Core.Weaver
 
       string propertyName = methodDef.Name.Substring(splitterPos + 1);
       string fieldName    = string.Format(AutoPropertyBackingFieldFormat, propertyName);
-      bool   isGetter     = methodDef.Name.Substring(0, splitterPos) == GetterNamePrefix;
+      bool   isGetter     = methodDef.Name.Substring(0, splitterPos + 1) == WellKnown.GetterPrefix;
       FieldDefDeclaration fieldDef = typeDef.Fields.GetByName(fieldName);
       if (fieldDef == null)
         return;

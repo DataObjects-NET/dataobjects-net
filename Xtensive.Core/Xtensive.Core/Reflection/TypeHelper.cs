@@ -448,10 +448,12 @@ namespace Xtensive.Core.Reflection
     public static string GetFullName(this Type type)
     {
       string result = type.Namespace + "." + type.Name;
-      Type[] arguments = type.GetGenericArguments();
       int arrayBracketPosition = result.IndexOf('[');
       if (arrayBracketPosition > 0)
         result = result.Substring(0, arrayBracketPosition);
+      Type[] arguments = type.GetGenericArguments();
+      if (arguments==null)
+        arguments = ArrayUtils<Type>.EmptyArray;
       if (arguments.Length > 0) {
         StringBuilder sb = new StringBuilder();
         sb.Append(TrimGenericSuffix(result));
@@ -490,10 +492,12 @@ namespace Xtensive.Core.Reflection
     public static string GetShortName(this Type type)
     {
       string result = type.Name;
-      Type[] arguments = type.GetGenericArguments();
       int arrayBracketPosition = result.IndexOf('[');
       if (arrayBracketPosition > 0)
         result = result.Substring(0, arrayBracketPosition);
+      Type[] arguments = type.GetGenericArguments();
+      if (arguments==null)
+        arguments = ArrayUtils<Type>.EmptyArray;
       if (arguments.Length > 0) {
         StringBuilder sb = new StringBuilder();
         sb.Append(TrimGenericSuffix(result));

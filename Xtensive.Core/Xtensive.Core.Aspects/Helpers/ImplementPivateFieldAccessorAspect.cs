@@ -49,7 +49,7 @@ namespace Xtensive.Core.Aspects.Helpers
         }
         catch (ArgumentNullException) {}
         if (field==null) {
-          ErrorLog.Write(SeverityType.Error, Strings.AspectExNoField,
+          ErrorLog.Write(SeverityType.Error, Strings.AspectExRequiresToHave,
             GetType().GetShortName(), 
             type.GetShortName(), 
             field);

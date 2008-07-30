@@ -8,12 +8,12 @@ using System.Reflection;
 using PostSharp.CodeModel;
 using PostSharp.Laos.Weaver;
 using PostSharp.ModuleWriter;
+using Xtensive.Core.Reflection;
 
 namespace Xtensive.Core.Weaver
 {
   internal class ImplementConstructorWeaver : LaosAspectWeaver
   {
-    private const string CtorName = ".ctor";
     private const string ParameterNamePrefix = "arg";
 
     private readonly ITypeSignature[] parameterTypeSignatures;
@@ -30,7 +30,7 @@ namespace Xtensive.Core.Weaver
         parameterTypeSignatures, 0);
       
       MethodDefDeclaration ctorDef = new MethodDefDeclaration();
-      ctorDef.Name = CtorName;
+      ctorDef.Name = WellKnown.CtorName;
       ctorDef.CallingConvention = CallingConvention.HasThis;
       ctorDef.Attributes = MethodAttributes.Family | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName;
       typeDef.Methods.Add(ctorDef);
@@ -62,18 +62,18 @@ namespace Xtensive.Core.Weaver
 
       IMethod baseConstructor = null;
       try {
-        baseConstructor = baseTypeDef.Methods.GetMethod(CtorName,
-                                      ctorSignature.Translate(module),
-                                      BindingOptions.OnlyExisting);
+        baseConstructor = baseTypeDef.Methods.GetMethod(WellKnown.CtorName,
+          ctorSignature.Translate(module),
+          BindingOptions.OnlyExisting);
       } catch {}
       while (baseConstructor == null && baseType != null)
       {
         baseType = baseTypeDef.BaseType;
         baseTypeDef = baseType.GetTypeDefinition();
         try {
-          baseConstructor = baseType.Methods.GetMethod(CtorName,
-                                                            ctorSignature.Translate(module),
-                                                            BindingOptions.OnlyExisting);
+          baseConstructor = baseType.Methods.GetMethod(WellKnown.CtorName,
+            ctorSignature.Translate(module),
+            BindingOptions.OnlyExisting);
         } catch {}
       }
       writer.EmitInstructionMethod(OpCodeNumber.Call,

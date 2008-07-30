@@ -27,34 +27,23 @@ namespace Xtensive.Core.Aspects.Helpers
     /// <inheritdoc/>
     public override bool CompileTimeValidate(MethodBase method)
     {
-      Type originalAspectType = typeof (ChangerAttribute);
-
-      MethodInfo methodInfo = method as MethodInfo;
-      if (methodInfo == null) {
-        ErrorLog.Write(SeverityType.Error, Strings.AspectExCannotBeAppliedToConstructor,
-          originalAspectType.GetShortName(), 
-          method.DeclaringType.GetShortName());
+      if (!AspectHelper.ValidateMemberType(changerAttribute, method, false, MemberTypes.Constructor))
         return false;
-      }
-
-      if (methodInfo.IsStatic) {
-        ErrorLog.Write(SeverityType.Error, Strings.AspectExCannotBeAppliedToStaticMember,
-          originalAspectType.GetShortName(), 
-          method.DeclaringType.GetShortName());
+      if (!AspectHelper.ValidateMethodAttributes(changerAttribute, method, false, MethodAttributes.Static))
         return false;
-      }
 
-      if (methodInfo.IsSpecialName && methodInfo.Name.StartsWith("get_")) {
+      var methodInfo = method as MethodInfo;
+      if (methodInfo.IsSpecialName && methodInfo.Name.StartsWith(WellKnown.GetterPrefix)) {
         // This is getter; let's check if it is explicitely marked as [Changer]
-        PropertyInfo propertyInfo = methodInfo.DeclaringType.UnderlyingSystemType.GetProperty(methodInfo.Name.Remove(0, 4), 
+        PropertyInfo propertyInfo = methodInfo.DeclaringType.UnderlyingSystemType.GetProperty(
+          methodInfo.Name.Remove(0, WellKnown.GetterPrefix.Length), 
           BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-        if (propertyInfo!=null && Attribute.GetCustomAttribute(propertyInfo, originalAspectType, false)!=null)
+        if (propertyInfo!=null && propertyInfo.GetAttribute<ChangerAttribute>(false)!=null)
           // Property itself is marked as [Changer]
           return false;
         ErrorLog.Write(SeverityType.Warning, Strings.AspectExPossiblyMissapplied,
-          originalAspectType.GetShortName(), 
-          method.DeclaringType.GetShortName(), 
-          method.Name);
+          changerAttribute.GetType().GetShortName(), 
+          AspectHelper.FormatMember(method.DeclaringType, method));
       }
 
       return true;

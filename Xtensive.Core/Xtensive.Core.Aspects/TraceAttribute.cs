@@ -28,6 +28,7 @@ namespace Xtensive.Core.Aspects
     private const string ExitFormat            = "Exit {0}";
     private const string ExitFormatResult      = "Exit {0}, result: {1}";
     private const string ExitFormatError       = "Exit {0}, exception: {1}";
+    private const string LogTypeName = "Log";
 
     private Type logType;
     private ILog log;
@@ -65,25 +66,24 @@ namespace Xtensive.Core.Aspects
     public override bool CompileTimeValidate(MethodBase method)
     {
       if (String.IsNullOrEmpty(title))
-        title = String.Format("{0}.{1}", method.DeclaringType.GetShortName(), method.Name);
+        title = method.GetShortName();
       if (logType==null) {
         // Detecting log type...
         Assembly assembly = method.DeclaringType.Assembly;
         string nameSpace = method.DeclaringType.FullName;
-        nameSpace = OuterNamespace(nameSpace);
+        nameSpace = GetOuterNamespace(nameSpace);
         while (!String.IsNullOrEmpty(nameSpace)) {
-          Type foundLogType = assembly.GetType(nameSpace + ".Log", false);
+          Type foundLogType = assembly.GetType(nameSpace + "." + LogTypeName, false);
           if (IsLogType(foundLogType)) {
             logType = foundLogType;
             break;
           }
-          nameSpace = OuterNamespace(nameSpace);
+          nameSpace = GetOuterNamespace(nameSpace);
         }
         if (logType==null) {
           ErrorLog.Write(SeverityType.Error, Strings.AspectExCannotFindLogFor,
-            GetType().GetShortName(), 
             method.DeclaringType.GetShortName(), 
-            OuterNamespace(method.DeclaringType.FullName));
+            GetOuterNamespace(method.DeclaringType.FullName));
           return false;
         }
       }
@@ -112,7 +112,7 @@ namespace Xtensive.Core.Aspects
 
     #region Helper methods
 
-    private static string OuterNamespace(string nameSpace)
+    private static string GetOuterNamespace(string nameSpace)
     {
       int i = nameSpace.LastIndexOf('.');
       if (i>0)
