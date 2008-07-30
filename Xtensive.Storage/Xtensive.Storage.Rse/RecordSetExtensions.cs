@@ -91,13 +91,11 @@ namespace Xtensive.Storage.Rse
       return new WhereProvider(recordSet.Provider, predicate).Result;
     }
 
-    public static RecordSet Select(this RecordSet recordSet, params string[] columnNames)
+    public static RecordSet Select(this RecordSet recordSet, params int[] columnIndexes)
     {
-      ArgumentValidator.EnsureArgumentNotNull(columnNames, "columnNames");
-      ArgumentValidator.EnsureArgumentIsInRange(columnNames.Length, 1, int.MaxValue, "columnNames.Length");
-//      SelectProvider provider = new SelectProvider(recordSet.Provider, columnNames);
-//      return new RecordSet(provider);
-      throw new NotImplementedException();
+      ArgumentValidator.EnsureArgumentNotNull(columnIndexes, "columnNames");
+      ArgumentValidator.EnsureArgumentIsInRange(columnIndexes.Length, 1, int.MaxValue, "columnIndexes.Length");
+      return new SelectProvider(recordSet.Provider, columnIndexes).Result;
     }
 
     public static int Map(this RecordSet recordSet, string columnName)

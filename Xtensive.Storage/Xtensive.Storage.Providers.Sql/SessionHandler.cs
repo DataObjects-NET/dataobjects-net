@@ -26,8 +26,9 @@ namespace Xtensive.Storage.Providers.Sql
   {
     private SqlConnection connection;
     private DbTransaction transaction;
+    private ExpressionHandler expressionHandler;
 
-    #region Helper structs
+    #region Helper structs & methods
 
     private struct ExpressionData
     {
@@ -79,7 +80,6 @@ namespace Xtensive.Storage.Providers.Sql
         SqlTableRef tableRef = GetTableRef(primaryIndex);
         SqlInsert insert = SqlFactory.Insert(tableRef);
 
-        var expressionHandler = new ExpressionHandler();
         for (int i = 0; i < primaryIndex.Columns.Count; i++) {
           ColumnInfo column = primaryIndex.Columns[i];
           int offset = data.Type.Fields[column.Field.Name].MappingInfo.Offset;
@@ -103,7 +103,6 @@ namespace Xtensive.Storage.Providers.Sql
         SqlTableRef tableRef = GetTableRef(primaryIndex);
         SqlUpdate update = SqlFactory.Update(tableRef);
 
-        var expressionHandler = new ExpressionHandler();
         for (int i = 0; i < primaryIndex.Columns.Count; i++) {
           ColumnInfo column = primaryIndex.Columns[i];
           int offset = data.Type.Fields[column.Field.Name].MappingInfo.Offset;
@@ -112,8 +111,16 @@ namespace Xtensive.Storage.Providers.Sql
           if (!SqlExpression.IsNull(expressionData.Expression))
             update.Values[tableRef[i]] = expressionData.Expression;
         }
-
-        update.Where = DomainHandler.GetWhereStatement(tableRef, GetStatementMapping(data.Type.Indexes.PrimaryIndex, columnInfo => columnInfo.IsPrimaryKey), data.Key);
+        SqlExpression where = null;
+        for (int i = 0; i < data.Type.Indexes.PrimaryIndex.KeyColumns.Count; i++) {
+          var expressionData = new ExpressionData(data.Key.Tuple);
+          data.Tuple.Descriptor.Execute(expressionHandler, ref expressionData, i);
+          if (!SqlExpression.IsNull(expressionData.Expression)) {
+            SqlBinary binary = tableRef[i]==expressionData.Expression;
+            where = SqlExpression.IsNull(where) ? binary : where & binary;
+          }
+        }
+        update.Where = where;
         batch.Add(update);
       }
       int rowsAffected = ExecuteNonQuery(batch);
@@ -129,7 +136,17 @@ namespace Xtensive.Storage.Providers.Sql
       foreach (IndexInfo index in data.Type.AffectedIndexes.Where(i => i.IsPrimary)) {
         SqlTableRef tableRef = GetTableRef(index);
         SqlDelete delete = SqlFactory.Delete(tableRef);
-        delete.Where = DomainHandler.GetWhereStatement(tableRef, GetStatementMapping(data.Key.Type.Indexes.PrimaryIndex, columnInfo => columnInfo.IsPrimaryKey), data.Key);
+        SqlExpression where = null;
+        for (int i = 0; i < data.Type.Indexes.PrimaryIndex.KeyColumns.Count; i++) {
+          var expressionData = new ExpressionData(data.Key.Tuple);
+          data.Tuple.Descriptor.Execute(expressionHandler, ref expressionData, i);
+          if (!SqlExpression.IsNull(expressionData.Expression))
+          {
+            SqlBinary binary = tableRef[i] == expressionData.Expression;
+            where = SqlExpression.IsNull(where) ? binary : where & binary;
+          }
+        }
+        delete.Where = where;
         batch.Add(delete);
         tableCount++;
       }
@@ -145,7 +162,13 @@ namespace Xtensive.Storage.Providers.Sql
     public override Tuple Fetch(IndexInfo index, Key key, IEnumerable<ColumnInfo> columns)
     {
       EnsureConnectionIsOpen();
-      IndexInfo primaryIndex = key.Type.Indexes.PrimaryIndex;
+      var rs = new IndexProvider(index).Result;
+      rs.Range(key.Tuple, key.Tuple);
+//      rs.Select(columns.Select(c => c.Name).ToArray());
+      var enumerator = rs.GetEnumerator();
+      if (enumerator.MoveNext())
+        return enumerator.Current;
+
       /*var provider = new IndexProvider(primaryIndex);
       var compiled = (SqlProvider)provider.Compiled;
       var queryRef = SqlFactory.QueryRef(compiled.Query);
@@ -167,10 +190,6 @@ namespace Xtensive.Storage.Providers.Sql
       throw new NotImplementedException();
     }
 
-    private static IEnumerable<StatementMapping> GetStatementMapping(IndexInfo index, Func<ColumnInfo, bool> predicate)
-    {
-      return index.Columns.Where(predicate).Select((columnInfo, columnIndex) => new StatementMapping(columnIndex, columnInfo.Field.MappingInfo.Offset));
-    }
 
 //    private SqlSelect BuildQuery(IndexInfo index, IEnumerable<ColumnInfo> columns)
 //    {
