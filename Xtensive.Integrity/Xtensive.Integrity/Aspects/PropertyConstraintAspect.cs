@@ -9,6 +9,7 @@ using System.Reflection;
 using PostSharp.Extensibility;
 using PostSharp.Laos;
 using Xtensive.Core;
+using Xtensive.Core.Aspects;
 using Xtensive.Core.Aspects.Helpers;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Reflection;
@@ -89,18 +90,15 @@ namespace Xtensive.Integrity.Aspects
       Property = (PropertyInfo) element;
 
       if (Property.GetSetMethod()==null) {
-        AspectsMessageSource.Instance.WriteLine(SeverityType.Error, Strings.FieldConstraintCanNotBeAppliedToReadOnlyProperty);
+        ErrorLog.Write(SeverityType.Error, Strings.FieldConstraintCanNotBeAppliedToReadOnlyProperty);        
         return false;
       }
 
-      if (!typeof (IValidationAware).IsAssignableFrom(Property.DeclaringType)) {
-        AspectsMessageSource.Instance.WriteLine(SeverityType.Error, 
-          Strings.XInterfaceShouldBeImplementedToUseFieldConstraints, typeof(IValidationAware).Name);
+      if (!AspectHelper.ValidateBaseType(this, SeverityType.Error, Property.DeclaringType, true, typeof (IValidationAware)))
         return false;
-      }
-      
-      if (!IsSupported(Property.PropertyType)) {
-        AspectsMessageSource.Instance.WriteLine(SeverityType.Error,
+
+      if (!IsSupported(Property.PropertyType)) { 
+        ErrorLog.Write(SeverityType.Error, 
           Strings.XDoesNotSupportYValueType, GetType().Name, Property.PropertyType.Name);
         return false;
       }
