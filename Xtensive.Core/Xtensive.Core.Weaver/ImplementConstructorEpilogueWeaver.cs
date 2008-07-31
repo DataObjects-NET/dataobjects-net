@@ -29,19 +29,19 @@ namespace Xtensive.Core.Weaver
       ModuleDeclaration module = Task.Project.Module;
       MethodBodyDeclaration methodBody = methodDef.MethodBody;
       InstructionWriter writer = Task.InstructionWriter;
+            
+      MethodBodyRestructurer restructurer = 
+        new MethodBodyRestructurer(methodDef, MethodBodyRestructurerOptions.ChangeReturnInstructions, Task.WeavingHelper);
 
-      RestructureMethodBodyResult result = Task.WeavingHelper.RestructureMethodBody(
-        methodDef,
-        RestructureMethodBodyOptions.ChangeReturnInstructions, 
-        writer);
+      restructurer.Restructure(writer);      
 
       methodBody.RootInstructionBlock.AddChildBlock(methodBody.CreateInstructionBlock(), NodePosition.After, null);
       methodBody.RootInstructionBlock.LastChildBlock.AddInstructionSequence(
-        result.ReturnBranchTarget, 
+        restructurer.ReturnBranchTarget, 
         NodePosition.After, 
         null);
       
-      writer.AttachInstructionSequence(result.ReturnBranchTarget);
+      writer.AttachInstructionSequence(restructurer.ReturnBranchTarget);
       writer.EmitInstruction(OpCodeNumber.Ldarg_0);
       writer.EmitInstruction(OpCodeNumber.Ldarg_0);
       IMethod typeGetType = module.FindMethod(
