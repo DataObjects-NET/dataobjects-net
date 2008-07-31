@@ -253,13 +253,14 @@ namespace Xtensive.Core.Aspects.Helpers
     /// <param name="mustHave">If set to <see langword="true"/>, type 
     /// must have specified method;
     /// otherwise, it must not have it.</param>
+    /// <param name="returnType">The return type of the method.</param>
     /// <param name="name">The name of the method.</param>
     /// <param name="bindingFlags">Binding flags.</param>
     /// <param name="parameterTypes">The types of method arguments.</param>
     /// <returns>Found method, if validation has passed;
     /// otherwise, <see langword="null" />.</returns>
     public static MethodInfo ValidateMethod(Attribute aspect, SeverityType severityType, 
-      Type type, bool mustHave, string name, BindingFlags bindingFlags, params Type[] parameterTypes)
+      Type type, bool mustHave, BindingFlags bindingFlags, Type returnType, string name, params Type[] parameterTypes)
     {
       MethodInfo method = null;
       try {
@@ -269,12 +270,12 @@ namespace Xtensive.Core.Aspects.Helpers
       catch (ArgumentNullException) { }
       catch (AmbiguousMatchException) { }
       
-      if ((method!=null) != mustHave) {
+      if ((method!=null && method.ReturnType==returnType) != mustHave) {
         ErrorLog.Write(severityType, Strings.AspectExRequiresToHave,
           aspect.GetType().GetShortName(), 
           type.GetShortName(), 
           mustHave ? string.Empty : Strings.Not,
-          FormatMethod(null, type, name, parameterTypes));
+          FormatMethod(null, returnType, name, parameterTypes));
       }
       return method;
     }

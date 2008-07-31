@@ -13,6 +13,13 @@ namespace Xtensive.Core.Aspects.Tests
   {
     [CompileTimeWarning]
     private int aspectedField;
+    [CompileTimeWarning]
+    private int AspectedProperty { get { return 0; } }
+    [CompileTimeWarning]
+    private void ApectedMethod(int i)
+    {
+      return;
+    }
 
     [Test]
     public static void CombinedTest()

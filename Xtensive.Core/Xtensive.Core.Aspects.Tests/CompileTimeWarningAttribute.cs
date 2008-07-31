@@ -20,14 +20,28 @@ namespace Xtensive.Core.Aspects.Tests
   {
     public override bool CompileTimeValidate(object element)
     {
-      var member = element as MemberInfo;
       var method = element as MethodInfo;
       var ctor = element as ConstructorInfo;
       var property = element as PropertyInfo;
       var field = element as FieldInfo;
-      if (member!=null)
+      if (property!=null) {
         AspectHelper.ValidateMemberType(this, SeverityType.Warning,
-          member, true, MemberTypes.Event);
+          property, true, MemberTypes.Field);
+        AspectHelper.ValidateBaseType(this, SeverityType.Warning,
+          property.DeclaringType, true, typeof(ILockable));
+        AspectHelper.ValidateConstructor(this, SeverityType.Warning,
+          property.DeclaringType, true, BindingFlags.Public, new Type[] {});
+      }
+      if (field!=null) {
+        AspectHelper.ValidateFieldAttributes(this, SeverityType.Warning,
+          field, true, FieldAttributes.Static);
+      }
+      if (method!=null) {
+        AspectHelper.ValidateMethod(this, SeverityType.Warning,
+          method.DeclaringType, true, BindingFlags.Public, typeof(void), "NotExistingMethod", new Type[] {});
+        AspectHelper.ValidateMethodAttributes(this, SeverityType.Warning,
+          method, true, MethodAttributes.Abstract);
+      }
       return false;
     }
 
