@@ -61,16 +61,7 @@ namespace Xtensive.Core.Aspects.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to abstract.
-        /// </summary>
-        internal static string Abstract {
-            get {
-                return ResourceManager.GetString("Abstract", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Cannot find Log for type {0} in namespace {1} and above..
+        ///   Looks up a localized string similar to Cannot find Log for type &apos;{0}&apos; in namespace &apos;{1}&apos; and above..
         /// </summary>
         internal static string AspectExCannotFindLogFor {
             get {
@@ -79,7 +70,7 @@ namespace Xtensive.Core.Aspects.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Warning in {1}. Aspect {0} is possibly wrongly applied..
+        ///   Looks up a localized string similar to [{0}] attribute is possibly wrongly applied to &apos;{1}&apos;..
         /// </summary>
         internal static string AspectExPossiblyMissapplied {
             get {
@@ -88,7 +79,7 @@ namespace Xtensive.Core.Aspects.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Error in {1}. {0} attribute requires {1} to {2}be {3}..
+        ///   Looks up a localized string similar to [{0}] attribute requires &apos;{1}&apos; to {2}be &apos;{3}&apos;..
         /// </summary>
         internal static string AspectExRequiresToBe {
             get {
@@ -97,7 +88,7 @@ namespace Xtensive.Core.Aspects.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Error in {1}. {0} attribute requires {1} to {2}have {3}..
+        ///   Looks up a localized string similar to [{0}] attribute requires &apos;{1}&apos; to {2}have &apos;{3}&apos;..
         /// </summary>
         internal static string AspectExRequiresToHave {
             get {
@@ -106,7 +97,7 @@ namespace Xtensive.Core.Aspects.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Error in {1}. {0} attribute requires {1} to {2}implement {3}..
+        ///   Looks up a localized string similar to [{0}] attribute requires &apos;{1}&apos; to {2}implement &apos;{3}&apos;..
         /// </summary>
         internal static string AspectExRequiresToImplement {
             get {
@@ -124,47 +115,20 @@ namespace Xtensive.Core.Aspects.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to constructor.
-        /// </summary>
-        internal static string Constructor {
-            get {
-                return ResourceManager.GetString("Constructor", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Debug: {0}.
-        /// </summary>
-        internal static string DebugX {
-            get {
-                return ResourceManager.GetString("DebugX", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to field.
-        /// </summary>
-        internal static string Field {
-            get {
-                return ResourceManager.GetString("Field", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to LogAttribute initialization failed..
-        /// </summary>
-        internal static string LogAttributeInitializationError {
-            get {
-                return ResourceManager.GetString("LogAttributeInitializationError", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Can&apos;t log {0} invocation: Instance property of found Log object returned an object other then ILog..
+        ///   Looks up a localized string similar to Can&apos;t log &apos;{0}&apos; invocation: Instance property of found Log object returned an object other then ILog..
         /// </summary>
         internal static string LogCantLogNoLogError {
             get {
                 return ResourceManager.GetString("LogCantLogNoLogError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to [{0}] attribute: can&apos;t resolve LogType, or underlying Log has no Instance property..
+        /// </summary>
+        internal static string LogCantResolveLogType {
+            get {
+                return ResourceManager.GetString("LogCantResolveLogType", resourceCulture);
             }
         }
         
@@ -178,7 +142,7 @@ namespace Xtensive.Core.Aspects.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {0} {1}({2}) method.
+        ///   Looks up a localized string similar to {0} {1}({2}).
         /// </summary>
         internal static string MethodFormat {
             get {
@@ -196,15 +160,6 @@ namespace Xtensive.Core.Aspects.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to property.
-        /// </summary>
-        internal static string Property {
-            get {
-                return ResourceManager.GetString("Property", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to property accessor.
         /// </summary>
         internal static string PropertyAccessor {
@@ -214,20 +169,20 @@ namespace Xtensive.Core.Aspects.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to virtual.
+        ///   Looks up a localized string similar to Debug: {0}.
         /// </summary>
-        internal static string Virtual {
+        internal static string XD0001 {
             get {
-                return ResourceManager.GetString("Virtual", resourceCulture);
+                return ResourceManager.GetString("XD0001", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to {0}.
         /// </summary>
-        internal static string X {
+        internal static string XW0001 {
             get {
-                return ResourceManager.GetString("X", resourceCulture);
+                return ResourceManager.GetString("XW0001", resourceCulture);
             }
         }
     }

@@ -12,8 +12,8 @@ namespace Xtensive.Core.Aspects
 {
   public static class ErrorLog
   {
-    private readonly static string usingStringsX = Strings.X;
-    private readonly static string usingStringsDebugX = Strings.DebugX;
+    private readonly static string usingStringsX = Strings.XW0001;
+    private readonly static string usingStringsDebugX = Strings.XD0001;
 
     /// <summary>
     /// Gets the message source this log is bound to.
@@ -28,7 +28,7 @@ namespace Xtensive.Core.Aspects
     /// <param name="args">The message arguments.</param>
     public static void Write(SeverityType severity, string format, params object[] args)
     {
-      MessageSource.Write(severity, "X", 
+      MessageSource.Write(severity, "XW0001", 
         new object[] { string.Format(format, args) });
     }
 
@@ -39,7 +39,7 @@ namespace Xtensive.Core.Aspects
     /// <param name="args">The message arguments.</param>
     public static void Debug(string format, params object[] args)
     {
-      MessageSource.Write(SeverityType.Warning, "DebugX",
+      MessageSource.Write(SeverityType.Warning, "XD0001",
         new object[] { string.Format(format, args) });
     }
 

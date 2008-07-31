@@ -105,6 +105,7 @@ namespace Xtensive.Core.Aspects.Helpers
     /// (e.g. interface) on the <paramref name="type"/>.
     /// </summary>
     /// <param name="aspect">The aspect.</param>
+    /// <param name="severityType">The severity of the message to write to <see cref="ErrorLog"/>.</param>
     /// <param name="type">The type to validate for the implementation of <paramref name="baseType"/>.</param>
     /// <param name="mustImplement">If set to <see langword="true"/>, type 
     /// must implement <paramref name="baseType"/>;
@@ -112,10 +113,11 @@ namespace Xtensive.Core.Aspects.Helpers
     /// <param name="baseType">The base type to validate the implementation of.</param>
     /// <returns><see langword="true" /> if validation has passed;
     /// otherwise, <see langword="false" />.</returns>
-    public static bool ValidateBaseType(Attribute aspect, Type type, bool mustImplement, Type baseType)
+    public static bool ValidateBaseType(Attribute aspect, SeverityType severityType, 
+      Type type, bool mustImplement, Type baseType)
     {
       if ((baseType.IsAssignableFrom(type)) != mustImplement) {
-        ErrorLog.Write(SeverityType.Error, Strings.AspectExRequiresToImplement,
+        ErrorLog.Write(severityType, Strings.AspectExRequiresToImplement,
           aspect.GetType().GetShortName(), 
           type.GetShortName(),
           mustImplement ? string.Empty : Strings.Not,
@@ -130,6 +132,7 @@ namespace Xtensive.Core.Aspects.Helpers
     /// Validates the type of the member.
     /// </summary>
     /// <param name="aspect">The aspect.</param>
+    /// <param name="severityType">The severity of the message to write to <see cref="ErrorLog"/>.</param>
     /// <param name="member">The member to validate the type of.</param>
     /// <param name="containsFlags">If set to <see langword="true"/>, member type 
     /// must contain <paramref name="memberTypes"/> flags;
@@ -137,11 +140,11 @@ namespace Xtensive.Core.Aspects.Helpers
     /// <param name="memberTypes">Expected (or not) type(s) of the member.</param>
     /// <returns><see langword="true" /> if validation has passed;
     /// otherwise, <see langword="false" />.</returns>
-    public static bool ValidateMemberType(Attribute aspect, MemberInfo member, bool containsFlags, MemberTypes memberTypes)
+    public static bool ValidateMemberType(Attribute aspect, SeverityType severityType, 
+      MemberInfo member, bool containsFlags, MemberTypes memberTypes)
     {
-      ErrorLog.Debug(member.MemberType.ToString());
       if (((member.MemberType & memberTypes)!=0) != containsFlags) {
-        ErrorLog.Write(SeverityType.Error, Strings.AspectExRequiresToBe,
+        ErrorLog.Write(severityType, Strings.AspectExRequiresToBe,
           aspect.GetType().GetShortName(),
           FormatMember(member.DeclaringType, member),
           containsFlags ? string.Empty : Strings.Not,
@@ -155,6 +158,7 @@ namespace Xtensive.Core.Aspects.Helpers
     /// Validates the attributes of the field.
     /// </summary>
     /// <param name="aspect">The aspect.</param>
+    /// <param name="severityType">The severity of the message to write to <see cref="ErrorLog"/>.</param>
     /// <param name="field">The field to validate the attributes of.</param>
     /// <param name="containsFlags">If set to <see langword="true"/>, field attributes
     /// must contain <paramref name="fieldAttributes"/> flags;
@@ -162,10 +166,11 @@ namespace Xtensive.Core.Aspects.Helpers
     /// <param name="fieldAttributes">Expected (or not) attributes of the field.</param>
     /// <returns><see langword="true" /> if validation has passed;
     /// otherwise, <see langword="false" />.</returns>
-    public static bool ValidateFieldAttributes(Attribute aspect, FieldInfo field, bool containsFlags, FieldAttributes fieldAttributes)
+    public static bool ValidateFieldAttributes(Attribute aspect, SeverityType severityType, 
+      FieldInfo field, bool containsFlags, FieldAttributes fieldAttributes)
     {
       if (((field.Attributes & fieldAttributes)!=0) != containsFlags) {
-        ErrorLog.Write(SeverityType.Error, Strings.AspectExRequiresToBe,
+        ErrorLog.Write(severityType, Strings.AspectExRequiresToBe,
           aspect.GetType().GetShortName(),
           FormatMember(field.DeclaringType, field),
           containsFlags ? string.Empty : Strings.Not,
@@ -179,6 +184,7 @@ namespace Xtensive.Core.Aspects.Helpers
     /// Validates the attributes of the method.
     /// </summary>
     /// <param name="aspect">The aspect.</param>
+    /// <param name="severityType">The severity of the message to write to <see cref="ErrorLog"/>.</param>
     /// <param name="method">The method to validate the attributes of.</param>
     /// <param name="containsFlags">If set to <see langword="true"/>, method attributes
     /// must contain <paramref name="methodAttributes"/> flags;
@@ -186,10 +192,11 @@ namespace Xtensive.Core.Aspects.Helpers
     /// <param name="methodAttributes">Expected (or not) attributes of the method.</param>
     /// <returns><see langword="true" /> if validation has passed;
     /// otherwise, <see langword="false" />.</returns>
-    public static bool ValidateMethodAttributes(Attribute aspect, MethodBase method, bool containsFlags, MethodAttributes methodAttributes)
+    public static bool ValidateMethodAttributes(Attribute aspect, SeverityType severityType, 
+      MethodBase method, bool containsFlags, MethodAttributes methodAttributes)
     {
       if (((method.Attributes & methodAttributes)!=0) != containsFlags) {
-        ErrorLog.Write(SeverityType.Error, Strings.AspectExRequiresToBe,
+        ErrorLog.Write(severityType, Strings.AspectExRequiresToBe,
           aspect.GetType().GetShortName(),
           FormatMember(method.DeclaringType, method),
           containsFlags ? string.Empty : Strings.Not,
@@ -203,6 +210,7 @@ namespace Xtensive.Core.Aspects.Helpers
     /// Validates the presence of specified constructor on the <paramref name="type"/>.
     /// </summary>
     /// <param name="aspect">The aspect.</param>
+    /// <param name="severityType">The severity of the message to write to <see cref="ErrorLog"/>.</param>
     /// <param name="type">The type to get the constructor of.</param>
     /// <param name="mustHave">If set to <see langword="true"/>, type 
     /// must have specified constructor;
@@ -211,7 +219,8 @@ namespace Xtensive.Core.Aspects.Helpers
     /// <param name="parameterTypes">The types of constructor arguments.</param>
     /// <returns>Found constructor, if validation has passed;
     /// otherwise, <see langword="null" />.</returns>
-    public static ConstructorInfo ValidateConstructor(Attribute aspect, Type type, bool mustHave, BindingFlags bindingFlags, params Type[] parameterTypes)
+    public static ConstructorInfo ValidateConstructor(Attribute aspect, SeverityType severityType, 
+      Type type, bool mustHave, BindingFlags bindingFlags, params Type[] parameterTypes)
     {
       ConstructorInfo constructor = null;
       try {
@@ -226,7 +235,7 @@ namespace Xtensive.Core.Aspects.Helpers
       catch (AmbiguousMatchException) { }
       
       if ((constructor!=null) != mustHave) {
-        ErrorLog.Write(SeverityType.Error, Strings.AspectExRequiresToHave,
+        ErrorLog.Write(severityType, Strings.AspectExRequiresToHave,
           aspect.GetType().GetShortName(), 
           type.GetShortName(), 
           mustHave ? string.Empty : Strings.Not,
@@ -239,6 +248,7 @@ namespace Xtensive.Core.Aspects.Helpers
     /// Validates the presence of specified method on the <paramref name="type"/>.
     /// </summary>
     /// <param name="aspect">The aspect.</param>
+    /// <param name="severityType">The severity of the message to write to <see cref="ErrorLog"/>.</param>
     /// <param name="type">The type to get the method of.</param>
     /// <param name="mustHave">If set to <see langword="true"/>, type 
     /// must have specified method;
@@ -248,7 +258,8 @@ namespace Xtensive.Core.Aspects.Helpers
     /// <param name="parameterTypes">The types of method arguments.</param>
     /// <returns>Found method, if validation has passed;
     /// otherwise, <see langword="null" />.</returns>
-    public static MethodInfo ValidateMethod(Attribute aspect, Type type, bool mustHave, string name, BindingFlags bindingFlags, params Type[] parameterTypes)
+    public static MethodInfo ValidateMethod(Attribute aspect, SeverityType severityType, 
+      Type type, bool mustHave, string name, BindingFlags bindingFlags, params Type[] parameterTypes)
     {
       MethodInfo method = null;
       try {
@@ -259,7 +270,7 @@ namespace Xtensive.Core.Aspects.Helpers
       catch (AmbiguousMatchException) { }
       
       if ((method!=null) != mustHave) {
-        ErrorLog.Write(SeverityType.Error, Strings.AspectExRequiresToHave,
+        ErrorLog.Write(severityType, Strings.AspectExRequiresToHave,
           aspect.GetType().GetShortName(), 
           type.GetShortName(), 
           mustHave ? string.Empty : Strings.Not,

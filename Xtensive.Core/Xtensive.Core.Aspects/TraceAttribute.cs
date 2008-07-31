@@ -102,10 +102,10 @@ namespace Xtensive.Core.Aspects
         log = (ILog)pi.GetValue(null, null);
       }
       catch (NullReferenceException e) {
-        Log.Error(e, Strings.LogAttributeInitializationError);
+        Log.Error(e, Strings.LogCantResolveLogType, GetType().GetShortName());
       }
       catch (AmbiguousMatchException e) {
-        Log.Error(e, Strings.LogAttributeInitializationError);
+        Log.Error(e, Strings.LogCantResolveLogType, GetType().GetShortName());
       }
       base.RuntimeInitialize(method);
     }

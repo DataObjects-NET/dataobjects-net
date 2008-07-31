@@ -23,11 +23,14 @@ namespace Xtensive.Core.Aspects.Helpers
         if (attribute.ContextType == typeof(TContext))
           return false;
 
-      if (!AspectHelper.ValidateMemberType(originalAspect, method, false, MemberTypes.Constructor))
+      if (!AspectHelper.ValidateMemberType(originalAspect, SeverityType.Error,
+        method, false, MemberTypes.Constructor))
         return false;
-      if (!AspectHelper.ValidateMethodAttributes(originalAspect, method, false, MethodAttributes.Static))
+      if (!AspectHelper.ValidateMethodAttributes(originalAspect, SeverityType.Error,
+        method, false, MethodAttributes.Static))
         return false;
-      if (!AspectHelper.ValidateBaseType(originalAspect, method.DeclaringType, true, typeof(IContextBound<TContext>)))
+      if (!AspectHelper.ValidateBaseType(originalAspect, SeverityType.Error,
+        method.DeclaringType, true, typeof(IContextBound<TContext>)))
         return false;
 
       return true;

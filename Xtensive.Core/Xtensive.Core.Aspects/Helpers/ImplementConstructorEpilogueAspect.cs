@@ -42,16 +42,19 @@ namespace Xtensive.Core.Aspects.Helpers
     /// <inheritdoc/>
     public override bool CompileTimeValidate(MethodBase method)
     {
-      if (!AspectHelper.ValidateMemberType(this, method, true, MemberTypes.Constructor))
+      if (!AspectHelper.ValidateMemberType(this, SeverityType.Error,
+        method, true, MemberTypes.Constructor))
         return false;
-      if (!AspectHelper.ValidateMethodAttributes(this, method, false, MethodAttributes.Static))
+      if (!AspectHelper.ValidateMethodAttributes(this, SeverityType.Error,
+        method, false, MethodAttributes.Static))
         return false;
 
-      MethodInfo targetMethod = AspectHelper.ValidateMethod(this, HandlerType, true, 
-        HandlerMethodName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, typeof (Type));
+      MethodInfo targetMethod = AspectHelper.ValidateMethod(this, SeverityType.Error,
+        HandlerType, true, HandlerMethodName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, typeof (Type));
       if (targetMethod==null)
         return false;
-      if (!AspectHelper.ValidateMethodAttributes(this, targetMethod, false, MethodAttributes.Virtual))
+      if (!AspectHelper.ValidateMethodAttributes(this, SeverityType.Error,
+        targetMethod, false, MethodAttributes.Virtual))
         return false;
 
       return true;

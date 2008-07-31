@@ -118,58 +118,43 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AspectExCannotFindLogFor" xml:space="preserve">
-    <value>Cannot find Log for type {0} in namespace {1} and above.</value>
+    <value>Cannot find Log for type '{0}' in namespace '{1}' and above.</value>
   </data>
   <data name="AspectExPossiblyMissapplied" xml:space="preserve">
-    <value>Warning in {1}. Aspect {0} is possibly wrongly applied.</value>
+    <value>[{0}] attribute is possibly wrongly applied to '{1}'.</value>
   </data>
   <data name="AspectExRequiresToImplement" xml:space="preserve">
-    <value>Error in {1}. {0} attribute requires {1} to {2}implement {3}.</value>
+    <value>[{0}] attribute requires '{1}' to {2}implement '{3}'.</value>
   </data>
   <data name="LogCantLogNoLogError" xml:space="preserve">
-    <value>Can't log {0} invocation: Instance property of found Log object returned an object other then ILog.</value>
+    <value>Can't log '{0}' invocation: Instance property of found Log object returned an object other then ILog.</value>
   </data>
-  <data name="LogAttributeInitializationError" xml:space="preserve">
-    <value>LogAttribute initialization failed.</value>
+  <data name="LogCantResolveLogType" xml:space="preserve">
+    <value>[{0}] attribute: can't resolve LogType, or underlying Log has no Instance property.</value>
   </data>
   <data name="AspectExRequiresToHave" xml:space="preserve">
-    <value>Error in {1}. {0} attribute requires {1} to {2}have {3}.</value>
+    <value>[{0}] attribute requires '{1}' to {2}have '{3}'.</value>
   </data>
-  <data name="X" xml:space="preserve">
+  <data name="XW0001" xml:space="preserve">
     <value>{0}</value>
   </data>
-  <data name="DebugX" xml:space="preserve">
+  <data name="XD0001" xml:space="preserve">
     <value>Debug: {0}</value>
   </data>
-  <data name="Virtual" xml:space="preserve">
-    <value>virtual</value>
-  </data>
-  <data name="Abstract" xml:space="preserve">
-    <value>abstract</value>
-  </data>
   <data name="AspectExRequiresToBe" xml:space="preserve">
-    <value>Error in {1}. {0} attribute requires {1} to {2}be {3}.</value>
+    <value>[{0}] attribute requires '{1}' to {2}be '{3}'.</value>
   </data>
   <data name="AutoProperty" xml:space="preserve">
     <value>auto-property</value>
-  </data>
-  <data name="Constructor" xml:space="preserve">
-    <value>constructor</value>
-  </data>
-  <data name="Field" xml:space="preserve">
-    <value>field</value>
   </data>
   <data name="MemberFormat" xml:space="preserve">
     <value>{0} {1}</value>
   </data>
   <data name="MethodFormat" xml:space="preserve">
-    <value>{0} {1}({2}) method</value>
+    <value>{0} {1}({2})</value>
   </data>
   <data name="Not" xml:space="preserve">
     <value>not </value>
-  </data>
-  <data name="Property" xml:space="preserve">
-    <value>property</value>
   </data>
   <data name="PropertyAccessor" xml:space="preserve">
     <value>property accessor</value>

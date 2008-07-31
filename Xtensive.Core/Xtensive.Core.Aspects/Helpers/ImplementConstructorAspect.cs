@@ -33,7 +33,7 @@ namespace Xtensive.Core.Aspects.Helpers
     /// <inheritdoc/>
     public override bool CompileTimeValidate(Type type)
     {
-      ConstructorInfo existingConstructor = AspectHelper.ValidateConstructor(this, 
+      ConstructorInfo existingConstructor = AspectHelper.ValidateConstructor(this, SeverityType.Error,
         type, false, BindingFlags.Public | BindingFlags.NonPublic, ParameterTypes);
       if (existingConstructor != null)
         return false;

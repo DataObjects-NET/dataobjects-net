@@ -27,9 +27,11 @@ namespace Xtensive.Core.Aspects.Helpers
     /// <inheritdoc/>
     public override bool CompileTimeValidate(MethodBase method)
     {
-      if (!AspectHelper.ValidateMemberType(changerAttribute, method, false, MemberTypes.Constructor))
+      if (!AspectHelper.ValidateMemberType(changerAttribute, SeverityType.Error,
+        method, false, MemberTypes.Constructor))
         return false;
-      if (!AspectHelper.ValidateMethodAttributes(changerAttribute, method, false, MethodAttributes.Static))
+      if (!AspectHelper.ValidateMethodAttributes(changerAttribute, SeverityType.Error,
+        method, false, MethodAttributes.Static))
         return false;
 
       var methodInfo = method as MethodInfo;
