@@ -49,22 +49,17 @@ namespace Xtensive.Core.Aspects.Helpers
     {
       var accessorInfo = method as MethodInfo;
       if (accessorInfo == null) {
-        ErrorLog.Write(SeverityType.Error, Strings.AspectExRequiresToBe,
-          GetType().GetShortName(),
-          method.GetShortName(),
+        ErrorLog.Write(SeverityType.Error, AspectMessageType.AspectRequiresToBe,
+          AspectHelper.FormatType(GetType()),
+          AspectHelper.FormatMember(method.DeclaringType, method),
           string.Empty,
           Strings.PropertyAccessor);
         return false;
       }
 
-      if (AttributeHelper.GetAttribute<CompilerGeneratedAttribute>(method, false) == null) {
-        ErrorLog.Write(SeverityType.Error, Strings.AspectExRequiresToBe,
-          GetType().GetShortName(),
-          method.GetShortName(),
-          string.Empty,
-          Strings.AutoProperty);
+      if (null==AspectHelper.ValidateMemberAttribute<CompilerGeneratedAttribute>(this, SeverityType.Error,
+        method, true, false))
         return false;
-      }
 
       return true;
     }

@@ -49,10 +49,11 @@ namespace Xtensive.Core.Aspects.Helpers
         }
         catch (ArgumentNullException) {}
         if (field==null) {
-          ErrorLog.Write(SeverityType.Error, Strings.AspectExRequiresToHave,
-            GetType().GetShortName(), 
-            type.GetShortName(), 
-            field);
+          ErrorLog.Write(SeverityType.Error, AspectMessageType.AspectRequiresToHave,
+            AspectHelper.FormatType(GetType()), 
+            AspectHelper.FormatType(type), 
+            string.Empty,
+            AspectHelper.FormatMember(type, null, fieldName));
           return false;
         }
       }

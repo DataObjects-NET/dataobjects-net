@@ -43,8 +43,8 @@ namespace Xtensive.Core.Aspects.Helpers
         if (propertyInfo!=null && propertyInfo.GetAttribute<ChangerAttribute>(false)!=null)
           // Property itself is marked as [Changer]
           return false;
-        ErrorLog.Write(SeverityType.Warning, Strings.AspectExPossiblyMissapplied,
-          changerAttribute.GetType().GetShortName(), 
+        ErrorLog.Write(SeverityType.Warning, AspectMessageType.AspectPossiblyMissapplied,
+          AspectHelper.FormatType(changerAttribute.GetType()), 
           AspectHelper.FormatMember(method.DeclaringType, method));
       }
 

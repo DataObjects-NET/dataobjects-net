@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using PostSharp.Extensibility;
 using PostSharp.Laos;
 using Xtensive.Core.Aspects.Helpers;
@@ -27,10 +28,15 @@ namespace Xtensive.Core.Aspects.Tests
       if (property!=null) {
         AspectHelper.ValidateMemberType(this, SeverityType.Warning,
           property, true, MemberTypes.Field);
+        AspectHelper.ValidatePropertyAccessor(this, SeverityType.Warning,
+          property, true, null, true);
+        AspectHelper.ValidatePropertyAccessor(this, SeverityType.Warning,
+          property, true, true, false);
         AspectHelper.ValidateBaseType(this, SeverityType.Warning,
           property.DeclaringType, true, typeof(ILockable));
         AspectHelper.ValidateConstructor(this, SeverityType.Warning,
           property.DeclaringType, true, BindingFlags.Public, new Type[] {});
+
       }
       if (field!=null) {
         AspectHelper.ValidateFieldAttributes(this, SeverityType.Warning,
@@ -41,6 +47,8 @@ namespace Xtensive.Core.Aspects.Tests
           method.DeclaringType, true, BindingFlags.Public, typeof(void), "NotExistingMethod", new Type[] {});
         AspectHelper.ValidateMethodAttributes(this, SeverityType.Warning,
           method, true, MethodAttributes.Abstract);
+        AspectHelper.ValidateMemberAttribute<CompilerGeneratedAttribute>(this, SeverityType.Warning,
+          method, true, false);
       }
       return false;
     }

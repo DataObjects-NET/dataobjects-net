@@ -133,7 +133,7 @@
     <value>[{0}] attribute: can't resolve LogType, or underlying Log has no Instance property.</value>
   </data>
   <data name="AspectExRequiresToHave" xml:space="preserve">
-    <value>[{0}] attribute requires '{1}' to {2}have '{3}'.</value>
+    <value>[{0}] attribute requires '{1}' to {2}have {3}.</value>
   </data>
   <data name="XW0001" xml:space="preserve">
     <value>{0}</value>
@@ -142,7 +142,7 @@
     <value>Debug: {0}</value>
   </data>
   <data name="AspectExRequiresToBe" xml:space="preserve">
-    <value>[{0}] attribute requires '{1}' to {2}be '{3}'.</value>
+    <value>[{0}] attribute requires '{1}' to {2}be {3}.</value>
   </data>
   <data name="AutoProperty" xml:space="preserve">
     <value>auto-property</value>
@@ -158,5 +158,17 @@
   </data>
   <data name="PropertyAccessor" xml:space="preserve">
     <value>property accessor</value>
+  </data>
+  <data name="Getter" xml:space="preserve">
+    <value>getter</value>
+  </data>
+  <data name="NonPublic" xml:space="preserve">
+    <value>non-public</value>
+  </data>
+  <data name="Public" xml:space="preserve">
+    <value>public</value>
+  </data>
+  <data name="Setter" xml:space="preserve">
+    <value>setter</value>
   </data>
 </root>

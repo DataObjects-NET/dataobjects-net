@@ -6,6 +6,7 @@
 
 using System;
 using PostSharp.Extensibility;
+using Xtensive.Core.Aspects.Helpers;
 using Xtensive.Core.Aspects.Resources;
 
 namespace Xtensive.Core.Aspects
@@ -19,6 +20,18 @@ namespace Xtensive.Core.Aspects
     /// Gets the message source this log is bound to.
     /// </summary>
     public static MessageSource MessageSource;
+
+    /// <summary>
+    /// Writes the standard message to the underlying PostSharp <see cref="MessageSource"/>.
+    /// </summary>
+    /// <param name="severity">The severity type.</param>
+    /// <param name="messageType">The standard message type.</param>
+    /// <param name="args">The message arguments.</param>
+    public static void Write(SeverityType severity, AspectMessageType messageType, params object[] args)
+    {
+      MessageSource.Write(severity, "XW0001",
+        new object[] { string.Format(AspectHelper.GetStandardMessage(messageType), args) });
+    }
 
     /// <summary>
     /// Writes the message to the underlying PostSharp <see cref="MessageSource"/>.

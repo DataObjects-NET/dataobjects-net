@@ -79,7 +79,7 @@ namespace Xtensive.Core.Aspects.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to [{0}] attribute requires &apos;{1}&apos; to {2}be &apos;{3}&apos;..
+        ///   Looks up a localized string similar to [{0}] attribute requires &apos;{1}&apos; to {2}be {3}..
         /// </summary>
         internal static string AspectExRequiresToBe {
             get {
@@ -88,7 +88,7 @@ namespace Xtensive.Core.Aspects.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to [{0}] attribute requires &apos;{1}&apos; to {2}have &apos;{3}&apos;..
+        ///   Looks up a localized string similar to [{0}] attribute requires &apos;{1}&apos; to {2}have {3}..
         /// </summary>
         internal static string AspectExRequiresToHave {
             get {
@@ -111,6 +111,15 @@ namespace Xtensive.Core.Aspects.Resources {
         internal static string AutoProperty {
             get {
                 return ResourceManager.GetString("AutoProperty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to getter.
+        /// </summary>
+        internal static string Getter {
+            get {
+                return ResourceManager.GetString("Getter", resourceCulture);
             }
         }
         
@@ -151,6 +160,15 @@ namespace Xtensive.Core.Aspects.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to non-public.
+        /// </summary>
+        internal static string NonPublic {
+            get {
+                return ResourceManager.GetString("NonPublic", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to not .
         /// </summary>
         internal static string Not {
@@ -165,6 +183,24 @@ namespace Xtensive.Core.Aspects.Resources {
         internal static string PropertyAccessor {
             get {
                 return ResourceManager.GetString("PropertyAccessor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to public.
+        /// </summary>
+        internal static string Public {
+            get {
+                return ResourceManager.GetString("Public", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to setter.
+        /// </summary>
+        internal static string Setter {
+            get {
+                return ResourceManager.GetString("Setter", resourceCulture);
             }
         }
         

@@ -14,7 +14,11 @@ namespace Xtensive.Core.Aspects.Tests
     [CompileTimeWarning]
     private int aspectedField;
     [CompileTimeWarning]
-    private int AspectedProperty { get { return 0; } }
+    public int AspectedProperty1 { get { return 0; } }
+    [CompileTimeWarning]
+    public int AspectedProperty2 { set { ; } }
+    [CompileTimeWarning]
+    public int AutoProperty { private get; set; }
     [CompileTimeWarning]
     private void ApectedMethod(int i)
     {

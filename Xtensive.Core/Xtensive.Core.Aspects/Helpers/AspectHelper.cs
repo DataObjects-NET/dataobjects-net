@@ -22,6 +22,19 @@ namespace Xtensive.Core.Aspects.Helpers
     #region FormatXxx methods
 
     /// <summary>
+    /// Formats the type.
+    /// </summary>
+    /// <param name="type">The type to format.</param>
+    /// <returns>String representation of the type.</returns>
+    public static string FormatType(Type type)
+    {
+      if (type==null)
+        return string.Empty;
+      else
+        return type.GetShortName();
+    }
+
+    /// <summary>
     /// Formats the method.
     /// </summary>
     /// <param name="type">The type where member is declared.
@@ -47,12 +60,12 @@ namespace Xtensive.Core.Aspects.Helpers
     {
       string namePrefix = type==null ?
         string.Empty :
-        (type.GetShortName() + ".");
+        (FormatType(type) + ".");
       
       return String.Format(Strings.MethodFormat,
-        returnType.GetShortName(),
+        FormatType(returnType),
         namePrefix + methodName,
-        parameterTypes.Select(p => p.GetShortName()).ToCommaDelimitedString());
+        parameterTypes.Select(p => FormatType(p)).ToCommaDelimitedString());
     }
 
     /// <summary>
@@ -67,10 +80,10 @@ namespace Xtensive.Core.Aspects.Helpers
     {
       string namePrefix = type==null ?
         string.Empty :
-        (type.GetShortName() + ".");
+        (FormatType(type) + ".");
       
       return String.Format(Strings.MemberFormat,
-        returnType.GetShortName(),
+        FormatType(returnType),
         namePrefix + name);
     }
 
@@ -83,10 +96,13 @@ namespace Xtensive.Core.Aspects.Helpers
     /// <returns>String representation of the member.</returns>
     public static string FormatMember(Type type, MemberInfo member)
     {
+      var ti = member as Type;
       var mi = member as MethodInfo;
       var ci = member as ConstructorInfo;
       var fi = member as FieldInfo;
       var pi = member as PropertyInfo;
+      if (ti!=null)
+        return FormatType(type);
       if (ci!=null)
         return FormatConstructor(type, ci.DeclaringType, ci.GetParameters().Select(p => p.ParameterType).ToArray());
       if (mi!=null)
@@ -99,6 +115,96 @@ namespace Xtensive.Core.Aspects.Helpers
     }
 
     #endregion
+
+    #region GetStandardMessage method
+
+    /// <summary>
+    /// Gets the standard localized message.
+    /// </summary>
+    /// <param name="messageType">Type of the message to get.</param>
+    /// <returns>Standard localized message.</returns>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="messageType"/> is out of range.</exception>
+    public static string GetStandardMessage(AspectMessageType messageType)
+    {
+      switch (messageType) {
+      case AspectMessageType.AspectPossiblyMissapplied:
+        return Strings.AspectExPossiblyMissapplied;
+      case AspectMessageType.AspectRequiresToBe:
+        return Strings.AspectExRequiresToBe;
+      case AspectMessageType.AspectRequiresToHave:
+        return Strings.AspectExRequiresToHave;
+      case AspectMessageType.AutoProperty:
+        return Strings.AutoProperty;
+      case AspectMessageType.PropertyAccessor:
+        return Strings.PropertyAccessor;
+      case AspectMessageType.Getter:
+        return Strings.Getter;
+      case AspectMessageType.Setter:
+        return Strings.Setter;
+      case AspectMessageType.Public:
+        return Strings.Public;
+      case AspectMessageType.NonPublic:
+        return Strings.NonPublic;
+      case AspectMessageType.Not:
+        return Strings.Not;
+      default:
+        throw new ArgumentOutOfRangeException("messageType");
+      }
+    }
+
+    #endregion
+
+    /// <summary>
+    /// Validates the type of the member.
+    /// </summary>
+    /// <param name="aspect">The aspect.</param>
+    /// <param name="severityType">The severity of the message to write to <see cref="ErrorLog"/>.</param>
+    /// <param name="member">The member to validate the type of.</param>
+    /// <param name="containsFlags">If set to <see langword="true"/>, member type 
+    /// must contain <paramref name="memberTypes"/> flags;
+    /// otherwise, it must not contain them.</param>
+    /// <param name="memberTypes">Expected (or not) type(s) of the member.</param>
+    /// <returns><see langword="true" /> if validation has passed;
+    /// otherwise, <see langword="false" />.</returns>
+    public static bool ValidateMemberType(Attribute aspect, SeverityType severityType, 
+      MemberInfo member, bool containsFlags, MemberTypes memberTypes)
+    {
+      if (((member.MemberType & memberTypes)!=0) != containsFlags) {
+        ErrorLog.Write(severityType, Strings.AspectExRequiresToBe,
+          FormatType(aspect.GetType()),
+          FormatMember(member.DeclaringType, member),
+          containsFlags ? string.Empty : Strings.Not,
+          memberTypes);
+        return false;
+      }
+      return true;
+    }
+
+    /// <summary>
+    /// Validates presence of the attribute.
+    /// </summary>
+    /// <param name="aspect">The aspect.</param>
+    /// <param name="severityType">The severity of the message to write to <see cref="ErrorLog"/>.</param>
+    /// <param name="member">The member to validate the presence of attribute on.</param>
+    /// <param name="mustHave">If set to <see langword="true"/>, member type 
+    /// must have <typeparamref name="TAttribute"/> applied;
+    /// otherwise, it must not have it.</param>
+    /// <returns><see langword="true" /> if validation has passed;
+    /// otherwise, <see langword="false" />.</returns>
+    public static TAttribute ValidateMemberAttribute<TAttribute>(Attribute aspect, SeverityType severityType, 
+      MemberInfo member, bool mustHave, bool inherit)
+      where TAttribute: Attribute
+    {
+      TAttribute attribute = member.GetAttribute<TAttribute>(inherit);
+      if ((attribute!=null) != mustHave) {
+        ErrorLog.Write(severityType, Strings.AspectExRequiresToBe,
+          FormatType(aspect.GetType()),
+          FormatMember(member.DeclaringType, member),
+          mustHave ? string.Empty : Strings.Not,
+          FormatType(typeof(TAttribute)));
+      }
+      return attribute;
+    }
 
     /// <summary>
     /// Validates the implementation of <paramref name="baseType"/> 
@@ -118,37 +224,10 @@ namespace Xtensive.Core.Aspects.Helpers
     {
       if ((baseType.IsAssignableFrom(type)) != mustImplement) {
         ErrorLog.Write(severityType, Strings.AspectExRequiresToImplement,
-          aspect.GetType().GetShortName(), 
-          type.GetShortName(),
+          FormatType(aspect.GetType()), 
+          FormatType(type),
           mustImplement ? string.Empty : Strings.Not,
-          baseType.GetShortName());
-        return false;
-      }
-      return true;
-    }
-
-
-    /// <summary>
-    /// Validates the type of the member.
-    /// </summary>
-    /// <param name="aspect">The aspect.</param>
-    /// <param name="severityType">The severity of the message to write to <see cref="ErrorLog"/>.</param>
-    /// <param name="member">The member to validate the type of.</param>
-    /// <param name="containsFlags">If set to <see langword="true"/>, member type 
-    /// must contain <paramref name="memberTypes"/> flags;
-    /// otherwise, it must not contain them.</param>
-    /// <param name="memberTypes">Expected (or not) type(s) of the member.</param>
-    /// <returns><see langword="true" /> if validation has passed;
-    /// otherwise, <see langword="false" />.</returns>
-    public static bool ValidateMemberType(Attribute aspect, SeverityType severityType, 
-      MemberInfo member, bool containsFlags, MemberTypes memberTypes)
-    {
-      if (((member.MemberType & memberTypes)!=0) != containsFlags) {
-        ErrorLog.Write(severityType, Strings.AspectExRequiresToBe,
-          aspect.GetType().GetShortName(),
-          FormatMember(member.DeclaringType, member),
-          containsFlags ? string.Empty : Strings.Not,
-          memberTypes);
+          FormatType(baseType));
         return false;
       }
       return true;
@@ -171,10 +250,53 @@ namespace Xtensive.Core.Aspects.Helpers
     {
       if (((field.Attributes & fieldAttributes)!=0) != containsFlags) {
         ErrorLog.Write(severityType, Strings.AspectExRequiresToBe,
-          aspect.GetType().GetShortName(),
+          FormatType(aspect.GetType()),
           FormatMember(field.DeclaringType, field),
           containsFlags ? string.Empty : Strings.Not,
           fieldAttributes);
+        return false;
+      }
+      return true;
+    }
+
+    /// <summary>
+    /// Validates the accessor of the property.
+    /// </summary>
+    /// <param name="aspect">The aspect.</param>
+    /// <param name="severityType">The severity of the message to write to <see cref="ErrorLog"/>.</param>
+    /// <param name="property">The property to validate the accessor of.</param>
+    /// <param name="mustHave">If set to <see langword="true"/>, property 
+    /// must contain setter or getter;
+    /// otherwise, it must not contain it.</param>
+    /// <param name="nonPublic">Indicates whether expected accessor must be non-public or not.
+    /// <see langword="null" /> means this does not matter.</param>
+    /// <param name="setter">If <see langword="true" />, property setter will be checked;
+    /// otherwise, getter.</param>
+    /// <returns><see langword="true" /> if validation has passed;
+    /// otherwise, <see langword="false" />.</returns>
+    public static bool ValidatePropertyAccessor(Attribute aspect, SeverityType severityType, 
+      PropertyInfo property, bool mustHave, bool? nonPublic, bool setter)
+    {
+      MethodInfo accessor = null;
+      string sVisibility  = string.Empty;
+      string sAccessor    = setter ? Strings.Setter : Strings.Getter;
+      if (nonPublic.HasValue) {
+        accessor = setter ? 
+          property.GetSetMethod(nonPublic.Value) : 
+          property.GetGetMethod(nonPublic.Value);
+        sVisibility = (nonPublic.Value ? Strings.NonPublic : Strings.Public) + " ";
+      }
+      else {
+        accessor = setter ? 
+          property.GetSetMethod() : 
+          property.GetGetMethod();
+      }
+      if ((accessor!=null) != mustHave) {
+        ErrorLog.Write(severityType, Strings.AspectExRequiresToHave,
+          FormatType(aspect.GetType()),
+          FormatMember(property.DeclaringType, property),
+          mustHave ? string.Empty : Strings.Not,
+          sVisibility+sAccessor);
         return false;
       }
       return true;
@@ -197,13 +319,49 @@ namespace Xtensive.Core.Aspects.Helpers
     {
       if (((method.Attributes & methodAttributes)!=0) != containsFlags) {
         ErrorLog.Write(severityType, Strings.AspectExRequiresToBe,
-          aspect.GetType().GetShortName(),
+          FormatType(aspect.GetType()),
           FormatMember(method.DeclaringType, method),
           containsFlags ? string.Empty : Strings.Not,
           methodAttributes);
         return false;
       }
       return true;
+    }
+
+    /// <summary>
+    /// Validates the presence of specified method on the <paramref name="type"/>.
+    /// </summary>
+    /// <param name="aspect">The aspect.</param>
+    /// <param name="severityType">The severity of the message to write to <see cref="ErrorLog"/>.</param>
+    /// <param name="type">The type to get the method of.</param>
+    /// <param name="mustHave">If set to <see langword="true"/>, type 
+    /// must have specified method;
+    /// otherwise, it must not have it.</param>
+    /// <param name="returnType">The return type of the method.</param>
+    /// <param name="name">The name of the method.</param>
+    /// <param name="bindingFlags">Binding flags.</param>
+    /// <param name="parameterTypes">The types of method arguments.</param>
+    /// <returns>Found method, if validation has passed;
+    /// otherwise, <see langword="null" />.</returns>
+    public static MethodInfo ValidateMethod(Attribute aspect, SeverityType severityType, 
+      Type type, bool mustHave, BindingFlags bindingFlags, Type returnType, string name, params Type[] parameterTypes)
+    {
+      MethodInfo method = null;
+      try {
+        method = type.GetMethod(name, bindingFlags, null, parameterTypes, null);
+      }
+      catch (NullReferenceException) { }
+      catch (ArgumentNullException) { }
+      catch (AmbiguousMatchException) { }
+      
+      if ((method!=null && method.ReturnType==returnType) != mustHave) {
+        ErrorLog.Write(severityType, Strings.AspectExRequiresToHave,
+          FormatType(aspect.GetType()), 
+          FormatType(type), 
+          mustHave ? string.Empty : Strings.Not,
+          FormatMethod(null, returnType, name, parameterTypes));
+      }
+      return method;
     }
 
     /// <summary>
@@ -236,48 +394,12 @@ namespace Xtensive.Core.Aspects.Helpers
       
       if ((constructor!=null) != mustHave) {
         ErrorLog.Write(severityType, Strings.AspectExRequiresToHave,
-          aspect.GetType().GetShortName(), 
-          type.GetShortName(), 
+          FormatType(aspect.GetType()), 
+          FormatType(type), 
           mustHave ? string.Empty : Strings.Not,
           FormatConstructor(null, type, parameterTypes));
       }
       return constructor;
-    }
-
-    /// <summary>
-    /// Validates the presence of specified method on the <paramref name="type"/>.
-    /// </summary>
-    /// <param name="aspect">The aspect.</param>
-    /// <param name="severityType">The severity of the message to write to <see cref="ErrorLog"/>.</param>
-    /// <param name="type">The type to get the method of.</param>
-    /// <param name="mustHave">If set to <see langword="true"/>, type 
-    /// must have specified method;
-    /// otherwise, it must not have it.</param>
-    /// <param name="returnType">The return type of the method.</param>
-    /// <param name="name">The name of the method.</param>
-    /// <param name="bindingFlags">Binding flags.</param>
-    /// <param name="parameterTypes">The types of method arguments.</param>
-    /// <returns>Found method, if validation has passed;
-    /// otherwise, <see langword="null" />.</returns>
-    public static MethodInfo ValidateMethod(Attribute aspect, SeverityType severityType, 
-      Type type, bool mustHave, BindingFlags bindingFlags, Type returnType, string name, params Type[] parameterTypes)
-    {
-      MethodInfo method = null;
-      try {
-        method = type.GetMethod(name, bindingFlags, null, parameterTypes, null);
-      }
-      catch (NullReferenceException) { }
-      catch (ArgumentNullException) { }
-      catch (AmbiguousMatchException) { }
-      
-      if ((method!=null && method.ReturnType==returnType) != mustHave) {
-        ErrorLog.Write(severityType, Strings.AspectExRequiresToHave,
-          aspect.GetType().GetShortName(), 
-          type.GetShortName(), 
-          mustHave ? string.Empty : Strings.Not,
-          FormatMethod(null, returnType, name, parameterTypes));
-      }
-      return method;
     }
   }
 }
