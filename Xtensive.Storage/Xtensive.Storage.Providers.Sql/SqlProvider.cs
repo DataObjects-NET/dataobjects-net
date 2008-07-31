@@ -34,7 +34,7 @@ namespace Xtensive.Storage.Providers.Sql
         while(reader.Read()) {
           var tuple = Tuple.Create(Header.TupleDescriptor);
           for (int i = 0; i < reader.FieldCount; i++)
-            tuple.SetValue(i, reader[i]);
+            tuple.SetValue(i, DBNull.Value == reader[i] ? null : reader[i]);
           result.Add(tuple);
         }
       }
