@@ -88,9 +88,10 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
       if (source == null)
         return null;
 
-      var queryRef = SqlFactory.QueryRef(source.Query);
-      SqlSelect query = SqlFactory.Select(queryRef);
-      query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
+//      var queryRef = SqlExpression.IsNull(source.Query.Where) ? source.Query.From : SqlFactory.QueryRef(source.Query);
+      // NOTE: may be we should clone source query
+      SqlSelect query = source.Query;
+//      query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
 
       var direction = provider.Range.GetDirection(AdvancedComparer<IEntire<Tuple>>.Default);
       var from = direction == Direction.Positive ? 
@@ -104,11 +105,13 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
       var expressionData = new ExpressionData(null, from, keyColumns, true);
       var expressionHandler = new ExpressionHandler();
       from.Descriptor.Execute(expressionHandler, ref expressionData, Direction.Positive);
-      to.Descriptor.Execute(expressionHandler, ref expressionData, Direction.Positive);
+      to.Descriptor.Execute(expressionHandler, ref expressionData, Direction.Negative);
 
-      query.Where = expressionData.Expression;
+      query.Where = SqlExpression.IsNull(query.Where) ? 
+        expressionData.Expression : 
+        query.Where & expressionData.Expression;
 
-      return new SqlProvider(provider, query);
+      return new SqlProvider(provider, query, Handlers);
     }
 
 

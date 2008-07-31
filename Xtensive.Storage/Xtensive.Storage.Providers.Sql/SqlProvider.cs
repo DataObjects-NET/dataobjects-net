@@ -6,11 +6,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
+using System.Diagnostics;
 using Xtensive.Core.Tuples;
 using Xtensive.Sql.Dom.Dml;
-using Xtensive.Storage.Providers.Sql.Resources;
-using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers;
 
 namespace Xtensive.Storage.Providers.Sql
@@ -18,15 +18,27 @@ namespace Xtensive.Storage.Providers.Sql
   internal sealed class SqlProvider : ExecutableProvider
   {
     private readonly SqlSelect sqlSelect;
+    private readonly HandlerAccessor handlers;
 
     public SqlSelect Query
     {
+      [DebuggerStepThrough]
       get { return sqlSelect; }
     }
 
     protected override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
-      throw new System.NotImplementedException();
+      var result = new List<Tuple>(0);
+      var sessionHandler = (SessionHandler)handlers.SessionHandler;
+      using(DbDataReader reader = sessionHandler.ExecuteReader(Query)) {
+        while(reader.Read()) {
+          var tuple = Tuple.Create(Header.TupleDescriptor);
+          for (int i = 0; i < reader.FieldCount; i++)
+            tuple.SetValue(i, reader[i]);
+          result.Add(tuple);
+        }
+      }
+      return result;
     }
 
     protected override void Initialize()
@@ -35,10 +47,11 @@ namespace Xtensive.Storage.Providers.Sql
 
     // Constructor
 
-    public SqlProvider(Provider origin, SqlSelect sqlSelect)
+    public SqlProvider(Provider origin, SqlSelect sqlSelect, HandlerAccessor handlers)
       : base(origin)
     {
       this.sqlSelect = sqlSelect;
+      this.handlers = handlers;
     }
   }
 }

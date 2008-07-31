@@ -22,7 +22,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
       var queryRef  = SqlFactory.QueryRef(source.Query, provider.Alias);
       var sqlSelect = SqlFactory.Select(queryRef);
       sqlSelect.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
-      return new SqlProvider(provider, sqlSelect);
+      return new SqlProvider(provider, sqlSelect, Handlers);
     }
 
 

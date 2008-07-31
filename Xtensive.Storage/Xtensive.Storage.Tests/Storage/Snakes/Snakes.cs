@@ -29,14 +29,14 @@ namespace Xtensive.Storage.Tests.SnakeModel
     [Field(Length = 255,IsNullable = true)]
     public string Name { get; set; }
 
-    [Field]
+    [Field(IsNullable = true)]
     public Features Features { get; set; }
   }
 
   [DebuggerDisplay("Name = '{Name}'; Length = {Length}")]
   public class Snake : Creature
   {
-    [Field]
+    [Field(IsNullable = true)]
     public int Length { get; set; }
   }
 

@@ -162,8 +162,8 @@ namespace Xtensive.Storage.Providers.Sql
     public override Tuple Fetch(IndexInfo index, Key key, IEnumerable<ColumnInfo> columns)
     {
       EnsureConnectionIsOpen();
-      var rs = new IndexProvider(index).Result;
-      rs.Range(key.Tuple, key.Tuple);
+      var rs = new IndexProvider(index).Result
+        .Range(key.Tuple, key.Tuple);
 //      rs.Select(columns.Select(c => c.Name).ToArray());
       var enumerator = rs.GetEnumerator();
       if (enumerator.MoveNext())
@@ -190,15 +190,6 @@ namespace Xtensive.Storage.Providers.Sql
       throw new NotImplementedException();
     }
 
-
-//    private SqlSelect BuildQuery(IndexInfo index, IEnumerable<ColumnInfo> columns)
-//    {
-//      var fullQuery = DomainHandler.BuildQueryInternal(index);
-//      IEnumerable<SqlColumn> columnsToRemove = fullQuery.Columns.Where(sqlColumn => !columns.Any(columnInfo=>columnInfo.Name==sqlColumn.Name));
-//      foreach (SqlColumn column in columnsToRemove)
-//        fullQuery.Columns.Remove(column);
-//      return fullQuery;
-//    }
 
     /// <inheritdoc/>
     public override RecordSet Select(IndexInfo index)
@@ -249,20 +240,6 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     #endregion
-
-    private Tuple GetTuple(IDataRecord reader, SqlSelect select)
-    {
-      var typeId = (int) reader[Handlers.NameBuilder.TypeIdFieldName];
-      TypeInfo actualType = Handlers.Domain.Model.Types[typeId];
-      Tuple result = Tuple.Create(actualType.TupleDescriptor);
-      for (int i = 0; i < actualType.Columns.Count; i++) {
-        ColumnInfo column = actualType.Columns[i];
-        int ordinal = select.Columns.IndexOf(select.Columns[column.Name]);
-        if (ordinal >= 0)
-          result.SetValue(column.Field.MappingInfo.Offset, reader[ordinal]);
-      }
-      return result;
-    }
 
     private SqlTableRef GetTableRef(IndexInfo index)
     {

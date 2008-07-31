@@ -28,12 +28,6 @@ namespace Xtensive.Storage.Tests.Storage.Snakes
 
     [TestFixtureSetUp]
     public abstract void DomainSetup();
-    /*{
-      config = new DomainConfiguration("memory://localhost/Snakes");
-      config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.SnakeModel");
-      domain = Domain.Build(config);
-      domain.Model.Dump();
-    }*/
 
     [Test]
     public void MainTest()
