@@ -372,14 +372,15 @@ namespace Xtensive.Storage.Tests.Model.Library
 namespace Xtensive.Storage.Tests.Model
 {
   [TestFixture]
-  public class LibraryTests
+  public class LibraryTests : TestBase
   {
-    private static DomainConfiguration CreateStorageConfiguration()
+    protected override DomainConfiguration BuildConfiguration()
     {
-      DomainConfiguration configuration =
-        new DomainConfiguration(@"memory://localhost\sql2005/Library");
-      configuration.Types.Register(typeof (Person).Assembly, "Xtensive.Storage.Tests.Model.Library");
-      return configuration;
+      DomainConfiguration config = base.BuildConfiguration();
+      config.ConnectionInfo = new UrlInfo(@"memory://localhost\sql2005/Library");
+      config.Types.Register(typeof (Person).Assembly, "Xtensive.Storage.Tests.Model.Library");
+      config.Builders.Add(typeof (LibraryDomainBuilder));
+      return config;
     }
 
     private static void VerifyModel(Domain domain)
@@ -665,19 +666,14 @@ namespace Xtensive.Storage.Tests.Model
     [Test]
     public void ModelVerificationTest()
     {
-      DomainConfiguration configuration = CreateStorageConfiguration();
-      configuration.Builders.Add(typeof (LibraryDomainBuilder));
-      Domain domain = Domain.Build(configuration);
-      domain.Model.Dump();
-      VerifyModel(domain);
+      Domain.Model.Dump();
+      VerifyModel(Domain);
     }
 
     [Test]
     public void ComplexKeyTest()
     {
-      Domain domain = Domain.Build(CreateStorageConfiguration());
-      domain.Model.Dump();
-      using (domain.OpenSession()) {
+      using (Domain.OpenSession()) {
         Book book = new Book("5-272-00040-4");
         book.Title = "Assembler";
         book.Author = new Author();
@@ -685,9 +681,9 @@ namespace Xtensive.Storage.Tests.Model
         Person reviewer = new Person();
         reviewer.Passport.Card.LastName = "Kochetov";
         reviewer.Passport.Card.FirstName = "Alexius";
-//        BookReview review = new BookReview(book, reviewer);
-//        Assert.AreEqual((object) book, review.Book);
-//        Assert.AreEqual((object) reviewer, review.Reviewer);
+        BookReview review = new BookReview(book.Key, reviewer.Key);
+        Assert.AreEqual((object) book, review.Book);
+        Assert.AreEqual((object) reviewer, review.Reviewer);
       }
     }
   }

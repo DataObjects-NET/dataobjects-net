@@ -164,7 +164,7 @@ namespace Xtensive.Storage.Providers.Sql
       EnsureConnectionIsOpen();
       var rs = new IndexProvider(index).Result
         .Range(key.Tuple, key.Tuple);
-//      rs.Select(columns.Select(c => c.Name).ToArray());
+      rs.Select(columns.Select(c => index.Columns.IndexOf(c)).ToArray());
       var enumerator = rs.GetEnumerator();
       if (enumerator.MoveNext())
         return enumerator.Current;

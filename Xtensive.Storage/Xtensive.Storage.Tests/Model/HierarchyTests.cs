@@ -6,6 +6,7 @@
 
 using System;
 using NUnit.Framework;
+using Xtensive.Core;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Building.Definitions;
@@ -77,23 +78,23 @@ namespace Xtensive.Storage.Tests.Model.Schemas
 
   public class CustomStorageDefinitionBuilder : IDomainBuilder
   {
-    public void Build(BuildingContext context, DomainDef domain)
+    public void Build(BuildingContext context, DomainDef Domain)
     {
       TypeDef type;
 
-      type = domain.Types["A"];
+      type = Domain.Types["A"];
       Assert.IsFalse(context.Definition.FindRoot(type)==type);
 
-      type = domain.Types["AB"];
+      type = Domain.Types["AB"];
       Assert.IsTrue(context.Definition.FindRoot(type)==type);
 
-      type = domain.Types["ABC"];
+      type = Domain.Types["ABC"];
       Assert.IsFalse(context.Definition.FindRoot(type)==type);
 
-      type = domain.Types["B"];
+      type = Domain.Types["B"];
       Assert.IsFalse(context.Definition.FindRoot(type)==type);
 
-      type = domain.Types["BC"];
+      type = Domain.Types["BC"];
       Assert.IsTrue(context.Definition.FindRoot(type)==type);
     }
   }
@@ -102,42 +103,35 @@ namespace Xtensive.Storage.Tests.Model.Schemas
 namespace Xtensive.Storage.Tests.Model
 {
   [TestFixture]
-  public class HierarchyTests
+  public class HierarchyTests : TestBase
   {
+    protected override DomainConfiguration BuildConfiguration()
+    {
+      DomainConfiguration config = base.BuildConfiguration();
+      config.ConnectionInfo = new UrlInfo(@"memory://localhost\sql2005/ABC");
+      config.Types.Register(typeof (A).Assembly, "Xtensive.Storage.Tests.Model.Schemas");
+      config.Builders.Add(typeof (CustomStorageDefinitionBuilder));
+      return config;
+    }
+
     [Test]
     public void MainTest()
     {
-      Domain domain = CreateDomain();
-      domain.Model.Dump();
-    }
-
-    private Domain CreateDomain()
-    {
-      DomainConfiguration configuration =
-        new DomainConfiguration(@"memory://localhost\sql2005/ABC");
-
-      configuration.Types.Register(typeof (A).Assembly, "Xtensive.Storage.Tests.Model.Schemas");
-
-      configuration.Builders.Add(typeof (CustomStorageDefinitionBuilder));
-      Domain domain = Domain.Build(configuration);
-
-      Assert.IsFalse(domain.Model.Types.Contains(typeof (A)));
-      Assert.IsNotNull(domain.Model.Types[typeof (AB)]);
-      Assert.IsNotNull(domain.Model.Types[typeof (AB)].Fields["ID"]);
-      Assert.IsNotNull(domain.Model.Types[typeof (AB)].Fields["ABName"]);
-      Assert.IsNotNull(domain.Model.Types[typeof (AB)].Fields["AName"]);
-      Assert.AreEqual(domain.Model.Types[typeof (AB)], domain.Model.Types[typeof (AB)].Fields["ABName"].DeclaringType);
-      Assert.AreEqual(domain.Model.Types[typeof (AB)], domain.Model.Types[typeof (AB)].Fields["AName"].DeclaringType);
-      Assert.AreEqual(domain.Model.Types[typeof (AB)], domain.Model.Types[typeof (AB)].Hierarchy.Root);
-      Assert.AreEqual(domain.Model.Types[typeof (AB)], domain.Model.Types[typeof (ABC)].Hierarchy.Root);
-      Assert.AreEqual(domain.Model.Types[typeof (AB)].Hierarchy, domain.Model.Types[typeof (ABC)].Hierarchy);
-      Assert.AreEqual(typeof (long), domain.Model.Types[typeof (AB)].Fields["ID"].ValueType);
-      Assert.AreEqual(typeof (long), domain.Model.Types[typeof (ABC)].Fields["ID"].ValueType);
-      Assert.AreEqual(typeof (Guid), domain.Model.Types[typeof (BC)].Fields["ID"].ValueType);
-      Assert.AreEqual(typeof (long), domain.Model.Types[typeof (BD)].Fields["ID"].ValueType);
-      Assert.AreEqual(typeof (int), domain.Model.Types[typeof (BE)].Fields["ID"].ValueType);
-
-      return domain;
+      Assert.IsFalse(Domain.Model.Types.Contains(typeof (A)));
+      Assert.IsNotNull(Domain.Model.Types[typeof (AB)]);
+      Assert.IsNotNull(Domain.Model.Types[typeof (AB)].Fields["ID"]);
+      Assert.IsNotNull(Domain.Model.Types[typeof (AB)].Fields["ABName"]);
+      Assert.IsNotNull(Domain.Model.Types[typeof (AB)].Fields["AName"]);
+      Assert.AreEqual(Domain.Model.Types[typeof (AB)], Domain.Model.Types[typeof (AB)].Fields["ABName"].DeclaringType);
+      Assert.AreEqual(Domain.Model.Types[typeof (AB)], Domain.Model.Types[typeof (AB)].Fields["AName"].DeclaringType);
+      Assert.AreEqual(Domain.Model.Types[typeof (AB)], Domain.Model.Types[typeof (AB)].Hierarchy.Root);
+      Assert.AreEqual(Domain.Model.Types[typeof (AB)], Domain.Model.Types[typeof (ABC)].Hierarchy.Root);
+      Assert.AreEqual(Domain.Model.Types[typeof (AB)].Hierarchy, Domain.Model.Types[typeof (ABC)].Hierarchy);
+      Assert.AreEqual(typeof (long), Domain.Model.Types[typeof (AB)].Fields["ID"].ValueType);
+      Assert.AreEqual(typeof (long), Domain.Model.Types[typeof (ABC)].Fields["ID"].ValueType);
+      Assert.AreEqual(typeof (Guid), Domain.Model.Types[typeof (BC)].Fields["ID"].ValueType);
+      Assert.AreEqual(typeof (long), Domain.Model.Types[typeof (BD)].Fields["ID"].ValueType);
+      Assert.AreEqual(typeof (int), Domain.Model.Types[typeof (BE)].Fields["ID"].ValueType);
     }
   }
 }

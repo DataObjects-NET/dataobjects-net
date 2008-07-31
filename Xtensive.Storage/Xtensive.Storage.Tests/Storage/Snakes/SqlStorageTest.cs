@@ -15,7 +15,7 @@ namespace Xtensive.Storage.Tests.Storage.Snakes
   {
     public override void DomainSetup()
     {
-      config = new DomainConfiguration("mssql2005://localhost/Snakes");
+      config = new DomainConfiguration(@"mssql2005://localhost\SQL2005/Snakes");
       config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.SnakeModel");
       domain = Domain.Build(config);
       domain.Model.Dump();

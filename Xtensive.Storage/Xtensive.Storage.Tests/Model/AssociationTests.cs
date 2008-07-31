@@ -94,18 +94,14 @@ namespace Xtensive.Storage.Tests.Model.Relations
 namespace Xtensive.Storage.Tests.Model
 {
   [TestFixture]
-  public class AssociationTests
+  public class AssociationTests : TestBase
   {
-    private Domain domain;
-
-    [TestFixtureSetUp]
-    public void TestFixtureSetup()
+    protected override DomainConfiguration BuildConfiguration()
     {
-      DomainConfiguration config = new DomainConfiguration();
+      DomainConfiguration config = base.BuildConfiguration();
       config.ConnectionInfo = new UrlInfo("memory://localhost/relationtests");
       config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.Model.Relations");
-      domain = Domain.Build(config);
-      domain.Model.Dump();
+      return config;
     }
 
     [Test]
