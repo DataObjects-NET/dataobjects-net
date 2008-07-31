@@ -32,6 +32,11 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     {
     }
 
+    public override string GetStringParameters()
+    {
+      return Index.ToString();
+    }
+
 
     // Constructor
 

@@ -5,6 +5,8 @@
 // Created:    2008.07.08
 
 using System;
+using System.Linq;
+using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Rse.Providers.Compilable;
@@ -30,6 +32,12 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     protected override void Initialize()
     {}
 
+    public override string GetStringParameters()
+    {
+      return IndexSortOrder
+        .Select(pair => Header.Columns[pair.Key].Name + (pair.Value == Direction.Negative ? " desc" : string.Empty))
+        .ToCommaDelimitedString();
+    }
 
     // Constructor
 

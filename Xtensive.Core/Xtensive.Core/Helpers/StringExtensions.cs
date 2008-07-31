@@ -25,5 +25,19 @@ namespace Xtensive.Core.Helpers
     {
       return string.IsNullOrEmpty(value);
     }
+    
+    /// <summary>
+    /// Cuts the specified <paramref name="suffix"/> from <paramref name="value"/>.
+    /// </summary>
+    /// <param name="value">The original string value.</param>
+    /// <param name="suffix">The suffix to cut.</param>
+    /// <returns>String without <paramref name="suffix"/> if it was found, otherwise original <paramref name="value"/>.</returns>
+    public static string TryCutSuffix(this string  value, string suffix)
+    {
+      if (!value.EndsWith(suffix))
+        return value;
+
+      return value.Substring(0, value.Length - suffix.Length);        
+    }
   }
 }

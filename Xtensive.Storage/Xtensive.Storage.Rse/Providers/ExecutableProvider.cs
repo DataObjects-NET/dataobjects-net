@@ -221,6 +221,12 @@ namespace Xtensive.Storage.Rse.Providers
       context.SetValue(new Pair<Guid, string>(Identifier, CachedResultKey), value);
     }
 
+    /// <inheritdoc/>
+    public override string GetStringParameters()
+    {
+      return Origin.GetStringParameters();
+    }
+
     
     // Constructor
 

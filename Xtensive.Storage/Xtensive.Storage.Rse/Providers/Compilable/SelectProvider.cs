@@ -68,6 +68,12 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
       header = new RecordSetHeader(tupleDescriptor, columns, keyDescriptor, Source.Header.Keys.Except(excludedKeys), orderBy); 
     }
 
+    /// <inheritdoc/>
+    public override string GetStringParameters()
+    {
+      return Header.Columns.Select(c => c.Name).ToCommaDelimitedString();
+    }
+
 
     // Constructor
 

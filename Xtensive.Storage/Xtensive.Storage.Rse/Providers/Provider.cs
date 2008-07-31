@@ -7,7 +7,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using Xtensive.Core;
+using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 
@@ -76,7 +78,49 @@ namespace Xtensive.Storage.Rse.Providers
     }
 
     #endregion
-    
+
+    private const string ProviderTypeSuffix = "Provider";
+    private const int IndentingCharCount = 2;
+
+    /// <inheritdoc/>
+    public sealed override string ToString()
+    {
+      StringBuilder sb = new StringBuilder();
+      BuildString(sb, 0);
+      return sb.ToString();
+    }
+
+    private void BuildString(StringBuilder sb, int indent)
+    {
+      BuildTitle(sb, indent);
+
+      foreach (Provider source in Sources)
+        source.BuildString(sb, indent + IndentingCharCount);
+    }
+
+    private void BuildTitle(StringBuilder sb, int indent)
+    {      
+      string providerName = GetType().Name.TryCutSuffix(ProviderTypeSuffix);
+      string parameters = GetStringParameters();
+
+      sb.Append(new string(' ', indent));
+      sb.Append(providerName);
+
+      if (!parameters.IsNullOrEmpty())
+        sb.Append(string.Format(" ({0})", parameters));
+
+      sb.Append(Environment.NewLine);
+    }
+
+    /// <summary>
+    /// Gets the provider parameters for the <see cref=" ToString"/> method.    
+    /// </summary>
+    /// <returns>Provider parameters represented by single line string.</returns>
+    public virtual string GetStringParameters()
+    {
+      return string.Empty;
+    }
+
 
     // Constructor
 

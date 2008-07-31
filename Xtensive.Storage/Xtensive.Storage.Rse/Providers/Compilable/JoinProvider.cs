@@ -35,6 +35,11 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     protected override void Initialize()
     {}
 
+    /// <inheritdoc/>
+    public override string GetStringParameters()
+    {
+      return LeftJoin ? "Left" : "Inner";
+    }
 
     // Constructor
 

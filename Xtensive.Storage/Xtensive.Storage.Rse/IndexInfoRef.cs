@@ -44,9 +44,9 @@ namespace Xtensive.Storage.Rse
     }
 
     /// <inheritdoc/>
-    public override string ToString()
+      public override string ToString()
     {
-      return string.Format("TypeName: {1}, Name: {0}", TypeName, IndexName);
+      return string.Format("Type: {0}, Index: {1}", TypeName, IndexName);
     }
 
 
@@ -58,7 +58,7 @@ namespace Xtensive.Storage.Rse
     /// <param name="indexInfo"><see cref="IndexInfo"/> object to make reference for.</param>
     public IndexInfoRef(IndexInfo indexInfo)
     {
-      IndexName = indexInfo.Name;
+      IndexName = indexInfo.Name;      
       TypeName = indexInfo.ReflectedType.Name;
     }
   }

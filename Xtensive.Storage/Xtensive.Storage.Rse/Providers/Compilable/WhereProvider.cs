@@ -31,6 +31,10 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     protected override void Initialize()
     {}
 
+    public override string GetStringParameters()
+    {
+      return Predicate.ToString();
+    }
 
     // Constructor
 

@@ -34,6 +34,11 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     {
     }
 
+    public override string GetStringParameters()
+    {
+      return Origin.ToString();
+    }
+
 
     // Constructor
 
