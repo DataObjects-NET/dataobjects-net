@@ -9,6 +9,7 @@ using System.Reflection;
 using PostSharp.Extensibility;
 using PostSharp.Laos;
 using Xtensive.Core.Aspects.Helpers;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.Aspects
 {
@@ -17,6 +18,8 @@ namespace Xtensive.Core.Aspects
   [Serializable]
   public sealed class ChangerAttribute : CompoundAspect
   {
+    // TODO: Add CompileTimeValidate
+
     public override void ProvideAspects(object element, LaosReflectionAspectCollection collection)
     {
       PropertyInfo pi = element as PropertyInfo;
@@ -34,6 +37,9 @@ namespace Xtensive.Core.Aspects
 
     // Constructors
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
     public ChangerAttribute()
     {
     }

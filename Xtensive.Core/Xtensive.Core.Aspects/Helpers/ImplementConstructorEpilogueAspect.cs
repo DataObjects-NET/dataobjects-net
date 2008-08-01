@@ -50,7 +50,8 @@ namespace Xtensive.Core.Aspects.Helpers
         return false;
 
       MethodInfo targetMethod = AspectHelper.ValidateMethod(this, SeverityType.Error,
-        HandlerType, true, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, typeof(void), HandlerMethodName, typeof (Type));
+        HandlerType, true, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, 
+        typeof(void), HandlerMethodName, typeof (Type));
       if (targetMethod==null)
         return false;
       if (!AspectHelper.ValidateMethodAttributes(this, SeverityType.Error,
