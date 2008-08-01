@@ -5,9 +5,7 @@
 // Created:    2007.09.04
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Globalization;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
 
@@ -79,13 +77,13 @@ namespace Xtensive.Storage.Configuration
     /// <param name="name">Name to apply the convention to.</param>
     /// <returns>Processed name satisfying naming convention.</returns>
     public string Apply(string name)
-    {      
+    {
       string result = name;
       result = result.Replace('+', '_');
-      if (LetterCasePolicy == LetterCasePolicy.Uppercase)
+      if (LetterCasePolicy==LetterCasePolicy.Uppercase)
         //TODO: clarify with CultureInfo
         result = result.ToUpper();
-      else if (LetterCasePolicy == LetterCasePolicy.Lowercase)
+      else if (LetterCasePolicy==LetterCasePolicy.Lowercase)
         result = result.ToLower();
       if ((NamingRules & NamingRules.UnderscoreDots) > 0)
         result = result.Replace('.', '_');
@@ -130,13 +128,13 @@ namespace Xtensive.Storage.Configuration
     /// <returns><see langword="true"/> if the current object is equal to the other parameter; otherwise, <see langword="false"/>.</returns>
     public bool Equals(NamingConvention other)
     {
-      if (other == null)
+      if (other==null)
         return false;
-      if (letterCasePolicy != other.letterCasePolicy)
+      if (letterCasePolicy!=other.letterCasePolicy)
         return false;
-      if (namespacePolicy != other.namespacePolicy)
+      if (namespacePolicy!=other.namespacePolicy)
         return false;
-      if (namingRules != other.namingRules)
+      if (namingRules!=other.namingRules)
         return false;
       if (!namespaceSynonyms.EqualsTo(other.namespaceSynonyms))
         return false;
@@ -163,8 +161,8 @@ namespace Xtensive.Storage.Configuration
     public override int GetHashCode()
     {
       int result = letterCasePolicy.GetHashCode();
-      result = 29*result + namespacePolicy.GetHashCode();
-      result = 29*result + namingRules.GetHashCode();
+      result = 29 * result + namespacePolicy.GetHashCode();
+      result = 29 * result + namingRules.GetHashCode();
       return result;
     }
 

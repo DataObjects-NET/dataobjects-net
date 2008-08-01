@@ -124,9 +124,9 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaModel
   {
     protected abstract InheritanceSchema InheritanceSchema { get; }
 
-    public void Build(BuildingContext context, DomainModelDef domain)
+    public void Build(BuildingContext context, DomainModelDef model)
     {
-      foreach (HierarchyDef hierarchyDef in domain.Hierarchies)
+      foreach (HierarchyDef hierarchyDef in model.Hierarchies)
         hierarchyDef.Schema = InheritanceSchema;
     }
   }
@@ -185,7 +185,7 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaTests
       DomainConfiguration configuration = base.BuildConfiguration();
       configuration.NamingConvention.LetterCasePolicy = LetterCasePolicy.Uppercase;
       configuration.NamingConvention.NamingRules = NamingRules.UnderscoreDots | NamingRules.UnderscoreHyphens;
-      configuration.NamingConvention.NamespacePolicy = NamespacePolicy.UseHash;
+      configuration.NamingConvention.NamespacePolicy = NamespacePolicy.Hash;
       configuration.NamingConvention.NamespaceSynonyms.Add("Xtensive.Storage.Tests.Model.DefaultPlacement", "X");
       return configuration;
     }

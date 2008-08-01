@@ -78,23 +78,23 @@ namespace Xtensive.Storage.Tests.Model.Schemas
 
   public class CustomStorageDefinitionBuilder : IDomainBuilder
   {
-    public void Build(BuildingContext context, DomainModelDef Domain)
+    public void Build(BuildingContext context, DomainModelDef model)
     {
       TypeDef type;
 
-      type = Domain.Types["A"];
+      type = model.Types["A"];
       Assert.IsFalse(context.Definition.FindRoot(type)==type);
 
-      type = Domain.Types["AB"];
+      type = model.Types["AB"];
       Assert.IsTrue(context.Definition.FindRoot(type)==type);
 
-      type = Domain.Types["ABC"];
+      type = model.Types["ABC"];
       Assert.IsFalse(context.Definition.FindRoot(type)==type);
 
-      type = Domain.Types["B"];
+      type = model.Types["B"];
       Assert.IsFalse(context.Definition.FindRoot(type)==type);
 
-      type = Domain.Types["BC"];
+      type = model.Types["BC"];
       Assert.IsTrue(context.Definition.FindRoot(type)==type);
     }
   }

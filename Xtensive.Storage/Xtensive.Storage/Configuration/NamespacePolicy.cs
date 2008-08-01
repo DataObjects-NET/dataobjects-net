@@ -23,20 +23,20 @@ namespace Xtensive.Storage.Configuration
     /// Name of the type and namespace synonym will be used to derive 
     /// the name of the table or view.
     /// </summary>
-    UseNamespaceSynonym = 1,
+    Synonymize = 1,
 
     /// <summary>
     /// Name of the type and namespace name will be used to derive 
     /// the name of the table or view.
     /// </summary>
-    UseNamespace = 2,
+    AsIs = 2,
 
     /// <summary>
     /// Name of the type and namespace hashes will be used to derive 
     /// the name of the table or view. Driver decides on the type of hashing
     /// algorythm to use.
     /// </summary>
-    UseHash = 3,
+    Hash = 3,
 
     /// <summary>
     /// Only name of the type will be used to derive the name of

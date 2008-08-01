@@ -17,7 +17,7 @@ namespace Xtensive.Storage.Building
     /// Builds the <see cref="DomainModelDef"/> object.
     /// </summary>
     /// <param name="context">The domain building context.</param>
-    /// <param name="domain">The domain definition object.</param>
-    void Build(BuildingContext context, DomainModelDef domain);
+    /// <param name="model">The domain model definition.</param>
+    void Build(BuildingContext context, DomainModelDef model);
   }
 }

@@ -64,7 +64,7 @@ namespace Xtensive.Storage.Providers
       else {
         string underlyingName = type.UnderlyingType.FullName.Substring(type.UnderlyingType.Namespace.Length + 1, type.UnderlyingType.FullName.Length - type.UnderlyingType.Namespace.Length - 1);
         result = type.Name.IsNullOrEmpty() ? underlyingName : type.Name;
-        if (NamingConvention.NamespacePolicy == NamespacePolicy.UseNamespaceSynonym) {
+        if (NamingConvention.NamespacePolicy == NamespacePolicy.Synonymize) {
           string namespacePrefix;
           try {
             namespacePrefix = NamingConvention.NamespaceSynonyms[type.UnderlyingType.Namespace];
@@ -76,10 +76,10 @@ namespace Xtensive.Storage.Providers
           }
           result = string.Format("{0}.{1}", namespacePrefix, result);
         }
-        else if (NamingConvention.NamespacePolicy == NamespacePolicy.UseNamespace) {
+        else if (NamingConvention.NamespacePolicy == NamespacePolicy.AsIs) {
           result = string.Format("{0}.{1}", type.UnderlyingType.Namespace, result);
         }
-        else if (NamingConvention.NamespacePolicy == NamespacePolicy.UseHash) {
+        else if (NamingConvention.NamespacePolicy == NamespacePolicy.Hash) {
           result = string.Format("{0}.{1}", BuildHash(type.UnderlyingType.Namespace), result);
         }
       }

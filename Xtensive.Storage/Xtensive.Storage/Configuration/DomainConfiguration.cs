@@ -57,7 +57,7 @@ namespace Xtensive.Storage.Configuration
     /// Gets the <see cref="ICollection{T}"/> of persistent <see cref="Type"/>s that are about to be 
     /// registered in <see cref="Domain"/>.
     /// </summary>
-    public TypeRegistry.Registry Types
+    public Registry Types
     {
       get { return types; }
     }
@@ -98,7 +98,6 @@ namespace Xtensive.Storage.Configuration
     /// <inheritdoc/>
     public override void Validate()
     {
-
     }
 
     protected override ConfigurationBase CreateClone()
@@ -109,13 +108,11 @@ namespace Xtensive.Storage.Configuration
     protected override void Clone(ConfigurationBase source)
     {
       base.Clone(source);
-      DomainConfiguration configuration = (DomainConfiguration)source;
+      DomainConfiguration configuration = (DomainConfiguration) source;
       builders = new CollectionBase<Type>(configuration.Builders);
       connectionInfo = new UrlInfo(configuration.ConnectionInfo.ToString());
-      namingConvention = (NamingConvention)configuration.NamingConvention.Clone();
-      // TODO: KeySchemaCollection.Clone
-      // keySchemes = configuration.KeySchemes.Clone;
-      types = (TypeRegistry.Registry)configuration.Types.Clone();
+      namingConvention = (NamingConvention) configuration.NamingConvention.Clone();
+      types = (Registry) configuration.Types.Clone();
       sessionPoolSize = configuration.SessionPoolSize;
     }
 

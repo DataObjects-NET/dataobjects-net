@@ -348,7 +348,7 @@ namespace Xtensive.Storage.Tests.Model.Library
 
     #region IDomainBuilder Members
 
-    public void Build(BuildingContext context, DomainModelDef domain)
+    public void Build(BuildingContext context, DomainModelDef model)
     {
       Console.WriteLine("-- Verifying model --");
       VerifyDefinition();

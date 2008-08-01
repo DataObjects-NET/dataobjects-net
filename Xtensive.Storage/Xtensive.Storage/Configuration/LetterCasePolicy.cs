@@ -15,14 +15,14 @@ namespace Xtensive.Storage.Configuration
   public enum LetterCasePolicy
   {
     /// <summary>
-    /// Default mode. The same as <see cref="LeaveAsIs"/>.
+    /// Default mode. The same as <see cref="AsIs"/>.
     /// </summary>
     Default = 0,
 
     /// <summary>
     /// No modifications should be applied.
     /// </summary>
-    LeaveAsIs = Default,
+    AsIs = Default,
 
     /// <summary>
     /// Name should be in upper case.
