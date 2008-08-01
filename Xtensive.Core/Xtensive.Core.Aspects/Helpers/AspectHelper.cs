@@ -334,34 +334,42 @@ namespace Xtensive.Core.Aspects.Helpers
     /// <param name="aspect">The aspect.</param>
     /// <param name="severityType">The severity of the message to write to <see cref="ErrorLog"/>.</param>
     /// <param name="type">The type to get the method of.</param>
-    /// <param name="mustHave">If set to <see langword="true"/>, type 
+    /// <param name="mustHave">If set to <see langword="true"/>, type
     /// must have specified method;
     /// otherwise, it must not have it.</param>
+    /// <param name="bindingFlags">Binding flags.</param>
     /// <param name="returnType">The return type of the method.</param>
     /// <param name="name">The name of the method.</param>
-    /// <param name="bindingFlags">Binding flags.</param>
     /// <param name="parameterTypes">The types of method arguments.</param>
-    /// <returns>Found method, if validation has passed;
-    /// otherwise, <see langword="null" />.</returns>
-    public static MethodInfo ValidateMethod(Attribute aspect, SeverityType severityType, 
-      Type type, bool mustHave, BindingFlags bindingFlags, Type returnType, string name, params Type[] parameterTypes)
+    /// <param name="method">The found method, or <see langword="null" /> if specified method was not found.</param>
+    /// <returns>
+    /// <see langword="true" /> if validation has passed; otherwise, <see langword="false" />.    
+    /// </returns>
+    public static bool ValidateMethod(Attribute aspect, SeverityType severityType, 
+      Type type, bool mustHave, BindingFlags bindingFlags, Type returnType, string name, 
+      Type[] parameterTypes, out MethodInfo method)
     {
-      MethodInfo method = null;
+      method = null;
       try {
         method = type.GetMethod(name, bindingFlags, null, parameterTypes, null);
       }
       catch (NullReferenceException) { }
       catch (ArgumentNullException) { }
       catch (AmbiguousMatchException) { }
+
+      if (method!=null && method.ReturnType!=returnType)
+        method = null;      
       
-      if ((method!=null && method.ReturnType==returnType) != mustHave) {
+      if ((method!=null) != mustHave) {
         ErrorLog.Write(severityType, Strings.AspectExRequiresToHave,
           FormatType(aspect.GetType()), 
           FormatType(type), 
           mustHave ? string.Empty : Strings.Not,
           FormatMethod(null, returnType, name, parameterTypes));
+
+        return false;
       }
-      return method;
+      return true;      
     }
 
     /// <summary>
@@ -370,17 +378,19 @@ namespace Xtensive.Core.Aspects.Helpers
     /// <param name="aspect">The aspect.</param>
     /// <param name="severityType">The severity of the message to write to <see cref="ErrorLog"/>.</param>
     /// <param name="type">The type to get the constructor of.</param>
-    /// <param name="mustHave">If set to <see langword="true"/>, type 
+    /// <param name="mustHave">If set to <see langword="true"/>, type
     /// must have specified constructor;
     /// otherwise, it must not have it.</param>
     /// <param name="bindingFlags">Binding flags.</param>
     /// <param name="parameterTypes">The types of constructor arguments.</param>
-    /// <returns>Found constructor, if validation has passed;
-    /// otherwise, <see langword="null" />.</returns>
-    public static ConstructorInfo ValidateConstructor(Attribute aspect, SeverityType severityType, 
-      Type type, bool mustHave, BindingFlags bindingFlags, params Type[] parameterTypes)
+    /// <param name="constructor">The found constructor, or <see langword="null" /> if specified method was not found.</param>
+    /// <returns>
+    /// <see langword="true" /> if validation has passed; otherwise, <see langword="false" />.    
+    /// </returns>
+    public static bool ValidateConstructor(Attribute aspect, SeverityType severityType, 
+      Type type, bool mustHave, BindingFlags bindingFlags, Type[] parameterTypes, out ConstructorInfo constructor)
     {
-      ConstructorInfo constructor = null;
+      constructor = null;
       try {
         constructor = type.GetConstructor(
           bindingFlags | BindingFlags.CreateInstance,
@@ -398,8 +408,10 @@ namespace Xtensive.Core.Aspects.Helpers
           FormatType(type), 
           mustHave ? string.Empty : Strings.Not,
           FormatConstructor(null, type, parameterTypes));
+
+        return false;
       }
-      return constructor;
+      return true;
     }
   }
 }

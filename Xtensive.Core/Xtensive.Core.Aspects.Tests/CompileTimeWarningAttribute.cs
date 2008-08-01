@@ -34,17 +34,19 @@ namespace Xtensive.Core.Aspects.Tests
           property, true, true, false);
         AspectHelper.ValidateBaseType(this, SeverityType.Warning,
           property.DeclaringType, true, typeof(ILockable));
-        AspectHelper.ValidateConstructor(this, SeverityType.Warning,
-          property.DeclaringType, true, BindingFlags.Public, new Type[] {});
 
+        ConstructorInfo constructor;
+        AspectHelper.ValidateConstructor(this, SeverityType.Warning,
+          property.DeclaringType, true, BindingFlags.Public, new Type[] {}, out constructor);
       }
       if (field!=null) {
         AspectHelper.ValidateFieldAttributes(this, SeverityType.Warning,
           field, true, FieldAttributes.Static);
       }
       if (method!=null) {
+        MethodInfo methodInfo;
         AspectHelper.ValidateMethod(this, SeverityType.Warning,
-          method.DeclaringType, true, BindingFlags.Public, typeof(void), "NotExistingMethod", new Type[] {});
+          method.DeclaringType, true, BindingFlags.Public, typeof(void), "NotExistingMethod", new Type[] {}, out methodInfo);
         AspectHelper.ValidateMethodAttributes(this, SeverityType.Warning,
           method, true, MethodAttributes.Abstract);
         AspectHelper.ValidateMemberAttribute<CompilerGeneratedAttribute>(this, SeverityType.Warning,

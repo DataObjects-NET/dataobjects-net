@@ -4,11 +4,13 @@
 // Created by: Alex Yakunin
 // Created:    2008.07.31
 
+using System;
+
 namespace Xtensive.Core.Aspects.Helpers
 {
   /// <summary>
   /// Defines standard aspect message types.
-  /// </summary>
+  /// </summary>  
   public enum AspectMessageType
   {
     /// <summary>

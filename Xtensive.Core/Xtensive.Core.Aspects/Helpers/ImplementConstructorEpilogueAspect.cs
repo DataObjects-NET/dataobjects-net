@@ -49,11 +49,13 @@ namespace Xtensive.Core.Aspects.Helpers
         method, false, MethodAttributes.Static))
         return false;
 
-      MethodInfo targetMethod = AspectHelper.ValidateMethod(this, SeverityType.Error,
+      MethodInfo targetMethod; 
+      
+      if (!AspectHelper.ValidateMethod(this, SeverityType.Error,
         HandlerType, true, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, 
-        typeof(void), HandlerMethodName, typeof (Type));
-      if (targetMethod==null)
+        typeof(void), HandlerMethodName, new [] { typeof (Type)}, out targetMethod))
         return false;
+      
       if (!AspectHelper.ValidateMethodAttributes(this, SeverityType.Error,
         targetMethod, false, MethodAttributes.Virtual))
         return false;
