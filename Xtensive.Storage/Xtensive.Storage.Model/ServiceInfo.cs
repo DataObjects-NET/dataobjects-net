@@ -11,7 +11,7 @@ namespace Xtensive.Storage.Model
   [Serializable]
   public sealed class ServiceInfo: Node
   {
-    private DomainInfo domain;
+    private DomainModel domain;
     private readonly Type underlyingType;
 
     /// <summary>
@@ -25,7 +25,7 @@ namespace Xtensive.Storage.Model
     /// <summary>
     /// Gets the <see cref="Domain"/> this instance belongs to.
     /// </summary>
-    public DomainInfo Domain
+    public DomainModel Domain
     {
       get { return domain; }
     }
@@ -38,7 +38,7 @@ namespace Xtensive.Storage.Model
     /// </summary>
     /// <param name="type">The underlying type.</param>
     /// <param name="domain">The storage info.</param>
-    internal ServiceInfo(DomainInfo domain, Type type)
+    internal ServiceInfo(DomainModel domain, Type type)
     {
       this.domain = domain;
       underlyingType = type;

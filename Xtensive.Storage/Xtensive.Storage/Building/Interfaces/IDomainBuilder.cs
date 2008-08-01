@@ -9,15 +9,15 @@ using Xtensive.Storage.Building.Definitions;
 namespace Xtensive.Storage.Building
 {
   /// <summary>
-  /// Builds the <see cref="DomainDef"/> object.
+  /// Builds the <see cref="DomainModelDef"/> object.
   /// </summary>
   public interface IDomainBuilder
   {
     /// <summary>
-    /// Builds the <see cref="DomainDef"/> object.
+    /// Builds the <see cref="DomainModelDef"/> object.
     /// </summary>
     /// <param name="context">The domain building context.</param>
     /// <param name="domain">The domain definition object.</param>
-    void Build(BuildingContext context, DomainDef domain);
+    void Build(BuildingContext context, DomainModelDef domain);
   }
 }

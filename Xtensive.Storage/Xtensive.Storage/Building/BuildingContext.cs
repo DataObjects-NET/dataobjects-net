@@ -80,12 +80,12 @@ namespace Xtensive.Storage.Building
     /// <summary>
     /// Gets or sets the <see cref="Storage.Domain"/> model definition.
     /// </summary>
-    public DomainDef Definition { get; internal set; }
+    public DomainModelDef Definition { get; internal set; }
 
     /// <summary>
     /// Gets the model.
     /// </summary>
-    public DomainInfo Model { get; internal set; }
+    public DomainModel Model { get; internal set; }
 
     #region Internal methods
 

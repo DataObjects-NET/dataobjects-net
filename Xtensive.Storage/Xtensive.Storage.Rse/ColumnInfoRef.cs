@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Rse
     /// Resolves this instance to <see cref="ColumnInfo"/> object within specified <paramref name="model"/>.
     /// </summary>
     /// <param name="model">Domain model.</param>
-    public ColumnInfo Resolve(DomainInfo model)
+    public ColumnInfo Resolve(DomainModel model)
     {
       TypeInfo type;
       if (!model.Types.TryGetValue(TypeName, out type))

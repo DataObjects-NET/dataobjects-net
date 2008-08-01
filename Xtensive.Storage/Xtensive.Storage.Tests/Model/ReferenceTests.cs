@@ -76,7 +76,7 @@ namespace Xtensive.Storage.Tests.Model.ReferenceTestsModel
 
 namespace Xtensive.Storage.Tests.Model
 {
-  public class ReferenceTests : AutoBuildTest
+  public class ReferenceTests : AutoBuildTestFixture
   {
     protected override DomainConfiguration BuildConfiguration()
     {

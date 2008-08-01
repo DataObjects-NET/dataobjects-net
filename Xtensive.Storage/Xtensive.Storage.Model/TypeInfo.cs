@@ -25,7 +25,7 @@ namespace Xtensive.Storage.Model
     private readonly FieldInfoCollection fields;
     private readonly TypeIndexInfoCollection indexes;
     private readonly NodeCollection<IndexInfo> affectedIndexes;
-    private readonly DomainInfo model;
+    private readonly DomainModel model;
     private readonly TypeAttributes attributes;
     private Type underlyingType;
     private HierarchyInfo hierarchy;
@@ -124,9 +124,9 @@ namespace Xtensive.Storage.Model
     }
 
     /// <summary>
-    /// Gets the <see cref="DomainInfo"/> this instance belongs to.
+    /// Gets the <see cref="DomainModel"/> this instance belongs to.
     /// </summary>
-    public DomainInfo Model
+    public DomainModel Model
     {
       get { return model; }
     }
@@ -288,7 +288,7 @@ namespace Xtensive.Storage.Model
     /// </summary>
     /// <param name="model">The model.</param>
     /// <param name="typeAttributes">The type attributes.</param>
-    public TypeInfo(DomainInfo model, TypeAttributes typeAttributes)
+    public TypeInfo(DomainModel model, TypeAttributes typeAttributes)
     {
       this.model = model;
       attributes = typeAttributes;

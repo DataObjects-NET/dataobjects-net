@@ -52,7 +52,7 @@ namespace Xtensive.Storage.Tests.ReferentialIntegrityModel
 
 namespace Xtensive.Storage.Tests.Storage
 {
-  public class ReferentialIntegrityTests : AutoBuildTest
+  public class ReferentialIntegrityTests : AutoBuildTestFixture
   {
     protected override DomainConfiguration BuildConfiguration()
     {

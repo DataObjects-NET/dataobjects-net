@@ -19,7 +19,7 @@ namespace Xtensive.Storage.Building.Definitions
   /// Represents a definition of <see cref="Domain"/>.
   /// </summary>
   [Serializable]
-  public sealed class DomainDef : Node
+  public sealed class DomainModelDef : Node
   {
     private readonly HierarchyDefCollection hierarchies;
     private readonly NodeCollection<ServiceDef> services;
@@ -50,7 +50,7 @@ namespace Xtensive.Storage.Building.Definitions
     }
 
     /// <summary>
-    /// Defines new <see cref="TypeDef"/> and adds it to <see cref="DomainDef"/> instance.
+    /// Defines new <see cref="TypeDef"/> and adds it to <see cref="DomainModelDef"/> instance.
     /// </summary>
     /// <param name="type">The underlying type.</param>
     /// <returns>Newly created <see cref="TypeDef"/> instance.</returns>
@@ -72,7 +72,7 @@ namespace Xtensive.Storage.Building.Definitions
     }
 
     /// <summary>
-    /// Defines new <see cref="HierarchyDef"/> and adds it to the <see cref="DomainDef"/> instance.
+    /// Defines new <see cref="HierarchyDef"/> and adds it to the <see cref="DomainModelDef"/> instance.
     /// </summary>
     /// <param name="root">The <see cref="TypeDef"/> instance that will be the root of the hierarchy.</param>
     /// <param name="inheritanceSchema">The type of inheritance mapping.</param>
@@ -99,7 +99,7 @@ namespace Xtensive.Storage.Building.Definitions
 
     /// <summary>
     /// Defines new <see cref="HierarchyDef"/> with <see cref="InheritanceSchema.Default"/> inheritance mapping type
-    ///  and adds it to the <see cref="DomainDef"/> instance.
+    ///  and adds it to the <see cref="DomainModelDef"/> instance.
     /// </summary>
     /// <param name="root">The <see cref="TypeDef"/> instance that will be the root of the hierarchy.</param>
     /// <returns>Newly created <see cref="HierarchyDef"/> instance.</returns>
@@ -109,7 +109,7 @@ namespace Xtensive.Storage.Building.Definitions
     }
 
     /// <summary>
-    /// Defines new <see cref="ServiceDef"/> object and adds it to the <see cref="DomainDef"/> instance.
+    /// Defines new <see cref="ServiceDef"/> object and adds it to the <see cref="DomainModelDef"/> instance.
     /// </summary>
     /// <param name="type">The underlying type.</param>
     /// <returns>Newly created <see cref="ServiceDef"/> instance.</returns>
@@ -171,9 +171,9 @@ namespace Xtensive.Storage.Building.Definitions
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="DomainDef"/> class.
+    /// Initializes a new instance of the <see cref="DomainModelDef"/> class.
     /// </summary>
-    internal DomainDef()
+    internal DomainModelDef()
     {
       services = new NodeCollection<ServiceDef>();
       types = new TypeDefCollection();

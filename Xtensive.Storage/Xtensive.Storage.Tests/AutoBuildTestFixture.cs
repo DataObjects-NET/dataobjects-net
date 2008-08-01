@@ -11,7 +11,7 @@ using Xtensive.Storage.Configuration;
 namespace Xtensive.Storage.Tests
 {
   [TestFixture]
-  public abstract class AutoBuildTest
+  public abstract class AutoBuildTestFixture
   {
     private Domain domain;
 
@@ -30,13 +30,12 @@ namespace Xtensive.Storage.Tests
     [TestFixtureTearDown]
     public void TestFixtureTearDown()
     {
-      
     }
 
     protected virtual DomainConfiguration BuildConfiguration()
     {
       DomainConfiguration config = new DomainConfiguration();
-      config.ConnectionInfo = new UrlInfo(@"memory://localhost/DO4_Test");
+      config.ConnectionInfo = new UrlInfo(@"memory://localhost/Test_4.0");
       return config;
     }
 

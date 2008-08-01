@@ -12,7 +12,7 @@ namespace Xtensive.Storage.Model
   /// Represents a model of <see cref="Storage"/>.
   /// </summary>
   [Serializable]
-  public sealed class DomainInfo: Node
+  public sealed class DomainModel: Node
   {
     /// <summary>
     /// Gets the services contained in this instance.
@@ -56,9 +56,9 @@ namespace Xtensive.Storage.Model
     // Constructors
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="DomainInfo"/> class.
+    /// Initializes a new instance of the <see cref="DomainModel"/> class.
     /// </summary>
-    public DomainInfo()
+    public DomainModel()
     {
       Services = new ServiceInfoCollection();
       Types = new TypeInfoCollection();

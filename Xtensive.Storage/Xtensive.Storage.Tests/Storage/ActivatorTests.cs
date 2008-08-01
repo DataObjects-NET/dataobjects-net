@@ -8,8 +8,9 @@ using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
+using Xtensive.Storage.Tests.Storage.ActivatorModel;
 
-namespace Xtensive.Storage.Tests.Storage.ActivatorTests
+namespace Xtensive.Storage.Tests.Storage.ActivatorModel
 {
   [HierarchyRoot(typeof (DefaultGenerator), "ID")]
   public abstract class Ancestor : Entity
@@ -27,7 +28,11 @@ namespace Xtensive.Storage.Tests.Storage.ActivatorTests
     public int Number { get; set; }
   }
 
-  public class ActivatorTests : AutoBuildTest
+}
+
+namespace Xtensive.Storage.Tests.Storage
+{
+  public class ActivatorTests : AutoBuildTestFixture
   {
     protected override DomainConfiguration BuildConfiguration()
     {

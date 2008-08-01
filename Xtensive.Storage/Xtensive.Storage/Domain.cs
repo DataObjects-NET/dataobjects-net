@@ -28,7 +28,7 @@ namespace Xtensive.Storage
     /// Gets the domain model.
     /// </summary>
     [DebuggerHidden]
-    public DomainInfo Model { get; internal set; }
+    public DomainModel Model { get; internal set; }
 
     /// <summary>
     /// Gets the handler factory.

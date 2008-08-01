@@ -348,7 +348,7 @@ namespace Xtensive.Storage.Tests.Model.Library
 
     #region IDomainBuilder Members
 
-    public void Build(BuildingContext context, DomainDef domain)
+    public void Build(BuildingContext context, DomainModelDef domain)
     {
       Console.WriteLine("-- Verifying model --");
       VerifyDefinition();
@@ -371,7 +371,7 @@ namespace Xtensive.Storage.Tests.Model.Library
 
 namespace Xtensive.Storage.Tests.Model
 {
-  public class LibraryTests : AutoBuildTest
+  public class LibraryTests : AutoBuildTestFixture
   {
     protected override DomainConfiguration BuildConfiguration()
     {

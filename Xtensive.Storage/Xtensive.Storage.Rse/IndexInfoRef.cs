@@ -31,7 +31,7 @@ namespace Xtensive.Storage.Rse
     /// Resolves this instance to <see cref="IndexInfo"/> object within specified <paramref name="model"/>.
     /// </summary>
     /// <param name="model">Domain model.</param>
-    public IndexInfo Resolve(DomainInfo model)
+    public IndexInfo Resolve(DomainModel model)
     {
       TypeInfo type;
       if (!model.Types.TryGetValue(TypeName, out type))

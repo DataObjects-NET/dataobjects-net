@@ -76,7 +76,7 @@ namespace Xtensive.Storage.Configuration
     }
 
     /// <summary>
-    /// Gets the collection of custom <see cref="DomainDef"/> builders.
+    /// Gets the collection of custom <see cref="DomainModelDef"/> builders.
     /// </summary>
     public IList<Type> Builders
     {

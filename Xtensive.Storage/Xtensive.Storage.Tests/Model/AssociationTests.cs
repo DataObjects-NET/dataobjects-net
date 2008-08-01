@@ -93,7 +93,7 @@ namespace Xtensive.Storage.Tests.Model.Relations
 
 namespace Xtensive.Storage.Tests.Model
 {
-  public class AssociationTests : AutoBuildTest
+  public class AssociationTests : AutoBuildTestFixture
   {
     protected override DomainConfiguration BuildConfiguration()
     {

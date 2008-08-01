@@ -9,6 +9,7 @@ using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
+using Xtensive.Storage.Tests.Storage.StructureModel;
 
 namespace Xtensive.Storage.Tests.Storage.StructureModel
 {
@@ -74,8 +75,11 @@ namespace Xtensive.Storage.Tests.Storage.StructureModel
       Direction = direction;
     }
   }
+}
 
-  public class StructureTests : AutoBuildTest
+namespace Xtensive.Storage.Tests.Storage
+{
+  public class StructureTests : AutoBuildTestFixture
   {
     protected override DomainConfiguration BuildConfiguration()
     {

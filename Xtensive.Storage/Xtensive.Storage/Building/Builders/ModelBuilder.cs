@@ -26,7 +26,7 @@ namespace Xtensive.Storage.Building.Builders
       using (Log.InfoRegion(Strings.LogBuildingX, Strings.ModelDefinition)) {
         BuildingContext context = BuildingContext.Current;
         try {
-          context.Definition = new DomainDef();
+          context.Definition = new DomainModelDef();
 
           DefineTypes();
           DefineServices();
@@ -58,7 +58,7 @@ namespace Xtensive.Storage.Building.Builders
     {
       using (Log.InfoRegion(Strings.LogBuildingX, Strings.ActualModel)) {
         BuildingContext context = BuildingContext.Current;
-        context.Model = new DomainInfo();
+        context.Model = new DomainModel();
         BuildTypes();
         context.Model.Lock(true);
       }

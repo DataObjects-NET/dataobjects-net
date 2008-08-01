@@ -9,9 +9,9 @@ using NUnit.Framework;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Tests.LazyLoadTests;
+using Xtensive.Storage.Tests.Storage.LazyLoadModel;
 
-namespace Xtensive.Storage.Tests.LazyLoadTests
+namespace Xtensive.Storage.Tests.Storage.LazyLoadModel
 {
   [HierarchyRoot(typeof(DefaultGenerator), "ID")]
   public class Book : Entity
@@ -26,12 +26,12 @@ namespace Xtensive.Storage.Tests.LazyLoadTests
 
 namespace Xtensive.Storage.Tests.Storage
 {
-  public class LazyLoadTests : AutoBuildTest
+  public class LazyLoadTests : AutoBuildTestFixture
   {
     protected override DomainConfiguration BuildConfiguration()
     {
       DomainConfiguration config = base.BuildConfiguration();
-      config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.LazyLoadTests");
+      config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.Storage.LazyLoadModel");
       return config;
     }
 

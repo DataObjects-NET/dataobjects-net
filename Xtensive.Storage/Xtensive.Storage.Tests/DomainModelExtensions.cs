@@ -13,9 +13,9 @@ using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Tests
 {
-  public static class DomainInfoExtensions
+  internal static class DomainModelExtensions
   {
-    public static void Dump(this DomainInfo target)
+    public static void Dump(this DomainModel target)
     {
       Console.WriteLine("----------------------------------------");
       Console.WriteLine("Model dump");

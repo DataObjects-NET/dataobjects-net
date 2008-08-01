@@ -11,7 +11,7 @@ using Xtensive.Storage.Tests.Storage.StructureModel;
 
 namespace Xtensive.Storage.Tests.Storage
 {
-  public class SessionBoundTests : AutoBuildTest
+  public class SessionBoundTests : AutoBuildTestFixture
   {
     internal class TestHelper : SessionBound
     {

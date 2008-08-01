@@ -21,7 +21,7 @@ using Xtensive.Storage.Providers;
 namespace Xtensive.Storage.Providers
 {
   /// <summary>
-  /// Name provider for <see cref="DomainDef"/>. 
+  /// Name provider for <see cref="DomainModelDef"/>. 
   /// Provides names according to a set of naming rules contained in
   /// <see cref="NamingConvention"/> object.
   /// </summary>

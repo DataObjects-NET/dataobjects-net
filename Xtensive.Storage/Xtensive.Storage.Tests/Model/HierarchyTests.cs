@@ -78,7 +78,7 @@ namespace Xtensive.Storage.Tests.Model.Schemas
 
   public class CustomStorageDefinitionBuilder : IDomainBuilder
   {
-    public void Build(BuildingContext context, DomainDef Domain)
+    public void Build(BuildingContext context, DomainModelDef Domain)
     {
       TypeDef type;
 
@@ -102,7 +102,7 @@ namespace Xtensive.Storage.Tests.Model.Schemas
 
 namespace Xtensive.Storage.Tests.Model
 {
-  public class HierarchyTests : AutoBuildTest
+  public class HierarchyTests : AutoBuildTestFixture
   {
     protected override DomainConfiguration BuildConfiguration()
     {

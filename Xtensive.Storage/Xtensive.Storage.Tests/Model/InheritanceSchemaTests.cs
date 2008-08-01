@@ -124,7 +124,7 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaModel
   {
     protected abstract InheritanceSchema InheritanceSchema { get; }
 
-    public void Build(BuildingContext context, DomainDef domain)
+    public void Build(BuildingContext context, DomainModelDef domain)
     {
       foreach (HierarchyDef hierarchyDef in domain.Hierarchies)
         hierarchyDef.Schema = InheritanceSchema;
@@ -150,7 +150,7 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaModel
 
 namespace Xtensive.Storage.Tests.Model.InheritanceSchemaTests
 {
-  public abstract class InheritanceSchemaTestBase : AutoBuildTest
+  public abstract class InheritanceSchemaTestBase : AutoBuildTestFixture
   {
     protected override DomainConfiguration BuildConfiguration()
     {
