@@ -14,10 +14,10 @@ namespace Xtensive.Storage.Configuration.TypeRegistry
   /// </summary>
   /// <remarks>This implementation provides topologically sorted list of <see cref="Type"/>s.</remarks>
   [Serializable]
-  public sealed class TypeProcessor: ActionProcessor
+  internal sealed class TypeProcessor: ActionProcessor
   {
-    private Type baseInterface = typeof (IEntity);
-    private Type baseType = typeof (Persistent);
+    private readonly Type baseInterface = typeof (IEntity);
+    private readonly Type baseType = typeof (Persistent);
 
     /// <inheritdoc/>
     public override Type BaseInterface
@@ -38,7 +38,7 @@ namespace Xtensive.Storage.Configuration.TypeRegistry
       if (type.IsClass && type.BaseType != BaseType)
         ProcessType(context, type.BaseType);
       Type[] interfaces = type.FindInterfaces(
-        delegate(Type typeObj, object filterCriteria) { return BaseInterface.IsAssignableFrom(typeObj); }, type);
+        (typeObj, filterCriteria) => BaseInterface.IsAssignableFrom(typeObj), type);
       for (int index = 0; index < interfaces.Length; index++) {
         ProcessType(context, interfaces[index]);
       }

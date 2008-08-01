@@ -23,10 +23,10 @@ namespace Xtensive.Storage.Configuration.TypeRegistry
     ICountable<Type>,
     ICloneable
   {
-    private Set<Action> actionIndex;
-    private List<Action> actionQueue;
-    private Context context;
-    private ActionProcessor processor;
+    private readonly Set<Action> actionIndex;
+    private readonly List<Action> actionQueue;
+    private readonly Context context;
+    private readonly ActionProcessor processor;
     private State state;
 
     #region Nested type: State
@@ -180,7 +180,7 @@ namespace Xtensive.Storage.Configuration.TypeRegistry
     /// Initializes a new instance of the <see cref="Registry"/> class.
     /// </summary>
     /// <param name="processor">The registration call processor.</param>
-    public Registry(ActionProcessor processor)
+    internal Registry(ActionProcessor processor)
     {
       ArgumentValidator.EnsureArgumentNotNull(processor, "processor");
       actionIndex = new Set<Action>();

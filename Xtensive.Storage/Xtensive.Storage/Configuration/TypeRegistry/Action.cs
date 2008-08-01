@@ -7,6 +7,7 @@
 using System;
 using System.Reflection;
 using Xtensive.Core;
+using Xtensive.Core.Helpers;
 
 namespace Xtensive.Storage.Configuration.TypeRegistry
 {
@@ -14,10 +15,10 @@ namespace Xtensive.Storage.Configuration.TypeRegistry
   /// Represents a single registration call to <see cref="Registry"/>.
   /// </summary>
   [Serializable]
-  public sealed class Action: IEquatable<Action>
+  internal sealed class Action: IEquatable<Action>
   {
     private readonly Assembly assembly;
-    private readonly string nameSpace;
+    private readonly string @namespace;
 
     /// <summary>
     /// Gets the assembly.
@@ -32,7 +33,7 @@ namespace Xtensive.Storage.Configuration.TypeRegistry
     /// </summary>
     public string Namespace
     {
-      get { return nameSpace; }
+      get { return @namespace; }
     }
 
     /// <summary>
@@ -54,7 +55,7 @@ namespace Xtensive.Storage.Configuration.TypeRegistry
     /// <returns></returns>
     public override int GetHashCode()
     {
-      return assembly.GetHashCode() + 29*(nameSpace != null ? nameSpace.GetHashCode() : 0);
+      return assembly.GetHashCode() + 29*(@namespace.IsNullOrEmpty() ? @namespace.GetHashCode() : 0);
     }
 
     #region IEquatable<Action> Members
@@ -69,7 +70,7 @@ namespace Xtensive.Storage.Configuration.TypeRegistry
     {
       if (call == null)
         return false;
-      return Equals(assembly, call.assembly) && Equals(nameSpace, call.nameSpace);
+      return Equals(assembly, call.assembly) && Equals(@namespace, call.@namespace);
     }
 
     #endregion
@@ -81,12 +82,12 @@ namespace Xtensive.Storage.Configuration.TypeRegistry
     /// Initializes a new instance of the <see cref="Action"/> class.
     /// </summary>
     /// <param name="assembly">The assembly.</param>
-    /// <param name="nameSpace">The namespace.</param>
-    public Action(Assembly assembly, string nameSpace)
+    /// <param name="namespace">The namespace.</param>
+    public Action(Assembly assembly, string @namespace)
       : this(assembly)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(nameSpace, "nameSpace");
-      this.nameSpace = nameSpace;
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(@namespace, "@namespace");
+      this.@namespace = @namespace;
     }
 
     /// <summary>

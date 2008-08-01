@@ -15,7 +15,7 @@ namespace Xtensive.Storage.Configuration.TypeRegistry
   /// <see cref="Xtensive.Storage.Configuration.TypeRegistry"/> action processor.
   /// </summary>
   [Serializable]
-  public abstract class ActionProcessor
+  internal abstract class ActionProcessor
   {
     /// <summary>
     /// Gets the base interface.

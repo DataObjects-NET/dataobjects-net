@@ -15,12 +15,12 @@ namespace Xtensive.Storage.Configuration.TypeRegistry
   /// Represents a context for <see cref="Registry"/>.
   /// </summary>
   [Serializable]
-  public class Context
+  internal class Context
     : ICloneable,
       ICountable<Type>
   {
-    private Set<Type> index;
-    private List<Type> list;
+    private readonly Set<Type> index;
+    private readonly List<Type> list;
 
     /// <summary>
     /// Determines whether this instance contains the specified type.
