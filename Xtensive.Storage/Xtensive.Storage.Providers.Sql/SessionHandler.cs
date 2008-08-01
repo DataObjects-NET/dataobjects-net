@@ -161,33 +161,13 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     public override Tuple Fetch(IndexInfo index, Key key, IEnumerable<ColumnInfo> columns)
     {
-      EnsureConnectionIsOpen();
       var rs = new IndexProvider(index).Result
-        .Range(key.Tuple, key.Tuple);
-      rs.Select(columns.Select(c => index.Columns.IndexOf(c)).ToArray());
+        .Range(key.Tuple, key.Tuple)
+        .Select(columns.Select(c => index.Columns.IndexOf(c)).ToArray());
       var enumerator = rs.GetEnumerator();
       if (enumerator.MoveNext())
         return enumerator.Current;
-
-      /*var provider = new IndexProvider(primaryIndex);
-      var compiled = (SqlProvider)provider.Compiled;
-      var queryRef = SqlFactory.QueryRef(compiled.Query);
-      SqlSelect select = SqlFactory.Select(queryRef);
-      IEnumerable<SqlColumn> columnsToAdd = queryRef.Columns.Cast<SqlColumn>().Where(sqlColumn => columns.Any(columnInfo => columnInfo.Name==sqlColumn.Name));
-      foreach (SqlColumn column in columnsToAdd)
-        select.Columns.Add(column);
-
-      select.Where = DomainHandler.GetWhereStatement(select.Columns[0].SqlTable, GetStatementMapping(index, columnInfo => columnInfo.IsPrimaryKey), key);
-      using (DbDataReader reader = ExecuteReader(select)) {
-        if (reader.RecordsAffected > 1)
-          throw new InvalidOperationException(Strings.ExQueryMultipleResults);
-        if (reader.Read()) {
-          Tuple tuple = GetTuple(reader, select);
-          return tuple;
-        }
-        return null;
-      }*/
-      throw new NotImplementedException();
+      throw new InvalidOperationException(Strings.ExInstanceNotFound);
     }
 
 

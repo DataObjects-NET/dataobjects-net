@@ -6,6 +6,7 @@
 
 using System.Diagnostics;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 
 namespace Xtensive.Storage.Rse
@@ -13,7 +14,7 @@ namespace Xtensive.Storage.Rse
   public struct RecordSetOrderDescriptor
   {
     private readonly DirectionCollection<int> order;
-    private readonly TupleDescriptor tupleDescriptor;
+    private readonly TupleDescriptor descriptor;
 
     public DirectionCollection<int> Order
     {
@@ -21,19 +22,22 @@ namespace Xtensive.Storage.Rse
       get { return order; }
     }
 
-    public TupleDescriptor TupleDescriptor
+    public TupleDescriptor Descriptor
     {
       [DebuggerStepThrough]
-      get { return tupleDescriptor; }
+      get { return descriptor; }
     }
 
 
     // Constructors
 
-    public RecordSetOrderDescriptor(DirectionCollection<int> orderedBy, TupleDescriptor tupleDescriptor)
+    /// <summary>
+    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    public RecordSetOrderDescriptor(DirectionCollection<int> orderedBy, TupleDescriptor keyDescriptor)
     {
-      this.order = orderedBy;
-      this.tupleDescriptor = tupleDescriptor;
+      order = orderedBy;
+      descriptor = keyDescriptor;
     }
   }
 }

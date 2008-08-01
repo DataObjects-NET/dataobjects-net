@@ -24,7 +24,7 @@ namespace Xtensive.Storage.Rse
     /// Gets the <see cref="RecordSet"/> keys.
     /// </summary>
     /// <value>The keys.</value>
-    public CollectionBaseSlim<KeyInfo> Keys { get; private set; }
+    public CollectionBaseSlim<RecordColumnGroup> Groups { get; private set; }
 
     /// <summary>
     /// Gets the <see cref="RecordSet"/> columns.
@@ -41,68 +41,44 @@ namespace Xtensive.Storage.Rse
     /// </summary>
     public RecordSetOrderDescriptor OrderDescriptor { get; private set; }
 
-    private static DirectionCollection<int> BuildOrderDescriptor(IndexInfo indexInfo)
-    {
-      if (indexInfo.IsPrimary)
-        return new DirectionCollection<int>(
-          indexInfo.KeyColumns.Select((pair, i) => new KeyValuePair<int, Direction>(i, pair.Value)));
-
-      var columnSortDirections = indexInfo.KeyColumns.Union(
-        indexInfo.ReflectedType.Indexes.PrimaryIndex.KeyColumns).
-        ToDictionary(pair => pair.Key, pair => pair.Value);
-
-      return
-        new DirectionCollection<int>(
-          indexInfo.Columns.Select((column, i) => new KeyValuePair<int, Direction>(i,
-            columnSortDirections.ContainsKey(column) ? columnSortDirections[column] : Direction.Positive)));
-    }
-
-    private static KeyValuePair<IEnumerable<KeyInfo>, IEnumerable<RecordColumn>> BuildColumns(IndexInfo indexInfo)
-    {
-      var columnInfoIndices = new Dictionary<ColumnInfo, int>();
-      int i = 0;
-      var recordColumns = new RecordColumn[indexInfo.Columns.Count];
-      foreach (var columnInfo in indexInfo.Columns) {
-        recordColumns[i] = new RecordColumn(columnInfo, i, columnInfo.ValueType,
-          (columnInfo.Attributes & ColumnAttributes.PrimaryKey) > 0
-            ? ColumnKind.Key
-            : ColumnKind.KeyRelated);
-        columnInfoIndices.Add(columnInfo, i++);
-      }
-
-      return new KeyValuePair<IEnumerable<KeyInfo>, IEnumerable<RecordColumn>>(
-        new[] {new KeyInfo(indexInfo.KeyColumns.Select(pair => recordColumns[columnInfoIndices[pair.Key]]))},
-        recordColumns);
-    }
-
-
+    
     // Constructors
 
     public RecordSetHeader(IndexInfo indexInfo)
-      : this(
-            TupleDescriptor.Create(indexInfo.Columns.Select(columnInfo => columnInfo.ValueType)),
-            TupleDescriptor.Create(
-              indexInfo.KeyColumns.Select(columnInfo => columnInfo.Key.ValueType)),
-            BuildColumns(indexInfo), 
-            BuildOrderDescriptor(indexInfo))
     {
+      TupleDescriptor = TupleDescriptor.Create(indexInfo.Columns.Select(columnInfo => columnInfo.ValueType));
+      var keyDescriptor = TupleDescriptor.Create(indexInfo.KeyColumns.Select(columnInfo => columnInfo.Key.ValueType));
+      DirectionCollection<int> sortOrder;
+      if (indexInfo.IsPrimary)
+        sortOrder = new DirectionCollection<int>(indexInfo.KeyColumns.Select((pair, i) => new KeyValuePair<int, Direction>(i, pair.Value)));
+      else {
+        var keyColumns = indexInfo.ReflectedType.Indexes.PrimaryIndex.KeyColumns;
+        sortOrder = new DirectionCollection<int>(
+          indexInfo.KeyColumns
+          .Select((p, i) => new KeyValuePair<int, Direction>(i, p.Value))
+          .Union(keyColumns.Select((p, i) => new KeyValuePair<int, Direction>(i+keyColumns.Count, p.Value))));
+      }
+      OrderDescriptor = new RecordSetOrderDescriptor(sortOrder, keyDescriptor);
+      Columns = new RecordColumnCollection(indexInfo.Columns.Select((c,i) => new RecordColumn(c,i,c.ValueType, c.IsPrimaryKey ? ColumnKind.Key : ColumnKind.KeyRelated)));
+      Groups = new CollectionBaseSlim<RecordColumnGroup>();
+      foreach (var columnGroup in indexInfo.ColumnGroups) {
+        var recordColummnGroup = new RecordColumnGroup(
+          columnGroup.KeyColumns.Select(c => indexInfo.Columns.IndexOf(c)),
+          columnGroup.Columns.Select(c => indexInfo.Columns.IndexOf(c)));
+        Groups.Add(recordColummnGroup);
+      }
     }
 
-    private RecordSetHeader(TupleDescriptor tupleDescriptor, TupleDescriptor keyDescriptor, KeyValuePair<IEnumerable<KeyInfo>, IEnumerable<RecordColumn>> recordColumns, DirectionCollection<int> orderedBy)
-      : this(tupleDescriptor, recordColumns.Value, keyDescriptor, recordColumns.Key, orderedBy)
-    {
-    }
-
-    public RecordSetHeader(TupleDescriptor tupleDescriptor, IEnumerable<RecordColumn> recordColumns, TupleDescriptor keyDescriptor, IEnumerable<KeyInfo> keys, DirectionCollection<int> orderedBy)
+    public RecordSetHeader(TupleDescriptor tupleDescriptor, IEnumerable<RecordColumn> recordColumns, TupleDescriptor keyDescriptor, IEnumerable<RecordColumnGroup> keys, DirectionCollection<int> orderedBy)
     {
       ArgumentValidator.EnsureArgumentNotNull(tupleDescriptor, "tupleDescriptor");
       ArgumentValidator.EnsureArgumentNotNull(recordColumns, "recordColumns");
       TupleDescriptor = tupleDescriptor;
       Columns = new RecordColumnCollection(recordColumns);
 
-      Keys = keys==null
-        ? new CollectionBaseSlim<KeyInfo>()
-        : new CollectionBaseSlim<KeyInfo>(keys);
+      Groups = keys==null
+        ? new CollectionBaseSlim<RecordColumnGroup>()
+        : new CollectionBaseSlim<RecordColumnGroup>(keys);
 
       OrderDescriptor = new RecordSetOrderDescriptor(
         orderedBy ?? new DirectionCollection<int>(),
@@ -113,52 +89,33 @@ namespace Xtensive.Storage.Rse
     {
       Columns = new RecordColumnCollection(
         left.Columns,
-        right.Columns.Select(
-          column => new RecordColumn(column, left.Columns.Count + column.Index)));
+        right.Columns.Select(column => new RecordColumn(column, left.Columns.Count + column.Index)));
       TupleDescriptor = TupleDescriptor.Create(new[] {left.TupleDescriptor, right.TupleDescriptor}.SelectMany(descriptor => descriptor));
-
-      OrderDescriptor = new RecordSetOrderDescriptor(
-        new DirectionCollection<int>(
-          left.OrderDescriptor.Order.Union(
-            right.OrderDescriptor.Order.Select(
-              pair => new KeyValuePair<int, Direction>(pair.Key + left.Columns.Count, pair.Value)))),
-        TupleDescriptor.Create(new[] {left.OrderDescriptor.TupleDescriptor, right.OrderDescriptor.TupleDescriptor}.SelectMany(descriptor => descriptor)));
+      OrderDescriptor = left.OrderDescriptor;
+      Groups = new CollectionBaseSlim<RecordColumnGroup>(
+        left.Groups
+        .Union(right.Groups
+          .Select(g => new RecordColumnGroup(
+            g.KeyColumnIndexes.Select(i => left.Columns.Count + i),
+            g.ColumnIndexes.Select(i => left.Columns.Count + i)
+            ))
+        ));
     }
 
     public RecordSetHeader(RecordSetHeader header, string alias)
     {
       Columns = new RecordColumnCollection(header.Columns, alias);
       TupleDescriptor = header.TupleDescriptor;
-      Keys = header.Keys;
-
-      OrderDescriptor = new RecordSetOrderDescriptor(
-        header.OrderDescriptor.Order,
-        header.OrderDescriptor.TupleDescriptor);
+      Groups = header.Groups;
+      OrderDescriptor = header.OrderDescriptor;
     }
 
-    public RecordSetHeader(RecordSetHeader header, IEnumerable<string> includedColumns)
+    public RecordSetHeader(RecordSetHeader header, IEnumerable<int> includedColumns)
     {
-      IList<RecordColumn> list = new List<RecordColumn>();
-      var keyIndicesByColumn =
-        header.Keys.SelectMany(
-          (keyInfo, i) => keyInfo.Columns.Select(column => new KeyValuePair<RecordColumn, int>(column, i))).
-          ToDictionary(pair => pair.Key, pair => pair.Value);
-     
-      foreach (string includedColumn in includedColumns) {
-        RecordColumn recordColumn = header.Columns[includedColumn];
-        list.Add(recordColumn);
-      }
-
-      var excludedKeys =
-        header.Columns.Except(list).Select(column => header.Keys[keyIndicesByColumn[column]]);
-
-      Columns = new RecordColumnCollection(list);
       TupleDescriptor = header.TupleDescriptor;
-      Keys = new CollectionBaseSlim<KeyInfo>(header.Keys.Except(excludedKeys));
-
-      OrderDescriptor = new RecordSetOrderDescriptor(
-        header.OrderDescriptor.Order,
-        header.OrderDescriptor.TupleDescriptor);
+      OrderDescriptor = header.OrderDescriptor;
+      Columns = new RecordColumnCollection(includedColumns.Select(i => header.Columns[i]));
+      Groups = new CollectionBaseSlim<RecordColumnGroup>(header.Groups.Where(g => g.KeyColumnIndexes.All(ci => includedColumns.Contains(ci))));
     }
   }
 }

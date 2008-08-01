@@ -33,7 +33,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
 
     protected override void Initialize()
     {
-      header = new RecordSetHeader(Source.Header.TupleDescriptor, Source.Header.Columns, Source.Header.OrderDescriptor.TupleDescriptor, Source.Header.Keys, SortOrder);
+      header = new RecordSetHeader(Source.Header.TupleDescriptor, Source.Header.Columns, Source.Header.OrderDescriptor.Descriptor, Source.Header.Groups, SortOrder);
     }
 
     public override string GetStringParameters()

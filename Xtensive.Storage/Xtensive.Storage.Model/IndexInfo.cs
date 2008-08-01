@@ -23,6 +23,7 @@ namespace Xtensive.Storage.Model
   public sealed class IndexInfo : MappingNode
   {
     private IndexAttributes attributes;
+    private readonly CollectionBaseSlim<ColumnGroup> columnGroups = new CollectionBaseSlim<ColumnGroup>();
     private readonly DirectionCollection<ColumnInfo> keyColumns = new DirectionCollection<ColumnInfo>();
     private readonly ColumnInfoCollection valueColumns = new ColumnInfoCollection();
     private readonly ColumnInfoCollection includedColumns = new ColumnInfoCollection();
@@ -53,7 +54,12 @@ namespace Xtensive.Storage.Model
         this.EnsureNotLocked();
         fillFactor = value;
       }
-    } 
+    }
+
+    public CollectionBaseSlim<ColumnGroup> ColumnGroups
+    {
+      get { return columnGroups; }
+    }
 
     public ReadOnlyList<ColumnInfo> Columns
     {
@@ -193,6 +199,7 @@ namespace Xtensive.Storage.Model
         return;
       keyColumns.Lock(true);
       valueColumns.Lock(true);
+      columnGroups.Lock(true);
       foreach (IndexInfo baseIndex in underlyingIndexes)
         baseIndex.Lock();
       underlyingIndexes.Lock();
