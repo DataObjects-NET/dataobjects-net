@@ -99,8 +99,8 @@ namespace Xtensive.Storage.Rse.Providers
     }
 
     private void BuildTitle(StringBuilder sb, int indent)
-    {
-      string providerName = "";
+    {      
+      string providerName = GetType().Name.TryCutSuffix(ProviderTypeSuffix);
       string parameters = GetStringParameters();
 
       sb.Append(new string(' ', indent));

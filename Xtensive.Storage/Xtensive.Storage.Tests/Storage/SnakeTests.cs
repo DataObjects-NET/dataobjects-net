@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
@@ -13,27 +14,69 @@ using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Tuples;
+using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
-using Xtensive.Storage.Tests.SnakeModel;
+using Xtensive.Storage.Tests.Storage.SnakesModel;
 
-namespace Xtensive.Storage.Tests.Storage.Snakes
+namespace Xtensive.Storage.Tests.Storage.SnakesModel
 {
-  [TestFixture]
-  public abstract class TestBase
+  public enum Features
   {
-    protected Domain domain;
-    protected DomainConfiguration config;
+    None = 0,
+    CanCrawl = 1,
+    CanJump = 2,
+    CanFly = 3,
+    CanWalk = 4,
+  }
 
-    [TestFixtureSetUp]
-    public abstract void DomainSetup();
+  [DebuggerDisplay("Name = '{Name}'")]
+  [Index("Name")]
+  [HierarchyRoot(typeof (DefaultGenerator), "ID")]
+  public class Creature : Entity
+  {
+    [Field]
+    public int ID { get; set; }
+
+    [Field(Length = 255,IsNullable = true)]
+    public string Name { get; set; }
+
+    [Field(IsNullable = true)]
+    public Features Features { get; set; }
+  }
+
+  [DebuggerDisplay("Name = '{Name}'; Length = {Length}")]
+  public class Snake : Creature
+  {
+    [Field(IsNullable = true)]
+    public int Length { get; set; }
+  }
+
+  [DebuggerDisplay("Name = '{Name}'; Color = {Color}")]
+  public class Lizard : Creature
+  {
+    [Field(Length = 7)]
+    public string Color { get; set; }
+  }
+}
+
+namespace Xtensive.Storage.Tests.Storage
+{
+  public abstract class SnakesTests : AutoBuildTest
+  {
+    protected override DomainConfiguration BuildConfiguration()
+    {
+      DomainConfiguration config = base.BuildConfiguration();
+      config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.SnakesModel");
+      return config;
+    }
 
     [Test]
     public void MainTest()
     {
       Key persistedKey = null;
-      using (domain.OpenSession())
+      using (Domain.OpenSession())
       {
         Snake snake = new Snake();
         Assert.AreEqual(PersistenceState.New, snake.PersistenceState);
@@ -65,7 +108,7 @@ namespace Xtensive.Storage.Tests.Storage.Snakes
       }
 
       using (new Measurement("Fetching..."))
-      using (domain.OpenSession())
+      using (Domain.OpenSession())
       {
         Creature snake = persistedKey.Resolve<Creature>();
         Assert.AreEqual(PersistenceState.Persisted, snake.PersistenceState);
@@ -75,7 +118,7 @@ namespace Xtensive.Storage.Tests.Storage.Snakes
       }
 
       using (new Measurement("Fetching..."))
-      using (domain.OpenSession())
+      using (Domain.OpenSession())
       {
         Snake snake = persistedKey.Resolve<Snake>();
         Assert.IsNotNull(snake);
@@ -89,7 +132,7 @@ namespace Xtensive.Storage.Tests.Storage.Snakes
     public void UpdateTest()
     {
       Key key;
-      using (domain.OpenSession())
+      using (Domain.OpenSession())
       {
         Snake s = new Snake();
         key = s.Key;
@@ -100,7 +143,7 @@ namespace Xtensive.Storage.Tests.Storage.Snakes
         Assert.AreEqual(PersistenceState.Persisted, s.PersistenceState);
       }
 
-      using (domain.OpenSession())
+      using (Domain.OpenSession())
       {
         Snake s = key.Resolve<Snake>();
         Assert.AreEqual(PersistenceState.Persisted, s.PersistenceState);
@@ -112,7 +155,7 @@ namespace Xtensive.Storage.Tests.Storage.Snakes
         Assert.AreEqual(PersistenceState.Persisted, s.PersistenceState);
       }
 
-      using (domain.OpenSession())
+      using (Domain.OpenSession())
       {
         Snake s = key.Resolve<Snake>();
         Assert.AreEqual(PersistenceState.Persisted, s.PersistenceState);
@@ -124,7 +167,7 @@ namespace Xtensive.Storage.Tests.Storage.Snakes
         Assert.AreEqual(PersistenceState.Removed, s.PersistenceState);
       }
 
-      using (domain.OpenSession())
+      using (Domain.OpenSession())
       {
         try
         {
@@ -143,9 +186,7 @@ namespace Xtensive.Storage.Tests.Storage.Snakes
       const int creaturesCount = 1000;
       const int lizardsCount = 1000;
 
-      domain = Domain.Build(config);
-
-      using (domain.OpenSession())
+      using (Domain.OpenSession())
       {
         Session session = SessionScope.Current.Session;
         for (int i = 0; i < snakesCount; i++)
@@ -223,15 +264,10 @@ namespace Xtensive.Storage.Tests.Storage.Snakes
     public void PerformanceTest()
     {
       const int snakesCount = 10000;
-
-      DomainConfiguration config = new DomainConfiguration("memory://localhost/Snakes");
-      config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.SnakeModel");
-      Domain domain = Domain.Build(config);
-
       List<Snake> snakes = new List<Snake>();
 
       using (new Measurement("Persisting...", snakesCount))
-      using (domain.OpenSession())
+      using (Domain.OpenSession())
       {
         for (int i = 0; i < snakesCount; i++)
         {
@@ -241,7 +277,7 @@ namespace Xtensive.Storage.Tests.Storage.Snakes
       }
 
       using (new Measurement("Fetching...", snakesCount))
-      using (domain.OpenSession())
+      using (Domain.OpenSession())
       {
         for (int i = 0; i < snakesCount; i++)
         {
@@ -258,11 +294,7 @@ namespace Xtensive.Storage.Tests.Storage.Snakes
     [Explicit]
     public void HierarchyInfoTest()
     {
-      DomainConfiguration config = new DomainConfiguration("memory://localhost/Snakes");
-      config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.SnakeModel");
-      Domain domain = Domain.Build(config);
-      foreach (HierarchyInfo hierarchyInfo in domain.Model.Hierarchies)
-      {
+      foreach (HierarchyInfo hierarchyInfo in Domain.Model.Hierarchies) {
         Assert.AreEqual(hierarchyInfo.Columns.Count, hierarchyInfo.Root.Indexes.PrimaryIndex.KeyColumns.Count);
         for (int i = 0; i < hierarchyInfo.Columns.Count; i++)
           Assert.AreEqual((object)hierarchyInfo.Columns[i], hierarchyInfo.Root.Indexes.PrimaryIndex.KeyColumns[i].Key);

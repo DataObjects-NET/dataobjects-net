@@ -10,7 +10,7 @@ using Xtensive.Core;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
 
-namespace Xtensive.Storage.Tests.Storage.StructureTests
+namespace Xtensive.Storage.Tests.Storage.StructureModel
 {
   public class Point : Structure
   {
@@ -75,23 +75,19 @@ namespace Xtensive.Storage.Tests.Storage.StructureTests
     }
   }
 
-  [TestFixture]
-  public class TestFixture
+  public class StructureTests : AutoBuildTest
   {
-    private Domain domain;
-
-    [TestFixtureSetUp]
-    public void TestFixtureSetUp()
+    protected override DomainConfiguration BuildConfiguration()
     {
-      DomainConfiguration config = new DomainConfiguration("memory://localhost/Points");
-      config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.Storage.StructureTests");
-      domain = Domain.Build(config);
+      DomainConfiguration config = base.BuildConfiguration();
+      config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.Storage.StructureModel");
+      return config;
     }
 
     [Test]
     public void PointTest()
     {
-      using (domain.OpenSession()) {
+      using (Domain.OpenSession()) {
         Point p1 = new Point();
         p1.X = 1;
         p1.Y = 2;
@@ -108,7 +104,7 @@ namespace Xtensive.Storage.Tests.Storage.StructureTests
     [Test]
     public void RayTest()
     {
-      using (domain.OpenSession()) {
+      using (Domain.OpenSession()) {
         Point p1 = new Point(1, 2);
         Ray ray1 = new Ray(p1);
         Assert.AreEqual(1, ray1.Vertex.X);

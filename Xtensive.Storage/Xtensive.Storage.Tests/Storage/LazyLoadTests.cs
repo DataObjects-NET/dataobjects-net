@@ -26,23 +26,26 @@ namespace Xtensive.Storage.Tests.LazyLoadTests
 
 namespace Xtensive.Storage.Tests.Storage
 {
-  [TestFixture]
-  public class LazyLoadTests
+  public class LazyLoadTests : AutoBuildTest
   {
+    protected override DomainConfiguration BuildConfiguration()
+    {
+      DomainConfiguration config = base.BuildConfiguration();
+      config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.LazyLoadTests");
+      return config;
+    }
+
     [Test]
     public void MainTest()
     {
-      DomainConfiguration config = new DomainConfiguration("memory://localhost/LazyLoadTests");
-      config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.LazyLoadTests");
-      Domain domain = Domain.Build(config);
       Key key;
       string text = "Text";
-      using (domain.OpenSession()) {
+      using (Domain.OpenSession()) {
         Book b = new Book();
         key = b.Key;
         b.Text = text;
       }
-      using (domain.OpenSession()) {
+      using (Domain.OpenSession()) {
         Book b = key.Resolve<Book>();
         Tuple tuple = b.Tuple;
         Assert.IsFalse(tuple.IsAvailable(2));

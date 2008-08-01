@@ -102,13 +102,11 @@ namespace Xtensive.Storage.Tests.Model.Schemas
 
 namespace Xtensive.Storage.Tests.Model
 {
-  [TestFixture]
-  public class HierarchyTests : TestBase
+  public class HierarchyTests : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
     {
       DomainConfiguration config = base.BuildConfiguration();
-      config.ConnectionInfo = new UrlInfo(@"memory://localhost\sql2005/ABC");
       config.Types.Register(typeof (A).Assembly, "Xtensive.Storage.Tests.Model.Schemas");
       config.Builders.Add(typeof (CustomStorageDefinitionBuilder));
       return config;

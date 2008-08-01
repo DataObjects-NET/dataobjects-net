@@ -9,9 +9,9 @@ using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Configuration.TypeRegistry;
-using Xtensive.Storage.Tests.Model1;
+using Xtensive.Storage.Tests.RegistryModel1;
 
-namespace Xtensive.Storage.Tests.Model1
+namespace Xtensive.Storage.Tests.RegistryModel1
 {
   public class A : Entity
   {
@@ -30,7 +30,7 @@ namespace Xtensive.Storage.Tests.Model1
   }
 }
 
-namespace Xtensive.Storage.Tests.Model2
+namespace Xtensive.Storage.Tests.RegistryModel2
 {
   public class A : Entity
   {
@@ -49,17 +49,17 @@ namespace Xtensive.Storage.Tests.Model2
   }
 }
 
-namespace Xtensive.Storage.Tests.Model
+namespace Xtensive.Storage.Tests.Configuration
 {
   [TestFixture]
-  public class RegistryTest
+  public class RegistryTests
   {
     [Test]
     public void HierarchyTest1()
     {
       DomainConfiguration config = new DomainConfiguration();
       Registry registry = config.Types;
-      registry.Register(typeof (A).Assembly, "Xtensive.Storage.Tests.Model1");
+      registry.Register(typeof (A).Assembly, "Xtensive.Storage.Tests.RegistryModel1");
       Assert.IsTrue(registry.Contains(typeof (A)));
       Assert.IsTrue(registry.Contains(typeof (B)));
       Assert.IsFalse(registry.Contains(typeof (C)));
@@ -71,7 +71,7 @@ namespace Xtensive.Storage.Tests.Model
     {
       DomainConfiguration config = new DomainConfiguration();
       Registry registry = config.Types;
-      registry.Register(typeof (B).Assembly, "Xtensive.Storage.Tests.Model1");
+      registry.Register(typeof (B).Assembly, "Xtensive.Storage.Tests.RegistryModel1");
       Assert.IsTrue(registry.Contains(typeof (A)));
       Assert.IsTrue(registry.Contains(typeof (B)));
       Assert.IsFalse(registry.Contains(typeof (C)));
@@ -83,9 +83,9 @@ namespace Xtensive.Storage.Tests.Model
     {
       DomainConfiguration config = new DomainConfiguration();
       Registry registry = config.Types;
-      registry.Register(typeof (A).Assembly, "Xtensive.Storage.Tests.Model1");
+      registry.Register(typeof (A).Assembly, "Xtensive.Storage.Tests.RegistryModel1");
       long amount = registry.Count;
-      registry.Register(typeof (A).Assembly, "Xtensive.Storage.Tests.Model2");
+      registry.Register(typeof (A).Assembly, "Xtensive.Storage.Tests.RegistryModel2");
       Assert.Less(amount, registry.Count);
     }
 
@@ -94,7 +94,7 @@ namespace Xtensive.Storage.Tests.Model
     {
       DomainConfiguration config = new DomainConfiguration();
       Registry registry1 = config.Types;
-      registry1.Register(typeof (A).Assembly, "Xtensive.Storage.Tests.Model1");
+      registry1.Register(typeof (A).Assembly, "Xtensive.Storage.Tests.RegistryModel1");
       Registry registry2 = registry1.Clone() as Registry;
       Assert.IsNotNull(registry2);
       Assert.AreEqual(registry1.Count, registry2.Count);
@@ -105,15 +105,15 @@ namespace Xtensive.Storage.Tests.Model
     {
       DomainConfiguration config = new DomainConfiguration();
       Registry registry = config.Types;
-      registry.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.Model2");
+      registry.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.RegistryModel2");
       Assert.IsFalse(registry.Contains(typeof (A)));
       Assert.IsFalse(registry.Contains(typeof (B)));
       Assert.IsFalse(registry.Contains(typeof (C)));
       Assert.IsFalse(registry.Contains(typeof (D)));
-      Assert.IsTrue(registry.Contains(typeof (Model2.A)));
-      Assert.IsTrue(registry.Contains(typeof (Model2.B)));
-      Assert.IsFalse(registry.Contains(typeof (Model2.C)));
-      Assert.IsTrue(registry.Contains(typeof (Model2.D)));
+      Assert.IsTrue(registry.Contains(typeof (RegistryModel2.A)));
+      Assert.IsTrue(registry.Contains(typeof (RegistryModel2.B)));
+      Assert.IsFalse(registry.Contains(typeof (RegistryModel2.C)));
+      Assert.IsTrue(registry.Contains(typeof (RegistryModel2.D)));
     }
 
     [Test, ExpectedException(typeof (ArgumentNullException))]
@@ -129,7 +129,7 @@ namespace Xtensive.Storage.Tests.Model
     {
       DomainConfiguration config = new DomainConfiguration();
       Registry registry = config.Types;
-      registry.Register(null, "Xtensive.Storage.Tests.Model1");
+      registry.Register(null, "Xtensive.Storage.Tests.RegistryModel1");
     }
 
     [Test, ExpectedException(typeof (ArgumentException))]

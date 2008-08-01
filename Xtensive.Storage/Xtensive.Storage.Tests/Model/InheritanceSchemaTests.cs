@@ -10,9 +10,9 @@ using Xtensive.Storage.Building;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
-using Xtensive.Storage.Tests.Model.InheritanceSchemaTestsModel;
+using Xtensive.Storage.Tests.Model.InheritanceSchemaModel;
 
-namespace Xtensive.Storage.Tests.Model.InheritanceSchemaTestsModel
+namespace Xtensive.Storage.Tests.Model.InheritanceSchemaModel
 {
   [Index("Name")]
   public interface IHasName : IEntity
@@ -119,10 +119,7 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaTestsModel
   public class Z : Y
   {
   }
-}
 
-namespace Xtensive.Storage.Tests.Model
-{
   internal abstract class DomainBuilderBase : IDomainBuilder
   {
     protected abstract InheritanceSchema InheritanceSchema { get; }
@@ -149,14 +146,16 @@ namespace Xtensive.Storage.Tests.Model
       get { return InheritanceSchema.ConcreteTableInheritance; }
     }
   }
+}
 
-  [TestFixture]
-  public abstract class InheritanceSchemaTestBase : TestBase
+namespace Xtensive.Storage.Tests.Model.InheritanceSchemaTests
+{
+  public abstract class InheritanceSchemaTestBase : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
     {
       DomainConfiguration config = base.BuildConfiguration();
-      config.Types.Register(typeof (A).Assembly, "Xtensive.Storage.Tests.Model.InheritanceSchemaTestModel");
+      config.Types.Register(typeof (A).Assembly, "Xtensive.Storage.Tests.Model.InheritanceSchemaModel");
       return config;
     }
 

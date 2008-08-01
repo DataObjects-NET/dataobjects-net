@@ -371,13 +371,11 @@ namespace Xtensive.Storage.Tests.Model.Library
 
 namespace Xtensive.Storage.Tests.Model
 {
-  [TestFixture]
-  public class LibraryTests : TestBase
+  public class LibraryTests : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
     {
       DomainConfiguration config = base.BuildConfiguration();
-      config.ConnectionInfo = new UrlInfo(@"memory://localhost\sql2005/Library");
       config.Types.Register(typeof (Person).Assembly, "Xtensive.Storage.Tests.Model.Library");
       config.Builders.Add(typeof (LibraryDomainBuilder));
       return config;

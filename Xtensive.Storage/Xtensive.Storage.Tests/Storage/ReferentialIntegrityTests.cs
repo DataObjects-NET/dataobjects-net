@@ -52,17 +52,20 @@ namespace Xtensive.Storage.Tests.ReferentialIntegrityModel
 
 namespace Xtensive.Storage.Tests.Storage
 {
-  [TestFixture]
-  public class ReferentialIntegrityTests
+  public class ReferentialIntegrityTests : AutoBuildTest
   {
+    protected override DomainConfiguration BuildConfiguration()
+    {
+      DomainConfiguration config = base.BuildConfiguration();
+      config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.ReferentialIntegrityModel");
+      return config;
+    }
+
     [Test]
     public void MainTest()
     {
-      DomainConfiguration config = new DomainConfiguration("memory://localhost/ReferentialIntegrityTests");
-      config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.ReferentialIntegrityModel");
-      Domain domain = Domain.Build(config);
-      domain.Model.Dump();
-      using (domain.OpenSession()) {
+      Domain.Model.Dump();
+      using (Domain.OpenSession()) {
         A a = new A();
         a.B = new B();
         a.B.A = a;

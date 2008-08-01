@@ -76,20 +76,25 @@ namespace Xtensive.Storage.Tests.Model.ReferenceTestsModel
 
 namespace Xtensive.Storage.Tests.Model
 {
-  [TestFixture]
-  public class ReferenceTests
+  public class ReferenceTests : AutoBuildTest
   {
-    [Test]
-    public void MainTest()
+    protected override DomainConfiguration BuildConfiguration()
     {
-      DomainConfiguration config = new DomainConfiguration("memory://localhost/Bugs");
+      DomainConfiguration config = base.BuildConfiguration();
       config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.Model.ReferenceTestsModel");
+      return config;
+    }
+
+    protected override Domain BuildDomain(DomainConfiguration configuration)
+    {
+      Domain domain = null;
       try {
-        Domain.Build(config);
+        domain = Domain.Build(configuration);
       }
       catch (AggregateException e) {
         Assert.AreEqual(3, e.Exceptions.Count());
       }
+      return domain;
     }
   }
 }

@@ -5,12 +5,13 @@
 // Created:    2008.07.31
 
 using NUnit.Framework;
+using Xtensive.Core;
 using Xtensive.Storage.Configuration;
 
 namespace Xtensive.Storage.Tests
 {
   [TestFixture]
-  public abstract class TestBase
+  public abstract class AutoBuildTest
   {
     private Domain domain;
 
@@ -34,7 +35,9 @@ namespace Xtensive.Storage.Tests
 
     protected virtual DomainConfiguration BuildConfiguration()
     {
-      return new DomainConfiguration();
+      DomainConfiguration config = new DomainConfiguration();
+      config.ConnectionInfo = new UrlInfo(@"memory://localhost/DO4_Test");
+      return config;
     }
 
     protected virtual Domain BuildDomain(DomainConfiguration configuration)

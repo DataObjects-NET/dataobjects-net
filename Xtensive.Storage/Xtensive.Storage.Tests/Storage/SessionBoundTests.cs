@@ -7,12 +7,11 @@
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Tests.Storage.StructureTests;
+using Xtensive.Storage.Tests.Storage.StructureModel;
 
 namespace Xtensive.Storage.Tests.Storage
 {
-  [TestFixture]
-  public class SessionBoundTests
+  public class SessionBoundTests : AutoBuildTest
   {
     internal class TestHelper : SessionBound
     {
@@ -33,25 +32,22 @@ namespace Xtensive.Storage.Tests.Storage
       }
     }
 
-    private Domain domain;
-
-    [TestFixtureSetUp]
-    public void TestFixtureSetUp()
+    protected override DomainConfiguration BuildConfiguration()
     {
-      DomainConfiguration config = new DomainConfiguration("memory://localhost/Points");
-      config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.Storage.StructureTests");
-      domain = Domain.Build(config);
+      DomainConfiguration config = base.BuildConfiguration();
+      config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.Storage.StructureModel");
+      return config;
     }
 
     [Test]
     public void Test()
     {
-      var scoupe1 = domain.OpenSession();
+      var scoupe1 = Domain.OpenSession();
       Ray ray = new Ray();
       var testHelper = new TestHelper(Session.Current);
       Session.Current.Persist();
 
-      var scoupe2 = domain.OpenSession();
+      var scoupe2 = Domain.OpenSession();
       Ray ray1 = new Ray();
 
       Assert.AreNotEqual(scoupe1.Session, scoupe2.Session);

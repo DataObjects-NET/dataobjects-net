@@ -8,50 +8,45 @@ using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Tests.Storage.Internals;
 
 namespace Xtensive.Storage.Tests.Storage.ActivatorTests
 {
-  [HierarchyRoot(typeof (StringProvider), "Name")]
+  [HierarchyRoot(typeof (DefaultGenerator), "ID")]
   public abstract class Ancestor : Entity
   {
     [Field]
-    public abstract string Name { get; set; }
+    public abstract int ID { get; set; }
   }
 
   public class Descendant : Ancestor
   {
     [Field]
-    public override string Name { get; set; }
+    public override int ID{ get; set; }
 
     [Field]
     public int Number { get; set; }
   }
 
-  [TestFixture]
-  public class ActivatorTests
+  public class ActivatorTests : AutoBuildTest
   {
-    private Domain domain;
-
-    [TestFixtureSetUp]
-    public void TestFixtureSetUp()
+    protected override DomainConfiguration BuildConfiguration()
     {
-      DomainConfiguration config = new DomainConfiguration("memory://localhost/ActivatorTests");
+      DomainConfiguration config = base.BuildConfiguration();
       config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.Storage.ActivatorTests");
-      domain = Domain.Build(config);
+      return config;
     }
 
     [Test]
     public void Test()
     {
       Key key;
-      using (domain.OpenSession()) {
+      using (Domain.OpenSession()) {
         Descendant descendant = new Descendant();
         key = descendant.Key;
         Session.Current.Persist();
       }
 
-      using (domain.OpenSession()) {
+      using (Domain.OpenSession()) {
         Ancestor ancestor = key.Resolve<Ancestor>();
         Assert.IsNotNull(ancestor);
 
