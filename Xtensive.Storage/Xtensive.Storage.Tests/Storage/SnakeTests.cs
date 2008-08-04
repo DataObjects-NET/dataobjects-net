@@ -75,6 +75,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void MainTest()
     {
+      Domain.Model.Dump();
       Key persistedKey = null;
       using (Domain.OpenSession())
       {
