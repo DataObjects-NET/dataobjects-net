@@ -60,18 +60,18 @@ namespace Xtensive.Storage.Configuration.TypeRegistry
     /// Search is restricted by assembly and namespace.
     /// </summary>
     /// <param name="assembly">Assembly to search for types.</param>
-    /// <param name="nameSpace">Namespace to search for types.</param>
+    /// <param name="namespace">Namespace to search for types.</param>
     /// <exception cref="InvalidOperationException">When <see cref="Assembly.GetTypes()"/> 
     /// method call has thrown an exception or if no suitable types were found.</exception>
     /// <exception cref="ArgumentNullException">When <paramref name="assembly"/> is null 
-    /// or <paramref name="nameSpace"/> is empty string.</exception>
-    public void Register(Assembly assembly, string nameSpace)
+    /// or <paramref name="namespace"/> is empty string.</exception>
+    public void Register(Assembly assembly, string @namespace)
     {
       this.EnsureNotLocked();
       ArgumentValidator.EnsureArgumentNotNull(assembly, "assembly");
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(nameSpace, "nameSpace");
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(@namespace, "@namespace");
 
-      RegisterAction(assembly, nameSpace);
+      RegisterAction(assembly, @namespace);
     }
 
     /// <summary>
