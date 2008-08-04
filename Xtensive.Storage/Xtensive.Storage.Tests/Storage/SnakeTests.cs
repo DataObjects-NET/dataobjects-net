@@ -76,7 +76,7 @@ namespace Xtensive.Storage.Tests.Storage
     public void MainTest()
     {
       Domain.Model.Dump();
-      Key persistedKey = null;
+      Key persistedKey = null; 
       using (Domain.OpenSession())
       {
         Snake snake = new Snake();
