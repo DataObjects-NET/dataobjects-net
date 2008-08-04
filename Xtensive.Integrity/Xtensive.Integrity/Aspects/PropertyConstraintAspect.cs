@@ -128,7 +128,7 @@ namespace Xtensive.Integrity.Aspects
     }
 
 // ReSharper disable UnusedPrivateMember
-    private Func<IValidationAware, object> GetPropertyGetter<T>()
+    protected Func<IValidationAware, object> GetPropertyGetter<T>()
 // ReSharper restore UnusedPrivateMember
     {
       var typedGetter = DelegateHelper.CreateGetMemberDelegate<IValidationAware, T>(Property.Name);

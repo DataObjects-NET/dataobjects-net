@@ -9,8 +9,11 @@ using System.Reflection;
 using PostSharp.Extensibility;
 using PostSharp.Laos;
 using Xtensive.Core;
+using Xtensive.Core.Aspects;
 using Xtensive.Core.Aspects.Helpers;
 using Xtensive.Core.Helpers;
+using Xtensive.Core.Reflection;
+using Xtensive.Integrity.Resources;
 using Xtensive.Integrity.Validation;
 
 namespace Xtensive.Integrity.Aspects
@@ -34,18 +37,25 @@ namespace Xtensive.Integrity.Aspects
       if (!ContextBoundAspectValidator<ValidationContextBase>.CompileTimeValidate(this, method))
         return false;
 
-      MethodInfo methodInfo = method as MethodInfo;
-      Type type = methodInfo.DeclaringType;
+      MethodInfo methodInfo = method as MethodInfo;      
 
-      if (methodInfo.IsSpecialName && methodInfo.Name.StartsWith("get_")) {
+      if (methodInfo.IsSpecialName && methodInfo.Name.StartsWith(WellKnown.GetterPrefix)) {
+
+        string expectedPropertyName = methodInfo.Name.Remove(0, WellKnown.GetterPrefix.Length);
+
         // This is getter; let's check if it is explicitely marked as [Validate]
-        PropertyInfo propertyInfo = methodInfo.DeclaringType.UnderlyingSystemType.GetProperty(methodInfo.Name.Remove(0, 4), 
+        PropertyInfo propertyInfo = methodInfo.DeclaringType.UnderlyingSystemType.GetProperty(expectedPropertyName, 
           BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-        if (propertyInfo!=null && Attribute.GetCustomAttribute(propertyInfo, typeof(ValidateAttribute), false)!=null)
+
+        if (propertyInfo!=null && GetCustomAttribute(propertyInfo, typeof(ValidateAttribute), false)!=null)
           // Property itself is marked as [Validate]
           return false;
-        AspectsMessageSource.Instance.Write(SeverityType.Warning, "AspectExPossiblyMissapplied",
-            new object[] { this.GetType().Name, method.DeclaringType.FullName, method.Name });
+        
+        ErrorLog.Write(
+          SeverityType.Warning,
+          AspectHelper.GetStandardMessage(AspectMessageType.AspectPossiblyMissapplied),          
+          GetType().Name, 
+          string.Format("{0}.{1}", method.DeclaringType.FullName, method.Name));
       }
 
       return true;

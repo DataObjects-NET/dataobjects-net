@@ -9,10 +9,12 @@ using System.Reflection;
 using PostSharp.Extensibility;
 using PostSharp.Laos;
 using Xtensive.Core.Aspects.Helpers;
+using Xtensive.Core.Reflection;
 using Xtensive.Integrity.Aspects.Internals;
 using Xtensive.Integrity.Atomicity;
 using Xtensive.Integrity.Resources;
 using Xtensive.Core.Helpers;
+using Xtensive.Core.Aspects;
 
 namespace Xtensive.Integrity.Aspects
 {
@@ -38,60 +40,57 @@ namespace Xtensive.Integrity.Aspects
       if (!ContextBoundAspectValidator<AtomicityContextBase>.CompileTimeValidate(this, method))
         return false;
 
-      MethodInfo methodInfo = method as MethodInfo;
-      if (methodInfo == null) {
-        AspectsMessageSource.Instance.Write(SeverityType.Error, "AspectExCannotBeAppliedToConstructor",
-            new object[] { this.GetType().Name, method.DeclaringType.FullName });
-        return false;
-      }
+      // method is not constructor, so cast is always valid.
+      MethodInfo methodInfo = (MethodInfo) method;
 
-      if (methodInfo.IsStatic) {
-        AspectsMessageSource.Instance.Write(SeverityType.Error, "AspectExCannotBeAppliedToStaticMember",
-            new object[] { this.GetType().Name, method.DeclaringType.FullName });
-        return false;
-      }
+      // Ensure method is not constructor.
+      if (!AspectHelper.ValidateMemberType(this, SeverityType.Error, method, false, MemberTypes.Constructor))
+        return false;      
+      
+      // Ensure method is not static.
+      if (!AspectHelper.ValidateMethodAttributes(this, SeverityType.Error, method, false, MethodAttributes.Static ))
+        return false;      
 
-      Type type = methodInfo.DeclaringType;
-      if (!typeof(IAtomicityAware).IsAssignableFrom(type)) {
-        AspectsMessageSource.Instance.Write(SeverityType.Error, "AspectExTypeShouldImplementXxx",
-            new object[] { this.GetType().Name, method.DeclaringType.FullName, typeof(IAtomicityAware).FullName });
-        return false;
-      }
+      Type instanceType = method.DeclaringType;
 
-      if (methodInfo.IsSpecialName && methodInfo.Name.StartsWith("get_")) {
+      // Ensure implements IAtomicityAware
+      if (!AspectHelper.ValidateBaseType(this, SeverityType.Error, instanceType, true, typeof(IAtomicityAware)))
+        return false;
+                  
+      if (methodInfo.IsSpecialName && methodInfo.Name.StartsWith(WellKnown.GetterPrefix)) {
+
+        string expectedPropertyName = methodInfo.Name.Remove(0, WellKnown.GetterPrefix.Length);
+
         // This is getter; let's check if it is explicitely marked as [Atomic]
-        PropertyInfo propertyInfo = methodInfo.DeclaringType.UnderlyingSystemType.GetProperty(methodInfo.Name.Remove(0, 4), 
+        PropertyInfo propertyInfo = methodInfo.DeclaringType.UnderlyingSystemType.GetProperty(expectedPropertyName, 
           BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-        if (propertyInfo!=null && Attribute.GetCustomAttribute(propertyInfo, typeof(AtomicAttribute), false)!=null)
+
+        if (propertyInfo!=null && GetCustomAttribute(propertyInfo, typeof(AtomicAttribute), false)!=null) {
           // Property itself is marked as [Atomic]
+          ErrorLog.Write(
+            SeverityType.Warning,
+            AspectMessageType.AspectPossiblyMissapplied,
+            GetType().Name,
+            string.Format("{0}.{1}", method.DeclaringType.FullName, method.Name));
+
           return false;
-        AspectsMessageSource.Instance.Write(SeverityType.Warning, "AspectExPossiblyMissapplied",
-            new object[] { this.GetType().Name, method.DeclaringType.FullName, method.Name });
+        }
       }
 
+      // Ensure undo method exists (if specified)
       if (!String.IsNullOrEmpty(UndoMethodName)) {
-        UndoMethod = type.UnderlyingSystemType.GetMethod(UndoMethodName, 
-          BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
-        if (UndoMethod==null) {
-          AspectsMessageSource.Instance.Write(SeverityType.Error, "AspectExTypeShouldHaveXxxMethod",
-            new object[] {this.GetType().Name, method.DeclaringType.FullName, UndoMethodName, "IUndoDescriptor undoDescriptor", "void"});
+
+        if (!AspectHelper.ValidateMethod(
+          this,
+          SeverityType.Error,
+          instanceType.UnderlyingSystemType,
+          true,
+          BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic,
+          typeof (void),
+          UndoMethodName,
+          new[] {typeof (IUndoDescriptor)},
+          out methodInfo))
           return false;
-        }
-        if (UndoMethod.ReturnType!=typeof(void)) {
-          AspectsMessageSource.Instance.Write(SeverityType.Error, "AspectExTypeShouldHaveXxxMethod",
-            new object[] {this.GetType().Name, method.DeclaringType.FullName, UndoMethodName, "IUndoDescriptor undoDescriptor", "void"});
-          return false;
-        }
-        if (UndoMethod.GetParameters().Length!=1) {
-          AspectsMessageSource.Instance.Write(SeverityType.Error, "AspectExTypeShouldHaveXxxMethod",
-            new object[] {this.GetType().Name, method.DeclaringType.FullName, UndoMethodName, "IUndoDescriptor undoDescriptor", "void"});
-          return false;
-        }
-        if (UndoMethod.GetParameters()[0].ParameterType!=typeof(IUndoDescriptor)) {
-          AspectsMessageSource.Instance.Write(SeverityType.Error, "AspectExTypeShouldHaveXxxMethod",
-            new object[] {this.GetType().Name, method.DeclaringType.FullName, UndoMethodName, "IUndoDescriptor undoDescriptor", "void"});
-          return false;
-        }
       }
 
       return true;
