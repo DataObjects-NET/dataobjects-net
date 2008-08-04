@@ -574,8 +574,19 @@ namespace Xtensive.Storage.Building.Builders
       }
 
       result.Name = context.NameBuilder.Build(typeInfo, result);
-      var keyColumns = result.KeyColumns.Select(p => p.Key);
-      result.ColumnGroups.Add(new ColumnGroup(typeInfo, keyColumns, keyColumns.Union(result.ValueColumns)));
+
+      if (typeInfo.Hierarchy.Schema == InheritanceSchema.ConcreteTableInheritance) {
+        var keyColumns = result.KeyColumns.Select(p => p.Key);
+        result.ColumnGroups.Add(new ColumnGroup(typeInfo, keyColumns, keyColumns.Union(result.ValueColumns)));
+      }
+      else {
+        var keyColumns = result.KeyColumns.Select(p => p.Key);
+        var typesList = new List<TypeInfo>(Enumerable.Repeat(typeInfo, 1).Union(typeInfo.GetDescendants(true)));
+        foreach (var type in typesList) {
+          var ancestors = new List<TypeInfo>(type.GetAncestors()) { type };
+          result.ColumnGroups.Add(new ColumnGroup(type, keyColumns, keyColumns.Union(result.ValueColumns.Where(c => ancestors.Contains(c.Field.ReflectedType)))));
+        }
+      }
 
       return result;
     }
@@ -614,8 +625,19 @@ namespace Xtensive.Storage.Building.Builders
         result.ValueColumns.AddRange(reflectedType.Columns.Find(ColumnAttributes.PrimaryKey, MatchType.None));
 
       result.Name = BuildingContext.Current.NameBuilder.Build(reflectedType, result);
-      var keyColumns = result.KeyColumns.Select(p => p.Key);
-      result.ColumnGroups.Add(new ColumnGroup(reflectedType, keyColumns, keyColumns.Union(result.ValueColumns)));
+
+      if (reflectedType.Hierarchy.Schema == InheritanceSchema.ConcreteTableInheritance) {
+        var keyColumns = result.KeyColumns.Select(p => p.Key);
+        result.ColumnGroups.Add(new ColumnGroup(reflectedType, keyColumns, keyColumns.Union(result.ValueColumns)));
+      }
+      else {
+        var keyColumns = result.KeyColumns.Select(p => p.Key);
+        var typesList = new List<TypeInfo>(Enumerable.Repeat(reflectedType, 1).Union(reflectedType.GetDescendants(true)));
+        foreach (var type in typesList) {
+          var ancestors = new List<TypeInfo>(type.GetAncestors()) { type };
+          result.ColumnGroups.Add(new ColumnGroup(type, keyColumns, keyColumns.Union(result.ValueColumns.Where(c => ancestors.Contains(c.Field.ReflectedType)))));
+        }
+      }
 
       return result;
     }

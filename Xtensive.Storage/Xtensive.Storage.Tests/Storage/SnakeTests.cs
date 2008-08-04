@@ -63,13 +63,13 @@ namespace Xtensive.Storage.Tests.Storage.SnakesModel
 
 namespace Xtensive.Storage.Tests.Storage
 {
-  public abstract class SnakesTests : AutoBuildTestFixture
+  public class SnakesTests : AutoBuildTestFixture
   {
     protected override DomainConfiguration BuildConfiguration()
     {
       DomainConfiguration config = base.BuildConfiguration();
-      config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.SnakesModel");
-      return config;
+      config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.Storage.SnakesModel");
+      return config;  
     }
 
     [Test]

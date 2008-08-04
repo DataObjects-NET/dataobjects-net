@@ -10,6 +10,7 @@ using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Helpers;
 using Xtensive.Storage.Model;
+using Xtensive.Core.Collections;
 
 namespace Xtensive.Storage.Tests
 {
@@ -208,6 +209,11 @@ namespace Xtensive.Storage.Tests
           baseIndex.DumpName(indent + 1);
           WriteLine(indent + 2, "Attributes: " + baseIndex.Attributes);
         }
+      }
+      WriteLine(indent, "Columngroups:");
+      foreach (var columnGroup in target.ColumnGroups) {
+        WriteLine(indent + 1, "Type: " + columnGroup.Type.Name);
+        WriteLine(indent + 2, "Columns: " + columnGroup.Columns.Select(c => c.Name).ToCommaDelimitedString());
       }
       WriteLine(indent, "KeyColumns:");
       foreach (KeyValuePair<ColumnInfo, Direction> pair in target.KeyColumns) {

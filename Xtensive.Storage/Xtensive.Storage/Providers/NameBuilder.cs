@@ -276,7 +276,7 @@ namespace Xtensive.Storage.Providers
     protected virtual string BuildHash(string name)
     {
       byte[] hash = hashAlgorithm.ComputeHash(Encoding.UTF8.GetBytes(name)); 
-      return String.Format("{0:x2}{1:x2}{2:x2}{3:x2}", hash[0], hash[1], hash[2], hash[3]);
+      return String.Format("H{0:x2}{1:x2}{2:x2}{3:x2}", hash[0], hash[1], hash[2], hash[3]);
     }
 
     #endregion

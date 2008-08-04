@@ -59,7 +59,7 @@ namespace Xtensive.Storage.Rse
           .Union(keyColumns.Select((p, i) => new KeyValuePair<int, Direction>(i+keyColumns.Count, p.Value))));
       }
       OrderDescriptor = new RecordSetOrderDescriptor(sortOrder, keyDescriptor);
-      Columns = new RecordColumnCollection(indexInfo.Columns.Select((c,i) => new RecordColumn(c,i,c.ValueType, c.IsPrimaryKey ? ColumnKind.Key : ColumnKind.KeyRelated)));
+      Columns = new RecordColumnCollection(indexInfo.Columns.Select((c,i) => new RecordColumn(c,i,c.ValueType)));
       Groups = new CollectionBaseSlim<RecordColumnGroup>();
       foreach (var columnGroup in indexInfo.ColumnGroups) {
         var recordColummnGroup = new RecordColumnGroup(

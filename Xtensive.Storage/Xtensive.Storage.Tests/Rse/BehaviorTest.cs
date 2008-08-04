@@ -28,13 +28,13 @@ namespace Xtensive.Storage.Tests.Rse
       var personColumns = new[]
         {
           new RecordColumn("ID", 0, typeof (int)),
-          new RecordColumn("FirstName", 1, typeof (string), ColumnKind.Regular),
-          new RecordColumn("LastName", 2, typeof (string), ColumnKind.Regular),
+          new RecordColumn("FirstName", 1, typeof (string)),
+          new RecordColumn("LastName", 2, typeof (string)),
         };
       var authorColumns = new[]
         {
           new RecordColumn("ID", 0, typeof (int)),
-          new RecordColumn("Title", 1, typeof (string), ColumnKind.Regular),
+          new RecordColumn("Title", 1, typeof (string)),
         };
       var personHeader = new RecordSetHeader(personTuple.Descriptor, personColumns, null, new[] { new RecordColumnGroup(null, null ), }, null);
       var authorHeader = new RecordSetHeader(authorTuple.Descriptor, authorColumns, null, new[] { new RecordColumnGroup(null, null ), }, null);
@@ -76,14 +76,14 @@ namespace Xtensive.Storage.Tests.Rse
       var authorColumns = new[]
         {
           new RecordColumn("ID", 0, typeof (int)),
-          new RecordColumn("FirstName", 1, typeof (string), ColumnKind.Regular),
-          new RecordColumn("LastName", 2, typeof (string), ColumnKind.Regular),
+          new RecordColumn("FirstName", 1, typeof (string)),
+          new RecordColumn("LastName", 2, typeof (string)),
         };
       var bookColumns = new[]
         {
           new RecordColumn("ID", 0, typeof (int)),
           new RecordColumn("IDAuthor", 1, typeof (int)),
-          new RecordColumn("Title", 2, typeof (string), ColumnKind.Regular),
+          new RecordColumn("Title", 2, typeof (string)),
         };
       var authorHeader = new RecordSetHeader(authorTuple.Descriptor, authorColumns, TupleDescriptor.Empty, ArrayUtils<RecordColumnGroup>.EmptyArray, new DirectionCollection<int>());
       var bookHeader = new RecordSetHeader(bookTuple.Descriptor, bookColumns, null, null, null);

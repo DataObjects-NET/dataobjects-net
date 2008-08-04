@@ -39,11 +39,6 @@ namespace Xtensive.Storage.Rse
     public Type Type { get; private set; }
 
     /// <summary>
-    /// Gets the kind of the column.
-    /// </summary>    
-    public ColumnKind ColumnKind { get; private set; }
-
-    /// <summary>
     /// Implements the operator ==.
     /// </summary>
     /// <param name="left">The left.</param>
@@ -106,6 +101,7 @@ namespace Xtensive.Storage.Rse
       return result;
     }
 
+
     // Constructors
 
     /// <summary>
@@ -113,24 +109,12 @@ namespace Xtensive.Storage.Rse
     /// </summary>
     /// <param name="name">Initial <see cref="Name"/> value.</param>
     /// <param name="index">Initial <see cref="Index"/> value.</param>
-    /// <param name="type">Initial <see cref="Type"/> value.</param>
-    public RecordColumn(string name, int index, Type type)
-      : this(name, index, type, ColumnKind.Regular)
-    {}
-
-    /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="name">Initial <see cref="Name"/> value.</param>
-    /// <param name="index">Initial <see cref="Index"/> value.</param>
     /// <param name="type">Initial <see cref="Type"/> value.</param>    
-    /// <param name="columnKind">Initial <see cref="ColumnKind"/> value.</param>
-    public RecordColumn(string name, int index, Type type, ColumnKind columnKind)
+    public RecordColumn(string name, int index, Type type)
     {
       Name = name;
       Index = index;
       Type = type;
-      ColumnKind = columnKind;
     }
 
     /// <summary>
@@ -139,14 +123,12 @@ namespace Xtensive.Storage.Rse
     /// <param name="columnInfoRef">Initial <see cref="ColumnInfoRef"/> value.</param>
     /// <param name="index">Initial <see cref="Index"/> value.</param>
     /// <param name="type">Initial <see cref="Type"/> value.</param>    
-    /// <param name="columnKind">Initial <see cref="ColumnKind"/> value.</param>
-    public RecordColumn(ColumnInfoRef columnInfoRef, int index, Type type, ColumnKind columnKind)
+    public RecordColumn(ColumnInfoRef columnInfoRef, int index, Type type)
     {
       ColumnInfoRef = columnInfoRef;
       Name = columnInfoRef.ColumnName;
       Index = index;
       Type = type;
-      ColumnKind = columnKind;
     }
 
     /// <summary>
@@ -159,7 +141,6 @@ namespace Xtensive.Storage.Rse
       Name = string.Concat(alias, ".", recordColumn.Name);
       ColumnInfoRef = recordColumn.ColumnInfoRef;
       Type = recordColumn.Type;
-      ColumnKind = recordColumn.ColumnKind;
       Index = recordColumn.Index;
     }
 
@@ -173,7 +154,6 @@ namespace Xtensive.Storage.Rse
       ColumnInfoRef = recordColumn.ColumnInfoRef;
       Name = recordColumn.Name;
       Type = recordColumn.Type;
-      ColumnKind = recordColumn.ColumnKind;
       Index = index;
     }
   }
