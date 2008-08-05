@@ -41,7 +41,6 @@ namespace Xtensive.Storage
       return result;
     }
 
-    // TODO: AY: Fix immediately
     /// <summary>
     /// Initializes this instance.
     /// </summary>
