@@ -13,7 +13,7 @@ namespace Xtensive.Storage
   /// <summary>
   /// Inner representation of <see cref="Storage.Entity"/>.
   /// </summary>
-  public sealed class EntityData : IIdentified<Key>
+  public sealed class EntityData
   {
     private PersistenceState persistenceState;
 
@@ -53,18 +53,6 @@ namespace Xtensive.Storage
     /// Gets the owner of this instance.
     /// </summary>
     public Entity Entity { get; internal set; }
-
-    /// <inheritdoc/>
-    object IIdentified.Identifier
-    {
-      get { return Identifier; }
-    }
-
-    /// <inheritdoc/>
-    public Key Identifier
-    {
-      get { return Key; }
-    }
 
 
     // Constructors
