@@ -760,9 +760,11 @@ namespace Xtensive.Storage.Building.Builders
       else {
         var keyColumns = index.KeyColumns.Select(p => p.Key);
         var typesList = new List<TypeInfo>(Enumerable.Repeat(reflectedType, 1).Union(reflectedType.GetDescendants(true)));
-        foreach (var type in typesList) {
+        foreach (var type in typesList.Where(t => t.Fields.Find(FieldAttributes.Declared).Count != 0)) {
           var ancestors = new List<TypeInfo>(type.GetAncestors()) { type };
-          index.ColumnGroups.Add(new ColumnGroup(type, keyColumns, keyColumns.Union(index.ValueColumns.Where(c => ancestors.Contains(c.Field.ReflectedType)))));
+          TypeInfo localType = type;
+          if (index.ValueColumns.Any(c=>c.Field.DeclaringType == localType))
+            index.ColumnGroups.Add(new ColumnGroup(type, keyColumns, keyColumns.Union(index.ValueColumns.Where(c => ancestors.Contains(c.Field.ReflectedType)))));
         }
       }
     }
