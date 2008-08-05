@@ -9,9 +9,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using PostSharp.Extensibility;
 using PostSharp.Laos;
-using Xtensive.Core.Aspects.Resources;
 using Xtensive.Core.Collections;
-using Xtensive.Core.Reflection;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.Aspects.Helpers

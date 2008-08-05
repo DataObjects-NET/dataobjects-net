@@ -9,10 +9,8 @@ using System.Reflection;
 using System.Linq;
 using PostSharp.Extensibility;
 using PostSharp.Laos;
-using Xtensive.Core.Aspects.Resources;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Collections;
-using Xtensive.Core.Reflection;
 
 namespace Xtensive.Core.Aspects.Helpers
 {

@@ -6,7 +6,6 @@
 
 using System;
 using NUnit.Framework;
-using PostSharp.Extensibility;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.Reflection;
 

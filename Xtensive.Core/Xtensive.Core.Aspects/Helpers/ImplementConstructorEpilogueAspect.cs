@@ -13,11 +13,7 @@ using System;
 using System.Reflection;
 using PostSharp.Extensibility;
 using PostSharp.Laos;
-using Xtensive.Core.Aspects.Resources;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Aspects;
-using Xtensive.Core.Reflection;
-using Xtensive.Core.Collections;
 
 namespace Xtensive.Core.Aspects.Helpers
 {

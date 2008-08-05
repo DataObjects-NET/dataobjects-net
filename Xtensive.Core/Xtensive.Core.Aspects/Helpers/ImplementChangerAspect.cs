@@ -9,7 +9,6 @@ using System.Diagnostics;
 using System.Reflection;
 using PostSharp.Extensibility;
 using PostSharp.Laos;
-using Xtensive.Core.Aspects.Resources;
 using Xtensive.Core.Notifications;
 using Xtensive.Core.Reflection;
 
