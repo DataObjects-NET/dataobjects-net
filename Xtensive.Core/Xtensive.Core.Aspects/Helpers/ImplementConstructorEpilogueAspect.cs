@@ -86,14 +86,14 @@ namespace Xtensive.Core.Aspects.Helpers
     /// <param name="handlerMethodName"><see cref="HandlerMethodName"/> property value.</param>
     /// <returns>If it was the first application with the specified set of arguments, the newly created aspect;
     /// otherwise, <see langword="null" />.</returns>
-    public static ImplementAutoPropertyReplacementAspect ApplyOnce(ConstructorInfo ctor, Type handlerType, string handlerMethodName)
+    public static ImplementConstructorEpilogueAspect ApplyOnce(ConstructorInfo ctor, Type handlerType, string handlerMethodName)
     {
-      ArgumentValidator.EnsureArgumentNotNull(ctor, "getterOrSetter");
+      ArgumentValidator.EnsureArgumentNotNull(ctor, "ctor");
       ArgumentValidator.EnsureArgumentNotNull(handlerType, "handlerType");
       ArgumentValidator.EnsureArgumentNotNull(handlerMethodName, "handlerMethodName");
 
       return AppliedAspectSet.Add(new Triplet<ConstructorInfo, Type, string>(ctor, handlerType, handlerMethodName), 
-        () => new ImplementAutoPropertyReplacementAspect(handlerType, handlerMethodName));
+        () => new ImplementConstructorEpilogueAspect(handlerType, handlerMethodName));
     }
 
 

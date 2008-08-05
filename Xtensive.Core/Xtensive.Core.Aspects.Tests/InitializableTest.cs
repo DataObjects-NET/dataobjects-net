@@ -15,18 +15,11 @@ namespace Xtensive.Core.Aspects.Tests
   {
     public bool Initializated { get; private set; }
 
-    public void Initialize(Type ctorType)
+    protected void Initialize(Type ctorType)
     {
       Initializated = true;
       Log.Info("Initialize: type {0}, .ctor of {1}", 
         GetType().GetShortName(), ctorType.GetShortName());
-    }
-
-
-    // Constructors
-
-    public InitializableBase()
-    {
     }
   }
 
@@ -50,7 +43,7 @@ namespace Xtensive.Core.Aspects.Tests
     [Test]
     public void CombinedTest()
     {
-      var i = new InitializableBase();
+      var i = new InitializableBase(); 
       Assert.IsTrue(i.Initializated);
       i = new InitializableSample();
       Assert.IsTrue(i.Initializated);
