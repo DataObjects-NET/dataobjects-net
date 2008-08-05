@@ -19,13 +19,21 @@ using Xtensive.Core.Reflection;
 namespace Xtensive.Core.Aspects
 {
   [MulticastAttributeUsage(MulticastTargets.Class)]
-  [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
   [Serializable]
   public class InitializableAttribute : CompoundAspect
   {
     public const string InitializeMethodName = "Initialize";
 
-    // TODO: Add CompileTimeValidate
+    public override bool CompileTimeValidate(object element)
+    {
+      var type = element as Type;
+
+      // Let's ignore the types that aren't marked by IInitializable
+      if (!typeof(IInitializable).IsAssignableFrom(type))
+        return false; 
+
+      return true;
+    }
 
     /// <inheritdoc/>
     public override void ProvideAspects(object element, LaosReflectionAspectCollection collection)

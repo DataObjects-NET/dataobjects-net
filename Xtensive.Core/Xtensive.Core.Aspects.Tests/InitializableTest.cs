@@ -6,20 +6,34 @@
 
 using System;
 using NUnit.Framework;
+using PostSharp.Extensibility;
+using Xtensive.Core.Aspects;
 using Xtensive.Core.Reflection;
+
+[assembly:Initializable(AttributeTargetTypes = "*")]
 
 namespace Xtensive.Core.Aspects.Tests
 {
-  [Initializable]
-  public class InitializableBase
+  public class WrongInitializableBase
   {
     public bool Initializated { get; private set; }
 
     protected void Initialize(Type ctorType)
     {
       Initializated = true;
-      Log.Info("Initialize: type {0}, .ctor of {1}", 
-        GetType().GetShortName(), ctorType.GetShortName());
+    }
+  }
+
+  public class InitializableBase: IInitializable
+  {
+    public bool Initializated { get; private set; }
+
+    protected void Initialize(Type ctorType)
+    {
+      if (ctorType!=GetType())
+        return;
+      Initializated = true;
+      Log.Info("Initialized: type {0}", ctorType.GetShortName());
     }
   }
 
@@ -43,6 +57,9 @@ namespace Xtensive.Core.Aspects.Tests
     [Test]
     public void CombinedTest()
     {
+      var wi = new WrongInitializableBase(); 
+      Assert.IsFalse(wi.Initializated);
+
       var i = new InitializableBase(); 
       Assert.IsTrue(i.Initializated);
       i = new InitializableSample();
