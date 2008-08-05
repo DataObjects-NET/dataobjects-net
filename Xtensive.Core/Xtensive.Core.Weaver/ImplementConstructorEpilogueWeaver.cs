@@ -9,12 +9,13 @@ using PostSharp.CodeModel;
 using PostSharp.CodeWeaver;
 using PostSharp.Collections;
 using PostSharp.Laos.Weaver;
+using Xtensive.Core.Aspects;
 
 namespace Xtensive.Core.Weaver
 {
   internal class ImplementConstructorEpilogueWeaver : MethodLevelAspectWeaver
   {
-    private const string GetTypeMethodName = "GetType";
+    private const string GetTypeFromHandleMethodName = "GetTypeFromHandle";
 
     private readonly ITypeSignature handlerTypeSignature;
     private readonly string handlerMethodName;
@@ -40,22 +41,23 @@ namespace Xtensive.Core.Weaver
         restructurer.ReturnBranchTarget, 
         NodePosition.After, 
         null);
-      
       writer.AttachInstructionSequence(restructurer.ReturnBranchTarget);
-      writer.EmitInstruction(OpCodeNumber.Ldarg_0);
-      writer.EmitInstruction(OpCodeNumber.Ldarg_0);
-      IMethod typeGetType = module.FindMethod(
-        typeof (Type).GetMethod(GetTypeMethodName, new Type[] {}), BindingOptions.Default);
 
-      MethodSignature methodSignature =
+      writer.EmitInstruction(OpCodeNumber.Ldarg_0);
+
+      writer.EmitInstructionType(OpCodeNumber.Ldtoken, methodDef.DeclaringType);
+      IMethod getTypeFromHandleMethod = module.FindMethod(
+        typeof (Type).GetMethod(GetTypeFromHandleMethodName, new [] {typeof(RuntimeTypeHandle)}), BindingOptions.Default);
+      writer.EmitInstructionMethod(OpCodeNumber.Call, getTypeFromHandleMethod);
+
+      MethodSignature handlerSignature =
         new MethodSignature(CallingConvention.HasThis, module.Cache.GetIntrinsic(IntrinsicType.Void),
-          new [] {typeGetType.ReturnType}, 0);
-
-      writer.EmitInstructionMethod(OpCodeNumber.Call, typeGetType);
+          new [] {getTypeFromHandleMethod.ReturnType}, 0);
       writer.EmitInstructionMethod(OpCodeNumber.Call,
         (IMethod) baseTypeRef.Methods.GetMethod(handlerMethodName,
-          methodSignature.Translate(module),
+          handlerSignature.Translate(module),
           BindingOptions.Default).Translate(module));
+
       writer.EmitInstruction(OpCodeNumber.Ret);
       writer.DetachInstructionSequence();
     }

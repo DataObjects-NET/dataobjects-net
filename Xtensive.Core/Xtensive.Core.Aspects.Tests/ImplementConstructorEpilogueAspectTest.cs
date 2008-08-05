@@ -7,45 +7,36 @@
 using System;
 using NUnit.Framework;
 using Xtensive.Core.Aspects.Helpers;
+using Xtensive.Core.Reflection;
 
 namespace Xtensive.Core.Aspects.Tests
 {
   [TestFixture]
   public class ImplementConstructorEpilogueAspectTest
   {
-    public class HandlerModule
+    public class HandlerTargetBase
     {
-      public static TestClass Class;
+      public int HandlerInvocationCount;
+      public int CtorInvocationCount;
 
-      public void HandlerMethod(Type type)
+      protected void Handler(Type type)
       {
-        if (Class != null)
-          Class.Seed = 20;
+        Log.Info("In handler, Type={0}, GetType={1}", type.GetShortName(), GetType().GetShortName());
+        HandlerInvocationCount++;
+        if (type==GetType())
+          CtorInvocationCount++;
+      }
+
+      [ImplementConstructorEpilogueAspect(typeof(HandlerTargetBase), "Handler")]
+      public HandlerTargetBase()
+      {
       }
     }
 
-    public class TestClass
+    public class HandlerTarget: HandlerTargetBase
     {
-      private int seed;
-
-      public int Seed
-      {
-        get { return seed; }  
-        set { seed = value; }
-      }
-
-      private void HandlerMethod(Type type)
-      {
-        seed = 10;
-      }
-
-      [ImplementConstructorEpilogueAspect(typeof(TestClass), "HandlerMethod")]
-      public TestClass()
-      {
-      }
-
-      [ImplementConstructorEpilogueAspect(typeof(HandlerModule), "HandlerMethod")]
-      public TestClass(bool b)
+      [ImplementConstructorEpilogueAspect(typeof(HandlerTargetBase), "Handler")]
+      public HandlerTarget()
       {
       }
     }
@@ -53,12 +44,13 @@ namespace Xtensive.Core.Aspects.Tests
     [Test]
     public void Test()
     {
-      TestClass testClass = new TestClass();
-      Assert.AreEqual(10, testClass.Seed);
-      HandlerModule.Class = testClass;
-      TestClass testClass2 = new TestClass(true);
-      Assert.AreEqual(20, testClass.Seed);
-      Assert.AreEqual(0, testClass2.Seed);
+      var t = new HandlerTargetBase();
+      Assert.AreEqual(1, t.HandlerInvocationCount);
+      Assert.AreEqual(1, t.CtorInvocationCount);
+
+      t = new HandlerTarget();
+      Assert.AreEqual(2, t.HandlerInvocationCount);
+      Assert.AreEqual(1, t.CtorInvocationCount);
     }
   }
 }

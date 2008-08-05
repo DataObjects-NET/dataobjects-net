@@ -48,6 +48,9 @@ namespace Xtensive.Core.Aspects.Helpers
       if (!AspectHelper.ValidateMethodAttributes(this, SeverityType.Error,
         method, false, MethodAttributes.Static))
         return false;
+      if (!AspectHelper.ValidateBaseType(this, SeverityType.Error,
+        method.DeclaringType, true, HandlerType))
+        return false;
 
       MethodInfo targetMethod; 
       
@@ -55,7 +58,9 @@ namespace Xtensive.Core.Aspects.Helpers
         HandlerType, true, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, 
         typeof(void), HandlerMethodName, new [] { typeof (Type)}, out targetMethod))
         return false;
-      
+      if (!AspectHelper.ValidateMethodAttributes(this, SeverityType.Error,
+        targetMethod, false, MethodAttributes.Private))
+        return false;
       if (!AspectHelper.ValidateMethodAttributes(this, SeverityType.Error,
         targetMethod, false, MethodAttributes.Virtual))
         return false;
