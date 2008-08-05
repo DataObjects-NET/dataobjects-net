@@ -12,7 +12,7 @@ using Xtensive.Integrity.Validation.Interfaces;
 namespace Xtensive.Integrity.Aspects.Constraints
 {
   /// <summary>
-  /// Checks field value with specified regular expression.
+  /// Ensures field value matches specified regular expression.
   /// </summary>
   [Serializable]
   public class RegexConstraintAttribute : PropertyConstraintAspect
@@ -32,11 +32,11 @@ namespace Xtensive.Integrity.Aspects.Constraints
     /// <inheritdoc/>
     public override bool IsSupported(Type valueType)
     {
-      return valueType == typeof (string);
+      return valueType==typeof (string);
     }
 
     /// <summary>
-    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="regexPattern">The regular expression pattern.</param>
     public RegexConstraintAttribute(string regexPattern)

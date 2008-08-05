@@ -36,6 +36,7 @@ namespace Xtensive.Integrity.Aspects
       constraintAspect.OnRuntimeInitialize();
     }
 
+
     // Constructor
 
     public ImplementPropertyConstraintAspect(PropertyConstraintAspect constraintAspect)

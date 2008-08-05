@@ -5,6 +5,7 @@
 // Created:    2007.07.16
 
 using System;
+using System.Diagnostics;
 using System.Reflection;
 using PostSharp.Extensibility;
 using PostSharp.Laos;
@@ -40,27 +41,25 @@ namespace Xtensive.Integrity.Aspects
       MethodInfo methodInfo = method as MethodInfo;      
 
       if (methodInfo.IsSpecialName && methodInfo.Name.StartsWith(WellKnown.GetterPrefix)) {
-
         string expectedPropertyName = methodInfo.Name.Remove(0, WellKnown.GetterPrefix.Length);
 
         // This is getter; let's check if it is explicitely marked as [Validate]
         PropertyInfo propertyInfo = methodInfo.DeclaringType.UnderlyingSystemType.GetProperty(expectedPropertyName, 
           BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-
-        if (propertyInfo!=null && GetCustomAttribute(propertyInfo, typeof(ValidateAttribute), false)!=null)
+        if (propertyInfo!=null && propertyInfo.GetAttribute<AtomicAttribute>(false)!=null)
           // Property itself is marked as [Validate]
           return false;
         
-        ErrorLog.Write(
-          SeverityType.Warning,
-          AspectHelper.GetStandardMessage(AspectMessageType.AspectPossiblyMissapplied),          
-          GetType().Name, 
-          string.Format("{0}.{1}", method.DeclaringType.FullName, method.Name));
+        // Property getter is marked as [Validate]
+        ErrorLog.Write(SeverityType.Warning, AspectMessageType.AspectPossiblyMissapplied,
+          AspectHelper.FormatType(GetType()),
+          AspectHelper.FormatMember(methodInfo.DeclaringType, methodInfo));
       }
 
       return true;
     }
 
+    [DebuggerStepThrough]
     public override void OnEntry(MethodExecutionEventArgs eventArgs)
     {
       var validationContextBound = (IContextBound<ValidationContextBase>)eventArgs.Instance;
@@ -81,6 +80,7 @@ namespace Xtensive.Integrity.Aspects
             });
     }
 
+    [DebuggerStepThrough]
     public override void OnExit(MethodExecutionEventArgs eventArgs)
     {
       var d = (IDisposable)eventArgs.MethodExecutionTag;

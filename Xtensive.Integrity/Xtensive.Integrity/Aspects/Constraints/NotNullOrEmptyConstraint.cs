@@ -10,7 +10,7 @@ using Xtensive.Integrity.Validation.Interfaces;
 namespace Xtensive.Integrity.Aspects.Constraints
 {
   /// <summary>
-  /// Checks field value to be not null or empty.
+  /// Ensures field value is not null or empty.
   /// </summary>
   [Serializable]
   public class NotNullOrEmptyConstraintAttribute : PropertyConstraintAspect
@@ -28,7 +28,7 @@ namespace Xtensive.Integrity.Aspects.Constraints
     /// <inheritdoc/>
     public override bool IsSupported(Type valueType)
     {
-      return valueType == typeof (string);
+      return valueType==typeof (string);
     }
   }
 }

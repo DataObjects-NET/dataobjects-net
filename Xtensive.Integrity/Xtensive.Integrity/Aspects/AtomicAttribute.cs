@@ -5,6 +5,7 @@
 // Created:    2007.07.16
 
 using System;
+using System.Diagnostics;
 using System.Reflection;
 using PostSharp.Extensibility;
 using PostSharp.Laos;
@@ -40,55 +41,40 @@ namespace Xtensive.Integrity.Aspects
       if (!ContextBoundAspectValidator<AtomicityContextBase>.CompileTimeValidate(this, method))
         return false;
 
-      // method is not constructor, so cast is always valid.
-      MethodInfo methodInfo = (MethodInfo) method;
+      // Method is not constructor, so cast is always valid
+      var methodInfo = (MethodInfo) method;
+      Type type = method.DeclaringType;
 
-      // Ensure method is not constructor.
-      if (!AspectHelper.ValidateMemberType(this, SeverityType.Error, method, false, MemberTypes.Constructor))
-        return false;      
-      
-      // Ensure method is not static.
-      if (!AspectHelper.ValidateMethodAttributes(this, SeverityType.Error, method, false, MethodAttributes.Static ))
-        return false;      
-
-      Type instanceType = method.DeclaringType;
-
-      // Ensure implements IAtomicityAware
-      if (!AspectHelper.ValidateBaseType(this, SeverityType.Error, instanceType, true, typeof(IAtomicityAware)))
+      // Ensure type implements IAtomicityAware
+      if (!AspectHelper.ValidateBaseType(this, SeverityType.Error, 
+        type, true, typeof(IAtomicityAware)))
         return false;
                   
       if (methodInfo.IsSpecialName && methodInfo.Name.StartsWith(WellKnown.GetterPrefix)) {
-
         string expectedPropertyName = methodInfo.Name.Remove(0, WellKnown.GetterPrefix.Length);
 
         // This is getter; let's check if it is explicitely marked as [Atomic]
         PropertyInfo propertyInfo = methodInfo.DeclaringType.UnderlyingSystemType.GetProperty(expectedPropertyName, 
           BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-
-        if (propertyInfo!=null && GetCustomAttribute(propertyInfo, typeof(AtomicAttribute), false)!=null) {
+        if (propertyInfo!=null && propertyInfo.GetAttribute<AtomicAttribute>(false)!=null)
           // Property itself is marked as [Atomic]
-          ErrorLog.Write(
-            SeverityType.Warning,
-            AspectMessageType.AspectPossiblyMissapplied,
-            GetType().Name,
-            string.Format("{0}.{1}", method.DeclaringType.FullName, method.Name));
-
           return false;
-        }
+
+        // Property getter is marked as [Atomic]
+        ErrorLog.Write(SeverityType.Warning, AspectMessageType.AspectPossiblyMissapplied,
+          AspectHelper.FormatType(GetType()),
+          AspectHelper.FormatMember(methodInfo.DeclaringType, methodInfo));
       }
 
       // Ensure undo method exists (if specified)
       if (!String.IsNullOrEmpty(UndoMethodName)) {
-
-        if (!AspectHelper.ValidateMethod(
-          this,
-          SeverityType.Error,
-          instanceType.UnderlyingSystemType,
-          true,
-          BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic,
-          typeof (void),
-          UndoMethodName,
-          new[] {typeof (IUndoDescriptor)},
+        if (!AspectHelper.ValidateMethod(this, SeverityType.Error,
+          type.UnderlyingSystemType, true,
+          BindingFlags.Instance | 
+            BindingFlags.Static | 
+              BindingFlags.Public | 
+                BindingFlags.NonPublic,
+          typeof (void), UndoMethodName, new[] {typeof (IUndoDescriptor)},
           out methodInfo))
           return false;
       }
@@ -96,6 +82,7 @@ namespace Xtensive.Integrity.Aspects
       return true;
     }
 
+    [DebuggerStepThrough]
     public override void OnEntry(MethodExecutionEventArgs eventArgs)
     {
       var instance = (IAtomicityAware)eventArgs.Instance;
@@ -140,6 +127,7 @@ namespace Xtensive.Integrity.Aspects
       eventArgs.MethodExecutionTag = tag;
     }
 
+    [DebuggerStepThrough]
     public override void OnExit(MethodExecutionEventArgs eventArgs)
     {
       AtomicAttributeTag tag = eventArgs.MethodExecutionTag as AtomicAttributeTag;

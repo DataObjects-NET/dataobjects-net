@@ -63,7 +63,7 @@ namespace Xtensive.Integrity.Aspects
             .GetMethod("GetPropertyGetter", 
               BindingFlags.NonPublic | BindingFlags.Instance, null, ArrayUtils<Type>.EmptyArray, null)
             .GetGenericMethodDefinition()
-            .MakeGenericMethod(new[] {_this.Property.PropertyType})
+            .MakeGenericMethod(new[] {_this.Property.DeclaringType, _this.Property.PropertyType})
             .Invoke(_this, null)
             as Func<IValidationAware, object>, 
           this)
@@ -109,7 +109,8 @@ namespace Xtensive.Integrity.Aspects
     /// <inheritdoc/>
     public override void ProvideAspects(object element, LaosReflectionAspectCollection collection)
     {
-      collection.AddAspect(Property.GetSetMethod(true), new ImplementPropertyConstraintAspect(this));
+      collection.AddAspect(Property.GetSetMethod(true), 
+        new ImplementPropertyConstraintAspect(this));
     }
 
     #region Private \ internal methods
@@ -128,11 +129,11 @@ namespace Xtensive.Integrity.Aspects
     }
 
 // ReSharper disable UnusedPrivateMember
-    protected Func<IValidationAware, object> GetPropertyGetter<T>()
+    protected Func<IValidationAware, object> GetPropertyGetter<TOwner, TProperty>()
 // ReSharper restore UnusedPrivateMember
     {
-      var typedGetter = DelegateHelper.CreateGetMemberDelegate<IValidationAware, T>(Property.Name);
-      return va => (object) typedGetter;
+      var typedGetter = DelegateHelper.CreateGetMemberDelegate<TOwner, TProperty>(Property.Name);
+      return validationAware => (object) typedGetter.Invoke((TOwner) validationAware);
     }
 
     #endregion
@@ -143,7 +144,6 @@ namespace Xtensive.Integrity.Aspects
     protected PropertyConstraintAspect()
     {
       Mode = ValidationMode.Default;
-      
     }
   }
 }

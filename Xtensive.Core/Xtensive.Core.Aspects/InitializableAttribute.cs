@@ -23,6 +23,8 @@ namespace Xtensive.Core.Aspects
     public override bool CompileTimeValidate(object element)
     {
       var type = element as Type;
+      if (type == null)
+        return false;
 
       // Let's ignore the types that aren't marked by IInitializable
       if (!typeof(IInitializable).IsAssignableFrom(type))

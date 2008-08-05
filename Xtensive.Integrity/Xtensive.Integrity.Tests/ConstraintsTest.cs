@@ -66,7 +66,7 @@ namespace Xtensive.Integrity.Tests
         }
         catch (AggregateException e) {
           List<Exception> errors = e.GetFlattenList();
-          Assert.AreEqual(2, errors.Count);
+          Assert.AreEqual(1, errors.Count);
           
           foreach (var exception in errors)
             Assert.AreEqual(typeof (ConstraintViolationException), exception.GetType());
