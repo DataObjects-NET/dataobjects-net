@@ -81,7 +81,7 @@ namespace Xtensive.Core.Aspects.Helpers
     /// <summary>
     /// Applies this aspect to the specified <paramref name="ctor"/>.
     /// </summary>
-    /// <param name="ctor">The property getter or setter to apply the aspect to.</param>
+    /// <param name="ctor">The constructor to apply the aspect to.</param>
     /// <param name="handlerType"><see cref="HandlerType"/> property value.</param>
     /// <param name="handlerMethodName"><see cref="HandlerMethodName"/> property value.</param>
     /// <returns>If it was the first application with the specified set of arguments, the newly created aspect;
