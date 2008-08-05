@@ -615,18 +615,20 @@ namespace Xtensive.Storage.Building.Builders
       else if ((reflectedType.Attributes & TypeAttributes.Materialized) != 0)
         result.ValueColumns.AddRange(reflectedType.Columns.Find(ColumnAttributes.PrimaryKey, MatchType.None));
 
-      if(reflectedType.Hierarchy.Schema == InheritanceSchema.ClassTableInheritance) {
-        foreach (ColumnInfo column in ancestorIndexInfo.IncludedColumns) {
-          FieldInfo field = reflectedType.Fields[column.Field.Name];
-          result.ValueColumns.Add(field.Column);
-        }
-        foreach (ColumnInfo column in reflectedType.Columns.Find(ColumnAttributes.Inherited | ColumnAttributes.PrimaryKey, MatchType.None))
-          result.ValueColumns.Add(column);
-      }
-      else if (reflectedType.Hierarchy.Schema ==InheritanceSchema.ConcreteTableInheritance) {
-        foreach (ColumnInfo column in reflectedType.Columns.Find(ColumnAttributes.PrimaryKey, MatchType.None))
-          if (!result.ValueColumns.Contains(column.Name))
+      if (ancestorIndexInfo.IsPrimary) {
+        if (reflectedType.Hierarchy.Schema==InheritanceSchema.ClassTableInheritance) {
+          foreach (ColumnInfo column in ancestorIndexInfo.IncludedColumns) {
+            FieldInfo field = reflectedType.Fields[column.Field.Name];
+            result.ValueColumns.Add(field.Column);
+          }
+          foreach (ColumnInfo column in reflectedType.Columns.Find(ColumnAttributes.Inherited | ColumnAttributes.PrimaryKey, MatchType.None))
             result.ValueColumns.Add(column);
+        }
+        else if (reflectedType.Hierarchy.Schema==InheritanceSchema.ConcreteTableInheritance) {
+          foreach (ColumnInfo column in reflectedType.Columns.Find(ColumnAttributes.PrimaryKey, MatchType.None))
+            if (!result.ValueColumns.Contains(column.Name))
+              result.ValueColumns.Add(column);
+        }
       }
 
       result.Name = BuildingContext.Current.NameBuilder.Build(reflectedType, result);
