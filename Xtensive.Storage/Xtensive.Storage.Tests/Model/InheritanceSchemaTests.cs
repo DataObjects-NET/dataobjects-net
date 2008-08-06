@@ -195,7 +195,7 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaTests
 
       TypeInfo typeInfo = Domain.Model.Types[typeof (A)];
       Assert.IsNotNull(typeInfo);
-      Assert.AreEqual(2, typeInfo.Indexes.Count);
+      Assert.AreEqual(1, typeInfo.Indexes.Count);
       Assert.IsTrue(typeInfo.AffectedIndexes.Count > 0);
       Assert.IsNotNull(typeInfo.Indexes.PrimaryIndex);
       Assert.IsTrue(typeInfo.Indexes.PrimaryIndex.IsVirtual);

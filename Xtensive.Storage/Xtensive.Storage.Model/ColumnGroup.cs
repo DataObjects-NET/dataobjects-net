@@ -14,13 +14,13 @@ namespace Xtensive.Storage.Model
   [Serializable]
   public sealed class ColumnGroup
   {
-    private readonly TypeInfo type;
+    private readonly HierarchyInfo hierarchy;
     private readonly CollectionBaseSlim<ColumnInfo> keyColumns;
     private readonly CollectionBaseSlim<ColumnInfo> columns;
 
-    public TypeInfo Type
+    public HierarchyInfo Hierarchy
     {
-      get { return type; }
+      get { return hierarchy; }
     }
 
     public CollectionBaseSlim<ColumnInfo> KeyColumns
@@ -39,9 +39,9 @@ namespace Xtensive.Storage.Model
     /// <summary>
     ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public ColumnGroup(TypeInfo type, IEnumerable<ColumnInfo> keyColumns, IEnumerable<ColumnInfo> columns)
+    public ColumnGroup(HierarchyInfo hierarchyInfo, IEnumerable<ColumnInfo> keyColumns, IEnumerable<ColumnInfo> columns)
     {
-      this.type = type;
+      this.hierarchy = hierarchyInfo;
       this.keyColumns = new CollectionBaseSlim<ColumnInfo>(keyColumns);
       this.columns = new CollectionBaseSlim<ColumnInfo>(columns);
     }

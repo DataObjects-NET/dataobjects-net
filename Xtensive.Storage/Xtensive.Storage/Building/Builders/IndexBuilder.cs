@@ -250,22 +250,16 @@ namespace Xtensive.Storage.Building.Builders
       if (type.IsEntity) {
         var primaryIndex = type.Indexes.FindFirst(IndexAttributes.Primary | IndexAttributes.Real);
         var ancestors = type.GetAncestors().ToList();
-        var descendants = type.GetDescendants(true).ToList();
         // Build virtual primary index
-        if (ancestors.Count > 0 || descendants.Count > 0) {
+        if (ancestors.Count > 0) {
           var baseIndexes = new List<IndexInfo>();
           foreach (TypeInfo ancestor in ancestors) {
             IndexInfo ancestorIndex = ancestor.Indexes.Find(IndexAttributes.Primary | IndexAttributes.Real, MatchType.Full).First();
             IndexInfo baseIndex = BuildVirtualIndex(type, IndexAttributes.Filtered, ancestorIndex);
-//            type.Indexes.Add(baseIndex);
-//            baseIndex.IsPrimary = false;
             baseIndexes.Add(baseIndex);
           }
           baseIndexes.Add(primaryIndex);
-          foreach (TypeInfo descendant in descendants) {
-            IndexInfo descendantIndex = descendant.Indexes.Find(IndexAttributes.Primary | IndexAttributes.Real, MatchType.Full).First();
-            baseIndexes.Add(descendantIndex);
-          }
+          
           IndexInfo virtualPrimaryIndex = BuildVirtualIndex(type, IndexAttributes.Join, baseIndexes[0], baseIndexes.Skip(1).ToArray());
           virtualPrimaryIndex.IsPrimary = true;
           type.Indexes.Add(virtualPrimaryIndex);
@@ -754,20 +748,8 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void BuildColumnGroups(TypeInfo reflectedType, IndexInfo index)
     {
-      if (reflectedType.Hierarchy.Schema == InheritanceSchema.ConcreteTable) {
-        var keyColumns = index.KeyColumns.Select(p => p.Key);
-        index.ColumnGroups.Add(new ColumnGroup(reflectedType, keyColumns, keyColumns.Union(index.ValueColumns)));
-      }
-      else {
-        var keyColumns = index.KeyColumns.Select(p => p.Key);
-        var typesList = new List<TypeInfo>(Enumerable.Repeat(reflectedType, 1).Union(reflectedType.GetDescendants(true)));
-        foreach (var type in typesList.Where(t => t.Fields.Find(FieldAttributes.Declared).Count != 0)) {
-          var ancestors = new List<TypeInfo>(type.GetAncestors()) { type };
-          TypeInfo localType = type;
-          if (index.ValueColumns.Any(c=>c.Field.DeclaringType == localType))
-            index.ColumnGroups.Add(new ColumnGroup(type, keyColumns, keyColumns.Union(index.ValueColumns.Where(c => ancestors.Contains(c.Field.ReflectedType)))));
-        }
-      }
+      var keyColumns = index.KeyColumns.Select(p => p.Key);
+      index.ColumnGroups.Add(new ColumnGroup(reflectedType.Hierarchy, keyColumns, keyColumns.Union(index.ValueColumns)));
     }
 
     public static void BuildAffectedIndexes()
