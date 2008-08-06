@@ -77,6 +77,12 @@ namespace Xtensive.Integrity.Aspects
           typeof (void), UndoMethodName, new[] {typeof (IUndoDescriptor)},
           out methodInfo))
           return false;
+
+        UndoMethod = type.UnderlyingSystemType.GetMethod(UndoMethodName, 
+          BindingFlags.Instance | 
+          BindingFlags.Static | 
+          BindingFlags.Public | 
+          BindingFlags.NonPublic);
       }
 
       return true;

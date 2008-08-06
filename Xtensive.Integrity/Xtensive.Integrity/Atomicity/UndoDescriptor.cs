@@ -5,7 +5,6 @@
 // Created:    2007.11.23
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Core;
