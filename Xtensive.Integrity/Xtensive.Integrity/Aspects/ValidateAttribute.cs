@@ -43,7 +43,8 @@ namespace Xtensive.Integrity.Aspects
       if (methodInfo.IsGetter()) {
         // This is getter; let's check if it is explicitely marked as [Validate]
         var propertyInfo = methodInfo.GetProperty();
-        if (propertyInfo!=null && propertyInfo.GetAttribute<AtomicAttribute>(false)!=null)
+        if (propertyInfo!=null && propertyInfo.GetAttribute<AtomicAttribute>(
+          AttributeSearchOptions.Default)!=null)
           // Property itself is marked as [Validate]
           return false;
         

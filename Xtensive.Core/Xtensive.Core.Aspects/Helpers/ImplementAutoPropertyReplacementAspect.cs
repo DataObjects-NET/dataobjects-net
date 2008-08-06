@@ -16,6 +16,7 @@ using PostSharp.Extensibility;
 using PostSharp.Laos;
 using Xtensive.Core.Aspects.Resources;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Reflection;
 
 namespace Xtensive.Core.Aspects.Helpers
 {
@@ -57,7 +58,7 @@ namespace Xtensive.Core.Aspects.Helpers
       }
 
       if (null==AspectHelper.ValidateMemberAttribute<CompilerGeneratedAttribute>(this, SeverityType.Error,
-        method, true, false))
+        method, true, AttributeSearchOptions.Default))
         return false;
 
       return true;

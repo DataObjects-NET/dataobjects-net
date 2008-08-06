@@ -27,7 +27,8 @@ namespace Xtensive.Storage.Building.Builders
     {
       using(Log.InfoRegion("Defining indexes.")) {
 
-        var indexAttributes = typeDef.UnderlyingType.GetAttributes<IndexAttribute>(false);
+        var indexAttributes = typeDef.UnderlyingType.GetAttributes<IndexAttribute>(
+          AttributeSearchOptions.Default);
 
         foreach (IndexAttribute attribute in indexAttributes)
           try {

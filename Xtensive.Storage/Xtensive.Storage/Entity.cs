@@ -34,6 +34,7 @@ namespace Xtensive.Storage
 
     #region Internal properties
 
+    [Infrastructure]
     [DebuggerHidden]
     internal EntityData Data
     {
@@ -58,6 +59,7 @@ namespace Xtensive.Storage
     #region Properties: Key, Type, Tuple, PersistenceState
 
     /// <exception cref="Exception">Property is already initialized.</exception>
+    [Infrastructure]
     [DebuggerHidden]
     public Key Key
     {
@@ -81,6 +83,7 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets persistence state of the entity.
     /// </summary>
+    [Infrastructure]
     public PersistenceState PersistenceState
     {
       get { return Data.PersistenceState; }
@@ -98,12 +101,16 @@ namespace Xtensive.Storage
     #region IIdentifier members
 
     /// <inheritdoc/>
+    [Infrastructure]
+    [DebuggerHidden]
     Key IIdentified<Key>.Identifier
     {
       get { return Key; }
     }
 
     /// <inheritdoc/>
+    [Infrastructure]
+    [DebuggerHidden]
     object IIdentified.Identifier
     {
       get { return Key; }
@@ -111,7 +118,7 @@ namespace Xtensive.Storage
 
     #endregion
 
-    #region Remove method =)
+    #region Remove method
 
     /// <summary>
     /// Removes the instance.
@@ -160,10 +167,12 @@ namespace Xtensive.Storage
       PersistenceState = PersistenceState.Modified;
     }
 
+    [Infrastructure]
     protected virtual void OnRemoving()
     {
     }
 
+    [Infrastructure]
     protected virtual void OnRemoved()
     {
     }
@@ -182,6 +191,7 @@ namespace Xtensive.Storage
       return activators[type](data);
     }
 
+    [Infrastructure]
     private void EnsureIsFetched(FieldInfo field)
     {
       if (Session.DirtyData.GetItems(PersistenceState.New).Contains(Data))
@@ -191,6 +201,8 @@ namespace Xtensive.Storage
       Session.DataCache.Update(Key, Fetcher.Fetch(Key, field));
     }
 
+    /// <exception cref="InvalidOperationException">[Suppresses warning]</exception>
+    [Infrastructure]
     private void EnsureIsNotRemoved()
     {
       if (PersistenceState==PersistenceState.Removed)

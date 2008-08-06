@@ -13,6 +13,7 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
+using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage
@@ -46,6 +47,7 @@ namespace Xtensive.Storage
     }
 
     /// <inheritdoc/>
+    [Infrastructure]
     [DebuggerHidden]
     public Persistent Owner
     {
@@ -53,6 +55,7 @@ namespace Xtensive.Storage
     }
 
     /// <inheritdoc/>
+    [Infrastructure]
     [DebuggerHidden]
     public FieldInfo Field
     {
@@ -66,13 +69,7 @@ namespace Xtensive.Storage
       get { return tuple; }
     }
 
-    #region GetHashCode, Equals
-
-    /// <inheritdoc/>
-    public override int GetHashCode()
-    {
-      return Tuple.GetHashCode();
-    }
+    #region Equals & GetHashCode
 
     /// <inheritdoc/>
     public override bool Equals(object obj)
@@ -84,6 +81,7 @@ namespace Xtensive.Storage
     }
 
     /// <inheritdoc/>
+    [Infrastructure]
     public bool Equals(Structure other)
     {
       if (other==null)
@@ -93,11 +91,18 @@ namespace Xtensive.Storage
       return AdvancedComparer<Tuple>.Default.Equals(Tuple, other.Tuple);
     }
 
+    /// <inheritdoc/>
+    public override int GetHashCode()
+    {
+      return Tuple.GetHashCode();
+    }
+
     #endregion
 
     #region Inner events
 
     /// <inheritdoc/>
+    [DebuggerStepThrough]
     protected internal override sealed void OnGettingValue(FieldInfo field)
     {
       if (owner!=null)
@@ -105,6 +110,7 @@ namespace Xtensive.Storage
     }
 
     /// <inheritdoc/>
+    [DebuggerStepThrough]
     protected internal override sealed void OnSettingValue(FieldInfo field)
     {
       if (owner!=null)
@@ -112,6 +118,7 @@ namespace Xtensive.Storage
     }
 
     /// <inheritdoc/>
+    [DebuggerStepThrough]
     protected internal override sealed void OnSetValue(FieldInfo field)
     {
       if (owner==null)
@@ -120,12 +127,6 @@ namespace Xtensive.Storage
     }
 
     #endregion
-
-    protected static void RegisterActivator(Type type, Func<Persistent, FieldInfo, Structure> activator)
-    {
-      if (!activators.ContainsKey(type))
-        activators.Add(type, activator);
-    }
 
     internal static Structure Activate(Type type, Persistent owner, FieldInfo field)
     {

@@ -11,6 +11,7 @@ using System.Runtime.CompilerServices;
 using PostSharp.Extensibility;
 using PostSharp.Laos;
 using Xtensive.Core.Aspects.Helpers;
+using Xtensive.Core.Reflection;
 
 namespace Xtensive.Core.Aspects.Tests
 {
@@ -50,7 +51,7 @@ namespace Xtensive.Core.Aspects.Tests
         AspectHelper.ValidateMethodAttributes(this, SeverityType.Warning,
           method, true, MethodAttributes.Abstract);
         AspectHelper.ValidateMemberAttribute<CompilerGeneratedAttribute>(this, SeverityType.Warning,
-          method, true, false);
+          method, true, AttributeSearchOptions.Default);
       }
       return false;
     }

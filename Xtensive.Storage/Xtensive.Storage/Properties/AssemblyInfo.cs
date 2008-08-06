@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Security.Permissions;
 using PostSharp.Extensibility;
+using Xtensive.Storage.Aspects;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
@@ -45,3 +46,6 @@ using PostSharp.Extensibility;
 [assembly: AssemblyFileVersion("1.0.0.0")]
 [assembly: CLSCompliant(true)]
 [assembly: SecurityPermission(SecurityAction.RequestMinimum, Execution = true)]
+
+// This ensures the methods of Persistent & SessionBound will be aspected
+[assembly : Persistent(AttributeTargetAssemblies = "Xtensive.Storage")]

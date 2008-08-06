@@ -76,7 +76,6 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaModel
   [Entity]
   public class E : D
   {
-    [Field]
     public override string Tag
     {
       get { return base.Tag; }

@@ -62,14 +62,16 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void ProcessMaterializedViewAttribute(Type type, TypeDef typeDef)
     {
-      var materializedViewAttribute =type.GetAttribute<MaterializedViewAttribute>(false);
+      var materializedViewAttribute =type.GetAttribute<MaterializedViewAttribute>(
+        AttributeSearchOptions.Default);
       if (materializedViewAttribute != null)
         AttributeProcessor.Process(typeDef, materializedViewAttribute);
     }
 
     private static void ProcessEntityAtribute(Type type, TypeDef typeDef)
     {
-      var entityAttribute = type.GetAttribute<EntityAttribute>(true);
+      var entityAttribute = type.GetAttribute<EntityAttribute>(
+        AttributeSearchOptions.InheritFromAllBase);
       if (entityAttribute != null)
         AttributeProcessor.Process(typeDef, entityAttribute);
     }

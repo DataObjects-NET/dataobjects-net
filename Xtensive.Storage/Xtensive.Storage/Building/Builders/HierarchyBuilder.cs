@@ -23,7 +23,8 @@ namespace Xtensive.Storage.Building.Builders
         return null;
       Log.Info("Detecting hierarchy.");
 
-      var hierarchyRootAttribute = type.UnderlyingType.GetAttribute<HierarchyRootAttribute>(true);
+      var hierarchyRootAttribute = type.UnderlyingType.GetAttribute<HierarchyRootAttribute>(
+        AttributeSearchOptions.InheritFromAllBase);
       if (hierarchyRootAttribute==null)
         return null;
 

@@ -28,7 +28,6 @@ using Xtensive.Core.Aspects;
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("e746f054-26d8-47f1-b8c6-26726a53f132")]
-[assembly:Initializable(AttributeTargetTypes = "*")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -44,3 +43,6 @@ using Xtensive.Core.Aspects;
 [assembly: AssemblyFileVersion("1.0.0.0")]
 [assembly: CLSCompliant(true)]    
 [assembly: SecurityPermission(SecurityAction.RequestMinimum, Execution = true)]
+
+// This ensures the RecordSetProvider & its ancestors will be "initializable"
+[assembly:Initializable(AttributeTargetTypes = "*")]

@@ -84,6 +84,35 @@ namespace Xtensive.Core.Reflection
     }
 
     /// <summary>
+    /// Gets the types of constructor parameters.
+    /// </summary>
+    /// <param name="ctor">The constructor to get the types of parameters of.</param>
+    /// <returns>The array of types of constructor parameters.</returns>
+    public static Type[] GetParameterTypes(this ConstructorInfo ctor)
+    {
+      var parameters = ctor.GetParameters();
+      var types = new Type[parameters.Length];
+      for (int i = 0; i < parameters.Length; i++)
+        types[i] = parameters[i].ParameterType;
+      return types;
+    }
+
+    #region Property-related methods
+
+    /// <summary>
+    /// Determines whether the specified method is a property accessor.
+    /// </summary>
+    /// <param name="method">The method to check.</param>
+    /// <returns>
+    /// <see langword="true"/> if the specified method is property accessor; 
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    public static bool IsPropertyAccessor(this MethodInfo method)
+    {
+      return method.IsGetter() || method.IsSetter();
+    }
+
+    /// <summary>
     /// Determines whether the specified method is a property getter.
     /// </summary>
     /// <param name="method">The method to check.</param>
@@ -124,17 +153,85 @@ namespace Xtensive.Core.Reflection
       if (!method.IsSpecialName)
         return null;
       var type = method.DeclaringType.UnderlyingSystemType;
-      var bindingFlags = method.IsStatic ? BindingFlags.Static : BindingFlags.Instance;
-      bindingFlags    |= method.IsPublic ? BindingFlags.Public : BindingFlags.NonPublic;
       string name = method.Name;
       string propertyName = name.TryCutPrefix(WellKnown.GetterPrefix);
       if (propertyName!=name)
-        return type.GetProperty(propertyName, bindingFlags);
+        return type.GetProperty(propertyName, method.GetBindingFlags());
       propertyName = name.TryCutPrefix(WellKnown.SetterPrefix);
       if (propertyName!=name)
-        return type.GetProperty(propertyName, bindingFlags);
+        return type.GetProperty(propertyName, method.GetBindingFlags());
       return null;
     }
+
+    #endregion
+
+    #region Event-related methods
+
+    /// <summary>
+    /// Determines whether the specified method is an event accessor.
+    /// </summary>
+    /// <param name="method">The method to check.</param>
+    /// <returns>
+    /// <see langword="true"/> if the specified method is event accessor; 
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    public static bool IsEventAccessor(this MethodInfo method)
+    {
+      return method.IsAddEventHandler() || method.IsRemoveEventHandler();
+    }
+
+    /// <summary>
+    /// Determines whether the specified method is "add event handler" method.
+    /// </summary>
+    /// <param name="method">The method to check.</param>
+    /// <returns>
+    /// <see langword="true"/> if the specified method is "add event handler" method; 
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    public static bool IsAddEventHandler(this MethodInfo method)
+    {
+      if (!method.IsSpecialName)
+        return false;
+      return method.Name.StartsWith(WellKnown.AddEventHandlerPrefix);
+    }
+
+    /// <summary>
+    /// Determines whether the specified method is "remove event handler" method.
+    /// </summary>
+    /// <param name="method">The method to check.</param>
+    /// <returns>
+    /// <see langword="true"/> if the specified method is "remove event handler" method; 
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    public static bool IsRemoveEventHandler(this MethodInfo method)
+    {
+      if (!method.IsSpecialName)
+        return false;
+      return method.Name.StartsWith(WellKnown.RemoveEventHandlerPrefix);
+    }
+
+    /// <summary>
+    /// Gets the event to which <paramref name="method"/> belongs.
+    /// </summary>
+    /// <param name="method">The method to get the event for.</param>
+    /// <returns>Found event;
+    /// <see langword="null" />, if no event is associated with the method.</returns>
+    public static EventInfo GetEvent(this MethodInfo method)
+    {
+      if (!method.IsSpecialName)
+        return null;
+      var type = method.DeclaringType.UnderlyingSystemType;
+      string name = method.Name;
+      string eventName = name.TryCutPrefix(WellKnown.AddEventHandlerPrefix);
+      if (eventName!=name)
+        return type.GetEvent(eventName, method.GetBindingFlags());
+      eventName = name.TryCutPrefix(WellKnown.RemoveEventHandlerPrefix);
+      if (eventName!=name)
+        return type.GetEvent(eventName, method.GetBindingFlags());
+      return null;
+    }
+
+    #endregion
 
     #region Private \ internal methods
 

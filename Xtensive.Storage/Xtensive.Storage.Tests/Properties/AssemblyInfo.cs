@@ -47,5 +47,5 @@ using Xtensive.Storage.Aspects;
 [assembly : CLSCompliant(true)]
 [assembly : SecurityPermission(SecurityAction.RequestMinimum, Execution = true)]
 
-// This ensures the methods of Persistent & IContextBound<Session> will be aspected
+// This ensures the methods of Persistent & SessionBound will be aspected
 [assembly : Persistent(AttributeTargetAssemblies = "Xtensive.Storage.Tests")]

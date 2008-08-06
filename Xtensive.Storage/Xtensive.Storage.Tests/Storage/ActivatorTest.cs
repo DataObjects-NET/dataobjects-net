@@ -21,8 +21,7 @@ namespace Xtensive.Storage.Tests.Storage.ActivatorModel
 
   public class Descendant : Ancestor
   {
-    [Field]
-    public override int ID{ get; set; }
+    public override int ID { get; set; }
 
     [Field]
     public int Number { get; set; }

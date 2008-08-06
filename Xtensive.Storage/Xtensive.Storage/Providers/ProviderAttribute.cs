@@ -13,7 +13,7 @@ namespace Xtensive.Storage.Providers
   /// to make it available for the storage.
   /// </summary>
   [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = false)]
-  public class ProviderAttribute : Attribute, 
+  public sealed class ProviderAttribute : Attribute, 
     IEquatable<ProviderAttribute>
   {
     /// <summary>

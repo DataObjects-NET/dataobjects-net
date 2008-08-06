@@ -101,16 +101,19 @@ namespace Xtensive.Core.Aspects.Helpers
       var ci = member as ConstructorInfo;
       var fi = member as FieldInfo;
       var pi = member as PropertyInfo;
+      var ei = member as EventInfo;
       if (ti!=null)
         return FormatType(type);
       if (ci!=null)
-        return FormatConstructor(type, ci.DeclaringType, ci.GetParameters().Select(p => p.ParameterType).ToArray());
+        return FormatConstructor(type, ci.DeclaringType, ci.GetParameterTypes());
       if (mi!=null)
-        return FormatMethod(type, mi.ReturnType, mi.Name, mi.GetParameters().Select(p => p.ParameterType).ToArray());
+        return FormatMethod(type, mi.ReturnType, mi.Name, mi.GetParameterTypes());
       if (fi!=null)
         return FormatMember(type, fi.FieldType, member.Name);
       if (pi!=null)
         return FormatMember(type, pi.PropertyType, member.Name);
+      if (ei!=null)
+        return FormatMember(type, ei.EventHandlerType, member.Name);
       return FormatMember(type, typeof(void), member.Name);
     }
 
@@ -208,10 +211,10 @@ namespace Xtensive.Core.Aspects.Helpers
     /// <returns><see langword="true" /> if validation has passed;
     /// otherwise, <see langword="false" />.</returns>
     public static TAttribute ValidateMemberAttribute<TAttribute>(Attribute aspect, SeverityType severityType, 
-      MemberInfo member, bool mustHave, bool inherit)
+      MemberInfo member, bool mustHave, AttributeSearchOptions searchOptions)
       where TAttribute: Attribute
     {
-      TAttribute attribute = member.GetAttribute<TAttribute>(inherit);
+      TAttribute attribute = member.GetAttribute<TAttribute>(searchOptions);
       if ((attribute!=null) != mustHave) {
         ErrorLog.Write(severityType, Strings.AspectExRequiresToBe,
           FormatType(aspect.GetType()),
@@ -400,7 +403,8 @@ namespace Xtensive.Core.Aspects.Helpers
     public static bool ValidateContextBoundMethod<TContext>(Attribute aspect, MethodBase method)
       where TContext : class, IContext
     {
-      foreach (var attribute in method.GetAttributes<SuppressActivationAttribute>(false))
+      foreach (var attribute in method.GetAttributes<SuppressActivationAttribute>(
+        AttributeSearchOptions.Default))
         if (attribute.ContextType == typeof(TContext))
           return false;
 

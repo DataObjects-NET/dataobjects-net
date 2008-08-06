@@ -37,7 +37,8 @@ namespace Xtensive.Core.Aspects.Helpers
       if (methodInfo.IsGetter()) {
         // This is getter; let's check if it is explicitely marked as [Changer]
         PropertyInfo propertyInfo = methodInfo.GetProperty();
-        if (propertyInfo!=null && propertyInfo.GetAttribute<ChangerAttribute>(false)!=null)
+        if (propertyInfo!=null && propertyInfo.GetAttribute<ChangerAttribute>(
+          AttributeSearchOptions.Default)!=null)
           // Property itself is marked as [Changer]
           return false;
         ErrorLog.Write(SeverityType.Warning, AspectMessageType.AspectPossiblyMissapplied,

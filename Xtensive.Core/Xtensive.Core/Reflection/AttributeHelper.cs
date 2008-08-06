@@ -5,6 +5,7 @@
 // Created:    2008.06.13
 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Resources;
@@ -21,72 +22,65 @@ namespace Xtensive.Core.Reflection
     /// </summary>
     /// <typeparam name="TAttribute">The type of attributes to get.</typeparam>
     /// <param name="member">Member to get attributes of.</param>
-    /// <param name="inherit">Indicates whether to inherit the attributes, or not.</param>
+    /// <param name="options">Attribute search options.</param>
     /// <returns>An array of attributes of specified type.</returns>
-    public static TAttribute[] GetAttributes<TAttribute>(this MemberInfo member, bool inherit)
+    public static TAttribute[] GetAttributes<TAttribute>(this MemberInfo member, AttributeSearchOptions options)
     {
-      return member.GetCustomAttributes(typeof (TAttribute), inherit).Cast<object, TAttribute>();
+      var attributes = member.GetCustomAttributes(typeof (TAttribute), false).Cast<object, TAttribute>();
+      if (attributes==null || attributes.Length==0) {
+        if ((options & AttributeSearchOptions.InheritFromPropertyOrEvent)!=0) {
+          MethodInfo m = member as MethodInfo;
+          if (m!=null) {
+            var poe = (MemberInfo) m.GetProperty() ?? m.GetEvent();
+            if (poe!=null)
+              attributes = poe.GetAttributes<TAttribute>(AttributeSearchOptions.Default);
+          }
+        }
+        if ((options & AttributeSearchOptions.InheritFromBase)!=0 &&
+            (options & AttributeSearchOptions.InheritFromAllBase)==0) {
+          MemberInfo bm = member.GetBaseMember();
+          if (bm!=null)
+            attributes = bm.GetAttributes<TAttribute>(options);
+        }
+      }
+
+      if ((options & AttributeSearchOptions.InheritFromAllBase)!=0) {
+        MemberInfo bm = member.GetBaseMember();
+        if (bm!=null) {
+          var list = new List<TAttribute>();
+          if (attributes!=null)
+            list.AddRange(attributes);
+          attributes = bm.GetAttributes<TAttribute>(options);
+          if (attributes!=null)
+            list.AddRange(attributes);
+          attributes = list.ToArray();
+        }
+      }
+
+      return attributes;
     }
 
     /// <summary>
-    /// A version of <see cref="GetAttributes{TAttribute}(MemberInfo, bool)"/> 
+    /// A version of <see cref="GetAttributes{TAttribute}(MemberInfo, AttributeSearchOptions)"/> 
     /// returning just one attribute.
     /// </summary>
     /// <typeparam name="TAttribute">The type of attribute to get.</typeparam>
     /// <param name="member">Member to get attribute of.</param>
-    /// <param name="inherit">Indicates whether to inherit the attribute, or not.</param>
+    /// <param name="options">Attribute search options.</param>
     /// <returns>An attribute of specified type;
     /// <see langword="null"/>, if there is no such attribute;
     /// throws <see cref="InvalidOperationException"/>, if there is more then one attribute of specified type found.
     /// </returns>
     /// <exception cref="InvalidOperationException">Thrown if there is more then one attribute of specified type found.</exception>
-    public static TAttribute GetAttribute<TAttribute>(this MemberInfo member, bool inherit)
+    public static TAttribute GetAttribute<TAttribute>(this MemberInfo member, AttributeSearchOptions options)
       where TAttribute: Attribute
     {
-      object[] attributes = member.GetCustomAttributes(typeof (TAttribute), inherit);
+      object[] attributes = member.GetAttributes<TAttribute>(options);
       if (attributes==null || attributes.Length<1)
         return null;
       if (attributes.Length>1)
         throw new InvalidOperationException(String.Format(Strings.ExMultipleAttributesOfTypeXAreNotAllowedHere,
           member.GetShortName(),
-          typeof(TAttribute).GetShortName()
-          ));
-      return (TAttribute) attributes[0];
-    }
-
-    /// <summary>
-    /// A shortcut to <see cref="Type.GetCustomAttributes(Type,bool)"/> method.
-    /// </summary>
-    /// <typeparam name="TAttribute">The type of attributes to get.</typeparam>
-    /// <param name="type">Type to get attributes of.</param>
-    /// <param name="inherit">Indicates whether to inherit the attributes, or not.</param>
-    /// <returns>An array of attributes of specified type.</returns>
-    public static TAttribute[] GetAttributes<TAttribute>(this Type type, bool inherit)
-    {
-      return type.GetCustomAttributes(typeof (TAttribute), inherit).Cast<object, TAttribute>();
-    }
-
-    /// <summary>
-    /// A version of <see cref="GetAttributes{TAttribute}(Type, bool)"/> 
-    /// returning just one attribute.
-    /// </summary>
-    /// <typeparam name="TAttribute">The type of attribute to get.</typeparam>
-    /// <param name="type">Type to get attribute of.</param>
-    /// <param name="inherit">Indicates whether to inherit the attribute, or not.</param>
-    /// <returns>An attribute of specified type;
-    /// <see langword="null"/>, if there is no such attribute;
-    /// throws <see cref="InvalidOperationException"/>, if there is more then one attribute of specified type found.
-    /// </returns>
-    /// <exception cref="InvalidOperationException">Thrown if there is more then one attribute of specified type found.</exception>
-    public static TAttribute GetAttribute<TAttribute>(this Type type, bool inherit)
-      where TAttribute: Attribute
-    {
-      object[] attributes = type.GetCustomAttributes(typeof (TAttribute), inherit);
-      if (attributes==null || attributes.Length<1)
-        return null;
-      if (attributes.Length>1)
-        throw new InvalidOperationException(String.Format(Strings.ExMultipleAttributesOfTypeXAreNotAllowedHere,
-          type.GetShortName(),
           typeof(TAttribute).GetShortName()
           ));
       return (TAttribute) attributes[0];

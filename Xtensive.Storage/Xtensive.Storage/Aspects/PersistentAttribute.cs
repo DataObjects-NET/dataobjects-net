@@ -18,6 +18,10 @@ using FieldInfo = Xtensive.Storage.Model.FieldInfo;
 
 namespace Xtensive.Storage.Aspects
 {
+  /// <summary>
+  /// Must be applied to any <see cref="Persistent"/> and <see cref="SessionBound"/> type. 
+  /// Normally - by applying (multicasting) it to the whole assembly.
+  /// </summary>
   [MulticastAttributeUsage(MulticastTargets.Class)]
   [Serializable]
   public sealed class PersistentAttribute : CompoundAspect
@@ -26,21 +30,24 @@ namespace Xtensive.Storage.Aspects
     private static readonly Type persistentType   = typeof(Persistent);
     private static readonly Type entityType       = typeof(Entity);
     private static readonly Type structureType    = typeof(Structure);
-    private static readonly Type sessionBoundType = typeof(IContextBound<Session>);
+    private static readonly Type sessionBoundType = typeof(SessionBound);
 
+    /// <inheritdoc/>
     public override bool CompileTimeValidate(object element)
     {
       var type = element as Type;
       if (type == null)
         return false;
 
-      if (!persistentType.IsAssignableFrom(type) &&
-          !sessionBoundType.IsAssignableFrom(type))
+      if (!persistentType.IsAssignableFrom(type) && !sessionBoundType.IsAssignableFrom(type))
         return false;
 
       return true;
     }
 
+    #region ProvideXxx methods
+
+    /// <inheritdoc/>
     public override void ProvideAspects(object element, LaosReflectionAspectCollection collection)
     {
       var type = (Type) element;
@@ -75,13 +82,14 @@ namespace Xtensive.Storage.Aspects
     {
       foreach (PropertyInfo pi in type.GetProperties(
         BindingFlags.Public |
-        BindingFlags.NonPublic |
-        BindingFlags.Instance |
-        BindingFlags.DeclaredOnly)) 
+          BindingFlags.NonPublic |
+            BindingFlags.Instance |
+              BindingFlags.DeclaredOnly)) 
       {
         try {
-          var fieldAttribute = pi.GetAttribute<FieldAttribute>(true);
-          if (fieldAttribute == null)
+          var fieldAttribute = pi.GetAttribute<FieldAttribute>(
+            AttributeSearchOptions.InheritFromAllBase);
+          if (fieldAttribute==null)
             continue;
         }
         catch (InvalidOperationException) {
@@ -96,7 +104,7 @@ namespace Xtensive.Storage.Aspects
           if (getterAspect!=null)
             collection.AddAspect(getter, getterAspect);
         }
-        if (setter != null) {
+        if (setter!=null) {
           var setterAspect = ImplementAutoPropertyReplacementAspect.ApplyOnce(setter, persistentType, HandlerMethodSuffix);
           if (setterAspect!=null)
             collection.AddAspect(setter, setterAspect);
@@ -106,6 +114,8 @@ namespace Xtensive.Storage.Aspects
 
     private void ProvideConstructorAspect(Type type, LaosReflectionAspectCollection collection)
     {
+      if (type==entityType || type==structureType || type==persistentType)
+        return;
       var aspect = ImplementConstructorAspect.ApplyOnce(type, 
         GetInternalConstructorParameterTypes(type));
       if (aspect!=null)
@@ -119,9 +129,23 @@ namespace Xtensive.Storage.Aspects
       var aspect = ImplementProtectedConstructorAccessorAspect.ApplyOnce(type,
         GetInternalConstructorParameterTypes(type),
         GetBasePersistentType(type));
-      if (aspect != null)
+      if (aspect!=null) {
+        ErrorLog.Debug("Providing .ctor delegate for '{0}'.", type.GetShortName());
         collection.AddAspect(type, aspect);
+      }
     }
+
+    #endregion
+
+    /// <inheritdoc/>
+    public override PostSharpRequirements GetPostSharpRequirements()
+    {
+      var requirements = base.GetPostSharpRequirements();
+      AspectHelper.AddStandardRequirements(requirements);
+      return requirements;
+    }
+
+    #region Private \ internal methods
 
     private Type GetBasePersistentType(Type type)
     {
@@ -132,17 +156,19 @@ namespace Xtensive.Storage.Aspects
       return null;
     }
 
-    /// <exception cref="Exception">[Suppresses AgentJohnson warning].</exception>
+    /// <exception cref="Exception">[Suppresses warning]</exception>
     private Type[] GetInternalConstructorParameterTypes(Type type)
     {
       var baseType = GetBasePersistentType(type);
       if (baseType==structureType)
         return new[] {persistentType, typeof (FieldInfo)};
       if (baseType==entityType)
-        return new[] { typeof (EntityData) };
+        return new[] {typeof (EntityData)};
       throw Exceptions.InternalError(
         string.Format(Strings.ExWrongPersistentTypeCandidate, type.GetType()), 
         Log.Instance);
     }
+
+    #endregion
   }
 }

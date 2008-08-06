@@ -12,6 +12,8 @@ using PostSharp.Laos;
 using Xtensive.Core;
 using Xtensive.Core.Aspects.Helpers;
 using Xtensive.Core.Helpers;
+using Xtensive.Core.Reflection;
+using Xtensive.Storage.Attributes;
 
 namespace Xtensive.Storage.Aspects
 {
@@ -22,13 +24,23 @@ namespace Xtensive.Storage.Aspects
   {
     public override bool CompileTimeValidate(MethodBase method)
     {
-      return AspectHelper.ValidateContextBoundMethod<Session>(this, method);
+      if (!AspectHelper.ValidateContextBoundMethod<Session>(this, method))
+        return false;
+
+      // Let's ignore the methods & properties with [Infrastructure] attribute
+      var methodInfo = (MethodInfo) method;
+      if (methodInfo.GetAttribute<InfrastructureAttribute>(
+          AttributeSearchOptions.InheritFromAllBase |
+          AttributeSearchOptions.InheritFromPropertyOrEvent)!=null)
+        return false;
+
+      return true;
     }
 
     [DebuggerStepThrough]
     public override void OnEntry(MethodExecutionEventArgs eventArgs)
     {
-      var sessionBound = (IContextBound<Session>) eventArgs.Instance;
+      var sessionBound = (SessionBound) eventArgs.Instance;
       var sessionScope = (SessionScope) sessionBound.ActivateContext();
       eventArgs.MethodExecutionTag = sessionScope;
     }

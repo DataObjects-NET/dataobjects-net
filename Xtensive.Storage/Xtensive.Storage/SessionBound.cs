@@ -5,8 +5,11 @@
 // Created:    2007.08.10
 
 using System;
+using System.Diagnostics;
 using Xtensive.Core;
+using Xtensive.Core.Aspects;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Storage.Attributes;
 
 namespace Xtensive.Storage
 {
@@ -14,13 +17,16 @@ namespace Xtensive.Storage
   /// Base class for all objects that are bound to the <see cref="Session"/>
   /// instance.
   /// </summary>
-  public abstract class SessionBound: IContextBound<Session>
+  public abstract class SessionBound : 
+    IContextBound<Session>
   {
     private Session session;
 
     /// <summary>
     /// Gets <see cref="Session"/> to which current instance is bound.
     /// </summary>
+    [Infrastructure]
+    [DebuggerHidden]
     public Session Session
     {
       get { return session; }
@@ -29,6 +35,8 @@ namespace Xtensive.Storage
 
     #region IContextBound<Session> Members
 
+    [Infrastructure]
+    [DebuggerHidden]
     Session IContextBound<Session>.Context
     {
       get { return session; }
