@@ -7,16 +7,17 @@
 using System;
 using System.Linq;
 using Xtensive.Core;
+using Xtensive.Core.Aspects;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Rse.Providers.Compilable
-{
+{  
   /// <summary>
   /// Compilable provider that declares sort operation over the <see cref="UnaryProvider.Source"/>.
   /// </summary>
-  [Serializable]
+  [Serializable]  
   public sealed class SortProvider : UnaryProvider
   {
     private RecordSetHeader header;
@@ -52,8 +53,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     public SortProvider(CompilableProvider provider, DirectionCollection<int> tupleSortOrder)
       : base(provider)
     {
-      SortOrder = tupleSortOrder;
-      Initialize();
+      SortOrder = tupleSortOrder;      
     }
   }
 }

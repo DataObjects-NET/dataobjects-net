@@ -28,6 +28,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
       }
     }
 
+    /// <inheritdoc/>
     protected override void Initialize()
     {
       transform = new CombineTransform(true, Left.Header.TupleDescriptor, Right.Header.TupleDescriptor);
@@ -38,8 +39,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     
     public LeftMergeJoinProvider(Provider origin, ExecutableProvider left, ExecutableProvider right)
       : base (origin, left, right)
-    {
-      Initialize();
+    {      
     }
   }
 }

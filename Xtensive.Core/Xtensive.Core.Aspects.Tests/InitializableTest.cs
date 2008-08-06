@@ -15,23 +15,23 @@ namespace Xtensive.Core.Aspects.Tests
 {
   public class WrongInitializableBase
   {
-    public bool Initializated { get; private set; }
+    public bool IsInitialized { get; private set; }
 
     protected void Initialize(Type ctorType)
     {
-      Initializated = true;
+      IsInitialized = true;
     }
   }
 
   public class InitializableBase: IInitializable
   {
-    public bool Initializated { get; private set; }
+    public bool IsInitialized { get; private set; }
 
     protected void Initialize(Type ctorType)
     {
       if (ctorType!=GetType())
         return;
-      Initializated = true;
+      IsInitialized = true;
       Log.Info("Initialized: type {0}", ctorType.GetShortName());
     }
   }
@@ -57,12 +57,12 @@ namespace Xtensive.Core.Aspects.Tests
     public void CombinedTest()
     {
       var wi = new WrongInitializableBase(); 
-      Assert.IsFalse(wi.Initializated);
+      Assert.IsFalse(wi.IsInitialized);
 
       var i = new InitializableBase(); 
-      Assert.IsTrue(i.Initializated);
+      Assert.IsTrue(i.IsInitialized);
       i = new InitializableSample();
-      Assert.IsTrue(i.Initializated);
+      Assert.IsTrue(i.IsInitialized);
     }
   }
 }

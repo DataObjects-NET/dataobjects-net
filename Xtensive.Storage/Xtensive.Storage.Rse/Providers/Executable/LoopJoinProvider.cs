@@ -38,6 +38,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
       return leftKeyTransform.Apply(TupleTransformType.Auto, input);
     }
 
+    /// <inheritdoc/>
     protected override void Initialize()
     {
       transform = new CombineTransform(true, Left.Header.TupleDescriptor, Right.Header.TupleDescriptor);
@@ -53,8 +54,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
       : base(origin, left, right)
     {
       this.leftJoin = leftJoin;
-      this.joiningPairs = joiningPairs;
-      Initialize();
+      this.joiningPairs = joiningPairs;      
     }
   }
 }

@@ -12,7 +12,7 @@ using Xtensive.Core.Reflection;
 
 namespace Xtensive.Core.Weaver
 {
-  internal class ImplementConstructorWeaver : LaosAspectWeaver
+  public class ImplementConstructorWeaver : LaosAspectWeaver
   {
     private const string ParameterNamePrefix = "arg";
 

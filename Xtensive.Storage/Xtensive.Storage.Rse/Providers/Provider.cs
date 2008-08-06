@@ -9,6 +9,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using Xtensive.Core;
+using Xtensive.Core.Aspects;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
@@ -21,6 +22,7 @@ namespace Xtensive.Storage.Rse.Providers
   [Serializable]
   public abstract class Provider : 
     IEnumerable<Tuple>,
+    IInitializable,
     IHasServices
   {
     private RecordSetHeader header;
@@ -64,20 +66,29 @@ namespace Xtensive.Storage.Rse.Providers
 
     #endregion
 
+
+    /// <summary>
+    /// Performs initialization of the provider if type of this is <paramref name="constructedProviderType"/>.
+    /// </summary>
+    /// <param name="constructedProviderType">Type of the constructed provider.</param>
+    protected void Initialize(Type constructedProviderType)
+    {
+      if (constructedProviderType==GetType())
+        Initialize();
+    }
+
     /// <summary>
     /// Performs initialization of the provider.
     /// </summary>
     protected abstract void Initialize();
-
-    #region Private \ internal methods
 
     private void EnsureHeaderIsBuilt()
     {
       if (header == null) lock (this) if (header == null)
         header = BuildHeader();
     }
-
-    #endregion
+      
+    #region ToString() implementation
 
     private const string ProviderTypeSuffix = "Provider";
     private const int IndentingCharCount = 2;
@@ -120,6 +131,8 @@ namespace Xtensive.Storage.Rse.Providers
     {
       return string.Empty;
     }
+
+    #endregion
 
 
     // Constructor

@@ -136,6 +136,7 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
         );
     }
 
+    /// <inheritdoc/>
     protected override void Initialize()
     {
       keyTransform = new MapTransform(true, Header.TupleDescriptor, Header.OrderDescriptor.Order.Select(pair => pair.Key).ToArray());
@@ -173,8 +174,7 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
       AddService<IOrderedEnumerable<Tuple, Tuple>>();
       AddService<ICountable>();
 
-      this.sourceProviders = sourceProviders;
-      Initialize();
+      this.sourceProviders = sourceProviders;      
     }
   }
 }

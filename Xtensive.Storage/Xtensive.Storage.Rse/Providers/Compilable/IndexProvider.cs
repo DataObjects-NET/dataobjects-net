@@ -23,15 +23,18 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// </summary>
     public IndexInfoRef Index { get; private set; }
 
+    /// <inheritdoc/>
     protected override RecordSetHeader BuildHeader()
     {
       return header;
     }
 
+    /// <inheritdoc/>    
     protected override void Initialize()
-    {
+    {      
     }
 
+    /// <inheritdoc/>
     public override string GetStringParameters()
     {
       return Index.ToString();

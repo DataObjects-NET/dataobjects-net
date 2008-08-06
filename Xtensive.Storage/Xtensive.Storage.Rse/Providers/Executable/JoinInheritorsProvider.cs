@@ -131,6 +131,7 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
             pair.Second, pair.Second.KeyExtractor, pair.First.Header.TupleDescriptor)).ToList());
     }
 
+    /// <inheritdoc/>
     protected override void Initialize()
     {
       var map = new List<Pair<int, int>>();
@@ -157,8 +158,7 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
       this.includedColumnsCount = includedColumnsCount;
       this.root = root;
       rootEnumerable = root.GetService<IOrderedEnumerable<Tuple, Tuple>>(true);
-      this.inheritors = inheritors;
-      Initialize();
+      this.inheritors = inheritors;      
     }
   }
 }

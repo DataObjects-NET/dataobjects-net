@@ -1,23 +1,17 @@
-﻿// Copyright (C) 2008 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
-
-using System;
-using System.Reflection;
+﻿using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Security.Permissions;
-using PostSharp.Extensibility;
-using Xtensive.Core.Aspects;
+using Xtensive.Storage.Aspects;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Xtensive.Storage.Rse")]
+[assembly: AssemblyTitle("Initializing")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Xtensive.Storage.Rse")]
-[assembly: AssemblyCopyright("Copyright © Xtensive LLC 2008")]
+[assembly: AssemblyProduct("Initializing")]
+[assembly: AssemblyCopyright("Copyright ©  2008")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -27,8 +21,8 @@ using Xtensive.Core.Aspects;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("e746f054-26d8-47f1-b8c6-26726a53f132")]
-[assembly:Initializable(AttributeTargetTypes = "*")]
+[assembly: Guid("7e4d0f02-98de-4117-ae52-7cfd62c6ba73")]
+//[assembly : Persistent(AttributeTargetAssemblies = "Initializing")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -42,5 +36,3 @@ using Xtensive.Core.Aspects;
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
-[assembly: CLSCompliant(true)]    
-[assembly: SecurityPermission(SecurityAction.RequestMinimum, Execution = true)]

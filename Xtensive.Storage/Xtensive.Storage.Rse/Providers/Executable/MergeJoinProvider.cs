@@ -27,6 +27,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
         yield return transform.Apply(TupleTransformType.Auto, pair.First, pair.Second);
     }
 
+    /// <inheritdoc/>
     protected override void Initialize()
     {
       transform = new CombineTransform(true, Left.Header.TupleDescriptor, Right.Header.TupleDescriptor);
@@ -37,8 +38,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 
     public MergeJoinProvider(Provider origin, ExecutableProvider left, ExecutableProvider right)
       : base (origin, left, right)
-    {
-      Initialize();
+    {      
     }
   }
 }

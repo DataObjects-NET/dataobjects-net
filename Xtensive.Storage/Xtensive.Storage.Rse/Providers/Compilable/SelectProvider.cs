@@ -37,11 +37,13 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
       }
     }
 
+    /// <inheritdoc/>
     protected override RecordSetHeader BuildHeader()
     {
       return header;
     }
 
+    /// <inheritdoc/>
     protected override void Initialize()
     {
       header = new RecordSetHeader(Source.Header, ColumnsToSelect);
@@ -62,8 +64,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     public SelectProvider(CompilableProvider provider, int[] columnIndexes)
       : base(provider)
     {
-      columnToSelect = columnIndexes;
-      Initialize();
+      columnToSelect = columnIndexes;      
     }
   }
 }

@@ -23,11 +23,13 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// </summary>
     public Tuple[] Tuples { get; private set; }
 
+    /// <inheritdoc/>
     protected override RecordSetHeader BuildHeader()
     {
       return header;
     }
 
+    /// <inheritdoc/>
     protected override void Initialize()
     {
     }
