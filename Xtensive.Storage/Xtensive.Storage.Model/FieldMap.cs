@@ -7,7 +7,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Xtensive.Core;
 using Xtensive.Core.Helpers;
 
 namespace Xtensive.Storage.Model
@@ -52,9 +51,11 @@ namespace Xtensive.Storage.Model
         reversedMap.Add(typeField, new List<FieldInfo> {interfaceField});
     }
 
-    public bool TryGetValue(FieldInfo interfaceField, out FieldInfo typeField)
+    public FieldInfo TryGetValue(FieldInfo interfaceField)
     {
-      return map.TryGetValue(interfaceField, out typeField);
+      FieldInfo result;
+      map.TryGetValue(interfaceField, out result);
+      return result;
     }
 
     IEnumerator<KeyValuePair<FieldInfo, FieldInfo>> IEnumerable<KeyValuePair<FieldInfo, FieldInfo>>.GetEnumerator()

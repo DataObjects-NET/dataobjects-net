@@ -46,30 +46,23 @@ namespace Xtensive.Storage.Model
     /// Gets the value associated with the specified key.
     /// </summary>
     /// <param name="key">The key of the value to get.</param>
-    /// <param name="value">When this method returns, contains the value 
-    /// associated with the specified key, if the key is found; otherwise, 
-    /// the default value for the type of the value parameter. 
-    /// This parameter is passed uninitialized.</param>
-    /// <returns></returns>
-    public bool TryGetValue(Type key, out TypeInfo value)
+    /// <returns>The value associated with the specified <paramref name="key"/> or <see langword="null"/> 
+    /// if item was not found.</returns>
+    public TypeInfo TryGetValue(Type key)
     {
-      value = null;
-      if (!Contains(key))
-        return false;
-      value = typeIndex.GetItem(key);
-      return true;
+      return typeIndex.GetItem(key);
     }
 
     /// <summary>
     /// An indexer that provides access to collection items.
-    /// Returns <see langword="null"/> if there is no such item.
     /// </summary>
+    /// <exception cref="ArgumentException"> when item was not found.</exception>
     public TypeInfo this[Type key]
     {
       get
       {
-        TypeInfo result;
-        if (!TryGetValue(key, out result))
+        TypeInfo result = TryGetValue(key);
+        if (result == null)
           throw new ArgumentException(String.Format(String.Format("Item by key ='{0}' was not found.", key)));
         return result;
       }
@@ -320,8 +313,8 @@ namespace Xtensive.Storage.Model
 
       Type[] interfaces = type.GetInterfaces();
       for (int index = 0; index < interfaces.Length; index++) {
-        TypeInfo result;
-        if (TryGetValue(interfaces[index], out result))
+        TypeInfo result = TryGetValue(interfaces[index]);
+        if (result != null)
           yield return result;
       }
     }
@@ -368,8 +361,8 @@ namespace Xtensive.Storage.Model
     {
       if (item==null)
         return false;
-      TypeInfo result;
-      if (!TryGetValue(item.UnderlyingType, out result))
+      TypeInfo result = TryGetValue(item.UnderlyingType);
+      if (result == null)
         return false;
       return result==item;
     }

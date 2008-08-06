@@ -78,10 +78,10 @@ namespace Xtensive.Storage.Building.Builders
           case InheritanceSchema.Default:
             BuildClassTableIndexes(hierarchy.Root);
             break;
-          case InheritanceSchema.SingleTableInheritance:
+          case InheritanceSchema.SingleTable:
             BuildSingleTableIndexes(hierarchy.Root);
             break;
-          case InheritanceSchema.ConcreteTableInheritance:
+          case InheritanceSchema.ConcreteTable:
             BuildConcreteTableIndexes(hierarchy.Root);
             break;
           }
@@ -531,10 +531,10 @@ namespace Xtensive.Storage.Building.Builders
           types = typeInfo.GetImplementors(true);
         else
           switch (schema) {
-          case InheritanceSchema.SingleTableInheritance:
+          case InheritanceSchema.SingleTable:
             types = new[] {typeInfo}.Union(root.GetDescendants(true));
             break;
-          case InheritanceSchema.ConcreteTableInheritance:
+          case InheritanceSchema.ConcreteTable:
             types = typeInfo.GetAncestors().Union(new[] {typeInfo});
             break;
           default:
@@ -605,7 +605,7 @@ namespace Xtensive.Storage.Building.Builders
         result.ValueColumns.AddRange(reflectedType.Columns.Find(ColumnAttributes.PrimaryKey, MatchType.None));
 
       if (ancestorIndexInfo.IsPrimary) {
-        if (reflectedType.Hierarchy.Schema==InheritanceSchema.ClassTableInheritance) {
+        if (reflectedType.Hierarchy.Schema==InheritanceSchema.ClassTable) {
           foreach (ColumnInfo column in ancestorIndexInfo.IncludedColumns) {
             FieldInfo field = reflectedType.Fields[column.Field.Name];
             result.ValueColumns.Add(field.Column);
@@ -613,7 +613,7 @@ namespace Xtensive.Storage.Building.Builders
           foreach (ColumnInfo column in reflectedType.Columns.Find(ColumnAttributes.Inherited | ColumnAttributes.PrimaryKey, MatchType.None))
             result.ValueColumns.Add(column);
         }
-        else if (reflectedType.Hierarchy.Schema==InheritanceSchema.ConcreteTableInheritance) {
+        else if (reflectedType.Hierarchy.Schema==InheritanceSchema.ConcreteTable) {
           foreach (ColumnInfo column in reflectedType.Columns.Find(ColumnAttributes.PrimaryKey, MatchType.None))
             if (!result.ValueColumns.Contains(column.Name))
               result.ValueColumns.Add(column);
@@ -753,7 +753,7 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void BuildColumnGroups(TypeInfo reflectedType, IndexInfo index)
     {
-      if (reflectedType.Hierarchy.Schema == InheritanceSchema.ConcreteTableInheritance) {
+      if (reflectedType.Hierarchy.Schema == InheritanceSchema.ConcreteTable) {
         var keyColumns = index.KeyColumns.Select(p => p.Key);
         index.ColumnGroups.Add(new ColumnGroup(reflectedType, keyColumns, keyColumns.Union(index.ValueColumns)));
       }

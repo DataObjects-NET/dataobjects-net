@@ -63,7 +63,7 @@ namespace Xtensive.Storage.Tests.Storage.SnakesModel
 
 namespace Xtensive.Storage.Tests.Storage
 {
-  public class SnakesTests : AutoBuildTestFixture
+  public class SnakesTest : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
     {

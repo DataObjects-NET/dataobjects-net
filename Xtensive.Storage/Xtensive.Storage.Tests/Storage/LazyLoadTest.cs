@@ -26,7 +26,7 @@ namespace Xtensive.Storage.Tests.Storage.LazyLoadModel
 
 namespace Xtensive.Storage.Tests.Storage
 {
-  public class LazyLoadTests : AutoBuildTestFixture
+  public class LazyLoadTest : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
     {

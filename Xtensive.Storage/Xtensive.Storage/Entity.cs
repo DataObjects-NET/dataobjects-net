@@ -14,6 +14,7 @@ using Xtensive.Core.Tuples;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Providers;
 using Xtensive.Storage.ReferentialIntegrity;
 using Xtensive.Storage.Resources;
 
@@ -44,10 +45,10 @@ namespace Xtensive.Storage
     [DebuggerHidden]
     internal int TypeId
     {
-      get { return GetValue<int>(Session.Handlers.NameBuilder.TypeIdFieldName); }
+      get { return GetValue<int>(NameBuilder.TypeIdFieldName); }
       private set
       {
-        FieldInfo field = Type.Fields[Session.Handlers.NameBuilder.TypeIdFieldName];
+        FieldInfo field = Type.Fields[NameBuilder.TypeIdFieldName];
         field.GetAccessor<int>().SetValue(this, field, value);
       }
     }

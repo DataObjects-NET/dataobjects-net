@@ -10,7 +10,7 @@ using Xtensive.Core;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
 
-namespace Xtensive.Storage.Tests.Model.Relations
+namespace Xtensive.Storage.Tests.Model.Association
 {
   [HierarchyRoot(typeof (DefaultGenerator), "Id")]
   public abstract class Root : Entity
@@ -93,12 +93,12 @@ namespace Xtensive.Storage.Tests.Model.Relations
 
 namespace Xtensive.Storage.Tests.Model
 {
-  public class AssociationTests : AutoBuildTestFixture
+  public class AssociationTest : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
     {
       DomainConfiguration config = base.BuildConfiguration();
-      config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.Model.Relations");
+      config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.Model.Associations");
       return config;
     }
 

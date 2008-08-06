@@ -16,35 +16,45 @@ namespace Xtensive.Storage.Building.Definitions
     public override bool Contains(HierarchyDef item)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
-      HierarchyDef result;
-      return TryGetValue(item.Root, out result);
+      return TryGetValue(item.Root) != null;
     }
 
-    public bool TryGetValue(TypeDef key, out HierarchyDef value)
+    /// <summary>
+    /// Gets the value associated with the specified key.
+    /// </summary>
+    /// <param name="key">The key of the value to get.</param>
+    /// <returns>The value associated with the specified <paramref name="key"/> or <see langword="null"/> 
+    /// if item was not found.</returns>
+    public HierarchyDef TryGetValue(TypeDef key)
     {
-      return TryGetValue(key.UnderlyingType, out value);
+      return TryGetValue(key.UnderlyingType);
     }
 
-    public bool TryGetValue(Type key, out HierarchyDef value)
+    /// <summary>
+    /// Gets the value associated with the specified key.
+    /// </summary>
+    /// <param name="key">The key of the value to get.</param>
+    /// <returns>The value associated with the specified <paramref name="key"/> or <see langword="null"/> 
+    /// if item was not found.</returns>
+    public HierarchyDef TryGetValue(Type key)
     {
-      foreach (HierarchyDef item in this) {
-        if (item.Root.UnderlyingType == key) {
-          value = item;
-          return true;
-        }
-      }
-      value = null;
-      return false;
+      foreach (HierarchyDef item in this)
+        if (item.Root.UnderlyingType==key)
+          return item;
+      return null;
     }
 
+    /// <summary>
+    /// An indexer that provides access to collection items.
+    /// <exception cref="ArgumentException"> when item was not found.</exception>
     public HierarchyDef this[Type key]
     {
       get
       {
-        HierarchyDef result;
-        if (TryGetValue(key, out result))
+        HierarchyDef result = TryGetValue(key);
+        if (result == null)
           return result;
-        throw new ArgumentException(String.Format(String.Format("Item '{0}' not found.", key)));
+          throw new ArgumentException(String.Format(String.Format("Item by key ='{0}' was not found.", key)));
       }
     }
   }

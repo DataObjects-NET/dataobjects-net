@@ -79,7 +79,7 @@ namespace Xtensive.Storage.Tests.Storage.StructureModel
 
 namespace Xtensive.Storage.Tests.Storage
 {
-  public class StructureTests : AutoBuildTestFixture
+  public class StructureTest : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
     {

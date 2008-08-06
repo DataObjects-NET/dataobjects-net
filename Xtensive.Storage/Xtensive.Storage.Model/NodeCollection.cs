@@ -61,31 +61,25 @@ namespace Xtensive.Storage.Model
     /// Gets the value associated with the specified key.
     /// </summary>
     /// <param name="key">The key of the value to get.</param>
-    /// <param name="value">When this method returns, contains the value 
-    /// associated with the specified key, if the key is found; otherwise, 
-    /// the default value for the type of the value parameter. 
-    /// This parameter is passed uninitialized.</param>
-    /// <returns></returns>
-    public bool TryGetValue(string key, out TNode value)
+    /// <returns>The value associated with the specified <paramref name="key"/> or <see langword="null"/> 
+    /// if item was not found.</returns>
+    public TNode TryGetValue(string key)
     {
-      value = null;
-      if (!Contains(key))
-        return false;
-      value = nameIndex.GetItem(key);
-      return true;
+      return nameIndex.GetItem(key);
     }
 
     /// <summary>
     /// An indexer that provides access to collection items.
     /// Returns <see langword="default(TNode)"/> if there is no such item.
     /// </summary>
+    /// <exception cref="ArgumentException"> when item was not found.</exception>
     public TNode this[string key]
     {
       get
       {
-        TNode result;
-        if (!TryGetValue(key, out result))
-          throw new ArgumentException(String.Format(String.Format("Item '{0}' not found.", key)));
+        TNode result = TryGetValue(key);
+        if (key == null)
+          throw new ArgumentException(String.Format(String.Format("Item by key ='{0}' was not found.", key)));
         return result;
       }
     }

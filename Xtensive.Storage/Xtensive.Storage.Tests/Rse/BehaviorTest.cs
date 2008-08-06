@@ -5,7 +5,6 @@
 // Created:    2008.05.19
 
 using System;
-using System.Globalization;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core;
@@ -36,8 +35,8 @@ namespace Xtensive.Storage.Tests.Rse
           new RecordColumn("ID", 0, typeof (int)),
           new RecordColumn("Title", 1, typeof (string)),
         };
-      var personHeader = new RecordSetHeader(personTuple.Descriptor, personColumns, null, new[] { new RecordColumnGroup(null, null ), }, null);
-      var authorHeader = new RecordSetHeader(authorTuple.Descriptor, authorColumns, null, new[] { new RecordColumnGroup(null, null ), }, null);
+      var personHeader = new RecordSetHeader(personTuple.Descriptor, personColumns, null, new[] { new RecordColumnGroupMapping(null, null ), }, null);
+      var authorHeader = new RecordSetHeader(authorTuple.Descriptor, authorColumns, null, new[] { new RecordColumnGroupMapping(null, null ), }, null);
 
       var persons = new Tuple[personCount];
       var authors = new Tuple[personCount / 2];
@@ -85,7 +84,7 @@ namespace Xtensive.Storage.Tests.Rse
           new RecordColumn("IDAuthor", 1, typeof (int)),
           new RecordColumn("Title", 2, typeof (string)),
         };
-      var authorHeader = new RecordSetHeader(authorTuple.Descriptor, authorColumns, TupleDescriptor.Empty, ArrayUtils<RecordColumnGroup>.EmptyArray, new DirectionCollection<int>());
+      var authorHeader = new RecordSetHeader(authorTuple.Descriptor, authorColumns, TupleDescriptor.Empty, ArrayUtils<RecordColumnGroupMapping>.EmptyArray, new DirectionCollection<int>());
       var bookHeader = new RecordSetHeader(bookTuple.Descriptor, bookColumns, null, null, null);
 
       var authors = new Tuple[authorCount];

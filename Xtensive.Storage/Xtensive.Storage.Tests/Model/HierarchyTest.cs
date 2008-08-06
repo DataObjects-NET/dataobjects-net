@@ -11,9 +11,9 @@ using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Tests.Model.Schemas;
+using Xtensive.Storage.Tests.Model.Hierarchies;
 
-namespace Xtensive.Storage.Tests.Model.Schemas
+namespace Xtensive.Storage.Tests.Model.Hierarchies
 {
   public interface I0 : IEntity
   {
@@ -102,12 +102,12 @@ namespace Xtensive.Storage.Tests.Model.Schemas
 
 namespace Xtensive.Storage.Tests.Model
 {
-  public class HierarchyTests : AutoBuildTestFixture
+  public class HierarchyTest : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
     {
       DomainConfiguration config = base.BuildConfiguration();
-      config.Types.Register(typeof (A).Assembly, "Xtensive.Storage.Tests.Model.Schemas");
+      config.Types.Register(typeof (A).Assembly, "Xtensive.Storage.Tests.Model.Hierarchies");
       config.Builders.Add(typeof (CustomStorageDefinitionBuilder));
       return config;
     }

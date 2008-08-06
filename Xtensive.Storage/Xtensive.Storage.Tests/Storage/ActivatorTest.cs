@@ -32,7 +32,7 @@ namespace Xtensive.Storage.Tests.Storage.ActivatorModel
 
 namespace Xtensive.Storage.Tests.Storage
 {
-  public class ActivatorTests : AutoBuildTestFixture
+  public class ActivatorTest : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
     {

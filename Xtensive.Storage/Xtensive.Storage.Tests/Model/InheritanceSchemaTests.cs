@@ -135,7 +135,7 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaModel
   {
     protected override InheritanceSchema InheritanceSchema
     {
-      get { return InheritanceSchema.SingleTableInheritance; }
+      get { return InheritanceSchema.SingleTable; }
     }
   }
 
@@ -143,14 +143,14 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaModel
   {
     protected override InheritanceSchema InheritanceSchema
     {
-      get { return InheritanceSchema.ConcreteTableInheritance; }
+      get { return InheritanceSchema.ConcreteTable; }
     }
   }
 }
 
 namespace Xtensive.Storage.Tests.Model.InheritanceSchemaTests
 {
-  public abstract class InheritanceSchemaTestBase : AutoBuildTestFixture
+  public abstract class InheritanceSchemaTestBase : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
     {

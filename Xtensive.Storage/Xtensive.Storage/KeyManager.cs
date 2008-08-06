@@ -10,6 +10,7 @@ using Xtensive.Core.Collections;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Providers;
 using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage
@@ -99,7 +100,7 @@ namespace Xtensive.Storage
 
     private void TryGetType(Key key, Tuple tuple)
     {
-      int columnIndex = key.Hierarchy.Root.Fields[domain.NameBuilder.TypeIdFieldName].MappingInfo.Offset;
+      int columnIndex = key.Hierarchy.Root.Fields[NameBuilder.TypeIdFieldName].MappingInfo.Offset;
 
       if (columnIndex > tuple.Count -1)
         return;

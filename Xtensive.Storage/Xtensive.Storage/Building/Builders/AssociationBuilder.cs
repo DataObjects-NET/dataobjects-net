@@ -41,8 +41,8 @@ namespace Xtensive.Storage.Building.Builders
 
     public static void BuildPairedAssociation(AssociationInfo pairedAssociation, string masterFieldName)
     {
-      FieldInfo masterField;
-      if (!pairedAssociation.ReferencedType.Fields.TryGetValue(masterFieldName, out masterField))
+      FieldInfo masterField = pairedAssociation.ReferencedType.Fields.TryGetValue(masterFieldName);
+      if (masterField == null)
         throw new DomainBuilderException(
           string.Format(Resources.Strings.ExPairedFieldXWasNotFoundInYType, masterFieldName, pairedAssociation.ReferencedType.Name));
 

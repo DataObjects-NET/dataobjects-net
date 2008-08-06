@@ -11,7 +11,7 @@ using Xtensive.Storage.Configuration;
 namespace Xtensive.Storage.Tests
 {
   [TestFixture]
-  public abstract class AutoBuildTestFixture
+  public abstract class AutoBuildTest
   {
     private Domain domain;
 
@@ -34,8 +34,11 @@ namespace Xtensive.Storage.Tests
 
     protected virtual DomainConfiguration BuildConfiguration()
     {
-      DomainConfiguration config = new DomainConfiguration();
-      config.ConnectionInfo = new UrlInfo(@"memory://localhost/Test_4.0");
+      DomainConfiguration config;
+      config = DomainConfigurationFactory.Create("memory");
+//      config = DomainConfigurationFactory.Create("mssql");
+//      config = DomainConfigurationFactory.Create("memory", InheritanceSchema.SingleTable);
+      config = DomainConfigurationFactory.Create("memory", InheritanceSchema.SingleTable, TypeIdBehavior.Include);
       return config;
     }
 

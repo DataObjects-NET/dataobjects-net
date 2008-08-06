@@ -45,11 +45,11 @@ namespace Xtensive.Storage.Rse
     /// <param name="model">Domain model.</param>
     public ColumnInfo Resolve(DomainModel model)
     {
-      TypeInfo type;
-      if (!model.Types.TryGetValue(TypeName, out type))
+      TypeInfo type = model.Types.TryGetValue(TypeName);
+      if (type == null)
         throw new InvalidOperationException(string.Format(Strings.ExCouldNotResolveXYWithinDomain, "type", TypeName));
-      FieldInfo field;
-      if (!type.Fields.TryGetValue(FieldName, out field))
+      FieldInfo field = type.Fields.TryGetValue(FieldName);
+      if (field == null)
         throw new InvalidOperationException(string.Format(Strings.ExCouldNotResolveXYWithinDomain, "field", FieldName));
       if (field.Column == null)
         throw new InvalidOperationException(string.Format(Strings.ExCouldNotResolveXYWithinDomain, "column", ColumnName));

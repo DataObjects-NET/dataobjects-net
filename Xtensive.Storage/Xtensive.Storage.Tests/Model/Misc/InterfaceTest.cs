@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Tests.Model.Misc
   }
 
   [TestFixture]
-  public class InterfaceTests
+  public class InterfaceTest
   {
     [Test]
     public void NETTest()

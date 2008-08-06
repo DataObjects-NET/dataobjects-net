@@ -15,10 +15,10 @@ using Xtensive.Storage.Building;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
-using Xtensive.Storage.Tests.Model.Library;
+using Xtensive.Storage.Tests.Model.LibraryModel;
 using FieldAttributes=Xtensive.Storage.Model.FieldAttributes;
 
-namespace Xtensive.Storage.Tests.Model.Library
+namespace Xtensive.Storage.Tests.Model.LibraryModel
 {
   public class IdentityCard : Structure
   {
@@ -371,12 +371,12 @@ namespace Xtensive.Storage.Tests.Model.Library
 
 namespace Xtensive.Storage.Tests.Model
 {
-  public class LibraryTests : AutoBuildTestFixture
+  public class LibraryTest : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
     {
       DomainConfiguration config = base.BuildConfiguration();
-      config.Types.Register(typeof (Person).Assembly, "Xtensive.Storage.Tests.Model.Library");
+      config.Types.Register(typeof (Person).Assembly, "Xtensive.Storage.Tests.Model.LibraryModel");
       config.Builders.Add(typeof (LibraryDomainBuilder));
       return config;
     }

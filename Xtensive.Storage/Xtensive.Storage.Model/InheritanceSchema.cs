@@ -13,21 +13,21 @@ namespace Xtensive.Storage.Configuration
   public enum InheritanceSchema
   {
     /// <summary>
-    /// Is equal to <see cref="ClassTableInheritance"/>.
+    /// Is equal to <see cref="ClassTable"/>.
     /// </summary>
-    Default = ClassTableInheritance,
+    Default = ClassTable,
     /// <summary>
     /// One table per class in the inheritance structure. Inherited properties are stored in the parent class.
     /// </summary>
-    ClassTableInheritance = 0,
+    ClassTable = 0,
     /// <summary>
     /// Maps all fields of all classes of an inheritance structure into a single table.
     /// </summary>
-    SingleTableInheritance = 1,
+    SingleTable = 1,
     /// <summary>
     /// One table for each concrete class in the inheritance hierarchy. 
     /// Inherited properties are duplicated in the descendant tables.
     /// </summary>
-    ConcreteTableInheritance = 2
+    ConcreteTable = 2
   }
 }

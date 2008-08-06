@@ -65,8 +65,8 @@ namespace Xtensive.Storage.Building.Definitions
 
       Type[] interfaces = type.GetInterfaces();
       for (int index = 0; index < interfaces.Length; index++) {
-        TypeDef result;
-        if (TryGetValue(interfaces[index], out result))
+        TypeDef result = TryGetValue(interfaces[index]);
+        if (result != null)
           yield return result;
       }
     }
@@ -82,8 +82,8 @@ namespace Xtensive.Storage.Building.Definitions
     {
       if (item==null)
         return false;
-      TypeDef result;
-      if (!TryGetValue(item.UnderlyingType, out result))
+      TypeDef result = TryGetValue(item.UnderlyingType);
+      if (result == null)
         return false;
       return result==item;
     }
@@ -112,31 +112,23 @@ namespace Xtensive.Storage.Building.Definitions
     /// Gets the value associated with the specified key.
     /// </summary>
     /// <param name="key">The key of the value to get.</param>
-    /// <param name="value">When this method returns, contains the value 
-    /// associated with the specified key, if the key is found; otherwise, 
-    /// the default value for the type of the value parameter. 
-    /// This parameter is passed uninitialized.</param>
-    /// <returns></returns>
-    public bool TryGetValue(Type key, out TypeDef value)
+    /// <returns>The value associated with the specified <paramref name="key"/> or <see langword="null"/> 
+    /// if item was not found.</returns>
+    public TypeDef TryGetValue(Type key)
     {
-      value = null;
-      if (!Contains(key))
-        return false;
-      value = typeIndex.GetItem(key);
-      return true;
+      return typeIndex.GetItem(key);
     }
 
     /// <summary>
     /// An indexer that provides access to collection items.
-    /// Returns <see langword="null"/> if there is no such item.
-    /// </summary>
+    /// <exception cref="ArgumentException"> when item was not found.</exception>
     public TypeDef this[Type key]
     {
       get
       {
-        TypeDef result;
-        if (!TryGetValue(key, out result))
-          throw new ArgumentException(String.Format(String.Format("Item '{0}' not found.", key)));
+        TypeDef result = TryGetValue(key);
+        if (result == null)
+          throw new ArgumentException(String.Format(String.Format("Item by key ='{0}' was not found.", key)));
         return result;
 
       }

@@ -11,7 +11,7 @@ using Xtensive.Core;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
 
-namespace Xtensive.Storage.Tests.Model.ReferenceTestsModel
+namespace Xtensive.Storage.Tests.Model.ReferenceTestModel
 {
   #region SelfReferenced Entity
 
@@ -76,12 +76,12 @@ namespace Xtensive.Storage.Tests.Model.ReferenceTestsModel
 
 namespace Xtensive.Storage.Tests.Model
 {
-  public class ReferenceTests : AutoBuildTestFixture
+  public class ReferenceTest : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
     {
       DomainConfiguration config = base.BuildConfiguration();
-      config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.Model.ReferenceTestsModel");
+      config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.Model.ReferenceTestModel");
       return config;
     }
 

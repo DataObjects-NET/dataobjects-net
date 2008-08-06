@@ -6,6 +6,7 @@
 
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Providers;
 
 namespace Xtensive.Storage.Internals
 {
@@ -25,7 +26,7 @@ namespace Xtensive.Storage.Internals
 
       // Key is not fully resolved yet (Type is unknown), so 1 fetch request is required
       if (resolvedKey.Type==null) {
-        FieldInfo field = key.Hierarchy.Root.Fields[session.Handlers.NameBuilder.TypeIdFieldName];
+        FieldInfo field = key.Hierarchy.Root.Fields[NameBuilder.TypeIdFieldName];
         Tuple tuple = Fetcher.Fetch(key, field);
 
         // Key is not found in storage

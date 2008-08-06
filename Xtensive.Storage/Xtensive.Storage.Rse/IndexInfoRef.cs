@@ -33,11 +33,11 @@ namespace Xtensive.Storage.Rse
     /// <param name="model">Domain model.</param>
     public IndexInfo Resolve(DomainModel model)
     {
-      TypeInfo type;
-      if (!model.Types.TryGetValue(TypeName, out type))
+      TypeInfo type = model.Types.TryGetValue(TypeName);
+      if (type == null)
         throw new InvalidOperationException(string.Format(Strings.ExCouldNotResolveXYWithinDomain, "type", TypeName));
-      IndexInfo index;
-      if (!type.Indexes.TryGetValue(IndexName, out index))
+      IndexInfo index = type.Indexes.TryGetValue(IndexName);
+      if (index == null)
         throw new InvalidOperationException(string.Format(Strings.ExCouldNotResolveXYWithinDomain, "index", IndexName));
 
       return index;

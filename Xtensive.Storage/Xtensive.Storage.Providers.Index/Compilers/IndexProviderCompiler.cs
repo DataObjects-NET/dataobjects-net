@@ -37,11 +37,11 @@ namespace Xtensive.Storage.Providers.Index.Compilers
           ExecutableProvider source = CompileInternal(new IndexProvider(firstUnderlyingIndex), firstUnderlyingIndex);
           int columnIndex;
           if (indexInfo.IsPrimary) {
-            FieldInfo typeIdField = indexInfo.ReflectedType.Fields[handlerAccessor.NameBuilder.TypeIdFieldName];
+            FieldInfo typeIdField = indexInfo.ReflectedType.Fields[NameBuilder.TypeIdFieldName];
             columnIndex = typeIdField.MappingInfo.Offset;
           }
           else
-            columnIndex = indexInfo.Columns.Select((c, i) => c.Field.Name==handlerAccessor.NameBuilder.TypeIdFieldName ? i : 0).Sum();
+            columnIndex = indexInfo.Columns.Select((c, i) => c.Field.Name==NameBuilder.TypeIdFieldName ? i : 0).Sum();
           List<int> typeIdList = indexInfo.ReflectedType.GetDescendants(true).Select(info => info.TypeId).ToList();
           typeIdList.Add(indexInfo.ReflectedType.TypeId);
           result = new FilterInheritorsProvider(provider, source, columnIndex, handlerAccessor.Domain.Model.Types.Count, typeIdList.ToArray());

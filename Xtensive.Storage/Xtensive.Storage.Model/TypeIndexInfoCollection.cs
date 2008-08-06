@@ -58,8 +58,8 @@ namespace Xtensive.Storage.Model
 
       var fields = new List<FieldInfo>();
       foreach (var name in names) {
-        FieldInfo field;
-        if (primaryIndex.ReflectedType.Fields.TryGetValue(name, out field))
+        FieldInfo field = primaryIndex.ReflectedType.Fields.TryGetValue(name);
+        if (field == null)
           fields.Add(field);
       }
       if (fields.Count == 0)

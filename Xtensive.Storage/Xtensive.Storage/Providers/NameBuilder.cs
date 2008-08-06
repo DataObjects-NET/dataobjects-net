@@ -12,7 +12,6 @@ using System.Text.RegularExpressions;
 using Xtensive.Core;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Storage.Building;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
@@ -29,9 +28,13 @@ namespace Xtensive.Storage.Providers
   {
     private static readonly Regex explicitFieldNameRegex = new Regex(@"(?<name>\w+\.\w+)$", 
       RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.RightToLeft);
-    private static readonly string typeIdFieldName = "TypeId";
     private NamingConvention namingConvention;
     private HashAlgorithm hashAlgorithm;
+
+    /// <summary>
+    /// Gets the <see cref="Entity.TypeId"/> field name.
+    /// </summary>
+    public static readonly string TypeIdFieldName = "TypeId";
 
     /// <summary>
     /// Gets the naming convention object.
@@ -39,14 +42,6 @@ namespace Xtensive.Storage.Providers
     public NamingConvention NamingConvention
     {
       get { return namingConvention; }
-    }
-
-    /// <summary>
-    /// Gets the <see cref="Entity.TypeId"/> field name.
-    /// </summary>
-    public string TypeIdFieldName
-    {
-      get { return typeIdFieldName; }
     }
 
     /// <summary>

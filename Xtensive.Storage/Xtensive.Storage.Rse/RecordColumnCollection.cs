@@ -56,7 +56,7 @@ namespace Xtensive.Storage.Rse
       get { return values.Count; }
     }
 
-    private void FillNameIndex()
+    private void BuildNameIndex()
     {
       for (int index = 0; index < values.Count; index++) 
         nameIndex.Add(values[index].Name, index);
@@ -126,7 +126,7 @@ namespace Xtensive.Storage.Rse
     public RecordColumnCollection(IEnumerable<RecordColumn> collection)
     {
       values = new List<RecordColumn>(collection);
-      FillNameIndex();
+      BuildNameIndex();
     }
 
     /// <summary>
@@ -139,7 +139,7 @@ namespace Xtensive.Storage.Rse
       values = new List<RecordColumn>();
       foreach (RecordColumn column in collection)
         values.Add(new RecordColumn(column, alias));
-      FillNameIndex();
+      BuildNameIndex();
     }
 
     /// <summary>
@@ -151,7 +151,7 @@ namespace Xtensive.Storage.Rse
     {
       values = new List<RecordColumn>(collection1);
       values.AddRange(collection2);
-      FillNameIndex();
+      BuildNameIndex();
     }
 
   }

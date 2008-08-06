@@ -4,9 +4,9 @@
 // Created by: Dmitri Maximov
 // Created:    2007.08.08
 
-using System;
 using System.Reflection;
 using NUnit.Framework;
+using Xtensive.Core.Testing;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Configuration.TypeRegistry;
 using Xtensive.Storage.Tests.RegistryModel1;
@@ -52,10 +52,10 @@ namespace Xtensive.Storage.Tests.RegistryModel2
 namespace Xtensive.Storage.Tests.Configuration
 {
   [TestFixture]
-  public class RegistryTests
+  public class RegistryTest
   {
     [Test]
-    public void HierarchyTest1()
+    public void HierarchyTest()
     {
       DomainConfiguration config = new DomainConfiguration();
       Registry registry = config.Types;
@@ -64,13 +64,9 @@ namespace Xtensive.Storage.Tests.Configuration
       Assert.IsTrue(registry.Contains(typeof (B)));
       Assert.IsFalse(registry.Contains(typeof (C)));
       Assert.IsTrue(registry.Contains(typeof (D)));
-    }
 
-    [Test]
-    public void HierarchyTest2()
-    {
-      DomainConfiguration config = new DomainConfiguration();
-      Registry registry = config.Types;
+      config = new DomainConfiguration();
+      registry = config.Types;
       registry.Register(typeof (B).Assembly, "Xtensive.Storage.Tests.RegistryModel1");
       Assert.IsTrue(registry.Contains(typeof (A)));
       Assert.IsTrue(registry.Contains(typeof (B)));
@@ -116,28 +112,14 @@ namespace Xtensive.Storage.Tests.Configuration
       Assert.IsTrue(registry.Contains(typeof (RegistryModel2.D)));
     }
 
-    [Test, ExpectedException(typeof (ArgumentNullException))]
-    public void InvalidRegistrationTest1()
+    [Test]
+    public void InvalidRegistrationTest()
     {
       DomainConfiguration config = new DomainConfiguration();
       Registry registry = config.Types;
-      registry.Register(null);
-    }
-
-    [Test, ExpectedException(typeof (ArgumentNullException))]
-    public void InvalidRegistrationTest2()
-    {
-      DomainConfiguration config = new DomainConfiguration();
-      Registry registry = config.Types;
-      registry.Register(null, "Xtensive.Storage.Tests.RegistryModel1");
-    }
-
-    [Test, ExpectedException(typeof (ArgumentException))]
-    public void InvalidRegistrationTest3()
-    {
-      DomainConfiguration config = new DomainConfiguration();
-      Registry registry = config.Types;
-      registry.Register(Assembly.GetExecutingAssembly(), "");
+      AssertEx.ThrowsArgumentNullException(() => registry.Register(null));
+      AssertEx.ThrowsArgumentNullException(() => registry.Register(null, "Xtensive.Storage.Tests.RegistryModel1"));
+      AssertEx.ThrowsArgumentException(() => registry.Register(Assembly.GetExecutingAssembly(), ""));
     }
   }
 }

@@ -105,7 +105,7 @@ namespace Xtensive.Storage.Building.Definitions
     /// <returns>Newly created <see cref="HierarchyDef"/> instance.</returns>
     public HierarchyDef DefineHierarchy(TypeDef root)
     {
-      return DefineHierarchy(root, InheritanceSchema.ClassTableInheritance);
+      return DefineHierarchy(root, InheritanceSchema.ClassTable);
     }
 
     /// <summary>
@@ -132,8 +132,8 @@ namespace Xtensive.Storage.Building.Definitions
       TypeDef candidate = item;
 
       while (candidate != null) {
-        HierarchyDef hd;
-        if (hierarchies.TryGetValue(candidate, out hd))
+        HierarchyDef hd = hierarchies.TryGetValue(candidate);
+        if (hd != null)
           return candidate;
         candidate = types.FindAncestor(candidate);
       }
@@ -151,8 +151,8 @@ namespace Xtensive.Storage.Building.Definitions
 
       TypeDef root = FindRoot(item);
       if (root != null) {
-        HierarchyDef result;
-        if (hierarchies.TryGetValue(root, out result))
+        HierarchyDef result = hierarchies.TryGetValue(root);
+        if (result != null)
           return result;
       }
       return null;
@@ -165,8 +165,8 @@ namespace Xtensive.Storage.Building.Definitions
 
     private void OnTypeRemoved(object sender, CollectionChangeNotifierEventArgs<TypeDef> e)
     {
-      HierarchyDef hd;
-      if (hierarchies.TryGetValue(e.Item, out hd))
+      HierarchyDef hd = hierarchies.TryGetValue(e.Item);
+      if (hd != null)
         hierarchies.Remove(hd);
     }
 

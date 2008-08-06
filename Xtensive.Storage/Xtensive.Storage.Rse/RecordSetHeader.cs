@@ -14,6 +14,7 @@ using System.Linq;
 
 namespace Xtensive.Storage.Rse
 {
+  // TODO: Make ColumnGroupMappings and Columns immutable.
   /// <summary>
   /// Header of <see cref="RecordSet"/>.
   /// </summary>
@@ -24,7 +25,7 @@ namespace Xtensive.Storage.Rse
     /// Gets the <see cref="RecordSet"/> keys.
     /// </summary>
     /// <value>The keys.</value>
-    public CollectionBaseSlim<RecordColumnGroup> Groups { get; private set; }
+    public CollectionBaseSlim<RecordColumnGroupMapping> ColumnGroupMappings { get; private set; }
 
     /// <summary>
     /// Gets the <see cref="RecordSet"/> columns.
@@ -60,25 +61,25 @@ namespace Xtensive.Storage.Rse
       }
       OrderDescriptor = new RecordSetOrderDescriptor(sortOrder, keyDescriptor);
       Columns = new RecordColumnCollection(indexInfo.Columns.Select((c,i) => new RecordColumn(c,i,c.ValueType)));
-      Groups = new CollectionBaseSlim<RecordColumnGroup>();
+      ColumnGroupMappings = new CollectionBaseSlim<RecordColumnGroupMapping>();
       foreach (var columnGroup in indexInfo.ColumnGroups) {
-        var recordColummnGroup = new RecordColumnGroup(
+        var recordColummnGroup = new RecordColumnGroupMapping(
           columnGroup.KeyColumns.Select(c => indexInfo.Columns.IndexOf(c)),
           columnGroup.Columns.Select(c => indexInfo.Columns.IndexOf(c)));
-        Groups.Add(recordColummnGroup);
+        ColumnGroupMappings.Add(recordColummnGroup);
       }
     }
 
-    public RecordSetHeader(TupleDescriptor tupleDescriptor, IEnumerable<RecordColumn> recordColumns, TupleDescriptor keyDescriptor, IEnumerable<RecordColumnGroup> keys, DirectionCollection<int> orderedBy)
+    public RecordSetHeader(TupleDescriptor tupleDescriptor, IEnumerable<RecordColumn> recordColumns, TupleDescriptor keyDescriptor, IEnumerable<RecordColumnGroupMapping> keys, DirectionCollection<int> orderedBy)
     {
       ArgumentValidator.EnsureArgumentNotNull(tupleDescriptor, "tupleDescriptor");
       ArgumentValidator.EnsureArgumentNotNull(recordColumns, "recordColumns");
       TupleDescriptor = tupleDescriptor;
       Columns = new RecordColumnCollection(recordColumns);
 
-      Groups = keys==null
-        ? new CollectionBaseSlim<RecordColumnGroup>()
-        : new CollectionBaseSlim<RecordColumnGroup>(keys);
+      ColumnGroupMappings = keys==null
+        ? new CollectionBaseSlim<RecordColumnGroupMapping>()
+        : new CollectionBaseSlim<RecordColumnGroupMapping>(keys);
 
       OrderDescriptor = new RecordSetOrderDescriptor(
         orderedBy ?? new DirectionCollection<int>(),
@@ -92,12 +93,12 @@ namespace Xtensive.Storage.Rse
         right.Columns.Select(column => new RecordColumn(column, left.Columns.Count + column.Index)));
       TupleDescriptor = TupleDescriptor.Create(new[] {left.TupleDescriptor, right.TupleDescriptor}.SelectMany(descriptor => descriptor));
       OrderDescriptor = left.OrderDescriptor;
-      Groups = new CollectionBaseSlim<RecordColumnGroup>(
-        left.Groups
-        .Union(right.Groups
-          .Select(g => new RecordColumnGroup(
-            g.KeyColumnIndexes.Select(i => left.Columns.Count + i),
-            g.ColumnIndexes.Select(i => left.Columns.Count + i)
+      ColumnGroupMappings = new CollectionBaseSlim<RecordColumnGroupMapping>(
+        left.ColumnGroupMappings
+        .Union(right.ColumnGroupMappings
+          .Select(g => new RecordColumnGroupMapping(
+            g.Keys.Select(i => left.Columns.Count + i),
+            g.Columns.Select(i => left.Columns.Count + i)
             ))
         ));
     }
@@ -106,7 +107,7 @@ namespace Xtensive.Storage.Rse
     {
       Columns = new RecordColumnCollection(header.Columns, alias);
       TupleDescriptor = header.TupleDescriptor;
-      Groups = header.Groups;
+      ColumnGroupMappings = header.ColumnGroupMappings;
       OrderDescriptor = header.OrderDescriptor;
     }
 
@@ -115,7 +116,7 @@ namespace Xtensive.Storage.Rse
       TupleDescriptor = header.TupleDescriptor;
       OrderDescriptor = header.OrderDescriptor;
       Columns = new RecordColumnCollection(includedColumns.Select(i => header.Columns[i]));
-      Groups = new CollectionBaseSlim<RecordColumnGroup>(header.Groups.Where(g => g.KeyColumnIndexes.All(ci => includedColumns.Contains(ci))));
+      ColumnGroupMappings = new CollectionBaseSlim<RecordColumnGroupMapping>(header.ColumnGroupMappings.Where(g => g.Keys.All(ci => includedColumns.Contains(ci))));
     }
   }
 }
