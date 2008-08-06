@@ -76,6 +76,13 @@ namespace Xtensive.Core.Aspects
       }
     }
 
+    public override PostSharpRequirements GetPostSharpRequirements()
+    {
+      PostSharpRequirements requirements = base.GetPostSharpRequirements();
+      AspectHelper.AddStandardRequirements(requirements);
+      return requirements;
+    }
+
 
     // Constructors
 

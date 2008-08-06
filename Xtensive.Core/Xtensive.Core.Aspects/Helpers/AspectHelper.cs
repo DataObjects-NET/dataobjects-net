@@ -156,6 +156,20 @@ namespace Xtensive.Core.Aspects.Helpers
 
     #endregion
 
+    #region AddStandardRequirements method
+
+    /// <summary>
+    /// Adds the standard requirements to the specified <paramref name="requirements"/>.
+    /// </summary>
+    /// <param name="requirements">The requirements to modify.</param>
+    public static void AddStandardRequirements(PostSharpRequirements requirements)
+    {
+      requirements.PlugIns.Add("Xtensive.Core.Weaver");
+      requirements.Tasks.Add("Xtensive.Core.Weaver.WeaverFactory");
+    }
+
+    #endregion
+
     /// <summary>
     /// Validates the type of the member.
     /// </summary>

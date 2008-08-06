@@ -67,8 +67,7 @@ namespace Xtensive.Core.Aspects.Helpers
     public override PostSharpRequirements GetPostSharpRequirements()
     {
       PostSharpRequirements requirements = base.GetPostSharpRequirements();
-      requirements.PlugIns.Add("Xtensive.Core.Weaver");
-      requirements.Tasks.Add("Xtensive.Core.Weaver.WeaverFactory");
+      AspectHelper.AddStandardRequirements(requirements);
       return requirements;
     }
 
