@@ -57,6 +57,12 @@ namespace Xtensive.Storage
       return Cache(key);
     }
 
+    internal Key Get(TypeInfo type, Tuple tuple)
+    {
+      Key key = Create(type, tuple);
+      return Cache(key);
+    }
+
     internal Key Get(HierarchyInfo hierarchy, Tuple tuple)
     {
       Key key = Create(hierarchy, tuple);

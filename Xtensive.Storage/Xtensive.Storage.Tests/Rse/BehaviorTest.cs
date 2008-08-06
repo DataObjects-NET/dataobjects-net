@@ -123,7 +123,7 @@ namespace Xtensive.Storage.Tests.Rse
         .OrderBy(OrderBy.Desc(5));
 
       foreach (Tuple record in result)
-        Console.Out.WriteLine(record.GetValue<string>(result.Map("Books.Title")));
+        Console.Out.WriteLine(record.GetValue<string>(result.IndexOf("Books.Title")));
     }
   }
 }

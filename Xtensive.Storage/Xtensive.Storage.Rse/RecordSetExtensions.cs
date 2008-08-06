@@ -93,12 +93,12 @@ namespace Xtensive.Storage.Rse
 
     public static RecordSet Select(this RecordSet recordSet, params int[] columnIndexes)
     {
-      ArgumentValidator.EnsureArgumentNotNull(columnIndexes, "columnNames");
+      ArgumentValidator.EnsureArgumentNotNull(columnIndexes, "columnIndexes");
       ArgumentValidator.EnsureArgumentIsInRange(columnIndexes.Length, 1, int.MaxValue, "columnIndexes.Length");
       return new SelectProvider(recordSet.Provider, columnIndexes).Result;
     }
 
-    public static int Map(this RecordSet recordSet, string columnName)
+    public static int IndexOf(this RecordSet recordSet, string columnName)
     {
       RecordColumn column = recordSet.Header.Columns[columnName];
       if (column == null)

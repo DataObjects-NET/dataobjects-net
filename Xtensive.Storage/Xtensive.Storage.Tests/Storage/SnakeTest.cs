@@ -214,19 +214,22 @@ namespace Xtensive.Storage.Tests.Storage
         Tuple toName = Tuple.Create("Kaa900");
         TypeInfo snakeType = session.Domain.Model.Types[typeof(Snake)];
         RecordSet rsSnakePrimary = session.Select(snakeType.Indexes.GetIndex("ID"));
+        RecordSet a = rsSnakePrimary.Alias("a");
+        RecordSet js = rsSnakePrimary.Join(a, new Pair<int>(rsSnakePrimary.IndexOf("ID"), a.IndexOf("a.ID")));
+        js.Parse();
 
         using (new Measurement("Query performance"))
         {
           RecordSet rsSnakeName = session.Select(snakeType.Indexes.GetIndex("Name"));
           rsSnakeName = rsSnakeName
             .Range(fromName, toName)
-            .IndexBy(OrderBy.Asc(rsSnakeName.Map("ID")))
+            .IndexBy(OrderBy.Asc(rsSnakeName.IndexOf("ID")))
             .Alias("NameIndex");
 
           RecordSet range = rsSnakePrimary.Range(from, to);
-          RecordSet join = range.Join(rsSnakeName, new Pair<int>(rsSnakePrimary.Map("ID"), rsSnakeName.Map("NameIndex.ID")));
-          RecordSet where = join.Where(tuple => tuple.GetValue<int>(rsSnakePrimary.Map("Length")) >= 100);
-          RecordSet orderBy = where.OrderBy(OrderBy.Desc(rsSnakePrimary.Map("Name")));
+          RecordSet join = range.Join(rsSnakeName, new Pair<int>(rsSnakePrimary.IndexOf("ID"), rsSnakeName.IndexOf("NameIndex.ID")));
+          RecordSet where = join.Where(tuple => tuple.GetValue<int>(rsSnakePrimary.IndexOf("Length")) >= 100);
+          RecordSet orderBy = where.OrderBy(OrderBy.Desc(rsSnakePrimary.IndexOf("Name")));
           var snakesRse = orderBy.AsEntities<Snake>();
 
           /*// debug
