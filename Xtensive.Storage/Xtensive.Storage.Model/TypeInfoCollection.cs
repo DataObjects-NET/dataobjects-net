@@ -385,7 +385,7 @@ namespace Xtensive.Storage.Model
     {
       // We don't have any instance that has attributes == TypeAttributes.None
       if (criteria == TypeAttributes.None)
-        return new DummyCountable<TypeInfo>();
+        return new EmptyCountable<TypeInfo>();
 
       return Find(criteria, MatchType.Partial);
     }
@@ -393,7 +393,7 @@ namespace Xtensive.Storage.Model
     public ICountable<TypeInfo> Find(TypeAttributes criteria, MatchType matchType)
     {
       if (criteria == TypeAttributes.None)
-        return new DummyCountable<TypeInfo>();
+        return new EmptyCountable<TypeInfo>();
 
       switch (matchType) {
         case MatchType.Partial:

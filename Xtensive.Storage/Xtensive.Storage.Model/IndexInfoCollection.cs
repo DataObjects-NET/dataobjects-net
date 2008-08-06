@@ -23,7 +23,7 @@ namespace Xtensive.Storage.Model
     public ICountable<IndexInfo> Find(IndexAttributes criteria, MatchType matchType)
     {
       if (criteria == IndexAttributes.None)
-        return new DummyCountable<IndexInfo>();
+        return new EmptyCountable<IndexInfo>();
 
       switch (matchType)
       {

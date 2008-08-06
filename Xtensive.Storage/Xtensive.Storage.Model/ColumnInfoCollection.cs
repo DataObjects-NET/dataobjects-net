@@ -32,7 +32,7 @@ namespace Xtensive.Storage.Model
     {
       // We don't have any instance that has attributes == FieldAttributes.None
       if (criteria == ColumnAttributes.None)
-        return new DummyCountable<ColumnInfo>();
+        return new EmptyCountable<ColumnInfo>();
 
       switch (matchType) {
         case MatchType.Partial:
