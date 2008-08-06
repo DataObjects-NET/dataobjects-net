@@ -5,6 +5,7 @@
 // Created:    2007.10.11
 
 using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.Reflection;
 using log4net.Util;
@@ -37,26 +38,31 @@ namespace Xtensive.Core.Aspects
     private string title;
     private bool isStatic;
 
+    [DebuggerHidden]
     int ILaosWeavableAspect.AspectPriority { get { return (int)CoreAspectPriority.Trace; } }
 
+    [DebuggerHidden]
     public string Title
     {
       get { return title; }
       set { title = value; }
     }
 
+    [DebuggerHidden]
     public TraceOptions Options
     {
       get { return options; }
       set { options = value; }
     }
 
+    [DebuggerHidden]
     public LogEventTypes EventType
     {
       get { return eventType; }
       set { eventType = value; }
     }
 
+    [DebuggerHidden]
     public Type LogType
     {
       get { return logType; }

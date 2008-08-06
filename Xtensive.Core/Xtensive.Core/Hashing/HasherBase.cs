@@ -5,6 +5,7 @@
 // Created:    2008.02.06
 
 using System;
+using System.Diagnostics;
 using System.Runtime.Serialization;
 using Xtensive.Core.Internals.DocTemplates;
 
@@ -21,6 +22,7 @@ namespace Xtensive.Core.Hashing
     private IHasherProvider provider;
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public IHasherProvider Provider
     {
       get { return provider; }

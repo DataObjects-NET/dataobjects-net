@@ -5,6 +5,7 @@
 // Created:    2008.02.15
 
 using System;
+using System.Diagnostics;
 using System.Runtime.Serialization;
 using Xtensive.Core.Internals.DocTemplates;
 
@@ -21,6 +22,7 @@ namespace Xtensive.Core.Conversion
     private IAdvancedConverterProvider provider;
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public IAdvancedConverterProvider Provider
     {
       get { return provider; }

@@ -5,6 +5,7 @@
 // Created:    2008.01.17
 
 using System;
+using System.Diagnostics;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using MethodInfo=System.Reflection.MethodInfo;
@@ -26,6 +27,7 @@ namespace Xtensive.Core.Testing
       ThreadSafeDictionary<Type, IInstanceGeneratorBase>.Create(new object());
 
     /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
+    [DebuggerHidden]
     public static InstanceGeneratorProvider Default
     {
       get { return @default; }

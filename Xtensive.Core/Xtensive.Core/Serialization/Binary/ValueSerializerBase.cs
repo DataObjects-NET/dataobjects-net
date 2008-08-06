@@ -5,6 +5,7 @@
 // Created:    2008.02.12
 
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.Serialization;
 using Xtensive.Core.Internals.DocTemplates;
@@ -23,6 +24,7 @@ namespace Xtensive.Core.Serialization.Binary
     private IValueSerializerProvider provider;
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public IValueSerializerProvider Provider
     {
       get { return provider; }

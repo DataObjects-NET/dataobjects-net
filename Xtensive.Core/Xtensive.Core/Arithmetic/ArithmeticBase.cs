@@ -5,6 +5,7 @@
 // Created:    2008.02.06
 
 using System;
+using System.Diagnostics;
 using System.Runtime.Serialization;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
@@ -45,6 +46,7 @@ namespace Xtensive.Core.Arithmetic
     protected readonly ArithmeticRules Rules;
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public IArithmeticProvider Provider
     {
       get { return provider; }

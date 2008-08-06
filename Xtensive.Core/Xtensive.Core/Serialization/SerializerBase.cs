@@ -4,6 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2008.03.20
 
+using System.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.Serialization
@@ -17,6 +18,7 @@ namespace Xtensive.Core.Serialization
     private ISerializerProvider provider;
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public ISerializerProvider Provider
     {
       get { return provider; }

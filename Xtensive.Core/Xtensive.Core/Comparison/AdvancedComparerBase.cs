@@ -5,6 +5,7 @@
 // Created:    2008.01.23
 
 using System;
+using System.Diagnostics;
 using System.Runtime.Serialization;
 using Xtensive.Core.Arithmetic;
 using Xtensive.Core.Collections;
@@ -39,12 +40,14 @@ namespace Xtensive.Core.Comparison
     protected readonly int DefaultDirectionMultiplier;
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public IComparerProvider Provider 
     {
       get { return provider; }
     }
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     ComparisonRules IAdvancedComparerBase.ComparisonRules 
     {
       get { return ComparisonRules; }

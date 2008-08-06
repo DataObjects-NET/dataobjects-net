@@ -7,6 +7,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 
@@ -23,6 +24,7 @@ namespace Xtensive.Core.Testing
     private IInstanceGeneratorProvider provider;
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public IInstanceGeneratorProvider Provider
     {
       get { return provider; }

@@ -5,6 +5,7 @@
 // Created:    2008.01.23
 
 using System;
+using System.Diagnostics;
 using System.Reflection;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
@@ -37,6 +38,7 @@ namespace Xtensive.Core.SizeCalculators
     private int defaultSize;
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public ISizeCalculatorProvider Provider
     {
       get { return provider; }
@@ -45,6 +47,7 @@ namespace Xtensive.Core.SizeCalculators
     /// <summary>
     /// Gets the size of default instance of type <typeparamref name="T"/>.
     /// </summary>
+    [DebuggerHidden]
     protected int DefaultSize {
       get {
         return defaultSize;
