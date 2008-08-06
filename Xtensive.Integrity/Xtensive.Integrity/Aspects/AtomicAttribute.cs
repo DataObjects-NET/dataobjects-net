@@ -50,12 +50,9 @@ namespace Xtensive.Integrity.Aspects
         type, true, typeof(IAtomicityAware)))
         return false;
                   
-      if (methodInfo.IsSpecialName && methodInfo.Name.StartsWith(WellKnown.GetterPrefix)) {
-        string expectedPropertyName = methodInfo.Name.Remove(0, WellKnown.GetterPrefix.Length);
-
+      if (methodInfo.IsGetter()) {
         // This is getter; let's check if it is explicitely marked as [Atomic]
-        PropertyInfo propertyInfo = methodInfo.DeclaringType.UnderlyingSystemType.GetProperty(expectedPropertyName, 
-          BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+        var propertyInfo = methodInfo.GetProperty();
         if (propertyInfo!=null && propertyInfo.GetAttribute<AtomicAttribute>(false)!=null)
           // Property itself is marked as [Atomic]
           return false;
@@ -67,7 +64,7 @@ namespace Xtensive.Integrity.Aspects
       }
 
       // Ensure undo method exists (if specified)
-      if (!String.IsNullOrEmpty(UndoMethodName)) {
+      if (!UndoMethodName.IsNullOrEmpty()) {
         if (!AspectHelper.ValidateMethod(this, SeverityType.Error,
           type.UnderlyingSystemType, true,
           BindingFlags.Instance | 
@@ -77,15 +74,21 @@ namespace Xtensive.Integrity.Aspects
           typeof (void), UndoMethodName, new[] {typeof (IUndoDescriptor)},
           out methodInfo))
           return false;
+      }
 
-        UndoMethod = type.UnderlyingSystemType.GetMethod(UndoMethodName, 
+      return true;
+    }
+
+    /// <inheritdoc/>
+    public override void CompileTimeInitialize(MethodBase method)
+    {
+      if (!UndoMethodName.IsNullOrEmpty()) {
+        UndoMethod = method.DeclaringType.UnderlyingSystemType.GetMethod(UndoMethodName, 
           BindingFlags.Instance | 
           BindingFlags.Static | 
           BindingFlags.Public | 
           BindingFlags.NonPublic);
       }
-
-      return true;
     }
 
     [DebuggerStepThrough]

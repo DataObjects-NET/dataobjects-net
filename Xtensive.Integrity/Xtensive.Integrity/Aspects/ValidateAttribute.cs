@@ -40,12 +40,9 @@ namespace Xtensive.Integrity.Aspects
 
       MethodInfo methodInfo = method as MethodInfo;      
 
-      if (methodInfo.IsSpecialName && methodInfo.Name.StartsWith(WellKnown.GetterPrefix)) {
-        string expectedPropertyName = methodInfo.Name.Remove(0, WellKnown.GetterPrefix.Length);
-
+      if (methodInfo.IsGetter()) {
         // This is getter; let's check if it is explicitely marked as [Validate]
-        PropertyInfo propertyInfo = methodInfo.DeclaringType.UnderlyingSystemType.GetProperty(expectedPropertyName, 
-          BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+        var propertyInfo = methodInfo.GetProperty();
         if (propertyInfo!=null && propertyInfo.GetAttribute<AtomicAttribute>(false)!=null)
           // Property itself is marked as [Validate]
           return false;
