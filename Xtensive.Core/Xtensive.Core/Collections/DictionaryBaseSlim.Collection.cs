@@ -7,12 +7,13 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.Collections
 {
-  public abstract partial class DictionaryBaseSlim<TKey, TValue> : IDictionary<TKey, TValue> 
+  public abstract partial class DictionaryBaseSlim<TKey, TValue>
   {
     // Nested class file.
 
@@ -21,7 +22,9 @@ namespace Xtensive.Core.Collections
     /// <see cref="DictionaryBaseSlim{TKey,TValue}"/>.
     /// </summary>
     /// <typeparam name="T">The type of stored item.</typeparam>
-    protected abstract class KeyOrValueCollectionBase<T>: ICollection<T>
+    protected abstract class KeyOrValueCollectionBase<T>: 
+      ICollection<T>,
+      ICountable<T>
     {
       /// <summary>
       /// Inner dictionary.
@@ -29,12 +32,21 @@ namespace Xtensive.Core.Collections
       protected readonly IDictionary<TKey, TValue> dictionary;
 
       /// <inheritdoc/>
+      [DebuggerHidden]
       public int Count
       {
-        get { return this.dictionary.Count; }
+        get { return dictionary.Count; }
       }
 
       /// <inheritdoc/>
+      [DebuggerHidden]
+      long ICountable.Count
+      {
+        get { return Count; }
+      }
+
+      /// <inheritdoc/>
+      [DebuggerHidden]
       public bool IsReadOnly
       {
         get { return true; }

@@ -5,6 +5,7 @@
 // Created:    2008.06.02
 
 using System;
+using System.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.Tuples.Transform
@@ -18,17 +19,20 @@ namespace Xtensive.Core.Tuples.Transform
     private readonly Tuple origin;
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public override TupleDescriptor Descriptor
     {
       get { return origin.Descriptor; }
     }
 
     /// <inheritdoc />
+    [DebuggerHidden]
     public override int Count {
       get { return origin.Count; }
     }
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public override object[] Arguments {
       get {
         return new object[] {origin};

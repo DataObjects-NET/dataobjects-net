@@ -5,6 +5,7 @@
 // Created:    2008.04.30
 
 using System;
+using System.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.Tuples.Transform
@@ -19,6 +20,7 @@ namespace Xtensive.Core.Tuples.Transform
     private TTupleTransform transform;
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public override ITupleTransform Transform
     {
       get { return transform; }

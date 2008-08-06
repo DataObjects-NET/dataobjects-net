@@ -5,6 +5,7 @@
 // Created:    2008.02.11
 
 using System;
+using System.Diagnostics;
 using System.Runtime.Serialization;
 using Xtensive.Core.Internals.DocTemplates;
 
@@ -28,6 +29,7 @@ namespace Xtensive.Core.SizeCalculators
     /// Gets default size calculator for type <typeparamref name="T"/>
     /// (uses <see cref="SizeCalculatorProvider.Default"/> <see cref="SizeCalculatorProvider"/>).
     /// </summary>
+    [DebuggerHidden]
     public static SizeCalculator<T> Default {
       get {
         if (@default==null) lock (_lock) if (@default==null) {

@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections;
+using System.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Resources;
@@ -27,6 +28,7 @@ namespace Xtensive.Core.Tuples.Transform
     internal Pair<int, int>[] map;
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public override bool IsReadOnly {
       get {
         return isReadOnly;
@@ -36,6 +38,7 @@ namespace Xtensive.Core.Tuples.Transform
     /// <summary>
     /// Gets the count of source <see cref="Tuples"/> this transform maps to the target one.
     /// </summary>
+    [DebuggerHidden]
     public int SourceCount
     {
       get { return sourceCount; }
@@ -45,6 +48,7 @@ namespace Xtensive.Core.Tuples.Transform
     /// Gets or sets destination-to-source field map for the first source only.
     /// </summary>
     public int[] SingleSourceMap {
+      [DebuggerHidden]
       get { return singleSourceMap.Copy(); }
       protected set {
         ArgumentValidator.EnsureArgumentNotNull(value, "value");
@@ -62,6 +66,7 @@ namespace Xtensive.Core.Tuples.Transform
     /// Gets or sets destination-to-source field map.
     /// </summary>
     public Pair<int, int>[] Map {
+      [DebuggerHidden]
       get { return map.Copy(); }
       protected set {
         ArgumentValidator.EnsureArgumentNotNull(value, "value");

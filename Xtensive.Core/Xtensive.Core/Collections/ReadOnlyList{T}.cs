@@ -7,8 +7,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Resources;
+using Xtensive.Core.Threading;
 
 namespace Xtensive.Core.Collections
 {
@@ -16,22 +18,32 @@ namespace Xtensive.Core.Collections
   /// Read-only list (<see cref="IList"/>) wrapper.
   /// </summary>
   [Serializable]
-  public class ReadOnlyList<T>: IList<T>, IReadOnly
+  public class ReadOnlyList<T>: 
+    IList<T>, 
+    ICountable<T>,
+    ISynchronizable,
+    IReadOnly
   {
     private readonly IList<T> innerList;
     private readonly bool isFixedSize;
 
     /// <inheritdoc/>
-    public int Count
-    {
+    [DebuggerHidden]
+    public int Count {
       get { return innerList.Count; }
     }
 
     /// <inheritdoc/>
+    [DebuggerHidden]
+    long ICountable.Count
+    {
+      get { return Count; }
+    }
+
+    /// <inheritdoc/>
+    [DebuggerHidden]
     public object SyncRoot {
-      get {
-        return this;
-      }
+      get { return this; }
     }
 
     /// <inheritdoc/>
@@ -45,18 +57,21 @@ namespace Xtensive.Core.Collections
     #region IsXxx properties
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public virtual bool IsSynchronized
     {
       get { return false; }
     }
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public bool IsReadOnly
     {
       get { return true; }
     }
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public bool IsFixedSize
     {
       get { return isFixedSize; }

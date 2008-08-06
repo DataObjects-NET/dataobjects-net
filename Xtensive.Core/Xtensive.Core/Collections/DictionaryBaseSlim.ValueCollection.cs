@@ -12,7 +12,7 @@ using Xtensive.Core.Resources;
 
 namespace Xtensive.Core.Collections
 {
-  public abstract partial class DictionaryBaseSlim<TKey, TValue> : IDictionary<TKey, TValue> 
+  public abstract partial class DictionaryBaseSlim<TKey, TValue>
   {
     // Nested class file.
 

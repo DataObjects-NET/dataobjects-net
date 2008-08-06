@@ -5,6 +5,7 @@
 // Created:    2008.06.02
 
 using System;
+using System.Diagnostics;
 using System.Linq;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples.Transform.Internals;
@@ -23,6 +24,7 @@ namespace Xtensive.Core.Tuples.Transform
     private static readonly ReadOnlyTransform instance = new ReadOnlyTransform();
 
     /// <see cref="SingletonDocTemplate.Instance" copy="true"/>
+    [DebuggerHidden]
     public static ReadOnlyTransform Instance {
       get { return instance; }
     }
@@ -31,6 +33,7 @@ namespace Xtensive.Core.Tuples.Transform
     /// <inheritdoc/>
     /// Implementation in this class always returns <see langword="true"/>.
     /// </summary>
+    [DebuggerHidden]
     public override bool IsReadOnly {
       get {
         return true;

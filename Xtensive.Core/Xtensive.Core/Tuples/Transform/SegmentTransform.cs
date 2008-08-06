@@ -5,6 +5,7 @@
 // Created:    2008.05.20
 
 using System;
+using System.Diagnostics;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
@@ -22,6 +23,7 @@ namespace Xtensive.Core.Tuples.Transform
     /// <summary>
     /// Gets the segment this transform extracts.
     /// </summary>
+    [DebuggerHidden]
     public Segment<int> Segment
     {
       get { return segment; }

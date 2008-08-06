@@ -5,6 +5,7 @@
 // Created:    2008.05.22
 
 using System;
+using System.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Resources;
 
@@ -21,12 +22,14 @@ namespace Xtensive.Core.Tuples
     private Tuple difference;
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public override TupleDescriptor Descriptor
     {
       get { return origin.Descriptor; }
     }
 
     /// <inheritdoc />
+    [DebuggerHidden]
     public override int Count
     {
       get { return origin.Count; }
@@ -35,6 +38,7 @@ namespace Xtensive.Core.Tuples
     /// <summary>
     /// Gets original tuple.
     /// </summary>
+    [DebuggerHidden]
     public Tuple Origin
     {
       get { return origin; }
@@ -45,6 +49,7 @@ namespace Xtensive.Core.Tuples
     /// </summary>
     public Tuple Difference
     {
+      [DebuggerHidden]
       get { return difference; }
       set
       {

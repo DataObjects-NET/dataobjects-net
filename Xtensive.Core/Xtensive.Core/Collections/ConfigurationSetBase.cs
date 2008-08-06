@@ -7,6 +7,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
@@ -39,7 +40,7 @@ namespace Xtensive.Core.Helpers
     /// <summary>
     /// Gets the inner list of the items.
     /// </summary>
-    /// <value>The inner list of the items.</value>
+    [DebuggerHidden]
     protected IList<TItem> Items
     {
       get { return items; }
@@ -48,6 +49,7 @@ namespace Xtensive.Core.Helpers
     #region IConfigurationSet<TItem> Members
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public long Count
     {
       get { return items.Count; }

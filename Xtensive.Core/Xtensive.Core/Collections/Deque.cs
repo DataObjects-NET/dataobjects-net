@@ -5,6 +5,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Security.Permissions;
 using Xtensive.Core.Comparison;
@@ -58,12 +59,14 @@ namespace Xtensive.Core.Collections
     private readonly float growFactor = defaultGrowFactor;
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public int Count
     {
       get { return count; }
     }
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     long ICountable.Count
     {
       get { return count; }

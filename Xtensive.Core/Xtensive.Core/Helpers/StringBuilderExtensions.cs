@@ -22,10 +22,10 @@ namespace Xtensive.Core.Helpers
     /// <param name="value">The string value to write.</param>
     /// <param name="indent">Count of spaces to indent.</param>
     /// <returns>A reference to the <paramref name="builder"/> after append operation has completed.</returns>
-    public static StringBuilder AppendIndentedLine(this StringBuilder builder, string value, int indent)
+    public static StringBuilder AppendIndented(this StringBuilder builder, int indent, string value)
     {
       builder.Append(new string(IndentChar, indent));
-      builder.AppendLine(value);
+      builder.Append(value);
       return builder;
     }
   }

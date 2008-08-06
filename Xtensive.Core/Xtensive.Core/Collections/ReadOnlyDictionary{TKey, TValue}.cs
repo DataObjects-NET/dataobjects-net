@@ -7,8 +7,10 @@
 using System;
 using System.Collections.Generic;
 using System.Collections;
+using System.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Resources;
+using Xtensive.Core.Threading;
 
 namespace Xtensive.Core.Collections
 {
@@ -19,6 +21,8 @@ namespace Xtensive.Core.Collections
   public class ReadOnlyDictionary<TKey, TValue> :
     IDictionary<TKey, TValue>,
     IDictionary,
+    ICountable<KeyValuePair<TKey, TValue>>,
+    ISynchronizable,
     IReadOnly
   {
     private readonly IDictionary<TKey, TValue> innerDictionary;
@@ -27,9 +31,23 @@ namespace Xtensive.Core.Collections
     private ReadOnlyCollection<TValue> innerValueDictionary;
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public int Count
     {
       get { return innerDictionary.Count; }
+    }
+
+    /// <inheritdoc/>
+    [DebuggerHidden]
+    long ICountable.Count
+    {
+      get { return Count; }
+    }
+
+    /// <inheritdoc/>
+    [DebuggerHidden]
+    public object SyncRoot {
+      get { return this; }
     }
 
     /// <inheritdoc/>
@@ -50,26 +68,17 @@ namespace Xtensive.Core.Collections
       set { throw Exceptions.CollectionIsReadOnly(null); }
     }
 
-    /// <inheritdoc/>
-    public object SyncRoot
-    {
-      get
-      {
-        if (innerDictionary is ICollection)
-          return ((ICollection)innerDictionary).SyncRoot;
-        return this;
-      }
-    }
-
     #region Keys, Values properties
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public ICollection<TKey> Keys
     {
       get { return innerDictionary.Keys; }
     }
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public ICollection<TValue> Values
     {
       get { return innerDictionary.Values; }
@@ -119,18 +128,21 @@ namespace Xtensive.Core.Collections
     /// Always returns <see langword="true"/>.
     /// </summary>
     /// <returns><see langword="True"/>. </returns>
+    [DebuggerHidden]
     public bool IsReadOnly
     {
       get { return true; }
     }
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public bool IsFixedSize
     {
       get { return isFixedSize; }
     }
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public virtual bool IsSynchronized
     {
       get { return false; }

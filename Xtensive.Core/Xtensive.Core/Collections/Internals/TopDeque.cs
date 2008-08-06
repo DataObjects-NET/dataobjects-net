@@ -7,6 +7,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Xtensive.Core.Resources;
 
 namespace Xtensive.Core.Collections
@@ -17,6 +18,7 @@ namespace Xtensive.Core.Collections
     private readonly LinkedList<Pair<K,V>>                    list = new LinkedList<Pair<K,V>>();
     private readonly Dictionary<K, LinkedListNode<Pair<K,V>>>  map = new Dictionary<K, LinkedListNode<Pair<K, V>>>();
 
+    [DebuggerHidden]
     public int Count
     {
       get { return list.Count; }

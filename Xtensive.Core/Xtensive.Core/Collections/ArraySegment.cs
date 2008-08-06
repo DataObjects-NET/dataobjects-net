@@ -7,6 +7,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Resources;
 
@@ -27,6 +28,7 @@ namespace Xtensive.Core.Collections
     /// Gets the original array containing the range of elements that the array segment delimits.
     /// </summary>
     /// <remarks>The Array property returns the original array, not a copy of the array; therefore, changes made through the property are made directly to the original array.</remarks>
+    [DebuggerHidden]
     public T[] Array
     {
       get { return array; }
@@ -35,6 +37,7 @@ namespace Xtensive.Core.Collections
     /// <summary>
     /// Gets the position of the first element in the range delimited by the array segment, relative to the start of the original array.
     /// </summary>
+    [DebuggerHidden]
     public int Offset
     {
       get { return offset; }
@@ -43,6 +46,7 @@ namespace Xtensive.Core.Collections
     /// <summary>
     /// Gets the number of elements in the range delimited by the array segment.
     /// </summary>
+    [DebuggerHidden]
     public int Length
     {
       get { return length; }

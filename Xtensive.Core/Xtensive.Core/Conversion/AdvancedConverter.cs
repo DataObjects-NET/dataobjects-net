@@ -5,6 +5,7 @@
 // Created:    2008.02.15
 
 using System;
+using System.Diagnostics;
 using System.Runtime.Serialization;
 using Xtensive.Core.Internals.DocTemplates;
 
@@ -28,6 +29,7 @@ namespace Xtensive.Core.Conversion
     /// Gets default advanced converter for types <typeparamref name="TFrom"/> and <typeparamref name="TTo"/>.
     /// (uses <see cref="AdvancedConverterProvider.Default"/> <see cref="AdvancedConverter{TFrom,TTo}"/>).
     /// </summary>
+    [DebuggerHidden]
     public static AdvancedConverter<TFrom, TTo> Default {
       get {
         if (@default==null) lock (_lock) if (@default==null) {

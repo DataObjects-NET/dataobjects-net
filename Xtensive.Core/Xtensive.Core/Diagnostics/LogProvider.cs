@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Threading;
@@ -36,6 +37,7 @@ namespace Xtensive.Core.Diagnostics
     // Static methods
     
     /// <see cref="SingletonDocTemplate.Instance" copy="true"/>
+    [DebuggerHidden]
     public static LogProvider Instance {
       get { return instance; }
     }
@@ -93,12 +95,14 @@ namespace Xtensive.Core.Diagnostics
     }
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public bool IsSynchronized
     {
       get { return true; }
     }
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public object SyncRoot
     {
       get { return syncRoot; }

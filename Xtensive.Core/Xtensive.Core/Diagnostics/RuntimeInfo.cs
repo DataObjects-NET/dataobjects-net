@@ -5,6 +5,7 @@
 // Created:    2008.04.17
 
 using System;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace Xtensive.Core.Diagnostics
@@ -26,6 +27,7 @@ namespace Xtensive.Core.Diagnostics
     /// <summary>
     /// Gets the size of the pointer (reference field) in bytes.
     /// </summary>
+    [DebuggerHidden]
     public static int PointerSize {
       get {
         return pointerSize;
@@ -36,6 +38,7 @@ namespace Xtensive.Core.Diagnostics
     /// Gets default struct or class field alignment in bytes.
     /// See <see cref="StructLayoutAttribute.Pack">StructLayoutAttribute.Pack</see> for further information.
     /// </summary>
+    [DebuggerHidden]
     public static int DefaultStructLayoutPack {
       get {
         return defaultStructLayoutPack;
@@ -45,6 +48,7 @@ namespace Xtensive.Core.Diagnostics
     /// <summary>
     /// Gets the minimal size of any object in bytes.
     /// </summary>
+    [DebuggerHidden]
     public static int MinimalObjectSize {
       get {
         return minimalObjectSize;

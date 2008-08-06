@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.Collections
@@ -64,6 +65,7 @@ namespace Xtensive.Core.Collections
     /// <summary>
     /// Gets count of items.
     /// </summary>
+    [DebuggerHidden]
     public int Count
     {
       get { return count; }

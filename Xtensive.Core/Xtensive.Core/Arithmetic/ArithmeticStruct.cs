@@ -11,14 +11,14 @@ using Xtensive.Core.Internals.DocTemplates;
 namespace Xtensive.Core.Arithmetic
 {
   /// <summary>
-  /// A struct providing faster access for key <see cref="T:Arithmetic{T}"/> delegates.
+  /// A struct providing faster access for key <see cref="Arithmetic{T}"/> delegates.
   /// </summary>
   /// <typeparam name="T">The type of <see cref="IArithmetic{T}"/> generic argument.</typeparam>
   [Serializable]
   public struct ArithmeticStruct<T> : ISerializable
   {
     /// <summary>
-    /// Gets <see cref="ArithmeticStruct{T}"/> for <see cref="P:Arithmetic{T}.Default"/> arithmetic.
+    /// Gets <see cref="ArithmeticStruct{T}"/> for <see cref="Arithmetic{T}.Default"/> arithmetic.
     /// </summary>
     public static readonly ArithmeticStruct<T> Default = new ArithmeticStruct<T>(Arithmetic<T>.Default);
 
@@ -63,13 +63,13 @@ namespace Xtensive.Core.Arithmetic
     public readonly Func<T, T, T> Subtract;
 
     /// <summary>
-    /// Creates a new instance of <see cref="T:Arithmetic{T}"/> 
+    /// Creates a new instance of <see cref="Arithmetic{T}"/> 
     /// with specified arithmetic rules applied.
     /// </summary>
     public Func<ArithmeticRules, Arithmetic<T>> ApplyRules;
 
     /// <summary>
-    /// Implicit conversion of <see cref="T:Arithmetic{T}"/> to <see cref="ArithmeticStruct{T}"/>.
+    /// Implicit conversion of <see cref="Arithmetic{T}"/> to <see cref="ArithmeticStruct{T}"/>.
     /// </summary>
     /// <param name="arithmetic">Arithmetic to provide the struct for.</param>
     public static implicit operator ArithmeticStruct<T>(Arithmetic<T> arithmetic)

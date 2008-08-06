@@ -5,6 +5,7 @@
 // Created:    2007.08.28
 
 using System;
+using System.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core
@@ -26,6 +27,7 @@ namespace Xtensive.Core
     /// Gets or sets the current consumption scope.
     /// </summary>
     /// <value>The current consumption scope.</value>
+    [DebuggerHidden]
     protected static ResourceConsumptionScope<TResource> Current
     {
       get { return current; }
@@ -37,6 +39,7 @@ namespace Xtensive.Core
     /// Gets outer consumption scope if exists.
     ///</summary>
     /// <value>The outer consumption scope or <see langword="null"/> if it does not exist.</value>
+    [DebuggerHidden]
     protected ResourceConsumptionScope<TResource> Outer
     {
       get { return outer; }
@@ -46,6 +49,7 @@ namespace Xtensive.Core
     /// Gets or sets the <see cref="IResource"/> object this instance is bound to.
     /// </summary>
     /// <value>The <see cref="IResource"/>.</value>
+    [DebuggerHidden]
     protected TResource Resource
     {
       get { return resource; }

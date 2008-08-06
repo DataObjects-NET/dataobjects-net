@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections;
+using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Security.Permissions;
 using Xtensive.Core;
@@ -43,6 +44,7 @@ namespace Xtensive.Core.Collections
     /// <inheritdoc/>
     public int Capacity
     {
+      [DebuggerHidden]
       get {
         return items.Length;
       }
@@ -62,12 +64,14 @@ namespace Xtensive.Core.Collections
     }
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public Direction Direction
     {
       get { return direction; }
     }
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public long Count
     {
       get { return count; }

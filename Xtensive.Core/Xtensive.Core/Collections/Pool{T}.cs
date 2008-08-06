@@ -7,6 +7,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Resources;
@@ -24,16 +25,19 @@ namespace Xtensive.Core.Collections
     private SetSlim<T> availableItems = new SetSlim<T>();
 
 
+    [DebuggerHidden]
     public int Capacity
     {
       get { return capacity; }
     }
 
+    [DebuggerHidden]
     public int AvailableCount
     {
       get { return availableItems.Count; }
     }
 
+    [DebuggerHidden]
     public int Count
     {
       get { return items.Count; }

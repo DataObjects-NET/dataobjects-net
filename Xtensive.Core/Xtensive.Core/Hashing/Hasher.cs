@@ -5,6 +5,7 @@
 // Created:    2008.02.11
 
 using System;
+using System.Diagnostics;
 using System.Runtime.Serialization;
 using Xtensive.Core.Internals.DocTemplates;
 
@@ -27,6 +28,7 @@ namespace Xtensive.Core.Hashing
     /// Gets default hasher for type <typeparamref name="T"/>
     /// (uses <see cref="HasherProvider.Default"/> <see cref="HasherProvider"/>).
     /// </summary>
+    [DebuggerHidden]
     public static Hasher<T> Default {
       get {
         if (@default==null) lock (syncRoot) if (@default==null) {

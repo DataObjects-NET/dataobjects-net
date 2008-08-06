@@ -4,6 +4,7 @@
 // Created by: 
 // Created:    2007.10.20
 
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 using Xtensive.Core.Diagnostics.Helpers;
@@ -71,6 +72,7 @@ namespace Xtensive.Core.Diagnostics
     /// <summary>
     /// Gets output of this log (as <see cref="StringBuilder"/>).
     /// </summary>
+    [DebuggerHidden]
     public StringBuilder Output
     {
       get { return output; }
@@ -97,6 +99,7 @@ namespace Xtensive.Core.Diagnostics
     }
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public object SyncRoot
     {
       get { return this; }

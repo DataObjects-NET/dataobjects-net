@@ -5,6 +5,7 @@
 // Created:    2008.01.14
 
 using System;
+using System.Diagnostics;
 using System.Reflection;
 using System.Text;
 using Xtensive.Core.Collections;
@@ -33,6 +34,7 @@ namespace Xtensive.Core.Hashing
     private ThreadSafeCached<IHasherBase> objectHasher;
 
     /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
+    [DebuggerHidden]
     public static IHasherProvider Default
     {
       get { return @default; }

@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections;
+using System.Diagnostics;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Resources;
 
@@ -30,6 +31,7 @@ namespace Xtensive.Core.Tuples.Transform
     public abstract object[] Arguments { get; }
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public override TupleDescriptor Descriptor
     {
       get { return Transform.Descriptor; }

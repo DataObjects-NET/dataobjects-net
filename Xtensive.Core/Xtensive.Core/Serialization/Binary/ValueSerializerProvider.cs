@@ -5,6 +5,7 @@
 // Created:    2008.01.17
 
 using System;
+using System.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.Serialization.Binary
@@ -23,6 +24,7 @@ namespace Xtensive.Core.Serialization.Binary
     private static readonly ValueSerializerProvider @default = new ValueSerializerProvider();
 
     /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
+    [DebuggerHidden]
     public static IValueSerializerProvider Default
     {
       get { return @default; }

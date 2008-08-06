@@ -6,6 +6,7 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.Collections
@@ -15,6 +16,7 @@ namespace Xtensive.Core.Collections
     private readonly ICollection<TItem> buffer;
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public long Count
     {
       get { return buffer.Count; }

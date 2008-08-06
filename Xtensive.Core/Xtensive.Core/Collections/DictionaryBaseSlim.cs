@@ -22,7 +22,9 @@ namespace Xtensive.Core.Collections
   // The code is taken from: http://blogs.msdn.com/nicholg/archive/2006/06/04/616787.aspx
   [DebuggerDisplay("Count = {Count}")]
   [DebuggerTypeProxy(PREFIX + "DictionaryDebugView`2" + SUFFIX)]
-  public abstract partial class DictionaryBaseSlim<TKey, TValue> : IDictionary<TKey, TValue>
+  public abstract partial class DictionaryBaseSlim<TKey, TValue> : 
+    IDictionary<TKey, TValue>,
+    ICountable<KeyValuePair<TKey, TValue>>
   {
     private const string PREFIX = "System.Collections.Generic.Mscorlib_";
     private const string SUFFIX = ",mscorlib,Version=2.0.0.0,Culture=neutral,PublicKeyToken=b77a5c561934e089";
@@ -33,6 +35,13 @@ namespace Xtensive.Core.Collections
 
     /// <inheritdoc/>
     public abstract int Count { get; }
+
+    /// <inheritdoc/>
+    [DebuggerHidden]
+    long ICountable.Count
+    {
+      get { return Count; }
+    }
 
     /// <inheritdoc/>
     public abstract void Clear();
@@ -58,12 +67,14 @@ namespace Xtensive.Core.Collections
     #region Non-abstract methods (IDictionary, etc. implementation)
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public bool IsReadOnly
     {
       get { return false; }
     }
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public ICollection<TKey> Keys
     {
       get
@@ -75,6 +86,7 @@ namespace Xtensive.Core.Collections
     }
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public ICollection<TValue> Values
     {
       get

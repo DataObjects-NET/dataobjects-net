@@ -5,6 +5,7 @@
 // Created:    2007.06.13
 
 using System;
+using System.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.Collections
@@ -20,6 +21,7 @@ namespace Xtensive.Core.Collections
     ///<summary>
     /// Gets the expiring item.
     ///</summary>
+    [DebuggerHidden]
     public TItem Item
     {
       get { return item; }

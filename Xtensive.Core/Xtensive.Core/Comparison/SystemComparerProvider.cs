@@ -5,6 +5,7 @@
 // Created:    2008.02.10
 
 using System;
+using System.Diagnostics;
 
 namespace Xtensive.Core.Comparison
 {
@@ -18,6 +19,7 @@ namespace Xtensive.Core.Comparison
     /// <summary>
     /// Gets the only instance of this class.
     /// </summary>
+    [DebuggerHidden]
     public static SystemComparerProvider Instance
     {
       get { return instance; }

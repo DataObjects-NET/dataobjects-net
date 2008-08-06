@@ -7,8 +7,10 @@
 using System;
 using System.Collections.Generic;
 using System.Collections;
+using System.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Resources;
+using Xtensive.Core.Threading;
 
 namespace Xtensive.Core.Collections
 {
@@ -20,17 +22,28 @@ namespace Xtensive.Core.Collections
   public class ReadOnlyCollection<T> : 
     ICollection,
     ICollection<T>,
+    ICountable<T>,
+    ISynchronizable,
     IReadOnly
   {
     private readonly ICollection<T> innerCollection;
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public int Count
     {
       get { return innerCollection.Count; }
     }
 
     /// <inheritdoc/>
+    [DebuggerHidden]
+    long ICountable.Count
+    {
+      get { return Count; }
+    }
+
+    /// <inheritdoc/>
+    [DebuggerHidden]
     public object SyncRoot
     {
       get { return this; }
@@ -39,6 +52,7 @@ namespace Xtensive.Core.Collections
     #region IsXxx properties
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public virtual bool IsSynchronized
     {
       get { return false; }
@@ -48,6 +62,7 @@ namespace Xtensive.Core.Collections
     /// Always returns <see langword="true"/>.
     /// </summary>
     /// <returns><see langword="True"/>.</returns>
+    [DebuggerHidden]
     bool ICollection<T>.IsReadOnly
     {
       get { return true; }

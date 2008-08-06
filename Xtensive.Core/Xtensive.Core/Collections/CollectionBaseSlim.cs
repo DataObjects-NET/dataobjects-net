@@ -7,6 +7,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Threading;
@@ -27,18 +28,21 @@ namespace Xtensive.Core.Collections
     #region Properties: IsReadOnly, SyncRoot, IsSyncronized
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public virtual bool IsReadOnly
     {
       get { return IsLocked; }
     }
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public virtual object SyncRoot
     {
       get { return this; }
     }
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public virtual bool IsSynchronized
     {
       get { return false; }
@@ -50,18 +54,21 @@ namespace Xtensive.Core.Collections
     /// Gets the items.
     /// </summary>
     /// <value>The items.</value>
+    [DebuggerHidden]
     protected List<TItem> Items
     {
       get { return items; }
     }
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public int Count
     {
       get { return Items.Count; }
     }
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     int ICollection<TItem>.Count
     {
       get { return Count; }

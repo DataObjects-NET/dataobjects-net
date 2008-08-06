@@ -29,6 +29,14 @@ namespace Xtensive.Core.Serialization
 
     // Constructors
 
+    public SerializerStruct(Serializer<T> serializer)
+    {
+      Serializer = serializer;
+      GetObjectData = serializer.GetObjectData;
+      SetObjectData = serializer.SetObjectData;
+      CreateObject = serializer.CreateObject;
+    }
+
     private SerializerStruct(SerializationInfo info, StreamingContext context)
     {
       Serializer = (Serializer<T>)info.GetValue("ObjectSerializer", typeof (Serializer<T>));
@@ -37,13 +45,7 @@ namespace Xtensive.Core.Serialization
       CreateObject = Serializer.CreateObject;
     }
 
-    public SerializerStruct(Serializer<T> serializer)
-    {
-      Serializer = serializer;
-      GetObjectData = serializer.GetObjectData;
-      SetObjectData = serializer.SetObjectData;
-      CreateObject = serializer.CreateObject;
-    }
+    // Serialization
 
     void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
     {

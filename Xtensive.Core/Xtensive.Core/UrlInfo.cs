@@ -89,6 +89,7 @@ namespace Xtensive.Core
     /// <summary>
     /// Gets an URL this instance describes.
     /// </summary>
+    [DebuggerHidden]
     public string Url
     {
       get { return url; }
@@ -98,6 +99,7 @@ namespace Xtensive.Core
     /// Gets the protocol part of the current <see cref="Url"/>
     /// (e.g. <b>"tcp"</b> is the protocol part of the "<b>tcp</b>://admin:password@localhost/resource" URL).
     /// </summary>
+    [DebuggerHidden]
     public string Protocol
     {
       get { return protocol; }
@@ -107,6 +109,7 @@ namespace Xtensive.Core
     /// Gets the host part of the current <see cref="Url"/>
     /// (e.g. <b>"localhost"</b> is the host part of the "tcp://admin:password@<b>localhost</b>/resource" URL).
     /// </summary>
+    [DebuggerHidden]
     public string Host
     {
       get { return host; }
@@ -116,6 +119,7 @@ namespace Xtensive.Core
     /// Gets the port part of the current <see cref="Url"/>
     /// (e.g. <b>40000</b> is the port part of the "tcp://admin:password@localhost:<b>40000</b>/resource" URL).
     /// </summary>
+    [DebuggerHidden]
     public int Port
     {
       get { return port; }
@@ -125,6 +129,7 @@ namespace Xtensive.Core
     /// Gets the resource name part of the current <see cref="Url"/>
     /// (e.g. <b>"resource"</b> is the resource name part of the "tcp://admin:password@localhost/<b>resource</b>" URL).
     /// </summary>
+    [DebuggerHidden]
     public string Resource
     {
       get { return resource; }
@@ -134,6 +139,7 @@ namespace Xtensive.Core
     /// Gets the user name part of the current <see cref="Url"/>
     /// (e.g. <b>"admin"</b> is the user name part of the "tcp://<b>admin</b>:password@localhost/resource" URL).
     /// </summary>
+    [DebuggerHidden]
     public string User
     {
       get { return user; }
@@ -143,6 +149,7 @@ namespace Xtensive.Core
     /// Gets the password part of the current <see cref="Url"/>
     /// (e.g. <b>"password"</b> is the password part of the "tcp://admin:<b>password</b>@localhost/resource" URL).
     /// </summary>
+    [DebuggerHidden]
     public string Password
     {
       get { return password; }
@@ -157,6 +164,7 @@ namespace Xtensive.Core
     /// <para>The mentioned part of the <see cref="Url"/> is parsed
     /// and represented in a <see cref="Dictionary{String,String}"/> form.</para>
     /// </remarks>
+    [DebuggerHidden]
     public ReadOnlyDictionary<string, string> Params
     {
       get { return parameters; }

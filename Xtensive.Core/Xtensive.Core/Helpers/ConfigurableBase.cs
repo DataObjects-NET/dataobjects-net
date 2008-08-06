@@ -5,6 +5,7 @@
 // Created:    2008.02.22
 
 using System;
+using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 
@@ -26,6 +27,7 @@ namespace Xtensive.Core.Helpers
     private TConfiguration configuration;
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public bool IsConfigured
     {
       get { return isConfigured; }

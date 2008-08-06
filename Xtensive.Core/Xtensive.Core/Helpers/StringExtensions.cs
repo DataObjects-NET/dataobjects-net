@@ -31,7 +31,8 @@ namespace Xtensive.Core.Helpers
     /// </summary>
     /// <param name="value">The original string value.</param>
     /// <param name="suffix">The suffix to cut.</param>
-    /// <returns>String without <paramref name="suffix"/> if it was found, otherwise original <paramref name="value"/>.</returns>
+    /// <returns>String without <paramref name="suffix"/> if it was found; 
+    /// otherwise, original <paramref name="value"/>.</returns>
     public static string TryCutSuffix(this string  value, string suffix)
     {
       if (!value.EndsWith(suffix))

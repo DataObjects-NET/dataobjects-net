@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
@@ -29,6 +30,7 @@ namespace Xtensive.Core.Comparison
     private static readonly SystemComparerProvider systemProvider = SystemComparerProvider.Instance;
 
     /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
+    [DebuggerHidden]
     public static ComparerProvider Default
     {
       get { return defaultProvider; }
@@ -38,6 +40,7 @@ namespace Xtensive.Core.Comparison
     /// Gets system comparer provider.
     /// A shortcut to <see cref="SystemComparerProvider.Instance"/>.
     /// </summary>
+    [DebuggerHidden]
     public static SystemComparerProvider System
     {
       get { return systemProvider; }

@@ -23,6 +23,7 @@ namespace Xtensive.Core.Diagnostics
     /// Gets the <see cref="ILog"/> this type logs to.
     /// </summary>
     public static ILog Instance {
+      [DebuggerHidden]
       get { return instance; }
       protected set
       {

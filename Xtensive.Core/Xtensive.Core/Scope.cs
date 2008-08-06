@@ -5,6 +5,7 @@
 // Created:    2007.09.27
 
 using System;
+using System.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Resources;
 
@@ -26,6 +27,7 @@ namespace Xtensive.Core
     /// <summary>
     /// Gets the current context of this type of scope.
     /// </summary>
+    [DebuggerHidden]
     protected internal static TContext CurrentContext
     {
       get { return currentScope != null ? currentScope.context : default(TContext); }
@@ -34,6 +36,7 @@ namespace Xtensive.Core
     /// <summary>
     /// Gets the current scope.
     /// </summary>
+    [DebuggerHidden]
     protected internal static Scope<TContext> CurrentScope
     {
       get { return currentScope; }
@@ -42,6 +45,7 @@ namespace Xtensive.Core
     /// <summary>
     /// Gets the context of this scope.
     /// </summary>
+    [DebuggerHidden]
     protected TContext Context
     {
       get { return context; }
@@ -50,6 +54,7 @@ namespace Xtensive.Core
     /// <summary>
     /// Gets the outer <see cref="Scope{TContext}"/> of this instance.
     /// </summary>
+    [DebuggerHidden]
     protected Scope<TContext> OuterScope
     {
       get { return outerScope; }
@@ -58,6 +63,7 @@ namespace Xtensive.Core
     /// <summary>
     /// Gets a value indicating whether this scope is nested to another one.
     /// </summary>
+    [DebuggerHidden]
     protected bool IsNested
     {
       get { return outerScope != null; }

@@ -5,6 +5,7 @@
 // Created:    2007.12.31
 
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters;
@@ -25,6 +26,7 @@ namespace Xtensive.Core.Serialization.Binary
     private static BinarySerializer instance;
 
     /// <see cref="SingletonDocTemplate.Instance" copy="true"/>
+    [DebuggerHidden]
     public static BinarySerializer Instance {
       get {
         if (instance==null)

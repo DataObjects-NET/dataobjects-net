@@ -5,6 +5,7 @@
 // Created:    2008.02.12
 
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.Serialization;
 using Xtensive.Core.Internals.DocTemplates;
@@ -28,6 +29,7 @@ namespace Xtensive.Core.Serialization.Binary
     /// Gets default serializer for type <typeparamref name="T"/>
     /// (uses <see cref="ValueSerializerProvider.Default"/> <see cref="ValueSerializerProvider"/>).
     /// </summary>
+    [DebuggerHidden]
     public static ValueSerializer<T> Default {
       get {
         if (@default==null) lock (_lock) if (@default==null) {

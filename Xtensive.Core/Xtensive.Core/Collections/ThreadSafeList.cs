@@ -5,7 +5,9 @@
 // Created:    2008.02.06
 
 using System;
+using System.Diagnostics;
 using System.Threading;
+using Xtensive.Core.Threading;
 
 namespace Xtensive.Core.Collections
 {
@@ -15,18 +17,25 @@ namespace Xtensive.Core.Collections
   /// </summary>
   /// <typeparam name="TItem">Value type.</typeparam>
   [Serializable]
-  public struct ThreadSafeList<TItem>
+  public struct ThreadSafeList<TItem> :
+    ISynchronizable
   {
     private const int InitialSize = 16;
     private readonly static TItem defaultItem = default(TItem);
     private volatile TItem[] implementation;
     private object syncRoot;
 
-    /// <summary>
-    /// Gets the synchronization root used by this instance.
-    /// </summary>
+    /// <inheritdoc/>
+    [DebuggerHidden]
     public object SyncRoot {
       get { return syncRoot; }
+    }
+
+    /// <inheritdoc/>
+    [DebuggerHidden]
+    public bool IsSynchronized
+    {
+      get { return true; }
     }
 
     #region GetValue methods with generator

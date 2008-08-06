@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Resources;
 
@@ -30,6 +31,7 @@ namespace Xtensive.Core.Conversion
     private static readonly Dictionary<Pair<Type>, bool> inProgress = new Dictionary<Pair<Type>, bool>();
 
     /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
+    [DebuggerHidden]
     public static IAdvancedConverterProvider Default
     {
       get { return @default; }
@@ -42,6 +44,7 @@ namespace Xtensive.Core.Conversion
     }
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public virtual DateTime BaseTime
     {
       get { return ZeroTime; }

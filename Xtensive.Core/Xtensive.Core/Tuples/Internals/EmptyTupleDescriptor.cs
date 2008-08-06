@@ -5,6 +5,7 @@
 // Created:    2008.01.29
 
 using System;
+using System.Diagnostics;
 using Xtensive.Core.Collections;
 
 namespace Xtensive.Core.Tuples.Internals
@@ -20,6 +21,7 @@ namespace Xtensive.Core.Tuples.Internals
     /// <summary>
     /// Provides the only instance of this class.
     /// </summary>
+    [DebuggerHidden]
     public static EmptyTupleDescriptor Instance
     {
       get { return instance; }

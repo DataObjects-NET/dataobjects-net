@@ -5,6 +5,7 @@
 // Created:    2007.10.30
 
 using System.Collections.Generic;
+using System.Diagnostics;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Internals.DocTemplates;
 
@@ -16,8 +17,8 @@ namespace Xtensive.Core.Collections
   /// </summary>
   /// <typeparam name="TKey">The type of key.</typeparam>
   /// <typeparam name="TValue">The type of value.</typeparam>
-  public class WeakestDictionary<TKey, TValue>
-    : DictionaryBaseSlim<TKey, TValue>
+  public class WeakestDictionary<TKey, TValue> : 
+    DictionaryBaseSlim<TKey, TValue>
     where TKey : class
     where TValue : class
   {
@@ -28,6 +29,7 @@ namespace Xtensive.Core.Collections
     private int iteration;
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public override int Count {
       get {
         IterationalCleanup();

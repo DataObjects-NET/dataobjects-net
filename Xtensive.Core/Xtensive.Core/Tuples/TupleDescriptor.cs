@@ -44,6 +44,7 @@ namespace Xtensive.Core.Tuples
     /// Gets the empty tuple descriptor.
     /// </summary>
     /// <value>The empty tuple descriptor.</value>
+    [DebuggerHidden]
     public static TupleDescriptor Empty
     {
       get { return EmptyTupleDescriptor.Instance; }
@@ -52,18 +53,21 @@ namespace Xtensive.Core.Tuples
     /// <summary>
     /// Gets total count of compiled descriptors.
     /// </summary>
+    [DebuggerHidden]
     public static int TotalCount
     {
       get { return totalCount; }
     }
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public int Identifier
     {
       get { return identifier; }
     }
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     object IIdentified.Identifier
     {
       get { return identifier; }
@@ -73,6 +77,7 @@ namespace Xtensive.Core.Tuples
     /// Indicates whether class for handling underlying 
     /// <see cref="ITuple"/> is already compiled.
     /// </summary>
+    [DebuggerHidden]
     public bool IsCompiled
     {
       get { return isCompiled; }
@@ -180,11 +185,13 @@ namespace Xtensive.Core.Tuples
     }
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public int Count {
       get { return fieldCount; }
     }
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     long ICountable.Count
     {
       get { return fieldCount; }

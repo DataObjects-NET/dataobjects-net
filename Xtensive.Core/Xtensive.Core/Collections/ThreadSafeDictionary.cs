@@ -6,7 +6,9 @@
 
 using System;
 using System.Collections;
+using System.Diagnostics;
 using System.Threading;
+using Xtensive.Core.Threading;
 
 namespace Xtensive.Core.Collections
 {
@@ -18,17 +20,24 @@ namespace Xtensive.Core.Collections
   /// <typeparam name="TKey">Key type.</typeparam>
   /// <typeparam name="TItem">Value type.</typeparam>
   [Serializable]
-  public struct ThreadSafeDictionary<TKey, TItem>
+  public struct ThreadSafeDictionary<TKey, TItem> :
+    ISynchronizable
   {
     private readonly static TItem defaultItem = default(TItem);
     private Hashtable implementation;
     private object syncRoot;
 
-    /// <summary>
-    /// Gets the synchronization root used by this instance.
-    /// </summary>
+    /// <inheritdoc/>
+    [DebuggerHidden]
     public object SyncRoot {
       get { return syncRoot; }
+    }
+
+    /// <inheritdoc/>
+    [DebuggerHidden]
+    public bool IsSynchronized
+    {
+      get { return true; }
     }
 
     #region GetValue methods with generator

@@ -5,6 +5,7 @@
 // Created:    2008.03.20
 
 using System;
+using System.Diagnostics;
 using System.Runtime.Serialization;
 using Xtensive.Core.Internals.DocTemplates;
 
@@ -16,6 +17,7 @@ namespace Xtensive.Core.Serialization
     private static readonly object _lock = new object();
     private static volatile Serializer<T> @default;
 
+    [DebuggerHidden]
     public static Serializer<T> Default {
       get {
         if (@default==null) lock (_lock) if (@default==null) {

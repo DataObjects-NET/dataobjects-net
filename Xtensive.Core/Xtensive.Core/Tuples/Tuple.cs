@@ -7,6 +7,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Internals.DocTemplates;
@@ -28,6 +29,7 @@ namespace Xtensive.Core.Tuples
     public abstract TupleDescriptor Descriptor { get; }
 
     /// <inheritdoc />
+    [DebuggerHidden]
     public virtual int Count { 
       get {
          return Descriptor.Count;

@@ -5,6 +5,7 @@
 // Created:    2008.01.17
 
 using System;
+using System.Diagnostics;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Serialization;
@@ -27,6 +28,7 @@ namespace Xtensive.Core.Serialization
       ThreadSafeDictionary<Type, ISerializer>.Create(new object());
 
     /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
+    [DebuggerHidden]
     public static ISerializerProvider Default
     {
       get { return @default; }

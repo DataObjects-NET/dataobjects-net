@@ -5,6 +5,7 @@
 // Created:    2007.11.20
 
 using System.Collections.Generic;
+using System.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.Collections
@@ -27,6 +28,7 @@ namespace Xtensive.Core.Collections
     private int iteration;
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public override int Count {
       get {
         IterationalCleanup();

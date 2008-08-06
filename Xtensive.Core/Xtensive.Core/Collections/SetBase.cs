@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
@@ -26,6 +27,7 @@ namespace Xtensive.Core.Collections
     /// <summary>
     /// Gets or sets a value indicating whether a set contains <see langword="null"/> item.
     /// </summary>
+    [DebuggerHidden]
     protected bool ContainsNull
     {
       get { return containsNull; }
@@ -35,11 +37,14 @@ namespace Xtensive.Core.Collections
     #region ISet<TItem> members
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public int Count
     {
       get { return Items.Count + (ContainsNull ? 1 : 0); }
     }
 
+    /// <inheritdoc/>
+    [DebuggerHidden]
     long ICountable.Count
     {
       get {return Count;}

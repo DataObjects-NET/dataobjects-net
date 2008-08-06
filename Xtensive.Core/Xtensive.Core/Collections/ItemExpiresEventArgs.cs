@@ -5,6 +5,7 @@
 // Created:    2007.06.13
 
 using System;
+using System.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.Collections
@@ -22,6 +23,7 @@ namespace Xtensive.Core.Collections
     /// <see langword="True"/>, if item must be kept in collection; 
     /// otherwise, <see langword="false"/>.
     /// </summary>
+    [DebuggerHidden]
     public bool Cancel
     {
       get { return cancel; }
@@ -31,6 +33,7 @@ namespace Xtensive.Core.Collections
     ///<summary>
     /// Gets the expiring item.
     ///</summary>
+    [DebuggerHidden]
     public TItem Item
     {
       get { return item; }

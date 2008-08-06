@@ -7,6 +7,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Internals.DocTemplates;
 
@@ -17,7 +18,8 @@ namespace Xtensive.Core.Collections
   /// </summary>
   /// <typeparam name="TItem">The type of <see cref="Stack{T}"/> item.</typeparam>
   [Serializable]
-  public class Stack<TItem>: IEnumerable<TItem>
+  public class Stack<TItem>: 
+    ICountable<TItem>
   {
     private TItem[] items;
     private int size;
@@ -35,13 +37,18 @@ namespace Xtensive.Core.Collections
       }
     }
 
-    /// <summary>
-    /// Gets the number of elements contained in the <see cref="Stack{T}"/>.
-    /// </summary>
-    /// <value>The count.</value>
+    /// <inheritdoc/>
+    [DebuggerHidden]
     public int Count
     {
       get { return size; }
+    }
+
+    /// <inheritdoc/>
+    [DebuggerHidden]
+    long ICountable.Count
+    {
+      get { return Count; }
     }
 
     /// <summary>

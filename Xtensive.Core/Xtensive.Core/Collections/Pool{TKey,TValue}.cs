@@ -7,6 +7,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Resources;
@@ -40,30 +41,35 @@ namespace Xtensive.Core.Collections
 
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public int Capacity
     {
       get { return capacity; }
     }
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public int AvailableCount
     {
       get { return availableCount; }
     }
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public int Count
     {
       get { return count; }
     }
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public TimeSpan ItemExpirationPeriod
     {
       get { return itemExpirationPeriod; }
     }
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public TimeSpan GarbageCollectionPeriod
     {
       get { return garbageCollectionPeriod; }

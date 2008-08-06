@@ -5,6 +5,7 @@
 // Created:    2008.04.30
 
 using System;
+using System.Diagnostics;
 using System.Linq;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
@@ -25,6 +26,7 @@ namespace Xtensive.Core.Tuples.Transform
     /// <summary>
     /// Gets tuple descriptors this transform merges.
     /// </summary>
+    [DebuggerHidden]
     public TupleDescriptor[] Sources
     {
       get { return sources.Copy(); }

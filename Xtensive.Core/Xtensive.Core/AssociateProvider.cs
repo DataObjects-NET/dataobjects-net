@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
@@ -40,6 +41,7 @@ namespace Xtensive.Core
     /// <summary>
     /// Gets associate constructor parameters.
     /// </summary>
+    [DebuggerHidden]
     protected object[] ConstructorParams
     {
       get { return constructorParams; }
@@ -49,6 +51,7 @@ namespace Xtensive.Core
     /// <summary>
     /// Gets or sets associate type suffixes.
     /// </summary>
+    [DebuggerHidden]
     protected string[] TypeSuffixes { 
       get { return typeSuffixes; }
       set { typeSuffixes = value; }

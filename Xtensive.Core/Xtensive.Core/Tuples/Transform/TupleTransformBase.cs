@@ -5,6 +5,7 @@
 // Created:    2008.04.30
 
 using System;
+using System.Diagnostics;
 using Xtensive.Core.Reflection;
 
 namespace Xtensive.Core.Tuples.Transform
@@ -19,6 +20,7 @@ namespace Xtensive.Core.Tuples.Transform
     public TupleDescriptor Descriptor { get; protected set; }
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public virtual bool IsReadOnly {
       get {
         return false;

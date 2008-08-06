@@ -7,6 +7,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.Collections
@@ -26,18 +27,21 @@ namespace Xtensive.Core.Collections
     }
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public int Count
     {
       get { return innerSet.Count; }
     }
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     long ICountable.Count
     {
       get { return innerSet.Count; }
     }
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public bool IsReadOnly
     {
       get { return true; }

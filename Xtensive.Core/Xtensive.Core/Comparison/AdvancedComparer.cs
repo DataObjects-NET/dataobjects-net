@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.Serialization;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
@@ -30,6 +31,7 @@ namespace Xtensive.Core.Comparison
     /// Gets default advanced comparer for type <typeparamref name="T"/>
     /// (uses <see cref="ComparerProvider.Default"/> <see cref="ComparerProvider"/>).
     /// </summary>
+    [DebuggerHidden]
     public static AdvancedComparer<T> Default {
       get {
         if (defaultComparer==null) lock (_lock) if (defaultComparer==null) {

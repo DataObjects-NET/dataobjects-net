@@ -5,6 +5,7 @@
 // Created:    2008.02.12
 
 using System;
+using System.Diagnostics;
 using System.Runtime.Serialization;
 using Xtensive.Core.Internals.DocTemplates;
 
@@ -26,6 +27,7 @@ namespace Xtensive.Core.Arithmetic
     /// Gets default arithmetic for type <typeparamref name="T"/>
     /// (uses <see cref="ArithmeticProvider.Default"/> <see cref="ArithmeticProvider"/>).
     /// </summary>
+    [DebuggerHidden]
     public static Arithmetic<T> Default {
       get {
         if (@default==null) lock (_lock) if (@default==null) {

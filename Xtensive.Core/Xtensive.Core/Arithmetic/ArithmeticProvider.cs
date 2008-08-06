@@ -5,6 +5,7 @@
 // Created:    2008.01.22
 
 using System;
+using System.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.Arithmetic
@@ -35,6 +36,7 @@ namespace Xtensive.Core.Arithmetic
     private static readonly ArithmeticProvider @default = new ArithmeticProvider();
 
     /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
+    [DebuggerHidden]
     public static IArithmeticProvider Default
     {
       get { return @default; }
@@ -75,7 +77,7 @@ namespace Xtensive.Core.Arithmetic
     /// </summary>
     protected ArithmeticProvider()
     {
-      TypeSuffixes = new string[] {"Arithmetic"};
+      TypeSuffixes = new[] {"Arithmetic"};
       ConstructorParams = new object[] {this, new ArithmeticRules(NullBehavior.Default, OverflowBehavior.Default)};
       Type type = typeof (ArithmeticProvider);
       AddHighPriorityLocation(type.Assembly, type.Namespace);

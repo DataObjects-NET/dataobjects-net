@@ -5,6 +5,7 @@
 // Created:    2008.01.22
 
 using System;
+using System.Diagnostics;
 using System.Reflection;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Diagnostics;
@@ -40,6 +41,7 @@ namespace Xtensive.Core.SizeCalculators
     private ThreadSafeCached<ISizeCalculatorBase> objectSizeCalculator = new ThreadSafeCached<ISizeCalculatorBase>();
 
     /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
+    [DebuggerHidden]
     public static ISizeCalculatorProvider Default
     {
       get { return @default; }

@@ -7,6 +7,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Resources;
@@ -25,6 +26,7 @@ namespace Xtensive.Core.Collections
     private Dictionary<Type, object> extensions;
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public long Count {
       get {
         return extensions!=null ? extensions.Count : 0;
@@ -32,6 +34,7 @@ namespace Xtensive.Core.Collections
     }
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public T Get<T>() 
       where T : class
     {
@@ -52,6 +55,7 @@ namespace Xtensive.Core.Collections
     }
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public void Set<T>(T value) 
       where T : class
     {

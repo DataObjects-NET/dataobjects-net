@@ -5,6 +5,7 @@
 // Created:    2007.06.11
 
 using System;
+using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Resources;
 
@@ -27,6 +28,7 @@ namespace Xtensive.Core.Diagnostics
     private int      operationCount;
 
 
+    [DebuggerHidden]
     public string Name
     {
       get { return name; }
@@ -38,36 +40,35 @@ namespace Xtensive.Core.Diagnostics
       }
     }
 
+    [DebuggerHidden]
     public string FullName {
       get { return fullName; }
       protected set { fullName = value; }
     }
 
+    [DebuggerHidden]
     public MeasurementOptions Options
     {
       get { return options; }
     }
 
+    [DebuggerHidden]
     public bool IsCompleted
     {
       get { return isCompleted; }
     }
 
-
-    public int OperationCount
-    {
+    [DebuggerHidden]
+    public int OperationCount {
       get { return operationCount; }
-      set
-      {
+      set {
         operationCount = value;
         UpdateFullName();
       }
     }
 
-    public TimeSpan TimeSpent
-    {
-      get
-      {
+    public TimeSpan TimeSpent {
+      get {
         if (!isCompleted)
           return HighResolutionTime.Now.Subtract(initialTime);
         else
@@ -75,10 +76,8 @@ namespace Xtensive.Core.Diagnostics
       }
     }
 
-    public long MemoryAllocated
-    {
-      get
-      {
+    public long MemoryAllocated {
+      get {
         if (!isCompleted)
           return GC.GetTotalMemory(false)-initialBytesAllocated;
         else

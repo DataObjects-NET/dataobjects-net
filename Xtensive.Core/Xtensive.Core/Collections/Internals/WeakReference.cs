@@ -15,7 +15,9 @@ namespace Xtensive.Core.Collections
   /// to handle the case where target is null, but we want the 
   /// reference to still appear to be alive.
   /// </summary>
-  internal class WeakReference<T> : WeakReference where T : class
+  [Serializable]
+  internal class WeakReference<T> : WeakReference 
+    where T : class
   {
     public new T Target
     {
@@ -30,14 +32,19 @@ namespace Xtensive.Core.Collections
       return new WeakReference<T>(target);
     }
 
+
+    // Constructors
+
     protected WeakReference(T target)
-      : base(target, false) { }
+      : base(target, false) 
+    {
+    }
+
+    // Serialization
 
     protected WeakReference(SerializationInfo info, StreamingContext context)
       : base(info, context)
     {
     }
-
-
   }
 }

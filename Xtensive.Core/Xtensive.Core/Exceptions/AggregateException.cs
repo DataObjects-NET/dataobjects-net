@@ -6,10 +6,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Text;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Resources;
+using System.Linq;
 
 namespace Xtensive.Core
 {
@@ -20,45 +23,53 @@ namespace Xtensive.Core
   public class AggregateException : Exception,
     IHasExceptions<Exception>
   {
-    private List<Exception> exceptions = new List<Exception>();
+    private ReadOnlyList<Exception> exceptions;
 
     /// <summary>
-    /// Gets the exceptions count.
+    /// Gets the list of caught exceptions.
     /// </summary>
-    public int Count
-    {
-      get { return exceptions.Count; }
-    }
-
-    /// <summary>
-    /// Gets the list with all aggregated exceptions. 
-    /// If other <see cref=" AggregateException"/>s was aggregated, their inner exceptions are included instead of them.
-    /// </summary>
-    /// <returns>List with aggregated exceptions</returns>
-    public List<Exception> GetFlattenList()
-    {
-      var result = new List<Exception>();
-
-      foreach (var exception in exceptions) 
-        if (exception is AggregateException)
-          result.AddRange(
-            ((AggregateException) exception).GetFlattenList());
-        else 
-          result.Add(exception);
-
-      return result;
-    }
-
-    public IEnumerable<Exception> Exceptions
+    [DebuggerHidden]
+    public ReadOnlyList<Exception> Exceptions
     {
       get { return exceptions; }
     }
 
-    public void Add(Exception exception)
+    /// <inheritdoc/>
+    [DebuggerHidden]
+    IEnumerable<Exception> IHasExceptions.Exceptions
     {
-      exceptions.Add(exception);
+      get { return Exceptions; }
     }
 
+    /// <inheritdoc/>
+    [DebuggerHidden]
+    IEnumerable<Exception> IHasExceptions<Exception>.Exceptions
+    {
+      get { return Exceptions; }
+    }
+
+    /// <summary>
+    /// Gets the "flat" list with all aggregated exceptions. 
+    /// If other <see cref=" AggregateException"/>s were aggregated, 
+    /// their inner exceptions are included instead of them.
+    /// </summary>
+    /// <returns>Flat list of aggregated exceptions.</returns>
+    public List<Exception> GetFlatExceptions()
+    {
+      var result = new List<Exception>();
+
+      foreach (var exception in exceptions) {
+        var ae = exception as AggregateException;
+        if (ae!=null)
+          result.AddRange(ae.GetFlatExceptions());
+        else
+          result.Add(exception);
+      }
+
+      return result;
+    }
+
+    /// <inheritdoc/>
     public override string ToString()
     {
       StringBuilder sb = new StringBuilder(64);
@@ -70,14 +81,22 @@ namespace Xtensive.Core
       return sb.ToString();
     }
 
-    private static Exception ExtractFirstException(IEnumerable<Exception> exceptions)
+    #region Private \ internal methods
+
+    private void SetExceptions(IEnumerable<Exception> exceptions)
     {
-      if (exceptions==null)
-        return null;
-      foreach (Exception e in exceptions)
-        return e;
-      return null;
+      var list = exceptions as IList<Exception> ?? exceptions.ToList();
+      this.exceptions = new ReadOnlyList<Exception>(list);
     }
+
+    private void SetExceptions(Exception exception)
+    {
+      var list = new List<Exception>();
+      list.Add(exception);
+      exceptions = new ReadOnlyList<Exception>(list);
+    }
+
+    #endregion
 
 
     // Constructors
@@ -107,7 +126,7 @@ namespace Xtensive.Core
     public AggregateException(string message, Exception innerException) 
       : base(message, innerException)
     {
-      Add(innerException);
+      SetExceptions(innerException);
     }
 
     /// <summary>
@@ -115,10 +134,9 @@ namespace Xtensive.Core
     /// </summary>
     /// <param name="exceptions">Inner exceptions.</param>
     public AggregateException(IEnumerable<Exception> exceptions) 
-      : base(Strings.ExASetOfExceptionsIsCaught, ExtractFirstException(exceptions))
+      : base(Strings.ExASetOfExceptionsIsCaught, exceptions.First())
     {
-      foreach (Exception e in exceptions)
-        Add(e);
+      SetExceptions(exceptions);
     }
 
     /// <summary>
@@ -127,10 +145,9 @@ namespace Xtensive.Core
     /// <param name="message">Text of message.</param>
     /// <param name="exceptions">Inner exceptions.</param>
     public AggregateException(string message, IEnumerable<Exception> exceptions) 
-      : base(message, ExtractFirstException(exceptions))
+      : base(message, exceptions.First())
     {
-      foreach (Exception e in exceptions)
-        Add(e);
+      SetExceptions(exceptions);
     }
 
 
@@ -140,7 +157,7 @@ namespace Xtensive.Core
     protected AggregateException(SerializationInfo info, StreamingContext context)
       : base(info, context)
     {
-      exceptions = (List<Exception>)info.GetValue("Exceptions", typeof (List<Exception>));
+      exceptions = (ReadOnlyList<Exception>)info.GetValue("Exceptions", typeof (ReadOnlyList<Exception>));
     }
 
     /// <see cref="SerializableDocTemplate.GetObjectData" copy="true" />

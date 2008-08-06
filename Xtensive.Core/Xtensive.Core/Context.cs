@@ -5,6 +5,7 @@
 // Created:    2008.01.15
 
 using System;
+using System.Diagnostics;
 
 namespace Xtensive.Core
 {
@@ -20,6 +21,7 @@ namespace Xtensive.Core
     public abstract bool IsActive { get; }
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     IDisposable IContext.Activate()
     {
       return Activate();

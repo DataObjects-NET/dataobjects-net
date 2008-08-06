@@ -5,6 +5,7 @@
 // Created:    20.06.2008
 
 using System;
+using System.Diagnostics;
 using System.Linq;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
@@ -20,20 +21,21 @@ namespace Xtensive.Core.Tuples.Transform
   public class CutInTransform : MapTransform
   {
     private int index;
+    private TupleDescriptor[] sources;
 
     /// <summary>
     /// Gets the start index at witch this transform cuts in specified value.
     /// </summary>
+    [DebuggerHidden]
     public int Index
     {
       get { return index; }
     }
 
-    private TupleDescriptor[] sources;
-
     /// <summary>
     /// Gets tuple descriptors this transform cuts in.
     /// </summary>
+    [DebuggerHidden]
     public TupleDescriptor[] Sources
     {
       get { return sources.Copy(); }

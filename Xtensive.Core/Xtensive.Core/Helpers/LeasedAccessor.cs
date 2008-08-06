@@ -5,6 +5,7 @@
 // Created:    2008.05.16
 
 using System;
+using System.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.Helpers
@@ -22,6 +23,7 @@ namespace Xtensive.Core.Helpers
     /// <summary>
     /// Provides access to actually leased object.
     /// </summary>
+    [DebuggerHidden]
     public T Leased
     {
       get { return leased; }

@@ -5,6 +5,7 @@
 // Created:    2008.02.04
 
 using System;
+using System.Diagnostics;
 using System.Text;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
@@ -40,6 +41,7 @@ namespace Xtensive.Core.Comparison
     /// <summary>
     /// Gets primary <see cref="ComparisonRule"/> value.
     /// </summary>
+    [DebuggerHidden]
     public ComparisonRule Value
     {
       get { return value; }
@@ -50,6 +52,7 @@ namespace Xtensive.Core.Comparison
     /// Tail rule is considered repeating infinitely 
     /// starting from <see cref="TailIndex"/>.
     /// </summary>
+    [DebuggerHidden]
     public ComparisonRules Tail
     {
       get { return composite[TailIndex]; }
@@ -58,6 +61,7 @@ namespace Xtensive.Core.Comparison
     /// <summary>
     /// Gets count of <see cref="Composite"/> rules.
     /// </summary>
+    [DebuggerHidden]
     public int Count
     {
       get { return composite.Length; }
@@ -67,6 +71,7 @@ namespace Xtensive.Core.Comparison
     /// Gets <see cref="Tail"/> rule index in <see cref="Composite"/> rules.
     /// Always returns <see cref="Count"/>-1.
     /// </summary>
+    [DebuggerHidden]
     public int TailIndex
     {
       get { return composite.Length-1; }
@@ -77,6 +82,7 @@ namespace Xtensive.Core.Comparison
     /// i.e. its <see cref="Count"/>==<see langword="1"/> and 
     /// <see cref="Composite"/><see langword="[0]"/> returns itself.
     /// </summary>
+    [DebuggerHidden]
     public bool IsRecursive {
       get {
         return this==composite[0];

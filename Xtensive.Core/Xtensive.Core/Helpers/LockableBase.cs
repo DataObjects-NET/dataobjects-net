@@ -5,6 +5,7 @@
 // Created:    2007.11.22
 
 using System;
+using System.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.Helpers
@@ -18,6 +19,7 @@ namespace Xtensive.Core.Helpers
     private bool isLocked;
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public bool IsLocked
     {
       get { return isLocked; }

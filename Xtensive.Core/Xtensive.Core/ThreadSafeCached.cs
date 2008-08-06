@@ -10,6 +10,7 @@ using System.Threading;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Resources;
+using Xtensive.Core.Threading;
 
 namespace Xtensive.Core
 {
@@ -21,17 +22,24 @@ namespace Xtensive.Core
   [DebuggerDisplay("{value}")]
   public struct ThreadSafeCached<T> : 
     IEquatable<ThreadSafeCached<T>>,
-    IComparable<ThreadSafeCached<T>>
+    IComparable<ThreadSafeCached<T>>,
+    ISynchronizable
   {
     private T cachedValue;
     private volatile bool isCached;
     private object syncRoot;
 
-    /// <summary>
-    /// Gets the synchronization root used by this instance.
-    /// </summary>
+    /// <inheritdoc/>
+    [DebuggerHidden]
     public object SyncRoot {
       get { return syncRoot; }
+    }
+
+    /// <inheritdoc/>
+    [DebuggerHidden]
+    public bool IsSynchronized
+    {
+      get { return true; }
     }
 
     #region GetValue methods
