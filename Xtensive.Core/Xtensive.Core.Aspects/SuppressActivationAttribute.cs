@@ -14,7 +14,7 @@ namespace Xtensive.Core.Aspects
   /// for the method it is applied on.
   /// </summary>
   [Serializable]
-  [AttributeUsage(AttributeTargets.Method)]
+  [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property)]
   public sealed class SuppressActivationAttribute : Attribute
   {
     /// <summary>
