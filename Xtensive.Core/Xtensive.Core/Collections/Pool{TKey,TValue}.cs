@@ -304,6 +304,13 @@ namespace Xtensive.Core.Collections
     #region IEnumerable<...> Members
 
     /// <inheritdoc/>
+    [DebuggerStepThrough]
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+      return GetEnumerator();
+    }
+
+    /// <inheritdoc/>
     public IEnumerator<TItem> GetEnumerator()
     {
       int oldVersion = version;
@@ -321,12 +328,6 @@ namespace Xtensive.Core.Collections
           }
         }
       }
-    }
-
-    /// <inheritdoc/>
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-      return GetEnumerator();
     }
 
     #endregion

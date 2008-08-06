@@ -25,77 +25,77 @@ namespace Xtensive.Core.Collections
     public event EventHandler<CollectionChangeNotifierEventArgs<T>> OnRemoved;
     public event EventHandler<CollectionChangeNotifierEventArgs<T>> OnRemoving;
 
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public void RaiseOnChanged(object sender, ChangeNotifierEventArgs args)
     {
       if (OnChanged!=null)
         OnChanged(sender, args);
     }
 
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public void RaiseOnChanging(object sender, ChangeNotifierEventArgs args)
     {
       if (OnChanging!=null)
         OnChanging(sender, args);
     }
 
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public void RaiseOnCleared(object sender, ChangeNotifierEventArgs args)
     {
       if (OnCleared!=null)
         OnCleared(sender, args);
     }
 
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public void RaiseOnClearing(object sender, ChangeNotifierEventArgs args)
     {
       if (OnClearing!=null)
         OnClearing(sender, args);
     }
 
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public void RaiseOnValidate(object sender, CollectionChangeNotifierEventArgs<T> args)
     {
       if (OnValidate!=null)
         OnValidate(sender, args);
     }
 
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public void RaiseOnInserted(object sender, CollectionChangeNotifierEventArgs<T> args)
     {
       if (OnInserted!=null)
         OnInserted(sender, args);
     }
 
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public void RaiseOnInserting(object sender, CollectionChangeNotifierEventArgs<T> args)
     {
       if (OnInserting!=null)
         OnInserting(sender, args);
     }
 
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public void RaiseOnItemChanged(object sender, CollectionChangeNotifierEventArgs<T> args)
     {
       if (OnItemChanged!=null)
         OnItemChanged(sender, args);
     }
 
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public void RaiseOnItemChanging(object sender, CollectionChangeNotifierEventArgs<T> args)
     {
       if (OnItemChanging!=null)
         OnItemChanging(sender, args);
     }
 
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public void RaiseOnRemoved(object sender, CollectionChangeNotifierEventArgs<T> args)
     {
       if (OnRemoved!=null)
         OnRemoved(sender, args);
     }
 
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public void RaiseOnRemoving(object sender, CollectionChangeNotifierEventArgs<T> args)
     {
       if (OnRemoving!=null)

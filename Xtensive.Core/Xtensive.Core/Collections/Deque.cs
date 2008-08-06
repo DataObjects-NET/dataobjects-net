@@ -512,6 +512,13 @@ namespace Xtensive.Core.Collections
     #region IEnumerable<T>, IEnumerable members
 
     /// <inheritdoc/>
+    [DebuggerStepThrough]
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+      return GetEnumerator();
+    }
+
+    /// <inheritdoc/>
     public IEnumerator<T> GetEnumerator()
     {
       int itemIndex = headPos;
@@ -525,12 +532,6 @@ namespace Xtensive.Core.Collections
           itemIndex = 0;
         yield return items[itemIndex];
       }
-    }
-
-    /// <inheritdoc/>
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-      return GetEnumerator();
     }
 
     #endregion

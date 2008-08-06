@@ -23,16 +23,21 @@ namespace Xtensive.Core.Collections
       get { return 0; }
     }
 
+    #region IEnumerable<...> methods
+
+    /// <inheritdoc/>
+    [DebuggerStepThrough]
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+      return GetEnumerator();
+    }
+
     /// <inheritdoc/>
     public IEnumerator<TItem> GetEnumerator()
     {
       yield break;
     }
 
-    /// <inheritdoc/>
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-      return GetEnumerator();
-    }
+    #endregion
   }
 }

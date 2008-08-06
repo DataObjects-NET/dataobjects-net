@@ -113,6 +113,7 @@ namespace Xtensive.Core.Collections
     #region IEnumerable methods
 
     /// <inheritdoc/>
+    [DebuggerStepThrough]
     IEnumerator IEnumerable.GetEnumerator()
     {
       return GetEnumerator();

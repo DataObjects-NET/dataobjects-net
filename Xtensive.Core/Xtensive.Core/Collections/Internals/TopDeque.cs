@@ -169,8 +169,9 @@ namespace Xtensive.Core.Collections
 
     #endregion
 
-    #region IEnumerable methods
+    #region IEnumerable<...> methods
 
+    [DebuggerStepThrough]
     IEnumerator IEnumerable.GetEnumerator()
     {
       return GetEnumerator();

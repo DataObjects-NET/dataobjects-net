@@ -141,9 +141,10 @@ namespace Xtensive.Core.Collections
     }
 
     /// <inheritdoc/>
+    [DebuggerStepThrough]
     IEnumerator IEnumerable.GetEnumerator()
     {
-      return innerCollection.GetEnumerator();
+      return GetEnumerator();
     }
 
     #endregion

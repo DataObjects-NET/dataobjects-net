@@ -59,6 +59,7 @@ namespace Xtensive.Core.Collections
     }
 
     /// <inheritdoc/>
+    [DebuggerStepThrough]
     IEnumerator IEnumerable.GetEnumerator()
     {
       return GetEnumerator();
@@ -76,12 +77,14 @@ namespace Xtensive.Core.Collections
     }
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public IEqualityComparer<TItem> Comparer
     {
       get { return comparer; }
     }
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public virtual bool IsReadOnly
     {
       get { return IsLocked; }

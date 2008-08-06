@@ -217,6 +217,7 @@ namespace Xtensive.Core.Helpers
 
     #region IEnumerable<...> methods
 
+    [DebuggerStepThrough]
     IEnumerator IEnumerable.GetEnumerator()
     {
       return GetEnumerator();

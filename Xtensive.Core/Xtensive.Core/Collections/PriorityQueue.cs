@@ -185,17 +185,14 @@ namespace Xtensive.Core.Collections
 
     #endregion
 
-    #region IEnumerable Members
+    #region IEnumerable<...> Members
 
     /// <inheritdoc/>
+    [DebuggerStepThrough]
     IEnumerator IEnumerable.GetEnumerator()
     {
       return GetEnumerator();
     }
-
-    #endregion
-
-    #region IEnumerable<T> Members
 
     /// <inheritdoc/>
     public IEnumerator<T> GetEnumerator()

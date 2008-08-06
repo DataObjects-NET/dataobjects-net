@@ -166,15 +166,16 @@ namespace Xtensive.Core.Collections
     #region GetEnumerator<...> methods
 
     /// <inheritdoc/>
-    public virtual IEnumerator<TItem> GetEnumerator()
+    [DebuggerStepThrough]
+    IEnumerator IEnumerable.GetEnumerator()
     {
-      return Items.GetEnumerator();
+      return GetEnumerator();
     }
 
     /// <inheritdoc/>
-    IEnumerator IEnumerable.GetEnumerator()
+    public virtual IEnumerator<TItem> GetEnumerator()
     {
-      return ((IEnumerable<TItem>)this).GetEnumerator();
+      return Items.GetEnumerator();
     }
 
     #endregion

@@ -113,19 +113,20 @@ namespace Xtensive.Core.Helpers
 
     #endregion
 
-    #region IEnumerable members
+    #region IEnumerable<...> members
+
+    /// <inheritdoc/>
+    [DebuggerStepThrough]
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+      return GetEnumerator();
+    }
 
     /// <inheritdoc/>
     public IEnumerator<TItem> GetEnumerator()
     {
       foreach (TItem item in items)
         yield return item;
-    }
-
-    /// <inheritdoc/>
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-      return ((IEnumerable<TItem>) this).GetEnumerator();
     }
 
     /// <inheritdoc/>

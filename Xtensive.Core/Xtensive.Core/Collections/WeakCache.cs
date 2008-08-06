@@ -180,6 +180,7 @@ namespace Xtensive.Core.Collections
     /// <inheritdoc/>
     /// This method returns the sequence of just strongly referenced cached items.
     /// </summary>
+    [DebuggerStepThrough]
     IEnumerator IEnumerable.GetEnumerator()
     {
       return GetEnumerator();

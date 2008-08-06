@@ -259,6 +259,7 @@ namespace Xtensive.Core.Tuples
     }
 
     /// <inheritdoc/>
+    [DebuggerStepThrough]
     IEnumerator IEnumerable.GetEnumerator()
     {
       return GetEnumerator();

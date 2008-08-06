@@ -153,20 +153,15 @@ namespace Xtensive.Core.Collections
 
     #region IEnumerable<...> Members
 
-    /// <summary>
-    /// Returns enumerator enumerating all the pooled items (available or not).
-    /// </summary>
-    /// <returns>Enumerator enumerating all the pooled items (available or not).</returns>
-    IEnumerator<T> IEnumerable<T>.GetEnumerator()
+    /// <inheritdoc/>
+    [DebuggerStepThrough]
+    IEnumerator IEnumerable.GetEnumerator()
     {
-      return items.GetEnumerator();
+      return GetEnumerator();
     }
 
-    /// <summary>
-    /// Returns enumerator enumerating all the pooled items (available or not).
-    /// </summary>
-    /// <returns>Enumerator enumerating all the pooled items (available or not).</returns>
-    IEnumerator IEnumerable.GetEnumerator()
+    /// <inheritdoc/>
+    public IEnumerator<T> GetEnumerator()
     {
       return items.GetEnumerator();
     }
@@ -182,6 +177,7 @@ namespace Xtensive.Core.Collections
     /// Invokes <see cref="ItemRemoved"/> event.
     /// </summary>
     /// <param name="eventArgs">Event arguments.</param>
+    [DebuggerStepThrough]
     protected virtual void OnItemRemoved(ItemRemovedEventArgs<T> eventArgs)
     {
       if (ItemRemoved!=null)

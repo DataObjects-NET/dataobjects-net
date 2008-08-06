@@ -96,6 +96,7 @@ namespace Xtensive.Core.Collections
       }
 
       /// <inheritdoc/>
+      [DebuggerStepThrough]
       IEnumerator IEnumerable.GetEnumerator()
       {
         return GetEnumerator();
