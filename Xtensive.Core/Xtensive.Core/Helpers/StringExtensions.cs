@@ -37,8 +37,21 @@ namespace Xtensive.Core.Helpers
     {
       if (!value.EndsWith(suffix))
         return value;
-
       return value.Substring(0, value.Length - suffix.Length);        
+    }
+    
+    /// <summary>
+    /// Cuts the specified <paramref name="prefix"/> from <paramref name="value"/>.
+    /// </summary>
+    /// <param name="value">The original string value.</param>
+    /// <param name="prefix">The prefix to cut.</param>
+    /// <returns>String without <paramref name="prefix"/> if it was found; 
+    /// otherwise, original <paramref name="value"/>.</returns>
+    public static string TryCutPrefix(this string  value, string prefix)
+    {
+      if (!value.StartsWith(prefix))
+        return value;
+      return value.Substring(prefix.Length);        
     }
   }
 }

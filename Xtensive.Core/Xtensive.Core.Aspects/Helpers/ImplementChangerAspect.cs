@@ -34,11 +34,9 @@ namespace Xtensive.Core.Aspects.Helpers
         return false;
 
       var methodInfo = method as MethodInfo;
-      if (methodInfo.IsSpecialName && methodInfo.Name.StartsWith(WellKnown.GetterPrefix)) {
+      if (methodInfo.IsGetter()) {
         // This is getter; let's check if it is explicitely marked as [Changer]
-        PropertyInfo propertyInfo = methodInfo.DeclaringType.UnderlyingSystemType.GetProperty(
-          methodInfo.Name.Remove(0, WellKnown.GetterPrefix.Length), 
-          BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+        PropertyInfo propertyInfo = methodInfo.GetProperty();
         if (propertyInfo!=null && propertyInfo.GetAttribute<ChangerAttribute>(false)!=null)
           // Property itself is marked as [Changer]
           return false;

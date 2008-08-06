@@ -55,7 +55,7 @@ namespace Xtensive.Core.Reflection
     }
 
     /// <summary>
-    /// A shortcut to <see cref="M:System.Type.GetCustomAttributes(Type,bool)"/> method.
+    /// A shortcut to <see cref="Type.GetCustomAttributes(Type,bool)"/> method.
     /// </summary>
     /// <typeparam name="TAttribute">The type of attributes to get.</typeparam>
     /// <param name="type">Type to get attributes of.</param>

@@ -7,6 +7,7 @@
 using System;
 using System.Reflection;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Helpers;
 
 namespace Xtensive.Core.Reflection
 {
@@ -80,6 +81,59 @@ namespace Xtensive.Core.Reflection
       for (int i = 0; i < parameters.Length; i++)
         types[i] = parameters[i].ParameterType;
       return types;
+    }
+
+    /// <summary>
+    /// Determines whether the specified method is a property getter.
+    /// </summary>
+    /// <param name="method">The method to check.</param>
+    /// <returns>
+    /// <see langword="true"/> if the specified method is getter; 
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    public static bool IsGetter(this MethodInfo method)
+    {
+      if (!method.IsSpecialName)
+        return false;
+      return method.Name.StartsWith(WellKnown.GetterPrefix);
+    }
+
+    /// <summary>
+    /// Determines whether the specified method is a property setter.
+    /// </summary>
+    /// <param name="method">The method to check.</param>
+    /// <returns>
+    /// <see langword="true"/> if the specified method is setter; 
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    public static bool IsSetter(this MethodInfo method)
+    {
+      if (!method.IsSpecialName)
+        return false;
+      return method.Name.StartsWith(WellKnown.SetterPrefix);
+    }
+
+    /// <summary>
+    /// Gets the property to which <paramref name="method"/> belongs.
+    /// </summary>
+    /// <param name="method">The method to get the property for.</param>
+    /// <returns>Found property;
+    /// <see langword="null" />, if no property is associated with the method.</returns>
+    public static PropertyInfo GetProperty(this MethodInfo method)
+    {
+      if (!method.IsSpecialName)
+        return null;
+      var type = method.DeclaringType.UnderlyingSystemType;
+      var bindingFlags = method.IsStatic ? BindingFlags.Static : BindingFlags.Instance;
+      bindingFlags    |= method.IsPublic ? BindingFlags.Public : BindingFlags.NonPublic;
+      string name = method.Name;
+      string propertyName = name.TryCutPrefix(WellKnown.GetterPrefix);
+      if (propertyName!=name)
+        return type.GetProperty(propertyName, bindingFlags);
+      propertyName = name.TryCutPrefix(WellKnown.SetterPrefix);
+      if (propertyName!=name)
+        return type.GetProperty(propertyName, bindingFlags);
+      return null;
     }
 
     #region Private \ internal methods
