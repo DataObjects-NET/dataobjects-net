@@ -11,7 +11,7 @@ using Xtensive.Storage.Model;
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// Inner representation of <see cref="Storage.Entity"/>.
+  /// The underlying data of the <see cref="Storage.Entity"/>.
   /// </summary>
   public sealed class EntityData
   {
@@ -36,7 +36,7 @@ namespace Xtensive.Storage
     public DifferentialTuple Tuple { get; internal set; }
 
     /// <summary>
-    /// Gets the the persistence state .
+    /// Gets the the persistence state.
     /// </summary>
     public PersistenceState PersistenceState
     {

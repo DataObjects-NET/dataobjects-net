@@ -70,15 +70,6 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {0}.
-        /// </summary>
-        internal static string AspectDebugMessage {
-            get {
-                return ResourceManager.GetString("AspectDebugMessage", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to {0}: multiple attributes of type &apos;{1}&apos; are not allowed here..
         /// </summary>
         internal static string AspectExMultipleAttributesOfTypeXAreNotAllowedHere {
@@ -580,6 +571,15 @@ namespace Xtensive.Storage.Resources {
         internal static string ExUnsupportedType {
             get {
                 return ResourceManager.GetString("ExUnsupportedType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Wrong persistent type candidate: &apos;{0}&apos;..
+        /// </summary>
+        internal static string ExWrongPersistentTypeCandidate {
+            get {
+                return ResourceManager.GetString("ExWrongPersistentTypeCandidate", resourceCulture);
             }
         }
         

@@ -15,7 +15,7 @@ using Xtensive.Storage.Model;
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// Represents a set of identifying values of an <see cref="Entity"/>.
+  /// Contains a set of identifying values of an <see cref="Entity"/>.
   /// Every entity is uniquely identified by its <see cref="Key"/>.
   /// </summary>
   public sealed class Key : IEquatable<Key>
@@ -44,7 +44,7 @@ namespace Xtensive.Storage
       get { return type; }
       internal set
       {
-        if (type != null && type!=value)
+        if (type!=null && type!=value)
           throw Exceptions.AlreadyInitialized("Type");
         type = value;
       }

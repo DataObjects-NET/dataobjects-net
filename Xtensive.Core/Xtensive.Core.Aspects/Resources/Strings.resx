@@ -171,4 +171,7 @@
   <data name="Setter" xml:space="preserve">
     <value>setter</value>
   </data>
+  <data name="AspectExMustBeSingle" xml:space="preserve">
+    <value>Multiple [{0}] attributes are applied to '{1}', but there must be a single one.</value>
+  </data>
 </root>

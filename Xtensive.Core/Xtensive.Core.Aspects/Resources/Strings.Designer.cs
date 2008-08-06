@@ -70,6 +70,15 @@ namespace Xtensive.Core.Aspects.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Multiple [{0}] attributes are applied to &apos;{1}&apos;, but there must be a single one..
+        /// </summary>
+        internal static string AspectExMustBeSingle {
+            get {
+                return ResourceManager.GetString("AspectExMustBeSingle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to [{0}] attribute is possibly wrongly applied to &apos;{1}&apos;..
         /// </summary>
         internal static string AspectExPossiblyMissapplied {

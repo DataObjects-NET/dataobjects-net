@@ -30,7 +30,6 @@ using Xtensive.Storage.Aspects;
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 
 [assembly : Guid("b667ca2a-e17f-4dbc-bc06-656780d9fac9")]
-[assembly : Storage(AttributeTargetAssemblies = "Xtensive.Storage.Tests")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -47,3 +46,6 @@ using Xtensive.Storage.Aspects;
 [assembly : AssemblyFileVersion("1.0.0.0")]
 [assembly : CLSCompliant(true)]
 [assembly : SecurityPermission(SecurityAction.RequestMinimum, Execution = true)]
+
+// This ensures the methods of Persistent & IContextBound<Session> will be aspected
+[assembly : Persistent(AttributeTargetAssemblies = "Xtensive.Storage.Tests")]

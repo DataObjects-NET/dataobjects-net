@@ -38,7 +38,7 @@ namespace Xtensive.Integrity.Aspects
     
     public override bool CompileTimeValidate(MethodBase method)
     {
-      if (!ContextBoundAspectValidator<AtomicityContextBase>.CompileTimeValidate(this, method))
+      if (!AspectHelper.ValidateContextBoundMethod<AtomicityContextBase>(this, method))
         return false;
 
       // Method is not constructor, so cast is always valid

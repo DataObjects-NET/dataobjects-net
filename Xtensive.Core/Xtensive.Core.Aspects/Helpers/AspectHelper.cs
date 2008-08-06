@@ -133,6 +133,8 @@ namespace Xtensive.Core.Aspects.Helpers
         return Strings.AspectExRequiresToBe;
       case AspectMessageType.AspectRequiresToHave:
         return Strings.AspectExRequiresToHave;
+      case AspectMessageType.AspectMustBeSingle:
+        return Strings.AspectExMustBeSingle;
       case AspectMessageType.AutoProperty:
         return Strings.AutoProperty;
       case AspectMessageType.PropertyAccessor:
@@ -370,6 +372,35 @@ namespace Xtensive.Core.Aspects.Helpers
         return false;
       }
       return true;      
+    }
+
+    /// <summary>
+    /// Validates the method of <see cref="IContextBound{TContext}"/> object.
+    /// </summary>
+    /// <typeparam name="TContext">The type of the context.</typeparam>
+    /// <param name="aspect">The aspect.</param>
+    /// <param name="method">The method.</param>
+    /// <returns>
+    /// <see langword="true" /> if validation has passed; otherwise, <see langword="false" />.    
+    /// </returns>
+    public static bool ValidateContextBoundMethod<TContext>(Attribute aspect, MethodBase method)
+      where TContext : class, IContext
+    {
+      foreach (var attribute in method.GetAttributes<SuppressActivationAttribute>(false))
+        if (attribute.ContextType == typeof(TContext))
+          return false;
+
+      if (!ValidateMemberType(aspect, SeverityType.Error,
+        method, false, MemberTypes.Constructor))
+        return false;
+      if (!ValidateMethodAttributes(aspect, SeverityType.Error,
+        method, false, MethodAttributes.Static))
+        return false;
+      if (!ValidateBaseType(aspect, SeverityType.Error,
+        method.DeclaringType, true, typeof(IContextBound<TContext>)))
+        return false;
+
+      return true;
     }
 
     /// <summary>

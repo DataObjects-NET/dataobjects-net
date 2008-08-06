@@ -21,7 +21,6 @@ using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage
 {
-  [Storage]
   public class Session : DomainBound,
     IContext<SessionScope>,
     IResource

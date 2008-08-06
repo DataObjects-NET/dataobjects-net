@@ -35,7 +35,7 @@ namespace Xtensive.Integrity.Aspects
     
     public override bool CompileTimeValidate(MethodBase method)
     {
-      if (!ContextBoundAspectValidator<ValidationContextBase>.CompileTimeValidate(this, method))
+      if (!AspectHelper.ValidateContextBoundMethod<ValidationContextBase>(this, method))
         return false;
 
       MethodInfo methodInfo = method as MethodInfo;      

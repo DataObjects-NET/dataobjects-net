@@ -22,7 +22,7 @@ namespace Xtensive.Storage.Aspects
   {
     public override bool CompileTimeValidate(MethodBase method)
     {
-      return ContextBoundAspectValidator<Session>.CompileTimeValidate(this, method);
+      return AspectHelper.ValidateContextBoundMethod<Session>(this, method);
     }
 
     [DebuggerStepThrough]

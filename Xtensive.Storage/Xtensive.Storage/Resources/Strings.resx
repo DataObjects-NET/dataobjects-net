@@ -357,9 +357,6 @@
   <data name="ExKeyXWasNotFoundInStorage" xml:space="preserve">
     <value>Key '{0}' was not found in storage.</value>
   </data>
-  <data name="AspectDebugMessage" xml:space="preserve">
-    <value>{0}</value>
-  </data>
   <data name="ExCannotFindHandler" xml:space="preserve">
     <value>Cannot find a hanlder of type '{0}'.</value>
   </data>
@@ -411,4 +408,7 @@
   <data name="HierarchyColumns" xml:space="preserve">
     <value>Hierarchy columns</value>
   </data>
+  <data name="ExWrongPersistentTypeCandidate" xml:space="preserve">
+  <value>Wrong persistent type candidate: '{0}'.</value>
+</data>
 </root>

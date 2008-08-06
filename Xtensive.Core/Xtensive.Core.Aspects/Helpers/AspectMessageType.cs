@@ -26,6 +26,10 @@ namespace Xtensive.Core.Aspects.Helpers
     /// </summary>
     AspectRequiresToHave,
     /// <summary>
+    /// "Multiple [{0}] attributes are applied to '{1}', but there must be a single one."
+    /// </summary>
+    AspectMustBeSingle,
+    /// <summary>
     /// "auto-property"
     /// </summary>
     AutoProperty,
