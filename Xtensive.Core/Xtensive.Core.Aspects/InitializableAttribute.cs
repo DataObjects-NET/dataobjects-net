@@ -16,7 +16,7 @@ namespace Xtensive.Core.Aspects
 {
   [MulticastAttributeUsage(MulticastTargets.Class)]
   [Serializable]
-  public class InitializableAttribute : CompoundAspect
+  public sealed class InitializableAttribute : CompoundAspect
   {
     public const string InitializeMethodName = "Initialize";
 
