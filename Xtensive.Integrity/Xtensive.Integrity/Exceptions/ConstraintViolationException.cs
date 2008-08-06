@@ -15,8 +15,6 @@ namespace Xtensive.Integrity
   [Serializable]
   public class ConstraintViolationException : Exception
   {
-    
-
     // Constructors
 
     /// <summary>

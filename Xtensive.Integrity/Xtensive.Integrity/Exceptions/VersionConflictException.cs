@@ -5,6 +5,7 @@
 // Created:    2007.06.08
 
 using System;
+using System.Diagnostics;
 using System.Runtime.Serialization;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Integrity.Resources;
@@ -25,6 +26,7 @@ namespace Xtensive.Integrity
     /// <summary>
     /// An object on which version conflict was detected.
     /// </summary>
+    [DebuggerHidden]
     public object Target
     {
       get { return target; }
@@ -33,6 +35,7 @@ namespace Xtensive.Integrity
     /// <summary>
     /// Name of the property of the <see cref="Target"/>, which value differs from the expected one.
     /// </summary>
+    [DebuggerHidden]
     public string PropertyName
     {
       get { return propertyName; }
@@ -41,6 +44,7 @@ namespace Xtensive.Integrity
     /// <summary>
     /// Expected value of the <see cref="PropertyName"/> property of the <see cref="Target"/>.
     /// </summary>
+    [DebuggerHidden]
     public object ExpectedValue
     {
       get { return expectedValue; }
@@ -49,6 +53,7 @@ namespace Xtensive.Integrity
     /// <summary>
     /// Actual value of the <see cref="PropertyName"/> property of the <see cref="Target"/>.
     /// </summary>
+    [DebuggerHidden]
     public object ActualValue
     {
       get { return actualValue; }

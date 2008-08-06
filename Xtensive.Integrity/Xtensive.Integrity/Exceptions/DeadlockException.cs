@@ -17,6 +17,8 @@ namespace Xtensive.Integrity
   [Serializable]
   public class DeadlockException : ConcurrencyConflictException
   {
+    // Constructors
+
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true" />
     /// </summary>

@@ -5,6 +5,7 @@
 // Created:    2007.12.17
 
 using System;
+using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Integrity.Atomicity.OperationLogs;
 
@@ -19,18 +20,21 @@ namespace Xtensive.Integrity.Atomicity
     private IOperationLog operationLog;
     private AtomicityContextOptions options;
 
+    [DebuggerHidden]
     public AtomicityContextOptions Options
     {
       get { return options; }
       protected set { options = value; }
     }
 
+    [DebuggerHidden]
     public IOperationDescriptorFactory OperationDescriptorFactory
     {
       get { return operationDescriptorFactory; }
     }
 
     public IOperationLog OperationLog {
+      [DebuggerHidden]
       get { return operationLog; }
       set {
         if (operationLog != null)

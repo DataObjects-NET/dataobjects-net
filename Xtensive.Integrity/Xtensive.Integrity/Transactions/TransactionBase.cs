@@ -5,6 +5,7 @@
 // Created:    2008.01.14
 
 using System;
+using System.Diagnostics;
 using System.Transactions;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
@@ -29,12 +30,14 @@ namespace Xtensive.Integrity.Transactions
     #region IIdentified<Guid> Members
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public Guid Identifier
     {
       get { return identifier; }
     }
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     object IIdentified.Identifier
     {
       get { return identifier; }
@@ -43,18 +46,21 @@ namespace Xtensive.Integrity.Transactions
     #endregion
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public TransactionState State
     {
       get { return state; }
     }
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public IsolationLevel IsolationLevel
     {
       get { return isolationLevel; }
     }
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public override bool IsActive
     {
       get { return TransactionScopeBase<TScope, TTransaction>.CurrentTransaction == this; }

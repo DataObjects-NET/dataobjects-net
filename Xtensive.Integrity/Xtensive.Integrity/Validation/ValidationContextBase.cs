@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Helpers;
 using Xtensive.Integrity.Resources;
@@ -29,6 +30,7 @@ namespace Xtensive.Integrity.Validation
     }
 
     /// <inheritdoc/>
+    [DebuggerHidden]
     public override bool IsActive
     {
       get { return ValidationScope.CurrentContext == this; }
@@ -38,6 +40,7 @@ namespace Xtensive.Integrity.Validation
     /// Gets the value indicating whether this context is in inconsistent state.
     /// </summary>
     public bool IsConsistent {
+      [DebuggerHidden]
       get {
         return isConsistent;
       }

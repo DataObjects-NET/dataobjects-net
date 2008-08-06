@@ -5,6 +5,7 @@
 // Created:    2007.11.23
 
 using System.Collections.Generic;
+using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Integrity.Aspects;
 using Xtensive.Core.Helpers;
@@ -19,17 +20,20 @@ namespace Xtensive.Integrity.Atomicity
     private RedoScope cleanRedoScope;
     private UndoScope cleanUndoScope;
 
+    [DebuggerHidden]
     public static new AtomicityContextBase CurrentContext {
       get {
         return Scope<AtomicityContextBase>.CurrentContext;
       }
     }
 
+    [DebuggerHidden]
     public new AtomicityContextBase Context
     {
       get { return base.Context; }
     }
 
+    [DebuggerHidden]
     internal new AtomicityScope OuterScope
     {
       get { return (AtomicityScope)base.OuterScope; }

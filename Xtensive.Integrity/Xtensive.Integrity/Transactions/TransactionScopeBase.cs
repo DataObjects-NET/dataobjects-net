@@ -5,6 +5,7 @@
 // Created:    2008.01.15
 
 using System;
+using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Integrity.Resources;
@@ -27,6 +28,7 @@ namespace Xtensive.Integrity.Transactions
     /// <summary>
     /// Gets current <see cref="TTransaction"/> object in this type of scope.
     /// </summary>
+    [DebuggerHidden]
     public static TTransaction CurrentTransaction {
       get {
         return CurrentContext;
@@ -36,6 +38,7 @@ namespace Xtensive.Integrity.Transactions
     /// <summary>
     /// Gets <see cref="TTransaction"/> object associated with this scope.
     /// </summary>
+    [DebuggerHidden]
     public TTransaction Transaction
     {
       get { return Context; }

@@ -5,6 +5,7 @@
 // Created:    2007.11.23
 
 using System;
+using System.Diagnostics;
 using Xtensive.Core;
 
 namespace Xtensive.Integrity.Atomicity
@@ -21,17 +22,20 @@ namespace Xtensive.Integrity.Atomicity
     private object[] arguments;
     private bool isUndone;
 
+    [DebuggerHidden]
     public IUndoDescriptor OppositeDescriptor
     {
       get { return oppositeDescriptor; }
       set { oppositeDescriptor = value; }
     }
 
+    [DebuggerHidden]
     public bool IsUndone
     {
       get { return isUndone; }
     }
 
+    [DebuggerHidden]
     public object[] Arguments
     {
       get { return arguments; }

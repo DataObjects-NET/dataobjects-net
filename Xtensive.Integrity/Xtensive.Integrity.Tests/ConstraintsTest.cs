@@ -65,7 +65,7 @@ namespace Xtensive.Integrity.Tests
           }
         }
         catch (AggregateException e) {
-          List<Exception> errors = e.GetFlattenList();
+          List<Exception> errors = e.GetFlatExceptions();
           Assert.AreEqual(1, errors.Count);
           
           foreach (var exception in errors)

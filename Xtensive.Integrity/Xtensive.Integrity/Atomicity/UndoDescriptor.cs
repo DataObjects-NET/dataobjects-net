@@ -7,6 +7,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Integrity.Resources;
 
@@ -25,23 +26,27 @@ namespace Xtensive.Integrity.Atomicity
     private IDictionary<string, object> arguments = new Dictionary<string, object>();
     private bool isCompleted;
 
+    [DebuggerHidden]
     public IRedoDescriptor OppositeDescriptor
     {
       get { return oppositeDescriptor; }
       set { oppositeDescriptor = value; }
     }
 
+    [DebuggerHidden]
     public virtual IGroupUndoDescriptor Group
     {
       get { return group; }
       set { group = value; }
     }
 
+    [DebuggerHidden]
     public virtual IDictionary<string, object> Arguments
     {
       get { return arguments; }
     }
 
+    [DebuggerHidden]
     public bool IsCompleted
     {
       get { return isCompleted; }

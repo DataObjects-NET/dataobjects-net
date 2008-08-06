@@ -5,6 +5,7 @@
 // Created:    2007.11.23
 
 using System;
+using System.Diagnostics;
 using System.Reflection;
 
 namespace Xtensive.Integrity.Atomicity
@@ -18,16 +19,19 @@ namespace Xtensive.Integrity.Atomicity
     private object target;
     private MethodBase method;
 
+    [DebuggerHidden]
     public object Target
     {
       get { return target; }
     }
 
+    [DebuggerHidden]
     public MethodBase Method
     {
       get { return method; }
     }
 
+    [DebuggerHidden]
     public bool IsValid {
       get {
         if (method==null)

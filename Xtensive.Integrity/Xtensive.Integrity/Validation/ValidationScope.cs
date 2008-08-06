@@ -4,6 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2008.01.05
 
+using System.Diagnostics;
 using Xtensive.Core;
 
 namespace Xtensive.Integrity.Validation
@@ -16,6 +17,7 @@ namespace Xtensive.Integrity.Validation
     /// <summary>
     /// Gets the current context.
     /// </summary>
+    [DebuggerHidden]
     public static new ValidationContextBase CurrentContext {
       get {
         return Scope<ValidationContextBase>.CurrentContext;
@@ -25,11 +27,13 @@ namespace Xtensive.Integrity.Validation
     /// <summary>
     /// Gets the context of this scope.
     /// </summary>
+    [DebuggerHidden]
     public new ValidationContextBase Context
     {
       get { return base.Context; }
     }
 
+    [DebuggerHidden]
     internal new ValidationScope OuterScope
     {
       get { return (ValidationScope)base.OuterScope; }

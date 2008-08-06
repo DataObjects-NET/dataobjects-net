@@ -5,6 +5,7 @@
 // Created:    2008.01.15
 
 using System;
+using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Integrity.Resources;
@@ -22,6 +23,7 @@ namespace Xtensive.Integrity.Relations
     /// <summary>
     /// Gets current <see cref="TContext"/> object in this type of scope.
     /// </summary>
+    [DebuggerHidden]
     public new static TContext CurrentContext {
       get {
         var scope = CurrentScope as RelationSyncScope<TContext>;
@@ -32,6 +34,7 @@ namespace Xtensive.Integrity.Relations
     /// <summary>
     /// Gets <see cref="TContext"/> object associated with this scope.
     /// </summary>
+    [DebuggerHidden]
     public new TContext Context
     {
       get { return base.Context; }

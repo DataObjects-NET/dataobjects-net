@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reflection;
 using Xtensive.Integrity.Resources;
 
@@ -23,6 +24,7 @@ namespace Xtensive.Integrity.Atomicity
     private static readonly MethodInfo undoMethodInfo;
     private IList<IUndoDescriptor> operations = new List<IUndoDescriptor>();
 
+    [DebuggerHidden]
     public IList<IUndoDescriptor> Operations
     {
       get { return operations; }

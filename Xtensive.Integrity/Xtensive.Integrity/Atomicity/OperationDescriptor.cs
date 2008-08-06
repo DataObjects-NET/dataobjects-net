@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Xtensive.Integrity.Aspects;
 using Xtensive.Core.Helpers;
 
@@ -20,6 +21,7 @@ namespace Xtensive.Integrity.Atomicity
   {
     private MethodCallDescriptor callDescriptor;
 
+    [DebuggerHidden]
     public MethodCallDescriptor CallDescriptor
     {
       get { return callDescriptor; }

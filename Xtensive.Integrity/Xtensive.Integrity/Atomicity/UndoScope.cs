@@ -5,6 +5,7 @@
 // Created:    2007.11.23
 
 using System.Collections.Generic;
+using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Integrity.Atomicity.Internals;
 using Xtensive.Integrity.Aspects;
@@ -17,6 +18,7 @@ namespace Xtensive.Integrity.Atomicity
   /// </summary>
   public class UndoScope: Scope<IUndoDescriptor>
   {
+    [DebuggerHidden]
     public static IUndoDescriptor CurrentDescriptor {
       get {
         return CurrentContext;
@@ -31,11 +33,13 @@ namespace Xtensive.Integrity.Atomicity
         return new UndoScope(new BlockingUndoDescriptor());
     }
 
+    [DebuggerHidden]
     public IUndoDescriptor Descriptor
     {
       get { return Context; }
     }
 
+    [DebuggerHidden]
     internal new UndoScope OuterScope
     {
       get { return (UndoScope)base.OuterScope; }
