@@ -38,7 +38,7 @@ namespace Xtensive.Storage.Tests
       config = DomainConfigurationFactory.Create("memory");
 //      config = DomainConfigurationFactory.Create("mssql");
 //      config = DomainConfigurationFactory.Create("memory", InheritanceSchema.SingleTable);
-      config = DomainConfigurationFactory.Create("memory", InheritanceSchema.SingleTable, TypeIdBehavior.Include);
+//      config = DomainConfigurationFactory.Create("memory", InheritanceSchema.SingleTable, TypeIdBehavior.Include);
       return config;
     }
 

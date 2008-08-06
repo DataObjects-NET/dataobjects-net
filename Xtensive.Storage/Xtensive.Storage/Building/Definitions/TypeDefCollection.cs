@@ -116,7 +116,7 @@ namespace Xtensive.Storage.Building.Definitions
     /// if item was not found.</returns>
     public TypeDef TryGetValue(Type key)
     {
-      return typeIndex.GetItem(key);
+      return typeIndex.ContainsKey(key) ? typeIndex.GetItem(key) : null;
     }
 
     /// <summary>

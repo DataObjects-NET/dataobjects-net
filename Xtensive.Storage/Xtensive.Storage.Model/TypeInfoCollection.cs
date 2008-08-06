@@ -50,7 +50,7 @@ namespace Xtensive.Storage.Model
     /// if item was not found.</returns>
     public TypeInfo TryGetValue(Type key)
     {
-      return typeIndex.GetItem(key);
+      return typeIndex.ContainsKey(key) ? typeIndex.GetItem(key) : null;
     }
 
     /// <summary>

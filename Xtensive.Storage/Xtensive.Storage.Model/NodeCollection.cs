@@ -65,7 +65,7 @@ namespace Xtensive.Storage.Model
     /// if item was not found.</returns>
     public TNode TryGetValue(string key)
     {
-      return nameIndex.GetItem(key);
+      return nameIndex.ContainsKey(key) ? nameIndex.GetItem(key) : null;
     }
 
     /// <summary>
