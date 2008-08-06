@@ -410,6 +410,9 @@ namespace Xtensive.Core.Aspects.Helpers
       if (!ValidateMethodAttributes(aspect, SeverityType.Error,
         method, false, MethodAttributes.Static))
         return false;
+      if (!ValidateMethodAttributes(aspect, SeverityType.Error,
+        method, false, MethodAttributes.Abstract))
+        return false;
       if (!ValidateBaseType(aspect, SeverityType.Error,
         method.DeclaringType, true, typeof(IContextBound<TContext>)))
         return false;
