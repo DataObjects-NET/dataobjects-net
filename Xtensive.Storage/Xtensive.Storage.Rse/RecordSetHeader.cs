@@ -8,13 +8,13 @@ using System;
 using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Model;
 using System.Linq;
 
 namespace Xtensive.Storage.Rse
 {
-  // TODO: Make ColumnGroupMappings and Columns immutable.
   /// <summary>
   /// Header of <see cref="RecordSet"/>.
   /// </summary>
@@ -45,6 +45,9 @@ namespace Xtensive.Storage.Rse
    
     // Constructors
 
+    /// <summary>
+    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
     public RecordSetHeader(IndexInfo indexInfo)
     {
       TupleDescriptor = TupleDescriptor.Create(indexInfo.Columns.Select(columnInfo => columnInfo.ValueType));
@@ -124,7 +127,9 @@ namespace Xtensive.Storage.Rse
 
       Columns = new RecordColumnCollection(includedColumns.Select(i => header.Columns[i]));
       ColumnGroupMappings = new RecordColumnGroupMappingCollection(
-        header.ColumnGroupMappings.Where(g => g.Keys.All(ci => includedColumns.Contains(ci))));
+        header.ColumnGroupMappings
+        .Where(g => g.Keys.All(ci => includedColumns.Contains(ci)))
+        .Select(cgm => new RecordColumnGroupMapping(cgm.Keys, cgm.Columns.Where(columns.Contains))));
     }
   }
 }
