@@ -98,6 +98,17 @@ namespace Xtensive.Storage.Rse
       return new SelectProvider(recordSet.Provider, columnIndexes).Result;
     }
 
+    public static RecordSet Skip(this RecordSet recordSet, int count)
+    {
+      return new RawProvider(recordSet.Header, ((IEnumerable<Tuple>)recordSet).Skip(count).ToArray()).Result;
+    }
+
+
+    public static RecordSet Take(this RecordSet recordSet, int count)
+    {
+      return new RawProvider(recordSet.Header, ((IEnumerable<Tuple>)recordSet).Take(count).ToArray()).Result;
+    }
+
     public static int IndexOf(this RecordSet recordSet, string columnName)
     {
       RecordColumn column = recordSet.Header.Columns[columnName];
