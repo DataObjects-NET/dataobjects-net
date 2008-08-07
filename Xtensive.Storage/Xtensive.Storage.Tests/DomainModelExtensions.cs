@@ -210,11 +210,10 @@ namespace Xtensive.Storage.Tests
           WriteLine(indent + 2, "Attributes: " + baseIndex.Attributes);
         }
       }
-      WriteLine(indent, "Column groups:");
-      foreach (var columnGroup in target.ColumnGroups) {
-        WriteLine(indent + 1, "Type: " + columnGroup.Hierarchy.Name);
-        WriteLine(indent + 2, "Columns: " + columnGroup.Columns.Select(c => c.Name).ToCommaDelimitedString());
-      }
+      WriteLine(indent, "Column group:");
+      WriteLine(indent + 1, "Type: " + target.Group.Hierarchy.Name);
+      WriteLine(indent + 2, "Columns: " + target.Group.Columns.Select(c => c.Name).ToCommaDelimitedString());
+
       WriteLine(indent, "KeyColumns:");
       foreach (KeyValuePair<ColumnInfo, Direction> pair in target.KeyColumns) {
         WriteLine(indent + 1, pair.Key.Name);

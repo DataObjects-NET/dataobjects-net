@@ -48,6 +48,7 @@ namespace Xtensive.Storage.Rse
     /// <summary>
     ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
+    /// <param name="indexInfo">Index descriptor.</param>
     public RecordSetHeader(IndexInfo indexInfo)
     {
       TupleDescriptor = TupleDescriptor.Create(indexInfo.Columns.Select(columnInfo => columnInfo.ValueType));
@@ -65,28 +66,39 @@ namespace Xtensive.Storage.Rse
       OrderDescriptor = new RecordSetOrderDescriptor(sortOrder, keyDescriptor);
       Columns = new RecordColumnCollection(indexInfo.Columns.Select((c,i) => new RecordColumn(c,i,c.ValueType)));
 
-      ColumnGroupMappings = new RecordColumnGroupMappingCollection(
-        indexInfo.ColumnGroups.Select(cg => new RecordColumnGroupMapping(
-          cg.KeyColumns.Select(c => indexInfo.Columns.IndexOf(c)), 
-          cg.Columns.Select(c => indexInfo.Columns.IndexOf(c)))));      
+      ColumnGroupMappings = new RecordColumnGroupMappingCollection(new[]{new RecordColumnGroupMapping(
+        indexInfo.Group.KeyColumns.Select(c => indexInfo.Columns.IndexOf(c)),
+        indexInfo.Group.Columns.Select(c => indexInfo.Columns.IndexOf(c)))});
     }
 
-    public RecordSetHeader(TupleDescriptor tupleDescriptor, IEnumerable<RecordColumn> recordColumns, TupleDescriptor keyDescriptor, IEnumerable<RecordColumnGroupMapping> keys, DirectionCollection<int> orderedBy)
+    /// <summary>
+    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="tupleDescriptor">Descriptor of the result item.</param>
+    /// <param name="recordColumns">Result columns.</param>
+    /// <param name="keyDescriptor">Descriptor of ordered columns.</param>
+    /// <param name="groups">Column groups.</param>
+    /// <param name="orderedBy">Result sort order.</param>
+    public RecordSetHeader(TupleDescriptor tupleDescriptor, IEnumerable<RecordColumn> recordColumns, TupleDescriptor keyDescriptor, IEnumerable<RecordColumnGroupMapping> groups, DirectionCollection<int> orderedBy)
     {
       ArgumentValidator.EnsureArgumentNotNull(tupleDescriptor, "tupleDescriptor");
       ArgumentValidator.EnsureArgumentNotNull(recordColumns, "recordColumns");
       TupleDescriptor = tupleDescriptor;
       Columns = new RecordColumnCollection(recordColumns);
 
-      ColumnGroupMappings = keys==null
+      ColumnGroupMappings = groups==null
         ? RecordColumnGroupMappingCollection.Empty
-        : new RecordColumnGroupMappingCollection(keys);
+        : new RecordColumnGroupMappingCollection(groups);
 
       OrderDescriptor = new RecordSetOrderDescriptor(
         orderedBy ?? new DirectionCollection<int>(),
         keyDescriptor ?? TupleDescriptor.Empty);
     }
 
+    /// <summary>
+    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <remarks>This constructor is used for all join operations.</remarks>
     public RecordSetHeader(RecordSetHeader left, RecordSetHeader right)
     {
       Columns = new RecordColumnCollection(
@@ -103,6 +115,11 @@ namespace Xtensive.Storage.Rse
               ))));
     }
 
+    /// <summary>
+    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="header">Original header.</param>
+    /// <param name="alias">Alias.</param>
     public RecordSetHeader(RecordSetHeader header, string alias)
     {
       Columns = new RecordColumnCollection(header.Columns, alias);
@@ -111,6 +128,11 @@ namespace Xtensive.Storage.Rse
       OrderDescriptor = header.OrderDescriptor;
     }
 
+    /// <summary>
+    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="header">Original header.</param>
+    /// <param name="includedColumns">Indexes of columns that will be included in result.</param>
     public RecordSetHeader(RecordSetHeader header, IEnumerable<int> includedColumns)
     {
       var columns = new List<int>(includedColumns);

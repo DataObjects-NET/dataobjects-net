@@ -560,8 +560,7 @@ namespace Xtensive.Storage.Building.Builders
       }
 
       result.Name = context.NameBuilder.Build(typeInfo, result);
-
-      BuildColumnGroups(typeInfo, result);
+      result.Group = BuildColumnGroup(result);
 
       return result;
     }
@@ -616,8 +615,7 @@ namespace Xtensive.Storage.Building.Builders
       }
 
       result.Name = BuildingContext.Current.NameBuilder.Build(reflectedType, result);
-
-      BuildColumnGroups(reflectedType, result);
+      result.Group = BuildColumnGroup(result);
 
       return result;
     }
@@ -690,8 +688,7 @@ namespace Xtensive.Storage.Building.Builders
       }
 
       result.Name = nameBuilder.Build(reflectedType, result);
-
-      BuildColumnGroups(reflectedType, result);
+      result.Group = BuildColumnGroup(result);
 
       return result;
     }
@@ -746,10 +743,16 @@ namespace Xtensive.Storage.Building.Builders
       return valueColumns;
     }
 
-    private static void BuildColumnGroups(TypeInfo reflectedType, IndexInfo index)
+    private static ColumnGroup BuildColumnGroup(IndexInfo index)
     {
-      var keyColumns = index.KeyColumns.Select(p => p.Key);
-      index.ColumnGroups.Add(new ColumnGroup(reflectedType.Hierarchy, keyColumns, keyColumns.Union(index.ValueColumns)));
+      var reflectedType = index.ReflectedType;
+      if (index.IsPrimary) {
+        var keyColumns = index.KeyColumns.Select(p => p.Key);
+        return new ColumnGroup(reflectedType.Hierarchy, keyColumns, keyColumns.Union(index.ValueColumns));
+      }
+      else {
+        return null;
+      }
     }
 
     public static void BuildAffectedIndexes()
