@@ -25,7 +25,7 @@ namespace Xtensive.Storage.Rse
     /// Gets the <see cref="RecordSet"/> keys.
     /// </summary>
     /// <value>The keys.</value>
-    public CollectionBaseSlim<RecordColumnGroupMapping> ColumnGroupMappings { get; private set; }
+    public RecordColumnGroupMappingCollection ColumnGroupMappings { get; private set; }
 
     /// <summary>
     /// Gets the <see cref="RecordSet"/> columns.
@@ -41,6 +41,14 @@ namespace Xtensive.Storage.Rse
     /// Gets the <see cref="RecordSet"/> order descriptor.
     /// </summary>
     public RecordSetOrderDescriptor OrderDescriptor { get; private set; }
+
+    private static IEnumerable<RecordColumnGroupMapping> GetRecordColumnGroups(IndexInfo indexInfo)
+    {
+      foreach (var columnGroup in indexInfo.ColumnGroups) 
+        yield return new RecordColumnGroupMapping(
+          columnGroup.KeyColumns.Select(c => indexInfo.Columns.IndexOf(c)),
+          columnGroup.Columns.Select(c => indexInfo.Columns.IndexOf(c)));               
+    }
 
     
     // Constructors
@@ -61,13 +69,9 @@ namespace Xtensive.Storage.Rse
       }
       OrderDescriptor = new RecordSetOrderDescriptor(sortOrder, keyDescriptor);
       Columns = new RecordColumnCollection(indexInfo.Columns.Select((c,i) => new RecordColumn(c,i,c.ValueType)));
-      ColumnGroupMappings = new CollectionBaseSlim<RecordColumnGroupMapping>();
-      foreach (var columnGroup in indexInfo.ColumnGroups) {
-        var recordColummnGroup = new RecordColumnGroupMapping(
-          columnGroup.KeyColumns.Select(c => indexInfo.Columns.IndexOf(c)),
-          columnGroup.Columns.Select(c => indexInfo.Columns.IndexOf(c)));
-        ColumnGroupMappings.Add(recordColummnGroup);
-      }
+
+      ColumnGroupMappings = new RecordColumnGroupMappingCollection(
+        GetRecordColumnGroups(indexInfo));      
     }
 
     public RecordSetHeader(TupleDescriptor tupleDescriptor, IEnumerable<RecordColumn> recordColumns, TupleDescriptor keyDescriptor, IEnumerable<RecordColumnGroupMapping> keys, DirectionCollection<int> orderedBy)
@@ -78,8 +82,8 @@ namespace Xtensive.Storage.Rse
       Columns = new RecordColumnCollection(recordColumns);
 
       ColumnGroupMappings = keys==null
-        ? new CollectionBaseSlim<RecordColumnGroupMapping>()
-        : new CollectionBaseSlim<RecordColumnGroupMapping>(keys);
+        ? RecordColumnGroupMappingCollection.Empty
+        : new RecordColumnGroupMappingCollection(keys);
 
       OrderDescriptor = new RecordSetOrderDescriptor(
         orderedBy ?? new DirectionCollection<int>(),
@@ -93,14 +97,13 @@ namespace Xtensive.Storage.Rse
         right.Columns.Select(column => new RecordColumn(column, left.Columns.Count + column.Index)));
       TupleDescriptor = TupleDescriptor.Create(new[] {left.TupleDescriptor, right.TupleDescriptor}.SelectMany(descriptor => descriptor));
       OrderDescriptor = left.OrderDescriptor;
-      ColumnGroupMappings = new CollectionBaseSlim<RecordColumnGroupMapping>(
+      ColumnGroupMappings = new RecordColumnGroupMappingCollection(
         left.ColumnGroupMappings
-        .Union(right.ColumnGroupMappings
-          .Select(g => new RecordColumnGroupMapping(
-            g.Keys.Select(i => left.Columns.Count + i),
-            g.Columns.Select(i => left.Columns.Count + i)
-            ))
-        ));
+          .Union(right.ColumnGroupMappings
+            .Select(g => new RecordColumnGroupMapping(
+              g.Keys.Select(i => left.Columns.Count + i),
+              g.Columns.Select(i => left.Columns.Count + i)
+              ))));
     }
 
     public RecordSetHeader(RecordSetHeader header, string alias)
@@ -116,7 +119,8 @@ namespace Xtensive.Storage.Rse
       TupleDescriptor = header.TupleDescriptor;
       OrderDescriptor = header.OrderDescriptor;
       Columns = new RecordColumnCollection(includedColumns.Select(i => header.Columns[i]));
-      ColumnGroupMappings = new CollectionBaseSlim<RecordColumnGroupMapping>(header.ColumnGroupMappings.Where(g => g.Keys.All(ci => includedColumns.Contains(ci))));
+      ColumnGroupMappings = new RecordColumnGroupMappingCollection(
+        header.ColumnGroupMappings.Where(g => g.Keys.All(ci => includedColumns.Contains(ci))));
     }
   }
 }

@@ -5,8 +5,9 @@
 // Created:    2007.09.24
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using Xtensive.Core.Collections;
 
 namespace Xtensive.Storage.Rse
 {
@@ -14,11 +15,8 @@ namespace Xtensive.Storage.Rse
   /// Collection of <see cref="RecordColumn"/> items.
   /// </summary>
   [Serializable]
-  public class RecordColumnCollection : 
-    IEnumerable<RecordColumn>, 
-    IEquatable<RecordColumnCollection>
-  {
-    private readonly List<RecordColumn> values;
+  public class RecordColumnCollection : ReadOnlyList<RecordColumn>
+  {    
     private readonly Dictionary<string, int> nameIndex = new Dictionary<string, int>();
 
     /// <summary>
@@ -34,98 +32,34 @@ namespace Xtensive.Storage.Rse
       {
         int index;
         if (nameIndex.TryGetValue(fullName, out index))
-          return values[index];
+          return this[index];
+        
         return null;
       }
     }
 
-    /// <summary>
-    /// Gets <see cref="RecordColumn"/> by its <see cref="index"/>.
-    /// </summary>
-    /// <param name="index">Index of the <see cref="RecordColumn"/>.</param>
-    public RecordColumn this[int index]
-    {
-      get { return values[index]; }
-    }
-
-    /// <summary>
-    /// Gets count of <see cref="RecordColumn"/> elements.
-    /// </summary>
-    public int Count
-    {
-      get { return values.Count; }
-    }
-
     private void BuildNameIndex()
     {
-      for (int index = 0; index < values.Count; index++) 
-        nameIndex.Add(values[index].Name, index);
+      for (int index = 0; index < Count; index++) 
+        nameIndex.Add(this[index].Name, index);
     }
 
-
-    #region IEnumerable<RecordColumn> Members
-
-    IEnumerator<RecordColumn> IEnumerable<RecordColumn>.GetEnumerator()
+    private static IEnumerable<RecordColumn> ApplyAlias(IEnumerable<RecordColumn> collection, string alias)
     {
-      return values.GetEnumerator();
+      foreach (RecordColumn column in collection)
+        yield return new RecordColumn(column, alias);
     }
 
 
-    public IEnumerator GetEnumerator()
-    {
-      return ((IEnumerable<RecordColumn>)this).GetEnumerator();
-    }
-
-    #endregion
-
-    /// <summary>
-    /// Compares two <see cref="RecordColumnCollection"/> instances.
-    /// </summary>
-    /// <param name="x">First <see cref="RecordColumnCollection"/>.</param>
-    /// <param name="y">Second <see cref="RecordColumnCollection"/>.</param>
-    /// <returns><see langword="false"/> if they are equal; otherwise, <see langword="true"/>.</returns>
-    public static bool operator !=(RecordColumnCollection x, RecordColumnCollection y)
-    {
-      return !Equals(x, y);
-    }
-
-    /// <summary>
-    /// Compares two <see cref="RecordColumnCollection"/> instances.
-    /// </summary>
-    /// <param name="x">First <see cref="RecordColumnCollection"/>.</param>
-    /// <param name="y">Second <see cref="RecordColumnCollection"/>.</param>
-    /// <returns><see langword="true"/> if they are equal; otherwise, <see langword="false"/>.</returns>
-    public static bool operator ==(RecordColumnCollection x, RecordColumnCollection y)
-    {
-      return Equals(x, y);
-    }
-
-    public bool Equals(RecordColumnCollection recordColumnCollection)
-    {
-      if (recordColumnCollection == null)
-        return false;
-      return Equals(values, recordColumnCollection.values) && Equals(nameIndex, recordColumnCollection.nameIndex);
-    }
-
-    public override bool Equals(object obj)
-    {
-      if (ReferenceEquals(this, obj))
-        return true;
-      return Equals(obj as RecordColumnCollection);
-    }
-
-    public override int GetHashCode()
-    {
-      return values.GetHashCode() + 29*nameIndex.GetHashCode();
-    }
+    // Constructors
 
     /// <summary>
     /// Initializes a new instance of <see cref="RecordColumnCollection"/> class and fills them with provided <paramref name="collection"/>.
     /// </summary>
     /// <param name="collection">Collection of items to add.</param>
     public RecordColumnCollection(IEnumerable<RecordColumn> collection)
-    {
-      values = new List<RecordColumn>(collection);
+      : base (collection.ToList())
+    {           
       BuildNameIndex();
     }
 
@@ -135,12 +69,10 @@ namespace Xtensive.Storage.Rse
     /// <param name="collection">Collection of items to add.</param>
     /// <param name="alias">Alias for the <see cref="RecordColumnCollection"/>.</param>
     public RecordColumnCollection(IEnumerable<RecordColumn> collection, string alias)
-    {
-      values = new List<RecordColumn>();
-      foreach (RecordColumn column in collection)
-        values.Add(new RecordColumn(column, alias));
-      BuildNameIndex();
-    }
+      : base(ApplyAlias(collection, alias).ToList())
+    {      
+      BuildNameIndex();    
+    }    
 
     /// <summary>
     /// Initializes a new instance of class <see cref="RecordColumnCollection"/> and fills them with two collections of elements.
@@ -148,11 +80,9 @@ namespace Xtensive.Storage.Rse
     /// <param name="collection1">First item collection.</param>
     /// <param name="collection2">Second item collection.</param>
     public RecordColumnCollection(IEnumerable<RecordColumn> collection1, IEnumerable<RecordColumn> collection2)
-    {
-      values = new List<RecordColumn>(collection1);
-      values.AddRange(collection2);
+      : base (collection1.Concat(collection2).ToList())
+    {            
       BuildNameIndex();
     }
-
   }
 }
