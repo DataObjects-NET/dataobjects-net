@@ -18,7 +18,7 @@ namespace Xtensive.Storage.Configuration
   /// <para id="About"><see cref="HasStaticDefaultDocTemplate" copy="true" /></para>
   /// </remarks>
   [Serializable]
-  public class SessionConfiguration : ConfigurationBase
+  public class SessionConfiguration : ConfigurationSectionBase
   {
     /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
     public readonly static SessionConfiguration Default;
@@ -45,18 +45,18 @@ namespace Xtensive.Storage.Configuration
     }
 
     /// <inheritdoc/>
-    protected override ConfigurationBase CreateClone()
+    protected override ConfigurationSectionBase CreateClone()
     {
-      SessionConfiguration clone = new SessionConfiguration();
+      var clone = new SessionConfiguration();
       clone.Clone(this);
       return clone;
     }
 
     /// <inheritdoc/>
-    protected override void Clone(ConfigurationBase source)
+    protected override void Clone(ConfigurationSectionBase source)
     {
       base.Clone(source);
-      SessionConfiguration configuration = (SessionConfiguration) source;
+      var configuration = (SessionConfiguration) source;
       UserName = configuration.UserName;
       AuthParams = configuration.AuthParams;
     }

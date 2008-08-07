@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Security.Permissions;
@@ -70,6 +71,7 @@ namespace Xtensive.Core
   /// </remarks>
   [Serializable]
   [DebuggerDisplay("{url}")]
+  [TypeConverter(typeof(UrlInfoConverter))]
   public class UrlInfo : 
     IEquatable<UrlInfo>,
     IComparable<UrlInfo>,

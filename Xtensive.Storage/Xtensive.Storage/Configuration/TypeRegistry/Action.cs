@@ -86,7 +86,7 @@ namespace Xtensive.Storage.Configuration.TypeRegistry
     public Action(Assembly assembly, string @namespace)
       : this(assembly)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(@namespace, "@namespace");
+      ArgumentValidator.EnsureArgumentNotNull(@namespace, "@namespace");
       this.@namespace = @namespace;
     }
 
