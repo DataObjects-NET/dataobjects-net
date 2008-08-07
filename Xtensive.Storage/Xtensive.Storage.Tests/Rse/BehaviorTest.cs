@@ -120,10 +120,11 @@ namespace Xtensive.Storage.Tests.Rse
         .IndexBy(OrderBy.Asc(2, 0))
         .Range(authorFilterTuple, authorFilterTuple)
         .Join(bookRS.Alias("Books"), new Pair<int>(0, 1))
-        .OrderBy(OrderBy.Desc(5));
+        .OrderBy(OrderBy.Desc(5))
+        .Select(0,1,3,5);
 
       foreach (Tuple record in result)
-        Console.Out.WriteLine(record.GetValue<string>(result.IndexOf("Books.Title")));
+        Console.Out.WriteLine(record/*.GetValue<string>(result.IndexOf("Books.Title"))*/);
     }
   }
 }

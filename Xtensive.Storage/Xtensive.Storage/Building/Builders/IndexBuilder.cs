@@ -523,7 +523,7 @@ namespace Xtensive.Storage.Building.Builders
         InheritanceSchema schema = typeInfo.Hierarchy.Schema;
         IEnumerable<TypeInfo> types;
         if (typeInfo.IsInterface)
-          types = typeInfo.GetImplementors(true);
+          types = new[] {typeInfo};
         else
           switch (schema) {
           case InheritanceSchema.SingleTable:

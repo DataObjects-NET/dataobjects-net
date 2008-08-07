@@ -116,7 +116,8 @@ namespace Xtensive.Storage.Rse
 
     public RecordSetHeader(RecordSetHeader header, IEnumerable<int> includedColumns)
     {
-      TupleDescriptor = header.TupleDescriptor;
+      TupleDescriptor = Core.Tuples.TupleDescriptor.Create(includedColumns.Select(i => header.TupleDescriptor[i]));
+
       OrderDescriptor = header.OrderDescriptor;
       Columns = new RecordColumnCollection(includedColumns.Select(i => header.Columns[i]));
       ColumnGroupMappings = new RecordColumnGroupMappingCollection(
