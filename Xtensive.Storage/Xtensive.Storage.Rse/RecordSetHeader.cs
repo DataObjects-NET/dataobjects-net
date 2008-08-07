@@ -42,15 +42,7 @@ namespace Xtensive.Storage.Rse
     /// </summary>
     public RecordSetOrderDescriptor OrderDescriptor { get; private set; }
 
-    private static IEnumerable<RecordColumnGroupMapping> GetRecordColumnGroups(IndexInfo indexInfo)
-    {
-      foreach (var columnGroup in indexInfo.ColumnGroups) 
-        yield return new RecordColumnGroupMapping(
-          columnGroup.KeyColumns.Select(c => indexInfo.Columns.IndexOf(c)),
-          columnGroup.Columns.Select(c => indexInfo.Columns.IndexOf(c)));               
-    }
-
-    
+   
     // Constructors
 
     public RecordSetHeader(IndexInfo indexInfo)
@@ -71,7 +63,9 @@ namespace Xtensive.Storage.Rse
       Columns = new RecordColumnCollection(indexInfo.Columns.Select((c,i) => new RecordColumn(c,i,c.ValueType)));
 
       ColumnGroupMappings = new RecordColumnGroupMappingCollection(
-        GetRecordColumnGroups(indexInfo));      
+        indexInfo.ColumnGroups.Select(cg => new RecordColumnGroupMapping(
+          cg.KeyColumns.Select(c => indexInfo.Columns.IndexOf(c)), 
+          cg.Columns.Select(c => indexInfo.Columns.IndexOf(c)))));      
     }
 
     public RecordSetHeader(TupleDescriptor tupleDescriptor, IEnumerable<RecordColumn> recordColumns, TupleDescriptor keyDescriptor, IEnumerable<RecordColumnGroupMapping> keys, DirectionCollection<int> orderedBy)
@@ -116,9 +110,18 @@ namespace Xtensive.Storage.Rse
 
     public RecordSetHeader(RecordSetHeader header, IEnumerable<int> includedColumns)
     {
+      var columns = new List<int>(includedColumns);
       TupleDescriptor = Core.Tuples.TupleDescriptor.Create(includedColumns.Select(i => header.TupleDescriptor[i]));
+      if (header.OrderDescriptor.Order.Count > 0) {
+        var order = new DirectionCollection<int>(
+          header.OrderDescriptor.Order
+          .Select(o => new KeyValuePair<int, Direction>(columns.IndexOf(o.Key), o.Value))
+          .TakeWhile(o => o.Key >= 0));
+        OrderDescriptor = order.Count == 0 ?
+          new RecordSetOrderDescriptor(new DirectionCollection<int>(), TupleDescriptor.Empty) :
+          new RecordSetOrderDescriptor(order, Core.Tuples.TupleDescriptor.Create(header.OrderDescriptor.Descriptor.Take(order.Count)));
+      }
 
-      OrderDescriptor = header.OrderDescriptor;
       Columns = new RecordColumnCollection(includedColumns.Select(i => header.Columns[i]));
       ColumnGroupMappings = new RecordColumnGroupMappingCollection(
         header.ColumnGroupMappings.Where(g => g.Keys.All(ci => includedColumns.Contains(ci))));

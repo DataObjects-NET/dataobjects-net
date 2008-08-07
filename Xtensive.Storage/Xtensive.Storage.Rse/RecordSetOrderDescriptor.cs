@@ -16,6 +16,7 @@ namespace Xtensive.Storage.Rse
     private readonly DirectionCollection<int> order;
     private readonly TupleDescriptor descriptor;
 
+  
     public DirectionCollection<int> Order
     {
       [DebuggerStepThrough]
