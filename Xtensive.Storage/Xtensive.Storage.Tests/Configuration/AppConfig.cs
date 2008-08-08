@@ -16,9 +16,9 @@ namespace Xtensive.Storage.Tests.Configuration
   public class AppConfig
   {
     [Test]
-    public void LoadDomainConfig()
+    public void DomainConfig()
     {
-      var domainConfig = (DomainConfiguration) ConfigurationManager.GetSection("LoadDomainConfig");
+      var domainConfig = (DomainConfiguration)ConfigurationManager.GetSection("DomainConfig");
       Log.Debug("SessionPoolSize: {0}", domainConfig.SessionPoolSize);
       Log.Debug("ConnectionInfo: {0}", domainConfig.ConnectionInfo);
       foreach (Type builder in domainConfig.Builders) {
@@ -33,6 +33,14 @@ namespace Xtensive.Storage.Tests.Configuration
       foreach (KeyValuePair<string, string> namespaceSynonym in domainConfig.NamingConvention.NamespaceSynonyms) {
         Log.Debug("NamingConvention.NamespaceSynonym (key, value): {0} {1}", namespaceSynonym.Key, namespaceSynonym.Value);
       }
+    }
+
+    [Test]
+    public void SessionConfig()
+    {
+      var sessionConfiguration = (SessionConfiguration)ConfigurationManager.GetSection("SessionConfig");
+      Log.Debug("UserName: {0}", sessionConfiguration.UserName);
+      Log.Debug("CacheSize: {0}", sessionConfiguration.CacheSize);
     }
   }
 }
