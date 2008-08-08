@@ -147,7 +147,7 @@ namespace Xtensive.Storage.Rse
           new RecordSetOrderDescriptor(order, Core.Tuples.TupleDescriptor.Create(header.OrderDescriptor.Descriptor.Take(order.Count)));
       }
 
-      Columns = new RecordColumnCollection(includedColumns.Select(i => header.Columns[i]));
+      Columns = new RecordColumnCollection(includedColumns.Select((ic, i) => new RecordColumn(header.Columns[ic], i)));
       ColumnGroupMappings = new RecordColumnGroupMappingCollection(
         header.ColumnGroupMappings
         .Where(g => g.Keys.All(ci => includedColumns.Contains(ci)))
