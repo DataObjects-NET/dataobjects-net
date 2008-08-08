@@ -5,6 +5,7 @@
 // Created:    2007.08.29
 
 using System;
+using System.Configuration;
 using Xtensive.Core;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
@@ -20,13 +21,27 @@ namespace Xtensive.Storage.Configuration
   [Serializable]
   public class SessionConfiguration : ConfigurationSectionBase
   {
+    private const string UserNameElementName = "UserName";
+    private const string CacheSizeElementName = "CacheSize";
+
     /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
     public readonly static SessionConfiguration Default;
 
     /// <summary>
     /// Gets user name to authenticate.
     /// </summary>
-    public string UserName { get; private set; }
+    [ConfigurationProperty(UserNameElementName, IsRequired = false)]
+    public string UserName
+    {
+      get
+      {
+        return (string)this[UserNameElementName];
+      }
+      private set
+      {
+        this[UserNameElementName] = value;
+      }
+    }
 
     /// <summary>
     /// Gets authentication params.
@@ -36,7 +51,18 @@ namespace Xtensive.Storage.Configuration
     /// <summary>
     /// Gets or sets the size of the session cache.
     /// </summary>
-    public int CacheSize { get; set; }
+    [ConfigurationProperty(CacheSizeElementName, IsRequired = false)]
+    public int CacheSize
+    {
+      get
+      {
+        return (int)this[CacheSizeElementName];
+      }
+      private set
+      {
+        this[CacheSizeElementName] = value;
+      }
+    }
 
     /// <inheritdoc/>
     public override void Validate()

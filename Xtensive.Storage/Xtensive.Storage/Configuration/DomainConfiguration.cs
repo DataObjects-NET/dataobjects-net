@@ -150,11 +150,6 @@ namespace Xtensive.Storage.Configuration
       namingConvention = namingConventionElement;
     }
 
-    public override bool IsReadOnly()
-    {
-      return true;
-    }
-
     private void AddConfigurationElements()
     {
       Properties.Add(new ConfigurationProperty(BuildersElementName, typeof(ConfigurationCollection<BuilderConfigElement>)));
