@@ -13,7 +13,9 @@ using System.Reflection.Emit;
 using System.Text;
 using System.Threading;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Helpers;
 using Xtensive.Core.Resources;
+using System.Linq;
 
 namespace Xtensive.Core.Reflection
 {
@@ -28,6 +30,8 @@ namespace Xtensive.Core.Reflection
     private static int createDummyTypeNumber = 0;
     private static AssemblyBuilder assemblyBuilder;
     private static ModuleBuilder moduleBuilder;
+    private static ThreadSafeDictionary<Type, Type[]> orderedInterfaces = 
+      ThreadSafeDictionary<Type, Type[]>.Create(new object());
 
     /// <summary>
     /// Searches for associated class for <paramref name="forType"/>, creates its instance, if found.
@@ -438,6 +442,33 @@ namespace Xtensive.Core.Reflection
       catch {
         return null;
       }
+    }
+
+    /// <summary>
+    /// Orders the specified <paramref name="types"/> by their inheritance
+    /// (very base go first).
+    /// </summary>
+    /// <param name="types">The types to sort.</param>
+    /// <returns>The list of <paramref name="types"/> ordered by their inheritance.</returns>
+    public static List<Type> OrderByInheritance(this IEnumerable<Type> types)
+    {
+      return TopologicalSorter<Type>.Sort(types, (t1, t2) => t1.IsAssignableFrom(t2));
+    }
+
+
+    /// <summary>
+    /// Gets the interfaces of the specified type.
+    /// </summary>
+    /// <param name="type">The type to get the interfaces of.</param>
+    /// <param name="orderByInheritance">Indicates interfaces must be ordered from the very base ones 
+    /// to very ancestors.</param>
+    /// <returns>The interfaces of the specified type.</returns>
+    public static Type[] GetInterfaces(this Type type, bool orderByInheritance)
+    {
+      if (!orderByInheritance)
+        return type.GetInterfaces();
+      return orderedInterfaces.GetValue(type,
+        _type => _type.GetInterfaces().OrderByInheritance().ToArray());
     }
 
     /// <summary>

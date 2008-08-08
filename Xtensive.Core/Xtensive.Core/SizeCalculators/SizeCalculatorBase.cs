@@ -104,10 +104,10 @@ namespace Xtensive.Core.SizeCalculators
       Type type = typeof (T);
       if (!type.IsPrimitive) {
         FieldInfo[] fields = typeof (T).GetFields(
-          BindingFlags.FlattenHierarchy |
-            BindingFlags.NonPublic |
-              BindingFlags.Public |
-                BindingFlags.Instance);
+          BindingFlags.Instance |
+          BindingFlags.NonPublic |
+          BindingFlags.Public |
+          BindingFlags.FlattenHierarchy);
         foreach (FieldInfo field in fields) {
           Type fieldType = field.FieldType;
           if (fieldType.IsValueType)

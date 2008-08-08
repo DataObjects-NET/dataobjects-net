@@ -100,7 +100,7 @@ namespace Xtensive.Core.Reflection
           MethodInfo smi;
           if (pi!=null) {
             // Member is a Property...
-            MethodInfo mi = pi.GetGetMethod();
+            MethodInfo mi = pi.GetGetMethod(true);
             if (mi!=null) {
               //  Calling a property's get accessor is faster/cleaner using
               //  Delegate.CreateDelegate rather than Reflection.Emit 
@@ -125,7 +125,10 @@ namespace Xtensive.Core.Reflection
             result = dm.CreateDelegate(typeof (TDelegateType)) as TDelegateType;
           }
           else if (null!=(smi = type.GetMethod(AspectedPrivateFieldGetterPrefix + memberName,
-            BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))) {
+            BindingFlags.Instance | 
+            BindingFlags.Public | 
+            BindingFlags.NonPublic |
+            BindingFlags.ExactBinding))) {
             result = Delegate.CreateDelegate(typeof (Func<TObject, TValue>), smi) as TDelegateType;
           }
           else
@@ -163,7 +166,7 @@ namespace Xtensive.Core.Reflection
           FieldInfo fi = type.GetField(memberName);
           if (pi!=null) {
             // Member is a Property...
-            MethodInfo mi = pi.GetSetMethod();
+            MethodInfo mi = pi.GetSetMethod(true);
             if (mi!=null) {
               //  Calling a property's get accessor is faster/cleaner using
               //  Delegate.CreateDelegate rather than Reflection.Emit 
@@ -276,7 +279,8 @@ namespace Xtensive.Core.Reflection
 
       BindingFlags bindingFlags =
         BindingFlags.Public |
-        BindingFlags.NonPublic;
+        BindingFlags.NonPublic |
+        BindingFlags.ExactBinding;
       if (callTarget==null)
         bindingFlags |= BindingFlags.Static;
       else 
@@ -325,7 +329,8 @@ namespace Xtensive.Core.Reflection
 
       BindingFlags bindingFlags =
         BindingFlags.Public |
-        BindingFlags.NonPublic;
+        BindingFlags.NonPublic |
+        BindingFlags.ExactBinding;
       if (callTarget==null)
         bindingFlags |= BindingFlags.Static;
       else 

@@ -51,8 +51,12 @@ namespace Xtensive.Core.Testing
 
     public static void AreEqual<T>(IEnumerable<T> a, IEnumerable<T> b)
     {
-      SetSlim<T> aSet = new SetSlim<T>(a);
-      Assert.IsTrue(aSet.IsEqualTo(b), Strings.AssertCollectionsArentEqual);
+      if (a==null)
+        Assert.IsNull(b);
+      else {
+        SetSlim<T> aSet = new SetSlim<T>(a);
+        Assert.IsTrue(aSet.IsEqualTo(b), Strings.AssertCollectionsArentEqual);
+      }
     }
 
     public static void ResultsAreEqual<T>(Func<T> f1, Func<T> f2)

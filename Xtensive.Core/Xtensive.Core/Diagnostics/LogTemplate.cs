@@ -152,7 +152,10 @@ namespace Xtensive.Core.Diagnostics
     {
       Type t = typeof (T);
       string logName = "Unnamed";
-      logName = (string)t.GetField("Name", BindingFlags.Public | BindingFlags.Static).GetValue(null);
+      logName = (string)t.GetField("Name", 
+        BindingFlags.Static | 
+        BindingFlags.Public)
+        .GetValue(null);
       string skipPrefix = "Xtensive.";
       if (logName.StartsWith(skipPrefix))
         logName = logName.Substring(skipPrefix.Length);

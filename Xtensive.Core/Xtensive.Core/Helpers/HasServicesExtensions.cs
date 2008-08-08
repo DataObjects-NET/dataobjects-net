@@ -35,7 +35,7 @@ namespace Xtensive.Core.Helpers
       var service = serviceProvider.GetService<T>();
       if (failIfNone && service == null)
         throw new InvalidOperationException(
-          string.Format(Strings.ExServiceNotFound, MemberHelper.GetShortName(typeof(T))));
+          string.Format(Strings.ExServiceNotFound, typeof(T).GetShortName()));
       return service;
     }
 

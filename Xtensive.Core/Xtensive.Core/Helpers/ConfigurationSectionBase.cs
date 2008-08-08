@@ -13,7 +13,8 @@ using Xtensive.Core.Internals.DocTemplates;
 namespace Xtensive.Core.Helpers
 {
   /// <summary>
-  /// Base class for <see cref="IConfiguration"/> implementors with support of reading from application configuration file.
+  /// Base class for <see cref="IConfiguration"/> implementors with 
+  /// support of reading from application configuration file.
   /// </summary>
   /// <remarks>
   /// <para id="Ctor"><see cref="ParameterlessCtorClassDocTemplate"/></para>

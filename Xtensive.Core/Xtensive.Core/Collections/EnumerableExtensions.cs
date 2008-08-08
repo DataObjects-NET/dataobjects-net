@@ -9,6 +9,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Xtensive.Core.Comparison;
 
 namespace Xtensive.Core.Collections
 {
@@ -199,9 +200,8 @@ namespace Xtensive.Core.Collections
       IEnumerator<TItem> enumerator = items.GetEnumerator();
 
       foreach (var item in other) {
-        if (!enumerator.Current.Equals(item))
+        if (!AdvancedComparerStruct<TItem>.System.Equals(enumerator.Current, item))
           return false;
-
         enumerator.MoveNext();
       }
       return true;

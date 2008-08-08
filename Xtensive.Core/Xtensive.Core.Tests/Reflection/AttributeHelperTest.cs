@@ -5,12 +5,16 @@
 // Created:    2008.08.06
 
 using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using NUnit.Framework;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Testing;
 using System.Linq;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Helpers;
 
 namespace Xtensive.Core.Tests.Reflection
 {
@@ -28,8 +32,24 @@ namespace Xtensive.Core.Tests.Reflection
       }
     }
 
+    [Id("IBase")]
+    interface IBase
+    {
+      [Id("IBase.Property")]
+      int Property
+      {
+        [Id("IBase.get_Property")]
+        get; 
+        [Id("IBase.set_Property")]
+        set;
+      }
+
+      [Id("IBase.IMethod()")]
+      void IMethod();
+    }
+
     [Id("Base")]
-    class Base
+    class Base : IBase
     {
       [Id("Base.Property")]
       public virtual int Property { 
@@ -38,8 +58,22 @@ namespace Xtensive.Core.Tests.Reflection
         [Id("Base.set_Property")]
         private set; }
 
+      [Id("Base.IBase.Property")]
+      int IBase.Property
+      {
+        [Id("Base.IBase.get_Property")]
+        get { return Property; }
+        [Id("Base.IBase.set_Property")]
+        set { Property = value; }
+      }
+
       [Id("Base.Method(object)")]
       protected virtual void Method(object o)
+      {
+      }
+
+      [Id("Base.IMethod()")]
+      public virtual void IMethod()
       {
       }
     }
@@ -62,7 +96,8 @@ namespace Xtensive.Core.Tests.Reflection
     }
 
     [Id("Last")]
-    class Last : Derived
+    class Last : Derived,
+      IBase
     {
       [Id("Last.Property")]
       public override int Property {
@@ -71,38 +106,96 @@ namespace Xtensive.Core.Tests.Reflection
         }
       }
 
+      [Id("Last.IBase.Property")]
+      int IBase.Property {
+        [Id("Last.IBase.get_Property")]
+        get { return Property; }
+        [Id("Last.IBase.set_Property")]
+        set { return; }
+      }
+
       [Id("Last.Method(object)")]
       protected override void Method(object o)
+      {
+      }
+
+      [Id("Last.IMethod()")]
+      public override void IMethod()
       {
       }
     }
 
     [Test]
-    public void CombinedTest()
+    public void DebugTest()
     {
+      Type i = typeof (IBase);
       Type b = typeof (Base);
       Type d = typeof (Derived);
       Type l = typeof (Last);
-      Assert.AreEqual("Base", b.GetAttribute<IdAttribute>(AttributeSearchOptions.InheritAll).Value);
-      Assert.AreEqual("Last", l.GetAttribute<IdAttribute>(AttributeSearchOptions.InheritNone).Value);
-      AssertEx.AreEqual(new[] {"Last", "Derived", "Base"}, 
-        l.GetAttributes<IdAttribute>(AttributeSearchOptions.InheritAll).Select(a => a.Value));
-      AssertEx.AreEqual(new[] {"Derived", "Base"}, 
-        d.GetAttributes<IdAttribute>(AttributeSearchOptions.InheritAll).Select(a => a.Value));
 
-      // TODO: Finish it
+      Log.Info("{0}", i.GetProperty("Property").GetImplementation(b));
+    }
 
-      Log.Info("{0}", 
-        l.GetProperty("Property").GetGetMethod()
-          .GetAttributes<IdAttribute>(AttributeSearchOptions.InheritAll).Select(a => a.Value).ToCommaDelimitedString());
+    [Test]
+    public void CombinedTest()
+    {
+      Type i = typeof (IBase);
+      Type b = typeof (Base);
+      Type d = typeof (Derived);
+      Type l = typeof (Last);
 
-      Log.Info("{0}", 
-        l.GetMethod("Method", BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-          .GetAttributes<IdAttribute>(AttributeSearchOptions.InheritAll).Select(a => a.Value).ToCommaDelimitedString());
+      ValidateId(() => b.GetAttribute<IdAttribute>(AttributeSearchOptions.InheritAll), 
+        "Base");
+      ValidateId(() => l.GetAttribute<IdAttribute>(AttributeSearchOptions.InheritNone), 
+        "Last");
 
-      Log.Info("{0}", 
-        d.GetMethod("Method", BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-          .GetAttributes<IdAttribute>(AttributeSearchOptions.InheritAll).Select(a => a.Value).ToCommaDelimitedString());
+      ValidateIds(() => l.GetAttributes<IdAttribute>(AttributeSearchOptions.InheritAll), 
+        "Last, Derived, Base");
+      ValidateIds(() => d.GetAttributes<IdAttribute>(AttributeSearchOptions.InheritAll), 
+        "Derived, Base");
+
+      ValidateIds(() => l.GetProperty("Property").GetGetMethod()
+        .GetAttributes<IdAttribute>(AttributeSearchOptions.InheritAll),
+        "Last.Property, Derived.get_Property, Base.get_Property");
+
+      ValidateIds(() => l.GetMethod("Method", BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+        .GetAttributes<IdAttribute>(AttributeSearchOptions.InheritAll),
+        "Last.Method(object), Base.Method(object)");
+
+      ValidateIds(() => d.GetMethod("Method", BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+        .GetAttributes<IdAttribute>(AttributeSearchOptions.InheritAll),
+        "Derived.Method(string)");
+
+      ValidateIds(() => (i.GetProperty("Property").GetImplementation(l) as PropertyInfo).GetGetMethod(true)
+        .GetAttributes<IdAttribute>(AttributeSearchOptions.InheritAll),
+        "Last.IBase.get_Property, IBase.get_Property");
+
+      ValidateIds(() => i.GetMethod("IMethod").GetImplementation(d)
+        .GetAttributes<IdAttribute>(AttributeSearchOptions.InheritAll),
+        "Base.IMethod(), IBase.IMethod()");
+
+      ValidateIds(() => i.GetMethod("IMethod").GetImplementation(l)
+        .GetAttributes<IdAttribute>(AttributeSearchOptions.InheritAll),
+        "Last.IMethod(), Base.IMethod(), IBase.IMethod()");
+    }
+
+    private static void ValidateId(Expression<Func<IdAttribute>> getAttribute, string expected)
+    {
+      Log.Info("Trying: {0}", getAttribute.ToString(true));
+      var attribute = getAttribute.Compile().Invoke();
+      Log.Info("  Expect: {0}", expected);
+      Log.Info("  Actual: {0}", attribute.Value);
+      Assert.AreEqual(expected, attribute.Value);
+    }
+
+    private static void ValidateIds(Expression<Func<IEnumerable<IdAttribute>>> getAttributes, string expected)
+    {
+      Log.Info("Trying: {0}", getAttributes.ToString(true));
+      var attributes = getAttributes.Compile().Invoke();
+      var actual = attributes.Select(a => a.Value).ToCommaDelimitedString();
+      Log.Info("  Expect: {0}", expected);
+      Log.Info("  Actual: {0}", actual);
+      Assert.AreEqual(expected, actual);
     }
   }
 }

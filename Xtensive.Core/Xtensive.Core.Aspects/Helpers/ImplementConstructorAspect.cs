@@ -34,7 +34,11 @@ namespace Xtensive.Core.Aspects.Helpers
       ConstructorInfo constructor;
 
       return AspectHelper.ValidateConstructor(this, SeverityType.Error,
-        type, false, BindingFlags.Public | BindingFlags.NonPublic, ParameterTypes, out constructor);
+        type, false, 
+        BindingFlags.Public | 
+        BindingFlags.NonPublic | 
+        BindingFlags.ExactBinding, 
+        ParameterTypes, out constructor);
     }
 
     /// <inheritdoc/>

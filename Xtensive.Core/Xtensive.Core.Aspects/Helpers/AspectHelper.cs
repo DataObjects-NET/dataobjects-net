@@ -299,6 +299,7 @@ namespace Xtensive.Core.Aspects.Helpers
       MethodInfo accessor = null;
       string sVisibility  = string.Empty;
       string sAccessor    = setter ? Strings.Setter : Strings.Getter;
+      bool bNonPublic = nonPublic.HasValue ? nonPublic.Value : true;
       if (nonPublic.HasValue) {
         accessor = setter ? 
           property.GetSetMethod(nonPublic.Value) : 
@@ -307,8 +308,8 @@ namespace Xtensive.Core.Aspects.Helpers
       }
       else {
         accessor = setter ? 
-          property.GetSetMethod() : 
-          property.GetGetMethod();
+          property.GetSetMethod(bNonPublic) :
+          property.GetGetMethod(bNonPublic);
       }
       if ((accessor!=null) != mustHave) {
         ErrorLog.Write(severityType, Strings.AspectExRequiresToHave,

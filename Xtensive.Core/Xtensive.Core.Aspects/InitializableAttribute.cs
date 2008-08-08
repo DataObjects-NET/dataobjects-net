@@ -56,7 +56,10 @@ namespace Xtensive.Core.Aspects
         var currentBase = bases[i];
         try {
           initializeMethod = currentBase.GetMethod(InitializeMethodName,
-            BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
+            BindingFlags.Instance | 
+            BindingFlags.Public | 
+            BindingFlags.NonPublic |
+            BindingFlags.ExactBinding,
             null, new[] {typeof (Type)}, null);
         }
         catch {}

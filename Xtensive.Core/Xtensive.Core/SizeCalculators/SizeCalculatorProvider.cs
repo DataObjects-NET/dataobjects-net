@@ -67,7 +67,8 @@ namespace Xtensive.Core.SizeCalculators
           (_type, _this) => _this
             .GetType()
             .GetMethod("InnerGetSizeCalculatorByInstance",
-              BindingFlags.NonPublic | BindingFlags.Instance, null, ArrayUtils<Type>.EmptyArray, null)
+              BindingFlags.Instance | BindingFlags.NonPublic, 
+              null, ArrayUtils<Type>.EmptyArray, null)
             .GetGenericMethodDefinition()
             .MakeGenericMethod(new[] {_type})
             .Invoke(_this, null)

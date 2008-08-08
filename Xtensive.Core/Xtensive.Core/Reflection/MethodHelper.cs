@@ -124,7 +124,7 @@ namespace Xtensive.Core.Reflection
     {
       if (!method.IsSpecialName)
         return false;
-      return method.Name.StartsWith(WellKnown.GetterPrefix);
+      return method.Name!=TryCutMethodNamePrefix(method.Name, WellKnown.GetterPrefix);
     }
 
     /// <summary>
@@ -139,7 +139,7 @@ namespace Xtensive.Core.Reflection
     {
       if (!method.IsSpecialName)
         return false;
-      return method.Name.StartsWith(WellKnown.SetterPrefix);
+      return method.Name!=TryCutMethodNamePrefix(method.Name, WellKnown.SetterPrefix);
     }
 
     /// <summary>
@@ -154,12 +154,15 @@ namespace Xtensive.Core.Reflection
         return null;
       var type = method.DeclaringType.UnderlyingSystemType;
       string name = method.Name;
-      string propertyName = name.TryCutPrefix(WellKnown.GetterPrefix);
+      string propertyName = TryCutMethodNamePrefix(name, WellKnown.GetterPrefix);
+      var bindingFlags = method.GetBindingFlags();
+      if (method.IsExplicitImplementation())
+        bindingFlags |= BindingFlags.Public;
       if (propertyName!=name)
-        return type.GetProperty(propertyName, method.GetBindingFlags());
-      propertyName = name.TryCutPrefix(WellKnown.SetterPrefix);
+        return type.GetProperty(propertyName, bindingFlags);
+      propertyName = TryCutMethodNamePrefix(name, WellKnown.SetterPrefix);
       if (propertyName!=name)
-        return type.GetProperty(propertyName, method.GetBindingFlags());
+        return type.GetProperty(propertyName, bindingFlags);
       return null;
     }
 
@@ -192,7 +195,7 @@ namespace Xtensive.Core.Reflection
     {
       if (!method.IsSpecialName)
         return false;
-      return method.Name.StartsWith(WellKnown.AddEventHandlerPrefix);
+      return method.Name!=TryCutMethodNamePrefix(method.Name, WellKnown.AddEventHandlerPrefix);
     }
 
     /// <summary>
@@ -207,7 +210,7 @@ namespace Xtensive.Core.Reflection
     {
       if (!method.IsSpecialName)
         return false;
-      return method.Name.StartsWith(WellKnown.RemoveEventHandlerPrefix);
+      return method.Name!=TryCutMethodNamePrefix(method.Name, WellKnown.RemoveEventHandlerPrefix);
     }
 
     /// <summary>
@@ -222,12 +225,15 @@ namespace Xtensive.Core.Reflection
         return null;
       var type = method.DeclaringType.UnderlyingSystemType;
       string name = method.Name;
-      string eventName = name.TryCutPrefix(WellKnown.AddEventHandlerPrefix);
+      string eventName = TryCutMethodNamePrefix(name, WellKnown.AddEventHandlerPrefix);
+      var bindingFlags = method.GetBindingFlags();
+      if (method.IsExplicitImplementation())
+        bindingFlags |= BindingFlags.Public;
       if (eventName!=name)
-        return type.GetEvent(eventName, method.GetBindingFlags());
-      eventName = name.TryCutPrefix(WellKnown.RemoveEventHandlerPrefix);
+        return type.GetEvent(eventName, bindingFlags);
+      eventName = TryCutMethodNamePrefix(name, WellKnown.RemoveEventHandlerPrefix);
       if (eventName!=name)
-        return type.GetEvent(eventName, method.GetBindingFlags());
+        return type.GetEvent(eventName, bindingFlags);
       return null;
     }
 
@@ -280,6 +286,20 @@ namespace Xtensive.Core.Reflection
           matchCount++;
       }
       return matchCount==parameters.Length;
+    }
+
+    private static string TryCutMethodNamePrefix(string methodName, string prefixToCut)
+    {
+      var result = methodName.TryCutPrefix(prefixToCut);
+      if (result!=methodName)
+        return result;
+      int i = methodName.LastIndexOf('.');
+      if (i>=0) {
+        result = methodName.Substring(0, i+1) + methodName.Substring(i+1).TryCutPrefix(prefixToCut);
+        if (result!=methodName)
+          return result;
+      }
+      return methodName;
     }
 
     #endregion

@@ -51,7 +51,12 @@ namespace Xtensive.Core.Aspects.Helpers
       MethodInfo targetMethod; 
       
       if (!AspectHelper.ValidateMethod(this, SeverityType.Error,
-        HandlerType, true, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, 
+        HandlerType, true, 
+        BindingFlags.Instance |
+        BindingFlags.DeclaredOnly |
+        BindingFlags.Public | 
+        BindingFlags.NonPublic | 
+        BindingFlags.ExactBinding,
         typeof(void), HandlerMethodName, new [] { typeof (Type)}, out targetMethod))
         return false;
       if (!AspectHelper.ValidateMethodAttributes(this, SeverityType.Error,

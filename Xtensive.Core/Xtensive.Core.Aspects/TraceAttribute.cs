@@ -72,7 +72,7 @@ namespace Xtensive.Core.Aspects
     public override bool CompileTimeValidate(MethodBase method)
     {
       if (String.IsNullOrEmpty(title))
-        title = method.GetShortName();
+        title = method.GetShortName(true);
       if (logType==null) {
         // Detecting log type...
         Assembly assembly = method.DeclaringType.Assembly;
@@ -104,7 +104,10 @@ namespace Xtensive.Core.Aspects
     {
       try {
         PropertyInfo pi =
-          logType.GetProperty("Instance", BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy);
+          logType.GetProperty("Instance", 
+            BindingFlags.Public | 
+            BindingFlags.Static | 
+            BindingFlags.FlattenHierarchy);
         log = (ILog)pi.GetValue(null, null);
       }
       catch (NullReferenceException e) {

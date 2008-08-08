@@ -35,7 +35,9 @@ namespace Xtensive.Core.Tuples.Internals
     private readonly static AssemblyName assemblyName = new AssemblyName("Xtensive.GeneratedTuples");
     private readonly static MethodInfo getFlagsMethod = typeof(Tuple).GetMethod("GetFieldState");
     private readonly static MethodInfo setFlagsMethod = typeof(GeneratedTuple).GetMethod("SetFieldState", 
-      BindingFlags.NonPublic | BindingFlags.Instance);
+      BindingFlags.Instance | 
+      BindingFlags.NonPublic | 
+      BindingFlags.ExactBinding);
     private readonly static MethodInfo getValueOrDefaultMethod;
     private readonly static MethodInfo getValueOrDefaultGenericMethod;
     private readonly static MethodInfo setValueMethod;
@@ -110,7 +112,9 @@ namespace Xtensive.Core.Tuples.Internals
         throw Exceptions.InternalError(String.Format(
           "Tuple generation has failed for tuple descriptor {0}.", tupleInfo.Descriptor), Log.Instance);
 
-      FieldInfo descriptorField = tuple.GetType().GetField(descriptorFieldName, BindingFlags.NonPublic | BindingFlags.Static);
+      FieldInfo descriptorField = tuple.GetType().GetField(descriptorFieldName, 
+        BindingFlags.Static | 
+        BindingFlags.NonPublic);
       descriptorField.SetValue(null, tupleInfo.Descriptor);
       return tuple;
     }
@@ -335,7 +339,9 @@ namespace Xtensive.Core.Tuples.Internals
         Type.EmptyTypes);
 
       ConstructorInfo tupleConstructorInfo = tupleType.BaseType.GetConstructor(
-        BindingFlags.NonPublic | BindingFlags.Instance, null, Type.EmptyTypes, null);
+        BindingFlags.Instance | 
+        BindingFlags.NonPublic, 
+        null, Type.EmptyTypes, null);
       
       ILGenerator il = constructorBuilder.GetILGenerator();
       il.Emit(OpCodes.Ldarg_0);

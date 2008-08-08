@@ -69,7 +69,10 @@ namespace Xtensive.Core.Hashing
       return hashers.GetValue(type,
         (_type, _this) => _this
           .GetType()
-          .GetMethod("InnerGetHasherBase", BindingFlags.NonPublic | BindingFlags.Instance, null, ArrayUtils<Type>.EmptyArray, null)
+          .GetMethod("InnerGetHasherBase", 
+            BindingFlags.Instance | 
+            BindingFlags.NonPublic, 
+            null, ArrayUtils<Type>.EmptyArray, null)
           .GetGenericMethodDefinition()
           .MakeGenericMethod(new[] {_type})
           .Invoke(_this, null)

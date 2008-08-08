@@ -84,7 +84,10 @@ namespace Xtensive.Core.Tuples.Internals
     private static void AddConstructor()
     {
       ConstructorInfo baseTypeCtor = baseType.GetConstructor(
-        BindingFlags.Instance | BindingFlags.NonPublic, null, ctorArgTypes, null);
+        BindingFlags.Instance | 
+        BindingFlags.NonPublic |
+        BindingFlags.ExactBinding, 
+        null, ctorArgTypes, null);
 
       // "private .ctor(IList<Type> fieldTypes)"
       ConstructorBuilder constructorBuilder = typeBuilder.DefineConstructor(
@@ -297,7 +300,10 @@ namespace Xtensive.Core.Tuples.Internals
       il.Emit(OpCodes.Ldarg_2);
       il.Emit(OpCodes.Constrained, tFunctionDataParameter);
       il.EmitCall(OpCodes.Callvirt, 
-        TypeBuilder.GetMethod(functionDataType, functionDataGenericType.GetProperty(resultPropertyName).GetGetMethod()), null);
+        TypeBuilder.GetMethod(
+          functionDataType, 
+          functionDataGenericType.GetProperty(resultPropertyName).GetGetMethod()), 
+        null);
       il.Emit(OpCodes.Ret);
       // "}"
     }
@@ -318,7 +324,10 @@ namespace Xtensive.Core.Tuples.Internals
       
       Type descriptorType = genericType.MakeGenericType(genericArgs);
       ConstructorInfo descriptorTypeCtor = descriptorType.GetConstructor(
-        BindingFlags.Instance | BindingFlags.NonPublic, null, ctorArgTypes, null);
+        BindingFlags.Instance | 
+        BindingFlags.NonPublic |
+        BindingFlags.ExactBinding, 
+        null, ctorArgTypes, null);
 
       object descriptor = descriptorTypeCtor.Invoke(
         BindingFlags.CreateInstance, null, new object[] {sampleDescriptor}, null);
