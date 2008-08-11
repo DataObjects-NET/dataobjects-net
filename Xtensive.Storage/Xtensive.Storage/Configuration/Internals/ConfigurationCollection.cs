@@ -4,11 +4,14 @@
 // Created by: Alexey Gamzov
 // Created:    2008.08.07
 
+using System.Collections.Generic;
 using System.Configuration;
 
 namespace Xtensive.Storage.Configuration
 {
-  internal class ConfigurationCollection<T> : ConfigurationElementCollection where T : CollectionConfigElementBase, new()
+  internal class ConfigurationCollection<T> : ConfigurationElementCollection,
+    IEnumerable<T>
+    where T : ConfigurationCollectionElementBase, new()
   {
     protected override ConfigurationElement CreateNewElement()
     { 
@@ -17,7 +20,14 @@ namespace Xtensive.Storage.Configuration
 
     protected override object GetElementKey(ConfigurationElement element)
     {
-      return ((CollectionConfigElementBase) element).GetKey();
+      return ((ConfigurationCollectionElementBase) element).GetKey();
+    }
+
+    public new IEnumerator<T> GetEnumerator()
+    {
+      foreach (object element in (ConfigurationElementCollection)this) {
+        yield return (T) element;
+      };
     }
   }
 }

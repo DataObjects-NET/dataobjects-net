@@ -9,13 +9,15 @@ using Xtensive.Core;
 
 namespace Xtensive.Storage.Configuration
 {
-  internal class BuilderConfigElement : CollectionConfigElementBase
+  internal class BuilderElement : ConfigurationCollectionElementBase
   {
-    [ConfigurationProperty("Type", IsRequired = true, IsKey = true)]
+    private const string TypeElementName = "type";
+
+    [ConfigurationProperty(TypeElementName, IsRequired = true, IsKey = true)]
     public string Type
     {
-      get { return (string)this["Type"]; }
-      set { this["Type"] = value; }
+      get { return (string)this[TypeElementName]; }
+      set { this[TypeElementName] = value; }
     }
 
     public override object GetKey()

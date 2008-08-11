@@ -10,44 +10,48 @@ namespace Xtensive.Storage.Configuration
 {
   internal class NamingConventionElement : ConfigurationElement
   {
-    [ConfigurationProperty("LetterCasePolicy", IsRequired = false, IsKey = false)]
+    private const string LetterCasePolicyElementName = "letterCasePolicy";
+    private const string NamespacePolicyElementName = "namespacePolicy";
+    private const string NamingRulesElementName = "namingRules";
+    private const string NamespaceSynonymsElementName = "namespaceSynonyms";
+
+    [ConfigurationProperty(LetterCasePolicyElementName, IsRequired = false, IsKey = false)]
     public LetterCasePolicy LetterCasePolicy
     {
-      get { return (LetterCasePolicy)this["LetterCasePolicy"]; }
-      set { this["LetterCasePolicy"] = value; }
+      get { return (LetterCasePolicy) this[LetterCasePolicyElementName]; }
+      set { this[LetterCasePolicyElementName] = value; }
     }
 
-    [ConfigurationProperty("NamespacePolicy", IsRequired = false, IsKey = false)]
+    [ConfigurationProperty(NamespacePolicyElementName, IsRequired = false, IsKey = false)]
     public NamespacePolicy NamespacePolicy
     {
-      get { return (NamespacePolicy)this["NamespacePolicy"]; }
-      set { this["NamespacePolicy"] = value; }
+      get { return (NamespacePolicy) this[NamespacePolicyElementName]; }
+      set { this[NamespacePolicyElementName] = value; }
     }
 
-    [ConfigurationProperty("NamingRules", IsRequired = false, IsKey = false)]
+    [ConfigurationProperty(NamingRulesElementName, IsRequired = false, IsKey = false)]
     public NamingRules NamingRules
     {
-      get { return (NamingRules)this["NamingRules"]; }
-      set { this["NamingRules"] = value; }
+      get { return (NamingRules) this[NamingRulesElementName]; }
+      set { this[NamingRulesElementName] = value; }
     }
 
-    [ConfigurationProperty("NamespaceSynonyms", IsRequired = false, IsKey = false)]
+    [ConfigurationProperty(NamespaceSynonymsElementName, IsRequired = false, IsKey = false)]
+    [ConfigurationCollection(typeof (ConfigurationCollection<NamespaceSynonymElement>), AddItemName = "synonym")]
     public ConfigurationCollection<NamespaceSynonymElement> NamespaceSynonyms
     {
-      get { return (ConfigurationCollection<NamespaceSynonymElement>)this["NamespaceSynonyms"]; }
+      get { return (ConfigurationCollection<NamespaceSynonymElement>) this[NamespaceSynonymsElementName]; }
     }
 
-    
-    public static implicit operator NamingConvention(NamingConventionElement namingConventionElement)
+    public NamingConvention AsNamingConvention()
     {
-      var result = new NamingConvention();
-      if (namingConventionElement != null) {
-        result.LetterCasePolicy = namingConventionElement.LetterCasePolicy;
-        result.NamespacePolicy = namingConventionElement.NamespacePolicy;
-        result.NamingRules = namingConventionElement.NamingRules;
-        foreach (NamespaceSynonymElement namespaceSynonym in namingConventionElement.NamespaceSynonyms) {
-          result.NamespaceSynonyms.Add(namespaceSynonym.Namespace, namespaceSynonym.Synonym);
-        }
+      var result = new NamingConvention{
+          LetterCasePolicy = LetterCasePolicy,
+          NamespacePolicy = NamespacePolicy,
+          NamingRules = NamingRules
+        };
+      foreach (NamespaceSynonymElement namespaceSynonym in NamespaceSynonyms) {
+        result.NamespaceSynonyms.Add(namespaceSynonym.Namespace, namespaceSynonym.Synonym);
       }
       return result;
     }

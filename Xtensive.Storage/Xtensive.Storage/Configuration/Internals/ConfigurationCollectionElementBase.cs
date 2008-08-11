@@ -8,7 +8,7 @@ using System.Configuration;
 
 namespace Xtensive.Storage.Configuration
 {
-  internal abstract class CollectionConfigElementBase : ConfigurationElement
+  internal abstract class ConfigurationCollectionElementBase : ConfigurationElement
   {
     public abstract object GetKey();
   }

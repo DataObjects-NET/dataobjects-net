@@ -8,20 +8,23 @@ using System.Configuration;
 
 namespace Xtensive.Storage.Configuration
 {
-  internal class NamespaceSynonymElement: CollectionConfigElementBase
+  internal class NamespaceSynonymElement: ConfigurationCollectionElementBase
   {
-    [ConfigurationProperty("Namespace", IsRequired = true, IsKey = true)]
+    private const string NamespaceElementName = "namespace";
+    private const string SynonymElementName = "synonym";
+
+    [ConfigurationProperty(NamespaceElementName, IsRequired = true, IsKey = true)]
     public string Namespace
     {
-      get { return (string)this["Namespace"]; }
-      set { this["Namespace"] = value; }
+      get { return (string)this[NamespaceElementName]; }
+      set { this[NamespaceElementName] = value; }
     }
 
-    [ConfigurationProperty("Synonym", IsRequired = true, IsKey = false)]
+    [ConfigurationProperty(SynonymElementName, IsRequired = true, IsKey = false)]
     public string Synonym
     {
-      get { return (string)this["Synonym"]; }
-      set { this["Synonym"] = value; }
+      get { return (string)this[SynonymElementName]; }
+      set { this[SynonymElementName] = value; }
     }
 
     public override object GetKey()

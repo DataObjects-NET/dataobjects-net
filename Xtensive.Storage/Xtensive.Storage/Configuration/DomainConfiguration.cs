@@ -6,13 +6,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Configuration;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
-using Xtensive.Core.Reflection;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Configuration.TypeRegistry;
 
@@ -22,36 +19,39 @@ namespace Xtensive.Storage.Configuration
   /// The configuration of the <see cref="Domain"/>.
   /// </summary>
   [Serializable]
-  public class DomainConfiguration : ConfigurationSectionBase
+  public class DomainConfiguration : ConfigurationBase
   {
-    /// <summary>
-    /// Default session pool size.
-    /// </summary>
-    public const int DefaultSessionPoolSize = 64;
-
-    private const string SessionPoolSizeElementName = "SessionPoolSize";
-    private const string ConnectionInfoElementName = "ConnectionInfo";
-    private const string BuildersElementName = "Builders";
-    private const string TypesElementName = "Types";
-    private const string NamingConventionElementName = "NamingConvention";
-
     //    private ServiceRegistry services = new ServiceRegistry();
     private CollectionBase<Type> builders = new CollectionBase<Type>();
+    private UrlInfo connectionInfo;
     private NamingConvention namingConvention;
     private Registry types = new Registry(new TypeProcessor());
+    private int sessionPoolSize = 64;
+    private string name = string.Empty;
 
     /// <summary>
-    /// Gets or sets the size of the session pool. The default value is <see cref="DefaultSessionPoolSize"/>.
+    /// Gets or sets configuration name.
     /// </summary>
-    [ConfigurationProperty(SessionPoolSizeElementName, DefaultValue = DefaultSessionPoolSize, IsRequired = false)]
-    [IntegerValidator(MinValue = 1, MaxValue = int.MaxValue)]
+    public string Name
+    {
+      get { return name; }
+      set
+      {
+        ArgumentValidator.EnsureArgumentNotNull(value, "value");
+        name = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the size of the session pool. The default value is 64.
+    /// </summary>
     public int SessionPoolSize
     {
-      get { return (int)this[SessionPoolSizeElementName]; }
+      get { return sessionPoolSize; }
       set
       {
         this.EnsureNotLocked();
-        this[SessionPoolSizeElementName] = value;
+        sessionPoolSize = value;
       }
     }
 
@@ -80,14 +80,13 @@ namespace Xtensive.Storage.Configuration
     /// <summary>
     /// Gets or sets the connection info.
     /// </summary>
-    [ConfigurationProperty(ConnectionInfoElementName, DefaultValue = null, IsRequired = true)]
     public UrlInfo ConnectionInfo
     {
-      get { return (UrlInfo)this[ConnectionInfoElementName]; }
+      get { return connectionInfo; }
       set
       {
         this.EnsureNotLocked();
-        this[ConnectionInfoElementName] = value;
+        connectionInfo = value;
       }
     }
 
@@ -116,46 +115,25 @@ namespace Xtensive.Storage.Configuration
     {
     }
 
-    protected override ConfigurationSectionBase CreateClone()
+    /// <inheritdoc/>
+    protected override ConfigurationBase CreateClone()
     {
       return new DomainConfiguration();
     }
 
-    protected override void Clone(ConfigurationSectionBase source)
+    /// <inheritdoc/>
+    protected override void Clone(ConfigurationBase source)
     {
       base.Clone(source);
       var configuration = (DomainConfiguration) source;
       builders = new CollectionBase<Type>(configuration.Builders);
-      ConnectionInfo = new UrlInfo(configuration.ConnectionInfo.ToString());
+      connectionInfo = new UrlInfo(configuration.ConnectionInfo.ToString());
       namingConvention = (NamingConvention) configuration.NamingConvention.Clone();
       types = (Registry) configuration.Types.Clone();
-      SessionPoolSize = configuration.SessionPoolSize;
+      sessionPoolSize = configuration.SessionPoolSize;
+      name = configuration.Name;
     }
 
-    protected override void PostDeserialize()
-    {
-      base.PostDeserialize();
-      foreach (BuilderConfigElement builder in (ConfigurationCollection<BuilderConfigElement>)this[BuildersElementName]) {
-        Type type = Type.GetType(builder.Type, true);
-        Builders.Add(type);
-      }
-      foreach (TypesConfigElement registry in (ConfigurationCollection<TypesConfigElement>)this[TypesElementName]) {
-        Assembly assembly = Assembly.Load(registry.Assembly);
-        if (registry.Namespace.IsNullOrEmpty())
-          Types.Register(assembly);
-        else
-          Types.Register(assembly, registry.Namespace);
-      }
-      NamingConventionElement namingConventionElement = this[NamingConventionElementName] as NamingConventionElement;
-      namingConvention = namingConventionElement;
-    }
-
-    private void AddConfigurationElements()
-    {
-      Properties.Add(new ConfigurationProperty(BuildersElementName, typeof(ConfigurationCollection<BuilderConfigElement>)));
-      Properties.Add(new ConfigurationProperty(TypesElementName, typeof(ConfigurationCollection<TypesConfigElement>)));
-      Properties.Add(new ConfigurationProperty(NamingConventionElementName, typeof(NamingConventionElement)));
-    }
 
     // Constructors
 
@@ -168,7 +146,7 @@ namespace Xtensive.Storage.Configuration
       : this()
     {
       ArgumentValidator.EnsureArgumentNotNull(connectionUrl, "connectionUrl");
-      ConnectionInfo = new UrlInfo(connectionUrl);
+      connectionInfo = new UrlInfo(connectionUrl);
     }
 
     /// <summary>
@@ -176,8 +154,31 @@ namespace Xtensive.Storage.Configuration
     /// </summary>
     public DomainConfiguration()
     {
-      AddConfigurationElements();
       namingConvention = new NamingConvention();
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DomainConfiguration"/> class from specified <see cref="DomainElement"/>.
+    /// </summary>
+    /// <param name="element"><see cref="DomainElement"/> to initialize <see cref="DomainConfiguration"/> from.</param>
+    internal DomainConfiguration(DomainElement element)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(element, "element");
+      name = element.Name;
+      connectionInfo = element.ConnectionInfo;
+      sessionPoolSize = element.SessionPoolSize;
+      foreach (BuilderElement builder in element.Builders) {
+        Type type = Type.GetType(builder.Type, true);
+        Builders.Add(type);
+      }
+      foreach (TypeElement registry in element.Types) {
+        Assembly assembly = Assembly.Load(registry.Assembly);
+        if (registry.Namespace.IsNullOrEmpty())
+          Types.Register(assembly);
+        else
+          Types.Register(assembly, registry.Namespace);
+      }
+      namingConvention = element.NamingConvention.AsNamingConvention();
     }
   }
 }
