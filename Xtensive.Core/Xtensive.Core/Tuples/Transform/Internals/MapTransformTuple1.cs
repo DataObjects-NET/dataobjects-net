@@ -76,7 +76,8 @@ namespace Xtensive.Core.Tuples.Transform.Internals
 
     private int GetMappedFieldIndex(int fieldIndex)
     {
-      return TypedTransform.singleSourceMap[fieldIndex];
+      int mappedIndex = TypedTransform.singleSourceMap[fieldIndex];
+      return mappedIndex < 0 ? MapTransform.NoMapping :mappedIndex;
     }
 
 
