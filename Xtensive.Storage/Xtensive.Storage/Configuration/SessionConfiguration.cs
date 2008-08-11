@@ -62,6 +62,40 @@ namespace Xtensive.Storage.Configuration
       AuthParams = configuration.AuthParams;
     }
 
+    /// <inheritdoc/>
+    public override bool Equals(object obj)
+    {
+      if (ReferenceEquals(null, obj))
+        return false;
+      if (ReferenceEquals(this, obj))
+        return true;
+      if (obj.GetType()!=typeof (SessionConfiguration))
+        return false;
+      return Equals((SessionConfiguration) obj);
+    }
+
+    /// <inheritdoc/>
+    public bool Equals(SessionConfiguration obj)
+    {
+      if (ReferenceEquals(null, obj))
+        return false;
+      if (ReferenceEquals(this, obj))
+        return true;
+      return Equals(obj.UserName, UserName)
+        //TODO: && Equals(obj.AuthParams, AuthParams)
+        && obj.CacheSize == CacheSize;
+    }
+
+    /// <inheritdoc/>
+    public override int GetHashCode()
+    {
+      unchecked {
+        int result = (UserName != null ? UserName.GetHashCode() : 0);
+        //todo: result = (result * 397) ^ (AuthParams != null ? AuthParams.GetHashCode() : 0);
+        result = (result * 397) ^ CacheSize;
+        return result;
+      }
+    }
 
     // Constructors
 

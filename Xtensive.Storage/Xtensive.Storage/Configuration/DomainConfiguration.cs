@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
@@ -19,10 +20,11 @@ namespace Xtensive.Storage.Configuration
   /// The configuration of the <see cref="Domain"/>.
   /// </summary>
   [Serializable]
-  public class DomainConfiguration : ConfigurationBase
+  public class DomainConfiguration : ConfigurationBase,
+    IEquatable<DomainConfiguration>
   {
     //    private ServiceRegistry services = new ServiceRegistry();
-    private CollectionBase<Type> builders = new CollectionBase<Type>();
+    private CollectionBaseSlim<Type> builders = new CollectionBaseSlim<Type>();
     private UrlInfo connectionInfo;
     private NamingConvention namingConvention;
     private Registry types = new Registry(new TypeProcessor());
@@ -145,7 +147,49 @@ namespace Xtensive.Storage.Configuration
       session = configuration.Session;
     }
 
+    /// <inheritdoc/>
+    public override bool Equals(object obj)
+    {
+      if (ReferenceEquals(null, obj))
+        return false;
+      if (ReferenceEquals(this, obj))
+        return true;
+      if (obj.GetType() != typeof(DomainConfiguration))
+        return false;
+      return Equals((DomainConfiguration)obj);
+    }
 
+    /// <inheritdoc/>
+    public bool Equals(DomainConfiguration other)
+    {
+      if (ReferenceEquals(null, other))
+        return false;
+      if (ReferenceEquals(this, other))
+        return true;
+      return Equals(other.builders, builders) 
+        && Equals(other.connectionInfo, connectionInfo) 
+        && Equals(other.namingConvention, namingConvention) 
+        && Equals(other.types, types) 
+        && other.sessionPoolSize == sessionPoolSize 
+        && Equals(other.name, name) && Equals(other.session, session);
+    }
+
+    /// <inheritdoc/>
+    public override int GetHashCode()
+    {
+      unchecked {
+        int result = builders.GetHashCodeRecursive();
+        result = (result * 397) ^ (connectionInfo != null ? connectionInfo.GetHashCode() : 0);
+        result = (result * 397) ^ (namingConvention != null ? namingConvention.GetHashCode() : 0);
+        result = (result * 397) ^ types.GetHashCodeRecursive();
+        result = (result * 397) ^ sessionPoolSize;
+        result = (result * 397) ^ (name != null ? name.GetHashCode() : 0);
+        result = (result * 397) ^ (session != null ? session.GetHashCode() : 0);
+        return result;
+      }
+    }
+
+    
     // Constructors
 
     /// <summary>

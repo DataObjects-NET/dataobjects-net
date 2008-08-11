@@ -19,6 +19,20 @@ namespace Xtensive.Core.Collections
   public static class EnumerableExtensions
   {
     /// <summary>
+    /// Calculates hash code of <see cref="IEnumerable"/> by XOR hash codes of it's items.
+    /// </summary>
+    ///<param name="items">Enumerable to calculate hash for.</param>
+    /// <typeparam name="TItem">The type of item.</typeparam>
+    ///<returns>Hash code, calculated by enumerable items. If enumerable is null or empty returns 0.</returns>
+    public static int GetHashCodeRecursive<TItem>(this IEnumerable<TItem> items)
+    {
+      if (items==null) 
+        return 0;
+      return items.Aggregate(0, (previousValue, item) => previousValue ^ item.GetHashCode());
+    }
+
+
+    /// <summary>
     /// Indicates whether enumerable is empty or not 
     /// by attempting to cast it to <see cref="ICollection{T}"/>, <see cref="ICountable{TItem}"/> and <see cref="IQueryable{T}"/>.
     /// May return false negative response.

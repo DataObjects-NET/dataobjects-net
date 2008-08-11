@@ -48,7 +48,7 @@ namespace Xtensive.Storage.Tests.Configuration
       manualConfig.NamingConvention.NamespaceSynonyms.Add("Xtensive.Storage", "XS");
       manualConfig.NamingConvention.NamespaceSynonyms.Add("Xtensive.Messaging", "XM");
       manualConfig.NamingConvention.NamespaceSynonyms.Add("Xtensive.Indexing", "XI");
-      // Assert.AreEqual(domainConfig, manualConfig);
+      Assert.AreEqual(domainConfig, manualConfig);
     }
 
     [Test]
