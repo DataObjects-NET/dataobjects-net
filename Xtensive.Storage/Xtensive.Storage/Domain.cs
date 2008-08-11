@@ -75,7 +75,7 @@ namespace Xtensive.Storage
     /// <returns>New <see cref="SessionScope"/> object.</returns>
     public SessionScope OpenSession()
     {
-      return OpenSession(SessionConfiguration.Default);
+      return OpenSession(Configuration.Session);
     }
 
     /// <summary>

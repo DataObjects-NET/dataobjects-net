@@ -197,7 +197,7 @@ namespace Xtensive.Storage
         return;
       if (Data.Tuple.IsAvailable(field.MappingInfo.Offset))
         return;
-      Session.DataCache.Update(Key, Fetcher.Fetch(Key, field));
+      Fetcher.Fetch(Key, field);
     }
 
     /// <exception cref="InvalidOperationException">[Suppresses warning]</exception>

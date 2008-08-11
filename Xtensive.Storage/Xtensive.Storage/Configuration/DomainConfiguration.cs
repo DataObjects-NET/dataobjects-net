@@ -210,6 +210,7 @@ namespace Xtensive.Storage.Configuration
     public DomainConfiguration()
     {
       namingConvention = new NamingConvention();
+      session = new SessionConfiguration();
     }
 
     /// <summary>

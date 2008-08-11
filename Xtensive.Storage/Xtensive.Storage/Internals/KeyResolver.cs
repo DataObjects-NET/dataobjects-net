@@ -24,22 +24,21 @@ namespace Xtensive.Storage.Internals
       // Probing to get already resolved and cached key
       Key resolvedKey = session.Domain.KeyManager.GetCached(key);
 
-      // Key is not fully resolved yet (Type is unknown), so 1 fetch request is required
+        // Key is not fully resolved yet (Type is unknown), so 1 fetch request is required
       if (resolvedKey.Type==null) {
         FieldInfo field = key.Hierarchy.Root.Fields[NameBuilder.TypeIdFieldName];
-        Tuple tuple = Fetcher.Fetch(key, field);
+        Fetcher.Fetch(key, field);
+
+        // Resolving key again. If it was successfully fetched then it should contain Type
+        resolvedKey = session.Domain.KeyManager.GetCached(key);
 
         // Key is not found in storage
-        if (tuple==null)
+        if (resolvedKey.Type==null)
           return null;
-
-        resolvedKey = session.Domain.KeyManager.Get(key.Hierarchy, tuple);
-        data = session.DataCache.Create(resolvedKey, tuple, PersistenceState.Persisted);
       }
-      else
-        // Creating empty Entity
-        data = session.DataCache.Create(key, PersistenceState.Persisted);
 
+      // Type is known so we can create Entity instance.
+      data = session.DataCache.Create(resolvedKey, PersistenceState.Persisted);
       return GetEntity(data);
     }
 

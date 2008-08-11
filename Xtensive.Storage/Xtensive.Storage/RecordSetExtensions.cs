@@ -34,13 +34,28 @@ namespace Xtensive.Storage
         Entity entity = null;
         foreach (ColumnGroupMapping columnGroupMapping in mapping.ColumnGroupMappings) {
           TypeMapping typeMapping = GetTypeMapping(context, columnGroupMapping, tuple);
-          Tuple result = typeMapping.Transform.Apply(TupleTransformType.TransformedTuple, tuple);
-          Key key = context.Domain.KeyManager.Get(typeMapping.Type, result);
-          context.Session.DataCache.Update(key, result);
+          Tuple transformedTuple = typeMapping.Transform.Apply(TupleTransformType.TransformedTuple, tuple);
+          Key key = context.Domain.KeyManager.Get(typeMapping.Type, transformedTuple);
+          context.Session.DataCache.Update(key, transformedTuple);
           if (entity == null && type.IsAssignableFrom(key.Type.UnderlyingType)) {
             entity = key.Resolve();
             yield return entity;
           }
+        }
+      }
+    }
+
+    internal static void Process(this RecordSet source)
+    {
+      RecordSetHeaderParsingContext context = new RecordSetHeaderParsingContext(Session.Current, source.Header);
+      RecordSetMapping mapping = GetRecordSetMapping(context);
+
+      foreach (Tuple tuple in source) {
+        foreach (ColumnGroupMapping columnGroupMapping in mapping.ColumnGroupMappings) {
+          TypeMapping typeMapping = GetTypeMapping(context, columnGroupMapping, tuple);
+          Tuple transformedTuple = typeMapping.Transform.Apply(TupleTransformType.TransformedTuple, tuple);
+          Key key = context.Domain.KeyManager.Get(typeMapping.Type, transformedTuple);
+          context.Session.DataCache.Update(key, transformedTuple);
         }
       }
     }
