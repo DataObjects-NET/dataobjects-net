@@ -6,19 +6,23 @@
 
 using System.Collections.Generic;
 using Xtensive.Core.Collections;
+using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Internals
 {
   internal class RecordSetMapping
   {
-    public IList<HierarchyMapping> HierarchyMappings { get; private set; }
+    public RecordSetHeader Header { get; private set;}
+
+    public IList<ColumnGroupMapping> ColumnGroupMappings { get; private set; }
 
 
     // Constructors
 
-    public RecordSetMapping(IList<HierarchyMapping> hierarchyMappings)
+    public RecordSetMapping(RecordSetHeader header, IList<ColumnGroupMapping> hierarchyMappings)
     {
-      HierarchyMappings = new ReadOnlyList<HierarchyMapping>(hierarchyMappings);
+      Header = header;
+      ColumnGroupMappings = new ReadOnlyList<ColumnGroupMapping>(hierarchyMappings);
     }
   }
 }

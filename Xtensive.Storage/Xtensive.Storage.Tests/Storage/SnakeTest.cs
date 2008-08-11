@@ -220,9 +220,6 @@ namespace Xtensive.Storage.Tests.Storage
         Tuple toName = Tuple.Create("Kaa900");
         TypeInfo snakeType = session.Domain.Model.Types[typeof(Snake)];
         RecordSet rsSnakePrimary = session.Select(snakeType.Indexes.GetIndex("ID"));
-        RecordSet a = rsSnakePrimary.Alias("a");
-        RecordSet js = rsSnakePrimary.Join(a, new Pair<int>(rsSnakePrimary.IndexOf("ID"), a.IndexOf("a.ID")));
-        js.Parse();
 
         using (new Measurement("Query performance"))
         {

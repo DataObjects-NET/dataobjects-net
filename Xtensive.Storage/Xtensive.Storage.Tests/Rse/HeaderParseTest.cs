@@ -4,9 +4,11 @@
 // Created by: Dmitri Maximov
 // Created:    2008.08.07
 
+using System.Collections.Generic;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core;
+using Xtensive.Core.Tuples;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
@@ -40,7 +42,9 @@ namespace Xtensive.Storage.Tests.Rse
 
         // Select *
         RecordSet rsMain = Session.Current.Handler.Select(ii);
-        rsMain.Parse();
+        foreach (Book book in rsMain.AsEntities<Book>()) {
+          ;
+        }
         data = Session.Current.DataCache[key];
         Assert.IsNotNull(data);
         Assert.IsTrue(data.Tuple.IsAvailable(2));
@@ -49,7 +53,9 @@ namespace Xtensive.Storage.Tests.Rse
 
         // Select Id, TypeId, Title
         RecordSet rsTitle = rsMain.Select(0, 1, 2);
-        rsTitle.Parse();
+        foreach (Book book in rsTitle.AsEntities<Book>()) {
+          ;
+        }
         data = Session.Current.DataCache[key];
         Assert.IsNotNull(data);
         Assert.IsTrue(data.Tuple.IsAvailable(2));
@@ -58,7 +64,9 @@ namespace Xtensive.Storage.Tests.Rse
 
         // Select Id, TypeId, Text
         RecordSet rsText = rsMain.Select(0, 1, 3);
-        rsText.Parse();
+        foreach (Book book in rsText.AsEntities<Book>()) {
+          ;
+        }
         data = Session.Current.DataCache[key];
         Assert.IsNotNull(data);
         Assert.IsFalse(data.Tuple.IsAvailable(2));
@@ -67,7 +75,9 @@ namespace Xtensive.Storage.Tests.Rse
 
         // Select a.Id, a.TypeId, a.Title, b.Id, b.TypeId, b.Text
         RecordSet rsJoin = rsTitle.Alias("a").Join(rsText.Alias("b"), new Pair<int>(0, 0), new Pair<int>(1,1));
-        rsJoin.Parse();
+        foreach (Book book in rsJoin.AsEntities<Book>()) {
+          ;
+        }
         data = Session.Current.DataCache[key];
         Assert.IsNotNull(data);
         Assert.IsTrue(data.Tuple.IsAvailable(2));

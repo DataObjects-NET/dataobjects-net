@@ -4,35 +4,33 @@
 // Created by: Dmitri Maximov
 // Created:    2008.08.08
 
-using System;
 using System.Collections.Generic;
 using Xtensive.Core.Collections;
-using Xtensive.Core.Tuples;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Internals
 {
-  internal class HierarchyMapping
+  internal class ColumnGroupMapping
   {
+    private ThreadSafeDictionary<TypeInfo, TypeMapping> typeMappings;
+
     public int TypeIdIndex { get; private set; }
 
     public IDictionary<ColumnInfo, Column> ColumnInfoMapping { get; private set; }
 
-    public ThreadSafeDictionary<TypeInfo, TypeMapping> TypeMappings { get; private set; }
-
-    public TypeMapping GetTypeMapping(RecordSetHeaderParsingContext context, Tuple tuple)
+    public ThreadSafeDictionary<TypeInfo, TypeMapping> TypeMappings
     {
-      throw new NotImplementedException();
+      get { return typeMappings; }
     }
 
 
     // Constructors
 
-    public HierarchyMapping(int typeIdIndex, Dictionary<ColumnInfo, Column> columnMapping)
+    public ColumnGroupMapping(int typeIdIndex, Dictionary<ColumnInfo, Column> columnMapping)
     {
       TypeIdIndex = typeIdIndex;
-      TypeMappings = new ThreadSafeDictionary<TypeInfo, TypeMapping>();
+      typeMappings = ThreadSafeDictionary<TypeInfo, TypeMapping>.Create(this);
       ColumnInfoMapping = new ReadOnlyDictionary<ColumnInfo, Column>(columnMapping);
     }
   }

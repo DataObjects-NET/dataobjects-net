@@ -4,6 +4,7 @@
 // Created by: Alexey Gamzov
 // Created:    2008.06.26
 
+using System;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core.Tuples;
@@ -31,6 +32,23 @@ namespace Xtensive.Storage.Tests.Storage
 {
   public class LazyLoadTest : AutoBuildTest
   {
+    private const string TEXT = "Text";
+    private const string TITLE = "Title";
+    private Key key;
+
+    public override void TestFixtureSetUp()
+    {
+      base.TestFixtureSetUp();
+
+      // Creating a book
+      using (Domain.OpenSession()) {
+        Book b = new Book();
+        key = b.Key;
+        b.Title = TITLE;
+        b.Text = TEXT;
+      }
+    }
+
     protected override DomainConfiguration BuildConfiguration()
     {
       DomainConfiguration config = base.BuildConfiguration();
@@ -39,22 +57,42 @@ namespace Xtensive.Storage.Tests.Storage
     }
 
     [Test]
-    public void MainTest()
+    public void RegularFieldTest()
     {
-      Key key;
-      string text = "Text";
-      using (Domain.OpenSession()) {
-        Book b = new Book();
-        key = b.Key;
-        b.Title = "Title";
-        b.Text = text;
-      }
       using (Domain.OpenSession()) {
         Book b = key.Resolve<Book>();
         Tuple tuple = b.Tuple;
+
+        // Assert that fields are not loaded
+        Assert.IsFalse(tuple.IsAvailable(2));
+        Assert.IsFalse(tuple.IsAvailable(3));
+
+        // This should load all not lazy load fields.
+        Assert.AreEqual(TITLE, b.Title);
         Assert.IsTrue(tuple.IsAvailable(2));
         Assert.IsFalse(tuple.IsAvailable(3));
-        Assert.AreEqual(text, b.Text);
+
+        // Fetching lazy load field
+        Assert.AreEqual(TEXT, b.Text);
+      }
+    }
+
+    [Test]
+    public void LazyLoadFieldTest()
+    {
+      using (Domain.OpenSession()) {
+        Book b = key.Resolve<Book>();
+        Tuple tuple = b.Tuple;
+
+        // Assert that fields are not loaded
+        Assert.IsFalse(tuple.IsAvailable(2));
+        Assert.IsFalse(tuple.IsAvailable(3));
+
+        // This should load all not lazy load fields + selected lazy load field.
+        Assert.AreEqual(TEXT, b.Text);
+        Assert.IsTrue(tuple.IsAvailable(2));
+        Assert.IsTrue(tuple.IsAvailable(3));
+        Assert.AreEqual(TEXT, b.Text);
       }
     }
   }
