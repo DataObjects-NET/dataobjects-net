@@ -68,10 +68,22 @@ namespace Xtensive.Indexing.BloomFilter
     }
 
     /// <inheritdoc/>
-    public abstract void AddValue(T value);
+    public void AddValue(T value)
+    {
+      AddHashes(Hasher.GetHashes(value, HashCount));
+    }
 
     /// <inheritdoc/>
-    public abstract bool HasValue(T value);
+    public bool HasValue(T value)
+    {
+      return HasHashes(Hasher.GetHashes(value, HashCount));
+    }
+
+    /// <inheritdoc/>
+    public abstract void AddHashes(long[] hashes);
+    
+    /// <inheritdoc/>
+    public abstract bool HasHashes(long[] hashes);
 
     /// <inheritdoc/>
     public abstract void Clear();

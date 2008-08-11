@@ -26,9 +26,8 @@ namespace Xtensive.Indexing.BloomFilter
     }
 
     /// <inheritdoc/>
-    public override void AddValue(T value)
+    public override void AddHashes(long[] hashes)
     {
-      long[] hashes = Hasher.GetHashes(value, HashCount);
       for (int i = 0; i < hashes.Length; i++) {
         long bitIndex = Math.Abs(hashes[i]%Size);
         long byteIndex = bitIndex/8;
@@ -45,9 +44,8 @@ namespace Xtensive.Indexing.BloomFilter
     }
 
     /// <inheritdoc/>
-    public override bool HasValue(T value)
+    public override bool HasHashes(long[] hashes)
     {
-      long[] hashes = Hasher.GetHashes(value, HashCount);
       for (int i = 0; i < hashes.Length; i++) {
         long bitIndex = Math.Abs(hashes[i]%Size);
         long byteIndex = bitIndex/8;
