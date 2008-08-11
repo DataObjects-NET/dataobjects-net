@@ -9,7 +9,7 @@ using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Rse.Compilation
 {
-  internal class IndexingProviderCompiler : TypeCompiler<IndexingProvider>
+  internal sealed class IndexingProviderCompiler : TypeCompiler<IndexingProvider>
   {
     protected override ExecutableProvider Compile(IndexingProvider provider)
     {

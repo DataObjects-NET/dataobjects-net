@@ -9,7 +9,7 @@ using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Rse.Compilation
 {
-  internal class SortProviderCompiler : TypeCompiler<SortProvider>
+  internal sealed class SortProviderCompiler : TypeCompiler<SortProvider>
   {
     protected override ExecutableProvider Compile(SortProvider provider)
     {

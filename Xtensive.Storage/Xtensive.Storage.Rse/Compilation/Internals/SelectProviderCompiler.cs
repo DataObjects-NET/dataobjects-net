@@ -9,7 +9,7 @@ using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Rse.Compilation
 {
-  internal class SelectProviderCompiler : TypeCompiler<SelectProvider>
+  internal sealed class SelectProviderCompiler : TypeCompiler<SelectProvider>
   {
     protected override ExecutableProvider Compile(SelectProvider provider)
     {

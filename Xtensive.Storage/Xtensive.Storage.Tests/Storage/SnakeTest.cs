@@ -236,7 +236,9 @@ namespace Xtensive.Storage.Tests.Storage
           RecordSet join = range.Join(rsSnakeName, new Pair<int>(rsSnakePrimary.IndexOf("ID"), rsSnakeName.IndexOf("NameIndex.ID")));
           RecordSet where = join.Where(tuple => tuple.GetValue<int>(rsSnakePrimary.IndexOf("Length")) >= 100);
           RecordSet orderBy = where.OrderBy(OrderBy.Desc(rsSnakePrimary.IndexOf("Name")));
-          var snakesRse = orderBy.AsEntities<Snake>();
+          RecordSet skip = orderBy.Skip(5);
+          RecordSet take = skip.Take(50);
+          var snakesRse = take.AsEntities<Snake>();
 
           /*// debug
           long rsSnakePrimaryCount = rsSnakePrimary.Provider.GetService<ICountable>(true).Count;
@@ -244,7 +246,7 @@ namespace Xtensive.Storage.Tests.Storage
           long whereCount = where.Provider.Count();
           long orderByCount = orderBy.Provider.Count();*/
 
-          Assert.AreEqual(20, snakesRse.Count());
+          Assert.AreEqual(15, snakesRse.Count());
         }
 
 

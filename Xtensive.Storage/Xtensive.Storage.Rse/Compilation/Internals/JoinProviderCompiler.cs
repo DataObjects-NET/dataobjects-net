@@ -10,7 +10,7 @@ using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Rse.Compilation
 {
-  internal class JoinProviderCompiler : TypeCompiler<JoinProvider>
+  internal sealed class JoinProviderCompiler : TypeCompiler<JoinProvider>
   {
     protected override ExecutableProvider Compile(JoinProvider provider)
     {

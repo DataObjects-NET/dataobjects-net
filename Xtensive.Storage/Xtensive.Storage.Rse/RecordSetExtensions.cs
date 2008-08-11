@@ -100,13 +100,12 @@ namespace Xtensive.Storage.Rse
 
     public static RecordSet Skip(this RecordSet recordSet, int count)
     {
-      return new RawProvider(recordSet.Header, ((IEnumerable<Tuple>)recordSet).Skip(count).ToArray()).Result;
+      return new SkipProvider(recordSet.Provider, count).Result;
     }
-
 
     public static RecordSet Take(this RecordSet recordSet, int count)
     {
-      return new RawProvider(recordSet.Header, ((IEnumerable<Tuple>)recordSet).Take(count).ToArray()).Result;
+      return new TakeProvider(recordSet.Provider, count).Result;
     }
 
     public static int IndexOf(this RecordSet recordSet, string columnName)
