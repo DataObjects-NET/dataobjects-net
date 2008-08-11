@@ -36,13 +36,6 @@ namespace Xtensive.Indexing.Providers
     private readonly ReaderWriterLockSlim pageCacheLock = new ReaderWriterLockSlim();
     private bool descriptorPageIdentifierAssigned;
     private bool rootPageIdentifierAssigned;
-    private readonly StreamSerializationHelper<TKey, TItem> serializeHelper;
-
-    /// <inheritdoc/>
-    public override ISerializationHelper<TKey, TItem> SerializationHelper
-    {
-      get { return serializeHelper; }
-    }
 
     /// <inheritdoc/>
     public override IndexFeatures Features
@@ -53,13 +46,74 @@ namespace Xtensive.Indexing.Providers
     /// <summary>
     /// Gets the stream provider.
     /// </summary>
-    /// <value>The stream provider.</value>
     public StreamProvider StreamProvider
     {
       get { return streamProvider; }
     }
 
-    #region PageCache access methods
+    /// <summary>
+    /// Gets the serializer user by this page provider.
+    /// </summary>
+    public IValueSerializer Serializer
+    {
+      get { return serializer; }
+    }
+
+    /// <summary>
+    /// Gets the offset serializer user by this page provider.
+    /// </summary>
+    public ValueSerializer<long> OffsetSerializer
+    {
+      get { return offsetSerializer; }
+    }
+
+    /// <inheritdoc/>
+    public override void AssignIdentifier(Page<TKey, TItem> page)
+    {
+      if (page is DescriptorPage<TKey, TItem>) {
+        if (descriptorPageIdentifierAssigned)
+          throw Exceptions.InternalError("Second DescriptorPage has been created.", Log.Instance);
+        page.Identifier = StreamPageRef<TKey, TItem>.Create(StreamPageRefType.Descriptor);
+        descriptorPageIdentifierAssigned = true;
+      }
+      else if (!rootPageIdentifierAssigned && (page is LeafPage<TKey, TItem>)) {
+        page.Identifier = StreamPageRef<TKey, TItem>.Create((long) 0);
+        rootPageIdentifierAssigned = true;
+      }
+      else
+        page.Identifier = StreamPageRef<TKey, TItem>.Create(StreamPageRefType.Undefined);
+    }
+
+    /// <inheritdoc/>
+    public override Page<TKey, TItem> Resolve(IPageRef identifier)
+    {
+      if (identifier==null)
+        return null;
+      Page<TKey, TItem> page = identifier as Page<TKey, TItem>;
+      if (page!=null) // Cached page
+        return page;
+      StreamPageRef<TKey, TItem> streamPageRef = (StreamPageRef<TKey, TItem>) identifier;
+      if (!streamPageRef.IsDefined)
+        throw Exceptions.InternalError(String.Format("Undefined {0}.", streamPageRef), Log.Instance);
+      page = GetFromCache(identifier);
+      if (page==null) {
+        try {
+          page = Deserialize(streamPageRef);
+          if (page==null)
+            throw Exceptions.InternalError(String.Format("StreamPageRef {0} points to null page.", streamPageRef), Log.Instance);
+          page.Provider = this;
+          page.Identifier = identifier;
+          pageCacheLock.ExecuteWriter(delegate { pageCache.Add(page); });
+        }
+        catch (Exception e) {
+          Log.Error(Strings.ExCantDeserializeIndexPage, streamPageRef, e);
+          throw;
+        }
+      }
+      return page;
+    }
+
+    #region Page caching methods: AddToCache, RemoveFromCache, GetFromCache
 
     /// <inheritdoc/>
     public override void AddToCache(Page<TKey, TItem> page)
@@ -115,52 +169,6 @@ namespace Xtensive.Indexing.Providers
     #endregion
 
     /// <inheritdoc/>
-    public override void AssignIdentifier(Page<TKey, TItem> page)
-    {
-      if (page is DescriptorPage<TKey, TItem>) {
-        if (descriptorPageIdentifierAssigned)
-          throw Exceptions.InternalError("Second DescriptorPage has been created.", Log.Instance);
-        page.Identifier = StreamPageRef<TKey, TItem>.Create(StreamPageRefType.Descriptor);
-        descriptorPageIdentifierAssigned = true;
-      }
-      else if (!rootPageIdentifierAssigned && (page is LeafPage<TKey, TItem>)) {
-        page.Identifier = StreamPageRef<TKey, TItem>.Create((long) 0);
-        rootPageIdentifierAssigned = true;
-      }
-      else
-        page.Identifier = StreamPageRef<TKey, TItem>.Create(StreamPageRefType.Undefined);
-    }
-
-    /// <inheritdoc/>
-    public override Page<TKey, TItem> Resolve(IPageRef identifier)
-    {
-      if (identifier==null)
-        return null;
-      Page<TKey, TItem> page = identifier as Page<TKey, TItem>;
-      if (page!=null) // Cached page
-        return page;
-      StreamPageRef<TKey, TItem> streamPageRef = (StreamPageRef<TKey, TItem>) identifier;
-      if (!streamPageRef.IsDefined)
-        throw Exceptions.InternalError(String.Format("Undefined {0}.", streamPageRef), Log.Instance);
-      page = GetFromCache(identifier);
-      if (page==null) {
-        try {
-          page = Deserialize(streamPageRef);
-          if (page==null)
-            throw Exceptions.InternalError(String.Format("StreamPageRef {0} points to null page.", streamPageRef), Log.Instance);
-          page.Provider = this;
-          page.Identifier = identifier;
-          pageCacheLock.ExecuteWriter(delegate { pageCache.Add(page); });
-        }
-        catch (Exception e) {
-          Log.Error(Strings.ExCantDeserializeIndexPage, streamPageRef, e);
-          throw;
-        }
-      }
-      return page;
-    }
-
-    /// <inheritdoc/>
     public override void Flush()
     {
       throw new NotSupportedException(Strings.ExIndexPageProviderDoesntSupportWrite);
@@ -171,6 +179,25 @@ namespace Xtensive.Indexing.Providers
     {
       throw new NotSupportedException(Strings.ExIndexPageProviderDoesntSupportWrite);
     }
+
+    /// <inheritdoc/>
+    public override IIndexSerializer<TKey, TItem> CreateSerializer()
+    {
+      return new StreamSerializer<TKey, TItem>(this);
+    }
+
+    /// <inheritdoc/>
+    public override void Initialize()
+    {
+      base.Initialize();
+      if (streamProvider.FileExists) {
+        DescriptorPage<TKey, TItem> descriptorPage = DeserializeDescriptorPage();
+        descriptorPage.Provider = this;
+        index.DescriptorPage = descriptorPage;
+      }
+    }
+
+    #region Private \ internal methods
 
     private Page<TKey, TItem> Deserialize(StreamPageRef<TKey, TItem> pageRef)
     {
@@ -200,7 +227,7 @@ namespace Xtensive.Indexing.Providers
       Stream stream = streamProvider.GetStream();
       try {
         // This is DescriptorPage, so its actual offset is the last serialized number in the stream
-        stream.Seek(-StreamSerializationHelper<TKey, TItem>.OffsetLength, SeekOrigin.End);
+        stream.Seek(-StreamSerializer<TKey, TItem>.OffsetLength, SeekOrigin.End);
         long offset = offsetSerializer.Deserialize(stream);
         stream.Seek(offset, SeekOrigin.Begin);
         DescriptorPage<TKey, TItem> descriptorPage = (DescriptorPage<TKey, TItem>) serializer.Deserialize(stream);
@@ -215,25 +242,7 @@ namespace Xtensive.Indexing.Providers
       }
     }
 
-    /// <inheritdoc/>
-    public override void Initialize()
-    {
-      if (IsInitialized)
-        throw new InvalidOperationException(Strings.ExIndexIsAlreadyInitialized);
-      if (streamProvider.FileExists) {
-        DescriptorPage<TKey, TItem> descriptorPage = DeserializeDescriptorPage();
-        descriptorPage.Provider = this;
-        index.DescriptorPage = descriptorPage;
-      }
-      BaseInitialize();
-    }
-
-    /// <inheritdoc/>
-    public override void Dispose()
-    {
-      streamProvider.DisposeSafely();
-      streamProvider = null;
-    }
+    #endregion
 
 
     // Constructors
@@ -250,7 +259,6 @@ namespace Xtensive.Indexing.Providers
       streamProvider = new StreamProvider(fileName);
       serializer = ValueSerializationScope.CurrentSerializer; // BinarySerializer by default
       offsetSerializer = ValueSerializer<long>.Default;
-      serializeHelper = new StreamSerializationHelper<TKey, TItem>(serializer, offsetSerializer);
       if (cacheSize > 0) {
         pageCache =
           new WeakCache<IPageRef, Page<TKey, TItem>>(
@@ -258,6 +266,13 @@ namespace Xtensive.Indexing.Providers
             value => value.Identifier,
             value => 1);
       }
+    }
+
+    /// <inheritdoc/>
+    public override void Dispose()
+    {
+      streamProvider.DisposeSafely();
+      streamProvider = null;
     }
   }
 }

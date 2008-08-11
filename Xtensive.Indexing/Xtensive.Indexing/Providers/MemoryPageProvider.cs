@@ -4,6 +4,7 @@
 // Created by: Nick Svetlov
 // Created:    2007.08.28
 
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Indexing.Implementation;
 using Xtensive.Indexing.Implementation.Interfaces;
 using Xtensive.Indexing.Providers.Internals;
@@ -18,14 +19,6 @@ namespace Xtensive.Indexing.Providers
   /// <typeparam name="TItem">Node type.</typeparam>
   public sealed class MemoryPageProvider<TKey, TItem> : IndexPageProviderBase<TKey, TItem>
   {
-    private MemorySerializationHelper<TKey, TItem> serializeHelper;
-
-    /// <inheritdoc/>
-    public override ISerializationHelper<TKey, TItem> SerializationHelper
-    {
-      get { return serializeHelper; }
-    }
-
     /// <inheritdoc/>
     public override void AssignIdentifier(Page<TKey, TItem> page)
     {
@@ -38,7 +31,7 @@ namespace Xtensive.Indexing.Providers
       return (Page<TKey, TItem>) pageRef;
     }
 
-    #region PageCache access methods. All are empty.
+    #region Caching methods. All are empty.
 
     /// <inheritdoc/>
     public override void AddToCache(Page<TKey, TItem> page)
@@ -64,15 +57,20 @@ namespace Xtensive.Indexing.Providers
       // Nothing has to be done here
     }
 
+    /// <inheritdoc/>
+    public override IIndexSerializer<TKey, TItem> CreateSerializer()
+    {
+      return new MemorySerilizer<TKey, TItem>(this);
+    }
+
 
     // Constructors
 
     /// <summary>
-    /// Creates new instance of <see cref="MemoryPageProvider{TKey,TValue}"/>.
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     public MemoryPageProvider()
     {
-      serializeHelper = new MemorySerializationHelper<TKey, TItem>();
     }
   }
 }

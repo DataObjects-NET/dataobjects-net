@@ -1,0 +1,55 @@
+// Copyright (C) 2008 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Vakhtina Elena
+// Created:    2008.07.17
+
+using Xtensive.Core;
+using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Indexing.Implementation;
+using Xtensive.Indexing.Implementation.Interfaces;
+
+namespace Xtensive.Indexing.Providers.Internals
+{
+  /// <inheritdoc/>
+  public abstract class IndexSerializerBase<TKey,TItem> : IIndexSerializer<TKey, TItem>
+  {
+    /// <summary>
+    /// Gets the provider this serializer belongs to.
+    /// </summary>
+    public IIndexPageProvider<TKey,TItem> Provider { get; private set; }
+
+    /// <inheritdoc/>
+    public abstract void SerializeLeafPage(LeafPage<TKey, TItem> page);
+
+    /// <inheritdoc/>
+    public abstract void SerializeInnerPage(InnerPage<TKey, TItem> page);
+
+    /// <inheritdoc/>
+    public abstract void SerializeDescriptorPage(DescriptorPage<TKey, TItem> page);
+
+    /// <inheritdoc/>
+    public abstract void SerializeBloomFilter(DescriptorPage<TKey, TItem> page);
+
+    /// <inheritdoc/>
+    public abstract void SerializeEof(DescriptorPage<TKey, TItem> page);
+
+
+    // Constructors
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="provider">The <see cref="Provider"/> property value.</param>
+    protected IndexSerializerBase(IIndexPageProvider<TKey, TItem> provider)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(provider, "provider");
+      Provider = provider;
+    }
+
+    // IDisposable methods
+
+    /// <inheritdoc/>
+    public abstract void Dispose();
+  }
+}

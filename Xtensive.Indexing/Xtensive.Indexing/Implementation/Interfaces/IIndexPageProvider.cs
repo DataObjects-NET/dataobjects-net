@@ -43,40 +43,7 @@ namespace Xtensive.Indexing.Implementation
     /// <param name="page">Page to generate the identifier for.</param>
     void AssignIdentifier(Page<TKey, TItem> page);
 
-    /// <summary>
-    /// Flushes all cached page changes.
-    /// </summary>
-    void Flush();
-
-    /// <summary>
-    /// Clears the index.
-    /// </summary>
-    void Clear();
-
-    /// <summary>
-    /// Serializes specified <paramref name="source"/> into the index.
-    /// </summary>
-    /// <param name="source">An enumerable enumerating key-value pairs to serialize. 
-    /// To use <see cref="BloomFilter{T}"/>, enumerable must be <see cref="ICountable"/> or <see cref="ICollection"/> 
-    /// or <see cref="ICollection{T}"/> in order to provide <see langword="Count"/> property.</param>
-    void Serialize(IEnumerable<TItem> source);
-
-    /// <summary>
-    /// Gets the <see cref="SerializationHelper"/> for index serialization.
-    /// </summary>
-    ISerializationHelper<TKey, TItem> SerializationHelper { get; }
-
-    /// <summary>
-    /// Initializes the index.
-    /// </summary>
-    void Initialize();
-
-    /// <summary>
-    /// Gets the bloom filter for specified <paramref name="source"/>.
-    /// </summary>
-    /// <param name="source">The source.</param>
-    /// <returns>The bloom filter.</returns>
-    IBloomFilter<TKey> GetBloomFilter(IEnumerable<TItem> source);
+    #region Page caching methods: AddToCache, RemoveFromCache, GetFromCache
 
     /// <summary>
     /// Adds the specified page to cache.
@@ -97,5 +64,34 @@ namespace Xtensive.Indexing.Implementation
     /// <returns></returns>
     Page<TKey, TItem> GetFromCache(IPageRef pageRef);
 
+    #endregion
+    
+    /// <summary>
+    /// Flushes all cached page changes.
+    /// </summary>
+    void Flush();
+
+    /// <summary>
+    /// Clears the index.
+    /// </summary>
+    void Clear();
+
+    /// <summary>
+    /// Creates the serializer for the specified page provider.
+    /// </summary>
+    /// <returns>Newly created serializer.</returns>
+    IIndexSerializer<TKey, TItem> CreateSerializer();
+
+    /// <summary>
+    /// Gets the bloom filter for specified <paramref name="source"/>.
+    /// </summary>
+    /// <param name="source">The source.</param>
+    /// <returns>The bloom filter.</returns>
+    IBloomFilter<TKey> GetBloomFilter(IEnumerable<TItem> source);
+
+    /// <summary>
+    /// Initializes the index.
+    /// </summary>
+    void Initialize();
   }
 }

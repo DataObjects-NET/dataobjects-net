@@ -55,6 +55,14 @@ namespace Xtensive.Indexing.Providers
     // Abstract methods
 
     /// <inheritdoc/>
+    public abstract void AssignIdentifier(Page<TKey, TItem> page);
+
+    /// <inheritdoc/>
+    public abstract Page<TKey, TItem> Resolve(IPageRef identifier);
+
+    #region Page caching methods: AddToCache, RemoveFromCache, GetFromCache
+
+    /// <inheritdoc/>
     public abstract void AddToCache(Page<TKey, TItem> page);
 
     /// <inheritdoc/>
@@ -63,14 +71,7 @@ namespace Xtensive.Indexing.Providers
     /// <inheritdoc/>
     public abstract Page<TKey, TItem> GetFromCache(IPageRef pageRef);
 
-    /// <inheritdoc/>
-    public abstract ISerializationHelper<TKey, TItem> SerializationHelper { get; }
-
-    /// <inheritdoc/>
-    public abstract void AssignIdentifier(Page<TKey, TItem> page);
-
-    /// <inheritdoc/>
-    public abstract Page<TKey, TItem> Resolve(IPageRef identifier);
+    #endregion
 
     /// <inheritdoc/>
     public abstract void Flush();
@@ -82,29 +83,38 @@ namespace Xtensive.Indexing.Providers
     }
 
     /// <inheritdoc/>
-    public virtual void Serialize(IEnumerable<TItem> source)
-    {
-      if (index==null)
-        throw new InvalidOperationException(Strings.ExIndexPageProviderIsUnboundToTheIndex);
-      if (isInitialized)
-        throw new InvalidOperationException(Strings.ExIndexIsAlreadyInitialized);
-      if ((Features & IndexFeatures.Serialize)==0)
-        throw new InvalidOperationException(Strings.ExIndexPageProviderDoesntSupportSerialize);
-      Initialize();
+    public abstract IIndexSerializer<TKey, TItem> CreateSerializer();
 
-      foreach (TItem item in source)
-        index.Add(item);
+    /// <inheritdoc/>
+    public virtual IBloomFilter<TKey> GetBloomFilter(IEnumerable<TItem> source)
+    {
+      // TODO: -> MemoryPageProvider
+      bool useBloomFilter = index.DescriptorPage.Configuration.UseBloomFilter;
+      double bloomFilterBitsPerValue = index.DescriptorPage.Configuration.BloomFilterBitsPerValue;
+      if (useBloomFilter) {
+        // Try to get item's count
+        long count;
+        if (source is ICountable) {
+          count = ((ICountable) source).Count;
+        }
+        else if (source is ICollection) {
+          count = ((ICollection) source).Count;
+        }
+        else if (source is ICollection<TItem>) {
+          count = ((ICollection<TItem>) source).Count;
+        }
+        else {
+          throw new ArgumentException(Strings.ExUnableToGetCountForBloomFilter, "source");
+        }
+        if (count > 0) {
+          return new MemoryBloomFilter<TKey>(count, BloomFilter<TKey>.GetOptimalHashCount(bloomFilterBitsPerValue));
+        }
+      }
+      return null;
     }
 
     /// <inheritdoc/>
     public virtual void Initialize()
-    {
-      if (isInitialized)
-        throw new InvalidOperationException(Strings.ExIndexIsAlreadyInitialized);
-      BaseInitialize();
-    }
-
-    protected void BaseInitialize()
     {
       if (isInitialized)
         throw new InvalidOperationException(Strings.ExIndexIsAlreadyInitialized);
@@ -114,35 +124,6 @@ namespace Xtensive.Indexing.Providers
     /// <see cref="ClassDocTemplate.Dispose" copy="true"/>
     public virtual void Dispose()
     {
-    }
-
-    /// <inheritdoc/>
-    public virtual IBloomFilter<TKey> GetBloomFilter(IEnumerable<TItem> source)
-    {
-      {
-        bool useBloomFilter = index.DescriptorPage.Configuration.UseBloomFilter;
-        double bloomFilterBitsPerValue = index.DescriptorPage.Configuration.BloomFilterBitsPerValue;
-        if (useBloomFilter) {
-          // Try to get item's count
-          long count;
-          if (source is ICountable) {
-            count = ((ICountable) source).Count;
-          }
-          else if (source is ICollection) {
-            count = ((ICollection) source).Count;
-          }
-          else if (source is ICollection<TItem>) {
-            count = ((ICollection<TItem>) source).Count;
-          }
-          else {
-            throw new ArgumentException(Strings.ExUnableToGetCountForBloomFilter, "source");
-          }
-          if (count > 0) {
-            return new MemoryBloomFilter<TKey>(count, BloomFilter<TKey>.GetOptimalHashCount(bloomFilterBitsPerValue));
-          }
-        }
-        return null;
-      }
     }
   }
 }

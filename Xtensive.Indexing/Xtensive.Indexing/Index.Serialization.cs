@@ -17,7 +17,7 @@ namespace Xtensive.Indexing
   partial class Index<TKey, TItem>
   {
     private IIndexPageProvider<TKey, TItem> provider;
-    private ISerializationHelper<TKey, TItem> serializer;
+    private IIndexSerializer<TKey, TItem> serializer;
 
     /// <summary>
     /// Serializes items from specified <see cref="IEnumerable{T}"/> into the index.
@@ -25,8 +25,7 @@ namespace Xtensive.Indexing
     /// <param name="source">Items to serialize into the index.</param>
     public void Serialize(IEnumerable<TItem> source)
     {
-      serializer = provider.SerializationHelper;
-      using (serializer.CreateSerializer(provider)) {
+      using (serializer = provider.CreateSerializer()) {
         if (provider.Index==null)
           throw new InvalidOperationException(Strings.ExIndexPageProviderIsUnboundToTheIndex);
         if ((provider.Features & IndexFeatures.Serialize)==0)
@@ -70,11 +69,12 @@ namespace Xtensive.Indexing
 
         descriptorPage.BloomFilter = bloomFilter;
         serializer.SerializeDescriptorPage(descriptorPage);
-        serializer.MarkEOF(descriptorPage);
+        serializer.SerializeBloomFilter(descriptorPage);
+        serializer.SerializeEof(descriptorPage);
       }
     }
 
-    private void SerializePages(ISerializationHelper<TKey, TItem> serializationHelper, IList<InnerPage<TKey, TItem>> branch, LeafPage<TKey, TItem> leafPage,
+    private void SerializePages(IIndexSerializer<TKey, TItem> indexSerializer, IList<InnerPage<TKey, TItem>> branch, LeafPage<TKey, TItem> leafPage,
       bool isTailBranch)
     {
       int level = 0;
@@ -82,15 +82,15 @@ namespace Xtensive.Indexing
       while (true) {
         if (page!=null) {
           if (level==0)
-            serializationHelper.SerializeLeafPage(leafPage);
+            indexSerializer.SerializeLeafPage(leafPage);
           else {
             InnerPage<TKey, TItem> innerPage = (InnerPage<TKey, TItem>) page;
-            serializationHelper.SerializeInnerPage(innerPage);
+            indexSerializer.SerializeInnerPage(innerPage);
             provider.AddToCache(innerPage);
           }
         }
         else if (level==0 && branch.Count==0) // Empty index
-          serializationHelper.SerializeLeafPage(leafPage);
+          indexSerializer.SerializeLeafPage(leafPage);
 
         if (branch.Count==level) {
           if (isTailBranch)
