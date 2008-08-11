@@ -5,10 +5,8 @@
 // Created:    2007.12.13
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using Xtensive.Core;
-using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Indexing.BloomFilter;
 using Xtensive.Indexing.Implementation;
@@ -55,6 +53,9 @@ namespace Xtensive.Indexing.Providers
     // Abstract methods
 
     /// <inheritdoc/>
+    public abstract IBloomFilter<TKey> GetBloomFilter(IEnumerable<TItem> source);
+
+    /// <inheritdoc/>
     public abstract void AssignIdentifier(Page<TKey, TItem> page);
 
     /// <inheritdoc/>
@@ -84,34 +85,6 @@ namespace Xtensive.Indexing.Providers
 
     /// <inheritdoc/>
     public abstract IIndexSerializer<TKey, TItem> CreateSerializer();
-
-    /// <inheritdoc/>
-    public virtual IBloomFilter<TKey> GetBloomFilter(IEnumerable<TItem> source)
-    {
-      // TODO: -> MemoryPageProvider
-      bool useBloomFilter = index.DescriptorPage.Configuration.UseBloomFilter;
-      double bloomFilterBitsPerValue = index.DescriptorPage.Configuration.BloomFilterBitsPerValue;
-      if (useBloomFilter) {
-        // Try to get item's count
-        long count;
-        if (source is ICountable) {
-          count = ((ICountable) source).Count;
-        }
-        else if (source is ICollection) {
-          count = ((ICollection) source).Count;
-        }
-        else if (source is ICollection<TItem>) {
-          count = ((ICollection<TItem>) source).Count;
-        }
-        else {
-          throw new ArgumentException(Strings.ExUnableToGetCountForBloomFilter, "source");
-        }
-        if (count > 0) {
-          return new MemoryBloomFilter<TKey>(count, BloomFilter<TKey>.GetOptimalHashCount(bloomFilterBitsPerValue));
-        }
-      }
-      return null;
-    }
 
     /// <inheritdoc/>
     public virtual void Initialize()

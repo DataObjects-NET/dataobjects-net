@@ -11,7 +11,11 @@ using Xtensive.Indexing.Implementation.Interfaces;
 
 namespace Xtensive.Indexing.Providers.Internals
 {
-  /// <inheritdoc/>
+  /// <summary>
+  /// Default base class for <see cref="Index{TKey,TItem}"/> page provider helpers.
+  /// </summary>
+  /// <typeparam name="TKey">Key type.</typeparam>
+  /// <typeparam name="TItem">Value type.</typeparam>
   public abstract class IndexSerializerBase<TKey,TItem> : IIndexSerializer<TKey, TItem>
   {
     /// <summary>

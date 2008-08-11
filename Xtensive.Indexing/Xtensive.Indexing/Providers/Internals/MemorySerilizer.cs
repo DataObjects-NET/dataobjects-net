@@ -12,6 +12,7 @@ namespace Xtensive.Indexing.Providers.Internals
   internal sealed class MemorySerilizer<TKey, TItem> : IndexSerializerBase<TKey, TItem>
   {
     private LeafPage<TKey, TItem> lastLeafPage;
+    private Page<TKey, TItem> lastPageRef;
 
     public override void SerializeLeafPage(LeafPage<TKey, TItem> page)
     {
@@ -24,18 +25,22 @@ namespace Xtensive.Indexing.Providers.Internals
         lastLeafPage.RightPageRef = page;
       }
       lastLeafPage = page;
+      lastPageRef = page;
     }
 
     public override void SerializeInnerPage(InnerPage<TKey, TItem> page)
     {
       ArgumentValidator.EnsureArgumentNotNull(page, "page");
       page.Identifier = page;
+      lastPageRef = page;
     }
 
     public override void SerializeDescriptorPage(DescriptorPage<TKey, TItem> page)
     {
       ArgumentValidator.EnsureArgumentNotNull(page, "page");
       page.Identifier = page;
+      page.RootPageRef = lastPageRef;
+      page.RightmostPageRef = lastLeafPage;
     }
 
     public override void SerializeBloomFilter(DescriptorPage<TKey, TItem> page)

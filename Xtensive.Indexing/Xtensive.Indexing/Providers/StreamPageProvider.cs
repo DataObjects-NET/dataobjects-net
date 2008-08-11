@@ -19,6 +19,8 @@ using Xtensive.Indexing.Implementation.Interfaces;
 using Xtensive.Indexing.Providers.Internals;
 using Xtensive.Indexing.Resources;
 using Xtensive.Core.Helpers;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace Xtensive.Indexing.Providers
 {
@@ -65,6 +67,33 @@ namespace Xtensive.Indexing.Providers
     public ValueSerializer<long> OffsetSerializer
     {
       get { return offsetSerializer; }
+    }
+
+    /// <inheritdoc/>
+    public override IBloomFilter<TKey> GetBloomFilter(IEnumerable<TItem> source)
+    {
+      bool useBloomFilter = index.DescriptorPage.Configuration.UseBloomFilter;
+      double bloomFilterBitsPerValue = index.DescriptorPage.Configuration.BloomFilterBitsPerValue;
+      if (useBloomFilter) {
+        // Try to get item's count
+        long count;
+        if (source is ICountable) {
+          count = ((ICountable) source).Count;
+        }
+        else if (source is ICollection) {
+          count = ((ICollection) source).Count;
+        }
+        else if (source is ICollection<TItem>) {
+          count = ((ICollection<TItem>) source).Count;
+        }
+        else {
+          throw new ArgumentException(Strings.ExUnableToGetCountForBloomFilter, "source");
+        }
+        if (count > 0) {
+          return new MemoryBloomFilter<TKey>(count, BloomFilter<TKey>.GetOptimalHashCount(bloomFilterBitsPerValue));
+        }
+      }
+      return null;
     }
 
     /// <inheritdoc/>
@@ -243,7 +272,6 @@ namespace Xtensive.Indexing.Providers
     }
 
     #endregion
-
 
     // Constructors
 

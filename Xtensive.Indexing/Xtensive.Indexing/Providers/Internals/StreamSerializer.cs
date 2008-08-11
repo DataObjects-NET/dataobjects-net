@@ -4,7 +4,6 @@
 // Created by: Nick Svetlov
 // Created:    2008.01.02
 
-using System;
 using System.IO;
 using System.Security.AccessControl;
 using Xtensive.Core;
@@ -18,7 +17,6 @@ namespace Xtensive.Indexing.Providers.Internals
   {
     public const long OffsetLength = 8;
 
-    private LeasedAccessor<Stream> streamAccessor;
     private Stream stream;
     private readonly IValueSerializer serializer;
     private readonly ValueSerializer<long> offsetSerializer;
@@ -90,7 +88,8 @@ namespace Xtensive.Indexing.Providers.Internals
     public override void SerializeBloomFilter(DescriptorPage<TKey, TItem> page)
     {
       ArgumentValidator.EnsureArgumentNotNull(page, "page");
-      page.BloomFilter.Serialize(stream);
+      if (page.BloomFilter!=null)
+        page.BloomFilter.Serialize(stream);
     }
 
     public override void SerializeEof(DescriptorPage<TKey, TItem> page)
@@ -128,15 +127,13 @@ namespace Xtensive.Indexing.Providers.Internals
       var streamPageProvider = (StreamPageProvider<TKey, TItem>) provider;
       serializer = streamPageProvider.Serializer;
       offsetSerializer = streamPageProvider.OffsetSerializer;
-      streamAccessor = streamPageProvider.StreamProvider.GetStreamAccessor(LockType.Exclusive);
-      stream = streamAccessor.Leased;
+      stream = new FileStream(streamPageProvider.StreamProvider.FileName, FileMode.OpenOrCreate, FileSystemRights.Write, FileShare.ReadWrite, 65535, FileOptions.RandomAccess);
       LastPageRef = StreamPageRef<TKey, TItem>.Create(StreamPageRefType.Undefined);
     }
 
     public override void Dispose()
     {
-      streamAccessor.DisposeSafely();
-      streamAccessor = null;
+      stream.DisposeSafely();
       stream = null;
     }
   }

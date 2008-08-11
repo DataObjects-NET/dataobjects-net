@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
@@ -45,7 +44,7 @@ namespace Xtensive.Indexing.Tests.Index
       using (MemoryStream stream = new MemoryStream()) {
         serializer.Serialize(stream, GetConfiguration<T>());
         stream.Seek(0, SeekOrigin.Begin);
-        IndexConfiguration<T, T> serialized = (IndexConfiguration<T, T>)serializer.Deserialize(stream);
+        IndexConfiguration<T, T> serialized = (IndexConfiguration<T, T>) serializer.Deserialize(stream);
         Assert.IsNotNull(serialized);
       }
     }
@@ -67,7 +66,6 @@ namespace Xtensive.Indexing.Tests.Index
       MemorySerializeInternal<Guid>(GetCount());
       MemorySerializeInternal<string>(GetCount());
       MemorySerializeInternal<byte>(GetCount());
-
     }
 
     private void SerializeInternal<T>(int count)
@@ -119,32 +117,28 @@ namespace Xtensive.Indexing.Tests.Index
       Index<T, T> index = GetIndex<T>();
       ISet<T> instances = GetUniqueInstances<T>(count);
 
-      foreach (T item in instances)
-      {
+      foreach (T item in instances) {
         index.Add(item);
       }
 
       IndexConfiguration<T, T> configuration = GetConfiguration<T>();
-        using (Index<T, T> serializedIndex = new Index<T, T>(configuration))
-        {
-          using (new Measurement("Serializing index."))
-            serializedIndex.Serialize(index);
-          IEnumerator<T> serializedEnumerator = serializedIndex.GetEnumerator();
-          IEnumerator<T> indexEnumerator = index.GetEnumerator();
-          while (indexEnumerator.MoveNext())
-          {
-            Assert.IsTrue(serializedEnumerator.MoveNext());
-            Assert.AreEqual(indexEnumerator.Current, serializedEnumerator.Current);
-          }
-          Assert.AreEqual(index.Count, serializedIndex.Count);
+      using (Index<T, T> serializedIndex = new Index<T, T>(configuration)) {
+        using (new Measurement("Serializing index."))
+          serializedIndex.Serialize(index);
+        IEnumerator<T> serializedEnumerator = serializedIndex.GetEnumerator();
+        IEnumerator<T> indexEnumerator = index.GetEnumerator();
+        while (indexEnumerator.MoveNext()) {
+          Assert.IsTrue(serializedEnumerator.MoveNext());
+          Assert.AreEqual(indexEnumerator.Current, serializedEnumerator.Current);
         }
+        Assert.AreEqual(index.Count, serializedIndex.Count);
+      }
 
-        using (Index<T, T> serializedIndex = new Index<T, T>(configuration))
-        {
-          serializedIndex.Serialize(new T[] { });
-          IEnumerator<T> serializedEnum = serializedIndex.GetEnumerator();
-          Assert.IsFalse(serializedEnum.MoveNext());
-        }
+      using (Index<T, T> serializedIndex = new Index<T, T>(configuration)) {
+        serializedIndex.Serialize(new T[] {});
+        IEnumerator<T> serializedEnum = serializedIndex.GetEnumerator();
+        Assert.IsFalse(serializedEnum.MoveNext());
+      }
     }
 
 
@@ -274,14 +268,14 @@ namespace Xtensive.Indexing.Tests.Index
     private IndexConfiguration<T, T> GetConfiguration<T>()
     {
       return new IndexConfiguration<T, T>(AdvancedConverter<T, T>.Default.Implementation.Convert, AdvancedComparer<T>.Default)
-               {
-                 PageSize = 4
-               };
+        {
+          PageSize = 4
+        };
     }
 
     private int GetCount()
     {
-      return random.Next()%maxCount + 1;
+      return random.Next() % maxCount + 1;
     }
 
     private Index<T, T> GetIndex<T>()
