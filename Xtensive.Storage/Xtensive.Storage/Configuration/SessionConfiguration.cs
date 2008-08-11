@@ -5,7 +5,6 @@
 // Created:    2007.08.29
 
 using System;
-using System.Configuration;
 using Xtensive.Core;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
@@ -19,30 +18,17 @@ namespace Xtensive.Storage.Configuration
   /// <para id="About"><see cref="HasStaticDefaultDocTemplate" copy="true" /></para>
   /// </remarks>
   [Serializable]
-  public class SessionConfiguration : ConfigurationSectionBase
+  public class SessionConfiguration : ConfigurationBase
   {
-    private const string UserNameElementName = "UserName";
-    private const string CacheSizeElementName = "CacheSize";
-
     /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
     public readonly static SessionConfiguration Default;
 
     /// <summary>
     /// Gets user name to authenticate.
     /// </summary>
-    [ConfigurationProperty(UserNameElementName, IsRequired = false)]
-    public string UserName
-    {
-      get
-      {
-        return (string)this[UserNameElementName];
-      }
-      private set
-      {
-        this[UserNameElementName] = value;
-      }
-    }
+    public string UserName { get; set; }
 
+    //TODO: Change SessionConfiguration.AuthParams to be serializeble to app.config.
     /// <summary>
     /// Gets authentication params.
     /// </summary>
@@ -51,18 +37,7 @@ namespace Xtensive.Storage.Configuration
     /// <summary>
     /// Gets or sets the size of the session cache.
     /// </summary>
-    [ConfigurationProperty(CacheSizeElementName, IsRequired = false)]
-    public int CacheSize
-    {
-      get
-      {
-        return (int)this[CacheSizeElementName];
-      }
-      private set
-      {
-        this[CacheSizeElementName] = value;
-      }
-    }
+    public int CacheSize { get; set; }
 
     /// <inheritdoc/>
     public override void Validate()
@@ -71,7 +46,7 @@ namespace Xtensive.Storage.Configuration
     }
 
     /// <inheritdoc/>
-    protected override ConfigurationSectionBase CreateClone()
+    protected override ConfigurationBase CreateClone()
     {
       var clone = new SessionConfiguration();
       clone.Clone(this);
@@ -79,10 +54,10 @@ namespace Xtensive.Storage.Configuration
     }
 
     /// <inheritdoc/>
-    protected override void Clone(ConfigurationSectionBase source)
+    protected override void Clone(ConfigurationBase source)
     {
       base.Clone(source);
-      var configuration = (SessionConfiguration) source;
+      var configuration = (SessionConfiguration)source;
       UserName = configuration.UserName;
       AuthParams = configuration.AuthParams;
     }
@@ -109,7 +84,7 @@ namespace Xtensive.Storage.Configuration
     {
       CacheSize = 1024;
     }
-    
+
     // Type initializer
 
     static SessionConfiguration()

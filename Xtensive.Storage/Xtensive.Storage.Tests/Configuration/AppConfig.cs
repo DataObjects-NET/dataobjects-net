@@ -36,6 +36,7 @@ namespace Xtensive.Storage.Tests.Configuration
       foreach (KeyValuePair<string, string> namespaceSynonym in domainConfig.NamingConvention.NamespaceSynonyms) {
         Log.Debug("NamingConvention.NamespaceSynonym (key, value): {0} {1}", namespaceSynonym.Key, namespaceSynonym.Value);
       }
+      Log.Debug("Session settings. UserName: {0}, CacheSize: {1}", domainConfig.Session.UserName, domainConfig.Session.CacheSize);
       var manualConfig = new DomainConfiguration("memory://localhost/");
       manualConfig.SessionPoolSize = 77;
       manualConfig.Builders.Add(typeof(string));

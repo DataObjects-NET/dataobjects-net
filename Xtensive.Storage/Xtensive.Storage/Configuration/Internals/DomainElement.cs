@@ -25,6 +25,7 @@ namespace Xtensive.Storage.Configuration
     private const string ConnectionInfoElementName = "connectionInfo";
     private const string BuildersElementName = "builders";
     private const string TypesElementName = "types";
+    private const string SessionElementName = "session";
 
     /// <summary>
     /// Gets unique section name.
@@ -43,37 +44,28 @@ namespace Xtensive.Storage.Configuration
     [IntegerValidator(MinValue = 1, MaxValue = int.MaxValue)]
     public int SessionPoolSize
     {
-      get { return (int)this[SessionPoolSizeElementName]; }
-      set
-      {
-        this[SessionPoolSizeElementName] = value;
-      }
+      get { return (int) this[SessionPoolSizeElementName]; }
+      set { this[SessionPoolSizeElementName] = value; }
     }
 
     /// <summary>
     /// Types to register in domain.
     /// </summary>
     [ConfigurationProperty(TypesElementName, IsDefaultCollection = false)]
-    [ConfigurationCollection(typeof(ConfigurationCollection<TypeElement>), AddItemName = "add")]
+    [ConfigurationCollection(typeof (ConfigurationCollection<TypeElement>), AddItemName = "add")]
     public ConfigurationCollection<TypeElement> Types
     {
-      get
-      {
-        return (ConfigurationCollection<TypeElement>)base[TypesElementName];
-      }
+      get { return (ConfigurationCollection<TypeElement>) base[TypesElementName]; }
     }
 
     /// <summary>
     /// Builders to register in domain.
     /// </summary>
     [ConfigurationProperty(BuildersElementName, IsDefaultCollection = false)]
-    [ConfigurationCollection(typeof(ConfigurationCollection<BuilderElement>), AddItemName = "builder")]
+    [ConfigurationCollection(typeof (ConfigurationCollection<BuilderElement>), AddItemName = "builder")]
     public ConfigurationCollection<BuilderElement> Builders
     {
-      get
-      {
-        return (ConfigurationCollection<BuilderElement>)base[BuildersElementName];
-      }
+      get { return (ConfigurationCollection<BuilderElement>) base[BuildersElementName]; }
     }
 
     /// <summary>
@@ -82,11 +74,8 @@ namespace Xtensive.Storage.Configuration
     [ConfigurationProperty(ConnectionInfoElementName, DefaultValue = null, IsRequired = true)]
     public UrlInfo ConnectionInfo
     {
-      get { return (UrlInfo)this[ConnectionInfoElementName]; }
-      set
-      {
-        this[ConnectionInfoElementName] = value;
-      }
+      get { return (UrlInfo) this[ConnectionInfoElementName]; }
+      set { this[ConnectionInfoElementName] = value; }
     }
 
     /// <summary>
@@ -95,11 +84,18 @@ namespace Xtensive.Storage.Configuration
     [ConfigurationProperty(NamingConventionElementName, IsRequired = false)]
     public NamingConventionElement NamingConvention
     {
-      get { return (NamingConventionElement)this[NamingConventionElementName]; }
-      set
-      {
-        this[NamingConventionElementName] = value;
-      }
+      get { return (NamingConventionElement) this[NamingConventionElementName]; }
+      set { this[NamingConventionElementName] = value; }
+    }
+
+    /// <summary>
+    /// Gets or sets the default session settings.
+    /// </summary>
+    [ConfigurationProperty(SessionElementName, IsRequired = false)]
+    public SessionElement Session
+    {
+      get { return (SessionElement) this[SessionElementName]; }
+      set { this[SessionElementName] = value; }
     }
 
     /// <inheritdoc/>

@@ -28,6 +28,7 @@ namespace Xtensive.Storage.Configuration
     private Registry types = new Registry(new TypeProcessor());
     private int sessionPoolSize = 64;
     private string name = string.Empty;
+    private SessionConfiguration session;
 
     /// <summary>
     /// Gets or sets configuration name.
@@ -99,6 +100,14 @@ namespace Xtensive.Storage.Configuration
     }
 
     /// <summary>
+    /// Gets default session configuration.
+    /// </summary>
+    public SessionConfiguration Session
+    {
+      get { return session; }
+    }
+
+    /// <summary>
     /// Locks the instance and (possible) all dependent objects.
     /// </summary>
     /// <param name="recursive"><see langword="True"/> if all dependent objects should be locked as well.</param>
@@ -106,6 +115,7 @@ namespace Xtensive.Storage.Configuration
     {
       types.Lock(true);
       builders.Lock(true);
+      session.Lock(true);
       //      services.Lock(true);
       base.Lock(recursive);
     }
@@ -132,6 +142,7 @@ namespace Xtensive.Storage.Configuration
       types = (Registry) configuration.Types.Clone();
       sessionPoolSize = configuration.SessionPoolSize;
       name = configuration.Name;
+      session = configuration.Session;
     }
 
 
@@ -179,6 +190,7 @@ namespace Xtensive.Storage.Configuration
           Types.Register(assembly, registry.Namespace);
       }
       namingConvention = element.NamingConvention.AsNamingConvention();
+      session = element.Session.AsSessionConfiguration();
     }
   }
 }
