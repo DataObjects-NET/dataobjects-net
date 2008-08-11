@@ -49,19 +49,5 @@ namespace Xtensive.Storage.Providers.Index
         index.Remove(transform.Apply(TupleTransformType.TransformedTuple, result.Result));
       }
     }
-
-    public override Tuple Fetch(IndexInfo index, Key key, IEnumerable<ColumnInfo> columns)
-    {
-      var indexProvider = new IndexProvider(index);
-      SeekResult<Tuple> seek = indexProvider.GetService<IOrderedEnumerable<Tuple, Tuple>>().Seek(new Ray<IEntire<Tuple>>(Entire<Tuple>.Create(key.Tuple)));
-      if (seek.ResultType!=SeekResultType.Exact)
-        return null;
-      return seek.Result;
-    }
-
-    public override RecordSet Select(IndexInfo index)
-    {
-      return new IndexProvider(index).Result;
-    }
   }
 }

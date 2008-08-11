@@ -10,6 +10,7 @@ using Xtensive.Core.Collections;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
+using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Providers
 {
@@ -20,9 +21,10 @@ namespace Xtensive.Storage.Providers
     /// </summary>
     public Session Session { get; internal set; }
 
-    public abstract Tuple Fetch(IndexInfo index, Key key, IEnumerable<ColumnInfo> columns);
-
-    public abstract RecordSet Select(IndexInfo index);
+    public RecordSet Select(IndexInfo index)
+    {
+      return Handlers.DomainHandler.GetIndexProvider(index).Result;
+    }
 
     public virtual void Commit()
     {

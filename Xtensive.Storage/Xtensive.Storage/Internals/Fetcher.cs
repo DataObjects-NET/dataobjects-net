@@ -4,19 +4,35 @@
 // Created by: Dmitri Maximov
 // Created:    2008.07.17
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Rse;
+using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Internals
 {
   internal static class Fetcher
   {
+    /// <inheritdoc/>
+    public static Tuple Fetch(IndexInfo index, Key key, IEnumerable<ColumnInfo> columns)
+    {
+      var rs = new IndexProvider(index).Result
+        .Range(key.Tuple, key.Tuple)
+        .Select(columns.Select(c => index.Columns.IndexOf(c)).ToArray());
+      var enumerator = rs.GetEnumerator();
+      if (enumerator.MoveNext())
+        return enumerator.Current;
+      throw new InvalidOperationException(/*Strings.ExInstanceNotFound*/);
+    }
+
+
     public static Tuple Fetch(Key key)
     {
       IndexInfo index = key.Type.Indexes.PrimaryIndex;
-      return Session.Current.Handler.Fetch(index, key, index.Columns.Where(c => !c.LazyLoad));
+      return Fetch(index, key, index.Columns.Where(c => !c.LazyLoad));
     }
 
     public static Tuple Fetch(Key key, FieldInfo field)
@@ -29,7 +45,7 @@ namespace Xtensive.Storage.Internals
       IEnumerable<ColumnInfo> columns = key.Type.Columns
         .Skip(field.MappingInfo.Offset)
         .Take(field.MappingInfo.Length);
-      return Session.Current.Handler.Fetch(index, key, columns);
+      return Fetch(index, key, columns);
     }
   }
 }

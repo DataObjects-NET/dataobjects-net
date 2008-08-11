@@ -48,7 +48,10 @@ namespace Xtensive.Storage.Providers.Index.Compilers
         }
         else if ((indexInfo.Attributes & IndexAttributes.Union)!=0) {
           ExecutableProvider[] sourceProviders = indexInfo.UnderlyingIndexes.Select(index => CompileInternal(new IndexProvider(index), index)).ToArray();
-          result = new MergeInheritorsProvider(provider, sourceProviders);
+          if (sourceProviders.Length == 1)
+            result = sourceProviders[0];
+          else
+            result = new MergeInheritorsProvider(provider, sourceProviders);
         }
         else {
           var baseIndexes = new List<IndexInfo>(indexInfo.UnderlyingIndexes);

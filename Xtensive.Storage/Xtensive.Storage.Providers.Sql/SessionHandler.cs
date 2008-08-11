@@ -159,26 +159,6 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <inheritdoc/>
-    public override Tuple Fetch(IndexInfo index, Key key, IEnumerable<ColumnInfo> columns)
-    {
-      var rs = new IndexProvider(index).Result
-        .Range(key.Tuple, key.Tuple)
-        .Select(columns.Select(c => index.Columns.IndexOf(c)).ToArray());
-      var enumerator = rs.GetEnumerator();
-      if (enumerator.MoveNext())
-        return enumerator.Current;
-      throw new InvalidOperationException(Strings.ExInstanceNotFound);
-    }
-
-
-    /// <inheritdoc/>
-    public override RecordSet Select(IndexInfo index)
-    {
-      var provider = new IndexProvider(index);
-      return provider.Result;
-    }
-
-    /// <inheritdoc/>
     public override void Commit()
     {
       base.Commit();
