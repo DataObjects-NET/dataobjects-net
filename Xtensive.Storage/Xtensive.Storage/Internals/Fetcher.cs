@@ -19,7 +19,7 @@ namespace Xtensive.Storage.Internals
     /// <inheritdoc/>
     public static Tuple Fetch(IndexInfo index, Key key, IEnumerable<ColumnInfo> columns)
     {
-      var rs = new IndexProvider(index).Result
+      var rs = Session.Current.Handler.Select(index)
         .Range(key.Tuple, key.Tuple)
         .Select(columns.Select(c => index.Columns.IndexOf(c)).ToArray());
       var enumerator = rs.GetEnumerator();
