@@ -9,7 +9,6 @@ using Xtensive.Core;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Helpers;
 using Xtensive.Indexing.BloomFilter;
-using Xtensive.Indexing.Providers.Internals;
 using Xtensive.Indexing.Resources;
 
 namespace Xtensive.Indexing
