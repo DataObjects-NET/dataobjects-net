@@ -11,7 +11,7 @@ using Xtensive.Indexing.Implementation;
 namespace Xtensive.Indexing.Implementation.Interfaces
 {
   /// <summary>
-  /// Default base class for <see cref="Index{TKey,TItem}"/> page provider helpers.
+  /// <see cref="Index{TKey,TItem}"/> serializer for page providers.
   /// </summary>
   /// <typeparam name="TKey">Key type.</typeparam>
   /// <typeparam name="TItem">Value type.</typeparam>
