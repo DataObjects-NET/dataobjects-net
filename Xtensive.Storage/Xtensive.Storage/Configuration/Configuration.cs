@@ -6,6 +6,7 @@
 
 using System;
 using System.Configuration;
+using Xtensive.Core;
 using Xtensive.Core.Collections;
 
 namespace Xtensive.Storage.Configuration
@@ -16,6 +17,7 @@ namespace Xtensive.Storage.Configuration
   [Serializable]
   public class Configuration
   {
+    private string sectionName;
     private readonly CollectionBaseSlim<DomainConfiguration> domains = new CollectionBaseSlim<DomainConfiguration>();
 
     /// <summary>
@@ -27,12 +29,26 @@ namespace Xtensive.Storage.Configuration
     }
 
     /// <summary>
+    /// Gets or sets section name of configuration.
+    /// </summary>
+    public string SectionName
+    {
+      get { return sectionName; }
+      set
+      {
+        ArgumentValidator.EnsureArgumentNotNullOrEmpty(value, "value");
+        sectionName = value;
+      }
+    }
+    
+    /// <summary>
     /// Loads configuration from default application configuration file.
     /// </summary>
     /// <param name="sectionName">Name of section to load as configuration.</param>
     /// <returns>Configuration initialized by corresponding section.</returns>
     public static Configuration Load(string sectionName)
     {
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(sectionName, "sectionName");
       var result = new Configuration();
       var section = (RootConfigurationSection)ConfigurationManager.GetSection(sectionName);
       if (section==null) 

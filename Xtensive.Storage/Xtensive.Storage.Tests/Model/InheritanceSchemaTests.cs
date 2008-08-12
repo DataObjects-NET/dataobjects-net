@@ -4,6 +4,7 @@
 // Created by: Alexey Kochetov
 // Created:    2007.11.30
 
+using System.Linq;
 using NUnit.Framework;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Building;

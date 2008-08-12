@@ -96,6 +96,7 @@ namespace Xtensive.Storage.Configuration.TypeRegistry
       // Skipping duplicate registration calls.
       // If we already have a call to the whole assembly we should skip this call
       if (!actionIndex.Contains(new Action(assembly)) && !actionIndex.Contains(action)) {
+        actionIndex.Add(action);
         actionQueue.Add(action);
         state = State.HasPendingActions;
       }
@@ -108,8 +109,9 @@ namespace Xtensive.Storage.Configuration.TypeRegistry
     {
       if (state != State.HasPendingActions)
         return;
-      foreach (Action action in actionQueue)
+      foreach (Action action in actionQueue) {
         processor.Process(context, action);
+      }
       actionQueue.Clear();
       state = State.NoPendingActions;
     }
@@ -173,6 +175,10 @@ namespace Xtensive.Storage.Configuration.TypeRegistry
 
     #endregion
 
+    internal ReadOnlyCollection<Action> Actions
+    {
+      get { return new ReadOnlyCollection<Action>(actionIndex); }
+    }
 
     // Constructors
 
