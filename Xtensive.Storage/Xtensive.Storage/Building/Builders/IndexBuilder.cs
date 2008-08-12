@@ -221,8 +221,8 @@ namespace Xtensive.Storage.Building.Builders
 
       //Building inherited from interfaces indexes
       foreach (var @interface in type.GetInterfaces(true)) {
-        foreach (var parentIndex in @interface.Indexes.Find(IndexAttributes.Primary, MatchType.None)) {
-
+        if ((parent==null) || !parent.GetInterfaces(true).Contains(@interface))
+          foreach (var parentIndex in @interface.Indexes.Find(IndexAttributes.Primary, MatchType.None)) {
           if (parentIndex.DeclaringIndex == parentIndex)
             using (var scope = new LogCaptureScope(context.Log)) {
               var index = BuildInheritedIndex(type, parentIndex);
