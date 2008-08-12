@@ -17,7 +17,6 @@ namespace Xtensive.Storage.Rse
   /// Collection of <see cref="Column"/> items.
   /// </summary>
   [Serializable]
-  [Initializable]
   public sealed class ColumnCollection : ReadOnlyList<Column>
   {    
     private readonly Dictionary<string, int> nameIndex = new Dictionary<string, int>();
@@ -38,10 +37,8 @@ namespace Xtensive.Storage.Rse
       }
     }
 
-    private void Initialize(Type ctorType)
+    private void Initialize()
     {
-      if (GetType()!=ctorType)
-        return;
       for (int index = 0; index < Count; index++) 
         nameIndex.Add(this[index].Name, index);
     }
@@ -55,7 +52,8 @@ namespace Xtensive.Storage.Rse
     /// <param name="collection">Collection of items to add.</param>
     public ColumnCollection(IEnumerable<Column> collection)
       : base (collection.ToList())
-    {           
+    {
+      Initialize();     
     }
 
     /// <summary>
@@ -66,6 +64,7 @@ namespace Xtensive.Storage.Rse
     public ColumnCollection(IEnumerable<Column> collection, string alias)
       : base(collection.Alias(alias).ToList())
     {      
+      Initialize();     
     }
 
     /// <summary>
@@ -76,6 +75,7 @@ namespace Xtensive.Storage.Rse
     public ColumnCollection(IEnumerable<Column> collection1, IEnumerable<Column> collection2)
       : base (collection1.Concat(collection2).ToList())
     {            
+      Initialize();     
     }
   }
 }
