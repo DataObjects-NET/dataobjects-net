@@ -31,9 +31,9 @@ namespace Xtensive.Core.Tuples.Transform
     public abstract object[] Arguments { get; }
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
     public override TupleDescriptor Descriptor
     {
+      [DebuggerStepThrough]
       get { return Transform.Descriptor; }
     }
 

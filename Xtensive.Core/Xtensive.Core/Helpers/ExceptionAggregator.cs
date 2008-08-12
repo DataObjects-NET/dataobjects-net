@@ -27,19 +27,19 @@ namespace Xtensive.Core.Helpers
     /// <summary>
     /// Gets or sets the exception handler.
     /// </summary>
-    [DebuggerStepThrough]
     public Action<Exception> ExceptionHandler
     {
+      [DebuggerStepThrough]
       get { return exceptionHandler; }
+      [DebuggerStepThrough]
       set { exceptionHandler = value; }
     }
 
     /// <summary>
     /// Gets the number of caught exceptions.
-    /// </summary>
-    [DebuggerStepThrough]
     public long Count
     {
+      [DebuggerStepThrough]
       get { return exceptions!=null ? exceptions.Count : 0; }
     }
 

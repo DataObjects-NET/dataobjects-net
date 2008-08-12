@@ -23,9 +23,9 @@ namespace Xtensive.Core.Tuples.Transform
     /// <summary>
     /// Gets the segment this transform extracts.
     /// </summary>
-    [DebuggerStepThrough]
     public Segment<int> Segment
     {
+      [DebuggerStepThrough]
       get { return segment; }
     }
 

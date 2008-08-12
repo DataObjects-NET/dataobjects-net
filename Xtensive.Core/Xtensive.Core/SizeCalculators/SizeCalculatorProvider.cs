@@ -41,9 +41,9 @@ namespace Xtensive.Core.SizeCalculators
     private ThreadSafeCached<ISizeCalculatorBase> objectSizeCalculator = new ThreadSafeCached<ISizeCalculatorBase>();
 
     /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
-    [DebuggerStepThrough]
     public static ISizeCalculatorProvider Default
     {
+      [DebuggerStepThrough]
       get { return @default; }
     }
 

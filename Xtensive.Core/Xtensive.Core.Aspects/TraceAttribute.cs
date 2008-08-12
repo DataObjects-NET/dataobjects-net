@@ -38,34 +38,36 @@ namespace Xtensive.Core.Aspects
     private string title;
     private bool isStatic;
 
-    [DebuggerStepThrough]
-    int ILaosWeavableAspect.AspectPriority { get { return (int)CoreAspectPriority.Trace; } }
+    int ILaosWeavableAspect.AspectPriority {
+      [DebuggerStepThrough]
+      get { return (int)CoreAspectPriority.Trace; }
+    }
 
-    [DebuggerStepThrough]
-    public string Title
-    {
+    public string Title {
+      [DebuggerStepThrough]
       get { return title; }
+      [DebuggerStepThrough]
       set { title = value; }
     }
 
-    [DebuggerStepThrough]
-    public TraceOptions Options
-    {
+    public TraceOptions Options {
+      [DebuggerStepThrough]
       get { return options; }
+      [DebuggerStepThrough]
       set { options = value; }
     }
 
-    [DebuggerStepThrough]
-    public LogEventTypes EventType
-    {
+    public LogEventTypes EventType {
+      [DebuggerStepThrough]
       get { return eventType; }
+      [DebuggerStepThrough]
       set { eventType = value; }
     }
 
-    [DebuggerStepThrough]
-    public Type LogType
-    {
+    public Type LogType {
+      [DebuggerStepThrough]
       get { return logType; }
+      [DebuggerStepThrough]
       set { logType = value; }
     }
 

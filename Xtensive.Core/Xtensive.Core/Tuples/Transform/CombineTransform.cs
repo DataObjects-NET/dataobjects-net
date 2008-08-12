@@ -26,9 +26,9 @@ namespace Xtensive.Core.Tuples.Transform
     /// <summary>
     /// Gets tuple descriptors this transform merges.
     /// </summary>
-    [DebuggerStepThrough]
     public TupleDescriptor[] Sources
     {
+      [DebuggerStepThrough]
       get { return sources.Copy(); }
     }
 

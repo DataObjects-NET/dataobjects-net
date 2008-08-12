@@ -21,9 +21,8 @@ namespace Xtensive.Storage.Model
     /// <summary>
     /// Gets the primary index in this instance.
     /// </summary>
-    [DebuggerStepThrough]
-    public IndexInfo PrimaryIndex
-    {
+    public IndexInfo PrimaryIndex {
+      [DebuggerStepThrough]
       get { return IsLocked ? primaryIndex : FindPrimaryIndex(); }
     }
 

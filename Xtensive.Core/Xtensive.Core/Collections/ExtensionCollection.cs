@@ -26,8 +26,8 @@ namespace Xtensive.Core.Collections
     private Dictionary<Type, object> extensions;
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
     public long Count {
+      [DebuggerStepThrough]
       get {
         return extensions!=null ? extensions.Count : 0;
       }

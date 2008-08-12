@@ -22,25 +22,25 @@ namespace Xtensive.Core.Tuples
     private Tuple difference;
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
     public override TupleDescriptor Descriptor
     {
+      [DebuggerStepThrough]
       get { return origin.Descriptor; }
     }
 
     /// <inheritdoc />
-    [DebuggerStepThrough]
     public override int Count
     {
+      [DebuggerStepThrough]
       get { return origin.Count; }
     }
 
     /// <summary>
     /// Gets original tuple.
     /// </summary>
-    [DebuggerStepThrough]
     public Tuple Origin
     {
+      [DebuggerStepThrough]
       get { return origin; }
     }
 
@@ -51,8 +51,8 @@ namespace Xtensive.Core.Tuples
     {
       [DebuggerStepThrough]
       get { return difference; }
-      set
-      {
+      [DebuggerStepThrough]
+      set {
         ArgumentValidator.EnsureArgumentNotNull(origin, "value");
         if (value.Descriptor!=Descriptor)
           throw new ArgumentException(

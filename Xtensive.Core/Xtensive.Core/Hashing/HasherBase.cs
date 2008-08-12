@@ -22,9 +22,9 @@ namespace Xtensive.Core.Hashing
     private IHasherProvider provider;
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
     public IHasherProvider Provider
     {
+      [DebuggerStepThrough]
       get { return provider; }
     }
 

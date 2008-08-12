@@ -21,13 +21,11 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets the configuration.
     /// </summary>
-    [DebuggerStepThrough]
     public DomainConfiguration Configuration { get; private set; }
 
     /// <summary>
     /// Gets the domain model.
     /// </summary>
-    [DebuggerStepThrough]
     public DomainModel Model { get; internal set; }
 
     /// <summary>
@@ -62,7 +60,6 @@ namespace Xtensive.Storage
       get { return Handlers.DomainHandler; }
     }
 
-    [DebuggerStepThrough]
     internal HandlerAccessor Handlers { get; private set; }
 
 

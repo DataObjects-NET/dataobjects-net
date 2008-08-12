@@ -22,9 +22,9 @@ namespace Xtensive.Core.Conversion
     private IAdvancedConverterProvider provider;
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
     public IAdvancedConverterProvider Provider
     {
+      [DebuggerStepThrough]
       get { return provider; }
     }
 

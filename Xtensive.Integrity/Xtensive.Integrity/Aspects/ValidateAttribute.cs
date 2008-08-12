@@ -14,7 +14,6 @@ using Xtensive.Core.Aspects;
 using Xtensive.Core.Aspects.Helpers;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Reflection;
-using Xtensive.Integrity.Resources;
 using Xtensive.Integrity.Validation;
 
 namespace Xtensive.Integrity.Aspects

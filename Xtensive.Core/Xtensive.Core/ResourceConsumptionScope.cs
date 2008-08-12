@@ -27,10 +27,11 @@ namespace Xtensive.Core
     /// Gets or sets the current consumption scope.
     /// </summary>
     /// <value>The current consumption scope.</value>
-    [DebuggerStepThrough]
     protected static ResourceConsumptionScope<TResource> Current
     {
+      [DebuggerStepThrough]
       get { return current; }
+      [DebuggerStepThrough]
       set { current = value; }
     }
 
@@ -39,9 +40,9 @@ namespace Xtensive.Core
     /// Gets outer consumption scope if exists.
     ///</summary>
     /// <value>The outer consumption scope or <see langword="null"/> if it does not exist.</value>
-    [DebuggerStepThrough]
     protected ResourceConsumptionScope<TResource> Outer
     {
+      [DebuggerStepThrough]
       get { return outer; }
     }
 
@@ -49,10 +50,11 @@ namespace Xtensive.Core
     /// Gets or sets the <see cref="IResource"/> object this instance is bound to.
     /// </summary>
     /// <value>The <see cref="IResource"/>.</value>
-    [DebuggerStepThrough]
     protected TResource Resource
     {
+      [DebuggerStepThrough]
       get { return resource; }
+      [DebuggerStepThrough]
       set { resource = value; }
     }
 

@@ -72,9 +72,9 @@ namespace Xtensive.Core.Diagnostics
     /// <summary>
     /// Gets output of this log (as <see cref="StringBuilder"/>).
     /// </summary>
-    [DebuggerStepThrough]
     public StringBuilder Output
     {
+      [DebuggerStepThrough]
       get { return output; }
     }
 
@@ -99,9 +99,9 @@ namespace Xtensive.Core.Diagnostics
     }
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
     public object SyncRoot
     {
+      [DebuggerStepThrough]
       get { return this; }
     }
 

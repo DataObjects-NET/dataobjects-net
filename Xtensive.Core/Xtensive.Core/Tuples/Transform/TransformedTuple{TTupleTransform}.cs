@@ -20,9 +20,9 @@ namespace Xtensive.Core.Tuples.Transform
     private TTupleTransform transform;
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
     public override ITupleTransform Transform
     {
+      [DebuggerStepThrough]
       get { return transform; }
     }
 

@@ -38,17 +38,17 @@ namespace Xtensive.Core.SizeCalculators
     private int defaultSize;
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
     public ISizeCalculatorProvider Provider
     {
+      [DebuggerStepThrough]
       get { return provider; }
     }
 
     /// <summary>
     /// Gets the size of default instance of type <typeparamref name="T"/>.
     /// </summary>
-    [DebuggerStepThrough]
     protected int DefaultSize {
+      [DebuggerStepThrough]
       get {
         return defaultSize;
       }

@@ -22,23 +22,22 @@ namespace Xtensive.Integrity.Atomicity
     private object[] arguments;
     private bool isUndone;
 
-    [DebuggerStepThrough]
-    public IUndoDescriptor OppositeDescriptor
-    {
+    public IUndoDescriptor OppositeDescriptor {
+      [DebuggerStepThrough]
       get { return oppositeDescriptor; }
+      [DebuggerStepThrough]
       set { oppositeDescriptor = value; }
     }
 
-    [DebuggerStepThrough]
-    public bool IsUndone
-    {
+    public bool IsUndone {
+      [DebuggerStepThrough]
       get { return isUndone; }
     }
 
-    [DebuggerStepThrough]
-    public object[] Arguments
-    {
+    public object[] Arguments {
+      [DebuggerStepThrough]
       get { return arguments; }
+      [DebuggerStepThrough]
       set { arguments = value; }
     }
 

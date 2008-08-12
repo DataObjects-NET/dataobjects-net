@@ -22,11 +22,9 @@ namespace Xtensive.Storage
     /// Gets the type of this instance.
     /// </summary>
     [Infrastructure]
-    [DebuggerStepThrough]
     public abstract TypeInfo Type { get; }
 
     [Infrastructure]
-    [DebuggerStepThrough]
     protected abstract internal Tuple Tuple { get; }
 
     [Infrastructure]

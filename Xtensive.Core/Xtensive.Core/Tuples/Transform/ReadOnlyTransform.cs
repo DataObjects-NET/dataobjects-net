@@ -24,8 +24,8 @@ namespace Xtensive.Core.Tuples.Transform
     private static readonly ReadOnlyTransform instance = new ReadOnlyTransform();
 
     /// <see cref="SingletonDocTemplate.Instance" copy="true"/>
-    [DebuggerStepThrough]
     public static ReadOnlyTransform Instance {
+      [DebuggerStepThrough]
       get { return instance; }
     }
 
@@ -33,8 +33,8 @@ namespace Xtensive.Core.Tuples.Transform
     /// <inheritdoc/>
     /// Implementation in this class always returns <see langword="true"/>.
     /// </summary>
-    [DebuggerStepThrough]
     public override bool IsReadOnly {
+      [DebuggerStepThrough]
       get {
         return true;
       }

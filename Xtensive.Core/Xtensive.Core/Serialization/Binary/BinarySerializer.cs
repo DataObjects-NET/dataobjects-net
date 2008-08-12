@@ -26,8 +26,8 @@ namespace Xtensive.Core.Serialization.Binary
     private static BinarySerializer instance;
 
     /// <see cref="SingletonDocTemplate.Instance" copy="true"/>
-    [DebuggerStepThrough]
     public static BinarySerializer Instance {
+      [DebuggerStepThrough]
       get {
         if (instance==null)
           instance = new BinarySerializer();

@@ -37,20 +37,18 @@ namespace Xtensive.Storage
     #region Internal properties
 
     [Infrastructure]
-    [DebuggerStepThrough]
-    internal EntityData Data
-    {
+    internal EntityData Data {
+      [DebuggerStepThrough]
       get { return data; }
     }
 
     /// <exception cref="Exception">Property is already initialized.</exception>
     [Field]
-    [DebuggerStepThrough]
-    internal int TypeId
-    {
+    internal int TypeId {
+      [DebuggerStepThrough]
       get { return GetValue<int>(NameBuilder.TypeIdFieldName); }
-      private set
-      {
+      [DebuggerStepThrough]
+      private set {
         FieldInfo field = Type.Fields[NameBuilder.TypeIdFieldName];
         field.GetAccessor<int>().SetValue(this, field, value);
       }
@@ -62,23 +60,20 @@ namespace Xtensive.Storage
 
     /// <exception cref="Exception">Property is already initialized.</exception>
     [Infrastructure]
-    [DebuggerStepThrough]
-    public Key Key
-    {
+    public Key Key {
+      [DebuggerStepThrough]
       get { return Data.Key; }
     }
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
-    public override sealed TypeInfo Type
-    {
+    public override sealed TypeInfo Type {
+      [DebuggerStepThrough]
       get { return Data.Type; }
     }
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
-    protected internal sealed override Tuple Tuple
-    {
+    protected internal sealed override Tuple Tuple {
+      [DebuggerStepThrough]
       get { return Data.Tuple; }
     }
 
@@ -88,6 +83,7 @@ namespace Xtensive.Storage
     [Infrastructure]
     public PersistenceState PersistenceState
     {
+      [DebuggerStepThrough]
       get { return Data.PersistenceState; }
       internal set
       {
@@ -104,17 +100,15 @@ namespace Xtensive.Storage
 
     /// <inheritdoc/>
     [Infrastructure]
-    [DebuggerStepThrough]
-    Key IIdentified<Key>.Identifier
-    {
+    Key IIdentified<Key>.Identifier {
+      [DebuggerStepThrough]
       get { return Key; }
     }
 
     /// <inheritdoc/>
     [Infrastructure]
-    [DebuggerStepThrough]
-    object IIdentified.Identifier
-    {
+    object IIdentified.Identifier {
+      [DebuggerStepThrough]
       get { return Key; }
     }
 

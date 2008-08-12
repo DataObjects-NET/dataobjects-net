@@ -18,11 +18,9 @@ namespace Xtensive.Integrity.Atomicity
   /// </summary>
   public class UndoScope: Scope<IUndoDescriptor>
   {
-    [DebuggerStepThrough]
     public static IUndoDescriptor CurrentDescriptor {
-      get {
-        return CurrentContext;
-      }
+      [DebuggerStepThrough]
+      get { return CurrentContext; }
     }
 
     public static UndoScope CreateBlockingScope()
@@ -33,15 +31,13 @@ namespace Xtensive.Integrity.Atomicity
         return new UndoScope(new BlockingUndoDescriptor());
     }
 
-    [DebuggerStepThrough]
-    public IUndoDescriptor Descriptor
-    {
+    public IUndoDescriptor Descriptor {
+      [DebuggerStepThrough]
       get { return Context; }
     }
 
-    [DebuggerStepThrough]
-    internal new UndoScope OuterScope
-    {
+    internal new UndoScope OuterScope {
+      [DebuggerStepThrough]
       get { return (UndoScope)base.OuterScope; }
     }
 

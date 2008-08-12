@@ -21,10 +21,11 @@ namespace Xtensive.Integrity.Atomicity
   {
     private MethodCallDescriptor callDescriptor;
 
-    [DebuggerStepThrough]
     public MethodCallDescriptor CallDescriptor
     {
+      [DebuggerStepThrough]
       get { return callDescriptor; }
+      [DebuggerStepThrough]
       set { callDescriptor = value; }
     }
 

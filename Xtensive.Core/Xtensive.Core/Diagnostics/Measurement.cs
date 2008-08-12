@@ -28,39 +28,41 @@ namespace Xtensive.Core.Diagnostics
     private int      operationCount;
 
 
-    [DebuggerStepThrough]
     public string Name
     {
+      [DebuggerStepThrough]
       get { return name; }
-      set
-      {
+      [DebuggerStepThrough]
+      set {
         ArgumentValidator.EnsureArgumentNotNullOrEmpty(value, "value");
         name = value;
         UpdateFullName();
       }
     }
 
-    [DebuggerStepThrough]
     public string FullName {
+      [DebuggerStepThrough]
       get { return fullName; }
+      [DebuggerStepThrough]
       protected set { fullName = value; }
     }
 
-    [DebuggerStepThrough]
     public MeasurementOptions Options
     {
+      [DebuggerStepThrough]
       get { return options; }
     }
 
-    [DebuggerStepThrough]
     public bool IsCompleted
     {
+      [DebuggerStepThrough]
       get { return isCompleted; }
     }
 
-    [DebuggerStepThrough]
     public int OperationCount {
+      [DebuggerStepThrough]
       get { return operationCount; }
+      [DebuggerStepThrough]
       set {
         operationCount = value;
         UpdateFullName();

@@ -31,9 +31,9 @@ namespace Xtensive.Core.Conversion
     private static readonly Dictionary<Pair<Type>, bool> inProgress = new Dictionary<Pair<Type>, bool>();
 
     /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
-    [DebuggerStepThrough]
     public static IAdvancedConverterProvider Default
     {
+      [DebuggerStepThrough]
       get { return @default; }
     }
 
@@ -44,9 +44,9 @@ namespace Xtensive.Core.Conversion
     }
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
     public virtual DateTime BaseTime
     {
+      [DebuggerStepThrough]
       get { return ZeroTime; }
     }
 

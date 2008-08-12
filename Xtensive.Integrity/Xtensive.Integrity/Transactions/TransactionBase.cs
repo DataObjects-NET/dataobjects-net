@@ -30,39 +30,34 @@ namespace Xtensive.Integrity.Transactions
     #region IIdentified<Guid> Members
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
-    public Guid Identifier
-    {
+    public Guid Identifier {
+      [DebuggerStepThrough]
       get { return identifier; }
     }
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
-    object IIdentified.Identifier
-    {
+    object IIdentified.Identifier {
+      [DebuggerStepThrough]
       get { return identifier; }
     }
 
     #endregion
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
-    public TransactionState State
-    {
+    public TransactionState State {
+      [DebuggerStepThrough]
       get { return state; }
     }
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
-    public IsolationLevel IsolationLevel
-    {
+    public IsolationLevel IsolationLevel {
+      [DebuggerStepThrough]
       get { return isolationLevel; }
     }
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
-    public override bool IsActive
-    {
+    public override bool IsActive {
+      [DebuggerStepThrough]
       get { return TransactionScopeBase<TScope, TTransaction>.CurrentTransaction == this; }
     }
 

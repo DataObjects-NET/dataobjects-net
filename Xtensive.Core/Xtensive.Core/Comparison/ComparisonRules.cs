@@ -41,9 +41,9 @@ namespace Xtensive.Core.Comparison
     /// <summary>
     /// Gets primary <see cref="ComparisonRule"/> value.
     /// </summary>
-    [DebuggerStepThrough]
     public ComparisonRule Value
     {
+      [DebuggerStepThrough]
       get { return value; }
     }
 
@@ -52,18 +52,18 @@ namespace Xtensive.Core.Comparison
     /// Tail rule is considered repeating infinitely 
     /// starting from <see cref="TailIndex"/>.
     /// </summary>
-    [DebuggerStepThrough]
     public ComparisonRules Tail
     {
+      [DebuggerStepThrough]
       get { return composite[TailIndex]; }
     }
 
     /// <summary>
     /// Gets count of <see cref="Composite"/> rules.
     /// </summary>
-    [DebuggerStepThrough]
     public int Count
     {
+      [DebuggerStepThrough]
       get { return composite.Length; }
     }
 
@@ -71,9 +71,9 @@ namespace Xtensive.Core.Comparison
     /// Gets <see cref="Tail"/> rule index in <see cref="Composite"/> rules.
     /// Always returns <see cref="Count"/>-1.
     /// </summary>
-    [DebuggerStepThrough]
     public int TailIndex
     {
+      [DebuggerStepThrough]
       get { return composite.Length-1; }
     }
 
@@ -82,11 +82,9 @@ namespace Xtensive.Core.Comparison
     /// i.e. its <see cref="Count"/>==<see langword="1"/> and 
     /// <see cref="Composite"/><see langword="[0]"/> returns itself.
     /// </summary>
-    [DebuggerStepThrough]
     public bool IsRecursive {
-      get {
-        return this==composite[0];
-      }
+      [DebuggerStepThrough]
+      get { return this==composite[0]; }
     }
 
     /// <summary>

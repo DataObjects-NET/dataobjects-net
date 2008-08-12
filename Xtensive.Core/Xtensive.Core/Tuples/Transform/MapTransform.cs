@@ -33,19 +33,17 @@ namespace Xtensive.Core.Tuples.Transform
     public const int NoMapping = Int32.MinValue;
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
     public override bool IsReadOnly {
-      get {
-        return isReadOnly;
-      }
+      [DebuggerStepThrough]
+      get { return isReadOnly; }
     }
 
     /// <summary>
     /// Gets the count of source <see cref="Tuples"/> this transform maps to the target one.
     /// </summary>
-    [DebuggerStepThrough]
     public int SourceCount
     {
+      [DebuggerStepThrough]
       get { return sourceCount; }
     }
 

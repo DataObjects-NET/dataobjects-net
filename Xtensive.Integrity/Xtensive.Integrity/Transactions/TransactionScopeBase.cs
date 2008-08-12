@@ -28,19 +28,16 @@ namespace Xtensive.Integrity.Transactions
     /// <summary>
     /// Gets current <see cref="TTransaction"/> object in this type of scope.
     /// </summary>
-    [DebuggerStepThrough]
     public static TTransaction CurrentTransaction {
-      get {
-        return CurrentContext;
-      }
+      [DebuggerStepThrough]
+      get { return CurrentContext; }
     }
 
     /// <summary>
     /// Gets <see cref="TTransaction"/> object associated with this scope.
     /// </summary>
-    [DebuggerStepThrough]
-    public TTransaction Transaction
-    {
+    public TTransaction Transaction {
+      [DebuggerStepThrough]
       get { return Context; }
     }
 

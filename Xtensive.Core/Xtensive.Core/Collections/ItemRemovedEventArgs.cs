@@ -21,9 +21,9 @@ namespace Xtensive.Core.Collections
     ///<summary>
     /// Gets the expiring item.
     ///</summary>
-    [DebuggerStepThrough]
     public TItem Item
     {
+      [DebuggerStepThrough]
       get { return item; }
     }
 

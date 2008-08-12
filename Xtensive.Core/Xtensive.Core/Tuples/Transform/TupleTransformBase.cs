@@ -20,11 +20,9 @@ namespace Xtensive.Core.Tuples.Transform
     public TupleDescriptor Descriptor { get; protected set; }
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
     public virtual bool IsReadOnly {
-      get {
-        return false;
-      }
+      [DebuggerStepThrough]
+      get { return false; }
     }
 
     /// <inheritdoc/>

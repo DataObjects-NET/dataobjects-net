@@ -37,9 +37,9 @@ namespace Xtensive.Core.Collections
     public abstract int Count { get; }
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
     long ICountable.Count
     {
+      [DebuggerStepThrough]
       get { return Count; }
     }
 
@@ -67,18 +67,16 @@ namespace Xtensive.Core.Collections
     #region Non-abstract methods (IDictionary, etc. implementation)
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
     public bool IsReadOnly
     {
+      [DebuggerStepThrough]
       get { return false; }
     }
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
-    public ICollection<TKey> Keys
-    {
-      get
-      {
+    public ICollection<TKey> Keys {
+      [DebuggerStepThrough]
+      get {
         if (keys==null)
           keys = new KeyCollection(this);
         return keys;
@@ -86,11 +84,9 @@ namespace Xtensive.Core.Collections
     }
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
-    public ICollection<TValue> Values
-    {
-      get
-      {
+    public ICollection<TValue> Values {
+      [DebuggerStepThrough]
+      get {
         if (values==null)
           values = new ValueCollection(this);
         return values;
@@ -98,10 +94,8 @@ namespace Xtensive.Core.Collections
     }
 
     /// <inheritdoc/>
-    public TValue this[TKey key]
-    {
-      get
-      {
+    public TValue this[TKey key] {
+      get {
         TValue value;
         if (!TryGetValue(key, out value))
           throw new KeyNotFoundException();

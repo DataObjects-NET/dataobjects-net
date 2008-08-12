@@ -41,37 +41,37 @@ namespace Xtensive.Core.Collections
 
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
     public int Capacity
     {
+      [DebuggerStepThrough]
       get { return capacity; }
     }
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
     public int AvailableCount
     {
+      [DebuggerStepThrough]
       get { return availableCount; }
     }
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
     public int Count
     {
+      [DebuggerStepThrough]
       get { return count; }
     }
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
     public TimeSpan ItemExpirationPeriod
     {
+      [DebuggerStepThrough]
       get { return itemExpirationPeriod; }
     }
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
     public TimeSpan GarbageCollectionPeriod
     {
+      [DebuggerStepThrough]
       get { return garbageCollectionPeriod; }
     }
 

@@ -46,9 +46,9 @@ namespace Xtensive.Core.Arithmetic
     protected readonly ArithmeticRules Rules;
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
     public IArithmeticProvider Provider
     {
+      [DebuggerStepThrough]
       get { return provider; }
     }
 

@@ -37,8 +37,8 @@ namespace Xtensive.Core.Diagnostics
     // Static methods
     
     /// <see cref="SingletonDocTemplate.Instance" copy="true"/>
-    [DebuggerStepThrough]
     public static LogProvider Instance {
+      [DebuggerStepThrough]
       get { return instance; }
     }
 
@@ -95,16 +95,16 @@ namespace Xtensive.Core.Diagnostics
     }
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
     public bool IsSynchronized
     {
+      [DebuggerStepThrough]
       get { return true; }
     }
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
     public object SyncRoot
     {
+      [DebuggerStepThrough]
       get { return syncRoot; }
     }
 

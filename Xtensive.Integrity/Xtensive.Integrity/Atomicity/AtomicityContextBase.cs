@@ -20,16 +20,15 @@ namespace Xtensive.Integrity.Atomicity
     private IOperationLog operationLog;
     private AtomicityContextOptions options;
 
-    [DebuggerStepThrough]
-    public AtomicityContextOptions Options
-    {
+    public AtomicityContextOptions Options {
+      [DebuggerStepThrough]
       get { return options; }
+      [DebuggerStepThrough]
       protected set { options = value; }
     }
 
-    [DebuggerStepThrough]
-    public IOperationDescriptorFactory OperationDescriptorFactory
-    {
+    public IOperationDescriptorFactory OperationDescriptorFactory {
+      [DebuggerStepThrough]
       get { return operationDescriptorFactory; }
     }
 

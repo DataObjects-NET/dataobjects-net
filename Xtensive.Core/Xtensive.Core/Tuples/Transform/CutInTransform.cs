@@ -26,18 +26,18 @@ namespace Xtensive.Core.Tuples.Transform
     /// <summary>
     /// Gets the start index at witch this transform cuts in specified value.
     /// </summary>
-    [DebuggerStepThrough]
     public int Index
     {
+      [DebuggerStepThrough]
       get { return index; }
     }
 
     /// <summary>
     /// Gets tuple descriptors this transform cuts in.
     /// </summary>
-    [DebuggerStepThrough]
     public TupleDescriptor[] Sources
     {
+      [DebuggerStepThrough]
       get { return sources.Copy(); }
     }
 

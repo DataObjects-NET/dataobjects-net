@@ -28,8 +28,8 @@ namespace Xtensive.Core.Hashing
     /// Gets default hasher for type <typeparamref name="T"/>
     /// (uses <see cref="HasherProvider.Default"/> <see cref="HasherProvider"/>).
     /// </summary>
-    [DebuggerStepThrough]
     public static Hasher<T> Default {
+      [DebuggerStepThrough]
       get {
         if (@default==null) lock (syncRoot) if (@default==null) {
           try {

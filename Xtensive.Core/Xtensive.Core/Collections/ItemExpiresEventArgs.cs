@@ -23,19 +23,20 @@ namespace Xtensive.Core.Collections
     /// <see langword="True"/>, if item must be kept in collection; 
     /// otherwise, <see langword="false"/>.
     /// </summary>
-    [DebuggerStepThrough]
     public bool Cancel
     {
+      [DebuggerStepThrough]
       get { return cancel; }
+      [DebuggerStepThrough]
       set { cancel = value; }
     }
 
     ///<summary>
     /// Gets the expiring item.
     ///</summary>
-    [DebuggerStepThrough]
     public TItem Item
     {
+      [DebuggerStepThrough]
       get { return item; }
     }
 

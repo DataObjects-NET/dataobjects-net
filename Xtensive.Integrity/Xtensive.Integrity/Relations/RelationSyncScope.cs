@@ -23,8 +23,8 @@ namespace Xtensive.Integrity.Relations
     /// <summary>
     /// Gets current <see cref="TContext"/> object in this type of scope.
     /// </summary>
-    [DebuggerStepThrough]
     public new static TContext CurrentContext {
+      [DebuggerStepThrough]
       get {
         var scope = CurrentScope as RelationSyncScope<TContext>;
         return scope!=null ? scope.Context : null;
@@ -34,9 +34,8 @@ namespace Xtensive.Integrity.Relations
     /// <summary>
     /// Gets <see cref="TContext"/> object associated with this scope.
     /// </summary>
-    [DebuggerStepThrough]
-    public new TContext Context
-    {
+    public new TContext Context {
+      [DebuggerStepThrough]
       get { return base.Context; }
     }
 

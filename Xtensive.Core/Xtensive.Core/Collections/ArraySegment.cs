@@ -28,27 +28,27 @@ namespace Xtensive.Core.Collections
     /// Gets the original array containing the range of elements that the array segment delimits.
     /// </summary>
     /// <remarks>The Array property returns the original array, not a copy of the array; therefore, changes made through the property are made directly to the original array.</remarks>
-    [DebuggerStepThrough]
     public T[] Array
     {
+      [DebuggerStepThrough]
       get { return array; }
     }
 
     /// <summary>
     /// Gets the position of the first element in the range delimited by the array segment, relative to the start of the original array.
     /// </summary>
-    [DebuggerStepThrough]
     public int Offset
     {
+      [DebuggerStepThrough]
       get { return offset; }
     }
 
     /// <summary>
     /// Gets the number of elements in the range delimited by the array segment.
     /// </summary>
-    [DebuggerStepThrough]
     public int Length
     {
+      [DebuggerStepThrough]
       get { return length; }
     }
 

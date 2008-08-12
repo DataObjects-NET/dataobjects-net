@@ -29,8 +29,8 @@ namespace Xtensive.Core.SizeCalculators
     /// Gets default size calculator for type <typeparamref name="T"/>
     /// (uses <see cref="SizeCalculatorProvider.Default"/> <see cref="SizeCalculatorProvider"/>).
     /// </summary>
-    [DebuggerStepThrough]
     public static SizeCalculator<T> Default {
+      [DebuggerStepThrough]
       get {
         if (@default==null) lock (_lock) if (@default==null) {
           try {

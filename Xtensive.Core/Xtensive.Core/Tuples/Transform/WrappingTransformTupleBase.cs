@@ -19,24 +19,22 @@ namespace Xtensive.Core.Tuples.Transform
     private readonly Tuple origin;
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
     public override TupleDescriptor Descriptor
     {
+      [DebuggerStepThrough]
       get { return origin.Descriptor; }
     }
 
     /// <inheritdoc />
-    [DebuggerStepThrough]
     public override int Count {
+      [DebuggerStepThrough]
       get { return origin.Count; }
     }
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
     public override object[] Arguments {
-      get {
-        return new object[] {origin};
-      }
+      [DebuggerStepThrough]
+      get { return new object[] {origin}; }
     }
 
     #region GetFieldState, GetValueOrDefault, SetValue methods

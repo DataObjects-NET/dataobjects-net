@@ -29,8 +29,8 @@ namespace Xtensive.Core.Collections
     private int iteration;
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
     public override int Count {
+      [DebuggerStepThrough]
       get {
         IterationalCleanup();
         return dictionary.Count;

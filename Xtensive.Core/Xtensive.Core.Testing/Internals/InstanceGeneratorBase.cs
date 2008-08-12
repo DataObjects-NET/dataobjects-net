@@ -24,9 +24,9 @@ namespace Xtensive.Core.Testing
     private IInstanceGeneratorProvider provider;
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
     public IInstanceGeneratorProvider Provider
     {
+      [DebuggerStepThrough]
       get { return provider; }
     }
 

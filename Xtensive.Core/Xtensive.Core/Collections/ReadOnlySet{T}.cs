@@ -27,23 +27,23 @@ namespace Xtensive.Core.Collections
     }
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
     public int Count
     {
+      [DebuggerStepThrough]
       get { return innerSet.Count; }
     }
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
     long ICountable.Count
     {
+      [DebuggerStepThrough]
       get { return innerSet.Count; }
     }
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
     public bool IsReadOnly
     {
+      [DebuggerStepThrough]
       get { return true; }
     }
 

@@ -16,9 +16,9 @@ namespace Xtensive.Core.Collections
     private readonly ICollection<TItem> buffer;
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
     public long Count
     {
+      [DebuggerStepThrough]
       get { return buffer.Count; }
     }
 

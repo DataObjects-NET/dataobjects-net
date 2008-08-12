@@ -19,20 +19,18 @@ namespace Xtensive.Integrity.Atomicity
     private object target;
     private MethodBase method;
 
-    [DebuggerStepThrough]
-    public object Target
-    {
+    public object Target {
+      [DebuggerStepThrough]
       get { return target; }
     }
 
-    [DebuggerStepThrough]
-    public MethodBase Method
-    {
+    public MethodBase Method {
+      [DebuggerStepThrough]
       get { return method; }
     }
 
-    [DebuggerStepThrough]
     public bool IsValid {
+      [DebuggerStepThrough]
       get {
         if (method==null)
           return false;

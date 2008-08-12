@@ -26,36 +26,32 @@ namespace Xtensive.Integrity
     /// <summary>
     /// An object on which version conflict was detected.
     /// </summary>
-    [DebuggerStepThrough]
-    public object Target
-    {
+    public object Target {
+      [DebuggerStepThrough]
       get { return target; }
     }
 
     /// <summary>
     /// Name of the property of the <see cref="Target"/>, which value differs from the expected one.
     /// </summary>
-    [DebuggerStepThrough]
-    public string PropertyName
-    {
+    public string PropertyName {
+      [DebuggerStepThrough]
       get { return propertyName; }
     }
 
     /// <summary>
     /// Expected value of the <see cref="PropertyName"/> property of the <see cref="Target"/>.
     /// </summary>
-    [DebuggerStepThrough]
-    public object ExpectedValue
-    {
+    public object ExpectedValue {
+      [DebuggerStepThrough]
       get { return expectedValue; }
     }
 
     /// <summary>
     /// Actual value of the <see cref="PropertyName"/> property of the <see cref="Target"/>.
     /// </summary>
-    [DebuggerStepThrough]
-    public object ActualValue
-    {
+    public object ActualValue {
+      [DebuggerStepThrough]
       get { return actualValue; }
     }
 

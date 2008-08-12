@@ -27,8 +27,8 @@ namespace Xtensive.Core.Arithmetic
     /// Gets default arithmetic for type <typeparamref name="T"/>
     /// (uses <see cref="ArithmeticProvider.Default"/> <see cref="ArithmeticProvider"/>).
     /// </summary>
-    [DebuggerStepThrough]
     public static Arithmetic<T> Default {
+      [DebuggerStepThrough]
       get {
         if (@default==null) lock (_lock) if (@default==null) {
           try {

@@ -27,8 +27,8 @@ namespace Xtensive.Core.Diagnostics
     /// <summary>
     /// Gets the size of the pointer (reference field) in bytes.
     /// </summary>
-    [DebuggerStepThrough]
     public static int PointerSize {
+      [DebuggerStepThrough]
       get {
         return pointerSize;
       }
@@ -38,8 +38,8 @@ namespace Xtensive.Core.Diagnostics
     /// Gets default struct or class field alignment in bytes.
     /// See <see cref="StructLayoutAttribute.Pack">StructLayoutAttribute.Pack</see> for further information.
     /// </summary>
-    [DebuggerStepThrough]
     public static int DefaultStructLayoutPack {
+      [DebuggerStepThrough]
       get {
         return defaultStructLayoutPack;
       }
@@ -48,8 +48,8 @@ namespace Xtensive.Core.Diagnostics
     /// <summary>
     /// Gets the minimal size of any object in bytes.
     /// </summary>
-    [DebuggerStepThrough]
     public static int MinimalObjectSize {
+      [DebuggerStepThrough]
       get {
         return minimalObjectSize;
       }

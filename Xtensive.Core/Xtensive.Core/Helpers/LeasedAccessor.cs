@@ -23,9 +23,9 @@ namespace Xtensive.Core.Helpers
     /// <summary>
     /// Provides access to actually leased object.
     /// </summary>
-    [DebuggerStepThrough]
     public T Leased
     {
+      [DebuggerStepThrough]
       get { return leased; }
     }
 

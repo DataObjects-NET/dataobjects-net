@@ -24,9 +24,9 @@ namespace Xtensive.Core.Serialization.Binary
     private static readonly ValueSerializerProvider @default = new ValueSerializerProvider();
 
     /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
-    [DebuggerStepThrough]
     public static IValueSerializerProvider Default
     {
+      [DebuggerStepThrough]
       get { return @default; }
     }
 

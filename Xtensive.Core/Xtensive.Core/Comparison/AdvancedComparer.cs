@@ -31,8 +31,8 @@ namespace Xtensive.Core.Comparison
     /// Gets default advanced comparer for type <typeparamref name="T"/>
     /// (uses <see cref="ComparerProvider.Default"/> <see cref="ComparerProvider"/>).
     /// </summary>
-    [DebuggerStepThrough]
     public static AdvancedComparer<T> Default {
+      [DebuggerStepThrough]
       get {
         if (defaultComparer==null) lock (_lock) if (defaultComparer==null) {
           try {

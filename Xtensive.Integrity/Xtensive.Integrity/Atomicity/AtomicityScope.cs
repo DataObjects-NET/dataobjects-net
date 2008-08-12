@@ -20,22 +20,18 @@ namespace Xtensive.Integrity.Atomicity
     private RedoScope cleanRedoScope;
     private UndoScope cleanUndoScope;
 
-    [DebuggerStepThrough]
     public static new AtomicityContextBase CurrentContext {
-      get {
-        return Scope<AtomicityContextBase>.CurrentContext;
-      }
+      [DebuggerStepThrough]
+      get { return Scope<AtomicityContextBase>.CurrentContext; }
     }
 
-    [DebuggerStepThrough]
-    public new AtomicityContextBase Context
-    {
+    public new AtomicityContextBase Context {
+      [DebuggerStepThrough]
       get { return base.Context; }
     }
 
-    [DebuggerStepThrough]
-    internal new AtomicityScope OuterScope
-    {
+    internal new AtomicityScope OuterScope {
+      [DebuggerStepThrough]
       get { return (AtomicityScope)base.OuterScope; }
     }
 

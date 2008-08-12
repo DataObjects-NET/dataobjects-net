@@ -19,9 +19,9 @@ namespace Xtensive.Core.Comparison
     /// <summary>
     /// Gets the only instance of this class.
     /// </summary>
-    [DebuggerStepThrough]
     public static SystemComparerProvider Instance
     {
+      [DebuggerStepThrough]
       get { return instance; }
     }
 

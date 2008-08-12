@@ -30,9 +30,8 @@ namespace Xtensive.Integrity.Validation
     }
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
-    public override bool IsActive
-    {
+    public override bool IsActive {
+      [DebuggerStepThrough]
       get { return ValidationScope.CurrentContext == this; }
     }
 

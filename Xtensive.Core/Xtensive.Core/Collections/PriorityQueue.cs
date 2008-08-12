@@ -64,16 +64,16 @@ namespace Xtensive.Core.Collections
     }
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
     public Direction Direction
     {
+      [DebuggerStepThrough]
       get { return direction; }
     }
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
     public long Count
     {
+      [DebuggerStepThrough]
       get { return count; }
     }
 

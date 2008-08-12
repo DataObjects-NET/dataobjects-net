@@ -30,9 +30,9 @@ namespace Xtensive.Core.Comparison
     private static readonly SystemComparerProvider systemProvider = SystemComparerProvider.Instance;
 
     /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
-    [DebuggerStepThrough]
     public static ComparerProvider Default
     {
+      [DebuggerStepThrough]
       get { return defaultProvider; }
     }
 
@@ -40,9 +40,9 @@ namespace Xtensive.Core.Comparison
     /// Gets system comparer provider.
     /// A shortcut to <see cref="SystemComparerProvider.Instance"/>.
     /// </summary>
-    [DebuggerStepThrough]
     public static SystemComparerProvider System
     {
+      [DebuggerStepThrough]
       get { return systemProvider; }
     }
 

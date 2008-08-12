@@ -26,24 +26,22 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets the underlying tuple.
     /// </summary>
-    [DebuggerStepThrough]
     public Tuple Tuple { get; private set; }
 
     /// <summary>
     /// Gets the hierarchy this instance belongs to.
     /// </summary>
-    [DebuggerStepThrough]
     public HierarchyInfo Hierarchy { get; private set; }
 
     /// <summary>
     /// Gets the type of <see cref="Entity"/> this instance identifies.
     /// </summary>
-    [DebuggerStepThrough]
     public TypeInfo Type
     {
+      [DebuggerStepThrough]
       get { return type; }
-      internal set
-      {
+      [DebuggerStepThrough]
+      internal set {
         if (type!=null && type!=value)
           throw Exceptions.AlreadyInitialized("Type");
         type = value;

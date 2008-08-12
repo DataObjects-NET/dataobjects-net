@@ -41,19 +41,21 @@ namespace Xtensive.Core
     /// <summary>
     /// Gets associate constructor parameters.
     /// </summary>
-    [DebuggerStepThrough]
     protected object[] ConstructorParams
     {
+      [DebuggerStepThrough]
       get { return constructorParams; }
+      [DebuggerStepThrough]
       set { constructorParams = value; }
     }
 
     /// <summary>
     /// Gets or sets associate type suffixes.
     /// </summary>
-    [DebuggerStepThrough]
     protected string[] TypeSuffixes { 
+      [DebuggerStepThrough]
       get { return typeSuffixes; }
+      [DebuggerStepThrough]
       set { typeSuffixes = value; }
     }
 

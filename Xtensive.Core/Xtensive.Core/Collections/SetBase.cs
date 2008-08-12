@@ -27,26 +27,27 @@ namespace Xtensive.Core.Collections
     /// <summary>
     /// Gets or sets a value indicating whether a set contains <see langword="null"/> item.
     /// </summary>
-    [DebuggerStepThrough]
     protected bool ContainsNull
     {
+      [DebuggerStepThrough]
       get { return containsNull; }
+      [DebuggerStepThrough]
       set { containsNull = value; }
     }
 
     #region ISet<TItem> members
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
     public int Count
     {
+      [DebuggerStepThrough]
       get { return Items.Count + (ContainsNull ? 1 : 0); }
     }
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
     long ICountable.Count
     {
+      [DebuggerStepThrough]
       get {return Count;}
     }
 
@@ -77,16 +78,16 @@ namespace Xtensive.Core.Collections
     }
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
     public IEqualityComparer<TItem> Comparer
     {
+      [DebuggerStepThrough]
       get { return comparer; }
     }
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
     public virtual bool IsReadOnly
     {
+      [DebuggerStepThrough]
       get { return IsLocked; }
     }
 

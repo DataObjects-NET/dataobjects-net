@@ -29,8 +29,8 @@ namespace Xtensive.Core.Serialization.Binary
     /// Gets default serializer for type <typeparamref name="T"/>
     /// (uses <see cref="ValueSerializerProvider.Default"/> <see cref="ValueSerializerProvider"/>).
     /// </summary>
-    [DebuggerStepThrough]
     public static ValueSerializer<T> Default {
+      [DebuggerStepThrough]
       get {
         if (@default==null) lock (_lock) if (@default==null) {
           try {

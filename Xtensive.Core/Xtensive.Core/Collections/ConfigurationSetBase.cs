@@ -40,18 +40,18 @@ namespace Xtensive.Core.Helpers
     /// <summary>
     /// Gets the inner list of the items.
     /// </summary>
-    [DebuggerStepThrough]
     protected IList<TItem> Items
     {
+      [DebuggerStepThrough]
       get { return items; }
     }
 
     #region IConfigurationSet<TItem> Members
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
     public long Count
     {
+      [DebuggerStepThrough]
       get { return items.Count; }
     }
 

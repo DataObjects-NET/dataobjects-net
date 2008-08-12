@@ -59,16 +59,16 @@ namespace Xtensive.Core.Collections
     private readonly float growFactor = defaultGrowFactor;
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
     public int Count
     {
+      [DebuggerStepThrough]
       get { return count; }
     }
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
     long ICountable.Count
     {
+      [DebuggerStepThrough]
       get { return count; }
     }
 

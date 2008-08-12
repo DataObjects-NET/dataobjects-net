@@ -31,22 +31,22 @@ namespace Xtensive.Core.Collections
     private ReadOnlyCollection<TValue> innerValueDictionary;
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
     public int Count
     {
+      [DebuggerStepThrough]
       get { return innerDictionary.Count; }
     }
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
     long ICountable.Count
     {
+      [DebuggerStepThrough]
       get { return Count; }
     }
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
     public object SyncRoot {
+      [DebuggerStepThrough]
       get { return this; }
     }
 
@@ -71,16 +71,16 @@ namespace Xtensive.Core.Collections
     #region Keys, Values properties
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
     public ICollection<TKey> Keys
     {
+      [DebuggerStepThrough]
       get { return innerDictionary.Keys; }
     }
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
     public ICollection<TValue> Values
     {
+      [DebuggerStepThrough]
       get { return innerDictionary.Values; }
     }
 
@@ -128,23 +128,23 @@ namespace Xtensive.Core.Collections
     /// Always returns <see langword="true"/>.
     /// </summary>
     /// <returns><see langword="True"/>. </returns>
-    [DebuggerStepThrough]
     public bool IsReadOnly
     {
+      [DebuggerStepThrough]
       get { return true; }
     }
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
     public bool IsFixedSize
     {
+      [DebuggerStepThrough]
       get { return isFixedSize; }
     }
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
     public virtual bool IsSynchronized
     {
+      [DebuggerStepThrough]
       get { return false; }
     }
 
