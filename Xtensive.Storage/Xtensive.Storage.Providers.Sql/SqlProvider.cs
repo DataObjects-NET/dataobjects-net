@@ -40,13 +40,10 @@ namespace Xtensive.Storage.Providers.Sql
       return result;
     }
 
-    protected override void Initialize()
-    {}
-
 
     // Constructor
 
-    public SqlProvider(Provider origin, SqlSelect sqlSelect, HandlerAccessor handlers)
+    public SqlProvider(CompilableProvider origin, SqlSelect sqlSelect, HandlerAccessor handlers)
       : base(origin)
     {
       this.sqlSelect = sqlSelect;

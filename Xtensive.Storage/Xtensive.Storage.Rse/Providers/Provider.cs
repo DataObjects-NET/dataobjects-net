@@ -13,6 +13,7 @@ using Xtensive.Core.Aspects;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
+using Xtensive.Core.Reflection;
 
 namespace Xtensive.Storage.Rse.Providers
 {
@@ -22,10 +23,11 @@ namespace Xtensive.Storage.Rse.Providers
   [Serializable]
   public abstract class Provider : 
     IEnumerable<Tuple>,
-    IInitializable,
-    IHasServices
+    IHasServices,
+    IInitializable
   {
-    private RecordSetHeader header;
+    protected const string ToString_ProviderTypeSuffix = "Provider";
+    protected const int    ToString_IndentSize = 2;
 
     /// <summary>
     /// Gets or sets the source providers 
@@ -36,12 +38,7 @@ namespace Xtensive.Storage.Rse.Providers
     /// <summary>
     /// Gets the header of the record sequence this provide produces.
     /// </summary>
-    public RecordSetHeader Header {
-      get {
-        EnsureHeaderIsBuilt();
-        return header;
-      }
-    }
+    public RecordSetHeader Header { get; private set; }
 
     /// <inheritdoc/>
     public abstract T GetService<T>()
@@ -59,6 +56,7 @@ namespace Xtensive.Storage.Rse.Providers
     /// <inheritdoc/>
     public abstract IEnumerator<Tuple> GetEnumerator();
 
+    /// <inheritdoc/>
     IEnumerator IEnumerable.GetEnumerator()
     {
       return GetEnumerator();
@@ -68,66 +66,83 @@ namespace Xtensive.Storage.Rse.Providers
 
 
     /// <summary>
-    /// Performs initialization of the provider if type of this is <paramref name="constructedProviderType"/>.
+    /// Performs initialization (see <see cref="Initialize()"/>) of the provider 
+    /// if type of <see langword="this" /> is the same as <paramref name="ctorType"/>.
+    /// Invoked by <see cref="InitializableAttribute"/> aspect in the epilogue of any 
+    /// constructor of this type and its ancestors.
     /// </summary>
-    /// <param name="constructedProviderType">Type of the constructed provider.</param>
-    protected void Initialize(Type constructedProviderType)
+    /// <param name="ctorType">The type, which constructor has invoked this method.</param>
+    protected void Initialize(Type ctorType)
     {
-      if (constructedProviderType==GetType())
+      if (ctorType==GetType())
         Initialize();
     }
 
     /// <summary>
     /// Performs initialization of the provider.
     /// </summary>
-    protected abstract void Initialize();
-
-    private void EnsureHeaderIsBuilt()
+    protected virtual void Initialize()
     {
-      if (header == null) lock (this) if (header == null)
-        header = BuildHeader();
+      Header = BuildHeader();
     }
-      
-    #region ToString() implementation
 
-    private const string ProviderTypeSuffix = "Provider";
-    private const int IndentingCharCount = 2;
+    #region ToString method
 
     /// <inheritdoc/>
     public sealed override string ToString()
     {
-      StringBuilder sb = new StringBuilder();
-      BuildString(sb, 0);
+      var sb = new StringBuilder();
+      AppendBodyTo(sb, 0);
       return sb.ToString();
     }
 
-    private void BuildString(StringBuilder sb, int indent)
+    /// <summary>
+    /// Appends the provider's representation to the specified <see cref="StringBuilder"/>.
+    /// </summary>
+    /// <param name="sb">The <see cref="StringBuilder"/> to use.</param>
+    /// <param name="indent">The indent.</param>
+    protected internal virtual void AppendBodyTo(StringBuilder sb, int indent)
     {
-      BuildTitle(sb, indent);
-
+      AppendTitleTo(sb, indent);
       foreach (Provider source in Sources)
-        source.BuildString(sb, indent + IndentingCharCount);
-    }
-
-    private void BuildTitle(StringBuilder sb, int indent)
-    {      
-      string providerName = GetType().Name.TryCutSuffix(ProviderTypeSuffix);
-      string parameters = GetStringParameters();
-
-      sb.Append(new string(' ', indent));
-      sb.Append(providerName);
-
-      if (!parameters.IsNullOrEmpty())
-        sb.Append(string.Format(" ({0})", parameters));
-
-      sb.Append(Environment.NewLine);
+        source.AppendBodyTo(sb, indent + ToString_IndentSize);
     }
 
     /// <summary>
-    /// Gets the provider parameters for the <see cref=" ToString"/> method.    
+    /// Appends the provider's title representation to the specified <see cref="StringBuilder"/>.
     /// </summary>
-    /// <returns>Provider parameters represented by single line string.</returns>
-    public virtual string GetStringParameters()
+    /// <param name="sb">The <see cref="StringBuilder"/> to use.</param>
+    /// <param name="indent">The indent.</param>
+    protected internal void AppendTitleTo(StringBuilder sb, int indent)
+    {      
+      sb.Append(new string(' ', indent))
+        .Append(TitleToString())
+        .Append(Environment.NewLine);
+    }
+
+    /// <summary>
+    /// Gets the string representation of provider title
+    /// for the <see cref="ToString"/> method.    
+    /// </summary>
+    /// <returns>Provider title as a single line string.</returns>
+    public virtual string TitleToString()
+    {
+      var sb = new StringBuilder();
+      string providerName = GetType().GetShortName().TryCutSuffix(ToString_ProviderTypeSuffix);
+      string parameters = ParametersToString();
+
+      sb.Append(providerName);
+      if (!parameters.IsNullOrEmpty())
+        sb.AppendFormat(" ({0})", parameters);
+      return sb.ToString();
+    }
+
+    /// <summary>
+    /// Gets the string representation of provider parameters 
+    /// for the <see cref="ToString"/> method.    
+    /// </summary>
+    /// <returns>Provider parameters as a single line string.</returns>
+    public virtual string ParametersToString()
     {
       return string.Empty;
     }

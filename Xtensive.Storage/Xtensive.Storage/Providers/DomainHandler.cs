@@ -16,9 +16,9 @@ namespace Xtensive.Storage.Providers
     private CompilationContext compiler;
     private Dictionary<IndexInfo, IndexProvider> providerCache = new Dictionary<IndexInfo, IndexProvider>();
 
-    public abstract void Build();
-
     public Domain Domain { get; internal set; }
+
+    public abstract void Build();
 
     internal IndexProvider GetIndexProvider(IndexInfo index)
     {

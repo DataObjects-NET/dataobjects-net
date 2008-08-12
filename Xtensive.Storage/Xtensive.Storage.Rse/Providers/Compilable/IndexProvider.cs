@@ -16,7 +16,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
   [Serializable]
   public sealed class IndexProvider : CompilableProvider
   {
-    private readonly RecordSetHeader header;
+    private readonly RecordSetHeader indexHeader;
 
     /// <summary>
     /// Reference to the <see cref="IndexInfo"/> instance within the domain.
@@ -26,16 +26,11 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <inheritdoc/>
     protected override RecordSetHeader BuildHeader()
     {
-      return header;
-    }
-
-    /// <inheritdoc/>    
-    protected override void Initialize()
-    {      
+      return indexHeader;
     }
 
     /// <inheritdoc/>
-    public override string GetStringParameters()
+    public override string ParametersToString()
     {
       return Index.ToString();
     }
@@ -48,7 +43,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// </summary>
     public IndexProvider(IndexInfo index)
     {
-      header = new RecordSetHeader(index);
+      indexHeader = index.GetRecordSetHeader();
       Index = new IndexInfoRef(index);
     }
   }

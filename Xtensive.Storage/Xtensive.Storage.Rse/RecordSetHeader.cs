@@ -21,6 +21,9 @@ namespace Xtensive.Storage.Rse
   [Serializable]
   public sealed class RecordSetHeader
   {
+    private static readonly ThreadSafeDictionary<IndexInfo, RecordSetHeader> headers =
+      ThreadSafeDictionary<IndexInfo, RecordSetHeader>.Create(new object());
+
     /// <summary>
     /// Gets the <see cref="RecordSet"/> keys.
     /// </summary>
@@ -42,14 +45,82 @@ namespace Xtensive.Storage.Rse
     /// </summary>
     public RecordSetOrderDescriptor OrderDescriptor { get; private set; }
 
+
+    /// <summary>
+    /// Aliases the header.
+    /// </summary>
+    /// <param name="alias">The alias to apply.</param>
+    /// <returns>Aliased header.</returns>
+    public RecordSetHeader Alias(string alias)
+    {
+      return new RecordSetHeader(this, alias);
+    }
+
+    /// <summary>
+    /// Joins the header with the specified one.
+    /// </summary>
+    /// <param name="joined">The header to join.</param>
+    /// <returns>The joined header.</returns>
+    public RecordSetHeader Join(RecordSetHeader joined)
+    {
+      return new RecordSetHeader(this, joined);
+    }
+
+    /// <summary>
+    /// Selects the specified columns from the header.
+    /// </summary>
+    /// <param name="selected">The indexes of columns to select.</param>
+    /// <returns>A new header containing only specified columns.</returns>
+    public RecordSetHeader Select(IEnumerable<int> selected)
+    {
+      return new RecordSetHeader(this, selected);
+    }
+
+    /// <summary>
+    /// Gets the <see cref="RecordSetHeader"/> object for the specified <paramref name="indexInfo"/>.
+    /// </summary>
+    /// <param name="indexInfo">The index info to get the header for.</param>
+    /// <returns>The <see cref="RecordSetHeader"/> object.</returns>
+    public static RecordSetHeader GetHeader(IndexInfo indexInfo)
+    {
+      return headers.GetValue(indexInfo, _indexInfo => new RecordSetHeader(_indexInfo));
+    }
    
+
     // Constructors
 
     /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="tupleDescriptor">Descriptor of the result item.</param>
+    /// <param name="columns">Result columns.</param>
+    /// <param name="keyDescriptor">Descriptor of ordered columns.</param>
+    /// <param name="groups">Column groups.</param>
+    /// <param name="orderedBy">Result sort order.</param>
+    public RecordSetHeader(TupleDescriptor tupleDescriptor, IEnumerable<Column> columns, 
+      TupleDescriptor keyDescriptor, 
+      IEnumerable<ColumnGroup> groups, 
+      DirectionCollection<int> orderedBy)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(tupleDescriptor, "tupleDescriptor");
+      ArgumentValidator.EnsureArgumentNotNull(columns, "columns");
+      TupleDescriptor = tupleDescriptor;
+      Columns = new ColumnCollection(columns);
+
+      ColumnGroups = groups==null
+        ? ColumnGroupCollection.Empty
+        : new ColumnGroupCollection(groups);
+
+      OrderDescriptor = new RecordSetOrderDescriptor(
+        orderedBy ?? new DirectionCollection<int>(),
+        keyDescriptor ?? TupleDescriptor.Empty);
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="indexInfo">Index descriptor.</param>
-    public RecordSetHeader(IndexInfo indexInfo)
+    private RecordSetHeader(IndexInfo indexInfo)
     {
       TupleDescriptor = TupleDescriptor.Create(indexInfo.Columns.Select(columnInfo => columnInfo.ValueType));
       var keyDescriptor = TupleDescriptor.Create(indexInfo.KeyColumns.Select(columnInfo => columnInfo.Key.ValueType));
@@ -72,34 +143,10 @@ namespace Xtensive.Storage.Rse
     }
 
     /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="tupleDescriptor">Descriptor of the result item.</param>
-    /// <param name="columns">Result columns.</param>
-    /// <param name="keyDescriptor">Descriptor of ordered columns.</param>
-    /// <param name="groups">Column groups.</param>
-    /// <param name="orderedBy">Result sort order.</param>
-    public RecordSetHeader(TupleDescriptor tupleDescriptor, IEnumerable<Column> columns, TupleDescriptor keyDescriptor, IEnumerable<ColumnGroup> groups, DirectionCollection<int> orderedBy)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(tupleDescriptor, "tupleDescriptor");
-      ArgumentValidator.EnsureArgumentNotNull(columns, "columns");
-      TupleDescriptor = tupleDescriptor;
-      Columns = new ColumnCollection(columns);
-
-      ColumnGroups = groups==null
-        ? ColumnGroupCollection.Empty
-        : new ColumnGroupCollection(groups);
-
-      OrderDescriptor = new RecordSetOrderDescriptor(
-        orderedBy ?? new DirectionCollection<int>(),
-        keyDescriptor ?? TupleDescriptor.Empty);
-    }
-
-    /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <remarks>This constructor is used for all join operations.</remarks>
-    public RecordSetHeader(RecordSetHeader left, RecordSetHeader right)
+    private RecordSetHeader(RecordSetHeader left, RecordSetHeader right)
     {
       Columns = new ColumnCollection(
         left.Columns,
@@ -115,12 +162,7 @@ namespace Xtensive.Storage.Rse
               ))));
     }
 
-    /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="header">Original header.</param>
-    /// <param name="alias">Alias.</param>
-    public RecordSetHeader(RecordSetHeader header, string alias)
+    private RecordSetHeader(RecordSetHeader header, string alias)
     {
       Columns = new ColumnCollection(header.Columns, alias);
       TupleDescriptor = header.TupleDescriptor;
@@ -129,11 +171,11 @@ namespace Xtensive.Storage.Rse
     }
 
     /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="header">Original header.</param>
     /// <param name="includedColumns">Indexes of columns that will be included in result.</param>
-    public RecordSetHeader(RecordSetHeader header, IEnumerable<int> includedColumns)
+    private RecordSetHeader(RecordSetHeader header, IEnumerable<int> includedColumns)
     {
       var columns = new List<int>(includedColumns);
       TupleDescriptor = Core.Tuples.TupleDescriptor.Create(includedColumns.Select(i => header.TupleDescriptor[i]));

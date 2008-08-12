@@ -16,7 +16,7 @@ namespace Xtensive.Storage.Rse.Compilation
       return new Providers.Executable.SelectProvider(
         provider, 
         Compiler.Compile(provider.Source, true), 
-        provider.ColumnsToSelect);
+        provider.ColumnIndexes);
     }
 
 

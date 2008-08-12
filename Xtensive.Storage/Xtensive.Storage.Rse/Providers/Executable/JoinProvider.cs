@@ -21,7 +21,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     private readonly bool leftJoin;
     private readonly Pair<int>[] joiningPairs;
 
-    public override ExecutableProvider GetRealProvider()
+    public override ExecutableProvider BuildReal()
     {
       var leftEnumerable = left.GetService<IOrderedEnumerable<Tuple,Tuple>>();
       var rightEnumerable = right.GetService<IOrderedEnumerable<Tuple, Tuple>>();
@@ -77,14 +77,10 @@ namespace Xtensive.Storage.Rse.Providers.Executable
       return false;
     }
 
-    protected override void Initialize()
-    {
-    }
-
 
     // Constructor
 
-    public JoinProvider(Provider origin, ExecutableProvider left, ExecutableProvider right, bool leftJoin, params Pair<int>[] joiningPairs)
+    public JoinProvider(CompilableProvider origin, ExecutableProvider left, ExecutableProvider right, bool leftJoin, params Pair<int>[] joiningPairs)
       : base (origin, left, right)
     {
       this.left = left;

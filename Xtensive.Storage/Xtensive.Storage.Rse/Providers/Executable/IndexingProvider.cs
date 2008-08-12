@@ -13,7 +13,6 @@ using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Indexing;
 using System.Linq;
-using Xtensive.Core.Helpers;
 
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
@@ -59,24 +58,13 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     {
       if (typeof(T) == typeof(ICachingProvider))
         return base.GetService<T>();
-
-      var context = EnumerationScope.CurrentContext;
-      var cp = base.GetService<ICachingProvider>();
-      if (cp != null) {
-        cp.EnsureResultIsCached(context);
-        var result = GetCachedResult(context);
-        return result as T;
-      }
-      return null;
+      return Enumerate(EnumerationScope.CurrentContext) as T;
     }
 
-    protected override void Initialize()
-    {
-    }
 
     // Constructors
 
-    public IndexingProvider(Provider origin, ExecutableProvider source)
+    public IndexingProvider(CompilableProvider origin, ExecutableProvider source)
       : base(origin, source)
     {
       AddService<ICachingProvider>();

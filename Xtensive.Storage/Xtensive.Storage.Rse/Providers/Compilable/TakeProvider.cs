@@ -13,14 +13,6 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
   {
     public int Count { get; private set; }
 
-    protected override RecordSetHeader BuildHeader()
-    {
-      return Source.Header;
-    }
-
-    protected override void Initialize()
-    {}
-
 
     // Constructor
 

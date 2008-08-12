@@ -54,6 +54,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     /// <inheritdoc/>
     protected override void Initialize()
     {
+      base.Initialize();
       transform = new CombineTransform(true, Left.Header.TupleDescriptor, Right.Header.TupleDescriptor);
       int[] leftColumns = joiningPairs.Select(pair => pair.First).ToArray();
       int[] rightColumns = joiningPairs.Select(pair => pair.Second).ToArray();
@@ -67,7 +68,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 
     // Constructors
 
-    public NestedLoopJoinProvider(Provider origin, ExecutableProvider left, ExecutableProvider right, bool leftJoin, params Pair<int>[] joiningPairs)
+    public NestedLoopJoinProvider(CompilableProvider origin, ExecutableProvider left, ExecutableProvider right, bool leftJoin, params Pair<int>[] joiningPairs)
       : base(origin, left, right)
     {
       this.leftJoin = leftJoin;

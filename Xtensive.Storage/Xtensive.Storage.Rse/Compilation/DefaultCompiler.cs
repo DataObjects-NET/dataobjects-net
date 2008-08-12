@@ -17,15 +17,15 @@ namespace Xtensive.Storage.Rse.Compilation
   public sealed class DefaultCompiler : Compiler
   {
     /// <inheritdoc/>
-    public override bool IsCompatible(Provider provider)
+    public override bool IsCompatible(ExecutableProvider provider)
     {
-      return (provider is ExecutableProvider);
+      return true;
     }
 
     /// <inheritdoc/>
-    public override ExecutableProvider ToCompatible(Provider provider)
+    public override ExecutableProvider ToCompatible(ExecutableProvider provider)
     {
-      return new RawProvider(provider, provider.ToArray());
+      return new RawProvider(provider.Origin, provider.ToArray());
     }
   }
 }

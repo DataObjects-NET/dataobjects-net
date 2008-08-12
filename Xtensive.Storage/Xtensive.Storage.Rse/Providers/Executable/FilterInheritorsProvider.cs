@@ -100,10 +100,6 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
       return source.Where(predicate);
     }
 
-    protected override void Initialize()
-    {
-    }
-
 
     // Constructor
 

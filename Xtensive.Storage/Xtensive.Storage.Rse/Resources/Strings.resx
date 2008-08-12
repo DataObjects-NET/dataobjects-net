@@ -129,4 +129,10 @@
   <data name="ExCouldNotResolveXYWithinDomain" xml:space="preserve">
     <value>Could not resolve {0} '{1}' within the domain.</value>
   </data>
+  <data name="ExXMustBeActive" xml:space="preserve">
+    <value>'{0}' must be active.</value>
+  </data>
+  <data name="ExProviderMustBeEitherCompilableProviderOrExecutableProvider" xml:space="preserve">
+    <value>Provider must be either CompilableProvider or ExecutableProvider</value>
+  </data>
 </root>

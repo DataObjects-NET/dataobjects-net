@@ -35,9 +35,6 @@ namespace Xtensive.Storage.Rse.Providers.Executable
       return index;
     }
 
-    protected override void Initialize()
-    {
-    }
 
     // Constructors
 

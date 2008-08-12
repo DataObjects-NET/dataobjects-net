@@ -41,6 +41,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     /// <inheritdoc/>
     protected override void Initialize()
     {
+      base.Initialize();
       transform = new CombineTransform(true, Left.Header.TupleDescriptor, Right.Header.TupleDescriptor);
       int[] map = joiningPairs.Select(pair => pair.First).ToArray();
       TupleDescriptor leftKeyDescriptor = TupleDescriptor.Create(map.Select(i => Left.Header.TupleDescriptor[i]));
@@ -50,7 +51,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 
     // Constructors
 
-    public LoopJoinProvider(Provider origin, ExecutableProvider left, ExecutableProvider right, bool leftJoin, params Pair<int>[] joiningPairs)
+    public LoopJoinProvider(CompilableProvider origin, ExecutableProvider left, ExecutableProvider right, bool leftJoin, params Pair<int>[] joiningPairs)
       : base(origin, left, right)
     {
       this.leftJoin = leftJoin;

@@ -24,11 +24,8 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     private MapTransform transform;
     private AdvancedComparer<Tuple> keyComparer;
 
-
-    long ICountable.Count
-    {
-      get
-      {
+    long ICountable.Count {
+      get {
         var context = EnumerationScope.CurrentContext;
         var list = Enumerate(context) as ICountable;
         if (list != null)
@@ -45,7 +42,6 @@ namespace Xtensive.Storage.Rse.Providers.Executable
         return list.GetItem(index);
       return null;
     }
-
 
     protected override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
@@ -78,14 +74,10 @@ namespace Xtensive.Storage.Rse.Providers.Executable
       return keyComparer.Compare(xKey, yKey);
     }
 
-    protected override void Initialize()
-    {
-    }
-
 
     // Constructors
 
-    public SortProvider(Provider origin, ExecutableProvider source)
+    public SortProvider(CompilableProvider origin, ExecutableProvider source)
       : base(origin, source)
     {
       AddService<IListProvider>();

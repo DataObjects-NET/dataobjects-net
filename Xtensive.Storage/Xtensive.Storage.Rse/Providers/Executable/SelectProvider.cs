@@ -26,8 +26,10 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 
     protected override void Initialize()
     {
+      base.Initialize();
       transform = new MapTransform(true, Header.TupleDescriptor, columnIndexes);
     }
+
 
     // Constructors
 

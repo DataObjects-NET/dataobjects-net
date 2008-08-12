@@ -20,7 +20,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
       var source = (SqlProvider)Compiler.Compile(provider.Source, true);
       var queryRef = SqlFactory.QueryRef(source.Query);
       SqlSelect query = SqlFactory.Select(queryRef);
-      query.Columns.AddRange(provider.ColumnsToSelect.Select(i => (SqlColumn)queryRef.Columns[i]));
+      query.Columns.AddRange(provider.ColumnIndexes.Select(i => (SqlColumn)queryRef.Columns[i]));
 
       return new SqlProvider(provider, query, Handlers);
     }

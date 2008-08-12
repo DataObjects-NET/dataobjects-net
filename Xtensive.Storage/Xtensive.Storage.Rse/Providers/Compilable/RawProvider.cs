@@ -11,7 +11,8 @@ using Xtensive.Core.Tuples;
 namespace Xtensive.Storage.Rse.Providers.Compilable
 {
   /// <summary>
-  /// Compilable provider that wraps an array of <see cref="Tuple"/> instances.
+  /// Compilable provider that "delivers" specified 
+  /// array of <see cref="Tuple"/> instances.
   /// </summary>
   [Serializable]
   public class RawProvider : CompilableProvider
@@ -29,16 +30,11 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
       return header;
     }
 
-    /// <inheritdoc/>
-    protected override void Initialize()
-    {
-    }
-
 
     // Constructor
 
     /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     public RawProvider(RecordSetHeader header, params Tuple[] tuples)
     {

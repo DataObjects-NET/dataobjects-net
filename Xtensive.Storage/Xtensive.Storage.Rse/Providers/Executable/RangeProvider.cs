@@ -163,10 +163,6 @@ namespace Xtensive.Storage.Rse.Providers.Executable
       return sourceEnumerable.GetItems(tupleRange);
     }
 
-    protected override void Initialize()
-    {
-    }
-
 
     // Constructors
 

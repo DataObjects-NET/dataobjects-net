@@ -23,18 +23,12 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// </summary>
     public Range<IEntire<Tuple>> Range { get; private set; }
 
-    protected override RecordSetHeader BuildHeader()
-    {
-      return Source.Header; 
-    }
-
-    protected override void Initialize()
-    {}
-
-    public override string GetStringParameters()
+    /// <inheritdoc/>
+    public override string ParametersToString()
     {
       return Range.ToString();
     }
+
 
     // Constructor
 

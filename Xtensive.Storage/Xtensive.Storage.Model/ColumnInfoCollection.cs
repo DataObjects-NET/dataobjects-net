@@ -12,8 +12,7 @@ using Xtensive.Core.Collections;
 namespace Xtensive.Storage.Model
 {
   [Serializable]
-  public sealed class ColumnInfoCollection
-    : NodeCollection<ColumnInfo>,
+  public sealed class ColumnInfoCollection : NodeCollection<ColumnInfo>,
     IFilterable<ColumnAttributes, ColumnInfo>
   {
     public override void Insert(int index, ColumnInfo item)

@@ -27,19 +27,13 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// </summary>
     public Pair<int>[] JoiningPairs { get; private set; }
 
-    protected override RecordSetHeader BuildHeader()
-    {
-      return new RecordSetHeader(Left.Header, Right.Header);
-    }
-
-    protected override void Initialize()
-    {}
-
     /// <inheritdoc/>
-    public override string GetStringParameters()
+    public override string ParametersToString()
     {
+      // TODO: Write JoiningPairs
       return LeftJoin ? "Left" : "Inner";
     }
+
 
     // Constructor
 

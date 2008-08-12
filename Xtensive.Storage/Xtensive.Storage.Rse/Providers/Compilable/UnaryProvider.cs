@@ -16,6 +16,12 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// </summary>
     public CompilableProvider Source { get; private set; }
 
+    /// <inheritdoc/>
+    protected override RecordSetHeader BuildHeader()
+    {
+      return Source.Header;
+    }
+
 
     // Constructor
 

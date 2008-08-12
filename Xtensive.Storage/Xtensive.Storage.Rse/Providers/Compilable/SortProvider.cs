@@ -20,24 +20,24 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
   [Serializable]  
   public sealed class SortProvider : UnaryProvider
   {
-    private RecordSetHeader header;
-
     /// <summary>
     /// Sort order columns indexes.
     /// </summary>
     public DirectionCollection<int> SortOrder { get; private set; }
 
+    /// <inheritdoc/>
     protected override RecordSetHeader BuildHeader()
     {
-      return header;
+      return new RecordSetHeader(
+        Source.Header.TupleDescriptor, 
+        Source.Header.Columns, 
+        Source.Header.OrderDescriptor.TupleDescriptor, 
+        Source.Header.ColumnGroups, 
+        SortOrder);
     }
 
-    protected override void Initialize()
-    {
-      header = new RecordSetHeader(Source.Header.TupleDescriptor, Source.Header.Columns, Source.Header.OrderDescriptor.TupleDescriptor, Source.Header.ColumnGroups, SortOrder);
-    }
-
-    public override string GetStringParameters()
+    /// <inheritdoc/>
+    public override string ParametersToString()
     {
       return SortOrder
         .Select(pair => Header.Columns[pair.Key].Name + (pair.Value == Direction.Negative ? " desc" : string.Empty))

@@ -9,11 +9,13 @@ using System.Linq.Expressions;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Rse.Providers.Compilable;
+using Xtensive.Core.Helpers;
 
 namespace Xtensive.Storage.Rse.Providers.Compilable
 {
   /// <summary>
-  /// Compilable provider that declares filtering operation over the <see cref="UnaryProvider.Source"/>.
+  /// Compilable provider that declares filtering operation 
+  /// over the <see cref="UnaryProvider.Source"/>.
   /// </summary>
   [Serializable]
   public class WhereProvider : UnaryProvider
@@ -23,24 +25,20 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// </summary>
     public Expression<Func<Tuple, bool>> Predicate { get; private set; }
 
-    protected override RecordSetHeader BuildHeader()
+    /// <inheritdoc/>
+    public override string ParametersToString()
     {
-      return Source.Header;
+      return Predicate.ToString(true);
     }
 
-    protected override void Initialize()
-    {}
-
-    public override string GetStringParameters()
-    {
-      return Predicate.ToString();
-    }
 
     // Constructor
 
     /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
+    /// <param name="source">The source provider.</param>
+    /// <param name="predicate">The predicate.</param>
     public WhereProvider(CompilableProvider source, Expression<Func<Tuple, bool>> predicate)
       : base(source)
     {

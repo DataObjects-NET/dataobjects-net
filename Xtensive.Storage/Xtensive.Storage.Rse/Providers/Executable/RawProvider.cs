@@ -33,14 +33,10 @@ namespace Xtensive.Storage.Rse.Providers.Executable
       return tuples;
     }
 
-    protected override void Initialize()
-    {
-    }
-
 
     // Constructors
 
-    public RawProvider(Provider origin, params Tuple[] tuples)
+    public RawProvider(CompilableProvider origin, params Tuple[] tuples)
       : base(origin)
     {
       AddService<IListProvider>();

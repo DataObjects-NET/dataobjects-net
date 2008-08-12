@@ -31,13 +31,14 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     /// <inheritdoc/>
     protected override void Initialize()
     {
+      base.Initialize();
       transform = new CombineTransform(true, Left.Header.TupleDescriptor, Right.Header.TupleDescriptor);
     }
 
 
     // Constructor
     
-    public LeftMergeJoinProvider(Provider origin, ExecutableProvider left, ExecutableProvider right)
+    public LeftMergeJoinProvider(CompilableProvider origin, ExecutableProvider left, ExecutableProvider right)
       : base (origin, left, right)
     {      
     }

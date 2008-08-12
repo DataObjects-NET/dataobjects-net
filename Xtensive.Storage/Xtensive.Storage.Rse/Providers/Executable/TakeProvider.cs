@@ -12,22 +12,20 @@ using System.Linq;
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
   [Serializable]
-  public sealed class TakeProvider  : UnaryExecutableProvider
+  public sealed class TakeProvider : UnaryExecutableProvider
   {
     public int Count { get; private set; }
 
+    /// <inheritdoc/>
     protected override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
       return Source.Enumerate(context).Take(Count);
     }
 
-    protected override void Initialize()
-    {}
-
 
     // Constructor
 
-    public TakeProvider(Provider origin, ExecutableProvider source, int count)
+    public TakeProvider(CompilableProvider origin, ExecutableProvider source, int count)
       : base(origin, source)
     {
       Count = count;

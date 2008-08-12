@@ -4,6 +4,7 @@
 // Created by: Alexey Kochetov
 // Created:    2008.07.11
 
+using System;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Rse.Providers;
 
@@ -14,15 +15,16 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
     public HandlerAccessor Handlers { get; private set; }
 
     /// <inheritdoc/>
-    public override bool IsCompatible(Provider provider)
+    public override bool IsCompatible(ExecutableProvider provider)
     {
-      return provider as SqlProvider!=null;
+      return provider is SqlProvider;
     }
 
     /// <inheritdoc/>
-    public override ExecutableProvider ToCompatible(Provider provider)
+    /// <exception cref="NotImplementedException">[Suppresses Agent Johnson warning]</exception>
+    public override ExecutableProvider ToCompatible(ExecutableProvider provider)
     {
-      throw new System.NotImplementedException();
+      throw new NotImplementedException();
     }
 
 

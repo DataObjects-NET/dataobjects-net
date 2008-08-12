@@ -139,6 +139,7 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
     /// <inheritdoc/>
     protected override void Initialize()
     {
+      base.Initialize();
       keyTransform = new MapTransform(true, Header.TupleDescriptor, Header.OrderDescriptor.Order.Select(pair => pair.Key).ToArray());
       keyExtractor = (input => keyTransform.Apply(TupleTransformType.TransformedTuple, input));
 

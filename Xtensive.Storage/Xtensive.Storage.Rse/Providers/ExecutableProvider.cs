@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Text;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
@@ -20,17 +21,15 @@ namespace Xtensive.Storage.Rse.Providers
   /// </summary>
   [Serializable]
   public abstract class ExecutableProvider : Provider,
-    ICachingProvider,
-    IIdentified<Guid>
+    ICachingProvider
   {
     private const string CachedResultKey = "Results";
     private readonly HashSet<Type> supportedServices = new HashSet<Type>();
-    private readonly Guid identifier;
 
     /// <summary>
     /// Gets the provider this provider is compiled from.
     /// </summary>
-    public Provider Origin { get; private set; }
+    public CompilableProvider Origin { get; private set; }
 
     /// <exception cref="InvalidOperationException">Thrown if <see cref="Origin"/> is <see langword="null" />.</exception>
     protected override RecordSetHeader BuildHeader()
@@ -39,22 +38,6 @@ namespace Xtensive.Storage.Rse.Providers
         return Origin.Header;
       throw new InvalidOperationException(Strings.ExHeaderIsNotAvailableSinceOriginIsNotProvided);
     }
-
-    #region IIdentified members
-
-    object IIdentified.Identifier
-    {
-      get { return Identifier; }
-    }
-
-    /// <inheritdoc/>
-    public virtual Guid Identifier
-    {
-      get { return identifier; }
-    }
-
-    #endregion
-
 
     /// <summary>
     /// Gets the sequence this provider provides in the specified <see cref="EnumerationContext"/>.
@@ -147,15 +130,14 @@ namespace Xtensive.Storage.Rse.Providers
 
     #endregion
 
-    #region ICachingProvider & cache related methods methods
+    #region ICachingProvider methods
 
     /// <inheritdoc/>
     bool ICachingProvider.IsResultCached(EnumerationContext context) 
     {
-      ArgumentValidator.EnsureArgumentNotNull(context, "context");
       var cp = GetService<ICachingProvider>();
       if (cp==null)
-        return true;
+        return false;
       return GetCachedResult(context)!=null;
     }
 
@@ -170,19 +152,32 @@ namespace Xtensive.Storage.Rse.Providers
         SetCachedResult(context, OnEnumerate(context));
     }
 
-    protected T GetCachedValue<T>(string key, EnumerationContext context)
-      where T : class
+    private IEnumerable<Tuple> GetCachedResult(EnumerationContext context)
     {
-      if (context.IsActive)
-        return context.GetValue<T>(new Pair<Guid, string>(Identifier, key));
-      return null;
+      return GetCachedValue<IEnumerable<Tuple>>(context, CachedResultKey);
     }
 
-    protected void SetCachedValue<T>(string key, T value, EnumerationContext context)
+    private void SetCachedResult(EnumerationContext context, IEnumerable<Tuple> value) 
+    {
+      SetCachedValue(context, CachedResultKey, value);
+    }
+
+    #endregion
+
+    #region Caching related methods
+
+    protected T GetCachedValue<T>(EnumerationContext context, string key)
       where T : class
     {
-      if (context.IsActive)
-        context.SetValue(new Pair<Guid, string>(Identifier, key), value);
+      context.EnsureIsActive();
+      return context.GetValue<T>(new Pair<object, string>(this, key));
+    }
+
+    protected void SetCachedValue<T>(EnumerationContext context, string key, T value)
+      where T : class
+    {
+      context.EnsureIsActive();
+      context.SetValue(new Pair<object, string>(this, key), value);
     }
 
     #endregion
@@ -211,21 +206,28 @@ namespace Xtensive.Storage.Rse.Providers
 
     #endregion
 
-    protected IEnumerable<Tuple> GetCachedResult(EnumerationContext context)
+    #region ToString related methods
+
+    protected internal override void AppendBodyTo(StringBuilder sb, int indent)
     {
-      return context.GetValue<IEnumerable<Tuple>>(new Pair<Guid, string>(Identifier, CachedResultKey));
+      int nextIndent = indent + ToString_IndentSize;
+      AppendTitleTo(sb, indent);
+      AppendOriginTo(sb, nextIndent);
+      foreach (Provider source in Sources)
+        source.AppendBodyTo(sb, nextIndent);
     }
 
-    private void SetCachedResult(EnumerationContext context, IEnumerable<Tuple> value) 
+    protected virtual void AppendOriginTo(StringBuilder sb, int indent)
     {
-      context.SetValue(new Pair<Guid, string>(Identifier, CachedResultKey), value);
+      if (Origin==null)
+        return;
+      sb.Append(new string(' ', indent))
+        .Append("[Origin: ")
+        .Append(Origin.TitleToString())
+        .Append("]");
     }
 
-    /// <inheritdoc/>
-    public override string GetStringParameters()
-    {
-      return Origin.GetStringParameters();
-    }
+    #endregion
 
     
     // Constructor
@@ -235,11 +237,10 @@ namespace Xtensive.Storage.Rse.Providers
     /// </summary>
     /// <param name="origin">The <see cref="Origin"/> property value.</param>
     /// <param name="sources">The <see cref="Provider.Sources"/> property value.</param>
-    protected ExecutableProvider(Provider origin, params ExecutableProvider[] sources)
+    protected ExecutableProvider(CompilableProvider origin, params ExecutableProvider[] sources)
       : base(sources)
     {
       Origin = origin;
-      identifier = Guid.NewGuid();
     }
   }
 }

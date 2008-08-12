@@ -4,30 +4,30 @@
 // Created by: Alexey Kochetov
 // Created:    2008.05.16
 
+using System;
 using System.Collections.Generic;
 using Xtensive.Core.Tuples;
 
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
+  [Serializable]
   public abstract class ProviderProxy : ExecutableProvider
   {
-    private ExecutableProvider realProvider;
+    private ExecutableProvider real;
 
-    public ExecutableProvider Real
-    {
-      get
-      {
+    public ExecutableProvider Real {
+      get {
         EnsureRealProviderIsReady();
-        return realProvider;
+        return real;
       }
     }
 
-    public abstract ExecutableProvider GetRealProvider();
+    public abstract ExecutableProvider BuildReal();
 
     private void EnsureRealProviderIsReady()
     {
-      if (realProvider == null) lock (this) if (realProvider == null) {
-        realProvider = GetRealProvider();
+      if (real == null) lock (this) if (real == null) {
+        real = BuildReal();
       }
     }
 
@@ -46,10 +46,9 @@ namespace Xtensive.Storage.Rse.Providers.Executable
    
     // Constructors
 
-    protected ProviderProxy(Provider origin, params ExecutableProvider[] sourceProviders)
+    protected ProviderProxy(CompilableProvider origin, params ExecutableProvider[] sourceProviders)
       : base(origin, sourceProviders)
     {
     }
-
   }
 }

@@ -37,42 +37,39 @@ namespace Xtensive.Storage.Model
     private string shortName;
     private ReadOnlyList<ColumnInfo> columns;
 
-    public string ShortName
-    {
+    public string ShortName {
+      [DebuggerStepThrough]
       get { return shortName; }
-      set
-      {
+      [DebuggerStepThrough]
+      set {
         this.EnsureNotLocked();
         shortName = value;
       }
     }
 
-    public double FillFactor
-    {
+    public double FillFactor {
+      [DebuggerStepThrough]
       get { return fillFactor; }
-      set
-      {
+      [DebuggerStepThrough]
+      set {
         this.EnsureNotLocked();
         fillFactor = value;
       }
     }
 
-    public ColumnGroup Group
-    {
+    public ColumnGroup Group {
+      [DebuggerStepThrough]
       get { return columnGroup; }
-      set
-      {
+      [DebuggerStepThrough]
+      set {
         this.EnsureNotLocked();
         columnGroup = value;
       }
     }
 
-    public ReadOnlyList<ColumnInfo> Columns
-    {
-      get
-      {
-        if (!IsLocked)
-          throw new InvalidOperationException();
+    public ReadOnlyList<ColumnInfo> Columns {
+      [DebuggerStepThrough]
+      get {
         return columns;
       }
     }
@@ -82,6 +79,7 @@ namespace Xtensive.Storage.Model
     /// </summary>
     public DirectionCollection<ColumnInfo> KeyColumns
     {
+      [DebuggerStepThrough]
       get { return keyColumns; }
     }
 
@@ -90,6 +88,7 @@ namespace Xtensive.Storage.Model
     /// </summary>
     public ColumnInfoCollection ValueColumns
     {
+      [DebuggerStepThrough]
       get { return valueColumns; }
     }
 
@@ -106,6 +105,7 @@ namespace Xtensive.Storage.Model
     /// </summary>
     public CollectionBaseSlim<IndexInfo> UnderlyingIndexes
     {
+      [DebuggerStepThrough]
       get { return underlyingIndexes; }
     }
 
@@ -114,6 +114,7 @@ namespace Xtensive.Storage.Model
     /// </summary>
     public TypeInfo DeclaringType
     {
+      [DebuggerStepThrough]
       get { return declaringType; }
     }
 
@@ -122,11 +123,16 @@ namespace Xtensive.Storage.Model
     /// </summary>
     public TypeInfo ReflectedType
     {
+      [DebuggerStepThrough]
       get { return reflectedType; }
     }
 
+    /// <summary>
+    /// Gets the declaring index for this index.
+    /// </summary>
     public IndexInfo DeclaringIndex
     {
+      [DebuggerStepThrough]
       get { return declaringIndex; }
     }
 
@@ -135,7 +141,9 @@ namespace Xtensive.Storage.Model
     /// </summary>
     public bool IsPrimary
     {
+      [DebuggerStepThrough]
       get { return (attributes & IndexAttributes.Primary) > 0; }
+      [DebuggerStepThrough]
       set { 
         this.EnsureNotLocked();
         attributes = value
@@ -149,6 +157,7 @@ namespace Xtensive.Storage.Model
     /// </summary>
     public bool IsUnique
     {
+      [DebuggerStepThrough]
       get { return (attributes & IndexAttributes.Unique) > 0; }
     }
 
@@ -157,6 +166,7 @@ namespace Xtensive.Storage.Model
     /// </summary>
     public IndexAttributes Attributes
     {
+      [DebuggerStepThrough]
       get { return attributes; }
     }
 
@@ -165,6 +175,7 @@ namespace Xtensive.Storage.Model
     /// </summary>
     public bool IsVirtual
     {
+      [DebuggerStepThrough]
       get { return (Attributes & IndexAttributes.Virtual) > 0; }
     }
 
@@ -173,6 +184,7 @@ namespace Xtensive.Storage.Model
     /// </summary>
     public bool IsSecondary
     {
+      [DebuggerStepThrough]
       get { return (attributes & IndexAttributes.Secondary) > 0; }
     }
 
@@ -200,7 +212,7 @@ namespace Xtensive.Storage.Model
         list.AddRange(includedColumns.Where(c => !list.Any(columnInfo => columnInfo.Field.Name == c.Field.Name)));
       }
 
-      columns = new ReadOnlyList<ColumnInfo>(list);
+      columns = new ReadOnlyList<ColumnInfo>(list.ToArray());
       if (!recursive)
         return;
       keyColumns.Lock(true);
@@ -208,36 +220,6 @@ namespace Xtensive.Storage.Model
       foreach (IndexInfo baseIndex in underlyingIndexes)
         baseIndex.Lock();
       underlyingIndexes.Lock();
-    }
-
-    /// <inheritdoc/>
-    public bool Equals(IndexInfo obj)
-    {
-      if (ReferenceEquals(null, obj))
-        return false;
-      if (ReferenceEquals(this, obj))
-        return true;
-      return Equals(obj.attributes, attributes) && Equals(obj.Name, Name);
-    }
-
-    /// <inheritdoc/>
-    public override bool Equals(object obj)
-    {
-      if (ReferenceEquals(null, obj))
-        return false;
-      if (ReferenceEquals(this, obj))
-        return true;
-      if (obj.GetType()!=typeof (IndexInfo))
-        return false;
-      return Equals((IndexInfo) obj);
-    }
-
-    /// <inheritdoc/>
-    public override int GetHashCode()
-    {
-      unchecked {
-        return (attributes.GetHashCode() * 397) ^ Name.GetHashCode();
-      }
     }
 
 

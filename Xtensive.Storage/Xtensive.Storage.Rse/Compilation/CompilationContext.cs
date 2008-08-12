@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
@@ -22,6 +23,26 @@ namespace Xtensive.Storage.Rse.Compilation
   public class CompilationContext : Context<CompilationScope>,
     IHasExtensions
   {
+    /// <summary>
+    /// Gets the current compilation context.
+    /// </summary>
+    public static CompilationContext Current {
+      [DebuggerStepThrough]
+      get { return CompilationScope.CurrentContext;  }
+    }
+
+    /// <summary>
+    /// Gets the current <see cref="Compiler"/> 
+    /// (from the <see cref="Current"/> compilation context).
+    /// </summary>
+    public static ICompiler CurrentCompiler {
+      [DebuggerStepThrough]
+      get {
+        var currentContext = Current;
+        return currentContext==null ? null : currentContext.Compiler;
+      }
+    }
+
     /// <summary>
     /// Gets the compiler used by <see cref="Compile"/> method of this context.
     /// </summary>
@@ -44,7 +65,7 @@ namespace Xtensive.Storage.Rse.Compilation
     {
       if (provider == null)
         return null;
-      var result = Compiler.Compile(provider);
+      var result = Compiler.Compile(provider, false);
       if (result==null)
         throw new InvalidOperationException(string.Format(
           Strings.ExCantCompileProviderX, provider));

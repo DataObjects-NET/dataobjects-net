@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
@@ -21,36 +22,24 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
   [Serializable]
   public sealed class SelectProvider : UnaryProvider
   {
-    private RecordSetHeader header;
     private readonly int[] columnToSelect;
 
     /// <summary>
     /// Indexes of columns that should be selected from the <see cref="UnaryProvider.Source"/>.
     /// </summary>
-    public int[] ColumnsToSelect
-    {
-      get
-      {
-        var result = new int[columnToSelect.Length];
-        columnToSelect.CopyTo(result, 0);
-        return result;
-      }
+    public int[] ColumnIndexes {
+      [DebuggerStepThrough]
+      get { return (int[]) columnToSelect.Clone(); }
     }
 
     /// <inheritdoc/>
     protected override RecordSetHeader BuildHeader()
     {
-      return header;
+      return base.BuildHeader().Select(ColumnIndexes);
     }
 
     /// <inheritdoc/>
-    protected override void Initialize()
-    {
-      header = new RecordSetHeader(Source.Header, ColumnsToSelect);
-    }
-
-    /// <inheritdoc/>
-    public override string GetStringParameters()
+    public override string ParametersToString()
     {
       return Header.Columns.Select(c => c.Name).ToCommaDelimitedString();
     }

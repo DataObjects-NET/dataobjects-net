@@ -20,6 +20,12 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     /// </summary>
     public ExecutableProvider Source { get; private set; }
 
+    /// <inheritdoc/>
+    protected override RecordSetHeader BuildHeader()
+    {
+      return Source.Header;
+    }
+
 
     // Constructors
 
@@ -28,7 +34,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     /// </summary>
     /// <param name="origin">The <see cref="ExecutableProvider.Origin"/> property value.</param>
     /// <param name="source">The <see cref="Source"/> property value.</param>
-    protected UnaryExecutableProvider(Provider origin, ExecutableProvider source)
+    protected UnaryExecutableProvider(CompilableProvider origin, ExecutableProvider source)
       : base(origin, source)
     {
       Source = source;

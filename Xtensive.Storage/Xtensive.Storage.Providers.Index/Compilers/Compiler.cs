@@ -4,25 +4,22 @@
 // Created by: Alexey Kochetov
 // Created:    2008.07.08
 
-using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
 
 namespace Xtensive.Storage.Providers.Index.Compilers
 {
   internal sealed class Compiler : Rse.Compilation.Compiler
   {
-    private readonly DefaultCompiler fallbackCompiler;
-
     public HandlerAccessor HandlerAccessor { get; private set; }
 
-    public override bool IsCompatible(Provider provider)
+    public override bool IsCompatible(ExecutableProvider provider)
     {
-      return provider as ExecutableProvider!=null;
+      return true;
     }
 
-    public override ExecutableProvider ToCompatible(Provider provider)
+    public override ExecutableProvider ToCompatible(ExecutableProvider provider)
     {
-      return fallbackCompiler.Compile(provider);
+      return provider;
     }
 
 
@@ -31,7 +28,6 @@ namespace Xtensive.Storage.Providers.Index.Compilers
     public Compiler(HandlerAccessor handlerAccessor)
     {
       HandlerAccessor = handlerAccessor;
-      fallbackCompiler = new DefaultCompiler();
     }    
   }
 }

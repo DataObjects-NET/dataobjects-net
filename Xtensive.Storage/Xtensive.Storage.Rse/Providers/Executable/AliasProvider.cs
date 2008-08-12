@@ -13,12 +13,6 @@ namespace Xtensive.Storage.Rse.Providers.Executable
   [Serializable]
   internal sealed class AliasProvider : UnaryExecutableProvider
   {
-    /// <inheritdoc/>
-    public override Guid Identifier
-    {
-      get { return Source.Identifier; }
-    }
-
     protected override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
       return Source.Enumerate(context);
@@ -27,16 +21,14 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     /// <inheritdoc/>
     public override T GetService<T>()
     {
+      if (typeof(T)==typeof(ICachingProvider))
+        return null;
       return Source.GetService<T>();
     }
 
-    protected override void Initialize()
+    public override string ParametersToString()
     {
-    }
-
-    public override string GetStringParameters()
-    {
-      return Origin.ToString();
+      return Origin.ParametersToString();
     }
 
 

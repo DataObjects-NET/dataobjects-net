@@ -19,7 +19,7 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <param name="provider">The provider to compile.</param>
     /// <returns>Compiled provider, if compiler can handle the compilation of specified provider;
     /// otherwise, <see langword="null"/>.</returns>
-    ExecutableProvider Compile(Provider provider);
+    ExecutableProvider Compile(CompilableProvider provider);
 
     /// <summary>
     /// Determines whether the <paramref name="provider"/> can be considered 
@@ -30,7 +30,7 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <see langword="true"/> if the specified provider is compatible; 
     /// otherwise, <see langword="false"/>.
     /// </returns>
-    bool IsCompatible(Provider provider);
+    bool IsCompatible(ExecutableProvider provider);
 
     /// <summary>
     /// Wraps the specified <paramref name="provider"/>
@@ -41,6 +41,6 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <param name="provider">The provider to wrap to a compatible provider.</param>
     /// <returns>Wrapping provider compatible with this compiler;
     /// <see langword="null"/>, if wrapping is not possible.</returns>
-    ExecutableProvider ToCompatible(Provider provider);
+    ExecutableProvider ToCompatible(ExecutableProvider provider);
   }
 }

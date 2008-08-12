@@ -24,25 +24,30 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// </summary>
     public DirectionCollection<int> IndexSortOrder { get; private set; }
 
+    /// <inheritdoc/>
     protected override RecordSetHeader BuildHeader()
     {
-      return new RecordSetHeader(Source.Header.TupleDescriptor, Source.Header.Columns, Source.Header.OrderDescriptor.TupleDescriptor, Source.Header.ColumnGroups, IndexSortOrder);
+      return new RecordSetHeader(
+        Source.Header.TupleDescriptor, 
+        Source.Header.Columns, 
+        Source.Header.OrderDescriptor.TupleDescriptor, 
+        Source.Header.ColumnGroups, 
+        IndexSortOrder);
     }
 
-    protected override void Initialize()
-    {}
-
-    public override string GetStringParameters()
+    /// <inheritdoc/>
+    public override string ParametersToString()
     {
       return IndexSortOrder
         .Select(pair => Header.Columns[pair.Key].Name + (pair.Value == Direction.Negative ? " desc" : string.Empty))
         .ToCommaDelimitedString();
     }
 
+
     // Constructor
 
     /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="columnIndexes">The <see cref="IndexSortOrder"/> property value.</param>

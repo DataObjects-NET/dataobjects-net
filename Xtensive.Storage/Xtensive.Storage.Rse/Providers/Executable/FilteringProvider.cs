@@ -22,9 +22,6 @@ namespace Xtensive.Storage.Rse.Providers.Executable
       return Source.Enumerate(context).Where(predicate);
     }
 
-    protected override void Initialize()
-    {
-    }
 
     // Constructors
 

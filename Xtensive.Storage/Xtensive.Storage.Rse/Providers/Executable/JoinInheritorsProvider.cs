@@ -134,6 +134,7 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
     /// <inheritdoc/>
     protected override void Initialize()
     {
+      base.Initialize();
       var map = new List<Pair<int, int>>();
       for (int i = 0; i < root.Header.Columns.Count; i++)
         map.Add(new Pair<int, int>(0, i));
