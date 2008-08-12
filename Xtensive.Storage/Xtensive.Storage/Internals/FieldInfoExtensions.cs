@@ -8,7 +8,6 @@ using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Internals
 {
-  // TODO: Refactor to Associates
   internal static class FieldInfoExtensions
   {
     public static FieldAccessorBase<T> GetAccessor<T>(this FieldInfo field)

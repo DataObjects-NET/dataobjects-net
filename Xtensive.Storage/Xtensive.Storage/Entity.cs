@@ -90,7 +90,8 @@ namespace Xtensive.Storage
         if (Data.PersistenceState == value)
           return;
         Data.PersistenceState = value;
-        Session.DirtyData.Register(Data);
+        if (PersistenceState != Storage.PersistenceState.Persisted)
+          Session.DirtyData.Register(Data);
       }
     }
 

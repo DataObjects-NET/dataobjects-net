@@ -6,6 +6,8 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Core.Collections;
+using Xtensive.Core.Diagnostics;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers.Compilable;
@@ -37,9 +39,10 @@ namespace Xtensive.Storage.Internals
       Fetch(index, key, columns);
     }
 
-    /// <inheritdoc/>
-    public static void Fetch(IndexInfo index, Key key, IEnumerable<ColumnInfo> columns)
+    private static void Fetch(IndexInfo index, Key key, IEnumerable<ColumnInfo> columns)
     {
+      if (Log.IsLogged(LogEventTypes.Debug))
+        Log.Debug("Fetching: Key = '{0}', Columns = '{1}'", key, columns.Select(c => c.Name).ToCommaDelimitedString());
       new IndexProvider(index).Result
         .Range(key.Tuple, key.Tuple)
         .Select(columns.Select(c => index.Columns.IndexOf(c)).ToArray())
