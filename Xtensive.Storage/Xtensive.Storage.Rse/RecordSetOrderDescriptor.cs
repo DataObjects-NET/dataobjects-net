@@ -23,7 +23,7 @@ namespace Xtensive.Storage.Rse
       get { return order; }
     }
 
-    public TupleDescriptor Descriptor
+    public TupleDescriptor TupleDescriptor
     {
       [DebuggerStepThrough]
       get { return descriptor; }

@@ -4,6 +4,7 @@
 // Created by: Nick Svetlov
 // Created:    2008.07.10
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Core.Collections;
@@ -14,15 +15,16 @@ namespace Xtensive.Storage.Rse
   /// <summary>
   /// Describes how a group of columns associated with a key mapped on <see cref="RecordSetHeader"/>.
   /// </summary>
+  [Serializable]
   public struct ColumnGroup
   {
-    private readonly IList<int> keys;
-    private readonly IList<int> columns;
+    private readonly ReadOnlyList<int> keys;
+    private readonly ReadOnlyList<int> columns;
 
     /// <summary>
     /// Gets indexes of key columns this instance associated with.
     /// </summary>
-    public IList<int> Keys
+    public ReadOnlyList<int> Keys
     {
       [DebuggerStepThrough]
       get { return keys; }
@@ -31,7 +33,7 @@ namespace Xtensive.Storage.Rse
     /// <summary>
     /// Gets indexes of current <see cref="ColumnGroup"/> columns.
     /// </summary>
-    public IList<int> Columns
+    public ReadOnlyList<int> Columns
     {
       [DebuggerStepThrough]
       get { return columns; }

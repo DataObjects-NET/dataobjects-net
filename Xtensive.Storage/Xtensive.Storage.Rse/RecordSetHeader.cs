@@ -144,7 +144,7 @@ namespace Xtensive.Storage.Rse
           .TakeWhile(o => o.Key >= 0));
         OrderDescriptor = order.Count == 0 ?
           new RecordSetOrderDescriptor(new DirectionCollection<int>(), TupleDescriptor.Empty) :
-          new RecordSetOrderDescriptor(order, Core.Tuples.TupleDescriptor.Create(header.OrderDescriptor.Descriptor.Take(order.Count)));
+          new RecordSetOrderDescriptor(order, Core.Tuples.TupleDescriptor.Create(header.OrderDescriptor.TupleDescriptor.Take(order.Count)));
       }
 
       Columns = new ColumnCollection(includedColumns.Select((ic, i) => new Column(header.Columns[ic], i)));
