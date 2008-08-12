@@ -116,9 +116,7 @@ namespace Xtensive.Storage
 
     #region Remove method
 
-    /// <summary>
-    /// Removes the instance.
-    /// </summary>
+    /// <inheritdoc/>
     public void Remove()
     {
       EnsureIsNotRemoved();

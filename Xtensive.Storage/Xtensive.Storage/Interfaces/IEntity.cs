@@ -18,5 +18,10 @@ namespace Xtensive.Storage
     /// Gets persistence state of the entity.
     /// </summary>
     PersistenceState PersistenceState { get; }
+
+    /// <summary>
+    /// Removes the instance.
+    /// </summary>
+    void Remove();
   }
 }

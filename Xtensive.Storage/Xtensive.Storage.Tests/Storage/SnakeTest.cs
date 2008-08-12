@@ -193,6 +193,8 @@ namespace Xtensive.Storage.Tests.Storage
       const int creaturesCount = 1000;
       const int lizardsCount = 1000;
 
+      TestFixtureSetUp();
+
       using (Domain.OpenSession())
       {
         Session session = SessionScope.Current.Session;
@@ -274,6 +276,14 @@ namespace Xtensive.Storage.Tests.Storage
       const int snakesCount = 1000;
       const int creaturesCount = 1000;
       const int lizardsCount = 1000;
+
+      using (Domain.OpenSession()) {
+        var session = Session.Current;
+        TypeInfo type = session.Domain.Model.Types[typeof(ICreature)];
+        RecordSet rsPrimary = session.Select(type.Indexes.PrimaryIndex);
+        foreach (var entity in rsPrimary.AsEntities<ICreature>())
+          entity.Remove();
+      }
 
       using (Domain.OpenSession()) {
         Session session = SessionScope.Current.Session;
