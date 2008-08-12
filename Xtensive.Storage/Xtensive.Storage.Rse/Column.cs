@@ -29,42 +29,16 @@ namespace Xtensive.Storage.Rse
     /// <summary>
     /// Gets the column index.
     /// </summary>
-    /// <value>The index.</value>
     public int Index { get; private set; }
 
     /// <summary>
     /// Gets the column type.
     /// </summary>
-    /// <value>The type.</value>
     public Type Type { get; private set; }
 
-    /// <summary>
-    /// Implements the operator ==.
-    /// </summary>
-    /// <param name="left">The left.</param>
-    /// <param name="right">The right.</param>
-    /// <returns>The result of the operator.</returns>
-    public static bool operator ==(Column left, Column right)
-    {
-      return Equals(left, right);
-    }
+    #region Equals, GetHashCode, ==, !=
 
-    /// <summary>
-    /// Implements the operator !=.
-    /// </summary>
-    /// <param name="left">The left.</param>
-    /// <param name="right">The right.</param>
-    /// <returns>The result of the operator.</returns>
-    public static bool operator !=(Column left, Column right)
-    {
-      return !Equals(left, right);
-    }
-
-    /// <summary>
-    /// Indicates whether the current <see cref="Column"/> is equal to another.
-    /// </summary>
-    /// <param name="column">The record column to compare with.</param>
-    /// <returns><see langword="true" /> if instances are equal, otherwise <see langword="false" />.</returns>    
+    /// <inheritdoc/>
     public bool Equals(Column column)
     {
       if (column == null)
@@ -101,54 +75,86 @@ namespace Xtensive.Storage.Rse
       return result;
     }
 
+    /// <see cref="ClassDocTemplate.OperatorEq" copy="true" />
+    public static bool operator ==(Column left, Column right)
+    {
+      return Equals(left, right);
+    }
+
+    /// <see cref="ClassDocTemplate.OperatorNeq" copy="true" />
+    public static bool operator !=(Column left, Column right)
+    {
+      return !Equals(left, right);
+    }
+
+    #endregion
+
 
     // Constructors
 
+    #region Basic constructors
+
     /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="name">Initial <see cref="Name"/> value.</param>
-    /// <param name="index">Initial <see cref="Index"/> value.</param>
-    /// <param name="type">Initial <see cref="Type"/> value.</param>    
+    /// <param name="name"><see cref="Name"/> property value.</param>
+    /// <param name="index"><see cref="Index"/> property value.</param>
+    /// <param name="type"><see cref="Type"/> property value.</param>    
     public Column(string name, int index, Type type)
+      : this(null, name, index, type)
     {
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="columnInfoRef"><see cref="ColumnInfoRef"/> property value.</param>
+    /// <param name="index"><see cref="Index"/> property value.</param>
+    /// <param name="type"><see cref="Type"/> property value.</param>    
+    public Column(ColumnInfoRef columnInfoRef, int index, Type type)
+      : this(columnInfoRef, columnInfoRef.ColumnName, index, type)
+    {
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="columnInfoRef"><see cref="ColumnInfoRef"/> property value.</param>
+    /// <param name="name"><see cref="Name"/> property value.</param>
+    /// <param name="index"><see cref="Index"/> property value.</param>
+    /// <param name="type"><see cref="Type"/> property value.</param>    
+    public Column(ColumnInfoRef columnInfoRef, string name, int index, Type type)
+    {
+      ColumnInfoRef = columnInfoRef;
       Name = name;
       Index = index;
       Type = type;
     }
 
-    /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="columnInfoRef">Initial <see cref="ColumnInfoRef"/> value.</param>
-    /// <param name="index">Initial <see cref="Index"/> value.</param>
-    /// <param name="type">Initial <see cref="Type"/> value.</param>    
-    public Column(ColumnInfoRef columnInfoRef, int index, Type type)
-    {
-      ColumnInfoRef = columnInfoRef;
-      Name = columnInfoRef.ColumnName;
-      Index = index;
-      Type = type;
-    }
+    #endregion
+
+    #region Origin-based constructors
 
     /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="column">The base <see cref="Column"/>.</param>
-    /// <param name="alias">The alias to add to the name of new column.</param>
+    /// <param name="column">The original <see cref="Column"/>.</param>
+    /// <param name="alias">The alias to add.</param>
     public Column(Column column, string alias)
     {
-      Name = string.Concat(alias, ".", column.Name);
       ColumnInfoRef = column.ColumnInfoRef;
+      Name = alias.IsNullOrEmpty() ? 
+                                     column.Name :
+                                                   string.Concat(alias, ".", column.Name);
       Type = column.Type;
       Index = column.Index;
     }
 
     /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="column">The base <see cref="Column"/>.</param>
-    /// <param name="index">The index of new column.</param>
+    /// <param name="column">The original <see cref="Column"/>.</param>
+    /// <param name="index"><see cref="Index"/> property value.</param>
     public Column(Column column, int index)
     {
       ColumnInfoRef = column.ColumnInfoRef;
@@ -156,5 +162,7 @@ namespace Xtensive.Storage.Rse
       Type = column.Type;
       Index = index;
     }
+
+    #endregion
   }
 }

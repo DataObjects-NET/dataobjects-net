@@ -5,6 +5,7 @@
 // Created:    2008.08.07
 
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
@@ -16,19 +17,17 @@ namespace Xtensive.Storage.Rse
   /// </summary>
   public class ColumnGroupCollection : ReadOnlyCollection<ColumnGroup>
   {
-    private static ColumnGroupCollection emptyCollection;
+    private static ColumnGroupCollection empty;
 
     /// <summary>
     /// Gets the empty <see cref="ColumnGroupCollection"/>.
     /// </summary>    
-    public static ColumnGroupCollection Empty
-    {
-      get
-      {
-        if (emptyCollection==null)
-          emptyCollection = new ColumnGroupCollection(Enumerable.Empty<ColumnGroup>());
-
-        return emptyCollection;
+    public static ColumnGroupCollection Empty {
+      [DebuggerStepThrough]
+      get {
+        if (empty==null)
+          empty = new ColumnGroupCollection(Enumerable.Empty<ColumnGroup>());
+        return empty;
       }
     }
 
