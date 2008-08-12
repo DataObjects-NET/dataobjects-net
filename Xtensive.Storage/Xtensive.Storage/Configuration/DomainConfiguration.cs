@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
@@ -26,11 +25,11 @@ namespace Xtensive.Storage.Configuration
     //    private ServiceRegistry services = new ServiceRegistry();
     private CollectionBaseSlim<Type> builders = new CollectionBaseSlim<Type>();
     private UrlInfo connectionInfo;
-    private NamingConvention namingConvention = new NamingConvention();
+    private NamingConvention namingConvention;
     private Registry types = new Registry(new TypeProcessor());
     private int sessionPoolSize = 64;
     private string name = string.Empty;
-    private SessionConfiguration session = new SessionConfiguration();
+    private SessionConfiguration session;
 
     /// <summary>
     /// Gets or sets configuration name.
@@ -210,6 +209,8 @@ namespace Xtensive.Storage.Configuration
     /// </summary>
     public DomainConfiguration()
     {
+      namingConvention = new NamingConvention();
+      session = new SessionConfiguration();
     }
 
     /// <summary>
