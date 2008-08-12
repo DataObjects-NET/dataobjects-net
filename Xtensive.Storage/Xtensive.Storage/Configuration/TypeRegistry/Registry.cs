@@ -89,10 +89,10 @@ namespace Xtensive.Storage.Configuration.TypeRegistry
     /// Registers the specified action for delayed processing.
     /// </summary>
     /// <param name="assembly">The assembly.</param>
-    /// <param name="nameSpace">The name space.</param>
-    private void RegisterAction(Assembly assembly, string nameSpace)
+    /// <param name="namespace">The name space.</param>
+    private void RegisterAction(Assembly assembly, string @namespace)
     {
-      Action action = new Action(assembly, nameSpace);
+      Action action = new Action(assembly, @namespace);
       // Skipping duplicate registration calls.
       // If we already have a call to the whole assembly we should skip this call
       if (!actionIndex.Contains(new Action(assembly)) && !actionIndex.Contains(action)) {

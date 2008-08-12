@@ -30,7 +30,7 @@ namespace Xtensive.Storage.Internals
 
       IndexInfo index = key.Type.Indexes.PrimaryIndex;
       IEnumerable<ColumnInfo> columns = key.Type.Columns
-        .Where(c => c.IsPrimaryKey || c.IsSystem)
+        .Where(c => c.IsPrimaryKey || c.IsSystem || !c.LazyLoad)
         .Union(key.Type.Columns
           .Skip(field.MappingInfo.Offset)
           .Take(field.MappingInfo.Length));

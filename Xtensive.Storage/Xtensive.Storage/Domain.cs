@@ -6,10 +6,13 @@
 
 using System.Diagnostics;
 using Xtensive.Core;
+using Xtensive.Core.Collections;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Configuration;
+using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
+using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage
 {
@@ -18,6 +21,8 @@ namespace Xtensive.Storage
   /// </summary>
   public sealed class Domain
   {
+    private readonly ThreadSafeDictionary<RecordSetHeader, RecordSetMapping> recordSetMappings = ThreadSafeDictionary<RecordSetHeader, RecordSetMapping>.Create(new object());
+
     /// <summary>
     /// Gets the configuration.
     /// </summary>
@@ -62,6 +67,10 @@ namespace Xtensive.Storage
 
     internal HandlerAccessor Handlers { get; private set; }
 
+    internal ThreadSafeDictionary<RecordSetHeader, RecordSetMapping> RecordSetMappings
+    {
+      get { return recordSetMappings; }
+    }
 
     #region OpenSession methods
 
