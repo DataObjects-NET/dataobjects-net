@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Core.Aspects;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 
