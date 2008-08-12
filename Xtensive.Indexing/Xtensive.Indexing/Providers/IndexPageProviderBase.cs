@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Indexing.BloomFilter;
@@ -29,6 +30,7 @@ namespace Xtensive.Indexing.Providers
     /// <inheritdoc/>
     public Index<TKey, TItem> Index
     {
+      [DebuggerStepThrough]
       get { return index; }
       set
       {
@@ -41,12 +43,14 @@ namespace Xtensive.Indexing.Providers
     /// <inheritdoc/>
     public bool IsInitialized
     {
+      [DebuggerStepThrough]
       get { return isInitialized; }
     }
 
     /// <inheritdoc/>
     public virtual IndexFeatures Features
     {
+      [DebuggerStepThrough]
       get { return IndexFeatures.Default; }
     }
 

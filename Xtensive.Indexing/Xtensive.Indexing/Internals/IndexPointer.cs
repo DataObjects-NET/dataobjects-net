@@ -21,6 +21,7 @@ namespace Xtensive.Indexing
 
     public TItem Current
     {
+      [DebuggerStepThrough]
       get { return Page[Index]; }
     }
     

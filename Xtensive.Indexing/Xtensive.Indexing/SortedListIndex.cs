@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Comparison;
 using Xtensive.Indexing.Measures;
@@ -29,12 +30,14 @@ namespace Xtensive.Indexing
     /// <inheritdoc/>
     public IMeasureResultSet<TItem> MeasureResults
     {
+      [DebuggerStepThrough]
       get { return measureResults; }
     }
 
     /// <inheritdoc/>
     public override long Count
     {
+      [DebuggerStepThrough]
       get { return items.Count; }
     }
 
@@ -44,6 +47,7 @@ namespace Xtensive.Indexing
     /// <param name="index">The index of the item to get.</param>
     /// <returns>The item at the specified <paramref name="index"/>.</returns>
     public TItem this[int index] {
+      [DebuggerStepThrough]
       get { return items[index]; }
     }
 
@@ -218,11 +222,13 @@ namespace Xtensive.Indexing
 
     public int Version
     {
+      [DebuggerStepThrough]
       get { return version; }
     }
 
     object IHasVersion.Version
     {
+      [DebuggerStepThrough]
       get { return Version; }
     }
 

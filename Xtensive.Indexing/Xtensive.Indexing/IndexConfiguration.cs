@@ -5,6 +5,7 @@
 // Created:    2008.02.29
 
 using System;
+using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Helpers;
@@ -42,6 +43,7 @@ namespace Xtensive.Indexing
     /// </summary>
     public int CacheSize
     {
+      [DebuggerStepThrough]
       get { return cacheSize; }
       set
       {
@@ -55,7 +57,9 @@ namespace Xtensive.Indexing
     /// </summary>
     public bool UseBloomFilter
     {
+      [DebuggerStepThrough]
       get { return useBloomFilter; }
+      [DebuggerStepThrough]
       set { useBloomFilter = value; }
     }
 
@@ -64,6 +68,7 @@ namespace Xtensive.Indexing
     /// </summary>
     public double BloomFilterBitsPerValue
     {
+      [DebuggerStepThrough]
       get { return bloomFilterBitsPerValue; }
       set
       {
@@ -77,6 +82,7 @@ namespace Xtensive.Indexing
     /// </summary>
     public int PageSize
     {
+      [DebuggerStepThrough]
       get { return pageSize; }
       set
       {

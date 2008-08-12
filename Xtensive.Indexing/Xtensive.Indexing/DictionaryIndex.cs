@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Xtensive.Indexing
 {
@@ -22,6 +23,7 @@ namespace Xtensive.Indexing
     /// <inheritdoc/>
     public override long Count
     {
+      [DebuggerStepThrough]
       get { return dictionary.Count; }
     }
 

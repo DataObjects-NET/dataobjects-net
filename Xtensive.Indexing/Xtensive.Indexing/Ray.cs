@@ -5,6 +5,7 @@
 // Created:    2007.09.06
 
 using System;
+using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Internals.DocTemplates;
@@ -29,6 +30,7 @@ namespace Xtensive.Indexing
     /// </summary>
     public T Point
     {
+      [DebuggerStepThrough]
       get { return point; }
     }
 
@@ -38,6 +40,7 @@ namespace Xtensive.Indexing
     /// <value>The direction.</value>
     public Direction Direction
     {
+      [DebuggerStepThrough]
       get { return direction; }
     }
 

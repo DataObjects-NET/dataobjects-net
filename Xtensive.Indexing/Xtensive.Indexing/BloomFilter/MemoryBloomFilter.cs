@@ -5,6 +5,7 @@
 // Created:    2008.01.09
 
 using System;
+using System.Diagnostics;
 using System.IO;
 
 namespace Xtensive.Indexing.BloomFilter
@@ -22,6 +23,7 @@ namespace Xtensive.Indexing.BloomFilter
     /// <inheritdoc/>
     public override long FilledBitCount
     {
+      [DebuggerStepThrough]
       get { return filledBitCount; }
     }
 

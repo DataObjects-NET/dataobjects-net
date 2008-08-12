@@ -6,6 +6,7 @@
 
 
 using System;
+using System.Diagnostics;
 using System.IO;
 using Xtensive.Core;
 using Xtensive.Core.Hashing;
@@ -32,12 +33,14 @@ namespace Xtensive.Indexing.BloomFilter
     /// <inheritdoc/>
     public int HashCount
     {
+      [DebuggerStepThrough]
       get { return hashCount; }
     }
 
     /// <inheritdoc/>
     public long SizeInBytes
     {
+      [DebuggerStepThrough]
       get { return ((Size + 7)/8); }
     }
 
@@ -46,6 +49,7 @@ namespace Xtensive.Indexing.BloomFilter
     /// </summary>
     public long Size
     {
+      [DebuggerStepThrough]
       get { return size; }
     }
 
@@ -54,6 +58,7 @@ namespace Xtensive.Indexing.BloomFilter
     /// </summary>
     public double FillFactor
     {
+      [DebuggerStepThrough]
       get { return ((double)FilledBitCount)/size; }
     }
 
@@ -63,7 +68,9 @@ namespace Xtensive.Indexing.BloomFilter
     /// <inheritdoc/>
     public Hasher<T> Hasher
     {
+      [DebuggerStepThrough]
       get { return hasher; }
+      [DebuggerStepThrough]
       protected set { hasher = value; }
     }
 

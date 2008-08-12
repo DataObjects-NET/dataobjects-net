@@ -5,6 +5,7 @@
 // Created:    2008.02.22
 
 using System;
+using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Helpers;
@@ -31,6 +32,7 @@ namespace Xtensive.Indexing
     /// <value>The key converter.</value>
     public Converter<IEntire<TKey>, IEntire<TUniqueKey>> EntireConverter
     {
+      [DebuggerStepThrough]
       get { return entireConverter; }
       set {
         this.EnsureNotLocked();

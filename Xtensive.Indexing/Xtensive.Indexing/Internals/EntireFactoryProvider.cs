@@ -5,6 +5,7 @@
 // Created:    2008.01.28
 
 using System;
+using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
@@ -20,6 +21,7 @@ namespace Xtensive.Indexing
     /// <see cref="HasStaticDefaultDocTemplate.Default" copy=true />
     public static EntireFactoryProvider Default
     {
+      [DebuggerStepThrough]
       get { return @default; }
     }
 

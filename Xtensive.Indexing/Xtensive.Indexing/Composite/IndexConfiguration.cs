@@ -5,6 +5,7 @@
 // Created:    2008.03.03
 
 using System;
+using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
@@ -30,6 +31,7 @@ namespace Xtensive.Indexing.Composite
     /// <value>The segment configurations.</value>
     public IndexSegmentConfigurationSet<TKey, TItem> Segments
     {
+      [DebuggerStepThrough]
       get { return segments; }
     }
 

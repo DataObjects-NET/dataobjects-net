@@ -7,6 +7,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Helpers;
 using Xtensive.Indexing.Measures;
@@ -59,24 +60,28 @@ namespace Xtensive.Indexing
     /// <inheritdoc/>
     public virtual long Count
     {
+      [DebuggerStepThrough]
       get { return (long) GetMeasureResult(CountMeasure<object, long>.CommonName); }
     }
 
     /// <inheritdoc/>
     public virtual long Size
     {
+      [DebuggerStepThrough]
       get { return (long) GetMeasureResult(SizeMeasure<object>.CommonName); }
     }
 
     /// <inheritdoc/>
     public virtual bool HasMeasures
     {
+      [DebuggerStepThrough]
       get { return measures != null && measures.Count > 0; }
     }
 
     /// <inheritdoc/>
     public virtual IMeasureSet<TItem> Measures
     {
+      [DebuggerStepThrough]
       get { return measures; }
     }
 

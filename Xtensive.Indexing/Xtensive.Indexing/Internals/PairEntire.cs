@@ -5,6 +5,7 @@
 // Created:    2008.01.28
 
 using System;
+using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Tuples;
@@ -30,24 +31,28 @@ namespace Xtensive.Indexing
     /// <inheritdoc/>
     public TupleDescriptor Descriptor
     {
+      [DebuggerStepThrough]
       get { return descriptor; }
     }
 
     /// <inheritdoc/>
     public Pair<TFirst, TSecond> Value
     {
+      [DebuggerStepThrough]
       get { return pair; }
     }
 
     /// <inheritdoc/>
     public EntireValueType[] ValueTypes
     {
+      [DebuggerStepThrough]
       get { return fieldValueTypes.Copy(); }
     }
 
     /// <inheritdoc/>
     public int Count
     {
+      [DebuggerStepThrough]
       get { return count; }
     }
 

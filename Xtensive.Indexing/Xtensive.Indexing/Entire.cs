@@ -5,6 +5,7 @@
 // Created:    2008.01.22
 
 using System;
+using System.Diagnostics;
 using System.Text;
 using Xtensive.Core;
 using Xtensive.Core.Comparison;
@@ -42,6 +43,7 @@ namespace Xtensive.Indexing
     /// </summary>
     /// <value>The negative infinity.</value>
     public static IEntire<T> MinValue {
+      [DebuggerStepThrough]
       get {
         return minValue;
       }
@@ -52,6 +54,7 @@ namespace Xtensive.Indexing
     /// </summary>
     /// <value>The positive infinity.</value>
     public static IEntire<T> MaxValue {
+      [DebuggerStepThrough]
       get { 
         return maxValue;
       }
@@ -61,6 +64,7 @@ namespace Xtensive.Indexing
     
     /// <inheritdoc/>
     public T Value {
+      [DebuggerStepThrough]
       get {
         return value;
       }
@@ -69,11 +73,13 @@ namespace Xtensive.Indexing
     /// <inheritdoc/>
     public EntireValueType ValueType
     {
+      [DebuggerStepThrough]
       get { return valueType; }
     }
 
     /// <inheritdoc/>
     public EntireValueType[] ValueTypes {
+      [DebuggerStepThrough]
       get {
         return new EntireValueType[] {valueType};
       }
@@ -94,12 +100,14 @@ namespace Xtensive.Indexing
     /// <inheritdoc/>
     TupleDescriptor ITuple.Descriptor
     {
+      [DebuggerStepThrough]
       get { return descriptor; }
     }
 
     /// <inheritdoc/>
     int ITuple.Count
     {
+      [DebuggerStepThrough]
       get { return 1; }
     }
 
@@ -348,6 +356,7 @@ namespace Xtensive.Indexing
     #region Private \ internal methods
 
     internal bool HasValue {
+      [DebuggerStepThrough]
       get {
         return 
           valueType!=EntireValueType.PositiveInfinity && 

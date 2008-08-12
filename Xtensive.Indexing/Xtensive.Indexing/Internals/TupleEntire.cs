@@ -5,6 +5,7 @@
 // Created:    2008.01.28
 
 using System;
+using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Tuples;
@@ -31,24 +32,28 @@ namespace Xtensive.Indexing
     /// <inheritdoc/>
     public TupleDescriptor Descriptor
     {
+      [DebuggerStepThrough]
       get { return tuple.Descriptor; }
     }
 
     /// <inheritdoc/>
     public Tuple Value
     {
+      [DebuggerStepThrough]
       get { return tuple.Clone(); }
     }
 
     /// <inheritdoc/>
     public EntireValueType[] ValueTypes
     {
+      [DebuggerStepThrough]
       get { return valueTypes.Copy(); }
     }
 
     /// <inheritdoc/>
     public int Count
     {
+      [DebuggerStepThrough]
       get { return tuple.Count; }
     }
 
@@ -89,6 +94,7 @@ namespace Xtensive.Indexing
     #region GetXxx methods
 
     /// <inheritdoc/>
+    [DebuggerStepThrough]
     public EntireValueType GetValueType(int fieldIndex)
     {
       return valueTypes[fieldIndex];

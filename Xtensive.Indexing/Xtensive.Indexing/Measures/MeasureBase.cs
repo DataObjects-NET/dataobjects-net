@@ -5,6 +5,7 @@
 // Created:    2007.11.22
 
 using System;
+using System.Diagnostics;
 using System.Runtime.Serialization;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
@@ -28,22 +29,26 @@ namespace Xtensive.Indexing.Measures
     /// <inheritdoc/>
     public string Name
     {
+      [DebuggerStepThrough]
       get { return name; }
     }
 
     /// <inheritdoc/>
     public Converter<TItem, TResult> ResultExtractor
     {
+      [DebuggerStepThrough]
       get { return resultExtractor; }
     }
 
     /// <inheritdoc/>
     public TResult Result {
+      [DebuggerStepThrough]
       get {
         if (!hasResult)
           throw new InvalidOperationException(Strings.ExValueIsNotAvailable);
         return result;
       }
+      [DebuggerStepThrough]
       protected set {
         result = value;
         hasResult = true;
@@ -53,12 +58,14 @@ namespace Xtensive.Indexing.Measures
     /// <inheritdoc/>
     object IMeasure<TItem>.Result
     {
+      [DebuggerStepThrough]
       get { return Result; }
     }
 
     /// <inheritdoc/>
     public bool HasResult
     {
+      [DebuggerStepThrough]
       get { return hasResult; }
     }
 

@@ -41,6 +41,7 @@ namespace Xtensive.Indexing
     /// </summary>
     public bool IsEmpty
     {
+      [DebuggerStepThrough]
       get { return !isNotEmpty; }
     }
 
@@ -50,6 +51,7 @@ namespace Xtensive.Indexing
     /// <value>The endpoints.</value>
     public Pair<T> EndPoints
     {
+      [DebuggerStepThrough]
       get
       {
         if (IsEmpty)

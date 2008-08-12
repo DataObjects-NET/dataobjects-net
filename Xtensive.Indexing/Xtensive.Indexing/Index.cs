@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Indexing.Implementation;
@@ -34,6 +35,7 @@ namespace Xtensive.Indexing
     /// <inheritdoc/>
     public override bool HasMeasures
     {
+      [DebuggerStepThrough]
       get { return true; }
     }
 
@@ -45,6 +47,7 @@ namespace Xtensive.Indexing
     /// </summary>
     public IndexFeatures Features
     {
+      [DebuggerStepThrough]
       get { return provider.Features; }
     }
 
@@ -53,6 +56,7 @@ namespace Xtensive.Indexing
     /// </summary>
     public int PageSize
     {
+      [DebuggerStepThrough]
       get
       {
         if (cachedPageSize < 0)
@@ -67,18 +71,22 @@ namespace Xtensive.Indexing
 
     internal DescriptorPage<TKey, TItem> DescriptorPage
     {
+      [DebuggerStepThrough]
       get { return descriptorPage; }
+      [DebuggerStepThrough]
       set { descriptorPage = value; }
     }
 
     private IPageRef RootPageRef
     {
+      [DebuggerStepThrough]
       get
       {
         if (cachedRootPageRef==null)
           cachedRootPageRef = DescriptorPage.RootPageRef;
         return cachedRootPageRef;
       }
+      [DebuggerStepThrough]
       set
       {
         DescriptorPage.RootPageRef = value;
@@ -88,11 +96,13 @@ namespace Xtensive.Indexing
 
     internal DataPage<TKey, TItem> RootPage
     {
+      [DebuggerStepThrough]
       get { return (DataPage<TKey, TItem>)provider.Resolve(RootPageRef); }
     }
 
     private IPageRef LeftmostPageRef
     {
+      [DebuggerStepThrough]
       get
       {
         if (cachedLeftmostPageRef==null)
@@ -103,17 +113,20 @@ namespace Xtensive.Indexing
 
     internal LeafPage<TKey, TItem> LeftmostPage
     {
+      [DebuggerStepThrough]
       get { return (LeafPage<TKey, TItem>)provider.Resolve(LeftmostPageRef); }
     }
 
     private IPageRef RightmostPageRef
     {
+      [DebuggerStepThrough]
       get
       {
         if (cachedRightmostPageRef==null)
           cachedRightmostPageRef = DescriptorPage.RightmostPageRef;
         return cachedRightmostPageRef;
       }
+      [DebuggerStepThrough]
       set
       {
         DescriptorPage.RightmostPageRef = value;
@@ -123,6 +136,7 @@ namespace Xtensive.Indexing
 
     internal LeafPage<TKey, TItem> RightmostPage
     {
+      [DebuggerStepThrough]
       get { return (LeafPage<TKey, TItem>)provider.Resolve(RightmostPageRef); }
     }
 

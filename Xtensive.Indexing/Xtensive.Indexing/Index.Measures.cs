@@ -5,6 +5,7 @@
 // Created:    2007.08.28
 
 using System;
+using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Indexing.Implementation;
 using Xtensive.Indexing.Measures;
@@ -17,6 +18,7 @@ namespace Xtensive.Indexing
     /// <inheritdoc/>
     public override IMeasureSet<TItem> Measures
     {
+      [DebuggerStepThrough]
       get { return DescriptorPage.Measures; }
     }
 

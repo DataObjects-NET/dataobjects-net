@@ -4,6 +4,7 @@
 // Created by: Nick Svetlov
 // Created:    2007.11.16
 using System;
+using System.Diagnostics;
 using Xtensive.Indexing.Resources;
 
 namespace Xtensive.Indexing.Implementation
@@ -27,6 +28,7 @@ namespace Xtensive.Indexing.Implementation
     /// </summary>
     public long Offset
     {
+      [DebuggerStepThrough]
       get { return offset; }
     }
 
@@ -35,6 +37,7 @@ namespace Xtensive.Indexing.Implementation
     /// </summary>
     public bool IsDefined
     {
+      [DebuggerStepThrough]
       get { return offset!=(long)StreamPageRefType.Undefined; }
     }
 
@@ -43,6 +46,7 @@ namespace Xtensive.Indexing.Implementation
     /// </summary>
     public StreamPageRefType Type
     {
+      [DebuggerStepThrough]
       get { return offset >= 0 ? StreamPageRefType.Normal : (StreamPageRefType)offset; }
     }
 
@@ -57,6 +61,7 @@ namespace Xtensive.Indexing.Implementation
     #region Equals and HetHashCode
 
     /// <inheritdoc/>
+    [DebuggerStepThrough]
     public bool Equals(StreamPageRef<TKey, TValue> streamPageRef)
     {
       if (streamPageRef==null) return false;
@@ -64,6 +69,7 @@ namespace Xtensive.Indexing.Implementation
     }
 
     /// <inheritdoc/>
+    [DebuggerStepThrough]
     public override bool Equals(object obj)
     {
       if (ReferenceEquals(this, obj)) return true;
@@ -71,6 +77,7 @@ namespace Xtensive.Indexing.Implementation
     }
 
     /// <inheritdoc/>
+    [DebuggerStepThrough]
     public override int GetHashCode()
     {
       return (int)offset;
@@ -86,6 +93,7 @@ namespace Xtensive.Indexing.Implementation
     /// </summary>
     /// <param name="offset">The <see cref="Offset"/> of <see cref="StreamPageRef{TKey,TValue}"/> to create.</param>
     /// <returns>Newly created <see cref="StreamPageRef{TKey,TValue}"/> with specified <paramref name="offset"/>.</returns>
+    [DebuggerStepThrough]
     public static StreamPageRef<TKey, TValue> Create(long offset)
     {
       if (offset < 0)

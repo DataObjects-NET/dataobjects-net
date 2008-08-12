@@ -5,6 +5,7 @@
 // Created:    2007.11.22
 
 using System;
+using System.Diagnostics;
 using Xtensive.Core.Arithmetic;
 using Xtensive.Core.Internals.DocTemplates;
 

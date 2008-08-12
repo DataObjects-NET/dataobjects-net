@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 
@@ -28,6 +29,7 @@ namespace Xtensive.Indexing
     /// </summary>
     protected internal IUniqueOrderedIndex<TUniqueKey, TItem> UniqueIndex
     {
+      [DebuggerStepThrough]
       get { return uniqueIndex; }
     }
 
@@ -37,12 +39,14 @@ namespace Xtensive.Indexing
     /// <value>The key converter.</value>
     protected internal Converter<IEntire<TKey>, IEntire<TUniqueKey>> EntireConverter
     {
+      [DebuggerStepThrough]
       get { return entireConverter; }
     }
 
     /// <inheritdoc/>
     public override long Count
     {
+      [DebuggerStepThrough]
       get { return uniqueIndex.Count; }
     }
 

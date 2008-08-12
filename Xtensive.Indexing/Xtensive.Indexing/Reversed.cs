@@ -5,6 +5,7 @@
 // Created:    2008.01.22
 
 using System;
+using System.Diagnostics;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Indexing.Resources;
@@ -28,9 +29,8 @@ namespace Xtensive.Indexing
     /// Gets the value of reversed type.
     /// </summary>
     public T Value {
-      get {
-        return value;
-      }
+      [DebuggerStepThrough]
+      get { return value; }
     }
 
     /// <summary>

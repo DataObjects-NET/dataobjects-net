@@ -6,6 +6,7 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Xtensive.Core;
 
 namespace Xtensive.Indexing
@@ -18,26 +19,31 @@ namespace Xtensive.Indexing
 
     public IIndex<TKey, TItem> Index
     {
+      [DebuggerStepThrough]
       get { return index; }
     }
 
     public Range<IEntire<TKey>> Range
     {
+      [DebuggerStepThrough]
       get { return range; }
     }
 
     public Direction Direction
     {
+      [DebuggerStepThrough]
       get { return reader.Direction; }
     }
 
     public TItem Current
     {
+      [DebuggerStepThrough]
       get { return reader.Current; }
     }
 
     object IEnumerator.Current
     {
+      [DebuggerStepThrough]
       get { return reader.Current; }
     }
 

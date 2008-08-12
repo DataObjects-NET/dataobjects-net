@@ -5,6 +5,7 @@
 // Created:    2008.03.04
 
 using System;
+using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
@@ -32,6 +33,7 @@ namespace Xtensive.Indexing.Composite
     /// </summary>
     public string SegmentName
     {
+      [DebuggerStepThrough]
       get { return segmentName; }
     }
 
@@ -40,6 +42,7 @@ namespace Xtensive.Indexing.Composite
     /// </summary>
     public int SegmentNumber
     {
+      [DebuggerStepThrough]
       get { return segmentNumber; }
     }
 
@@ -48,6 +51,7 @@ namespace Xtensive.Indexing.Composite
     /// </summary>
     public CompositeIndex<TKey, TItem> CompositeIndex
     {
+      [DebuggerStepThrough]
       get { return compositeIndex; }
     }
 
@@ -56,12 +60,14 @@ namespace Xtensive.Indexing.Composite
     /// </summary>
     public Converter<IEntire<TKey>, IEntire<TKey>> EntireConverter
     {
+      [DebuggerStepThrough]
       get { return entireConverter; }
     }
 
     /// <inheritdoc/>
     public IMeasureResultSet<TItem> MeasureResults
     {
+      [DebuggerStepThrough]
       get { return measureResults; }
     }
 

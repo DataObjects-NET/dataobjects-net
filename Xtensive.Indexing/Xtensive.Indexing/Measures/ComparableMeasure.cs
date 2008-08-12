@@ -5,6 +5,7 @@
 // Created:    2008.02.13
 
 using System;
+using System.Diagnostics;
 using System.Runtime.Serialization;
 using Xtensive.Core;
 using Xtensive.Core.Comparison;
@@ -30,6 +31,7 @@ namespace Xtensive.Indexing.Measures
     /// </summary>
     public int Count
     {
+      [DebuggerStepThrough]
       get { return count; }
       set {
         count = value;

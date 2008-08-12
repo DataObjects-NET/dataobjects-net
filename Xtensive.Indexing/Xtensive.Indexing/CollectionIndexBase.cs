@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections;
+using System.Diagnostics;
 
 namespace Xtensive.Indexing
 {
@@ -30,6 +31,7 @@ namespace Xtensive.Indexing
     /// <inheritdoc/>
     public long Count
     {
+      [DebuggerStepThrough]
       get { return Index.Count; }
     }
 

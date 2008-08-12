@@ -4,6 +4,7 @@
 // Created by: Nick Svetlov
 // Created:    2008.01.02
 
+using System.Diagnostics;
 using System.IO;
 using System.Security.AccessControl;
 using Xtensive.Core;
@@ -36,11 +37,13 @@ namespace Xtensive.Indexing.Providers.Internals
 
     public IPageRef LastLeafPageRef
     {
+      [DebuggerStepThrough]
       get { return LastLeafPage==null ? null : LastLeafPage.Identifier; }
     }
 
     private StreamPageRef<TKey, TItem> NextPageRef
     {
+      [DebuggerStepThrough]
       get { return StreamPageRef<TKey, TItem>.Create(stream.Position + reservedLength + innerPagesStream.Position); }
     }
 

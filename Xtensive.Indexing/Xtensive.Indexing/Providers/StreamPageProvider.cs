@@ -5,6 +5,7 @@
 // Created:    2007.12.26
 
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using Xtensive.Core;
@@ -42,6 +43,7 @@ namespace Xtensive.Indexing.Providers
     /// <inheritdoc/>
     public override IndexFeatures Features
     {
+      [DebuggerStepThrough]
       get { return IndexFeatures.SerializeAndRead; }
     }
 
@@ -50,6 +52,7 @@ namespace Xtensive.Indexing.Providers
     /// </summary>
     public StreamProvider StreamProvider
     {
+      [DebuggerStepThrough]
       get { return streamProvider; }
     }
 
@@ -58,6 +61,7 @@ namespace Xtensive.Indexing.Providers
     /// </summary>
     public IValueSerializer Serializer
     {
+      [DebuggerStepThrough]
       get { return serializer; }
     }
 
@@ -66,6 +70,7 @@ namespace Xtensive.Indexing.Providers
     /// </summary>
     public ValueSerializer<long> OffsetSerializer
     {
+      [DebuggerStepThrough]
       get { return offsetSerializer; }
     }
 
@@ -198,6 +203,7 @@ namespace Xtensive.Indexing.Providers
     #endregion
 
     /// <inheritdoc/>
+    [DebuggerStepThrough]
     public override void Flush()
     {
       throw new NotSupportedException(Strings.ExIndexPageProviderDoesntSupportWrite);

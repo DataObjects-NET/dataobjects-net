@@ -5,6 +5,7 @@
 // Created:    2008.04.18
 
 using System;
+using System.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.SizeCalculators;
 

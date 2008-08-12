@@ -7,6 +7,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Indexing.Resources;
@@ -24,6 +25,7 @@ namespace Xtensive.Indexing.Measures
     /// <inheritdoc/>
     public IMeasure<TItem> this[int index]
     {
+      [DebuggerStepThrough]
       get { return items[index]; }
     }
 
@@ -93,6 +95,7 @@ namespace Xtensive.Indexing.Measures
     /// <inheritdoc/>
     public long Count
     {
+      [DebuggerStepThrough]
       get { return items.Count; }
     }
 

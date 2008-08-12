@@ -5,6 +5,7 @@
 // Created:    2008.02.01
 
 using System;
+using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Comparison;

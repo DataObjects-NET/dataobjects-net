@@ -29,30 +29,39 @@ namespace Xtensive.Indexing.Implementation
     /// <inheritdoc/>
     public override int Size
     {
+      [DebuggerStepThrough]
       get { return items.Length; }
     }
 
     public IPageRef LeftPageRef
     {
+      [DebuggerStepThrough]
       get { return leftPageRef; }
+      [DebuggerStepThrough]
       set { leftPageRef = value; }
     }
 
     public LeafPage<TKey, TItem> LeftPage
     {
+      [DebuggerStepThrough]
       get { return (LeafPage<TKey, TItem>)Provider.Resolve(leftPageRef); }
+      [DebuggerStepThrough]
       set { leftPageRef = value.Identifier; }
     }
 
     public IPageRef RightPageRef
     {
+      [DebuggerStepThrough]
       get { return rightPageRef; }
+      [DebuggerStepThrough]
       set { rightPageRef = value; }
     }
 
     public LeafPage<TKey, TItem> RightPage
     {
+      [DebuggerStepThrough]
       get { return (LeafPage<TKey, TItem>)Provider.Resolve(rightPageRef); }
+      [DebuggerStepThrough]
       set { rightPageRef = value.Identifier; }
     }
 
@@ -61,6 +70,7 @@ namespace Xtensive.Indexing.Implementation
     /// <inheritdoc/>
     public override TKey Key
     {
+      [DebuggerStepThrough]
       get { return KeyExtractor(items[0]); }
     }
 
@@ -76,7 +86,9 @@ namespace Xtensive.Indexing.Implementation
     /// <param name="index">The index of the item.</param>
     public TItem this[int index]
     {
+      [DebuggerStepThrough]
       get { return items[index]; }
+      [DebuggerStepThrough]
       internal set { items[index] = value; }
     }
 

@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
@@ -35,6 +36,7 @@ namespace Xtensive.Indexing.Composite
     /// <value>The name of the segment.</value>
     public string SegmentName
     {
+      [DebuggerStepThrough]
       get { return segmentName; }
       set
       {
@@ -50,6 +52,7 @@ namespace Xtensive.Indexing.Composite
     /// <value>The segment number.</value>
     public int SegmentNumber
     {
+      [DebuggerStepThrough]
       get { return segmentNumber; }
       set
       {
@@ -64,6 +67,7 @@ namespace Xtensive.Indexing.Composite
     /// <value>The measure mapping.</value>
     public Dictionary<string, string> MeasureMapping
     {
+      [DebuggerStepThrough]
       get { return measureMapping; }
     }
 

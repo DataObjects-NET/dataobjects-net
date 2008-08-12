@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Indexing.BloomFilter;
@@ -30,11 +31,13 @@ namespace Xtensive.Indexing.Implementation
 
     public IndexConfiguration<TKey, TItem> Configuration
     {
+      [DebuggerStepThrough]
       get { return configuration; }
     }
 
     public int PageSize
     {
+      [DebuggerStepThrough]
       get { return pageSize; }
     }
 
@@ -43,6 +46,7 @@ namespace Xtensive.Indexing.Implementation
     /// </summary>
     public IMeasureSet<TItem> Measures
     {
+      [DebuggerStepThrough]
       get { return measures; }
     }
 
@@ -51,7 +55,9 @@ namespace Xtensive.Indexing.Implementation
     /// </summary>
     public IBloomFilter<TKey> BloomFilter
     {
+      [DebuggerStepThrough]
       get { return bloomFilter; }
+      [DebuggerStepThrough]
       set { bloomFilter = value; }
     }
 
@@ -59,37 +65,49 @@ namespace Xtensive.Indexing.Implementation
 
     public IPageRef RootPageRef
     {
+      [DebuggerStepThrough]
       get { return rootPageRef; }
+      [DebuggerStepThrough]
       set { rootPageRef = value; }
     }
 
     public DataPage<TKey, TItem> RootPage
     {
+      [DebuggerStepThrough]
       get { return (DataPage<TKey, TItem>)Provider.Resolve(rootPageRef); }
+      [DebuggerStepThrough]
       set { RootPageRef = value.Identifier; }
     }
 
     public IPageRef LeftmostPageRef
     {
+      [DebuggerStepThrough]
       get { return leftmostPageRef; }
+      [DebuggerStepThrough]
       set { leftmostPageRef = value; }
     }
 
     public LeafPage<TKey, TItem> LeftmostPage
     {
+      [DebuggerStepThrough]
       get { return (LeafPage<TKey, TItem>)Provider.Resolve(leftmostPageRef); }
+      [DebuggerStepThrough]
       set { LeftmostPageRef = value.Identifier; }
     }
 
     public IPageRef RightmostPageRef
     {
+      [DebuggerStepThrough]
       get { return rightmostPageRef; }
+      [DebuggerStepThrough]
       set { rightmostPageRef = value; }
     }
 
     public LeafPage<TKey, TItem> RightmostPage
     {
+      [DebuggerStepThrough]
       get { return (LeafPage<TKey, TItem>)Provider.Resolve(rightmostPageRef); }
+      [DebuggerStepThrough]
       set { RightmostPageRef = value.Identifier; }
     }
 

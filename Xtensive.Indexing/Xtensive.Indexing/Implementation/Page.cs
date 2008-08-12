@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.Serialization;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
@@ -36,7 +37,9 @@ namespace Xtensive.Indexing.Implementation
     /// </summary>
     public IIndexPageProvider<TKey, TItem> Provider
     {
+      [DebuggerStepThrough]
       get { return provider; }
+      [DebuggerStepThrough]
       internal set { provider = value; }
     }
 
@@ -45,7 +48,9 @@ namespace Xtensive.Indexing.Implementation
     /// </summary>
     public IPageRef Identifier
     {
+      [DebuggerStepThrough]
       get { return identifier; }
+      [DebuggerStepThrough]
       set { identifier = value; }
     }
 
@@ -54,6 +59,7 @@ namespace Xtensive.Indexing.Implementation
     /// </summary>
     object IIdentified.Identifier
     {
+      [DebuggerStepThrough]
       get { return Identifier; }
     }
 
@@ -62,7 +68,9 @@ namespace Xtensive.Indexing.Implementation
     /// </summary>
     public int Version
     {
+      [DebuggerStepThrough]
       get { return version; }
+      [DebuggerStepThrough]
       set { version = value; }
     }
 
@@ -71,6 +79,7 @@ namespace Xtensive.Indexing.Implementation
     /// </summary>
     object IHasVersion.Version
     {
+      [DebuggerStepThrough]
       get { return Version; }
     }
 
@@ -79,7 +88,9 @@ namespace Xtensive.Indexing.Implementation
     /// </summary>
     public bool IsPersisted
     {
+      [DebuggerStepThrough]
       get { return isPersisted; }
+      [DebuggerStepThrough]
       set { isPersisted = value; }
     }
 
@@ -90,6 +101,7 @@ namespace Xtensive.Indexing.Implementation
     /// </summary>
     public DescriptorPage<TKey, TItem> AsDescriptorPage
     {
+      [DebuggerStepThrough]
       get { return this as DescriptorPage<TKey, TItem>; }
     }
 
@@ -98,6 +110,7 @@ namespace Xtensive.Indexing.Implementation
     /// </summary>
     public DataPage<TKey, TItem> AsDataPage
     {
+      [DebuggerStepThrough]
       get { return this as DataPage<TKey, TItem>; }
     }
 
@@ -107,6 +120,7 @@ namespace Xtensive.Indexing.Implementation
     /// </summary>
     public InnerPage<TKey, TItem> AsInnerPage
     {
+      [DebuggerStepThrough]
       get { return this as InnerPage<TKey, TItem>; }
     }
 
@@ -116,6 +130,7 @@ namespace Xtensive.Indexing.Implementation
     /// </summary>
     public LeafPage<TKey, TItem> AsLeafPage
     {
+      [DebuggerStepThrough]
       get { return this as LeafPage<TKey, TItem>; }
     }
 
@@ -124,6 +139,7 @@ namespace Xtensive.Indexing.Implementation
     /// </summary>
     public DescriptorPage<TKey, TItem> DescriptorPage
     {
+      [DebuggerStepThrough]
       get { return descriptorPage; }
     }
 

@@ -5,6 +5,7 @@
 // Created:    2008.02.07
 
 using System;
+using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Tuples;
 
@@ -22,6 +23,7 @@ namespace Xtensive.Indexing
 
     int ITupleFunctionData<int>.Result
     {
+      [DebuggerStepThrough]
       get { return Result; }
     }
 

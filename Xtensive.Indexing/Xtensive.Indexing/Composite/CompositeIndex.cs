@@ -4,6 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2008.03.03
 
+using System.Diagnostics;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Tuples;
 
@@ -27,11 +28,13 @@ namespace Xtensive.Indexing.Composite
     /// </summary>
     public IndexSegmentSet<TKey, TItem> Segments
     {
+      [DebuggerStepThrough]
       get { return segments; }
     }
 
     internal IUniqueOrderedIndex<TKey, TItem> Implementation
     {
+      [DebuggerStepThrough]
       get { return implementation; }
     }
 

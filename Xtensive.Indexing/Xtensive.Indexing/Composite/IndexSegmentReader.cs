@@ -6,6 +6,7 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
@@ -22,16 +23,19 @@ namespace Xtensive.Indexing.Composite
 
     public IIndex<TKey, TItem> Index
     {
+      [DebuggerStepThrough]
       get { return index; }
     }
 
     public Range<IEntire<TKey>> Range
     {
+      [DebuggerStepThrough]
       get { return range; }
     }
 
     public Direction Direction
     {
+      [DebuggerStepThrough]
       get { return reader.Direction; }
     }
 
@@ -46,6 +50,7 @@ namespace Xtensive.Indexing.Composite
 
     object IEnumerator.Current
     {
+      [DebuggerStepThrough]
       get { return reader.Current; }
     }
 

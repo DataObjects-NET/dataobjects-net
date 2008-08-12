@@ -25,12 +25,14 @@ namespace Xtensive.Indexing.Implementation
     /// <inheritdoc/>
     public override int Size
     {
+      [DebuggerStepThrough]
       get { return items.Length - 1; }
     }
 
     /// <inheritdoc/>
     public override TKey Key
     {
+      [DebuggerStepThrough]
       get { return items[0].Key; }
     }
 
@@ -45,6 +47,7 @@ namespace Xtensive.Indexing.Implementation
     /// </summary>
     /// <param name="index">The index to get the page reference at.</param>
     /// <returns>Page reference at the specified <paramref name="index"/>.</returns>
+    [DebuggerStepThrough]
     public IPageRef GetPageRef(int index)
     {
       return items[++index].Value;
@@ -68,7 +71,9 @@ namespace Xtensive.Indexing.Implementation
     /// <returns>A pair of key-reference at the specified index.</returns>
     public KeyValuePair<TKey, IPageRef> this[int index]
     {
+      [DebuggerStepThrough]
       get { return items[++index]; }
+      [DebuggerStepThrough]
       internal set { items[++index] = value; }
     }
 

@@ -5,6 +5,7 @@
 // Created:    2008.02.13
 
 using System;
+using System.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Indexing.Measures

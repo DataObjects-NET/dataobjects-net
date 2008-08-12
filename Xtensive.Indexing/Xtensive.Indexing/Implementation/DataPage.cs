@@ -31,6 +31,7 @@ namespace Xtensive.Indexing.Implementation
     /// <value>The key extractor.</value>
     public Converter<TItem, TKey> KeyExtractor
     {
+      [DebuggerStepThrough]
       get { return Provider.Index.KeyExtractor; }
     }
 
@@ -44,13 +45,16 @@ namespace Xtensive.Indexing.Implementation
     /// </summary>
     public int CurrentSize
     {
+      [DebuggerStepThrough]
       get { return currentSize; }
+      [DebuggerStepThrough]
       set { currentSize = value; }
     }
 
     /// <inheritdoc/>
     public IMeasureResultSet<TItem> MeasureResults
     {
+      [DebuggerStepThrough]
       get { return measureResults; }
     }
 

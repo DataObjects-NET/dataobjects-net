@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Internals.DocTemplates;
@@ -41,12 +42,14 @@ namespace Xtensive.Indexing
     /// <inheritdoc/>
     public override string Name
     {
+      [DebuggerStepThrough]
       get { return name; }
     }
 
     /// <inheritdoc/>
     protected override IIndex Index
     {
+      [DebuggerStepThrough]
       get { return index; }
     }
 
@@ -57,24 +60,28 @@ namespace Xtensive.Indexing
     /// <inheritdoc/>
     public Converter<TItem, TKey> KeyExtractor
     {
+      [DebuggerStepThrough]
       get { return index.KeyExtractor; }
     }
 
     /// <inheritdoc/>
     public AdvancedComparer<TKey> KeyComparer
     {
+      [DebuggerStepThrough]
       get { return orderedIndex.KeyComparer; }
     }
 
     /// <inheritdoc/>
     public AdvancedComparer<IEntire<TKey>> EntireKeyComparer
     {
+      [DebuggerStepThrough]
       get { return orderedIndex.EntireKeyComparer; }
     }
 
     /// <inheritdoc/>
     public Func<IEntire<TKey>, TKey, int> AsymmetricKeyCompare
     {
+      [DebuggerStepThrough]
       get { return orderedIndex.AsymmetricKeyCompare; }
     }
 
@@ -84,11 +91,13 @@ namespace Xtensive.Indexing
 
     public long Size
     {
+      [DebuggerStepThrough]
       get { return (long)GetMeasureResult(SizeMeasure<object>.CommonName); }
     }
 
     public bool HasMeasures
     {
+      [DebuggerStepThrough]
       get
       {
         if (measurable == null)
@@ -99,6 +108,7 @@ namespace Xtensive.Indexing
 
     /// <inheritdoc/>
     public IMeasureSet<TItem> Measures {
+      [DebuggerStepThrough]
       get {
         if (measurable == null)
           throw new NotSupportedException();

@@ -5,6 +5,7 @@
 // Created:    2008.02.20
 
 using System;
+using System.Diagnostics;
 using System.Runtime.Serialization;
 using Xtensive.Core;
 using Xtensive.Core.Comparison;
@@ -41,6 +42,7 @@ namespace Xtensive.Indexing
     /// </summary>
     public UrlInfo Location
     {
+      [DebuggerStepThrough]
       get { return location; }
       set
       {
@@ -54,6 +56,7 @@ namespace Xtensive.Indexing
     /// </summary>
     public IMeasureSet<TItem>Measures
     {
+      [DebuggerStepThrough]
       get { return measures; }
     }
 
@@ -62,6 +65,7 @@ namespace Xtensive.Indexing
     /// </summary>
     public Converter<TItem, TKey> KeyExtractor
     {
+      [DebuggerStepThrough]
       get { return keyExtractor; }
       set {
         this.EnsureNotLocked();
@@ -75,6 +79,7 @@ namespace Xtensive.Indexing
     /// </summary>
     public AdvancedComparer<TKey> KeyComparer
     {
+      [DebuggerStepThrough]
       get { return keyComparer; }
       set {
         this.EnsureNotLocked();
@@ -92,6 +97,7 @@ namespace Xtensive.Indexing
     /// </summary>
     public AdvancedComparer<IEntire<TKey>> EntireKeyComparer
     {
+      [DebuggerStepThrough]
       get { return entireKeyComparer; }
       set {
         this.EnsureNotLocked();
@@ -107,6 +113,7 @@ namespace Xtensive.Indexing
     /// </summary>
     public Func<IEntire<TKey>, TKey, int> AsymmetricKeyCompare
     {
+      [DebuggerStepThrough]
       get { return asymmetricKeyCompare; }
       set {
         this.EnsureNotLocked();

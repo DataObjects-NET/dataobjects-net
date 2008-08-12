@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Comparison;
 
@@ -26,6 +27,7 @@ namespace Xtensive.Indexing
     ///</summary>
     public AdvancedComparer<TPoint> Comparer
     {
+      [DebuggerStepThrough]
       get { return comparer; }
     }
 
@@ -34,6 +36,7 @@ namespace Xtensive.Indexing
     /// </summary>
     public Converter<TNode, Range<TPoint>> RangeExtractor
     {
+      [DebuggerStepThrough]
       get { return rangeExtractor; }
     }
 
