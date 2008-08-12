@@ -98,15 +98,9 @@ namespace Xtensive.Storage.Building.Builders
     private static void CreateInterfaceIndexes(HierarchyInfo hierarchy)
     {
       BuildingContext context = BuildingContext.Current;
-      TypeDef rootDef = context.Definition.Types[hierarchy.Root.UnderlyingType];
-
-
       foreach (var @interface in context.Model.Types.Find(TypeAttributes.Interface).Where(i => i.Hierarchy==hierarchy)) {
-
         TypeDef interfaceDef = context.Definition.Types[@interface.UnderlyingType];
-        IndexDef primaryIndexDefinition = rootDef.Indexes.Where(i => i.IsPrimary).First();
-        BuildVirtualPrimaryInterfaceIndex(@interface, primaryIndexDefinition);
-
+        
         // Build virtual declared interface index
         foreach (IndexDef indexDescriptor in interfaceDef.Indexes)
           BuildVirtualDeclaredInterfaceIndex(@interface, indexDescriptor);
@@ -116,15 +110,6 @@ namespace Xtensive.Storage.Building.Builders
           foreach (var parentIndex in parent.Indexes.Find(IndexAttributes.Primary, MatchType.None))
             BuildVirtualInheritedInterfaceIndex(@interface, parentIndex);
       }
-    }
-
-    private static void BuildVirtualPrimaryInterfaceIndex(TypeInfo @interface, IndexDef primaryIndexDefinition)
-    {
-      var index = BuildIndex(@interface, primaryIndexDefinition);
-
-      @interface.Indexes.Add(index);
-      if ((@interface.Attributes & TypeAttributes.Materialized) != 0)
-        BuildingContext.Current.Model.RealIndexes.Add(index);
     }
 
     private static void BuildVirtualDeclaredInterfaceIndex(TypeInfo @interface, IndexDef indexDescriptor)
@@ -151,41 +136,48 @@ namespace Xtensive.Storage.Building.Builders
       foreach (var @interface in context.Model.Types.Find(TypeAttributes.Interface).Where(i => i.Hierarchy == hierarchy)) {
         var implementors = new List<TypeInfo>(@interface.GetImplementors(false));
 
-        foreach (var index in @interface.Indexes.Where(i=>i.IsVirtual)) {
+        if (implementors.Count==1)
+          @interface.Indexes.Add(implementors[0].Indexes.PrimaryIndex);
+        else {
+          TypeDef rootDef = context.Definition.Types[hierarchy.Root.UnderlyingType];
+          IndexDef primaryIndexDefinition = rootDef.Indexes.Where(i => i.IsPrimary).First();
+          var index = BuildIndex(@interface, primaryIndexDefinition);
+          switch (hierarchy.Schema) {
+          case InheritanceSchema.Default: {
+            var primaryIndexes = implementors.Select(t => t.Indexes.FindFirst(IndexAttributes.Real | IndexAttributes.Primary)).ToList();
+            index.UnderlyingIndexes.AddRange(primaryIndexes);
+          }
+            break;
+          case InheritanceSchema.SingleTable:
+            index.UnderlyingIndexes.Add(hierarchy.Root.Indexes.PrimaryIndex);
+            break;
+          case InheritanceSchema.ConcreteTable: {
+            var allImplementors = new List<TypeInfo>(@interface.GetImplementors(true));
+            var primaryIndexes = allImplementors.Select(t => t.Indexes.FindFirst(IndexAttributes.Real | IndexAttributes.Primary)).ToList();
+            index.UnderlyingIndexes.AddRange(primaryIndexes);
+          }
+            break;
+          }
+          @interface.Indexes.Add(index);
+          if ((@interface.Attributes & TypeAttributes.Materialized)!=0)
+            BuildingContext.Current.Model.RealIndexes.Add(index);
+        }
+
+        foreach (var index in @interface.Indexes.Where(i=>i.IsVirtual && !i.IsPrimary)) {
           var localIndex = index;
-          if (index.IsPrimary) {
-            switch (hierarchy.Schema) {
-              case InheritanceSchema.Default: {
-                  var primaryIndexes = implementors.Select(t => t.Indexes.FindFirst(IndexAttributes.Real | IndexAttributes.Primary)).ToList();
-                  index.UnderlyingIndexes.AddRange(primaryIndexes);
-                }
-                break;
-              case InheritanceSchema.SingleTable:
-                index.UnderlyingIndexes.Add(hierarchy.Root.Indexes.PrimaryIndex);
-                break;
-              case InheritanceSchema.ConcreteTable: {
-                  var allImplementors = new List<TypeInfo>(@interface.GetImplementors(true));
-                  var primaryIndexes = allImplementors.Select(t => t.Indexes.FindFirst(IndexAttributes.Real | IndexAttributes.Primary)).ToList();
-                  index.UnderlyingIndexes.AddRange(primaryIndexes);
-                }
-                break;
-            }
-          }
-          else {
-            switch(hierarchy.Schema) {
-              case InheritanceSchema.Default:
-                index.UnderlyingIndexes.AddRange(implementors.SelectMany(t => t.Indexes).Where(i => i.DeclaringIndex==localIndex));
-                break;
-              case InheritanceSchema.SingleTable:
-                index.UnderlyingIndexes.AddRange(hierarchy.Root.Indexes.Where(i => i.DeclaringIndex==localIndex));
-                break;
-              case InheritanceSchema.ConcreteTable: {
-                  var allImplementors = new List<TypeInfo>(@interface.GetImplementors(true));
-                  index.UnderlyingIndexes.AddRange(allImplementors.SelectMany(t => t.Indexes).Where(i => i.DeclaringIndex == localIndex && !i.IsVirtual));
-                }
-                break;
+          switch(hierarchy.Schema) {
+            case InheritanceSchema.Default:
+              index.UnderlyingIndexes.AddRange(implementors.SelectMany(t => t.Indexes).Where(i => i.DeclaringIndex==localIndex));
+              break;
+            case InheritanceSchema.SingleTable:
+              index.UnderlyingIndexes.AddRange(hierarchy.Root.Indexes.Where(i => i.DeclaringIndex==localIndex));
+              break;
+            case InheritanceSchema.ConcreteTable: {
+                var allImplementors = new List<TypeInfo>(@interface.GetImplementors(true));
+                index.UnderlyingIndexes.AddRange(allImplementors.SelectMany(t => t.Indexes).Where(i => i.DeclaringIndex == localIndex && !i.IsVirtual));
               }
-          }
+              break;
+            }
         }
       }
     }

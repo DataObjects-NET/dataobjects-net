@@ -33,6 +33,7 @@ namespace Xtensive.Storage.Tests.Storage.SnakesModel
 
   public interface ICreature : IEntity
   {
+    [Field(Length = 255, IsNullable = true)]
     string Name { get; set; }
   }
 
@@ -45,7 +46,6 @@ namespace Xtensive.Storage.Tests.Storage.SnakesModel
     [Field]
     public int ID { get; set; }
 
-    [Field(Length = 255,IsNullable = true)]
     public string Name { get; set; }
 
     [Field(IsNullable = true)]

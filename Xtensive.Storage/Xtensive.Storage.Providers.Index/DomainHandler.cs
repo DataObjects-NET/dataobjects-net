@@ -27,7 +27,7 @@ namespace Xtensive.Storage.Providers.Index
     public override void Build()
     {
       BuildRealIndexes();
-      foreach (IndexInfo indexInfo in Handlers.Domain.Model.Types.SelectMany(type => type.Indexes)) {
+      foreach (IndexInfo indexInfo in Handlers.Domain.Model.Types.SelectMany(type => type.Indexes.Where(i => i.ReflectedType == type))) {
         MapTransform transform = BuildIndexTransform(indexInfo);
         indexTransforms.Add(indexInfo, transform);
       }
