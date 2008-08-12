@@ -24,9 +24,9 @@ namespace Xtensive.Storage.Configuration
     }
 
     /// <summary>
-    /// Gets or sets the size of the session cache.
+    /// Gets or sets the size of the session cache. Default value is <see cref="SessionConfiguration.DefaultCacheSize"/>.
     /// </summary>
-    [ConfigurationProperty(CacheSizeElementName, IsRequired = false)]
+    [ConfigurationProperty(CacheSizeElementName, IsRequired = false, DefaultValue = SessionConfiguration.DefaultCacheSize)]
     public int CacheSize
     {
       get { return (int) this[CacheSizeElementName]; }

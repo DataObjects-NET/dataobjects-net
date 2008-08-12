@@ -31,7 +31,7 @@ namespace Xtensive.Core.Collections
         return false;
 
       foreach (TKey key in dictionary.Keys)
-        if (!other.ContainsKey(key) || other[key].Equals(dictionary[key]))
+        if (!other.ContainsKey(key) || !other[key].Equals(dictionary[key]))
           return false;
 
       return true;

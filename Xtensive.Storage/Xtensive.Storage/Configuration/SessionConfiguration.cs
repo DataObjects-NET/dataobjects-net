@@ -20,6 +20,13 @@ namespace Xtensive.Storage.Configuration
   [Serializable]
   public class SessionConfiguration : ConfigurationBase
   {
+    /// <summary>
+    /// Default cache size;
+    /// </summary>
+    public const int DefaultCacheSize = 1024;
+
+    private int cacheSize = 1024;
+
     /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
     public readonly static SessionConfiguration Default;
 
@@ -35,9 +42,13 @@ namespace Xtensive.Storage.Configuration
     public object[] AuthParams { get; private set; }
 
     /// <summary>
-    /// Gets or sets the size of the session cache.
+    /// Gets or sets the size of the session cache. Default value is <see cref="DefaultCacheSize"/>.
     /// </summary>
-    public int CacheSize { get; set; }
+    public int CacheSize
+    {
+      get { return cacheSize; }
+      set { cacheSize = value; }
+    }
 
     /// <inheritdoc/>
     public override void Validate()
@@ -116,7 +127,6 @@ namespace Xtensive.Storage.Configuration
     /// </summary>
     public SessionConfiguration()
     {
-      CacheSize = 1024;
     }
 
     // Type initializer

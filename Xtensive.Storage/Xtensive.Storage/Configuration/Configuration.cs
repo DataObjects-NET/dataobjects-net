@@ -14,8 +14,18 @@ namespace Xtensive.Storage.Configuration
   /// DataObjects.NET configuration section.
   /// </summary>
   [Serializable]
-  public class Configuration : CollectionBaseSlim<DomainConfiguration>
+  public class Configuration
   {
+    private readonly CollectionBaseSlim<DomainConfiguration> domains = new CollectionBaseSlim<DomainConfiguration>();
+
+    /// <summary>
+    /// Gets domain configurations.
+    /// </summary>
+    public CollectionBaseSlim<DomainConfiguration> Domains
+    {
+      get { return domains; }
+    }
+
     /// <summary>
     /// Loads configuration from default application configuration file.
     /// </summary>
@@ -28,7 +38,7 @@ namespace Xtensive.Storage.Configuration
       if (section==null) 
         throw new InvalidOperationException(String.Format("Section \"{0}\" not found in application configuration file.", sectionName));
       foreach (DomainElement domain in section.Domains) {
-        result.Add(new DomainConfiguration(domain));
+        result.Domains.Add(new DomainConfiguration(domain));
       }
       return result;
     }

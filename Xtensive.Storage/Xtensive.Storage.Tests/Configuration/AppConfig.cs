@@ -20,8 +20,8 @@ namespace Xtensive.Storage.Tests.Configuration
     public void DomainConfig()
     {
       var configuration = Xtensive.Storage.Configuration.Configuration.Load("AppConfigTest");
-      Assert.AreEqual(2, configuration.Count);
-      var domainConfig = configuration[0];
+      Assert.AreEqual(2, configuration.Domains.Count);
+      var domainConfig = configuration.Domains[0];
       Log.Debug("SessionPoolSize: {0}", domainConfig.SessionPoolSize);
       Log.Debug("ConnectionInfo: {0}", domainConfig.ConnectionInfo);
       foreach (Type builder in domainConfig.Builders) {
@@ -37,8 +37,10 @@ namespace Xtensive.Storage.Tests.Configuration
         Log.Debug("NamingConvention.NamespaceSynonym (key, value): {0} {1}", namespaceSynonym.Key, namespaceSynonym.Value);
       }
       Log.Debug("Session settings. UserName: {0}, CacheSize: {1}", domainConfig.Session.UserName, domainConfig.Session.CacheSize);
-      var manualConfig = new DomainConfiguration("memory://localhost/");
-      manualConfig.SessionPoolSize = 77;
+      var manualConfig = new DomainConfiguration("memory://localhost/"){
+          SessionPoolSize = 77,
+          Name = "TestDomain1"
+        };
       manualConfig.Builders.Add(typeof(string));
       manualConfig.Builders.Add(typeof(int));
       manualConfig.Types.Register(Assembly.Load("Xtensive.Storage.Tests"), "Xtensive.Storage.Tests");
@@ -48,15 +50,11 @@ namespace Xtensive.Storage.Tests.Configuration
       manualConfig.NamingConvention.NamespaceSynonyms.Add("Xtensive.Storage", "XS");
       manualConfig.NamingConvention.NamespaceSynonyms.Add("Xtensive.Messaging", "XM");
       manualConfig.NamingConvention.NamespaceSynonyms.Add("Xtensive.Indexing", "XI");
+      manualConfig.Session.CacheSize = 123;
+      manualConfig.Session.UserName = "TestUserName";
       Assert.AreEqual(domainConfig, manualConfig);
     }
 
-    [Test]
-    public void SessionConfig()
-    {
-      var sessionConfiguration = (SessionConfiguration)ConfigurationManager.GetSection("SessionConfig");
-      Log.Debug("UserName: {0}", sessionConfiguration.UserName);
-      Log.Debug("CacheSize: {0}", sessionConfiguration.CacheSize);
-    }
+    
   }
 }

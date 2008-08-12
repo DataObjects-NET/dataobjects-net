@@ -30,7 +30,7 @@ namespace Xtensive.Storage.Configuration
     private Registry types = new Registry(new TypeProcessor());
     private int sessionPoolSize = 64;
     private string name = string.Empty;
-    private SessionConfiguration session;
+    private SessionConfiguration session = new SessionConfiguration();
 
     /// <summary>
     /// Gets or sets configuration name.
@@ -166,12 +166,13 @@ namespace Xtensive.Storage.Configuration
         return false;
       if (ReferenceEquals(this, other))
         return true;
-      return Equals(other.builders, builders) 
+      return builders.EqualsTo(other.builders)
         && Equals(other.connectionInfo, connectionInfo) 
-        && Equals(other.namingConvention, namingConvention) 
-        && Equals(other.types, types) 
+        && Equals(other.namingConvention, namingConvention)
+        && types.EqualsTo(other.types)
         && other.sessionPoolSize == sessionPoolSize 
-        && Equals(other.name, name) && Equals(other.session, session);
+        && Equals(other.name, name) 
+        && Equals(other.session, session);
     }
 
     /// <inheritdoc/>

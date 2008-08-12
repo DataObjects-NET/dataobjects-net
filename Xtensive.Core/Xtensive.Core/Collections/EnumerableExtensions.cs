@@ -214,9 +214,8 @@ namespace Xtensive.Core.Collections
       IEnumerator<TItem> enumerator = items.GetEnumerator();
 
       foreach (var item in other) {
-        if (!AdvancedComparerStruct<TItem>.System.Equals(enumerator.Current, item))
+        if (!enumerator.MoveNext() || !AdvancedComparerStruct<TItem>.System.Equals(enumerator.Current, item))
           return false;
-        enumerator.MoveNext();
       }
       return true;
     }
