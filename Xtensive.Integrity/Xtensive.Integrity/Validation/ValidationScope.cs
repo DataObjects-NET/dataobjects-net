@@ -17,7 +17,7 @@ namespace Xtensive.Integrity.Validation
     /// <summary>
     /// Gets the current context.
     /// </summary>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public static new ValidationContextBase CurrentContext {
       get {
         return Scope<ValidationContextBase>.CurrentContext;
@@ -27,13 +27,13 @@ namespace Xtensive.Integrity.Validation
     /// <summary>
     /// Gets the context of this scope.
     /// </summary>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public new ValidationContextBase Context
     {
       get { return base.Context; }
     }
 
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     internal new ValidationScope OuterScope
     {
       get { return (ValidationScope)base.OuterScope; }

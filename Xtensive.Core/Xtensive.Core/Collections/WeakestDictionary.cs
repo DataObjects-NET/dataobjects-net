@@ -29,7 +29,7 @@ namespace Xtensive.Core.Collections
     private int iteration;
 
     /// <inheritdoc/>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public override int Count {
       get {
         IterationalCleanup();

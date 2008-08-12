@@ -17,7 +17,7 @@ namespace Xtensive.Core.Serialization
     private static readonly object _lock = new object();
     private static volatile Serializer<T> @default;
 
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public static Serializer<T> Default {
       get {
         if (@default==null) lock (_lock) if (@default==null) {

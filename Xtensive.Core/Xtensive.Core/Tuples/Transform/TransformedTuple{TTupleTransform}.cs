@@ -20,7 +20,7 @@ namespace Xtensive.Core.Tuples.Transform
     private TTupleTransform transform;
 
     /// <inheritdoc/>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public override ITupleTransform Transform
     {
       get { return transform; }

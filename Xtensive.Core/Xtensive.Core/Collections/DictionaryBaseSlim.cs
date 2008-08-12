@@ -37,7 +37,7 @@ namespace Xtensive.Core.Collections
     public abstract int Count { get; }
 
     /// <inheritdoc/>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     long ICountable.Count
     {
       get { return Count; }
@@ -67,14 +67,14 @@ namespace Xtensive.Core.Collections
     #region Non-abstract methods (IDictionary, etc. implementation)
 
     /// <inheritdoc/>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public bool IsReadOnly
     {
       get { return false; }
     }
 
     /// <inheritdoc/>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public ICollection<TKey> Keys
     {
       get
@@ -86,7 +86,7 @@ namespace Xtensive.Core.Collections
     }
 
     /// <inheritdoc/>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public ICollection<TValue> Values
     {
       get

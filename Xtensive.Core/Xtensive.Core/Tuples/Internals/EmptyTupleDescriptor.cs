@@ -21,7 +21,7 @@ namespace Xtensive.Core.Tuples.Internals
     /// <summary>
     /// Provides the only instance of this class.
     /// </summary>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public static EmptyTupleDescriptor Instance
     {
       get { return instance; }

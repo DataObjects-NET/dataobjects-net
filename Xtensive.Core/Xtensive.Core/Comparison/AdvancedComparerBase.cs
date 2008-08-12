@@ -40,14 +40,14 @@ namespace Xtensive.Core.Comparison
     protected readonly int DefaultDirectionMultiplier;
 
     /// <inheritdoc/>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public IComparerProvider Provider 
     {
       get { return provider; }
     }
 
     /// <inheritdoc/>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     ComparisonRules IAdvancedComparerBase.ComparisonRules 
     {
       get { return ComparisonRules; }

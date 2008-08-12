@@ -44,7 +44,7 @@ namespace Xtensive.Core.Collections
     /// <inheritdoc/>
     public int Capacity
     {
-      [DebuggerHidden]
+      [DebuggerStepThrough]
       get {
         return items.Length;
       }
@@ -64,14 +64,14 @@ namespace Xtensive.Core.Collections
     }
 
     /// <inheritdoc/>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public Direction Direction
     {
       get { return direction; }
     }
 
     /// <inheritdoc/>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public long Count
     {
       get { return count; }

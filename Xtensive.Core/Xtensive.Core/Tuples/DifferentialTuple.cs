@@ -22,14 +22,14 @@ namespace Xtensive.Core.Tuples
     private Tuple difference;
 
     /// <inheritdoc/>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public override TupleDescriptor Descriptor
     {
       get { return origin.Descriptor; }
     }
 
     /// <inheritdoc />
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public override int Count
     {
       get { return origin.Count; }
@@ -38,7 +38,7 @@ namespace Xtensive.Core.Tuples
     /// <summary>
     /// Gets original tuple.
     /// </summary>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public Tuple Origin
     {
       get { return origin; }
@@ -49,7 +49,7 @@ namespace Xtensive.Core.Tuples
     /// </summary>
     public Tuple Difference
     {
-      [DebuggerHidden]
+      [DebuggerStepThrough]
       get { return difference; }
       set
       {

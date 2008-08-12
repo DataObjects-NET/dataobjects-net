@@ -46,7 +46,7 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
     }
 
 
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public override string QuoteIdentifier(params string[] names)
     {
       string[] names2 = new string[names.Length];
@@ -56,7 +56,7 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
       return ("\"" + string.Join("\".\"", names2) + "\"");
     }
 
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public override string QuoteString(string str)
     {
       return "'" + str.Replace("'", "''").Replace(@"\", @"\\") + "'";

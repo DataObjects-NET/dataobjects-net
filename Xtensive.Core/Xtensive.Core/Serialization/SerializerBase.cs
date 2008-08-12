@@ -18,7 +18,7 @@ namespace Xtensive.Core.Serialization
     private ISerializerProvider provider;
 
     /// <inheritdoc/>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public ISerializerProvider Provider
     {
       get { return provider; }

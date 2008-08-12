@@ -26,7 +26,7 @@ namespace Xtensive.Storage
     /// Gets <see cref="Session"/> to which current instance is bound.
     /// </summary>
     [Infrastructure]
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public Session Session
     {
       get { return session; }
@@ -36,7 +36,7 @@ namespace Xtensive.Storage
     #region IContextBound<Session> Members
 
     [Infrastructure]
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     Session IContextBound<Session>.Context
     {
       get { return session; }

@@ -27,7 +27,7 @@ namespace Xtensive.Core
     /// <summary>
     /// Gets the current context of this type of scope.
     /// </summary>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     protected internal static TContext CurrentContext
     {
       get { return currentScope != null ? currentScope.context : default(TContext); }
@@ -36,7 +36,7 @@ namespace Xtensive.Core
     /// <summary>
     /// Gets the current scope.
     /// </summary>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     protected internal static Scope<TContext> CurrentScope
     {
       get { return currentScope; }
@@ -45,7 +45,7 @@ namespace Xtensive.Core
     /// <summary>
     /// Gets the context of this scope.
     /// </summary>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     protected TContext Context
     {
       get { return context; }
@@ -54,7 +54,7 @@ namespace Xtensive.Core
     /// <summary>
     /// Gets the outer <see cref="Scope{TContext}"/> of this instance.
     /// </summary>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     protected Scope<TContext> OuterScope
     {
       get { return outerScope; }
@@ -63,7 +63,7 @@ namespace Xtensive.Core
     /// <summary>
     /// Gets a value indicating whether this scope is nested to another one.
     /// </summary>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     protected bool IsNested
     {
       get { return outerScope != null; }

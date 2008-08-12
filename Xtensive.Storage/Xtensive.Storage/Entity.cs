@@ -37,7 +37,7 @@ namespace Xtensive.Storage
     #region Internal properties
 
     [Infrastructure]
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     internal EntityData Data
     {
       get { return data; }
@@ -45,7 +45,7 @@ namespace Xtensive.Storage
 
     /// <exception cref="Exception">Property is already initialized.</exception>
     [Field]
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     internal int TypeId
     {
       get { return GetValue<int>(NameBuilder.TypeIdFieldName); }
@@ -62,21 +62,21 @@ namespace Xtensive.Storage
 
     /// <exception cref="Exception">Property is already initialized.</exception>
     [Infrastructure]
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public Key Key
     {
       get { return Data.Key; }
     }
 
     /// <inheritdoc/>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public override sealed TypeInfo Type
     {
       get { return Data.Type; }
     }
 
     /// <inheritdoc/>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     protected internal sealed override Tuple Tuple
     {
       get { return Data.Tuple; }
@@ -104,7 +104,7 @@ namespace Xtensive.Storage
 
     /// <inheritdoc/>
     [Infrastructure]
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     Key IIdentified<Key>.Identifier
     {
       get { return Key; }
@@ -112,7 +112,7 @@ namespace Xtensive.Storage
 
     /// <inheritdoc/>
     [Infrastructure]
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     object IIdentified.Identifier
     {
       get { return Key; }

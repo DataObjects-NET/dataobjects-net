@@ -26,19 +26,19 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets the underlying tuple.
     /// </summary>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public Tuple Tuple { get; private set; }
 
     /// <summary>
     /// Gets the hierarchy this instance belongs to.
     /// </summary>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public HierarchyInfo Hierarchy { get; private set; }
 
     /// <summary>
     /// Gets the type of <see cref="Entity"/> this instance identifies.
     /// </summary>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public TypeInfo Type
     {
       get { return type; }
@@ -95,7 +95,7 @@ namespace Xtensive.Storage
     #region Equals & GetHashCode
 
     /// <inheritdoc/>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public bool Equals(Key other)
     {
       if (other==null)
@@ -109,7 +109,7 @@ namespace Xtensive.Storage
     }
 
     /// <inheritdoc/>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public override bool Equals(object obj)
     {
       if (obj is Key) {
@@ -119,7 +119,7 @@ namespace Xtensive.Storage
     }
 
     /// <inheritdoc/>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public override int GetHashCode()
     {
       return hashCode;

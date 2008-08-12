@@ -31,16 +31,16 @@ namespace Xtensive.Storage
 
     #region Private \ internal properties
 
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     internal HandlerAccessor Handlers { get; private set; }
 
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     internal SessionHandler Handler { get; private set; }
 
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     internal EntityDataCache DataCache { get; private set; }
 
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     internal FlagRegistry<PersistenceState, EntityData> DirtyData { get; private set; }
 
     #endregion
@@ -48,7 +48,7 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets the configuration of the <see cref="Session"/>.
     /// </summary>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public SessionConfiguration Configuration { get; private set; }
 
     /// <summary>
@@ -127,7 +127,7 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets the current active <see cref="Session"/> instance.
     /// </summary>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public static Session Current
     {
       get { return SessionScope.Current==null ? null : SessionScope.Current.Session; }

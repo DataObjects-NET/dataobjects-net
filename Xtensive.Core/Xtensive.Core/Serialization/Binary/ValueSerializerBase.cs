@@ -24,7 +24,7 @@ namespace Xtensive.Core.Serialization.Binary
     private IValueSerializerProvider provider;
 
     /// <inheritdoc/>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public IValueSerializerProvider Provider
     {
       get { return provider; }

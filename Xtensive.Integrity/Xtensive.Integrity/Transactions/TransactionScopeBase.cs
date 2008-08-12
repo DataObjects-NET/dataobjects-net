@@ -28,7 +28,7 @@ namespace Xtensive.Integrity.Transactions
     /// <summary>
     /// Gets current <see cref="TTransaction"/> object in this type of scope.
     /// </summary>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public static TTransaction CurrentTransaction {
       get {
         return CurrentContext;
@@ -38,7 +38,7 @@ namespace Xtensive.Integrity.Transactions
     /// <summary>
     /// Gets <see cref="TTransaction"/> object associated with this scope.
     /// </summary>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public TTransaction Transaction
     {
       get { return Context; }

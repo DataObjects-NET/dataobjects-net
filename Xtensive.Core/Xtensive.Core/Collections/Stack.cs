@@ -38,14 +38,14 @@ namespace Xtensive.Core.Collections
     }
 
     /// <inheritdoc/>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public int Count
     {
       get { return size; }
     }
 
     /// <inheritdoc/>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     long ICountable.Count
     {
       get { return Count; }

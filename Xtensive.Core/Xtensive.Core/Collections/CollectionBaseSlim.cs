@@ -28,21 +28,21 @@ namespace Xtensive.Core.Collections
     #region Properties: IsReadOnly, SyncRoot, IsSyncronized
 
     /// <inheritdoc/>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public virtual bool IsReadOnly
     {
       get { return IsLocked; }
     }
 
     /// <inheritdoc/>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public virtual object SyncRoot
     {
       get { return this; }
     }
 
     /// <inheritdoc/>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public virtual bool IsSynchronized
     {
       get { return false; }
@@ -54,21 +54,21 @@ namespace Xtensive.Core.Collections
     /// Gets the items.
     /// </summary>
     /// <value>The items.</value>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     protected List<TItem> Items
     {
       get { return items; }
     }
 
     /// <inheritdoc/>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public int Count
     {
       get { return Items.Count; }
     }
 
     /// <inheritdoc/>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     int ICollection<TItem>.Count
     {
       get { return Count; }

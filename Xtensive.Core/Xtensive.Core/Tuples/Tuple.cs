@@ -29,7 +29,7 @@ namespace Xtensive.Core.Tuples
     public abstract TupleDescriptor Descriptor { get; }
 
     /// <inheritdoc />
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public virtual int Count { 
       get {
          return Descriptor.Count;

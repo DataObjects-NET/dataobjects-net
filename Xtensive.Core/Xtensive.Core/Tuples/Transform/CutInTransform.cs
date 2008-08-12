@@ -26,7 +26,7 @@ namespace Xtensive.Core.Tuples.Transform
     /// <summary>
     /// Gets the start index at witch this transform cuts in specified value.
     /// </summary>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public int Index
     {
       get { return index; }
@@ -35,7 +35,7 @@ namespace Xtensive.Core.Tuples.Transform
     /// <summary>
     /// Gets tuple descriptors this transform cuts in.
     /// </summary>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public TupleDescriptor[] Sources
     {
       get { return sources.Copy(); }

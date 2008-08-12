@@ -17,7 +17,7 @@ namespace Xtensive.Core.Collections
   public sealed class EmptyCountable<TItem> : ICountable<TItem>
   {
     /// <inheritdoc/>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public long Count
     {
       get { return 0; }

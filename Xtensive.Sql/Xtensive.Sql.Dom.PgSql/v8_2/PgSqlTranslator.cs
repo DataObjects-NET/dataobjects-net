@@ -11,7 +11,7 @@ namespace Xtensive.Sql.Dom.PgSql.v8_2
     {
     }
 
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public override string QuoteString(string str)
     {
       return "E'" + str.Replace("'", "''").Replace(@"\", @"\\") + "'";

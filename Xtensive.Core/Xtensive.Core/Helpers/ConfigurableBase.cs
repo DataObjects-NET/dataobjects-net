@@ -27,7 +27,7 @@ namespace Xtensive.Core.Helpers
     private TConfiguration configuration;
 
     /// <inheritdoc/>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public bool IsConfigured
     {
       get { return isConfigured; }

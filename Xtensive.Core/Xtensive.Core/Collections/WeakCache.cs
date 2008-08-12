@@ -38,13 +38,13 @@ namespace Xtensive.Core.Collections
       public TItem Item { get; private set; }
       public long Size { get; private set; }
 
-      [DebuggerHidden]
+      [DebuggerStepThrough]
       object IIdentified.Identifier
       {
         get { return Identifier; }
       }
 
-      [DebuggerHidden]
+      [DebuggerStepThrough]
       public TKey Identifier
       {
         get { return Cache.KeyExtractor(Item); }
@@ -72,7 +72,7 @@ namespace Xtensive.Core.Collections
     /// <summary>
     /// Gets the maximal size of strongly referenced cached items.
     /// </summary>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public int MaxSize
     {
       get { return cache.MaxSize; }
@@ -82,7 +82,7 @@ namespace Xtensive.Core.Collections
     /// <inheritdoc/>
     /// This property returns the count of strongly referenced cached items.
     /// </summary>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public long Count
     {
       get { return cache.Count; }
@@ -92,14 +92,14 @@ namespace Xtensive.Core.Collections
     /// <inheritdoc/>
     /// This property returns the size of strongly referenced cached items.
     /// </summary>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public long Size
     {
       get { return cache.Size; }
     }
 
     /// <inheritdoc/>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public Converter<TItem, TKey> KeyExtractor
     {
       get { return cache.KeyExtractor; }
@@ -108,7 +108,7 @@ namespace Xtensive.Core.Collections
     /// <summary>
     /// Gets the item size extractor.
     /// </summary>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public Func<TItem, long> SizeExtractor
     {
       get { return sizeExtractor; }

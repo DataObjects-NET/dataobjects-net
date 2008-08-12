@@ -28,7 +28,7 @@ namespace Xtensive.Core.Diagnostics
     private int      operationCount;
 
 
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public string Name
     {
       get { return name; }
@@ -40,25 +40,25 @@ namespace Xtensive.Core.Diagnostics
       }
     }
 
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public string FullName {
       get { return fullName; }
       protected set { fullName = value; }
     }
 
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public MeasurementOptions Options
     {
       get { return options; }
     }
 
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public bool IsCompleted
     {
       get { return isCompleted; }
     }
 
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public int OperationCount {
       get { return operationCount; }
       set {

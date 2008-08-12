@@ -26,7 +26,7 @@ namespace Xtensive.Core.Collections
     private Dictionary<Type, object> extensions;
 
     /// <inheritdoc/>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public long Count {
       get {
         return extensions!=null ? extensions.Count : 0;
@@ -34,7 +34,7 @@ namespace Xtensive.Core.Collections
     }
 
     /// <inheritdoc/>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public T Get<T>() 
       where T : class
     {
@@ -55,7 +55,7 @@ namespace Xtensive.Core.Collections
     }
 
     /// <inheritdoc/>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public void Set<T>(T value) 
       where T : class
     {

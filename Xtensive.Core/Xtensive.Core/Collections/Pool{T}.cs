@@ -25,19 +25,19 @@ namespace Xtensive.Core.Collections
     private SetSlim<T> availableItems = new SetSlim<T>();
 
 
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public int Capacity
     {
       get { return capacity; }
     }
 
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public int AvailableCount
     {
       get { return availableItems.Count; }
     }
 
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public int Count
     {
       get { return items.Count; }

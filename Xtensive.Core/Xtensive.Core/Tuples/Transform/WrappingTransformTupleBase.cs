@@ -19,20 +19,20 @@ namespace Xtensive.Core.Tuples.Transform
     private readonly Tuple origin;
 
     /// <inheritdoc/>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public override TupleDescriptor Descriptor
     {
       get { return origin.Descriptor; }
     }
 
     /// <inheritdoc />
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public override int Count {
       get { return origin.Count; }
     }
 
     /// <inheritdoc/>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public override object[] Arguments {
       get {
         return new object[] {origin};

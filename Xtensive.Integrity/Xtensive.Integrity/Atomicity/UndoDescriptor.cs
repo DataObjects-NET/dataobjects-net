@@ -25,27 +25,27 @@ namespace Xtensive.Integrity.Atomicity
     private IDictionary<string, object> arguments = new Dictionary<string, object>();
     private bool isCompleted;
 
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public IRedoDescriptor OppositeDescriptor
     {
       get { return oppositeDescriptor; }
       set { oppositeDescriptor = value; }
     }
 
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public virtual IGroupUndoDescriptor Group
     {
       get { return group; }
       set { group = value; }
     }
 
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public virtual IDictionary<string, object> Arguments
     {
       get { return arguments; }
     }
 
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public bool IsCompleted
     {
       get { return isCompleted; }

@@ -30,13 +30,13 @@ namespace Xtensive.Core
     private object syncRoot;
 
     /// <inheritdoc/>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public object SyncRoot {
       get { return syncRoot; }
     }
 
     /// <inheritdoc/>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public bool IsSynchronized
     {
       get { return true; }

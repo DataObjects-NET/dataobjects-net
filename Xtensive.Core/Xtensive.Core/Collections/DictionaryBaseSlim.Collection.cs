@@ -32,21 +32,21 @@ namespace Xtensive.Core.Collections
       protected readonly IDictionary<TKey, TValue> dictionary;
 
       /// <inheritdoc/>
-      [DebuggerHidden]
+      [DebuggerStepThrough]
       public int Count
       {
         get { return dictionary.Count; }
       }
 
       /// <inheritdoc/>
-      [DebuggerHidden]
+      [DebuggerStepThrough]
       long ICountable.Count
       {
         get { return Count; }
       }
 
       /// <inheritdoc/>
-      [DebuggerHidden]
+      [DebuggerStepThrough]
       public bool IsReadOnly
       {
         get { return true; }

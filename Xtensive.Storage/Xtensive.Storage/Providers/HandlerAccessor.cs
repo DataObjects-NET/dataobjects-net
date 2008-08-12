@@ -19,38 +19,38 @@ namespace Xtensive.Storage.Providers
     /// Gets the <see cref="Xtensive.Storage.Domain"/> 
     /// this handler accessor is bound to.
     /// </summary>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public Domain Domain { get; private set; }
 
     /// <summary>
     /// Gets the handler provider 
     /// creating handlers in the <see cref="Domain"/>.
     /// </summary>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public HandlerFactory HandlerFactory { get; internal set; }
 
     /// <summary>
     /// Gets the name builder.
     /// </summary>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public NameBuilder NameBuilder { get; internal set; }
 
     /// <summary>
     /// Gets the key manager.
     /// </summary>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public KeyManager KeyManager { get; internal set; }
 
     /// <summary>
     /// Gets the <see cref="Domain"/> handler.
     /// </summary>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public DomainHandler DomainHandler { get; internal set; }
 
     /// <summary>
     /// Gets the handler of the current <see cref="Session"/>.
     /// </summary>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public SessionHandler SessionHandler
     {
       get { return Session.Current.Handler; }

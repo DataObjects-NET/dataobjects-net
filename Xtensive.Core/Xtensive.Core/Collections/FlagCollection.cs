@@ -44,7 +44,7 @@ namespace Xtensive.Core.Collections
     /// Gets <see cref="Biconverter{TFrom,TTo}"/> instance
     /// used to convert flag value to <see cref="bool"/> and vice versa.
     /// </summary>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public Biconverter<TFlag, bool> Converter
     {
       get { return converter; }
@@ -53,7 +53,7 @@ namespace Xtensive.Core.Collections
     /// <summary>
     /// Gets an <see cref="Collection{T}"/> containing the flags.
     /// </summary>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public ICollection<TFlag> Flags
     {
       get { return Values; }
@@ -194,14 +194,14 @@ namespace Xtensive.Core.Collections
     }
 
     /// <inheritdoc/>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public int Count
     {
       get { return keys.Count; }
     }
 
     /// <inheritdoc/>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public bool IsReadOnly
     {
       get { return IsLocked; }

@@ -40,7 +40,7 @@ namespace Xtensive.Core.Helpers
     /// <summary>
     /// Gets the inner list of the items.
     /// </summary>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     protected IList<TItem> Items
     {
       get { return items; }
@@ -49,7 +49,7 @@ namespace Xtensive.Core.Helpers
     #region IConfigurationSet<TItem> Members
 
     /// <inheritdoc/>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public long Count
     {
       get { return items.Count; }

@@ -34,7 +34,7 @@ namespace Xtensive.Core.Hashing
     private ThreadSafeCached<IHasherBase> objectHasher;
 
     /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public static IHasherProvider Default
     {
       get { return @default; }

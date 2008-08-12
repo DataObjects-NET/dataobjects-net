@@ -36,7 +36,7 @@ namespace Xtensive.Core.Arithmetic
     private static readonly ArithmeticProvider @default = new ArithmeticProvider();
 
     /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public static IArithmeticProvider Default
     {
       get { return @default; }

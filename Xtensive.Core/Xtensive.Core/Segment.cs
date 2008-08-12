@@ -36,7 +36,7 @@ namespace Xtensive.Core
     /// <summary>
     /// Gets <see cref="Offset"/>+<see cref="Length"/> value.
     /// </summary>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public T EndOffset {
       get {
         return arithmetic.Add(Offset, Length);

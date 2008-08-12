@@ -65,7 +65,7 @@ namespace Xtensive.Core.Collections
     /// <summary>
     /// Gets count of items.
     /// </summary>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public int Count
     {
       get { return count; }

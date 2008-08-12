@@ -29,21 +29,21 @@ namespace Xtensive.Core.Collections
     private readonly ICollection<T> innerCollection;
 
     /// <inheritdoc/>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public int Count
     {
       get { return innerCollection.Count; }
     }
 
     /// <inheritdoc/>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     long ICountable.Count
     {
       get { return Count; }
     }
 
     /// <inheritdoc/>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public object SyncRoot
     {
       get { return this; }
@@ -52,7 +52,7 @@ namespace Xtensive.Core.Collections
     #region IsXxx properties
 
     /// <inheritdoc/>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public virtual bool IsSynchronized
     {
       get { return false; }
@@ -62,7 +62,7 @@ namespace Xtensive.Core.Collections
     /// Always returns <see langword="true"/>.
     /// </summary>
     /// <returns><see langword="True"/>.</returns>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     bool ICollection<T>.IsReadOnly
     {
       get { return true; }

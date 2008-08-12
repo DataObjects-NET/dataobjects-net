@@ -18,7 +18,7 @@ namespace Xtensive.Integrity.Atomicity
   /// </summary>
   public class RedoScope: Scope<IRedoDescriptor>
   {
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public static IRedoDescriptor CurrentDescriptor {
       get {
         return CurrentContext;
@@ -33,13 +33,13 @@ namespace Xtensive.Integrity.Atomicity
         return new RedoScope(new BlockingRedoDescriptor());
     }
 
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public IRedoDescriptor Descriptor
     {
       get { return Context; }
     }
 
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     internal new RedoScope OuterScope
     {
       get { return (RedoScope)base.OuterScope; }

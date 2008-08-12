@@ -23,7 +23,7 @@ namespace Xtensive.Core.Tuples.Transform
     /// <summary>
     /// Gets the segment this transform extracts.
     /// </summary>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public Segment<int> Segment
     {
       get { return segment; }

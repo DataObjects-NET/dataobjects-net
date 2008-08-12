@@ -33,7 +33,7 @@ namespace Xtensive.Core.Tuples.Transform
     public const int NoMapping = Int32.MinValue;
 
     /// <inheritdoc/>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public override bool IsReadOnly {
       get {
         return isReadOnly;
@@ -43,7 +43,7 @@ namespace Xtensive.Core.Tuples.Transform
     /// <summary>
     /// Gets the count of source <see cref="Tuples"/> this transform maps to the target one.
     /// </summary>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public int SourceCount
     {
       get { return sourceCount; }
@@ -53,7 +53,7 @@ namespace Xtensive.Core.Tuples.Transform
     /// Gets or sets destination-to-source field map for the first source only.
     /// </summary>
     public int[] SingleSourceMap {
-      [DebuggerHidden]
+      [DebuggerStepThrough]
       get { return singleSourceMap.Copy(); }
       protected set {
         ArgumentValidator.EnsureArgumentNotNull(value, "value");
@@ -73,7 +73,7 @@ namespace Xtensive.Core.Tuples.Transform
     /// Gets or sets destination-to-source field map.
     /// </summary>
     public Pair<int, int>[] Map {
-      [DebuggerHidden]
+      [DebuggerStepThrough]
       get { return map.Copy(); }
       protected set {
         ArgumentValidator.EnsureArgumentNotNull(value, "value");

@@ -42,7 +42,7 @@ namespace Xtensive.Storage
     private readonly TypeInfo type;
 
     /// <inheritdoc/>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public override TypeInfo Type
     {
       get { return type; }
@@ -50,7 +50,7 @@ namespace Xtensive.Storage
 
     /// <inheritdoc/>
     [Infrastructure]
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public Persistent Owner
     {
       get { return owner; }
@@ -58,14 +58,14 @@ namespace Xtensive.Storage
 
     /// <inheritdoc/>
     [Infrastructure]
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public FieldInfo Field
     {
       get { return field; }
     }
 
     /// <inheritdoc/>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     protected internal override Tuple Tuple
     {
       get { return tuple; }

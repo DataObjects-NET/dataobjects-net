@@ -21,7 +21,7 @@ namespace Xtensive.Core
     public abstract bool IsActive { get; }
 
     /// <inheritdoc/>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     IDisposable IContext.Activate()
     {
       return Activate();

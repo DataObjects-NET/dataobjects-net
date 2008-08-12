@@ -28,7 +28,7 @@ namespace Xtensive.Core.Serialization
       ThreadSafeDictionary<Type, ISerializer>.Create(new object());
 
     /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public static ISerializerProvider Default
     {
       get { return @default; }

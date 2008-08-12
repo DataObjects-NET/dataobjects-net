@@ -28,21 +28,21 @@ namespace Xtensive.Core
     /// <summary>
     /// Gets the list of caught exceptions.
     /// </summary>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public ReadOnlyList<Exception> Exceptions
     {
       get { return exceptions; }
     }
 
     /// <inheritdoc/>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     IEnumerable<Exception> IHasExceptions.Exceptions
     {
       get { return Exceptions; }
     }
 
     /// <inheritdoc/>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     IEnumerable<Exception> IHasExceptions<Exception>.Exceptions
     {
       get { return Exceptions; }

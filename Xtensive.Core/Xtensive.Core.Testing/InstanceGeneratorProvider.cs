@@ -27,7 +27,7 @@ namespace Xtensive.Core.Testing
       ThreadSafeDictionary<Type, IInstanceGeneratorBase>.Create(new object());
 
     /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public static InstanceGeneratorProvider Default
     {
       get { return @default; }

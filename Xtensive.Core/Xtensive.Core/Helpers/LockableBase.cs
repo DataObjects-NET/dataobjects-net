@@ -19,7 +19,7 @@ namespace Xtensive.Core.Helpers
     private bool isLocked;
 
     /// <inheritdoc/>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public bool IsLocked
     {
       get { return isLocked; }

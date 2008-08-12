@@ -21,7 +21,7 @@ namespace Xtensive.Integrity.Atomicity
   {
     private MethodCallDescriptor callDescriptor;
 
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public MethodCallDescriptor CallDescriptor
     {
       get { return callDescriptor; }

@@ -30,7 +30,7 @@ namespace Xtensive.Integrity.Validation
     }
 
     /// <inheritdoc/>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public override bool IsActive
     {
       get { return ValidationScope.CurrentContext == this; }
@@ -40,7 +40,7 @@ namespace Xtensive.Integrity.Validation
     /// Gets the value indicating whether this context is in inconsistent state.
     /// </summary>
     public bool IsConsistent {
-      [DebuggerHidden]
+      [DebuggerStepThrough]
       get {
         return isConsistent;
       }

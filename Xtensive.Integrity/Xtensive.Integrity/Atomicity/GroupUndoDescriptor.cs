@@ -24,7 +24,7 @@ namespace Xtensive.Integrity.Atomicity
     private static readonly MethodInfo undoMethodInfo;
     private IList<IUndoDescriptor> operations = new List<IUndoDescriptor>();
 
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public IList<IUndoDescriptor> Operations
     {
       get { return operations; }

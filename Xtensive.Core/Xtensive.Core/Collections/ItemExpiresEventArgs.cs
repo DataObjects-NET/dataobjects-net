@@ -23,7 +23,7 @@ namespace Xtensive.Core.Collections
     /// <see langword="True"/>, if item must be kept in collection; 
     /// otherwise, <see langword="false"/>.
     /// </summary>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public bool Cancel
     {
       get { return cancel; }
@@ -33,7 +33,7 @@ namespace Xtensive.Core.Collections
     ///<summary>
     /// Gets the expiring item.
     ///</summary>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public TItem Item
     {
       get { return item; }

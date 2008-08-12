@@ -28,20 +28,20 @@ namespace Xtensive.Core.Collections
     private readonly bool isFixedSize;
 
     /// <inheritdoc/>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public int Count {
       get { return innerList.Count; }
     }
 
     /// <inheritdoc/>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     long ICountable.Count
     {
       get { return Count; }
     }
 
     /// <inheritdoc/>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public object SyncRoot {
       get { return this; }
     }
@@ -57,21 +57,21 @@ namespace Xtensive.Core.Collections
     #region IsXxx properties
 
     /// <inheritdoc/>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public virtual bool IsSynchronized
     {
       get { return false; }
     }
 
     /// <inheritdoc/>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public bool IsReadOnly
     {
       get { return true; }
     }
 
     /// <inheritdoc/>
-    [DebuggerHidden]
+    [DebuggerStepThrough]
     public bool IsFixedSize
     {
       get { return isFixedSize; }
