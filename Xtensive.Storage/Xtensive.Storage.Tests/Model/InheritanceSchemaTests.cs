@@ -17,14 +17,14 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaModel
   [Index("Name")]
   public interface IHasName : IEntity
   {
-    [Field]
+    [Field(Length=1000)]
     string Name { get; set; }
   }
 
   [Index("Name")]
   public interface IHasName2 : IEntity
   {
-    [Field]
+    [Field(Length = 1000)]
     string Name { get; set; }
   }
 
@@ -67,7 +67,7 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaModel
   {
     public string Name { get; set; }
 
-    [Field]
+    [Field(Length = 1000)]
     public virtual string Tag { get; set; }
   }
 
@@ -101,7 +101,7 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaModel
     [Field]
     public long ID { get; set; }
 
-    [Field]
+    [Field(Length = 1000)]
     public string Name { get; set; }
   }
 
