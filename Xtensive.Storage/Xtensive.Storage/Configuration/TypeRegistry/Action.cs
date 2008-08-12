@@ -55,7 +55,7 @@ namespace Xtensive.Storage.Configuration.TypeRegistry
     /// <returns></returns>
     public override int GetHashCode()
     {
-      return assembly.GetHashCode() + 29*(@namespace.IsNullOrEmpty() ? @namespace.GetHashCode() : 0);
+      return assembly.GetHashCode() + 29*(@namespace.IsNullOrEmpty() ? 0 : @namespace.GetHashCode());
     }
 
     #region IEquatable<Action> Members
