@@ -91,6 +91,16 @@ namespace Xtensive.Storage.Providers.Sql
           }
           table.CreatePrimaryKey(primaryIndex.Name, keyColumns.ToArray());
           batch.Add(SqlFactory.Create(table));
+          // Primary key included columns
+          if (primaryIndex.IncludedColumns.Count>0) {
+            Index index = table.CreateIndex(primaryIndex.Name+"_IncludedColumns");
+            index.IsUnique = false;
+            index.Filegroup = "\"default\"";
+            batch.Add(SqlFactory.Create(index));
+            foreach (ColumnInfo includedColumn in primaryIndex.IncludedColumns) {
+              index.CreateIndexColumn(table.TableColumns.First(tableColumn => tableColumn.Name == includedColumn.Name));
+            }
+          }
           // Secondary indexes
           foreach (IndexInfo secondaryIndex in type.Indexes.Find(IndexAttributes.Real).Where(indexInfo => !indexInfo.IsPrimary)) {
             Index index = table.CreateIndex(secondaryIndex.Name);
@@ -99,17 +109,12 @@ namespace Xtensive.Storage.Providers.Sql
             index.Filegroup = "\"default\"";
             batch.Add(SqlFactory.Create(index));
             foreach (ColumnInfo secondaryIndexColumn in secondaryIndex.Columns.Where(columnInfo => !columnInfo.IsPrimaryKey && !columnInfo.IsSystem)) {
-              string primaryIndexColumnName = null;
-              foreach (ColumnInfo primaryColumn in primaryIndex.Columns) {
-                if (primaryColumn.Field.Column.Name == secondaryIndexColumn.Name) {
-                  primaryIndexColumnName = primaryColumn.Name;
-                  break;
-                }
-              }
-              if (primaryIndexColumnName.IsNullOrEmpty()) {
-                throw new InvalidOperationException(String.Format(Strings.UnableToFindColumnInPrimaryIndex, secondaryIndexColumn.Name, secondaryIndex.Name));
-              }
+              string primaryIndexColumnName = GetPrimaryIndexColumnName(primaryIndex, secondaryIndexColumn, secondaryIndex);
               index.CreateIndexColumn(table.TableColumns.First(tableColumn => tableColumn.Name == primaryIndexColumnName));
+            }
+            foreach (var nonKeyColumn in secondaryIndex.IncludedColumns) {
+              string primaryIndexColumnName = GetPrimaryIndexColumnName(primaryIndex, nonKeyColumn, secondaryIndex);
+              index.NonkeyColumns.Add(table.TableColumns.First(tableColumn => tableColumn.Name == primaryIndexColumnName));
             }
           }
         }
@@ -118,7 +123,21 @@ namespace Xtensive.Storage.Providers.Sql
         ExecuteNonQuery(batch);
     }
 
-    
+    private string GetPrimaryIndexColumnName(IndexInfo primaryIndex, ColumnInfo secondaryIndexColumn, IndexInfo secondaryIndex)
+    {
+      string primaryIndexColumnName = null;
+      foreach (ColumnInfo primaryColumn in primaryIndex.Columns) {
+        if (primaryColumn.Field.Column.Name == secondaryIndexColumn.Name) {
+          primaryIndexColumnName = primaryColumn.Name;
+          break;
+        }
+      }
+      if (primaryIndexColumnName.IsNullOrEmpty()) {
+        throw new InvalidOperationException(String.Format(Strings.UnableToFindColumnInPrimaryIndex, secondaryIndexColumn.Name, secondaryIndex.Name));
+      }
+      return primaryIndexColumnName;
+    }
+
 
     private void ExecuteNonQuery(ISqlCompileUnit statement)
     {
