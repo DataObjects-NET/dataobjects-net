@@ -7,6 +7,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 
@@ -17,7 +18,8 @@ namespace Xtensive.Storage.Rse
   /// </summary>
   public class ColumnGroupCollection : ReadOnlyCollection<ColumnGroup>
   {
-    private static ColumnGroupCollection empty;
+    private static ThreadSafeCached<ColumnGroupCollection> cachedEmpty =
+      ThreadSafeCached<ColumnGroupCollection>.Create(new object());
 
     /// <summary>
     /// Gets the empty <see cref="ColumnGroupCollection"/>.
@@ -25,9 +27,8 @@ namespace Xtensive.Storage.Rse
     public static ColumnGroupCollection Empty {
       [DebuggerStepThrough]
       get {
-        if (empty==null)
-          empty = new ColumnGroupCollection(Enumerable.Empty<ColumnGroup>());
-        return empty;
+        return cachedEmpty.GetValue(
+          () => new ColumnGroupCollection(Enumerable.Empty<ColumnGroup>()));
       }
     }
 

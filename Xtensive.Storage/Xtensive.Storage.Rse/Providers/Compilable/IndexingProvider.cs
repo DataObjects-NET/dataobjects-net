@@ -52,11 +52,11 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <inheritdoc/>
     protected override RecordSetHeader BuildHeader()
     {
-      return new RecordSetHeader(
-        Source.Header.TupleDescriptor, 
-        Source.Header.Columns, 
-        Source.Header.ColumnGroups, 
-        Order);
+      return Source.Header.Sort(Order);
+
+
+
+
     }
 
     /// <inheritdoc/>
