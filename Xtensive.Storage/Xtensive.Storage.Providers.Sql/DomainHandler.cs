@@ -98,14 +98,15 @@ namespace Xtensive.Storage.Providers.Sql
             index.Filegroup = "\"default\"";
             batch.Add(SqlFactory.Create(index));
             foreach (ColumnInfo includedColumn in primaryIndex.IncludedColumns) {
-              index.CreateIndexColumn(table.TableColumns.First(tableColumn => tableColumn.Name == includedColumn.Name));
+              ColumnInfo includedColumn1 = includedColumn;
+              index.CreateIndexColumn(table.TableColumns.First(tableColumn => tableColumn.Name == includedColumn1.Name));
             }
           }
           // Secondary indexes
           foreach (IndexInfo secondaryIndex in type.Indexes.Find(IndexAttributes.Real).Where(indexInfo => !indexInfo.IsPrimary)) {
             Index index = table.CreateIndex(secondaryIndex.Name);
             index.IsUnique = secondaryIndex.IsUnique;
-            // TODO: index.FillFactor = secondaryIndex.FillFactor;
+            index.FillFactor = (byte) (secondaryIndex.FillFactor*100);
             index.Filegroup = "\"default\"";
             batch.Add(SqlFactory.Create(index));
             foreach (ColumnInfo secondaryIndexColumn in secondaryIndex.Columns.Where(columnInfo => !columnInfo.IsPrimaryKey && !columnInfo.IsSystem)) {
@@ -123,7 +124,7 @@ namespace Xtensive.Storage.Providers.Sql
         ExecuteNonQuery(batch);
     }
 
-    private string GetPrimaryIndexColumnName(IndexInfo primaryIndex, ColumnInfo secondaryIndexColumn, IndexInfo secondaryIndex)
+    private static string GetPrimaryIndexColumnName(IndexInfo primaryIndex, ColumnInfo secondaryIndexColumn, IndexInfo secondaryIndex)
     {
       string primaryIndexColumnName = null;
       foreach (ColumnInfo primaryColumn in primaryIndex.Columns) {
@@ -137,7 +138,6 @@ namespace Xtensive.Storage.Providers.Sql
       }
       return primaryIndexColumnName;
     }
-
 
     private void ExecuteNonQuery(ISqlCompileUnit statement)
     {

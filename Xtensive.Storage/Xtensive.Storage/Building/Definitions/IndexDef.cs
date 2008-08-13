@@ -17,8 +17,13 @@ namespace Xtensive.Storage.Building.Definitions
   [Serializable]
   public class IndexDef : MappingNode
   {
+    /// <summary>
+    /// Default fill factor.
+    /// </summary>
+    public const double DefaultFillFactor = 0.8;
+
     private IndexAttributes attributes;
-    private double fillFactor;
+    private double fillFactor = DefaultFillFactor;
     private readonly DirectionCollection<string> keyFields = new DirectionCollection<string>();
     private Collection<string> includedFields = new Collection<string>();
 
