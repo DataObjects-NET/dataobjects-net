@@ -15,7 +15,8 @@ namespace Xtensive.Storage.Model
 {
   [DebuggerDisplay("{Name}; Attributes = {Attributes}")]
   [Serializable]
-  public sealed class ColumnInfo : Node
+  public sealed class ColumnInfo : Node, 
+    ICloneable
   {
     private ColumnAttributes attributes;
     private Type valueType;
@@ -24,14 +25,73 @@ namespace Xtensive.Storage.Model
     private NodeCollection<IndexInfo> indexes;
     private CultureInfo cultureInfo = CultureInfo.InvariantCulture;
 
+    #region IsXxx properties
+
+    /// <summary>
+    /// Gets or sets a value indicating whether this column is system.
+    /// </summary>
+    public bool IsSystem {
+      [DebuggerStepThrough]
+      get { return (attributes & ColumnAttributes.System) != 0; }
+      [DebuggerStepThrough]
+      private set {
+        this.EnsureNotLocked();
+        attributes = value ? Attributes | ColumnAttributes.System : Attributes & ~ColumnAttributes.System;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether this instance is declared in <see cref="TypeInfo"/> instance.
+    /// </summary>
+    public bool IsDeclared
+    {
+      [DebuggerStepThrough]
+      get { return (attributes & ColumnAttributes.Declared) > 0; }
+      [DebuggerStepThrough]
+      set {
+        this.EnsureNotLocked();
+        attributes = value ? 
+                             (attributes | ColumnAttributes.Declared) & ~ColumnAttributes.Inherited :
+                                                                                                      attributes & ~ColumnAttributes.Declared | ColumnAttributes.Inherited;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether this instance is inherited from parent <see cref="TypeInfo"/> instance.
+    /// </summary>
+    public bool IsInherited {
+      [DebuggerStepThrough]
+      get { return (attributes & ColumnAttributes.Inherited) > 0; }
+      [DebuggerStepThrough]
+      set {
+        this.EnsureNotLocked();
+        attributes = value ? 
+                             (attributes | ColumnAttributes.Inherited) & ~ColumnAttributes.Declared :
+                                                                                                      attributes & ~ColumnAttributes.Inherited | ColumnAttributes.Declared;
+      }
+    }
+
+    /// <summary>
+    /// Gets a value indicating whether this column is contained by primary key.
+    /// </summary>
+    public bool IsPrimaryKey {
+      [DebuggerStepThrough]
+      get { return (Attributes & ColumnAttributes.PrimaryKey) != 0; }
+      [DebuggerStepThrough]
+      set {
+        this.EnsureNotLocked();
+        attributes = value ? Attributes | ColumnAttributes.PrimaryKey : Attributes & ~ColumnAttributes.PrimaryKey;
+      }
+    }
+
     /// <summary>
     /// Gets or sets a value indicating whether column is nullable.
     /// </summary>
-    public bool IsNullable
-    {
+    public bool IsNullable {
+      [DebuggerStepThrough]
       get { return (attributes & ColumnAttributes.Nullable) != 0; }
-      set
-      {
+      [DebuggerStepThrough]
+      set {
         this.EnsureNotLocked();
         attributes = value ? Attributes | ColumnAttributes.Nullable : Attributes & ~ColumnAttributes.Nullable;
       }
@@ -40,11 +100,11 @@ namespace Xtensive.Storage.Model
     /// <summary>
     /// Gets or sets a value indicating whether  property will be loaded on demand.
     /// </summary>
-    public bool LazyLoad
-    {
+    public bool IsLazyLoad {
+      [DebuggerStepThrough]
       get { return (attributes & ColumnAttributes.LazyLoad) != 0; }
-      set
-      {
+      [DebuggerStepThrough]
+      set {
         this.EnsureNotLocked();
         attributes = value ? Attributes | ColumnAttributes.LazyLoad : Attributes & ~ColumnAttributes.LazyLoad;
       }
@@ -53,44 +113,36 @@ namespace Xtensive.Storage.Model
     /// <summary>
     /// Gets or sets a value indicating whether column is translatable.
     /// </summary>
-    public bool IsCollatable
-    {
+    public bool IsCollatable {
+      [DebuggerStepThrough]
       get { return (attributes & ColumnAttributes.Collatable) != 0; }
-      set
-      {
+      [DebuggerStepThrough]
+      set {
         this.EnsureNotLocked();
         attributes = value ? Attributes | ColumnAttributes.Collatable : Attributes & ~ColumnAttributes.Collatable;
       }
     }
 
+    #endregion
+
     /// <summary>
     /// Gets or sets corresponding field.
     /// </summary>
-    public FieldInfo Field
-    {
+    public FieldInfo Field {
+      [DebuggerStepThrough]
       get { return field; }
-      set
-      {
+      [DebuggerStepThrough]
+      set {
         this.EnsureNotLocked();
         field = value;
-      }
-    }
-
-    public NodeCollection<IndexInfo> Indexes
-    {
-      get { return indexes; }
-      set
-      {
-        this.EnsureNotLocked();
-        indexes = value;
       }
     }
 
     /// <summary>
     /// Gets or sets the length of the column.
     /// </summary>
-    public int? Length
-    {
+    public int? Length {
+      [DebuggerStepThrough]
       get { return length; }
     }
 
@@ -99,83 +151,42 @@ namespace Xtensive.Storage.Model
     /// value of the field (available for properties that can be mapped
     /// to multiple data types).
     /// </summary>
-    public Type ValueType
-    {
+    public Type ValueType {
+      [DebuggerStepThrough]
       get { return valueType; }
     }
 
     /// <summary>
     /// Gets the attributes.
     /// </summary>
-    public ColumnAttributes Attributes
-    {
+    public ColumnAttributes Attributes {
+      [DebuggerStepThrough]
       get { return attributes; }
-    }
-
-    /// <summary>
-    /// Gets or sets a value indicating whether this instance is declared in <see cref="TypeInfo"/> instance.
-    /// </summary>
-    public bool IsDeclared
-    {
-      get { return (attributes & ColumnAttributes.Declared) > 0; }
-      set
-      {
-        this.EnsureNotLocked();
-        attributes = value
-                       ? (attributes | ColumnAttributes.Declared) & ~ColumnAttributes.Inherited
-                       : attributes & ~ColumnAttributes.Declared | ColumnAttributes.Inherited;
-      }
-    }
-
-    /// <summary>
-    /// Gets or sets a value indicating whether this instance is inherited from parent <see cref="TypeInfo"/> instance.
-    /// </summary>
-    public bool IsInherited
-    {
-      get { return (attributes & ColumnAttributes.Inherited) > 0; }
-      set
-      {
-        this.EnsureNotLocked();
-        attributes = value
-                       ? (attributes | ColumnAttributes.Inherited) & ~ColumnAttributes.Declared
-                       : attributes & ~ColumnAttributes.Inherited | ColumnAttributes.Declared;
-      }
-    }
-
-    /// <summary>
-    /// Gets a value indicating whether this column is contained by primary key.
-    /// </summary>
-    public bool IsPrimaryKey
-    {
-      get { return (Attributes & ColumnAttributes.PrimaryKey) != 0; }
-      set
-      {
-        this.EnsureNotLocked();
-        attributes = value ? Attributes | ColumnAttributes.PrimaryKey : Attributes & ~ColumnAttributes.PrimaryKey;
-      }
-    }
-
-    /// <summary>
-    /// Gets or sets a value indicating whether this column is system.
-    /// </summary>
-    public bool IsSystem
-    {
-      get { return (attributes & ColumnAttributes.System) != 0; }
-      private set {
-        this.EnsureNotLocked();
-        attributes = value ? Attributes | ColumnAttributes.System : Attributes & ~ColumnAttributes.System;
-      }
     }
 
     /// <summary>
     /// Gets or sets column <see cref="CultureInfo"/> info.
     /// </summary>
-    public CultureInfo CultureInfo
-    {
+    public CultureInfo CultureInfo {
+      [DebuggerStepThrough]
       get { return cultureInfo; }
+      [DebuggerStepThrough]
       set {
         this.EnsureNotLocked(); 
         cultureInfo = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or the indexes this field is included to.
+    /// </summary>
+    public NodeCollection<IndexInfo> Indexes {
+      [DebuggerStepThrough]
+      get { return indexes; } 
+      [DebuggerStepThrough]
+      set {
+        this.EnsureNotLocked();
+        indexes = value;
       }
     }
 
@@ -187,6 +198,44 @@ namespace Xtensive.Storage.Model
     public IComparer GetComparer(CultureInfo cultureInfo)
     {
       return ComparerProvider.GetComparer(ValueType, cultureInfo);
+    }
+
+    #region Equals, GetHashCode methods
+
+    /// <inheritdoc/>
+    public bool Equals(ColumnInfo obj)
+    {
+      if (ReferenceEquals(null, obj))
+        return false;
+      if (ReferenceEquals(this, obj))
+        return true;
+      return field.Equals(obj.field);
+    }
+
+    /// <inheritdoc/>
+    public override bool Equals(object obj)
+    {
+      if (ReferenceEquals(this, obj))
+        return true;
+      if (obj.GetType()!=typeof (ColumnInfo))
+        return false;
+      return Equals((ColumnInfo) obj);
+    }
+
+    /// <inheritdoc/>
+    public override int GetHashCode()
+    {
+      return field.GetHashCode();
+    }
+
+    #endregion
+
+    #region ICloneable methods
+
+    /// <inheritdoc/>
+    object ICloneable.Clone()
+    {
+      return Clone();
     }
 
     /// <summary>
@@ -202,36 +251,9 @@ namespace Xtensive.Storage.Model
       clone.indexes = indexes;
 
       return clone;
-
     }
 
-    /// <inheritdoc/>
-    public bool Equals(ColumnInfo obj)
-    {
-      if (ReferenceEquals(null, obj))
-        return false;
-      if (ReferenceEquals(this, obj))
-        return true;
-      return field.Equals(obj.field);
-    }
-
-    /// <inheritdoc/>
-    public override bool Equals(object obj)
-    {
-      if (ReferenceEquals(null, obj))
-        return false;
-      if (ReferenceEquals(this, obj))
-        return true;
-      if (obj.GetType()!=typeof (ColumnInfo))
-        return false;
-      return Equals((ColumnInfo) obj);
-    }
-
-    /// <inheritdoc/>
-    public override int GetHashCode()
-    {
-      return field.GetHashCode();
-    }
+    #endregion
 
 
     // Constructors
@@ -239,18 +261,18 @@ namespace Xtensive.Storage.Model
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="field">The field.</param>
+    /// <param name="field">The <see cref="Field"/> property value.</param>
     public ColumnInfo(FieldInfo field)
     {
       indexes = NodeCollection<IndexInfo>.Empty;
       this.field = field;
-      valueType = field.ValueType.IsEnum ? Enum.GetUnderlyingType(field.ValueType) : field.ValueType;
-      IsNullable = field.IsNullable;
-      LazyLoad = field.LazyLoad;
-      IsCollatable = field.IsCollatable;
-      length = field.Length;
-      IsDeclared = true;
       IsSystem = field.IsSystem;
+      IsDeclared = true;
+      IsNullable = field.IsNullable;
+      IsLazyLoad = field.IsLazyLoad;
+      IsCollatable = field.IsCollatable;
+      valueType = field.ValueType.IsEnum ? Enum.GetUnderlyingType(field.ValueType) : field.ValueType;
+      length = field.Length;
     }
   }
 }

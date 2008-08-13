@@ -138,7 +138,7 @@ namespace Xtensive.Storage.Building.Builders
       if (field.IsPrimitive)
         field.Column = ColumnBuilder.BuildColumn(field);
 
-      if (field.IsPrimaryKey && field.LazyLoad)
+      if (field.IsPrimaryKey && field.IsLazyLoad)
         throw new DomainBuilderException(
           string.Format(Resources.Strings.FieldXCanTBeLoadOnDemandAsItIsIncludedInPrimaryKey, field.Name));
 

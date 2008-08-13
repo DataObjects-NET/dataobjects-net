@@ -19,20 +19,20 @@ namespace Xtensive.Storage.Internals
     public static void Fetch(Key key)
     {
       IndexInfo index = key.Type.Indexes.PrimaryIndex;
-      Fetch(index, key, index.Columns.Where(c => !c.LazyLoad));
+      Fetch(index, key, index.Columns.Where(c => !c.IsLazyLoad));
     }
 
     public static void Fetch(Key key, FieldInfo field)
     {
       // Fetching all non-lazyload fields instead of exactly one non-lazy load field.
-      if (!field.LazyLoad) {
+      if (!field.IsLazyLoad) {
         Fetch(key);
         return;
       }
 
       IndexInfo index = key.Type.Indexes.PrimaryIndex;
       IEnumerable<ColumnInfo> columns = key.Type.Columns
-        .Where(c => c.IsPrimaryKey || c.IsSystem || !c.LazyLoad)
+        .Where(c => c.IsPrimaryKey || c.IsSystem || !c.IsLazyLoad)
         .Union(key.Type.Columns
           .Skip(field.MappingInfo.Offset)
           .Take(field.MappingInfo.Length));
