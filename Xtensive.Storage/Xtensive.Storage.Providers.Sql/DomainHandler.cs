@@ -63,11 +63,11 @@ namespace Xtensive.Storage.Providers.Sql
     {
       SqlBatch batch = SqlFactory.Batch();
       batch.Add(ClearCatalogScript(existingCatalog));
-      batch.Add(BuildCatalogScrypt(newCatalog));
+      batch.Add(BuildCatalogScript(newCatalog));
       return batch;
     }
 
-    private SqlBatch BuildCatalogScrypt(Catalog catalog)
+    private SqlBatch BuildCatalogScript(Catalog catalog)
     {
       SqlBatch batch = SqlFactory.Batch();
       foreach (Table table in catalog.DefaultSchema.Tables) {
@@ -145,7 +145,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       string primaryIndexColumnName = null;
       foreach (ColumnInfo primaryColumn in primaryIndex.Columns) {
-        if (primaryColumn.Field.Column.Name == secondaryIndexColumn.Name) {
+        if (primaryColumn.Field.Equals(secondaryIndexColumn.Field)) {
           primaryIndexColumnName = primaryColumn.Name;
           break;
         }
