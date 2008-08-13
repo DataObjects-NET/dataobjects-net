@@ -64,7 +64,7 @@ namespace Xtensive.Storage
     /// </remarks>
     public void Persist()
     {
-      if (DirtyData.GetCount()==0)
+      if (DirtyData.Count==0)
         return;
       
       if (Log.IsLogged(LogEventTypes.Debug))
