@@ -11,15 +11,20 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
   [Serializable]
   public sealed class SkipProvider : UnaryProvider
   {
-    public int Count { get; private set; }
+    public Func<int> Count { get; private set; }
 
 
     // Constructors
 
-    public SkipProvider(CompilableProvider provider, int count)
+    public SkipProvider(CompilableProvider provider, Func<int> count)
       : base(provider)
     {
       Count = count;
+    }
+
+    public SkipProvider(CompilableProvider provider, int count)
+      : this(provider, () => count)
+    {
     }
   }
 }

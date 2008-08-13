@@ -13,9 +13,7 @@ namespace Xtensive.Storage.Rse.Compilation
   {
     protected override ExecutableProvider Compile(RawProvider provider)
     {
-      return new Providers.Executable.RawProvider(
-        provider, 
-        provider.Tuples);
+      return new Providers.Executable.RawProvider(provider);
     }
 
 

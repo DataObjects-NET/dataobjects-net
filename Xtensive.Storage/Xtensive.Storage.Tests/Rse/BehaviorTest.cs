@@ -57,8 +57,8 @@ namespace Xtensive.Storage.Tests.Rse
       RecordSet personsRS = new RawProvider(personHeader, persons).Result;
       RecordSet authorsRS = new RawProvider(authorHeader, authors).Result;
 
-      RecordSet personIndexed = personsRS.IndexBy(OrderBy.Asc(0));
-      RecordSet authorsIndexed = authorsRS.IndexBy(OrderBy.Asc(0)).Alias("Authors");
+      RecordSet personIndexed = personsRS.OrderBy(OrderBy.Asc(0), true);
+      RecordSet authorsIndexed = authorsRS.OrderBy(OrderBy.Asc(0), true).Alias("Authors");
 
       RecordSet result = personIndexed.JoinLeft(authorsIndexed, 0, 0);
       int count = result.Count();
@@ -119,7 +119,7 @@ namespace Xtensive.Storage.Tests.Rse
 
       RecordSet result = authorRS
         .Alias("Authors")
-        .IndexBy(OrderBy.Asc(2, 0))
+        .OrderBy(OrderBy.Asc(2, 0), true)
         .Range(authorFilterTuple, authorFilterTuple)
         .Join(bookRS.Alias("Books"), new Pair<int>(0, 1))
         .OrderBy(OrderBy.Desc(5))

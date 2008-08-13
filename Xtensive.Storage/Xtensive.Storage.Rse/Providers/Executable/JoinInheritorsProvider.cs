@@ -118,7 +118,7 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
           );
     }
 
-    protected override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
+    protected internal override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
       return InheritanceJoiner.Join(
         root,

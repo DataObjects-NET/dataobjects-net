@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Rse.Resources;
@@ -21,6 +20,13 @@ namespace Xtensive.Storage.Rse.Providers
   public sealed class EnumerationContext: Context<EnumerationScope>
   {
     private readonly Dictionary<Pair<object, string>, object> cache = new Dictionary<Pair<object, string>, object>();
+
+    /// <summary>
+    /// Gets the current <see cref="EnumerationContext"/>.
+    /// </summary>
+    public static EnumerationContext Current {
+      get { return EnumerationScope.CurrentContext; }
+    }
 
     /// <summary>
     /// Caches the value in the current <see cref="EnumerationContext"/>.

@@ -212,7 +212,7 @@ namespace Xtensive.Storage.Tests.Storage
           RecordSet rsSnakeName = session.Select(snakeType.Indexes.GetIndex("Name"));
           rsSnakeName = rsSnakeName
             .Range(fromName, toName)
-            .IndexBy(OrderBy.Asc(rsSnakeName.IndexOf("ID")))
+            .OrderBy(OrderBy.Asc(rsSnakeName.IndexOf("ID")), true)
             .Alias("NameIndex");
 
           RecordSet range = rsSnakePrimary.Range(from, to);

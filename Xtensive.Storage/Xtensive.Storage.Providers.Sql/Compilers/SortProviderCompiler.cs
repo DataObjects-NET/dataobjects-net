@@ -23,7 +23,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
       var queryRef = SqlFactory.QueryRef(source.Query);
       SqlSelect query = SqlFactory.Select(queryRef);
       query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
-      foreach (KeyValuePair<int, Direction> sortOrder in provider.SortOrder)
+      foreach (KeyValuePair<int, Direction> sortOrder in provider.Order)
         query.OrderBy.Add(sortOrder.Key, sortOrder.Value==Direction.Positive);
 
       return new SqlProvider(provider, query, Handlers);

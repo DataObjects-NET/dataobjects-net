@@ -19,10 +19,11 @@ using Xtensive.Storage.Rse.Providers.Compilable;
 namespace Xtensive.Storage.Rse.Providers.Compilable
 {
   /// <summary>
-  /// Compilable provider that makes runtime index over the <see cref="UnaryProvider.Source"/> values using <see cref="Order"/>.
+  /// Base class for any compilable sorting providers
+  /// (<see cref="SortProvider"/> and <see cref="ReindexProvider"/>).
   /// </summary>
   [Serializable]
-  public sealed class IndexingProvider : UnaryProvider
+  public abstract class OrderProviderBase : UnaryProvider
   {
     /// <summary>
     /// Sort order of the index.
@@ -53,10 +54,6 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     protected override RecordSetHeader BuildHeader()
     {
       return Source.Header.Sort(Order);
-
-
-
-
     }
 
     /// <inheritdoc/>
@@ -96,7 +93,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// </summary>
     /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="order">The <see cref="Order"/> property value.</param>
-    public IndexingProvider(CompilableProvider source, DirectionCollection<int> order)
+    protected OrderProviderBase(CompilableProvider source, DirectionCollection<int> order)
       : base(source)
     {
       Order = order;

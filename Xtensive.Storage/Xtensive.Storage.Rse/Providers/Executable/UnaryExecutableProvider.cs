@@ -13,7 +13,8 @@ namespace Xtensive.Storage.Rse.Providers.Executable
   /// An abstract base class for executable provider having a single data <see cref="Source"/>.
   /// </summary>
   [Serializable]
-  public abstract class UnaryExecutableProvider: ExecutableProvider
+  public abstract class UnaryExecutableProvider<TOrigin> : ExecutableProvider<TOrigin>
+    where TOrigin: CompilableProvider
   {
     /// <summary>
     /// Gets the only data source of this provider.
@@ -26,9 +27,9 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="origin">The <see cref="ExecutableProvider.Origin"/> property value.</param>
+    /// <param name="origin">The <see cref="ExecutableProvider{TOrigin}.Origin"/> property value.</param>
     /// <param name="source">The <see cref="Source"/> property value.</param>
-    protected UnaryExecutableProvider(CompilableProvider origin, ExecutableProvider source)
+    protected UnaryExecutableProvider(TOrigin origin, ExecutableProvider source)
       : base(origin, source)
     {
       Source = source;

@@ -85,9 +85,12 @@ namespace Xtensive.Storage.Rse
       return new SortProvider(recordSet.Provider, columnIndexes).Result;
     }
 
-    public static RecordSet IndexBy(this RecordSet recordSet, DirectionCollection<int> columnIndexes)
+    public static RecordSet OrderBy(this RecordSet recordSet, DirectionCollection<int> columnIndexes, bool reindex)
     {
-      return new IndexingProvider(recordSet.Provider, columnIndexes).Result;
+      if (reindex)
+        return new ReindexProvider(recordSet.Provider, columnIndexes).Result;
+      else
+        return new SortProvider(recordSet.Provider, columnIndexes).Result;
     }
 
     public static RecordSet Alias(this RecordSet recordSet, string alias)

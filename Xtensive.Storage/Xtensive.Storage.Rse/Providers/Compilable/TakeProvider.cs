@@ -11,15 +11,20 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
   [Serializable]
   public sealed class TakeProvider : UnaryProvider
   {
-    public int Count { get; private set; }
+    public Func<int> Count { get; private set; }
 
 
     // Constructor
 
-    public TakeProvider(CompilableProvider provider , int count)
+    public TakeProvider(CompilableProvider provider, Func<int> count)
       : base(provider)
     {
       Count = count;
+    }
+
+    public TakeProvider(CompilableProvider provider, int count)
+      : this(provider, () => count)
+    {
     }
   }
 }

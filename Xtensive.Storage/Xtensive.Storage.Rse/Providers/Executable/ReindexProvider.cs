@@ -12,12 +12,12 @@ using Xtensive.Indexing;
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
   [Serializable]
-  public sealed class IndexingProvider : UnaryExecutableProvider
+  public sealed class ReindexProvider : UnaryExecutableProvider<Compilable.ReindexProvider>
   {
     private IndexConfiguration<Tuple, Tuple> indexConfiguration;
 
     /// <inheritdoc/>
-    protected override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
+    protected internal override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
       var index = new Index<Tuple, Tuple>(indexConfiguration);
       foreach (Tuple tuple in Source.Enumerate(context))
@@ -37,17 +37,16 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     protected override void Initialize()
     {
       base.Initialize();
-      var origin = (Compilable.IndexingProvider) Origin;
       indexConfiguration = new IndexConfiguration<Tuple, Tuple> {
-        KeyComparer = origin.OrderKeyComparer, 
-        KeyExtractor = origin.OrderKeyExtractor
+        KeyComparer = Origin.OrderKeyComparer, 
+        KeyExtractor = Origin.OrderKeyExtractor
       };
     }
 
 
     // Constructors
 
-    public IndexingProvider(CompilableProvider origin, ExecutableProvider source)
+    public ReindexProvider(Compilable.ReindexProvider origin, ExecutableProvider source)
       : base(origin, source)
     {
       AddService<ICachingProvider>();

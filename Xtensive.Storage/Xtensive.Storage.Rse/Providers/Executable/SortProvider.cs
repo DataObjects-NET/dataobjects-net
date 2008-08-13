@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
       return null;
     }
 
-    protected override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
+    protected internal override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
       var list = source.ToList();
 

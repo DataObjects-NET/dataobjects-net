@@ -15,8 +15,7 @@ namespace Xtensive.Storage.Rse.Compilation
     {
       return new Providers.Executable.TakeProvider(
         provider,
-        Compiler.Compile(provider.Source, true),
-        provider.Count);
+        Compiler.Compile(provider.Source, true));
     }
 
     // Constructors

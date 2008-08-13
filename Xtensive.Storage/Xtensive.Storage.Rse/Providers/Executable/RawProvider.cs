@@ -6,41 +6,55 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
   [Serializable]
-  internal sealed class RawProvider : ExecutableProvider,
+  internal sealed class RawProvider : ExecutableProvider<Compilable.RawProvider>,
     IListProvider
   {
-    private readonly Tuple[] tuples;
+    #region Cached properties
 
+    private const string CachedSourceName = "CachedSource";
+
+    private Tuple[] CachedSource {
+      get { return GetCachedValue<Tuple[]>(EnumerationContext.Current, CachedSourceName); }
+      set { SetCachedValue(EnumerationContext.Current, CachedSourceName, value); }
+    }
+
+    #endregion
 
     public long Count
     {
-      get { return tuples.Length; }
+      get { return CachedSource.Length; }
     }
 
     public Tuple GetItem(int index)
     {
-      return tuples[index];
+      return CachedSource[index];
     }
 
-    protected override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
+    /// <inheritdoc/>
+    protected internal override void OnBeforeEnumerate(EnumerationContext context)
     {
-      return tuples;
+      base.OnBeforeEnumerate(context);
+      CachedSource = Origin.Source.Invoke();
+    }
+
+    /// <inheritdoc/>
+    protected internal override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
+    {
+      return CachedSource;
     }
 
 
     // Constructors
 
-    public RawProvider(CompilableProvider origin, params Tuple[] tuples)
+    public RawProvider(Compilable.RawProvider origin)
       : base(origin)
     {
       AddService<IListProvider>();
-      this.tuples = tuples;
     }
   }
 }

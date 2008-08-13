@@ -15,11 +15,11 @@ using Xtensive.Indexing;
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
   [Serializable]
-  internal sealed class MergeJoinProvider : BinaryExecutableProvider
+  internal sealed class MergeJoinProvider : BinaryExecutableProvider<Compilable.JoinProvider>
   {
     private CombineTransform transform;
 
-    protected override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
+    protected internal override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
       var leftOrdered = Left.GetService<IOrderedEnumerable<Tuple, Tuple>>();
       var rightOrdered = Right.GetService<IOrderedEnumerable<Tuple, Tuple>>();
@@ -37,7 +37,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 
     // Constructor
 
-    public MergeJoinProvider(CompilableProvider origin, ExecutableProvider left, ExecutableProvider right)
+    public MergeJoinProvider(Compilable.JoinProvider origin, ExecutableProvider left, ExecutableProvider right)
       : base (origin, left, right)
     {      
     }

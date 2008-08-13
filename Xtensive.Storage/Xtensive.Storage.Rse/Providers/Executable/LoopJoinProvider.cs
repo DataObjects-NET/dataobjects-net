@@ -16,14 +16,14 @@ using Xtensive.Indexing;
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
   [Serializable]
-  internal sealed class LoopJoinProvider : BinaryExecutableProvider
+  internal sealed class LoopJoinProvider : BinaryExecutableProvider<Compilable.JoinProvider>
   {
     private readonly bool leftJoin;
     private readonly Pair<int>[] joiningPairs;
     private CombineTransform transform;
     private MapTransform leftKeyTransform;
 
-    protected override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
+    protected internal override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
       var rightOrdered = Right.GetService<IOrderedEnumerable<Tuple, Tuple>>(true);
       var left = Left.Enumerate(context);
@@ -51,7 +51,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 
     // Constructors
 
-    public LoopJoinProvider(CompilableProvider origin, ExecutableProvider left, ExecutableProvider right, bool leftJoin, params Pair<int>[] joiningPairs)
+    public LoopJoinProvider(Compilable.JoinProvider origin, ExecutableProvider left, ExecutableProvider right, bool leftJoin, params Pair<int>[] joiningPairs)
       : base(origin, left, right)
     {
       this.leftJoin = leftJoin;

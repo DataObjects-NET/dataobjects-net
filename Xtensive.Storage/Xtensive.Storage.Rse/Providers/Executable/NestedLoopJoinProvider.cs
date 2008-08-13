@@ -12,12 +12,11 @@ using Xtensive.Core.Comparison;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Indexing;
-using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
   [Serializable]
-  internal sealed class NestedLoopJoinProvider : BinaryExecutableProvider
+  internal sealed class NestedLoopJoinProvider : BinaryExecutableProvider<Compilable.JoinProvider>
   {
     private readonly bool leftJoin;
     private readonly Pair<int>[] joiningPairs;
@@ -25,13 +24,11 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     private MapTransform leftKeyTransform;
     private MapTransform rightKeyTransform;
 
-    protected override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
+    protected internal override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
       AdvancedComparer<Tuple> comparer = AdvancedComparer<Tuple>.Default;
       int leftCount = Left.Count();
       int rightCount = Right.Count();
-      Log.Debug("LeftCount: {0}", leftCount);
-      Log.Debug("RightCount: {0}", rightCount);
       IEnumerable<Pair<Tuple, Tuple>> loopJoin = leftJoin ? Left.NestedLoopJoinLeft(Right, KeyExtractorLeft, KeyExtractorRight, comparer) : Left.NestedLoopJoin(Right, KeyExtractorLeft, KeyExtractorRight, comparer);
       foreach (Pair<Tuple, Tuple> pair in loopJoin)
         yield return transform.Apply(TupleTransformType.Auto, pair.First, pair.Second);
@@ -68,7 +65,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 
     // Constructors
 
-    public NestedLoopJoinProvider(CompilableProvider origin, ExecutableProvider left, ExecutableProvider right, bool leftJoin, params Pair<int>[] joiningPairs)
+    public NestedLoopJoinProvider(Compilable.JoinProvider origin, ExecutableProvider left, ExecutableProvider right, bool leftJoin, params Pair<int>[] joiningPairs)
       : base(origin, left, right)
     {
       this.leftJoin = leftJoin;

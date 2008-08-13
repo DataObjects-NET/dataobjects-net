@@ -5,36 +5,15 @@
 // Created:    2008.05.20
 
 using System;
-using System.Collections.Generic;
-using Xtensive.Core.Tuples;
 
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
   [Serializable]
-  internal sealed class AliasProvider : UnaryExecutableProvider
+  internal sealed class AliasProvider : TransparentProvider<Compilable.AliasProvider>
   {
-    protected override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
-    {
-      return Source.Enumerate(context);
-    }
-
-    /// <inheritdoc/>
-    public override T GetService<T>()
-    {
-      if (typeof(T)==typeof(ICachingProvider))
-        return null;
-      return Source.GetService<T>();
-    }
-
-    public override string ParametersToString()
-    {
-      return Origin.ParametersToString();
-    }
-
-
     // Constructor
 
-    public AliasProvider(CompilableProvider origin, ExecutableProvider source)
+    public AliasProvider(Compilable.AliasProvider origin, ExecutableProvider source)
       : base(origin, source)
     {
     }

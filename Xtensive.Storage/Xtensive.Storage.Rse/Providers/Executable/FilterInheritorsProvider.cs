@@ -19,7 +19,7 @@ using Xtensive.Core.Helpers;
 namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
 {
   [Serializable]
-  public sealed class FilterInheritorsProvider : UnaryExecutableProvider,
+  public sealed class FilterInheritorsProvider : UnaryExecutableProvider<Compilable.IndexProvider>,
     IOrderedEnumerable<Tuple,Tuple>,
     ICountable
   {
@@ -27,10 +27,8 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
     private readonly Func<Tuple, bool> predicate;
     private readonly bool[] typeIdMatch;
 
-    public long Count
-    {
-      get
-      {
+    public long Count {
+      get {
         var countable = Source.GetService<ICountable>(true);
         return countable.Count;
       }
@@ -95,7 +93,7 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
     }
 
     /// <inheritdoc/>
-    protected override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
+    protected internal override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
       return source.Where(predicate);
     }
@@ -106,7 +104,7 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public FilterInheritorsProvider(CompilableProvider origin, ExecutableProvider provider,  int typeIdColumn, int typesCount,  params int[] typeIds)
+    public FilterInheritorsProvider(Compilable.IndexProvider origin, ExecutableProvider provider,  int typeIdColumn, int typesCount,  params int[] typeIds)
       : base(origin, provider)
     {
       AddService<IOrderedEnumerable<Tuple, Tuple>>();

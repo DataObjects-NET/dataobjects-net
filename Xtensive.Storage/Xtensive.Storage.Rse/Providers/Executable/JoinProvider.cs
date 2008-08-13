@@ -14,14 +14,14 @@ using System.Linq;
 
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
-  public sealed class JoinProvider : ProviderProxy
+  public sealed class JoinProvider : SubstitutingProvider<Compilable.JoinProvider>
   {
     private readonly ExecutableProvider left;
     private readonly ExecutableProvider right;
     private readonly bool leftJoin;
     private readonly Pair<int>[] joiningPairs;
 
-    public override ExecutableProvider BuildReal()
+    public override ExecutableProvider BuildSubstitution()
     {
       var leftEnumerable = left.GetService<IOrderedEnumerable<Tuple,Tuple>>();
       var rightEnumerable = right.GetService<IOrderedEnumerable<Tuple, Tuple>>();
@@ -80,7 +80,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 
     // Constructor
 
-    public JoinProvider(CompilableProvider origin, ExecutableProvider left, ExecutableProvider right, bool leftJoin, params Pair<int>[] joiningPairs)
+    public JoinProvider(Compilable.JoinProvider origin, ExecutableProvider left, ExecutableProvider right, bool leftJoin, params Pair<int>[] joiningPairs)
       : base (origin, left, right)
     {
       this.left = left;

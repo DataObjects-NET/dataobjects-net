@@ -40,7 +40,7 @@ namespace Xtensive.Storage.Rse.Providers
       var cp = GetService<ICachingProvider>();
       if (cp!=null) {
         cp.EnsureResultIsCached(context);
-        return GetCachedResult(context);
+        return GetCachedResult(context, cp);
       }
       return OnEnumerate(context);
     }
@@ -78,7 +78,7 @@ namespace Xtensive.Storage.Rse.Providers
     /// Invoked by <see cref="Enumerate"/> method in case there is no cached result for the specified context.
     /// </summary>
     /// <param name="context">The enumeration context.</param>
-    protected abstract IEnumerable<Tuple> OnEnumerate(EnumerationContext context);
+    protected internal abstract IEnumerable<Tuple> OnEnumerate(EnumerationContext context);
 
     #endregion
 
@@ -129,7 +129,7 @@ namespace Xtensive.Storage.Rse.Providers
       var cp = GetService<ICachingProvider>();
       if (cp==null)
         return false;
-      return GetCachedResult(context)!=null;
+      return GetCachedResult(context, cp)!=null;
     }
 
     /// <inheritdoc/>
@@ -139,18 +139,22 @@ namespace Xtensive.Storage.Rse.Providers
       var cp = GetService<ICachingProvider>();
       if (cp==null)
         return;
-      if (GetCachedResult(context)==null)
-        SetCachedResult(context, OnEnumerate(context));
+      if (GetCachedResult(context, cp)==null) {
+        var ep = (ExecutableProvider) cp;
+        SetCachedResult(context, cp, ep.OnEnumerate(context));
+      }
     }
 
-    private IEnumerable<Tuple> GetCachedResult(EnumerationContext context)
+    private static IEnumerable<Tuple> GetCachedResult(EnumerationContext context, ICachingProvider provider)
     {
-      return GetCachedValue<IEnumerable<Tuple>>(context, CachedResultKey);
+      context.EnsureIsActive();
+      return context.GetValue<IEnumerable<Tuple>>(new Pair<object, string>(provider, CachedResultKey));
     }
 
-    private void SetCachedResult(EnumerationContext context, IEnumerable<Tuple> value) 
+    private static void SetCachedResult(EnumerationContext context, ICachingProvider provider, IEnumerable<Tuple> value) 
     {
-      SetCachedValue(context, CachedResultKey, value);
+      context.EnsureIsActive();
+      context.SetValue(new Pair<object, string>(provider, CachedResultKey), value);
     }
 
     #endregion
@@ -216,6 +220,12 @@ namespace Xtensive.Storage.Rse.Providers
         .Append("[Origin: ")
         .Append(Origin.TitleToString())
         .Append("]");
+    }
+
+    /// <inheritdoc/>
+    public override string ParametersToString()
+    {
+      return Origin.ParametersToString();
     }
 
     #endregion

@@ -5,6 +5,7 @@
 // Created:    2008.07.09
 
 using System;
+using System.Linq.Expressions;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 
@@ -20,9 +21,9 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     private readonly RecordSetHeader header;
 
     /// <summary>
-    /// Source tuples.
+    /// Raw data source - an array of tuples.
     /// </summary>
-    public Tuple[] Tuples { get; private set; }
+    public Func<Tuple[]> Source { get; private set; }
 
     /// <inheritdoc/>
     protected override RecordSetHeader BuildHeader()
@@ -36,10 +37,22 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public RawProvider(RecordSetHeader header, params Tuple[] tuples)
+    /// <param name="header">The <see cref="Provider.Header"/> property value.</param>
+    /// <param name="source">The <see cref="Source"/> property value.</param>
+    public RawProvider(RecordSetHeader header, Func<Tuple[]> source)
     {
-      Tuples = tuples;
+      Source = source;
       this.header = header;
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="header">The <see cref="Provider.Header"/> property value.</param>
+    /// <param name="source">The <see cref="Source"/> property value.</param>
+    public RawProvider(RecordSetHeader header, Tuple[] source)
+      : this(header, () => source)
+    {
     }
   }
 }

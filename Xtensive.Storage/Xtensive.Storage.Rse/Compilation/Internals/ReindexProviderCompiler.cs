@@ -9,11 +9,11 @@ using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Rse.Compilation
 {
-  internal sealed class IndexingProviderCompiler : TypeCompiler<IndexingProvider>
+  internal sealed class ReindexProviderCompiler : TypeCompiler<ReindexProvider>
   {
-    protected override ExecutableProvider Compile(IndexingProvider provider)
+    protected override ExecutableProvider Compile(ReindexProvider provider)
     {
-      return new Providers.Executable.IndexingProvider(
+      return new Providers.Executable.ReindexProvider(
         provider, 
         Compiler.Compile(provider.Source, true));
     }
@@ -21,7 +21,7 @@ namespace Xtensive.Storage.Rse.Compilation
 
     // Constructor
 
-    public IndexingProviderCompiler(Compiler compiler)
+    public ReindexProviderCompiler(Compiler compiler)
       : base(compiler)
     {
     }

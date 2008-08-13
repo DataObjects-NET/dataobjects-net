@@ -16,7 +16,7 @@ using Xtensive.Core.Helpers;
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
   [Serializable]
-  internal sealed class RangeProvider : UnaryExecutableProvider,
+  internal sealed class RangeProvider : UnaryExecutableProvider<Compilable.RangeProvider>,
     IOrderedEnumerable<Tuple,Tuple>,
     IRangeMeasurable<Tuple,Tuple>
   {
@@ -157,7 +157,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 
     #endregion
 
-    protected override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
+    protected internal override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
       var sourceEnumerable = Source.GetService<IOrderedEnumerable<Tuple, Tuple>>(true);
       return sourceEnumerable.GetItems(tupleRange);
@@ -166,7 +166,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 
     // Constructors
 
-    public RangeProvider(CompilableProvider origin, ExecutableProvider provider, Range<IEntire<Tuple>> range) 
+    public RangeProvider(Compilable.RangeProvider origin, ExecutableProvider provider, Range<IEntire<Tuple>> range) 
       : base (origin, provider)
     {
       AddService<IOrderedEnumerable<Tuple, Tuple>>();

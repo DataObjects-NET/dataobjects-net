@@ -29,7 +29,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
       return result;
     }
 
-    protected override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
+    protected internal override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
       var index = indexResolver(indexDescriptor);
       return index;

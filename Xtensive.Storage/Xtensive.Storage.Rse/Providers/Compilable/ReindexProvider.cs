@@ -2,7 +2,7 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kochetov
-// Created:    2008.07.04
+// Created:    2008.07.08
 
 using System;
 using Xtensive.Core.Collections;
@@ -10,13 +10,13 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Rse.Providers.Compilable
-{  
+{
   /// <summary>
-  /// Compilable provider that sorts the 
-  /// <see cref="UnaryProvider.Source"/> by <see cref="OrderProviderBase.Order"/>.
+  /// Compilable provider that builds an index over the 
+  /// <see cref="UnaryProvider.Source"/> ordering them by <see cref="OrderProviderBase.Order"/>.
   /// </summary>
-  [Serializable]  
-  public sealed class SortProvider : OrderProviderBase
+  [Serializable]
+  public sealed class ReindexProvider : OrderProviderBase
   {
     // Constructor
 
@@ -25,7 +25,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// </summary>
     /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="order">The <see cref="OrderProviderBase.Order"/> property value.</param>
-    public SortProvider(CompilableProvider source, DirectionCollection<int> order)
+    public ReindexProvider(CompilableProvider source, DirectionCollection<int> order)
       : base(source, order)
     {
     }

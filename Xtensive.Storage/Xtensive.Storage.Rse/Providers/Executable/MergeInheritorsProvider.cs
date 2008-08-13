@@ -127,7 +127,7 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
         );
     }
 
-    protected override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
+    protected internal override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
       return InheritanceMerger.Merge(
         sourceProviders[0].GetService<IOrderedEnumerable<Tuple, Tuple>>(true).KeyComparer,
