@@ -13,6 +13,7 @@ using Xtensive.Sql.Common;
 using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Database;
 using Xtensive.Sql.Dom.Database.Providers;
+using Xtensive.Sql.Dom.Ddl;
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse.Compilation;
@@ -20,6 +21,7 @@ using Xtensive.Storage.Providers.Sql.Resources;
 using ColumnInfo = Xtensive.Storage.Model.ColumnInfo;
 using IndexInfo  = Xtensive.Storage.Model.IndexInfo;
 using SqlFactory = Xtensive.Sql.Dom.Sql;
+using SqlModel = Xtensive.Sql.Dom.Database.Model;
 using Xtensive.Core.Helpers;
 
 namespace Xtensive.Storage.Providers.Sql
@@ -30,7 +32,7 @@ namespace Xtensive.Storage.Providers.Sql
     private Catalog catalog;
     private readonly Dictionary<IndexInfo, Table> realIndexes = new Dictionary<IndexInfo, Table>();
     private SqlConnection connection;
-    private Xtensive.Sql.Dom.Database.Model model;
+    // private SqlModel model;
 
     protected override CompilationContext GetCompilationContext()
     {
@@ -46,41 +48,47 @@ namespace Xtensive.Storage.Providers.Sql
           throw new InvalidOperationException(Strings.ExUnableToCreateConnection);
         connection.Open();
         var modelProvider = new SqlModelProvider(connection);
-        model = Xtensive.Sql.Dom.Database.Model.Build(modelProvider);
+        SqlModel existingModel = SqlModel.Build(modelProvider);
+        string serverName = existingModel.DefaultServer.Name;
         string catalogName = Handlers.Domain.Configuration.ConnectionInfo.Resource;
-        catalog = model.DefaultServer.Catalogs[catalogName];
-        using (transaction = connection.BeginTransaction()) {
-          ClearCatalog();
-          BuildCatalog();
-          transaction.Commit();
-        }
-        model = Xtensive.Sql.Dom.Database.Model.Build(modelProvider);
-        catalog = model.DefaultServer.Catalogs[catalogName];
+        string schemaName = existingModel.DefaultServer.Catalogs[catalogName].DefaultSchema.Name;
+        SqlModel newModel = BuildNewModel(serverName, catalogName, schemaName);
+        ISqlCompileUnit syncroniztionScript = BuildSyncronizationScript(Handlers.Domain.Model, existingModel.DefaultServer.Catalogs[catalogName], newModel.DefaultServer.Catalogs[catalogName]);
+        ExecuteNonQuery(syncroniztionScript);
+        catalog = SqlModel.Build(modelProvider).DefaultServer.Catalogs[catalogName];
       }
     }
 
-    private void ClearCatalog()
+    protected ISqlCompileUnit BuildSyncronizationScript(DomainModel domainModel, Catalog existingCatalog, Catalog newCatalog)
     {
       SqlBatch batch = SqlFactory.Batch();
-      Schema schema = catalog.DefaultSchema;
-      foreach (View view in schema.Views)
-        batch.Add(SqlFactory.Drop(view));
-      schema.Views.Clear();
-      foreach (Table table in schema.Tables)
-        batch.Add(SqlFactory.Drop(table));
-      schema.Tables.Clear();
-      if (batch.Count > 0)
-        ExecuteNonQuery(batch);
+      batch.Add(ClearCatalogScript(existingCatalog));
+      batch.Add(BuildCatalogScrypt(newCatalog));
+      return batch;
     }
 
-    private void BuildCatalog()
+    private SqlBatch BuildCatalogScrypt(Catalog catalog)
     {
       SqlBatch batch = SqlFactory.Batch();
-      // Build tables
+      foreach (Table table in catalog.DefaultSchema.Tables) {
+        batch.Add(SqlFactory.Create(table));
+        foreach (Index index in table.Indexes) {
+          batch.Add(SqlFactory.Create(index));
+        }
+      }
+      return batch;
+    }
+
+    private SqlModel BuildNewModel(string serverName, string catalogName, string schemaName)
+    {
+      SqlModel model = new SqlModel();
+      Server server = model.CreateServer(serverName);
+      Catalog catalog = server.CreateCatalog(catalogName);
+      Schema schema = catalog.CreateSchema(schemaName);
       foreach (TypeInfo type in Handlers.Domain.Model.Types) {
         IndexInfo primaryIndex = type.Indexes.FindFirst(IndexAttributes.Real | IndexAttributes.Primary);
-        if (primaryIndex!=null && !realIndexes.ContainsKey(primaryIndex)) {
-          Table table = catalog.DefaultSchema.CreateTable(primaryIndex.ReflectedType.Name);
+        if (primaryIndex != null && !realIndexes.ContainsKey(primaryIndex)) {
+          Table table = schema.CreateTable(primaryIndex.ReflectedType.Name);
           realIndexes.Add(primaryIndex, table);
           var keyColumns = new List<TableColumn>();
           foreach (ColumnInfo column in primaryIndex.Columns) {
@@ -90,13 +98,11 @@ namespace Xtensive.Storage.Providers.Sql
               keyColumns.Add(tableColumn);
           }
           table.CreatePrimaryKey(primaryIndex.Name, keyColumns.ToArray());
-          batch.Add(SqlFactory.Create(table));
           // Primary key included columns
-          if (primaryIndex.IncludedColumns.Count>0) {
-            Index index = table.CreateIndex(primaryIndex.Name+"_IncludedColumns");
+          if (primaryIndex.IncludedColumns.Count > 0) {
+            Index index = table.CreateIndex(primaryIndex.Name + "_IncludedColumns");
             index.IsUnique = false;
             index.Filegroup = "\"default\"";
-            batch.Add(SqlFactory.Create(index));
             foreach (ColumnInfo includedColumn in primaryIndex.IncludedColumns) {
               ColumnInfo includedColumn1 = includedColumn;
               index.CreateIndexColumn(table.TableColumns.First(tableColumn => tableColumn.Name == includedColumn1.Name));
@@ -106,9 +112,8 @@ namespace Xtensive.Storage.Providers.Sql
           foreach (IndexInfo secondaryIndex in type.Indexes.Find(IndexAttributes.Real).Where(indexInfo => !indexInfo.IsPrimary)) {
             Index index = table.CreateIndex(secondaryIndex.Name);
             index.IsUnique = secondaryIndex.IsUnique;
-            index.FillFactor = (byte) (secondaryIndex.FillFactor*100);
+            index.FillFactor = (byte)(secondaryIndex.FillFactor * 10);
             index.Filegroup = "\"default\"";
-            batch.Add(SqlFactory.Create(index));
             foreach (ColumnInfo secondaryIndexColumn in secondaryIndex.Columns.Where(columnInfo => !columnInfo.IsPrimaryKey && !columnInfo.IsSystem)) {
               string primaryIndexColumnName = GetPrimaryIndexColumnName(primaryIndex, secondaryIndexColumn, secondaryIndex);
               index.CreateIndexColumn(table.TableColumns.First(tableColumn => tableColumn.Name == primaryIndexColumnName));
@@ -120,8 +125,20 @@ namespace Xtensive.Storage.Providers.Sql
           }
         }
       }
-      if (batch.Count > 0)
-        ExecuteNonQuery(batch);
+      return model;
+    }
+
+    private SqlBatch ClearCatalogScript(Catalog catalog)
+    {
+      SqlBatch batch = SqlFactory.Batch();
+      Schema schema = catalog.DefaultSchema;
+      foreach (View view in schema.Views)
+        batch.Add(SqlFactory.Drop(view));
+      schema.Views.Clear();
+      foreach (Table table in schema.Tables)
+        batch.Add(SqlFactory.Drop(table));
+      schema.Tables.Clear();
+      return batch;
     }
 
     private static string GetPrimaryIndexColumnName(IndexInfo primaryIndex, ColumnInfo secondaryIndexColumn, IndexInfo secondaryIndex)
@@ -141,11 +158,14 @@ namespace Xtensive.Storage.Providers.Sql
 
     private void ExecuteNonQuery(ISqlCompileUnit statement)
     {
-      using (var command = new SqlCommand(connection)) {
-        command.Statement = statement;
-        command.Prepare();
-        command.Transaction = transaction;
-        command.ExecuteNonQuery();
+      using (transaction = connection.BeginTransaction()) {
+        using (var command = new SqlCommand(connection)) {
+          command.Statement = statement;
+          command.Prepare();
+          command.Transaction = transaction;
+          command.ExecuteNonQuery();
+        }
+        transaction.Commit();
       }
     }
 
