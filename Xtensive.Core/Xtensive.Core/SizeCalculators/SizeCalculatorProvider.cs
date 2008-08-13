@@ -38,7 +38,7 @@ namespace Xtensive.Core.SizeCalculators
       ThreadSafeDictionary<Type, ISizeCalculatorBase>.Create(new object());
     private ThreadSafeDictionary<Type, ISizeCalculatorBase> boxingAwareCalculators = 
       ThreadSafeDictionary<Type, ISizeCalculatorBase>.Create(new object());
-    private ThreadSafeCached<ISizeCalculatorBase> objectSizeCalculator = new ThreadSafeCached<ISizeCalculatorBase>();
+    private ThreadSafeCached<ISizeCalculatorBase> objectSizeCalculator = ThreadSafeCached<ISizeCalculatorBase>.Create(new object());
 
     /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
     public static ISizeCalculatorProvider Default

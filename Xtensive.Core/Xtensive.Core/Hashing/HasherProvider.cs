@@ -31,7 +31,7 @@ namespace Xtensive.Core.Hashing
     private static readonly HasherProvider @default = new HasherProvider();
     private ThreadSafeDictionary<Type, IHasherBase> hashers = 
       ThreadSafeDictionary<Type, IHasherBase>.Create(new object());
-    private ThreadSafeCached<IHasherBase> objectHasher;
+    private ThreadSafeCached<IHasherBase> objectHasher = ThreadSafeCached<IHasherBase>.Create(new object());
 
     /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
     public static IHasherProvider Default

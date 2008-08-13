@@ -32,7 +32,7 @@ namespace Xtensive.Storage.Model
     private Segment<int> mappingInfo;
     private AssociationInfo association;
     private CultureInfo cultureInfo = CultureInfo.InvariantCulture;
-    private ThreadSafeCached<int> cachedHashCode;
+    private ThreadSafeCached<int> cachedHashCode = ThreadSafeCached<int>.Create(new object());
 
     #region IsXxx properties
 

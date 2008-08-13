@@ -118,6 +118,8 @@ namespace Xtensive.Storage.Providers.Sql
         ExecuteNonQuery(batch);
     }
 
+    
+
     private void ExecuteNonQuery(ISqlCompileUnit statement)
     {
       using (var command = new SqlCommand(connection)) {
