@@ -203,16 +203,8 @@ namespace Xtensive.Storage.Model
     {
       base.Lock(recursive);
       var list = new List<ColumnInfo>(keyColumns.Select(pair => pair.Key));
-      if (IsPrimary) {
-        list.AddRange(includedColumns);
-        list.AddRange(valueColumns.Where(c => !list.Any(columnInfo => columnInfo.Field.Name == c.Field.Name)));
-      }
-      else {
-        list.AddRange(valueColumns);
-        list.AddRange(includedColumns.Where(c => !list.Any(columnInfo => columnInfo.Field.Name == c.Field.Name)));
-      }
-
-      columns = new ReadOnlyList<ColumnInfo>(list.ToArray());
+      list.AddRange(valueColumns);
+      columns = new ReadOnlyList<ColumnInfo>(list);
       if (!recursive)
         return;
       keyColumns.Lock(true);
