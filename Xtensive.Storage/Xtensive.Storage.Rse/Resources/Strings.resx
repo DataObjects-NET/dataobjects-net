@@ -135,4 +135,7 @@
   <data name="ExProviderMustBeEitherCompilableProviderOrExecutableProvider" xml:space="preserve">
     <value>Provider must be either CompilableProvider or ExecutableProvider</value>
   </data>
+  <data name="ExAtLeastOneColumnIndexPairMustBeSpecified" xml:space="preserve">
+    <value>At least one column index pair must be specified.</value>
+  </data>
 </root>

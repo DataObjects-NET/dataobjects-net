@@ -4,10 +4,13 @@
 // Created by: Alexey Kochetov
 // Created:    2008.07.22
 
+using Xtensive.Core;
+using Xtensive.Core.Internals.DocTemplates;
+
 namespace Xtensive.Storage.Rse.Providers.Compilable
 {
   /// <summary>
-  /// Base class for unary operation provider over the <see cref="Source"/>.
+  /// Base class for unary operation provider over the <see cref="Source"/> provider.
   /// </summary>
   public abstract class UnaryProvider : CompilableProvider
   {
@@ -25,10 +28,15 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
 
     // Constructor
 
-    protected UnaryProvider(CompilableProvider provider)
-      : base(provider)
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="source">The <see cref="Source"/> property value.</param>
+    protected UnaryProvider(CompilableProvider source)
+      : base(source)
     {
-      Source = provider;
+      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      Source = source;
     }
   }
 }

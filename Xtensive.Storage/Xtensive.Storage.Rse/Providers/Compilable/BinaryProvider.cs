@@ -5,11 +5,14 @@
 // Created:    2008.07.22
 
 using System;
+using Xtensive.Core;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Storage.Rse.Providers.Compilable
 {
   /// <summary>
-  /// Base class for unary operation provider over the <see cref="Left"/> and <see cref="Right"/>.
+  /// Base class for binary operation provider over 
+  /// the <see cref="Left"/> and <see cref="Right"/> providers.
   /// </summary>
   [Serializable]
   public abstract class BinaryProvider : CompilableProvider
@@ -33,9 +36,16 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
 
     // Constructor
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="left">The <see cref="Left"/> provider.</param>
+    /// <param name="right">The <see cref="Left"/> provider.</param>
     protected BinaryProvider(CompilableProvider left, CompilableProvider right)
       : base(left, right)
     {
+      ArgumentValidator.EnsureArgumentNotNull(left, "left");
+      ArgumentValidator.EnsureArgumentNotNull(right, "right");
       Left = left;
       Right = right;
     }

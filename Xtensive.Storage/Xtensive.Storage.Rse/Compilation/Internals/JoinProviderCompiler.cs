@@ -5,7 +5,6 @@
 // Created:    2008.07.08
 
 using Xtensive.Storage.Rse.Providers;
-using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Rse.Compilation
@@ -19,7 +18,7 @@ namespace Xtensive.Storage.Rse.Compilation
         Compiler.Compile(provider.Left, true), 
         Compiler.Compile(provider.Right, true), 
         provider.LeftJoin, 
-        provider.JoiningPairs);
+        provider.EqualIndexes);
     }
 
 

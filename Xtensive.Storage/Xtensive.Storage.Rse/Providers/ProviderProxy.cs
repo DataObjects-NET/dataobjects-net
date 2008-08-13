@@ -17,14 +17,14 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 
     public ExecutableProvider Real {
       get {
-        EnsureRealProviderIsReady();
+        EnsureRealIsReady();
         return real;
       }
     }
 
     public abstract ExecutableProvider BuildReal();
 
-    private void EnsureRealProviderIsReady()
+    private void EnsureRealIsReady()
     {
       if (real == null) lock (this) if (real == null) {
         real = BuildReal();
