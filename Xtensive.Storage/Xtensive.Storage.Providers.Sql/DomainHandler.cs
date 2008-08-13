@@ -20,6 +20,7 @@ using Xtensive.Storage.Providers.Sql.Resources;
 using ColumnInfo = Xtensive.Storage.Model.ColumnInfo;
 using IndexInfo  = Xtensive.Storage.Model.IndexInfo;
 using SqlFactory = Xtensive.Sql.Dom.Sql;
+using Xtensive.Core.Helpers;
 
 namespace Xtensive.Storage.Providers.Sql
 {
@@ -57,7 +58,6 @@ namespace Xtensive.Storage.Providers.Sql
         catalog = model.DefaultServer.Catalogs[catalogName];
       }
     }
-
 
     private void ClearCatalog()
     {
@@ -98,9 +98,18 @@ namespace Xtensive.Storage.Providers.Sql
             // TODO: index.FillFactor = secondaryIndex.FillFactor;
             index.Filegroup = "\"default\"";
             batch.Add(SqlFactory.Create(index));
-            foreach (ColumnInfo column in secondaryIndex.Columns.Where(columnInfo => !columnInfo.IsPrimaryKey && !columnInfo.IsSystem)) {
-              ColumnInfo indexColumn = column;
-              index.CreateIndexColumn(table.TableColumns.First(tableColumn => tableColumn.Name==indexColumn.Name));
+            foreach (ColumnInfo secondaryIndexColumn in secondaryIndex.Columns.Where(columnInfo => !columnInfo.IsPrimaryKey && !columnInfo.IsSystem)) {
+              string primaryIndexColumnName = null;
+              foreach (ColumnInfo primaryColumn in primaryIndex.Columns) {
+                if (primaryColumn.Field.Column.Name == secondaryIndexColumn.Name) {
+                  primaryIndexColumnName = primaryColumn.Name;
+                  break;
+                }
+              }
+              if (primaryIndexColumnName.IsNullOrEmpty()) {
+                throw new InvalidOperationException(String.Format(Strings.UnableToFindColumnInPrimaryIndex, secondaryIndexColumn.Name, secondaryIndex.Name));
+              }
+              index.CreateIndexColumn(table.TableColumns.First(tableColumn => tableColumn.Name == primaryIndexColumnName));
             }
           }
         }
@@ -199,7 +208,6 @@ namespace Xtensive.Storage.Providers.Sql
     {
       get { return realIndexes; }
     }
-
 
     public Catalog Catalog
     {

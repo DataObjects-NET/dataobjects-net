@@ -176,5 +176,14 @@ namespace Xtensive.Storage.Providers.Sql.Resources {
                 return ResourceManager.GetString("ExUpdateInvalid", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to find column {0} of index {1} in primary index..
+        /// </summary>
+        internal static string UnableToFindColumnInPrimaryIndex {
+            get {
+                return ResourceManager.GetString("UnableToFindColumnInPrimaryIndex", resourceCulture);
+            }
+        }
     }
 }
