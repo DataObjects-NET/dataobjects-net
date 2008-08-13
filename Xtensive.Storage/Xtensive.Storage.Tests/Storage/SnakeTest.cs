@@ -180,9 +180,9 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void QueryTest()
     {
-      const int snakesCount = 10;
-      const int creaturesCount = 10;
-      const int lizardsCount = 10;
+      const int snakesCount = 1000;
+      const int creaturesCount = 1000;
+      const int lizardsCount = 1000;
 
       using (Domain.OpenSession()) {
         Session session = SessionScope.Current.Session;

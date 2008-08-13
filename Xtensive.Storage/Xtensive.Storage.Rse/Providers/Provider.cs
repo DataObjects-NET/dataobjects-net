@@ -31,6 +31,7 @@ namespace Xtensive.Storage.Rse.Providers
     protected const int    ToString_IndentSize = 2;
     private Provider[] sources;
     private RecordSetHeader header;
+    private bool isInitialized;
 
     /// <summary>
     /// Gets or sets the source providers 
@@ -96,7 +97,7 @@ namespace Xtensive.Storage.Rse.Providers
     /// <param name="ctorType">The type, which constructor has invoked this method.</param>
     protected void Initialize(Type ctorType)
     {
-      if (ctorType==GetType())
+      if (ctorType==GetType() && !isInitialized)
         Initialize();
     }
 
@@ -106,6 +107,7 @@ namespace Xtensive.Storage.Rse.Providers
     protected virtual void Initialize()
     {
       Header = BuildHeader();
+      isInitialized = true;
     }
 
     #region ToString method
