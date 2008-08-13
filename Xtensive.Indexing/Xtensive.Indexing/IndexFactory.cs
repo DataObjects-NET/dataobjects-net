@@ -9,6 +9,7 @@ using Xtensive.Core;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Indexing.Composite;
+using Xtensive.Indexing.Differential;
 using Xtensive.Indexing.Measures;
 
 namespace Xtensive.Indexing
@@ -85,6 +86,35 @@ namespace Xtensive.Indexing
       NonUniqueIndex<TKey, TUniqueKey, TItem> nonUniqueKey = new NonUniqueIndex<TKey, TUniqueKey, TItem>();
       nonUniqueKey.Configure(configuration);
       return nonUniqueKey;
+    }
+
+    /// <summary>
+    /// Creates the differential index.
+    /// </summary>
+    /// <typeparam name="TKey">The type of the key.</typeparam>
+    /// <typeparam name="TItem">The type of the item.</typeparam>
+    /// <typeparam name="TImplementation">The type of the underlying index implementation.</typeparam>
+    /// <typeparam name="TImpl">The type of the unique ordered index implementation.</typeparam>
+    /// <param name="configuration">The configuration.</param>
+    /// <returns></returns>
+    public static DifferentialIndex<TKey, TItem, TImpl> CreateDifferential<TKey, TItem, TImplementation, TImpl>(DifferentialIndexConfiguration<TKey, TItem> configuration)
+      where TImpl : IUniqueOrderedIndex<TKey, TItem>, IConfigurable<IndexConfigurationBase<TKey, TItem>>, new()
+      where TImplementation : IUniqueOrderedIndex<TKey, TItem>, IConfigurable<IndexConfigurationBase<TKey, TItem>>, new()
+    {
+      ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
+
+      if (configuration.IsLocked)
+        configuration = (DifferentialIndexConfiguration<TKey, TItem>)configuration.Clone();
+
+      DifferentialIndexConfiguration<TKey, TItem> differentialConfig = configuration;
+      
+      if (differentialConfig.Measures[CountMeasure<object, long>.CommonName] == null)
+        differentialConfig.Measures.Add(new CountMeasure<TItem, long>());
+      if (differentialConfig.Measures[SizeMeasure<object>.CommonName] == null)
+        differentialConfig.Measures.Add(new SizeMeasure<TItem>());
+
+
+      return (DifferentialIndex<TKey, TItem, TImpl>)CreateUniqueOrdered<TKey, TItem, TImplementation>(differentialConfig);
     }
 
     /// <summary>
