@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
@@ -120,6 +121,9 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     public void Remove()
     {
+      if (Log.IsLogged(LogEventTypes.Debug))
+        Log.Debug("Session '{0}'. Removing: Key = '{1}'", Session, Key);
+
       EnsureIsNotRemoved();
       Session.Persist();
 
@@ -212,6 +216,10 @@ namespace Xtensive.Storage
     protected Entity()
     {
       Key key = Session.Domain.KeyManager.Next(GetType());
+
+      if (Log.IsLogged(LogEventTypes.Debug))
+        Log.Debug("Session '{0}'. Creating: Key = '{1}'", Session, key);
+
       data = Session.DataCache.Create(key, PersistenceState.New);
       OnCreating();
     }
@@ -224,6 +232,10 @@ namespace Xtensive.Storage
     protected Entity(Tuple tuple)
     {
       Key key = Session.Domain.KeyManager.Get(GetType(), tuple);
+
+      if (Log.IsLogged(LogEventTypes.Debug))
+        Log.Debug("Session '{0}'. Creating: Key = '{1}'", Session, key);
+
       data = Session.DataCache.Create(key, PersistenceState.New);
       OnCreating();
     }
@@ -236,7 +248,9 @@ namespace Xtensive.Storage
       : base(data)
     {
       this.data = data;
-      OnCreating();
+
+      if (Log.IsLogged(LogEventTypes.Debug))
+        Log.Debug("Session '{0}'. Creating: Key = '{1}'", Session, Key);
     }
   }
 }

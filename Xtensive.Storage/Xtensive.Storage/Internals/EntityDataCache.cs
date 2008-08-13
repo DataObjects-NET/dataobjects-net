@@ -5,6 +5,7 @@
 // Created:    2008.07.28
 
 using Xtensive.Core.Collections;
+using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Tuples;
 
 namespace Xtensive.Storage.Internals
@@ -28,8 +29,11 @@ namespace Xtensive.Storage.Internals
       EntityData data = this[key];
       if (data == null)
         Create(key, tuple, PersistenceState.Persisted);
-      else
+      else {
+        if (Log.IsLogged(LogEventTypes.Debug))
+          Log.Debug("Session '{0}'. Merging: Key = '{1}', Tuple = {2}", Session.Current, key, tuple.ToRegular());
         data.Tuple.Origin.MergeWith(tuple);
+      }
     }
 
     public void Remove(Key key)
@@ -44,6 +48,9 @@ namespace Xtensive.Storage.Internals
 
     private EntityData Create(Key key, Tuple tuple, PersistenceState state)
     {
+      if (Log.IsLogged(LogEventTypes.Debug))
+        Log.Debug("Session '{0}'. Caching: Key = '{1}', Tuple = {2}, State = {3}", Session.Current, key, tuple.ToRegular(), state);
+
       Tuple origin = Tuple.Create(key.Type.TupleDescriptor);
       tuple.CopyTo(origin);
       EntityData result = new EntityData(key, new DifferentialTuple(origin), state);

@@ -25,10 +25,13 @@ namespace Xtensive.Storage.Configuration
     /// </summary>
     public const int DefaultCacheSize = 1024;
 
-    private int cacheSize = 1024;
-
     /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
     public readonly static SessionConfiguration Default;
+
+    /// <summary>
+    /// Gets or sets the session name.
+    /// </summary>
+    public string Name { get; set; }
 
     /// <summary>
     /// Gets user name to authenticate.
@@ -44,11 +47,7 @@ namespace Xtensive.Storage.Configuration
     /// <summary>
     /// Gets or sets the size of the session cache. Default value is <see cref="DefaultCacheSize"/>.
     /// </summary>
-    public int CacheSize
-    {
-      get { return cacheSize; }
-      set { cacheSize = value; }
-    }
+    public int CacheSize { get; set; }
 
     /// <inheritdoc/>
     public override void Validate()
@@ -71,6 +70,7 @@ namespace Xtensive.Storage.Configuration
       var configuration = (SessionConfiguration)source;
       UserName = configuration.UserName;
       AuthParams = configuration.AuthParams;
+      CacheSize = configuration.CacheSize;
     }
 
     /// <inheritdoc/>
@@ -108,6 +108,16 @@ namespace Xtensive.Storage.Configuration
       }
     }
 
+    /// <inheritdoc/>
+    public override string ToString()
+    {
+      if (UserName.IsNullOrEmpty())
+        return string.Format("Name = {0}, CacheSize = {1}", Name, CacheSize);
+      else
+        return string.Format("Name = {0}, CacheSize = {1}, UserName = {2}", Name, CacheSize, UserName);
+    }
+
+
     // Constructors
 
     /// <summary>
@@ -127,6 +137,7 @@ namespace Xtensive.Storage.Configuration
     /// </summary>
     public SessionConfiguration()
     {
+      CacheSize = 1024;
     }
 
     // Type initializer

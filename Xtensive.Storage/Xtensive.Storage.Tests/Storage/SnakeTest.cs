@@ -75,22 +75,21 @@ namespace Xtensive.Storage.Tests.Storage
     {
       DomainConfiguration config = base.BuildConfiguration();
       config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.Storage.SnakesModel");
-      return config;  
+      return config;
     }
 
     [Test]
     public void MainTest()
     {
       Domain.Model.Dump();
-      Key persistedKey = null; 
-      using (Domain.OpenSession())
-      {
+      Key persistedKey = null;
+      using (Domain.OpenSession()) {
         Snake snake = new Snake();
         Assert.AreEqual(PersistenceState.New, snake.PersistenceState);
         persistedKey = snake.Key;
 
         Assert.IsNotNull(snake.Key);
-        Assert.AreEqual(snake, snake.Key.Resolve());
+        Assert.AreEqual((object) snake, snake.Key.Resolve());
 
         Assert.AreEqual(0, snake.Length);
         Assert.AreEqual(null, snake.Name);
@@ -115,8 +114,7 @@ namespace Xtensive.Storage.Tests.Storage
       }
 
       using (new Measurement("Fetching..."))
-      using (Domain.OpenSession())
-      {
+      using (Domain.OpenSession()) {
         Creature snake = persistedKey.Resolve<Creature>();
         Assert.AreEqual(PersistenceState.Persisted, snake.PersistenceState);
         Assert.IsNotNull(snake);
@@ -125,8 +123,7 @@ namespace Xtensive.Storage.Tests.Storage
       }
 
       using (new Measurement("Fetching..."))
-      using (Domain.OpenSession())
-      {
+      using (Domain.OpenSession()) {
         Snake snake = persistedKey.Resolve<Snake>();
         Assert.IsNotNull(snake);
         Assert.AreEqual("Kaa", snake.Name);
@@ -139,8 +136,7 @@ namespace Xtensive.Storage.Tests.Storage
     public void UpdateTest()
     {
       Key key;
-      using (Domain.OpenSession())
-      {
+      using (Domain.OpenSession()) {
         Snake s = new Snake();
         key = s.Key;
         s.Name = "Kaa";
@@ -150,8 +146,7 @@ namespace Xtensive.Storage.Tests.Storage
         Assert.AreEqual(PersistenceState.Persisted, s.PersistenceState);
       }
 
-      using (Domain.OpenSession())
-      {
+      using (Domain.OpenSession()) {
         Snake s = key.Resolve<Snake>();
         Assert.AreEqual(PersistenceState.Persisted, s.PersistenceState);
         Assert.AreEqual("Kaa", s.Name);
@@ -162,8 +157,7 @@ namespace Xtensive.Storage.Tests.Storage
         Assert.AreEqual(PersistenceState.Persisted, s.PersistenceState);
       }
 
-      using (Domain.OpenSession())
-      {
+      using (Domain.OpenSession()) {
         Snake s = key.Resolve<Snake>();
         Assert.AreEqual(PersistenceState.Persisted, s.PersistenceState);
         Assert.AreEqual("Kaa", s.Name);
@@ -174,14 +168,11 @@ namespace Xtensive.Storage.Tests.Storage
         Assert.AreEqual(PersistenceState.Removed, s.PersistenceState);
       }
 
-      using (Domain.OpenSession())
-      {
-        try
-        {
+      using (Domain.OpenSession()) {
+        try {
           key.Resolve<Snake>();
         }
-        catch (InvalidOperationException)
-        {
+        catch (InvalidOperationException) {
         }
       }
     }
@@ -193,24 +184,18 @@ namespace Xtensive.Storage.Tests.Storage
       const int creaturesCount = 10;
       const int lizardsCount = 10;
 
-      TestFixtureSetUp();
-
-      using (Domain.OpenSession())
-      {
+      using (Domain.OpenSession()) {
         Session session = SessionScope.Current.Session;
-        for (int i = 0; i < snakesCount; i++)
-        {
+        for (int i = 0; i < snakesCount; i++) {
           Snake s = new Snake();
           s.Name = "Kaa" + i;
           s.Length = i;
         }
-        for (int j = 0; j < creaturesCount; j++)
-        {
+        for (int j = 0; j < creaturesCount; j++) {
           Creature c = new Creature();
           c.Name = "Creature" + j;
         }
-        for (int i = 0; i < lizardsCount; i++)
-        {
+        for (int i = 0; i < lizardsCount; i++) {
           Lizard l = new Lizard();
           l.Name = "Lizard" + i;
           l.Color = "Color" + i;
@@ -220,11 +205,10 @@ namespace Xtensive.Storage.Tests.Storage
         Tuple to = Tuple.Create(120);
         Tuple fromName = Tuple.Create("Kaa");
         Tuple toName = Tuple.Create("Kaa900");
-        TypeInfo snakeType = session.Domain.Model.Types[typeof(Snake)];
+        TypeInfo snakeType = session.Domain.Model.Types[typeof (Snake)];
         RecordSet rsSnakePrimary = session.Select(snakeType.Indexes.GetIndex("ID"));
 
-        using (new Measurement("Query performance"))
-        {
+        using (new Measurement("Query performance")) {
           RecordSet rsSnakeName = session.Select(snakeType.Indexes.GetIndex("Name"));
           rsSnakeName = rsSnakeName
             .Range(fromName, toName)
@@ -259,13 +243,13 @@ namespace Xtensive.Storage.Tests.Storage
         Assert.AreEqual(creaturesCount + snakesCount + lizardsCount, creatures.Count());
 
         Snake snakeKaa53 = session.All<Snake>()
-          .Where(snake => snake.Name == "Kaa53")
+          .Where(snake => snake.Name=="Kaa53")
           .First();
         Assert.AreEqual("Kaa53", snakeKaa53.Name);
 
         var result = from s in session.All<Snake>()
-                     where s.Length >= 500
-                     select s;
+        where s.Length >= 500
+        select s;
         Assert.AreEqual(500, result.Count());
       }
     }
@@ -279,7 +263,7 @@ namespace Xtensive.Storage.Tests.Storage
 
       using (Domain.OpenSession()) {
         var session = Session.Current;
-        TypeInfo type = session.Domain.Model.Types[typeof(ICreature)];
+        TypeInfo type = session.Domain.Model.Types[typeof (ICreature)];
         RecordSet rsPrimary = session.Select(type.Indexes.PrimaryIndex);
         foreach (var entity in rsPrimary.AsEntities<ICreature>())
           entity.Remove();
@@ -303,11 +287,34 @@ namespace Xtensive.Storage.Tests.Storage
         }
 
         session.Persist();
-        TypeInfo type = session.Domain.Model.Types[typeof(ICreature)];
+        TypeInfo type = session.Domain.Model.Types[typeof (ICreature)];
         RecordSet rsPrimary = session.Select(type.Indexes.PrimaryIndex);
         foreach (var entity in rsPrimary.AsEntities<ICreature>())
           Assert.IsNotNull(entity.Name);
       }
+    }
+
+    [Test]
+    public void RemovalTest()
+    {
+      using (Domain.OpenSession())
+        for (int i = 0; i < 10; i++) {
+          Snake s = new Snake();
+          s.Name = "Kaa" + i;
+          s.Length = i;
+        }
+
+      using (Domain.OpenSession()) {
+        var session = Session.Current;
+        TypeInfo type = session.Domain.Model.Types[typeof (ICreature)];
+        RecordSet rs = session.Select(type.Indexes.PrimaryIndex);
+        foreach (var entity in rs.AsEntities<ICreature>())
+//          Console.WriteLine(entity.Identifier);
+          entity.Remove();
+      }
+
+      using (Domain.OpenSession())
+        Assert.AreEqual(0, Session.Current.All<ICreature>().Count());
     }
 
     [Test]
@@ -318,20 +325,16 @@ namespace Xtensive.Storage.Tests.Storage
       List<Snake> snakes = new List<Snake>();
 
       using (new Measurement("Persisting...", snakesCount))
-      using (Domain.OpenSession())
-      {
-        for (int i = 0; i < snakesCount; i++)
-        {
-          Snake snake = new Snake { Name = ("Name_" + i), Length = (i % 11 + 2) };
+      using (Domain.OpenSession()) {
+        for (int i = 0; i < snakesCount; i++) {
+          Snake snake = new Snake {Name = ("Name_" + i), Length = (i % 11 + 2)};
           snakes.Add(snake);
         }
       }
 
       using (new Measurement("Fetching...", snakesCount))
-      using (Domain.OpenSession())
-      {
-        for (int i = 0; i < snakesCount; i++)
-        {
+      using (Domain.OpenSession()) {
+        for (int i = 0; i < snakesCount; i++) {
           Snake snake = snakes[i];
           Snake persistedSnake = snake.Key.Resolve<Snake>();
           Assert.IsNotNull(persistedSnake);
@@ -348,7 +351,7 @@ namespace Xtensive.Storage.Tests.Storage
       foreach (HierarchyInfo hierarchyInfo in Domain.Model.Hierarchies) {
         Assert.AreEqual(hierarchyInfo.Columns.Count, hierarchyInfo.Root.Indexes.PrimaryIndex.KeyColumns.Count);
         for (int i = 0; i < hierarchyInfo.Columns.Count; i++)
-          Assert.AreEqual((object)hierarchyInfo.Columns[i], hierarchyInfo.Root.Indexes.PrimaryIndex.KeyColumns[i].Key);
+          Assert.AreEqual(hierarchyInfo.Columns[i], hierarchyInfo.Root.Indexes.PrimaryIndex.KeyColumns[i].Key);
       }
     }
   }

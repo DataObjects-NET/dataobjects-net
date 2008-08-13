@@ -30,16 +30,18 @@ namespace Xtensive.Storage
       RecordSetHeaderParsingContext context = new RecordSetHeaderParsingContext(Session.Current, source.Header);
       RecordSetMapping mapping = GetRecordSetMapping(context);
 
+      List<Entity> result = new List<Entity>();
       foreach (Tuple tuple in source) {
         Entity entity = null;
         foreach (ColumnGroupMapping columnGroupMapping in mapping.ColumnGroupMappings) {
           Key key = ProcessColumnGroup(context, columnGroupMapping, tuple);
           if (entity == null && type.IsAssignableFrom(key.Type.UnderlyingType)) {
             entity = key.Resolve();
-            yield return entity;
+            result.Add(entity);
           }
         }
       }
+      return result;
     }
 
     internal static void Process(this RecordSet source)

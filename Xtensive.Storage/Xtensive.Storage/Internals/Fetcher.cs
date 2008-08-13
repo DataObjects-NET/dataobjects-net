@@ -30,6 +30,7 @@ namespace Xtensive.Storage.Internals
         return;
       }
 
+      // TODO: Cache
       IndexInfo index = key.Type.Indexes.PrimaryIndex;
       IEnumerable<ColumnInfo> columns = key.Type.Columns
         .Where(c => c.IsPrimaryKey || c.IsSystem || !c.IsLazyLoad)
@@ -42,7 +43,7 @@ namespace Xtensive.Storage.Internals
     private static void Fetch(IndexInfo index, Key key, IEnumerable<ColumnInfo> columns)
     {
       if (Log.IsLogged(LogEventTypes.Debug))
-        Log.Debug("Fetching: Key = '{0}', Columns = '{1}'", key, columns.Select(c => c.Name).ToCommaDelimitedString());
+        Log.Debug("Session '{0}'. Fetching: Key = '{1}', Columns = '{2}'", Session.Current, key, columns.Select(c => c.Name).ToCommaDelimitedString());
       new IndexProvider(index).Result
         .Range(key.Tuple, key.Tuple)
         .Select(columns.Select(c => index.Columns.IndexOf(c)).ToArray())

@@ -4,6 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2008.07.09
 
+using Xtensive.Core.Diagnostics;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
 
@@ -15,6 +16,9 @@ namespace Xtensive.Storage.Internals
     {
       Session session = Session.Current;
       EntityData data = session.DataCache[key];
+
+      if (Log.IsLogged(LogEventTypes.Debug))
+        Log.Debug("Session '{0}'. Resolving: Key = '{1}'", session, key);
 
       // Key is already resolved
       if (data != null)
@@ -43,7 +47,11 @@ namespace Xtensive.Storage.Internals
 
     private static Entity GetEntity(EntityData data)
     {
-      return data.Entity ?? Entity.Activate(data.Type.UnderlyingType, data);
+      if (data.Entity != null)
+        return data.Entity;
+      Entity result = Entity.Activate(data.Type.UnderlyingType, data);
+      data.Entity = result;
+      return result;
     }
   }
 }

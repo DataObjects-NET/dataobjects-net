@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Internals;
@@ -45,6 +46,11 @@ namespace Xtensive.Storage
     public SessionConfiguration Configuration { get; private set; }
 
     /// <summary>
+    /// Gets the name.
+    /// </summary>
+    public string Name { get; private set; }
+
+    /// <summary>
     /// Persists all modified instances immediately.
     /// </summary>
     /// <remarks>
@@ -58,8 +64,11 @@ namespace Xtensive.Storage
     /// </remarks>
     public void Persist()
     {
-      if (DirtyData.GetCount()==0)
+      if (DirtyData.Count==0)
         return;
+      
+      if (Log.IsLogged(LogEventTypes.Debug))
+        Log.Debug("Session '{0}'. Persisting: Dirty data: {1}", this, DirtyData);
 
       Handler.Persist(DirtyData);
 
@@ -82,7 +91,7 @@ namespace Xtensive.Storage
       return Handler.Select(index);
     }
 
-    public IEnumerable<T> All<T>() where T : Entity
+    public IEnumerable<T> All<T>() where T : class,   IEntity
     {
       Persist();
       TypeInfo type = Domain.Model.Types[typeof (T)];
@@ -147,6 +156,13 @@ namespace Xtensive.Storage
 
     #endregion
 
+    /// <inheritdoc/>
+    public override string ToString()
+    {
+      return Name;
+    }
+
+
     // Constructors
 
     internal Session(Domain domain, SessionConfiguration configuration)
@@ -160,6 +176,7 @@ namespace Xtensive.Storage
       Handler.Session = this;
       DataCache = new EntityDataCache(Configuration.CacheSize);
       DirtyData = new FlagRegistry<PersistenceState, EntityData>(e => e.PersistenceState);
+      Name = configuration.Name;
     }
 
     #region Dispose pattern
@@ -180,6 +197,9 @@ namespace Xtensive.Storage
     /// <see cref="DisposableDocTemplate.Dispose(bool)" copy="true"/>
     protected virtual void Dispose(bool disposing)
     {
+      if (Log.IsLogged(LogEventTypes.Debug))
+        Log.Debug("Session '{0}'. Disposing", this);
+
       if (isDisposed)
         return;
       lock (_lock) {

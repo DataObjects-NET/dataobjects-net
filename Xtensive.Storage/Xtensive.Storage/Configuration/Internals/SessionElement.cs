@@ -10,6 +10,7 @@ namespace Xtensive.Storage.Configuration
 {
   internal class SessionElement : ConfigurationElement
   {
+    private const string NameElementName = "name";
     private const string UserNameElementName = "userName";
     private const string CacheSizeElementName = "cacheSize";
 
@@ -31,6 +32,16 @@ namespace Xtensive.Storage.Configuration
     {
       get { return (int) this[CacheSizeElementName]; }
       set { this[CacheSizeElementName] = value; }
+    }
+
+    /// <summary>
+    /// Gets or sets the session name. Default value is <see cref="string.Empty"/>.
+    /// </summary>
+    [ConfigurationProperty(NameElementName, IsRequired = false, DefaultValue = "")]
+    public string Name
+    {
+      get { return (string) this[NameElementName]; }
+      set { this[NameElementName] = value; }
     }
 
     public SessionConfiguration AsSessionConfiguration()

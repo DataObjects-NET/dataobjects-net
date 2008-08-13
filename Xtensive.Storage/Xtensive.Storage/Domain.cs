@@ -5,8 +5,10 @@
 // Created:    2007.08.03
 
 using System.Diagnostics;
+using System.Threading;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Diagnostics;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Internals;
@@ -22,6 +24,7 @@ namespace Xtensive.Storage
   public sealed class Domain
   {
     private readonly ThreadSafeDictionary<RecordSetHeader, RecordSetMapping> recordSetMappings = ThreadSafeDictionary<RecordSetHeader, RecordSetMapping>.Create(new object());
+    private int sessionCounter = 1;
 
     /// <summary>
     /// Gets the configuration.
@@ -81,7 +84,7 @@ namespace Xtensive.Storage
     /// <returns>New <see cref="SessionScope"/> object.</returns>
     public SessionScope OpenSession()
     {
-      return OpenSession(Configuration.Session);
+      return OpenSession((SessionConfiguration)Configuration.Session.Clone());
     }
 
     /// <summary>
@@ -92,7 +95,15 @@ namespace Xtensive.Storage
     public SessionScope OpenSession(SessionConfiguration configuration)
     {
       ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
+      if (configuration.Name.IsNullOrEmpty()) {
+        configuration.Name = sessionCounter.ToString();
+        Interlocked.Increment(ref sessionCounter);
+      }
       configuration.Lock(true);
+
+      if (Log.IsLogged(LogEventTypes.Debug))
+        Log.Debug("Opening session: '{0}'", configuration);
+
       var session = new Session(this, configuration);
       return new SessionScope(session);
     }
