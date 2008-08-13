@@ -69,7 +69,7 @@ namespace Xtensive.Storage.Rse
     /// <returns>Aliased header.</returns>
     public RecordSetHeader Alias(string alias)
     {
-      ColumnCollection resultColumns = new ColumnCollection(Columns, alias);
+      ColumnCollection resultColumns = Columns.Alias(alias);
 
       return new RecordSetHeader(
         TupleDescriptor, resultColumns, ColumnGroups, OrderTupleDescriptor, Order);
@@ -82,9 +82,8 @@ namespace Xtensive.Storage.Rse
     /// <returns>The joined header.</returns>
     public RecordSetHeader Join(RecordSetHeader joined)
     {
-      ColumnCollection resultColumns = new ColumnCollection(
-        Columns,
-        joined.Columns.Select(column => new Column(column, Columns.Count + column.Index)));
+      ColumnCollection resultColumns = 
+        Columns.Join(joined.Columns.Select(column => new Column(column, Columns.Count + column.Index)));
 
       TupleDescriptor resultTupleDescriptor = 
         TupleDescriptor.Create(new[] {TupleDescriptor, joined.TupleDescriptor}.SelectMany(descriptor => descriptor));      

@@ -42,6 +42,27 @@ namespace Xtensive.Storage.Rse
         nameIndex.Add(this[index].Name, index);
     }
 
+    /// <summary>
+    /// Joins this collection with specified the column collection.
+    /// </summary>
+    /// <param name="joined">The joined.</param>
+    /// <returns>The joined collection.</returns>
+    public ColumnCollection Join(IEnumerable<Column> joined)
+    {
+      return new ColumnCollection(this.Concat(joined));
+    }
+
+    /// <summary>
+    /// Aliases the specified <see cref="Column"/> collection.
+    /// </summary>
+    /// <param name="alias">The alias to add.</param>
+    /// <returns>Aliased collection of columns.</returns>
+    public ColumnCollection Alias(string alias)
+    {      
+      return new ColumnCollection(
+        this.Select(column => new Column(column, alias)));
+    }
+
 
     // Constructors
 
@@ -51,28 +72,6 @@ namespace Xtensive.Storage.Rse
     /// <param name="collection">Collection of items to add.</param>
     public ColumnCollection(IEnumerable<Column> collection)
       : base (collection.ToList())
-    {
-      Initialize();
-    }
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="collection">Collection of items to add.</param>
-    /// <param name="alias">Alias for the <see cref="ColumnCollection"/>.</param>
-    public ColumnCollection(IEnumerable<Column> collection, string alias)
-      : base(collection.Alias(alias).ToList())
-    {
-      Initialize();
-    }
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="collection1">First item collection.</param>
-    /// <param name="collection2">Second item collection.</param>
-    public ColumnCollection(IEnumerable<Column> collection1, IEnumerable<Column> collection2)
-      : base (collection1.Concat(collection2).ToList())
     {
       Initialize();
     }
