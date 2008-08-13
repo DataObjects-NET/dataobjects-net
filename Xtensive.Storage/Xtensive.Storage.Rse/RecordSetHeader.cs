@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
@@ -23,6 +24,7 @@ namespace Xtensive.Storage.Rse
   {
     private static readonly ThreadSafeDictionary<IndexInfo, RecordSetHeader> headers =
       ThreadSafeDictionary<IndexInfo, RecordSetHeader>.Create(new object());
+    private TupleDescriptor orderTupleDescriptor;
 
     /// <summary>
     /// Gets the <see cref="RecordSet"/> keys.
@@ -41,10 +43,23 @@ namespace Xtensive.Storage.Rse
     public TupleDescriptor TupleDescriptor { get; private set; }
 
     /// <summary>
-    /// Gets the <see cref="RecordSet"/> order descriptor.
+    /// Gets the indexes of columns <see cref="RecordSet"/> is ordered by.
     /// </summary>
-    public RecordSetOrderDescriptor OrderDescriptor { get; private set; }
+    public DirectionCollection<int> Order { get; private set; }
 
+    /// <summary>
+    /// Gets the tuple descriptor describing 
+    /// a set of <see cref="Order"/> columns.
+    /// </summary>
+    public TupleDescriptor OrderTupleDescriptor
+    {
+      get
+      {
+        if (orderTupleDescriptor == null && Order.Count > 0) lock(this) if (orderTupleDescriptor==null)
+          orderTupleDescriptor = Core.Tuples.TupleDescriptor.Create(Order.Select(p => Columns[p.Key].Type));
+        return orderTupleDescriptor;
+      }
+    }
 
     /// <summary>
     /// Aliases the header.
@@ -94,11 +109,9 @@ namespace Xtensive.Storage.Rse
     /// </summary>
     /// <param name="tupleDescriptor">Descriptor of the result item.</param>
     /// <param name="columns">Result columns.</param>
-    /// <param name="keyDescriptor">Descriptor of ordered columns.</param>
     /// <param name="groups">Column groups.</param>
     /// <param name="orderedBy">Result sort order.</param>
     public RecordSetHeader(TupleDescriptor tupleDescriptor, IEnumerable<Column> columns, 
-      TupleDescriptor keyDescriptor, 
       IEnumerable<ColumnGroup> groups, 
       DirectionCollection<int> orderedBy)
     {
@@ -111,9 +124,7 @@ namespace Xtensive.Storage.Rse
         ? ColumnGroupCollection.Empty
         : new ColumnGroupCollection(groups);
 
-      OrderDescriptor = new RecordSetOrderDescriptor(
-        orderedBy ?? new DirectionCollection<int>(),
-        keyDescriptor ?? TupleDescriptor.Empty);
+      Order = orderedBy ?? new DirectionCollection<int>();
     }
 
     /// <summary>
@@ -123,7 +134,6 @@ namespace Xtensive.Storage.Rse
     private RecordSetHeader(IndexInfo indexInfo)
     {
       TupleDescriptor = TupleDescriptor.Create(indexInfo.Columns.Select(columnInfo => columnInfo.ValueType));
-      var keyDescriptor = TupleDescriptor.Create(indexInfo.KeyColumns.Select(columnInfo => columnInfo.Key.ValueType));
       DirectionCollection<int> sortOrder;
       if (indexInfo.IsPrimary)
         sortOrder = new DirectionCollection<int>(indexInfo.KeyColumns.Select((pair, i) => new KeyValuePair<int, Direction>(i, pair.Value)));
@@ -134,7 +144,7 @@ namespace Xtensive.Storage.Rse
           .Select((p, i) => new KeyValuePair<int, Direction>(i, p.Value))
           .Union(keyColumns.Select((p, i) => new KeyValuePair<int, Direction>(i+keyColumns.Count, p.Value))));
       }
-      OrderDescriptor = new RecordSetOrderDescriptor(sortOrder, keyDescriptor);
+      Order = sortOrder;
       Columns = new ColumnCollection(indexInfo.Columns.Select((c,i) => new Column(c,i,c.ValueType)));
 
       ColumnGroups = new ColumnGroupCollection(new[]{new ColumnGroup(
@@ -152,7 +162,8 @@ namespace Xtensive.Storage.Rse
         left.Columns,
         right.Columns.Select(column => new Column(column, left.Columns.Count + column.Index)));
       TupleDescriptor = TupleDescriptor.Create(new[] {left.TupleDescriptor, right.TupleDescriptor}.SelectMany(descriptor => descriptor));
-      OrderDescriptor = left.OrderDescriptor;
+      Order = left.Order;
+      orderTupleDescriptor = left.orderTupleDescriptor;
       ColumnGroups = new ColumnGroupCollection(
         left.ColumnGroups
           .Union(right.ColumnGroups
@@ -167,7 +178,8 @@ namespace Xtensive.Storage.Rse
       Columns = new ColumnCollection(header.Columns, alias);
       TupleDescriptor = header.TupleDescriptor;
       ColumnGroups = header.ColumnGroups;
-      OrderDescriptor = header.OrderDescriptor;
+      Order = header.Order;
+      orderTupleDescriptor = header.orderTupleDescriptor;
     }
 
     /// <summary>
@@ -179,14 +191,11 @@ namespace Xtensive.Storage.Rse
     {
       var columns = new List<int>(includedColumns);
       TupleDescriptor = Core.Tuples.TupleDescriptor.Create(includedColumns.Select(i => header.TupleDescriptor[i]));
-      if (header.OrderDescriptor.Order.Count > 0) {
-        var order = new DirectionCollection<int>(
-          header.OrderDescriptor.Order
+      if (header.Order.Count > 0) {
+        Order = new DirectionCollection<int>(
+          header.Order
           .Select(o => new KeyValuePair<int, Direction>(columns.IndexOf(o.Key), o.Value))
           .TakeWhile(o => o.Key >= 0));
-        OrderDescriptor = order.Count == 0 ?
-          new RecordSetOrderDescriptor(new DirectionCollection<int>(), TupleDescriptor.Empty) :
-          new RecordSetOrderDescriptor(order, Core.Tuples.TupleDescriptor.Create(header.OrderDescriptor.TupleDescriptor.Take(order.Count)));
       }
 
       Columns = new ColumnCollection(includedColumns.Select((ic, i) => new Column(header.Columns[ic], i)));

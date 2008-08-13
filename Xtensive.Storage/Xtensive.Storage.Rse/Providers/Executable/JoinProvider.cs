@@ -47,10 +47,10 @@ namespace Xtensive.Storage.Rse.Providers.Executable
       var leftEnumerable = left.GetService<IOrderedEnumerable<Tuple,Tuple>>();
       var rightEnumerable = right.GetService<IOrderedEnumerable<Tuple,Tuple>>();
       if (leftEnumerable != null && rightEnumerable != null) {
-        if (left.Header.OrderDescriptor.Order.Count == right.Header.OrderDescriptor.Order.Count) {
-          for (int i = 0; i < left.Header.OrderDescriptor.Order.Count; i++) {
-            var leftOrderItem = left.Header.OrderDescriptor.Order[i];
-            var rightOrderItem = right.Header.OrderDescriptor.Order[i];
+        if (left.Header.Order.Count == right.Header.Order.Count) {
+          for (int i = 0; i < left.Header.Order.Count; i++) {
+            var leftOrderItem = left.Header.Order[i];
+            var rightOrderItem = right.Header.Order[i];
             if (leftOrderItem.Value != rightOrderItem.Value)
               return false;
             var leftColumn = left.Header.Columns[leftOrderItem.Key];
@@ -66,7 +66,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 
     private bool CheckAbilityToRange()
     {
-      DirectionCollection<int> orderedBy = left.Header.OrderDescriptor.Order;
+      DirectionCollection<int> orderedBy = left.Header.Order;
       bool sequenceEqual = orderedBy
         .Select(pair => pair.Key)
         .Take(joiningPairs.Length)

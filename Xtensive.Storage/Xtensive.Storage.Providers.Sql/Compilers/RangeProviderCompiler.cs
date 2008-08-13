@@ -101,7 +101,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
         provider.Range.EndPoints.Second :
         provider.Range.EndPoints.First;
 
-      var keyColumns = provider.Header.OrderDescriptor.Order.Select(pair => query.Columns[pair.Key]).ToList();
+      var keyColumns = provider.Header.Order.Select(pair => query.Columns[pair.Key]).ToList();
       var expressionData = new ExpressionData(null, from, keyColumns, true);
       var expressionHandler = new ExpressionHandler();
       from.Descriptor.Execute(expressionHandler, ref expressionData, Direction.Positive);

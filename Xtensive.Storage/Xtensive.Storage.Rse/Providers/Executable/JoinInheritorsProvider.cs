@@ -139,7 +139,7 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
       for (int i = 0; i < root.Header.Columns.Count; i++)
         map.Add(new Pair<int, int>(0, i));
       for (int i = 0; i < inheritors.Length; i++)
-        for (int j = inheritors[i].Header.OrderDescriptor.Order.Count + includedColumnsCount; j < inheritors[i].Header.Columns.Count; j++)
+        for (int j = inheritors[i].Header.Order.Count + includedColumnsCount; j < inheritors[i].Header.Columns.Count; j++)
           map.Add(new Pair<int, int>(i + 1, j));
       mapTransform = new MapTransform(true, Header.TupleDescriptor, map.ToArray());
     }

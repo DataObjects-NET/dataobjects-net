@@ -41,7 +41,7 @@ namespace Xtensive.Storage.Rse
       IEntire<Tuple> xPoint;
       IEntire<Tuple> yPoint;
       Direction rangeDirection = new Range<Tuple>(from,to).GetDirection(AdvancedComparer<Tuple>.Default);
-      DirectionCollection<int> directions = recordSet.Provider.Header.OrderDescriptor.Order;
+      DirectionCollection<int> directions = recordSet.Provider.Header.Order;
 
       if (directions.Count > from.Count) {
         Direction fromDirection = directions[from.Count].Value;

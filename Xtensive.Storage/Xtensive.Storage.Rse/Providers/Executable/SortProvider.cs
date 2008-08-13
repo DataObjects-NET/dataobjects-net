@@ -47,11 +47,10 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     {
       var list = source.ToList();
 
-      var rules = new ComparisonRules[Header.OrderDescriptor.Order.Count];
-      var columnIndexes = new int[Header.OrderDescriptor.Order.Count];
-      for (int i = 0; i < Header.OrderDescriptor.Order.Count; i++)
-      {
-        KeyValuePair<int, Direction> sortItem = Header.OrderDescriptor.Order[i];
+      var rules = new ComparisonRules[Header.Order.Count];
+      var columnIndexes = new int[Header.Order.Count];
+      for (int i = 0; i < Header.Order.Count; i++) {
+        KeyValuePair<int, Direction> sortItem = Header.Order[i];
         CultureInfo culture = Header.Columns[sortItem.Key].ColumnInfoRef != null
                                 ? Header.Columns[sortItem.Key].ColumnInfoRef.CultureInfo
                                 : CultureInfo.InvariantCulture;

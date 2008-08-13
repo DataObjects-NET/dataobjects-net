@@ -18,7 +18,7 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaModel
   [Index("Name")]
   public interface IHasName : IEntity
   {
-    [Field(Length=1000)]
+    [Field(Length = 1000)]
     string Name { get; set; }
   }
 

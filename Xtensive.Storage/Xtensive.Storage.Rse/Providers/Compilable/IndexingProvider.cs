@@ -55,7 +55,6 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
       return new RecordSetHeader(
         Source.Header.TupleDescriptor, 
         Source.Header.Columns, 
-        Source.Header.OrderDescriptor.TupleDescriptor, 
         Source.Header.ColumnGroups, 
         Order);
     }

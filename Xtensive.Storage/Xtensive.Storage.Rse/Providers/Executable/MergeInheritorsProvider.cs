@@ -140,7 +140,7 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
     protected override void Initialize()
     {
       base.Initialize();
-      keyTransform = new MapTransform(true, Header.TupleDescriptor, Header.OrderDescriptor.Order.Select(pair => pair.Key).ToArray());
+      keyTransform = new MapTransform(true, Header.TupleDescriptor, Header.Order.Select(pair => pair.Key).ToArray());
       keyExtractor = (input => keyTransform.Apply(TupleTransformType.TransformedTuple, input));
 
       ColumnCollection targetColumns = Header.Columns;
