@@ -143,9 +143,9 @@ namespace Xtensive.Storage.Rse
     public Column(Column column, string alias)
     {
       ColumnInfoRef = column.ColumnInfoRef;
-      Name = alias.IsNullOrEmpty() ? 
-                                     column.Name :
-                                                   string.Concat(alias, ".", column.Name);
+      Name = alias.IsNullOrEmpty() 
+        ? column.Name 
+        : string.Concat(alias, ".", column.Name);
       Type = column.Type;
       Index = column.Index;
     }

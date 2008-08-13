@@ -10,7 +10,6 @@ using System.Text;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
-using Xtensive.Storage.Rse.Resources;
 using Xtensive.Core.Helpers;
 
 namespace Xtensive.Storage.Rse.Providers
@@ -30,14 +29,6 @@ namespace Xtensive.Storage.Rse.Providers
     /// Gets the provider this provider is compiled from.
     /// </summary>
     public CompilableProvider Origin { get; private set; }
-
-    /// <exception cref="InvalidOperationException">Thrown if <see cref="Origin"/> is <see langword="null" />.</exception>
-    protected override RecordSetHeader BuildHeader()
-    {
-      if (Origin!=null)
-        return Origin.Header;
-      throw new InvalidOperationException(Strings.ExHeaderIsNotAvailableSinceOriginIsNotProvided);
-    }
 
     /// <summary>
     /// Gets the sequence this provider provides in the specified <see cref="EnumerationContext"/>.
@@ -229,7 +220,21 @@ namespace Xtensive.Storage.Rse.Providers
 
     #endregion
 
-    
+    /// <exception cref="InvalidOperationException"><see cref="Origin"/> is <see langword="null" />.</exception>
+    protected override RecordSetHeader BuildHeader()
+    {
+      return Origin.Header;
+    }
+
+    /// <exception cref="ArgumentNullException"><see cref="Origin"/> is null.</exception>
+    protected override void Initialize()
+    {
+      if (Origin==null)
+        throw new ArgumentNullException("origin");
+      base.Initialize();
+    }
+
+
     // Constructor
 
     /// <summary>

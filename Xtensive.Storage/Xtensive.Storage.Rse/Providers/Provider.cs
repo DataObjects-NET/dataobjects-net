@@ -7,6 +7,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 using Xtensive.Core;
 using Xtensive.Core.Aspects;
@@ -28,17 +29,38 @@ namespace Xtensive.Storage.Rse.Providers
   {
     protected const string ToString_ProviderTypeSuffix = "Provider";
     protected const int    ToString_IndentSize = 2;
+    private Provider[] sources;
+    private RecordSetHeader header;
 
     /// <summary>
     /// Gets or sets the source providers 
     /// "consumed" by this provider to produce results of current provider.
     /// </summary>
-    public Provider[] Sources { get; private set; }
+    public Provider[] Sources {
+      [DebuggerStepThrough]
+      get { return sources; }
+      [DebuggerStepThrough]
+      protected set {
+        if (sources!=null)
+          throw Exceptions.AlreadyInitialized("Sources");
+        sources = value;
+      }
+    }
 
     /// <summary>
-    /// Gets the header of the record sequence this provide produces.
+    /// Gets or sets the header of the record sequence this provide produces.
     /// </summary>
-    public RecordSetHeader Header { get; private set; }
+    public RecordSetHeader Header
+    {
+      [DebuggerStepThrough]
+      get { return header; }
+      [DebuggerStepThrough]
+      protected set {
+        if (header!=null)
+          throw Exceptions.AlreadyInitialized("Header");
+        header = value;
+      }
+    }
 
     /// <inheritdoc/>
     public abstract T GetService<T>()

@@ -20,12 +20,6 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     /// </summary>
     public ExecutableProvider Source { get; private set; }
 
-    /// <inheritdoc/>
-    protected override RecordSetHeader BuildHeader()
-    {
-      return Source.Header;
-    }
-
 
     // Constructors
 

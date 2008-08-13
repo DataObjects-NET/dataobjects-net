@@ -123,9 +123,6 @@
   <data name="ExCantCompileProviderX" xml:space="preserve">
     <value>Can't compile the provider '{0}'.</value>
   </data>
-  <data name="ExHeaderIsNotAvailableSinceOriginIsNotProvided" xml:space="preserve">
-    <value>Header is not available, since origin is not provided.</value>
-  </data>
   <data name="ExCouldNotResolveXYWithinDomain" xml:space="preserve">
     <value>Could not resolve {0} '{1}' within the domain.</value>
   </data>

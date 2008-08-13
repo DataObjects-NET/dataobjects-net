@@ -88,15 +88,6 @@ namespace Xtensive.Storage.Rse.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Header is not available, since origin is not provided..
-        /// </summary>
-        internal static string ExHeaderIsNotAvailableSinceOriginIsNotProvided {
-            get {
-                return ResourceManager.GetString("ExHeaderIsNotAvailableSinceOriginIsNotProvided", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Invalid field name &apos;{0}&apos;..
         /// </summary>
         internal static string ExInvalidFieldNameX {

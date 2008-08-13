@@ -65,7 +65,17 @@ namespace Xtensive.Storage.Rse
       return new JoinProvider(left.Provider, right.Provider, false, joinedColumnIndexes).Result;
     }
 
+    public static RecordSet Join(this RecordSet left, RecordSet right, params int[] joinedColumnIndexes)
+    {
+      return new JoinProvider(left.Provider, right.Provider, false, joinedColumnIndexes).Result;
+    }
+
     public static RecordSet JoinLeft(this RecordSet left, RecordSet right, params Pair<int>[] joinedColumnIndexes)
+    {
+      return new JoinProvider(left.Provider, right.Provider, true, joinedColumnIndexes).Result;
+    }
+
+    public static RecordSet JoinLeft(this RecordSet left, RecordSet right, params int[] joinedColumnIndexes)
     {
       return new JoinProvider(left.Provider, right.Provider, true, joinedColumnIndexes).Result;
     }

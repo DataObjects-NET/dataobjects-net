@@ -60,7 +60,7 @@ namespace Xtensive.Storage.Tests.Rse
       RecordSet personIndexed = personsRS.IndexBy(OrderBy.Asc(0));
       RecordSet authorsIndexed = authorsRS.IndexBy(OrderBy.Asc(0)).Alias("Authors");
 
-      RecordSet result = personIndexed.JoinLeft(authorsIndexed, new Pair<int>(0, 0));
+      RecordSet result = personIndexed.JoinLeft(authorsIndexed, 0, 0);
       int count = result.Count();
       Assert.AreEqual(personCount, count);
     }
