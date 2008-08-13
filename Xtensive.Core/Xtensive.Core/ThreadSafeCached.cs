@@ -51,6 +51,7 @@ namespace Xtensive.Core
     /// <returns>Cached value.</returns>
     public T GetValue(Func<T> generator)
     {
+      EnsureSyncRoot();
       if (!isCached) lock (syncRoot) if (!isCached) {
         var value = generator.Invoke();
         isCached = true;
@@ -68,6 +69,7 @@ namespace Xtensive.Core
     /// <returns>Cached value.</returns>
     public T GetValue<T1>(Func<T1, T> generator, T1 argument)
     {
+      EnsureSyncRoot();
       if (!isCached) lock (syncRoot) if (!isCached) {
         var value = generator.Invoke(argument);
         isCached = true;
@@ -87,6 +89,7 @@ namespace Xtensive.Core
     /// <returns>Cached value.</returns>
     public T GetValue<T1, T2>(Func<T1, T2, T> generator, T1 argument1, T2 argument2)
     {
+      EnsureSyncRoot();
       if (!isCached) lock (syncRoot) if (!isCached) {
         var value = generator.Invoke(argument1, argument2);
         isCached = true;
@@ -180,6 +183,13 @@ namespace Xtensive.Core
     }
 
 
+    private void EnsureSyncRoot()
+    {
+      if (syncRoot==null) {
+        syncRoot = new object();
+      }
+    }
+   
     // Static constructor replacement
     
     /// <summary>
