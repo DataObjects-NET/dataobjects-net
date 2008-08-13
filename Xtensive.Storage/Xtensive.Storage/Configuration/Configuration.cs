@@ -50,7 +50,7 @@ namespace Xtensive.Storage.Configuration
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(sectionName, "sectionName");
       var result = new Configuration();
-      var section = (RootConfigurationSection)ConfigurationManager.GetSection(sectionName);
+      var section = (ConfigurationSectionHandler)ConfigurationManager.GetSection(sectionName);
       if (section==null) 
         throw new InvalidOperationException(String.Format("Section \"{0}\" not found in application configuration file.", sectionName));
       foreach (DomainElement domain in section.Domains) {

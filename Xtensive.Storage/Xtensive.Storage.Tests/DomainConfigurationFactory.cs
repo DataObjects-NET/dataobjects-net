@@ -4,7 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2008.08.05
 
-using Xtensive.Core;
+using System;
 using Xtensive.Storage.Configuration;
 
 namespace Xtensive.Storage.Tests
@@ -13,9 +13,11 @@ namespace Xtensive.Storage.Tests
   {
     public static DomainConfiguration Create(string protocol)
     {
-      DomainConfiguration config = new DomainConfiguration();
-      config.ConnectionInfo = new UrlInfo(protocol+@"://localhost/Test_4.0");
-      return config;
+      var config = Xtensive.Storage.Configuration.Configuration.Load("Xtensive.Storage");
+      foreach (DomainConfiguration domainConfiguration in config.Domains)
+        if (domainConfiguration.ConnectionInfo.Protocol==protocol)
+          return domainConfiguration;
+      throw new NotSupportedException("Invalid protocol");
     }
 
     public static DomainConfiguration Create(string protocol, InheritanceSchema schema)

@@ -8,15 +8,15 @@ using System.Configuration;
 
 namespace Xtensive.Storage.Configuration
 {
-  internal class RootConfigurationSection : ConfigurationSection
+  internal class ConfigurationSectionHandler : ConfigurationSection
   {
-    private const string DomainsElementName = "domains";
+    private const string DomainCollectionElementName = "domains";
 
-    [ConfigurationProperty(DomainsElementName, IsDefaultCollection = false)]
+    [ConfigurationProperty(DomainCollectionElementName, IsDefaultCollection = false)]
     [ConfigurationCollection(typeof(ConfigurationCollection<DomainElement>), AddItemName = "domain")]
     public ConfigurationCollection<DomainElement> Domains {
       get {
-        return (ConfigurationCollection<DomainElement>)base[DomainsElementName];
+        return (ConfigurationCollection<DomainElement>)base[DomainCollectionElementName];
       }
     }
   }
