@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.Collections
@@ -24,15 +25,18 @@ namespace Xtensive.Core.Collections
     /// <summary>
     /// Gets the total count of items registered in this instance.
     /// </summary>
-    public int GetCount()
+    public int Count
     {
-      if (containers.Count == 0)
-        return 0;
+      get
+      {
+        if (containers.Count==0)
+          return 0;
 
-      int result = 0;
-      foreach (HashSet<TItem> items in containers.Values)
-        result += items.Count;
-      return result;
+        int result = 0;
+        foreach (HashSet<TItem> items in containers.Values)
+          result += items.Count;
+        return result;
+      }
     }
 
     /// <summary>
@@ -77,6 +81,14 @@ namespace Xtensive.Core.Collections
         containers.Add(flag, container);
       }
       return container;
+    }
+
+    /// <inheritdoc/>
+    public override string ToString()
+    {
+      if (Count == 0)
+        return "Count: 0";
+      return containers.Select(p => String.Format("{0}: {1}", p.Key, p.Value.Count)).ToCommaDelimitedString();
     }
 
 
