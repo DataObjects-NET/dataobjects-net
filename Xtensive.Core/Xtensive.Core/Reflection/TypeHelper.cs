@@ -361,8 +361,9 @@ namespace Xtensive.Core.Reflection
           AppDomain.CurrentDomain.DefineDynamicAssembly(
             assemblyName,
             AssemblyBuilderAccess.RunAndSave);
-        moduleBuilder =
-          assemblyBuilder.DefineDynamicModule(assemblyName.Name, assemblyName + ".dll");
+        var tmp = assemblyBuilder.DefineDynamicModule(assemblyName.Name, assemblyName + ".dll");
+        Thread.MemoryBarrier();
+        moduleBuilder = tmp;
       }
     }
 

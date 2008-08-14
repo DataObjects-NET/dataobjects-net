@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics;
 using System.Runtime.Serialization;
+using System.Threading;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.SizeCalculators
@@ -34,7 +35,9 @@ namespace Xtensive.Core.SizeCalculators
       get {
         if (@default==null) lock (_lock) if (@default==null) {
           try {
-            @default = SizeCalculatorProvider.Default.GetSizeCalculator<T>();
+            var sizeCalculator = SizeCalculatorProvider.Default.GetSizeCalculator<T>();
+            Thread.MemoryBarrier();
+            @default = sizeCalculator;
           }
           catch {
           }

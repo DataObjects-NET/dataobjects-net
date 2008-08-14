@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics;
 using System.Runtime.Serialization;
+using System.Threading;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.Hashing
@@ -33,7 +34,9 @@ namespace Xtensive.Core.Hashing
       get {
         if (@default==null) lock (syncRoot) if (@default==null) {
           try {
-            @default = HasherProvider.Default.GetHasher<T>();
+            var hasher = HasherProvider.Default.GetHasher<T>();
+            Thread.MemoryBarrier();
+            @default = hasher;
           }
           catch(Exception e) {
             Log.Info(e, String.Format(Resources.Strings.LogUnableToGetDefaultHasherForTypeXxx, typeof (T).FullName));

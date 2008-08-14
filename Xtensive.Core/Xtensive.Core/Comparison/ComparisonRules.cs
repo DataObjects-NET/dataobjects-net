@@ -23,7 +23,7 @@ namespace Xtensive.Core.Comparison
   {
     private readonly ComparisonRule    value;
     private readonly ComparisonRules[] composite;
-    private int cachedHashCode;
+    private volatile int cachedHashCode;
 
     /// <summary>
     /// Predefined rules with <see cref="Direction"/> = <see cref="Core.Direction.None"/>.

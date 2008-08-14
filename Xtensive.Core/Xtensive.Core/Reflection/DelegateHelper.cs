@@ -10,6 +10,7 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
+using System.Threading;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Resources;
 
@@ -28,8 +29,6 @@ namespace Xtensive.Core.Reflection
     private static readonly string primitiveCastMethodName = "PrimitiveCast";
     private static readonly string ctorMethodName   = "Ctor";
     private static readonly string createMethodName = "Create";
-    private static readonly MethodInfo createProtectedConstructorDelegateMethod =
-      typeof(DelegateHelper).GetMethod("CreateProtectedConstructorDelegate");
 
     /// <summary>
     /// Aspected private field getter prefix.

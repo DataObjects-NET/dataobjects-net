@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace Xtensive.Core.Aspects.Helpers
 {
@@ -35,8 +36,11 @@ namespace Xtensive.Core.Aspects.Helpers
       var fullKey = new Pair<Type, object>(tType, key);
       lock (aspects) {
         object result;
-        if (!aspects.TryGetValue(fullKey, out result))
-          aspects.Add(fullKey, result = generator.Invoke());
+        if (!aspects.TryGetValue(fullKey, out result)) {
+          result = generator.Invoke();
+          Thread.MemoryBarrier();
+          aspects.Add(fullKey, result);
+        }
         else
           result = null;
         return (T) result;
@@ -65,10 +69,14 @@ namespace Xtensive.Core.Aspects.Helpers
       var fullKey = new Pair<Type, object>(tType, key);
       lock (aspects) {
         object result;
-        if (!aspects.TryGetValue(fullKey, out result))
-          aspects.Add(fullKey, result = aspect);
+        if (!aspects.TryGetValue(fullKey, out result)) {
+          result = aspect;
+          Thread.MemoryBarrier();
+          aspects.Add(fullKey, result);
+        }
         else {
           combiner.Invoke((T) result, aspect);
+          Thread.MemoryBarrier();
           result = null;
         }
         return (T) result;
@@ -90,9 +98,12 @@ namespace Xtensive.Core.Aspects.Helpers
       var fullKey = new Pair<Type, object>(tType, key);
       lock (aspects) {
         object result;
-        if (!aspects.TryGetValue(fullKey, out result))
-          aspects.Add(fullKey, result = generator.Invoke());
-        
+        if (!aspects.TryGetValue(fullKey, out result)) {
+          result = generator.Invoke();
+          Thread.MemoryBarrier();
+          aspects.Add(fullKey, result);
+        }
+
         return (T) result;
       }
     }

@@ -5,6 +5,7 @@
 // Created:    2008.01.20
 
 using System;
+using System.Threading;
 using Xtensive.Core.Reflection;
 
 namespace Xtensive.Core.Collections
@@ -118,6 +119,7 @@ namespace Xtensive.Core.Collections
     public void SetValue<TKey, TItem>(TItem item)
     {
       lock (implementation) {
+        Thread.MemoryBarrier();
         implementation.SetValue<TKey, TItem>(item);
       }
     }
@@ -134,7 +136,9 @@ namespace Xtensive.Core.Collections
         throw Exceptions.AlreadyInitialized(null);
       Type implementationTypeDef = typeof (TypeBasedDictionaryImplementation<>);
       Type vadiatorType = TypeHelper.CreateDummyType("TypeBasedDictionaryVariator", typeof (object));
-      implementation = (TypeBasedDictionaryImplementation)implementationTypeDef.Activate(new Type[] {vadiatorType}, null);
+      var tmp = (TypeBasedDictionaryImplementation)implementationTypeDef.Activate(new Type[] {vadiatorType}, null);
+      Thread.MemoryBarrier();
+      implementation = tmp;
     }
 
 

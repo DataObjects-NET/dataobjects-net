@@ -47,7 +47,7 @@ namespace Xtensive.Core.Weaver
       // Define the body
       MethodBodyDeclaration methodBody = new MethodBodyDeclaration();
       methodDef.MethodBody = methodBody;
-      InstructionBlock instructionBlock = methodBody.CreateInstructionBlock ();
+      InstructionBlock instructionBlock = methodBody.CreateInstructionBlock();
       methodBody.RootInstructionBlock = instructionBlock;
       InstructionSequence sequence = methodBody.CreateInstructionSequence();
       instructionBlock.AddInstructionSequence(sequence, PostSharp.Collections.NodePosition.After, null);
@@ -82,7 +82,7 @@ namespace Xtensive.Core.Weaver
       // Define the body
       MethodBodyDeclaration methodBody = new MethodBodyDeclaration();
       methodDef.MethodBody = methodBody;
-      InstructionBlock instructionBlock = methodBody.CreateInstructionBlock ();
+      InstructionBlock instructionBlock = methodBody.CreateInstructionBlock();
       methodBody.RootInstructionBlock = instructionBlock;
       InstructionSequence sequence = methodBody.CreateInstructionSequence();
       instructionBlock.AddInstructionSequence(sequence, PostSharp.Collections.NodePosition.After, null);

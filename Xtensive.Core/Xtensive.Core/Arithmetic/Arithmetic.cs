@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics;
 using System.Runtime.Serialization;
+using System.Threading;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.Arithmetic
@@ -32,7 +33,9 @@ namespace Xtensive.Core.Arithmetic
       get {
         if (@default==null) lock (_lock) if (@default==null) {
           try {
-            @default = ArithmeticProvider.Default.GetArithmetic<T>();
+            var arithmetic = ArithmeticProvider.Default.GetArithmetic<T>();
+            Thread.MemoryBarrier();
+            @default = arithmetic;
           }
           catch {
           }

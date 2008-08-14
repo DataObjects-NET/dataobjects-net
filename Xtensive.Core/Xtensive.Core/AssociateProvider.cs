@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
+using System.Threading;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Internals.DocTemplates;
@@ -36,7 +37,7 @@ namespace Xtensive.Core
 
     private object[] constructorParams;
     private string[] typeSuffixes;
-    private List<Pair<Assembly, string>> highPriorityLocations = new List<Pair<Assembly, string>>();
+    private volatile List<Pair<Assembly, string>> highPriorityLocations = new List<Pair<Assembly, string>>();
 
     /// <summary>
     /// Gets associate constructor parameters.
@@ -84,6 +85,7 @@ namespace Xtensive.Core
           newHighPriorityLocations.Insert(0, new Pair<Assembly, string>(assembly, nameSpace));
         else
           newHighPriorityLocations.Add(new Pair<Assembly, string>(assembly, nameSpace));
+        Thread.MemoryBarrier();
         highPriorityLocations = newHighPriorityLocations;
       }
     }
@@ -154,7 +156,7 @@ namespace Xtensive.Core
             // Both are non-null; preferring one of two
             associate = PreferAssociate<TKey1, TKey2, TAssociate>(associate1, associate2);
           if (associate==null) {
-            // Try to get complex associate (create it manually).
+            // Try to get complex associate (create it manually)
             associate = CreateCustomAssociate<TKey1, TKey2, TAssociate>();
             if (associate==null) {
               StringBuilder stringBuilder = new StringBuilder();

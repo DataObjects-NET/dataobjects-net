@@ -44,7 +44,7 @@ namespace Xtensive.Core.Tuples.Internals
     // Static members
     private readonly static AssemblyBuilder assemblyBuilder;
     private readonly static ModuleBuilder moduleBuilder;
-    private static bool assemblyIsSaved;
+    private static volatile bool assemblyIsSaved;
     // Non-static members
     private TupleInfo tupleInfo;
     private TypeBuilder tupleType;

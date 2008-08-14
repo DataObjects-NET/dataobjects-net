@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.Serialization;
+using System.Threading;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 
@@ -36,7 +37,9 @@ namespace Xtensive.Core.Comparison
       get {
         if (defaultComparer==null) lock (_lock) if (defaultComparer==null) {
           try {
-            defaultComparer = ComparerProvider.Default.GetComparer<T>();
+            var comparer = ComparerProvider.Default.GetComparer<T>();
+            Thread.MemoryBarrier();
+            defaultComparer = comparer;
           }
           catch {
           }
@@ -52,7 +55,9 @@ namespace Xtensive.Core.Comparison
       get {
         if (systemComparer==null) lock (_lock) if (systemComparer==null) {
           try {
-            systemComparer = ComparerProvider.System.GetComparer<T>();
+            var comparer = ComparerProvider.System.GetComparer<T>();
+            Thread.MemoryBarrier();
+            systemComparer = comparer;
           }
           catch {
           }

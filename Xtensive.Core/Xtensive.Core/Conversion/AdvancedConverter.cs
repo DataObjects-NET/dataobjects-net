@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics;
 using System.Runtime.Serialization;
+using System.Threading;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.Conversion
@@ -34,7 +35,9 @@ namespace Xtensive.Core.Conversion
       get {
         if (@default==null) lock (_lock) if (@default==null) {
           try {
-            @default = AdvancedConverterProvider.Default.GetConverter<TFrom, TTo>();
+            var converter = AdvancedConverterProvider.Default.GetConverter<TFrom, TTo>();
+            Thread.MemoryBarrier();
+            @default = converter;
           }
           catch {
           }
