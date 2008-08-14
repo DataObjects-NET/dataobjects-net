@@ -10,6 +10,10 @@ using Xtensive.Core.Tuples;
 
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
+  /// <summary>
+  /// Executable provider that makes decision which real executable provider to use.
+  /// </summary>
+  /// <typeparam name="TOrigin">Compilable provider.</typeparam>
   [Serializable]
   public abstract class SubstitutingProvider<TOrigin> : ExecutableProvider<TOrigin>
     where TOrigin: CompilableProvider
@@ -17,12 +21,12 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     /// <summary>
     /// Gets the real provider used by this class.
     /// </summary>
-    public ExecutableProvider Substitution { get; private set; }
+    public ExecutableProvider<TOrigin> Substitution { get; private set; }
 
     /// <summary>
     /// Builds the <see cref="Substitution"/>.
     /// </summary>
-    public abstract ExecutableProvider BuildSubstitution();
+    public abstract ExecutableProvider<TOrigin> BuildSubstitution();
 
     /// <inheritdoc/>
     public override T GetService<T>()

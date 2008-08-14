@@ -15,12 +15,17 @@ using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Indexing;
 using System.Linq;
+using Xtensive.Storage.Model;
+using Xtensive.Storage.Rse.Providers.Compilable;
 using Xtensive.Storage.Rse.Providers.Internals;
 
 namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
 {
+  /// <summary>
+  /// General virtual <see cref="IndexAttributes.Join"/> index provider for all indexing storage handlers.
+  /// </summary>
   [Serializable]
-  public sealed class JoinInheritorsProvider : ExecutableProvider,
+  public sealed class JoinInheritorsProvider : ExecutableProvider<IndexProvider>,
     IOrderedEnumerable<Tuple,Tuple>,
     ICountable
   {
@@ -30,9 +35,9 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
     private readonly Provider[] inheritors;
     private MapTransform mapTransform;
 
-    #region Root delegating members
+    #region Interface implementation
 
-    public long Count
+    long ICountable.Count
     {
       get
       {
@@ -41,20 +46,17 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
       }
     }
 
-    /// <inheritdoc/>
-    public Func<IEntire<Tuple>, Tuple, int> AsymmetricKeyCompare
+    Func<IEntire<Tuple>, Tuple, int> IHasKeyComparers<Tuple>.AsymmetricKeyCompare
     {
       get { return rootEnumerable.AsymmetricKeyCompare; }
     }
 
-    /// <inheritdoc/>
-    public AdvancedComparer<IEntire<Tuple>> EntireKeyComparer
+    AdvancedComparer<IEntire<Tuple>> IHasKeyComparers<Tuple>.EntireKeyComparer
     {
       get { return rootEnumerable.EntireKeyComparer; }
     }
 
-    /// <inheritdoc/>
-    public AdvancedComparer<Tuple> KeyComparer
+    AdvancedComparer<Tuple> IHasKeyComparers<Tuple>.KeyComparer
     {
       get { return rootEnumerable.KeyComparer; }
     }
@@ -65,32 +67,27 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
       get { return rootEnumerable.KeyExtractor; }
     }
 
-    /// <inheritdoc/>
-    public IEnumerable<Tuple> GetKeys(Range<IEntire<Tuple>> range)
+    IEnumerable<Tuple> IOrderedEnumerable<Tuple, Tuple>.GetKeys(Range<IEntire<Tuple>> range)
     {
       return rootEnumerable.GetKeys(range);
     }
 
-    #endregion
-
-    /// <inheritdoc/>
-    public IIndexReader<Tuple, Tuple> CreateReader(Range<IEntire<Tuple>> range)
+    IIndexReader<Tuple, Tuple> IOrderedEnumerable<Tuple, Tuple>.CreateReader(Range<IEntire<Tuple>> range)
     {
       return new JoinInheritorsReader(this, range,  root, inheritors, mapTransform);
     }
 
-    /// <inheritdoc/>
-    public SeekResult<Tuple> Seek(Ray<IEntire<Tuple>> ray)
+    SeekResult<Tuple> IOrderedEnumerable<Tuple, Tuple>.Seek(Ray<IEntire<Tuple>> ray)
     {
       SeekResult<Tuple> seek = rootEnumerable.Seek(ray);
       if (seek.ResultType != SeekResultType.None) {
-        EntireValueType[] entireValueTypes = new EntireValueType[ray.Point.Count];
+        var entireValueTypes = new EntireValueType[ray.Point.Count];
         for (int i = 0; i < ray.Point.Count; i++)
           entireValueTypes[i] = ray.Point.GetValueType(i);
-        Tuple[] resultTuples = new Tuple[1+inheritors.Length];
+        var resultTuples = new Tuple[1+inheritors.Length];
         resultTuples[0] = seek.Result;
         for (int i = 0; i < inheritors.Length; i++) {
-          Ray<IEntire<Tuple>> rightRay = new Ray<IEntire<Tuple>>(Entire<Tuple>.Create(KeyExtractor(seek.Result), entireValueTypes));
+          var rightRay = new Ray<IEntire<Tuple>>(Entire<Tuple>.Create(KeyExtractor(seek.Result), entireValueTypes));
           SeekResult<Tuple> seekRight = inheritors[i].GetService<IOrderedEnumerable<Tuple,Tuple>>().Seek(rightRay);
           if (seekRight.ResultType == SeekResultType.Exact)
             resultTuples[1+i] = seekRight.Result;
@@ -103,8 +100,7 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
       return seek;
     }
 
-    /// <inheritdoc/>
-    public IEnumerable<Tuple> GetItems(Range<IEntire<Tuple>> range)
+    IEnumerable<Tuple> IOrderedEnumerable<Tuple, Tuple>.GetItems(Range<IEntire<Tuple>> range)
     {
       return InheritanceJoiner.Join(
         rootEnumerable.GetItems(range),
@@ -118,6 +114,9 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
           );
     }
 
+    #endregion
+
+    /// <inheritdoc/>
     protected internal override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
       return InheritanceJoiner.Join(
@@ -131,7 +130,6 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
             pair.Second, pair.Second.KeyExtractor, pair.First.Header.TupleDescriptor)).ToList());
     }
 
-    /// <inheritdoc/>
     protected override void Initialize()
     {
       base.Initialize();
@@ -150,7 +148,11 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public JoinInheritorsProvider(CompilableProvider origin, int includedColumnsCount, ExecutableProvider root, ExecutableProvider[] inheritors)
+    /// <param name="origin">The <see cref="ExecutableProvider{TOrigin}.Origin"/> property value.</param>
+    /// <param name="includedColumnsCount">Amount of included columns.</param>
+    /// <param name="root">Root index provider.</param>
+    /// <param name="inheritors">Inheritor index providers.</param>
+    public JoinInheritorsProvider(IndexProvider origin, int includedColumnsCount, ExecutableProvider root, ExecutableProvider[] inheritors)
       : base(origin, new[]{root}.Union(inheritors).ToArray())
     {
       AddService<IOrderedEnumerable<Tuple, Tuple>>();

@@ -12,7 +12,7 @@ using Xtensive.Core.Tuples;
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
   [Serializable]
-  public sealed class SkipProvider : UnaryExecutableProvider<Compilable.SkipProvider>
+  internal sealed class SkipProvider : UnaryExecutableProvider<Compilable.SkipProvider>
   {
     #region Cached properties
 

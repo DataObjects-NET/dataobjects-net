@@ -51,11 +51,11 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 
     // Constructors
 
-    public LoopJoinProvider(Compilable.JoinProvider origin, ExecutableProvider left, ExecutableProvider right, bool leftJoin, params Pair<int>[] joiningPairs)
+    public LoopJoinProvider(Compilable.JoinProvider origin, ExecutableProvider left, ExecutableProvider right)
       : base(origin, left, right)
     {
-      this.leftJoin = leftJoin;
-      this.joiningPairs = joiningPairs;      
+      leftJoin = origin.LeftJoin;
+      joiningPairs = origin.EqualIndexes;      
     }
   }
 }

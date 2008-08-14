@@ -13,7 +13,7 @@ using System.Linq;
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
   [Serializable]
-  public sealed class TakeProvider : UnaryExecutableProvider<Compilable.TakeProvider>
+  internal sealed class TakeProvider : UnaryExecutableProvider<Compilable.TakeProvider>
   {
     #region Cached properties
 

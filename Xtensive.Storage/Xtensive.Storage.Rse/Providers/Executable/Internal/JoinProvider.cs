@@ -4,6 +4,7 @@
 // Created by: Alexey Kochetov
 // Created:    2008.05.23
 
+using System;
 using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
@@ -14,32 +15,33 @@ using System.Linq;
 
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
-  public sealed class JoinProvider : SubstitutingProvider<Compilable.JoinProvider>
+  [Serializable]
+  internal sealed class JoinProvider : SubstitutingProvider<Compilable.JoinProvider>
   {
     private readonly ExecutableProvider left;
     private readonly ExecutableProvider right;
     private readonly bool leftJoin;
     private readonly Pair<int>[] joiningPairs;
 
-    public override ExecutableProvider BuildSubstitution()
+    public override ExecutableProvider<Compilable.JoinProvider> BuildSubstitution()
     {
       var leftEnumerable = left.GetService<IOrderedEnumerable<Tuple,Tuple>>();
       var rightEnumerable = right.GetService<IOrderedEnumerable<Tuple, Tuple>>();
       if (leftEnumerable == null) {
         if (CheckAbilityToRange())
-          return new LoopJoinProvider(Origin, left, right, leftJoin, joiningPairs);
-        return new NestedLoopJoinProvider(Origin, left, right, leftJoin, joiningPairs);
+          return new LoopJoinProvider(Origin, left, right);
+        return new NestedLoopJoinProvider(Origin, left, right);
       }
       if (rightEnumerable == null)
-        return new NestedLoopJoinProvider(Origin, left, right, leftJoin, joiningPairs);
+        return new NestedLoopJoinProvider(Origin, left, right);
       if (CheckAbilityToMerge()) {
         if (leftJoin)
           return new LeftMergeJoinProvider(Origin, left, right);
         return new MergeJoinProvider(Origin, left, right);
       }
       if (CheckAbilityToRange())
-        return new LoopJoinProvider(Origin, left, right, leftJoin, joiningPairs);
-      return new NestedLoopJoinProvider(Origin, left, right, leftJoin, joiningPairs);
+        return new LoopJoinProvider(Origin, left, right);
+      return new NestedLoopJoinProvider(Origin, left, right);
     }
 
     private bool CheckAbilityToMerge()
@@ -80,13 +82,13 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 
     // Constructor
 
-    public JoinProvider(Compilable.JoinProvider origin, ExecutableProvider left, ExecutableProvider right, bool leftJoin, params Pair<int>[] joiningPairs)
+    public JoinProvider(Compilable.JoinProvider origin, ExecutableProvider left, ExecutableProvider right)
       : base (origin, left, right)
     {
       this.left = left;
       this.right = right;
-      this.leftJoin = leftJoin;
-      this.joiningPairs = joiningPairs;
+      leftJoin = origin.LeftJoin;
+      joiningPairs = origin.EqualIndexes;
     }
   }
 }

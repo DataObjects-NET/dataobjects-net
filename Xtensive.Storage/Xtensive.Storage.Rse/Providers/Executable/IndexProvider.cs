@@ -38,6 +38,12 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 
     // Constructors
 
+    /// <summary>
+    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="origin">The <see cref="ExecutableProvider{TOrigin}.Origin"/> property value.</param>
+    /// <param name="indexDescriptor">Descriptor of the index.</param>
+    /// <param name="indexResolver">Index resolver function.</param>
     public IndexProvider(CompilableProvider origin, IndexInfoRef indexDescriptor, Func<IndexInfoRef,IOrderedIndex<Tuple,Tuple>> indexResolver)
       : base(origin)
     {

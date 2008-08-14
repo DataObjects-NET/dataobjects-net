@@ -15,7 +15,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
   /// Fully transparent provider.
   /// </summary>
   [Serializable]
-  public class TransparentProvider<TOrigin> : UnaryExecutableProvider<TOrigin>
+  public abstract class TransparentProvider<TOrigin> : UnaryExecutableProvider<TOrigin>
     where TOrigin: CompilableProvider
   {
     /// <inheritdoc/>

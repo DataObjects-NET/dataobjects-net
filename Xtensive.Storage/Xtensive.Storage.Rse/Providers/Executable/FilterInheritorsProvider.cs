@@ -12,12 +12,16 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
 using System.Linq;
+using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse.Providers.Executable;
 using Xtensive.Storage.Rse.Providers.Internals;
 using Xtensive.Core.Helpers;
 
 namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
 {
+  /// <summary>
+  /// General virtual <see cref="IndexAttributes.Filtered"/> index provider for all indexing storage handlers.
+  /// </summary>
   [Serializable]
   public sealed class FilterInheritorsProvider : UnaryExecutableProvider<Compilable.IndexProvider>,
     IOrderedEnumerable<Tuple,Tuple>,
@@ -27,6 +31,7 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
     private readonly Func<Tuple, bool> predicate;
     private readonly bool[] typeIdMatch;
 
+    /// <inheritdoc/>
     public long Count {
       get {
         var countable = Source.GetService<ICountable>(true);
@@ -104,6 +109,11 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
+    /// <param name="origin">The <see cref="ExecutableProvider{TOrigin}.Origin"/> property value.</param>
+    /// <param name="provider">Source executable provider.</param>
+    /// <param name="typeIdColumn">Index of typeId column.</param>
+    /// <param name="typesCount">Amount of types in the model.</param>
+    /// <param name="typeIds">Identifiers of descendants types.</param>
     public FilterInheritorsProvider(Compilable.IndexProvider origin, ExecutableProvider provider,  int typeIdColumn, int typesCount,  params int[] typeIds)
       : base(origin, provider)
     {

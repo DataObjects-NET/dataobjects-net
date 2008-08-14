@@ -27,8 +27,6 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     protected internal override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
       AdvancedComparer<Tuple> comparer = AdvancedComparer<Tuple>.Default;
-      int leftCount = Left.Count();
-      int rightCount = Right.Count();
       IEnumerable<Pair<Tuple, Tuple>> loopJoin = leftJoin ? Left.NestedLoopJoinLeft(Right, KeyExtractorLeft, KeyExtractorRight, comparer) : Left.NestedLoopJoin(Right, KeyExtractorLeft, KeyExtractorRight, comparer);
       foreach (Pair<Tuple, Tuple> pair in loopJoin)
         yield return transform.Apply(TupleTransformType.Auto, pair.First, pair.Second);
@@ -65,11 +63,11 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 
     // Constructors
 
-    public NestedLoopJoinProvider(Compilable.JoinProvider origin, ExecutableProvider left, ExecutableProvider right, bool leftJoin, params Pair<int>[] joiningPairs)
+    public NestedLoopJoinProvider(Compilable.JoinProvider origin, ExecutableProvider left, ExecutableProvider right)
       : base(origin, left, right)
     {
-      this.leftJoin = leftJoin;
-      this.joiningPairs = joiningPairs;      
+      leftJoin = origin.LeftJoin;
+      joiningPairs = origin.EqualIndexes;      
     }
   }
 }

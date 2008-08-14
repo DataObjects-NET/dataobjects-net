@@ -84,6 +84,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <param name="left">The left provider to join.</param>
     /// <param name="right">The right provider to join.</param>
     /// <param name="leftJoin">If set to <see langword="true"/>, left join will be performed;
+    /// <param name="equalIndexes">Transformed to the <see cref="EqualIndexes"/> property value.</param>
     /// otherwise, inner join will be performed.</param>
     /// <exception cref="ArgumentException">Wrong arguments.</exception>
     public JoinProvider(CompilableProvider left, CompilableProvider right, bool leftJoin, 

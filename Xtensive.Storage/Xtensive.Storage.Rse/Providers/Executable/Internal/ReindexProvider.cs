@@ -12,7 +12,7 @@ using Xtensive.Indexing;
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
   [Serializable]
-  public sealed class ReindexProvider : UnaryExecutableProvider<Compilable.ReindexProvider>
+  internal sealed class ReindexProvider : UnaryExecutableProvider<Compilable.ReindexProvider>
   {
     private IndexConfiguration<Tuple, Tuple> indexConfiguration;
 

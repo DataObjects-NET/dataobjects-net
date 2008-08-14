@@ -13,6 +13,7 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Indexing;
+using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
 using System.Linq;
 using Xtensive.Storage.Rse.Providers.Internals;
@@ -20,6 +21,9 @@ using Xtensive.Core.Helpers;
 
 namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
 {
+  /// <summary>
+  /// General virtual <see cref="IndexAttributes.Union"/> index provider for all indexing storage handlers.
+  /// </summary>
   [Serializable]
   public sealed class MergeInheritorsProvider : ExecutableProvider,
     IOrderedEnumerable<Tuple,Tuple>,
@@ -169,6 +173,8 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
+    /// <param name="origin">The <see cref="ExecutableProvider{TOrigin}.Origin"/> property value.</param>
+    /// <param name="sourceProviders">Providers of inheritor indexes.</param>
     public MergeInheritorsProvider(CompilableProvider origin, params ExecutableProvider[] sourceProviders)
       : base(origin, sourceProviders)
     {
