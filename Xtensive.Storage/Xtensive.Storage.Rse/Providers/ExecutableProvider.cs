@@ -6,11 +6,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Helpers;
+using Xtensive.Storage.Rse.Compilation;
 
 namespace Xtensive.Storage.Rse.Providers
 {
@@ -29,6 +31,14 @@ namespace Xtensive.Storage.Rse.Providers
     /// Gets the provider this provider is compiled from.
     /// </summary>
     public CompilableProvider Origin { get; private set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether this instance can be
+    /// cached and further returned as result of compilation of
+    /// <see cref="Origin"/> once more by the same 
+    /// <see cref="CompilationContext"/>.
+    /// </summary>
+    public bool IsCacheable { get; protected set; }
 
     /// <summary>
     /// Gets the sequence this provider provides in the specified <see cref="EnumerationContext"/>.
@@ -242,6 +252,13 @@ namespace Xtensive.Storage.Rse.Providers
       if (Origin==null)
         throw new ArgumentNullException("origin");
       base.Initialize();
+      bool isCacheable = IsCacheable;
+      foreach (var source in Sources) {
+        var ep = source as ExecutableProvider;
+        if (ep!=null)
+          isCacheable &= ep.IsCacheable;
+      }
+      IsCacheable = isCacheable;
     }
 
 
@@ -256,6 +273,7 @@ namespace Xtensive.Storage.Rse.Providers
       : base(sources)
     {
       Origin = origin;
+      IsCacheable = true;
     }
   }
 }

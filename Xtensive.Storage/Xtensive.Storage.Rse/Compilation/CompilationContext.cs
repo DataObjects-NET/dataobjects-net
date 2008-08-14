@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
@@ -23,6 +24,34 @@ namespace Xtensive.Storage.Rse.Compilation
   public class CompilationContext : Context<CompilationScope>,
     IHasExtensions
   {
+    #region Nested type: CacheEntry
+
+    private class CacheEntry 
+    {
+      public CompilableProvider Key;
+      public ExecutableProvider Value;
+
+
+      // Constructors
+      
+      public CacheEntry(CompilableProvider key, ExecutableProvider value)
+      {
+        Key = key;
+        Value = value;
+      }
+    }
+
+    #endregion
+
+    /// <summary>
+    /// Gets the size of compilation cache.
+    /// Currently it is 1024 (compilation results).
+    /// </summary>
+    public readonly static int CacheSize = 1024;
+    
+    private WeakCache<CompilableProvider, CacheEntry> cache;
+    private object _lock = new object();
+
     /// <summary>
     /// Gets the current compilation context.
     /// </summary>
@@ -61,11 +90,21 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <param name="provider">The provider to compile.</param>
     /// <returns>The result of the compilation.</returns>
     /// <exception cref="InvalidOperationException">Can't compile the specified <paramref name="provider"/>.</exception>
-    public Provider Compile(Provider provider)
+    public Provider Compile(CompilableProvider provider)
     {
       if (provider == null)
         return null;
+      lock (_lock) {
+        var entry = cache[provider, true];
+        if (entry!=null)
+          return entry.Value;
+      }
       var result = Compiler.Compile(provider, false);
+      if (result!=null && result.IsCacheable)
+        lock (_lock) {
+          Thread.MemoryBarrier(); // Ensures result is fully "flushed"
+          cache.Add(new CacheEntry(provider, result));
+        }
       if (result==null)
         throw new InvalidOperationException(string.Format(
           Strings.ExCantCompileProviderX, provider));
@@ -110,6 +149,9 @@ namespace Xtensive.Storage.Rse.Compilation
       Compiler   = compiler;
       Extensions = extensions;
       extensions.LockSafely(true);
+      cache = new WeakCache<CompilableProvider, CacheEntry>(CacheSize, 
+        entry => entry.Key, 
+        entry => 1);
     }
   }
 }
