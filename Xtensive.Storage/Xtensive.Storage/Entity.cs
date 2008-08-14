@@ -214,7 +214,8 @@ namespace Xtensive.Storage
     /// </summary>
     protected Entity()
     {
-      Key key = Session.Domain.KeyManager.Next(GetType());
+      TypeInfo type = Session.Domain.Model.Types[GetType()];
+      Key key = Session.Domain.KeyManager.Next(type);
 
       if (Log.IsLogged(LogEventTypes.Debug))
         Log.Debug("Session '{0}'. Creating: Key = '{1}'", Session, key);
@@ -230,7 +231,8 @@ namespace Xtensive.Storage
     /// <remarks>Use this kind of constructor when you need to explicitly build key for this instance.</remarks>
     protected Entity(Tuple tuple)
     {
-      Key key = Session.Domain.KeyManager.Get(GetType(), tuple);
+      TypeInfo type = Session.Domain.Model.Types[GetType()];
+      Key key = Session.Domain.KeyManager.Get(type, tuple);
 
       if (Log.IsLogged(LogEventTypes.Debug))
         Log.Debug("Session '{0}'. Creating: Key = '{1}'", Session, key);

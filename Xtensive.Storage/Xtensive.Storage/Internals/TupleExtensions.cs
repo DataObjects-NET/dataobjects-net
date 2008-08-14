@@ -10,7 +10,7 @@ namespace Xtensive.Storage.Internals
 {
   internal static class TupleExtensions
   {
-    public static bool ContainsEmptyValue(this ITuple target)
+    public static bool ContainsEmptyValues(this ITuple target)
     {
       for (int i = 0; i < target.Count; i++)
         if (!target.IsAvailable(i) || target.IsNull(i))

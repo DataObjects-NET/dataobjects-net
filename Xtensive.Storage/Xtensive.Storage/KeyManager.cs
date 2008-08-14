@@ -23,12 +23,10 @@ namespace Xtensive.Storage
 
     #region Next methods
 
-    internal Key Next(Type type)
+    internal Key Next(TypeInfo type)
     {
-      TypeInfo typeInfo = domain.Model.Types[type];
-      DefaultGenerator provider = Generators[typeInfo.Hierarchy];
-      Key key = new Key(typeInfo.Hierarchy, provider.Next());
-      key.Type = typeInfo;
+      DefaultGenerator provider = Generators[type.Hierarchy];
+      Key key = Create(type, provider.Next());
       cache.Add(key);
       return key;
     }
@@ -49,11 +47,11 @@ namespace Xtensive.Storage
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
       if (!type.IsSubclassOf(typeof(Entity)))
         throw new ArgumentException(Strings.ExTypeMustBeEntityDescendant, "type");
-      if (tuple.ContainsEmptyValue())
-        throw new InvalidOperationException(string.Format("Cannot create Key from tuple: '{0}'", tuple));
+      if (tuple.ContainsEmptyValues())
+        throw new InvalidOperationException(string.Format("Cannot create Key from tuple: '{0}'", tuple.ToRegular()));
 
       TypeInfo typeInfo = domain.Model.Types[type];
-      Key key = Create(typeInfo, tuple);
+      Key key = Create(typeInfo.Hierarchy, tuple);
       return Cache(key);
     }
 
@@ -73,7 +71,7 @@ namespace Xtensive.Storage
     internal Key Get(FieldInfo field, Tuple tuple)
     {
       // Tuple with empty values is treated as empty Entity reference
-      if (tuple.ContainsEmptyValue())
+      if (tuple.ContainsEmptyValues())
         return null;
 
       TypeInfo type = domain.Model.Types[field.ValueType];

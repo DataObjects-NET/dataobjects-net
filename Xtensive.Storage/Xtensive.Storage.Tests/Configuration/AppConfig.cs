@@ -21,7 +21,7 @@ namespace Xtensive.Storage.Tests.Configuration
     {
       var configuration = Xtensive.Storage.Configuration.Configuration.Load("AppConfigTest");
       Assert.AreEqual(2, configuration.Domains.Count);
-      var domainConfig = configuration.Domains["DomainTest1"];
+      var domainConfig = configuration.Domains["TestDomain1"];
       Log.Debug("SessionPoolSize: {0}", domainConfig.SessionPoolSize);
       Log.Debug("ConnectionInfo: {0}", domainConfig.ConnectionInfo);
       foreach (Type builder in domainConfig.Builders) {
