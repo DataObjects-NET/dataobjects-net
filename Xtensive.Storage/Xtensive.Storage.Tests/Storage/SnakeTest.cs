@@ -14,11 +14,16 @@ using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Tuples;
+using Xtensive.Core.Tuples.Transform;
+using Xtensive.Indexing;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Providers.Index;
 using Xtensive.Storage.Rse;
+using Xtensive.Storage.Rse.Providers.Compilable;
 using Xtensive.Storage.Tests.Storage.SnakesModel;
+using SeekResultType=Xtensive.Indexing.SeekResultType;
 
 namespace Xtensive.Storage.Tests.Storage.SnakesModel
 {
@@ -71,6 +76,8 @@ namespace Xtensive.Storage.Tests.Storage
 {
   public class SnakesTest : AutoBuildTest
   {
+    public HashSet<Entity> removalQueue = new HashSet<Entity>();
+
     protected override DomainConfiguration BuildConfiguration()
     {
       DomainConfiguration config = base.BuildConfiguration();
@@ -206,10 +213,10 @@ namespace Xtensive.Storage.Tests.Storage
         Tuple fromName = Tuple.Create("Kaa");
         Tuple toName = Tuple.Create("Kaa900");
         TypeInfo snakeType = session.Domain.Model.Types[typeof (Snake)];
-        RecordSet rsSnakePrimary = session.Select(snakeType.Indexes.GetIndex("ID"));
+        RecordSet rsSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordSet();
 
         using (new Measurement("Query performance")) {
-          RecordSet rsSnakeName = session.Select(snakeType.Indexes.GetIndex("Name"));
+          RecordSet rsSnakeName = snakeType.Indexes.GetIndex("Name").ToRecordSet();
           rsSnakeName = rsSnakeName
             .Range(fromName, toName)
             .OrderBy(OrderBy.Asc(rsSnakeName.IndexOf("ID")), true)
@@ -264,7 +271,7 @@ namespace Xtensive.Storage.Tests.Storage
       using (Domain.OpenSession()) {
         var session = Session.Current;
         TypeInfo type = session.Domain.Model.Types[typeof (ICreature)];
-        RecordSet rsPrimary = session.Select(type.Indexes.PrimaryIndex);
+        RecordSet rsPrimary = type.Indexes.PrimaryIndex.ToRecordSet();
         foreach (var entity in rsPrimary.AsEntities<ICreature>())
           entity.Remove();
       }
@@ -288,7 +295,7 @@ namespace Xtensive.Storage.Tests.Storage
 
         session.Persist();
         TypeInfo type = session.Domain.Model.Types[typeof (ICreature)];
-        RecordSet rsPrimary = session.Select(type.Indexes.PrimaryIndex);
+        RecordSet rsPrimary = type.Indexes.PrimaryIndex.ToRecordSet();
         foreach (var entity in rsPrimary.AsEntities<ICreature>())
           Assert.IsNotNull(entity.Name);
       }
@@ -307,14 +314,56 @@ namespace Xtensive.Storage.Tests.Storage
       using (Domain.OpenSession()) {
         var session = Session.Current;
         TypeInfo type = session.Domain.Model.Types[typeof (ICreature)];
-        RecordSet rs = session.Select(type.Indexes.PrimaryIndex);
+        RecordSet rs = type.Indexes.PrimaryIndex.ToRecordSet();
         foreach (var entity in rs.AsEntities<ICreature>())
-//          Console.WriteLine(entity.Identifier);
           entity.Remove();
       }
 
       using (Domain.OpenSession())
         Assert.AreEqual(0, Session.Current.All<ICreature>().Count());
+    }
+
+    [Test]
+    public void WeirdTest()
+    {
+      using (Domain.OpenSession())
+        for (int i = 0; i < 10; i++) {
+          Snake s = new Snake();
+          s.Name = "Kaa" + i;
+          s.Length = i;
+        }
+
+      using (Domain.OpenSession()) {
+        var session = Session.Current;
+        TypeInfo type = session.Domain.Model.Types[typeof (ICreature)];
+        RecordSet rs = type.Indexes.PrimaryIndex.ToRecordSet();
+        foreach (var entity in rs.AsEntities<Creature>()) {
+          foreach (Entity re in removalQueue) {
+            Remove(re);
+          }
+          removalQueue.Add(entity);
+        }
+      }
+
+      using (Domain.OpenSession())
+        Assert.AreEqual(0, Session.Current.All<ICreature>().Count());
+    }
+
+    private void Remove(Entity entity)
+    {
+      DomainHandler handler = Session.Current.Handlers.DomainHandler as DomainHandler;
+      IndexInfo primaryIndex = entity.Data.Type.Indexes.PrimaryIndex;
+      var indexProvider = IndexProvider.Get(primaryIndex);
+      Indexing.SeekResult<Tuple> result = indexProvider.GetService<IOrderedEnumerable<Tuple, Tuple>>().Seek(new Indexing.Ray<Indexing.IEntire<Tuple>>(Entire<Tuple>.Create(entity.Data.Key.Tuple)));
+
+      if (result.ResultType!=SeekResultType.Exact)
+        throw new InvalidOperationException();
+
+      foreach (IndexInfo indexInfo in entity.Data.Type.AffectedIndexes) {
+        var index = handler.GetRealIndex(indexInfo);
+        var transform = handler.GetIndexTransform(indexInfo);
+        index.Remove(transform.Apply(TupleTransformType.TransformedTuple, result.Result));
+      }
     }
 
     [Test]

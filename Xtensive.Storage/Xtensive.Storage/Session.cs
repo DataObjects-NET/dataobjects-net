@@ -85,17 +85,11 @@ namespace Xtensive.Storage
       DirtyData.Clear();
     }
 
-    public RecordSet Select(IndexInfo index)
-    {
-      Persist();
-      return Handler.Select(index);
-    }
-
     public IEnumerable<T> All<T>() where T : class,   IEntity
     {
       Persist();
       TypeInfo type = Domain.Model.Types[typeof (T)];
-      RecordSet result = Handler.Select(type.Indexes.PrimaryIndex);
+      RecordSet result = type.Indexes.PrimaryIndex.ToRecordSet();
       foreach (T entity in result.AsEntities<T>())
         yield return entity;
     }

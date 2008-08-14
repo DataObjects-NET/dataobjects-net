@@ -15,8 +15,6 @@ namespace Xtensive.Storage
   /// </summary>
   public sealed class EntityData
   {
-    private PersistenceState persistenceState;
-
     /// <summary>
     /// Gets the key.
     /// </summary>
@@ -38,16 +36,7 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets the the persistence state.
     /// </summary>
-    public PersistenceState PersistenceState
-    {
-      get { return persistenceState; }
-      internal set
-      {
-        if (persistenceState == value)
-          return;
-        persistenceState = value;
-      }
-    }
+    public PersistenceState PersistenceState { get; internal set; }
 
     /// <summary>
     /// Gets the owner of this instance.

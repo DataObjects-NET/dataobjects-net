@@ -41,7 +41,7 @@ namespace Xtensive.Storage.Tests.Rse
         IndexInfo ii = Domain.Model.Types[typeof (Book)].Indexes.PrimaryIndex;
 
         // Select *
-        RecordSet rsMain = Session.Current.Handler.Select(ii);
+        RecordSet rsMain = ii.ToRecordSet();
         foreach (Book book in rsMain.AsEntities<Book>()) {
           ;
         }

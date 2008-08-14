@@ -57,6 +57,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     {
       indexHeader = index.GetRecordSetHeader();
       Index = new IndexInfoRef(index);
+      Initialize(typeof(IndexProvider)); // Since .ctor is private!
     }
   }
 }

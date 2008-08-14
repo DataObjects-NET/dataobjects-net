@@ -21,11 +21,6 @@ namespace Xtensive.Storage.Providers
     /// </summary>
     public Session Session { get; internal set; }
 
-    public RecordSet Select(IndexInfo index)
-    {
-      return IndexProvider.Get(index).Result;
-    }
-
     public virtual void Commit()
     {
     }

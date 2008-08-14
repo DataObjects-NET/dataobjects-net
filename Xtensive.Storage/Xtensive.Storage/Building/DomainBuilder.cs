@@ -140,6 +140,7 @@ namespace Xtensive.Storage.Building
       using (Log.InfoRegion(Strings.LogCreatingX, typeof(DomainHandler).GetShortName())) {
         var handlerAccessor = BuildingContext.Current.Domain.Handlers;
         handlerAccessor.DomainHandler = handlerAccessor.HandlerFactory.CreateHandler<DomainHandler>();
+        handlerAccessor.DomainHandler.Initialize();
       }
     }
 
