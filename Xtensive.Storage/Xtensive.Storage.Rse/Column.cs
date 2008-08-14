@@ -16,6 +16,8 @@ namespace Xtensive.Storage.Rse
   [Serializable]
   public sealed class Column : IEquatable<Column> 
   {
+    private const string ToStringFormat = "{0} {1} ({2})";
+
     /// <summary>
     /// Gets the reference that describes a column.
     /// </summary>    
@@ -92,7 +94,7 @@ namespace Xtensive.Storage.Rse
     /// <inheritdoc/>
     public override string ToString()
     {
-      return string.Format("{0} {1} ({2})", Type.Name, Name, Index);
+      return string.Format(ToStringFormat, Type.Name, Name, Index);
     }
     
 
