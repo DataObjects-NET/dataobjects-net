@@ -13,7 +13,6 @@ using Xtensive.Sql.Common;
 using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Database;
 using Xtensive.Sql.Dom.Database.Providers;
-using Xtensive.Sql.Dom.Ddl;
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse.Compilation;
@@ -28,23 +27,16 @@ namespace Xtensive.Storage.Providers.Sql
 {
   public abstract class DomainHandler : Providers.DomainHandler
   {
-    private DbTransaction transaction;
-    private Catalog catalog;
+    private Schema schema;
     private readonly Dictionary<IndexInfo, Table> realIndexes = new Dictionary<IndexInfo, Table>();
     private SqlConnection connection;
-    // private SqlModel model;
-
-    protected override CompilationContext GetCompilationContext()
-    {
-      return new CompilationContext(new Compilers.Compiler(Handlers));
-    }
 
     /// <inheritdoc/>
     public override void Build()
     {
       var provider = new SqlConnectionProvider();
       using (connection = provider.CreateConnection(Handlers.Domain.Configuration.ConnectionInfo.ToString()) as SqlConnection) {
-        if (connection==null)
+        if (connection == null)
           throw new InvalidOperationException(Strings.ExUnableToCreateConnection);
         connection.Open();
         var modelProvider = new SqlModelProvider(connection);
@@ -52,36 +44,29 @@ namespace Xtensive.Storage.Providers.Sql
         string serverName = existingModel.DefaultServer.Name;
         string catalogName = Handlers.Domain.Configuration.ConnectionInfo.Resource;
         string schemaName = existingModel.DefaultServer.Catalogs[catalogName].DefaultSchema.Name;
-        SqlModel newModel = BuildNewModel(serverName, catalogName, schemaName);
+        SqlModel newModel = BuildModel(serverName, catalogName, schemaName);
         ISqlCompileUnit syncroniztionScript = BuildSyncronizationScript(Handlers.Domain.Model, existingModel.DefaultServer.Catalogs[catalogName], newModel.DefaultServer.Catalogs[catalogName]);
         ExecuteNonQuery(syncroniztionScript);
-        catalog = SqlModel.Build(modelProvider).DefaultServer.Catalogs[catalogName];
+        schema = SqlModel.Build(modelProvider).DefaultServer.Catalogs[catalogName].DefaultSchema;
       }
     }
 
-    protected ISqlCompileUnit BuildSyncronizationScript(DomainModel domainModel, Catalog existingCatalog, Catalog newCatalog)
+    /// <summary>
+    /// Gets catalog to 
+    /// </summary>
+    public Schema Schema
     {
-      SqlBatch batch = SqlFactory.Batch();
-      batch.Add(ClearCatalogScript(existingCatalog));
-      batch.Add(BuildCatalogScript(newCatalog));
-      return batch;
+      get { return schema; }
     }
 
-    private SqlBatch BuildCatalogScript(Catalog catalog)
+    protected override CompilationContext GetCompilationContext()
     {
-      SqlBatch batch = SqlFactory.Batch();
-      foreach (Table table in catalog.DefaultSchema.Tables) {
-        batch.Add(SqlFactory.Create(table));
-        foreach (Index index in table.Indexes) {
-          batch.Add(SqlFactory.Create(index));
-        }
-      }
-      return batch;
+      return new CompilationContext(new Compilers.Compiler(Handlers));
     }
 
-    private SqlModel BuildNewModel(string serverName, string catalogName, string schemaName)
+    protected SqlModel BuildModel(string serverName, string catalogName, string schemaName)
     {
-      SqlModel model = new SqlModel();
+      var model = new SqlModel();
       Server server = model.CreateServer(serverName);
       Catalog catalog = server.CreateCatalog(catalogName);
       Schema schema = catalog.CreateSchema(schemaName);
@@ -128,7 +113,46 @@ namespace Xtensive.Storage.Providers.Sql
       return model;
     }
 
-    private SqlBatch ClearCatalogScript(Catalog catalog)
+    protected ISqlCompileUnit BuildSyncronizationScript(DomainModel domainModel, Catalog existingCatalog, Catalog newCatalog)
+    {
+      SqlBatch batch = SqlFactory.Batch();
+      batch.Add(ClearCatalogScript(existingCatalog));
+      batch.Add(BuildCatalogScript(newCatalog));
+      return batch;
+    }
+
+    /// <summary>
+    /// Gets <see cref="SqlDataType"/> by .NET <see cref="Type"/> and length.
+    /// </summary>
+    /// <param name="type"></param>
+    /// <param name="length"></param>
+    /// <returns></returns>
+    protected abstract SqlDataType GetSqlDataType(Type type, int? length);
+
+    #region Internal
+
+    internal Dictionary<IndexInfo, Table> RealIndexes
+    {
+      get { return realIndexes; }
+    }
+
+    #endregion
+
+    #region Private
+
+    private static SqlBatch BuildCatalogScript(Catalog catalog)
+    {
+      SqlBatch batch = SqlFactory.Batch();
+      foreach (Table table in catalog.DefaultSchema.Tables) {
+        batch.Add(SqlFactory.Create(table));
+        foreach (Index index in table.Indexes) {
+          batch.Add(SqlFactory.Create(index));
+        }
+      }
+      return batch;
+    }
+
+    private static SqlBatch ClearCatalogScript(Catalog catalog)
     {
       SqlBatch batch = SqlFactory.Batch();
       Schema schema = catalog.DefaultSchema;
@@ -158,7 +182,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     private void ExecuteNonQuery(ISqlCompileUnit statement)
     {
-      using (transaction = connection.BeginTransaction()) {
+      using (var transaction = connection.BeginTransaction()) {
         using (var command = new SqlCommand(connection)) {
           command.Statement = statement;
           command.Prepare();
@@ -169,101 +193,15 @@ namespace Xtensive.Storage.Providers.Sql
       }
     }
 
-    /// <summary>
-    /// Gets <see cref="SqlDataType"/> by .NET <see cref="Type"/> and length.
-    /// </summary>
-    /// <param name="type"></param>
-    /// <param name="length"></param>
-    /// <returns></returns>
-    protected abstract SqlDataType GetSqlDataType(Type type, int? length);
-
-    /// <summary>
-    /// Builds "Where" expression for key for specified table.
-    /// </summary>
-    /// <param name="table">Table to build statement for.</param>
-    /// <param name="mapping">Table-to-tuple mapping</param>
-    /// <param name="key">Key data</param>
-    /// <returns>Expression that can be used in "where" statements</returns>
-    public virtual SqlExpression GetWhereStatement(SqlTable table, IEnumerable<StatementMapping> mapping, Key key)
-    {
-      if (key==null)
-        return null;
-      SqlExpression expression = null;
-      foreach (StatementMapping statementMapping in mapping) {
-        SqlBinary binary = (table[statementMapping.TablePosition] == GetSqlExpression(key.Tuple, statementMapping.TuplePosition));
-        if (expression == null)
-          expression = binary;
-        else
-          expression &= binary;
-      }
-      return expression;
-    }
-
-    public virtual SqlExpression GetSqlExpression(Tuple tuple, int index)
-    {
-      if (!tuple.IsAvailable(index) || tuple.IsNull(index) || tuple.GetValueOrDefault(index) == null)
-        return null;
-      Type type = tuple.Descriptor[index];
-      if (type == typeof(Boolean))
-        return tuple.GetValue<bool>(index);
-      if (type == typeof(Char))
-        return tuple.GetValue<char>(index);
-      if (type == typeof(SByte))
-        return tuple.GetValue<SByte>(index);
-      if (type == typeof(Byte))
-        return tuple.GetValue<Byte>(index);
-      if (type == typeof(Int16))
-        return tuple.GetValue<Int16>(index);
-      if (type == typeof(UInt16))
-        return tuple.GetValue<UInt16>(index);
-      if (type == typeof(Int32))
-        return tuple.GetValue<Int32>(index);
-      if (type == typeof(UInt32))
-        return tuple.GetValue<UInt32>(index);
-      if (type == typeof(Int64))
-        return tuple.GetValue<Int64>(index);
-      if (type == typeof(UInt64))
-        return tuple.GetValue<UInt64>(index);
-      if (type == typeof(Decimal))
-        return tuple.GetValue<Decimal>(index);
-      if (type == typeof(float))
-        return tuple.GetValue<float>(index);
-      if (type == typeof(double))
-        return tuple.GetValue<double>(index);
-      if (type == typeof(DateTime))
-        return tuple.GetValue<DateTime>(index);
-      if (type == typeof(TimeSpan))
-        return tuple.GetValue<TimeSpan>(index);
-      if (type == typeof(String))
-        return tuple.GetValue<String>(index);
-      if (type == typeof(byte[]))
-        return tuple.GetValue<byte[]>(index);
-      if (type == typeof(Guid))
-        return tuple.GetValue<Guid>(index);
-      throw new InvalidOperationException(); //Should never be
-    }
-
-    #region Internal
-
-    internal Dictionary<IndexInfo, Table> RealIndexes
-    {
-      get { return realIndexes; }
-    }
-
-    public Catalog Catalog
-    {
-      get { return catalog; }
-    }
-
-    #endregion
-
     private SqlValueType GetSqlType(Type type, int? length)
     {
       // TODO: Get this data from Connection.Driver.ServerInfo.DataTypes
-      var result = (length==null)
+      var result = (length == null)
         ? new SqlValueType(GetSqlDataType(type, null))
         : new SqlValueType(GetSqlDataType(type, length.Value), length.Value);
       return result;
     }
+
+    #endregion
   }
 }

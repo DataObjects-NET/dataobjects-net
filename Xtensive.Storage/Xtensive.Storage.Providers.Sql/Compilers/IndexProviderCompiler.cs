@@ -44,7 +44,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
 
     private SqlSelect BuildTableQuery(IndexInfo index)
     {
-      Table table = ((DomainHandler)Handlers.DomainHandler).Catalog.DefaultSchema.Tables[index.ReflectedType.MappingName];
+      Table table = ((DomainHandler)Handlers.DomainHandler).Schema.Tables[index.ReflectedType.MappingName];
       SqlTableRef tableRef = SqlFactory.TableRef(table);
       SqlSelect query = SqlFactory.Select(tableRef);
       query.Columns.AddRange(index.Columns.Select(c => (SqlColumn)tableRef.Columns[c.Name]));

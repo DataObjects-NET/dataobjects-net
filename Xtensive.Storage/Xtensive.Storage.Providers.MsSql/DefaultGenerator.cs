@@ -45,7 +45,7 @@ namespace Xtensive.Storage.Providers.MsSql
       base.Initialize();
       var keyColumn = Hierarchy.Columns[0];
       var domainHandler = (DomainHandler)Handlers.DomainHandler;
-      generatorTable = domainHandler.Catalog.DefaultSchema.CreateTable(Hierarchy.MappingName);
+      generatorTable = domainHandler.Schema.CreateTable(Hierarchy.MappingName);
       if (keyColumn.ValueType == typeof(int))
         dataType = SqlDataType.Int32;
       else if (keyColumn.ValueType == typeof(uint))
