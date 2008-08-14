@@ -191,7 +191,7 @@ namespace Xtensive.Storage.Rse
         new RecordSetHeader(resultTupleDescriptor, resultColumns, resultGroups, keyDescriptor, sortOrder);
     }
 
-
+    /// <inheritdoc/>
     public override string ToString()
     {
       return Columns.Select(c => c.ToString()).ToCommaDelimitedString();      
