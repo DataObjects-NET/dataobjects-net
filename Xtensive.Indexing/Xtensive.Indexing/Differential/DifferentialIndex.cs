@@ -4,6 +4,7 @@
 // Created by: Elena Vakhtina
 // Created:    2008.08.12
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Core;
@@ -24,10 +25,11 @@ namespace Xtensive.Indexing.Differential
     private IUniqueOrderedIndex<TKey, TItem> origin;
     private IUniqueOrderedIndex<TKey, TItem> insertions;
     private IUniqueOrderedIndex<TKey, TItem> removals;
+    private Converter<TKey, IEntire<TKey>> entireConverter;
     private IMeasureResultSet<TItem> measureResults;
 
 
-    #region Properties: Origin, Insertions, Removals, MeasureResults
+    #region Properties: Origin, Insertions, Removals, MeasureResults, EntireConverter
 
     /// <summary>
     /// Gets the origin.
@@ -62,6 +64,16 @@ namespace Xtensive.Indexing.Differential
       [DebuggerStepThrough]
       get { return measureResults; }
     }
+
+    /// <summary>
+    /// Gets the entire converter.
+    /// </summary>
+    public Converter<TKey, IEntire<TKey>> EntireConverter
+    {
+      [DebuggerStepThrough]
+      get { return entireConverter; }
+    }
+
 
     #endregion
 
@@ -205,9 +217,11 @@ namespace Xtensive.Indexing.Differential
       origin = configuration.Origin;
       insertions = IndexFactory.CreateUniqueOrdered<TKey, TItem, TImpl>(((UniqueOrderedIndexBase<TKey, TItem>)origin).Configuration);
       removals = IndexFactory.CreateUniqueOrdered<TKey, TItem, TImpl>(((UniqueOrderedIndexBase<TKey, TItem>)origin).Configuration);
+      entireConverter = (key => Entire<TKey>.Create(key));
       measureResults = new MeasureResultSet<TItem>(Measures);
       foreach (TItem item in origin)
         measureResults.Add(item);
+
     }
 
     //Constructors
@@ -226,7 +240,7 @@ namespace Xtensive.Indexing.Differential
 
     public override IIndexReader<TKey, TItem> CreateReader(Range<IEntire<TKey>> range)
     {
-      throw new System.NotImplementedException();
+      return new DifferentialIndexReader<TKey, TItem, TImpl>(this, range);
     }
 
     public override object GetMeasureResult(Range<IEntire<TKey>> range, string name)

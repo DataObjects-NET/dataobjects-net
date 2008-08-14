@@ -31,7 +31,10 @@ namespace Xtensive.Indexing.Tests
       IUniqueOrderedIndex<int, int> origin = IndexFactory.CreateUniqueOrdered<int, int, SortedListIndex<int, int>>(originConfiguration);
       //PopulateIndex(origin);
       
-      for (int i=1; i<=5; i++)
+      //for (int i=1; i<=5; i++)
+      //  origin.Add(i);
+
+      for (int i = 1; i <= 15; i = i + 3)
         origin.Add(i);
 
 
@@ -43,13 +46,31 @@ namespace Xtensive.Indexing.Tests
       //#region  Add, Remove, Clear
 
       //index.Clear();
-      //for (int i = 1; i <= 5; i++)
+      //for (int i = 1; i <= 15; i=i+3)
       //  index.Add(i);
-      //index.Add(6);
-      //index.Add(5);
+      index.Add(2);
+      index.Add(3);
+      index.Add(5);
       //for (int i = 1; i <= 6; i++)
-      //  index.Remove(i);
-      //index.Remove(6);
+        index.Remove(4);
+        index.Remove(6);
+        index.Add(6);
+
+      int current;
+      DifferentialIndexReader<int, int, SortedListIndex<int, int>> reader = new DifferentialIndexReader<int, int, SortedListIndex<int, int>>(index,Range<IEntire<int>>.Full);
+      reader.MoveTo(Entire<int>.Create(1));
+      while (reader.MoveNext())
+        current = reader.Current;
+      //reader.MoveTo(Entire<int>.Create(2));
+      //reader.MoveNext();
+      //current = reader.Current;
+      //reader.MoveTo(Entire<int>.Create(4));
+      //reader.MoveNext();
+      //current = reader.Current;
+      //reader.MoveTo(Entire<int>.Create(6));
+      //reader.MoveNext();
+      //current = reader.Current;
+
 
       //#endregion
 
@@ -62,8 +83,8 @@ namespace Xtensive.Indexing.Tests
 
 
 
-      //IndexTest.TestIndex(index,
-      //     new IndexTest.Configuration(RandomManager.CreateRandom(SeedVariatorType.CallingMethod), 100));
+      IndexTest.TestIndex(index,
+           new IndexTest.Configuration(RandomManager.CreateRandom(SeedVariatorType.CallingMethod), 100));
 
 
 
