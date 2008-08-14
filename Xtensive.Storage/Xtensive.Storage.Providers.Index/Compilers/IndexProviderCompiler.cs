@@ -34,7 +34,7 @@ namespace Xtensive.Storage.Providers.Index.Compilers
       else {
         var firstUnderlyingIndex = indexInfo.UnderlyingIndexes.First();
         if ((indexInfo.Attributes & IndexAttributes.Filtered)!=0) {
-          ExecutableProvider source = CompileInternal(new IndexProvider(firstUnderlyingIndex), firstUnderlyingIndex);
+          ExecutableProvider source = CompileInternal(IndexProvider.Get(firstUnderlyingIndex), firstUnderlyingIndex);
           int columnIndex;
           if (indexInfo.IsPrimary) {
             FieldInfo typeIdField = indexInfo.ReflectedType.Fields[NameBuilder.TypeIdFieldName];
@@ -47,7 +47,7 @@ namespace Xtensive.Storage.Providers.Index.Compilers
           result = new FilterInheritorsProvider(provider, source, columnIndex, handlerAccessor.Domain.Model.Types.Count, typeIdList.ToArray());
         }
         else if ((indexInfo.Attributes & IndexAttributes.Union)!=0) {
-          ExecutableProvider[] sourceProviders = indexInfo.UnderlyingIndexes.Select(index => CompileInternal(new IndexProvider(index), index)).ToArray();
+          ExecutableProvider[] sourceProviders = indexInfo.UnderlyingIndexes.Select(index => CompileInternal(IndexProvider.Get(index), index)).ToArray();
           if (sourceProviders.Length == 1)
             result = sourceProviders[0];
           else
@@ -55,10 +55,10 @@ namespace Xtensive.Storage.Providers.Index.Compilers
         }
         else {
           var baseIndexes = new List<IndexInfo>(indexInfo.UnderlyingIndexes);
-          ExecutableProvider rootProvider = CompileInternal(new IndexProvider(firstUnderlyingIndex), firstUnderlyingIndex);
+          ExecutableProvider rootProvider = CompileInternal(IndexProvider.Get(firstUnderlyingIndex), firstUnderlyingIndex);
           var inheritorsProviders = new ExecutableProvider[baseIndexes.Count - 1];
           for (int i = 1; i < baseIndexes.Count; i++)
-            inheritorsProviders[i - 1] = CompileInternal(new IndexProvider(baseIndexes[i]), baseIndexes[i]);
+            inheritorsProviders[i - 1] = CompileInternal(IndexProvider.Get(baseIndexes[i]), baseIndexes[i]);
 
           result = new JoinInheritorsProvider(provider, baseIndexes[0].IncludedColumns.Count, rootProvider, inheritorsProviders);
         }

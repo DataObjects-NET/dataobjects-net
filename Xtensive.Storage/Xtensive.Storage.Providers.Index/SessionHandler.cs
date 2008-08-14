@@ -37,7 +37,7 @@ namespace Xtensive.Storage.Providers.Index
     {
       var handler = (DomainHandler)Handlers.DomainHandler;
       IndexInfo primaryIndex = data.Type.Indexes.PrimaryIndex;
-      var indexProvider = new IndexProvider(primaryIndex);
+      var indexProvider = IndexProvider.Get(primaryIndex);
       SeekResult<Tuple> result = indexProvider.GetService<IOrderedEnumerable<Tuple, Tuple>>().Seek(new Ray<IEntire<Tuple>>(Entire<Tuple>.Create(data.Key.Tuple)));
 
       if (result.ResultType!=SeekResultType.Exact)

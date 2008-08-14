@@ -4,43 +4,46 @@
 // Created by: Dmitri Maximov
 // Created:    2008.05.19
 
-using System.Collections.Generic;
-using Xtensive.Storage.Model;
+using System.Diagnostics;
 using Xtensive.Storage.Rse.Compilation;
-using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Providers
 {
-  public abstract class DomainHandler : HandlerBase
+  /// <summary>
+  /// <see cref="Storage.Domain"/>-level handler.
+  /// </summary>
+  public abstract class DomainHandler : InitializableHandlerBase
   {
-    private CompilationContext compiler;
-    private Dictionary<IndexInfo, IndexProvider> providerCache = new Dictionary<IndexInfo, IndexProvider>();
-
+    /// <summary>
+    /// Gets or sets the <see cref="Storage.Domain"/> this handler is bound to.
+    /// </summary>
     public Domain Domain { get; internal set; }
 
+    /// <summary>
+    /// Gets the <see cref="Rse.Compilation.CompilationContext"/>
+    /// associated with the domain.
+    /// </summary>
+    public CompilationContext CompilationContext { get; private set; }
+
+    // Abstract methods
+
+    /// <summary>
+    /// Builds the <see cref="CompilationContext"/> value.
+    /// Invoked from <see cref="Initialize"/>.
+    /// </summary>
+    protected abstract CompilationContext BuildCompilationContext();
+
+    /// <summary>
+    /// Builds the <see cref="Domain"/>.
+    /// </summary>
     public abstract void Build();
 
-    internal IndexProvider GetIndexProvider(IndexInfo index)
+    // Initialization
+
+    /// <inheritdoc/>
+    public override void Initialize()
     {
-      IndexProvider result;
-      if (!providerCache.TryGetValue(index, out result)) lock (providerCache) if (!providerCache.TryGetValue(index, out result)) {
-        result = new IndexProvider(index);
-        providerCache.Add(index, result);
-      }
-      return result;
+      CompilationContext = BuildCompilationContext();
     }
-
-    public CompilationContext Compiler
-    {
-      get
-      {
-        if (compiler == null) lock(this) if (compiler == null)
-          compiler = GetCompilationContext();
-        return compiler;
-      }
-    }
-
-    protected abstract CompilationContext GetCompilationContext();
-
   }
 }

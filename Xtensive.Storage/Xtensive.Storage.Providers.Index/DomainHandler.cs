@@ -24,6 +24,13 @@ namespace Xtensive.Storage.Providers.Index
     private readonly Dictionary<IndexInfo, IUniqueOrderedIndex<Tuple, Tuple>> realIndexes = new Dictionary<IndexInfo, IUniqueOrderedIndex<Tuple, Tuple>>();
     private readonly Dictionary<IndexInfo, MapTransform> indexTransforms = new Dictionary<IndexInfo, MapTransform>();
 
+    /// <inheritdoc/>
+    protected override CompilationContext BuildCompilationContext()
+    {
+      return new CompilationContext(new Compilers.Compiler(Handlers));
+    }
+
+    /// <inheritdoc/>
     public override void Build()
     {
       BuildRealIndexes();
@@ -31,11 +38,6 @@ namespace Xtensive.Storage.Providers.Index
         MapTransform transform = BuildIndexTransform(indexInfo);
         indexTransforms.Add(indexInfo, transform);
       }
-    }
-
-    protected override CompilationContext GetCompilationContext()
-    {
-      return new CompilationContext(new Compilers.Compiler(Handlers));
     }
 
     private MapTransform BuildIndexTransform(IndexInfo indexInfo)

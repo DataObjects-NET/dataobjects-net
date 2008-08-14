@@ -32,6 +32,12 @@ namespace Xtensive.Storage.Providers.Sql
     private SqlConnection connection;
 
     /// <inheritdoc/>
+    protected override CompilationContext BuildCompilationContext()
+    {
+      return new CompilationContext(new Compilers.Compiler(Handlers));
+    }
+
+    /// <inheritdoc/>
     public override void Build()
     {
       var provider = new SqlConnectionProvider();
@@ -57,11 +63,6 @@ namespace Xtensive.Storage.Providers.Sql
     public Schema Schema
     {
       get { return schema; }
-    }
-
-    protected override CompilationContext GetCompilationContext()
-    {
-      return new CompilationContext(new Compilers.Compiler(Handlers));
     }
 
     protected SqlModel BuildModel(string serverName, string catalogName, string schemaName)

@@ -5,6 +5,7 @@
 // Created:    2008.07.03
 
 using System;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Model;
 
@@ -16,6 +17,8 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
   [Serializable]
   public sealed class IndexProvider : CompilableProvider
   {
+    private static ThreadSafeDictionary<IndexInfo, IndexProvider> cache = 
+      ThreadSafeDictionary<IndexInfo, IndexProvider>.Create(new object());
     private readonly RecordSetHeader indexHeader;
 
     /// <summary>
@@ -35,13 +38,22 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
       return Index.ToString();
     }
 
+    // Factory method
+
+    /// <summary>
+    /// Gets the <see cref="IndexProvider"/> for the specified <paramref name="index"/>.
+    /// </summary>
+    /// <param name="index">The index to get the provider for.</param>
+    /// <returns>Existing or newly created provider for the specified <paramref name="index"/>.</returns>
+    public static IndexProvider Get(IndexInfo index)
+    {
+      return cache.GetValue(index, _index => new IndexProvider(_index));
+    }
+
 
     // Constructor
 
-    /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    public IndexProvider(IndexInfo index)
+    private IndexProvider(IndexInfo index)
     {
       indexHeader = index.GetRecordSetHeader();
       Index = new IndexInfoRef(index);

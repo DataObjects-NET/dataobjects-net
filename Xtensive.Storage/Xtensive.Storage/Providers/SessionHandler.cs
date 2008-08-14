@@ -23,7 +23,7 @@ namespace Xtensive.Storage.Providers
 
     public RecordSet Select(IndexInfo index)
     {
-      return Handlers.DomainHandler.GetIndexProvider(index).Result;
+      return IndexProvider.Get(index).Result;
     }
 
     public virtual void Commit()
