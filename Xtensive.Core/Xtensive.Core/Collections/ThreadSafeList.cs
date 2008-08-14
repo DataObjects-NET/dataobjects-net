@@ -143,16 +143,18 @@ namespace Xtensive.Core.Collections
           throw new ArgumentOutOfRangeException("index");
         int length = implementation.Length;
         if (index<length) {
+          Thread.MemoryBarrier(); // Ensures item is fully written
           implementation[index] = item;
           return;
         }
         while (index>=length) checked {
           length *= 2;
         }
-        TItem[] newImplementation = new TItem[length];
-        implementation.Copy(newImplementation, 0);
-        newImplementation[index] = item;
-        implementation = newImplementation;
+        TItem[] tmp = new TItem[length];
+        implementation.Copy(tmp, 0);
+        tmp[index] = item;
+        Thread.MemoryBarrier(); // Ensures item and tmp are fully written
+        implementation = tmp;
       }
     }
 
@@ -162,7 +164,9 @@ namespace Xtensive.Core.Collections
     public void Clear()
     {
       lock (implementation) {
-        implementation = new TItem[InitialSize];
+        var tmp = new TItem[InitialSize];
+        Thread.MemoryBarrier(); // Ensures tmp is fully written
+        implementation = tmp;
       }
     }
 
@@ -179,7 +183,9 @@ namespace Xtensive.Core.Collections
       if (implementation!=null)
         throw Exceptions.AlreadyInitialized(null);
       this.syncRoot = syncRoot;
-      implementation = new TItem[InitialSize];
+      var tmp = new TItem[InitialSize];
+      Thread.MemoryBarrier(); // Ensures tmp is fully written
+      implementation = tmp;
     }
 
 

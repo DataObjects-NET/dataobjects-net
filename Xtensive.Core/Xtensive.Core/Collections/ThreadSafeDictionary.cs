@@ -137,9 +137,10 @@ namespace Xtensive.Core.Collections
     /// </summary>
     /// <param name="key">The key to set value for.</param>
     /// <param name="item">The value to set.</param>
-    public void  SetValue(TKey key, TItem item)
+    public void SetValue(TKey key, TItem item)
     {
       lock (syncRoot) {
+        Thread.MemoryBarrier(); // Ensures item is fully written
         implementation[key] = item;
       }
     }
@@ -151,6 +152,7 @@ namespace Xtensive.Core.Collections
     {
       lock (syncRoot) {
         implementation.Clear();
+        Thread.MemoryBarrier(); // Not sure, if this is necessary, but...
       }
     }
 
@@ -167,7 +169,9 @@ namespace Xtensive.Core.Collections
       if (implementation!=null)
         throw Exceptions.AlreadyInitialized(null);
       this.syncRoot = syncRoot;
-      implementation = new Hashtable();
+      var tmp = new Hashtable();
+      Thread.MemoryBarrier(); // Ensures tmp is fully written
+      implementation = tmp;
     }
 
 

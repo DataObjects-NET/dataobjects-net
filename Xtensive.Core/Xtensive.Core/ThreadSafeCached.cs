@@ -52,9 +52,9 @@ namespace Xtensive.Core
     public T GetValue(Func<T> generator)
     {
       if (!isCached) lock (syncRoot) if (!isCached) {
-        var value = generator.Invoke();
+        cachedValue = generator.Invoke();
+        Thread.MemoryBarrier(); // Ensures cachedValue is fully written
         isCached = true;
-        cachedValue = value;
       }
       return cachedValue;
     }
@@ -69,9 +69,9 @@ namespace Xtensive.Core
     public T GetValue<T1>(Func<T1, T> generator, T1 argument)
     {
       if (!isCached) lock (syncRoot) if (!isCached) {
-        var value = generator.Invoke(argument);
+        cachedValue = generator.Invoke(argument);
+        Thread.MemoryBarrier(); // Ensures cachedValue is fully written
         isCached = true;
-        cachedValue = value;
       }
       return cachedValue;
     }
@@ -88,9 +88,9 @@ namespace Xtensive.Core
     public T GetValue<T1, T2>(Func<T1, T2, T> generator, T1 argument1, T2 argument2)
     {
       if (!isCached) lock (syncRoot) if (!isCached) {
-        var value = generator.Invoke(argument1, argument2);
+        cachedValue = generator.Invoke(argument1, argument2);
+        Thread.MemoryBarrier(); // Ensures cachedValue is fully written
         isCached = true;
-        cachedValue = value;
       }
       return cachedValue;
     }
@@ -145,17 +145,6 @@ namespace Xtensive.Core
     public static bool operator !=(ThreadSafeCached<T> left, ThreadSafeCached<T> right)
     {
       return !left.Equals(right);
-    }
-
-    #endregion
-
-    #region Private \ internal methods
-
-    /// <exception cref="InvalidOperationException">No value is cached.</exception>
-    private void EnsureHasValue()
-    {
-      if (!isCached)
-        throw new InvalidOperationException(Strings.ExValueIsNotAvailable);
     }
 
     #endregion
