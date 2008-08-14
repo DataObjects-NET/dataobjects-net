@@ -15,8 +15,7 @@ namespace Xtensive.Storage.Rse.Compilation
     {
       return new Providers.Executable.RangeProvider(
         provider, 
-        Compiler.Compile(provider.Source, true), 
-        provider.Range);
+        Compiler.Compile(provider.Source, true));
     }
 
 

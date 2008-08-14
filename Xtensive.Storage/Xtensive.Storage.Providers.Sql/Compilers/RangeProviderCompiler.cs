@@ -90,16 +90,17 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
 
 //      var queryRef = SqlExpression.IsNull(source.Query.Where) ? source.Query.From : SqlFactory.QueryRef(source.Query);
       // NOTE: may be we should clone source query
-      SqlSelect query = source.Query;
+      SqlSelect query = source.Query.Clone() as SqlSelect;
 //      query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
 
-      var direction = provider.Range.GetDirection(AdvancedComparer<IEntire<Tuple>>.Default);
+      var range = provider.Range.Invoke();
+      var direction = range.GetDirection(AdvancedComparer<IEntire<Tuple>>.Default);
       var from = direction == Direction.Positive ? 
-        provider.Range.EndPoints.First : 
-        provider.Range.EndPoints.Second;
+        range.EndPoints.First : 
+        range.EndPoints.Second;
       var to = direction == Direction.Positive ?
-        provider.Range.EndPoints.Second :
-        provider.Range.EndPoints.First;
+        range.EndPoints.Second :
+        range.EndPoints.First;
 
       var keyColumns = provider.Header.Order.Select(pair => query.Columns[pair.Key]).ToList();
       var expressionData = new ExpressionData(null, from, keyColumns, true);
