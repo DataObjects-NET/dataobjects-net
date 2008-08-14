@@ -45,9 +45,8 @@ namespace Xtensive.Storage.Internals
       if (Log.IsLogged(LogEventTypes.Debug))
         Log.Debug("Session '{0}'. Fetching: Key = '{1}', Columns = '{2}'", Session.Current, key, columns.Select(c => c.Name).ToCommaDelimitedString());
       IndexProvider.Get(index).Result
-        .Range(key.Tuple, key.Tuple)
+        .Seek(key.Tuple)
         .Select(columns.Select(c => index.Columns.IndexOf(c)).ToArray())
-        .Take(1)
         .Process();
     }
   }

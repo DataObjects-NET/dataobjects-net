@@ -111,6 +111,11 @@ namespace Xtensive.Storage.Rse
       return new SelectProvider(recordSet.Provider, columnIndexes).Result;
     }
 
+    public static RecordSet Seek(this RecordSet recordSet, Tuple key)
+    {
+      return new SeekProvider(recordSet.Provider, key).Result;
+    }
+
     public static RecordSet Skip(this RecordSet recordSet, int count)
     {
       return new SkipProvider(recordSet.Provider, count).Result;
