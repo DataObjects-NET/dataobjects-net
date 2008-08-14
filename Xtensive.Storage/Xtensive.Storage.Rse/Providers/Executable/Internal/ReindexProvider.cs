@@ -30,7 +30,10 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     {
       if (typeof(T) == typeof(ICachingProvider))
         return base.GetService<T>();
-      return Enumerate(EnumerationScope.CurrentContext) as T;
+      var context = EnumerationScope.CurrentContext;
+      if (context == null)
+        return new Index<Tuple, Tuple>(indexConfiguration) as T;
+      return Enumerate(context) as T;
     }
 
     /// <inheritdoc/>
