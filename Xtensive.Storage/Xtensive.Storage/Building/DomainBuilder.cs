@@ -7,6 +7,7 @@
 using System;
 using System.Globalization;
 using System.Reflection;
+using log4net.Config;
 using Xtensive.Core;
 using Xtensive.PluginManager;
 using Xtensive.Storage.Building.Builders;
@@ -37,6 +38,8 @@ namespace Xtensive.Storage.Building
     public static Domain Build(DomainConfiguration configuration)
     {
       ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
+
+      XmlConfigurator.Configure();
 
       if (!configuration.IsLocked)
         configuration.Lock(true);
