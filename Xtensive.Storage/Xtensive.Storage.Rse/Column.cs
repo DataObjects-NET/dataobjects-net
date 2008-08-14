@@ -89,6 +89,12 @@ namespace Xtensive.Storage.Rse
 
     #endregion
 
+    /// <inheritdoc/>
+    public override string ToString()
+    {
+      return string.Format("{0} {1} ({2})", Type.Name, Name, Index);
+    }
+    
 
     // Constructors
 

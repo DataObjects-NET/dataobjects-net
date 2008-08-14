@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Text;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
@@ -42,7 +43,7 @@ namespace Xtensive.Storage.Rse
     /// </summary>
     public TupleDescriptor TupleDescriptor { get; private set; }
 
-      /// <summary>
+    /// <summary>
     /// Gets the indexes of columns <see cref="RecordSet"/> is ordered by.
     /// </summary>
     public DirectionCollection<int> Order { get; private set; }
@@ -154,10 +155,10 @@ namespace Xtensive.Storage.Rse
     /// <returns>The <see cref="RecordSetHeader"/> object.</returns>
     public static RecordSetHeader GetHeader(IndexInfo indexInfo)
     {      
-      return headers.GetValue(indexInfo, CreateHeder);
+      return headers.GetValue(indexInfo, CreateHeader);
     }
 
-    private static RecordSetHeader CreateHeder(IndexInfo indexInfo)
+    private static RecordSetHeader CreateHeader(IndexInfo indexInfo)
     {
       TupleDescriptor resultTupleDescriptor = 
         TupleDescriptor.Create(indexInfo.Columns.Select(columnInfo => columnInfo.ValueType));      
@@ -188,6 +189,12 @@ namespace Xtensive.Storage.Rse
 
       return 
         new RecordSetHeader(resultTupleDescriptor, resultColumns, resultGroups, keyDescriptor, sortOrder);
+    }
+
+
+    public override string ToString()
+    {
+      return Columns.Select(c => c.ToString()).ToCommaDelimitedString();      
     }
    
 
