@@ -73,6 +73,8 @@ namespace Xtensive.Core.Aspects
 
       // Applying the aspect to all the constructors
       foreach (var constructor in type.GetConstructors()) {
+        if (!constructor.IsPublic)
+          continue;
         var icea = ImplementConstructorEpilogueAspect.ApplyOnce(constructor, initializeMethodType, InitializeMethodName);
         if (icea!=null)
           collection.AddAspect(constructor, icea);

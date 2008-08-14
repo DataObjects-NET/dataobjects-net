@@ -25,13 +25,13 @@ namespace Xtensive.Core.Aspects.Tests
 
   public class InitializableBase: IInitializable
   {
-    public bool IsInitialized { get; private set; }
+    public int InitializeCount { get; private set; }
 
     protected void Initialize(Type ctorType)
     {
       if (ctorType!=GetType())
         return;
-      IsInitialized = true;
+      InitializeCount++;
       Log.Info("Initialized: type {0}", ctorType.GetShortName());
     }
   }
@@ -42,10 +42,15 @@ namespace Xtensive.Core.Aspects.Tests
     // Constructors
 
     public InitializableSample()
+      : this(0)
     {
     }
 
     public InitializableSample(object arg)
+    {
+    }
+
+    protected InitializableSample(int i)
     {
     }
   }
@@ -60,9 +65,11 @@ namespace Xtensive.Core.Aspects.Tests
       Assert.IsFalse(wi.IsInitialized);
 
       var i = new InitializableBase(); 
-      Assert.IsTrue(i.IsInitialized);
+      Assert.AreEqual(1, i.InitializeCount);
       i = new InitializableSample();
-      Assert.IsTrue(i.IsInitialized);
+      Assert.AreEqual(1, i.InitializeCount);
+      i = new InitializableSample(null);
+      Assert.AreEqual(1, i.InitializeCount);
     }
   }
 }
