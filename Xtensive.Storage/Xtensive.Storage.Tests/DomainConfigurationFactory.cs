@@ -14,10 +14,7 @@ namespace Xtensive.Storage.Tests
     public static DomainConfiguration Create(string protocol)
     {
       var config = Xtensive.Storage.Configuration.Configuration.Load("Xtensive.Storage");
-      foreach (DomainConfiguration domainConfiguration in config.Domains)
-        if (domainConfiguration.ConnectionInfo.Protocol==protocol)
-          return domainConfiguration;
-      throw new NotSupportedException("Invalid protocol");
+      return config.Domains[protocol];
     }
 
     public static DomainConfiguration Create(string protocol, InheritanceSchema schema)

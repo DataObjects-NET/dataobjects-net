@@ -5,6 +5,7 @@
 // Created:    2008.08.11
 
 using System;
+using System.Collections.Generic;
 using System.Configuration;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
@@ -18,12 +19,12 @@ namespace Xtensive.Storage.Configuration
   public class Configuration
   {
     private string sectionName;
-    private readonly CollectionBaseSlim<DomainConfiguration> domains = new CollectionBaseSlim<DomainConfiguration>();
+    private readonly SortedList<string, DomainConfiguration> domains = new SortedList<string, DomainConfiguration>();
 
     /// <summary>
     /// Gets domain configurations.
     /// </summary>
-    public CollectionBaseSlim<DomainConfiguration> Domains
+    public SortedList<string, DomainConfiguration> Domains
     {
       get { return domains; }
     }
@@ -53,8 +54,9 @@ namespace Xtensive.Storage.Configuration
       var section = (ConfigurationSectionHandler)ConfigurationManager.GetSection(sectionName);
       if (section==null) 
         throw new InvalidOperationException(String.Format("Section \"{0}\" not found in application configuration file.", sectionName));
-      foreach (DomainElement domain in section.Domains) {
-        result.Domains.Add(new DomainConfiguration(domain));
+      foreach (DomainElement domainElement in section.Domains) {
+        var domainConfiguration = new DomainConfiguration(domainElement);
+        result.Domains.Add(domainConfiguration.Name, domainConfiguration);
       }
       return result;
     }
