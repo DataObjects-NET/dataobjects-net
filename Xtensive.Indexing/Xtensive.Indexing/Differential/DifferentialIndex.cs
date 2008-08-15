@@ -275,9 +275,10 @@ namespace Xtensive.Indexing.Differential
     /// <inheritdoc/>
     public override SeekResult<TItem> Seek(TKey key)
     {
-      throw new System.NotImplementedException();
+      return Seek(new Ray<IEntire<TKey>>(Entire<TKey>.Create(key)));
     }
 
+    /// <inheritdoc/>
     public override IIndexReader<TKey, TItem> CreateReader(Range<IEntire<TKey>> range)
     {
       return new DifferentialIndexReader<TKey, TItem, TImpl>(this, range);
