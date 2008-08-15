@@ -87,6 +87,40 @@ namespace Xtensive.Indexing.Tests.Index
         Assert.IsFalse(index.Remove(i));
       }
       Assert.IsNotNull(index);
+      Assert.AreEqual(0, index.Count);
+
+      foreach (T instance in instances)
+        index.Add(instance);
+
+      int counter = 0;
+      foreach (var i in index) {
+        counter++;
+        Assert.IsTrue(index.Contains(i));
+        bool success = index.Remove(i);
+        Assert.IsTrue(success);
+        Assert.IsFalse(index.Contains(i));
+      }
+      Assert.AreEqual(0, index.Count);
+      Assert.AreEqual(instances.Count, counter);
+
+      foreach (T instance in instances)
+        index.Add(instance);
+
+      counter = 0;
+      var removalQueue = new HashSet<T>();
+      foreach (var i in index) {
+        counter++;
+        foreach (var toRemove in removalQueue) {
+          Assert.IsTrue(index.Contains(toRemove));
+          bool success = index.Remove(toRemove);
+          Assert.IsTrue(success);
+        }
+        removalQueue.Add(i);
+        Assert.IsTrue (index.Contains(i));
+      }
+      Assert.AreEqual(1, index.Count);
+      Assert.AreEqual(instances.Count, counter);
+
     }
 
     [Test]
