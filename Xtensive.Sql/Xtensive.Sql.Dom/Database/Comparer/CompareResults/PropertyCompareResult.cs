@@ -4,19 +4,17 @@
 // Created by: Aleksey Gamzov
 // Created:    2008.08.15
 
+using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
   /// <summary>
-  /// Result of properties compare.
+  /// Property compare result.
   /// </summary>
-  public class PropertyCompareResult : CompareResult
+  public class PropertyCompareResult : CompareResult<object>
   {
-    private readonly string propertyName;
-    private readonly object newValue;
-    private readonly object oldValue;
-    private readonly CompareResultType result;
+    private string propertyName;
 
     /// <summary>
     /// Gets property name.
@@ -24,34 +22,11 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     public string PropertyName
     {
       get { return propertyName; }
-    }
-
-    /// <summary>
-    /// Gets old property value.
-    /// </summary>
-    public object OldValue
-    {
-      get { return oldValue; }
-    }
-
-    /// <summary>
-    /// Gets new property value.
-    /// </summary>
-    public object NewValue
-    {
-      get { return newValue; }
-    }
-
-    /// <inheritdoc/>
-    public override bool HasChanges
-    {
-      get { return true; }
-    }
-
-    /// <inheritdoc/>
-    public override CompareResultType Result
-    {
-      get { return result; }
+      set
+      {
+        this.EnsureNotLocked(); 
+        propertyName = value;
+      }
     }
 
     /// <summary>
@@ -63,10 +38,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     /// <param name="propertyName">Property name.</param>
     public PropertyCompareResult(CompareResultType result, object oldValue, object newValue, string propertyName)
     {
-      this.result = result;
-      this.oldValue = oldValue;
       this.propertyName = propertyName;
-      this.newValue = newValue;
     }
   }
 }

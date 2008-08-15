@@ -4,15 +4,25 @@
 // Created by: Aleksey Gamzov
 // Created:    2008.08.14
 
+using System;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
+using Xtensive.Sql.Dom.Resources;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
+  /// <summary>
+  /// Base class for compare results.
+  /// </summary>
   public abstract class CompareResult : LockableBase
   {
     private readonly CollectionBaseSlim<PropertyCompareResult> properties = new CollectionBaseSlim<PropertyCompareResult>();
+    private bool hasChanges;
+    private CompareResultType result;
 
+    /// <summary>
+    /// Gets collection of property changes.
+    /// </summary>
     public CollectionBaseSlim<PropertyCompareResult> Properties
     {
       get { return properties; }
@@ -21,11 +31,36 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     /// <summary>
     /// Gets <see langword="true"/> if result contains changes, otherwise gets <see langword="false"/>.
     /// </summary>
-    public abstract bool HasChanges { get; }
+    public bool HasChanges
+    {
+      get { return hasChanges; }
+      internal set
+      {
+        this.EnsureNotLocked();
+        hasChanges = value;
+      }
+    }
 
     /// <summary>
     /// Gets result type.
     /// </summary>
-    public abstract CompareResultType Result { get; }
+    public CompareResultType Result
+    {
+      get { return result; }
+      internal set
+      {
+        this.EnsureNotLocked();
+        result = value;
+      }
+    }
+
+    /// <inheritdoc/>
+    public override void Lock(bool recursive)
+    {
+      base.Lock(recursive);
+      if (recursive) {
+        properties.Lock(true);
+      }
+    }
   }
 }

@@ -8,36 +8,37 @@ using Xtensive.Core.Collections;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
-  public class TableCompareResult : CompareResult
+  /// <summary>
+  /// Table compare result.
+  /// </summary>
+  public class TableCompareResult : CompareResult<Table>
   {
-    private CollectionBaseSlim<ColumnCompareResult> columns = new CollectionBaseSlim<ColumnCompareResult>();
-    private CollectionBaseSlim<IndexCompareResult> indexes = new CollectionBaseSlim<IndexCompareResult>();
-    private CollectionBaseSlim<ConstraintCompareResult> constraints = new CollectionBaseSlim<ConstraintCompareResult>();
+    private readonly CollectionBaseSlim<ColumnCompareResult> columns = new CollectionBaseSlim<ColumnCompareResult>();
+    private readonly CollectionBaseSlim<IndexCompareResult> indexes = new CollectionBaseSlim<IndexCompareResult>();
+    private readonly CollectionBaseSlim<ConstraintCompareResult> constraints = new CollectionBaseSlim<ConstraintCompareResult>();
 
+    /// <summary>
+    /// Gets column compare results.
+    /// </summary>
     public CollectionBaseSlim<ColumnCompareResult> Columns
     {
       get { return columns; }
     }
 
+    /// <summary>
+    /// Gets index compare results.
+    /// </summary>
     public CollectionBaseSlim<IndexCompareResult> Indexes
     {
       get { return indexes; }
     }
 
+    /// <summary>
+    /// Gets constraint compare results.
+    /// </summary>
     public CollectionBaseSlim<ConstraintCompareResult> Constraints
     {
       get { return constraints; }
-    }
-
-
-    public override bool HasChanges
-    {
-      get { throw new System.NotImplementedException(); }
-    }
-
-    public override CompareResultType Result
-    {
-      get { throw new System.NotImplementedException(); }
     }
 
     /// <inheritdoc/>
@@ -45,7 +46,9 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     {
       base.Lock(recursive);
       if (recursive) {
-        columns.Lock();
+        columns.Lock(true);
+        indexes.Lock(true);
+        constraints.Lock(true);
       }
     }
   }

@@ -8,14 +8,5 @@ namespace Xtensive.Sql.Dom.Database.Comparer
 {
   public class ViewCompareResult : CompareResult
   {
-    public override bool HasChanges
-    {
-      get { throw new System.NotImplementedException(); }
-    }
-
-    public override CompareResultType Result
-    {
-      get { throw new System.NotImplementedException(); }
-    }
   }
 }
