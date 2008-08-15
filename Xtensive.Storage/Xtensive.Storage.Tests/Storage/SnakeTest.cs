@@ -191,6 +191,9 @@ namespace Xtensive.Storage.Tests.Storage
       const int creaturesCount = 1000;
       const int lizardsCount = 1000;
 
+      TestFixtureTearDown();
+      TestFixtureSetUp();
+
       using (Domain.OpenSession()) {
         Session session = SessionScope.Current.Session;
         for (int i = 0; i < snakesCount; i++) {

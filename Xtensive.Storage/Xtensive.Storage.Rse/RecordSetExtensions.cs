@@ -126,6 +126,11 @@ namespace Xtensive.Storage.Rse
       return new TakeProvider(recordSet.Provider, count).Result;
     }
 
+    public static RecordSet ToRecordSet(this Tuple[] tuples, RecordSetHeader header)
+    {
+      return new RawProvider(header, tuples).Result;
+    }
+
     public static int IndexOf(this RecordSet recordSet, string columnName)
     {
       Column column = recordSet.Header.Columns[columnName];

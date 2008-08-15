@@ -5,12 +5,15 @@
 // Created:    2008.05.19
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Tuples;
+using Xtensive.Indexing;
 using Xtensive.Storage.Rse;
+using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Tests.Rse
@@ -127,6 +130,78 @@ namespace Xtensive.Storage.Tests.Rse
 
       foreach (Tuple record in result)
         Console.Out.WriteLine(record/*.GetValue<string>(result.IndexOf("Books.Title"))*/);
+    }
+
+
+    [Test]
+    public void RemovalTest()
+    {
+
+      const int authorCount = 1000;
+      Tuple authorTuple = Tuple.Create(new[] { typeof(int), typeof(string), typeof(string) });
+      var authorColumns = new[]
+        {
+          new Column("ID", 0, typeof (int)),
+          new Column("FirstName", 1, typeof (string)),
+          new Column("LastName", 2, typeof (string)),
+        };
+      var authorHeader = new RecordSetHeader(authorTuple.Descriptor, authorColumns, ArrayUtils<ColumnGroup>.EmptyArray, TupleDescriptor.Empty, new DirectionCollection<int>());
+
+      var authors = new Tuple[authorCount];
+      for (int i = 0; i < authorCount; i++) {
+        Tuple author = authorTuple.CreateNew();
+        author.SetValue(0, i);
+        author.SetValue(1, "FirstName" + i % 5);
+        author.SetValue(2, "LastName" + i / 5);
+        authors[i] = author;
+      }
+
+      RecordSet authorRS = authors
+        .ToRecordSet(authorHeader)
+        .OrderBy(new DirectionCollection<int>(0), true);
+
+      Assert.AreEqual(authorCount, authorRS.Count());
+      int counter = 0;
+
+      var removalQueue = new HashSet<Tuple>();
+      Index<Tuple, Tuple> actualIndex = null;
+      foreach (var author in authorRS) {
+        counter++;
+        if (actualIndex == null)
+          actualIndex = authorRS.Provider.GetService<Index<Tuple, Tuple>>();
+        foreach (var toRemove in removalQueue)
+          actualIndex.Remove(toRemove);
+        removalQueue.Add(author);
+//        actualIndex.Remove(author);
+      }
+
+      Assert.IsNotNull(actualIndex);
+      Assert.AreEqual(authorCount, counter);
+      Assert.AreEqual(0, actualIndex.Count);
+// NOTE: Cached!!!!
+//      Assert.AreEqual(0, authorRS.Count());
+
+//      using (Domain.OpenSession())
+//        for (int i = 0; i < 10; i++) {
+//          Snake s = new Snake();
+//          s.Name = "Kaa" + i;
+//          s.Length = i;
+//        }
+//
+//      using (Domain.OpenSession()) {
+//        var session = Session.Current;
+//        TypeInfo type = session.Domain.Model.Types[typeof (ICreature)];
+//        RecordSet rs = type.Indexes.PrimaryIndex.ToRecordSet();
+//        foreach (var entity in rs.AsEntities<Creature>()) {
+//          foreach (Entity re in removalQueue) {
+//            Remove(re);
+//          }
+//          removalQueue.Add(entity);
+//        }
+//      }
+//
+//      using (Domain.OpenSession())
+//        Assert.AreEqual(0, Session.Current.All<ICreature>().Count());
     }
   }
 }
