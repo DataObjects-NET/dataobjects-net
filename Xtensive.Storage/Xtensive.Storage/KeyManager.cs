@@ -12,16 +12,18 @@ using Xtensive.Core.Tuples;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
+using Xtensive.Core.Threading;
 
 namespace Xtensive.Storage
 {
   /// <summary>
   /// Produces and caches <see cref="Key"/> instances. 
-  /// Also acts like an identity map for <see cref="Key"/> instances.
+  /// Also acts like an identity map for <see cref="Key"/> instances within single <see cref="Domain"/>.
   /// </summary>
   public class KeyManager
   {
     private readonly Domain domain;
+    private readonly object @lock = new object();
     private readonly WeakSetSlim<Key> cache = new WeakSetSlim<Key>();
     internal Registry<HierarchyInfo, DefaultGenerator> Generators { get; private set; }
 
@@ -75,7 +77,7 @@ namespace Xtensive.Storage
 
     internal Key GetCachedKey(Key key)
     {
-      return Cache(key);
+      return LockType.Exclusive.Execute(@lock, () => Cache(key));
     }
 
     #endregion
