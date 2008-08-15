@@ -86,7 +86,6 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void MainTest()
     {
-      Domain.Model.Dump();
       Key persistedKey = null;
       using (Domain.OpenSession()) {
         Snake snake = new Snake();
@@ -229,7 +228,7 @@ namespace Xtensive.Storage.Tests.Storage
           RecordSet orderBy = where.OrderBy(OrderBy.Desc(rsSnakePrimary.IndexOf("Name")));
           RecordSet skip = orderBy.Skip(5);
           RecordSet take = skip.Take(50);
-          var snakesRse = take.AsEntities<Snake>();
+          var snakesRse = take.ToEntities<Snake>();
 
           /*// debug
           long rsSnakePrimaryCount = rsSnakePrimary.Provider.GetService<ICountable>(true).Count;
@@ -273,7 +272,7 @@ namespace Xtensive.Storage.Tests.Storage
         var session = Session.Current;
         TypeInfo type = session.Domain.Model.Types[typeof (ICreature)];
         RecordSet rsPrimary = type.Indexes.PrimaryIndex.ToRecordSet();
-        foreach (var entity in rsPrimary.AsEntities<ICreature>())
+        foreach (var entity in rsPrimary.ToEntities<ICreature>())
           entity.Remove();
       }
 
@@ -297,7 +296,7 @@ namespace Xtensive.Storage.Tests.Storage
         session.Persist();
         TypeInfo type = session.Domain.Model.Types[typeof (ICreature)];
         RecordSet rsPrimary = type.Indexes.PrimaryIndex.ToRecordSet();
-        foreach (var entity in rsPrimary.AsEntities<ICreature>())
+        foreach (var entity in rsPrimary.ToEntities<ICreature>())
           Assert.IsNotNull(entity.Name);
       }
     }
@@ -316,7 +315,7 @@ namespace Xtensive.Storage.Tests.Storage
         var session = Session.Current;
         TypeInfo type = session.Domain.Model.Types[typeof (ICreature)];
         RecordSet rs = type.Indexes.PrimaryIndex.ToRecordSet();
-        foreach (var entity in rs.AsEntities<ICreature>())
+        foreach (var entity in rs.ToEntities<ICreature>())
           entity.Remove();
       }
 
@@ -339,7 +338,7 @@ namespace Xtensive.Storage.Tests.Storage
         TypeInfo type = session.Domain.Model.Types[typeof (ICreature)];
         RecordSet rs = type.Indexes.PrimaryIndex.ToRecordSet();
         Entity previous = null;
-        foreach (var entity in rs.AsEntities<Creature>()) {
+        foreach (var entity in rs.ToEntities<Creature>()) {
           if (previous != null)
             Remove(previous);
           previous = entity;

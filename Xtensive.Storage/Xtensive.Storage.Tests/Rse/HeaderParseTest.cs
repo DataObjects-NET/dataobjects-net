@@ -42,7 +42,7 @@ namespace Xtensive.Storage.Tests.Rse
 
         // Select *
         RecordSet rsMain = ii.ToRecordSet();
-        foreach (Book book in rsMain.AsEntities<Book>()) {
+        foreach (Book book in rsMain.ToEntities<Book>()) {
           ;
         }
         data = Session.Current.DataCache[key];
@@ -53,7 +53,7 @@ namespace Xtensive.Storage.Tests.Rse
 
         // Select Id, TypeId, Title
         RecordSet rsTitle = rsMain.Select(0, 1, 2);
-        foreach (Book book in rsTitle.AsEntities<Book>()) {
+        foreach (Book book in rsTitle.ToEntities<Book>()) {
           ;
         }
         data = Session.Current.DataCache[key];
@@ -64,7 +64,7 @@ namespace Xtensive.Storage.Tests.Rse
 
         // Select Id, TypeId, Text
         RecordSet rsText = rsMain.Select(0, 1, 3);
-        foreach (Book book in rsText.AsEntities<Book>()) {
+        foreach (Book book in rsText.ToEntities<Book>()) {
           ;
         }
         data = Session.Current.DataCache[key];
@@ -75,7 +75,7 @@ namespace Xtensive.Storage.Tests.Rse
 
         // Select a.Id, a.TypeId, a.Title, b.Id, b.TypeId, b.Text
         RecordSet rsJoin = rsTitle.Alias("a").Join(rsText.Alias("b"), new Pair<int>(0, 0), new Pair<int>(1,1));
-        foreach (Book book in rsJoin.AsEntities<Book>()) {
+        foreach (Book book in rsJoin.ToEntities<Book>()) {
           ;
         }
         data = Session.Current.DataCache[key];

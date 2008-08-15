@@ -17,18 +17,24 @@ namespace Xtensive.Storage.Internals
       Session session = Session.Current;
       EntityData data = session.DataCache[key];
 
-      if (Log.IsLogged(LogEventTypes.Debug))
-        Log.Debug("Session '{0}'. Resolving: Key = '{1}'", session, key);
-
       // Key is already resolved
-      if (data != null)
+      if (data != null) {
+
+        if (Log.IsLogged(LogEventTypes.Debug))
+          Log.Debug("Session '{0}'. Resolving key '{1}'. Key is already resolved", session, key);
+
         return GetEntity(data);
+      }
 
       // Probing to get already resolved and cached key
       Key resolvedKey = session.Domain.KeyManager.GetCached(key);
 
-        // Key is not fully resolved yet (Type is unknown), so 1 fetch request is required
+      // Key is not fully resolved yet (Type is unknown), so 1 fetch request is required
       if (resolvedKey.Type==null) {
+
+      if (Log.IsLogged(LogEventTypes.Debug))
+        Log.Debug("Session '{0}'. Resolving key '{1}'. Exact type is unknown. Fetch is required", session, key);
+
         FieldInfo field = key.Hierarchy.Root.Fields[NameBuilder.TypeIdFieldName];
         Fetcher.Fetch(key, field);
 
@@ -39,6 +45,9 @@ namespace Xtensive.Storage.Internals
         if (resolvedKey.Type==null)
           return null;
       }
+      else
+        if (Log.IsLogged(LogEventTypes.Debug))
+          Log.Debug("Session '{0}'. Resolving key '{1}'. Exact type is known", session, key);
 
       // Type is known so we can create Entity instance.
       data = session.DataCache.Create(resolvedKey, PersistenceState.Persisted);

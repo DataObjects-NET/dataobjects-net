@@ -148,6 +148,8 @@ namespace Xtensive.Storage
     /// <exception cref="InvalidOperationException">Entity is removed.</exception>
     protected internal override sealed void OnGettingValue(FieldInfo field)
     {
+      if (Log.IsLogged(LogEventTypes.Debug))
+        Log.Debug("Session '{0}'. Getting value: Key = '{1}', Field = '{2}'", Session, Key, field);
       EnsureIsNotRemoved();
       EnsureIsFetched(field);
     }
@@ -156,6 +158,8 @@ namespace Xtensive.Storage
     /// <exception cref="InvalidOperationException">Entity is removed.</exception>
     protected internal override sealed void OnSettingValue(FieldInfo field)
     {
+      if (Log.IsLogged(LogEventTypes.Debug))
+        Log.Debug("Session '{0}'. Setting value: Key = '{1}', Field = '{2}'", Session, Key, field);
       EnsureIsNotRemoved();
     }
 
@@ -218,7 +222,7 @@ namespace Xtensive.Storage
       Key key = Session.Domain.KeyManager.Next(type);
 
       if (Log.IsLogged(LogEventTypes.Debug))
-        Log.Debug("Session '{0}'. Creating: Key = '{1}'", Session, key);
+        Log.Debug("Session '{0}'. Creating entity: Key = '{1}'", Session, key);
 
       data = Session.DataCache.Create(key, PersistenceState.New);
       OnCreating();
@@ -235,7 +239,7 @@ namespace Xtensive.Storage
       Key key = Session.Domain.KeyManager.Get(type, tuple);
 
       if (Log.IsLogged(LogEventTypes.Debug))
-        Log.Debug("Session '{0}'. Creating: Key = '{1}'", Session, key);
+        Log.Debug("Session '{0}'. Creating entity: Key = '{1}'", Session, key);
 
       data = Session.DataCache.Create(key, PersistenceState.New);
       OnCreating();
@@ -251,7 +255,7 @@ namespace Xtensive.Storage
       this.data = data;
 
       if (Log.IsLogged(LogEventTypes.Debug))
-        Log.Debug("Session '{0}'. Creating: Key = '{1}'", Session, Key);
+        Log.Debug("Session '{0}'. Creating entity: Key = '{1}'", Session, Key);
     }
   }
 }

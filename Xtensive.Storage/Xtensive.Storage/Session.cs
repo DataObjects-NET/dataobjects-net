@@ -90,7 +90,7 @@ namespace Xtensive.Storage
       Persist();
       TypeInfo type = Domain.Model.Types[typeof (T)];
       RecordSet result = type.Indexes.PrimaryIndex.ToRecordSet();
-      foreach (T entity in result.AsEntities<T>())
+      foreach (T entity in result.ToEntities<T>())
         yield return entity;
     }
 

@@ -88,6 +88,12 @@ namespace Xtensive.Storage.Model
 
     #endregion
 
+    /// <inheritdoc/>
+    public override string ToString()
+    {
+      return name;
+    }
+
     /// <summary>
     /// Initializes a new instance of the <see cref="Node"/> class.
     /// </summary>

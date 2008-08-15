@@ -102,7 +102,7 @@ namespace Xtensive.Storage
       configuration.Lock(true);
 
       if (Log.IsLogged(LogEventTypes.Debug))
-        Log.Debug("Opening session: '{0}'", configuration);
+        Log.Debug("Opening session '{0}'", configuration);
 
       var session = new Session(this, configuration);
       return new SessionScope(session);

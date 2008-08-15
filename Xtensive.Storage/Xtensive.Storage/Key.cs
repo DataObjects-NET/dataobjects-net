@@ -128,9 +128,7 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     public override string ToString()
     {
-      if (Type != null)
-        return string.Format("{0} ({1}), {2}", Hierarchy.Name, Type.Name, Tuple.ToRegular());
-      return string.Format("{0}, {1}", Hierarchy.Name, Tuple.ToRegular());
+      return string.Format("{0}, {1}", (Type != null) ? Type.Name : Hierarchy.Name, Tuple.ToRegular());
     }
 
 

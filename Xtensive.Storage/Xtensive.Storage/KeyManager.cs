@@ -7,6 +7,7 @@
 using System;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
@@ -87,6 +88,10 @@ namespace Xtensive.Storage
     {
       Key key = Create(type.Hierarchy, tuple);
       key.Type = type;
+
+      if (Log.IsLogged(LogEventTypes.Debug))
+        Log.Debug("Creating key '{0}'", key);
+
       return key;
     }
 
@@ -99,7 +104,7 @@ namespace Xtensive.Storage
 
     internal Key GetCached(Key key)
     {
-      return cache[key];
+      return Cache(key);
     }
 
     private void TryGetType(Key key, Tuple tuple)

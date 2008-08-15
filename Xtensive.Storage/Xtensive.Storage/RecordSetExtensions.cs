@@ -18,14 +18,14 @@ namespace Xtensive.Storage
 {
   public static class RecordSetExtensions
   {
-    public static IEnumerable<T> AsEntities<T>(this RecordSet source) 
+    public static IEnumerable<T> ToEntities<T>(this RecordSet source) 
       where T : class, IEntity
     {
-      foreach (var entity in AsEntities(source, typeof (T)))
+      foreach (var entity in ToEntities(source, typeof (T)))
         yield return entity as T;
     }
 
-    public static IEnumerable<Entity> AsEntities(this RecordSet source, Type type)
+    public static IEnumerable<Entity> ToEntities(this RecordSet source, Type type)
     {
       RecordSetHeaderParsingContext context = new RecordSetHeaderParsingContext(Session.Current, source.Header);
       RecordSetMapping mapping = GetRecordSetMapping(context);

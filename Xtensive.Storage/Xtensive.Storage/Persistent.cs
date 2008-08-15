@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Internals;

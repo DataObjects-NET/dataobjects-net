@@ -43,6 +43,12 @@ namespace Xtensive.Storage
     /// </summary>
     public Entity Entity { get; internal set; }
 
+    /// <inheritdoc/>
+    public override string ToString()
+    {
+      return string.Format("Key = '{0}', Tuple = {1}, State = {2}", Key, Tuple.ToRegular(), PersistenceState);
+    }
+
 
     // Constructors
 

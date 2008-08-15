@@ -30,9 +30,9 @@ namespace Xtensive.Storage.Internals
       if (data == null)
         Create(key, tuple, PersistenceState.Persisted);
       else {
-        if (Log.IsLogged(LogEventTypes.Debug))
-          Log.Debug("Session '{0}'. Merging: Key = '{1}', Tuple = {2}", Session.Current, key, tuple.ToRegular());
         data.Tuple.Origin.MergeWith(tuple);
+        if (Log.IsLogged(LogEventTypes.Debug))
+          Log.Debug("Session '{0}'. Merging: {1}", Session.Current, data);
       }
     }
 
@@ -48,13 +48,14 @@ namespace Xtensive.Storage.Internals
 
     private EntityData Create(Key key, Tuple tuple, PersistenceState state)
     {
-      if (Log.IsLogged(LogEventTypes.Debug))
-        Log.Debug("Session '{0}'. Caching: Key = '{1}', Tuple = {2}, State = {3}", Session.Current, key, tuple.ToRegular(), state);
-
       Tuple origin = Tuple.Create(key.Type.TupleDescriptor);
       tuple.CopyTo(origin);
       EntityData result = new EntityData(key, new DifferentialTuple(origin), state);
       cache.Add(result);
+
+      if (Log.IsLogged(LogEventTypes.Debug))
+        Log.Debug("Session '{0}'. Caching: {1}", Session.Current, result);
+
       return result;
     }
 
