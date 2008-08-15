@@ -22,7 +22,6 @@ namespace Xtensive.Indexing.Differential
     private bool isFirstMove = true;
 
 
-
     /// <summary>
     /// Gets the index.
     /// </summary>
@@ -40,7 +39,7 @@ namespace Xtensive.Indexing.Differential
       [DebuggerStepThrough]
       get { return reader; }
     }
-    
+
     /// <inheritdoc/>
     public Range<IEntire<TKey>> Range
     {
@@ -84,21 +83,39 @@ namespace Xtensive.Indexing.Differential
     /// <inheritdoc/>
     public bool MoveNext()
     {
-      if (reader.MoveNext() && MoveIsPossible())
+      //---Check if Index is Empty.-----
+      if (isFirstMove) {
+        if (index.Origin.Count==0) {
+          originFlag = false;
+          reader = insertionsReader;
+          flag = 2;
+        }
+        if (index.Insertions.Count==0) {
+          insertionFlag = false;
+          reader = originReader;
+          flag = 1;
+        }
+        if (!originFlag && !insertionFlag)
+          return false;
+        if (index.Removals.Count==0)
+          removalFlag = false;
+      }
+
+      //---Try to move next.-----
+      bool moveNextResult = reader.MoveNext();
+      if (moveNextResult && MoveIsPossible())
         return true;
 
-      bool result;
-
-      if (flag==1) {
+      if ((flag==1) && (insertionFlag)) {
         reader = insertionsReader;
-        result = MoveIsPossible();
+        moveNextResult = MoveIsPossible();
       }
-      else {
+      if ((flag==2) && (originFlag)) {
         reader = originReader;
         insertionFlag = false;
-        result = MoveIsPossible();
+        moveNextResult = MoveIsPossible();
       }
-      return result;
+      return moveNextResult;
     }
 
     /// <inheritdoc/>
@@ -114,15 +131,18 @@ namespace Xtensive.Indexing.Differential
         insertionsReader.MoveTo(key);
         reader = insertionsReader;
         flag = 2;
-        originReader.MoveTo(Entire<TKey>.Create(index.Origin.GetFullRange().GetLowerEndpoint(Direction).Value));
+        if (index.Origin.Count != 0)
+          originReader.MoveTo(Entire<TKey>.Create(index.Origin.GetFullRange().EndPoints.First.Value));
       }
       if ((index.Origin.ContainsKey(key.Value)) && (!index.Removals.ContainsKey(key.Value))) {
-          originReader.MoveTo(key);
-          reader = originReader;
-          flag = 1;
-          insertionsReader.MoveTo(Entire<TKey>.Create(index.Insertions.GetFullRange().GetLowerEndpoint(Direction).Value));
+        originReader.MoveTo(key);
+        reader = originReader;
+        flag = 1;
+        if (index.Insertions.Count != 0)
+          insertionsReader.MoveTo(Entire<TKey>.Create(index.Insertions.GetFullRange().EndPoints.First.Value));
       }
-      removalsReader.MoveTo(Entire<TKey>.Create(index.Removals.GetFullRange().GetLowerEndpoint(Direction).Value));
+      if (index.Removals.Count != 0)
+        removalsReader.MoveTo(Entire<TKey>.Create(index.Removals.GetFullRange().EndPoints.First.Value));
       isFirstMove = true;
     }
 
@@ -132,57 +152,49 @@ namespace Xtensive.Indexing.Differential
     {
       AdvancedComparer<TKey> comparer = AdvancedComparer<TKey>.Default;
       int result = comparer.Compare(key2, key1);
-      if (Direction == Direction.Positive)
+      if (Direction==Direction.Positive)
         return result;
       return -result;
     }
 
     private bool MoveIsPossible()
     {
-      if (isFirstMove)
-      {
-        if (flag == 1)
-          insertionsReader.MoveNext();
-        if (flag == 2)
-          originReader.MoveNext();
-        removalsReader.MoveNext();
+      if (isFirstMove) {
+        if ((flag == 1) && insertionFlag && !insertionsReader.MoveNext())
+          insertionFlag = false;
+        if ((flag == 2) && originFlag && !originReader.MoveNext())
+          originFlag = false;
+        if (removalFlag && !removalsReader.MoveNext())
+          removalFlag = false;
         isFirstMove = false;
       }
-      while (originFlag && removalFlag && (IsGreater(index.KeyExtractor(originReader.Current), index.KeyExtractor(removalsReader.Current)) == 0))
-      {
-        if (originReader.MoveNext())
-        {
+      while (originFlag && removalFlag && (IsGreater(index.KeyExtractor(originReader.Current), index.KeyExtractor(removalsReader.Current))==0)) {
+        if (originReader.MoveNext()) {
           reader = originReader;
           flag = 1;
         }
-        else
-        {
+        else {
           originFlag = false;
-          if (insertionFlag)
-          {
+          if (insertionFlag) {
             reader = insertionsReader;
             flag = 2;
             break;
           }
         }
-        if (!removalsReader.MoveNext())
-        {
+        if (!removalsReader.MoveNext()) {
           removalFlag = false;
           break;
         }
       }
       if ((originFlag && insertionFlag && (IsGreater(index.KeyExtractor(originReader.Current), index.KeyExtractor(insertionsReader.Current)) > 0)) ||
-         (originFlag && !insertionFlag))
-      {
+        (originFlag && !insertionFlag)) {
         flag = 1;
         reader = originReader;
         return true;
-
       }
 
       if ((originFlag && insertionFlag && (IsGreater(index.KeyExtractor(originReader.Current), index.KeyExtractor(insertionsReader.Current)) < 0)) ||
-        (insertionFlag && !originFlag))
-      {
+        (insertionFlag && !originFlag)) {
         flag = 2;
         reader = insertionsReader;
         return true;
@@ -191,8 +203,6 @@ namespace Xtensive.Indexing.Differential
     }
 
     #endregion
-
-
 
     //Constructors
 
@@ -217,7 +227,7 @@ namespace Xtensive.Indexing.Differential
       originReader.Dispose();
       insertionsReader.Dispose();
       removalsReader.Dispose();
+      reader.Dispose();
     }
-
   }
 }

@@ -10,6 +10,7 @@ using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Helpers;
 using Xtensive.Indexing.Measures;
+using Xtensive.Indexing.Resources;
 
 namespace Xtensive.Indexing.Differential
 {
@@ -27,7 +28,6 @@ namespace Xtensive.Indexing.Differential
     private IUniqueOrderedIndex<TKey, TItem> removals;
     private Converter<TKey, IEntire<TKey>> entireConverter;
     private IMeasureResultSet<TItem> measureResults;
-
 
     #region Properties: Origin, Insertions, Removals, MeasureResults, EntireConverter
 
@@ -74,7 +74,6 @@ namespace Xtensive.Indexing.Differential
       get { return entireConverter; }
     }
 
-
     #endregion
 
     #region GetItem, Contains, ContainsKey methods
@@ -87,7 +86,6 @@ namespace Xtensive.Indexing.Differential
       if (removals.ContainsKey(key))
         throw new KeyNotFoundException();
       return origin.GetItem(key);
-
     }
 
     /// <inheritdoc/>
@@ -110,7 +108,6 @@ namespace Xtensive.Indexing.Differential
       return false;
     }
 
-
     #endregion
 
     #region Modification methods: Add, Remove, etc.
@@ -122,7 +119,6 @@ namespace Xtensive.Indexing.Differential
         insertions.Add(item);
         measureResults.Add(item);
       }
-
     }
 
     /// <inheritdoc/>
@@ -146,15 +142,13 @@ namespace Xtensive.Indexing.Differential
     /// <inheritdoc/>
     public override bool RemoveKey(TKey key)
     {
-      if (origin.ContainsKey(key) && !removals.ContainsKey(key))
-      {
+      if (origin.ContainsKey(key) && !removals.ContainsKey(key)) {
         removals.Add(GetItem(key));
         measureResults.Subtract(GetItem(key));
         return true;
       }
-      if (insertions.ContainsKey(key))
-      {
-        insertions.Remove(GetItem(key));
+      if (insertions.ContainsKey(key)) {
+        insertions.RemoveKey(key);
         if (!removals.ContainsKey(key))
           removals.Add(GetItem(key));
         measureResults.Subtract(GetItem(key));
@@ -166,14 +160,14 @@ namespace Xtensive.Indexing.Differential
     /// <inheritdoc/>
     public override void Replace(TItem item)
     {
-      if (origin.Contains(item) && !removals.Contains(item))
-        removals.Add(item);
       if (insertions.Contains(item))
-      {
         insertions.Replace(item);
-        if (!removals.Contains(item))
-          removals.Add(item);
+      else if (!removals.Contains(item) && origin.Contains(item)) {
+        removals.RemoveKey(KeyExtractor(item));
+        insertions.Add(item);
       }
+      else
+        throw new ArgumentOutOfRangeException("item");
     }
 
     /// <inheritdoc/>
@@ -183,7 +177,7 @@ namespace Xtensive.Indexing.Differential
         if (!removals.Contains(item))
           removals.Add(item);
 
-      foreach (TItem item in insertions) 
+      foreach (TItem item in insertions)
         if (!removals.Contains(item))
           removals.Add(item);
       insertions.Clear();
@@ -206,38 +200,79 @@ namespace Xtensive.Indexing.Differential
       return MeasureUtils<TItem>.GetMeasurements(measureResults, names);
     }
 
-    #endregion
+    /// <inheritdoc/>
+    public override object GetMeasureResult(Range<IEntire<TKey>> range, string name)
+    {
+      IMeasure<TItem> measure = Measures[name];
+      if (measure==null)
+        throw new InvalidOperationException(String.Format(Strings.ExMeasureIsNotDefined, name));
+      if (range.IsEmpty)
+        return measure.CreateNew().Result;
 
+      if (range.Equals(this.GetFullRange()))
+        return measureResults[name].Result;
+
+      IMeasure<TItem> result = MeasureUtils<TItem>.BatchCalculate(measure, GetItems(range));
+      return result.Result;
+    }
 
     /// <inheritdoc/>
-    protected override void OnConfigured()
+    public override object[] GetMeasureResults(Range<IEntire<TKey>> range, params string[] names)
     {
-      base.OnConfigured();
-      var configuration = (DifferentialIndexConfiguration<TKey, TItem>)Configuration;
-      origin = configuration.Origin;
-      insertions = IndexFactory.CreateUniqueOrdered<TKey, TItem, TImpl>(((UniqueOrderedIndexBase<TKey, TItem>)origin).Configuration);
-      removals = IndexFactory.CreateUniqueOrdered<TKey, TItem, TImpl>(((UniqueOrderedIndexBase<TKey, TItem>)origin).Configuration);
-      entireConverter = (key => Entire<TKey>.Create(key));
-      measureResults = new MeasureResultSet<TItem>(Measures);
-      foreach (TItem item in origin)
-        measureResults.Add(item);
+      IMeasure<TItem> measure;
+      foreach (string name in names) {
+        measure = Measures[name];
+        if (measure==null)
+          throw new InvalidOperationException(String.Format(Strings.ExMeasureIsNotDefined, name));
+      }
 
+      if (range.IsEmpty) {
+        object[] empty = new object[names.Length];
+        int i = 0;
+        foreach (string name in names) {
+          measure = Measures[name];
+          empty[i++] = measure.CreateNew().Result;
+        }
+        return empty;
+      }
+
+      if (range.Equals(this.GetFullRange()))
+        return MeasureUtils<TItem>.GetMeasurements(measureResults, names);
+
+      IMeasureSet<TItem> measureSet = MeasureUtils<TItem>.GetMeasures(Measures, names);
+      IMeasureResultSet<TItem> result = MeasureUtils<TItem>.BatchCalculate(measureSet, GetItems(range));
+      return MeasureUtils<TItem>.GetMeasurements(result, names);
     }
 
-    //Constructors
+    #endregion
 
-    public DifferentialIndex()
-  {
-  }
+    #region Seek, CreateReader methods.
 
-
-    #region Not implemented methods
-
+    /// <inheritdoc/>
     public override SeekResult<TItem> Seek(Ray<IEntire<TKey>> ray)
     {
-      throw new System.NotImplementedException();
+      SeekResult<TItem> originResult = origin.Seek(ray);
+      SeekResult<TItem> insertionsResult = insertions.Seek(ray);
+      SeekResult<TItem> removalsResult = removals.Seek(ray);
+
+      if ((originResult.ResultType==SeekResultType.Exact) && (removalsResult.ResultType!=SeekResultType.Exact))
+        return originResult;
+
+      if ((insertionsResult.ResultType==SeekResultType.Exact) || (originResult.ResultType==SeekResultType.None))
+        return insertionsResult;
+
+      if ((insertionsResult.ResultType==SeekResultType.None) && (!removals.Contains(originResult.Result)))
+        return originResult;
+
+      if (((insertionsResult.ResultType==SeekResultType.None) && (!removals.Contains(originResult.Result))) || ((((KeyComparer.Compare(KeyExtractor(originResult.Result), KeyExtractor(insertionsResult.Result)) < 0) &&
+        (ray.Direction==Direction.Positive)) || ((KeyComparer.Compare(KeyExtractor(originResult.Result), KeyExtractor(insertionsResult.Result)) > 0) &&
+          (ray.Direction==Direction.Negative))) && (!removals.Contains(originResult.Result))))
+        return originResult;
+
+      return insertionsResult;
     }
 
+    /// <inheritdoc/>
     public override SeekResult<TItem> Seek(TKey key)
     {
       throw new System.NotImplementedException();
@@ -248,16 +283,27 @@ namespace Xtensive.Indexing.Differential
       return new DifferentialIndexReader<TKey, TItem, TImpl>(this, range);
     }
 
-    public override object GetMeasureResult(Range<IEntire<TKey>> range, string name)
-    {
-      throw new System.NotImplementedException();
-    }
-
-    public override object[] GetMeasureResults(Range<IEntire<TKey>> range, params string[] names)
-    {
-      throw new System.NotImplementedException();
-    }
-
     #endregion
+
+    /// <inheritdoc/>
+    protected override void OnConfigured()
+    {
+      base.OnConfigured();
+      var configuration = (DifferentialIndexConfiguration<TKey, TItem>) Configuration;
+      origin = configuration.Origin;
+      insertions = IndexFactory.CreateUniqueOrdered<TKey, TItem, TImpl>(((UniqueOrderedIndexBase<TKey, TItem>) origin).Configuration);
+      removals = IndexFactory.CreateUniqueOrdered<TKey, TItem, TImpl>(((UniqueOrderedIndexBase<TKey, TItem>) origin).Configuration);
+      entireConverter = (key => Entire<TKey>.Create(key));
+      measureResults = new MeasureResultSet<TItem>(Measures);
+      foreach (TItem item in origin)
+        measureResults.Add(item);
+    }
+
+
+    //Constructors
+
+    public DifferentialIndex()
+    {
+    }
   }
 }

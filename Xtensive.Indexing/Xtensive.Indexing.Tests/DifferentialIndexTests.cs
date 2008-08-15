@@ -34,8 +34,8 @@ namespace Xtensive.Indexing.Tests
       //for (int i=1; i<=5; i++)
       //  origin.Add(i);
 
-      for (int i = 1; i <= 15; i = i + 3)
-        origin.Add(i);
+      //for (int i = 1; i <= 15; i = i + 3)
+      //  origin.Add(i);
 
 
       DifferentialIndexConfiguration<int, int> indexConfig = new DifferentialIndexConfiguration<int, int>(origin);
@@ -46,21 +46,21 @@ namespace Xtensive.Indexing.Tests
       //#region  Add, Remove, Clear
 
       //index.Clear();
-      //for (int i = 1; i <= 15; i=i+3)
+      //for (int i = 1; i <= 15; i = i + 3)
       //  index.Add(i);
-      index.Add(2);
-      index.Add(3);
-      index.Add(5);
-      //for (int i = 1; i <= 6; i++)
-        index.Remove(4);
-        index.Remove(6);
-        index.Add(6);
+      //index.Add(2);
+      //index.Add(3);
+      //index.Add(5);
+      ////for (int i = 1; i <= 6; i++)
+      //  index.Remove(4);
+      //  index.Remove(6);
+      //  index.Add(6);
 
-      int current;
-      DifferentialIndexReader<int, int, SortedListIndex<int, int>> reader = new DifferentialIndexReader<int, int, SortedListIndex<int, int>>(index,Range<IEntire<int>>.Full);
-      reader.MoveTo(Entire<int>.Create(1));
-      while (reader.MoveNext())
-        current = reader.Current;
+      //int current;
+      //DifferentialIndexReader<int, int, SortedListIndex<int, int>> reader = new DifferentialIndexReader<int, int, SortedListIndex<int, int>>(index, Range<IEntire<int>>.Full);
+      //reader.MoveTo(Entire<int>.Create(1));
+      //while (reader.MoveNext())
+      //  current = reader.Current;
       //reader.MoveTo(Entire<int>.Create(2));
       //reader.MoveNext();
       //current = reader.Current;

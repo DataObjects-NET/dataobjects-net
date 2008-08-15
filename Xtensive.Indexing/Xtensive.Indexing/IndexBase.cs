@@ -52,6 +52,7 @@ namespace Xtensive.Indexing
     /// <inheritdoc/>
     public Converter<TItem, TKey> KeyExtractor
     {
+      [DebuggerStepThrough]
       get { return keyExtractor; }
     }
 
