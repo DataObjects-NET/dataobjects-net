@@ -163,15 +163,15 @@ namespace Xtensive.Storage.Tests.Rse
       Assert.AreEqual(authorCount, authorRS.Count());
       int counter = 0;
 
-      var removalQueue = new HashSet<Tuple>();
+      Tuple previous = null;
       Index<Tuple, Tuple> actualIndex = null;
       foreach (var author in authorRS) {
         counter++;
         if (actualIndex == null)
           actualIndex = authorRS.Provider.GetService<Index<Tuple, Tuple>>();
-          foreach (var toRemove in removalQueue)
-            actualIndex.Remove(toRemove);
-          removalQueue.Add(author);
+        if (previous !=null)
+          actualIndex.Remove(previous);
+        previous = author;
       }
 
       Assert.IsNotNull(actualIndex);
