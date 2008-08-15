@@ -27,7 +27,7 @@ namespace Xtensive.Storage.Internals
       }
 
       // Probing to get already resolved and cached key
-      Key resolvedKey = session.Domain.KeyManager.GetCached(key);
+      Key resolvedKey = session.Domain.KeyManager.GetCachedKey(key);
 
       // Key is not fully resolved yet (Type is unknown), so 1 fetch request is required
       if (resolvedKey.Type==null) {
@@ -39,7 +39,7 @@ namespace Xtensive.Storage.Internals
         Fetcher.Fetch(key, field);
 
         // Resolving key again. If it was successfully fetched then it should contain Type
-        resolvedKey = session.Domain.KeyManager.GetCached(key);
+        resolvedKey = session.Domain.KeyManager.GetCachedKey(key);
 
         // Key is not found in storage
         if (resolvedKey.Type==null)

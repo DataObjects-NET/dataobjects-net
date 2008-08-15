@@ -11,30 +11,21 @@ using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
-using Xtensive.Storage.Providers;
 using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage
 {
+  /// <summary>
+  /// Produces and caches <see cref="Key"/> instances. 
+  /// Also acts like an identity map for <see cref="Key"/> instances.
+  /// </summary>
   public class KeyManager
   {
     private readonly Domain domain;
     private readonly WeakSetSlim<Key> cache = new WeakSetSlim<Key>();
     internal Registry<HierarchyInfo, DefaultGenerator> Generators { get; private set; }
 
-    #region Next methods
-
-    internal Key Next(TypeInfo type)
-    {
-      DefaultGenerator provider = Generators[type.Hierarchy];
-      Key key = Create(type, provider.Next());
-      cache.Add(key);
-      return key;
-    }
-
-    #endregion
-
-    #region Get methods
+    #region Public methods
 
     /// <summary>
     /// Builds the <see cref="Key"/> according to specified <paramref name="tuple"/>.
@@ -52,21 +43,23 @@ namespace Xtensive.Storage
         throw new InvalidOperationException(string.Format("Cannot create Key from tuple: '{0}'", tuple.ToRegular()));
 
       TypeInfo typeInfo = domain.Model.Types[type];
-      Key key = Create(typeInfo.Hierarchy, tuple);
-      return Cache(key);
+      Key key = CreateKeyCandidate(typeInfo.Hierarchy, tuple);
+      return GetCachedKey(key);
+    }
+
+    #endregion
+
+    #region Internal methods
+
+    internal Key Next(TypeInfo type)
+    {
+      DefaultGenerator provider = Generators[type.Hierarchy];
+      return GetCachedKey(CreateKey(type, provider.Next()));
     }
 
     internal Key Get(TypeInfo type, Tuple tuple)
     {
-      Key key = Create(type, tuple);
-      return Cache(key);
-    }
-
-    internal Key Get(HierarchyInfo hierarchy, Tuple tuple)
-    {
-      Key key = Create(hierarchy, tuple);
-      TryGetType(key, tuple);
-      return Cache(key);
+      return GetCachedKey(CreateKey(type, tuple));
     }
 
     internal Key Get(FieldInfo field, Tuple tuple)
@@ -76,17 +69,22 @@ namespace Xtensive.Storage
         return null;
 
       TypeInfo type = domain.Model.Types[field.ValueType];
-      Key key = Create(type, tuple);
+      Key result = CreateKeyCandidate(type.Hierarchy, tuple);
+      return GetCachedKey(result);
+    }
+
+    internal Key GetCachedKey(Key key)
+    {
       return Cache(key);
     }
 
     #endregion
 
-    #region Other private \ internal methods
+    #region Private methods
 
-    private static Key Create(TypeInfo type, Tuple tuple)
+    private Key CreateKey(TypeInfo type, Tuple tuple)
     {
-      Key key = Create(type.Hierarchy, tuple);
+      Key key = CreateKeyCandidate(type.Hierarchy, tuple);
       key.Type = type;
 
       if (Log.IsLogged(LogEventTypes.Debug))
@@ -95,26 +93,11 @@ namespace Xtensive.Storage
       return key;
     }
 
-    private static Key Create(HierarchyInfo hierarchy, Tuple tuple)
+    private static Key CreateKeyCandidate(HierarchyInfo hierarchy, Tuple tuple)
     {
       Tuple keyTuple = Tuple.Create(hierarchy.TupleDescriptor);
       tuple.CopyTo(keyTuple, 0, keyTuple.Count);
       return new Key(hierarchy, keyTuple);
-    }
-
-    internal Key GetCached(Key key)
-    {
-      return Cache(key);
-    }
-
-    private void TryGetType(Key key, Tuple tuple)
-    {
-      int columnIndex = key.Hierarchy.Root.Fields[NameBuilder.TypeIdFieldName].MappingInfo.Offset;
-
-      if (columnIndex > tuple.Count -1)
-        return;
-
-      key.Type = domain.Model.Types[tuple.GetValue<int>(columnIndex)];
     }
 
     private Key Cache(Key candidate)
