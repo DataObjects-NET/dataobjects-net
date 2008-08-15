@@ -100,6 +100,25 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
       return seek;
     }
 
+    SeekResult<Tuple> IOrderedEnumerable<Tuple, Tuple>.Seek(Tuple key)
+    {
+      SeekResult<Tuple> seek = rootEnumerable.Seek(key);
+      if (seek.ResultType != SeekResultType.None) {
+        var resultTuples = new Tuple[1+inheritors.Length];
+        resultTuples[0] = seek.Result;
+        for (int i = 0; i < inheritors.Length; i++) {
+          SeekResult<Tuple> seekRight = inheritors[i].GetService<IOrderedEnumerable<Tuple,Tuple>>().Seek(key);
+          if (seekRight.ResultType == SeekResultType.Exact)
+            resultTuples[1+i] = seekRight.Result;
+        }
+        return new SeekResult<Tuple>(
+          seek.ResultType,
+          mapTransform.Apply(TupleTransformType.Auto, resultTuples));
+
+      }
+      return seek;
+    }
+
     IEnumerable<Tuple> IOrderedEnumerable<Tuple, Tuple>.GetItems(Range<IEntire<Tuple>> range)
     {
       return InheritanceJoiner.Join(

@@ -115,6 +115,37 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
     }
 
     /// <inheritdoc/>
+    public SeekResult<Tuple> Seek(Tuple key)
+    {
+      var comparer = KeyComparer;
+      var seekResults = new List<SeekResult<Tuple>>();
+      for (int i = 0; i < sourceProviders.Length; i++) {
+        SeekResult<Tuple> seek = sourceProviders[i].GetService<IOrderedEnumerable<Tuple,Tuple>>().Seek(key);
+        if (seek.ResultType == SeekResultType.Exact)
+          return seek;
+        if (seek.ResultType==SeekResultType.Nearest)
+          seekResults.Add(seek);
+      }
+      if (seekResults.Count == 0)
+        return new SeekResult<Tuple>(SeekResultType.None, null);
+      Tuple lowestKey = null;
+      int lowestIndex = 0;
+      for (int i = 0; i < seekResults.Count; i++) {
+        Tuple keyNext = keyExtractor(seekResults[i].Result);
+        if (lowestKey == null) {
+          lowestKey = keyNext;
+          lowestIndex = i;
+        }
+        int result = comparer.Compare(keyNext, lowestKey);
+        if (result < 0) {
+          lowestKey = keyNext;
+          lowestIndex = i;
+        }
+      }
+      return seekResults[lowestIndex];
+    }
+
+    /// <inheritdoc/>
     public IEnumerable<Tuple> GetKeys(Range<IEntire<Tuple>> range)
     {
       foreach (Tuple item in GetItems(range))

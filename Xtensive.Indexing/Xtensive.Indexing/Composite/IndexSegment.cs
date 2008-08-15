@@ -100,6 +100,12 @@ namespace Xtensive.Indexing.Composite
     #region Seek, CreateReader methods
 
     /// <inheritdoc/>
+    public override SeekResult<TItem> Seek(TKey key)
+    {
+      return Seek(new Ray<IEntire<TKey>>(Entire<TKey>.Create(key)));
+    }
+
+    /// <inheritdoc/>
     public override SeekResult<TItem> Seek(Ray<IEntire<TKey>> ray)
     {
       Ray<IEntire<TKey>> compositeRay = GetCompositeIndexRay(ray);

@@ -92,6 +92,16 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
     }
 
     /// <inheritdoc/>
+    public SeekResult<Tuple> Seek(Tuple key)
+    {
+      SeekResult<Tuple> seek = source.Seek(key);
+      if (seek.ResultType == SeekResultType.Exact)
+        if (!predicate(seek.Result))
+          return new SeekResult<Tuple>(SeekResultType.Nearest, seek.Result);
+      return seek;
+    }
+
+    /// <inheritdoc/>
     public IIndexReader<Tuple, Tuple> CreateReader(Range<IEntire<Tuple>> range)
     {
       return new FilteringReader(this, range, Source, predicate);

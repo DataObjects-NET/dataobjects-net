@@ -45,6 +45,27 @@ namespace Xtensive.Indexing
       return InternalSeek(innerPage.GetPage(index), ray);
     }
 
+    internal SeekResultPointer<IndexPointer<TKey, TItem>> InternalSeek(DataPage<TKey, TItem> page, TKey key)
+    {
+      LeafPage<TKey, TItem> leafPage = page.AsLeafPage;
+      InnerPage<TKey, TItem> innerPage = page.AsInnerPage;
+      SeekResultPointer<int> result = page.Seek(key);
+      int index = result.Pointer;
+      SeekResultType resultType = result.ResultType;
+      if (leafPage!=null) {
+        if (resultType==SeekResultType.Default && leafPage.RightPageRef!=null) {
+          leafPage = leafPage.RightPage;
+          resultType = SeekResultType.Nearest;
+          index = 0;
+        }
+        return new SeekResultPointer<IndexPointer<TKey, TItem>>(
+          resultType, 
+          new IndexPointer<TKey, TItem>(leafPage, index));
+      }
+
+      return InternalSeek(innerPage.GetPage(index), key);
+    }
+
     private TItem InternalGetItem(DataPage<TKey, TItem> page, TKey key)
     {
       LeafPage<TKey, TItem> leafPage = page.AsLeafPage;

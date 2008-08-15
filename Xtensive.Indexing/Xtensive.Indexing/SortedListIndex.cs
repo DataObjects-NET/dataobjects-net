@@ -82,6 +82,18 @@ namespace Xtensive.Indexing
     #region Seek, CreateReader methods
 
     /// <inheritdoc/>
+    public override SeekResult<TItem> Seek(TKey key)
+    {
+      TItem result;
+      var seekResult = InternalSeek(key);
+      if (seekResult.ResultType == SeekResultType.Exact || seekResult.ResultType == SeekResultType.Nearest)
+        result = seekResult.Pointer.Current;
+      else
+        result = default(TItem);
+      return new SeekResult<TItem>(seekResult.ResultType, result);
+    }
+
+    /// <inheritdoc/>
     public override SeekResult<TItem> Seek(Ray<IEntire<TKey>> ray)
     {
       TItem result;
@@ -244,6 +256,31 @@ namespace Xtensive.Indexing
     private void Cleared()
     {
       version = 0;
+    }
+
+    internal SeekResultPointer<SortedListIndexPointer<TKey, TItem>> InternalSeek(TKey key)
+    {
+      Func<TKey, TKey, int> compare = KeyComparer.Compare;
+      SeekResultType resultType = SeekResultType.None;
+      int index = 0;
+      int maxIndex = items.Count - 1;
+      while (index <= maxIndex) {
+        int nextIndex = index + ((maxIndex - index) >> 1);
+        int comparison = compare(key, KeyExtractor(items[nextIndex]));
+        if (comparison == 0) {
+          index = nextIndex;
+          resultType = SeekResultType.Exact;
+          break;
+        }
+        if (comparison > 0)
+          index = nextIndex + 1;
+        else
+          maxIndex = nextIndex - 1;
+      }
+      if (resultType!=SeekResultType.Exact && index < items.Count)
+        resultType = SeekResultType.Nearest;
+      return new SeekResultPointer<SortedListIndexPointer<TKey,TItem>>(resultType, 
+        new SortedListIndexPointer<TKey, TItem>(this, index));
     }
 
     internal SeekResultPointer<SortedListIndexPointer<TKey, TItem>> InternalSeek(Ray<IEntire<TKey>> ray)

@@ -110,6 +110,12 @@ namespace Xtensive.Indexing
     #region Seek, CreateReader methods
 
     /// <inheritdoc/>
+    public SeekResult<TItem> Seek(TKey key)
+    {
+      return Seek(new Ray<IEntire<TKey>>(Entire<TKey>.Create(key)));
+    }
+
+    /// <inheritdoc/>
     public SeekResult<TItem> Seek(Ray<IEntire<TKey>> ray)
     {
       return uniqueIndex.Seek(GetUniqueIndexRay(ray));

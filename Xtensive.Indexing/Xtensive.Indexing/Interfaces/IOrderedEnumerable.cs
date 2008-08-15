@@ -43,6 +43,13 @@ namespace Xtensive.Indexing
     SeekResult<TItem> Seek(Ray<IEntire<TKey>> ray);
 
     /// <summary>
+    /// Seeks for the specified item in the ordered enumerable.
+    /// </summary>
+    /// <param name="key">Item key to locate.</param>
+    /// <returns>Result of seek operation.</returns>
+    SeekResult<TItem> Seek(TKey key);
+
+    /// <summary>
     /// Creates <see cref="IIndexReader{TKey,TItem}"/> object allowing to enumerate 
     /// the items in the specified <paramref name="range"/>.
     /// </summary>

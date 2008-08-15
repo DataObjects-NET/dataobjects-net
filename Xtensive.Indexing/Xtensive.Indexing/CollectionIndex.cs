@@ -230,6 +230,14 @@ namespace Xtensive.Indexing
     }
 
     /// <inheritdoc/>
+    SeekResult<TItem> IOrderedEnumerable<TKey, TItem>.Seek(TKey key)
+    {
+      if (orderedIndex == null)
+        throw new NotSupportedException();
+      return orderedIndex.Seek(key);
+    }
+
+    /// <inheritdoc/>
     IEnumerable<TKey> IOrderedEnumerable<TKey, TItem>.GetKeys(Range<IEntire<TKey>> range)
     {
       if (orderedIndex == null)

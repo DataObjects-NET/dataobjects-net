@@ -76,8 +76,6 @@ namespace Xtensive.Storage.Tests.Storage
 {
   public class SnakesTest : AutoBuildTest
   {
-    public HashSet<Entity> removalQueue = new HashSet<Entity>();
-
     protected override DomainConfiguration BuildConfiguration()
     {
       DomainConfiguration config = base.BuildConfiguration();
@@ -340,11 +338,11 @@ namespace Xtensive.Storage.Tests.Storage
         var session = Session.Current;
         TypeInfo type = session.Domain.Model.Types[typeof (ICreature)];
         RecordSet rs = type.Indexes.PrimaryIndex.ToRecordSet();
+        Entity previous = null;
         foreach (var entity in rs.AsEntities<Creature>()) {
-          foreach (Entity re in removalQueue) {
-            Remove(re);
-          }
-          removalQueue.Add(entity);
+          if (previous != null)
+            Remove(previous);
+          previous = entity;
         }
       }
 

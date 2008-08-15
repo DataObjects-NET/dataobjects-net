@@ -114,7 +114,8 @@ namespace Xtensive.Indexing.Tests.Index
           Assert.IsTrue(index.Contains(toRemove));
           bool success = index.Remove(toRemove);
           Assert.IsTrue(success);
-        }
+        } 
+        removalQueue.Clear();
         removalQueue.Add(i);
         Assert.IsTrue (index.Contains(i));
       }

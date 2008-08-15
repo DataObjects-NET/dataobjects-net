@@ -97,6 +97,15 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     }
 
     /// <inheritdoc/>
+    public SeekResult<Tuple> Seek(Tuple key)
+    {
+      var sourceEnumerable = Source.GetService<IOrderedEnumerable<Tuple, Tuple>>(true);
+      if (CachedRange.Contains(Entire<Tuple>.Create(key), EntireKeyComparer))
+        return sourceEnumerable.Seek(key);
+      return new SeekResult<Tuple>(SeekResultType.None, null);
+    }
+
+    /// <inheritdoc/>
     public IIndexReader<Tuple, Tuple> CreateReader(Range<IEntire<Tuple>> range)
     {
       var sourceEnumerable = Source.GetService<IOrderedEnumerable<Tuple, Tuple>>(true);

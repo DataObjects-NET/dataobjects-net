@@ -34,6 +34,9 @@ namespace Xtensive.Indexing
     public abstract SeekResult<TItem> Seek(Ray<IEntire<TKey>> ray);
 
     /// <inheritdoc/>
+    public abstract SeekResult<TItem> Seek(TKey key);
+
+    /// <inheritdoc/>
     public abstract IIndexReader<TKey, TItem> CreateReader(Range<IEntire<TKey>> range);
 
     /// <inheritdoc/>

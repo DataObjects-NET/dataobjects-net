@@ -171,6 +171,20 @@ namespace Xtensive.Indexing
     #region Seek, CreateReader methods
 
     /// <inheritdoc/>
+    public override SeekResult<TItem> Seek(TKey key)
+    {
+      EnsureConfigured();
+      TItem result;
+      var seekResult = InternalSeek(RootPage, key);
+      if (seekResult.ResultType == SeekResultType.Exact || seekResult.ResultType == SeekResultType.Nearest)
+        result = seekResult.Pointer.Current;
+      else
+        result = default(TItem);
+      return new SeekResult<TItem>(seekResult.ResultType, result);
+    }
+
+
+    /// <inheritdoc/>
     public override SeekResult<TItem> Seek(Ray<IEntire<TKey>> ray)
     {
       EnsureConfigured();

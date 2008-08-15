@@ -238,6 +238,11 @@ namespace Xtensive.Indexing.Differential
       throw new System.NotImplementedException();
     }
 
+    public override SeekResult<TItem> Seek(TKey key)
+    {
+      throw new System.NotImplementedException();
+    }
+
     public override IIndexReader<TKey, TItem> CreateReader(Range<IEntire<TKey>> range)
     {
       return new DifferentialIndexReader<TKey, TItem, TImpl>(this, range);

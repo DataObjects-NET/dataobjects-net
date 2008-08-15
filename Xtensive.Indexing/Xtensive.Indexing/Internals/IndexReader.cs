@@ -14,7 +14,7 @@ using Xtensive.Indexing.Resources;
 
 namespace Xtensive.Indexing
 {
-  internal class  IndexReader<TKey,TItem> : IndexReaderBase<Index<TKey,TItem>, TKey, TItem>
+  internal sealed class  IndexReader<TKey,TItem> : IndexReaderBase<Index<TKey,TItem>, TKey, TItem>
   {
     private HasVersion<SeekResultPointer<IndexPointer<TKey, TItem>>, int?> nextPtr;
     private HasVersion<SeekResultPointer<IndexPointer<TKey, TItem>>, int?> lastPtr;
@@ -52,10 +52,7 @@ namespace Xtensive.Indexing
           Seek(ref nextPtr, new Ray<IEntire<TKey>>(key, Direction));
         if (lastPtrIsNotActual)
           Seek(ref lastPtr, new Ray<IEntire<TKey>>(Range.EndPoints.Second, Direction.Invert()));
-        if (Range.Contains(key, Index.EntireKeyComparer))
-          state = EnumerationState.NotStarted;
-        else
-          state = EnumerationState.Finishing;
+        state = Range.Contains(key, Index.EntireKeyComparer) ? EnumerationState.NotStarted : EnumerationState.Finishing;
         return MoveNext();
       }
       
@@ -72,13 +69,12 @@ namespace Xtensive.Indexing
           state = EnumerationState.Finished;
           return false;
         }
-        else
-          break;
+        break;
       }
 
       // nextPtr is in Range; let's update current
       current = nextPtr.Value.Pointer.Current;
-      currentKey = null; // This ensures GetCurrentKey() will return Current
+      currentKey = Entire<TKey>.Create(Index.KeyExtractor(current), Direction); // This ensures GetCurrentKey() will return Current+
 
       if (nextPtr.Value.Pointer.Equals(lastPtr.Value.Pointer)) {
         // We've just set current to the last item in Range  
@@ -124,8 +120,7 @@ namespace Xtensive.Indexing
     {
       if (currentKey!=null)
         return currentKey;
-      else
-        return Entire<TKey>.Create(Index.KeyExtractor(current));
+      return Entire<TKey>.Create(Index.KeyExtractor(current));
     }
 
     private void Seek(ref HasVersion<SeekResultPointer<IndexPointer<TKey,TItem>>,int?> pointer, Ray<IEntire<TKey>> newPosition)
