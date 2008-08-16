@@ -179,6 +179,23 @@ namespace Xtensive.Indexing
     }
 
     /// <summary>
+    /// Check if range contains specified point.
+    /// </summary>
+    /// <typeparam name="T">The type of <see cref="Range{T}"/> endpoints.</typeparam>
+    /// <param name="range">The range to check.</param>
+    /// <param name="point">The point to check for containment.</param>
+    /// <param name="asymmetricCompare">The comparer to use.</param>
+    /// <returns><see langword="True"/> if range contains specified point;
+    /// otherwise, <see langword="false"/>.</returns>
+    public static bool Contains<T>(this Range<IEntire<T>> range, T point, Func<IEntire<T>,T,int> asymmetricCompare)
+    {
+      // ArgumentValidator.EnsureArgumentNotNull(comparer, "comparer");
+      if (range.IsEmpty)
+        return false;
+      return Compare(point, range.EndPoints, asymmetricCompare).HasInclusion;
+    }
+
+    /// <summary>
     /// Check if range intersects with the specified one.
     /// </summary>
     /// <typeparam name="T">The type of <see cref="Range{T}"/> endpoints.</typeparam>
@@ -398,6 +415,14 @@ namespace Xtensive.Indexing
     #endregion
 
     #region Static internal \ private methods
+
+    private static PointComparisonResult Compare<T>(T point, Pair<IEntire<T>> points, Func<IEntire<T>, T, int> asymmetricCompare)
+    {
+      return new PointComparisonResult(
+        asymmetricCompare(points.First, point),
+        asymmetricCompare(points.Second, point));
+    }
+
 
     private static PointComparisonResult Compare<T>(T point, Pair<T> points, AdvancedComparer<T> comparer)
     {

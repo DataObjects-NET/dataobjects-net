@@ -19,7 +19,7 @@ namespace Xtensive.Indexing
     private HasVersion<SeekResultPointer<IndexPointer<TKey, TItem>>, int?> nextPtr;
     private HasVersion<SeekResultPointer<IndexPointer<TKey, TItem>>, int?> lastPtr;
     private TItem current;
-    private IEntire<TKey> currentKey;
+    private TKey lastKey;
     private EnumerationState state;
     
     public override TItem Current {
@@ -47,34 +47,39 @@ namespace Xtensive.Indexing
       bool lastPtrIsNotActual = !GetIsActual(ref lastPtr);
       if (nextPtrIsNotActual || lastPtrIsNotActual) {
         // Actualizing both currentPtr and lastPtr
-        var key = GetCurrentKey();
-        if (nextPtrIsNotActual)
-          Seek(ref nextPtr, new Ray<IEntire<TKey>>(key, Direction));
-        if (lastPtrIsNotActual)
-          Seek(ref lastPtr, new Ray<IEntire<TKey>>(Range.EndPoints.Second, Direction.Invert()));
-        state = Range.Contains(key, Index.EntireKeyComparer) ? EnumerationState.NotStarted : EnumerationState.Finishing;
+        if (nextPtrIsNotActual) {
+          nextPtr.Value = Index.InternalSeek(Index.RootPage, lastKey);
+          if (state == EnumerationState.Started
+            && nextPtr.Value.ResultType == SeekResultType.Exact
+            && !nextPtr.Value.Pointer.MoveNext(Direction)) {
+            // We' moved nextPtr forward - and there are no more items in Index
+            state = EnumerationState.Finishing;
+            return true;
+          }
+          nextPtr.Version = nextPtr.Value.Pointer.Page.Version;
+        }
+        if (lastPtrIsNotActual) {
+          lastPtr.Value = Index.InternalSeek(Index.RootPage, new Ray<IEntire<TKey>>(Range.EndPoints.Second, Direction.Invert()));
+          lastPtr.Version = lastPtr.Value.Pointer.Page.Version;
+        }
         return MoveNext();
       }
       
       // nextPtr is actual, but probably points on value that is out of Range
-      switch (nextPtr.Value.ResultType) {
-      case SeekResultType.None:
+      if (nextPtr.Value.ResultType == SeekResultType.None) {
         // nextPtr is out of the Index
         state = EnumerationState.Finished;
         return false;
-      case SeekResultType.Nearest:
+      }
+      if (!Range.Contains(lastKey, Index.AsymmetricKeyCompare)) {
         // nextPtr is in the Index, but probably out of Range
-        var foundKey = Entire<TKey>.Create(Index.KeyExtractor(nextPtr.Value.Pointer.Current));
-        if (!Range.Contains(foundKey, Index.EntireKeyComparer)) {
-          state = EnumerationState.Finished;
-          return false;
-        }
-        break;
+        state = EnumerationState.Finished;
+        return false;
       }
 
       // nextPtr is in Range; let's update current
       current = nextPtr.Value.Pointer.Current;
-      currentKey = Entire<TKey>.Create(Index.KeyExtractor(current), Direction); // This ensures GetCurrentKey() will return Current+
+      lastKey = Index.KeyExtractor(current);
 
       if (nextPtr.Value.Pointer.Equals(lastPtr.Value.Pointer)) {
         // We've just set current to the last item in Range  
@@ -99,9 +104,16 @@ namespace Xtensive.Indexing
     public override void MoveTo(IEntire<TKey> key)
     {
       current = default(TItem); // No Current yet
-      currentKey = key; // But GetCurrentKey() should return this
-      nextPtr.Version = null; // Let's de-actualize it
-      state = EnumerationState.NotStarted;
+      nextPtr.Value = Index.InternalSeek(Index.RootPage, new Ray<IEntire<TKey>>(key, Direction));
+      nextPtr.Version = nextPtr.Value.Pointer.Page.Version;
+      if (nextPtr.Value.ResultType != SeekResultType.None) {
+        lastKey = Index.KeyExtractor(nextPtr.Value.Pointer.Current);
+        state = EnumerationState.NotStarted;
+      }
+      else {
+        lastKey = default(TKey);
+        state = EnumerationState.Finished;
+      }
     }
 
     public override void Reset()
@@ -115,19 +127,6 @@ namespace Xtensive.Indexing
     }
 
     #region Private \ internal methods
-
-    private IEntire<TKey> GetCurrentKey()
-    {
-      if (currentKey!=null)
-        return currentKey;
-      return Entire<TKey>.Create(Index.KeyExtractor(current));
-    }
-
-    private void Seek(ref HasVersion<SeekResultPointer<IndexPointer<TKey,TItem>>,int?> pointer, Ray<IEntire<TKey>> newPosition)
-    {
-      pointer.Value   = Index.InternalSeek(Index.RootPage, newPosition);
-      pointer.Version = pointer.Value.Pointer.Page.Version;
-    }
 
     private static bool GetIsActual(ref HasVersion<SeekResultPointer<IndexPointer<TKey,TItem>>,int?> pointer)
     {
