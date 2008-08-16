@@ -335,7 +335,7 @@ namespace Xtensive.Storage.Tests.Storage
 
       using (Domain.OpenSession()) {
         var session = Session.Current;
-        TypeInfo type = session.Domain.Model.Types[typeof (ICreature)];
+        TypeInfo type = session.Domain.Model.Types[typeof (Creature)];
         RecordSet rs = type.Indexes.PrimaryIndex.ToRecordSet();
         Entity previous = null;
         foreach (var entity in rs.ToEntities<Creature>()) {
@@ -346,7 +346,7 @@ namespace Xtensive.Storage.Tests.Storage
       }
 
       using (Domain.OpenSession())
-        Assert.AreEqual(0, Session.Current.All<ICreature>().Count());
+        Assert.AreEqual(1, Session.Current.All<ICreature>().Count());
     }
 
     private void Remove(Entity entity)
@@ -354,7 +354,8 @@ namespace Xtensive.Storage.Tests.Storage
       DomainHandler handler = Session.Current.Handlers.DomainHandler as DomainHandler;
       IndexInfo primaryIndex = entity.Data.Type.Indexes.PrimaryIndex;
       var indexProvider = IndexProvider.Get(primaryIndex);
-      Indexing.SeekResult<Tuple> result = indexProvider.GetService<IOrderedEnumerable<Tuple, Tuple>>().Seek(new Indexing.Ray<Indexing.IEntire<Tuple>>(Entire<Tuple>.Create(entity.Data.Key.Tuple)));
+      var enumerable = indexProvider.GetService<IOrderedEnumerable<Tuple, Tuple>>();
+      Indexing.SeekResult<Tuple> result = enumerable.Seek(new Indexing.Ray<Indexing.IEntire<Tuple>>(Entire<Tuple>.Create(entity.Data.Key.Tuple)));
 
       if (result.ResultType!=SeekResultType.Exact)
         throw new InvalidOperationException();
