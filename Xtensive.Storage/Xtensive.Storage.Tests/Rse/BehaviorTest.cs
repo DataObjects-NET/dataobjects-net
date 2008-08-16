@@ -172,7 +172,7 @@ namespace Xtensive.Storage.Tests.Rse
         if (previous !=null)
           actualIndex.Remove(previous);
         previous = author;
-      }
+      } 
 
       Assert.IsNotNull(actualIndex);
       Assert.AreEqual(authorCount, counter);

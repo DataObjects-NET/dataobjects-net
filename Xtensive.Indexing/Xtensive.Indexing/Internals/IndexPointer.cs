@@ -34,21 +34,17 @@ namespace Xtensive.Indexing
           Index = Page.CurrentSize - 1;
           return true;
         }
-        else {
-          Index -= (int)direction;
-          return false;
-        }
+        Index -= (int)direction;
+        return false;
       }
-      else if (Index >= Page.CurrentSize) {
+      if (Index >= Page.CurrentSize) {
         if (Page.RightPageRef!=null) {
           Page = Page.RightPage;
           Index = 0;
           return true;
         }
-        else {
-          Index -= (int)direction;
-          return false;
-        }
+        Index -= (int)direction;
+        return false;
       }
       return true;
     }

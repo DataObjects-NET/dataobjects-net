@@ -71,12 +71,7 @@ namespace Xtensive.Indexing
         state = EnumerationState.Finished;
         return false;
       }
-      if (!Range.Contains(lastKey, Index.AsymmetricKeyCompare)) {
-        // nextPtr is in the Index, but probably out of Range
-        state = EnumerationState.Finished;
-        return false;
-      }
-
+      
       // nextPtr is in Range; let's update current
       current = nextPtr.Value.Pointer.Current;
       lastKey = Index.KeyExtractor(current);
@@ -106,6 +101,8 @@ namespace Xtensive.Indexing
       current = default(TItem); // No Current yet
       nextPtr.Value = Index.InternalSeek(Index.RootPage, new Ray<IEntire<TKey>>(key, Direction));
       nextPtr.Version = nextPtr.Value.Pointer.Page.Version;
+      lastPtr.Value = Index.InternalSeek(Index.RootPage, new Ray<IEntire<TKey>>(Range.EndPoints.Second, Direction.Invert()));
+      lastPtr.Version = lastPtr.Value.Pointer.Page.Version;
       if (nextPtr.Value.ResultType != SeekResultType.None) {
         lastKey = Index.KeyExtractor(nextPtr.Value.Pointer.Current);
         state = EnumerationState.NotStarted;
