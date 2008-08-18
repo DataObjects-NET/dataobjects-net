@@ -512,7 +512,7 @@ namespace Xtensive.Storage.Tests.Model
       Assert.AreEqual(typeInfo.Columns["Passport.Card.LastName"].Length, 64);
 
       // Indexes
-      Assert.AreEqual(typeInfo.Indexes.Count, 2);
+      Assert.AreEqual(typeInfo.Indexes.Count, 1);
       Assert.IsNotNull(typeInfo.Indexes["PK_Person"]);
       Assert.IsTrue(typeInfo.Indexes["PK_Person"].IsPrimary);
       Assert.IsTrue(typeInfo.Indexes["PK_Person"].IsUnique);
