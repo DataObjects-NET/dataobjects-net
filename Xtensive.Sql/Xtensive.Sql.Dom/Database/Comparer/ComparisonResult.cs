@@ -14,12 +14,21 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   /// </summary>
   public abstract class ComparisonResult : LockableBase
   {
-    private readonly CollectionBaseSlim<PropertyComparisonResult> properties = new CollectionBaseSlim<PropertyComparisonResult>();
     private bool hasChanges;
     private ComparisonResultType result;
+    private readonly CollectionBaseSlim<ComparisonResult> nested = new CollectionBaseSlim<ComparisonResult>();
+    private readonly CollectionBaseSlim<PropertyComparisonResult> properties = new CollectionBaseSlim<PropertyComparisonResult>();
 
     /// <summary>
-    /// Gets collection of property changes.
+    /// Gets comparison result of nested nodes.
+    /// </summary>
+    public CollectionBaseSlim<ComparisonResult> Nested
+    {
+      get { return nested; }
+    }
+
+    /// <summary>
+    /// Gets comparison result of node properties.
     /// </summary>
     public CollectionBaseSlim<PropertyComparisonResult> Properties
     {
@@ -57,7 +66,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     {
       base.Lock(recursive);
       if (recursive) {
-        properties.Lock(true);
+        nested.Lock(true);
       }
     }
   }
