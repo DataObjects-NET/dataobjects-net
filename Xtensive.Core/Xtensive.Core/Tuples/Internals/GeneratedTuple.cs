@@ -16,13 +16,13 @@ namespace Xtensive.Core.Tuples.Internals
   public abstract class GeneratedTuple: RegularTuple, ITupleFieldAccessor<object>
   {
     /// <inheritdoc />
-    public override void SetValue<T>(int fieldIndex, T fieldValue)
+    public override sealed void SetValue<T>(int fieldIndex, T fieldValue)
     {
       ((ITupleFieldAccessor<T>)this).SetValue(fieldIndex, fieldValue);
     }
 
     /// <inheritdoc/>
-    public override T GetValueOrDefault<T>(int fieldIndex)
+    public override sealed T GetValueOrDefault<T>(int fieldIndex)
     {
       return ((ITupleFieldAccessor<T>)this).GetValueOrDefault(fieldIndex);
     }
