@@ -4,10 +4,20 @@
 // Created by: Aleksey Gamzov
 // Created:    2008.08.14
 
+using System.Collections.Generic;
+
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
-  internal class TableSqlComparer
+  internal class TableSqlComparer : WrappingSqlComparer<Table, TableColumn, Index, TableConstraint>
   {
-    
+    public override ComparisonResult<Table> Compare(Table originalNode, Table newNode, IEnumerable<ComparisonHintBase> hints)
+    {
+      throw new System.NotImplementedException();
+    }
+
+    public TableSqlComparer(ISqlComparerProvider provider)
+      : base(provider)
+    {
+    }
   }
 }

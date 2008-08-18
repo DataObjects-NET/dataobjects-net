@@ -8,14 +8,14 @@ using System.Collections.Generic;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
-  internal class DomainSqlComparer : WrappingSqlComparer<Domain, DomainConstraint, Collation>
+  internal class TableConstraintSqlComparer : SqlComparerBase<TableConstraint>
   {
-    public override ComparisonResult<Domain> Compare(Domain originalNode, Domain newNode, IEnumerable<ComparisonHintBase> hints)
+    public override ComparisonResult<TableConstraint> Compare(TableConstraint originalNode, TableConstraint newNode, IEnumerable<ComparisonHintBase> hints)
     {
       throw new System.NotImplementedException();
     }
 
-    public DomainSqlComparer(ISqlComparerProvider provider)
+    public TableConstraintSqlComparer(ISqlComparerProvider provider)
       : base(provider)
     {
     }

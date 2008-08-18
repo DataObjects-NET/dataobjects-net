@@ -20,9 +20,9 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   public abstract class WrappingSqlComparer<T, TBase> : SqlComparerBase<T>
   {
     /// <summary>
-    /// Hasher for base (wrapped) type.
+    /// SQL comparer for base (wrapped) type.
     /// </summary>
-    protected SqlComparerStruct<TBase> BaseHasher;
+    protected SqlComparerStruct<TBase> BaseSqlComparer;
 
 
     // Constructors
@@ -30,15 +30,15 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true" />
     /// </summary>
-    /// <param name="provider">Hashing provider this hasher is bound to.</param>
+    /// <param name="provider">SQL comparer provider provider this comparer is bound to.</param>
     protected WrappingSqlComparer(ISqlComparerProvider provider)
       : base(provider)
     {
-      BaseHasher = provider.GetSqlComparer<TBase>();
+      BaseSqlComparer = provider.GetSqlComparer<TBase>();
       if (!TypeHelper.IsFinal<TBase>()
-        && !(BaseHasher.SqlComparer.Implementation is IFinalAssociate)
+        && !(BaseSqlComparer.SqlComparer.Implementation is IFinalAssociate)
           && typeof (TBase)!=typeof (object))
-        BaseHasher = null;
+        BaseSqlComparer = null;
     }
   }
 }
