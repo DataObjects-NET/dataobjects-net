@@ -16,11 +16,9 @@ namespace Xtensive.Core.Parameters
     /// <summary>
     /// Gets the current <see cref="ParameterContext"/>.
     /// </summary>    
-    public static ParameterContext Current
-    {
-      get {
-        return ParameterScope.CurrentContext;
-      }
+    public static ParameterContext Current {
+      [DebuggerStepThrough]
+      get { return ParameterScope.CurrentContext; }
     }
 
     /// <summary>
@@ -30,6 +28,7 @@ namespace Xtensive.Core.Parameters
     /// <param name="parameter">The parameter to get value.</param>
     /// <returns>Value of the parameter.</returns>
     /// <exception cref="InvalidOperationException">Value for parameter is not set.</exception>
+    [DebuggerStepThrough]
     public T GetValue<T>(Parameter<T> parameter)
     {
       return ParameterScope.CurrentScope.GetValue(parameter);
@@ -41,17 +40,16 @@ namespace Xtensive.Core.Parameters
     /// <typeparam name="T">Value type</typeparam>
     /// <param name="parameter">The parameter to set value.</param>
     /// <param name="value">The value to set.</param>
+    [DebuggerStepThrough]
     public void SetValue<T>(Parameter<T> parameter, T value)
     {
       ParameterScope.CurrentScope.SetValue(parameter, value);
     }
 
     /// <inheritdoc/>
-    public override bool IsActive
-    {
-      get { 
-        return ParameterScope.CurrentContext == this; 
-      }
+    public override bool IsActive {
+      [DebuggerStepThrough]
+      get { return ParameterScope.CurrentContext == this; }
     }
 
     /// <inheritdoc/>
