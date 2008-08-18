@@ -516,4 +516,7 @@
   <data name="ThreadSafeCachedFormat" xml:space="preserve">
     <value>ThreadSafeCached({0})</value>
   </data>
+  <data name="ValueForParameterXIsNotSet" xml:space="preserve">
+    <value>Value for parameter '{0}' is not set.</value>
+  </data>
 </root>

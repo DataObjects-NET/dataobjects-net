@@ -1256,5 +1256,14 @@ namespace Xtensive.Core.Resources {
                 return ResourceManager.GetString("TupleTransformFormat", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Value for parameter &apos;{0}&apos; is not set..
+        /// </summary>
+        internal static string ValueForParameterXIsNotSet {
+            get {
+                return ResourceManager.GetString("ValueForParameterXIsNotSet", resourceCulture);
+            }
+        }
     }
 }

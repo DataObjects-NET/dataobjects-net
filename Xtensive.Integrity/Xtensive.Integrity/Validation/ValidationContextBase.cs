@@ -87,7 +87,7 @@ namespace Xtensive.Integrity.Validation
     /// <param name="target">The <see cref="IValidationAware"/> object to enqueue.</param>
     /// <param name="validationDelegate">The validation delegate partially validating the <paramref name="target"/>.
     /// If <see langword="null" />, whole object should be validated.
-    /// </param>    
+    /// </param>
     internal protected virtual void EnqueueValidate(IValidationAware target, Action<IValidationAware> validationDelegate)
     {
       if (!target.IsCompatibleWith(this))
