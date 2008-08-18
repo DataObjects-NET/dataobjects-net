@@ -126,7 +126,7 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
       #region CreateConnection_MSSQL
 
       SqlConnectionProvider provider = new SqlConnectionProvider();
-      sqlConnection = provider.CreateConnection(@"mssql2005://localhost/AdventureWorks") as SqlConnection;
+      sqlConnection = provider.CreateConnection(@"mssql2005://localhost\sql2005/AdventureWorks") as SqlConnection;
       sqlDriver = sqlConnection.Driver as SqlDriver;
 
       #endregion
@@ -3872,6 +3872,31 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
       select.Columns.Add(qr["f"]);
 
       Assert.IsTrue(CompareExecuteNonQuery(nativeSql, select));
+    }
+
+    [Test]
+    public void Test205()
+    {
+      string nativeSql = "DECLARE vend_cursor CURSOR "
+        + "FOR SELECT * FROM Purchasing.Vendor "
+          + "OPEN vend_cursor "
+        + "BEGIN "
+            + "FETCH NEXT FROM vend_cursor "
+            + "END "
+              + "CLOSE vend_cursor";
+      SqlBatch batch = Sql.Batch();
+      SqlTableRef vendors = Sql.TableRef(Catalog.Schemas["Purchasing"].Tables["Vendor"]);
+      SqlSelect select = Sql.Select(vendors);
+      select.Columns.Add(select.Asterisk);
+      SqlCursor cursor = Sql.Cursor("vend_cursor2", select);
+      batch.Add(cursor.Declare());
+      batch.Add(cursor.Open());
+      SqlStatementBlock block = Sql.Begin();
+      block.Add(cursor.Fetch());
+      batch.Add(block);
+      batch.Add(cursor.Close());
+
+      Assert.IsTrue(CompareExecuteDataReader(nativeSql, batch));
     }
 
     /*

@@ -1211,6 +1211,17 @@ namespace Xtensive.Sql.Dom.Compiler
       return string.Empty;
     }
 
+    public virtual string Translate(SqlCompilerContext context, SqlStatementBlock node, NodeSection section)
+    {
+      switch (section) {
+        case NodeSection.Entry:
+          return "BEGIN";
+        case NodeSection.Exit:
+          return "End";
+      }
+      return string.Empty;
+    }
+
     public virtual string Translate(SqlCompilerContext context, SqlSubQuery node, NodeSection section)
     {
       switch (section) {

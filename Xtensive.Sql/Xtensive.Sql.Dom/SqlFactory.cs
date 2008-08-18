@@ -1429,6 +1429,11 @@ namespace Xtensive.Sql.Dom
       return new SqlNextValue(sequence);
     }
 
+    public static SqlStatementBlock Begin()
+    {
+      return new SqlStatementBlock();
+    }
+
     #endregion
 
     #region OrderBy

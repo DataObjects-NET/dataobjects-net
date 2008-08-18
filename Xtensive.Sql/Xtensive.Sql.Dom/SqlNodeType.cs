@@ -22,6 +22,7 @@ namespace Xtensive.Sql.Dom
     Asterisk,
     Avg,
     Batch,
+    BeginEndBlock,
     Between,
     BitAnd,
     BitNot,

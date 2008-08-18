@@ -960,6 +960,20 @@ namespace Xtensive.Sql.Dom.Compiler
         context.AliasProvider.Enabled = false;
     }
 
+    public virtual void Visit(SqlStatementBlock node)
+    {
+      using (context.EnterNode(node)) {
+        context.AppendText(translator.Translate(context, node, NodeSection.Entry));
+        using (context.EnterCollection()) {
+          foreach (SqlStatement item in node) {
+            item.AcceptVisitor(this);
+            context.AppendDelimiter(translator.BatchStatementDelimiter, DelimiterType.Column);
+          }
+        }
+        context.AppendText(translator.Translate(context, node, NodeSection.Exit));
+      }
+    }
+
     public virtual void Visit(SqlSubQuery node)
     {
       using (context.EnterNode(node)) {
