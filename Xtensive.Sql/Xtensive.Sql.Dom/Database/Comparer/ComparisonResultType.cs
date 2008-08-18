@@ -9,7 +9,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   /// <summary>
   /// Type of compare result.
   /// </summary>
-  public enum CompareResultType
+  public enum ComparisonResultType
   {
     /// <summary>
     /// Both compared nodes are equal.

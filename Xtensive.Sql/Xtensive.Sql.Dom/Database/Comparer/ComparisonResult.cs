@@ -4,26 +4,24 @@
 // Created by: Aleksey Gamzov
 // Created:    2008.08.14
 
-using System;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
-using Xtensive.Sql.Dom.Resources;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
   /// <summary>
   /// Base class for compare results.
   /// </summary>
-  public abstract class CompareResult : LockableBase
+  public abstract class ComparisonResult : LockableBase
   {
-    private readonly CollectionBaseSlim<PropertyCompareResult> properties = new CollectionBaseSlim<PropertyCompareResult>();
+    private readonly CollectionBaseSlim<PropertyComparisonResult> properties = new CollectionBaseSlim<PropertyComparisonResult>();
     private bool hasChanges;
-    private CompareResultType result;
+    private ComparisonResultType result;
 
     /// <summary>
     /// Gets collection of property changes.
     /// </summary>
-    public CollectionBaseSlim<PropertyCompareResult> Properties
+    public CollectionBaseSlim<PropertyComparisonResult> Properties
     {
       get { return properties; }
     }
@@ -44,7 +42,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     /// <summary>
     /// Gets result type.
     /// </summary>
-    public CompareResultType Result
+    public ComparisonResultType Result
     {
       get { return result; }
       internal set

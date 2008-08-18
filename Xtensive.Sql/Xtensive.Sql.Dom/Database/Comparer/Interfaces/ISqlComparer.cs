@@ -20,7 +20,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     /// <param name="originalNode">Original node.</param>
     /// <param name="newNode">New node.</param>
     /// <param name="hints">Hints for comparers.</param>
-    /// <returns><see cref="CompareResult{T}"/> with result of compare.</returns>
-    CompareResult<T> Compare(T originalNode, T newNode, IEnumerable<CompareHint> hints);
+    /// <returns><see cref="ComparisonResult{T}"/> with result of compare.</returns>
+    ComparisonResult<T> Compare(T originalNode, T newNode, IEnumerable<ComparisonHint> hints);
   }
 }
