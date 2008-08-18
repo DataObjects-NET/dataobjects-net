@@ -1265,5 +1265,14 @@ namespace Xtensive.Core.Resources {
                 return ResourceManager.GetString("ValueForParameterXIsNotSet", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} is not activated..
+        /// </summary>
+        internal static string XIsNotActivated {
+            get {
+                return ResourceManager.GetString("XIsNotActivated", resourceCulture);
+            }
+        }
     }
 }

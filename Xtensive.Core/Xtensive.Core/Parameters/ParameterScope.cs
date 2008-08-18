@@ -6,46 +6,41 @@
 
 using System;
 using System.Collections;
+using System.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.Parameters
 {
   /// <summary>
-  /// Scope where assigned parameters values are actual.
+  /// <see cref="ParameterContext"/> activation scope.
   /// </summary>
   public class ParameterScope : Scope<ParameterContext>
-  {
-    private readonly Hashtable values = new Hashtable();
-    
+  {    
     internal static new ParameterScope CurrentScope 
     {
+      [DebuggerStepThrough]
       get {
         return (ParameterScope) Scope<ParameterContext>.CurrentScope;
       }
     }
     
-    internal static new ParameterContext CurrentContext 
+    [DebuggerStepThrough]
+    internal object GetValue(object parameter)
     {
-      get {
-        return Scope<ParameterContext>.CurrentContext;
-      }
-    }
-
-    internal T GetValue<T>(Parameter<T> parameter)
-    {
-      if (values.ContainsKey(parameter))
-        return (T) values[parameter];
+      if (Context.HasValue(parameter))
+        return Context.GetValue(parameter);
 
       if (IsNested)
         return ((ParameterScope) OuterScope).GetValue(parameter);
 
       throw new InvalidOperationException(
-        string.Format(Resources.Strings.ValueForParameterXIsNotSet, parameter.Name));
+        string.Format(Resources.Strings.ValueForParameterXIsNotSet, parameter));
     }
 
-    internal void SetValue<T>(Parameter<T> parameter, T value)
+    [DebuggerStepThrough]
+    internal void SetValue(object parameter, object value)
     {
-      values[parameter] = value;
+      Context.SetValue(parameter, value);      
     }
 
 
@@ -55,6 +50,7 @@ namespace Xtensive.Core.Parameters
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="context">The context of this scope.</param>
+    [DebuggerStepThrough]
     public ParameterScope(ParameterContext context)
       : base(context)
     {      

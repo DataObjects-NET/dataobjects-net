@@ -14,34 +14,48 @@ namespace Xtensive.Core.Tests.Parameters
   [TestFixture]
   public class ParametersTest
   {    
-
     [Test]
     public void Test()
     {
       Parameter<int> parameter = new Parameter<int>();
 
-      ParameterContext context = new ParameterContext();
-
-      AssertEx.Throws<Exception>(delegate {
+      AssertEx.Throws<InvalidOperationException>(delegate {
         parameter.Value = 5;
       });
 
-      using (new ParameterScope(context)) {
+      ParameterContext firstContext = new ParameterContext();
+
+      using (firstContext.Activate()) {        
+
+        AssertEx.Throws<InvalidOperationException>(delegate {
+          int i = parameter.Value;
+        });
+
         parameter.Value = 10;
         Assert.AreEqual(10, parameter.Value);
 
         parameter.Value = 15;
         Assert.AreEqual(15, parameter.Value);
 
-        using (new ParameterScope(context)) {
+        using (new ParameterContext().Activate()) {
+          Assert.AreEqual(15, parameter.Value);
+
           parameter.Value = 20;
+          Assert.AreEqual(20, parameter.Value);
+
+          // Reactivating first context
+          using (firstContext.Activate()) {
+            Assert.AreEqual(15, parameter.Value);
+            parameter.Value = 25;
+          }
+
           Assert.AreEqual(20, parameter.Value);
         }
 
-        Assert.AreEqual(15, parameter.Value);
+        Assert.AreEqual(25, parameter.Value);        
       }
 
-      AssertEx.Throws<Exception>(delegate {
+      AssertEx.Throws<InvalidOperationException>(delegate {
         int i = parameter.Value;
       });
     }

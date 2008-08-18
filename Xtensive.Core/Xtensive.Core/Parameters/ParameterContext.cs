@@ -4,55 +4,58 @@
 // Created by: Alex Kofman
 // Created:    2008.08.14
 
-using System;
+using System.Collections;
+using System.Diagnostics;
 
 namespace Xtensive.Core.Parameters
 {
   /// <summary>
-  /// Provides storing <see cref="Parameter{TValue}"/>'s values within <see cref="ParameterScope"/>.
+  /// Provides storing context-specific <see cref="Parameter{TValue}"/>'s values.
   /// </summary>
   public class ParameterContext : Context<ParameterScope>
-  {
+  {    
+    internal readonly Hashtable values = new Hashtable();
+
     /// <summary>
     /// Gets the current <see cref="ParameterContext"/>.
-    /// </summary>    
-    public static ParameterContext Current {
+    /// </summary>        
+    public static ParameterContext Current
+    {
       [DebuggerStepThrough]
-      get { return ParameterScope.CurrentContext; }
+      get {
+        return Scope<ParameterContext>.CurrentContext;
+      }
     }
 
-    /// <summary>
-    /// Gets the value of  the specified parameter in the current scope.
-    /// </summary>
-    /// <typeparam name="T">Value type.</typeparam>
-    /// <param name="parameter">The parameter to get value.</param>
-    /// <returns>Value of the parameter.</returns>
-    /// <exception cref="InvalidOperationException">Value for parameter is not set.</exception>
     [DebuggerStepThrough]
-    public T GetValue<T>(Parameter<T> parameter)
+    internal bool HasValue(object parameter)
     {
-      return ParameterScope.CurrentScope.GetValue(parameter);
+      return values.ContainsKey(parameter);
+    }
+    
+    [DebuggerStepThrough]
+    internal object GetValue(object parameter)
+    {
+      return values[parameter];
+    }
+    
+    [DebuggerStepThrough]
+    internal void SetValue(object parameter, object value)
+    {
+      values[parameter] = value;
     }
 
-    /// <summary>
-    /// Sets the value of the specified parameter in the current scope.
-    /// </summary>
-    /// <typeparam name="T">Value type</typeparam>
-    /// <param name="parameter">The parameter to set value.</param>
-    /// <param name="value">The value to set.</param>
-    [DebuggerStepThrough]
-    public void SetValue<T>(Parameter<T> parameter, T value)
+    /// <inheritdoc/>    
+    public override bool IsActive
     {
-      ParameterScope.CurrentScope.SetValue(parameter, value);
+      [DebuggerStepThrough]
+      get { 
+        return Current == this; 
+      }
     }
 
     /// <inheritdoc/>
-    public override bool IsActive {
-      [DebuggerStepThrough]
-      get { return ParameterScope.CurrentContext == this; }
-    }
-
-    /// <inheritdoc/>
+    [DebuggerStepThrough]
     protected override ParameterScope CreateActiveScope()
     {
       return new ParameterScope(this);
