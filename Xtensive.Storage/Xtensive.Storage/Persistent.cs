@@ -9,13 +9,17 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Tuples;
+using Xtensive.Integrity.Validation;
+using Xtensive.Integrity.Validation.Interfaces;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage
 {
-  public abstract class Persistent : SessionBound
+  public abstract class Persistent : 
+    SessionBound,
+    IValidationAware
   {
     private Dictionary<FieldInfo, IFieldHandler> fieldHandlers;
 
@@ -141,6 +145,29 @@ namespace Xtensive.Storage
     public override int GetHashCode()
     {
       return base.GetHashCode();
+    }
+
+    #endregion
+
+
+    #region IValidationAware members
+
+    /// <inheritdoc/>
+    public ValidationContextBase Context
+    {
+      get { return ValidationScope.CurrentContext; }
+    }
+
+    /// <inheritdoc/>
+    public void OnValidate()
+    {
+      this.CheckConstraints();
+    }
+
+    /// <inheritdoc/>
+    public bool IsCompatibleWith(ValidationContextBase context)
+    {
+      return context is PersistentValidationContext;
     }
 
     #endregion
