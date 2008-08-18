@@ -16,11 +16,8 @@ namespace Xtensive.Core.Parameters
   public class ParameterScope : Scope<ParameterContext>
   {
     private readonly Hashtable values = new Hashtable();
-
-    /// <summary>
-    /// Gets the current <see cref="ParameterScope"/>.
-    /// </summary>
-    public static new ParameterScope CurrentScope 
+    
+    internal static new ParameterScope CurrentScope 
     {
       get {
         return (ParameterScope) Scope<ParameterContext>.CurrentScope;

@@ -9,10 +9,13 @@ using System;
 namespace Xtensive.Core.Parameters
 {
   /// <summary>
-  /// 
+  /// Provides storing <see cref="Parameter{TValue}"/>'s values within <see cref="ParameterScope"/>.
   /// </summary>
   public class ParameterContext : Context<ParameterScope>
   {
+    /// <summary>
+    /// Gets the current <see cref="ParameterContext"/>.
+    /// </summary>    
     public static ParameterContext Current
     {
       get {
