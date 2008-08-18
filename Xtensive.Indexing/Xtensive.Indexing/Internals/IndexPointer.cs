@@ -14,7 +14,8 @@ namespace Xtensive.Indexing
 {
   [DebuggerDisplay("{Page} -> {Index}")]
   internal struct IndexPointer<TKey, TItem> :
-    IEquatable<IndexPointer<TKey, TItem>>
+    IEquatable<IndexPointer<TKey, TItem>>,
+    IComparable<IndexPointer<TKey, TItem>>
   {
     public LeafPage<TKey, TItem> Page;
     public int Index;
@@ -49,7 +50,16 @@ namespace Xtensive.Indexing
       return true;
     }
 
-    #region Equals, GetHashCode methods
+    #region Equals, CompareTo, GetHashCode methods
+
+    public int CompareTo(IndexPointer<TKey, TItem> other)
+    {
+      var compare = Page.Provider.Index.KeyComparer.Compare;
+      var result = compare(Page.Key, other.Page.Key);
+      if (result == 0)
+        result = Index.CompareTo(other.Index);
+      return result;
+    }
 
     public bool Equals(IndexPointer<TKey, TItem> obj)
     {

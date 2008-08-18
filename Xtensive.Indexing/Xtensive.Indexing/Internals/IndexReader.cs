@@ -106,6 +106,10 @@ namespace Xtensive.Indexing
       if (nextPtr.Value.ResultType != SeekResultType.None) {
         lastKey = Index.KeyExtractor(nextPtr.Value.Pointer.Current);
         state = EnumerationState.NotStarted;
+        if (Direction==Direction.Positive && nextPtr.Value.Pointer.CompareTo(lastPtr.Value.Pointer) > 0)
+          state = EnumerationState.Finished;
+        if (Direction == Direction.Negative && nextPtr.Value.Pointer.CompareTo(lastPtr.Value.Pointer) < 0)
+          state = EnumerationState.Finished;
       }
       else {
         lastKey = default(TKey);
