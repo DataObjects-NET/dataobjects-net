@@ -230,5 +230,14 @@ namespace Xtensive.Sql.Dom.Resources {
                 return ResourceManager.GetString("ExUnboundColumn", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to get default SQL comparer for type {0}.
+        /// </summary>
+        internal static string LogUnableToGetDefaultSQLComparerForTypeXxx {
+            get {
+                return ResourceManager.GetString("LogUnableToGetDefaultSQLComparerForTypeXxx", resourceCulture);
+            }
+        }
     }
 }

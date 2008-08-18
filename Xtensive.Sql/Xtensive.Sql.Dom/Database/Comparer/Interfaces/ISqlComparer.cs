@@ -12,8 +12,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   /// <see cref="SchemaNode"/> comparer.
   /// </summary>
   /// <typeparam name="T"></typeparam>
-  public interface ISqlComparer<T>
-    where T : SchemaNode
+  public interface ISqlComparer<T> : ISqlComparerBase
   {
     /// <summary>
     /// Compares two instances of <see cref="SchemaNode"/>.

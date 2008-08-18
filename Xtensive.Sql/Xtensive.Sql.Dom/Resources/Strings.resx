@@ -174,4 +174,7 @@
   <data name="ExLiteralTypeXIsNotSupported" xml:space="preserve">
     <value>Literal type '{0}' is not supported.</value>
   </data>
+  <data name="LogUnableToGetDefaultSQLComparerForTypeXxx" xml:space="preserve">
+    <value>Unable to get default SQL comparer for type {0}</value>
+  </data>
 </root>
