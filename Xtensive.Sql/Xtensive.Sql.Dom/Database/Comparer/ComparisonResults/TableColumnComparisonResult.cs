@@ -10,7 +10,7 @@ using Xtensive.Core.Collections;
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
   /// <summary>
-  /// Table column compare result.
+  /// Table column comparison result.
   /// </summary>
   [Serializable]
   public class TableColumnComparisonResult : ComparisonResult<DataTableColumn>

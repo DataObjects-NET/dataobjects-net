@@ -7,7 +7,7 @@
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
   /// <summary>
-  /// Type of compare result.
+  /// Type of comparison result.
   /// </summary>
   public enum ComparisonResultType
   {

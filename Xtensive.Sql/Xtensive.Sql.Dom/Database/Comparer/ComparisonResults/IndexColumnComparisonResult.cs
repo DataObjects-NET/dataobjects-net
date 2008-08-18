@@ -9,7 +9,7 @@ using System;
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
   /// <summary>
-  /// Index column compare result.
+  /// Index column comparison result.
   /// </summary>
   [Serializable]
   public class IndexColumnComparisonResult : ComparisonResult<IndexColumn>

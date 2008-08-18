@@ -10,7 +10,7 @@ using Xtensive.Core.Helpers;
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
   /// <summary>
-  /// Base class for compare results.
+  /// Base class for comparison results.
   /// </summary>
   public abstract class ComparisonResult : LockableBase
   {

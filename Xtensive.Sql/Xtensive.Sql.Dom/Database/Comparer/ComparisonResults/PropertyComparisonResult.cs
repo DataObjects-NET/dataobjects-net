@@ -11,7 +11,7 @@ using Xtensive.Core.Internals.DocTemplates;
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
   /// <summary>
-  /// Property compare result.
+  /// Property comparison result.
   /// </summary>
   [Serializable]
   public class PropertyComparisonResult : ComparisonResult<object>

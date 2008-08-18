@@ -10,7 +10,7 @@ using Xtensive.Core.Collections;
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
   /// <summary>
-  /// View compare result.
+  /// View comparison result.
   /// </summary>
   [Serializable]
   public class ViewComparisonResult : ComparisonResult
@@ -19,7 +19,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     private readonly CollectionBaseSlim<IndexComparisonResult> indexes = new CollectionBaseSlim<IndexComparisonResult>();
 
     /// <summary>
-    /// Gets column compare results.
+    /// Gets column comparison results.
     /// </summary>
     public CollectionBaseSlim<TableColumnComparisonResult> Columns
     {
@@ -27,7 +27,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     }
 
     /// <summary>
-    /// Gets index compare results.
+    /// Gets index comparison results.
     /// </summary>
     public CollectionBaseSlim<IndexComparisonResult> Indexes
     {

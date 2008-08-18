@@ -10,7 +10,7 @@ using Xtensive.Core.Collections;
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
   /// <summary>
-  /// Index compare result.
+  /// Index comparison result.
   /// </summary>
   [Serializable]
   public class IndexComparisonResult : ComparisonResult<Index>
@@ -18,7 +18,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     private readonly CollectionBaseSlim<IndexColumnComparisonResult> columns = new CollectionBaseSlim<IndexColumnComparisonResult>();
 
     /// <summary>
-    /// Gets column compare results.
+    /// Gets column comparison results.
     /// </summary>
     public CollectionBaseSlim<IndexColumnComparisonResult> Columns
     {

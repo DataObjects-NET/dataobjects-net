@@ -2,11 +2,11 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Aleksey Gamzov
-// Created:    2008.08.14
+// Created:    2008.08.18
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
-  internal class PrimaryKeySqlComparer
+  public class CharacterSetComparisonResult : ComparisonResult<CharacterSet>
   {
     
   }
