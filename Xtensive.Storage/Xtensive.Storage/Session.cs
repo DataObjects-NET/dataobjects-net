@@ -200,7 +200,7 @@ namespace Xtensive.Storage
         if (isDisposed)
           return;
         try {
-          Persist();
+//          Persist();
           Handler.Commit();
         }
         finally {

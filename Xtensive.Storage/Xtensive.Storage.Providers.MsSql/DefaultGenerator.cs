@@ -1,4 +1,4 @@
-// Copyright (C) 2008 Xtensive LLC.
+  // Copyright (C) 2008 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kochetov
@@ -19,11 +19,19 @@ namespace Xtensive.Storage.Providers.MsSql
   {
     private Table generatorTable;
     private SqlDataType dataType;
+    private const int BULK_SIZE = 100;
 
     public override Tuple Next()
     {
       Tuple result = Tuple.Create(Hierarchy.TupleDescriptor);
       SqlBatch batch = SqlFactory.Batch();
+//      var i = SqlFactory.Variable("i", dataType);
+//      batch.Add(i.Declare());
+//      batch.Add(SqlFactory.Assign(i, 0));
+//      batch.Add(SqlFactory.While(SqlFactory.LessThan(i, BULK_SIZE)));
+//      batch.Add(SqlFactory.("BEGIN"));
+
+
       SqlInsert insert = SqlFactory.Insert(SqlFactory.TableRef(generatorTable));
       batch.Add(insert);
       SqlSelect select = SqlFactory.Select();

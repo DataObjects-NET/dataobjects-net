@@ -34,6 +34,7 @@ namespace Xtensive.Storage.Tests.Rse
         book.Title = "Title";
         book.Text = "Text";
         key = book.Key;
+        Session.Current.Persist();
       }
       using (Domain.OpenSession()) {
         EntityData data = Session.Current.DataCache[key];

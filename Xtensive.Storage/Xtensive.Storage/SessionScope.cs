@@ -4,6 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2007.08.29
 
+using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Configuration;
@@ -24,6 +25,7 @@ namespace Xtensive.Storage
     /// </summary>
     public new static SessionScope Current
     {
+      [DebuggerStepThrough]
       get { return ResourceConsumptionScope<Session, SessionConfiguration>.Current as SessionScope; }
     }
 
@@ -32,6 +34,7 @@ namespace Xtensive.Storage
     /// </summary>
     public Session Session
     {
+      [DebuggerStepThrough]
       get { return Resource; }
     }
 

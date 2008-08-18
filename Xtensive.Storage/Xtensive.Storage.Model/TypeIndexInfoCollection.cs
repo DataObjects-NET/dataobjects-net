@@ -46,6 +46,7 @@ namespace Xtensive.Storage.Model
       return null;
     }
 
+    [DebuggerStepThrough]
     public IndexInfo GetIndex(string fieldName, params string[] fieldNames)
     {
       if (!IsLocked)

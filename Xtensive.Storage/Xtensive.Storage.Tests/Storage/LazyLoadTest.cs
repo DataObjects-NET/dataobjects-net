@@ -58,6 +58,8 @@ namespace Xtensive.Storage.Tests.Storage
         key = b.Key;
         b.Title = TITLE;
         b.Text = TEXT;
+
+        Session.Current.Persist();
       }
     }
 

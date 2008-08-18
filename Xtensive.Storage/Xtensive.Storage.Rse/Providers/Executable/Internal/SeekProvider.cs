@@ -38,7 +38,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     protected internal override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
       var sourceEnumerable = Source.GetService<IOrderedEnumerable<Tuple, Tuple>>(true);
-      SeekResult<Tuple> seekResult = sourceEnumerable.Seek(new Ray<IEntire<Tuple>>(Entire<Tuple>.Create(CachedKey)));
+      SeekResult<Tuple> seekResult = sourceEnumerable.Seek(CachedKey);
       if (seekResult.ResultType == SeekResultType.Exact)
         yield return seekResult.Result;
     }

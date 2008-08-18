@@ -5,6 +5,7 @@
 // Created:    2007.07.30
 
 using System;
+using System.Diagnostics;
 using System.Globalization;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Comparison;
@@ -25,6 +26,7 @@ namespace Xtensive.Storage.Model
     /// Adds new element to the collection.
     /// </summary>
     /// <param name="item">Item to add.</param>
+    [DebuggerStepThrough]
     public override void Add(TNode item)
     {
       try {
@@ -52,6 +54,7 @@ namespace Xtensive.Storage.Model
     /// <returns>
     /// <see langword="true"/> if this instance contains the specified key; otherwise, <see langword="false"/>.
     /// </returns>
+    [DebuggerStepThrough]
     public bool Contains(string key)
     {
       return nameIndex.ContainsKey(key);
@@ -63,6 +66,7 @@ namespace Xtensive.Storage.Model
     /// <param name="key">The key of the value to get.</param>
     /// <returns>The value associated with the specified <paramref name="key"/> or <see langword="null"/> 
     /// if item was not found.</returns>
+    [DebuggerStepThrough]
     public TNode TryGetValue(string key)
     {
       return nameIndex.ContainsKey(key) ? nameIndex.GetItem(key) : null;
@@ -75,6 +79,7 @@ namespace Xtensive.Storage.Model
     /// <exception cref="ArgumentException"> when item was not found.</exception>
     public TNode this[string key]
     {
+      [DebuggerStepThrough]
       get
       {
         TNode result = TryGetValue(key);

@@ -37,6 +37,7 @@ namespace Xtensive.Storage.Model
     /// </summary>
     public bool IsEntity
     {
+      [DebuggerStepThrough]
       get { return (attributes & TypeAttributes.Entity) > 0; }
     }
 
@@ -45,6 +46,7 @@ namespace Xtensive.Storage.Model
     /// </summary>
     public bool IsAbstract
     {
+      [DebuggerStepThrough]
       get { return (attributes & TypeAttributes.Abstract) > 0; }
     }
 
@@ -53,6 +55,7 @@ namespace Xtensive.Storage.Model
     /// </summary>
     public bool IsInterface
     {
+      [DebuggerStepThrough]
       get { return (attributes & TypeAttributes.Interface) > 0; }
     }
 
@@ -61,6 +64,7 @@ namespace Xtensive.Storage.Model
     /// </summary>
     public bool IsStructure
     {
+      [DebuggerStepThrough]
       get { return (attributes & TypeAttributes.Structure) > 0; }
     }
 
@@ -69,6 +73,7 @@ namespace Xtensive.Storage.Model
     /// </summary>
     public Type UnderlyingType
     {
+      [DebuggerStepThrough]
       get { return underlyingType; }
       set
       {
@@ -82,6 +87,7 @@ namespace Xtensive.Storage.Model
     /// </summary>
     public TypeAttributes Attributes
     {
+      [DebuggerStepThrough]
       get { return attributes; }
     }
 
@@ -91,6 +97,7 @@ namespace Xtensive.Storage.Model
     /// </summary>
     public ColumnInfoCollection Columns
     {
+      [DebuggerStepThrough]
       get { return columns; }
     }
 
@@ -99,11 +106,13 @@ namespace Xtensive.Storage.Model
     /// </summary>
     public TypeIndexInfoCollection Indexes
     {
+      [DebuggerStepThrough]
       get { return indexes; }
     }
 
     public NodeCollection<IndexInfo> AffectedIndexes
     {
+      [DebuggerStepThrough]
       get { return affectedIndexes; }
     }
 
@@ -112,6 +121,7 @@ namespace Xtensive.Storage.Model
     /// </summary>
     public FieldInfoCollection Fields
     {
+      [DebuggerStepThrough]
       get { return fields; }
     }
 
@@ -120,6 +130,7 @@ namespace Xtensive.Storage.Model
     /// </summary>
     public FieldMap FieldMap
     {
+      [DebuggerStepThrough]
       get { return fieldMap; }
     }
 
@@ -128,6 +139,7 @@ namespace Xtensive.Storage.Model
     /// </summary>
     public DomainModel Model
     {
+      [DebuggerStepThrough]
       get { return model; }
     }
 
@@ -136,6 +148,7 @@ namespace Xtensive.Storage.Model
     /// </summary>
     public HierarchyInfo Hierarchy
     {
+      [DebuggerStepThrough]
       get { return hierarchy; }
       set
       {
@@ -146,7 +159,9 @@ namespace Xtensive.Storage.Model
 
     public int TypeId
     {
+      [DebuggerStepThrough]
       get { return typeId; }
+      [DebuggerStepThrough]
       set
       {
         this.EnsureNotLocked();
@@ -160,6 +175,7 @@ namespace Xtensive.Storage.Model
     /// <value></value>
     public TupleDescriptor TupleDescriptor
     {
+      [DebuggerStepThrough]
       get { return tupleDescriptor; }
     }
 
