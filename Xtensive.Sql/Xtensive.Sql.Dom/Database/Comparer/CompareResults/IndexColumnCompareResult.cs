@@ -2,17 +2,18 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Aleksey Gamzov
-// Created:    2008.08.15
+// Created:    2008.08.18
 
 using System;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
   /// <summary>
-  /// Constraint compare result.
+  /// Index column compare result.
   /// </summary>
   [Serializable]
-  public class ConstraintCompareResult : CompareResult<Constraint>
+  public class IndexColumnCompareResult : CompareResult<IndexColumn>
   {
+    
   }
 }

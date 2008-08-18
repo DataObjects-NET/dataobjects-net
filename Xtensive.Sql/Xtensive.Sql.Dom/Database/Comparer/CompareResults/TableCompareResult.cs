@@ -4,6 +4,7 @@
 // Created by: Aleksey Gamzov
 // Created:    2008.08.15
 
+using System;
 using Xtensive.Core.Collections;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
@@ -11,16 +12,17 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   /// <summary>
   /// Table compare result.
   /// </summary>
+  [Serializable]
   public class TableCompareResult : CompareResult<Table>
   {
-    private readonly CollectionBaseSlim<ColumnCompareResult> columns = new CollectionBaseSlim<ColumnCompareResult>();
+    private readonly CollectionBaseSlim<TableColumnCompareResult> columns = new CollectionBaseSlim<TableColumnCompareResult>();
     private readonly CollectionBaseSlim<IndexCompareResult> indexes = new CollectionBaseSlim<IndexCompareResult>();
     private readonly CollectionBaseSlim<ConstraintCompareResult> constraints = new CollectionBaseSlim<ConstraintCompareResult>();
 
     /// <summary>
     /// Gets column compare results.
     /// </summary>
-    public CollectionBaseSlim<ColumnCompareResult> Columns
+    public CollectionBaseSlim<TableColumnCompareResult> Columns
     {
       get { return columns; }
     }

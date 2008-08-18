@@ -4,6 +4,7 @@
 // Created by: Aleksey Gamzov
 // Created:    2008.08.15
 
+using System;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 
@@ -12,6 +13,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   /// <summary>
   /// Property compare result.
   /// </summary>
+  [Serializable]
   public class PropertyCompareResult : CompareResult<object>
   {
     private string propertyName;

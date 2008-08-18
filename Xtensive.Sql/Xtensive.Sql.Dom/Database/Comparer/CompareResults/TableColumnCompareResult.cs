@@ -5,14 +5,16 @@
 // Created:    2008.08.15
 
 using System;
+using Xtensive.Core.Collections;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
   /// <summary>
-  /// Constraint compare result.
+  /// Table column compare result.
   /// </summary>
   [Serializable]
-  public class ConstraintCompareResult : CompareResult<Constraint>
+  public class TableColumnCompareResult : CompareResult<DataTableColumn>
   {
+    
   }
 }
