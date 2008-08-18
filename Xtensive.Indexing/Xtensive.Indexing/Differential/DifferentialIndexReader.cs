@@ -1,3 +1,9 @@
+// Copyright (C) 2008 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Elena Vakhtina
+// Created:    2008.08.12
+
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -105,9 +111,11 @@ namespace Xtensive.Indexing.Differential
       bool moveNextResult = reader.MoveNext();
       if (moveNextResult && MoveIsPossible())
         return true;
+      moveNextResult = false;
 
       if ((flag==1) && (insertionFlag)) {
         reader = insertionsReader;
+        originFlag = false;
         moveNextResult = MoveIsPossible();
       }
       if ((flag==2) && (originFlag)) {
@@ -127,22 +135,43 @@ namespace Xtensive.Indexing.Differential
     /// <inheritdoc/>
     public void MoveTo(IEntire<TKey> key)
     {
+      originFlag = true;
+      insertionFlag = true;
+      removalFlag = true;
+      isFirstMove = true;
+
+      IEntire<TKey> point;
       if (index.Insertions.ContainsKey(key.Value)) {
         insertionsReader.MoveTo(key);
         reader = insertionsReader;
         flag = 2;
-        if (index.Origin.Count != 0)
-          originReader.MoveTo(Entire<TKey>.Create(index.Origin.GetFullRange().EndPoints.First.Value));
+        if (index.Origin.Count!=0) {
+          point = Entire<TKey>.Create(index.KeyExtractor(index.Origin.Seek(new Ray<IEntire<TKey>>(key, reader.Direction)).Result));
+          if (IsGreater(point.Value, key.Value) > 0)
+            originFlag = false;
+          else
+            originReader.MoveTo(point);
+        }
       }
       if ((index.Origin.ContainsKey(key.Value)) && (!index.Removals.ContainsKey(key.Value))) {
         originReader.MoveTo(key);
         reader = originReader;
         flag = 1;
-        if (index.Insertions.Count != 0)
-          insertionsReader.MoveTo(Entire<TKey>.Create(index.Insertions.GetFullRange().EndPoints.First.Value));
+        if (index.Insertions.Count!=0) {
+          point = Entire<TKey>.Create(index.KeyExtractor(index.Insertions.Seek(new Ray<IEntire<TKey>>(key, reader.Direction)).Result));
+          if (IsGreater(point.Value, key.Value) > 0)
+            insertionFlag = false;
+          else
+            insertionsReader.MoveTo(point);
+        }
       }
-      if (index.Removals.Count != 0)
-        removalsReader.MoveTo(Entire<TKey>.Create(index.Removals.GetFullRange().EndPoints.First.Value));
+      if (index.Removals.Count!=0) {
+        point = Entire<TKey>.Create(index.KeyExtractor(index.Removals.Seek(new Ray<IEntire<TKey>>(key, reader.Direction)).Result));
+        if (IsGreater(point.Value, key.Value) > 0)
+          removalFlag = false;
+        else
+          removalsReader.MoveTo(point);
+      }
       isFirstMove = true;
     }
 
@@ -160,9 +189,9 @@ namespace Xtensive.Indexing.Differential
     private bool MoveIsPossible()
     {
       if (isFirstMove) {
-        if ((flag == 1) && insertionFlag && !insertionsReader.MoveNext())
+        if ((flag==1) && insertionFlag && !insertionsReader.MoveNext())
           insertionFlag = false;
-        if ((flag == 2) && originFlag && !originReader.MoveNext())
+        if ((flag==2) && originFlag && !originReader.MoveNext())
           originFlag = false;
         if (removalFlag && !removalsReader.MoveNext())
           removalFlag = false;
@@ -186,15 +215,13 @@ namespace Xtensive.Indexing.Differential
           break;
         }
       }
-      if ((originFlag && insertionFlag && (IsGreater(index.KeyExtractor(originReader.Current), index.KeyExtractor(insertionsReader.Current)) > 0)) ||
-        (originFlag && !insertionFlag)) {
+      if ((originFlag && !insertionFlag) || (originFlag && insertionFlag && (IsGreater(index.KeyExtractor(originReader.Current), index.KeyExtractor(insertionsReader.Current)) > 0))) {
         flag = 1;
         reader = originReader;
         return true;
       }
 
-      if ((originFlag && insertionFlag && (IsGreater(index.KeyExtractor(originReader.Current), index.KeyExtractor(insertionsReader.Current)) < 0)) ||
-        (insertionFlag && !originFlag)) {
+      if ((insertionFlag && !originFlag) || (originFlag && insertionFlag && (IsGreater(index.KeyExtractor(originReader.Current), index.KeyExtractor(insertionsReader.Current)) < 0))) {
         flag = 2;
         reader = insertionsReader;
         return true;

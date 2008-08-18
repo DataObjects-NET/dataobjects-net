@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Core;
-using Xtensive.Core.Helpers;
 using Xtensive.Indexing.Measures;
 using Xtensive.Indexing.Resources;
 
@@ -163,7 +162,7 @@ namespace Xtensive.Indexing.Differential
       if (insertions.Contains(item))
         insertions.Replace(item);
       else if (!removals.Contains(item) && origin.Contains(item)) {
-        removals.RemoveKey(KeyExtractor(item));
+        removals.Add(item);
         insertions.Add(item);
       }
       else

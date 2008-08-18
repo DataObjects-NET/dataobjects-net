@@ -4,6 +4,7 @@
 // Created by: Elena Vakhtina
 // Created:    2008.08.13
 
+using System.Diagnostics;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 
@@ -16,7 +17,6 @@ namespace Xtensive.Indexing.Differential
   /// <typeparam name="TItem">The type of the item.</typeparam>
   public class DifferentialIndexConfiguration<TKey, TItem> : IndexConfigurationBase<TKey, TItem>
   {
-
     private IUniqueOrderedIndex<TKey, TItem> origin;
 
     /// <summary>
@@ -24,6 +24,7 @@ namespace Xtensive.Indexing.Differential
     /// </summary>
     public IUniqueOrderedIndex<TKey, TItem> Origin
     {
+      [DebuggerStepThrough]
       get { return origin; }
       set
       {
@@ -31,7 +32,6 @@ namespace Xtensive.Indexing.Differential
         origin = value;
       }
     }
-
 
     #region Clone implementation
 
@@ -45,7 +45,7 @@ namespace Xtensive.Indexing.Differential
     protected override void Clone(ConfigurationBase source)
     {
       base.Clone(source);
-      DifferentialIndexConfiguration<TKey, TItem> indexConfiguration = (DifferentialIndexConfiguration<TKey, TItem>)source;
+      DifferentialIndexConfiguration<TKey, TItem> indexConfiguration = (DifferentialIndexConfiguration<TKey, TItem>) source;
 //      insert = indexConfiguration.SegmentName;
     }
 
@@ -53,7 +53,7 @@ namespace Xtensive.Indexing.Differential
 
 
     // Constructors
-    
+
     /// <summary>
     /// Initializes a new instance of the <see cref="DifferentialIndexConfiguration&lt;TKey, TItem&gt;"/> class.
     /// </summary>
