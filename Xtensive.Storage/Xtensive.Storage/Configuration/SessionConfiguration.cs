@@ -38,6 +38,12 @@ namespace Xtensive.Storage.Configuration
     /// </summary>
     public string UserName { get; set; }
 
+    /// <summary>
+    /// Gets or sets the value, indicating whether changed entities should be automatically validated.
+    /// Default value is <see langword="true" />.
+    /// </summary>
+    
+
     //TODO: Change SessionConfiguration.AuthParams to be serializeble to app.config.
     /// <summary>
     /// Gets authentication params.

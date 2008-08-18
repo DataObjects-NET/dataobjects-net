@@ -10,7 +10,7 @@ using Xtensive.Core;
 namespace Xtensive.Storage.Configuration
 {
   /// <summary>
-  /// &lt;domain&gt; configuration element within a configuration file.
+  /// <see cref="Domain"/> configuration element within a configuration file.
   /// </summary>
   internal class DomainElement : ConfigurationCollectionElementBase
   {
@@ -25,6 +25,7 @@ namespace Xtensive.Storage.Configuration
     private const string ConnectionInfoElementName = "connectionInfo";
     private const string BuildersElementName = "builders";
     private const string TypesElementName = "types";
+    private const string AutoValidationElementName = "AutoValidation";
     private const string SessionElementName = "session";
 
     /// <summary>
@@ -86,6 +87,17 @@ namespace Xtensive.Storage.Configuration
     {
       get { return (NamingConventionElement) this[NamingConventionElementName]; }
       set { this[NamingConventionElementName] = value; }
+    }
+
+    /// <summary>
+    /// Gets or sets the value, indicating whether changed entities should be validated automatically.
+    /// Default value is <see langword="true" />.
+    /// </summary>
+    [ConfigurationProperty(AutoValidationElementName, IsRequired = false, DefaultValue = true)]
+    public bool AutoValidation
+    {
+      get { return (bool) this[AutoValidationElementName]; }
+      set { this[AutoValidationElementName] = value; }
     }
 
     /// <summary>

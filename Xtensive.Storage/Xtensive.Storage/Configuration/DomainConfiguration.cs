@@ -29,6 +29,7 @@ namespace Xtensive.Storage.Configuration
     private Registry types = new Registry(new TypeProcessor());
     private int sessionPoolSize = 64;
     private string name = string.Empty;
+    private bool autoValidation = true;
     private SessionConfiguration session;
 
     /// <summary>
@@ -89,6 +90,20 @@ namespace Xtensive.Storage.Configuration
       {
         this.EnsureNotLocked();
         connectionInfo = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the value, indicating whether changed entities should be validated automatically.
+    /// Default value is <see langword="true" />.
+    /// </summary>
+    public bool AutoValidation
+    {
+      get { return autoValidation; }
+      set
+      {
+        this.EnsureNotLocked();
+        autoValidation = value;
       }
     }
 
@@ -235,6 +250,7 @@ namespace Xtensive.Storage.Configuration
           Types.Register(assembly, registry.Namespace);
       }
       namingConvention = element.NamingConvention.AsNamingConvention();
+      autoValidation = element.AutoValidation;
       session = element.Session.AsSessionConfiguration();
     }
   }

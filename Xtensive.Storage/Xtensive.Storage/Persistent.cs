@@ -82,7 +82,7 @@ namespace Xtensive.Storage
       FieldInfo field = Type.Fields[name];
       OnGettingValue(field);
       T result = field.GetAccessor<T>().GetValue(this, field);
-      OnGet(field);
+      OnGetValue(field);
       return result;
     }
 
@@ -92,6 +92,10 @@ namespace Xtensive.Storage
       FieldInfo field = Type.Fields[name];
       OnSettingValue(field);
       field.GetAccessor<T>().SetValue(this, field, value);
+
+      if (Session.Domain.Configuration.AutoValidation)
+        this.Validate();
+
       OnSetValue(field);
     }
 
@@ -115,7 +119,7 @@ namespace Xtensive.Storage
     }
 
     [Infrastructure]
-    protected internal virtual void OnGet(FieldInfo field)
+    protected internal virtual void OnGetValue(FieldInfo field)
     {
     }
 
@@ -155,12 +159,17 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     public ValidationContextBase Context
     {
-      get { return ValidationScope.CurrentContext; }
+      get 
+      {
+        // TODO: return ValidationContext of the current Transaction (or Session).
+        return ValidationScope.CurrentContext; 
+      }
     }
 
     /// <inheritdoc/>
     public void OnValidate()
     {
+      // TODO: Call event-like method for custom validation.
       this.CheckConstraints();
     }
 
