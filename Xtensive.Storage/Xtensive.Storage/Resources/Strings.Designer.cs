@@ -340,6 +340,24 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to &apos;Length&apos; constraint violation on field &apos;{0}&apos;.
+        /// </summary>
+        internal static string ExLengthConstraintViolationOnFieldX {
+            get {
+                return ResourceManager.GetString("ExLengthConstraintViolationOnFieldX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &apos;NotNullable&apos; constraint violation on field &apos;{0}&apos;.
+        /// </summary>
+        internal static string ExNotNullableConstraintViolationOnFieldX {
+            get {
+                return ResourceManager.GetString("ExNotNullableConstraintViolationOnFieldX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Object outside of initial transaction scope..
         /// </summary>
         internal static string ExOutOfTransactionScope {

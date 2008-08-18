@@ -409,6 +409,12 @@
     <value>Hierarchy columns</value>
   </data>
   <data name="ExWrongPersistentTypeCandidate" xml:space="preserve">
-  <value>Wrong persistent type candidate: '{0}'.</value>
-</data>
+    <value>Wrong persistent type candidate: '{0}'.</value>
+  </data>
+  <data name="ExNotNullableConstraintViolationOnFieldX" xml:space="preserve">
+    <value>'NotNullable' constraint violation on field '{0}'</value>
+  </data>
+  <data name="ExLengthConstraintViolationOnFieldX" xml:space="preserve">
+    <value>'Length' constraint violation on field '{0}'</value>
+  </data>
 </root>

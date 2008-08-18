@@ -12,7 +12,7 @@ using Xtensive.Core.Tuples;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
-using Xtensive.Storage.Tests.Storage.LazyLoadModel;
+using Xtensive.Storage.Tests.Storage.BookAuthorModel;
 
 namespace Xtensive.Storage.Tests.Rse
 {

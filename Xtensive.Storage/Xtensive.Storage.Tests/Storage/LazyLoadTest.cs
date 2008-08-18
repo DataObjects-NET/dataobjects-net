@@ -4,15 +4,14 @@
 // Created by: Alexey Gamzov
 // Created:    2008.06.26
 
-using System;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Tests.Storage.LazyLoadModel;
+using Xtensive.Storage.Tests.Storage.BookAuthorModel;
 
-namespace Xtensive.Storage.Tests.Storage.LazyLoadModel
+namespace Xtensive.Storage.Tests.Storage.BookAuthorModel
 {
   [HierarchyRoot(typeof(DefaultGenerator), "ID")]
   public class Book : Entity
@@ -20,11 +19,24 @@ namespace Xtensive.Storage.Tests.Storage.LazyLoadModel
     [Field]
     public int ID { get; set; }
 
-    [Field]
+    [Field(Length = 10)]
     public string Title { get; set; }
 
-    [Field(LazyLoad = true)]
+    [Field(LazyLoad = true, IsNullable = true)]
     public string Text { get; set; }
+
+    [Field]
+    public Author Author { get; set; }
+  }
+
+  [HierarchyRoot(typeof(DefaultGenerator), "ID")]
+  public class Author : Entity
+  {
+    [Field]
+    public int ID { get; set; }
+
+    [Field]
+    public string Name { get; set; }
   }
 }
 
@@ -52,7 +64,7 @@ namespace Xtensive.Storage.Tests.Storage
     protected override DomainConfiguration BuildConfiguration()
     {
       DomainConfiguration config = base.BuildConfiguration();
-      config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.Storage.LazyLoadModel");
+      config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.Storage.BookAuthorModel");
       return config;
     }
 

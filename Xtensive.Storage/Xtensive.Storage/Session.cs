@@ -68,7 +68,7 @@ namespace Xtensive.Storage
         return;
       
       if (Log.IsLogged(LogEventTypes.Debug))
-        Log.Debug("Session '{0}'. Persisting: Dirty data: {1}", this, DirtyData);
+        Log.Debug("Session '{0}'. Persisting dirty data: {1}", this, DirtyData);
 
       Handler.Persist(DirtyData);
 

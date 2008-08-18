@@ -4,6 +4,7 @@
 // Created by: Alexey Gamzov
 // Created:    2008.05.26
 
+using System;
 using Xtensive.Core;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
@@ -23,6 +24,11 @@ namespace Xtensive.Storage.Internals
 
     public override void SetValue(Persistent obj, FieldInfo field, T value)
     {
+      Entity entity = value as Entity;
+      if (entity != null) {
+        if (obj.Session != entity.Session)
+          throw new InvalidOperationException(String.Format("Entity '{0}' is bound to another session.", entity.Key));
+      }
       if (ReferenceEquals(value, null))
         for (int i = field.MappingInfo.Offset; i < field.MappingInfo.Offset + field.MappingInfo.Length; i++)
           obj.Tuple.SetValue(i, null);

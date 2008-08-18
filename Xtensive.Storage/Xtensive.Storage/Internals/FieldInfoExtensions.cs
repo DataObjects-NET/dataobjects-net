@@ -19,7 +19,7 @@ namespace Xtensive.Storage.Internals
       if (field.ValueType.IsEnum)
         return EnumFieldAccessor<T>.Instance;
 
-      return DirectFieldAccessor<T>.Instance;
+      return DefaultFieldAccessor<T>.Instance;
     }
   }
 }
