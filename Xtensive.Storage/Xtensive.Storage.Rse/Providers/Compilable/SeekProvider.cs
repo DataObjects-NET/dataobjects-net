@@ -19,7 +19,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
   [Serializable]
   public sealed class SeekProvider : UnaryProvider
   {
-    private ThreadSafeCached<Func<Tuple>> compiledKey;
+    private ThreadSafeCached<Func<Tuple>> compiledKey = ThreadSafeCached<Func<Tuple>>.Create(new object());
 
     /// <summary>
     /// Seek parameter.

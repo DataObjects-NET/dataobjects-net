@@ -20,7 +20,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
   [Serializable]
   public class RangeProvider : UnaryProvider
   {
-    private ThreadSafeCached<Func<Range<IEntire<Tuple>>>> compiledRange;
+    private ThreadSafeCached<Func<Range<IEntire<Tuple>>>> compiledRange = ThreadSafeCached<Func<Range<IEntire<Tuple>>>>.Create(new object());
 
     /// <summary>
     /// Gets the range parameter.

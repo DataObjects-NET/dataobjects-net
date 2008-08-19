@@ -17,7 +17,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
   [Serializable]
   public sealed class TakeProvider : UnaryProvider
   {
-    private ThreadSafeCached<Func<int>> compiledCount;
+    private ThreadSafeCached<Func<int>> compiledCount = ThreadSafeCached<Func<int>>.Create(new object());
 
     /// <summary>
     /// Take amount function.
