@@ -4,8 +4,10 @@
 // Created by: Aleksey Gamzov
 // Created:    2008.08.15
 
+using System;
 using Xtensive.Core;
 using Xtensive.Core.Helpers;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
@@ -50,6 +52,14 @@ namespace Xtensive.Sql.Dom.Database.Comparer
         (originalValue as ILockable).LockSafely(recursive);
         (newValue as ILockable).LockSafely(recursive);
       }
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    public ComparisonResult()
+      : base(typeof(T))
+    {
     }
   }
 }

@@ -4,6 +4,9 @@
 // Created by: Aleksey Gamzov
 // Created:    2008.08.14
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
 
@@ -14,15 +17,16 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   /// </summary>
   public abstract class ComparisonResult : LockableBase
   {
+    private Type type;
     private bool hasChanges;
-    private ComparisonResultType result;
-    private readonly CollectionBaseSlim<ComparisonResult> nested = new CollectionBaseSlim<ComparisonResult>();
-    private readonly CollectionBaseSlim<PropertyComparisonResult> properties = new CollectionBaseSlim<PropertyComparisonResult>();
+    private ComparisonResultType comparisonType;
+    private readonly ComparisonResultCollection<ComparisonResult> nested = new ComparisonResultCollection<ComparisonResult>();
+    private readonly ComparisonResultCollection<PropertyComparisonResult> properties = new ComparisonResultCollection<PropertyComparisonResult>();
 
     /// <summary>
     /// Gets comparison result of nested nodes.
     /// </summary>
-    public CollectionBaseSlim<ComparisonResult> Nested
+    public ICollection<ComparisonResult> Nested
     {
       get { return nested; }
     }
@@ -30,7 +34,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     /// <summary>
     /// Gets comparison result of node properties.
     /// </summary>
-    public CollectionBaseSlim<PropertyComparisonResult> Properties
+    public ICollection<PropertyComparisonResult> Properties
     {
       get { return properties; }
     }
@@ -48,17 +52,29 @@ namespace Xtensive.Sql.Dom.Database.Comparer
       }
     }
 
-    /// <summary>
-    /// Gets result type.
-    /// </summary>
-    public ComparisonResultType Result
+    public IEnumerable<ComparisonResult> Find(ComparisonResultLocation locations, ComparisonResultType comparisonTypes, bool recursive, params Type[] types)
     {
-      get { return result; }
+      IEnumerable<ComparisonResult> propertyResults = properties.Find(locations, comparisonTypes, recursive, types);
+      IEnumerable<ComparisonResult> nestedResults = nested.Find(locations, comparisonTypes, recursive, types);
+      return propertyResults.Union(nestedResults);
+    }
+
+    /// <summary>
+    /// Gets comparison type.
+    /// </summary>
+    public ComparisonResultType ComparisonType
+    {
+      get { return comparisonType; }
       internal set
       {
         this.EnsureNotLocked();
-        result = value;
+        comparisonType = value;
       }
+    }
+
+    public Type Type
+    {
+      get { return type; }
     }
 
     /// <inheritdoc/>
@@ -67,7 +83,14 @@ namespace Xtensive.Sql.Dom.Database.Comparer
       base.Lock(recursive);
       if (recursive) {
         nested.Lock(true);
+        properties.Lock(true);
       }
     }
+
+    public ComparisonResult(Type type)
+    {
+      this.type = type;
+    }
+
   }
 }
