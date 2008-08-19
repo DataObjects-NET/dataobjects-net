@@ -7,20 +7,17 @@
 using System;
 using System.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Reflection;
+using Xtensive.Core.Resources;
 
 namespace Xtensive.Core.Parameters
 {
   /// <summary>
-  /// Parameter, which have values specific for active <see cref="ParameterContext"/>.
+  /// Parameter - an object identifying its value in active <see cref="ParameterContext"/>.
   /// </summary>
   /// <typeparam name="TValue">The type of parameter value.</typeparam>
-  public sealed class Parameter<TValue> 
+  public sealed class Parameter<TValue> : ParameterBase
   {
-    /// <summary>
-    /// Gets or sets the parameter name.
-    /// </summary>    
-    public string Name { get; private set;}
-
     /// <summary>
     /// Gets or sets the parameter value.
     /// </summary>    
@@ -30,49 +27,37 @@ namespace Xtensive.Core.Parameters
     {
       [DebuggerStepThrough]
       get {
-        EnsureContextIsActivated();
-        return (TValue) ParameterScope.CurrentScope.GetValue(this);
+        var currentScope = ParameterScope.CurrentScope;
+        if (currentScope==null)
+          throw new InvalidOperationException(
+            string.Format(Strings.XIsNotActivated, typeof(ParameterContext).GetShortName()));
+        return (TValue) currentScope.GetValue(this);
       }
       [DebuggerStepThrough]
       set {
-        EnsureContextIsActivated();
-        ParameterScope.CurrentScope.SetValue(this, value);
+        var currentScope = ParameterScope.CurrentScope;
+        if (currentScope==null)
+          throw new InvalidOperationException(
+            string.Format(Strings.XIsNotActivated, typeof(ParameterContext).GetShortName()));
+        currentScope.SetValue(this, value);
       }
-    }
-
-    private static void EnsureContextIsActivated()
-    {
-      if (ParameterScope.CurrentScope == null)
-        throw new InvalidOperationException(
-          string.Format(Resources.Strings.XIsNotActivated, typeof(ParameterContext).Name));
-    }
-
-    /// <inheritdoc/>
-    public override string ToString()
-    {
-      return Name;
     }
 
     
     // Constructors
 
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
-    /// </summary>
+    /// <inheritdoc/>
     [DebuggerStepThrough]
     public Parameter()
       : this(string.Empty)
     {
     }
 
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="name">The parameter name.</param>
+    /// <inheritdoc/>
     [DebuggerStepThrough]
     public Parameter(string name)
+      : base(name)
     {
-      Name = name;
     }
   }
 }

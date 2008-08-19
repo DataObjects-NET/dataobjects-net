@@ -5,6 +5,7 @@
 // Created:    2008.08.14
 
 using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace Xtensive.Core.Parameters
@@ -14,44 +15,33 @@ namespace Xtensive.Core.Parameters
   /// </summary>
   public class ParameterContext : Context<ParameterScope>
   {    
-    internal readonly Hashtable values = new Hashtable();
+    internal readonly Dictionary<ParameterBase, object> values = 
+      new Dictionary<ParameterBase, object>();
 
     /// <summary>
     /// Gets the current <see cref="ParameterContext"/>.
     /// </summary>        
-    public static ParameterContext Current
-    {
+    public static ParameterContext Current {
       [DebuggerStepThrough]
-      get {
-        return Scope<ParameterContext>.CurrentContext;
-      }
+      get { return Scope<ParameterContext>.CurrentContext; }
     }
 
     [DebuggerStepThrough]
-    internal bool HasValue(object parameter)
+    internal bool TryGetValue(ParameterBase parameter, out object value)
     {
-      return values.ContainsKey(parameter);
+      return values.TryGetValue(parameter, out value);
     }
     
     [DebuggerStepThrough]
-    internal object GetValue(object parameter)
-    {
-      return values[parameter];
-    }
-    
-    [DebuggerStepThrough]
-    internal void SetValue(object parameter, object value)
+    internal void SetValue(ParameterBase parameter, object value)
     {
       values[parameter] = value;
     }
 
     /// <inheritdoc/>    
-    public override bool IsActive
-    {
+    public override bool IsActive {
       [DebuggerStepThrough]
-      get { 
-        return Current == this; 
-      }
+      get { return Current == this; }
     }
 
     /// <inheritdoc/>

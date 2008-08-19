@@ -25,7 +25,7 @@ namespace Xtensive.Core.Collections
   /// <typeparam name="TKey">Identifier type of the item.</typeparam>
   /// <typeparam name="TValue">Type of the item to cache.</typeparam>
   public class ThreadSafeCache<TKey, TValue>: ICache<TKey, TValue>,
-                                    ISynchronizable
+    ISynchronizable
     where TValue : class
   {
     private const int minMaxSize = 1*10*1024;

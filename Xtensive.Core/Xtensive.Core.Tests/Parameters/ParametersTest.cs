@@ -15,7 +15,7 @@ namespace Xtensive.Core.Tests.Parameters
   public class ParametersTest
   {    
     [Test]
-    public void Test()
+    public void CombinedTest()
     {
       Parameter<int> parameter = new Parameter<int>();
 
