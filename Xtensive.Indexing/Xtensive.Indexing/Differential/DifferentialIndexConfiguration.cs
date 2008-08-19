@@ -18,6 +18,9 @@ namespace Xtensive.Indexing.Differential
   public class DifferentialIndexConfiguration<TKey, TItem> : IndexConfigurationBase<TKey, TItem>
   {
     private IUniqueOrderedIndex<TKey, TItem> origin;
+    private IUniqueOrderedIndex<TKey, TItem> insertions;
+    private IUniqueOrderedIndex<TKey, TItem> removals;
+
 
     /// <summary>
     /// Gets or sets the origin configuration.
@@ -30,6 +33,34 @@ namespace Xtensive.Indexing.Differential
       {
         this.EnsureNotLocked();
         origin = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the origin configuration.
+    /// </summary>
+    public IUniqueOrderedIndex<TKey, TItem> Insertions
+    {
+      [DebuggerStepThrough]
+      get { return insertions; }
+      set
+      {
+        this.EnsureNotLocked();
+        insertions = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the origin configuration.
+    /// </summary>
+    public IUniqueOrderedIndex<TKey, TItem> Removals
+    {
+      [DebuggerStepThrough]
+      get { return removals; }
+      set
+      {
+        this.EnsureNotLocked();
+        removals = value;
       }
     }
 
@@ -53,6 +84,18 @@ namespace Xtensive.Indexing.Differential
 
 
     // Constructors
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DifferentialIndexConfiguration&lt;TKey, TItem&gt;"/> class.
+    /// </summary>
+    public DifferentialIndexConfiguration(IUniqueOrderedIndex<TKey, TItem> origin, IUniqueOrderedIndex<TKey, TItem> insertions, IUniqueOrderedIndex<TKey, TItem> removals)
+    {
+      this.origin = origin;
+      this.insertions = insertions;
+      this.removals = removals;
+      KeyExtractor = origin.KeyExtractor;
+      KeyComparer = origin.KeyComparer;
+    }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DifferentialIndexConfiguration&lt;TKey, TItem&gt;"/> class.

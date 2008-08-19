@@ -307,8 +307,10 @@ namespace Xtensive.Indexing.Differential
       base.OnConfigured();
       var configuration = (DifferentialIndexConfiguration<TKey, TItem>) Configuration;
       origin = configuration.Origin;
-      insertions = IndexFactory.CreateUniqueOrdered<TKey, TItem, TImpl>(((UniqueOrderedIndexBase<TKey, TItem>) origin).Configuration);
-      removals = IndexFactory.CreateUniqueOrdered<TKey, TItem, TImpl>(((UniqueOrderedIndexBase<TKey, TItem>) origin).Configuration);
+      if (insertions == null && removals == null) {
+        insertions = IndexFactory.CreateUniqueOrdered<TKey, TItem, TImpl>(((UniqueOrderedIndexBase<TKey, TItem>) origin).Configuration);
+        removals = IndexFactory.CreateUniqueOrdered<TKey, TItem, TImpl>(((UniqueOrderedIndexBase<TKey, TItem>) origin).Configuration);
+      }
       entireConverter = (key => Entire<TKey>.Create(key));
       measureResults = new MeasureResultSet<TItem>(Measures);
       foreach (TItem item in origin)
@@ -319,6 +321,15 @@ namespace Xtensive.Indexing.Differential
     // Constructors
 
     public DifferentialIndex()
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DifferentialIndex&lt;TKey, TItem, TImpl&gt;"/> class.
+    /// </summary>
+    /// <param name="configuration">The configuration.</param>
+    public DifferentialIndex(IndexConfigurationBase<TKey, TItem> configuration) :
+      base(configuration)
     {
     }
   }

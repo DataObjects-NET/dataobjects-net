@@ -236,7 +236,7 @@ namespace Xtensive.Indexing.Differential
     //Constructors
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="DifferentialIndexReader&lt;TKey, TItem, TImpl&gt;"/> class.
+    /// Initializes a new instance of the <see cref="DifferentialIndexReader&lt;TKey, TItem, TImplementation&gt;"/> class.
     /// </summary>
     /// <param name="index">The index.</param>
     /// <param name="range">The range.</param>
