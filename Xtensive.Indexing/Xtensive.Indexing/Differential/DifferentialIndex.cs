@@ -254,18 +254,18 @@ namespace Xtensive.Indexing.Differential
       SeekResult<TItem> insertionsResult = insertions.Seek(ray);
       SeekResult<TItem> removalsResult = removals.Seek(ray);
 
-      if ((originResult.ResultType==SeekResultType.Exact) && (removalsResult.ResultType!=SeekResultType.Exact))
+      if (originResult.ResultType==SeekResultType.Exact && removalsResult.ResultType!=SeekResultType.Exact)
         return originResult;
 
-      if ((insertionsResult.ResultType==SeekResultType.Exact) || (originResult.ResultType==SeekResultType.None))
+      if (insertionsResult.ResultType==SeekResultType.Exact || originResult.ResultType==SeekResultType.None)
         return insertionsResult;
 
-      if ((insertionsResult.ResultType==SeekResultType.None) && (!removals.Contains(originResult.Result)))
+      if (insertionsResult.ResultType==SeekResultType.None && !removals.Contains(originResult.Result))
         return originResult;
 
-      if (((insertionsResult.ResultType==SeekResultType.None) && (!removals.Contains(originResult.Result))) || ((((KeyComparer.Compare(KeyExtractor(originResult.Result), KeyExtractor(insertionsResult.Result)) < 0) &&
-        (ray.Direction==Direction.Positive)) || ((KeyComparer.Compare(KeyExtractor(originResult.Result), KeyExtractor(insertionsResult.Result)) > 0) &&
-          (ray.Direction==Direction.Negative))) && (!removals.Contains(originResult.Result))))
+      var comparison = KeyComparer.Compare(KeyExtractor(originResult.Result), KeyExtractor(insertionsResult.Result));
+      if (((comparison < 0 && ray.Direction==Direction.Positive) || (comparison > 0 && ray.Direction==Direction.Negative)) 
+        && (!removals.Contains(originResult.Result))) 
         return originResult;
 
       return insertionsResult;
@@ -274,8 +274,24 @@ namespace Xtensive.Indexing.Differential
     /// <inheritdoc/>
     public override SeekResult<TItem> Seek(TKey key)
     {
-      return Seek(new Ray<IEntire<TKey>>(Entire<TKey>.Create(key)));
-    }
+      SeekResult<TItem> originResult = origin.Seek(key);
+      SeekResult<TItem> insertionsResult = insertions.Seek(key);
+      SeekResult<TItem> removalsResult = removals.Seek(key);
+
+      if (originResult.ResultType == SeekResultType.Exact && removalsResult.ResultType != SeekResultType.Exact)
+        return originResult;
+
+      if (insertionsResult.ResultType == SeekResultType.Exact || originResult.ResultType == SeekResultType.None)
+        return insertionsResult;
+
+      if (insertionsResult.ResultType == SeekResultType.None && !removals.Contains(originResult.Result))
+        return originResult;
+
+      if (KeyComparer.Compare(KeyExtractor(originResult.Result), KeyExtractor(insertionsResult.Result)) < 0 && !removals.Contains(originResult.Result))
+        return originResult;
+
+      return insertionsResult;
+    } 
 
     /// <inheritdoc/>
     public override IIndexReader<TKey, TItem> CreateReader(Range<IEntire<TKey>> range)
