@@ -1429,7 +1429,7 @@ namespace Xtensive.Sql.Dom
       return new SqlNextValue(sequence);
     }
 
-    public static SqlStatementBlock Begin()
+    public static SqlStatementBlock StatementBlock()
     {
       return new SqlStatementBlock();
     }

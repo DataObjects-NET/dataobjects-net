@@ -3891,7 +3891,7 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
       SqlCursor cursor = Sql.Cursor("vend_cursor2", select);
       batch.Add(cursor.Declare());
       batch.Add(cursor.Open());
-      SqlStatementBlock block = Sql.Begin();
+      SqlStatementBlock block = Sql.StatementBlock();
       block.Add(cursor.Fetch());
       batch.Add(block);
       batch.Add(cursor.Close());
