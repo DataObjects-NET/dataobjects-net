@@ -2,20 +2,20 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Aleksey Gamzov
-// Created:    2008.08.14
+// Created:    2008.08.19
 
 using System.Collections.Generic;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
-  internal class IndexSqlComparer : WrappingSqlComparer<Index, IndexColumn, DataTableColumn>
+  internal class ViewSqlComparer : WrappingSqlComparer<View, DataTableColumn, Index>
   {
-    public override ComparisonResult<Index> Compare(Index originalNode, Index newNode, IEnumerable<ComparisonHintBase> hints)
+    public override ComparisonResult<View> Compare(View originalNode, View newNode, IEnumerable<ComparisonHintBase> hints)
     {
       throw new System.NotImplementedException();
     }
 
-    public IndexSqlComparer(ISqlComparerProvider provider)
+    public ViewSqlComparer(ISqlComparerProvider provider)
       : base(provider)
     {
     }
