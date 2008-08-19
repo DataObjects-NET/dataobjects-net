@@ -7,6 +7,7 @@
 using System;
 using System.Linq.Expressions;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Threading;
 
 namespace Xtensive.Storage.Rse.Providers.Compilable
 {
@@ -16,10 +17,21 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
   [Serializable]
   public sealed class SkipProvider : UnaryProvider
   {
+    private ThreadSafeCached<Func<int>> compiledCount;
+
     /// <summary>
     /// Skip amount function.
     /// </summary>
     public Expression<Func<int>> Count { get; private set; }
+
+    /// <summary>
+    /// Gets the compiled <see cref="Count"/>.
+    /// </summary>
+    public Func<int> CompiledCount {
+      get {
+        return compiledCount.GetValue(_this => _this.Count.Compile(), this);
+      }
+    }
 
 
     // Constructors

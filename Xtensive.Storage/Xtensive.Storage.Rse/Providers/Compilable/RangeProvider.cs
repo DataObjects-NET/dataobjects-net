@@ -6,7 +6,6 @@
 
 using System;
 using System.Linq.Expressions;
-using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Threading;
 using Xtensive.Core.Tuples;

@@ -32,7 +32,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     protected internal override void OnBeforeEnumerate(EnumerationContext context)
     {
       base.OnBeforeEnumerate(context);
-      CachedKey = Origin.Key.Invoke();
+      CachedKey = Origin.CompiledKey.Invoke();
     }
 
     protected internal override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)

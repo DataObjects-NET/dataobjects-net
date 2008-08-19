@@ -7,6 +7,7 @@
 using System;
 using System.Linq.Expressions;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Threading;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Rse.Providers.Compilable;
 
@@ -18,10 +19,21 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
   [Serializable]
   public sealed class SeekProvider : UnaryProvider
   {
+    private ThreadSafeCached<Func<Tuple>> compiledKey;
+
     /// <summary>
     /// Seek parameter.
     /// </summary>
     public Expression<Func<Tuple>> Key { get; private set; }
+
+    /// <summary>
+    /// Gets the compiled <see cref="Key"/>.
+    /// </summary>
+    public Func<Tuple> CompiledKey {
+      get {
+        return compiledKey.GetValue(_this => _this.Key.Compile(), this);
+      }
+    }
 
 
     // Constructor

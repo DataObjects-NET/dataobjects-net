@@ -68,8 +68,8 @@ namespace Xtensive.Storage
 
     private static RecordSetMapping GetRecordSetMapping(RecordSetHeaderParsingContext context)
     {
-      RecordSetMapping result = context.Domain.RecordSetMappings.GetValue(context.Header);
-      if (result != null)
+      RecordSetMapping result;
+      if (context.Domain.RecordSetMappings.TryGetValue(context.Header, out result))
         return result;
 
       List<ColumnGroupMapping> mappings = new List<ColumnGroupMapping>();
@@ -107,11 +107,11 @@ namespace Xtensive.Storage
     {
       int typeId = tuple.GetValue<int>(columnGroupMapping.TypeIdIndex);
       TypeInfo type = context.Domain.Model.Types[typeId];
-      TypeMapping typeMapping = columnGroupMapping.TypeMappings.GetValue(type);
-      if (typeMapping==null) {
-        typeMapping = BuildTypeMapping(columnGroupMapping, type);
-        columnGroupMapping.TypeMappings.SetValue(type, typeMapping);
-      }
+      TypeMapping typeMapping;
+      if (columnGroupMapping.TypeMappings.TryGetValue(type, out typeMapping))
+        return typeMapping;
+      typeMapping = BuildTypeMapping(columnGroupMapping, type);
+      columnGroupMapping.TypeMappings.SetValue(type, typeMapping);
       return typeMapping;
     }
 
