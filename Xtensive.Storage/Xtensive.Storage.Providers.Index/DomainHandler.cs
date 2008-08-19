@@ -22,7 +22,7 @@ namespace Xtensive.Storage.Providers.Index
   public class DomainHandler: Providers.DomainHandler
   {
     private readonly Dictionary<IndexInfo, IUniqueOrderedIndex<Tuple, Tuple>> realIndexes = new Dictionary<IndexInfo, IUniqueOrderedIndex<Tuple, Tuple>>();
-    private readonly Dictionary<IndexInfo, MapTransform> indexTransforms = new Dictionary<IndexInfo, MapTransform>();
+    private readonly Dictionary<Pair<IndexInfo,TypeInfo>, MapTransform> indexTransforms = new Dictionary<Pair<IndexInfo, TypeInfo>, MapTransform>();
 
     /// <inheritdoc/>
     protected override CompilationContext BuildCompilationContext()
@@ -34,16 +34,18 @@ namespace Xtensive.Storage.Providers.Index
     public override void Build()
     {
       BuildRealIndexes();
-      foreach (IndexInfo indexInfo in Handlers.Domain.Model.Types.SelectMany(type => type.Indexes.Where(i => i.ReflectedType == type))) {
-        MapTransform transform = BuildIndexTransform(indexInfo);
-        indexTransforms.Add(indexInfo, transform);
+      foreach (var pair in Handlers.Domain.Model.Types.SelectMany(type => type.Indexes.Where(i => i.ReflectedType==type).Union(type.AffectedIndexes).Distinct().Select(i => new Pair<IndexInfo, TypeInfo>(i, type)))) {
+        MapTransform transform = BuildIndexTransform(pair.First, pair.Second);
+        indexTransforms.Add(pair, transform);
       }
     }
 
-    private MapTransform BuildIndexTransform(IndexInfo indexInfo)
+    private MapTransform BuildIndexTransform(IndexInfo indexInfo, TypeInfo type)
     {
-      TupleDescriptor descriptor = TupleDescriptor.Create(indexInfo.Columns.Select(columnInfo => columnInfo.ValueType));
-      int[] map = indexInfo.Columns.Select(column => column.Field.MappingInfo.Offset).ToArray();
+      var types = new[] {type}.Union(type.GetAncestors()).ToLookup(t => t);
+      var columns = indexInfo.Columns.Where(c => types.Contains(c.Field.ReflectedType));
+      TupleDescriptor descriptor = TupleDescriptor.Create(columns.Select(columnInfo => columnInfo.ValueType));
+      int[] map = columns.Select(column => column.Field.MappingInfo.Offset).ToArray();
       return new MapTransform(true, descriptor, map);
     }
 
@@ -58,7 +60,6 @@ namespace Xtensive.Storage.Providers.Index
           orderingRule = new DirectionCollection<ColumnInfo>(
             indexInfo.KeyColumns
               .Union(indexInfo.ValueColumns.Select(info => new KeyValuePair<ColumnInfo, Direction>(info, Direction.Positive))));
-        // TODO: manage CultureInfo for columns \ fields
         indexConfig.KeyComparer = AdvancedComparer<Tuple>.Default.ApplyRules(new ComparisonRules(
           ComparisonRule.Positive,
           orderingRule.Select(pair => (ComparisonRules)new ComparisonRule(pair.Value, CultureInfo.InvariantCulture)).ToArray(),
@@ -80,9 +81,9 @@ namespace Xtensive.Storage.Providers.Index
       return realIndexes[indexInfo];
     }
 
-    internal MapTransform GetIndexTransform(IndexInfo indexInfo)
+    internal MapTransform GetIndexTransform(IndexInfo indexInfo, TypeInfo type)
     {
-      return indexTransforms[indexInfo];
+      return indexTransforms[new Pair<IndexInfo, TypeInfo>(indexInfo, type)];
     }
   }
 }

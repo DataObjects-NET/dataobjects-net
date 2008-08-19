@@ -376,7 +376,7 @@ namespace Xtensive.Storage.Tests.Storage
 
       foreach (IndexInfo indexInfo in entity.Data.Type.AffectedIndexes) {
         var index = handler.GetRealIndex(indexInfo);
-        var transform = handler.GetIndexTransform(indexInfo);
+        var transform = handler.GetIndexTransform(indexInfo, entity.Data.Type);
         index.Remove(transform.Apply(TupleTransformType.TransformedTuple, result.Result));
       }
     }
