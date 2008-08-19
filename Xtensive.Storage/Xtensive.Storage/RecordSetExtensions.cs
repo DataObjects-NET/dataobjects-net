@@ -47,7 +47,7 @@ namespace Xtensive.Storage
 //      return result;
     }
 
-    internal static void Process(this RecordSet source)
+    internal static void Import(this RecordSet source)
     {
       RecordSetHeaderParsingContext context = new RecordSetHeaderParsingContext(Session.Current, source.Header);
       RecordSetMapping mapping = GetRecordSetMapping(context);

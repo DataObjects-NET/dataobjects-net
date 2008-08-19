@@ -58,7 +58,7 @@ namespace Xtensive.Storage.Building.Builders
       ProcessIsUnique(index, attribute);
     }
 //
-//    public static void Process(FieldDef field, ConstraintAttribute attribute)
+//    public static void Import(FieldDef field, ConstraintAttribute attribute)
 //    {
 //      field.Constraints.Add(attribute.CreateConstraint(field.ValueType));
 //    }

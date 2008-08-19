@@ -22,14 +22,14 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
   [Serializable]
   public sealed class SelectProvider : UnaryProvider
   {
-    private readonly int[] columnToSelect;
+    private readonly int[] columnIndexes;
 
     /// <summary>
     /// Indexes of columns that should be selected from the <see cref="UnaryProvider.Source"/>.
     /// </summary>
     public int[] ColumnIndexes {
       [DebuggerStepThrough]
-      get { return (int[]) columnToSelect.Clone(); }
+      get { return (int[]) columnIndexes.Clone(); }
     }
 
     /// <inheritdoc/>
@@ -53,7 +53,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     public SelectProvider(CompilableProvider provider, int[] columnIndexes)
       : base(provider)
     {
-      columnToSelect = columnIndexes;      
+      this.columnIndexes = columnIndexes;      
     }
   }
 }

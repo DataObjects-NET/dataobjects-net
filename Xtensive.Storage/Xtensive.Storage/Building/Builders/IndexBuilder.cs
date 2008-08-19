@@ -200,26 +200,26 @@ namespace Xtensive.Storage.Building.Builders
       IndexDef primaryIndexDefinition = typeDef.Indexes.Where(i => i.IsPrimary).FirstOrDefault();
       var indexDefinitions = typeDef.Indexes.Where(i => !i.IsPrimary).ToList();
 
-      //Building primary index for root of the hierarchy
+      // Building primary index for root of the hierarchy
       if (primaryIndexDefinition != null)
         BuildHierarchyPrimaryIndex(type, primaryIndexDefinition);
 
-      //Building declared indexes
+      // Building declared indexes
       foreach (IndexDef indexDescriptor in indexDefinitions)
         BuildDeclaredIndex(type, indexDescriptor);
 
-      //Building primary index for non root entities
+      // Building primary index for non root entities
       TypeInfo parent = type.GetAncestor();
       if (parent != null) {
         IndexInfo parentPrimaryIndex = parent.Indexes.FindFirst(IndexAttributes.Primary | IndexAttributes.Real);
         var primaryIndex = BuildInheritedIndex(type, parentPrimaryIndex);
        
-        //Registering built primary index
+        // Registering built primary index
         type.Indexes.Add(primaryIndex);
         context.Model.RealIndexes.Add(primaryIndex);
       }
 
-      //Building inherited from interfaces indexes
+      // Building inherited from interfaces indexes
       foreach (var @interface in type.GetInterfaces(true)) {
         if ((parent==null) || !parent.GetInterfaces(true).Contains(@interface))
           foreach (var parentIndex in @interface.Indexes.Find(IndexAttributes.Primary, MatchType.None)) {
@@ -237,11 +237,11 @@ namespace Xtensive.Storage.Building.Builders
         }
       }
 
-      //Build indexes for descendants
+      // Build indexes for descendants
       foreach (TypeInfo descendant in type.GetDescendants())
         BuildClassTableIndexes(descendant);
 
-      //Process inherited indexes
+      // Import inherited indexes
       if (type.IsEntity) {
         var primaryIndex = type.Indexes.FindFirst(IndexAttributes.Primary | IndexAttributes.Real);
         var ancestors = type.GetAncestors().ToList();
@@ -260,7 +260,7 @@ namespace Xtensive.Storage.Building.Builders
           type.Indexes.Add(virtualPrimaryIndex);
         }
 
-        //Build virtual secondary index
+        // Build virtual secondary index
         foreach (TypeInfo ancestor in ancestors)
           foreach (IndexInfo ancestorSecondaryIndex in ancestor.Indexes.Find(IndexAttributes.Primary, MatchType.None)) {
             IndexInfo virtualSecondaryIndex = BuildVirtualIndex(type, IndexAttributes.Filtered, ancestorSecondaryIndex);
@@ -300,7 +300,7 @@ namespace Xtensive.Storage.Building.Builders
       IndexDef primaryIndexDefinition = typeDef.Indexes.Where(i => i.IsPrimary).FirstOrDefault();
       var indexDefinitions = typeDef.Indexes.Where(i => !i.IsPrimary).ToList();
 
-      //Building primary index for root of the hierarchy
+      // Building primary index for root of the hierarchy
       if (primaryIndexDefinition != null)
         using (var scope = new LogCaptureScope(context.Log)) {
           var primaryIndex = BuildIndex(root, primaryIndexDefinition);
@@ -310,7 +310,7 @@ namespace Xtensive.Storage.Building.Builders
           }
         }
 
-      //Building declared indexes
+      // Building declared indexes
       foreach (IndexDef indexDescriptor in indexDefinitions)
         using (var scope = new LogCaptureScope(context.Log)) {
           IndexInfo indexInfo = BuildIndex(type, indexDescriptor); 
@@ -320,25 +320,25 @@ namespace Xtensive.Storage.Building.Builders
           }
         }
 
-      //Building primary index for non root entities
+      // Building primary index for non root entities
       TypeInfo parent = type.GetAncestor();
       if (parent != null) {
         IndexInfo parentPrimaryIndex = parent.Indexes.FindFirst(IndexAttributes.Primary | IndexAttributes.Real);
         var primaryIndex = BuildInheritedIndex(type, parentPrimaryIndex);
        
-        //Registering built primary index
+        // Registering built primary index
         type.Indexes.Add(primaryIndex);
         context.Model.RealIndexes.Add(primaryIndex);
       }
 
-      //Building inherited from interfaces indexes
+      // Building inherited from interfaces indexes
       foreach (var @interface in type.GetInterfaces(true)) {
         foreach (var parentIndex in @interface.Indexes.Find(IndexAttributes.Primary, MatchType.None)) {
 
           if (parentIndex.DeclaringIndex == parentIndex)
             using (var scope = new LogCaptureScope(context.Log)) {
               var index = BuildInheritedIndex(type, parentIndex);
-              //TODO: AK: discover this check
+              // TODO: AK: discover this check
               if ((parent != null && parent.Indexes.Contains(index.Name)) || type.Indexes.Contains(index.Name))
                 continue;
               if (!scope.IsCaptured(LogEventTypes.Error)) {
@@ -349,11 +349,11 @@ namespace Xtensive.Storage.Building.Builders
         }
       }
 
-      //Build indexes for descendants
+      // Build indexes for descendants
       foreach (TypeInfo descendant in type.GetDescendants())
         BuildConcreteTableIndexes(descendant);
 
-      //Process inherited indexes
+      // Import inherited indexes
       if (type.IsEntity) {
         var primaryIndex = type.Indexes.FindFirst(IndexAttributes.Primary | IndexAttributes.Real);
         var ancestors = type.GetAncestors().ToList();
@@ -402,7 +402,7 @@ namespace Xtensive.Storage.Building.Builders
       IndexDef primaryIndexDefinition = typeDef.Indexes.Where(i => i.IsPrimary).FirstOrDefault();
       var indexDefinitions = typeDef.Indexes.Where(i => !i.IsPrimary).ToList();
 
-      //Building primary index for root of the hierarchy
+      // Building primary index for root of the hierarchy
       if (primaryIndexDefinition != null)
         using (var scope = new LogCaptureScope(context.Log)) {
           var primaryIndex = BuildIndex(root, primaryIndexDefinition);
@@ -412,7 +412,7 @@ namespace Xtensive.Storage.Building.Builders
           }
         }
 
-      //Building declared indexes
+      // Building declared indexes
       foreach (IndexDef indexDescriptor in indexDefinitions)
         using (var scope = new LogCaptureScope(context.Log)) {
           IndexInfo indexInfo = BuildIndex(type, indexDescriptor); 
@@ -423,14 +423,14 @@ namespace Xtensive.Storage.Building.Builders
         }
 
       TypeInfo parent = type.GetAncestor();
-      //Building inherited from interfaces indexes
+      // Building inherited from interfaces indexes
       foreach (var @interface in type.GetInterfaces(true)) {
         if ((parent == null) || !parent.GetInterfaces(true).Contains(@interface))
           foreach (var parentIndex in @interface.Indexes.Find(IndexAttributes.Primary, MatchType.None)) {
             if (parentIndex.DeclaringIndex == parentIndex)
               using (var scope = new LogCaptureScope(context.Log)) {
                 var index = BuildInheritedIndex(type, parentIndex);
-                //TODO: AK: discover this check
+                // TODO: AK: discover this check
                 if ((parent != null && parent.Indexes.Contains(index.Name)) || type.Indexes.Contains(index.Name))
                   continue;
                 if (!scope.IsCaptured(LogEventTypes.Error)) {
@@ -441,7 +441,7 @@ namespace Xtensive.Storage.Building.Builders
         }
       }
 
-      //Build indexes for descendants
+      // Build indexes for descendants
       foreach (TypeInfo descendant in type.GetDescendants())
         BuildSingleTableIndexes(descendant);
 

@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Diagnostics;
+using Xtensive.Core.Parameters;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers.Compilable;
@@ -42,12 +43,16 @@ namespace Xtensive.Storage.Internals
 
     private static void Fetch(IndexInfo index, Key key, IEnumerable<ColumnInfo> columns)
     {
+      var pKey = new Parameter<Key>("Key");
       if (Log.IsLogged(LogEventTypes.Debug))
-        Log.Debug("Session '{0}'. Fetching: Key = '{1}', Columns = '{2}'", Session.Current, key, columns.Select(c => c.Name).ToCommaDelimitedString());
-      IndexProvider.Get(index).Result
-        .Seek(key.Tuple)
-        .Select(columns.Select(c => index.Columns.IndexOf(c)).ToArray())
-        .Process();
+        Log.Debug("Session '{0}'. Fetching: Key = '{1}', Columns = '{2}'", Session.Current, pKey, columns.Select(c => c.Name).ToCommaDelimitedString());
+      var rs = IndexProvider.Get(index).Result
+        .Seek(() => pKey.Value.Tuple)
+        .Select(columns.Select(c => index.Columns.IndexOf(c)).ToArray());
+      using (new ParameterScope()) {
+        pKey.Value = key;
+        rs.Import();
+      }
     }
   }
 }

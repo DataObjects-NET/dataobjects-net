@@ -5,6 +5,8 @@
 // Created:    2008.07.03
 
 using System;
+using System.Linq.Expressions;
+using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
@@ -18,10 +20,18 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
   [Serializable]
   public class RangeProvider : UnaryProvider
   {
+    private ThreadSafeCached<Func<Range<IEntire<Tuple>>>> compiledRange;
+
     /// <summary>
     /// Range parameter function.
     /// </summary>
-    public Func<Range<IEntire<Tuple>>> Range { get; private set; }
+    public Expression<Func<Range<IEntire<Tuple>>>> Range { get; private set; }
+
+    public Func<Range<IEntire<Tuple>>> CompiledRange {
+      get {
+        compiledRange.GetValue()
+      }
+    }
 
     /// <inheritdoc/>
     public override string ParametersToString()
@@ -32,13 +42,11 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
 
     // Constructor
 
-#pragma warning disable 168
-    private RangeProvider(CompilableProvider source, Func<Range<IEntire<Tuple>>> range, bool hidden)
+    private RangeProvider(CompilableProvider source, Expression<Func<Range<IEntire<Tuple>>>> range, bool hidden)
       : base(source)
     {
       Range = range;
     }
-#pragma warning restore 168
 
 
     /// <summary>
@@ -46,7 +54,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// </summary>
     /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="range">The <see cref="Range"/> property value.</param>
-    public RangeProvider(CompilableProvider source, Func<Range<IEntire<Tuple>>> range)
+    public RangeProvider(CompilableProvider source, Expression<Func<Range<IEntire<Tuple>>>> range)
       : this(source, range, true)
     {}
 

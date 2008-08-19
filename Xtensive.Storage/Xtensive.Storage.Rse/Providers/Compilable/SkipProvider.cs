@@ -5,6 +5,7 @@
 // Created:    2008.08.11
 
 using System;
+using System.Linq.Expressions;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Storage.Rse.Providers.Compilable
@@ -18,7 +19,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <summary>
     /// Skip amount function.
     /// </summary>
-    public Func<int> Count { get; private set; }
+    public Expression<Func<int>> Count { get; private set; }
 
 
     // Constructors
@@ -28,7 +29,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// </summary>
     /// <param name="provider">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="count">The <see cref="Count"/> property value.</param>
-    public SkipProvider(CompilableProvider provider, Func<int> count)
+    public SkipProvider(CompilableProvider provider, Expression<Func<int>> count)
       : base(provider)
     {
       Count = count;
