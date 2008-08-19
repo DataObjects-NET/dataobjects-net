@@ -24,28 +24,14 @@ namespace Xtensive.Indexing.Tests
     public void ConstructionTest()
     {
       Test1();
-      TestIndex();
-      ClearIndex();
       Test2();
-      TestIndex();
-      ClearIndex();
       Test3();
-      TestIndex();
-      ClearIndex();
       Test4();
-      TestIndex();
-      ClearIndex();
       Test5();
-      TestIndex();
-      ClearIndex();
       Test6();
-      TestIndex();
-      ClearIndex();
       Test7();
-      TestIndex();
-      ClearIndex();
-
       Test8();
+      Test9();
     }
 
     private void TestIndex()
@@ -99,6 +85,9 @@ namespace Xtensive.Indexing.Tests
           sortedList.Add(i + 4);
         }
       }
+
+      TestIndex();
+      ClearIndex();
     }
 
     private void Test2()
@@ -115,6 +104,9 @@ namespace Xtensive.Indexing.Tests
         index.Add(i);
       for (int i = 0; i <= 10; i++)
         sortedList.Add(i);
+      
+      TestIndex();
+      ClearIndex();
     }
 
     private void Test3()
@@ -131,6 +123,9 @@ namespace Xtensive.Indexing.Tests
         index.Remove(i);
       for (int i = 1; i <= 5; i += 2)
         sortedList.Add(i);
+
+      TestIndex();
+      ClearIndex();
     }
 
     private void Test4()
@@ -149,6 +144,9 @@ namespace Xtensive.Indexing.Tests
       index.Add(5);
       for (int i = 0; i <= 5; i++)
         sortedList.Add(i);
+
+      TestIndex();
+      ClearIndex();
     }
 
     private void Test5()
@@ -173,7 +171,10 @@ namespace Xtensive.Indexing.Tests
       sortedList.Add(8);
       for (int i = 13; i <= 15; i++)
         sortedList.Add(i);
-    }
+
+      TestIndex();
+      ClearIndex();
+      }
 
     private void Test6()
     {
@@ -187,6 +188,9 @@ namespace Xtensive.Indexing.Tests
       sortedList = new List<int>();
       for (int i = 0; i <= 5; i++)
         index.Remove(i);
+
+      TestIndex();
+      ClearIndex();
     }
 
     private void Test7()
@@ -205,15 +209,55 @@ namespace Xtensive.Indexing.Tests
         index.Add(i);
         sortedList.Add(i);
       }
+      
+      TestIndex();
+      ClearIndex();
     }
 
     private void Test8()
     {
       IndexConfigurationBase<int, int> originConfiguration = new IndexConfigurationBase<int, int>(item => item, comparer);
       IUniqueOrderedIndex<int, int> origin = IndexFactory.CreateUniqueOrdered<int, int, SortedListIndex<int, int>>(originConfiguration);
+      origin.Add(0);
+      origin.Add(1);
+      origin.Add(5);
       DifferentialIndexConfiguration<int, int> indexConfig = new DifferentialIndexConfiguration<int, int>(origin);
       index = IndexFactory.CreateDifferential<int, int, DifferentialIndex<int, int, SortedListIndex<int, int>>, SortedListIndex<int, int>>(indexConfig);
+      index.Remove(0);
+      index.Remove(1);
+      index.Add(-3);
+      index.Add(-2);
+      index.Add(-1);
+      index.Add(2);
+      index.Add(3);
+      index.Remove(-3);
+      index.Add(1);
+
+      sortedList = new List<int>();
+      sortedList.Add(-2);
+      sortedList.Add(-1);
+      sortedList.Add(1);
+      sortedList.Add(2);
+      sortedList.Add(3);
+      sortedList.Add(5);
+
+      TestIndex();
+      ClearIndex();
+    }
+
+    private void Test9()
+    {
+      IndexConfigurationBase<int, int> originConfiguration = new IndexConfigurationBase<int, int>(item => item, comparer);
+      IUniqueOrderedIndex<int, int> origin = IndexFactory.CreateUniqueOrdered<int, int, SortedListIndex<int, int>>(originConfiguration);
+      origin.Add(0);
+      origin.Add(1);
+      DifferentialIndexConfiguration<int, int> indexConfig = new DifferentialIndexConfiguration<int, int>(origin);
+      index = IndexFactory.CreateDifferential<int, int, DifferentialIndex<int, int, SortedListIndex<int, int>>, SortedListIndex<int, int>>(indexConfig);
+      index.Remove(0);
+      index.Remove(1);
       IndexTest.TestIndex(index, new IndexTest.Configuration(RandomManager.CreateRandom(SeedVariatorType.CallingMethod), 100));
+
+      ClearIndex();
     }
 
     private void TestEnumerable<TKey, TItem>(IIndex<TKey, TItem> difIndex, List<TItem> list)

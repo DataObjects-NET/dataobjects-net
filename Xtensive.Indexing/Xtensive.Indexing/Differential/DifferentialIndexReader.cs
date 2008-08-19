@@ -23,8 +23,8 @@ namespace Xtensive.Indexing.Differential
     private IIndexReader<TKey, TItem> reader;
     private int flag = 1;
     private bool originFlag = true;
-    private bool insertionFlag = true;
-    private bool removalFlag = true;
+    private bool insertionsFlag = true;
+    private bool removalsFlag = true;
     private bool isFirstMove = true;
 
 
@@ -97,14 +97,14 @@ namespace Xtensive.Indexing.Differential
           flag = 2;
         }
         if (index.Insertions.Count==0) {
-          insertionFlag = false;
+          insertionsFlag = false;
           reader = originReader;
           flag = 1;
         }
-        if (!originFlag && !insertionFlag)
+        if (!originFlag && !insertionsFlag)
           return false;
         if (index.Removals.Count==0)
-          removalFlag = false;
+          removalsFlag = false;
       }
 
       //---Try to move next.-----
@@ -113,14 +113,14 @@ namespace Xtensive.Indexing.Differential
         return true;
       moveNextResult = false;
 
-      if ((flag==1) && (insertionFlag)) {
+      if ((flag==1) && (insertionsFlag)) {
         reader = insertionsReader;
         originFlag = false;
         moveNextResult = MoveIsPossible();
       }
       if ((flag==2) && (originFlag)) {
         reader = originReader;
-        insertionFlag = false;
+        insertionsFlag = false;
         moveNextResult = MoveIsPossible();
       }
       return moveNextResult;
@@ -136,8 +136,8 @@ namespace Xtensive.Indexing.Differential
     public void MoveTo(IEntire<TKey> key)
     {
       originFlag = true;
-      insertionFlag = true;
-      removalFlag = true;
+      insertionsFlag = true;
+      removalsFlag = true;
       isFirstMove = true;
 
       IEntire<TKey> point;
@@ -160,7 +160,7 @@ namespace Xtensive.Indexing.Differential
         if (index.Insertions.Count!=0) {
           point = Entire<TKey>.Create(index.KeyExtractor(index.Insertions.Seek(new Ray<IEntire<TKey>>(key, reader.Direction)).Result));
           if (IsGreater(point.Value, key.Value) > 0)
-            insertionFlag = false;
+            insertionsFlag = false;
           else
             insertionsReader.MoveTo(point);
         }
@@ -168,7 +168,7 @@ namespace Xtensive.Indexing.Differential
       if (index.Removals.Count!=0) {
         point = Entire<TKey>.Create(index.KeyExtractor(index.Removals.Seek(new Ray<IEntire<TKey>>(key, reader.Direction)).Result));
         if (IsGreater(point.Value, key.Value) > 0)
-          removalFlag = false;
+          removalsFlag = false;
         else
           removalsReader.MoveTo(point);
       }
@@ -189,39 +189,40 @@ namespace Xtensive.Indexing.Differential
     private bool MoveIsPossible()
     {
       if (isFirstMove) {
-        if ((flag==1) && insertionFlag && !insertionsReader.MoveNext())
-          insertionFlag = false;
+        if ((flag==1) && insertionsFlag && !insertionsReader.MoveNext())
+          insertionsFlag = false;
         if ((flag==2) && originFlag && !originReader.MoveNext())
           originFlag = false;
-        if (removalFlag && !removalsReader.MoveNext())
-          removalFlag = false;
+        if (removalsFlag && !removalsReader.MoveNext())
+          removalsFlag = false;
         isFirstMove = false;
       }
-      while (originFlag && removalFlag && (IsGreater(index.KeyExtractor(originReader.Current), index.KeyExtractor(removalsReader.Current))==0)) {
+      while (originFlag && removalsFlag && (IsGreater(index.KeyExtractor(originReader.Current), index.KeyExtractor(removalsReader.Current))<=0)) {
+        if (IsGreater(index.KeyExtractor(originReader.Current), index.KeyExtractor(removalsReader.Current))==0)
         if (originReader.MoveNext()) {
           reader = originReader;
           flag = 1;
         }
         else {
           originFlag = false;
-          if (insertionFlag) {
+          if (insertionsFlag) {
             reader = insertionsReader;
             flag = 2;
             break;
           }
         }
         if (!removalsReader.MoveNext()) {
-          removalFlag = false;
+          removalsFlag = false;
           break;
         }
       }
-      if ((originFlag && !insertionFlag) || (originFlag && insertionFlag && (IsGreater(index.KeyExtractor(originReader.Current), index.KeyExtractor(insertionsReader.Current)) > 0))) {
+      if ((originFlag && !insertionsFlag) || (originFlag && insertionsFlag && (IsGreater(index.KeyExtractor(originReader.Current), index.KeyExtractor(insertionsReader.Current)) > 0))) {
         flag = 1;
         reader = originReader;
         return true;
       }
 
-      if ((insertionFlag && !originFlag) || (originFlag && insertionFlag && (IsGreater(index.KeyExtractor(originReader.Current), index.KeyExtractor(insertionsReader.Current)) < 0))) {
+      if ((insertionsFlag && !originFlag) || (originFlag && insertionsFlag && (IsGreater(index.KeyExtractor(originReader.Current), index.KeyExtractor(insertionsReader.Current)) < 0))) {
         flag = 2;
         reader = insertionsReader;
         return true;
@@ -230,6 +231,7 @@ namespace Xtensive.Indexing.Differential
     }
 
     #endregion
+
 
     //Constructors
 
