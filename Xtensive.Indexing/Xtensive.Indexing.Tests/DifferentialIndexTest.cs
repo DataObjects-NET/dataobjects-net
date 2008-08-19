@@ -32,6 +32,7 @@ namespace Xtensive.Indexing.Tests
       Test7();
       Test8();
       Test9();
+      Test10();
     }
 
     private void TestIndex()
@@ -59,7 +60,6 @@ namespace Xtensive.Indexing.Tests
 
     private void Test1()
     {
-      // A)-------(0-1-2-5-6-7-10-11-12 || 3-4-8-9 || 1-2-6-7-11-12)
       IndexConfigurationBase<int, int> originConfiguration = new IndexConfigurationBase<int, int>(item => item, comparer);
       IUniqueOrderedIndex<int, int> origin = IndexFactory.CreateUniqueOrdered<int, int, SortedListIndex<int, int>>(originConfiguration);
       for (int i = 0; i <= 10; i = i + 5) {
@@ -92,7 +92,6 @@ namespace Xtensive.Indexing.Tests
 
     private void Test2()
     {
-      // B)-------(1-3-5-7-9 || 0-2-4-6-8-10)
       IndexConfigurationBase<int, int> originConfiguration = new IndexConfigurationBase<int, int>(item => item, comparer);
       IUniqueOrderedIndex<int, int> origin = IndexFactory.CreateUniqueOrdered<int, int, SortedListIndex<int, int>>(originConfiguration);
       for (int i = 1; i < 10; i += 2)
@@ -111,7 +110,6 @@ namespace Xtensive.Indexing.Tests
 
     private void Test3()
     {
-      // C)-------(0-1-2-3-4-5-6 || 0-2-4-6-8 R)
       IndexConfigurationBase<int, int> originConfiguration = new IndexConfigurationBase<int, int>(item => item, comparer);
       IUniqueOrderedIndex<int, int> origin = IndexFactory.CreateUniqueOrdered<int, int, SortedListIndex<int, int>>(originConfiguration);
       for (int i = 0; i <= 6; i++)
@@ -130,7 +128,6 @@ namespace Xtensive.Indexing.Tests
 
     private void Test4()
     {
-      // D)--------(0-1-2-3-4-5 || 1-3-5-7 || 1-3-5-7)
       IndexConfigurationBase<int, int> originConfiguration = new IndexConfigurationBase<int, int>(item => item, comparer);
       IUniqueOrderedIndex<int, int> origin = IndexFactory.CreateUniqueOrdered<int, int, SortedListIndex<int, int>>(originConfiguration);
       for (int i = 0; i <= 5; i++)
@@ -151,7 +148,6 @@ namespace Xtensive.Indexing.Tests
 
     private void Test5()
     {
-      // E)-------(I 1-2-3 || O 7-8-9-10 || R 9-10 || I 13-14-15)
       IndexConfigurationBase<int, int> originConfiguration = new IndexConfigurationBase<int, int>(item => item, comparer);
       IUniqueOrderedIndex<int, int> origin = IndexFactory.CreateUniqueOrdered<int, int, SortedListIndex<int, int>>(originConfiguration);
       for (int i = 7; i <= 10; i++)
@@ -178,7 +174,6 @@ namespace Xtensive.Indexing.Tests
 
     private void Test6()
     {
-      // F)-----------------(O == R)
       IndexConfigurationBase<int, int> originConfiguration = new IndexConfigurationBase<int, int>(item => item, comparer);
       IUniqueOrderedIndex<int, int> origin = IndexFactory.CreateUniqueOrdered<int, int, SortedListIndex<int, int>>(originConfiguration);
       for (int i = 0; i <= 5; i++)
@@ -195,7 +190,6 @@ namespace Xtensive.Indexing.Tests
 
     private void Test7()
     {
-      // G)------------------(O == R == I)
       IndexConfigurationBase<int, int> originConfiguration = new IndexConfigurationBase<int, int>(item => item, comparer);
       IUniqueOrderedIndex<int, int> origin = IndexFactory.CreateUniqueOrdered<int, int, SortedListIndex<int, int>>(originConfiguration);
       for (int i = 0; i <= 5; i++)
@@ -246,6 +240,33 @@ namespace Xtensive.Indexing.Tests
     }
 
     private void Test9()
+    {
+      IndexConfigurationBase<int, int> originConfiguration = new IndexConfigurationBase<int, int>(item => item, comparer);
+      IUniqueOrderedIndex<int, int> origin = IndexFactory.CreateUniqueOrdered<int, int, SortedListIndex<int, int>>(originConfiguration);
+      origin.Add(-3);
+      origin.Add(-2);
+      origin.Add(-1);
+      origin.Add(4);
+      origin.Add(5);
+      DifferentialIndexConfiguration<int, int> indexConfig = new DifferentialIndexConfiguration<int, int>(origin);
+      index = IndexFactory.CreateDifferential<int, int, DifferentialIndex<int, int, SortedListIndex<int, int>>, SortedListIndex<int, int>>(indexConfig);
+      index.Add(1);
+      index.Add(2);
+      index.Remove(1);
+      index.Remove(2);
+
+      sortedList = new List<int>();
+      sortedList.Add(-3);
+      sortedList.Add(-2);
+      sortedList.Add(-1);
+      sortedList.Add(4);
+      sortedList.Add(5);
+
+      TestIndex();
+      ClearIndex();
+    }
+
+    private void Test10()
     {
       IndexConfigurationBase<int, int> originConfiguration = new IndexConfigurationBase<int, int>(item => item, comparer);
       IUniqueOrderedIndex<int, int> origin = IndexFactory.CreateUniqueOrdered<int, int, SortedListIndex<int, int>>(originConfiguration);
