@@ -291,5 +291,4 @@ namespace Xtensive.Indexing.Differential
       }
     }
   }
-  }
 }
