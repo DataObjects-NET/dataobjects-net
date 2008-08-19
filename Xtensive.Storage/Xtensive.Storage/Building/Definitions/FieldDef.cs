@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
+using Xtensive.Storage.Building.Builders;
 using Xtensive.Storage.Model;
 using FieldAttributes=Xtensive.Storage.Model.FieldAttributes;
 
@@ -42,7 +43,11 @@ namespace Xtensive.Storage.Building.Definitions
     public bool IsNullable
     {
       get { return (attributes & FieldAttributes.Nullable) != 0; }
-      set { attributes = value ? attributes | FieldAttributes.Nullable : attributes & ~FieldAttributes.Nullable; }
+      set
+      {
+        FieldBuilder.ValidateIsNullable(ValueType);
+        attributes = value ? attributes | FieldAttributes.Nullable : attributes & ~FieldAttributes.Nullable;
+      }
     }
 
     /// <summary>
@@ -183,6 +188,8 @@ namespace Xtensive.Storage.Building.Definitions
     {
       IsStructure = valueType.IsSubclassOf(typeof(Structure)) || valueType == typeof(Structure);
       IsEntity = valueType == typeof(Entity) || valueType.IsSubclassOf(typeof(Entity));
+      if (IsEntity)
+        attributes |= FieldAttributes.Nullable;
       ValueType = valueType;
       if (valueType.IsGenericType) {
         Type genericType = valueType.GetGenericTypeDefinition();
@@ -191,7 +198,7 @@ namespace Xtensive.Storage.Building.Definitions
           ValueType = valueType.GetGenericArguments()[0];
         if (genericType == typeof(Nullable<>)) {
           ValueType = Nullable.GetUnderlyingType(valueType);
-          IsNullable = true;
+          attributes |= FieldAttributes.Nullable;
         }
       }
       LazyLoad = false;

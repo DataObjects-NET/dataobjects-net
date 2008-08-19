@@ -17,7 +17,7 @@ using Xtensive.Storage.Providers;
 using Xtensive.Storage.Resources;
 using Xtensive.Core.Reflection;
 
-namespace Xtensive.Storage.Building
+namespace Xtensive.Storage.Building.Builders
 {
   /// <summary>
   /// Utility class for <see cref="Storage"/> building.

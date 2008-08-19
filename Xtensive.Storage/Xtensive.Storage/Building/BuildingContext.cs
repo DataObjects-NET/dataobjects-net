@@ -10,6 +10,7 @@ using Xtensive.Core;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
+using Xtensive.Storage.Building.Builders;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Building.Internals;
 using Xtensive.Storage.Configuration;

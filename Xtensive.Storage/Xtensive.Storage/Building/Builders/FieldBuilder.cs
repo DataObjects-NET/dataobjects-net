@@ -147,12 +147,20 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void ValidateValueType(Type valueType, Type declaringType)
     {
+      if (valueType.IsGenericType) {
+        Type genericType = valueType.GetGenericTypeDefinition();
+        if (genericType==typeof (Nullable<>)) {
+          ValidateValueType(Nullable.GetUnderlyingType(valueType), declaringType);
+          return;
+        }
+      }
+
       if (valueType.IsPrimitive || valueType.IsEnum || typeof (string)==valueType 
         || typeof(byte[])==valueType || typeof(Guid)==valueType)
         return;
 
       if (typeof (Entity).IsAssignableFrom(valueType))
-        return;            
+        return;
 
       if (valueType.IsSubclassOf(typeof (Structure)))
         return;
@@ -165,10 +173,17 @@ namespace Xtensive.Storage.Building.Builders
           throw new DomainBuilderException(
             string.Format("Structures do not support fields of type '{0}'.", valueType.Name));
 
-        return;        
-      }        
+        return;
+      }
+
       throw new DomainBuilderException(
         string.Format(Resources.Strings.UnsupportedFieldTypeX, valueType.Name));
+    }
+
+    internal static void ValidateIsNullable(Type valueType)
+    {
+      if (!(valueType.IsSubclassOf(typeof(Entity)) || valueType == typeof(string) || valueType == typeof(byte[])))
+        throw new DomainBuilderException(String.Format("Field of type '{0}' cannot be nullable. For value types consider using Nullable<T>.", valueType));
     }
 
     public static void BuildInheritedField(TypeInfo type, FieldInfo inheritedField)

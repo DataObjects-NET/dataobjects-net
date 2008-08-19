@@ -169,6 +169,8 @@ namespace Xtensive.Storage.Building.Builders
               string.Format(
                 Strings.ExFieldXHasYTypeButIsMarkedAsNotNullable,
                 field.Name, field.UnderlyingProperty.PropertyType.Name));
+        else if (field.ValueType.IsSubclassOf(typeof (Entity)) && attribute.IsNullable)
+          Log.Warning(Strings.ExplicitIsNullableAttributeIsRedundant);
         else
           field.IsNullable = attribute.IsNullable;
     }
