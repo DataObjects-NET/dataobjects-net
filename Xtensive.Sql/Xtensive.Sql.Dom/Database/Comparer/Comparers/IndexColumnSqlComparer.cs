@@ -4,10 +4,12 @@
 // Created by: Aleksey Gamzov
 // Created:    2008.08.19
 
+using System;
 using System.Collections.Generic;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
+  [Serializable]
   internal class IndexColumnSqlComparer : WrappingSqlComparer<IndexColumn, DataTableColumn>
   {
     public override ComparisonResult<IndexColumn> Compare(IndexColumn originalNode, IndexColumn newNode, IEnumerable<ComparisonHintBase> hints)

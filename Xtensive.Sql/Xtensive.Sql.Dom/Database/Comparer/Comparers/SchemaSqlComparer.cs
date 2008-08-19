@@ -6,11 +6,10 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Core;
-using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
+  [Serializable]
   internal class SchemaSqlComparer : SqlComparerBase<Schema>
   {
     private readonly SqlComparerStruct<Assertion> assertionComparer;

@@ -4,10 +4,12 @@
 // Created by: Aleksey Gamzov
 // Created:    2008.08.18
 
+using System;
 using System.Collections.Generic;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
+  [Serializable]
   internal class TableColumnSqlComparer : WrappingSqlComparer<TableColumn, Collation>
   {
     public override ComparisonResult<TableColumn> Compare(TableColumn originalNode, TableColumn newNode, IEnumerable<ComparisonHintBase> hints)

@@ -4,10 +4,12 @@
 // Created by: Aleksey Gamzov
 // Created:    2008.08.19
 
+using System;
 using System.Collections.Generic;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
+  [Serializable]
   internal class ViewSqlComparer : WrappingSqlComparer<View, DataTableColumn, Index>
   {
     public override ComparisonResult<View> Compare(View originalNode, View newNode, IEnumerable<ComparisonHintBase> hints)

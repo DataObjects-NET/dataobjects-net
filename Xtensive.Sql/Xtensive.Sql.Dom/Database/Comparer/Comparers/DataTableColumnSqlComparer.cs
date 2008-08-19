@@ -4,11 +4,13 @@
 // Created by: Aleksey Gamzov
 // Created:    2008.08.19
 
+using System;
 using System.Collections.Generic;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
-  public class DataTableColumnSqlComparer : SqlComparerBase<DataTableColumn>
+  [Serializable]
+  internal class DataTableColumnSqlComparer : SqlComparerBase<DataTableColumn>
   {
     public override ComparisonResult<DataTableColumn> Compare(DataTableColumn originalNode, DataTableColumn newNode, IEnumerable<ComparisonHintBase> hints)
     {
