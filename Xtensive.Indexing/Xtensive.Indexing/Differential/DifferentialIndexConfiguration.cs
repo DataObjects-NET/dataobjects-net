@@ -77,7 +77,9 @@ namespace Xtensive.Indexing.Differential
     {
       base.Clone(source);
       DifferentialIndexConfiguration<TKey, TItem> indexConfiguration = (DifferentialIndexConfiguration<TKey, TItem>) source;
-//      insert = indexConfiguration.SegmentName;
+      origin = indexConfiguration.Origin;
+      insertions = indexConfiguration.Insertions;
+      removals = indexConfiguration.Removals;
     }
 
     #endregion
