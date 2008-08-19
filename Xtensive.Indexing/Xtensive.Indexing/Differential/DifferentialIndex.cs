@@ -300,7 +300,7 @@ namespace Xtensive.Indexing.Differential
     }
 
 
-    //Constructors
+    // Constructors
 
     public DifferentialIndex()
     {
