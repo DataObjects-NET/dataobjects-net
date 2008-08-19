@@ -5,7 +5,6 @@
 // Created:    2008.08.14
 
 using System;
-using System.Collections;
 using System.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Resources;
@@ -23,7 +22,7 @@ namespace Xtensive.Core.Parameters
     }
 
     [DebuggerStepThrough]
-    internal object GetValue(ParameterBase parameter)
+    internal object GetValue(Parameter parameter)
     {
       object value;
       if (Context.TryGetValue(parameter, out value))
@@ -35,7 +34,7 @@ namespace Xtensive.Core.Parameters
     }
 
     [DebuggerStepThrough]
-    internal void SetValue(ParameterBase parameter, object value)
+    internal void SetValue(Parameter parameter, object value)
     {
       Context.SetValue(parameter, value);      
     }

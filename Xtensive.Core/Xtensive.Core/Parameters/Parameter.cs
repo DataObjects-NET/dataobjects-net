@@ -15,62 +15,78 @@ namespace Xtensive.Core.Parameters
   /// <summary>
   /// Parameter - an object identifying its value in active <see cref="ParameterContext"/>.
   /// </summary>
-  /// <typeparam name="TValue">The type of parameter value.</typeparam>
-  public sealed class Parameter<TValue> : ParameterBase
+  public class Parameter
   {
     /// <summary>
-    /// Gets or sets the parameter value.
+    /// Gets or sets the parameter name.
     /// </summary>    
+    public string Name { get; private set;}
+
+    /// <summary>
+    /// Gets or sets the value of the parameter.
+    /// </summary>
     /// <exception cref="InvalidOperationException"><see cref="ParameterContext"/> is not activated.</exception>
     /// <exception cref="InvalidOperationException">Value for the parameter is not set.</exception>
-    public new TValue Value
+    public object Value {
+      [DebuggerStepThrough]
+      get { return GetValue(); }
+      [DebuggerStepThrough]
+      set { SetValue(value); }
+    }
+
+    /// <summary>
+    /// Gets the value of the parameter.
+    /// </summary>
+    /// <returns>Parameter value.</returns>
+    /// <exception cref="InvalidOperationException"><see cref="ParameterContext"/> is not activated.</exception>
+    /// <exception cref="InvalidOperationException">Value for the parameter is not set.</exception>
+    public object GetValue()
     {
-      [DebuggerStepThrough]
-      get {
-        var currentScope = ParameterScope.CurrentScope;
-        if (currentScope==null)
-          throw new InvalidOperationException(
-            string.Format(Strings.XIsNotActivated, typeof(ParameterContext).GetShortName()));
-        return (TValue) currentScope.GetValue(this);
-      }
-      [DebuggerStepThrough]
-      set {
-        var currentScope = ParameterScope.CurrentScope;
-        if (currentScope==null)
-          throw new InvalidOperationException(
-            string.Format(Strings.XIsNotActivated, typeof(ParameterContext).GetShortName()));
-        currentScope.SetValue(this, value);
-      }
+      var currentScope = ParameterScope.CurrentScope;
+      if (currentScope==null)
+        throw new InvalidOperationException(
+          string.Format(Strings.XIsNotActivated, typeof(ParameterContext).GetShortName()));
+      return currentScope.GetValue(this);
+    }
+
+    /// <summary>
+    /// Sets the value of the parameter.
+    /// </summary>
+    /// <param name="value">The new value.</param>
+    /// <exception cref="InvalidOperationException"><see cref="ParameterContext"/> is not activated.</exception>    
+    public void SetValue(object value)
+    {
+      var currentScope = ParameterScope.CurrentScope;
+      if (currentScope==null)
+        throw new InvalidOperationException(
+          string.Format(Strings.XIsNotActivated, typeof(ParameterContext).GetShortName()));
+      currentScope.SetValue(this, value);
     }
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
-    protected override object GetValue()
+    public override string ToString()
     {
-      return Value;
+      return Name;
     }
 
-    /// <inheritdoc/>
-    [DebuggerStepThrough]
-    protected override void SetValue(object value)
-    {
-      Value = (TValue) value;
-    }
-
-
+    
     // Constructors
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="name">The <see cref="Name"/> property value.</param>
+    [DebuggerStepThrough]
+    public Parameter(string name)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(name, "name");
+      Name = name;
+    }
 
     /// <inheritdoc/>
     [DebuggerStepThrough]
     public Parameter()
       : this(string.Empty)
-    {
-    }
-
-    /// <inheritdoc/>
-    [DebuggerStepThrough]
-    public Parameter(string name)
-      : base(name)
     {
     }
   }

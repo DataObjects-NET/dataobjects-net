@@ -15,8 +15,8 @@ namespace Xtensive.Core.Parameters
   /// </summary>
   public class ParameterContext : Context<ParameterScope>
   {    
-    internal readonly Dictionary<ParameterBase, object> values = 
-      new Dictionary<ParameterBase, object>();
+    internal readonly Dictionary<Parameter, object> values = 
+      new Dictionary<Parameter, object>();
 
     /// <summary>
     /// Gets the current <see cref="ParameterContext"/>.
@@ -27,13 +27,13 @@ namespace Xtensive.Core.Parameters
     }
 
     [DebuggerStepThrough]
-    internal bool TryGetValue(ParameterBase parameter, out object value)
+    internal bool TryGetValue(Parameter parameter, out object value)
     {
       return values.TryGetValue(parameter, out value);
     }
     
     [DebuggerStepThrough]
-    internal void SetValue(ParameterBase parameter, object value)
+    internal void SetValue(Parameter parameter, object value)
     {
       values[parameter] = value;
     }

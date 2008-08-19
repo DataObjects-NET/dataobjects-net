@@ -17,6 +17,13 @@ namespace Xtensive.Core.Tests.Parameters
     [Test]
     public void CombinedTest()
     {
+      Parameter untypedParameter = new Parameter();
+
+      using (new ParameterScope()) {
+        untypedParameter.Value = "22";
+        Assert.AreEqual("22", untypedParameter.Value);        
+      }
+
       Parameter<int> parameter = new Parameter<int>();
 
       AssertEx.Throws<InvalidOperationException>(delegate {
