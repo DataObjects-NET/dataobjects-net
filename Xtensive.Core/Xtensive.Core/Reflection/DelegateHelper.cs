@@ -11,8 +11,8 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
 using System.Threading;
-using Xtensive.Core.Collections;
 using Xtensive.Core.Resources;
+using Xtensive.Core.Threading;
 
 namespace Xtensive.Core.Reflection
 {
@@ -449,7 +449,9 @@ namespace Xtensive.Core.Reflection
 
     private static Delegate GetCachedDelegate(string delegateKey)
     {
-      return cachedDelegates.GetValue(delegateKey);
+      Delegate result;
+      return 
+        cachedDelegates.TryGetValue(delegateKey, out result) ? result : null;      
     }
 
     private static void AddCachedDelegate(string delegateKey, Delegate value)

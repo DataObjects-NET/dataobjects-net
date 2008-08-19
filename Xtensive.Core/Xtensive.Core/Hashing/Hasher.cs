@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Threading;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Threading;
 
 namespace Xtensive.Core.Hashing
 {
@@ -22,8 +23,8 @@ namespace Xtensive.Core.Hashing
   [Serializable]
   public sealed class Hasher<T> : MethodCacheBase<IHasher<T>>
   {
-    private static readonly object syncRoot = new object();
-    private static Hasher<T> @default;
+    private static ThreadSafeCached<Hasher<T>> cachedHasher =
+      ThreadSafeCached<Hasher<T>>.Create(new object());
 
     /// <summary>
     /// Gets default hasher for type <typeparamref name="T"/>
@@ -32,17 +33,8 @@ namespace Xtensive.Core.Hashing
     public static Hasher<T> Default {
       [DebuggerStepThrough]
       get {
-        if (@default==null) lock (syncRoot) if (@default==null) {
-          try {
-            var hasher = HasherProvider.Default.GetHasher<T>();
-            Thread.MemoryBarrier();
-            @default = hasher;
-          }
-          catch(Exception e) {
-            Log.Info(e, String.Format(Resources.Strings.LogUnableToGetDefaultHasherForTypeXxx, typeof (T).FullName));
-          }
-        }
-        return @default;
+        return cachedHasher.GetValue(
+          () => HasherProvider.Default.GetHasher<T>());
       }
     }
 

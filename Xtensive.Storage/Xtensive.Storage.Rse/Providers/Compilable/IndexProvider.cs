@@ -5,8 +5,7 @@
 // Created:    2008.07.03
 
 using System;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Threading;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Rse.Providers.Compilable

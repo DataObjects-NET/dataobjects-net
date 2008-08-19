@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Threading;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Threading;
 
 namespace Xtensive.Core.SizeCalculators
 {
@@ -23,6 +24,9 @@ namespace Xtensive.Core.SizeCalculators
   public sealed class SizeCalculator<T> : MethodCacheBase<ISizeCalculator<T>>,
     IHasSizeCalculator
   {
+    private static ThreadSafeCached<SizeCalculator<T>> cachedCalculator =
+      ThreadSafeCached<SizeCalculator<T>>.Create(new object());
+
     private static readonly object _lock = new object();
     private static volatile SizeCalculator<T> @default;
 
@@ -33,16 +37,8 @@ namespace Xtensive.Core.SizeCalculators
     public static SizeCalculator<T> Default {
       [DebuggerStepThrough]
       get {
-        if (@default==null) lock (_lock) if (@default==null) {
-          try {
-            var sizeCalculator = SizeCalculatorProvider.Default.GetSizeCalculator<T>();
-            Thread.MemoryBarrier();
-            @default = sizeCalculator;
-          }
-          catch {
-          }
-        }
-        return @default;
+        return cachedCalculator.GetValue(
+          () => SizeCalculatorProvider.Default.GetSizeCalculator<T>());
       }
     }
 

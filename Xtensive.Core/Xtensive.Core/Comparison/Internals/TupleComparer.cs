@@ -5,9 +5,9 @@
 // Created:    2008.01.29
 
 using System;
-using Xtensive.Core.Collections;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Reflection;
+using Xtensive.Core.Threading;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Internals;
 

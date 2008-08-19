@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Threading;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Threading;
 
 namespace Xtensive.Core.Conversion
 {
@@ -23,8 +24,8 @@ namespace Xtensive.Core.Conversion
   [Serializable]
   public class AdvancedConverter<TFrom, TTo> : MethodCacheBase<IAdvancedConverter<TFrom, TTo>>
   {
-    private static readonly object _lock = new object();
-    private static volatile AdvancedConverter<TFrom, TTo> @default;
+    private static ThreadSafeCached<AdvancedConverter<TFrom, TTo>> cachedConverter =
+      ThreadSafeCached<AdvancedConverter<TFrom, TTo>>.Create(new object());
 
     /// <summary>
     /// Gets default advanced converter for types <typeparamref name="TFrom"/> and <typeparamref name="TTo"/>.
@@ -33,16 +34,8 @@ namespace Xtensive.Core.Conversion
     public static AdvancedConverter<TFrom, TTo> Default {
       [DebuggerStepThrough]
       get {
-        if (@default==null) lock (_lock) if (@default==null) {
-          try {
-            var converter = AdvancedConverterProvider.Default.GetConverter<TFrom, TTo>();
-            Thread.MemoryBarrier();
-            @default = converter;
-          }
-          catch {
-          }
-        }
-        return @default;
+        return cachedConverter.GetValue(
+          () => AdvancedConverterProvider.Default.GetConverter<TFrom, TTo>());
       }
     }
 

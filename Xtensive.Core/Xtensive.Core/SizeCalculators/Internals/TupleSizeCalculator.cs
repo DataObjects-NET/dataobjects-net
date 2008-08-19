@@ -5,9 +5,9 @@
 // Created:    2008.05.13
 
 using System;
-using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
+using Xtensive.Core.Threading;
 using Xtensive.Core.Tuples;
 
 namespace Xtensive.Core.SizeCalculators

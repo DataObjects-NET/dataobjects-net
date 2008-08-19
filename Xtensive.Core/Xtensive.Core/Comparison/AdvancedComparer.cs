@@ -11,6 +11,7 @@ using System.Runtime.Serialization;
 using System.Threading;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Threading;
 
 namespace Xtensive.Core.Comparison
 {
@@ -24,9 +25,11 @@ namespace Xtensive.Core.Comparison
   [Serializable]
   public sealed class AdvancedComparer<T>: MethodCacheBase<IAdvancedComparer<T>>
   {
-    private static readonly object _lock = new object();
-    private static volatile AdvancedComparer<T> systemComparer;
-    private static volatile AdvancedComparer<T> defaultComparer;
+    private static ThreadSafeCached<AdvancedComparer<T>> systemCached =
+      ThreadSafeCached<AdvancedComparer<T>>.Create(new object());
+
+    private static ThreadSafeCached<AdvancedComparer<T>> defaultCached =
+      ThreadSafeCached<AdvancedComparer<T>>.Create(new object());
 
     /// <summary>
     /// Gets default advanced comparer for type <typeparamref name="T"/>
@@ -35,16 +38,8 @@ namespace Xtensive.Core.Comparison
     public static AdvancedComparer<T> Default {
       [DebuggerStepThrough]
       get {
-        if (defaultComparer==null) lock (_lock) if (defaultComparer==null) {
-          try {
-            var comparer = ComparerProvider.Default.GetComparer<T>();
-            Thread.MemoryBarrier();
-            defaultComparer = comparer;
-          }
-          catch {
-          }
-        }
-        return defaultComparer;
+        return defaultCached.GetValue(
+          () => ComparerProvider.Default.GetComparer<T>());
       }
     }
 
@@ -53,16 +48,8 @@ namespace Xtensive.Core.Comparison
     /// </summary>
     public static AdvancedComparer<T> System {
       get {
-        if (systemComparer==null) lock (_lock) if (systemComparer==null) {
-          try {
-            var comparer = ComparerProvider.System.GetComparer<T>();
-            Thread.MemoryBarrier();
-            systemComparer = comparer;
-          }
-          catch {
-          }
-        }
-        return systemComparer;
+        return systemCached.GetValue(
+          () => ComparerProvider.System.GetComparer<T>());
       }
     }
 

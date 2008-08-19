@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Threading;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Threading;
 
 namespace Xtensive.Core.Arithmetic
 {
@@ -21,8 +22,8 @@ namespace Xtensive.Core.Arithmetic
   /// </remarks>
   public class Arithmetic<T> : MethodCacheBase<IArithmetic<T>>
   {
-    private static readonly object _lock = new object();
-    private static volatile Arithmetic<T> @default;
+    private static ThreadSafeCached<Arithmetic<T>> cached =
+      ThreadSafeCached<Arithmetic<T>>.Create(new object());
 
     /// <summary>
     /// Gets default arithmetic for type <typeparamref name="T"/>
@@ -31,16 +32,8 @@ namespace Xtensive.Core.Arithmetic
     public static Arithmetic<T> Default {
       [DebuggerStepThrough]
       get {
-        if (@default==null) lock (_lock) if (@default==null) {
-          try {
-            var arithmetic = ArithmeticProvider.Default.GetArithmetic<T>();
-            Thread.MemoryBarrier();
-            @default = arithmetic;
-          }
-          catch {
-          }
-        }
-        return @default;
+        return cached.GetValue(
+          () => ArithmeticProvider.Default.GetArithmetic<T>());
       }
     }
 

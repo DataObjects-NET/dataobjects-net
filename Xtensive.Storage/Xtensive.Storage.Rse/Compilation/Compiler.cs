@@ -9,7 +9,7 @@ using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Storage.Rse.Providers;
+using Xtensive.Core.Threading;
 using Xtensive.Storage.Rse.Providers;
 
 namespace Xtensive.Storage.Rse.Compilation

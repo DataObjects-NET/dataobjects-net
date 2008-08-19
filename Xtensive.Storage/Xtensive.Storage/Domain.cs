@@ -9,6 +9,7 @@ using System.Threading;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Diagnostics;
+using Xtensive.Core.Threading;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Internals;
@@ -23,7 +24,9 @@ namespace Xtensive.Storage
   /// </summary>
   public sealed class Domain
   {
-    private readonly ThreadSafeDictionary<RecordSetHeader, RecordSetMapping> recordSetMappings = ThreadSafeDictionary<RecordSetHeader, RecordSetMapping>.Create(new object());
+    private readonly ThreadSafeDictionary<RecordSetHeader, RecordSetMapping> recordSetMappings = 
+      ThreadSafeDictionary<RecordSetHeader, RecordSetMapping>.Create(new object());
+
     private int sessionCounter = 1;
 
     /// <summary>

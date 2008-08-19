@@ -9,6 +9,7 @@ using System.Diagnostics;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Serialization;
+using Xtensive.Core.Threading;
 
 namespace Xtensive.Core.Serialization
 {

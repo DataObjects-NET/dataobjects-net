@@ -44,8 +44,8 @@ namespace Xtensive.Integrity.Aspects
     /// <returns>Enumerable of constraints.</returns>
     public static PropertyConstraintAspect[] GetConstraints(Type targetType)
     {
-      var entry = registry.GetValue(targetType);
-      if (entry==null)
+      TypeEntry entry;
+      if (!registry.TryGetValue(targetType, out entry))      
         return ArrayUtils<PropertyConstraintAspect>.EmptyArray;
       entry.Lock.BeginRead();
       try {

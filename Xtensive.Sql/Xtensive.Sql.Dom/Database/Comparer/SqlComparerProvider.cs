@@ -11,6 +11,7 @@ using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
+using Xtensive.Core.Threading;
 using Xtensive.Sql.Dom.Resources;
 using Log=Xtensive.Core.Log;
 

@@ -6,7 +6,7 @@
 
 using System;
 using System.Reflection;
-using Xtensive.Core.Collections;
+using Xtensive.Core.Threading;
 using Xtensive.Core.Tuples;
 
 namespace Xtensive.Core.Comparison

@@ -12,6 +12,7 @@ using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Resources;
+using Xtensive.Core.Threading;
 
 //using Xtensive.Core.SizeCalculators;
 

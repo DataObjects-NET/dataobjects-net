@@ -8,11 +8,10 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 using Xtensive.Core.Comparison;
-using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Resources;
 using Xtensive.Core.Threading;
 
-namespace Xtensive.Core
+namespace Xtensive.Core.Threading
 {
   /// <summary>
   /// A structure caching a single value of type <typeparamref name="T"/>.
@@ -133,7 +132,7 @@ namespace Xtensive.Core
       unchecked {
         return 
           (isCached.GetHashCode() * 397) ^ 
-          (cachedValue!=null ? cachedValue.GetHashCode() : 0);
+            (cachedValue!=null ? cachedValue.GetHashCode() : 0);
       }
     }
 

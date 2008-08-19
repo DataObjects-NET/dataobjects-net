@@ -5,10 +5,11 @@
 // Created:    2008.01.20
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using NUnit.Framework;
-using Xtensive.Core.Collections;
 using Xtensive.Core.Diagnostics;
+using Xtensive.Core.Threading;
 
 namespace Xtensive.Core.Tests.Collections
 {
@@ -22,20 +23,67 @@ namespace Xtensive.Core.Tests.Collections
 
     [Test]
     public void CombinedTest()
-    {
-      ThreadSafeDictionary<int, int> d1 = ThreadSafeDictionary<int, int>.Create(new object());
-      Assert.AreEqual(d1.GetValue(0), 0);
-      d1.SetValue(0,1);
-      Assert.AreEqual(d1.GetValue(0), 1);
+    {      
+      var dictionary = ThreadSafeDictionary<int, string>.Create(new object());
 
-      ThreadSafeDictionary<int, int> d2 = ThreadSafeDictionary<int, int>.Create(new object());
-      d2.SetValue(0,2);
-      Assert.AreEqual(d2.GetValue(0), 2);
+      // SetValue
+      string one;
+      Assert.IsFalse(
+        dictionary.TryGetValue(1, out one));
+      Assert.IsNull(one);
 
-      Assert.AreNotEqual(d1.GetValue(0), d2.GetValue(0));
+      dictionary.SetValue(1, "One");
+
+      Assert.IsTrue(
+        dictionary.TryGetValue(1, out one));
+
+      Assert.AreEqual("One", one);
+
+      // GetValue with generaors
+      string two = dictionary.GetValue(2,
+        delegate { return "Two"; });
+
+      Assert.AreEqual("Two", two);
+
+      bool twoRecalculated = false;
+
+      two = dictionary.GetValue(2,
+        delegate 
+        { 
+          twoRecalculated = true;
+          return "Two";          
+        });
+
+      Assert.AreEqual("Two", two);
+      Assert.IsFalse(twoRecalculated); 
+
+      // Null value
+      string zero = dictionary.GetValue(0,
+        delegate { return null; });
+
+      Assert.AreEqual(null, zero);
+
+      bool zeroRecalculated = false;
+
+      zero = dictionary.GetValue(0,
+        delegate 
+        { 
+          zeroRecalculated = true;
+          return null;
+        });
+
+      Assert.IsNull(zero);
+      Assert.IsFalse(zeroRecalculated); 
+
+
+      var dictionary2 = ThreadSafeDictionary<int, int>.Create(new object());
+
+      int i;
+      dictionary2.TryGetValue(0, out i);
+      Assert.AreEqual(0, i);
     }
 
-    [Test]
+    [Test]    
     [Explicit]
     [Category("Performance")]
     public void PerformanceTest()
@@ -69,9 +117,12 @@ namespace Xtensive.Core.Tests.Collections
 
     private int ThreadSafeDictionaryReadTest(int count)
     {
-      int j = 0;
-      for (int i = 0; i < count; i++)
-        j += tsd.GetValue(i%FillCount);
+      int j = 0, value;
+      for (int i = 0; i < count; i++) {        
+        if (tsd.TryGetValue(i%FillCount, out value))
+          j += value;
+      }
+        
       return j;
     }
 

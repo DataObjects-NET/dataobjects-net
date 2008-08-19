@@ -13,6 +13,7 @@ using Xtensive.Core.Aspects;
 using Xtensive.Core.Aspects.Helpers;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Reflection;
+using Xtensive.Core.Threading;
 using Xtensive.Integrity.Resources;
 using Xtensive.Integrity.Validation;
 using Xtensive.Integrity.Validation.Interfaces;

@@ -10,7 +10,7 @@ using System.Diagnostics;
 using System.Threading;
 using Xtensive.Core.Threading;
 
-namespace Xtensive.Core.Collections
+namespace Xtensive.Core.Threading
 {
   /// <summary>
   /// Thread-safe dictionary. Any operation on it is atomic.
@@ -26,6 +26,8 @@ namespace Xtensive.Core.Collections
     private readonly static TItem defaultItem = default(TItem);
     private Hashtable implementation;
     private object syncRoot;
+    private static object nullObject = new object();
+
 
     /// <inheritdoc/>
     public object SyncRoot {
@@ -51,13 +53,12 @@ namespace Xtensive.Core.Collections
     /// <returns>Found or generated value.</returns>
     public TItem GetValue(TKey key, Func<TKey, TItem> generator)
     {
-      object value = implementation[key];
-      if (value!=null)
-        return (TItem) value;
+      TItem value;
+      if (TryGetValue(key, out value))
+        return value;
       else lock (syncRoot) {
-        value = implementation[key];
-        if (value!=null)
-          return (TItem) value;
+        if (TryGetValue(key, out value))        
+          return value;
         TItem newItem = generator.Invoke(key);
         SetValue(key, newItem);
         return newItem;
@@ -75,13 +76,12 @@ namespace Xtensive.Core.Collections
     /// <returns>Found or generated value.</returns>
     public TItem GetValue<T>(TKey key, Func<TKey, T, TItem> generator, T argument)
     {
-      object value = implementation[key];
-      if (value!=null)
-        return (TItem) value;
+      TItem value;
+      if (TryGetValue(key, out value))
+        return value;
       else lock (syncRoot) {
-        value = implementation[key];
-        if (value!=null)
-          return (TItem) value;
+        if (TryGetValue(key, out value))        
+          return value;
         TItem newItem = generator.Invoke(key, argument);
         SetValue(key, newItem);
         return newItem;
@@ -101,16 +101,15 @@ namespace Xtensive.Core.Collections
     /// <returns>Found or generated value.</returns>
     public TItem GetValue<T1, T2>(TKey key, Func<TKey, T1, T2, TItem> generator, T1 argument1, T2 argument2)
     {
-      object value = implementation[key];
-      if (value!=null)
-        return (TItem) value;
+      TItem value;
+      if (TryGetValue(key, out value))
+        return value;
       else lock (syncRoot) {
-        value = implementation[key];
-        if (value!=null)
-          return (TItem) value;
-        TItem newItem = generator.Invoke(key, argument1, argument2);
-        SetValue(key, newItem);
-        return newItem;
+        if (TryGetValue(key, out value))        
+          return value;
+        value = generator.Invoke(key, argument1, argument2);
+        SetValue(key, value);
+        return value;
       }
     }
 
@@ -122,14 +121,20 @@ namespace Xtensive.Core.Collections
     /// Gets the value by its key.
     /// </summary>
     /// <param name="key">The key to get the value for.</param>
-    /// <returns>Found value, or <see langword="default(TItem)"/>.</returns>
-    public TItem GetValue(TKey key)
+    /// <param name="value">Found value, or default value, if value is not found.</param>
+    /// <returns>Whether or not value was found.</returns>    
+    public bool TryGetValue(TKey key, out TItem value)
     {
-      object value = implementation[key];
-      if (value!=null)
-        return (TItem) value;
-      else
-        return defaultItem;
+      object storedValue = implementation[key];
+      if (storedValue==null) {
+        value = default(TItem);
+        return false;
+      }
+      else {
+        value = 
+          storedValue == nullObject ? default(TItem) : (TItem) storedValue;
+        return true;
+      }      
     }
 
     /// <summary>
@@ -141,7 +146,7 @@ namespace Xtensive.Core.Collections
     {
       lock (syncRoot) {
         Thread.MemoryBarrier(); // Ensures item is fully written
-        implementation[key] = item;
+        implementation[key] = (object)item ?? nullObject;
       }
     }
 
