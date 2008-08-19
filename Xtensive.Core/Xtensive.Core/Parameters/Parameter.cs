@@ -23,7 +23,7 @@ namespace Xtensive.Core.Parameters
     /// </summary>    
     /// <exception cref="InvalidOperationException"><see cref="ParameterContext"/> is not activated.</exception>
     /// <exception cref="InvalidOperationException">Value for the parameter is not set.</exception>
-    public TValue Value
+    public new TValue Value
     {
       [DebuggerStepThrough]
       get {
@@ -43,7 +43,21 @@ namespace Xtensive.Core.Parameters
       }
     }
 
-    
+    /// <inheritdoc/>
+    [DebuggerStepThrough]
+    protected override object GetValue()
+    {
+      return Value;
+    }
+
+    /// <inheritdoc/>
+    [DebuggerStepThrough]
+    protected override void SetValue(object value)
+    {
+      Value = (TValue) value;
+    }
+
+
     // Constructors
 
     /// <inheritdoc/>

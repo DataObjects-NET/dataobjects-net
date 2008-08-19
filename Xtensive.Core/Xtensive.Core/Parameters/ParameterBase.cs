@@ -22,6 +22,28 @@ namespace Xtensive.Core.Parameters
     /// </summary>    
     public string Name { get; private set;}
 
+    /// <summary>
+    /// Gets or sets the value of the parameter.
+    /// </summary>
+    public object Value {
+      [DebuggerStepThrough]
+      get { return GetValue(); }
+      [DebuggerStepThrough]
+      set { SetValue(value); }
+    }
+
+    /// <summary>
+    /// Gets the value of the parameter.
+    /// </summary>
+    /// <returns>Parameter value.</returns>
+    protected abstract object GetValue();
+
+    /// <summary>
+    /// Sets the value of the parameter.
+    /// </summary>
+    /// <param name="value">The new value.</param>
+    protected abstract void SetValue(object value);
+
     /// <inheritdoc/>
     public override string ToString()
     {

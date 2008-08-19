@@ -52,5 +52,14 @@ namespace Xtensive.Core.Parameters
       : base(context)
     {      
     }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    [DebuggerStepThrough]
+    public ParameterScope()
+      : this(new ParameterContext())
+    {
+    }
   }
 }
