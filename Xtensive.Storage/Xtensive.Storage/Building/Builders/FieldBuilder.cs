@@ -156,7 +156,8 @@ namespace Xtensive.Storage.Building.Builders
       }
 
       if (valueType.IsPrimitive || valueType.IsEnum || typeof (string)==valueType 
-        || typeof(byte[])==valueType || typeof(Guid)==valueType)
+        || typeof(byte[])==valueType || typeof(Guid)==valueType || valueType == typeof(DateTime)
+        || valueType == typeof(TimeSpan) || valueType == typeof(decimal))
         return;
 
       if (typeof (Entity).IsAssignableFrom(valueType))
