@@ -53,15 +53,15 @@ namespace Xtensive.Storage.Tests.Storage.SnakesModel
 
     public string Name { get; set; }
 
-    [Field(IsNullable = true)]
-    public Features Features { get; set; }
+    [Field]
+    public Features? Features { get; set; }
   }
 
   [DebuggerDisplay("Name = '{Name}'; Length = {Length}")]
   public class Snake : Creature
   {
-    [Field(IsNullable = true)]
-    public int Length { get; set; }
+    [Field]
+    public int? Length { get; set; }
   }
 
   [DebuggerDisplay("Name = '{Name}'; Color = {Color}")]
@@ -95,7 +95,7 @@ namespace Xtensive.Storage.Tests.Storage
         Assert.IsNotNull(snake.Key);
         Assert.AreEqual((object) snake, snake.Key.Resolve());
 
-        Assert.AreEqual(0, snake.Length);
+        Assert.AreEqual(null, snake.Length);
         Assert.AreEqual(null, snake.Name);
         Assert.AreEqual(Features.None, snake.Features);
 
