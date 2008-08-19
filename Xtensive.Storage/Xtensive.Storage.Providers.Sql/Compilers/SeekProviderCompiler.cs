@@ -49,7 +49,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
         return null;
 
       var query = source.Query.Clone() as SqlSelect;
-      var tuple = provider.Key.Invoke();
+      var tuple = provider.CompiledKey.Invoke();
       var keyColumns = provider.Header.Order.Select(pair => query.Columns[pair.Key]).ToList();
       var expressionData = new ExpressionData(null, tuple, keyColumns);
       var expressionHandler = new ExpressionHandler();

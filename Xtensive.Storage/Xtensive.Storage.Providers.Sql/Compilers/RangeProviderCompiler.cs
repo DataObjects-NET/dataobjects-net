@@ -93,7 +93,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
       SqlSelect query = source.Query.Clone() as SqlSelect;
 //      query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
 
-      var range = provider.Range.Invoke();
+      var range = provider.CompiledRange.Invoke();
       var direction = range.GetDirection(AdvancedComparer<IEntire<Tuple>>.Default);
       var from = direction == Direction.Positive ? 
         range.EndPoints.First : 
