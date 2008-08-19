@@ -4,6 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2008.07.28
 
+using System;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Tuples;
@@ -30,9 +31,14 @@ namespace Xtensive.Storage.Internals
       if (data == null)
         Create(key, tuple, PersistenceState.Persisted);
       else {
-        data.Tuple.Origin.MergeWith(tuple);
-        if (Log.IsLogged(LogEventTypes.Debug))
-          Log.Debug("Session '{0}'. Merging: {1}", Session.Current, data);
+        try {
+          data.Tuple.Origin.MergeWith(tuple);
+          if (Log.IsLogged(LogEventTypes.Debug))
+            Log.Debug("Session '{0}'. Merging: {1}", Session.Current, data);
+        }
+        catch(Exception e) {
+          throw;
+        }
       }
     }
 

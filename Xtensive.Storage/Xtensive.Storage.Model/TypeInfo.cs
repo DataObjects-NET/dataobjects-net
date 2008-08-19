@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
@@ -20,7 +21,7 @@ namespace Xtensive.Storage.Model
   [Serializable]
   public sealed class TypeInfo: MappingNode
   {
-    private readonly ColumnInfoCollection columns;
+    private ColumnInfoCollection columns;
     private readonly FieldMap fieldMap;
     private readonly FieldInfoCollection fields;
     private readonly TypeIndexInfoCollection indexes;
@@ -286,14 +287,11 @@ namespace Xtensive.Storage.Model
       }
       if (IsInterface)
         return;
-      List<Type> columnTypes = new List<Type>();
-      if (IsEntity)
-        foreach (ColumnInfo column in Indexes.PrimaryIndex.Columns)
-          columnTypes.Add(column.ValueType);
-      else if (IsStructure)
-        foreach (ColumnInfo column in Columns)
-          columnTypes.Add(column.ValueType);
-      tupleDescriptor = TupleDescriptor.Create(columnTypes);
+      var orderedColumns = columns.OrderBy(c => c.Field.MappingInfo.Offset).ToList();
+      columns = new ColumnInfoCollection();
+      columns.AddRange(orderedColumns);
+      columns.Lock(true);
+      tupleDescriptor = TupleDescriptor.Create(Columns.Select(c => c.ValueType));
     }
 
 

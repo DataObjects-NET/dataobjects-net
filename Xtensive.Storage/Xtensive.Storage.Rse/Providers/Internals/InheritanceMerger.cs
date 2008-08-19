@@ -67,10 +67,12 @@ namespace Xtensive.Storage.Rse.Providers.Internals
         }
         Tuple item = enums[lowestItemIndex].Current;
         haveValues[lowestItemIndex] = enums[lowestItemIndex].MoveNext();
-
-        willContinue = false;
-        for (int i = 0; i < haveValues.Length; i++)
-          willContinue |= haveValues[i];
+        if (!haveValues[lowestItemIndex]) {
+          lowestKey = null;
+          willContinue = false;
+          for (int i = 0; i < haveValues.Length; i++)
+            willContinue |= haveValues[i];
+        }
 
         yield return transforms[lowestItemIndex].Apply(TupleTransformType.Auto, item);
       }

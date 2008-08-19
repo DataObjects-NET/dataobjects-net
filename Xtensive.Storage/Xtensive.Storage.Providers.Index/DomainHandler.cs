@@ -40,12 +40,14 @@ namespace Xtensive.Storage.Providers.Index
       }
     }
 
-    private MapTransform BuildIndexTransform(IndexInfo indexInfo, TypeInfo type)
+    private static MapTransform BuildIndexTransform(IndexInfo indexInfo, TypeInfo type)
     {
-      var types = new[] {type}.Union(type.GetAncestors()).ToLookup(t => t);
-      var columns = indexInfo.Columns.Where(c => types.Contains(c.Field.ReflectedType));
-      TupleDescriptor descriptor = TupleDescriptor.Create(columns.Select(columnInfo => columnInfo.ValueType));
-      int[] map = columns.Select(column => column.Field.MappingInfo.Offset).ToArray();
+      TupleDescriptor descriptor = TupleDescriptor.Create(indexInfo.Columns.Select(c => c.ValueType));
+      int[] map = indexInfo.Columns
+        .Select(c => {
+          var column = type.Columns.TryGetValue(c.Field.Column.Name);
+          return column==null ? MapTransform.NoMapping : column.Field.MappingInfo.Offset; 
+        }).ToArray();
       return new MapTransform(true, descriptor, map);
     }
 

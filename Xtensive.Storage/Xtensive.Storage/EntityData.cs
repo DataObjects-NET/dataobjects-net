@@ -4,6 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2008.07.07
 
+using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Model;
@@ -25,6 +26,7 @@ namespace Xtensive.Storage
     /// </summary>
     public TypeInfo Type
     {
+      [DebuggerStepThrough]
       get { return Key.Type; }
     }
 
