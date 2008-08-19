@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Core;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Indexing.Measures;
 using Xtensive.Indexing.Resources;
 
@@ -320,12 +321,13 @@ namespace Xtensive.Indexing.Differential
 
     // Constructors
 
+    /// <inheritdoc/>
     public DifferentialIndex()
     {
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="DifferentialIndex&lt;TKey, TItem, TImpl&gt;"/> class.
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="configuration">The configuration.</param>
     public DifferentialIndex(IndexConfigurationBase<TKey, TItem> configuration) :

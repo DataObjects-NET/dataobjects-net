@@ -11,8 +11,11 @@ namespace Xtensive.Indexing.Differential
   [Flags]
   internal enum DifferentialReaderState
   {
-    OriginReader = 1,
-    InsertionsReader = 2,
-    
+    ReadingOrigin = 1,
+    ReadingInsertions = 2,
+    AtTheBeginning = 4, 
+    EndOfOriginReached = 8,
+    EndOfInsertionsReached = 16,
+    EndOfRemovalsReached = 32,
   }
 }

@@ -27,7 +27,7 @@ namespace Xtensive.Indexing
     /// <summary>
     /// Gets the direction of enumeration relatively to index key comparer.
     /// </summary>
-    Direction Direction { get;}
+    Direction Direction { get; }
 
     /// <summary>
     /// Moves the internal pointer to the specified key.

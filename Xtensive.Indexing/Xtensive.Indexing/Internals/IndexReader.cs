@@ -14,7 +14,7 @@ using Xtensive.Indexing.Resources;
 
 namespace Xtensive.Indexing
 {
-  internal sealed class  IndexReader<TKey,TItem> : IndexReaderBase<Index<TKey,TItem>, TKey, TItem>
+  internal sealed class IndexReader<TKey,TItem> : IndexReaderBase<Index<TKey,TItem>, TKey, TItem>
   {
     private HasVersion<SeekResultPointer<IndexPointer<TKey, TItem>>, int?> nextPtr;
     private HasVersion<SeekResultPointer<IndexPointer<TKey, TItem>>, int?> lastPtr;
