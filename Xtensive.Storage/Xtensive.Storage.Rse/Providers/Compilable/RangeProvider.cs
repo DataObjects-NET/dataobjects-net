@@ -8,6 +8,7 @@ using System;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Threading;
 using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
 using Xtensive.Storage.Rse.Providers.Compilable;
@@ -23,13 +24,16 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     private ThreadSafeCached<Func<Range<IEntire<Tuple>>>> compiledRange;
 
     /// <summary>
-    /// Range parameter function.
+    /// Gets the range parameter.
     /// </summary>
     public Expression<Func<Range<IEntire<Tuple>>>> Range { get; private set; }
 
+    /// <summary>
+    /// Gets the compiled <see cref="Range"/>.
+    /// </summary>
     public Func<Range<IEntire<Tuple>>> CompiledRange {
       get {
-        compiledRange.GetValue()
+        return compiledRange.GetValue(_this => _this.Range.Compile(), this);
       }
     }
 
