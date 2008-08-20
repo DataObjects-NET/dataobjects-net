@@ -97,7 +97,7 @@ namespace Xtensive.Storage.Tests.Storage
 
         Assert.AreEqual(null, snake.Length);
         Assert.AreEqual(null, snake.Name);
-        Assert.AreEqual(Features.None, snake.Features);
+        Assert.AreEqual(null, snake.Features);
 
         snake.Name = "Kaa";
         snake.Features = Features.CanCrawl;

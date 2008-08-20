@@ -12,7 +12,7 @@ namespace Xtensive.Storage.Internals
   internal class EnumFieldAccessor<T> : FieldAccessorBase<T> 
   {
     private static readonly FieldAccessorBase<T> instance = new EnumFieldAccessor<T>();
-    private static readonly Enum @default = (Enum)Enum.GetValues(typeof (T)).GetValue(0);
+    private static readonly object @default = (typeof(T).GetGenericTypeDefinition() == typeof(Nullable<>)) ? null : Enum.GetValues(typeof (T)).GetValue(0);
 
     public static FieldAccessorBase<T> Instance
     {
@@ -23,8 +23,11 @@ namespace Xtensive.Storage.Internals
     {
       ValidateType(field);
       if (!obj.Tuple.IsAvailable(field.MappingInfo.Offset) || obj.Tuple.IsNull(field.MappingInfo.Offset))
-        return (T)(object)@default;
-      return (T)Enum.ToObject(typeof(T), obj.Tuple.GetValueOrDefault(field.MappingInfo.Offset));
+        return (T)@default;
+      if (typeof(T).IsEnum)
+        return (T)Enum.ToObject(typeof(T), obj.Tuple.GetValueOrDefault(field.MappingInfo.Offset));
+      else
+        return (T)Enum.ToObject(Nullable.GetUnderlyingType(typeof(T)), obj.Tuple.GetValueOrDefault(field.MappingInfo.Offset));
     }
 
     public override void SetValue(Persistent obj, FieldInfo field, T value)

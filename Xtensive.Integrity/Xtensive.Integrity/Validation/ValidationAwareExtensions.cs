@@ -6,12 +6,8 @@
 // Created:    2008.06.30
 
 using System;
-using System.Collections.Generic;
-using Xtensive.Core;
 using Xtensive.Core.Helpers;
-using Xtensive.Core.Reflection;
 using Xtensive.Integrity.Aspects;
-using Xtensive.Integrity.Aspects.Internals;
 using Xtensive.Integrity.Validation.Interfaces;
 
 namespace Xtensive.Integrity.Validation
@@ -38,9 +34,9 @@ namespace Xtensive.Integrity.Validation
     {            
       ValidationContextBase context = ValidationScope.CurrentContext;
 
-      bool immedate = mode==ValidationMode.Immediate || context==null || context.IsConsistent;
+      bool immediate = mode==ValidationMode.Immediate || context==null || context.IsConsistent;
 
-      if (immedate)
+      if (immediate)
         if (validator==null)
           target.OnValidate();
         else
@@ -48,7 +44,7 @@ namespace Xtensive.Integrity.Validation
       else
         context.EnqueueValidate(target, validator);        
 
-      return immedate;      
+      return immediate;      
     }
 
     /// <summary>
