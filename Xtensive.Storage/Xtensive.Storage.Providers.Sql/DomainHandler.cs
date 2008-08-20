@@ -6,9 +6,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data.Common;
 using System.Linq;
-using Xtensive.Core.Tuples;
 using Xtensive.Sql.Common;
 using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Database;
@@ -29,7 +27,10 @@ namespace Xtensive.Storage.Providers.Sql
   {
     private Schema schema;
     private readonly Dictionary<IndexInfo, Table> realIndexes = new Dictionary<IndexInfo, Table>();
-    private SqlConnection connection;
+
+    public Schema Schema {
+      get { return schema; }
+    }
 
     /// <inheritdoc/>
     protected override CompilationContext BuildCompilationContext()
@@ -50,22 +51,49 @@ namespace Xtensive.Storage.Providers.Sql
         string serverName = existingModel.DefaultServer.Name;
         string catalogName = Handlers.Domain.Configuration.ConnectionInfo.Resource;
         string schemaName = existingModel.DefaultServer.Catalogs[catalogName].DefaultSchema.Name;
-        SqlModel newModel = BuildModel(serverName, catalogName, schemaName);
-        ISqlCompileUnit syncroniztionScript = BuildSyncronizationScript(Handlers.Domain.Model, existingModel.DefaultServer.Catalogs[catalogName], newModel.DefaultServer.Catalogs[catalogName]);
-        ExecuteNonQuery(syncroniztionScript);
+        SqlModel newModel = BuildSqlModel(serverName, catalogName, schemaName);
+        ISqlCompileUnit syncScript = GenerateSyncCatalogScript(Handlers.Domain.Model, existingModel.DefaultServer.Catalogs[catalogName], newModel.DefaultServer.Catalogs[catalogName]);
+        ExecuteNonQuery(syncScript);
         schema = SqlModel.Build(modelProvider).DefaultServer.Catalogs[catalogName].DefaultSchema;
       }
     }
 
-    /// <summary>
-    /// Gets catalog to 
-    /// </summary>
-    public Schema Schema
+    public virtual Table GetTable(IndexInfo indexInfo)
     {
-      get { return schema; }
+      return realIndexes[indexInfo];
     }
 
-    protected SqlModel BuildModel(string serverName, string catalogName, string schemaName)
+    public abstract SqlDataType GetSqlDataType(Type type, int? length);
+
+    public virtual SqlValueType GetSqlType(Type type, int? length)
+    {
+      // TODO: Get this data from Connection.Driver.ServerInfo.DataTypes
+      var result = (length == null)
+        ? new SqlValueType(GetSqlDataType(type, null))
+        : new SqlValueType(GetSqlDataType(type, length.Value), length.Value);
+      return result;
+    }
+
+    public static string GetPrimaryIndexColumnName(IndexInfo primaryIndex, ColumnInfo secondaryIndexColumn, IndexInfo secondaryIndex)
+    {
+      string primaryIndexColumnName = null;
+      foreach (ColumnInfo primaryColumn in primaryIndex.Columns) {
+        if (primaryColumn.Field.Equals(secondaryIndexColumn.Field)) {
+          primaryIndexColumnName = primaryColumn.Name;
+          break;
+        }
+      }
+      if (primaryIndexColumnName.IsNullOrEmpty())
+        throw new InvalidOperationException(String.Format(
+          Strings.UnableToFindColumnInPrimaryIndex, 
+          secondaryIndexColumn.Name, 
+          secondaryIndex.Name));
+      return primaryIndexColumnName;
+    }
+
+    #region Build related methods
+
+    protected virtual SqlModel BuildSqlModel(string serverName, string catalogName, string schemaName)
     {
       var model = new SqlModel();
       Server server = model.CreateServer(serverName);
@@ -114,46 +142,19 @@ namespace Xtensive.Storage.Providers.Sql
       return model;
     }
 
-    protected ISqlCompileUnit BuildSyncronizationScript(DomainModel domainModel, Catalog existingCatalog, Catalog newCatalog)
+    protected virtual ISqlCompileUnit GenerateSyncCatalogScript(DomainModel domainModel, Catalog existingCatalog, Catalog newCatalog)
     {
       SqlBatch batch = SqlFactory.Batch();
-      batch.Add(ClearCatalogScript(existingCatalog));
-      batch.Add(BuildCatalogScript(newCatalog));
+      batch.Add(GenerateClearCatalogScript(existingCatalog));
+      batch.Add(GenerateBuildCatalogScript(newCatalog));
       return batch;
-    }
-
-    /// <summary>
-    /// Gets <see cref="SqlDataType"/> by .NET <see cref="Type"/> and length.
-    /// </summary>
-    /// <param name="type"></param>
-    /// <param name="length"></param>
-    /// <returns></returns>
-    protected abstract SqlDataType GetSqlDataType(Type type, int? length);
-
-    #region Internal
-
-    internal Dictionary<IndexInfo, Table> RealIndexes
-    {
-      get { return realIndexes; }
     }
 
     #endregion
 
-    #region Private
+    #region Private / internal methods
 
-    private static SqlBatch BuildCatalogScript(Catalog catalog)
-    {
-      SqlBatch batch = SqlFactory.Batch();
-      foreach (Table table in catalog.DefaultSchema.Tables) {
-        batch.Add(SqlFactory.Create(table));
-        foreach (Index index in table.Indexes) {
-          batch.Add(SqlFactory.Create(index));
-        }
-      }
-      return batch;
-    }
-
-    private static SqlBatch ClearCatalogScript(Catalog catalog)
+    private static SqlBatch GenerateClearCatalogScript(Catalog catalog)
     {
       SqlBatch batch = SqlFactory.Batch();
       Schema schema = catalog.DefaultSchema;
@@ -166,41 +167,16 @@ namespace Xtensive.Storage.Providers.Sql
       return batch;
     }
 
-    private static string GetPrimaryIndexColumnName(IndexInfo primaryIndex, ColumnInfo secondaryIndexColumn, IndexInfo secondaryIndex)
+    private static SqlBatch GenerateBuildCatalogScript(Catalog catalog)
     {
-      string primaryIndexColumnName = null;
-      foreach (ColumnInfo primaryColumn in primaryIndex.Columns) {
-        if (primaryColumn.Field.Equals(secondaryIndexColumn.Field)) {
-          primaryIndexColumnName = primaryColumn.Name;
-          break;
+      SqlBatch batch = SqlFactory.Batch();
+      foreach (Table table in catalog.DefaultSchema.Tables) {
+        batch.Add(SqlFactory.Create(table));
+        foreach (Index index in table.Indexes) {
+          batch.Add(SqlFactory.Create(index));
         }
       }
-      if (primaryIndexColumnName.IsNullOrEmpty()) {
-        throw new InvalidOperationException(String.Format(Strings.UnableToFindColumnInPrimaryIndex, secondaryIndexColumn.Name, secondaryIndex.Name));
-      }
-      return primaryIndexColumnName;
-    }
-
-    private void ExecuteNonQuery(ISqlCompileUnit statement)
-    {
-      using (var transaction = connection.BeginTransaction()) {
-        using (var command = new SqlCommand(connection)) {
-          command.Statement = statement;
-          command.Prepare();
-          command.Transaction = transaction;
-          command.ExecuteNonQuery();
-        }
-        transaction.Commit();
-      }
-    }
-
-    private SqlValueType GetSqlType(Type type, int? length)
-    {
-      // TODO: Get this data from Connection.Driver.ServerInfo.DataTypes
-      var result = (length == null)
-        ? new SqlValueType(GetSqlDataType(type, null))
-        : new SqlValueType(GetSqlDataType(type, length.Value), length.Value);
-      return result;
+      return batch;
     }
 
     #endregion

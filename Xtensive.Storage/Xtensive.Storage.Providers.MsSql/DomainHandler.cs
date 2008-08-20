@@ -12,7 +12,7 @@ namespace Xtensive.Storage.Providers.MsSql
 {
   public class DomainHandler : Sql.DomainHandler
   { 
-    protected override SqlDataType GetSqlDataType(Type type, int? length)
+    public override SqlDataType GetSqlDataType(Type type, int? length)
     {
       if (type == typeof(Boolean))
         return SqlDataType.Boolean;

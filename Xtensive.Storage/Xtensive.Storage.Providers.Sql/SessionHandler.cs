@@ -24,11 +24,7 @@ namespace Xtensive.Storage.Providers.Sql
 {
   public class SessionHandler : Providers.SessionHandler
   {
-    private SqlConnection connection;
-    private DbTransaction transaction;
-    private ExpressionHandler expressionHandler;
-
-    #region Helper structs & methods
+    #region Nested types: ExpressionData and ExpressionHandler
 
     private struct ExpressionData
     {
@@ -54,21 +50,67 @@ namespace Xtensive.Storage.Providers.Sql
 
     #endregion
 
-    public SqlConnection Connection
+    private SqlConnection connection;
+    private DbTransaction transaction;
+    private ExpressionHandler expressionHandler;
+
+    public DomainHandler DomainHandler
     {
-      get
-      {
+      get { return (DomainHandler) Handlers.DomainHandler; }
+    }
+
+    public SqlConnection Connection {
+      get {
         EnsureConnectionIsOpen();
         return connection;
       }
     }
 
-    public DbTransaction Transaction
-    {
-      get
-      {
+    public DbTransaction Transaction {
+      get {
         EnsureConnectionIsOpen();
         return transaction;
+      }
+    }
+
+    public IEnumerator<Tuple> Execute(ISqlCompileUnit statement, TupleDescriptor tupleDescriptor)
+    {
+      using (DbDataReader reader = ExecuteReader(statement)) {
+        Tuple tuple = null;
+        while ((tuple = ReadTuple(reader, tupleDescriptor))!=null)
+          yield return tuple;
+      }
+    }
+
+    protected virtual Tuple ReadTuple(DbDataReader reader, TupleDescriptor tupleDescriptor)
+    {
+      if (!reader.Read())
+        return null;
+      var tuple = Tuple.Create(tupleDescriptor);
+      for (int i = 0; i < reader.FieldCount; i++)
+        tuple.SetValue(i, DBNull.Value == reader[i] ? null : reader[i]);
+      return tuple;
+    }
+
+    public virtual int ExecuteNonQuery(ISqlCompileUnit statement)
+    {
+      EnsureConnectionIsOpen();
+      using (var command = new SqlCommand(connection)) {
+        command.Statement = statement;
+        command.Prepare();
+        command.Transaction = transaction;
+        return command.ExecuteNonQuery();
+      }
+    }
+
+    public virtual DbDataReader ExecuteReader(ISqlCompileUnit statement)
+    {
+      EnsureConnectionIsOpen();
+      using (var command = new SqlCommand(connection)) {
+        command.Statement = statement;
+        command.Prepare();
+        command.Transaction = transaction;
+        return command.ExecuteReader();
       }
     }
 
@@ -170,34 +212,7 @@ namespace Xtensive.Storage.Providers.Sql
       }
     }
 
-    #region Internals
-
-    internal int  ExecuteNonQuery(ISqlCompileUnit statement)
-    {
-      EnsureConnectionIsOpen();
-      using (var command = new SqlCommand(connection)) {
-        command.Statement = statement;
-        command.Prepare();
-        command.Transaction = transaction;
-        return command.ExecuteNonQuery();
-      }
-    }
-
-    internal DbDataReader ExecuteReader(ISqlCompileUnit statement)
-    {
-      EnsureConnectionIsOpen();
-      using (var command = new SqlCommand(connection)) {
-        command.Statement = statement;
-        command.Prepare();
-        command.Transaction = transaction;
-        return command.ExecuteReader();
-      }
-    }
-
-    internal DomainHandler DomainHandler
-    {
-      get { return ((DomainHandler)Handlers.DomainHandler); }
-    }
+    #region Private \ internal methods
 
     #endregion
 

@@ -43,10 +43,9 @@ namespace Xtensive.Storage.Configuration
     /// Default value is <see langword="true" />.
     /// </summary>
     
-
     //TODO: Change SessionConfiguration.AuthParams to be serializeble to app.config.
     /// <summary>
-    /// Gets authentication params.
+    /// Gets authentication parameters.
     /// </summary>
     public object[] AuthParams { get; private set; }
 

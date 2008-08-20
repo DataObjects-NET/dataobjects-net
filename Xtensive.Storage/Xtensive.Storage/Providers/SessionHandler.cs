@@ -7,14 +7,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core.Collections;
-using Xtensive.Core.Tuples;
-using Xtensive.Storage.Model;
-using Xtensive.Storage.Rse;
-using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Providers
 {
-  public abstract class SessionHandler : HandlerBase
+  public abstract class SessionHandler : InitializableHandlerBase
   {
     /// <summary>
     /// Gets the current <see cref="Session"/>.

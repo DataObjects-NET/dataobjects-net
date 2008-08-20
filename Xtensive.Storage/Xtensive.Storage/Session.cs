@@ -167,10 +167,11 @@ namespace Xtensive.Storage
       Configuration = configuration;
       Handlers = domain.Handlers;
       Handler = Handlers.HandlerFactory.CreateHandler<SessionHandler>();
-      Handler.Session = this;
       DataCache = new EntityDataCache(Configuration.CacheSize);
       DirtyData = new FlagRegistry<PersistenceState, EntityData>(e => e.PersistenceState);
       Name = configuration.Name;
+      Handler.Session = this;
+      Handler.Initialize();
     }
 
     #region Dispose pattern

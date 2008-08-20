@@ -29,7 +29,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       var result = new List<Tuple>(0);
       var sessionHandler = (SessionHandler)handlers.SessionHandler;
-      using(DbDataReader reader = sessionHandler.ExecuteReader(Query)) {
+      using (DbDataReader reader = sessionHandler.ExecuteReader(Query)) {
         while(reader.Read()) {
           var tuple = Tuple.Create(Header.TupleDescriptor);
           for (int i = 0; i < reader.FieldCount; i++)
