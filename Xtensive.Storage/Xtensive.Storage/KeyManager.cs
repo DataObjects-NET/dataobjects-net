@@ -97,7 +97,7 @@ namespace Xtensive.Storage
 
     private static Key CreateKeyCandidate(HierarchyInfo hierarchy, Tuple tuple)
     {
-      Tuple keyTuple = Tuple.Create(hierarchy.TupleDescriptor);
+      Tuple keyTuple = Tuple.Create(hierarchy.KeyTupleDescriptor);
       tuple.CopyTo(keyTuple, 0, keyTuple.Count);
       return new Key(hierarchy, keyTuple);
     }

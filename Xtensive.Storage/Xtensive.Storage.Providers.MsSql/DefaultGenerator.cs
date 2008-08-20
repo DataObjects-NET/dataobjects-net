@@ -21,9 +21,9 @@ namespace Xtensive.Storage.Providers.MsSql
     private SqlDataType dataType;
     private const int BULK_SIZE = 100;
 
-    public override Tuple Next()
+    protected override Tuple NextNumber()
     {
-      Tuple result = Tuple.Create(Hierarchy.TupleDescriptor);
+      Tuple result = Tuple.Create(Hierarchy.KeyTupleDescriptor);
       SqlBatch batch = SqlFactory.Batch();
 //      var i = SqlFactory.Variable("i", dataType);
 //      batch.Add(i.Declare());

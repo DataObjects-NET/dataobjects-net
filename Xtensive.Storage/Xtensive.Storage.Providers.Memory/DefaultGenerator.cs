@@ -10,7 +10,5 @@ namespace Xtensive.Storage.Providers.Memory
 {
   [Serializable]
   public sealed class DefaultGenerator : Index.DefaultGenerator
-  {
-    
-  }
+  {}
 }

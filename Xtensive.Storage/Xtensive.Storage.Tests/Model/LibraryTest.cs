@@ -128,7 +128,7 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
 
   internal class BookReviewProvider : DefaultGenerator
   {
-    public override Tuple Next()
+    protected override Tuple NextNumber()
     {
       throw new NotSupportedException();
     }
@@ -138,7 +138,7 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
   {
     private int counter;
 
-    public override Tuple Next()
+    protected override Tuple NextNumber()
     {
       Tuple result = Tuple.Create(counter.ToString());
       counter++;

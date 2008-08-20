@@ -22,7 +22,7 @@ namespace Xtensive.Storage.Model
     private readonly Type generator;
     private readonly DirectionCollection<FieldInfo> fields = new DirectionCollection<FieldInfo>();
     private readonly ColumnInfoCollection columns = new ColumnInfoCollection();
-    private TupleDescriptor tupleDescriptor;
+    private TupleDescriptor keyTupleDescriptor;
 
     /// <summary>
     /// Gets the columns that are included in the key.
@@ -65,12 +65,12 @@ namespace Xtensive.Storage.Model
     }
 
     /// <summary>
-    /// Gets the tuple descriptor.
+    /// Gets the tuple descriptor of the key.
     /// </summary>
     /// <value></value>
-    public TupleDescriptor TupleDescriptor
+    public TupleDescriptor KeyTupleDescriptor
     {
-      get { return tupleDescriptor; }
+      get { return keyTupleDescriptor; }
     }
 
     /// <inheritdoc/>
@@ -80,7 +80,7 @@ namespace Xtensive.Storage.Model
       List<Type> columnTypes = new List<Type>();
       foreach (ColumnInfo column in Columns)
         columnTypes.Add(column.ValueType);
-      tupleDescriptor = TupleDescriptor.Create(columnTypes);
+      keyTupleDescriptor = TupleDescriptor.Create(columnTypes);
     }
 
 
