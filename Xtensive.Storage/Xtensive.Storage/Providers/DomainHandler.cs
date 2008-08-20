@@ -5,6 +5,7 @@
 // Created:    2008.05.19
 
 using System.Diagnostics;
+using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Rse.Compilation;
 
 namespace Xtensive.Storage.Providers
@@ -25,6 +26,19 @@ namespace Xtensive.Storage.Providers
     /// </summary>
     public CompilationContext CompilationContext { get; private set; }
 
+    /// <summary>
+    /// Gets system session.
+    /// </summary>
+    protected Session SystemSession { get; private set; }
+
+    /// <summary>
+    /// Gets system session handler.
+    /// </summary>
+    protected SessionHandler SystemSessionHandler
+    {
+      get { return SystemSession.Handlers.SessionHandler; }
+    }
+
     // Abstract methods
 
     /// <summary>
@@ -44,6 +58,7 @@ namespace Xtensive.Storage.Providers
     public override void Initialize()
     {
       CompilationContext = BuildCompilationContext();
+      SystemSession = Domain.OpenSession(SessionType.DomainHandler).Session;
     }
   }
 }

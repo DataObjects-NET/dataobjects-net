@@ -566,6 +566,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unable to clone system session configuration..
+        /// </summary>
+        internal static string ExUnableToCloneSystemSessionConfiguration {
+            get {
+                return ResourceManager.GetString("ExUnableToCloneSystemSessionConfiguration", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to modify deleted object..
         /// </summary>
         internal static string ExUnableToModifyDeletedObject {

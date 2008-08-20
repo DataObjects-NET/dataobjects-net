@@ -20,7 +20,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
         yield break;
       }
       foreach (TItem item in this) {
-        if (types.Contains(item.Type) && ((item.ComparisonType & comparsionTypes) > 0)) {
+        if (types.Contains(item.Type) && ((item.ResultType & comparsionTypes) > 0)) {
           yield return item;
         }
         if (recursive) {

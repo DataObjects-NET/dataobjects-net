@@ -12,6 +12,7 @@ using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Database;
 using Xtensive.Sql.Dom.Database.Providers;
 using Xtensive.Sql.Dom.Dml;
+using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Providers.Sql.Resources;
@@ -25,7 +26,6 @@ namespace Xtensive.Storage.Providers.Sql
 {
   public abstract class DomainHandler : Providers.DomainHandler
   {
-    private SessionHandler systemSessionHandler;
     private Schema schema;
     private readonly Dictionary<IndexInfo, Table> realIndexes = new Dictionary<IndexInfo, Table>();
 
@@ -43,14 +43,15 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     public override void Build()
     {
-      var modelProvider = new SqlModelProvider(systemSessionHandler.Connection);
+      SessionHandler sessionHandler = ((SessionHandler)SystemSessionHandler);
+      var modelProvider = new SqlModelProvider(sessionHandler.Connection);
       SqlModel existingModel = SqlModel.Build(modelProvider);
       string serverName = existingModel.DefaultServer.Name;
       string catalogName = Handlers.Domain.Configuration.ConnectionInfo.Resource;
       string schemaName = existingModel.DefaultServer.Catalogs[catalogName].DefaultSchema.Name;
       SqlModel newModel = BuildSqlModel(serverName, catalogName, schemaName);
       ISqlCompileUnit syncScript = GenerateSyncCatalogScript(Handlers.Domain.Model, existingModel.DefaultServer.Catalogs[catalogName], newModel.DefaultServer.Catalogs[catalogName]);
-      systemSessionHandler.ExecuteNonQuery(syncScript);
+      sessionHandler.ExecuteNonQuery(syncScript);
       schema = SqlModel.Build(modelProvider).DefaultServer.Catalogs[catalogName].DefaultSchema;
     }
 
@@ -95,8 +96,6 @@ namespace Xtensive.Storage.Providers.Sql
     public override void Initialize()
     {
       base.Initialize();
-      systemSessionHandler = Handlers.HandlerFactory.CreateHandler<SessionHandler>();
-      systemSessionHandler.Initialize();
     }
 
     #region Build related methods

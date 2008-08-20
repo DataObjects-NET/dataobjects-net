@@ -8,7 +8,6 @@ using System;
 using Xtensive.Core;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Storage.Providers;
 
 namespace Xtensive.Storage.Configuration
 {
@@ -28,6 +27,8 @@ namespace Xtensive.Storage.Configuration
 
     /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
     public static readonly SessionConfiguration Default;
+
+    private SessionType type = SessionType.User;
 
     /// <summary>
     /// Gets or sets the session name.
@@ -54,6 +55,23 @@ namespace Xtensive.Storage.Configuration
     /// </summary>
     public int CacheSize { get; set; }
 
+    /// <summary>
+    /// Gets session type.
+    /// </summary>
+    public SessionType Type
+    {
+      get { return type; }
+      internal set { type = value; }
+    }
+
+    /// <summary>
+    /// Gets <see langword="true" /> if session is system, otherwise gets <see langword="fals" />.
+    /// </summary>
+    public bool IsSystem
+    {
+      get { return (type & SessionType.System) > 0; }
+    }
+
     /// <inheritdoc/>
     public override void Validate()
     {
@@ -73,6 +91,8 @@ namespace Xtensive.Storage.Configuration
     {
       base.Clone(source);
       var configuration = (SessionConfiguration) source;
+      if (configuration.IsSystem)
+        throw new InvalidOperationException(Resources.Strings.ExUnableToCloneSystemSessionConfiguration);
       UserName = configuration.UserName;
       Password = configuration.Password;
       CustomAuthParams = configuration.CustomAuthParams;
@@ -125,7 +145,6 @@ namespace Xtensive.Storage.Configuration
 
 
     // Constructors
-
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>

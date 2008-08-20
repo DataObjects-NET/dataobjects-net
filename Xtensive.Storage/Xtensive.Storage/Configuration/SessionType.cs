@@ -6,13 +6,13 @@
 
 using System;
 
-namespace Xtensive.Storage.Providers
+namespace Xtensive.Storage.Configuration
 {
   /// <summary>
   /// Session type.
   /// </summary>
   [Flags]
-  public enum SessionHandlerType
+  public enum SessionType
   {
     User = 0x00,
     System = 0x01,

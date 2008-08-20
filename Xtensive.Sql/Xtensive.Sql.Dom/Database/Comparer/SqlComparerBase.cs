@@ -51,11 +51,11 @@ namespace Xtensive.Sql.Dom.Database.Comparer
       result.NewValue = newNode;
       result.HasChanges = hasChanges;
       if (ReferenceEquals(newNode, null))
-        result.ComparisonType = ComparisonResultType.Removed;
+        result.ResultType = ComparisonResultType.Removed;
       else if (ReferenceEquals(originalNode, null))
-        result.ComparisonType = ComparisonResultType.Added;
+        result.ResultType = ComparisonResultType.Added;
       else
-        result.ComparisonType = hasChanges ? ComparisonResultType.Modified : ComparisonResultType.Unchanged;
+        result.ResultType = hasChanges ? ComparisonResultType.Modified : ComparisonResultType.Unchanged;
       result.Lock(true);
       return result;
     }

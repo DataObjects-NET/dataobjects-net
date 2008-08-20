@@ -20,7 +20,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     private readonly Type type;
     private string name;
     private bool hasChanges;
-    private ComparisonResultType comparisonType;
+    private ComparisonResultType resultType;
     private readonly ComparisonResultCollection<ComparisonResult> nested = new ComparisonResultCollection<ComparisonResult>();
     private readonly ComparisonResultCollection<ComparisonResult> properties = new ComparisonResultCollection<ComparisonResult>();
 
@@ -76,13 +76,13 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     /// <summary>
     /// Gets comparison type.
     /// </summary>
-    public ComparisonResultType ComparisonType
+    public ComparisonResultType ResultType
     {
-      get { return comparisonType; }
+      get { return resultType; }
       internal set
       {
         this.EnsureNotLocked();
-        comparisonType = value;
+        resultType = value;
       }
     }
 

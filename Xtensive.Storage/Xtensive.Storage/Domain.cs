@@ -111,6 +111,18 @@ namespace Xtensive.Storage
       return new SessionScope(session);
     }
 
+    /// <summary>
+    /// Creates the session.
+    /// </summary>
+    /// <returns></returns>
+    /// <returns>New <see cref="SessionScope"/> object.</returns>
+    internal SessionScope OpenSession(SessionType type)
+    {
+      SessionConfiguration configuration = (SessionConfiguration)Configuration.Session.Clone();
+      configuration.Type = type;
+      return OpenSession(configuration);
+    }
+
     #endregion
 
     /// <summary>
