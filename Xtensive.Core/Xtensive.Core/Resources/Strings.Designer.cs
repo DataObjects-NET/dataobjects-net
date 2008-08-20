@@ -1123,6 +1123,15 @@ namespace Xtensive.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Object is already disposed..
+        /// </summary>
+        internal static string ObjectIsAlreadyDisposed {
+            get {
+                return ResourceManager.GetString("ObjectIsAlreadyDisposed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Original exception(s).
         /// </summary>
         internal static string OriginalExceptions {

@@ -522,4 +522,7 @@
   <data name="XIsNotActivated" xml:space="preserve">
     <value>{0} is not activated.</value>
   </data>
+  <data name="ObjectIsAlreadyDisposed" xml:space="preserve">
+    <value>Object is already disposed.</value>
+  </data>
 </root>
