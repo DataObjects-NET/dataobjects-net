@@ -6,6 +6,7 @@
 
 using System;
 using Xtensive.Core;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Threading;

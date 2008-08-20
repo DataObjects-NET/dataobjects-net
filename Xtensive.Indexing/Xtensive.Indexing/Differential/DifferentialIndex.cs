@@ -308,14 +308,24 @@ namespace Xtensive.Indexing.Differential
       base.OnConfigured();
       var configuration = (DifferentialIndexConfiguration<TKey, TItem>) Configuration;
       origin = configuration.Origin;
-      if (insertions == null && removals == null) {
-        insertions = IndexFactory.CreateUniqueOrdered<TKey, TItem, TImpl>(((UniqueOrderedIndexBase<TKey, TItem>) origin).Configuration);
-        removals = IndexFactory.CreateUniqueOrdered<TKey, TItem, TImpl>(((UniqueOrderedIndexBase<TKey, TItem>) origin).Configuration);
-      }
       entireConverter = (key => Entire<TKey>.Create(key));
       measureResults = new MeasureResultSet<TItem>(Measures);
-      foreach (TItem item in origin)
-        measureResults.Add(item);
+      if (configuration.Insertions == null && configuration.Removals == null)
+      {
+        insertions = IndexFactory.CreateUniqueOrdered<TKey, TItem, TImpl>(((UniqueOrderedIndexBase<TKey, TItem>)origin).Configuration);
+        removals = IndexFactory.CreateUniqueOrdered<TKey, TItem, TImpl>(((UniqueOrderedIndexBase<TKey, TItem>)origin).Configuration);
+        foreach (TItem item in origin)
+          measureResults.Add(item);
+      }
+      else {
+        insertions = configuration.Insertions;
+        removals = configuration.Removals;
+        foreach (TItem item in insertions)
+          measureResults.Add(item);
+        foreach (TItem item in origin)
+          if (!insertions.Contains(item) && !removals.Contains(item))
+            measureResults.Add(item);
+      }
     }
 
 

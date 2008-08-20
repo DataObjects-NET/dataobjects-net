@@ -23,7 +23,9 @@ namespace Xtensive.Indexing.Differential
     private IIndexReader<TKey, TItem> insertionsReader;
     private IIndexReader<TKey, TItem> removalsReader;
     private IIndexReader<TKey, TItem> currentReader;
+    private DifferentialReaderEndMark readerEndMark;
     private DifferentialReaderState readerState;
+    private bool atTheBeginning;
 
 
     /// <summary>
@@ -78,25 +80,10 @@ namespace Xtensive.Indexing.Differential
     /// <inheritdoc/>
     public bool MoveNext()
     {
-      // Check if Index is empty
-      if (AtTheBeginning) {
-        if (index.Origin.Count==0) {
-          EndOfOriginReached = true;
-          currentReader = insertionsReader;
-          readerState = DifferentialReaderState.ReadingInsertions;
-        }
-        if (index.Insertions.Count==0) {
-          EndOfInsertionsReached = true;
-          currentReader = originReader;
-          readerState = DifferentialReaderState.ReadingOrigin;
-        }
-        if (EndOfOriginReached && EndOfInsertionsReached)
-          return false;
-        if (index.Removals.Count==0)
-          EndOfRemovalsReached = true;
-      }
+      if (IndexIsEmpty())
+        return false;
 
-      //---Try to move next.-----
+      // Try to move next.
       bool moveNextResult = currentReader.MoveNext();
       if (moveNextResult && TryMoveNextCurrentReader())
         return true;
@@ -115,6 +102,27 @@ namespace Xtensive.Indexing.Differential
       return moveNextResult;
     }
 
+    private bool IndexIsEmpty()
+    {
+      if (atTheBeginning) {
+        if (index.Origin.Count==0) {
+          EndOfOriginReached = true;
+          currentReader = insertionsReader;
+          readerState = DifferentialReaderState.ReadingInsertions;
+        }
+        if (index.Insertions.Count==0) {
+          EndOfInsertionsReached = true;
+          currentReader = originReader;
+          readerState = DifferentialReaderState.ReadingOrigin;
+        }
+        if (EndOfOriginReached && EndOfInsertionsReached)
+          return true;
+        if (index.Removals.Count==0)
+          EndOfRemovalsReached = true;
+      }
+      return false;
+    }
+
     /// <inheritdoc/>
     public void Reset()
     {
@@ -127,7 +135,7 @@ namespace Xtensive.Indexing.Differential
       EndOfOriginReached = false;
       EndOfInsertionsReached = false;
       EndOfRemovalsReached = false;
-      AtTheBeginning = true;
+      atTheBeginning = true;
 
       IEntire<TKey> point;
       if (index.Insertions.ContainsKey(key.Value)) {
@@ -161,37 +169,30 @@ namespace Xtensive.Indexing.Differential
         else
           removalsReader.MoveTo(point);
       }
-      AtTheBeginning = true;
+      atTheBeginning = true;
     }
 
     #region Private / Internal methods.
 
-    private bool AtTheBeginning {
-      get { return (readerState & DifferentialReaderState.AtTheBeginning)!=0; }
-      set { readerState = 
-        (readerState & ~DifferentialReaderState.AtTheBeginning) | 
-        (value ? DifferentialReaderState.AtTheBeginning : 0); }
-    }
-
     private bool EndOfOriginReached {
-      get { return (readerState & DifferentialReaderState.EndOfOriginReached)!=0; }
-      set { readerState = 
-        (readerState & ~DifferentialReaderState.EndOfOriginReached) | 
-        (value ? DifferentialReaderState.EndOfOriginReached : 0); }
+      get { return (readerEndMark & DifferentialReaderEndMark.EndOfOriginReached)!=0; }
+      set { readerEndMark = 
+        (readerEndMark & ~DifferentialReaderEndMark.EndOfOriginReached) | 
+        (value ? DifferentialReaderEndMark.EndOfOriginReached : 0); }
     }
 
     private bool EndOfInsertionsReached {
-      get { return (readerState & DifferentialReaderState.EndOfInsertionsReached)!=0; }
-      set { readerState = 
-        (readerState & ~DifferentialReaderState.EndOfInsertionsReached) | 
-        (value ? DifferentialReaderState.EndOfInsertionsReached : 0); }
+      get { return (readerEndMark & DifferentialReaderEndMark.EndOfInsertionsReached)!=0; }
+      set { readerEndMark = 
+        (readerEndMark & ~DifferentialReaderEndMark.EndOfInsertionsReached) | 
+        (value ? DifferentialReaderEndMark.EndOfInsertionsReached : 0); }
     }
 
     private bool EndOfRemovalsReached {
-      get { return (readerState & DifferentialReaderState.EndOfRemovalsReached)!=0; }
-      set { readerState = 
-        (readerState & ~DifferentialReaderState.EndOfRemovalsReached) | 
-        (value ? DifferentialReaderState.EndOfRemovalsReached : 0); }
+      get { return (readerEndMark & DifferentialReaderEndMark.EndOfRemovalsReached)!=0; }
+      set { readerEndMark = 
+        (readerEndMark & ~DifferentialReaderEndMark.EndOfRemovalsReached) | 
+        (value ? DifferentialReaderEndMark.EndOfRemovalsReached : 0); }
     }
 
     private int Compare(TKey left, TKey right)
@@ -205,14 +206,14 @@ namespace Xtensive.Indexing.Differential
 
     private bool TryMoveNextCurrentReader()
     {
-      if (AtTheBeginning) {
+      if (atTheBeginning) {
         if (readerState==DifferentialReaderState.ReadingOrigin && !EndOfInsertionsReached && !insertionsReader.MoveNext())
           EndOfInsertionsReached = true;
         if (readerState==DifferentialReaderState.ReadingInsertions && !EndOfOriginReached && !originReader.MoveNext())
           EndOfOriginReached = true;
         if (!EndOfRemovalsReached && !removalsReader.MoveNext())
           EndOfRemovalsReached = true;
-        AtTheBeginning = false;
+        atTheBeginning = false;
       }
       while (!EndOfOriginReached && !EndOfRemovalsReached && 
         Compare(index.KeyExtractor(originReader.Current), index.KeyExtractor(removalsReader.Current))<=0) {
@@ -245,7 +246,7 @@ namespace Xtensive.Indexing.Differential
       if ((!EndOfInsertionsReached && EndOfOriginReached) ||
         (!EndOfOriginReached && !EndOfInsertionsReached && 
         Compare(index.KeyExtractor(originReader.Current), index.KeyExtractor(insertionsReader.Current)) < 0)) {
-        readerState = DifferentialReaderState.ReadingInsertions;
+          readerState = DifferentialReaderState.ReadingInsertions;
         currentReader = insertionsReader;
         return true;
       }
@@ -266,7 +267,9 @@ namespace Xtensive.Indexing.Differential
     {
       this.index = index;
       this.range = range;
-      readerState = DifferentialReaderState.AtTheBeginning;
+      atTheBeginning = true;
+      readerEndMark = 0;
+      readerState = DifferentialReaderState.ReadingOrigin;
       originReader = index.Origin.CreateReader(range);
       currentReader = originReader;
       insertionsReader = index.Insertions.CreateReader(range);
