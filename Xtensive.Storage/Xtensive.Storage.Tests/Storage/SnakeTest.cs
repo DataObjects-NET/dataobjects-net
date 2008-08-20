@@ -13,6 +13,7 @@ using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Diagnostics;
+using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Indexing;
@@ -237,19 +238,8 @@ namespace Xtensive.Storage.Tests.Storage
           RecordSet take = skip.Take(50);
           var snakesRse = take.ToEntities<Snake>();
 
-          /*// debug
-          long rsSnakePrimaryCount = rsSnakePrimary.Provider.GetService<ICountable>(true).Count;
-          long joinCount = join.Provider.Count();
-          long whereCount = where.Provider.Count();
-          long orderByCount = orderBy.Provider.Count();*/
-
           Assert.AreEqual(15, snakesRse.Count());
         }
-
-
-        //        RecordSet r = session.Indexes[...];
-        //        r = r.Range(...).Where(...);
-        //        var snakes = r.ToEntities<Snake>("Id");
 
         IEnumerable<Snake> snakes = session.All<Snake>();
         Assert.AreEqual(snakesCount, snakes.Count());
@@ -267,6 +257,53 @@ namespace Xtensive.Storage.Tests.Storage
         Assert.AreEqual(500, result.Count());
       }
     }
+
+
+    [Test]
+    public void CachedQueryTest()
+    {
+      const int snakesCount = 1000;
+      const int creaturesCount = 1000;
+      const int lizardsCount = 1000;
+
+      TestFixtureTearDown();
+      TestFixtureSetUp();
+
+      using (Domain.OpenSession())
+      {
+        for (int i = 0; i < snakesCount; i++)
+          new Snake {Name = ("Kaa" + i), Length = i};
+        for (int j = 0; j < creaturesCount; j++)
+          new Creature {Name = ("Creature" + j)};
+        for (int i = 0; i < lizardsCount; i++)
+          new Lizard {Name = ("Lizard" + i), Color = ("Color" + i)};
+
+        Session.Current.Persist();
+
+
+        var pID = new Parameter<Range<IEntire<Tuple>>>();
+        var pName = new Parameter<Range<IEntire<Tuple>>>();
+        var pLength = new Parameter<int>();
+
+        TypeInfo snakeType = Domain.Model.Types[typeof(Snake)];
+        RecordSet rsSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordSet();
+        RecordSet rsSnakeName = snakeType.Indexes.GetIndex("Name").ToRecordSet();
+
+        RecordSet result = rsSnakePrimary
+          .Range(() => pID.Value)
+          .Join(rsSnakeName
+            .Range(() => pName.Value)
+            .OrderBy(OrderBy.Asc(rsSnakeName.IndexOf("ID")))
+            .Alias("NameIndex"), rsSnakePrimary.IndexOf("ID"), rsSnakeName.IndexOf("ID"))
+          .Where(tuple => tuple.GetValue<int>(rsSnakePrimary.IndexOf("Length")) >= pLength.Value)
+          .OrderBy(OrderBy.Desc(rsSnakePrimary.IndexOf("Name")))
+          .Skip(5)
+          .Take(50);
+      }
+    }
+
+
+
 
     [Test]
     public void InterfaceTest()

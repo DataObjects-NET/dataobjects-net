@@ -6,9 +6,11 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Parameters;
+using Xtensive.Core.Threading;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers.Compilable;
@@ -17,6 +19,10 @@ namespace Xtensive.Storage.Internals
 {
   internal static class Fetcher
   {
+    private static readonly object syncRoot = new object();
+    private static readonly Dictionary<Pair<IndexInfo, int>, RecordSet> cache = new Dictionary<Pair<IndexInfo, int>, RecordSet>();
+    private static readonly Parameter<Key> pKey = new Parameter<Key>("Key");
+
     public static void Fetch(Key key)
     {
       IndexInfo index = key.Type.Indexes.PrimaryIndex;
@@ -43,16 +49,30 @@ namespace Xtensive.Storage.Internals
 
     private static void Fetch(IndexInfo index, Key key, IEnumerable<ColumnInfo> columns)
     {
-      var pKey = new Parameter<Key>("Key");
+      
       if (Log.IsLogged(LogEventTypes.Debug))
         Log.Debug("Session '{0}'. Fetching: Key = '{1}', Columns = '{2}'", Session.Current, pKey, columns.Select(c => c.Name).ToCommaDelimitedString());
-      var rs = IndexProvider.Get(index).Result
-        .Seek(() => pKey.Value.Tuple)
-        .Select(columns.Select(c => index.Columns.IndexOf(c)).ToArray());
+      var columnIndexes = columns.Select(c => index.Columns.IndexOf(c)).ToArray();
+      var rs = GetCachedRecordSet(index, columnIndexes);
       using (new ParameterScope()) {
         pKey.Value = key;
         rs.Import();
       }
     }
+
+    private static RecordSet GetCachedRecordSet(IndexInfo index, int[] columnIndexes)
+    {
+      var columnsKey = columnIndexes.Select((i, j) => new Pair<int>(i, j)).Aggregate(0, (s, p) => s^((1 >> (p.First)) ^ p.Second*379));
+      var key = new Pair<IndexInfo, int>(index, columnsKey);
+      RecordSet value;
+      if (!cache.TryGetValue(key, out value))lock(syncRoot)if(!cache.TryGetValue(key, out value)) {
+        value = IndexProvider.Get(index).Result
+        .Seek(() => pKey.Value.Tuple)
+        .Select(columnIndexes);
+        cache.Add(key, value);
+      }
+      return value;
+    }
+
   }
 }
