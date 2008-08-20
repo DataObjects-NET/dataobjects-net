@@ -5,11 +5,12 @@
 // Created:    2008.07.21
 
 using Xtensive.Core;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Storage.Rse.Providers
 {
   /// <summary>
-  /// <see cref="EnumerationContext"/> activation scope. 
+  /// <see cref="EnumerationContext"/> activation scope.
   /// </summary>
   public class EnumerationScope : Scope<EnumerationContext>
   {
@@ -32,7 +33,10 @@ namespace Xtensive.Storage.Rse.Providers
 
     // Constructor
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="context">The context.</param>
     public EnumerationScope(EnumerationContext context)
       : base(context)
     {}

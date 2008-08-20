@@ -8,6 +8,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Core;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Indexing
 {
@@ -61,6 +62,12 @@ namespace Xtensive.Indexing
 
     // Constructors
 
+
+    /// <summary>
+    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="index">The index.</param>
+    /// <param name="range">The range to read.</param>
     public IndexReaderBase(TIndex index, Range<IEntire<TKey>> range)
     {
       this.index = index;
@@ -70,6 +77,9 @@ namespace Xtensive.Indexing
 
     // Destructors
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Dispose" copy="true"/>
+    /// </summary>
     public abstract void Dispose();
   }
 }

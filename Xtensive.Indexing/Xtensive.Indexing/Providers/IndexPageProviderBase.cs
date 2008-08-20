@@ -98,9 +98,14 @@ namespace Xtensive.Indexing.Providers
       isInitialized = true;
     }
 
+    // Destructor
+
+    /// <summary>
     /// <see cref="ClassDocTemplate.Dispose" copy="true"/>
+    /// </summary>
     public virtual void Dispose()
     {
+      index = null;
     }
   }
 }

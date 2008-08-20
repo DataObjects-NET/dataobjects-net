@@ -75,7 +75,7 @@ namespace Xtensive.Storage.Rse.Providers.Internals
 
 
     /// <summary>
-    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="provider"><see cref="Provider"/> property value.</param>
     /// <param name="range">The <see cref="Range"/> property value.</param>

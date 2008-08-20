@@ -5,6 +5,7 @@
 // Created:    2008.07.15
 
 using System;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Storage.Building.Internals
 {
@@ -17,12 +18,22 @@ namespace Xtensive.Storage.Building.Internals
 
     // Constructors
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="finder">The circular reference finder.</param>
+    /// <param name="node">The node.</param>
     public CircularReferenceFinderScope(CircularReferenceFinder<TNode> finder, TNode node)
     {
       Finder = finder;
       Node = node;
     }
 
+    // Destructor
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Dispose" copy="true"/>
+    /// </summary>
     public void Dispose()
     {
       if (Finder.Path.Peek() == Node)

@@ -88,7 +88,7 @@ namespace Xtensive.Storage.Rse.Providers.Internals
 
     public override void Dispose()
     {
-      disposables.Dispose();
+      disposables.DisposeSafely();
     }
   }
 }

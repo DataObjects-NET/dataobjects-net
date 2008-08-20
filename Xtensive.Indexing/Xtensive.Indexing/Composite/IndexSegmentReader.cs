@@ -8,6 +8,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Core;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 
@@ -88,6 +89,11 @@ namespace Xtensive.Indexing.Composite
 
     // Constructors
 
+    /// <summary>
+    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="index">The index.</param>
+    /// <param name="range">The range to read.</param>
     public IndexSegmentReader(IndexSegment<TKey, TItem> index, Range<IEntire<TKey>> range)
     {
       this.index = index;
@@ -95,7 +101,11 @@ namespace Xtensive.Indexing.Composite
       reader = index.CompositeIndex.Implementation.CreateReader(index.GetCompositeIndexRange(range));
     }
 
+    // Destructor
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Dispose" copy="true"/>
+    /// </summary>
     public void Dispose()
     {
       reader.Dispose();

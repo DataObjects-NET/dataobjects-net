@@ -64,6 +64,9 @@ namespace Xtensive.Storage
     /// </remarks>
     public void Persist()
     {
+      if (isDisposed)
+        throw new InvalidOperationException("Session is already disposed.");
+
       if (DirtyData.Count==0)
         return;
       
@@ -86,7 +89,10 @@ namespace Xtensive.Storage
     }
 
     public IEnumerable<T> All<T>() where T : class,   IEntity
-    {
+    {      
+      if (isDisposed)
+        throw new InvalidOperationException("Session is already disposed.");
+
       Persist();
       TypeInfo type = Domain.Model.Types[typeof (T)];
       RecordSet result = type.Indexes.PrimaryIndex.ToRecordSet();
@@ -176,20 +182,26 @@ namespace Xtensive.Storage
 
     #region Dispose pattern
 
-    /// <see cref="DisposableDocTemplate.Dispose()" copy="true"/>
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Dispose" copy="true"/>
+    /// </summary>
     public void Dispose()
     {
       Dispose(true);
       GC.SuppressFinalize(this);
     }
 
-    /// <see cref="DisposableDocTemplate.Dtor()" copy="true"/>
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Dtor" copy="true"/>
+    /// </summary>
     ~Session()
     {
       Dispose(false);
     }
 
-    /// <see cref="DisposableDocTemplate.Dispose(bool)" copy="true"/>
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Dispose" copy="true"/>
+    /// </summary>
     protected virtual void Dispose(bool disposing)
     {
       if (Log.IsLogged(LogEventTypes.Debug))

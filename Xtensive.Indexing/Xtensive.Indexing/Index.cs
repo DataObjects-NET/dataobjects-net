@@ -250,20 +250,27 @@ namespace Xtensive.Indexing
 
     #region Dispose pattern (IDisposable, finalizer) implementation
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Dispose" copy="true"/>
+    /// </summary>
     private void Dispose(bool disposing)
     {
       provider.DisposeSafely();
       provider = null;
     }
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Dispose" copy="true"/>
+    /// </summary>
     public void Dispose()
     {
       Dispose(true);
       GC.SuppressFinalize(this);
     }
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// 	<see cref="ClassDocTemplate.Dtor" copy="true"/>
+    /// </summary>
     ~Index()
     {
       Dispose(false);

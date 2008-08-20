@@ -9,6 +9,7 @@ using System.IO;
 using System.Security.AccessControl;
 using Xtensive.Core;
 using Xtensive.Core.Helpers;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Serialization.Binary;
 using Xtensive.Indexing.Implementation;
 
@@ -124,6 +125,10 @@ namespace Xtensive.Indexing.Providers.Internals
 
     // Constructors
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="provider">The index page provider.</param>
     public StreamSerializer(IIndexPageProvider<TKey, TItem> provider)
       : base(provider)
     {
@@ -134,6 +139,11 @@ namespace Xtensive.Indexing.Providers.Internals
       LastPageRef = StreamPageRef<TKey, TItem>.Create(StreamPageRefType.Undefined);
     }
 
+    // Destructor
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Dispose" copy="true"/>
+    /// </summary>
     public override void Dispose()
     {
       stream.DisposeSafely();

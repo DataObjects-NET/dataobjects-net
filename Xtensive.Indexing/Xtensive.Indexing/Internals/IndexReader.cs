@@ -9,6 +9,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Core;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Indexing.Implementation;
 using Xtensive.Indexing.Resources;
 
@@ -141,6 +142,11 @@ namespace Xtensive.Indexing
 
     // Constructors
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="index">The index.</param>
+    /// <param name="range">The range to read.</param>
     public IndexReader(Index<TKey, TItem> index, Range<IEntire<TKey>> range)
       : base(index, range)
     {
@@ -149,6 +155,7 @@ namespace Xtensive.Indexing
 
     // Destructors
 
+    /// <inheritdoc/>
     public override void Dispose()
     {
     }

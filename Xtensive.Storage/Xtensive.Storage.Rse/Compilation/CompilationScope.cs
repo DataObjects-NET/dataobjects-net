@@ -34,7 +34,10 @@ namespace Xtensive.Storage.Rse.Compilation
 
     // Constructors
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="context">The context.</param>
     public CompilationScope(CompilationContext context)
       : base(context)
     {

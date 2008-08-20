@@ -51,9 +51,11 @@ namespace Xtensive.Indexing.Providers.Internals
       Provider = provider;
     }
 
-    // IDisposable methods
+    // Destructor
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Dispose" copy="true"/>
+    /// </summary>
     public abstract void Dispose();
   }
 }

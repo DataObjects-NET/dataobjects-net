@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using Xtensive.Core.Helpers;
 using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
 using Xtensive.Storage.Rse;
@@ -60,8 +61,7 @@ namespace Xtensive.Storage.Rse.Providers.Internals
 
     public override void Dispose()
     {
-      if (reader!=null)
-        reader.Dispose();
+      reader.DisposeSafely();
     }
   }
 }

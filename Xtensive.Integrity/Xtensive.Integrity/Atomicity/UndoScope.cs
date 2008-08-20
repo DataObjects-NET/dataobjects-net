@@ -7,6 +7,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Core;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Integrity.Atomicity.Internals;
 using Xtensive.Integrity.Aspects;
 
@@ -50,6 +51,10 @@ namespace Xtensive.Integrity.Atomicity
 
     // Constructors
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="descriptor">The descriptor.</param>
     internal UndoScope(IUndoDescriptor descriptor) 
       : base(descriptor)
     {
@@ -57,7 +62,9 @@ namespace Xtensive.Integrity.Atomicity
 
     // Destructor
 
-
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Dispose" copy="true"/>
+    /// </summary>
     protected override void Dispose(bool disposing)
     {
       AtomicityScope.CurrentContext.OnDeactivateUndoScope(this);

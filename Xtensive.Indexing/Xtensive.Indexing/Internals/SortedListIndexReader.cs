@@ -8,6 +8,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Xtensive.Core;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Indexing.Resources;
 
 namespace Xtensive.Indexing
@@ -145,12 +146,22 @@ namespace Xtensive.Indexing
 
     // Constructors
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="index">The index.</param>
+    /// <param name="range">The range to read.</param>
     public SortedListIndexReader(SortedListIndex<TKey, TItem> index, Range<IEntire<TKey>> range)
       : base(index, range)
     {
       Reset();
     }
 
+    // Destructor
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Dispose" copy="true"/>
+    /// </summary>
     public override void Dispose()
     {
     }

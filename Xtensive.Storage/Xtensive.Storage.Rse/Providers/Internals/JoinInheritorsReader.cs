@@ -102,9 +102,8 @@ namespace Xtensive.Storage.Rse.Providers.Internals
 
     public override void Dispose()
     {
-      disposables.Dispose();
-      if (enumerator!=null)
-        enumerator.Dispose();
+      disposables.DisposeSafely();
+      enumerator.DisposeSafely();
     }
   }
 }

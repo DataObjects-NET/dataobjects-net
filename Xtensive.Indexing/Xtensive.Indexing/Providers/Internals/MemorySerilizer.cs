@@ -5,6 +5,7 @@
 // Created:    2008.07.16
 
 using Xtensive.Core;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Indexing.Implementation;
 
 namespace Xtensive.Indexing.Providers.Internals
@@ -58,16 +59,22 @@ namespace Xtensive.Indexing.Providers.Internals
 
     // Constructors
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="provider">The index page provider.</param>
     public MemorySerilizer(IIndexPageProvider<TKey, TItem> provider)
       : base(provider)
     {
     }
 
-    // IDisposable methods
+    // Destructor
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Dispose" copy="true"/>
+    /// </summary>
     public override void Dispose()
-    {
-      return;
+    {      
     }
   }
 }

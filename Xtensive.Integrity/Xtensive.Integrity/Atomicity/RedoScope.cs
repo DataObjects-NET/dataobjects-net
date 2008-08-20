@@ -4,9 +4,11 @@
 // Created by: Alex Yakunin
 // Created:    2007.11.23
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Core;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Integrity.Atomicity.Internals;
 using Xtensive.Integrity.Aspects;
 
@@ -52,15 +54,28 @@ namespace Xtensive.Integrity.Atomicity
 
     // Constructors
 
+    /// <summary>
+    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="descriptor">The redo descriptor.</param>
     internal RedoScope(IRedoDescriptor descriptor) 
       : base(descriptor)
     {
     }
 
+    // Destructor
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Dispose" copy="true"/>
+    /// </summary>
     protected override void Dispose(bool disposing)
     {
-      AtomicityScope.CurrentContext.OnDeactivateRedoScope(this);
-      base.Dispose(disposing);
+      try {
+        AtomicityScope.CurrentContext.OnDeactivateRedoScope(this);
+      }
+      finally {
+        base.Dispose(disposing);
+      }           
     }
   }
 }

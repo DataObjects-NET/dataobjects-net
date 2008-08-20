@@ -6,6 +6,7 @@
 
 using System.Diagnostics;
 using Xtensive.Core;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Integrity.Validation
 {
@@ -44,17 +45,27 @@ namespace Xtensive.Integrity.Validation
 
     // Constructors
 
+    /// <summary>
+    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="context">The validation context.</param>
     public ValidationScope(ValidationContextBase context) 
       : base(context)
     {
     }
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
     public ValidationScope()
     {
     }
 
     // Destructor
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Dispose" copy="true"/>
+    /// </summary>
     protected override void Dispose(bool disposing)
     {
       try {

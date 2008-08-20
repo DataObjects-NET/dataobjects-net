@@ -302,7 +302,11 @@ namespace Xtensive.Indexing.Providers
       }
     }
 
-    /// <inheritdoc/>
+    // Destructor
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Dispose" copy="true"/>
+    /// </summary>
     public override void Dispose()
     {
       streamProvider.DisposeSafely();

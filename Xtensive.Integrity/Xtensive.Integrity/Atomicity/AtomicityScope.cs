@@ -7,6 +7,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Core;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Integrity.Aspects;
 using Xtensive.Core.Helpers;
 
@@ -46,25 +47,37 @@ namespace Xtensive.Integrity.Atomicity
 
     // Constructors
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="context">The atomicity context.</param>
     public AtomicityScope(AtomicityContextBase context) 
       : base(context)
     {
     }
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
     public AtomicityScope() 
     {
     }
 
     // Destructor
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Dispose" copy="true"/>
+    /// </summary>
     protected override void Dispose(bool disposing)
     {
-      cleanUndoScope.DisposeSafely();
+      cleanUndoScope.DisposeSafely();      
       cleanRedoScope.DisposeSafely();
       try {
         Context.OnDeactivate(this);
       }
       finally {
+        cleanUndoScope = null;
+        cleanRedoScope = null;
         base.Dispose(disposing);
       }
     }

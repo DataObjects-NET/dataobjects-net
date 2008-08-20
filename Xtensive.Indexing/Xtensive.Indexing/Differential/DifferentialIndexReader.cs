@@ -10,6 +10,7 @@ using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Helpers;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Indexing.Differential
 {
@@ -272,7 +273,11 @@ namespace Xtensive.Indexing.Differential
       removalsReader = index.Removals.CreateReader(range);
     }
 
-    /// <inheritdoc/>
+    // Destructor
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Dispose" copy="true"/>
+    /// </summary>
     public void Dispose()
     {
       try {

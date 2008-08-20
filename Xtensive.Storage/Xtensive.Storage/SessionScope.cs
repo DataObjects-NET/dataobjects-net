@@ -41,6 +41,10 @@ namespace Xtensive.Storage
 
     // Constructors
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="session">The session.</param>
     internal SessionScope(Session session)
       : base(session)
     {
@@ -50,11 +54,13 @@ namespace Xtensive.Storage
       compilationScope = Session.Handlers.DomainHandler.CompilationContext.Activate();
     }
 
-    /// <see cref="ClassDocTemplate.Dispose" copy="true" />
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Dispose" copy="true"/>
+    /// </summary>
     public void Dispose()
     {
-      base.Dispose();
       compilationScope.DisposeSafely();
+      base.Dispose();      
     }
   }
 }
