@@ -218,7 +218,7 @@ namespace Xtensive.Storage.Providers.Sql
         if (connection==null)
           throw new InvalidOperationException(Strings.ExUnableToCreateConnection);
         connection.Open();
-        transaction = connection.BeginTransaction();
+       // transaction = connection.BeginTransaction();
       }
     }
 

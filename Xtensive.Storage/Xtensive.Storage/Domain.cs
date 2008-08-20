@@ -111,17 +111,6 @@ namespace Xtensive.Storage
       return new SessionScope(session);
     }
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="SessionScope"/> class.
-    /// </summary>
-    /// <param name="userName">User name to authenticate.</param>
-    /// <param name="authParams">Authentication parameters (e.g. password).</param>
-    /// <returns>New <see cref="SessionScope"/> object.</returns>
-    public SessionScope OpenSession(string userName, params object[] authParams)
-    {
-      return OpenSession(new SessionConfiguration(userName, authParams));
-    }
-
     #endregion
 
     /// <summary>

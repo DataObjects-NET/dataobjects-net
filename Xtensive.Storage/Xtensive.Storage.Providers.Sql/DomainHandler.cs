@@ -25,7 +25,7 @@ namespace Xtensive.Storage.Providers.Sql
 {
   public abstract class DomainHandler : Providers.DomainHandler
   {
-    private readonly SessionHandler systemSessionHandler;
+    private SessionHandler systemSessionHandler;
     private Schema schema;
     private readonly Dictionary<IndexInfo, Table> realIndexes = new Dictionary<IndexInfo, Table>();
 
@@ -89,6 +89,14 @@ namespace Xtensive.Storage.Providers.Sql
           secondaryIndexColumn.Name, 
           secondaryIndex.Name));
       return primaryIndexColumnName;
+    }
+
+    /// <inheritdoc/>
+    public override void Initialize()
+    {
+      base.Initialize();
+      systemSessionHandler = Handlers.HandlerFactory.CreateHandler<SessionHandler>();
+      systemSessionHandler.Initialize();
     }
 
     #region Build related methods

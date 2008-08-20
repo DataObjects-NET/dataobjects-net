@@ -12,6 +12,8 @@ namespace Xtensive.Storage.Configuration
   {
     private const string NameElementName = "name";
     private const string UserNameElementName = "userName";
+    private const string PasswordElementName = "password";
+    private const string CustomAuthParamsElementName = "customAuthParams";
     private const string CacheSizeElementName = "cacheSize";
 
     /// <summary>
@@ -22,6 +24,26 @@ namespace Xtensive.Storage.Configuration
     {
       get { return (string) this[UserNameElementName]; }
       set { this[UserNameElementName] = value; }
+    }
+
+    /// <summary>
+    /// Gets password to authenticate.
+    /// </summary>
+    [ConfigurationProperty(PasswordElementName, IsRequired = false)]
+    public string Password
+    {
+      get { return (string)this[PasswordElementName]; }
+      set { this[PasswordElementName] = value; }
+    }
+
+    /// <summary>
+    /// Gets custom authentication parameters.
+    /// </summary>
+    [ConfigurationProperty(CustomAuthParamsElementName, IsRequired = false)]
+    public string CustomAuthParams
+    {
+      get { return (string)this[CustomAuthParamsElementName]; }
+      set { this[CustomAuthParamsElementName] = value; }
     }
 
     /// <summary>
@@ -48,7 +70,9 @@ namespace Xtensive.Storage.Configuration
     {
       var result = new SessionConfiguration{
           UserName = UserName,
-          CacheSize = CacheSize
+          CacheSize = CacheSize,
+          Password = Password,
+          CustomAuthParams = CustomAuthParams
         };
       return result;
     }

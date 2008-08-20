@@ -8,6 +8,7 @@ using System;
 using Xtensive.Core;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Storage.Providers;
 
 namespace Xtensive.Storage.Configuration
 {
@@ -26,7 +27,7 @@ namespace Xtensive.Storage.Configuration
     public const int DefaultCacheSize = 1024;
 
     /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
-    public readonly static SessionConfiguration Default;
+    public static readonly SessionConfiguration Default;
 
     /// <summary>
     /// Gets or sets the session name.
@@ -39,15 +40,14 @@ namespace Xtensive.Storage.Configuration
     public string UserName { get; set; }
 
     /// <summary>
-    /// Gets or sets the value, indicating whether changed entities should be automatically validated.
-    /// Default value is <see langword="true" />.
+    /// Gets password to authenticate.
     /// </summary>
-    
-    //TODO: Change SessionConfiguration.AuthParams to be serializeble to app.config.
+    public string Password { get; set; }
+
     /// <summary>
-    /// Gets authentication parameters.
+    /// Gets custom authentication parameters.
     /// </summary>
-    public object[] AuthParams { get; private set; }
+    public string CustomAuthParams { get; set; }
 
     /// <summary>
     /// Gets or sets the size of the session cache. Default value is <see cref="DefaultCacheSize"/>.
@@ -72,9 +72,10 @@ namespace Xtensive.Storage.Configuration
     protected override void Clone(ConfigurationBase source)
     {
       base.Clone(source);
-      var configuration = (SessionConfiguration)source;
+      var configuration = (SessionConfiguration) source;
       UserName = configuration.UserName;
-      AuthParams = configuration.AuthParams;
+      Password = configuration.Password;
+      CustomAuthParams = configuration.CustomAuthParams;
       CacheSize = configuration.CacheSize;
     }
 
@@ -99,14 +100,14 @@ namespace Xtensive.Storage.Configuration
         return true;
       return Equals(obj.UserName, UserName)
         //TODO: && Equals(obj.AuthParams, AuthParams)
-        && obj.CacheSize == CacheSize;
+        && obj.CacheSize==CacheSize;
     }
 
     /// <inheritdoc/>
     public override int GetHashCode()
     {
       unchecked {
-        int result = (UserName != null ? UserName.GetHashCode() : 0);
+        int result = (UserName!=null ? UserName.GetHashCode() : 0);
         //todo: result = (result * 397) ^ (AuthParams != null ? AuthParams.GetHashCode() : 0);
         result = (result * 397) ^ CacheSize;
         return result;
@@ -125,17 +126,6 @@ namespace Xtensive.Storage.Configuration
 
     // Constructors
 
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="userName">User name to authenticate (use <see cref="string.Empty"/> to omit authentication).</param>
-    /// <param name="authParams">Authentication params (e.g. password).</param>
-    public SessionConfiguration(string userName, object[] authParams)
-      : this()
-    {
-      UserName = userName;
-      AuthParams = authParams;
-    }
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
