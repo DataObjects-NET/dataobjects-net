@@ -11,7 +11,7 @@ using Xtensive.Core.Tuples;
 
 namespace Xtensive.Storage.Internals
 {
-  internal class EntityDataCache
+  internal class EntityDataCache : SessionBound
   {
     private readonly WeakCache<Key, EntityData> cache;
 
@@ -54,7 +54,11 @@ namespace Xtensive.Storage.Internals
 
     private EntityData Create(Key key, Tuple tuple, PersistenceState state)
     {
-      Tuple origin = Tuple.Create(key.Type.TupleDescriptor);
+      Tuple origin;
+      if (state == PersistenceState.New)
+        origin = Session.Domain.Prototypes[key.Type].Clone();
+      else
+        origin = Tuple.Create(key.Type.TupleDescriptor);
       tuple.CopyTo(origin);
       EntityData result = new EntityData(key, new DifferentialTuple(origin), state);
       cache.Add(result);
@@ -68,7 +72,7 @@ namespace Xtensive.Storage.Internals
 
     // Constructors
 
-    public EntityDataCache(int cacheSize)
+    public EntityDataCache(Session session, int cacheSize) : base(session)
     {
       cache = new WeakCache<Key, EntityData>(cacheSize, d => d.Key);
     }

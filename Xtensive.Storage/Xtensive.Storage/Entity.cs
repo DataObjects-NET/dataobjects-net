@@ -47,11 +47,6 @@ namespace Xtensive.Storage
     internal int TypeId {
       [DebuggerStepThrough]
       get { return GetValue<int>(NameBuilder.TypeIdFieldName); }
-      [DebuggerStepThrough]
-      private set {
-        FieldInfo field = Type.Fields[NameBuilder.TypeIdFieldName];
-        field.GetAccessor<int>().SetValue(this, field, value);
-      }
     }
 
     #endregion
@@ -140,7 +135,6 @@ namespace Xtensive.Storage
     {
       Data.Entity = this;
       Session.DirtyData.Register(Data);
-      TypeId = Type.TypeId;
     }
 
     /// <inheritdoc/>

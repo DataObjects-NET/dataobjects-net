@@ -6,9 +6,11 @@
 
 using System;
 using System.Globalization;
+using System.Linq;
 using System.Reflection;
 using log4net.Config;
 using Xtensive.Core;
+using Xtensive.Core.Tuples;
 using Xtensive.PluginManager;
 using Xtensive.Storage.Building.Builders;
 using Xtensive.Storage.Configuration;
@@ -16,6 +18,8 @@ using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Resources;
 using Xtensive.Core.Reflection;
+using FieldInfo=Xtensive.Storage.Model.FieldInfo;
+using TypeInfo=Xtensive.Storage.Model.TypeInfo;
 
 namespace Xtensive.Storage.Building.Builders
 {
@@ -56,6 +60,7 @@ namespace Xtensive.Storage.Building.Builders
             CreateHandlerFactory();
             CreateNameBuilder();
             BuildModel();
+            BuildPrototypes();
             CreateDomainHandler();
             using (context.Domain.OpenSession()) {
               using (Log.InfoRegion(String.Format(Strings.LogBuildingX, typeof (DomainHandler).GetShortName())))
@@ -181,6 +186,33 @@ namespace Xtensive.Storage.Building.Builders
           generators.Register(hierarchy, generator);
         }
         generators.Lock();
+      }
+    }
+
+    private static void BuildPrototypes()
+    {
+      using (Log.InfoRegion(Strings.LogCreatingX, "persistent objects prototypes")) {
+        var domain = BuildingContext.Current.Domain;
+        foreach (TypeInfo type in domain.Model.Types.Where(t => !t.IsInterface)) {
+          Tuple prototype = Tuple.Create(type.TupleDescriptor);
+          int i = 0;
+          foreach (ColumnInfo column in type.Columns) {
+            if (column.IsNullable)
+              prototype.SetValue(i, null);
+            else if (column.ValueType == typeof(string))
+              prototype.SetValue(i, string.Empty);
+            else if (column.ValueType == typeof(byte[]))
+              prototype.SetValue(i, new byte[0]);
+            else
+              prototype.SetValue(i, prototype.GetValueOrDefault(i));
+            i++;
+          }
+          if (type.IsEntity) {
+            FieldInfo typeIdField = type.Fields[NameBuilder.TypeIdFieldName];
+            prototype.SetValue(typeIdField.MappingInfo.Offset, type.TypeId);
+          }
+          domain.Prototypes[type] = prototype;
+        }
       }
     }
   }

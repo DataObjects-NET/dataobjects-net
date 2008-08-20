@@ -167,7 +167,7 @@ namespace Xtensive.Storage
       Configuration = configuration;
       Handlers = domain.Handlers;
       Handler = Handlers.HandlerFactory.CreateHandler<SessionHandler>();
-      DataCache = new EntityDataCache(Configuration.CacheSize);
+      DataCache = new EntityDataCache(this, Configuration.CacheSize);
       DirtyData = new FlagRegistry<PersistenceState, EntityData>(e => e.PersistenceState);
       Name = configuration.Name;
       Handler.Session = this;

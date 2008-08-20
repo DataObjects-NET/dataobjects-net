@@ -4,12 +4,14 @@
 // Created by: Dmitri Maximov
 // Created:    2007.08.03
 
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Threading;
+using Xtensive.Core.Tuples;
 using Xtensive.Storage.Building.Builders;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Internals;
@@ -26,7 +28,6 @@ namespace Xtensive.Storage
   {
     private readonly ThreadSafeDictionary<RecordSetHeader, RecordSetMapping> recordSetMappings = 
       ThreadSafeDictionary<RecordSetHeader, RecordSetMapping>.Create(new object());
-
     private int sessionCounter = 1;
 
     /// <summary>
@@ -63,13 +64,12 @@ namespace Xtensive.Storage
       get { return Handlers.KeyManager; }
     }
 
-    /// <summary>
-    /// Gets the domain handler.
-    /// </summary>
     internal DomainHandler Handler {
       [DebuggerStepThrough]
       get { return Handlers.DomainHandler; }
     }
+
+    internal Dictionary<TypeInfo, Tuple> Prototypes { get; private set; }
 
     internal HandlerAccessor Handlers { get; private set; }
 
@@ -142,6 +142,7 @@ namespace Xtensive.Storage
     {
       Configuration = configuration;
       Handlers = new HandlerAccessor(this);
+      Prototypes = new Dictionary<TypeInfo, Tuple>();
     }
   }
 }
