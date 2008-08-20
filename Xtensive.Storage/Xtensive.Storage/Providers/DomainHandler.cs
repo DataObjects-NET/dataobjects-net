@@ -16,11 +16,6 @@ namespace Xtensive.Storage.Providers
   public abstract class DomainHandler : InitializableHandlerBase
   {
     /// <summary>
-    /// Gets or sets the <see cref="Storage.Domain"/> this handler is bound to.
-    /// </summary>
-    public Domain Domain { get; internal set; }
-
-    /// <summary>
     /// Gets the <see cref="Rse.Compilation.CompilationContext"/>
     /// associated with the domain.
     /// </summary>
@@ -58,7 +53,7 @@ namespace Xtensive.Storage.Providers
     public override void Initialize()
     {
       CompilationContext = BuildCompilationContext();
-      SystemSession = Domain.OpenSession(SessionType.DomainHandler).Session;
+      SystemSession = Handlers.Domain.OpenSession(SessionType.DomainHandler).Session;
     }
   }
 }
