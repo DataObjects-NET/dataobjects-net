@@ -12,11 +12,6 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   [Serializable]
   internal class PartitionFunctionSqlComparer : SqlComparerBase<PartitionFunction>
   {
-    public override ComparisonResult<PartitionFunction> Compare(PartitionFunction originalNode, PartitionFunction newNode, IEnumerable<ComparisonHintBase> hints)
-    {
-      throw new System.NotImplementedException();
-    }
-
     public PartitionFunctionSqlComparer(ISqlComparerProvider provider)
       : base(provider)
     {

@@ -51,7 +51,7 @@ namespace Xtensive.Storage
     }
 
     /// <see cref="ClassDocTemplate.Dispose" copy="true" />
-    public override void Dispose()
+    public void Dispose()
     {
       base.Dispose();
       compilationScope.DisposeSafely();

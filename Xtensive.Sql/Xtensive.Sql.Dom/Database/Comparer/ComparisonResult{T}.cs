@@ -4,7 +4,6 @@
 // Created by: Aleksey Gamzov
 // Created:    2008.08.15
 
-using System;
 using Xtensive.Core;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;

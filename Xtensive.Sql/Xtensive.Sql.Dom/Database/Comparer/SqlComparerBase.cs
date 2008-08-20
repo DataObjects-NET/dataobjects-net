@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
+using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
@@ -23,7 +24,41 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     private ISqlComparerProvider provider;
 
     /// <inheritdoc/>
-    public abstract ComparisonResult<T> Compare(T originalNode, T newNode, IEnumerable<ComparisonHintBase> hints);
+    public ComparisonResult<T> Compare(T originalNode, T newNode, IEnumerable<ComparisonHintBase> hints)
+    {
+      ValidateArguments(originalNode, newNode);
+      var result = new ComparisonResult<T>();
+      bool hasChanges = false;
+      IEnumerable<ComparisonResult> properties = CompareProperties(originalNode, newNode, hints);
+      if (properties!=null) {
+        foreach (ComparisonResult property in properties) {
+          result.Properties.Add(property);
+          if (property.HasChanges) {
+            hasChanges = true;
+          }
+        }
+      }
+      IEnumerable<ComparisonResult> nests = CompareNests(originalNode, newNode, hints);
+      if (nests!=null) {
+        foreach (ComparisonResult nest in nests) {
+          result.Nested.Add(nest);
+          if (nest.HasChanges) {
+            hasChanges = true;
+          }
+        }
+      }
+      result.OriginalValue = originalNode;
+      result.NewValue = newNode;
+      result.HasChanges = hasChanges;
+      if (ReferenceEquals(newNode, null))
+        result.ComparisonType = ComparisonResultType.Removed;
+      else if (ReferenceEquals(originalNode, null))
+        result.ComparisonType = ComparisonResultType.Added;
+      else
+        result.ComparisonType = hasChanges ? ComparisonResultType.Modified : ComparisonResultType.Unchanged;
+      result.Lock(true);
+      return result;
+    }
 
     /// <inheritdoc/>
     public ISqlComparerProvider Provider
@@ -38,6 +73,29 @@ namespace Xtensive.Sql.Dom.Database.Comparer
       }
       return hints.Where(hint => hint!=null && hint.Name==objectName && hint.Type==typeof (T));
     }
+
+    protected virtual IEnumerable<ComparisonResult> CompareProperties(T originalNode, T newNode, IEnumerable<ComparisonHintBase> hints)
+    {
+      return Enumerable.Empty<ComparisonResult>();
+    }
+
+    protected virtual IEnumerable<ComparisonResult> CompareNests(T originalNode, T newNode, IEnumerable<ComparisonHintBase> hints)
+    {
+      return Enumerable.Empty<ComparisonResult>();
+    }
+
+    # region Private / internal methods
+
+    private static void ValidateArguments(T originalNode, T newNode)
+    {
+      if (ReferenceEquals(originalNode, null) && ReferenceEquals(newNode, null)) {
+        throw new InvalidOperationException(Resources.Strings.ExBothComparisonNodesAreNull);
+      }
+    }
+
+    #endregion
+
+    // Constructors.
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>

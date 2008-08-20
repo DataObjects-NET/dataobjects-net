@@ -12,11 +12,6 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   [Serializable]
   internal class AssertionSqlComparer : WrappingSqlComparer<Assertion, Constraint>
   {
-    public override ComparisonResult<Assertion> Compare(Assertion originalNode, Assertion newNode, IEnumerable<ComparisonHintBase> hints)
-    {
-      throw new System.NotImplementedException();
-    }
-
     public AssertionSqlComparer(ISqlComparerProvider provider)
       : base(provider)
     {

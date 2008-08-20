@@ -17,11 +17,12 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   /// </summary>
   public abstract class ComparisonResult : LockableBase
   {
-    private Type type;
+    private readonly Type type;
+    private string name;
     private bool hasChanges;
     private ComparisonResultType comparisonType;
     private readonly ComparisonResultCollection<ComparisonResult> nested = new ComparisonResultCollection<ComparisonResult>();
-    private readonly ComparisonResultCollection<PropertyComparisonResult> properties = new ComparisonResultCollection<PropertyComparisonResult>();
+    private readonly ComparisonResultCollection<ComparisonResult> properties = new ComparisonResultCollection<ComparisonResult>();
 
     /// <summary>
     /// Gets comparison result of nested nodes.
@@ -34,7 +35,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     /// <summary>
     /// Gets comparison result of node properties.
     /// </summary>
-    public ICollection<PropertyComparisonResult> Properties
+    public ICollection<ComparisonResult> Properties
     {
       get { return properties; }
     }
@@ -49,6 +50,19 @@ namespace Xtensive.Sql.Dom.Database.Comparer
       {
         this.EnsureNotLocked();
         hasChanges = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets comparison node name.
+    /// </summary>
+    public string Name
+    {
+      get { return name; }
+      set
+      {
+        this.EnsureNotLocked();
+        name = value;
       }
     }
 
@@ -91,6 +105,5 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     {
       this.type = type;
     }
-
   }
 }

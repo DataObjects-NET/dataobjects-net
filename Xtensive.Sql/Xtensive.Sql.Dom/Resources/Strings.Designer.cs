@@ -61,6 +61,15 @@ namespace Xtensive.Sql.Dom.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Both comparison nodes are null..
+        /// </summary>
+        internal static string ExBothComparisonNodesAreNull {
+            get {
+                return ResourceManager.GetString("ExBothComparisonNodesAreNull", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Circular reference is detected..
         /// </summary>
         internal static string ExCircularReferenceDetected {

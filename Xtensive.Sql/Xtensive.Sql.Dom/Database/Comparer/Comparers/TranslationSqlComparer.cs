@@ -12,11 +12,6 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   [Serializable]
   internal class TranslationSqlComparer : SqlComparerBase<Translation>
   {
-    public override ComparisonResult<Translation> Compare(Translation originalNode, Translation newNode, IEnumerable<ComparisonHintBase> hints)
-    {
-      throw new System.NotImplementedException();
-    }
-
     public TranslationSqlComparer(ISqlComparerProvider provider)
       : base(provider)
     {

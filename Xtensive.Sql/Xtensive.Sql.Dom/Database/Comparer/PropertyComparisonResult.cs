@@ -14,7 +14,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   /// Property compare result.
   /// </summary>
   [Serializable]
-  public class PropertyComparisonResult : ComparisonResult<object>
+  public class PropertyComparisonResult<T> : ComparisonResult<T>
   {
     private string propertyName;
 

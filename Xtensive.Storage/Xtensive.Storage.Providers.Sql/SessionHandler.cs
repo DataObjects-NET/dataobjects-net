@@ -119,7 +119,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       SqlBatch batch = SqlFactory.Batch();
       foreach (IndexInfo primaryIndex in data.Type.AffectedIndexes.Where(i => i.IsPrimary)) {
-        SqlTableRef tableRef = GetTableRef(primaryIndex);
+        SqlTableRef tableRef = SqlFactory.TableRef(DomainHandler.GetTable(primaryIndex));
         SqlInsert insert = SqlFactory.Insert(tableRef);
 
         for (int i = 0; i < primaryIndex.Columns.Count; i++) {
@@ -142,7 +142,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       SqlBatch batch = SqlFactory.Batch();
       foreach (IndexInfo primaryIndex in data.Type.AffectedIndexes.Where(i => i.IsPrimary)) {
-        SqlTableRef tableRef = GetTableRef(primaryIndex);
+        SqlTableRef tableRef = SqlFactory.TableRef(DomainHandler.GetTable(primaryIndex));
         SqlUpdate update = SqlFactory.Update(tableRef);
 
         for (int i = 0; i < primaryIndex.Columns.Count; i++) {
@@ -176,7 +176,7 @@ namespace Xtensive.Storage.Providers.Sql
       SqlBatch batch = SqlFactory.Batch();
       int tableCount = 0;
       foreach (IndexInfo index in data.Type.AffectedIndexes.Where(i => i.IsPrimary)) {
-        SqlTableRef tableRef = GetTableRef(index);
+        SqlTableRef tableRef = SqlFactory.TableRef(DomainHandler.GetTable(index));
         SqlDelete delete = SqlFactory.Delete(tableRef);
         SqlExpression where = null;
         for (int i = 0; i < data.Type.Indexes.PrimaryIndex.KeyColumns.Count; i++) {
@@ -215,14 +215,6 @@ namespace Xtensive.Storage.Providers.Sql
     #region Private \ internal methods
 
     #endregion
-
-    private SqlTableRef GetTableRef(IndexInfo index)
-    {
-      Table table;
-      if (!DomainHandler.RealIndexes.TryGetValue(index, out table))
-        throw new InvalidOperationException(String.Format(Strings.ExTypeDoesntHavePrimaryIndex, index.Name));
-      return SqlFactory.TableRef(table);
-    }
 
     private void EnsureConnectionIsOpen()
     {

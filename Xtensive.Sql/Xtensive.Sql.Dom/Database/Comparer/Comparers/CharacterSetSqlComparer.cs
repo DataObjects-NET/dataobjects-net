@@ -12,11 +12,6 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   [Serializable]
   internal class CharacterSetSqlComparer : SqlComparerBase<CharacterSet>
   {
-    public override ComparisonResult<CharacterSet> Compare(CharacterSet originalNode, CharacterSet newNode, IEnumerable<ComparisonHintBase> hints)
-    {
-      throw new System.NotImplementedException();
-    }
-
     public CharacterSetSqlComparer(ISqlComparerProvider provider)
       : base(provider)
     {
