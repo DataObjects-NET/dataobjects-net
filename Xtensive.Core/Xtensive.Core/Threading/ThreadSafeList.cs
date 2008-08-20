@@ -22,15 +22,11 @@ namespace Xtensive.Core.Threading
     ISynchronizable
   {
     private const int InitialSize = 16;
-    private readonly static TItem defaultItem = default(TItem);
+    private readonly static TItem defaultItem = default(TItem);    
     private volatile TItem[] implementation;
-    private object syncRoot;
 
     /// <inheritdoc/>
-    public object SyncRoot {
-      [DebuggerStepThrough]
-      get { return syncRoot; }
-    }
+    public object SyncRoot { get; private set; }
 
     /// <inheritdoc/>
     public bool IsSynchronized
@@ -53,7 +49,7 @@ namespace Xtensive.Core.Threading
       TItem item = GetValue(index);
       if (!ReferenceEquals(item, defaultItem))
         return item;
-      else lock (syncRoot) {
+      else lock (SyncRoot) {
         item = GetValue(index);
         if (!ReferenceEquals(item, defaultItem))
           return item;
@@ -77,7 +73,7 @@ namespace Xtensive.Core.Threading
       TItem item = GetValue(index);
       if (!ReferenceEquals(item, defaultItem))
         return item;
-      else lock (syncRoot) {
+      else lock (SyncRoot) {
         item = GetValue(index);
         if (!ReferenceEquals(item, defaultItem))
           return item;
@@ -103,7 +99,7 @@ namespace Xtensive.Core.Threading
       TItem item = GetValue(index);
       if (!ReferenceEquals(item, defaultItem))
         return item;
-      else lock (syncRoot) {
+      else lock (SyncRoot) {
         item = GetValue(index);
         if (!ReferenceEquals(item, defaultItem))
           return item;
@@ -183,7 +179,7 @@ namespace Xtensive.Core.Threading
     {
       if (implementation!=null)
         throw Exceptions.AlreadyInitialized(null);
-      this.syncRoot = syncRoot;
+      this.SyncRoot = syncRoot;
       var tmp = new TItem[InitialSize];
       Thread.MemoryBarrier(); // Ensures tmp is fully written
       implementation = tmp;

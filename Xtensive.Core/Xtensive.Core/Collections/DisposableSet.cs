@@ -7,7 +7,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Reflection;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Helpers;
 
@@ -18,8 +17,8 @@ namespace Xtensive.Core.Collections
   /// on disposal of <see cref="DisposableSet"/> instance.
   /// </summary>
   /// <remarks>
-  ///   <note>
-  ///     <see cref="IDisposable.Dispose"/> methods are invoked in backward order.
+  /// <note>
+  /// <see cref="IDisposable.Dispose"/> methods are invoked in backward order.
   /// </note>
   /// </remarks>
   public sealed class DisposableSet: IDisposable

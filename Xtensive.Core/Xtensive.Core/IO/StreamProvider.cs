@@ -231,22 +231,28 @@ namespace Xtensive.Core.IO
       pool.ItemRemoved += PoolItemRemoveHandler;
     }
 
-    #region IDisposable implementation
+    // Destructor
 
-    /// <see cref="DisposableDocTemplate.Dispose()" copy="true"/>
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Dispose" copy="true"/>
+    /// </summary>
     public void Dispose()
     {
       Dispose(true);
       GC.SuppressFinalize(this);
     }
 
-    /// <see cref="DisposableDocTemplate.Dtor" copy="true"/>
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Dtor" copy="true"/>
+    /// </summary>
     ~StreamProvider()
     {
       Dispose(false);
     }
 
-    /// <see cref="DisposableDocTemplate.Dispose(bool)" copy="true"/>
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Dispose" copy="true"/>
+    /// </summary>
     protected void Dispose(bool disposing)
     {
       if (disposing) {
@@ -258,8 +264,6 @@ namespace Xtensive.Core.IO
           Enumerable.Cast<IDisposable>(poolBackup).DisposeSafely(Log.Instance, GetType().GetShortName());
         }
       }
-    }
-
-    #endregion
+    }    
   }
 }

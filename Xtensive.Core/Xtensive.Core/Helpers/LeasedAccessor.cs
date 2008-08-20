@@ -17,7 +17,7 @@ namespace Xtensive.Core.Helpers
   /// <typeparam name="T">The type of <see cref="Leased"/> object.</typeparam>
   public class LeasedAccessor<T>: IDisposable
   {
-    private readonly T leased;
+    private T leased;
     private readonly Action<bool, T> onDispose;
 
     /// <summary>
@@ -45,15 +45,20 @@ namespace Xtensive.Core.Helpers
 
     // Destructor
 
-    /// <see cref="DisposableDocTemplate.Dispose(bool)" copy="true" />
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Dispose" copy="true"/>
+    /// </summary>
     protected virtual void Dispose(bool disposing) 
     {
       onDispose(disposing, leased);
+      leased = default(T);
       if (!disposing)
         GC.SuppressFinalize(this); 
     }
 
-    /// <see cref="DisposableDocTemplate.Dispose()" copy="true" />
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Dispose" copy="true"/>
+    /// </summary>
     public void Dispose() 
     {
       Dispose(true);

@@ -12,7 +12,7 @@ namespace Xtensive.Core.Collections
 {
   internal class TypedEnumerator<T> : IEnumerator<T>
   {
-    private readonly IEnumerator innerEnumerator;
+    private IEnumerator innerEnumerator;
 
     public object Current
     {
@@ -37,6 +37,7 @@ namespace Xtensive.Core.Collections
 
     public void Dispose()
     {
+      innerEnumerator = null;
     }
 
 

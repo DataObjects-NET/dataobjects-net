@@ -6,12 +6,14 @@
 
 using System;
 using System.Collections.Generic;
+using Xtensive.Core.Internals.DocTemplates;
+
 namespace Xtensive.Core.Conversion
 {
   [Serializable]
   internal class ConvertingEnumerator<T1, T2> : IEnumerator<T2>
   {
-    private readonly IEnumerator<T1> innerEnumerator;
+    private IEnumerator<T1> innerEnumerator;
     private readonly Converter<T1, T2> converter;
     private T2 current;
     private bool currentIsValid = false;
@@ -35,13 +37,7 @@ namespace Xtensive.Core.Conversion
         }
         return current;
       }
-    }
-
-    public void Dispose()
-    {
-      currentIsValid = false;
-      innerEnumerator.Dispose();
-    }
+    }    
 
     public bool MoveNext()
     {
@@ -58,12 +54,30 @@ namespace Xtensive.Core.Conversion
 
     // Constructors
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="innerEnumerator">The inner enumerator.</param>
+    /// <param name="converter">The converter.</param>
     public ConvertingEnumerator(IEnumerator<T1> innerEnumerator, Converter<T1, T2> converter)
     {
       ArgumentValidator.EnsureArgumentNotNull(innerEnumerator, "innerEnumerator");
       ArgumentValidator.EnsureArgumentNotNull(converter, "converter");
       this.innerEnumerator = innerEnumerator;
       this.converter = converter;
+    }
+
+
+    // Destructor
+    
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Dispose" copy="true"/>
+    /// </summary>
+    public void Dispose()
+    {
+      currentIsValid = false;
+      innerEnumerator.Dispose();
+      innerEnumerator = null;
     }
   }
 }

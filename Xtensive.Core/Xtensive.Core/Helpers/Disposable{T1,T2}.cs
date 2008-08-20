@@ -38,9 +38,12 @@ namespace Xtensive.Core.Helpers
       this.parameter2 = parameter2;
     }
 
+
     // Destructor
 
-    /// <see cref="DisposableDocTemplate.Dispose(bool)" copy="true" />
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Dispose" copy="true"/>
+    /// </summary>
     protected virtual void Dispose(bool disposing) 
     {
       onDispose(disposing, parameter1, parameter2);
@@ -48,7 +51,9 @@ namespace Xtensive.Core.Helpers
         GC.SuppressFinalize(this); 
     }
 
-    /// <see cref="DisposableDocTemplate.Dispose()" copy="true" />
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Dispose" copy="true"/>
+    /// </summary>
     public void Dispose() 
     {
       Dispose(true);

@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics;
 using Xtensive.Core;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Resources;
 
 namespace Xtensive.Core.Diagnostics
@@ -131,44 +132,79 @@ namespace Xtensive.Core.Diagnostics
     }
     
 
-    // Constructor
-    
+    // Constructors
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
     public Measurement()
       : this(MeasurementOptions.Default)
     {
     }
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="operationCount">The operation count.</param>
     public Measurement(int operationCount)
       : this(MeasurementOptions.Default, operationCount)
     {
     }
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="name">The measurement name.</param>
     public Measurement(string name)
       : this(name, MeasurementOptions.Default)
     {
     }
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="name">The measurement  name.</param>
+    /// <param name="operationCount">The operation count.</param>
     public Measurement(string name, int operationCount)
       : this(name, MeasurementOptions.Default, operationCount)
     {
     }
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="options">The measurement options.</param>
     public Measurement(MeasurementOptions options)
       : this("Unnamed", options)
     {
     }
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="options">The measurement options.</param>
+    /// <param name="operationCount">The operation count.</param>
     public Measurement(MeasurementOptions options, int operationCount)
       : this("Unnamed", options, operationCount)
     {
     }
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="name">The measurement name.</param>
+    /// <param name="options">The measurement options.</param>
     public Measurement(string name, MeasurementOptions options)
       : this(name, options, 0)
     {
     }
 
-
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="name">The measurement name.</param>
+    /// <param name="options">The measurement options.</param>
+    /// <param name="operationCount">The operation count.</param>
     public Measurement(string name, MeasurementOptions options, int operationCount)
     {
       this.options = options;
@@ -180,11 +216,12 @@ namespace Xtensive.Core.Diagnostics
       initialTime = HighResolutionTime.Now;
     }
 
-    // IDisposable impl.
+    // Destructors
 
     void IDisposable.Dispose() 
     {
-      Complete();
+      if (!isCompleted)
+        Complete();
     }
   }
 }

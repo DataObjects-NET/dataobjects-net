@@ -29,6 +29,7 @@ namespace Xtensive.Core.Helpers
       this.onDispose = onDispose;
     }
 
+
     // Destructor
 
     /// <see cref="DisposableDocTemplate.Dispose(bool)" copy="true" />

@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Resources;
 
 namespace Xtensive.Core.Helpers
 {
@@ -24,6 +25,8 @@ namespace Xtensive.Core.Helpers
     private Action<Exception> exceptionHandler;
     private List<Exception> exceptions;
 
+    private bool isDisposed = false;
+
     /// <summary>
     /// Gets or sets the exception handler.
     /// </summary>
@@ -37,6 +40,7 @@ namespace Xtensive.Core.Helpers
 
     /// <summary>
     /// Gets the number of caught exceptions.
+    /// </summary>
     public long Count
     {
       [DebuggerStepThrough]
@@ -53,6 +57,8 @@ namespace Xtensive.Core.Helpers
     /// <param name="action">The action to execute.</param>
     public void Execute(Action action)
     {
+      if (isDisposed)
+        throw new InvalidOperationException(Strings.ObjectIsAlreadyDisposed);
       try {
         action();
       }
@@ -71,6 +77,8 @@ namespace Xtensive.Core.Helpers
     /// <param name="argument">The action argument value.</param>
     public void Execute<T>(Action<T> action, T argument)
     {
+      if (isDisposed)
+        throw new InvalidOperationException(Strings.ObjectIsAlreadyDisposed);
       try {
         action(argument);
       }
@@ -91,6 +99,8 @@ namespace Xtensive.Core.Helpers
     /// <param name="argument2">The 2nd action argument value.</param>
     public void Execute<T1, T2>(Action<T1, T2> action, T1 argument1, T2 argument2)
     {
+      if (isDisposed)
+        throw new InvalidOperationException(Strings.ObjectIsAlreadyDisposed);
       try {
         action(argument1, argument2);
       }
@@ -113,6 +123,8 @@ namespace Xtensive.Core.Helpers
     /// <param name="argument3">The 3rd action argument value.</param>
     public void Execute<T1, T2, T3>(Action<T1, T2, T3> action, T1 argument1, T2 argument2, T3 argument3)
     {
+      if (isDisposed)
+        throw new InvalidOperationException(Strings.ObjectIsAlreadyDisposed);
       try {
         action(argument1, argument2, argument3);
       }
@@ -132,6 +144,8 @@ namespace Xtensive.Core.Helpers
     /// otherwise, <see langword="default(TResult)"/>.</returns>
     public TResult Execute<TResult>(Func<TResult> function)
     {
+      if (isDisposed)
+        throw new InvalidOperationException(Strings.ObjectIsAlreadyDisposed);
       try {
         return function();
       }
@@ -154,6 +168,8 @@ namespace Xtensive.Core.Helpers
     /// otherwise, <see langword="default(TResult)"/>.</returns>
     public TResult Execute<T, TResult>(Func<T, TResult> function, T argument)
     {
+      if (isDisposed)
+        throw new InvalidOperationException(Strings.ObjectIsAlreadyDisposed);
       try {
         return function(argument);
       }
@@ -178,6 +194,8 @@ namespace Xtensive.Core.Helpers
     /// otherwise, <see langword="default(TResult)"/>.</returns>
     public TResult Execute<T1, T2, TResult>(Func<T1, T2, TResult> function, T1 argument1, T2 argument2)
     {
+      if (isDisposed)
+        throw new InvalidOperationException(Strings.ObjectIsAlreadyDisposed);
       try {
         return function(argument1, argument2);
       }
@@ -204,6 +222,8 @@ namespace Xtensive.Core.Helpers
     /// otherwise, <see langword="default(TResult)"/>.</returns>
     public TResult Execute<T1, T2, T3, TResult>(Func<T1, T2, T3, TResult> function, T1 argument1, T2 argument2, T3 argument3)
     {
+      if (isDisposed)
+        throw new InvalidOperationException(Strings.ObjectIsAlreadyDisposed);
       try {
         return function(argument1, argument2, argument3);
       }
@@ -277,8 +297,12 @@ namespace Xtensive.Core.Helpers
     /// by <see cref="Execute"/> methods.</exception>
     public void Dispose()
     {
-      if (exceptions!=null && exceptions.Count>0)
-        throw new AggregateException(exceptions);
+      if (exceptions!=null && exceptions.Count>0) {
+        var exception = new AggregateException(exceptions);
+        exceptions = null;
+        isDisposed = true;
+        throw exception;
+      }
     }
   }
 }

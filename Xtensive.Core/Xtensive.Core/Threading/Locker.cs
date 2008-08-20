@@ -5,6 +5,7 @@
 using System;
 using System.Diagnostics;
 using System.Threading;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.Threading
 {
@@ -19,34 +20,58 @@ namespace Xtensive.Core.Threading
     private class ReadController
       : IDisposable
     {
-      private readonly ReaderWriterLockSlim rwLock;
+      private readonly ReaderWriterLockSlim rwLock;      
 
-      public void Dispose()
-      {
-        ReleaseReadLock(rwLock);
-      }
 
+      // Constructor
+
+      /// <summary>
+      /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+      /// </summary>
+      /// <param name="rwLock">The <see cref="ReaderWriterLockSlim"/> to lock.</param>
       public ReadController(ReaderWriterLockSlim rwLock)
       {
         this.rwLock = rwLock;
         AcquireReadLock(this.rwLock);
+      }
+
+      // Destructor
+
+      /// <summary>
+      /// <see cref="ClassDocTemplate.Dispose" copy="true"/>
+      /// </summary>
+      public void Dispose()
+      {
+        ReleaseReadLock(rwLock);
       }
     }
 
     private class ReadLockController
       : IDisposable
     {
-      private readonly object toLock;
+      private readonly object toLock;      
 
-      public void Dispose()
-      {
-        ReleaseReadLock(toLock);
-      }
 
+      // Constructor
+
+      /// <summary>
+      /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+      /// </summary>
+      /// <param name="toLock">To object to lock.</param>
       public ReadLockController(object toLock)
       {
         this.toLock = toLock;
         AcquireReadLock(this.toLock);
+      }
+
+      // Destructor
+
+      /// <summary>
+      /// <see cref="ClassDocTemplate.Dispose" copy="true"/>
+      /// </summary>
+      public void Dispose()
+      {
+        ReleaseReadLock(toLock);
       }
     }
 
@@ -56,15 +81,27 @@ namespace Xtensive.Core.Threading
       private readonly ReaderWriterLockSlim rwLock;
       private readonly LockCookie? lockCookie;
 
-      public void Dispose()
-      {
-        ReleaseWriteLock(rwLock, lockCookie);
-      }
 
+      // Constructor
+
+      /// <summary>
+      /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+      /// </summary>
+      /// <param name="rwLock">The <see cref="ReaderWriterLockSlim"/> to lock.</param>
       public WriteController(ReaderWriterLockSlim rwLock)
       {
         this.rwLock = rwLock;
         lockCookie = AcquireWriteLock(rwLock);
+      }
+
+      // Destructor
+
+      /// <summary>
+      /// <see cref="ClassDocTemplate.Dispose" copy="true"/>
+      /// </summary>
+      public void Dispose()
+      {
+        ReleaseWriteLock(rwLock, lockCookie);
       }
     }
 
@@ -74,15 +111,26 @@ namespace Xtensive.Core.Threading
       private readonly object toLock;
       private readonly LockCookie? lockCookie;
 
-      public void Dispose()
-      {
-        ReleaseWriteLock(toLock, lockCookie);
-      }
+      // Constructor
 
+      /// <summary>
+      /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+      /// </summary>
+      /// <param name="toLock">The object to lock.</param>
       public WriteLockController(object toLock)
       {
         this.toLock = toLock;
         lockCookie = AcquireWriteLock(toLock);
+      }
+
+      // Destructor
+
+      /// <summary>
+      /// <see cref="ClassDocTemplate.Dispose" copy="true"/>
+      /// </summary>
+      public void Dispose()
+      {
+        ReleaseWriteLock(toLock, lockCookie);
       }
     }
 
