@@ -27,17 +27,11 @@ namespace Xtensive.Storage.Providers.Sql
 
     protected override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
-      var result = new List<Tuple>(0);
-      var sessionHandler = (SessionHandler)handlers.SessionHandler;
-      using (DbDataReader reader = sessionHandler.ExecuteReader(Query)) {
-        while(reader.Read()) {
-          var tuple = Tuple.Create(Header.TupleDescriptor);
-          for (int i = 0; i < reader.FieldCount; i++)
-            tuple.SetValue(i, DBNull.Value == reader[i] ? null : reader[i]);
-          result.Add(tuple);
-        }
+      var sessionHandler = (SessionHandler) handlers.SessionHandler;
+      using (var e = sessionHandler.Execute(Query, Header.TupleDescriptor)) {
+        while (e.MoveNext())
+          yield return e.Current;
       }
-      return result;
     }
 
 

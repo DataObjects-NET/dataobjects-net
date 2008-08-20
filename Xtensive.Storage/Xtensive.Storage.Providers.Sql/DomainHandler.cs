@@ -56,7 +56,11 @@ namespace Xtensive.Storage.Providers.Sql
 
     public virtual Table GetTable(IndexInfo indexInfo)
     {
-      return realIndexes[indexInfo];
+      Table table;
+      if (!realIndexes.TryGetValue(indexInfo, out table))
+        throw new InvalidOperationException(String.Format(
+          Strings.ExTypeHasNoPrimaryIndex, indexInfo.Name));
+      return table;
     }
 
     public abstract SqlDataType GetSqlDataType(Type type, int? length);
@@ -81,8 +85,8 @@ namespace Xtensive.Storage.Providers.Sql
       }
       if (primaryIndexColumnName.IsNullOrEmpty())
         throw new InvalidOperationException(String.Format(
-          Strings.UnableToFindColumnInPrimaryIndex,
-          secondaryIndexColumn.Name,
+          Strings.ExUnableToFindColumnInPrimaryIndex, 
+          secondaryIndexColumn.Name, 
           secondaryIndex.Name));
       return primaryIndexColumnName;
     }

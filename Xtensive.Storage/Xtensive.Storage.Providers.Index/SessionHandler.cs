@@ -49,5 +49,10 @@ namespace Xtensive.Storage.Providers.Index
         index.Remove(transform.Apply(TupleTransformType.TransformedTuple, result.Result));
       }
     }
+
+    public override void Initialize()
+    {
+      // TODO: Think what should be done here.
+    }
   }
 }

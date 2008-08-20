@@ -9,20 +9,17 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
-using Xtensive.Core;
 using Xtensive.Core.Tuples;
 using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Database;
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers.Sql.Resources;
-using Xtensive.Storage.Rse;
-using Xtensive.Storage.Rse.Providers.Compilable;
 using SqlFactory = Xtensive.Sql.Dom.Sql;
 
 namespace Xtensive.Storage.Providers.Sql
 {
-  public class SessionHandler : Providers.SessionHandler
+  public abstract class SessionHandler : Providers.SessionHandler
   {
     #region Nested types: ExpressionData and ExpressionHandler
 
@@ -53,11 +50,6 @@ namespace Xtensive.Storage.Providers.Sql
     private SqlConnection connection;
     private DbTransaction transaction;
     private ExpressionHandler expressionHandler;
-
-    public DomainHandler DomainHandler
-    {
-      get { return (DomainHandler) Handlers.DomainHandler; }
-    }
 
     public SqlConnection Connection {
       get {
@@ -119,7 +111,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       SqlBatch batch = SqlFactory.Batch();
       foreach (IndexInfo primaryIndex in data.Type.AffectedIndexes.Where(i => i.IsPrimary)) {
-        SqlTableRef tableRef = SqlFactory.TableRef(DomainHandler.GetTable(primaryIndex));
+        SqlTableRef tableRef = SqlFactory.TableRef(GetTable(primaryIndex));
         SqlInsert insert = SqlFactory.Insert(tableRef);
 
         for (int i = 0; i < primaryIndex.Columns.Count; i++) {
@@ -134,7 +126,7 @@ namespace Xtensive.Storage.Providers.Sql
       }
       int rowsAffected = ExecuteNonQuery(batch);
       if (rowsAffected!=batch.Count)
-        throw new InvalidOperationException(String.Format(Strings.ExInsertInvalid, data.Type.Name, rowsAffected, batch.Count));
+        throw new InvalidOperationException(String.Format(Strings.ExErrorOnInsert, data.Type.Name, rowsAffected, batch.Count));
     }
 
     /// <inheritdoc/>
@@ -142,7 +134,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       SqlBatch batch = SqlFactory.Batch();
       foreach (IndexInfo primaryIndex in data.Type.AffectedIndexes.Where(i => i.IsPrimary)) {
-        SqlTableRef tableRef = SqlFactory.TableRef(DomainHandler.GetTable(primaryIndex));
+        SqlTableRef tableRef = SqlFactory.TableRef(GetTable(primaryIndex));
         SqlUpdate update = SqlFactory.Update(tableRef);
 
         for (int i = 0; i < primaryIndex.Columns.Count; i++) {
@@ -167,7 +159,7 @@ namespace Xtensive.Storage.Providers.Sql
       }
       int rowsAffected = ExecuteNonQuery(batch);
       if (rowsAffected!=batch.Count)
-        throw new InvalidOperationException(String.Format(Strings.ExUpdateInvalid, data.Type.Name, rowsAffected, batch.Count));
+        throw new InvalidOperationException(String.Format(Strings.ExErrorOnUpdate, data.Type.Name, rowsAffected, batch.Count));
     }
 
     /// <inheritdoc/>
@@ -176,7 +168,7 @@ namespace Xtensive.Storage.Providers.Sql
       SqlBatch batch = SqlFactory.Batch();
       int tableCount = 0;
       foreach (IndexInfo index in data.Type.AffectedIndexes.Where(i => i.IsPrimary)) {
-        SqlTableRef tableRef = SqlFactory.TableRef(DomainHandler.GetTable(index));
+        SqlTableRef tableRef = SqlFactory.TableRef(GetTable(index));
         SqlDelete delete = SqlFactory.Delete(tableRef);
         SqlExpression where = null;
         for (int i = 0; i < data.Type.Indexes.PrimaryIndex.KeyColumns.Count; i++) {
@@ -212,11 +204,13 @@ namespace Xtensive.Storage.Providers.Sql
       }
     }
 
-    #region Private \ internal methods
+    public Table GetTable(IndexInfo index)
+    {
+      var domainHandler = (DomainHandler) Handlers.DomainHandler;
+      return domainHandler.GetTable(index);
+    }
 
-    #endregion
-
-    private void EnsureConnectionIsOpen()
+    public void EnsureConnectionIsOpen()
     {
       if (connection==null || transaction==null || connection.State!=ConnectionState.Open) {
         var provider = new SqlConnectionProvider();
@@ -226,6 +220,11 @@ namespace Xtensive.Storage.Providers.Sql
         connection.Open();
         transaction = connection.BeginTransaction();
       }
+    }
+
+    public override void Initialize()
+    {
+      // TODO: Think what should be done here.
     }
   }
 }

@@ -117,34 +117,34 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ExIndexXXXChanged" xml:space="preserve">
-    <value>Index {0} changed.</value>
+  <data name="ExIndexIsChanged" xml:space="preserve">
+    <value>Index '{0}' is changed.</value>
   </data>
-  <data name="ExInsertInvalid" xml:space="preserve">
-    <value>Unable to insert instance of type {0} with specified key. Query affected {1} tables, but expecrted {2} tables.</value>
+  <data name="ExErrorOnInsert" xml:space="preserve">
+    <value>Unable to insert instance of type '{0}' with specified key. Query affected {1} tables, but expected {2} tables.</value>
   </data>
   <data name="ExInstanceMultipleResults" xml:space="preserve">
-    <value>Instance of type {0} with specified key found several times in storage.</value>
+    <value>Multiple instances of type '{0}' with specified key are found.</value>
   </data>
   <data name="ExInstanceNotFound" xml:space="preserve">
-    <value>Instance of type {0} with specified key not found in storage.</value>
+    <value>Instance of type '{0}' with specified key is not found.</value>
   </data>
-  <data name="ExQueryMultipleResults" xml:space="preserve">
+  <data name="ExMultipleResults" xml:space="preserve">
     <value>Specified query returns multiple results.</value>
   </data>
-  <data name="ExTypeDoesntHavePrimaryIndex" xml:space="preserve">
-    <value>Type {0} doesn't have primary index. Or index not found in storage.</value>
+  <data name="ExTypeHasNoPrimaryIndex" xml:space="preserve">
+    <value>Type '{0}' has no primary index.</value>
   </data>
   <data name="ExUnableToCreateConnection" xml:space="preserve">
-    <value>Unable to create connection. Check if all needed assemblies are present.</value>
+    <value>Unable to create the connection. Check if all needed assemblies are available.</value>
   </data>
   <data name="ExUnsupportedColumnType" xml:space="preserve">
-    <value>Type {0} is not supported by current storage.</value>
+    <value>Type '{0}' is not supported by current storage provider.</value>
   </data>
   <data name="ExUnsupportedIndex" xml:space="preserve">
-    <value>Index {0} with attributes {1} is not supported.</value>
+    <value>Index '{0}' with attributes '{1}' is not supported.</value>
   </data>
-  <data name="ExUpdateInvalid" xml:space="preserve">
+  <data name="ExErrorOnUpdate" xml:space="preserve">
     <value>Unable to update instance of type {0} with specified key. Query affected {1} tables, but expecrted {2} tables.</value>
   </data>
   <data name="ExReaderIsNotInConsistentState" xml:space="preserve">
@@ -156,7 +156,7 @@
   <data name="ExEnumerationIsAlreadyFinished" xml:space="preserve">
     <value>Enumeration is already finished.</value>
   </data>
-  <data name="UnableToFindColumnInPrimaryIndex" xml:space="preserve">
-    <value>Unable to find column {0} of index {1} in primary index.</value>
+  <data name="ExUnableToFindColumnInPrimaryIndex" xml:space="preserve">
+    <value>Unable to find column '{0}' of index '{1}' in primary index.</value>
   </data>
 </root>

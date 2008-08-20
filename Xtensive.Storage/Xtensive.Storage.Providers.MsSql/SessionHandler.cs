@@ -8,5 +8,10 @@ namespace Xtensive.Storage.Providers.MsSql
 {
   public class SessionHandler : Sql.SessionHandler
   {
+    public override void Initialize()
+    {
+      base.Initialize();
+      // TODO: Think what should be done here.
+    }
   }
 }

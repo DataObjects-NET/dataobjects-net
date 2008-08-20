@@ -8,5 +8,10 @@ namespace Xtensive.Storage.Providers.Memory
 {
   public class SessionHandler : Index.SessionHandler
   {
+    public override void Initialize()
+    {
+      base.Initialize();
+      // TODO: Think what should be done here.
+    }
   }
 }

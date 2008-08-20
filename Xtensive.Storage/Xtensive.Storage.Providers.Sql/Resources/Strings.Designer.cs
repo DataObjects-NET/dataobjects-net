@@ -79,25 +79,34 @@ namespace Xtensive.Storage.Providers.Sql.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Index {0} changed..
+        ///   Looks up a localized string similar to Unable to insert instance of type &apos;{0}&apos; with specified key. Query affected {1} tables, but expected {2} tables..
         /// </summary>
-        internal static string ExIndexXXXChanged {
+        internal static string ExErrorOnInsert {
             get {
-                return ResourceManager.GetString("ExIndexXXXChanged", resourceCulture);
+                return ResourceManager.GetString("ExErrorOnInsert", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Unable to insert instance of type {0} with specified key. Query affected {1} tables, but expecrted {2} tables..
+        ///   Looks up a localized string similar to Unable to update instance of type {0} with specified key. Query affected {1} tables, but expecrted {2} tables..
         /// </summary>
-        internal static string ExInsertInvalid {
+        internal static string ExErrorOnUpdate {
             get {
-                return ResourceManager.GetString("ExInsertInvalid", resourceCulture);
+                return ResourceManager.GetString("ExErrorOnUpdate", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Instance of type {0} with specified key found several times in storage..
+        ///   Looks up a localized string similar to Index &apos;{0}&apos; is changed..
+        /// </summary>
+        internal static string ExIndexIsChanged {
+            get {
+                return ResourceManager.GetString("ExIndexIsChanged", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Multiple instances of type &apos;{0}&apos; with specified key are found..
         /// </summary>
         internal static string ExInstanceMultipleResults {
             get {
@@ -106,7 +115,7 @@ namespace Xtensive.Storage.Providers.Sql.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Instance of type {0} with specified key not found in storage..
+        ///   Looks up a localized string similar to Instance of type &apos;{0}&apos; with specified key is not found..
         /// </summary>
         internal static string ExInstanceNotFound {
             get {
@@ -117,9 +126,9 @@ namespace Xtensive.Storage.Providers.Sql.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Specified query returns multiple results..
         /// </summary>
-        internal static string ExQueryMultipleResults {
+        internal static string ExMultipleResults {
             get {
-                return ResourceManager.GetString("ExQueryMultipleResults", resourceCulture);
+                return ResourceManager.GetString("ExMultipleResults", resourceCulture);
             }
         }
         
@@ -133,16 +142,16 @@ namespace Xtensive.Storage.Providers.Sql.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Type {0} doesn&apos;t have primary index. Or index not found in storage..
+        ///   Looks up a localized string similar to Type &apos;{0}&apos; has no primary index..
         /// </summary>
-        internal static string ExTypeDoesntHavePrimaryIndex {
+        internal static string ExTypeHasNoPrimaryIndex {
             get {
-                return ResourceManager.GetString("ExTypeDoesntHavePrimaryIndex", resourceCulture);
+                return ResourceManager.GetString("ExTypeHasNoPrimaryIndex", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Unable to create connection. Check if all needed assemblies are present..
+        ///   Looks up a localized string similar to Unable to create the connection. Check if all needed assemblies are available..
         /// </summary>
         internal static string ExUnableToCreateConnection {
             get {
@@ -151,7 +160,16 @@ namespace Xtensive.Storage.Providers.Sql.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Type {0} is not supported by current storage..
+        ///   Looks up a localized string similar to Unable to find column &apos;{0}&apos; of index &apos;{1}&apos; in primary index..
+        /// </summary>
+        internal static string ExUnableToFindColumnInPrimaryIndex {
+            get {
+                return ResourceManager.GetString("ExUnableToFindColumnInPrimaryIndex", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Type &apos;{0}&apos; is not supported by current storage provider..
         /// </summary>
         internal static string ExUnsupportedColumnType {
             get {
@@ -160,29 +178,11 @@ namespace Xtensive.Storage.Providers.Sql.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Index {0} with attributes {1} is not supported..
+        ///   Looks up a localized string similar to Index &apos;{0}&apos; with attributes &apos;{1}&apos; is not supported..
         /// </summary>
         internal static string ExUnsupportedIndex {
             get {
                 return ResourceManager.GetString("ExUnsupportedIndex", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Unable to update instance of type {0} with specified key. Query affected {1} tables, but expecrted {2} tables..
-        /// </summary>
-        internal static string ExUpdateInvalid {
-            get {
-                return ResourceManager.GetString("ExUpdateInvalid", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Unable to find column {0} of index {1} in primary index..
-        /// </summary>
-        internal static string UnableToFindColumnInPrimaryIndex {
-            get {
-                return ResourceManager.GetString("UnableToFindColumnInPrimaryIndex", resourceCulture);
             }
         }
     }
