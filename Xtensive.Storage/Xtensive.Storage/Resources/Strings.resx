@@ -417,4 +417,7 @@
   <data name="ExLengthConstraintViolationOnFieldX" xml:space="preserve">
     <value>'Length' constraint violation on field '{0}'</value>
   </data>
+  <data name="SessionIsAlreadyDisposed" xml:space="preserve">
+    <value>Session is already disposed.</value>
+  </data>
 </root>

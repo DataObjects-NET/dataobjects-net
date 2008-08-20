@@ -17,6 +17,7 @@ using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Rse;
+using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage
 {
@@ -65,7 +66,7 @@ namespace Xtensive.Storage
     public void Persist()
     {
       if (isDisposed)
-        throw new InvalidOperationException("Session is already disposed.");
+        throw new InvalidOperationException(Strings.SessionIsAlreadyDisposed);
 
       if (DirtyData.Count==0)
         return;
@@ -91,7 +92,7 @@ namespace Xtensive.Storage
     public IEnumerable<T> All<T>() where T : class,   IEntity
     {      
       if (isDisposed)
-        throw new InvalidOperationException("Session is already disposed.");
+        throw new InvalidOperationException(Strings.SessionIsAlreadyDisposed);
 
       Persist();
       TypeInfo type = Domain.Model.Types[typeof (T)];

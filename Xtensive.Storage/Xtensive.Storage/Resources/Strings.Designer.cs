@@ -845,6 +845,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Session is already disposed..
+        /// </summary>
+        internal static string SessionIsAlreadyDisposed {
+            get {
+                return ResourceManager.GetString("SessionIsAlreadyDisposed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Types.
         /// </summary>
         internal static string Types {
