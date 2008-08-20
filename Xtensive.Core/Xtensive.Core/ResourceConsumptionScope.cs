@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Resources;
 
 namespace Xtensive.Core
 {
@@ -18,10 +19,11 @@ namespace Xtensive.Core
     where TResource: class, IResource
   {
     [ThreadStatic]
-    private static ResourceConsumptionScope<TResource> current = null;
+    private static ResourceConsumptionScope<TResource> current;
 
     private ResourceConsumptionScope<TResource> outer;
     private TResource resource;
+    private bool isDisposed = false;
 
     /// <summary>
     /// Gets or sets the current consumption scope.
@@ -55,23 +57,16 @@ namespace Xtensive.Core
       [DebuggerStepThrough]
       get { return resource; }
       [DebuggerStepThrough]
-      set { resource = value; }
+      set 
+      { 
+        if (isDisposed)
+          throw new InvalidOperationException(Strings.ObjectIsAlreadyDisposed);
+        resource = value; 
+      }
     }
 
-    /// <summary>
-    /// Releases unmanaged and - optionally - managed resources
-    /// </summary>
-    public virtual void Dispose()
-    {
-      try {
-        resource.RemoveConsumer(this);
-      }
-      finally {
-        current = outer;
-        resource = null;
-        outer = null;
-      }
-    }
+    
+    // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true" />
@@ -91,6 +86,44 @@ namespace Xtensive.Core
       ArgumentValidator.EnsureArgumentNotNull(resource, "resource");
       this.resource = resource;
       resource.AddConsumer(this);
+    }
+
+
+    // Descructors
+    
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Dispose" copy="true"/>
+    /// </summary>
+    protected virtual void Dispose(bool disposing)
+    {
+      if (!isDisposed)
+        try {
+          resource.RemoveConsumer(this);
+          resource.Dispose();
+        }
+        finally {
+          current = outer;
+          resource = null;
+          outer = null;
+          isDisposed = true;
+        }
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Dispose" copy="true"/>
+    /// </summary>
+    public void Dispose()
+    {
+      this.Dispose(true);
+      GC.SuppressFinalize(this);
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Dtor" copy="true"/>
+    /// /// </summary>
+    ~ResourceConsumptionScope()
+    {
+      Dispose(false);
     }
   }
 
@@ -118,6 +151,6 @@ namespace Xtensive.Core
     /// <param name="resource">The resource.</param>
     protected ResourceConsumptionScope(TResource resource) : base(resource)
     {
-    }
+    }    
   }
 }
