@@ -151,7 +151,7 @@ namespace Xtensive.Storage.Configuration
     /// </summary>
     public SessionConfiguration()
     {
-      CacheSize = 1024;
+      CacheSize = DefaultCacheSize;
     }
 
     // Type initializer

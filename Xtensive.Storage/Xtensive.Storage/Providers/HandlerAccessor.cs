@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Providers;
 using Xtensive.Core.Helpers;
 
@@ -51,6 +52,18 @@ namespace Xtensive.Storage.Providers
     public SessionHandler SessionHandler
     {
       get { return Session.Current.Handler; }
+    }
+
+    /// <summary>
+    /// Creates the session and returns its handler as <param name="handler"/>.
+    /// </summary>
+    /// <returns>New <see cref="SessionScope"/> object.</returns>
+    public SessionScope OpenSession<T>(SessionType type, out T handler)
+      where T : SessionHandler
+    {
+      var scope = Domain.OpenSession(type);
+      handler = (T)scope.Session.Handler;
+      return scope;
     }
 
 

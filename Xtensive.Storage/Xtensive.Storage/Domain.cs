@@ -121,7 +121,7 @@ namespace Xtensive.Storage
     /// <returns>New <see cref="SessionScope"/> object.</returns>
     internal SessionScope OpenSession(SessionType type)
     {
-      SessionConfiguration configuration = (SessionConfiguration)Configuration.Session.Clone();
+      var configuration = (SessionConfiguration)Configuration.Session.Clone();
       configuration.Type = type;
       return OpenSession(configuration);
     }

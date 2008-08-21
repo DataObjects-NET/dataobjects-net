@@ -19,6 +19,7 @@ using Xtensive.Storage.Providers;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Resources;
 using Xtensive.Core.Helpers;
+using Xtensive.Storage.Rse.Compilation;
 
 namespace Xtensive.Storage
 {
@@ -29,6 +30,7 @@ namespace Xtensive.Storage
     private volatile bool isDisposed;
     private readonly Set<object> consumers = new Set<object>();
     private readonly object _lock = new object();
+    private readonly CompilationScope compilationScope;
 
     #region Private \ internal properties
 
@@ -180,6 +182,7 @@ namespace Xtensive.Storage
       Name = configuration.Name;
       Handler.Session = this;
       Handler.Initialize();
+      compilationScope = Handlers.DomainHandler.CompilationContext.Activate();
     }
 
     #region Dispose pattern
@@ -216,6 +219,7 @@ namespace Xtensive.Storage
           return;
         try {
           Handler.DisposeSafely();
+          compilationScope.DisposeSafely();
         }
         finally {
           isDisposed = true;

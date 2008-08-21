@@ -18,8 +18,6 @@ namespace Xtensive.Storage
   /// </summary>
   public class SessionScope: ResourceConsumptionScope<Session, SessionConfiguration>
   {
-    private readonly CompilationScope compilationScope;
-
     /// <summary>
     /// Gets the current scope.
     /// </summary>
@@ -51,16 +49,6 @@ namespace Xtensive.Storage
       Resource = session;
       ((IResource)Resource).AddConsumer(this);
       // TODO: AY: Fix immediately
-      compilationScope = Session.Handlers.DomainHandler.CompilationContext.Activate();
-    }
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Dispose" copy="true"/>
-    /// </summary>
-    public void Dispose()
-    {
-      compilationScope.DisposeSafely();
-      base.Dispose();      
     }
   }
 }

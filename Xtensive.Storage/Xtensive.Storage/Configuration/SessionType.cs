@@ -15,8 +15,6 @@ namespace Xtensive.Storage.Configuration
   public enum SessionType
   {
     User = 0x00,
-    System = 0x01,
-    DomainHandler = 0x02 + System,
-    Generator = 0x04 + System,
+    System = 0x01
   }
 }

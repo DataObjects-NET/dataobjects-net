@@ -79,6 +79,11 @@ namespace Xtensive.Storage.Building
     }
 
     /// <summary>
+    /// Gets the system session handler.
+    /// </summary>
+    public SessionHandler SystemSessionHandler { get; internal set; }
+
+    /// <summary>
     /// Gets or sets the <see cref="Storage.Domain"/> model definition.
     /// </summary>
     public DomainModelDef Definition { get; internal set; }

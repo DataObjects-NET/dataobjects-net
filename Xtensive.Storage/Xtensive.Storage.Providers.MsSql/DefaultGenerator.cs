@@ -10,6 +10,8 @@ using Xtensive.Sql.Common;
 using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Database;
 using Xtensive.Sql.Dom.Dml;
+using Xtensive.Storage.Building;
+using Xtensive.Storage.Configuration;
 using SqlFactory = Xtensive.Sql.Dom.Sql;
 
 namespace Xtensive.Storage.Providers.MsSql
@@ -37,20 +39,24 @@ namespace Xtensive.Storage.Providers.MsSql
       SqlSelect select = SqlFactory.Select();
       select.Columns.Add(SqlFactory.Cast(SqlFactory.FunctionCall("SCOPE_IDENTITY"), dataType));
       batch.Add(select);
-      var sessionHandler = (SessionHandler)Handlers.SessionHandler;
-      using (var command = new SqlCommand(sessionHandler.Connection)) {
-        command.Transaction = sessionHandler.Transaction;
-        command.Statement = batch;
-        command.Prepare();
-        var id = command.ExecuteScalar();
-        result.SetValue(0, id);
-      }
+
+      SessionHandler handler;
+      using (Handlers.OpenSession(SessionType.System, out handler))
+        using (var command = new SqlCommand(handler.Connection)) {
+          command.Transaction = handler.Transaction;
+          command.Statement = batch;
+          command.Prepare();
+          var id = command.ExecuteScalar();
+          result.SetValue(0, id);
+        }
       return result;
     }
 
     public override void Initialize()
     {
       base.Initialize();
+
+      var sessionHandler = (SessionHandler)BuildingContext.Current.SystemSessionHandler;
       var keyColumn = Hierarchy.Columns[0];
       var domainHandler = (DomainHandler)Handlers.DomainHandler;
       generatorTable = domainHandler.Schema.CreateTable(Hierarchy.MappingName);
@@ -66,7 +72,6 @@ namespace Xtensive.Storage.Providers.MsSql
       column.SequenceDescriptor = new SequenceDescriptor(column, 1, 1);
       SqlBatch batch = SqlFactory.Batch();
       batch.Add(SqlFactory.Create(generatorTable));
-      var sessionHandler = (SessionHandler) Handlers.SessionHandler;
       using (var command = new SqlCommand(sessionHandler.Connection)) {
         command.Transaction = sessionHandler.Transaction;
         command.Statement = batch;

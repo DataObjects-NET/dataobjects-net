@@ -12,6 +12,7 @@ using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Database;
 using Xtensive.Sql.Dom.Database.Providers;
 using Xtensive.Sql.Dom.Dml;
+using Xtensive.Storage.Building;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse.Compilation;
@@ -43,7 +44,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     public override void Build()
     {
-      SessionHandler sessionHandler = ((SessionHandler)SystemSessionHandler);
+      SessionHandler sessionHandler = ((SessionHandler)BuildingScope.Context.SystemSessionHandler);
       var modelProvider = new SqlModelProvider(sessionHandler.Connection);
       SqlModel existingModel = SqlModel.Build(modelProvider);
       string serverName = existingModel.DefaultServer.Name;

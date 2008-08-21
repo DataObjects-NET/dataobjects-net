@@ -22,19 +22,6 @@ namespace Xtensive.Storage.Providers
     /// </summary>
     public CompilationContext CompilationContext { get; private set; }
 
-    /// <summary>
-    /// Gets system session.
-    /// </summary>
-    protected Session SystemSession { get; private set; }
-
-    /// <summary>
-    /// Gets system session handler.
-    /// </summary>
-    protected SessionHandler SystemSessionHandler
-    {
-      get { return SystemSession.Handlers.SessionHandler; }
-    }
-
     // Abstract methods
 
     /// <summary>
@@ -54,7 +41,6 @@ namespace Xtensive.Storage.Providers
     public override void Initialize()
     {
       CompilationContext = BuildCompilationContext();
-      SystemSession = Handlers.Domain.OpenSession(SessionType.DomainHandler).Session;
     }
   }
 }
