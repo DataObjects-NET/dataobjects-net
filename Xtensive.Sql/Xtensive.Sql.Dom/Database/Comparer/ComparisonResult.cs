@@ -21,24 +21,6 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     private string name;
     private bool hasChanges;
     private ComparisonResultType resultType;
-    private readonly ComparisonResultCollection<ComparisonResult> nested = new ComparisonResultCollection<ComparisonResult>();
-    private readonly ComparisonResultCollection<ComparisonResult> properties = new ComparisonResultCollection<ComparisonResult>();
-
-    /// <summary>
-    /// Gets comparison result of nested nodes.
-    /// </summary>
-    public ICollection<ComparisonResult> Nested
-    {
-      get { return nested; }
-    }
-
-    /// <summary>
-    /// Gets comparison result of node properties.
-    /// </summary>
-    public ICollection<ComparisonResult> Properties
-    {
-      get { return properties; }
-    }
 
     /// <summary>
     /// Gets <see langword="true"/> if result contains changes, otherwise gets <see langword="false"/>.
@@ -65,13 +47,13 @@ namespace Xtensive.Sql.Dom.Database.Comparer
         name = value;
       }
     }
-
-    public IEnumerable<ComparisonResult> Find(ComparisonResultLocation locations, ComparisonResultType comparisonTypes, bool recursive, params Type[] types)
-    {
-      IEnumerable<ComparisonResult> propertyResults = properties.Find(locations, comparisonTypes, recursive, types);
-      IEnumerable<ComparisonResult> nestedResults = nested.Find(locations, comparisonTypes, recursive, types);
-      return propertyResults.Union(nestedResults);
-    }
+//
+//    public IEnumerable<ComparisonResult> Find(ComparisonResultLocation locations, ComparisonResultType comparisonTypes, bool recursive, params Type[] types)
+//    {
+//      IEnumerable<ComparisonResult> propertyResults = properties.Find(locations, comparisonTypes, recursive, types);
+//      IEnumerable<ComparisonResult> nestedResults = nested.Find(locations, comparisonTypes, recursive, types);
+//      return propertyResults.Union(nestedResults);
+//    }
 
     /// <summary>
     /// Gets comparison type.
@@ -91,15 +73,15 @@ namespace Xtensive.Sql.Dom.Database.Comparer
       get { return type; }
     }
 
-    /// <inheritdoc/>
-    public override void Lock(bool recursive)
-    {
-      base.Lock(recursive);
-      if (recursive) {
-        nested.Lock(true);
-        properties.Lock(true);
-      }
-    }
+//    /// <inheritdoc/>
+//    public override void Lock(bool recursive)
+//    {
+//      base.Lock(recursive);
+//      if (recursive) {
+//        nested.Lock(true);
+//        properties.Lock(true);
+//      }
+//    }
 
     public ComparisonResult(Type type)
     {

@@ -11,7 +11,7 @@ using Xtensive.Core.Collections;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
-  internal class ComparisonResultCollection<TItem> : CollectionBaseSlim<TItem>
+  public class ComparisonResultCollection<TItem> : CollectionBaseSlim<TItem>
     where TItem : ComparisonResult
   {
     public IEnumerable<ComparisonResult> Find(ComparisonResultLocation locations, ComparisonResultType comparsionTypes, bool recursive, Type[] types)
@@ -24,9 +24,9 @@ namespace Xtensive.Sql.Dom.Database.Comparer
           yield return item;
         }
         if (recursive) {
-          foreach (ComparisonResult recursiveResult in item.Find(locations, comparsionTypes, recursive, types)) {
-            yield return recursiveResult;
-          }
+//          foreach (ComparisonResult recursiveResult in item.Find(locations, comparsionTypes, recursive, types)) {
+//            yield return recursiveResult;
+//          }
         }
       }
     }
