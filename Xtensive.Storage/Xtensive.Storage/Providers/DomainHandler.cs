@@ -5,6 +5,7 @@
 // Created:    2008.05.19
 
 using System.Diagnostics;
+using Xtensive.Core.Helpers;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Rse.Compilation;
 
@@ -54,6 +55,11 @@ namespace Xtensive.Storage.Providers
     {
       CompilationContext = BuildCompilationContext();
       SystemSession = Handlers.Domain.OpenSession(SessionType.DomainHandler).Session;
+    }
+
+    public override void Dispose()
+    {
+      SystemSession.DisposeSafely();
     }
   }
 }

@@ -8,11 +8,13 @@ using System;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Diagnostics;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 using Xtensive.Core.Threading;
+using Xtensive.Core.Helpers;
 
 namespace Xtensive.Storage
 {
@@ -20,10 +22,11 @@ namespace Xtensive.Storage
   /// Produces and caches <see cref="Key"/> instances. 
   /// Also acts like an identity map for <see cref="Key"/> instances within single <see cref="Domain"/>.
   /// </summary>
-  public class KeyManager
+  public sealed class KeyManager : IDisposable
   {
     private readonly Domain domain;
-    private readonly object @lock = new object();
+    private readonly object _lock = new object();
+    private bool isDisposed;
     private readonly WeakSetSlim<Key> cache = new WeakSetSlim<Key>();
     internal Registry<HierarchyInfo, DefaultGenerator> Generators { get; private set; }
 
@@ -77,7 +80,7 @@ namespace Xtensive.Storage
 
     internal Key GetCachedKey(Key key)
     {
-      return LockType.Exclusive.Execute(@lock, () => Cache(key));
+      return LockType.Exclusive.Execute(_lock, () => Cache(key));
     }
 
     #endregion
@@ -126,6 +129,26 @@ namespace Xtensive.Storage
     {
       this.domain = domain;
       Generators = new Registry<HierarchyInfo, DefaultGenerator>();
+    }
+
+    /// <summary>
+    ///   <see cref="ClassDocTemplate.Dispose" copy="true"/>
+    /// </summary>
+    public void Dispose()
+    {
+      if (isDisposed)
+        return;
+
+      lock (_lock) {
+        if (isDisposed)
+          return;
+        try {
+          Generators.DisposeSafely();
+        }
+        finally {
+          isDisposed = true;
+        }
+      }
     }
   }
 }

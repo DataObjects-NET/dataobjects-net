@@ -4,12 +4,15 @@
 // Created by: Dmitri Maximov
 // Created:    2007.08.03
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Diagnostics;
+using Xtensive.Core.Helpers;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Threading;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Building.Builders;
@@ -24,10 +27,12 @@ namespace Xtensive.Storage
   /// <summary>
   /// Provides access to a single storage.
   /// </summary>
-  public sealed class Domain
+  public sealed class Domain : IDisposable
   {
     private readonly ThreadSafeDictionary<RecordSetHeader, RecordSetMapping> recordSetMappings = 
       ThreadSafeDictionary<RecordSetHeader, RecordSetMapping>.Create(new object());
+    private volatile bool isDisposed;
+    private readonly object _lock = new object();
     private int sessionCounter = 1;
 
     /// <summary>
@@ -98,7 +103,7 @@ namespace Xtensive.Storage
     public SessionScope OpenSession(SessionConfiguration configuration)
     {
       ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
-      if (configuration.Name.IsNullOrEmpty()) {
+      if (EnumerableExtensions.IsNullOrEmpty(configuration.Name)) {
         configuration.Name = sessionCounter.ToString();
         Interlocked.Increment(ref sessionCounter);
       }
@@ -144,6 +149,41 @@ namespace Xtensive.Storage
       Configuration = configuration;
       Handlers = new HandlerAccessor(this);
       Prototypes = new Dictionary<TypeInfo, Tuple>();
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Dtor" copy="true"/>
+    /// </summary>
+    ~Domain()
+    {
+      Dispose(false);
+    }
+    
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Dispose" copy="true"/>
+    /// </summary>
+    public void Dispose()
+    {
+      Dispose(true);
+      GC.SuppressFinalize(this);
+    }
+
+    private void Dispose(bool isDisposing)
+    {
+      if (isDisposed)
+        return;
+      lock (_lock) {
+        if (isDisposed)
+          return;
+        try {
+          Handlers.NameBuilder.DisposeSafely();
+          Handlers.KeyManager.DisposeSafely();
+          Handlers.DomainHandler.DisposeSafely();
+        }
+        finally {
+          isDisposed = true;
+        }
+      }
     }
   }
 }

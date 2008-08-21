@@ -54,5 +54,10 @@ namespace Xtensive.Storage.Providers.Index
     {
       // TODO: Think what should be done here.
     }
+
+    /// <inheritdoc/>
+    public override void Dispose()
+    {
+    }
   }
 }

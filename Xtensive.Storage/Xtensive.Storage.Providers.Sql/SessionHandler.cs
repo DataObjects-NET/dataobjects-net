@@ -16,6 +16,7 @@ using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers.Sql.Resources;
 using SqlFactory = Xtensive.Sql.Dom.Sql;
+using Xtensive.Core.Helpers;
 
 namespace Xtensive.Storage.Providers.Sql
 {
@@ -225,6 +226,12 @@ namespace Xtensive.Storage.Providers.Sql
     public override void Initialize()
     {
       // TODO: Think what should be done here.
+    }
+
+    /// <inheritdoc/>
+    public override void Dispose()
+    {
+      connection.DisposeSafely();
     }
   }
 }

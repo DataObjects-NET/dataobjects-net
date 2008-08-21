@@ -18,6 +18,7 @@ using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Resources;
+using Xtensive.Core.Helpers;
 
 namespace Xtensive.Storage
 {
@@ -27,7 +28,7 @@ namespace Xtensive.Storage
   {
     private volatile bool isDisposed;
     private readonly Set<object> consumers = new Set<object>();
-    private object _lock = new object();
+    private readonly object _lock = new object();
 
     #region Private \ internal properties
 
@@ -214,8 +215,7 @@ namespace Xtensive.Storage
         if (isDisposed)
           return;
         try {
-//          Persist();
-          Handler.Commit();
+          Handler.DisposeSafely();
         }
         finally {
           isDisposed = true;

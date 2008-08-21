@@ -47,8 +47,8 @@ namespace Xtensive.Storage.Rse.Compilation
     /// </summary>
     public readonly static int CacheSize = 1024;
     
-    private WeakCache<CompilableProvider, CacheEntry> cache;
-    private object _lock = new object();
+    private readonly WeakCache<CompilableProvider, CacheEntry> cache;
+    private readonly object _lock = new object();
 
     /// <summary>
     /// Gets the current compilation context.

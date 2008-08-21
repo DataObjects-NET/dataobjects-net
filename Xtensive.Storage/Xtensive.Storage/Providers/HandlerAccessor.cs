@@ -4,8 +4,11 @@
 // Created by: Dmitri Maximov
 // Created:    2008.07.11
 
+using System;
 using System.Diagnostics;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Providers;
+using Xtensive.Core.Helpers;
 
 namespace Xtensive.Storage.Providers
 {

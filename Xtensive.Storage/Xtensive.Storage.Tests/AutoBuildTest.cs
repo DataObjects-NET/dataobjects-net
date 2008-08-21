@@ -7,6 +7,7 @@
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Storage.Configuration;
+using Xtensive.Core.Helpers;
 
 namespace Xtensive.Storage.Tests
 {
@@ -30,16 +31,17 @@ namespace Xtensive.Storage.Tests
     [TestFixtureTearDown]
     public virtual void TestFixtureTearDown()
     {
+      domain.DisposeSafely();
     }
 
     protected virtual DomainConfiguration BuildConfiguration()
     {
       DomainConfiguration config;
-      config = DomainConfigurationFactory.Create("memory");
-//      config = DomainConfigurationFactory.Create("mssql2005");
+//      config = DomainConfigurationFactory.Create("memory");
+      config = DomainConfigurationFactory.Create("mssql2005");
 //      config = DomainConfigurationFactory.Create("memory", InheritanceSchema.SingleTable);
 //      config = DomainConfigurationFactory.Create("memory", InheritanceSchema.ConcreteTable);
-//      config = DomainConfigurationFactory.Create("memory", InheritanceSchema.SingleTable, TypeIdBehavior.Include);
+//      config = DomainConfigurationFactory.Create("memory", InheritanceSchema.Default, TypeIdBehavior.Include);
       return config;
     }
 

@@ -4,16 +4,21 @@
 // Created by: Dmitri Maximov
 // Created:    2008.07.11
 
+using System;
+
 namespace Xtensive.Storage.Providers
 {
   /// <summary>
   /// Abstract base class for any storage handler.
   /// </summary>
-  public abstract class HandlerBase
+  public abstract class HandlerBase : IDisposable
   {
     /// <summary>
     /// Gets the <see cref="HandlerAccessor"/> providing other available handlers.
     /// </summary>
     protected internal HandlerAccessor Handlers { get; set; }
+
+    /// <inheritdoc/>
+    public abstract void Dispose();
   }
 }

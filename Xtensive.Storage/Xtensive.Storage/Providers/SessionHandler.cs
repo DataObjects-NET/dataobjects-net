@@ -35,16 +35,14 @@ namespace Xtensive.Storage.Providers
         Remove(data);
     }
 
-    /// <inheritdoc/>
-    public override void Initialize()
-    {
-      
-    }
-
     protected abstract void Insert(EntityData data);
 
     protected abstract void Update(EntityData data);
 
     protected abstract void Remove(EntityData data);
+
+    /// <inheritdoc/>
+    public override void Initialize()
+    {}
   }
 }

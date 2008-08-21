@@ -132,6 +132,11 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
     {
       throw new NotSupportedException();
     }
+
+    public override void Dispose()
+    {
+      throw new System.NotImplementedException();
+    }
   }
 
   public class IsbnKeyProvider : DefaultGenerator
@@ -143,6 +148,11 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
       Tuple result = Tuple.Create(counter.ToString());
       counter++;
       return result;
+    }
+
+    public override void Dispose()
+    {
+      throw new System.NotImplementedException();
     }
   }
 
