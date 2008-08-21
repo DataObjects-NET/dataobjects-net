@@ -41,7 +41,7 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
     public IdentityCard Card { get; set; }
   }
 
-  [HierarchyRoot("Number")]
+  [HierarchyRoot("Number", Generator = typeof(Generator))]
   public class Person : Entity
   {
     [Field]

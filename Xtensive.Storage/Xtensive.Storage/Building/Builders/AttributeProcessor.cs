@@ -76,7 +76,8 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void ProcessGenerator(HierarchyDef hierarchy, HierarchyRootAttribute attribute)
     {
-      hierarchy.Generator = attribute.Generator;
+      if (attribute.Generator != null)
+        hierarchy.Generator = attribute.Generator;
     }
 
     private static void ProcessKeyFields(HierarchyDef hierarchy, TypeDef type, HierarchyRootAttribute attribute)

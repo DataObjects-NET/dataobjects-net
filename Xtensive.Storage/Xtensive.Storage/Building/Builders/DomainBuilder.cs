@@ -177,6 +177,8 @@ namespace Xtensive.Storage.Building.Builders
         var handlerAccessor = BuildingContext.Current.Domain.Handlers;
         Registry<HierarchyInfo, Generator> generators = BuildingContext.Current.Domain.KeyManager.Generators;
         foreach (HierarchyInfo hierarchy in BuildingContext.Current.Model.Hierarchies) {
+          if (hierarchy.Generator == null)
+            return;
           Generator generator;
           if (hierarchy.Generator==typeof (Generator))
             generator = handlerAccessor.HandlerFactory.CreateHandler<Generator>();
