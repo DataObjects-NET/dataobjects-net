@@ -5,6 +5,7 @@
 // Created:    2008.03.04
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Tuples;
@@ -25,6 +26,8 @@ namespace Xtensive.Indexing.Composite
     private Converter<TItem, TItem> itemConverter;
     private Converter<IEntire<TKey>, IEntire<TKey>> entireConverter;
     private IMeasureResultSet<TItem> measureResults;
+    private Dictionary<TupleDescriptor, CutOutTransform> CutOutTransformDictionary;
+    private Dictionary<TupleDescriptor, CutInTransform<int>> CutInTransformDictionary;
 
     #region Properties: SegmentName, SegmentNumber, CompositeIndex, EntireConverter,MeasureResults
 
@@ -78,7 +81,7 @@ namespace Xtensive.Indexing.Composite
     /// <inheritdoc/>
     public override TItem GetItem(TKey key)
     {
-      CutOutTransform itemTransform = new CutOutTransform(true, compositeIndex.Implementation.GetItem(keyConverter(key)).Descriptor, new Segment<int>(key.Count, 1));
+      CutOutTransform itemTransform = GetCutOutTransform(compositeIndex.Implementation.GetItem(keyConverter(key)).Descriptor, new Segment<int>(key.Count, 1));
       Tuple result = itemTransform.Apply(TupleTransformType.TransformedTuple, compositeIndex.Implementation.GetItem(keyConverter(key)));
       return (TItem) result;
     }
@@ -115,7 +118,7 @@ namespace Xtensive.Indexing.Composite
         SeekResult<TItem> seekResult = new SeekResult<TItem>();
         if ((int) result.Result[compositeRay.Point.Value.Count - 1]==segmentNumber) {
           seekResult = new SeekResult<TItem>(result.ResultType, result.Result);
-          CutOutTransform itemTransform = new CutOutTransform(true, seekResult.Result.Descriptor, new Segment<int>(compositeRay.Point.Value.Count - 1, 1));
+          CutOutTransform itemTransform = GetCutOutTransform(seekResult.Result.Descriptor, new Segment<int>(compositeRay.Point.Value.Count - 1, 1));
           Tuple resultTuple = itemTransform.Apply(TupleTransformType.TransformedTuple, seekResult.Result);
           return new SeekResult<TItem>(result.ResultType, (TItem) resultTuple);
         }
@@ -277,6 +280,28 @@ namespace Xtensive.Indexing.Composite
         entireConverter(range.EndPoints.Second));
     }
 
+    internal CutOutTransform GetCutOutTransform(TupleDescriptor descriptor, Segment<int> segment)
+    {
+      CutOutTransform result;
+      if (CutOutTransformDictionary.TryGetValue(descriptor, out result))
+        return result;
+
+      result = new CutOutTransform(true, descriptor, segment);
+      CutOutTransformDictionary.Add(descriptor, result);
+      return result;
+    }
+
+    internal CutInTransform<int> GetCutInTransform(int count, TupleDescriptor descriptor)
+    {
+      CutInTransform<int> result;
+      if (CutInTransformDictionary.TryGetValue(descriptor, out result))
+        return result;
+
+      result = new CutInTransform<int>(true, count, descriptor, segmentNumber);
+      CutInTransformDictionary.Add(descriptor, result);
+      return result;
+    }
+
     #endregion
 
     /// <inheritdoc/>
@@ -287,16 +312,16 @@ namespace Xtensive.Indexing.Composite
         (IndexSegmentConfiguration<TKey, TItem>) configuration;
       segmentName = indexConfiguration.SegmentName;
       keyConverter = delegate(TKey key) {
-        CutInTransform<int> keyTransform = new CutInTransform<int>(false, key.Count, key.Descriptor, segmentNumber);
+        CutInTransform<int> keyTransform = GetCutInTransform(key.Count, key.Descriptor);
         return (TKey) keyTransform.Apply(TupleTransformType.TransformedTuple, key, segmentNumber);
       };
       itemConverter = delegate(TItem item) {
         Tuple key = KeyExtractor(item);
-        CutInTransform<int> keyTransform = new CutInTransform<int>(false, key.Count, item.Descriptor, segmentNumber);
+        CutInTransform<int> keyTransform = GetCutInTransform(key.Count, item.Descriptor);
         return (TItem) keyTransform.Apply(TupleTransformType.TransformedTuple, item, segmentNumber);
       };
       entireConverter = delegate(IEntire<TKey> entire) {
-        CutInTransform<int> entireTransform = new CutInTransform<int>(false, entire.Value.Count, entire.Value.Descriptor, segmentNumber);
+        CutInTransform<int> entireTransform = GetCutInTransform(entire.Value.Count, entire.Value.Descriptor);
         Tuple key = entireTransform.Apply(TupleTransformType.TransformedTuple, entire.Value, segmentNumber);
         EntireValueType[] valueType = new EntireValueType[entire.Count + 1];
         entire.ValueTypes.CopyTo(valueType, 0);
@@ -305,6 +330,8 @@ namespace Xtensive.Indexing.Composite
         return result;
       };
       measureResults = new MeasureResultSet<TItem>(Measures);
+      CutOutTransformDictionary = new Dictionary<TupleDescriptor, CutOutTransform>();
+      CutInTransformDictionary = new Dictionary<TupleDescriptor, CutInTransform<int>>();
     }
 
 

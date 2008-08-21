@@ -44,7 +44,7 @@ namespace Xtensive.Indexing.Composite
     {
       get
       {
-        CutOutTransform currentTransform = new CutOutTransform(false, reader.Current.Descriptor, new Segment<int>(index.KeyExtractor(reader.Current).Count, 1));
+        CutOutTransform currentTransform = index.GetCutOutTransform(reader.Current.Descriptor, new Segment<int>(index.KeyExtractor(reader.Current).Count, 1));
         return (TItem) currentTransform.Apply(TupleTransformType.TransformedTuple, reader.Current);
       }
     }
