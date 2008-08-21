@@ -12,28 +12,13 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   /// <summary>
   /// View comparison result.
   /// </summary>
-  public class ViewComparisonResult : ComparisonResult<View>
+  public class ViewComparisonResult : NodeComparisonResult<View>
   {
-    private ComparisonResult<string> dbName;
     private ComparisonResult<CheckOptions> checkOptions;
     private ComparisonResult<SqlNative> definition;
     private readonly ComparisonResultCollection<ComparisonResult<View>> views = new ComparisonResultCollection<ComparisonResult<View>>();
     private readonly ComparisonResultCollection<ComparisonResult<ViewColumn>> columns = new ComparisonResultCollection<ComparisonResult<ViewColumn>>();
     private readonly ComparisonResultCollection<ComparisonResult<Index>> indexes = new ComparisonResultCollection<ComparisonResult<Index>>();
-
-
-    /// <summary>
-    /// Gets comparison result of db name.
-    /// </summary>
-    public ComparisonResult<string> DbName
-    {
-      get { return dbName; }
-      internal set
-      {
-        this.EnsureNotLocked();
-        dbName = value;
-      }
-    }
 
     /// <summary>
     /// Gets comparison result of check options.
@@ -93,7 +78,6 @@ namespace Xtensive.Sql.Dom.Database.Comparer
         views.Lock(recursive);
         columns.Lock(recursive);
         indexes.Lock(recursive);
-        dbName.Lock(recursive);
         checkOptions.Lock(recursive);
         definition.Lock(recursive);
       }
