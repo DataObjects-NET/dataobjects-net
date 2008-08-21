@@ -57,7 +57,7 @@ namespace Xtensive.Storage
     /// Initializes this instance.
     /// </summary>
     /// <remarks>
-    /// Should call <see langword="base"/> when overrided.
+    /// Should call <see langword="base"/> when overridden.
     /// </remarks>
     public virtual void Initialize()
     {

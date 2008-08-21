@@ -47,11 +47,9 @@ namespace Xtensive.Storage.Attributes
     /// <summary>
     ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="generator">The key provider.</param>
     /// <param name="keyField">The key field.</param>
     /// <param name="keyFields">The key fields.</param>
-    public HierarchyRootAttribute(Type generator, string keyField, params string[] keyFields)
-      : this(generator)
+    public HierarchyRootAttribute(string keyField, params string[] keyFields)
     {
       ArgumentValidator.EnsureArgumentNotNull(keyField, "keyField");
       if (keyFields==null || keyFields.Length==0) {

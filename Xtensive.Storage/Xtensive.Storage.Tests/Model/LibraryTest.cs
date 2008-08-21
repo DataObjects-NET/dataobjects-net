@@ -108,7 +108,7 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
     }*/
   }
 
-  [HierarchyRoot(typeof (BookReviewProvider), "Book", "Reviewer")]
+  [HierarchyRoot("Book", "Reviewer")]
   public class BookReview : Entity
   {
     [Field(MappingName = "Book", OnDelete = ReferentialAction.Cascade)]
@@ -123,14 +123,6 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
     public BookReview(Key book, Key reviewer)
       : base(book.Tuple.CombineWith(reviewer.Tuple))
     {
-    }
-  }
-
-  internal class BookReviewProvider : DefaultGenerator
-  {
-    protected override Tuple NextNumber()
-    {
-      throw new NotSupportedException();
     }
   }
 
