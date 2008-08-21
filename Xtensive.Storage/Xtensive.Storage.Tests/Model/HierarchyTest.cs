@@ -32,7 +32,7 @@ namespace Xtensive.Storage.Tests.Model.Hierarchies
     public string AName { get; set; }
   }
 
-  [HierarchyRoot(typeof (DefaultGenerator), "ID")]
+  [HierarchyRoot(typeof (Generator), "ID")]
   public class AB : A
   {
     [Field]
@@ -50,14 +50,14 @@ namespace Xtensive.Storage.Tests.Model.Hierarchies
   {
   }
 
-  [HierarchyRoot(typeof (DefaultGenerator), "ID")]
+  [HierarchyRoot(typeof (Generator), "ID")]
   public class BC : B
   {
     [Field]
     public Guid ID { get; set; }
   }
 
-  [HierarchyRoot(typeof (DefaultGenerator), "ID")]
+  [HierarchyRoot(typeof (Generator), "ID")]
   public class BD : B
   {
     [Field]
@@ -67,7 +67,7 @@ namespace Xtensive.Storage.Tests.Model.Hierarchies
     public string AName { get; set; }
   }
 
-  [HierarchyRoot(typeof (DefaultGenerator), "ID")]
+  [HierarchyRoot(typeof (Generator), "ID")]
   public class BE : B
   {
     [Field]

@@ -12,7 +12,7 @@ using Xtensive.Storage.Tests.Storage.ActivatorModel;
 
 namespace Xtensive.Storage.Tests.Storage.ActivatorModel
 {
-  [HierarchyRoot(typeof (DefaultGenerator), "ID")]
+  [HierarchyRoot(typeof (Generator), "ID")]
   public abstract class Ancestor : Entity
   {
     [Field]

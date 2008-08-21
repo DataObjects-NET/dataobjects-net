@@ -41,7 +41,7 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
     public IdentityCard Card { get; set; }
   }
 
-  [HierarchyRoot(typeof (DefaultGenerator), "Number")]
+  [HierarchyRoot("Number")]
   public class Person : Entity
   {
     [Field]
@@ -126,7 +126,7 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
     }
   }
 
-  public class IsbnKeyProvider : DefaultGenerator
+  public class IsbnKeyProvider : Generator
   {
     private int counter;
 

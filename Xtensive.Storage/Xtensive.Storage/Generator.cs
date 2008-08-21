@@ -16,7 +16,7 @@ namespace Xtensive.Storage
   ///<summary>
   /// Default key generator.
   ///</summary>
-  public abstract class DefaultGenerator : HandlerBase
+  public abstract class Generator : HandlerBase
   {
     /// <summary>
     /// Gets the hierarchy this instance serves.
@@ -57,12 +57,10 @@ namespace Xtensive.Storage
     /// Initializes this instance.
     /// </summary>
     /// <remarks>
-    /// Should call <see langword="base"/> when overridden.
+    /// Should call <see langword="base"/> when overrided.
     /// </remarks>
     public virtual void Initialize()
     {
-      if (Hierarchy.KeyTupleDescriptor.Count != 1)
-        throw new InvalidOperationException(Strings.UnableToUseDefaultGeneratorForComplexKeys);
     }
   }
 }

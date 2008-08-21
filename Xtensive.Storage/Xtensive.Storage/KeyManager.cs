@@ -27,7 +27,7 @@ namespace Xtensive.Storage
     private readonly Domain domain;
     private readonly object _lock = new object();
     private readonly WeakSetSlim<Key> cache = new WeakSetSlim<Key>();
-    internal Registry<HierarchyInfo, DefaultGenerator> Generators { get; private set; }
+    internal Registry<HierarchyInfo, Generator> Generators { get; private set; }
 
     #region Public methods
 
@@ -57,7 +57,7 @@ namespace Xtensive.Storage
 
     internal Key Next(TypeInfo type)
     {
-      DefaultGenerator provider = Generators[type.Hierarchy];
+      Generator provider = Generators[type.Hierarchy];
       return GetCachedKey(CreateKey(type, provider.Next()));
     }
 
@@ -127,7 +127,7 @@ namespace Xtensive.Storage
     internal KeyManager(Domain domain)
     {
       this.domain = domain;
-      Generators = new Registry<HierarchyInfo, DefaultGenerator>();
+      Generators = new Registry<HierarchyInfo, Generator>();
     }
   }
 }

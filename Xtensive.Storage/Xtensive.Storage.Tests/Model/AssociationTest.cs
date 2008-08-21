@@ -12,7 +12,7 @@ using Xtensive.Storage.Configuration;
 
 namespace Xtensive.Storage.Tests.Model.Association
 {
-  [HierarchyRoot(typeof (DefaultGenerator), "Id")]
+  [HierarchyRoot(typeof (Generator), "Id")]
   public abstract class Root : Entity
   {
     [Field]

@@ -15,7 +15,7 @@ using SqlFactory = Xtensive.Sql.Dom.Sql;
 namespace Xtensive.Storage.Providers.MsSql
 {
   [Serializable]
-  public class DefaultGenerator : Storage.DefaultGenerator
+  public class DefaultGenerator : Storage.Generator
   {
     private Table generatorTable;
     private SqlDataType dataType;

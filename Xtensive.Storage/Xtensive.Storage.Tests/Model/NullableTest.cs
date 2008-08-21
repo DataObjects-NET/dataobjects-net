@@ -12,7 +12,7 @@ using Xtensive.Storage.Configuration;
 
 namespace Xtensive.Storage.Tests.Model.CorrectNullableModel
 {
-  [HierarchyRoot(typeof(DefaultGenerator), "ID")]
+  [HierarchyRoot(typeof(Generator), "ID")]
   public class X : Entity
   {
     [Field]
@@ -31,7 +31,7 @@ namespace Xtensive.Storage.Tests.Model.CorrectNullableModel
 
 namespace Xtensive.Storage.Tests.Model.IncorrectNullableModel
 {
-  [HierarchyRoot(typeof(DefaultGenerator), "ID")]
+  [HierarchyRoot(typeof(Generator), "ID")]
   public class X : Entity
   {
     [Field]

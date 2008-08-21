@@ -12,7 +12,7 @@ using Xtensive.Core.Tuples;
 namespace Xtensive.Storage.Providers.Index
 {
   [Serializable]
-  public class DefaultGenerator : Storage.DefaultGenerator
+  public class DefaultGenerator : Storage.Generator
   {
     private Func<Tuple> getNext;
     private Tuple counter;

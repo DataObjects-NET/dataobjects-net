@@ -15,7 +15,7 @@ using Xtensive.Storage.Tests.ReferentialIntegrityModel;
 
 namespace Xtensive.Storage.Tests.ReferentialIntegrityModel
 {
-  [HierarchyRoot(typeof (DefaultGenerator), "Id")]
+  [HierarchyRoot(typeof (Generator), "Id")]
   public class Root : Entity
   {
     [Field]
