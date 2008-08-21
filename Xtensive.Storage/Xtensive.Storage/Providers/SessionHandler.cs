@@ -4,13 +4,15 @@
 // Created by: Dmitri Maximov
 // Created:    2008.05.19
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core.Collections;
 
 namespace Xtensive.Storage.Providers
 {
-  public abstract class SessionHandler : InitializableHandlerBase
+  public abstract class SessionHandler : InitializableHandlerBase,
+    IDisposable
   {
     /// <summary>
     /// Gets the current <see cref="Session"/>.
@@ -44,5 +46,8 @@ namespace Xtensive.Storage.Providers
     /// <inheritdoc/>
     public override void Initialize()
     {}
+
+    /// <inheritdoc/>
+    public abstract void Dispose();
   }
 }

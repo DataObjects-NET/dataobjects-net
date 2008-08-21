@@ -11,14 +11,11 @@ namespace Xtensive.Storage.Providers
   /// <summary>
   /// Abstract base class for any storage handler.
   /// </summary>
-  public abstract class HandlerBase : IDisposable
+  public abstract class HandlerBase
   {
     /// <summary>
     /// Gets the <see cref="HandlerAccessor"/> providing other available handlers.
     /// </summary>
     protected internal HandlerAccessor Handlers { get; set; }
-
-    /// <inheritdoc/>
-    public abstract void Dispose();
   }
 }

@@ -27,12 +27,10 @@ namespace Xtensive.Storage
   /// <summary>
   /// Provides access to a single storage.
   /// </summary>
-  public sealed class Domain : IDisposable
+  public sealed class Domain
   {
     private readonly ThreadSafeDictionary<RecordSetHeader, RecordSetMapping> recordSetMappings = 
       ThreadSafeDictionary<RecordSetHeader, RecordSetMapping>.Create(new object());
-    private volatile bool isDisposed;
-    private readonly object _lock = new object();
     private int sessionCounter = 1;
 
     /// <summary>
@@ -149,41 +147,6 @@ namespace Xtensive.Storage
       Configuration = configuration;
       Handlers = new HandlerAccessor(this);
       Prototypes = new Dictionary<TypeInfo, Tuple>();
-    }
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Dtor" copy="true"/>
-    /// </summary>
-    ~Domain()
-    {
-      Dispose(false);
-    }
-    
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Dispose" copy="true"/>
-    /// </summary>
-    public void Dispose()
-    {
-      Dispose(true);
-      GC.SuppressFinalize(this);
-    }
-
-    private void Dispose(bool isDisposing)
-    {
-      if (isDisposed)
-        return;
-      lock (_lock) {
-        if (isDisposed)
-          return;
-        try {
-          Handlers.NameBuilder.DisposeSafely();
-          Handlers.KeyManager.DisposeSafely();
-          Handlers.DomainHandler.DisposeSafely();
-        }
-        finally {
-          isDisposed = true;
-        }
-      }
     }
   }
 }

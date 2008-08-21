@@ -74,9 +74,5 @@ namespace Xtensive.Storage.Providers.MsSql
         command.ExecuteNonQuery();
       }
     }
-
-    /// <inheritdoc/>
-    public override void Dispose()
-    {}
   }
 }

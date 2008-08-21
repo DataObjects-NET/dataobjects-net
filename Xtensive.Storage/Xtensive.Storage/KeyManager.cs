@@ -22,11 +22,10 @@ namespace Xtensive.Storage
   /// Produces and caches <see cref="Key"/> instances. 
   /// Also acts like an identity map for <see cref="Key"/> instances within single <see cref="Domain"/>.
   /// </summary>
-  public sealed class KeyManager : IDisposable
+  public sealed class KeyManager
   {
     private readonly Domain domain;
     private readonly object _lock = new object();
-    private bool isDisposed;
     private readonly WeakSetSlim<Key> cache = new WeakSetSlim<Key>();
     internal Registry<HierarchyInfo, DefaultGenerator> Generators { get; private set; }
 
@@ -129,26 +128,6 @@ namespace Xtensive.Storage
     {
       this.domain = domain;
       Generators = new Registry<HierarchyInfo, DefaultGenerator>();
-    }
-
-    /// <summary>
-    ///   <see cref="ClassDocTemplate.Dispose" copy="true"/>
-    /// </summary>
-    public void Dispose()
-    {
-      if (isDisposed)
-        return;
-
-      lock (_lock) {
-        if (isDisposed)
-          return;
-        try {
-          Generators.DisposeSafely();
-        }
-        finally {
-          isDisposed = true;
-        }
-      }
     }
   }
 }

@@ -289,9 +289,5 @@ namespace Xtensive.Storage.Providers
       this.namingConvention = namingConvention;
       hashAlgorithm = new MD5CryptoServiceProvider();
     }
-
-    /// <inheritdoc/>
-    public override void Dispose()
-    {}
   }
 }

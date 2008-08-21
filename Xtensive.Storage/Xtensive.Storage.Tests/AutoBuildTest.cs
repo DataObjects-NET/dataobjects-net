@@ -31,14 +31,13 @@ namespace Xtensive.Storage.Tests
     [TestFixtureTearDown]
     public virtual void TestFixtureTearDown()
     {
-      domain.DisposeSafely();
     }
 
     protected virtual DomainConfiguration BuildConfiguration()
     {
       DomainConfiguration config;
-//      config = DomainConfigurationFactory.Create("memory");
-      config = DomainConfigurationFactory.Create("mssql2005");
+      config = DomainConfigurationFactory.Create("memory");
+//      config = DomainConfigurationFactory.Create("mssql2005");
 //      config = DomainConfigurationFactory.Create("memory", InheritanceSchema.SingleTable);
 //      config = DomainConfigurationFactory.Create("memory", InheritanceSchema.ConcreteTable);
 //      config = DomainConfigurationFactory.Create("memory", InheritanceSchema.Default, TypeIdBehavior.Include);

@@ -48,9 +48,5 @@ namespace Xtensive.Storage.Providers.Index
         .MakeGenericMethod(new[] { fieldType });
       getNext = (Func<Tuple>) Delegate.CreateDelegate(typeof (Func<Tuple>), this, method);
     }
-
-    /// <inheritdoc/>
-    public override void Dispose()
-    {}
   }
 }

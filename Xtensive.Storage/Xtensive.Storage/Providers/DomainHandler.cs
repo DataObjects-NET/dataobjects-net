@@ -56,10 +56,5 @@ namespace Xtensive.Storage.Providers
       CompilationContext = BuildCompilationContext();
       SystemSession = Handlers.Domain.OpenSession(SessionType.DomainHandler).Session;
     }
-
-    public override void Dispose()
-    {
-      SystemSession.DisposeSafely();
-    }
   }
 }
