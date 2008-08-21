@@ -511,8 +511,8 @@ namespace Xtensive.Storage.Building.Builders
           result.IncludedColumns.Add(column);
       }
 
-      // Adding system columns as included (only if they are not primary key)
-      foreach (ColumnInfo column in typeInfo.Columns.Find(ColumnAttributes.System).Where(c => !c.IsPrimaryKey))
+      // Adding system columns as included (only if they are not primary key or index is not primary)
+      foreach (ColumnInfo column in typeInfo.Columns.Find(ColumnAttributes.System).Where(c => indexDef.IsPrimary ? !c.IsPrimaryKey : true))
         result.IncludedColumns.Add(column);
 
       // Adding value columns
@@ -554,7 +554,7 @@ namespace Xtensive.Storage.Building.Builders
             if (!result.KeyColumns.ContainsKey(column))
               result.ValueColumns.Add(column);
         }
-        result.ValueColumns.AddRange(result.IncludedColumns);
+        result.ValueColumns.AddRange(result.IncludedColumns.Where(ic => !result.ValueColumns.Contains(ic.Name)));
       }
 
       result.Name = context.NameBuilder.Build(typeInfo, result);

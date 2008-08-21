@@ -163,11 +163,12 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaTests
 
       foreach (TypeInfo type in Domain.Model.Types) {
         foreach (IndexInfo indexInfo in type.Indexes) {
+          var keyComplexity = type.Hierarchy.Columns.Count;
           if (indexInfo.IsPrimary)
-            Assert.AreEqual(1, indexInfo.KeyColumns.Count, "Type: {0}; index: {1}", indexInfo.ReflectedType.Name,
+            Assert.AreEqual(keyComplexity, indexInfo.KeyColumns.Count, "Type: {0}; index: {1}", indexInfo.ReflectedType.Name,
               indexInfo.Name, type.Name);
           else
-            Assert.AreEqual(2, indexInfo.ValueColumns.Count, "Type: {0}; index: {1}", indexInfo.ReflectedType.Name,
+            Assert.AreEqual(keyComplexity, indexInfo.ValueColumns.Count, "Type: {0}; index: {1}", indexInfo.ReflectedType.Name,
               indexInfo.Name, type.Name);
         }
       }
