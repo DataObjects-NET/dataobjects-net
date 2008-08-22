@@ -3,7 +3,6 @@
 // For conditions of distribution and use, see license.
 
 using System;
-using Xtensive.Core;
 using Xtensive.Core.Helpers;
 
 namespace Xtensive.Sql.Dom.Database
@@ -13,7 +12,7 @@ namespace Xtensive.Sql.Dom.Database
   /// into partitions based on the values of a specified column.
   /// </summary>
   [Serializable]
-  public class PartitionFunction : CatalogNode, IPairedNode<Catalog>
+  public class PartitionFunction : CatalogNode
   {
     private SqlValueType dataType;
     private BoundaryType boundaryType = BoundaryType.Left;

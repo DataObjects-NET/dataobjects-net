@@ -6,7 +6,7 @@
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
-  public class TableColumnComparisonResult : ComparisonResult<TableColumn>
+  public class TableColumnComparisonResult : DataTableColumnComparisonResult
   {
     
   }

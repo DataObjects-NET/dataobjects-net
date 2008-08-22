@@ -12,6 +12,11 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   [Serializable]
   internal class IndexColumnSqlComparer : WrappingSqlComparer<IndexColumn, DataTableColumn>
   {
+    public override ComparisonResult<IndexColumn> Compare(IndexColumn originalNode, IndexColumn newNode, IEnumerable<ComparisonHintBase> hints)
+    {
+      throw new System.NotImplementedException();
+    }
+
     public IndexColumnSqlComparer(ISqlComparerProvider provider)
       : base(provider)
     {

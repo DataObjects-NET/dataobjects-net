@@ -4,18 +4,19 @@
 // Created by: Aleksey Gamzov
 // Created:    2008.08.21
 
+using System;
 using Xtensive.Sql.Dom.Dml;
-using Xtensive.Core.Helpers;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
   /// <summary>
-  /// View comparison result.
+  /// <see cref="View"/> comparison result.
   /// </summary>
+  [Serializable]
   public class ViewComparisonResult : NodeComparisonResult<View>
   {
-    private ComparisonResult<CheckOptions> checkOptions;
-    private ComparisonResult<SqlNative> definition;
+    private readonly ComparisonResult<CheckOptions> checkOptions = new ComparisonResult<CheckOptions>();
+    private readonly ComparisonResult<SqlNative> definition = new ComparisonResult<SqlNative>();
     private readonly ComparisonResultCollection<ComparisonResult<View>> views = new ComparisonResultCollection<ComparisonResult<View>>();
     private readonly ComparisonResultCollection<ComparisonResult<ViewColumn>> columns = new ComparisonResultCollection<ComparisonResult<ViewColumn>>();
     private readonly ComparisonResultCollection<ComparisonResult<Index>> indexes = new ComparisonResultCollection<ComparisonResult<Index>>();
@@ -26,11 +27,6 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     public ComparisonResult<CheckOptions> CheckOptions
     {
       get { return checkOptions; }
-      internal set
-      {
-        this.EnsureNotLocked();
-        checkOptions = value;
-      }
     }
 
     /// <summary>
@@ -39,11 +35,6 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     public ComparisonResult<SqlNative> Definition
     {
       get { return definition; }
-      internal set
-      {
-        this.EnsureNotLocked();
-        definition = value;
-      }
     }
 
     /// <summary>

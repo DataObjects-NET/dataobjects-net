@@ -12,6 +12,11 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   [Serializable]
   internal class DataTableColumnSqlComparer : SqlComparerBase<DataTableColumn>
   {
+    public override ComparisonResult<DataTableColumn> Compare(DataTableColumn originalNode, DataTableColumn newNode, IEnumerable<ComparisonHintBase> hints)
+    {
+      throw new System.NotImplementedException();
+    }
+
     public DataTableColumnSqlComparer(ISqlComparerProvider provider)
       : base(provider)
     {

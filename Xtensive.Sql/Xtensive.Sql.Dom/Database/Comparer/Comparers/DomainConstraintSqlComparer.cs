@@ -12,6 +12,11 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   [Serializable]
   internal class DomainConstraintSqlComparer : SqlComparerBase<DomainConstraint>
   {
+    public override ComparisonResult<DomainConstraint> Compare(DomainConstraint originalNode, DomainConstraint newNode, IEnumerable<ComparisonHintBase> hints)
+    {
+      throw new System.NotImplementedException();
+    }
+
     public DomainConstraintSqlComparer(ISqlComparerProvider provider)
       : base(provider)
     {

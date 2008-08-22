@@ -9,6 +9,7 @@ using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Sql.Dom.Database.Comparer.Hints
 {
+  [Serializable]
   public class RenameHint : ComparisonHintBase
   {
     private readonly string oldName;

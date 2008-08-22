@@ -6,13 +6,17 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Core;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
   [Serializable]
   internal class CatalogSqlComparer : WrappingSqlComparer<Catalog, PartitionFunction, PartitionSchema>
   {
+    public override ComparisonResult<Catalog> Compare(Catalog originalNode, Catalog newNode, IEnumerable<ComparisonHintBase> hints)
+    {
+      throw new System.NotImplementedException();
+    }
+
     public CatalogSqlComparer(ISqlComparerProvider provider)
       : base(provider)
     {

@@ -2,11 +2,14 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Aleksey Gamzov
-// Created:    2008.08.21
+// Created:    2008.08.22
+
+using System;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
-  public class PartitionSchemaComparisonResult : ComparisonResult<PartitionSchema>
+  [Serializable]
+  public abstract class DataTableColumnComparisonResult : NodeComparisonResult<DataTableColumn>
   {
     
   }

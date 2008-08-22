@@ -14,21 +14,21 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   public class ComparisonResultCollection<TItem> : CollectionBaseSlim<TItem>
     where TItem : ComparisonResult
   {
-    public IEnumerable<ComparisonResult> Find(ComparisonResultLocation locations, ComparisonResultType comparsionTypes, bool recursive, Type[] types)
-    {
-      if (types==null || types.Length==0) {
-        yield break;
-      }
-      foreach (TItem item in this) {
-        if (types.Contains(item.Type) && ((item.ResultType & comparsionTypes) > 0)) {
-          yield return item;
-        }
-        if (recursive) {
+//    public IEnumerable<ComparisonResult> Find(ComparisonResultLocation locations, ComparisonResultType comparsionTypes, bool recursive, Type[] types)
+//    {
+//      if (types==null || types.Length==0) {
+//        yield break;
+//      }
+//      foreach (TItem item in this) {
+//        if (types.Contains(item.Type) && ((item.ResultType & comparsionTypes) > 0)) {
+//          yield return item;
+//        }
+//        if (recursive) {
 //          foreach (ComparisonResult recursiveResult in item.Find(locations, comparsionTypes, recursive, types)) {
 //            yield return recursiveResult;
 //          }
-        }
-      }
-    }
+//        }
+//      }
+//    }
   }
 }

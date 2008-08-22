@@ -24,41 +24,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     private ISqlComparerProvider provider;
 
     /// <inheritdoc/>
-    public ComparisonResult<T> Compare(T originalNode, T newNode, IEnumerable<ComparisonHintBase> hints)
-    {
-      ValidateArguments(originalNode, newNode);
-      var result = new ComparisonResult<T>();
-      bool hasChanges = false;
-//      IEnumerable<ComparisonResult> properties = CompareProperties(originalNode, newNode, hints);
-//      if (properties!=null) {
-//        foreach (ComparisonResult property in properties) {
-//          result.Properties.Add(property);
-//          if (property.HasChanges) {
-//            hasChanges = true;
-//          }
-//        }
-//      }
-//      IEnumerable<ComparisonResult> nests = CompareNests(originalNode, newNode, hints);
-//      if (nests!=null) {
-//        foreach (ComparisonResult nest in nests) {
-//          result.Nested.Add(nest);
-//          if (nest.HasChanges) {
-//            hasChanges = true;
-//          }
-//        }
-//      }
-      result.OriginalValue = originalNode;
-      result.NewValue = newNode;
-      result.HasChanges = hasChanges;
-      if (ReferenceEquals(newNode, null))
-        result.ResultType = ComparisonResultType.Removed;
-      else if (ReferenceEquals(originalNode, null))
-        result.ResultType = ComparisonResultType.Added;
-      else
-        result.ResultType = hasChanges ? ComparisonResultType.Modified : ComparisonResultType.Unchanged;
-      result.Lock(true);
-      return result;
-    }
+    public abstract ComparisonResult<T> Compare(T originalNode, T newNode, IEnumerable<ComparisonHintBase> hints);
 
     /// <inheritdoc/>
     public ISqlComparerProvider Provider

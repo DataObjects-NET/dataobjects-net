@@ -3,9 +3,6 @@
 // For conditions of distribution and use, see license.
 
 using System;
-using System.Collections.Generic;
-using Xtensive.Core;
-using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
 
 namespace Xtensive.Sql.Dom.Database

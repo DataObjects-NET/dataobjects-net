@@ -17,13 +17,8 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   /// <typeparam name="TBase1">First base (wrapped) type.</typeparam>
   /// <typeparam name="TBase2">Second base (wrapped) type.</typeparam>
   [Serializable]
-  public abstract class WrappingSqlComparer<T, TBase1, TBase2> : SqlComparerBase<T>
+  public abstract class WrappingSqlComparer<T, TBase1, TBase2> : WrappingSqlComparer<T, TBase1>
   {
-    /// <summary>
-    /// SQL comparer for the first base (wrapped) type.
-    /// </summary>
-    protected SqlComparerStruct<TBase1> BaseSqlComparer1;
-
     /// <summary>
     /// SQL comparer for the second base (wrapped) type.
     /// </summary>
@@ -39,9 +34,6 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     protected WrappingSqlComparer(ISqlComparerProvider provider)
       : base(provider)
     {
-      BaseSqlComparer1 = provider.GetSqlComparer<TBase1>();
-      if (!TypeHelper.IsFinal<TBase1>() && !(BaseSqlComparer1.SqlComparer.Implementation is IFinalAssociate))
-        BaseSqlComparer1 = null;
       BaseSqlComparer2 = provider.GetSqlComparer<TBase2>();
       if (!TypeHelper.IsFinal<TBase2>() && !(BaseSqlComparer2.SqlComparer.Implementation is IFinalAssociate))
         BaseSqlComparer2 = null;

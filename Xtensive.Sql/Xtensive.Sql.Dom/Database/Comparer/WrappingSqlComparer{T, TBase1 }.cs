@@ -15,14 +15,14 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   /// Base class for any wrapping <see cref="ISqlComparer{T}"/>s.
   /// </summary>
   /// <typeparam name="T">The type of node to compare.</typeparam>
-  /// <typeparam name="TBase">Base (wrapped) type.</typeparam>
+  /// <typeparam name="TBase1">Base (wrapped) type.</typeparam>
   [Serializable]
-  public abstract class WrappingSqlComparer<T, TBase> : SqlComparerBase<T>
+  public abstract class WrappingSqlComparer<T, TBase1> : SqlComparerBase<T>
   {
     /// <summary>
     /// SQL comparer for base (wrapped) type.
     /// </summary>
-    protected SqlComparerStruct<TBase> BaseSqlComparer;
+    protected SqlComparerStruct<TBase1> BaseSqlComparer1;
 
 
     // Constructors
@@ -34,11 +34,11 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     protected WrappingSqlComparer(ISqlComparerProvider provider)
       : base(provider)
     {
-      BaseSqlComparer = provider.GetSqlComparer<TBase>();
-      if (!TypeHelper.IsFinal<TBase>()
-        && !(BaseSqlComparer.SqlComparer.Implementation is IFinalAssociate)
-          && typeof (TBase)!=typeof (object))
-        BaseSqlComparer = null;
+      BaseSqlComparer1 = provider.GetSqlComparer<TBase1>();
+      if (!TypeHelper.IsFinal<TBase1>()
+        && !(BaseSqlComparer1.SqlComparer.Implementation is IFinalAssociate)
+          && typeof (TBase1)!=typeof (object))
+        BaseSqlComparer1 = null;
     }
   }
 }

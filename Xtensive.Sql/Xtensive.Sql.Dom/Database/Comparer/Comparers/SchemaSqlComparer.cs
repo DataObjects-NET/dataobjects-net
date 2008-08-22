@@ -21,6 +21,11 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     private readonly SqlComparerStruct<Table> tableComparer;
     private readonly SqlComparerStruct<View> viewComparer;
 
+    public override ComparisonResult<Schema> Compare(Schema originalNode, Schema newNode, IEnumerable<ComparisonHintBase> hints)
+    {
+      throw new System.NotImplementedException();
+    }
+
     public SchemaSqlComparer(ISqlComparerProvider provider)
       : base(provider)
     {

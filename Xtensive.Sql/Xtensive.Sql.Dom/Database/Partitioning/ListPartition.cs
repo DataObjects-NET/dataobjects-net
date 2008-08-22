@@ -12,23 +12,17 @@ namespace Xtensive.Sql.Dom.Database
   [Serializable]
   public class ListPartition : Partition
   {
-    private string[] values;
-
     /// <summary>
     /// Gets or sets the values.
     /// </summary>
     /// <value>The values.</value>
-    public string[] Values
-    {
-      get { return values; }
-      set { values = value; }
-    }
+    public string[] Values { get; set; }
 
     #region Constructors
 
     internal ListPartition(PartitionDescriptor partitionDescriptor, string filegroup, params string[] values) : base(partitionDescriptor, filegroup)
     {
-      this.values = values;
+      Values = values;
     }
 
     #endregion

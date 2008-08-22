@@ -6,7 +6,7 @@
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
-  public class ConstraintComparisonResult : ComparisonResult<Constraint>
+  public abstract class ConstraintComparisonResult : ComparisonResult<Constraint>
   {
     
   }
