@@ -172,9 +172,15 @@ namespace Xtensive.Storage.Model
     /// <summary>
     /// Gets or sets a value indicating whether property is nullable.
     /// </summary>
-    public bool IsNullable {
+    public bool IsNullable
+    {
       [DebuggerStepThrough]
       get { return (attributes & FieldAttributes.Nullable) != 0; }
+      [DebuggerStepThrough]
+      set {
+        this.EnsureNotLocked();
+        attributes = value ? Attributes | FieldAttributes.Nullable : Attributes & ~FieldAttributes.Nullable;
+      }
     }
 
     /// <summary>
@@ -277,6 +283,7 @@ namespace Xtensive.Storage.Model
         declaringType = value.DeclaringType;
         IsDeclared = value.IsDeclared;
         IsPrimaryKey = value.IsPrimaryKey;
+        IsNullable = value.IsNullable;
         association = value.association;
       }
     }

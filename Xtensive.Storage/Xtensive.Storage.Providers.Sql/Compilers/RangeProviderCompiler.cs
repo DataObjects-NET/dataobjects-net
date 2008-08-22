@@ -112,7 +112,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
         expressionData.Expression : 
         query.Where & expressionData.Expression;
 
-      return new SqlProvider(provider, query, Handlers);
+      return new SqlProvider(provider, query, Handlers, source.Parameters);
     }
 
 

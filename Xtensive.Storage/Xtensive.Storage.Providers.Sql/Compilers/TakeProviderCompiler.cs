@@ -20,7 +20,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
       var query = source.Query.Clone() as SqlSelect;
       if (source.Query.Top==0 || source.Query.Top > provider.CompiledCount())
         source.Query.Top = provider.CompiledCount();
-      return new SqlProvider(provider, query, Handlers);
+      return new SqlProvider(provider, query, Handlers, source.Parameters);
     }
 
     // Constructor

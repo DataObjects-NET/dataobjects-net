@@ -14,8 +14,7 @@ namespace Xtensive.Storage.Building.Builders
     {
       ColumnInfo column = new ColumnInfo(field);
       column.Name = BuildingContext.Current.NameBuilder.Build(field, column);
-      if (field.IsEntity)
-        column.IsNullable = true;
+      column.IsNullable = field.IsNullable;
 
       return column;
     }
@@ -27,6 +26,7 @@ namespace Xtensive.Storage.Building.Builders
       column.Name = BuildingContext.Current.NameBuilder.Build(field, ancestor);
       column.IsDeclared = field.IsDeclared;
       column.IsPrimaryKey = field.IsPrimaryKey;
+      column.IsNullable = field.IsNullable;
 
       return column;
     }

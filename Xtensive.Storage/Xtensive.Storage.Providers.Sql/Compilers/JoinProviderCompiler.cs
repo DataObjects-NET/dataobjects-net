@@ -31,7 +31,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
       SqlSelect query = SqlFactory.Select(joinedTable);
       query.Columns.AddRange(joinedTable.Columns.Cast<SqlColumn>());
 
-      return new SqlProvider(provider, query, Handlers);
+      return new SqlProvider(provider, query, Handlers, left.Parameters.Union(right.Parameters));
     }
 
 

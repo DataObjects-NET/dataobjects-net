@@ -66,11 +66,11 @@ namespace Xtensive.Storage.Providers.Sql
       }
     }
 
-    public IEnumerator<Tuple> Execute(ISqlCompileUnit statement, TupleDescriptor tupleDescriptor)
+    public IEnumerator<Tuple> Execute(SqlRequest request)
     {
-      using (DbDataReader reader = ExecuteReader(statement)) {
-        Tuple tuple = null;
-        while ((tuple = ReadTuple(reader, tupleDescriptor))!=null)
+      using (DbDataReader reader = ExecuteReader(request)) {
+        Tuple tuple;
+        while ((tuple = ReadTuple(reader, request.TupleDescriptor))!=null)
           yield return tuple;
       }
     }
@@ -96,11 +96,12 @@ namespace Xtensive.Storage.Providers.Sql
       }
     }
 
-    public virtual DbDataReader ExecuteReader(ISqlCompileUnit statement)
+    public virtual DbDataReader ExecuteReader(SqlRequest request)
     {
       EnsureConnectionIsOpen();
       using (var command = new SqlCommand(connection)) {
-        command.Statement = statement;
+        command.Statement = request.Statement;
+        command.Parameters.AddRange(request.Parameters.ToArray());
         command.Prepare();
         command.Transaction = transaction;
         return command.ExecuteReader();

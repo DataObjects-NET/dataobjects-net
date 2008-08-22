@@ -249,8 +249,6 @@ namespace Xtensive.Storage.Rse.Providers
     /// <exception cref="ArgumentNullException"><see cref="Origin"/> is null.</exception>
     protected override void Initialize()
     {
-      if (Origin==null)
-        throw new ArgumentNullException("origin");
       base.Initialize();
       bool isCacheable = IsCacheable;
       foreach (var source in Sources) {
@@ -272,6 +270,8 @@ namespace Xtensive.Storage.Rse.Providers
     protected ExecutableProvider(CompilableProvider origin, params ExecutableProvider[] sources)
       : base(sources)
     {
+      if (origin==null)
+        throw new ArgumentNullException("origin");
       Origin = origin;
       IsCacheable = true;
     }

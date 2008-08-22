@@ -4,7 +4,11 @@
 // Created by: Alexey Kochetov
 // Created:    2008.07.14
 
+using System;
+using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Core.Tuples;
+using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
@@ -22,7 +26,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
       SqlSelect query = SqlFactory.Select(queryRef);
       query.Columns.AddRange(provider.ColumnIndexes.Select(i => (SqlColumn)queryRef.Columns[i]));
 
-      return new SqlProvider(provider, query, Handlers);
+      return new SqlProvider(provider, query, Handlers, source.Parameters);
     }
 
 

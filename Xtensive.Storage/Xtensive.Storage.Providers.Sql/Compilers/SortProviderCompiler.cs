@@ -26,7 +26,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
       foreach (KeyValuePair<int, Direction> sortOrder in provider.Order)
         query.OrderBy.Add(sortOrder.Key, sortOrder.Value==Direction.Positive);
 
-      return new SqlProvider(provider, query, Handlers);
+      return new SqlProvider(provider, query, Handlers, source.Parameters);
     }
 
 

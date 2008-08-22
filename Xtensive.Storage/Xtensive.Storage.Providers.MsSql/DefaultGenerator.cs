@@ -13,6 +13,7 @@ using Xtensive.Sql.Dom.Database;
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Configuration;
+using Xtensive.Storage.Providers.Sql;
 using SqlFactory = Xtensive.Sql.Dom.Sql;
 
 namespace Xtensive.Storage.Providers.MsSql
@@ -71,8 +72,9 @@ namespace Xtensive.Storage.Providers.MsSql
       batch.Add(select);
 
       SessionHandler handler;
+      SqlRequest request = new SqlRequest(batch, Hierarchy.KeyTupleDescriptor);
       using (Handlers.OpenSession(SessionType.System, out handler))
-        using (var e = handler.Execute(batch, Hierarchy.KeyTupleDescriptor)) {
+        using (var e = handler.Execute(request)) {
           while (e.MoveNext())
             result.Add(e.Current);
         }
