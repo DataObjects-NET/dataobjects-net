@@ -168,7 +168,7 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaTests
             Assert.AreEqual(keyComplexity, indexInfo.KeyColumns.Count, "Type: {0}; index: {1}", indexInfo.ReflectedType.Name,
               indexInfo.Name, type.Name);
           else
-            Assert.AreEqual(keyComplexity, indexInfo.ValueColumns.Count, "Type: {0}; index: {1}", indexInfo.ReflectedType.Name,
+            Assert.AreEqual(2, indexInfo.ValueColumns.Count, "Type: {0}; index: {1}", indexInfo.ReflectedType.Name,
               indexInfo.Name, type.Name);
         }
       }
