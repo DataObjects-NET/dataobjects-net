@@ -13,10 +13,10 @@ namespace Xtensive.Storage.Configuration
     private const string DomainCollectionElementName = "domains";
 
     [ConfigurationProperty(DomainCollectionElementName, IsDefaultCollection = false)]
-    [ConfigurationCollection(typeof(ConfigurationCollection<DomainElement>), AddItemName = "domain")]
-    public ConfigurationCollection<DomainElement> Domains {
+    [ConfigurationCollection(typeof(ConfigurationCollection<DomainConfigurationElement>), AddItemName = "domain")]
+    public ConfigurationCollection<DomainConfigurationElement> Domains {
       get {
-        return (ConfigurationCollection<DomainElement>)base[DomainCollectionElementName];
+        return (ConfigurationCollection<DomainConfigurationElement>)base[DomainCollectionElementName];
       }
     }
   }

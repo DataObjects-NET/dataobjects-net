@@ -4,11 +4,9 @@
 // Created by: Alex Yakunin
 // Created:    2007.11.23
 
-using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Integrity.Aspects;
 using Xtensive.Core.Helpers;
 
 namespace Xtensive.Integrity.Atomicity

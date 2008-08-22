@@ -26,6 +26,17 @@ namespace Xtensive.Integrity.Transactions
     private bool isCompleted;
 
     /// <summary>
+    /// Indicates that all operations within the scope are completed successfully.
+    /// Does nothing if scope is null.
+    /// </summary>
+    /// <param name="scope">The scope to complete.</param>
+    public static void Complete(TScope scope)
+    {
+      if (scope!=null)
+        ((ITransactionScope)scope).Complete();
+    }
+
+    /// <summary>
     /// Gets current <see cref="TTransaction"/> object in this type of scope.
     /// </summary>
     public static TTransaction CurrentTransaction {
@@ -41,11 +52,8 @@ namespace Xtensive.Integrity.Transactions
       get { return Context; }
     }
 
-    /// <summary>
-    /// Indicates that all operations within the scope are completed successfully.
-    /// </summary>
-    /// <exception cref="InvalidOperationException">This method must be called just once.</exception>
-    public void Complete()
+    /// <inheritdoc/>
+    void ITransactionScope.Complete()
     {
       if (isCompleted)
         throw new InvalidOperationException(
@@ -67,7 +75,7 @@ namespace Xtensive.Integrity.Transactions
     /// <see cref="ClassDocTemplate.Ctor" copy="true" />
     /// </summary>
     /// <param name="context">The context.</param>
-    public TransactionScopeBase(TTransaction context) 
+    protected TransactionScopeBase(TTransaction context) 
       : base(context)
     {
     }
@@ -75,7 +83,7 @@ namespace Xtensive.Integrity.Transactions
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true" />
     /// </summary>
-    public TransactionScopeBase() 
+    protected TransactionScopeBase() 
     {
     }
 

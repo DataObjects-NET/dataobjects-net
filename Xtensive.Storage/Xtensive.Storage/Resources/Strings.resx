@@ -420,6 +420,9 @@
   <data name="SessionIsAlreadyDisposed" xml:space="preserve">
     <value>Session is already disposed.</value>
   </data>
+  <data name="SessionIsNotActivated" xml:space="preserve">
+    <value>Session is not activated.</value>
+  </data>
   <data name="UnableToUseDefaultGeneratorForComplexKeys" xml:space="preserve">
     <value>UnableToUseDefaultGeneratorForComplexKeys</value>
   </data>

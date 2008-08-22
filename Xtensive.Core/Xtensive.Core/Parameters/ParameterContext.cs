@@ -38,7 +38,7 @@ namespace Xtensive.Core.Parameters
       values[parameter] = value;
     }
 
-    /// <inheritdoc/>    
+    /// <inheritdoc/>
     public override bool IsActive {
       [DebuggerStepThrough]
       get { return Current == this; }

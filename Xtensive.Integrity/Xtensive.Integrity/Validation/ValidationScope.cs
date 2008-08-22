@@ -35,7 +35,7 @@ namespace Xtensive.Integrity.Validation
       [DebuggerStepThrough]
       get { return (ValidationScope)base.OuterScope; }
     }
-    
+
     public override void Activate(ValidationContextBase newContext)
     {
       base.Activate(newContext);
@@ -46,7 +46,7 @@ namespace Xtensive.Integrity.Validation
     // Constructors
 
     /// <summary>
-    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="context">The validation context.</param>
     public ValidationScope(ValidationContextBase context) 

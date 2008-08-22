@@ -12,7 +12,7 @@ namespace Xtensive.Storage.Configuration
   /// <summary>
   /// <see cref="Domain"/> configuration element within a configuration file.
   /// </summary>
-  internal class DomainElement : ConfigurationCollectionElementBase
+  internal class DomainConfigurationElement : ConfigurationCollectionElementBase
   {
     /// <summary>
     /// Default session pool size.

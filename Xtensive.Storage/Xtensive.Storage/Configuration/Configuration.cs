@@ -54,7 +54,7 @@ namespace Xtensive.Storage.Configuration
       var section = (ConfigurationSectionHandler)ConfigurationManager.GetSection(sectionName);
       if (section==null) 
         throw new InvalidOperationException(String.Format("Section \"{0}\" not found in application configuration file.", sectionName));
-      foreach (DomainElement domainElement in section.Domains) {
+      foreach (DomainConfigurationElement domainElement in section.Domains) {
         var domainConfiguration = new DomainConfiguration(domainElement);
         result.Domains.Add(domainConfiguration.Name, domainConfiguration);
       }

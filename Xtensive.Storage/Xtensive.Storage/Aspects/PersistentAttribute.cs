@@ -15,8 +15,6 @@ using Xtensive.Core.Reflection;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Resources;
 using FieldInfo = Xtensive.Storage.Model.FieldInfo;
-using System.Linq;
-using Xtensive.Core.Collections;
 
 namespace Xtensive.Storage.Aspects
 {
@@ -49,6 +47,12 @@ namespace Xtensive.Storage.Aspects
 
     #region ProvideXxx methods
 
+    private static bool IsInfrastructureMethod(MethodInfo method)
+    {
+      return method.GetAttribute<InfrastructureAttribute>(
+        AttributeSearchOptions.InheritFromAllBase | AttributeSearchOptions.InheritFromPropertyOrEvent)!=null;
+    }
+
     /// <inheritdoc/>
     public override void ProvideAspects(object element, LaosReflectionAspectCollection collection)
     {
@@ -57,19 +61,42 @@ namespace Xtensive.Storage.Aspects
         ProvideSessionBoundAspects(type, collection);
       if (persistentType.IsAssignableFrom(type))
         ProvidePersistentAspects(type, collection);
+      if (sessionBoundType.IsAssignableFrom(type))
+        ProvideTransactionalAspects(type, collection);
+    }
+
+    private void ProvideTransactionalAspects(Type type, LaosReflectionAspectCollection collection)
+    {
+      foreach (MethodInfo method in type.GetMethods(
+        BindingFlags.Public |        
+        BindingFlags.Instance |
+        BindingFlags.DeclaredOnly))
+      {
+        if (method.IsAbstract)
+          continue;
+
+        if (IsInfrastructureMethod(method))
+          continue;
+
+        collection.AddAspect(method, new TransactionalAttribute());
+      }
     }
 
     private void ProvideSessionBoundAspects(Type type, LaosReflectionAspectCollection collection)
     {
-      foreach (MethodInfo mi in type.GetMethods(
+      foreach (MethodInfo method in type.GetMethods(
         BindingFlags.Public |
         BindingFlags.NonPublic |
         BindingFlags.Instance |
         BindingFlags.DeclaredOnly))
       {
-        if (mi.IsAbstract)
+        if (method.IsAbstract)
           continue;
-        collection.AddAspect(mi, new SessionBoundMethodAspect());
+
+        if (IsInfrastructureMethod(method))
+          continue;
+
+        collection.AddAspect(method, new SessionBoundMethodAspect());
       }
     }
 

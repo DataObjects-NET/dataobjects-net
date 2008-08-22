@@ -32,6 +32,33 @@ namespace Xtensive.Storage
     private readonly object _lock = new object();
     private readonly CompilationScope compilationScope;
 
+    /// <summary>
+    /// Gets the active transaction.
+    /// </summary>    
+    public Transaction ActiveTransaction { get; private set; }
+
+    /// <summary>
+    /// Opens new transaction, if there is no active one.
+    /// </summary>
+    /// <returns>Scope of the active transaction.</returns>
+    public TransactionScope OpenTransaction()
+    {
+      if (ActiveTransaction==null)
+        ActiveTransaction = new Transaction(this);
+
+      return ActiveTransaction.Activate();
+    }
+
+    internal void OnTransactionCommit()
+    {
+      ActiveTransaction = null;
+    }
+
+    internal void OnTransactionRollback()
+    {      
+      ActiveTransaction = null;
+    }
+
     #region Private \ internal properties
 
     internal HandlerAccessor Handlers { get; private set; }

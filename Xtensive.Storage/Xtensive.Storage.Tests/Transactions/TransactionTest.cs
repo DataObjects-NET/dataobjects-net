@@ -15,29 +15,34 @@
 //  [TestFixture]
 //  public class TransactionTest
 //  {
-//    private StorageScope scope;
+//    private Domain domain;
 //    private SessionScope sessionScope;
 //
 //    [TestFixtureSetUp]
 //    public void Init()
 //    {
-//      DomainConfiguration storageConfiguration = new DomainConfiguration();
-//      SessionConfiguration sessionConfiguration = new SessionConfiguration();
-//      scope = new StorageScope(storageConfiguration);
-//      sessionScope = new SessionScope(sessionConfiguration);
+//      DomainConfiguration domainConfiguration = new DomainConfiguration();     
+//
+//      domain = new Domain(domainConfiguration);
+//      sessionScope = domain.OpenSession();
 //    }
 //
 //    [TestFixtureTearDown]
 //    public void Dispose()
 //    {
-//      sessionScope.Dispose();
-//      scope.Dispose();
+//      sessionScope.Dispose();      
 //    }
 //
 //    [Ignore("Not implemented")]
 //    [Test]
 //    public void Test()
 //    {
+//      using (Session.Current.ActivateTransaction()) {
+//        
+//
+//
+//      }
+//
 //      using (Transaction transaction= new Transaction(SessionScope.Current.Session, IsolationLevel.ReadCommitted)) {
 //        Assert.AreEqual(TransactionState.Active, transaction.State);
 //        transaction.Commit();
@@ -63,7 +68,7 @@
 //    public void CommitRollbackTest()
 //    {
 //      using (Transaction transaction = new Transaction(SessionScope.Current.Session, IsolationLevel.ReadCommitted)){
-//        Assert.AreEqual(TransactionState.Running, transaction.State);
+//        Assert.AreEqual(TransactionState.Active, transaction.State);
 //        transaction.Commit();
 //        Assert.AreEqual(TransactionState.Committed, transaction.State);
 //        transaction.Rollback();
@@ -78,7 +83,7 @@
 //        using (Transaction nestedTransaction = new Transaction(transaction)) {
 //          nestedTransaction.Rollback();
 //        }
-//        Assert.AreEqual(TransactionState.Running,transaction.State & TransactionState.Running);
+//        Assert.AreEqual(TransactionState.Active, transaction.State & TransactionState.Active);
 //      }
 //    }
 //
@@ -87,7 +92,7 @@
 //    [ExpectedException(typeof(InvalidOperationException))]
 //    public void OuterCompleteTest()
 //    {
-//      using (Transaction transaction = new Transaction(SessionScope.Current.Session, IsolationLevel.ReadCommitted)){
+//      using (Transaction transaction = Session.Current.ActivateTransaction()){
 //        transaction.Commit();
 //        using (Transaction nestedTransaction = new Transaction(SessionScope.Current.Session)){
 //          nestedTransaction.Rollback();

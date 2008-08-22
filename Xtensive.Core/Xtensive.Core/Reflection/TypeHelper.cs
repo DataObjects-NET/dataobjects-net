@@ -116,7 +116,7 @@ namespace Xtensive.Core.Reflection
         foundForType = null;
         return null;
       }
-      T result;
+
       string associateTypePrefix;
       Type[] genericArguments;
 
@@ -158,7 +158,7 @@ namespace Xtensive.Core.Reflection
         associateTypePrefix = AddSuffix(associateTypePrefix.Substring(1), "Interface");
 
       // Search for exact associate
-      result =
+      T result =
         CreateAssociateInternal<T>(originalForType, currentForType, out foundForType, associateTypePrefix,
           associateTypeSuffixes,
           locations, genericArguments, constructorParams);

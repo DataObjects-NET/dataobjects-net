@@ -7,7 +7,6 @@
 using System;
 using System.Diagnostics;
 using Xtensive.Core;
-using Xtensive.Core.Aspects;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Attributes;
 

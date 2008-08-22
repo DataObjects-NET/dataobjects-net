@@ -5,7 +5,6 @@
 // Created:    2008.08.06
 
 using System;
-using System.Diagnostics;
 
 namespace Xtensive.Storage.Attributes
 {

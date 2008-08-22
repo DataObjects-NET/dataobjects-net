@@ -11,6 +11,7 @@ using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Tuples;
 using Xtensive.Integrity.Validation;
 using Xtensive.Integrity.Validation.Interfaces;
+using Xtensive.Storage.Aspects;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;

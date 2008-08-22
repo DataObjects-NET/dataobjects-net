@@ -35,7 +35,8 @@ namespace Xtensive.Integrity.Aspects
     public MethodInfo UndoMethod     { get; private set; }
 
     int ILaosWeavableAspect.AspectPriority { get { return (int)IntegrityAspectPriority.Atomic; } }
-    
+
+    /// <inheritdoc/>
     public override bool CompileTimeValidate(MethodBase method)
     {
       if (!AspectHelper.ValidateContextBoundMethod<AtomicityContextBase>(this, method))

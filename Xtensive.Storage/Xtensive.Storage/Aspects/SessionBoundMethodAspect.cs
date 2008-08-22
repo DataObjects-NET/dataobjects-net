@@ -9,14 +9,14 @@ using System.Diagnostics;
 using System.Reflection;
 using PostSharp.Extensibility;
 using PostSharp.Laos;
-using Xtensive.Core;
 using Xtensive.Core.Aspects.Helpers;
 using Xtensive.Core.Helpers;
-using Xtensive.Core.Reflection;
-using Xtensive.Storage.Attributes;
 
 namespace Xtensive.Storage.Aspects
 {
+  /// <summary>
+  /// Activates session on method boundary.
+  /// </summary>
   [MulticastAttributeUsage(MulticastTargets.Method)]
   [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
   [Serializable]
@@ -25,13 +25,6 @@ namespace Xtensive.Storage.Aspects
     public override bool CompileTimeValidate(MethodBase method)
     {
       if (!AspectHelper.ValidateContextBoundMethod<Session>(this, method))
-        return false;
-
-      // Let's ignore the methods & properties with [Infrastructure] attribute
-      var methodInfo = (MethodInfo) method;
-      if (methodInfo.GetAttribute<InfrastructureAttribute>(
-          AttributeSearchOptions.InheritFromAllBase |
-          AttributeSearchOptions.InheritFromPropertyOrEvent)!=null)
         return false;
 
       return true;

@@ -36,7 +36,7 @@ namespace Xtensive.Core.Parameters
     [DebuggerStepThrough]
     internal void SetValue(Parameter parameter, object value)
     {
-      Context.SetValue(parameter, value);      
+      Context.SetValue(parameter, value);
     }
 
 
@@ -49,7 +49,7 @@ namespace Xtensive.Core.Parameters
     [DebuggerStepThrough]
     public ParameterScope(ParameterContext context)
       : base(context)
-    {      
+    {
     }
 
     /// <summary>

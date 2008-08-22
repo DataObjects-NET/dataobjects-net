@@ -229,29 +229,29 @@ namespace Xtensive.Storage.Configuration
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="DomainConfiguration"/> class from specified <see cref="DomainElement"/>.
+    /// Initializes a new instance of the <see cref="DomainConfiguration"/> class from specified <see cref="DomainConfigurationElement"/>.
     /// </summary>
-    /// <param name="element"><see cref="DomainElement"/> to initialize <see cref="DomainConfiguration"/> from.</param>
-    internal DomainConfiguration(DomainElement element)
+    /// <param name="configurationElement"><see cref="DomainConfigurationElement"/> to initialize <see cref="DomainConfiguration"/> from.</param>
+    internal DomainConfiguration(DomainConfigurationElement configurationElement)
     {
-      ArgumentValidator.EnsureArgumentNotNull(element, "element");
-      name = element.Name;
-      connectionInfo = element.ConnectionInfo;
-      sessionPoolSize = element.SessionPoolSize;
-      foreach (BuilderElement builder in element.Builders) {
+      ArgumentValidator.EnsureArgumentNotNull(configurationElement, "element");
+      name = configurationElement.Name;
+      connectionInfo = configurationElement.ConnectionInfo;
+      sessionPoolSize = configurationElement.SessionPoolSize;
+      foreach (BuilderElement builder in configurationElement.Builders) {
         Type type = Type.GetType(builder.Type, true);
         Builders.Add(type);
       }
-      foreach (TypeElement registry in element.Types) {
+      foreach (TypeElement registry in configurationElement.Types) {
         Assembly assembly = Assembly.Load(registry.Assembly);
         if (registry.Namespace.IsNullOrEmpty())
           Types.Register(assembly);
         else
           Types.Register(assembly, registry.Namespace);
       }
-      namingConvention = element.NamingConvention.AsNamingConvention();
-      autoValidation = element.AutoValidation;
-      session = element.Session.AsSessionConfiguration();
+      namingConvention = configurationElement.NamingConvention.AsNamingConvention();
+      autoValidation = configurationElement.AutoValidation;
+      session = configurationElement.Session.AsSessionConfiguration();
     }
   }
 }

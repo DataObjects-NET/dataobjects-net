@@ -4,10 +4,9 @@
 // Created by: Alex Yakunin
 // Created:    2007.12.17
 
-using System;
 using System.Diagnostics;
 using Xtensive.Core;
-using Xtensive.Integrity.Atomicity.OperationLogs;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Integrity.Atomicity
 {
@@ -20,6 +19,9 @@ namespace Xtensive.Integrity.Atomicity
     private IOperationLog operationLog;
     private AtomicityContextOptions options;
 
+    /// <summary>
+    /// Gets or sets the atomicity context options.
+    /// </summary>
     public AtomicityContextOptions Options {
       [DebuggerStepThrough]
       get { return options; }
@@ -27,11 +29,17 @@ namespace Xtensive.Integrity.Atomicity
       protected set { options = value; }
     }
 
+    /// <summary>
+    /// Gets the operation descriptor factory.
+    /// </summary>
     public IOperationDescriptorFactory OperationDescriptorFactory {
       [DebuggerStepThrough]
       get { return operationDescriptorFactory; }
     }
 
+    /// <summary>
+    /// Gets or sets the operation log.
+    /// </summary>
     public IOperationLog OperationLog {
       [DebuggerStepThrough]
       get { return operationLog; }
@@ -42,6 +50,7 @@ namespace Xtensive.Integrity.Atomicity
       }
     }
 
+    /// <inheritdoc/>
     public override bool IsActive
     {
       get { return AtomicityScope.CurrentContext == this; }
@@ -49,32 +58,61 @@ namespace Xtensive.Integrity.Atomicity
 
     #region Events (protected virtual handlers)
 
+    /// <summary>
+    /// Called when context is being activated.
+    /// </summary>
+    /// <param name="scope">The scope.</param>
     protected internal virtual void OnActivate(AtomicityScope scope)
     {
     }
 
+    /// <summary>
+    /// Called when redo scope is being activated.
+    /// </summary>
+    /// <param name="redoScope">The redo scope.</param>
     protected internal virtual void OnActivateRedoScope(RedoScope redoScope)
     {
     }
 
+    /// <summary>
+    /// Called when undo scope is being activated.
+    /// </summary>
+    /// <param name="undoScope">The undo scope.</param>
     protected internal virtual void OnActivateUndoScope(UndoScope undoScope)
     {
     }
 
+    /// <summary>
+    /// Called when context is being deactivated.
+    /// </summary>
+    /// <param name="scope">The scope.</param>
     protected internal virtual void OnDeactivate(AtomicityScope scope)
     {
     }
 
+    /// <summary>
+    /// Called when redo scope is being deactivated.
+    /// </summary>
+    /// <param name="redoScope">The redo scope.</param>
     protected internal virtual void OnDeactivateRedoScope(RedoScope redoScope)
     {
     }
 
+    /// <summary>
+    /// Called when undo scope is being deactivated.
+    /// </summary>
+    /// <param name="undoScope">The undo scope.</param>
     protected internal virtual void OnDeactivateUndoScope(UndoScope undoScope)
     {
     }
 
     #endregion
 
+    /// <summary>
+    /// Initializes the context.
+    /// </summary>
+    /// <param name="options">The atomicity context options.</param>
+    /// <param name="operationLog">The operation log.</param>
     protected virtual void Initialize(AtomicityContextOptions options, IOperationLog operationLog)
     {
       this.options = options;
@@ -91,21 +129,37 @@ namespace Xtensive.Integrity.Atomicity
 
     // Constructors
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
     public AtomicityContextBase()
       : this(AtomicityContextOptions.Default)
     {
     }
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="operationLog">The operation log.</param>
     public AtomicityContextBase(IOperationLog operationLog)
       : this(AtomicityContextOptions.Default, operationLog)
     {
     }
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="options">The atomicity context options.</param>
     public AtomicityContextBase(AtomicityContextOptions options)
       : this(options, null)
     {
     }
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="options">The atomicity context options.</param>
+    /// <param name="operationLog">The operation log.</param>
     public AtomicityContextBase(AtomicityContextOptions options, IOperationLog operationLog)
     {
       Initialize(options, operationLog);
