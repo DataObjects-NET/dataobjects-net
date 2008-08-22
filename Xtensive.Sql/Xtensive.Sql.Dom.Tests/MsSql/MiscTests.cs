@@ -123,9 +123,6 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
       SqlVariable v1 = Sql.Variable("v1", SqlDataType.Double);
       batch.Add(v1.Declare());
       batch.Add(Sql.Assign(v1, 1.0));
-      batch.Add(Sql.Assign(Sql.Parameter("p1"), v1));
-      SqlFunctionCall sc = Sql.NullIf(v1, Sql.Parameter("p1"));
-      b = l1 + sc;
       s = Sql.Select();
       s.Columns.Add(b, "value");
       batch.Add(s);

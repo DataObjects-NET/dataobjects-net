@@ -1178,7 +1178,7 @@ namespace Xtensive.Sql.Dom.Compiler
 
     public virtual string Translate(SqlCompilerContext context, SqlParameterRef node)
     {
-      return "@" + node.Name;
+      return "@" + node.Parameter.ParameterName;
     }
 
     public virtual string Translate(SqlCompilerContext context, SqlRow node, NodeSection section)

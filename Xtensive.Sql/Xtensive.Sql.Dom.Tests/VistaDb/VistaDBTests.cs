@@ -109,18 +109,19 @@ namespace Xtensive.Sql.Dom.Tests.VistaDb
     [Test]
     public void Test0000()
     {
-      SqlTableRef product = Sql.TableRef(Catalog.Schemas["dbo"].Tables["Production_Product"]);
-      SqlSelect select = Sql.Select(product);
-      select.Columns.AddRange(product["ProductID"], product["Name"], product["ListPrice"]);
-      select.Where = product["ListPrice"] > Sql.Parameter("p1");
-      select.OrderBy.Add(product["ListPrice"]);
-
-      sqlCommand.Statement = select;
       SqlParameter p = (SqlParameter)sqlCommand.CreateParameter();
       p.DbType = DbType.Int32;
       p.Value = 40;
       p.ParameterName = "@p1";
       sqlCommand.Parameters.Add(p);
+
+      SqlTableRef product = Sql.TableRef(Catalog.Schemas["dbo"].Tables["Production_Product"]);
+      SqlSelect select = Sql.Select(product);
+      select.Columns.AddRange(product["ProductID"], product["Name"], product["ListPrice"]);
+      select.Where = product["ListPrice"] > Sql.ParameterRef(p);
+      select.OrderBy.Add(product["ListPrice"]);
+
+      sqlCommand.Statement = select;
       sqlCommand.Prepare();
 
       DbCommandExecutionResult r = GetExecuteDataReaderResult(sqlCommand);

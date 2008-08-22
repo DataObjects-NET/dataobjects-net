@@ -157,14 +157,14 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
     [Test]
     public void Test000()
     {
+      SqlParameter p = sqlCommand.Parameters.Add("@p1", 40);
       SqlTableRef product = Sql.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
       SqlSelect select = Sql.Select(product);
       select.Columns.AddRange(product["ProductID"], product["Name"], product["ListPrice"]);
-      select.Where = product["ListPrice"]>Sql.Parameter("p1");
+      select.Where = product["ListPrice"]>Sql.ParameterRef(p);
       select.OrderBy.Add(product["ListPrice"]);
 
       sqlCommand.Statement = select;
-      sqlCommand.Parameters.Add("@p1", 40);
       sqlCommand.Prepare();
 
       DbCommandExecutionResult r = GetExecuteDataReaderResult(sqlCommand);

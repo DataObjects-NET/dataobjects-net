@@ -313,27 +313,6 @@ namespace Xtensive.Sql.Dom.Tests
     }
 
     [Test]
-    public void SqlParameterReplacingTest()
-    {
-      SqlParameterRef p = Sql.Parameter("pOld");
-      SqlParameterRef pReplacing = Sql.Parameter("pNew");
-      p.ReplaceWith(pReplacing);
-
-      bool passed = false;
-      try {
-        p.ReplaceWith(1);
-      }
-      catch {
-        passed = true;
-      }
-
-      Assert.IsTrue(passed);
-      Assert.AreNotEqual(p, pReplacing);
-      Assert.AreEqual(p.NodeType, pReplacing.NodeType);
-      Assert.AreEqual(p.Name, pReplacing.Name);
-    }
-
-    [Test]
     public void SqlRowReplacingTest()
     {
       SqlRow r = Sql.Row(1, 2, 4);

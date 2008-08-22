@@ -201,17 +201,6 @@ namespace Xtensive.Sql.Dom.Tests
     }
 
     [Test]
-    public void SqlParameterCloneTest()
-    {
-      SqlParameterRef p = Sql.Parameter("p");
-      SqlParameterRef pClone = (SqlParameterRef)p.Clone();
-      
-      Assert.AreNotEqual(p, pClone);
-      Assert.AreEqual(p.NodeType, pClone.NodeType);
-      Assert.AreEqual(p.Name, pClone.Name);
-    }
-
-    [Test]
     public void SqlRowCloneTest()
     {
       SqlRow r = Sql.Row(1, 2, 4, Sql.Literal(6) + 5);
@@ -493,7 +482,8 @@ namespace Xtensive.Sql.Dom.Tests
     [Test]
     public void SqlAssignCloneTest()
     {
-      SqlParameterRef p = Sql.Parameter("p");
+      SqlParameter r = new SqlParameter();
+      SqlParameterRef p = Sql.ParameterRef(r);
       SqlAssignment a = Sql.Assign(p, 1);
       SqlAssignment aClone = (SqlAssignment) a.Clone();
       
@@ -508,7 +498,7 @@ namespace Xtensive.Sql.Dom.Tests
     [Test]
     public void SqlBatchCloneTest()
     {
-      SqlParameterRef p = Sql.Parameter("p");
+      SqlParameterRef p = Sql.ParameterRef(new SqlParameter("p"));
       SqlAssignment a = Sql.Assign(p, 1);
       SqlBatch b = Sql.Batch();
       b.Add(a);

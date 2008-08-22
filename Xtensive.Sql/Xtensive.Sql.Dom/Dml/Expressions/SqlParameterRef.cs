@@ -13,15 +13,14 @@ namespace Xtensive.Sql.Dom.Dml
   [Serializable]
   public class SqlParameterRef : SqlExpression, ISqlCursorFetchTarget
   {
-    private string name;
+    private SqlParameter parameter;
 
     /// <summary>
-    /// Gets the name.
+    /// Gets the <see cref="SqlParameter"/> this instance references.
     /// </summary>
-    /// <value>The name.</value>
-    public string Name
+    public SqlParameter Parameter
     {
-      get { return name; }
+      get { return parameter; }
     }
 
     public override void ReplaceWith(SqlExpression expression)
@@ -29,7 +28,7 @@ namespace Xtensive.Sql.Dom.Dml
       ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
       ArgumentValidator.EnsureArgumentIs<SqlParameterRef>(expression, "expression");
       SqlParameterRef replacingExpression = expression as SqlParameterRef;
-      name = replacingExpression.Name;
+      parameter = replacingExpression.Parameter;
     }
 
     internal override object Clone(SqlNodeCloneContext context)
@@ -37,21 +36,21 @@ namespace Xtensive.Sql.Dom.Dml
       if (context.NodeMapping.ContainsKey(this))
         return context.NodeMapping[this];
 
-      SqlParameterRef clone = new SqlParameterRef(name);
+      SqlParameterRef clone = new SqlParameterRef(parameter);
       context.NodeMapping[this] = clone;
       return clone;
-    }
-
-    // Constructor
-
-    internal SqlParameterRef(string name) : base(SqlNodeType.Parameter)
-    {
-      this.name = name;
     }
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {
       visitor.Visit(this);
+    }
+
+    // Constructor
+
+    internal SqlParameterRef(SqlParameter parameter) : base(SqlNodeType.Parameter)
+    {
+      this.parameter = parameter;
     }
   }
 }
