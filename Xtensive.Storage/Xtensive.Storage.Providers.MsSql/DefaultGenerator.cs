@@ -5,6 +5,7 @@
 // Created:    2008.07.29
 
 using System;
+using System.Collections.Generic;
 using Xtensive.Core.Tuples;
 using Xtensive.Sql.Common;
 using Xtensive.Sql.Dom;
@@ -21,19 +22,12 @@ namespace Xtensive.Storage.Providers.MsSql
   {
     private Table generatorTable;
     private SqlDataType dataType;
-    private const int BULK_SIZE = 100;
+    private Schema schema;
 
     protected override Tuple NextNumber()
     {
       Tuple result = Tuple.Create(Hierarchy.KeyTupleDescriptor);
       SqlBatch batch = SqlFactory.Batch();
-//      var i = SqlFactory.Variable("i", dataType);
-//      batch.Add(i.Declare());
-//      batch.Add(SqlFactory.Assign(i, 0));
-//      batch.Add(SqlFactory.While(SqlFactory.LessThan(i, BULK_SIZE)));
-//      batch.Add(SqlFactory.("BEGIN"));
-
-
       SqlInsert insert = SqlFactory.Insert(SqlFactory.TableRef(generatorTable));
       batch.Add(insert);
       SqlSelect select = SqlFactory.Select();
@@ -52,6 +46,40 @@ namespace Xtensive.Storage.Providers.MsSql
       return result;
     }
 
+    protected override IEnumerable<Tuple> Next(int count)
+    {
+      var result = new List<Tuple>();
+      SqlBatch batch = SqlFactory.Batch();
+      var i = SqlFactory.Variable("i", SqlDataType.Int16);
+      var temp = schema.CreateTemporaryTable("T");
+      temp.IsGlobal = false;
+      temp.CreateColumn("ID", new SqlValueType(dataType));
+      batch.Add(SqlFactory.Create(temp));
+      batch.Add(i.Declare());
+      batch.Add(SqlFactory.Assign(i, 0));
+      batch.Add(SqlFactory.While(SqlFactory.LessThan(i, count)));
+      var body = SqlFactory.StatementBlock();
+      body.Add(SqlFactory.Assign(i, SqlFactory.Add(i, 1)));
+      body.Add(SqlFactory.Insert(SqlFactory.TableRef(generatorTable)));
+      var tempRef = SqlFactory.TableRef(temp);
+      var tempInsert = SqlFactory.Insert(tempRef);
+      tempInsert.Values[tempRef.Columns[0]] = SqlFactory.FunctionCall("SCOPE_IDENTITY");
+      body.Add(tempInsert);
+      batch.Add(body);
+      SqlSelect select = SqlFactory.Select();
+      select.Columns.Add(SqlFactory.Asterisk);
+      batch.Add(select);
+
+      SessionHandler handler;
+      using (Handlers.OpenSession(SessionType.System, out handler))
+        using (var e = handler.Execute(batch, Hierarchy.KeyTupleDescriptor)) {
+          while (e.MoveNext())
+            result.Add(e.Current);
+        }
+
+      return result;
+    }
+
     public override void Initialize()
     {
       base.Initialize();
@@ -59,7 +87,8 @@ namespace Xtensive.Storage.Providers.MsSql
       var sessionHandler = (SessionHandler)BuildingContext.Current.SystemSessionHandler;
       var keyColumn = Hierarchy.Columns[0];
       var domainHandler = (DomainHandler)Handlers.DomainHandler;
-      generatorTable = domainHandler.Schema.CreateTable(Hierarchy.MappingName);
+      schema = domainHandler.Schema;
+      generatorTable = schema.CreateTable(Hierarchy.MappingName);
       if (keyColumn.ValueType == typeof(int))
         dataType = SqlDataType.Int32;
       else if (keyColumn.ValueType == typeof(uint))

@@ -30,6 +30,7 @@ namespace Xtensive.Storage.Configuration
     private int sessionPoolSize = 64;
     private string name = string.Empty;
     private bool autoValidation = true;
+    private int generatorCacheSize = 1024;
     private SessionConfiguration session;
 
     /// <summary>
@@ -55,6 +56,19 @@ namespace Xtensive.Storage.Configuration
       {
         this.EnsureNotLocked();
         sessionPoolSize = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the size of the generator's cache.
+    /// </summary>
+    public int GeneratorCacheSize
+    {
+      get { return generatorCacheSize; }
+      set
+      {
+        this.EnsureNotLocked();
+        generatorCacheSize = value;
       }
     }
 

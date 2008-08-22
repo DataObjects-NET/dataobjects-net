@@ -5,6 +5,7 @@
 // Created:    2007.07.04
 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core;
@@ -135,6 +136,12 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
       Tuple result = Tuple.Create(counter.ToString());
       counter++;
       return result;
+    }
+
+    protected override IEnumerable<Tuple> Next(int count)
+    {
+      for (int i = 0; i < count; i++)
+        yield return NextNumber();
     }
   }
 

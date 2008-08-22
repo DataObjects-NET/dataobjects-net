@@ -5,6 +5,7 @@
 // Created:    2008.07.24
 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using Xtensive.Core.Arithmetic;
 using Xtensive.Core.Tuples;
@@ -33,6 +34,12 @@ namespace Xtensive.Storage.Providers.Index
         result.SetValue(0, counter.GetValue<TFieldType>(0));
       }
       return result;
+    }
+
+    protected override IEnumerable<Tuple> Next(int count)
+    {
+      for (int i = 0; i < count; i++)
+        yield return getNext();
     }
 
     /// <inheritdoc/>
