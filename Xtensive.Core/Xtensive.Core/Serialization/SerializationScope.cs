@@ -20,16 +20,12 @@ namespace Xtensive.Core.Serialization
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="context">The context of this scope.</param>
-    protected SerializationScope(SerializationContext context) 
-      : base(context)
-    {
-    }
+    protected SerializationScope(SerializationContext context)
+      : base(context) {}
 
     /// <summary>
     /// <see cref="ClassDocTemplate()" copy="true"/>
     /// </summary>
-    protected SerializationScope() 
-    {
-    }
+    protected SerializationScope() {}
   }
 }

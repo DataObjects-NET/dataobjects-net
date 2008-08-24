@@ -12,26 +12,21 @@ using Xtensive.Core.Resources;
 namespace Xtensive.Core.Serialization.Binary
 {
   [Serializable]
-  internal class ByteValueSerializer : ValueSerializerBase<byte>
+  internal class ByteValueSerializer : BinaryValueSerializerBase<byte>
   {
-    public override Byte Deserialize(Stream stream)
-    {
+    public override Byte Deserialize(Stream stream) {
       if (stream.Length - stream.Position < sizeof (Byte))
         throw new SerializationException(Strings.ExDeserializationStreamLengthIncorrect);
-      return (Byte)stream.ReadByte();
+      return (Byte) stream.ReadByte();
     }
 
-    public override void Serialize(Stream stream, Byte value)
-    {
+    public override void Serialize(Stream stream, Byte value) {
       stream.WriteByte(value);
     }
 
-
     // Constructors
 
-    public ByteValueSerializer(IValueSerializerProvider provider)
-      : base(provider)
-    {
-    }
+    public ByteValueSerializer(IBinaryValueSerializerProvider provider)
+      : base(provider) {}
   }
 }

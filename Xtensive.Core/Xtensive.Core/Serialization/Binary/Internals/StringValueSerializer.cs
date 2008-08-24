@@ -13,43 +13,36 @@ using System.Text;
 namespace Xtensive.Core.Serialization.Binary
 {
   [Serializable]
-  internal class StringValueSerializer : WrappingValueSerializer<string, int, char>
+  internal class StringValueSerializer : WrappingValueSerializer<string, int>
   {
-    private static Encoding encoding = Encoding.UTF8;
+    private static readonly Encoding encoding = Encoding.UTF8;
 
-    public override string Deserialize(Stream stream)
-    {
+    public override string Deserialize(Stream stream) {
       if (stream.Length - stream.Position < sizeof (Int16))
         throw new SerializationException(Strings.ExDeserializationStreamLengthIncorrect);
-      int length = BaseValueSerializer1.Deserialize(stream);
-      if (length==-1)
+      int length = baseValueSerializer.Deserialize(stream);
+      if (length == -1)
         return null;
       if (stream.Length - stream.Position < length)
         throw new SerializationException(Strings.ExDeserializationStreamLengthIncorrect);
       byte[] buffer = new byte[length];
-      stream.Read(buffer,0,length);
+      stream.Read(buffer, 0, length);
       return encoding.GetString(buffer);
     }
 
-    public override void Serialize(Stream stream, String value)
-    {
-      if (value==null) {
-        BaseValueSerializer1.Serialize(stream, -1);
-      }
+    public override void Serialize(Stream stream, String value) {
+      if (value == null) baseValueSerializer.Serialize(stream, -1);
       else {
         byte[] byteRepresentation = encoding.GetBytes(value);
         int length = byteRepresentation.Length;
-        BaseValueSerializer1.Serialize(stream, length);
-        stream.Write(byteRepresentation,0, length);
+        baseValueSerializer.Serialize(stream, length);
+        stream.Write(byteRepresentation, 0, length);
       }
     }
 
-
     // Constructors
 
-    public StringValueSerializer(IValueSerializerProvider provider)
-      : base(provider)
-    {
-    }
+    public StringValueSerializer(IBinaryValueSerializerProvider provider)
+      : base(provider) {}
   }
 }

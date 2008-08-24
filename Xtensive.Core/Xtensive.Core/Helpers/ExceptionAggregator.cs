@@ -55,10 +55,11 @@ namespace Xtensive.Core.Helpers
     /// and passing it to <see cref="ExceptionHandler"/> handler.
     /// </summary>
     /// <param name="action">The action to execute.</param>
+    /// <exception cref="ObjectDisposedException">Aggregator is already disposed.</exception>
     public void Execute(Action action)
     {
       if (isDisposed)
-        throw new InvalidOperationException(Strings.ObjectIsAlreadyDisposed);
+        throw Exceptions.AlreadyDisposed(null);
       try {
         action();
       }
@@ -75,10 +76,11 @@ namespace Xtensive.Core.Helpers
     /// <typeparam name="T">The type of action argument.</typeparam>
     /// <param name="action">The action to execute.</param>
     /// <param name="argument">The action argument value.</param>
+    /// <exception cref="ObjectDisposedException">Aggregator is already disposed.</exception>
     public void Execute<T>(Action<T> action, T argument)
     {
       if (isDisposed)
-        throw new InvalidOperationException(Strings.ObjectIsAlreadyDisposed);
+        throw Exceptions.AlreadyDisposed(null);
       try {
         action(argument);
       }
@@ -97,10 +99,11 @@ namespace Xtensive.Core.Helpers
     /// <param name="action">The action to execute.</param>
     /// <param name="argument1">The 1st action argument value.</param>
     /// <param name="argument2">The 2nd action argument value.</param>
+    /// <exception cref="ObjectDisposedException">Aggregator is already disposed.</exception>
     public void Execute<T1, T2>(Action<T1, T2> action, T1 argument1, T2 argument2)
     {
       if (isDisposed)
-        throw new InvalidOperationException(Strings.ObjectIsAlreadyDisposed);
+        throw Exceptions.AlreadyDisposed(null);
       try {
         action(argument1, argument2);
       }
@@ -121,10 +124,11 @@ namespace Xtensive.Core.Helpers
     /// <param name="argument1">The 1st action argument value.</param>
     /// <param name="argument2">The 2nd action argument value.</param>
     /// <param name="argument3">The 3rd action argument value.</param>
+    /// <exception cref="ObjectDisposedException">Aggregator is already disposed.</exception>
     public void Execute<T1, T2, T3>(Action<T1, T2, T3> action, T1 argument1, T2 argument2, T3 argument3)
     {
       if (isDisposed)
-        throw new InvalidOperationException(Strings.ObjectIsAlreadyDisposed);
+        throw Exceptions.AlreadyDisposed(null);
       try {
         action(argument1, argument2, argument3);
       }
@@ -142,10 +146,11 @@ namespace Xtensive.Core.Helpers
     /// <param name="function">The function to execute.</param>
     /// <returns>Function execution result, if no exception was caught;
     /// otherwise, <see langword="default(TResult)"/>.</returns>
+    /// <exception cref="ObjectDisposedException">Aggregator is already disposed.</exception>
     public TResult Execute<TResult>(Func<TResult> function)
     {
       if (isDisposed)
-        throw new InvalidOperationException(Strings.ObjectIsAlreadyDisposed);
+        throw Exceptions.AlreadyDisposed(null);
       try {
         return function();
       }
@@ -166,10 +171,11 @@ namespace Xtensive.Core.Helpers
     /// <param name="argument">The function argument value.</param>
     /// <returns>Function execution result, if no exception was caught;
     /// otherwise, <see langword="default(TResult)"/>.</returns>
+    /// <exception cref="ObjectDisposedException">Aggregator is already disposed.</exception>
     public TResult Execute<T, TResult>(Func<T, TResult> function, T argument)
     {
       if (isDisposed)
-        throw new InvalidOperationException(Strings.ObjectIsAlreadyDisposed);
+        throw Exceptions.AlreadyDisposed(null);
       try {
         return function(argument);
       }
@@ -192,10 +198,11 @@ namespace Xtensive.Core.Helpers
     /// <param name="argument2">The 2nd function argument value.</param>
     /// <returns>Function execution result, if no exception was caught;
     /// otherwise, <see langword="default(TResult)"/>.</returns>
+    /// <exception cref="ObjectDisposedException">Aggregator is already disposed.</exception>
     public TResult Execute<T1, T2, TResult>(Func<T1, T2, TResult> function, T1 argument1, T2 argument2)
     {
       if (isDisposed)
-        throw new InvalidOperationException(Strings.ObjectIsAlreadyDisposed);
+        throw Exceptions.AlreadyDisposed(null);
       try {
         return function(argument1, argument2);
       }
@@ -220,10 +227,11 @@ namespace Xtensive.Core.Helpers
     /// <param name="argument3">The 3rd function argument value.</param>
     /// <returns>Function execution result, if no exception was caught;
     /// otherwise, <see langword="default(TResult)"/>.</returns>
+    /// <exception cref="ObjectDisposedException">Aggregator is already disposed.</exception>
     public TResult Execute<T1, T2, T3, TResult>(Func<T1, T2, T3, TResult> function, T1 argument1, T2 argument2, T3 argument3)
     {
       if (isDisposed)
-        throw new InvalidOperationException(Strings.ObjectIsAlreadyDisposed);
+        throw Exceptions.AlreadyDisposed(null);
       try {
         return function(argument1, argument2, argument3);
       }

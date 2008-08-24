@@ -4,42 +4,34 @@
 // Created by: Alex Yakunin
 // Created:    2007.12.31
 
+using System.IO;
+
 namespace Xtensive.Core.Serialization.Binary
 {
-  public class ValueSerializationScope: Scope<IValueSerializer>
+  public class ValueSerializationScope : Scope<IValueSerializer<Stream>>
   {
-    public static IValueSerializer CurrentSerializer {
-      get {
-        return CurrentContext ?? BinarySerializer.Instance;
-      }
+    public static IValueSerializer<Stream> CurrentSerializer {
+      get { return CurrentContext ?? BinarySerializer.Instance; }
     }
 
-    public IValueSerializer Serializer
-    {
+    public IValueSerializer<Stream> Serializer {
       get { return Context; }
     }
 
-    internal new ValueSerializationScope OuterScope
-    {
-      get { return (ValueSerializationScope)base.OuterScope; }
+    internal new ValueSerializationScope OuterScope {
+      get { return (ValueSerializationScope) base.OuterScope; }
     }
 
-    public override void Activate(IValueSerializer newContext)
-    {
+    public override void Activate(IValueSerializer<Stream> newContext) {
       ArgumentValidator.EnsureArgumentNotNull(newContext, "newContext");
       base.Activate(newContext);
     }
 
-
     // Constructors
 
-    public ValueSerializationScope(IValueSerializer context) 
-      : base(context)
-    {
-    }
+    public ValueSerializationScope(IValueSerializer<Stream> context)
+      : base(context) {}
 
-    public ValueSerializationScope() 
-    {
-    }
+    public ValueSerializationScope() {}
   }
 }

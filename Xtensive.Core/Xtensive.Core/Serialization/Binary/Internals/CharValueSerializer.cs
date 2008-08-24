@@ -12,24 +12,19 @@ namespace Xtensive.Core.Serialization.Binary
   [Serializable]
   internal class CharValueSerializer : WrappingValueSerializer<char, int>
   {
-    public override char Deserialize(Stream stream)
-    {
-      unchecked{
-        return (char)baseValueSerializer.Deserialize(stream);
+    public override char Deserialize(Stream stream) {
+      unchecked {
+        return (char) baseValueSerializer.Deserialize(stream);
       }
     }
 
-    public override void Serialize(Stream stream, Char value)
-    {
+    public override void Serialize(Stream stream, Char value) {
       baseValueSerializer.Serialize(stream, value);
     }
 
-
     // Constructors
 
-    public CharValueSerializer(IValueSerializerProvider provider)
-      : base(provider)
-    {
-    }
+    public CharValueSerializer(IBinaryValueSerializerProvider provider)
+      : base(provider) {}
   }
 }

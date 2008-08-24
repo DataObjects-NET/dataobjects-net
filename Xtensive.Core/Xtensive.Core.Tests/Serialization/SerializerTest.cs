@@ -14,14 +14,15 @@ using Xtensive.Core.Reflection;
 using Xtensive.Core.Serialization;
 using Xtensive.Core.Serialization.Binary;
 using Xtensive.Core.Testing;
+using Xtensive.Core.Threading;
 
 namespace Xtensive.Core.Tests.Serialization
 {
   [TestFixture]
   public class SerializerTest
   {
-    private readonly static int BaseCount = 10000;
-    private static Random random = RandomManager.CreateRandom(SeedVariatorType.CallingType);
+    private const int BaseCount = 10000;
+    private static readonly Random random = RandomManager.CreateRandom(SeedVariatorType.CallingType);
     private string typeName;
 
     [Test]
@@ -59,7 +60,7 @@ namespace Xtensive.Core.Tests.Serialization
       typeName = typeof(T).GetShortName();
       MemoryStream streamXtensive = new MemoryStream();
       MemoryStream streamSystem = new MemoryStream();
-      ValueSerializer<T> xtensiveValueSerializer = ValueSerializer<T>.Default;
+      var xtensiveValueSerializer = BinaryValueSerializer<T>.Default;
       BinarySerializer binarySerializer = new BinarySerializer();
       Assert.IsNotNull(xtensiveValueSerializer);
       T[] instances = new List<T>(InstanceGeneratorProvider.Default.GetInstanceGenerator<T>().GetInstances(random, count)).ToArray();
@@ -70,13 +71,15 @@ namespace Xtensive.Core.Tests.Serialization
       // Serialize
       using (new Measurement(string.Format("{0} Xtensive serialize. ", typeName), count))
       {
-        for (int i = 0; i < count; i++) {
+        for (int i = 0; i < count; i++)
+        {
           xtensiveValueSerializer.Serialize(streamXtensive, instances[i]);
         }
       }
       using (new Measurement(string.Format("{0} System serialize.   ", typeName), count))
       {
-        for (int i = 0; i < count; i++) {
+        for (int i = 0; i < count; i++)
+        {
           binarySerializer.Serialize(streamSystem, instances[i]);
         }
       }
@@ -91,48 +94,57 @@ namespace Xtensive.Core.Tests.Serialization
       streamXtensive.Seek(0, SeekOrigin.Begin);
       using (new Measurement(string.Format("{0} Xtensive deserialize. ", typeName), count))
       {
-        for (int i = 0; i < count; i++) {
+        for (int i = 0; i < count; i++)
+        {
           deserializedInstances[i] = xtensiveValueSerializer.Deserialize(streamXtensive);
         }
       }
-      for (int i = 0; i < instances.Length; i++) {
+      for (int i = 0; i < instances.Length; i++)
+      {
         Assert.AreEqual(instances[i], deserializedInstances[i]);
       }
       Array.Clear(deserializedInstances, 0, deserializedInstances.Length);
       using (new Measurement(string.Format("{0} System deserialize.   ", typeName), count))
       {
-        for (int i = 0; i < count; i++) {
-          deserializedInstances[i] = (T) binarySerializer.Deserialize(streamSystem);
+        for (int i = 0; i < count; i++)
+        {
+          deserializedInstances[i] = (T)binarySerializer.Deserialize(streamSystem);
         }
       }
-      for (int i = 0; i < instances.Length; i++) {
+      for (int i = 0; i < instances.Length; i++)
+      {
         Assert.AreEqual(instances[i], deserializedInstances[i]);
       }
+
+      Log.Info("================= {0} serialization test finished =======================\n", typeName);
     }
 
 
     [Test]
     public void LongSerializerTest()
     {
-      MemoryStream stream = new MemoryStream(sizeof (long));
-      ValueSerializer<long> valueSerializer = ValueSerializer<long>.Default;
+      MemoryStream stream = new MemoryStream(sizeof(long));
+      var valueSerializer = BinaryValueSerializer<long>.Default;
       Assert.IsNotNull(valueSerializer);
       Assert.AreEqual(valueSerializer.Implementation.GetType().Name, "Int64ValueSerializer");
-      for (long i = -1000; i < 1000; i++) {
+      for (long i = -1000; i < 1000; i++)
+      {
         stream.Seek(0, SeekOrigin.Begin);
         valueSerializer.Serialize(stream, i);
         stream.Seek(0, SeekOrigin.Begin);
         long restoredValue = valueSerializer.Deserialize(stream);
         Assert.AreEqual(i, restoredValue);
       }
-      for (long i = long.MinValue; i < long.MinValue + 1000; i++) {
+      for (long i = long.MinValue; i < long.MinValue + 1000; i++)
+      {
         stream.Seek(0, SeekOrigin.Begin);
         valueSerializer.Serialize(stream, i);
         stream.Seek(0, SeekOrigin.Begin);
         long restoredValue = valueSerializer.Deserialize(stream);
         Assert.AreEqual(i, restoredValue);
       }
-      for (long i = long.MaxValue - 1000; i < long.MaxValue; i++) {
+      for (long i = long.MaxValue - 1000; i < long.MaxValue; i++)
+      {
         stream.Seek(0, SeekOrigin.Begin);
         valueSerializer.Serialize(stream, i);
         stream.Seek(0, SeekOrigin.Begin);
@@ -144,25 +156,28 @@ namespace Xtensive.Core.Tests.Serialization
     [Test]
     public void ULongSerializerTest()
     {
-      MemoryStream stream = new MemoryStream(sizeof (ulong));
-      ValueSerializer<ulong> valueSerializer = ValueSerializer<ulong>.Default;
+      MemoryStream stream = new MemoryStream(sizeof(ulong));
+      var valueSerializer = BinaryValueSerializer<ulong>.Default;
       Assert.IsNotNull(valueSerializer);
       Assert.AreEqual(valueSerializer.Implementation.GetType().Name, "UInt64ValueSerializer");
-      for (ulong i = 0; i < 1000; i++) {
+      for (ulong i = 0; i < 1000; i++)
+      {
         stream.Seek(0, SeekOrigin.Begin);
         valueSerializer.Serialize(stream, i);
         stream.Seek(0, SeekOrigin.Begin);
         ulong restoredValue = valueSerializer.Deserialize(stream);
         Assert.AreEqual(i, restoredValue);
       }
-      for (ulong i = ulong.MinValue; i < ulong.MinValue + 1000; i++) {
+      for (ulong i = ulong.MinValue; i < ulong.MinValue + 1000; i++)
+      {
         stream.Seek(0, SeekOrigin.Begin);
         valueSerializer.Serialize(stream, i);
         stream.Seek(0, SeekOrigin.Begin);
         ulong restoredValue = valueSerializer.Deserialize(stream);
         Assert.AreEqual(i, restoredValue);
       }
-      for (ulong i = ulong.MaxValue - 1000; i < ulong.MaxValue; i++) {
+      for (ulong i = ulong.MaxValue - 1000; i < ulong.MaxValue; i++)
+      {
         stream.Seek(0, SeekOrigin.Begin);
         valueSerializer.Serialize(stream, i);
         stream.Seek(0, SeekOrigin.Begin);
@@ -174,11 +189,12 @@ namespace Xtensive.Core.Tests.Serialization
     [Test]
     public void ShortSerializerTest()
     {
-      MemoryStream stream = new MemoryStream(sizeof (short));
-      ValueSerializer<short> valueSerializer = ValueSerializer<short>.Default;
+      MemoryStream stream = new MemoryStream(sizeof(short));
+      var valueSerializer = BinaryValueSerializer<short>.Default;
       Assert.IsNotNull(valueSerializer);
       Assert.AreEqual(valueSerializer.Implementation.GetType().Name, "Int16ValueSerializer");
-      for (short i = short.MinValue; i < short.MaxValue; i++) {
+      for (short i = short.MinValue; i < short.MaxValue; i++)
+      {
         stream.Seek(0, SeekOrigin.Begin);
         valueSerializer.Serialize(stream, i);
         stream.Seek(0, SeekOrigin.Begin);
@@ -190,11 +206,12 @@ namespace Xtensive.Core.Tests.Serialization
     [Test]
     public void UShortSerializerTest()
     {
-      MemoryStream stream = new MemoryStream(sizeof (ushort));
-      ValueSerializer<ushort> valueSerializer = ValueSerializer<ushort>.Default;
+      MemoryStream stream = new MemoryStream(sizeof(ushort));
+      var valueSerializer = BinaryValueSerializer<ushort>.Default;
       Assert.IsNotNull(valueSerializer);
       Assert.AreEqual(valueSerializer.Implementation.GetType().Name, "UInt16ValueSerializer");
-      for (ushort i = ushort.MinValue; i < ushort.MaxValue; i++) {
+      for (ushort i = ushort.MinValue; i < ushort.MaxValue; i++)
+      {
         stream.Seek(0, SeekOrigin.Begin);
         valueSerializer.Serialize(stream, i);
         stream.Seek(0, SeekOrigin.Begin);
@@ -207,25 +224,28 @@ namespace Xtensive.Core.Tests.Serialization
     [Test]
     public void IntSerializerTest()
     {
-      MemoryStream stream = new MemoryStream(sizeof (int));
-      ValueSerializer<int> valueSerializer = ValueSerializer<int>.Default;
+      MemoryStream stream = new MemoryStream(sizeof(int));
+      var valueSerializer = BinaryValueSerializer<int>.Default;
       Assert.IsNotNull(valueSerializer);
       Assert.AreEqual(valueSerializer.Implementation.GetType().Name, "Int32ValueSerializer");
-      for (int i = -1000; i < 1000; i++) {
+      for (int i = -1000; i < 1000; i++)
+      {
         stream.Seek(0, SeekOrigin.Begin);
         valueSerializer.Serialize(stream, i);
         stream.Seek(0, SeekOrigin.Begin);
         int restoredValue = valueSerializer.Deserialize(stream);
         Assert.AreEqual(i, restoredValue);
       }
-      for (int i = int.MinValue; i < int.MinValue + 1000; i++) {
+      for (int i = int.MinValue; i < int.MinValue + 1000; i++)
+      {
         stream.Seek(0, SeekOrigin.Begin);
         valueSerializer.Serialize(stream, i);
         stream.Seek(0, SeekOrigin.Begin);
         int restoredValue = valueSerializer.Deserialize(stream);
         Assert.AreEqual(i, restoredValue);
       }
-      for (int i = int.MaxValue - 1000; i < int.MaxValue; i++) {
+      for (int i = int.MaxValue - 1000; i < int.MaxValue; i++)
+      {
         stream.Seek(0, SeekOrigin.Begin);
         valueSerializer.Serialize(stream, i);
         stream.Seek(0, SeekOrigin.Begin);
@@ -237,25 +257,28 @@ namespace Xtensive.Core.Tests.Serialization
     [Test]
     public void UIntSerializerTest()
     {
-      MemoryStream stream = new MemoryStream(sizeof (uint));
-      ValueSerializer<uint> valueSerializer = ValueSerializer<uint>.Default;
+      MemoryStream stream = new MemoryStream(sizeof(uint));
+      var valueSerializer = BinaryValueSerializer<uint>.Default;
       Assert.IsNotNull(valueSerializer);
       Assert.AreEqual(valueSerializer.Implementation.GetType().Name, "UInt32ValueSerializer");
-      for (uint i = 0; i < 1000; i++) {
+      for (uint i = 0; i < 1000; i++)
+      {
         stream.Seek(0, SeekOrigin.Begin);
         valueSerializer.Serialize(stream, i);
         stream.Seek(0, SeekOrigin.Begin);
         uint restoredValue = valueSerializer.Deserialize(stream);
         Assert.AreEqual(i, restoredValue);
       }
-      for (uint i = uint.MinValue; i < uint.MinValue + 1000; i++) {
+      for (uint i = uint.MinValue; i < uint.MinValue + 1000; i++)
+      {
         stream.Seek(0, SeekOrigin.Begin);
         valueSerializer.Serialize(stream, i);
         stream.Seek(0, SeekOrigin.Begin);
         uint restoredValue = valueSerializer.Deserialize(stream);
         Assert.AreEqual(i, restoredValue);
       }
-      for (uint i = uint.MaxValue - 1000; i < uint.MaxValue; i++) {
+      for (uint i = uint.MaxValue - 1000; i < uint.MaxValue; i++)
+      {
         stream.Seek(0, SeekOrigin.Begin);
         valueSerializer.Serialize(stream, i);
         stream.Seek(0, SeekOrigin.Begin);
@@ -267,11 +290,12 @@ namespace Xtensive.Core.Tests.Serialization
     [Test]
     public void ByteSerializerTest()
     {
-      MemoryStream stream = new MemoryStream(sizeof (byte));
-      ValueSerializer<byte> valueSerializer = ValueSerializer<byte>.Default;
+      MemoryStream stream = new MemoryStream(sizeof(byte));
+      var valueSerializer = BinaryValueSerializer<byte>.Default;
       Assert.IsNotNull(valueSerializer);
       Assert.AreEqual(valueSerializer.Implementation.GetType().Name, "ByteValueSerializer");
-      for (byte i = byte.MinValue; i < byte.MaxValue; i++) {
+      for (byte i = byte.MinValue; i < byte.MaxValue; i++)
+      {
         stream.Seek(0, SeekOrigin.Begin);
         valueSerializer.Serialize(stream, i);
         stream.Seek(0, SeekOrigin.Begin);
@@ -283,11 +307,12 @@ namespace Xtensive.Core.Tests.Serialization
     [Test]
     public void SByteSerializerTest()
     {
-      MemoryStream stream = new MemoryStream(sizeof (sbyte));
-      ValueSerializer<sbyte> valueSerializer = ValueSerializer<sbyte>.Default;
+      MemoryStream stream = new MemoryStream(sizeof(sbyte));
+      var valueSerializer = BinaryValueSerializer<sbyte>.Default;
       Assert.IsNotNull(valueSerializer);
       Assert.AreEqual(valueSerializer.Implementation.GetType().Name, "SByteValueSerializer");
-      for (sbyte i = sbyte.MinValue; i < sbyte.MaxValue; i++) {
+      for (sbyte i = sbyte.MinValue; i < sbyte.MaxValue; i++)
+      {
         stream.Seek(0, SeekOrigin.Begin);
         valueSerializer.Serialize(stream, i);
         stream.Seek(0, SeekOrigin.Begin);
@@ -299,12 +324,13 @@ namespace Xtensive.Core.Tests.Serialization
     [Test]
     public void FloatSerializerTest()
     {
-      float[] values = new float[] {float.MinValue, 0, float.MaxValue, 1, 1.2354563f, 123.5f / 345};
-      MemoryStream stream = new MemoryStream(sizeof (float));
-      ValueSerializer<float> valueSerializer = ValueSerializer<float>.Default;
+      float[] values = new float[] { float.MinValue, 0, float.MaxValue, 1, 1.2354563f, 123.5f / 345 };
+      MemoryStream stream = new MemoryStream(sizeof(float));
+      var valueSerializer = BinaryValueSerializer<float>.Default;
       Assert.IsNotNull(valueSerializer);
       Assert.AreEqual(valueSerializer.Implementation.GetType().Name, "SingleValueSerializer");
-      foreach (float value in values) {
+      foreach (float value in values)
+      {
         stream.Seek(0, SeekOrigin.Begin);
         valueSerializer.Serialize(stream, value);
         stream.Seek(0, SeekOrigin.Begin);
@@ -316,12 +342,13 @@ namespace Xtensive.Core.Tests.Serialization
     [Test]
     public void DoubleSerializerTest()
     {
-      double[] values = new double[] {double.MinValue, 0, double.MaxValue, 1, 1.2354563, 123.5 / 345};
-      MemoryStream stream = new MemoryStream(sizeof (double));
-      ValueSerializer<double> valueSerializer = ValueSerializer<double>.Default;
+      double[] values = new double[] { double.MinValue, 0, double.MaxValue, 1, 1.2354563, 123.5 / 345 };
+      MemoryStream stream = new MemoryStream(sizeof(double));
+      var valueSerializer = BinaryValueSerializer<double>.Default;
       Assert.IsNotNull(valueSerializer);
       Assert.AreEqual(valueSerializer.Implementation.GetType().Name, "DoubleValueSerializer");
-      foreach (double value in values) {
+      foreach (double value in values)
+      {
         stream.Seek(0, SeekOrigin.Begin);
         valueSerializer.Serialize(stream, value);
         stream.Seek(0, SeekOrigin.Begin);
@@ -333,12 +360,13 @@ namespace Xtensive.Core.Tests.Serialization
     [Test]
     public void BooleanSerializerTest()
     {
-      bool[] values = new bool[] {true, false};
-      MemoryStream stream = new MemoryStream(sizeof (bool));
-      ValueSerializer<bool> valueSerializer = ValueSerializer<bool>.Default;
+      bool[] values = new bool[] { true, false };
+      MemoryStream stream = new MemoryStream(sizeof(bool));
+      var valueSerializer = BinaryValueSerializer<bool>.Default;
       Assert.IsNotNull(valueSerializer);
       Assert.AreEqual(valueSerializer.Implementation.GetType().Name, "BooleanValueSerializer");
-      foreach (bool value in values) {
+      foreach (bool value in values)
+      {
         stream.Seek(0, SeekOrigin.Begin);
         valueSerializer.Serialize(stream, value);
         stream.Seek(0, SeekOrigin.Begin);
@@ -350,12 +378,13 @@ namespace Xtensive.Core.Tests.Serialization
     [Test]
     public void DecimalSerializerTest()
     {
-      decimal[] values = new decimal[] {decimal.MinValue, decimal.MaxValue, decimal.MinusOne, decimal.One, decimal.Zero, -123.456m, 1.000001m};
-      MemoryStream stream = new MemoryStream(sizeof (decimal));
-      ValueSerializer<decimal> valueSerializer = ValueSerializer<decimal>.Default;
+      decimal[] values = new decimal[] { decimal.MinValue, decimal.MaxValue, decimal.MinusOne, decimal.One, decimal.Zero, -123.456m, 1.000001m };
+      MemoryStream stream = new MemoryStream(sizeof(decimal));
+      var valueSerializer = BinaryValueSerializer<decimal>.Default;
       Assert.IsNotNull(valueSerializer);
       Assert.AreEqual(valueSerializer.Implementation.GetType().Name, "DecimalValueSerializer");
-      foreach (decimal value in values) {
+      foreach (decimal value in values)
+      {
         stream.Seek(0, SeekOrigin.Begin);
         valueSerializer.Serialize(stream, value);
         stream.Seek(0, SeekOrigin.Begin);
@@ -371,11 +400,12 @@ namespace Xtensive.Core.Tests.Serialization
       Guid[] values = new Guid[count];
       for (int i = 0; i < count; i++)
         values[i] = Guid.NewGuid();
-      MemoryStream stream = new MemoryStream(sizeof (bool));
-      ValueSerializer<Guid> valueSerializer = ValueSerializer<Guid>.Default;
+      MemoryStream stream = new MemoryStream(sizeof(bool));
+      var valueSerializer = BinaryValueSerializer<Guid>.Default;
       Assert.IsNotNull(valueSerializer);
       Assert.AreEqual(valueSerializer.Implementation.GetType().Name, "GuidValueSerializer");
-      foreach (Guid value in values) {
+      foreach (Guid value in values)
+      {
         stream.Seek(0, SeekOrigin.Begin);
         valueSerializer.Serialize(stream, value);
         stream.Seek(0, SeekOrigin.Begin);
@@ -387,12 +417,13 @@ namespace Xtensive.Core.Tests.Serialization
     [Test]
     public void CharSerializerTest()
     {
-      char[] values = new char[] {char.MinValue, char.MaxValue, ' ', '3'};
-      MemoryStream stream = new MemoryStream(sizeof (char));
-      ValueSerializer<char> valueSerializer = ValueSerializer<char>.Default;
+      char[] values = new char[] { char.MinValue, char.MaxValue, ' ', '3' };
+      MemoryStream stream = new MemoryStream(sizeof(char));
+      var valueSerializer = BinaryValueSerializer<char>.Default;
       Assert.IsNotNull(valueSerializer);
       Assert.AreEqual(valueSerializer.Implementation.GetType().Name, "CharValueSerializer");
-      foreach (char value in values) {
+      foreach (char value in values)
+      {
         stream.Seek(0, SeekOrigin.Begin);
         valueSerializer.Serialize(stream, value);
         stream.Seek(0, SeekOrigin.Begin);
@@ -404,12 +435,13 @@ namespace Xtensive.Core.Tests.Serialization
     [Test]
     public void StringSerializerTest()
     {
-      string[] values = new string[] {string.Empty, null, "", "testString", new string(new char[100000]), Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), Guid.NewGuid().ToString()};
-      MemoryStream stream = new MemoryStream(sizeof (char));
-      ValueSerializer<string> valueSerializer = ValueSerializer<string>.Default;
+      string[] values = new string[] { string.Empty, null, "", "testString", new string(new char[100000]), Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), Guid.NewGuid().ToString() };
+      MemoryStream stream = new MemoryStream(sizeof(char));
+      var valueSerializer = BinaryValueSerializer<string>.Default;
       Assert.IsNotNull(valueSerializer);
       Assert.AreEqual(valueSerializer.Implementation.GetType().Name, "StringValueSerializer");
-      foreach (string value in values) {
+      foreach (string value in values)
+      {
         stream.Seek(0, SeekOrigin.Begin);
         valueSerializer.Serialize(stream, value);
         stream.Seek(0, SeekOrigin.Begin);
@@ -421,7 +453,7 @@ namespace Xtensive.Core.Tests.Serialization
     [Test]
     public void UnknowType()
     {
-      ValueSerializer<SerializerTest> valueSerializer = ValueSerializer<SerializerTest>.Default;
+      var valueSerializer = BinaryValueSerializer<SerializerTest>.Default;
       Assert.IsNull(valueSerializer);
     }
   }

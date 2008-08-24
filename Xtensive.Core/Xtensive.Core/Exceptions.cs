@@ -8,6 +8,7 @@ using System;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Resources;
 using Xtensive.Core.Reflection;
+using Xtensive.Core.Helpers;
 
 namespace Xtensive.Core
 {
@@ -47,7 +48,7 @@ namespace Xtensive.Core
     /// </summary>
     /// <param name="propertyName">Name of the property; <see langword="null"/>, if none.</param>
     /// <returns>Newly created exception.</returns>
-    public static Exception AlreadyInitialized(string propertyName)
+    public static NotSupportedException AlreadyInitialized(string propertyName)
     {
       if (String.IsNullOrEmpty(propertyName))
         return new NotSupportedException(Strings.ExAlreadyInitialized);
@@ -56,12 +57,25 @@ namespace Xtensive.Core
     }
 
     /// <summary>
+    /// Returns an exception informing that object is already disposed.
+    /// </summary>
+    /// <param name="objectName">Name of the object; <see langword="null"/>, if none.</param>
+    /// <returns>Newly created exception.</returns>
+    public static ObjectDisposedException AlreadyDisposed(string objectName)
+    {
+      if (objectName.IsNullOrEmpty())
+        return new ObjectDisposedException(string.Empty, Strings.ExAlreadyDisposed);
+      else
+        return new ObjectDisposedException(objectName);
+    }
+
+    /// <summary>
     /// Returns an exception informing that object or property is not initialized,
     /// or not initialized properly.
     /// </summary>
     /// <param name="propertyName">Name of the property; <see langword="null"/>, if none.</param>
     /// <returns>Newly created exception.</returns>
-    public static Exception NotInitialized(string propertyName)
+    public static InvalidOperationException NotInitialized(string propertyName)
     {
       if (String.IsNullOrEmpty(propertyName))
         return new InvalidOperationException(Strings.ExNotInitialized);

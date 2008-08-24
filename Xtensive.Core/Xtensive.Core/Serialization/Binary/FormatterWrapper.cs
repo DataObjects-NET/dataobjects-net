@@ -15,62 +15,40 @@ namespace Xtensive.Core.Serialization.Binary
   /// Base class for serializers implemented by
   /// wrapping the .Net <see cref="IFormatter"/>.
   /// </summary>
-  public class FormatterWrapper: IValueSerializer
+  public class FormatterWrapper : IValueSerializer<Stream>
   {
     private readonly IFormatter formatter;
 
     /// <summary>
     /// Gets the wrapped formatter.
     /// </summary>
-    protected IFormatter Formatter
-    {
+    protected IFormatter Formatter {
       get { return formatter; }
     }
 
     /// <inheritdoc/>
-    public object Deserialize(Stream stream)
-    {
+    public object Deserialize(Stream stream) {
       return formatter.Deserialize(stream);
     }
 
     /// <inheritdoc/>
-    public void Serialize(Stream stream, object graph)
-    {
+    public void Serialize(Stream stream, object graph) {
       formatter.Serialize(stream, graph);
     }
 
-    #region IContext<SerializationScope> Members
-
-    /// <inheritdoc/>
-    public bool IsActive
-    {
-      get { return ValueSerializationScope.CurrentSerializer==this; }
-    }
-
-    /// <inheritdoc/>
-    IDisposable IContext.Activate()
-    {
-      return Activate();
-    }
-
-    /// <inheritdoc/>
-    public ValueSerializationScope Activate()
-    {
-      return IsActive ? null : new ValueSerializationScope(this);
-    }
-
-    #endregion
-
-    
     // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true" />
     /// </summary>
     /// <param name="formatter">Initial <see cref="Formatter"/> property value.</param>
-    public FormatterWrapper(IFormatter formatter)
-    {
+    public FormatterWrapper(IFormatter formatter) {
       this.formatter = formatter;
+    }
+
+    /// <inheritdoc/>
+    public IValueSerializerProvider<Stream> Provider {
+      get { throw new NotImplementedException(); }
     }
   }
 }

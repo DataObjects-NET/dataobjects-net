@@ -291,9 +291,6 @@
   <data name="ExContextRequired" xml:space="preserve">
     <value>{0} is required. Use {1} to set it.</value>
   </data>
-  <data name="AssertCollectionsArntEqual" xml:space="preserve">
-    <value>Collections arn't equal.</value>
-  </data>
   <data name="ExCantFindAssociate" xml:space="preserve">
     <value>Can't find associated {0} of type '{1}' for type '{2}'.</value>
   </data>
@@ -393,9 +390,6 @@
   <data name="ExMeasurementMustHaveValue" xml:space="preserve">
     <value>Measurement '{0}' must have value.</value>
   </data>
-  <data name="MeasureWithTheNameWasNotFound" xml:space="preserve">
-    <value>Measure with the name '{0}' was not found.</value>
-  </data>
   <data name="AnyCulture" xml:space="preserve">
     <value>*</value>
   </data>
@@ -425,9 +419,6 @@
   </data>
   <data name="Null" xml:space="preserve">
     <value>null</value>
-  </data>
-  <data name="MeasuresAndMeasurementsHaveDifferentAmountOfItems" xml:space="preserve">
-    <value>Measures and measurements have different amount of items.</value>
   </data>
   <data name="Recursive" xml:space="preserve">
     <value>recursive</value>
@@ -522,7 +513,28 @@
   <data name="XIsNotActivated" xml:space="preserve">
     <value>{0} is not activated.</value>
   </data>
-  <data name="ObjectIsAlreadyDisposed" xml:space="preserve">
+  <data name="ExAlreadyDisposed" xml:space="preserve">
     <value>Object is already disposed.</value>
+  </data>
+  <data name="ExInvalidRecordType" xml:space="preserve">
+    <value>Record with invalid (possibly - unspecified) type is found.</value>
+  </data>
+  <data name="ExInvalidSerializerType" xml:space="preserve">
+    <value>Generic parameter T is resolved to associated '{0}', although '{1}' is expected.</value>
+  </data>
+  <data name="ExInvalidFormatterProcessType" xml:space="preserve">
+    <value>'{0}' formatter process type is invalid for the current operation.</value>
+  </data>
+  <data name="ExReferenceIsAlreadyDefined" xml:space="preserve">
+    <value>Reference '{0}' is already defined.</value>
+  </data>
+  <data name="ExReferenceIsNotResolvedYet" xml:space="preserve">
+    <value>Reference '{0}' is not resolved yet.</value>
+  </data>
+  <data name="ExReferenceIsNull" xml:space="preserve">
+    <value>Reference points to null.</value>
+  </data>
+  <data name="ReferenceFormat" xml:space="preserve">
+    <value>#({0})</value>
   </data>
 </root>

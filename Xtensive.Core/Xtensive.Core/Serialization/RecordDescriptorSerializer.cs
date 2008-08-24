@@ -6,26 +6,34 @@
 
 namespace Xtensive.Core.Serialization
 {
-  public class RecordDescriptorSerializer : SerializerBase<RecordDescriptor>
+  /// <inheritdoc/>
+  public class RecordDescriptorSerializer : ObjectSerializerBase<RecordDescriptor>
   {
-    public override RecordDescriptor CreateObject(SerializationData data, SerializationContext context)
-    {
-      return new RecordDescriptor(data.GetValue<string>("Assembly"), data.GetValue<string>("Type"));
+    /// <inheritdoc/>
+    public override RecordDescriptor CreateObject() {
+      return new RecordDescriptor(typeof (RecordDescriptor));
     }
 
-    public override void GetObjectData(RecordDescriptor obj, SerializationData data, SerializationContext context)
-    {
-      data.AddValue("Type", obj.FullTypeName);
+    /// <inheritdoc/>
+    public override void GetObjectData(RecordDescriptor obj, SerializationData data) {
+      data.AddValue("Type", obj.TypeName);
       data.AddValue("Assembly", obj.AssemblyName);
     }
 
-    public override void SetObjectData(RecordDescriptor obj, SerializationData data, SerializationContext context)
-    {
+    /// <inheritdoc/>
+    public override RecordDescriptor SetObjectData(RecordDescriptor obj, SerializationData data) {
+      var descriptor = new RecordDescriptor(data.GetValue<string>("Assembly"), data.GetValue<string>("Type"));
+      SerializationContext.Current.Formatter.RegisterDescriptor(descriptor);
+      return null;
     }
 
-    public RecordDescriptorSerializer(ISerializerProvider provider)
-      : base(provider)
-    {
+    /// <inheritdoc/>
+    public override bool IsReferable {
+      get { return false; }
     }
+
+    /// <inheritdoc/>
+    public RecordDescriptorSerializer(IObjectSerializerProvider provider)
+      : base(provider) {}
   }
 }

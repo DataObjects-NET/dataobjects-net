@@ -52,6 +52,7 @@ namespace Xtensive.Core
     /// Gets or sets the <see cref="IResource"/> object this instance is bound to.
     /// </summary>
     /// <value>The <see cref="IResource"/>.</value>
+    /// <exception cref="ObjectDisposedException">Scope is already disposed.</exception>
     protected TResource Resource
     {
       [DebuggerStepThrough]
@@ -60,7 +61,7 @@ namespace Xtensive.Core
       set 
       { 
         if (isDisposed)
-          throw new InvalidOperationException(Strings.ObjectIsAlreadyDisposed);
+          throw Exceptions.AlreadyDisposed(null);
         resource = value; 
       }
     }

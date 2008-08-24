@@ -12,26 +12,21 @@ using Xtensive.Core.Resources;
 namespace Xtensive.Core.Serialization.Binary
 {
   [Serializable]
-  internal class BooleanValueSerializer : ValueSerializerBase<bool>
+  internal class BooleanValueSerializer : BinaryValueSerializerBase<bool>
   {
-    public override Boolean Deserialize(Stream stream)
-    {
+    public override Boolean Deserialize(Stream stream) {
       if (stream.Length - stream.Position < sizeof (Boolean))
         throw new SerializationException(Strings.ExDeserializationStreamLengthIncorrect);
-      return stream.ReadByte()==0x01;
+      return stream.ReadByte() == 0x01;
     }
 
-    public override void Serialize(Stream stream, Boolean value)
-    {
-      stream.WriteByte(value ? (byte)0x01 : (byte)0x00);
+    public override void Serialize(Stream stream, Boolean value) {
+      stream.WriteByte(value ? (byte) 0x01 : (byte) 0x00);
     }
-
 
     // Constructors
 
-    public BooleanValueSerializer(IValueSerializerProvider provider)
-      : base(provider)
-    {
-    }
+    public BooleanValueSerializer(IBinaryValueSerializerProvider provider)
+      : base(provider) {}
   }
 }

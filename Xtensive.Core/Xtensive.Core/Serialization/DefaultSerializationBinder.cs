@@ -11,8 +11,7 @@ namespace Xtensive.Core.Serialization
 {
   internal class DefaultSerializationBinder : SerializationBinder
   {
-    public override Type BindToType(string assemblyName, string typeName)
-    {
+    public override Type BindToType(string assemblyName, string typeName) {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(assemblyName, "assemblyName");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(typeName, "typeName");
 

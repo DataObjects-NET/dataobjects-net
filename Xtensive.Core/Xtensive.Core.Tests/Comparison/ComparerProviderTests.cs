@@ -27,7 +27,7 @@ namespace Xtensive.Core.Tests.Comparison
     {
       AdvancedComparer<short> comparer = AdvancedComparer<short>.Default;
       Assert.IsNotNull(comparer.Compare);
-      IValueSerializer serializer = ValueSerializationScope.CurrentSerializer;
+      IValueSerializer<Stream> serializer = ValueSerializationScope.CurrentSerializer;
       MemoryStream ms = new MemoryStream();
       serializer.Serialize(ms, comparer);
       ms.Seek(0, SeekOrigin.Begin);

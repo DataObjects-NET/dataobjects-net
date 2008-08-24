@@ -8,66 +8,108 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
 
 namespace Xtensive.Core.Serialization
 {
+  /// <summary>
+  /// Configuration for <see cref="Formatter"/>.
+  /// </summary>
   [Serializable]
   public abstract class FormatterConfiguration : ConfigurationBase
   {
     private SerializationBinder binder;
     private FormatterAssemblyStyle assemblyStyle;
     private FormatterTypeStyle typeFormat;
-    private List<Pair<string, string>> serializerLocations = new List<Pair<string, string>>(2);
+    private IList<Pair<string, string>> serializerLocations = new List<Pair<string, string>>(2);
+    private bool preferNesting;
 
     /// <summary>
     /// Gets or sets the <see cref="SerializationBinder"/> that performs type lookups during deserialization.
     /// </summary>
     /// <value>The binder.</value>
-    public SerializationBinder Binder
-    {
+    public SerializationBinder Binder {
       get { return binder; }
-      set
-      {
+      set {
         ArgumentValidator.EnsureArgumentNotNull(value, "value");
+        this.EnsureNotLocked();
         binder = value;
       }
     }
 
     /// <summary>
-    /// Gets or sets the behavior of the deserializer with regards to finding and loading assemblies.
+    /// Gets the behavior of the formatter describing how to find and load assemblies.
     /// </summary>
-    /// <value>One of the <see cref="FormatterAssemblyStyle"/> values that specifies the deserializer behavior.</value>
     public FormatterAssemblyStyle AssemblyStyle
     {
       get { return assemblyStyle; }
-      set { assemblyStyle = value; }
+      set {
+        this.EnsureNotLocked();
+        assemblyStyle = value;
+      }
     }
 
     /// <summary>
-    /// Gets or sets the format in which type descriptions are laid out in the serialized stream.
+    /// Gets the format in which type descriptions are stored in the serialized stream.
     /// </summary>
-    /// <value>The format in which type descriptions are laid out in the serialized stream.</value>
     public FormatterTypeStyle TypeFormat
     {
       get { return typeFormat; }
-      set { typeFormat = value; }
+      set {
+        this.EnsureNotLocked();
+        typeFormat = value;
+      }
     }
 
     /// <summary>
-    /// Gets the serializer locations.
+    /// Gets the list of serializer locations.
     /// </summary>
-    /// <value>The serializer locations.</value>
-    public List<Pair<string, string>> SerializerLocations
-    {
+    /// <exception cref="NotSupportedException">Always thrown on attempt to set this property.</exception>
+    public IList<Pair<string, string>> SerializerLocations {
       get { return serializerLocations; }
+      set {
+        throw Exceptions.AlreadyInitialized("SerializerLocations");
+      }
+    }
+
+    /// <summary>
+    /// Specifies when it's preferable to serialize the objects using 
+    /// "depth traversal" rather then "wide traversal".
+    /// </summary>
+    public bool PreferNesting
+    {
+      get { return preferNesting; }
+      set {
+        this.EnsureNotLocked();
+        preferNesting = value;
+      }
     }
 
     /// <inheritdoc/>
-    public override void Validate()
+    public override void Lock(bool recursive)
+    {
+      base.Lock(recursive);
+      serializerLocations = new ReadOnlyList<Pair<string, string>>(serializerLocations);
+    }
+
+    /// <inheritdoc/>
+    public override void Validate() 
     {
       if (binder == null)
         binder = new DefaultSerializationBinder();
+    }
+
+    /// <inheritdoc/>
+    protected override void Clone(ConfigurationBase source)
+    {
+      base.Clone(source);
+      var other = (FormatterConfiguration) source;
+      binder = other.binder;
+      assemblyStyle = other.assemblyStyle;
+      typeFormat = other.typeFormat;
+      serializerLocations = new List<Pair<string, string>>(other.serializerLocations);
+      preferNesting = other.preferNesting;
     }
   }
 }

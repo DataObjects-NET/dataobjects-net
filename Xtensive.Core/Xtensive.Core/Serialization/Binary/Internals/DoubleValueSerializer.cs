@@ -12,10 +12,9 @@ using Xtensive.Core.Resources;
 namespace Xtensive.Core.Serialization.Binary
 {
   [Serializable]
-  internal class DoubleValueSerializer : ValueSerializerBase<double>
+  internal class DoubleValueSerializer : BinaryValueSerializerBase<double>
   {
-    public override Double Deserialize(Stream stream)
-    {
+    public override Double Deserialize(Stream stream) {
       if (stream.Length - stream.Position < sizeof (Double))
         throw new SerializationException(Strings.ExDeserializationStreamLengthIncorrect);
       byte[] buffer = new byte[sizeof (Double)];
@@ -23,18 +22,14 @@ namespace Xtensive.Core.Serialization.Binary
       return BitConverter.ToDouble(buffer, 0);
     }
 
-    public override void Serialize(Stream stream, Double value)
-    {
+    public override void Serialize(Stream stream, Double value) {
       byte[] buffer = BitConverter.GetBytes(value);
       stream.Write(buffer, 0, sizeof (Double));
     }
 
-
     // Constructors
 
-    public DoubleValueSerializer(IValueSerializerProvider provider)
-      : base(provider)
-    {
-    }
+    public DoubleValueSerializer(IBinaryValueSerializerProvider provider)
+      : base(provider) {}
   }
 }

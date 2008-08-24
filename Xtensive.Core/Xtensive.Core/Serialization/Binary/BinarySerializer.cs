@@ -20,7 +20,7 @@ namespace Xtensive.Core.Serialization.Binary
   /// <remarks>
   /// <para id="About"><see cref="SingletonDocTemplate" copy="true" /></para>
   /// </remarks>
-  public class BinarySerializer: FormatterWrapper
+  public class BinarySerializer : FormatterWrapper
   {
     [ThreadStatic]
     private static BinarySerializer instance;
@@ -29,7 +29,7 @@ namespace Xtensive.Core.Serialization.Binary
     public static BinarySerializer Instance {
       [DebuggerStepThrough]
       get {
-        if (instance==null)
+        if (instance == null)
           instance = new BinarySerializer();
         return instance;
       }
@@ -40,23 +40,20 @@ namespace Xtensive.Core.Serialization.Binary
     /// </summary>
     /// <param name="graph">The graph to clone.</param>
     /// <returns>Clone of the <paramref name="graph"/>.</returns>
-    public static object Clone(object graph)
-    {
+    public static object Clone(object graph) {
       MemoryStream stream = new MemoryStream();
       Instance.Serialize(stream, graph);
       stream.Seek(0, SeekOrigin.Begin);
       return Instance.Deserialize(stream);
     }
 
-
     // Constructors 
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true" />
     /// </summary>
-    public BinarySerializer() 
-      : base(new BinaryFormatter())
-    {
+    public BinarySerializer()
+      : base(new BinaryFormatter()) {
       BinaryFormatter formatter = (BinaryFormatter) Formatter;
       formatter.AssemblyFormat = FormatterAssemblyStyle.Simple;
     }

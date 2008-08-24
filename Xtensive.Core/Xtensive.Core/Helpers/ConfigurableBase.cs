@@ -34,8 +34,8 @@ namespace Xtensive.Core.Helpers
     }
 
     /// <inheritdoc/>
-    public TConfiguration Configuration
-    {
+    public TConfiguration Configuration {
+      [DebuggerStepThrough]
       get {
         EnsureConfigured();
         return configuration;
@@ -48,6 +48,7 @@ namespace Xtensive.Core.Helpers
     /// <see cref="Configuration"/> property is successfully set, or
     /// <see cref="Configure"/> method is successfully called.
     /// </summary>
+    /// <exception cref="InvalidOperationException"><see cref="Configuration"/> property is not initialized.</exception>
     protected void EnsureConfigured()
     {
       if (!isConfigured)
@@ -55,6 +56,7 @@ namespace Xtensive.Core.Helpers
     }
 
     /// <inheritdoc/>
+    /// <exception cref="NotSupportedException"><see cref="Configuration"/> property is already initialized.</exception>
     public virtual void Configure(TConfiguration configuration)
     {
       if (isConfigured)
@@ -64,8 +66,8 @@ namespace Xtensive.Core.Helpers
 
       this.configuration = configuration;
       try {
-        IConfiguration iConfiguration = this.configuration as IConfiguration;
-        ILockable lockable = this.configuration as ILockable;
+        var iConfiguration = this.configuration as IConfiguration;
+        var lockable = this.configuration as ILockable;
         if (iConfiguration!=null)
           iConfiguration.Validate();
         if (lockable!=null)

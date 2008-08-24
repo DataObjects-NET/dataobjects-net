@@ -12,10 +12,9 @@ using Xtensive.Core.Resources;
 namespace Xtensive.Core.Serialization.Binary
 {
   [Serializable]
-  internal class GuidValueSerializer : ValueSerializerBase<Guid>
+  internal class GuidValueSerializer : BinaryValueSerializerBase<Guid>
   {
-    public override Guid Deserialize(Stream stream)
-    {
+    public override Guid Deserialize(Stream stream) {
       if (stream.Length - stream.Position < 16)
         throw new SerializationException(Strings.ExDeserializationStreamLengthIncorrect);
       Byte[] buffer = new byte[16];
@@ -23,17 +22,13 @@ namespace Xtensive.Core.Serialization.Binary
       return new Guid(buffer);
     }
 
-    public override void Serialize(Stream stream, Guid value)
-    {
+    public override void Serialize(Stream stream, Guid value) {
       stream.Write(value.ToByteArray(), 0, 16);
     }
 
-
     // Constructors
 
-    public GuidValueSerializer(IValueSerializerProvider provider)
-      : base(provider)
-    {
-    }
+    public GuidValueSerializer(IBinaryValueSerializerProvider provider)
+      : base(provider) {}
   }
 }

@@ -4,20 +4,22 @@
 // Created by: Dmitri Maximov
 // Created:    2008.03.28
 
+using System.Collections;
+using System.Collections.Generic;
+
 namespace Xtensive.Core.Serialization
 {
-  public abstract class RecordReader
+  /// <summary>
+  /// Base class for reading from serialized data.
+  /// </summary>
+  public abstract class RecordReader : IEnumerable<Record>
   {
-    ///<summary>
-    /// Advances the <see cref="RecordReader"/> to the next record.
-    ///</summary>
-    ///<returns><see langword="true"/> if there are more records; otherwise <see langword="false"/>.</returns>
-    public abstract bool Read();
+    /// <inheritdoc/>
+    public abstract IEnumerator<Record> GetEnumerator();
 
-    /// <summary>
-    /// Gets the current record.
-    /// </summary>
-    /// <value>The current record.</value>
-    public abstract Record GetRecord();
+    /// <inheritdoc/>
+    IEnumerator IEnumerable.GetEnumerator() {
+      return GetEnumerator();
+    }
   }
 }

@@ -12,10 +12,9 @@ using Xtensive.Core.Resources;
 namespace Xtensive.Core.Serialization.Binary
 {
   [Serializable]
-  internal class SingleValueSerializer : ValueSerializerBase<float>
+  internal class SingleValueSerializer : BinaryValueSerializerBase<float>
   {
-    public override Single Deserialize(Stream stream)
-    {
+    public override Single Deserialize(Stream stream) {
       if (stream.Length - stream.Position < sizeof (Single))
         throw new SerializationException(Strings.ExDeserializationStreamLengthIncorrect);
       byte[] buffer = new byte[sizeof (Single)];
@@ -23,18 +22,14 @@ namespace Xtensive.Core.Serialization.Binary
       return BitConverter.ToSingle(buffer, 0);
     }
 
-    public override void Serialize(Stream stream, Single value)
-    {
+    public override void Serialize(Stream stream, Single value) {
       byte[] buffer = BitConverter.GetBytes(value);
       stream.Write(buffer, 0, sizeof (Single));
     }
 
-
     // Constructors
 
-    public SingleValueSerializer(IValueSerializerProvider provider)
-      : base(provider)
-    {
-    }
+    public SingleValueSerializer(IBinaryValueSerializerProvider provider)
+      : base(provider) {}
   }
 }

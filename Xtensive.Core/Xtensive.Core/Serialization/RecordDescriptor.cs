@@ -5,44 +5,57 @@
 // Created:    2008.03.26
 
 using System;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.Serialization
 {
+  /// <summary>
+  /// Contains the information about the serialized type.
+  /// </summary>
   [Serializable]
   public class RecordDescriptor
   {
-    private readonly string assemblyName;
-    private readonly string fullTypeName;
+    /// <summary>
+    /// Gets full name of type.
+    /// </summary>
+    public string TypeName { get; private set; }
 
-    public string FullTypeName
-    {
-      get { return fullTypeName; }
-    }
-
-    public string AssemblyName
-    {
-      get { return assemblyName; }
-    }
+    /// <summary>
+    /// Gets full name of the assembly containing the type.
+    /// </summary>
+    public string AssemblyName { get; private set; }
 
     /// <inheritdoc/>
-    public override string ToString()
+    public override string ToString() 
     {
-      return string.Format("Assembly: {0}, Type: {1}", AssemblyName, FullTypeName);
+      return string.Format("Assembly: {0}, Type: {1}", AssemblyName, TypeName);
     }
 
-    public RecordDescriptor(string assemblyName, string fullTypeName)
+
+    // Constructors
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="assemblyName">Name of assembly containing type.</param>
+    /// <param name="fullTypeName">Full name of type.</param>
+    public RecordDescriptor(string assemblyName, string fullTypeName) 
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(assemblyName, "assemblyName");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(fullTypeName, "fullTypeName");
-      this.assemblyName = assemblyName;
-      this.fullTypeName = fullTypeName;
+      AssemblyName = assemblyName;
+      TypeName = fullTypeName;
     }
 
-    public RecordDescriptor(Type type)
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="type">Type to represent.</param>
+    public RecordDescriptor(Type type) 
     {
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
-      fullTypeName = type.FullName;
-      assemblyName = type.Assembly.FullName;
+      TypeName = type.FullName;
+      AssemblyName = type.Assembly.FullName;
     }
   }
 }

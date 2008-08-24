@@ -12,16 +12,15 @@ namespace Xtensive.Core.Serialization
   /// <summary>
   /// Log for this namespace.
   /// </summary>
-  public sealed class Log: LogTemplate<Log>
+  public sealed class Log : LogTemplate<Log>
   {
     // Copy-paste this code!
     /// <summary>
     /// Log name.
     /// </summary>
     public static readonly string Name;
-    
-    static Log()
-    {
+
+    static Log() {
       string className = MethodInfo.GetCurrentMethod().DeclaringType.FullName;
       Name = className.Substring(0, className.LastIndexOf('.'));
     }

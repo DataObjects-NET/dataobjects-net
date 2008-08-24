@@ -6,55 +6,144 @@
 
 using System;
 using System.Collections.Generic;
+using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Resources;
 
 namespace Xtensive.Core.Serialization
 {
+  /// <summary>
+  /// Manages <see cref="IReference"/> objects during 
+  /// serialization and deserialization.
+  /// </summary>
   public class ReferenceManager
   {
-    private Dictionary<IReference, object> referenceTable = new Dictionary<IReference, object>(64);
-    private long regularCounter;
-    private long surrogateCounter;
+    private readonly SerializationContext context;
+    internal readonly HashSet<Type> resolvedTypes = new HashSet<Type>();
+    private readonly Dictionary<IReference, object> refToObj;
+    private readonly Dictionary<object, IReference> objToRef;
+    private int nextReferenceValue;
 
-    private long GenerateId()
+    /// <summary>
+    /// Gets the next reference <see cref="IReference.Value"/> property value.
+    /// </summary>
+    /// <returns>Next reference <see cref="IReference.Value"/> property value.</returns>
+    public string GetNextReferenceValue()
     {
-      return ++regularCounter;
+      return (nextReferenceValue++).ToString();
     }
 
-    private long GenerateSurrogateId()
+    /// <summary>
+    /// Sets the object corresponding to the reference.
+    /// </summary>
+    /// <param name="reference">Reference to the object.</param>
+    /// <param name="target">Object.</param>
+    /// <exception cref="InvalidOperationException">Reference points to <see langword="null" />, 
+    /// or is already defined.</exception>
+    public void Define(IReference reference, object target) 
     {
-      return --surrogateCounter;
+      reference.EnsureNotNull();
+      object currentTarget;
+      if (TryResolve(reference, out currentTarget) && !ReferenceEquals(target, currentTarget))
+        throw new InvalidOperationException(string.Format(
+          Strings.ExReferenceIsAlreadyDefined,
+          reference));
+      refToObj[reference] = target;
+      if (reference.IsUnique)
+        // TODO: Add a check for uniqueness here
+        objToRef[target] = reference;
     }
 
-    public void Update(IReference reference, object newValue)
+    /// <summary>
+    /// Tries to resolve the reference.
+    /// </summary>
+    /// <param name="reference">The reference to resolve.</param>
+    /// <param name="target">The object reference is pointing to.</param>
+    /// <returns>
+    /// <see langword="True"/> if reference was resolved successfully;
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    public bool TryResolve(IReference reference, out object target) 
     {
-      if (reference.IsEmpty)
-        return;
-      object currentValue = Resolve(reference);
-      if (currentValue != null && !ReferenceEquals(currentValue, newValue))
-        throw new InvalidOperationException("Duplicate values for the same reference.");
-      referenceTable[reference] = newValue;
+      reference.EnsureNotNull();
+      return refToObj.TryGetValue(reference, out target);
     }
 
-    public object Resolve(IReference objRef)
+    /// <summary>
+    /// Gets an existing reference to the specified object,
+    /// or creates a new one.
+    /// </summary>
+    /// <param name="target">Object to get the reference to.</param>
+    /// <returns>An existing or a new reference to the specified object.</returns>
+    public IReference GetReference(object target) 
     {
-      if (objRef.IsEmpty)
-        return null;
-      object obj;
-      referenceTable.TryGetValue(objRef, out obj);
-      return obj;
+      bool isNew;
+      return GetReference(target, out isNew);
     }
 
-    public IReference CreateReference(long id)
+    /// <summary>
+    /// Gets an existing reference to the specified object,
+    /// or creates a new one.
+    /// </summary>
+    /// <param name="target">Object to get the reference to.</param>
+    /// <param name="isNew">Indicates whether returned reference is a new one.</param>
+    /// <returns>An existing or a new reference to the specified object.</returns>
+    public IReference GetReference(object target, out bool isNew) 
     {
-      Reference r = new Reference(id);
-      if (!r.IsEmpty && !referenceTable.ContainsKey(r))
-        referenceTable[r] = null;
-      return r;
+      IReference reference;
+      if (target == null) {
+        isNew = false;
+        return Reference.Null;
+      }
+      if (objToRef.ContainsKey(target)) {
+        isNew = false;
+        return objToRef[target];
+      }
+      else {
+        var type = target.GetType();
+        if (!resolvedTypes.Contains(type)) {
+          var formatter = context.Formatter;
+          formatter.RegisterDescriptor(formatter.CreateDescriptor(type));
+          resolvedTypes.Add(type);
+        }
+        reference = CreateReference(target);
+        isNew = true;
+      }
+
+      if (isNew) {
+      }
+      return reference;
     }
 
-    public IReference CreateSurrogate()
+    public IReference CreateReference(object obj)
     {
-      return new Reference(GenerateSurrogateId());
+      return new Reference(obj);
+    }
+
+    /// <exception cref="InvalidOperationException">Current formatter process type 
+    /// differs from the <paramref name="expectedProcessType"/>.</exception>
+    private void EnsureFormatterProcessTypeIs(FormatterProcessType expectedProcessType) 
+    {
+      if (context.ProcessType != expectedProcessType)
+        throw new InvalidOperationException(string.Format(
+          Strings.ExInvalidFormatterProcessType,
+          context.ProcessType));
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="context"><see cref="SerializationContext"/> to operate in.</param>
+    public ReferenceManager(SerializationContext context) 
+    {
+      this.context = context;
+      if (context.ProcessType == FormatterProcessType.Serialization) {
+        refToObj = null;
+        objToRef = new Dictionary<object, IReference>(64);
+      }
+      else {
+        refToObj = new Dictionary<IReference, object>(64);
+        objToRef = null;
+      }
     }
   }
 }
