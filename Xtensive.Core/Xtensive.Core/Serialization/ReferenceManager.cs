@@ -119,15 +119,8 @@ namespace Xtensive.Core.Serialization
       return new Reference(obj);
     }
 
-    /// <exception cref="InvalidOperationException">Current formatter process type 
-    /// differs from the <paramref name="expectedProcessType"/>.</exception>
-    private void EnsureFormatterProcessTypeIs(FormatterProcessType expectedProcessType) 
-    {
-      if (context.ProcessType != expectedProcessType)
-        throw new InvalidOperationException(string.Format(
-          Strings.ExInvalidFormatterProcessType,
-          context.ProcessType));
-    }
+
+    // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
