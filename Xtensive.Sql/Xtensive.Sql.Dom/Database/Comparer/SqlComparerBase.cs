@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Runtime.Serialization;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
@@ -53,40 +54,19 @@ namespace Xtensive.Sql.Dom.Database.Comparer
             && hint.GetType()==typeof (THintType)).Convert(hint => (RenameHint) hint);
     }
 
-    protected static void ValidateArguments(T originalNode, T newNode)
-    {
-      if (ReferenceEquals(originalNode, null) && ReferenceEquals(newNode, null)) {
-        throw new InvalidOperationException(Resources.Strings.ExBothComparisonNodesAreNull);
-      }
-    }
-
-    protected void ProcessDbName(T originalNode, T newNode, ComparisonResult<T> result)
-    {
-      if (result is NodeComparisonResult<T> && typeof (T).IsSubclassOf(typeof (Node))) {
-        var nameResult = new ComparisonResult<string>();
-        string originalName = ReferenceEquals(originalNode, null) ? null : ((Node) (object) originalNode).DbName;
-        string newName = ReferenceEquals(newNode, null) ? null : ((Node) (object) newNode).DbName;
-        nameResult.OriginalValue = originalName;
-        nameResult.NewValue = newName;
-        if (originalName==newName)
-          nameResult.ResultType = ComparisonResultType.Unchanged;
-        else
-          nameResult.ResultType = originalName==null ? ComparisonResultType.Added : ComparisonResultType.Removed;
-        ((NodeComparisonResult<T>) result).DbName = nameResult;
-      }
-    }
-
-    protected static bool GetComparisonPairs<TNested>(IEnumerable<TNested> originalNests, IEnumerable<TNested> newNests, IEnumerable<ComparisonHintBase> hints, ref SqlComparerStruct<TNested> comparer, ICollection<ComparisonResult<TNested>> results) where TNested : class
+    protected static bool CompareNestedNodes<TNested, TResultType>(IEnumerable<TNested> originalNests, IEnumerable<TNested> newNests, IEnumerable<ComparisonHintBase> hints, SqlComparerStruct<TNested> comparer, ICollection<TResultType> results) 
+      where TNested : class 
+      where TResultType : ComparisonResult<TNested>
     {
       if (originalNests==null && newNests==null)
         return false;
-        bool hasChanges = false;
+      bool hasChanges = false;
       if (originalNests==null) {
         foreach (var newNest in newNests) {
           ComparisonResult<TNested> compare = comparer.Compare((TNested) null, newNest, hints);
           if (compare.HasChanges)
             hasChanges = true;
-          results.Add(compare);
+          results.Add((TResultType) compare);
         }
         return hasChanges;
       }
@@ -95,7 +75,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
           ComparisonResult<TNested> compare = comparer.Compare(originalNest, (TNested) null, hints);
           if (compare.HasChanges)
             hasChanges = true;
-          results.Add(compare);
+          results.Add((TResultType) compare);
         }
         return hasChanges;
       }
@@ -117,15 +97,15 @@ namespace Xtensive.Sql.Dom.Database.Comparer
             originalNodes.Remove(originalNode);
           }
           ComparisonResult<TNested> compare = comparer.Compare(originalNode, newNest, hints);
-          if (compare.HasChanges) 
+          if (compare.HasChanges)
             hasChanges = true;
-          results.Add(compare);
+          results.Add((TResultType) compare);
         }
         foreach (TNested originalNode in originalNodes) {
           ComparisonResult<TNested> compare = comparer.Compare(originalNode, null, hints);
           if (compare.HasChanges)
             hasChanges = true;
-          results.Add(compare);
+          results.Add((TResultType) compare);
         }
         return hasChanges;
       }
@@ -141,15 +121,55 @@ namespace Xtensive.Sql.Dom.Database.Comparer
             compare = comparer.Compare(originalEnumerator.Current, null, hints);
           if (compare.HasChanges)
             hasChanges = true;
-          results.Add(compare);
+          results.Add((TResultType) compare);
         }
         while (newEnumerator.MoveNext()) {
           ComparisonResult<TNested> compare = comparer.Compare(originalEnumerator.Current, newEnumerator.Current, hints);
           if (compare.HasChanges)
             hasChanges = true;
-          results.Add(compare);
+          results.Add((TResultType) compare);
         }
         return hasChanges;
+      }
+    }
+
+    protected TResult InitializeResult<TNode, TResult>(TNode originalNode, TNode newNode)
+      where TNode : Node
+      where TResult : ComparisonResult<TNode>, new()
+    {
+      if (ReferenceEquals(originalNode, null) && ReferenceEquals(newNode, null))
+        throw new InvalidOperationException(Resources.Strings.ExBothComparisonNodesAreNull);
+      var result = new TResult();
+      ProcessDbName(originalNode, newNode, result);
+      if (originalNode==null)
+        result.ResultType = ComparisonResultType.Added;
+      else if (newNode==null)
+        result.ResultType = ComparisonResultType.Removed;
+      result.OriginalValue = originalNode;
+      result.NewValue = newNode;
+      return result;
+    }
+
+    protected void ProcessDbName<TNode>(TNode originalNode, TNode newNode, ComparisonResult<TNode> result)
+    {
+      if (result is NodeComparisonResult<TNode> && typeof(T).IsSubclassOf(typeof(Node))) {
+        var nameResult = new ComparisonResult<string>();
+        string originalName = ReferenceEquals(originalNode, null) ? null : ((Node) (object) originalNode).DbName;
+        string newName = ReferenceEquals(newNode, null) ? null : ((Node) (object) newNode).DbName;
+        nameResult.OriginalValue = originalName;
+        nameResult.NewValue = newName;
+        if (originalName==newName)
+          nameResult.ResultType = ComparisonResultType.Unchanged;
+        else if (originalName==null)
+          nameResult.ResultType = ComparisonResultType.Added;
+        else if (newName==null)
+          nameResult.ResultType = ComparisonResultType.Removed;
+        else
+          nameResult.ResultType = ComparisonResultType.Modified;
+        ((NodeComparisonResult<TNode>) result).DbName = nameResult;
+        if (result.ResultType==ComparisonResultType.Unchanged
+          && nameResult.ResultType!=ComparisonResultType.Unchanged)
+          result.ResultType = ComparisonResultType.Modified;
       }
     }
 

@@ -24,21 +24,21 @@ namespace Xtensive.Sql.Dom.Database.Comparer
 
     public override ComparisonResult<Schema> Compare(Schema originalNode, Schema newNode, IEnumerable<ComparisonHintBase> hints)
     {
-      ValidateArguments(originalNode, newNode);
-      var result = new SchemaComparisonResult();
-      ProcessDbName(originalNode, newNode, result);
-      if (originalNode==null) {
-        result.ResultType = ComparisonResultType.Added;
-      }
-      else if (newNode==null) {
-        result.ResultType = ComparisonResultType.Removed;
-      }
-      result.OriginalValue = originalNode;
-      result.NewValue = newNode;
+      SchemaComparisonResult result = InitializeResult<Schema, SchemaComparisonResult>(originalNode, newNode);
+      bool hasChanges = false;
       result.Owner = (NodeComparisonResult<User>)userComparer.Compare(originalNode == null ? null : originalNode.Owner, newNode == null ? null : newNode.Owner, hints);
       result.DefaultCharacterSet = (NodeComparisonResult<CharacterSet>)characterSetComparer.Compare(originalNode == null ? null : originalNode.DefaultCharacterSet, newNode == null ? null : newNode.DefaultCharacterSet, hints);
+      hasChanges |= CompareNestedNodes(originalNode == null ? null : originalNode.Tables, newNode == null ? null : newNode.Tables, hints, tableComparer, result.Tables);
+      hasChanges |= CompareNestedNodes(originalNode == null ? null : originalNode.Views, newNode == null ? null : newNode.Views, hints, viewComparer, result.Views);
+      hasChanges |= CompareNestedNodes(originalNode == null ? null : originalNode.Assertions, newNode == null ? null : newNode.Assertions, hints, assertionComparer, result.Assertions);
+      hasChanges |= CompareNestedNodes(originalNode == null ? null : originalNode.CharacterSets, newNode == null ? null : newNode.CharacterSets, hints, characterSetComparer, result.CharacterSets);
+      hasChanges |= CompareNestedNodes(originalNode == null ? null : originalNode.Collations, newNode == null ? null : newNode.Collations, hints, collationComparer, result.Collations);
+      hasChanges |= CompareNestedNodes(originalNode == null ? null : originalNode.Translations, newNode == null ? null : newNode.Translations, hints, translationComparer, result.Translations);
+      hasChanges |= CompareNestedNodes(originalNode == null ? null : originalNode.Domains, newNode == null ? null : newNode.Domains, hints, domainComparer, result.Domains);
+      hasChanges |= CompareNestedNodes(originalNode == null ? null : originalNode.Sequences, newNode == null ? null : newNode.Sequences, hints, sequenceComparer, result.Sequences);
+      if (hasChanges)
+        result.ResultType = ComparisonResultType.Modified;
       return result;
-      throw new NotImplementedException();
     }
 
     public SchemaSqlComparer(ISqlComparerProvider provider)
