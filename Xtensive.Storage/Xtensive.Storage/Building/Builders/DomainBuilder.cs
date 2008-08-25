@@ -5,6 +5,7 @@
 // Created:    2007.08.03
 
 using System;
+using System.Collections;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -197,23 +198,19 @@ namespace Xtensive.Storage.Building.Builders
       using (Log.InfoRegion(Strings.LogCreatingX, "persistent objects prototypes")) {
         var domain = BuildingContext.Current.Domain;
         foreach (TypeInfo type in domain.Model.Types.Where(t => !t.IsInterface)) {
-          Tuple prototype = Tuple.Create(type.TupleDescriptor);
+          BitArray nullableMap = new BitArray(type.TupleDescriptor.Count);
           int i = 0;
           foreach (ColumnInfo column in type.Columns) {
             if (column.IsNullable)
-              prototype.SetValue(i, null);
-            else if (column.ValueType == typeof(string))
-              prototype.SetValue(i, string.Empty);
-            else if (column.ValueType == typeof(byte[]))
-              prototype.SetValue(i, new byte[0]);
-            else
-              prototype.SetValue(i, prototype.GetValueOrDefault(i));
-            i++;
+              nullableMap[i++] = true;
           }
+          Tuple prototype = Tuple.Create(type.TupleDescriptor);
+          prototype.Initialize(nullableMap);
           if (type.IsEntity) {
             FieldInfo typeIdField = type.Fields[NameBuilder.TypeIdFieldName];
             prototype.SetValue(typeIdField.MappingInfo.Offset, type.TypeId);
           }
+          Log.Info("Type '{0}': {1}", type, prototype);
           domain.Prototypes[type] = prototype;
         }
       }
