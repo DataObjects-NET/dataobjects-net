@@ -19,7 +19,6 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   {
     private readonly Type type;
     private string name;
-    private bool hasChanges;
     private ComparisonResultType resultType;
 
     /// <summary>
@@ -27,12 +26,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     /// </summary>
     public bool HasChanges
     {
-      get { return hasChanges; }
-      internal set
-      {
-        this.EnsureNotLocked();
-        hasChanges = value;
-      }
+      get { return resultType!=ComparisonResultType.Unchanged; }
     }
 
     /// <summary>

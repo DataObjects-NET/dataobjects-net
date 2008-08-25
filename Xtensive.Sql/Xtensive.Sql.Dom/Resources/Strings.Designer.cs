@@ -142,6 +142,15 @@ namespace Xtensive.Sql.Dom.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Multiple rename hints found for type &apos;{0}&apos; with name &apos;{1}&apos;..
+        /// </summary>
+        internal static string ExMultipleRenameHintsFoundForTypeXxx {
+            get {
+                return ResourceManager.GetString("ExMultipleRenameHintsFoundForTypeXxx", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Position value should be greater than zero..
         /// </summary>
         internal static string ExPositionValueShouldBeGreaterThanZero {

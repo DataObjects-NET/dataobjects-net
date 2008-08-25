@@ -7,7 +7,7 @@
 using System;
 using Xtensive.Core.Internals.DocTemplates;
 
-namespace Xtensive.Sql.Dom.Database.Comparer.Hints
+namespace Xtensive.Sql.Dom.Database.Comparer
 {
   [Serializable]
   public class RenameHint : ComparisonHintBase

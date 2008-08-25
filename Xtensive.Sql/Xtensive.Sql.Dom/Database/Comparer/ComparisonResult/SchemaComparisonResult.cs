@@ -5,6 +5,7 @@
 // Created:    2008.08.21
 
 using System;
+using Xtensive.Core.Helpers;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
@@ -14,8 +15,8 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   [Serializable]
   public class SchemaComparisonResult : NodeComparisonResult<Schema>
   {
-    private readonly NodeComparisonResult<User> owner = new NodeComparisonResult<User>();
-    private readonly NodeComparisonResult<CharacterSet> defaultCharacterSet = new NodeComparisonResult<CharacterSet>();
+    private NodeComparisonResult<User> owner;
+    private NodeComparisonResult<CharacterSet> defaultCharacterSet;
     private readonly ComparisonResultCollection<TableComparisonResult> tables = new ComparisonResultCollection<TableComparisonResult>();
     private readonly ComparisonResultCollection<ViewComparisonResult> views = new ComparisonResultCollection<ViewComparisonResult>();
     private readonly ComparisonResultCollection<AssertionComparisonResult> assertions = new ComparisonResultCollection<AssertionComparisonResult>();
@@ -31,6 +32,11 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     public NodeComparisonResult<User> Owner
     {
       get { return owner; }
+      set
+      {
+        this.EnsureNotLocked();
+        owner = value;
+      }
     }
 
     /// <summary>
@@ -39,6 +45,11 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     public NodeComparisonResult<CharacterSet> DefaultCharacterSet
     {
       get { return defaultCharacterSet; }
+      set
+      {
+        this.EnsureNotLocked();
+        defaultCharacterSet = value;
+      }
     }
 
     /// <summary>
@@ -110,8 +121,8 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     {
       base.Lock(recursive);
       if (recursive) {
-        owner.Lock(recursive);
-        defaultCharacterSet.Lock(recursive);
+        owner.LockSafely(recursive);
+        defaultCharacterSet.LockSafely(recursive);
         tables.Lock(recursive);
         views.Lock(recursive);
         assertions.Lock(recursive);
