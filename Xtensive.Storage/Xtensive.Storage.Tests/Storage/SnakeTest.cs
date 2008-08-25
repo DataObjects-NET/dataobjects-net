@@ -371,54 +371,6 @@ namespace Xtensive.Storage.Tests.Storage
     }
 
     [Test]
-    public void WeirdTest()
-    {
-      using (Domain.OpenSession()) {
-        for (int i = 0; i < 10; i++) {
-          Snake s = new Snake();
-          s.Name = "Kaa" + i;
-          s.Length = i;
-        }
-        Session.Current.Persist();
-      }
-
-      using (Domain.OpenSession()) {
-        var session = Session.Current;
-        TypeInfo type = session.Domain.Model.Types[typeof (Creature)];
-        RecordSet rs = type.Indexes.PrimaryIndex.ToRecordSet();
-        Entity previous = null;
-        foreach (var entity in rs.ToEntities<Creature>()) {
-          if (previous != null)
-            Remove(previous);
-          previous = entity;
-        }
-
-        Session.Current.Persist();
-      }
-
-      using (Domain.OpenSession())
-        Assert.AreEqual(1, Session.Current.All<ICreature>().Count());
-    }
-
-    private void Remove(Entity entity)
-    {
-      DomainHandler handler = Session.Current.Handlers.DomainHandler as DomainHandler;
-      IndexInfo primaryIndex = entity.Data.Type.Indexes.PrimaryIndex;
-      var indexProvider = IndexProvider.Get(primaryIndex);
-      var enumerable = indexProvider.GetService<IOrderedEnumerable<Tuple, Tuple>>();
-      Indexing.SeekResult<Tuple> result = enumerable.Seek(new Indexing.Ray<Indexing.IEntire<Tuple>>(Entire<Tuple>.Create(entity.Data.Key.Tuple)));
-
-      if (result.ResultType!=SeekResultType.Exact)
-        throw new InvalidOperationException();
-
-      foreach (IndexInfo indexInfo in entity.Data.Type.AffectedIndexes) {
-        var index = handler.GetRealIndex(indexInfo);
-        var transform = handler.GetIndexTransform(indexInfo, entity.Data.Type);
-        index.Remove(transform.Apply(TupleTransformType.TransformedTuple, result.Result));
-      }
-    }
-
-    [Test]
     [Explicit, Category("Performance")]
     public void PerformanceTest()
     {

@@ -52,7 +52,7 @@ namespace Xtensive.Storage.Providers.Sql
       int i = 0;
       foreach (var pair in Parameters) {
         SqlParameter p = pair.Key;
-        p.ParameterName = "p" + i;
+        p.ParameterName = "p" + i++;
         p.Value = pair.Value.Invoke();
         sqlParameters.Add(p);
       }
