@@ -52,7 +52,7 @@ namespace Xtensive.Storage.Providers.MsSql
       var result = new List<Tuple>();
       SqlBatch batch = SqlFactory.Batch();
       var i = SqlFactory.Variable("i", SqlDataType.Int16);
-      var temp = schema.CreateTemporaryTable("T");
+      var temp = schema.CreateTemporaryTable(string.Format("Temp_{0}", Hierarchy.MappingName));
       temp.IsGlobal = false;
       temp.CreateColumn("ID", new SqlValueType(dataType));
       batch.Add(SqlFactory.Create(temp));
@@ -71,7 +71,9 @@ namespace Xtensive.Storage.Providers.MsSql
       SqlSelect select = SqlFactory.Select(SqlFactory.TableRef(temp));
       select.Columns.Add(SqlFactory.Asterisk);
       batch.Add(select);
-
+      batch.Add(SqlFactory.Drop(temp));
+      schema.Tables.Remove(temp);
+  
       SessionHandler handler;
       SqlRequest request = new SqlRequest(batch, Hierarchy.KeyTupleDescriptor);
       using (Handlers.OpenSession(SessionType.System, out handler))
