@@ -106,6 +106,15 @@ namespace Xtensive.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to &apos;&apos;.
+        /// </summary>
+        internal static string EmptyString {
+            get {
+                return ResourceManager.GetString("EmptyString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Entire({0}).
         /// </summary>
         internal static string EntireFormat {

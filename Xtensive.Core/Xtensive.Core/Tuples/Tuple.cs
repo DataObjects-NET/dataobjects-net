@@ -206,6 +206,13 @@ namespace Xtensive.Core.Tuples
           sb.Append(Strings.NotAvailable);
         else if (IsNull(i))
           sb.Append(Strings.Null);
+        else if (Descriptor[i] == typeof(string)) {
+          string value = GetValue<string>(i);
+          if (string.IsNullOrEmpty(value))
+            sb.Append(Strings.EmptyString);
+          else
+            sb.Append(value);
+        }
         else
           sb.Append(GetValue(i));
       }

@@ -236,15 +236,14 @@ namespace Xtensive.Storage
     /// </summary>
     protected virtual void Dispose(bool disposing)
     {
-      if (Log.IsLogged(LogEventTypes.Debug))
-        Log.Debug("Session '{0}'. Disposing", this);
-
       if (isDisposed)
         return;
       lock (_lock) {
         if (isDisposed)
           return;
         try {
+          if (Log.IsLogged(LogEventTypes.Debug))
+            Log.Debug("Session '{0}'. Disposing", this);
           Handler.DisposeSafely();
           compilationScope.DisposeSafely();
         }

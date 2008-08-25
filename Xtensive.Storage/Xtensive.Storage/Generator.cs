@@ -50,19 +50,28 @@ namespace Xtensive.Storage
     {
       var minCached = cacheSize / 2;
       lock (_lock) {
-        if (preCachedValues.Count <= minCached)
-          if (preCachingTask == null) {
-            preCachingTask = Future<IEnumerable<Tuple>>.Create(() => Next(cacheSize));
-            Thread.MemoryBarrier();
-          }
-
-        if (preCachedValues.Count == 0) {
-          foreach (var tuple in preCachingTask.Value)
+        if (preCachedValues.Count <= minCached) {
+          IEnumerable<Tuple> result = Next(cacheSize);
+          foreach (var tuple in result)
             preCachedValues.Enqueue(tuple);
-          preCachingTask = null;
         }
-        return preCachedValues.Dequeue();
       }
+      return preCachedValues.Dequeue();
+
+//      lock (_lock) {
+//        if (preCachedValues.Count <= minCached)
+//          if (preCachingTask == null) {
+//            preCachingTask = Future<IEnumerable<Tuple>>.Create(() => Next(cacheSize));
+//            Thread.MemoryBarrier();
+//          }
+//
+//        if (preCachedValues.Count == 0) {
+//          foreach (var tuple in preCachingTask.Value)
+//            preCachedValues.Enqueue(tuple);
+//          preCachingTask = null;
+//        }
+//        return preCachedValues.Dequeue();
+//      }
     }
     
     /// <summary>

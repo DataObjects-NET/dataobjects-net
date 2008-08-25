@@ -215,7 +215,7 @@ namespace Xtensive.Storage.Providers.Sql
     public void EnsureConnectionIsOpen()
     {
       if (connection==null || transaction==null || connection.State!=ConnectionState.Open) {
-        var provider = new SqlConnectionProvider();
+        var provider = ((DomainHandler)Handlers.DomainHandler).ConnectionProvider;
         connection = provider.CreateConnection(Handlers.Domain.Configuration.ConnectionInfo.ToString()) as SqlConnection;
         if (connection==null)
           throw new InvalidOperationException(Strings.ExUnableToCreateConnection);

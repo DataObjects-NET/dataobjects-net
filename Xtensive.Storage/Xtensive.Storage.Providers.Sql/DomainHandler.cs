@@ -29,10 +29,16 @@ namespace Xtensive.Storage.Providers.Sql
   {
     private Schema schema;
     private readonly Dictionary<IndexInfo, Table> realIndexes = new Dictionary<IndexInfo, Table>();
+    private SqlConnectionProvider connectionProvider;
 
     public Schema Schema
     {
       get { return schema; }
+    }
+
+    internal SqlConnectionProvider ConnectionProvider
+    {
+      get { return connectionProvider; }
     }
 
     /// <inheritdoc/>
@@ -45,6 +51,7 @@ namespace Xtensive.Storage.Providers.Sql
     public override void Build()
     {
       SessionHandler sessionHandler = ((SessionHandler)BuildingScope.Context.SystemSessionHandler);
+      connectionProvider = new SqlConnectionProvider();
       var modelProvider = new SqlModelProvider(sessionHandler.Connection, sessionHandler.Transaction);
       SqlModel existingModel = SqlModel.Build(modelProvider);
       string serverName = existingModel.DefaultServer.Name;

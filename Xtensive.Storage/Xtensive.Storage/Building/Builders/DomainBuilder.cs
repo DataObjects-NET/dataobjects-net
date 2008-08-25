@@ -201,10 +201,8 @@ namespace Xtensive.Storage.Building.Builders
         foreach (TypeInfo type in domain.Model.Types.Where(t => !t.IsInterface)) {
           BitArray nullableMap = new BitArray(type.TupleDescriptor.Count);
           int i = 0;
-          foreach (ColumnInfo column in type.Columns) {
-            if (column.IsNullable)
-              nullableMap[i++] = true;
-          }
+          foreach (ColumnInfo column in type.Columns)
+            nullableMap[i++] = column.IsNullable;
           Tuple prototype = Tuple.Create(type.TupleDescriptor);
           prototype.Initialize(nullableMap);
           if (type.IsEntity) {
