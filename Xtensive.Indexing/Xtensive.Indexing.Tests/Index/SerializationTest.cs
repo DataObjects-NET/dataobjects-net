@@ -13,6 +13,7 @@ using Xtensive.Core.Collections;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Conversion;
 using Xtensive.Core.Diagnostics;
+using Xtensive.Core.Serialization;
 using Xtensive.Core.Serialization.Binary;
 using Xtensive.Core.Testing;
 using Xtensive.Indexing;
@@ -40,7 +41,7 @@ namespace Xtensive.Indexing.Tests.Index
 
     private void ConfigurationSerializeInternal<T>()
     {
-      IValueSerializer serializer = ValueSerializationScope.CurrentSerializer;
+      IValueSerializer<Stream> serializer = ValueSerializationScope.CurrentSerializer;
       using (MemoryStream stream = new MemoryStream()) {
         serializer.Serialize(stream, GetConfiguration<T>());
         stream.Seek(0, SeekOrigin.Begin);

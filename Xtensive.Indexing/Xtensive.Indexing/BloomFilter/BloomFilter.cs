@@ -24,8 +24,8 @@ namespace Xtensive.Indexing.BloomFilter
   [Serializable]
   public abstract class BloomFilter<T> : IBloomFilter<T>
   {
-    protected readonly static ValueSerializer<long> LongSerializer = ValueSerializer<long>.Default;
-    protected readonly static ValueSerializer<int>  IntSerializer  = ValueSerializer<int>.Default;
+    protected readonly static ValueSerializer<Stream,long> LongSerializer = ValueSerializer<Stream,long>.Default;
+    protected readonly static ValueSerializer<Stream,int>  IntSerializer  = ValueSerializer<Stream,int>.Default;
     private readonly long size;
     private Hasher<T> hasher;
     private readonly int hashCount;

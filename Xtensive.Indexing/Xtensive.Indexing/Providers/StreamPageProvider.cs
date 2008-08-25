@@ -12,6 +12,7 @@ using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.IO;
+using Xtensive.Core.Serialization;
 using Xtensive.Core.Serialization.Binary;
 using Xtensive.Core.Threading;
 using Xtensive.Indexing.BloomFilter;
@@ -33,8 +34,8 @@ namespace Xtensive.Indexing.Providers
   public class StreamPageProvider<TKey, TItem> : IndexPageProviderBase<TKey, TItem>
   {
     private StreamProvider streamProvider;
-    private readonly IValueSerializer serializer;
-    private readonly ValueSerializer<long> offsetSerializer;
+    private readonly IValueSerializer<Stream> serializer;
+    private readonly ValueSerializer<Stream,long> offsetSerializer;
     private readonly WeakCache<IPageRef, Page<TKey, TItem>> pageCache;
     private readonly ReaderWriterLockSlim pageCacheLock = new ReaderWriterLockSlim();
     private bool descriptorPageIdentifierAssigned;
@@ -59,7 +60,7 @@ namespace Xtensive.Indexing.Providers
     /// <summary>
     /// Gets the serializer user by this page provider.
     /// </summary>
-    public IValueSerializer Serializer
+    public IValueSerializer<Stream> Serializer
     {
       [DebuggerStepThrough]
       get { return serializer; }
@@ -68,7 +69,7 @@ namespace Xtensive.Indexing.Providers
     /// <summary>
     /// Gets the offset serializer user by this page provider.
     /// </summary>
-    public ValueSerializer<long> OffsetSerializer
+    public ValueSerializer<Stream,long> OffsetSerializer
     {
       [DebuggerStepThrough]
       get { return offsetSerializer; }
@@ -292,7 +293,7 @@ namespace Xtensive.Indexing.Providers
       ArgumentValidator.EnsureArgumentIsInRange(cacheSize, 0, int.MaxValue, "cacheSize");
       streamProvider = new StreamProvider(fileName);
       serializer = ValueSerializationScope.CurrentSerializer; // BinarySerializer by default
-      offsetSerializer = ValueSerializer<long>.Default;
+      offsetSerializer = ValueSerializer<Stream,long>.Default;
       if (cacheSize > 0) {
         pageCache =
           new WeakCache<IPageRef, Page<TKey, TItem>>(
