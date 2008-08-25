@@ -45,7 +45,7 @@ namespace Xtensive.Storage.Providers.Sql
     public override void Build()
     {
       SessionHandler sessionHandler = ((SessionHandler)BuildingScope.Context.SystemSessionHandler);
-      var modelProvider = new SqlModelProvider(sessionHandler.Connection);
+      var modelProvider = new SqlModelProvider(sessionHandler.Connection, sessionHandler.Transaction);
       SqlModel existingModel = SqlModel.Build(modelProvider);
       string serverName = existingModel.DefaultServer.Name;
       string catalogName = Handlers.Domain.Configuration.ConnectionInfo.Resource;

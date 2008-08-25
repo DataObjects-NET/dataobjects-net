@@ -69,6 +69,7 @@ namespace Xtensive.Storage.Building.Builders
                 context.Domain.Handler.Build();
               CreateKeyManager();
               CreateGenerators();
+              Session.Current.Handler.Commit();
             }
           }
           catch (DomainBuilderException e) {
