@@ -10,11 +10,21 @@ using System.Collections.Generic;
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
   [Serializable]
-  internal class AssertionSqlComparer : WrappingSqlComparer<Assertion, Constraint>
+  internal class AssertionSqlComparer : SqlComparerBase<Assertion>
   {
     public override ComparisonResult<Assertion> Compare(Assertion originalNode, Assertion newNode, IEnumerable<ComparisonHintBase> hints)
     {
-      throw new System.NotImplementedException();
+      AssertionComparisonResult result = InitializeResult<Assertion, AssertionComparisonResult>(originalNode, newNode);
+      bool hasChanges = false;
+      result.Condition = CompareSimpleNodes(originalNode.Condition, newNode.Condition);
+      hasChanges |= result.Condition.HasChanges;
+      result.IsDeferrable = CompareSimpleNodes(originalNode.IsDeferrable, newNode.IsDeferrable);
+      hasChanges |= result.IsDeferrable.HasChanges;
+      result.IsInitiallyDeferred = CompareSimpleNodes(originalNode.IsInitiallyDeferred, newNode.IsInitiallyDeferred);
+      hasChanges |= result.IsInitiallyDeferred.HasChanges;
+      if (hasChanges)
+        result.ResultType = ComparisonResultType.Modified;
+      return result;
     }
 
     public AssertionSqlComparer(ISqlComparerProvider provider)

@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Runtime.Serialization;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
@@ -43,19 +42,73 @@ namespace Xtensive.Sql.Dom.Database.Comparer
           && hint.Type==typeof (THintTarget));
     }
 
-    protected static IEnumerable<RenameHint> FindHints<THintTarget, THintType>(IEnumerable<ComparisonHintBase> hints, string objectName)
+    protected static IEnumerable<THintType> FindHints<THintTarget, THintType>(IEnumerable<ComparisonHintBase> hints, string objectName)
     {
       if (hints==null) {
-        return Enumerable.Empty<RenameHint>();
+        return Enumerable.Empty<THintType>();
       }
       return hints.Where(hint => hint!=null
         && hint.Name==objectName
           && hint.Type==typeof (THintTarget)
-            && hint.GetType()==typeof (THintType)).Convert(hint => (RenameHint) hint);
+            && hint.GetType() == typeof(THintType)).Convert(hint => (THintType)(object)hint);
     }
 
-    protected static bool CompareNestedNodes<TNode, TResult>(IEnumerable<TNode> originalNodes, IEnumerable<TNode> newNodes, IEnumerable<ComparisonHintBase> hints, SqlComparerStruct<TNode> comparer, ICollection<TResult> results) 
-      where TNode : class 
+    protected static bool CompareNestedNodes<TNode, TResult>(IEnumerable<TNode> originalNodes, IEnumerable<TNode> newNodes, IEnumerable<ComparisonHintBase> hints, SqlComparerStruct<TNode> comparer, ICollection<TResult> results)
+      where TNode : class
+      where TResult : ComparisonResult<TNode>
+    {
+      if (!ProcessNullNodes(originalNodes, newNodes, comparer, hints, results))
+        return false;
+      if (typeof (TNode).IsSubclassOf(typeof (Node)))
+        return CompareUnnamedNodes(originalNodes, newNodes, comparer, hints, results);
+      return CompareNamedNodes(originalNodes, newNodes, comparer, hints, results);
+    }
+
+    protected static void ProcessDbName<TNode>(TNode originalNode, TNode newNode, ComparisonResult<TNode> result)
+    {
+      if (result is NodeComparisonResult<TNode> && typeof (T).IsSubclassOf(typeof (Node))) {
+        var nameResult = new ComparisonResult<string>();
+        string originalName = ReferenceEquals(originalNode, null) ? null : ((Node) (object) originalNode).DbName;
+        string newName = ReferenceEquals(newNode, null) ? null : ((Node) (object) newNode).DbName;
+        nameResult.OriginalValue = originalName;
+        nameResult.NewValue = newName;
+        if (originalName==newName)
+          nameResult.ResultType = ComparisonResultType.Unchanged;
+        else if (originalName==null)
+          nameResult.ResultType = ComparisonResultType.Added;
+        else
+          nameResult.ResultType = newName==null
+            ? ComparisonResultType.Removed
+            : ComparisonResultType.Modified;
+        ((NodeComparisonResult<TNode>) result).DbName = nameResult;
+        if (result.ResultType==ComparisonResultType.Unchanged
+          && nameResult.ResultType!=ComparisonResultType.Unchanged)
+          result.ResultType = ComparisonResultType.Modified;
+      }
+    }
+
+    protected static ComparisonResult<TNode> CompareSimpleNodes<TNode>(TNode originalNode, TNode newNode)
+    {
+      var result = new ComparisonResult<TNode>{
+          OriginalValue = originalNode, 
+          NewValue = newNode,
+        };
+      if (Equals(originalNode, newNode)) {
+        result.ResultType = ComparisonResultType.Unchanged;
+      }else if (ReferenceEquals(originalNode, null)) {
+        result.ResultType = ComparisonResultType.Added;
+      } else if (ReferenceEquals(newNode, null)) {
+        result.ResultType = ComparisonResultType.Removed;
+      } else {
+        result.ResultType = ComparisonResultType.Modified;
+      }
+      return result;
+    }
+
+    #region Private methods
+
+    private static bool ProcessNullNodes<TNode, TResult>(IEnumerable<TNode> originalNodes, IEnumerable<TNode> newNodes, SqlComparerStruct<TNode> comparer, IEnumerable<ComparisonHintBase> hints, ICollection<TResult> results)
+      where TNode : class
       where TResult : ComparisonResult<TNode>
     {
       if (originalNodes==null && newNodes==null)
@@ -79,58 +132,66 @@ namespace Xtensive.Sql.Dom.Database.Comparer
         }
         return hasChanges;
       }
-      if (typeof (TNode).IsSubclassOf(typeof (Node))) {
-        // Process "rename" hint, compare by name
-        var originalNodeSet = new SetSlim<TNode>(originalNodes);
-        foreach (TNode newNest in newNodes) {
-          string newName = ((Node) (object) newNest).DbName;
-          string originalName = newName;
-          var renameHints = new List<RenameHint>(FindHints<TNode, RenameHint>(hints, newName));
-          if (renameHints.Count > 1)
-            throw new InvalidOperationException(String.Format(Resources.Strings.ExMultipleRenameHintsFoundForTypeXxx, typeof (TNode).FullName, newName));
-          if (renameHints.Count==1)
-            originalName = renameHints[0].OldName;
-          IEnumerator<TNode> originalEnumerator = originalNodeSet.Where(node => ((Node) (object) node).DbName==originalName).GetEnumerator();
-          TNode originalNode = null;
-          if (originalEnumerator.MoveNext()) {
-            originalNode = originalEnumerator.Current;
-            originalNodeSet.Remove(originalNode);
-          }
-          ComparisonResult<TNode> compare = comparer.Compare(originalNode, newNest, hints);
-          if (compare.HasChanges)
-            hasChanges = true;
-          results.Add((TResult) compare);
+      return true;
+    }
+
+    private static bool CompareUnnamedNodes<TNode, TResult>(IEnumerable<TNode> originalNodes, IEnumerable<TNode> newNodes, SqlComparerStruct<TNode> comparer, IEnumerable<ComparisonHintBase> hints, ICollection<TResult> results)
+      where TNode : class
+      where TResult : ComparisonResult<TNode>
+    {
+      // Process "rename" hint, compare by name
+      bool hasChanges = false;
+      var originalNodeSet = new SetSlim<TNode>(originalNodes);
+      foreach (TNode newNest in newNodes) {
+        string newName = ((Node) (object) newNest).DbName;
+        string originalName = newName;
+        var renameHints = new List<RenameHint>(FindHints<TNode, RenameHint>(hints, newName));
+        if (renameHints.Count > 1)
+          throw new InvalidOperationException(String.Format(Resources.Strings.ExMultipleRenameHintsFoundForTypeXxx, typeof (TNode).FullName, newName));
+        if (renameHints.Count==1)
+          originalName = renameHints[0].OldName;
+        IEnumerator<TNode> originalEnumerator = originalNodeSet.Where(node => ((Node) (object) node).DbName==originalName).GetEnumerator();
+        TNode originalNode = null;
+        if (originalEnumerator.MoveNext()) {
+          originalNode = originalEnumerator.Current;
+          originalNodeSet.Remove(originalNode);
         }
-        foreach (TNode originalNode in originalNodeSet) {
-          ComparisonResult<TNode> compare = comparer.Compare(originalNode, null, hints);
-          if (compare.HasChanges)
-            hasChanges = true;
-          results.Add((TResult) compare);
-        }
-        return hasChanges;
+        ComparisonResult<TNode> compare = comparer.Compare(originalNode, newNest, hints);
+        if (compare.HasChanges)
+          hasChanges = true;
+        results.Add((TResult) compare);
       }
-      else {
-        // compare one-to-one
-        var originalEnumerator = originalNodes.GetEnumerator();
-        var newEnumerator = newNodes.GetEnumerator();
-        while (originalEnumerator.MoveNext()) {
-          ComparisonResult<TNode> compare;
-          if (newEnumerator.MoveNext())
-            compare = comparer.Compare(originalEnumerator.Current, newEnumerator.Current, hints);
-          else
-            compare = comparer.Compare(originalEnumerator.Current, null, hints);
-          if (compare.HasChanges)
-            hasChanges = true;
-          results.Add((TResult) compare);
-        }
-        while (newEnumerator.MoveNext()) {
-          ComparisonResult<TNode> compare = comparer.Compare(originalEnumerator.Current, newEnumerator.Current, hints);
-          if (compare.HasChanges)
-            hasChanges = true;
-          results.Add((TResult) compare);
-        }
-        return hasChanges;
+      foreach (TNode originalNode in originalNodeSet) {
+        ComparisonResult<TNode> compare = comparer.Compare(originalNode, null, hints);
+        if (compare.HasChanges)
+          hasChanges = true;
+        results.Add((TResult) compare);
       }
+      return hasChanges;
+    }
+
+    private static bool CompareNamedNodes<TNode, TResult>(IEnumerable<TNode> originalNodes, IEnumerable<TNode> newNodes, SqlComparerStruct<TNode> comparer, IEnumerable<ComparisonHintBase> hints, ICollection<TResult> results)
+      where TNode : class
+      where TResult : ComparisonResult<TNode>
+    {
+      bool hasChanges = false;
+      var originalEnumerator = originalNodes.GetEnumerator();
+      var newEnumerator = newNodes.GetEnumerator();
+      while (originalEnumerator.MoveNext()) {
+        ComparisonResult<TNode> compare = newEnumerator.MoveNext()
+          ? comparer.Compare(originalEnumerator.Current, newEnumerator.Current, hints)
+          : comparer.Compare(originalEnumerator.Current, null, hints);
+        if (compare.HasChanges)
+          hasChanges = true;
+        results.Add((TResult) compare);
+      }
+      while (newEnumerator.MoveNext()) {
+        ComparisonResult<TNode> compare = comparer.Compare(originalEnumerator.Current, newEnumerator.Current, hints);
+        if (compare.HasChanges)
+          hasChanges = true;
+        results.Add((TResult) compare);
+      }
+      return hasChanges;
     }
 
     protected TResult InitializeResult<TNode, TResult>(TNode originalNode, TNode newNode)
@@ -150,28 +211,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
       return result;
     }
 
-    protected void ProcessDbName<TNode>(TNode originalNode, TNode newNode, ComparisonResult<TNode> result)
-    {
-      if (result is NodeComparisonResult<TNode> && typeof(T).IsSubclassOf(typeof(Node))) {
-        var nameResult = new ComparisonResult<string>();
-        string originalName = ReferenceEquals(originalNode, null) ? null : ((Node) (object) originalNode).DbName;
-        string newName = ReferenceEquals(newNode, null) ? null : ((Node) (object) newNode).DbName;
-        nameResult.OriginalValue = originalName;
-        nameResult.NewValue = newName;
-        if (originalName==newName)
-          nameResult.ResultType = ComparisonResultType.Unchanged;
-        else if (originalName==null)
-          nameResult.ResultType = ComparisonResultType.Added;
-        else if (newName==null)
-          nameResult.ResultType = ComparisonResultType.Removed;
-        else
-          nameResult.ResultType = ComparisonResultType.Modified;
-        ((NodeComparisonResult<TNode>) result).DbName = nameResult;
-        if (result.ResultType==ComparisonResultType.Unchanged
-          && nameResult.ResultType!=ComparisonResultType.Unchanged)
-          result.ResultType = ComparisonResultType.Modified;
-      }
-    }
+    #endregion
 
 
     // Constructors.
