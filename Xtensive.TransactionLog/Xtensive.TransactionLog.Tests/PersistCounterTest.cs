@@ -40,7 +40,7 @@ namespace Xtensive.TransactionLog.Tests
     public void TestCreate()
     {
       SetUp();
-      using (PersistCounter<int> counter = new PersistCounter<int>(counterName, logProvider, TimeSpan.FromSeconds(1), ValueSerializerProvider.Default.GetSerializer<int>()))
+      using (PersistCounter<int> counter = new PersistCounter<int>(counterName, logProvider, TimeSpan.FromSeconds(1), ValueSerializerProvider<Stream>.Default.GetSerializer<int>()))
       {
         long persistedValue = counter.PersistedValue;
         long value = counter.Value;
@@ -51,7 +51,7 @@ namespace Xtensive.TransactionLog.Tests
     public void TestWrite()
     {
       SetUp();
-      using (PersistCounter<int> counter = new PersistCounter<int>(counterName, logProvider, TimeSpan.FromSeconds(1), ValueSerializerProvider.Default.GetSerializer<int>()))
+      using (PersistCounter<int> counter = new PersistCounter<int>(counterName, logProvider, TimeSpan.FromSeconds(1), ValueSerializerProvider<Stream>.Default.GetSerializer<int>()))
       {
         int iterations = 1000;
         for (int i=0;i<=iterations;i++) {
@@ -66,7 +66,7 @@ namespace Xtensive.TransactionLog.Tests
     public void TestPersistInt()
     {
       SetUp();
-      using (PersistCounter<int> counter = new PersistCounter<int>(counterName, logProvider, TimeSpan.FromSeconds(1), ValueSerializerProvider.Default.GetSerializer<int>()))
+      using (PersistCounter<int> counter = new PersistCounter<int>(counterName, logProvider, TimeSpan.FromSeconds(1), ValueSerializerProvider<Stream>.Default.GetSerializer<int>()))
       {
         int iterations = 1000;
         for (int i = 1; i <= iterations; i++)
@@ -85,7 +85,7 @@ namespace Xtensive.TransactionLog.Tests
     public void TestPersistLong()
     {
       SetUp();
-      using (PersistCounter<long> counter = new PersistCounter<long>(counterName, logProvider, TimeSpan.FromSeconds(1), ValueSerializerProvider.Default.GetSerializer<long>()))
+      using (PersistCounter<long> counter = new PersistCounter<long>(counterName, logProvider, TimeSpan.FromSeconds(1), ValueSerializerProvider<Stream>.Default.GetSerializer<long>()))
       {
         int iterations = 1000;
         for (int i = 1; i <= iterations; i++)

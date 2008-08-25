@@ -10,6 +10,7 @@ using System.IO;
 using System.Threading;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Serialization;
 using Xtensive.Core.Serialization.Binary;
 using Xtensive.Core.Threading;
 using Xtensive.TransactionLog.Providers;
@@ -26,8 +27,8 @@ namespace Xtensive.TransactionLog
     private const int SlotCount = 3;
 
     private readonly TimeSpan flushTimeout;
-    private readonly ValueSerializer<TKey> serializer;
-    private readonly ValueSerializer<int> hashSerializer = ValueSerializerProvider.Default.GetSerializer<int>();
+    private readonly IValueSerializer<Stream,TKey> serializer;
+    private readonly IValueSerializer<Stream, int> hashSerializer = ValueSerializerProvider<Stream>.Default.GetSerializer<int>();
     private readonly Stream[] slots = new Stream[SlotCount];
     private int currentSlot = -1;
     private TKey value;
@@ -165,7 +166,7 @@ namespace Xtensive.TransactionLog
     /// <param name="logProvider"><see cref="ILogProvider"/> to store or restore counter's value.</param>
     /// <param name="flushTimeout">Time period of automatic persist</param>
     /// <param name="serializer"><see cref="IValueSerializer{T}"/> to serialize/deserialize values.</param>
-    public PersistCounter(string name, ILogProvider logProvider, TimeSpan flushTimeout, ValueSerializer<TKey> serializer)
+    public PersistCounter(string name, ILogProvider logProvider, TimeSpan flushTimeout, IValueSerializer<Stream,TKey> serializer)
     {
       ArgumentValidator.EnsureArgumentNotNull(name, "name");
       ArgumentValidator.EnsureArgumentNotNull(logProvider, "logProvider");
