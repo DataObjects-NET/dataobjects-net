@@ -520,6 +520,15 @@ namespace Xtensive.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Invalid field map size. Expected {0}..
+        /// </summary>
+        internal static string ExInvalidFieldMapSizeExpectedX {
+            get {
+                return ResourceManager.GetString("ExInvalidFieldMapSizeExpectedX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to &apos;{0}&apos; formatter process type is invalid for the current operation..
         /// </summary>
         internal static string ExInvalidFormatterProcessType {

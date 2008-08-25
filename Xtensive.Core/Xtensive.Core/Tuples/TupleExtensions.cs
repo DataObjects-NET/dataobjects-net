@@ -5,9 +5,9 @@
 // Created:    2008.05.31
 
 using System;
+using System.Collections;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Resources;
-using Xtensive.Core.Tuples.Internals;
 using Xtensive.Core.Tuples.Transform;
 
 namespace Xtensive.Core.Tuples
@@ -17,11 +17,12 @@ namespace Xtensive.Core.Tuples
   /// </summary>
   public static class TupleExtensions
   {
-    private static PartCopyHandler   partCopyHandler   = new PartCopyHandler();
-    private static MergeHandler      mergeHandler   = new MergeHandler();
-    private static MapOneCopyHandler mapOneCopyHandler = new MapOneCopyHandler();
-    private static MapCopyHandler    mapCopyHandler    = new MapCopyHandler();
-    private static Map3CopyHandler   map3CopyHandler   = new Map3CopyHandler();
+    private static PartCopyHandler        partCopyHandler   = new PartCopyHandler();
+    private static MergeHandler           mergeHandler   = new MergeHandler();
+    private static MapOneCopyHandler      mapOneCopyHandler = new MapOneCopyHandler();
+    private static MapCopyHandler         mapCopyHandler    = new MapCopyHandler();
+    private static Map3CopyHandler        map3CopyHandler   = new Map3CopyHandler();
+    private static InitializerHandler     initializerHandler   = new InitializerHandler();
 
     #region Copy methods
 
@@ -181,6 +182,24 @@ namespace Xtensive.Core.Tuples
       ArgumentValidator.EnsureArgumentNotNull(source2, "source2");
       CombineTransform transform = new CombineTransform(false, new[] { source1.Descriptor, source2.Descriptor});
       return transform.Apply(TupleTransformType.TransformedTuple, source1, source2);
+    }
+
+    /// <summary>
+    /// Initializes the specified <see cref="Tuple"/> with default values.
+    /// </summary>
+    /// <param name="target">Tuple to initialize.</param>
+    /// <param name="nullableMap"><see cref="BitArray"/> instance that flags that field should have null value.</param>
+    /// <exception cref="ArgumentException">Tuple descriptor field count is not equal to <paramref name="nullableMap"/> count.</exception>
+    public static void Initialize(this ITuple target, BitArray nullableMap)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(target, "target");
+      ArgumentValidator.EnsureArgumentNotNull(nullableMap, "nullableMap");
+
+      if (target.Descriptor.Count!=nullableMap.Count)
+        throw new ArgumentException(String.Format(Strings.ExInvalidFieldMapSizeExpectedX, target.Descriptor.Count));
+
+      InitializerData actionData = new InitializerData(target, nullableMap);
+      target.Descriptor.Execute(initializerHandler, ref actionData, Direction.Positive);
     }
 
     #region Merge methods
@@ -473,6 +492,39 @@ namespace Xtensive.Core.Tuples
           actionData.Target.SetValue(fieldIndex, null);
         else
           actionData.Target.SetValue(fieldIndex, actionData.Source.GetValue<TFieldType>(fieldIndex));
+        return false;
+      }
+    }
+
+    #endregion
+
+    #region Private: Initializer: Data & Handler
+
+    private struct InitializerData
+    {
+      public ITuple Target;
+      private BitArray nullableMap;
+
+      public bool IsNullable(int fieldIndex)
+      {
+        return nullableMap[fieldIndex];
+      }
+
+      public InitializerData(ITuple target, BitArray fieldMap)
+      {
+        Target = target;
+        this.nullableMap = fieldMap;
+      }
+    }
+
+    private class InitializerHandler: ITupleActionHandler<InitializerData>
+    {
+      public bool Execute<TFieldType>(ref InitializerData actionData, int fieldIndex)
+      {
+        if (actionData.IsNullable(fieldIndex))
+          actionData.Target.SetValue(fieldIndex, null);
+        else
+          actionData.Target.SetValue(fieldIndex, default(TFieldType));
         return false;
       }
     }

@@ -537,4 +537,7 @@
   <data name="ReferenceFormat" xml:space="preserve">
     <value>#({0})</value>
   </data>
+  <data name="ExInvalidFieldMapSizeExpectedX" xml:space="preserve">
+    <value>Invalid field map size. Expected {0}.</value>
+  </data>
 </root>
