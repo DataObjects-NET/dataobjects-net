@@ -41,8 +41,8 @@ namespace Xtensive.Storage
     {
       if (isGuid)
         return Tuple.Create(Hierarchy.KeyTupleDescriptor, Guid.NewGuid());
-//      if (cacheSize > 0)
-//        return GetPreCached();
+      if (cacheSize > 0)
+        return GetPreCached();
       return NextNumber();
     }
 

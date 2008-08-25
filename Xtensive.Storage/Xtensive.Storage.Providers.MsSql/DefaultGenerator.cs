@@ -58,16 +58,17 @@ namespace Xtensive.Storage.Providers.MsSql
       batch.Add(SqlFactory.Create(temp));
       batch.Add(i.Declare());
       batch.Add(SqlFactory.Assign(i, 0));
-      batch.Add(SqlFactory.While(SqlFactory.LessThan(i, count)));
-      var body = SqlFactory.StatementBlock();
+      var sqlWhile = SqlFactory.While(SqlFactory.LessThan(i, count));
+      var body = SqlFactory.Batch();
       body.Add(SqlFactory.Assign(i, SqlFactory.Add(i, 1)));
       body.Add(SqlFactory.Insert(SqlFactory.TableRef(generatorTable)));
       var tempRef = SqlFactory.TableRef(temp);
       var tempInsert = SqlFactory.Insert(tempRef);
       tempInsert.Values[tempRef.Columns[0]] = SqlFactory.FunctionCall("SCOPE_IDENTITY");
       body.Add(tempInsert);
-      batch.Add(body);
-      SqlSelect select = SqlFactory.Select();
+      sqlWhile.Statement = body;
+      batch.Add(sqlWhile);
+      SqlSelect select = SqlFactory.Select(SqlFactory.TableRef(temp));
       select.Columns.Add(SqlFactory.Asterisk);
       batch.Add(select);
 
