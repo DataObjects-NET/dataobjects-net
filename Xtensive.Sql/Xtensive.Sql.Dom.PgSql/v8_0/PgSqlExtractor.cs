@@ -28,7 +28,7 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
       return ("\"" + string.Join("\".\"", names2) + "\"");
     }
 
-    public override void Initialize(SqlConnection connection)
+    public override void Initialize(SqlExtractorContext context)
     {
       CreateCatalogModel();
 
@@ -40,7 +40,8 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
         q.Columns.Add(rel["oid"]);
         q.Columns.Add(rel["relname"]);
 
-        using (SqlCommand cmd = new SqlCommand(connection)) {
+        using (SqlCommand cmd = new SqlCommand(context.Connection)) {
+          cmd.Transaction = context.Transaction;
           cmd.Statement = q;
           using (DbDataReader dr = cmd.ExecuteReader()) {
             while (dr.Read()) {

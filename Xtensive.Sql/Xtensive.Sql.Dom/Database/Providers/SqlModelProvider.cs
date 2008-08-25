@@ -4,6 +4,7 @@
 
 using System;
 using System.Data;
+using System.Data.Common;
 using Xtensive.Core;
 using Xtensive.Sql.Dom.Database.Extractor;
 
@@ -15,6 +16,7 @@ namespace Xtensive.Sql.Dom.Database.Providers
   public class SqlModelProvider : IModelProvider
   {
     private SqlConnection connection;
+    private DbTransaction transaction;
 
     /// <summary>
     /// Gets or sets the connection.
@@ -39,12 +41,16 @@ namespace Xtensive.Sql.Dom.Database.Providers
     {
       SqlExtractor extractor = ((SqlDriver)connection.Driver).Extractor;
       Model model = new Model();
-      SqlExtractorContext context = extractor.CreateContext(connection, model);
-      bool isClosed = connection.State==ConnectionState.Closed;
+      bool connectionIsClosed = connection.State==ConnectionState.Closed;
+      bool transactionIsAbsent = connectionIsClosed | transaction==null;
       try {
-        if (isClosed)
+        if (connectionIsClosed)
           connection.Open();
-        extractor.Initialize(connection);
+        if (transactionIsAbsent)
+          transaction = connection.BeginTransaction();
+
+        SqlExtractorContext context = extractor.CreateContext(model, connection, transaction);
+        extractor.Initialize(context);
         extractor.ExtractServers(context, model);
         foreach (Server server in model.Servers) {
           extractor.ExtractUsers(context, server);
@@ -70,8 +76,9 @@ namespace Xtensive.Sql.Dom.Database.Providers
         }
       }
       finally {
-//        model.Lock(true);
-        if (isClosed && connection!=null)
+        if (transactionIsAbsent)
+          transaction.Commit();
+        if (connectionIsClosed && connection!=null)
           connection.Close();
       }
       return model;
@@ -88,6 +95,17 @@ namespace Xtensive.Sql.Dom.Database.Providers
     }
 
     #endregion
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SqlModelProvider"/> class.
+    /// </summary>
+    /// <param name="connection">The connection.</param>
+    /// <param name="transaction">The transaction.</param>
+    public SqlModelProvider(SqlConnection connection, DbTransaction transaction)
+      : this(connection)
+    {
+      this.transaction = transaction;
+    }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="SqlModelProvider"/> class.

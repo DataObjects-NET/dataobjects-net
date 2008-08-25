@@ -2,6 +2,8 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 
+using System.Data.Common;
+
 namespace Xtensive.Sql.Dom.Database.Extractor
 {
   /// <summary>
@@ -26,9 +28,9 @@ namespace Xtensive.Sql.Dom.Database.Extractor
     /// <param name="connection">The connection.</param>
     /// <param name="model">The model.</param>
     /// <returns></returns>
-    public virtual SqlExtractorContext CreateContext(SqlConnection connection, Model model)
+    public virtual SqlExtractorContext CreateContext(Model model, SqlConnection connection, DbTransaction transaction)
     {
-      return new SqlExtractorContext(connection, model);
+      return new SqlExtractorContext(model, connection, transaction);
     }
 
     /// <summary>
@@ -198,8 +200,8 @@ namespace Xtensive.Sql.Dom.Database.Extractor
     /// <summary>
     /// Initialize the model
     /// </summary>
-    /// <param name="connection">The connection</param>
-    public virtual void Initialize(SqlConnection connection)
+    /// <param name="context">The context.</param>
+    public virtual void Initialize(SqlExtractorContext context)
     {
     }
 

@@ -2,12 +2,15 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 
+using System.Data.Common;
+
 namespace Xtensive.Sql.Dom.Database.Extractor
 {
   public class SqlExtractorContext
   {
     private readonly Model model;
     private readonly SqlConnection connection;
+    private readonly DbTransaction transaction;
 
     /// <summary>
     /// Gets the model.
@@ -28,14 +31,24 @@ namespace Xtensive.Sql.Dom.Database.Extractor
     }
 
     /// <summary>
+    /// Gets the transaction.
+    /// </summary>
+    public DbTransaction Transaction
+    {
+      get { return transaction; }
+    }
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="SqlExtractorContext"/> class.
     /// </summary>
-    /// <param name="connection">The connection.</param>
     /// <param name="model">The model.</param>
-    public SqlExtractorContext(SqlConnection connection, Model model)
+    /// <param name="connection">The connection.</param>
+    /// <param name="transaction">The transaction.</param>
+    public SqlExtractorContext(Model model, SqlConnection connection, DbTransaction transaction)
     {
       this.connection = connection;
       this.model = model;
+      this.transaction = transaction;
     }
   }
 }

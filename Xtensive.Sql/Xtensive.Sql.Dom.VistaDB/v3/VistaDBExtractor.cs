@@ -298,11 +298,8 @@ namespace Xtensive.Sql.Dom.VistaDB.v3
       }
     }
 
-    /// <summary>
-    /// Initialize the model
-    /// </summary>
-    /// <param name="connection">The connection</param>
-    public override void Initialize(SqlConnection connection)
+    /// <inheritdoc/>
+    public override void Initialize(SqlExtractorContext context)
     {
     }
 

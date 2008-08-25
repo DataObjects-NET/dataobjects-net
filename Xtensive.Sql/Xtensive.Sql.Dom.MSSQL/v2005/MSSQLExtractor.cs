@@ -28,6 +28,7 @@ namespace Xtensive.Sql.Dom.Mssql.v2005
       select.Where = tUsersRef["issqlrole"] == 0 && tUsersRef["hasdbaccess"] == 1;
 
       using (SqlCommand cmd = new SqlCommand(context.Connection)) {
+        cmd.Transaction = context.Transaction;
         cmd.Statement = select;
         using (IDataReader reader = cmd.ExecuteReader()) {
           while (reader.Read()) {
@@ -52,6 +53,7 @@ namespace Xtensive.Sql.Dom.Mssql.v2005
         select.Where = tSchemaRef["CATALOG_NAME"] == catalog.Name;
 
       using (SqlCommand cmd = new SqlCommand(context.Connection)) {
+        cmd.Transaction = context.Transaction;
         cmd.Statement = select;
         using (IDataReader reader = cmd.ExecuteReader()) {
           while (reader.Read()) {
@@ -80,6 +82,7 @@ namespace Xtensive.Sql.Dom.Mssql.v2005
         select.Where = tableRefViews["TABLE_SCHEMA"] == schema.Name;
 
       using (SqlCommand cmd = new SqlCommand(context.Connection)) {
+        cmd.Transaction = context.Transaction;
         cmd.Statement = select;
         using (IDataReader reader = cmd.ExecuteReader()) {
           while (reader.Read()) {
@@ -108,6 +111,7 @@ namespace Xtensive.Sql.Dom.Mssql.v2005
         select.Where = tSchemasRef["name"] == schema.Name;
 
       using (SqlCommand cmd = new SqlCommand(context.Connection)) {
+        cmd.Transaction = context.Transaction;
         cmd.Statement = select;
         using (IDataReader reader = cmd.ExecuteReader())
           while (reader.Read()) {
@@ -147,6 +151,7 @@ namespace Xtensive.Sql.Dom.Mssql.v2005
       select.OrderBy.Add(tColumnsRef["ORDINAL_POSITION"]);
 
       using (SqlCommand cmd = new SqlCommand(context.Connection)) {
+        cmd.Transaction = context.Transaction;
         cmd.Statement = select;
         using (IDataReader reader = cmd.ExecuteReader()) {
           while (reader.Read()) {
@@ -235,6 +240,7 @@ namespace Xtensive.Sql.Dom.Mssql.v2005
       selectN.Where = Sql.IsNotNull(tSelect["IDENT_SEED"]);
 
       using (SqlCommand cmd = new SqlCommand(context.Connection)) {
+        cmd.Transaction = context.Transaction;
         cmd.Statement = selectN;
         using (IDataReader reader = cmd.ExecuteReader()) {
           while (reader.Read()) {
@@ -300,6 +306,7 @@ namespace Xtensive.Sql.Dom.Mssql.v2005
       select.OrderBy.Add(tIndexesRef["name"]);
 
       using (SqlCommand cmd = new SqlCommand(context.Connection)) {
+        cmd.Transaction = context.Transaction;
         cmd.Statement = select;
         using (IDataReader reader = cmd.ExecuteReader()) {
           while (reader.Read()) {
@@ -403,6 +410,7 @@ namespace Xtensive.Sql.Dom.Mssql.v2005
     {
       string sqlQuery = GenerateExtractForeignKeysSQL(context, catalog, schema);
       using (IDbCommand cmd = context.Connection.RealConnection.CreateCommand()) {
+        cmd.Transaction = context.Transaction;
         cmd.CommandText = sqlQuery;
         using (IDataReader reader = cmd.ExecuteReader()) {
           while (reader.Read()) {
@@ -471,6 +479,7 @@ namespace Xtensive.Sql.Dom.Mssql.v2005
                      tConstrRef["CONSTRAINT_TYPE"] == "UNIQUE" && tConstrRef["TABLE_SCHEMA"] == schema.Name;
 
       using (SqlCommand cmd = new SqlCommand(context.Connection)) {
+        cmd.Transaction = context.Transaction;
         cmd.Statement = select;
         using (IDataReader reader = cmd.ExecuteReader()) {
           while (reader.Read()) {
@@ -488,21 +497,19 @@ namespace Xtensive.Sql.Dom.Mssql.v2005
       }
     }
 
-    /// <summary>
-    /// Initialize the model
-    /// </summary>
-    /// <param name="connection">The connection</param>
-    public override void Initialize(SqlConnection connection)
+    /// <inheritdoc/>
+    public override void Initialize(SqlExtractorContext context)
     {
       if (initialized)
         return;
       model = new Model();
-      model.CreateServer(connection.ConnectionInfo.Host);
+      model.CreateServer(context.Connection.ConnectionInfo.Host);
       model.DefaultServer.CreateCatalog("master");
       Catalog catalog = model.DefaultServer.DefaultCatalog;
 
       // select schema
-      using (IDbCommand cmd = connection.RealConnection.CreateCommand()) {
+      using (IDbCommand cmd = context.Connection.RealConnection.CreateCommand()) {
+        cmd.Transaction = context.Transaction;
         cmd.CommandText = @" Select Distinct " + "\n [CATALOG_NAME], " + "\n [SCHEMA_NAME], " + "\n [SCHEMA_OWNER] " +
                           "\n From [Master].[INFORMATION_SCHEMA].[Schemata]";
 
@@ -519,7 +526,8 @@ namespace Xtensive.Sql.Dom.Mssql.v2005
                                 "\n Left Join [sys].[schemas] on [schemas].[schema_id]=[all_views].[schema_id] " +
                                 "\n Where [schemas].[name]='" + cSchema.Name + "'";
 
-        using (IDbCommand cmd = connection.RealConnection.CreateCommand()) {
+        using (IDbCommand cmd = context.Connection.RealConnection.CreateCommand()) {
+          cmd.Transaction = context.Transaction;
           cmd.CommandText = selectViewsSQL;
           using (IDataReader reader = cmd.ExecuteReader()) {
             while (reader.Read())
@@ -535,7 +543,8 @@ namespace Xtensive.Sql.Dom.Mssql.v2005
           "\n Left Join [sys].[schemas] on [schemas].[schema_id]=[all_views].[schema_id] " +
           "\n Where [schemas].[name] = '" + cSchema.Name + "'";
 
-        using (IDbCommand cmd = connection.RealConnection.CreateCommand()) {
+        using (IDbCommand cmd = context.Connection.RealConnection.CreateCommand()) {
+          cmd.Transaction = context.Transaction;
           cmd.CommandText = selectColumnsSql;
           using (IDataReader reader = cmd.ExecuteReader())
             while (reader.Read()) {
