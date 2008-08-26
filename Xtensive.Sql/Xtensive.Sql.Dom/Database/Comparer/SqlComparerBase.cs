@@ -54,9 +54,10 @@ namespace Xtensive.Sql.Dom.Database.Comparer
       return CompareNamedNodes(originalNodes, newNodes, comparer, hints, results);
     }
 
-    protected static void ProcessDbName<TNode>(TNode originalNode, TNode newNode, ComparisonResult<TNode> result)
+    protected static void ProcessDbName<TNode>(TNode originalNode, TNode newNode, IComparisonResult<TNode> result)
     {
       if (result is NodeComparisonResult<TNode> && typeof (T).IsSubclassOf(typeof (Node))) {
+        var nodeResult = (NodeComparisonResult<TNode>) result;
         var nameResult = new ComparisonResult<string>();
         string originalName = ReferenceEquals(originalNode, null) ? null : ((Node) (object) originalNode).DbName;
         string newName = ReferenceEquals(newNode, null) ? null : ((Node) (object) newNode).DbName;
@@ -70,10 +71,10 @@ namespace Xtensive.Sql.Dom.Database.Comparer
           nameResult.ResultType = newName==null
             ? ComparisonResultType.Removed
             : ComparisonResultType.Modified;
-        ((NodeComparisonResult<TNode>) result).DbName = nameResult;
-        if (result.ResultType==ComparisonResultType.Unchanged
+        nodeResult.DbName = nameResult;
+        if (nodeResult.ResultType==ComparisonResultType.Unchanged
           && nameResult.ResultType!=ComparisonResultType.Unchanged)
-          result.ResultType = ComparisonResultType.Modified;
+          nodeResult.ResultType = ComparisonResultType.Modified;
       }
     }
 

@@ -4,19 +4,30 @@
 // Created by: Aleksey Gamzov
 // Created:    2008.08.21
 
+using Xtensive.Sql.Dom.Dml;
+
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
-  public class TableColumnComparisonResult : DataTableColumnComparisonResult, IComparisonResult<TableColumn>
+  public class TableColumnComparisonResult : ComparisonResult<TableColumn>, IComparisonResult<DataTableColumn>
   {
+    private IComparisonResult<SqlValueType> dataType;
+    private IComparisonResult<Domain> domain;
+    private IComparisonResult<SqlExpression> defaultValue;
+    private IComparisonResult<SequenceDescriptor> sequenceDescriptor;
+    private IComparisonResult<SqlExpression> expression;
+    private IComparisonResult<bool> isPersisted;
+    private IComparisonResult<Collation> collation;
+    private IComparisonResult<bool> isNullable;
+
     /// <inheritdoc/>
-    public TableColumn NewValue
+    public DataTableColumn NewValue
     {
-      get { return (TableColumn) base.NewValue; }
+      get { return base.NewValue; }
     }
     /// <inheritdoc/>
-    public TableColumn OriginalValue
+    public DataTableColumn OriginalValue
     {
-      get { return (TableColumn) base.OriginalValue; }
+      get { return base.OriginalValue; }
     }
   }
 }

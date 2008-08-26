@@ -15,7 +15,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   [Serializable]
   public class TableComparisonResult : NodeComparisonResult<Table>
   {
-    private ComparisonResult<string> filegroup;
+    private IComparisonResult<string> filegroup;
     private readonly ComparisonResultCollection<IndexComparisonResult> indexes = new ComparisonResultCollection<IndexComparisonResult>();
     private readonly ComparisonResultCollection<TableColumnComparisonResult> columns = new ComparisonResultCollection<TableColumnComparisonResult>();
     private readonly ComparisonResultCollection<ConstraintComparisonResult> constraints = new ComparisonResultCollection<ConstraintComparisonResult>();
@@ -23,7 +23,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     /// <summary>
     /// Gets comparison result of filegroup.
     /// </summary>
-    public ComparisonResult<string> Filegroup
+    public IComparisonResult<string> Filegroup
     {
       get { return filegroup; }
       set

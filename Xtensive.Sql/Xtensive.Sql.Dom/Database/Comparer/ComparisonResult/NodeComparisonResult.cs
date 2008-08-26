@@ -12,12 +12,12 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   [Serializable]
   public class NodeComparisonResult<T> : ComparisonResult<T>
   {
-    private ComparisonResult<string> dbName;
+    private IComparisonResult<string> dbName;
 
     /// <summary>
     /// Gets comparison result of db name.
     /// </summary>
-    public ComparisonResult<string> DbName
+    public IComparisonResult<string> DbName
     {
       get { return dbName; }
       internal set

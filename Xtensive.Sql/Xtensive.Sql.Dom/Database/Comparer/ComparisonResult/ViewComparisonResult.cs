@@ -6,6 +6,7 @@
 
 using System;
 using Xtensive.Sql.Dom.Dml;
+using Xtensive.Core.Helpers;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
@@ -15,32 +16,42 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   [Serializable]
   public class ViewComparisonResult : NodeComparisonResult<View>
   {
-    private readonly ComparisonResult<CheckOptions> checkOptions = new ComparisonResult<CheckOptions>();
-    private readonly ComparisonResult<SqlNative> definition = new ComparisonResult<SqlNative>();
-    private readonly ComparisonResultCollection<ComparisonResult<View>> views = new ComparisonResultCollection<ComparisonResult<View>>();
-    private readonly ComparisonResultCollection<ComparisonResult<ViewColumn>> columns = new ComparisonResultCollection<ComparisonResult<ViewColumn>>();
-    private readonly ComparisonResultCollection<ComparisonResult<Index>> indexes = new ComparisonResultCollection<ComparisonResult<Index>>();
+    private IComparisonResult<CheckOptions> checkOptions;
+    private IComparisonResult<SqlNative> definition;
+    private readonly ComparisonResultCollection<IComparisonResult<View>> views = new ComparisonResultCollection<IComparisonResult<View>>();
+    private readonly ComparisonResultCollection<IComparisonResult<ViewColumn>> columns = new ComparisonResultCollection<IComparisonResult<ViewColumn>>();
+    private readonly ComparisonResultCollection<IComparisonResult<Index>> indexes = new ComparisonResultCollection<IComparisonResult<Index>>();
 
     /// <summary>
     /// Gets comparison result of check options.
     /// </summary>
-    public ComparisonResult<CheckOptions> CheckOptions
+    public IComparisonResult<CheckOptions> CheckOptions
     {
       get { return checkOptions; }
+      set
+      {
+        this.EnsureNotLocked();
+        checkOptions = value;
+      }
     }
 
     /// <summary>
     /// Gets comparison result of definition.
     /// </summary>
-    public ComparisonResult<SqlNative> Definition
+    public IComparisonResult<SqlNative> Definition
     {
       get { return definition; }
+      set
+      {
+        this.EnsureNotLocked();
+        definition = value;
+      }
     }
 
     /// <summary>
     /// Gets comparison results of nested views.
     /// </summary>
-    public ComparisonResultCollection<ComparisonResult<View>> Views
+    public ComparisonResultCollection<IComparisonResult<View>> Views
     {
       get { return views; }
     }
@@ -48,7 +59,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     /// <summary>
     /// Gets comparison results of nested columns.
     /// </summary>
-    public ComparisonResultCollection<ComparisonResult<ViewColumn>> Columns
+    public ComparisonResultCollection<IComparisonResult<ViewColumn>> Columns
     {
       get { return columns; }
     }
@@ -56,7 +67,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     /// <summary>
     /// Gets comparison results of nested indexes.
     /// </summary>
-    public ComparisonResultCollection<ComparisonResult<Index>> Indexes
+    public ComparisonResultCollection<IComparisonResult<Index>> Indexes
     {
       get { return indexes; }
     }
@@ -69,8 +80,8 @@ namespace Xtensive.Sql.Dom.Database.Comparer
         views.Lock(recursive);
         columns.Lock(recursive);
         indexes.Lock(recursive);
-        checkOptions.Lock(recursive);
-        definition.Lock(recursive);
+        checkOptions.LockSafely(recursive);
+        definition.LockSafely(recursive);
       }
     }
   }

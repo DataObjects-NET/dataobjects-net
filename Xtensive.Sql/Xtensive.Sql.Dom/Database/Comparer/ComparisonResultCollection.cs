@@ -4,15 +4,12 @@
 // Created by: Aleksey Gamzov
 // Created:    2008.08.19
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Xtensive.Core.Collections;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
   public class ComparisonResultCollection<TItem> : CollectionBaseSlim<TItem>
-    where TItem : ComparisonResult
+    where TItem : IComparisonResult
   {
 //    public IEnumerable<ComparisonResult> Find(ComparisonResultLocation locations, ComparisonResultType comparsionTypes, bool recursive, Type[] types)
 //    {

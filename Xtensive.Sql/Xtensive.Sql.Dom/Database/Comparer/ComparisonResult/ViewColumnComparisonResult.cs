@@ -9,17 +9,17 @@ using System;
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
   [Serializable]
-  public class ViewColumnComparisonResult : DataTableColumnComparisonResult, IComparisonResult<ViewColumn>
+  public class ViewColumnComparisonResult : ComparisonResult<ViewColumn>, IComparisonResult<DataTableColumn>
   {
     /// <inheritdoc/>
-    public ViewColumn NewValue
+    public DataTableColumn NewValue
     {
-      get { return (ViewColumn)base.NewValue; }
+      get { return base.NewValue; }
     }
     /// <inheritdoc/>
-    public ViewColumn OriginalValue
+    public DataTableColumn OriginalValue
     {
-      get { return (ViewColumn)base.OriginalValue; }
+      get { return base.OriginalValue; }
     }
   }
 }
