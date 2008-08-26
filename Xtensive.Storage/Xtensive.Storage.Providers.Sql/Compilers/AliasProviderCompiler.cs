@@ -18,7 +18,10 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
     /// <inheritdoc/>
     protected override ExecutableProvider Compile(AliasProvider provider)
     {
-      var source = (SqlProvider)Compiler.Compile(provider.Source, true);
+      var source = Compiler.Compile(provider.Source, true) as SqlProvider;
+      if (source == null)
+        return null;
+
       var queryRef  = SqlFactory.QueryRef(source.Query, provider.Alias);
       var sqlSelect = SqlFactory.Select(queryRef);
       sqlSelect.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());

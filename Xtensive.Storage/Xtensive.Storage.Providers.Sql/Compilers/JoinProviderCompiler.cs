@@ -18,8 +18,11 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
     /// <inheritdoc/>
     protected override ExecutableProvider Compile(JoinProvider provider)
     {
-      var left = (SqlProvider)Compiler.Compile(provider.Left, true);
-      var right = (SqlProvider)Compiler.Compile(provider.Right, true);
+      var left = Compiler.Compile(provider.Left, true) as SqlProvider;
+      var right = Compiler.Compile(provider.Right, true) as SqlProvider;
+
+      if (left == null || right == null)
+        return null;
 
       var leftQuery = SqlFactory.QueryRef(left.Query);
       var rightQuery = SqlFactory.QueryRef(right.Query);

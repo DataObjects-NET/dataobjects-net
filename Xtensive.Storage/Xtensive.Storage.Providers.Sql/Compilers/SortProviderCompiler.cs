@@ -19,7 +19,10 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
   {
     protected override ExecutableProvider Compile(SortProvider provider)
     {
-      var source = (SqlProvider)Compiler.Compile(provider.Source, true);
+      var source = Compiler.Compile(provider.Source, true) as SqlProvider;
+      if (source == null)
+        return null;
+
       var queryRef = SqlFactory.QueryRef(source.Query);
       SqlSelect query = SqlFactory.Select(queryRef);
       query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
