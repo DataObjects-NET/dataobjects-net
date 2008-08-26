@@ -50,8 +50,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     public override void Build()
     {
-      SessionHandler sessionHandler = ((SessionHandler)BuildingScope.Context.SystemSessionHandler);
-      connectionProvider = new SqlConnectionProvider();
+      SessionHandler sessionHandler = ((SessionHandler)BuildingScope.Context.SystemSessionHandler);      
       var modelProvider = new SqlModelProvider(sessionHandler.Connection, sessionHandler.Transaction);
       SqlModel existingModel = SqlModel.Build(modelProvider);
       string serverName = existingModel.DefaultServer.Name;
@@ -104,6 +103,7 @@ namespace Xtensive.Storage.Providers.Sql
     public override void Initialize()
     {
       base.Initialize();
+      connectionProvider = new SqlConnectionProvider();
     }
 
     #region Build related methods

@@ -6,20 +6,19 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using Xtensive.Core.Diagnostics;
+using Xtensive.Core;
 using Xtensive.Core.Tuples;
+using Xtensive.Integrity.Atomicity;
 using Xtensive.Integrity.Validation;
 using Xtensive.Integrity.Validation.Interfaces;
-using Xtensive.Storage.Aspects;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage
 {
-  public abstract class Persistent : 
-    SessionBound,
+  public abstract class Persistent : SessionBound,    
+    IAtomicityAware,
     IValidationAware
   {
     private Dictionary<FieldInfo, IFieldHandler> fieldHandlers;
@@ -88,6 +87,7 @@ namespace Xtensive.Storage
     }
 
     [Infrastructure]
+    // [Atomic("UndoSetValue")]
     protected void SetValue<T>(string name, T value)
     {
       FieldInfo field = Type.Fields[name];
@@ -167,6 +167,11 @@ namespace Xtensive.Storage
       }
     }
 
+    public bool IsCompatibleWith(AtomicityContextBase context)
+    {
+      return context==Session.AtomicityContext;
+    }
+
     /// <inheritdoc/>
     public void OnValidate()
     {
@@ -178,6 +183,11 @@ namespace Xtensive.Storage
     public bool IsCompatibleWith(ValidationContextBase context)
     {
       return context is PersistentValidationContext;
+    }
+
+    AtomicityContextBase IContextBound<AtomicityContextBase>.Context
+    {
+      get { return Session.AtomicityContext; }
     }
 
     #endregion

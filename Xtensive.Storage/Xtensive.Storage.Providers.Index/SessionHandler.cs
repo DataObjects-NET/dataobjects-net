@@ -17,6 +17,24 @@ namespace Xtensive.Storage.Providers.Index
 {
   public class SessionHandler : Providers.SessionHandler
   {
+    /// <inheritdoc/>
+    public override void OpenTransaction()
+    {
+      // TODO: Implement transactions;
+    }
+
+    /// <inheritdoc/>
+    public override void CommitTransaction()
+    {
+      // TODO: Implement transactions;
+    }
+
+    /// <inheritdoc/>
+    public override void RollbackTransaction()
+    {
+      // TODO: Implement transactions;
+    }
+
     protected override void Insert(EntityData data)
     {
       var handler = (DomainHandler)Handlers.DomainHandler;

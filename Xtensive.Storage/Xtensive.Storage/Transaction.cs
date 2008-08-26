@@ -44,7 +44,7 @@ namespace Xtensive.Storage
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="session">The session.</param>
+    /// <param name="session">The session.</param>    
     internal Transaction(Session session)
       : this (session, Guid.NewGuid())
     {
@@ -53,12 +53,12 @@ namespace Xtensive.Storage
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="session">The session.</param>
-    /// <param name="identifier">The transaction identifier.</param>
+    /// <param name="session">The session.</param>    
+    /// <param name="identifier">The identifier.</param>    
     internal Transaction(Session session, Guid identifier)
       : base (identifier)
     {
-      Session = session;
+      Session = session;      
     }
   }
 }

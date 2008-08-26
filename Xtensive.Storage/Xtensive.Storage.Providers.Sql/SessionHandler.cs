@@ -21,7 +21,7 @@ using Xtensive.Core.Helpers;
 
 namespace Xtensive.Storage.Providers.Sql
 {
-  public abstract class SessionHandler : Providers.SessionHandler
+  public abstract class   SessionHandler : Providers.SessionHandler
   {
     #region Nested types: ExpressionData and ExpressionHandler
 
@@ -49,8 +49,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     #endregion
 
-    private SqlConnection connection;
-    private DbTransaction transaction;
+    private SqlConnection connection;    
     private ExpressionHandler expressionHandler;
 
     public SqlConnection Connection {
@@ -60,11 +59,40 @@ namespace Xtensive.Storage.Providers.Sql
       }
     }
 
-    public DbTransaction Transaction {
-      get {
-        EnsureConnectionIsOpen();
-        return transaction;
-      }
+    /// <summary>
+    /// Gets the active transaction.
+    /// </summary>    
+    public DbTransaction Transaction { get; private set; }
+
+    /// <inheritdoc/>
+    public override void OpenTransaction()
+    {
+      EnsureConnectionIsOpen();
+
+      if (Transaction!=null)
+        throw new InvalidOperationException("Transaction is already opened.");
+
+      Transaction = connection.BeginTransaction();
+    }
+
+    /// <inheritdoc/>
+    public override void CommitTransaction()
+    {
+      if (Transaction==null)
+        throw new InvalidOperationException("Transaction is not open.");
+
+      Transaction.Commit();
+      Transaction = null;
+    }
+
+    /// <inheritdoc/>
+    public override void RollbackTransaction()
+    {
+      if (Transaction==null)
+        throw new InvalidOperationException("Transaction is not open.");
+
+      Transaction.Rollback();
+      Transaction = null;
     }
 
     public IEnumerator<Tuple> Execute(SqlRequest request)
@@ -91,8 +119,8 @@ namespace Xtensive.Storage.Providers.Sql
       EnsureConnectionIsOpen();
       using (var command = new SqlCommand(connection)) {
         command.Statement = statement;
-        command.Prepare();
-        command.Transaction = transaction;
+        command.Prepare();        
+        command.Transaction = Transaction;
         return command.ExecuteNonQuery();
       }
     }
@@ -104,7 +132,7 @@ namespace Xtensive.Storage.Providers.Sql
         command.Statement = request.Statement;
         command.Parameters.AddRange(request.Parameters.ToArray());
         command.Prepare();
-        command.Transaction = transaction;
+        command.Transaction = Transaction;
         return command.ExecuteReader();
       }
     }
@@ -193,19 +221,7 @@ namespace Xtensive.Storage.Providers.Sql
           throw new InvalidOperationException(String.Format(Strings.ExInstanceNotFound, data.Key.Type.Name));
         else
           throw new InvalidOperationException(String.Format(Strings.ExInstanceMultipleResults, data.Key.Type.Name));
-    }
-
-    /// <inheritdoc/>
-    public override void Commit()
-    {
-      base.Commit();
-      if (transaction!=null) {
-        transaction.Commit();
-        connection.Close();
-        transaction = null;
-        connection = null;
-      }
-    }
+    }    
 
     public Table GetTable(IndexInfo index)
     {
@@ -215,13 +231,12 @@ namespace Xtensive.Storage.Providers.Sql
 
     public void EnsureConnectionIsOpen()
     {
-      if (connection==null || transaction==null || connection.State!=ConnectionState.Open) {
+      if (connection==null || connection.State!=ConnectionState.Open) {
         var provider = ((DomainHandler)Handlers.DomainHandler).ConnectionProvider;
         connection = provider.CreateConnection(Handlers.Domain.Configuration.ConnectionInfo.ToString()) as SqlConnection;
         if (connection==null)
           throw new InvalidOperationException(Strings.ExUnableToCreateConnection);
         connection.Open();
-        transaction = connection.BeginTransaction();
       }
     }
 

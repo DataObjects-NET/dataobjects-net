@@ -6,6 +6,7 @@
 
 using System.Reflection;
 using NUnit.Framework;
+using Xtensive.Storage.Aspects;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Storage.StructureModel;
 
@@ -39,19 +40,19 @@ namespace Xtensive.Storage.Tests.Storage
       return config;
     }
 
-    [Test]
+    [Test]    
     public void Test()
     {
-      var scoupe1 = Domain.OpenSession();
-      Ray ray = new Ray();
+      var scope1 = Domain.OpenSession();
+      Ray ray1 = new Ray();
       var testHelper = new TestHelper(Session.Current);
       Session.Current.Persist();
 
-      var scoupe2 = Domain.OpenSession();
-      Ray ray1 = new Ray();
+      var scope2 = Domain.OpenSession();
+      Ray ray2 = new Ray();
 
-      Assert.AreNotEqual(scoupe1.Session, scoupe2.Session);
-      testHelper.TestMethod(ray, ray1, Session.Current);
+      Assert.AreNotEqual(scope1.Session, scope2.Session);
+      testHelper.TestMethod(ray1, ray2, Session.Current);
     }
   }
 }

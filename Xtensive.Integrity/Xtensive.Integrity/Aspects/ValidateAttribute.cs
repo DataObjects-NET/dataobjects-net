@@ -32,7 +32,8 @@ namespace Xtensive.Integrity.Aspects
     public bool IsConsistent { get; set; }
 
     int ILaosWeavableAspect.AspectPriority { get { return (int)IntegrityAspectPriority.Validate; } }
-    
+
+    /// <inheritdoc/>
     public override bool CompileTimeValidate(MethodBase method)
     {
       if (!AspectHelper.ValidateContextBoundMethod<ValidationContextBase>(this, method))
@@ -62,7 +63,9 @@ namespace Xtensive.Integrity.Aspects
     {
       var validationContextBound = (IContextBound<ValidationContextBase>)eventArgs.Instance;
       var validationScope        = (ValidationScope)validationContextBound.ActivateContext();
-      eventArgs.MethodExecutionTag = validationScope;
+
+      if (IsConsistent)
+        eventArgs.MethodExecutionTag = validationScope;
       if (!IsConsistent)
         if (validationScope==null)
           // Scope is already active

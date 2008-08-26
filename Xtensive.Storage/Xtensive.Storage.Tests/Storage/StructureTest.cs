@@ -41,7 +41,7 @@ namespace Xtensive.Storage.Tests.Storage.StructureModel
   }
 
   [HierarchyRoot(typeof (Generator), "ID")]
-  public class Ray : Entity
+  public class  Ray : Entity
   {
     [Field]
     public int ID { get; set; }

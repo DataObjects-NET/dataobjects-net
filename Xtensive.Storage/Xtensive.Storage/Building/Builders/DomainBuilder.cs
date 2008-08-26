@@ -64,12 +64,16 @@ namespace Xtensive.Storage.Building.Builders
             BuildPrototypes();
             CreateDomainHandler();
             using (context.Domain.Handler.OpenSession(SessionType.System)) {
-              BuildingScope.Context.SystemSessionHandler = Session.Current.Handler;
-              using (Log.InfoRegion(String.Format(Strings.LogBuildingX, typeof (DomainHandler).GetShortName())))
-                context.Domain.Handler.Build();
-              CreateKeyManager();
-              CreateGenerators();
-              Session.Current.Handler.Commit();
+              using (var transactionScope = Session.Current.OpenTransaction()) {
+
+                BuildingScope.Context.SystemSessionHandler = Session.Current.Handler;
+                using (Log.InfoRegion(String.Format(Strings.LogBuildingX, typeof (DomainHandler).GetShortName())))
+                  context.Domain.Handler.Build();
+                CreateKeyManager();
+                CreateGenerators();
+
+                transactionScope.Complete();
+              } 
             }
           }
           catch (DomainBuilderException e) {

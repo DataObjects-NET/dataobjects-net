@@ -66,23 +66,26 @@ namespace Xtensive.Storage.Tests.Storage
     {
       Domain.Model.Dump();
       using (Domain.OpenSession()) {
-        A a = new A();
-        a.B = new B();
-        a.B.A = a;
-        a.C = new C();
-        a.C.A = a;
-        Session.Current.Persist();
-        Assert.AreEqual(1, Session.Current.All<A>().Count<A>());
-        Assert.AreEqual(1, Session.Current.All<B>().Count());
-        Assert.AreEqual(1, Session.Current.All<C>().Count());
+        using (var t = Session.Current.OpenTransaction()) {
+          A a = new A();
+          a.B = new B();
+          a.B.A = a;
+          a.C = new C();
+          a.C.A = a;
+          Session.Current.Persist();
+          Assert.AreEqual(1, Session.Current.All<A>().Count<A>());
+          Assert.AreEqual(1, Session.Current.All<B>().Count());
+          Assert.AreEqual(1, Session.Current.All<C>().Count());
 
-        a.B.Remove();
-        Assert.AreEqual(null, a.B);
-        AssertEx.Throws<ReferentialIntegrityException>(a.C.Remove);
-        a.Remove();
-        Assert.AreEqual(0, Session.Current.All<A>().Count());
-        Assert.AreEqual(0, Session.Current.All<B>().Count());
-        Assert.AreEqual(0, Session.Current.All<C>().Count());
+          a.B.Remove();
+          Assert.AreEqual(null, a.B);
+          AssertEx.Throws<ReferentialIntegrityException>(a.C.Remove);
+          a.Remove();
+          Assert.AreEqual(0, Session.Current.All<A>().Count());
+          Assert.AreEqual(0, Session.Current.All<B>().Count());
+          Assert.AreEqual(0, Session.Current.All<C>().Count());
+          t.Complete();
+        }
       }
     }
   }

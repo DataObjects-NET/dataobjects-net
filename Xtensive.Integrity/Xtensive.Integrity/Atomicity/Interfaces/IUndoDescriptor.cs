@@ -15,10 +15,29 @@ namespace Xtensive.Integrity.Atomicity
   public interface IUndoDescriptor: IOperationDescriptor, 
     IContext<UndoScope>
   {
+    /// <summary>
+    /// Gets or sets the opposite descriptor.
+    /// </summary>    
     IRedoDescriptor OppositeDescriptor { get; set; }
+
+    /// <summary>
+    /// Gets or sets the group undo operation.
+    /// </summary>    
     IGroupUndoDescriptor Group { get; set; }
+
+    /// <summary>
+    /// Gets the descriptor's arguments.
+    /// </summary>s    
     IDictionary<string, object> Arguments { get; }
+
+    /// <summary>
+    /// Gets a value indicating whether this descriptor is completed.
+    /// </summary>    
     bool IsCompleted { get; }
+
+    /// <summary>
+    /// Completes this descriptor.
+    /// </summary>
     void Complete();
   }
 }

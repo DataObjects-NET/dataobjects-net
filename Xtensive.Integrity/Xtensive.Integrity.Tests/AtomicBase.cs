@@ -49,13 +49,14 @@ namespace Xtensive.Integrity.Tests
         IDictionary<string, object> undoArguments = undoDescriptor.Arguments;
         object oldValue = null;
         if (properties.TryGetValue(index, out oldValue))
-        undoArguments["Value"] = oldValue;
+          undoArguments["Value"] = oldValue;
         undoArguments["Index"] = index;
         undoArguments["ExpectedValue"] = value;
         properties[index] = value;
         undoDescriptor.Complete();
       }
     }
+
     private void UndoSetProperty(IUndoDescriptor undoDescriptor)
     {
       bool validateVersions = (AtomicityScope.CurrentContext.Options & AtomicityContextOptions.Validate)!=0;
@@ -64,7 +65,8 @@ namespace Xtensive.Integrity.Tests
       object expectedValue;
       arguments.TryGetValue("ExpectedValue", out expectedValue);
       if (validateVersions && !expectedValue.Equals(this[index]))
-          throw new VersionConflictException(this, index, expectedValue, this[index]);
+        throw new VersionConflictException(this, index, expectedValue, this[index]);
+
       object value;
       arguments.TryGetValue("Value", out value);
       this[index] = value;
@@ -90,6 +92,7 @@ namespace Xtensive.Integrity.Tests
       IUndoDescriptor undoDescriptor = UndoScope.CurrentDescriptor;
       undoDescriptor.Complete();
     }
+
     private void UndoDoNothing(IUndoDescriptor undoDescriptor)
     {
     }
@@ -149,7 +152,7 @@ namespace Xtensive.Integrity.Tests
     }
 
     #region ISerializable Members
-
+    
     public void GetObjectData(SerializationInfo info, StreamingContext context)
     {
       info.AddValue("Properties", properties);

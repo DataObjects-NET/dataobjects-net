@@ -13,6 +13,7 @@ using Xtensive.Core.Collections;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Disposable;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Integrity.Atomicity;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
@@ -33,6 +34,14 @@ namespace Xtensive.Storage
     private readonly object _lock = new object();
     private readonly CompilationScope compilationScope;
 
+
+    /// <summary>
+    /// Gets the atomicity context.
+    /// </summary>
+    public AtomicityContext AtomicityContext { get; private set; }
+
+    #region Transaction related methods
+
     /// <summary>
     /// Gets the active transaction.
     /// </summary>    
@@ -44,21 +53,36 @@ namespace Xtensive.Storage
     /// <returns>Scope of the active transaction.</returns>
     public TransactionScope OpenTransaction()
     {
-      if (ActiveTransaction==null)
+      if (ActiveTransaction==null) {
         ActiveTransaction = new Transaction(this);
+        Handler.OpenTransaction();
+      }      
 
       return ActiveTransaction.Activate();
     }
 
     internal void OnTransactionCommit()
     {
+      Persist();
+      Handler.CommitTransaction();
       ActiveTransaction = null;
+      OnTranscationClosed();
     }
 
     internal void OnTransactionRollback()
     {      
+      Handler.RollbackTransaction();
       ActiveTransaction = null;
+      OnTranscationClosed();
     }
+
+    private void OnTranscationClosed()
+    {
+      DataCache.Clear();
+      DirtyData.Clear();
+    }
+
+    #endregion
 
     #region Private \ internal properties
 
@@ -118,7 +142,7 @@ namespace Xtensive.Storage
         DataCache.Remove(data.Key);
 
       DirtyData.Clear();
-    }
+    }    
 
     public IEnumerable<T> All<T>() where T : class,   IEntity
     {      
@@ -211,6 +235,7 @@ namespace Xtensive.Storage
       Handler.Session = this;
       Handler.Initialize();
       compilationScope = Handlers.DomainHandler.CompilationContext.Activate();
+      AtomicityContext = new AtomicityContext(this, AtomicityContextOptions.Undoable);
     }
 
     #region Dispose pattern
@@ -237,15 +262,14 @@ namespace Xtensive.Storage
     /// </summary>
     protected virtual void Dispose(bool disposing)
     {
-      if (isDisposed)
+        if (isDisposed)
         return;
       lock (_lock) {
         if (isDisposed)
           return;
         try {
           if (Log.IsLogged(LogEventTypes.Debug))
-            Log.Debug("Session '{0}'. Disposing", this);
-          Handler.Commit();
+            Log.Debug("Session '{0}'. Disposing", this);          
           Handler.DisposeSafely();
           compilationScope.DisposeSafely();
         }

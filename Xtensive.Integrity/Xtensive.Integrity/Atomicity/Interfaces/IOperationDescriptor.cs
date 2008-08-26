@@ -11,8 +11,19 @@ namespace Xtensive.Integrity.Atomicity
   /// </summary>
   public interface IOperationDescriptor
   {
+    /// <summary>
+    /// Gets or sets the <see cref="MethodCallDescriptor"/>.
+    /// </summary>    
     MethodCallDescriptor CallDescriptor { get; set; }
+
+    /// <summary>
+    /// Invokes the operation.
+    /// </summary>
     void Invoke();
+
+    /// <summary>
+    /// Finalizes the operation.
+    /// </summary>    
     void Finalize(bool isUndone);
   }
 }

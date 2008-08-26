@@ -43,7 +43,7 @@ namespace Xtensive.Integrity.Tests
 
     public Session()
       : this(AtomicityContextOptions.Default)
-    {
+    {      
     }
 
     public Session(AtomicityContextOptions options)

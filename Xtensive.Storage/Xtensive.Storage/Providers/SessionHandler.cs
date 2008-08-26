@@ -11,6 +11,9 @@ using Xtensive.Core.Collections;
 
 namespace Xtensive.Storage.Providers
 {
+  /// <summary>
+  /// Base session handler class.
+  /// </summary>
   public abstract class SessionHandler : InitializableHandlerBase,
     IDisposable
   {
@@ -19,10 +22,26 @@ namespace Xtensive.Storage.Providers
     /// </summary>
     public Session Session { get; internal set; }
 
-    public virtual void Commit()
-    {
-    }
+    /// <summary>
+    /// Opens the transaction.
+    /// </summary>
+    public abstract void OpenTransaction();
 
+    /// <summary>
+    /// Commits the transaction.
+    /// </summary>    
+    public abstract void CommitTransaction();
+
+    /// <summary>
+    /// Rollbacks the transaction.
+    /// </summary>    
+    public abstract void RollbackTransaction();
+
+
+    /// <summary>
+    /// Persists changed entities.
+    /// </summary>
+    /// <param name="registry">The registry of entities to persist.</param>
     public void Persist(FlagRegistry<PersistenceState, EntityData> registry)
     {
       HashSet<EntityData> @new = registry.GetItems(PersistenceState.New);
@@ -35,7 +54,7 @@ namespace Xtensive.Storage.Providers
         Update(data);
       foreach (EntityData data in removed)
         Remove(data);
-    }
+    }    
 
     protected abstract void Insert(EntityData data);
 

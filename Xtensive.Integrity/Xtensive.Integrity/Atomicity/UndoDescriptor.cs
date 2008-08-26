@@ -63,6 +63,7 @@ namespace Xtensive.Integrity.Atomicity
       CallDescriptor.Method.Invoke(CallDescriptor.Target, new object[] {this});
     }
 
+    /// <inheritdoc/>
     public override void Finalize(bool isUndone)
     {
       if (isUndone) {

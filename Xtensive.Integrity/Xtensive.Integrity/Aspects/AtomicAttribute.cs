@@ -10,6 +10,7 @@ using System.Reflection;
 using PostSharp.Extensibility;
 using PostSharp.Laos;
 using Xtensive.Core.Aspects.Helpers;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Disposable;
 using Xtensive.Core.Reflection;
 using Xtensive.Integrity.Aspects.Internals;
@@ -111,7 +112,7 @@ namespace Xtensive.Integrity.Aspects
       if (!bRedoIsBlocked && (atomicityContext.Options & AtomicityContextOptions.Redoable)!=0) {
         redoDescriptor = atomicityContext.OperationDescriptorFactory.CreateRedoDescriptor();
         redoDescriptor.CallDescriptor = new MethodCallDescriptor(eventArgs.Instance, eventArgs.Method);
-        redoDescriptor.Arguments = eventArgs.GetArguments();
+        redoDescriptor.Arguments = eventArgs.GetReadOnlyArgumentArray();
         tag.RedoScope = new RedoScope(redoDescriptor);
       }
 
@@ -183,11 +184,18 @@ namespace Xtensive.Integrity.Aspects
 
     // Constructors
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
     public AtomicAttribute()
       : this(null)
     {
     }
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="undoMethodName">Name of the undo method.</param>
     public AtomicAttribute(string undoMethodName)
     {
       UndoMethodName = undoMethodName;

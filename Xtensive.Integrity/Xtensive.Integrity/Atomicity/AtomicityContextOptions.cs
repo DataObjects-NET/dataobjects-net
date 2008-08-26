@@ -14,11 +14,34 @@ namespace Xtensive.Integrity.Atomicity
   [Flags]
   public enum AtomicityContextOptions
   {
-    Default  = 0x1,
+    /// <summary>
+    /// Default value. Actualy Undoable.
+    /// </summary>
+    Default  = Undoable,
+
+    /// <summary>
+    /// Atomicity features are not supportet.
+    /// </summary>
     None     = 0x0,
+
+    /// <summary>
+    /// Undo operation is supported.
+    /// </summary>
     Undoable = 0x1,
+
+    /// <summary>
+    /// Redo operation is supported.
+    /// </summary>
     Redoable = 0x2,
+
+    /// <summary>
+    /// Validation is supported.
+    /// </summary>
     Validate = 0x4,
-    Full     = 0x7,
+
+    /// <summary>
+    /// All atomicity features are supported.
+    /// </summary>
+    Full     = Undoable | Redoable | Validate
   }
 }

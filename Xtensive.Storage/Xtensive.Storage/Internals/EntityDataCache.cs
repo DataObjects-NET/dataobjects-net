@@ -8,6 +8,7 @@ using System;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Tuples;
+using Xtensive.Storage.Attributes;
 
 namespace Xtensive.Storage.Internals
 {
@@ -15,16 +16,19 @@ namespace Xtensive.Storage.Internals
   {
     private readonly WeakCache<Key, EntityData> cache;
 
+    [Infrastructure]
     public EntityData this[Key key]
     {
       get { return cache[key, true]; }
     }
 
+    [Infrastructure]
     public EntityData Create(Key key, PersistenceState state)
     {
       return Create(key, key.Tuple, state);
     }
 
+    [Infrastructure]
     public void Update(Key key, Tuple tuple)
     {
       EntityData data = this[key];
@@ -42,16 +46,19 @@ namespace Xtensive.Storage.Internals
       }
     }
 
+    [Infrastructure]
     public void Remove(Key key)
     {
       cache.Remove(key);
     }
 
+    [Infrastructure]
     public void Clear()
     {
       cache.Clear();
     }
 
+    [Infrastructure]
     private EntityData Create(Key key, Tuple tuple, PersistenceState state)
     {
       Tuple origin;

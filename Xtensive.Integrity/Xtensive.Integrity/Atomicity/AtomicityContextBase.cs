@@ -132,7 +132,7 @@ namespace Xtensive.Integrity.Atomicity
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public AtomicityContextBase()
+    protected AtomicityContextBase()
       : this(AtomicityContextOptions.Default)
     {
     }
@@ -141,7 +141,7 @@ namespace Xtensive.Integrity.Atomicity
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="operationLog">The operation log.</param>
-    public AtomicityContextBase(IOperationLog operationLog)
+    protected AtomicityContextBase(IOperationLog operationLog)
       : this(AtomicityContextOptions.Default, operationLog)
     {
     }
@@ -150,7 +150,7 @@ namespace Xtensive.Integrity.Atomicity
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="options">The atomicity context options.</param>
-    public AtomicityContextBase(AtomicityContextOptions options)
+    protected AtomicityContextBase(AtomicityContextOptions options)
       : this(options, null)
     {
     }
@@ -160,7 +160,7 @@ namespace Xtensive.Integrity.Atomicity
     /// </summary>
     /// <param name="options">The atomicity context options.</param>
     /// <param name="operationLog">The operation log.</param>
-    public AtomicityContextBase(AtomicityContextOptions options, IOperationLog operationLog)
+    protected AtomicityContextBase(AtomicityContextOptions options, IOperationLog operationLog)
     {
       Initialize(options, operationLog);
     }

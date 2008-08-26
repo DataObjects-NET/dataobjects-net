@@ -9,14 +9,15 @@ using Xtensive.Integrity.Atomicity;
 
 namespace Xtensive.Storage
 {
+  /// <summary>
+  /// The context describing current atomic operation.
+  /// </summary>
   public class AtomicityContext : AtomicityContextBase
   {
     /// <summary>
     /// Gets the session.
     /// </summary>
     public Session Session { get; private set; }
-
-
 
 
     // Constructors

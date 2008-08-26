@@ -39,7 +39,7 @@ namespace Xtensive.Storage.Aspects
       eventArgs.MethodExecutionTag = sessionScope;
     }
 
-    [DebuggerStepThrough]
+    //[DebuggerStepThrough]
     public override void OnExit(MethodExecutionEventArgs eventArgs)
     {
       var d = (IDisposable) eventArgs.MethodExecutionTag;

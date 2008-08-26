@@ -5,10 +5,7 @@
 // Created:    2007.11.23
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using Xtensive.Integrity.Aspects;
-using Xtensive.Core.Helpers;
 
 namespace Xtensive.Integrity.Atomicity
 {
@@ -30,8 +27,11 @@ namespace Xtensive.Integrity.Atomicity
     }
 
     public abstract void Invoke();
+    
+    
     public abstract void Finalize(bool isUndone);
 
+    /// <inheritdoc/>
     public override string ToString()
     {
       return callDescriptor.ToString();

@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Integrity.Resources;
 
 namespace Xtensive.Integrity.Atomicity
@@ -47,11 +48,14 @@ namespace Xtensive.Integrity.Atomicity
 
     // Constructors
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
     public GroupUndoDescriptor() 
     {
       CallDescriptor = new MethodCallDescriptor(null, undoMethodInfo);
     }
-
+    
     static GroupUndoDescriptor()
     {
       undoMethodInfo = typeof (GroupUndoDescriptor).GetMethod("Undo", BindingFlags.Static | BindingFlags.NonPublic);

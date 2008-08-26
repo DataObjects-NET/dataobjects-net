@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics;
 using System.Reflection;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Integrity.Atomicity
 {
@@ -16,37 +17,38 @@ namespace Xtensive.Integrity.Atomicity
   [Serializable]
   public struct MethodCallDescriptor : IEquatable<MethodCallDescriptor>
   {
-    private object target;
-    private MethodBase method;
+    /// <summary>
+    /// Gets the method target.
+    /// </summary>    
+    public object Target { get; private set; }
 
-    public object Target {
-      [DebuggerStepThrough]
-      get { return target; }
-    }
+    /// <summary>
+    /// Gets the method.
+    /// </summary>    
+    public MethodBase Method { get; private set; }
 
-    public MethodBase Method {
-      [DebuggerStepThrough]
-      get { return method; }
-    }
-
+    /// <summary>
+    /// Gets a value indicating whether this call descriptor is valid.
+    /// </summary>
     public bool IsValid {
       [DebuggerStepThrough]
       get {
-        if (method==null)
+        if (Method==null)
           return false;
-        return method.IsStatic ^ target!=null;
+        return Method.IsStatic ^ Target!=null;
       }
     }
 
+    /// <inheritdoc/>
     public override string ToString()
     {
       if (!IsValid)
         return "Invalid CallDescriptor";
       else {
-        if (target==null)
-          return String.Format("static {0}::{1}", method.DeclaringType.Name, method.Name);
+        if (Target==null)
+          return String.Format("static {0}::{1}", Method.DeclaringType.Name, Method.Name);
         else 
-          return String.Format("\"{2}\".{0}::{1}", method.DeclaringType.Name, method.Name, target);
+          return String.Format("\"{2}\".{0}::{1}", Method.DeclaringType.Name, Method.Name, Target);
       }
     }
 
@@ -54,7 +56,7 @@ namespace Xtensive.Integrity.Atomicity
 
     public bool Equals(MethodCallDescriptor methodCallDescriptor)
     {
-      return Equals(target, methodCallDescriptor.target) && Equals(method, methodCallDescriptor.method);
+      return Equals(Target, methodCallDescriptor.Target) && Equals(Method, methodCallDescriptor.Method);
     }
 
     public override bool Equals(object obj)
@@ -66,21 +68,27 @@ namespace Xtensive.Integrity.Atomicity
     public override int GetHashCode()
     {
       return 
-        (target!=null ? target.GetHashCode() : 0) + 
-          29*(method!=null ? method.GetHashCode() : 0);
+        (Target!=null ? Target.GetHashCode() : 0) + 
+          29*(Method!=null ? Method.GetHashCode() : 0);
     }
 
     #endregion
 
     // Constructors
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="target">The target.</param>
+    /// <param name="method">The method.</param>
     public MethodCallDescriptor(object target, MethodBase method)
+      : this()
     {
-      this.target = target;
-      this.method = method;
+      this.Target = target;
+      this.Method = method;
       if (!IsValid) {
-        this.method = null;
-        this.target = null;
+        this.Method = null;
+        this.Target = null;
       }
     }
   }
