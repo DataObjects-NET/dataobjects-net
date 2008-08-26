@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Security.AccessControl;
 using Xtensive.Core;
+using Xtensive.Core.Disposable;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Serialization;

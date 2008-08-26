@@ -11,6 +11,7 @@ using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Diagnostics;
+using Xtensive.Core.Disposable;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Internals;

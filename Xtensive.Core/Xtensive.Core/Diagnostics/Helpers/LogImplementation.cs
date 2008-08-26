@@ -8,7 +8,7 @@ using System;
 using System.Globalization;
 using log4net.Util;
 using Xtensive.Core.Diagnostics;
-using Xtensive.Core.Helpers;
+using Xtensive.Core.Disposable;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Resources;
 

@@ -10,6 +10,7 @@ using System.IO;
 using System.Threading;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Disposable;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.IO;
 using Xtensive.Core.Serialization;

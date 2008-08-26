@@ -12,6 +12,7 @@ using PostSharp.Laos;
 using Xtensive.Core;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.Aspects.Helpers;
+using Xtensive.Core.Disposable;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Reflection;
 using Xtensive.Integrity.Validation;

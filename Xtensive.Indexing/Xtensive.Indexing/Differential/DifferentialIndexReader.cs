@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Comparison;
+using Xtensive.Core.Disposable;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 

@@ -10,7 +10,6 @@ using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core.Diagnostics;
-using Xtensive.Core.Helpers;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Testing;
 
@@ -68,7 +67,7 @@ namespace Xtensive.Core.Tests.DotNetFramework
       // Test
       Pair<int> current = new Pair<int>();
       TestHelper.CollectGarbage();
-      using (warmup ? (IDisposable)new Disposable(delegate { }) : 
+      using (warmup ? (IDisposable)new Disposable.Disposable(delegate { }) : 
         new Measurement(
           String.Format("{0,6:F2} MB", (double)size * ItemSize / MbSize), 
           MeasurementOptions.Log, count)) {

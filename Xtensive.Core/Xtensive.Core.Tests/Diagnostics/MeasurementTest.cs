@@ -8,7 +8,7 @@ using System;
 using System.Threading;
 using NUnit.Framework;
 using Xtensive.Core.Diagnostics;
-using Xtensive.Core.Helpers;
+using Xtensive.Core.Disposable;
 
 namespace Xtensive.Core.Tests.Diagnostics
 {

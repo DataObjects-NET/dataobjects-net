@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using Xtensive.Core.Disposable;
 using Xtensive.Core.Helpers;
 
 namespace Xtensive.Storage

@@ -1321,6 +1321,15 @@ namespace Xtensive.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unable to dispose an item when disposable container has an invalid state..
+        /// </summary>
+        internal static string UnableToDisposeItemWhenContainerIsNotDisposed {
+            get {
+                return ResourceManager.GetString("UnableToDisposeItemWhenContainerIsNotDisposed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Value for parameter &apos;{0}&apos; is not set..
         /// </summary>
         internal static string ValueForParameterXIsNotSet {

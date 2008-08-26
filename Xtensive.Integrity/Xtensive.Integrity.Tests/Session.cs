@@ -5,6 +5,7 @@
 // Created:    2008.01.06
 
 using System;
+using Xtensive.Core.Disposable;
 using Xtensive.Core.Helpers;
 using Xtensive.Integrity.Atomicity;
 using Xtensive.Integrity.Atomicity.OperationLogs;

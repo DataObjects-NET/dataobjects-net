@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.ConstrainedExecution;
 using System.Threading;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
@@ -27,7 +28,8 @@ namespace Xtensive.Storage
   /// <summary>
   /// Provides access to a single storage.
   /// </summary>
-  public sealed class Domain
+  public sealed class Domain : CriticalFinalizerObject,
+    IDisposable
   {
     private readonly ThreadSafeDictionary<RecordSetHeader, RecordSetMapping> recordSetMappings = 
       ThreadSafeDictionary<RecordSetHeader, RecordSetMapping>.Create(new object());
@@ -134,6 +136,37 @@ namespace Xtensive.Storage
       Configuration = configuration;
       Handlers = new HandlerAccessor(this);
       Prototypes = new Dictionary<TypeInfo, Tuple>();
+    }
+
+    public void Dispose()
+    {
+      Dispose(true);
+      GC.SuppressFinalize(this);
+    }
+
+    ~Domain()
+    {
+      Dispose(false);
+    }
+
+    private void Dispose(bool isDisposing)
+    {
+      /* if (isDisposed)
+        return;
+      lock (_lock) {
+        if (isDisposed)
+          return;
+        try {
+          if (Log.IsLogged(LogEventTypes.Debug))
+            Log.Debug("Session '{0}'. Disposing", this);
+          Handler.Commit();
+          Handler.DisposeSafely();
+          compilationScope.DisposeSafely();
+        }
+        finally {
+          isDisposed = true;
+        }
+      }*/
     }
   }
 }

@@ -7,6 +7,7 @@
 using System;
 using PostSharp.Extensibility;
 using PostSharp.Laos;
+using Xtensive.Core.Disposable;
 using Xtensive.Core.Helpers;
 using Xtensive.Storage.Resources;
 

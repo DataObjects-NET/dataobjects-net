@@ -10,7 +10,6 @@ using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core.Diagnostics;
-using Xtensive.Core.Helpers;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Testing;
 
@@ -68,12 +67,12 @@ namespace Xtensive.Core.Tests.DotNetFramework
       using (warmup ? EmptyDisposable() : Log.InfoRegion("Int32 operations")) {
         int j = 0;
         using (warmup ? EmptyDisposable() : Log.InfoRegion("Unchecked")) unchecked{
-          using (warmup ? (IDisposable)new Disposable(delegate { }) : 
+          using (warmup ? (IDisposable)new Disposable.Disposable(delegate { }) : 
             new Measurement("Empty loop", MeasurementOptions.Log, count)) {
             for (int i = 0; i < count; i++) {
             }
           }
-          using (warmup ? (IDisposable) new Disposable(delegate { }) :
+          using (warmup ? (IDisposable) new Disposable.Disposable(delegate { }) :
             new Measurement("Increment Int32", MeasurementOptions.Log, count)) {
             for (int i = 0; i < count; i+=10) {
               j++;
@@ -88,7 +87,7 @@ namespace Xtensive.Core.Tests.DotNetFramework
               j++;
             }
           }
-          using (warmup ? (IDisposable) new Disposable(delegate { }) :
+          using (warmup ? (IDisposable) new Disposable.Disposable(delegate { }) :
             new Measurement("Adding Int32", MeasurementOptions.Log, count)) {
             for (int i = 0; i < count; i+=10) {
               j = j + 10;
@@ -103,7 +102,7 @@ namespace Xtensive.Core.Tests.DotNetFramework
               j = j + 10;
             }
           }
-          using (warmup ? (IDisposable) new Disposable(delegate { }) :
+          using (warmup ? (IDisposable) new Disposable.Disposable(delegate { }) :
             new Measurement("Multiplying Int32", MeasurementOptions.Log, count)) {
             for (int i = 0; i < count; i+=10) {
               j = i * 0;
@@ -118,7 +117,7 @@ namespace Xtensive.Core.Tests.DotNetFramework
               j = j * 3;
             }
           }
-          using (warmup ? (IDisposable) new Disposable(delegate { }) :
+          using (warmup ? (IDisposable) new Disposable.Disposable(delegate { }) :
             new Measurement("Dividing Int32", MeasurementOptions.Log, count)) {
             for (int i = 0; i < count; i+=10) {
               j = i / 3;
@@ -135,12 +134,12 @@ namespace Xtensive.Core.Tests.DotNetFramework
           }
         }
         using (warmup ? EmptyDisposable() : Log.InfoRegion("Checked")) checked{
-          using (warmup ? (IDisposable)new Disposable(delegate { }) : 
+          using (warmup ? (IDisposable)new Disposable.Disposable(delegate { }) : 
             new Measurement("Empty loop", MeasurementOptions.Log, count)) {
             for (int i = 0; i < count; i++) {
             }
           }
-          using (warmup ? (IDisposable) new Disposable(delegate { }) :
+          using (warmup ? (IDisposable) new Disposable.Disposable(delegate { }) :
             new Measurement("Increment Int32", MeasurementOptions.Log, count)) {
             for (int i = 0; i < count; i+=10) {
               j++;
@@ -155,7 +154,7 @@ namespace Xtensive.Core.Tests.DotNetFramework
               j++;
             }
           }
-          using (warmup ? (IDisposable) new Disposable(delegate { }) :
+          using (warmup ? (IDisposable) new Disposable.Disposable(delegate { }) :
             new Measurement("Adding Int32", MeasurementOptions.Log, count)) {
             for (int i = 0; i < count; i+=10) {
               j = j + 10;
@@ -170,7 +169,7 @@ namespace Xtensive.Core.Tests.DotNetFramework
               j = j + 10;
             }
           }
-          using (warmup ? (IDisposable) new Disposable(delegate { }) :
+          using (warmup ? (IDisposable) new Disposable.Disposable(delegate { }) :
             new Measurement("Multiplying Int32", MeasurementOptions.Log, count)) {
             for (int i = 0; i < count; i+=10) {
               j = i * 0;
@@ -185,7 +184,7 @@ namespace Xtensive.Core.Tests.DotNetFramework
               j = j * 3;
             }
           }
-          using (warmup ? (IDisposable) new Disposable(delegate { }) :
+          using (warmup ? (IDisposable) new Disposable.Disposable(delegate { }) :
             new Measurement("Dividing Int32", MeasurementOptions.Log, count)) {
             for (int i = 0; i < count; i+=10) {
               j = i / 3;
@@ -209,12 +208,12 @@ namespace Xtensive.Core.Tests.DotNetFramework
       using (warmup ? EmptyDisposable() : Log.InfoRegion("Int64 operations")) {
         long j = 0;
         using (warmup ? EmptyDisposable() : Log.InfoRegion("Unchecked")) unchecked{
-          using (warmup ? (IDisposable)new Disposable(delegate { }) : 
+          using (warmup ? (IDisposable)new Disposable.Disposable(delegate { }) : 
             new Measurement("Empty loop", MeasurementOptions.Log, count)) {
             for (long i = 0; i < count; i++) {
             }
           }
-          using (warmup ? (IDisposable) new Disposable(delegate { }) :
+          using (warmup ? (IDisposable) new Disposable.Disposable(delegate { }) :
             new Measurement("Increment Int64", MeasurementOptions.Log, count)) {
             for (int i = 0; i < count; i+=10) {
               j++;
@@ -229,7 +228,7 @@ namespace Xtensive.Core.Tests.DotNetFramework
               j++;
             }
           }
-          using (warmup ? (IDisposable) new Disposable(delegate { }) :
+          using (warmup ? (IDisposable) new Disposable.Disposable(delegate { }) :
             new Measurement("Adding Int64", MeasurementOptions.Log, count)) {
             for (long i = 0; i < count; i+=10) {
               j = j + 10;
@@ -244,7 +243,7 @@ namespace Xtensive.Core.Tests.DotNetFramework
               j = j + 10;
             }
           }
-          using (warmup ? (IDisposable) new Disposable(delegate { }) :
+          using (warmup ? (IDisposable) new Disposable.Disposable(delegate { }) :
             new Measurement("Multiplying Int64", MeasurementOptions.Log, count)) {
             for (long i = 0; i < count; i+=10) {
               j = (long)i * 3;
@@ -259,7 +258,7 @@ namespace Xtensive.Core.Tests.DotNetFramework
               j = j * 3;
             }
           }
-          using (warmup ? (IDisposable) new Disposable(delegate { }) :
+          using (warmup ? (IDisposable) new Disposable.Disposable(delegate { }) :
             new Measurement("Dividing Int64", MeasurementOptions.Log, count)) {
             for (long i = 0; i < count; i+=10) {
               j = (long)i / 3;
@@ -276,12 +275,12 @@ namespace Xtensive.Core.Tests.DotNetFramework
           }
         }
         using (warmup ? EmptyDisposable() : Log.InfoRegion("Checked")) checked{
-          using (warmup ? (IDisposable)new Disposable(delegate { }) : 
+          using (warmup ? (IDisposable)new Disposable.Disposable(delegate { }) : 
             new Measurement("Empty loop", MeasurementOptions.Log, count)) {
             for (long i = 0; i < count; i++) {
             }
           }
-          using (warmup ? (IDisposable) new Disposable(delegate { }) :
+          using (warmup ? (IDisposable) new Disposable.Disposable(delegate { }) :
             new Measurement("Increment Int64", MeasurementOptions.Log, count)) {
             for (int i = 0; i < count; i+=10) {
               j++;
@@ -296,7 +295,7 @@ namespace Xtensive.Core.Tests.DotNetFramework
               j++;
             }
           }
-          using (warmup ? (IDisposable) new Disposable(delegate { }) :
+          using (warmup ? (IDisposable) new Disposable.Disposable(delegate { }) :
             new Measurement("Adding Int64", MeasurementOptions.Log, count)) {
             for (long i = 0; i < count; i+=10) {
               j = j + 10;
@@ -311,7 +310,7 @@ namespace Xtensive.Core.Tests.DotNetFramework
               j = j + 10;
             }
           }
-          using (warmup ? (IDisposable) new Disposable(delegate { }) :
+          using (warmup ? (IDisposable) new Disposable.Disposable(delegate { }) :
             new Measurement("Multiplying Int64", MeasurementOptions.Log, count)) {
             for (long i = 0; i < count; i+=10) {
               j = (long)i * 3;
@@ -326,7 +325,7 @@ namespace Xtensive.Core.Tests.DotNetFramework
               j = j * 3;
             }
           }
-          using (warmup ? (IDisposable) new Disposable(delegate { }) :
+          using (warmup ? (IDisposable) new Disposable.Disposable(delegate { }) :
             new Measurement("Dividing Int64", MeasurementOptions.Log, count)) {
             for (long i = 0; i < count; i+=10) {
               j = (long)i / 3;
@@ -350,7 +349,7 @@ namespace Xtensive.Core.Tests.DotNetFramework
       using (warmup ? EmptyDisposable() : Log.InfoRegion("Double operations")) {
         double j = 0;
         using (warmup ? EmptyDisposable() : Log.InfoRegion("Unchecked")) unchecked{
-          using (warmup ? (IDisposable) new Disposable(delegate { }) :
+          using (warmup ? (IDisposable) new Disposable.Disposable(delegate { }) :
             new Measurement("Adding Double", MeasurementOptions.Log, count)) {
             for (int i = 0; i < count; i+=10) {
               j = j + 10.0;
@@ -365,7 +364,7 @@ namespace Xtensive.Core.Tests.DotNetFramework
               j = j + 10.0;
             }
           }
-          using (warmup ? (IDisposable) new Disposable(delegate { }) :
+          using (warmup ? (IDisposable) new Disposable.Disposable(delegate { }) :
             new Measurement("Multiplying Double", MeasurementOptions.Log, count)) {
             for (int i = 0; i < count; i+=10) {
               j = (double)i * 1.0000000000001;
@@ -380,7 +379,7 @@ namespace Xtensive.Core.Tests.DotNetFramework
               j = j * 1.0000000000001;
             }
           }
-          using (warmup ? (IDisposable) new Disposable(delegate { }) :
+          using (warmup ? (IDisposable) new Disposable.Disposable(delegate { }) :
             new Measurement("Dividing Double", MeasurementOptions.Log, count)) {
             for (int i = 0; i < count; i+=10) {
               j = (double)i / 1.0000000000001;
@@ -397,7 +396,7 @@ namespace Xtensive.Core.Tests.DotNetFramework
           }
         }
         using (warmup ? EmptyDisposable() : Log.InfoRegion("Checked")) checked{
-          using (warmup ? (IDisposable) new Disposable(delegate { }) :
+          using (warmup ? (IDisposable) new Disposable.Disposable(delegate { }) :
             new Measurement("Adding Double", MeasurementOptions.Log, count)) {
             for (int i = 0; i < count; i+=10) {
               j = j + 10.0;
@@ -412,7 +411,7 @@ namespace Xtensive.Core.Tests.DotNetFramework
               j = j + 10.0;
             }
           }
-          using (warmup ? (IDisposable) new Disposable(delegate { }) :
+          using (warmup ? (IDisposable) new Disposable.Disposable(delegate { }) :
             new Measurement("Multiplying Double", MeasurementOptions.Log, count)) {
             for (int i = 0; i < count; i+=10) {
               j = (double)i * 1.0000000000001;
@@ -427,7 +426,7 @@ namespace Xtensive.Core.Tests.DotNetFramework
               j = j * 1.0000000000001;
             }
           }
-          using (warmup ? (IDisposable) new Disposable(delegate { }) :
+          using (warmup ? (IDisposable) new Disposable.Disposable(delegate { }) :
             new Measurement("Dividing Double", MeasurementOptions.Log, count)) {
             for (int i = 0; i < count; i+=10) {
               j = (double)i / 1.0000000000001;
@@ -448,7 +447,7 @@ namespace Xtensive.Core.Tests.DotNetFramework
 
     private IDisposable EmptyDisposable()
     {
-      return new Disposable(delegate { });
+      return new Disposable.Disposable(delegate { });
     }
 
     private void TestCast(int size, bool warmup)
@@ -457,11 +456,11 @@ namespace Xtensive.Core.Tests.DotNetFramework
       // Test
       object o = EmptyDisposable();
       object t;
-      Disposable d = null;
+      Disposable.Disposable d = null;
       IDisposable id = null;
       TestHelper.CollectGarbage();
       using (warmup ? EmptyDisposable() : Log.InfoRegion("Casts")) {
-        using (warmup ? (IDisposable) new Disposable(delegate { }) :
+        using (warmup ? (IDisposable) new Disposable.Disposable(delegate { }) :
           new Measurement("Box Int32   ", MeasurementOptions.Log, size)) {
           for (int i = 0; i < size; ) {
             t = i++;
@@ -477,22 +476,22 @@ namespace Xtensive.Core.Tests.DotNetFramework
           }
         }
         TestHelper.CollectGarbage();
-        using (warmup ? (IDisposable) new Disposable(delegate { }) :
+        using (warmup ? (IDisposable) new Disposable.Disposable(delegate { }) :
           new Measurement("To ancestor ", MeasurementOptions.Log, size)) {
           for (int i = 0; i < size; i+=10) {
-            d = (Disposable)o;
-            d = (Disposable)o;
-            d = (Disposable)o;
-            d = (Disposable)o;
-            d = (Disposable)o;
-            d = (Disposable)o;
-            d = (Disposable)o;
-            d = (Disposable)o;
-            d = (Disposable)o;
-            d = (Disposable)o;
+            d = (Disposable.Disposable)o;
+            d = (Disposable.Disposable)o;
+            d = (Disposable.Disposable)o;
+            d = (Disposable.Disposable)o;
+            d = (Disposable.Disposable)o;
+            d = (Disposable.Disposable)o;
+            d = (Disposable.Disposable)o;
+            d = (Disposable.Disposable)o;
+            d = (Disposable.Disposable)o;
+            d = (Disposable.Disposable)o;
           }
         }
-        using (warmup ? (IDisposable) new Disposable(delegate { }) :
+        using (warmup ? (IDisposable) new Disposable.Disposable(delegate { }) :
           new Measurement("To interface", MeasurementOptions.Log, size)) {
           for (int i = 0; i < size; i+=10) {
             id = (IDisposable)o;
@@ -507,22 +506,22 @@ namespace Xtensive.Core.Tests.DotNetFramework
             id = (IDisposable)o;
           }
         }
-        using (warmup ? (IDisposable) new Disposable(delegate { }) :
+        using (warmup ? (IDisposable) new Disposable.Disposable(delegate { }) :
           new Measurement("To ancestor  (as)", MeasurementOptions.Log, size)) {
           for (int i = 0; i < size; i+=10) {
-            d = o as Disposable;
-            d = o as Disposable;
-            d = o as Disposable;
-            d = o as Disposable;
-            d = o as Disposable;
-            d = o as Disposable;
-            d = o as Disposable;
-            d = o as Disposable;
-            d = o as Disposable;
-            d = o as Disposable;
+            d = o as Disposable.Disposable;
+            d = o as Disposable.Disposable;
+            d = o as Disposable.Disposable;
+            d = o as Disposable.Disposable;
+            d = o as Disposable.Disposable;
+            d = o as Disposable.Disposable;
+            d = o as Disposable.Disposable;
+            d = o as Disposable.Disposable;
+            d = o as Disposable.Disposable;
+            d = o as Disposable.Disposable;
           }
         }
-        using (warmup ? (IDisposable) new Disposable(delegate { }) :
+        using (warmup ? (IDisposable) new Disposable.Disposable(delegate { }) :
           new Measurement("To interface (as)", MeasurementOptions.Log, size)) {
           for (int i = 0; i < size; i+=10) {
             id = o as IDisposable;
@@ -551,7 +550,7 @@ namespace Xtensive.Core.Tests.DotNetFramework
       TestHelper.CollectGarbage();
       int j = size;
       using (warmup ? EmptyDisposable() : Log.InfoRegion(String.Format("Int32 array, {0,6}K", (size+10) / KSize))) {
-        using (warmup ? (IDisposable)new Disposable(delegate { }) : 
+        using (warmup ? (IDisposable)new Disposable.Disposable(delegate { }) : 
           new Measurement("Filling (x10)", MeasurementOptions.Log, size)) {
           for (int i = 0; i < size; ) {
             ints[i++] = i;
@@ -566,13 +565,13 @@ namespace Xtensive.Core.Tests.DotNetFramework
             ints[i++] = i;
           }
         }
-        using (warmup ? (IDisposable)new Disposable(delegate { }) : 
+        using (warmup ? (IDisposable)new Disposable.Disposable(delegate { }) : 
           new Measurement("Filling (x1) ", MeasurementOptions.Log, size)) {
           for (int i = 0; i < size; i++) {
             ints[i] = i;
           }
         }
-        using (warmup ? (IDisposable)new Disposable(delegate { }) : 
+        using (warmup ? (IDisposable)new Disposable.Disposable(delegate { }) : 
           new Measurement("Reading (x10)", MeasurementOptions.Log, size)) {
           for (int i = 0; i < size; ) {
             j = ints[i++];
@@ -587,13 +586,13 @@ namespace Xtensive.Core.Tests.DotNetFramework
             j = ints[i++];
           }
         }
-        using (warmup ? (IDisposable)new Disposable(delegate { }) : 
+        using (warmup ? (IDisposable)new Disposable.Disposable(delegate { }) : 
           new Measurement("Reading (x1) ", MeasurementOptions.Log, size)) {
           for (int i = 0; i < size; ) {
             j = ints[i++];
           }
         }
-        using (warmup ? (IDisposable)new Disposable(delegate { }) : 
+        using (warmup ? (IDisposable)new Disposable.Disposable(delegate { }) : 
           new Measurement("Enumerating  ", MeasurementOptions.Log, size)) {
           foreach (int k in eInts) {
           }
@@ -614,7 +613,7 @@ namespace Xtensive.Core.Tests.DotNetFramework
       TestHelper.CollectGarbage();
       int j = size;
       using (warmup ? EmptyDisposable() : Log.InfoRegion(String.Format("Int32 list, {0,6}K", (size+10) / KSize))) {
-        using (warmup ? (IDisposable)new Disposable(delegate { }) : 
+        using (warmup ? (IDisposable)new Disposable.Disposable(delegate { }) : 
           new Measurement("Filling (x10)", MeasurementOptions.Log, size)) {
           for (int i = 0; i < size; ) {
             ints[i++] = i;
@@ -629,13 +628,13 @@ namespace Xtensive.Core.Tests.DotNetFramework
             ints[i++] = i;
           }
         }
-        using (warmup ? (IDisposable)new Disposable(delegate { }) : 
+        using (warmup ? (IDisposable)new Disposable.Disposable(delegate { }) : 
           new Measurement("Filling (x1) ", MeasurementOptions.Log, size)) {
           for (int i = 0; i < size; i++) {
             ints[i] = i;
           }
         }
-        using (warmup ? (IDisposable)new Disposable(delegate { }) : 
+        using (warmup ? (IDisposable)new Disposable.Disposable(delegate { }) : 
           new Measurement("Reading (x10)", MeasurementOptions.Log, size)) {
           for (int i = 0; i < size; ) {
             j = ints[i++];
@@ -650,13 +649,13 @@ namespace Xtensive.Core.Tests.DotNetFramework
             j = ints[i++];
           }
         }
-        using (warmup ? (IDisposable)new Disposable(delegate { }) : 
+        using (warmup ? (IDisposable)new Disposable.Disposable(delegate { }) : 
           new Measurement("Reading (x1) ", MeasurementOptions.Log, size)) {
           for (int i = 0; i < size; ) {
             j = ints[i++];
           }
         }
-        using (warmup ? (IDisposable)new Disposable(delegate { }) : 
+        using (warmup ? (IDisposable)new Disposable.Disposable(delegate { }) : 
           new Measurement("Enumerating  ", MeasurementOptions.Log, size)) {
           foreach (int k in eInts) {
           }
@@ -676,7 +675,7 @@ namespace Xtensive.Core.Tests.DotNetFramework
       int j = size;
       using (warmup ? EmptyDisposable() : Log.InfoRegion(String.Format("Int32 dictionary, {0,6}K", (size+10) / KSize))) {
         ints.Clear();
-        using (warmup ? (IDisposable)new Disposable(delegate { }) : 
+        using (warmup ? (IDisposable)new Disposable.Disposable(delegate { }) : 
           new Measurement("Filling (x10)", MeasurementOptions.Log, size)) {
           for (int i = 0; i < size; ) {
             ints[i++] = i;
@@ -692,13 +691,13 @@ namespace Xtensive.Core.Tests.DotNetFramework
           }
         }
         ints.Clear();
-        using (warmup ? (IDisposable)new Disposable(delegate { }) : 
+        using (warmup ? (IDisposable)new Disposable.Disposable(delegate { }) : 
           new Measurement("Filling (x1) ", MeasurementOptions.Log, size)) {
           for (int i = 0; i < size; i++) {
             ints[i] = i;
           }
         }
-        using (warmup ? (IDisposable)new Disposable(delegate { }) : 
+        using (warmup ? (IDisposable)new Disposable.Disposable(delegate { }) : 
           new Measurement("Reading (x10)", MeasurementOptions.Log, size)) {
           for (int i = 0; i < size; ) {
             j = ints[i++];
@@ -713,13 +712,13 @@ namespace Xtensive.Core.Tests.DotNetFramework
             j = ints[i++];
           }
         }
-        using (warmup ? (IDisposable)new Disposable(delegate { }) : 
+        using (warmup ? (IDisposable)new Disposable.Disposable(delegate { }) : 
           new Measurement("Reading (x1) ", MeasurementOptions.Log, size)) {
           for (int i = 0; i < size; ) {
             j = ints[i++];
           }
         }
-        using (warmup ? (IDisposable)new Disposable(delegate { }) : 
+        using (warmup ? (IDisposable)new Disposable.Disposable(delegate { }) : 
           new Measurement("Enumerating  ", MeasurementOptions.Log, size)) {
           foreach (KeyValuePair<int, int> k in eInts) {
           }

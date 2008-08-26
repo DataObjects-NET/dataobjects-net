@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
+using Xtensive.Core.Disposable;
 using Xtensive.Core.Tuples;
 using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Database;
@@ -221,7 +222,6 @@ namespace Xtensive.Storage.Providers.Sql
           throw new InvalidOperationException(Strings.ExUnableToCreateConnection);
         connection.Open();
         transaction = connection.BeginTransaction();
-       // transaction = connection.BeginTransaction();
       }
     }
 
