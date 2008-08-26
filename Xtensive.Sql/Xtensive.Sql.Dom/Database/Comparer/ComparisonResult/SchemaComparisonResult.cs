@@ -21,7 +21,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     private readonly ComparisonResultCollection<ViewComparisonResult> views = new ComparisonResultCollection<ViewComparisonResult>();
     private readonly ComparisonResultCollection<AssertionComparisonResult> assertions = new ComparisonResultCollection<AssertionComparisonResult>();
     private readonly ComparisonResultCollection<NodeComparisonResult<CharacterSet>> characterSets = new ComparisonResultCollection<NodeComparisonResult<CharacterSet>>();
-    private readonly ComparisonResultCollection<CollationComparisonResult> collations = new ComparisonResultCollection<CollationComparisonResult>();
+    private readonly ComparisonResultCollection<NodeComparisonResult<Collation>> collations = new ComparisonResultCollection<NodeComparisonResult<Collation>>();
     private readonly ComparisonResultCollection<NodeComparisonResult<Translation>> translations = new ComparisonResultCollection<NodeComparisonResult<Translation>>();
     private readonly ComparisonResultCollection<DomainComparisonResult> domains = new ComparisonResultCollection<DomainComparisonResult>();
     private readonly ComparisonResultCollection<SequenceComparisonResult> sequences = new ComparisonResultCollection<SequenceComparisonResult>();
@@ -87,7 +87,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     /// <summary>
     /// Gets comparison results of nested <see cref="Collation"/>s.
     /// </summary>
-    public ComparisonResultCollection<CollationComparisonResult> Collations
+    public ComparisonResultCollection<NodeComparisonResult<Collation>> Collations
     {
       get { return collations; }
     }
