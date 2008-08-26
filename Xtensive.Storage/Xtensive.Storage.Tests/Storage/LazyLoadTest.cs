@@ -74,20 +74,23 @@ namespace Xtensive.Storage.Tests.Storage
     public void RegularFieldTest()
     {
       using (Domain.OpenSession()) {
-        Book b = key.Resolve<Book>();
-        Tuple tuple = b.Tuple;
+        using (var t = Session.Current.OpenTransaction()) {
+          Book b = key.Resolve<Book>();
+          Tuple tuple = b.Tuple;
 
-        // Assert that fields are not loaded
-        Assert.IsFalse(tuple.IsAvailable(2));
-        Assert.IsFalse(tuple.IsAvailable(3));
+          // Assert that fields are not loaded
+          Assert.IsFalse(tuple.IsAvailable(2));
+          Assert.IsFalse(tuple.IsAvailable(3));
 
-        // This should load all not lazy load fields.
-        Assert.AreEqual(TITLE, b.Title);
-        Assert.IsTrue(tuple.IsAvailable(2));
-        Assert.IsFalse(tuple.IsAvailable(3));
+          // This should load all not lazy load fields.
+          Assert.AreEqual(TITLE, b.Title);
+          Assert.IsTrue(tuple.IsAvailable(2));
+          Assert.IsFalse(tuple.IsAvailable(3));
 
-        // Fetching lazy load field
-        Assert.AreEqual(TEXT, b.Text);
+          // Fetching lazy load field
+          Assert.AreEqual(TEXT, b.Text);
+          t.Complete();
+        }
       }
     }
 

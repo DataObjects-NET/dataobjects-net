@@ -99,8 +99,7 @@ namespace Xtensive.Core
     {
       if (!isDisposed)
         try {
-          resource.RemoveConsumer(this);
-          resource.Dispose();
+          resource.RemoveConsumer(this);          
         }
         finally {
           current = outer;
