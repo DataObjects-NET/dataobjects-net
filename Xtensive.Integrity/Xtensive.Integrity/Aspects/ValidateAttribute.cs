@@ -31,7 +31,12 @@ namespace Xtensive.Integrity.Aspects
   {
     public bool IsConsistent { get; set; }
 
-    int ILaosWeavableAspect.AspectPriority { get { return (int)IntegrityAspectPriority.Validate; } }
+    int ILaosWeavableAspect.AspectPriority
+    {
+      get {
+        return (int)IntegrityAspectPriority.Validate;
+      }
+    }
 
     /// <inheritdoc/>
     public override bool CompileTimeValidate(MethodBase method)

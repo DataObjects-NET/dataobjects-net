@@ -20,8 +20,17 @@ namespace Xtensive.Storage.Aspects
   [MulticastAttributeUsage(MulticastTargets.Method)]
   [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)] 
   [Serializable]
-  public sealed class TransactionalAttribute : OnMethodBoundaryAspect
-  {
+  public sealed class TransactionalAttribute : OnMethodBoundaryAspect,
+    ILaosWeavableAspect
+  {   
+    int ILaosWeavableAspect.AspectPriority
+    {
+      get {
+        return (int) StorageAspectPriority.Transactional;
+      }
+    }
+
+    /// <inheritdoc/>
     public override bool CompileTimeValidate(System.Reflection.MethodBase method)
     {
       if (!AspectHelper.ValidateContextBoundMethod<Session>(this, method))

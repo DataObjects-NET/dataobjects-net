@@ -21,8 +21,16 @@ namespace Xtensive.Storage.Aspects
   [MulticastAttributeUsage(MulticastTargets.Method)]
   [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
   [Serializable]
-  internal sealed class SessionBoundMethodAspect : OnMethodBoundaryAspect
-  {    
+  internal sealed class SessionBoundMethodAspect : OnMethodBoundaryAspect,
+    ILaosWeavableAspect
+  {
+    int ILaosWeavableAspect.AspectPriority
+    {
+      get {
+        return (int) StorageAspectPriority.SessionBound;
+      }
+    }
+
     public override bool CompileTimeValidate(MethodBase method)
     {
       if (!AspectHelper.ValidateContextBoundMethod<Session>(this, method))
@@ -34,7 +42,7 @@ namespace Xtensive.Storage.Aspects
       return true;
     }
 
-    [DebuggerStepThrough]
+    //[DebuggerStepThrough]
     public override void OnEntry(MethodExecutionEventArgs eventArgs)
     {
       var sessionBound = (SessionBound) eventArgs.Instance;
@@ -42,7 +50,7 @@ namespace Xtensive.Storage.Aspects
       eventArgs.MethodExecutionTag = sessionScope;
     }
 
-    [DebuggerStepThrough]
+    //[DebuggerStepThrough]
     public override void OnExit(MethodExecutionEventArgs eventArgs)
     {
       var d = (IDisposable) eventArgs.MethodExecutionTag;

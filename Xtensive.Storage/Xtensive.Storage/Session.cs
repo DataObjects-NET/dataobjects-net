@@ -207,7 +207,9 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     public bool IsActive
     {
-      get { return SessionScope.Current.Session==this; }
+      get {
+        return SessionScope.Current!=null && SessionScope.Current.Session==this;
+      }
     }
 
     #endregion
@@ -262,7 +264,7 @@ namespace Xtensive.Storage
     /// </summary>
     protected virtual void Dispose(bool disposing)
     {
-        if (isDisposed)
+      if (isDisposed)
         return;
       lock (_lock) {
         if (isDisposed)
