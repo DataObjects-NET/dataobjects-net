@@ -32,7 +32,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     /// <summary>
     /// Gets <see cref="ISqlComparer{T}.Compare"/> method delegate.
     /// </summary>
-    public readonly Func<T, T, IEnumerable<ComparisonHintBase>, ComparisonResult<T>> Compare;
+    public readonly Func<T, T, IEnumerable<ComparisonHintBase>, IComparisonResult<T>> Compare;
 
     /// <summary>
     /// Implicit conversion of <see cref="SqlComparer{T}"/> to <see cref="SqlComparerStruct{T}"/>.

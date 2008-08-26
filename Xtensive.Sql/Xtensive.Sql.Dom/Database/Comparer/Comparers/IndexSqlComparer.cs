@@ -12,7 +12,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   [Serializable]
   internal class IndexSqlComparer : WrappingSqlComparer<Index, IndexColumn, DataTableColumn> // TODO: Partition descriptor
   {
-    public override ComparisonResult<Index> Compare(Index originalNode, Index newNode, IEnumerable<ComparisonHintBase> hints)
+    public override IComparisonResult<Index> Compare(Index originalNode, Index newNode, IEnumerable<ComparisonHintBase> hints)
     {
       IndexComparisonResult result = InitializeResult<Index, IndexComparisonResult>(originalNode, newNode);
       bool hasChanges = false;

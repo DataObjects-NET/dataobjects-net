@@ -12,7 +12,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   [Serializable]
   internal class CatalogSqlComparer : WrappingSqlComparer<Catalog, Schema> //TODO: PartitionFunction, PartitionSchema
   {
-    public override ComparisonResult<Catalog> Compare(Catalog originalNode, Catalog newNode, IEnumerable<ComparisonHintBase> hints)
+    public override IComparisonResult<Catalog> Compare(Catalog originalNode, Catalog newNode, IEnumerable<ComparisonHintBase> hints)
     {
       CatalogComparisonResult result = InitializeResult<Catalog, CatalogComparisonResult>(originalNode, newNode);
       bool hasChanges = false;

@@ -22,7 +22,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     private readonly SqlComparerStruct<Table> tableComparer;
     private readonly SqlComparerStruct<View> viewComparer;
 
-    public override ComparisonResult<Schema> Compare(Schema originalNode, Schema newNode, IEnumerable<ComparisonHintBase> hints)
+    public override IComparisonResult<Schema> Compare(Schema originalNode, Schema newNode, IEnumerable<ComparisonHintBase> hints)
     {
       SchemaComparisonResult result = InitializeResult<Schema, SchemaComparisonResult>(originalNode, newNode);
       bool hasChanges = false;

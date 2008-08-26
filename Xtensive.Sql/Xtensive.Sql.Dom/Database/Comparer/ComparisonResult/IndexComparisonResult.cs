@@ -21,7 +21,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     private ComparisonResult<byte?> fillFactor;
     private ComparisonResult<string> filegroup;
     private readonly ComparisonResultCollection<IndexColumnComparisonResult> columns = new ComparisonResultCollection<IndexColumnComparisonResult>();
-    private readonly ComparisonResultCollection<DataTableColumnComparisonResult<DataTableColumn>> nonkeyColumns = new ComparisonResultCollection<DataTableColumnComparisonResult<DataTableColumn>>();
+    private readonly ComparisonResultCollection<DataTableColumnComparisonResult> nonkeyColumns = new ComparisonResultCollection<DataTableColumnComparisonResult>();
 
     /// <summary>
     /// Gets comparison result of <see cref="Index.IsUnique"/> property.
@@ -99,7 +99,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     /// <summary>
     /// Gets comparison results of nested non-key columns.
     /// </summary>
-    public ComparisonResultCollection<DataTableColumnComparisonResult<DataTableColumn>> NonkeyColumns
+    public ComparisonResultCollection<DataTableColumnComparisonResult> NonkeyColumns
     {
       get { return nonkeyColumns; }
     }

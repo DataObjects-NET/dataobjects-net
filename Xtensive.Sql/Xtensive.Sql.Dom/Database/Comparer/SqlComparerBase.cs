@@ -24,7 +24,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     private ISqlComparerProvider provider;
 
     /// <inheritdoc/>
-    public abstract ComparisonResult<T> Compare(T originalNode, T newNode, IEnumerable<ComparisonHintBase> hints);
+    public abstract IComparisonResult<T> Compare(T originalNode, T newNode, IEnumerable<ComparisonHintBase> hints);
 
     /// <inheritdoc/>
     public ISqlComparerProvider Provider
@@ -45,7 +45,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
 
     protected static bool CompareNestedNodes<TNode, TResult>(IEnumerable<TNode> originalNodes, IEnumerable<TNode> newNodes, IEnumerable<ComparisonHintBase> hints, SqlComparerStruct<TNode> comparer, ICollection<TResult> results)
       where TNode : class
-      where TResult : ComparisonResult<TNode>
+      where TResult : IComparisonResult<TNode>
     {
       if (!ProcessNullNodes(originalNodes, newNodes, comparer, hints, results))
         return false;
@@ -136,14 +136,14 @@ namespace Xtensive.Sql.Dom.Database.Comparer
 
     private static bool ProcessNullNodes<TNode, TResult>(IEnumerable<TNode> originalNodes, IEnumerable<TNode> newNodes, SqlComparerStruct<TNode> comparer, IEnumerable<ComparisonHintBase> hints, ICollection<TResult> results)
       where TNode : class
-      where TResult : ComparisonResult<TNode>
+      where TResult : IComparisonResult<TNode>
     {
       if (originalNodes==null && newNodes==null)
         return false;
       bool hasChanges = false;
       if (originalNodes==null) {
         foreach (var newNest in newNodes) {
-          ComparisonResult<TNode> compare = comparer.Compare((TNode) null, newNest, hints);
+          IComparisonResult<TNode> compare = comparer.Compare((TNode) null, newNest, hints);
           if (compare.HasChanges)
             hasChanges = true;
           results.Add((TResult) compare);
@@ -152,7 +152,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
       }
       if (newNodes==null) {
         foreach (var originalNest in originalNodes) {
-          ComparisonResult<TNode> compare = comparer.Compare(originalNest, (TNode) null, hints);
+          IComparisonResult<TNode> compare = comparer.Compare(originalNest, (TNode) null, hints);
           if (compare.HasChanges)
             hasChanges = true;
           results.Add((TResult) compare);
@@ -164,7 +164,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
 
     private static bool CompareUnnamedNodes<TNode, TResult>(IEnumerable<TNode> originalNodes, IEnumerable<TNode> newNodes, SqlComparerStruct<TNode> comparer, IEnumerable<ComparisonHintBase> hints, ICollection<TResult> results)
       where TNode : class
-      where TResult : ComparisonResult<TNode>
+      where TResult : IComparisonResult<TNode>
     {
       // Process "rename" hint, compare by name
       bool hasChanges = false;
@@ -183,13 +183,13 @@ namespace Xtensive.Sql.Dom.Database.Comparer
           originalNode = originalEnumerator.Current;
           originalNodeSet.Remove(originalNode);
         }
-        ComparisonResult<TNode> compare = comparer.Compare(originalNode, newNest, hints);
+        IComparisonResult<TNode> compare = comparer.Compare(originalNode, newNest, hints);
         if (compare.HasChanges)
           hasChanges = true;
         results.Add((TResult) compare);
       }
       foreach (TNode originalNode in originalNodeSet) {
-        ComparisonResult<TNode> compare = comparer.Compare(originalNode, null, hints);
+        IComparisonResult<TNode> compare = comparer.Compare(originalNode, null, hints);
         if (compare.HasChanges)
           hasChanges = true;
         results.Add((TResult) compare);
@@ -199,13 +199,13 @@ namespace Xtensive.Sql.Dom.Database.Comparer
 
     private static bool CompareNamedNodes<TNode, TResult>(IEnumerable<TNode> originalNodes, IEnumerable<TNode> newNodes, SqlComparerStruct<TNode> comparer, IEnumerable<ComparisonHintBase> hints, ICollection<TResult> results)
       where TNode : class
-      where TResult : ComparisonResult<TNode>
+      where TResult : IComparisonResult<TNode>
     {
       bool hasChanges = false;
       var originalEnumerator = originalNodes.GetEnumerator();
       var newEnumerator = newNodes.GetEnumerator();
       while (originalEnumerator.MoveNext()) {
-        ComparisonResult<TNode> compare = newEnumerator.MoveNext()
+        IComparisonResult<TNode> compare = newEnumerator.MoveNext()
           ? comparer.Compare(originalEnumerator.Current, newEnumerator.Current, hints)
           : comparer.Compare(originalEnumerator.Current, null, hints);
         if (compare.HasChanges)
@@ -213,7 +213,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
         results.Add((TResult) compare);
       }
       while (newEnumerator.MoveNext()) {
-        ComparisonResult<TNode> compare = comparer.Compare(originalEnumerator.Current, newEnumerator.Current, hints);
+        IComparisonResult<TNode> compare = comparer.Compare(originalEnumerator.Current, newEnumerator.Current, hints);
         if (compare.HasChanges)
           hasChanges = true;
         results.Add((TResult) compare);

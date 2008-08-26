@@ -15,7 +15,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   /// <summary>
   /// Base class for comparison results.
   /// </summary>
-  public abstract class ComparisonResult : LockableBase
+  public abstract class ComparisonResult : LockableBase, IComparisonResult
   {
     private readonly Type type;
     private ComparisonResultType resultType;

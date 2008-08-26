@@ -12,7 +12,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   [Serializable]
   internal class SequenceSqlComparer : SqlComparerBase<Sequence>
   {
-    public override ComparisonResult<Sequence> Compare(Sequence originalNode, Sequence newNode, IEnumerable<ComparisonHintBase> hints)
+    public override IComparisonResult<Sequence> Compare(Sequence originalNode, Sequence newNode, IEnumerable<ComparisonHintBase> hints)
     {
       throw new System.NotImplementedException();
     }

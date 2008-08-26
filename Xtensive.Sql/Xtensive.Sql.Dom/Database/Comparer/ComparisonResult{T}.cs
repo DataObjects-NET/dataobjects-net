@@ -13,7 +13,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   /// <summary>
   /// Base class for comparison results with original and new values inside.
   /// </summary>
-  public class ComparisonResult<T> : ComparisonResult
+  public class ComparisonResult<T> : ComparisonResult, IComparisonResult<T>
   {
     private T originalValue;
     private T newValue;

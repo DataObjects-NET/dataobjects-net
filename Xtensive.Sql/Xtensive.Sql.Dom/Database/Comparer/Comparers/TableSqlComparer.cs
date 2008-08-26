@@ -16,7 +16,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   internal class TableSqlComparer : WrappingSqlComparer<Table, TableColumn, Index, Constraint>
   {
 
-    public override ComparisonResult<Table> Compare(Table originalNode, Table newNode, IEnumerable<ComparisonHintBase> hints)
+    public override IComparisonResult<Table> Compare(Table originalNode, Table newNode, IEnumerable<ComparisonHintBase> hints)
     {
       TableComparisonResult result = InitializeResult<Table, TableComparisonResult>(originalNode, newNode);
       bool hasChanges = false;

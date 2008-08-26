@@ -12,7 +12,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   [Serializable]
   internal class ViewSqlComparer : WrappingSqlComparer<View, DataTableColumn, Index>
   {
-    public override ComparisonResult<View> Compare(View originalNode, View newNode, IEnumerable<ComparisonHintBase> hints)
+    public override IComparisonResult<View> Compare(View originalNode, View newNode, IEnumerable<ComparisonHintBase> hints)
     {
       throw new System.NotImplementedException();
     }

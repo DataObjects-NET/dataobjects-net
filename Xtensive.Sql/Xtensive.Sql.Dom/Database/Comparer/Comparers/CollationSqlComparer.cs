@@ -12,7 +12,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   [Serializable]
   internal class CollationSqlComparer : SqlComparerBase<Collation>
   {
-    public override ComparisonResult<Collation> Compare(Collation originalNode, Collation newNode, IEnumerable<ComparisonHintBase> hints)
+    public override IComparisonResult<Collation> Compare(Collation originalNode, Collation newNode, IEnumerable<ComparisonHintBase> hints)
     {
       throw new System.NotImplementedException();
     }

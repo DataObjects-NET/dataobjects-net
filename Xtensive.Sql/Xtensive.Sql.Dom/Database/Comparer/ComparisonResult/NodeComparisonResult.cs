@@ -4,10 +4,12 @@
 // Created by: Aleksey Gamzov
 // Created:    2008.08.21
 
+using System;
 using Xtensive.Core.Helpers;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
+  [Serializable]
   public class NodeComparisonResult<T> : ComparisonResult<T>
   {
     private ComparisonResult<string> dbName;

@@ -12,7 +12,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   [Serializable]
   internal class DomainSqlComparer : WrappingSqlComparer<Domain, DomainConstraint, Collation>
   {
-    public override ComparisonResult<Domain> Compare(Domain originalNode, Domain newNode, IEnumerable<ComparisonHintBase> hints)
+    public override IComparisonResult<Domain> Compare(Domain originalNode, Domain newNode, IEnumerable<ComparisonHintBase> hints)
     {
       throw new System.NotImplementedException();
     }

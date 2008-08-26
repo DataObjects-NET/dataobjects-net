@@ -6,8 +6,17 @@
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
-  public class TableColumnComparisonResult : DataTableColumnComparisonResult<TableColumn>
+  public class TableColumnComparisonResult : DataTableColumnComparisonResult, IComparisonResult<TableColumn>
   {
-    
+    /// <inheritdoc/>
+    public TableColumn NewValue
+    {
+      get { return (TableColumn) base.NewValue; }
+    }
+    /// <inheritdoc/>
+    public TableColumn OriginalValue
+    {
+      get { return (TableColumn) base.OriginalValue; }
+    }
   }
 }

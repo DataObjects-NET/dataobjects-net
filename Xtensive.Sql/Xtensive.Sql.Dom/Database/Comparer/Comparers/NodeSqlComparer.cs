@@ -14,7 +14,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     where TNode:Node 
     where TResult : ComparisonResult<TNode>, new()
   {
-    public override ComparisonResult<TNode> Compare(TNode originalNode, TNode newNode, IEnumerable<ComparisonHintBase> hints)
+    public override IComparisonResult<TNode> Compare(TNode originalNode, TNode newNode, IEnumerable<ComparisonHintBase> hints)
     {
       TResult result = InitializeResult<TNode, TResult>(originalNode, newNode);
       result.Lock(true);
