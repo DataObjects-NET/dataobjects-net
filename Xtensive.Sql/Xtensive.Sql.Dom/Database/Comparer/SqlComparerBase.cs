@@ -113,6 +113,25 @@ namespace Xtensive.Sql.Dom.Database.Comparer
       return result;
     }
 
+    protected static ComparisonResult<TNode> CompareSimpleStruct<TNode>(TNode? originalNode, TNode? newNode, ref bool hasChanges)
+      where TNode:struct 
+    {
+      var result = new ComparisonResult<TNode> {
+        OriginalValue = originalNode.GetValueOrDefault(),
+        NewValue = newNode.GetValueOrDefault(),
+      };
+      if (Equals(originalNode, newNode))
+        result.ResultType = ComparisonResultType.Unchanged;
+      else if (!originalNode.HasValue)
+        result.ResultType = ComparisonResultType.Added;
+      else if (!newNode.HasValue)
+        result.ResultType = ComparisonResultType.Removed;
+      else
+        result.ResultType = ComparisonResultType.Modified;
+      hasChanges |= result.HasChanges;
+      return result;
+    }
+
     #region Private methods
 
     private static bool ProcessNullNodes<TNode, TResult>(IEnumerable<TNode> originalNodes, IEnumerable<TNode> newNodes, SqlComparerStruct<TNode> comparer, IEnumerable<ComparisonHintBase> hints, ICollection<TResult> results)

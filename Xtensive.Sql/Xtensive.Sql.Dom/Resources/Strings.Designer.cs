@@ -70,6 +70,15 @@ namespace Xtensive.Sql.Dom.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to &apos;{0}&apos; column type is not supported by &apos;{1}&apos; comparer.
+        /// </summary>
+        internal static string ExColumnTypeIsNotSupportedByComparer {
+            get {
+                return ResourceManager.GetString("ExColumnTypeIsNotSupportedByComparer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Driver is not properly initialized..
         /// </summary>
         internal static string ExDriverIsNotProperlyInitialized {

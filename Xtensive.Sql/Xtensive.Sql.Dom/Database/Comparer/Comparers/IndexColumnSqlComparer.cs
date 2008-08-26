@@ -14,7 +14,14 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   {
     public override ComparisonResult<IndexColumn> Compare(IndexColumn originalNode, IndexColumn newNode, IEnumerable<ComparisonHintBase> hints)
     {
-      throw new System.NotImplementedException();
+      IndexColumnComparisonResult result = InitializeResult<IndexColumn, IndexColumnComparisonResult>(originalNode, newNode);
+      bool hasChanges = false;
+      result.Ascending = CompareSimpleStruct(originalNode==null ? (bool?) null : originalNode.Ascending, newNode==null ? (bool?) null : newNode.Ascending, ref hasChanges);
+      result.Column = (DataTableColumnComparisonResult<DataTableColumn>)BaseSqlComparer1.Compare(originalNode == null ? null : originalNode.Column, newNode == null ? null : newNode.Column, hints);
+      if (hasChanges && result.ResultType == ComparisonResultType.Unchanged)
+        result.ResultType = ComparisonResultType.Modified;
+      result.Lock(true);
+      return result;
     }
 
     public IndexColumnSqlComparer(ISqlComparerProvider provider)

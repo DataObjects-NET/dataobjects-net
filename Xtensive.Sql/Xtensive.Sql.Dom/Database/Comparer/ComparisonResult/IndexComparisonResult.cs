@@ -5,6 +5,7 @@
 // Created:    2008.08.21
 
 using System;
+using Xtensive.Core.Helpers;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
@@ -14,13 +15,13 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   [Serializable]
   public class IndexComparisonResult : NodeComparisonResult<Index>
   {
-    private readonly ComparisonResult<bool> isUnique = new ComparisonResult<bool>();
-    private readonly ComparisonResult<bool> isBitmap = new ComparisonResult<bool>();
-    private readonly ComparisonResult<bool> isClustered = new ComparisonResult<bool>();
-    private readonly ComparisonResult<byte?> fillFactor = new ComparisonResult<byte?>();
-    private readonly ComparisonResult<string> filegroup = new ComparisonResult<string>();
+    private ComparisonResult<bool> isUnique;
+    private ComparisonResult<bool> isBitmap;
+    private ComparisonResult<bool> isClustered;
+    private ComparisonResult<byte?> fillFactor;
+    private ComparisonResult<string> filegroup;
     private readonly ComparisonResultCollection<IndexColumnComparisonResult> columns = new ComparisonResultCollection<IndexColumnComparisonResult>();
-    private readonly ComparisonResultCollection<DataTableColumnComparisonResult> nonkeyColumns = new ComparisonResultCollection<DataTableColumnComparisonResult>();
+    private readonly ComparisonResultCollection<DataTableColumnComparisonResult<DataTableColumn>> nonkeyColumns = new ComparisonResultCollection<DataTableColumnComparisonResult<DataTableColumn>>();
 
     /// <summary>
     /// Gets comparison result of <see cref="Index.IsUnique"/> property.
@@ -28,6 +29,11 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     public ComparisonResult<bool> IsUnique
     {
       get { return isUnique; }
+      internal set
+      {
+        this.EnsureNotLocked();
+        isUnique = value;
+      }
     }
 
     /// <summary>
@@ -36,6 +42,11 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     public ComparisonResult<bool> IsBitmap
     {
       get { return isBitmap; }
+      internal set
+      {
+        this.EnsureNotLocked();
+        isBitmap = value;
+      }
     }
 
     /// <summary>
@@ -44,6 +55,11 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     public ComparisonResult<bool> IsClustered
     {
       get { return isClustered; }
+      internal set
+      {
+        this.EnsureNotLocked();
+        isClustered = value;
+      }
     }
 
     /// <summary>
@@ -52,6 +68,11 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     public ComparisonResult<byte?> FillFactor
     {
       get { return fillFactor; }
+      internal set
+      {
+        this.EnsureNotLocked();
+        fillFactor = value;
+      }
     }
 
     /// <summary>
@@ -60,6 +81,11 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     public ComparisonResult<string> Filegroup
     {
       get { return filegroup; }
+      internal set
+      {
+        this.EnsureNotLocked();
+        filegroup = value;
+      }
     }
 
     /// <summary>
@@ -73,7 +99,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     /// <summary>
     /// Gets comparison results of nested non-key columns.
     /// </summary>
-    public ComparisonResultCollection<DataTableColumnComparisonResult> NonkeyColumns
+    public ComparisonResultCollection<DataTableColumnComparisonResult<DataTableColumn>> NonkeyColumns
     {
       get { return nonkeyColumns; }
     }
@@ -85,11 +111,11 @@ namespace Xtensive.Sql.Dom.Database.Comparer
       if (recursive) {
         columns.Lock(recursive);
         nonkeyColumns.Lock(recursive);
-        isUnique.Lock(recursive);
-        isBitmap.Lock(recursive);
-        isClustered.Lock(recursive);
-        fillFactor.Lock(recursive);
-        filegroup.Lock(recursive);
+        isUnique.LockSafely(recursive);
+        isBitmap.LockSafely(recursive);
+        isClustered.LockSafely(recursive);
+        fillFactor.LockSafely(recursive);
+        filegroup.LockSafely(recursive);
       }
     }
   }

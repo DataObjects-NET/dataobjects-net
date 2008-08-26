@@ -18,7 +18,6 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   public abstract class ComparisonResult : LockableBase
   {
     private readonly Type type;
-    private string name;
     private ComparisonResultType resultType;
 
     /// <summary>
@@ -29,18 +28,6 @@ namespace Xtensive.Sql.Dom.Database.Comparer
       get { return resultType!=ComparisonResultType.Unchanged; }
     }
 
-    /// <summary>
-    /// Gets comparison node name.
-    /// </summary>
-    public string Name
-    {
-      get { return name; }
-      set
-      {
-        this.EnsureNotLocked();
-        name = value;
-      }
-    }
 //
 //    public IEnumerable<ComparisonResult> Find(ComparisonResultLocation locations, ComparisonResultType comparisonTypes, bool recursive, params Type[] types)
 //    {

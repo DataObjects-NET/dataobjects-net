@@ -180,4 +180,7 @@
   <data name="ExMultipleRenameHintsFoundForTypeXxx" xml:space="preserve">
     <value>Multiple rename hints found for type '{0}' with name '{1}'.</value>
   </data>
+  <data name="ExColumnTypeIsNotSupportedByComparer" xml:space="preserve">
+    <value>'{0}' column type is not supported by '{1}' comparer</value>
+  </data>
 </root>
