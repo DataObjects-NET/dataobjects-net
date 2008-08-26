@@ -18,7 +18,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
   {
     protected override ExecutableProvider Compile(SeekProvider provider)
     {
-      var source = Compiler.Compile(provider.Source, true) as SqlProvider;
+      var source = provider.Source.Compile(true) as SqlProvider;
       if (source == null)
         return null;
 

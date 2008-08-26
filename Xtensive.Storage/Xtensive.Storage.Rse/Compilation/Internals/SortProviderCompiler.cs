@@ -15,7 +15,7 @@ namespace Xtensive.Storage.Rse.Compilation
     {
       return new Providers.Executable.SortProvider(
         provider, 
-        Compiler.Compile(provider.Source, true));
+        provider.Source.Compile(true));
     }
 
 

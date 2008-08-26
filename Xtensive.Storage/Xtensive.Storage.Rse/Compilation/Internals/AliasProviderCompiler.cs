@@ -14,8 +14,8 @@ namespace Xtensive.Storage.Rse.Compilation
     protected override ExecutableProvider Compile(AliasProvider provider)
     {
       return new Providers.Executable.AliasProvider(
-        provider, 
-        Compiler.Compile(provider.Source, true));
+        provider,
+        provider.Source.Compile(true));
     }
 
 

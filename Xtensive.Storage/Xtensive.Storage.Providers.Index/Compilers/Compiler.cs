@@ -4,6 +4,7 @@
 // Created by: Alexey Kochetov
 // Created:    2008.07.08
 
+using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
 
 namespace Xtensive.Storage.Providers.Index.Compilers
@@ -28,6 +29,7 @@ namespace Xtensive.Storage.Providers.Index.Compilers
     public Compiler(HandlerAccessor handlerAccessor)
     {
       HandlerAccessor = handlerAccessor;
+      FallbackCompiler = new DefaultCompiler();
     }    
   }
 }

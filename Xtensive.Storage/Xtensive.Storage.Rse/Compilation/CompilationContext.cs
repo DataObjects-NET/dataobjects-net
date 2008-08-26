@@ -26,8 +26,8 @@ namespace Xtensive.Storage.Rse.Compilation
 
     private class CacheEntry 
     {
-      public CompilableProvider Key;
-      public ExecutableProvider Value;
+      public readonly CompilableProvider Key;
+      public readonly ExecutableProvider Value;
 
 
       // Constructors
@@ -75,6 +75,12 @@ namespace Xtensive.Storage.Rse.Compilation
     /// </summary>
     public ICompiler Compiler { get; private set; }
 
+    /// <summary>
+    /// Gets the fallback compiler used by <see cref="Compile"/> method of this context 
+    /// when provider could not be compiled using original <see cref="Compiler"/>.
+    /// </summary>
+    public ICompiler FallbackCompiler { get; internal set; }
+    
     /// <inheritdoc/>
     /// <remarks>
     /// Compilation context usually must provide compiler-specific extensions,
@@ -97,7 +103,7 @@ namespace Xtensive.Storage.Rse.Compilation
         if (entry!=null)
           return entry.Value;
       }
-      var result = Compiler.Compile(provider, false);
+      var result = provider.Compile(true);
       if (result!=null && result.IsCacheable)
         lock (_lock) {
           Thread.MemoryBarrier(); // Ensures result is fully "flushed"

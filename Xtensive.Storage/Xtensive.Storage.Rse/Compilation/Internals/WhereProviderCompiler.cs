@@ -14,8 +14,8 @@ namespace Xtensive.Storage.Rse.Compilation
     protected override ExecutableProvider Compile(WhereProvider provider)
     {
       return new Providers.Executable.WhereProvider(
-        provider, 
-        Compiler.Compile(provider.Source, true));
+        provider,
+        provider.Source.Compile(true));
     }
 
 

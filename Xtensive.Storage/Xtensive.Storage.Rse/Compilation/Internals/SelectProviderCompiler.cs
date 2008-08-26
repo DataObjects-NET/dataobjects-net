@@ -14,8 +14,8 @@ namespace Xtensive.Storage.Rse.Compilation
     protected override ExecutableProvider Compile(SelectProvider provider)
     {
       return new Providers.Executable.SelectProvider(
-        provider, 
-        Compiler.Compile(provider.Source, true), 
+        provider,
+        provider.Source.Compile(true), 
         provider.ColumnIndexes);
     }
 

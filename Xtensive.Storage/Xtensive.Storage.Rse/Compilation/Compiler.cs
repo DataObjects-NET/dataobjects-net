@@ -21,13 +21,26 @@ namespace Xtensive.Storage.Rse.Compilation
   public abstract class Compiler : AssociateProvider,
     ICompiler
   {
+    private static readonly ICompiler noneCompiler = new NoneCompiler();
     private readonly ThreadSafeDictionary<Type, TypeCompiler> typeCompliers = 
       ThreadSafeDictionary<Type, TypeCompiler>.Create(new object());
+
+
+    /// <summary>
+    /// Gets the compiler that compiles nothing.
+    /// </summary>
+    public static ICompiler NoneCompiler
+    {
+      get { return noneCompiler; }
+    }
 
     #region ICompiler methods
 
     /// <inheritdoc/>
-    public ExecutableProvider Compile(CompilableProvider provider)
+    public ICompiler FallbackCompiler { get; protected set; }
+
+    /// <inheritdoc/>
+    ExecutableProvider ICompiler.Compile(CompilableProvider provider)
     {
       if (provider==null)
         return null;

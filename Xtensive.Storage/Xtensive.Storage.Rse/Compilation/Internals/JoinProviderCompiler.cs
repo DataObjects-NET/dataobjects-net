@@ -14,9 +14,9 @@ namespace Xtensive.Storage.Rse.Compilation
     protected override ExecutableProvider Compile(JoinProvider provider)
     {
       return new Providers.Executable.JoinProvider(
-        provider, 
-        Compiler.Compile(provider.Left, true), 
-        Compiler.Compile(provider.Right, true));
+        provider,
+        provider.Left.Compile(true),
+        provider.Right.Compile(true));
     }
 
 

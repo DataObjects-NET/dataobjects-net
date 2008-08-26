@@ -5,6 +5,7 @@
 // Created:    2008.07.08
 
 using System;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Executable;
 using System.Linq;
@@ -25,8 +26,15 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <inheritdoc/>
     public override ExecutableProvider ToCompatible(ExecutableProvider provider)
     {
-      return new RawProvider(
-        new Providers.Compilable.RawProvider(provider.Header, provider.ToArray()));
+      return new RawProvider(new Providers.Compilable.RawProvider(provider.Header, provider.ToArray()));
+    }
+
+    /// <summary>
+    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary> 
+    public DefaultCompiler()
+    {
+      FallbackCompiler = NoneCompiler;
     }
   }
 }

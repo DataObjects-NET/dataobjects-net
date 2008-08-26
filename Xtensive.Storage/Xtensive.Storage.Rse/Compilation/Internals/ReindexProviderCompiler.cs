@@ -14,8 +14,8 @@ namespace Xtensive.Storage.Rse.Compilation
     protected override ExecutableProvider Compile(ReindexProvider provider)
     {
       return new Providers.Executable.ReindexProvider(
-        provider, 
-        Compiler.Compile(provider.Source, true));
+        provider,
+        provider.Source.Compile(true));
     }
 
 

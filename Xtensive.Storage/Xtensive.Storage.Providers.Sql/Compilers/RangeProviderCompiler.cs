@@ -84,7 +84,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
 
     protected override ExecutableProvider Compile(RangeProvider provider)
     {
-      var source = (SqlProvider)Compiler.Compile(provider.Source, true);
+      var source = provider.Source.Compile(true) as SqlProvider;
       if (source == null)
         return null;
 

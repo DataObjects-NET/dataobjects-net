@@ -6,6 +6,7 @@
 
 using System;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
 
 namespace Xtensive.Storage.Providers.Sql.Compilers
@@ -36,6 +37,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
     public Compiler(HandlerAccessor handlers)
     {
       Handlers = handlers;
+      FallbackCompiler = new DefaultCompiler();
     }
   }
 }
