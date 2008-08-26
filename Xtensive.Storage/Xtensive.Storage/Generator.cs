@@ -11,19 +11,22 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Resources;
 using Xtensive.Core.Helpers;
+using Xtensive.Core.Disposable;
 
 namespace Xtensive.Storage
 {
   ///<summary>
   /// Default key generator.
   ///</summary>
-  public abstract class Generator : HandlerBase
+  public abstract class Generator : HandlerBase,
+    IDisposable
   {
     private readonly object _lock = new object();
     private volatile Queue<Tuple> preCachedValues = new Queue<Tuple>();
@@ -90,6 +93,18 @@ namespace Xtensive.Storage
         cacheSize = 0;
       Type fieldType = Hierarchy.KeyTupleDescriptor[0];
       isGuid = fieldType==typeof (Guid);
+    }
+
+    /// <summary>
+    ///   <see cref="ClassDocTemplate.Dispose" copy="true"/>
+    /// </summary>
+    public virtual void Dispose()
+    {
+      lock (_lock) {
+        if (preCachingTask!=null)
+          preCachingTask.Wait();
+        preCachingTask.DisposeSafely();
+      }
     }
   }
 }

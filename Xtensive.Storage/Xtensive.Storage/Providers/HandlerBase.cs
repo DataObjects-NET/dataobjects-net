@@ -11,7 +11,7 @@ namespace Xtensive.Storage.Providers
   /// <summary>
   /// Abstract base class for any storage handler.
   /// </summary>
-  public abstract class HandlerBase
+  public abstract class HandlerBase 
   {
     /// <summary>
     /// Gets the <see cref="HandlerAccessor"/> providing other available handlers.

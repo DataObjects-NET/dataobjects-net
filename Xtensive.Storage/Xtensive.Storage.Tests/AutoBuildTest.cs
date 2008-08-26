@@ -8,6 +8,7 @@ using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Storage.Configuration;
 using Xtensive.Core.Helpers;
+using Xtensive.Core.Disposable;
 
 namespace Xtensive.Storage.Tests
 {
@@ -31,6 +32,7 @@ namespace Xtensive.Storage.Tests
     [TestFixtureTearDown]
     public virtual void TestFixtureTearDown()
     {
+      domain.DisposeSafely();
     }
 
     protected virtual DomainConfiguration BuildConfiguration()

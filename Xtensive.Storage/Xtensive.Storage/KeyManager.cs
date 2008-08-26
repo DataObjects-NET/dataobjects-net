@@ -15,6 +15,7 @@ using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 using Xtensive.Core.Threading;
 using Xtensive.Core.Helpers;
+using Xtensive.Core.Disposable;
 
 namespace Xtensive.Storage
 {
@@ -22,7 +23,7 @@ namespace Xtensive.Storage
   /// Produces and caches <see cref="Key"/> instances. 
   /// Also acts like an identity map for <see cref="Key"/> instances within single <see cref="Domain"/>.
   /// </summary>
-  public sealed class KeyManager
+  public sealed class KeyManager : IDisposable
   {
     private readonly Domain domain;
     private readonly object _lock = new object();
@@ -128,6 +129,12 @@ namespace Xtensive.Storage
     {
       this.domain = domain;
       Generators = new Registry<HierarchyInfo, Generator>();
+    }
+
+    void IDisposable.Dispose()
+    {
+      if (domain.CheckItemDisposing())
+        Generators.Dispose();
     }
   }
 }

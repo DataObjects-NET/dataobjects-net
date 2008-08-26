@@ -12,6 +12,7 @@ using System.Threading;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Diagnostics;
+using Xtensive.Core.Disposable;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Threading;
@@ -29,7 +30,7 @@ namespace Xtensive.Storage
   /// Provides access to a single storage.
   /// </summary>
   public sealed class Domain : CriticalFinalizerObject,
-    IDisposable
+    IDisposableContainer
   {
     private readonly ThreadSafeDictionary<RecordSetHeader, RecordSetMapping> recordSetMappings = 
       ThreadSafeDictionary<RecordSetHeader, RecordSetMapping>.Create(new object());
@@ -39,6 +40,11 @@ namespace Xtensive.Storage
     /// Gets the configuration.
     /// </summary>
     public DomainConfiguration Configuration { get; private set; }
+
+    /// <summary>
+    /// Gets the disposing state of the domain.
+    /// </summary>
+    public DisposingState DisposingState { get; private set; }
 
     /// <summary>
     /// Gets the domain model.
@@ -151,22 +157,17 @@ namespace Xtensive.Storage
 
     private void Dispose(bool isDisposing)
     {
-      /* if (isDisposed)
-        return;
-      lock (_lock) {
-        if (isDisposed)
-          return;
+      if (DisposingState == DisposingState.None) lock(this) if (DisposingState == DisposingState.None) {
+        DisposingState = DisposingState.Disposing;
         try {
           if (Log.IsLogged(LogEventTypes.Debug))
-            Log.Debug("Session '{0}'. Disposing", this);
-          Handler.Commit();
-          Handler.DisposeSafely();
-          compilationScope.DisposeSafely();
+            Log.Debug("Domain disposing {0}.", isDisposing ? "explicitly" : "by calling finalizer.");
+          Handlers.DisposeSafely();
         }
         finally {
-          isDisposed = true;
+          DisposingState=DisposingState.Disposed;
         }
-      }*/
+      }
     }
   }
 }

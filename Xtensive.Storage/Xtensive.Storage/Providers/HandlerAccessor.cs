@@ -10,6 +10,7 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Providers;
 using Xtensive.Core.Helpers;
+using Xtensive.Core.Disposable;
 
 namespace Xtensive.Storage.Providers
 {
@@ -17,7 +18,8 @@ namespace Xtensive.Storage.Providers
   /// Storage handler accessor.
   /// Provided by protected members, such as <see cref="HandlerBase.Handlers"/> 
   /// to provide access to other available handlers.
-  public sealed class HandlerAccessor
+  /// </summary>
+  public sealed class HandlerAccessor : IDisposable
   {
     /// <summary>
     /// Gets the <see cref="Xtensive.Storage.Domain"/> 
@@ -61,5 +63,15 @@ namespace Xtensive.Storage.Providers
     {
       Domain = domain;
     }
+
+    #region Implementation of IDisposable
+
+    void IDisposable.Dispose()
+    {
+      if (Domain.CheckItemDisposing())
+        KeyManager.DisposeSafely();
+    }
+
+    #endregion
   }
 }
