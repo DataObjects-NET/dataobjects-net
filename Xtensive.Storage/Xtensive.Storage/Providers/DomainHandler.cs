@@ -4,8 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2008.05.19
 
-using System.Diagnostics;
-using Xtensive.Core.Helpers;
+using Xtensive.Storage.Building;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Rse.Compilation;
 
@@ -16,6 +15,11 @@ namespace Xtensive.Storage.Providers
   /// </summary>
   public abstract class DomainHandler : InitializableHandlerBase
   {
+    /// <summary>
+    /// Gets the domain this handler is bound to.
+    /// </summary>
+    public Domain Domain { get; private set; }
+
     /// <summary>
     /// Gets the <see cref="Rse.Compilation.CompilationContext"/>
     /// associated with the domain.
@@ -35,11 +39,36 @@ namespace Xtensive.Storage.Providers
     /// </summary>
     public abstract void Build();
 
+    /// <summary>
+    /// Opens the session with specified <paramref name="type"/>.
+    /// </summary>
+    /// <param name="type">The type of the session to open.</param>
+    /// <returns>New <see cref="SessionScope"/> object.</returns>
+    public SessionScope OpenSession(SessionType type)
+    {
+      return OpenSession(type, (SessionConfiguration)Domain.Configuration.Session.Clone());
+    }
+
+    /// <summary>
+    /// Opens the session with specified <paramref name="type"/> 
+    /// and <paramref name="configuration"/>.
+    /// </summary>
+    /// <param name="type">The type of the session to open.</param>
+    /// <param name="configuration">The session configuration.</param>
+    /// <returns>New <see cref="SessionScope"/> object.</returns>
+    public SessionScope OpenSession(SessionType type, SessionConfiguration configuration)
+    {
+      configuration.Type = type;
+      return Domain.OpenSession(configuration);
+    }
+
+
     // Initialization
 
     /// <inheritdoc/>
     public override void Initialize()
     {
+      Domain = BuildingContext.Current.Domain;
       CompilationContext = BuildCompilationContext();
     }
   }

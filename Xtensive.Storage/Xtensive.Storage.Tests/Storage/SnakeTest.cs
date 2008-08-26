@@ -374,7 +374,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Explicit, Category("Performance")]
     public void PerformanceTest()
     {
-      const int snakesCount = 10000;
+      const int snakesCount = 1000;
       List<Snake> snakes = new List<Snake>();
 
       using (new Measurement("Persisting...", snakesCount))

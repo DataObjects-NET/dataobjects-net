@@ -131,17 +131,17 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
   {
     private int counter;
 
-    protected override Tuple NextNumber()
+    protected override Tuple NextOne()
     {
       Tuple result = Tuple.Create(counter.ToString());
       counter++;
       return result;
     }
 
-    protected override IEnumerable<Tuple> Next(int count)
+    protected override IEnumerable<Tuple> NextMany(int count)
     {
       for (int i = 0; i < count; i++)
-        yield return NextNumber();
+        yield return NextOne();
     }
   }
 

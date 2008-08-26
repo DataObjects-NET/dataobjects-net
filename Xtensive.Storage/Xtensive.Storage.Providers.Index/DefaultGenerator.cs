@@ -18,7 +18,7 @@ namespace Xtensive.Storage.Providers.Index
     private Func<Tuple> getNext;
     private Tuple counter;
 
-    protected override Tuple NextNumber()
+    protected override Tuple NextOne()
     {
       return getNext();
     }
@@ -36,7 +36,7 @@ namespace Xtensive.Storage.Providers.Index
       return result;
     }
 
-    protected override IEnumerable<Tuple> Next(int count)
+    protected override IEnumerable<Tuple> NextMany(int count)
     {
       for (int i = 0; i < count; i++)
         yield return getNext();

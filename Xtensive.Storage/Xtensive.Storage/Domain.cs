@@ -84,9 +84,8 @@ namespace Xtensive.Storage
     #region OpenSession methods
 
     /// <summary>
-    /// Creates the session.
+    /// Opens the session with default <see cref="SessionConfiguration"/>.
     /// </summary>
-    /// <returns></returns>
     /// <returns>New <see cref="SessionScope"/> object.</returns>
     public SessionScope OpenSession()
     {
@@ -94,7 +93,7 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
-    /// Creates the session.
+    /// Opens the session with specified <paramref name="configuration"/>.
     /// </summary>
     /// <param name="configuration">The session configuration.</param>
     /// <returns>New <see cref="SessionScope"/> object.</returns>
@@ -112,18 +111,6 @@ namespace Xtensive.Storage
 
       var session = new Session(this, configuration);
       return new SessionScope(session);
-    }
-
-    /// <summary>
-    /// Creates the session.
-    /// </summary>
-    /// <returns></returns>
-    /// <returns>New <see cref="SessionScope"/> object.</returns>
-    internal SessionScope OpenSession(SessionType type)
-    {
-      var configuration = (SessionConfiguration)Configuration.Session.Clone();
-      configuration.Type = type;
-      return OpenSession(configuration);
     }
 
     #endregion

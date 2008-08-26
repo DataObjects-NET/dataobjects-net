@@ -63,7 +63,7 @@ namespace Xtensive.Storage.Building.Builders
             BuildModel();
             BuildPrototypes();
             CreateDomainHandler();
-            using (context.Domain.OpenSession(SessionType.System)) {
+            using (context.Domain.Handler.OpenSession(SessionType.System)) {
               BuildingScope.Context.SystemSessionHandler = Session.Current.Handler;
               using (Log.InfoRegion(String.Format(Strings.LogBuildingX, typeof (DomainHandler).GetShortName())))
                 context.Domain.Handler.Build();

@@ -54,19 +54,7 @@ namespace Xtensive.Storage.Providers
       get { return Session.Current.Handler; }
     }
 
-    /// <summary>
-    /// Creates the session and returns its handler as <param name="handler"/>.
-    /// </summary>
-    /// <returns>New <see cref="SessionScope"/> object.</returns>
-    public SessionScope OpenSession<T>(SessionType type, out T handler)
-      where T : SessionHandler
-    {
-      var scope = Domain.OpenSession(type);
-      handler = (T)scope.Session.Handler;
-      return scope;
-    }
-
-
+   
     // Constructors
 
     internal HandlerAccessor(Domain domain)

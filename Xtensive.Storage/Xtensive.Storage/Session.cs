@@ -244,6 +244,7 @@ namespace Xtensive.Storage
         try {
           if (Log.IsLogged(LogEventTypes.Debug))
             Log.Debug("Session '{0}'. Disposing", this);
+          Handler.Commit();
           Handler.DisposeSafely();
           compilationScope.DisposeSafely();
         }

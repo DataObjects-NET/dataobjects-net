@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.ConstrainedExecution;
 using System.Threading;
 using System.Threading.Tasks;
 using Xtensive.Core;
@@ -15,6 +16,7 @@ using Xtensive.Storage.Building;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Resources;
+using Xtensive.Core.Helpers;
 
 namespace Xtensive.Storage
 {
@@ -42,49 +44,38 @@ namespace Xtensive.Storage
       if (isGuid)
         return Tuple.Create(Hierarchy.KeyTupleDescriptor, Guid.NewGuid());
       if (cacheSize > 0)
-        return GetPreCached();
-      return NextNumber();
+        return NextOneCached();
+      return NextOne();
     }
 
-    private Tuple GetPreCached()
+    private Tuple NextOneCached()
     {
       var minCached = cacheSize / 2;
       lock (_lock) {
-        if (preCachedValues.Count <= minCached) {
-          IEnumerable<Tuple> result = Next(cacheSize);
-          foreach (var tuple in result)
+        if (preCachedValues.Count <= minCached)
+          if (preCachingTask==null)
+            preCachingTask = Future<IEnumerable<Tuple>>.Create(() => NextMany(cacheSize));
+        if (preCachedValues.Count == 0) {
+          foreach (var tuple in preCachingTask.Value)
             preCachedValues.Enqueue(tuple);
+          preCachingTask.Dispose();
+          preCachingTask = null;
         }
+        return preCachedValues.Dequeue();
       }
-      return preCachedValues.Dequeue();
-
-//      lock (_lock) {
-//        if (preCachedValues.Count <= minCached)
-//          if (preCachingTask == null) {
-//            preCachingTask = Future<IEnumerable<Tuple>>.Create(() => Next(cacheSize));
-//            Thread.MemoryBarrier();
-//          }
-//
-//        if (preCachedValues.Count == 0) {
-//          foreach (var tuple in preCachingTask.Value)
-//            preCachedValues.Enqueue(tuple);
-//          preCachingTask = null;
-//        }
-//        return preCachedValues.Dequeue();
-//      }
     }
     
     /// <summary>
     /// Create the <see cref="Tuple"/> with the unique values in key sequence where key is a number.
     ///  </summary>
-    protected abstract Tuple NextNumber();
+    protected abstract Tuple NextOne();
 
     /// <summary>
     /// Create an <see cref="Array"/> of <see cref="Tuple"/>s with the unique values in key sequence.
     ///  </summary>
     /// <param name="count">The number of <see cref="Tuple"/> instances to retrieve.</param>
     /// <returns>An <see cref="Array"/> of <see cref="Tuple"/>s with unique values in key sequence.</returns>
-    protected abstract IEnumerable<Tuple> Next(int count);
+    protected abstract IEnumerable<Tuple> NextMany(int count);
 
     /// <summary>
     /// Initializes this instance.

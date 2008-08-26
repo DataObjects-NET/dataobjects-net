@@ -88,10 +88,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
       if (source == null)
         return null;
 
-//      var queryRef = SqlExpression.IsNull(source.Query.Where) ? source.Query.From : SqlFactory.QueryRef(source.Query);
-      // NOTE: may be we should clone source query
       SqlSelect query = source.Query.Clone() as SqlSelect;
-//      query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
 
       var range = provider.CompiledRange.Invoke();
       var direction = range.GetDirection(AdvancedComparer<IEntire<Tuple>>.Default);

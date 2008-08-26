@@ -25,7 +25,7 @@ namespace Xtensive.Storage.Providers.MsSql
     private SqlDataType dataType;
     private Schema schema;
 
-    protected override Tuple NextNumber()
+    protected override Tuple NextOne()
     {
       Tuple result = Tuple.Create(Hierarchy.KeyTupleDescriptor);
       SqlBatch batch = SqlFactory.Batch();
@@ -35,8 +35,8 @@ namespace Xtensive.Storage.Providers.MsSql
       select.Columns.Add(SqlFactory.Cast(SqlFactory.FunctionCall("SCOPE_IDENTITY"), dataType));
       batch.Add(select);
 
-      SessionHandler handler;
-      using (Handlers.OpenSession(SessionType.System, out handler))
+      using (Handlers.DomainHandler.OpenSession(SessionType.System)) {
+        var handler = (SessionHandler)Handlers.SessionHandler;
         using (var command = new SqlCommand(handler.Connection)) {
           command.Transaction = handler.Transaction;
           command.Statement = batch;
@@ -44,10 +44,11 @@ namespace Xtensive.Storage.Providers.MsSql
           var id = command.ExecuteScalar();
           result.SetValue(0, id);
         }
+      }
       return result;
     }
 
-    protected override IEnumerable<Tuple> Next(int count)
+    protected override IEnumerable<Tuple> NextMany(int count)
     {
       var result = new List<Tuple>();
       SqlBatch batch = SqlFactory.Batch();
@@ -74,14 +75,14 @@ namespace Xtensive.Storage.Providers.MsSql
       batch.Add(SqlFactory.Drop(temp));
       schema.Tables.Remove(temp);
   
-      SessionHandler handler;
       SqlRequest request = new SqlRequest(batch, Hierarchy.KeyTupleDescriptor);
-      using (Handlers.OpenSession(SessionType.System, out handler))
+      using (Handlers.DomainHandler.OpenSession(SessionType.System)) {
+        var handler = (SessionHandler)Handlers.SessionHandler;
         using (var e = handler.Execute(request)) {
           while (e.MoveNext())
             result.Add(e.Current);
         }
-
+      }
       return result;
     }
 
