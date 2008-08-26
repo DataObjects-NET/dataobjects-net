@@ -45,13 +45,7 @@ namespace Xtensive.Storage.Aspects
       return true;
     }
 
-    #region ProvideXxx methods
-
-    private static bool IsInfrastructureMethod(MethodInfo method)
-    {
-      return method.GetAttribute<InfrastructureAttribute>(
-        AttributeSearchOptions.InheritFromAllBase | AttributeSearchOptions.InheritFromPropertyOrEvent)!=null;
-    }
+    #region ProvideXxx methods      
 
     /// <inheritdoc/>
     public override void ProvideAspects(object element, LaosReflectionAspectCollection collection)
@@ -68,14 +62,14 @@ namespace Xtensive.Storage.Aspects
     private void ProvideTransactionalAspects(Type type, LaosReflectionAspectCollection collection)
     {
       foreach (MethodInfo method in type.GetMethods(
-        BindingFlags.Public |        
+        BindingFlags.Public |          
         BindingFlags.Instance |
         BindingFlags.DeclaredOnly))
       {
         if (method.IsAbstract)
           continue;
 
-        if (IsInfrastructureMethod(method))
+        if (AspectHelper.IsInfrastructureMethod(method))
           continue;
 
         collection.AddAspect(method, new TransactionalAttribute());
@@ -93,7 +87,7 @@ namespace Xtensive.Storage.Aspects
         if (method.IsAbstract)
           continue;
 
-        if (IsInfrastructureMethod(method))
+        if (AspectHelper.IsInfrastructureMethod(method))
           continue;
 
         collection.AddAspect(method, new SessionBoundMethodAspect());

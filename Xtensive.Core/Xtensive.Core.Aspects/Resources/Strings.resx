@@ -174,4 +174,7 @@
   <data name="AspectExMustBeSingle" xml:space="preserve">
     <value>Multiple [{0}] attributes are applied to '{1}', but there must be a single one.</value>
   </data>
+  <data name="AspectXCanNotBeAppliedToInfrastructureMethod" xml:space="preserve">
+    <value>Aspect {0} can not be applied to infrastructure method.</value>
+  </data>
 </root>

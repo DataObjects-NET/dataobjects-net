@@ -15,7 +15,6 @@ using System.Threading;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Resources;
-using System.Linq;
 using Xtensive.Core.Threading;
 
 namespace Xtensive.Core.Reflection

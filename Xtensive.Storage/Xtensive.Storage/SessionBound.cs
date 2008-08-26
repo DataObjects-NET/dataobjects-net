@@ -9,6 +9,7 @@ using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Attributes;
+using Xtensive.Core.Aspects;
 
 namespace Xtensive.Storage
 {

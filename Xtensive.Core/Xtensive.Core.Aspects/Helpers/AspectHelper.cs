@@ -473,5 +473,36 @@ namespace Xtensive.Core.Aspects.Helpers
       }
       return true;
     }
+
+
+    /// <summary>
+    /// Validates the method, that should not be infrastructure.
+    /// </summary>
+    /// <param name="aspect">The aspect.</param>
+    /// <param name="method">The method to validate.</param>
+    /// <returns>
+    /// 	<see langword="true"/> if method is valid, otherwise <see langword="false"/>.
+    /// </returns>
+    public static bool ValidateNotInfrastructure(Attribute aspect, MethodBase method)
+    {
+      if (IsInfrastructureMethod(method)) {
+        ErrorLog.Write(SeverityType.Error, Strings.AspectXCanNotBeAppliedToInfrastructureMethod, aspect.GetType().GetShortName());
+        return false;
+      }
+      return true;
+    }
+
+    /// <summary>
+    /// Determines whether the specified method is infrastructure method.
+    /// </summary>
+    /// <param name="method">The method to check.</param>
+    /// <returns>
+    /// 	<see langword="true"/> if the specified method is infrastructure method; otherwise, <see langword="false"/>.
+    /// </returns>
+    public static bool IsInfrastructureMethod(MethodBase method)
+    {
+      return method.GetAttribute<InfrastructureAttribute>(
+        AttributeSearchOptions.InheritFromAllBase | AttributeSearchOptions.InheritFromPropertyOrEvent)!=null;
+    }
   }
 }

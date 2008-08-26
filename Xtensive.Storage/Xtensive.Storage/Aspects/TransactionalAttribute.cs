@@ -7,6 +7,7 @@
 using System;
 using PostSharp.Extensibility;
 using PostSharp.Laos;
+using Xtensive.Core.Aspects.Helpers;
 using Xtensive.Core.Disposable;
 using Xtensive.Core.Helpers;
 using Xtensive.Storage.Resources;
@@ -21,6 +22,17 @@ namespace Xtensive.Storage.Aspects
   [Serializable]
   public sealed class TransactionalAttribute : OnMethodBoundaryAspect
   {
+    public override bool CompileTimeValidate(System.Reflection.MethodBase method)
+    {
+      if (!AspectHelper.ValidateContextBoundMethod<Session>(this, method))
+        return false;
+
+      if (!AspectHelper.ValidateNotInfrastructure(this, method))
+        return false;
+
+      return true;
+    }
+
     /// <inheritdoc/>
     public override void OnEntry(MethodExecutionEventArgs eventArgs)
     {
@@ -29,7 +41,7 @@ namespace Xtensive.Storage.Aspects
         throw new InvalidOperationException(Strings.SessionIsNotActivated);
       
       TransactionScope scope = session.OpenTransaction();
-      eventArgs.MethodExecutionTag = scope;      
+      eventArgs.MethodExecutionTag = scope;
     }
 
     /// <inheritdoc/>

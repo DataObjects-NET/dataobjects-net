@@ -1,16 +1,15 @@
 // Copyright (C) 2008 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
-// Created by: Alex Yakunin
-// Created:    2008.08.06
+// Created by: 
+// Created:    2008.08.26
 
 using System;
 
-namespace Xtensive.Storage.Attributes
+namespace Xtensive.Core.Aspects
 {
   /// <summary>
-  /// Marks a method or property of <see cref="SessionBound"/> type
-  /// as infrastructure method.
+  /// Marks a method or property of as infrastructure method.
   /// No aspects will be applied to it.
   /// </summary>
   [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property, 

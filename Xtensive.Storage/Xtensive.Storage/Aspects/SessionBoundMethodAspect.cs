@@ -22,10 +22,13 @@ namespace Xtensive.Storage.Aspects
   [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
   [Serializable]
   internal sealed class SessionBoundMethodAspect : OnMethodBoundaryAspect
-  {
+  {    
     public override bool CompileTimeValidate(MethodBase method)
     {
       if (!AspectHelper.ValidateContextBoundMethod<Session>(this, method))
+        return false;
+
+      if (!AspectHelper.ValidateNotInfrastructure(this, method))
         return false;
 
       return true;
@@ -39,7 +42,7 @@ namespace Xtensive.Storage.Aspects
       eventArgs.MethodExecutionTag = sessionScope;
     }
 
-    //[DebuggerStepThrough]
+    [DebuggerStepThrough]
     public override void OnExit(MethodExecutionEventArgs eventArgs)
     {
       var d = (IDisposable) eventArgs.MethodExecutionTag;

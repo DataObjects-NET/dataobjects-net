@@ -5,6 +5,7 @@
 // Created:    2008.07.28
 
 using System;
+using Xtensive.Core.Aspects;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Tuples;
@@ -15,7 +16,7 @@ namespace Xtensive.Storage.Internals
   internal class EntityDataCache : SessionBound
   {
     private readonly WeakCache<Key, EntityData> cache;
-
+    
     [Infrastructure]
     public EntityData this[Key key]
     {

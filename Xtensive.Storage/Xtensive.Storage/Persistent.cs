@@ -14,6 +14,7 @@ using Xtensive.Integrity.Validation.Interfaces;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
+using Xtensive.Core.Aspects;
 
 namespace Xtensive.Storage
 {
