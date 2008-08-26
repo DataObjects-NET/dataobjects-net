@@ -16,13 +16,10 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     {
       AssertionComparisonResult result = InitializeResult<Assertion, AssertionComparisonResult>(originalNode, newNode);
       bool hasChanges = false;
-      result.Condition = CompareSimpleNodes(originalNode.Condition, newNode.Condition);
-      hasChanges |= result.Condition.HasChanges;
-      result.IsDeferrable = CompareSimpleNodes(originalNode.IsDeferrable, newNode.IsDeferrable);
-      hasChanges |= result.IsDeferrable.HasChanges;
-      result.IsInitiallyDeferred = CompareSimpleNodes(originalNode.IsInitiallyDeferred, newNode.IsInitiallyDeferred);
-      hasChanges |= result.IsInitiallyDeferred.HasChanges;
-      if (hasChanges)
+      result.Condition = CompareSimpleNode(originalNode == null ? null : originalNode.Condition, newNode == null ? null : newNode.Condition, ref hasChanges);
+      result.IsDeferrable = CompareSimpleNode(originalNode == null ? null : originalNode.IsDeferrable, newNode == null ? null : newNode.IsDeferrable, ref hasChanges);
+      result.IsInitiallyDeferred = CompareSimpleNode(originalNode == null ? null : originalNode.IsInitiallyDeferred, newNode == null ? null : newNode.IsInitiallyDeferred, ref hasChanges);
+      if (hasChanges && result.ResultType == ComparisonResultType.Unchanged)
         result.ResultType = ComparisonResultType.Modified;
       return result;
     }

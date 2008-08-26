@@ -32,16 +32,6 @@ namespace Xtensive.Sql.Dom.Database.Comparer
       get { return provider; }
     }
 
-    protected static IEnumerable<ComparisonHintBase> FindHints<THintTarget>(IEnumerable<ComparisonHintBase> hints, string objectName)
-    {
-      if (hints==null) {
-        return Enumerable.Empty<ComparisonHintBase>();
-      }
-      return hints.Where(hint => hint!=null
-        && hint.Name==objectName
-          && hint.Type==typeof (THintTarget));
-    }
-
     protected static IEnumerable<THintType> FindHints<THintTarget, THintType>(IEnumerable<ComparisonHintBase> hints, string objectName)
     {
       if (hints==null) {
@@ -50,7 +40,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
       return hints.Where(hint => hint!=null
         && hint.Name==objectName
           && hint.Type==typeof (THintTarget)
-            && hint.GetType() == typeof(THintType)).Convert(hint => (THintType)(object)hint);
+            && hint.GetType()==typeof (THintType)).Convert(hint => (THintType) (object) hint);
     }
 
     protected static bool CompareNestedNodes<TNode, TResult>(IEnumerable<TNode> originalNodes, IEnumerable<TNode> newNodes, IEnumerable<ComparisonHintBase> hints, SqlComparerStruct<TNode> comparer, ICollection<TResult> results)
@@ -87,21 +77,39 @@ namespace Xtensive.Sql.Dom.Database.Comparer
       }
     }
 
-    protected static ComparisonResult<TNode> CompareSimpleNodes<TNode>(TNode originalNode, TNode newNode)
+    protected TResult InitializeResult<TNode, TResult>(TNode originalNode, TNode newNode)
+      where TNode : Node
+      where TResult : ComparisonResult<TNode>, new()
     {
-      var result = new ComparisonResult<TNode>{
-          OriginalValue = originalNode, 
+      var result = new TResult();
+      if (ReferenceEquals(originalNode, null) && ReferenceEquals(newNode, null)) 
+        return result;
+      ProcessDbName(originalNode, newNode, result);
+      if (originalNode==null)
+        result.ResultType = ComparisonResultType.Added;
+      else if (newNode==null)
+        result.ResultType = ComparisonResultType.Removed;
+      result.OriginalValue = originalNode;
+      result.NewValue = newNode;
+      return result;
+    }
+
+    protected static ComparisonResult<TNode> CompareSimpleNode<TNode>(TNode originalNode, TNode newNode, ref bool hasChanges)
+    {
+      var result = new ComparisonResult<TNode>
+        {
+          OriginalValue = originalNode,
           NewValue = newNode,
         };
-      if (Equals(originalNode, newNode)) {
+      if (Equals(originalNode, newNode))
         result.ResultType = ComparisonResultType.Unchanged;
-      }else if (ReferenceEquals(originalNode, null)) {
+      else if (ReferenceEquals(originalNode, null))
         result.ResultType = ComparisonResultType.Added;
-      } else if (ReferenceEquals(newNode, null)) {
+      else if (ReferenceEquals(newNode, null))
         result.ResultType = ComparisonResultType.Removed;
-      } else {
+      else
         result.ResultType = ComparisonResultType.Modified;
-      }
+      hasChanges |= result.HasChanges;
       return result;
     }
 
@@ -194,25 +202,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
       return hasChanges;
     }
 
-    protected TResult InitializeResult<TNode, TResult>(TNode originalNode, TNode newNode)
-      where TNode : Node
-      where TResult : ComparisonResult<TNode>, new()
-    {
-      if (ReferenceEquals(originalNode, null) && ReferenceEquals(newNode, null))
-        throw new InvalidOperationException(Resources.Strings.ExBothComparisonNodesAreNull);
-      var result = new TResult();
-      ProcessDbName(originalNode, newNode, result);
-      if (originalNode==null)
-        result.ResultType = ComparisonResultType.Added;
-      else if (newNode==null)
-        result.ResultType = ComparisonResultType.Removed;
-      result.OriginalValue = originalNode;
-      result.NewValue = newNode;
-      return result;
-    }
-
     #endregion
-
 
     // Constructors.
 

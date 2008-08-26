@@ -38,8 +38,9 @@ namespace Xtensive.Sql.Dom.Database.Comparer
       hasChanges |= CompareNestedNodes(originalNode == null ? null : originalNode.Translations, newNode == null ? null : newNode.Translations, hints, translationComparer, result.Translations);
       hasChanges |= CompareNestedNodes(originalNode == null ? null : originalNode.Domains, newNode == null ? null : newNode.Domains, hints, domainComparer, result.Domains);
       hasChanges |= CompareNestedNodes(originalNode == null ? null : originalNode.Sequences, newNode == null ? null : newNode.Sequences, hints, sequenceComparer, result.Sequences);
-      if (hasChanges)
+      if (hasChanges && result.ResultType == ComparisonResultType.Unchanged)
         result.ResultType = ComparisonResultType.Modified;
+      result.Lock(true);
       return result;
     }
 

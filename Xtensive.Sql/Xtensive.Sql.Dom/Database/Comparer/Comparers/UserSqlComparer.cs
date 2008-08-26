@@ -9,7 +9,7 @@ using System;
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
   [Serializable]
-  internal class UserSqlComparer : NodeSqlComparer<User, ComparisonResult<User>>
+  internal class UserSqlComparer : NodeSqlComparer<User, NodeComparisonResult<User>>
   {
     public UserSqlComparer(ISqlComparerProvider provider)
       : base(provider)

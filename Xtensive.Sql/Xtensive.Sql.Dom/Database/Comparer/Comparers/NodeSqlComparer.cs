@@ -14,10 +14,11 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     where TNode:Node 
     where TResult : ComparisonResult<TNode>, new()
   {
-    /// <inheritdoc/>
     public override ComparisonResult<TNode> Compare(TNode originalNode, TNode newNode, IEnumerable<ComparisonHintBase> hints)
     {
-      return InitializeResult<TNode, TResult>(originalNode, newNode);
+      TResult result = InitializeResult<TNode, TResult>(originalNode, newNode);
+      result.Lock(true);
+      return result;
     }
 
     public NodeSqlComparer(ISqlComparerProvider provider)

@@ -5,6 +5,7 @@
 // Created:    2008.08.21
 
 using System;
+using Xtensive.Core.Helpers;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
@@ -14,10 +15,10 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   [Serializable]
   public class TableComparisonResult : NodeComparisonResult<Table>
   {
-    private readonly ComparisonResult<string> filegroup = new ComparisonResult<string>();
+    private ComparisonResult<string> filegroup;
     private readonly ComparisonResultCollection<IndexComparisonResult> indexes = new ComparisonResultCollection<IndexComparisonResult>();
     private readonly ComparisonResultCollection<TableColumnComparisonResult> columns = new ComparisonResultCollection<TableColumnComparisonResult>();
-    private readonly ComparisonResultCollection<TableConstraintComparisonResult> constraints = new ComparisonResultCollection<TableConstraintComparisonResult>();
+    private readonly ComparisonResultCollection<ConstraintComparisonResult> constraints = new ComparisonResultCollection<ConstraintComparisonResult>();
 
     /// <summary>
     /// Gets comparison result of filegroup.
@@ -25,6 +26,11 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     public ComparisonResult<string> Filegroup
     {
       get { return filegroup; }
+      set
+      {
+        this.EnsureNotLocked();
+        filegroup = value;
+      }
     }
 
     /// <summary>
@@ -46,7 +52,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     /// <summary>
     /// Gets comparison results of nested constraints.
     /// </summary>
-    public ComparisonResultCollection<TableConstraintComparisonResult> Constraints
+    public ComparisonResultCollection<ConstraintComparisonResult> Constraints
     {
       get { return constraints; }
     }
@@ -56,11 +62,11 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     {
       base.Lock(recursive);
       if (recursive) {
-        filegroup.Lock(recursive);
+        filegroup.LockSafely(recursive);
         indexes.Lock(recursive);
         columns.Lock(recursive);
         constraints.Lock(recursive);
-     }
+      }
     }
   }
 }

@@ -36,8 +36,6 @@ namespace Xtensive.Sql.Dom.Database.Comparer
       : base(provider)
     {
       BaseSqlComparer3 = provider.GetSqlComparer<TBase3>();
-      if (!TypeHelper.IsFinal<TBase3>() && !(BaseSqlComparer3.SqlComparer.Implementation is IFinalAssociate))
-        BaseSqlComparer3 = null;
     }
   }
 }

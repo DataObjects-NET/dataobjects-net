@@ -30,7 +30,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     {
       base.Lock(recursive);
       if (recursive)
-        dbName.Lock(recursive);
+        dbName.LockSafely(recursive);
     }
   }
 }

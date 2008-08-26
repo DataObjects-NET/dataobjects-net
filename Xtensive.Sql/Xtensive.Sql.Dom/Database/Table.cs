@@ -4,7 +4,6 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
 using Xtensive.Sql.Dom.Dml;
@@ -17,8 +16,8 @@ namespace Xtensive.Sql.Dom.Database
   [Serializable]
   public class Table : DataTable,IConstrainable,IPartitionable
   {
-    private PairedNodeCollection<Table, TableColumn> columns;
-    private PairedNodeCollection<Table, TableConstraint> constraints;
+    private readonly PairedNodeCollection<Table, TableColumn> columns;
+    private readonly PairedNodeCollection<Table, TableConstraint> constraints;
     private PartitionDescriptor partitionDescriptor;
     private string filegroup;
 

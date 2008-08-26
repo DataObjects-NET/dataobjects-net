@@ -15,15 +15,20 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   [Serializable]
   public class CatalogComparisonResult : NodeComparisonResult<Catalog>
   {
-    private readonly SchemaComparisonResult defaultSchema = new SchemaComparisonResult();
+    private SchemaComparisonResult defaultSchema;
     private readonly ComparisonResultCollection<SchemaComparisonResult> schemas = new ComparisonResultCollection<SchemaComparisonResult>();
-    
+
     /// <summary>
     /// Gets comparison result of default <see cref="Schema"/>.
     /// </summary>
     public SchemaComparisonResult DefaultSchema
     {
       get { return defaultSchema; }
+      internal set
+      {
+        this.EnsureNotLocked();
+        defaultSchema = value;
+      }
     }
 
     /// <summary>

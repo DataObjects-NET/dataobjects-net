@@ -177,9 +177,6 @@
   <data name="LogUnableToGetDefaultSQLComparerForTypeXxx" xml:space="preserve">
     <value>Unable to get default SQL comparer for type {0}</value>
   </data>
-  <data name="ExBothComparisonNodesAreNull" xml:space="preserve">
-    <value>Both comparison nodes are null.</value>
-  </data>
   <data name="ExMultipleRenameHintsFoundForTypeXxx" xml:space="preserve">
     <value>Multiple rename hints found for type '{0}' with name '{1}'.</value>
   </data>
