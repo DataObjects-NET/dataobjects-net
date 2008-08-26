@@ -159,4 +159,10 @@
   <data name="ExUnableToFindColumnInPrimaryIndex" xml:space="preserve">
     <value>Unable to find column '{0}' of index '{1}' in primary index.</value>
   </data>
+  <data name="TransactionIsAlreadyOpen" xml:space="preserve">
+    <value>Transaction is already open.</value>
+  </data>
+  <data name="TransactionIsNotOpen" xml:space="preserve">
+    <value>Transaction is not open.</value>
+  </data>
 </root>

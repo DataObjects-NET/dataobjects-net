@@ -70,7 +70,7 @@ namespace Xtensive.Storage.Providers.Sql
       EnsureConnectionIsOpen();
 
       if (Transaction!=null)
-        throw new InvalidOperationException("Transaction is already opened.");
+        throw new InvalidOperationException(Strings.TransactionIsAlreadyOpen);
 
       Transaction = connection.BeginTransaction();
     }
@@ -79,7 +79,7 @@ namespace Xtensive.Storage.Providers.Sql
     public override void CommitTransaction()
     {
       if (Transaction==null)
-        throw new InvalidOperationException("Transaction is not open.");
+        throw new InvalidOperationException(Strings.TransactionIsNotOpen);
 
       Transaction.Commit();
       Transaction = null;
@@ -89,7 +89,7 @@ namespace Xtensive.Storage.Providers.Sql
     public override void RollbackTransaction()
     {
       if (Transaction==null)
-        throw new InvalidOperationException("Transaction is not open.");
+        throw new InvalidOperationException(Strings.TransactionIsNotOpen);
 
       Transaction.Rollback();
       Transaction = null;
