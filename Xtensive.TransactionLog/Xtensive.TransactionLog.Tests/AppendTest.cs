@@ -39,7 +39,7 @@ namespace Xtensive.TransactionLog.Tests
       SetUp();
       IFileNameFormatter<long> fileNameFormatter = new TestFileNameProvider();
       using (TransactionLog<long> log =
-          new TransactionLog<long>(logProvider, "TestLogName", fileNameFormatter, TimeSpan.FromSeconds(1), 1, null, ValueSerializerProvider<Stream>.Default.GetSerializer<long>()))
+          new TransactionLog<long>(logProvider, "TestLogName", fileNameFormatter, TimeSpan.FromSeconds(1), 1, null, BinaryValueSerializerProvider.Default.GetSerializer<long>()))
       {
         for (int i = 0; i < 1000; i++) {
           TestTransaction record = new TestTransaction(i);
@@ -56,7 +56,7 @@ namespace Xtensive.TransactionLog.Tests
       SetUp();
       IFileNameFormatter<long> fileNameFormatter = new TestFileNameProvider();
       using (TransactionLog<long> log =
-          new TransactionLog<long>(logProvider, "TestLogName", fileNameFormatter, TimeSpan.FromSeconds(1), 1, null, ValueSerializerProvider<Stream>.Default.GetSerializer<long>()))
+          new TransactionLog<long>(logProvider, "TestLogName", fileNameFormatter, TimeSpan.FromSeconds(1), 1, null, BinaryValueSerializerProvider.Default.GetSerializer<long>()))
       {
         for (int i = 0; i < 1000; i++)
         {
@@ -78,7 +78,7 @@ namespace Xtensive.TransactionLog.Tests
       IFileNameFormatter<long> fileNameFormatter = new TestFileNameProvider();
       using (
         TransactionLog<long> log =
-          new TransactionLog<long>(logProvider, "TestLogName", fileNameFormatter, TimeSpan.FromSeconds(1), 1, null, ValueSerializerProvider<Stream>.Default.GetSerializer<long>()))
+          new TransactionLog<long>(logProvider, "TestLogName", fileNameFormatter, TimeSpan.FromSeconds(1), 1, null, BinaryValueSerializerProvider.Default.GetSerializer<long>()))
       {
         int transactionCount = 400;
         for (int i = 0; i < transactionCount; i++) {
@@ -115,7 +115,7 @@ namespace Xtensive.TransactionLog.Tests
       long firstUncommited;
       using (
         TransactionLog<long> log =
-          new TransactionLog<long>(logProvider, "TestLogName", fileNameFormatter, TimeSpan.FromSeconds(1), 1, null, ValueSerializerProvider<Stream>.Default.GetSerializer<long>()))
+          new TransactionLog<long>(logProvider, "TestLogName", fileNameFormatter, TimeSpan.FromSeconds(1), 1, null, BinaryValueSerializerProvider.Default.GetSerializer<long>()))
       {
         int transactionCount = 400;
         for (int i = 0; i < transactionCount; i++)
@@ -150,7 +150,7 @@ namespace Xtensive.TransactionLog.Tests
       // Open again
       using (
         TransactionLog<long> newLog =
-          new TransactionLog<long>(logProvider, "TestLogName", fileNameFormatter, TimeSpan.FromSeconds(1), 1, null, ValueSerializerProvider<Stream>.Default.GetSerializer<long>()))
+          new TransactionLog<long>(logProvider, "TestLogName", fileNameFormatter, TimeSpan.FromSeconds(1), 1, null, BinaryValueSerializerProvider.Default.GetSerializer<long>()))
       {
             Assert.AreEqual(newLog.FirstUncommitted, firstUncommited);
       }

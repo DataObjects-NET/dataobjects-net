@@ -14,6 +14,7 @@ using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Serialization;
 using Xtensive.Core.Serialization.Binary;
+using Xtensive.Core.Serialization.Implementation;
 using Xtensive.Integrity.Transactions;
 using Xtensive.TransactionLog.Providers;
 using Xtensive.TransactionLog.Resources;
@@ -179,7 +180,7 @@ namespace Xtensive.TransactionLog
     #region Private \ internal methods
 
     private void InitLog(IFileNameFormatter<TKey> keyFileNameFormatter, TimeSpan autoFlushTimeout,
-      IValueSerializer<Stream,TKey> keySerializer)
+      ValueSerializer<Stream,TKey> keySerializer)
     {
       if (!provider.FolderExists(Name)) {
         provider.CreateFolder(Name);
@@ -290,7 +291,7 @@ namespace Xtensive.TransactionLog
     /// <param name="transactionFormatter"><see cref="IFormatter"/> that serializes and deserializes <see cref="ITransactionInfo{TKey}"/>.</param>
     /// <param name="keySerializer"><see cref="IValueSerializer{T}"/> that serializes specified <typeparamref name="TKey"/>.</param>
     public TransactionLog(ILogProvider provider, string logName, IFileNameFormatter<TKey> keyFileNameFormatter,
-      TimeSpan autoFlushTimeout, long maxSegmentLength, IFormatter transactionFormatter, IValueSerializer<Stream,TKey> keySerializer)
+      TimeSpan autoFlushTimeout, long maxSegmentLength, IFormatter transactionFormatter, ValueSerializer<Stream,TKey> keySerializer)
     {
       ArgumentValidator.EnsureArgumentNotNull(provider, "provider");
       ArgumentValidator.EnsureArgumentNotNull(logName, "name");
