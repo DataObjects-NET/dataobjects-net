@@ -13,6 +13,7 @@ using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Serialization;
 using Xtensive.Core.Serialization.Binary;
+using Xtensive.Core.Serialization.Implementation;
 using Xtensive.Indexing.Implementation;
 
 namespace Xtensive.Indexing.Providers.Internals

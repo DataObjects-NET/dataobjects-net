@@ -88,7 +88,7 @@ namespace Xtensive.Indexing.BloomFilter
       base.Serialize(stream);
       LongSerializer.Serialize(stream, filledBitCount);
       this.stream.Seek(dataOffset, SeekOrigin.Begin);
-      StreamUtils.WriteTo(this.stream, stream, SizeInBytes);
+      this.stream.CopyTo(stream, SizeInBytes);
     }
 
 
@@ -122,7 +122,7 @@ namespace Xtensive.Indexing.BloomFilter
       SerializeDescriptor(stream);
       LongSerializer.Serialize(stream, filledBitCount);
       dataOffset = stream.Position;
-      StreamUtils.Erase(stream, SizeInBytes);
+      stream.Erase(SizeInBytes);
       if (stream.Length < (dataOffset + SizeInBytes))
         stream.SetLength(dataOffset + SizeInBytes);
       this.stream = stream;

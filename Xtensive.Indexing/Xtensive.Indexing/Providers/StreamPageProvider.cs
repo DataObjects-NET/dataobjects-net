@@ -15,6 +15,7 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.IO;
 using Xtensive.Core.Serialization;
 using Xtensive.Core.Serialization.Binary;
+using Xtensive.Core.Serialization.Implementation;
 using Xtensive.Core.Threading;
 using Xtensive.Indexing.BloomFilter;
 using Xtensive.Indexing.Implementation;
@@ -293,8 +294,7 @@ namespace Xtensive.Indexing.Providers
       ArgumentValidator.EnsureArgumentNotNull(fileName, "fileName");
       ArgumentValidator.EnsureArgumentIsInRange(cacheSize, 0, int.MaxValue, "cacheSize");
       streamProvider = new StreamProvider(fileName);
-      serializer = ValueSerializationScope.CurrentSerializer; // BinarySerializer by default
-      offsetSerializer = ValueSerializer<Stream,long>.Default;
+      offsetSerializer = BinaryValueSerializerProvider.Default.GetSerializer<long>();
       if (cacheSize > 0) {
         pageCache =
           new WeakCache<IPageRef, Page<TKey, TItem>>(

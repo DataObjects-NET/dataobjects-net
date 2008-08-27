@@ -12,6 +12,7 @@ using Xtensive.Core;
 using Xtensive.Core.Hashing;
 using Xtensive.Core.Serialization;
 using Xtensive.Core.Serialization.Binary;
+using Xtensive.Core.Serialization.Implementation;
 using Xtensive.Indexing.Resources;
 
 namespace Xtensive.Indexing.BloomFilter
@@ -24,8 +25,8 @@ namespace Xtensive.Indexing.BloomFilter
   [Serializable]
   public abstract class BloomFilter<T> : IBloomFilter<T>
   {
-    protected readonly static ValueSerializer<Stream,long> LongSerializer = ValueSerializer<Stream,long>.Default;
-    protected readonly static ValueSerializer<Stream,int>  IntSerializer  = ValueSerializer<Stream,int>.Default;
+    protected readonly static ValueSerializer<Stream,long> LongSerializer = BinaryValueSerializerProvider.Default.GetSerializer<long>();
+    protected readonly static ValueSerializer<Stream,int>  IntSerializer  = BinaryValueSerializerProvider.Default.GetSerializer<int>();
     private readonly long size;
     private Hasher<T> hasher;
     private readonly int hashCount;
