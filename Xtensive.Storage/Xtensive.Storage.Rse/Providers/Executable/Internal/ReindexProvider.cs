@@ -14,15 +14,22 @@ namespace Xtensive.Storage.Rse.Providers.Executable
   [Serializable]
   internal sealed class ReindexProvider : UnaryExecutableProvider<Compilable.ReindexProvider>
   {
+    private const string IndexKey = "IndexKey";
     private IndexConfiguration<Tuple, Tuple> indexConfiguration;
+
+    protected internal override void OnBeforeEnumerate(EnumerationContext context)
+    {
+      base.OnBeforeEnumerate(context);
+      var index = new Index<Tuple, Tuple>(indexConfiguration);
+      foreach (Tuple tuple in Source.Enumerate(context))
+        index.Add(tuple);
+      SetCachedValue(context, IndexKey, index);
+    }
 
     /// <inheritdoc/>
     protected internal override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
-      var index = new Index<Tuple, Tuple>(indexConfiguration);
-      foreach (Tuple tuple in Source.Enumerate(context))
-        index.Add(tuple);
-      return index;
+      return GetCachedValue<Index<Tuple, Tuple>>(context, IndexKey);
     }
 
     /// <inheritdoc/>
@@ -30,10 +37,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     {
       if (typeof(T) == typeof(ICachingProvider))
         return base.GetService<T>();
-      var context = EnumerationScope.CurrentContext;
-      if (context == null)
-        return new Index<Tuple, Tuple>(indexConfiguration) as T;
-      return Enumerate(context) as T;
+      return GetCachedValue<Index<Tuple, Tuple>>(EnumerationScope.CurrentContext, IndexKey) as T;
     }
 
     /// <inheritdoc/>
@@ -44,6 +48,8 @@ namespace Xtensive.Storage.Rse.Providers.Executable
         KeyComparer = Origin.OrderKeyComparer, 
         KeyExtractor = Origin.OrderKeyExtractor
       };
+      var index = new Index<Tuple, Tuple>(indexConfiguration);
+      SetCachedValue(EnumerationContext.Current, IndexKey, index);
     }
 
 

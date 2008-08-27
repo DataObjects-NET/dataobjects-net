@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using Xtensive.Core;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Rse.Compilation;
 
@@ -18,15 +19,27 @@ namespace Xtensive.Storage.Rse.Providers
   [Serializable]
   public abstract class CompilableProvider : Provider
   {
-    private Provider compiled;
-    private CompilationContext context;
+    private const string CompiledKey = "Compiled";
 
     /// <summary>
     /// Gets the compiled provider for this provider.
     /// </summary>
     public Provider Compiled {
-      get {
-        EnsureIsCompiled();
+      get
+      {
+        if (EnumerationContext.Current == null)
+          throw new InvalidOperationException();
+        var compiled = EnumerationContext.Current.GetValue<ExecutableProvider>(new Pair<object, string>(this,CompiledKey));
+        if (compiled == null) 
+          lock (this) 
+            if (EnumerationContext.Current.GetValue<ExecutableProvider>(new Pair<object, string>(this,CompiledKey)) == null) {
+              if (CompilationScope.CurrentContext == null)
+                using (new CompilationContext(new DefaultCompiler()).Activate())
+                  compiled = this.Compile();
+              else
+                compiled = this.Compile();
+              EnumerationContext.Current.SetValue(new Pair<object, string>(this,CompiledKey), compiled);
+            }
         return compiled;
       }
     }
@@ -55,22 +68,7 @@ namespace Xtensive.Storage.Rse.Providers
 
     #endregion
 
-    #region Private \ internal methods
-
-    private void EnsureIsCompiled()
-    {
-      if (compiled == null) lock (this) if (compiled == null) {
-        if (CompilationScope.CurrentContext == null)
-          using (new CompilationContext(new DefaultCompiler()).Activate())
-            compiled = this.Compile();
-        else
-          compiled = this.Compile();
-      }
-    }
-
-    #endregion
-
-
+   
     // Constructor
 
     /// <inheritdoc/>

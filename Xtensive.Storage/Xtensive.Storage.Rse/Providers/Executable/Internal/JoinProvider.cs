@@ -46,22 +46,18 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 
     private bool CheckAbilityToMerge()
     {
-      var leftEnumerable = left.GetService<IOrderedEnumerable<Tuple,Tuple>>();
-      var rightEnumerable = right.GetService<IOrderedEnumerable<Tuple,Tuple>>();
-      if (leftEnumerable != null && rightEnumerable != null) {
-        if (left.Header.Order.Count == right.Header.Order.Count) {
-          for (int i = 0; i < left.Header.Order.Count; i++) {
-            var leftOrderItem = left.Header.Order[i];
-            var rightOrderItem = right.Header.Order[i];
-            if (leftOrderItem.Value != rightOrderItem.Value)
-              return false;
-            var leftColumn = left.Header.Columns[leftOrderItem.Key];
-            var rightColumn = right.Header.Columns[rightOrderItem.Key];
-            if (leftColumn != rightColumn)
-              return false;
-          }
-          return true;
+      if (left.Header.Order.Count == right.Header.Order.Count) {
+        for (int i = 0; i < left.Header.Order.Count; i++) {
+          var leftOrderItem = left.Header.Order[i];
+          var rightOrderItem = right.Header.Order[i];
+          if (leftOrderItem.Value != rightOrderItem.Value)
+            return false;
+          var leftColumn = left.Header.Columns[leftOrderItem.Key];
+          var rightColumn = right.Header.Columns[rightOrderItem.Key];
+          if (leftColumn != rightColumn)
+            return false;
         }
+        return true;
       }
       return false;
     }

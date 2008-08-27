@@ -20,6 +20,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
   internal sealed class SortProvider : ExecutableProvider,
     IListProvider
   {
+    private const string SortKey = "SortKey";
     private readonly Provider source;
     private MapTransform transform;
     private AdvancedComparer<Tuple> keyComparer;
@@ -27,25 +28,38 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     long ICountable.Count {
       get {
         var context = EnumerationScope.CurrentContext;
-        var list = Enumerate(context) as ICountable;
-        if (list != null)
-          return list.Count;
-        return -1;
+        var list = GetCachedValue<List<Tuple>>(context, SortKey);
+        return list.Count;
       }
     }
 
-    public Tuple GetItem(int index)
+    Tuple IListProvider.GetItem(int index)
     {
       var context = EnumerationScope.CurrentContext;
-      var list = Enumerate(context) as IListProvider;
-      if (list!=null)
-        return list.GetItem(index);
-      return null;
+      var list = GetCachedValue<List<Tuple>>(context, SortKey);
+      return list[index];
+    }
+
+    protected internal override void OnBeforeEnumerate(EnumerationContext context)
+    {
+      base.OnBeforeEnumerate(context);
+
+      var list = source.ToList();
+      list.Sort((x, y) => keyComparer.Compare(
+        transform.Apply(TupleTransformType.TransformedTuple, x), 
+        transform.Apply(TupleTransformType.TransformedTuple, y)));
+
+      SetCachedValue(context, SortKey, list);
     }
 
     protected internal override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
-      var list = source.ToList();
+      return GetCachedValue<List<Tuple>>(context, SortKey);
+    }
+
+    protected override void Initialize()
+    {
+      base.Initialize();
 
       var rules = new ComparisonRules[Header.Order.Count];
       var columnIndexes = new int[Header.Order.Count];
@@ -57,20 +71,13 @@ namespace Xtensive.Storage.Rse.Providers.Executable
         rules[i] = new ComparisonRule(sortItem.Value, culture);
         columnIndexes[i] = sortItem.Key;
       }
+
       keyComparer = AdvancedComparer<Tuple>.Default.ApplyRules(new ComparisonRules(ComparisonRule.Positive, rules, ComparisonRules.None));
       TupleDescriptor keyDescriptor = TupleDescriptor.Create(columnIndexes.Select(i => Header.TupleDescriptor[i]));
-
       transform = new MapTransform(true, keyDescriptor, columnIndexes);
 
-      list.Sort(CompareStep);
-      return list;
-    }
-
-    private int CompareStep(Tuple x, Tuple y)
-    {
-      var xKey = transform.Apply(TupleTransformType.TransformedTuple, x);
-      var yKey = transform.Apply(TupleTransformType.TransformedTuple, y);
-      return keyComparer.Compare(xKey, yKey);
+      var context = EnumerationScope.CurrentContext;
+      SetCachedValue(context, SortKey, new List<Tuple>());
     }
 
 

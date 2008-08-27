@@ -12,6 +12,7 @@ using Xtensive.Core.Tuples;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers;
+using Xtensive.Core.Disposable;
 
 namespace Xtensive.Storage.Rse
 {
@@ -42,7 +43,15 @@ namespace Xtensive.Storage.Rse
     /// <inheritdoc/>
     public IEnumerator<Tuple> GetEnumerator()
     {
-      return Provider.GetEnumerator();
+      EnumerationScope scope = null;
+      try {
+        scope = new EnumerationContext().Activate();
+        foreach (var tuple in Provider)
+          yield return tuple;
+      }
+      finally {
+        scope.DisposeSafely();
+      }
     }
 
     /// <inheritdoc/>

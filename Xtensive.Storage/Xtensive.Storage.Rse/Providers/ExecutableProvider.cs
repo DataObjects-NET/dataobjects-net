@@ -194,9 +194,6 @@ namespace Xtensive.Storage.Rse.Providers
     public sealed override IEnumerator<Tuple> GetEnumerator()
     {
       var context = EnumerationScope.CurrentContext;
-      if (context == null)
-        context = new EnumerationContext();
-      var scope = context.Activate();
       OnBeforeEnumerate(context);
       try {
         var enumerable = Enumerate(context);
@@ -205,7 +202,6 @@ namespace Xtensive.Storage.Rse.Providers
       }
       finally {
         OnAfterEnumerate(context);
-        scope.DisposeSafely();
       }
       
     }

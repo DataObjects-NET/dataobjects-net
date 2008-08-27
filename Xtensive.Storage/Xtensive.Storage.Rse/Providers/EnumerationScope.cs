@@ -34,6 +34,13 @@ namespace Xtensive.Storage.Rse.Providers
     // Constructor
 
     /// <summary>
+    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    public EnumerationScope()
+      : base (new EnumerationContext())
+    {}
+
+    /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="context">The context.</param>
