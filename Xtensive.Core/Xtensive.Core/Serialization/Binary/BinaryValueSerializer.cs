@@ -6,43 +6,30 @@
 
 using System.Diagnostics;
 using System.IO;
-using System.Threading;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Serialization.Implementation;
+using Xtensive.Core.Threading;
 
 namespace Xtensive.Core.Serialization.Binary
 {
   /// <summary>
-  /// Implementation of <see cref="ValueSerializer{TStream,T}"/> for binary (de)serializing.
+  /// A class providing just <see cref="Default"/> member.
   /// </summary>
-  public class BinaryValueSerializer<T> : ValueSerializer<Stream, T>
+  /// <typeparam name="T">The type of <see cref="IValueSerializer{TStream,T}"/> generic argument.</typeparam>
+  public static class BinaryValueSerializer<T>
   {
-    private static readonly object _lock = new object();
-    private static volatile BinaryValueSerializer<T> @default;
+    private static ThreadSafeCached<ValueSerializer<Stream, T>> cachedSerializer =
+      ThreadSafeCached<ValueSerializer<Stream, T>>.Create(new object());
 
     /// <summary>
     /// Gets default serializer for type <typeparamref name="T"/>
-    /// (uses <see cref="ValueSerializerProvider{TStream}.Default"/> <see cref="ValueSerializerProvider{TStream}"/>).
+    /// (uses <see cref="ObjectSerializerProvider.Default"/>).
     /// </summary>
-    [DebuggerHidden]
-    public new static BinaryValueSerializer<T> Default {
+    public static ValueSerializer<Stream, T> Default {
+      [DebuggerStepThrough]
       get {
-        if (@default == null)
-          lock (_lock)
-            if (@default == null)
-              try {
-                var serializer = new BinaryValueSerializer<T>(BinaryValueSerializerProvider.Default.GetSerializer<T>());
-                Thread.MemoryBarrier();
-                @default = serializer;
-              }
-              catch {}
-        return @default;
+        return cachedSerializer.GetValue(
+          () => BinaryValueSerializerProvider.Default.GetSerializer<T>());
       }
     }
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    public BinaryValueSerializer(IValueSerializer<Stream, T> implementation)
-      : base(implementation) {}
   }
 }

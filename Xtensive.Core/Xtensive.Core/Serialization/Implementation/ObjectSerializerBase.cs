@@ -4,60 +4,104 @@
 // Created by: Dmitri Maximov
 // Created:    2008.03.20
 
+using System;
 using System.Diagnostics;
+using System.Runtime.Serialization;
 using Xtensive.Core.Internals.DocTemplates;
 
-namespace Xtensive.Core.Serialization
+namespace Xtensive.Core.Serialization.Implementation
 {
   /// <summary>
-  /// Base class for concrete object serializers.
+  /// Base class for any <see cref="IObjectSerializer{T}"/>.
   /// </summary>
-  /// <typeparam name="T">Type of object to serialize/deserialize.</typeparam>
-  public abstract class ObjectSerializerBase<T> : IObjectSerializer<T>
+  /// <typeparam name="T">Type of object to serialize / deserialize.</typeparam>
+  [Serializable]
+  public abstract class ObjectSerializerBase<T> : 
+    IObjectSerializer<T>,
+    IDeserializationCallback
   {
-    private readonly IObjectSerializerProvider provider;
+    /// <inheritdoc/>
+    public IObjectSerializerProvider Provider { get; protected set; }
 
     /// <inheritdoc/>
-    [DebuggerHidden]
-    public IObjectSerializerProvider Provider {
-      get { return provider; }
-    }
-
-    /// <inheritdoc/>
-    [DebuggerHidden]
     public virtual bool IsReferable {
+      [DebuggerStepThrough]
       get { return true; }
     }
 
+    /// <inheritdoc/>
+    public abstract T CreateObject(Type type);
+
+    /// <inheritdoc/>
+    public virtual void GetObjectData(T source, T origin, SerializationData data)
+    {
+      GetObjectHeader(source, data);
+    }
+
+    /// <summary>
+    /// Adds <paramref name="source"/> type and reference to the <paramref name="data"/>.
+    /// </summary>
+    /// <param name="source">The object to add the header for.</param>
+    /// <param name="data">The <see cref="SerializationData"/> to update.</param>
+    protected virtual void GetObjectHeader(T source, SerializationData data)
+    {
+      var type = GetObjectType(source);
+      data.SerializedType = type;
+      if (IsReferable)
+        // It isn't a reference type, so it must have SerializedReference
+        data.SerializedReference = data.Reference;
+    }
+
+    /// <summary>
+    /// Gets the type of the object (used in <see cref="GetObjectData"/>).
+    /// </summary>
+    /// <param name="source">The object to get the type of.</param>
+    /// <returns>The type of the object.</returns>
+    public virtual Type GetObjectType(T source)
+    {
+      return source.GetType();
+    }
+
+    /// <inheritdoc/>
+    public virtual T SetObjectData(T target, SerializationData data)
+    {
+      foreach (var propertyName in data)
+        target = SetPropertyData(target, data, propertyName);
+      data.EnsureNoSkips();
+      return target;
+    }
+
+    /// <summary>
+    /// Updates (sets) the particular property by specified <paramref name="data"/>.
+    /// </summary>
+    /// <param name="target">The target object.</param>
+    /// <param name="data">The serialization data.</param>
+    /// <param name="propertyName">Name of the property to update.</param>
+    /// <returns>An object with updated property.</returns>
+    public abstract T SetPropertyData(T target, SerializationData data, string propertyName);
+
     #region IObjectSerializer Members
 
-    void IObjectSerializer.GetObjectData(object obj, SerializationData data) {
-      GetObjectData((T) obj, data);
+    /// <inheritdoc/>
+    object IObjectSerializer.CreateObject(Type type) 
+    {
+      return CreateObject(type);
     }
 
-    object IObjectSerializer.SetObjectData(object obj, SerializationData data) {
-      var tObj = (T) obj;
-      return SetObjectData(tObj, data);
+    /// <inheritdoc/>
+    void IObjectSerializer.GetObjectData(SerializationData data) 
+    {
+      GetObjectData((T) data.Source, (T) data.Origin, data);
     }
 
-    object IObjectSerializer.CreateObject() {
-      return CreateObject();
+    /// <inheritdoc/>
+    void IObjectSerializer.SetObjectData(SerializationData data) 
+    {
+      data.Source = SetObjectData((T) data.Origin, data);
     }
 
     #endregion
 
-    #region IObjectSerializer<T> members
-
-    /// <inheritdoc/>
-    public abstract T CreateObject();
-
-    /// <inheritdoc/>
-    public abstract void GetObjectData(T obj, SerializationData data);
-
-    /// <inheritdoc/>
-    public abstract T SetObjectData(T obj, SerializationData data);
-
-    #endregion
 
     // Constructors
 
@@ -65,9 +109,19 @@ namespace Xtensive.Core.Serialization
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="provider">The provider.</param>
-    protected ObjectSerializerBase(IObjectSerializerProvider provider) {
+    protected ObjectSerializerBase(IObjectSerializerProvider provider) 
+    {
       ArgumentValidator.EnsureArgumentNotNull(provider, "provider");
-      this.provider = provider;
+      Provider = provider;
+    }
+
+    // IDeserializationCallback methods
+
+    /// <see cref="SerializableDocTemplate.OnDeserialization" copy="true" />
+    public virtual void OnDeserialization(object sender)
+    {
+      if (Provider==null || Provider.GetType()==typeof (ObjectSerializerProvider))
+        Provider = ObjectSerializerProvider.Default;
     }
   }
 }

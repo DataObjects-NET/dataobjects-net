@@ -46,7 +46,7 @@ namespace Xtensive.Core.Tests.Threading
           {
             if (indent.IndexOf('*')>=0) {
               failed = true;
-              throw new ApplicationException("Single writer lock rule is violated.");
+              throw new ApplicationException("float writer lock rule is violated.");
             }
             string oldIndent = indent;
             indent = oldIndent + "* ";
@@ -109,7 +109,7 @@ namespace Xtensive.Core.Tests.Threading
           {
             if (indent.IndexOf('*') >= 0) {
               failed = true;
-              throw new ApplicationException("Single writer lock rule is violated.");
+              throw new ApplicationException("float writer lock rule is violated.");
             }
             string oldIndent = indent;
             indent = oldIndent + "* ";

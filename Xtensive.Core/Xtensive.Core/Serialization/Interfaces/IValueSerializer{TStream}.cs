@@ -4,16 +4,19 @@
 // Created by: Alex Yakunin
 // Created:    2007.12.31
 
-using System.IO;
-
 namespace Xtensive.Core.Serialization
 {
   /// <summary>
   /// Serializes (deserializes) the objects to (from) the stream.
   /// </summary>
   /// <typeparam name="TStream">Type of the stream to write to or read from.</typeparam>
-  public interface IValueSerializer<TStream> : IValueSerializerBase<TStream>
+  public interface IValueSerializer<TStream>
   {
+    /// <summary>
+    /// Gets the provider this serializer is associated with.
+    /// </summary>
+    IValueSerializerProvider<TStream> Provider { get; }
+
     /// <summary>
     /// Serializes an object to the provided stream at the current stream position.
     /// </summary>

@@ -6,36 +6,37 @@
 
 using System;
 using System.IO;
-using System.Runtime.Serialization;
-using Xtensive.Core.Resources;
 
 namespace Xtensive.Core.Serialization.Binary
 {
   [Serializable]
   internal class DecimalValueSerializer : BinaryValueSerializerBase<decimal>
   {
-    public override Decimal Deserialize(Stream stream) {
-      if (stream.Length - stream.Position < sizeof (Decimal))
-        throw new SerializationException(Strings.ExDeserializationStreamLengthIncorrect);
-      Byte[] buffer = new byte[sizeof (Decimal)];
-      Int32[] intRepresentation = new int[sizeof (Decimal) / sizeof (Int32)];
+    public override Decimal Deserialize(Stream stream) 
+    {
+      var buffer = new byte[sizeof (Decimal)];
+      var intBuffer = new int[sizeof (Decimal) / sizeof (int)];
       stream.Read(buffer, 0, sizeof (Decimal));
-      for (int i = 0; i < sizeof (Decimal) / sizeof (Int32); i++)
-        intRepresentation[i] = BitConverter.ToInt32(buffer, i * sizeof (Int32));
-      return new Decimal(intRepresentation);
+      for (int i = 0; i < sizeof (Decimal) / sizeof (int); i++)
+        intBuffer[i] = BitConverter.ToInt32(buffer, i * sizeof (int));
+      return new Decimal(intBuffer);
     }
 
-    public override void Serialize(Stream stream, Decimal value) {
-      Int32[] intRepresentation = Decimal.GetBits(value);
-      for (int i = 0; i < sizeof (Decimal) / sizeof (Int32); i++) {
-        Byte[] buffer = BitConverter.GetBytes(intRepresentation[i]);
-        stream.Write(buffer, 0, sizeof (Int32));
+    public override void Serialize(Stream stream, Decimal value) 
+    {
+      var intBuffer = Decimal.GetBits(value);
+      for (int i = 0; i < sizeof (Decimal) / sizeof (int); i++) {
+        Byte[] buffer = BitConverter.GetBytes(intBuffer[i]);
+        stream.Write(buffer, 0, sizeof (int));
       }
     }
 
+
     // Constructors
 
-    public DecimalValueSerializer(IBinaryValueSerializerProvider provider)
-      : base(provider) {}
+    public DecimalValueSerializer(IValueSerializerProvider<Stream> provider)
+      : base(provider)
+    {
+    }
   }
 }

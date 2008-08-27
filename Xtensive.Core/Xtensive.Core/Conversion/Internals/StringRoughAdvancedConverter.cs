@@ -59,11 +59,11 @@ namespace Xtensive.Core.Conversion
     short IAdvancedConverter<string, short>.Convert(string value)
     {
       try {
-        return Int16.Parse(value, NumberStyles.Any, CultureInfo.InvariantCulture);
+        return short.Parse(value, NumberStyles.Any, CultureInfo.InvariantCulture);
       }
       catch (FormatException e) {
         if (value.Substring(0, 2).ToUpper().Equals("0X"))
-          return Int16.Parse(value.Substring(2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+          return short.Parse(value.Substring(2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
         throw;
       }
     }
@@ -71,11 +71,11 @@ namespace Xtensive.Core.Conversion
     ushort IAdvancedConverter<string, ushort>.Convert(string value)
     {
       try {
-        return UInt16.Parse(value, NumberStyles.Any, CultureInfo.InvariantCulture);
+        return ushort.Parse(value, NumberStyles.Any, CultureInfo.InvariantCulture);
       }
       catch (FormatException e) {
         if (value.Substring(0, 2).ToUpper().Equals("0X"))
-          return UInt16.Parse(value.Substring(2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+          return ushort.Parse(value.Substring(2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
         throw;
       }
     }
@@ -83,11 +83,11 @@ namespace Xtensive.Core.Conversion
     int IAdvancedConverter<string, int>.Convert(string value)
     {
       try {
-        return Int32.Parse(value, NumberStyles.Any, CultureInfo.InvariantCulture);
+        return int.Parse(value, NumberStyles.Any, CultureInfo.InvariantCulture);
       }
       catch (FormatException e) {
         if (value.Substring(0, 2).ToUpper().Equals("0X"))
-          return Int32.Parse(value.Substring(2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+          return int.Parse(value.Substring(2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
         throw;
       }
     }
@@ -95,11 +95,11 @@ namespace Xtensive.Core.Conversion
     uint IAdvancedConverter<string, uint>.Convert(string value)
     {
       try {
-        return UInt32.Parse(value, NumberStyles.Any, CultureInfo.InvariantCulture);
+        return uint.Parse(value, NumberStyles.Any, CultureInfo.InvariantCulture);
       }
       catch (FormatException e) {
         if (value.Substring(0, 2).ToUpper().Equals("0X"))
-          return UInt32.Parse(value.Substring(2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+          return uint.Parse(value.Substring(2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
         throw;
       }
     }
@@ -107,11 +107,11 @@ namespace Xtensive.Core.Conversion
     long IAdvancedConverter<string, long>.Convert(string value)
     {
       try {
-        return Int64.Parse(value, NumberStyles.Any, CultureInfo.InvariantCulture);
+        return long.Parse(value, NumberStyles.Any, CultureInfo.InvariantCulture);
       }
       catch (FormatException e) {
         if (value.Substring(0, 2).ToUpper().Equals("0X"))
-          return Int64.Parse(value.Substring(2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+          return long.Parse(value.Substring(2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
         throw;
       }
     }
@@ -119,18 +119,18 @@ namespace Xtensive.Core.Conversion
     ulong IAdvancedConverter<string, ulong>.Convert(string value)
     {
       try {
-        return UInt64.Parse(value, NumberStyles.Any, CultureInfo.InvariantCulture);
+        return ulong.Parse(value, NumberStyles.Any, CultureInfo.InvariantCulture);
       }
       catch (FormatException e) {
         if (value.Substring(0, 2).ToUpper().Equals("0X"))
-          return UInt64.Parse(value.Substring(2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+          return ulong.Parse(value.Substring(2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
         throw;
       }
     }
 
     float IAdvancedConverter<string, float>.Convert(string value)
     {
-      return Single.Parse(value, NumberStyles.Any, CultureInfo.InvariantCulture);
+      return float.Parse(value, NumberStyles.Any, CultureInfo.InvariantCulture);
     }
 
     double IAdvancedConverter<string, double>.Convert(string value)

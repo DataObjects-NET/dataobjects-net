@@ -6,35 +6,36 @@
 
 using System;
 using System.IO;
-using System.Runtime.Serialization;
-using Xtensive.Core.Resources;
 
 namespace Xtensive.Core.Serialization.Binary
 {
   [Serializable]
   internal class UInt16ValueSerializer : BinaryValueSerializerBase<ushort>
   {
-    public override UInt16 Deserialize(Stream stream) {
+    public override ushort Deserialize(Stream stream) 
+    {
       unchecked {
-        if (stream.Length - stream.Position < sizeof (UInt16))
-          throw new SerializationException(Strings.ExDeserializationStreamLengthIncorrect);
-        UInt16 result = 0;
-        for (int i = 0; i < sizeof (UInt16); i++)
-          result |= (UInt16) (stream.ReadByte() << i * 8);
+        ushort result = 0;
+        for (int i = 0; i < sizeof (ushort); i++)
+          result |= (ushort) (stream.ReadByte() << i * 8);
         return result;
       }
     }
 
-    public override void Serialize(Stream stream, UInt16 value) {
+    public override void Serialize(Stream stream, ushort value) 
+    {
       unchecked {
-        for (int i = 0; i < sizeof (UInt16); i++)
+        for (int i = 0; i < sizeof (ushort); i++)
           stream.WriteByte((byte) (value >> i * 8));
       }
     }
 
+    
     // Constructors
 
-    public UInt16ValueSerializer(IBinaryValueSerializerProvider provider)
-      : base(provider) {}
+    public UInt16ValueSerializer(IValueSerializerProvider<Stream> provider)
+      : base(provider)
+    {
+    }
   }
 }

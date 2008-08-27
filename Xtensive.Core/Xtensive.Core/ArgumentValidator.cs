@@ -82,7 +82,7 @@ namespace Xtensive.Core
       EnsureArgumentNotNull(value, parameterName);
       if (!(value is T)) {
         EnsureArgumentNotNullOrEmpty(parameterName, "parameterName");
-        throw new ArgumentException(String.Format(Strings.ExInvalidArgumentType, typeof(T)), parameterName);
+        throw new ArgumentException(string.Format(Strings.ExInvalidArgumentType, typeof(T)), parameterName);
       }
     }
 
@@ -98,7 +98,7 @@ namespace Xtensive.Core
       EnsureArgumentNotNull(value, parameterName);
       if (!type.IsAssignableFrom(value.GetType())) {
         EnsureArgumentNotNullOrEmpty(parameterName, "parameterName");
-        throw new ArgumentException(String.Format(Strings.ExInvalidArgumentType, type), parameterName);
+        throw new ArgumentException(string.Format(Strings.ExInvalidArgumentType, type), parameterName);
       }
     }
     
@@ -115,7 +115,7 @@ namespace Xtensive.Core
         return;
       if (!(value is T)) {
         EnsureArgumentNotNullOrEmpty(parameterName, "parameterName");
-        throw new ArgumentException(String.Format(Strings.ExInvalidArgumentType, typeof(T)), parameterName);
+        throw new ArgumentException(string.Format(Strings.ExInvalidArgumentType, typeof(T)), parameterName);
       }
     }
 
@@ -134,7 +134,7 @@ namespace Xtensive.Core
       if (value.CompareTo(lowerBoundary)<0 || value.CompareTo(upperBoundary)>0) {
         EnsureArgumentNotNullOrEmpty(parameterName, "parameterName");
         throw new ArgumentOutOfRangeException(parameterName, value,
-          String.Format(Strings.ExArgumentShouldBeInRange, lowerBoundary, upperBoundary));
+          string.Format(Strings.ExArgumentShouldBeInRange, lowerBoundary, upperBoundary));
       }
     }
   }

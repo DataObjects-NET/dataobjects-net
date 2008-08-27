@@ -87,12 +87,12 @@ namespace Xtensive.Core.Diagnostics.Helpers
     public IDisposable DebugRegion(string format, params object[] args)
     {
       string title = string.Format(format, args);
-      Debug(String.Format(Strings.LogRegionBegin, title));
+      Debug(string.Format(Strings.LogRegionBegin, title));
       return new Disposable<IDisposable>(
         new LogIndentScope(),
         delegate(bool disposing, IDisposable disposable) {
           disposable.DisposeSafely();
-          Debug(String.Format(Strings.LogRegionEnd, title));
+          Debug(string.Format(Strings.LogRegionEnd, title));
         });
     }
 
@@ -119,12 +119,12 @@ namespace Xtensive.Core.Diagnostics.Helpers
     public IDisposable InfoRegion(string format, params object[] args)
     {
       string title = string.Format(format, args);
-      Info(String.Format(Strings.LogRegionBegin, title));
+      Info(string.Format(Strings.LogRegionBegin, title));
       return new Disposable<IDisposable>(
         new LogIndentScope(),
         delegate(bool disposing, IDisposable disposable) {
           disposable.DisposeSafely();
-          Info(String.Format(Strings.LogRegionEnd, title));
+          Info(string.Format(Strings.LogRegionEnd, title));
         });
     }
 

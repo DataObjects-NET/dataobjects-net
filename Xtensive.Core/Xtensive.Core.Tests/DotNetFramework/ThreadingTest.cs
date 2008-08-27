@@ -216,7 +216,7 @@ namespace Xtensive.Core.Tests.DotNetFramework
         passCountBase /= 10;
 
       TestHelper.CollectGarbage();
-      using (warmup ? null : Log.InfoRegion(String.Format("{0} threads", threadCount))) {
+      using (warmup ? null : Log.InfoRegion(string.Format("{0} threads", threadCount))) {
         ThreadedTest(target, passCountBase,     target.ExecuteLock);
         ThreadedTest(target, passCountBase,     target.ExecuteReadLock);
         ThreadedTest(target, passCountBase,     target.ExecuteWriteLock);
@@ -237,7 +237,7 @@ namespace Xtensive.Core.Tests.DotNetFramework
         passCountBase /= 10;
 
       TestHelper.CollectGarbage();
-      using (warmup ? null : Log.InfoRegion(String.Format("{0} threads", threadCount))) {
+      using (warmup ? null : Log.InfoRegion(string.Format("{0} threads", threadCount))) {
         ThreadedTest(target, passCountBase/100, target.ExecuteInvokeAsync);
       }
     }

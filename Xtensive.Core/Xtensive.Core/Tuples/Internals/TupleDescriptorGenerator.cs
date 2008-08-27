@@ -78,7 +78,7 @@ namespace Xtensive.Core.Tuples.Internals
       sampleDescriptor = sample;
       ctorArgTypes = new Type[] {typeof (IList<Type>)};
       baseType = typeof (GeneratedTupleDescriptor);
-      genericTypeName = String.Format("{0}.{1}`{2}", baseType.Namespace, baseType.Name, sample.Count);
+      genericTypeName = string.Format("{0}.{1}`{2}", baseType.Namespace, baseType.Name, sample.Count);
     }
 
     private static void AddConstructor()

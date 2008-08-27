@@ -159,7 +159,7 @@ namespace Xtensive.Core.Collections
     public static string ToDelimitedString<TItem>(this IEnumerable<TItem> source, string delimiter)
     {
       if (source==null)
-        return String.Empty;
+        return string.Empty;
       StringBuilder sb = new StringBuilder();
       bool prefixWithComma = false;
       foreach (var item in source) {
@@ -181,7 +181,7 @@ namespace Xtensive.Core.Collections
     public static string ToDelimitedString(this IEnumerable source, string separator)
     {
       if (source==null)
-        return String.Empty;
+        return string.Empty;
       StringBuilder sb = new StringBuilder();
       bool prefixWithComma = false;
       foreach (object item in source) {

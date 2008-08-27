@@ -5,6 +5,7 @@
 // Created:    2008.01.17
 
 using System;
+using Xtensive.Core.Serialization.Implementation;
 
 namespace Xtensive.Core.Serialization
 {
@@ -19,7 +20,7 @@ namespace Xtensive.Core.Serialization
     /// </summary>
     /// <typeparam name="T">The type to provide the serializer for.</typeparam>
     /// <returns>Serializer for the specified type.</returns>
-    IValueSerializer<TStream, T> GetSerializer<T>();
+    ValueSerializer<TStream, T> GetSerializer<T>();
 
     /// <summary>
     /// Gets the serializer for specified <paramref name="type"/>.

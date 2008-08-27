@@ -10,44 +10,46 @@ using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Threading;
 
-namespace Xtensive.Core.Serialization
+namespace Xtensive.Core.Serialization.Implementation
 {
   /// <summary>
   /// Default <see cref="IObjectSerializer{T}"/> provider. 
-  /// Provides default primitive serializer for the specified type.
+  /// Provides default serializer for the specified type.
   /// </summary>
   /// <remarks>
   /// <para id="About"><see cref="HasStaticDefaultDocTemplate" copy="true" /></para>
   /// </remarks>
   [Serializable]
-  public class ObjectSerializerProvider :
-    AssociateProvider,
+  public class ObjectSerializerProvider : AssociateProvider,
     IObjectSerializerProvider
   {
     private static readonly ObjectSerializerProvider @default = new ObjectSerializerProvider();
-
     private ThreadSafeDictionary<Type, IObjectSerializer> serializers =
       ThreadSafeDictionary<Type, IObjectSerializer>.Create(new object());
+    private ThreadSafeCached<IObjectSerializer> objectSerializer = 
+      ThreadSafeCached<IObjectSerializer>.Create(new object());
 
     /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
-    [DebuggerHidden]
-    public static IObjectSerializerProvider Default {
+    public static ObjectSerializerProvider Default {
+      [DebuggerStepThrough]
       get { return @default; }
     }
 
     #region ISerializerProvider members
 
     /// <inheritdoc/>
-    public virtual IObjectSerializer<T> GetSerializer<T>() {
-      return GetAssociate<T, IObjectSerializer<T>, IObjectSerializer<T>>();
+    public virtual ObjectSerializer<T> GetSerializer<T>() 
+    {
+      return GetAssociate<T, IObjectSerializer<T>, ObjectSerializer<T>>();
     }
 
     /// <inheritdoc/>
-    public IObjectSerializer GetSerializer(Type type) {
+    public IObjectSerializer GetSerializer(Type type) 
+    {
       return serializers.GetValue(type,
         (_type, _this) => _this
           .GetType()
-          .GetMethod("GetSerializer", ArrayUtils<Type>.EmptyArray)
+          .GetMethod("InnerGetSerializer", ArrayUtils<Type>.EmptyArray)
           .GetGenericMethodDefinition()
           .MakeGenericMethod(new[] {_type})
           .Invoke(_this, null) as IObjectSerializer,
@@ -55,9 +57,14 @@ namespace Xtensive.Core.Serialization
     }
 
     /// <inheritdoc/>
-    public IObjectSerializer GetSerializerByInstance(object instance) {
-      ArgumentValidator.EnsureArgumentNotNull(instance, "instance");
-      return GetSerializer(instance.GetType());
+    public IObjectSerializer GetSerializerByInstance(object instance) 
+    {
+      if (instance == null)
+        return objectSerializer.GetValue(
+          _this => _this.GetSerializer<object>().Implementation, 
+          this);
+      else
+        return GetSerializer(instance.GetType());
     }
 
     #endregion
@@ -73,12 +80,25 @@ namespace Xtensive.Core.Serialization
 
     #endregion
 
+    #region Private \ internal methods
+
+    // ReSharper disable UnusedPrivateMember
+    private IObjectSerializer InnerGetSerializer<T>()
+    {
+      return GetAssociate<T, IObjectSerializer<T>, ObjectSerializer<T>>().Implementation;
+    }
+    // ReSharper restore UnusedPrivateMember
+
+    #endregion
+
+
     // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true" />
     /// </summary>
-    private ObjectSerializerProvider() {
+    private ObjectSerializerProvider() 
+    {
       TypeSuffixes = new[] {"Serializer"};
       Type t = typeof (ObjectSerializerProvider);
       AddHighPriorityLocation(t.Assembly, t.Namespace);

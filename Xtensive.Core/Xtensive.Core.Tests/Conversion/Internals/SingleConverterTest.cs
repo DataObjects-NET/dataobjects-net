@@ -15,8 +15,8 @@ namespace Xtensive.Core.Tests.Conversion
   {
     private readonly float[] constants = {
       0x7FFFFFFFFFFF1234, 0, 123, 0x7F, 0xFF, 0x7FFFFFFF, -9223372036854714932,
-      0xFFFF, 0x7FFF, 0xFFFFFFFF, 0xFFFFFFFFFFFFFF, -72057594037927935, Single.MinValue,
-      Single.MaxValue, Single.NegativeInfinity, Single.PositiveInfinity, Single.Epsilon, -Single.Epsilon,
+      0xFFFF, 0x7FFF, 0xFFFFFFFF, 0xFFFFFFFFFFFFFF, -72057594037927935, float.MinValue,
+      float.MaxValue, float.NegativeInfinity, float.PositiveInfinity, float.Epsilon, -float.Epsilon,
       2.14748366E+09f, 2.14748366E+11f, 2.14748366E+12f, 2.14748366E+13f, 2.14748366E+14f,
       2.14748366E+15f, 2.14748366E+16f, 2.14748366E+38f, 2.14748366E+37f
     };
@@ -31,7 +31,7 @@ namespace Xtensive.Core.Tests.Conversion
         OneValueTest<float, string>(generator.GetInstance(random), 1);
     }
 
-    // Proves that Single-to-Double is a rough conversion.
+    // Proves that float-to-Double is a rough conversion.
     [Test]
     public void DoubleTest()
     {

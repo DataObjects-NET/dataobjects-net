@@ -151,7 +151,7 @@ namespace Xtensive.Core.Threading
     /// <inheritdoc/>
     public override string ToString()
     {
-      return String.Format(Strings.ThreadSafeCachedFormat, cachedValue);
+      return string.Format(Strings.ThreadSafeCachedFormat, cachedValue);
     }
 
     /// <summary>

@@ -30,7 +30,7 @@ namespace Xtensive.Core.Tuples.Transform
     /// <summary>
     /// Means that no mapping is available for the specified field index.
     /// </summary>
-    public const int NoMapping = Int32.MinValue;
+    public const int NoMapping = int.MinValue;
 
     /// <inheritdoc/>
     public override bool IsReadOnly {
@@ -121,7 +121,7 @@ namespace Xtensive.Core.Tuples.Transform
     {
       ArgumentValidator.EnsureArgumentNotNull(sources, "sources");
       if (sourceCount>sources.Length)
-        throw new InvalidOperationException(String.Format(Strings.ExTheNumberOfSourcesIsTooSmallExpected, sourceCount));
+        throw new InvalidOperationException(string.Format(Strings.ExTheNumberOfSourcesIsTooSmallExpected, sourceCount));
       switch (sourceCount) {
       case 1:
         return Apply(transformType, sources[0]);
@@ -159,7 +159,7 @@ namespace Xtensive.Core.Tuples.Transform
     protected Tuple Apply(TupleTransformType transformType, Tuple source)
     {
       if (sourceCount>1)
-        throw new InvalidOperationException(String.Format(Strings.ExTheNumberOfSourcesIsTooSmallExpected, sourceCount));
+        throw new InvalidOperationException(string.Format(Strings.ExTheNumberOfSourcesIsTooSmallExpected, sourceCount));
       switch (transformType) {
       case TupleTransformType.Auto:
         if (source is TransformedTuple)
@@ -188,7 +188,7 @@ namespace Xtensive.Core.Tuples.Transform
     protected Tuple Apply(TupleTransformType transformType, Tuple source1, Tuple source2)
     {
       if (sourceCount>2)
-        throw new InvalidOperationException(String.Format(Strings.ExTheNumberOfSourcesIsTooSmallExpected, sourceCount));
+        throw new InvalidOperationException(string.Format(Strings.ExTheNumberOfSourcesIsTooSmallExpected, sourceCount));
       switch (transformType) {
       case TupleTransformType.Auto:
         if (source1 is TransformedTuple)
@@ -221,7 +221,7 @@ namespace Xtensive.Core.Tuples.Transform
     protected Tuple Apply(TupleTransformType transformType, Tuple source1, Tuple source2, Tuple source3)
     {
       if (sourceCount>3)
-        throw new InvalidOperationException(String.Format(Strings.ExTheNumberOfSourcesIsTooSmallExpected, sourceCount));
+        throw new InvalidOperationException(string.Format(Strings.ExTheNumberOfSourcesIsTooSmallExpected, sourceCount));
       switch (transformType) {
       case TupleTransformType.Auto:
         if (source1 is TransformedTuple)
@@ -246,7 +246,7 @@ namespace Xtensive.Core.Tuples.Transform
     /// <inheritdoc/>
     public override string ToString()
     {
-      string description = String.Format("{0}: {1}, {2}", 
+      string description = string.Format("{0}: {1}, {2}", 
         SourceCount, 
         SourceCount==1 ? 
           singleSourceMap.ToCommaDelimitedString() : 
@@ -254,7 +254,7 @@ namespace Xtensive.Core.Tuples.Transform
         isReadOnly ? 
           Strings.ReadOnlyShort : 
           Strings.ReadWriteShort);
-      return String.Format(Strings.TupleTransformFormat, 
+      return string.Format(Strings.TupleTransformFormat, 
         GetType().GetShortName(), 
         description);
     }

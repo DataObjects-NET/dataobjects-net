@@ -84,7 +84,7 @@ namespace Xtensive.Core
     /// <inheritdoc/>
     public override string ToString()
     {
-      return String.Format(Strings.SegmentFormat, Offset, Length);
+      return string.Format(Strings.SegmentFormat, Offset, Length);
     }
 
 

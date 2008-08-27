@@ -109,7 +109,7 @@ namespace Xtensive.Core.Tuples.Internals
           }
         };
       if (tuple==null)
-        throw Exceptions.InternalError(String.Format(
+        throw Exceptions.InternalError(string.Format(
           "Tuple generation has failed for tuple descriptor {0}.", tupleInfo.Descriptor), Log.Instance);
 
       FieldInfo descriptorField = tuple.GetType().GetField(descriptorFieldName, 

@@ -216,7 +216,7 @@ namespace Xtensive.Core.Tuples
         else
           sb.Append(GetValue(i));
       }
-      return String.Format(Strings.TupleFormat, sb);
+      return string.Format(Strings.TupleFormat, sb);
     }
 
     #endregion

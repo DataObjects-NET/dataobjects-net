@@ -35,8 +35,7 @@ namespace Xtensive.Core.Collections
     #region Properites: KeyExtractor, CacheConverter, MaxSize, Count, Size
 
     /// <inheritdoc/>
-    public Converter<TItem, TKey> KeyExtractor
-    {
+    public Converter<TItem, TKey> KeyExtractor {
       [DebuggerStepThrough]
       get { return keyExtractor; }
     }
@@ -44,29 +43,25 @@ namespace Xtensive.Core.Collections
     /// <summary>
     /// Gets the cache converter.
     /// </summary>
-    public Biconverter<TItem, TCached> CacheConverter
-    {
+    public Biconverter<TItem, TCached> CacheConverter {
       [DebuggerStepThrough]
       get { return cacheConverter; }
     }
 
     /// <inheritdoc/>
-    public int MaxSize
-    {
+    public int MaxSize {
       [DebuggerStepThrough]
       get { return maxSize; }
     }
 
     /// <inheritdoc/>
-    public long Count
-    {
+    public long Count {
       [DebuggerStepThrough]
       get { return deque.Count; }
     }
 
     /// <inheritdoc/>
-    public long Size
-    {
+    public long Size {
       [DebuggerStepThrough]
       get { return size; }
     }

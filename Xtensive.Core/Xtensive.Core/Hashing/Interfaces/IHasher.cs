@@ -9,7 +9,7 @@ using System;
 namespace Xtensive.Core.Hashing
 {
   /// <summary>
-  /// Calculates <see cref="Int64"/> hashes.
+  /// Calculates <see cref="long"/> hashes.
   /// </summary>
   /// <typeparam name="T">Type of object to calculate hash for.</typeparam>
   public interface IHasher<T>: IHasherBase

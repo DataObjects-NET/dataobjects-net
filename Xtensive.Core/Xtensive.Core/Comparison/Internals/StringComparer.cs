@@ -15,7 +15,7 @@ namespace Xtensive.Core.Comparison
   internal sealed class StringComparer: AdvancedComparerBase<string>,
     ISystemComparer<string>
   {
-    private static readonly int emptyHash = String.Empty.GetHashCode();
+    private static readonly int emptyHash = string.Empty.GetHashCode();
     [NonSerialized]
     private Func<string, string, CompareOptions, int> stringCompare;
     [NonSerialized]

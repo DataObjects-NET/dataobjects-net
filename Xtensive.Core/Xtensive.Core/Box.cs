@@ -76,7 +76,7 @@ namespace Xtensive.Core
     /// <inheritdoc/>
     public override string ToString()
     {
-      return String.Format(Strings.BoxFormat, Value);
+      return string.Format(Strings.BoxFormat, Value);
     }
 
 

@@ -68,11 +68,7 @@ namespace Xtensive.Core.Hashing
       GetHash = Implementation.GetHash;
     }
 
-    /// <summary>
-    /// Deserializes the instance of this class.
-    /// </summary>
-    /// <param name="info">Serialization info.</param>
-    /// <param name="context">Streaming context.</param>
+    /// <see cref="SerializableDocTemplate.Ctor" copy="true"/>
     public Hasher(SerializationInfo info, StreamingContext context)
       : base(info, context)
     {

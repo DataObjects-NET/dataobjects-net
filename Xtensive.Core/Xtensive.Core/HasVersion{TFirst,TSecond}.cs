@@ -91,7 +91,7 @@ namespace Xtensive.Core
     /// <inheritdoc/>
     public override string ToString()
     {
-      return String.Format(Strings.HasVersionFormat, Value, Version);
+      return string.Format(Strings.HasVersionFormat, Value, Version);
     }
 
 

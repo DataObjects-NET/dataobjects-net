@@ -7,29 +7,35 @@
 using System.Diagnostics;
 using System.IO;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Serialization.Implementation;
 
 namespace Xtensive.Core.Serialization.Binary
 {
   /// <summary>
   /// Implementation of <see cref="ValueSerializerProvider{TStream}"/> for binary (de)serializing.
   /// </summary>
-  public class BinaryValueSerializerProvider :
-    ValueSerializerProvider<Stream>,
-    IBinaryValueSerializerProvider
+  /// <remarks>
+  /// <para id="About"><see cref="HasStaticDefaultDocTemplate" copy="true" /></para>
+  /// </remarks>
+  public class BinaryValueSerializerProvider : ValueSerializerProvider<Stream>
   {
-    private static readonly BinaryValueSerializerProvider @default = new BinaryValueSerializerProvider();
+    private static readonly BinaryValueSerializerProvider @default = 
+      new BinaryValueSerializerProvider();
 
     /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
-    [DebuggerHidden]
-    public new static IBinaryValueSerializerProvider Default {
+    public static BinaryValueSerializerProvider Default {
+      [DebuggerStepThrough]
       get { return @default; }
     }
+
+
+    // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true" />
     /// </summary>
     public BinaryValueSerializerProvider()
-      : base() {
+    {
       var t = typeof (BinaryValueSerializerProvider);
       AddHighPriorityLocation(t.Assembly, t.Namespace);
     }

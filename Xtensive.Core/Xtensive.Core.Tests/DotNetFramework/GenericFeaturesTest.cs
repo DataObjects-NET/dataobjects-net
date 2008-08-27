@@ -16,16 +16,16 @@ namespace Xtensive.Core.Tests.DotNetFramework
     [Test]
     public void EqualToNullTest()
     {
-      // Int32
+      // int
       EqualToNull<int>(0);
       EqualToNull<int>(1);
-      // Nullable<Int32>
+      // Nullable<int>
       EqualToNull<int?>(null, "null");
       EqualToNull<int?>(0);
       EqualToNull<int?>(1);
       // String
       EqualToNull<string>(null, "null");
-      EqualToNull<string>(String.Empty, "String.Empty");
+      EqualToNull<string>(string.Empty, "string.Empty");
       EqualToNull<string>("A");
     }
 

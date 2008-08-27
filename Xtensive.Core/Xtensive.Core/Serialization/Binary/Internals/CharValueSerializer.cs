@@ -10,21 +10,26 @@ using System.IO;
 namespace Xtensive.Core.Serialization.Binary
 {
   [Serializable]
-  internal class CharValueSerializer : WrappingValueSerializer<char, int>
+  internal class CharValueSerializer : WrappingBinaryValueSerializer<char, int>
   {
-    public override char Deserialize(Stream stream) {
+    public override char Deserialize(Stream stream) 
+    {
       unchecked {
-        return (char) baseValueSerializer.Deserialize(stream);
+        return (char) BaseSerializer.Deserialize(stream);
       }
     }
 
-    public override void Serialize(Stream stream, Char value) {
-      baseValueSerializer.Serialize(stream, value);
+    public override void Serialize(Stream stream, Char value) 
+    {
+      BaseSerializer.Serialize(stream, value);
     }
 
+    
     // Constructors
 
-    public CharValueSerializer(IBinaryValueSerializerProvider provider)
-      : base(provider) {}
+    public CharValueSerializer(IValueSerializerProvider<Stream> provider)
+      : base(provider)
+    {
+    }
   }
 }

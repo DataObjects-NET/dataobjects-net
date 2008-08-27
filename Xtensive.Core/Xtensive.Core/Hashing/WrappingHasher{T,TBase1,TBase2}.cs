@@ -12,7 +12,7 @@ namespace Xtensive.Core.Hashing
   /// <summary>
   /// Base class for any wrapping <see cref="IHasher{T}"/>s.
   /// </summary>
-  /// <typeparam name="T">The type to calculate <see cref="Int64"/> hashes for.</typeparam>
+  /// <typeparam name="T">The type to calculate <see cref="long"/> hashes for.</typeparam>
   /// <typeparam name="TBase1">First base (wrapped) type.</typeparam>
   /// <typeparam name="TBase2">Second base (wrapped) type.</typeparam>
   [Serializable]

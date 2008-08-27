@@ -77,13 +77,13 @@ namespace Xtensive.Core
     IComparable<UrlInfo>,
     ISerializable
   {
-    private string url = String.Empty;
-    private string protocol = String.Empty;
-    private string host = String.Empty;
+    private string url = string.Empty;
+    private string protocol = string.Empty;
+    private string host = string.Empty;
     private int    port;
-    private string resource = String.Empty;
-    private string user = String.Empty;
-    private string password = String.Empty;
+    private string resource = string.Empty;
+    private string user = string.Empty;
+    private string password = string.Empty;
     private ReadOnlyDictionary<string, string> parameters;
 
     #region Properties: Url, Protocol, Host, etc...
@@ -212,7 +212,7 @@ namespace Xtensive.Core
         int tPort = 0;
 
         if (URLmatch.Result("${port}").Length!=0)
-          tPort = Int32.Parse(URLmatch.Result("${port}"));
+          tPort = int.Parse(URLmatch.Result("${port}"));
         if (tPort<0 || tPort>65535)
           throw Exceptions.InvalidUrl(url, "url");
 

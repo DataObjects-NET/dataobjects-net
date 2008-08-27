@@ -100,7 +100,7 @@ namespace Xtensive.Core.Helpers
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
       TItem item = this[name];
       if (item==null)
-        throw new InvalidOperationException(String.Format(Strings.ExItemWithNameWasNotFound, name));
+        throw new InvalidOperationException(string.Format(Strings.ExItemWithNameWasNotFound, name));
       items.Remove(item);
     }
 

@@ -5,22 +5,22 @@
 // Created:    2008.03.26
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
+using Xtensive.Core.Collections;
+using Xtensive.Core.Disposable;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Resources;
+using Xtensive.Core.Serialization.Implementation;
 
 namespace Xtensive.Core.Serialization
 {
   /// <summary>
-  /// The context of the serialization / deserialization process.
+  /// The context of a single serialization / deserialization operation.
   /// </summary>
   public abstract class SerializationContext : Context<SerializationScope>
   {
-    private readonly Func<Type, string> typeToStringConverter;
-    private readonly Dictionary<Type, bool> isObjectOrValueType = new Dictionary<Type, bool>();
-
     /// <summary>
     /// Gets the current <see cref="SerializationContext"/>.
     /// </summary>        
@@ -33,127 +33,218 @@ namespace Xtensive.Core.Serialization
     /// Gets or sets the configuration.
     /// </summary>
     /// <value>The configuration.</value>
-    public FormatterConfiguration Configuration { get; internal set; }
+    public SerializerConfiguration Configuration { get; internal set; }
 
     /// <summary>
-    /// Gets the current <see cref="Formatter"/> process type.
+    /// Gets current <see cref="Serializer"/>.
     /// </summary>
-    public FormatterProcessType ProcessType { get; private set; }
+    public SerializerBase Serializer { get; private set; }
 
     /// <summary>
-    /// Gets <see cref="Dictionary{TKey,TItem}"/> for differentiation
-    /// types with <see cref="IObjectSerializer{T}"/> and types with <see cref="IValueSerializer{T}"/>
+    /// Gets or sets a value indicating whether this context is initialized.
+    /// See <see cref="Initialize"/> method for details.
     /// </summary>
-    public Dictionary<Type, bool> IsObjectOrValueType {
-      get { return isObjectOrValueType; }
-    }
+    public bool IsInitialized { get; private set; }
 
     /// <summary>
-    /// Gets a <see cref="Serialization.FixupQueue"/> of field recovery
-    /// actions for objects which fields haven't already deserialized.
+    /// Gets the current <see cref="Serializer"/> process type.
     /// </summary>
-    public FixupQueue FixupQueue { get; private set; }
+    public SerializerProcessType ProcessType { get; private set; }
 
     /// <summary>
-    /// Gets current <see cref="Formatter"/>.
+    /// Gets the stream used in current process.
     /// </summary>
-    public Formatter Formatter { get; private set; }
+    public Stream Stream { get; protected set; }
 
     /// <summary>
-    /// Gets the stack of <see cref="IReference"/> objects that are currently 
-    /// serialized or deserialized.
+    /// Gets the current <see cref="SerializerConfiguration.PreferNesting"/> value.
     /// </summary>
-    public Stack<IReference> Path { get; private set; }
+    public bool PreferNesting { get; set; }
 
     /// <summary>
-    /// Gets the <see cref="Queue{T}"/> of <see cref="SerializationData"/> objects 
-    /// to be deserialized further.
+    /// Gets the current <see cref="SerializerConfiguration.PreferAttributes"/> value.
     /// </summary>
-    public Queue<SerializationData> DeserializationQueue { get; private set; }
+    public bool PreferAttributes { get; set; }
 
     /// <summary>
-    /// Gets the <see cref="Queue"/> of objects to be serialized further.
+    /// Gets the current <see cref="SerializationData"/> reader.
     /// </summary>
-    public Queue<object> SerializationQueue { get; private set; }
+    public SerializationDataReader Reader { get; protected set; }
+
+    /// <summary>
+    /// Gets the current <see cref="SerializationData"/> writer.
+    /// </summary>
+    public SerializationDataWriter Writer { get; protected set; }
+
+    /// <summary>
+    /// Gets the stack of <see cref="SerializationData"/> objects 
+    /// that are currently serialized or deserialized.
+    /// </summary>
+    public Stack<SerializationData> Path { get; protected set; }
 
     /// <summary>
     /// Gets the <see cref="ReferenceManager"/> managing <see cref="IReference"/>s 
     /// in this context.
     /// </summary>
-    public ReferenceManager ReferenceManager { get; private set; }
+    public ReferenceManager ReferenceManager { get; protected set; }
 
     /// <summary>
-    /// Gets short id for the type.
+    /// Gets the deserialization map.
     /// </summary>
-    /// <param name="type">The type.</param>
-    /// <returns>Short id of the type.</returns>
-    public string GetTypeName(Type type) 
-    {
-      EnsureFormatterProcessTypeIs(FormatterProcessType.Serialization);
-      return typeToStringConverter.Invoke(type);
-    }
+    public IDictionary<IReference, object> DeserializationMap { get; protected set; }
 
     /// <summary>
-    /// Add types resolved by default to <see cref="ReferenceManager"/>.
+    /// Gets the serialization queue.
     /// </summary>
-    /// <param name="types"></param>
-    protected void AddResolvedType(params Type[] types) 
-    {
-      foreach (var type in types)
-        ReferenceManager.resolvedTypes.Add(type);
-    }
+    public ITopDeque<object, Pair<IReference, object>> SerializationQueue { get; protected set; }
+
+    /// <summary>
+    /// Gets a <see cref="FixupManager"/> of field recovery
+    /// actions for objects which fields haven't already deserialized.
+    /// </summary>
+    public FixupManager FixupManager { get; protected set; }
 
     /// <exception cref="InvalidOperationException">Current formatter process type 
     /// differs from the <paramref name="expectedProcessType"/>.</exception>
-    public void EnsureFormatterProcessTypeIs(FormatterProcessType expectedProcessType) 
+    public void EnsureFormatterProcessTypeIs(SerializerProcessType expectedProcessType) 
     {
-      if (ProcessType != expectedProcessType)
+      if (ProcessType!=expectedProcessType)
         throw new InvalidOperationException(string.Format(
           Strings.ExInvalidFormatterProcessType,
           ProcessType));
     }
 
+    /// <summary>
+    /// Initializes the context for specified process type.
+    /// </summary>
+    /// <param name="processType">Type of the process to prepare for.</param>
+    /// <param name="stream">The stream to use.</param>
+    /// <exception cref="NotSupportedException">Context is already initialized.</exception>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="processType"/> is
+    /// <see cref="SerializerProcessType.None"/>.</exception>
+    public virtual void Initialize(SerializerProcessType processType, Stream stream)
+    {
+      if (IsInitialized)
+        throw Exceptions.AlreadyInitialized(null);
+      ProcessType = processType;
+      PreferNesting = Configuration.PreferNesting;
+      PreferAttributes = Configuration.PreferAttributes;
+      Stream = Stream ?? stream;
+      Path = Path ?? new Stack<SerializationData>();
+      switch (processType) {
+      case SerializerProcessType.Serialization:
+        Writer = Writer ?? CreateWriter();
+        break;
+      case SerializerProcessType.Deserialization:
+        Reader = Reader ?? CreateReader();
+        break;
+      default:
+        throw new ArgumentOutOfRangeException("processType");
+      }
+      CreateManagersAndQueues();
+      IsInitialized = true;
+    }
+
+    /// <summary>
+    /// Creates the managers and queues.
+    /// </summary>
+    /// <exception cref="NotSupportedException">Invalid <see cref="ProcessType"/> value.</exception>
+    protected virtual void CreateManagersAndQueues()
+    {
+      ReferenceManager = ReferenceManager ?? new ReferenceManager();
+      switch (ProcessType) {
+      case SerializerProcessType.Serialization:
+        SerializationQueue = SerializationQueue ?? new TopDeque<object, Pair<IReference, object>>();
+        break;
+      case SerializerProcessType.Deserialization:
+        FixupManager = FixupManager ?? new FixupManager();
+        DeserializationMap = DeserializationMap ?? new Dictionary<IReference, object>();
+        break;
+      default:
+        throw new NotSupportedException();
+      }
+    }
+
+    #region Abstract methods
+
+    /// <summary>
+    /// Creates <see cref="SerializationDataReader"/> reading serialized data.
+    /// </summary>
+    /// <returns>Newly created reader.</returns>
+    protected abstract SerializationDataReader CreateReader();
+
+    /// <summary>
+    /// Creates <see cref="SerializationDataWriter"/> writing serialized data.
+    /// </summary>
+    /// <returns>Newly created writer.</returns>
+    protected abstract SerializationDataWriter CreateWriter();
+
+    #endregion
+
+    #region IContext<...> methods
+
+    /// <inheritdoc/>
+    public override bool IsActive {
+      get { return SerializationScope.CurrentContext==this; }
+    }
+
+    /// <inheritdoc/>
+    protected override SerializationScope CreateActiveScope() 
+    {
+      return new SerializationScope(this);
+    }
+
+    #endregion
+
+    #region OnActivate, OnDeactivate methods
+
+    /// <summary>
+    /// Called when context is activated.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">Context is not <see cref="Initialize"/>d.</exception>
+    protected internal virtual void OnActivate()
+    {
+      if (!IsInitialized)
+        throw Exceptions.NotInitialized(null);
+    }
+
+    /// <summary>
+    /// Called when context is deactivated.
+    /// </summary>
+    protected internal virtual void OnDeactivate()
+    {
+      try {
+        Writer.DisposeSafely();
+      }
+      finally {
+        IsInitialized = false;
+        ProcessType = SerializerProcessType.None;
+        PreferNesting = false;
+        PreferAttributes = false;
+        Path = null;
+        Stream = null;
+        Reader = null;
+        Writer = null;
+        ReferenceManager = null;
+        FixupManager = null;
+        SerializationQueue = null;
+        DeserializationMap = null;
+      }
+    }
+
+    #endregion
+
 
     // Constructors
 
     /// <summary>
-    /// Protected constructor for overriding any of private fields.
-    /// </summary>
-    /// <remarks>
-    /// Only <param name="formatter"/> and <param name="processType"/> should be defined.
-    /// Any of the other parameters may be <see langword="null"/>.
-    /// In this case default values are assigned to them.
-    /// </remarks>
-    protected SerializationContext(Formatter formatter, 
-      FormatterProcessType processType,
-      FixupQueue fixupQueue, Stack<IReference> traversalPath,
-      Queue<SerializationData> deserializationQueue, 
-      Queue<object> serializationQueue,
-      Func<Type, string> typeToStringConverter, 
-      Func<object, IReference> referenceFactory) 
-    {
-      ArgumentValidator.EnsureArgumentNotNull(formatter, "formatter");
-      Formatter = formatter;
-      ProcessType = processType;
-      FixupQueue = fixupQueue ?? new FixupQueue();
-      Path = traversalPath ?? new Stack<IReference>(8);
-      if (processType==FormatterProcessType.Deserialization)
-        DeserializationQueue = deserializationQueue ?? new Queue<SerializationData>(32);
-      else
-        SerializationQueue = serializationQueue ?? new Queue<object>();
-      this.typeToStringConverter = typeToStringConverter ?? (type => type.FullName);
-      ReferenceManager = new ReferenceManager(this);
-      AddResolvedType(typeof (RecordDescriptor), typeof (IReference));
-    }
-
-    /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="formatter">The formatter.</param>
-    /// <param name="formatterProcessType">Process type of current (de)serialization.</param>
-    protected SerializationContext(Formatter formatter, FormatterProcessType formatterProcessType)
-      : this(formatter, formatterProcessType, null, null, null, null, null, null)
+    /// <param name="serializer">The <see cref="Serializer"/> property value.</param>
+    protected SerializationContext(SerializerBase serializer) 
     {
+      ArgumentValidator.EnsureArgumentNotNull(serializer, "formatter");
+      Serializer = serializer;
     }
   }
 }

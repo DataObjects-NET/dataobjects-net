@@ -67,7 +67,7 @@ namespace Xtensive.Core.Aspects.Helpers
         string.Empty :
         (FormatType(type) + ".");
       
-      return String.Format(Strings.MethodFormat,
+      return string.Format(Strings.MethodFormat,
         FormatType(returnType),
         namePrefix + methodName,
         parameterTypes.Select(p => FormatType(p)).ToCommaDelimitedString());
@@ -87,7 +87,7 @@ namespace Xtensive.Core.Aspects.Helpers
         string.Empty :
         (FormatType(type) + ".");
       
-      return String.Format(Strings.MemberFormat,
+      return string.Format(Strings.MemberFormat,
         FormatType(returnType),
         namePrefix + name);
     }

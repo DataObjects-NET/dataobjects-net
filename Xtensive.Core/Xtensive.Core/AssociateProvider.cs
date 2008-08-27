@@ -100,7 +100,7 @@ namespace Xtensive.Core
 
     /// <summary>
     /// Gets associate instance for specified parameter and result types.
-    /// All associate created instances are cached and returned on the same calls further.
+    /// All associate instances are cached and returned on the same calls further.
     /// </summary>
     /// <typeparam name="TKey">Type to provide the associate for.</typeparam>
     /// <typeparam name="TAssociate">Type of result to provide the associate for.</typeparam>
@@ -166,7 +166,7 @@ namespace Xtensive.Core
                 }
                 stringBuilder.Append(TypeSuffixes[i]);
               }
-              throw new InvalidOperationException(String.Format(
+              throw new InvalidOperationException(string.Format(
                 Strings.ExCantFindAssociate2, stringBuilder,
                 typeof (TAssociate).GetShortName(),
                 typeof (TKey1).GetShortName(),
@@ -205,7 +205,7 @@ namespace Xtensive.Core
     /// </summary>
     /// <param name="associate">Associate to get the position for.</param>
     /// <typeparam name="TAssociate">Type of associate.</typeparam>
-    /// <returns>Associate position. <see cref="Int32.MaxValue"/>, if its
+    /// <returns>Associate position. <see cref="int.MaxValue"/>, if its
     /// location isn't listed in <see cref="HighPriorityLocations"/> list.</returns>
     protected int GetAssociateLocationPosition<TAssociate>(TAssociate associate)
     {
@@ -216,7 +216,7 @@ namespace Xtensive.Core
       for (int i = 0; i < hpl.Count; i++)
         if (AdvancedComparerStruct<Pair<Assembly, string>>.Default.Equals(hpl[i], entry))
           return i;
-      return Int32.MaxValue;
+      return int.MaxValue;
     }
 
     /// <summary>

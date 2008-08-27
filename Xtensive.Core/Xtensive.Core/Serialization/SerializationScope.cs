@@ -12,20 +12,45 @@ namespace Xtensive.Core.Serialization
   /// <summary>
   /// Serialization scope.
   /// </summary>
-  public abstract class SerializationScope : Scope<SerializationContext>
+  public sealed class SerializationScope : Scope<SerializationContext>
   {
+    /// <inheritdoc/>
+    public override void Activate(SerializationContext newContext)
+    {
+      base.Activate(newContext);
+      newContext.OnActivate();
+    }
+
+
     // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="context">The context of this scope.</param>
-    protected SerializationScope(SerializationContext context)
-      : base(context) {}
+    internal SerializationScope(SerializationContext context)
+      : base(context)
+    {
+    }
 
     /// <summary>
     /// <see cref="ClassDocTemplate()" copy="true"/>
     /// </summary>
-    protected SerializationScope() {}
+    internal SerializationScope()
+    {
+    }
+
+    // Desctructor
+
+    /// <inheritdoc/>
+    protected override void Dispose(bool disposing)
+    {
+      try {
+        Context.OnDeactivate();
+      }
+      finally {
+        base.Dispose(disposing);
+      }
+    }
   }
 }

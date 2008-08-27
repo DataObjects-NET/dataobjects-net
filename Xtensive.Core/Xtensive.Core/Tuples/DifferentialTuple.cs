@@ -56,7 +56,7 @@ namespace Xtensive.Core.Tuples
         ArgumentValidator.EnsureArgumentNotNull(origin, "value");
         if (value.Descriptor!=Descriptor)
           throw new ArgumentException(
-            String.Format(Strings.ExInvalidTupleDescriptorExpectedDescriptorIs, Descriptor),
+            string.Format(Strings.ExInvalidTupleDescriptorExpectedDescriptorIs, Descriptor),
             "value");
         difference = value;
       }
@@ -167,7 +167,7 @@ namespace Xtensive.Core.Tuples
       ArgumentValidator.EnsureArgumentNotNull(origin, "origin");
       if (origin.Descriptor!=difference.Descriptor)
         throw new ArgumentException(
-          String.Format(Strings.ExInvalidTupleDescriptorExpectedDescriptorIs, origin.Descriptor),
+          string.Format(Strings.ExInvalidTupleDescriptorExpectedDescriptorIs, origin.Descriptor),
           "difference");
       this.origin = origin;
       this.difference = difference;

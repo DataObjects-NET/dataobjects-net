@@ -313,6 +313,15 @@ namespace Xtensive.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unable to copy a part of the stream to itself. Use StreamExtensions.Copy method instead..
+        /// </summary>
+        internal static string ExCopyToMustOperateWithDifferentStreams {
+            get {
+                return ResourceManager.GetString("ExCopyToMustOperateWithDifferentStreams", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Could not load types from the assembly &apos;{0}&apos;..
         /// </summary>
         internal static string ExCouldNotLoadTypesFromAssembly {
@@ -345,6 +354,15 @@ namespace Xtensive.Core.Resources {
         internal static string ExDescriptorIsInInvalidState {
             get {
                 return ResourceManager.GetString("ExDescriptorIsInInvalidState", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Deserialization error: some SerializationData slots were not recognized, thus the format of the serialized data differs from the supported one..
+        /// </summary>
+        internal static string ExDeserializationErrorUnrecognizedSlotsAreFound {
+            get {
+                return ResourceManager.GetString("ExDeserializationErrorUnrecognizedSlotsAreFound", resourceCulture);
             }
         }
         
@@ -552,6 +570,24 @@ namespace Xtensive.Core.Resources {
         internal static string ExInvalidRecordType {
             get {
                 return ResourceManager.GetString("ExInvalidRecordType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Deserialized object is referable, so GetReference methods must be used for it..
+        /// </summary>
+        internal static string ExInvalidSerializerBehaviorGetObjectIsUsedInsteadOfGetReference {
+            get {
+                return ResourceManager.GetString("ExInvalidSerializerBehaviorGetObjectIsUsedInsteadOfGetReference", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &apos;{0}&apos; can&apos;t be an IsReferable serializer, since it serializes IReference type..
+        /// </summary>
+        internal static string ExInvalidSerializerBehaviorMustNotBeReferable {
+            get {
+                return ResourceManager.GetString("ExInvalidSerializerBehaviorMustNotBeReferable", resourceCulture);
             }
         }
         
@@ -939,15 +975,6 @@ namespace Xtensive.Core.Resources {
         internal static string ExSpecifiedTypeShouldBeGeneratedTupleDescriptorOrItsDescendant {
             get {
                 return ResourceManager.GetString("ExSpecifiedTypeShouldBeGeneratedTupleDescriptorOrItsDescendant", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Unable to copy stream to itself. Use StreamUtils.InstreamCopy instead..
-        /// </summary>
-        internal static string ExStreamCopyMustOperateDifferentStreams {
-            get {
-                return ResourceManager.GetString("ExStreamCopyMustOperateDifferentStreams", resourceCulture);
             }
         }
         

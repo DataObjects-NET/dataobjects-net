@@ -4,31 +4,47 @@
 // Created by: Dmitri Maximov
 // Created:    2008.03.20
 
+using System;
+
 namespace Xtensive.Core.Serialization
 {
   /// <summary>
-  /// Object serializer and deserializer.
+  /// Untyped object serializer / deserializer.
   /// </summary>
-  public interface IObjectSerializer : IObjectSerializerBase
+  public interface IObjectSerializer
   {
     /// <summary>
-    /// Creates the object.
+    /// Gets the provider this serializer is associated with.
     /// </summary>
-    object CreateObject();
+    IObjectSerializerProvider Provider { get; }
 
     /// <summary>
-    /// Populates the provided <see cref="SerializationData"/> with the data needed to serialize the object.
+    /// Gets the value specified that serializable type can be referred 
+    /// by a set of other objects in serialized graph.
     /// </summary>
-    /// <param name="obj">The object to serialize.</param>
-    /// <param name="data">The <see cref="SerializationData"/> to populate with data.</param>
-    void GetObjectData(object obj, SerializationData data);
+    bool IsReferable { get; }
 
     /// <summary>
-    /// Populates the object using the information in the <see cref="SerializationData"/>.
+    /// Creates the object with "initial" state.
     /// </summary>
-    /// <param name="obj">The object to populate.</param>
-    /// <param name="data">The data to populate the object.</param>
-    /// <returns>Changed object.</returns>
-    object SetObjectData(object obj, SerializationData data);
+    /// <param name="type">The type of the object to create.</param>
+    /// <returns>Newly created object.</returns>
+    object CreateObject(Type type);
+
+    /// <summary>
+    /// Populates the provided <paramref name="data"/> with the differences
+    /// between <see cref="SerializationData.Source"/> and <see cref="SerializationData.Origin"/>.
+    /// </summary>
+    /// <param name="data">The <see cref="SerializationData"/> to populate.</param>
+    void GetObjectData(SerializationData data);
+
+    /// <summary>
+    /// Populates the <see cref="SerializationData.Source"/> object 
+    /// from <see cref="SerializationData.Origin"/> by applying the
+    /// changes stored in <paramref name="data"/> to it.
+    /// </summary>
+    /// <param name="data">The <see cref="SerializationData"/> to use.</param>
+    /// <returns>Updated object.</returns>
+    void SetObjectData(SerializationData data);
   }
 }

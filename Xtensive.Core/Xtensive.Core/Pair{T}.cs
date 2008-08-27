@@ -91,7 +91,7 @@ namespace Xtensive.Core
     /// <inheritdoc/>
     public override string ToString()
     {
-      return String.Format(Strings.PairFormat, First, Second);
+      return string.Format(Strings.PairFormat, First, Second);
     }
 
 

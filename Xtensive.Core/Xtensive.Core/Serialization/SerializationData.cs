@@ -5,271 +5,468 @@
 // Created:    2008.03.19
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
+using Xtensive.Core.Collections;
+using Xtensive.Core.Comparison;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Resources;
-using Xtensive.Core.Serialization;
-using Xtensive.Core.Reflection;
 
 namespace Xtensive.Core.Serialization
 {
   /// <summary>
-  /// Stores all the data needed to serialize or deserialize an object.
+  /// Provides high-level access to the serializing or deserializing data.
   /// </summary>
-  public sealed class SerializationData
+  public abstract class SerializationData : IEnumerable<string>
   {
-    private readonly Record record;
+    protected const string TypePropertyName = "GetType()";
+    protected const string ReferencePropertyName = "Reference";
+    private int count;
 
-    internal Record Record {
-      get { return record; }
-    }
-
-    #region AddValue(s) methods
+    #region Properties
 
     /// <summary>
-    /// Adds the value to the <see cref="SerializationData"/>.
+    /// Gets the <see cref="SerializationContext"/> this instance belongs to.
     /// </summary>
-    /// <typeparam name="T">The type of the value to add.</typeparam>
-    /// <param name="name">The name to associate with the value, so it can be deserialized later.</param>
-    /// <param name="value">The value to serialize.</param>
-    public void AddValue<T>(string name, T value) 
-    {
-      AddValue(name, value, null);
-    }
+    public SerializationContext Context { get; private set; }
 
     /// <summary>
-    /// Adds the value to the <see cref="SerializationData"/>.
+    /// Gets the type associated with this instance.
     /// </summary>
-    /// <typeparam name="T">The type of the value to add.</typeparam>
-    /// <param name="name">The name to associate with the value, so it can be deserialized later.</param>
-    /// <param name="value">The value to serialize.</param>
-    /// <param name="preferNesting"><see langword="true"/> if its necessary to prefer nesting records, otherwize <see langword="false"/>,
-    ///  or <see langword="null"/> for using setting from <see cref="FormatterConfiguration.PreferNesting"/>.</param>
-    public void AddValue<T>(string name, T value, bool? preferNesting) 
-    {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
-      SerializationContext.Current.EnsureFormatterProcessTypeIs(FormatterProcessType.Serialization);
+    public Type Type { get; protected set; }
 
-      if (IsReferenceType<T>()) {
-        var context = SerializationContext.Current;
-        var pn = preferNesting.HasValue ? preferNesting.Value : context.Formatter.Configuration.PreferNesting;
-        bool isNew;
-        var referece = context.ReferenceManager.GetReference(value, out isNew);
-        if ((!referece.IsQueueable || pn) && isNew)
-          Record.AddObject(name, value);
-        else {
-          if (isNew)
-            context.SerializationQueue.Enqueue(value);
-          Record.AddObject(name, referece);
-        }
+    /// <summary>
+    /// Gets the reference associated with this instance.
+    /// </summary>
+    public IReference Reference { get; protected set; }
+
+    /// <summary>
+    /// Gets the source object associated with this instance.
+    /// </summary>
+    public object Source { get; internal set; }
+
+    /// <summary>
+    /// Gets the origin object associated with this instance.
+    /// </summary>
+    public object Origin { get; internal set; }
+
+//    /// <summary>
+//    /// Gets the nesting preference for this instance.
+//    /// </summary>
+//    public bool PreferNesting { get; internal set; }
+
+    /// <summary>
+    /// Gets the count of slots in this instance.
+    /// </summary>
+    /// <value>The count.</value>
+    public int Count {
+      get {
+        EnsureIsRead();
+        return count;
       }
-      else
-        Record.AddValue(name, value);
+      protected set { count = value; }
     }
 
     /// <summary>
-    /// Adds the set of items.
+    /// Gets the count of slots fetched by <see cref="GetValue{T}"/>-like methods.
     /// </summary>
-    /// <typeparam name="T">The type of the item to add.</typeparam>
-    /// <param name="name">The name associated with the items to store.</param>
-    /// <param name="items">The items to serialize.</param>
-    public void AddValues<T>(string name, IEnumerable<T> items) {
-      AddValues(name, items, null);
+    public int ReadCount { get; protected set; }
+
+    /// <summary>
+    /// Gets the count of skipped slots (the slots that aren't 
+    /// fetched by <see cref="GetValue{T}"/>-like methods).
+    /// </summary>
+    public int SkipCount {
+      get { return Count-ReadCount; }
     }
 
     /// <summary>
-    /// Adds the set of items.
+    /// Gets or sets the serialized type of the object (<see cref="Source"/>) described by this instance.
     /// </summary>
-    /// <typeparam name="T">The type of the item to add.</typeparam>
-    /// <param name="name">The name associated with the items to store.</param>
-    /// <param name="items">The items to serialize.</param>
-    /// <param name="preferNesting"><see langword="true"/> if its necessary to prefer nesting records, otherwize <see langword="false"/>,
-    ///  or <see langword="null"/> for using setting from <see cref="FormatterConfiguration.PreferNesting"/>.</param>
-    public void AddValues<T>(string name, IEnumerable<T> items, bool? preferNesting) 
-    {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
-      SerializationContext.Current.EnsureFormatterProcessTypeIs(FormatterProcessType.Serialization);
-
-      if (IsReferenceType<T>()) {
-        var context = SerializationContext.Current;
-        var pn = preferNesting.HasValue ? preferNesting.Value : context.Formatter.Configuration.PreferNesting;
-        foreach (var value in items) {
-          bool isNew;
-          var reference = context.ReferenceManager.GetReference(value, out isNew);
-          if ((!reference.IsQueueable || pn) && isNew)
-            Record.AddObjects(name, value);
-          else {
-            if (isNew)
-              context.SerializationQueue.Enqueue(value);
-            Record.AddObjects(name, reference);
-          }
-        }
+    public virtual Type SerializedType {
+      get {
+        Type = GetValue<Type>(TypePropertyName);
+        return Type;
       }
-      else
-        foreach (var value in items)
-          Record.AddValues(name, value);
-    }
-
-    #endregion
-
-    #region GetValue(s), GetObject(s) methods
-
-    /// <summary>
-    /// Retrieves a value from the <see cref="SerializationData"/>.
-    /// </summary>
-    /// <typeparam name="T">The type of the value to retrieve.</typeparam>
-    /// <param name="name">The name associated with the value to retrieve.</param>
-    /// <returns>The value associated with the <paramref name="name"/>.</returns>
-    public T GetValue<T>(string name) 
-    {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
-      SerializationContext.Current.EnsureFormatterProcessTypeIs(FormatterProcessType.Deserialization);
-      EnsureIsValueType<T>();
-
-      return Record.GetValue<T>(name);
-    }
-
-    /// <summary>
-    /// Retrieves an set of values from the <see cref="SerializationData"/> store.
-    /// </summary>
-    /// <typeparam name="T">The type of the item to retrieve.</typeparam>
-    /// <param name="name">The name associated with the set of values to retrieve.</param>
-    public IEnumerable<T> GetValues<T>(string name) 
-    {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
-      SerializationContext.Current.EnsureFormatterProcessTypeIs(FormatterProcessType.Deserialization);
-      EnsureIsValueType<T>();
-
-      while (true) {
-        T value;
-        if (!Record.GetValues(name, out value))
-          yield break;
-        yield return value;
+      set {
+        Type = value;
+        AddValue(TypePropertyName, value); 
       }
     }
 
     /// <summary>
-    /// Retrieves an object from the <see cref="SerializationData"/>.
+    /// Gets or sets the serialized <see cref="Reference"/> value to the object (<see cref="Source"/>) described by this instance.
     /// </summary>
-    /// <param name="name">The name associated with the object to retrieve.</param>
-    /// <remarks>Referenced object may be not deserialized yet.</remarks>
-    public IReference GetObject(string name) 
-    {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
-      SerializationContext.Current.EnsureFormatterProcessTypeIs(FormatterProcessType.Deserialization);
-
-      Record innerRecord = Record.GetRecord(name);
-      if (innerRecord == null)
-        return Reference.Null;
-      return SerializationContext.Current.Formatter.Deserialize(innerRecord);
-    }
-
-    /// <summary>
-    /// Retrieves an set of <see cref="IReference"/> instances from the <see cref="SerializationData"/> store.
-    /// </summary>
-    /// <param name="name">The name associated with the set of object to retrieve.</param>
-    public IEnumerable<IReference> GetObjects(string name) 
-    {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
-      SerializationContext context = SerializationContext.Current;
-      context.EnsureFormatterProcessTypeIs(FormatterProcessType.Deserialization);
-      while (true) {
-        Record innerRecord;
-        if (!Record.GetRecords(name, out innerRecord))
-          yield break;
-        yield return context.Formatter.Deserialize(innerRecord);
+    public virtual IReference SerializedReference {
+      get {
+        Reference = GetValue<IReference>(ReferencePropertyName);
+        return Reference;
+      }
+      set {
+        Reference = value;
+        AddObject(ReferencePropertyName, value); 
       }
     }
 
     #endregion
 
-    #region AddFixup(s) methods
+    #region AddValue methods
 
     /// <summary>
-    /// Sets a fixup action to an object associated with the specified <paramref name="name"/>.
+    /// Adds the <paramref name="value"/> to this instance.
     /// </summary>
-    /// <param name="name">The name associated with the object to retrieve.</param>
-    /// <param name="action">The action to be executed when the referenced object will be deserialized.</param>
-    /// <param name="target">Object to execute <paramref name="action"/> on.</param>
+    /// <typeparam name="T">The type of the value to add.</typeparam>
+    /// <param name="name">The name to associate with the value.</param>
+    /// <param name="value">The value to add.</param>
+    public abstract void AddValue<T>(string name, T value);
+
+    /// <summary>
+    /// Adds the <paramref name="value"/> to this instance.
+    /// </summary>
+    /// <typeparam name="T">The type of the value to add.</typeparam>
+    /// <param name="name">The name to associate with the value.</param>
+    /// <param name="value">The value to add.</param>
+    /// <param name="preferAttributes">Temporary changes 
+    /// <see cref="SerializationContext.PreferAttributes"/> value 
+    /// for the duration of this call.</param>
+    public void AddValue<T>(string name, T value, bool preferAttributes)
+    {
+      var context = Context;
+      var oldPreferAttributes = context.PreferAttributes;
+      context.PreferAttributes = preferAttributes;
+      try {
+        AddValue(name, value);
+      }
+      finally {
+        context.PreferAttributes = oldPreferAttributes;
+      }
+    }
+
+    /// <summary>
+    /// Adds the <paramref name="value"/> to this instance,
+    /// if <paramref name="value"/> isn't equal to <paramref name="originValue"/>.
+    /// </summary>
+    /// <typeparam name="T">The type of the value to add.</typeparam>
+    /// <param name="name">The name to associate with the value.</param>
+    /// <param name="value">The value to add.</param>
+    /// <param name="originValue">The value of the origin.</param>
+    public void AddValue<T>(string name, T value, T originValue)
+    {
+      if (!AdvancedComparerStruct<T>.System.Equals(value, originValue))
+        AddValue(name, value);
+    }
+
+    /// <summary>
+    /// Adds the <paramref name="value"/> to this instance,
+    /// if <paramref name="value"/> isn't equal to <paramref name="originValue"/>.
+    /// </summary>
+    /// <typeparam name="T">The type of the value to add.</typeparam>
+    /// <param name="name">The name to associate with the value.</param>
+    /// <param name="value">The value to add.</param>
+    /// <param name="originValue">The value of the origin.</param>
+    /// <param name="preferAttributes">Temporary changes 
+    /// <see cref="SerializationContext.PreferAttributes"/> value 
+    /// for the duration of this call.</param>
+    public void AddValue<T>(string name, T value, T originValue, bool preferAttributes)
+    {
+      if (!AdvancedComparerStruct<T>.System.Equals(value, originValue)) {
+        var context = Context;
+        var oldPreferAttributes = context.PreferAttributes;
+        context.PreferAttributes = preferAttributes;
+        try {
+          AddValue(name, value);
+        }
+        finally {
+          context.PreferAttributes = oldPreferAttributes;
+        }
+      }
+    }
+
+    /// <summary>
+    /// Adds the value read by <paramref name="getter"/> 
+    /// from the <see cref="Source"/> to this instance,
+    /// if it isn't equal to the same read from the <see cref="Origin"/>.
+    /// </summary>
+    /// <typeparam name="TOwner">The type of the value owner.</typeparam>
+    /// <typeparam name="T">The type of the value to add.</typeparam>
+    /// <param name="name">The name to associate with the value.</param>
+    /// <param name="getter">The value getter.</param>
+    public void AddValue<TOwner, T>(string name, Func<TOwner, T> getter)
+    {
+      AddValue(name, 
+        getter.Invoke((TOwner) Source), 
+        getter.Invoke((TOwner) Origin));
+    }
+
+    /// <summary>
+    /// Adds the value read by <paramref name="getter"/> 
+    /// from the <see cref="Source"/> to this instance,
+    /// if it isn't equal to the same read from the <see cref="Origin"/>.
+    /// </summary>
+    /// <typeparam name="TOwner">The type of the value owner.</typeparam>
+    /// <typeparam name="T">The type of the value to add.</typeparam>
+    /// <param name="name">The name to associate with the value.</param>
+    /// <param name="getter">The value getter.</param>
+    /// <param name="preferAttributes">Temporary changes 
+    /// <see cref="SerializationContext.PreferAttributes"/> value 
+    /// for the duration of this call.</param>
+    public void AddValue<TOwner, T>(string name, Func<TOwner, T> getter, bool preferAttributes)
+    {
+      AddValue(name, 
+        getter.Invoke((TOwner) Source), 
+        getter.Invoke((TOwner) Origin),
+        preferAttributes);
+    }
+
+    #endregion
+
+    #region AddObject methods
+
+    /// <summary>
+    /// Adds the object to this instance.
+    /// </summary>
+    /// <param name="name">The name to associate with the object.</param>
+    /// <param name="value">The object to add.</param>
+    /// <returns>
+    /// A <see cref="SerializationData"/> describing added object
+    /// or a reference to it.
+    /// </returns>
+    public SerializationData AddObject(string name, object value)
+    {
+      return AddObject(name, value, null, Context.PreferNesting);
+    }
+
+    /// <summary>
+    /// Adds the object to this instance.
+    /// </summary>
+    /// <param name="name">The name to associate with the object.</param>
+    /// <param name="value">The object to add.</param>
+    /// <param name="preferNesting"><see langword="true"/> if its preferable to nest it;
+    /// otherwise, <see langword="false"/>.</param>
+    /// <returns>
+    /// A <see cref="SerializationData"/> describing added object
+    /// or a reference to it.
+    /// </returns>
+    public SerializationData AddObject(string name, object value, bool preferNesting)
+    {
+      return AddObject(name, value, null, preferNesting);
+    }
+
+    /// <summary>
+    /// Adds the object to this instance.
+    /// </summary>
+    /// <param name="name">The name to associate with the object.</param>
+    /// <param name="value">The object to add.</param>
+    /// <param name="originValue">The origin object value.</param>
+    /// <returns>
+    /// A <see cref="SerializationData"/> describing added object
+    /// or a reference to it.
+    /// </returns>
+    public SerializationData AddObject(string name, object value, object originValue)
+    {
+      return AddObject(name, value, originValue, Context.PreferNesting);
+    }
+
+    /// <summary>
+    /// Adds the object to this instance.
+    /// </summary>
+    /// <param name="name">The name to associate with the object.</param>
+    /// <param name="value">The object to add.</param>
+    /// <param name="originValue">The origin object value.</param>
+    /// <param name="preferNesting"><see langword="true"/> if its preferable to nest it;
+    /// otherwise, <see langword="false"/>.</param>
+    /// <returns>
+    /// A <see cref="SerializationData"/> describing added object
+    /// or a reference to it.
+    /// </returns>
+    public abstract SerializationData AddObject(string name, object value, object originValue, bool preferNesting);
+
+    /// <summary>
+    /// Adds the object read by <paramref name="getter"/>
+    /// from the <see cref="Source"/> to this instance,
+    /// providing its origin read from the <see cref="Origin"/> by the same way.
+    /// </summary>
+    /// <typeparam name="TOwner">The type of the value owner.</typeparam>
+    /// <param name="name">The name to associate with the value.</param>
+    /// <param name="getter">The value getter.</param>
+    /// <returns>
+    /// A <see cref="SerializationData"/> describing added object
+    /// or a reference to it.
+    /// </returns>
+    public SerializationData AddObject<TOwner>(string name, Func<TOwner, object> getter)
+    {
+      return AddObject(name, getter, Context.PreferNesting);
+    }
+
+    /// <summary>
+    /// Adds the object read by <paramref name="getter"/>
+    /// from the <see cref="Source"/> to this instance,
+    /// providing its origin read from the <see cref="Origin"/> by the same way.
+    /// </summary>
+    /// <typeparam name="TOwner">The type of the value owner.</typeparam>
+    /// <param name="name">The name to associate with the value.</param>
+    /// <param name="getter">The value getter.</param>
+    /// <param name="preferNesting"><see langword="true"/> if its preferable to nest it;
+    /// otherwise, <see langword="false"/>.</param>
+    /// <returns>
+    /// A <see cref="SerializationData"/> describing added object
+    /// or a reference to it.
+    /// </returns>
+    public SerializationData AddObject<TOwner>(string name, Func<TOwner, object> getter, bool preferNesting)
+    {
+      return AddObject(name,
+        getter.Invoke((TOwner) Source),
+        getter.Invoke((TOwner) Origin),
+        preferNesting);
+    }
+
+    #endregion
+
+    #region GetValue methods
+
+    /// <summary>
+    /// Gets a value from this instance.
+    /// </summary>
+    /// <typeparam name="T">The type of the value to get.</typeparam>
+    /// <param name="name">The name associated with the value.</param>
+    /// <returns>
+    /// The value associated with the <paramref name="name"/>.
+    /// </returns>
+    public abstract T GetValue<T>(string name);
+
+    #endregion
+
+    #region GetObject methods
+
+    /// <summary>
+    /// Gets an object from this instance.
+    /// </summary>
+    /// <param name="name">The name associated with the object.</param>
+    /// <returns>
+    /// The object associated with the <paramref name="name"/>.
+    /// </returns>
+    public T GetObject<T>(string name)
+    {
+      return GetObject<T>(name, null);
+    }
+
+    /// <summary>
+    /// Gets an object from this instance.
+    /// </summary>
+    /// <param name="name">The name associated with the object.</param>
+    /// <param name="originValue">The origin object value.</param>
+    /// <returns>
+    /// The object associated with the <paramref name="name"/>.
+    /// </returns>
+    public abstract T GetObject<T>(string name, object originValue);
+
+    #endregion
+
+    #region GetReference methods
+
+    /// <summary>
+    /// Gets reference to an object from this instance.
+    /// </summary>
+    /// <param name="name">The name associated with the object.</param>
+    /// <returns>
+    /// The reference to the object associated with the <paramref name="name"/>.
+    /// </returns>
+    public IReference GetReference(string name)
+    {
+      return GetReference(name, null);
+    }
+
+    /// <summary>
+    /// Gets reference to an object from this instance.
+    /// </summary>
+    /// <param name="name">The name associated with the object.</param>
+    /// <param name="originValue">The origin object value.</param>
+    /// <returns>
+    /// The reference to the object associated with the <paramref name="name"/>.
+    /// </returns>
+    public abstract IReference GetReference(string name, object originValue);
+
+    #endregion
+
+    #region AddFixup methods
+
+    /// <summary>
+    /// Adds a fixup action to an object 
+    /// associated with the specified <paramref name="name"/>.
+    /// </summary>
+    /// <param name="name">The name associated with the object.</param>
+    /// <param name="target">Object to execute the <paramref name="action"/> on.</param>
+    /// <param name="action">The action to be executed when the referred object will be deserialized.</param>
     /// <typeparam name="T">Type of the <paramref name="target"/>.</typeparam>
-    public void AddFixup<T>(string name, T target, Action<IReference, T> action) 
+    public void AddFixup<T>(string name, T target, Action<T, IReference> action) 
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
-      ArgumentValidator.EnsureArgumentNotNull(action, "action");
-      SerializationContext.Current.EnsureFormatterProcessTypeIs(FormatterProcessType.Deserialization);
-
-      IReference reference = GetObject(name);
+      IReference reference = GetReference(name, null);
       if (reference.IsNull())
         return;
-      object obj = reference.Resolve();
-      if (obj!=null)
-        action(reference, target);
+      object tmp;
+      if (reference.TryResolve(out tmp))
+        action.Invoke(target, reference);
       else
-        SerializationContext.Current.FixupQueue.Enqueue(reference, target, action);
+        Context.FixupManager.Add(target, reference, action);
     }
 
     /// <summary>
-    /// Sets a fixup action to a set of object associated with the specified <paramref name="name"/>.
+    /// Adds a fixup action to an object 
+    /// associated with the specified <paramref name="name"/>.
     /// </summary>
-    /// <param name="name">The name associated with the set of object to retrieve.</param>
-    /// <param name="action">The action to be executed with each element when the set of objects will be deserialized.</param>
-    /// <param name="target">Object to execute <paramref name="action"/> on.</param>
-    /// <typeparam name="T">Type of the <paramref name="target"/>.</typeparam>
-    public void AddFixups<T>(string name, T target, Action<IReference, T> action) 
+    /// <param name="name">The name associated with the object.</param>
+    /// <param name="action">The action to be executed when the referred object will be deserialized.</param>
+    /// <typeparam name="T">Type of the target object.</typeparam>
+    public void AddFixup<T>(string name, Action<T, IReference> action) 
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
-      ArgumentValidator.EnsureArgumentNotNull(action, "action");
-      SerializationContext.Current.EnsureFormatterProcessTypeIs(FormatterProcessType.Deserialization);
-
-      SerializationContext context = SerializationContext.Current;
-      foreach (IReference objRef in GetObjects(name))
-        if (!objRef.IsNull())
-          context.FixupQueue.Enqueue(objRef, target, action);
+      IReference reference = GetReference(name, null);
+      if (reference.IsNull())
+        return;
+      object tmp;
+      if (reference.TryResolve(out tmp))
+        action.Invoke((T) Source, reference);
+      else
+        Context.FixupManager.Add(this, reference, 
+          (d, r) => action.Invoke((T) d.Source, r));
     }
 
     #endregion
 
-    #region Private \ internal methods
+    #region EnsureXxx methods
 
     /// <summary>
-    /// Indicates if type <typeparamref name="T"/> has associated <see cref="IObjectSerializer"/>;
-    /// otherwise is must have associated <see cref="IValueSerializer{TStream}"/>.
+    /// Ensures the data is fully read (recalculates <see cref="Count"/>).
     /// </summary>
-    /// <typeparam name="T">The type to check.</typeparam>
-    /// <returns><see langword="True"/> if <typeparamref name="T"/> has associated 
-    /// <see cref="IObjectSerializer"/>;
-    /// otherwise is must have associated <see cref="IValueSerializer{TStream}"/>.</returns>
-    private static bool IsReferenceType<T>() 
+    protected abstract void EnsureIsRead();
+
+    /// <summary>
+    /// Ensures there are no skipped slots during reading the data 
+    /// (<see cref="SkipCount"/> is <see langword="0" />).
+    /// </summary>
+    /// <exception cref="SerializationException">Some slots were skipped.</exception>
+    public void EnsureNoSkips()
     {
-      var dictionary = SerializationContext.Current.IsObjectOrValueType;
-      var type = typeof (T);
-      if (dictionary.ContainsKey(type))
-        return dictionary[type];
-      var result = ObjectSerializerProvider.Default.GetSerializer(type) != null;
-      dictionary.Add(type, result);
-      return result;
+      if (SkipCount==0)
+        throw new SerializationException(
+          Strings.ExDeserializationErrorUnrecognizedSlotsAreFound);
     }
 
-    /// <exception cref="InvalidOperationException"><typeparamref name="T"/> is associated with 
-    /// <see cref="IValueSerializer{TStream}"/>.</exception>
-    private static void EnsureIsReferenceType<T>() 
+    #endregion
+
+    #region IEnumerable<...> methods
+
+    /// <inheritdoc/>
+    IEnumerator IEnumerable.GetEnumerator()
     {
-      if (!IsReferenceType<T>())
-        throw new InvalidOperationException(string.Format(
-          Strings.ExInvalidSerializerType,
-          typeof(IValueSerializer<>).GetShortName(),
-          typeof(IObjectSerializer).GetShortName()));
+      return GetEnumerator();
     }
 
-    /// <exception cref="InvalidOperationException"><typeparamref name="T"/> is associated with 
-    /// <see cref="IObjectSerializer"/>.</exception>
-    private static void EnsureIsValueType<T>() 
+    /// <inheritdoc/>
+    public IEnumerator<string> GetEnumerator()
     {
-      if (IsReferenceType<T>())
-        throw new InvalidOperationException(string.Format(
-          Strings.ExInvalidSerializerType,
-          typeof(IObjectSerializer).GetShortName(),
-          typeof(IValueSerializer<>).GetShortName()));
+      // TODO: Implement
+      return EnumerableUtils.GetEmptyEnumerator<string>();
     }
 
     #endregion
@@ -280,10 +477,23 @@ namespace Xtensive.Core.Serialization
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>.
     /// </summary>
-    /// <param name="record"><see cref="Record"/> to base on.</param>
-    public SerializationData(Record record) 
+    /// <param name="reference">The <see cref="Reference"/> property value.</param>
+    /// <param name="source">The <see cref="Source"/> property value.</param>
+    /// <param name="origin">The <see cref="Origin"/> property value.</param>
+    protected SerializationData(IReference reference, object source, object origin)
+      : this()
     {
-      this.record = record;
+      Reference = reference;
+      Source = source;
+      Origin = origin;
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>.
+    /// </summary>
+    protected SerializationData()
+    {
+      Context = SerializationContext.Current;
     }
   }
 }

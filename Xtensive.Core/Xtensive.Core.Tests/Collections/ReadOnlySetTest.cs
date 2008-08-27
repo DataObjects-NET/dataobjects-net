@@ -134,7 +134,7 @@ namespace Xtensive.Core.Tests.Collections
     [Test]
     public void SerializationTest()
     {
-      var deserialized = (ReadOnlySet<string>) BinarySerializer.Clone(readOnlySet);
+      var deserialized = (ReadOnlySet<string>) LegacyBinarySerializer.Instance.Clone(readOnlySet);
       Assert.AreEqual(deserialized.Count, readOnlySet.Count);
       foreach (string s in readOnlySet)
         Assert.IsTrue(deserialized.Contains(s));

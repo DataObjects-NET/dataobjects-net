@@ -74,14 +74,14 @@ namespace Xtensive.Core.Aspects
 
     public override bool CompileTimeValidate(MethodBase method)
     {
-      if (String.IsNullOrEmpty(title))
+      if (title.IsNullOrEmpty())
         title = method.GetShortName(true);
       if (logType==null) {
         // Detecting log type...
         Assembly assembly = method.DeclaringType.Assembly;
         string nameSpace = method.DeclaringType.FullName;
         nameSpace = GetOuterNamespace(nameSpace);
-        while (!String.IsNullOrEmpty(nameSpace)) {
+        while (!nameSpace.IsNullOrEmpty()) {
           Type foundLogType = assembly.GetType(nameSpace + "." + LogTypeName, false);
           if (IsLogType(foundLogType)) {
             logType = foundLogType;
@@ -130,7 +130,7 @@ namespace Xtensive.Core.Aspects
       if (i>0)
         return nameSpace.Substring(0, i);
       else
-        return String.Empty;
+        return string.Empty;
     }
 
     private static bool IsLogType(Type candidate)

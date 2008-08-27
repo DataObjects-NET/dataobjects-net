@@ -31,10 +31,10 @@ namespace Xtensive.Core.Tuples.Transform
     /// <inheritdoc/>
     public override string ToString()
     {
-      string description = String.Format("Index {0}, {1}",
+      string description = string.Format("Index {0}, {1}",
         Index,
         IsReadOnly ? Strings.ReadOnlyShort : Strings.ReadWriteShort);
-      return String.Format(Strings.TupleTransformFormat,
+      return string.Format(Strings.TupleTransformFormat,
         GetType().GetShortName(),
         description);
     }

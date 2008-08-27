@@ -88,7 +88,7 @@ namespace Xtensive.Core.Collections
     {
       if (Count == 0)
         return "Count: 0";
-      return containers.Select(p => String.Format("{0}: {1}", p.Key, p.Value.Count)).ToCommaDelimitedString();
+      return containers.Select(p => string.Format("{0}: {1}", p.Key, p.Value.Count)).ToCommaDelimitedString();
     }
 
 

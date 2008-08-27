@@ -23,7 +23,7 @@ namespace Xtensive.Core.Conversion
   public class AdvancedConverterProvider : AssociateProvider, IAdvancedConverterProvider
   {
     /// <summary>
-    /// Zero time point (for conversion of <see cref="DateTime"/> to e.g. <see cref="Int32"/>).
+    /// Zero time point (for conversion of <see cref="DateTime"/> to e.g. <see cref="int"/>).
     /// </summary>
     public  static readonly DateTime ZeroTime = new DateTime(2000, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
     private static readonly AdvancedConverterProvider @default = new AdvancedConverterProvider();

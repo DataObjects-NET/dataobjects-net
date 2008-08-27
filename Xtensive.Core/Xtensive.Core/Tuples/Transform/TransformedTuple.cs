@@ -40,7 +40,7 @@ namespace Xtensive.Core.Tuples.Transform
     /// <inheritdoc/>
     public override string ToString()
     {
-      return String.Format(Strings.TransformedTupleFormat, 
+      return string.Format(Strings.TransformedTupleFormat, 
         base.ToString(), 
         Transform, 
         Arguments.ToCommaDelimitedString());

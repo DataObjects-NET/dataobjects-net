@@ -105,7 +105,7 @@ namespace Xtensive.Core.Diagnostics
 
     protected virtual void UpdateFullName()
     {
-      FullName = String.Format("{0} ({1})", name, operationCount);
+      FullName = string.Format("{0} ({1})", name, operationCount);
     }
     
     public override string ToString()
@@ -124,10 +124,10 @@ namespace Xtensive.Core.Diagnostics
         kmbFormat = "{0:F3} B/s";
         kmbBase = kmbBase/1000;
       }
-      return String.Format(
+      return string.Format(
         "{0}: Time: {1}ms, Memory: {2}kb{3}{4}",
         FullName, TimeSpent.TotalMilliseconds, MemoryAllocated/1000.0,
-        operationCount!=0 ? String.Format(", Operations: "+kmbFormat, kmbBase) : "",
+        operationCount!=0 ? string.Format(", Operations: "+kmbFormat, kmbBase) : "",
         !isCompleted ? ", not completed yet" : "");
     }
     

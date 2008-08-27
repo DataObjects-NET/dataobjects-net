@@ -101,7 +101,7 @@ namespace Xtensive.Core
     /// <inheritdoc/>
     public override string ToString()
     {
-      return String.Format(Strings.TripletFormat, First, Second, Third);
+      return string.Format(Strings.TripletFormat, First, Second, Third);
     }
 
 

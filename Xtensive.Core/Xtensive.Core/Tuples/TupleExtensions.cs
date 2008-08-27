@@ -224,7 +224,7 @@ namespace Xtensive.Core.Tuples
       ArgumentValidator.EnsureArgumentIsInRange(startIndex, 0, source.Count, "startIndex");
       if (target.Descriptor!=source.Descriptor)
         throw new ArgumentException(
-          String.Format(Strings.ExInvalidTupleDescriptorExpectedDescriptorIs, target.Descriptor),
+          string.Format(Strings.ExInvalidTupleDescriptorExpectedDescriptorIs, target.Descriptor),
           "source");
 
       MergeData actionData = new MergeData(source, target, startIndex, length, behavior);

@@ -34,7 +34,7 @@ namespace Xtensive.Core.Hashing
     {
       if (count <= 0)
         throw new ArgumentOutOfRangeException("count", value,
-          String.Format(Strings.ExArgumentShouldBeInRange, 0, int.MaxValue));
+          string.Format(Strings.ExArgumentShouldBeInRange, 0, int.MaxValue));
 
       if (isClass && ReferenceEquals(value, null))
         return objectHasher.GetHashes(null, count);

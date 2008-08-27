@@ -6,27 +6,28 @@
 
 using System;
 using System.IO;
-using System.Runtime.Serialization;
-using Xtensive.Core.Resources;
 
 namespace Xtensive.Core.Serialization.Binary
 {
   [Serializable]
   internal class SByteValueSerializer : BinaryValueSerializerBase<sbyte>
   {
-    public override sbyte Deserialize(Stream stream) {
-      if (stream.Length - stream.Position < sizeof (sbyte))
-        throw new SerializationException(Strings.ExDeserializationStreamLengthIncorrect);
+    public override sbyte Deserialize(Stream stream) 
+    {
       return (sbyte) stream.ReadByte();
     }
 
-    public override void Serialize(Stream stream, sbyte value) {
+    public override void Serialize(Stream stream, sbyte value) 
+    {
       stream.WriteByte((byte) value);
     }
 
+    
     // Constructors
 
-    public SByteValueSerializer(IBinaryValueSerializerProvider provider)
-      : base(provider) {}
+    public SByteValueSerializer(IValueSerializerProvider<Stream> provider)
+      : base(provider)
+    {
+    }
   }
 }

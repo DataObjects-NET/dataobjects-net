@@ -5,17 +5,11 @@
 // Created:    2007.12.17
 
 using System;
-using System.Collections.Generic;
-using System.IO;
 using NUnit.Framework;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Diagnostics;
-//using Xtensive.Core.Indexing;
-using Xtensive.Core.Serialization;
 using Xtensive.Core.Serialization.Binary;
 using Xtensive.Core.Testing;
-using Xtensive.Core.Tests.Tuples;
-using Xtensive.Core.Tuples;
 
 namespace Xtensive.Core.Tests.Comparison
 {
@@ -27,11 +21,8 @@ namespace Xtensive.Core.Tests.Comparison
     {
       AdvancedComparer<short> comparer = AdvancedComparer<short>.Default;
       Assert.IsNotNull(comparer.Compare);
-      IValueSerializer<Stream> serializer = ValueSerializationScope.CurrentSerializer;
-      MemoryStream ms = new MemoryStream();
-      serializer.Serialize(ms, comparer);
-      ms.Seek(0, SeekOrigin.Begin);
-      AdvancedComparer<short> deserializedComparer = (AdvancedComparer<short>)serializer.Deserialize(ms);
+      var deserializedComparer = 
+        (AdvancedComparer<short>)LegacyBinarySerializer.Instance.Clone(comparer);
       Assert.IsNotNull(deserializedComparer.Compare);
     }
 
@@ -88,8 +79,8 @@ namespace Xtensive.Core.Tests.Comparison
       Assert.Greater(comparer.Compare(o2,o1), 0);
       Assert.IsTrue(comparer.ValueRangeInfo.HasMinValue);
       Assert.IsTrue(comparer.ValueRangeInfo.HasMaxValue);
-      Assert.AreEqual(Int32.MinValue, comparer.ValueRangeInfo.MinValue);
-      Assert.AreEqual(Int32.MaxValue, comparer.ValueRangeInfo.MaxValue);
+      Assert.AreEqual(int.MinValue, comparer.ValueRangeInfo.MinValue);
+      Assert.AreEqual(int.MaxValue, comparer.ValueRangeInfo.MaxValue);
       Assert.AreEqual(1, comparer.ValueRangeInfo.DeltaValue);
       Assert.AreEqual(1, comparer.GetNearestValue(0, Direction.Positive));
       Assert.AreEqual(0, comparer.GetNearestValue(1, Direction.Negative));
@@ -110,7 +101,7 @@ namespace Xtensive.Core.Tests.Comparison
       AssertEx.ThrowsInvalidOperationException(delegate {string s = comparer.ValueRangeInfo.MaxValue;});
 
       char z = char.MaxValue;
-      char y = (char)(char.MaxValue - 1);
+      char y = unchecked ((char) (char.MaxValue - 1));
       char a = char.MinValue;
             
       string str = "BCD";
@@ -195,9 +186,9 @@ namespace Xtensive.Core.Tests.Comparison
 //        Assert.IsTrue(comparer.ValueRangeInfo.HasMinValue);
 //        Assert.IsTrue(comparer.ValueRangeInfo.HasMaxValue);
 //        Assert.IsTrue(comparer.ValueRangeInfo.HasDeltaValue);
-//        Assert.AreEqual(new Reversed<int>(Int32.MaxValue), new Reversed<int>(Int32.MaxValue));
-//        Assert.AreEqual(new Reversed<int>(Int32.MaxValue), comparer.ValueRangeInfo.MinValue);
-//        Assert.AreEqual(new Reversed<int>(Int32.MinValue), comparer.ValueRangeInfo.MaxValue);
+//        Assert.AreEqual(new Reversed<int>(int.MaxValue), new Reversed<int>(int.MaxValue));
+//        Assert.AreEqual(new Reversed<int>(int.MaxValue), comparer.ValueRangeInfo.MinValue);
+//        Assert.AreEqual(new Reversed<int>(int.MinValue), comparer.ValueRangeInfo.MaxValue);
 //        Assert.AreEqual(new Reversed<int>(1), comparer.ValueRangeInfo.DeltaValue);
 //      }
 //
@@ -217,7 +208,7 @@ namespace Xtensive.Core.Tests.Comparison
 //        Assert.IsTrue(comparer.ValueRangeInfo.HasMinValue);
 //        Assert.IsTrue(comparer.ValueRangeInfo.HasMaxValue);
 //        Assert.IsTrue(comparer.ValueRangeInfo.HasDeltaValue);
-//        Assert.AreEqual(new Reversed<int?>(Int32.MaxValue), comparer.ValueRangeInfo.MinValue);
+//        Assert.AreEqual(new Reversed<int?>(int.MaxValue), comparer.ValueRangeInfo.MinValue);
 //        Assert.AreEqual(new Reversed<int?>(), comparer.ValueRangeInfo.MaxValue);
 //        Assert.AreEqual(new Reversed<int?>(1), comparer.ValueRangeInfo.DeltaValue);
 //      }
@@ -242,7 +233,7 @@ namespace Xtensive.Core.Tests.Comparison
       Assert.IsTrue(comparer.ValueRangeInfo.HasMaxValue);
       Assert.IsTrue(comparer.ValueRangeInfo.HasDeltaValue);
       Assert.AreEqual(null, comparer.ValueRangeInfo.MinValue);
-      Assert.AreEqual(Int32.MaxValue, comparer.ValueRangeInfo.MaxValue);
+      Assert.AreEqual(int.MaxValue, comparer.ValueRangeInfo.MaxValue);
       Assert.AreEqual(1, comparer.ValueRangeInfo.DeltaValue);
     }
 

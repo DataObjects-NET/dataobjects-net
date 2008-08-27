@@ -74,7 +74,7 @@ namespace Xtensive.Core.Collections
       if (keys.Contains(key))
         throw new ArgumentException("key", Strings.ExCollectionAlreadyContainsSpecifiedItem);
       if (keys.Count >= MaxItemCount)
-        throw new InvalidOperationException(String.Format(Strings.ExMaxItemCountIsN, MaxItemCount));
+        throw new InvalidOperationException(string.Format(Strings.ExMaxItemCountIsN, MaxItemCount));
       keys.Add(key);
       flags[1 << (keys.Count - 1)] = converter.ConvertForward(flag);
     }

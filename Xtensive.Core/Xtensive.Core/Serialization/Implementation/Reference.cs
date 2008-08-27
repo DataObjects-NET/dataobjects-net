@@ -9,7 +9,7 @@ using System.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Resources;
 
-namespace Xtensive.Core.Serialization
+namespace Xtensive.Core.Serialization.Implementation
 {
   /// <summary>
   /// Reference to the object.
@@ -38,7 +38,7 @@ namespace Xtensive.Core.Serialization
     }
 
     /// <inheritdoc/>
-    public bool IsUnique 
+    public bool IsCacheable 
     {
       get { return !this.IsNull(); }
     }
@@ -75,6 +75,7 @@ namespace Xtensive.Core.Serialization
 
     #endregion
 
+    /// <inheritdoc/>
     public override string ToString()
     {
       return string.Format(Strings.ReferenceFormat, Value);

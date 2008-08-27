@@ -6,35 +6,35 @@
 
 using System;
 using System.IO;
-using System.Runtime.Serialization;
-using Xtensive.Core.Resources;
 
 namespace Xtensive.Core.Serialization.Binary
 {
   [Serializable]
   internal class Int64ValueSerializer : BinaryValueSerializerBase<long>
   {
-    public override Int64 Deserialize(Stream stream) {
+    public override long Deserialize(Stream stream) 
+    {
       unchecked {
-        if (stream.Length - stream.Position < sizeof (Int64))
-          throw new SerializationException(Strings.ExDeserializationStreamLengthIncorrect);
-        Int64 result = 0;
-        for (int i = 0; i < sizeof (Int64); i++)
-          result |= (Int64) stream.ReadByte() << i * 8;
+        long result = 0;
+        for (int i = 0; i < sizeof (long); i++)
+          result |= (long) stream.ReadByte() << i * 8;
         return result;
       }
     }
 
-    public override void Serialize(Stream stream, Int64 value) {
+    public override void Serialize(Stream stream, long value) 
+    {
       unchecked {
-        for (int i = 0; i < sizeof (Int64); i++)
+        for (int i = 0; i < sizeof (long); i++)
           stream.WriteByte((byte) (value >> i * 8));
       }
     }
 
     // Constructors
 
-    public Int64ValueSerializer(IBinaryValueSerializerProvider provider)
-      : base(provider) {}
+    public Int64ValueSerializer(IValueSerializerProvider<Stream> provider)
+      : base(provider)
+    {
+    }
   }
 }

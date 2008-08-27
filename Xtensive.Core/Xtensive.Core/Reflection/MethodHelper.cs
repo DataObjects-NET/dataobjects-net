@@ -253,7 +253,7 @@ namespace Xtensive.Core.Reflection
         if (genericArguments.Length!=genericArgumentNames.Length)
           return false;
         for (int i = 0; i < genericArguments.Length; i++)
-          if (!String.IsNullOrEmpty(genericArgumentNames[i]) && genericArgumentNames[i]!=genericArguments[i].Name)
+          if (!genericArgumentNames[i].IsNullOrEmpty() && genericArgumentNames[i]!=genericArguments[i].Name)
             break;
           else
             matchCount++;
@@ -274,7 +274,7 @@ namespace Xtensive.Core.Reflection
         string parameterTypeName = parameterTypes[i] as string;
         Type parameterType = parameterTypes[i] as Type;
         bool isMatch;
-        if (!String.IsNullOrEmpty(parameterTypeName))
+        if (!parameterTypeName.IsNullOrEmpty())
           isMatch = parameters[i].ParameterType.Name==parameterTypeName;
         else if (parameterType!=null)
           isMatch = parameters[i].ParameterType==parameterType;

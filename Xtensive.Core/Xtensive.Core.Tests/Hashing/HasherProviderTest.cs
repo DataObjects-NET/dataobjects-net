@@ -163,17 +163,17 @@ namespace Xtensive.Core.Tests.Hashing
     {
       T[] instances = new List<T>(InstanceGeneratorProvider.Default.GetInstanceGenerator<T>().GetInstances(random, repeats)).ToArray();
       Hasher<T> hasher = Hasher<T>.Default;
-      using (new Measurement(String.Format("{0} GetHashes[1]", typeof (T).Name), repeats)) {
+      using (new Measurement(string.Format("{0} GetHashes[1]", typeof (T).Name), repeats)) {
         for (int i = 0; i < repeats; i++) {
           hasher.GetHashes(instances[i], 1);
         }
       }
-      using (new Measurement(String.Format("{0} GetHash()", typeof (T).Name), repeats)) {
+      using (new Measurement(string.Format("{0} GetHash()", typeof (T).Name), repeats)) {
         for (int i = 0; i < repeats; i++) {
           hasher.GetHash(instances[i]);
         }
       }
-      using (new Measurement(String.Format("{0} standart", typeof (T).Name), repeats)) {
+      using (new Measurement(string.Format("{0} standart", typeof (T).Name), repeats)) {
         for (int i = 0; i < repeats; i++) {
           instances[i].GetHashCode();
         }
@@ -185,12 +185,12 @@ namespace Xtensive.Core.Tests.Hashing
       Log.Info("-----------------------------------");
       T[] instances = new List<T>(InstanceGeneratorProvider.Default.GetInstanceGenerator<T>().GetInstances(random, repeats)).ToArray();
       Hasher<T> hasher = Hasher<T>.Default;
-      using (new Measurement(String.Format("{0} Xtensive hasher", typeof (T).Name), repeats)) {
+      using (new Measurement(string.Format("{0} Xtensive hasher", typeof (T).Name), repeats)) {
         for (int i = 0; i < repeats; i++) {
           hasher.GetHashes(instances[i], count);
         }
       }
-      using (new Measurement(String.Format("{0} standard hasher", typeof(T).Name), repeats))
+      using (new Measurement(string.Format("{0} standard hasher", typeof(T).Name), repeats))
       {
         for (int i = 0; i < repeats; i++) {
           for (int y = 0; y < count; y++)

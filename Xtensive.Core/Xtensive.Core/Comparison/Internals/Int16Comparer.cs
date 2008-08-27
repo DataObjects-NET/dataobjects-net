@@ -22,7 +22,7 @@ namespace Xtensive.Core.Comparison
     public Int16Comparer(IComparerProvider provider, ComparisonRules comparisonRules)
       : base(provider, comparisonRules)
     {
-      ValueRangeInfo = new ValueRangeInfo<short>(true, Int16.MinValue, true, Int16.MaxValue, true, 1);
+      ValueRangeInfo = new ValueRangeInfo<short>(true, short.MinValue, true, short.MaxValue, true, 1);
     }
   }
 }

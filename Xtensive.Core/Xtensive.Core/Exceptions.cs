@@ -24,9 +24,11 @@ namespace Xtensive.Core
     /// <param name="log"><see cref="ILog"/> instance to log the problem;
     /// <see langword="null"/> means logging is not necessary.</param>
     /// <returns>Newly created exception.</returns>
-    public static Exception InternalError(string description, ILog log)
+    public static InvalidOperationException InternalError(string description, ILog log)
     {
-      return log.Error(new InvalidOperationException(String.Format(Strings.ExInternalError, description)));
+      return (InvalidOperationException)
+        log.Error(new InvalidOperationException(
+          string.Format(Strings.ExInternalError, description)));
     }
 
     /// <summary>
@@ -37,10 +39,10 @@ namespace Xtensive.Core
     /// <returns>Newly created exception.</returns>
     public static Exception InvalidUrl(string url, string parameterName)
     {
-      if (String.IsNullOrEmpty(parameterName))
-        return new InvalidOperationException(String.Format(Strings.ExInvalidUrl, url));
+      if (parameterName.IsNullOrEmpty())
+        return new InvalidOperationException(string.Format(Strings.ExInvalidUrl, url));
       else
-        return new ArgumentException(String.Format(Strings.ExInvalidUrl, url), parameterName);
+        return new ArgumentException(string.Format(Strings.ExInvalidUrl, url), parameterName);
     }
 
     /// <summary>
@@ -50,10 +52,10 @@ namespace Xtensive.Core
     /// <returns>Newly created exception.</returns>
     public static NotSupportedException AlreadyInitialized(string propertyName)
     {
-      if (String.IsNullOrEmpty(propertyName))
+      if (propertyName.IsNullOrEmpty())
         return new NotSupportedException(Strings.ExAlreadyInitialized);
       else
-        return new NotSupportedException(String.Format(Strings.ExPropertyIsAlreadyInitialized, propertyName));
+        return new NotSupportedException(string.Format(Strings.ExPropertyIsAlreadyInitialized, propertyName));
     }
 
     /// <summary>
@@ -77,10 +79,10 @@ namespace Xtensive.Core
     /// <returns>Newly created exception.</returns>
     public static InvalidOperationException NotInitialized(string propertyName)
     {
-      if (String.IsNullOrEmpty(propertyName))
+      if (propertyName.IsNullOrEmpty())
         return new InvalidOperationException(Strings.ExNotInitialized);
       else
-        return new InvalidOperationException(String.Format(Strings.ExPropertyIsNotInitialized, propertyName));
+        return new InvalidOperationException(string.Format(Strings.ExPropertyIsNotInitialized, propertyName));
     }
 
     /// <summary>
@@ -93,11 +95,11 @@ namespace Xtensive.Core
     /// <typeparam name="T">The type of the value.</typeparam>
     public static Exception InvalidArgument<T>(T value, string parameterName)
     {
-      if (String.IsNullOrEmpty(parameterName))
-        return new InvalidOperationException(String.Format(
+      if (parameterName.IsNullOrEmpty())
+        return new InvalidOperationException(string.Format(
           Strings.ExValueXIsNotAllowedHere, value));
       else
-        return new ArgumentOutOfRangeException(parameterName, value, String.Format(
+        return new ArgumentOutOfRangeException(parameterName, value, string.Format(
           Strings.ExValueXIsNotAllowedHere, value));
     }
 
@@ -108,7 +110,7 @@ namespace Xtensive.Core
     /// <returns>Newly created exception.</returns>
     public static Exception ObjectIsReadOnly(string parameterName)
     {
-      if (String.IsNullOrEmpty(parameterName))
+      if (parameterName.IsNullOrEmpty())
         return new NotSupportedException(Strings.ExObjectIsReadOnly);
       else
         return new ArgumentException(Strings.ExObjectIsReadOnly, parameterName);
@@ -121,7 +123,7 @@ namespace Xtensive.Core
     /// <returns>Newly created exception.</returns>
     public static Exception CollectionIsEmpty(string parameterName)
     {
-      if (String.IsNullOrEmpty(parameterName))
+      if (parameterName.IsNullOrEmpty())
         return new InvalidOperationException(Strings.ExCollectionIsEmpty);
       else
         return new ArgumentException(Strings.ExCollectionIsEmpty, parameterName);
@@ -134,7 +136,7 @@ namespace Xtensive.Core
     /// <returns>Newly created exception.</returns>
     public static Exception CollectionIsReadOnly(string parameterName)
     {
-      if (String.IsNullOrEmpty(parameterName))
+      if (parameterName.IsNullOrEmpty())
         return new NotSupportedException(Strings.ExCollectionIsReadOnly);
       else
         return new ArgumentException(Strings.ExCollectionIsReadOnly, parameterName);
@@ -147,7 +149,7 @@ namespace Xtensive.Core
     /// <returns>Newly created exception.</returns>
     public static Exception CollectionHasBeenChanged(string parameterName)
     {
-      if (String.IsNullOrEmpty(parameterName))
+      if (parameterName.IsNullOrEmpty())
         return new InvalidOperationException(Strings.ExCollectionHasBeenChanged);
       else
         return new ArgumentException(Strings.ExCollectionHasBeenChanged, parameterName);
@@ -163,7 +165,7 @@ namespace Xtensive.Core
     {
       ArgumentValidator.EnsureArgumentNotNull(contextType, "contextType");
       ArgumentValidator.EnsureArgumentNotNull(scopeType, "scopeType");
-      return new Exception(String.Format(Strings.ExContextRequired, contextType.GetShortName(), scopeType.GetShortName()));
+      return new Exception(string.Format(Strings.ExContextRequired, contextType.GetShortName(), scopeType.GetShortName()));
     }
   }
 }

@@ -294,8 +294,8 @@
   <data name="ExCantFindAssociate" xml:space="preserve">
     <value>Can't find associated {0} of type '{1}' for type '{2}'.</value>
   </data>
-  <data name="ExStreamCopyMustOperateDifferentStreams" xml:space="preserve">
-    <value>Unable to copy stream to itself. Use StreamUtils.InstreamCopy instead.</value>
+  <data name="ExCopyToMustOperateWithDifferentStreams" xml:space="preserve">
+    <value>Unable to copy a part of the stream to itself. Use StreamExtensions.Copy method instead.</value>
   </data>
   <data name="ExUnableToCreateProviderInstance" xml:space="preserve">
     <value>Unable to create provider instance. Check if provider's class has static "Instance" property.</value>
@@ -542,6 +542,15 @@
   </data>
   <data name="EmptyString" xml:space="preserve">
     <value>''</value>
+  </data>
+  <data name="ExDeserializationErrorUnrecognizedSlotsAreFound" xml:space="preserve">
+    <value>Deserialization error: some SerializationData slots were not recognized, thus the format of the serialized data differs from the supported one.</value>
+  </data>
+  <data name="ExInvalidSerializerBehaviorMustNotBeReferable" xml:space="preserve">
+    <value>'{0}' can't be an IsReferable serializer, since it serializes IReference type.</value>
+  </data>
+  <data name="ExInvalidSerializerBehaviorGetObjectIsUsedInsteadOfGetReference" xml:space="preserve">
+    <value>Deserialized object is referable, so GetReference methods must be used for it.</value>
   </data>
   <data name="UnableToDisposeItemWhenContainerIsNotDisposed" xml:space="preserve">
     <value>Unable to dispose an item when disposable container has an invalid state.</value>

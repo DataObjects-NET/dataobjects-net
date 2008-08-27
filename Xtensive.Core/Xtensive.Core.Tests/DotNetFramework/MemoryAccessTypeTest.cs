@@ -69,7 +69,7 @@ namespace Xtensive.Core.Tests.DotNetFramework
       TestHelper.CollectGarbage();
       using (warmup ? (IDisposable)new Disposable.Disposable(delegate { }) : 
         new Measurement(
-          String.Format("{0,6:F2} MB", (double)size * ItemSize / MbSize), 
+          string.Format("{0,6:F2} MB", (double)size * ItemSize / MbSize), 
           MeasurementOptions.Log, count)) {
         for (i = 0; i < count; i+=10) {
           current = pairs[current.Second];

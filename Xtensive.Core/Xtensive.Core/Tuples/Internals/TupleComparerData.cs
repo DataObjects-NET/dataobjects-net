@@ -26,7 +26,7 @@ namespace Xtensive.Core.Tuples.Internals
     public TupleComparerData(Tuple x, Tuple y)
     {
       FieldData = null;
-      Result = Int32.MinValue;
+      Result = int.MinValue;
       X = x;
       Y = y;
     }

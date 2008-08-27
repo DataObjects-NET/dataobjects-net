@@ -9,24 +9,24 @@ using System;
 namespace Xtensive.Core.Hashing
 {
   [Serializable]
-  internal class UInt64Hasher : HasherBase<UInt64>
+  internal class UInt64Hasher : HasherBase<ulong>
   {
     /// <inheritdoc/>
-    public override long GetHash(UInt64 value)
+    public override long GetHash(ulong value)
     {
       return unchecked ((long) value);
     }
 
     /// <inheritdoc/>
-    public override long[] GetHashes(UInt64 value, int count)
+    public override long[] GetHashes(ulong value, int count)
     {
       return HashingUtils.GetHashes(UInt64ToByteArray(value), count, GetHash(value));
     }
 
-    private static byte[] UInt64ToByteArray(UInt64 value)
+    private static byte[] UInt64ToByteArray(ulong value)
     {
-      var data = new byte[sizeof(UInt64)];
-      for (int i = 0; i < sizeof(UInt64); i++)
+      var data = new byte[sizeof(ulong)];
+      for (int i = 0; i < sizeof(ulong); i++)
         data[i] = ((byte)(value >> (i << 3)));
       return data;
     }

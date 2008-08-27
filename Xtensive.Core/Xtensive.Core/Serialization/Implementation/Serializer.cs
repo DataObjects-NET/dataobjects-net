@@ -1,0 +1,298 @@
+// Copyright (C) 2008 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Dmitri Maximov
+// Created:    2008.03.26
+
+using System;
+using System.IO;
+using Xtensive.Core.Resources;
+using Xtensive.Core.Serialization.Implementation;
+using Xtensive.Core.Reflection;
+
+namespace Xtensive.Core.Serialization
+{
+  /// <summary>
+  /// Serializes and deserializes an object, or an entire graph of connected objects.
+  /// </summary>
+  public abstract class Serializer<TInnerStream> : SerializerBase
+  {
+    /// <summary>
+    /// Gets or sets the object serializer provider.
+    /// </summary>
+    public IObjectSerializerProvider ObjectSerializerProvider { get; protected set; }
+
+    /// <summary>
+    /// Gets or sets the value serializer provider.
+    /// </summary>
+    public IValueSerializerProvider<TInnerStream> ValueSerializerProvider { get; protected set; }
+
+    /// <summary>
+    /// Gets the serialization context instance used by this serializer.
+    /// </summary>
+    protected SerializationContext Context { get; set; }
+
+    #region ISerializer methods
+
+    /// <inheritdoc/>
+    public override void Serialize(Stream stream, object source, object origin)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(stream, "stream");
+
+      var context = Context;
+      context.Initialize(SerializerProcessType.Serialization, stream);
+      using (context.Activate()) {
+        var writer = context.Writer;
+        writer.Append(GetObjectData(source, origin, true));
+        var queue = context.SerializationQueue;
+        while (queue.Count > 0) {
+          var nextSource = queue.BottomKey;
+          var nextPair = queue.PeekBottom();
+          queue.Remove(nextSource);
+          writer.Append(GetObjectData(nextSource, nextPair.Second, true));
+        }
+      }
+    }
+
+    /// <inheritdoc/>
+    public override object Deserialize(Stream stream, object origin)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(stream, "stream");
+
+      var context = Context;
+      context.Initialize(SerializerProcessType.Deserialization, stream);
+      bool bFirst = true;
+      using (context.Activate()) {
+        var reader = context.Reader;
+        foreach (var data in reader) {
+          if (bFirst) {
+            bFirst = false;
+            origin = SetObjectData(origin, data);
+          }
+          else {
+            SetObjectData(null, data);
+          }
+        }
+        context.FixupManager.Execute();
+      }
+      return origin;
+    }
+
+    #endregion
+
+    #region ValueSerializer \ ObjectSerializer related methods
+
+    /// <summary>
+    /// Indicates if type <typeparamref name="T"/> has associated <see cref="IValueSerializer{TStream,T}"/>;
+    /// otherwise is must have associated <see cref="IObjectSerializer{T}"/>.
+    /// </summary>
+    /// <typeparam name="T">The type to check.</typeparam>
+    /// <returns><see langword="True"/> if <typeparamref name="T"/> has associated 
+    /// <see cref="IValueSerializer{TStream,T}"/>;
+    /// otherwise is must have associated <see cref="IObjectSerializer{T}"/>.</returns>
+    public bool HasValueSerializer<T>() 
+    {
+      return ValueSerializerProvider.GetSerializer<T>()!=null;
+    }
+
+    /// <summary>
+    /// Ensures the <typeparamref name="T"/> type is associated 
+    /// with <see cref="IValueSerializer{TStream,T}"/>.
+    /// </summary>
+    /// <typeparam name="T">The type to check.</typeparam>
+    /// <exception cref="InvalidOperationException"><typeparamref name="T"/> is associated 
+    /// with <see cref="IObjectSerializer"/>.</exception>
+    public void EnsureHasValueSerializer<T>() 
+    {
+      if (!HasValueSerializer<T>())
+        throw new InvalidOperationException(string.Format(
+          Strings.ExInvalidSerializerType,
+          typeof(IObjectSerializer).GetShortName(),
+          typeof(IValueSerializer<>).GetShortName()));
+    }
+
+    /// <summary>
+    /// Ensures the <typeparamref name="T"/> type is associated 
+    /// with <see cref="IObjectSerializer{T}"/>.
+    /// </summary>
+    /// <typeparam name="T">The type to check.</typeparam>
+    /// <exception cref="InvalidOperationException"><typeparamref name="T"/> is associated 
+    /// with <see cref="IValueSerializer{TStream,T}"/>.</exception>
+    public void EnsureHasObjectSerializer<T>() 
+    {
+      if (HasValueSerializer<T>())
+        throw new InvalidOperationException(string.Format(
+          Strings.ExInvalidSerializerType,
+          typeof(IValueSerializer<>).GetShortName(),
+          typeof(IObjectSerializer).GetShortName()));
+    }
+
+    #endregion
+
+    #region Private \ internal methods
+
+    /// <exception cref="InvalidOperationException">Wrong behavior of some component used in serialization.</exception>
+    internal SerializationData GetObjectData(object source, object origin, bool immediately)
+    {
+      var context = Context;
+      var referenceManager = context.ReferenceManager;
+      IReference reference;
+
+      if (source==null) {
+        // Source is null
+        reference = referenceManager.GetReference(source);
+        return GetObjectData(reference, null, true);
+      }
+
+      var writer = context.Writer;
+      reference = source as IReference;
+      if (reference!=null) {
+        // Source is IReference, so it must be serialized as-is and right now (with nesting)
+        var os = ObjectSerializerProvider.GetSerializerByInstance(reference);
+        if (os.IsReferable)
+          throw Exceptions.InternalError(string.Format(
+            Strings.ExInvalidSerializerBehaviorMustNotBeReferable, 
+            os.GetType().GetShortName()), 
+            Log.Instance);
+        origin = os.CreateObject(reference.GetType());
+        var data = writer.Create(null, reference, origin, true);
+        InnerGetObjectData(os, data);
+        return data;
+      }
+      else {
+        // Source is some object
+        var os = ObjectSerializerProvider.GetSerializerByInstance(source);
+        immediately |= !source.GetType().IsClass; // always on for structs 
+        if (os.IsReferable) {
+          // Source can be referenced
+          var queue = context.SerializationQueue;
+          if (queue.Contains(source)) {
+            // Already queued for the serialization
+            reference = queue[source].First; // Getting existing reference
+            if (!immediately)
+              // Let's serialize just a reference to it here
+              return GetObjectData(reference, null, true);
+            else
+              // We must serialize it now, so let's dequeue it
+              queue.Remove(source);
+          }
+          else {
+            // There is no object in queue
+            reference = referenceManager.GetReference(source);
+            if (!immediately) {
+              // Immediate serialization isn't required,
+              // so we should enqueue it and serialize a reference to it
+              queue.AddToTop(source, new Pair<IReference, object>(reference, origin));
+              return GetObjectData(reference, null, true);
+            }
+          }
+          // Ok, we must serialize the object itself here
+          if (origin==null)
+            origin = os.CreateObject(source.GetType());
+          var data = writer.Create(reference, source, origin, immediately);
+          InnerGetObjectData(os, data);
+          return data;
+        }
+        else {
+          // Source can't be referenced (e.g. struct)
+          if (origin==null)
+            origin = os.CreateObject(source.GetType());
+          var data = writer.Create(null, source, origin, immediately);
+          InnerGetObjectData(os, data);
+          return data;
+        }
+      }
+    }
+
+    internal object SetObjectData(object origin, SerializationData data)
+    {
+      Type type = data.Type ?? data.SerializedType; // To avoid reading Type twice
+      var map = Context.DeserializationMap;
+      var os = ObjectSerializerProvider.GetSerializer(type);
+      if (typeof(IReference).IsAssignableFrom(type)) {
+        // We're deserializing an IReference, so everything is straighten forward
+        data.Origin = os.CreateObject(type);
+        InnerSetObjectData(os, data);
+        var reference = (IReference) data.Source;
+        if (origin!=null) {
+          // The origin is provided, so we must try to update 
+          // the existing object on its deserialization
+          if (!map.ContainsKey(reference)) 
+            map.Add(reference, origin);
+          // Otherwise: old graph was containing two refs to the same object,
+          // but these refs at the new one point to different ones.
+          // In this case, we'll update just the first one of them, and assign 
+          // the updated object to both all refs
+        }
+        return reference;
+      }
+      else {
+        // We're deserializing an object
+        IReference reference = null;
+        if (os.IsReferable)
+          reference = data.Reference ?? data.SerializedReference; // To avoid reading Reference twice
+        if (origin==null) {
+          // No origin, so we must acquire it
+          object oldOrigin;
+          if (reference!=null && map.TryGetValue(reference, out oldOrigin)) {
+            // We've found an origin provided earlier
+            origin = oldOrigin;
+            map.Remove(reference);
+          }
+          else
+            // Noting is found; using the default one
+            origin = os.CreateObject(type);
+        }
+        data.Origin = origin;
+        InnerSetObjectData(os, data);
+        return data.Source;
+      }
+    }
+
+    private static void InnerGetObjectData(IObjectSerializer objectSerializer, SerializationData data)
+    {
+      var context = SerializationContext.Current;
+      var path = context.Path;
+      bool oldPreferNesting = context.PreferNesting;
+      path.Push(data);
+      if (data.Source is IReference)
+        context.PreferNesting = true; // IReferences must be always fully serialized "right now"
+      try {
+        objectSerializer.GetObjectData(data);
+      }
+      finally {
+        context.PreferNesting = oldPreferNesting;
+        path.Pop();
+      }
+    }
+
+    private static void InnerSetObjectData(IObjectSerializer objectSerializer, SerializationData data)
+    {
+      var context = SerializationContext.Current;
+      var path = context.Path;
+      path.Push(data);
+      try {
+        objectSerializer.SetObjectData(data);
+      }
+      finally {
+        path.Pop();
+      }
+    }
+
+    #endregion
+
+
+    // Constructors
+
+    /// <inheritdoc/>
+    protected Serializer()
+    {
+    }
+
+    /// <inheritdoc/>
+    protected Serializer(SerializerConfiguration configuration)
+      : base(configuration)
+    {
+    }
+  }
+}

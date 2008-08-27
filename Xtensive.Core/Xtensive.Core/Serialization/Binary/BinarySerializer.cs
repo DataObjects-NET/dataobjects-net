@@ -1,61 +1,52 @@
-// Copyright (C) 2007 Xtensive LLC.
+// Copyright (C) 2008 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alex Yakunin
-// Created:    2007.12.31
+// Created:    2008.08.26
 
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters;
-using System.Runtime.Serialization.Formatters.Binary;
-using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.Serialization.Binary
 {
   /// <summary>
-  /// Default binary serializer.
+  /// Binary serializer implementation.
   /// </summary>
-  /// <remarks>
-  /// <para id="About"><see cref="SingletonDocTemplate" copy="true" /></para>
-  /// </remarks>
-  public class BinarySerializer : FormatterWrapper
+  [Serializable]
+  public class BinarySerializer : Serializer<Stream>
   {
-    [ThreadStatic]
-    private static BinarySerializer instance;
-
-    /// <see cref="SingletonDocTemplate.Instance" copy="true"/>
-    public static BinarySerializer Instance {
+    /// <summary>
+    /// Gets the serialization context instance used by this serializer.
+    /// </summary>
+    protected new BinarySerializationContext Context {
       [DebuggerStepThrough]
-      get {
-        if (instance == null)
-          instance = new BinarySerializer();
-        return instance;
-      }
+      get { return (BinarySerializationContext) base.Context; }
+      [DebuggerStepThrough]
+      set { base.Context = value; }
     }
 
-    /// <summary>
-    /// Clones the specified graph of objects using this serializer.
-    /// </summary>
-    /// <param name="graph">The graph to clone.</param>
-    /// <returns>Clone of the <paramref name="graph"/>.</returns>
-    public static object Clone(object graph) {
-      MemoryStream stream = new MemoryStream();
-      Instance.Serialize(stream, graph);
-      stream.Seek(0, SeekOrigin.Begin);
-      return Instance.Deserialize(stream);
+    /// <inheritdoc/>
+    protected override void OnConfigured()
+    {
+      ObjectSerializerProvider = Implementation.ObjectSerializerProvider.Default;
+      ValueSerializerProvider  = BinaryValueSerializerProvider.Default;
+      Context = new BinarySerializationContext(this);
+      base.OnConfigured();
     }
 
-    // Constructors 
 
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
-    /// </summary>
+    // Constructors
+
+    /// <inheritdoc/>
     public BinarySerializer()
-      : base(new BinaryFormatter()) {
-      BinaryFormatter formatter = (BinaryFormatter) Formatter;
-      formatter.AssemblyFormat = FormatterAssemblyStyle.Simple;
+    {
+    }
+
+    /// <inheritdoc/>
+    public BinarySerializer(SerializerConfiguration configuration)
+      : base(configuration)
+    {
     }
   }
 }

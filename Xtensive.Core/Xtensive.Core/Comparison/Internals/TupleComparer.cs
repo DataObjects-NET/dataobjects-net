@@ -65,7 +65,7 @@ namespace Xtensive.Core.Comparison
         ComparisonHandler h = GetComparisonHandler(dx);
         data.FieldData = h.FieldData;
         DelegateHelper.ExecuteDelegates(h.Handlers, ref data, Direction.Positive);
-        if (data.Result==Int32.MinValue) // There is no result yet
+        if (data.Result==int.MinValue) // There is no result yet
           return 0;
         else
           return data.Result;
@@ -83,7 +83,7 @@ namespace Xtensive.Core.Comparison
       ComparisonHandler hy = GetComparisonHandler(dy);
       data.FieldData = hy.FieldData; // Longer Tuple's data
       DelegateHelper.ExecuteDelegates(hx.Handlers /* Shorter Tuple's handlers */, ref data, Direction.Positive);
-      if (data.Result==Int32.MinValue) { // There is no result yet 
+      if (data.Result==int.MinValue) { // There is no result yet 
         int count = data.X.Count;
         if (data.FieldData[count].First==0) // And next direction to compare is none
           return 0;

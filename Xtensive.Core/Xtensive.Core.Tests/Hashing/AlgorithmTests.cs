@@ -28,24 +28,24 @@ namespace Xtensive.Core.Tests.Hashing
       HashAlgorithm ripemd160Provider = new RIPEMD160Managed(); // 160bit / 2.5long
 
       byte[] buffer = new byte[] {43, 64, 87, 34, 12, 74, 12, 94, 222, 154, 241};
-      using (new Measurement("SHA256", UInt16.MaxValue)) {
-        for (int i = 0; i < UInt16.MaxValue; i++)
+      using (new Measurement("SHA256", ushort.MaxValue)) {
+        for (int i = 0; i < ushort.MaxValue; i++)
           sha256Provider.ComputeHash(buffer);
       }
-      using (new Measurement("SHA384", UInt16.MaxValue)) {
-        for (int i = 0; i < UInt16.MaxValue; i++)
+      using (new Measurement("SHA384", ushort.MaxValue)) {
+        for (int i = 0; i < ushort.MaxValue; i++)
           sha384Provider.ComputeHash(buffer);
       }
-      using (new Measurement("SHA512", UInt16.MaxValue)) {
-        for (int i = 0; i < UInt16.MaxValue; i++)
+      using (new Measurement("SHA512", ushort.MaxValue)) {
+        for (int i = 0; i < ushort.MaxValue; i++)
           sha512Provider.ComputeHash(buffer);
       }
-      using (new Measurement("MD5", UInt16.MaxValue)) {
-        for (int i = 0; i < UInt16.MaxValue; i++)
+      using (new Measurement("MD5", ushort.MaxValue)) {
+        for (int i = 0; i < ushort.MaxValue; i++)
           md5Provider.ComputeHash(buffer);
       }
-      using (new Measurement("RIPEMD160", UInt16.MaxValue)) {
-        for (int i = 0; i < UInt16.MaxValue; i++)
+      using (new Measurement("RIPEMD160", ushort.MaxValue)) {
+        for (int i = 0; i < ushort.MaxValue; i++)
           ripemd160Provider.ComputeHash(buffer);
       }
     }

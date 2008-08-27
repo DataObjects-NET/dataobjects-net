@@ -61,11 +61,7 @@ namespace Xtensive.Core.Hashing
       GetHashes = Hasher==null ? null : Hasher.GetHashes;
     }
 
-    /// <summary>
-    /// Deserializes the instance of this class.
-    /// </summary>
-    /// <param name="info">Serialization info.</param>
-    /// <param name="context">Streaming context.</param>
+    /// <see cref="SerializableDocTemplate.Ctor" copy="true"/>
     private HasherStruct(SerializationInfo info, StreamingContext context)
     {
       Hasher = (Hasher<T>) info.GetValue("Hasher", typeof (Hasher<T>));
@@ -73,7 +69,7 @@ namespace Xtensive.Core.Hashing
       GetHashes = Hasher==null ? null : Hasher.GetHashes;
     }
 
-    /// <inheritdoc/>
+    /// <see cref="SerializableDocTemplate.GetObjectData" copy="true"/>
     public void GetObjectData(SerializationInfo info, StreamingContext context)
     {
       info.AddValue("Hasher", Hasher);

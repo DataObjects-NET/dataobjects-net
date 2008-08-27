@@ -9,6 +9,7 @@ using System.IO;
 using System.Threading;
 using NUnit.Framework;
 using Xtensive.Core.Testing.Resources;
+using Xtensive.Core.Helpers;
 
 namespace Xtensive.Core.Testing
 {
@@ -33,11 +34,11 @@ namespace Xtensive.Core.Testing
       get {
         if (testFolderName==null) lock (_lock) if (testFolderName==null) {
           string tempFolder = Environment.GetEnvironmentVariable("TEMP");
-          if (String.IsNullOrEmpty(tempFolder))
+          if (tempFolder.IsNullOrEmpty())
             tempFolder = "C:\\Temp";
           bool done = false;
           for (int i = 0; i<MaxTestFolderCount; i++) {
-            string folderName = Path.Combine(tempFolder, String.Format(Strings.TestFolderNameFormat, i));
+            string folderName = Path.Combine(tempFolder, string.Format(Strings.TestFolderNameFormat, i));
             if (Directory.Exists(folderName)) 
               try {
                 Directory.Delete(folderName, true);
@@ -67,9 +68,9 @@ namespace Xtensive.Core.Testing
             }
           }
           if (!done)
-            throw new InvalidOperationException(String.Format(Strings.ExCantCreateTestFolder, 
-              String.Format(Strings.TestFolderNameFormat, 0),
-              String.Format(Strings.TestFolderNameFormat, MaxTestFolderCount)));
+            throw new InvalidOperationException(string.Format(Strings.ExCantCreateTestFolder, 
+              string.Format(Strings.TestFolderNameFormat, 0),
+              string.Format(Strings.TestFolderNameFormat, MaxTestFolderCount)));
         }
         return testFolderName;
       }

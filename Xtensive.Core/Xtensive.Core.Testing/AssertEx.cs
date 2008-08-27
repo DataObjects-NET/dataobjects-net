@@ -86,7 +86,7 @@ namespace Xtensive.Core.Testing
     {
       try {
         action.Invoke();
-        Assert.Fail(String.Format("Expected '{0}' was not thrown.", typeof(TException).GetShortName()));
+        Assert.Fail(string.Format("Expected '{0}' was not thrown.", typeof(TException).GetShortName()));
       } 
       catch (TException) {}
     }

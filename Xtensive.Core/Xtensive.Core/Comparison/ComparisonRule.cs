@@ -159,7 +159,7 @@ namespace Xtensive.Core.Comparison
     /// <inheritdoc/>
     public override string ToString()
     {
-      return String.Format(Strings.ComparisonRuleFormat,
+      return string.Format(Strings.ComparisonRuleFormat,
         Direction, Culture==null ? Strings.AnyCulture : Culture.Name);
     }
 

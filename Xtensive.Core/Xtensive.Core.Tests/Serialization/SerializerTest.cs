@@ -7,14 +7,11 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.InteropServices;
 using NUnit.Framework;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Reflection;
-using Xtensive.Core.Serialization;
 using Xtensive.Core.Serialization.Binary;
 using Xtensive.Core.Testing;
-using Xtensive.Core.Threading;
 
 namespace Xtensive.Core.Tests.Serialization
 {
@@ -58,10 +55,10 @@ namespace Xtensive.Core.Tests.Serialization
     private void TestInternal<T>(int count)
     {
       typeName = typeof(T).GetShortName();
-      MemoryStream streamXtensive = new MemoryStream();
-      MemoryStream streamSystem = new MemoryStream();
+      var streamXtensive = new MemoryStream();
+      var streamSystem = new MemoryStream();
       var xtensiveValueSerializer = BinaryValueSerializer<T>.Default;
-      BinarySerializer binarySerializer = new BinarySerializer();
+      var binarySerializer = LegacyBinarySerializer.Instance;
       Assert.IsNotNull(xtensiveValueSerializer);
       T[] instances = new List<T>(InstanceGeneratorProvider.Default.GetInstanceGenerator<T>().GetInstances(random, count)).ToArray();
 

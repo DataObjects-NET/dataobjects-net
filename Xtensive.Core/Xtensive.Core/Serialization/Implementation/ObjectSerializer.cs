@@ -6,108 +6,57 @@
 
 using System;
 using System.Diagnostics;
-using System.Threading;
+using System.Runtime.Serialization;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Resources;
+using Xtensive.Core.Threading;
 
-namespace Xtensive.Core.Serialization
+namespace Xtensive.Core.Serialization.Implementation
 {
   /// <summary>
   /// Provides delegates allowing to call serialization methods faster.
   /// </summary>
   /// <typeparam name="T">The type of <see cref="IObjectSerializer{T}"/> generic argument.</typeparam>
   [Serializable]
-  public sealed class ObjectSerializer<T> :
-    MethodCacheBase<IObjectSerializer<T>>,
-    IObjectSerializer<T>
+  public sealed class ObjectSerializer<T> : MethodCacheBase<IObjectSerializer<T>>
   {
-    private static readonly object _lock = new object();
-    private static volatile ObjectSerializer<T> @default;
+    private static ThreadSafeCached<ObjectSerializer<T>> cachedSerializer =
+      ThreadSafeCached<ObjectSerializer<T>>.Create(new object());
 
     /// <summary>
     /// Gets default serializer for type <typeparamref name="T"/>
     /// (uses <see cref="ObjectSerializerProvider.Default"/>).
     /// </summary>
-    [DebuggerHidden]
     public static ObjectSerializer<T> Default {
+      [DebuggerStepThrough]
       get {
-        if (@default == null)
-          lock (_lock)
-            if (@default == null)
-              try {
-                var serializer = new ObjectSerializer<T>(ObjectSerializerProvider.Default.GetSerializer<T>());
-                Thread.MemoryBarrier();
-                @default = serializer;
-              }
-              catch {}
-        return @default;
+        return cachedSerializer.GetValue(
+          () => ObjectSerializerProvider.Default.GetSerializer<T>());
       }
     }
 
-    #region IObjectSerializer members
-
-    /// <inheritdoc/>
-    object IObjectSerializer.CreateObject() {
-      return CreateObject();
-    }
-
-    /// <inheritdoc/>
-    void IObjectSerializer.GetObjectData(object obj, SerializationData data) 
-    {
-      GetObjectData((T) obj, data);
-    }
-
-    /// <inheritdoc/>
-    object IObjectSerializer.SetObjectData(object obj, SerializationData data) 
-    {
-      return SetObjectData((T) obj, data);
-    }
-
-    #endregion
-
-    #region IObjectSerializer<T> members
-
-    /// <inheritdoc/>
-    T IObjectSerializer<T>.CreateObject() {
-      return CreateObject();
-    }
-
-    /// <inheritdoc/>
-    void IObjectSerializer<T>.GetObjectData(T obj, SerializationData data) {
-      GetObjectData(obj, data);
-    }
-
-    /// <inheritdoc/>
-    T IObjectSerializer<T>.SetObjectData(T obj, SerializationData data) {
-      return SetObjectData(obj, data);
-    }
-
-    #endregion
+    /// <summary>
+    /// Gets the provider this serializer is bound to.
+    /// </summary>
+    public IObjectSerializerProvider Provider { get; private set; }
 
     /// <summary>
-    /// Gets <see cref="IObjectSerializer{T}.GetObjectData(T,SerializationData)"/> method delegate.
+    /// Gets <see cref="IObjectSerializer{T}.CreateObject"/> method delegate.
     /// </summary>
-    public new Action<T, SerializationData> GetObjectData;
+    public Func<Type, T> CreateObject;
+
+    /// <summary>
+    /// Gets <see cref="IObjectSerializer{T}.GetObjectData(T,T,SerializationData)"/> method delegate.
+    /// </summary>
+    public new Action<T, T, SerializationData> GetObjectData;
 
     /// <summary>
     /// Gets <see cref="IObjectSerializer{T}.SetObjectData(T,SerializationData)"/> method delegate.
     /// </summary>
     public Func<T, SerializationData, T> SetObjectData;
 
-    /// <summary>
-    /// Gets <see cref="IObjectSerializer{T}.CreateObject"/> method delegate.
-    /// </summary>
-    public Func<T> CreateObject;
-
-    private readonly IObjectSerializerProvider provider;
-
-    /// <inheritdoc/>
-    public IObjectSerializerProvider Provider {
-      get { return provider; }
-    }
-
     /// <inheritdoc/>
     public bool IsReferable { get; private set; }
+
 
     // Constructors
 
@@ -116,14 +65,24 @@ namespace Xtensive.Core.Serialization
     /// </summary>
     /// <param name="implementation">Serializer to provide the delegates for.</param>
     public ObjectSerializer(IObjectSerializer<T> implementation)
-      : base(implementation.GetType().GetField("Implementation") != null
-        ? implementation.GetType().GetField("Implementation").GetValue(implementation) as IObjectSerializer<T>
-        : implementation) {
+      : base(implementation) 
+    {
+      Provider = Implementation.Provider;
+      IsReferable = Implementation.IsReferable;
       GetObjectData = Implementation.GetObjectData;
       SetObjectData = Implementation.SetObjectData;
       CreateObject = Implementation.CreateObject;
+    }
+
+    /// <see cref="SerializableDocTemplate.Ctor" copy="true"/>
+    public ObjectSerializer(SerializationInfo info, StreamingContext context)
+      : base(info, context)
+    {
+      Provider = Implementation.Provider;
       IsReferable = Implementation.IsReferable;
-      provider = Implementation.Provider;
+      GetObjectData = Implementation.GetObjectData;
+      SetObjectData = Implementation.SetObjectData;
+      CreateObject = Implementation.CreateObject;
     }
   }
 }

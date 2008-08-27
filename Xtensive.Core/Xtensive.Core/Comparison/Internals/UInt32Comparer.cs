@@ -22,7 +22,7 @@ namespace Xtensive.Core.Comparison
     public UInt32Comparer(IComparerProvider provider, ComparisonRules comparisonRules)
       : base(provider, comparisonRules)
     {
-      ValueRangeInfo = new ValueRangeInfo<uint>(true, UInt32.MinValue, true, UInt32.MaxValue, true, 1);
+      ValueRangeInfo = new ValueRangeInfo<uint>(true, uint.MinValue, true, uint.MaxValue, true, 1);
     }
   }
 }

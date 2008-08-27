@@ -94,7 +94,7 @@ namespace Xtensive.Core.Reflection
     {
       ArgumentValidator.EnsureArgumentNotNull(forType, "forType");
       if (forType.IsGenericTypeDefinition)
-        throw new InvalidOperationException(String.Format(
+        throw new InvalidOperationException(string.Format(
           Strings.ExCantCreateAssociateForGenericTypeDefinitions, GetShortName(forType)));
 
       List<Pair<Assembly, string>> locations = new List<Pair<Assembly, string>>(1);
@@ -132,7 +132,7 @@ namespace Xtensive.Core.Reflection
         if (rank==1)
           associateTypePrefix = "Array`1";
         else
-          associateTypePrefix = String.Format("Array{0}D`1", rank);
+          associateTypePrefix = string.Format("Array{0}D`1", rank);
         genericArguments = new Type[] {elementType};
       }
       else if (currentForType==typeof (Enum)) {
@@ -206,7 +206,7 @@ namespace Xtensive.Core.Reflection
             associateTypeSuffixes, constructorParams, locations, true);
           if (resultForInterface!=null) {
             if (result!=null)
-              throw new InvalidOperationException(String.Format(
+              throw new InvalidOperationException(string.Format(
                 Strings.ExMultipleAssociatesMatch,
                 GetShortName(currentForType),
                 GetShortName(result.GetType()),
@@ -261,7 +261,7 @@ namespace Xtensive.Core.Reflection
             string associateTypeSuffix = associateTypeSuffixes[currentSuffix];
             // Trying exact type match (e.g. EnumerableInterfaceHandler`1<...>)
             string associateTypeName = AddSuffix(
-              String.Format("{0}.{1}", location.Second, associateTypePrefix), associateTypeSuffix);
+              string.Format("{0}.{1}", location.Second, associateTypePrefix), associateTypeSuffix);
             T result = Activate(location.First, CorrectGenericSuffix(associateTypeName, genericArguments==null ? 0 : genericArguments.Length), genericArguments, constructorParams) as T;
             if (result!=null) {
               foundForType = currentForType;
@@ -280,13 +280,13 @@ namespace Xtensive.Core.Reflection
             if (genericArguments==null || genericArguments.Length==0) {
               newGenericArguments = new Type[] {originalForType};
               associateTypeName = AddSuffix(
-                String.Format("{0}.{1}`1", location.Second, associateTypePrefix), associateTypeSuffix);
+                string.Format("{0}.{1}`1", location.Second, associateTypePrefix), associateTypeSuffix);
             }
             else {
               newGenericArguments = new Type[genericArguments.Length + 1];
               newGenericArguments[0] = originalForType;
               Array.Copy(genericArguments, 0, newGenericArguments, 1, genericArguments.Length);
-              associateTypeName = AddSuffix(String.Format("{0}.{1}`{2}",
+              associateTypeName = AddSuffix(string.Format("{0}.{1}`{2}",
                 location.Second,
                 TrimGenericSuffix(associateTypePrefix),
                 newGenericArguments.Length),
@@ -324,7 +324,7 @@ namespace Xtensive.Core.Reflection
       EnsureEmitInitialized();
 
       int n = Interlocked.Increment(ref createDummyTypeNumber);
-      string typeName = String.Format("{0}.Internal.{1}{2}", typeof (TypeHelper).Namespace, namePrefix, n);
+      string typeName = string.Format("{0}.Internal.{1}{2}", typeof (TypeHelper).Namespace, namePrefix, n);
 
       lock (_lock) {
         TypeBuilder typeBuilder = moduleBuilder.DefineType(
@@ -677,7 +677,7 @@ namespace Xtensive.Core.Reflection
       if (argumentCount==0)
         return typeName;
       else
-        return String.Format("{0}`{1}", typeName, argumentCount);
+        return string.Format("{0}`{1}", typeName, argumentCount);
     }
 
     #endregion

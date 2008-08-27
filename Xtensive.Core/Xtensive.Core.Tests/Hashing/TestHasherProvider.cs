@@ -12,7 +12,7 @@ namespace Xtensive.Core.Tests.Hashing
   public class TestHasherProvider : HasherProvider
   {
     private readonly IHasher<String> customStringHasher;
-    private readonly IHasher<UInt64> customUInt64Hasher;
+    private readonly IHasher<ulong> customUInt64Hasher;
 
     protected override TAssociate CreateAssociate<TKey, TAssociate>(out Type foundFor)
     {
@@ -20,8 +20,8 @@ namespace Xtensive.Core.Tests.Hashing
         foundFor = typeof (string);
         return (TAssociate) customStringHasher;
       }
-      if (typeof(TKey) == typeof(UInt64)) {
-        foundFor = typeof (UInt64);
+      if (typeof(TKey) == typeof(ulong)) {
+        foundFor = typeof (ulong);
         return (TAssociate) customUInt64Hasher;
       }
       return base.CreateAssociate<TKey, TAssociate>(out foundFor);

@@ -15,7 +15,7 @@ namespace Xtensive.Core.Tests.Conversion
   {
     int IAdvancedConverter<string, int>.Convert(string value)
     {
-      return Int32.Parse(value);
+      return int.Parse(value);
     }
 
     /// <summary>

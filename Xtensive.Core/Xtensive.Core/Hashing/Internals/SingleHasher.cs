@@ -12,18 +12,18 @@ namespace Xtensive.Core.Hashing
   internal class SingleHasher : WrappingHasher<float, ulong>
   {
     /// <inheritdoc/>
-    public override long GetHash(Single value)
+    public override long GetHash(float value)
     {
       return BaseHasher.GetHash(GetULongHash(value));
     }
 
     /// <inheritdoc/>
-    public override long[] GetHashes(Single value, int count)
+    public override long[] GetHashes(float value, int count)
     {
       return BaseHasher.GetHashes(GetULongHash(value), count);
     }
 
-    private static ulong GetULongHash(Single value)
+    private static ulong GetULongHash(float value)
     {
       byte[] byteArray = BitConverter.GetBytes(value);
       return (((ulong) byteArray[0]) << 24) | (((ulong) byteArray[1]) << 16) | (((ulong) byteArray[2]) << 8) | byteArray[3];

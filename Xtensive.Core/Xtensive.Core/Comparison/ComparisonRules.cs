@@ -254,7 +254,7 @@ namespace Xtensive.Core.Comparison
           sb.Append(composite[i]);
         }
       }
-      return String.Format(Strings.ComparisonRulesFormat, value, sb);
+      return string.Format(Strings.ComparisonRulesFormat, value, sb);
     }
 
 

@@ -333,7 +333,7 @@ namespace Xtensive.Core.Tuples
           sb.Append(", ");
         sb.Append(fieldTypes[i].GetShortName());
       }
-      return String.Format(Strings.TupleDescriptorFormat, sb);
+      return string.Format(Strings.TupleDescriptorFormat, sb);
     }
 
     #region Create methods (base)

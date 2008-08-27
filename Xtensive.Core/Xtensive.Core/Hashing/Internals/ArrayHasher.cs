@@ -29,7 +29,7 @@ namespace Xtensive.Core.Hashing
     {
       if (count <= 0)
         throw new ArgumentOutOfRangeException("count", count,
-          String.Format(Strings.ExArgumentShouldBeInRange, 0, int.MaxValue));
+          string.Format(Strings.ExArgumentShouldBeInRange, 0, int.MaxValue));
       if (value==null)
         return null;
       var result = new long[count];

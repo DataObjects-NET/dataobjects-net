@@ -69,10 +69,10 @@ namespace Xtensive.Core.Collections
       this.EnsureNotLocked();
       ArgumentValidator.EnsureArgumentNotNull(extensionType, "extensionType");
       if (!extensionType.IsClass)
-        throw new ArgumentException(String.Format(
+        throw new ArgumentException(string.Format(
           Strings.ExTypeXMustBeReferenceType, extensionType.GetShortName()), "extensionType");
       if (value!=null && !extensionType.IsAssignableFrom(value.GetType()))
-        throw new ArgumentException(String.Format(
+        throw new ArgumentException(string.Format(
           Strings.ExTypeXMustImplementY, value.GetType(), extensionType.GetShortName()), "value");
       
       if (extensions==null)

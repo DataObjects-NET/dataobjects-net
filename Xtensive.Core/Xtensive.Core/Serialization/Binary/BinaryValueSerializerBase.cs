@@ -5,19 +5,31 @@
 // Created:    2008.08.13
 
 using System.IO;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Serialization.Implementation;
 
 namespace Xtensive.Core.Serialization.Binary
 {
   /// <summary>
-  /// Implementation of <see cref="ValueSerializerBase{TStream,T}"/> for binary (de)serializing.
+  /// Base class for any binary value serializer.
+  /// A version of <see cref="ValueSerializerBase{TStream,T}"/> for binary serialization.
   /// </summary>
   public abstract class BinaryValueSerializerBase<T> : ValueSerializerBase<Stream, T>
   {
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    protected BinaryValueSerializerBase(IBinaryValueSerializerProvider provider)
-      : base(provider) {}
+    // Constructors
+
+    /// <inheritdoc/>
+    protected BinaryValueSerializerBase(IValueSerializerProvider<Stream> provider)
+      : base(provider)
+    {
+    }
+
+    // IDeserializationCallback methods
+
+    /// <inheritdoc/>
+    public override void OnDeserialization(object sender)
+    {
+      if (Provider==null || Provider.GetType()==typeof (BinaryValueSerializerProvider))
+        Provider = BinaryValueSerializerProvider.Default;
+    }
   }
 }

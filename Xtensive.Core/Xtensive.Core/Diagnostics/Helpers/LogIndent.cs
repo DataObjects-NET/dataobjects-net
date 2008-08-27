@@ -94,7 +94,7 @@ namespace Xtensive.Core.Diagnostics.Helpers
     private LogIndent(int value)
     {
       this.value = value;
-      stringValue = String.Empty;
+      stringValue = string.Empty;
       for (int i = 0; i<value; i++)
         stringValue += "  ";
       stringValue = String.Intern(stringValue);

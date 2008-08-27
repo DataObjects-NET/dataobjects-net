@@ -4,32 +4,39 @@
 // Created by: Dmitri Maximov
 // Created:    2008.03.20
 
+using System;
+
 namespace Xtensive.Core.Serialization
 {
   /// <summary>
-  /// Object serializer and deserializer.
+  /// Typed object serializer and deserializer.
   /// </summary>
-  /// <typeparam name="T">Type of object to serialize and deserialize.</typeparam>
+  /// <typeparam name="T">Type of the object to serialize and deserialize.</typeparam>
   public interface IObjectSerializer<T> : IObjectSerializer
   {
     /// <summary>
-    /// Creates the object.
+    /// Creates the object with "initial" state.
     /// </summary>
-    new T CreateObject();
+    /// <param name="type">The type of the object to create.</param>
+    /// <returns>Newly created object.</returns>
+    new T CreateObject(Type type);
 
     /// <summary>
-    /// Populates the provided <see cref="SerializationData"/> with the data needed to serialize the object.
+    /// Populates the provided <see cref="SerializationData"/> with the differences
+    /// between <paramref name="source"/> and <paramref name="origin"/>.
     /// </summary>
-    /// <param name="obj">The object to serialize.</param>
-    /// <param name="data">The <see cref="SerializationData"/> to populate with data.</param>
-    void GetObjectData(T obj, SerializationData data);
+    /// <param name="source">The object to serialize.</param>
+    /// <param name="origin">The origin - the "initial" object state (see <see cref="CreateObject"/>) 
+    /// which shouldn't be serialized.</param>
+    /// <param name="data">The <see cref="SerializationData"/> to populate.</param>
+    void GetObjectData(T source, T origin, SerializationData data);
 
     /// <summary>
-    /// Populates the object using the information in the <see cref="SerializationData"/>.
+    /// Updates the object using the information in the <see cref="SerializationData"/>.
     /// </summary>
-    /// <param name="obj">The object to populate.</param>
-    /// <param name="data">The data to populate the object.</param>
-    /// <returns>Changed object.</returns>
-    T SetObjectData(T obj, SerializationData data);
+    /// <param name="target">The object to update.</param>
+    /// <param name="data">The data to update the object from.</param>
+    /// <returns>Updated object.</returns>
+    T SetObjectData(T target, SerializationData data);
   }
 }

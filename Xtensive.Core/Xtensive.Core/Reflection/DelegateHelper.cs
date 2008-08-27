@@ -106,7 +106,7 @@ namespace Xtensive.Core.Reflection
               result = Delegate.CreateDelegate(typeof (TDelegateType), mi) as TDelegateType;
             }
             else
-              throw new InvalidOperationException(String.Format(Strings.ExPropertyDoesNotHaveGetter,
+              throw new InvalidOperationException(string.Format(Strings.ExPropertyDoesNotHaveGetter,
                 memberName, type.GetShortName()));
           }
           else if (fi!=null) {
@@ -131,7 +131,7 @@ namespace Xtensive.Core.Reflection
             result = Delegate.CreateDelegate(typeof (Func<TObject, TValue>), smi) as TDelegateType;
           }
           else
-            throw new InvalidOperationException(String.Format(Strings.ExMemberIsNotPublicPropertyOrField,
+            throw new InvalidOperationException(string.Format(Strings.ExMemberIsNotPublicPropertyOrField,
               memberName, type.GetShortName()));
 
           AddCachedDelegate(methodKey, result as Delegate);
@@ -173,7 +173,7 @@ namespace Xtensive.Core.Reflection
               result = (Action<TObject, TValue>)Delegate.CreateDelegate(typeof (Action<TObject, TValue>), mi);
             }
             else
-              throw new InvalidOperationException(String.Format(Strings.ExPropertyDoesNotHaveSetter,
+              throw new InvalidOperationException(string.Format(Strings.ExPropertyDoesNotHaveSetter,
                 memberName, type.GetShortName()));
           }
           else if (fi!=null) {
@@ -193,7 +193,7 @@ namespace Xtensive.Core.Reflection
             result = (Action<TObject, TValue>)dm.CreateDelegate(typeof (Func<TObject, TValue>));
           }
           else
-            throw new InvalidOperationException(String.Format(Strings.ExMemberIsNotPublicPropertyOrField,
+            throw new InvalidOperationException(string.Format(Strings.ExMemberIsNotPublicPropertyOrField,
               memberName, type.GetShortName()));
           AddCachedDelegate(methodKey, result);
         }
@@ -213,7 +213,7 @@ namespace Xtensive.Core.Reflection
     {
       Type sourceType = typeof (TSource);
       Type targetType = typeof (TTarget);
-      string methodName = String.Format("{0}_{1}_{2}", primitiveCastMethodName, sourceType, targetType);
+      string methodName = string.Format("{0}_{1}_{2}", primitiveCastMethodName, sourceType, targetType);
       string methodKey  = GetMethodCallDelegateKey(methodName);
 
       Converter<TSource, TTarget> result = GetCachedDelegate(methodKey) as Converter<TSource, TTarget>;
@@ -228,7 +228,7 @@ namespace Xtensive.Core.Reflection
           if (sourceType.IsEnum)
             actualSourceType = Enum.GetUnderlyingType(sourceType);
           if (!opCodeConv.ContainsKey(actualSourceType))
-            throw new InvalidCastException(String.Format(Strings.ExInvalidCast, 
+            throw new InvalidCastException(string.Format(Strings.ExInvalidCast, 
               sourceType.GetShortName(),
               targetType.GetShortName()));
 
@@ -236,7 +236,7 @@ namespace Xtensive.Core.Reflection
           if (targetType.IsEnum)
             actualTargetType = Enum.GetUnderlyingType(targetType);
           if (!opCodeConv.ContainsKey(actualTargetType))
-            throw new InvalidCastException(String.Format(Strings.ExInvalidCast, 
+            throw new InvalidCastException(string.Format(Strings.ExInvalidCast, 
               sourceType.GetShortName(),
               targetType.GetShortName()));
 
@@ -273,7 +273,7 @@ namespace Xtensive.Core.Reflection
       ArgumentValidator.EnsureArgumentNotNull(genericArgumentTypes, "genericArgumentTypes");
       Type delegateType = typeof (TDelegate);
       if (!typeof(Delegate).IsAssignableFrom(delegateType))
-        throw new ArgumentException(String.Format(Strings.ExGenericParameterShouldBeOfTypeT,
+        throw new ArgumentException(string.Format(Strings.ExGenericParameterShouldBeOfTypeT,
           "TDelegate", typeof(Delegate).GetShortName()));
 
       BindingFlags bindingFlags =
@@ -318,7 +318,7 @@ namespace Xtensive.Core.Reflection
       ArgumentValidator.EnsureArgumentNotNull(genericArgumentVariants, "genericArgumentVariants");
       Type delegateType = typeof (TDelegate);
       if (!typeof(Delegate).IsAssignableFrom(delegateType))
-        throw new ArgumentException(String.Format(Strings.ExGenericParameterShouldBeOfTypeT,
+        throw new ArgumentException(string.Format(Strings.ExGenericParameterShouldBeOfTypeT,
           "TDelegate", typeof(Delegate).GetShortName()));
 
       int count = genericArgumentVariants.Count;

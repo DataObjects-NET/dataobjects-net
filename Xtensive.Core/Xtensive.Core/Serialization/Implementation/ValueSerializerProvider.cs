@@ -10,45 +10,35 @@ using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Threading;
 
-namespace Xtensive.Core.Serialization
+namespace Xtensive.Core.Serialization.Implementation
 {
   /// <summary>
   /// Default <see cref="IValueSerializer{T}"/> provider. 
   /// Provides default primitive serializer for the specified type.
   /// </summary>
-  /// <remarks>
-  /// <para id="About"><see cref="HasStaticDefaultDocTemplate" copy="true" /></para>
-  /// </remarks>
   /// <typeparam name="TStream">Type of the stream to write to or read from.</typeparam>
   [Serializable]
-  public class ValueSerializerProvider<TStream> :
-    AssociateProvider,
+  public class ValueSerializerProvider<TStream> : AssociateProvider,
     IValueSerializerProvider<TStream>
   {
-    private static readonly ValueSerializerProvider<TStream> @default = new ValueSerializerProvider<TStream>();
-
     private ThreadSafeDictionary<Type, IValueSerializer<TStream>> serializers =
       ThreadSafeDictionary<Type, IValueSerializer<TStream>>.Create(new object());
 
-    /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
-    [DebuggerHidden]
-    public static IValueSerializerProvider<TStream> Default {
-      get { return @default; }
-    }
-
-    #region ISerializerProvider members
+    #region IValueSerializerProvider members
 
     /// <inheritdoc/>
-    public virtual IValueSerializer<TStream, T> GetSerializer<T>() {
-      return GetAssociate<T, IValueSerializer<TStream, T>, IValueSerializer<TStream, T>>();
+    public virtual ValueSerializer<TStream, T> GetSerializer<T>() 
+    {
+      return GetAssociate<T, IValueSerializer<TStream, T>, ValueSerializer<TStream, T>>();
     }
 
     /// <inheritdoc/>
-    public IValueSerializer<TStream> GetSerializer(Type type) {
+    public IValueSerializer<TStream> GetSerializer(Type type) 
+    {
       return serializers.GetValue(type,
         (_type, _this) => _this
           .GetType()
-          .GetMethod("GetSerializer", ArrayUtils<Type>.EmptyArray)
+          .GetMethod("InnerGetSerializer", ArrayUtils<Type>.EmptyArray)
           .GetGenericMethodDefinition()
           .MakeGenericMethod(new[] {_type})
           .Invoke(_this, null)
@@ -57,7 +47,8 @@ namespace Xtensive.Core.Serialization
     }
 
     /// <inheritdoc/>
-    public IValueSerializer<TStream> GetSerializerByInstance(object instance) {
+    public IValueSerializer<TStream> GetSerializerByInstance(object instance) 
+    {
       ArgumentValidator.EnsureArgumentNotNull(instance, "instance");
       return GetSerializer(instance.GetType());
     }
@@ -67,13 +58,26 @@ namespace Xtensive.Core.Serialization
     #region Protected method overrides
 
     /// <inheritdoc/>
-    protected override TResult ConvertAssociate<TKey, TAssociate, TResult>(TAssociate associate) {
+    protected override TResult ConvertAssociate<TKey, TAssociate, TResult>(TAssociate associate) 
+    {
       if (ReferenceEquals(associate, null))
         return default(TResult);
       return (TResult) (object) new ValueSerializer<TStream, TKey>((IValueSerializer<TStream, TKey>) associate);
     }
 
     #endregion
+
+    #region Private \ internal methods
+
+    // ReSharper disable UnusedPrivateMember
+    private IValueSerializer<TStream> InnerGetSerializer<T>()
+    {
+      return GetAssociate<T, IValueSerializer<TStream, T>, ValueSerializer<TStream, T>>().Implementation;
+    }
+    // ReSharper restore UnusedPrivateMember
+
+    #endregion
+
 
     // Constructors
 

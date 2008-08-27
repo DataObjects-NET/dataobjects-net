@@ -6,43 +6,43 @@
 
 using System;
 using System.IO;
-using System.Runtime.Serialization;
-using Xtensive.Core.Resources;
 using System.Text;
 
 namespace Xtensive.Core.Serialization.Binary
 {
   [Serializable]
-  internal class StringValueSerializer : WrappingValueSerializer<string, int>
+  internal class StringValueSerializer : WrappingBinaryValueSerializer<string, int>
   {
     private static readonly Encoding encoding = Encoding.UTF8;
 
-    public override string Deserialize(Stream stream) {
-      if (stream.Length - stream.Position < sizeof (Int16))
-        throw new SerializationException(Strings.ExDeserializationStreamLengthIncorrect);
-      int length = baseValueSerializer.Deserialize(stream);
+    public override string Deserialize(Stream stream) 
+    {
+      int length = BaseSerializer.Deserialize(stream);
       if (length == -1)
         return null;
-      if (stream.Length - stream.Position < length)
-        throw new SerializationException(Strings.ExDeserializationStreamLengthIncorrect);
-      byte[] buffer = new byte[length];
+      var buffer = new byte[length];
       stream.Read(buffer, 0, length);
       return encoding.GetString(buffer);
     }
 
-    public override void Serialize(Stream stream, String value) {
-      if (value == null) baseValueSerializer.Serialize(stream, -1);
+    public override void Serialize(Stream stream, String value) 
+    {
+      if (value == null) 
+        BaseSerializer.Serialize(stream, -1);
       else {
-        byte[] byteRepresentation = encoding.GetBytes(value);
-        int length = byteRepresentation.Length;
-        baseValueSerializer.Serialize(stream, length);
-        stream.Write(byteRepresentation, 0, length);
+        var buffer = encoding.GetBytes(value);
+        int length = buffer.Length;
+        BaseSerializer.Serialize(stream, length);
+        stream.Write(buffer, 0, length);
       }
     }
 
+    
     // Constructors
 
-    public StringValueSerializer(IBinaryValueSerializerProvider provider)
-      : base(provider) {}
+    public StringValueSerializer(IValueSerializerProvider<Stream> provider)
+      : base(provider)
+    {
+    }
   }
 }

@@ -9,23 +9,23 @@ using System;
 namespace Xtensive.Core.Hashing
 {
   [Serializable]
-  internal class UInt32Hasher : HasherBase<UInt32>
+  internal class UInt32Hasher : HasherBase<uint>
   {
-    public override long GetHash(UInt32 value)
+    public override long GetHash(uint value)
     {
       return value;
     }
 
     /// <inheritdoc/>
-    public override long[] GetHashes(UInt32 value, int count)
+    public override long[] GetHashes(uint value, int count)
     {
       return HashingUtils.GetHashes(UInt32ToByteArray(value), count, GetHash(value));
     }
 
-    private static byte[] UInt32ToByteArray(UInt32 value)
+    private static byte[] UInt32ToByteArray(uint value)
     {
-      var data = new byte[sizeof(UInt32)];
-      for (int i = 0; i < sizeof(UInt32); i++)
+      var data = new byte[sizeof(uint)];
+      for (int i = 0; i < sizeof(uint); i++)
         data[i] = ((byte)(value >> (i << 3)));
       return data;
     }

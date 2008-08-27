@@ -30,9 +30,9 @@ namespace Xtensive.Core.Serialization
 
     /// <summary>
     /// Indicates whether reference is the only possible reference to its target,
-    /// so it can be cached.
+    /// so it must be cached.
     /// </summary>
-    bool IsUnique { get; }
+    bool IsCacheable { get; }
 
     /// <summary>
     /// Specify if it is necessary to put referencing object to <see cref="SerializationContext.SerializationQueue"/>.

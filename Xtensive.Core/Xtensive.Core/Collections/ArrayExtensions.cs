@@ -134,7 +134,7 @@ namespace Xtensive.Core.Collections
       if (!byReference)
         return IndexOf(items, item);
       if (typeof(TItem).IsValueType)
-        throw new InvalidOperationException(String.Format(
+        throw new InvalidOperationException(string.Format(
           Strings.ExTypeXMustBeReferenceType, 
           typeof(TItem).GetShortName()));
       for (int i = 0; i < items.Length; i++)

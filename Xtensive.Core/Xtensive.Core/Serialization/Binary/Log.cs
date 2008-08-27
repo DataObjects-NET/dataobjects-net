@@ -20,7 +20,8 @@ namespace Xtensive.Core.Serialization.Binary
     /// </summary>
     public static readonly string Name;
 
-    static Log() {
+    static Log() 
+    {
       string className = MethodInfo.GetCurrentMethod().DeclaringType.FullName;
       Name = className.Substring(0, className.LastIndexOf('.'));
     }

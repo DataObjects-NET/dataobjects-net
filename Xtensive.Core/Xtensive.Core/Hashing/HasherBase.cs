@@ -14,7 +14,7 @@ namespace Xtensive.Core.Hashing
   /// <summary>
   /// Base class for any <see cref="IHasher{T}"/>s.
   /// </summary>
-  /// <typeparam name="T">The type to calculate <see cref="Int64"/> hashes for.</typeparam>
+  /// <typeparam name="T">The type to calculate <see cref="long"/> hashes for.</typeparam>
   [Serializable]
   public abstract class HasherBase<T> : IHasher<T>,
     IDeserializationCallback
@@ -56,6 +56,8 @@ namespace Xtensive.Core.Hashing
       ArgumentValidator.EnsureArgumentNotNull(provider, "provider");
       this.provider = provider;
     }
+
+    // IDeserializationCallback methods
 
     /// <see cref="SerializableDocTemplate.OnDeserialization" copy="true" />
     public virtual void OnDeserialization(object sender)

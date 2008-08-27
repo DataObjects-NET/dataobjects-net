@@ -32,7 +32,8 @@ namespace Xtensive.Core.Hashing
     private static readonly HasherProvider @default = new HasherProvider();
     private ThreadSafeDictionary<Type, IHasherBase> hashers = 
       ThreadSafeDictionary<Type, IHasherBase>.Create(new object());
-    private ThreadSafeCached<IHasherBase> objectHasher = ThreadSafeCached<IHasherBase>.Create(new object());
+    private ThreadSafeCached<IHasherBase> objectHasher = 
+      ThreadSafeCached<IHasherBase>.Create(new object());
 
     /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
     public static IHasherProvider Default
@@ -85,13 +86,6 @@ namespace Xtensive.Core.Hashing
 
     #region Protected method overrides
 
-    // ReSharper disable UnusedPrivateMember
-    private IHasherBase InnerGetHasherBase<T>()
-    {
-      return GetAssociate<T, IHasher<T>, Hasher<T>>().Implementation;
-    }
-    // ReSharper restore UnusedPrivateMember
-
     /// <inheritdoc/>
     protected override TAssociate CreateAssociate<TKey, TAssociate>(out Type foundFor)
     {
@@ -138,6 +132,17 @@ namespace Xtensive.Core.Hashing
         return default(TResult);
       return (TResult) (object) new Hasher<TKey>((IHasher<TKey>) associate);
     }
+
+    #endregion
+
+    #region Private \ internal methods
+
+    // ReSharper disable UnusedPrivateMember
+    private IHasherBase InnerGetHasherBase<T>()
+    {
+      return GetAssociate<T, IHasher<T>, Hasher<T>>().Implementation;
+    }
+    // ReSharper restore UnusedPrivateMember
 
     #endregion
 

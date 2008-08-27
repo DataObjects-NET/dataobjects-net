@@ -26,7 +26,7 @@ namespace Xtensive.Core.Tuples.Internals
 
     public TupleInfo(TupleDescriptor tupleDescriptor)
     {
-      Name = String.Format(NameFormatString, TupleCount++);
+      Name = string.Format(NameFormatString, TupleCount++);
       Interfaces = new Dictionary<Type, TupleInterfaceInfo>();
       Fields = new List<TupleFieldInfo>();
       ActualFields = new List<TupleFieldInfo>();

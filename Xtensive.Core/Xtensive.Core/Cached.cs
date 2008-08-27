@@ -146,7 +146,7 @@ namespace Xtensive.Core
     /// <inheritdoc/>
     public override string ToString()
     {
-      return String.Format(Strings.CachedFormat, cachedValue);
+      return string.Format(Strings.CachedFormat, cachedValue);
     }
   }
 }

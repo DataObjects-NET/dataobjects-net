@@ -9,24 +9,24 @@ using System;
 namespace Xtensive.Core.Hashing
 {
   [Serializable]
-  internal class Int16Hasher : HasherBase<Int16>
+  internal class Int16Hasher : HasherBase<short>
   {
     /// <inheritdoc/>
-    public override long GetHash(Int16 value)
+    public override long GetHash(short value)
     {
       return value;
     }
 
     /// <inheritdoc/>
-    public override long[] GetHashes(Int16 value, int count)
+    public override long[] GetHashes(short value, int count)
     {
       return HashingUtils.GetHashes(Int16ToByteArray(value), count, GetHash(value));
     }
 
-    private static byte[] Int16ToByteArray(Int16 value)
+    private static byte[] Int16ToByteArray(short value)
     {
-      var data = new byte[sizeof(Int16)];
-      for (int i = 0; i < sizeof(Int16); i++)
+      var data = new byte[sizeof(short)];
+      for (int i = 0; i < sizeof(short); i++)
         data[i] = ((byte)(value >> (i << 3)));
       return data;
     }

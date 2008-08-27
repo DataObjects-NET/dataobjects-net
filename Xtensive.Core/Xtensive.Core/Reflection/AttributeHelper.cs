@@ -79,7 +79,7 @@ namespace Xtensive.Core.Reflection
       if (attributes==null || attributes.Length<1)
         return null;
       if (attributes.Length>1)
-        throw new InvalidOperationException(String.Format(Strings.ExMultipleAttributesOfTypeXAreNotAllowedHere,
+        throw new InvalidOperationException(string.Format(Strings.ExMultipleAttributesOfTypeXAreNotAllowedHere,
           member.GetShortName(true),
           typeof(TAttribute).GetShortName()
           ));

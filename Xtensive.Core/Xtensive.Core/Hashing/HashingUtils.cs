@@ -66,7 +66,7 @@ namespace Xtensive.Core.Hashing
     {
       if (count < 0 || count > byte.MaxValue)
         throw new ArgumentOutOfRangeException("count", count,
-          String.Format(Strings.ExArgumentShouldBeInRange, 0, byte.MaxValue));
+          string.Format(Strings.ExArgumentShouldBeInRange, 0, byte.MaxValue));
       if (data==null || count <= 0)
         return;
       if (writeFirstHash)

@@ -50,10 +50,10 @@ namespace Xtensive.Core.Tuples.Transform
     /// <inheritdoc/>
     public override string ToString()
     {
-      string description = String.Format("{0}, {1}",
+      string description = string.Format("{0}, {1}",
         sources.ToDelimitedString(" + "),
         IsReadOnly ? Strings.ReadOnlyShort : Strings.ReadWriteShort);
-      return String.Format(Strings.TupleTransformFormat,
+      return string.Format(Strings.TupleTransformFormat,
         GetType().GetShortName(),
         description);
     }

@@ -20,7 +20,7 @@ namespace Xtensive.Core.Comparison
     /// <exception cref="NotSupportedException"><c>NotSupportedException</c>.</exception>
     public int CompareTo(T other)
     {
-      throw new NotSupportedException(String.Format(
+      throw new NotSupportedException(string.Format(
         Strings.ExTypeXMustImplementY, 
         typeof(T).GetShortName(), 
         typeof(IComparable<T>).GetShortName()));
@@ -29,7 +29,7 @@ namespace Xtensive.Core.Comparison
     /// <exception cref="NotSupportedException"><c>NotSupportedException</c>.</exception>
     public bool Equals(T other)
     {
-      throw new NotSupportedException(String.Format(
+      throw new NotSupportedException(string.Format(
         Strings.ExTypeXMustImplementY, 
         typeof(T).GetShortName(), 
         typeof(IEquatable<T>).GetShortName()));
@@ -38,7 +38,7 @@ namespace Xtensive.Core.Comparison
     /// <exception cref="NotSupportedException"><c>NotSupportedException</c>.</exception>
     public override int GetHashCode()
     {
-      throw new NotSupportedException(String.Format(
+      throw new NotSupportedException(string.Format(
         Strings.ExTypeXMustImplementY, 
         typeof(T).GetShortName(), 
         typeof(IEquatable<T>).GetShortName()));

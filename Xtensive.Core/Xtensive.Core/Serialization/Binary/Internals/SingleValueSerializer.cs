@@ -6,30 +6,30 @@
 
 using System;
 using System.IO;
-using System.Runtime.Serialization;
-using Xtensive.Core.Resources;
 
 namespace Xtensive.Core.Serialization.Binary
 {
   [Serializable]
   internal class SingleValueSerializer : BinaryValueSerializerBase<float>
   {
-    public override Single Deserialize(Stream stream) {
-      if (stream.Length - stream.Position < sizeof (Single))
-        throw new SerializationException(Strings.ExDeserializationStreamLengthIncorrect);
-      byte[] buffer = new byte[sizeof (Single)];
-      stream.Read(buffer, 0, sizeof (Single));
+    public override float Deserialize(Stream stream) 
+    {
+      var buffer = new byte[sizeof (float)];
+      stream.Read(buffer, 0, sizeof (float));
       return BitConverter.ToSingle(buffer, 0);
     }
 
-    public override void Serialize(Stream stream, Single value) {
-      byte[] buffer = BitConverter.GetBytes(value);
-      stream.Write(buffer, 0, sizeof (Single));
+    public override void Serialize(Stream stream, float value) 
+    {
+      stream.Write(BitConverter.GetBytes(value), 0, sizeof (float));
     }
+
 
     // Constructors
 
-    public SingleValueSerializer(IBinaryValueSerializerProvider provider)
-      : base(provider) {}
+    public SingleValueSerializer(IValueSerializerProvider<Stream> provider)
+      : base(provider)
+    {
+    }
   }
 }
