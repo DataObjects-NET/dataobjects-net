@@ -454,8 +454,21 @@ namespace Xtensive.Core.Tuples.Internals
                 il.Emit(OpCodes.Br, setFlags);
                 il.MarkLabel(isNotNull);
               }
-              il.Emit(OpCodes.Ldc_I4, (int)(TupleFieldState.IsAvailable));
-              il.Emit(OpCodes.Stloc_0);
+              else if (!interfaceInfo.IsForValueType) {
+                Label isNotNull = il.DefineLabel();
+                il.Emit(OpCodes.Ldarg_2);
+                il.Emit(OpCodes.Ldnull);
+                il.Emit(OpCodes.Ceq);
+                il.Emit(OpCodes.Brfalse, isNotNull);
+                il.Emit(OpCodes.Ldc_I4, (int)(TupleFieldState.IsAvailable | TupleFieldState.IsNull));
+                il.Emit(OpCodes.Stloc_0);
+                il.Emit(OpCodes.Br, setFlags);
+                il.MarkLabel(isNotNull);
+              }
+              else {
+                il.Emit(OpCodes.Ldc_I4, (int) (TupleFieldState.IsAvailable));
+                il.Emit(OpCodes.Stloc_0);
+              }
               if (interfaceInfo.IsForNullableType) {
                 il.Emit(OpCodes.Ldarga, 2);
                 il.Emit(OpCodes.Call, nullable.GetMethod(WellKnown.GetterPrefix+valuePropertyName));
@@ -574,17 +587,15 @@ namespace Xtensive.Core.Tuples.Internals
           if (!isDefault) {
             Label setFlags = il.DefineLabel();
             TupleFieldInfo field = tupleInfo.Fields[fieldIndex];
-            if (field.IsValueType) {
-              Label isNotNull = il.DefineLabel();
-              il.Emit(OpCodes.Ldarg_2);
-              il.Emit(OpCodes.Ldnull);
-              il.Emit(OpCodes.Ceq);
-              il.Emit(OpCodes.Brfalse, isNotNull);
-              il.Emit(OpCodes.Ldc_I4, (int)(TupleFieldState.IsAvailable | TupleFieldState.IsNull));
-              il.Emit(OpCodes.Stloc_0);
-              il.Emit(OpCodes.Br, setFlags);
-              il.MarkLabel(isNotNull);
-            }
+            Label isNotNull = il.DefineLabel();
+            il.Emit(OpCodes.Ldarg_2);
+            il.Emit(OpCodes.Ldnull);
+            il.Emit(OpCodes.Ceq);
+            il.Emit(OpCodes.Brfalse, isNotNull);
+            il.Emit(OpCodes.Ldc_I4, (int)(TupleFieldState.IsAvailable | TupleFieldState.IsNull));
+            il.Emit(OpCodes.Stloc_0);
+            il.Emit(OpCodes.Br, setFlags);
+            il.MarkLabel(isNotNull);
             il.Emit(OpCodes.Ldc_I4, (int)(TupleFieldState.IsAvailable));
             il.Emit(OpCodes.Stloc_0);
             InlineSetField(il, field, OpCodes.Ldarg_2, true);
