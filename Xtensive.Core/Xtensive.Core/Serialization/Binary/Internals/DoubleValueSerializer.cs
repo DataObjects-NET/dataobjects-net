@@ -12,16 +12,16 @@ namespace Xtensive.Core.Serialization.Binary
   [Serializable]
   internal class DoubleValueSerializer : BinaryValueSerializerBase<double>
   {
-    public override Double Deserialize(Stream stream) 
+    public override double Deserialize(Stream stream) 
     {
-      var buffer = new byte[sizeof (Double)];
-      stream.Read(buffer, 0, sizeof (Double));
+      var buffer = new byte[sizeof (double)];
+      stream.Read(buffer, 0, sizeof (double));
       return BitConverter.ToDouble(buffer, 0);
     }
 
-    public override void Serialize(Stream stream, Double value) 
+    public override void Serialize(Stream stream, double value) 
     {
-      stream.Write(BitConverter.GetBytes(value), 0, sizeof (Double));
+      stream.Write(BitConverter.GetBytes(value), 0, sizeof (double));
     }
 
 
@@ -30,6 +30,7 @@ namespace Xtensive.Core.Serialization.Binary
     public DoubleValueSerializer(IValueSerializerProvider<Stream> provider)
       : base(provider)
     {
+      OutputLength = sizeof (double);
     }
   }
 }

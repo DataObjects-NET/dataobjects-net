@@ -31,17 +31,42 @@ namespace Xtensive.Core.Serialization.Binary
     /// </summary>
     public new BinarySerializer Serializer { get; private set; }
 
+    /// <summary>
+    /// Gets the value serializer provider.
+    /// </summary>
+    public IValueSerializerProvider<Stream> ValueSerializerProvider { get; protected set; }
+
+    /// <summary>
+    /// Gets the <see cref="Int32"/> value serializer.
+    /// </summary>
+    public ValueSerializer<Stream, int> IntSerializer { get; protected set; }
+
+    /// <summary>
+    /// Gets the <see cref="Int64"/> value serializer.
+    /// </summary>
+    public ValueSerializer<Stream, long> LongSerializer { get; protected set; }
+
+    /// <summary>
+    /// Gets the <see cref="String"/> value serializer.
+    /// </summary>
+    public ValueSerializer<Stream, string> StringSerializer { get; protected set; }
+
     protected override void Initialize()
     {
+      base.Initialize();
       switch (ProcessType) {
       case SerializerProcessType.Serialization:
-        Writer = null;
+        Writer = new BinarySerializationDataWriter();
         break;
       case SerializerProcessType.Deserialization:
-        Reader = null;
+        Reader = new BinarySerializationDataReader();
         break;
       }
-      base.Initialize();
+      var serializer = (BinarySerializer) base.Serializer;
+      ValueSerializerProvider = serializer.ValueSerializerProvider;
+      IntSerializer = ValueSerializerProvider.GetSerializer<int>();
+      LongSerializer = ValueSerializerProvider.GetSerializer<long>();
+      StringSerializer = ValueSerializerProvider.GetSerializer<string>();
     }
 
 

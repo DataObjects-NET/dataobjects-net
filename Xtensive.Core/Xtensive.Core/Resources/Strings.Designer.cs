@@ -1051,6 +1051,24 @@ namespace Xtensive.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Value with name &apos;{0}&apos; already exists..
+        /// </summary>
+        internal static string ExValueWithNameXAlreadyExists {
+            get {
+                return ResourceManager.GetString("ExValueWithNameXAlreadyExists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Value with name &apos;{0}&apos; is not found..
+        /// </summary>
+        internal static string ExValueWithNameXIsNotFound {
+            get {
+                return ResourceManager.GetString("ExValueWithNameXIsNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to &apos;{0}&apos; is not allowed or invalid here..
         /// </summary>
         internal static string ExValueXIsNotAllowedHere {
@@ -1290,6 +1308,15 @@ namespace Xtensive.Core.Resources {
         internal static string SegmentFormat {
             get {
                 return ResourceManager.GetString("SegmentFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Type=&apos;{0}&apos;, #=&apos;{1}&apos; ({2}).
+        /// </summary>
+        internal static string SerializationDataFormat {
+            get {
+                return ResourceManager.GetString("SerializationDataFormat", resourceCulture);
             }
         }
         

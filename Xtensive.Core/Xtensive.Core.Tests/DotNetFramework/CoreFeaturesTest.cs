@@ -343,11 +343,11 @@ namespace Xtensive.Core.Tests.DotNetFramework
 
     private void TestDouble(int count, bool warmup)
     {
-      using (warmup ? EmptyDisposable() : Log.InfoRegion("Double operations")) {
+      using (warmup ? EmptyDisposable() : Log.InfoRegion("double operations")) {
         double j = 0;
         using (warmup ? EmptyDisposable() : Log.InfoRegion("Unchecked")) unchecked{
           using (warmup ? (IDisposable) new Disposable.Disposable(delegate { }) :
-            new Measurement("Adding Double", MeasurementOptions.Log, count)) {
+            new Measurement("Adding double", MeasurementOptions.Log, count)) {
             for (int i = 0; i < count; i+=10) {
               j = j + 10.0;
               j = j + 10.0;
@@ -362,7 +362,7 @@ namespace Xtensive.Core.Tests.DotNetFramework
             }
           }
           using (warmup ? (IDisposable) new Disposable.Disposable(delegate { }) :
-            new Measurement("Multiplying Double", MeasurementOptions.Log, count)) {
+            new Measurement("Multiplying double", MeasurementOptions.Log, count)) {
             for (int i = 0; i < count; i+=10) {
               j = (double)i * 1.0000000000001;
               j = j * 1.0000000000001;
@@ -377,7 +377,7 @@ namespace Xtensive.Core.Tests.DotNetFramework
             }
           }
           using (warmup ? (IDisposable) new Disposable.Disposable(delegate { }) :
-            new Measurement("Dividing Double", MeasurementOptions.Log, count)) {
+            new Measurement("Dividing double", MeasurementOptions.Log, count)) {
             for (int i = 0; i < count; i+=10) {
               j = (double)i / 1.0000000000001;
               j = j / 1.0000000000001;
@@ -394,7 +394,7 @@ namespace Xtensive.Core.Tests.DotNetFramework
         }
         using (warmup ? EmptyDisposable() : Log.InfoRegion("Checked")) checked{
           using (warmup ? (IDisposable) new Disposable.Disposable(delegate { }) :
-            new Measurement("Adding Double", MeasurementOptions.Log, count)) {
+            new Measurement("Adding double", MeasurementOptions.Log, count)) {
             for (int i = 0; i < count; i+=10) {
               j = j + 10.0;
               j = j + 10.0;
@@ -409,7 +409,7 @@ namespace Xtensive.Core.Tests.DotNetFramework
             }
           }
           using (warmup ? (IDisposable) new Disposable.Disposable(delegate { }) :
-            new Measurement("Multiplying Double", MeasurementOptions.Log, count)) {
+            new Measurement("Multiplying double", MeasurementOptions.Log, count)) {
             for (int i = 0; i < count; i+=10) {
               j = (double)i * 1.0000000000001;
               j = j * 1.0000000000001;
@@ -424,7 +424,7 @@ namespace Xtensive.Core.Tests.DotNetFramework
             }
           }
           using (warmup ? (IDisposable) new Disposable.Disposable(delegate { }) :
-            new Measurement("Dividing Double", MeasurementOptions.Log, count)) {
+            new Measurement("Dividing double", MeasurementOptions.Log, count)) {
             for (int i = 0; i < count; i+=10) {
               j = (double)i / 1.0000000000001;
               j = j / 1.0000000000001;

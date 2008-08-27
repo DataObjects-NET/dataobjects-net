@@ -14,7 +14,7 @@ namespace Xtensive.Core.Tests.Conversion
   public class DecimalConverterTest : ConverterTestBase
   {
     private readonly decimal[] constants = { 0x7FFFFFFFFFFF1234, 0, 123, 0x7F, 0xFF, 0x7FFFFFFF, -9223372036854714932,
-                               0xFFFF, 0x7FFF, 0xFFFFFFFF, 0xFFFFFFFFFFFFFF, -72057594037927935, Decimal.MinValue, Decimal.MaxValue,
+                               0xFFFF, 0x7FFF, 0xFFFFFFFF, 0xFFFFFFFFFFFFFF, -72057594037927935, decimal.MinValue, decimal.MaxValue,
                                (decimal)2.5, (decimal)1.6E-308d, (decimal)234.14748366, (decimal)-0.4503599627370496};
     private const int iterationCount = 100;
 

@@ -1,0 +1,37 @@
+// Copyright (C) 2008 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Alex Yakunin
+// Created:    2008.08.27
+
+using System.Collections.Generic;
+using Xtensive.Core.IO;
+using Xtensive.Core.Serialization.Implementation;
+
+namespace Xtensive.Core.Serialization.Binary
+{
+  /// <summary>
+  /// Binary <see cref="SerializationData"/> reader.
+  /// </summary>
+  public class BinarySerializationDataReader : SerializationDataReader
+  {
+    /// <inheritdoc/>
+    public override IEnumerator<SerializationData> GetEnumerator()
+    {
+      var current = BinarySerializationContext.Current;
+      var stream = current.Stream;
+      var longSerializer = current.LongSerializer;
+      while (true) {
+        long length = longSerializer.Deserialize(stream);
+        if (length==0)
+          continue;
+        if (length<0)
+          break;
+        long lastPosition = stream.Position;
+        yield return new BinarySerializationData(
+          new StreamSegment(stream, new Segment<long>(stream.Position, length), true));
+        stream.Position = lastPosition + length;
+      }
+    }
+  }
+}

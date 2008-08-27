@@ -555,4 +555,13 @@
   <data name="UnableToDisposeItemWhenContainerIsNotDisposed" xml:space="preserve">
     <value>Unable to dispose an item when disposable container has an invalid state.</value>
   </data>
+  <data name="ExValueWithNameXAlreadyExists" xml:space="preserve">
+    <value>Value with name '{0}' already exists.</value>
+  </data>
+  <data name="ExValueWithNameXIsNotFound" xml:space="preserve">
+    <value>Value with name '{0}' is not found.</value>
+  </data>
+  <data name="SerializationDataFormat" xml:space="preserve">
+    <value>Type='{0}', #='{1}' ({2})</value>
+  </data>
 </root>

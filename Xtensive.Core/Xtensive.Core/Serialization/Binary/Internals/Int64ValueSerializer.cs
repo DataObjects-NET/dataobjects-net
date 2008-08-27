@@ -35,6 +35,7 @@ namespace Xtensive.Core.Serialization.Binary
     public Int64ValueSerializer(IValueSerializerProvider<Stream> provider)
       : base(provider)
     {
+      OutputLength = sizeof (long);
     }
   }
 }

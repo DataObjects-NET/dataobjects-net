@@ -9,9 +9,9 @@ using System;
 namespace Xtensive.Core.SizeCalculators
 {
   [Serializable]
-  internal class DecimalSizeCalculator : SizeCalculatorBase<Decimal> 
+  internal class DecimalSizeCalculator : SizeCalculatorBase<decimal> 
   {
-    public override int GetValueSize(Decimal value)
+    public override int GetValueSize(decimal value)
     {
       return DefaultSize;
     }

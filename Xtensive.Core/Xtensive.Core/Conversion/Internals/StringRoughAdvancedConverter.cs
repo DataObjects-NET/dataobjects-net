@@ -135,12 +135,12 @@ namespace Xtensive.Core.Conversion
 
     double IAdvancedConverter<string, double>.Convert(string value)
     {
-      return Double.Parse(value, NumberStyles.Any, CultureInfo.InvariantCulture);
+      return double.Parse(value, NumberStyles.Any, CultureInfo.InvariantCulture);
     }
 
     decimal IAdvancedConverter<string, decimal>.Convert(string value)
     {
-      return Decimal.Parse(value, NumberStyles.Any, CultureInfo.InvariantCulture);
+      return decimal.Parse(value, NumberStyles.Any, CultureInfo.InvariantCulture);
     }
 
     DateTime IAdvancedConverter<string, DateTime>.Convert(string value)

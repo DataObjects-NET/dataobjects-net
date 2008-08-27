@@ -14,7 +14,7 @@ namespace Xtensive.Core.Testing
     public override decimal GetInstance(Random random)
     {
       unchecked {
-        return new Decimal(random.Next(), random.Next(), random.Next(),
+        return new decimal(random.Next(), random.Next(), random.Next(),
            (random.Next() % 2 == 0), (byte)(random.Next() % 29));
       }
     }

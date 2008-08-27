@@ -7,17 +7,21 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.Serialization;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Resources;
+using Xtensive.Core.Reflection;
+using System.Linq;
 
 namespace Xtensive.Core.Serialization
 {
   /// <summary>
   /// Provides high-level access to the serializing or deserializing data.
   /// </summary>
+  [DebuggerDisplay("{ToString()}")]
   public abstract class SerializationData : IEnumerable<string>
   {
     protected const string TypePropertyName = "GetType()";
@@ -59,19 +63,12 @@ namespace Xtensive.Core.Serialization
     /// <summary>
     /// Gets the count of slots in this instance.
     /// </summary>
-    /// <value>The count.</value>
-    public int Count {
-      get {
-        EnsureIsRead();
-        return count;
-      }
-      protected set { count = value; }
-    }
+    public abstract int Count { get; }
 
     /// <summary>
     /// Gets the count of slots fetched by <see cref="GetValue{T}"/>-like methods.
     /// </summary>
-    public int ReadCount { get; protected set; }
+    public abstract int ReadCount { get; }
 
     /// <summary>
     /// Gets the count of skipped slots (the slots that aren't 
@@ -100,7 +97,7 @@ namespace Xtensive.Core.Serialization
     /// </summary>
     public virtual IReference SerializedReference {
       get {
-        Reference = GetValue<IReference>(ReferencePropertyName);
+        Reference = GetObject<IReference>(ReferencePropertyName);
         return Reference;
       }
       set {
@@ -389,6 +386,26 @@ namespace Xtensive.Core.Serialization
 
     #endregion
 
+    #region HasValue, RemoveValue
+
+    /// <summary>
+    /// Determines whether the value with specified name exists.
+    /// </summary>
+    /// <param name="name">The name associated with the value.</param>
+    /// <returns>
+    /// <see langword="true"/> if the value with specified name exists; 
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    public abstract bool HasValue(string name);
+
+    /// <summary>
+    /// Removes the value with the specified name.
+    /// </summary>
+    /// <param name="name">The name associated with the value.</param>
+    public abstract void RemoveValue(string name);
+
+    #endregion
+
     #region AddFixup methods
 
     /// <summary>
@@ -436,18 +453,13 @@ namespace Xtensive.Core.Serialization
     #region EnsureXxx methods
 
     /// <summary>
-    /// Ensures the data is fully read (recalculates <see cref="Count"/>).
-    /// </summary>
-    protected abstract void EnsureIsRead();
-
-    /// <summary>
     /// Ensures there are no skipped slots during reading the data 
     /// (<see cref="SkipCount"/> is <see langword="0" />).
     /// </summary>
     /// <exception cref="SerializationException">Some slots were skipped.</exception>
     public void EnsureNoSkips()
     {
-      if (SkipCount==0)
+      if (SkipCount!=0)
         throw new SerializationException(
           Strings.ExDeserializationErrorUnrecognizedSlotsAreFound);
     }
@@ -463,13 +475,18 @@ namespace Xtensive.Core.Serialization
     }
 
     /// <inheritdoc/>
-    public IEnumerator<string> GetEnumerator()
-    {
-      // TODO: Implement
-      return EnumerableUtils.GetEmptyEnumerator<string>();
-    }
+    public abstract IEnumerator<string> GetEnumerator();
 
     #endregion
+
+    /// <inheritdoc/>
+    public override string ToString()
+    {
+      return string.Format(Strings.SerializationDataFormat,
+        Type!=null ? Type.GetShortName() : "null",
+        Reference!=null ? Reference.ToString() : "null",
+        this.Select(s => string.Format("'{0}'", s)).ToCommaDelimitedString());
+    }
 
 
     // Constructors

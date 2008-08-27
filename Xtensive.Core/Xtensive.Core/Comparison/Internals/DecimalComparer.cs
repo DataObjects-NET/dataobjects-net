@@ -22,7 +22,7 @@ namespace Xtensive.Core.Comparison
     public DecimalComparer(IComparerProvider provider, ComparisonRules comparisonRules)
       : base(provider, comparisonRules)
     {
-      ValueRangeInfo = new ValueRangeInfo<decimal>(true, Decimal.MinValue, true, Decimal.MaxValue, false, 0m);
+      ValueRangeInfo = new ValueRangeInfo<decimal>(true, decimal.MinValue, true, decimal.MaxValue, false, 0m);
     }
   }
 }

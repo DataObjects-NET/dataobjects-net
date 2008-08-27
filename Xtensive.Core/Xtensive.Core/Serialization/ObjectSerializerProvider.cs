@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Reflection;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Serialization.Internals;
 using Xtensive.Core.Threading;
 
 namespace Xtensive.Core.Serialization
@@ -108,7 +109,7 @@ namespace Xtensive.Core.Serialization
     private ObjectSerializerProvider() 
     {
       TypeSuffixes = new[] {"Serializer"};
-      Type t = typeof (ObjectSerializerProvider);
+      Type t = typeof (ReferenceSerializer);
       AddHighPriorityLocation(t.Assembly, t.Namespace);
     }
   }

@@ -15,8 +15,8 @@ namespace Xtensive.Core.Tests.Conversion
   {
     private readonly double[] constants = {
       0x7FFFFFFFFFFF1234, 0, 123, 0x7F, 0xFF, 0x7FFFFFFF, -9223372036854714932,
-      0xFFFF, 0x7FFF, 0xFFFFFFFF, 0xFFFFFFFFFFFFFF, -72057594037927935, Double.MinValue,
-      Double.MaxValue, Double.NegativeInfinity, Double.PositiveInfinity, Double.Epsilon, -Double.Epsilon,
+      0xFFFF, 0x7FFF, 0xFFFFFFFF, 0xFFFFFFFFFFFFFF, -72057594037927935, double.MinValue,
+      double.MaxValue, double.NegativeInfinity, double.PositiveInfinity, double.Epsilon, -double.Epsilon,
       2.14748366444444444444444444444444444444444444444444444444444444444444444444444444444444444444E-323d,
       2.14748366E+11d, 2.14748366E+12d, 2.14748366E+13d, 2.14748366E+14d, 2.14748366E+15d, 2.14748366E+16d,
       1.6E+308d, 2.14748366E+37d, 0.4503599627370496

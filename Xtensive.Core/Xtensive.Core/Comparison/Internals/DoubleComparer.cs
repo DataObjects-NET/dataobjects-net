@@ -22,7 +22,7 @@ namespace Xtensive.Core.Comparison
     public DoubleComparer(IComparerProvider provider, ComparisonRules comparisonRules)
       : base(provider, comparisonRules)
     {
-      ValueRangeInfo = new ValueRangeInfo<double>(true, Double.MinValue, true, Double.MaxValue, false, 0d);
+      ValueRangeInfo = new ValueRangeInfo<double>(true, double.MinValue, true, double.MaxValue, false, 0d);
     }
   }
 }

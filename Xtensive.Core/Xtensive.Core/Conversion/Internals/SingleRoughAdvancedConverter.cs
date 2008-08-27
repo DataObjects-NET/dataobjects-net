@@ -64,7 +64,7 @@ namespace Xtensive.Core.Conversion
 
     long IAdvancedConverter<float, long>.Convert(float value)
     {
-      // Since "Convert.ToInt64(Double)" does not check overflow:
+      // Since "Convert.ToInt64(double)" does not check overflow:
       checked{
         return (long)Math.Round(value);
       }
@@ -72,7 +72,7 @@ namespace Xtensive.Core.Conversion
 
     ulong IAdvancedConverter<float, ulong>.Convert(float value)
     {
-      // Since "Convert.ToUInt64(Double)" does not check overflow:
+      // Since "Convert.ToUInt64(double)" does not check overflow:
       checked{
         return (ulong)Math.Round(value);
       }
@@ -90,7 +90,7 @@ namespace Xtensive.Core.Conversion
 
     DateTime IAdvancedConverter<float, DateTime>.Convert(float value)
     {
-      // Since "Convert.ToUInt64(Double)" does not check overflow:
+      // Since "Convert.ToUInt64(double)" does not check overflow:
       checked{
         return new DateTime((long)Math.Round(value) + baseDateTimeTicks, DateTimeKind.Utc);
       }
@@ -98,7 +98,7 @@ namespace Xtensive.Core.Conversion
 
     char IAdvancedConverter<float, char>.Convert(float value)
     {
-      // Since "Convert.ToUInt64(Double)" does not check overflow:
+      // Since "Convert.ToUInt64(double)" does not check overflow:
       checked{
         return Convert.ToChar((long)Math.Round(value));
       }

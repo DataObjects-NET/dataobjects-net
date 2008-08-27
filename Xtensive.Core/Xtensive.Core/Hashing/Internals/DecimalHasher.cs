@@ -12,18 +12,18 @@ namespace Xtensive.Core.Hashing
   internal class DecimalHasher : WrappingHasher<decimal, ulong>
   {
     /// <inheritdoc/>
-    public override long GetHash(Decimal value)
+    public override long GetHash(decimal value)
     {
       return BaseHasher.GetHash(GetLongHash(value));
     }
 
     /// <inheritdoc/>
-    public override long[] GetHashes(Decimal value, int count)
+    public override long[] GetHashes(decimal value, int count)
     {
       return BaseHasher.GetHashes(GetLongHash(value), count);
     }
 
-    private static ulong GetLongHash(Decimal value)
+    private static ulong GetLongHash(decimal value)
     {
       int[] intArray = decimal.GetBits(value);
       ulong value1 = (((ulong) intArray[0]) << 32) | (ulong) intArray[1];

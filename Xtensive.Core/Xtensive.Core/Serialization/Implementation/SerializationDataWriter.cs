@@ -15,6 +15,14 @@ namespace Xtensive.Core.Serialization.Implementation
   public abstract class SerializationDataWriter : IDisposable
   {
     /// <summary>
+    /// Initializes this instance.
+    /// Called before starting the serialization.
+    /// </summary>
+    public virtual void Initialize()
+    {
+    }
+
+    /// <summary>
     /// Creates a new <see cref="SerializationData"/> instance.
     /// </summary>
     /// <param name="reference">The <see cref="SerializationData.Reference"/> property value.</param>
@@ -29,7 +37,16 @@ namespace Xtensive.Core.Serialization.Implementation
     /// <param name="data">Record to append.</param>
     public abstract void Append(SerializationData data);
 
+    /// <summary>
+    /// Called on successful completion of serialization.
+    /// </summary>
+    public virtual void Complete()
+    {
+    }
+
     /// <see cref="ClassDocTemplate.Dispose" copy="true"/>
-    public abstract void Dispose();
+    public virtual void Dispose()
+    {
+    }
   }
 }

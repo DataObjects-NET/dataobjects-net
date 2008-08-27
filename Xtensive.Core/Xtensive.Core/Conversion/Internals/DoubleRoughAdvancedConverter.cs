@@ -64,7 +64,7 @@ namespace Xtensive.Core.Conversion
 
     long IAdvancedConverter<double, long>.Convert(double value)
     {
-      // Since "Convert.ToInt64(Double)" does not check overflow:
+      // Since "Convert.ToInt64(double)" does not check overflow:
       checked{
         return (long)Math.Round(value);
       }
@@ -72,7 +72,7 @@ namespace Xtensive.Core.Conversion
 
     ulong IAdvancedConverter<double, ulong>.Convert(double value)
     {
-      // Since "Convert.ToUInt64(Double)" does not check overflow:
+      // Since "Convert.ToUInt64(double)" does not check overflow:
       checked{
         return (ulong)Math.Round(value);
       }

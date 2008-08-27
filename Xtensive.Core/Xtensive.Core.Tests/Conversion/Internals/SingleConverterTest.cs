@@ -31,7 +31,7 @@ namespace Xtensive.Core.Tests.Conversion
         OneValueTest<float, string>(generator.GetInstance(random), 1);
     }
 
-    // Proves that float-to-Double is a rough conversion.
+    // Proves that float-to-double is a rough conversion.
     [Test]
     public void DoubleTest()
     {

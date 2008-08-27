@@ -11,12 +11,12 @@ using Xtensive.Core.IO;
 namespace Xtensive.Core.Serialization.Binary
 {
   [Serializable]
-  internal class SeriaizationDataValueSerializer : WrappingBinaryValueSerializer<SerializationData, long>
+  internal class SerializationDataValueSerializer : WrappingBinaryValueSerializer<SerializationData, long>
   {
     public override SerializationData Deserialize(Stream stream)
     {
-      long offset = stream.Position;
       long length = BaseSerializer.Deserialize(stream);
+      long offset = stream.Position;
       return new BinarySerializationData(
         new StreamSegment(stream, new Segment<long>(offset, length), true));
     }
@@ -27,7 +27,7 @@ namespace Xtensive.Core.Serialization.Binary
       var source = bsd.Stream;
       long position = source.Position;
       try {
-        source.Seek(0, SeekOrigin.Begin);
+        source.Position = 0;
         BaseSerializer.Serialize(stream, source.Length);
         source.CopyTo(stream);
       }
@@ -39,7 +39,7 @@ namespace Xtensive.Core.Serialization.Binary
 
     // Constructors
     
-    public SeriaizationDataValueSerializer(IValueSerializerProvider<Stream> provider)
+    public SerializationDataValueSerializer(IValueSerializerProvider<Stream> provider)
       : base(provider)
     {
     }

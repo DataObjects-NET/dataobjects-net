@@ -8,7 +8,6 @@ using System;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Serialization.Implementation;
 using Xtensive.Core.Threading;
 
 namespace Xtensive.Core.Serialization

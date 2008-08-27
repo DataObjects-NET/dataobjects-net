@@ -30,6 +30,7 @@ namespace Xtensive.Core.Serialization.Binary
     public GuidValueSerializer(IValueSerializerProvider<Stream> provider)
       : base(provider)
     {
+      OutputLength = 16;
     }
   }
 }

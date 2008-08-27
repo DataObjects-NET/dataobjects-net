@@ -28,6 +28,7 @@ namespace Xtensive.Core.Serialization.Binary
     public SByteValueSerializer(IValueSerializerProvider<Stream> provider)
       : base(provider)
     {
+      OutputLength = sizeof (sbyte);
     }
   }
 }

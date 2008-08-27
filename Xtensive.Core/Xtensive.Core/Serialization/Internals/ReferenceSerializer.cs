@@ -5,20 +5,19 @@
 // Created:    2008.08.26
 
 using System;
+using Xtensive.Core.Serialization.Implementation;
 
-namespace Xtensive.Core.Serialization.Implementation
+namespace Xtensive.Core.Serialization.Internals
 {
-  /// <inheritdoc/>
-  public class ReferenceSerializer : ObjectSerializerBase<Reference>
+  [Serializable]
+  internal class ReferenceSerializer : ObjectSerializerBase<Reference>
   {
     protected const string ValuePropertyName = "Value";
 
-    /// <inheritdoc/>
     public override bool IsReferable {
       get { return false; }
     }
 
-    /// <inheritdoc/>
     /// <exception cref="ArgumentOutOfRangeException">Specified <paramref name="type"/> 
     /// is not supported by this serializer.</exception>
     public override Reference CreateObject(Type type) 
@@ -28,14 +27,13 @@ namespace Xtensive.Core.Serialization.Implementation
       return Reference.Null;
     }
 
-    /// <inheritdoc/>
     public override void GetObjectData(Reference source, Reference origin, SerializationData data) 
     {
+      base.GetObjectData(source, origin, data);
       if (source.Value!=origin.Value)
         data.AddValue(ValuePropertyName, source.Value);
     }
 
-    /// <inheritdoc/>
     public override Reference SetPropertyData(Reference target, SerializationData data, string propertyName)
     {
       if (propertyName==ValuePropertyName)
@@ -46,7 +44,6 @@ namespace Xtensive.Core.Serialization.Implementation
     
     // Constructors
 
-    /// <inheritdoc/>
     public ReferenceSerializer(IObjectSerializerProvider provider)
       : base(provider)
     {

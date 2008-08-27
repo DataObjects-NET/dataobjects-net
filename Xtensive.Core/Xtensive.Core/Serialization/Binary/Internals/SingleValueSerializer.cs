@@ -30,6 +30,7 @@ namespace Xtensive.Core.Serialization.Binary
     public SingleValueSerializer(IValueSerializerProvider<Stream> provider)
       : base(provider)
     {
+      OutputLength = sizeof (float);
     }
   }
 }

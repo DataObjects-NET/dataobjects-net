@@ -12,21 +12,21 @@ namespace Xtensive.Core.Serialization.Binary
   [Serializable]
   internal class DecimalValueSerializer : BinaryValueSerializerBase<decimal>
   {
-    public override Decimal Deserialize(Stream stream) 
+    public override decimal Deserialize(Stream stream) 
     {
-      var buffer = new byte[sizeof (Decimal)];
-      var intBuffer = new int[sizeof (Decimal) / sizeof (int)];
-      stream.Read(buffer, 0, sizeof (Decimal));
-      for (int i = 0; i < sizeof (Decimal) / sizeof (int); i++)
+      var buffer = new byte[sizeof (decimal)];
+      var intBuffer = new int[sizeof (decimal) / sizeof (int)];
+      stream.Read(buffer, 0, sizeof (decimal));
+      for (int i = 0; i < sizeof (decimal) / sizeof (int); i++)
         intBuffer[i] = BitConverter.ToInt32(buffer, i * sizeof (int));
-      return new Decimal(intBuffer);
+      return new decimal(intBuffer);
     }
 
-    public override void Serialize(Stream stream, Decimal value) 
+    public override void Serialize(Stream stream, decimal value) 
     {
-      var intBuffer = Decimal.GetBits(value);
-      for (int i = 0; i < sizeof (Decimal) / sizeof (int); i++) {
-        Byte[] buffer = BitConverter.GetBytes(intBuffer[i]);
+      var intBuffer = decimal.GetBits(value);
+      for (int i = 0; i < sizeof (decimal) / sizeof (int); i++) {
+        var buffer = BitConverter.GetBytes(intBuffer[i]);
         stream.Write(buffer, 0, sizeof (int));
       }
     }
@@ -37,6 +37,7 @@ namespace Xtensive.Core.Serialization.Binary
     public DecimalValueSerializer(IValueSerializerProvider<Stream> provider)
       : base(provider)
     {
+      OutputLength = sizeof (decimal);
     }
   }
 }

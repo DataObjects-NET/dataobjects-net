@@ -46,6 +46,7 @@ namespace Xtensive.Core.Serialization
       using (var context = CreateContext(stream, SerializerProcessType.Serialization))
       using (context.Activate()) {
         var writer = context.Writer;
+        writer.Initialize();
         writer.Append(GetObjectData(source, origin, true));
         var queue = context.SerializationQueue;
         while (queue.Count > 0) {
@@ -54,6 +55,7 @@ namespace Xtensive.Core.Serialization
           queue.Remove(nextSource);
           writer.Append(GetObjectData(nextSource, nextPair.Second, true));
         }
+        writer.Complete();
       }
     }
 
@@ -135,7 +137,7 @@ namespace Xtensive.Core.Serialization
     /// <param name="serializer">The serializer to check.</param>
     /// <param name="type">The type it was acquired for.</param>
     /// <exception cref="InvalidOperationException"><paramref name="serializer"/> is <see langword="null"/>.</exception>
-    public void EnsureObjectSerializerIsFound(IObjectSerializer serializer, Type type)
+    public void EnsureObjectSerializerIsFound(object serializer, Type type)
     {
       if (serializer==null)
         throw new InvalidOperationException(string.Format(
@@ -151,7 +153,7 @@ namespace Xtensive.Core.Serialization
     /// <param name="serializer">The serializer to check.</param>
     /// <param name="type">The type it was acquired for.</param>
     /// <exception cref="InvalidOperationException"><paramref name="serializer"/> is <see langword="null"/>.</exception>
-    public void EnsureValueSerializerIsFound(IValueSerializer<TInnerStream> serializer, Type type)
+    public void EnsureValueSerializerIsFound(object serializer, Type type)
     {
       if (serializer==null)
         throw new InvalidOperationException(string.Format(
@@ -159,6 +161,18 @@ namespace Xtensive.Core.Serialization
           "ValueSerializer",
           typeof(IValueSerializer<TInnerStream>).GetShortName(),
           type.GetShortName()));
+    }
+
+    /// <summary>
+    /// Ensures the value serializer is found.
+    /// </summary>
+    /// <typeparam name="T">The type it was acquired for.</typeparam>
+    /// <param name="serializer">The serializer to check.</param>
+    /// <exception cref="InvalidOperationException"><paramref name="serializer"/> is <see langword="null"/>.</exception>
+    public void EnsureValueSerializerIsFound<T>(object serializer)
+    {
+      if (serializer==null)
+        EnsureValueSerializerIsFound(serializer, typeof(T));
     }
 
     #endregion

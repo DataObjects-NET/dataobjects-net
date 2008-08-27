@@ -15,12 +15,20 @@ namespace Xtensive.Core.Serialization.Binary
   /// </summary>
   public abstract class BinaryValueSerializerBase<T> : ValueSerializerBase<Stream, T>
   {
+    /// <summary>
+    /// Gets the length of the output produced by the serializer.
+    /// <see langword="-1" /> means it may vary.
+    /// </summary>
+    public int OutputLength { get; protected set; }
+    
+
     // Constructors
 
     /// <inheritdoc/>
     protected BinaryValueSerializerBase(IValueSerializerProvider<Stream> provider)
       : base(provider)
     {
+      OutputLength = -1;
     }
 
     // IDeserializationCallback methods

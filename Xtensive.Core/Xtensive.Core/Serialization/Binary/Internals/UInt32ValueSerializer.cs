@@ -36,6 +36,7 @@ namespace Xtensive.Core.Serialization.Binary
     public UInt32ValueSerializer(IValueSerializerProvider<Stream> provider)
       : base(provider)
     {
+      OutputLength = sizeof (uint);
     }
   }
 }

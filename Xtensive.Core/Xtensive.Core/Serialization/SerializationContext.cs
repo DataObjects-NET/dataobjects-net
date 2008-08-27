@@ -100,7 +100,7 @@ namespace Xtensive.Core.Serialization
 
     /// <exception cref="InvalidOperationException">Current formatter process type 
     /// differs from the <paramref name="expectedProcessType"/>.</exception>
-    public void EnsureFormatterProcessTypeIs(SerializerProcessType expectedProcessType) 
+    public void EnsureProcessTypeIs(SerializerProcessType expectedProcessType) 
     {
       if (ProcessType!=expectedProcessType)
         throw new InvalidOperationException(string.Format(
