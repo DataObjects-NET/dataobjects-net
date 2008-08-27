@@ -60,14 +60,11 @@ namespace Xtensive.Storage.Rse.Providers
     private void EnsureIsCompiled()
     {
       if (compiled == null) lock (this) if (compiled == null) {
-        context = CompilationScope.CurrentContext;
-        if (context==null)
-          using (new CompilationContext(new DefaultCompiler()).Activate()) {
-            context = CompilationScope.CurrentContext;
-            compiled = context.Compile(this);
-          }
+        if (CompilationScope.CurrentContext == null)
+          using (new CompilationContext(new DefaultCompiler()).Activate())
+            compiled = this.Compile();
         else
-          compiled = context.Compile(this);
+          compiled = this.Compile();
       }
     }
 

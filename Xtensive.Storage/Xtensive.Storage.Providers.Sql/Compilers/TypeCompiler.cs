@@ -16,7 +16,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
   /// <typeparam name="TProvider">The type of the provider.</typeparam>
   [Serializable]
   public abstract class TypeCompiler<TProvider>: Rse.Compilation.TypeCompiler<TProvider>
-    where TProvider : Provider
+    where TProvider : CompilableProvider
   {
     /// <summary>
     /// Gets the <see cref="HandlerAccessor"/> object providing access to available storage handlers.

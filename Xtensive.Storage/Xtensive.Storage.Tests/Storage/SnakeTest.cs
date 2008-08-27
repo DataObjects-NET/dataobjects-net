@@ -210,6 +210,60 @@ namespace Xtensive.Storage.Tests.Storage
     }
 
     [Test]
+    public void RangeTest()
+    {
+      const int snakesCount = 1000;
+      const int creaturesCount = 1000;
+      const int lizardsCount = 1000;
+
+      TestFixtureTearDown();
+      TestFixtureSetUp();
+
+      using (Domain.OpenSession()) {
+        using (var t = Session.Current.OpenTransaction()) {
+          for (int i = 0; i < snakesCount; i++) {
+            Snake s = new Snake();
+            s.Name = "Kaa" + i;
+            s.Length = i;
+          }
+          for (int j = 0; j < creaturesCount; j++) {
+            Creature c = new Creature();
+            c.Name = "Creature" + j;
+          }
+          for (int i = 0; i < lizardsCount; i++) {
+            Lizard l = new Lizard();
+            l.Name = "Lizard" + i;
+            l.Color = "Color" + i;
+          }
+
+          Session.Current.Persist();
+
+          var pID = new Parameter<Range<IEntire<Tuple>>>();
+          var pName = new Parameter<Range<IEntire<Tuple>>>();
+
+          TypeInfo snakeType = Domain.Model.Types[typeof (Snake)];
+          RecordSet rsSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordSet();
+          RecordSet rsSnakeName = snakeType.Indexes.GetIndex("Name").ToRecordSet();
+
+          RecordSet result = rsSnakePrimary
+            .Range(() => pID.Value)
+            .Join(rsSnakeName
+              .Range(() => pName.Value)
+              .OrderBy(OrderBy.Asc(rsSnakeName.IndexOf("ID")))
+              .Alias("NameIndex"), rsSnakePrimary.IndexOf("ID"), rsSnakeName.IndexOf("ID"));
+
+          using(new ParameterScope()) {
+            pID.Value = new Range<IEntire<Tuple>>(Entire<Tuple>.Create(Tuple.Create(21)), Entire<Tuple>.Create(Tuple.Create(120)));
+            pName.Value = new Range<IEntire<Tuple>>(Entire<Tuple>.Create(Tuple.Create("Kaa")), Entire<Tuple>.Create(Tuple.Create("Kaa900")));
+            Assert.Greater(0, result.Count());
+          }
+
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
     public void QueryTest()
     {
       const int snakesCount = 1000;

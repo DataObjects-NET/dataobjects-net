@@ -98,7 +98,7 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <typeparam name="TProvider">The type of provider to get the compiler for.</typeparam>
     /// <returns>The compiler.</returns>
     protected TypeCompiler<TProvider> GetCompiler<TProvider>() 
-      where TProvider : Provider
+      where TProvider : CompilableProvider
     {
       return GetAssociate<TProvider, TypeCompiler<TProvider>, TypeCompiler<TProvider>>();
     }

@@ -18,8 +18,8 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
     /// <inheritdoc/>
     protected override ExecutableProvider Compile(JoinProvider provider)
     {
-      var left = provider.Left.Compile(true) as SqlProvider;
-      var right = provider.Right.Compile(true) as SqlProvider;
+      var left = provider.Left.Compile() as SqlProvider;
+      var right = provider.Right.Compile() as SqlProvider;
 
       if (left == null || right == null)
         return null;

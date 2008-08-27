@@ -15,8 +15,8 @@ namespace Xtensive.Storage.Rse.Compilation
     {
       return new Providers.Executable.JoinProvider(
         provider,
-        provider.Left.Compile(true),
-        provider.Right.Compile(true));
+        provider.Left.Compile(),
+        provider.Right.Compile());
     }
 
 

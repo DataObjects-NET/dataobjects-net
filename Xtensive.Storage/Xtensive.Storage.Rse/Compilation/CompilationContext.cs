@@ -94,7 +94,7 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <param name="provider">The provider to compile.</param>
     /// <returns>The result of the compilation.</returns>
     /// <exception cref="InvalidOperationException">Can't compile the specified <paramref name="provider"/>.</exception>
-    public Provider Compile(CompilableProvider provider)
+    public ExecutableProvider Compile(CompilableProvider provider)
     {
       if (provider == null)
         return null;
@@ -103,7 +103,9 @@ namespace Xtensive.Storage.Rse.Compilation
         if (entry!=null)
           return entry.Value;
       }
-      var result = provider.Compile(true);
+
+      var result = CompileInternal(provider);
+      
       if (result!=null && result.IsCacheable)
         lock (_lock) {
           Thread.MemoryBarrier(); // Ensures result is fully "flushed"
@@ -113,6 +115,33 @@ namespace Xtensive.Storage.Rse.Compilation
         throw new InvalidOperationException(string.Format(
           Strings.ExCantCompileProviderX, provider));
       return result;
+    }
+
+    private ExecutableProvider CompileInternal(CompilableProvider provider)
+    {
+      var compiler = Compiler;
+      if (compiler == null)
+        throw new InvalidOperationException();
+
+      var fallbackCompilerBackup = FallbackCompiler;
+      try {
+        if (compiler.FallbackCompiler != null)
+          FallbackCompiler = compiler.FallbackCompiler;
+        var ep = compiler.Compile(provider);
+        if (ep != null)
+          return ep;
+
+        var fallbackCompiler = FallbackCompiler;
+        if (fallbackCompiler != null) {
+          ep = fallbackCompiler.Compile(provider);
+          if (ep != null)
+            return compiler.IsCompatible(ep) ? ep : compiler.ToCompatible(ep);
+        }
+      }
+      finally {
+        FallbackCompiler = fallbackCompilerBackup;
+      }
+      return null;
     }
 
     #region IContext<...> members

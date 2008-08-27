@@ -14,10 +14,10 @@ namespace Xtensive.Storage.Rse.Compilation
   /// </summary>
   /// <typeparam name="TProvider">The type of the provider this compiler can compile.</typeparam>
   public abstract class TypeCompiler<TProvider> : TypeCompiler
-    where TProvider : Provider
+    where TProvider : CompilableProvider
   {
     /// <inheritdoc/>
-    public sealed override ExecutableProvider Compile(Provider provider)
+    public sealed override ExecutableProvider Compile(CompilableProvider provider)
     {
       return Compile((TProvider) provider);
     }
