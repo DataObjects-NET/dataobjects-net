@@ -16,16 +16,16 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   [Serializable]
   public class ViewComparisonResult : NodeComparisonResult<View>
   {
-    private IComparisonResult<CheckOptions> checkOptions;
-    private IComparisonResult<SqlNative> definition;
-    private readonly ComparisonResultCollection<IComparisonResult<View>> views = new ComparisonResultCollection<IComparisonResult<View>>();
-    private readonly ComparisonResultCollection<IComparisonResult<ViewColumn>> columns = new ComparisonResultCollection<IComparisonResult<ViewColumn>>();
-    private readonly ComparisonResultCollection<IComparisonResult<Index>> indexes = new ComparisonResultCollection<IComparisonResult<Index>>();
+    private ComparisonResult<CheckOptions> checkOptions;
+    private ComparisonResult<SqlNative> definition;
+    private readonly ComparisonResultCollection<ComparisonResult<View>> views = new ComparisonResultCollection<ComparisonResult<View>>();
+    private readonly ComparisonResultCollection<ComparisonResult<ViewColumn>> columns = new ComparisonResultCollection<ComparisonResult<ViewColumn>>();
+    private readonly ComparisonResultCollection<ComparisonResult<Index>> indexes = new ComparisonResultCollection<ComparisonResult<Index>>();
 
     /// <summary>
     /// Gets comparison result of check options.
     /// </summary>
-    public IComparisonResult<CheckOptions> CheckOptions
+    public ComparisonResult<CheckOptions> CheckOptions
     {
       get { return checkOptions; }
       set
@@ -38,7 +38,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     /// <summary>
     /// Gets comparison result of definition.
     /// </summary>
-    public IComparisonResult<SqlNative> Definition
+    public ComparisonResult<SqlNative> Definition
     {
       get { return definition; }
       set
@@ -51,7 +51,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     /// <summary>
     /// Gets comparison results of nested views.
     /// </summary>
-    public ComparisonResultCollection<IComparisonResult<View>> Views
+    public ComparisonResultCollection<ComparisonResult<View>> Views
     {
       get { return views; }
     }
@@ -59,7 +59,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     /// <summary>
     /// Gets comparison results of nested columns.
     /// </summary>
-    public ComparisonResultCollection<IComparisonResult<ViewColumn>> Columns
+    public ComparisonResultCollection<ComparisonResult<ViewColumn>> Columns
     {
       get { return columns; }
     }
@@ -67,7 +67,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     /// <summary>
     /// Gets comparison results of nested indexes.
     /// </summary>
-    public ComparisonResultCollection<IComparisonResult<Index>> Indexes
+    public ComparisonResultCollection<ComparisonResult<Index>> Indexes
     {
       get { return indexes; }
     }

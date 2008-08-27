@@ -14,6 +14,18 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   {
     public override IComparisonResult<SequenceDescriptor> Compare(SequenceDescriptor originalNode, SequenceDescriptor newNode, IEnumerable<ComparisonHintBase> hints)
     {
+      SequenceDescriptorComparisonResult result = InitializeResult<SequenceDescriptor, SequenceDescriptorComparisonResult>(originalNode, newNode);
+      bool hasChanges = false;
+
+      if (hasChanges && result.ResultType == ComparisonResultType.Unchanged)
+        result.ResultType = ComparisonResultType.Modified;
+      result.Lock(true);
+      return result;
+//    private long? startValue;
+//    private long? increment;
+//    private long? maxValue;
+//    private long? minValue;
+//    private bool? isCyclic;
       throw new System.NotImplementedException();
     }
 

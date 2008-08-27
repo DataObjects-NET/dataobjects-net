@@ -15,13 +15,13 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   [Serializable]
   public class IndexColumnComparisonResult : NodeComparisonResult<IndexColumn>
   {
-    private IComparisonResult<DataTableColumn> column;
-    private IComparisonResult<bool> ascending;
+    private ComparisonResult<DataTableColumn> column;
+    private ComparisonResult<bool> ascending;
 
     /// <summary>
     /// Gets underlying <see cref="DataTableColumn"/> comparison result.
     /// </summary>
-    public IComparisonResult<DataTableColumn> Column
+    public ComparisonResult<DataTableColumn> Column
     {
       get { return column; }
       internal set
@@ -34,7 +34,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     /// <summary>
     /// Gets comparison result of <see cref="IndexColumn.Ascending"/> property.
     /// </summary>
-    public IComparisonResult<bool> Ascending
+    public ComparisonResult<bool> Ascending
     {
       get { return ascending; }
       internal set

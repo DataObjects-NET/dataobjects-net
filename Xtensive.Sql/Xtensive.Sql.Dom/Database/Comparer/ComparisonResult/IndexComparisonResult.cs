@@ -15,18 +15,18 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   [Serializable]
   public class IndexComparisonResult : NodeComparisonResult<Index>
   {
-    private IComparisonResult<bool> isUnique;
-    private IComparisonResult<bool> isBitmap;
-    private IComparisonResult<bool> isClustered;
-    private IComparisonResult<byte?> fillFactor;
-    private IComparisonResult<string> filegroup;
+    private ComparisonResult<bool> isUnique;
+    private ComparisonResult<bool> isBitmap;
+    private ComparisonResult<bool> isClustered;
+    private ComparisonResult<byte?> fillFactor;
+    private ComparisonResult<string> filegroup;
     private readonly ComparisonResultCollection<IndexColumnComparisonResult> columns = new ComparisonResultCollection<IndexColumnComparisonResult>();
     private readonly ComparisonResultCollection<DataTableColumnComparisonResult> nonkeyColumns = new ComparisonResultCollection<DataTableColumnComparisonResult>();
 
     /// <summary>
     /// Gets comparison result of <see cref="Index.IsUnique"/> property.
     /// </summary>
-    public IComparisonResult<bool> IsUnique
+    public ComparisonResult<bool> IsUnique
     {
       get { return isUnique; }
       internal set
@@ -39,7 +39,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     /// <summary>
     /// Gets comparison result of <see cref="Index.IsBitmap"/> property.
     /// </summary>
-    public IComparisonResult<bool> IsBitmap
+    public ComparisonResult<bool> IsBitmap
     {
       get { return isBitmap; }
       internal set
@@ -52,7 +52,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     /// <summary>
     /// Gets comparison result of <see cref="Index.IsClustered"/> property.
     /// </summary>
-    public IComparisonResult<bool> IsClustered
+    public ComparisonResult<bool> IsClustered
     {
       get { return isClustered; }
       internal set
@@ -65,7 +65,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     /// <summary>
     /// Gets comparison result of <see cref="Index.FillFactor"/> property.
     /// </summary>
-    public IComparisonResult<byte?> FillFactor
+    public ComparisonResult<byte?> FillFactor
     {
       get { return fillFactor; }
       internal set
@@ -78,7 +78,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     /// <summary>
     /// Gets comparison result of <see cref="Index.Filegroup"/> property.
     /// </summary>
-    public IComparisonResult<string> Filegroup
+    public ComparisonResult<string> Filegroup
     {
       get { return filegroup; }
       internal set

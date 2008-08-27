@@ -4,8 +4,11 @@
 // Created by: Aleksey Gamzov
 // Created:    2008.08.21
 
+using System;
+
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
+  [Serializable]
   public abstract class ConstraintComparisonResult : ComparisonResult<Constraint>
   {
     

@@ -16,14 +16,14 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   [Serializable]
   public class AssertionComparisonResult : ComparisonResult<Assertion>
   {
-    private IComparisonResult<SqlExpression> condition;
-    private IComparisonResult<bool?> isDeferrable;
-    private IComparisonResult<bool?> isInitiallyDeferred;
+    private ComparisonResult<SqlExpression> condition;
+    private ComparisonResult<bool?> isDeferrable;
+    private ComparisonResult<bool?> isInitiallyDeferred;
 
     /// <summary>
     /// Gets <see cref="Assertion.Condition"/> comparison result.
     /// </summary>
-    public IComparisonResult<SqlExpression> Condition
+    public ComparisonResult<SqlExpression> Condition
     {
       get { return condition; }
       internal set
@@ -36,7 +36,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     /// <summary>
     /// Gets <see cref="Assertion.IsDeferrable"/> comparison result.
     /// </summary>
-    public IComparisonResult<bool?> IsDeferrable
+    public ComparisonResult<bool?> IsDeferrable
     {
       get { return isDeferrable; }
       internal set
@@ -49,7 +49,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     /// <summary>
     /// Gets <see cref="Assertion.IsInitiallyDeferred"/> comparison result.
     /// </summary>
-    public IComparisonResult<bool?> IsInitiallyDeferred
+    public ComparisonResult<bool?> IsInitiallyDeferred
     {
       get { return isInitiallyDeferred; }
       internal set

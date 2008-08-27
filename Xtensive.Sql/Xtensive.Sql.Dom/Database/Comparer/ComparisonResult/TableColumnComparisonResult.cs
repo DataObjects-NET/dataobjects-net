@@ -11,16 +11,16 @@ namespace Xtensive.Sql.Dom.Database.Comparer
 {
   public class TableColumnComparisonResult : ComparisonResult<TableColumn>, IComparisonResult<DataTableColumn>
   {
-    private IComparisonResult<SqlValueType> dataType;
+    private ComparisonResult<SqlValueType> dataType;
     private DomainComparisonResult domain;
-    private IComparisonResult<SqlExpression> defaultValue;
+    private ComparisonResult<SqlExpression> defaultValue;
     private SequenceDescriptorComparisonResult sequenceDescriptor;
-    private IComparisonResult<SqlExpression> expression;
-    private IComparisonResult<bool> isPersisted;
+    private ComparisonResult<SqlExpression> expression;
+    private ComparisonResult<bool> isPersisted;
     private NodeComparisonResult<Collation> collation;
-    private IComparisonResult<bool> isNullable;
+    private ComparisonResult<bool> isNullable;
 
-    #region IComparisonResult<DataTableColumn>
+    #region ComparisonResult<DataTableColumn>
 
     /// <inheritdoc/>
     public DataTableColumn NewValue
@@ -36,7 +36,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
 
     #endregion
 
-    public IComparisonResult<SqlValueType> DataType
+    public ComparisonResult<SqlValueType> DataType
     {
       get { return dataType; }
       set
@@ -56,7 +56,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
       }
     }
 
-    public IComparisonResult<SqlExpression> DefaultValue
+    public ComparisonResult<SqlExpression> DefaultValue
     {
       get { return defaultValue; }
       set
@@ -76,7 +76,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
       }
     }
 
-    public IComparisonResult<SqlExpression> Expression
+    public ComparisonResult<SqlExpression> Expression
     {
       get { return expression; }
       set
@@ -86,7 +86,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
       }
     }
 
-    public IComparisonResult<bool> IsPersisted
+    public ComparisonResult<bool> IsPersisted
     {
       get { return isPersisted; }
       set
@@ -106,7 +106,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
       }
     }
 
-    public IComparisonResult<bool> IsNullable
+    public ComparisonResult<bool> IsNullable
     {
       get { return isNullable; }
       set
