@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Comparison;
@@ -256,7 +257,7 @@ namespace Xtensive.Indexing
 
     #endregion
 
-    #region Merge, Subtract, Intersect methods
+    #region Merge, Subtract, Intersect, IsSimilar methods
 
     /// <summary>
     /// Merges two specified ranges.
@@ -410,6 +411,38 @@ namespace Xtensive.Indexing
       }
 
       return new Range<T>(first, second);
+    }
+
+    /// <summary>
+    /// Determines whether the specified ranges are similar. 
+    /// I.e., range' endpoints should have same structure (infinities and shifts on the same places).
+    /// </summary>
+    /// <param name="range">The range.</param>
+    /// <param name="other">The other range.</param>
+    /// <returns>
+    /// 	<see langword="true"/> if the specified range is similar; otherwise, <see langword="false"/>.
+    /// </returns>
+    public static bool IsSimilar<T>(this Range<IEntire<T>> range, Range<IEntire<T>> other)
+    {
+      bool result = range.EndPoints.First.Descriptor.Equals(other.EndPoints.First.Descriptor);
+      if (!result)
+        return false;
+      result = range.EndPoints.Second.Descriptor.Equals(other.EndPoints.Second.Descriptor);
+      if (!result)
+        return false;
+
+      result = range.EndPoints.First.ValueTypes.EqualsTo(other.EndPoints.First.ValueTypes);
+      if (!result)
+        return false;
+
+      result = range.EndPoints.Second.ValueTypes.EqualsTo(other.EndPoints.Second.ValueTypes);
+      if (!result)
+        return false;
+
+      var indexes = Enumerable.Range(0, range.EndPoints.First.Count).ToList();
+      result = indexes.Select(i => range.EndPoints.First.HasValue(i)).SequenceEqual(indexes.Select(i => range.EndPoints.Second.HasValue(i)));
+
+      return result;
     }
 
     #endregion
