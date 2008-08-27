@@ -6,11 +6,12 @@
 
 using System;
 using System.Diagnostics;
+using System.Reflection;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Threading;
 
-namespace Xtensive.Core.Serialization.Implementation
+namespace Xtensive.Core.Serialization
 {
   /// <summary>
   /// Default <see cref="IObjectSerializer{T}"/> provider. 
@@ -49,7 +50,10 @@ namespace Xtensive.Core.Serialization.Implementation
       return serializers.GetValue(type,
         (_type, _this) => _this
           .GetType()
-          .GetMethod("InnerGetSerializer", ArrayUtils<Type>.EmptyArray)
+          .GetMethod("InnerGetSerializer",
+            BindingFlags.Instance | 
+            BindingFlags.NonPublic, 
+            null, ArrayUtils<Type>.EmptyArray, null)
           .GetGenericMethodDefinition()
           .MakeGenericMethod(new[] {_type})
           .Invoke(_this, null) as IObjectSerializer,
@@ -85,7 +89,11 @@ namespace Xtensive.Core.Serialization.Implementation
     // ReSharper disable UnusedPrivateMember
     private IObjectSerializer InnerGetSerializer<T>()
     {
-      return GetAssociate<T, IObjectSerializer<T>, ObjectSerializer<T>>().Implementation;
+      var a = GetAssociate<T, IObjectSerializer<T>, ObjectSerializer<T>>();
+      if (a!=null)
+        return a.Implementation;
+      else
+        return null;
     }
     // ReSharper restore UnusedPrivateMember
 

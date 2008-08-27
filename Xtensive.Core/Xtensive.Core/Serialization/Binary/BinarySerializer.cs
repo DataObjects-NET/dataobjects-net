@@ -7,31 +7,43 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Threading;
 
 namespace Xtensive.Core.Serialization.Binary
 {
   /// <summary>
   /// Binary serializer implementation.
   /// </summary>
+  /// <remarks>
+  /// <para id="About"><see cref="SingletonDocTemplate" copy="true" /></para>
+  /// </remarks>
   [Serializable]
   public class BinarySerializer : Serializer<Stream>
   {
-    /// <summary>
-    /// Gets the serialization context instance used by this serializer.
-    /// </summary>
-    protected new BinarySerializationContext Context {
+    private static ThreadSafeCached<BinarySerializer> cachedInstance =
+      ThreadSafeCached<BinarySerializer>.Create(new object());
+
+    /// <see cref="SingletonDocTemplate.Instance" copy="true"/>
+    public static BinarySerializer Instance {
       [DebuggerStepThrough]
-      get { return (BinarySerializationContext) base.Context; }
-      [DebuggerStepThrough]
-      set { base.Context = value; }
+      get {
+        return cachedInstance.GetValue(
+          () => new BinarySerializer(new SerializerConfiguration()));
+      }
+    }
+
+    /// <inheritdoc/>
+    protected override SerializationContext CreateContext(Stream stream, SerializerProcessType processType)
+    {
+      return new BinarySerializationContext(this, stream, processType);
     }
 
     /// <inheritdoc/>
     protected override void OnConfigured()
     {
-      ObjectSerializerProvider = Implementation.ObjectSerializerProvider.Default;
+      ObjectSerializerProvider = Serialization.ObjectSerializerProvider.Default;
       ValueSerializerProvider  = BinaryValueSerializerProvider.Default;
-      Context = new BinarySerializationContext(this);
       base.OnConfigured();
     }
 

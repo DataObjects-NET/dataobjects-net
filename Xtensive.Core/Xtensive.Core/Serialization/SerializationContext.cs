@@ -19,7 +19,7 @@ namespace Xtensive.Core.Serialization
   /// <summary>
   /// The context of a single serialization / deserialization operation.
   /// </summary>
-  public abstract class SerializationContext : Context<SerializationScope>
+  public abstract class SerializationContext : Context<SerializationScope>, IDisposable
   {
     /// <summary>
     /// Gets the current <see cref="SerializationContext"/>.
@@ -30,26 +30,20 @@ namespace Xtensive.Core.Serialization
     }
 
     /// <summary>
+    /// Gets current <see cref="Serializer"/>.
+    /// </summary>
+    public SerializerBase Serializer { get; protected set; }
+
+    /// <summary>
     /// Gets or sets the configuration.
     /// </summary>
     /// <value>The configuration.</value>
-    public SerializerConfiguration Configuration { get; internal set; }
-
-    /// <summary>
-    /// Gets current <see cref="Serializer"/>.
-    /// </summary>
-    public SerializerBase Serializer { get; private set; }
-
-    /// <summary>
-    /// Gets or sets a value indicating whether this context is initialized.
-    /// See <see cref="Initialize"/> method for details.
-    /// </summary>
-    public bool IsInitialized { get; private set; }
+    public SerializerConfiguration Configuration { get; protected set; }
 
     /// <summary>
     /// Gets the current <see cref="Serializer"/> process type.
     /// </summary>
-    public SerializerProcessType ProcessType { get; private set; }
+    public SerializerProcessType ProcessType { get; protected set; }
 
     /// <summary>
     /// Gets the stream used in current process.
@@ -114,73 +108,6 @@ namespace Xtensive.Core.Serialization
           ProcessType));
     }
 
-    /// <summary>
-    /// Initializes the context for specified process type.
-    /// </summary>
-    /// <param name="processType">Type of the process to prepare for.</param>
-    /// <param name="stream">The stream to use.</param>
-    /// <exception cref="NotSupportedException">Context is already initialized.</exception>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="processType"/> is
-    /// <see cref="SerializerProcessType.None"/>.</exception>
-    public virtual void Initialize(SerializerProcessType processType, Stream stream)
-    {
-      if (IsInitialized)
-        throw Exceptions.AlreadyInitialized(null);
-      ProcessType = processType;
-      PreferNesting = Configuration.PreferNesting;
-      PreferAttributes = Configuration.PreferAttributes;
-      Stream = Stream ?? stream;
-      Path = Path ?? new Stack<SerializationData>();
-      switch (processType) {
-      case SerializerProcessType.Serialization:
-        Writer = Writer ?? CreateWriter();
-        break;
-      case SerializerProcessType.Deserialization:
-        Reader = Reader ?? CreateReader();
-        break;
-      default:
-        throw new ArgumentOutOfRangeException("processType");
-      }
-      CreateManagersAndQueues();
-      IsInitialized = true;
-    }
-
-    /// <summary>
-    /// Creates the managers and queues.
-    /// </summary>
-    /// <exception cref="NotSupportedException">Invalid <see cref="ProcessType"/> value.</exception>
-    protected virtual void CreateManagersAndQueues()
-    {
-      ReferenceManager = ReferenceManager ?? new ReferenceManager();
-      switch (ProcessType) {
-      case SerializerProcessType.Serialization:
-        SerializationQueue = SerializationQueue ?? new TopDeque<object, Pair<IReference, object>>();
-        break;
-      case SerializerProcessType.Deserialization:
-        FixupManager = FixupManager ?? new FixupManager();
-        DeserializationMap = DeserializationMap ?? new Dictionary<IReference, object>();
-        break;
-      default:
-        throw new NotSupportedException();
-      }
-    }
-
-    #region Abstract methods
-
-    /// <summary>
-    /// Creates <see cref="SerializationDataReader"/> reading serialized data.
-    /// </summary>
-    /// <returns>Newly created reader.</returns>
-    protected abstract SerializationDataReader CreateReader();
-
-    /// <summary>
-    /// Creates <see cref="SerializationDataWriter"/> writing serialized data.
-    /// </summary>
-    /// <returns>Newly created writer.</returns>
-    protected abstract SerializationDataWriter CreateWriter();
-
-    #endregion
-
     #region IContext<...> methods
 
     /// <inheritdoc/>
@@ -196,55 +123,66 @@ namespace Xtensive.Core.Serialization
 
     #endregion
 
-    #region OnActivate, OnDeactivate methods
-
     /// <summary>
-    /// Called when context is activated.
+    /// Initializes this instance.
     /// </summary>
-    /// <exception cref="InvalidOperationException">Context is not <see cref="Initialize"/>d.</exception>
-    protected internal virtual void OnActivate()
+    protected virtual void Initialize()
     {
-      if (!IsInitialized)
-        throw Exceptions.NotInitialized(null);
-    }
-
-    /// <summary>
-    /// Called when context is deactivated.
-    /// </summary>
-    protected internal virtual void OnDeactivate()
-    {
-      try {
-        Writer.DisposeSafely();
-      }
-      finally {
-        IsInitialized = false;
-        ProcessType = SerializerProcessType.None;
-        PreferNesting = false;
-        PreferAttributes = false;
-        Path = null;
-        Stream = null;
-        Reader = null;
-        Writer = null;
-        ReferenceManager = null;
-        FixupManager = null;
-        SerializationQueue = null;
-        DeserializationMap = null;
+      PreferNesting = Configuration.PreferNesting;
+      PreferAttributes = Configuration.PreferAttributes;
+      Path = Path ?? new Stack<SerializationData>();
+      ReferenceManager = ReferenceManager ?? new ReferenceManager();
+      switch (ProcessType) {
+      case SerializerProcessType.Serialization:
+        SerializationQueue = SerializationQueue ?? new TopDeque<object, Pair<IReference, object>>();
+        break;
+      case SerializerProcessType.Deserialization:
+        FixupManager = FixupManager ?? new FixupManager();
+        DeserializationMap = DeserializationMap ?? new Dictionary<IReference, object>();
+        break;
       }
     }
-
-    #endregion
 
 
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes the context for specified process type.
     /// </summary>
     /// <param name="serializer">The <see cref="Serializer"/> property value.</param>
-    protected SerializationContext(SerializerBase serializer) 
+    /// <param name="processType">Type of the process to prepare for.</param>
+    /// <param name="stream">The stream to use.</param>
+    /// <exception cref="NotSupportedException">Context is already initialized.</exception>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="processType"/> is
+    /// <see cref="SerializerProcessType.None"/>.</exception>
+    public SerializationContext(SerializerBase serializer, Stream stream, SerializerProcessType processType)
     {
-      ArgumentValidator.EnsureArgumentNotNull(serializer, "formatter");
+      ArgumentValidator.EnsureArgumentNotNull(serializer, "serializer");
+      ArgumentValidator.EnsureArgumentNotNull(stream, "stream");
+      switch (processType) {
+      case SerializerProcessType.Serialization:
+        break;
+      case SerializerProcessType.Deserialization:
+        break;
+      default:
+        throw new ArgumentOutOfRangeException("processType");
+      }
       Serializer = serializer;
+      Configuration = serializer.Configuration;
+      Stream = stream;
+      ProcessType = processType;
+      Initialize();
+    }
+
+    /// <see cref="ClassDocTemplate.Dispose" copy="true" />
+    public virtual void Dispose()
+    {
+      try {
+        Writer.DisposeSafely();
+      }
+      finally {
+        Writer = null;
+      }
     }
   }
 }

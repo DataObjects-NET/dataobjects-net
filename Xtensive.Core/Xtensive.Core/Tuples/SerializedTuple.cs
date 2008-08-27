@@ -12,7 +12,7 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Collections;
 
-namespace Xtensive.Core.Tests.Tuples
+namespace Xtensive.Core.Tuples
 {
   /// <summary>
   /// A helper struct allowing to serialize <see cref="Tuple"/> objects.

@@ -5,6 +5,8 @@
 // Created:    2008.08.26
 
 using System;
+using System.Diagnostics;
+using System.IO;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Serialization.Implementation;
 
@@ -17,33 +19,39 @@ namespace Xtensive.Core.Serialization.Binary
   public class BinarySerializationContext : SerializationContext
   {
     /// <summary>
+    /// Gets the current <see cref="BinarySerializationContext"/>.
+    /// </summary>        
+    public static BinarySerializationContext Current {
+      [DebuggerStepThrough]
+      get { return (BinarySerializationContext) Scope<SerializationContext>.CurrentContext; }
+    }
+
+    /// <summary>
     /// Gets current <see cref="Serializer"/>.
     /// </summary>
     public new BinarySerializer Serializer { get; private set; }
 
-    /// <inheritdoc/>
-    protected override SerializationDataReader CreateReader()
+    protected override void Initialize()
     {
-      throw new NotImplementedException();
-    }
-
-    /// <inheritdoc/>
-    protected override SerializationDataWriter CreateWriter()
-    {
-      throw new NotImplementedException();
+      switch (ProcessType) {
+      case SerializerProcessType.Serialization:
+        Writer = null;
+        break;
+      case SerializerProcessType.Deserialization:
+        Reader = null;
+        break;
+      }
+      base.Initialize();
     }
 
 
     // Constructors
 
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="serializer">The serializer this context belongs to.</param>
-    public BinarySerializationContext(BinarySerializer serializer)
-      : base(serializer)
+    /// <inheritdoc/>
+    public BinarySerializationContext(SerializerBase serializer, Stream stream, SerializerProcessType processType)
+      : base(serializer, stream, processType)
     {
-      Serializer = serializer;
+      Serializer = (BinarySerializer) serializer;
     }
   }
 }

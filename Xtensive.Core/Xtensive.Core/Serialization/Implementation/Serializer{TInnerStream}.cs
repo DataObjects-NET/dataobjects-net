@@ -5,6 +5,7 @@
 // Created:    2008.03.26
 
 using System;
+using System.Diagnostics;
 using System.IO;
 using Xtensive.Core.Resources;
 using Xtensive.Core.Serialization.Implementation;
@@ -28,9 +29,12 @@ namespace Xtensive.Core.Serialization
     public IValueSerializerProvider<TInnerStream> ValueSerializerProvider { get; protected set; }
 
     /// <summary>
-    /// Gets the serialization context instance used by this serializer.
+    /// Creates a new <see cref="SerializationContext"/> for serialization or deserialization.
     /// </summary>
-    protected SerializationContext Context { get; set; }
+    /// <param name="processType">Type of the process to prepare for.</param>
+    /// <param name="stream">The stream to use.</param>
+    /// <returns>Newly created <see cref="SerializationContext"/> instance.</returns>
+    protected abstract SerializationContext CreateContext(Stream stream, SerializerProcessType processType);
 
     #region ISerializer methods
 
@@ -39,8 +43,7 @@ namespace Xtensive.Core.Serialization
     {
       ArgumentValidator.EnsureArgumentNotNull(stream, "stream");
 
-      var context = Context;
-      context.Initialize(SerializerProcessType.Serialization, stream);
+      using (var context = CreateContext(stream, SerializerProcessType.Serialization))
       using (context.Activate()) {
         var writer = context.Writer;
         writer.Append(GetObjectData(source, origin, true));
@@ -59,9 +62,8 @@ namespace Xtensive.Core.Serialization
     {
       ArgumentValidator.EnsureArgumentNotNull(stream, "stream");
 
-      var context = Context;
-      context.Initialize(SerializerProcessType.Deserialization, stream);
       bool bFirst = true;
+      using (var context = CreateContext(stream, SerializerProcessType.Deserialization))
       using (context.Activate()) {
         var reader = context.Reader;
         foreach (var data in reader) {
@@ -80,7 +82,7 @@ namespace Xtensive.Core.Serialization
 
     #endregion
 
-    #region ValueSerializer \ ObjectSerializer related methods
+    #region HasXxx, EnsureXxx methods
 
     /// <summary>
     /// Indicates if type <typeparamref name="T"/> has associated <see cref="IValueSerializer{TStream,T}"/>;
@@ -127,6 +129,38 @@ namespace Xtensive.Core.Serialization
           typeof(IObjectSerializer).GetShortName()));
     }
 
+    /// <summary>
+    /// Ensures the object serializer is found.
+    /// </summary>
+    /// <param name="serializer">The serializer to check.</param>
+    /// <param name="type">The type it was acquired for.</param>
+    /// <exception cref="InvalidOperationException"><paramref name="serializer"/> is <see langword="null"/>.</exception>
+    public void EnsureObjectSerializerIsFound(IObjectSerializer serializer, Type type)
+    {
+      if (serializer==null)
+        throw new InvalidOperationException(string.Format(
+          Strings.ExCantFindAssociate,
+          "Serializer",
+          typeof(IObjectSerializer).GetShortName(),
+          type.GetShortName()));
+    }
+
+    /// <summary>
+    /// Ensures the value serializer is found.
+    /// </summary>
+    /// <param name="serializer">The serializer to check.</param>
+    /// <param name="type">The type it was acquired for.</param>
+    /// <exception cref="InvalidOperationException"><paramref name="serializer"/> is <see langword="null"/>.</exception>
+    public void EnsureValueSerializerIsFound(IValueSerializer<TInnerStream> serializer, Type type)
+    {
+      if (serializer==null)
+        throw new InvalidOperationException(string.Format(
+          Strings.ExCantFindAssociate,
+          "ValueSerializer",
+          typeof(IValueSerializer<TInnerStream>).GetShortName(),
+          type.GetShortName()));
+    }
+
     #endregion
 
     #region Private \ internal methods
@@ -134,10 +168,10 @@ namespace Xtensive.Core.Serialization
     /// <exception cref="InvalidOperationException">Wrong behavior of some component used in serialization.</exception>
     internal SerializationData GetObjectData(object source, object origin, bool immediately)
     {
-      var context = Context;
+      var context = SerializationContext.Current;
       var referenceManager = context.ReferenceManager;
-      IReference reference;
 
+      IReference reference;
       if (source==null) {
         // Source is null
         reference = referenceManager.GetReference(source);
@@ -149,6 +183,7 @@ namespace Xtensive.Core.Serialization
       if (reference!=null) {
         // Source is IReference, so it must be serialized as-is and right now (with nesting)
         var os = ObjectSerializerProvider.GetSerializerByInstance(reference);
+        EnsureObjectSerializerIsFound(os, reference.GetType());
         if (os.IsReferable)
           throw Exceptions.InternalError(string.Format(
             Strings.ExInvalidSerializerBehaviorMustNotBeReferable, 
@@ -162,6 +197,7 @@ namespace Xtensive.Core.Serialization
       else {
         // Source is some object
         var os = ObjectSerializerProvider.GetSerializerByInstance(source);
+        EnsureObjectSerializerIsFound(os, source.GetType());
         immediately |= !source.GetType().IsClass; // always on for structs 
         if (os.IsReferable) {
           // Source can be referenced
@@ -206,9 +242,12 @@ namespace Xtensive.Core.Serialization
 
     internal object SetObjectData(object origin, SerializationData data)
     {
+      var context = SerializationContext.Current;
+      var map = context.DeserializationMap;
+      
       Type type = data.Type ?? data.SerializedType; // To avoid reading Type twice
-      var map = Context.DeserializationMap;
       var os = ObjectSerializerProvider.GetSerializer(type);
+      EnsureObjectSerializerIsFound(os, type);
       if (typeof(IReference).IsAssignableFrom(type)) {
         // We're deserializing an IReference, so everything is straighten forward
         data.Origin = os.CreateObject(type);

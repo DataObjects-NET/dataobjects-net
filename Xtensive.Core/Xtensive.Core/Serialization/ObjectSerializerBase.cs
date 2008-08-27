@@ -9,7 +9,7 @@ using System.Diagnostics;
 using System.Runtime.Serialization;
 using Xtensive.Core.Internals.DocTemplates;
 
-namespace Xtensive.Core.Serialization.Implementation
+namespace Xtensive.Core.Serialization
 {
   /// <summary>
   /// Base class for any <see cref="IObjectSerializer{T}"/>.

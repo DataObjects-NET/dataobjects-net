@@ -14,14 +14,6 @@ namespace Xtensive.Core.Serialization
   /// </summary>
   public sealed class SerializationScope : Scope<SerializationContext>
   {
-    /// <inheritdoc/>
-    public override void Activate(SerializationContext newContext)
-    {
-      base.Activate(newContext);
-      newContext.OnActivate();
-    }
-
-
     // Constructors
 
     /// <summary>
@@ -38,19 +30,6 @@ namespace Xtensive.Core.Serialization
     /// </summary>
     internal SerializationScope()
     {
-    }
-
-    // Desctructor
-
-    /// <inheritdoc/>
-    protected override void Dispose(bool disposing)
-    {
-      try {
-        Context.OnDeactivate();
-      }
-      finally {
-        base.Dispose(disposing);
-      }
     }
   }
 }

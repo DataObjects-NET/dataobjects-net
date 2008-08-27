@@ -5,13 +5,10 @@
 // Created:    2007.05.30
 
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Reflection;
 using Xtensive.Core.Resources;
 using Xtensive.Core.Tuples.Internals;
 

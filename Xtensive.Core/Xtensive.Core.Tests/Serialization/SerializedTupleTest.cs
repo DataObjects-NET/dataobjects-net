@@ -6,7 +6,6 @@
 
 using NUnit.Framework;
 using Xtensive.Core.Serialization.Binary;
-using Xtensive.Core.Tests.Tuples;
 using Xtensive.Core.Tuples;
 
 namespace Xtensive.Core.Tests.Serialization
@@ -25,9 +24,9 @@ namespace Xtensive.Core.Tests.Serialization
       Assert.AreEqual(t, CloneBySerialization(t));
     }
 
-    private static Tuple CloneBySerialization(Tuple t1)
+    private static Tuple CloneBySerialization(Tuple source)
     {
-      return ((SerializedTuple) LegacyBinarySerializer.Instance.Clone(new SerializedTuple(t1))).Value;
+      return ((SerializedTuple) LegacyBinarySerializer.Instance.Clone(new SerializedTuple(source))).Value;
     }
   }
 }
