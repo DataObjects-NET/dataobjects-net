@@ -16,7 +16,7 @@ namespace Xtensive.Integrity.Atomicity.OperationLogs
 {
   public class StreamOperationLog: OperationLogBase
   {
-    private IValueSerializer<Stream> serializer;
+    private ISerializer<Stream> serializer;
     private Stream stream;
 
     public override void Append(IRedoDescriptor redoDescriptor)
@@ -65,17 +65,17 @@ namespace Xtensive.Integrity.Atomicity.OperationLogs
     {
     }
 
-    public StreamOperationLog(IValueSerializer<Stream> serializer)
+    public StreamOperationLog(ISerializer<Stream> serializer)
       : this(serializer, new MemoryStream())
     {
     }
 
     public StreamOperationLog(Stream stream)
-      : this(new BinarySerializer(), stream)
+      : this(new LegacyBinarySerializer(), stream)
     {
     }
 
-    public StreamOperationLog(IValueSerializer<Stream> serializer, Stream stream)
+    public StreamOperationLog(ISerializer<Stream> serializer, Stream stream)
     {
       ArgumentValidator.EnsureArgumentNotNull(serializer, "serializer");
       ArgumentValidator.EnsureArgumentNotNull(stream, "stream");

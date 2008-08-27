@@ -103,7 +103,7 @@ namespace Xtensive.Integrity.Tests
       List<IRedoDescriptor> initialOperations1 = new List<IRedoDescriptor>(operationLog1);
       Person initialPerson1;
       using (person1.Session.Activate()) {
-        initialPerson1 = (Person) BinarySerializer.Clone(person1);
+        initialPerson1 = (Person) LegacyBinarySerializer.Instance.Clone(person1);
       }
       Log.Info("Person: {0}", person1);
       Assert.AreEqual(initialPerson1, person1);
@@ -122,7 +122,7 @@ namespace Xtensive.Integrity.Tests
       Assert.AreNotEqual(initialPerson1, person1);
       Person finalPerson1;
       using (person1.Session.Activate()) {
-        finalPerson1 = (Person) BinarySerializer.Clone(person1);
+        finalPerson1 = (Person) LegacyBinarySerializer.Instance.Clone(person1);
       }
       Assert.AreEqual(finalPerson1, person1);
       
