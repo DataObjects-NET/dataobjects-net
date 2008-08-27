@@ -16,7 +16,7 @@ using Xtensive.Core.Testing;
 namespace Xtensive.Core.Tests.Serialization
 {
   [TestFixture]
-  public class SerializerTest
+  public class BinaryValueSerializerTest
   {
     private const int BaseCount = 10000;
     private static readonly Random random = RandomManager.CreateRandom(SeedVariatorType.CallingType);
@@ -450,7 +450,7 @@ namespace Xtensive.Core.Tests.Serialization
     [Test]
     public void UnknowType()
     {
-      var valueSerializer = BinaryValueSerializer<SerializerTest>.Default;
+      var valueSerializer = BinaryValueSerializer<BinaryValueSerializerTest>.Default;
       Assert.IsNull(valueSerializer);
     }
   }

@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections;
-using Xtensive.Core.Comparison;
 using Xtensive.Core.Tuples;
 
 namespace Xtensive.Core.Tests.Tuples
