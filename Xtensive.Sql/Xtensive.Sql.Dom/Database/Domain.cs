@@ -22,7 +22,7 @@ namespace Xtensive.Sql.Dom.Database
   {
     private SqlValueType dataType;
     private SqlExpression defaultValue;
-    private PairedNodeCollection<Domain, DomainConstraint> constraints;
+    private readonly PairedNodeCollection<Domain, DomainConstraint> constraints;
     private Collation collation;
 
     /// <summary>
