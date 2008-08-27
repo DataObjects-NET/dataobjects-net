@@ -262,7 +262,7 @@ namespace Xtensive.Sql.Dom.Mssql.v2000
     {
       switch (section) {
         case SelectSection.Entry:
-          return (node.Top > 0) ? "SELECT TOP " + node.Top : base.Translate(context, node, section);
+          return (node.Top > 0) ? "SELECT TOP " + node.Top : "SELECT TOP 100 PERCENT";
         case SelectSection.Exit:
           if (node.Hints.Count == 0)
             return string.Empty;

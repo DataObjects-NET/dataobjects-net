@@ -255,7 +255,7 @@ namespace Xtensive.Storage.Tests.Storage
           using(new ParameterScope()) {
             pID.Value = new Range<IEntire<Tuple>>(Entire<Tuple>.Create(Tuple.Create(21)), Entire<Tuple>.Create(Tuple.Create(120)));
             pName.Value = new Range<IEntire<Tuple>>(Entire<Tuple>.Create(Tuple.Create("Kaa")), Entire<Tuple>.Create(Tuple.Create("Kaa900")));
-            Assert.Greater(0, result.Count());
+            Assert.AreEqual(100, result.Count());
           }
 
           t.Complete();

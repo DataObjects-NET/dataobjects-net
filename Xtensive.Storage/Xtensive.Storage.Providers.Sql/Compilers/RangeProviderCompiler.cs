@@ -100,14 +100,13 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
         range.EndPoints.First;
 
       var keyColumns = provider.Header.Order.Select(pair => query.Columns[pair.Key]).ToList();
-      var expressionData = new ExpressionData(null, from, keyColumns, true);
+      var expressionDataFrom = new ExpressionData(null, from, keyColumns, true);
+      var expressionDataTo = new ExpressionData(null, to, keyColumns, true);
       var expressionHandler = new ExpressionHandler();
-      from.Descriptor.Execute(expressionHandler, ref expressionData, Direction.Positive);
-      to.Descriptor.Execute(expressionHandler, ref expressionData, Direction.Negative);
+      from.Descriptor.Execute(expressionHandler, ref expressionDataFrom, Direction.Positive);
+      to.Descriptor.Execute(expressionHandler, ref expressionDataTo, Direction.Negative);
 
-      query.Where = SqlExpression.IsNull(query.Where) ? 
-        expressionData.Expression : 
-        query.Where & expressionData.Expression;
+      query.Where &= expressionDataFrom.Expression & expressionDataTo.Expression;
 
       return new SqlProvider(provider, query, Handlers, source.Parameters);
     }

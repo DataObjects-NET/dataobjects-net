@@ -23,16 +23,23 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
 
       if (left == null || right == null)
         return null;
-
       var leftQuery = SqlFactory.QueryRef(left.Query);
       var rightQuery = SqlFactory.QueryRef(right.Query);
       var joinedTable = SqlFactory.Join(
         provider.LeftJoin ? SqlJoinType.LeftOuterJoin : SqlJoinType.InnerJoin,
         leftQuery,
-        rightQuery);
+        rightQuery,
+        provider.EqualIndexes
+          .Select(pair => leftQuery.Columns[pair.First] == rightQuery.Columns[pair.Second])
+          .Aggregate(null as SqlExpression, (expression,binary) => expression & binary)
+        );
 
       SqlSelect query = SqlFactory.Select(joinedTable);
-      query.Columns.AddRange(joinedTable.Columns.Cast<SqlColumn>());
+      query.Columns.AddRange(leftQuery.Columns.Union(rightQuery.Columns).Cast<SqlColumn>());
+      //      if (!SqlExpression.IsNull(left.Query.Where))
+      //        query.Where &= left.Query.Where;
+      //      if (!SqlExpression.IsNull(right.Query.Where))
+      //        query.Where &= right.Query.Where;
 
       return new SqlProvider(provider, query, Handlers, left.Parameters.Union(right.Parameters));
     }
