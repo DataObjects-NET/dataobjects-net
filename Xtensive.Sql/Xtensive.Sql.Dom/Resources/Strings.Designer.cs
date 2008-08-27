@@ -79,6 +79,15 @@ namespace Xtensive.Sql.Dom.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Constraint type &apos;{0}&apos; is not supported by &apos;{1}&apos; comparer..
+        /// </summary>
+        internal static string ExConstraintIsNotSupportedByComparer {
+            get {
+                return ResourceManager.GetString("ExConstraintIsNotSupportedByComparer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Driver is not properly initialized..
         /// </summary>
         internal static string ExDriverIsNotProperlyInitialized {

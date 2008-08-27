@@ -15,29 +15,26 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     public override IComparisonResult<DataTableColumn> Compare(DataTableColumn originalNode, DataTableColumn newNode, IEnumerable<ComparisonHintBase> hints)
     {
       IComparisonResult<DataTableColumn> result;
-      if (originalNode==null && newNode==null) {
+      if (originalNode==null && newNode==null)
         result = new DataTableColumnComparisonResult
           {
             OriginalValue = originalNode,
             NewValue = newNode,
             ResultType = ComparisonResultType.Unchanged
           };
-      }
-      else if (originalNode!=null && newNode!=null && originalNode.GetType()!=newNode.GetType()) {
+      else if (originalNode!=null && newNode!=null && originalNode.GetType()!=newNode.GetType())
         result = new DataTableColumnComparisonResult
           {
             OriginalValue = originalNode,
             NewValue = newNode,
             ResultType = ComparisonResultType.Modified
           };
-      }
-      else if ((originalNode ?? newNode).GetType()==typeof (TableColumn)) {
-        result = (IComparisonResult<DataTableColumn>)BaseSqlComparer1.Compare(originalNode as TableColumn, newNode as TableColumn, hints);
-      } else if ((originalNode ?? newNode).GetType() == typeof(ViewColumn)) {
-        result = (IComparisonResult<DataTableColumn>)BaseSqlComparer2.Compare(originalNode as ViewColumn, newNode as ViewColumn, hints);
-      } else {
+      else if ((originalNode ?? newNode).GetType()==typeof (TableColumn))
+        result = (IComparisonResult<DataTableColumn>) BaseSqlComparer1.Compare(originalNode as TableColumn, newNode as TableColumn, hints);
+      else if ((originalNode ?? newNode).GetType()==typeof (ViewColumn))
+        result = (IComparisonResult<DataTableColumn>) BaseSqlComparer2.Compare(originalNode as ViewColumn, newNode as ViewColumn, hints);
+      else
         throw new NotSupportedException(String.Format(Resources.Strings.ExColumnTypeIsNotSupportedByComparer, (originalNode ?? newNode).GetType().FullName, GetType().FullName));
-      }
       result.Lock();
       return result;
     }

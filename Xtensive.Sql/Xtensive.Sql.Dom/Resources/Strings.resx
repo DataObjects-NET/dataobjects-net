@@ -183,4 +183,7 @@
   <data name="ExColumnTypeIsNotSupportedByComparer" xml:space="preserve">
     <value>'{0}' column type is not supported by '{1}' comparer</value>
   </data>
+  <data name="ExConstraintIsNotSupportedByComparer" xml:space="preserve">
+    <value>Constraint type '{0}' is not supported by '{1}' comparer.</value>
+  </data>
 </root>

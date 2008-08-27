@@ -17,7 +17,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
       IndexColumnComparisonResult result = InitializeResult<IndexColumn, IndexColumnComparisonResult>(originalNode, newNode);
       bool hasChanges = false;
       result.Ascending = CompareSimpleStruct(originalNode==null ? (bool?) null : originalNode.Ascending, newNode==null ? (bool?) null : newNode.Ascending, ref hasChanges);
-      result.Column = (DataTableColumnComparisonResult)BaseSqlComparer1.Compare(originalNode == null ? null : originalNode.Column, newNode == null ? null : newNode.Column, hints);
+      result.Column = (IComparisonResult<DataTableColumn>)BaseSqlComparer1.Compare(originalNode == null ? null : originalNode.Column, newNode == null ? null : newNode.Column, hints);
       if (hasChanges && result.ResultType == ComparisonResultType.Unchanged)
         result.ResultType = ComparisonResultType.Modified;
       result.Lock(true);

@@ -9,7 +9,7 @@ using System;
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
   [Serializable]
-  public abstract class ConstraintComparisonResult : ComparisonResult<Constraint>
+  public class ConstraintComparisonResult : NodeComparisonResult<Constraint>
   {
     
   }
