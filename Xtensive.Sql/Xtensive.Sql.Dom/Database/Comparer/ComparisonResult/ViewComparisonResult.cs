@@ -18,7 +18,6 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   {
     private ComparisonResult<CheckOptions> checkOptions;
     private ComparisonResult<SqlNative> definition;
-    private readonly ComparisonResultCollection<ComparisonResult<View>> views = new ComparisonResultCollection<ComparisonResult<View>>();
     private readonly ComparisonResultCollection<ComparisonResult<ViewColumn>> columns = new ComparisonResultCollection<ComparisonResult<ViewColumn>>();
     private readonly ComparisonResultCollection<ComparisonResult<Index>> indexes = new ComparisonResultCollection<ComparisonResult<Index>>();
 
@@ -49,14 +48,6 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     }
 
     /// <summary>
-    /// Gets comparison results of nested views.
-    /// </summary>
-    public ComparisonResultCollection<ComparisonResult<View>> Views
-    {
-      get { return views; }
-    }
-
-    /// <summary>
     /// Gets comparison results of nested columns.
     /// </summary>
     public ComparisonResultCollection<ComparisonResult<ViewColumn>> Columns
@@ -77,7 +68,6 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     {
       base.Lock(recursive);
       if (recursive) {
-        views.Lock(recursive);
         columns.Lock(recursive);
         indexes.Lock(recursive);
         checkOptions.LockSafely(recursive);
