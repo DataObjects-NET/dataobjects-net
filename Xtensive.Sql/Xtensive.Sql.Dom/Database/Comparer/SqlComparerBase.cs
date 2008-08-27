@@ -169,26 +169,27 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     {
       // Process "rename" hint, compare by name
       bool hasChanges = false;
-      var originalNodeSet = new SetSlim<TNode>(originalNodes);
-      foreach (TNode newNest in newNodes) {
-        string newName = ((Node) (object) newNest).DbName;
-        string originalName = newName;
-        var renameHints = new List<RenameHint>(FindHints<TNode, RenameHint>(hints, newName));
-        if (renameHints.Count > 1)
-          throw new InvalidOperationException(String.Format(Resources.Strings.ExMultipleRenameHintsFoundForTypeXxx, typeof (TNode).FullName, newName));
-        if (renameHints.Count==1)
-          originalName = renameHints[0].OldName;
-        IEnumerator<TNode> originalEnumerator = originalNodeSet.Where(node => ((Node) (object) node).DbName==originalName).GetEnumerator();
-        TNode originalNode = null;
-        if (originalEnumerator.MoveNext()) {
-          originalNode = originalEnumerator.Current;
-          originalNodeSet.Remove(originalNode);
+      var originalNodeSet = new SetSlim<TNode>(originalNodes ?? Enumerable.Empty<TNode>());
+      if (newNodes!=null)
+        foreach (TNode newNest in newNodes) {
+          string newName = ((Node) (object) newNest).DbName;
+          string originalName = newName;
+          var renameHints = new List<RenameHint>(FindHints<TNode, RenameHint>(hints, newName));
+          if (renameHints.Count > 1)
+            throw new InvalidOperationException(String.Format(Resources.Strings.ExMultipleRenameHintsFoundForTypeXxx, typeof (TNode).FullName, newName));
+          if (renameHints.Count==1)
+            originalName = renameHints[0].OldName;
+          IEnumerator<TNode> originalEnumerator = originalNodeSet.Where(node => ((Node) (object) node).DbName==originalName).GetEnumerator();
+          TNode originalNode = null;
+          if (originalEnumerator.MoveNext()) {
+            originalNode = originalEnumerator.Current;
+            originalNodeSet.Remove(originalNode);
+          }
+          IComparisonResult<TNode> compare = comparer.Compare(originalNode, newNest, hints);
+          if (compare.HasChanges)
+            hasChanges = true;
+          results.Add((TResult) compare);
         }
-        IComparisonResult<TNode> compare = comparer.Compare(originalNode, newNest, hints);
-        if (compare.HasChanges)
-          hasChanges = true;
-        results.Add((TResult) compare);
-      }
       foreach (TNode originalNode in originalNodeSet) {
         IComparisonResult<TNode> compare = comparer.Compare(originalNode, null, hints);
         if (compare.HasChanges)
