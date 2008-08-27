@@ -2,11 +2,11 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Aleksey Gamzov
-// Created:    2008.08.21
+// Created:    2008.08.27
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
-  public class DomainConstraintComparisonResult : NodeComparisonResult<DomainConstraint>
+  public class ForeignKeySqlComparer
   {
     
   }

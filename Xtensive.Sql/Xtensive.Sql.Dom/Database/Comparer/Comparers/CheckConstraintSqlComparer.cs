@@ -2,7 +2,7 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Aleksey Gamzov
-// Created:    2008.08.18
+// Created:    2008.08.27
 
 using System;
 using System.Collections.Generic;
@@ -10,9 +10,9 @@ using System.Collections.Generic;
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
   [Serializable]
-  internal class DomainConstraintSqlComparer : NodeSqlComparer<DomainConstraint, DomainConstraintComparisonResult>
+  internal class CheckConstraintSqlComparer : NodeSqlComparer<CheckConstraint, CheckConstraintComparisonResult>
   {
-    public DomainConstraintSqlComparer(ISqlComparerProvider provider)
+    public CheckConstraintSqlComparer(ISqlComparerProvider provider)
       : base(provider)
     {
     }
