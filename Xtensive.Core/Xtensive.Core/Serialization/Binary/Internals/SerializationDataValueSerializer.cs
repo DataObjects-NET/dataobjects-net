@@ -11,7 +11,7 @@ using Xtensive.Core.IO;
 namespace Xtensive.Core.Serialization.Binary
 {
   [Serializable]
-  internal class SerializationDataValueSerializer : WrappingBinaryValueSerializer<SerializationData, long>
+  internal sealed class SerializationDataValueSerializer : WrappingBinaryValueSerializer<SerializationData, long>
   {
     public override SerializationData Deserialize(Stream stream)
     {

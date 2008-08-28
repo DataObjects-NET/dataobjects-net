@@ -31,6 +31,7 @@ namespace Xtensive.Core.Serialization.Binary
     /// </summary>
     protected ValueSerializerStruct<Stream, TBase2> BaseSerializer2;
 
+
     // Constructors
 
     /// <inheritdoc/>

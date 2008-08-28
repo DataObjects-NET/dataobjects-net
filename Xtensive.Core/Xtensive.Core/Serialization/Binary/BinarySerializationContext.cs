@@ -51,6 +51,11 @@ namespace Xtensive.Core.Serialization.Binary
     /// </summary>
     public ValueSerializer<Stream, string> StringSerializer { get; protected set; }
 
+    /// <summary>
+    /// Gets the <see cref="String"/> value serializer.
+    /// </summary>
+    public ValueSerializer<Stream, Token<string>> TokenStringSerializer { get; protected set; }
+
     protected override void Initialize()
     {
       base.Initialize();
@@ -67,6 +72,7 @@ namespace Xtensive.Core.Serialization.Binary
       IntSerializer = ValueSerializerProvider.GetSerializer<int>();
       LongSerializer = ValueSerializerProvider.GetSerializer<long>();
       StringSerializer = ValueSerializerProvider.GetSerializer<string>();
+      TokenStringSerializer = ValueSerializerProvider.GetSerializer<Token<string>>();
     }
 
 

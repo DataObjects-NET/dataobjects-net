@@ -10,7 +10,7 @@ using System.IO;
 namespace Xtensive.Core.Serialization.Binary
 {
   [Serializable]
-  internal class BooleanValueSerializer : BinaryValueSerializerBase<bool>
+  internal sealed class BooleanValueSerializer : BinaryValueSerializerBase<bool>
   {
     public override Boolean Deserialize(Stream stream) 
     {

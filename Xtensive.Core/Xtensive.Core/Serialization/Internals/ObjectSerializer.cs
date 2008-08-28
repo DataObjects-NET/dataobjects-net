@@ -9,9 +9,16 @@ using System;
 namespace Xtensive.Core.Serialization.Internals
 {
   [Serializable]
-  internal class ObjectSerializer<T> : ObjectSerializerBase<T>
+  internal sealed class ObjectSerializer<T> : ObjectSerializerBase<T>
   {
-    protected const string ValuePropertyName = "Value";
+    public const string ValuePropertyName = "Value";
+    private readonly bool isReferable = typeof (T).IsClass;
+
+    public override bool IsReferable {
+      get {
+        return isReferable;
+      }
+    }
 
     public override T CreateObject(Type type)
     {

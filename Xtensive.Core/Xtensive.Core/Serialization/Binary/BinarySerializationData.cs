@@ -77,7 +77,7 @@ namespace Xtensive.Core.Serialization.Binary
       long originalLength = Stream.Length;
       try {
         // Writing name
-        context.StringSerializer.Serialize(Stream, name);
+        context.TokenStringSerializer.Serialize(Stream, Token.GetOrCreate(name));
         long dataLengthOffset = Stream.Position;
         // Skipping the space for the data length
         context.LongSerializer.Serialize(Stream, 0);
@@ -234,7 +234,7 @@ namespace Xtensive.Core.Serialization.Binary
       long finalPosition = Stream.Position;
       try {
         // Reading name
-        string name = context.StringSerializer.Deserialize(Stream);
+        string name = context.TokenStringSerializer.Deserialize(Stream).Value;
         // Reading data length
         long dataLength = context.LongSerializer.Deserialize(Stream);
         bool isErased = false;

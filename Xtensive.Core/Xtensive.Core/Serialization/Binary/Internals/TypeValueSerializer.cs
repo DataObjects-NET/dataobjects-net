@@ -6,13 +6,18 @@
 
 using System;
 using System.IO;
+using System.Reflection;
 using System.Runtime.Serialization.Formatters;
+using Xtensive.Core.Threading;
 
 namespace Xtensive.Core.Serialization.Binary
 {
   [Serializable]
-  internal class TypeValueSerializer : WrappingBinaryValueSerializer<Type, string, string>
+  internal sealed class TypeValueSerializer : WrappingBinaryValueSerializer<Type, string, string>
   {
+    private static ThreadSafeDictionary<Assembly, string> cachedNames =
+      ThreadSafeDictionary<Assembly, string>.Create(new object());
+
     public override Type Deserialize(Stream stream)
     {
       string typeName = BaseSerializer1.Deserialize(stream);
@@ -27,7 +32,8 @@ namespace Xtensive.Core.Serialization.Binary
       if (configuration.AssemblyStyle==FormatterAssemblyStyle.Full)
         BaseSerializer1.Serialize(stream, value.Assembly.FullName);
       else
-        BaseSerializer1.Serialize(stream, value.Assembly.GetName().Name);
+        BaseSerializer1.Serialize(stream, 
+          cachedNames.GetValue(value.Assembly, a => a.GetName().Name));
     }
 
     

@@ -6,8 +6,10 @@
 
 using System;
 using System.Diagnostics;
+using System.Reflection;
 using System.Runtime.Serialization;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Threading;
 
 namespace Xtensive.Core.Serialization.Implementation
 {
@@ -21,6 +23,8 @@ namespace Xtensive.Core.Serialization.Implementation
   {
     private static readonly DefaultSerializationBinder instance = 
       new DefaultSerializationBinder();
+    private static ThreadSafeDictionary<Pair<string, string>, Type> cachedTypes =
+      ThreadSafeDictionary<Pair<string, string>, Type>.Create(new object());
 
     /// <see cref="SingletonDocTemplate.Instance" copy="true" />
     public static DefaultSerializationBinder Instance {
@@ -31,7 +35,20 @@ namespace Xtensive.Core.Serialization.Implementation
     /// <inheritdoc/>
     public override Type BindToType(string assemblyName, string typeName) 
     {
-      return Type.GetType(string.Format("{0}, {1}", typeName, assemblyName));
+      var t = cachedTypes.GetValue(
+        new Pair<string, string>(assemblyName, typeName), 
+        p => {
+          Assembly assembly = null;
+          try { assembly = Assembly.Load(p.First); } catch { }
+          if (assembly==null)
+            try { assembly = Assembly.LoadWithPartialName(p.First); } catch { }
+          if (assembly==null)
+            return null;
+          Type type = null;
+          try { type = FormatterServices.GetTypeFromAssembly(assembly, typeName); } catch { }
+          return type;
+        });
+      return t;
     }
 
 

@@ -15,6 +15,7 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Resources;
 using Xtensive.Core.Reflection;
 using System.Linq;
+using Xtensive.Core.Serialization.Implementation;
 
 namespace Xtensive.Core.Serialization
 {
@@ -25,7 +26,7 @@ namespace Xtensive.Core.Serialization
   public abstract class SerializationData : IEnumerable<string>
   {
     protected const string TypePropertyName = "GetType()";
-    protected const string ReferencePropertyName = "Reference";
+    protected const string ReferencePropertyName = "#";
     private int count;
 
     #region Properties
@@ -83,12 +84,12 @@ namespace Xtensive.Core.Serialization
     /// </summary>
     public virtual Type SerializedType {
       get {
-        Type = GetValue<Type>(TypePropertyName);
+        Type = GetValue<Token<Type>>(TypePropertyName).Value;
         return Type;
       }
       set {
         Type = value;
-        AddValue(TypePropertyName, value); 
+        AddValue(TypePropertyName, Token.GetOrCreate(value)); 
       }
     }
 

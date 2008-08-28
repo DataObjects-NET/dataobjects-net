@@ -24,7 +24,7 @@ namespace Xtensive.Core.Serialization.Implementation
     /// <inheritdoc/>
     protected override void RewindCloningStream(ref Stream stream)
     {
-      stream.Seek(0, SeekOrigin.Begin);
+      stream.Position = 0;
     }
 
     

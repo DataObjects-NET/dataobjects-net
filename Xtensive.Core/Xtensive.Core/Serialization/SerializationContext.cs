@@ -77,6 +77,12 @@ namespace Xtensive.Core.Serialization
     public Stack<SerializationData> Path { get; protected set; }
 
     /// <summary>
+    /// Gets the <see cref="TokenManager"/> managing <see cref="Token"/>s 
+    /// in this context.
+    /// </summary>
+    public TokenManager TokenManager { get; protected set; }
+
+    /// <summary>
     /// Gets the <see cref="ReferenceManager"/> managing <see cref="IReference"/>s 
     /// in this context.
     /// </summary>
@@ -131,6 +137,7 @@ namespace Xtensive.Core.Serialization
       PreferNesting = Configuration.PreferNesting;
       PreferAttributes = Configuration.PreferAttributes;
       Path = Path ?? new Stack<SerializationData>();
+      TokenManager = TokenManager ?? new TokenManager();
       ReferenceManager = ReferenceManager ?? new ReferenceManager();
       switch (ProcessType) {
       case SerializerProcessType.Serialization:

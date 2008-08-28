@@ -16,14 +16,13 @@ namespace Xtensive.Core.IO
   /// as the independent stream.
   /// </summary>
   /// <remarks>
-  /// Any read and write operations on this instance don't affect on
+  /// Any read and write operations on this instance affect on
   /// <see cref="System.IO.Stream.Position"/> of the underlying <see cref="Stream"/>.
   /// </remarks>
   [Serializable]
   [DebuggerDisplay("Offset = {Segment.Offset}, Length = {Segment.Length}")]
   public class StreamSegment : Stream
   {
-    private readonly bool isReadOnly;
     private long position;
 
     /// <summary>
@@ -40,8 +39,8 @@ namespace Xtensive.Core.IO
     public override long Position {
       get { return position; }
       set {
-        ArgumentValidator.EnsureArgumentIsInRange(value, 0, Segment.Length, "value");
-        EnsureCanSeek();
+        if (position>=Segment.Length || position<0)
+          ArgumentValidator.EnsureArgumentIsInRange(value, 0, Segment.Length, "value");
         position = value;
       }
     }
@@ -64,7 +63,7 @@ namespace Xtensive.Core.IO
 
     /// <inheritdoc/>
     public override bool CanWrite {
-      get { return isReadOnly ? false : Stream.CanWrite; }
+      get { return Stream.CanWrite; }
     }
 
     /// <inheritdoc/>
@@ -91,7 +90,6 @@ namespace Xtensive.Core.IO
     /// <inheritdoc/>
     public override void SetLength(long value)
     {
-      EnsureCanWrite();
       if (Stream.Length==Segment.EndOffset)
         Stream.SetLength(Segment.Offset + value);
       Segment = new Segment<long>(Segment.Offset, value);
@@ -100,61 +98,55 @@ namespace Xtensive.Core.IO
     /// <inheritdoc/>
     public override int Read(byte[] buffer, int offset, int count)
     {
-      long oldPosition = Stream.Position;
-      try {
-        Stream.Position = Segment.Offset + position;
-        var maxCount = Segment.Length-position;
-        if (count > maxCount)
-          count = (int) maxCount;
-        int actualCount = Stream.Read(buffer, offset, count);
-        position += actualCount;
-        return actualCount;
-      }
-      finally {
-        Stream.Position = oldPosition;
-      }
+      Stream.Position = Segment.Offset + position;
+      var maxCount = Segment.Length-position;
+      if (count > maxCount)
+        count = (int) maxCount;
+      int actualCount = Stream.Read(buffer, offset, count);
+      position += actualCount;
+      return actualCount;
+    }
+
+    /// <inheritdoc/>
+    public override int ReadByte()
+    {
+      if (position==Segment.Length)
+        return -1;
+      Stream.Position = Segment.Offset + position;
+      int result = Stream.ReadByte();
+      if (result>=0)
+        position += 1;
+      return result;
     }
 
     /// <inheritdoc/>
     public override void Write(byte[] buffer, int offset, int count)
     {
-      EnsureCanWrite();
-      long oldPosition = Stream.Position;
-      try {
-        Stream.Position = Segment.Offset + position;
-        var maxCount = Segment.Length-position;
-        if (count > maxCount)
-          Segment = new Segment<long>(Segment.Offset, count);
-        Stream.Write(buffer, offset, count);
-        position += count;
-      }
-      finally {
-        Stream.Position = oldPosition;
-      }
+      Stream.Position = Segment.Offset + position;
+      var maxCount = Segment.Length-position;
+      Stream.Write(buffer, offset, count);
+      if (count > maxCount)
+        Segment = new Segment<long>(Segment.Offset, count);
+      position += count;
+    }
+
+    /// <inheritdoc/>
+    public override void WriteByte(byte value)
+    {
+      long segmentOffset = Segment.Offset;
+      Stream.Position = segmentOffset + position;
+      Stream.WriteByte(value);
+      long segmentLength = Segment.Length;
+      if (position==segmentLength)
+        Segment = new Segment<long>(segmentOffset, ++segmentLength);
+      position++;
     }
 
     /// <inheritdoc/>
     public override void Flush()
     {
-      if (!isReadOnly)
-        Stream.Flush();
+      Stream.Flush();
     }
-
-    #region Private \ internal methods
-
-    private void EnsureCanSeek()
-    {
-      if (!CanSeek)
-        throw new NotSupportedException();
-    }
-
-    private void EnsureCanWrite()
-    {
-      if (!CanWrite)
-        throw Exceptions.ObjectIsReadOnly(null);
-    }
-
-    #endregion
 
 
     // Constructors
@@ -174,14 +166,21 @@ namespace Xtensive.Core.IO
     /// </summary>
     /// <param name="stream">The <see cref="Stream"/> to wrap.</param>
     /// <param name="segment">The <see cref="Segment"/> to expose.</param>
-    /// <param name="isReadOnly">If set to <see langword="true"/>, <see cref="Write"/> 
-    /// and <see cref="SetLength"/> operations will throw an exception.</param>
-    public StreamSegment(Stream stream, Segment<long> segment, bool isReadOnly)
+    /// <param name="stripStreamSegments">Indicates whether all <see cref="StreamSegment"/>s
+    /// must be stripped from the <paramref name="stream"/>.</param>
+    public StreamSegment(Stream stream, Segment<long> segment, bool stripStreamSegments)
     {
       ArgumentValidator.EnsureArgumentNotNull(stream, "stream");
+      if (stripStreamSegments) {
+        StreamSegment streamSegment = null;
+        while (null!=(streamSegment = (stream as StreamSegment))) {
+          var outerSegment = streamSegment.Segment;
+          stream = streamSegment.Stream;
+          segment = new Segment<long>(outerSegment.Offset+segment.Offset, segment.Length);
+        }
+      }
       Stream = stream;
       Segment = segment;
-      this.isReadOnly = isReadOnly;
     }
   }
 }

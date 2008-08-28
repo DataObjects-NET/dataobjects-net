@@ -10,18 +10,19 @@ using System.IO;
 namespace Xtensive.Core.Serialization.Binary
 {
   [Serializable]
-  internal class SingleValueSerializer : BinaryValueSerializerBase<float>
+  internal sealed class SingleValueSerializer : BinaryValueSerializerBase<float>
   {
     public override float Deserialize(Stream stream) 
     {
-      var buffer = new byte[sizeof (float)];
-      stream.Read(buffer, 0, sizeof (float));
-      return BitConverter.ToSingle(buffer, 0);
+      int length = OutputLength;
+      EnsureThreadBufferIsInitialized(length);
+      stream.Read(ThreadBuffer, 0, length);
+      return BitConverter.ToSingle(ThreadBuffer, 0);
     }
 
     public override void Serialize(Stream stream, float value) 
     {
-      stream.Write(BitConverter.GetBytes(value), 0, sizeof (float));
+      stream.Write(BitConverter.GetBytes(value), 0, OutputLength);
     }
 
 

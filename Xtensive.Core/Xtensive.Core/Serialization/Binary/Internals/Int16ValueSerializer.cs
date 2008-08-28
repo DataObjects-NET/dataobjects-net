@@ -10,24 +10,19 @@ using System.IO;
 namespace Xtensive.Core.Serialization.Binary
 {
   [Serializable]
-  internal class Int16ValueSerializer : BinaryValueSerializerBase<short>
+  internal sealed class Int16ValueSerializer : BinaryValueSerializerBase<short>
   {
     public override short Deserialize(Stream stream) 
     {
-      unchecked {
-        short result = 0;
-        for (int i = 0; i < sizeof (short); i++)
-          result |= (short) (stream.ReadByte() << i * 8);
-        return result;
-      }
+      int length = OutputLength;
+      EnsureThreadBufferIsInitialized(length);
+      stream.Read(ThreadBuffer, 0, length);
+      return BitConverter.ToInt16(ThreadBuffer, 0);
     }
 
     public override void Serialize(Stream stream, short value) 
     {
-      unchecked {
-        for (int i = 0; i < sizeof (short); i++)
-          stream.WriteByte((byte) (value >> i * 8));
-      }
+      stream.Write(BitConverter.GetBytes(value), 0, OutputLength);
     }
 
     

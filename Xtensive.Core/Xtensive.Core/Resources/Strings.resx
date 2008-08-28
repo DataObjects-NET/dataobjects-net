@@ -549,9 +549,6 @@
   <data name="ExInvalidSerializerBehaviorMustNotBeReferable" xml:space="preserve">
     <value>'{0}' can't be an IsReferable serializer, since it serializes IReference type.</value>
   </data>
-  <data name="ExInvalidSerializerBehaviorGetObjectIsUsedInsteadOfGetReference" xml:space="preserve">
-    <value>Deserialized object is referable, so GetReference methods must be used for it.</value>
-  </data>
   <data name="UnableToDisposeItemWhenContainerIsNotDisposed" xml:space="preserve">
     <value>Unable to dispose an item when disposable container has an invalid state.</value>
   </data>

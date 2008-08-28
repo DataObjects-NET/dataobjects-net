@@ -10,25 +10,21 @@ using System.IO;
 namespace Xtensive.Core.Serialization.Binary
 {
   [Serializable]
-  internal class Int64ValueSerializer : BinaryValueSerializerBase<long>
+  internal sealed class Int64ValueSerializer : BinaryValueSerializerBase<long>
   {
     public override long Deserialize(Stream stream) 
     {
-      unchecked {
-        long result = 0;
-        for (int i = 0; i < sizeof (long); i++)
-          result |= (long) stream.ReadByte() << i * 8;
-        return result;
-      }
+      int length = OutputLength;
+      EnsureThreadBufferIsInitialized(length);
+      stream.Read(ThreadBuffer, 0, length);
+      return BitConverter.ToInt64(ThreadBuffer, 0);
     }
 
     public override void Serialize(Stream stream, long value) 
     {
-      unchecked {
-        for (int i = 0; i < sizeof (long); i++)
-          stream.WriteByte((byte) (value >> i * 8));
-      }
+      stream.Write(BitConverter.GetBytes(value), 0, OutputLength);
     }
+
 
     // Constructors
 

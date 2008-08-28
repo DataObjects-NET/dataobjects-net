@@ -10,24 +10,19 @@ using System.IO;
 namespace Xtensive.Core.Serialization.Binary
 {
   [Serializable]
-  internal class UInt64ValueSerializer : BinaryValueSerializerBase<ulong>
+  internal sealed class UInt64ValueSerializer : BinaryValueSerializerBase<ulong>
   {
     public override ulong Deserialize(Stream stream) 
     {
-      unchecked {
-        ulong result = 0;
-        for (int i = 0; i < sizeof (ulong); i++)
-          result |= (ulong) stream.ReadByte() << i * 8;
-        return result;
-      }
+      int length = OutputLength;
+      EnsureThreadBufferIsInitialized(length);
+      stream.Read(ThreadBuffer, 0, length);
+      return BitConverter.ToUInt64(ThreadBuffer, 0);
     }
 
     public override void Serialize(Stream stream, ulong value) 
     {
-      unchecked {
-        for (int i = 0; i < sizeof (ulong); i++)
-          stream.WriteByte((byte) (value >> i * 8));
-      }
+      stream.Write(BitConverter.GetBytes(value), 0, OutputLength);
     }
 
     

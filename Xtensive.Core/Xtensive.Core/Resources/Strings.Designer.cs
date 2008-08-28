@@ -574,15 +574,6 @@ namespace Xtensive.Core.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Deserialized object is referable, so GetReference methods must be used for it..
-        /// </summary>
-        internal static string ExInvalidSerializerBehaviorGetObjectIsUsedInsteadOfGetReference {
-            get {
-                return ResourceManager.GetString("ExInvalidSerializerBehaviorGetObjectIsUsedInsteadOfGetReference", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to &apos;{0}&apos; can&apos;t be an IsReferable serializer, since it serializes IReference type..
         /// </summary>
         internal static string ExInvalidSerializerBehaviorMustNotBeReferable {

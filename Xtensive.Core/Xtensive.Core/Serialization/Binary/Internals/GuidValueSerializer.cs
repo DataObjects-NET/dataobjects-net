@@ -10,18 +10,19 @@ using System.IO;
 namespace Xtensive.Core.Serialization.Binary
 {
   [Serializable]
-  internal class GuidValueSerializer : BinaryValueSerializerBase<Guid>
+  internal sealed class GuidValueSerializer : BinaryValueSerializerBase<Guid>
   {
     public override Guid Deserialize(Stream stream) 
     {
-      var buffer = new byte[16];
-      stream.Read(buffer, 0, 16);
-      return new Guid(buffer);
+      int length = OutputLength;
+      EnsureThreadBufferIsInitialized(length);
+      stream.Read(ThreadBuffer, 0, length);
+      return new Guid(ThreadBuffer);
     }
 
     public override void Serialize(Stream stream, Guid value) 
     {
-      stream.Write(value.ToByteArray(), 0, 16);
+      stream.Write(value.ToByteArray(), 0, OutputLength);
     }
 
     

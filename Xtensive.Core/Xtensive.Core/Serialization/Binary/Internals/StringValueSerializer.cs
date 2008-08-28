@@ -11,7 +11,7 @@ using System.Text;
 namespace Xtensive.Core.Serialization.Binary
 {
   [Serializable]
-  internal class StringValueSerializer : WrappingBinaryValueSerializer<string, int>
+  internal sealed class StringValueSerializer : WrappingBinaryValueSerializer<string, int>
   {
     private static readonly Encoding encoding = Encoding.UTF8;
 

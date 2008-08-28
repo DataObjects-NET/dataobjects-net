@@ -10,7 +10,7 @@ using System.IO;
 namespace Xtensive.Core.Serialization.Binary
 {
   [Serializable]
-  internal class ByteValueSerializer : BinaryValueSerializerBase<byte>
+  internal sealed class ByteValueSerializer : BinaryValueSerializerBase<byte>
   {
     public override Byte Deserialize(Stream stream) 
     {

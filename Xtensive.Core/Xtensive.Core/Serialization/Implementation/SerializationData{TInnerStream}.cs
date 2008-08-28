@@ -34,18 +34,14 @@ namespace Xtensive.Core.Serialization.Implementation
     public override T GetObject<T>(string name, object originValue)
     {
       var data = GetValue<SerializationData>(name);
-      var source = Serializer.SetObjectData(Origin, data);
-      if (data.Reference!=null)
-        throw Exceptions.InternalError(
-          Strings.ExInvalidSerializerBehaviorGetObjectIsUsedInsteadOfGetReference, Log.Instance);
-      return (T) source;
+      return (T) Serializer.SetObjectData(originValue, data);
     }
 
     /// <inheritdoc/>
     public override IReference GetReference(string name, object originValue)
     {
       var data = GetValue<SerializationData>(name);
-      var source = Serializer.SetObjectData(Origin, data);
+      var source = Serializer.SetObjectData(originValue, data);
       if (data.Reference!=null)
         // We've just deserialized an object with reference
         return data.Reference;

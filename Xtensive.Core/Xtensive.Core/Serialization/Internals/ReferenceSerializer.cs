@@ -10,9 +10,9 @@ using Xtensive.Core.Serialization.Implementation;
 namespace Xtensive.Core.Serialization.Internals
 {
   [Serializable]
-  internal class ReferenceSerializer : ObjectSerializerBase<Reference>
+  internal sealed class ReferenceSerializer : ObjectSerializerBase<Reference>
   {
-    protected const string ValuePropertyName = "Value";
+    public const string ValuePropertyName = "Value";
 
     public override bool IsReferable {
       get { return false; }
