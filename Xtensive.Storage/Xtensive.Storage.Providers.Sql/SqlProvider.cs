@@ -5,7 +5,6 @@
 // Created:    2008.07.11
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Core.Tuples;
@@ -17,73 +16,41 @@ namespace Xtensive.Storage.Providers.Sql
 {
   internal sealed class SqlProvider : ExecutableProvider
   {
-    private const string PARAMETERS = "Parameters";
-    private readonly SqlSelect query;
     private readonly HandlerAccessor handlers;
+    private readonly SqlQueryRequest request;
 
-    public SqlSelect Query
+    public SqlQueryRequest Request
     {
       [DebuggerStepThrough]
-      get { return query; }
-    }
-
-    public Dictionary<SqlParameter, Func<object>> Parameters { get; private set; }
-
-    protected override void OnBeforeEnumerate(EnumerationContext context)
-    {
-      base.OnBeforeEnumerate(context);
-      BindParameters(context);
+      get { return request; }
     }
 
     protected override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
       var sessionHandler = (SessionHandler) handlers.SessionHandler;
-      SqlRequest request = new SqlRequest(Query, Header.TupleDescriptor);
-      request.Parameters.AddRange(GetSqlParameters(context));
+      request.CompileWith(sessionHandler.Driver);
+      request.Bind();
       using (var e = sessionHandler.Execute(request)) {
         while (e.MoveNext())
           yield return e.Current;
       }
     }
 
-    private void BindParameters(EnumerationContext context)
-    {
-      List<SqlParameter> sqlParameters = GetSqlParameters(context);
-      int i = 0;
-      foreach (var pair in Parameters) {
-        SqlParameter p = pair.Key;
-        p.ParameterName = "p" + i++;
-        p.Value = pair.Value.Invoke();
-        sqlParameters.Add(p);
-      }
-    }
-
-    private List<SqlParameter> GetSqlParameters(EnumerationContext context)
-    {
-      List<SqlParameter> sqlParameters = context.GetValue<List<SqlParameter>>(PARAMETERS);
-      if (sqlParameters == null) {
-        sqlParameters = new List<SqlParameter>();
-        context.SetValue(PARAMETERS, sqlParameters);
-      }
-      return sqlParameters;
-    }
-
 
     // Constructor
 
-    public SqlProvider(CompilableProvider origin, SqlSelect query, HandlerAccessor handlers)
+    public SqlProvider(CompilableProvider origin, SqlQueryRequest request, HandlerAccessor handlers)
       : base(origin)
     {
-      this.query = query;
+      this.request = request;
       this.handlers = handlers;
-      Parameters = new Dictionary<SqlParameter, Func<object>>();
     }
 
-    public SqlProvider(CompilableProvider origin, SqlSelect query, HandlerAccessor handlers, IEnumerable<KeyValuePair<SqlParameter, Func<object>>> parameters)
-      : this(origin, query, handlers)
+    public SqlProvider(CompilableProvider origin, SqlQueryRequest request, HandlerAccessor handlers, IEnumerable<KeyValuePair<SqlParameter, Func<object>>> parameterBindings)
+      : this(origin, request, handlers)
     {
-      foreach (var pair in parameters)
-        Parameters.Add(pair.Key, pair.Value);
+      foreach (var pair in parameterBindings)
+        request.ParameterBindings.Add(pair.Key, pair.Value);
     }
   }
 }

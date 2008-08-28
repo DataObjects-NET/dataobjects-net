@@ -23,13 +23,14 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
       if (source == null)
         return null;
 
-      var queryRef = SqlFactory.QueryRef(source.Query);
+      var queryRef = SqlFactory.QueryRef(source.Request.Statement as SqlSelect);
       SqlSelect query = SqlFactory.Select(queryRef);
       query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
       foreach (KeyValuePair<int, Direction> sortOrder in provider.Order)
         query.OrderBy.Add(sortOrder.Key, sortOrder.Value==Direction.Positive);
 
-      return new SqlProvider(provider, query, Handlers, source.Parameters);
+      SqlQueryRequest request = new SqlQueryRequest(query, provider.Header.TupleDescriptor, source.Request.ParameterBindings);
+      return new SqlProvider(provider, request, Handlers);
     }
 
 

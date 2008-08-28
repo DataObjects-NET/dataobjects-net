@@ -292,7 +292,7 @@ namespace Xtensive.Storage.Tests.Storage
           }
 
           Session.Current.Persist();
-
+        return;
           Tuple from = Tuple.Create(21);
           Tuple to = Tuple.Create(120);
           Tuple fromName = Tuple.Create("Kaa");

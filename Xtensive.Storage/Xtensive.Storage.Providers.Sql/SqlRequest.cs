@@ -2,30 +2,43 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Dmitri Maximov
-// Created:    2008.08.22
+// Created:    2008.08.27
 
 using System.Collections.Generic;
-using Xtensive.Core.Tuples;
 using Xtensive.Sql.Dom;
+using Xtensive.Sql.Dom.Compiler;
 
 namespace Xtensive.Storage.Providers.Sql
 {
-  public class SqlRequest
+  public abstract class SqlRequest
   {
+    private SqlCompilerResults compilationResult;
+
     public ISqlCompileUnit Statement { get; private set; }
 
-    public List<SqlParameter> Parameters { get; private set; }
+    public string CompiledStatement
+    {
+      get { return compilationResult.CommandText; }
+    }
 
-    public TupleDescriptor TupleDescriptor { get; private set; }
+    public abstract List<SqlParameter> GetParameters();
+
+    public void CompileWith(SqlDriver driver)
+    {
+      if (compilationResult!=null)
+        return;
+      int i = 0;
+      foreach (SqlParameter p in GetParameters())
+        p.ParameterName = "p" + i++;
+      compilationResult = driver.Compile(Statement);
+    }
 
 
-    // Constructor
+    // Constructors
 
-    public SqlRequest(ISqlCompileUnit statement, TupleDescriptor tupleDescriptor)
+    protected SqlRequest(ISqlCompileUnit statement)
     {
       Statement = statement;
-      TupleDescriptor = tupleDescriptor;
-      Parameters = new List<SqlParameter>();
     }
   }
 }

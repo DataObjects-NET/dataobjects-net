@@ -54,12 +54,13 @@ namespace Xtensive.Storage.Tests.Storage
 
       // Creating a book
       using (Domain.OpenSession()) {
-        Book b = new Book();
-        key = b.Key;
-        b.Title = TITLE;
-        b.Text = TEXT;
-
-        Session.Current.Persist();
+        using (var t = Session.Current.OpenTransaction()) {
+          Book b = new Book();
+          key = b.Key;
+          b.Title = TITLE;
+          b.Text = TEXT;
+          t.Complete();
+        }
       }
     }
 

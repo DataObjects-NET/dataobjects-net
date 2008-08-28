@@ -75,9 +75,10 @@ namespace Xtensive.Storage.Providers.MsSql
       batch.Add(SqlFactory.Drop(temp));
       schema.Tables.Remove(temp);
   
-      SqlRequest request = new SqlRequest(batch, Hierarchy.KeyTupleDescriptor);
+      SqlQueryRequest request = new SqlQueryRequest(batch, Hierarchy.KeyTupleDescriptor);
       using (Handlers.DomainHandler.OpenSession(SessionType.System)) {
         var handler = (SessionHandler)Handlers.SessionHandler;
+        request.CompileWith(handler.Driver);
         using (var e = handler.Execute(request)) {
           while (e.MoveNext())
             result.Add(e.Current);

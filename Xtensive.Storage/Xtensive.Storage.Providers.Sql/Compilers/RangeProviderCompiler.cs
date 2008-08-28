@@ -88,7 +88,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
       if (source == null)
         return null;
 
-      SqlSelect query = source.Query.Clone() as SqlSelect;
+      SqlSelect query = source.Request.Statement.Clone() as SqlSelect;
 
       var range = provider.CompiledRange.Invoke();
       var direction = range.GetDirection(AdvancedComparer<IEntire<Tuple>>.Default);
@@ -108,7 +108,8 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
 
       query.Where &= expressionDataFrom.Expression & expressionDataTo.Expression;
 
-      return new SqlProvider(provider, query, Handlers, source.Parameters);
+      SqlQueryRequest request = new SqlQueryRequest(query, provider.Header.TupleDescriptor, source.Request.ParameterBindings);
+      return new SqlProvider(provider, request, Handlers);
     }
 
 

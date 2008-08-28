@@ -22,10 +22,11 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
       if (source == null)
         return null;
 
-      var queryRef  = SqlFactory.QueryRef(source.Query, provider.Alias);
+      var queryRef  = SqlFactory.QueryRef(source.Request.Statement as SqlSelect, provider.Alias);
       var sqlSelect = SqlFactory.Select(queryRef);
       sqlSelect.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
-      return new SqlProvider(provider, sqlSelect, Handlers, source.Parameters);
+      SqlQueryRequest request = new SqlQueryRequest(sqlSelect, provider.Header.TupleDescriptor, source.Request.ParameterBindings);
+      return new SqlProvider(provider, request, Handlers);
     }
 
 

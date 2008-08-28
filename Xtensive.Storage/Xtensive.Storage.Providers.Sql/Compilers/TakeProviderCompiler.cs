@@ -20,10 +20,11 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
       if (source == null)
         return null;
 
-      var query = source.Query.Clone() as SqlSelect;
-      if (source.Query.Top==0 || source.Query.Top > provider.CompiledCount())
-        source.Query.Top = provider.CompiledCount();
-      return new SqlProvider(provider, query, Handlers, source.Parameters);
+      var query = source.Request.Statement.Clone() as SqlSelect;
+      if (query.Top==0 || query.Top > provider.CompiledCount())
+        query.Top = provider.CompiledCount();
+      SqlQueryRequest request = new SqlQueryRequest(query, provider.Header.TupleDescriptor, source.Request.ParameterBindings);
+      return new SqlProvider(provider, request, Handlers);
     }
 
     // Constructor

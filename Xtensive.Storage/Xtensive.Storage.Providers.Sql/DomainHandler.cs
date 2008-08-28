@@ -66,8 +66,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       Table table;
       if (!realIndexes.TryGetValue(indexInfo, out table))
-        throw new InvalidOperationException(String.Format(
-          Strings.ExTypeHasNoPrimaryIndex, indexInfo.Name));
+        throw new InvalidOperationException(String.Format(Strings.ExTypeHasNoPrimaryIndex, indexInfo.Name));
       return table;
     }
 

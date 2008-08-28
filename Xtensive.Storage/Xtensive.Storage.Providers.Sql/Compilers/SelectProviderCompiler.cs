@@ -25,11 +25,12 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
       if (source == null)
         return null;
 
-      var queryRef = SqlFactory.QueryRef(source.Query);
+      var queryRef = SqlFactory.QueryRef(source.Request.Statement as SqlSelect);
       SqlSelect query = SqlFactory.Select(queryRef);
       query.Columns.AddRange(provider.ColumnIndexes.Select(i => (SqlColumn)queryRef.Columns[i]));
+      SqlQueryRequest request = new SqlQueryRequest(query, provider.Header.TupleDescriptor, source.Request.ParameterBindings);
 
-      return new SqlProvider(provider, query, Handlers, source.Parameters);
+      return new SqlProvider(provider, request, Handlers);
     }
 
 

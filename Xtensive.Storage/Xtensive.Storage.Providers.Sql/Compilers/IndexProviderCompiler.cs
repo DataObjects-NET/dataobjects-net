@@ -25,7 +25,8 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
     {
       var index = provider.Index.Resolve(Handlers.Domain.Model);
       SqlSelect query = BuildProviderQuery(index);
-      return new SqlProvider(provider, query, Handlers);
+      SqlQueryRequest request = new SqlQueryRequest(query, provider.Header.TupleDescriptor);
+      return new SqlProvider(provider, request, Handlers);
     }
 
     private SqlSelect BuildProviderQuery(IndexInfo index)

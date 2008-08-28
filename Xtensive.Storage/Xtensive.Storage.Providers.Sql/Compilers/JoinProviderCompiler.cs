@@ -4,7 +4,11 @@
 // Created by: Alexey Kochetov
 // Created:    2008.07.14
 
+using System;
+using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Core.Tuples;
+using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
@@ -23,8 +27,8 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
 
       if (left == null || right == null)
         return null;
-      var leftQuery = SqlFactory.QueryRef(left.Query);
-      var rightQuery = SqlFactory.QueryRef(right.Query);
+      var leftQuery = SqlFactory.QueryRef(left.Request.Statement as SqlSelect);
+      var rightQuery = SqlFactory.QueryRef(right.Request.Statement as SqlSelect);
       var joinedTable = SqlFactory.Join(
         provider.LeftJoin ? SqlJoinType.LeftOuterJoin : SqlJoinType.InnerJoin,
         leftQuery,
@@ -40,8 +44,8 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
       //        query.Where &= left.Query.Where;
       //      if (!SqlExpression.IsNull(right.Query.Where))
       //        query.Where &= right.Query.Where;
-
-      return new SqlProvider(provider, query, Handlers, left.Parameters.Union(right.Parameters));
+      SqlQueryRequest request = new SqlQueryRequest(query, provider.Header.TupleDescriptor, left.Request.ParameterBindings.Union(right.Request.ParameterBindings));
+      return new SqlProvider(provider, request, Handlers);
     }
 
 
