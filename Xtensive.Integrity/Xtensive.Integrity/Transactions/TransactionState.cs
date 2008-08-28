@@ -9,20 +9,20 @@ using System;
 namespace Xtensive.Integrity.Transactions
 {
   /// <summary>
-  /// Indicates operational state of the <see cref="TransactionBase{TScope,TTransaction}"/> instance.
+  /// Indicates operational state of the <see cref="TransactionBase"/> instance.
   /// </summary>
   [Serializable]
   public enum TransactionState
   {
     /// <summary>
-    /// Default transaction state (<see cref="Invalid"/>).
+    /// Default transaction state (<see cref="NotActivated"/>).
     /// </summary>
-    Default = Invalid,
+    Default = NotActivated,
 
     /// <summary>
-    /// The transaction state is invalid \ unknown.
+    /// The transaction state is not activated.
     /// </summary>
-    Invalid = 0,
+    NotActivated = 0,
 
     /// <summary>
     /// The transaction is completed.
@@ -35,8 +35,7 @@ namespace Xtensive.Integrity.Transactions
     Active = 2,
 
     /// <summary>
-    /// The transaction is completing (<see cref="TransactionBase{TScope, TTransaction}.Commit"/> or
-    /// <see cref="TransactionBase{TScope,TTransaction}.Rollback"/> method is called, but not finished yet).
+    /// The transaction is completing.
     /// </summary>
     Completing = 6,
 
@@ -45,7 +44,7 @@ namespace Xtensive.Integrity.Transactions
     /// </summary>
     Committed = 8+1,
     /// <summary>
-    /// The transaction has started <see cref="TransactionBase{TScope, TTransaction}.Commit"/> method but still running.
+    /// The transaction has started <see cref="TransactionBase.Commit"/> method but still running.
     /// </summary>
     Committing = 8+6,
     
@@ -55,7 +54,7 @@ namespace Xtensive.Integrity.Transactions
     RolledBack = 16+1,
 
     /// <summary>
-    /// The transaction has started <see cref="TransactionBase{TScope, TTransaction}.Rollback"/> method but still running.
+    /// The transaction has started <see cref="TransactionBase.Rollback"/> method but still running.
     /// </summary>
     RollingBack = 16+6,
   }

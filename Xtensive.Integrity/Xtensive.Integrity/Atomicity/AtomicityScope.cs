@@ -69,7 +69,7 @@ namespace Xtensive.Integrity.Atomicity
     /// </summary>
     protected override void Dispose(bool disposing)
     {
-      cleanUndoScope.DisposeSafely();      
+      cleanUndoScope.DisposeSafely();
       cleanRedoScope.DisposeSafely();
       try {
         Context.OnDeactivate(this);

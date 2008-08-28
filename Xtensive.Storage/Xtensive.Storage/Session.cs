@@ -14,6 +14,7 @@ using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Disposable;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Integrity.Atomicity;
+using Xtensive.Integrity.Transactions;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
@@ -45,7 +46,7 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets the active transaction.
     /// </summary>    
-    public Transaction ActiveTransaction { get; private set; }
+    public Transaction Transaction { get; private set; }
 
     /// <summary>
     /// Opens new transaction, if there is no active one.
@@ -53,12 +54,13 @@ namespace Xtensive.Storage
     /// <returns>Scope of the active transaction.</returns>
     public TransactionScope BeginTransaction()
     {
-      if (ActiveTransaction==null) {
-        ActiveTransaction = new Transaction(this);
+      if (Transaction==null) {
+        Transaction = new Transaction(this);
         Handler.BeginTransaction();
-      }      
+        return Transaction.Activate();
+      }
 
-      return ActiveTransaction.Activate();
+      return null;
     }
 
     internal void OnTransactionCommit()
@@ -87,7 +89,7 @@ namespace Xtensive.Storage
 
     private void OnTranscationFinished()
     {
-      ActiveTransaction = null;
+      Transaction = null;
       DataCache.Reset();
     }
 
@@ -204,6 +206,7 @@ namespace Xtensive.Storage
     {
       if (IsActive)
         return null;
+
       return new SessionScope(this);
     }
 

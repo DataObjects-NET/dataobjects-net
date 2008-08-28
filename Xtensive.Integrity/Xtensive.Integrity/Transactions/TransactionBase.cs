@@ -16,16 +16,11 @@ namespace Xtensive.Integrity.Transactions
   /// <summary>
   /// Base class for any transaction.
   /// </summary>
-  /// <typeparam name="TScope">Actual scope type.</typeparam>
-  /// <typeparam name="TTransaction">Actual transaction type.</typeparam>
-  public abstract class TransactionBase<TScope, TTransaction> : Context<TScope>, 
-    ITransaction<TScope>
-    where TScope: TransactionScopeBase<TScope, TTransaction>
-    where TTransaction: TransactionBase<TScope, TTransaction>
+  public abstract class TransactionBase : ITransaction
   {
     private readonly Guid identifier;
     private IsolationLevel isolationLevel;
-    private TransactionState state = TransactionState.Active;
+    private TransactionScope scope;
 
     #region IIdentified<Guid> Members
 
@@ -44,10 +39,7 @@ namespace Xtensive.Integrity.Transactions
     #endregion
 
     /// <inheritdoc/>
-    public TransactionState State {
-      [DebuggerStepThrough]
-      get { return state; }
-    }
+    public TransactionState State { get; private set; }
 
     /// <inheritdoc/>
     public IsolationLevel IsolationLevel {
@@ -55,10 +47,18 @@ namespace Xtensive.Integrity.Transactions
       get { return isolationLevel; }
     }
 
-    /// <inheritdoc/>
-    public override bool IsActive {
-      [DebuggerStepThrough]
-      get { return TransactionScopeBase<TScope, TTransaction>.CurrentTransaction == this; }
+    /// <summary>
+    /// Activates this transaction.
+    /// </summary>
+    /// <returns>Scope of this transaction.</returns>
+    public TransactionScope Activate()
+    {
+      if (State!=TransactionState.NotActivated)
+        throw new InvalidOperationException(Strings.ExTransactionIsAlreadyActivated);
+      OnActivate();
+      State = TransactionState.Active;
+      scope = new TransactionScope(this);
+      return scope;
     }
 
     #region Commit, Rollback
@@ -74,16 +74,16 @@ namespace Xtensive.Integrity.Transactions
     /// </summary>
     internal void Commit()
     {
-      if (state != TransactionState.Active)
+      if (State != TransactionState.Active)
         throw new InvalidOperationException(String.Format(
-          Strings.ExInvalidTransactionState, state, TransactionState.Active));
-      state = TransactionState.Committing;
+          Strings.ExInvalidTransactionState, State, TransactionState.Active));
+      State = TransactionState.Committing;
       try {
         OnCommit();
-        state = TransactionState.Committed;
+        State = TransactionState.Committed;
       }
       catch {
-        state = TransactionState.RolledBack;
+        State = TransactionState.RolledBack;
         throw;
       }
     }
@@ -93,19 +93,24 @@ namespace Xtensive.Integrity.Transactions
     /// </summary>
     public void Rollback()
     {
-      if (state != TransactionState.Active)
+      if (State != TransactionState.Active)
         throw new InvalidOperationException(String.Format(
-          Strings.ExInvalidTransactionState, state, TransactionState.Active));
-      state = TransactionState.RollingBack;
+          Strings.ExInvalidTransactionState, State, TransactionState.Active));
+      State = TransactionState.RollingBack;
       try {
         OnRollback();
       }
       finally {
-        state = TransactionState.RolledBack;
+        State = TransactionState.RolledBack;
       }
     }
 
     #endregion
+
+    /// <summary>
+    /// Called when transaction is being activated.
+    /// </summary>
+    protected abstract void OnActivate();
 
     /// <summary>
     /// Called when transaction is about to commit.
@@ -127,6 +132,7 @@ namespace Xtensive.Integrity.Transactions
     protected TransactionBase(Guid identifier)
     {
       this.identifier = identifier;
+      State = TransactionState.NotActivated;
     }
   }
 }

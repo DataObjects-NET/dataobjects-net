@@ -11,6 +11,7 @@ using PostSharp.Laos;
 using Xtensive.Core.Aspects.Helpers;
 using Xtensive.Core.Disposable;
 using Xtensive.Core.Helpers;
+using Xtensive.Integrity.Transactions;
 using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Aspects

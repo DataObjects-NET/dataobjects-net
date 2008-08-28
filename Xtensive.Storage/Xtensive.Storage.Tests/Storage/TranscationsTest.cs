@@ -62,7 +62,7 @@ namespace Xtensive.Storage.Tests.Storage.TranscationsTest
           hexagon.Kwanza = 36;
           t.Complete();
         }
-
+        
         using (Session.Current.BeginTransaction()) {
           hexagon.Remove();
           AssertEx.ThrowsInvalidOperationException( delegate { hexagon.Kwanza = 20; });

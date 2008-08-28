@@ -7,6 +7,7 @@
 using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Integrity.Transactions;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Core.Helpers;

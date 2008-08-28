@@ -13,18 +13,17 @@ namespace Xtensive.Storage
   /// <summary>
   /// Transaction implementation.
   /// </summary>
-  public sealed class Transaction : TransactionBase<TransactionScope, Transaction>
+  public sealed class Transaction : TransactionBase
   {
     /// <summary>
-    /// Gets the session.
+    /// Gets the validation context of the transaction.
     /// </summary>    
-    public Session Session { get; private set; }
+    public ValidationContext ValidationContext { get; private set; }
 
-    /// <inheritdoc/>
-    protected override TransactionScope CreateActiveScope()
-    {
-      return new TransactionScope(this);
-    }
+    /// <summary>
+    /// Gets the session.
+    /// </summary>
+    public Session Session { get; private set; }
 
     /// <inheritdoc/>
     protected override void OnCommit()
@@ -38,13 +37,17 @@ namespace Xtensive.Storage
       Session.OnTransactionRollback();
     }
 
+    /// <inheritdoc/>
+    protected override void OnActivate()
+    {
+    }
 
     // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="session">The session.</param>    
+    /// <param name="session">The session.</param>
     internal Transaction(Session session)
       : this (session, Guid.NewGuid())
     {
@@ -53,12 +56,13 @@ namespace Xtensive.Storage
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="session">The session.</param>    
-    /// <param name="identifier">The identifier.</param>    
+    /// <param name="session">The session.</param>
+    /// <param name="identifier">The identifier.</param>
     internal Transaction(Session session, Guid identifier)
       : base (identifier)
     {
-      Session = session;      
+      Session = session;
+      ValidationContext = new ValidationContext();
     }
   }
 }

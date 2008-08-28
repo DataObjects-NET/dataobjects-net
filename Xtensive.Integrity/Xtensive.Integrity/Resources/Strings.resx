@@ -186,4 +186,7 @@
   <data name="X" xml:space="preserve">
     <value>{0}</value>
   </data>
+  <data name="ExTransactionIsAlreadyActivated" xml:space="preserve">
+    <value>Transaction is already activated.</value>
+  </data>
 </root>

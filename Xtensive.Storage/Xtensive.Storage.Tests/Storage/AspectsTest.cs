@@ -83,19 +83,19 @@ namespace Xtensive.Storage.Tests.Storage.AspectsTest
         BusinessObject obj = new BusinessObject();
 
         obj.PublicMethod(
-          o => Assert.IsNotNull(o.Session.ActiveTransaction));
+          o => Assert.IsNotNull(o.Session.Transaction));
 
         obj.InfrastructureMethod(
-          o => Assert.IsNull(o.Session.ActiveTransaction));
+          o => Assert.IsNull(o.Session.Transaction));
 
         obj.CallInternalMethod(
-          o => Assert.IsNull(o.Session.ActiveTransaction));
+          o => Assert.IsNull(o.Session.Transaction));
 
         obj.CallProtectedMethod(
-          o => Assert.IsNull(o.Session.ActiveTransaction));
+          o => Assert.IsNull(o.Session.Transaction));
 
         obj.CallPrivateMethod(
-          o => Assert.IsNull(o.Session.ActiveTransaction));        
+          o => Assert.IsNull(o.Session.Transaction));        
       }
     }
     
@@ -112,10 +112,10 @@ namespace Xtensive.Storage.Tests.Storage.AspectsTest
           // Check that transaction will be started in obj.Session, but not in second session.
 
           obj.PublicMethod(
-            o => Assert.IsNotNull(o.Session.ActiveTransaction));
+            o => Assert.IsNotNull(o.Session.Transaction));
 
           obj.PublicMethod(
-            o => Assert.IsNull(session2.ActiveTransaction));
+            o => Assert.IsNull(session2.Transaction));
         }
       }      
     }

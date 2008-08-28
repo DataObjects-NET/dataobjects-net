@@ -88,8 +88,9 @@ namespace Xtensive.TransactionLog
     public void Append(ITransactionInfo<TKey> record)
     {
       ArgumentValidator.EnsureArgumentNotNull(record, "record");
-      if (record.State==TransactionState.Invalid)
-        throw new InvalidOperationException(string.Format(Strings.ExRecordXxxStateIsInvalid, record.Identifier));
+      if (record.State==TransactionState.NotActivated)
+        throw new InvalidOperationException(
+          string.Format(Strings.ExRecordXxxStateIsInvalid, record.Identifier));
       TKey key = record.Identifier;
       if (firstUncommited.HasValue && firstUncommited.Value.CompareTo(key) > 0)
         throw new InvalidOperationException(Strings.ExInvalidKeySequance);

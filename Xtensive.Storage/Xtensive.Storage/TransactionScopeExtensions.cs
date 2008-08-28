@@ -20,7 +20,7 @@ namespace Xtensive.Storage
     /// <param name="scope">The scope to complete .</param>
     public static void Complete(this TransactionScope scope)
     {
-      TransactionScopeBase<TransactionScope, Transaction>.Complete(scope);
+      TransactionScope.Complete(scope);
     }
   }
 }
