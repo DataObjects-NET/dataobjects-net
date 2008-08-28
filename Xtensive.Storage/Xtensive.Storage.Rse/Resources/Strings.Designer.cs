@@ -113,5 +113,14 @@ namespace Xtensive.Storage.Rse.Resources {
                 return ResourceManager.GetString("ExXMustBeActive", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Value with name {0} doesn&apos;t exist..
+        /// </summary>
+        internal static string ValueWithNameXIsNotSet {
+            get {
+                return ResourceManager.GetString("ValueWithNameXIsNotSet", resourceCulture);
+            }
+        }
     }
 }

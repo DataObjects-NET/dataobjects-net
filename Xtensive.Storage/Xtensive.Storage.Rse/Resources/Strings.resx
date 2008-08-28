@@ -135,4 +135,7 @@
   <data name="ExAtLeastOneColumnIndexPairMustBeSpecified" xml:space="preserve">
     <value>At least one column index pair must be specified.</value>
   </data>
+  <data name="ValueWithNameXIsNotSet" xml:space="preserve">
+    <value>Value with name {0} doesn't exist.</value>
+  </data>
 </root>

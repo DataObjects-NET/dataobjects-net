@@ -9,9 +9,9 @@ using System.Collections;
 using System.Collections.Generic;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
-using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers;
+using Xtensive.Storage.Rse.Providers.Compilable;
 using Xtensive.Core.Disposable;
 
 namespace Xtensive.Storage.Rse
@@ -38,6 +38,15 @@ namespace Xtensive.Storage.Rse
     /// </summary>
     public CompilableProvider Provider { get; private set; }
 
+    /// <summary>
+    /// Creates <see cref="LoadProvider"/> with specified <see cref="RecordSetHeader"/>
+    /// and name for saved context data .
+    /// </summary>
+    public static RecordSet Load(RecordSetHeader header, string name)
+    {
+      return new LoadProvider(header, name).Result;
+    }
+
     #region IEnumerable<...> methods
 
     /// <inheritdoc/>
@@ -61,7 +70,6 @@ namespace Xtensive.Storage.Rse
     }
 
     #endregion
-
 
     // Constructors
 

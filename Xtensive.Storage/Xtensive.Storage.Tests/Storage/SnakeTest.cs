@@ -11,6 +11,7 @@ using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core;
+using Xtensive.Core.Helpers;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Parameters;
@@ -22,9 +23,12 @@ using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers.Index;
 using Xtensive.Storage.Rse;
+using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
 using Xtensive.Storage.Tests.Storage.SnakesModel;
 using SeekResultType=Xtensive.Indexing.SeekResultType;
+using Xtensive.Storage.Rse.Providers.Compilable;
+
 
 namespace Xtensive.Storage.Tests.Storage.SnakesModel
 {
@@ -82,6 +86,49 @@ namespace Xtensive.Storage.Tests.Storage
       DomainConfiguration config = base.BuildConfiguration();
       config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.Storage.SnakesModel");
       return config;
+    }
+
+    [Test]
+    public void ProviderTest()
+    {
+      const int snakesCount = 100;
+      const int creaturesCount = 100;
+      const int lizardsCount = 100;
+
+      TestFixtureTearDown();
+      TestFixtureSetUp();
+
+      using (Domain.OpenSession())
+      {
+        using (var t = Session.Current.BeginTransaction())
+        {
+
+          for (int i = 0; i < snakesCount; i++)
+            new Snake { Name = ("Kaa" + i), Length = i };
+          for (int j = 0; j < creaturesCount; j++)
+            new Creature { Name = ("Creature" + j) };
+          for (int i = 0; i < lizardsCount; i++)
+            new Lizard { Name = ("Lizard" + i), Color = ("Color" + i) };
+
+          Session.Current.Persist();
+
+          TypeInfo snakeType = Domain.Model.Types[typeof(Snake)];
+          RecordSet rsSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordSet();
+
+          RecordSet result = rsSnakePrimary.
+            Take(10).
+            Take(5).
+            Save("name");
+          result.Count();
+
+          //string name = result.Provider.GetService<IProvideNamedResult>(true).GetResultName();
+          var rs = RecordSet.Load(result.Header,"name");
+          rs.Count();
+          t.Complete();
+        }
+      }
+
+
     }
 
     [Test]

@@ -5,8 +5,6 @@
 // Created:    2008.05.08
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
@@ -147,6 +145,16 @@ namespace Xtensive.Storage.Rse
       if (column == null)
         throw new ArgumentException("columnName");
       return column.Index;
+    }
+
+    public static RecordSet Save(this RecordSet recordSet)
+    {
+      return new SaveProvider(recordSet.Provider).Result;
+    }
+
+    public static RecordSet Save(this RecordSet recordSet, string name)
+    {
+      return new SaveProvider(recordSet.Provider, name).Result;
     }
   }
 }

@@ -12,21 +12,20 @@ using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Diagnostics;
-using Xtensive.Core.Indexing;
+using Xtensive.Indexing;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers;
-using Xtensive.Storage.Rse.Storage;
 
-namespace Xtensive.Storage.Tests.Query.Providers
+namespace Xtensive.Storage.Tests.Providers
 {
   [TestFixture]
   public class SortProviderTest
   {
     private TupleDescriptor pKeyDescriptor;
     private TupleDescriptor entityValueDescriptor;
-    private MemoryIndex primaryIndex;
-    private DirectionCollection<RecordColumn> fkSortOrder;
+    private IIndex primaryIndex;
+    private DirectionCollection<Column> fkSortOrder;
     private const int itemCount = 10000;
 
     [TestFixtureSetUp]

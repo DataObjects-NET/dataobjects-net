@@ -35,6 +35,8 @@ namespace Xtensive.Storage
     private readonly ThreadSafeDictionary<RecordSetHeader, RecordSetMapping> recordSetMappings = 
       ThreadSafeDictionary<RecordSetHeader, RecordSetMapping>.Create(new object());
     private int sessionCounter = 1;
+    private NamedValueCollection savedValues;
+    private static DomainSavedData domainSavedData;
 
     /// <summary>
     /// Gets the configuration.
@@ -73,6 +75,16 @@ namespace Xtensive.Storage
     public KeyManager KeyManager {
       [DebuggerStepThrough]
       get { return Handlers.KeyManager; }
+    }
+
+    /// <summary>
+    /// Gets the collection of saved context values.
+    /// </summary>
+    public NamedValueCollection SavedValues
+    {
+      [DebuggerStepThrough]
+      get { return savedValues; }
+      set { savedValues = value;}
     }
 
     internal DomainHandler Handler {
@@ -118,6 +130,10 @@ namespace Xtensive.Storage
         Log.Debug("Opening session '{0}'", configuration);
 
       var session = new Session(this, configuration);
+
+      savedValues = new NamedValueCollection();
+      domainSavedData = new DomainSavedData(session);
+      domainSavedData.Activate();
       return new SessionScope(session);
     }
 

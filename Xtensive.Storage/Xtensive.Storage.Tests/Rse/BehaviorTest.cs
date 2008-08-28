@@ -131,7 +131,40 @@ namespace Xtensive.Storage.Tests.Rse
       foreach (Tuple record in result)
         Console.Out.WriteLine(record/*.GetValue<string>(result.IndexOf("Books.Title"))*/);
     }
+    [Test]
+    public void ProviderTest()
+    {
+      #region Populate recordset.
 
+      const int authorCount = 1000;
+      Tuple authorTuple = Tuple.Create(new[] { typeof(int), typeof(string), typeof(string) });
+      var authorColumns = new[]
+        {
+          new Column("ID", 0, typeof (int)),
+          new Column("FirstName", 1, typeof (string)),
+          new Column("LastName", 2, typeof (string)),
+        };
+      var authorHeader = new RecordSetHeader(authorTuple.Descriptor, authorColumns, ArrayUtils<ColumnGroup>.EmptyArray, TupleDescriptor.Empty, new DirectionCollection<int>());
+
+      var authors = new Tuple[authorCount];
+      for (int i = 0; i < authorCount; i++)
+      {
+        Tuple author = authorTuple.CreateNew();
+        author.SetValue(0, i);
+        author.SetValue(1, "FirstName" + i % 5);
+        author.SetValue(2, "LastName" + i / 5);
+        authors[i] = author;
+      }
+
+      RecordSet authorRS = authors
+        .ToRecordSet(authorHeader)
+        .OrderBy(new DirectionCollection<int>(0), true);
+
+      #endregion
+
+      ;
+      authorRS.Save("authors");
+    }
 
     [Test]
     public void RemovalTest()
