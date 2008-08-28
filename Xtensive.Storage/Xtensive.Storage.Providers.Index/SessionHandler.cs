@@ -18,7 +18,7 @@ namespace Xtensive.Storage.Providers.Index
   public class SessionHandler : Providers.SessionHandler
   {
     /// <inheritdoc/>
-    public override void OpenTransaction()
+    public override void BeginTransaction()
     {
       // TODO: Implement transactions;
     }

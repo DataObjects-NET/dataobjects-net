@@ -55,7 +55,7 @@ namespace Xtensive.Storage
     {
       if (ActiveTransaction==null) {
         ActiveTransaction = new Transaction(this);
-        Handler.OpenTransaction();
+        Handler.BeginTransaction();
       }      
 
       return ActiveTransaction.Activate();

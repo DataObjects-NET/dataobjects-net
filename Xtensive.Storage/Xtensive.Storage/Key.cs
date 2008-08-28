@@ -79,6 +79,19 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
+    /// Builds the <see cref="Key"/> according to specified key value.
+    /// </summary>
+    /// <typeparam name="TEntity">Type of <see cref="Entity"/> descendant to get <see cref="Key"/> for.</typeparam>
+    /// <typeparam name="TKey">Key value type.</typeparam>
+    /// <param name="keyValue">Key value.</param>
+    /// <returns>Newly created <see cref="Key"/> instance.</returns>
+    public static Key Get<TEntity, TKey>(TKey keyValue)
+      where TEntity: Entity
+    {
+      return Get(typeof(TEntity) ,Tuple.Create(keyValue));
+    }
+
+    /// <summary>
     /// Builds the <see cref="Key"/> according to specified <paramref name="tuple"/>.
     /// </summary>
     /// <param name="type">The type of <see cref="Entity"/> descendant to create a <see cref="Key"/> for.</param>

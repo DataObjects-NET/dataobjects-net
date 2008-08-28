@@ -25,7 +25,7 @@ namespace Xtensive.Storage.Providers
     /// <summary>
     /// Opens the transaction.
     /// </summary>
-    public abstract void OpenTransaction();
+    public abstract void BeginTransaction();
 
     /// <summary>
     /// Commits the transaction.
@@ -36,7 +36,6 @@ namespace Xtensive.Storage.Providers
     /// Rollbacks the transaction.
     /// </summary>    
     public abstract void RollbackTransaction();
-
 
     /// <summary>
     /// Persists changed entities.
@@ -54,12 +53,24 @@ namespace Xtensive.Storage.Providers
         Update(data);
       foreach (EntityData data in removed)
         Remove(data);
-    }    
+    }
 
+    /// <summary>
+    /// Inserts the specified data into database.
+    /// </summary>
+    /// <param name="data">The data to insert.</param>
     protected abstract void Insert(EntityData data);
 
+    /// <summary>
+    /// Updates the specified data in database.
+    /// </summary>
+    /// <param name="data">The data to update.</param>
     protected abstract void Update(EntityData data);
 
+    /// <summary>
+    /// Removes the specified data from database.
+    /// </summary>
+    /// <param name="data">The data to remove.</param>
     protected abstract void Remove(EntityData data);
 
     /// <inheritdoc/>

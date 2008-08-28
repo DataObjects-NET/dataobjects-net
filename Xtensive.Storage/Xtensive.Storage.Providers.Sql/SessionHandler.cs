@@ -82,7 +82,7 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <inheritdoc/>
-    public override void OpenTransaction()
+    public override void BeginTransaction()
     {
       EnsureConnectionIsOpen();
 
