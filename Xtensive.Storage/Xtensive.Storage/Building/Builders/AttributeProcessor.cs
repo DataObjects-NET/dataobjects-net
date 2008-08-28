@@ -40,7 +40,6 @@ namespace Xtensive.Storage.Building.Builders
     public static void Process(FieldDef field, FieldAttribute attribute)
     {
       ProcessMappingName(field, attribute, ValidationRule.Field);
-      ProcessIsNullable(field, attribute);
       ProcessIsTranslatable(field, attribute);
       ProcessIsCollatable(field, attribute);
       ProcessLength(field, attribute);
@@ -156,24 +155,6 @@ namespace Xtensive.Storage.Building.Builders
     {
       if (attribute.isTranslatable!=null)
         field.IsTranslatable = attribute.IsTranslatable;
-    }
-
-    private static void ProcessIsNullable(FieldDef field, FieldAttribute attribute)
-    {
-      if (attribute.isNullable!=null)
-        if (field.UnderlyingProperty.PropertyType.IsGenericType &&
-          field.UnderlyingProperty.PropertyType.GetGenericTypeDefinition()==typeof (Nullable<>))
-          if (attribute.IsNullable)
-            Log.Warning(Strings.ExplicitIsNullableAttributeIsRedundant);
-          else
-            throw new DomainBuilderException(
-              string.Format(
-                Strings.ExFieldXHasYTypeButIsMarkedAsNotNullable,
-                field.Name, field.UnderlyingProperty.PropertyType.Name));
-        else if (field.ValueType.IsSubclassOf(typeof (Entity)) && attribute.IsNullable)
-          Log.Warning(Strings.ExplicitIsNullableAttributeIsRedundant);
-        else
-          field.IsNullable = attribute.IsNullable;
     }
 
     private static void ProcessLazyLoad(FieldDef field, FieldAttribute attribute)

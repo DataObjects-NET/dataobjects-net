@@ -75,7 +75,7 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
   [Index("PenName:DESC", MappingName = "IX_PENNAME")]
   public class Author : Person
   {
-    [Field(IsNullable = true, Length = 64)]
+    [Field(Length = 64)]
     public string PenName { get; set; }
 
     [Field]

@@ -22,7 +22,7 @@ namespace Xtensive.Storage.Tests.Storage.BookAuthorModel
     [Field(Length = 10)]
     public string Title { get; set; }
 
-    [Field(LazyLoad = true, IsNullable = true)]
+    [Field(LazyLoad = true)]
     public string Text { get; set; }
 
     [Field]

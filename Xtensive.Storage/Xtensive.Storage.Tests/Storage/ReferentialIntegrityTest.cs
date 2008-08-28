@@ -24,7 +24,7 @@ namespace Xtensive.Storage.Tests.ReferentialIntegrityModel
 
   public class A : Root
   {
-    [Field(OnDelete = ReferentialAction.SetNull, IsNullable = true)]
+    [Field(OnDelete = ReferentialAction.SetNull)]
     public B B { get; set; }
 
     [Field(OnDelete = ReferentialAction.Restrict)]

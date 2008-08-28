@@ -17,7 +17,6 @@ namespace Xtensive.Storage.Attributes
   public sealed class FieldAttribute : MappingAttribute
   {
     internal bool? isCollatable;
-    internal bool? isNullable;
     internal bool? isTranslatable;
     internal int? length;
     internal bool? lazyLoad;
@@ -30,15 +29,6 @@ namespace Xtensive.Storage.Attributes
     {
       get { return length.HasValue ? length.Value : 0; }
       set { length = value; }
-    }
-
-    /// <summary>
-    /// Gets or sets a value indicating whether this instance is nullable.
-    /// </summary>
-    public bool IsNullable
-    {
-      get { return isNullable.HasValue ? isNullable.Value : false; }
-      set { isNullable = value; }
     }
 
     /// <summary>

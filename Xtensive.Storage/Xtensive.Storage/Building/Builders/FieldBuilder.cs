@@ -189,7 +189,6 @@ namespace Xtensive.Storage.Building.Builders
 
     public static void BuildInheritedField(TypeInfo type, FieldInfo inheritedField)
     {
-      BuildingContext context = BuildingContext.Current;
       Log.Info("Building inherited field '{0}.{1}'", type.Name, inheritedField.Name);
       FieldInfo field = inheritedField.Clone();
       type.Fields.Add(field);

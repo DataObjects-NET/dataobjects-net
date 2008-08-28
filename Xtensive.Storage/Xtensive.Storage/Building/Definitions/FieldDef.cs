@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Building.Definitions
     public bool IsNullable
     {
       get { return (attributes & FieldAttributes.Nullable) != 0; }
-      set
+      internal set
       {
         FieldBuilder.ValidateIsNullable(ValueType);
         attributes = value ? attributes | FieldAttributes.Nullable : attributes & ~FieldAttributes.Nullable;
@@ -188,7 +188,7 @@ namespace Xtensive.Storage.Building.Definitions
     {
       IsStructure = valueType.IsSubclassOf(typeof(Structure)) || valueType == typeof(Structure);
       IsEntity = valueType == typeof(Entity) || valueType.IsSubclassOf(typeof(Entity));
-      if (IsEntity)
+      if (valueType.IsClass)
         attributes |= FieldAttributes.Nullable;
       ValueType = valueType;
       if (valueType.IsGenericType) {

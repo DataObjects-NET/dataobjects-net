@@ -39,7 +39,7 @@ namespace Xtensive.Storage.Tests.Storage.SnakesModel
 
   public interface ICreature : IEntity
   {
-    [Field(Length = 255, IsNullable = true)]
+    [Field(Length = 255)]
     string Name { get; set; }
   }
 
