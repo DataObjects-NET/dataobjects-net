@@ -25,19 +25,22 @@ namespace Xtensive.Storage.Tests.Storage
     public void NotNullableViolationTest()
     {
       using (Domain.OpenSession()) {
-        Book book = new Book();
-        
-        // Text is nullable so it's OK
-        book.Text = null;
+        using (Session.Current.BeginTransaction()) {
 
-        // Title has length constraint (10 symbols) so InvalidOperationException is expected
-        AssertEx.ThrowsInvalidOperationException(() =>book.Title = "01234567890");
+          Book book = new Book();
 
-        // Title is not nullable so InvalidOperationException is expected
-        AssertEx.ThrowsInvalidOperationException(() => book.Title = null);
+          // Text is nullable so it's OK
+          book.Text = null;
 
-        // book.Title is not set yet so InvalidOperationException expected
-        Session.Current.Persist();
+          // Title has length constraint (10 symbols) so InvalidOperationException is expected
+          AssertEx.ThrowsInvalidOperationException(() => book.Title = "01234567890");
+
+          // Title is not nullable so InvalidOperationException is expected
+          AssertEx.ThrowsInvalidOperationException(() => book.Title = null);
+
+          // book.Title is not set yet so InvalidOperationException expected
+          AssertEx.ThrowsInvalidOperationException(() => Session.Current.Persist());
+        }
       }
     }
 
@@ -45,12 +48,16 @@ namespace Xtensive.Storage.Tests.Storage
     public void SessionBoundaryViolationTest()
     {
       using (Domain.OpenSession()) {
-        Author author = new Author();
-        using (Domain.OpenSession()) {
-          Book book = new Book();
+        using (Session.Current.BeginTransaction()) {
+          Author author = new Author();
+          using (Domain.OpenSession()) {
+            using ( Session.Current.BeginTransaction()) {
+              Book book = new Book();
 
-          // Author is bound to another session
-          AssertEx.ThrowsInvalidOperationException(() => book.Author = author);
+              // Author is bound to another session
+              AssertEx.ThrowsInvalidOperationException(() => book.Author = author);
+            }
+          }
         }
       }
     }

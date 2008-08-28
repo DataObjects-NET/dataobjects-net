@@ -236,7 +236,7 @@ namespace Xtensive.Storage
         data = Session.DataCache.Create(key, PersistenceState.New);
         OnCreating();
         transactionScope.Complete();
-      }
+        }
     }
 
     /// <summary>
