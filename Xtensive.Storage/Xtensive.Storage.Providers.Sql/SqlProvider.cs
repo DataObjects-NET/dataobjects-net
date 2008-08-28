@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Core.Tuples;
 using Xtensive.Sql.Dom;
-using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Rse.Providers;
 
 namespace Xtensive.Storage.Providers.Sql
@@ -28,7 +27,7 @@ namespace Xtensive.Storage.Providers.Sql
     protected override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
       var sessionHandler = (SessionHandler) handlers.SessionHandler;
-      request.CompileWith(sessionHandler.Driver);
+      sessionHandler.Compile(request);
       request.Bind();
       using (var e = sessionHandler.Execute(request)) {
         while (e.MoveNext())

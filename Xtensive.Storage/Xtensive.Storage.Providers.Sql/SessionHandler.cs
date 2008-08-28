@@ -5,6 +5,7 @@
 // Created:    2008.05.20
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
@@ -50,7 +51,6 @@ namespace Xtensive.Storage.Providers.Sql
     #endregion
 
     private SqlConnection connection;
-    private SqlDriver driver;
     private DomainHandler domainHandler;
     private ExpressionHandler expressionHandler;
 
@@ -70,18 +70,6 @@ namespace Xtensive.Storage.Providers.Sql
     /// Gets the active transaction.
     /// </summary>    
     public DbTransaction Transaction { get; private set; }
-
-    /// <summary>
-    /// Gets the driver.
-    /// </summary>
-    public SqlDriver Driver
-    {
-      get
-      {
-        EnsureConnectionIsOpen();
-        return driver;
-      }
-    }
 
     /// <inheritdoc/>
     public override void BeginTransaction()
@@ -112,6 +100,11 @@ namespace Xtensive.Storage.Providers.Sql
 
       Transaction.Rollback();
       Transaction = null;
+    }
+
+    public void Compile(SqlRequest request)
+    {
+      request.CompileWith(domainHandler.Driver);
     }
 
     public IEnumerator<Tuple> Execute(SqlQueryRequest request)
@@ -171,31 +164,12 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     protected override void Insert(EntityData data)
     {
-      SqlBatch batch = SqlFactory.Batch();
-      SqlModificationRequest request = new SqlModificationRequest(batch);
-      var parameterMapping = new Dictionary<ColumnInfo, SqlParameter>();
-      int j = 0;
-      foreach (IndexInfo primaryIndex in data.Type.AffectedIndexes.Where(i => i.IsPrimary)) {
-        SqlTableRef tableRef = SqlFactory.TableRef(domainHandler.GetTable(primaryIndex));
-        SqlInsert query = SqlFactory.Insert(tableRef);
-        for (int i = 0; i < primaryIndex.Columns.Count; i++) {
-          ColumnInfo column = primaryIndex.Columns[i];
-          int offset = data.Type.Fields[column.Field.Name].MappingInfo.Offset;
-          SqlParameter p;
-          if (!parameterMapping.TryGetValue(column, out p)) {
-            p = new SqlParameter("p" + j++);
-            parameterMapping.Add(column, p);
-          }
-          request.ParameterBindings[p] = (target => data.Tuple.IsNull(offset) ? DBNull.Value : data.Tuple.GetValue(offset));
-          query.Values[tableRef[i]] = SqlFactory.ParameterRef(p);
-        }
-        batch.Add(query);
-      }
-      request.CompileWith(Driver);
+      var type = data.Type;
+      SqlModificationRequest request = domainHandler.RequestBuilder.BuildInsertRequest(type);
       request.BindTo(data.Tuple);
       int rowsAffected = ExecuteNonQuery(request);
-      if (rowsAffected!=batch.Count)
-        throw new InvalidOperationException(String.Format(Strings.ExErrorOnInsert, data.Type.Name, rowsAffected, batch.Count));
+      if (rowsAffected!=request.ExpectedResult)
+        throw new InvalidOperationException(String.Format(Strings.ExErrorOnInsert, type.Name, rowsAffected, request.ExpectedResult));
     }
 
     /// <inheritdoc/>
@@ -238,7 +212,7 @@ namespace Xtensive.Storage.Providers.Sql
         }
         batch.Add(query);
       }
-      request.CompileWith(Driver);
+      Compile(request);
       request.BindTo(data.Tuple);
       int rowsAffected = ExecuteNonQuery(request);
       if (rowsAffected!=batch.Count)
@@ -269,7 +243,7 @@ namespace Xtensive.Storage.Providers.Sql
         }
         batch.Add(query);
       }
-      request.CompileWith(Driver);
+      Compile(request);
       request.BindTo(data.Tuple);
       int rowsAffected = ExecuteNonQuery(request);
       if (rowsAffected!=batch.Count)
@@ -286,7 +260,6 @@ namespace Xtensive.Storage.Providers.Sql
         if (connection==null)
           throw new InvalidOperationException(Strings.ExUnableToCreateConnection);
         connection.Open();
-        driver = connection.Driver;
       }
     }
 

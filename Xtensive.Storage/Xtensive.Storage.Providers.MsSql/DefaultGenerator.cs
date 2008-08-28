@@ -78,7 +78,7 @@ namespace Xtensive.Storage.Providers.MsSql
       SqlQueryRequest request = new SqlQueryRequest(batch, Hierarchy.KeyTupleDescriptor);
       using (Handlers.DomainHandler.OpenSession(SessionType.System)) {
         var handler = (SessionHandler)Handlers.SessionHandler;
-        request.CompileWith(handler.Driver);
+        handler.Compile(request);
         using (var e = handler.Execute(request)) {
           while (e.MoveNext())
             result.Add(e.Current);

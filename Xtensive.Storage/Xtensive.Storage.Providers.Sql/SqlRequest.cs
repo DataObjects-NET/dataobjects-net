@@ -23,7 +23,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     public abstract List<SqlParameter> GetParameters();
 
-    public void CompileWith(SqlDriver driver)
+    internal virtual  void CompileWith(SqlDriver driver)
     {
       if (compilationResult!=null)
         return;

@@ -14,12 +14,14 @@ namespace Xtensive.Storage.Providers.Sql
 {
   public class SqlModificationRequest : SqlRequest
   {
+    public Dictionary<SqlParameter, Func<Tuple, object>> ParameterBindings { get; private set; }
+
+    public int ExpectedResult { get; internal set; }
+
     public override List<SqlParameter> GetParameters()
     {
       return ParameterBindings.Keys.ToList();
     }
-
-    public Dictionary<SqlParameter, Func<Tuple, object>> ParameterBindings { get; private set; }
 
     public void BindTo(Tuple target)
     {

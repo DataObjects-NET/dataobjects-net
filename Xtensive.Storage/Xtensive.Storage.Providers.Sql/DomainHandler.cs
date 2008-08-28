@@ -27,19 +27,15 @@ namespace Xtensive.Storage.Providers.Sql
 {
   public abstract class DomainHandler : Providers.DomainHandler
   {
-    private Schema schema;
     private readonly Dictionary<IndexInfo, Table> realIndexes = new Dictionary<IndexInfo, Table>();
-    private SqlConnectionProvider connectionProvider;
 
-    public Schema Schema
-    {
-      get { return schema; }
-    }
+    public Schema Schema { get; private set; }
 
-    internal SqlConnectionProvider ConnectionProvider
-    {
-      get { return connectionProvider; }
-    }
+    public SqlRequestBuilder RequestBuilder { get; private set; }
+
+    internal SqlConnectionProvider ConnectionProvider { get; private set; }
+
+    internal SqlDriver Driver { get; private set; }
 
     /// <inheritdoc/>
     protected override CompilationContext BuildCompilationContext()
@@ -50,7 +46,9 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     public override void Build()
     {
-      SessionHandler sessionHandler = ((SessionHandler)BuildingScope.Context.SystemSessionHandler);      
+      RequestBuilder = new SqlRequestBuilder(this);
+      SessionHandler sessionHandler = ((SessionHandler)BuildingScope.Context.SystemSessionHandler);
+      Driver = sessionHandler.Connection.Driver;
       var modelProvider = new SqlModelProvider(sessionHandler.Connection, sessionHandler.Transaction);
       SqlModel existingModel = SqlModel.Build(modelProvider);
       string serverName = existingModel.DefaultServer.Name;
@@ -59,7 +57,7 @@ namespace Xtensive.Storage.Providers.Sql
       SqlModel newModel = BuildSqlModel(serverName, catalogName, schemaName);
       ISqlCompileUnit syncScript = GenerateSyncCatalogScript(Handlers.Domain.Model, existingModel.DefaultServer.Catalogs[catalogName], newModel.DefaultServer.Catalogs[catalogName]);
       sessionHandler.ExecuteNonQuery(syncScript);
-      schema = SqlModel.Build(modelProvider).DefaultServer.Catalogs[catalogName].DefaultSchema;
+      Schema = SqlModel.Build(modelProvider).DefaultServer.Catalogs[catalogName].DefaultSchema;
     }
 
     public virtual Table GetTable(IndexInfo indexInfo)
@@ -102,7 +100,7 @@ namespace Xtensive.Storage.Providers.Sql
     public override void Initialize()
     {
       base.Initialize();
-      connectionProvider = new SqlConnectionProvider();
+      ConnectionProvider = new SqlConnectionProvider();
     }
 
     #region Build related methods
