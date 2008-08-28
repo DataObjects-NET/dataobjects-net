@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Resources;
 using Xtensive.Core.Tuples.Transform;
@@ -23,6 +24,7 @@ namespace Xtensive.Core.Tuples
     private static MapCopyHandler         mapCopyHandler    = new MapCopyHandler();
     private static Map3CopyHandler        map3CopyHandler   = new Map3CopyHandler();
     private static InitializerHandler     initializerHandler   = new InitializerHandler();
+    private static readonly Dictionary<TupleFieldState, Func<TupleFieldState, TupleFieldState, bool>> fieldStatePredicates;
 
     #region Copy methods
 
@@ -200,6 +202,27 @@ namespace Xtensive.Core.Tuples
 
       InitializerData actionData = new InitializerData(target, nullableMap);
       target.Descriptor.Execute(initializerHandler, ref actionData, Direction.Positive);
+    }
+
+    /// <summary>
+    /// Gets the field state map of the specified <see cref="Tuple"/>.
+    /// </summary>
+    /// <param name="target">The <see cref="Tuple"/> to inspect.</param>
+    /// <param name="state">The state to compare with.</param>
+    /// <returns>Newly created <see cref="BitArray"/> instance which holds inspection result.</returns>
+    public static BitArray GetFieldStateMap(this ITuple target, TupleFieldState state)
+    {
+      return target.GetFieldStateMap(state, fieldStatePredicates[state]);
+    }
+
+    private static BitArray GetFieldStateMap(this ITuple target, TupleFieldState state, Func<TupleFieldState, TupleFieldState, bool> predicate)
+    {
+      BitArray result = new BitArray(target.Descriptor.Count);
+
+      for (int i = 0; i < target.Descriptor.Count; i++)
+        result[i] = predicate(state, target.GetFieldState(i));
+
+      return result;
     }
 
     #region Merge methods
@@ -530,5 +553,16 @@ namespace Xtensive.Core.Tuples
     }
 
     #endregion
+
+
+    // Type initializer
+
+    static TupleExtensions()
+    {
+      fieldStatePredicates = new Dictionary<TupleFieldState, Func<TupleFieldState, TupleFieldState, bool>>();
+      fieldStatePredicates.Add(TupleFieldState.Default, (request, result) => (result)==0);
+      fieldStatePredicates.Add(TupleFieldState.IsAvailable, (request, result) => (request & result) > 0);
+      fieldStatePredicates.Add(TupleFieldState.IsNull, fieldStatePredicates[TupleFieldState.IsAvailable]);
+    }
   }
 }
