@@ -107,8 +107,10 @@ namespace Xtensive.Sql.Dom
       if (results!=null)
         return;
       RealCommand.Parameters.Clear();
-      results = driver.Compile(statement);
-      base.CommandText = results.CommandText;
+      if (statement != null) {
+        results = driver.Compile(statement);
+        base.CommandText = results.CommandText;
+      }
       if (Parameters.Count==0)
         return;
       foreach (SqlParameter p in Parameters) {
@@ -194,7 +196,7 @@ namespace Xtensive.Sql.Dom
     {
       get {
         Prepare();
-        return results.CommandText;
+        return base.CommandText;
       }
       set { base.CommandText = value; }
     }

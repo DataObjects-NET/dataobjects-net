@@ -247,7 +247,7 @@ namespace Xtensive.Sql.Common
 
     private static DbType DetectDbType(Object value)
     {
-      if (value==null)
+      if (value==null || value==DBNull.Value)
         return cDefaultDbType;
 
       Type type = value.GetType();
