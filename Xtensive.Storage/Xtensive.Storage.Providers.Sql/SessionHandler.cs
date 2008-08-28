@@ -9,6 +9,8 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
+using Xtensive.Core;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Disposable;
 using Xtensive.Core.Tuples;
 using Xtensive.Sql.Dom;
@@ -171,18 +173,23 @@ namespace Xtensive.Storage.Providers.Sql
     {
       SqlBatch batch = SqlFactory.Batch();
       SqlModificationRequest request = new SqlModificationRequest(batch);
+      var parameterMapping = new Dictionary<ColumnInfo, SqlParameter>();
       int j = 0;
       foreach (IndexInfo primaryIndex in data.Type.AffectedIndexes.Where(i => i.IsPrimary)) {
         SqlTableRef tableRef = SqlFactory.TableRef(domainHandler.GetTable(primaryIndex));
-        SqlInsert insert = SqlFactory.Insert(tableRef);
+        SqlInsert query = SqlFactory.Insert(tableRef);
         for (int i = 0; i < primaryIndex.Columns.Count; i++) {
           ColumnInfo column = primaryIndex.Columns[i];
           int offset = data.Type.Fields[column.Field.Name].MappingInfo.Offset;
-          SqlParameter p = new SqlParameter("p" + j++);
+          SqlParameter p;
+          if (!parameterMapping.TryGetValue(column, out p)) {
+            p = new SqlParameter("p" + j++);
+            parameterMapping.Add(column, p);
+          }
           request.ParameterBindings[p] = (target => data.Tuple.IsNull(offset) ? DBNull.Value : data.Tuple.GetValue(offset));
-          insert.Values[tableRef[i]] = SqlFactory.ParameterRef(p);
+          query.Values[tableRef[i]] = SqlFactory.ParameterRef(p);
         }
-        batch.Add(insert);
+        batch.Add(query);
       }
       request.CompileWith(Driver);
       request.BindTo(data.Tuple);
@@ -195,32 +202,45 @@ namespace Xtensive.Storage.Providers.Sql
     protected override void Update(EntityData data)
     {
       SqlBatch batch = SqlFactory.Batch();
+      SqlModificationRequest request = new SqlModificationRequest(batch);
+      var parameterMapping = new Dictionary<ColumnInfo, SqlParameter>();
+      int j = 0;
       foreach (IndexInfo primaryIndex in data.Type.AffectedIndexes.Where(i => i.IsPrimary)) {
-        var domainHandler1 = (DomainHandler) Handlers.DomainHandler;
-        SqlTableRef tableRef = SqlFactory.TableRef(domainHandler1.GetTable(primaryIndex));
-        SqlUpdate update = SqlFactory.Update(tableRef);
+        SqlTableRef tableRef = SqlFactory.TableRef(domainHandler.GetTable(primaryIndex));
+        SqlUpdate query = SqlFactory.Update(tableRef);
 
         for (int i = 0; i < primaryIndex.Columns.Count; i++) {
           ColumnInfo column = primaryIndex.Columns[i];
           int offset = data.Type.Fields[column.Field.Name].MappingInfo.Offset;
-          var expressionData = new ExpressionData(data.Tuple);
-          data.Tuple.Descriptor.Execute(expressionHandler, ref expressionData, offset);
-          if (!SqlExpression.IsNull(expressionData.Expression))
-            update.Values[tableRef[i]] = expressionData.Expression;
-        }
-        SqlExpression where = null;
-        for (int i = 0; i < data.Type.Indexes.PrimaryIndex.KeyColumns.Count; i++) {
-          var expressionData = new ExpressionData(data.Key.Tuple);
-          data.Tuple.Descriptor.Execute(expressionHandler, ref expressionData, i);
-          if (!SqlExpression.IsNull(expressionData.Expression)) {
-            SqlBinary binary = tableRef[i]==expressionData.Expression;
-            where = SqlExpression.IsNull(where) ? binary : where & binary;
+          if (!data.Tuple.Difference.IsAvailable(offset))
+            continue;
+          SqlParameter p;
+          if (!parameterMapping.TryGetValue(column, out p)) {
+            p = new SqlParameter("p" + j++);
+            parameterMapping.Add(column, p);
           }
+          request.ParameterBindings[p] = (target => data.Tuple.IsNull(offset) ? DBNull.Value : data.Tuple.GetValue(offset));
+          query.Values[tableRef[i]] = SqlFactory.ParameterRef(p);
         }
-        update.Where = where;
-        batch.Add(update);
+        if (query.Values.Count == 0)
+          continue;
+        var columns = data.Type.Indexes.PrimaryIndex.KeyColumns;
+        for (int i = 0; i < columns.Count; i++) {
+          var column = columns[i].Key;
+          int offset = data.Type.Fields[column.Field.Name].MappingInfo.Offset;
+          SqlParameter p;
+          if (!parameterMapping.TryGetValue(column, out p)) {
+            p = new SqlParameter("p" + j++);
+            parameterMapping.Add(column, p);
+          }
+          request.ParameterBindings[p] = (target => data.Tuple.IsNull(offset) ? DBNull.Value : data.Tuple.GetValue(offset));
+          query.Where &= tableRef[i] == SqlFactory.ParameterRef(p);
+        }
+        batch.Add(query);
       }
-      int rowsAffected = ExecuteNonQuery(batch);
+      request.CompileWith(Driver);
+      request.BindTo(data.Tuple);
+      int rowsAffected = ExecuteNonQuery(request);
       if (rowsAffected!=batch.Count)
         throw new InvalidOperationException(String.Format(Strings.ExErrorOnUpdate, data.Type.Name, rowsAffected, batch.Count));
     }
@@ -229,26 +249,30 @@ namespace Xtensive.Storage.Providers.Sql
     protected override void Remove(EntityData data)
     {
       SqlBatch batch = SqlFactory.Batch();
-      int tableCount = 0;
+      SqlModificationRequest request = new SqlModificationRequest(batch);
+      var parameterMapping = new Dictionary<ColumnInfo, SqlParameter>();
+      int j = 0;
       foreach (IndexInfo index in data.Type.AffectedIndexes.Where(i => i.IsPrimary)) {
-        var domainHandler1 = (DomainHandler) Handlers.DomainHandler;
-        SqlTableRef tableRef = SqlFactory.TableRef(domainHandler1.GetTable(index));
-        SqlDelete delete = SqlFactory.Delete(tableRef);
-        SqlExpression where = null;
-        for (int i = 0; i < data.Type.Indexes.PrimaryIndex.KeyColumns.Count; i++) {
-          var expressionData = new ExpressionData(data.Key.Tuple);
-          data.Tuple.Descriptor.Execute(expressionHandler, ref expressionData, i);
-          if (!SqlExpression.IsNull(expressionData.Expression)) {
-            SqlBinary binary = tableRef[i]==expressionData.Expression;
-            where = SqlExpression.IsNull(where) ? binary : where & binary;
+        SqlTableRef tableRef = SqlFactory.TableRef(domainHandler.GetTable(index));
+        SqlDelete query = SqlFactory.Delete(tableRef);
+        var columns = data.Type.Indexes.PrimaryIndex.KeyColumns;
+        for (int i = 0; i < columns.Count; i++) {
+          var column = columns[i].Key;
+          int offset = data.Type.Fields[column.Field.Name].MappingInfo.Offset;
+          SqlParameter p;
+          if (!parameterMapping.TryGetValue(column, out p)) {
+            p = new SqlParameter("p" + j++);
+            parameterMapping.Add(column, p);
           }
+          request.ParameterBindings[p] = (target => data.Tuple.IsNull(offset) ? DBNull.Value : data.Tuple.GetValue(offset));
+          query.Where &= tableRef[i] == SqlFactory.ParameterRef(p);
         }
-        delete.Where = where;
-        batch.Add(delete);
-        tableCount++;
+        batch.Add(query);
       }
-      int rowsAffected = ExecuteNonQuery(batch);
-      if (rowsAffected!=tableCount)
+      request.CompileWith(Driver);
+      request.BindTo(data.Tuple);
+      int rowsAffected = ExecuteNonQuery(request);
+      if (rowsAffected!=batch.Count)
         if (rowsAffected==0)
           throw new InvalidOperationException(String.Format(Strings.ExInstanceNotFound, data.Key.Type.Name));
         else
