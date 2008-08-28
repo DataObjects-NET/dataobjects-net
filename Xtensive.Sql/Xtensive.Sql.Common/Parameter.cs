@@ -254,7 +254,6 @@ namespace Xtensive.Sql.Common
       switch (Type.GetTypeCode(type)) {
         case TypeCode.Empty:
         case TypeCode.DBNull:
-        case TypeCode.SByte:
           throw new ArgumentOutOfRangeException(Strings.ExInvalidDataType);
 
         case TypeCode.Char:
@@ -283,6 +282,8 @@ namespace Xtensive.Sql.Common
           else if (type == typeof(TimeSpan))
             return DbType.DateTime;
           return DbType.Object;
+        case TypeCode.SByte:
+          return DbType.SByte;
         case TypeCode.Single:
           return DbType.Single;
         case TypeCode.String:
