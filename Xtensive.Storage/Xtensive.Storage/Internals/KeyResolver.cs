@@ -18,8 +18,7 @@ namespace Xtensive.Storage.Internals
       EntityData data = session.DataCache[key];
 
       // Key is already resolved
-      if (data != null) {
-
+      if (data!=null) {
         if (Log.IsLogged(LogEventTypes.Debug))
           Log.Debug("Session '{0}'. Resolving key '{1}'. Key is already resolved", session, key);
 
@@ -32,11 +31,15 @@ namespace Xtensive.Storage.Internals
       // Key is not fully resolved yet (Type is unknown), so 1 fetch request is required
       if (resolvedKey.Type==null) {
 
-      if (Log.IsLogged(LogEventTypes.Debug))
-        Log.Debug("Session '{0}'. Resolving key '{1}'. Exact type is unknown. Fetch is required", session, key);
+        if (Log.IsLogged(LogEventTypes.Debug))
+          Log.Debug("Session '{0}'. Resolving key '{1}'. Exact type is unknown. Fetch is required", session, key);
 
         FieldInfo field = key.Hierarchy.Root.Fields[NameBuilder.TypeIdFieldName];
-        Fetcher.Fetch(key, field);
+
+        using (var transactionScope = session.BeginTransaction()) {
+          Fetcher.Fetch(key, field);
+          transactionScope.Complete();
+        }
 
         // Resolving key again. If it was successfully fetched then it should contain Type
         resolvedKey = session.Domain.KeyManager.GetCachedKey(key);
@@ -45,9 +48,8 @@ namespace Xtensive.Storage.Internals
         if (resolvedKey.Type==null)
           return null;
       }
-      else
-        if (Log.IsLogged(LogEventTypes.Debug))
-          Log.Debug("Session '{0}'. Resolving key '{1}'. Exact type is known", session, key);
+      else if (Log.IsLogged(LogEventTypes.Debug))
+        Log.Debug("Session '{0}'. Resolving key '{1}'. Exact type is known", session, key);
 
       // Type is known so we can create Entity instance.
       data = session.DataCache.Create(resolvedKey, PersistenceState.Persisted);

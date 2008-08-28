@@ -51,7 +51,7 @@ namespace Xtensive.Storage
     /// Opens new transaction, if there is no active one.
     /// </summary>
     /// <returns>Scope of the active transaction.</returns>
-    public TransactionScope OpenTransaction()
+    public TransactionScope BeginTransaction()
     {
       if (ActiveTransaction==null) {
         ActiveTransaction = new Transaction(this);
@@ -65,21 +65,30 @@ namespace Xtensive.Storage
     {
       Persist();
       Handler.CommitTransaction();
-      ActiveTransaction = null;
-      OnTranscationClosed();
+      OnTranscationFinished();
     }
 
     internal void OnTransactionRollback()
-    {      
+    {
+      foreach (EntityData data in DirtyData.GetItems(PersistenceState.New))
+        data.Entity.PersistenceState = PersistenceState.Inconsistent;
+
+      foreach (EntityData data in DirtyData.GetItems(PersistenceState.Modified))
+        data.Entity.PersistenceState = PersistenceState.Persisted;
+
+      foreach (EntityData data in DirtyData.GetItems(PersistenceState.Removed))
+        data.Entity.PersistenceState = PersistenceState.Persisted;
+
+      DirtyData.Clear();
+
       Handler.RollbackTransaction();
-      ActiveTransaction = null;
-      OnTranscationClosed();
+      OnTranscationFinished();
     }
 
-    private void OnTranscationClosed()
+    private void OnTranscationFinished()
     {
-      DataCache.Clear();
-      DirtyData.Clear();
+      ActiveTransaction = null;
+      DataCache.Reset();
     }
 
     #endregion
@@ -142,7 +151,7 @@ namespace Xtensive.Storage
         DataCache.Remove(data.Key);
 
       DirtyData.Clear();
-    }    
+    }
 
     public IEnumerable<T> All<T>() where T : class,   IEntity
     {      

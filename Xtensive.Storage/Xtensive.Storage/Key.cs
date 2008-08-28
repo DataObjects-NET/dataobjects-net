@@ -72,7 +72,7 @@ namespace Xtensive.Storage
     /// <typeparam name="T">Type of <see cref="Entity"/> descendant to get <see cref="Key"/> for.</typeparam>
     /// <param name="tuple"><see cref="Tuple"/> with key values.</param>
     /// <returns>Newly created <see cref="Key"/> instance.</returns>
-    public static Key Get<T>(Tuple tuple) 
+    public static Key Get<T>(Tuple tuple)
       where T: Entity
     {
       return Get(typeof (T), tuple);

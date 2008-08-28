@@ -49,7 +49,6 @@ namespace Xtensive.Storage.Internals
 
     private static void Fetch(IndexInfo index, Key key, IEnumerable<ColumnInfo> columns)
     {
-      
       if (Log.IsLogged(LogEventTypes.Debug))
         Log.Debug("Session '{0}'. Fetching: Key = '{1}', Columns = '{2}'", Session.Current, pKey, columns.Select(c => c.Name).ToCommaDelimitedString());
       var columnIndexes = columns.Select(c => index.Columns.IndexOf(c)).ToArray();

@@ -86,7 +86,9 @@ namespace Xtensive.Storage
         if (Data.PersistenceState == value)
           return;
         Data.PersistenceState = value;
-        if (PersistenceState != Storage.PersistenceState.Persisted)
+        if (PersistenceState == PersistenceState.New || 
+          PersistenceState == PersistenceState.Removed || 
+          PersistenceState == PersistenceState.Modified)
           Session.DirtyData.Register(Data);
       }
     }
@@ -116,15 +118,19 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     public void Remove()
     {
-      if (Log.IsLogged(LogEventTypes.Debug))
-        Log.Debug("Session '{0}'. Removing: Key = '{1}'", Session, Key);
+      using (var transactionScope = Session.BeginTransaction()) {
+        if (Log.IsLogged(LogEventTypes.Debug))
+          Log.Debug("Session '{0}'. Removing: Key = '{1}'", Session, Key);
 
-      EnsureIsNotRemoved();
-      Session.Persist();
-      OnRemoving();
-      ReferenceManager.ClearReferencesTo(this);
-      PersistenceState = PersistenceState.Removed;
-      OnRemoved();
+        EnsureCanOperate();
+        Session.Persist();
+        OnRemoving();
+        ReferenceManager.ClearReferencesTo(this);
+        PersistenceState = PersistenceState.Removed;
+        OnRemoved();
+
+        transactionScope.Complete();
+      }
     }
 
     #endregion
@@ -144,7 +150,7 @@ namespace Xtensive.Storage
     {
       if (Log.IsLogged(LogEventTypes.Debug))
         Log.Debug("Session '{0}'. Getting value: Key = '{1}', Field = '{2}'", Session, Key, field);
-      EnsureIsNotRemoved();
+      EnsureCanOperate();
       EnsureIsFetched(field);
     }
 
@@ -154,7 +160,7 @@ namespace Xtensive.Storage
     {
       if (Log.IsLogged(LogEventTypes.Debug))
         Log.Debug("Session '{0}'. Setting value: Key = '{1}', Field = '{2}'", Session, Key, field);
-      EnsureIsNotRemoved();
+      EnsureCanOperate();
     }
 
     /// <inheritdoc/>
@@ -163,11 +169,17 @@ namespace Xtensive.Storage
       PersistenceState = PersistenceState.Modified;
     }
 
+    /// <summary>
+    /// Called when entity is to be removed.
+    /// </summary>
     [Infrastructure]
     protected virtual void OnRemoving()
     {
     }
 
+    /// <summary>
+    /// Called when become removed.
+    /// </summary>
     [Infrastructure]
     protected virtual void OnRemoved()
     {
@@ -194,12 +206,14 @@ namespace Xtensive.Storage
       Fetcher.Fetch(Key, field);
     }
 
-    /// <exception cref="InvalidOperationException">[Suppresses warning]</exception>
     [Infrastructure]
-    private void EnsureIsNotRemoved()
+    private void EnsureCanOperate()
     {
       if (PersistenceState==PersistenceState.Removed)
         throw new InvalidOperationException(Strings.ExEntityIsRemoved);
+
+      if (PersistenceState==PersistenceState.Inconsistent)
+        throw new InvalidOperationException(Strings.ExEntityIsInInconsistentState);
     }
 
     #endregion
@@ -212,14 +226,17 @@ namespace Xtensive.Storage
     /// </summary>
     protected Entity()
     {
-      TypeInfo type = Session.Domain.Model.Types[GetType()];
-      Key key = Session.Domain.KeyManager.Next(type);
+      using (var transactionScope = Session.BeginTransaction()) {
+        TypeInfo type = Session.Domain.Model.Types[GetType()];
+        Key key = Session.Domain.KeyManager.Next(type);
 
-      if (Log.IsLogged(LogEventTypes.Debug))
-        Log.Debug("Session '{0}'. Creating entity: Key = '{1}'", Session, key);
+        if (Log.IsLogged(LogEventTypes.Debug))
+          Log.Debug("Session '{0}'. Creating entity: Key = '{1}'", Session, key);
 
-      data = Session.DataCache.Create(key, PersistenceState.New);
-      OnCreating();
+        data = Session.DataCache.Create(key, PersistenceState.New);
+        OnCreating();
+        transactionScope.Complete();
+      }
     }
 
     /// <summary>
@@ -229,14 +246,18 @@ namespace Xtensive.Storage
     /// <remarks>Use this kind of constructor when you need to explicitly build key for this instance.</remarks>
     protected Entity(Tuple tuple)
     {
-      TypeInfo type = Session.Domain.Model.Types[GetType()];
-      Key key = Session.Domain.KeyManager.Get(type, tuple);
+      using (var transactionScope = Session.BeginTransaction()) {
+        TypeInfo type = Session.Domain.Model.Types[GetType()];
+        Key key = Session.Domain.KeyManager.Get(type, tuple);
 
-      if (Log.IsLogged(LogEventTypes.Debug))
-        Log.Debug("Session '{0}'. Creating entity: Key = '{1}'", Session, key);
+        if (Log.IsLogged(LogEventTypes.Debug))
+          Log.Debug("Session '{0}'. Creating entity: Key = '{1}'", Session, key);
 
-      data = Session.DataCache.Create(key, PersistenceState.New);
-      OnCreating();
+        data = Session.DataCache.Create(key, PersistenceState.New);
+        OnCreating();
+
+        transactionScope.Complete();
+      }
     }
 
     /// <summary>

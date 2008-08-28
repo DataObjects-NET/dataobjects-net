@@ -11,7 +11,9 @@ using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Helpers;
+using Xtensive.Core.Reflection;
 using Xtensive.Indexing;
+using Xtensive.Storage.Model.Resources;
 
 namespace Xtensive.Storage.Model
 {
@@ -63,7 +65,8 @@ namespace Xtensive.Storage.Model
       {
         TypeInfo result = TryGetValue(key);
         if (result == null)
-          throw new ArgumentException(String.Format(String.Format("Item by key ='{0}' was not found.", key)));
+          throw new ArgumentException(  
+            String.Format(Strings.TypeXIsNotRegistered, key.GetShortName()));
         return result;
       }
     }
@@ -197,7 +200,7 @@ namespace Xtensive.Storage.Model
     /// <exception cref="ArgumentNullException">When <paramref name="item"/> is <see langword="null"/>.</exception>
     public IEnumerable<TypeInfo> FindImplementors(TypeInfo item, bool recursive)
     {
-      ArgumentValidator.EnsureArgumentNotNull(item, "item");
+      ArgumentValidator.EnsureArgumentNotNull(item, "it   em");
       HashSet<TypeInfo> result = new HashSet<TypeInfo>(implementors[item]);
       if (recursive)
         foreach (TypeInfo implementor in implementors[item])
@@ -309,7 +312,7 @@ namespace Xtensive.Storage.Model
     /// <exception cref="ArgumentNullException">When <paramref name="type"/> is <see langword="null"/>.</exception>
     private IEnumerable<TypeInfo> FindInterfaces(Type type)
     {
-      ArgumentValidator.EnsureArgumentNotNull(type, "item");
+      ArgumentValidator.EnsureArgumentNotNull(type, "type");
 
       Type[] interfaces = type.GetInterfaces();
       for (int index = 0; index < interfaces.Length; index++) {

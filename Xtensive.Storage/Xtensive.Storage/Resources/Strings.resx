@@ -429,4 +429,7 @@
   <data name="ExUnableToCloneSystemSessionConfiguration" xml:space="preserve">
     <value>Unable to clone system session configuration.</value>
   </data>
+  <data name="ExEntityIsInInconsistentState" xml:space="preserve">
+    <value>Entity is in inconsistent state.</value>
+  </data>
 </root>

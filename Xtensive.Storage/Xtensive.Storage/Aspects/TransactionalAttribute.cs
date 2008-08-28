@@ -5,6 +5,7 @@
 // Created:    2008.08.21
 
 using System;
+using System.Diagnostics;
 using PostSharp.Extensibility;
 using PostSharp.Laos;
 using Xtensive.Core.Aspects.Helpers;
@@ -49,11 +50,12 @@ namespace Xtensive.Storage.Aspects
       if (session==null)
         throw new InvalidOperationException(Strings.SessionIsNotActivated);
       
-      TransactionScope scope = session.OpenTransaction();
+      TransactionScope scope = session.BeginTransaction();
       eventArgs.MethodExecutionTag = scope;
     }
 
     /// <inheritdoc/>
+    [DebuggerStepThrough]
     public override void OnSuccess(MethodExecutionEventArgs eventArgs)
     {
       TransactionScope scope = (TransactionScope) eventArgs.MethodExecutionTag;
@@ -61,6 +63,7 @@ namespace Xtensive.Storage.Aspects
     }
 
     /// <inheritdoc/>
+    [DebuggerStepThrough]
     public override void OnExit(MethodExecutionEventArgs eventArgs)
     {
       TransactionScope scope = (TransactionScope) eventArgs.MethodExecutionTag;

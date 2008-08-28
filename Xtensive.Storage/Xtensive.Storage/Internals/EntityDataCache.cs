@@ -5,6 +5,8 @@
 // Created:    2008.07.28
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Diagnostics;
@@ -13,7 +15,8 @@ using Xtensive.Storage.Attributes;
 
 namespace Xtensive.Storage.Internals
 {
-  internal class EntityDataCache : SessionBound
+  internal class EntityDataCache : SessionBound,
+    IEnumerable<EntityData>
   {
     private readonly WeakCache<Key, EntityData> cache;
     
@@ -75,6 +78,25 @@ namespace Xtensive.Storage.Internals
         Log.Debug("Session '{0}'. Caching: {1}", Session.Current, result);
 
       return result;
+    }
+
+    [Infrastructure]
+    public void Reset()
+    {
+      foreach (EntityData data in this)
+        data.Reset();        
+    }
+
+    [Infrastructure]
+    public IEnumerator<EntityData> GetEnumerator()
+    {
+      return cache.GetEnumerator();
+    }
+
+    [Infrastructure]
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+      return GetEnumerator();
     }
 
 

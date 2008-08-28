@@ -80,25 +80,32 @@ namespace Xtensive.Storage
     [Infrastructure]
     protected T GetValue<T>(string name)
     {
-      FieldInfo field = Type.Fields[name];
-      OnGettingValue(field);
-      T result = field.GetAccessor<T>().GetValue(this, field);
-      OnGetValue(field);
-      return result;
+      using (var transactionScope = Session.BeginTransaction()) {
+        FieldInfo field = Type.Fields[name];
+        OnGettingValue(field);
+        T result = field.GetAccessor<T>().GetValue(this, field);
+        OnGetValue(field);
+
+        transactionScope.Complete();
+        return result;
+      }
     }
 
-    [Infrastructure]
-    // [Atomic("UndoSetValue")]
+    [Infrastructure]    
     protected void SetValue<T>(string name, T value)
     {
-      FieldInfo field = Type.Fields[name];
-      OnSettingValue(field);
-      field.GetAccessor<T>().SetValue(this, field, value);
+      using (var transactionScope = Session.BeginTransaction()) {
+        FieldInfo field = Type.Fields[name];
+        OnSettingValue(field);
+        field.GetAccessor<T>().SetValue(this, field, value);
 
-      if (Session.Domain.Configuration.AutoValidation)
-        this.Validate();
+        if (Session.Domain.Configuration.AutoValidation)
+          this.Validate();
 
-      OnSetValue(field);
+        OnSetValue(field);
+
+        transactionScope.Complete();
+      }
     }
 
     #endregion

@@ -16,7 +16,7 @@ namespace Xtensive.Storage
     /// </summary>
     Default = Inconsistent,
     /// <summary>
-    /// The state isn't known yet.
+    /// Inconsistent state, e.g. created and rollbacked entity.
     /// </summary>
     Inconsistent = 0,
     /// <summary>
