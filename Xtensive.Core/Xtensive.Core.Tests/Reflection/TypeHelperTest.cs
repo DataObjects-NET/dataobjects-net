@@ -288,11 +288,11 @@ namespace Xtensive.Core.Tests.Reflection
 
       t = typeof (A<int, string>);
       fName = t.GetFullName();
-      Assert.AreEqual(t.Namespace + ".A<System.int,System.String>", fName);
+      Assert.AreEqual(t.Namespace + ".A<System.Int32,System.String>", fName);
       sName = t.GetShortName();
-      Assert.AreEqual("A<int,String>", sName);
+      Assert.AreEqual("A<Int32,String>", sName);
       wsName = TypeHelper.AddSuffix(fName, "#");
-      Assert.AreEqual(t.Namespace + ".A#<System.int,System.String>", wsName);
+      Assert.AreEqual(t.Namespace + ".A#<System.Int32,System.String>", wsName);
       fName = t.FullName;
       wsName = TypeHelper.AddSuffix(fName, "#");
       AssertEx.IsPatternMatch(wsName, t.Namespace + ".A#`2[[*]]");
