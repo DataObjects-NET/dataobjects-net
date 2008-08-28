@@ -19,7 +19,7 @@ namespace Xtensive.Core.Serialization.Binary
   /// <para id="About"><see cref="SingletonDocTemplate" copy="true" /></para>
   /// </remarks>
   [Serializable]
-  public class BinarySerializer : Serializer<Stream>
+  public class BinarySerializer : WorkingSerializerBase
   {
     private static ThreadSafeCached<BinarySerializer> cachedInstance =
       ThreadSafeCached<BinarySerializer>.Create(new object());
@@ -42,8 +42,7 @@ namespace Xtensive.Core.Serialization.Binary
     /// <inheritdoc/>
     protected override void OnConfigured()
     {
-      ObjectSerializerProvider = Serialization.ObjectSerializerProvider.Default;
-      ValueSerializerProvider  = BinaryValueSerializerProvider.Default;
+      ObjectSerializerProvider = BinaryObjectSerializerProvider.Default;
       base.OnConfigured();
     }
 

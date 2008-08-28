@@ -16,17 +16,30 @@ namespace Xtensive.Core.Serialization
   /// <summary>
   /// Serializes and deserializes an object, or an entire graph of connected objects.
   /// </summary>
-  public abstract class Serializer<TInnerStream> : SerializerBase
+  public abstract class WorkingSerializerBase : SerializerBase
   {
+    private IObjectSerializerProvider objectSerializerProvider;
+    private IValueSerializerProvider  valueSerializerProvider;
+
     /// <summary>
     /// Gets or sets the object serializer provider.
     /// </summary>
-    public IObjectSerializerProvider ObjectSerializerProvider { get; protected set; }
+    public IObjectSerializerProvider ObjectSerializerProvider
+    {
+      get { return objectSerializerProvider; }
+      protected set {
+        objectSerializerProvider = value;
+        valueSerializerProvider = value!=null ? value.ValueSerializerProvider : null;
+      }
+    }
 
     /// <summary>
-    /// Gets or sets the value serializer provider.
+    /// Gets the value serializer provider.
     /// </summary>
-    public IValueSerializerProvider<TInnerStream> ValueSerializerProvider { get; protected set; }
+    public IValueSerializerProvider ValueSerializerProvider
+    {
+      get { return valueSerializerProvider; }
+    }
 
     /// <summary>
     /// Creates a new <see cref="SerializationContext"/> for serialization or deserialization.
@@ -87,12 +100,12 @@ namespace Xtensive.Core.Serialization
     #region HasXxx, EnsureXxx methods
 
     /// <summary>
-    /// Indicates if type <typeparamref name="T"/> has associated <see cref="IValueSerializer{TStream,T}"/>;
+    /// Indicates if type <typeparamref name="T"/> has associated <see cref="IValueSerializer{T}"/>;
     /// otherwise is must have associated <see cref="IObjectSerializer{T}"/>.
     /// </summary>
     /// <typeparam name="T">The type to check.</typeparam>
     /// <returns><see langword="True"/> if <typeparamref name="T"/> has associated 
-    /// <see cref="IValueSerializer{TStream,T}"/>;
+    /// <see cref="IValueSerializer{T}"/>;
     /// otherwise is must have associated <see cref="IObjectSerializer{T}"/>.</returns>
     public bool HasValueSerializer<T>() 
     {
@@ -101,7 +114,7 @@ namespace Xtensive.Core.Serialization
 
     /// <summary>
     /// Ensures the <typeparamref name="T"/> type is associated 
-    /// with <see cref="IValueSerializer{TStream,T}"/>.
+    /// with <see cref="IValueSerializer{T}"/>.
     /// </summary>
     /// <typeparam name="T">The type to check.</typeparam>
     /// <exception cref="InvalidOperationException"><typeparamref name="T"/> is associated 
@@ -121,7 +134,7 @@ namespace Xtensive.Core.Serialization
     /// </summary>
     /// <typeparam name="T">The type to check.</typeparam>
     /// <exception cref="InvalidOperationException"><typeparamref name="T"/> is associated 
-    /// with <see cref="IValueSerializer{TStream,T}"/>.</exception>
+    /// with <see cref="IValueSerializer{T}"/>.</exception>
     public void EnsureHasObjectSerializer<T>() 
     {
       if (HasValueSerializer<T>())
@@ -159,7 +172,7 @@ namespace Xtensive.Core.Serialization
         throw new InvalidOperationException(string.Format(
           Strings.ExCantFindAssociate,
           "ValueSerializer",
-          typeof(IValueSerializer<TInnerStream>).GetShortName(),
+          typeof(IValueSerializer).GetShortName(),
           type.GetShortName()));
     }
 
@@ -204,7 +217,7 @@ namespace Xtensive.Core.Serialization
             os.GetType().GetShortName()), 
             Log.Instance);
         origin = os.CreateObject(reference.GetType());
-        var data = writer.Create(null, reference, origin, true);
+        var data = writer.Create(null, reference, origin);
         InnerGetObjectData(os, data);
         return data;
       }
@@ -239,7 +252,7 @@ namespace Xtensive.Core.Serialization
           // Ok, we must serialize the object itself here
           if (origin==null)
             origin = os.CreateObject(source.GetType());
-          var data = writer.Create(reference, source, origin, immediately);
+          var data = writer.Create(reference, source, origin);
           InnerGetObjectData(os, data);
           return data;
         }
@@ -247,7 +260,7 @@ namespace Xtensive.Core.Serialization
           // Source can't be referenced (e.g. struct)
           if (origin==null)
             origin = os.CreateObject(source.GetType());
-          var data = writer.Create(null, source, origin, immediately);
+          var data = writer.Create(null, source, origin);
           InnerGetObjectData(os, data);
           return data;
         }
@@ -326,6 +339,7 @@ namespace Xtensive.Core.Serialization
       path.Push(data);
       try {
         objectSerializer.SetObjectData(data);
+        data.EnsureNoSkips();
       }
       finally {
         path.Pop();
@@ -338,12 +352,12 @@ namespace Xtensive.Core.Serialization
     // Constructors
 
     /// <inheritdoc/>
-    protected Serializer()
+    protected WorkingSerializerBase()
     {
     }
 
     /// <inheritdoc/>
-    protected Serializer(SerializerConfiguration configuration)
+    protected WorkingSerializerBase(SerializerConfiguration configuration)
       : base(configuration)
     {
     }

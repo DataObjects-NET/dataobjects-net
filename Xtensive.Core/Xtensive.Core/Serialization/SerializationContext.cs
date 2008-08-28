@@ -32,13 +32,7 @@ namespace Xtensive.Core.Serialization
     /// <summary>
     /// Gets current <see cref="Serializer"/>.
     /// </summary>
-    public SerializerBase Serializer { get; protected set; }
-
-    /// <summary>
-    /// Gets or sets the configuration.
-    /// </summary>
-    /// <value>The configuration.</value>
-    public SerializerConfiguration Configuration { get; protected set; }
+    public WorkingSerializerBase Serializer { get; protected set; }
 
     /// <summary>
     /// Gets the current <see cref="Serializer"/> process type.
@@ -104,15 +98,45 @@ namespace Xtensive.Core.Serialization
     /// </summary>
     public FixupManager FixupManager { get; protected set; }
 
-    /// <exception cref="InvalidOperationException">Current formatter process type 
-    /// differs from the <paramref name="expectedProcessType"/>.</exception>
-    public void EnsureProcessTypeIs(SerializerProcessType expectedProcessType) 
-    {
-      if (ProcessType!=expectedProcessType)
-        throw new InvalidOperationException(string.Format(
-          Strings.ExInvalidFormatterProcessType,
-          ProcessType));
-    }
+    #region Shortcut-like properties
+
+    /// <summary>
+    /// Gets or sets the configuration.
+    /// </summary>
+    /// <value>The configuration.</value>
+    public SerializerConfiguration Configuration { get; protected set; }
+
+    /// <summary>
+    /// Gets or sets the object serializer provider.
+    /// </summary>
+    public IObjectSerializerProvider ObjectSerializerProvider { get; protected set; }
+
+    /// <summary>
+    /// Gets or sets the value serializer provider.
+    /// </summary>
+    public IValueSerializerProvider ValueSerializerProvider { get; protected set; }
+
+    /// <summary>
+    /// Gets the <see cref="Int32"/> value serializer.
+    /// </summary>
+    public ValueSerializer<int> IntSerializer { get; protected set; }
+
+    /// <summary>
+    /// Gets the <see cref="Int64"/> value serializer.
+    /// </summary>
+    public ValueSerializer<long> LongSerializer { get; protected set; }
+
+    /// <summary>
+    /// Gets the <see cref="String"/> value serializer.
+    /// </summary>
+    public ValueSerializer<string> StringSerializer { get; protected set; }
+
+    /// <summary>
+    /// Gets the <see cref="String"/> value serializer.
+    /// </summary>
+    public ValueSerializer<Token<string>> TokenStringSerializer { get; protected set; }
+
+    #endregion
 
     #region IContext<...> methods
 
@@ -125,6 +149,20 @@ namespace Xtensive.Core.Serialization
     protected override SerializationScope CreateActiveScope() 
     {
       return new SerializationScope(this);
+    }
+
+    #endregion
+
+    #region EnsureXxx methods
+
+    /// <exception cref="InvalidOperationException">Current formatter process type 
+    /// differs from the <paramref name="expectedProcessType"/>.</exception>
+    public void EnsureProcessTypeIs(SerializerProcessType expectedProcessType) 
+    {
+      if (ProcessType!=expectedProcessType)
+        throw new InvalidOperationException(string.Format(
+          Strings.ExInvalidFormatterProcessType,
+          ProcessType));
     }
 
     #endregion
@@ -162,7 +200,7 @@ namespace Xtensive.Core.Serialization
     /// <exception cref="NotSupportedException">Context is already initialized.</exception>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="processType"/> is
     /// <see cref="SerializerProcessType.None"/>.</exception>
-    public SerializationContext(SerializerBase serializer, Stream stream, SerializerProcessType processType)
+    public SerializationContext(WorkingSerializerBase serializer, Stream stream, SerializerProcessType processType)
     {
       ArgumentValidator.EnsureArgumentNotNull(serializer, "serializer");
       ArgumentValidator.EnsureArgumentNotNull(stream, "stream");
@@ -175,9 +213,18 @@ namespace Xtensive.Core.Serialization
         throw new ArgumentOutOfRangeException("processType");
       }
       Serializer = serializer;
-      Configuration = serializer.Configuration;
       Stream = stream;
       ProcessType = processType;
+
+      // Shortcut properties
+      Configuration = serializer.Configuration;
+      ObjectSerializerProvider = Serializer.ObjectSerializerProvider;
+      ValueSerializerProvider = Serializer.ValueSerializerProvider;
+      IntSerializer = ValueSerializerProvider.GetSerializer<int>();
+      LongSerializer = ValueSerializerProvider.GetSerializer<long>();
+      StringSerializer = ValueSerializerProvider.GetSerializer<string>();
+      TokenStringSerializer = ValueSerializerProvider.GetSerializer<Token<string>>();
+
       Initialize();
     }
 

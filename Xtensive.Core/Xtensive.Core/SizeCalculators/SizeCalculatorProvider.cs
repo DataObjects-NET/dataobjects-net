@@ -77,17 +77,6 @@ namespace Xtensive.Core.SizeCalculators
           this);
     }
 
-// ReSharper disable UnusedPrivateMember
-    private ISizeCalculatorBase InnerGetSizeCalculatorByInstance<T>()
-// ReSharper restore UnusedPrivateMember
-    {
-      Type type = typeof (T);
-      if (!type.IsValueType)
-        return GetSizeCalculator<T>().Implementation;
-      else
-        return new BoxSizeCalculator<T>(this);
-    }
-
     /// <inheritdoc/>
     public ISizeCalculatorBase GetSizeCalculatorByType(Type type)
     {
@@ -116,6 +105,19 @@ namespace Xtensive.Core.SizeCalculators
         return default(TResult);
       else
         return (TResult) (object) new SizeCalculator<TKey>((ISizeCalculator<TKey>) associate);
+    }
+
+    #endregion
+
+    #region Private \ internal methods
+
+    protected ISizeCalculatorBase InnerGetSizeCalculatorByInstance<T>()
+    {
+      Type type = typeof (T);
+      if (!type.IsValueType)
+        return GetSizeCalculator<T>().Implementation;
+      else
+        return new BoxSizeCalculator<T>(this);
     }
 
     #endregion

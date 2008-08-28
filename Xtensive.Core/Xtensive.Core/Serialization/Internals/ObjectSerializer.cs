@@ -8,7 +8,6 @@ using System;
 
 namespace Xtensive.Core.Serialization.Internals
 {
-  [Serializable]
   internal sealed class ObjectSerializer<T> : ObjectSerializerBase<T>
   {
     public const string ValuePropertyName = "Value";
@@ -31,13 +30,10 @@ namespace Xtensive.Core.Serialization.Internals
       data.AddValue(ValuePropertyName, source);
     }
 
-    public override T SetPropertyData(T target, SerializationData data, string propertyName)
+    public override T SetObjectData(T source, SerializationData data)
     {
-      if (propertyName==ValuePropertyName)
-        return data.GetValue<T>(ValuePropertyName);
-      return target;
+      return data.GetValue<T>(ValuePropertyName);
     }
-
 
     // Constructors
 

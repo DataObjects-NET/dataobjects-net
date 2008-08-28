@@ -29,7 +29,7 @@ namespace Xtensive.Core.Serialization.Implementation
     /// <param name="source">The <see cref="SerializationData.Source"/> property value.</param>
     /// <param name="origin">The <see cref="SerializationData.Origin"/> property value.</param>
     /// <returns>New <see cref="SerializationData"/> instance.</returns>
-    public abstract SerializationData Create(IReference reference, object source, object origin, bool preferNesting);
+    public abstract SerializationData Create(IReference reference, object source, object origin);
 
     /// <summary>
     /// Appends (writes) the specified <paramref name="data"/> to the end of the stream.

@@ -6,26 +6,43 @@
 
 using System;
 using System.IO;
+using Xtensive.Core.Helpers;
 
 namespace Xtensive.Core.Serialization.Implementation
 {
   /// <summary>
-  /// Abstract base class for <see cref="Stream"/>-based serializers.
+  /// Abstract base class for any serializer.
   /// </summary>
   [Serializable]
-  public abstract class SerializerBase : SerializerBase<Stream>
+  public abstract class SerializerBase : ConfigurableBase<SerializerConfiguration>,
+    ISerializer
   {
     /// <inheritdoc/>
-    protected override Stream CreateCloningStream()
+    public void Serialize(Stream stream, object source)
     {
-      return new MemoryStream();
+      Serialize(stream, source, null);
     }
 
     /// <inheritdoc/>
-    protected override void RewindCloningStream(ref Stream stream)
+    public object Deserialize(Stream stream)
     {
-      stream.Position = 0;
+      return Deserialize(stream, null);
     }
+
+    /// <inheritdoc/>
+    public object Clone(object source)
+    {
+      Stream stream = new MemoryStream();
+      Serialize(stream, source);
+      stream.Position = 0;
+      return Deserialize(stream);
+    }
+
+    /// <inheritdoc/>
+    public abstract void Serialize(Stream stream, object source, object origin);
+
+    /// <inheritdoc/>
+    public abstract object Deserialize(Stream stream, object origin);
 
     
     // Constructors

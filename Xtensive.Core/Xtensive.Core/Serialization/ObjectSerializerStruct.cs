@@ -18,11 +18,6 @@ namespace Xtensive.Core.Serialization
   public struct ObjectSerializerStruct<T> : ISerializable
   {
     /// <summary>
-    /// Gets <see cref="ObjectSerializerStruct{T}"/> for <see cref="ObjectSerializer{T}.Default"/> serializer.
-    /// </summary>
-    public static ObjectSerializerStruct<T> Default = new ObjectSerializerStruct<T>(ObjectSerializer<T>.Default);
-
-    /// <summary>
     /// Gets the underlying serializer for this cache.
     /// </summary>
     public ObjectSerializer<T> Serializer;

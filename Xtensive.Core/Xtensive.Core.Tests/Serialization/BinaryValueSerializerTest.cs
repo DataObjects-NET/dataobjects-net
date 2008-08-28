@@ -10,6 +10,7 @@ using System.IO;
 using NUnit.Framework;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Reflection;
+using Xtensive.Core.Serialization;
 using Xtensive.Core.Serialization.Binary;
 using Xtensive.Core.Testing;
 
@@ -57,7 +58,7 @@ namespace Xtensive.Core.Tests.Serialization
       typeName = typeof(T).GetShortName();
       var streamXtensive = new MemoryStream();
       var streamSystem = new MemoryStream();
-      var xtensiveValueSerializer = BinaryValueSerializer<T>.Default;
+      var xtensiveValueSerializer = ValueSerializer<T>.Default;
       var binarySerializer = LegacyBinarySerializer.Instance;
       Assert.IsNotNull(xtensiveValueSerializer);
       T[] instances = new List<T>(InstanceGeneratorProvider.Default.GetInstanceGenerator<T>().GetInstances(random, count)).ToArray();
@@ -121,7 +122,7 @@ namespace Xtensive.Core.Tests.Serialization
     public void LongSerializerTest()
     {
       MemoryStream stream = new MemoryStream(sizeof(long));
-      var valueSerializer = BinaryValueSerializer<long>.Default;
+      var valueSerializer = ValueSerializer<long>.Default;
       Assert.IsNotNull(valueSerializer);
       Assert.AreEqual(valueSerializer.Implementation.GetType().Name, "Int64ValueSerializer");
       for (long i = -1000; i < 1000; i++)
@@ -154,7 +155,7 @@ namespace Xtensive.Core.Tests.Serialization
     public void ULongSerializerTest()
     {
       MemoryStream stream = new MemoryStream(sizeof(ulong));
-      var valueSerializer = BinaryValueSerializer<ulong>.Default;
+      var valueSerializer = ValueSerializer<ulong>.Default;
       Assert.IsNotNull(valueSerializer);
       Assert.AreEqual(valueSerializer.Implementation.GetType().Name, "UInt64ValueSerializer");
       for (ulong i = 0; i < 1000; i++)
@@ -187,7 +188,7 @@ namespace Xtensive.Core.Tests.Serialization
     public void ShortSerializerTest()
     {
       MemoryStream stream = new MemoryStream(sizeof(short));
-      var valueSerializer = BinaryValueSerializer<short>.Default;
+      var valueSerializer = ValueSerializer<short>.Default;
       Assert.IsNotNull(valueSerializer);
       Assert.AreEqual(valueSerializer.Implementation.GetType().Name, "Int16ValueSerializer");
       for (short i = short.MinValue; i < short.MaxValue; i++)
@@ -204,7 +205,7 @@ namespace Xtensive.Core.Tests.Serialization
     public void UShortSerializerTest()
     {
       MemoryStream stream = new MemoryStream(sizeof(ushort));
-      var valueSerializer = BinaryValueSerializer<ushort>.Default;
+      var valueSerializer = ValueSerializer<ushort>.Default;
       Assert.IsNotNull(valueSerializer);
       Assert.AreEqual(valueSerializer.Implementation.GetType().Name, "UInt16ValueSerializer");
       for (ushort i = ushort.MinValue; i < ushort.MaxValue; i++)
@@ -222,7 +223,7 @@ namespace Xtensive.Core.Tests.Serialization
     public void IntSerializerTest()
     {
       MemoryStream stream = new MemoryStream(sizeof(int));
-      var valueSerializer = BinaryValueSerializer<int>.Default;
+      var valueSerializer = ValueSerializer<int>.Default;
       Assert.IsNotNull(valueSerializer);
       Assert.AreEqual(valueSerializer.Implementation.GetType().Name, "Int32ValueSerializer");
       for (int i = -1000; i < 1000; i++)
@@ -255,7 +256,7 @@ namespace Xtensive.Core.Tests.Serialization
     public void UIntSerializerTest()
     {
       MemoryStream stream = new MemoryStream(sizeof(uint));
-      var valueSerializer = BinaryValueSerializer<uint>.Default;
+      var valueSerializer = ValueSerializer<uint>.Default;
       Assert.IsNotNull(valueSerializer);
       Assert.AreEqual(valueSerializer.Implementation.GetType().Name, "UInt32ValueSerializer");
       for (uint i = 0; i < 1000; i++)
@@ -288,7 +289,7 @@ namespace Xtensive.Core.Tests.Serialization
     public void ByteSerializerTest()
     {
       MemoryStream stream = new MemoryStream(sizeof(byte));
-      var valueSerializer = BinaryValueSerializer<byte>.Default;
+      var valueSerializer = ValueSerializer<byte>.Default;
       Assert.IsNotNull(valueSerializer);
       Assert.AreEqual(valueSerializer.Implementation.GetType().Name, "ByteValueSerializer");
       for (byte i = byte.MinValue; i < byte.MaxValue; i++)
@@ -305,7 +306,7 @@ namespace Xtensive.Core.Tests.Serialization
     public void SByteSerializerTest()
     {
       MemoryStream stream = new MemoryStream(sizeof(sbyte));
-      var valueSerializer = BinaryValueSerializer<sbyte>.Default;
+      var valueSerializer = ValueSerializer<sbyte>.Default;
       Assert.IsNotNull(valueSerializer);
       Assert.AreEqual(valueSerializer.Implementation.GetType().Name, "SByteValueSerializer");
       for (sbyte i = sbyte.MinValue; i < sbyte.MaxValue; i++)
@@ -323,7 +324,7 @@ namespace Xtensive.Core.Tests.Serialization
     {
       float[] values = new float[] { float.MinValue, 0, float.MaxValue, 1, 1.2354563f, 123.5f / 345 };
       MemoryStream stream = new MemoryStream(sizeof(float));
-      var valueSerializer = BinaryValueSerializer<float>.Default;
+      var valueSerializer = ValueSerializer<float>.Default;
       Assert.IsNotNull(valueSerializer);
       Assert.AreEqual(valueSerializer.Implementation.GetType().Name, "SingleValueSerializer");
       foreach (float value in values)
@@ -341,7 +342,7 @@ namespace Xtensive.Core.Tests.Serialization
     {
       double[] values = new double[] { double.MinValue, 0, double.MaxValue, 1, 1.2354563, 123.5 / 345 };
       MemoryStream stream = new MemoryStream(sizeof(double));
-      var valueSerializer = BinaryValueSerializer<double>.Default;
+      var valueSerializer = ValueSerializer<double>.Default;
       Assert.IsNotNull(valueSerializer);
       Assert.AreEqual(valueSerializer.Implementation.GetType().Name, "DoubleValueSerializer");
       foreach (double value in values)
@@ -359,7 +360,7 @@ namespace Xtensive.Core.Tests.Serialization
     {
       bool[] values = new bool[] { true, false };
       MemoryStream stream = new MemoryStream(sizeof(bool));
-      var valueSerializer = BinaryValueSerializer<bool>.Default;
+      var valueSerializer = ValueSerializer<bool>.Default;
       Assert.IsNotNull(valueSerializer);
       Assert.AreEqual(valueSerializer.Implementation.GetType().Name, "BooleanValueSerializer");
       foreach (bool value in values)
@@ -377,7 +378,7 @@ namespace Xtensive.Core.Tests.Serialization
     {
       decimal[] values = new decimal[] { decimal.MinValue, decimal.MaxValue, decimal.MinusOne, decimal.One, decimal.Zero, -123.456m, 1.000001m };
       MemoryStream stream = new MemoryStream(sizeof(decimal));
-      var valueSerializer = BinaryValueSerializer<decimal>.Default;
+      var valueSerializer = ValueSerializer<decimal>.Default;
       Assert.IsNotNull(valueSerializer);
       Assert.AreEqual(valueSerializer.Implementation.GetType().Name, "DecimalValueSerializer");
       foreach (decimal value in values)
@@ -398,7 +399,7 @@ namespace Xtensive.Core.Tests.Serialization
       for (int i = 0; i < count; i++)
         values[i] = Guid.NewGuid();
       MemoryStream stream = new MemoryStream(sizeof(bool));
-      var valueSerializer = BinaryValueSerializer<Guid>.Default;
+      var valueSerializer = ValueSerializer<Guid>.Default;
       Assert.IsNotNull(valueSerializer);
       Assert.AreEqual(valueSerializer.Implementation.GetType().Name, "GuidValueSerializer");
       foreach (Guid value in values)
@@ -416,7 +417,7 @@ namespace Xtensive.Core.Tests.Serialization
     {
       char[] values = new char[] { char.MinValue, char.MaxValue, ' ', '3' };
       MemoryStream stream = new MemoryStream(sizeof(char));
-      var valueSerializer = BinaryValueSerializer<char>.Default;
+      var valueSerializer = ValueSerializer<char>.Default;
       Assert.IsNotNull(valueSerializer);
       Assert.AreEqual(valueSerializer.Implementation.GetType().Name, "CharValueSerializer");
       foreach (char value in values)
@@ -434,7 +435,7 @@ namespace Xtensive.Core.Tests.Serialization
     {
       string[] values = new string[] { string.Empty, null, "", "testString", new string(new char[100000]), Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), Guid.NewGuid().ToString() };
       MemoryStream stream = new MemoryStream(sizeof(char));
-      var valueSerializer = BinaryValueSerializer<string>.Default;
+      var valueSerializer = ValueSerializer<string>.Default;
       Assert.IsNotNull(valueSerializer);
       Assert.AreEqual(valueSerializer.Implementation.GetType().Name, "StringValueSerializer");
       foreach (string value in values)
@@ -450,7 +451,7 @@ namespace Xtensive.Core.Tests.Serialization
     [Test]
     public void UnknowType()
     {
-      var valueSerializer = BinaryValueSerializer<BinaryValueSerializerTest>.Default;
+      var valueSerializer = ValueSerializer<BinaryValueSerializerTest>.Default;
       Assert.IsNull(valueSerializer);
     }
   }

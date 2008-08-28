@@ -6,7 +6,6 @@
 
 using System;
 using System.Diagnostics;
-using System.Runtime.Serialization;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.Serialization
@@ -15,10 +14,7 @@ namespace Xtensive.Core.Serialization
   /// Base class for any <see cref="IObjectSerializer{T}"/>.
   /// </summary>
   /// <typeparam name="T">Type of object to serialize / deserialize.</typeparam>
-  [Serializable]
-  public abstract class ObjectSerializerBase<T> : 
-    IObjectSerializer<T>,
-    IDeserializationCallback
+  public abstract class ObjectSerializerBase<T> : IObjectSerializer<T>
   {
     /// <inheritdoc/>
     public IObjectSerializerProvider Provider { get; protected set; }
@@ -63,22 +59,7 @@ namespace Xtensive.Core.Serialization
     }
 
     /// <inheritdoc/>
-    public virtual T SetObjectData(T target, SerializationData data)
-    {
-      foreach (var propertyName in data)
-        target = SetPropertyData(target, data, propertyName);
-      data.EnsureNoSkips();
-      return target;
-    }
-
-    /// <summary>
-    /// Updates (sets) the particular property by specified <paramref name="data"/>.
-    /// </summary>
-    /// <param name="target">The target object.</param>
-    /// <param name="data">The serialization data.</param>
-    /// <param name="propertyName">Name of the property to update.</param>
-    /// <returns>An object with updated property.</returns>
-    public abstract T SetPropertyData(T target, SerializationData data, string propertyName);
+    public abstract T SetObjectData(T source, SerializationData data);
 
     #region IObjectSerializer Members
 
@@ -97,7 +78,7 @@ namespace Xtensive.Core.Serialization
     /// <inheritdoc/>
     void IObjectSerializer.SetObjectData(SerializationData data) 
     {
-      data.Source = SetObjectData((T) data.Origin, data);
+      data.UpdateSource(SetObjectData((T) data.Origin, data));
     }
 
     #endregion
@@ -113,15 +94,6 @@ namespace Xtensive.Core.Serialization
     {
       ArgumentValidator.EnsureArgumentNotNull(provider, "provider");
       Provider = provider;
-    }
-
-    // IDeserializationCallback methods
-
-    /// <see cref="SerializableDocTemplate.OnDeserialization" copy="true" />
-    public virtual void OnDeserialization(object sender)
-    {
-      if (Provider==null || Provider.GetType()==typeof (ObjectSerializerProvider))
-        Provider = ObjectSerializerProvider.Default;
     }
   }
 }

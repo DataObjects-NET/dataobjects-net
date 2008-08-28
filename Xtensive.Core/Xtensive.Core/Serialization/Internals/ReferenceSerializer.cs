@@ -9,7 +9,6 @@ using Xtensive.Core.Serialization.Implementation;
 
 namespace Xtensive.Core.Serialization.Internals
 {
-  [Serializable]
   internal sealed class ReferenceSerializer : ObjectSerializerBase<Reference>
   {
     public const string ValuePropertyName = "Value";
@@ -34,14 +33,11 @@ namespace Xtensive.Core.Serialization.Internals
         data.AddValue(ValuePropertyName, source.Value);
     }
 
-    public override Reference SetPropertyData(Reference target, SerializationData data, string propertyName)
+    public override Reference SetObjectData(Reference source, SerializationData data)
     {
-      if (propertyName==ValuePropertyName)
-        return new Reference(data.GetValue<string>(ValuePropertyName));
-      return target;
+      return new Reference(data.GetValue<string>(ValuePropertyName));
     }
 
-    
     // Constructors
 
     public ReferenceSerializer(IObjectSerializerProvider provider)

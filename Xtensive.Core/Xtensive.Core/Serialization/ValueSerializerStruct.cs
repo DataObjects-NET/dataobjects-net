@@ -5,41 +5,47 @@
 // Created:    2008.02.12
 
 using System;
+using System.IO;
 using System.Runtime.Serialization;
 using Xtensive.Core.Internals.DocTemplates;
 
-namespace Xtensive.Core.Serialization.Implementation
+namespace Xtensive.Core.Serialization
 {
   /// <summary>
-  /// A struct providing faster access for key <see cref="ValueSerializer{TStream,T}"/> delegates.
+  /// A struct providing faster access for key <see cref="ValueSerializer{T}"/> delegates.
   /// </summary>
   /// <typeparam name="T">The type of <see cref="IValueSerializer{T}"/> generic argument.</typeparam>
-  /// <typeparam name="TStream">Type of the stream to write to or read from.</typeparam>
   [Serializable]
-  public struct ValueSerializerStruct<TStream, T> : ISerializable
+  public struct ValueSerializerStruct<T> : ISerializable
   {
+    /// <summary>
+    /// Gets <see cref="ValueSerializerStruct{T}"/> for <see cref="ValueSerializer{T}.Default"/> hasher.
+    /// </summary>
+    public static readonly ValueSerializerStruct<T> Default = 
+      new ValueSerializerStruct<T>(ValueSerializer<T>.Default);
+
     /// <summary>
     /// Gets the underlying serializer for this cache.
     /// </summary>
-    public readonly ValueSerializer<TStream, T> ValueSerializer;
+    public readonly ValueSerializer<T> ValueSerializer;
 
     /// <summary>
     /// Deserializes the data on the provided stream.
     /// </summary>
-    public readonly Func<TStream, T> Deserialize;
+    public readonly Func<Stream, T> Deserialize;
 
     /// <summary>
     /// Serializes an object to the provided stream.
     /// </summary>
-    public readonly Action<TStream, T> Serialize;
+    public readonly Action<Stream, T> Serialize;
 
     /// <summary>
-    /// Implicit conversion of <see cref="ValueSerializer{TStream,T}"/> to <see cref="ValueSerializerStruct{TStream,T}"/>.
+    /// Implicit conversion of <see cref="ValueSerializer{T}"/> to <see cref="ValueSerializerStruct{T}"/>.
     /// </summary>
     /// <param name="valueSerializer">Serializer to provide the struct for.</param>
-    public static implicit operator ValueSerializerStruct<TStream, T>(ValueSerializer<TStream, T> valueSerializer) 
+    public static implicit operator ValueSerializerStruct<T>(ValueSerializer<T> valueSerializer) 
     {
-      return new ValueSerializerStruct<TStream, T>(valueSerializer);
+      return new ValueSerializerStruct<T>(valueSerializer);
     }
 
 
@@ -48,8 +54,8 @@ namespace Xtensive.Core.Serialization.Implementation
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true" />
     /// </summary>
-    /// <param name="valueSerializer"><see cref="ValueSerializer{TStream,T}"/> to provide the delegates for.</param>
-    public ValueSerializerStruct(ValueSerializer<TStream, T> valueSerializer) 
+    /// <param name="valueSerializer"><see cref="ValueSerializer{T}"/> to provide the delegates for.</param>
+    public ValueSerializerStruct(ValueSerializer<T> valueSerializer) 
     {
       ValueSerializer = valueSerializer;
       Deserialize = valueSerializer == null ? null : valueSerializer.Deserialize;
@@ -62,7 +68,7 @@ namespace Xtensive.Core.Serialization.Implementation
     private ValueSerializerStruct(SerializationInfo info, StreamingContext context) 
     {
       ValueSerializer =
-        (ValueSerializer<TStream, T>) info.GetValue("ValueSerializer", typeof (ValueSerializer<TStream, T>));
+        (ValueSerializer<T>) info.GetValue("ValueSerializer", typeof (ValueSerializer<T>));
       Deserialize = ValueSerializer == null ? null : ValueSerializer.Deserialize;
       Serialize = ValueSerializer == null ? null : ValueSerializer.Serialize;
     }

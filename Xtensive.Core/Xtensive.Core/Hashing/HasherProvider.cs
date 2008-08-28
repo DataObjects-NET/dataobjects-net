@@ -137,8 +137,7 @@ namespace Xtensive.Core.Hashing
 
     #region Private \ internal methods
 
-    // ReSharper disable UnusedPrivateMember
-    private IHasherBase InnerGetHasherBase<T>()
+    protected IHasherBase InnerGetHasherBase<T>()
     {
       var a = GetAssociate<T, IHasher<T>, Hasher<T>>();
       if (a!=null)
@@ -146,7 +145,6 @@ namespace Xtensive.Core.Hashing
       else
         return null;
     }
-    // ReSharper restore UnusedPrivateMember
 
     #endregion
 

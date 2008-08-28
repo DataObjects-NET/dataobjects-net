@@ -15,29 +15,18 @@ using Xtensive.Core.Threading;
 namespace Xtensive.Core.Serialization
 {
   /// <summary>
-  /// Default <see cref="IObjectSerializer{T}"/> provider. 
-  /// Provides default serializer for the specified type.
+  /// Base class for any <see cref="IObjectSerializer{T}"/> provider. 
   /// </summary>
-  /// <remarks>
-  /// <para id="About"><see cref="HasStaticDefaultDocTemplate" copy="true" /></para>
-  /// </remarks>
   [Serializable]
-  public class ObjectSerializerProvider : AssociateProvider,
+  public abstract class ObjectSerializerProviderBase : AssociateProvider,
     IObjectSerializerProvider
   {
-    private static readonly ObjectSerializerProvider @default = new ObjectSerializerProvider();
     private ThreadSafeDictionary<Type, IObjectSerializer> serializers =
       ThreadSafeDictionary<Type, IObjectSerializer>.Create(new object());
     private ThreadSafeCached<IObjectSerializer> objectSerializer = 
       ThreadSafeCached<IObjectSerializer>.Create(new object());
 
-    /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
-    public static ObjectSerializerProvider Default {
-      [DebuggerStepThrough]
-      get { return @default; }
-    }
-
-    #region ISerializerProvider members
+    #region IObjectSerializerProvider members
 
     /// <inheritdoc/>
     public virtual ObjectSerializer<T> GetSerializer<T>() 
@@ -72,6 +61,8 @@ namespace Xtensive.Core.Serialization
         return GetSerializer(instance.GetType());
     }
 
+    public IValueSerializerProvider ValueSerializerProvider { get; protected set; }
+
     #endregion
 
     #region Protected method overrides
@@ -87,8 +78,7 @@ namespace Xtensive.Core.Serialization
 
     #region Private \ internal methods
 
-    // ReSharper disable UnusedPrivateMember
-    private IObjectSerializer InnerGetSerializer<T>()
+    protected IObjectSerializer InnerGetSerializer<T>()
     {
       var a = GetAssociate<T, IObjectSerializer<T>, ObjectSerializer<T>>();
       if (a!=null)
@@ -96,7 +86,6 @@ namespace Xtensive.Core.Serialization
       else
         return null;
     }
-    // ReSharper restore UnusedPrivateMember
 
     #endregion
 
@@ -104,13 +93,15 @@ namespace Xtensive.Core.Serialization
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    private ObjectSerializerProvider() 
+    /// <param name="valueSerializerProvider">The <see cref="ValueSerializerProvider"/> property value.</param>
+    protected ObjectSerializerProviderBase(IValueSerializerProvider valueSerializerProvider) 
     {
       TypeSuffixes = new[] {"Serializer"};
       Type t = typeof (ReferenceSerializer);
       AddHighPriorityLocation(t.Assembly, t.Namespace);
+      ValueSerializerProvider = valueSerializerProvider;
     }
   }
 }

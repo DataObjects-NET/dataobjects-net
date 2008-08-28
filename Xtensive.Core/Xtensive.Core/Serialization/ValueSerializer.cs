@@ -5,38 +5,53 @@
 // Created:    2008.02.12
 
 using System;
+using System.Diagnostics;
+using System.IO;
 using System.Runtime.Serialization;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Threading;
 
-namespace Xtensive.Core.Serialization.Implementation
+namespace Xtensive.Core.Serialization
 {
   /// <summary>
   /// Provides delegates allowing to call serialization methods faster.
   /// </summary>
-  /// <typeparam name="T">The type of <see cref="IValueSerializer{TStream, T}"/> generic argument.</typeparam>
-  /// <typeparam name="TStream">Type of the stream to write to or read from.</typeparam>
+  /// <typeparam name="T">The type of <see cref="IValueSerializer{T}"/> generic argument.</typeparam>
   /// <remarks>
   /// <para id="About"><see cref="HasStaticDefaultDocTemplate" copy="true" /></para>
   /// </remarks>
   [Serializable]
-  public class ValueSerializer<TStream, T> : MethodCacheBase<IValueSerializer<TStream, T>>
+  public class ValueSerializer<T> : MethodCacheBase<IValueSerializer<T>>
   {
     internal const string AssociateName = "ValueSerializer";
+    private static ThreadSafeCached<ValueSerializer<T>> cachedSerializer =
+      ThreadSafeCached<ValueSerializer<T>>.Create(new object());
 
+    /// <summary>
+    /// Gets default serializer for type <typeparamref name="T"/>
+    /// (uses <see cref="ObjectSerializerProviderBase.Default"/>).
+    /// </summary>
+    public static ValueSerializer<T> Default {
+      [DebuggerStepThrough]
+      get {
+        return cachedSerializer.GetValue(
+          () => ValueSerializerProvider.Default.GetSerializer<T>());
+      }
+    }
     /// <summary>
     /// Gets the provider this serializer is bound to.
     /// </summary>
-    public IValueSerializerProvider<TStream> Provider { get; private set; }
+    public IValueSerializerProvider Provider { get; private set; }
 
     /// <summary>
-    /// Gets <see cref="IValueSerializer{TStream,T}.Serialize(TStream,T)"/> method delegate.
+    /// Gets <see cref="IValueSerializer{T}.Serialize(T)"/> method delegate.
     /// </summary>
-    public Action<TStream, T> Serialize;
+    public Action<Stream, T> Serialize;
 
     /// <summary>
-    /// Gets <see cref="IValueSerializer{TStream,T}.Deserialize"/> method delegate.
+    /// Gets <see cref="IValueSerializer{T}.Deserialize"/> method delegate.
     /// </summary>
-    public Func<TStream, T> Deserialize;
+    public Func<Stream, T> Deserialize;
 
 
     // Constructors
@@ -45,7 +60,7 @@ namespace Xtensive.Core.Serialization.Implementation
     /// <see cref="ClassDocTemplate.Ctor" copy="true" />
     /// </summary>
     /// <param name="implementation">Serializer to provide the delegates for.</param>
-    public ValueSerializer(IValueSerializer<TStream, T> implementation)
+    public ValueSerializer(IValueSerializer<T> implementation)
       : base(implementation) 
     {
       Provider = Implementation.Provider;

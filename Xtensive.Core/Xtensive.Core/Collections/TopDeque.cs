@@ -8,16 +8,20 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Resources;
 
 namespace Xtensive.Core.Collections
 {
+  /// <summary>
+  /// Default <see cref="ITopDeque{K,V}"/> implementation.
+  /// </summary>
+  /// <typeparam name="K">Type of the key.</typeparam>
+  /// <typeparam name="V">Type of the value.</typeparam>
   public class TopDeque<K, V> : ITopDeque<K, V>
   {
-    private readonly LinkedList<Pair<K,V>> list = 
-      new LinkedList<Pair<K,V>>();
-    private readonly Dictionary<K, LinkedListNode<Pair<K,V>>> map = 
-      new Dictionary<K, LinkedListNode<Pair<K, V>>>();
+    private readonly LinkedList<Pair<K,V>> list;
+    private readonly Dictionary<K, LinkedListNode<Pair<K,V>>> map;
 
     /// <inheritdoc/>
     public int Count
@@ -220,5 +224,17 @@ namespace Xtensive.Core.Collections
     }
 
     #endregion
+
+
+    // Constructor
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    public TopDeque()
+    {
+      list = new LinkedList<Pair<K, V>>();
+      map = new Dictionary<K, LinkedListNode<Pair<K, V>>>();
+    }
   }
 }

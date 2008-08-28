@@ -5,7 +5,6 @@
 // Created:    2008.01.17
 
 using System;
-using Xtensive.Core.Serialization.Implementation;
 
 namespace Xtensive.Core.Serialization
 {
@@ -34,5 +33,10 @@ namespace Xtensive.Core.Serialization
     /// <param name="instance">The object which type is used to provide the serializer for.</param>
     /// <returns>Serializer for the specified type.</returns>
     IObjectSerializer GetSerializerByInstance(object instance);
+
+    /// <summary>
+    /// Gets the value serializer provider.
+    /// </summary>
+    IValueSerializerProvider ValueSerializerProvider { get; }
   }
 }

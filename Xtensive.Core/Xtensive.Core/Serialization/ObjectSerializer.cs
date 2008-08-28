@@ -19,21 +19,6 @@ namespace Xtensive.Core.Serialization
   [Serializable]
   public sealed class ObjectSerializer<T> : MethodCacheBase<IObjectSerializer<T>>
   {
-    private static ThreadSafeCached<ObjectSerializer<T>> cachedSerializer =
-      ThreadSafeCached<ObjectSerializer<T>>.Create(new object());
-
-    /// <summary>
-    /// Gets default serializer for type <typeparamref name="T"/>
-    /// (uses <see cref="ObjectSerializerProvider.Default"/>).
-    /// </summary>
-    public static ObjectSerializer<T> Default {
-      [DebuggerStepThrough]
-      get {
-        return cachedSerializer.GetValue(
-          () => ObjectSerializerProvider.Default.GetSerializer<T>());
-      }
-    }
-
     /// <summary>
     /// Gets the provider this serializer is bound to.
     /// </summary>

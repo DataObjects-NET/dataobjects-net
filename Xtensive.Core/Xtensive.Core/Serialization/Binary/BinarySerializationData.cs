@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Runtime.Serialization;
 using Xtensive.Core.Internals.DocTemplates;
@@ -19,7 +18,7 @@ namespace Xtensive.Core.Serialization.Binary
   /// A <see cref="SerializationData"/> specific to binary serialization.
   /// </summary>
   [Serializable]
-  public class BinarySerializationData : SerializationData<Stream>
+  public class BinarySerializationData : SerializationData
   {
     private const string ErasedSlotName = "~~Erased~~";
     private List<Triplet<string, long, bool>> slotList = new List<Triplet<string, long, bool>>();
@@ -32,10 +31,12 @@ namespace Xtensive.Core.Serialization.Binary
     /// <summary>
     /// Gets the <see cref="SerializationContext"/> this instance belongs to.
     /// </summary>
-    public new BinarySerializationContext Context {
-      [DebuggerStepThrough]
-      get { return (BinarySerializationContext) base.Context; }
-    }
+    public BinarySerializationContext Context { get; private set; }
+
+    /// <summary>
+    /// Gets the <see cref="ValueSerializerProvider"/> used by this instance.
+    /// </summary>
+    public ValueSerializerProvider ValueSerializerProvider { get; private set; }
 
     /// <summary>
     /// Gets the underlying stream for this instance.
@@ -63,15 +64,17 @@ namespace Xtensive.Core.Serialization.Binary
     /// <exception cref="SerializationException">Value with specified <paramref name="name"/> already exists.</exception>
     public override void AddValue<T>(string name, T value)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
+      if (string.IsNullOrEmpty(name))
+        ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
       if (slotMap.ContainsKey("name"))
         throw new SerializationException(string.Format(
           Strings.ExValueWithNameXAlreadyExists, 
           name));
       var context = Context;
       context.EnsureProcessTypeIs(SerializerProcessType.Serialization);
-      var valueSerializer = context.ValueSerializerProvider.GetSerializer<T>();
-      Serializer.EnsureValueSerializerIsFound<T>(valueSerializer);
+      var valueSerializer = ValueSerializerProvider.FastGetSerializer<T>();
+      if (valueSerializer==null)
+        Serializer.EnsureValueSerializerIsFound<T>(valueSerializer);
 
       long originalPosition = Stream.Position;
       long originalLength = Stream.Length;
@@ -107,8 +110,7 @@ namespace Xtensive.Core.Serialization.Binary
     /// <exception cref="SerializationException">Value with specified <paramref name="name"/> is not found.</exception>
     public override T GetValue<T>(string name)
     {
-      var context = Context;
-      var valueSerializer = context.ValueSerializerProvider.GetSerializer<T>();
+      var valueSerializer = ValueSerializerProvider.FastGetSerializer<T>();
       Serializer.EnsureValueSerializerIsFound<T>(valueSerializer);
 
       int slotIndex;
@@ -136,10 +138,7 @@ namespace Xtensive.Core.Serialization.Binary
 
         // Updating ReadCount, if necessary
         if (!slotInfo.Third) {
-          slotList[slotIndex] = new Triplet<string, long, bool>(
-            slotInfo.First, 
-            slotInfo.Second, 
-            true);
+          slotList[slotIndex] = new Triplet<string, long, bool>(slotInfo.First, slotInfo.Second, true);
           readCount++;
         }
 
@@ -147,6 +146,33 @@ namespace Xtensive.Core.Serialization.Binary
       }
       finally {
         Stream.Position = originalPosition;
+      }
+    }
+
+    /// <inheritdoc/>
+    /// <exception cref="SerializationException">Value with specified <paramref name="name"/> is not found.</exception>
+    public override void SkipValue(string name)
+    {
+      int slotIndex;
+      if (!slotMap.TryGetValue(name, out slotIndex)) {
+        slotIndex = -1;
+        while (!isCompletelyRead) {
+          string currentName = ReadNextSlot();
+          if (name==currentName) {
+            slotIndex = slotList.Count - 1;
+            break;
+          }
+        }
+        if (slotIndex<0)
+          throw new SerializationException(string.Format(
+            Strings.ExValueWithNameXIsNotFound, 
+            name));
+      }
+
+      var slotInfo = slotList[slotIndex];
+      if (!slotInfo.Third) {
+        slotList[slotIndex] = new Triplet<string, long, bool>(slotInfo.First, slotInfo.Second, true);
+        readCount++;
       }
     }
 
@@ -175,7 +201,7 @@ namespace Xtensive.Core.Serialization.Binary
       long originalPosition = Stream.Position;
       try {
         long dataOffset = slotInfo.Second;
-        long lengthLength = (context.LongSerializer.Implementation as BinaryValueSerializerBase<long>).OutputLength;
+        long lengthLength = (context.LongSerializer.Implementation as ValueSerializerBase<long>).OutputLength;
         Stream.Position = dataOffset - lengthLength;
         // Reading old data length
         long dataLength = context.LongSerializer.Deserialize(Stream);
@@ -226,17 +252,18 @@ namespace Xtensive.Core.Serialization.Binary
     {
       if (isCompletelyRead)
         return null;
-      if (Stream.Position==Stream.Length) {
+      Stream stream = Stream;
+      if (stream.Position==stream.Length) {
         isCompletelyRead = true;
         return null;
       }
       var context = Context;
-      long finalPosition = Stream.Position;
+      long finalPosition = stream.Position;
       try {
         // Reading name
-        string name = context.TokenStringSerializer.Deserialize(Stream).Value;
+        string name = context.TokenStringSerializer.Deserialize(stream).Value;
         // Reading data length
-        long dataLength = context.LongSerializer.Deserialize(Stream);
+        long dataLength = context.LongSerializer.Deserialize(stream);
         bool isErased = false;
         if (dataLength<0) {
           // Slot is erased
@@ -244,7 +271,7 @@ namespace Xtensive.Core.Serialization.Binary
           name = ErasedSlotName;
           dataLength = ~dataLength;
         }
-        long dataOffset = Stream.Position;
+        long dataOffset = stream.Position;
         // Ensures finally we'll move to the beginning of the next slot
         finalPosition = dataOffset + dataLength; 
 
@@ -256,8 +283,8 @@ namespace Xtensive.Core.Serialization.Binary
         return name;
       }
       finally {
-        Stream.Position = finalPosition;
-        if (finalPosition==Stream.Length)
+        stream.Position = finalPosition;
+        if (finalPosition==stream.Length)
           isCompletelyRead = true;
       }
     }
@@ -273,13 +300,17 @@ namespace Xtensive.Core.Serialization.Binary
     /// <param name="stream">The <see cref="Stream"/> property value.</param>
     public BinarySerializationData(Stream stream)
     {
+      Context = (BinarySerializationContext) SerializationContext.Current;
+      ValueSerializerProvider = (ValueSerializerProvider) Context.ValueSerializerProvider;
       Stream = stream;
     }
 
     /// <inheritdoc/>
-    public BinarySerializationData(IReference reference, object source, object origin, bool preferNesting)
-      : base(reference, source, origin, preferNesting)
+    public BinarySerializationData(IReference reference, object source, object origin)
+      : base(reference, source, origin)
     {
+      Context = (BinarySerializationContext) SerializationContext.Current;
+      ValueSerializerProvider = (ValueSerializerProvider) Context.ValueSerializerProvider;
       Stream = new MemoryStream();
       isCompletelyRead = true;
     }

@@ -27,14 +27,16 @@ namespace Xtensive.Core.Serialization
   {
     protected const string TypePropertyName = "GetType()";
     protected const string ReferencePropertyName = "#";
-    private int count;
 
     #region Properties
 
     /// <summary>
-    /// Gets the <see cref="SerializationContext"/> this instance belongs to.
+    /// Gets the serializer this instance is bound to.
     /// </summary>
-    public SerializationContext Context { get; private set; }
+    public static WorkingSerializerBase Serializer {
+      [DebuggerStepThrough]
+      get { return SerializationContext.Current.Serializer; }
+    }
 
     /// <summary>
     /// Gets the type associated with this instance.
@@ -55,11 +57,6 @@ namespace Xtensive.Core.Serialization
     /// Gets the origin object associated with this instance.
     /// </summary>
     public object Origin { get; internal set; }
-
-//    /// <summary>
-//    /// Gets the nesting preference for this instance.
-//    /// </summary>
-//    public bool PreferNesting { get; internal set; }
 
     /// <summary>
     /// Gets the count of slots in this instance.
@@ -130,7 +127,7 @@ namespace Xtensive.Core.Serialization
     /// for the duration of this call.</param>
     public void AddValue<T>(string name, T value, bool preferAttributes)
     {
-      var context = Context;
+      var context = SerializationContext.Current;
       var oldPreferAttributes = context.PreferAttributes;
       context.PreferAttributes = preferAttributes;
       try {
@@ -169,7 +166,7 @@ namespace Xtensive.Core.Serialization
     public void AddValue<T>(string name, T value, T originValue, bool preferAttributes)
     {
       if (!AdvancedComparerStruct<T>.System.Equals(value, originValue)) {
-        var context = Context;
+        var context = SerializationContext.Current;
         var oldPreferAttributes = context.PreferAttributes;
         context.PreferAttributes = preferAttributes;
         try {
@@ -232,7 +229,7 @@ namespace Xtensive.Core.Serialization
     /// </returns>
     public SerializationData AddObject(string name, object value)
     {
-      return AddObject(name, value, null, Context.PreferNesting);
+      return AddObject(name, value, null, SerializationContext.Current.PreferNesting);
     }
 
     /// <summary>
@@ -263,7 +260,7 @@ namespace Xtensive.Core.Serialization
     /// </returns>
     public SerializationData AddObject(string name, object value, object originValue)
     {
-      return AddObject(name, value, originValue, Context.PreferNesting);
+      return AddObject(name, value, originValue, SerializationContext.Current.PreferNesting);
     }
 
     /// <summary>
@@ -278,7 +275,12 @@ namespace Xtensive.Core.Serialization
     /// A <see cref="SerializationData"/> describing added object
     /// or a reference to it.
     /// </returns>
-    public abstract SerializationData AddObject(string name, object value, object originValue, bool preferNesting);
+    public virtual SerializationData AddObject(string name, object value, object originValue, bool preferNesting)
+    {
+      var data = Serializer.GetObjectData(value, originValue, preferNesting);
+      AddValue(name, data);
+      return data;
+    }
 
     /// <summary>
     /// Adds the object read by <paramref name="getter"/>
@@ -294,7 +296,7 @@ namespace Xtensive.Core.Serialization
     /// </returns>
     public SerializationData AddObject<TOwner>(string name, Func<TOwner, object> getter)
     {
-      return AddObject(name, getter, Context.PreferNesting);
+      return AddObject(name, getter, SerializationContext.Current.PreferNesting);
     }
 
     /// <summary>
@@ -357,7 +359,11 @@ namespace Xtensive.Core.Serialization
     /// <returns>
     /// The object associated with the <paramref name="name"/>.
     /// </returns>
-    public abstract T GetObject<T>(string name, object originValue);
+    public virtual T GetObject<T>(string name, object originValue)
+    {
+      var data = GetValue<SerializationData>(name);
+      return (T) Serializer.SetObjectData(originValue, data);
+    }
 
     #endregion
 
@@ -383,11 +389,22 @@ namespace Xtensive.Core.Serialization
     /// <returns>
     /// The reference to the object associated with the <paramref name="name"/>.
     /// </returns>
-    public abstract IReference GetReference(string name, object originValue);
+    public virtual IReference GetReference(string name, object originValue)
+    {
+      var data = GetValue<SerializationData>(name);
+      var source = Serializer.SetObjectData(originValue, data);
+      if (data.Reference!=null)
+        // We've just deserialized an object with reference
+        return data.Reference;
+      else
+        // We've just deserialized a reference or something else, which isn't referable
+        // (the last case will lead to type cast failure)
+        return (IReference) source;
+    }
 
     #endregion
 
-    #region HasValue, RemoveValue
+    #region HasValue, SkipValue, RemoveValue
 
     /// <summary>
     /// Determines whether the value with specified name exists.
@@ -398,6 +415,12 @@ namespace Xtensive.Core.Serialization
     /// otherwise, <see langword="false"/>.
     /// </returns>
     public abstract bool HasValue(string name);
+
+    /// <summary>
+    /// "Officially" skips the value by marking it as read.
+    /// </summary>
+    /// <param name="name">The name associated with the value.</param>
+    public abstract void SkipValue(string name);
 
     /// <summary>
     /// Removes the value with the specified name.
@@ -426,7 +449,7 @@ namespace Xtensive.Core.Serialization
       if (reference.TryResolve(out tmp))
         action.Invoke(target, reference);
       else
-        Context.FixupManager.Add(target, reference, action);
+        SerializationContext.Current.FixupManager.Add(target, reference, action);
     }
 
     /// <summary>
@@ -445,8 +468,28 @@ namespace Xtensive.Core.Serialization
       if (reference.TryResolve(out tmp))
         action.Invoke((T) Source, reference);
       else
-        Context.FixupManager.Add(this, reference, 
+        SerializationContext.Current.FixupManager.Add(this, reference, 
           (d, r) => action.Invoke((T) d.Source, r));
+    }
+
+    #endregion
+
+    #region UpdateSource method
+
+    /// <summary>
+    /// Updates the <see cref="Source"/> property value.
+    /// Note that if <see cref="Reference"/> is set, it
+    /// can be updated just once. Successive update with
+    /// different <paramref name="source"/> value will fail,
+    /// since <see cref="Reference"/> can be 
+    /// <see cref="ReferenceManager.Define"/>d just once.
+    /// </summary>
+    /// <param name="source">The new source.</param>
+    public void UpdateSource(object source)
+    {
+      if (Reference!=null)
+        SerializationContext.Current.ReferenceManager.Define(Reference, source);
+      Source = source;
     }
 
     #endregion
@@ -511,7 +554,6 @@ namespace Xtensive.Core.Serialization
     /// </summary>
     protected SerializationData()
     {
-      Context = SerializationContext.Current;
     }
   }
 }

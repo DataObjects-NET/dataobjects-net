@@ -34,9 +34,9 @@ namespace Xtensive.Core.Serialization
     /// <summary>
     /// Updates the object using the information in the <see cref="SerializationData"/>.
     /// </summary>
-    /// <param name="target">The object to update.</param>
+    /// <param name="source">The object to update.</param>
     /// <param name="data">The data to update the object from.</param>
     /// <returns>Updated object.</returns>
-    T SetObjectData(T target, SerializationData data);
+    T SetObjectData(T source, SerializationData data);
   }
 }

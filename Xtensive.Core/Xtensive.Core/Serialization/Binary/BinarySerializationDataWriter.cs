@@ -18,9 +18,9 @@ namespace Xtensive.Core.Serialization.Binary
   public class BinarySerializationDataWriter : SerializationDataWriter
   {
     /// <inheritdoc/>
-    public override SerializationData Create(IReference reference, object source, object origin, bool preferNesting)
+    public override SerializationData Create(IReference reference, object source, object origin)
     {
-      return new BinarySerializationData(reference, source, origin, preferNesting);
+      return new BinarySerializationData(reference, source, origin);
     }
 
     /// <inheritdoc/>

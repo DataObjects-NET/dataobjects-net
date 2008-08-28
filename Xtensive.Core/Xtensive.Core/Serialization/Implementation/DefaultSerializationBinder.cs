@@ -23,8 +23,8 @@ namespace Xtensive.Core.Serialization.Implementation
   {
     private static readonly DefaultSerializationBinder instance = 
       new DefaultSerializationBinder();
-    private static ThreadSafeDictionary<Pair<string, string>, Type> cachedTypes =
-      ThreadSafeDictionary<Pair<string, string>, Type>.Create(new object());
+    private static ThreadSafeDictionary<Pair<string, string>, Assembly> cachedAssemblies =
+      ThreadSafeDictionary<Pair<string, string>, Assembly>.Create(new object());
 
     /// <see cref="SingletonDocTemplate.Instance" copy="true" />
     public static DefaultSerializationBinder Instance {
@@ -35,7 +35,7 @@ namespace Xtensive.Core.Serialization.Implementation
     /// <inheritdoc/>
     public override Type BindToType(string assemblyName, string typeName) 
     {
-      var t = cachedTypes.GetValue(
+      var a = cachedAssemblies.GetValue(
         new Pair<string, string>(assemblyName, typeName), 
         p => {
           Assembly assembly = null;
@@ -44,11 +44,11 @@ namespace Xtensive.Core.Serialization.Implementation
             try { assembly = Assembly.LoadWithPartialName(p.First); } catch { }
           if (assembly==null)
             return null;
-          Type type = null;
-          try { type = FormatterServices.GetTypeFromAssembly(assembly, typeName); } catch { }
-          return type;
+          return assembly;
         });
-      return t;
+      Type type = null;
+      try { type = FormatterServices.GetTypeFromAssembly(a, typeName); } catch { }
+      return type;
     }
 
 

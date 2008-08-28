@@ -8,7 +8,6 @@ using System;
 
 namespace Xtensive.Core.Serialization.Internals
 {
-  [Serializable]
   internal sealed class ArraySerializer<T> : ObjectSerializerBase<T[]>
   {
     private const string LengthPropertyName = "Length";
@@ -26,20 +25,14 @@ namespace Xtensive.Core.Serialization.Internals
         data.AddObject(i.ToString(), source[i], true);
     }
 
-    public override T[] SetObjectData(T[] target, SerializationData data)
+    public override T[] SetObjectData(T[] source, SerializationData data)
     {
       int length = data.GetValue<int>(LengthPropertyName);
-      target = new T[length];
-      for (int i = 0; i < target.Length; i++)
-        target[i] = data.GetObject<T>(i.ToString());
-      data.EnsureNoSkips();
-      return target;
-    }
-
-    /// <exception cref="NotSupportedException">Thrown always by this method.</exception>
-    public override T[] SetPropertyData(T[] target, SerializationData data, string propertyName)
-    {
-      throw new NotSupportedException();
+      source = new T[length];
+      data.UpdateSource(source);
+      for (int i = 0; i < source.Length; i++)
+        source[i] = data.GetObject<T>(i.ToString());
+      return source;
     }
 
 
@@ -48,6 +41,9 @@ namespace Xtensive.Core.Serialization.Internals
     public ArraySerializer(IObjectSerializerProvider provider)
       : base(provider)
     {
+      if (Provider.ValueSerializerProvider.GetSerializer<T[]>()!=null)
+        // Let's "discard" ourselves if there is appropriate value serializer
+        throw new InvalidOperationException(); 
     }
   }
 }
