@@ -453,6 +453,8 @@ namespace Xtensive.Core.Tuples.Internals
                 il.Emit(OpCodes.Stloc_0);
                 il.Emit(OpCodes.Br, setFlags);
                 il.MarkLabel(isNotNull);
+                il.Emit(OpCodes.Ldc_I4, (int)(TupleFieldState.IsAvailable));
+                il.Emit(OpCodes.Stloc_0);
               }
               else if (!interfaceInfo.IsForValueType) {
                 Label isNotNull = il.DefineLabel();
