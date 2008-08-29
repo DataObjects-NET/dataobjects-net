@@ -15,6 +15,8 @@ using Xtensive.Core.Reflection;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Resources;
 using FieldInfo = Xtensive.Storage.Model.FieldInfo;
+using System.Linq;
+using Xtensive.Core.Collections;
 
 namespace Xtensive.Storage.Aspects
 {
@@ -130,8 +132,14 @@ namespace Xtensive.Storage.Aspects
       var aspect = ImplementProtectedConstructorAccessorAspect.ApplyOnce(type,
         GetInternalConstructorParameterTypes(type),
         GetBasePersistentType(type));
-      if (aspect!=null)
+      if (aspect!=null) {
         collection.AddAspect(type, aspect);
+        ErrorLog.Debug("Adding accessor to {0}..ctor({1})", 
+          type.GetShortName(), 
+          GetInternalConstructorParameterTypes(type)
+            .Select(t=>t.GetShortName())
+            .ToCommaDelimitedString());
+      }
     }
 
     #endregion
