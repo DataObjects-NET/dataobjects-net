@@ -14,7 +14,7 @@ namespace Xtensive.Storage.Rse
   /// Column of the record.
   /// </summary>
   [Serializable]
-  public sealed class RecordColumn : IEquatable<RecordColumn> 
+  public sealed class Column : IEquatable<Column> 
   {
     /// <summary>
     /// Gets the reference that describes a column.
@@ -44,7 +44,7 @@ namespace Xtensive.Storage.Rse
     /// <param name="left">The left.</param>
     /// <param name="right">The right.</param>
     /// <returns>The result of the operator.</returns>
-    public static bool operator ==(RecordColumn left, RecordColumn right)
+    public static bool operator ==(Column left, Column right)
     {
       return Equals(left, right);
     }
@@ -55,29 +55,29 @@ namespace Xtensive.Storage.Rse
     /// <param name="left">The left.</param>
     /// <param name="right">The right.</param>
     /// <returns>The result of the operator.</returns>
-    public static bool operator !=(RecordColumn left, RecordColumn right)
+    public static bool operator !=(Column left, Column right)
     {
       return !Equals(left, right);
     }
 
     /// <summary>
-    /// Indicates whether the current <see cref="RecordColumn"/> is equal to another.
+    /// Indicates whether the current <see cref="Column"/> is equal to another.
     /// </summary>
-    /// <param name="recordColumn">The record column to compare with.</param>
+    /// <param name="column">The record column to compare with.</param>
     /// <returns><see langword="true" /> if instances are equal, otherwise <see langword="false" />.</returns>    
-    public bool Equals(RecordColumn recordColumn)
+    public bool Equals(Column column)
     {
-      if (recordColumn == null)
+      if (column == null)
         return false;
       if (ColumnInfoRef == null) {
-        if (!Equals(Name, recordColumn.Name))
+        if (!Equals(Name, column.Name))
           return false;
       }
       else
-        if (!ColumnInfoRef.Equals(recordColumn.ColumnInfoRef))
+        if (!ColumnInfoRef.Equals(column.ColumnInfoRef))
           return false;
 
-      if (!Equals(Type, recordColumn.Type))
+      if (!Equals(Type, column.Type))
         return false;
 
       return true;
@@ -88,7 +88,7 @@ namespace Xtensive.Storage.Rse
     {
       if (ReferenceEquals(this, obj))
         return true;
-      return Equals(obj as RecordColumn);
+      return Equals(obj as Column);
     }
 
     /// <inheritdoc/>
@@ -110,7 +110,7 @@ namespace Xtensive.Storage.Rse
     /// <param name="name">Initial <see cref="Name"/> value.</param>
     /// <param name="index">Initial <see cref="Index"/> value.</param>
     /// <param name="type">Initial <see cref="Type"/> value.</param>    
-    public RecordColumn(string name, int index, Type type)
+    public Column(string name, int index, Type type)
     {
       Name = name;
       Index = index;
@@ -123,7 +123,7 @@ namespace Xtensive.Storage.Rse
     /// <param name="columnInfoRef">Initial <see cref="ColumnInfoRef"/> value.</param>
     /// <param name="index">Initial <see cref="Index"/> value.</param>
     /// <param name="type">Initial <see cref="Type"/> value.</param>    
-    public RecordColumn(ColumnInfoRef columnInfoRef, int index, Type type)
+    public Column(ColumnInfoRef columnInfoRef, int index, Type type)
     {
       ColumnInfoRef = columnInfoRef;
       Name = columnInfoRef.ColumnName;
@@ -134,26 +134,26 @@ namespace Xtensive.Storage.Rse
     /// <summary>
     ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="recordColumn">The base <see cref="RecordColumn"/>.</param>
+    /// <param name="column">The base <see cref="Column"/>.</param>
     /// <param name="alias">The alias to add to the name of new column.</param>
-    public RecordColumn(RecordColumn recordColumn, string alias)
+    public Column(Column column, string alias)
     {
-      Name = string.Concat(alias, ".", recordColumn.Name);
-      ColumnInfoRef = recordColumn.ColumnInfoRef;
-      Type = recordColumn.Type;
-      Index = recordColumn.Index;
+      Name = string.Concat(alias, ".", column.Name);
+      ColumnInfoRef = column.ColumnInfoRef;
+      Type = column.Type;
+      Index = column.Index;
     }
 
     /// <summary>
     ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="recordColumn">The base <see cref="RecordColumn"/>.</param>
+    /// <param name="column">The base <see cref="Column"/>.</param>
     /// <param name="index">The index of new column.</param>
-    public RecordColumn(RecordColumn recordColumn, int index)
+    public Column(Column column, int index)
     {
-      ColumnInfoRef = recordColumn.ColumnInfoRef;
-      Name = recordColumn.Name;
-      Type = recordColumn.Type;
+      ColumnInfoRef = column.ColumnInfoRef;
+      Name = column.Name;
+      Type = column.Type;
       Index = index;
     }
   }

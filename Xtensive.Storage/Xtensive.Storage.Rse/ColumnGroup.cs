@@ -14,7 +14,7 @@ namespace Xtensive.Storage.Rse
   /// <summary>
   /// Describes how a group of columns associated with a key mapped on <see cref="RecordSetHeader"/>.
   /// </summary>
-  public struct RecordColumnGroupMapping
+  public struct ColumnGroup
   {
     private readonly IList<int> keys;
     private readonly IList<int> columns;
@@ -29,7 +29,7 @@ namespace Xtensive.Storage.Rse
     }
 
     /// <summary>
-    /// Gets indexes of current <see cref="RecordColumnGroupMapping"/> columns.
+    /// Gets indexes of current <see cref="ColumnGroup"/> columns.
     /// </summary>
     public IList<int> Columns
     {
@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Rse
     /// <summary>
     ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public RecordColumnGroupMapping(IEnumerable<int> keys, IEnumerable<int> columns)
+    public ColumnGroup(IEnumerable<int> keys, IEnumerable<int> columns)
     {
       this.keys = new ReadOnlyList<int>(new List<int>(keys));
       this.columns = new ReadOnlyList<int>(new List<int>(columns));

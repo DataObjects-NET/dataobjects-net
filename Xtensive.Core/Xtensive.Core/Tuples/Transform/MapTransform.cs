@@ -27,6 +27,11 @@ namespace Xtensive.Core.Tuples.Transform
     internal int[] singleSourceMap;
     internal Pair<int, int>[] map;
 
+    /// <summary>
+    /// Means that no mapping is available for the specified field index.
+    /// </summary>
+    public const int NoMapping = Int32.MinValue;
+
     /// <inheritdoc/>
     [DebuggerHidden]
     public override bool IsReadOnly {
@@ -57,7 +62,7 @@ namespace Xtensive.Core.Tuples.Transform
         foreach (int mappedIndex in value)
           newMap[index++] = new Pair<int, int>(0, mappedIndex);
         while (index < newMap.Length)
-          newMap[index++] = new Pair<int, int>(0, -1);
+          newMap[index++] = new Pair<int, int>(0, NoMapping);
         map = newMap;
         singleSourceMap = value;
         sourceCount = 1;

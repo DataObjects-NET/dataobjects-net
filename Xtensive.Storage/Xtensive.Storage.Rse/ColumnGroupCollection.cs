@@ -12,21 +12,21 @@ using Xtensive.Core.Internals.DocTemplates;
 namespace Xtensive.Storage.Rse
 {
   /// <summary>
-  /// Read only collection of <see cref="RecordColumnGroupMapping"/>.
+  /// Read only collection of <see cref="ColumnGroup"/>.
   /// </summary>
-  public class RecordColumnGroupMappingCollection : ReadOnlyCollection<RecordColumnGroupMapping>
+  public class ColumnGroupCollection : ReadOnlyCollection<ColumnGroup>
   {
-    private static RecordColumnGroupMappingCollection emptyCollection;
+    private static ColumnGroupCollection emptyCollection;
 
     /// <summary>
-    /// Gets the empty <see cref="RecordColumnGroupMappingCollection"/>.
+    /// Gets the empty <see cref="ColumnGroupCollection"/>.
     /// </summary>    
-    public static RecordColumnGroupMappingCollection Empty
+    public static ColumnGroupCollection Empty
     {
       get
       {
         if (emptyCollection==null)
-          emptyCollection = new RecordColumnGroupMappingCollection(Enumerable.Empty<RecordColumnGroupMapping>());
+          emptyCollection = new ColumnGroupCollection(Enumerable.Empty<ColumnGroup>());
 
         return emptyCollection;
       }
@@ -36,7 +36,7 @@ namespace Xtensive.Storage.Rse
     ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="items">The collection items.</param>
-    public RecordColumnGroupMappingCollection(IEnumerable<RecordColumnGroupMapping> items)
+    public ColumnGroupCollection(IEnumerable<ColumnGroup> items)
       : base(items.ToList())
     {      
     }

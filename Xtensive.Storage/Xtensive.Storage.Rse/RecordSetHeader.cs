@@ -25,12 +25,12 @@ namespace Xtensive.Storage.Rse
     /// Gets the <see cref="RecordSet"/> keys.
     /// </summary>
     /// <value>The keys.</value>
-    public RecordColumnGroupMappingCollection ColumnGroupMappings { get; private set; }
+    public ColumnGroupCollection ColumnGroups { get; private set; }
 
     /// <summary>
     /// Gets the <see cref="RecordSet"/> columns.
     /// </summary>
-    public RecordColumnCollection Columns { get; private set; }
+    public ColumnCollection Columns { get; private set; }
 
     /// <summary>
     /// Gets the <see cref="RecordSet"/> tuple descriptor.
@@ -64,9 +64,9 @@ namespace Xtensive.Storage.Rse
           .Union(keyColumns.Select((p, i) => new KeyValuePair<int, Direction>(i+keyColumns.Count, p.Value))));
       }
       OrderDescriptor = new RecordSetOrderDescriptor(sortOrder, keyDescriptor);
-      Columns = new RecordColumnCollection(indexInfo.Columns.Select((c,i) => new RecordColumn(c,i,c.ValueType)));
+      Columns = new ColumnCollection(indexInfo.Columns.Select((c,i) => new Column(c,i,c.ValueType)));
 
-      ColumnGroupMappings = new RecordColumnGroupMappingCollection(new[]{new RecordColumnGroupMapping(
+      ColumnGroups = new ColumnGroupCollection(new[]{new ColumnGroup(
         indexInfo.Group.KeyColumns.Select(c => indexInfo.Columns.IndexOf(c)),
         indexInfo.Group.Columns.Select(c => indexInfo.Columns.IndexOf(c)))});
     }
@@ -75,20 +75,20 @@ namespace Xtensive.Storage.Rse
     ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="tupleDescriptor">Descriptor of the result item.</param>
-    /// <param name="recordColumns">Result columns.</param>
+    /// <param name="columns">Result columns.</param>
     /// <param name="keyDescriptor">Descriptor of ordered columns.</param>
     /// <param name="groups">Column groups.</param>
     /// <param name="orderedBy">Result sort order.</param>
-    public RecordSetHeader(TupleDescriptor tupleDescriptor, IEnumerable<RecordColumn> recordColumns, TupleDescriptor keyDescriptor, IEnumerable<RecordColumnGroupMapping> groups, DirectionCollection<int> orderedBy)
+    public RecordSetHeader(TupleDescriptor tupleDescriptor, IEnumerable<Column> columns, TupleDescriptor keyDescriptor, IEnumerable<ColumnGroup> groups, DirectionCollection<int> orderedBy)
     {
       ArgumentValidator.EnsureArgumentNotNull(tupleDescriptor, "tupleDescriptor");
-      ArgumentValidator.EnsureArgumentNotNull(recordColumns, "recordColumns");
+      ArgumentValidator.EnsureArgumentNotNull(columns, "columns");
       TupleDescriptor = tupleDescriptor;
-      Columns = new RecordColumnCollection(recordColumns);
+      Columns = new ColumnCollection(columns);
 
-      ColumnGroupMappings = groups==null
-        ? RecordColumnGroupMappingCollection.Empty
-        : new RecordColumnGroupMappingCollection(groups);
+      ColumnGroups = groups==null
+        ? ColumnGroupCollection.Empty
+        : new ColumnGroupCollection(groups);
 
       OrderDescriptor = new RecordSetOrderDescriptor(
         orderedBy ?? new DirectionCollection<int>(),
@@ -101,15 +101,15 @@ namespace Xtensive.Storage.Rse
     /// <remarks>This constructor is used for all join operations.</remarks>
     public RecordSetHeader(RecordSetHeader left, RecordSetHeader right)
     {
-      Columns = new RecordColumnCollection(
+      Columns = new ColumnCollection(
         left.Columns,
-        right.Columns.Select(column => new RecordColumn(column, left.Columns.Count + column.Index)));
+        right.Columns.Select(column => new Column(column, left.Columns.Count + column.Index)));
       TupleDescriptor = TupleDescriptor.Create(new[] {left.TupleDescriptor, right.TupleDescriptor}.SelectMany(descriptor => descriptor));
       OrderDescriptor = left.OrderDescriptor;
-      ColumnGroupMappings = new RecordColumnGroupMappingCollection(
-        left.ColumnGroupMappings
-          .Union(right.ColumnGroupMappings
-            .Select(g => new RecordColumnGroupMapping(
+      ColumnGroups = new ColumnGroupCollection(
+        left.ColumnGroups
+          .Union(right.ColumnGroups
+            .Select(g => new ColumnGroup(
               g.Keys.Select(i => left.Columns.Count + i),
               g.Columns.Select(i => left.Columns.Count + i)
               ))));
@@ -122,9 +122,9 @@ namespace Xtensive.Storage.Rse
     /// <param name="alias">Alias.</param>
     public RecordSetHeader(RecordSetHeader header, string alias)
     {
-      Columns = new RecordColumnCollection(header.Columns, alias);
+      Columns = new ColumnCollection(header.Columns, alias);
       TupleDescriptor = header.TupleDescriptor;
-      ColumnGroupMappings = header.ColumnGroupMappings;
+      ColumnGroups = header.ColumnGroups;
       OrderDescriptor = header.OrderDescriptor;
     }
 
@@ -147,11 +147,11 @@ namespace Xtensive.Storage.Rse
           new RecordSetOrderDescriptor(order, Core.Tuples.TupleDescriptor.Create(header.OrderDescriptor.Descriptor.Take(order.Count)));
       }
 
-      Columns = new RecordColumnCollection(includedColumns.Select((ic, i) => new RecordColumn(header.Columns[ic], i)));
-      ColumnGroupMappings = new RecordColumnGroupMappingCollection(
-        header.ColumnGroupMappings
+      Columns = new ColumnCollection(includedColumns.Select((ic, i) => new Column(header.Columns[ic], i)));
+      ColumnGroups = new ColumnGroupCollection(
+        header.ColumnGroups
         .Where(g => g.Keys.All(ci => includedColumns.Contains(ci)))
-        .Select(cgm => new RecordColumnGroupMapping(cgm.Keys.Select(k => columns.IndexOf(k)), cgm.Columns.Select(c => columns.IndexOf(c)).Where(c => c >=0))));
+        .Select(cgm => new ColumnGroup(cgm.Keys.Select(k => columns.IndexOf(k)), cgm.Columns.Select(c => columns.IndexOf(c)).Where(c => c >=0))));
     }
   }
 }

@@ -26,7 +26,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
 
     protected override RecordSetHeader BuildHeader()
     {
-      return new RecordSetHeader(Source.Header.TupleDescriptor, Source.Header.Columns, Source.Header.OrderDescriptor.Descriptor, Source.Header.ColumnGroupMappings, IndexSortOrder);
+      return new RecordSetHeader(Source.Header.TupleDescriptor, Source.Header.Columns, Source.Header.OrderDescriptor.Descriptor, Source.Header.ColumnGroups, IndexSortOrder);
     }
 
     protected override void Initialize()

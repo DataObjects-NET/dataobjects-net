@@ -111,7 +111,7 @@ namespace Xtensive.Storage.Rse
 
     public static int IndexOf(this RecordSet recordSet, string columnName)
     {
-      RecordColumn column = recordSet.Header.Columns[columnName];
+      Column column = recordSet.Header.Columns[columnName];
       if (column == null)
         throw new ArgumentException("columnName");
       return column.Index;

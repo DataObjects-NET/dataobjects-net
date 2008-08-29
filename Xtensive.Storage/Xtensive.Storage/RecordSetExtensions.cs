@@ -9,9 +9,11 @@ using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
+using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Rse;
+using ColumnGroup=Xtensive.Storage.Rse.ColumnGroup;
 
 namespace Xtensive.Storage
 {
@@ -55,11 +57,11 @@ namespace Xtensive.Storage
       Domain domain = session.Domain;
       DomainModel model = domain.Model;
       foreach (Tuple tuple in source) {
-        foreach (RecordColumnGroupMapping mapping in source.Header.ColumnGroupMappings) {
+        foreach (ColumnGroup mapping in source.Header.ColumnGroups) {
           TypeInfo type = null;
           Dictionary<ColumnInfo, int> columns = new Dictionary<ColumnInfo, int>(mapping.Columns.Count);
           foreach (int columnIndex in mapping.Columns) {
-            RecordColumn rc = source.Header.Columns[columnIndex];
+            Column rc = source.Header.Columns[columnIndex];
             ColumnInfo ci = rc.ColumnInfoRef.Resolve(model);
             columns.Add(ci, columnIndex);
             if (ci.Name == NameBuilder.TypeIdFieldName)
@@ -73,12 +75,27 @@ namespace Xtensive.Storage
             if (columns.TryGetValue(column, out index))
               map.Add(index);
             else
-              map.Add(-1);
+              map.Add(MapTransform.NoMapping);
           }
           MapTransform transform = new MapTransform(true, type.TupleDescriptor, map.ToArray());
           Tuple result = transform.Apply(TupleTransformType.TransformedTuple, tuple);
           Key key = domain.KeyManager.Get(type, result);
           session.DataCache.Update(key, result);
+        }
+      }
+    }
+
+    public static void X(this RecordSet source)
+    {
+      RecordSetHeaderParsingContext context = new RecordSetHeaderParsingContext(Session.Current, source.Header);
+      RecordSetMapping mapping = source.Header.Parse(context);
+
+      foreach (Tuple tuple in source) {
+        foreach (HierarchyMapping hierarchyMapping in mapping.HierarchyMappings) {
+          TypeMapping typeMapping = hierarchyMapping.GetTypeMapping(context, tuple);
+          Tuple result = typeMapping.Transform.Apply(TupleTransformType.TransformedTuple, tuple);
+          Key key = context.Domain.KeyManager.Get(typeMapping.Type, result);
+          context.Session.DataCache.Update(key, result);
         }
       }
     }
