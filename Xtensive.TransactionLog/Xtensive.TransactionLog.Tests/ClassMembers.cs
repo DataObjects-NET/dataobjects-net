@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using NUnit.Framework;
-using Xtensive.Core.Serialization;
+using Xtensive.Core.Conversion;
 using Xtensive.Core.Serialization.Binary;
 using Xtensive.Integrity.Transactions;
 using Xtensive.TransactionLog.Providers;
@@ -21,10 +21,9 @@ namespace Xtensive.TransactionLog.Tests
   {
     private readonly string providerPath = Path.Combine(Environment.GetEnvironmentVariable("TEMP"), "LogFolder");
     private ILogProvider logProvider;
-    private readonly IFileNameFormatter<long> fileNameFormatter = new TestFileNameProvider();
+    private readonly Biconverter<long, string> keyToFileNameConverter = TestFileNameProvider.Instance;
     private readonly string logName = "TestLogName";
 
-    // [TestFixtureSetUp]
     public void SetUp()
     {
       try {
@@ -40,7 +39,8 @@ namespace Xtensive.TransactionLog.Tests
     public void Constructor()
     {
       SetUp();
-      using (new TransactionLog<long>(logProvider, logName, fileNameFormatter, TimeSpan.FromSeconds(1), 1, null, BinaryValueSerializerProvider.Default.GetSerializer<long>()))
+      using (new TransactionLog<long>(logProvider, logName, 
+        keyToFileNameConverter, TimeSpan.FromSeconds(1), 1, null, BinaryValueSerializerProvider.Default.GetSerializer<long>()))
       {
       }
     }
@@ -49,9 +49,8 @@ namespace Xtensive.TransactionLog.Tests
     public void CounterHasNoValue()
     {
       SetUp();
-      using (
-        TransactionLog<long> log =
-          new TransactionLog<long>(logProvider, logName, fileNameFormatter, TimeSpan.FromSeconds(1), 1, null, BinaryValueSerializerProvider.Default.GetSerializer<long>()))
+      using (var log = new TransactionLog<long>(logProvider, logName, 
+        keyToFileNameConverter, TimeSpan.FromSeconds(1), 1, null, BinaryValueSerializerProvider.Default.GetSerializer<long>()))
       {
         long? value = log.FirstUncommitted;
         Assert.IsNull(value);
@@ -62,9 +61,8 @@ namespace Xtensive.TransactionLog.Tests
     public void Properties()
     {
       SetUp();
-      using (
-        TransactionLog<long> log =
-          new TransactionLog<long>(logProvider, logName, fileNameFormatter, TimeSpan.FromSeconds(1), 1, null, BinaryValueSerializerProvider.Default.GetSerializer<long>()))
+      using (var log = new TransactionLog<long>(logProvider, logName, 
+        keyToFileNameConverter, TimeSpan.FromSeconds(1), 1, null, BinaryValueSerializerProvider.Default.GetSerializer<long>()))
       {
         Assert.IsNull(log.FirstUncommitted);
         long key = 123;
@@ -82,12 +80,11 @@ namespace Xtensive.TransactionLog.Tests
     public void Truncate()
     {
       SetUp();
-      using (
-        TransactionLog<long> log =
-          new TransactionLog<long>(logProvider, logName, fileNameFormatter, TimeSpan.FromSeconds(1), 1, null, BinaryValueSerializerProvider.Default.GetSerializer<long>()))
+      using (var log = new TransactionLog<long>(logProvider, logName, 
+        keyToFileNameConverter, TimeSpan.FromSeconds(1), 1, null, BinaryValueSerializerProvider.Default.GetSerializer<long>()))
       {
         for (long i = 0; i < 1000; i++) {
-          TestTransaction transaction = new TestTransaction(i);
+          var transaction = new TestTransaction(i);
           log.Append(transaction);
           transaction.SetState(TransactionState.Completed | TransactionState.RolledBack);
           log.Append(transaction);
@@ -107,24 +104,22 @@ namespace Xtensive.TransactionLog.Tests
       }
     }
 
-
     [Test]
     public void GetEnumeratorOfTransaction()
     {
       SetUp();
-      using (
-        TransactionLog<long> log =
-          new TransactionLog<long>(logProvider, logName, fileNameFormatter, TimeSpan.FromSeconds(1), 1, null, BinaryValueSerializerProvider.Default.GetSerializer<long>()))
+      using (var log = new TransactionLog<long>(logProvider, logName, 
+        keyToFileNameConverter, TimeSpan.FromSeconds(1), 1, null, BinaryValueSerializerProvider.Default.GetSerializer<long>()))
       {
         int transactionCount = 400;
         for (long i = 0; i < transactionCount; i++) {
-          TestTransaction transaction = new TestTransaction(i);
+          var transaction = new TestTransaction(i);
           log.Append(transaction);
           transaction.SetState(TransactionState.Completed | TransactionState.RolledBack);
           log.Append(transaction);
         }
         for (int i = 0; i < transactionCount; i++) {
-          List<TestTransaction> transactionList = new List<TestTransaction>();
+          var transactionList = new List<TestTransaction>();
           foreach (TestTransaction transaction in log.Read(i))
             transactionList.Add(transaction);
           Assert.AreEqual(2, transactionList.Count);
@@ -142,7 +137,7 @@ namespace Xtensive.TransactionLog.Tests
       SetUp();
       using (
         TransactionLog<long> log =
-          new TransactionLog<long>(logProvider, logName, fileNameFormatter, TimeSpan.FromSeconds(1), 1, null, BinaryValueSerializerProvider.Default.GetSerializer<long>()))
+          new TransactionLog<long>(logProvider, logName, keyToFileNameConverter, TimeSpan.FromSeconds(1), 1, null, BinaryValueSerializerProvider.Default.GetSerializer<long>()))
       {
         int transactionCount = 400;
         for (long i = 0; i < transactionCount; i++) {
@@ -165,7 +160,7 @@ namespace Xtensive.TransactionLog.Tests
       SetUp();
       using (
         TransactionLog<long> log =
-          new TransactionLog<long>(logProvider, logName, fileNameFormatter, TimeSpan.FromSeconds(1), 1, null, BinaryValueSerializerProvider.Default.GetSerializer<long>()))
+          new TransactionLog<long>(logProvider, logName, keyToFileNameConverter, TimeSpan.FromSeconds(1), 1, null, BinaryValueSerializerProvider.Default.GetSerializer<long>()))
       {
         int transactionCount = 400;
         for (long i = 0; i < transactionCount; i++)

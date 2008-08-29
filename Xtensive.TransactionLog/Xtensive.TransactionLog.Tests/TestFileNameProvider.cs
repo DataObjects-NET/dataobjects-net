@@ -4,18 +4,15 @@
 // Created by: Alexey Gamzov
 // Created:    2007.10.31
 
+using Xtensive.Core.Conversion;
+
 namespace Xtensive.TransactionLog.Tests
 {
-  public class TestFileNameProvider : IFileNameFormatter<long>
+  public static class TestFileNameProvider
   {
-    public long RestoreFromString(string value)
-    {
-      return long.Parse(value);
-    }
-
-    public string SaveToString(long key)
-    {
-      return key.ToString("D10");
-    }
+    public static Biconverter<long, string> Instance =
+      new Biconverter<long, string>(
+        AdvancedConverterProvider.Default.GetConverter<long, string>().Implementation,
+        AdvancedConverterProvider.Default.GetConverter<string, long>().Implementation);
   }
 }

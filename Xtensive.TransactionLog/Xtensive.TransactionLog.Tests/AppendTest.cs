@@ -6,12 +6,12 @@
 
 using System.IO;
 using NUnit.Framework;
+using Xtensive.Core.Conversion;
 using Xtensive.Core.Serialization.Binary;
 using Xtensive.Integrity.Transactions;
 using Xtensive.TransactionLog.Providers;
 using Xtensive.TransactionLog.Providers.FileSystem;
 using System;
-using Xtensive.Core.Serialization;
 
 namespace Xtensive.TransactionLog.Tests
 {
@@ -21,7 +21,6 @@ namespace Xtensive.TransactionLog.Tests
     private readonly string providerPath = Path.Combine(Environment.GetEnvironmentVariable("TEMP"), "LogFolder");
     private ILogProvider logProvider;
 
-    // [TestFixtureSetUp]
     public void SetUp()
     {
       try {
@@ -37,9 +36,8 @@ namespace Xtensive.TransactionLog.Tests
     public void Append()
     {
       SetUp();
-      IFileNameFormatter<long> fileNameFormatter = new TestFileNameProvider();
-      using (TransactionLog<long> log =
-          new TransactionLog<long>(logProvider, "TestLogName", fileNameFormatter, TimeSpan.FromSeconds(1), 1, null, BinaryValueSerializerProvider.Default.GetSerializer<long>()))
+      Biconverter<long, string> keyToFileNameConverter = TestFileNameProvider.Instance;
+      using (var log = new TransactionLog<long>(logProvider, "TestLogName", keyToFileNameConverter, TimeSpan.FromSeconds(1), 1, null, BinaryValueSerializerProvider.Default.GetSerializer<long>()))
       {
         for (int i = 0; i < 1000; i++) {
           TestTransaction record = new TestTransaction(i);
@@ -54,13 +52,12 @@ namespace Xtensive.TransactionLog.Tests
     public void DoubleCommit()
     {
       SetUp();
-      IFileNameFormatter<long> fileNameFormatter = new TestFileNameProvider();
-      using (TransactionLog<long> log =
-          new TransactionLog<long>(logProvider, "TestLogName", fileNameFormatter, TimeSpan.FromSeconds(1), 1, null, BinaryValueSerializerProvider.Default.GetSerializer<long>()))
+      Biconverter<long, string> keyToFileNameConverter = TestFileNameProvider.Instance;
+      using (var log = new TransactionLog<long>(logProvider, "TestLogName", keyToFileNameConverter, TimeSpan.FromSeconds(1), 1, null, BinaryValueSerializerProvider.Default.GetSerializer<long>()))
       {
         for (int i = 0; i < 1000; i++)
         {
-          TestTransaction record = new TestTransaction(i);
+          var record = new TestTransaction(i);
           record.InternalData = Guid.NewGuid();
           log.Append(record);
           log.Append(record);
@@ -75,10 +72,10 @@ namespace Xtensive.TransactionLog.Tests
     public void CommitTest()
     {
       SetUp();
-      IFileNameFormatter<long> fileNameFormatter = new TestFileNameProvider();
+      Biconverter<long, string> keyToFileNameConverter = TestFileNameProvider.Instance;
       using (
-        TransactionLog<long> log =
-          new TransactionLog<long>(logProvider, "TestLogName", fileNameFormatter, TimeSpan.FromSeconds(1), 1, null, BinaryValueSerializerProvider.Default.GetSerializer<long>()))
+        var log = new TransactionLog<long>(logProvider, "TestLogName", 
+          keyToFileNameConverter, TimeSpan.FromSeconds(1), 1, null, BinaryValueSerializerProvider.Default.GetSerializer<long>()))
       {
         int transactionCount = 400;
         for (int i = 0; i < transactionCount; i++) {
@@ -87,19 +84,19 @@ namespace Xtensive.TransactionLog.Tests
           log.Append(record);
         }
         for (int i = 0; i < transactionCount; i++) {
-          TestTransaction record = new TestTransaction(i);
+          var record = new TestTransaction(i);
           record.SetState(TransactionState.Active);
           record.InternalData = Guid.NewGuid();
           log.Append(record);
         }
         for (int i = 0; i < transactionCount; i++) {
-          TestTransaction record = new TestTransaction(i);
+          var record = new TestTransaction(i);
           record.SetState(TransactionState.Active);
           record.InternalData = Guid.NewGuid();
           log.Append(record);
         }
         for (int i = 0; i < transactionCount; i++) {
-          TestTransaction record = new TestTransaction(i);
+          var record = new TestTransaction(i);
           record.SetState(i%2==0 ? TransactionState.Committed : TransactionState.RolledBack | TransactionState.Completed);
           record.InternalData = Guid.NewGuid();
           log.Append(record);
@@ -111,36 +108,36 @@ namespace Xtensive.TransactionLog.Tests
     public void RestoreTest()
     {
       SetUp();
-      IFileNameFormatter<long> fileNameFormatter = new TestFileNameProvider();
+      Biconverter<long, string> keyToFileNameConverter = TestFileNameProvider.Instance;
       long firstUncommited;
       using (
-        TransactionLog<long> log =
-          new TransactionLog<long>(logProvider, "TestLogName", fileNameFormatter, TimeSpan.FromSeconds(1), 1, null, BinaryValueSerializerProvider.Default.GetSerializer<long>()))
+        var log = new TransactionLog<long>(logProvider, "TestLogName", 
+          keyToFileNameConverter, TimeSpan.FromSeconds(1), 1, null, BinaryValueSerializerProvider.Default.GetSerializer<long>()))
       {
         int transactionCount = 400;
         for (int i = 0; i < transactionCount; i++)
         {
-          TestTransaction record = new TestTransaction(i);
+          var record = new TestTransaction(i);
           record.InternalData = Guid.NewGuid();
           log.Append(record);
         }
         for (int i = 0; i < transactionCount; i++)
         {
-          TestTransaction record = new TestTransaction(i);
+          var record = new TestTransaction(i);
           record.SetState(TransactionState.Active);
           record.InternalData = Guid.NewGuid();
           log.Append(record);
         }
         for (int i = 0; i < transactionCount; i++)
         {
-          TestTransaction record = new TestTransaction(i);
+          var record = new TestTransaction(i);
           record.SetState(TransactionState.Active);
           record.InternalData = Guid.NewGuid();
           log.Append(record);
         }
         for (int i = 0; i < transactionCount - 10; i++)
         {
-          TestTransaction record = new TestTransaction(i);
+          var record = new TestTransaction(i);
           record.SetState(i % 2 == 0 ? TransactionState.Committed : TransactionState.RolledBack | TransactionState.Completed);
           record.InternalData = Guid.NewGuid();
           log.Append(record);
@@ -149,10 +146,10 @@ namespace Xtensive.TransactionLog.Tests
       }
       // Open again
       using (
-        TransactionLog<long> newLog =
-          new TransactionLog<long>(logProvider, "TestLogName", fileNameFormatter, TimeSpan.FromSeconds(1), 1, null, BinaryValueSerializerProvider.Default.GetSerializer<long>()))
+        var newLog = new TransactionLog<long>(logProvider, "TestLogName", 
+          keyToFileNameConverter, TimeSpan.FromSeconds(1), 1, null, BinaryValueSerializerProvider.Default.GetSerializer<long>()))
       {
-            Assert.AreEqual(newLog.FirstUncommitted, firstUncommited);
+        Assert.AreEqual(newLog.FirstUncommitted, firstUncommited);
       }
     }
 

@@ -95,7 +95,8 @@ namespace Xtensive.TransactionLog.Providers.FileSystem
       this.baseFolder = baseFolder;
       if (!Directory.Exists(baseFolder)) {
         if (File.Exists(baseFolder))
-          throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Strings.ExFolderNameConflictsWithFile, baseFolder));
+          throw new InvalidOperationException(string.Format(
+            Strings.ExFolderNameConflictsWithFile, baseFolder));
         Directory.CreateDirectory(baseFolder);
       }
     }

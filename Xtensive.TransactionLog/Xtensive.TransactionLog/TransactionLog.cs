@@ -11,10 +11,9 @@ using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using Xtensive.Core;
+using Xtensive.Core.Conversion;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Serialization;
-using Xtensive.Core.Serialization.Binary;
-using Xtensive.Core.Serialization.Implementation;
 using Xtensive.Integrity.Transactions;
 using Xtensive.TransactionLog.Providers;
 using Xtensive.TransactionLog.Resources;
@@ -33,7 +32,7 @@ namespace Xtensive.TransactionLog
 
     private readonly ILogProvider provider;
     private readonly string name;
-    private readonly IFileNameFormatter<TKey> keyFormatter;
+    private readonly Biconverter<TKey, string> keyToFileNameConverter;
     private readonly long maxSegmentLength;
     private Stream segment;
     private TKey segmentKey;
@@ -180,19 +179,21 @@ namespace Xtensive.TransactionLog
 
     #region Private \ internal methods
 
-    private void InitLog(IFileNameFormatter<TKey> keyFileNameFormatter, TimeSpan autoFlushTimeout,
-      ValueSerializer<Stream,TKey> keySerializer)
+    private void InitLog(Biconverter<TKey, string> keyToFileNameConverter, 
+      TimeSpan autoFlushTimeout,
+      ValueSerializer<TKey> keySerializer)
     {
       if (!provider.FolderExists(Name)) {
         provider.CreateFolder(Name);
       }
-      string uncommitedCounterName = string.Format(CultureInfo.CurrentCulture, FirstUncommitedCounterNameFormat, Name);
+      string uncommitedCounterName = string.Format(CultureInfo.InvariantCulture, 
+        FirstUncommitedCounterNameFormat, Name);
       firstUncommited = new PersistCounter<TKey>(uncommitedCounterName, provider, autoFlushTimeout, keySerializer);
 
       string[] files = provider.GetFolderFiles(Name);
       foreach (string file in files) {
         try {
-          TKey key = keyFileNameFormatter.RestoreFromString(file);
+          TKey key = keyToFileNameConverter.ConvertBackward(file);
           segments.Add(key);
         }
         catch (Exception ex){
@@ -262,7 +263,8 @@ namespace Xtensive.TransactionLog
 
     private string GetSegmentName(TKey key)
     {
-      return string.Format(CultureInfo.CurrentCulture, @"{0}\{1}", name, keyFormatter.SaveToString(key));
+      return string.Format(CultureInfo.InvariantCulture, @"{0}\{1}", name, 
+        keyToFileNameConverter.ConvertForward(key));
     }
 
     private int GetSegmentIndex(TKey key)
@@ -286,26 +288,26 @@ namespace Xtensive.TransactionLog
     /// </summary>
     /// <param name="provider">Log provider.</param>
     /// <param name="logName">Log name.</param>
-    /// <param name="keyFileNameFormatter"><see cref="IFileNameFormatter{TKey}"/> that formats <typeparamref name="TKey"/> to filename and visa versa.</param>
+    /// <param name="keyToFileNameConverter">A converter that formats <typeparamref name="TKey"/> to file name and visa versa.</param>
     /// <param name="autoFlushTimeout">Period of time than counters flushes their state to media.</param>
     /// <param name="maxSegmentLength">Max length of segment in megabytes.</param>
     /// <param name="transactionFormatter"><see cref="IFormatter"/> that serializes and deserializes <see cref="ITransactionInfo{TKey}"/>.</param>
     /// <param name="keySerializer"><see cref="IValueSerializer{T}"/> that serializes specified <typeparamref name="TKey"/>.</param>
-    public TransactionLog(ILogProvider provider, string logName, IFileNameFormatter<TKey> keyFileNameFormatter,
-      TimeSpan autoFlushTimeout, long maxSegmentLength, IFormatter transactionFormatter, ValueSerializer<Stream,TKey> keySerializer)
+    public TransactionLog(ILogProvider provider, string logName, Biconverter<TKey, string> keyToFileNameConverter,
+      TimeSpan autoFlushTimeout, long maxSegmentLength, IFormatter transactionFormatter, ValueSerializer<TKey> keySerializer)
     {
       ArgumentValidator.EnsureArgumentNotNull(provider, "provider");
       ArgumentValidator.EnsureArgumentNotNull(logName, "name");
-      ArgumentValidator.EnsureArgumentNotNull(keyFileNameFormatter, "keyFileNameFormatter");
+      ArgumentValidator.EnsureArgumentNotNull(keyToFileNameConverter, "keyFileNameFormatter");
       ArgumentValidator.EnsureArgumentIsInRange(autoFlushTimeout, TimeSpan.Zero.Add(TimeSpan.FromTicks(1)),
         TimeSpan.MaxValue, "autoFlushTimeout");
       this.provider = provider;
       name = logName;
-      keyFormatter = keyFileNameFormatter;
+      this.keyToFileNameConverter = keyToFileNameConverter;
       this.maxSegmentLength = maxSegmentLength;
       this.transactionFormatter = transactionFormatter ?? new BinaryFormatter();
 
-      InitLog(keyFileNameFormatter, autoFlushTimeout, keySerializer);
+      InitLog(keyToFileNameConverter, autoFlushTimeout, keySerializer);
     }
 
     // Disposable pattern

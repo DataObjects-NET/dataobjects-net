@@ -6,10 +6,7 @@
 
 using System;
 using System.IO;
-using System.Runtime.Serialization;
 using NUnit.Framework;
-using Xtensive.Core;
-using Xtensive.Core.Serialization;
 using Xtensive.Core.Serialization.Binary;
 using Xtensive.TransactionLog.Providers;
 using Xtensive.TransactionLog.Providers.FileSystem;
@@ -23,7 +20,6 @@ namespace Xtensive.TransactionLog.Tests
     private readonly string providerPath = Path.Combine(Environment.GetEnvironmentVariable("TEMP"), "LogFolder");
     private ILogProvider logProvider;
 
-    // [TestFixtureSetUp]
     public void SetUp()
     {
       try {
@@ -40,7 +36,7 @@ namespace Xtensive.TransactionLog.Tests
     public void TestCreate()
     {
       SetUp();
-      using (PersistCounter<int> counter = new PersistCounter<int>(counterName, logProvider, TimeSpan.FromSeconds(1), BinaryValueSerializerProvider.Default.GetSerializer<int>()))
+      using (var counter = new PersistCounter<int>(counterName, logProvider, TimeSpan.FromSeconds(1), BinaryValueSerializerProvider.Default.GetSerializer<int>()))
       {
         long persistedValue = counter.PersistedValue;
         long value = counter.Value;
@@ -51,12 +47,11 @@ namespace Xtensive.TransactionLog.Tests
     public void TestWrite()
     {
       SetUp();
-      using (PersistCounter<int> counter = new PersistCounter<int>(counterName, logProvider, TimeSpan.FromSeconds(1), BinaryValueSerializerProvider.Default.GetSerializer<int>()))
+      using (var counter = new PersistCounter<int>(counterName, logProvider, TimeSpan.FromSeconds(1), BinaryValueSerializerProvider.Default.GetSerializer<int>()))
       {
         int iterations = 1000;
-        for (int i=0;i<=iterations;i++) {
-          counter.Value = i*10;
-        }
+        for (int i = 0; i <= iterations; i++)
+          counter.Value = i * 10;
         Assert.AreEqual(0, counter.PersistedValue);
         Assert.AreEqual(iterations*10, counter.Value);
       }
@@ -66,11 +61,10 @@ namespace Xtensive.TransactionLog.Tests
     public void TestPersistInt()
     {
       SetUp();
-      using (PersistCounter<int> counter = new PersistCounter<int>(counterName, logProvider, TimeSpan.FromSeconds(1), BinaryValueSerializerProvider.Default.GetSerializer<int>()))
+      using (var counter = new PersistCounter<int>(counterName, logProvider, TimeSpan.FromSeconds(1), BinaryValueSerializerProvider.Default.GetSerializer<int>()))
       {
         int iterations = 1000;
-        for (int i = 1; i <= iterations; i++)
-        {
+        for (int i = 1; i <= iterations; i++) {
           counter.Value = i * 10;
           if (i%100==0)
             counter.Flush();
@@ -85,11 +79,10 @@ namespace Xtensive.TransactionLog.Tests
     public void TestPersistLong()
     {
       SetUp();
-      using (PersistCounter<long> counter = new PersistCounter<long>(counterName, logProvider, TimeSpan.FromSeconds(1), BinaryValueSerializerProvider.Default.GetSerializer<long>()))
+      using (var counter = new PersistCounter<long>(counterName, logProvider, TimeSpan.FromSeconds(1), BinaryValueSerializerProvider.Default.GetSerializer<long>()))
       {
         int iterations = 1000;
-        for (int i = 1; i <= iterations; i++)
-        {
+        for (int i = 1; i <= iterations; i++) {
           counter.Value = i * 10;
           if (i % 100 == 0)
             counter.Flush();

@@ -11,8 +11,6 @@ using System.Threading;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Serialization;
-using Xtensive.Core.Serialization.Binary;
-using Xtensive.Core.Serialization.Implementation;
 using Xtensive.Core.Threading;
 using Xtensive.TransactionLog.Providers;
 using Xtensive.TransactionLog.Resources;
@@ -20,16 +18,20 @@ using Xtensive.TransactionLog.Resources;
 namespace Xtensive.TransactionLog
 {
   /// <summary>
-  /// Counter what periodically persists it's value to <see cref="ILogProvider"/>.
+  /// A counter periodically persisting its value (of <typeparamref name="TKey"/> type) 
+  /// to the specified <see cref="ILogProvider"/>.
   /// </summary>
-  /// <typeparam name="TKey">Type of value.</typeparam>
-  public sealed class PersistCounter<TKey> : IDisposable, ISynchronizable where TKey : IComparable<TKey>
+  /// <typeparam name="TKey">Type of key.</typeparam>
+  public sealed class PersistCounter<TKey> : 
+    IDisposable, 
+    ISynchronizable 
+    where TKey : IComparable<TKey>
   {
     private const int SlotCount = 3;
 
     private readonly TimeSpan flushTimeout;
-    private readonly ValueSerializer<Stream,TKey> serializer;
-    private readonly ValueSerializer<Stream, int> hashSerializer = BinaryValueSerializerProvider.Default.GetSerializer<int>();
+    private readonly ValueSerializer<TKey> keySerializer;
+    private readonly ValueSerializer<int> hashSerializer = ValueSerializerProvider.Default.GetSerializer<int>();
     private readonly Stream[] slots = new Stream[SlotCount];
     private int currentSlot = -1;
     private TKey value;
@@ -113,7 +115,7 @@ namespace Xtensive.TransactionLog
             return;
           Stream stream = slots[currentSlot];
           stream.Seek(0, SeekOrigin.Begin);
-          serializer.Serialize(stream, value);
+          keySerializer.Serialize(stream, value);
           hashSerializer.Serialize(stream, value.GetHashCode());
           stream.Flush();
           persistedValue = value;
@@ -166,28 +168,28 @@ namespace Xtensive.TransactionLog
     /// <param name="name">Name of counter (with path).</param>
     /// <param name="logProvider"><see cref="ILogProvider"/> to store or restore counter's value.</param>
     /// <param name="flushTimeout">Time period of automatic persist</param>
-    /// <param name="serializer"><see cref="IValueSerializer{T}"/> to serialize/deserialize values.</param>
-    public PersistCounter(string name, ILogProvider logProvider, TimeSpan flushTimeout, ValueSerializer<Stream,TKey> serializer)
+    /// <param name="keySerializer"><see cref="IValueSerializer{T}"/> to serialize/deserialize values.</param>
+    public PersistCounter(string name, ILogProvider logProvider, TimeSpan flushTimeout, ValueSerializer<TKey> keySerializer)
     {
       ArgumentValidator.EnsureArgumentNotNull(name, "name");
       ArgumentValidator.EnsureArgumentNotNull(logProvider, "logProvider");
-      ArgumentValidator.EnsureArgumentNotNull(serializer, "serializer");
+      ArgumentValidator.EnsureArgumentNotNull(keySerializer, "serializer");
       ArgumentValidator.EnsureArgumentIsInRange(flushTimeout, TimeSpan.Zero.Add(TimeSpan.FromTicks(1)),
         TimeSpan.MaxValue, "flushTimeout");
-      this.serializer = serializer;
+      this.keySerializer = keySerializer;
       // Restore values
       folderName = Path.GetDirectoryName(name);
       if (!logProvider.FolderExists(folderName)) {
         logProvider.CreateFolder(folderName);
       }
       for (int i = 0; i < SlotCount; i++) {
-        string fileName = string.Format(CultureInfo.CurrentCulture, "{0}_{1}", name, i);
+        string fileName = string.Format("{0}_{1}", name, i);
         Stream stream = logProvider.GetFileStream(fileName, FileMode.OpenOrCreate);
         slots[i] = stream;
         stream.Seek(0, SeekOrigin.Begin);
         if (stream.Length > 0) {
           try {
-            TKey deserializedValue = this.serializer.Deserialize(stream);
+            TKey deserializedValue = this.keySerializer.Deserialize(stream);
             int hash = hashSerializer.Deserialize(stream);
             if (deserializedValue.GetHashCode()==hash && (currentSlot==-1 || deserializedValue.CompareTo(value)>0)) {
               persistedValue = value = deserializedValue;

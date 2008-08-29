@@ -9,11 +9,8 @@ using System.IO;
 using System.Security.AccessControl;
 using Xtensive.Core;
 using Xtensive.Core.Disposable;
-using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Serialization;
-using Xtensive.Core.Serialization.Binary;
-using Xtensive.Core.Serialization.Implementation;
 using Xtensive.Indexing.Implementation;
 
 namespace Xtensive.Indexing.Providers.Internals
@@ -23,12 +20,12 @@ namespace Xtensive.Indexing.Providers.Internals
     public const long OffsetLength = 8;
 
     private Stream stream;
-    private readonly IValueSerializer<Stream> serializer;
-    private readonly ValueSerializer<Stream,long> offsetSerializer;
+    private readonly ISerializer serializer;
+    private readonly ValueSerializer<long> offsetSerializer;
     private readonly MemoryStream innerPagesStream = new MemoryStream();
     private long reservedLength;
 
-    public ValueSerializer<Stream,long> OffsetSerializer
+    public ValueSerializer<long> OffsetSerializer
     {
       get { return offsetSerializer; }
     }

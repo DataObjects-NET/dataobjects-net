@@ -36,8 +36,8 @@ namespace Xtensive.Indexing.Providers
   public class StreamPageProvider<TKey, TItem> : IndexPageProviderBase<TKey, TItem>
   {
     private StreamProvider streamProvider;
-    private readonly IValueSerializer<Stream> serializer;
-    private readonly ValueSerializer<Stream,long> offsetSerializer;
+    private readonly ISerializer serializer;
+    private readonly ValueSerializer<long> offsetSerializer;
     private readonly WeakCache<IPageRef, Page<TKey, TItem>> pageCache;
     private readonly ReaderWriterLockSlim pageCacheLock = new ReaderWriterLockSlim();
     private bool descriptorPageIdentifierAssigned;
@@ -62,7 +62,7 @@ namespace Xtensive.Indexing.Providers
     /// <summary>
     /// Gets the serializer user by this page provider.
     /// </summary>
-    public IValueSerializer<Stream> Serializer
+    public ISerializer Serializer
     {
       [DebuggerStepThrough]
       get { return serializer; }
@@ -71,7 +71,7 @@ namespace Xtensive.Indexing.Providers
     /// <summary>
     /// Gets the offset serializer user by this page provider.
     /// </summary>
-    public ValueSerializer<Stream,long> OffsetSerializer
+    public ValueSerializer<long> OffsetSerializer
     {
       [DebuggerStepThrough]
       get { return offsetSerializer; }
@@ -294,7 +294,8 @@ namespace Xtensive.Indexing.Providers
       ArgumentValidator.EnsureArgumentNotNull(fileName, "fileName");
       ArgumentValidator.EnsureArgumentIsInRange(cacheSize, 0, int.MaxValue, "cacheSize");
       streamProvider = new StreamProvider(fileName);
-      offsetSerializer = BinaryValueSerializerProvider.Default.GetSerializer<long>();
+      serializer = LegacyBinarySerializer.Instance;
+      offsetSerializer = ValueSerializerProvider.Default.GetSerializer<long>();
       if (cacheSize > 0) {
         pageCache =
           new WeakCache<IPageRef, Page<TKey, TItem>>(
