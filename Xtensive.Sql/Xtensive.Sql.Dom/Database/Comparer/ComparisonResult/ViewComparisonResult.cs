@@ -19,8 +19,8 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   {
     private ComparisonResult<CheckOptions> checkOptions;
     private ComparisonResult<SqlNative> definition;
-    private readonly ComparisonResultCollection<ComparisonResult<ViewColumn>> columns = new ComparisonResultCollection<ComparisonResult<ViewColumn>>();
-    private readonly ComparisonResultCollection<ComparisonResult<Index>> indexes = new ComparisonResultCollection<ComparisonResult<Index>>();
+    private readonly ComparisonResultCollection<ViewColumnComparisonResult> columns = new ComparisonResultCollection<ViewColumnComparisonResult>();
+    private readonly ComparisonResultCollection<IndexComparisonResult> indexes = new ComparisonResultCollection<IndexComparisonResult>();
 
 
     /// <inheritdoc/>
@@ -64,7 +64,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     /// <summary>
     /// Gets comparison results of nested columns.
     /// </summary>
-    public ComparisonResultCollection<ComparisonResult<ViewColumn>> Columns
+    public ComparisonResultCollection<ViewColumnComparisonResult> Columns
     {
       get { return columns; }
     }
@@ -72,7 +72,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     /// <summary>
     /// Gets comparison results of nested indexes.
     /// </summary>
-    public ComparisonResultCollection<ComparisonResult<Index>> Indexes
+    public ComparisonResultCollection<IndexComparisonResult> Indexes
     {
       get { return indexes; }
     }
