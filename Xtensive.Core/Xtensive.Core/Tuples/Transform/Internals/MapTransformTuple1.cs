@@ -5,7 +5,6 @@
 // Created:    2008.06.04
 
 using System;
-using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.Tuples.Transform.Internals
@@ -32,19 +31,29 @@ namespace Xtensive.Core.Tuples.Transform.Internals
     /// <inheritdoc/>
     public override TupleFieldState GetFieldState(int fieldIndex)
     {
-      return tuple.GetFieldState(TypedTransform.singleSourceMap[fieldIndex]);
+      int index = GetMappedFieldIndex(fieldIndex);
+      return index == -1 ? TupleFieldState.Default : tuple.GetFieldState(index);
     }
 
     /// <inheritdoc/>
     public override object GetValueOrDefault(int fieldIndex)
     {
-      return tuple.GetValueOrDefault(TypedTransform.singleSourceMap[fieldIndex]);
+      int index = GetMappedFieldIndex(fieldIndex);
+      if (index == -1)
+        return Descriptor[index].IsClass ? null : Activator.CreateInstance(Descriptor[index]);
+      return tuple.GetValueOrDefault(index);
     }
 
     /// <inheritdoc/>
     public override T GetValueOrDefault<T>(int fieldIndex)
     {
-      return tuple.GetValueOrDefault<T>(TypedTransform.singleSourceMap[fieldIndex]);
+      int index = GetMappedFieldIndex(fieldIndex);
+      if (index == -1) {
+        if (!typeof(T).IsAssignableFrom(Descriptor[index]))
+          throw new InvalidCastException();
+        return default(T);
+      }
+      return tuple.GetValueOrDefault<T>(index);
     }
 
     /// <inheritdoc/>
@@ -52,7 +61,7 @@ namespace Xtensive.Core.Tuples.Transform.Internals
     {
       if (Transform.IsReadOnly)
         throw Exceptions.ObjectIsReadOnly(null);
-      tuple.SetValue(TypedTransform.singleSourceMap[fieldIndex], fieldValue);
+      tuple.SetValue(GetMappedFieldIndex(fieldIndex), fieldValue);
     }
 
     /// <inheritdoc/>
@@ -60,10 +69,15 @@ namespace Xtensive.Core.Tuples.Transform.Internals
     {
       if (Transform.IsReadOnly)
         throw Exceptions.ObjectIsReadOnly(null);
-      tuple.SetValue(TypedTransform.singleSourceMap[fieldIndex], fieldValue);
+      tuple.SetValue(GetMappedFieldIndex(fieldIndex), fieldValue);
     }
 
     #endregion
+
+    private int GetMappedFieldIndex(int fieldIndex)
+    {
+      return TypedTransform.singleSourceMap[fieldIndex];
+    }
 
 
     // Constructors

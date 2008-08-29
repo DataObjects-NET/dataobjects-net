@@ -52,10 +52,12 @@ namespace Xtensive.Core.Tuples.Transform
       get { return singleSourceMap.Copy(); }
       protected set {
         ArgumentValidator.EnsureArgumentNotNull(value, "value");
-        Pair<int, int>[] newMap = new Pair<int, int>[value.Length];
+        Pair<int, int>[] newMap = new Pair<int, int>[Descriptor.Count];
         int index = 0;
         foreach (int mappedIndex in value)
           newMap[index++] = new Pair<int, int>(0, mappedIndex);
+        while (index < newMap.Length)
+          newMap[index++] = new Pair<int, int>(0, -1);
         map = newMap;
         singleSourceMap = value;
         sourceCount = 1;
