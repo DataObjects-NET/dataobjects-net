@@ -2,7 +2,7 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Elena Vakhtina
-// Created:    2008.08.26
+// Created:    2008.08.29
 
 using System.Diagnostics;
 using Xtensive.Core;
@@ -10,10 +10,7 @@ using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Storage.Rse
 {
-  /// <summary>
-  /// <see cref="DomainLevelTemporaryData"/> activation scope.
-  /// </summary>
-  public class DomainLevelTemporaryDataScope : TemporaryDataScopeBase
+  public class TransactionLevelTemporaryDataScope : TemporaryDataScopeBase
   {
 
     // Constructors
@@ -23,7 +20,7 @@ namespace Xtensive.Storage.Rse
     /// </summary>
     /// <param name="context">The <see cref="Scope{TContext}.Context"/> property value.</param>
     [DebuggerStepThrough]
-    public DomainLevelTemporaryDataScope(TemporaryDataBase context)
+    public TransactionLevelTemporaryDataScope(TemporaryDataBase context)
       : base(context)
     {
     }

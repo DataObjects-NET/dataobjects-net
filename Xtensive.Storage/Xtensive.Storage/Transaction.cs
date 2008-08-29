@@ -7,6 +7,7 @@
 using System;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Integrity.Transactions;
+using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage
 {
@@ -24,6 +25,12 @@ namespace Xtensive.Storage
     /// Gets the session.
     /// </summary>
     public Session Session { get; private set; }
+
+    /// <summary>
+    /// Gets the transaction-level temporary data.
+    /// </summary>
+    public TransactionLevelTemporaryData TemporaryData { get; private set; }
+
 
     /// <inheritdoc/>
     protected override void OnCommit()
@@ -63,6 +70,7 @@ namespace Xtensive.Storage
     {
       Session = session;
       ValidationContext = new ValidationContext();
+      TemporaryData = new TransactionLevelTemporaryData();
     }
   }
 }
