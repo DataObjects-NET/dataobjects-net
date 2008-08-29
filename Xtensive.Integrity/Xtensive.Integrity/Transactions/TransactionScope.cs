@@ -14,27 +14,19 @@ namespace Xtensive.Integrity.Transactions
   /// </summary>
   public sealed class TransactionScope : IDisposable
   {
-    private bool isCompleted;
+    /// <summary>
+    /// Gets a value indicating whether this scope is successfully completed.
+    /// </summary>
+    public bool IsCompleted { get; private set; }
 
     /// <summary>
-    /// Gets the transaction.
+    /// Gets the transaction this scope controls.
     /// </summary>
-    public TransactionBase Transaction { get; private set;}
+    public TransactionBase Transaction { get; private set; }
 
-    /// <summary>
-    /// Indicates that all operations within the scope are completed successfully.
-    /// Does nothing if scope is null.
-    /// </summary>
-    /// <param name="scope">The scope to complete.</param>
-    public static void Complete(TransactionScope scope)
+    internal void Complete()
     {
-      if (scope!=null)
-        scope.Complete();
-    }
-
-    private void Complete()
-    {
-      isCompleted = true;
+      IsCompleted = true;
     }
 
 
@@ -51,23 +43,13 @@ namespace Xtensive.Integrity.Transactions
 
     // Destructor
 
-    /// <summary>
     /// <see cref="ClassDocTemplate.Dispose" copy="true"/>
-    /// </summary>
-    protected void Dispose(bool disposing)
+    public void Dispose()
     {
-      if (isCompleted)
+      if (IsCompleted)
         Transaction.Commit();
       else
         Transaction.Rollback();
-    }
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Dispose" copy="true"/>
-    /// </summary>
-    public void Dispose()
-    {
-      Dispose(true);
     }
   }
 }
