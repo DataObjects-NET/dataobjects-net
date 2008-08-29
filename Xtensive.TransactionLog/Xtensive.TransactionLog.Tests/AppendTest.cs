@@ -48,7 +48,7 @@ namespace Xtensive.TransactionLog.Tests
     }
 
     [Test]
-    [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "Transaction is not active. It may be missing or already commited.")]
+    [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "Transaction is not active. It may be missing or is already committed.")]
     public void DoubleCommit()
     {
       SetUp();
