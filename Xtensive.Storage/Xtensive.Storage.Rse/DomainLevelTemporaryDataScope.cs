@@ -11,33 +11,32 @@ using Xtensive.Core.Internals.DocTemplates;
 namespace Xtensive.Storage.Rse
 {
   /// <summary>
-  /// Domain saved data scope.
+  /// <see cref="DomainLevelTemporaryData"/> activation scope.
   /// </summary>
-  public class DomainSavedDataScope : Scope<DomainSavedData>
+  public class DomainLevelTemporaryDataScope : Scope<DomainLevelTemporaryData>
   {
     /// <summary>
     /// Gets the current context.
     /// </summary>
-    public new static DomainSavedData CurrentContext
+    public new static DomainLevelTemporaryData CurrentContext
     {
       [DebuggerStepThrough]
-      get { return Scope<DomainSavedData>.CurrentContext; }
+      get { return Scope<DomainLevelTemporaryData>.CurrentContext; }
     }
 
     /// <summary>
-    /// Gets the current context.
+    /// Gets the current scope.
     /// </summary>
-    public new static DomainSavedDataScope CurrentScope
+    public new static DomainLevelTemporaryDataScope CurrentScope
     {
       [DebuggerStepThrough]
-      get { return (DomainSavedDataScope) Scope<DomainSavedData>.CurrentScope; }
+      get { return (DomainLevelTemporaryDataScope) Scope<DomainLevelTemporaryData>.CurrentScope; }
     }
-
 
     /// <summary>
     /// Gets the context of this scope.
     /// </summary>
-    public new DomainSavedData Context
+    public new DomainLevelTemporaryData Context
     {
       [DebuggerStepThrough]
       get { return base.Context; }
@@ -51,7 +50,7 @@ namespace Xtensive.Storage.Rse
     /// </summary>
     /// <param name="context">The <see cref="Scope{TContext}.Context"/> property value.</param>
     [DebuggerStepThrough]
-    public DomainSavedDataScope(DomainSavedData context)
+    public DomainLevelTemporaryDataScope(DomainLevelTemporaryData context)
       : base(context)
     {
     }

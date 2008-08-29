@@ -35,8 +35,6 @@ namespace Xtensive.Storage
     private readonly ThreadSafeDictionary<RecordSetHeader, RecordSetMapping> recordSetMappings = 
       ThreadSafeDictionary<RecordSetHeader, RecordSetMapping>.Create(new object());
     private int sessionCounter = 1;
-    private NamedValueCollection savedValues;
-    private static DomainSavedData domainSavedData;
 
     /// <summary>
     /// Gets the configuration.
@@ -78,14 +76,9 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
-    /// Gets the collection of saved context values.
+    /// Gets the domain-level temporary data.
     /// </summary>
-    public NamedValueCollection SavedValues
-    {
-      [DebuggerStepThrough]
-      get { return savedValues; }
-      set { savedValues = value;}
-    }
+    public DomainLevelTemporaryData TemporaryData { get; private set; }
 
     internal DomainHandler Handler {
       [DebuggerStepThrough]
@@ -106,8 +99,8 @@ namespace Xtensive.Storage
     /// <summary>
     /// Opens the session with default <see cref="SessionConfiguration"/>.
     /// </summary>
-    /// <returns>New <see cref="SessionScope"/> object.</returns>
-    public SessionScope OpenSession()
+    /// <returns>New <see cref="SessionConsumptionScope"/> object.</returns>
+    public SessionConsumptionScope OpenSession()
     {
       return OpenSession((SessionConfiguration)Configuration.Session.Clone());
     }
@@ -116,8 +109,8 @@ namespace Xtensive.Storage
     /// Opens the session with specified <paramref name="configuration"/>.
     /// </summary>
     /// <param name="configuration">The session configuration.</param>
-    /// <returns>New <see cref="SessionScope"/> object.</returns>
-    public SessionScope OpenSession(SessionConfiguration configuration)
+    /// <returns>New <see cref="SessionConsumptionScope"/> object.</returns>
+    public SessionConsumptionScope OpenSession(SessionConfiguration configuration)
     {
       ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
       if (EnumerableExtensions.IsNullOrEmpty(configuration.Name)) {
@@ -130,11 +123,7 @@ namespace Xtensive.Storage
         Log.Debug("Opening session '{0}'", configuration);
 
       var session = new Session(this, configuration);
-
-      savedValues = new NamedValueCollection();
-      domainSavedData = new DomainSavedData(session);
-      domainSavedData.Activate();
-      return new SessionScope(session);
+      return new SessionConsumptionScope(session);
     }
 
     #endregion
@@ -158,6 +147,7 @@ namespace Xtensive.Storage
       Configuration = configuration;
       Handlers = new HandlerAccessor(this);
       Prototypes = new Dictionary<TypeInfo, Tuple>();
+      TemporaryData = new DomainLevelTemporaryData();
     }
 
     public void Dispose()

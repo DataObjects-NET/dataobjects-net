@@ -21,7 +21,6 @@ using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Resources;
-using Xtensive.Core.Helpers;
 using Xtensive.Storage.Rse.Compilation;
 
 namespace Xtensive.Storage
@@ -129,11 +128,10 @@ namespace Xtensive.Storage
     /// query and so further. So generally you should not worry
     /// about calling this method.
     /// </remarks>
+    /// <exception cref="ObjectDisposedException">Session is already disposed.</exception>
     public void Persist()
     {
-      if (isDisposed)
-        throw new InvalidOperationException(Strings.SessionIsAlreadyDisposed);
-
+      EnsureNotDisposed();
       if (DirtyData.Count==0)
         return;
       
@@ -157,17 +155,16 @@ namespace Xtensive.Storage
 
     public IEnumerable<T> All<T>() where T : class,   IEntity
     {      
-      if (isDisposed)
-        throw new InvalidOperationException(Strings.SessionIsAlreadyDisposed);
-
+      EnsureNotDisposed();
       Persist();
+
       TypeInfo type = Domain.Model.Types[typeof (T)];
       RecordSet result = type.Indexes.PrimaryIndex.ToRecordSet();
       foreach (T entity in result.ToEntities<T>())
         yield return entity;
     }
 
-    #region IResource members
+    #region IResource methods
 
     /// <inheritdoc/>
     void IResource.AddConsumer(object consumer)
@@ -191,14 +188,14 @@ namespace Xtensive.Storage
 
     #endregion
 
-    #region IContext<SessionScope> Members
+    #region IContext<...> methods
 
     /// <summary>
     /// Gets the current active <see cref="Session"/> instance.
     /// </summary>
     public static Session Current {
       [DebuggerStepThrough]
-      get { return SessionScope.Current==null ? null : SessionScope.Current.Session; }
+      get { return SessionScope.CurrentSession; }
     }
 
     /// <inheritdoc/>
@@ -206,8 +203,8 @@ namespace Xtensive.Storage
     {
       if (IsActive)
         return null;
-
-      return new SessionScope(this);
+      else
+        return new SessionScope(this);
     }
 
     /// <inheritdoc/>
@@ -217,11 +214,22 @@ namespace Xtensive.Storage
     }
 
     /// <inheritdoc/>
-    public bool IsActive
+    public bool IsActive {
+      get { return Current==this; }
+    }
+
+    #endregion
+
+    #region EnsureXxx methods
+
+    /// <summary>
+    /// Ensures the session is not disposed.
+    /// </summary>
+    /// <exception cref="ObjectDisposedException">Session is already disposed.</exception>
+    protected void EnsureNotDisposed()
     {
-      get {
-        return SessionScope.Current!=null && SessionScope.Current.Session==this;
-      }
+      if (isDisposed)
+        throw new ObjectDisposedException(Strings.SessionIsAlreadyDisposed);
     }
 
     #endregion

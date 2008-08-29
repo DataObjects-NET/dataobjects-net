@@ -50,7 +50,7 @@ namespace Xtensive.Storage
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     protected SessionBound() 
-      : this(SessionScope.Current.Session)
+      : this(Session.Current)
     {
     }
 

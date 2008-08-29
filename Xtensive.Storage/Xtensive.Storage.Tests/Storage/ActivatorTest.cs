@@ -45,16 +45,16 @@ namespace Xtensive.Storage.Tests.Storage
     {
       Key key;
       using (Domain.OpenSession()) {
-        Descendant descendant = new Descendant();
+        var descendant = new Descendant();
         key = descendant.Key;
         Session.Current.Persist();
       }
 
       using (Domain.OpenSession()) {
-        Ancestor ancestor = key.Resolve<Ancestor>();
+        var ancestor = key.Resolve<Ancestor>();
         Assert.IsNotNull(ancestor);
 
-        Descendant descendant = key.Resolve<Descendant>();
+        var descendant = key.Resolve<Descendant>();
         Assert.IsNotNull(descendant);
       }
     }

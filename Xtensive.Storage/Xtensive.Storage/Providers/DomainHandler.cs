@@ -43,8 +43,8 @@ namespace Xtensive.Storage.Providers
     /// Opens the session with specified <paramref name="type"/>.
     /// </summary>
     /// <param name="type">The type of the session to open.</param>
-    /// <returns>New <see cref="SessionScope"/> object.</returns>
-    public SessionScope OpenSession(SessionType type)
+    /// <returns>New <see cref="SessionConsumptionScope"/> object.</returns>
+    public SessionConsumptionScope OpenSession(SessionType type)
     {
       return OpenSession(type, (SessionConfiguration)Domain.Configuration.Session.Clone());
     }
@@ -55,8 +55,8 @@ namespace Xtensive.Storage.Providers
     /// </summary>
     /// <param name="type">The type of the session to open.</param>
     /// <param name="configuration">The session configuration.</param>
-    /// <returns>New <see cref="SessionScope"/> object.</returns>
-    public SessionScope OpenSession(SessionType type, SessionConfiguration configuration)
+    /// <returns>New <see cref="SessionConsumptionScope"/> object.</returns>
+    public SessionConsumptionScope OpenSession(SessionType type, SessionConfiguration configuration)
     {
       configuration.Type = type;
       return Domain.OpenSession(configuration);

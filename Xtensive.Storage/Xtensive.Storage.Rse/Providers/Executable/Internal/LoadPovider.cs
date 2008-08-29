@@ -29,7 +29,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     {
       base.OnBeforeEnumerate(context);
       Compilable.LoadProvider loadProvider = Origin;
-      CachedSource = (IEnumerable<Tuple>) DomainSavedData.Current.Get(loadProvider.ResultName);
+      CachedSource = (IEnumerable<Tuple>) DomainLevelTemporaryData.Current.Get(loadProvider.ResultName);
     }
 
     protected internal override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)

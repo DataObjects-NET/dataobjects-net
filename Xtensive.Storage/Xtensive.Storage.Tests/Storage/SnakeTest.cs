@@ -98,10 +98,8 @@ namespace Xtensive.Storage.Tests.Storage
       TestFixtureTearDown();
       TestFixtureSetUp();
 
-      using (Domain.OpenSession())
-      {
-        using (var t = Session.Current.BeginTransaction())
-        {
+      using (Domain.OpenSession()) {
+        using (var t = Session.Current.BeginTransaction()) {
 
           for (int i = 0; i < snakesCount; i++)
             new Snake { Name = ("Kaa" + i), Length = i };
@@ -322,7 +320,7 @@ namespace Xtensive.Storage.Tests.Storage
 
       using (Domain.OpenSession()) {
         using (var t = Session.Current.BeginTransaction()) {
-          Session session = SessionScope.Current.Session;
+          var session = Session.Current;
           for (int i = 0; i < snakesCount; i++) {
             Snake s = new Snake();
             s.Name = "Kaa" + i;
@@ -455,7 +453,7 @@ namespace Xtensive.Storage.Tests.Storage
 
       using (Domain.OpenSession()) {
         using (var t = Session.Current.BeginTransaction()) {
-          Session session = SessionScope.Current.Session;
+          var session = Session.Current;
           for (int i = 0; i < snakesCount; i++) {
             Snake s = new Snake();
             s.Name = "Kaa" + i;

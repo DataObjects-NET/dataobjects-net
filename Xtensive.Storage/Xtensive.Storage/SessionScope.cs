@@ -4,37 +4,41 @@
 // Created by: Dmitri Maximov
 // Created:    2007.08.29
 
-using System.Diagnostics;
+using System;
 using Xtensive.Core;
+using Xtensive.Core.Disposable;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Integrity.Transactions;
-using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Rse.Compilation;
-using Xtensive.Core.Helpers;
 
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// Represents the implementation of consumable scope pattern for <see cref="Xtensive.Storage.Session"/>.
+  /// <see cref="Session"/> activation scope. 
   /// </summary>
-  public class SessionScope: ResourceConsumptionScope<Session, SessionConfiguration>
+  public class SessionScope : Scope<Session>
   {
+    private IDisposable toDispose;
+
     /// <summary>
-    /// Gets the current scope.
+    /// Gets the current <see cref="Session"/>.
     /// </summary>
-    public new static SessionScope Current
+    public static Session CurrentSession
     {
-      [DebuggerStepThrough]
-      get { return ResourceConsumptionScope<Session, SessionConfiguration>.Current as SessionScope; }
+      get { return CurrentContext; }
     }
 
     /// <summary>
-    /// Gets the session for this instance.
+    /// Gets the context of this scope.
     /// </summary>
     public Session Session
     {
-      [DebuggerStepThrough]
-      get { return Resource; }
+      get { return Context; }
+    }
+
+    /// <inheritdoc/>
+    public override void Activate(Session newContext)
+    {
+      base.Activate(newContext);
+      toDispose = newContext.Domain.TemporaryData.Activate();
     }
 
 
@@ -43,13 +47,22 @@ namespace Xtensive.Storage
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="session">The session.</param>
-    internal SessionScope(Session session)
+    /// <param name="session">The session to activate.</param>
+    public SessionScope(Session session)
       : base(session)
     {
-      Resource = session;
-      ((IResource)Resource).AddConsumer(this);
-      // TODO: AY: Fix immediately
+    }
+
+    /// <inheritdoc/>
+    protected override void Dispose(bool disposing)
+    {
+      try {
+        toDispose.DisposeSafely();
+        toDispose = null;
+      }
+      finally {
+        base.Dispose(disposing);
+      }
     }
   }
 }

@@ -26,8 +26,7 @@ namespace Xtensive.Storage.Tests.Storage
     {
       using (Domain.OpenSession()) {
         using (Session.Current.BeginTransaction()) {
-
-          Book book = new Book();
+          var book = new Book();
 
           // Text is nullable so it's OK
           book.Text = null;
@@ -51,7 +50,7 @@ namespace Xtensive.Storage.Tests.Storage
         using (Session.Current.BeginTransaction()) {
           Author author = new Author();
           using (Domain.OpenSession()) {
-            using ( Session.Current.BeginTransaction()) {
+            using (Session.Current.BeginTransaction()) {
               Book book = new Book();
 
               // Author is bound to another session

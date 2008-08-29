@@ -45,7 +45,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     protected internal override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
       var list = source.ToList();
-      DomainSavedData.Current.Set(CachedResultName, list);
+      DomainLevelTemporaryData.Current.Set(CachedResultName, list);
       return list;
     }
 
