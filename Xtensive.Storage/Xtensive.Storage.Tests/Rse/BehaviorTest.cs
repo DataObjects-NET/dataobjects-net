@@ -35,8 +35,8 @@ namespace Xtensive.Storage.Tests.Rse
           new RecordColumn("ID", 0, typeof (int)),
           new RecordColumn("Title", 1, typeof (string)),
         };
-      var personHeader = new RecordSetHeader(personTuple.Descriptor, personColumns, null, new[] { new RecordColumnGroupMapping(null, null ), }, null);
-      var authorHeader = new RecordSetHeader(authorTuple.Descriptor, authorColumns, null, new[] { new RecordColumnGroupMapping(null, null ), }, null);
+      var personHeader = new RecordSetHeader(personTuple.Descriptor, personColumns, null, new[] { new RecordColumnGroupMapping(new[] { 0 }, new[] { 0, 1, 2}), }, null);
+      var authorHeader = new RecordSetHeader(authorTuple.Descriptor, authorColumns, null, new[] { new RecordColumnGroupMapping(new[] { 0 }, new[] { 0, 1}), }, null);
 
       var persons = new Tuple[personCount];
       var authors = new Tuple[personCount / 2];

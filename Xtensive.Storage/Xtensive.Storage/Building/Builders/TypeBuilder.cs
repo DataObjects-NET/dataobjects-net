@@ -71,7 +71,7 @@ namespace Xtensive.Storage.Building.Builders
     private static void ProcessEntityAtribute(Type type, TypeDef typeDef)
     {
       var entityAttribute = type.GetAttribute<EntityAttribute>(
-        AttributeSearchOptions.InheritAll);
+        AttributeSearchOptions.Default);
       if (entityAttribute != null)
         AttributeProcessor.Process(typeDef, entityAttribute);
     }
