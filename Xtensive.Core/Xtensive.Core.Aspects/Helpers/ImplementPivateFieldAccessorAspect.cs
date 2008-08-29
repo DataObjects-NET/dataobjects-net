@@ -11,6 +11,7 @@ using PostSharp.Extensibility;
 using PostSharp.Laos;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Reflection;
 
 namespace Xtensive.Core.Aspects.Helpers
 {

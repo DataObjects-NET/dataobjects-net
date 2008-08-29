@@ -14,7 +14,7 @@ namespace Xtensive.Core.Aspects.Tests
   [TestFixture]
   public class ImplementProtectedConstructorAccessorTest
   {
-    [ImplementProtectedConstructorAccessorAspect(new [] { typeof(int) }, typeof(ProtectedCtorClassA))]
+    [ImplementProtectedConstructorAccessorAspect(typeof(int))]
     public class ProtectedCtorClassB : ProtectedCtorClassA
     {
       protected ProtectedCtorClassB(int i)
@@ -23,7 +23,7 @@ namespace Xtensive.Core.Aspects.Tests
       }
     }
 
-    [ImplementProtectedConstructorAccessorAspect(new [] { typeof(int) }, typeof(ProtectedCtorClassA))]
+    [ImplementProtectedConstructorAccessorAspect(typeof(int))]
     public class ProtectedCtorClassA
     {
       public int I { get; set; }

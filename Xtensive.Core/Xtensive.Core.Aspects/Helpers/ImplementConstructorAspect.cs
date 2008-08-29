@@ -19,7 +19,7 @@ namespace Xtensive.Core.Aspects.Helpers
   /// Implemented constructor will call the constructor with the same set of arguments from the base type.
   /// </summary>
   [MulticastAttributeUsage(MulticastTargets.Class)]
-  [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
+  [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = false)]
   [Serializable]
   public sealed class ImplementConstructorAspect : LaosTypeLevelAspect
   {
@@ -32,13 +32,13 @@ namespace Xtensive.Core.Aspects.Helpers
     public override bool CompileTimeValidate(Type type)
     {
       ConstructorInfo constructor;
-
       return AspectHelper.ValidateConstructor(this, SeverityType.Error,
-        type, false, 
+        type.UnderlyingSystemType, false, 
         BindingFlags.Public | 
         BindingFlags.NonPublic | 
         BindingFlags.ExactBinding, 
-        ParameterTypes, out constructor);
+        ParameterTypes, 
+        out constructor);
     }
 
     /// <inheritdoc/>
@@ -56,12 +56,13 @@ namespace Xtensive.Core.Aspects.Helpers
     /// <param name="parameterTypes">Types of constructor parameters.</param>
     /// <returns>If it was the first application with the specified set of arguments, the newly created aspect;
     /// otherwise, <see langword="null" />.</returns>
-    public static ImplementConstructorAspect ApplyOnce(Type type, Type[] parameterTypes)
+    public static ImplementConstructorAspect ApplyOnce(Type type, params Type[] parameterTypes)
     {
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
       ArgumentValidator.EnsureArgumentNotNull(parameterTypes, "parameterTypes");
 
-      return AppliedAspectSet.Add(new Pair<Type, string>(type, parameterTypes.Select(t => t.FullName).ToCommaDelimitedString()), 
+      return AppliedAspectSet.Add(
+        string.Format("{0}({1})", type.FullName, parameterTypes.Select(t => t.FullName).ToCommaDelimitedString()),
         () => new ImplementConstructorAspect(parameterTypes));
     }
 
@@ -72,7 +73,7 @@ namespace Xtensive.Core.Aspects.Helpers
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="parameterTypes"><see cref="ParameterTypes"/> property value.</param>
-    public ImplementConstructorAspect(Type[] parameterTypes)
+    public ImplementConstructorAspect(params Type[] parameterTypes)
     {
       ParameterTypes = parameterTypes;
     }

@@ -19,6 +19,11 @@ namespace Xtensive.Core.Aspects.Helpers
   /// </summary>
   public static class AspectHelper
   {
+    private const string XtensiveCoreWeaver = 
+      "Xtensive.Core.Weaver";
+    private const string XtensiveCoreWeaverWeaverFactory = 
+      "Xtensive.Core.Weaver.WeaverFactory";
+
     #region FormatXxx methods
 
     /// <summary>
@@ -167,8 +172,10 @@ namespace Xtensive.Core.Aspects.Helpers
     /// <param name="requirements">The requirements to modify.</param>
     public static void AddStandardRequirements(PostSharpRequirements requirements)
     {
-      requirements.PlugIns.Add("Xtensive.Core.Weaver");
-      requirements.Tasks.Add("Xtensive.Core.Weaver.WeaverFactory");
+      if (!requirements.PlugIns.Contains(XtensiveCoreWeaver))
+        requirements.PlugIns.Add(XtensiveCoreWeaver);
+      if (!requirements.Tasks.Contains(XtensiveCoreWeaverWeaverFactory))
+        requirements.Tasks.Add(XtensiveCoreWeaverWeaverFactory);
     }
 
     #endregion

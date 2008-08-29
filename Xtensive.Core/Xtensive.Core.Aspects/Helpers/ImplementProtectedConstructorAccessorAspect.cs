@@ -6,9 +6,11 @@
 
 using System;
 using System.Reflection;
+using System.Linq;
 using PostSharp.Extensibility;
 using PostSharp.Laos;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Collections;
 
 namespace Xtensive.Core.Aspects.Helpers
 {
@@ -16,16 +18,11 @@ namespace Xtensive.Core.Aspects.Helpers
   /// Protected constructor accessors aspect - provides an accessor (delegate)
   /// for the specified protected constructor of a type.
   /// </summary>
-  [MulticastAttributeUsage(MulticastTargets.Class | MulticastTargets.Struct)]
-  [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = true, Inherited = false)]
+  [MulticastAttributeUsage(MulticastTargets.Class)]
+  [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = false)]
   [Serializable]
   public sealed class ImplementProtectedConstructorAccessorAspect : LaosTypeLevelAspect
   {
-    /// <summary>
-    /// Gets the compatible return type (e.g. some base type of aspected type).
-    /// </summary>
-    public Type ReturnType { get; private set; }
-
     /// <summary>
     /// Gets the protected constructor argument types.
     /// </summary>
@@ -35,13 +32,13 @@ namespace Xtensive.Core.Aspects.Helpers
     public override bool CompileTimeValidate(Type type)
     {
       ConstructorInfo constructor;
-
       return AspectHelper.ValidateConstructor(this, SeverityType.Error,
-        type, false, 
+        type.UnderlyingSystemType, false, 
         BindingFlags.Public | 
         BindingFlags.NonPublic |
         BindingFlags.ExactBinding, 
-        ParameterTypes, out constructor);
+        ParameterTypes, 
+        out constructor);
     }
 
     /// <inheritdoc/>
@@ -56,15 +53,17 @@ namespace Xtensive.Core.Aspects.Helpers
     /// Applies this aspect to the specified <paramref name="type"/>.
     /// </summary>
     /// <param name="type">The type to apply the aspect to.</param>
+    /// <param name="parameterTypes">Types of constructor parameters.</param>
     /// <returns>If it was the first application with the specified set of arguments, the newly created aspect;
     /// otherwise, <see langword="null" />.</returns>
-    public static ImplementProtectedConstructorAccessorAspect ApplyOnce(Type type, Type[] argumentTypes, Type returnType)
+    public static ImplementProtectedConstructorAccessorAspect ApplyOnce(Type type, params Type[] parameterTypes)
     {
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
+      ArgumentValidator.EnsureArgumentNotNull(parameterTypes, "parameterTypes");
 
-      var aspect = AppliedAspectSet.Add(new Pair<Type, Type>(type, returnType),
-        () => new ImplementProtectedConstructorAccessorAspect(argumentTypes, returnType));
-      return aspect;
+      return AppliedAspectSet.Add(
+        string.Format("{0}({1})", type.FullName, parameterTypes.Select(t => t.FullName).ToCommaDelimitedString()),
+        () => new ImplementProtectedConstructorAccessorAspect(parameterTypes));
     }
 
 
@@ -73,12 +72,10 @@ namespace Xtensive.Core.Aspects.Helpers
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="ParameterTypes"><see cref="ParameterTypes"/> property value.</param>
-    /// <param name="returnType"><see cref="ReturnType"/> property value.</param>
-    public ImplementProtectedConstructorAccessorAspect(Type[] ParameterTypes, Type returnType)
+    /// <param name="parameterTypes"><see cref="ParameterTypes"/> property value.</param>
+    public ImplementProtectedConstructorAccessorAspect(params Type[] parameterTypes)
     {
-      ReturnType = returnType;
-      this.ParameterTypes = ParameterTypes;
+      ParameterTypes = parameterTypes;
     }
   }
 }

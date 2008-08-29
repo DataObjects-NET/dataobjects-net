@@ -98,7 +98,6 @@ namespace Xtensive.Storage.Aspects
           ErrorLog.Write(SeverityType.Error, AspectMessageType.AspectMustBeSingle,
             AspectHelper.FormatType(typeof(FieldAttribute)),
             AspectHelper.FormatMember(pi.DeclaringType, pi));
-          ErrorLog.Debug(pi.DeclaringType.GetFullName());
         }
         var getter = pi.GetGetMethod(true);
         var setter = pi.GetSetMethod(true);
@@ -130,16 +129,9 @@ namespace Xtensive.Storage.Aspects
       if (type.IsAbstract)
         return;
       var aspect = ImplementProtectedConstructorAccessorAspect.ApplyOnce(type,
-        GetInternalConstructorParameterTypes(type),
-        GetBasePersistentType(type));
-      if (aspect!=null) {
+        GetInternalConstructorParameterTypes(type));
+      if (aspect!=null)
         collection.AddAspect(type, aspect);
-        ErrorLog.Debug("Adding accessor to {0}..ctor({1})", 
-          type.GetShortName(), 
-          GetInternalConstructorParameterTypes(type)
-            .Select(t=>t.GetShortName())
-            .ToCommaDelimitedString());
-      }
     }
 
     #endregion

@@ -10,27 +10,22 @@ using System.Text;
 using PostSharp.CodeModel;
 using PostSharp.Laos.Weaver;
 using PostSharp.ModuleWriter;
+using Xtensive.Core.Aspects;
 using Xtensive.Core.Reflection;
 
 namespace Xtensive.Core.Weaver
 {
-  internal class ImplementProtectedConstructorAccessorWeaver : LaosAspectWeaver
+  internal class ImplementProtectedConstructorAccessorWeaver : TypeLevelAspectWeaver
   {
     private const string ParameterNamePrefix = "arg";
 
-    private readonly Type[] parameterTypes;
-    private readonly ITypeSignature returnTypeSignature;
+    private readonly ITypeSignature[] parameterTypes;
 
     public override void Implement()
     {
-      TypeDefDeclaration typeDef = (TypeDefDeclaration)TargetElement;
-      ModuleDeclaration module = Task.Project.Module;
+      var typeDef = (TypeDefDeclaration) TargetElement;
+      var module = Task.Project.Module;
 
-      ImplementDelegateMethodBody(typeDef, module);
-    }
-
-    private void ImplementDelegateMethodBody(TypeDefDeclaration typeDef, ModuleDeclaration module)
-    {
       IMethod constructor = FindConstructor(typeDef, module);
       if (constructor == null)
         return;
@@ -42,13 +37,13 @@ namespace Xtensive.Core.Weaver
       typeDef.Methods.Add(callerDef);
 
       callerDef.ReturnParameter = new ParameterDeclaration();
-      callerDef.ReturnParameter.ParameterType = returnTypeSignature;
+      callerDef.ReturnParameter.ParameterType = typeDef;
       callerDef.ReturnParameter.Attributes = ParameterAttributes.Retval;
       callerDef.CustomAttributes.Add(Task.WeavingHelper.GetDebuggerNonUserCodeAttribute());
 
       for (int i = 0; i < parameterTypes.Length; i++) {
         ParameterDeclaration parameter =
-          new ParameterDeclaration(i, ParameterNamePrefix+i, module.Cache.GetType(parameterTypes[i]));
+          new ParameterDeclaration(i, ParameterNamePrefix+i, parameterTypes[i]);
         callerDef.Parameters.Add(parameter);
       }
 
@@ -77,7 +72,7 @@ namespace Xtensive.Core.Weaver
           int i = 0;
           for (; i < parameterTypes.Length; i++) {
             var parameterName = GetTypeName(constructor.GetParameterType(i));
-            var targetParameterName = parameterTypes[i].FullName;
+            var targetParameterName = GetTypeName(parameterTypes[i]);
             if (parameterName != targetParameterName)
               break;
           }
@@ -97,25 +92,12 @@ namespace Xtensive.Core.Weaver
       return nameBuilder.ToString();
     }
 
-    public override void EmitCompileTimeInitialization(InstructionEmitter writer)
-    {
-      return;
-    }
-
-    public override bool ValidateSelf()
-    {
-      return true;
-    }
-
 
     // Constructors
 
-    internal ImplementProtectedConstructorAccessorWeaver(
-      Type[] parameterTypes, 
-      ITypeSignature returnTypeSignature)
+    internal ImplementProtectedConstructorAccessorWeaver(ITypeSignature[] parameterTypes)
     {
       this.parameterTypes = parameterTypes;
-      this.returnTypeSignature = returnTypeSignature;
     }
   }
 }

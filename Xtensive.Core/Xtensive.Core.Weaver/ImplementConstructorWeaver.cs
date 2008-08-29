@@ -12,7 +12,7 @@ using Xtensive.Core.Reflection;
 
 namespace Xtensive.Core.Weaver
 {
-  public class ImplementConstructorWeaver : LaosAspectWeaver
+  internal class ImplementConstructorWeaver : TypeLevelAspectWeaver
   {
     private const string ParameterNamePrefix = "arg";
 
@@ -80,15 +80,6 @@ namespace Xtensive.Core.Weaver
         (IMethod)baseConstructor.Translate(module));
       writer.EmitInstruction(OpCodeNumber.Ret);
       writer.DetachInstructionSequence();
-    }
-
-    public override void EmitCompileTimeInitialization(InstructionEmitter writer)
-    {
-    }
-
-    public override bool ValidateSelf()
-    {
-      return true;
     }
 
 
