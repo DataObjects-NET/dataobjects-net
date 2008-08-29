@@ -27,7 +27,7 @@ namespace Xtensive.Storage.Internals
       if (!field.IsNullable && value==null)
         throw new InvalidOperationException(string.Format(Strings.ExNotNullableConstraintViolationOnFieldX, field));
 
-      if (field.Length > 0) {
+      if (value != null && field.Length > 0) {
         if (isString && field.Length < ((string) (object) value).Length)
           throw new InvalidOperationException(string.Format(Strings.ExLengthConstraintViolationOnFieldX, field));
         if (isByteArray && field.Length < ((byte[]) (object) value).Length)

@@ -27,7 +27,7 @@ namespace Xtensive.Storage.Providers.Sql
     protected override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
       var sessionHandler = (SessionHandler) handlers.SessionHandler;
-      sessionHandler.Compile(request);
+      sessionHandler.DomainHandler.Compile(request);
       request.Bind();
       using (var e = sessionHandler.Execute(request)) {
         while (e.MoveNext())

@@ -13,5 +13,10 @@ namespace Xtensive.Storage.Providers.MsSql
       base.Initialize();
       // TODO: Think what should be done here.
     }
+
+    internal protected new DomainHandler DomainHandler
+    {
+      get { return base.DomainHandler as DomainHandler; }
+    }
   }
 }

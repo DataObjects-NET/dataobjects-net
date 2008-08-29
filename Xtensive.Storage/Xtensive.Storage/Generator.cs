@@ -55,14 +55,16 @@ namespace Xtensive.Storage
     {
       var minCached = cacheSize / 2;
       lock (_lock) {
-        if (preCachedValues.Count <= minCached)
-          if (preCachingTask==null)
-            preCachingTask = Future<IEnumerable<Tuple>>.Create(() => NextMany(cacheSize));
-        if (preCachedValues.Count == 0) {
-          foreach (var tuple in preCachingTask.Value)
+        if (preCachedValues.Count <= minCached) {
+          foreach (Tuple tuple in NextMany(cacheSize))
             preCachedValues.Enqueue(tuple);
-          preCachingTask.Dispose();
-          preCachingTask = null;
+//          if (preCachingTask==null)
+//            preCachingTask = Future<IEnumerable<Tuple>>.Create(() => NextMany(cacheSize));
+//        if (preCachedValues.Count == 0) {
+//          foreach (var tuple in preCachingTask.Value)
+//            preCachedValues.Enqueue(tuple);
+//          preCachingTask.Dispose();
+//          preCachingTask = null;
         }
         return preCachedValues.Dequeue();
       }

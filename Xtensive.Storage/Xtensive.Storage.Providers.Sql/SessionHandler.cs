@@ -5,18 +5,14 @@
 // Created:    2008.05.20
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.Linq;
 using Xtensive.Core;
-using Xtensive.Core.Collections;
+using Xtensive.Core.Threading;
 using Xtensive.Core.Disposable;
 using Xtensive.Core.Tuples;
 using Xtensive.Sql.Dom;
-using Xtensive.Sql.Dom.Dml;
-using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers.Sql.Resources;
 using SqlFactory = Xtensive.Sql.Dom.Sql;
 
@@ -24,35 +20,9 @@ namespace Xtensive.Storage.Providers.Sql
 {
   public abstract class SessionHandler : Providers.SessionHandler
   {
-    #region Nested types: ExpressionData and ExpressionHandler
-
-    private struct ExpressionData
-    {
-      public SqlExpression Expression;
-      public readonly Tuple Data;
-
-      public ExpressionData(Tuple data)
-      {
-        Data = data;
-        Expression = null;
-      }
-    }
-
-    private struct ExpressionHandler : ITupleActionHandler<ExpressionData>
-    {
-      public bool Execute<TFieldType>(ref ExpressionData actionData, int fieldIndex)
-      {
-        if (actionData.Data.IsAvailable(fieldIndex) && !actionData.Data.IsNull(fieldIndex))
-          actionData.Expression = SqlFactory.Literal(actionData.Data.GetValueOrDefault<TFieldType>(fieldIndex));
-        return true;
-      }
-    }
-
-    #endregion
-
     private SqlConnection connection;
     private DomainHandler domainHandler;
-    private ExpressionHandler expressionHandler;
+    private object _lock = new object();
 
     /// <summary>
     /// Gets the connection.
@@ -70,6 +40,12 @@ namespace Xtensive.Storage.Providers.Sql
     /// Gets the active transaction.
     /// </summary>    
     public DbTransaction Transaction { get; private set; }
+
+    protected internal DomainHandler DomainHandler
+    {
+      get { return domainHandler; }
+      set { domainHandler = value; }
+    }
 
     /// <inheritdoc/>
     public override void BeginTransaction()
@@ -100,11 +76,6 @@ namespace Xtensive.Storage.Providers.Sql
 
       Transaction.Rollback();
       Transaction = null;
-    }
-
-    public void Compile(SqlRequest request)
-    {
-      request.CompileWith(domainHandler.Driver);
     }
 
     public IEnumerator<Tuple> Execute(SqlQueryRequest request)
@@ -164,89 +135,33 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     protected override void Insert(EntityData data)
     {
-      var type = data.Type;
-      SqlModificationRequest request = domainHandler.RequestBuilder.BuildInsertRequest(type);
+      SqlRequestBuilderTask task = new SqlRequestBuilderTask(SqlRequestKind.Insert, data.Type);
+      SqlModificationRequest request = domainHandler.SqlRequestCache.GetValue(task, _task => DomainHandler.SqlRequestBuilder.BuildInsertRequest(_task));
       request.BindTo(data.Tuple);
       int rowsAffected = ExecuteNonQuery(request);
       if (rowsAffected!=request.ExpectedResult)
-        throw new InvalidOperationException(String.Format(Strings.ExErrorOnInsert, type.Name, rowsAffected, request.ExpectedResult));
+        throw new InvalidOperationException(String.Format(Strings.ExErrorOnInsert, data.Type.Name, rowsAffected, request.ExpectedResult));
     }
 
     /// <inheritdoc/>
     protected override void Update(EntityData data)
     {
-      SqlBatch batch = SqlFactory.Batch();
-      SqlModificationRequest request = new SqlModificationRequest(batch);
-      var parameterMapping = new Dictionary<ColumnInfo, SqlParameter>();
-      int j = 0;
-      foreach (IndexInfo primaryIndex in data.Type.AffectedIndexes.Where(i => i.IsPrimary)) {
-        SqlTableRef tableRef = SqlFactory.TableRef(domainHandler.GetTable(primaryIndex));
-        SqlUpdate query = SqlFactory.Update(tableRef);
-
-        for (int i = 0; i < primaryIndex.Columns.Count; i++) {
-          ColumnInfo column = primaryIndex.Columns[i];
-          int offset = data.Type.Fields[column.Field.Name].MappingInfo.Offset;
-          if (!data.Tuple.Difference.IsAvailable(offset))
-            continue;
-          SqlParameter p;
-          if (!parameterMapping.TryGetValue(column, out p)) {
-            p = new SqlParameter("p" + j++);
-            parameterMapping.Add(column, p);
-          }
-          request.ParameterBindings[p] = (target => data.Tuple.IsNull(offset) ? DBNull.Value : data.Tuple.GetValue(offset));
-          query.Values[tableRef[i]] = SqlFactory.ParameterRef(p);
-        }
-        if (query.Values.Count == 0)
-          continue;
-        var columns = data.Type.Indexes.PrimaryIndex.KeyColumns;
-        for (int i = 0; i < columns.Count; i++) {
-          var column = columns[i].Key;
-          int offset = data.Type.Fields[column.Field.Name].MappingInfo.Offset;
-          SqlParameter p;
-          if (!parameterMapping.TryGetValue(column, out p)) {
-            p = new SqlParameter("p" + j++);
-            parameterMapping.Add(column, p);
-          }
-          request.ParameterBindings[p] = (target => data.Tuple.IsNull(offset) ? DBNull.Value : data.Tuple.GetValue(offset));
-          query.Where &= tableRef[i] == SqlFactory.ParameterRef(p);
-        }
-        batch.Add(query);
-      }
-      Compile(request);
+      SqlRequestBuilderTask task = new SqlRequestBuilderTask(SqlRequestKind.Update, data.Type, data.Tuple.Difference.GetFieldStateMap(TupleFieldState.IsAvailable));
+      SqlModificationRequest request = domainHandler.SqlRequestCache.GetValue(task, _task => DomainHandler.SqlRequestBuilder.BuildUpdateRequest(_task));
       request.BindTo(data.Tuple);
       int rowsAffected = ExecuteNonQuery(request);
-      if (rowsAffected!=batch.Count)
-        throw new InvalidOperationException(String.Format(Strings.ExErrorOnUpdate, data.Type.Name, rowsAffected, batch.Count));
+      if (rowsAffected!=request.ExpectedResult)
+        throw new InvalidOperationException(String.Format(Strings.ExErrorOnUpdate, data.Type.Name, rowsAffected, request.ExpectedResult));
     }
 
     /// <inheritdoc/>
     protected override void Remove(EntityData data)
     {
-      SqlBatch batch = SqlFactory.Batch();
-      SqlModificationRequest request = new SqlModificationRequest(batch);
-      var parameterMapping = new Dictionary<ColumnInfo, SqlParameter>();
-      int j = 0;
-      foreach (IndexInfo index in data.Type.AffectedIndexes.Where(i => i.IsPrimary)) {
-        SqlTableRef tableRef = SqlFactory.TableRef(domainHandler.GetTable(index));
-        SqlDelete query = SqlFactory.Delete(tableRef);
-        var columns = data.Type.Indexes.PrimaryIndex.KeyColumns;
-        for (int i = 0; i < columns.Count; i++) {
-          var column = columns[i].Key;
-          int offset = data.Type.Fields[column.Field.Name].MappingInfo.Offset;
-          SqlParameter p;
-          if (!parameterMapping.TryGetValue(column, out p)) {
-            p = new SqlParameter("p" + j++);
-            parameterMapping.Add(column, p);
-          }
-          request.ParameterBindings[p] = (target => data.Tuple.IsNull(offset) ? DBNull.Value : data.Tuple.GetValue(offset));
-          query.Where &= tableRef[i] == SqlFactory.ParameterRef(p);
-        }
-        batch.Add(query);
-      }
-      Compile(request);
+      SqlRequestBuilderTask task = new SqlRequestBuilderTask(SqlRequestKind.Remove, data.Type);
+      SqlModificationRequest request = domainHandler.SqlRequestCache.GetValue(task, _task => DomainHandler.SqlRequestBuilder.BuildRemoveRequest(_task));
       request.BindTo(data.Tuple);
       int rowsAffected = ExecuteNonQuery(request);
-      if (rowsAffected!=batch.Count)
+      if (rowsAffected!=request.ExpectedResult)
         if (rowsAffected==0)
           throw new InvalidOperationException(String.Format(Strings.ExInstanceNotFound, data.Key.Type.Name));
         else
@@ -266,7 +181,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     public override void Initialize()
     {
-      domainHandler = Handlers.DomainHandler as DomainHandler;
+      DomainHandler = Handlers.DomainHandler as DomainHandler;
     }
 
     /// <inheritdoc/>

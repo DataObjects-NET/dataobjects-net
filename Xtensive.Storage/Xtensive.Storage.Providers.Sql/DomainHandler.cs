@@ -5,8 +5,10 @@
 // Created:    2008.05.20
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Core.Threading;
 using Xtensive.Sql.Common;
 using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Database;
@@ -31,7 +33,9 @@ namespace Xtensive.Storage.Providers.Sql
 
     public Schema Schema { get; private set; }
 
-    public SqlRequestBuilder RequestBuilder { get; private set; }
+    public SqlRequestBuilder SqlRequestBuilder { get; private set; }
+
+    public ThreadSafeDictionary<SqlRequestBuilderTask, SqlModificationRequest> SqlRequestCache { get; private set; }
 
     internal SqlConnectionProvider ConnectionProvider { get; private set; }
 
@@ -43,10 +47,16 @@ namespace Xtensive.Storage.Providers.Sql
       return new CompilationContext(new Compilers.Compiler(Handlers));
     }
 
+    public void Compile(SqlRequest request)
+    {
+      request.CompileWith(Driver);
+    }
+
     /// <inheritdoc/>
     public override void Build()
     {
-      RequestBuilder = new SqlRequestBuilder(this);
+      SqlRequestCache = ThreadSafeDictionary<SqlRequestBuilderTask, SqlModificationRequest>.Create(new object());
+      SqlRequestBuilder = new SqlRequestBuilder(this);
       SessionHandler sessionHandler = ((SessionHandler)BuildingScope.Context.SystemSessionHandler);
       Driver = sessionHandler.Connection.Driver;
       var modelProvider = new SqlModelProvider(sessionHandler.Connection, sessionHandler.Transaction);

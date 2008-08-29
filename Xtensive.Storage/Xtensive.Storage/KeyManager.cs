@@ -8,14 +8,12 @@ using System;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Diagnostics;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Disposable;
+using Xtensive.Core.Threading;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
-using Xtensive.Core.Threading;
-using Xtensive.Core.Helpers;
-using Xtensive.Core.Disposable;
 
 namespace Xtensive.Storage
 {
@@ -42,7 +40,7 @@ namespace Xtensive.Storage
     public Key Get(Type type, Tuple tuple)
     {
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
-      if (!type.IsSubclassOf(typeof(Entity)))
+      if (!type.IsSubclassOf(typeof (Entity)))
         throw new ArgumentException(Strings.ExTypeMustBeEntityDescendant, "type");
       if (tuple.ContainsEmptyValues())
         throw new InvalidOperationException(string.Format("Cannot create Key from tuple: '{0}'", tuple.ToRegular()));
@@ -92,8 +90,8 @@ namespace Xtensive.Storage
       Key key = CreateKeyCandidate(type.Hierarchy, tuple);
       key.Type = type;
 
-      if (Log.IsLogged(LogEventTypes.Debug))
-        Log.Debug("Creating key '{0}'", key);
+      if (LogTemplate<Log>.IsLogged(LogEventTypes.Debug))
+        LogTemplate<Log>.Debug("Creating key '{0}'", key);
 
       return key;
     }
@@ -108,20 +106,19 @@ namespace Xtensive.Storage
     private Key Cache(Key candidate)
     {
       Key cached = cache[candidate];
-      if (cached == null) {
+      if (cached==null) {
         cache.Add(candidate);
         return candidate;
       }
 
       // Updating type property
-      if (cached.Type == null && candidate.Type != null)
+      if (cached.Type==null && candidate.Type!=null)
         cached.Type = candidate.Type;
 
       return cached;
     }
 
     #endregion
-
 
     // Constructors
 
