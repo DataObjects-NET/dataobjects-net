@@ -8,6 +8,7 @@ using System;
 using System.CodeDom;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
@@ -415,6 +416,7 @@ namespace Xtensive.Core.Reflection
     /// <param name="arguments">Arguments to pass to the type constructor.</param>
     /// <returns>An instance of specified type; <see langword="null"/>, if either no such a type,
     /// or an error has occurred.</returns>
+    [DebuggerStepThrough]
     public static object Activate(this Type type, Type[] genericArguments, params object[] arguments)
     {
       try {
