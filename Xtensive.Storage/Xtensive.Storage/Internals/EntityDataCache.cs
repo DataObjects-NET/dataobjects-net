@@ -20,16 +20,16 @@ namespace Xtensive.Storage.Internals
 
     public EntityData Create(Key key, Tuple tuple, PersistenceState state)
     {
-      EntityData result = new EntityData(key, new DifferentialTuple(tuple), state);
+      Tuple origin = Tuple.Create(key.Type.TupleDescriptor);
+      tuple.CopyTo(origin);
+      EntityData result = new EntityData(key, new DifferentialTuple(origin), state);
       cache.Add(result);
       return result;
     }
 
     public EntityData Create(Key key, PersistenceState state)
     {
-      Tuple tuple = Tuple.Create(key.Type.TupleDescriptor);
-      key.Tuple.CopyTo(tuple, 0);
-      return Create(key, tuple, state);
+      return Create(key, key.Tuple, state);
     }
 
     public void Update(Key key, Tuple tuple)
@@ -44,6 +44,11 @@ namespace Xtensive.Storage.Internals
     public void Remove(Key key)
     {
       cache.Remove(key);
+    }
+
+    public void Clear()
+    {
+      cache.Clear();
     }
 
 

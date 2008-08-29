@@ -19,6 +19,9 @@ namespace Xtensive.Storage.Tests.Storage.LazyLoadModel
     [Field]
     public int ID { get; set; }
 
+    [Field]
+    public string Title { get; set; }
+
     [Field(LazyLoad = true)]
     public string Text { get; set; }
   }
@@ -43,12 +46,14 @@ namespace Xtensive.Storage.Tests.Storage
       using (Domain.OpenSession()) {
         Book b = new Book();
         key = b.Key;
+        b.Title = "Title";
         b.Text = text;
       }
       using (Domain.OpenSession()) {
         Book b = key.Resolve<Book>();
         Tuple tuple = b.Tuple;
-        Assert.IsFalse(tuple.IsAvailable(2));
+        Assert.IsTrue(tuple.IsAvailable(2));
+        Assert.IsFalse(tuple.IsAvailable(3));
         Assert.AreEqual(text, b.Text);
       }
     }

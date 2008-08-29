@@ -75,9 +75,9 @@ namespace Xtensive.Storage.Aspects
 
     private void ProvidePersistentAspects(Type type, LaosReflectionAspectCollection collection)
     {
+      ProvideConstructorDelegateAspect(type, collection);
       ProvideAutoPropertyAspects(type, collection);
       ProvideConstructorAspect(type, collection);
-      ProvideConstructorDelegateAspect(type, collection);
     }
 
     private void ProvideAutoPropertyAspects(Type type, LaosReflectionAspectCollection collection)

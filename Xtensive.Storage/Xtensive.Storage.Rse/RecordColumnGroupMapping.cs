@@ -16,13 +16,13 @@ namespace Xtensive.Storage.Rse
   /// </summary>
   public struct RecordColumnGroupMapping
   {
-    private readonly IEnumerable<int> keys;
-    private readonly IEnumerable<int> columns;
+    private readonly IList<int> keys;
+    private readonly IList<int> columns;
 
     /// <summary>
     /// Gets indexes of key columns this instance associated with.
     /// </summary>
-    public IEnumerable<int> Keys
+    public IList<int> Keys
     {
       [DebuggerStepThrough]
       get { return keys; }
@@ -31,7 +31,7 @@ namespace Xtensive.Storage.Rse
     /// <summary>
     /// Gets indexes of current <see cref="RecordColumnGroupMapping"/> columns.
     /// </summary>
-    public IEnumerable<int> Columns
+    public IList<int> Columns
     {
       [DebuggerStepThrough]
       get { return columns; }

@@ -151,7 +151,7 @@ namespace Xtensive.Storage.Rse
       ColumnGroupMappings = new RecordColumnGroupMappingCollection(
         header.ColumnGroupMappings
         .Where(g => g.Keys.All(ci => includedColumns.Contains(ci)))
-        .Select(cgm => new RecordColumnGroupMapping(cgm.Keys, cgm.Columns.Where(columns.Contains))));
+        .Select(cgm => new RecordColumnGroupMapping(cgm.Keys.Select(k => columns.IndexOf(k)), cgm.Columns.Select(c => columns.IndexOf(c)).Where(c => c >=0))));
     }
   }
 }

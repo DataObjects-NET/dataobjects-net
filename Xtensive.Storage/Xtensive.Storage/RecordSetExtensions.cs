@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using Xtensive.Core;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Model;
@@ -54,27 +55,29 @@ namespace Xtensive.Storage
       DomainModel model = domain.Model;
       foreach (Tuple tuple in source) {
         foreach (RecordColumnGroupMapping mapping in source.Header.ColumnGroupMappings) {
-          Dictionary<RecordColumn, ColumnInfo> columns = new Dictionary<RecordColumn, ColumnInfo>();
-          RecordColumn typeIdColumn = null;
-          foreach (int i in mapping.Columns) {
-            RecordColumn c = source.Header.Columns[i];
-            ColumnInfo ci = c.ColumnInfoRef.Resolve(model);
-            columns[c] = ci;
+          TypeInfo type = null;
+          Dictionary<ColumnInfo, int> columns = new Dictionary<ColumnInfo, int>(mapping.Columns.Count);
+          foreach (int columnIndex in mapping.Columns) {
+            RecordColumn rc = source.Header.Columns[columnIndex];
+            ColumnInfo ci = rc.ColumnInfoRef.Resolve(model);
+            columns.Add(ci, columnIndex);
             if (ci.Name == NameBuilder.TypeIdFieldName)
-              typeIdColumn = c;
+              type = model.Types[tuple.GetValue<int>(columnIndex)];
           }
-          if (typeIdColumn == null)
+          if (type == null)
             continue;
-          TypeInfo type = model.Types[tuple.GetValue<int>(typeIdColumn.Index)];
-          List<int> map = new List<int>(columns.Count);
-          foreach (var pair in columns) {
-            if (type.Columns.Contains(pair.Value.Name))
-              map.Add(pair.Key.Index);
+          List<int> map = new List<int>(type.Columns.Count);
+          foreach (ColumnInfo column in type.Columns) {
+            int index;
+            if (columns.TryGetValue(column, out index))
+              map.Add(index);
+            else
+              map.Add(-1);
           }
           MapTransform transform = new MapTransform(true, type.TupleDescriptor, map.ToArray());
-          Tuple transformedTuple = transform.Apply(TupleTransformType.TransformedTuple, tuple);
-          Key key = domain.KeyManager.Get(type, transformedTuple);
-          Session.Current.DataCache.Update(key, transformedTuple);
+          Tuple result = transform.Apply(TupleTransformType.TransformedTuple, tuple);
+          Key key = domain.KeyManager.Get(type, result);
+          Session.Current.DataCache.Update(key, result);
         }
       }
     }
