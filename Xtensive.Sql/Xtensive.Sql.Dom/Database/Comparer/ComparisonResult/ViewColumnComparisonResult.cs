@@ -5,6 +5,7 @@
 // Created:    2008.08.26
 
 using System;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
@@ -13,17 +14,20 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     IComparisonResult<ViewColumn>
   {
     /// <inheritdoc/>
-    public ViewColumn NewValue
+    public new ViewColumn NewValue
     {
       get { return (ViewColumn) base.NewValue; }
     }
 
     /// <inheritdoc/>
-    public ViewColumn OriginalValue
+    public new ViewColumn OriginalValue
     {
       get { return (ViewColumn) base.OriginalValue; }
     }
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
     public ViewColumnComparisonResult(DataTableColumn originalValue, DataTableColumn newValue)
       : base(originalValue, newValue)
     {

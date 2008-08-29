@@ -5,6 +5,7 @@
 // Created:    2008.08.29
 
 using System;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
@@ -13,17 +14,20 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     IComparisonResult<CharacterSet>
   {
     /// <inheritdoc/>
-    public CharacterSet NewValue
+    public new CharacterSet NewValue
     {
       get { return (CharacterSet) base.NewValue; }
     }
 
     /// <inheritdoc/>
-    public CharacterSet OriginalValue
+    public new CharacterSet OriginalValue
     {
       get { return (CharacterSet) base.OriginalValue; }
     }
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
     public CharacterSetComparisonResult(CharacterSet originalValue, CharacterSet newValue)
       : base(originalValue, newValue)
     {

@@ -6,6 +6,7 @@
 
 using System;
 using Xtensive.Core.Helpers;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
@@ -35,6 +36,9 @@ namespace Xtensive.Sql.Dom.Database.Comparer
         dbName.LockSafely(recursive);
     }
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
     public NodeComparisonResult(Node originalValue, Node newValue)
       : base(originalValue, newValue)
     {

@@ -4,11 +4,14 @@
 // Created by: Aleksey Gamzov
 // Created:    2008.08.21
 
+using System;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Core.Helpers;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
+  [Serializable]
   public class TableColumnComparisonResult : DataTableColumnComparisonResult,
     IComparisonResult<TableColumn>
   {
@@ -23,13 +26,13 @@ namespace Xtensive.Sql.Dom.Database.Comparer
 
 
     /// <inheritdoc/>
-    public TableColumn NewValue
+    public new TableColumn NewValue
     {
       get { return (TableColumn) base.NewValue; }
     }
 
     /// <inheritdoc/>
-    public TableColumn OriginalValue
+    public new TableColumn OriginalValue
     {
       get { return (TableColumn) base.OriginalValue; }
     }
@@ -130,6 +133,9 @@ namespace Xtensive.Sql.Dom.Database.Comparer
       }
     }
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
     public TableColumnComparisonResult(TableColumn originalValue, TableColumn newValue)
       : base(originalValue, newValue)
     {

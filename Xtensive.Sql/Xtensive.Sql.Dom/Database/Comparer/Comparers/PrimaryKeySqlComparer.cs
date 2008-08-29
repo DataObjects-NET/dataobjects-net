@@ -4,11 +4,13 @@
 // Created by: Aleksey Gamzov
 // Created:    2008.08.27
 
+using System;
 using System.Collections.Generic;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
-  public class PrimaryKeySqlComparer : WrappingSqlComparer<PrimaryKey, TableColumn>
+  [Serializable]
+  internal class PrimaryKeySqlComparer : WrappingSqlComparer<PrimaryKey, TableColumn>
   {
     public override IComparisonResult<PrimaryKey> Compare(PrimaryKey originalNode, PrimaryKey newNode, IEnumerable<ComparisonHintBase> hints)
     {

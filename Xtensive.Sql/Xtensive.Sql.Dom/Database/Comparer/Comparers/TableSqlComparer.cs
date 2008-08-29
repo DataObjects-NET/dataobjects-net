@@ -6,8 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Core;
-using Xtensive.Core.Reflection;
 using Xtensive.Core.Collections;
 
 namespace Xtensive.Sql.Dom.Database.Comparer

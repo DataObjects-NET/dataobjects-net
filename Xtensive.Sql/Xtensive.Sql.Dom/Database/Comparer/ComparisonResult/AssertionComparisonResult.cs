@@ -6,6 +6,7 @@
 
 using System;
 using Xtensive.Core.Helpers;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Sql.Dom.Dml;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
@@ -22,13 +23,13 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     private ComparisonResult<bool?> isInitiallyDeferred;
 
     /// <inheritdoc/>
-    public Assertion NewValue
+    public new Assertion NewValue
     {
       get { return (Assertion) base.NewValue; }
     }
 
     /// <inheritdoc/>
-    public Assertion OriginalValue
+    public new Assertion OriginalValue
     {
       get { return (Assertion) base.OriginalValue; }
     }
@@ -83,6 +84,9 @@ namespace Xtensive.Sql.Dom.Database.Comparer
       }
     }
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
     public AssertionComparisonResult(Assertion originalValue, Assertion newValue)
       : base(originalValue, newValue)
     {

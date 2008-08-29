@@ -6,6 +6,7 @@
 
 using System;
 using Xtensive.Core.Helpers;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
@@ -20,13 +21,13 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     private ComparisonResult<bool?> isCyclic;
 
     /// <inheritdoc/>
-    public SequenceDescriptor NewValue
+    public new SequenceDescriptor NewValue
     {
       get { return (SequenceDescriptor) base.NewValue; }
     }
 
     /// <inheritdoc/>
-    public SequenceDescriptor OriginalValue
+    public new SequenceDescriptor OriginalValue
     {
       get { return (SequenceDescriptor) base.OriginalValue; }
     }
@@ -93,6 +94,9 @@ namespace Xtensive.Sql.Dom.Database.Comparer
         isCyclic.LockSafely(recursive);
       }
     }
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
     public SequenceDescriptorComparisonResult(SequenceDescriptor originalValue, SequenceDescriptor newValue)
       : base(originalValue, newValue)
     {

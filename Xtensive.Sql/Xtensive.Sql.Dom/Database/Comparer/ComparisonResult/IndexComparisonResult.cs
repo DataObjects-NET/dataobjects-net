@@ -6,6 +6,7 @@
 
 using System;
 using Xtensive.Core.Helpers;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
@@ -25,13 +26,13 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     private readonly ComparisonResultCollection<DataTableColumnComparisonResult> nonkeyColumns = new ComparisonResultCollection<DataTableColumnComparisonResult>();
 
     /// <inheritdoc/>
-    public Index NewValue
+    public new Index NewValue
     {
       get { return (Index)base.NewValue; }
     }
 
     /// <inheritdoc/>
-    public Index OriginalValue
+    public new Index OriginalValue
     {
       get { return (Index)base.OriginalValue; }
     }
@@ -132,6 +133,9 @@ namespace Xtensive.Sql.Dom.Database.Comparer
       }
     }
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
     public IndexComparisonResult(Index originalValue, Index newValue)
       : base(originalValue, newValue)
     {

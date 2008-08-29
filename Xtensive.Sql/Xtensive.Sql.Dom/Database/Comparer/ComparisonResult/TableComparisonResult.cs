@@ -6,6 +6,7 @@
 
 using System;
 using Xtensive.Core.Helpers;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
@@ -13,7 +14,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   /// <see cref="Table"/> comparison result.
   /// </summary>
   [Serializable]
-  public class TableComparisonResult : DataTableComparisonResult, 
+  public class TableComparisonResult : DataTableComparisonResult,
     IComparisonResult<Table>
   {
     private ComparisonResult<string> filegroup;
@@ -22,20 +23,15 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     private readonly ComparisonResultCollection<IComparisonResult<Constraint>> constraints = new ComparisonResultCollection<IComparisonResult<Constraint>>();
 
     /// <inheritdoc/>
-    public Table NewValue
+    public new Table NewValue
     {
       get { return (Table) base.NewValue; }
     }
 
     /// <inheritdoc/>
-    public Table OriginalValue
+    public new Table OriginalValue
     {
       get { return (Table) base.OriginalValue; }
-    }
-
-    public TableComparisonResult(Table originalValue, Table newValue)
-      : base(originalValue, newValue)
-    {
     }
 
     /// <summary>
@@ -85,6 +81,14 @@ namespace Xtensive.Sql.Dom.Database.Comparer
         columns.Lock(recursive);
         constraints.Lock(recursive);
       }
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    public TableComparisonResult(Table originalValue, Table newValue)
+      : base(originalValue, newValue)
+    {
     }
   }
 }

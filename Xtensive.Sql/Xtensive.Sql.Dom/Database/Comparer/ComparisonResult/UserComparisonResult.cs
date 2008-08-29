@@ -5,6 +5,7 @@
 // Created:    2008.08.29
 
 using System;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
@@ -13,17 +14,20 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     IComparisonResult<User>
   {
     /// <inheritdoc/>
-    public User NewValue
+    public new User NewValue
     {
       get { return (User)base.NewValue; }
     }
 
     /// <inheritdoc/>
-    public User OriginalValue
+    public new User OriginalValue
     {
       get { return (User)base.OriginalValue; }
     }
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
     public UserComparisonResult(User originalValue, User newValue)
       : base(originalValue, newValue)
     {

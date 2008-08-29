@@ -5,6 +5,7 @@
 // Created:    2008.08.21
 
 using System;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Core.Helpers;
 
@@ -21,16 +22,15 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     private ComparisonResult<SqlNative> definition;
     private readonly ComparisonResultCollection<ViewColumnComparisonResult> columns = new ComparisonResultCollection<ViewColumnComparisonResult>();
     private readonly ComparisonResultCollection<IndexComparisonResult> indexes = new ComparisonResultCollection<IndexComparisonResult>();
-
-
+    
     /// <inheritdoc/>
-    public View NewValue
+    public new View NewValue
     {
       get { return (View) base.NewValue; }
     }
 
     /// <inheritdoc/>
-    public View OriginalValue
+    public new View OriginalValue
     {
       get { return (View) base.OriginalValue; }
     }
@@ -89,6 +89,9 @@ namespace Xtensive.Sql.Dom.Database.Comparer
       }
     }
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
     public ViewComparisonResult(View originalValue, View newValue)
       : base(originalValue, newValue)
     {

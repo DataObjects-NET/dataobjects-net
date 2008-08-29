@@ -5,6 +5,7 @@
 // Created:    2008.08.27
 
 using System;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
@@ -13,17 +14,20 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     IComparisonResult<CheckConstraint>
   {
     /// <inheritdoc/>
-    public CheckConstraint NewValue
+    public new CheckConstraint NewValue
     {
       get { return (CheckConstraint)base.NewValue; }
     }
 
     /// <inheritdoc/>
-    public CheckConstraint OriginalValue
+    public new CheckConstraint OriginalValue
     {
       get { return (CheckConstraint)base.OriginalValue; }
     }
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
     public CheckConstraintComparisonResult(CheckConstraint originalValue, CheckConstraint newValue)
       : base(originalValue, newValue)
     {

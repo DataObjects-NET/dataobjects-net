@@ -5,6 +5,7 @@
 // Created:    2008.08.27
 
 using System;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Core.Helpers;
 
@@ -61,15 +62,15 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     }
 
     /// <inheritdoc/> 
-    ForeignKey IComparisonResult<ForeignKey>.NewValue
+    public new ForeignKey NewValue
     {
-      get { return (ForeignKey) NewValue; }
+      get { return (ForeignKey) base.NewValue; }
     }
 
     /// <inheritdoc/>
-    ForeignKey IComparisonResult<ForeignKey>.OriginalValue
+    public new ForeignKey OriginalValue
     {
-      get { return (ForeignKey) OriginalValue; }
+      get { return (ForeignKey) base.OriginalValue; }
     }
 
     /// <inheritdoc/>
@@ -85,6 +86,9 @@ namespace Xtensive.Sql.Dom.Database.Comparer
       }
     }
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
     public ForeignKeyComparisonResult(ForeignKey originalValue, ForeignKey newValue)
       : base(originalValue, newValue)
     {

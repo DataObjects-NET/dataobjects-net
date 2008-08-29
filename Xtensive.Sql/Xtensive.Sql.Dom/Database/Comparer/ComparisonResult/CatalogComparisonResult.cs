@@ -6,6 +6,7 @@
 
 using System;
 using Xtensive.Core.Helpers;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
@@ -20,13 +21,13 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     private readonly ComparisonResultCollection<SchemaComparisonResult> schemas = new ComparisonResultCollection<SchemaComparisonResult>();
 
     /// <inheritdoc/>
-    public Catalog NewValue
+    public new Catalog NewValue
     {
       get { return (Catalog)base.NewValue; }
     }
 
     /// <inheritdoc/>
-    public Catalog OriginalValue
+    public new Catalog OriginalValue
     {
       get { return (Catalog) base.OriginalValue; }
     }
@@ -62,6 +63,9 @@ namespace Xtensive.Sql.Dom.Database.Comparer
       }
     }
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
     public CatalogComparisonResult(Catalog originalValue, Catalog newValue)
       : base(originalValue, newValue)
     {

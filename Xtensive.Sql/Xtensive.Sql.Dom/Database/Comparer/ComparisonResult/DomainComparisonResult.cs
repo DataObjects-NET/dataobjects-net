@@ -5,6 +5,7 @@
 // Created:    2008.08.21
 
 using System;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Core.Helpers;
 
@@ -23,13 +24,13 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     private CollationComparisonResult collation;
 
     /// <inheritdoc/>
-    public Domain NewValue
+    public new Domain NewValue
     {
       get { return (Domain) base.NewValue; }
     }
 
     /// <inheritdoc/>
-    public Domain OriginalValue
+    public new Domain OriginalValue
     {
       get { return (Domain) base.OriginalValue; }
     }
@@ -93,6 +94,9 @@ namespace Xtensive.Sql.Dom.Database.Comparer
       }
     }
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
     public DomainComparisonResult(Domain originalValue, Domain newValue)
       : base(originalValue, newValue)
     {

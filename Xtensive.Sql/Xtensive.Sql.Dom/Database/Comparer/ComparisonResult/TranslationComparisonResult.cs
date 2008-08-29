@@ -5,6 +5,7 @@
 // Created:    2008.08.29
 
 using System;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
@@ -12,16 +13,21 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   public class TranslationComparisonResult : NodeComparisonResult,
     IComparisonResult<Translation>
   {
-    public Translation NewValue
+    /// <inheritdoc/>
+    public new Translation NewValue
     {
       get { return (Translation) base.NewValue; }
     }
 
-    public Translation OriginalValue
+    /// <inheritdoc/>
+    public new Translation OriginalValue
     {
       get { return (Translation) base.OriginalValue; }
     }
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
     public TranslationComparisonResult(Translation originalValue, Translation newValue)
       : base(originalValue, newValue)
     {

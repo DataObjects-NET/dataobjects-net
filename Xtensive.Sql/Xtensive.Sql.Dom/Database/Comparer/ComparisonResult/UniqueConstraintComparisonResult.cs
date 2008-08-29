@@ -5,6 +5,7 @@
 // Created:    2008.08.27
 
 using System;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
@@ -15,13 +16,13 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     private readonly ComparisonResultCollection<TableColumnComparisonResult> columns = new ComparisonResultCollection<TableColumnComparisonResult>();
 
     /// <inheritdoc/>
-    public UniqueConstraint NewValue
+    public new UniqueConstraint NewValue
     {
       get { return (UniqueConstraint) base.NewValue; }
     }
 
     /// <inheritdoc/>
-    public UniqueConstraint OriginalValue
+    public new UniqueConstraint OriginalValue
     {
       get { return (UniqueConstraint) base.OriginalValue; }
     }
@@ -40,6 +41,9 @@ namespace Xtensive.Sql.Dom.Database.Comparer
       }
     }
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
     public UniqueConstraintComparisonResult(UniqueConstraint originalValue, UniqueConstraint newValue)
       : base(originalValue, newValue)
     {

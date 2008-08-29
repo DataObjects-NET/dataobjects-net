@@ -5,6 +5,7 @@
 // Created:    2008.08.27
 
 using System;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
@@ -12,16 +13,21 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   public class PrimaryKeyComparisonResult : UniqueConstraintComparisonResult,  
     IComparisonResult<PrimaryKey>
   {
-    public PrimaryKey NewValue
+    /// <inheritdoc/>
+    public new PrimaryKey NewValue
     {
       get { return (PrimaryKey) base.NewValue; }
     }
 
-    public PrimaryKey OriginalValue
+    /// <inheritdoc/>
+    public new PrimaryKey OriginalValue
     {
       get { return (PrimaryKey) base.OriginalValue; }
     }
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
     public PrimaryKeyComparisonResult(PrimaryKey originalValue, PrimaryKey newValue)
       : base(originalValue, newValue)
     {

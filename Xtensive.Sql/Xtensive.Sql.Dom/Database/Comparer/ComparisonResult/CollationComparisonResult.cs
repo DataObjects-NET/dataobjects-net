@@ -5,6 +5,7 @@
 // Created:    2008.08.29
 
 using System;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
@@ -12,16 +13,19 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   public class CollationComparisonResult : NodeComparisonResult,
     IComparisonResult<Collation>
   {
-    public Collation NewValue
+    public new Collation NewValue
     {
       get { return (Collation) base.NewValue; }
     }
 
-    public Collation OriginalValue
+    public new Collation OriginalValue
     {
       get { return (Collation) base.OriginalValue; }
     }
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
     public CollationComparisonResult(Collation originalValue, Collation newValue)
       : base(originalValue, newValue)
     {

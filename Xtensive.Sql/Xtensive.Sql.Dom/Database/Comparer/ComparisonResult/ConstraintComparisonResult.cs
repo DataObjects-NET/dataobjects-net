@@ -5,6 +5,7 @@
 // Created:    2008.08.21
 
 using System;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
@@ -12,16 +13,19 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   public class ConstraintComparisonResult : NodeComparisonResult, 
     IComparisonResult<Constraint>
   {
-    public Constraint NewValue
+    public new Constraint NewValue
     {
       get { return (Constraint) base.NewValue; }
     }
 
-    public Constraint OriginalValue
+    public new Constraint OriginalValue
     {
       get { return (Constraint)base.OriginalValue; }
     }
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
     public ConstraintComparisonResult(Constraint originalValue, Constraint newValue)
       : base(originalValue, newValue)
     {
