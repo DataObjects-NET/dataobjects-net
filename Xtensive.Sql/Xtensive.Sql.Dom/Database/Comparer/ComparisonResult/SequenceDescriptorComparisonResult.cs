@@ -10,13 +10,26 @@ using Xtensive.Core.Helpers;
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
   [Serializable]
-  public class SequenceDescriptorComparisonResult : ComparisonResult<SequenceDescriptor>
+  public class SequenceDescriptorComparisonResult : NodeComparisonResult, 
+    IComparisonResult<SequenceDescriptor>
   {
     private ComparisonResult<long?> startValue;
     private ComparisonResult<long?> increment;
     private ComparisonResult<long?> maxValue;
     private ComparisonResult<long?> minValue;
     private ComparisonResult<bool?> isCyclic;
+
+    /// <inheritdoc/>
+    public SequenceDescriptor NewValue
+    {
+      get { return (SequenceDescriptor) base.NewValue; }
+    }
+
+    /// <inheritdoc/>
+    public SequenceDescriptor OriginalValue
+    {
+      get { return (SequenceDescriptor) base.OriginalValue; }
+    }
 
     public ComparisonResult<long?> StartValue
     {
@@ -79,6 +92,10 @@ namespace Xtensive.Sql.Dom.Database.Comparer
         minValue.LockSafely(recursive);
         isCyclic.LockSafely(recursive);
       }
+    }
+    public SequenceDescriptorComparisonResult(SequenceDescriptor originalValue, SequenceDescriptor newValue)
+      : base(originalValue, newValue)
+    {
     }
   }
 }

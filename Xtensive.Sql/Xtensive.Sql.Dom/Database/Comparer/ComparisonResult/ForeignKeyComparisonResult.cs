@@ -11,8 +11,8 @@ using Xtensive.Core.Helpers;
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
   [Serializable]
-  public class ForeignKeyComparisonResult : ComparisonResult<ForeignKey>, 
-    IComparisonResult<Constraint>
+  public class ForeignKeyComparisonResult : ConstraintComparisonResult,
+    IComparisonResult<ForeignKey>
   {
     private readonly ComparisonResultCollection<TableColumnComparisonResult> columns = new ComparisonResultCollection<TableColumnComparisonResult>();
     private readonly ComparisonResultCollection<TableColumnComparisonResult> referencedColumns = new ComparisonResultCollection<TableColumnComparisonResult>();
@@ -61,15 +61,15 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     }
 
     /// <inheritdoc/> 
-    Constraint IComparisonResult<Constraint>.NewValue
+    ForeignKey IComparisonResult<ForeignKey>.NewValue
     {
-      get { return NewValue; }
+      get { return (ForeignKey) NewValue; }
     }
 
     /// <inheritdoc/>
-    Constraint IComparisonResult<Constraint>.OriginalValue
+    ForeignKey IComparisonResult<ForeignKey>.OriginalValue
     {
-      get { return OriginalValue; }
+      get { return (ForeignKey) OriginalValue; }
     }
 
     /// <inheritdoc/>
@@ -83,6 +83,11 @@ namespace Xtensive.Sql.Dom.Database.Comparer
         onUpdate.LockSafely(recursive);
         onDelete.LockSafely(recursive);
       }
+    }
+
+    public ForeignKeyComparisonResult(ForeignKey originalValue, ForeignKey newValue)
+      : base(originalValue, newValue)
+    {
     }
   }
 }

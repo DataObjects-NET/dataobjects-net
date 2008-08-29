@@ -14,12 +14,26 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   /// <see cref="View"/> comparison result.
   /// </summary>
   [Serializable]
-  public class ViewComparisonResult : NodeComparisonResult<View>
+  public class ViewComparisonResult : DataTableComparisonResult,
+    IComparisonResult<View>
   {
     private ComparisonResult<CheckOptions> checkOptions;
     private ComparisonResult<SqlNative> definition;
     private readonly ComparisonResultCollection<ComparisonResult<ViewColumn>> columns = new ComparisonResultCollection<ComparisonResult<ViewColumn>>();
     private readonly ComparisonResultCollection<ComparisonResult<Index>> indexes = new ComparisonResultCollection<ComparisonResult<Index>>();
+
+
+    /// <inheritdoc/>
+    public View NewValue
+    {
+      get { return (View) base.NewValue; }
+    }
+
+    /// <inheritdoc/>
+    public View OriginalValue
+    {
+      get { return (View) base.OriginalValue; }
+    }
 
     /// <summary>
     /// Gets comparison result of check options.
@@ -73,6 +87,11 @@ namespace Xtensive.Sql.Dom.Database.Comparer
         checkOptions.LockSafely(recursive);
         definition.LockSafely(recursive);
       }
+    }
+
+    public ViewComparisonResult(View originalValue, View newValue)
+      : base(originalValue, newValue)
+    {
     }
   }
 }

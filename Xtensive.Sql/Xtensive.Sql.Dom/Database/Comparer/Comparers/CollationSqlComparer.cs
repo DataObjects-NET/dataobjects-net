@@ -10,8 +10,13 @@ using System.Collections.Generic;
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
   [Serializable]
-  internal class CollationSqlComparer : NodeSqlComparer<Collation, NodeComparisonResult<Collation>>
+  internal class CollationSqlComparer : SqlComparerBase<Collation>
   {
+    public override IComparisonResult<Collation> Compare(Collation originalNode, Collation newNode, IEnumerable<ComparisonHintBase> hints)
+    {
+      return new CollationComparisonResult(originalNode, newNode);
+    }
+
     public CollationSqlComparer(ISqlComparerProvider provider)
       : base(provider)
     {

@@ -14,7 +14,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   {
     public override IComparisonResult<Assertion> Compare(Assertion originalNode, Assertion newNode, IEnumerable<ComparisonHintBase> hints)
     {
-      AssertionComparisonResult result = InitializeResult<Assertion, AssertionComparisonResult>(originalNode, newNode);
+      var result = new AssertionComparisonResult(originalNode, newNode);
       bool hasChanges = false;
       result.Condition = CompareSimpleNode(originalNode == null ? null : originalNode.Condition, newNode == null ? null : newNode.Condition, ref hasChanges);
       result.IsDeferrable = CompareSimpleNode(originalNode == null ? null : originalNode.IsDeferrable, newNode == null ? null : newNode.IsDeferrable, ref hasChanges);

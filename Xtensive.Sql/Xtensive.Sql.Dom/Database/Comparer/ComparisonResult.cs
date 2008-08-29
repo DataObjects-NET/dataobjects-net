@@ -15,7 +15,8 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   /// <summary>
   /// Base class for comparison results.
   /// </summary>
-  public abstract class ComparisonResult : LockableBase, IComparisonResult
+  public abstract class ComparisonResult : LockableBase, 
+    IComparisonResult
   {
     private readonly Type type;
     private ComparisonResultType resultType;
@@ -53,16 +54,6 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     {
       get { return type; }
     }
-
-//    /// <inheritdoc/>
-//    public override void Lock(bool recursive)
-//    {
-//      base.Lock(recursive);
-//      if (recursive) {
-//        nested.Lock(true);
-//        properties.Lock(true);
-//      }
-//    }
 
     public ComparisonResult(Type type)
     {

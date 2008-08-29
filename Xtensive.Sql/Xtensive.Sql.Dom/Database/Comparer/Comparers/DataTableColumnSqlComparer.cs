@@ -16,19 +16,9 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     {
       IComparisonResult<DataTableColumn> result;
       if (originalNode==null && newNode==null)
-        result = new DataTableColumnComparisonResult
-          {
-            OriginalValue = originalNode,
-            NewValue = newNode,
-            ResultType = ComparisonResultType.Unchanged
-          };
+        result = new DataTableColumnComparisonResult(originalNode, newNode) {ResultType = ComparisonResultType.Unchanged};
       else if (originalNode!=null && newNode!=null && originalNode.GetType()!=newNode.GetType())
-        result = new DataTableColumnComparisonResult
-          {
-            OriginalValue = originalNode,
-            NewValue = newNode,
-            ResultType = ComparisonResultType.Modified
-          };
+        result = new DataTableColumnComparisonResult(originalNode, newNode) {ResultType = ComparisonResultType.Modified};
       else if ((originalNode ?? newNode).GetType()==typeof (TableColumn))
         result = (IComparisonResult<DataTableColumn>) BaseSqlComparer1.Compare(originalNode as TableColumn, newNode as TableColumn, hints);
       else if ((originalNode ?? newNode).GetType()==typeof (ViewColumn))

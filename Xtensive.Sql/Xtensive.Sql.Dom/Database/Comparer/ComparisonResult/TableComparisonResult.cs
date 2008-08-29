@@ -13,12 +13,30 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   /// <see cref="Table"/> comparison result.
   /// </summary>
   [Serializable]
-  public class TableComparisonResult : NodeComparisonResult<Table>
+  public class TableComparisonResult : DataTableComparisonResult, 
+    IComparisonResult<Table>
   {
     private ComparisonResult<string> filegroup;
     private readonly ComparisonResultCollection<IndexComparisonResult> indexes = new ComparisonResultCollection<IndexComparisonResult>();
     private readonly ComparisonResultCollection<TableColumnComparisonResult> columns = new ComparisonResultCollection<TableColumnComparisonResult>();
     private readonly ComparisonResultCollection<IComparisonResult<Constraint>> constraints = new ComparisonResultCollection<IComparisonResult<Constraint>>();
+
+    /// <inheritdoc/>
+    public Table NewValue
+    {
+      get { return (Table) base.NewValue; }
+    }
+
+    /// <inheritdoc/>
+    public Table OriginalValue
+    {
+      get { return (Table) base.OriginalValue; }
+    }
+
+    public TableComparisonResult(Table originalValue, Table newValue)
+      : base(originalValue, newValue)
+    {
+    }
 
     /// <summary>
     /// Gets comparison result of filegroup.

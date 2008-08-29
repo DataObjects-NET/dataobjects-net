@@ -5,12 +5,18 @@
 // Created:    2008.08.18
 
 using System;
+using System.Collections.Generic;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
   [Serializable]
-  internal class CharacterSetSqlComparer : NodeSqlComparer<CharacterSet, NodeComparisonResult<CharacterSet>>
+  internal class CharacterSetSqlComparer : SqlComparerBase<CharacterSet>
   {
+    public override IComparisonResult<CharacterSet> Compare(CharacterSet originalNode, CharacterSet newNode, IEnumerable<ComparisonHintBase> hints)
+    {
+      return new CharacterSetComparisonResult(originalNode, newNode);
+    }
+
     public CharacterSetSqlComparer(ISqlComparerProvider provider)
       : base(provider)
     {

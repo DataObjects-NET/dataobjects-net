@@ -6,8 +6,24 @@
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
-  public class DomainConstraintComparisonResult : NodeComparisonResult<DomainConstraint>
+  public class DomainConstraintComparisonResult : ConstraintComparisonResult,
+    IComparisonResult<DomainConstraint>
   {
-    
+    /// <inheritdoc/>
+    public DomainConstraint NewValue
+    {
+      get { return (DomainConstraint) base.NewValue; }
+    }
+
+    /// <inheritdoc/>
+    public DomainConstraint OriginalValue
+    {
+      get { return (DomainConstraint) base.OriginalValue; }
+    }
+
+    public DomainConstraintComparisonResult(DomainConstraint originalValue, DomainConstraint newValue)
+      : base(originalValue, newValue)
+    {
+    }
   }
 }

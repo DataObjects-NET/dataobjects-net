@@ -14,13 +14,13 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   {
     public override IComparisonResult<View> Compare(View originalNode, View newNode, IEnumerable<ComparisonHintBase> hints)
     {
-      ViewComparisonResult result = InitializeResult<View, ViewComparisonResult>(originalNode, newNode);
+      var result = new ViewComparisonResult(originalNode, newNode);
       bool hasChanges = false;
-      result.CheckOptions = CompareSimpleStruct(originalNode == null ? (CheckOptions?)null : originalNode.CheckOptions, newNode == null ? (CheckOptions?)null : newNode.CheckOptions, ref hasChanges);
-      result.Definition = CompareSimpleNode(originalNode == null ? null : originalNode.Definition, newNode == null ? null : newNode.Definition, ref hasChanges);
-      hasChanges |= CompareNestedNodes(originalNode == null ? null : originalNode.Indexes, newNode == null ? null : newNode.Indexes, hints, BaseSqlComparer2, result.Indexes);
-      hasChanges |= CompareNestedNodes(originalNode == null ? null : originalNode.ViewColumns, newNode == null ? null : newNode.ViewColumns, hints, BaseSqlComparer1, result.Columns);
-      if (hasChanges && result.ResultType == ComparisonResultType.Unchanged)
+      result.CheckOptions = CompareSimpleStruct(originalNode==null ? (CheckOptions?) null : originalNode.CheckOptions, newNode==null ? (CheckOptions?) null : newNode.CheckOptions, ref hasChanges);
+      result.Definition = CompareSimpleNode(originalNode==null ? null : originalNode.Definition, newNode==null ? null : newNode.Definition, ref hasChanges);
+      hasChanges |= CompareNestedNodes(originalNode==null ? null : originalNode.Indexes, newNode==null ? null : newNode.Indexes, hints, BaseSqlComparer2, result.Indexes);
+      hasChanges |= CompareNestedNodes(originalNode==null ? null : originalNode.ViewColumns, newNode==null ? null : newNode.ViewColumns, hints, BaseSqlComparer1, result.Columns);
+      if (hasChanges && result.ResultType==ComparisonResultType.Unchanged)
         result.ResultType = ComparisonResultType.Modified;
       result.Lock(true);
       return result;

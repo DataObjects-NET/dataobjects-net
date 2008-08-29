@@ -5,12 +5,18 @@
 // Created:    2008.08.25
 
 using System;
+using System.Collections.Generic;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
   [Serializable]
-  internal class UserSqlComparer : NodeSqlComparer<User, NodeComparisonResult<User>>
+  internal class UserSqlComparer : SqlComparerBase<User>
   {
+    public override IComparisonResult<User> Compare(User originalNode, User newNode, IEnumerable<ComparisonHintBase> hints)
+    {
+      return new UserComparisonResult(originalNode, newNode);
+    }
+
     public UserSqlComparer(ISqlComparerProvider provider)
       : base(provider)
     {

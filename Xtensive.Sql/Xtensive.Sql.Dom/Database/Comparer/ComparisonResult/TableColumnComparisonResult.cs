@@ -9,7 +9,8 @@ using Xtensive.Core.Helpers;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
-  public class TableColumnComparisonResult : ComparisonResult<TableColumn>, IComparisonResult<DataTableColumn>
+  public class TableColumnComparisonResult : DataTableColumnComparisonResult,
+    IComparisonResult<TableColumn>
   {
     private ComparisonResult<SqlValueType> dataType;
     private DomainComparisonResult domain;
@@ -17,24 +18,21 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     private SequenceDescriptorComparisonResult sequenceDescriptor;
     private ComparisonResult<SqlExpression> expression;
     private ComparisonResult<bool> isPersisted;
-    private NodeComparisonResult<Collation> collation;
+    private CollationComparisonResult collation;
     private ComparisonResult<bool> isNullable;
 
-    #region ComparisonResult<DataTableColumn>
 
     /// <inheritdoc/>
-    public DataTableColumn NewValue
+    public TableColumn NewValue
     {
-      get { return base.NewValue; }
+      get { return (TableColumn) base.NewValue; }
     }
 
     /// <inheritdoc/>
-    public DataTableColumn OriginalValue
+    public TableColumn OriginalValue
     {
-      get { return base.OriginalValue; }
+      get { return (TableColumn) base.OriginalValue; }
     }
-
-    #endregion
 
     public ComparisonResult<SqlValueType> DataType
     {
@@ -96,7 +94,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
       }
     }
 
-    public NodeComparisonResult<Collation> Collation
+    public CollationComparisonResult Collation
     {
       get { return collation; }
       set
@@ -130,6 +128,11 @@ namespace Xtensive.Sql.Dom.Database.Comparer
         collation.LockSafely(recursive);
         isNullable.LockSafely(recursive);
       }
+    }
+
+    public TableColumnComparisonResult(TableColumn originalValue, TableColumn newValue)
+      : base(originalValue, newValue)
+    {
     }
   }
 }

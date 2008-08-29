@@ -22,19 +22,9 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     {
       IComparisonResult<Constraint> result;
       if (originalNode==null && newNode==null)
-        result = new ConstraintComparisonResult
-          {
-            OriginalValue = originalNode,
-            NewValue = newNode,
-            ResultType = ComparisonResultType.Unchanged
-          };
+        result = new ConstraintComparisonResult(originalNode, newNode) {ResultType = ComparisonResultType.Unchanged};
       else if (originalNode!=null && newNode!=null && originalNode.GetType()!=newNode.GetType())
-        result = new ConstraintComparisonResult
-          {
-            OriginalValue = originalNode,
-            NewValue = newNode,
-            ResultType = ComparisonResultType.Modified
-          };
+        result = new ConstraintComparisonResult(originalNode, newNode) {ResultType = ComparisonResultType.Modified};
       else if ((originalNode ?? newNode).GetType()==typeof (CheckConstraint))
         result = (IComparisonResult<Constraint>) checkConstraintComparer.Compare(originalNode as CheckConstraint, newNode as CheckConstraint, hints);
       else if ((originalNode ?? newNode).GetType()==typeof (DomainConstraint))

@@ -24,11 +24,11 @@ namespace Xtensive.Sql.Dom.Database.Comparer
 
     public override IComparisonResult<Schema> Compare(Schema originalNode, Schema newNode, IEnumerable<ComparisonHintBase> hints)
     {
-      SchemaComparisonResult result = InitializeResult<Schema, SchemaComparisonResult>(originalNode, newNode);
+      var result = new SchemaComparisonResult(originalNode, newNode);
       bool hasChanges = false;
-      result.Owner = (NodeComparisonResult<User>)userComparer.Compare(originalNode == null ? null : originalNode.Owner, newNode == null ? null : newNode.Owner, hints);
+      result.Owner = (UserComparisonResult)userComparer.Compare(originalNode == null ? null : originalNode.Owner, newNode == null ? null : newNode.Owner, hints);
       hasChanges |= result.Owner.HasChanges;
-      result.DefaultCharacterSet = (NodeComparisonResult<CharacterSet>)characterSetComparer.Compare(originalNode == null ? null : originalNode.DefaultCharacterSet, newNode == null ? null : newNode.DefaultCharacterSet, hints);
+      result.DefaultCharacterSet = (CharacterSetComparisonResult)characterSetComparer.Compare(originalNode == null ? null : originalNode.DefaultCharacterSet, newNode == null ? null : newNode.DefaultCharacterSet, hints);
       hasChanges |= result.DefaultCharacterSet.HasChanges;
       hasChanges |= CompareNestedNodes(originalNode == null ? null : originalNode.Tables, newNode == null ? null : newNode.Tables, hints, tableComparer, result.Tables);
       hasChanges |= CompareNestedNodes(originalNode == null ? null : originalNode.Views, newNode == null ? null : newNode.Views, hints, viewComparer, result.Views);

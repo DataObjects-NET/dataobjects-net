@@ -9,19 +9,24 @@ using System;
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
   [Serializable]
-  public class CheckConstraintComparisonResult : NodeComparisonResult<CheckConstraint>,
-    IComparisonResult<Constraint>
+  public class CheckConstraintComparisonResult : ConstraintComparisonResult,
+    IComparisonResult<CheckConstraint>
   {
     /// <inheritdoc/>
-    public Constraint NewValue
+    public CheckConstraint NewValue
     {
-      get { return base.NewValue; }
+      get { return (CheckConstraint)base.NewValue; }
     }
 
     /// <inheritdoc/>
-    public Constraint OriginalValue
+    public CheckConstraint OriginalValue
     {
-      get { return base.OriginalValue; }
+      get { return (CheckConstraint)base.OriginalValue; }
+    }
+
+    public CheckConstraintComparisonResult(CheckConstraint originalValue, CheckConstraint newValue)
+      : base(originalValue, newValue)
+    {
     }
   }
 }

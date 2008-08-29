@@ -9,8 +9,22 @@ using System;
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
   [Serializable]
-  public class ConstraintComparisonResult : NodeComparisonResult<Constraint>
+  public class ConstraintComparisonResult : NodeComparisonResult, 
+    IComparisonResult<Constraint>
   {
-    
+    public Constraint NewValue
+    {
+      get { return (Constraint) base.NewValue; }
+    }
+
+    public Constraint OriginalValue
+    {
+      get { return (Constraint)base.OriginalValue; }
+    }
+
+    public ConstraintComparisonResult(Constraint originalValue, Constraint newValue)
+      : base(originalValue, newValue)
+    {
+    }
   }
 }

@@ -13,7 +13,8 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   /// <see cref="Index"/> comparison result.
   /// </summary>
   [Serializable]
-  public class IndexComparisonResult : NodeComparisonResult<Index>
+  public class IndexComparisonResult : NodeComparisonResult,
+    IComparisonResult<Index>
   {
     private ComparisonResult<bool> isUnique;
     private ComparisonResult<bool> isBitmap;
@@ -22,6 +23,18 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     private ComparisonResult<string> filegroup;
     private readonly ComparisonResultCollection<IndexColumnComparisonResult> columns = new ComparisonResultCollection<IndexColumnComparisonResult>();
     private readonly ComparisonResultCollection<DataTableColumnComparisonResult> nonkeyColumns = new ComparisonResultCollection<DataTableColumnComparisonResult>();
+
+    /// <inheritdoc/>
+    public Index NewValue
+    {
+      get { return (Index)base.NewValue; }
+    }
+
+    /// <inheritdoc/>
+    public Index OriginalValue
+    {
+      get { return (Index)base.OriginalValue; }
+    }
 
     /// <summary>
     /// Gets comparison result of <see cref="Index.IsUnique"/> property.
@@ -117,6 +130,11 @@ namespace Xtensive.Sql.Dom.Database.Comparer
         fillFactor.LockSafely(recursive);
         filegroup.LockSafely(recursive);
       }
+    }
+
+    public IndexComparisonResult(Index originalValue, Index newValue)
+      : base(originalValue, newValue)
+    {
     }
   }
 }

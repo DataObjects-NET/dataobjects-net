@@ -10,8 +10,14 @@ using System.Collections.Generic;
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
   [Serializable]
-  internal class CheckConstraintSqlComparer : NodeSqlComparer<CheckConstraint, CheckConstraintComparisonResult>
+  internal class CheckConstraintSqlComparer : SqlComparerBase<CheckConstraint>
   {
+    public override IComparisonResult<CheckConstraint> Compare(CheckConstraint originalNode, CheckConstraint newNode, IEnumerable<ComparisonHintBase> hints)
+    {
+      return new CheckConstraintComparisonResult(originalNode, newNode);
+
+    }
+
     public CheckConstraintSqlComparer(ISqlComparerProvider provider)
       : base(provider)
     {

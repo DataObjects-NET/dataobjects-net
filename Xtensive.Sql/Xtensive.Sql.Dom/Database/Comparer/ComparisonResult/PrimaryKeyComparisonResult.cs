@@ -9,35 +9,22 @@ using System;
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
   [Serializable]
-  public class PrimaryKeyComparisonResult : NodeComparisonResult<PrimaryKey>,
-    IComparisonResult<Constraint>
+  public class PrimaryKeyComparisonResult : UniqueConstraintComparisonResult,  
+    IComparisonResult<PrimaryKey>
   {
-    private readonly ComparisonResultCollection<TableColumnComparisonResult> columns = new ComparisonResultCollection<TableColumnComparisonResult>();
-
-    /// <inheritdoc/>
-    Constraint IComparisonResult<Constraint>.NewValue
+    public PrimaryKey NewValue
     {
-      get { return NewValue; }
+      get { return (PrimaryKey) base.NewValue; }
     }
 
-    /// <inheritdoc/>
-    Constraint IComparisonResult<Constraint>.OriginalValue
+    public PrimaryKey OriginalValue
     {
-      get { return OriginalValue; }
+      get { return (PrimaryKey) base.OriginalValue; }
     }
 
-    public ComparisonResultCollection<TableColumnComparisonResult> Columns
+    public PrimaryKeyComparisonResult(PrimaryKey originalValue, PrimaryKey newValue)
+      : base(originalValue, newValue)
     {
-      get { return columns; }
-    }
-
-    /// <inheritdoc/>
-    public override void Lock(bool recursive)
-    {
-      base.Lock(recursive);
-      if (recursive) {
-        columns.Lock(recursive);
-      }
     }
   }
 }

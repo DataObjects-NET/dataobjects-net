@@ -12,7 +12,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   {
     public override IComparisonResult<PrimaryKey> Compare(PrimaryKey originalNode, PrimaryKey newNode, IEnumerable<ComparisonHintBase> hints)
     {
-      var result = InitializeResult<PrimaryKey, PrimaryKeyComparisonResult>(originalNode, newNode);
+      var result = new PrimaryKeyComparisonResult(originalNode, newNode);
       bool hasChanges = false;
       hasChanges |= CompareNestedNodes(originalNode == null ? null : originalNode.Columns, newNode == null ? null : newNode.Columns, hints, BaseSqlComparer1, result.Columns);
       if (hasChanges && result.ResultType == ComparisonResultType.Unchanged)

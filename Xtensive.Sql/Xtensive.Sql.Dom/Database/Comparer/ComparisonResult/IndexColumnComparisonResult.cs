@@ -13,15 +13,16 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   /// <see cref="IndexColumn"/> comparison result.
   /// </summary>
   [Serializable]
-  public class IndexColumnComparisonResult : NodeComparisonResult<IndexColumn>
+  public class IndexColumnComparisonResult : NodeComparisonResult, 
+    IComparisonResult<IndexColumn>
   {
-    private IComparisonResult<DataTableColumn> column;
+    private DataTableColumnComparisonResult column;
     private ComparisonResult<bool> ascending;
 
     /// <summary>
     /// Gets underlying <see cref="DataTableColumn"/> comparison result.
     /// </summary>
-    public IComparisonResult<DataTableColumn> Column
+    public DataTableColumnComparisonResult Column
     {
       get { return column; }
       internal set
@@ -52,6 +53,21 @@ namespace Xtensive.Sql.Dom.Database.Comparer
         column.LockSafely(recursive);
         ascending.LockSafely(recursive);
       }
+    }
+
+    public IndexColumn NewValue
+    {
+      get { return (IndexColumn) base.NewValue; }
+    }
+
+    public IndexColumn OriginalValue
+    {
+      get { return (IndexColumn) base.OriginalValue; }
+    }
+
+    public IndexColumnComparisonResult(IndexColumn originalValue, IndexColumn newValue)
+      : base(originalValue, newValue)
+    {
     }
   }
 }

@@ -15,7 +15,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   {
     public override IComparisonResult<ForeignKey> Compare(ForeignKey originalNode, ForeignKey newNode, IEnumerable<ComparisonHintBase> hints)
     {
-      ForeignKeyComparisonResult result = InitializeResult<ForeignKey, ForeignKeyComparisonResult>(originalNode, newNode);
+      var result = new ForeignKeyComparisonResult(originalNode, newNode);
       bool hasChanges = false;
 // TODO: Table, TableColumn (fix recursive loop)
 //      hasChanges |= CompareNestedNodes(originalNode==null ? null : originalNode.Columns, newNode==null ? null : newNode.Columns, hints, BaseSqlComparer2, result.Columns);

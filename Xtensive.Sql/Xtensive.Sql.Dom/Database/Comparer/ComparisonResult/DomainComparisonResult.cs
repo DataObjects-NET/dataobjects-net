@@ -14,12 +14,25 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   /// <see cref="Domain"/> comparison result.
   /// </summary>
   [Serializable]
-  public class DomainComparisonResult : ComparisonResult<Domain>
+  public class DomainComparisonResult : NodeComparisonResult, 
+    IComparisonResult<Domain>
   {
     private ComparisonResult<SqlValueType> dataType;
     private ComparisonResult<SqlExpression> defaultValue;
     private readonly ComparisonResultCollection<DomainConstraintComparisonResult> domainConstraints = new ComparisonResultCollection<DomainConstraintComparisonResult>();
-    private NodeComparisonResult<Collation> collation;
+    private CollationComparisonResult collation;
+
+    /// <inheritdoc/>
+    public Domain NewValue
+    {
+      get { return (Domain) base.NewValue; }
+    }
+
+    /// <inheritdoc/>
+    public Domain OriginalValue
+    {
+      get { return (Domain) base.OriginalValue; }
+    }
 
     /// <summary>
     /// Gets <see cref="Domain.DataType"/> comparison result.
@@ -58,7 +71,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     /// <summary>
     /// Gets <see cref="Domain.Collation"/> comparison result.
     /// </summary>
-    public NodeComparisonResult<Collation> Collation
+    public CollationComparisonResult Collation
     {
       get { return collation; }
       internal set
@@ -78,6 +91,11 @@ namespace Xtensive.Sql.Dom.Database.Comparer
         domainConstraints.Lock(recursive);
         collation.LockSafely(recursive);
       }
+    }
+
+    public DomainComparisonResult(Domain originalValue, Domain newValue)
+      : base(originalValue, newValue)
+    {
     }
   }
 }

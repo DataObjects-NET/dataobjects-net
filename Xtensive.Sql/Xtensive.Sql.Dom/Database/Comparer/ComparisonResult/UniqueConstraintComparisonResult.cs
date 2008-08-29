@@ -9,21 +9,21 @@ using System;
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
   [Serializable]
-  public class UniqueConstraintComparisonResult : NodeComparisonResult<UniqueConstraint>,
-    IComparisonResult<Constraint>
+  public class UniqueConstraintComparisonResult : ConstraintComparisonResult, 
+    IComparisonResult<UniqueConstraint>
   {
     private readonly ComparisonResultCollection<TableColumnComparisonResult> columns = new ComparisonResultCollection<TableColumnComparisonResult>();
 
     /// <inheritdoc/>
-    Constraint IComparisonResult<Constraint>.NewValue
+    public UniqueConstraint NewValue
     {
-      get { return NewValue; }
+      get { return (UniqueConstraint) base.NewValue; }
     }
 
     /// <inheritdoc/>
-    Constraint IComparisonResult<Constraint>.OriginalValue
+    public UniqueConstraint OriginalValue
     {
-      get { return OriginalValue; }
+      get { return (UniqueConstraint) base.OriginalValue; }
     }
 
     public ComparisonResultCollection<TableColumnComparisonResult> Columns
@@ -38,6 +38,11 @@ namespace Xtensive.Sql.Dom.Database.Comparer
       if (recursive) {
         columns.Lock(recursive);
       }
+    }
+
+    public UniqueConstraintComparisonResult(UniqueConstraint originalValue, UniqueConstraint newValue)
+      : base(originalValue, newValue)
+    {
     }
   }
 }

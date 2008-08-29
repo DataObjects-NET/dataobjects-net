@@ -13,23 +13,37 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   /// <see cref="Schema"/> comparison result.
   /// </summary>
   [Serializable]
-  public class SchemaComparisonResult : NodeComparisonResult<Schema>
+  public class SchemaComparisonResult : NodeComparisonResult,
+    IComparisonResult<Schema>
   {
-    private NodeComparisonResult<User> owner;
-    private NodeComparisonResult<CharacterSet> defaultCharacterSet;
+    private UserComparisonResult owner;
+    private CharacterSetComparisonResult defaultCharacterSet;
     private readonly ComparisonResultCollection<TableComparisonResult> tables = new ComparisonResultCollection<TableComparisonResult>();
     private readonly ComparisonResultCollection<ViewComparisonResult> views = new ComparisonResultCollection<ViewComparisonResult>();
     private readonly ComparisonResultCollection<AssertionComparisonResult> assertions = new ComparisonResultCollection<AssertionComparisonResult>();
-    private readonly ComparisonResultCollection<NodeComparisonResult<CharacterSet>> characterSets = new ComparisonResultCollection<NodeComparisonResult<CharacterSet>>();
-    private readonly ComparisonResultCollection<NodeComparisonResult<Collation>> collations = new ComparisonResultCollection<NodeComparisonResult<Collation>>();
-    private readonly ComparisonResultCollection<NodeComparisonResult<Translation>> translations = new ComparisonResultCollection<NodeComparisonResult<Translation>>();
+    private readonly ComparisonResultCollection<CharacterSetComparisonResult> characterSets = new ComparisonResultCollection<CharacterSetComparisonResult>();
+    private readonly ComparisonResultCollection<CollationComparisonResult> collations = new ComparisonResultCollection<CollationComparisonResult>();
+    private readonly ComparisonResultCollection<TranslationComparisonResult> translations = new ComparisonResultCollection<TranslationComparisonResult>();
     private readonly ComparisonResultCollection<DomainComparisonResult> domains = new ComparisonResultCollection<DomainComparisonResult>();
     private readonly ComparisonResultCollection<SequenceComparisonResult> sequences = new ComparisonResultCollection<SequenceComparisonResult>();
+
+
+    /// <inheritdoc/>
+    public Schema NewValue
+    {
+      get { return (Schema) base.NewValue; }
+    }
+
+    /// <inheritdoc/>
+    public Schema OriginalValue
+    {
+      get { return (Schema) base.OriginalValue; }
+    }
 
     /// <summary>
     /// Gets comparison result of owner.
     /// </summary>
-    public NodeComparisonResult<User> Owner
+    public UserComparisonResult Owner
     {
       get { return owner; }
       set
@@ -42,7 +56,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     /// <summary>
     /// Gets comparison result of default <see cref="CharacterSet"/>.
     /// </summary>
-    public NodeComparisonResult<CharacterSet> DefaultCharacterSet
+    public CharacterSetComparisonResult DefaultCharacterSet
     {
       get { return defaultCharacterSet; }
       set
@@ -79,7 +93,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     /// <summary>
     /// Gets comparison results of nested <see cref="CharacterSet"/>s.
     /// </summary>
-    public ComparisonResultCollection<NodeComparisonResult<CharacterSet>> CharacterSets
+    public ComparisonResultCollection<CharacterSetComparisonResult> CharacterSets
     {
       get { return characterSets; }
     }
@@ -87,7 +101,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     /// <summary>
     /// Gets comparison results of nested <see cref="Collation"/>s.
     /// </summary>
-    public ComparisonResultCollection<NodeComparisonResult<Collation>> Collations
+    public ComparisonResultCollection<CollationComparisonResult> Collations
     {
       get { return collations; }
     }
@@ -95,7 +109,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     /// <summary>
     /// Gets comparison results of nested <see cref="Translation"/>s.
     /// </summary>
-    public ComparisonResultCollection<NodeComparisonResult<Translation>> Translations
+    public ComparisonResultCollection<TranslationComparisonResult> Translations
     {
       get { return translations; }
     }
@@ -132,6 +146,11 @@ namespace Xtensive.Sql.Dom.Database.Comparer
         domains.Lock(recursive);
         sequences.Lock(recursive);
       }
+    }
+
+    public SchemaComparisonResult(Schema originalValue, Schema newValue)
+      : base(originalValue, newValue)
+    {
     }
   }
 }

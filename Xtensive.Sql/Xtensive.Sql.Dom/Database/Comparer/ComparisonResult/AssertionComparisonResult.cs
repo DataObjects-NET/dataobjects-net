@@ -14,11 +14,24 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   /// <see cref="Assertion"/> comparison result.
   /// </summary>
   [Serializable]
-  public class AssertionComparisonResult : ComparisonResult<Assertion>
+  public class AssertionComparisonResult : NodeComparisonResult,
+    IComparisonResult<Assertion>
   {
     private ComparisonResult<SqlExpression> condition;
     private ComparisonResult<bool?> isDeferrable;
     private ComparisonResult<bool?> isInitiallyDeferred;
+
+    /// <inheritdoc/>
+    public Assertion NewValue
+    {
+      get { return (Assertion) base.NewValue; }
+    }
+
+    /// <inheritdoc/>
+    public Assertion OriginalValue
+    {
+      get { return (Assertion) base.OriginalValue; }
+    }
 
     /// <summary>
     /// Gets <see cref="Assertion.Condition"/> comparison result.
@@ -68,6 +81,11 @@ namespace Xtensive.Sql.Dom.Database.Comparer
         isDeferrable.LockSafely(recursive);
         isInitiallyDeferred.LockSafely(recursive);
       }
+    }
+
+    public AssertionComparisonResult(Assertion originalValue, Assertion newValue)
+      : base(originalValue, newValue)
+    {
     }
   }
 }

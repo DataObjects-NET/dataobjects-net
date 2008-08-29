@@ -18,7 +18,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
 
     public override IComparisonResult<Table> Compare(Table originalNode, Table newNode, IEnumerable<ComparisonHintBase> hints)
     {
-      TableComparisonResult result = InitializeResult<Table, TableComparisonResult>(originalNode, newNode);
+      var result = new TableComparisonResult(originalNode, newNode);
       bool hasChanges = false;
       result.Filegroup = CompareSimpleNode(originalNode==null ? null : originalNode.Filegroup, newNode==null ? null : newNode.Filegroup, ref hasChanges);
       hasChanges |= CompareNestedNodes(originalNode == null ? null : originalNode.Indexes, newNode == null ? null : newNode.Indexes, hints, BaseSqlComparer2, result.Indexes);

@@ -14,9 +14,9 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   {
     public override IComparisonResult<Domain> Compare(Domain originalNode, Domain newNode, IEnumerable<ComparisonHintBase> hints)
     {
-      DomainComparisonResult result = InitializeResult<Domain, DomainComparisonResult>(originalNode, newNode);
+      var result = new  DomainComparisonResult(originalNode, newNode);
       bool hasChanges = false;
-      result.Collation = (NodeComparisonResult<Collation>) BaseSqlComparer2.Compare(originalNode==null ? null : originalNode.Collation, newNode==null ? null : newNode.Collation, hints);
+      result.Collation = (CollationComparisonResult) BaseSqlComparer2.Compare(originalNode==null ? null : originalNode.Collation, newNode==null ? null : newNode.Collation, hints);
       hasChanges |= result.Collation.HasChanges;
       result.DataType = CompareSimpleNode(originalNode == null ? null : originalNode.DataType, newNode == null ? null : newNode.DataType, ref hasChanges);
       result.DefaultValue = CompareSimpleNode(originalNode==null ? null : originalNode.DefaultValue, newNode==null ? null : newNode.DefaultValue, ref hasChanges);

@@ -13,10 +13,23 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   /// <see cref="Catalog"/> comparison result.
   /// </summary>
   [Serializable]
-  public class CatalogComparisonResult : NodeComparisonResult<Catalog>
+  public class CatalogComparisonResult : NodeComparisonResult, 
+    IComparisonResult<Catalog>
   {
     private SchemaComparisonResult defaultSchema;
     private readonly ComparisonResultCollection<SchemaComparisonResult> schemas = new ComparisonResultCollection<SchemaComparisonResult>();
+
+    /// <inheritdoc/>
+    public Catalog NewValue
+    {
+      get { return (Catalog)base.NewValue; }
+    }
+
+    /// <inheritdoc/>
+    public Catalog OriginalValue
+    {
+      get { return (Catalog) base.OriginalValue; }
+    }
 
     /// <summary>
     /// Gets comparison result of default <see cref="Schema"/>.
@@ -47,6 +60,11 @@ namespace Xtensive.Sql.Dom.Database.Comparer
         defaultSchema.Lock(recursive);
         schemas.Lock(recursive);
       }
+    }
+
+    public CatalogComparisonResult(Catalog originalValue, Catalog newValue)
+      : base(originalValue, newValue)
+    {
     }
   }
 }

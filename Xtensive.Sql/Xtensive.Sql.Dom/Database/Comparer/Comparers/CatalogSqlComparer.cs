@@ -14,12 +14,12 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   {
     public override IComparisonResult<Catalog> Compare(Catalog originalNode, Catalog newNode, IEnumerable<ComparisonHintBase> hints)
     {
-      CatalogComparisonResult result = InitializeResult<Catalog, CatalogComparisonResult>(originalNode, newNode);
+      var result = new CatalogComparisonResult(originalNode, newNode);
       bool hasChanges = false;
-      result.DefaultSchema = (SchemaComparisonResult)BaseSqlComparer1.Compare(originalNode == null ? null : originalNode.DefaultSchema, newNode == null ? null : newNode.DefaultSchema, hints);
+      result.DefaultSchema = (SchemaComparisonResult) BaseSqlComparer1.Compare(originalNode==null ? null : originalNode.DefaultSchema, newNode==null ? null : newNode.DefaultSchema, hints);
       hasChanges |= result.DefaultSchema.HasChanges;
-      hasChanges |= CompareNestedNodes(originalNode == null ? null : originalNode.Schemas, newNode == null ? null : newNode.Schemas, hints, BaseSqlComparer1, result.Schemas);
-      if (hasChanges && result.ResultType == ComparisonResultType.Unchanged)
+      hasChanges |= CompareNestedNodes(originalNode==null ? null : originalNode.Schemas, newNode==null ? null : newNode.Schemas, hints, BaseSqlComparer1, result.Schemas);
+      if (hasChanges && result.ResultType==ComparisonResultType.Unchanged)
         result.ResultType = ComparisonResultType.Modified;
       result.Lock(true);
       return result;

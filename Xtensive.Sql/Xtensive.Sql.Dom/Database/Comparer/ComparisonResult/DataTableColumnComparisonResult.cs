@@ -9,8 +9,22 @@ using System;
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
   [Serializable]
-  public class DataTableColumnComparisonResult : NodeComparisonResult<DataTableColumn>
+  public class DataTableColumnComparisonResult : NodeComparisonResult, 
+    IComparisonResult<DataTableColumn>
   {
-    
+    public DataTableColumn NewValue
+    {
+      get { return (DataTableColumn) base.NewValue; }
+    }
+
+    public DataTableColumn OriginalValue
+    {
+      get { return (DataTableColumn) base.OriginalValue; }
+    }
+
+    public DataTableColumnComparisonResult(DataTableColumn originalValue, DataTableColumn newValue)
+      : base(originalValue, newValue)
+    {
+    }
   }
 }

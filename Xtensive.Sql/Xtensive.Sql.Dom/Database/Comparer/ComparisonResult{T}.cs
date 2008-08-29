@@ -13,10 +13,11 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   /// <summary>
   /// Base class for comparison results with original and new values inside.
   /// </summary>
-  public class ComparisonResult<T> : ComparisonResult, IComparisonResult<T>
+  public class ComparisonResult<T> : ComparisonResult, 
+    IComparisonResult<T>
   {
-    private T originalValue;
-    private T newValue;
+    private readonly T originalValue;
+    private readonly T newValue;
 
     /// <summary>
     /// Gets new value.
@@ -24,11 +25,6 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     public T NewValue
     {
       get { return newValue; }
-      internal set
-      {
-        this.EnsureNotLocked();
-        newValue = value;
-      }
     }
 
     /// <summary>
@@ -37,10 +33,6 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     public T OriginalValue
     {
       get { return originalValue; }
-      internal set
-      {
-        this.EnsureNotLocked(); originalValue = value;
-      }
     }
 
     /// <inheritdoc/>
@@ -56,9 +48,11 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public ComparisonResult()
+    public ComparisonResult(T originalValue, T newValue)
       : base(typeof(T))
     {
+      this.originalValue = originalValue;
+      this.newValue = newValue;
     }
   }
 }

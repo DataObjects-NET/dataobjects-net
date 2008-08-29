@@ -14,7 +14,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   {
     public override IComparisonResult<Index> Compare(Index originalNode, Index newNode, IEnumerable<ComparisonHintBase> hints)
     {
-      IndexComparisonResult result = InitializeResult<Index, IndexComparisonResult>(originalNode, newNode);
+      var result = new IndexComparisonResult(originalNode, newNode);
       bool hasChanges = false;
       result.IsUnique = CompareSimpleStruct(originalNode==null ? (bool?) null : originalNode.IsUnique, newNode==null ? (bool?) null : newNode.IsUnique, ref hasChanges);
       result.IsBitmap = CompareSimpleStruct(originalNode==null ? (bool?) null : originalNode.IsBitmap, newNode==null ? (bool?) null : newNode.IsBitmap, ref hasChanges);

@@ -10,7 +10,7 @@ using Xtensive.Core.Helpers;
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
   [Serializable]
-  public class NodeComparisonResult<T> : ComparisonResult<T>
+  public class NodeComparisonResult : ComparisonResult<Node>
   {
     private ComparisonResult<string> dbName;
 
@@ -33,6 +33,23 @@ namespace Xtensive.Sql.Dom.Database.Comparer
       base.Lock(recursive);
       if (recursive)
         dbName.LockSafely(recursive);
+    }
+
+    public NodeComparisonResult(Node originalValue, Node newValue)
+      : base(originalValue, newValue)
+    {
+      if (ReferenceEquals(originalValue, null) && ReferenceEquals(newValue, null))
+        return;
+      string originalName = ReferenceEquals(originalValue, null) ? null : originalValue.DbName;
+      string newName = ReferenceEquals(newValue, null) ? null : newValue.DbName;
+      bool hasChanges = false;
+      dbName = SqlComparerBase<string>.CompareSimpleNode(originalName, newName, ref hasChanges);
+      if (originalValue==null)
+        ResultType = ComparisonResultType.Added;
+      else if (newValue==null)
+        ResultType = ComparisonResultType.Removed;
+      else
+        ResultType = hasChanges ? ComparisonResultType.Modified : ComparisonResultType.Unchanged;
     }
   }
 }

@@ -2,29 +2,29 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Aleksey Gamzov
-// Created:    2008.08.21
+// Created:    2008.08.29
 
 using System;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
   [Serializable]
-  public class SequenceComparisonResult : NodeComparisonResult,
-    IComparisonResult<Sequence>
+  public class UserComparisonResult : NodeComparisonResult,
+    IComparisonResult<User>
   {
     /// <inheritdoc/>
-    public Sequence NewValue
+    public User NewValue
     {
-      get { return (Sequence) base.NewValue; }
+      get { return (User)base.NewValue; }
     }
 
     /// <inheritdoc/>
-    public Sequence OriginalValue
+    public User OriginalValue
     {
-      get { return (Sequence) base.OriginalValue; }
+      get { return (User)base.OriginalValue; }
     }
 
-    public SequenceComparisonResult(Sequence originalValue, Sequence newValue)
+    public UserComparisonResult(User originalValue, User newValue)
       : base(originalValue, newValue)
     {
     }

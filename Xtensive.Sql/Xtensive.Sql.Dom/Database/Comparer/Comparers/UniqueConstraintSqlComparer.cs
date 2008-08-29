@@ -16,17 +16,13 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     {
       IComparisonResult<UniqueConstraint> result;
       if (originalNode==null && newNode==null)
-        result = new UniqueConstraintComparisonResult
+        result = new UniqueConstraintComparisonResult(originalNode, newNode)
           {
-            OriginalValue = originalNode,
-            NewValue = newNode,
             ResultType = ComparisonResultType.Unchanged
           };
       else if (originalNode!=null && newNode!=null && originalNode.GetType()!=newNode.GetType())
-        result = new UniqueConstraintComparisonResult
+        result = new UniqueConstraintComparisonResult(originalNode, newNode)
           {
-            OriginalValue = originalNode,
-            NewValue = newNode,
             ResultType = ComparisonResultType.Modified
           };
       else if ((originalNode ?? newNode).GetType()==typeof (PrimaryKey))
@@ -40,7 +36,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
 
     private IComparisonResult<UniqueConstraint> GetUnqueConstraintResult(UniqueConstraint originalNode, UniqueConstraint newNode, IEnumerable<ComparisonHintBase> hints)
     {
-      var result = InitializeResult<UniqueConstraint, UniqueConstraintComparisonResult>(originalNode, newNode);
+      var result = new UniqueConstraintComparisonResult(originalNode, newNode);
       bool hasChanges = false;
       hasChanges |= CompareNestedNodes(originalNode==null ? null : originalNode.Columns, newNode==null ? null : newNode.Columns, hints, BaseSqlComparer1, result.Columns);
       if (hasChanges && result.ResultType==ComparisonResultType.Unchanged)
