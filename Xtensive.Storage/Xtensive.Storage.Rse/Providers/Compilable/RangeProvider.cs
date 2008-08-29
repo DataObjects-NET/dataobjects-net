@@ -15,7 +15,7 @@ using Xtensive.Storage.Rse.Providers.Compilable;
 namespace Xtensive.Storage.Rse.Providers.Compilable
 {
   /// <summary>
-  /// Compilable provider for range operation over the <see cref="UnaryProvider.Source"/>.
+  /// Gets the specified <see cref="Range"/> from the <see cref="UnaryProvider.Source"/>.
   /// </summary>
   [Serializable]
   public class RangeProvider : UnaryProvider

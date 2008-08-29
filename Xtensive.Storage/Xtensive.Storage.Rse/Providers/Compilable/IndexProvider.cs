@@ -11,7 +11,7 @@ using Xtensive.Storage.Model;
 namespace Xtensive.Storage.Rse.Providers.Compilable
 {
   /// <summary>
-  /// Compilable provider that gives access to the specified <see cref="Index"/>.
+  /// Gives access to the specified <see cref="Index"/>.
   /// </summary>
   [Serializable]
   public sealed class IndexProvider : CompilableProvider

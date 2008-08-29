@@ -11,7 +11,7 @@ using Xtensive.Storage.Rse.Providers.Compilable;
 namespace Xtensive.Storage.Rse.Providers.Compilable
 {
   /// <summary>
-  /// Compilable provider that wraps <see cref="UnaryProvider.Source"/> provider with <see cref="Alias"/>.
+  /// Aliases the <see cref="UnaryProvider.Source"/> with specified <see cref="Alias"/>.
   /// </summary>
   [Serializable]
   public sealed class AliasProvider : UnaryProvider

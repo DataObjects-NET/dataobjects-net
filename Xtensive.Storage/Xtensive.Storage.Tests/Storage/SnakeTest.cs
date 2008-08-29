@@ -11,23 +11,19 @@ using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core;
-using Xtensive.Core.Helpers;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Parameters;
+using Xtensive.Core.Testing;
 using Xtensive.Core.Tuples;
-using Xtensive.Core.Tuples.Transform;
 using Xtensive.Indexing;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
-using Xtensive.Storage.Providers.Index;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
 using Xtensive.Storage.Tests.Storage.SnakesModel;
-using SeekResultType=Xtensive.Indexing.SeekResultType;
-using Xtensive.Storage.Rse.Providers.Compilable;
 
 
 namespace Xtensive.Storage.Tests.Storage.SnakesModel
@@ -113,15 +109,19 @@ namespace Xtensive.Storage.Tests.Storage
           TypeInfo snakeType = Domain.Model.Types[typeof(Snake)];
           RecordSet rsSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordSet();
 
-          RecordSet result = rsSnakePrimary.
+          string name = "TestName";
+          var scope = TemporaryDataScope.Domain;
+          RecordSet saved = rsSnakePrimary.
             Take(10).
             Take(5).
-            Save("name");
-          result.Count();
+            Save(scope, name);
 
-          //string name = result.Provider.GetService<IProvideNamedResult>(true).GetResultName();
-          var rs = RecordSet.Load(result.Header,"name");
-          rs.Count();
+          Assert.AreEqual(name,  saved.Provider.GetService<IHasNamedResult>().Name);
+          Assert.AreEqual(scope, saved.Provider.GetService<IHasNamedResult>().Scope);
+          
+          var loaded = RecordSet.Load(saved.Header, scope, name);
+
+          AssertEx.AreEqual(saved, loaded);
           t.Complete();
         }
       }
@@ -337,7 +337,8 @@ namespace Xtensive.Storage.Tests.Storage
           }
 
           Session.Current.Persist();
-        return;
+          return;
+
           Tuple from = Tuple.Create(21);
           Tuple to = Tuple.Create(120);
           Tuple fromName = Tuple.Create("Kaa");
@@ -405,7 +406,6 @@ namespace Xtensive.Storage.Tests.Storage
             new Lizard {Name = ("Lizard" + i), Color = ("Color" + i)};
 
           Session.Current.Persist();
-
 
           var pID = new Parameter<Range<IEntire<Tuple>>>();
           var pName = new Parameter<Range<IEntire<Tuple>>>();

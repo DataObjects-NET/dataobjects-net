@@ -5,15 +5,13 @@
 // Created:    2008.07.09
 
 using System;
-using System.Linq.Expressions;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 
 namespace Xtensive.Storage.Rse.Providers.Compilable
 {
   /// <summary>
-  /// Compilable provider that "delivers" specified 
-  /// array of <see cref="Tuple"/> instances.
+  /// Enumerates specified array of <see cref="Tuple"/> instances.
   /// </summary>
   [Serializable]
   public class RawProvider : CompilableProvider

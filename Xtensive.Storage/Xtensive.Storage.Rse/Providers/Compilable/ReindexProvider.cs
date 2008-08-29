@@ -12,8 +12,8 @@ using Xtensive.Storage.Rse.Providers.Compilable;
 namespace Xtensive.Storage.Rse.Providers.Compilable
 {
   /// <summary>
-  /// Compilable provider that builds an index over the 
-  /// <see cref="UnaryProvider.Source"/> ordering them by <see cref="OrderProviderBase.Order"/>.
+  /// Builds an index over the <see cref="UnaryProvider.Source"/> ordering 
+  /// them by <see cref="OrderProviderBase.Order"/>.
   /// </summary>
   [Serializable]
   public sealed class ReindexProvider : OrderProviderBase

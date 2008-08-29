@@ -4,21 +4,24 @@
 // Created by: 
 // Created:    2008.08.28
 
-using Xtensive.Core.Collections;
 using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Rse.Providers
 {
   /// <summary>
   /// Returned as service (see <see cref="Provider.GetService{T}"/>) 
-  /// by <see cref="SaveProvider"/>.
+  /// by <see cref="LoadProvider"/> and <see cref="SaveProvider"/>.
   /// </summary>
-  public interface IProvideNamedResult
+  public interface IHasNamedResult
   {
     /// <summary>
-    /// Gets the result name of context saved data.
+    /// Gets the scope of the result.
     /// </summary>
-    /// <returns></returns>
-    string GetResultName();
+    TemporaryDataScope Scope { get; }
+
+    /// <summary>
+    /// Gets the name of the saved result.
+    /// </summary>
+    string Name { get; }
   }
 }

@@ -42,9 +42,12 @@ namespace Xtensive.Storage.Rse
     /// Creates <see cref="LoadProvider"/> with specified <see cref="RecordSetHeader"/>
     /// and name for saved context data .
     /// </summary>
-    public static RecordSet Load(RecordSetHeader header, string name)
+    /// <param name="header">The result header.</param>
+    /// <param name="scope">The result scope.</param>
+    /// <param name="name">The result name.</param>
+    public static RecordSet Load(RecordSetHeader header, TemporaryDataScope scope, string name)
     {
-      return new LoadProvider(header, name).Result;
+      return new LoadProvider(header, scope, name).Result;
     }
 
     #region IEnumerable<...> methods

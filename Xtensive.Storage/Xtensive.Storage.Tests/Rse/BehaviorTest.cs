@@ -162,8 +162,7 @@ namespace Xtensive.Storage.Tests.Rse
 
       #endregion
 
-      ;
-      authorRS.Save("authors");
+      authorRS.Save(TemporaryDataScope.Transaction, "authors");
     }
 
     [Test]

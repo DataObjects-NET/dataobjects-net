@@ -8,66 +8,79 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core.Tuples;
+using Xtensive.Storage.Rse.Providers.Compilable;
+using Xtensive.Core.Helpers;
 
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
   [Serializable]
-  internal class SaveProvider : ExecutableProvider<Compilable.SaveProvider>,
-    IProvideNamedResult
+  internal class SaveProvider : UnaryExecutableProvider<Compilable.SaveProvider>,
+    IHasNamedResult
   {
-    private readonly Compilable.SaveProvider saveProvider;
-    private readonly Provider source;
-    private readonly string resultName;
-
     #region Cached properties
 
-    private const string CachedResultSourceName = "CachedResultName";
+    private const string CachedNameName = "CachedName";
+    private const string CachedResultName = "CachedResult";
 
-    private string CachedResultName
+    private string CachedName
     {
-      get { return (string)GetCachedValue<object>(EnumerationContext.Current, CachedResultSourceName); }
-      set { SetCachedValue(EnumerationContext.Current, CachedResultSourceName, (object)value); }
+      get { return GetCachedValue<string>(EnumerationContext.Current, CachedNameName); }
+      set { SetCachedValue(EnumerationContext.Current, CachedNameName, value); }
+    }
+
+    private IEnumerable<Tuple> CachedResult
+    {
+      get { return GetCachedValue<IEnumerable<Tuple>>(EnumerationContext.Current, CachedResultName); }
+      set { SetCachedValue(EnumerationContext.Current, CachedResultName, value); }
     }
 
     #endregion
 
-    public string GetResultName()
-    {
-      return resultName;
+    public TemporaryDataScope Scope {
+      get { return Origin.Scope; }
+    }
+
+    public string Name {
+      get {
+        var name = Origin.Name;
+        return name.IsNullOrEmpty() ? CachedName : name;
+      }
     }
 
     protected internal override void OnBeforeEnumerate(EnumerationContext context)
     {
       base.OnBeforeEnumerate(context);
-      CachedResultName = resultName;
+      string name = Origin.Name;
+      if (name.IsNullOrEmpty())
+        name = GenerateTemporaryName();
+      CachedName = name;
     }
     
     protected internal override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
-      var list = source.ToList();
-      DomainLevelTemporaryData.Current.Set(CachedResultName, list);
-      return list;
+      var list = Source.ToList();
+      // TODO: Fix this!
+      DomainLevelTemporaryData.Current.Set(Name, list);
+      foreach (var tuple in list)
+        yield return tuple;
     }
 
-    private static string GenerateResultName(string resultName)
+    #region Private \ internal methods
+
+    private static string GenerateTemporaryName()
     {
-      if (!string.IsNullOrEmpty(resultName))
-        return resultName;
-      var random = new Random();
-      return random.Next().ToString();
+      return Guid.NewGuid().ToString();
     }
+
+    #endregion
 
 
     // Constructor.
 
     public SaveProvider(Compilable.SaveProvider origin, ExecutableProvider source)
-      : base(origin,source)
+      : base(origin, source)
     {
-      saveProvider = origin;
-      this.source = source;
-      resultName = GenerateResultName(saveProvider.ResultName);
-      AddService<IProvideNamedResult>();
-
+      AddService<IHasNamedResult>();
     }
   }
 }

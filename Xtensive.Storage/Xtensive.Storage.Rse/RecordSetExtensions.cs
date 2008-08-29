@@ -152,9 +152,9 @@ namespace Xtensive.Storage.Rse
       return new SaveProvider(recordSet.Provider).Result;
     }
 
-    public static RecordSet Save(this RecordSet recordSet, string name)
+    public static RecordSet Save(this RecordSet recordSet, TemporaryDataScope scope, string name)
     {
-      return new SaveProvider(recordSet.Provider, name).Result;
+      return new SaveProvider(recordSet.Provider, scope, name).Result;
     }
   }
 }

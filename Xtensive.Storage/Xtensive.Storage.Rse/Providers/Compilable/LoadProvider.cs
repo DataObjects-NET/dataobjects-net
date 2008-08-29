@@ -5,12 +5,13 @@
 // Created:    2008.08.25
 
 using System;
+using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Storage.Rse.Providers.Compilable
 {
   /// <summary>
-  /// Compilable provider for executing saved context data.
+  /// Loads the data previously saved with <see cref="SaveProvider"/>.
   /// </summary>
   [Serializable]
   public class LoadProvider : CompilableProvider
@@ -18,9 +19,14 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     private readonly RecordSetHeader header;
 
     /// <summary>
-    /// Gets or sets the name of saved context data.
+    /// Gets the scope of saved data.
     /// </summary>
-    public string ResultName { get; private set; }
+    public TemporaryDataScope Scope { get; private set; }
+
+    /// <summary>
+    /// Gets the name of saved data.
+    /// </summary>
+    public string Name { get; private set; }
 
     /// <inheritdoc/>
     protected override RecordSetHeader BuildHeader()
@@ -29,17 +35,21 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     }
 
 
-    // Constructor.
+    // Constructors
 
-     /// <summary>
-     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-     /// </summary>
-     /// <param name="resultName">The <see cref="ResultName"/> property value.</param>
-     /// <param name="header">The <see cref="Provider.Header"/> property value.</param>
-    public LoadProvider(RecordSetHeader header, string resultName)
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="header">The <see cref="Provider.Header"/> property value.</param>
+    /// <param name="scope">The <see cref="Scope"/> property value.</param>
+    /// <param name="name">The <see cref="Name"/> property value.</param>
+    public LoadProvider(RecordSetHeader header, TemporaryDataScope scope, string name)
     {
+      ArgumentValidator.EnsureArgumentNotNull(header, "header");
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
       this.header = header;
-      ResultName = resultName;
+      Scope = scope;
+      Name = name;
     }
   }
 }

@@ -13,8 +13,6 @@ using Xtensive.Core.Collections;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Conversion;
 using Xtensive.Core.Diagnostics;
-using Xtensive.Core.Serialization;
-using Xtensive.Core.Serialization.Binary;
 using Xtensive.Core.Testing;
 using Xtensive.Indexing;
 using Xtensive.Indexing.Tests;

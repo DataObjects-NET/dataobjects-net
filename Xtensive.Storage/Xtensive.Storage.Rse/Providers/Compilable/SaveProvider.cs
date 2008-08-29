@@ -9,31 +9,39 @@ using Xtensive.Core.Internals.DocTemplates;
 namespace Xtensive.Storage.Rse.Providers.Compilable
 {
   /// <summary>
-  /// Compilable provider that wraps <see cref="UnaryProvider.Source"/> provider.
+  /// Saves its <see cref="UnaryProvider.Source"/> under specified
+  /// <see cref="Name"/>.
   /// </summary>
   public class SaveProvider : UnaryProvider
   {
     /// <summary>
-    /// Gets or sets the name of saved context data.
+    /// Gets the scope of saved data.
     /// </summary>
-    public string ResultName { get; private set; }
+    public TemporaryDataScope Scope { get; private set; }
+
+    /// <summary>
+    /// Gets the name of saved data.
+    /// </summary>
+    public string Name { get; private set; }
 
 
-    // Constructor.
+    // Constructors
 
     /// <summary>
     ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
-    /// <param name="resultName">The <see cref="ResultName"/> property value.</param>
-    public SaveProvider(CompilableProvider source, string resultName)
+    /// <param name="scope">The <see cref="Scope"/> property value.</param>
+    /// <param name="name">The <see cref="Name"/> property value.</param>
+    public SaveProvider(CompilableProvider source, TemporaryDataScope scope, string name)
       : base(source)
     {
-      ResultName = resultName;
+      Scope = scope;
+      Name = name;
     }
 
     /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
     public SaveProvider(CompilableProvider source)

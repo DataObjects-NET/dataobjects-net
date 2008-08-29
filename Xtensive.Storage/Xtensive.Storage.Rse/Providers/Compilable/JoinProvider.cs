@@ -16,7 +16,8 @@ using Xtensive.Storage.Rse.Resources;
 namespace Xtensive.Storage.Rse.Providers.Compilable
 {
   /// <summary>
-  /// Compilable provider for equality join operation between <see cref="BinaryProvider.Left"/> and <see cref="BinaryProvider.Right"/> sources.
+  /// Produces equality join between <see cref="BinaryProvider.Left"/> and 
+  /// <see cref="BinaryProvider.Right"/> sources.
   /// </summary>
   [Serializable]
   public sealed class JoinProvider : BinaryProvider
