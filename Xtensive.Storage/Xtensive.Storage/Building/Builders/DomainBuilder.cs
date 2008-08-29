@@ -12,6 +12,7 @@ using System.Reflection;
 using log4net.Config;
 using Xtensive.Core;
 using Xtensive.Core.Tuples;
+using Xtensive.Integrity.Transactions;
 using Xtensive.PluginManager;
 using Xtensive.Storage.Building.Builders;
 using Xtensive.Storage.Configuration;

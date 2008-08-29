@@ -25,9 +25,9 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// </summary>
     Transaction = 1,
     /// <summary>
-    /// <see cref="Domain"/>-level scope.
+    /// Global (<see cref="Global"/>-level) scope.
     /// Temporary data "lives" infinitely.
     /// </summary>
-    Domain = 2,
+    Global = 2,
   }
 }

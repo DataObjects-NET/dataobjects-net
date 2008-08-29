@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using Xtensive.Core;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Rse.Providers.Compilable;
 using Xtensive.Core.Helpers;
@@ -51,20 +52,18 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     {
       base.OnBeforeEnumerate(context);
       CachedName = Origin.Name;
-      CachedResult = (IEnumerable<Tuple>) DomainLevelTemporaryData.Current.Get(Name);
+      List<Tuple> list;
+      if (Scope==TemporaryDataScope.Global)
+        list = (List<Tuple>) GlobalTemporaryData.Current.Get(Name);
+      else
+        list = (List<Tuple>) TransactionTemporaryData.Current.Get(Name);
+      CachedResult = list ?? new List<Tuple>();
     }
 
     protected internal override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
       foreach (var tuple in CachedResult)
         yield return tuple;
-    }
-
-    protected internal override void OnAfterEnumerate(EnumerationContext context)
-    {
-      if (Origin.Scope==TemporaryDataScope.Enumeration)
-        DomainLevelTemporaryData.Current.Set(Name, null);
-      base.OnAfterEnumerate(context);
     }
 
 

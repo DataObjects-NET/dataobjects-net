@@ -138,4 +138,7 @@
   <data name="ValueWithNameXIsNotSet" xml:space="preserve">
     <value>Value with name {0} doesn't exist.</value>
   </data>
+  <data name="ExCanNotCompileNoEnumerationContext" xml:space="preserve">
+    <value>Compilation is possible only if active EnumerationContext exists.</value>
+  </data>
 </root>

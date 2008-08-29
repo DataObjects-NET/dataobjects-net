@@ -8,6 +8,7 @@ using System;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core.Testing;
+using Xtensive.Integrity.Transactions;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
 

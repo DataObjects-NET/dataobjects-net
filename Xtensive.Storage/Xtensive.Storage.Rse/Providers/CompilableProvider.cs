@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Rse.Compilation;
+using Xtensive.Storage.Rse.Resources;
 
 namespace Xtensive.Storage.Rse.Providers
 {
@@ -25,10 +26,10 @@ namespace Xtensive.Storage.Rse.Providers
     /// Gets the compiled provider for this provider.
     /// </summary>
     public Provider Compiled {
-      get
-      {
+      get {
         if (EnumerationContext.Current == null)
-          throw new InvalidOperationException();
+          throw new InvalidOperationException(
+            Strings.ExCanNotCompileNoEnumerationContext);
         var compiled = EnumerationContext.Current.GetValue<ExecutableProvider>(new Pair<object, string>(this,CompiledKey));
         if (compiled == null) 
           lock (this) 

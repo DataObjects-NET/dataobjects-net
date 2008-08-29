@@ -13,6 +13,7 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Threading;
 using Xtensive.Core.Tuples;
+using Xtensive.Integrity.Transactions;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;

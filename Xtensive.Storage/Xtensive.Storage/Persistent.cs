@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Core.Tuples;
 using Xtensive.Integrity.Atomicity;
+using Xtensive.Integrity.Transactions;
 using Xtensive.Integrity.Validation;
 using Xtensive.Integrity.Validation.Interfaces;
 using Xtensive.Storage.Attributes;

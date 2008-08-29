@@ -23,6 +23,7 @@ using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Rse;
+using Xtensive.Storage.Rse.Providers.Executable;
 
 namespace Xtensive.Storage
 {
@@ -78,7 +79,7 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets the domain-level temporary data.
     /// </summary>
-    public DomainLevelTemporaryData TemporaryData { get; private set; }
+    public GlobalTemporaryData TemporaryData { get; private set; }
 
     internal DomainHandler Handler {
       [DebuggerStepThrough]
@@ -147,7 +148,7 @@ namespace Xtensive.Storage
       Configuration = configuration;
       Handlers = new HandlerAccessor(this);
       Prototypes = new Dictionary<TypeInfo, Tuple>();
-      TemporaryData = new DomainLevelTemporaryData();
+      TemporaryData = new GlobalTemporaryData();
     }
 
     public void Dispose()

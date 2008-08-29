@@ -59,10 +59,19 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     protected internal override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
       var list = Source.ToList();
-      // TODO: Fix this!
-      DomainLevelTemporaryData.Current.Set(Name, list);
+      if (Scope==TemporaryDataScope.Global)
+        GlobalTemporaryData.Current.Set(Name, list.Count!=0 ? list : null);
+      else
+        TransactionTemporaryData.Current.Set(Name, list.Count!=0 ? list : null);
       foreach (var tuple in list)
         yield return tuple;
+    }
+
+    protected internal override void OnAfterEnumerate(EnumerationContext context)
+    {
+      if (Origin.Scope==TemporaryDataScope.Enumeration)
+        GlobalTemporaryData.Current.Set(Name, null);
+      base.OnAfterEnumerate(context);
     }
 
     #region Private \ internal methods
@@ -75,7 +84,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     #endregion
 
 
-    // Constructor.
+    // Constructors
 
     public SaveProvider(Compilable.SaveProvider origin, ExecutableProvider source)
       : base(origin, source)

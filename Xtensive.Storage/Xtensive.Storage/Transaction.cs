@@ -7,7 +7,7 @@
 using System;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Integrity.Transactions;
-using Xtensive.Storage.Rse;
+using Xtensive.Storage.Rse.Providers.Executable;
 
 namespace Xtensive.Storage
 {
@@ -16,6 +16,8 @@ namespace Xtensive.Storage
   /// </summary>
   public sealed class Transaction : TransactionBase
   {
+    private IDisposable toDispose;
+
     /// <summary>
     /// Gets the validation context of the transaction.
     /// </summary>    
@@ -29,7 +31,7 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets the transaction-level temporary data.
     /// </summary>
-    public TransactionLevelTemporaryData TemporaryData { get; private set; }
+    public TransactionTemporaryData TemporaryData { get; private set; }
 
 
     /// <inheritdoc/>
@@ -48,6 +50,7 @@ namespace Xtensive.Storage
     protected override void OnActivate()
     {
     }
+
 
     // Constructors
 
@@ -70,7 +73,7 @@ namespace Xtensive.Storage
     {
       Session = session;
       ValidationContext = new ValidationContext();
-      TemporaryData = new TransactionLevelTemporaryData();
+      TemporaryData = new TransactionTemporaryData();
     }
   }
 }

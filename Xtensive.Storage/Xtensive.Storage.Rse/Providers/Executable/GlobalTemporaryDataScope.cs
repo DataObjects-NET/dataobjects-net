@@ -2,16 +2,29 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Elena Vakhtina
-// Created:    2008.08.29
+// Created:    2008.08.26
 
 using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Storage.Rse.Providers.Executable;
 
 namespace Xtensive.Storage.Rse
 {
-  public class TransactionLevelTemporaryDataScope : TemporaryDataScopeBase
+  /// <summary>
+  /// <see cref="GlobalTemporaryData"/> activation scope.
+  /// </summary>
+  public class GlobalTemporaryDataScope : Scope<GlobalTemporaryData>
   {
+    /// <summary>
+    /// Gets the current context.
+    /// </summary>
+    public new static GlobalTemporaryData CurrentContext
+    {
+      [DebuggerStepThrough]
+      get { return Scope<GlobalTemporaryData>.CurrentContext; }
+    }
+
 
     // Constructors
 
@@ -20,7 +33,7 @@ namespace Xtensive.Storage.Rse
     /// </summary>
     /// <param name="context">The <see cref="Scope{TContext}.Context"/> property value.</param>
     [DebuggerStepThrough]
-    public TransactionLevelTemporaryDataScope(TemporaryDataBase context)
+    public GlobalTemporaryDataScope(GlobalTemporaryData context)
       : base(context)
     {
     }
