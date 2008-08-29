@@ -221,6 +221,11 @@ namespace Xtensive.Sql.Dom.Dml
       return Sql.SubQuery(select);
     }
 
+    public static implicit operator SqlExpression(SqlParameter parameter)
+    {
+      return Sql.ParameterRef(parameter);
+    }
+
     public abstract void ReplaceWith(SqlExpression expression);
 
     // Constructor
