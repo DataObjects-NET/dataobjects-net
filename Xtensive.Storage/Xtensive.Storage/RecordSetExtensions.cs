@@ -51,7 +51,8 @@ namespace Xtensive.Storage
 
     public static void Parse(this RecordSet source)
     {
-      Domain domain = Session.Current.Domain;
+      Session session = Session.Current;
+      Domain domain = session.Domain;
       DomainModel model = domain.Model;
       foreach (Tuple tuple in source) {
         foreach (RecordColumnGroupMapping mapping in source.Header.ColumnGroupMappings) {
@@ -77,7 +78,7 @@ namespace Xtensive.Storage
           MapTransform transform = new MapTransform(true, type.TupleDescriptor, map.ToArray());
           Tuple result = transform.Apply(TupleTransformType.TransformedTuple, tuple);
           Key key = domain.KeyManager.Get(type, result);
-          Session.Current.DataCache.Update(key, result);
+          session.DataCache.Update(key, result);
         }
       }
     }

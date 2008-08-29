@@ -26,7 +26,7 @@ namespace Xtensive.Storage.Aspects
     {
       if (!AspectHelper.ValidateContextBoundMethod<Session>(this, method))
         return false;
-      return false;
+
       // Let's ignore the methods & properties with [Infrastructure] attribute
       var methodInfo = (MethodInfo) method;
       if (methodInfo.GetAttribute<InfrastructureAttribute>(

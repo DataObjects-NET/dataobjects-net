@@ -41,7 +41,7 @@ namespace Xtensive.Storage.Building.Builders
 
     private static bool IsDeclaredAsPersistent(PropertyInfo propertyInfo)
     {            
-      if (propertyInfo.GetAttribute<FieldAttribute>(AttributeSearchOptions.Default)==null)
+      if (propertyInfo.GetAttribute<FieldAttribute>(AttributeSearchOptions.InheritAll)==null)
         return false;
 
       if (propertyInfo.DeclaringType!=propertyInfo.ReflectedType)
@@ -73,7 +73,7 @@ namespace Xtensive.Storage.Building.Builders
       fieldDef.Name = context.NameBuilder.Build(fieldDef);
 
       AttributeProcessor.Process(fieldDef, 
-        propertyInfo.GetAttribute<FieldAttribute>(AttributeSearchOptions.Default));
+        propertyInfo.GetAttribute<FieldAttribute>(AttributeSearchOptions.InheritAll));
 
       return fieldDef;
     }
