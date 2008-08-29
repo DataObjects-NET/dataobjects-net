@@ -47,7 +47,6 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaModel
   // TODO: Alex Kochetov: Log error if duplicate index is specified.
   public class B : A, IHasName, IHasName2
   {
-    [Field]
     public string Name { get; set; }
 
     [Field]
@@ -66,7 +65,6 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaModel
   [Index("Tag")]
   public class D : C, ICreature
   {
-    [Field]
     public string Name { get; set; }
 
     [Field]
@@ -86,14 +84,12 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaModel
   [Entity]
   public class F : A, ICreature, IHasName2
   {
-    [Field]
     string IHasName.Name
     {
       get { return Name; }
       set { Name = value; }
     }
 
-    [Field]
     public string Name { get; set; }
   }
 

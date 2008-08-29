@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Core;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
@@ -32,7 +33,8 @@ namespace Xtensive.Storage
     IEquatable<Structure>,
     IFieldHandler
   {
-    private static readonly Dictionary<Type, Func<Persistent, FieldInfo, Structure>> activators = new Dictionary<Type, Func<Persistent, FieldInfo, Structure>>();
+    private static readonly ThreadSafeDictionary<Type, Func<Persistent, FieldInfo, Structure>> activators = 
+      ThreadSafeDictionary<Type, Func<Persistent, FieldInfo, Structure>>.Create(new object());
 
     private readonly Persistent owner;
     private readonly FieldInfo field;
@@ -130,12 +132,9 @@ namespace Xtensive.Storage
 
     internal static Structure Activate(Type type, Persistent owner, FieldInfo field)
     {
-      if (!activators.ContainsKey(type)) {
-        var constructorInvocationDelegate = DelegateHelper.CreateConstructorDelegate<Func<Persistent, FieldInfo, Structure>>(type);
-        activators.Add(type, constructorInvocationDelegate);
-        return constructorInvocationDelegate(owner, field);
-      }
-      return activators[type](owner, field);
+      return activators.GetValue(type, 
+        DelegateHelper.CreateConstructorDelegate<Func<Persistent, FieldInfo, Structure>>)
+        .Invoke(owner, field);
     }
 
 

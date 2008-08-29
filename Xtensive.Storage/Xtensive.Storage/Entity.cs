@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Core;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
@@ -29,7 +30,8 @@ namespace Xtensive.Storage
     : Persistent,
       IEntity
   {
-    private static readonly Dictionary<Type, Func<EntityData, Entity>> activators = new Dictionary<Type, Func<EntityData, Entity>>();
+    private static readonly ThreadSafeDictionary<Type, Func<EntityData, Entity>> activators = 
+      ThreadSafeDictionary<Type, Func<EntityData, Entity>>.Create(new object());
     private readonly EntityData data;
 
     #region Internal properties
@@ -183,12 +185,9 @@ namespace Xtensive.Storage
 
     internal static Entity Activate(Type type, EntityData data)
     {
-      if (!activators.ContainsKey(type)) {
-        var constructorInvocationDelegate = DelegateHelper.CreateConstructorDelegate<Func<EntityData, Entity>>(type);
-        activators.Add(type, constructorInvocationDelegate);
-        return constructorInvocationDelegate(data);
-      }
-      return activators[type](data);
+      return activators.GetValue(type, 
+        DelegateHelper.CreateConstructorDelegate<Func<EntityData, Entity>>)
+        .Invoke(data);
     }
 
     [Infrastructure]

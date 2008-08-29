@@ -107,13 +107,13 @@ namespace Xtensive.Core.Aspects.Helpers
       if (ci!=null)
         return FormatConstructor(type, ci.DeclaringType, ci.GetParameterTypes());
       if (mi!=null)
-        return FormatMethod(type, mi.ReturnType, mi.Name, mi.GetParameterTypes());
+        return FormatMethod(type, mi.ReturnType, member.GetShortName(false), mi.GetParameterTypes());
       if (fi!=null)
         return FormatMember(type, fi.FieldType, member.Name);
       if (pi!=null)
-        return FormatMember(type, pi.PropertyType, member.Name);
+        return FormatMember(type, pi.PropertyType, member.GetShortName(false));
       if (ei!=null)
-        return FormatMember(type, ei.EventHandlerType, member.Name);
+        return FormatMember(type, ei.EventHandlerType, member.GetShortName(false));
       return FormatMember(type, typeof(void), member.Name);
     }
 

@@ -6,7 +6,6 @@
 
 using System;
 using NUnit.Framework;
-using Xtensive.Core;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Building.Definitions;
@@ -27,7 +26,6 @@ namespace Xtensive.Storage.Tests.Model.Hierarchies
 
   public class A : Entity, IA
   {
-    [Field]
     string I0.AName { get; set; }
 
     [Field]
