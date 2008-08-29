@@ -82,7 +82,8 @@ namespace Xtensive.Core
     /// <see cref="ClassDocTemplate.Ctor" copy="true" />
     /// </summary>
     /// <param name="resource">The resource.</param>
-    protected ResourceConsumptionScope(TResource resource) : this()
+    protected ResourceConsumptionScope(TResource resource) 
+      : this()
     {
       ArgumentValidator.EnsureArgumentNotNull(resource, "resource");
       this.resource = resource;
