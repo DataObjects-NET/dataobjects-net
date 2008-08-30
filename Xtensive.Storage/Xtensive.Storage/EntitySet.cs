@@ -26,55 +26,19 @@ namespace Xtensive.Storage
     public FieldInfo Field { get; internal set; }
 
     /// <inheritdoc/>
-    void ICollection<T>.Add(T item)
+    public long Count
     {
-      Add(item);
+      get { throw new NotImplementedException(); }
     }
 
     /// <inheritdoc/>
-    public void Clear()
+    public T this[T item]
     {
-      throw new NotImplementedException();
+      get { throw new NotImplementedException(); }
     }
 
     /// <inheritdoc/>
     public bool Contains(T item)
-    {
-      throw new NotImplementedException();
-    }
-
-    /// <inheritdoc/>
-    public void CopyTo(T[] array, int arrayIndex)
-    {
-      throw new NotImplementedException();
-    }
-
-    /// <inheritdoc/>
-    public bool Remove(T item)
-    {
-      throw new NotImplementedException();
-    }
-
-    /// <inheritdoc/>
-    int ICollection<T>.Count
-    {
-      get { throw new NotImplementedException(); }
-    }
-
-    /// <inheritdoc/>
-    long ICountable.Count
-    {
-      get { throw new NotImplementedException(); }
-    }
-
-    /// <inheritdoc/>
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-      return ((IEnumerable<T>) this).GetEnumerator();
-    }
-
-    /// <inheritdoc/>
-    public IEnumerator<T> GetEnumerator()
     {
       throw new NotImplementedException();
     }
@@ -92,25 +56,63 @@ namespace Xtensive.Storage
     }
 
     /// <inheritdoc/>
-    public T this[T item]
+    public bool Remove(T item)
     {
-      get { throw new NotImplementedException(); }
+      throw new NotImplementedException();
     }
 
     /// <inheritdoc/>
-    public int Count
+    public void Clear()
+    {
+      throw new NotImplementedException();
+    }
+
+    /// <inheritdoc/>
+    public void CopyTo(T[] array, int arrayIndex)
+    {
+      throw new NotImplementedException();
+    }
+
+    #region ICollection<T> methods
+
+    /// <inheritdoc/>
+    int ICollection<T>.Count
+    {
+      get { return checked ((int) Count); }
+    }
+
+    /// <inheritdoc/>
+    void ICollection<T>.Add(T item)
+    {
+      Add(item);
+    }
+
+    #endregion
+
+    #region IEnumerable<...> methods
+
+    /// <inheritdoc/>
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+      return GetEnumerator();
+    }
+
+    /// <inheritdoc/>
+    public IEnumerator<T> GetEnumerator()
+    {
+      throw new NotImplementedException();
+    }
+
+    #endregion
+
+    /// <inheritdoc/>
+    public IEqualityComparer<T> Comparer
     {
       get { throw new NotImplementedException(); }
     }
 
     /// <inheritdoc/>
     public bool IsReadOnly
-    {
-      get { throw new NotImplementedException(); }
-    }
-
-    /// <inheritdoc/>
-    public IEqualityComparer<T> Comparer
     {
       get { throw new NotImplementedException(); }
     }
