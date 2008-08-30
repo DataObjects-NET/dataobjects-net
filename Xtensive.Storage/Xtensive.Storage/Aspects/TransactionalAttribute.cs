@@ -51,7 +51,7 @@ namespace Xtensive.Storage.Aspects
       if (session==null)
         throw new InvalidOperationException(Strings.SessionIsNotActivated);
       
-      TransactionScope scope = session.BeginTransaction();
+      TransactionScope scope = session.OpenTransaction();
       eventArgs.MethodExecutionTag = scope;
     }
 

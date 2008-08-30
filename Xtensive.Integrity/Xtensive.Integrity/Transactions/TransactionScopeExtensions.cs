@@ -20,7 +20,7 @@ namespace Xtensive.Integrity.Transactions
     public static void Complete(this TransactionScope scope)
     {
       if (scope!=null)
-        scope.Complete();      
+        scope.IsCompleted = true;
     }
   }
 }

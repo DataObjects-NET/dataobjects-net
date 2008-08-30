@@ -44,7 +44,7 @@ namespace Xtensive.Storage.Tests.Storage.TranscationsTest
     {
       using (Domain.OpenSession()) {
         Hexagon hexagon;
-        using (Session.Current.BeginTransaction()) {
+        using (Session.Current.OpenTransaction()) {
           hexagon = new Hexagon();
         }
         Assert.AreEqual(PersistenceState.Inconsistent, hexagon.PersistenceState);
@@ -57,13 +57,13 @@ namespace Xtensive.Storage.Tests.Storage.TranscationsTest
     {
       using (Domain.OpenSession()) {
         Hexagon hexagon;
-        using (var t = Session.Current.BeginTransaction()) {
+        using (var t = Session.Current.OpenTransaction()) {
           hexagon = new Hexagon();
           hexagon.Kwanza = 36;
           t.Complete();
         }
         
-        using (Session.Current.BeginTransaction()) {
+        using (Session.Current.OpenTransaction()) {
           hexagon.Remove();
           AssertEx.ThrowsInvalidOperationException( delegate { hexagon.Kwanza = 20; });
         }
@@ -79,14 +79,14 @@ namespace Xtensive.Storage.Tests.Storage.TranscationsTest
       using (Domain.OpenSession()) {
         Hexagon hexagon;
 
-        using (var t = Session.Current.BeginTransaction()) {
+        using (var t = Session.Current.OpenTransaction()) {
           hexagon = new Hexagon();
           hexagon.Kwanza = 3;
           t.Complete();
         }
         Assert.AreEqual(3, hexagon.Kwanza);
 
-        using (Session.Current.BeginTransaction()) {
+        using (Session.Current.OpenTransaction()) {
           hexagon.Kwanza = 11;
         }
         Assert.AreEqual(3, hexagon.Kwanza);

@@ -37,7 +37,7 @@ namespace Xtensive.Storage.Internals
 
         FieldInfo field = key.Hierarchy.Root.Fields[NameBuilder.TypeIdFieldName];
 
-        using (var transactionScope = session.BeginTransaction()) {
+        using (var transactionScope = session.OpenTransaction()) {
           Fetcher.Fetch(key, field);
           transactionScope.Complete();
         }

@@ -6,6 +6,7 @@
 
 using System;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Integrity.Resources;
 
 namespace Xtensive.Integrity.Transactions
 {
@@ -14,20 +15,25 @@ namespace Xtensive.Integrity.Transactions
   /// </summary>
   public class TransactionScope : IDisposable
   {
+    private bool isCompleted;
+
     /// <summary>
     /// Gets a value indicating whether this scope is successfully completed.
     /// </summary>
-    public bool IsCompleted { get; private set; }
+    public bool IsCompleted { 
+      get { return isCompleted; }
+      set
+      {
+        if (value==false)
+          throw new InvalidOperationException(Strings.ExTransactionScopeIsCompletedCanNotBeSetToFalse);
+        isCompleted = value;
+      }
+    }
 
     /// <summary>
     /// Gets the transaction this scope controls.
     /// </summary>
     public TransactionBase Transaction { get; private set; }
-
-    internal void Complete()
-    {
-      IsCompleted = true;
-    }
 
 
     // Constructors

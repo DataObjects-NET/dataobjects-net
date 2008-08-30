@@ -83,7 +83,7 @@ namespace Xtensive.Storage
     [Infrastructure]
     protected T GetValue<T>(string name)
     {
-      using (var transactionScope = Session.BeginTransaction()) {
+      using (var transactionScope = Session.OpenTransaction()) {
         FieldInfo field = Type.Fields[name];
         OnGettingValue(field);
         T result = field.GetAccessor<T>().GetValue(this, field);
@@ -114,7 +114,7 @@ namespace Xtensive.Storage
     [Infrastructure]
     private void InternalSetValue<T>(string name, T value)
     {
-      using (var transactionScope = Session.BeginTransaction()) {
+      using (var transactionScope = Session.OpenTransaction()) {
         FieldInfo field = Type.Fields[name];
         OnSettingValue(field);
         field.GetAccessor<T>().SetValue(this, field, value);

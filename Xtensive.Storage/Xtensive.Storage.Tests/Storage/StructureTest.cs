@@ -120,7 +120,7 @@ namespace Xtensive.Storage.Tests.Storage
           Ray ray1 = new Ray(p1);
           Assert.AreEqual(1, ray1.Vertex.X);
           Assert.AreEqual(2, ray1.Vertex.Y);
-          using (var t = Session.Current.BeginTransaction()) {
+          using (var t = Session.Current.OpenTransaction()) {
             ray1.Vertex.X = 10;
             Assert.AreEqual(10, ray1.Vertex.X);
             t.Complete();

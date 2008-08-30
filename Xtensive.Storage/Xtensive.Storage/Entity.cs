@@ -119,7 +119,7 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     public void Remove()
     {
-      using (var transactionScope = Session.BeginTransaction()) {
+      using (var transactionScope = Session.OpenTransaction()) {
         if (Log.IsLogged(LogEventTypes.Debug))
           Log.Debug("Session '{0}'. Removing: Key = '{1}'", Session, Key);
 
@@ -228,7 +228,7 @@ namespace Xtensive.Storage
     /// </summary>
     protected Entity()
     {
-      using (var transactionScope = Session.BeginTransaction()) {
+      using (var transactionScope = Session.OpenTransaction()) {
         TypeInfo type = Session.Domain.Model.Types[GetType()];
         Key key = Session.Domain.KeyManager.Next(type);
 
@@ -248,7 +248,7 @@ namespace Xtensive.Storage
     /// <remarks>Use this kind of constructor when you need to explicitly build key for this instance.</remarks>
     protected Entity(Tuple tuple)
     {
-      using (var transactionScope = Session.BeginTransaction()) {
+      using (var transactionScope = Session.OpenTransaction()) {
         TypeInfo type = Session.Domain.Model.Types[GetType()];
         Key key = Session.Domain.KeyManager.Get(type, tuple);
 

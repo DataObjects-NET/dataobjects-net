@@ -55,7 +55,7 @@ namespace Xtensive.Integrity.Transactions
     {
       if (State!=TransactionState.NotActivated)
         throw new InvalidOperationException(Strings.ExTransactionIsAlreadyActivated);
-      OnActivate();
+      OnBegin();
       State = TransactionState.Active;
       scope = CreateScope();
       return scope;
@@ -114,9 +114,9 @@ namespace Xtensive.Integrity.Transactions
     #endregion
 
     /// <summary>
-    /// Called when transaction is being activated.
+    /// Called when transaction is beginning.
     /// </summary>
-    protected abstract void OnActivate();
+    protected abstract void OnBegin();
 
     /// <summary>
     /// Called when transaction is about to commit.

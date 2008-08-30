@@ -51,18 +51,22 @@ namespace Xtensive.Storage
     public Transaction Transaction { get; private set; }
 
     /// <summary>
-    /// Opens new transaction, if there is no active one.
+    /// Begins new transaction, if there is no active one.
     /// </summary>
     /// <returns>Scope of the active transaction.</returns>
-    public TransactionScope BeginTransaction()
+    public TransactionScope OpenTransaction()
     {
       if (Transaction==null) {
-        Transaction = new Transaction(this);
-        Handler.BeginTransaction();
+        Transaction = new Transaction(this);        
         return (TransactionScope) Transaction.Begin();
       }
 
       return null;
+    }
+
+    internal void OnTransctionBegin()
+    {
+      Handler.BeginTransaction();
     }
 
     internal void OnTransactionCommit()

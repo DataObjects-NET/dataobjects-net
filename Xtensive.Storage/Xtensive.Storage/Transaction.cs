@@ -31,7 +31,6 @@ namespace Xtensive.Storage
     /// </summary>
     public TransactionTemporaryData TemporaryData { get; private set; }
 
-
     /// <inheritdoc/>
     protected override void OnCommit()
     {
@@ -44,16 +43,16 @@ namespace Xtensive.Storage
       Session.OnTransactionRollback();
     }
 
+    /// <inheritdoc/>
+    protected override void OnBegin()
+    {
+      Session.OnTransctionBegin();
+    }
+
     protected override Integrity.Transactions.TransactionScope CreateScope()
     {
       return new TransactionScope(this);
-    }
-
-    /// <inheritdoc/>
-    protected override void OnActivate()
-    {
-    }
-    
+    }    
 
 
     // Constructors

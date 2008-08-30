@@ -189,4 +189,7 @@
   <data name="ExTransactionIsAlreadyActivated" xml:space="preserve">
     <value>Transaction is already activated.</value>
   </data>
+  <data name="ExTransactionScopeIsCompletedCanNotBeSetToFalse" xml:space="preserve">
+    <value>TransactionScope.IsCompleted can not be set to 'false'.</value>
+  </data>
 </root>

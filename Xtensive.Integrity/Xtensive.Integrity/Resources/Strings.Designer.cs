@@ -187,6 +187,15 @@ namespace Xtensive.Integrity.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to TransactionScope.IsCompleted can not be set to &apos;false&apos;..
+        /// </summary>
+        internal static string ExTransactionScopeIsCompletedCanNotBeSetToFalse {
+            get {
+                return ResourceManager.GetString("ExTransactionScopeIsCompletedCanNotBeSetToFalse", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Version conflict..
         /// </summary>
         internal static string ExVersionConflict {

@@ -55,7 +55,7 @@ namespace Xtensive.Storage.Tests.Storage
 
       // Creating a book
       using (Domain.OpenSession()) {
-        using (var t = Session.Current.BeginTransaction()) {
+        using (var t = Session.Current.OpenTransaction()) {
           Book b = new Book();
           key = b.Key;
           b.Title = TITLE;
@@ -76,7 +76,7 @@ namespace Xtensive.Storage.Tests.Storage
     public void RegularFieldTest()
     {
       using (Domain.OpenSession()) {
-        using (var t = Session.Current.BeginTransaction()) {
+        using (var t = Session.Current.OpenTransaction()) {
           Book b = key.Resolve<Book>();
           Tuple tuple = b.Tuple;
 
