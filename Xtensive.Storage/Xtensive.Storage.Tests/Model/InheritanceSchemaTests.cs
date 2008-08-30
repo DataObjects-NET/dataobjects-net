@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaModel
 
   [Entity]
   [Index("Tag")]
-  [Index("Name")]
+//  [Index("Name")]
   // TODO: Alex Kochetov: Log error if duplicate index is specified.
   public class B : A, IHasName, IHasName2
   {

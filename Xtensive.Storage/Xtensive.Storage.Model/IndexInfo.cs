@@ -12,6 +12,7 @@ using Xtensive.Core.Collections;
 using System.Linq;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Storage.Configuration;
 
 namespace Xtensive.Storage.Model
 {
@@ -252,8 +253,12 @@ namespace Xtensive.Storage.Model
       this.declaringType = declaringType;
       reflectedType = declaringType;
       declaringIndex = this;
-      if (declaringType.IsInterface && (reflectedType.Attributes & TypeAttributes.Materialized) == 0)
-        attributes |= IndexAttributes.Virtual | IndexAttributes.Union;
+      if (declaringType.IsInterface && (reflectedType.Attributes & TypeAttributes.Materialized) == 0) {
+        if ((indexAttributes & IndexAttributes.Primary)==0 || declaringType.Hierarchy.Schema != InheritanceSchema.SingleTable)
+          attributes |= IndexAttributes.Virtual | IndexAttributes.Union;
+        else
+          attributes |= IndexAttributes.Virtual | IndexAttributes.Filtered;
+      }
       else
         attributes |= IndexAttributes.Real;
       attributes |= indexAttributes;
