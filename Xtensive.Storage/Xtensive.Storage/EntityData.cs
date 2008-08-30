@@ -46,13 +46,12 @@ namespace Xtensive.Storage
     public Entity Entity { get; internal set; }
 
     /// <summary>
-    /// Resets this entity data (except key).
+    /// Resets this entity data.
     /// </summary>
     public void Reset()
     {
-      Tuple origin = Core.Tuples.Tuple.Create(Type.TupleDescriptor);
-      Key.Tuple.CopyTo(origin);
-      Tuple = new DifferentialTuple(origin);      
+      Tuple.Merge();
+      Tuple.Reset();
     }
 
     /// <inheritdoc/>

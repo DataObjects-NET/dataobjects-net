@@ -134,7 +134,7 @@ namespace Xtensive.Storage.Providers.Sql
     protected override void Insert(EntityData data)
     {
       SqlRequestBuilderTask task = new SqlRequestBuilderTask(SqlRequestKind.Insert, data.Type);
-      SqlModificationRequest request = domainHandler.SqlRequestCache.GetValue(task, _task => DomainHandler.SqlRequestBuilder.BuildInsertRequest(_task));
+      SqlModificationRequest request = domainHandler.SqlRequestCache.GetValue(task, _task => DomainHandler.SqlRequestBuilder.BuildRequest(_task));
       request.BindTo(data.Tuple);
       int rowsAffected = ExecuteNonQuery(request);
       if (rowsAffected!=request.ExpectedResult)
@@ -145,7 +145,7 @@ namespace Xtensive.Storage.Providers.Sql
     protected override void Update(EntityData data)
     {
       SqlRequestBuilderTask task = new SqlRequestBuilderTask(SqlRequestKind.Update, data.Type, data.Tuple.Difference.GetFieldStateMap(TupleFieldState.IsAvailable));
-      SqlModificationRequest request = domainHandler.SqlRequestCache.GetValue(task, _task => DomainHandler.SqlRequestBuilder.BuildUpdateRequest(_task));
+      SqlModificationRequest request = domainHandler.SqlRequestCache.GetValue(task, _task => DomainHandler.SqlRequestBuilder.BuildRequest(_task));
       request.BindTo(data.Tuple);
       int rowsAffected = ExecuteNonQuery(request);
       if (rowsAffected!=request.ExpectedResult)
@@ -156,7 +156,7 @@ namespace Xtensive.Storage.Providers.Sql
     protected override void Remove(EntityData data)
     {
       SqlRequestBuilderTask task = new SqlRequestBuilderTask(SqlRequestKind.Remove, data.Type);
-      SqlModificationRequest request = domainHandler.SqlRequestCache.GetValue(task, _task => DomainHandler.SqlRequestBuilder.BuildRemoveRequest(_task));
+      SqlModificationRequest request = domainHandler.SqlRequestCache.GetValue(task, _task => DomainHandler.SqlRequestBuilder.BuildRequest(_task));
       request.BindTo(data.Tuple);
       int rowsAffected = ExecuteNonQuery(request);
       if (rowsAffected!=request.ExpectedResult)

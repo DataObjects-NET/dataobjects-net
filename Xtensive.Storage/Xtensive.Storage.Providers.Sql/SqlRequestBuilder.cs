@@ -17,88 +17,100 @@ namespace Xtensive.Storage.Providers.Sql
   {
     public DomainHandler DomainHandler;
 
-    public SqlModificationRequest BuildInsertRequest(SqlRequestBuilderTask task)
+    public SqlModificationRequest BuildRequest(SqlRequestBuilderTask task)
     {
-      var context = new SqlRequestBuilderContext(task, SqlFactory.Batch());
-      foreach (IndexInfo index in context.AffectedIndexes) {
+      SqlRequestBuilderResult result = null;
+      switch (task.Kind) {
+      case SqlRequestKind.Insert:
+        result = BuildInsertRequest(task);
+        break;
+      case SqlRequestKind.Remove:
+        result = BuildRemoveRequest(task);
+        break;
+      case SqlRequestKind.Update:
+        result = BuildUpdateRequest(task);
+        break;
+      }
+      SqlModificationRequest request = new SqlModificationRequest(result.Batch);
+      foreach (var binding in result.ParameterBindings)
+        request.ParameterBindings[binding.Key] = binding.Value;
+      request.ExpectedResult = result.Batch.Count;
+      DomainHandler.Compile(request);
+      return request;
+    }
+
+    private SqlRequestBuilderResult BuildInsertRequest(SqlRequestBuilderTask task)
+    {
+      var result = new SqlRequestBuilderResult(task, SqlFactory.Batch());
+      foreach (IndexInfo index in result.AffectedIndexes) {
         SqlTableRef table = SqlFactory.TableRef(DomainHandler.GetTable(index));
         SqlInsert query = SqlFactory.Insert(table);
         int i = 0;
         foreach (ColumnInfo column in index.Columns) {
-          int offset = context.GetOffsetFor(column);
-          SqlParameter p = context.GetParameterFor(column);
+          int offset = result.GetOffsetFor(column);
+          SqlParameter p = result.GetParameterFor(column);
           query.Values[table[i++]] = p;
-          context.ParameterBindings[p] = CreateTupleFieldAccessor(offset);
+          result.ParameterBindings[p] = CreateTupleFieldAccessor(offset);
         }
-        context.Batch.Add(query);
+        result.Batch.Add(query);
       }
-      return BuildRequestFrom(context);
+      return result;
     }
 
-    public SqlModificationRequest BuildUpdateRequest(SqlRequestBuilderTask task)
+    private SqlRequestBuilderResult BuildUpdateRequest(SqlRequestBuilderTask task)
     {
-      var context = new SqlRequestBuilderContext(task, SqlFactory.Batch());
-      foreach (IndexInfo index in context.AffectedIndexes) {
+      var result = new SqlRequestBuilderResult(task, SqlFactory.Batch());
+      foreach (IndexInfo index in result.AffectedIndexes) {
         SqlTableRef table = SqlFactory.TableRef(DomainHandler.GetTable(index));
         SqlUpdate query = SqlFactory.Update(table);
         int i = 0;
         foreach (ColumnInfo column in index.Columns) {
-          int offset = context.GetOffsetFor(column);
+          int offset = result.GetOffsetFor(column);
           if (!task.FieldMap[offset]) {
             i++;
             continue;
           }
-          SqlParameter p = context.GetParameterFor(column);
+          SqlParameter p = result.GetParameterFor(column);
           query.Values[table[i++]] = p;
-          context.ParameterBindings[p] = CreateTupleFieldAccessor(offset);
+          result.ParameterBindings[p] = CreateTupleFieldAccessor(offset);
         }
         // There is nothing to update in this table, skipping it
         if (query.Values.Count == 0)
           continue;
-        query.Where &= BuildWhereExpression(context, table);
-        context.Batch.Add(query);
-      }
-      return BuildRequestFrom(context);
-    }
-
-    public SqlModificationRequest BuildRemoveRequest(SqlRequestBuilderTask task)
-    {
-      var context = new SqlRequestBuilderContext(task, SqlFactory.Batch());
-      foreach (IndexInfo index in context.AffectedIndexes) {
-        SqlTableRef table = SqlFactory.TableRef(DomainHandler.GetTable(index));
-        SqlDelete query = SqlFactory.Delete(table);
-        query.Where &= BuildWhereExpression(context, table);
-        context.Batch.Add(query);
-      }
-      return BuildRequestFrom(context);
-    }
-
-    private static SqlExpression BuildWhereExpression(SqlRequestBuilderContext context, SqlTableRef table)
-    {
-      SqlExpression result = null;
-      int i = 0;
-      foreach (ColumnInfo column in context.PrimaryIndex.KeyColumns.Keys) {
-        int offset = context.GetOffsetFor(column);
-        SqlParameter p = context.GetParameterFor(column);
-        result &= table[i++]==p;
-        context.ParameterBindings[p] = CreateTupleFieldAccessor(offset);
+        query.Where &= BuildWhereExpression(result, table);
+        result.Batch.Add(query);
       }
       return result;
+    }
+
+    private SqlRequestBuilderResult BuildRemoveRequest(SqlRequestBuilderTask task)
+    {
+      var result = new SqlRequestBuilderResult(task, SqlFactory.Batch());
+      foreach (IndexInfo index in result.AffectedIndexes) {
+        SqlTableRef table = SqlFactory.TableRef(DomainHandler.GetTable(index));
+        SqlDelete query = SqlFactory.Delete(table);
+        query.Where &= BuildWhereExpression(result, table);
+        result.Batch.Add(query);
+      }
+      return result;
+    }
+
+    private static SqlExpression BuildWhereExpression(SqlRequestBuilderResult result, SqlTableRef table)
+    {
+      SqlExpression expression = null;
+      int i = 0;
+      foreach (ColumnInfo column in result.PrimaryIndex.KeyColumns.Keys) {
+        int offset = result.GetOffsetFor(column);
+        SqlParameter p = result.GetParameterFor(column);
+        expression &= table[i++]==p;
+        result.ParameterBindings[p] = CreateTupleFieldAccessor(offset);
+      }
+      return expression;
     }
 
     private static Func<Tuple, object> CreateTupleFieldAccessor(int fieldIndex)
     {
       return (target => target.IsNull(fieldIndex) ? DBNull.Value : target.GetValue(fieldIndex));
-    }
-
-    private SqlModificationRequest BuildRequestFrom(SqlRequestBuilderContext context)
-    {
-      SqlModificationRequest request = new SqlModificationRequest(context.Batch);
-      foreach (var binding in context.ParameterBindings)
-        request.ParameterBindings[binding.Key] = binding.Value;
-      request.ExpectedResult = context.Batch.Count;
-      DomainHandler.Compile(request);
-      return request;
     }
 
 

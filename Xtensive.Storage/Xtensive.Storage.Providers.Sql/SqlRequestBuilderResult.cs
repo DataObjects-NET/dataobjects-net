@@ -14,7 +14,7 @@ using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Providers.Sql
 {
-  internal class SqlRequestBuilderContext
+  public class SqlRequestBuilderResult
   {
     public SqlBatch Batch { get; private set; }
 
@@ -45,7 +45,7 @@ namespace Xtensive.Storage.Providers.Sql
       return Task.Type.Fields[column.Field.Name].MappingInfo.Offset;
     }
 
-    public SqlRequestBuilderContext(SqlRequestBuilderTask task, SqlBatch batch)
+    public SqlRequestBuilderResult(SqlRequestBuilderTask task, SqlBatch batch)
     {
       Task = task;
       Batch = batch;
