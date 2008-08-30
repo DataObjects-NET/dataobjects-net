@@ -16,8 +16,6 @@ namespace Xtensive.Storage
   /// </summary>
   public sealed class Transaction : TransactionBase
   {
-    private IDisposable toDispose;
-
     /// <summary>
     /// Gets the validation context of the transaction.
     /// </summary>    
