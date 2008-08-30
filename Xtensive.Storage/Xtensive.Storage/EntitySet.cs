@@ -43,6 +43,8 @@ namespace Xtensive.Storage
       throw new NotImplementedException();
     }
 
+    #region Modification methods: Add, Remove, RemoveWhere, Clear, CopyTo
+
     /// <inheritdoc/>
     public bool Add(T item)
     {
@@ -50,13 +52,13 @@ namespace Xtensive.Storage
     }
 
     /// <inheritdoc/>
-    public int RemoveWhere(Predicate<T> match)
+    public bool Remove(T item)
     {
       throw new NotImplementedException();
     }
 
     /// <inheritdoc/>
-    public bool Remove(T item)
+    public int RemoveWhere(Predicate<T> match)
     {
       throw new NotImplementedException();
     }
@@ -72,6 +74,17 @@ namespace Xtensive.Storage
     {
       throw new NotImplementedException();
     }
+
+    #endregion
+
+    #region ISet<T> methods
+
+    int ISet<T>.Count
+    {
+      get { return checked ((int) Count); }
+    }
+
+    #endregion
 
     #region ICollection<T> methods
 
