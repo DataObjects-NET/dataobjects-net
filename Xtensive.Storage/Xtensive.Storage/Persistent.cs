@@ -8,6 +8,8 @@ using System;
 using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Core.Tuples;
+using Xtensive.Integrity;
+using Xtensive.Integrity.Aspects;
 using Xtensive.Integrity.Atomicity;
 using Xtensive.Integrity.Transactions;
 using Xtensive.Integrity.Validation;
@@ -92,8 +94,25 @@ namespace Xtensive.Storage
       }
     }
 
-    [Infrastructure]    
+    [Infrastructure]
+//    [Atomic("UndoSetValue")]    
     protected void SetValue<T>(string name, T value)
+    {
+      // Atomicity is not implemented yet.
+
+//      IUndoDescriptor undoDescriptor = UndoScope.CurrentDescriptor;
+//      IDictionary<string, object> undoArguments = undoDescriptor.Arguments;
+//            
+//      undoArguments["value"] = GetValue<T>(name);
+//      undoArguments["name"] = name;
+
+      InternalSetValue(name, value);
+
+//      undoDescriptor.Complete();
+    }
+
+    [Infrastructure]
+    private void InternalSetValue<T>(string name, T value)
     {
       using (var transactionScope = Session.BeginTransaction()) {
         FieldInfo field = Type.Fields[name];
@@ -107,6 +126,16 @@ namespace Xtensive.Storage
 
         transactionScope.Complete();
       }
+    }
+
+    [Infrastructure]
+    private void UndoSetValue(IUndoDescriptor undoDescriptor)
+    {
+      IDictionary<string, object> arguments = undoDescriptor.Arguments;
+      string name = (string)arguments["name"];     
+      object value;
+      arguments.TryGetValue("value", out value);
+      InternalSetValue(name, value);
     }
 
     #endregion

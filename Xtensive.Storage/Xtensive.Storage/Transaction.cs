@@ -44,10 +44,16 @@ namespace Xtensive.Storage
       Session.OnTransactionRollback();
     }
 
+    protected override Integrity.Transactions.TransactionScope CreateScope()
+    {
+      return new TransactionScope(this);
+    }
+
     /// <inheritdoc/>
     protected override void OnActivate()
     {
     }
+    
 
 
     // Constructors

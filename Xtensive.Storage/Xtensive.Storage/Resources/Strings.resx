@@ -432,4 +432,7 @@
   <data name="ExEntityIsInInconsistentState" xml:space="preserve">
     <value>Entity is in inconsistent state.</value>
   </data>
+  <data name="EntityWasNotRemoved" xml:space="preserve">
+    <value>Entity was not removed.</value>
+  </data>
 </root>

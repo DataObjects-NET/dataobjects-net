@@ -88,7 +88,7 @@ namespace Xtensive.Storage
           return;
         Data.PersistenceState = value;
         if (PersistenceState == PersistenceState.New || 
-          PersistenceState == PersistenceState.Removed || 
+          PersistenceState == PersistenceState.Removing || 
           PersistenceState == PersistenceState.Modified)
           Session.DirtyData.Register(Data);
       }
@@ -127,7 +127,7 @@ namespace Xtensive.Storage
         Session.Persist();
         OnRemoving();
         ReferenceManager.ClearReferencesTo(this);
-        PersistenceState = PersistenceState.Removed;
+        PersistenceState = PersistenceState.Removing;
         OnRemoved();
 
         transactionScope.Complete();
@@ -210,7 +210,8 @@ namespace Xtensive.Storage
     [Infrastructure]
     private void EnsureCanOperate()
     {
-      if (PersistenceState==PersistenceState.Removed)
+      if (PersistenceState==PersistenceState.Removing ||
+        PersistenceState==PersistenceState.Removed)
         throw new InvalidOperationException(Strings.ExEntityIsRemoved);
 
       if (PersistenceState==PersistenceState.Inconsistent)

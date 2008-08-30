@@ -157,7 +157,7 @@ namespace Xtensive.Storage.Tests.Storage
           snake.Length = 32;
           Assert.AreEqual(PersistenceState.Modified, snake.PersistenceState);
           Assert.AreEqual(32, snake.Length);
-
+            
           Key key = Key.Get<Snake, int>(1);
           Assert.IsTrue(snake.Key.Equals(key));
           Assert.IsTrue(ReferenceEquals(snake.Key, key));
@@ -269,10 +269,9 @@ namespace Xtensive.Storage.Tests.Storage
           Assert.AreEqual("Kaa", s.Name);
           Assert.AreEqual(32, s.Length);
           s.Remove();
-          Assert.AreEqual(PersistenceState.Removed, s.PersistenceState);
+          Assert.AreEqual(PersistenceState.Removing, s.PersistenceState);
           Session.Current.Persist();
-
-          Assert.AreEqual(PersistenceState.Removed, s.PersistenceState);
+            Assert.AreEqual(PersistenceState.Removed, s.PersistenceState);
           t.Complete();
         }
       }

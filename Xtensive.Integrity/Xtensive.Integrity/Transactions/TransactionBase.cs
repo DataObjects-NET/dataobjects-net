@@ -16,7 +16,7 @@ namespace Xtensive.Integrity.Transactions
   /// <summary>
   /// Base class for any transaction.
   /// </summary>
-  public abstract class TransactionBase : ITransaction
+  public abstract class TransactionBase : ITransaction    
   {
     private readonly Guid identifier;
     private IsolationLevel isolationLevel;
@@ -48,18 +48,24 @@ namespace Xtensive.Integrity.Transactions
     }
 
     /// <summary>
-    /// Activates this transaction.
+    /// Begins this transaction.
     /// </summary>
     /// <returns>Scope of this transaction.</returns>
-    public TransactionScope Activate()
+    public TransactionScope Begin()
     {
       if (State!=TransactionState.NotActivated)
         throw new InvalidOperationException(Strings.ExTransactionIsAlreadyActivated);
       OnActivate();
       State = TransactionState.Active;
-      scope = new TransactionScope(this);
+      scope = CreateScope();
       return scope;
     }
+
+    /// <summary>
+    /// Creates the scope for this transaction.
+    /// </summary>
+    /// <returns>Created scope.</returns>
+    protected abstract TransactionScope CreateScope();
 
     #region Commit, Rollback
 

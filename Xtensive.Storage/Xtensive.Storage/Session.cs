@@ -13,6 +13,7 @@ using Xtensive.Core.Collections;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Disposable;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Tuples;
 using Xtensive.Integrity.Atomicity;
 using Xtensive.Integrity.Transactions;
 using Xtensive.Storage.Configuration;
@@ -25,6 +26,9 @@ using Xtensive.Storage.Rse.Compilation;
 
 namespace Xtensive.Storage
 {
+  /// <summary>
+  /// Session.
+  /// </summary>
   public class Session : DomainBound,
     IContext<SessionScope>,
     IResource
@@ -33,7 +37,6 @@ namespace Xtensive.Storage
     private readonly Set<object> consumers = new Set<object>();
     private readonly object _lock = new object();
     private readonly CompilationScope compilationScope;
-
 
     /// <summary>
     /// Gets the atomicity context.
@@ -56,7 +59,7 @@ namespace Xtensive.Storage
       if (Transaction==null) {
         Transaction = new Transaction(this);
         Handler.BeginTransaction();
-        return Transaction.Activate();
+        return (TransactionScope) Transaction.Begin();
       }
 
       return null;
@@ -77,7 +80,7 @@ namespace Xtensive.Storage
       foreach (EntityData data in DirtyData.GetItems(PersistenceState.Modified))
         data.Entity.PersistenceState = PersistenceState.Persisted;
 
-      foreach (EntityData data in DirtyData.GetItems(PersistenceState.Removed))
+      foreach (EntityData data in DirtyData.GetItems(PersistenceState.Removing))
         data.Entity.PersistenceState = PersistenceState.Persisted;
 
       DirtyData.Clear();
@@ -88,7 +91,7 @@ namespace Xtensive.Storage
 
     private void OnTranscationFinished()
     {
-      Transaction = null;
+      Transaction = null; 
       DataCache.Reset();
     }
 
@@ -121,9 +124,9 @@ namespace Xtensive.Storage
     /// </summary>
     /// <remarks>
     /// This method should be called to ensure that all delayed
-    /// updates are flushed to the storage. Note, that this method 
-    /// is called automatically when it's necessary - e.g.
-    /// before beginning\committing\rolling back a transaction,
+    /// updates are flushed to the storage. 
+    /// Note, that this method is called automatically when it's necessary,
+    /// e.g. before beginning\committing\rolling back a transaction,
     /// establishing a save point or rolling back to it, performing a
     /// query and so further. So generally you should not worry
     /// about calling this method.
@@ -142,13 +145,23 @@ namespace Xtensive.Storage
 
       HashSet<EntityData> @new = DirtyData.GetItems(PersistenceState.New);
       HashSet<EntityData> modified = DirtyData.GetItems(PersistenceState.Modified);
-      HashSet<EntityData> removed = DirtyData.GetItems(PersistenceState.Removed);
+      HashSet<EntityData> removing = DirtyData.GetItems(PersistenceState.Removing);
 
-      foreach (EntityData data in @new.Union(modified).Except(removed))
+      
+
+      foreach (EntityData data in @new)
         data.PersistenceState = PersistenceState.Persisted;
 
-      foreach (EntityData data in removed)
-        DataCache.Remove(data.Key);
+      foreach (EntityData data in modified)
+        data.PersistenceState = PersistenceState.Persisted;
+
+      foreach (EntityData data in removing)
+        data.PersistenceState = PersistenceState.Removed;
+
+      // We do not remove data from DataCache because it can be restored in future (Atomic operations).
+
+//      foreach (EntityData data in removing)
+//        DataCache.Remove(data.Key);
 
       DirtyData.Clear();
     }

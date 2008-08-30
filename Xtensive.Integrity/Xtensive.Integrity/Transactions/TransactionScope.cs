@@ -12,7 +12,7 @@ namespace Xtensive.Integrity.Transactions
   /// <summary>
   /// Transaction activation scope.
   /// </summary>
-  public sealed class TransactionScope : IDisposable
+  public class TransactionScope : IDisposable
   {
     /// <summary>
     /// Gets a value indicating whether this scope is successfully completed.
@@ -36,7 +36,7 @@ namespace Xtensive.Integrity.Transactions
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="transaction">The transaction.</param>
-    internal TransactionScope(TransactionBase transaction)
+    protected TransactionScope(TransactionBase transaction)
     {
       Transaction = transaction;
     }

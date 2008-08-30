@@ -29,7 +29,8 @@ namespace Xtensive.Integrity.Tests
       set {
         ArgumentValidator.EnsureArgumentNotNullOrEmpty(value, "value");
         this.Validate();
-        this["Name"] = value;
+        SetValue("Name", value);
+        //this["Name"] = value;
       }
     }
 
@@ -42,7 +43,8 @@ namespace Xtensive.Integrity.Tests
       set {
         ArgumentValidator.EnsureArgumentIsInRange(value, 0, 200, "value");
         this.Validate();
-        this["Age"] = value;
+        SetValue("Age", value);
+        //this["Age"] = value;
       }
     }
     
@@ -58,7 +60,8 @@ namespace Xtensive.Integrity.Tests
       [Trace(TraceOptions.All)]
       set {
         PassportRelationManager.SetMaster(this, value, (me, newValue) => {
-          me["Passport"] = newValue;
+          SetValue("Passport", newValue);
+//          me["Passport"] = newValue;
         });
       }
     }

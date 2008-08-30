@@ -8,7 +8,6 @@ using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Disposable;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Helpers;
 
 namespace Xtensive.Integrity.Atomicity
 {

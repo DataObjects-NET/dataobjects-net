@@ -8,6 +8,7 @@ using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
+using Xtensive.Integrity.Transactions;
 using Xtensive.Storage.Tests.Storage.StructureModel;
 
 namespace Xtensive.Storage.Tests.Storage.StructureModel
@@ -24,7 +25,7 @@ namespace Xtensive.Storage.Tests.Storage.StructureModel
     public int X
     {
       get { return GetValue<int>("X"); }
-      set { SetValue("X", value); }
+        set { SetValue("X", value); }
     }
 
     [Field]
@@ -111,32 +112,38 @@ namespace Xtensive.Storage.Tests.Storage
     }
 
     [Test]
-    public void RayTest()
+    public void RayTest() 
     {
       using (Domain.OpenSession()) {
-        Point p1 = new Point(1, 2);
-        Ray ray1 = new Ray(p1);
-        Assert.AreEqual(1, ray1.Vertex.X);
-        Assert.AreEqual(2, ray1.Vertex.Y);
-        ray1.Vertex.X = 10;
-        Assert.AreEqual(10, ray1.Vertex.X);
-        p1.X = 22;
-        Assert.AreEqual(22, p1.X);
-        Assert.AreEqual(10, ray1.Vertex.X);
-        Point p2 = ray1.Vertex;
-        Assert.AreEqual(10, p2.X);
-        Assert.AreEqual(2, p2.Y);
-        p2.X = 15;
-        Assert.AreEqual(15, ray1.Vertex.X);
-        Ray ray2 = new Ray();
-        ray2.Vertex = ray1.Vertex;
-        ray2.Vertex.X = 100;
-        Assert.AreEqual(100, ray2.Vertex.X);
-        Assert.AreEqual(15, ray1.Vertex.X);
+//        using (var t = Session.Current.BeginTransaction()) {
+          Point p1 = new Point(1, 2);
+          Ray ray1 = new Ray(p1);
+          Assert.AreEqual(1, ray1.Vertex.X);
+          Assert.AreEqual(2, ray1.Vertex.Y);
+          using (var t = Session.Current.BeginTransaction()) {
+            ray1.Vertex.X = 10;
+            Assert.AreEqual(10, ray1.Vertex.X);
+            t.Complete();
+          }          
+          p1.X = 22;
+          Assert.AreEqual(22, p1.X);
+          Assert.AreEqual(10, ray1.Vertex.X);
+          Point p2 = ray1.Vertex;
+          Assert.AreEqual(10, p2.X);
+          Assert.AreEqual(2, p2.Y);
+          p2.X = 15;
+          Assert.AreEqual(15, ray1.Vertex.X);
+          Ray ray2 = new Ray();
+          ray2.Vertex = ray1.Vertex;
+          ray2.Vertex.X = 100;
+          Assert.AreEqual(100, ray2.Vertex.X);
+          Assert.AreEqual(15, ray1.Vertex.X);
 
-        Point p3 = ray1.Vertex;
-        Point p4 = ray1.Vertex;
-        Assert.AreSame(p3, p4);
+          Point p3 = ray1.Vertex;
+          Point p4 = ray1.Vertex;
+          Assert.AreSame(p3, p4);
+//          t.Complete(); 
+//        }
       }
     }
   }

@@ -12,6 +12,7 @@ using Xtensive.Core;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.Aspects.Helpers;
 using Xtensive.Core.Reflection;
+using Xtensive.Integrity.Aspects;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Resources;
 using FieldInfo = Xtensive.Storage.Model.FieldInfo;
@@ -57,6 +58,8 @@ namespace Xtensive.Storage.Aspects
         ProvidePersistentAspects(type, collection);
       if (sessionBoundType.IsAssignableFrom(type))
         ProvideTransactionalAspects(type, collection);
+
+//      ProvideAtomicAspects(type, collection);
     }
 
     private void ProvideTransactionalAspects(Type type, LaosReflectionAspectCollection collection)
@@ -73,6 +76,24 @@ namespace Xtensive.Storage.Aspects
           continue;
 
         collection.AddAspect(method, new TransactionalAttribute());
+      }
+    }
+
+    private void ProvideAtomicAspects(Type type, LaosReflectionAspectCollection collection)
+    {
+      foreach (MethodInfo method in type.GetMethods(
+        BindingFlags.Public |
+        BindingFlags.NonPublic |
+        BindingFlags.Instance |
+        BindingFlags.DeclaredOnly))
+      {
+        if (method.IsAbstract)
+          continue;
+
+        if (AspectHelper.IsInfrastructureMethod(method))
+          continue;
+
+        collection.AddAspect(method, new AtomicAttribute());
       }
     }
 

@@ -28,12 +28,16 @@ namespace Xtensive.Storage
     /// </summary>
     Modified = 2,
     /// <summary>
-    /// The entity is removed, i.e. there is no such entity in storage.
+    /// The entity was removed, but 'delete' sql-command was not excuted yet.
     /// </summary>
-    Removed = 3,
+    Removing = 3,
+    /// <summary>
+    /// The entity is removed from the storage, i.e. 'delete' sql-command was excuted.
+    /// </summary>
+    Removed = 4,
     /// <summary>
     /// The entity is persisted.
     /// </summary>
-    Persisted = 4,
+    Persisted = 5,
   }
 }

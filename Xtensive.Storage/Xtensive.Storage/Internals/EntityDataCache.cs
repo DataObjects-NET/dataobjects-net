@@ -39,22 +39,17 @@ namespace Xtensive.Storage.Internals
       if (data == null)
         Create(key, tuple, PersistenceState.Persisted);
       else {
-        try {
-          data.Tuple.Origin.MergeWith(tuple);
-          if (Log.IsLogged(LogEventTypes.Debug))
-            Log.Debug("Session '{0}'. Merging: {1}", Session.Current, data);
-        }
-        catch(Exception e) {
-          throw;
-        }
+        data.Tuple.Origin.MergeWith(tuple);
+        if (Log.IsLogged(LogEventTypes.Debug))
+          Log.Debug("Session '{0}'. Merging: {1}", Session.Current, data);
       }
     }
 
-    [Infrastructure]
-    public void Remove(Key key)
-    {
-      cache.Remove(key);
-    }
+//    [Infrastructure]
+//    public void Remove(Key key)
+//    {
+//      cache.Remove(key);
+//    }
 
     [Infrastructure]
     public void Clear()

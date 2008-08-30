@@ -39,7 +39,6 @@ namespace Xtensive.Storage.Tests.Storage.TranscationsTest
       return config;
     }
 
-
     [Test]
     public void RollbackCreationTest()
     {
