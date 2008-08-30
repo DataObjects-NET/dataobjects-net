@@ -74,6 +74,14 @@ namespace Xtensive.Core.Tuples
     }
 
     /// <summary>
+    /// Merges the <see cref="Origin"/> with the <see cref="Difference"/>.
+    /// </summary>
+    public void Merge()
+    {
+      origin.MergeWith(difference, 0, origin.Descriptor.Count, MergeConflictBehavior.PreferSource);
+    }
+
+    /// <summary>
     /// Gets the tuple (<see cref="Origin"/> or <see cref="Difference"/>) containing
     /// actual value of the specified field.
     /// </summary>
