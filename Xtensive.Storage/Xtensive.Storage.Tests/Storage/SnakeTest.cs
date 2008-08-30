@@ -31,10 +31,16 @@ namespace Xtensive.Storage.Tests.Storage.SnakesModel
     CanWalk = 4,
   }
 
+  public interface ICreature : IEntity
+  {
+    string Name { get; set; }
+  }
+
   [DebuggerDisplay("Name = '{Name}'")]
   [Index("Name")]
   [HierarchyRoot(typeof (DefaultGenerator), "ID")]
-  public class Creature : Entity
+  public class Creature : Entity,
+    ICreature
   {
     [Field]
     public int ID { get; set; }
@@ -260,6 +266,38 @@ namespace Xtensive.Storage.Tests.Storage
                      where s.Length >= 500
                      select s;
         Assert.AreEqual(500, result.Count());
+      }
+    }
+
+    [Test]
+    public void InterfaceTest()
+    {
+      const int snakesCount = 1000;
+      const int creaturesCount = 1000;
+      const int lizardsCount = 1000;
+
+      using (Domain.OpenSession()) {
+        Session session = SessionScope.Current.Session;
+        for (int i = 0; i < snakesCount; i++) {
+          Snake s = new Snake();
+          s.Name = "Kaa" + i;
+          s.Length = i;
+        }
+        for (int j = 0; j < creaturesCount; j++) {
+          Creature c = new Creature();
+          c.Name = "Creature" + j;
+        }
+        for (int i = 0; i < lizardsCount; i++) {
+          Lizard l = new Lizard();
+          l.Name = "Lizard" + i;
+          l.Color = "Color" + i;
+        }
+
+        session.Persist();
+        TypeInfo type = session.Domain.Model.Types[typeof(ICreature)];
+        RecordSet rsPrimary = session.Select(type.Indexes.PrimaryIndex);
+        foreach (var entity in rsPrimary.AsEntities<ICreature>())
+          Assert.IsNotNull(entity.Name);
       }
     }
 

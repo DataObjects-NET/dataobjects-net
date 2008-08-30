@@ -20,9 +20,9 @@ namespace Xtensive.Storage
   public static class RecordSetExtensions
   {
     public static IEnumerable<T> AsEntities<T>(this RecordSet source) 
-      where T : Entity
+      where T : class, IEntity
     {
-      foreach (Entity entity in AsEntities(source, typeof (T)))
+      foreach (var entity in AsEntities(source, typeof (T)))
         yield return entity as T;
     }
 
@@ -37,6 +37,7 @@ namespace Xtensive.Storage
 
       TypeInfo type = session.Handlers.Domain.Model.Types[entityType];
       var keyColumns = type.Indexes.PrimaryIndex.KeyColumns;
+      var result = new List<Entity>();
 
       Tuple t = Tuple.Create(type.Hierarchy.TupleDescriptor);
       int[] columnsMap = new int[keyColumns.Count];
@@ -47,8 +48,10 @@ namespace Xtensive.Storage
           t.SetValue(i, tuple.GetValue(columnsMap[i]));
         Key key = Key.Get(entityType, t);
         session.DataCache.Update(key, tuple);
-        yield return key.Resolve();
+//        yield return key.Resolve();
+        result.Add(key.Resolve());
       }
+      return result;
     }
 
     public static void Parse(this RecordSet source)
