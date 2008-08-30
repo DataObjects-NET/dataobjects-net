@@ -4,9 +4,12 @@
 // Created by: Alexey Kochetov
 // Created:    2008.07.04
 
+using System;
+using System.Runtime.CompilerServices;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Rse.Providers;
+using Xtensive.Core.Disposable;
 
 namespace Xtensive.Storage.Rse.Compilation
 {
@@ -15,6 +18,8 @@ namespace Xtensive.Storage.Rse.Compilation
   /// </summary>
   public class CompilationScope : Scope<CompilationContext>
   {
+    private IDisposable toDispose;
+
     /// <summary>
     /// Gets the current context.
     /// </summary>
@@ -31,6 +36,16 @@ namespace Xtensive.Storage.Rse.Compilation
       get { return base.Context; }
     }
 
+    /// <inheritdoc/>
+    public override void Activate(CompilationContext newContext)
+    {
+      base.Activate(newContext);
+      // We must close the EnumerationScope it 
+      // to ensure next EnumerationScope.Open() call 
+      // will return a new one
+      toDispose = EnumerationScope.Block(); 
+    }
+
 
     // Constructors
 
@@ -41,6 +56,20 @@ namespace Xtensive.Storage.Rse.Compilation
     public CompilationScope(CompilationContext context)
       : base(context)
     {
+    }
+
+    // Desctructor
+
+    /// <inheritdoc/>
+    protected override void Dispose(bool disposing)
+    {
+      try {
+        toDispose.DisposeSafely();
+        toDispose = null;
+      }
+      finally {
+        base.Dispose(disposing);
+      }
     }
   }
 }

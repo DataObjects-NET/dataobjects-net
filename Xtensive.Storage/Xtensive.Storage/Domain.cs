@@ -28,7 +28,7 @@ using Xtensive.Storage.Rse.Providers.Executable;
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// Provides access to a single storage.
+  /// An access point to a single storage.
   /// </summary>
   public sealed class Domain : CriticalFinalizerObject,
     IDisposableContainer
@@ -37,6 +37,17 @@ namespace Xtensive.Storage
       ThreadSafeDictionary<RecordSetHeader, RecordSetMapping>.Create(new object());
     private int sessionCounter = 1;
 
+    /// <summary>
+    /// Gets the current <see cref="Domain"/> object
+    /// using <see cref="Session"/>. <see cref="Session.Current"/>.
+    /// </summary>
+    public static Domain Current {
+      get {
+        var session = Session.Current;
+        return session!=null ? session.Domain : null;
+      }
+    }
+    
     /// <summary>
     /// Gets the configuration.
     /// </summary>

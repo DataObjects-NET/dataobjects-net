@@ -5,12 +5,10 @@
 // Created:    2008.07.01
 
 using System;
-using System.Collections.Generic;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Indexing;
 using Xtensive.Storage.Model;
-using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Providers.Index

@@ -7,29 +7,44 @@
 using System;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Integrity.Transactions;
+using Xtensive.Storage.Resources;
 using Xtensive.Storage.Rse.Providers.Executable;
 
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// Transaction implementation.
+  /// An implementation of transaction suitable for storage.
   /// </summary>
   public sealed class Transaction : TransactionBase
   {
-    /// <summary>
-    /// Gets the validation context of the transaction.
-    /// </summary>    
-    public ValidationContext ValidationContext { get; private set; }
-
     /// <summary>
     /// Gets the session.
     /// </summary>
     public Session Session { get; private set; }
 
     /// <summary>
+    /// Gets the validation context of the transaction.
+    /// </summary>    
+    public ValidationContext ValidationContext { get; private set; }
+
+    /// <summary>
     /// Gets the transaction-level temporary data.
     /// </summary>
     public TransactionTemporaryData TemporaryData { get; private set; }
+
+    /// <inheritdoc/>
+    protected override Integrity.Transactions.TransactionScope CreateScope()
+    {
+      return new TransactionScope(this);
+    }
+
+    #region OnXxx methods
+
+    /// <inheritdoc/>
+    protected override void OnBegin()
+    {
+      Session.OnTransctionBegin();
+    }
 
     /// <inheritdoc/>
     protected override void OnCommit()
@@ -43,16 +58,41 @@ namespace Xtensive.Storage
       Session.OnTransactionRollback();
     }
 
-    /// <inheritdoc/>
-    protected override void OnBegin()
-    {
-      Session.OnTransctionBegin();
+    #endregion
+
+    #region Static Current (property), Open (method)
+
+    /// <summary>
+    /// Gets the current <see cref="Transaction"/> object
+    /// using <see cref="Session"/>.<see cref="Storage.Session.Current"/>.
+    /// </summary>
+    public static Transaction Current {
+      get {
+        var session = Session.Current;
+        return session!=null ? session.Transaction : null;
+      }
     }
 
-    protected override Integrity.Transactions.TransactionScope CreateScope()
+    /// <summary>
+    /// Does the same as <see cref="Storage.Session.OpenTransaction"/>,
+    /// but for the <see cref="Current"/> transaction.
+    /// </summary>
+    /// <returns>
+    /// A new <see cref="TransactionScope"/> object, if new
+    /// <see cref="Transaction"/> is created;
+    /// otherwise, <see langword="null"/>.
+    /// </returns>
+    /// <exception cref="InvalidOperationException">There is no <see cref="Storage.Session.Current"/> <see cref="Session"/>.</exception>
+    public static TransactionScope Open()
     {
-      return new TransactionScope(this);
-    }    
+      var session = Session.Current;
+      if (session==null)
+        throw new InvalidOperationException(
+          Strings.ExCanNotOpenTransactionNoCurrentSession);
+      return session.OpenTransaction();
+    }
+
+    #endregion
 
 
     // Constructors

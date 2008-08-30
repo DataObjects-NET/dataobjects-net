@@ -39,67 +39,24 @@ namespace Xtensive.Storage
     private readonly CompilationScope compilationScope;
 
     /// <summary>
+    /// Gets the configuration of the <see cref="Session"/>.
+    /// </summary>
+    public SessionConfiguration Configuration { get; private set; }
+
+    /// <summary>
+    /// Gets the name.
+    /// </summary>
+    public string Name { get; private set; }
+
+    /// <summary>
     /// Gets the atomicity context.
     /// </summary>
     public AtomicityContext AtomicityContext { get; private set; }
-
-    #region Transaction related methods
 
     /// <summary>
     /// Gets the active transaction.
     /// </summary>    
     public Transaction Transaction { get; private set; }
-
-    /// <summary>
-    /// Begins new transaction, if there is no active one.
-    /// </summary>
-    /// <returns>Scope of the active transaction.</returns>
-    public TransactionScope OpenTransaction()
-    {
-      if (Transaction==null) {
-        Transaction = new Transaction(this);        
-        return (TransactionScope) Transaction.Begin();
-      }
-
-      return null;
-    }
-
-    internal void OnTransctionBegin()
-    {
-      Handler.BeginTransaction();
-    }
-
-    internal void OnTransactionCommit()
-    {
-      Persist();
-      Handler.CommitTransaction();
-      OnTranscationFinished();
-    }
-
-    internal void OnTransactionRollback()
-    {
-      foreach (EntityData data in DirtyData.GetItems(PersistenceState.New))
-        data.Entity.PersistenceState = PersistenceState.Inconsistent;
-
-      foreach (EntityData data in DirtyData.GetItems(PersistenceState.Modified))
-        data.Entity.PersistenceState = PersistenceState.Persisted;
-
-      foreach (EntityData data in DirtyData.GetItems(PersistenceState.Removing))
-        data.Entity.PersistenceState = PersistenceState.Persisted;
-
-      DirtyData.Clear();
-
-      Handler.RollbackTransaction();
-      OnTranscationFinished();
-    }
-
-    private void OnTranscationFinished()
-    {
-      Transaction = null; 
-      DataCache.Reset();
-    }
-
-    #endregion
 
     #region Private \ internal properties
 
@@ -114,14 +71,22 @@ namespace Xtensive.Storage
     #endregion
 
     /// <summary>
-    /// Gets the configuration of the <see cref="Session"/>.
+    /// Opens a new or already running transaction.
     /// </summary>
-    public SessionConfiguration Configuration { get; private set; }
+    /// <returns>
+    /// A new <see cref="TransactionScope"/> object, if new
+    /// <see cref="Transaction"/> is created;
+    /// otherwise, <see langword="null"/>.
+    /// </returns>
+    public TransactionScope OpenTransaction()
+    {
+      if (Transaction==null) {
+        Transaction = new Transaction(this);        
+        return (TransactionScope) Transaction.Begin();
+      }
 
-    /// <summary>
-    /// Gets the name.
-    /// </summary>
-    public string Name { get; private set; }
+      return null;
+    }
 
     /// <summary>
     /// Persists all modified instances immediately.
@@ -170,7 +135,8 @@ namespace Xtensive.Storage
       DirtyData.Clear();
     }
 
-    public IEnumerable<T> All<T>() where T : class,   IEntity
+    public IEnumerable<T> All<T>() 
+      where T : class, IEntity
     {      
       EnsureNotDisposed();
       Persist();
@@ -180,6 +146,53 @@ namespace Xtensive.Storage
       foreach (T entity in result.ToEntities<T>())
         yield return entity;
     }
+
+    #region OnXxx methods
+
+    internal void OnTransctionBegin()
+    {
+      Handler.BeginTransaction();
+    }
+
+    internal void OnTransactionCommit()
+    {
+      try {
+        Persist();
+        Handler.CommitTransaction();
+      }
+      finally {
+        OnTranscationEnd();
+      }
+    }
+
+    internal void OnTransactionRollback()
+    {
+      try {
+        foreach (EntityData data in DirtyData.GetItems(PersistenceState.New))
+          data.Entity.PersistenceState = PersistenceState.Inconsistent;
+
+        foreach (EntityData data in DirtyData.GetItems(PersistenceState.Modified))
+          data.Entity.PersistenceState = PersistenceState.Persisted;
+
+        foreach (EntityData data in DirtyData.GetItems(PersistenceState.Removing))
+          data.Entity.PersistenceState = PersistenceState.Persisted;
+
+        DirtyData.Clear();
+
+        Handler.RollbackTransaction();
+      }
+      finally {
+        OnTranscationEnd();
+      }
+    }
+
+    private void OnTranscationEnd()
+    {
+      Transaction = null; 
+      DataCache.Reset();
+    }
+
+    #endregion
 
     #region IResource methods
 

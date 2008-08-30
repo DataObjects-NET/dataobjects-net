@@ -73,7 +73,7 @@ namespace Xtensive.Storage.Tests.Storage.Atomicity
     public void ModifyingTest()
     {
       using (Domain.OpenSession()) {
-        using (Session.Current.OpenTransaction()) {
+        using (Transaction.Open()) {
           Cake cake = new Cake();
 
           try {
@@ -100,7 +100,7 @@ namespace Xtensive.Storage.Tests.Storage.Atomicity
     public void RemovingTest()
     {
       using (Domain.OpenSession()) {
-        using (Session.Current.OpenTransaction()) {
+        using (Transaction.Open()) {
           
           Cake cake = new Cake();
           try {

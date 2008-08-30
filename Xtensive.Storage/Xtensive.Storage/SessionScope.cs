@@ -34,13 +34,6 @@ namespace Xtensive.Storage
       get { return Context; }
     }
 
-    /// <inheritdoc/>
-    public override void Activate(Session newContext)
-    {
-      base.Activate(newContext);
-      toDispose = newContext.Domain.TemporaryData.Activate();
-    }
-
 
     // Constructors
 
@@ -52,6 +45,8 @@ namespace Xtensive.Storage
       : base(session)
     {
     }
+
+    // Desctructor
 
     /// <inheritdoc/>
     protected override void Dispose(bool disposing)

@@ -435,4 +435,7 @@
   <data name="EntityWasNotRemoved" xml:space="preserve">
     <value>Entity was not removed.</value>
   </data>
+  <data name="ExCanNotOpenTransactionNoCurrentSession" xml:space="preserve">
+    <value>Can't open a transaction, since there is no current Session.</value>
+  </data>
 </root>

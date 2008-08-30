@@ -70,7 +70,16 @@ namespace Xtensive.Storage.Rse.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Compilation is possible only if active EnumerationContext exists..
+        ///   Looks up a localized string similar to Can&apos;t compile - active CompilationContext has no Compiler (Compiler is null)..
+        /// </summary>
+        internal static string ExCanNotCompileNoCompiler {
+            get {
+                return ResourceManager.GetString("ExCanNotCompileNoCompiler", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t compile - no active EnumerationContext exists..
         /// </summary>
         internal static string ExCanNotCompileNoEnumerationContext {
             get {

@@ -15,7 +15,6 @@ using Xtensive.Core.Tuples.Transform;
 using Xtensive.Indexing;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
-using Xtensive.Storage.Rse.Compilation;
 
 namespace Xtensive.Storage.Providers.Index
 {
@@ -25,7 +24,7 @@ namespace Xtensive.Storage.Providers.Index
     private readonly Dictionary<Pair<IndexInfo,TypeInfo>, MapTransform> indexTransforms = new Dictionary<Pair<IndexInfo, TypeInfo>, MapTransform>();
 
     /// <inheritdoc/>
-    protected override CompilationContext BuildCompilationContext()
+    protected override Rse.Compilation.CompilationContext BuildCompilationContext()
     {
       return new CompilationContext(new Compilers.Compiler(Handlers));
     }
@@ -38,6 +37,24 @@ namespace Xtensive.Storage.Providers.Index
         MapTransform transform = BuildIndexTransform(pair.First, pair.Second);
         indexTransforms.Add(pair, transform);
       }
+    }
+
+    #region Private / internal methods
+
+    internal IUniqueOrderedIndex<Tuple, Tuple> GetRealIndex(IndexInfoRef indexInfoRef)
+    {
+      var index = indexInfoRef.Resolve(Handlers.Domain.Model);
+      return realIndexes[index];
+    }
+
+    internal IUniqueOrderedIndex<Tuple, Tuple> GetRealIndex(IndexInfo indexInfo)
+    {
+      return realIndexes[indexInfo];
+    }
+
+    internal MapTransform GetIndexTransform(IndexInfo indexInfo, TypeInfo type)
+    {
+      return indexTransforms[new Pair<IndexInfo, TypeInfo>(indexInfo, type)];
     }
 
     private static MapTransform BuildIndexTransform(IndexInfo indexInfo, TypeInfo type)
@@ -72,20 +89,6 @@ namespace Xtensive.Storage.Providers.Index
       }
     }
 
-    internal IUniqueOrderedIndex<Tuple, Tuple> GetRealIndex(IndexInfoRef indexInfoRef)
-    {
-      var index = indexInfoRef.Resolve(Handlers.Domain.Model);
-      return realIndexes[index];
-    }
-
-    internal IUniqueOrderedIndex<Tuple, Tuple> GetRealIndex(IndexInfo indexInfo)
-    {
-      return realIndexes[indexInfo];
-    }
-
-    internal MapTransform GetIndexTransform(IndexInfo indexInfo, TypeInfo type)
-    {
-      return indexTransforms[new Pair<IndexInfo, TypeInfo>(indexInfo, type)];
-    }
+    #endregion
   }
 }

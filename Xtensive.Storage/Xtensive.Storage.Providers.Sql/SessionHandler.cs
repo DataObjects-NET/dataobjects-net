@@ -27,10 +27,8 @@ namespace Xtensive.Storage.Providers.Sql
     /// <summary>
     /// Gets the connection.
     /// </summary>
-    public SqlConnection Connection
-    {
-      get
-      {
+    public SqlConnection Connection {
+      get {
         EnsureConnectionIsOpen();
         return connection;
       }

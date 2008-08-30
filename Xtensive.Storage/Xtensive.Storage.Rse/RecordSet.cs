@@ -55,15 +55,9 @@ namespace Xtensive.Storage.Rse
     /// <inheritdoc/>
     public IEnumerator<Tuple> GetEnumerator()
     {
-      EnumerationScope scope = null;
-      try {
-        scope = new EnumerationContext().Activate();
+      using (EnumerationScope.Open())
         foreach (var tuple in Provider)
           yield return tuple;
-      }
-      finally {
-        scope.DisposeSafely();
-      }
     }
 
     /// <inheritdoc/>

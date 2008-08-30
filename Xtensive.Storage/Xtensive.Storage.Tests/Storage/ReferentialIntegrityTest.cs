@@ -67,7 +67,7 @@ namespace Xtensive.Storage.Tests.Storage
     {
       Domain.Model.Dump();
       using (Domain.OpenSession()) {
-        using (var t = Session.Current.OpenTransaction()) {
+        using (var t = Transaction.Open()) {
           A a = new A();
           a.B = new B();
           a.B.A = a;

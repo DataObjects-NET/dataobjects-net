@@ -203,7 +203,6 @@ namespace Xtensive.Storage.Rse.Providers
       finally {
         OnAfterEnumerate(context);
       }
-      
     }
 
     #endregion

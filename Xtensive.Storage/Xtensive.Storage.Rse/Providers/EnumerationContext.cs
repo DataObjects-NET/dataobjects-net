@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Storage.Rse.Providers.Executable;
 using Xtensive.Storage.Rse.Resources;
 using Xtensive.Core.Reflection;
 
@@ -17,9 +18,19 @@ namespace Xtensive.Storage.Rse.Providers
   /// The single enumeration attempt context for the <see cref="ExecutableProvider"/>.
   /// </summary>
   [Serializable]
-  public sealed class EnumerationContext: Context<EnumerationScope>
+  public abstract class EnumerationContext: Context<EnumerationScope>
   {
     private readonly Dictionary<Pair<object, string>, object> cache = new Dictionary<Pair<object, string>, object>();
+
+    /// <summary>
+    /// Gets or sets the global temporary data.
+    /// </summary>
+    public abstract GlobalTemporaryData GlobalTemporaryData { get; }
+
+    /// <summary>
+    /// Gets or sets the transaction temporary data.
+    /// </summary>
+    public abstract TransactionTemporaryData TransactionTemporaryData { get; }
 
     /// <summary>
     /// Gets the current <see cref="EnumerationContext"/>.
@@ -67,7 +78,10 @@ namespace Xtensive.Storage.Rse.Providers
         return result as T;
       return null;
     }
-    
+
+    #region IContext<...> methods
+
+    /// <inheritdoc/>
     protected override EnumerationScope CreateActiveScope()
     {
       return new EnumerationScope(this);
@@ -78,6 +92,10 @@ namespace Xtensive.Storage.Rse.Providers
     {
       get { return EnumerationScope.CurrentContext==this; }
     }
+
+    #endregion
+
+    #region EnsureXxx methods
 
     /// <summary>
     /// Ensures the context is active.
@@ -90,13 +108,15 @@ namespace Xtensive.Storage.Rse.Providers
           GetType().GetShortName()));
     }
 
+    #endregion
+
 
     // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    internal EnumerationContext()
+    protected EnumerationContext()
     {
     }
   }

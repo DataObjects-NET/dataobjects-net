@@ -42,11 +42,12 @@ namespace Xtensive.Storage.Providers.Sql
     internal SqlDriver Driver { get; private set; }
 
     /// <inheritdoc/>
-    protected override CompilationContext BuildCompilationContext()
+    protected override Rse.Compilation.CompilationContext BuildCompilationContext()
     {
       return new CompilationContext(new Compilers.Compiler(Handlers));
     }
 
+    /// <inheritdoc/>
     public void Compile(SqlRequest request)
     {
       request.CompileWith(Driver);
@@ -74,12 +75,12 @@ namespace Xtensive.Storage.Providers.Sql
     {
       Table table;
       if (!realIndexes.TryGetValue(indexInfo, out table))
-        throw new InvalidOperationException(String.Format(Strings.ExTypeHasNoPrimaryIndex, indexInfo.Name));
+        throw new InvalidOperationException(String.Format(
+          Strings.ExTypeHasNoPrimaryIndex, indexInfo.Name));
       return table;
     }
 
-    public abstract SqlDataType GetSqlDataType(Type type, int? length);
-
+    /// <inheritdoc/>
     public virtual SqlValueType GetSqlType(Type type, int? length)
     {
       // TODO: Get this data from Connection.Driver.ServerInfo.DataTypes
@@ -88,6 +89,8 @@ namespace Xtensive.Storage.Providers.Sql
         : new SqlValueType(GetSqlDataType(type, length.Value), length.Value);
       return result;
     }
+
+    public abstract SqlDataType GetSqlDataType(Type type, int? length);
 
     public static string GetPrimaryIndexColumnName(IndexInfo primaryIndex, ColumnInfo secondaryIndexColumn, IndexInfo secondaryIndex)
     {

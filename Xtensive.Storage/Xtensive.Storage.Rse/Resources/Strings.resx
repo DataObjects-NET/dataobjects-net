@@ -139,6 +139,9 @@
     <value>Value with name {0} doesn't exist.</value>
   </data>
   <data name="ExCanNotCompileNoEnumerationContext" xml:space="preserve">
-    <value>Compilation is possible only if active EnumerationContext exists.</value>
+    <value>Can't compile - no active EnumerationContext exists.</value>
+  </data>
+  <data name="ExCanNotCompileNoCompiler" xml:space="preserve">
+    <value>Can't compile - active CompilationContext has no Compiler (Compiler is null).</value>
   </data>
 </root>

@@ -7,9 +7,10 @@
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// Transaction scope implementation.
+  /// An implementation of <see cref="Integrity.Transactions.TransactionScope"/>
+  /// suitable for storage.
   /// </summary>
-  public class TransactionScope : Integrity.Transactions.TransactionScope   
+  public class TransactionScope : Integrity.Transactions.TransactionScope
   {
     /// <summary>
     /// Gets the transaction this scope controls.
@@ -18,6 +19,9 @@ namespace Xtensive.Storage
     {
       get { return (Transaction) base.Transaction; }
     }
+
+
+    // Constructors
 
     internal TransactionScope(Transaction transaction)
       : base(transaction)

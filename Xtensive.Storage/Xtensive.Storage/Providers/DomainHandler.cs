@@ -24,7 +24,7 @@ namespace Xtensive.Storage.Providers
     /// Gets the <see cref="Rse.Compilation.CompilationContext"/>
     /// associated with the domain.
     /// </summary>
-    public CompilationContext CompilationContext { get; private set; }
+    public Rse.Compilation.CompilationContext CompilationContext { get; private set; }
 
     // Abstract methods
 
@@ -32,7 +32,7 @@ namespace Xtensive.Storage.Providers
     /// Builds the <see cref="CompilationContext"/> value.
     /// Invoked from <see cref="Initialize"/>.
     /// </summary>
-    protected abstract CompilationContext BuildCompilationContext();
+    protected abstract Rse.Compilation.CompilationContext BuildCompilationContext();
 
     /// <summary>
     /// Builds the <see cref="Domain"/>.

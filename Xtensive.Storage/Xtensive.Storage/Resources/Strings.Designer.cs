@@ -124,6 +124,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t open a transaction, since there is no current Session..
+        /// </summary>
+        internal static string ExCanNotOpenTransactionNoCurrentSession {
+            get {
+                return ResourceManager.GetString("ExCanNotOpenTransactionNoCurrentSession", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Value length {0} greater than column Length {1}. .
         /// </summary>
         internal static string ExColumnLength {

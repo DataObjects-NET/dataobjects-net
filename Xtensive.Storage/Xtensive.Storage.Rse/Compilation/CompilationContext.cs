@@ -11,6 +11,7 @@ using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Rse.Providers;
+using Xtensive.Storage.Rse.Providers.Executable;
 using Xtensive.Storage.Rse.Resources;
 using Xtensive.Core.Helpers;
 
@@ -19,7 +20,7 @@ namespace Xtensive.Storage.Rse.Compilation
   /// <summary>
   /// The context for <see cref="Provider"/> compilation.
   /// </summary>
-  public class CompilationContext : Context<CompilationScope>,
+  public abstract class CompilationContext : Context<CompilationScope>,
     IHasExtensions
   {
     #region Nested type: CacheEntry
@@ -46,7 +47,8 @@ namespace Xtensive.Storage.Rse.Compilation
     /// Currently it is 1024 (compilation results).
     /// </summary>
     public readonly static int CacheSize = 1024;
-    
+
+    private static readonly GlobalTemporaryData globalTemporaryData = new GlobalTemporaryData();
     private readonly WeakCache<CompilableProvider, CacheEntry> cache;
     private readonly object _lock = new object();
 
@@ -104,7 +106,7 @@ namespace Xtensive.Storage.Rse.Compilation
           return entry.Value;
       }
 
-      var result = CompileInternal(provider);
+      var result = InnerCompile(provider);
       
       if (result!=null && result.IsCacheable)
         lock (_lock) {
@@ -117,13 +119,15 @@ namespace Xtensive.Storage.Rse.Compilation
       return result;
     }
 
-    private ExecutableProvider CompileInternal(CompilableProvider provider)
+    /// <exception cref="InvalidOperationException"><see cref="Compiler"/> is <see langword="null" />.</exception>
+    private ExecutableProvider InnerCompile(CompilableProvider provider)
     {
       var compiler = Compiler;
       if (compiler == null)
-        throw new InvalidOperationException();
+        throw new InvalidOperationException(
+          Strings.ExCanNotCompileNoCompiler);
 
-      var fallbackCompilerBackup = FallbackCompiler;
+      var originalFallbackCompiler = FallbackCompiler;
       try {
         if (compiler.FallbackCompiler != null)
           FallbackCompiler = compiler.FallbackCompiler;
@@ -139,10 +143,18 @@ namespace Xtensive.Storage.Rse.Compilation
         }
       }
       finally {
-        FallbackCompiler = fallbackCompilerBackup;
+        FallbackCompiler = originalFallbackCompiler;
       }
       return null;
     }
+
+    /// <summary>
+    /// Creates the enumeration context suitable 
+    /// for compilation results produced by this
+    /// <see cref="CompilationContext"/>.
+    /// </summary>
+    /// <returns>Newly created <see cref="EnumerationContext"/> object.</returns>
+    public abstract EnumerationContext CreateEnumerationContext();
 
     #region IContext<...> members
 

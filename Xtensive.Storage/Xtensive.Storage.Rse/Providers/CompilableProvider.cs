@@ -20,27 +20,31 @@ namespace Xtensive.Storage.Rse.Providers
   [Serializable]
   public abstract class CompilableProvider : Provider
   {
-    private const string CompiledKey = "Compiled";
+    #region Cached properties
+
+    private const string CachedCompiledName = "CachedCompiled";
+
+    private ExecutableProvider CachedCompiled
+    {
+      get { return EnumerationContext.Current.GetValue<ExecutableProvider>(new Pair<object, string>(this, CachedCompiledName)); }
+      set { EnumerationContext.Current.SetValue(new Pair<object, string>(this, CachedCompiledName), value); }
+    }
+
+    #endregion
 
     /// <summary>
     /// Gets the compiled provider for this provider.
     /// </summary>
+    /// <exception cref="InvalidOperationException">There is no active <see cref="EnumerationContext"/> or <see cref="CompilationContext"/>.</exception>
     public Provider Compiled {
       get {
         if (EnumerationContext.Current == null)
           throw new InvalidOperationException(
             Strings.ExCanNotCompileNoEnumerationContext);
-        var compiled = EnumerationContext.Current.GetValue<ExecutableProvider>(new Pair<object, string>(this,CompiledKey));
-        if (compiled == null) 
-          lock (this) 
-            if (EnumerationContext.Current.GetValue<ExecutableProvider>(new Pair<object, string>(this,CompiledKey)) == null) {
-              if (CompilationScope.CurrentContext == null)
-                using (new CompilationContext(new DefaultCompiler()).Activate())
-                  compiled = this.Compile();
-              else
-                compiled = this.Compile();
-              EnumerationContext.Current.SetValue(new Pair<object, string>(this,CompiledKey), compiled);
-            }
+        var compiled = CachedCompiled;
+        if (compiled==null) lock (this) if (CachedCompiled==null) {
+          CachedCompiled = compiled = this.Compile();
+        }
         return compiled;
       }
     }
