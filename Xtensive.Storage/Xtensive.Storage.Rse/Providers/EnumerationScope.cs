@@ -4,9 +4,11 @@
 // Created by: Alexey Kochetov
 // Created:    2008.07.21
 
+using System;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Rse.Compilation;
+using Xtensive.Storage.Rse.Resources;
 
 namespace Xtensive.Storage.Rse.Providers
 {
@@ -41,8 +43,12 @@ namespace Xtensive.Storage.Rse.Providers
     /// <returns>Either new <see cref="EnumerationScope"/> or <see langword="null" />.</returns>
     public static EnumerationScope Open()
     {
-      if (CurrentContext==null)
-        return CompilationContext.Current.CreateEnumerationContext().Activate();
+      if (CurrentContext==null) {
+        CompilationContext compilationContext = CompilationContext.Current;
+        if (compilationContext==null)
+          throw new InvalidOperationException(Strings.ExCanTOpenEnumerationScopeSinceThereIsNoCurrentCompilationContext);        
+        return compilationContext.CreateEnumerationContext().Activate();
+      }
       else
         return null;
     }

@@ -45,13 +45,13 @@ namespace Xtensive.Storage.Providers
     {
       HashSet<EntityData> @new = registry.GetItems(PersistenceState.New);
       HashSet<EntityData> modified = registry.GetItems(PersistenceState.Modified);
-      HashSet<EntityData> removed = registry.GetItems(PersistenceState.Removed);
+      HashSet<EntityData> removing = registry.GetItems(PersistenceState.Removing);
 
       foreach (EntityData data in @new)
         Insert(data);
       foreach (EntityData data in modified.Except(@new))
         Update(data);
-      foreach (EntityData data in removed)
+      foreach (EntityData data in removing)
         Remove(data);
     }
 

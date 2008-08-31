@@ -115,22 +115,17 @@ namespace Xtensive.Storage
       HashSet<EntityData> @new = DirtyData.GetItems(PersistenceState.New);
       HashSet<EntityData> modified = DirtyData.GetItems(PersistenceState.Modified);
       HashSet<EntityData> removing = DirtyData.GetItems(PersistenceState.Removing);
-
       
-
       foreach (EntityData data in @new)
         data.PersistenceState = PersistenceState.Persisted;
 
       foreach (EntityData data in modified)
         data.PersistenceState = PersistenceState.Persisted;
 
-      foreach (EntityData data in removing)
+      foreach (EntityData data in removing) {
         data.PersistenceState = PersistenceState.Removed;
-
-      // We do not remove data from DataCache because it can be restored in future (Atomic operations).
-
-//      foreach (EntityData data in removing)
-//        DataCache.Remove(data.Key);
+        DataCache.Remove(data.Key);
+      }
 
       DirtyData.Clear();
     }

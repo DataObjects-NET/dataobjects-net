@@ -144,4 +144,7 @@
   <data name="ExCanNotCompileNoCompiler" xml:space="preserve">
     <value>Can't compile - active CompilationContext has no Compiler (Compiler is null).</value>
   </data>
+  <data name="ExCanTOpenEnumerationScopeSinceThereIsNoCurrentCompilationContext" xml:space="preserve">
+    <value>Can't open EnumerationScope, since there is no current CompilationContext.</value>
+  </data>
 </root>

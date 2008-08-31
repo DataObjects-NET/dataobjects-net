@@ -45,11 +45,11 @@ namespace Xtensive.Storage.Internals
       }
     }
 
-//    [Infrastructure]
-//    public void Remove(Key key)
-//    {
-//      cache.Remove(key);
-//    }
+    [Infrastructure]
+    public void Remove(Key key)
+    {
+      cache.Remove(key);
+    }
 
     [Infrastructure]
     public void Clear()

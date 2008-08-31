@@ -97,6 +97,15 @@ namespace Xtensive.Storage.Rse.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t open EnumerationScope, since there is no current CompilationContext..
+        /// </summary>
+        internal static string ExCanTOpenEnumerationScopeSinceThereIsNoCurrentCompilationContext {
+            get {
+                return ResourceManager.GetString("ExCanTOpenEnumerationScopeSinceThereIsNoCurrentCompilationContext", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Could not resolve {0} &apos;{1}&apos; within the domain..
         /// </summary>
         internal static string ExCouldNotResolveXYWithinDomain {
