@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Core.Helpers;
+using Xtensive.Core.Reflection;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Model;
@@ -94,19 +95,25 @@ namespace Xtensive.Storage.Building.Builders
 //          string.Format(Strings.ExKeyProviderXAndHierarchyYKeyFieldAmountMismatch, 
 //          attribute.Generator, hierarchy.Root.Name));
 
-      for (int index = 0; index < attribute.KeyFields.Length; index++) {
+      for (int index = 0; index < attribute.KeyFields.Length; index++) {        
+
         Pair<string, Direction> result = ParseFieldName(attribute.KeyFields[index]);
-        KeyField field = new KeyField(result.First, type.Fields[result.First].ValueType);
+        FieldDef field = type.Fields[result.First];
+        if (field==null)
+          throw new DomainBuilderException(
+            string.Format(Strings.ExFieldXYIsNotFound, type.UnderlyingType.GetShortName(), result.First));
+
+        KeyField keyField = new KeyField(result.First, field.ValueType);
 
         if (!Validator.IsNameValid(result.First, ValidationRule.Field))
           throw new DomainBuilderException(
             string.Format(Strings.ExIndexFieldXIsIncorrect, attribute.KeyFields[index]));
 
-        if (hierarchy.KeyFields.ContainsKey(field))
+        if (hierarchy.KeyFields.ContainsKey(keyField))
           throw new DomainBuilderException(
             string.Format(Strings.ExIndexAlreadyContainsField, attribute.KeyFields[index]));
 
-        hierarchy.KeyFields.Add(field, result.Second);
+        hierarchy.KeyFields.Add(keyField, result.Second);
       }
     }
 
