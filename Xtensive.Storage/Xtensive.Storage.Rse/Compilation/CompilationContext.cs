@@ -18,8 +18,11 @@ using Xtensive.Core.Helpers;
 namespace Xtensive.Storage.Rse.Compilation
 {
   /// <summary>
-  /// The context for <see cref="Provider"/> compilation.
+  /// <see cref="CompilableProvider"/> compilation context.
   /// </summary>
+  /// <remarks>
+  /// <para id="About"><see cref="HasStaticDefaultDocTemplate" copy="true" /></para>
+  /// </remarks>
   public abstract class CompilationContext : Context<CompilationScope>,
     IHasExtensions
   {
@@ -52,12 +55,17 @@ namespace Xtensive.Storage.Rse.Compilation
     private readonly WeakCache<CompilableProvider, CacheEntry> cache;
     private readonly object _lock = new object();
 
+    /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
+    public static DefaultCompilationContext Default = 
+      new DefaultCompilationContext(
+        new DefaultCompiler());
+
     /// <summary>
     /// Gets the current compilation context.
     /// </summary>
     public static CompilationContext Current {
       [DebuggerStepThrough]
-      get { return CompilationScope.CurrentContext;  }
+      get { return CompilationScope.CurrentContext ?? Default;  }
     }
 
     /// <summary>

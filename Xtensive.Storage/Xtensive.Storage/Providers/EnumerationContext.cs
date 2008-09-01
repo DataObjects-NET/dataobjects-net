@@ -30,9 +30,10 @@ namespace Xtensive.Storage.Providers
       }
     }
 
+    /// <inheritdoc/>
     protected override Rse.Providers.EnumerationScope CreateActiveScope()
     {
-      return base.CreateActiveScope();
+      return new EnumerationScope(this);
     }
   }
 }

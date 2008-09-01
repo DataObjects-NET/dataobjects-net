@@ -7,8 +7,10 @@
 using System;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Rse.Providers;
-using Xtensive.Storage.Rse.Providers.Executable;
+using Xtensive.Storage.Rse.Providers.Compilable;
 using System.Linq;
+using RawProvider=Xtensive.Storage.Rse.Providers.Executable.RawProvider;
+using SaveProvider=Xtensive.Storage.Rse.Providers.Executable.SaveProvider;
 
 namespace Xtensive.Storage.Rse.Compilation
 {
@@ -26,7 +28,10 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <inheritdoc/>
     public override ExecutableProvider ToCompatible(ExecutableProvider provider)
     {
-      return new RawProvider(new Providers.Compilable.RawProvider(provider.Header, provider.ToArray()));
+      return new SaveProvider(
+        new Providers.Compilable.SaveProvider(provider.Origin, TemporaryDataScope.Enumeration, Guid.NewGuid().ToString()), 
+        provider);
+      // return new RawProvider(new Providers.Compilable.RawProvider(provider.Header, provider.ToArray()));
     }
 
     /// <summary>

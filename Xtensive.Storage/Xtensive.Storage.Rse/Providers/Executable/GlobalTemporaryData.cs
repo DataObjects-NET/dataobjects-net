@@ -14,6 +14,8 @@ namespace Xtensive.Storage.Rse.Providers.Executable
   /// </summary>
   public class GlobalTemporaryData : NamedValueCollection
   {
+    public object _lock = new object();
+
     /// <summary>
     /// Gets the current <see cref="GlobalTemporaryData"/> instance.
     /// </summary>
@@ -21,6 +23,22 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     {
       [DebuggerStepThrough]
       get { return EnumerationContext.Current.GlobalTemporaryData; }
+    }
+
+    /// <inheritdoc/>
+    public override object Get(string name)
+    {
+      lock (_lock) {
+        return base.Get(name);
+      }
+    }
+
+    /// <inheritdoc/>
+    public override void Set(string name, object value)
+    {
+      lock (_lock) {
+        base.Set(name, value);
+      }
     }
   }
 }

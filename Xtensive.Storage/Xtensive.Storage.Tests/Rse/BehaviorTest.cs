@@ -5,7 +5,6 @@
 // Created:    2008.05.19
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core;
@@ -13,10 +12,8 @@ using Xtensive.Core.Collections;
 using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
 using Xtensive.Storage.Rse;
-using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
-using CompilationContext=Xtensive.Storage.Providers.CompilationContext;
 
 namespace Xtensive.Storage.Tests.Rse
 {
@@ -67,11 +64,10 @@ namespace Xtensive.Storage.Tests.Rse
 
       RecordSet result = personIndexed.JoinLeft(authorsIndexed, 0, 0);
 
-      using (new CompilationContext(new DefaultCompiler()).Activate())
-        using (EnumerationScope.Open()) {
-          int count = result.Count();
-          Assert.AreEqual(personCount, count);
-        }
+      using (EnumerationScope.Open()) {
+        int count = result.Count();
+        Assert.AreEqual(personCount, count);
+      }
     }
 
     [Test]
