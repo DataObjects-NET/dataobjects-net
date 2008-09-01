@@ -22,20 +22,6 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
 {
   internal sealed class RangeProviderCompiler : TypeCompiler<RangeProvider>
   {
-//    private struct ExecutionHelper
-//    {
-//      public readonly Range<IEntire<Tuple>> OriginalRange;
-//      public Range<IEntire<Tuple>> CurrentRange
-//      {
-//        get
-//        {
-//          EnumerationContext.Current.S
-//          throw new NotImplementedException();
-//        }
-//      }
-//
-//    }
-
     protected override ExecutableProvider Compile(RangeProvider provider)
     {
       var source = provider.Source.Compile() as SqlProvider;
@@ -46,6 +32,8 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
       var keyColumns = provider.Header.Order.Select(pair => query.Columns[pair.Key]).ToList();
       var originalRange = provider.CompiledRange.Invoke();
       var request = new SqlQueryRequest(query, provider.Header.TupleDescriptor, source.Request.ParameterBindings);
+      var rangeProvider = new SqlRangeProvider(provider, request, Handlers, originalRange);
+
       Func<int,SqlParameter,SqlExpression> fromCompiler = null;
       fromCompiler = (i,pp) => {
         SqlExpression result = null;
@@ -54,21 +42,21 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
           var p = new SqlParameter();
           switch (originalRange.EndPoints.First.GetValueType(i)) {
           case EntireValueType.Default:
-            request.ParameterBindings.Add(p, () => provider.CompiledRange.Invoke().EndPoints.First.GetValue(i));
+            request.ParameterBindings.Add(p, () => rangeProvider.CurrentRange.EndPoints.First.GetValue(i));
             result = keyColumns[i] >= SqlFactory.ParameterRef(p);
             bContinue = true;
             break;
           case EntireValueType.PositiveInfinitesimal:
-            request.ParameterBindings.Add(p, () => provider.CompiledRange.Invoke().EndPoints.First.GetValue(i));
+            request.ParameterBindings.Add(p, () => rangeProvider.CurrentRange.EndPoints.First.GetValue(i));
             result = keyColumns[i] > SqlFactory.ParameterRef(p);
             break;
           case EntireValueType.NegativeInfinitesimal:
-            request.ParameterBindings.Add(p, () => provider.CompiledRange.Invoke().EndPoints.First.GetValue(i));
+            request.ParameterBindings.Add(p, () => rangeProvider.CurrentRange.EndPoints.First.GetValue(i));
             result = keyColumns[i] >= SqlFactory.ParameterRef(p);
             bContinue = true;
             break;
           case EntireValueType.PositiveInfinity:
-            request.ParameterBindings.Add(p, () => provider.CompiledRange.Invoke().EndPoints.First.GetValue(i));
+            request.ParameterBindings.Add(p, () => rangeProvider.CurrentRange.EndPoints.First.GetValue(i));
             result = SqlFactory.Constant("1") == SqlFactory.Constant("0");
             break;
           case EntireValueType.NegativeInfinity:
@@ -92,23 +80,23 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
           var p = new SqlParameter();
           switch (originalRange.EndPoints.Second.GetValueType(i)) {
           case EntireValueType.Default:
-            request.ParameterBindings.Add(p, () => provider.CompiledRange.Invoke().EndPoints.Second.GetValue(i));
+            request.ParameterBindings.Add(p, () => rangeProvider.CurrentRange.EndPoints.Second.GetValue(i));
             result = keyColumns[i] <= SqlFactory.ParameterRef(p);
             bContinue = true;
             break;
           case EntireValueType.PositiveInfinitesimal:
-            request.ParameterBindings.Add(p, () => provider.CompiledRange.Invoke().EndPoints.Second.GetValue(i));
+            request.ParameterBindings.Add(p, () => rangeProvider.CurrentRange.EndPoints.Second.GetValue(i));
             result = keyColumns[i] <= SqlFactory.ParameterRef(p);
             bContinue = true;
             break;
           case EntireValueType.NegativeInfinitesimal:
-            request.ParameterBindings.Add(p, () => provider.CompiledRange.Invoke().EndPoints.Second.GetValue(i));
+            request.ParameterBindings.Add(p, () => rangeProvider.CurrentRange.EndPoints.Second.GetValue(i));
             result = keyColumns[i] < SqlFactory.ParameterRef(p);
             break;
           case EntireValueType.PositiveInfinity:
             break;
           case EntireValueType.NegativeInfinity:
-            request.ParameterBindings.Add(p, () => provider.CompiledRange.Invoke().EndPoints.Second.GetValue(i));
+            request.ParameterBindings.Add(p, () => rangeProvider.CurrentRange.EndPoints.Second.GetValue(i));
             result = SqlFactory.Constant("1") == SqlFactory.Constant("0");
             break;
           }
@@ -124,7 +112,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
       };
       query.Where &= fromCompiler(0, null) && toCompiler(0, null);
 
-      return new SqlProvider(provider, request, Handlers);
+      return rangeProvider;
     }
 
 
