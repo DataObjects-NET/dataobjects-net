@@ -14,7 +14,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   {
     public override IComparisonResult<Translation> Compare(Translation originalNode, Translation newNode, IEnumerable<ComparisonHintBase> hints)
     {
-      throw new System.NotImplementedException();
+      return new TranslationComparisonResult(originalNode, newNode);
     }
 
     public TranslationSqlComparer(ISqlComparerProvider provider)

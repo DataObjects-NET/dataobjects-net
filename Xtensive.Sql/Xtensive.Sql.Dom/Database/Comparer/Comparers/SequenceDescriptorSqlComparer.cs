@@ -16,18 +16,15 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     {
       var result = new SequenceDescriptorComparisonResult(originalNode, newNode);
       bool hasChanges = false;
-
+      result.StartValue = CompareSimpleNode(originalNode == null ? null : originalNode.StartValue, newNode == null ? null : newNode.StartValue, ref hasChanges);
+      result.Increment = CompareSimpleNode(originalNode == null ? null : originalNode.Increment, newNode == null ? null : newNode.Increment, ref hasChanges);
+      result.MaxValue = CompareSimpleNode(originalNode == null ? null : originalNode.MaxValue, newNode == null ? null : newNode.MaxValue, ref hasChanges);
+      result.MinValue = CompareSimpleNode(originalNode == null ? null : originalNode.MinValue, newNode == null ? null : newNode.MinValue, ref hasChanges);
+      result.IsCyclic = CompareSimpleNode(originalNode == null ? null : originalNode.IsCyclic, newNode == null ? null : newNode.IsCyclic, ref hasChanges);
       if (hasChanges && result.ResultType == ComparisonResultType.Unchanged)
         result.ResultType = ComparisonResultType.Modified;
       result.Lock(true);
       return result;
-      // TODO: Finish comparer
-//    private long? startValue;
-//    private long? increment;
-//    private long? maxValue;
-//    private long? minValue;
-//    private bool? isCyclic;
-      throw new System.NotImplementedException();
     }
 
     public SequenceDescriptorSqlComparer(ISqlComparerProvider provider)
