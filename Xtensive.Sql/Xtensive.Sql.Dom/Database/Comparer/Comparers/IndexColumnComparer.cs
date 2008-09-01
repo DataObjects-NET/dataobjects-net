@@ -12,12 +12,12 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   [Serializable]
   internal class IndexColumnComparer : WrappingNodeComparer<IndexColumn, DataTableColumn>
   {
-    public override IComparisonResult<IndexColumn> Compare(IndexColumn originalNode, IndexColumn newNode, IEnumerable<ComparisonHintBase> hints)
+    public override IComparisonResult<IndexColumn> Compare(IndexColumn originalNode, IndexColumn newNode)
     {
       var result = new IndexColumnComparisonResult(originalNode, newNode);
       bool hasChanges = false;
       result.Ascending = CompareSimpleStruct(originalNode==null ? (bool?) null : originalNode.Ascending, newNode==null ? (bool?) null : newNode.Ascending, ref hasChanges);
-      result.Column = (DataTableColumnComparisonResult)BaseNodeComparer1.Compare(originalNode == null ? null : originalNode.Column, newNode == null ? null : newNode.Column, hints);
+      result.Column = (DataTableColumnComparisonResult)BaseNodeComparer1.Compare(originalNode == null ? null : originalNode.Column, newNode == null ? null : newNode.Column);
       if (hasChanges && result.ResultType == ComparisonResultType.Unchanged)
         result.ResultType = ComparisonResultType.Modified;
       result.Lock(true);

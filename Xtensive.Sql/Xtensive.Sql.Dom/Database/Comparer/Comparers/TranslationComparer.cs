@@ -12,7 +12,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   [Serializable]
   internal class TranslationComparer : NodeComparerBase<Translation>
   {
-    public override IComparisonResult<Translation> Compare(Translation originalNode, Translation newNode, IEnumerable<ComparisonHintBase> hints)
+    public override IComparisonResult<Translation> Compare(Translation originalNode, Translation newNode)
     {
       return new TranslationComparisonResult(originalNode, newNode);
     }

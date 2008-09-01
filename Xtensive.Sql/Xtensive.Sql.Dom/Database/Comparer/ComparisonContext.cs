@@ -5,6 +5,7 @@
 // Created:    2008.09.01
 
 using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Core;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
@@ -27,6 +28,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
 
     public ComparisonContext(IEnumerable<ComparisonHintBase> hints)
     {
+      hints = hints ?? Enumerable.Empty<ComparisonHintBase>();
       Hints = hints;
     }
   }

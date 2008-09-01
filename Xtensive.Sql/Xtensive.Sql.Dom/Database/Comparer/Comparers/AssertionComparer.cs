@@ -12,7 +12,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   [Serializable]
   internal class AssertionComparer : NodeComparerBase<Assertion>
   {
-    public override IComparisonResult<Assertion> Compare(Assertion originalNode, Assertion newNode, IEnumerable<ComparisonHintBase> hints)
+    public override IComparisonResult<Assertion> Compare(Assertion originalNode, Assertion newNode)
     {
       var result = new AssertionComparisonResult(originalNode, newNode);
       bool hasChanges = false;

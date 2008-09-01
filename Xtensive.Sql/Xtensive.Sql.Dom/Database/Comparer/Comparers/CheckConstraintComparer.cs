@@ -12,7 +12,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   [Serializable]
   internal class CheckConstraintComparer : NodeComparerBase<CheckConstraint>
   {
-    public override IComparisonResult<CheckConstraint> Compare(CheckConstraint originalNode, CheckConstraint newNode, IEnumerable<ComparisonHintBase> hints)
+    public override IComparisonResult<CheckConstraint> Compare(CheckConstraint originalNode, CheckConstraint newNode)
     {
       return new CheckConstraintComparisonResult(originalNode, newNode);
 

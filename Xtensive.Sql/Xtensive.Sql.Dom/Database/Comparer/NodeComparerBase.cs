@@ -24,7 +24,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     private INodeComparerProvider provider;
 
     /// <inheritdoc/>
-    public abstract IComparisonResult<T> Compare(T originalNode, T newNode, IEnumerable<ComparisonHintBase> hints);
+    public abstract IComparisonResult<T> Compare(T originalNode, T newNode);
 
     /// <inheritdoc/>
     public INodeComparerProvider Provider
@@ -43,15 +43,15 @@ namespace Xtensive.Sql.Dom.Database.Comparer
             && hint.GetType()==typeof (THintType)).Convert(hint => (THintType) (object) hint);
     }
 
-    protected static bool CompareNestedNodes<TNode, TResult>(IEnumerable<TNode> originalNodes, IEnumerable<TNode> newNodes, IEnumerable<ComparisonHintBase> hints, NodeComparerStruct<TNode> comparer, ICollection<TResult> results)
+    protected static bool CompareNestedNodes<TNode, TResult>(IEnumerable<TNode> originalNodes, IEnumerable<TNode> newNodes, NodeComparerStruct<TNode> comparer, ICollection<TResult> results)
       where TNode : class
       where TResult : IComparisonResult<TNode>
     {
-      if (!ProcessNullNodes(originalNodes, newNodes, comparer, hints, results))
+      if (!ProcessNullNodes(originalNodes, newNodes, comparer, results))
         return false;
       if (typeof (TNode).IsSubclassOf(typeof (Node)))
-        return CompareNamedNodes(originalNodes, newNodes, comparer, hints, results);
-      return CompareUnnamedNodes(originalNodes, newNodes, comparer, hints, results);
+        return CompareNamedNodes(originalNodes, newNodes, comparer, results);
+      return CompareUnnamedNodes(originalNodes, newNodes, comparer, results);
     }
 
     internal static ComparisonResult<TNode> CompareSimpleNode<TNode>(TNode originalNode, TNode newNode, ref bool hasChanges)
@@ -87,7 +87,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
 
     #region Private methods
 
-    private static bool ProcessNullNodes<TNode, TResult>(IEnumerable<TNode> originalNodes, IEnumerable<TNode> newNodes, NodeComparerStruct<TNode> comparer, IEnumerable<ComparisonHintBase> hints, ICollection<TResult> results)
+    private static bool ProcessNullNodes<TNode, TResult>(IEnumerable<TNode> originalNodes, IEnumerable<TNode> newNodes, NodeComparerStruct<TNode> comparer, ICollection<TResult> results)
       where TNode : class
       where TResult : IComparisonResult<TNode>
     {
@@ -96,7 +96,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
       bool hasChanges = false;
       if (originalNodes==null) {
         foreach (var newNest in newNodes) {
-          IComparisonResult<TNode> compare = comparer.Compare((TNode) null, newNest, hints);
+          IComparisonResult<TNode> compare = comparer.Compare((TNode) null, newNest);
           if (compare.HasChanges)
             hasChanges = true;
           results.Add((TResult) compare);
@@ -105,7 +105,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
       }
       if (newNodes==null) {
         foreach (var originalNest in originalNodes) {
-          IComparisonResult<TNode> compare = comparer.Compare(originalNest, (TNode) null, hints);
+          IComparisonResult<TNode> compare = comparer.Compare(originalNest, (TNode) null);
           if (compare.HasChanges)
             hasChanges = true;
           results.Add((TResult) compare);
@@ -115,10 +115,11 @@ namespace Xtensive.Sql.Dom.Database.Comparer
       return true;
     }
 
-    private static bool CompareNamedNodes<TNode, TResult>(IEnumerable<TNode> originalNodes, IEnumerable<TNode> newNodes, NodeComparerStruct<TNode> comparer, IEnumerable<ComparisonHintBase> hints, ICollection<TResult> results)
+    private static bool CompareNamedNodes<TNode, TResult>(IEnumerable<TNode> originalNodes, IEnumerable<TNode> newNodes, NodeComparerStruct<TNode> comparer, ICollection<TResult> results)
       where TNode : class
       where TResult : IComparisonResult<TNode>
     {
+      var hints = ComparisonScope.CurrentContext.Hints;
       // Process "rename" hint, compare by name
       bool hasChanges = false;
       var originalNodeSet = new SetSlim<TNode>(originalNodes ?? Enumerable.Empty<TNode>());
@@ -137,13 +138,13 @@ namespace Xtensive.Sql.Dom.Database.Comparer
             originalNode = originalEnumerator.Current;
             originalNodeSet.Remove(originalNode);
           }
-          var comparisonResult = comparer.Compare(originalNode, newNest, hints);
+          var comparisonResult = comparer.Compare(originalNode, newNest);
           if (comparisonResult.HasChanges)
             hasChanges = true;
           results.Add((TResult) comparisonResult);
         }
       foreach (TNode originalNode in originalNodeSet) {
-        IComparisonResult<TNode> compare = comparer.Compare(originalNode, null, hints);
+        IComparisonResult<TNode> compare = comparer.Compare(originalNode, null);
         if (compare.HasChanges)
           hasChanges = true;
         results.Add((TResult) compare);
@@ -151,7 +152,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
       return hasChanges;
     }
 
-    private static bool CompareUnnamedNodes<TNode, TResult>(IEnumerable<TNode> originalNodes, IEnumerable<TNode> newNodes, NodeComparerStruct<TNode> comparer, IEnumerable<ComparisonHintBase> hints, ICollection<TResult> results)
+    private static bool CompareUnnamedNodes<TNode, TResult>(IEnumerable<TNode> originalNodes, IEnumerable<TNode> newNodes, NodeComparerStruct<TNode> comparer, ICollection<TResult> results)
       where TNode : class
       where TResult : IComparisonResult<TNode>
     {
@@ -160,14 +161,14 @@ namespace Xtensive.Sql.Dom.Database.Comparer
       var newEnumerator = newNodes.GetEnumerator();
       while (originalEnumerator.MoveNext()) {
         IComparisonResult<TNode> compare = newEnumerator.MoveNext()
-          ? comparer.Compare(originalEnumerator.Current, newEnumerator.Current, hints)
-          : comparer.Compare(originalEnumerator.Current, null, hints);
+          ? comparer.Compare(originalEnumerator.Current, newEnumerator.Current)
+          : comparer.Compare(originalEnumerator.Current, null);
         if (compare.HasChanges)
           hasChanges = true;
         results.Add((TResult) compare);
       }
       while (newEnumerator.MoveNext()) {
-        IComparisonResult<TNode> compare = comparer.Compare(originalEnumerator.Current, newEnumerator.Current, hints);
+        IComparisonResult<TNode> compare = comparer.Compare(originalEnumerator.Current, newEnumerator.Current);
         if (compare.HasChanges)
           hasChanges = true;
         results.Add((TResult) compare);

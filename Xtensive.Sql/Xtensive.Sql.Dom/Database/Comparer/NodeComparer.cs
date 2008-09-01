@@ -31,7 +31,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     /// Gets default comparer for type <typeparamref name="T"/>
     /// (uses <see cref="NodeComparerProvider.Default"/> <see cref="NodeComparerProvider"/>).
     /// </summary>
-    public static NodeComparer<T> Default
+    internal static NodeComparer<T> Default
     {
       [DebuggerStepThrough]
       get
@@ -60,7 +60,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     /// <summary>
     /// Gets <see cref="INodeComparer{T}.Compare"/> method delegate.
     /// </summary>
-    public readonly Func<T, T, IEnumerable<ComparisonHintBase>, IComparisonResult<T>> Compare;
+    public readonly Func<T, T, IComparisonResult<T>> Compare;
 
 
     // Constructors

@@ -13,7 +13,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   [Serializable]
   internal class ForeignKeyComparer : NodeComparerBase<ForeignKey>
   {
-    public override IComparisonResult<ForeignKey> Compare(ForeignKey originalNode, ForeignKey newNode, IEnumerable<ComparisonHintBase> hints)
+    public override IComparisonResult<ForeignKey> Compare(ForeignKey originalNode, ForeignKey newNode)
     {
       var result = new ForeignKeyComparisonResult(originalNode, newNode);
       bool hasChanges = false;

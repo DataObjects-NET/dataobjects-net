@@ -12,7 +12,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   [Serializable]
   internal class UserComparer : NodeComparerBase<User>
   {
-    public override IComparisonResult<User> Compare(User originalNode, User newNode, IEnumerable<ComparisonHintBase> hints)
+    public override IComparisonResult<User> Compare(User originalNode, User newNode)
     {
       return new UserComparisonResult(originalNode, newNode);
     }

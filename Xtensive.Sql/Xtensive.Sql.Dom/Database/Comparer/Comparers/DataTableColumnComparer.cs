@@ -12,7 +12,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   [Serializable]
   internal class DataTableColumnComparer : WrappingNodeComparer<DataTableColumn, TableColumn, ViewColumn>
   {
-    public override IComparisonResult<DataTableColumn> Compare(DataTableColumn originalNode, DataTableColumn newNode, IEnumerable<ComparisonHintBase> hints)
+    public override IComparisonResult<DataTableColumn> Compare(DataTableColumn originalNode, DataTableColumn newNode)
     {
       IComparisonResult<DataTableColumn> result;
       if (originalNode==null && newNode==null)
@@ -20,9 +20,9 @@ namespace Xtensive.Sql.Dom.Database.Comparer
       else if (originalNode!=null && newNode!=null && originalNode.GetType()!=newNode.GetType())
         result = new DataTableColumnComparisonResult(originalNode, newNode) {ResultType = ComparisonResultType.Modified};
       else if ((originalNode ?? newNode).GetType()==typeof (TableColumn))
-        result = (IComparisonResult<DataTableColumn>) BaseNodeComparer1.Compare(originalNode as TableColumn, newNode as TableColumn, hints);
+        result = (IComparisonResult<DataTableColumn>) BaseNodeComparer1.Compare(originalNode as TableColumn, newNode as TableColumn);
       else if ((originalNode ?? newNode).GetType()==typeof (ViewColumn))
-        result = (IComparisonResult<DataTableColumn>) BaseNodeComparer2.Compare(originalNode as ViewColumn, newNode as ViewColumn, hints);
+        result = (IComparisonResult<DataTableColumn>) BaseNodeComparer2.Compare(originalNode as ViewColumn, newNode as ViewColumn);
       else
         throw new NotSupportedException(String.Format(Resources.Strings.ExColumnTypeIsNotSupportedByComparer, (originalNode ?? newNode).GetType().FullName, GetType().FullName));
       result.Lock();

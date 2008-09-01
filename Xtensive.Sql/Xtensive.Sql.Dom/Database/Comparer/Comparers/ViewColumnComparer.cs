@@ -11,7 +11,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
 {
   internal class ViewColumnComparer : NodeComparerBase<ViewColumn>
   {
-    public override IComparisonResult<ViewColumn> Compare(ViewColumn originalNode, ViewColumn newNode, IEnumerable<ComparisonHintBase> hints)
+    public override IComparisonResult<ViewColumn> Compare(ViewColumn originalNode, ViewColumn newNode)
     {
       return new ViewColumnComparisonResult(originalNode, newNode);
     }

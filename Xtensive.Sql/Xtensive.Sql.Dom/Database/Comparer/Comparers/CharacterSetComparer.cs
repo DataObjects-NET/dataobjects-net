@@ -12,7 +12,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   [Serializable]
   internal class CharacterSetComparer : NodeComparerBase<CharacterSet>
   {
-    public override IComparisonResult<CharacterSet> Compare(CharacterSet originalNode, CharacterSet newNode, IEnumerable<ComparisonHintBase> hints)
+    public override IComparisonResult<CharacterSet> Compare(CharacterSet originalNode, CharacterSet newNode)
     {
       return new CharacterSetComparisonResult(originalNode, newNode);
     }

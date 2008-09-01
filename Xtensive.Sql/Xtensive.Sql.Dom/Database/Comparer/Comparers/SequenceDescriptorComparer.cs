@@ -12,7 +12,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   [Serializable]
   internal class SequenceDescriptorComparer : NodeComparerBase<SequenceDescriptor>
   {
-    public override IComparisonResult<SequenceDescriptor> Compare(SequenceDescriptor originalNode, SequenceDescriptor newNode, IEnumerable<ComparisonHintBase> hints)
+    public override IComparisonResult<SequenceDescriptor> Compare(SequenceDescriptor originalNode, SequenceDescriptor newNode)
     {
       var result = new SequenceDescriptorComparisonResult(originalNode, newNode);
       bool hasChanges = false;

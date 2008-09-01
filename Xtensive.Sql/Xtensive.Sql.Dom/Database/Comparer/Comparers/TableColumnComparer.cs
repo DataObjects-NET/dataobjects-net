@@ -12,15 +12,15 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   [Serializable]
   internal class TableColumnComparer : WrappingNodeComparer<TableColumn, Collation, Domain, SequenceDescriptor>
   {
-    public override IComparisonResult<TableColumn> Compare(TableColumn originalNode, TableColumn newNode, IEnumerable<ComparisonHintBase> hints)
+    public override IComparisonResult<TableColumn> Compare(TableColumn originalNode, TableColumn newNode)
     {
       var result = new TableColumnComparisonResult(originalNode, newNode);
       bool hasChanges = false;
-      result.Collation = (CollationComparisonResult)BaseNodeComparer1.Compare(originalNode == null ? null : originalNode.Collation, newNode == null ? null : newNode.Collation, hints);
+      result.Collation = (CollationComparisonResult)BaseNodeComparer1.Compare(originalNode == null ? null : originalNode.Collation, newNode == null ? null : newNode.Collation);
       hasChanges |= result.Collation.HasChanges;
-      result.Domain = (DomainComparisonResult) BaseNodeComparer2.Compare(originalNode==null ? null : originalNode.Domain, newNode==null ? null : newNode.Domain, hints);
+      result.Domain = (DomainComparisonResult) BaseNodeComparer2.Compare(originalNode==null ? null : originalNode.Domain, newNode==null ? null : newNode.Domain);
       hasChanges |= result.Domain.HasChanges;
-      result.SequenceDescriptor = (SequenceDescriptorComparisonResult) BaseNodeComparer3.Compare(originalNode==null ? null : originalNode.SequenceDescriptor, newNode==null ? null : newNode.SequenceDescriptor, hints);
+      result.SequenceDescriptor = (SequenceDescriptorComparisonResult) BaseNodeComparer3.Compare(originalNode==null ? null : originalNode.SequenceDescriptor, newNode==null ? null : newNode.SequenceDescriptor);
       hasChanges |= result.SequenceDescriptor.HasChanges;
       result.DataType = CompareSimpleNode(originalNode==null ? null : originalNode.DataType, newNode==null ? null : newNode.DataType, ref hasChanges);
       result.DefaultValue = CompareSimpleNode(originalNode==null ? null : originalNode.DefaultValue, newNode==null ? null : newNode.DefaultValue, ref hasChanges);
