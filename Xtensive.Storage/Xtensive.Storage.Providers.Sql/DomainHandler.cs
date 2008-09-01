@@ -138,16 +138,6 @@ namespace Xtensive.Storage.Providers.Sql
               keyColumns.Add(tableColumn);
           }
           table.CreatePrimaryKey(primaryIndex.Name, keyColumns.ToArray());
-          // Primary key included columns
-          if (primaryIndex.IncludedColumns.Count > 0) {
-            Index index = table.CreateIndex(primaryIndex.Name + "_IncludedColumns");
-            index.IsUnique = false;
-            index.Filegroup = "\"default\"";
-            foreach (ColumnInfo includedColumn in primaryIndex.IncludedColumns) {
-              ColumnInfo includedColumn1 = includedColumn;
-              index.CreateIndexColumn(table.TableColumns.First(tableColumn => tableColumn.Name==includedColumn1.Name));
-            }
-          }
           // Secondary indexes
           foreach (IndexInfo secondaryIndex in type.Indexes.Find(IndexAttributes.Real).Where(indexInfo => !indexInfo.IsPrimary)) {
             Index index = table.CreateIndex(secondaryIndex.Name);

@@ -23,7 +23,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
         return null;
 
       var query = (SqlSelect)source.Request.Statement.Clone();
-      SqlQueryRequest request = new SqlQueryRequest(query, provider.Header.TupleDescriptor, source.Request.ParameterBindings);
+      var request = new SqlQueryRequest(query, provider.Header.TupleDescriptor, source.Request.ParameterBindings);
       var keyColumns = provider.Header.Order.Select(pair => query.Columns[pair.Key]).ToList();
       for (int i = 0; i < keyColumns.Count - 1; i++) {
         var p = new SqlParameter();

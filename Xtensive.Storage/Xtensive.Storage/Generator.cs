@@ -33,6 +33,7 @@ namespace Xtensive.Storage
     private volatile Future<IEnumerable<Tuple>> preCachingTask;
     private int cacheSize;
     private bool isGuid;
+    private TaskManager taskManager;
 
     /// <summary>
     /// Gets the hierarchy this instance serves.
@@ -53,19 +54,22 @@ namespace Xtensive.Storage
 
     private Tuple NextOneCached()
     {
-      var minCached = cacheSize / 2;
+//      var minCached = cacheSize / 2;
       lock (_lock) {
-        if (preCachedValues.Count <= minCached) {
-          foreach (Tuple tuple in NextMany(cacheSize))
+        if (preCachedValues.Count == 0) {
+          foreach (var tuple in NextMany(cacheSize))
             preCachedValues.Enqueue(tuple);
+        }
+//        if (preCachedValues.Count <= minCached) {
 //          if (preCachingTask==null)
 //            preCachingTask = Future<IEnumerable<Tuple>>.Create(() => NextMany(cacheSize));
-//        if (preCachedValues.Count == 0) {
-//          foreach (var tuple in preCachingTask.Value)
-//            preCachedValues.Enqueue(tuple);
-//          preCachingTask.Dispose();
-//          preCachingTask = null;
-        }
+//          if (preCachedValues.Count == 0) {
+//            foreach (var tuple in preCachingTask.Value)
+//              preCachedValues.Enqueue(tuple);
+//            preCachingTask.Dispose();
+//            preCachingTask = null;
+//          }
+//        }
         return preCachedValues.Dequeue();
       }
     }
@@ -95,6 +99,7 @@ namespace Xtensive.Storage
         cacheSize = 0;
       Type fieldType = Hierarchy.KeyTupleDescriptor[0];
       isGuid = fieldType==typeof (Guid);
+      taskManager = new TaskManager();
     }
 
     /// <summary>

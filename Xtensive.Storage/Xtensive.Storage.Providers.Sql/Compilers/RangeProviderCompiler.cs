@@ -4,12 +4,14 @@
 // Created by: Alexey Kochetov
 // Created:    2008.07.14
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
+using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
@@ -20,67 +22,19 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
 {
   internal sealed class RangeProviderCompiler : TypeCompiler<RangeProvider>
   {
-    private struct ExpressionData
-    {
-      public SqlExpression Expression;
-      public readonly IEntire<Tuple> RangeBound;
-      public readonly bool IsLowerBound;
-      public readonly IList<SqlColumn> KeyColumns;
-
-      public ExpressionData(SqlExpression expression, IEntire<Tuple> rangeBound, IList<SqlColumn> keyColumns, bool isLowerBound)
-      {
-        Expression = expression;
-        RangeBound = rangeBound;
-        KeyColumns = keyColumns;
-        IsLowerBound = isLowerBound;
-      }
-    }
-
-    private struct ExpressionHandler : ITupleActionHandler<ExpressionData>
-    {
-      public bool Execute<TFieldType>(ref ExpressionData actionData, int fieldIndex)
-      {
-        if (actionData.IsLowerBound)
-        {
-          var entireValueType = actionData.RangeBound.GetValueType(fieldIndex);
-          switch (entireValueType) {
-            case EntireValueType.PositiveInfinitesimal:
-              actionData.Expression &= actionData.KeyColumns[fieldIndex] > SqlFactory.Literal(actionData.RangeBound.GetValue<TFieldType>(fieldIndex));
-              return false;
-            case EntireValueType.NegativeInfinitesimal:
-              actionData.Expression &= actionData.KeyColumns[fieldIndex] >= SqlFactory.Literal(actionData.RangeBound.GetValue<TFieldType>(fieldIndex));
-              return false;
-            case EntireValueType.PositiveInfinity:
-              actionData.Expression &= SqlFactory.Constant("1") != SqlFactory.Constant("1");
-              return true;
-            case EntireValueType.NegativeInfinity:
-              return false;
-            default:
-              actionData.Expression &= actionData.KeyColumns[fieldIndex] >= SqlFactory.Literal(actionData.RangeBound.GetValue<TFieldType>(fieldIndex));
-              return false;
-          }
-        }
-        else {
-          var entireValueType = actionData.RangeBound.GetValueType(fieldIndex);
-          switch (entireValueType) {
-            case EntireValueType.PositiveInfinitesimal:
-              actionData.Expression &= actionData.KeyColumns[fieldIndex] <= SqlFactory.Literal(actionData.RangeBound.GetValue<TFieldType>(fieldIndex));
-              return false;
-            case EntireValueType.NegativeInfinitesimal:
-              actionData.Expression &= actionData.KeyColumns[fieldIndex] < SqlFactory.Literal(actionData.RangeBound.GetValue<TFieldType>(fieldIndex));
-              return false;
-            case EntireValueType.PositiveInfinity:
-              return false;
-            case EntireValueType.NegativeInfinity:
-              actionData.Expression &= SqlFactory.Constant("1")!=SqlFactory.Constant("1");
-              return true;
-            default:
-              actionData.Expression &= actionData.KeyColumns[fieldIndex] <= SqlFactory.Literal(actionData.RangeBound.GetValue<TFieldType>(fieldIndex));
-              return false;
-            }
-        }
-      }
-    }
+//    private struct ExecutionHelper
+//    {
+//      public readonly Range<IEntire<Tuple>> OriginalRange;
+//      public Range<IEntire<Tuple>> CurrentRange
+//      {
+//        get
+//        {
+//          EnumerationContext.Current.S
+//          throw new NotImplementedException();
+//        }
+//      }
+//
+//    }
 
     protected override ExecutableProvider Compile(RangeProvider provider)
     {
@@ -88,27 +42,88 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
       if (source == null)
         return null;
 
-      SqlSelect query = source.Request.Statement.Clone() as SqlSelect;
-
-      var range = provider.CompiledRange.Invoke();
-      var direction = range.GetDirection(AdvancedComparer<IEntire<Tuple>>.Default);
-      var from = direction == Direction.Positive ? 
-        range.EndPoints.First : 
-        range.EndPoints.Second;
-      var to = direction == Direction.Positive ?
-        range.EndPoints.Second :
-        range.EndPoints.First;
-
+      var query = (SqlSelect)source.Request.Statement.Clone();
       var keyColumns = provider.Header.Order.Select(pair => query.Columns[pair.Key]).ToList();
-      var expressionDataFrom = new ExpressionData(null, from, keyColumns, true);
-      var expressionDataTo = new ExpressionData(null, to, keyColumns, true);
-      var expressionHandler = new ExpressionHandler();
-      from.Descriptor.Execute(expressionHandler, ref expressionDataFrom, Direction.Positive);
-      to.Descriptor.Execute(expressionHandler, ref expressionDataTo, Direction.Negative);
+      var originalRange = provider.CompiledRange.Invoke();
+      var request = new SqlQueryRequest(query, provider.Header.TupleDescriptor, source.Request.ParameterBindings);
+      Func<int,SqlParameter,SqlExpression> fromCompiler = null;
+      fromCompiler = (i,pp) => {
+        SqlExpression result = null;
+        bool bContinue = false;
+        if (originalRange.EndPoints.First.Count > i && originalRange.EndPoints.First.IsAvailable(i)) {
+          var p = new SqlParameter();
+          switch (originalRange.EndPoints.First.GetValueType(i)) {
+          case EntireValueType.Default:
+            request.ParameterBindings.Add(p, () => provider.CompiledRange.Invoke().EndPoints.First.GetValue(i));
+            result = keyColumns[i] >= SqlFactory.ParameterRef(p);
+            bContinue = true;
+            break;
+          case EntireValueType.PositiveInfinitesimal:
+            request.ParameterBindings.Add(p, () => provider.CompiledRange.Invoke().EndPoints.First.GetValue(i));
+            result = keyColumns[i] > SqlFactory.ParameterRef(p);
+            break;
+          case EntireValueType.NegativeInfinitesimal:
+            request.ParameterBindings.Add(p, () => provider.CompiledRange.Invoke().EndPoints.First.GetValue(i));
+            result = keyColumns[i] >= SqlFactory.ParameterRef(p);
+            bContinue = true;
+            break;
+          case EntireValueType.PositiveInfinity:
+            request.ParameterBindings.Add(p, () => provider.CompiledRange.Invoke().EndPoints.First.GetValue(i));
+            result = SqlFactory.Constant("1") == SqlFactory.Constant("0");
+            break;
+          case EntireValueType.NegativeInfinity:
+            break;
+          }
+          if (pp!=null)
+            result = (keyColumns[i - 1]==pp) & result;
+          if (bContinue) {
+            var nextColumnExpression = fromCompiler(i + 1, p);
+            if (!SqlExpression.IsNull(nextColumnExpression))
+              result = result & nextColumnExpression;
+          }
+        }
+        return result;
+      };
+      Func<int,SqlParameter,SqlExpression> toCompiler = null;
+      toCompiler = (i,pp) => {
+        SqlExpression result = null;
+        bool bContinue = false;
+        if (originalRange.EndPoints.Second.Count > i && originalRange.EndPoints.Second.IsAvailable(i)) {
+          var p = new SqlParameter();
+          switch (originalRange.EndPoints.Second.GetValueType(i)) {
+          case EntireValueType.Default:
+            request.ParameterBindings.Add(p, () => provider.CompiledRange.Invoke().EndPoints.Second.GetValue(i));
+            result = keyColumns[i] <= SqlFactory.ParameterRef(p);
+            bContinue = true;
+            break;
+          case EntireValueType.PositiveInfinitesimal:
+            request.ParameterBindings.Add(p, () => provider.CompiledRange.Invoke().EndPoints.Second.GetValue(i));
+            result = keyColumns[i] <= SqlFactory.ParameterRef(p);
+            bContinue = true;
+            break;
+          case EntireValueType.NegativeInfinitesimal:
+            request.ParameterBindings.Add(p, () => provider.CompiledRange.Invoke().EndPoints.Second.GetValue(i));
+            result = keyColumns[i] < SqlFactory.ParameterRef(p);
+            break;
+          case EntireValueType.PositiveInfinity:
+            break;
+          case EntireValueType.NegativeInfinity:
+            request.ParameterBindings.Add(p, () => provider.CompiledRange.Invoke().EndPoints.Second.GetValue(i));
+            result = SqlFactory.Constant("1") == SqlFactory.Constant("0");
+            break;
+          }
+          if (pp!=null)
+            result = (keyColumns[i - 1]==pp) & result;
+          if (bContinue) {
+            var nextColumnExpression = toCompiler(i + 1, p);
+            if (!SqlExpression.IsNull(nextColumnExpression))
+              result = result & nextColumnExpression;
+          }
+        }
+        return result;
+      };
+      query.Where &= fromCompiler(0, null) && toCompiler(0, null);
 
-      query.Where &= expressionDataFrom.Expression & expressionDataTo.Expression;
-
-      SqlQueryRequest request = new SqlQueryRequest(query, provider.Header.TupleDescriptor, source.Request.ParameterBindings);
       return new SqlProvider(provider, request, Handlers);
     }
 

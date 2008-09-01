@@ -332,10 +332,10 @@ namespace Xtensive.Storage.Tests.Storage
           using(new ParameterScope()) {
             pID.Value = new Range<IEntire<Tuple>>(Entire<Tuple>.Create(Tuple.Create(21)), Entire<Tuple>.Create(Tuple.Create(120)));
             pName.Value = new Range<IEntire<Tuple>>(Entire<Tuple>.Create(Tuple.Create("Kaa")), Entire<Tuple>.Create(Tuple.Create("Kaa900")));
-            Assert.AreEqual(100, result.Count());
+            var count = result.Count();
+            t.Complete();
+            Assert.AreEqual(91, count);
           }
-
-          t.Complete();
         }
       }
     }
@@ -449,8 +449,6 @@ namespace Xtensive.Storage.Tests.Storage
             l.Color = "Color" + i;
           }
 
-          t.Complete();
-        return;
           Tuple from = Tuple.Create(21);
           Tuple to = Tuple.Create(120);
           Tuple fromName = Tuple.Create("Kaa");
@@ -547,33 +545,33 @@ namespace Xtensive.Storage.Tests.Storage
     [Explicit, Category("Performance")]
     public void PerformanceTest()
     {
-      const int snakesCount = 512;
+      const int snakesCount = 1024;
       var snakesDTO = new List<Tuple>();
 
       using (new Measurement("Persisting...", snakesCount))
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
-          for (int i = 0; i < snakesCount; i++)
-            new Snake {Name = ("Name_" + i), Length = (i % 11 + 2)};
-//            snakes.Add(snake);
+          for (int i = 0; i < snakesCount; i++) {
+            var snake = new Snake {Name = ("Name_" + i), Length = (i % 11 + 2)};
+            snakesDTO.Add(Tuple.Create(snake.Key, snake.Name, snake.Length));
+          }
           t.Complete();
         }
       }
-//
-//      using (new Measurement("Fetching...", snakesCount))
-//      using (Domain.OpenSession()) {
-//        using (var t = Session.Current.BeginTransaction()) {
-//          for (int i = 0; i < snakesCount; i++) {
-//            Snake snake = snakes[i];
-//            Snake persistedSnake = snake.Key.Resolve<Snake>();
-//            Assert.IsNotNull(persistedSnake);
-//            Assert.AreEqual(snake.Name, persistedSnake.Name);
-//            Assert.AreEqual(snake.Length, persistedSnake.Length);
-//          }
-//          Session.Current.Persist();
-//          t.Complete();
-//        }
-//      }
+
+      using (new Measurement("Fetching...", snakesCount))
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          for (int i = 0; i < snakesCount; i++) {
+            Snake persistedSnake = snakesDTO[i].GetValue<Key>(0).Resolve<Snake>();
+            Assert.IsNotNull(persistedSnake);
+            Assert.AreEqual(snakesDTO[i].GetValue<string>(1), persistedSnake.Name);
+            Assert.AreEqual(snakesDTO[i].GetValue<int?>(2), persistedSnake.Length);
+          }
+          Session.Current.Persist();
+          t.Complete();
+        }
+      }
     }
   }
 }
