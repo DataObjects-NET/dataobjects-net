@@ -13,6 +13,9 @@ namespace Xtensive.Storage
   /// </summary>
   public class ValidationContext : ValidationContextBase
   {
-    
+    internal new void ClearValidationQueue()
+    {
+      base.ClearValidationQueue();
+    }
   }
 }

@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Disposable;
-using Xtensive.Core.Helpers;
 using Xtensive.Integrity.Resources;
 using Xtensive.Integrity.Validation.Interfaces;
 
@@ -77,7 +76,17 @@ namespace Xtensive.Integrity.Validation
       if (!IsConsistent)
         return null;
       IsConsistent = false;
-      return new Disposable<ValidationContextBase>(this, (disposing, context) => context.IsConsistent = true);
+      return 
+        new Disposable<ValidationContextBase>(this, (disposing, context) => context.IsConsistent = true);
+    }
+
+    /// <summary>
+    /// Clears the validation queue.
+    /// </summary>
+    protected void ClearValidationQueue()
+    {
+      if (registry!=null)
+        registry.Clear();
     }
 
     #region Protected methods (to override, if necessary)    

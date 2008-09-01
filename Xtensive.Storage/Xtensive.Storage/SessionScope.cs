@@ -38,12 +38,14 @@ namespace Xtensive.Storage
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="session">The session to activate.</param>
-    public SessionScope(Session session)
+    /// <param name="toDispose"><see cref="IDisposable"/> that should be disposed when this scope is disposing.</param>
+    public SessionScope(Session session, IDisposable toDispose)
       : base(session)
     {
+      this.toDispose = toDispose;
     }
 
     // Desctructor

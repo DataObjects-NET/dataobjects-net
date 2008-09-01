@@ -14,6 +14,8 @@ using Xtensive.Core.Reflection;
 using Xtensive.Core.Threading;
 using Xtensive.Core.Tuples;
 using Xtensive.Integrity.Transactions;
+using Xtensive.Integrity.Validation;
+using Xtensive.Integrity.Validation.Interfaces;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
@@ -28,9 +30,9 @@ namespace Xtensive.Storage
   /// It has a unique identity, independent existence, and forms the operational unit of consistency.
   /// Instance of <see cref="Entity"/> type can be referenced via <see cref="Key"/>.
   /// </summary>
-  public abstract class Entity
-    : Persistent,
-      IEntity
+  public abstract class Entity : Persistent,
+    IEntity,
+    IValidationAware
   {
     private static readonly ThreadSafeDictionary<Type, Func<EntityData, Entity>> activators = 
       ThreadSafeDictionary<Type, Func<EntityData, Entity>>.Create(new object());
@@ -65,7 +67,7 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     public override sealed TypeInfo Type {
       [DebuggerStepThrough]
-      get { return Data.Type; }
+          get { return Data.Type; }
     }
 
     /// <inheritdoc/>
@@ -143,6 +145,7 @@ namespace Xtensive.Storage
     {
       Data.Entity = this;
       Session.DirtyData.Register(Data);
+      this.Validate();
     }
 
     /// <inheritdoc/>
@@ -168,6 +171,8 @@ namespace Xtensive.Storage
     protected internal override sealed void OnSetValue(FieldInfo field)
     {
       PersistenceState = PersistenceState.Modified;
+      if (Session.Domain.Configuration.AutoValidation)
+        this.Validate();
     }
 
     /// <summary>
@@ -184,6 +189,12 @@ namespace Xtensive.Storage
     [Infrastructure]
     protected virtual void OnRemoved()
     {
+    }
+
+    /// <inheritdoc/>
+    public virtual void OnValidate()
+    {
+      this.CheckConstraints();
     }
 
     #endregion
@@ -219,6 +230,24 @@ namespace Xtensive.Storage
 
     #endregion
 
+    #region IValidationAware members
+
+    /// <inheritdoc/>
+    public ValidationContextBase Context
+    {
+      get 
+      {
+        return Session.ValidationContext;
+      }
+    }
+
+    /// <inheritdoc/>
+    bool IValidationAware.IsCompatibleWith(ValidationContextBase context)
+    {
+      return context==Session.ValidationContext;
+    }
+
+    #endregion
 
     // Constructors
 
@@ -237,7 +266,7 @@ namespace Xtensive.Storage
         data = Session.DataCache.Create(key, PersistenceState.New);
         OnCreating();
         transactionScope.Complete();
-        }
+      }
     }
 
     /// <summary>

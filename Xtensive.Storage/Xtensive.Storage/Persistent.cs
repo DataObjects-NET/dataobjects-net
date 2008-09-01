@@ -19,8 +19,7 @@ using Xtensive.Storage.Model;
 namespace Xtensive.Storage
 {
   public abstract class Persistent : SessionBound,
-    IAtomicityAware,
-    IValidationAware
+    IAtomicityAware
   {
     private Dictionary<FieldInfo, IFieldHandler> fieldHandlers;
 
@@ -121,11 +120,7 @@ namespace Xtensive.Storage
         OnSettingValue(field);
         field.GetAccessor<T>().SetValue(this, field, value);
 
-        if (Session.Domain.Configuration.AutoValidation)
-          this.Validate();
-
         OnSetValue(field);
-
         transactionScope.Complete();
       }
     }
@@ -194,39 +189,16 @@ namespace Xtensive.Storage
 
     #endregion
 
-    #region IValidationAware members
-
-    /// <inheritdoc/>
-    public ValidationContextBase Context
-    {
-      get
-      {
-        // TODO: return ValidationContext of the current Transaction (or Session).
-        return ValidationScope.CurrentContext;
-      }
-    }
-
-    public bool IsCompatibleWith(AtomicityContextBase context)
-    {
-      return context==Session.AtomicityContext;
-    }
-
-    /// <inheritdoc/>
-    public void OnValidate()
-    {
-      // TODO: Call event-like method for custom validation.
-      this.CheckConstraints();
-    }
-
-    /// <inheritdoc/>
-    public bool IsCompatibleWith(ValidationContextBase context)
-    {
-      return context is PersistentValidationContext;
-    }
+    #region IAtomicityAware members
 
     AtomicityContextBase IContextBound<AtomicityContextBase>.Context
     {
       get { return Session.AtomicityContext; }
+    }
+
+    bool IAtomicityAware.IsCompatibleWith(AtomicityContextBase context)
+    {
+      return context==Session.AtomicityContext;
     }
 
     #endregion
@@ -237,7 +209,7 @@ namespace Xtensive.Storage
     /// Initializes a new instance of the <see cref="Persistent"/> class.
     /// </summary>
     protected Persistent()
-    {
+    {      
     }
 
     /// <summary>

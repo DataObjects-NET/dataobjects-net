@@ -5,6 +5,7 @@
 // Created:    2008.08.20
 
 using System;
+using System.Threading;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Integrity.Transactions;
 using Xtensive.Storage.Resources;
@@ -17,15 +18,12 @@ namespace Xtensive.Storage
   /// </summary>
   public sealed class Transaction : TransactionBase
   {
+    private IDisposable inconsistentRegion;
+
     /// <summary>
     /// Gets the session.
     /// </summary>
     public Session Session { get; private set; }
-
-    /// <summary>
-    /// Gets the validation context of the transaction.
-    /// </summary>    
-    public ValidationContext ValidationContext { get; private set; }
 
     /// <summary>
     /// Gets the transaction-level temporary data.
@@ -44,18 +42,32 @@ namespace Xtensive.Storage
     protected override void OnBegin()
     {
       Session.OnTransctionBegin();
+      inconsistentRegion = Session.ValidationContext.InconsistentRegion();
     }
 
     /// <inheritdoc/>
     protected override void OnCommit()
     {
-      Session.OnTransactionCommit();
+        try {
+          inconsistentRegion.Dispose();
+        }
+        catch {
+          OnRollback();
+          throw;
+        }
+        Session.OnTransactionCommit();
     }
 
     /// <inheritdoc/>
     protected override void OnRollback()
     {
-      Session.OnTransactionRollback();
+      try {
+        Session.ValidationContext.ClearValidationQueue();
+        inconsistentRegion.Dispose();
+      }
+      finally {
+        Session.OnTransactionRollback();
+      }
     }
 
     #endregion
@@ -114,9 +126,8 @@ namespace Xtensive.Storage
     internal Transaction(Session session, Guid identifier)
       : base (identifier)
     {
-      Session = session;
-      ValidationContext = new ValidationContext();
+      Session = session;      
       TemporaryData = new TransactionTemporaryData();
     }
   }
-}
+} 

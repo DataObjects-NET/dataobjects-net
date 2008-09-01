@@ -7,15 +7,12 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Disposable;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Tuples;
 using Xtensive.Integrity.Atomicity;
-using Xtensive.Integrity.Transactions;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
@@ -36,7 +33,7 @@ namespace Xtensive.Storage
     private volatile bool isDisposed;
     private readonly Set<object> consumers = new Set<object>();
     private readonly object _lock = new object();
-    private readonly CompilationScope compilationScope;
+    private readonly CompilationScope compilationScope;    
 
     /// <summary>
     /// Gets the configuration of the <see cref="Session"/>.
@@ -52,6 +49,11 @@ namespace Xtensive.Storage
     /// Gets the atomicity context.
     /// </summary>
     public AtomicityContext AtomicityContext { get; private set; }
+
+    /// <summary>
+    /// Gets the validation context of this <see cref="Session"/>.
+    /// </summary>    
+    public ValidationContext ValidationContext { get; private set; }
 
     /// <summary>
     /// Gets the active transaction.
@@ -81,7 +83,7 @@ namespace Xtensive.Storage
     public TransactionScope OpenTransaction()
     {
       if (Transaction==null) {
-        Transaction = new Transaction(this);        
+        Transaction = new Transaction(this);
         return (TransactionScope) Transaction.Begin();
       }
 
@@ -154,9 +156,11 @@ namespace Xtensive.Storage
       try {
         Persist();
         Handler.CommitTransaction();
-      }
-      finally {
         OnTranscationEnd();
+      }
+      catch (Exception e) {
+        OnTransactionRollback();
+        throw;
       }
     }
 
@@ -182,8 +186,8 @@ namespace Xtensive.Storage
     }
 
     private void OnTranscationEnd()
-    {
-      Transaction = null; 
+    {      
+      Transaction = null;
       DataCache.Reset();
     }
 
@@ -228,8 +232,8 @@ namespace Xtensive.Storage
     {
       if (IsActive)
         return null;
-      else
-        return new SessionScope(this);
+      else 
+        return new SessionScope(this, ValidationContext.Activate());      
     }
 
     /// <inheritdoc/>
@@ -283,6 +287,7 @@ namespace Xtensive.Storage
       Handler.Initialize();
       compilationScope = Handlers.DomainHandler.CompilationContext.Activate();
       AtomicityContext = new AtomicityContext(this, AtomicityContextOptions.Undoable);
+      ValidationContext = new ValidationContext();
     }
 
     #region Dispose pattern

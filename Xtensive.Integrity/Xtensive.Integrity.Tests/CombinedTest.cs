@@ -159,6 +159,19 @@ namespace Xtensive.Integrity.Tests
       }
     }
 
+    [Test]
+    public void InconsistentRegionsTest()
+    {
+      ValidationContext context = new ValidationContext(session1);
+
+      using (context.InconsistentRegion()) {
+        using (context.InconsistentRegion()) {
+          
+        }
+        Assert.IsFalse(context.IsConsistent);
+      }
+    }
+
     private void MeasureAll(AtomicBase target, int count)
     {
       MeasureDummyUndoableAtomic(target, count);
