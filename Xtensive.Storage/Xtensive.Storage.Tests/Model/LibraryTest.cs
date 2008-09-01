@@ -530,38 +530,38 @@ namespace Xtensive.Storage.Tests.Model
 
       // Fields
       Assert.IsNotNull(typeInfo.Fields["Passport"]);
-      Assert.AreEqual(typeInfo.Fields["Passport"].Name, "Passport");
+      Assert.AreEqual("Passport", typeInfo.Fields["Passport"].Name);
       Assert.IsTrue(typeInfo.Fields["Passport"].IsStructure);
       Assert.IsTrue(typeInfo.Fields["Passport"].IsInherited);
-      Assert.AreEqual(typeInfo.Fields["Passport"].Fields.Count, 4);
+      Assert.AreEqual(4, typeInfo.Fields["Passport"].Fields.Count);
       Assert.IsNotNull(typeInfo.Fields["PenName"]);
-      Assert.AreEqual(typeInfo.Fields["PenName"].IsNullable, true);
-      Assert.AreEqual(typeInfo.Fields["PenName"].Name, "PenName");
-      Assert.AreEqual(typeInfo.Fields["PenName"].Length, 64);
+      Assert.AreEqual(true, typeInfo.Fields["PenName"].IsNullable);
+      Assert.AreEqual("PenName", typeInfo.Fields["PenName"].Name);
+      Assert.AreEqual(64, typeInfo.Fields["PenName"].Length);
       Assert.IsNotNull(typeInfo.Fields["Books"]);
-      Assert.AreEqual(typeInfo.Fields["Books"].IsNullable, false);
-      Assert.AreEqual(typeInfo.Fields["Books"].Name, "Books");
+      Assert.AreEqual(true, typeInfo.Fields["Books"].IsNullable);
+      Assert.AreEqual("Books", typeInfo.Fields["Books"].Name);
 
       Assert.AreEqual(2, typeInfo.Fields.Find(FieldAttributes.Declared).Count);
       Assert.AreEqual(8, typeInfo.Fields.Find(FieldAttributes.Inherited).Count);
 
       // KeyColumns
       Assert.IsNotNull(typeInfo.Columns["Number"]);
-      Assert.AreEqual(typeInfo.Columns["Number"].Name, "Number");
+      Assert.AreEqual("Number", typeInfo.Columns["Number"].Name);
       //      Assert.AreEqual(person.Fields["Passport"].Indexes[0], person.KeyInfo);
       Assert.IsNotNull(typeInfo.Columns["Passport.Card.FirstName"]);
-      Assert.AreEqual(typeInfo.Columns["Passport.Card.FirstName"].Name, "Passport.Card.FirstName");
-      Assert.AreEqual(typeInfo.Columns["Passport.Card.FirstName"].Length, 64);
+      Assert.AreEqual("Passport.Card.FirstName", typeInfo.Columns["Passport.Card.FirstName"].Name);
+      Assert.AreEqual(64, typeInfo.Columns["Passport.Card.FirstName"].Length);
       Assert.IsNotNull(typeInfo.Columns["Passport.Card.SecondName"]);
-      Assert.AreEqual(typeInfo.Columns["Passport.Card.SecondName"].Name, "Passport.Card.SecondName");
-      Assert.AreEqual(typeInfo.Columns["Passport.Card.SecondName"].Length, 64);
+      Assert.AreEqual("Passport.Card.SecondName", typeInfo.Columns["Passport.Card.SecondName"].Name);
+      Assert.AreEqual(64, typeInfo.Columns["Passport.Card.SecondName"].Length);
       Assert.IsNotNull(typeInfo.Columns["Passport.Card.LastName"]);
-      Assert.AreEqual(typeInfo.Columns["Passport.Card.LastName"].Name, "Passport.Card.LastName");
-      Assert.AreEqual(typeInfo.Columns["Passport.Card.LastName"].Length, 64);
+      Assert.AreEqual("Passport.Card.LastName", typeInfo.Columns["Passport.Card.LastName"].Name);
+      Assert.AreEqual(64, typeInfo.Columns["Passport.Card.LastName"].Length);
       Assert.IsNotNull(typeInfo.Columns["PenName"]);
-      Assert.AreEqual(typeInfo.Columns["PenName"].IsNullable, true);
-      Assert.AreEqual(typeInfo.Columns["PenName"].Name, "PenName");
-      Assert.AreEqual(typeInfo.Columns["PenName"].Length, 64);
+      Assert.AreEqual(true, typeInfo.Columns["PenName"].IsNullable);
+      Assert.AreEqual("PenName", typeInfo.Columns["PenName"].Name);
+      Assert.AreEqual(64, typeInfo.Columns["PenName"].Length);
       Assert.IsFalse(typeInfo.Columns.Contains("Reviews"));
 
       // Indexes

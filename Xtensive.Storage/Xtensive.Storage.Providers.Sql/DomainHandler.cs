@@ -8,6 +8,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Core;
 using Xtensive.Core.Threading;
 using Xtensive.Sql.Common;
 using Xtensive.Sql.Dom;
@@ -151,11 +152,11 @@ namespace Xtensive.Storage.Providers.Sql
           foreach (IndexInfo secondaryIndex in type.Indexes.Find(IndexAttributes.Real).Where(indexInfo => !indexInfo.IsPrimary)) {
             Index index = table.CreateIndex(secondaryIndex.Name);
             index.IsUnique = secondaryIndex.IsUnique;
-            index.FillFactor = (byte) (secondaryIndex.FillFactor * 10);
+            index.FillFactor = (byte) (secondaryIndex.FillFactor * 100);
             index.Filegroup = "\"default\"";
-            foreach (ColumnInfo secondaryIndexColumn in secondaryIndex.Columns.Where(columnInfo => !columnInfo.IsPrimaryKey && !columnInfo.IsSystem)) {
-              string primaryIndexColumnName = GetPrimaryIndexColumnName(primaryIndex, secondaryIndexColumn, secondaryIndex);
-              index.CreateIndexColumn(table.TableColumns.First(tableColumn => tableColumn.Name==primaryIndexColumnName));
+            foreach (KeyValuePair<ColumnInfo,Direction> keyColumn in secondaryIndex.KeyColumns) {
+              string primaryIndexColumnName = GetPrimaryIndexColumnName(primaryIndex, keyColumn.Key, secondaryIndex);
+              index.CreateIndexColumn(table.TableColumns.First(tableColumn => tableColumn.Name==primaryIndexColumnName), keyColumn.Value == Direction.Positive);
             }
             foreach (var nonKeyColumn in secondaryIndex.IncludedColumns) {
               string primaryIndexColumnName = GetPrimaryIndexColumnName(primaryIndex, nonKeyColumn, secondaryIndex);
