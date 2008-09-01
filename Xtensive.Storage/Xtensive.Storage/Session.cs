@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Diagnostics;
@@ -167,13 +168,17 @@ namespace Xtensive.Storage
     internal void OnTransactionRollback()
     {
       try {
-        foreach (EntityData data in DirtyData.GetItems(PersistenceState.New))
+        HashSet<EntityData> newEntities = DirtyData.GetItems(PersistenceState.New);
+        HashSet<EntityData> modifiedEntities = DirtyData.GetItems(PersistenceState.Modified);
+        HashSet<EntityData> removingEntities = DirtyData.GetItems(PersistenceState.Removing);
+
+        foreach (EntityData data in newEntities)
           data.Entity.PersistenceState = PersistenceState.Inconsistent;
 
-        foreach (EntityData data in DirtyData.GetItems(PersistenceState.Modified))
+        foreach (EntityData data in modifiedEntities.Except(newEntities))
           data.Entity.PersistenceState = PersistenceState.Persisted;
 
-        foreach (EntityData data in DirtyData.GetItems(PersistenceState.Removing))
+        foreach (EntityData data in removingEntities)
           data.Entity.PersistenceState = PersistenceState.Persisted;
 
         DirtyData.Clear();

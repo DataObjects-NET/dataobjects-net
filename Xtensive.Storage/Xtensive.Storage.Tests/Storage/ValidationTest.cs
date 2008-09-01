@@ -32,9 +32,12 @@ namespace Xtensive.Storage.Tests.Storage.Validation
       {
         base.OnValidate();
 
+        if (ButtonCount<1)
+          throw new InvalidOperationException("Button count can't be less than one.");
+
         if (ScrollingCount > ButtonCount)
           throw new InvalidOperationException("Scrolling count can't be greater then button count.");
-      }      
+      }
     }
 
     protected override DomainConfiguration BuildConfiguration()
@@ -49,17 +52,26 @@ namespace Xtensive.Storage.Tests.Storage.Validation
     {
       using (Domain.OpenSession()) {
 
+        Mouse mouse;
+        using(var t = Transaction.Open()) {
+          mouse = new Mouse {ButtonCount = 1, ScrollingCount = 1};
+          t.Complete();
+        }
+
         try {
           using (var t = Transaction.Open()) {
-            new Mouse {ButtonCount = 2, ScrollingCount = 3};
+            new Mouse {ButtonCount = 2, ScrollingCount = 3}; // Error
             new Mouse {ButtonCount = 5, ScrollingCount = 3};
-            new Mouse {ButtonCount = 1, ScrollingCount = 2};
+            new Mouse {ButtonCount = 6, ScrollingCount = 3};
+            new Mouse(); // Error
+            new Mouse {ButtonCount = 7, ScrollingCount = 3};
+            mouse.ScrollingCount = 2; // error
 
             t.Complete();
           }
         }
         catch (AggregateException e) {
-          Assert.AreEqual(2, e.Exceptions.Count);
+          Assert.AreEqual(3 , e.Exceptions.Count);
         }
         
         using (Transaction.Open()) {

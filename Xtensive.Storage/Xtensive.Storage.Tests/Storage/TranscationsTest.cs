@@ -77,9 +77,9 @@ namespace Xtensive.Storage.Tests.Storage.TranscationsTest
     public void RollbackModifyingTest()
     {
       using (Domain.OpenSession()) {
-            Hexagon hexagon;
+        Hexagon hexagon;
 
-        using (var t = Transaction.Open()) {    
+        using (var t = Transaction.Open()) {
           hexagon = new Hexagon();
           hexagon.Kwanza = 3;
           t.Complete();
