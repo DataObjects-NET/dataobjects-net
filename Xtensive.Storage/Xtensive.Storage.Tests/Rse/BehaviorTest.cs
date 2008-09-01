@@ -13,8 +13,10 @@ using Xtensive.Core.Collections;
 using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
 using Xtensive.Storage.Rse;
+using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
+using CompilationContext=Xtensive.Storage.Providers.CompilationContext;
 
 namespace Xtensive.Storage.Tests.Rse
 {
@@ -64,8 +66,12 @@ namespace Xtensive.Storage.Tests.Rse
       RecordSet authorsIndexed = authorsRS.OrderBy(OrderBy.Asc(0), true).Alias("Authors");
 
       RecordSet result = personIndexed.JoinLeft(authorsIndexed, 0, 0);
-      int count = result.Count();
-      Assert.AreEqual(personCount, count);
+
+      using (new CompilationContext(new DefaultCompiler()).Activate())
+        using (EnumerationScope.Open()) {
+          int count = result.Count();
+          Assert.AreEqual(personCount, count);
+        }
     }
 
     [Test]

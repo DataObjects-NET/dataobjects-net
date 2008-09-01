@@ -547,8 +547,8 @@ namespace Xtensive.Storage.Tests.Storage
     [Explicit, Category("Performance")]
     public void PerformanceTest()
     {
-      const int snakesCount = 1000;
-      List<Snake> snakes = new List<Snake>();
+      const int snakesCount = 512;
+      var snakesDTO = new List<Tuple>();
 
       using (new Measurement("Persisting...", snakesCount))
       using (Domain.OpenSession()) {
