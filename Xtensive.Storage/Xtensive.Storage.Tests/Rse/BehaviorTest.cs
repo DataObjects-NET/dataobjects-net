@@ -20,7 +20,7 @@ using CompilationContext=Xtensive.Storage.Providers.CompilationContext;
 
 namespace Xtensive.Storage.Tests.Rse
 {
-  [TestFixture]
+  [TestFixture, Ignore]
   public class BehaviorTest
   {
     [Test]
