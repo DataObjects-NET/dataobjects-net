@@ -6,6 +6,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using Xtensive.Core.Comparison;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Resources;
 
@@ -20,7 +22,7 @@ namespace Xtensive.Core.Serialization.Implementation
     private readonly Dictionary<IReference, object> refToObj = 
       new Dictionary<IReference, object>();
     private readonly Dictionary<object, IReference> objToRef = 
-      new Dictionary<object, IReference>();
+      new Dictionary<object, IReference>(ReferenceEqualityComparer<object>.Instance);
     private int nextReferenceValue;
 
     /// <summary>
@@ -107,7 +109,6 @@ namespace Xtensive.Core.Serialization.Implementation
 
       isNew = true;
       reference = CreateReference(target);
-      Define(reference, target);
       return reference;
     }
 

@@ -21,7 +21,7 @@ namespace Xtensive.Core.Serialization
         return new Token<T>(BaseSerializer2.Deserialize(stream), ~identifier);
       else
         // Otherwise - getting the known one
-        return Token.Get<T>(identifier);
+        return Token.Get<T>(SerializationContext.Current, identifier);
     }
 
     public override void Serialize(Stream stream, Token<T> value)

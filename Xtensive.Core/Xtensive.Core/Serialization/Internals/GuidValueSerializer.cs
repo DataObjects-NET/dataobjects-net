@@ -14,15 +14,14 @@ namespace Xtensive.Core.Serialization
   {
     public override Guid Deserialize(Stream stream) 
     {
-      int length = OutputLength;
-      EnsureThreadBufferIsInitialized(length);
-      stream.Read(ThreadBuffer, 0, length);
-      return new Guid(ThreadBuffer);
+      var buffer = new byte[16];
+      stream.Read(buffer, 0, 16);
+      return new Guid(buffer);
     }
 
     public override void Serialize(Stream stream, Guid value) 
     {
-      stream.Write(value.ToByteArray(), 0, OutputLength);
+      stream.Write(value.ToByteArray(), 0, 16);
     }
 
     

@@ -53,7 +53,7 @@ namespace Xtensive.Core.Serialization.Implementation
 
     public bool Equals(Reference obj)
     {
-      return Equals(obj.value, value);
+      return obj.value==value;
     }
 
     bool IEquatable<IReference>.Equals(IReference other)

@@ -35,7 +35,10 @@ namespace Xtensive.Core.Serialization.Internals
 
     public override Reference SetObjectData(Reference source, SerializationData data)
     {
-      return new Reference(data.GetValue<string>(ValuePropertyName), StringSerializer);
+      if (data.HasValue(ValuePropertyName))
+        return new Reference(data.GetValue(ValuePropertyName, StringSerializer));
+      else
+        return source;
     }
 
     // Constructors

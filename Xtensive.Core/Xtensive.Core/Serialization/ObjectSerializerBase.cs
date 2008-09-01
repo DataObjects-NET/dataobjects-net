@@ -25,16 +25,6 @@ namespace Xtensive.Core.Serialization
     #region Cached value serializers
 
     /// <summary>
-    /// Gets the value serializer for <see cref="int"/> type.
-    /// </summary>
-    protected ValueSerializer<int> Int32Serializer { get; private set; }
-
-    /// <summary>
-    /// Gets the value serializer for <see cref="string"/> type.
-    /// </summary>
-    protected ValueSerializer<string> StringSerializer { get; private set; }
-
-    /// <summary>
     /// Gets the value serializer for <see cref="bool"/> type.
     /// </summary>
     protected ValueSerializer<bool> BooleanSerializer { get; private set; }
@@ -70,9 +60,29 @@ namespace Xtensive.Core.Serialization
     protected ValueSerializer<short> Int16Serializer { get; private set; }
 
     /// <summary>
+    /// Gets the value serializer for <see cref="ushort"/> type.
+    /// </summary>
+    protected ValueSerializer<ushort> UInt16Serializer { get; private set; }
+
+    /// <summary>
+    /// Gets the value serializer for <see cref="int"/> type.
+    /// </summary>
+    protected ValueSerializer<int> Int32Serializer { get; private set; }
+
+    /// <summary>
+    /// Gets the value serializer for <see cref="uint"/> type.
+    /// </summary>
+    protected ValueSerializer<uint> UInt32Serializer { get; private set; }
+
+    /// <summary>
     /// Gets the value serializer for <see cref="long"/> type.
     /// </summary>
     protected ValueSerializer<long> Int64Serializer { get; private set; }
+
+    /// <summary>
+    /// Gets the value serializer for <see cref="ulong"/> type.
+    /// </summary>
+    protected ValueSerializer<ulong> UInt64Serializer { get; private set; }
 
     /// <summary>
     /// Gets the value serializer for <see cref="float"/> type.
@@ -80,14 +90,24 @@ namespace Xtensive.Core.Serialization
     protected ValueSerializer<float> SingleSerializer { get; private set; }
 
     /// <summary>
-    /// Gets the value serializer for <see cref="Token<T>"/> type.
+    /// Gets the value serializer for <see cref="string"/> type.
     /// </summary>
-    protected ValueSerializer<Token<T>> TokenSerializer { get; private set; }
+    protected ValueSerializer<string> StringSerializer { get; private set; }
 
     /// <summary>
     /// Gets the value serializer for <see cref="Type"/> type.
     /// </summary>
     protected ValueSerializer<Type> TypeSerializer { get; private set; }
+
+    /// <summary>
+    /// Gets the value serializer for <see cref="Token{T}"/> of <see cref="string"/> type.
+    /// </summary>
+    protected ValueSerializer<Token<string>> StringTokenSerializer { get; private set; }
+
+    /// <summary>
+    /// Gets the value serializer for <see cref="Token{T}"/> of <see cref="Type"/> type.
+    /// </summary>
+    protected ValueSerializer<Token<Type>> TypeTokenSerializer { get; private set; }
 
     #endregion
 
@@ -180,8 +200,6 @@ namespace Xtensive.Core.Serialization
     {
       ArgumentValidator.EnsureArgumentNotNull(provider, "provider");
       Provider = provider;
-      Int32Serializer = GetValueSerializer<int>();
-      StringSerializer = GetValueSerializer<string>();
       BooleanSerializer = GetValueSerializer<bool>();
       ByteSerializer = GetValueSerializer<byte>();
       CharSerializer = GetValueSerializer<char>();
@@ -189,11 +207,16 @@ namespace Xtensive.Core.Serialization
       DoubleSerializer = GetValueSerializer<double>();
       GuidSerializer = GetValueSerializer<Guid>();
       Int16Serializer = GetValueSerializer<short>();
+      UInt16Serializer = GetValueSerializer<ushort>();
+      Int32Serializer = GetValueSerializer<int>();
+      UInt32Serializer = GetValueSerializer<uint>();
       Int64Serializer = GetValueSerializer<long>();
+      UInt64Serializer = GetValueSerializer<ulong>();
       SingleSerializer = GetValueSerializer<float>();
-      TokenSerializer = GetValueSerializer<Token<T>>();
       TypeSerializer = GetValueSerializer<Type>();
-
+      StringSerializer = GetValueSerializer<string>();
+      StringTokenSerializer = GetValueSerializer<Token<string>>();
+      TypeTokenSerializer = GetValueSerializer<Token<Type>>();
     }
   }
 }

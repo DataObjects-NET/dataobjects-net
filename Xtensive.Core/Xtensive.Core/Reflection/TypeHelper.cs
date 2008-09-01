@@ -14,6 +14,7 @@ using System.Reflection.Emit;
 using System.Text;
 using System.Threading;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Comparison;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Resources;
 using Xtensive.Core.Threading;
@@ -253,8 +254,12 @@ namespace Xtensive.Core.Reflection
       List<Pair<Assembly, string>> locations, Type[] genericArguments, object[] constructorParams)
       where T : class
     {
-      locations.Add(new Pair<Assembly, string>(typeof (T).Assembly, typeof (T).Namespace));
-      locations.Add(new Pair<Assembly, string>(currentForType.Assembly, currentForType.Namespace));
+      var pair = new Pair<Assembly, string>(typeof (T).Assembly, typeof (T).Namespace);
+      if (locations.FindIndex(p => p.First==pair.First && p.Second==pair.Second)<0)
+        locations.Add(pair);
+      pair = new Pair<Assembly, string>(currentForType.Assembly, currentForType.Namespace);
+      if (locations.FindIndex(p => p.First==pair.First && p.Second==pair.Second)<0)
+        locations.Add(pair);
       try {
         for (int i = 0; i < locations.Count; i++) {
           Pair<Assembly, string> location = locations[i];

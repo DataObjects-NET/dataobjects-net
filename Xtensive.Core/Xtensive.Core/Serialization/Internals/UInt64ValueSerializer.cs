@@ -14,15 +14,14 @@ namespace Xtensive.Core.Serialization
   {
     public override ulong Deserialize(Stream stream) 
     {
-      int length = OutputLength;
-      EnsureThreadBufferIsInitialized(length);
-      stream.Read(ThreadBuffer, 0, length);
-      return BitConverter.ToUInt64(ThreadBuffer, 0);
+      var buffer = new byte[sizeof (ulong)];
+      stream.Read(buffer, 0, sizeof (ulong));
+      return BitConverter.ToUInt64(buffer, 0);
     }
 
     public override void Serialize(Stream stream, ulong value) 
     {
-      stream.Write(BitConverter.GetBytes(value), 0, OutputLength);
+      stream.Write(BitConverter.GetBytes(value), 0, sizeof (ulong));
     }
 
     

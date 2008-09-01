@@ -56,14 +56,15 @@ namespace Xtensive.Core.Serialization.Implementation
     /// using current <see cref="SerializationContext"/>.
     /// </summary>
     /// <typeparam name="T">Type of the value.</typeparam>
+    /// <param name="context">The serialization context.</param>
     /// <param name="value">The value to get the token for.</param>
     /// <returns>
     /// Found token;
     /// <see langword="null"/>, if there is no token with specified value.
     /// </returns>
-    public static Token<T> Get<T>(T value)
+    public static Token<T> Get<T>(SerializationContext context, T value)
     {
-      return (Token<T>) SerializationContext.Current.TokenManager.Get(value);
+      return (Token<T>) context.TokenManager.Get(value);
     }
 
     /// <summary>
@@ -71,14 +72,15 @@ namespace Xtensive.Core.Serialization.Implementation
     /// using current <see cref="SerializationContext"/>.
     /// </summary>
     /// <typeparam name="T">Type of the value.</typeparam>
+    /// <param name="context">The serialization context.</param>
     /// <param name="identifier">The identifier to get the token for.</param>
     /// <returns>
     /// Found token;
     /// <see langword="null"/>, if there is no token with specified identifier.
     /// </returns>
-    public static Token<T> Get<T>(int identifier)
+    public static Token<T> Get<T>(SerializationContext context, int identifier)
     {
-      return (Token<T>) SerializationContext.Current.TokenManager.Get(identifier);
+      return (Token<T>) context.TokenManager.Get(identifier);
     }
 
     /// <summary>
@@ -86,14 +88,15 @@ namespace Xtensive.Core.Serialization.Implementation
     /// using current <see cref="SerializationContext"/>.
     /// </summary>
     /// <typeparam name="T">Type of the value.</typeparam>
+    /// <param name="context">The serialization context.</param>
     /// <param name="value">The value to get or create the token for.</param>
     /// <returns>
     /// Found or newly created token with the specified value.
     /// </returns>
-    public static Token<T> GetOrCreate<T>(T value)
+    public static Token<T> GetOrCreate<T>(SerializationContext context, T value)
     {
-      var tokenManager = SerializationContext.Current.TokenManager;
-      var token = Get(value);
+      var tokenManager = context.TokenManager;
+      var token = (Token<T>) tokenManager.Get(value);
       if (token==null)
         token = new Token<T>(value, ~tokenManager.GetNextIdentifier());
       return token;

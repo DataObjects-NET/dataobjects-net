@@ -33,7 +33,7 @@ namespace Xtensive.Core.Serialization.Internals
 
     public override T SetObjectData(T source, SerializationData data)
     {
-      return data.GetValue<T>(ValuePropertyName, valueSerializer);
+      return data.GetValue(ValuePropertyName, valueSerializer);
     }
 
     // Constructors

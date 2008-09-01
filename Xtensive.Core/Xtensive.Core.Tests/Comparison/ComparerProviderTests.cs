@@ -5,6 +5,7 @@
 // Created:    2007.12.17
 
 using System;
+using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Diagnostics;
@@ -16,6 +17,13 @@ namespace Xtensive.Core.Tests.Comparison
   [TestFixture]
   public class ComparerProviderTests
   {
+    [Test]
+    public void PairComparerTest()
+    {
+      Assert.IsNotNull(AdvancedComparer<Pair<Assembly, string>>.System);
+      Assert.IsNotNull(AdvancedComparer<Pair<Assembly, string>>.Default);
+    }
+
     [Test]
     public void SerializationTest()
     {

@@ -21,12 +21,6 @@ namespace Xtensive.Core.Serialization
   public abstract class ValueSerializerBase<T> : IValueSerializer<T>,
     IDeserializationCallback
   {
-    /// <summary>
-    /// A thread-static buffer, that can be used during the serialization.
-    /// </summary>
-    [ThreadStatic]
-    protected static byte[] ThreadBuffer;
-
     /// <inheritdoc/>
     public IValueSerializerProvider Provider { get; protected set; }
 
@@ -55,15 +49,6 @@ namespace Xtensive.Core.Serialization
     }
 
     #endregion
-
-    /// Ensures the <see cref="ThreadBuffer"/> is initialized.
-    /// </summary>
-    /// <param name="size">The required buffer size.</param>
-    protected static void EnsureThreadBufferIsInitialized(int size)
-    {
-      if (ThreadBuffer==null)
-        ThreadBuffer = new byte[size];
-    }
 
     /// <exception cref="InvalidOperationException">Requested value serializer is not found.</exception>
     protected ValueSerializer<TValue> GetValueSerializer<TValue>()

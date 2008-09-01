@@ -5,6 +5,7 @@
 // Created:    2008.08.27
 
 using System;
+using Xtensive.Core.Resources;
 
 namespace Xtensive.Core.Serialization.Internals
 {
@@ -38,12 +39,15 @@ namespace Xtensive.Core.Serialization.Internals
 
     // Constructors
 
+    /// <exception cref="InvalidOperationException">Similar value serializer exists,
+    /// so it should be preferred.</exception>
     public ArraySerializer(IObjectSerializerProvider provider)
       : base(provider)
     {
       if (Provider.ValueSerializerProvider.GetSerializer<T[]>()!=null)
         // Let's "discard" ourselves if there is appropriate value serializer
-        throw new InvalidOperationException(); 
+        throw new InvalidOperationException(
+          Strings.ExInvalidObjectSerializerSimilarValueSerializerExists); 
     }
   }
 }

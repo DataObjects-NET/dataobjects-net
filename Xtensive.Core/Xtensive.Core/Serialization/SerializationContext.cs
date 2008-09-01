@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Comparison;
 using Xtensive.Core.Disposable;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Resources;
@@ -116,25 +117,54 @@ namespace Xtensive.Core.Serialization
     /// </summary>
     public IValueSerializerProvider ValueSerializerProvider { get; protected set; }
 
-    /// <summary>
-    /// Gets the <see cref="Int32"/> value serializer.
-    /// </summary>
-    public ValueSerializer<int> IntSerializer { get; protected set; }
+    #endregion
+
+    #region Cached value serializers
 
     /// <summary>
-    /// Gets the <see cref="Int64"/> value serializer.
+    /// Gets the <see cref="bool"/> value serializer.
     /// </summary>
-    public ValueSerializer<long> LongSerializer { get; protected set; }
+    public ValueSerializer<bool> BooleanSerializer { get; protected set; }
 
     /// <summary>
-    /// Gets the <see cref="String"/> value serializer.
+    /// Gets the <see cref="byte"/> value serializer.
+    /// </summary>
+    public ValueSerializer<byte> ByteSerializer { get; protected set; }
+
+    /// <summary>
+    /// Gets the <see cref="short"/> value serializer.
+    /// </summary>
+    public ValueSerializer<short> Int16Serializer { get; protected set; }
+
+    /// <summary>
+    /// Gets the <see cref="int"/> value serializer.
+    /// </summary>
+    public ValueSerializer<int> Int32Serializer { get; protected set; }
+
+    /// <summary>
+    /// Gets the <see cref="long"/> value serializer.
+    /// </summary>
+    public ValueSerializer<long> Int64Serializer { get; protected set; }
+
+    /// <summary>
+    /// Gets the value serializer for <see cref="string"/> type.
     /// </summary>
     public ValueSerializer<string> StringSerializer { get; protected set; }
 
     /// <summary>
-    /// Gets the <see cref="String"/> value serializer.
+    /// Gets the value serializer for <see cref="Type"/> type.
     /// </summary>
-    public ValueSerializer<Token<string>> TokenStringSerializer { get; protected set; }
+    public ValueSerializer<Type> TypeSerializer { get; protected set; }
+
+    /// <summary>
+    /// Gets the value serializer for <see cref="Token{T}"/> of <see cref="string"/> type.
+    /// </summary>
+    public ValueSerializer<Token<string>> StringTokenSerializer { get; protected set; }
+
+    /// <summary>
+    /// Gets the value serializer for <see cref="Token{T}"/> of <see cref="Type"/> type.
+    /// </summary>
+    public ValueSerializer<Token<Type>> TypeTokenSerializer { get; protected set; }
 
     #endregion
 
@@ -179,7 +209,8 @@ namespace Xtensive.Core.Serialization
       ReferenceManager = ReferenceManager ?? new ReferenceManager();
       switch (ProcessType) {
       case SerializerProcessType.Serialization:
-        SerializationQueue = SerializationQueue ?? new TopDeque<object, Pair<IReference, object>>();
+        SerializationQueue = SerializationQueue ?? 
+          new TopDeque<object, Pair<IReference, object>>(ReferenceEqualityComparer<object>.Instance);
         break;
       case SerializerProcessType.Deserialization:
         FixupManager = FixupManager ?? new FixupManager();
@@ -220,10 +251,16 @@ namespace Xtensive.Core.Serialization
       Configuration = serializer.Configuration;
       ObjectSerializerProvider = Serializer.ObjectSerializerProvider;
       ValueSerializerProvider = Serializer.ValueSerializerProvider;
-      IntSerializer = ValueSerializerProvider.GetSerializer<int>();
-      LongSerializer = ValueSerializerProvider.GetSerializer<long>();
-      StringSerializer = ValueSerializerProvider.GetSerializer<string>();
-      TokenStringSerializer = ValueSerializerProvider.GetSerializer<Token<string>>();
+      var vsp = ValueSerializerProvider;
+      BooleanSerializer = vsp.GetSerializer<bool>();
+      ByteSerializer = vsp.GetSerializer<byte>();
+      Int16Serializer = vsp.GetSerializer<short>();
+      Int32Serializer = vsp.GetSerializer<int>();
+      Int64Serializer = vsp.GetSerializer<long>();
+      StringSerializer = vsp.GetSerializer<string>();
+      TypeSerializer = vsp.GetSerializer<Type>();
+      StringTokenSerializer = vsp.GetSerializer<Token<string>>();
+      TypeTokenSerializer = vsp.GetSerializer<Token<Type>>();
 
       Initialize();
     }

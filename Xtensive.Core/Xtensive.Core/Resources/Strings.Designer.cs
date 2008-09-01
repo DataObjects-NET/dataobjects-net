@@ -565,6 +565,15 @@ namespace Xtensive.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Object serializer is invalid, since similar value serializer exists..
+        /// </summary>
+        internal static string ExInvalidObjectSerializerSimilarValueSerializerExists {
+            get {
+                return ResourceManager.GetString("ExInvalidObjectSerializerSimilarValueSerializerExists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Record with invalid (possibly - unspecified) type is found..
         /// </summary>
         internal static string ExInvalidRecordType {

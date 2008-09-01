@@ -561,4 +561,7 @@
   <data name="SerializationDataFormat" xml:space="preserve">
     <value>Type='{0}', #='{1}' ({2})</value>
   </data>
+  <data name="ExInvalidObjectSerializerSimilarValueSerializerExists" xml:space="preserve">
+    <value>Object serializer is invalid, since similar value serializer exists.</value>
+  </data>
 </root>

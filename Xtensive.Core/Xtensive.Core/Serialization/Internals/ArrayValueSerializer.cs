@@ -10,11 +10,11 @@ using System.IO;
 namespace Xtensive.Core.Serialization
 {
   [Serializable]
-  internal sealed class ArrayValueSerializer<T> : WrappingValueSerializer<T[], T, int>
+  internal sealed class ArrayValueSerializer<T> : WrappingValueSerializer<T[], T, long>
   {
     public override T[] Deserialize(Stream stream)
     {
-      int length = BaseSerializer2.Deserialize(stream);
+      long length = BaseSerializer2.Deserialize(stream);
       var value = new T[length];
       for (int i = 0; i < value.Length; i++)
         value[i] = BaseSerializer1.Deserialize(stream);
@@ -23,7 +23,7 @@ namespace Xtensive.Core.Serialization
 
     public override void Serialize(Stream stream, T[] value)
     {
-      BaseSerializer2.Serialize(stream, value.Length);
+      BaseSerializer2.Serialize(stream, value.LongLength);
       for (int i = 0; i < value.Length; i++)
         BaseSerializer1.Serialize(stream, value[i]);
     }

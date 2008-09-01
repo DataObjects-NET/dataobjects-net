@@ -81,12 +81,13 @@ namespace Xtensive.Core.Serialization
     /// </summary>
     public virtual Type SerializedType {
       get {
-        Type = GetValue<Token<Type>>(TypePropertyName).Value;
+        Type = GetValue(TypePropertyName, SerializationContext.Current.TypeTokenSerializer).Value;
         return Type;
       }
       set {
         Type = value;
-        AddValue(TypePropertyName, Token.GetOrCreate(value)); 
+        var context = SerializationContext.Current;
+        AddValue(TypePropertyName, Token.GetOrCreate(context, value), context.TypeTokenSerializer); 
       }
     }
 
@@ -146,12 +147,10 @@ namespace Xtensive.Core.Serialization
       var context = SerializationContext.Current;
       var oldPreferAttributes = context.PreferAttributes;
       context.PreferAttributes = preferAttributes;
-      try
-      {
+      try {
         AddValue(name, value, valueSerializer);
       }
-      finally
-      {
+      finally {
         context.PreferAttributes = oldPreferAttributes;
       }
     }
@@ -184,9 +183,8 @@ namespace Xtensive.Core.Serialization
     /// <param name="valueSerializer">The value serializer.</param>
     public void AddValue<T>(string name, T value, T originValue, ValueSerializer<T> valueSerializer)
     {
-      if (!AdvancedComparerStruct<T>.System.Equals(value, originValue)) {
+      if (!AdvancedComparerStruct<T>.System.Equals(value, originValue))
         AddValue(name, value, valueSerializer);
-      }
     }
 
     /// <summary>
@@ -202,7 +200,7 @@ namespace Xtensive.Core.Serialization
       var valueSerializer = Serializer.ValueSerializerProvider.GetSerializer<T>();
       if (valueSerializer == null)
         Serializer.EnsureValueSerializerIsFound<T>(valueSerializer);
-        AddValue(name, value, originValue, valueSerializer);
+      AddValue(name, value, originValue, valueSerializer);
     }
 
     /// <summary>
@@ -223,12 +221,10 @@ namespace Xtensive.Core.Serialization
         var context = SerializationContext.Current;
         var oldPreferAttributes = context.PreferAttributes;
         context.PreferAttributes = preferAttributes;
-        try
-        {
+        try {
           AddValue(name, value, valueSerializer);
         }
-        finally
-        {
+        finally {
           context.PreferAttributes = oldPreferAttributes;
         }
       }
@@ -248,11 +244,10 @@ namespace Xtensive.Core.Serialization
     /// for the duration of this call.</param>
     public void AddValue<T>(string name, T value, T originValue, bool preferAttributes)
     {
-        var valueSerializer = Serializer.ValueSerializerProvider.GetSerializer<T>();
-        if (valueSerializer == null)
-          Serializer.EnsureValueSerializerIsFound<T>(valueSerializer);
+      var valueSerializer = Serializer.ValueSerializerProvider.GetSerializer<T>();
+      if (valueSerializer == null)
+        Serializer.EnsureValueSerializerIsFound<T>(valueSerializer);
       AddValue(name, value, originValue, preferAttributes, valueSerializer);
-
     }
 
     /// <summary>
@@ -599,7 +594,7 @@ namespace Xtensive.Core.Serialization
       if (reference.IsNull())
         return;
       object tmp;
-      if (reference.TryResolve(out tmp))
+      if (Source!=null && reference.TryResolve(out tmp))
         action.Invoke((T) Source, reference);
       else
         SerializationContext.Current.FixupManager.Add(this, reference, 

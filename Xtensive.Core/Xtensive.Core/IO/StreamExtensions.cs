@@ -16,12 +16,13 @@ namespace Xtensive.Core.IO
   public static class StreamExtensions
   {
     // Constants
+    private const int SmallBufferSize = 256;
     private const int BufferSize = 1024*128;
     private const int MaxBuffers = 10; // 1Mb
 
     [ThreadStatic]
-    private static byte[] buffer;
-    private static byte[][] buffers;
+    private static byte[] threadBuffer;
+    private static byte[][] threadBuffers;
 
     /// <summary>
     /// Fills the stream with zero bytes 
@@ -52,7 +53,13 @@ namespace Xtensive.Core.IO
       if (count < 0)
         throw new ArgumentOutOfRangeException("count", count, 
           Strings.ExArgumentValueMustBeGreaterThanOrEqualToZero);
-      EnsureBufferIsInitialized();
+      byte[] buffer;
+      if (count<SmallBufferSize)
+        buffer = new byte[count];
+      else {
+        EnsureThreadBufferIsInitialized();
+        buffer = threadBuffer;
+      }
       long bytesToWrite = Math.Min(count, (stream.Length - stream.Position));
       long erasedCount = 0;
       while (erasedCount < bytesToWrite) {
@@ -102,7 +109,13 @@ namespace Xtensive.Core.IO
       if (source==destination)
         throw new NotSupportedException(
           Strings.ExCopyToMustOperateWithDifferentStreams);
-      EnsureBufferIsInitialized();
+      byte[] buffer;
+      if (count<SmallBufferSize)
+        buffer = new byte[count];
+      else {
+        EnsureThreadBufferIsInitialized();
+        buffer = threadBuffer;
+      }
       long bytesToWrite = Math.Min(count, (source.Length - source.Position));
       int writedCount = 0;
       while (writedCount < bytesToWrite) {
@@ -131,7 +144,7 @@ namespace Xtensive.Core.IO
       if (destinationOffset==offset)
         return actualCount;
       EnsureBuffersAreInitialized();
-      int largeBufferSize = buffers.Length*BufferSize;
+      int largeBufferSize = threadBuffers.Length*BufferSize;
       long iterationCount = actualCount/largeBufferSize + 1;
       bool reverseDirection = offset < destinationOffset;
       for (long iteration = reverseDirection ? iterationCount-1 : 0;
@@ -142,11 +155,11 @@ namespace Xtensive.Core.IO
         long iterationBuffersCount = Math.Min(MaxBuffers, bytesRemaining/BufferSize + 1);
         for (int bufferIndex = 0; bufferIndex < iterationBuffersCount; bufferIndex++) {
           int bytesToRead = (int)Math.Min(bytesRemaining - bufferIndex*BufferSize, BufferSize);
-          stream.Read(buffers[bufferIndex], 0, bytesToRead);
+          stream.Read(threadBuffers[bufferIndex], 0, bytesToRead);
         }
         stream.Seek(destinationOffset + iteration*largeBufferSize, SeekOrigin.Begin); // Write
         for (int bufferIndex = 0; bufferIndex < iterationBuffersCount; bufferIndex++) {
-          stream.Write(buffers[bufferIndex], 0, (int)Math.Min(bytesRemaining - bufferIndex*BufferSize, BufferSize));
+          stream.Write(threadBuffers[bufferIndex], 0, (int)Math.Min(bytesRemaining - bufferIndex*BufferSize, BufferSize));
         }
       }
       stream.Seek(destinationOffset + actualCount,SeekOrigin.Begin);
@@ -155,18 +168,18 @@ namespace Xtensive.Core.IO
 
     #region Private \ internal methods
 
-    private static void EnsureBufferIsInitialized()
+    private static void EnsureThreadBufferIsInitialized()
     {
-      if (buffer==null)
-        buffer = new byte[BufferSize];
+      if (threadBuffer==null)
+        threadBuffer = new byte[BufferSize];
     }
 
     private static void EnsureBuffersAreInitialized()
     {
-      if (buffers==null) {
-        buffers = new byte[MaxBuffers][];
-        for (int i = 0; i < buffers.Length; i++)
-          buffers[i] = new byte[BufferSize];
+      if (threadBuffers==null) {
+        threadBuffers = new byte[MaxBuffers][];
+        for (int i = 0; i < threadBuffers.Length; i++)
+          threadBuffers[i] = new byte[BufferSize];
       }
     }
 

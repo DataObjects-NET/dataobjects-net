@@ -45,11 +45,19 @@ namespace Xtensive.Core.Tests.Serialization
         return false;
       if (Id==obj.Id)
         if ((Left==null)==(obj.Left==null))
-          if ((Right==null)==(obj.Right==null))
-            if (Left!=null && Left.Equals(obj.Left))
-              if (Right!=null && Right.Equals(obj.Right))
-                return true;
+          if ((Right==null)==(obj.Right==null)) {
+            if (Left!=null && !Left.Equals(obj.Left))
+              return false;
+            if (Right!=null && !Right.Equals(obj.Right))
+              return false;
+            return true;
+          }
       return false;
+    }
+
+    public override bool Equals(object obj)
+    {
+      return Equals(obj as Node);
     }
 
     public override string ToString()
@@ -98,11 +106,13 @@ namespace Xtensive.Core.Tests.Serialization
       bool createRight = (lr & 2)!=0;
       if (createLeft) {
         int leftCount = createRight ? random.Next(count) : count;
-        Left = new Node(id, this, random, leftCount);
-        count -= leftCount;
-        id += leftCount;
+        if (leftCount>0) {
+          Left = new Node(id, this, random, leftCount);
+          count -= leftCount;
+          id += leftCount;
+        }
       }
-      if (createRight)
+      if (createRight && count>0)
         Right = new Node(id, this, random, count);
     }
 
@@ -133,7 +143,7 @@ namespace Xtensive.Core.Tests.Serialization
     public override void GetObjectData(Node source, Node origin, SerializationData data)
     {
       base.GetObjectData(source, origin, data);
-      data.AddValue("Id", source.Id);
+      data.AddValue("Id", source.Id, Int32Serializer);
       data.AddObject<Node>("Parent", o => o.Parent);
       data.AddObject<Node>("Left", o => o.Left);
       data.AddObject<Node>("Right", o => o.Right);
@@ -141,7 +151,8 @@ namespace Xtensive.Core.Tests.Serialization
 
     public override Node SetObjectData(Node source, SerializationData data)
     {
-      source.Id = data.GetValue<int>("Id");
+      source.Id = data.GetValue("Id", Int32Serializer);
+      data.UpdateSource(source);
       data.AddFixup<Node>("Parent", (n,r) => n.Parent = r.Resolve<Node>());
       data.AddFixup<Node>("Left",   (n,r) => n.Left   = r.Resolve<Node>());
       data.AddFixup<Node>("Right",  (n,r) => n.Right  = r.Resolve<Node>());
@@ -169,13 +180,10 @@ namespace Xtensive.Core.Tests.Serialization
     public void CombinedTest()
     {
       Random r = RandomManager.CreateRandom(SeedVariatorType.CallingMethod);
-      
+
       TestCloning("1", 1, iterationCount);
       TestCloning("int [3]", new [] {1,2,3}, iterationCount / 10);
 
-//      var nodes = new Node(1, null, r, 10);
-//      TestCloning(string.Format("Node [{0}]", nodes.Count), nodes, iterationCount / 100);
-      
       var ints = InstanceGenerationUtils<int>.GetInstances(r, 0).Take(baseSize).ToArray();
       TestCloning(string.Format("int [{0}]", ints.Length), ints, iterationCount / 100);
 
@@ -184,6 +192,9 @@ namespace Xtensive.Core.Tests.Serialization
 
       var objects = InstanceGenerationUtils<int>.GetInstances(r, 0).Take(baseSize).Cast<object>().ToArray();
       TestCloning(string.Format("Object [{0}]", objects.Length), objects, iterationCount / 100);
+
+      var nodes = new Node(1, null, r, 1000);
+      TestCloning(string.Format("Node [{0}]", nodes.Count), nodes, iterationCount / 100);
     }
 
     [Test]
@@ -193,6 +204,9 @@ namespace Xtensive.Core.Tests.Serialization
     {
       profile = true;
       Random r = RandomManager.CreateRandom(SeedVariatorType.CallingMethod);
+
+      var nodes = new Node(1, null, r, 1000);
+      TestCloning(string.Format("Node [{0}]", nodes.Count), nodes, iterationCount / 100);
 
 //      var ints = InstanceGenerationUtils<int>.GetInstances(r, 0).Take(baseSize).ToArray();
 //      TestCloning(string.Format("int [{0}]", ints.Length), ints, 1);

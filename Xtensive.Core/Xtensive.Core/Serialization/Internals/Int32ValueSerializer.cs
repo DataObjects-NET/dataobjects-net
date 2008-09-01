@@ -14,15 +14,14 @@ namespace Xtensive.Core.Serialization
   {
     public override int Deserialize(Stream stream) 
     {
-      int length = OutputLength;
-      EnsureThreadBufferIsInitialized(length);
-      stream.Read(ThreadBuffer, 0, length);
-      return BitConverter.ToInt32(ThreadBuffer, 0);
+      var buffer = new byte[sizeof (int)];
+      stream.Read(buffer, 0, sizeof (int));
+      return BitConverter.ToInt32(buffer, 0);
     }
 
     public override void Serialize(Stream stream, int value) 
     {
-      stream.Write(BitConverter.GetBytes(value), 0, OutputLength);
+      stream.Write(BitConverter.GetBytes(value), 0, sizeof (int));
     }
 
 

@@ -241,11 +241,13 @@ namespace Xtensive.Core.Serialization
           }
           else {
             // There is no object in queue
-            reference = referenceManager.GetReference(source);
+            bool isNew;
+            reference = referenceManager.GetReference(source, out isNew);
             if (!immediately) {
               // Immediate serialization isn't required,
               // so we should enqueue it and serialize a reference to it
-              queue.AddToTop(source, new Pair<IReference, object>(reference, origin));
+              if (isNew)
+                queue.AddToTop(source, new Pair<IReference, object>(reference, origin));
               return GetObjectData(reference, null, true);
             }
           }

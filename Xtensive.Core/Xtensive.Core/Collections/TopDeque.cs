@@ -113,9 +113,9 @@ namespace Xtensive.Core.Collections
       if (list.Count==0)
         throw new InvalidOperationException(Strings.ExCollectionIsEmpty);
 
-      LinkedListNode<Pair<K, V>> valueContainer = list.First;
+      var valueContainer = list.First;
       list.Remove(valueContainer);
-      Pair<K, V> keyValuePair = valueContainer.Value;
+      var keyValuePair = valueContainer.Value;
       map.Remove(keyValuePair.First);
       return keyValuePair.Second;
     }
@@ -127,9 +127,9 @@ namespace Xtensive.Core.Collections
       if (list.Count==0)
         throw new InvalidOperationException(Strings.ExCollectionIsEmpty);
 
-      LinkedListNode<Pair<K, V>> valueContainer = list.Last;
+      var valueContainer = list.Last;
       list.Remove(valueContainer);
-      Pair<K, V> keyValuePair = valueContainer.Value;
+      var keyValuePair = valueContainer.Value;
       map.Remove(keyValuePair.First);
       return keyValuePair.Second;
     }
@@ -171,8 +171,8 @@ namespace Xtensive.Core.Collections
       if (map.ContainsKey(key))
         throw new InvalidOperationException(Strings.ExCollectionAlreadyContainsItemWithSpecifiedKey);
 
-      Pair<K, V> keyValuePair = new Pair<K, V>(key, value);
-      LinkedListNode<Pair<K, V>> valueContainer = list.AddFirst(keyValuePair);
+      var keyValuePair = new Pair<K, V>(key, value);
+      var valueContainer = list.AddFirst(keyValuePair);
       map.Add(key, valueContainer);
     }
 
@@ -183,8 +183,8 @@ namespace Xtensive.Core.Collections
       if (map.ContainsKey(key))
         throw new InvalidOperationException(Strings.ExCollectionAlreadyContainsItemWithSpecifiedKey);
 
-      Pair<K, V> entry = new Pair<K, V>(key, value);
-      LinkedListNode<Pair<K, V>> valueContainer = list.AddLast(entry);
+      var entry = new Pair<K, V>(key, value);
+      var valueContainer = list.AddLast(entry);
       map.Add(key, valueContainer);
     }
 
@@ -235,6 +235,16 @@ namespace Xtensive.Core.Collections
     {
       list = new LinkedList<Pair<K, V>>();
       map = new Dictionary<K, LinkedListNode<Pair<K, V>>>();
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="keyComparer">The key comparer.</param>
+    public TopDeque(IEqualityComparer<K> keyComparer)
+    {
+      list = new LinkedList<Pair<K, V>>();
+      map = new Dictionary<K, LinkedListNode<Pair<K, V>>>(keyComparer);
     }
   }
 }

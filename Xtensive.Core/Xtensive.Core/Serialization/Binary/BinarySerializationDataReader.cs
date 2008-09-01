@@ -20,7 +20,7 @@ namespace Xtensive.Core.Serialization.Binary
     {
       var current = BinarySerializationContext.Current;
       var stream = current.Stream;
-      var longSerializer = current.LongSerializer;
+      var longSerializer = current.Int64Serializer;
       while (true) {
         long length = longSerializer.Deserialize(stream);
         if (length==0)

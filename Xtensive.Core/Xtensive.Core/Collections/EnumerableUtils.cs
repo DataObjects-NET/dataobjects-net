@@ -14,6 +14,50 @@ namespace Xtensive.Core.Collections
   /// </summary>
   public static class EnumerableUtils
   {
+    #region Nested type: EmptyEnumerable<T>
+
+    internal sealed class EmptyEnumerable<T> : IEnumerable<T> 
+    {
+      internal sealed class EmptyEnumerator : IEnumerator<T>
+      {
+        public void Dispose()
+        {
+        }
+
+        public bool MoveNext()
+        {
+          return false;
+        }
+
+        public void Reset()
+        {
+        }
+
+        object IEnumerator.Current {
+          get { return default(T); }
+        }
+
+        public T Current {
+          get { return default(T); }
+        }
+      }
+
+      public static EmptyEnumerator Enumerator = new EmptyEnumerator();
+      public static EmptyEnumerable<T> Instance = new EmptyEnumerable<T>();
+
+      IEnumerator IEnumerable.GetEnumerator()
+      {
+        return GetEnumerator();
+      }
+
+      public IEnumerator<T> GetEnumerator()
+      {
+        return Enumerator;
+      }
+    }
+
+    #endregion
+
     /// <summary>
     /// Gets the empty sequence.
     /// </summary>
@@ -21,8 +65,7 @@ namespace Xtensive.Core.Collections
     /// <returns>Empty sequence.</returns>
     public static IEnumerable<T> GetEmpty<T>()
     {
-      if (false)
-        yield return default(T);
+      return EmptyEnumerable<T>.Instance;
     }
 
     /// <summary>
@@ -32,8 +75,7 @@ namespace Xtensive.Core.Collections
     /// <returns>The enumerator of empty sequence.</returns>
     public static IEnumerator<T> GetEmptyEnumerator<T>()
     {
-      if (false)
-        yield return default(T);
+      return EmptyEnumerable<T>.Enumerator;
     }
   }
 }

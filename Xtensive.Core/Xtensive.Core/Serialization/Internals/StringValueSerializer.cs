@@ -13,7 +13,7 @@ namespace Xtensive.Core.Serialization
   [Serializable]
   internal sealed class StringValueSerializer : WrappingValueSerializer<string, int>
   {
-    private static readonly Encoding encoding = Encoding.UTF8;
+    private static readonly Encoding encoding = new UTF8Encoding(false, true);
 
     public override string Deserialize(Stream stream) 
     {

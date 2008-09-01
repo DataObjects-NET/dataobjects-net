@@ -61,6 +61,19 @@ namespace Xtensive.Core.Serialization.Binary
     #endregion
 
     /// <inheritdoc/>
+    public override Type SerializedType {
+      get {
+        Type = GetValue(TypePropertyName, Context.TypeTokenSerializer).Value;
+        return Type;
+      }
+      set {
+        Type = value;
+        var context = Context;
+        AddValue(TypePropertyName, Token.GetOrCreate(context, value), context.TypeTokenSerializer); 
+      }
+    }
+
+    /// <inheritdoc/>
     /// <exception cref="SerializationException">Value with specified <paramref name="name"/> already exists.</exception>
     public override void AddValue<T>(string name, T value, ValueSerializer<T> valueSerializer)
     {
@@ -73,23 +86,24 @@ namespace Xtensive.Core.Serialization.Binary
       var context = Context;
       context.EnsureProcessTypeIs(SerializerProcessType.Serialization);
 
-      long originalPosition = Stream.Position;
-      long originalLength = Stream.Length;
+      var stream = Stream;
+      long originalPosition = stream.Position;
+      long originalLength = stream.Length;
       try {
         // Writing name
-        context.TokenStringSerializer.Serialize(Stream, Token.GetOrCreate(name));
-        long dataLengthOffset = Stream.Position;
+        context.StringTokenSerializer.Serialize(stream, Token.GetOrCreate(context, name));
+        long dataLengthOffset = stream.Position;
         // Skipping the space for the data length
-        context.LongSerializer.Serialize(Stream, 0);
-        long dataOffset = Stream.Position;
+        context.Int64Serializer.Serialize(stream, 0);
+        long dataOffset = stream.Position;
         // Writting data
-        valueSerializer.Serialize(Stream, value);
-        var dataEnd = Stream.Position;
+        valueSerializer.Serialize(stream, value);
+        var dataEnd = stream.Position;
         long dataLength = dataEnd - dataOffset;
         // Writting data length
-        Stream.Position = dataLengthOffset;
-        context.LongSerializer.Serialize(Stream, dataLength);
-        Stream.Position = dataEnd;
+        stream.Position = dataLengthOffset;
+        context.Int64Serializer.Serialize(stream, dataLength);
+        stream.Position = dataEnd;
 
         // Updating everything
         slotMap.Add(name, slotList.Count);
@@ -97,8 +111,8 @@ namespace Xtensive.Core.Serialization.Binary
         readCount++;
       }
       catch {
-        Stream.Position = originalPosition;
-        Stream.SetLength(originalLength);
+        stream.Position = originalPosition;
+        stream.SetLength(originalLength);
         throw;
       }
     }
@@ -195,12 +209,12 @@ namespace Xtensive.Core.Serialization.Binary
       long originalPosition = Stream.Position;
       try {
         long dataOffset = slotInfo.Second;
-        long lengthLength = (context.LongSerializer.Implementation as ValueSerializerBase<long>).OutputLength;
+        long lengthLength = (context.Int64Serializer.Implementation as ValueSerializerBase<long>).OutputLength;
         Stream.Position = dataOffset - lengthLength;
         // Reading old data length
-        long dataLength = context.LongSerializer.Deserialize(Stream);
+        long dataLength = context.Int64Serializer.Deserialize(Stream);
         // Writing back bitwise compliment of the data length
-        context.LongSerializer.Serialize(Stream, ~dataLength);
+        context.Int64Serializer.Serialize(Stream, ~dataLength);
 
         // Updating everything
         slotMap.Remove(name);
@@ -255,9 +269,9 @@ namespace Xtensive.Core.Serialization.Binary
       long finalPosition = stream.Position;
       try {
         // Reading name
-        string name = context.TokenStringSerializer.Deserialize(stream).Value;
+        string name = context.StringTokenSerializer.Deserialize(stream).Value;
         // Reading data length
-        long dataLength = context.LongSerializer.Deserialize(stream);
+        long dataLength = context.Int64Serializer.Deserialize(stream);
         bool isErased = false;
         if (dataLength<0) {
           // Slot is erased
