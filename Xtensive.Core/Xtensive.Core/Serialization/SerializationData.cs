@@ -114,7 +114,22 @@ namespace Xtensive.Core.Serialization
     /// <typeparam name="T">The type of the value to add.</typeparam>
     /// <param name="name">The name to associate with the value.</param>
     /// <param name="value">The value to add.</param>
-    public abstract void AddValue<T>(string name, T value);
+    /// <param name="valueSerializer">The value serializer.</param>
+    public abstract void AddValue<T>(string name, T value, ValueSerializer<T> valueSerializer);
+
+    /// <summary>
+    /// Adds the <paramref name="value"/> to this instance.
+    /// </summary>
+    /// <typeparam name="T">The type of the value to add.</typeparam>
+    /// <param name="name">The name to associate with the value.</param>
+    /// <param name="value">The value to add.</param>
+    public void AddValue<T>(string name, T value)
+    {
+      var valueSerializer = Serializer.ValueSerializerProvider.GetSerializer<T>();
+      if (valueSerializer==null)
+        Serializer.EnsureValueSerializerIsFound<T>(valueSerializer);
+      AddValue(name, value, valueSerializer);
+    }
 
     /// <summary>
     /// Adds the <paramref name="value"/> to this instance.
@@ -333,7 +348,25 @@ namespace Xtensive.Core.Serialization
     /// <returns>
     /// The value associated with the <paramref name="name"/>.
     /// </returns>
-    public abstract T GetValue<T>(string name);
+    public T GetValue<T>(string name)
+    {
+      var valueSerializer = Serializer.ValueSerializerProvider.GetSerializer<T>();
+      if (valueSerializer==null)
+        Serializer.EnsureValueSerializerIsFound<T>(valueSerializer);
+      return GetValue(name, valueSerializer);
+    }
+
+
+    /// <summary>
+    /// Gets a value from this instance.
+    /// </summary>
+    /// <typeparam name="T">The type of the value to get.</typeparam>
+    /// <param name="name">The name associated with the value.</param>
+    /// <param name="valueSerializer">The value serializer.</param>
+    /// <returns>
+    /// The value associated with the <paramref name="name"/>.
+    /// </returns>
+    public abstract T GetValue<T>(string name, ValueSerializer<T> valueSerializer);
 
     #endregion
 

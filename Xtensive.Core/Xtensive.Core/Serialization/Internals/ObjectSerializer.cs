@@ -12,6 +12,7 @@ namespace Xtensive.Core.Serialization.Internals
   {
     public const string ValuePropertyName = "Value";
     private readonly bool isReferable = typeof (T).IsClass;
+    private readonly ValueSerializer<T> valueSerializer;
 
     public override bool IsReferable {
       get {
@@ -27,12 +28,12 @@ namespace Xtensive.Core.Serialization.Internals
     public override void GetObjectData(T source, T origin, SerializationData data)
     {
       base.GetObjectData(source, origin, data);
-      data.AddValue(ValuePropertyName, source);
+      data.AddValue(ValuePropertyName, source, valueSerializer);
     }
 
     public override T SetObjectData(T source, SerializationData data)
     {
-      return data.GetValue<T>(ValuePropertyName);
+      return data.GetValue<T>(ValuePropertyName, valueSerializer);
     }
 
     // Constructors
@@ -40,6 +41,7 @@ namespace Xtensive.Core.Serialization.Internals
     public ObjectSerializer(IObjectSerializerProvider provider)
       : base(provider)
     {
+      valueSerializer = GetValueSerializer<T>();
     }
   }
 }

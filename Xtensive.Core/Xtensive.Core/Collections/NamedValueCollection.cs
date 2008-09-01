@@ -5,17 +5,19 @@
 // Created:    2008.08.26
 
 using System.Collections.Generic;
-using Xtensive.Core;
 
 namespace Xtensive.Core.Collections
 {
-  /// <inheritdoc/>
+  /// <summary>
+  /// <see cref="Dictionary{TKey,TValue}"/>-based 
+  /// <see cref="INamedValueCollection"/> implementation.
+  /// </summary>
   public class NamedValueCollection : INamedValueCollection
   {
     private readonly Dictionary<string, object> values = new Dictionary<string, object>();
 
     /// <inheritdoc/>
-    public object Get(string name)
+    public virtual object Get(string name)
     {
       object result;
       if (values.TryGetValue(name, out result))
@@ -24,7 +26,7 @@ namespace Xtensive.Core.Collections
     }
 
     /// <inheritdoc/>
-    public void Set(string name, object value)
+    public virtual void Set(string name, object value)
     {
       values[name] = value;
       if (value==null)

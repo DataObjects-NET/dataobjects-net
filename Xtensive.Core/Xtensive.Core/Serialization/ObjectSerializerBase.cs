@@ -7,6 +7,8 @@
 using System;
 using System.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Resources;
+using Xtensive.Core.Reflection;
 
 namespace Xtensive.Core.Serialization
 {
@@ -18,6 +20,20 @@ namespace Xtensive.Core.Serialization
   {
     /// <inheritdoc/>
     public IObjectSerializerProvider Provider { get; protected set; }
+
+    #region Cached value serializers
+
+    /// <summary>
+    /// Gets the value serializer for <see cref="int"/> type.
+    /// </summary>
+    protected ValueSerializer<int> Int32Serializer { get; private set; }
+
+    /// <summary>
+    /// Gets the value serializer for <see cref="string"/> type.
+    /// </summary>
+    protected ValueSerializer<string> StringSerializer { get; private set; }
+
+    #endregion
 
     /// <inheritdoc/>
     public virtual bool IsReferable {
@@ -83,6 +99,20 @@ namespace Xtensive.Core.Serialization
 
     #endregion
 
+    /// <exception cref="InvalidOperationException">Requested value serializer is not found.</exception>
+    protected ValueSerializer<TValue> GetValueSerializer<TValue>()
+    {
+      var vsp = Provider.ValueSerializerProvider;
+      var valueSerializer = vsp.GetSerializer<TValue>();
+      if (valueSerializer==null) 
+        throw new InvalidOperationException(string.Format(
+          Strings.ExCantFindAssociate,
+          ValueSerializer<TValue>.AssociateName,
+          typeof(IValueSerializer<TValue>).GetShortName(),
+          typeof(TValue).GetShortName()));
+      return valueSerializer;
+    }
+
 
     // Constructors
 
@@ -94,6 +124,8 @@ namespace Xtensive.Core.Serialization
     {
       ArgumentValidator.EnsureArgumentNotNull(provider, "provider");
       Provider = provider;
+      Int32Serializer = GetValueSerializer<int>();
+      StringSerializer = GetValueSerializer<string>();
     }
   }
 }

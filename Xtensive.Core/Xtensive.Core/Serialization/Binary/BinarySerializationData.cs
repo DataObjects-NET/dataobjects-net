@@ -62,7 +62,7 @@ namespace Xtensive.Core.Serialization.Binary
 
     /// <inheritdoc/>
     /// <exception cref="SerializationException">Value with specified <paramref name="name"/> already exists.</exception>
-    public override void AddValue<T>(string name, T value)
+    public override void AddValue<T>(string name, T value, ValueSerializer<T> valueSerializer)
     {
       if (string.IsNullOrEmpty(name))
         ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
@@ -72,9 +72,6 @@ namespace Xtensive.Core.Serialization.Binary
           name));
       var context = Context;
       context.EnsureProcessTypeIs(SerializerProcessType.Serialization);
-      var valueSerializer = ValueSerializerProvider.FastGetSerializer<T>();
-      if (valueSerializer==null)
-        Serializer.EnsureValueSerializerIsFound<T>(valueSerializer);
 
       long originalPosition = Stream.Position;
       long originalLength = Stream.Length;
@@ -108,11 +105,8 @@ namespace Xtensive.Core.Serialization.Binary
 
     /// <inheritdoc/>
     /// <exception cref="SerializationException">Value with specified <paramref name="name"/> is not found.</exception>
-    public override T GetValue<T>(string name)
+    public override T GetValue<T>(string name, ValueSerializer<T> valueSerializer)
     {
-      var valueSerializer = ValueSerializerProvider.FastGetSerializer<T>();
-      Serializer.EnsureValueSerializerIsFound<T>(valueSerializer);
-
       int slotIndex;
       if (!slotMap.TryGetValue(name, out slotIndex)) {
         slotIndex = -1;

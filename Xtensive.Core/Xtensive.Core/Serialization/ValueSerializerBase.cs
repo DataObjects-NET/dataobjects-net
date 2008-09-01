@@ -8,6 +8,8 @@ using System;
 using System.IO;
 using System.Runtime.Serialization;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Reflection;
+using Xtensive.Core.Resources;
 
 namespace Xtensive.Core.Serialization
 {
@@ -61,6 +63,20 @@ namespace Xtensive.Core.Serialization
     {
       if (ThreadBuffer==null)
         ThreadBuffer = new byte[size];
+    }
+
+    /// <exception cref="InvalidOperationException">Requested value serializer is not found.</exception>
+    protected ValueSerializer<TValue> GetValueSerializer<TValue>()
+    {
+      var vsp = Provider;
+      var valueSerializer = vsp.GetSerializer<TValue>();
+      if (valueSerializer==null) 
+        throw new InvalidOperationException(string.Format(
+          Strings.ExCantFindAssociate,
+          ValueSerializer<TValue>.AssociateName,
+          typeof(IValueSerializer<TValue>).GetShortName(),
+          typeof(TValue).GetShortName()));
+      return valueSerializer;
     }
 
 

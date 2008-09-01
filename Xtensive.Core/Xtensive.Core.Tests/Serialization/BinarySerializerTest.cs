@@ -176,14 +176,14 @@ namespace Xtensive.Core.Tests.Serialization
 //      var nodes = new Node(1, null, r, 10);
 //      TestCloning(string.Format("Node [{0}]", nodes.Count), nodes, iterationCount / 100);
       
-//      var ints = InstanceGenerationUtils<int>.GetInstances(r, 0).Take(baseSize).ToArray();
-//      TestCloning(string.Format("int [{0}]", ints.Length), ints, iterationCount / 100);
-//
-//      var guids = InstanceGenerationUtils<Guid>.GetInstances(r, 0).Take(baseSize).ToArray();
-//      TestCloning(string.Format("Guid [{0}]", guids.Length), guids, iterationCount / 100);
-//
-//      var objects = InstanceGenerationUtils<int>.GetInstances(r, 0).Take(baseSize).Cast<object>().ToArray();
-//      TestCloning(string.Format("Object [{0}]", objects.Length), objects, iterationCount / 100);
+      var ints = InstanceGenerationUtils<int>.GetInstances(r, 0).Take(baseSize).ToArray();
+      TestCloning(string.Format("int [{0}]", ints.Length), ints, iterationCount / 100);
+
+      var guids = InstanceGenerationUtils<Guid>.GetInstances(r, 0).Take(baseSize).ToArray();
+      TestCloning(string.Format("Guid [{0}]", guids.Length), guids, iterationCount / 100);
+
+      var objects = InstanceGenerationUtils<int>.GetInstances(r, 0).Take(baseSize).Cast<object>().ToArray();
+      TestCloning(string.Format("Object [{0}]", objects.Length), objects, iterationCount / 100);
     }
 
     [Test]

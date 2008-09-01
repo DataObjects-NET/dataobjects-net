@@ -31,13 +31,7 @@ namespace Xtensive.Core.Serialization
     protected WrappingValueSerializer(IValueSerializerProvider provider)
       : base(provider)
     {
-      var serializer = provider.GetSerializer<TBase>();
-      if (serializer == null)
-        throw new InvalidOperationException(string.Format(
-          Strings.ExCantFindAssociate,
-          ValueSerializer<TBase>.AssociateName,
-          typeof(IValueSerializer<TBase>).GetShortName(),
-          typeof(TBase).GetShortName()));
+      var serializer = GetValueSerializer<TBase>();
       BaseSerializer = new ValueSerializerStruct<TBase>(serializer);
     }
   }

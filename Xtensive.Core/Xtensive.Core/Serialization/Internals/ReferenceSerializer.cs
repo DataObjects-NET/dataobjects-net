@@ -30,12 +30,12 @@ namespace Xtensive.Core.Serialization.Internals
     {
       base.GetObjectData(source, origin, data);
       if (source.Value!=origin.Value)
-        data.AddValue(ValuePropertyName, source.Value);
+        data.AddValue(ValuePropertyName, source.Value, StringSerializer);
     }
 
     public override Reference SetObjectData(Reference source, SerializationData data)
     {
-      return new Reference(data.GetValue<string>(ValuePropertyName));
+      return new Reference(data.GetValue<string>(ValuePropertyName), StringSerializer);
     }
 
     // Constructors

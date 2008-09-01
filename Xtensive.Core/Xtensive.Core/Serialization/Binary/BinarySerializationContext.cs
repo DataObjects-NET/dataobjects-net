@@ -7,8 +7,6 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Serialization.Implementation;
 
 namespace Xtensive.Core.Serialization.Binary
 {
