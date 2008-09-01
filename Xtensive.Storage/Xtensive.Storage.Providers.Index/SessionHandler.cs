@@ -39,7 +39,7 @@ namespace Xtensive.Storage.Providers.Index
       foreach (IndexInfo indexInfo in data.Type.AffectedIndexes) {
         var index = handler.GetRealIndex(indexInfo);
         var transform = handler.GetIndexTransform(indexInfo, data.Type);
-        index.Add(transform.Apply(TupleTransformType.Tuple, data.Tuple));
+        index.Add(transform.Apply(TupleTransformType.Tuple, data));
       }
     }
 

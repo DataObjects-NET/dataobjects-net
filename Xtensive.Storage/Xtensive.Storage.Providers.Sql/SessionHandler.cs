@@ -135,7 +135,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       SqlRequestBuilderTask task = new SqlRequestBuilderTask(SqlRequestKind.Insert, data.Type);
       SqlModificationRequest request = domainHandler.SqlRequestCache.GetValue(task, _task => DomainHandler.SqlRequestBuilder.BuildRequest(_task));
-      request.BindTo(data.Tuple);
+      request.BindTo(data);
       int rowsAffected = ExecuteNonQuery(request);
       if (rowsAffected!=request.ExpectedResult)
         throw new InvalidOperationException(String.Format(Strings.ExErrorOnInsert, data.Type.Name, rowsAffected, request.ExpectedResult));
@@ -144,9 +144,9 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     protected override void Update(EntityData data)
     {
-      SqlRequestBuilderTask task = new SqlRequestBuilderTask(SqlRequestKind.Update, data.Type, data.Tuple.Difference.GetFieldStateMap(TupleFieldState.IsAvailable));
+      SqlRequestBuilderTask task = new SqlRequestBuilderTask(SqlRequestKind.Update, data.Type, data.DifferentialData.Difference.GetFieldStateMap(TupleFieldState.IsAvailable));
       SqlModificationRequest request = domainHandler.SqlRequestCache.GetValue(task, _task => DomainHandler.SqlRequestBuilder.BuildRequest(_task));
-      request.BindTo(data.Tuple);
+      request.BindTo(data);
       int rowsAffected = ExecuteNonQuery(request);
       if (rowsAffected!=request.ExpectedResult)
         throw new InvalidOperationException(String.Format(Strings.ExErrorOnUpdate, data.Type.Name, rowsAffected, request.ExpectedResult));
@@ -157,7 +157,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       SqlRequestBuilderTask task = new SqlRequestBuilderTask(SqlRequestKind.Remove, data.Type);
       SqlModificationRequest request = domainHandler.SqlRequestCache.GetValue(task, _task => DomainHandler.SqlRequestBuilder.BuildRequest(_task));
-      request.BindTo(data.Tuple);
+      request.BindTo(data);
       int rowsAffected = ExecuteNonQuery(request);
       if (rowsAffected!=request.ExpectedResult)
         if (rowsAffected==0)

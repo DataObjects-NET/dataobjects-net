@@ -7,21 +7,18 @@
 using System;
 using System.Collections.Generic;
 using Xtensive.Core;
+using Xtensive.Core.Aspects;
 using Xtensive.Core.Tuples;
-using Xtensive.Integrity;
-using Xtensive.Integrity.Aspects;
 using Xtensive.Integrity.Atomicity;
 using Xtensive.Integrity.Transactions;
 using Xtensive.Integrity.Validation;
 using Xtensive.Integrity.Validation.Interfaces;
-using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
-using Xtensive.Core.Aspects;
 
 namespace Xtensive.Storage
 {
-  public abstract class Persistent : SessionBound,    
+  public abstract class Persistent : SessionBound,
     IAtomicityAware,
     IValidationAware
   {
@@ -34,16 +31,21 @@ namespace Xtensive.Storage
     public abstract TypeInfo Type { get; }
 
     [Infrastructure]
-    protected abstract internal Tuple Tuple { get; }
+    protected internal abstract Tuple Tuple { get; }
 
     [Infrastructure]
-    internal Dictionary<FieldInfo, IFieldHandler> FieldHandlers {
-      get {
-        if (fieldHandlers == null)
+    internal Dictionary<FieldInfo, IFieldHandler> FieldHandlers
+    {
+      get
+      {
+        if (fieldHandlers==null)
           fieldHandlers = new Dictionary<FieldInfo, IFieldHandler>();
         return fieldHandlers;
       }
     }
+
+    [Infrastructure]
+    internal abstract void EnsureIsFetched(FieldInfo field);
 
     #region this[...], GetProperty, SetProperty methods
 
@@ -132,7 +134,7 @@ namespace Xtensive.Storage
     private void UndoSetValue(IUndoDescriptor undoDescriptor)
     {
       IDictionary<string, object> arguments = undoDescriptor.Arguments;
-      string name = (string)arguments["name"];     
+      string name = (string) arguments["name"];
       object value;
       arguments.TryGetValue("value", out value);
       InternalSetValue(name, value);
@@ -182,7 +184,7 @@ namespace Xtensive.Storage
     {
       return base.Equals(obj);
     }
-    
+
     /// <inheritdoc/>
     [Infrastructure]
     public override int GetHashCode()
@@ -192,16 +194,15 @@ namespace Xtensive.Storage
 
     #endregion
 
-
     #region IValidationAware members
 
     /// <inheritdoc/>
     public ValidationContextBase Context
     {
-      get 
+      get
       {
         // TODO: return ValidationContext of the current Transaction (or Session).
-        return ValidationScope.CurrentContext; 
+        return ValidationScope.CurrentContext;
       }
     }
 
@@ -230,7 +231,6 @@ namespace Xtensive.Storage
 
     #endregion
 
-
     // Constructors
 
     /// <summary>
@@ -243,7 +243,8 @@ namespace Xtensive.Storage
     /// <summary>
     /// Initializes a new instance of the <see cref="Persistent"/> class.
     /// </summary>
-    protected Persistent(EntityData data) : this()
+    protected Persistent(EntityData data)
+      : this()
     {
     }
   }

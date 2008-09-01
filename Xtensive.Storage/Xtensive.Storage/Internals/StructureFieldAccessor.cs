@@ -25,7 +25,10 @@ namespace Xtensive.Storage.Internals
     {
       ArgumentValidator.EnsureArgumentNotNull(value, "value");
       ValidateType(field);
-      ((Structure) (object) value).Tuple.CopyTo(obj.Tuple, 0, field.MappingInfo.Offset, field.MappingInfo.Length);
+      Structure structure = ((Structure) (object) value);
+      if (structure.Owner!=null)
+        structure.Owner.EnsureIsFetched(structure.Field);
+      structure.Tuple.CopyTo(obj.Tuple, 0, field.MappingInfo.Offset, field.MappingInfo.Length);
     }
 
     /// <inheritdoc/>

@@ -132,6 +132,12 @@ namespace Xtensive.Storage
         .Invoke(owner, field);
     }
 
+    internal sealed override void EnsureIsFetched(FieldInfo field)
+    {
+      if (owner != null)
+        owner.EnsureIsFetched(field);
+    }
+
 
     // Constructors
 

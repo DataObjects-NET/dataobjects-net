@@ -39,7 +39,7 @@ namespace Xtensive.Storage.Internals
       if (data == null)
         Create(key, tuple, PersistenceState.Persisted);
       else {
-        data.Tuple.Origin.MergeWith(tuple);
+        data.DifferentialData.Origin.MergeWith(tuple);
         if (Log.IsLogged(LogEventTypes.Debug))
           Log.Debug("Session '{0}'. Merging: {1}", Session.Current, data);
       }
@@ -79,7 +79,7 @@ namespace Xtensive.Storage.Internals
     public void Reset()
     {
       foreach (EntityData data in this)
-        data.Reset();        
+        data.Reset();
     }
 
     [Infrastructure]

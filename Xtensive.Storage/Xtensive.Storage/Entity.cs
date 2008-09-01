@@ -71,7 +71,7 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     protected internal sealed override Tuple Tuple {
       [DebuggerStepThrough]
-      get { return Data.Tuple; }
+      get { return Data; }
     }
 
     /// <summary>
@@ -197,12 +197,11 @@ namespace Xtensive.Storage
         .Invoke(data);
     }
 
-    [Infrastructure]
-    private void EnsureIsFetched(FieldInfo field)
+    internal override sealed void EnsureIsFetched(FieldInfo field)
     {
       if (Session.DirtyData.GetItems(PersistenceState.New).Contains(Data))
         return;
-      if (Data.Tuple.IsAvailable(field.MappingInfo.Offset))
+      if (Data.IsAvailable(field.MappingInfo.Offset))
         return;
       Fetcher.Fetch(Key, field);
     }

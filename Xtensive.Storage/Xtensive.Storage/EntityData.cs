@@ -5,7 +5,6 @@
 // Created:    2008.07.07
 
 using System.Diagnostics;
-using Xtensive.Core;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Model;
 
@@ -14,7 +13,7 @@ namespace Xtensive.Storage
   /// <summary>
   /// The underlying data of the <see cref="Storage.Entity"/>.
   /// </summary>
-  public sealed class EntityData
+  public sealed class EntityData : Tuple
   {
     /// <summary>
     /// Gets the key.
@@ -33,7 +32,7 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets the tuple.
     /// </summary>
-    public DifferentialTuple Tuple { get; internal set; }
+    public DifferentialTuple DifferentialData { get; set; }
 
     /// <summary>
     /// Gets the the persistence state.
@@ -50,14 +49,49 @@ namespace Xtensive.Storage
     /// </summary>
     public void Reset()
     {
-      Tuple.Merge();
-      Tuple.Reset();
+      Tuple origin = Create(Type.TupleDescriptor);
+      Key.Tuple.CopyTo(origin);
+      DifferentialData = new DifferentialTuple(origin);
     }
+
+    #region Tuple implementation
+
+    public override TupleFieldState GetFieldState(int fieldIndex)
+    {
+      return DifferentialData.GetFieldState(fieldIndex);
+    }
+
+    public override T GetValueOrDefault<T>(int fieldIndex)
+    {
+      return DifferentialData.GetValueOrDefault<T>(fieldIndex);
+    }
+
+    public override object GetValueOrDefault(int fieldIndex)
+    {
+      return DifferentialData.GetValueOrDefault(fieldIndex);
+    }
+
+    public override void SetValue<T>(int fieldIndex, T fieldValue)
+    {
+      DifferentialData.SetValue(fieldIndex, fieldValue);
+    }
+
+    public override void SetValue(int fieldIndex, object fieldValue)
+    {
+      DifferentialData.SetValue(fieldIndex, fieldValue);
+    }
+
+    public override TupleDescriptor Descriptor
+    {
+      get { return DifferentialData.Descriptor; }
+    }
+
+    #endregion
 
     /// <inheritdoc/>
     public override string ToString()
     {
-      return string.Format("Key = '{0}', Tuple = {1}, State = {2}", Key, Tuple.ToRegular(), PersistenceState);
+      return string.Format("Key = '{0}', Tuple = {1}, State = {2}", Key, DifferentialData.ToRegular(), PersistenceState);
     }
 
 
@@ -66,7 +100,7 @@ namespace Xtensive.Storage
     internal EntityData(Key key, DifferentialTuple tuple, PersistenceState state)
     {
       Key = key;
-      Tuple = tuple;
+      DifferentialData = tuple;
       PersistenceState = state;
     }    
   }
