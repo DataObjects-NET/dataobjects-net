@@ -9,6 +9,7 @@ using System.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Resources;
 using Xtensive.Core.Reflection;
+using Xtensive.Core.Serialization.Implementation;
 
 namespace Xtensive.Core.Serialization
 {
@@ -32,6 +33,61 @@ namespace Xtensive.Core.Serialization
     /// Gets the value serializer for <see cref="string"/> type.
     /// </summary>
     protected ValueSerializer<string> StringSerializer { get; private set; }
+
+    /// <summary>
+    /// Gets the value serializer for <see cref="bool"/> type.
+    /// </summary>
+    protected ValueSerializer<bool> BooleanSerializer { get; private set; }
+
+    /// <summary>
+    /// Gets the value serializer for <see cref="byte"/> type.
+    /// </summary>
+    protected ValueSerializer<byte> ByteSerializer { get; private set; }
+
+    /// <summary>
+    /// Gets the value serializer for <see cref="char"/> type.
+    /// </summary>
+    protected ValueSerializer<char> CharSerializer { get; private set; }
+
+    /// <summary>
+    /// Gets the value serializer for <see cref="decimal"/> type.
+    /// </summary>
+    protected ValueSerializer<decimal> DecimalSerializer { get; private set; }
+
+    /// <summary>
+    /// Gets the value serializer for <see cref="double"/> type.
+    /// </summary>
+    protected ValueSerializer<double> DoubleSerializer { get; private set; }
+
+    /// <summary>
+    /// Gets the value serializer for <see cref="Guid"/> type.
+    /// </summary>
+    protected ValueSerializer<Guid> GuidSerializer { get; private set; }
+
+    /// <summary>
+    /// Gets the value serializer for <see cref="short"/> type.
+    /// </summary>
+    protected ValueSerializer<short> Int16Serializer { get; private set; }
+
+    /// <summary>
+    /// Gets the value serializer for <see cref="long"/> type.
+    /// </summary>
+    protected ValueSerializer<long> Int64Serializer { get; private set; }
+
+    /// <summary>
+    /// Gets the value serializer for <see cref="float"/> type.
+    /// </summary>
+    protected ValueSerializer<float> SingleSerializer { get; private set; }
+
+    /// <summary>
+    /// Gets the value serializer for <see cref="Token<T>"/> type.
+    /// </summary>
+    protected ValueSerializer<Token<T>> TokenSerializer { get; private set; }
+
+    /// <summary>
+    /// Gets the value serializer for <see cref="Type"/> type.
+    /// </summary>
+    protected ValueSerializer<Type> TypeSerializer { get; private set; }
 
     #endregion
 
@@ -126,6 +182,18 @@ namespace Xtensive.Core.Serialization
       Provider = provider;
       Int32Serializer = GetValueSerializer<int>();
       StringSerializer = GetValueSerializer<string>();
+      BooleanSerializer = GetValueSerializer<bool>();
+      ByteSerializer = GetValueSerializer<byte>();
+      CharSerializer = GetValueSerializer<char>();
+      DecimalSerializer = GetValueSerializer<decimal>();
+      DoubleSerializer = GetValueSerializer<double>();
+      GuidSerializer = GetValueSerializer<Guid>();
+      Int16Serializer = GetValueSerializer<short>();
+      Int64Serializer = GetValueSerializer<long>();
+      SingleSerializer = GetValueSerializer<float>();
+      TokenSerializer = GetValueSerializer<Token<T>>();
+      TypeSerializer = GetValueSerializer<Type>();
+
     }
   }
 }

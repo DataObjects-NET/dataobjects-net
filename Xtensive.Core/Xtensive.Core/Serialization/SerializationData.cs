@@ -137,19 +137,55 @@ namespace Xtensive.Core.Serialization
     /// <typeparam name="T">The type of the value to add.</typeparam>
     /// <param name="name">The name to associate with the value.</param>
     /// <param name="value">The value to add.</param>
+    /// <param name="preferAttributes">Temporary changes
+    /// <see cref="SerializationContext.PreferAttributes"/> value
+    /// for the duration of this call.</param>
+    /// <param name="valueSerializer">The value serializer.</param>
+    public void AddValue<T>(string name, T value, bool preferAttributes, ValueSerializer<T> valueSerializer)
+    {
+      var context = SerializationContext.Current;
+      var oldPreferAttributes = context.PreferAttributes;
+      context.PreferAttributes = preferAttributes;
+      try
+      {
+        AddValue(name, value, valueSerializer);
+      }
+      finally
+      {
+        context.PreferAttributes = oldPreferAttributes;
+      }
+    }
+
+    /// <summary>
+    /// Adds the <paramref name="value"/> to this instance.
+    /// </summary>
+    /// <typeparam name="T">The type of the value to add.</typeparam>
+    /// <param name="name">The name to associate with the value.</param>
+    /// <param name="value">The value to add.</param>
     /// <param name="preferAttributes">Temporary changes 
     /// <see cref="SerializationContext.PreferAttributes"/> value 
     /// for the duration of this call.</param>
     public void AddValue<T>(string name, T value, bool preferAttributes)
     {
-      var context = SerializationContext.Current;
-      var oldPreferAttributes = context.PreferAttributes;
-      context.PreferAttributes = preferAttributes;
-      try {
-        AddValue(name, value);
-      }
-      finally {
-        context.PreferAttributes = oldPreferAttributes;
+      var valueSerializer = Serializer.ValueSerializerProvider.GetSerializer<T>();
+      if (valueSerializer == null)
+        Serializer.EnsureValueSerializerIsFound<T>(valueSerializer);
+      AddValue(name, value, preferAttributes, valueSerializer);
+    }
+
+    /// <summary>
+    /// Adds the <paramref name="value"/> to this instance,
+    /// if <paramref name="value"/> isn't equal to <paramref name="originValue"/>.
+    /// </summary>
+    /// <typeparam name="T">The type of the value to add.</typeparam>
+    /// <param name="name">The name to associate with the value.</param>
+    /// <param name="value">The value to add.</param>
+    /// <param name="originValue">The value of the origin.</param>
+    /// <param name="valueSerializer">The value serializer.</param>
+    public void AddValue<T>(string name, T value, T originValue, ValueSerializer<T> valueSerializer)
+    {
+      if (!AdvancedComparerStruct<T>.System.Equals(value, originValue)) {
+        AddValue(name, value, valueSerializer);
       }
     }
 
@@ -163,9 +199,41 @@ namespace Xtensive.Core.Serialization
     /// <param name="originValue">The value of the origin.</param>
     public void AddValue<T>(string name, T value, T originValue)
     {
-      if (!AdvancedComparerStruct<T>.System.Equals(value, originValue))
-        AddValue(name, value);
+      var valueSerializer = Serializer.ValueSerializerProvider.GetSerializer<T>();
+      if (valueSerializer == null)
+        Serializer.EnsureValueSerializerIsFound<T>(valueSerializer);
+        AddValue(name, value, originValue, valueSerializer);
     }
+
+    /// <summary>
+    /// Adds the <paramref name="value"/> to this instance,
+    /// if <paramref name="value"/> isn't equal to <paramref name="originValue"/>.
+    /// </summary>
+    /// <typeparam name="T">The type of the value to add.</typeparam>
+    /// <param name="name">The name to associate with the value.</param>
+    /// <param name="value">The value to add.</param>
+    /// <param name="originValue">The value of the origin.</param>
+    /// <param name="preferAttributes">Temporary changes
+    /// <see cref="SerializationContext.PreferAttributes"/> value
+    /// for the duration of this call.</param>
+    /// <param name="valueSerializer">The value serializer.</param>
+    public void AddValue<T>(string name, T value, T originValue, bool preferAttributes, ValueSerializer<T> valueSerializer)
+    {
+      if (!AdvancedComparerStruct<T>.System.Equals(value, originValue)) {
+        var context = SerializationContext.Current;
+        var oldPreferAttributes = context.PreferAttributes;
+        context.PreferAttributes = preferAttributes;
+        try
+        {
+          AddValue(name, value, valueSerializer);
+        }
+        finally
+        {
+          context.PreferAttributes = oldPreferAttributes;
+        }
+      }
+    }
+
 
     /// <summary>
     /// Adds the <paramref name="value"/> to this instance,
@@ -180,19 +248,30 @@ namespace Xtensive.Core.Serialization
     /// for the duration of this call.</param>
     public void AddValue<T>(string name, T value, T originValue, bool preferAttributes)
     {
-      if (!AdvancedComparerStruct<T>.System.Equals(value, originValue)) {
-        var context = SerializationContext.Current;
-        var oldPreferAttributes = context.PreferAttributes;
-        context.PreferAttributes = preferAttributes;
-        try {
-          AddValue(name, value);
-        }
-        finally {
-          context.PreferAttributes = oldPreferAttributes;
-        }
-      }
+        var valueSerializer = Serializer.ValueSerializerProvider.GetSerializer<T>();
+        if (valueSerializer == null)
+          Serializer.EnsureValueSerializerIsFound<T>(valueSerializer);
+      AddValue(name, value, originValue, preferAttributes, valueSerializer);
+
     }
 
+    /// <summary>
+    /// Adds the value read by <paramref name="getter"/>
+    /// from the <see cref="Source"/> to this instance,
+    /// if it isn't equal to the same read from the <see cref="Origin"/>.
+    /// </summary>
+    /// <typeparam name="TOwner">The type of the value owner.</typeparam>
+    /// <typeparam name="T">The type of the value to add.</typeparam>
+    /// <param name="name">The name to associate with the value.</param>
+    /// <param name="getter">The value getter.</param>
+    /// <param name="valueSerializer">The value serializer.</param>
+    public void AddValue<TOwner, T>(string name, Func<TOwner, T> getter, ValueSerializer<T> valueSerializer)
+    {
+      AddValue(name,
+        getter.Invoke((TOwner)Source),
+        getter.Invoke((TOwner)Origin), valueSerializer);
+    }
+    
     /// <summary>
     /// Adds the value read by <paramref name="getter"/> 
     /// from the <see cref="Source"/> to this instance,
@@ -204,9 +283,31 @@ namespace Xtensive.Core.Serialization
     /// <param name="getter">The value getter.</param>
     public void AddValue<TOwner, T>(string name, Func<TOwner, T> getter)
     {
-      AddValue(name, 
-        getter.Invoke((TOwner) Source), 
-        getter.Invoke((TOwner) Origin));
+      var valueSerializer = Serializer.ValueSerializerProvider.GetSerializer<T>();
+      if (valueSerializer == null)
+        Serializer.EnsureValueSerializerIsFound<T>(valueSerializer);
+      AddValue(name, getter, valueSerializer);
+    }
+
+    /// <summary>
+    /// Adds the value read by <paramref name="getter"/>
+    /// from the <see cref="Source"/> to this instance,
+    /// if it isn't equal to the same read from the <see cref="Origin"/>.
+    /// </summary>
+    /// <typeparam name="TOwner">The type of the value owner.</typeparam>
+    /// <typeparam name="T">The type of the value to add.</typeparam>
+    /// <param name="name">The name to associate with the value.</param>
+    /// <param name="getter">The value getter.</param>
+    /// <param name="preferAttributes">Temporary changes
+    /// <see cref="SerializationContext.PreferAttributes"/> value
+    /// for the duration of this call.</param>
+    /// <param name="valueSerializer">The value serializer.</param>
+    public void AddValue<TOwner, T>(string name, Func<TOwner, T> getter, bool preferAttributes, ValueSerializer<T> valueSerializer)
+    {
+      AddValue(name,
+        getter.Invoke((TOwner)Source),
+        getter.Invoke((TOwner)Origin),
+        preferAttributes, valueSerializer);
     }
 
     /// <summary>
@@ -223,10 +324,10 @@ namespace Xtensive.Core.Serialization
     /// for the duration of this call.</param>
     public void AddValue<TOwner, T>(string name, Func<TOwner, T> getter, bool preferAttributes)
     {
-      AddValue(name, 
-        getter.Invoke((TOwner) Source), 
-        getter.Invoke((TOwner) Origin),
-        preferAttributes);
+      var valueSerializer = Serializer.ValueSerializerProvider.GetSerializer<T>();
+      if (valueSerializer == null)
+        Serializer.EnsureValueSerializerIsFound<T>(valueSerializer);
+      AddValue(name, getter, preferAttributes, valueSerializer);
     }
 
     #endregion
