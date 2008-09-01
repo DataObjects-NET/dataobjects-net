@@ -438,4 +438,7 @@
   <data name="ExCanNotOpenTransactionNoCurrentSession" xml:space="preserve">
     <value>Can't open a transaction, since there is no current Session.</value>
   </data>
+  <data name="ExFieldXYIsNotFound" xml:space="preserve">
+    <value>Field '{0}.{1}' is not found.</value>
+  </data>
 </root>

@@ -268,6 +268,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Field &apos;{0}.{1}&apos; is not found..
+        /// </summary>
+        internal static string ExFieldXYIsNotFound {
+            get {
+                return ResourceManager.GetString("ExFieldXYIsNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Index already contains field &apos;{0}&apos;..
         /// </summary>
         internal static string ExIndexAlreadyContainsField {
