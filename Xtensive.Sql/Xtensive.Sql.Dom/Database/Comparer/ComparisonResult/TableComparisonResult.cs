@@ -20,7 +20,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     private ComparisonResult<string> filegroup;
     private readonly ComparisonResultCollection<IndexComparisonResult> indexes = new ComparisonResultCollection<IndexComparisonResult>();
     private readonly ComparisonResultCollection<TableColumnComparisonResult> columns = new ComparisonResultCollection<TableColumnComparisonResult>();
-    private readonly ComparisonResultCollection<IComparisonResult<Constraint>> constraints = new ComparisonResultCollection<IComparisonResult<Constraint>>();
+    private readonly ComparisonResultCollection<ConstraintComparisonResult> constraints = new ComparisonResultCollection<ConstraintComparisonResult>();
 
     /// <inheritdoc/>
     public new Table NewValue
@@ -66,7 +66,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     /// <summary>
     /// Gets comparison results of nested constraints.
     /// </summary>
-    public ComparisonResultCollection<IComparisonResult<Constraint>> Constraints
+    public ComparisonResultCollection<ConstraintComparisonResult> Constraints
     {
       get { return constraints; }
     }

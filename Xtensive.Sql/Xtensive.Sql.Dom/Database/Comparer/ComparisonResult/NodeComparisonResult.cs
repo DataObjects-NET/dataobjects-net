@@ -47,7 +47,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
       string originalName = ReferenceEquals(originalValue, null) ? null : originalValue.DbName;
       string newName = ReferenceEquals(newValue, null) ? null : newValue.DbName;
       bool hasChanges = false;
-      dbName = SqlComparerBase<string>.CompareSimpleNode(originalName, newName, ref hasChanges);
+      dbName = NodeComparerBase<string>.CompareSimpleNode(originalName, newName, ref hasChanges);
       if (originalValue==null)
         ResultType = ComparisonResultType.Added;
       else if (newValue==null)

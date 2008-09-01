@@ -24,7 +24,7 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
     {
       Database.Model model1 = GetModel(ConnectionString1);
       Database.Model model2 = GetModel(ConnectionString2);
-      SqlComparer<Database.Catalog> catalogComparer = SqlComparer<Database.Catalog>.Default;
+      NodeComparer<Database.Catalog> catalogComparer = NodeComparer<Database.Catalog>.Default;
       var result = catalogComparer.Compare(model1.DefaultServer.DefaultCatalog, model2.DefaultServer.DefaultCatalog, null);
     }
 
