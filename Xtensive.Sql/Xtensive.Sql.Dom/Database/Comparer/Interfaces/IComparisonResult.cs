@@ -29,10 +29,5 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     /// Gets comparison results of nested objects if any.
     /// </summary>
     IEnumerable<IComparisonResult> NestedComparisons { get; }
-
-    /// <summary>
-    /// Gets type of underlying object.
-    /// </summary>
-    Type Type { get; }
   }
 }

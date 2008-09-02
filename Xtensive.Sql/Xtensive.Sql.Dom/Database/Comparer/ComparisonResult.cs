@@ -53,19 +53,5 @@ namespace Xtensive.Sql.Dom.Database.Comparer
 
     /// <inheritdoc/>
     public abstract IEnumerable<IComparisonResult> NestedComparisons { get; }
-
-    /// <inheritdoc/>
-    public Type Type
-    {
-      get { return type; }
-    }
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    public ComparisonResult(Type type)
-    {
-      this.type = type;
-    }
   }
 }

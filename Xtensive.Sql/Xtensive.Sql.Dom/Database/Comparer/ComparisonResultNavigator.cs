@@ -36,7 +36,6 @@ namespace Xtensive.Sql.Dom.Database.Comparer
           }
         }
       }
-      throw new NotImplementedException();
     }
 
     public ComparisonResultNavigator(IComparisonResult root)

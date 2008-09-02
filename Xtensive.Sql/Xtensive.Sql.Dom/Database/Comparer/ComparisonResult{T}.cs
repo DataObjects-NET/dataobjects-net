@@ -51,7 +51,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     public ComparisonResult(T originalValue, T newValue)
-      : base(typeof(T))
+      : base()
     {
       this.originalValue = originalValue;
       this.newValue = newValue;
