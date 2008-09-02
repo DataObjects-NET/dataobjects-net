@@ -10,6 +10,7 @@ using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Internals
 {
@@ -25,16 +26,21 @@ namespace Xtensive.Storage.Internals
     public override void SetValue(Persistent obj, FieldInfo field, T value)
     {
       Entity entity = value as Entity;
-      if (entity != null) {
-        if (obj.Session != entity.Session)
-          throw new InvalidOperationException(String.Format("Entity '{0}' is bound to another session.", entity.Key));
-      }
-      if (ReferenceEquals(value, null))
+
+      if (value!=null && entity==null)
+        throw new InvalidOperationException(
+          string.Format(Strings.ExValueShouldBeXDescendant, typeof (Entity)));
+
+      if (entity != null && entity.Session!=obj.Session)
+        throw new InvalidOperationException(
+          string.Format(Strings.EntityXIsBoundToAnotherSession, entity.Key));
+      
+      if (entity==null)
         for (int i = field.MappingInfo.Offset; i < field.MappingInfo.Offset + field.MappingInfo.Length; i++)
           obj.Tuple.SetValue(i, null);
       else {
         ValidateType(field);
-        ((Entity) (object) value).Key.Tuple.CopyTo(obj.Tuple, 0, field.MappingInfo.Offset, field.MappingInfo.Length);
+        entity.Key.Tuple.CopyTo(obj.Tuple, 0, field.MappingInfo.Offset, field.MappingInfo.Length);
       }
     }
 

@@ -76,7 +76,7 @@ namespace Xtensive.Integrity.Aspects
     /// </summary>
     /// <param name="target">The validation target.</param>
     /// <param name="value">The value to validate.</param>
-    public abstract void CheckValue(IValidationAware target, object value);    
+    public abstract void CheckValue(IValidationAware target, object value);
 
     /// <summary>
     /// Determines whether the specified <paramref name="valueType"/> 

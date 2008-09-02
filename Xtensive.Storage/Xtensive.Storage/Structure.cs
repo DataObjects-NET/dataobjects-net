@@ -14,6 +14,7 @@ using Xtensive.Core.Reflection;
 using Xtensive.Core.Threading;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
+using Xtensive.Integrity.Validation;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage
@@ -115,12 +116,10 @@ namespace Xtensive.Storage
     }
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
     protected internal override sealed void OnSetValue(FieldInfo field)
     {
-      if (owner==null)
-        return;
-      owner.OnSetValue(this.field);
+      if (owner!=null)
+        owner.OnSetValue(this.field);
     }
 
     #endregion

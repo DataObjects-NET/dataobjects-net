@@ -64,6 +64,14 @@ namespace Xtensive.Storage
       get { return Data.Key; }
     }
 
+    /// <summary>
+    /// Gets a value indicating whether this entity is removed.
+    /// </summary>
+    public bool IsRemoved
+    {
+      get { return PersistenceState==PersistenceState.Removed || PersistenceState==PersistenceState.Removing; }
+    }
+
     /// <inheritdoc/>
     public override sealed TypeInfo Type {
       [DebuggerStepThrough]
@@ -191,12 +199,6 @@ namespace Xtensive.Storage
     {
     }
 
-    /// <inheritdoc/>
-    public virtual void OnValidate()
-    {
-      this.CheckConstraints();
-    }
-
     #endregion
 
     #region Private \ internal methods
@@ -220,8 +222,7 @@ namespace Xtensive.Storage
     [Infrastructure]
     private void EnsureCanOperate()
     {
-      if (PersistenceState==PersistenceState.Removing ||
-        PersistenceState==PersistenceState.Removed)
+      if (IsRemoved)
         throw new InvalidOperationException(Strings.ExEntityIsRemoved);
 
       if (PersistenceState==PersistenceState.Inconsistent)
@@ -232,10 +233,28 @@ namespace Xtensive.Storage
 
     #region IValidationAware members
 
+    /// <summary>
+    /// Called when entity should be validated.
+    /// Override this method to perform custom validation.
+    /// </summary>
+    public virtual void OnValidate()
+    {
+    }
+
+    /// <inheritdoc/>
+    void IValidationAware.OnValidate()
+    {
+      if (IsRemoved || PersistenceState==PersistenceState.Inconsistent)
+        return;
+
+      this.CheckConstraints();
+      this.OnValidate();
+    }
+
     /// <inheritdoc/>
     public ValidationContextBase Context
     {
-      get 
+      get
       {
         return Session.ValidationContext;
       }
@@ -248,6 +267,7 @@ namespace Xtensive.Storage
     }
 
     #endregion
+
 
     // Constructors
 

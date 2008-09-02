@@ -115,6 +115,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Entity &apos;{0}&apos; is bound to another session..
+        /// </summary>
+        internal static string EntityXIsBoundToAnotherSession {
+            get {
+                return ResourceManager.GetString("EntityXIsBoundToAnotherSession", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cannot find a hanlder of type &apos;{0}&apos;..
         /// </summary>
         internal static string ExCannotFindHandler {
@@ -634,6 +643,15 @@ namespace Xtensive.Storage.Resources {
         internal static string ExUnsupportedType {
             get {
                 return ResourceManager.GetString("ExUnsupportedType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Value should be &apos;{0}&apos; descendant..
+        /// </summary>
+        internal static string ExValueShouldBeXDescendant {
+            get {
+                return ResourceManager.GetString("ExValueShouldBeXDescendant", resourceCulture);
             }
         }
         

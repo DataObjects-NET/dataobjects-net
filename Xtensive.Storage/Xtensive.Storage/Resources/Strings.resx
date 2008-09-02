@@ -441,4 +441,10 @@
   <data name="ExFieldXYIsNotFound" xml:space="preserve">
     <value>Field '{0}.{1}' is not found.</value>
   </data>
+  <data name="EntityXIsBoundToAnotherSession" xml:space="preserve">
+    <value>Entity '{0}' is bound to another session.</value>
+  </data>
+  <data name="ExValueShouldBeXDescendant" xml:space="preserve">
+    <value>Value should be '{0}' descendant.</value>
+  </data>
 </root>

@@ -48,7 +48,7 @@ namespace Xtensive.Storage.Tests.Storage.Validation
     }
 
     [Test]
-    public void CombinedTest()
+    public void   CombinedTest()
     {
       using (Domain.OpenSession()) {
 
@@ -71,7 +71,7 @@ namespace Xtensive.Storage.Tests.Storage.Validation
           }
         }
         catch (AggregateException e) {
-          Assert.AreEqual(3 , e.Exceptions.Count);
+          Assert.AreEqual(3, e.Exceptions.Count);
         }
         
         using (Transaction.Open()) {
