@@ -4,6 +4,8 @@
 // Created by: Aleksey Gamzov
 // Created:    2008.08.15
 
+using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
@@ -53,6 +55,12 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     {
       this.originalValue = originalValue;
       this.newValue = newValue;
+    }
+
+    /// <inheritdoc/>
+    public override IEnumerable<IComparisonResult> NestedComparisons
+    {
+      get { return Enumerable.Empty<IComparisonResult>(); }
     }
   }
 }

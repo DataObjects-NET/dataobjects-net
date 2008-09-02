@@ -7,6 +7,7 @@
 using System;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Collections;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
@@ -34,6 +35,15 @@ namespace Xtensive.Sql.Dom.Database.Comparer
       base.Lock(recursive);
       if (recursive)
         dbName.LockSafely(recursive);
+    }
+
+    public override System.Collections.Generic.IEnumerable<IComparisonResult> NestedComparisons
+    {
+      get
+      {
+        return base.NestedComparisons
+          .AddOne(dbName);
+      }
     }
 
     /// <summary>

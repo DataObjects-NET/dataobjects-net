@@ -5,9 +5,11 @@
 // Created:    2008.08.27
 
 using System;
+using System.Linq;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Core.Helpers;
+using Xtensive.Core.Collections;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
@@ -71,6 +73,20 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     public new ForeignKey OriginalValue
     {
       get { return (ForeignKey) base.OriginalValue; }
+    }
+
+    /// <inheritdoc/>
+    public override System.Collections.Generic.IEnumerable<IComparisonResult> NestedComparisons
+    {
+      get
+      {
+        return base.NestedComparisons
+          .AddOne(matchType)
+          .AddOne(onUpdate)
+          .AddOne(onDelete)
+          .Union<IComparisonResult>(columns)
+          .Union<IComparisonResult>(referencedColumns);
+      }
     }
 
     /// <inheritdoc/>

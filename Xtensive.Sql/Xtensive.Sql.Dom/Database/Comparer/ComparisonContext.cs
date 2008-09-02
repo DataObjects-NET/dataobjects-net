@@ -7,6 +7,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
@@ -26,6 +27,10 @@ namespace Xtensive.Sql.Dom.Database.Comparer
       get { return ComparisonScope.CurrentContext == this; }
     }
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="hints">Comparison hints.</param>
     public ComparisonContext(IEnumerable<ComparisonHintBase> hints)
     {
       hints = hints ?? Enumerable.Empty<ComparisonHintBase>();

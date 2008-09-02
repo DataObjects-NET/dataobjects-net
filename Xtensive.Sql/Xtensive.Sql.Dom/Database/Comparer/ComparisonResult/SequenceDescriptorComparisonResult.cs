@@ -5,13 +5,15 @@
 // Created:    2008.08.26
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
   [Serializable]
-  public class SequenceDescriptorComparisonResult : NodeComparisonResult, 
+  public class SequenceDescriptorComparisonResult : NodeComparisonResult,
     IComparisonResult<SequenceDescriptor>
   {
     private ComparisonResult<long?> startValue;
@@ -83,6 +85,12 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     }
 
     /// <inheritdoc/>
+    public override IEnumerable<IComparisonResult> NestedComparisons
+    {
+      get { return base.NestedComparisons.Union(new IComparisonResult[] {startValue, increment, maxValue, minValue, isCyclic}.Where(comparisonResult => comparisonResult!=null)); }
+    }
+
+    /// <inheritdoc/>
     public override void Lock(bool recursive)
     {
       base.Lock(recursive);
@@ -94,6 +102,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
         isCyclic.LockSafely(recursive);
       }
     }
+
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>

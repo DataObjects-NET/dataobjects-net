@@ -5,8 +5,11 @@
 // Created:    2008.08.21
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Collections;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
@@ -27,7 +30,6 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     private readonly ComparisonResultCollection<TranslationComparisonResult> translations = new ComparisonResultCollection<TranslationComparisonResult>();
     private readonly ComparisonResultCollection<DomainComparisonResult> domains = new ComparisonResultCollection<DomainComparisonResult>();
     private readonly ComparisonResultCollection<SequenceComparisonResult> sequences = new ComparisonResultCollection<SequenceComparisonResult>();
-
 
     /// <inheritdoc/>
     public new Schema NewValue
@@ -129,6 +131,25 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     public ComparisonResultCollection<SequenceComparisonResult> Sequences
     {
       get { return sequences; }
+    }
+
+    /// <inheritdoc/>
+    public override IEnumerable<IComparisonResult> NestedComparisons
+    {
+      get
+      {
+        return base.NestedComparisons
+          .AddOne(owner)
+          .AddOne(defaultCharacterSet)
+          .Union<IComparisonResult>(tables)
+          .Union<IComparisonResult>(views)
+          .Union<IComparisonResult>(assertions)
+          .Union<IComparisonResult>(characterSets)
+          .Union<IComparisonResult>(collations)
+          .Union<IComparisonResult>(translations)
+          .Union<IComparisonResult>(domains)
+          .Union<IComparisonResult>(sequences);
+      }
     }
 
     /// <inheritdoc/>

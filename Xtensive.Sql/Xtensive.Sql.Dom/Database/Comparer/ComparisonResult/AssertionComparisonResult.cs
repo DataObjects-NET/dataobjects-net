@@ -5,9 +5,12 @@
 // Created:    2008.08.21
 
 using System;
+using System.Collections.Generic;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Sql.Dom.Dml;
+using System.Linq;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
@@ -70,6 +73,18 @@ namespace Xtensive.Sql.Dom.Database.Comparer
       {
         this.EnsureNotLocked();
         isInitiallyDeferred = value;
+      }
+    }
+
+    /// <inheritdoc/>
+    public override IEnumerable<IComparisonResult> NestedComparisons
+    {
+      get
+      {
+        return base.NestedComparisons
+          .AddOne(condition)
+          .AddOne(isDeferrable)
+          .AddOne(isInitiallyDeferred);
       }
     }
 

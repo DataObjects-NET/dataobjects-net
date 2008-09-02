@@ -5,8 +5,10 @@
 // Created:    2008.08.21
 
 using System;
+using System.Collections.Generic;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Helpers;
+using Xtensive.Core.Collections;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
@@ -16,7 +18,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   {
     private ComparisonResult<SqlValueType> dataType;
     private SequenceDescriptorComparisonResult sequenceDescriptor;
-    
+
     /// <inheritdoc/>
     public new Sequence NewValue
     {
@@ -46,6 +48,17 @@ namespace Xtensive.Sql.Dom.Database.Comparer
       {
         this.EnsureNotLocked();
         sequenceDescriptor = value;
+      }
+    }
+
+    /// <inheritdoc/>
+    public override IEnumerable<IComparisonResult> NestedComparisons
+    {
+      get
+      {
+        return base.NestedComparisons
+          .AddOne(dataType)
+          .AddOne(sequenceDescriptor);
       }
     }
 

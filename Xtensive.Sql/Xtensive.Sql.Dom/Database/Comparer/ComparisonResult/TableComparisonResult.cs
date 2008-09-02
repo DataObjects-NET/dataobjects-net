@@ -5,8 +5,11 @@
 // Created:    2008.08.21
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Collections;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
@@ -61,6 +64,19 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     public ComparisonResultCollection<TableColumnComparisonResult> Columns
     {
       get { return columns; }
+    }
+
+    /// <inheritdoc/>
+    public override IEnumerable<IComparisonResult> NestedComparisons
+    {
+      get
+      {
+        return base.NestedComparisons
+          .AddOne(filegroup)
+          .Union<IComparisonResult>(indexes)
+          .Union<IComparisonResult>(columns)
+          .Union<IComparisonResult>(constraints);
+      }
     }
 
     /// <summary>

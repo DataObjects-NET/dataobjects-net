@@ -5,9 +5,11 @@
 // Created:    2008.08.21
 
 using System;
+using System.Linq;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Core.Helpers;
+using Xtensive.Core.Collections;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
@@ -79,6 +81,19 @@ namespace Xtensive.Sql.Dom.Database.Comparer
       {
         this.EnsureNotLocked();
         collation = value;
+      }
+    }
+
+    /// <inheritdoc/>
+    public override System.Collections.Generic.IEnumerable<IComparisonResult> NestedComparisons
+    {
+      get
+      {
+        return base.NestedComparisons
+          .AddOne(dataType)
+          .AddOne(collation)
+          .AddOne(defaultValue)
+          .Union<IComparisonResult>(domainConstraints);
       }
     }
 

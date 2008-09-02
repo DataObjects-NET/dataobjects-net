@@ -5,9 +5,12 @@
 // Created:    2008.08.21
 
 using System;
+using System.Collections.Generic;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Core.Helpers;
+using Xtensive.Core.Collections;
+using System.Linq;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
@@ -22,7 +25,20 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     private ComparisonResult<SqlNative> definition;
     private readonly ComparisonResultCollection<ViewColumnComparisonResult> columns = new ComparisonResultCollection<ViewColumnComparisonResult>();
     private readonly ComparisonResultCollection<IndexComparisonResult> indexes = new ComparisonResultCollection<IndexComparisonResult>();
-    
+
+    /// <inheritdoc/>
+    public override IEnumerable<IComparisonResult> NestedComparisons
+    {
+      get
+      {
+        return base.NestedComparisons
+          .AddOne(checkOptions)
+          .AddOne(definition)
+          .Union<IComparisonResult>(columns)
+          .Union<IComparisonResult>(indexes);
+      }
+    }
+
     /// <inheritdoc/>
     public new View NewValue
     {

@@ -5,7 +5,9 @@
 // Created:    2008.08.27
 
 using System;
+using System.Collections.Generic;
 using Xtensive.Core.Internals.DocTemplates;
+using System.Linq;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
@@ -30,6 +32,16 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     public ComparisonResultCollection<TableColumnComparisonResult> Columns
     {
       get { return columns; }
+    }
+
+    /// <inheritdoc/>
+    public override IEnumerable<IComparisonResult> NestedComparisons
+    {
+      get
+      {
+        return base.NestedComparisons
+          .Union<IComparisonResult>(columns);
+      }
     }
 
     /// <inheritdoc/>

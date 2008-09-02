@@ -5,6 +5,8 @@
 // Created:    2008.08.21
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Core.Helpers;
@@ -22,8 +24,8 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     private ComparisonResult<SqlExpression> expression;
     private ComparisonResult<bool> isPersisted;
     private CollationComparisonResult collation;
-    private ComparisonResult<bool> isNullable;
 
+    private ComparisonResult<bool> isNullable;
 
     /// <inheritdoc/>
     public new TableColumn NewValue
@@ -115,6 +117,12 @@ namespace Xtensive.Sql.Dom.Database.Comparer
         this.EnsureNotLocked();
         isNullable = value;
       }
+    }
+
+    /// <inheritdoc/>
+    public override IEnumerable<IComparisonResult> NestedComparisons
+    {
+      get { return base.NestedComparisons.Union(new IComparisonResult[] {dataType, domain, defaultValue, sequenceDescriptor, expression, isPersisted, collation, isNullable}.Where(comparisonResult => comparisonResult!=null)); }
     }
 
     /// <inheritdoc/>

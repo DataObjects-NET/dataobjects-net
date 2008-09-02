@@ -5,10 +5,14 @@
 // Created:    2008.08.26
 
 using System;
+using System.Collections.Generic;
 using Xtensive.Core;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
+  /// <summary>
+  /// Comparison result.
+  /// </summary>
   public interface IComparisonResult : ILockable
   {
     /// <summary>
@@ -21,6 +25,14 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     /// </summary>
     ComparisonResultType ResultType { get; }
 
+    /// <summary>
+    /// Gets comparison results of nested objects if any.
+    /// </summary>
+    IEnumerable<IComparisonResult> NestedComparisons { get; }
+
+    /// <summary>
+    /// Gets type of underlying object.
+    /// </summary>
     Type Type { get; }
   }
 }

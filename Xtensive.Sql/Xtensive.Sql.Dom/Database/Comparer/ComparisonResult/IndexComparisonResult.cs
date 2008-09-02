@@ -7,6 +7,8 @@
 using System;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Collections;
+using System.Linq;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
@@ -28,13 +30,13 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     /// <inheritdoc/>
     public new Index NewValue
     {
-      get { return (Index)base.NewValue; }
+      get { return (Index) base.NewValue; }
     }
 
     /// <inheritdoc/>
     public new Index OriginalValue
     {
-      get { return (Index)base.OriginalValue; }
+      get { return (Index) base.OriginalValue; }
     }
 
     /// <summary>
@@ -116,6 +118,18 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     public ComparisonResultCollection<DataTableColumnComparisonResult> NonkeyColumns
     {
       get { return nonkeyColumns; }
+    }
+
+    /// <inheritdoc/>
+    public override System.Collections.Generic.IEnumerable<IComparisonResult> NestedComparisons
+    {
+      get
+      {
+        return base.NestedComparisons
+          .Union<IComparisonResult>(columns)
+          .Union<IComparisonResult>(nonkeyColumns)
+          .Union(new IComparisonResult[] {isUnique, isBitmap, isClustered, fillFactor, filegroup}.Where(comparisonResult => comparisonResult!=null));
+      }
     }
 
     /// <inheritdoc/>

@@ -4,11 +4,13 @@
 // Created by: Aleksey Gamzov
 // Created:    2008.08.19
 
+using System.Collections.Generic;
 using Xtensive.Core.Collections;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
-  public class ComparisonResultCollection<TItem> : CollectionBaseSlim<TItem>
+  public class ComparisonResultCollection<TItem> : CollectionBaseSlim<TItem>,
+    IEnumerable<IComparisonResult>
     where TItem : IComparisonResult
   {
 //    public IEnumerable<ComparisonResult> Find(ComparisonResultLocation locations, ComparisonResultType comparsionTypes, bool recursive, Type[] types)
@@ -27,5 +29,13 @@ namespace Xtensive.Sql.Dom.Database.Comparer
 //        }
 //      }
 //    }
+
+    /// <inheritdoc/>
+    IEnumerator<IComparisonResult> IEnumerable<IComparisonResult>.GetEnumerator()
+    {
+      foreach (TItem item in Items) {
+        yield return item;
+      }
+    }
   }
 }

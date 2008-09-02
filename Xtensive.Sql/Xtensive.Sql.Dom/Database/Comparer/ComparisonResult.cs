@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
@@ -50,11 +51,18 @@ namespace Xtensive.Sql.Dom.Database.Comparer
       }
     }
 
+    /// <inheritdoc/>
+    public abstract IEnumerable<IComparisonResult> NestedComparisons { get; }
+
+    /// <inheritdoc/>
     public Type Type
     {
       get { return type; }
     }
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
     public ComparisonResult(Type type)
     {
       this.type = type;

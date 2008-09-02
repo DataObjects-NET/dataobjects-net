@@ -43,7 +43,7 @@ namespace Xtensive.Sql.Dom.Compiler.Internals
 
     internal override void AcceptVisitor(INodeVisitor visitor)
     {
-      visitor.Visit((NodeContainer)this);
+      visitor.Visit(this);
     }
 
     internal NodeContainer(bool requireIndent)
