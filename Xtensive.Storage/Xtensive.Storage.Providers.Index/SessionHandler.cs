@@ -46,8 +46,27 @@ namespace Xtensive.Storage.Providers.Index
 
     protected override void Update(EntityData data)
     {
-      Remove(data);
-      Insert(data);
+      var handler = (DomainHandler)Handlers.DomainHandler;
+      IndexInfo primaryIndex = data.Type.Indexes.PrimaryIndex;
+      var indexProvider = IndexProvider.Get(primaryIndex);
+      SeekResult<Tuple> result;
+      using (EnumerationScope.Open()) {
+        result = indexProvider.GetService<IOrderedEnumerable<Tuple, Tuple>>().Seek(new Ray<IEntire<Tuple>>(Entire<Tuple>.Create(data.Key.Tuple)));
+
+        if (result.ResultType != SeekResultType.Exact)
+          throw new InvalidOperationException(string.Format(Strings.ExInstanceXIsNotFound, data.Key.Type.Name));
+      }
+
+      var tuple = result.Result.CreateNew();
+      result.Result.CopyTo(tuple);
+      tuple.MergeWith(data.DifferentialData, MergeConflictBehavior.PreferSource);
+
+      foreach (IndexInfo indexInfo in data.Type.AffectedIndexes) {
+        var index = handler.GetRealIndex(indexInfo);
+        var transform = handler.GetIndexTransform(indexInfo, data.Type);
+        index.Remove(transform.Apply(TupleTransformType.TransformedTuple, result.Result));
+        index.Add(transform.Apply(TupleTransformType.Tuple, tuple));
+      }
     }
 
     protected override void Remove(EntityData data)
@@ -55,8 +74,9 @@ namespace Xtensive.Storage.Providers.Index
       var handler = (DomainHandler)Handlers.DomainHandler;
       IndexInfo primaryIndex = data.Type.Indexes.PrimaryIndex;
       var indexProvider = IndexProvider.Get(primaryIndex);
+      SeekResult<Tuple> result;
       using (EnumerationScope.Open()) {
-        SeekResult<Tuple> result = indexProvider.GetService<IOrderedEnumerable<Tuple, Tuple>>().Seek(new Ray<IEntire<Tuple>>(Entire<Tuple>.Create(data.Key.Tuple)));
+        result = indexProvider.GetService<IOrderedEnumerable<Tuple, Tuple>>().Seek(new Ray<IEntire<Tuple>>(Entire<Tuple>.Create(data.Key.Tuple)));
 
         if (result.ResultType!=SeekResultType.Exact)
           throw new InvalidOperationException(string.Format(Strings.ExInstanceXIsNotFound, data.Key.Type.Name));
@@ -65,7 +85,7 @@ namespace Xtensive.Storage.Providers.Index
       foreach (IndexInfo indexInfo in data.Type.AffectedIndexes) {
         var index = handler.GetRealIndex(indexInfo);
         var transform = handler.GetIndexTransform(indexInfo, data.Type);
-        index.Remove(transform.Apply(TupleTransformType.TransformedTuple, data.DifferentialData));
+        index.Remove(transform.Apply(TupleTransformType.TransformedTuple, result.Result));
       }
     }
 
