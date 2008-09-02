@@ -36,9 +36,9 @@ namespace Xtensive.Storage.Providers.Index
       return result;
     }
 
-    protected override IEnumerable<Tuple> NextMany(int count)
+    protected override IEnumerable<Tuple> NextMany()
     {
-      for (int i = 0; i < count; i++)
+      for (int i = 0; i < CacheSize; i++)
         yield return getNext();
     }
 

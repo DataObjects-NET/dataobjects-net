@@ -86,6 +86,16 @@ namespace Xtensive.Storage
       get { return DifferentialData.Descriptor; }
     }
 
+    public override bool Equals(object obj)
+    {
+      return ReferenceEquals(this, obj);
+    }
+
+    public override int GetHashCode()
+    {
+      return Key.GetHashCode();
+    }
+
     #endregion
 
     /// <inheritdoc/>

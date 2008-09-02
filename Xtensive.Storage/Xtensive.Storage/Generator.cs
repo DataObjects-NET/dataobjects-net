@@ -41,6 +41,14 @@ namespace Xtensive.Storage
     public HierarchyInfo Hierarchy { get; internal set; }
 
     /// <summary>
+    /// Gets the size of the cache.
+    /// </summary>
+    public int CacheSize
+    {
+      get { return cacheSize; }
+    }
+
+    /// <summary>
     /// Create the <see cref="Tuple"/> with the unique values in key sequence.
     ///  </summary>
     public Tuple Next()
@@ -57,7 +65,7 @@ namespace Xtensive.Storage
 //      var minCached = cacheSize / 2;
       lock (_lock) {
         if (preCachedValues.Count == 0) {
-          foreach (var tuple in NextMany(cacheSize))
+          foreach (var tuple in NextMany())
             preCachedValues.Enqueue(tuple);
         }
 //        if (preCachedValues.Count <= minCached) {
@@ -82,9 +90,8 @@ namespace Xtensive.Storage
     /// <summary>
     /// Create an <see cref="Array"/> of <see cref="Tuple"/>s with the unique values in key sequence.
     ///  </summary>
-    /// <param name="count">The number of <see cref="Tuple"/> instances to retrieve.</param>
     /// <returns>An <see cref="Array"/> of <see cref="Tuple"/>s with unique values in key sequence.</returns>
-    protected abstract IEnumerable<Tuple> NextMany(int count);
+    protected abstract IEnumerable<Tuple> NextMany();
 
     /// <summary>
     /// Initializes this instance.
