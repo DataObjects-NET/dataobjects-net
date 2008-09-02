@@ -326,7 +326,7 @@ namespace Xtensive.Storage.Tests.Storage
             .Range(() => pID.Value)
             .Join(rsSnakeName
               .Range(() => pName.Value)
-              .OrderBy(OrderBy.Asc(rsSnakeName.IndexOf("ID")),true)
+              .OrderBy(OrderBy.Asc(rsSnakeName.IndexOf("ID")))
               .Alias("NameIndex"), rsSnakePrimary.IndexOf("ID"), rsSnakeName.IndexOf("ID"));
           
           using(new ParameterScope()) {
