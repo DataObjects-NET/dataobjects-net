@@ -28,8 +28,6 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
       Database.Model model1 = GetModel(ConnectionString1);
       Database.Model model2 = GetModel(ConnectionString2);
       var result = new SqlComparer().Compare(model1.DefaultServer.DefaultCatalog, model2.DefaultServer.DefaultCatalog, null);
-      var navigator = new ComparisonResultNavigator(result);
-      var table1Result = navigator.Find(model1.DefaultServer.DefaultCatalog.DefaultSchema.Tables[0]);
     }
 
     [Test]
@@ -65,7 +63,7 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
       Assert.IsTrue((result.ResultType & resultType) > 0);
     }
 
-    private Database.Model GetModel(string connectionString)
+    private Model GetModel(string connectionString)
     {
       var provider = new SqlConnectionProvider();
       using (var connection = provider.CreateConnection(connectionString) as SqlConnection) {
@@ -73,7 +71,7 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
           throw new InvalidOperationException(string.Format("Unable to connect to {0}", connectionString));
         connection.Open();
         var modelProvider = new SqlModelProvider(connection);
-        return Database.Model.Build(modelProvider);
+        return Model.Build(modelProvider);
       }
     }
   }
