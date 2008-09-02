@@ -19,7 +19,6 @@ using Xtensive.Core.Serialization.Implementation;
 using Xtensive.Core.Threading;
 using Xtensive.Indexing.BloomFilter;
 using Xtensive.Indexing.Implementation;
-using Xtensive.Indexing.Implementation.Interfaces;
 using Xtensive.Indexing.Providers.Internals;
 using Xtensive.Indexing.Resources;
 using Xtensive.Core.Helpers;

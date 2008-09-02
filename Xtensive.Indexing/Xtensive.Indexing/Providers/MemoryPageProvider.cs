@@ -7,7 +7,6 @@
 using System.Collections.Generic;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Indexing.Implementation;
-using Xtensive.Indexing.Implementation.Interfaces;
 using Xtensive.Indexing.Providers.Internals;
 using Xtensive.Indexing.BloomFilter;
 

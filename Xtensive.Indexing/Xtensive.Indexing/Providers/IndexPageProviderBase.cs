@@ -11,7 +11,6 @@ using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Indexing.BloomFilter;
 using Xtensive.Indexing.Implementation;
-using Xtensive.Indexing.Implementation.Interfaces;
 using Xtensive.Indexing.Resources;
 
 namespace Xtensive.Indexing.Providers

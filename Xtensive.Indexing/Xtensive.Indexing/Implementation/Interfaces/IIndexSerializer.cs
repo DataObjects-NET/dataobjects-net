@@ -8,7 +8,7 @@ using System;
 using Xtensive.Core.Serialization.Binary;
 using Xtensive.Indexing.Implementation;
 
-namespace Xtensive.Indexing.Implementation.Interfaces
+namespace Xtensive.Indexing.Implementation
 {
   /// <summary>
   /// <see cref="Index{TKey,TItem}"/> serializer for page providers.

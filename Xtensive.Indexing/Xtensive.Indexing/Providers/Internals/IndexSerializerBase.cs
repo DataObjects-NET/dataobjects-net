@@ -7,7 +7,6 @@
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Indexing.Implementation;
-using Xtensive.Indexing.Implementation.Interfaces;
 
 namespace Xtensive.Indexing.Providers.Internals
 {

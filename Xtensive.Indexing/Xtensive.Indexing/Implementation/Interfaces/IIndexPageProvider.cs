@@ -10,7 +10,6 @@ using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Indexing.BloomFilter;
-using Xtensive.Indexing.Implementation.Interfaces;
 
 namespace Xtensive.Indexing.Implementation
 {
