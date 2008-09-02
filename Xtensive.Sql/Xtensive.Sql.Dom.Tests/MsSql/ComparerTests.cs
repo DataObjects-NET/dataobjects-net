@@ -28,8 +28,8 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
     {
       Database.Model model1 = GetModel(ConnectionString1);
       Database.Model model2 = GetModel(ConnectionString2);
-      SqlComparer comparer = new SqlComparer();
-      var result = comparer.Compare(model1.DefaultServer.DefaultCatalog, model2.DefaultServer.DefaultCatalog, null);
+      var comparer = new SqlComparer();
+      comparer.Compare(model1.DefaultServer.DefaultCatalog, model2.DefaultServer.DefaultCatalog, null);
       var singleResult = comparer.Compare(model1.DefaultServer.DefaultCatalog, model1.DefaultServer.DefaultCatalog, null);
       foreach (IComparisonResult comparisonResult in singleResult.NestedComparisons) {
         Assert.IsTrue(comparisonResult.ResultType==ComparisonResultType.Unchanged);
@@ -57,47 +57,36 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
       CheckNode(catalog.DefaultSchema, isOriginal);
       foreach (Schema schema in catalog.Schemas) {
         CheckNode(schema, isOriginal);
-        foreach (Assertion assertion in schema.Assertions) {
+        foreach (Assertion assertion in schema.Assertions)
           CheckNode(assertion, isOriginal);
-        }
-        foreach (CharacterSet characterSet in schema.CharacterSets) {
+        foreach (CharacterSet characterSet in schema.CharacterSets)
           CheckNode(characterSet, isOriginal);
-        }
-        foreach (Collation collation in schema.Collations) {
+        foreach (Collation collation in schema.Collations)
           CheckNode(collation, isOriginal);
-        }
         foreach (Domain domain in schema.Domains) {
           CheckNode(domain, isOriginal);
-          foreach (DomainConstraint constraint in domain.DomainConstraints) {
+          foreach (DomainConstraint constraint in domain.DomainConstraints)
             CheckNode(constraint, isOriginal);
-          }
         }
-        foreach (Sequence sequence in schema.Sequences) {
+        foreach (Sequence sequence in schema.Sequences)
           CheckNode(sequence, isOriginal);
-        }
         foreach (Table table in schema.Tables) {
           CheckNode(table, isOriginal);
-          foreach (DataTableColumn column in table.Columns) {
+          foreach (DataTableColumn column in table.Columns)
             CheckNode(column, isOriginal);
-          }
-          foreach (TableConstraint constraint in table.TableConstraints) {
+          foreach (TableConstraint constraint in table.TableConstraints)
             CheckNode(constraint, isOriginal);
-          }
-          foreach (Index index in table.Indexes) {
+          foreach (Index index in table.Indexes)
             CheckNode(index, isOriginal);
-          }
         }
-        foreach (Translation translation in schema.Translations) {
+        foreach (Translation translation in schema.Translations)
           CheckNode(translation, isOriginal);
-        }
         foreach (View view in schema.Views) {
           CheckNode(view, isOriginal);
-          foreach (DataTableColumn column in view.Columns) {
+          foreach (DataTableColumn column in view.Columns)
             CheckNode(column, isOriginal);
-          }
-          foreach (Index index in view.Indexes) {
+          foreach (Index index in view.Indexes)
             CheckNode(index, isOriginal);
-          }
         }
       }
     }
