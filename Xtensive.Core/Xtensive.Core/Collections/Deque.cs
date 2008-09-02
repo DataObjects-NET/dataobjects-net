@@ -15,7 +15,7 @@ using Xtensive.Core.Resources;
 namespace Xtensive.Core.Collections
 {
   /// <summary>
-  /// double-ended queue.
+  /// Double-ended queue.
   /// </summary>
   /// <typeparam name="T">The type of queued elements.</typeparam>
   /// <remarks>

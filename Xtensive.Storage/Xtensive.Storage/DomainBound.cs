@@ -29,6 +29,7 @@ namespace Xtensive.Storage
 
     #region IContextBound<Domain> Members
 
+    /// <inheritdoc/>
     Domain IContextBound<Domain>.Context
     {
       get { return domain; }
