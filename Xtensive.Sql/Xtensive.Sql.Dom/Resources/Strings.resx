@@ -186,4 +186,7 @@
   <data name="ExConstraintIsNotSupportedByComparer" xml:space="preserve">
     <value>Constraint type '{0}' is not supported by '{1}' comparer.</value>
   </data>
+  <data name="ExComparisonRootNotLocked" xml:space="preserve">
+    <value>Comparison root is not locked.</value>
+  </data>
 </root>

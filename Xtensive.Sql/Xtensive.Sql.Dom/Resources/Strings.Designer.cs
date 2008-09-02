@@ -79,6 +79,15 @@ namespace Xtensive.Sql.Dom.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Comparison root is not locked..
+        /// </summary>
+        internal static string ExComparisonRootNotLocked {
+            get {
+                return ResourceManager.GetString("ExComparisonRootNotLocked", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Constraint type &apos;{0}&apos; is not supported by &apos;{1}&apos; comparer..
         /// </summary>
         internal static string ExConstraintIsNotSupportedByComparer {
