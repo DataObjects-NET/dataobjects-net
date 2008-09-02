@@ -17,7 +17,7 @@ using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Tests.Rse
 {
-  [TestFixture, Ignore]
+  [TestFixture]
   public class BehaviorTest
   {
     [Test]

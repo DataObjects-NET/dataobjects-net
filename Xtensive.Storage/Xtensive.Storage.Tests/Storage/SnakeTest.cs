@@ -326,16 +326,16 @@ namespace Xtensive.Storage.Tests.Storage
             .Range(() => pID.Value)
             .Join(rsSnakeName
               .Range(() => pName.Value)
-              .OrderBy(OrderBy.Asc(rsSnakeName.IndexOf("ID")))
+              .OrderBy(OrderBy.Asc(rsSnakeName.IndexOf("ID")),true)
               .Alias("NameIndex"), rsSnakePrimary.IndexOf("ID"), rsSnakeName.IndexOf("ID"));
           
           using(new ParameterScope()) {
             pID.Value = new Range<IEntire<Tuple>>(Entire<Tuple>.Create(Tuple.Create(21)), Entire<Tuple>.Create(Tuple.Create(120)));
             pName.Value = new Range<IEntire<Tuple>>(Entire<Tuple>.Create(Tuple.Create("Kaa")), Entire<Tuple>.Create(Tuple.Create("Kaa900")));
             var count = result.Count();
-            t.Complete();
             Assert.AreEqual(91, count);
           }
+          t.Complete();
         }
       }
     }

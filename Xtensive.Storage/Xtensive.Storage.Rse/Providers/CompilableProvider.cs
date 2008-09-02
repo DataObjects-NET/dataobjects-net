@@ -39,8 +39,7 @@ namespace Xtensive.Storage.Rse.Providers
     public Provider Compiled {
       get {
         if (EnumerationContext.Current == null)
-          throw new InvalidOperationException(
-            Strings.ExCanNotCompileNoEnumerationContext);
+          throw new InvalidOperationException(Strings.ExCanNotCompileNoEnumerationContext);
         var compiled = CachedCompiled;
         if (compiled==null) lock (this) if (CachedCompiled==null) {
           CachedCompiled = compiled = this.Compile();

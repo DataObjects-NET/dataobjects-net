@@ -9,6 +9,7 @@ using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Indexing;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Providers.Index.Resources;
 using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Providers.Index
@@ -54,15 +55,17 @@ namespace Xtensive.Storage.Providers.Index
       var handler = (DomainHandler)Handlers.DomainHandler;
       IndexInfo primaryIndex = data.Type.Indexes.PrimaryIndex;
       var indexProvider = IndexProvider.Get(primaryIndex);
-      SeekResult<Tuple> result = indexProvider.GetService<IOrderedEnumerable<Tuple, Tuple>>().Seek(new Ray<IEntire<Tuple>>(Entire<Tuple>.Create(data.Key.Tuple)));
+      using (EnumerationScope.Open()) {
+        SeekResult<Tuple> result = indexProvider.GetService<IOrderedEnumerable<Tuple, Tuple>>().Seek(new Ray<IEntire<Tuple>>(Entire<Tuple>.Create(data.Key.Tuple)));
 
-      if (result.ResultType!=SeekResultType.Exact)
-        throw new InvalidOperationException();
+        if (result.ResultType!=SeekResultType.Exact)
+          throw new InvalidOperationException(string.Format(Strings.ExInstanceXIsNotFound, data.Key.Type.Name));
+      }
 
       foreach (IndexInfo indexInfo in data.Type.AffectedIndexes) {
         var index = handler.GetRealIndex(indexInfo);
         var transform = handler.GetIndexTransform(indexInfo, data.Type);
-        index.Remove(transform.Apply(TupleTransformType.TransformedTuple, result.Result));
+        index.Remove(transform.Apply(TupleTransformType.TransformedTuple, data.DifferentialData));
       }
     }
 

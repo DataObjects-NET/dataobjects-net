@@ -54,7 +54,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
       int[] leftColumns = joiningPairs.Select(pair => pair.First).ToArray();
       int[] rightColumns = joiningPairs.Select(pair => pair.Second).ToArray();
       TupleDescriptor leftKeyDescriptor = TupleDescriptor.Create(leftColumns.Select(i => Left.Header.TupleDescriptor[i]));
-      TupleDescriptor rightKeyDescriptor = TupleDescriptor.Create(leftColumns.Select(i => Right.Header.TupleDescriptor[i]));
+      TupleDescriptor rightKeyDescriptor = TupleDescriptor.Create(rightColumns.Select(i => Right.Header.TupleDescriptor[i]));
 
       leftKeyTransform = new MapTransform(true, leftKeyDescriptor, leftColumns);
       rightKeyTransform = new MapTransform(true, rightKeyDescriptor, rightColumns);
