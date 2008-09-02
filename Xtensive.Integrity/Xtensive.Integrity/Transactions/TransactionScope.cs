@@ -18,12 +18,11 @@ namespace Xtensive.Integrity.Transactions
     private bool isCompleted;
 
     /// <summary>
-    /// Gets a value indicating whether this scope is successfully completed.
+    /// Gets or sets a value indicating whether this scope is successfully completed.
     /// </summary>
     public bool IsCompleted { 
       get { return isCompleted; }
-      set
-      {
+      set {
         if (value==false)
           throw new InvalidOperationException(Strings.ExTransactionScopeIsCompletedCanNotBeSetToFalse);
         isCompleted = value;
