@@ -10,6 +10,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Sql.Dom.Resources;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
@@ -57,6 +58,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     internal static ComparisonResult<TNode> CompareSimpleNode<TNode>(TNode originalNode, TNode newNode, ref bool hasChanges)
     {
       var result = new ComparisonResult<TNode>(originalNode, newNode);
+      result.Initialize(originalNode, newNode);
       if (Equals(originalNode, newNode))
         result.ResultType = ComparisonResultType.Unchanged;
       else if (ReferenceEquals(originalNode, null))
@@ -129,7 +131,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
           string originalName = newName;
           var renameHints = new List<RenameHint>(FindHints<TNode, RenameHint>(hints, newName));
           if (renameHints.Count > 1)
-            throw new InvalidOperationException(String.Format(Resources.Strings.ExMultipleRenameHintsFoundForTypeXxx, typeof (TNode).FullName, newName));
+            throw new InvalidOperationException(String.Format(Strings.ExMultipleRenameHintsFoundForTypeXxx, typeof (TNode).FullName, newName));
           if (renameHints.Count==1)
             originalName = renameHints[0].OldName;
           var originalEnumerator = originalNodeSet.Where(node => ((Node) (object) node).DbName==originalName).GetEnumerator();

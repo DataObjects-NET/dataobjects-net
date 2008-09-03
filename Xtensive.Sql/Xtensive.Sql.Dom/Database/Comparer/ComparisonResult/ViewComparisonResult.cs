@@ -104,13 +104,5 @@ namespace Xtensive.Sql.Dom.Database.Comparer
         definition.LockSafely(recursive);
       }
     }
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    public ViewComparisonResult(View originalValue, View newValue)
-      : base(originalValue, newValue)
-    {
-    }
   }
 }

@@ -102,13 +102,5 @@ namespace Xtensive.Sql.Dom.Database.Comparer
         isCyclic.LockSafely(recursive);
       }
     }
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    public SequenceDescriptorComparisonResult(SequenceDescriptor originalValue, SequenceDescriptor newValue)
-      : base(originalValue, newValue)
-    {
-    }
   }
 }

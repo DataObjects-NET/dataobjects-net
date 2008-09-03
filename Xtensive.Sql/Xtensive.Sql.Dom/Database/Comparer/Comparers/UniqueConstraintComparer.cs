@@ -5,7 +5,6 @@
 // Created:    2008.08.27
 
 using System;
-using System.Collections.Generic;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
@@ -16,27 +15,20 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     {
       IComparisonResult<UniqueConstraint> result;
       if (originalNode==null && newNode==null)
-        result = new UniqueConstraintComparisonResult(originalNode, newNode)
-          {
-            ResultType = ComparisonResultType.Unchanged
-          };
+        result = ComparisonContext.Current.Factory.CreateComparisonResult<UniqueConstraint, UniqueConstraintComparisonResult>(originalNode, newNode);
       else if (originalNode!=null && newNode!=null && originalNode.GetType()!=newNode.GetType())
-        result = new UniqueConstraintComparisonResult(originalNode, newNode)
-          {
-            ResultType = ComparisonResultType.Modified
-          };
+        result = ComparisonContext.Current.Factory.CreateComparisonResult<UniqueConstraint, UniqueConstraintComparisonResult>(originalNode, newNode, ComparisonResultType.Modified);
       else if ((originalNode ?? newNode).GetType()==typeof (PrimaryKey))
         result = (IComparisonResult<UniqueConstraint>) BaseNodeComparer2.Compare(originalNode as PrimaryKey, newNode as PrimaryKey);
       else {
         result = GetUnqueConstraintResult(originalNode, newNode);
       }
-      result.Lock(true);
       return result;
     }
 
     private IComparisonResult<UniqueConstraint> GetUnqueConstraintResult(UniqueConstraint originalNode, UniqueConstraint newNode)
     {
-      var result = new UniqueConstraintComparisonResult(originalNode, newNode);
+      var result = ComparisonContext.Current.Factory.CreateComparisonResult<UniqueConstraint, UniqueConstraintComparisonResult>(originalNode, newNode);
       bool hasChanges = false;
       hasChanges |= CompareNestedNodes(originalNode==null ? null : originalNode.Columns, newNode==null ? null : newNode.Columns, BaseNodeComparer1, result.Columns);
       if (hasChanges && result.ResultType==ComparisonResultType.Unchanged)

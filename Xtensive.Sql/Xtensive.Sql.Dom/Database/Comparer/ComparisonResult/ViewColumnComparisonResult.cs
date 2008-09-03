@@ -24,13 +24,5 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     {
       get { return (ViewColumn) base.OriginalValue; }
     }
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    public ViewColumnComparisonResult(DataTableColumn originalValue, DataTableColumn newValue)
-      : base(originalValue, newValue)
-    {
-    }
   }
 }

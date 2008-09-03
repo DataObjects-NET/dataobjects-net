@@ -5,7 +5,6 @@
 // Created:    2008.08.27
 
 using System;
-using System.Collections.Generic;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
@@ -14,10 +13,10 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   {
     public override IComparisonResult<PrimaryKey> Compare(PrimaryKey originalNode, PrimaryKey newNode)
     {
-      var result = new PrimaryKeyComparisonResult(originalNode, newNode);
+      var result = ComparisonContext.Current.Factory.CreateComparisonResult<PrimaryKey, PrimaryKeyComparisonResult>(originalNode, newNode);
       bool hasChanges = false;
-      hasChanges |= CompareNestedNodes(originalNode == null ? null : originalNode.Columns, newNode == null ? null : newNode.Columns, BaseNodeComparer1, result.Columns);
-      if (hasChanges && result.ResultType == ComparisonResultType.Unchanged)
+      hasChanges |= CompareNestedNodes(originalNode==null ? null : originalNode.Columns, newNode==null ? null : newNode.Columns, BaseNodeComparer1, result.Columns);
+      if (hasChanges && result.ResultType==ComparisonResultType.Unchanged)
         result.ResultType = ComparisonResultType.Modified;
       return result;
     }

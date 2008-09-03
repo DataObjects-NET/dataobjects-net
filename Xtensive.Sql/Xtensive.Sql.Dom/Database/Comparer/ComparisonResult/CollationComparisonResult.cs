@@ -22,13 +22,5 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     {
       get { return (Collation) base.OriginalValue; }
     }
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    public CollationComparisonResult(Collation originalValue, Collation newValue)
-      : base(originalValue, newValue)
-    {
-    }
   }
 }

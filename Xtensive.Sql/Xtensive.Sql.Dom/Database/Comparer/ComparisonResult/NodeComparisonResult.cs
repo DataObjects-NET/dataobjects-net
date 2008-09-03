@@ -8,6 +8,7 @@ using System;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Collections;
+using Xtensive.Sql.Dom.Resources;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
@@ -46,21 +47,18 @@ namespace Xtensive.Sql.Dom.Database.Comparer
       }
     }
 
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    public NodeComparisonResult(Node originalValue, Node newValue)
-      : base(originalValue, newValue)
+    public override void Initialize(Node originalNode, Node newNode)
     {
-      if (ReferenceEquals(originalValue, null) && ReferenceEquals(newValue, null))
+      base.Initialize(originalNode, newNode);
+      if (ReferenceEquals(originalNode, null) && ReferenceEquals(newNode, null))
         return;
-      string originalName = ReferenceEquals(originalValue, null) ? null : originalValue.DbName;
-      string newName = ReferenceEquals(newValue, null) ? null : newValue.DbName;
+      string originalName = ReferenceEquals(originalNode, null) ? null : originalNode.DbName;
+      string newName = ReferenceEquals(newNode, null) ? null : newNode.DbName;
       bool hasChanges = false;
       dbName = NodeComparerBase<string>.CompareSimpleNode(originalName, newName, ref hasChanges);
-      if (originalValue==null)
+      if (originalNode == null)
         ResultType = ComparisonResultType.Added;
-      else if (newValue==null)
+      else if (newNode == null)
         ResultType = ComparisonResultType.Removed;
       else
         ResultType = hasChanges ? ComparisonResultType.Modified : ComparisonResultType.Unchanged;

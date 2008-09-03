@@ -5,7 +5,6 @@
 // Created:    2008.08.18
 
 using System;
-using System.Collections.Generic;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
@@ -14,12 +13,12 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   {
     public override IComparisonResult<Assertion> Compare(Assertion originalNode, Assertion newNode)
     {
-      var result = new AssertionComparisonResult(originalNode, newNode);
+      var result = ComparisonContext.Current.Factory.CreateComparisonResult<Assertion, AssertionComparisonResult>(originalNode, newNode);
       bool hasChanges = false;
-      result.Condition = CompareSimpleNode(originalNode == null ? null : originalNode.Condition, newNode == null ? null : newNode.Condition, ref hasChanges);
-      result.IsDeferrable = CompareSimpleNode(originalNode == null ? null : originalNode.IsDeferrable, newNode == null ? null : newNode.IsDeferrable, ref hasChanges);
-      result.IsInitiallyDeferred = CompareSimpleNode(originalNode == null ? null : originalNode.IsInitiallyDeferred, newNode == null ? null : newNode.IsInitiallyDeferred, ref hasChanges);
-      if (hasChanges && result.ResultType == ComparisonResultType.Unchanged)
+      result.Condition = CompareSimpleNode(originalNode==null ? null : originalNode.Condition, newNode==null ? null : newNode.Condition, ref hasChanges);
+      result.IsDeferrable = CompareSimpleNode(originalNode==null ? null : originalNode.IsDeferrable, newNode==null ? null : newNode.IsDeferrable, ref hasChanges);
+      result.IsInitiallyDeferred = CompareSimpleNode(originalNode==null ? null : originalNode.IsInitiallyDeferred, newNode==null ? null : newNode.IsInitiallyDeferred, ref hasChanges);
+      if (hasChanges && result.ResultType==ComparisonResultType.Unchanged)
         result.ResultType = ComparisonResultType.Modified;
       return result;
     }

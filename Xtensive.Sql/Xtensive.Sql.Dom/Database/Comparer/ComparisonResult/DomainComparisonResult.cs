@@ -108,13 +108,5 @@ namespace Xtensive.Sql.Dom.Database.Comparer
         collation.LockSafely(recursive);
       }
     }
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    public DomainComparisonResult(Domain originalValue, Domain newValue)
-      : base(originalValue, newValue)
-    {
-    }
   }
 }

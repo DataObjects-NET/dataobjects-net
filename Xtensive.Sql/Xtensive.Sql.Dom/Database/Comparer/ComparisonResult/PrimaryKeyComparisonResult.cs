@@ -24,13 +24,5 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     {
       get { return (PrimaryKey) base.OriginalValue; }
     }
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    public PrimaryKeyComparisonResult(PrimaryKey originalValue, PrimaryKey newValue)
-      : base(originalValue, newValue)
-    {
-    }
   }
 }

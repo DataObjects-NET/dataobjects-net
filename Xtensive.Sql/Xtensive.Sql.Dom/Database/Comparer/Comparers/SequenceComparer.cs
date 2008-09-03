@@ -5,7 +5,6 @@
 // Created:    2008.08.18
 
 using System;
-using System.Collections.Generic;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
@@ -14,14 +13,13 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   {
     public override IComparisonResult<Sequence> Compare(Sequence originalNode, Sequence newNode)
     {
-      var result = new SequenceComparisonResult(originalNode, newNode);
+      var result = ComparisonContext.Current.Factory.CreateComparisonResult<Sequence, SequenceComparisonResult>(originalNode, newNode);
       bool hasChanges = false;
-      result.DataType = CompareSimpleNode(originalNode == null ? null : originalNode.DataType, newNode == null ? null : newNode.DataType, ref hasChanges);
-      result.SequenceDescriptor = (SequenceDescriptorComparisonResult) BaseNodeComparer1.Compare(originalNode == null ? null : originalNode.SequenceDescriptor, newNode == null ? null : newNode.SequenceDescriptor);
+      result.DataType = CompareSimpleNode(originalNode==null ? null : originalNode.DataType, newNode==null ? null : newNode.DataType, ref hasChanges);
+      result.SequenceDescriptor = (SequenceDescriptorComparisonResult) BaseNodeComparer1.Compare(originalNode==null ? null : originalNode.SequenceDescriptor, newNode==null ? null : newNode.SequenceDescriptor);
       hasChanges |= result.SequenceDescriptor.HasChanges;
-      if (hasChanges && result.ResultType == ComparisonResultType.Unchanged)
+      if (hasChanges && result.ResultType==ComparisonResultType.Unchanged)
         result.ResultType = ComparisonResultType.Modified;
-      result.Lock(true);
       return result;
     }
 

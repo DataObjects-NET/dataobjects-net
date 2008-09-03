@@ -79,6 +79,24 @@ namespace Xtensive.Sql.Dom.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Comparison context missing..
+        /// </summary>
+        internal static string ExComparisonContextMissing {
+            get {
+                return ResourceManager.GetString("ExComparisonContextMissing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Another comparison result already registered in comparison registry..
+        /// </summary>
+        internal static string ExComparisonResultAlreadyRegistered {
+            get {
+                return ResourceManager.GetString("ExComparisonResultAlreadyRegistered", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Comparison root is not locked..
         /// </summary>
         internal static string ExComparisonRootNotLocked {

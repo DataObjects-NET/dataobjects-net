@@ -169,13 +169,5 @@ namespace Xtensive.Sql.Dom.Database.Comparer
         sequences.Lock(recursive);
       }
     }
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    public SchemaComparisonResult(Schema originalValue, Schema newValue)
-      : base(originalValue, newValue)
-    {
-    }
   }
 }

@@ -5,7 +5,7 @@
 // Created:    2008.08.18
 
 using System;
-using System.Collections.Generic;
+using Xtensive.Sql.Dom.Resources;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
@@ -22,9 +22,9 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     {
       IComparisonResult<Constraint> result;
       if (originalNode==null && newNode==null)
-        result = new ConstraintComparisonResult(originalNode, newNode) {ResultType = ComparisonResultType.Unchanged};
+        result = ComparisonContext.Current.Factory.CreateComparisonResult<Constraint, ConstraintComparisonResult>(originalNode, newNode, ComparisonResultType.Unchanged);
       else if (originalNode!=null && newNode!=null && originalNode.GetType()!=newNode.GetType())
-        result = new ConstraintComparisonResult(originalNode, newNode) {ResultType = ComparisonResultType.Modified};
+        result = ComparisonContext.Current.Factory.CreateComparisonResult<Constraint, ConstraintComparisonResult>(originalNode, newNode, ComparisonResultType.Modified);
       else if ((originalNode ?? newNode).GetType()==typeof (CheckConstraint))
         result = (IComparisonResult<Constraint>) checkConstraintComparer.Compare(originalNode as CheckConstraint, newNode as CheckConstraint);
       else if ((originalNode ?? newNode).GetType()==typeof (DomainConstraint))
@@ -36,8 +36,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
       else if ((originalNode ?? newNode).GetType()==typeof (UniqueConstraint))
         result = (IComparisonResult<Constraint>) uniqueConstraintComparer.Compare(originalNode as UniqueConstraint, newNode as UniqueConstraint);
       else
-        throw new NotSupportedException(String.Format(Resources.Strings.ExConstraintIsNotSupportedByComparer, (originalNode ?? newNode).GetType().FullName, GetType().FullName));
-      result.Lock();
+        throw new NotSupportedException(String.Format(Strings.ExConstraintIsNotSupportedByComparer, (originalNode ?? newNode).GetType().FullName, GetType().FullName));
       return result;
     }
 

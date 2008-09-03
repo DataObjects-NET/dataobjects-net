@@ -5,23 +5,19 @@
 // Created:    2008.08.14
 
 using System;
-using System.Collections.Generic;
-using Xtensive.Core.Collections;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
   [Serializable]
   internal class TableComparer : WrappingNodeComparer<Table, TableColumn, Index, Constraint>
   {
-
     public override IComparisonResult<Table> Compare(Table originalNode, Table newNode)
     {
-      var result = new TableComparisonResult(originalNode, newNode);
-      bool hasChanges = false;
+      var result = ComparisonContext.Current.Factory.CreateComparisonResult<Table, TableComparisonResult>(originalNode, newNode);
+      bool hasChanges = CompareNestedNodes(originalNode==null ? null : originalNode.TableColumns, newNode==null ? null : newNode.TableColumns, BaseNodeComparer1, result.Columns);
       result.Filegroup = CompareSimpleNode(originalNode==null ? null : originalNode.Filegroup, newNode==null ? null : newNode.Filegroup, ref hasChanges);
-      hasChanges |= CompareNestedNodes(originalNode == null ? null : originalNode.Indexes, newNode == null ? null : newNode.Indexes, BaseNodeComparer2, result.Indexes);
-      hasChanges |= CompareNestedNodes(originalNode == null ? null : originalNode.Columns.Convert(dataTableColumn => (TableColumn)dataTableColumn), newNode == null ? null : newNode.Columns.Convert(dataTableColumn => (TableColumn)dataTableColumn), BaseNodeComparer1, result.Columns);
-      hasChanges |= CompareNestedNodes(originalNode == null ? null : ((IConstrainable)originalNode).Constraints, newNode == null ? null : ((IConstrainable)newNode).Constraints, BaseNodeComparer3, result.Constraints);
+      hasChanges |= CompareNestedNodes(originalNode==null ? null : originalNode.Indexes, newNode==null ? null : newNode.Indexes, BaseNodeComparer2, result.Indexes);
+      hasChanges |= CompareNestedNodes(originalNode==null ? null : ((IConstrainable) originalNode).Constraints, newNode==null ? null : ((IConstrainable) newNode).Constraints, BaseNodeComparer3, result.Constraints);
       if (hasChanges && result.ResultType==ComparisonResultType.Unchanged) {
         result.ResultType = ComparisonResultType.Modified;
       }

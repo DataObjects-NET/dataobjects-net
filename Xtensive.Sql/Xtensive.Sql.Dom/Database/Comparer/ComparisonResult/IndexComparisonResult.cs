@@ -146,13 +146,5 @@ namespace Xtensive.Sql.Dom.Database.Comparer
         filegroup.LockSafely(recursive);
       }
     }
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    public IndexComparisonResult(Index originalValue, Index newValue)
-      : base(originalValue, newValue)
-    {
-    }
   }
 }

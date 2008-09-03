@@ -5,15 +5,13 @@
 // Created:    2008.08.27
 
 
-using System.Collections.Generic;
-
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
   internal class ViewColumnComparer : NodeComparerBase<ViewColumn>
   {
     public override IComparisonResult<ViewColumn> Compare(ViewColumn originalNode, ViewColumn newNode)
     {
-      return new ViewColumnComparisonResult(originalNode, newNode);
+      return ComparisonContext.Current.Factory.CreateComparisonResult<ViewColumn, ViewColumnComparisonResult>(originalNode, newNode);
     }
 
     public ViewColumnComparer(INodeComparerProvider provider)

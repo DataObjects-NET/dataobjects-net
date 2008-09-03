@@ -26,7 +26,9 @@ namespace Xtensive.Sql.Dom.Database.Comparer
       ArgumentValidator.EnsureArgumentNotNull(second, "second");
       using (new ComparisonScope(new ComparisonContext(hints))) {
         NodeComparer<Catalog> catalogComparer = provider.GetNodeComparer<Catalog>();
-        return (CatalogComparisonResult)catalogComparer.Compare(first, second);
+        var result = (CatalogComparisonResult)catalogComparer.Compare(first, second);
+        result.Lock(true);
+        return result;
       }
     }
 

@@ -5,7 +5,7 @@
 // Created:    2008.08.19
 
 using System;
-using System.Collections.Generic;
+using Xtensive.Sql.Dom.Resources;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
@@ -16,16 +16,15 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     {
       IComparisonResult<DataTableColumn> result;
       if (originalNode==null && newNode==null)
-        result = new DataTableColumnComparisonResult(originalNode, newNode) {ResultType = ComparisonResultType.Unchanged};
+        result = ComparisonContext.Current.Factory.CreateComparisonResult<DataTableColumn, DataTableColumnComparisonResult>(originalNode, newNode, ComparisonResultType.Unchanged);
       else if (originalNode!=null && newNode!=null && originalNode.GetType()!=newNode.GetType())
-        result = new DataTableColumnComparisonResult(originalNode, newNode) {ResultType = ComparisonResultType.Modified};
+        result = ComparisonContext.Current.Factory.CreateComparisonResult<DataTableColumn, DataTableColumnComparisonResult>(originalNode, newNode, ComparisonResultType.Modified);
       else if ((originalNode ?? newNode).GetType()==typeof (TableColumn))
         result = (IComparisonResult<DataTableColumn>) BaseNodeComparer1.Compare(originalNode as TableColumn, newNode as TableColumn);
       else if ((originalNode ?? newNode).GetType()==typeof (ViewColumn))
         result = (IComparisonResult<DataTableColumn>) BaseNodeComparer2.Compare(originalNode as ViewColumn, newNode as ViewColumn);
       else
-        throw new NotSupportedException(String.Format(Resources.Strings.ExColumnTypeIsNotSupportedByComparer, (originalNode ?? newNode).GetType().FullName, GetType().FullName));
-      result.Lock();
+        throw new NotSupportedException(String.Format(Strings.ExColumnTypeIsNotSupportedByComparer, (originalNode ?? newNode).GetType().FullName, GetType().FullName));
       return result;
     }
 

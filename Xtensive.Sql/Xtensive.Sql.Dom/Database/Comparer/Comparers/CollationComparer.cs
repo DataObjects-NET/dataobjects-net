@@ -5,7 +5,6 @@
 // Created:    2008.08.18
 
 using System;
-using System.Collections.Generic;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
@@ -14,7 +13,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   {
     public override IComparisonResult<Collation> Compare(Collation originalNode, Collation newNode)
     {
-      return new CollationComparisonResult(originalNode, newNode);
+      return ComparisonContext.Current.Factory.CreateComparisonResult<Collation, CollationComparisonResult>(originalNode, newNode);
     }
 
     public CollationComparer(INodeComparerProvider provider)

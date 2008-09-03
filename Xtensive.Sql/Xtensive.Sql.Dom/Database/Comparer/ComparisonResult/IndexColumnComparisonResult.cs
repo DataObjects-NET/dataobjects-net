@@ -77,13 +77,5 @@ namespace Xtensive.Sql.Dom.Database.Comparer
           .AddOne(ascending);
       }
     }
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    public IndexColumnComparisonResult(IndexColumn originalValue, IndexColumn newValue)
-      : base(originalValue, newValue)
-    {
-    }
   }
 }

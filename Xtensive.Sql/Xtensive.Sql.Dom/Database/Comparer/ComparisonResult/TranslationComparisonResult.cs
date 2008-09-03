@@ -24,13 +24,5 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     {
       get { return (Translation) base.OriginalValue; }
     }
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    public TranslationComparisonResult(Translation originalValue, Translation newValue)
-      : base(originalValue, newValue)
-    {
-    }
   }
 }

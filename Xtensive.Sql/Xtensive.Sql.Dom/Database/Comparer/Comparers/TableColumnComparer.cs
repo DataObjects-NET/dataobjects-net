@@ -5,7 +5,6 @@
 // Created:    2008.08.18
 
 using System;
-using System.Collections.Generic;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
@@ -14,9 +13,9 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   {
     public override IComparisonResult<TableColumn> Compare(TableColumn originalNode, TableColumn newNode)
     {
-      var result = new TableColumnComparisonResult(originalNode, newNode);
+      var result = ComparisonContext.Current.Factory.CreateComparisonResult<TableColumn, TableColumnComparisonResult>(originalNode, newNode);
       bool hasChanges = false;
-      result.Collation = (CollationComparisonResult)BaseNodeComparer1.Compare(originalNode == null ? null : originalNode.Collation, newNode == null ? null : newNode.Collation);
+      result.Collation = (CollationComparisonResult) BaseNodeComparer1.Compare(originalNode==null ? null : originalNode.Collation, newNode==null ? null : newNode.Collation);
       hasChanges |= result.Collation.HasChanges;
       result.Domain = (DomainComparisonResult) BaseNodeComparer2.Compare(originalNode==null ? null : originalNode.Domain, newNode==null ? null : newNode.Domain);
       hasChanges |= result.Domain.HasChanges;
@@ -29,7 +28,6 @@ namespace Xtensive.Sql.Dom.Database.Comparer
       result.IsNullable = CompareSimpleStruct(originalNode==null ? (bool?) null : originalNode.IsNullable, newNode==null ? (bool?) null : newNode.IsNullable, ref hasChanges);
       if (hasChanges && result.ResultType==ComparisonResultType.Unchanged)
         result.ResultType = ComparisonResultType.Modified;
-      result.Lock(true);
       return result;
     }
 

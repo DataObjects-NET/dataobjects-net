@@ -5,7 +5,6 @@
 // Created:    2008.08.25
 
 using System;
-using System.Collections.Generic;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
@@ -14,7 +13,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   {
     public override IComparisonResult<User> Compare(User originalNode, User newNode)
     {
-      return new UserComparisonResult(originalNode, newNode);
+      return ComparisonContext.Current.Factory.CreateComparisonResult<User, UserComparisonResult>(originalNode, newNode);
     }
 
     public UserComparer(INodeComparerProvider provider)

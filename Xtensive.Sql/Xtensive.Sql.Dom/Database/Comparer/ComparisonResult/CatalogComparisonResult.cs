@@ -76,13 +76,5 @@ namespace Xtensive.Sql.Dom.Database.Comparer
         schemas.Lock(recursive);
       }
     }
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    public CatalogComparisonResult(Catalog originalValue, Catalog newValue)
-      : base(originalValue, newValue)
-    {
-    }
   }
 }

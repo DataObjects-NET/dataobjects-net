@@ -189,4 +189,10 @@
   <data name="ExComparisonRootNotLocked" xml:space="preserve">
     <value>Comparison root is not locked.</value>
   </data>
+  <data name="ExComparisonContextMissing" xml:space="preserve">
+    <value>Comparison context missing.</value>
+  </data>
+  <data name="ExComparisonResultAlreadyRegistered" xml:space="preserve">
+    <value>Another comparison result already registered in comparison registry.</value>
+  </data>
 </root>

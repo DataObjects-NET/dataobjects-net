@@ -24,13 +24,5 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     {
       get { return (CheckConstraint)base.OriginalValue; }
     }
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    public CheckConstraintComparisonResult(CheckConstraint originalValue, CheckConstraint newValue)
-      : base(originalValue, newValue)
-    {
-    }
   }
 }

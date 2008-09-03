@@ -98,13 +98,5 @@ namespace Xtensive.Sql.Dom.Database.Comparer
         constraints.Lock(recursive);
       }
     }
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    public TableComparisonResult(Table originalValue, Table newValue)
-      : base(originalValue, newValue)
-    {
-    }
   }
 }

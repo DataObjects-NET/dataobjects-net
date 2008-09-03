@@ -101,13 +101,5 @@ namespace Xtensive.Sql.Dom.Database.Comparer
         onDelete.LockSafely(recursive);
       }
     }
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    public ForeignKeyComparisonResult(ForeignKey originalValue, ForeignKey newValue)
-      : base(originalValue, newValue)
-    {
-    }
   }
 }

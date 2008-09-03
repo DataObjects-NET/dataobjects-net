@@ -13,7 +13,24 @@ namespace Xtensive.Sql.Dom.Database.Comparer
 {
   public class ComparisonContext : Context<ComparisonScope>
   {
-    public IEnumerable<ComparisonHintBase> Hints{ get; private set;}
+    private readonly ComparisonRegistry registry = new ComparisonRegistry();
+    private readonly IEnumerable<ComparisonHintBase> hints;
+    private readonly ComparisonResultFactory factory;
+
+    public ComparisonResultFactory Factory
+    {
+      get { return factory; }
+    }
+
+    public ComparisonRegistry Registry
+    {
+      get { return registry; }
+    }
+
+    public IEnumerable<ComparisonHintBase> Hints
+    {
+      get { return hints; }
+    }
 
     /// <inheritdoc/>
     protected override ComparisonScope CreateActiveScope()
@@ -24,7 +41,12 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     /// <inheritdoc/>
     public override bool IsActive
     {
-      get { return ComparisonScope.CurrentContext == this; }
+      get { return ComparisonScope.CurrentContext==this; }
+    }
+
+    public static ComparisonContext Current
+    {
+      get { return ComparisonScope.CurrentContext; }
     }
 
     /// <summary>
@@ -33,8 +55,8 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     /// <param name="hints">Comparison hints.</param>
     public ComparisonContext(IEnumerable<ComparisonHintBase> hints)
     {
-      hints = hints ?? Enumerable.Empty<ComparisonHintBase>();
-      Hints = hints;
+      factory = new ComparisonResultFactory(this);
+      this.hints = hints ?? Enumerable.Empty<ComparisonHintBase>();
     }
   }
 }

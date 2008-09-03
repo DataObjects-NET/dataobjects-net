@@ -24,13 +24,5 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     {
       get { return (User)base.OriginalValue; }
     }
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    public UserComparisonResult(User originalValue, User newValue)
-      : base(originalValue, newValue)
-    {
-    }
   }
 }

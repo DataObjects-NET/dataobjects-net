@@ -24,13 +24,5 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     {
       get { return (CharacterSet) base.OriginalValue; }
     }
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    public CharacterSetComparisonResult(CharacterSet originalValue, CharacterSet newValue)
-      : base(originalValue, newValue)
-    {
-    }
   }
 }

@@ -140,13 +140,5 @@ namespace Xtensive.Sql.Dom.Database.Comparer
         isNullable.LockSafely(recursive);
       }
     }
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    public TableColumnComparisonResult(TableColumn originalValue, TableColumn newValue)
-      : base(originalValue, newValue)
-    {
-    }
   }
 }

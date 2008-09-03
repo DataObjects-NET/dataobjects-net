@@ -18,8 +18,8 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   public class ComparisonResult<T> : ComparisonResult, 
     IComparisonResult<T>
   {
-    private readonly T originalValue;
-    private readonly T newValue;
+    private T originalValue;
+    private T newValue;
 
     /// <summary>
     /// Gets new value.
@@ -37,6 +37,12 @@ namespace Xtensive.Sql.Dom.Database.Comparer
       get { return originalValue; }
     }
 
+    public virtual void Initialize(T originalNode, T newNode)
+    {
+      originalValue = originalNode;
+      newValue = newNode;
+    }
+
     /// <inheritdoc/>
     public override void Lock(bool recursive)
     {
@@ -47,20 +53,21 @@ namespace Xtensive.Sql.Dom.Database.Comparer
       }
     }
 
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    public ComparisonResult(T originalValue, T newValue)
-      : base()
-    {
-      this.originalValue = originalValue;
-      this.newValue = newValue;
-    }
-
     /// <inheritdoc/>
     public override IEnumerable<IComparisonResult> NestedComparisons
     {
       get { return Enumerable.Empty<IComparisonResult>(); }
+    }
+
+    public ComparisonResult()
+    {
+      
+    }
+
+    public ComparisonResult(T originalNode, T newNode)
+    {
+      this.originalValue = originalNode;
+      this.newValue = newNode;
     }
   }
 }

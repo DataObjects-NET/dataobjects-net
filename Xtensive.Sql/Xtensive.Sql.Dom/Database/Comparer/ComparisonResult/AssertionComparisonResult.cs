@@ -98,13 +98,5 @@ namespace Xtensive.Sql.Dom.Database.Comparer
         isInitiallyDeferred.LockSafely(recursive);
       }
     }
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    public AssertionComparisonResult(Assertion originalValue, Assertion newValue)
-      : base(originalValue, newValue)
-    {
-    }
   }
 }

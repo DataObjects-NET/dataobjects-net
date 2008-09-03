@@ -70,13 +70,5 @@ namespace Xtensive.Sql.Dom.Database.Comparer
         dataType.LockSafely(recursive);
       }
     }
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    public SequenceComparisonResult(Sequence originalValue, Sequence newValue)
-      : base(originalValue, newValue)
-    {
-    }
   }
 }

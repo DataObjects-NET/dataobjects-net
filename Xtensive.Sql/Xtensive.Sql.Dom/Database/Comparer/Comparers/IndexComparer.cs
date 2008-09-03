@@ -5,7 +5,6 @@
 // Created:    2008.08.14
 
 using System;
-using System.Collections.Generic;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
@@ -14,7 +13,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   {
     public override IComparisonResult<Index> Compare(Index originalNode, Index newNode)
     {
-      var result = new IndexComparisonResult(originalNode, newNode);
+      var result = ComparisonContext.Current.Factory.CreateComparisonResult<Index, IndexComparisonResult>(originalNode, newNode);
       bool hasChanges = false;
       result.IsUnique = CompareSimpleStruct(originalNode==null ? (bool?) null : originalNode.IsUnique, newNode==null ? (bool?) null : newNode.IsUnique, ref hasChanges);
       result.IsBitmap = CompareSimpleStruct(originalNode==null ? (bool?) null : originalNode.IsBitmap, newNode==null ? (bool?) null : newNode.IsBitmap, ref hasChanges);
@@ -25,7 +24,6 @@ namespace Xtensive.Sql.Dom.Database.Comparer
       hasChanges |= CompareNestedNodes(originalNode==null ? null : originalNode.NonkeyColumns, newNode==null ? null : newNode.NonkeyColumns, BaseNodeComparer2, result.NonkeyColumns);
       if (hasChanges && result.ResultType==ComparisonResultType.Unchanged)
         result.ResultType = ComparisonResultType.Modified;
-      result.Lock(true);
       return result;
     }
 

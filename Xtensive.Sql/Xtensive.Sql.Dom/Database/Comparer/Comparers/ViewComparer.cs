@@ -5,7 +5,6 @@
 // Created:    2008.08.19
 
 using System;
-using System.Collections.Generic;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
@@ -14,15 +13,14 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   {
     public override IComparisonResult<View> Compare(View originalNode, View newNode)
     {
-      var result = new ViewComparisonResult(originalNode, newNode);
+      var result = ComparisonContext.Current.Factory.CreateComparisonResult<View, ViewComparisonResult>(originalNode, newNode);
       bool hasChanges = false;
       result.CheckOptions = CompareSimpleStruct(originalNode==null ? (CheckOptions?) null : originalNode.CheckOptions, newNode==null ? (CheckOptions?) null : newNode.CheckOptions, ref hasChanges);
       result.Definition = CompareSimpleNode(originalNode==null ? null : originalNode.Definition, newNode==null ? null : newNode.Definition, ref hasChanges);
-      hasChanges |= CompareNestedNodes(originalNode==null ? null : originalNode.Indexes, newNode==null ? null : newNode.Indexes, BaseNodeComparer2, result.Indexes);
       hasChanges |= CompareNestedNodes(originalNode==null ? null : originalNode.ViewColumns, newNode==null ? null : newNode.ViewColumns, BaseNodeComparer1, result.Columns);
+      hasChanges |= CompareNestedNodes(originalNode==null ? null : originalNode.Indexes, newNode==null ? null : newNode.Indexes, BaseNodeComparer2, result.Indexes);
       if (hasChanges && result.ResultType==ComparisonResultType.Unchanged)
         result.ResultType = ComparisonResultType.Modified;
-      result.Lock(true);
       return result;
     }
 

@@ -5,7 +5,6 @@
 // Created:    2008.08.27
 
 using System;
-using System.Collections.Generic;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
@@ -14,8 +13,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   {
     public override IComparisonResult<CheckConstraint> Compare(CheckConstraint originalNode, CheckConstraint newNode)
     {
-      return new CheckConstraintComparisonResult(originalNode, newNode);
-
+      return ComparisonContext.Current.Factory.CreateComparisonResult<CheckConstraint, CheckConstraintComparisonResult>(originalNode, newNode);
     }
 
     public CheckConstraintComparer(INodeComparerProvider provider)

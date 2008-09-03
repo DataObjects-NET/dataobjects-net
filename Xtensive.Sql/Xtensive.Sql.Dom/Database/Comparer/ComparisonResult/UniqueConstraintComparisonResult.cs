@@ -52,13 +52,5 @@ namespace Xtensive.Sql.Dom.Database.Comparer
         columns.Lock(recursive);
       }
     }
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    public UniqueConstraintComparisonResult(UniqueConstraint originalValue, UniqueConstraint newValue)
-      : base(originalValue, newValue)
-    {
-    }
   }
 }
