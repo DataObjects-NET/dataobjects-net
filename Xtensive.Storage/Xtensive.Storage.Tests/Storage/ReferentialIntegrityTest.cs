@@ -74,7 +74,7 @@ namespace Xtensive.Storage.Tests.Storage
           a.C = new C();
           a.C.A = a;
           Session.Current.Persist();
-          Assert.AreEqual(1, Session.Current.All<A>().Count<A>());
+          Assert.AreEqual(1, Session.Current.All<A>().Count());
           Assert.AreEqual(1, Session.Current.All<B>().Count());
           Assert.AreEqual(1, Session.Current.All<C>().Count());
 

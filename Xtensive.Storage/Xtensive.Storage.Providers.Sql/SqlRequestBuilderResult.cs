@@ -42,7 +42,8 @@ namespace Xtensive.Storage.Providers.Sql
 
     public int GetOffsetFor(ColumnInfo column)
     {
-      return Task.Type.Fields[column.Field.Name].MappingInfo.Offset;
+      var field = Task.Type.Fields[column.Field.Name];
+      return field == null ? -1 : field.MappingInfo.Offset;
     }
 
     public SqlRequestBuilderResult(SqlRequestBuilderTask task, SqlBatch batch)

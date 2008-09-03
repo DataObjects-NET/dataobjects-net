@@ -27,6 +27,7 @@ namespace Xtensive.Storage.Providers.MsSql
     private SqlDataType dataType;
     private Schema schema;
     private Func<IEnumerable<Tuple>> getNextMany;
+    private SqlBatch query;
 
     protected override Tuple NextOne()
     {
@@ -96,18 +97,12 @@ namespace Xtensive.Storage.Providers.MsSql
     // ReSharper restore UnusedPrivateMember
     {
       Tuple result = Tuple.Create(Hierarchy.KeyTupleDescriptor);
-      SqlBatch batch = SqlFactory.Batch();
-      SqlInsert insert = SqlFactory.Insert(SqlFactory.TableRef(generatorTable));
-      batch.Add(insert);
-      SqlSelect select = SqlFactory.Select();
-      select.Columns.Add(SqlFactory.Cast(SqlFactory.FunctionCall("SCOPE_IDENTITY"), dataType));
-      batch.Add(select);
-
+      
       using (Handlers.DomainHandler.OpenSession(SessionType.System)) {
         var handler = (SessionHandler)Handlers.SessionHandler;
         using (var command = new SqlCommand(handler.Connection)) {
           command.Transaction = handler.Transaction;
-          command.Statement = batch;
+          command.Statement = query;
           command.Prepare();
           var id = command.ExecuteScalar();
           result.SetValue(0, id);
@@ -159,6 +154,12 @@ namespace Xtensive.Storage.Providers.MsSql
         .GetMethod("NextManyInternal", BindingFlags.Instance | BindingFlags.NonPublic)
         .MakeGenericMethod(new[] { fieldType });
       getNextMany = (Func<IEnumerable<Tuple>>)Delegate.CreateDelegate(typeof(Func<IEnumerable<Tuple>>), this, method);
+      query = SqlFactory.Batch();
+      SqlInsert insert = SqlFactory.Insert(SqlFactory.TableRef(generatorTable));
+      query.Add(insert);
+      SqlSelect select = SqlFactory.Select();
+      select.Columns.Add(SqlFactory.Cast(SqlFactory.FunctionCall("SCOPE_IDENTITY"), dataType));
+      query.Add(select);
     }
   }
 }

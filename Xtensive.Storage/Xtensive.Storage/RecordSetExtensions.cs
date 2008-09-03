@@ -21,30 +21,24 @@ namespace Xtensive.Storage
     public static IEnumerable<T> ToEntities<T>(this RecordSet source) 
       where T : class, IEntity
     {
-//      var result = new List<T>();
       foreach (var entity in ToEntities(source, typeof (T)))
         yield return entity as T;
-//        result.Add(entity as T);
-//      return result;
     }
 
     public static IEnumerable<Entity> ToEntities(this RecordSet source, Type type)
     {
-      RecordSetHeaderParsingContext context = new RecordSetHeaderParsingContext(Session.Current, source.Header);
-      RecordSetMapping mapping = GetRecordSetMapping(context);
+      var context = new RecordSetHeaderParsingContext(Session.Current, source.Header);
+      var mapping = GetRecordSetMapping(context);
 
-//      var result = new List<Entity>();
       foreach (Tuple tuple in source) {
         Entity entity = null;
-        foreach (ColumnGroupMapping columnGroupMapping in mapping.ColumnGroupMappings) {
+        foreach (var columnGroupMapping in mapping.ColumnGroupMappings) {
           Key key = ProcessColumnGroup(context, columnGroupMapping, tuple);
           if (entity==null && type.IsAssignableFrom(key.Type.UnderlyingType))
             entity = key.Resolve();
         }
         yield return entity;
-//        result.Add(entity);
       }
-//      return result;
     }
 
     internal static void Import(this RecordSet source)

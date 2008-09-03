@@ -31,7 +31,7 @@ namespace Xtensive.Storage.Providers.Sql
         result = BuildUpdateRequest(task);
         break;
       }
-      SqlModificationRequest request = new SqlModificationRequest(result.Batch);
+      var request = new SqlModificationRequest(result.Batch);
       foreach (var binding in result.ParameterBindings)
         request.ParameterBindings[binding.Key] = binding.Value;
       request.ExpectedResult = result.Batch.Count;
@@ -45,13 +45,17 @@ namespace Xtensive.Storage.Providers.Sql
       foreach (IndexInfo index in result.AffectedIndexes) {
         SqlTableRef table = SqlFactory.TableRef(DomainHandler.GetTable(index));
         SqlInsert query = SqlFactory.Insert(table);
-        int i = 0;
-        foreach (ColumnInfo column in index.Columns) {
+
+        for (int i = 0; i < index.Columns.Count; i++) {
+          ColumnInfo column = index.Columns[i];
           int offset = result.GetOffsetFor(column);
-          SqlParameter p = result.GetParameterFor(column);
-          query.Values[table[i++]] = p;
-          result.ParameterBindings[p] = CreateTupleFieldAccessor(offset);
+          if (offset >= 0) {
+            SqlParameter p = result.GetParameterFor(column);
+            query.Values[table[i]] = p;
+            result.ParameterBindings[p] = CreateTupleFieldAccessor(offset);
+          }
         }
+
         result.Batch.Add(query);
       }
       return result;
@@ -63,17 +67,17 @@ namespace Xtensive.Storage.Providers.Sql
       foreach (IndexInfo index in result.AffectedIndexes) {
         SqlTableRef table = SqlFactory.TableRef(DomainHandler.GetTable(index));
         SqlUpdate query = SqlFactory.Update(table);
-        int i = 0;
-        foreach (ColumnInfo column in index.Columns) {
+
+        for (int i = 0; i < index.Columns.Count; i++) {
+          ColumnInfo column = index.Columns[i];
           int offset = result.GetOffsetFor(column);
-          if (!task.FieldMap[offset]) {
-            i++;
-            continue;
+          if (offset >= 0 && task.FieldMap[offset]) {
+            SqlParameter p = result.GetParameterFor(column);
+            query.Values[table[i]] = p;
+            result.ParameterBindings[p] = CreateTupleFieldAccessor(offset);
           }
-          SqlParameter p = result.GetParameterFor(column);
-          query.Values[table[i++]] = p;
-          result.ParameterBindings[p] = CreateTupleFieldAccessor(offset);
         }
+
         // There is nothing to update in this table, skipping it
         if (query.Values.Count == 0)
           continue;

@@ -6,9 +6,11 @@
 
 using System;
 using System.Collections.Generic;
+using Xtensive.Core;
 using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Database;
 using Xtensive.Sql.Dom.Dml;
+using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers.Sql.Resources;
 using Xtensive.Storage.Rse.Compilation;
@@ -25,7 +27,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
     {
       var index = provider.Index.Resolve(Handlers.Domain.Model);
       SqlSelect query = BuildProviderQuery(index);
-      SqlQueryRequest request = new SqlQueryRequest(query, provider.Header.TupleDescriptor);
+      var request = new SqlQueryRequest(query, provider.Header.TupleDescriptor);
       return new SqlProvider(provider, request, Handlers);
     }
 
@@ -45,10 +47,23 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
 
     private SqlSelect BuildTableQuery(IndexInfo index)
     {
-      Table table = ((DomainHandler)Handlers.DomainHandler).Schema.Tables[index.ReflectedType.MappingName];
+      var domainHandler = (DomainHandler)Handlers.DomainHandler;
+      Table table = domainHandler.Schema.Tables[index.ReflectedType.MappingName];
+      bool atRootPolicy = false;
+      if (table == null) {
+        table = domainHandler.Schema.Tables[index.ReflectedType.GetRoot().MappingName];
+        atRootPolicy = true;
+      }
+
       SqlTableRef tableRef = SqlFactory.TableRef(table);
       SqlSelect query = SqlFactory.Select(tableRef);
-      query.Columns.AddRange(index.Columns.Select(c => (SqlColumn)tableRef.Columns[c.Name]));
+      if (!atRootPolicy)
+        query.Columns.AddRange(index.Columns.Select(c => (SqlColumn)tableRef.Columns[c.Name]));
+      else {
+        var root = index.ReflectedType.GetRoot().AffectedIndexes.First(i => i.IsPrimary);
+        var lookup = root.Columns.ToDictionary(c => c.Field, c => c.Name);
+        query.Columns.AddRange(index.Columns.Select(c => (SqlColumn)tableRef.Columns[lookup[c.Field]]));
+      }
       return query;
     }
 
@@ -119,11 +134,20 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
       descendants.AddRange(index.ReflectedType.GetDescendants(true));
       var typeIds = descendants.Select(t => t.TypeId).ToArray();
 
-      var baseQuery = BuildProviderQuery(index.UnderlyingIndexes[0]);
+      var underlyingIndex = index.UnderlyingIndexes[0];
+      var baseQuery = BuildProviderQuery(underlyingIndex);
       SqlColumn typeIdColumn = baseQuery.Columns[NameBuilder.TypeIdFieldName];
       SqlBinary inQuery = SqlFactory.In(typeIdColumn, SqlFactory.Array(typeIds));
       SqlSelect query = SqlFactory.Select(baseQuery.From);
-      query.Columns.AddRange(baseQuery.Columns);
+      var atRootPolicy = index.ReflectedType.Hierarchy.Schema == InheritanceSchema.SingleTable;
+      Dictionary<FieldInfo, string> lookup;
+      if (atRootPolicy) {
+        var rootIndex = index.ReflectedType.GetRoot().AffectedIndexes.First(i => i.IsPrimary);
+        lookup = rootIndex.Columns.ToDictionary(c => c.Field, c => c.Name);
+      }
+      else
+        lookup = underlyingIndex.Columns.ToDictionary(c => c.Field, c => c.Name);
+      query.Columns.AddRange(index.Columns.Select(c => baseQuery.Columns[lookup[c.Field]]));
       query.Where = inQuery;
 
       return query;
