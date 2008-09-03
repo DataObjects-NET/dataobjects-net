@@ -8,6 +8,7 @@ using System;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
+using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Providers.Sql.Compilers
 {
@@ -22,10 +23,9 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
     }
 
     /// <inheritdoc/>
-    /// <exception cref="NotImplementedException">[Suppresses Agent Johnson warning]</exception>
     public override ExecutableProvider ToCompatible(ExecutableProvider provider)
     {
-      throw new NotImplementedException();
+      return new LoadProvider(new SaveProvider(provider)).Compile();
     }
 
 

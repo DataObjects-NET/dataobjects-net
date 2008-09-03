@@ -30,7 +30,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
         query.OrderBy.Add(sortOrder.Key, sortOrder.Value==Direction.Positive);
 
       SqlQueryRequest request = new SqlQueryRequest(query, provider.Header.TupleDescriptor, source.Request.ParameterBindings);
-      return new SqlProvider(provider, request, Handlers);
+      return new SqlProvider(provider, request, Handlers, source);
     }
 
 

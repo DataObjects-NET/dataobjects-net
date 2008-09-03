@@ -40,7 +40,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
       SqlExpression lastColumnCondition = (SqlFactory.ParameterRef(lastColumnNA) == SqlFactory.Constant("1") | keyColumns[lastColumnIndex]==SqlFactory.ParameterRef(lastColumn));
       query.Where &= lastColumnCondition;
 
-      return new SqlProvider(provider, request, Handlers);
+      return new SqlProvider(provider, request, Handlers, source);
     }
 
     public SeekProviderCompiler(Rse.Compilation.Compiler compiler)

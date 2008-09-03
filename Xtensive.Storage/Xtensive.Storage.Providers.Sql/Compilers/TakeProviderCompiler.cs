@@ -24,7 +24,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
       if (query.Top==0 || query.Top > provider.CompiledCount())
         query.Top = provider.CompiledCount();
       SqlQueryRequest request = new SqlQueryRequest(query, provider.Header.TupleDescriptor, source.Request.ParameterBindings);
-      return new SqlProvider(provider, request, Handlers);
+      return new SqlProvider(provider, request, Handlers, source);
     }
 
     // Constructor

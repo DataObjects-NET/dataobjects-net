@@ -21,7 +21,7 @@ namespace Xtensive.Storage.Rse.Compilation
     /// will be used to compile the <paramref name="provider"/>; wrapping to a compatible provider
     /// will be performed, if necessary.
     /// </summary>
-    /// <param name="provider">The provider to compile.</param>
+    /// <param name="provider">The provider to compile.
     /// Current compiler from <see cref="CompilationContext.FallbackCompiler"/> will be used in case of failure.</param>
     /// <returns>
     /// A compiled provider, compatible with <see cref="CompilationContext.CurrentCompiler"/>;
@@ -38,6 +38,23 @@ namespace Xtensive.Storage.Rse.Compilation
         throw new InvalidOperationException();
 
       return compilationContext.Compile(provider);
+    }
+
+    /// <summary>
+    /// Tries to compile the specified <paramref name="provider"/> by the <see cref="CompilationContext.CurrentCompiler"/>
+    /// if the specified <paramref name="provider"/> is <see cref="CompilableProvider"/>; otherwise does nothing.
+    /// </summary>
+    /// <param name="provider">The provider to compile.</param>
+    /// <returns>
+    /// A compiled provider, compatible with <see cref="CompilationContext.CurrentCompiler"/>;
+    /// <see langword="null"/>, if it was impossible to produce such provider
+    /// by described set of actions.
+    /// </returns>
+    /// <exception cref="ArgumentException"><paramref name="provider"/> is neither
+    /// <see cref="CompilableProvider"/>, nor <see cref="ExecutableProvider"/>.</exception>
+    public static ExecutableProvider Compile(this Provider provider)
+    {
+      return  provider as ExecutableProvider ?? Compile(provider as CompilableProvider);
     }
   }
 }

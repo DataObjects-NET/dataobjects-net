@@ -51,5 +51,18 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
       Scope = scope;
       Name = name;
     }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="provider">The <see cref="SaveProvider"/> instance.</param>
+    public LoadProvider(SaveProvider provider)
+      : base(provider)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(provider, "provider");
+      header = provider.Header;
+      Scope = provider.Scope;
+      Name = provider.Name;
+    }
   }
 }

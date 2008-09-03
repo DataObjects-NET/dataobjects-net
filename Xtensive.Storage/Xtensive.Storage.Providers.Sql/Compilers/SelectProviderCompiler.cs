@@ -30,7 +30,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
       query.Columns.AddRange(provider.ColumnIndexes.Select(i => (SqlColumn)queryRef.Columns[i]));
       SqlQueryRequest request = new SqlQueryRequest(query, provider.Header.TupleDescriptor, source.Request.ParameterBindings);
 
-      return new SqlProvider(provider, request, Handlers);
+      return new SqlProvider(provider, request, Handlers, source);
     }
 
 

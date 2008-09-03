@@ -38,18 +38,19 @@ namespace Xtensive.Storage.Providers.Sql
 
     // Constructor
 
-    public SqlProvider(CompilableProvider origin, SqlQueryRequest request, HandlerAccessor handlers)
-      : base(origin)
+    public SqlProvider(CompilableProvider origin, SqlQueryRequest request, HandlerAccessor handlers, params ExecutableProvider[] sources)
+      : base(origin, sources)
     {
       this.request = request;
       this.handlers = handlers;
-    }
-
-    public SqlProvider(CompilableProvider origin, SqlQueryRequest request, HandlerAccessor handlers, IEnumerable<KeyValuePair<SqlParameter, Func<object>>> parameterBindings)
-      : this(origin, request, handlers)
-    {
-      foreach (var pair in parameterBindings)
-        request.ParameterBindings.Add(pair.Key, pair.Value);
+      if (request == null)
+        return;
+      foreach (ExecutableProvider source in sources) {
+        SqlProvider sqlProvider = source as SqlProvider;
+        if (sqlProvider!=null && sqlProvider.Request != null)
+          foreach (var pair in sqlProvider.Request.ParameterBindings)
+            request.ParameterBindings[pair.Key] = pair.Value;
+      }
     }
   }
 }
