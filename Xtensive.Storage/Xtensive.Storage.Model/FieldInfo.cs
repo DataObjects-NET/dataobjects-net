@@ -66,6 +66,20 @@ namespace Xtensive.Storage.Model
     }
 
     /// <summary>
+    /// Gets a value indicating whether this property is enum.
+    /// </summary>
+    public bool IsEnum { 
+      [DebuggerStepThrough]
+      get { return (attributes & FieldAttributes.Enum) > 0; }
+      private set {
+        this.EnsureNotLocked();
+        attributes = value
+          ? (Attributes | FieldAttributes.Enum)
+          : (Attributes & ~FieldAttributes.Enum);
+      }
+    }
+
+    /// <summary>
     /// Gets or sets a value indicating whether this instance is inherited from parent <see cref="TypeInfo"/> instance.
     /// </summary>
     public bool IsInherited {
@@ -219,6 +233,7 @@ namespace Xtensive.Storage.Model
       set {
         this.EnsureNotLocked();
         valueType = value;
+        IsEnum = value.IsEnum;
       }
     }
 

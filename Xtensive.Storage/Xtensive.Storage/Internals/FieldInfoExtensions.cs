@@ -16,7 +16,7 @@ namespace Xtensive.Storage.Internals
         return EntityFieldAccessor<T>.Instance;
       if (field.IsStructure)
         return StructureFieldAccessor<T>.Instance;
-      if (field.ValueType.IsEnum)
+      if (field.IsEnum)
         return EnumFieldAccessor<T>.Instance;
 
       return DefaultFieldAccessor<T>.Instance;

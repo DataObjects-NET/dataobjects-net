@@ -4,14 +4,12 @@
 // Created by: Dmitri Maximov
 // Created:    2008.07.28
 
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Tuples;
-using Xtensive.Storage.Attributes;
 
 namespace Xtensive.Storage.Internals
 {
@@ -27,17 +25,17 @@ namespace Xtensive.Storage.Internals
     }
 
     [Infrastructure]
-    public EntityData Create(Key key, PersistenceState state)
+    public EntityData Create(Key key, PersistenceState state, Transaction transaction)
     {
-      return Create(key, key.Tuple, state);
+      return Create(key, key.Tuple, state, transaction);
     }
 
     [Infrastructure]
-    public void Update(Key key, Tuple tuple)
+    public void Update(Key key, Tuple tuple, Transaction transaction)
     {
       EntityData data = this[key];
       if (data == null)
-        Create(key, tuple, PersistenceState.Persisted);
+        Create(key, tuple, PersistenceState.Persisted, transaction);
       else {
         data.DifferentialData.Origin.MergeWith(tuple);
         if (Log.IsLogged(LogEventTypes.Debug))
@@ -58,7 +56,7 @@ namespace Xtensive.Storage.Internals
     }
 
     [Infrastructure]
-    private EntityData Create(Key key, Tuple tuple, PersistenceState state)
+    private EntityData Create(Key key, Tuple tuple, PersistenceState state, Transaction transaction)
     {
       Tuple origin;
       if (state == PersistenceState.New)
@@ -66,7 +64,7 @@ namespace Xtensive.Storage.Internals
       else
         origin = Tuple.Create(key.Type.TupleDescriptor);
       tuple.CopyTo(origin);
-      EntityData result = new EntityData(key, new DifferentialTuple(origin), state);
+      EntityData result = new EntityData(key, new DifferentialTuple(origin), state, transaction);
       cache.Add(result);
 
       if (Log.IsLogged(LogEventTypes.Debug))

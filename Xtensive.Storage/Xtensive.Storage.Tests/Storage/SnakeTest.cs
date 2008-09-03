@@ -11,6 +11,7 @@ using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core;
+using Xtensive.Core.Aspects;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Parameters;
@@ -18,6 +19,7 @@ using Xtensive.Core.Testing;
 using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
 using Xtensive.Integrity.Transactions;
+using Xtensive.Storage.Aspects;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
@@ -570,6 +572,34 @@ namespace Xtensive.Storage.Tests.Storage
           }
           Session.Current.Persist();
           t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void GetValuePerformance()
+    {
+      using (Domain.OpenSession()) {
+        using (Transaction.Open()) {
+          Snake s = new Snake();
+          s.Name = "Dina";
+          int i;
+          string value;
+          const int getsCount = 10000;
+          using (new Measurement("Geting value...", getsCount * 10)) {
+            for (i = 0; i < getsCount; i++) {
+              value = s.Name;
+              value = s.Name;
+              value = s.Name;
+              value = s.Name;
+              value = s.Name;
+              value = s.Name;
+              value = s.Name;
+              value = s.Name;
+              value = s.Name;
+              value = s.Name;
+            }
+          }
         }
       }
     }

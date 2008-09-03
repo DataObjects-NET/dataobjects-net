@@ -56,7 +56,7 @@ namespace Xtensive.Storage
       TypeMapping typeMapping = GetTypeMapping(context, columnGroupMapping, tuple);
       Tuple transformedTuple = typeMapping.Transform.Apply(TupleTransformType.TransformedTuple, tuple);
       Key key = context.Domain.KeyManager.Get(typeMapping.Type, transformedTuple);
-      context.Session.DataCache.Update(key, transformedTuple);
+      context.Session.DataCache.Update(key, transformedTuple, context.Session.Transaction);
       return key;
     }
 

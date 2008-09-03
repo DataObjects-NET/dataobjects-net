@@ -159,7 +159,7 @@ namespace Xtensive.Storage
         Handler.CommitTransaction();
         OnTranscationEnd();
       }
-      catch (Exception e) {
+      catch {
         OnTransactionRollback();
         throw;
       }
@@ -191,9 +191,8 @@ namespace Xtensive.Storage
     }
 
     private void OnTranscationEnd()
-    {      
+    {
       Transaction = null;
-      DataCache.Reset();
     }
 
     #endregion

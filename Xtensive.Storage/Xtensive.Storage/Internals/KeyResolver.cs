@@ -53,7 +53,7 @@ namespace Xtensive.Storage.Internals
         Log.Debug("Session '{0}'. Resolving key '{1}'. Exact type is known", session, key);
 
       // Type is known so we can create Entity instance.
-      data = session.DataCache.Create(resolvedKey, PersistenceState.Persisted);
+      data = session.DataCache.Create(resolvedKey, PersistenceState.Persisted, session.Transaction);
       return GetEntity(data);
     }
 

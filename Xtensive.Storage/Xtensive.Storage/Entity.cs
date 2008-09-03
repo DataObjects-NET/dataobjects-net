@@ -67,15 +67,20 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets a value indicating whether this entity is removed.
     /// </summary>
+    [Infrastructure]
     public bool IsRemoved
     {
-      get { return PersistenceState==PersistenceState.Removed || PersistenceState==PersistenceState.Removing; }
+      get
+      {
+        PersistenceState state = PersistenceState;
+        return state==PersistenceState.Removed || state==PersistenceState.Removing;
+      }
     }
 
     /// <inheritdoc/>
     public override sealed TypeInfo Type {
       [DebuggerStepThrough]
-          get { return Data.Type; }
+      get { return Data.Type; }
     }
 
     /// <inheritdoc/>
@@ -160,8 +165,8 @@ namespace Xtensive.Storage
     /// <exception cref="InvalidOperationException">Entity is removed.</exception>
     protected internal override sealed void OnGettingValue(FieldInfo field)
     {
-      if (Log.IsLogged(LogEventTypes.Debug))
-        Log.Debug("Session '{0}'. Getting value: Key = '{1}', Field = '{2}'", Session, Key, field);
+//      if (Log.IsLogged(LogEventTypes.Debug))
+//        Log.Debug("Session '{0}'. Getting value: Key = '{1}', Field = '{2}'", Session, Key, field);
       EnsureCanOperate();
       EnsureIsFetched(field);
     }
@@ -227,6 +232,8 @@ namespace Xtensive.Storage
 
       if (PersistenceState==PersistenceState.Inconsistent)
         throw new InvalidOperationException(Strings.ExEntityIsInInconsistentState);
+
+      Data.EnsureDataIsActual();
     }
 
     #endregion
@@ -283,7 +290,7 @@ namespace Xtensive.Storage
         if (Log.IsLogged(LogEventTypes.Debug))
           Log.Debug("Session '{0}'. Creating entity: Key = '{1}'", Session, key);
 
-        data = Session.DataCache.Create(key, PersistenceState.New);
+        data = Session.DataCache.Create(key, PersistenceState.New, Session.Transaction);
         OnCreating();
         transactionScope.Complete();
       }
@@ -303,7 +310,7 @@ namespace Xtensive.Storage
         if (Log.IsLogged(LogEventTypes.Debug))
           Log.Debug("Session '{0}'. Creating entity: Key = '{1}'", Session, key);
 
-        data = Session.DataCache.Create(key, PersistenceState.New);
+        data = Session.DataCache.Create(key, PersistenceState.New, Session.Transaction);
         OnCreating();
 
         transactionScope.Complete();

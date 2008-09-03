@@ -84,55 +84,22 @@ namespace Xtensive.Storage
     [Infrastructure]
     protected T GetValue<T>(string name)
     {
-      using (var transactionScope = Session.OpenTransaction()) {
-        FieldInfo field = Type.Fields[name];
-        OnGettingValue(field);
-        T result = field.GetAccessor<T>().GetValue(this, field);
-        OnGetValue(field);
+      FieldInfo field = Type.Fields[name];
 
-        transactionScope.Complete();
-        return result;
-      }
+      OnGettingValue(field);
+      T result = field.GetAccessor<T>().GetValue(this, field);
+      OnGetValue(field);
+
+      return result;
     }
 
     [Infrastructure]
-//    [Atomic("UndoSetValue")]    
     protected void SetValue<T>(string name, T value)
     {
-      // Atomicity is not implemented yet.
-
-//      IUndoDescriptor undoDescriptor = UndoScope.CurrentDescriptor;
-//      IDictionary<string, object> undoArguments = undoDescriptor.Arguments;
-//            
-//      undoArguments["value"] = GetValue<T>(name);
-//      undoArguments["name"] = name;
-
-      InternalSetValue(name, value);
-
-//      undoDescriptor.Complete();
-    }
-
-    [Infrastructure]
-    private void InternalSetValue<T>(string name, T value)
-    {
-      using (var transactionScope = Session.OpenTransaction()) {
-        FieldInfo field = Type.Fields[name];
-        OnSettingValue(field);
-        field.GetAccessor<T>().SetValue(this, field, value);
-
-        OnSetValue(field);
-        transactionScope.Complete();
-      }
-    }
-
-    [Infrastructure]
-    private void UndoSetValue(IUndoDescriptor undoDescriptor)
-    {
-      IDictionary<string, object> arguments = undoDescriptor.Arguments;
-      string name = (string) arguments["name"];
-      object value;
-      arguments.TryGetValue("value", out value);
-      InternalSetValue(name, value);
+      FieldInfo field = Type.Fields[name];
+      OnSettingValue(field);
+      field.GetAccessor<T>().SetValue(this, field, value);
+      OnSetValue(field);
     }
 
     #endregion

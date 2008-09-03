@@ -4,9 +4,12 @@
 // Created by: Dmitri Maximov
 // Created:    2008.07.07
 
+using System;
 using System.Diagnostics;
 using Xtensive.Core.Tuples;
+using Xtensive.Integrity.Transactions;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage
 {
@@ -15,6 +18,8 @@ namespace Xtensive.Storage
   /// </summary>
   public sealed class EntityData : Tuple
   {
+    private Transaction transaction;
+
     /// <summary>
     /// Gets the key.
     /// </summary>
@@ -45,6 +50,19 @@ namespace Xtensive.Storage
     public Entity Entity { get; internal set; }
 
     /// <summary>
+    /// Ensures the data belongs to the current <see cref="Transaction"/> and resents the data if not.
+    /// </summary>
+    public void EnsureDataIsActual()
+    {
+      if ((transaction.State & TransactionState.Completed)!=0) {
+        Reset();
+        transaction = transaction.Session.Transaction;
+        if (transaction==null)
+          throw new InvalidOperationException(Strings.ExTransactionRequired);
+      }
+    }
+
+    /// <summary>
     /// Resets this entity data.
     /// </summary>
     public void Reset()
@@ -61,29 +79,34 @@ namespace Xtensive.Storage
       return DifferentialData.GetFieldState(fieldIndex);
     }
 
+    /// <inheritdoc/>
     public override T GetValueOrDefault<T>(int fieldIndex)
     {
       return DifferentialData.GetValueOrDefault<T>(fieldIndex);
     }
 
+    /// <inheritdoc/>
     public override object GetValueOrDefault(int fieldIndex)
     {
       return DifferentialData.GetValueOrDefault(fieldIndex);
     }
 
+    /// <inheritdoc/>
     public override void SetValue<T>(int fieldIndex, T fieldValue)
     {
       DifferentialData.SetValue(fieldIndex, fieldValue);
     }
 
+    /// <inheritdoc/>
     public override void SetValue(int fieldIndex, object fieldValue)
     {
       DifferentialData.SetValue(fieldIndex, fieldValue);
     }
 
+    /// <inheritdoc/>
     public override TupleDescriptor Descriptor
     {
-      get { return DifferentialData.Descriptor; }
+       get { return DifferentialData.Descriptor; }
     }
 
     public override bool Equals(object obj)
@@ -107,11 +130,12 @@ namespace Xtensive.Storage
 
     // Constructors
 
-    internal EntityData(Key key, DifferentialTuple tuple, PersistenceState state)
+    internal EntityData(Key key, DifferentialTuple tuple, PersistenceState state, Transaction transaction)
     {
       Key = key;
       DifferentialData = tuple;
       PersistenceState = state;
-    }    
+      this.transaction = transaction;
+    }
   }
 }
