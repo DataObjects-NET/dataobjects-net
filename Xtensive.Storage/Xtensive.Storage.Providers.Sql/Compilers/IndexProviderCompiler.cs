@@ -72,14 +72,13 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
       ISqlQueryExpression result = null;
 
       var baseQueries = index.UnderlyingIndexes.Select(i => BuildProviderQuery(i)).ToList();
-      foreach (var baseQuery in baseQueries) {
-        SqlSelect select = SqlFactory.Select(SqlFactory.QueryRef(baseQuery));
+      foreach (var select in baseQueries) {
+        int i = 0;
         foreach (var columnInfo in index.Columns) {
-          var column = baseQuery.Columns[columnInfo.Name];
+          var column = select.Columns[columnInfo.Name];
           if (SqlExpression.IsNull(column))
-            select.Columns.Add(SqlFactory.Null, columnInfo.Name);
-          else
-            select.Columns.Add(column);
+            select.Columns.Insert(i, SqlFactory.Null, columnInfo.Name);
+          i++;
         }
         if (result == null)
           result = select;
