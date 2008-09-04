@@ -17,18 +17,18 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   public class ForeignKeyComparisonResult : ConstraintComparisonResult,
     IComparisonResult<ForeignKey>
   {
-    private readonly ComparisonResultCollection<TableColumnComparisonResult> columns = new ComparisonResultCollection<TableColumnComparisonResult>();
-    private readonly ComparisonResultCollection<TableColumnComparisonResult> referencedColumns = new ComparisonResultCollection<TableColumnComparisonResult>();
+    private readonly ComparisonResultCollection<ComparisonResult<TableColumn>> columns = new ComparisonResultCollection<ComparisonResult<TableColumn>>();
+    private readonly ComparisonResultCollection<ComparisonResult<TableColumn>> referencedColumns = new ComparisonResultCollection<ComparisonResult<TableColumn>>();
     private ComparisonResult<SqlMatchType> matchType;
     private ComparisonResult<ReferentialAction> onUpdate;
     private ComparisonResult<ReferentialAction> onDelete;
 
-    public ComparisonResultCollection<TableColumnComparisonResult> Columns
+    public ComparisonResultCollection<ComparisonResult<TableColumn>> Columns
     {
       get { return columns; }
     }
 
-    public ComparisonResultCollection<TableColumnComparisonResult> ReferencedColumns
+    public ComparisonResultCollection<ComparisonResult<TableColumn>> ReferencedColumns
     {
       get { return referencedColumns; }
     }

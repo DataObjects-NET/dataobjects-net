@@ -4,6 +4,8 @@
 // Created by: Aleksey Gamzov
 // Created:    2008.09.03
 
+using System;
+
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
   public class ComparisonResultFactory
