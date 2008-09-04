@@ -102,9 +102,9 @@ namespace Xtensive.Storage.Rse
       return new AliasProvider(recordSet.Provider, alias).Result;
     }
 
-    public static RecordSet Where(this RecordSet recordSet, Expression<Func<Tuple,bool>> predicate)
+    public static RecordSet Filter(this RecordSet recordSet, Expression<Func<Tuple,bool>> predicate)
     {
-      return new WhereProvider(recordSet.Provider, predicate).Result;
+      return new FilterProvider(recordSet.Provider, predicate).Result;
     }
 
     public static RecordSet Select(this RecordSet recordSet, params int[] columnIndexes)

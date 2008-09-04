@@ -18,7 +18,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
   /// over the <see cref="UnaryProvider.Source"/>.
   /// </summary>
   [Serializable]
-  public class WhereProvider : UnaryProvider
+  public class FilterProvider : UnaryProvider
   {
     /// <summary>
     /// Filtering predicate expression.
@@ -39,7 +39,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// </summary>
     /// <param name="source">The source provider.</param>
     /// <param name="predicate">The predicate.</param>
-    public WhereProvider(CompilableProvider source, Expression<Func<Tuple, bool>> predicate)
+    public FilterProvider(CompilableProvider source, Expression<Func<Tuple, bool>> predicate)
       : base(source)
     {
       Predicate = predicate;

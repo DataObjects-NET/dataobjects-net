@@ -9,11 +9,11 @@ using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Rse.Compilation
 {
-  internal sealed class WhereProviderCompiler : TypeCompiler<WhereProvider>
+  internal sealed class FilterProviderCompiler : TypeCompiler<FilterProvider>
   {
-    protected override ExecutableProvider Compile(WhereProvider provider)
+    protected override ExecutableProvider Compile(FilterProvider provider)
     {
-      return new Providers.Executable.WhereProvider(
+      return new Providers.Executable.FilterProvider(
         provider,
         provider.Source.Compile());
     }
@@ -21,7 +21,7 @@ namespace Xtensive.Storage.Rse.Compilation
 
     // Constructor
 
-    public WhereProviderCompiler(Compiler compiler)
+    public FilterProviderCompiler(Compiler compiler)
       : base(compiler)
     {
     }

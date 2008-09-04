@@ -467,7 +467,7 @@ namespace Xtensive.Storage.Tests.Storage
 
             RecordSet range = rsSnakePrimary.Range(from, to);
             RecordSet join = range.Join(rsSnakeName, new Pair<int>(rsSnakePrimary.IndexOf("ID"), rsSnakeName.IndexOf("NameIndex.ID")));
-            RecordSet where = join.Where(tuple => tuple.GetValue<int>(rsSnakePrimary.IndexOf("Length")) >= 100);
+            RecordSet where = join.Filter(tuple => tuple.GetValue<int>(rsSnakePrimary.IndexOf("Length")) >= 100);
             RecordSet orderBy = where.OrderBy(OrderBy.Desc(rsSnakePrimary.IndexOf("Name")));
             RecordSet skip = orderBy.Skip(5);
             RecordSet take = skip.Take(50);
@@ -534,7 +534,7 @@ namespace Xtensive.Storage.Tests.Storage
               .Range(() => pName.Value)
               .OrderBy(OrderBy.Asc(rsSnakeName.IndexOf("ID")))
               .Alias("NameIndex"), rsSnakePrimary.IndexOf("ID"), rsSnakeName.IndexOf("ID"))
-            .Where(tuple => tuple.GetValue<int>(rsSnakePrimary.IndexOf("Length")) >= pLength.Value)
+            .Filter(tuple => tuple.GetValue<int>(rsSnakePrimary.IndexOf("Length")) >= pLength.Value)
             .OrderBy(OrderBy.Desc(rsSnakePrimary.IndexOf("Name")))
             .Skip(5)
             .Take(50);

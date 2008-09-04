@@ -12,7 +12,7 @@ using System.Linq;
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
   [Serializable]
-  internal sealed class WhereProvider : UnaryExecutableProvider<Compilable.WhereProvider>
+  internal sealed class FilterProvider : UnaryExecutableProvider<Compilable.FilterProvider>
   {
     private Func<Tuple, bool> predicate;
 
@@ -32,7 +32,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 
     // Constructors
 
-    public WhereProvider(Compilable.WhereProvider origin, ExecutableProvider source)
+    public FilterProvider(Compilable.FilterProvider origin, ExecutableProvider source)
       : base(origin, source)
     {
     }
