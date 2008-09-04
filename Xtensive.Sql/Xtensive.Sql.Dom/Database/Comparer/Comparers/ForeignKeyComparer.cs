@@ -12,7 +12,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
   [Serializable]
   internal class ForeignKeyComparer : NodeComparerBase<ForeignKey>
   {
-    private NodeComparerStruct<TableColumn> columnComparer; 
+    private readonly NodeComparerStruct<TableColumn> columnComparer; 
 
     public override IComparisonResult<ForeignKey> Compare(ForeignKey originalNode, ForeignKey newNode)
     {
@@ -31,9 +31,7 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     public ForeignKeyComparer(INodeComparerProvider provider)
       : base(provider)
     {
-      ReferenceComparer<TableColumn> referenceComparer = new ReferenceComparer<TableColumn>(provider);
-      INodeComparer<TableColumn> nodeComparer = (INodeComparer<TableColumn>)referenceComparer;
-      columnComparer = new NodeComparer<TableColumn>(nodeComparer);
+      columnComparer = new NodeComparer<TableColumn>(new ReferenceComparer<TableColumn>(provider));
     }
   }
 }

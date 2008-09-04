@@ -29,10 +29,20 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
       Database.Model model1 = GetModel(ConnectionString1);
       Database.Model model2 = GetModel(ConnectionString2);
       var comparer = new SqlComparer();
-      comparer.Compare(model1.DefaultServer.DefaultCatalog, model2.DefaultServer.DefaultCatalog, null);
+      var catalogComparisonResult = comparer.Compare(model1.DefaultServer.DefaultCatalog, model2.DefaultServer.DefaultCatalog, null);
+    }
+
+    [Test]
+    [Explicit]
+    [Category("Debug")]
+    public void CompareEqualNodes()
+    {
+      Database.Model model1 = GetModel(ConnectionString1);
+      var comparer = new SqlComparer();
+      comparer.Compare(model1.DefaultServer.DefaultCatalog, model1.DefaultServer.DefaultCatalog, null);
       var singleResult = comparer.Compare(model1.DefaultServer.DefaultCatalog, model1.DefaultServer.DefaultCatalog, null);
       foreach (IComparisonResult comparisonResult in singleResult.NestedComparisons) {
-        Assert.IsTrue(comparisonResult.ResultType==ComparisonResultType.Unchanged);
+        Assert.IsTrue(comparisonResult.ResultType == ComparisonResultType.Unchanged);
       }
     }
 
