@@ -89,12 +89,14 @@ namespace Xtensive.Storage.Providers.Sql
     protected override void OnAfterEnumerate(Rse.Providers.EnumerationContext context)
     {
       base.OnAfterEnumerate(context);
-      if (!CachedState.AfterEnumerationExecuted) {
+      if (CachedState.AfterEnumerationExecuted)
+        return;
+      if (concreteOrigin.Scope != TemporaryDataScope.Global) {
         var sessionHandler = (SessionHandler) handlers.SessionHandler;
         sessionHandler.ExecuteNonQuery(Data.AfterEnumerate);
         sessionHandler.DomainHandler.Schema.Tables.Remove(Data.Table.DataTable as Table);
-        CachedState.AfterEnumerationExecuted = true;
       }
+      CachedState.AfterEnumerationExecuted = true;
     }
 
 

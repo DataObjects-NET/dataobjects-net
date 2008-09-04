@@ -23,8 +23,8 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
       var executableSource = provider.Source.Compile();
       SqlBatch beforeStep = SqlFactory.Batch();
       string name = provider.Name.IsNullOrEmpty() ? GenerateTemporaryName() : provider.Name;
-      var tmp = domainHandler.Schema.CreateTemporaryTable(string.Format("Tmp_{0}", name));
-      tmp.IsGlobal = provider.Scope==TemporaryDataScope.Global;
+      var tmp = provider.Scope==TemporaryDataScope.Global?domainHandler.Schema.CreateTable(string.Format("Tmp_{0}", name)):
+        domainHandler.Schema.CreateTemporaryTable(string.Format("Tmp_{0}", name));
       foreach (Column column in provider.Header.Columns) {
         var tableColumn = tmp.CreateColumn(column.Name, domainHandler.GetSqlType(column.Type, null));
         tableColumn.IsNullable = true;

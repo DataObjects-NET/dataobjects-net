@@ -28,7 +28,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
         }
       }
       if (tableRef == null) {
-        Table table = ((DomainHandler)Handlers.DomainHandler).Schema.Tables[provider.Name];
+        Table table = ((DomainHandler)Handlers.DomainHandler).Schema.Tables[string.Format("Tmp_{0}", provider.Name)];
         tableRef = SqlFactory.TableRef(table);
       }
       SqlSelect query = SqlFactory.Select(tableRef);

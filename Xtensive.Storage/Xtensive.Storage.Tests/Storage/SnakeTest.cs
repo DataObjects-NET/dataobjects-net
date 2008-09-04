@@ -114,19 +114,21 @@ namespace Xtensive.Storage.Tests.Storage
 
           string name = "TestName";
           var scope = TemporaryDataScope.Global;
-          RecordSet saved = rsSnakePrimary.
-            Take(10).
-            Take(5).
-            Save(scope, name);
-
           using (EnumerationScope.Open()) {
+            RecordSet saved = rsSnakePrimary.
+              Take(10).
+              Take(5).
+              Save(scope, name);
+
+            saved.Count();
+
             Assert.AreEqual(name, saved.Provider.GetService<IHasNamedResult>().Name);
             Assert.AreEqual(scope, saved.Provider.GetService<IHasNamedResult>().Scope);
+
+            var loaded = RecordSet.Load(saved.Header, scope, name);
+
+            AssertEx.AreEqual(saved, loaded);
           }
-
-          var loaded = RecordSet.Load(saved.Header, scope, name);
-
-          AssertEx.AreEqual(saved, loaded);
           t.Complete();
         }
       }

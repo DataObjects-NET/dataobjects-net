@@ -80,7 +80,7 @@ namespace Xtensive.Storage.Rse.Providers
       foreach (Provider source in Sources) {
         var ep = source as ExecutableProvider;
         if (ep != null)
-          ep.OnBeforeEnumerate(context);
+          ep.OnAfterEnumerate(context);
       }
     }
 
