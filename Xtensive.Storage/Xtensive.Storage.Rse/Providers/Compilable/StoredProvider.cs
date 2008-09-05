@@ -1,8 +1,8 @@
 // Copyright (C) 2008 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
-// Created by: Elena Vakhtina
-// Created:    2008.08.25
+// Created by: Dmitri Maximov
+// Created:    2008.09.05
 
 using System;
 using Xtensive.Core;
@@ -11,11 +11,14 @@ using Xtensive.Core.Internals.DocTemplates;
 namespace Xtensive.Storage.Rse.Providers.Compilable
 {
   /// <summary>
-  /// Saves its <see cref="UnaryProvider.Source"/> under specified
-  /// <see cref="Name"/>.
+  /// Provides access to some previously stored named <see cref="RecordSet"/> 
+  /// or stores the specified <see cref="Source"/> with the specified <see cref="Name"/>.
   /// </summary>
-  public class SaveProvider : CompilableProvider
+  [Serializable]
+  public class StoredProvider : CompilableProvider
   {
+    private readonly RecordSetHeader header;
+
     /// <summary>
     /// Gets the scope of saved data.
     /// </summary>
@@ -34,33 +37,52 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <inheritdoc/>
     protected override RecordSetHeader BuildHeader()
     {
-      return Source.Header;
+      return header;
     }
 
 
     // Constructors
 
     /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="header">The <see cref="Provider.Header"/> property value.</param>
+    /// <param name="scope">The <see cref="Scope"/> property value.</param>
+    /// <param name="name">The <see cref="Name"/> property value.</param>
+    public StoredProvider(RecordSetHeader header, TemporaryDataScope scope, string name)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(header, "header");
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
+      this.header = header;
+      Scope = scope;
+      Name = name;
+    }
+
+    /// <summary>
     ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="source">The <see cref="Source"/> property value.</param>
-    /// <param name="scope">The <see cref="Scope{TContext}"/> property value.</param>
+    /// <param name="scope">The <see cref="Scope"/> property value.</param>
     /// <param name="name">The <see cref="Name"/> property value.</param>
-    public SaveProvider(Provider source, TemporaryDataScope scope, string name)
+    public StoredProvider(Provider source, TemporaryDataScope scope, string name)
       : base(source)
     {
+      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
       Scope = scope;
       Name = name;
       Source = source;
+      header = source.Header;
     }
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="source">The <see cref="Source"/> property value.</param>
-    public SaveProvider(Provider source)
+    public StoredProvider(Provider source)
       : this(source, TemporaryDataScope.Enumeration, Guid.NewGuid().ToString())
     {
     }
+
   }
 }

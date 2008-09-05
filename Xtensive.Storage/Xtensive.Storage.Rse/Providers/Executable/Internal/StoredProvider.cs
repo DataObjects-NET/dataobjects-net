@@ -7,26 +7,21 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Rse.Providers.Compilable;
-using Xtensive.Core.Helpers;
 
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
   [Serializable]
-  internal class SaveProvider : UnaryExecutableProvider<Compilable.SaveProvider>,
+  internal class StoredProvider : UnaryExecutableProvider<Compilable.StoredProvider>,
     IHasNamedResult
   {
+    private readonly NamedValueCollection namedValues;
+
     #region Cached properties
 
-    private const string CachedNameName = "CachedName";
     private const string CachedResultName = "CachedResult";
-
-    private string CachedName
-    {
-      get { return GetCachedValue<string>(EnumerationContext.Current, CachedNameName); }
-      set { SetCachedValue(EnumerationContext.Current, CachedNameName, value); }
-    }
 
     private IEnumerable<Tuple> CachedResult
     {
@@ -36,34 +31,35 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 
     #endregion
 
-    public TemporaryDataScope Scope {
+    /// <inheritdoc/>
+    public TemporaryDataScope Scope
+    {
       get { return Origin.Scope; }
     }
 
-    public string Name {
-      get {
-        var name = Origin.Name;
-        return name.IsNullOrEmpty() ? CachedName : name;
-      }
+    /// <inheritdoc/>
+    public string Name
+    {
+      get { return Origin.Name; }
     }
 
     protected internal override void OnBeforeEnumerate(EnumerationContext context)
     {
       base.OnBeforeEnumerate(context);
-      string name = Origin.Name;
-      if (name.IsNullOrEmpty())
-        name = GenerateTemporaryName();
-      CachedName = name;
+      List<Tuple> result;
+      if (Source!=null) {
+        result = Source.ToList();
+        namedValues.Set(Name, result.Count!=0 ? result : null);
+      }
+      else
+        result = (List<Tuple>) namedValues.Get(Name);
+      CachedResult = result ?? new List<Tuple>();
     }
-    
+
     protected internal override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
-      var list = Source.ToList();
-      if (Scope==TemporaryDataScope.Global)
-        GlobalTemporaryData.Current.Set(Name, list.Count!=0 ? list : null);
-      else
-        TransactionTemporaryData.Current.Set(Name, list.Count!=0 ? list : null);
-      foreach (var tuple in list)
+      var result = CachedResult;
+      foreach (var tuple in result)
         yield return tuple;
     }
 
@@ -74,22 +70,22 @@ namespace Xtensive.Storage.Rse.Providers.Executable
       base.OnAfterEnumerate(context);
     }
 
-    #region Private \ internal methods
-
-    private static string GenerateTemporaryName()
-    {
-      return Guid.NewGuid().ToString();
-    }
-
-    #endregion
-
 
     // Constructors
 
-    public SaveProvider(Compilable.SaveProvider origin, ExecutableProvider source)
+    public StoredProvider(Compilable.StoredProvider origin, ExecutableProvider source)
       : base(origin, source)
     {
       AddService<IHasNamedResult>();
+      if (Scope==TemporaryDataScope.Global)
+        namedValues = GlobalTemporaryData.Current;
+      else
+        namedValues = TransactionTemporaryData.Current;
+    }
+
+    public StoredProvider(Compilable.StoredProvider origin)
+      : this(origin, null)
+    {
     }
   }
 }

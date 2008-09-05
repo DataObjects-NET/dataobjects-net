@@ -24,8 +24,7 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <inheritdoc/>
     public override ExecutableProvider ToCompatible(ExecutableProvider provider)
     {
-      return new SaveProvider(new Providers.Compilable.SaveProvider(provider.Origin), provider);
-      // return new RawProvider(new Providers.Compilable.RawProvider(provider.Header, provider.ToArray()));
+      return new StoredProvider(new Providers.Compilable.StoredProvider(provider.Origin), provider);
     }
 
     /// <summary>

@@ -4,11 +4,9 @@
 // Created by: Alexey Kochetov
 // Created:    2008.07.11
 
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Core.Tuples;
-using Xtensive.Sql.Dom;
 using Xtensive.Storage.Rse.Providers;
 
 namespace Xtensive.Storage.Providers.Sql
@@ -16,12 +14,15 @@ namespace Xtensive.Storage.Providers.Sql
   internal class SqlProvider : ExecutableProvider
   {
     protected readonly HandlerAccessor handlers;
-    protected readonly SqlQueryRequest request;
+    protected SqlQueryRequest request;
 
     public SqlQueryRequest Request
     {
       [DebuggerStepThrough]
       get { return request; }
+
+      [DebuggerStepThrough]
+      set { request = value; }
     }
 
     protected override IEnumerable<Tuple> OnEnumerate(Rse.Providers.EnumerationContext context)
@@ -43,8 +44,6 @@ namespace Xtensive.Storage.Providers.Sql
     {
       this.request = request;
       this.handlers = handlers;
-      if (request == null)
-        return;
       foreach (ExecutableProvider source in sources) {
         SqlProvider sqlProvider = source as SqlProvider;
         if (sqlProvider!=null && sqlProvider.Request != null)

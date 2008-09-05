@@ -9,19 +9,20 @@ using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Rse.Compilation
 {
-  internal sealed class SaveProviderCompiler : TypeCompiler<SaveProvider>
+  internal sealed class StoredProviderCompiler : TypeCompiler<StoredProvider>
   {
-    protected override ExecutableProvider Compile(SaveProvider provider)
+    protected override ExecutableProvider Compile(StoredProvider provider)
     {
-      return new Providers.Executable.SaveProvider(
-        provider,
-        provider.Source.Compile());
+      ExecutableProvider ex = null;
+      if (provider.Source != null)
+        ex = provider.Source.Compile();
+      return new Providers.Executable.StoredProvider(provider, ex);
     }
 
 
     // Constructor
 
-    public SaveProviderCompiler(Compiler compiler)
+    public StoredProviderCompiler(Compiler compiler)
       : base(compiler)
     {
     }

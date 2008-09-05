@@ -4,7 +4,6 @@
 // Created by: Alexey Kochetov
 // Created:    2008.07.11
 
-using System;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
@@ -25,7 +24,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
     /// <inheritdoc/>
     public override ExecutableProvider ToCompatible(ExecutableProvider provider)
     {
-      return new LoadProvider(new SaveProvider(provider)).Compile();
+      return new StoredProvider(provider).Compile();
     }
 
 
