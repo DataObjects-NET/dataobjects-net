@@ -6,7 +6,6 @@
 
 using System.Reflection;
 using NUnit.Framework;
-using Xtensive.Integrity.Transactions;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Storage.StructureModel;
@@ -22,18 +21,10 @@ namespace Xtensive.Storage.Tests.Storage.StructureModel
   public class Point : Structure
   {
     [Field]
-    public int X
-    {
-      get { return GetValue<int>("X"); }
-      set { SetValue("X", value); }
-    }
+    public int X { get; set; }
 
     [Field]
-    public int Y
-    {
-      get { return GetValue<int>("Y"); }
-      set { SetValue("Y", value); }
-    }
+    public int Y { get; set; }
 
     public Point()
     {
@@ -46,25 +37,17 @@ namespace Xtensive.Storage.Tests.Storage.StructureModel
     }
   }
 
-  [HierarchyRoot(typeof (Generator), "ID")]
-  public class  Ray : Entity
+  [HierarchyRoot("ID")]
+  public class Ray : Entity
   {
     [Field]
     public int ID { get; set; }
 
     [Field]
-    public Point Vertex
-    {
-      get { return GetValue<Point>("Vertex"); }
-      set { SetValue("Vertex", value); }
-    }
+    public Point Vertex { get; set; }
 
     [Field]
-    public Direction Direction
-    {
-      get { return GetValue<Direction>("Direction"); }
-      set { SetValue("Direction", value); }
-    }
+    public Direction Direction { get; set; }
 
     public Ray()
     {
@@ -115,37 +98,39 @@ namespace Xtensive.Storage.Tests.Storage
     public void RayTest()
     {
       using (Domain.OpenSession()) {
-          // Creating Ray from Point. Values should be copied.
-          Point p1 = new Point(1, 2);
-          Ray ray1 = new Ray(p1);
-          Assert.AreEqual(1, ray1.Vertex.X);
-          Assert.AreEqual(2, ray1.Vertex.Y);
+        // Creating new Ray entity from Point. Values should be copied from "p".
+        Point p1 = new Point(1, 2);
+        Ray ray1 = new Ray(p1);
+        Assert.AreEqual(1, ray1.Vertex.X);
+        Assert.AreEqual(2, ray1.Vertex.Y);
 
-          // Updating values in both Ray & Point. Values should differ.
-          ray1.Vertex.X = 10;
-          Assert.AreEqual(10, ray1.Vertex.X);
-          p1.X = 22;
-          Assert.AreEqual(22, p1.X);
-          Assert.AreEqual(10, ray1.Vertex.X);
+        // Updating values in both Ray & Point. Values should differ.
+        ray1.Vertex.X = 10;
+        Assert.AreEqual(10, ray1.Vertex.X);
+        p1.X = 22;
+        Assert.AreEqual(22, p1.X);
+        Assert.AreEqual(10, ray1.Vertex.X);
 
-          // Getting reference to Ray.Vertex. Values should be equal.
-          Point p2 = ray1.Vertex;
-          Assert.AreEqual(10, p2.X);
-          Assert.AreEqual(2, p2.Y);
-          p2.X = 15;
-          Assert.AreEqual(15, ray1.Vertex.X);
+        // Getting reference to ray1.Vertex. Values should be equal.
+        Point p2 = ray1.Vertex;
+        Assert.AreEqual(10, p2.X);
+        Assert.AreEqual(2, p2.Y);
+        p2.X = 15;
+        Assert.AreEqual(15, ray1.Vertex.X);
 
-          // Copying structure from one ray to another. Values should be copied.
-          Ray ray2 = new Ray();
-          ray2.Vertex = ray1.Vertex;
-          ray2.Vertex.X = 100;
-          Assert.AreEqual(100, ray2.Vertex.X);
-          Assert.AreEqual(15, ray1.Vertex.X);
+        // Copying Vertex from one ray to another. Values will be be copied.
+        Ray ray2 = new Ray();
+        ray2.Vertex = ray1.Vertex;
 
-          // Checking reference equality
-          Point p3 = ray1.Vertex;
-          Point p4 = ray1.Vertex;
-          Assert.AreSame(p3, p4);
+        // Assigning new value to ray2.Vertex.X. ray1.Vertex.X will be unchanged.
+        ray2.Vertex.X = 100;
+        Assert.AreEqual(100, ray2.Vertex.X);
+        Assert.AreEqual(15, ray1.Vertex.X);
+
+        // Checking reference equality
+        Point p3 = ray1.Vertex;
+        Point p4 = ray1.Vertex;
+        Assert.AreSame(p3, p4);
       }
     }
   }

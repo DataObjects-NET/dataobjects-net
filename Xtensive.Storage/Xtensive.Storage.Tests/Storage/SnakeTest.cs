@@ -48,7 +48,7 @@ namespace Xtensive.Storage.Tests.Storage.SnakesModel
 
   [DebuggerDisplay("Name = '{Name}'")]
   [Index("Name")]
-  [HierarchyRoot(typeof (Generator), "ID")]
+  [HierarchyRoot("ID")]
   public class Creature : Entity,
     ICreature
   {
@@ -114,7 +114,6 @@ namespace Xtensive.Storage.Tests.Storage
 
           string name = "TestName";
           var scope = TemporaryDataScope.Global;
-          using (EnumerationScope.Open()) {
             RecordSet saved = rsSnakePrimary.
               Take(10).
               Take(5).
@@ -122,13 +121,14 @@ namespace Xtensive.Storage.Tests.Storage
 
             saved.Count();
 
+          using (EnumerationScope.Open()) {
             Assert.AreEqual(name, saved.Provider.GetService<IHasNamedResult>().Name);
             Assert.AreEqual(scope, saved.Provider.GetService<IHasNamedResult>().Scope);
+          }
 
             var loaded = RecordSet.Load(saved.Header, scope, name);
 
             AssertEx.AreEqual(saved, loaded);
-          }
           t.Complete();
         }
       }
