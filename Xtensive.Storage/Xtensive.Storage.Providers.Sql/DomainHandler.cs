@@ -143,7 +143,6 @@ namespace Xtensive.Storage.Providers.Sql
             Index index = table.CreateIndex(secondaryIndex.Name);
             index.IsUnique = secondaryIndex.IsUnique;
             index.FillFactor = (byte) (secondaryIndex.FillFactor * 100);
-            index.Filegroup = "\"default\"";
             foreach (KeyValuePair<ColumnInfo,Direction> keyColumn in secondaryIndex.KeyColumns) {
               string primaryIndexColumnName = GetPrimaryIndexColumnName(primaryIndex, keyColumn.Key, secondaryIndex);
               index.CreateIndexColumn(table.TableColumns.First(tableColumn => tableColumn.Name==primaryIndexColumnName), keyColumn.Value == Direction.Positive);
