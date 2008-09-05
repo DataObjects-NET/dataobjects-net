@@ -98,13 +98,14 @@ namespace Xtensive.Storage.Tests.Model
     protected override DomainConfiguration BuildConfiguration()
     {
       DomainConfiguration config = base.BuildConfiguration();
-      config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.Model.Associations");
+      config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.Model.Association");
       return config;
     }
 
     [Test]
     public void MainTest()
     {
+      Domain.Model.Dump();
     }
   }
 }
