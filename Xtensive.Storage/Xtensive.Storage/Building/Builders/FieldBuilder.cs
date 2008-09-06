@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Building.Definitions;
+using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Core.Reflection;
 using FieldInfo = Xtensive.Storage.Model.FieldInfo;
@@ -122,9 +123,11 @@ namespace Xtensive.Storage.Building.Builders
 
       if (field.IsEntity) {
         TypeBuilder.BuildType(field.ValueType);
-        BuildReferenceField(field); 
+        BuildReferenceField(field);
 
-        AssociationBuilder.BuildAssociation(fieldDef, field);
+        Type baseType = field.ReflectedType.UnderlyingType.BaseType;
+        if (!baseType.IsGenericType || baseType.GetGenericTypeDefinition()!=typeof (EntitySetReference<,>))
+          AssociationBuilder.BuildAssociation(fieldDef, field);
 
         TypeDef typeDef = BuildingContext.Current.Definition.Types[field.DeclaringType.UnderlyingType];
         typeDef.Indexes.Add(IndexBuilder.DefineForeignKey(typeDef, fieldDef));

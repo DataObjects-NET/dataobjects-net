@@ -4,11 +4,15 @@
 // Created by: Dmitri Maximov
 // Created:    2008.07.03
 
+using System;
 using System.Linq;
 using Xtensive.Core;
+using Xtensive.Core.Reflection;
 using Xtensive.Storage.Building.Definitions;
+using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Core.Helpers;
+using Xtensive.Storage.Providers;
 
 namespace Xtensive.Storage.Building.Builders
 {
@@ -19,8 +23,9 @@ namespace Xtensive.Storage.Building.Builders
       BuildingContext context = BuildingContext.Current;
       TypeInfo referencedType = context.Model.Types[field.ValueType];
       Multiplicity m = field.IsEntitySet ? Multiplicity.ManyToZero : Multiplicity.OneToZero;
-      AssociationInfo association = new AssociationInfo(field, referencedType, m, fieldDef.OnDelete);
-      association.Name = context.NameBuilder.Build(association);
+      var association = new AssociationInfo(field, referencedType, m, fieldDef.OnDelete);
+      association.Name = context.NameBuilder.Build(association, true);
+      association.EntityType = EntitySetHelper.BuildReferenceType(association);
       context.Model.Associations.Add(association);
       
       if (!fieldDef.PairTo.IsNullOrEmpty())
@@ -30,8 +35,9 @@ namespace Xtensive.Storage.Building.Builders
     public static void BuildAssociation(AssociationInfo origin, FieldInfo field)
     {
       BuildingContext context = BuildingContext.Current;
-      AssociationInfo association = new AssociationInfo(field, origin.ReferencedType, origin.Multiplicity, origin.OnDelete);
-      association.Name = context.NameBuilder.Build(association);
+      var association = new AssociationInfo(field, origin.ReferencedType, origin.Multiplicity, origin.OnDelete);
+      association.Name = context.NameBuilder.Build(association, true);
+      association.EntityType = EntitySetHelper.BuildReferenceType(association);
       context.Model.Associations.Add(association);
 
       Pair<AssociationInfo, string> pairTo = context.PairedAssociations.Where(p => p.First==origin).FirstOrDefault();
@@ -83,5 +89,7 @@ namespace Xtensive.Storage.Building.Builders
         }
       }
     }
+
+    
   }
 }

@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Storage.Building.Definitions;
+using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 
@@ -143,6 +144,25 @@ namespace Xtensive.Storage.Building.Builders
 
         foreach (AssociationInfo ai in context.DiscardedAssociations)
           context.Model.Associations.Remove(ai);
+        context.DiscardedAssociations.Clear();
+
+        foreach (AssociationInfo association in context.Model.Associations) {
+          if (association.EntityType!=null) {
+
+            TypeDef typeDef = TypeBuilder.DefineType(association.EntityType);
+            FieldDef idFieldDef = new FieldDef(typeof(int));
+            idFieldDef.Name = "Id";
+            typeDef.Fields.Add(idFieldDef);
+            FieldDef leftFieldDef = new FieldDef(association.ReferencingType.UnderlyingType);
+            leftFieldDef.Name = "Left";
+            typeDef.Fields.Add(leftFieldDef);
+            FieldDef rightFieldDef = new FieldDef(association.ReferencedType.UnderlyingType);
+            rightFieldDef.Name = "Right";
+            typeDef.Fields.Add(rightFieldDef);
+            context.Definition.Types.Add(typeDef); 
+            TypeBuilder.BuildType(typeDef);
+          }
+        }
       }
     }
   }

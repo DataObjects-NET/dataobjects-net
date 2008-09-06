@@ -8,16 +8,17 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage
 {
-  public class EntitySet<T>: SessionBound, 
+  public abstract class EntitySet<T>: SessionBound, 
     ISet<T>,
     IFieldHandler
     where T: Entity
   {
-    private HashSet<Key> set = new HashSet<Key>();
 
     /// <inheritdoc/>
     public Persistent Owner { get; internal set; }
@@ -128,6 +129,17 @@ namespace Xtensive.Storage
     public bool IsReadOnly
     {
       get { throw new NotImplementedException(); }
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="owner">Persistent this entity set belongs to.</param>
+    /// <param name="field">Field corresponds to this entity set.</param>
+    public EntitySet(Persistent owner, FieldInfo field)
+    {
+      Owner = owner;
+      Field = field;
     }
   }
 }

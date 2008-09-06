@@ -57,7 +57,7 @@ namespace Xtensive.Storage.Providers
       if (!type.MappingName.IsNullOrEmpty())
         result = type.MappingName;
       else {
-        string underlyingName = type.UnderlyingType.FullName.Substring(type.UnderlyingType.Namespace.Length + 1, type.UnderlyingType.FullName.Length - type.UnderlyingType.Namespace.Length - 1);
+        string underlyingName = type.UnderlyingType.Namespace.IsNullOrEmpty() ? type.UnderlyingType.FullName : type.UnderlyingType.FullName.Substring(type.UnderlyingType.Namespace.Length + 1, type.UnderlyingType.FullName.Length - type.UnderlyingType.Namespace.Length - 1);
         result = type.Name.IsNullOrEmpty() ? underlyingName : type.Name;
         if (NamingConvention.NamespacePolicy == NamespacePolicy.Synonymize) {
           string namespacePrefix;
@@ -246,9 +246,12 @@ namespace Xtensive.Storage.Providers
     /// Builds the name for the <see cref="AssociationInfo"/>.
     /// </summary>
     /// <param name="target">The <see cref="AssociationInfo"/> instance to build name for.</param>
+    /// <param name="isReferenceName">If <see langword="true"/> name will be used for EntitySet entities otherwise name will be used for association name.</param>
     /// <returns>The built name.</returns>
-    public virtual string Build(AssociationInfo target)
+    public virtual string Build(AssociationInfo target, bool isReferenceName)
     {
+      if (isReferenceName)
+        return "EntitySetReference_" + target.ReferencingType.Name + "_" + target.ReferencingField.Name + "_" + target.ReferencedType.Name;
       return target.ReferencingType.Name + "." + target.ReferencingField.Name + "_" + target.ReferencedType.Name;
     }
 

@@ -15,6 +15,7 @@ namespace Xtensive.Storage.Model
   {
     private Multiplicity multiplicity;
     private AssociationInfo pairTo;
+    private Type entityType;
 
     /// <summary>
     /// Gets the referencing type.
@@ -33,6 +34,19 @@ namespace Xtensive.Storage.Model
     /// Gets the referenced type.
     /// </summary>
     public TypeInfo ReferencedType { get; private set; }
+
+    /// <summary>
+    /// Gets the type of association entity.
+    /// </summary>
+    public Type EntityType
+    {
+      get { return entityType; }
+      set
+      {
+        this.EnsureNotLocked();
+        entityType = value;
+      }
+    }
 
     /// <summary>
     /// Gets the association multiplicity.

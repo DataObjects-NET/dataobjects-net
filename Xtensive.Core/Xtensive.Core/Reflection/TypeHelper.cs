@@ -327,11 +327,24 @@ namespace Xtensive.Core.Reflection
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(namePrefix, "namePrefix");
       ArgumentValidator.EnsureArgumentNotNull(inheritFrom, "inheritFrom");
 
-      EnsureEmitInitialized();
 
       int n = Interlocked.Increment(ref createDummyTypeNumber);
       string typeName = string.Format("{0}.Internal.{1}{2}", typeof (TypeHelper).Namespace, namePrefix, n);
 
+      return CreateInheritedDummyType(typeName, inheritFrom);
+    }
+
+    /// <summary>
+    /// Creates new dummy type inherited from another type.
+    /// </summary>
+    /// <param name="typeName">Type name.</param>
+    /// <param name="inheritFrom">The type to inherit the dummy type from.</param>
+    /// <returns>New type.</returns>
+    public static Type CreateInheritedDummyType(string typeName, Type inheritFrom)
+    {
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(typeName, "typeName");
+      ArgumentValidator.EnsureArgumentNotNull(inheritFrom, "inheritFrom");
+      EnsureEmitInitialized();
       lock (_lock) {
         TypeBuilder typeBuilder = moduleBuilder.DefineType(
           typeName,

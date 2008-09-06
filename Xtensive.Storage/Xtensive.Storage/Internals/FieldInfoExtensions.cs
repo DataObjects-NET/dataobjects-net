@@ -18,7 +18,8 @@ namespace Xtensive.Storage.Internals
         return StructureFieldAccessor<T>.Instance;
       if (field.IsEnum)
         return EnumFieldAccessor<T>.Instance;
-
+      if (field.IsEntitySet)
+        return EntitySetFieldAccessor<T>.Instance;
       return DefaultFieldAccessor<T>.Instance;
     }
   }

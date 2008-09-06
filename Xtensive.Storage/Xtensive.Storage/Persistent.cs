@@ -10,9 +10,6 @@ using Xtensive.Core;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.Tuples;
 using Xtensive.Integrity.Atomicity;
-using Xtensive.Integrity.Transactions;
-using Xtensive.Integrity.Validation;
-using Xtensive.Integrity.Validation.Interfaces;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 
@@ -62,8 +59,7 @@ namespace Xtensive.Storage
       // TODO: Improve (use DelegateHelper)
       if (field.UnderlyingProperty!=null)
         return (T) field.UnderlyingProperty.GetValue(this, null);
-      else
-        return GetValue<T>(name);
+      return GetValue<T>(name);
     }
 
     [Infrastructure]
@@ -177,14 +173,6 @@ namespace Xtensive.Storage
     /// </summary>
     protected Persistent()
     {      
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Persistent"/> class.
-    /// </summary>
-    protected Persistent(EntityData data)
-      : this()
-    {
     }
   }
 }

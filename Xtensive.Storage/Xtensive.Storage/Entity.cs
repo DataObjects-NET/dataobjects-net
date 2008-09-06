@@ -322,7 +322,6 @@ namespace Xtensive.Storage
     /// </summary>
     /// <param name="data">The initial data of this instance fetched from storage.</param>
     protected Entity(EntityData data)
-      : base(data)
     {
       this.data = data;
 
