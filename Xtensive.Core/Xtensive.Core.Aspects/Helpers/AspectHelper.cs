@@ -411,6 +411,8 @@ namespace Xtensive.Core.Aspects.Helpers
     public static bool ValidateContextBoundMethod<TContext>(Attribute aspect, MethodBase method)
       where TContext : class, IContext
     {
+      if (IsInfrastructureMethod(method))
+        return false;
       foreach (var attribute in method.GetAttributes<SuppressActivationAttribute>(
         AttributeSearchOptions.Default))
         if (attribute.ContextType == typeof(TContext))
@@ -481,7 +483,7 @@ namespace Xtensive.Core.Aspects.Helpers
     /// <param name="aspect">The aspect.</param>
     /// <param name="method">The method to validate.</param>
     /// <returns>
-    /// 	<see langword="true"/> if method is valid, otherwise <see langword="false"/>.
+    /// <see langword="true"/> if method is valid, otherwise <see langword="false"/>.
     /// </returns>
     public static bool ValidateNotInfrastructure(Attribute aspect, MethodBase method)
     {
@@ -497,12 +499,11 @@ namespace Xtensive.Core.Aspects.Helpers
     /// </summary>
     /// <param name="method">The method to check.</param>
     /// <returns>
-    /// 	<see langword="true"/> if the specified method is infrastructure method; otherwise, <see langword="false"/>.
+    /// <see langword="true"/> if the specified method is infrastructure method; otherwise, <see langword="false"/>.
     /// </returns>
     public static bool IsInfrastructureMethod(MethodBase method)
     {
-      return method.GetAttribute<InfrastructureAttribute>(
-        AttributeSearchOptions.InheritFromAllBase | AttributeSearchOptions.InheritFromPropertyOrEvent)!=null;
+      return method.GetAttribute<InfrastructureAttribute>(AttributeSearchOptions.InheritAll)!=null;
     }
   }
 }

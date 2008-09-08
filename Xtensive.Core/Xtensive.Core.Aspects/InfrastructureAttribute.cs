@@ -9,11 +9,11 @@ using System;
 namespace Xtensive.Core.Aspects
 {
   /// <summary>
-  /// Marks a method or property of as infrastructure method.
-  /// No aspects will be applied to it.
+  /// Marks a method or property as infrastructure method or property.
+  /// No any aspects will be applied to it by default.
   /// </summary>
   [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property, 
-    AllowMultiple = false, Inherited = true)]
+    AllowMultiple = false, Inherited = false)]
   [Serializable]
   public sealed class InfrastructureAttribute : Attribute
   {

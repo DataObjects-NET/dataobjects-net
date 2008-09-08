@@ -155,7 +155,7 @@ namespace Xtensive.Core.Reflection
       var type = method.DeclaringType.UnderlyingSystemType;
       string name = method.Name;
       string propertyName = TryCutMethodNamePrefix(name, WellKnown.GetterPrefix);
-      var bindingFlags = method.GetBindingFlags();
+      var bindingFlags = method.GetBindingFlags() | BindingFlags.Public;
       if (method.IsExplicitImplementation())
         bindingFlags |= BindingFlags.Public;
       if (propertyName!=name)
@@ -226,7 +226,7 @@ namespace Xtensive.Core.Reflection
       var type = method.DeclaringType.UnderlyingSystemType;
       string name = method.Name;
       string eventName = TryCutMethodNamePrefix(name, WellKnown.AddEventHandlerPrefix);
-      var bindingFlags = method.GetBindingFlags();
+      var bindingFlags = method.GetBindingFlags() | BindingFlags.Public;
       if (method.IsExplicitImplementation())
         bindingFlags |= BindingFlags.Public;
       if (eventName!=name)

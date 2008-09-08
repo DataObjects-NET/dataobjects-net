@@ -8,10 +8,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text.RegularExpressions;
 using NUnit.Framework;
 using Xtensive.Core.Reflection;
-using Xtensive.Core.Testing;
 using System.Linq;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
@@ -69,6 +67,9 @@ namespace Xtensive.Core.Tests.Reflection
 
       [Id("Base.NewProperty")]
       int NewProperty { get; set; }
+
+      [Id("Base.StrangeProperty")]
+      public int StrangeProperty { get; internal set; }
 
       [Id("Base.Method(object)")]
       protected virtual void Method(object o)
@@ -149,6 +150,11 @@ namespace Xtensive.Core.Tests.Reflection
       Type b = typeof (Base);
       Type d = typeof (Derived);
       Type l = typeof (Last);
+
+      ValidateIds(() => b.GetProperty("StrangeProperty", BindingFlags.Instance | BindingFlags.Public)
+        .GetSetMethod(true)
+        .GetAttributes<IdAttribute>(AttributeSearchOptions.InheritAll),
+        "Base.StrangeProperty");
 
       ValidateIds(() => d.GetProperty("NewProperty", BindingFlags.Instance | BindingFlags.NonPublic)
         .GetAttributes<IdAttribute>(AttributeSearchOptions.InheritAll),
