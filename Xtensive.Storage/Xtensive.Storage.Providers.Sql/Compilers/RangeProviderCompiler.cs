@@ -57,7 +57,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
             break;
           case EntireValueType.PositiveInfinity:
             request.ParameterBindings.Add(p, () => rangeProvider.CurrentRange.EndPoints.First.GetValue(i));
-            result = SqlFactory.Constant("1") == SqlFactory.Constant("0");
+            result = SqlFactory.Native("1") == SqlFactory.Native("0");
             break;
           case EntireValueType.NegativeInfinity:
             break;
@@ -97,7 +97,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
             break;
           case EntireValueType.NegativeInfinity:
             request.ParameterBindings.Add(p, () => rangeProvider.CurrentRange.EndPoints.Second.GetValue(i));
-            result = SqlFactory.Constant("1") == SqlFactory.Constant("0");
+            result = SqlFactory.Native("1") == SqlFactory.Native("0");
             break;
           }
           if (pp!=null)

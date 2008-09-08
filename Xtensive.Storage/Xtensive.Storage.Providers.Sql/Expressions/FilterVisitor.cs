@@ -183,7 +183,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     private SqlExpression VisitConstant(ConstantExpression expression)
     {
       var constant = expression.Value != null ? 
-        SqlFactory.Constant(expression.Value.ToString()) : 
+        SqlFactory.Literal(expression.Value.ToString()) : 
         (SqlExpression)SqlFactory.Null;
       return constant;
     }

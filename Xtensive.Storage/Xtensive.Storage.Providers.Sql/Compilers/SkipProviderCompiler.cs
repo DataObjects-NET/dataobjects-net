@@ -2,34 +2,32 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kochetov
-// Created:    2008.08.11
+// Created:    2008.09.08
 
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
-using SqlFactory = Xtensive.Sql.Dom.Sql;
 
 namespace Xtensive.Storage.Providers.Sql.Compilers
 {
-  internal sealed class TakeProviderCompiler : TypeCompiler<TakeProvider>
+  internal sealed class SkipProviderCompiler : TypeCompiler<SkipProvider>
   {
-    protected override ExecutableProvider Compile(TakeProvider provider)
+    protected override ExecutableProvider Compile(SkipProvider provider)
     {
       var source = provider.Source.Compile() as SqlProvider;
       if (source == null)
         return null;
 
       var query = (SqlSelect)source.Request.Statement.Clone();
-      if (query.Top==0 || query.Top > provider.CompiledCount())
-        query.Top = provider.CompiledCount();
+      query.Offset += provider.CompiledCount();
       var request = new SqlQueryRequest(query, provider.Header.TupleDescriptor, source.Request.ParameterBindings);
       return new SqlProvider(provider, request, Handlers, source);
     }
 
     // Constructor
 
-    public TakeProviderCompiler(Rse.Compilation.Compiler compiler)
+    public SkipProviderCompiler(Rse.Compilation.Compiler compiler)
       : base(compiler)
     {
     }

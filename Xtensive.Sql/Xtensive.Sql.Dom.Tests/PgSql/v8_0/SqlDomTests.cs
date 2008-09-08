@@ -204,7 +204,7 @@ namespace Xtensive.Sql.Dom.Tests.PgSql.v8_0
             viewdef.Columns.Add(tc);
           }
           string cmdText = Driver.Compile(viewdef).CommandText;
-          sch1.CreateView("T1View", Sql.Constant(cmdText));
+          sch1.CreateView("T1View", Sql.Native(cmdText));
         }
 
         //t2
@@ -921,7 +921,7 @@ namespace Xtensive.Sql.Dom.Tests.PgSql.v8_0
         select.Columns.Add(cRef["AdditionalContactInfo"]);
 
         v = MyCatalog.Schemas["HumanResources"].CreateView("vEmployee",
-          Sql.Constant(mDriver.Compile(select).CommandText));
+          Sql.Native(mDriver.Compile(select).CommandText));
       }
       /**/
 

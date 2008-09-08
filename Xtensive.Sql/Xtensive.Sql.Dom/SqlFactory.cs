@@ -20,7 +20,7 @@ namespace Xtensive.Sql.Dom
     public static readonly SqlNull Null = new SqlNull();
     public static readonly SqlBreak Break = new SqlBreak();
     public static readonly SqlContinue Continue = new SqlContinue();
-    public static readonly SqlNative Asterisk = Constant("*");
+    public static readonly SqlNative Asterisk = Native("*");
 
     #region Aggregates
 
@@ -1384,7 +1384,7 @@ namespace Xtensive.Sql.Dom
 
     #region Misc
 
-    public static SqlNative Constant(string value)
+    public static SqlNative Native(string value)
     {
       ArgumentValidator.EnsureArgumentNotNull(value, "value");
       return new SqlNative(value);
@@ -1827,7 +1827,7 @@ namespace Xtensive.Sql.Dom
     //      ArgumentValidator.EnsureArgumentNotNull(operand, "operand");
     //      SqlValidator.VerifyCharacterArgs(operand);
     //      ArgumentValidator.EnsureArgumentNotNull(translation, "translation");
-    //      return new SqlFunctionCall(SqlFunctionType.Translate, operand, Constant(translation.Name));
+    //      return new SqlFunctionCall(SqlFunctionType.Translate, operand, Native(translation.Name));
     //    }
 
     public static SqlCollate Collate(SqlExpression operand, Collation collation)

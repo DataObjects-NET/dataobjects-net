@@ -86,7 +86,7 @@ namespace Xtensive.Sql.Dom.Mssql.v2005
         cmd.Statement = select;
         using (IDataReader reader = cmd.ExecuteReader()) {
           while (reader.Read()) {
-            schema.CreateView((string)reader["VIEW_NAME"], Sql.Constant((string)reader["VIEW_DEFINITION"]));
+            schema.CreateView((string)reader["VIEW_NAME"], Sql.Native((string)reader["VIEW_DEFINITION"]));
           }
         }
       }
@@ -210,7 +210,7 @@ namespace Xtensive.Sql.Dom.Mssql.v2005
 
                 // Default value
                 if (!Convert.IsDBNull(reader["COLUMN_DEFAULT"]))
-                  column.DefaultValue = Sql.Constant(((string)reader["COLUMN_DEFAULT"]).Trim(')', '('));
+                  column.DefaultValue = Sql.Native(((string)reader["COLUMN_DEFAULT"]).Trim(')', '('));
 
                 // Autoincrement
                 if (reader["IS_IDENTITY"] != DBNull.Value && Convert.ToBoolean(reader["IS_IDENTITY"]))
@@ -531,7 +531,7 @@ namespace Xtensive.Sql.Dom.Mssql.v2005
           cmd.CommandText = selectViewsSQL;
           using (IDataReader reader = cmd.ExecuteReader()) {
             while (reader.Read())
-              cSchema.CreateView((string)reader["VIEW_NAME"], Sql.Constant("view def"));
+              cSchema.CreateView((string)reader["VIEW_NAME"], Sql.Native("view def"));
           }
         }
 

@@ -524,7 +524,7 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
       select.Columns.Add(salesOrderHeader["SalesOrderID"]);
       select.Columns.Add(
         Sql.FunctionCall(
-          "DATEDIFF", Sql.Constant("dd"), salesOrderHeader["ShipDate"], Sql.CurrentDate()),
+          "DATEDIFF", Sql.Native("dd"), salesOrderHeader["ShipDate"], Sql.CurrentDate()),
         "DaysSinceShipped");
       select.Where = Sql.IsNotNull(salesOrderHeader["ShipDate"]);
 
@@ -544,7 +544,7 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
       select.Columns.Add(salesOrderHeader["SalesOrderID"]);
       select.Columns.Add(
         Sql.FunctionCall(
-          "DATEDIFF", Sql.Constant("dd"), salesOrderHeader["ShipDate"], Sql.CurrentDate()),
+          "DATEDIFF", Sql.Native("dd"), salesOrderHeader["ShipDate"], Sql.CurrentDate()),
         "DaysSinceShipped");
       select.Where = Sql.IsNotNull(salesOrderHeader["ShipDate"]);
 

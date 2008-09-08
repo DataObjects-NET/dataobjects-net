@@ -11,7 +11,7 @@ using Xtensive.Storage.Rse.Providers;
 
 namespace Xtensive.Storage.Providers.Sql
 {
-  internal class SqlProvider : ExecutableProvider
+  public class SqlProvider : ExecutableProvider
   {
     protected readonly HandlerAccessor handlers;
     protected SqlQueryRequest request;

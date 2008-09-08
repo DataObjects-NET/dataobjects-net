@@ -384,7 +384,7 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
               }
               else if (relkind=="v") {
                 string def = dr["definition"].ToString();
-                View v = sch.CreateView(relname, Sql.Constant(def), CheckOptions.None);
+                View v = sch.CreateView(relname, Sql.Native(def), CheckOptions.None);
                 views.Add(reloid, v);
               }
               else if (relkind=="S") {
@@ -443,7 +443,7 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
                 bool atthasdef = dr.GetBoolean(dr.GetOrdinal("atthasdef"));
                 if (atthasdef) {
                   string def = dr["adsrc"].ToString();
-                  col.DefaultValue = Sql.Constant(def);
+                  col.DefaultValue = Sql.Native(def);
                 }
                 col.IsNullable = !attnotnull;
 
@@ -570,7 +570,7 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
               if (defaultValue==null)
                 d.DefaultValue = Sql.Null;
               else
-                d.DefaultValue = Sql.Constant(defaultValue);
+                d.DefaultValue = Sql.Native(defaultValue);
               domains.Add(oid, d);
             }
           }
@@ -611,7 +611,7 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
                 if (contype=='c') //check
                 {
                   string consrc = dr["consrc"].ToString();
-                  CheckConstraint c = t.CreateCheckConstraint(conname, Sql.Constant(consrc));
+                  CheckConstraint c = t.CreateCheckConstraint(conname, Sql.Native(consrc));
                   c.IsDeferrable = condeferrable;
                   c.IsInitiallyDeferred = condeferred;
                 }
@@ -667,7 +667,7 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
                 {
                   string consrc = dr["consrc"].ToString();
                   Domain d = domains[contypid];
-                  DomainConstraint c = d.CreateConstraint(conname, Sql.Constant(consrc));
+                  DomainConstraint c = d.CreateConstraint(conname, Sql.Native(consrc));
                   c.IsDeferrable = condeferrable;
                   c.IsInitiallyDeferred = condeferred;
                 }

@@ -37,7 +37,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
       var lastColumnIndex = keyColumns.Count - 1;
       request.ParameterBindings.Add(lastColumnNA, () => !provider.CompiledKey.Invoke().IsAvailable(lastColumnIndex));
       request.ParameterBindings.Add(lastColumn, () => provider.CompiledKey.Invoke().GetValueOrDefault(lastColumnIndex));
-      SqlExpression lastColumnCondition = (SqlFactory.ParameterRef(lastColumnNA) == SqlFactory.Constant("1") | keyColumns[lastColumnIndex]==SqlFactory.ParameterRef(lastColumn));
+      SqlExpression lastColumnCondition = (SqlFactory.ParameterRef(lastColumnNA) == SqlFactory.Literal("1") | keyColumns[lastColumnIndex]==SqlFactory.ParameterRef(lastColumn));
       query.Where &= lastColumnCondition;
 
       return new SqlProvider(provider, request, Handlers, source);

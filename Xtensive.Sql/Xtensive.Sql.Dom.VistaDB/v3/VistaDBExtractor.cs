@@ -46,7 +46,7 @@ namespace Xtensive.Sql.Dom.VistaDB.v3
       for (int i = 0; i < vdbView.Rows.Count; i++) {
         string viewName = vdbView.Rows[i].ItemArray[vdbView.Columns.IndexOf("TABLE_NAME")].ToString();
         string viewDescr = vdbView.Rows[i].ItemArray[vdbView.Columns.IndexOf("TABLE_DESCRIPTION")].ToString();
-        schema.CreateView(viewName, Sql.Constant(viewDescr));
+        schema.CreateView(viewName, Sql.Native(viewDescr));
       }
     }
 
@@ -143,7 +143,7 @@ namespace Xtensive.Sql.Dom.VistaDB.v3
         column.IsNullable = isNull == "true";
         if (!string.IsNullOrEmpty(collation))
           column.Collation = schema.Collations[collation] ?? schema.CreateCollation(collation);
-        column.DefaultValue = Sql.Constant(defValue.Trim(')', '('));
+        column.DefaultValue = Sql.Native(defValue.Trim(')', '('));
       }
 
       // view columns

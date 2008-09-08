@@ -764,7 +764,7 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
 
       SqlDriver mssqlDriver = new MssqlDriver(new MssqlVersionInfo(new Version()));
       v = Catalog.Schemas["HumanResources"].CreateView("vEmployee",
-        Sql.Constant(mssqlDriver.Compile(select).CommandText));
+        Sql.Native(mssqlDriver.Compile(select).CommandText));
 //      bmp.Save(model);
     }
   }
