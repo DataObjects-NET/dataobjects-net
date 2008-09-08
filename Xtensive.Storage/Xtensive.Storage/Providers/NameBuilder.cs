@@ -246,13 +246,10 @@ namespace Xtensive.Storage.Providers
     /// Builds the name for the <see cref="AssociationInfo"/>.
     /// </summary>
     /// <param name="target">The <see cref="AssociationInfo"/> instance to build name for.</param>
-    /// <param name="isReferenceName">If <see langword="true"/> name will be used for EntitySet entities otherwise name will be used for association name.</param>
     /// <returns>The built name.</returns>
-    public virtual string Build(AssociationInfo target, bool isReferenceName)
+    public virtual string Build(AssociationInfo target)
     {
-      if (isReferenceName)
-        return "EntitySetReference_" + target.ReferencingType.Name + "_" + target.ReferencingField.Name + "_" + target.ReferencedType.Name;
-      return target.ReferencingType.Name + "." + target.ReferencingField.Name + "_" + target.ReferencedType.Name;
+      return "Association_" + target.ReferencingType.Name + "_" + target.ReferencingField.Name + "_" + target.ReferencedType.Name;
     }
 
     /// <summary>

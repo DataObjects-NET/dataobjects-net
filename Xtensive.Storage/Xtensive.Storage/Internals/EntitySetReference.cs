@@ -12,14 +12,11 @@ using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Internals
 {
-  [HierarchyRoot(typeof (Generator), "Id")]
+  [HierarchyRoot("Left", "Right")]
   public abstract class EntitySetReference<T1, T2> : Entity
     where T1 : Entity
     where T2 : Entity
   {
-    [Field]
-    public int Id { get; private set; }
-
     [Field]
     public T1 Left { get; set; }
 

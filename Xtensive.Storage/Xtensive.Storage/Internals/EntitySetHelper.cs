@@ -5,32 +5,35 @@
 // Created:    2008.09.06
 
 using System;
-using System.Reflection;
-using System.Reflection.Emit;
-using System.Threading;
-using Xtensive.Core.Collections;
 using Xtensive.Core.Reflection;
 using Xtensive.Storage.Building;
+using Xtensive.Storage.Building.Builders;
+using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Model;
-using TypeAttributes=System.Reflection.TypeAttributes;
 
 namespace Xtensive.Storage.Internals
 {
   internal static class EntitySetHelper
   {
-    private static readonly object @lock = new object();
-    private static AssemblyBuilder assemblyBuilder;
-    private static ModuleBuilder moduleBuilder;
-
     public static Type BuildReferenceType(AssociationInfo association)
     {
       if (association.ReferencingField.IsEntitySet && association.IsMaster) {
         Type baseType = typeof (EntitySetReference<,>).MakeGenericType(association.ReferencingType.UnderlyingType, association.ReferencedType.UnderlyingType);
-        string name = BuildingContext.Current.NameBuilder.Build(association, true);
+        string name = BuildingContext.Current.NameBuilder.Build(association);
         return TypeHelper.CreateInheritedDummyType(name, baseType);
       }
       return null;
     }
 
+    public static void DefineReferenceType(AssociationInfo association)
+    {
+      TypeDef typeDef = TypeBuilder.DefineType(association.EntityType);
+      var leftFieldDef = new FieldDef(association.ReferencingType.UnderlyingType) {Name = "Left"};
+      typeDef.Fields.Add(leftFieldDef);
+      var rightFieldDef = new FieldDef(association.ReferencedType.UnderlyingType) {Name = "Right"};
+      typeDef.Fields.Add(rightFieldDef);
+      BuildingContext.Current.Definition.Types.Add(typeDef);
+      TypeBuilder.BuildType(typeDef);
+    }
   }
 }
