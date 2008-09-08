@@ -16,10 +16,10 @@ namespace Xtensive.Storage.Tests.Storage
   public class Simplest : Entity
   {
     [Field]
-    long Id { get; set; }
+    public long Id { get; set; }
 
     [Field]
-    Simplest Value { get; set; }
+    public Simplest Value { get; set; }
 
     public Simplest(long id, Simplest value)
     {
@@ -43,18 +43,29 @@ namespace Xtensive.Storage.Tests.Storage
     }
 
     [Test]
-    public void InsertTest()
+    public void CombinedTest()
     {
       int c = InsertCount;
       using (var d = CreateDomain()) {
         using (var ss = d.OpenSession()) {
           var s = ss.Session;
+          long sum = 0;
           using (s.OpenTransaction()) {
-            using (new Measurement("Insertion", c))
+            using (new Measurement("Insert", c))
               for (int i = 0; i < c; i++) {
                 var o = new Simplest(i, null);
+                sum += i;
               }
           }
+          using (s.OpenTransaction()) {
+            var rs = d.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordSet();
+            var es = rs.ToEntities<Simplest>();
+            using (new Measurement("Fetch & GetField", c))
+              foreach (var o in es) {
+                sum -= o.Id;
+              }
+          }
+          Assert.AreEqual(0, sum);
         }
       }
     }
