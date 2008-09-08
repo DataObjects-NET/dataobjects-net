@@ -4,8 +4,10 @@
 // Created by: Alexey Kochetov
 // Created:    2008.09.05
 
+using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Providers.Sql.Expressions;
 using Xtensive.Storage.Rse.Providers;
+using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Providers.Sql.Compilers
@@ -14,10 +16,16 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
   {
     protected override ExecutableProvider Compile(FilterProvider provider)
     {
-      return null;
-      FilterVisitor visitor = new FilterVisitor();
-      var expression = visitor.Visit(provider.Predicate);
-      throw new System.NotImplementedException();
+      var source = provider.Source.Compile() as SqlProvider;
+      if (source == null)
+        return null;
+
+      var query = (SqlSelect)source.Request.Statement.Clone();
+      var request = new SqlQueryRequest(query, provider.Header.TupleDescriptor, source.Request.ParameterBindings);
+      var visitor = new FilterVisitor(request);
+      visitor.AppendFilterToRequest(provider.Predicate);
+
+      return new SqlProvider(provider, request, Handlers, source);
     }
 
 
