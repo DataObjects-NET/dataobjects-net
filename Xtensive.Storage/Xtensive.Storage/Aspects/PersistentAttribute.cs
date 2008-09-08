@@ -62,6 +62,23 @@ namespace Xtensive.Storage.Aspects
 //      ProvideAtomicAspects(type, collection);
     }
 
+    private void ProvideSessionBoundAspects(Type type, LaosReflectionAspectCollection collection)
+    {
+      foreach (MethodInfo method in type.GetMethods(
+        BindingFlags.Public |
+        BindingFlags.NonPublic |
+        BindingFlags.Instance |
+        BindingFlags.DeclaredOnly))
+      {
+        if (method.IsAbstract)
+          continue;
+        if (AspectHelper.IsInfrastructureMethod(method))
+          continue;
+
+        collection.AddAspect(method, new SessionBoundMethodAspect());
+      }
+    }
+
     private void ProvideTransactionalAspects(Type type, LaosReflectionAspectCollection collection)
     {
       foreach (MethodInfo method in type.GetMethods(
@@ -94,24 +111,6 @@ namespace Xtensive.Storage.Aspects
           continue;
 
         collection.AddAspect(method, new AtomicAttribute());
-      }
-    }
-
-    private void ProvideSessionBoundAspects(Type type, LaosReflectionAspectCollection collection)
-    {
-      foreach (MethodInfo method in type.GetMethods(
-        BindingFlags.Public |
-        BindingFlags.NonPublic |
-        BindingFlags.Instance |
-        BindingFlags.DeclaredOnly))
-      {
-        if (method.IsAbstract)
-          continue;
-
-        if (AspectHelper.IsInfrastructureMethod(method))
-          continue;
-
-        collection.AddAspect(method, new SessionBoundMethodAspect());
       }
     }
 
