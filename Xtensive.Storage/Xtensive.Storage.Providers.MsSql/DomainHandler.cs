@@ -11,7 +11,12 @@ using Xtensive.Storage.Providers.MsSql.Resources;
 namespace Xtensive.Storage.Providers.MsSql
 {
   public class DomainHandler : Sql.DomainHandler
-  { 
+  {
+    protected override Rse.Compilation.CompilationContext BuildCompilationContext()
+    {
+      return new CompilationContext(new Compilers.Compiler(Handlers));
+    }
+
     public override SqlDataType GetSqlDataType(Type type, int? length)
     {
       if (type == typeof(Boolean))

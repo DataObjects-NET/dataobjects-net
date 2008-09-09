@@ -11,7 +11,7 @@ using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Providers.Sql.Compilers
 {
-  public sealed class Compiler : Rse.Compilation.Compiler
+  public class Compiler : Rse.Compilation.Compiler
   {
     public HandlerAccessor Handlers { get; private set; }
 

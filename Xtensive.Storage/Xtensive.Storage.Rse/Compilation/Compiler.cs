@@ -128,7 +128,12 @@ namespace Xtensive.Storage.Rse.Compilation
     {
       TypeSuffixes = new[] { "Compiler" };
       Type t = GetType();
-      AddHighPriorityLocation(t.Assembly, t.Namespace);
+      Type baseType = typeof (Compiler);
+      while(t != baseType && t != null) {
+        AddHighPriorityLocation(t.Assembly, t.Namespace);
+        t = t.BaseType;
+      }
+      AddHighPriorityLocation(baseType.Assembly, baseType.Namespace);
     }
   }
 }
