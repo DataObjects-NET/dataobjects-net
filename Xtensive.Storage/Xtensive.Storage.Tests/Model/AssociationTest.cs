@@ -105,7 +105,7 @@ namespace Xtensive.Storage.Tests.Model
     }
 
     [Test]
-    public void MainTest()
+    public void OneToOneAssign()
     {
       // Domain.Model.Dump();
       using (Domain.OpenSession()) {
@@ -128,6 +128,47 @@ namespace Xtensive.Storage.Tests.Model
           Assert.IsNotNull(c.A);
           Assert.AreEqual(a.OneToOne, c);
           Assert.AreEqual(c.A, a);
+        }
+      }
+    }
+
+    [Test]
+    public void OneToOneChangeOwner()
+    {
+      // Domain.Model.Dump();
+      using (Domain.OpenSession()) {
+        var c = new C();
+        var a1 = new A();
+        var a2 = new A();
+        using (Transaction.Open()) {
+          Assert.IsNull(a1.OneToOne);
+          Assert.IsNull(a2.OneToOne);
+          Assert.IsNull(c.A);
+          c.A = a1;
+          Assert.IsNotNull(a1.OneToOne);
+          Assert.IsNull(a2.OneToOne);
+          Assert.IsNotNull(c.A);
+          Assert.AreEqual(a1.OneToOne, c);
+          Assert.AreEqual(c.A, a1);
+          //change owner
+          c.A = a2;
+          Assert.IsNull(a1.OneToOne);
+          Assert.IsNotNull(a2.OneToOne);
+          Assert.IsNotNull(c.A);
+          Assert.AreEqual(a2.OneToOne, c);
+          Assert.AreEqual(c.A, a2);
+          // change back trough another class
+          a1.OneToOne = c;
+          Assert.IsNotNull(a1.OneToOne);
+          Assert.IsNull(a2.OneToOne);
+          Assert.IsNotNull(c.A);
+          Assert.AreEqual(a1.OneToOne, c);
+          Assert.AreEqual(c.A, a1);
+        }
+        using (Transaction.Open()) {
+          Assert.IsNull(a1.OneToOne);
+          Assert.IsNull(a2.OneToOne);
+          Assert.IsNull(c.A);
         }
       }
     }

@@ -63,7 +63,7 @@ namespace Xtensive.Storage.Internals
           AssociationInfo pairedAssociation = association.PairTo;
           var pairedAccessor = pairedAssociation.ReferencingField.GetAccessor<Entity>();
           if (!ReferenceEquals(originalKey, null)) {
-            var originalValue = (Entity) (object) GetValue(obj, field);
+            var originalValue = originalKey.Resolve();
             pairedAccessor.SetValue(originalValue, pairedAssociation.ReferencingField, null);
           }
           if (!ReferenceEquals(newValue, null)) {
