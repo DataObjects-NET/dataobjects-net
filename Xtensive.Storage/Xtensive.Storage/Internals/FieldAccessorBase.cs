@@ -19,7 +19,7 @@ namespace Xtensive.Storage.Internals
     public static void ValidateType(FieldInfo fieldInfo)
     {
       Type resultType = typeof(T);
-      Type valueType = fieldInfo.ValueType;
+      Type valueType = fieldInfo.IsEntitySet ? fieldInfo.UnderlyingProperty.PropertyType : fieldInfo.ValueType;
       if (!resultType.IsAssignableFrom(valueType))
         throw new InvalidOperationException(String.Format(Strings.ExResultTypeIncorrect, valueType.Name, resultType.Name));
     }

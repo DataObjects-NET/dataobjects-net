@@ -172,5 +172,20 @@ namespace Xtensive.Storage.Tests.Model
         }
       }
     }
+
+    [Test]
+    public void OneToManyPairedAssign()
+    {
+      // Domain.Model.Dump();
+      using (Domain.OpenSession()) {
+        var d = new D();
+        var a = new A();
+        using (Transaction.Open()) {
+          Assert.IsNull(a.OneToMany);
+          Assert.IsNotNull(d.As);
+        }
+      }
+    }
+
   }
 }
