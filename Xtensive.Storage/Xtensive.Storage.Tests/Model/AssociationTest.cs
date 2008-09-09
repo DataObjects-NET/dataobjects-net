@@ -9,6 +9,7 @@ using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
+using Xtensive.Storage.Tests.Model.Association;
 
 namespace Xtensive.Storage.Tests.Model.Association
 {
@@ -106,6 +107,11 @@ namespace Xtensive.Storage.Tests.Model
     public void MainTest()
     {
       Domain.Model.Dump();
+      using (Domain.OpenSession()) {
+        var d = new D();
+        var a = new A();
+        a.OneToMany = d;
+      }
     }
   }
 }

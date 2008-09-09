@@ -6,6 +6,7 @@
 
 using System;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Internals
 {
@@ -21,13 +22,19 @@ namespace Xtensive.Storage.Internals
     public override T GetValue(Persistent obj, FieldInfo field)
     {
       ValidateType(field);
+      IFieldHandler result;
+      if (obj.FieldHandlers.TryGetValue(field, out result))
+        return (T)result;
+//todo:      result = EntitySet.Activate(field.ValueType, obj, field);
+      obj.FieldHandlers.Add(field, result);
+      return (T)result;
       throw new InvalidOperationException();
     }
 
     public override void SetValue(Persistent obj, FieldInfo field, T value)
     {
-      ValidateType(field);
-      throw new InvalidOperationException();
+      // Unable to change EntitySet
+      throw new InvalidOperationException(Strings.ExEntitySetCanTBeAssigned);
     }
 
     private EntitySetFieldAccessor()

@@ -8,7 +8,6 @@ using System;
 using Xtensive.Core;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
-using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 
@@ -25,16 +24,18 @@ namespace Xtensive.Storage.Internals
 
     public override void SetValue(Persistent obj, FieldInfo field, T value)
     {
-      Entity entity = value as Entity;
+      var entity = value as Entity;
 
-      if (value!=null && entity==null)
+      if (!ReferenceEquals(value, null) && entity==null)
         throw new InvalidOperationException(
           string.Format(Strings.ExValueShouldBeXDescendant, typeof (Entity)));
 
-      if (entity != null && entity.Session!=obj.Session)
+      if (entity!=null && entity.Session!=obj.Session)
         throw new InvalidOperationException(
           string.Format(Strings.EntityXIsBoundToAnotherSession, entity.Key));
-      
+
+
+      ProcessAssociate(obj, field, entity);
       if (entity==null)
         for (int i = field.MappingInfo.Offset; i < field.MappingInfo.Offset + field.MappingInfo.Length; i++)
           obj.Tuple.SetValue(i, null);
@@ -44,13 +45,66 @@ namespace Xtensive.Storage.Internals
       }
     }
 
+    private void ProcessAssociate(Persistent obj, FieldInfo field, Entity newValue)
+    {
+      AssociationInfo association = field.Association;
+      if (association!=null) {
+        Key originalKey = GetKey(field, obj);
+        Key newKey = newValue==null ? null : newValue.Key;
+        if (!ReferenceEquals(originalKey, newKey)) {
+          switch (association.Multiplicity) {
+          case Multiplicity.OneToZero:
+            // Do nothing.
+            break;
+          case Multiplicity.OneToOne:
+            // Update paired reference from master side only.
+            if (!association.IsMaster) {
+              AssociationInfo pairedAssociation = association.PairTo;
+              var pairedAccessor = pairedAssociation.ReferencingField.GetAccessor<Entity>();
+              if (!ReferenceEquals(originalKey, null)) {
+                var originalValue = (Entity) (object) GetValue(obj, field);
+                pairedAccessor.SetValue(originalValue, pairedAssociation.ReferencingField, null);
+              }
+              if (!ReferenceEquals(newValue, null)) {
+                pairedAccessor.SetValue(newValue, pairedAssociation.ReferencingField, (Entity)obj);
+              }
+            }
+            break;
+          case Multiplicity.OneToMany:
+            if (IsResolved(obj.Session, originalKey)) {
+              var originalValue = (Entity) (object) GetValue(obj, field);
+//todo:              var entitySetFieldAccessor = field.Association.ReferencingField.GetAccessor<EntitySet<T>>();
+//              entitySetFieldAccessor.GetValue(originalValue, field).RemoveCached((Entity) obj);
+            }
+            if (IsResolved(obj.Session, newKey)) {
+//todo:              var entitySetFieldAccessor = field.Association.ReferencingField.GetAccessor<EntitySet<T>>();
+//              entitySetFieldAccessor.GetValue(newValue, field).AddCached((Entity) obj);
+            }
+            break;
+          default:
+            throw new InvalidOperationException(String.Format(Strings.ExAssociationMultiplicityIsNotValidForField, association.Multiplicity, field.Name));
+          }
+        }
+      }
+    }
+
     public override T GetValue(Persistent obj, FieldInfo field)
     {
       ValidateType(field);
-      Key key = obj.Session.Domain.KeyManager.Get(field, new SegmentTransform(false, obj.Tuple.Descriptor, new Segment<int>(field.MappingInfo.Offset, field.MappingInfo.Length)).Apply(TupleTransformType.TransformedTuple, obj.Tuple));
-      if (key == null)
+      Key key = GetKey(field, obj);
+      if (key==null)
         return default(T);
       return (T) (object) key.Resolve();
+    }
+
+    private bool IsResolved(Session session, Key key)
+    {
+      return key!=null && session.DataCache[key] != null;
+    }
+
+    private static Key GetKey(FieldInfo field, Persistent obj)
+    {
+      return obj.Session.Domain.KeyManager.Get(field, new SegmentTransform(false, obj.Tuple.Descriptor, new Segment<int>(field.MappingInfo.Offset, field.MappingInfo.Length)).Apply(TupleTransformType.TransformedTuple, obj.Tuple));
     }
 
 

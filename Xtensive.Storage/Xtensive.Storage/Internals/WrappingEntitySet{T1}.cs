@@ -8,7 +8,7 @@ using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Internals
 {
-  internal class WrappingEntitySet<T1> : EntitySet<T1>
+  internal abstract class WrappingEntitySet<T1> : EntitySet<T1>
     where T1 : Entity
   {
     public WrappingEntitySet(Persistent owner, FieldInfo field)

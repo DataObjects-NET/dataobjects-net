@@ -8,7 +8,6 @@ using System;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Storage.Building.Definitions;
-using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
@@ -50,7 +49,7 @@ namespace Xtensive.Storage.Building.Builders
       using (Log.InfoRegion(Strings.LogBuildingX, Strings.CustomDefinitions)) {
         BuildingContext context = BuildingContext.Current;
         foreach (Type type in BuildingContext.Current.Configuration.Builders) {
-          IDomainBuilder builder = (IDomainBuilder) Activator.CreateInstance(type);
+          var builder = (IDomainBuilder) Activator.CreateInstance(type);
           builder.Build(context, context.Definition);
         }
       }

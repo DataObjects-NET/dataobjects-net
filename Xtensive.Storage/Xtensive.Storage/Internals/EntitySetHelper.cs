@@ -20,7 +20,7 @@ namespace Xtensive.Storage.Internals
       if (association.ReferencingField.IsEntitySet && association.IsMaster) {
         Type baseType = typeof (EntitySetReference<,>).MakeGenericType(association.ReferencingType.UnderlyingType, association.ReferencedType.UnderlyingType);
         string name = BuildingContext.Current.NameBuilder.Build(association);
-        return TypeHelper.CreateInheritedDummyType(name, baseType);
+        return TypeHelper.CreateDummyType(name, baseType);
       }
       return null;
     }
@@ -28,12 +28,21 @@ namespace Xtensive.Storage.Internals
     public static void DefineReferenceType(AssociationInfo association)
     {
       TypeDef typeDef = TypeBuilder.DefineType(association.EntityType);
-      var leftFieldDef = new FieldDef(association.ReferencingType.UnderlyingType) {Name = "Left"};
-      typeDef.Fields.Add(leftFieldDef);
-      var rightFieldDef = new FieldDef(association.ReferencedType.UnderlyingType) {Name = "Right"};
-      typeDef.Fields.Add(rightFieldDef);
+      typeDef.DefineField("Id", typeof(int));
+      typeDef.DefineField("Entity1", association.ReferencingType.UnderlyingType);
+      typeDef.DefineField("Entity2", association.ReferencedType.UnderlyingType);
+      typeDef.Name = association.Name;
       BuildingContext.Current.Definition.Types.Add(typeDef);
+      IndexBuilder.DefineIndexes(typeDef);
       TypeBuilder.BuildType(typeDef);
+    }
+
+    public static bool IsEntitySetRef(TypeInfo type)
+    {
+      Type underlyingBaseType = type.UnderlyingType.BaseType;
+      return underlyingBaseType!=null
+        && underlyingBaseType.IsGenericType
+          && underlyingBaseType.GetGenericTypeDefinition()==typeof (EntitySetReference<,>);
     }
   }
 }

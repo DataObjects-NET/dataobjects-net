@@ -548,7 +548,7 @@ namespace Xtensive.Storage.Building.Builders
 
           if (columns.Count==0)
             throw new DomainBuilderException(
-              string.Format(Resources.Strings.ExColumnXIsNotFound, fieldName));
+              string.Format(Strings.ExColumnXIsNotFound, fieldName));
 
           foreach (ColumnInfo column in columns)
             if (!result.KeyColumns.ContainsKey(column))

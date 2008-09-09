@@ -377,7 +377,7 @@ namespace Xtensive.Storage.Tests.Model
     {
       DomainConfiguration config = base.BuildConfiguration();
       config.Types.Register(typeof (Person).Assembly, "Xtensive.Storage.Tests.Model.LibraryModel");
-      config.Builders.Add(typeof (LibraryDomainBuilder));
+      // config.Builders.Add(typeof (LibraryDomainBuilder));
       return config;
     }
 

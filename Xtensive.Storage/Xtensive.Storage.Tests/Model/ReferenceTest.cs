@@ -57,6 +57,31 @@ namespace Xtensive.Storage.Tests.Model.ReferenceTestModel
     public S1 Value { get; set; }
   }
 
+  [HierarchyRoot(typeof(Generator), "Id")]
+  public class E1 : Entity
+  {
+    [Field]
+    public int Id { get; set; }
+  }
+
+  [HierarchyRoot(typeof(Generator), "Id")]
+  public class E2 : Entity
+  {
+    [Field]
+    public int Id { get; set; }
+  }
+
+  [HierarchyRoot(typeof(Generator), "Id")]
+  public class ERef : Entity
+  {
+    [Field]
+    public int Id { get; set; }
+    [Field]
+    public E1 Ref1 { get; set; }
+    [Field]
+    public E2 Ref2 { get; set; }
+  }
+
   #endregion
 
   #region Cyclic Referenced Structures with Inheritance

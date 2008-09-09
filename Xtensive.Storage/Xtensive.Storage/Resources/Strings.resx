@@ -447,4 +447,10 @@
   <data name="ExValueShouldBeXDescendant" xml:space="preserve">
     <value>Value should be '{0}' descendant.</value>
   </data>
+  <data name="ExEntitySetCanTBeAssigned" xml:space="preserve">
+    <value>EntitySet can't be assigned</value>
+  </data>
+  <data name="ExAssociationMultiplicityIsNotValidForField" xml:space="preserve">
+    <value>Association multiplicity '{0}' is not valid for field '{1}'</value>
+  </data>
 </root>
