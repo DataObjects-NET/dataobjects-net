@@ -47,6 +47,11 @@ namespace Xtensive.Storage.Tests
 //      config = DomainConfigurationFactory.Create("mssql2005", InheritanceSchema.SingleTable);
 //      config = DomainConfigurationFactory.Create("mssql2005", InheritanceSchema.ConcreteTable);
 //      config = DomainConfigurationFactory.Create("mssql2005", InheritanceSchema.Default, TypeIdBehavior.Include);
+
+//      config = DomainConfigurationFactory.Create("vistadb");
+//      config = DomainConfigurationFactory.Create("vistadb", InheritanceSchema.SingleTable);
+//      config = DomainConfigurationFactory.Create("vistadb", InheritanceSchema.ConcreteTable);
+//      config = DomainConfigurationFactory.Create("vistadb", InheritanceSchema.Default, TypeIdBehavior.Include);
       return config;
     }
 

@@ -5,13 +5,11 @@
 // Created:    2008.09.05
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core.Tuples;
 using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Database;
 using Xtensive.Sql.Dom.Dml;
-using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
 using SqlFactory = Xtensive.Sql.Dom.Sql;
@@ -34,9 +32,9 @@ namespace Xtensive.Storage.Providers.Sql
       base.OnBeforeEnumerate(context);
 
       // Table already was created and added to schema
-      if (Table.Schema != null)
+      if (Table.Schema!=null)
         return;
-      if (Source == null)
+      if (Source==null)
         return;
 
       SessionHandler sessionHandler = (SessionHandler) handlers.SessionHandler;
@@ -68,7 +66,7 @@ namespace Xtensive.Storage.Providers.Sql
       base.OnAfterEnumerate(context);
 
       // Table already was deleted and removed from schema
-      if (Table.Schema == null)
+      if (Table.Schema==null)
         return;
       if (Scope==TemporaryDataScope.Global)
         return;

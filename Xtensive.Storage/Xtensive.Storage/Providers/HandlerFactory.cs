@@ -89,13 +89,11 @@ namespace Xtensive.Storage.Providers
       foreach (Type type in assembly.GetTypes()) {
         if (type.IsAbstract || !type.IsPublic || !handlerBaseType.IsAssignableFrom(type))
           continue;
+        if (constructors.ContainsKey(type))
+          continue;
         Type baseType = type;
         while (baseType != handlerBaseType) {
-          // Any HandlerBase descendant is considered as
-          // "key" for handler requests
-          var constructor = DelegateHelper.CreateConstructorDelegate<Func<object>>(type);
-          if (!constructors.ContainsKey(baseType))
-            constructors.Add(baseType, constructor);
+          constructors[baseType] = DelegateHelper.CreateConstructorDelegate<Func<object>>(type);
           baseType = baseType.BaseType;
         }
       }

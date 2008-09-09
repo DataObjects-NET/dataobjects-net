@@ -160,8 +160,8 @@ namespace Xtensive.Storage.Providers.Sql
     protected virtual ISqlCompileUnit GenerateSyncCatalogScript(DomainModel domainModel, Catalog existingCatalog, Catalog newCatalog)
     {
       SqlBatch batch = SqlFactory.Batch();
-      batch.Add(GenerateClearCatalogScript(existingCatalog));
-      batch.Add(GenerateBuildCatalogScript(newCatalog));
+      batch.AddRange(GenerateClearCatalogScript(existingCatalog));
+      batch.AddRange(GenerateBuildCatalogScript(newCatalog));
       return batch;
     }
 
