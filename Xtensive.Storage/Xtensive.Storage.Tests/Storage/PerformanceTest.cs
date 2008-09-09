@@ -9,6 +9,7 @@ using Xtensive.Core;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
+using Xtensive.Integrity.Transactions;
 
 namespace Xtensive.Storage.Tests.Storage
 {
@@ -19,9 +20,9 @@ namespace Xtensive.Storage.Tests.Storage
     public long Id { get; set; }
 
     [Field]
-    public Simplest Value { get; set; }
+    public long Value { get; set; }
 
-    public Simplest(long id, Simplest value)
+    public Simplest(long id, long value)
     {
       Id = id;
       Value = value;
@@ -50,22 +51,34 @@ namespace Xtensive.Storage.Tests.Storage
         using (var ss = d.OpenSession()) {
           var s = ss.Session;
           long sum = 0;
-          using (s.OpenTransaction()) {
+          using (var ts = s.OpenTransaction()) {
             using (new Measurement("Insert", c))
               for (int i = 0; i < c; i++) {
-                var o = new Simplest(i, null);
+                var o = new Simplest(i, i);
                 sum += i;
               }
+            ts.Complete();
           }
-          using (s.OpenTransaction()) {
+
+          using (var ts = s.OpenTransaction()) {
             var rs = d.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordSet();
             var es = rs.ToEntities<Simplest>();
             using (new Measurement("Fetch & GetField", c))
               foreach (var o in es) {
                 sum -= o.Id;
               }
+            ts.Complete();
           }
           Assert.AreEqual(0, sum);
+
+          using (var ts = s.OpenTransaction()) {
+            var rs = d.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordSet();
+            var es = rs.ToEntities<Simplest>();
+            using (new Measurement("Fetch & Remove", c))
+              foreach (var o in es)
+                o.Remove();
+            ts.Complete();
+          }
         }
       }
     }
