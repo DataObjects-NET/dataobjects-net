@@ -35,7 +35,9 @@ namespace Xtensive.Storage.Internals
           string.Format(Strings.EntityXIsBoundToAnotherSession, entity.Key));
 
 
-      ProcessAssociate(obj, field, entity);
+      AssociationInfo association = field.Association;
+      Key originalKey = association==null ? null : GetKey(field, obj);
+
       if (entity==null)
         for (int i = field.MappingInfo.Offset; i < field.MappingInfo.Offset + field.MappingInfo.Length; i++)
           obj.Tuple.SetValue(i, null);
@@ -43,47 +45,44 @@ namespace Xtensive.Storage.Internals
         ValidateType(field);
         entity.Key.Tuple.CopyTo(obj.Tuple, 0, field.MappingInfo.Offset, field.MappingInfo.Length);
       }
+
+      if (association!=null)
+        ProcessAssociation(obj, field, entity, originalKey);
     }
 
-    private void ProcessAssociate(Persistent obj, FieldInfo field, Entity newValue)
+    private void ProcessAssociation(Persistent obj, FieldInfo field, Entity newValue, Key originalKey)
     {
       AssociationInfo association = field.Association;
-      if (association!=null) {
-        Key originalKey = GetKey(field, obj);
-        Key newKey = newValue==null ? null : newValue.Key;
-        if (!ReferenceEquals(originalKey, newKey)) {
-          switch (association.Multiplicity) {
-          case Multiplicity.OneToZero:
-            // Do nothing.
-            break;
-          case Multiplicity.OneToOne:
-            // Update paired reference from master side only.
-            if (!association.IsMaster) {
-              AssociationInfo pairedAssociation = association.PairTo;
-              var pairedAccessor = pairedAssociation.ReferencingField.GetAccessor<Entity>();
-              if (!ReferenceEquals(originalKey, null)) {
-                var originalValue = (Entity) (object) GetValue(obj, field);
-                pairedAccessor.SetValue(originalValue, pairedAssociation.ReferencingField, null);
-              }
-              if (!ReferenceEquals(newValue, null)) {
-                pairedAccessor.SetValue(newValue, pairedAssociation.ReferencingField, (Entity)obj);
-              }
-            }
-            break;
-          case Multiplicity.OneToMany:
-            if (IsResolved(obj.Session, originalKey)) {
-              var originalValue = (Entity) (object) GetValue(obj, field);
+      Key newKey = newValue==null ? null : newValue.Key;
+      if (!ReferenceEquals(originalKey, newKey)) {
+        switch (association.Multiplicity) {
+        case Multiplicity.OneToZero:
+          // Do nothing.
+          break;
+        case Multiplicity.OneToOne:
+          AssociationInfo pairedAssociation = association.PairTo;
+          var pairedAccessor = pairedAssociation.ReferencingField.GetAccessor<Entity>();
+          if (!ReferenceEquals(originalKey, null)) {
+            var originalValue = (Entity) (object) GetValue(obj, field);
+            pairedAccessor.SetValue(originalValue, pairedAssociation.ReferencingField, null);
+          }
+          if (!ReferenceEquals(newValue, null)) {
+            pairedAccessor.SetValue(newValue, pairedAssociation.ReferencingField, (Entity) obj);
+          }
+          break;
+        case Multiplicity.OneToMany:
+          if (IsResolved(obj.Session, originalKey)) {
+            var originalValue = (Entity) (object) GetValue(obj, field);
 //todo:              var entitySetFieldAccessor = field.Association.ReferencingField.GetAccessor<EntitySet<T>>();
 //              entitySetFieldAccessor.GetValue(originalValue, field).RemoveCached((Entity) obj);
-            }
-            if (IsResolved(obj.Session, newKey)) {
+          }
+          if (IsResolved(obj.Session, newKey)) {
 //todo:              var entitySetFieldAccessor = field.Association.ReferencingField.GetAccessor<EntitySet<T>>();
 //              entitySetFieldAccessor.GetValue(newValue, field).AddCached((Entity) obj);
-            }
-            break;
-          default:
-            throw new InvalidOperationException(String.Format(Strings.ExAssociationMultiplicityIsNotValidForField, association.Multiplicity, field.Name));
           }
+          break;
+        default:
+          throw new InvalidOperationException(String.Format(Strings.ExAssociationMultiplicityIsNotValidForField, association.Multiplicity, field.Name));
         }
       }
     }
@@ -99,7 +98,7 @@ namespace Xtensive.Storage.Internals
 
     private bool IsResolved(Session session, Key key)
     {
-      return key!=null && session.DataCache[key] != null;
+      return key!=null && session.DataCache[key]!=null;
     }
 
     private static Key GetKey(FieldInfo field, Persistent obj)
