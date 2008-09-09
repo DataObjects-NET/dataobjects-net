@@ -27,8 +27,10 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
 
       if (left == null || right == null)
         return null;
-      var leftQuery = SqlFactory.QueryRef(left.Request.Statement as SqlSelect);
-      var rightQuery = SqlFactory.QueryRef(right.Request.Statement as SqlSelect);
+      var leftSelect = (SqlSelect)left.Request.Statement;
+      var leftQuery = SqlFactory.QueryRef(leftSelect);
+      var rightSelect = (SqlSelect)right.Request.Statement;
+      var rightQuery = SqlFactory.QueryRef(rightSelect);
       var joinedTable = SqlFactory.Join(
         provider.LeftJoin ? SqlJoinType.LeftOuterJoin : SqlJoinType.InnerJoin,
         leftQuery,
@@ -40,10 +42,6 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
 
       SqlSelect query = SqlFactory.Select(joinedTable);
       query.Columns.AddRange(leftQuery.Columns.Union(rightQuery.Columns).Cast<SqlColumn>());
-      //      if (!SqlExpression.IsNull(left.Query.Where))
-      //        query.Where &= left.Query.Where;
-      //      if (!SqlExpression.IsNull(right.Query.Where))
-      //        query.Where &= right.Query.Where;
       var request = new SqlQueryRequest(query, provider.Header.TupleDescriptor, left.Request.ParameterBindings.Union(right.Request.ParameterBindings));
       return new SqlProvider(provider, request, Handlers, left, right);
     }

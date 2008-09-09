@@ -43,17 +43,20 @@ namespace Xtensive.Sql.Dom.Dml
 
     // Constructor
 
-    internal SqlColumnRef(SqlTable sqlTable, SqlColumn sqlColumn, string name) : base(sqlTable, name)
+    internal SqlColumnRef(SqlTable sqlTable, SqlColumn sqlColumn, string name)
+      : base(sqlTable, name)
     {
       this.sqlColumn = sqlColumn;
     }
 
-    internal SqlColumnRef(SqlColumn sqlColumn, string name) : base(name)
+    internal SqlColumnRef(SqlColumn sqlColumn, string name)
+      : base(sqlColumn.SqlTable, name)
     {
       this.sqlColumn = sqlColumn;
     }
 
     internal SqlColumnRef(SqlColumn sqlColumn)
+      : base(sqlColumn.SqlTable)
     {
       this.sqlColumn = sqlColumn;
     }

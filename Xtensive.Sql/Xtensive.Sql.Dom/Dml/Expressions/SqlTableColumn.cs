@@ -17,7 +17,7 @@ namespace Xtensive.Sql.Dom.Dml
 
     public override void ReplaceWith(SqlExpression expression)
     {
-      SqlTableColumn replacingExpression = expression as SqlTableColumn;
+      var replacingExpression = expression as SqlColumn;
       ArgumentValidator.EnsureArgumentNotNull(replacingExpression.SqlTable, "SqlTable");
       ArgumentValidator.EnsureArgumentNotNull(replacingExpression.Name, "Name");
       base.ReplaceWith(expression);

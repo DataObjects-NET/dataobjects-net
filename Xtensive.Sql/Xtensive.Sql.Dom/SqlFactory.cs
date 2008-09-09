@@ -1867,7 +1867,7 @@ namespace Xtensive.Sql.Dom
       return new SqlColumnRef(column);
     }
 
-    internal static SqlColumnRef ColumnRef(SqlColumn column, string alias)
+    public static SqlColumnRef ColumnRef(SqlColumn column, string alias)
     {
       ArgumentValidator.EnsureArgumentNotNull(column, "column");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(alias, "alias");
