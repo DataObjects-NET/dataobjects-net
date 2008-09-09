@@ -215,9 +215,9 @@ namespace Xtensive.Sql.Dom.Mssql.v2000
     private static SqlJoinHint TryFindJoinHint(SqlCompilerContext context, SqlJoinExpression node)
     {
       SqlQueryStatement statement = null;
-      for (int i = 0, count = context.TraversalPath.Length; i < count; i++) {
-        if (context.TraversalPath[i] is SqlQueryStatement)
-          statement = context.TraversalPath[i] as SqlQueryStatement;
+      for (int i = 0, count = context.GetTraversalPath().Length; i < count; i++) {
+        if (context.GetTraversalPath()[i] is SqlQueryStatement)
+          statement = context.GetTraversalPath()[i] as SqlQueryStatement;
       }
       if (statement == null || statement.Hints.Count == 0)
         return null;
@@ -302,9 +302,9 @@ namespace Xtensive.Sql.Dom.Mssql.v2000
         case TableSection.AliasDeclaration:
 
           SqlQueryStatement statement = null;
-          for (int i = 0, count = context.TraversalPath.Length; i < count; i++) {
-            if (context.TraversalPath[i] is SqlQueryStatement)
-              statement = context.TraversalPath[i] as SqlQueryStatement;
+          for (int i = 0, count = context.GetTraversalPath().Length; i < count; i++) {
+            if (context.GetTraversalPath()[i] is SqlQueryStatement)
+              statement = context.GetTraversalPath()[i] as SqlQueryStatement;
           }
           if (statement == null || statement.Hints.Count == 0)
             return base.Translate(context, node, section);

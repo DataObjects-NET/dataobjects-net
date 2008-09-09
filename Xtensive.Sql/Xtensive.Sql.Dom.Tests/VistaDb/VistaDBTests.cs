@@ -75,7 +75,7 @@ namespace Xtensive.Sql.Dom.Tests.VistaDb
     {
       base.SetUp();
       SqlConnectionProvider provider = new SqlConnectionProvider();
-      sqlConnection = (SqlConnection)provider.CreateConnection(@"vistadb://localhost/AdventureWorks.vdb3");
+      sqlConnection = (SqlConnection)provider.CreateConnection(@"vistadb://localhost/VistaDb/AdventureWorks.vdb3");
       SqlDriver = sqlConnection.Driver as SqlDriver;
       dbCommand = sqlConnection.RealConnection.CreateCommand();
       sqlCommand = new SqlCommand(sqlConnection);
@@ -2552,7 +2552,6 @@ namespace Xtensive.Sql.Dom.Tests.VistaDb
     }
 
     [Test]
-    [Ignore]
     public void Test124()
     {
       string nativeSql = "INSERT INTO Production_UnitMeasure "

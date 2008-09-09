@@ -739,12 +739,12 @@ namespace Xtensive.Sql.Dom.Tests.VistaDb
       select.Columns.Add(cRef["AdditionalContactInfo"]);
       //v = Catalog.Schemas["dbo"].CreateView("HumanResources_vEmployee", select); FIXME
 
-      MemoryStream ms = new MemoryStream();
-      BinaryFormatter bf = new BinaryFormatter();
-      bf.Serialize(ms, model);
-
-      ms.Seek(0, SeekOrigin.Begin);
-      model = (Model)bf.Deserialize(ms);
+//      MemoryStream ms = new MemoryStream();
+//      BinaryFormatter bf = new BinaryFormatter();
+//      bf.Serialize(ms, model);
+//
+//      ms.Seek(0, SeekOrigin.Begin);
+//      model = (Model)bf.Deserialize(ms);
 
 //      bmp.Save(model);
     

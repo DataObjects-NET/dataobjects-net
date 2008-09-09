@@ -24,6 +24,12 @@ namespace Xtensive.Sql.Dom.Dml
       statements.Add(item);
     }
 
+    public void AddRange(IEnumerable<SqlStatement> items)
+    {
+      foreach (SqlStatement item in items)
+        Add(item);
+    }
+
     /// <inheritdoc/>
     public void Clear()
     {

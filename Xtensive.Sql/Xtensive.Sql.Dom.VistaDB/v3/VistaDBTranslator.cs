@@ -85,6 +85,16 @@ namespace Xtensive.Sql.Dom.VistaDB.v3
       return "DROP INDEX " + QuoteIdentifier(node.Index.DataTable.DbName) + "." + QuoteIdentifier(node.Index.DbName);
     }
 
+    public override string Translate(SqlCompilerContext context, SqlTableColumn node, NodeSection section)
+    {
+      if (context.GetTraversalPath()[0].NodeType == SqlNodeType.Insert)
+        return (((object)node == (object)node.SqlTable.Asterisk) ? node.Name : QuoteIdentifier(node.Name));
+      else
+        return Translate(context, node.SqlTable, NodeSection.Entry) + "." +
+        (((object)node == (object)node.SqlTable.Asterisk) ? node.Name : QuoteIdentifier(node.Name));
+
+    }
+
     public override string Translate(SqlCompilerContext context, TableColumn column, TableColumnSection section)
     {
       switch (section) {

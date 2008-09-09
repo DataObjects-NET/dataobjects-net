@@ -23,13 +23,11 @@ namespace Xtensive.Sql.Dom.Compiler
     /// Gets the traversal path.
     /// </summary>
     /// <value>The traversal path.</value>
-    public SqlNode[] TraversalPath
+    public SqlNode[] GetTraversalPath()
     {
-      get {
-        if (traversalPath==null)
-          traversalPath = traversalStack.ToArray();
-        return traversalPath;
-      }
+      if (traversalPath==null)
+        traversalPath = traversalStack.ToArray();
+      return traversalPath;
     }
 
     public bool IsEmpty

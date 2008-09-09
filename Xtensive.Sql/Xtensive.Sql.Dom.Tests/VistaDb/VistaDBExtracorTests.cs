@@ -6,6 +6,7 @@ using NUnit.Framework;
 using Xtensive.Sql.Common;
 using Xtensive.Sql.Dom.Database;
 using Xtensive.Sql.Dom.Database.Providers;
+using Xtensive.Sql.Dom.Dml;
 using SQL2000 = Xtensive.Sql.Dom.Mssql.v2000;
 using SQL2005 = Xtensive.Sql.Dom.Mssql.v2005;
 
@@ -62,7 +63,7 @@ namespace Xtensive.Sql.Dom.Tests.VistaDb
     protected SqlConnection CreateConnection()
     {
       SqlConnectionProvider provider = new SqlConnectionProvider();
-      sqlConnection = (SqlConnection)provider.CreateConnection(@"vistadb://localhost/VDBTests.vdb3");
+      sqlConnection = (SqlConnection)provider.CreateConnection(@"vistadb://localhost/VistaDb/VDBTests.vdb3");
       SqlDriver = sqlConnection.Driver as SqlDriver;
       dbCommand = sqlConnection.RealConnection.CreateCommand();
       sqlCommand = new SqlCommand(sqlConnection);
@@ -70,10 +71,11 @@ namespace Xtensive.Sql.Dom.Tests.VistaDb
       return sqlConnection;
     }
 
-    protected void ExecuteQuery(string sqlQuery, SqlConnection connection)
+    protected void ExecuteQuery(string sqlQuery, SqlConnection connection, DbTransaction transaction)
     {
       DbCommand command = connection.RealConnection.CreateCommand();
       command.CommandText = sqlQuery;
+      command.Transaction = transaction;
       command.ExecuteNonQuery();
     }
 
@@ -83,14 +85,31 @@ namespace Xtensive.Sql.Dom.Tests.VistaDb
         return;
       using (SqlConnection connection = CreateConnection())
       {
-        try { ExecuteQuery(sqlQuery, connection); }
+        try { ExecuteQuery(sqlQuery, connection, null); }
         catch { }
       }
     }
 
+    protected void ExecuteQuery(SqlConnection connection, DbTransaction transaction, ISqlCompileUnit statement)
+    {
+      if (statement == null)
+        return;
+        using (var command = new SqlCommand(connection)) {
+          command.Statement = statement;
+          command.Prepare();
+          command.Transaction = transaction;
+          command.ExecuteNonQuery();
+        }
+    }
+
     protected virtual Model ExtractModel()
     {
-      SqlModelProvider smd = new SqlModelProvider(CreateConnection());
+      return ExtractModel(CreateConnection(), null);
+    }
+
+    protected virtual Model ExtractModel(SqlConnection connection, DbTransaction transaction)
+    {
+      SqlModelProvider smd = new SqlModelProvider(connection, transaction);
       return Model.Build(smd);
     }
 
@@ -431,6 +450,34 @@ namespace Xtensive.Sql.Dom.Tests.VistaDb
       Assert.IsTrue(schema.Tables["table1"].Indexes["table1_index1_u_asc_desc"].Columns.Count == 2);
       Assert.IsTrue(schema.Tables["table1"].Indexes["table1_index1_u_asc_desc"].Columns[0].Ascending);
       Assert.IsTrue(!schema.Tables["table1"].Indexes["table1_index1_u_asc_desc"].Columns[1].Ascending);
+    }
+  }
+
+  [TestFixture]
+  public class VDBExtractor_ExtractCleanupTest : VDBExtractorTestBase
+  {
+    [Test]
+    public virtual void Main()
+    {
+      using (SqlConnection connection = CreateConnection()) {
+        DbTransaction transaction = connection.BeginTransaction();
+        ExecuteQuery(
+          " create table table1 (" +
+            "\n column1 int, " +
+              "\n column2 int) ", connection, transaction);
+        ExecuteQuery(
+          "\n create index        table1_index1_desc_asc   on table1 (column1 desc, column2 asc)", connection, transaction);
+        ExecuteQuery(
+          "\n create unique index table1_index1_u_asc_desc on table1 (column1 asc, column2 desc)", connection, transaction);
+        Model model = ExtractModel(connection, transaction);
+        Schema schema = model.DefaultServer.DefaultCatalog.DefaultSchema;
+        SqlBatch batch = Sql.Batch();
+        foreach (Table table in schema.Tables) {
+          batch.Add(Sql.Drop(table));
+        }
+        ExecuteQuery(connection, transaction, batch);
+        transaction.Commit();
+      }
     }
   }
 }
