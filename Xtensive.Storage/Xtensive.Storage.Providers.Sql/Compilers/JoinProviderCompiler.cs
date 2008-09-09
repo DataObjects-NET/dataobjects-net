@@ -44,7 +44,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
       //        query.Where &= left.Query.Where;
       //      if (!SqlExpression.IsNull(right.Query.Where))
       //        query.Where &= right.Query.Where;
-      SqlQueryRequest request = new SqlQueryRequest(query, provider.Header.TupleDescriptor, left.Request.ParameterBindings.Union(right.Request.ParameterBindings));
+      var request = new SqlQueryRequest(query, provider.Header.TupleDescriptor, left.Request.ParameterBindings.Union(right.Request.ParameterBindings));
       return new SqlProvider(provider, request, Handlers, left, right);
     }
 
