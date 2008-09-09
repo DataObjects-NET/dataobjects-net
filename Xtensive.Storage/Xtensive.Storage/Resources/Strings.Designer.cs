@@ -412,6 +412,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Master association &apos;{0}&apos; is already paired with &apos;{1}&apos;.
+        /// </summary>
+        internal static string ExMasterAssociationIsAlreadyPaired {
+            get {
+                return ResourceManager.GetString("ExMasterAssociationIsAlreadyPaired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to &apos;NotNullable&apos; constraint violation on field &apos;{0}&apos;.
         /// </summary>
         internal static string ExNotNullableConstraintViolationOnFieldX {

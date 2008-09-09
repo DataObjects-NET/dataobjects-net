@@ -8,14 +8,11 @@ using Xtensive.Storage.Attributes;
 
 namespace Xtensive.Storage.Internals
 {
-  [HierarchyRoot(typeof (Generator), "Id")]
+  [HierarchyRoot("Entity1", "Entity2")]
   public abstract class EntitySetReference<T1, T2> : Entity
     where T1 : Entity
     where T2 : Entity
   {
-    [Field]
-    public int Id { get; set; }
-
     [Field]
     public T1 Entity1 { get; set; }
 

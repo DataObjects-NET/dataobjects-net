@@ -10,6 +10,7 @@ using Xtensive.Core;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Model.Association;
+using Xtensive.Integrity.Transactions;
 
 namespace Xtensive.Storage.Tests.Model.Association
 {
@@ -106,11 +107,28 @@ namespace Xtensive.Storage.Tests.Model
     [Test]
     public void MainTest()
     {
-      Domain.Model.Dump();
+      // Domain.Model.Dump();
       using (Domain.OpenSession()) {
-        var d = new D();
+        var c = new C();
         var a = new A();
-        a.OneToMany = d;
+        using (Transaction.Open()) {
+          Assert.IsNull(a.OneToOne);
+          Assert.IsNull(c.A);
+          c.A = a;
+          Assert.IsNotNull(a.OneToOne);
+          Assert.IsNotNull(c.A);
+          Assert.AreEqual(a.OneToOne, c);
+          Assert.AreEqual(c.A, a);
+        }
+        using (Transaction.Open()) {
+          Assert.IsNull(a.OneToOne);
+          Assert.IsNull(c.A);
+          a.OneToOne = c;
+          Assert.IsNotNull(a.OneToOne);
+          Assert.IsNotNull(c.A);
+          Assert.AreEqual(a.OneToOne, c);
+          Assert.AreEqual(c.A, a);
+        }
       }
     }
   }

@@ -28,7 +28,6 @@ namespace Xtensive.Storage.Internals
     public static void DefineReferenceType(AssociationInfo association)
     {
       TypeDef typeDef = TypeBuilder.DefineType(association.EntityType);
-      typeDef.DefineField("Id", typeof(int));
       typeDef.DefineField("Entity1", association.ReferencingType.UnderlyingType);
       typeDef.DefineField("Entity2", association.ReferencedType.UnderlyingType);
       typeDef.Name = association.Name;

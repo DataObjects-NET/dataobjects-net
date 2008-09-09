@@ -453,4 +453,7 @@
   <data name="ExAssociationMultiplicityIsNotValidForField" xml:space="preserve">
     <value>Association multiplicity '{0}' is not valid for field '{1}'</value>
   </data>
+  <data name="ExMasterAssociationIsAlreadyPaired" xml:space="preserve">
+    <value>Master association '{0}' is already paired with '{1}'</value>
+  </data>
 </root>

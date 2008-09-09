@@ -16,6 +16,7 @@ namespace Xtensive.Storage.Model
     private Multiplicity multiplicity;
     private AssociationInfo pairTo;
     private Type entityType;
+    private bool isMaster = true;
 
     /// <summary>
     /// Gets the referencing type.
@@ -69,7 +70,12 @@ namespace Xtensive.Storage.Model
     /// </value>
     public bool IsMaster
     {
-      get { return pairTo==null; }
+      get { return isMaster; }
+      set
+      {
+        this.EnsureNotLocked();
+        isMaster = value;
+      }
     }
 
     /// <summary>

@@ -13,6 +13,7 @@ using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Core.Helpers;
 using Xtensive.Storage.Providers;
+using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Building.Builders
 {
@@ -62,6 +63,13 @@ namespace Xtensive.Storage.Building.Builders
 
       FieldInfo pairedField = pairedAssociation.ReferencingField;
       AssociationInfo masterAssociation = masterField.Association;
+      if (masterAssociation.PairTo!=null && masterAssociation.PairTo!=pairedAssociation) 
+        throw new InvalidOperationException(String.Format(Strings.ExMasterAssociationIsAlreadyPaired, masterAssociation.Name, masterAssociation.PairTo.Name));
+
+      masterAssociation.PairTo = pairedAssociation;
+
+      if (masterAssociation.IsMaster && pairedAssociation.IsMaster)
+        masterAssociation.IsMaster = false;
 
       if (masterField.IsEntity) {
         if (pairedField.IsEntity) {
