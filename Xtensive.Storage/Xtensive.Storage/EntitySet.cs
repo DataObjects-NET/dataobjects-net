@@ -28,11 +28,11 @@ namespace Xtensive.Storage
       }
       if (association.IsMaster) {
         // direct
-        Type directEntitySetType = typeof (DirectWrappingEntitySet<,,>).MakeGenericType(type, obj.GetType(), association.EntityType);
+        Type directEntitySetType = typeof (ForwardWrappingEntitySet<,,>).MakeGenericType(type, obj.GetType(), association.EntityType);
         return (IFieldHandler)directEntitySetType.InvokeMember("", BindingFlags.CreateInstance, null, null, new object[] { obj, field });
       }
       // reverse
-      Type reverseEntitySetType = typeof(ReverseWrappingEntitySet<,,>).MakeGenericType(type, obj.GetType(), association.EntityType);
+      Type reverseEntitySetType = typeof(ReverseWrappingEntitySet<,,>).MakeGenericType(type, obj.GetType(), association.MasterAssociation.EntityType);
       return (IFieldHandler)reverseEntitySetType.InvokeMember("", BindingFlags.CreateInstance, null, null, new object[] { obj, field });
     }
 

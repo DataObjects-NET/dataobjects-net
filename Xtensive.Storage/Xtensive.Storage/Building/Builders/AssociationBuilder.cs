@@ -26,7 +26,7 @@ namespace Xtensive.Storage.Building.Builders
       Multiplicity m = field.IsEntitySet ? Multiplicity.ManyToZero : Multiplicity.OneToZero;
       var association = new AssociationInfo(field, referencedType, m, fieldDef.OnDelete);
       association.Name = context.NameBuilder.Build(association);
-      association.EntityType = EntitySetHelper.BuildReferenceType(association);
+      // association.EntityType = EntitySetHelper.BuildReferenceType(association);
       context.Model.Associations.Add(association);
       
       if (!fieldDef.PairTo.IsNullOrEmpty())
@@ -38,7 +38,7 @@ namespace Xtensive.Storage.Building.Builders
       BuildingContext context = BuildingContext.Current;
       var association = new AssociationInfo(field, origin.ReferencedType, origin.Multiplicity, origin.OnDelete);
       association.Name = context.NameBuilder.Build(association);
-      association.EntityType = EntitySetHelper.BuildReferenceType(association);
+      // association.EntityType = EntitySetHelper.BuildReferenceType(association);
       context.Model.Associations.Add(association);
 
       Pair<AssociationInfo, string> pairTo = context.PairedAssociations.Where(p => p.First==origin).FirstOrDefault();

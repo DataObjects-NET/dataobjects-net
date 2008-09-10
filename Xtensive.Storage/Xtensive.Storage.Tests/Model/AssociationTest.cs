@@ -112,8 +112,11 @@ namespace Xtensive.Storage.Tests.Model
         using (Transaction.Open()) {
           var a = new A();
           Assert.IsNotNull(a.ManyToMany);
+          Assert.IsTrue(a.ManyToMany.GetType().Name.StartsWith("ReverseWrappingEntitySet"));
           Assert.IsNotNull(a.ManyToOne);
+          Assert.IsTrue(a.ManyToOne.GetType().Name.StartsWith("SimpleEntitySet"));
           Assert.IsNotNull(a.ManyToZero);
+          Assert.IsTrue(a.ManyToZero.GetType().Name.StartsWith("ForwardWrappingEntitySet"));
         }
       }
     }

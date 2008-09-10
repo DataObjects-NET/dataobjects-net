@@ -146,9 +146,11 @@ namespace Xtensive.Storage.Building.Builders
           context.Model.Associations.Remove(ai);
         context.DiscardedAssociations.Clear();
 
-        foreach (AssociationInfo association in context.Model.Associations)
-          if (association.EntityType!=null)
+        foreach (AssociationInfo association in context.Model.Associations) {
+          association.EntityType = EntitySetHelper.BuildReferenceType(association);
+          if (association.EntityType != null)
             EntitySetHelper.DefineReferenceType(association);
+        }
       }
     }
   }

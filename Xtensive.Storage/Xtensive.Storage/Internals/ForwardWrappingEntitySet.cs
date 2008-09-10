@@ -9,7 +9,7 @@ using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Internals
 {
-  public class DirectWrappingEntitySet<T1, T2, TRef> : EntitySet<T1>
+  public class ForwardWrappingEntitySet<T1, T2, TRef> : EntitySet<T1>
     where T1 : Entity
     where T2 : Entity
     where TRef : EntitySetReference<T1, T2>
@@ -56,7 +56,7 @@ namespace Xtensive.Storage.Internals
       get { throw new System.NotImplementedException(); }
     }
 
-    public DirectWrappingEntitySet(Persistent owner, FieldInfo field)
+    public ForwardWrappingEntitySet(Persistent owner, FieldInfo field)
       : base(owner, field)
     {
       set = new EntitySet<T1, T2, TRef>(owner);
