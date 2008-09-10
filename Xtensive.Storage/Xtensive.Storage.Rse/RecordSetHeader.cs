@@ -90,8 +90,7 @@ namespace Xtensive.Storage.Rse
         typeList.Add(value.Type);
       }
       resultTupleDescriptor = TupleDescriptor.Create(new[] { resultTupleDescriptor, TupleDescriptor.Create(typeList) }.SelectMany(descriptor => descriptor));
-      resultColumns = resultColumns.Join(values.Select
-        (column => (Column)new CalculatedColumn(new CalculatedColumnDescriptor(column.Name, column.Type, column.Expression), Columns.Count + column.Index)));
+      resultColumns = resultColumns.Join(values);
       return new RecordSetHeader(
         resultTupleDescriptor, resultColumns, ColumnGroups, OrderTupleDescriptor, Order);
     }
