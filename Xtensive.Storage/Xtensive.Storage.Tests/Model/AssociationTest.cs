@@ -202,15 +202,64 @@ namespace Xtensive.Storage.Tests.Model
     }
 
     [Test]
-    public void OneToManyPairedAssign()
+    public void ManyToOneAssign()
     {
-      // Domain.Model.Dump();
-      using (Domain.OpenSession()) {        
+      using (Domain.OpenSession()) {
+        A a;
+        F f;
+        using (var transaction = Transaction.Open()) {
+          a = new A();
+          f = new F();
+          transaction.Complete();
+        }
         using (Transaction.Open()) {
-          var d = new D();
-          var a = new A();
-          Assert.IsNull(a.OneToMany);
-          Assert.IsNotNull(d.As);
+          Assert.IsNull(f.A);
+          Assert.IsNotNull(a.ManyToOne);
+          Assert.AreEqual(0, a.ManyToOne.Count);
+          Assert.IsFalse(a.ManyToOne.Contains(f));
+          f.A = a;
+          Assert.IsNotNull(f.A);
+          Assert.AreEqual(1, a.ManyToOne.Count);
+          Assert.IsTrue(a.ManyToOne.Contains(f));
+        }
+        // rollback
+        using (Transaction.Open()) {
+          Assert.IsNull(f.A);
+          Assert.IsNotNull(a.ManyToOne);
+          Assert.AreEqual(0, a.ManyToOne.Count);
+          Assert.IsFalse(a.ManyToOne.Contains(f));
+        }
+      }
+    }
+
+    [Test]
+    public void ManyToOneAddToSet()
+    {
+      using (Domain.OpenSession()) {
+        A a;
+        F f;
+        using (var transaction = Transaction.Open()) {
+          a = new A();
+          f = new F();
+          transaction.Complete();
+        }
+        using (Transaction.Open()) {
+          Assert.IsNull(f.A);
+          Assert.IsNotNull(a.ManyToOne);
+          Assert.AreEqual(0, a.ManyToOne.Count);
+          Assert.IsFalse(a.ManyToOne.Contains(f));
+          a.ManyToOne.Add(f);
+          Assert.IsNotNull(f.A);
+          Assert.AreEqual(f.A, a);
+          Assert.AreEqual(1, a.ManyToOne.Count);
+          Assert.IsTrue(a.ManyToOne.Contains(f));
+        }
+        // rollback
+        using (Transaction.Open()) {
+          Assert.IsNull(f.A);
+          Assert.IsNotNull(a.ManyToOne);
+          Assert.AreEqual(0, a.ManyToOne.Count);
+          Assert.IsFalse(a.ManyToOne.Contains(f));
         }
       }
     }

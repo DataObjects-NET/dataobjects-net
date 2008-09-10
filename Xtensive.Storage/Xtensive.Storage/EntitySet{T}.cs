@@ -18,6 +18,8 @@ namespace Xtensive.Storage
     ISet<T>
     where T: Entity
   {
+    internal static int MaximumCacheSize = 10000;
+
     private readonly AdvancedComparer<T> comparer = AdvancedComparer<T>.Default;
 
     /// <inheritdoc/>
