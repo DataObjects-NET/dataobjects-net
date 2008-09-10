@@ -8,72 +8,43 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Comparison;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage
 {
-  public class EntitySet<T>: EntitySet, 
+  public abstract class EntitySet<T>: EntitySet, 
     ISet<T>
     where T: Entity
   {
+    private readonly AdvancedComparer<T> comparer = AdvancedComparer<T>.Default;
 
     /// <inheritdoc/>
-    public override Persistent Owner { get; internal set; }
+    public abstract long Count { get; }
 
     /// <inheritdoc/>
-    public override FieldInfo Field { get; internal set; }
+    public abstract T this[T item] { get; }
 
     /// <inheritdoc/>
-    public long Count
-    {
-      get { throw new NotImplementedException(); }
-    }
-
-    /// <inheritdoc/>
-    public T this[T item]
-    {
-      get { throw new NotImplementedException(); }
-    }
-
-    /// <inheritdoc/>
-    public bool Contains(T item)
-    {
-      throw new NotImplementedException();
-    }
+    public abstract bool Contains(T item);
 
     #region Modification methods: Add, Remove, RemoveWhere, Clear, CopyTo
 
     /// <inheritdoc/>
-    public bool Add(T item)
-    {
-      throw new NotImplementedException();
-    }
+    public abstract bool Add(T item);
 
     /// <inheritdoc/>
-    public bool Remove(T item)
-    {
-      throw new NotImplementedException();
-    }
+    public abstract bool Remove(T item);
 
     /// <inheritdoc/>
-    public int RemoveWhere(Predicate<T> match)
-    {
-      throw new NotImplementedException();
-    }
+    public abstract int RemoveWhere(Predicate<T> match);
 
     /// <inheritdoc/>
-    public void Clear()
-    {
-      throw new NotImplementedException();
-    }
+    public abstract void Clear();
 
     /// <inheritdoc/>
-    public void CopyTo(T[] array, int arrayIndex)
-    {
-      throw new NotImplementedException();
-    }
+    public abstract void CopyTo(T[] array, int arrayIndex);
 
     #endregion
 
@@ -121,13 +92,13 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     public IEqualityComparer<T> Comparer
     {
-      get { throw new NotImplementedException(); }
+      get { return comparer.EqualityComparerImplementation; }
     }
 
     /// <inheritdoc/>
     public bool IsReadOnly
     {
-      get { throw new NotImplementedException(); }
+      get { return false; }
     }
 
     /// <summary>
@@ -135,10 +106,9 @@ namespace Xtensive.Storage
     /// </summary>
     /// <param name="owner">Persistent this entity set belongs to.</param>
     /// <param name="field">Field corresponds to this entity set.</param>
-    public EntitySet(Persistent owner, FieldInfo field)
+    protected EntitySet(Persistent owner, FieldInfo field)
+      :base(owner, field)
     {
-      Owner = owner;
-      Field = field;
     }
   }
 }
