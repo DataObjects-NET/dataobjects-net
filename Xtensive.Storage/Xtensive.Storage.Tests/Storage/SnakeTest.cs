@@ -43,7 +43,6 @@ namespace Xtensive.Storage.Tests.Storage.SnakesModel
   public interface ICreature : IEntity
   {
     [Field(Length = 255)]
-    [Infrastructure]
     string Name { get; set; }
   }
 
@@ -55,7 +54,7 @@ namespace Xtensive.Storage.Tests.Storage.SnakesModel
   {
     [Field]
     public int ID { get; set; }
-    
+        
     public string Name { get; set; }
 
     [Field]
@@ -659,17 +658,41 @@ namespace Xtensive.Storage.Tests.Storage
     }
 
     [Test]
+    public void SetValuePerformance()
+    {
+      using (Domain.OpenSession()) {
+        using (Transaction.Open()) {
+          Snake s = new Snake();          
+          const int getsCount = 10000;
+          using (new Measurement("Setting value...", getsCount * 10)) {
+            for (int i = 0; i < getsCount; i++) {
+              s.Name = "Aaa";
+              s.Name = "Bbb";
+              s.Name = "Ccc";
+              s.Name = "Ddd";
+              s.Name = "Eee";
+              s.Name = "Fff";
+              s.Name = "Ggg";
+              s.Name = "Hhh";
+              s.Name = "Iii";
+              s.Name = "Jjj";
+            }
+          }
+        }
+      }
+    }
+
+    [Test]
     public void GetValuePerformance()
     {
       using (Domain.OpenSession()) {
         using (Transaction.Open()) {
           Snake s = new Snake();
-          s.Name = "Dina";
-          int i;
+          s.Name = "SuperSnake";
           string value;
           const int getsCount = 10000;
-          using (new Measurement("Geting value...", getsCount * 10)) {
-            for (i = 0; i < getsCount; i++) {
+          using (new Measurement("Getting value...", getsCount * 10)) {
+            for (int i = 0; i < getsCount; i++) {
               value = s.Name;
               value = s.Name;
               value = s.Name;
@@ -685,5 +708,8 @@ namespace Xtensive.Storage.Tests.Storage
         }
       }
     }
+
+
+
   }
 }

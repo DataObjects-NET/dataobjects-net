@@ -164,7 +164,7 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     /// <exception cref="InvalidOperationException">Entity is removed.</exception>
     protected internal override sealed void OnSettingValue(FieldInfo field)
-    {
+    { 
       if (Log.IsLogged(LogEventTypes.Debug))
         Log.Debug("Session '{0}'. Setting value: Key = '{1}', Field = '{2}'", Session, Key, field);
       data.EnsureCanOperate();
@@ -222,11 +222,13 @@ namespace Xtensive.Storage
     /// Called when entity should be validated.
     /// Override this method to perform custom validation.
     /// </summary>
+    [Infrastructure]
     public virtual void OnValidate()
     {
     }
 
     /// <inheritdoc/>
+    [Infrastructure]
     void IValidationAware.OnValidate()
     {
       if (IsRemoved)
@@ -246,6 +248,7 @@ namespace Xtensive.Storage
     }
 
     /// <inheritdoc/>
+    [Infrastructure]
     bool IValidationAware.IsCompatibleWith(ValidationContextBase context)
     {
       return context==Session.ValidationContext;
