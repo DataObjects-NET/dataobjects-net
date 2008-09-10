@@ -42,17 +42,25 @@ namespace Xtensive.Storage.Tests.Storage
 
     [Test]    
     public void Test()
-    {
-      var scope1 = Domain.OpenSession();
-      Ray ray1 = new Ray();
-      var testHelper = new TestHelper(Session.Current);
-      Session.Current.Persist();
+    {      
+      using (var scope1 = Domain.OpenSession()) {
+        using (Transaction.Open()) {
+          Ray ray1 = new Ray();
+          var testHelper = new TestHelper(Session.Current);
+          Session.Current.Persist();
 
-      var scope2 = Domain.OpenSession();
-      Ray ray2 = new Ray();
+          using (var scope2 = Domain.OpenSession()) {
+            Assert.IsNull(Transaction.Current);
 
-      Assert.AreNotEqual(scope1.Session, scope2.Session);
-      testHelper.TestMethod(ray1, ray2, Session.Current);
+            using (Transaction.Open()) {
+              Ray ray2 = new Ray();
+
+              Assert.AreNotEqual(scope1.Session, scope2.Session);
+              testHelper.TestMethod(ray1, ray2, Session.Current);
+            }            
+          }          
+        }        
+      }
     }
   }
 }

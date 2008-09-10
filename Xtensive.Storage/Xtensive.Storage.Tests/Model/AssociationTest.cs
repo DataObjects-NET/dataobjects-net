@@ -109,8 +109,13 @@ namespace Xtensive.Storage.Tests.Model
     {
       // Domain.Model.Dump();
       using (Domain.OpenSession()) {
-        var c = new C();
-        var a = new A();
+        C c;
+        A a;
+        using (var t = Transaction.Open()) {
+          c = new C();
+          a = new A();
+          t.Complete();        
+        }
         using (Transaction.Open()) {
           Assert.IsNull(a.OneToOne);
           Assert.IsNull(c.A);
@@ -136,10 +141,16 @@ namespace Xtensive.Storage.Tests.Model
     public void OneToOneChangeOwner()
     {
       // Domain.Model.Dump();
-      using (Domain.OpenSession()) {
-        var c = new C();
-        var a1 = new A();
-        var a2 = new A();
+      using (Domain.OpenSession()) {        
+        C c;
+        A a1;
+        A a2;
+        using (var t = Transaction.Open()) {
+          c = new C();
+          a1 = new A();
+          a2 = new A();
+          t.Complete();
+        }
         using (Transaction.Open()) {
           Assert.IsNull(a1.OneToOne);
           Assert.IsNull(a2.OneToOne);
@@ -177,15 +188,14 @@ namespace Xtensive.Storage.Tests.Model
     public void OneToManyPairedAssign()
     {
       // Domain.Model.Dump();
-      using (Domain.OpenSession()) {
-        var d = new D();
-        var a = new A();
+      using (Domain.OpenSession()) {        
         using (Transaction.Open()) {
+          var d = new D();
+          var a = new A();
           Assert.IsNull(a.OneToMany);
           Assert.IsNotNull(d.As);
         }
       }
     }
-
   }
 }

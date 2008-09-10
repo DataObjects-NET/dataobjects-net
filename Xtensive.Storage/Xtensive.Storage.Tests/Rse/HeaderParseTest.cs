@@ -30,11 +30,13 @@ namespace Xtensive.Storage.Tests.Rse
     {
       Key key;
       using (Domain.OpenSession()) {
-        Book book = new Book();
-        book.Title = "Title";
-        book.Text = "Text";
-        key = book.Key;
-        Session.Current.Persist();
+        using (Transaction.Open()) {
+          Book book = new Book();
+          book.Title = "Title";
+          book.Text = "Text";
+          key = book.Key;
+          Session.Current.Persist();
+        }
       }
       using (Domain.OpenSession()) {
         using (Transaction.Open()) {

@@ -74,9 +74,15 @@ namespace Xtensive.Storage
         return;
 
       Reload();
-      transaction = transaction.Session.Transaction;
-      if (transaction==null)
+      SetTransaction(transaction = transaction.Session.Transaction);     
+    }
+
+    private void SetTransaction(Transaction newTransaction)
+    {
+      if (newTransaction==null)
         throw new InvalidOperationException(Strings.ExTransactionRequired);
+
+      transaction = newTransaction;
     }
 
     /// <summary>
@@ -180,9 +186,9 @@ namespace Xtensive.Storage
 
     internal EntityData(Key key, DifferentialTuple tuple, Transaction transaction)
     {
-      Key = key;  
+      Key = key;
       DifferentialData = tuple;
-      this.transaction = transaction;
+      SetTransaction(transaction);
       isRemoved = false;
     }
   }

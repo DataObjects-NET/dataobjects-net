@@ -78,10 +78,12 @@ namespace Xtensive.Storage.Tests.Storage.AspectsTest
     
     [Test]
     public void TransactionalAspectTest()
-    {      
-      using (Domain.OpenSession ()) {
-        BusinessObject obj = new BusinessObject();
-
+    {
+      using (Domain.OpenSession()) {
+        BusinessObject obj;
+        using (Transaction.Open()) {
+          obj = new BusinessObject();
+        }
         obj.PublicMethod(
           o => Assert.IsNotNull(o.Session.Transaction));
 
@@ -95,27 +97,29 @@ namespace Xtensive.Storage.Tests.Storage.AspectsTest
           o => Assert.IsNull(o.Session.Transaction));
 
         obj.CallPrivateMethod(
-          o => Assert.IsNull(o.Session.Transaction));        
+          o => Assert.IsNull(o.Session.Transaction));
       }
     }
-    
+
     [Test]
     public void AspectsPriorityTest()
     {            
       using (Domain.OpenSession()) {
-        BusinessObject obj = new BusinessObject();        
+        using (Transaction.Open()) {
+          BusinessObject obj = new BusinessObject();
 
-        using (Domain.OpenSession()) {
-          Session session2 = Session.Current;
-          Assert.AreNotEqual(obj.Session, session2);
+          using (Domain.OpenSession()) {
+            Session session2 = Session.Current;
+            Assert.AreNotEqual(obj.Session, session2);
 
-          // Check that transaction will be started in obj.Session, but not in second session.
+            // Check that transaction will be started in obj.Session, but not in second session.
 
-          obj.PublicMethod(
-            o => Assert.IsNotNull(o.Session.Transaction));
+            obj.PublicMethod(
+              o => Assert.IsNotNull(o.Session.Transaction));
 
-          obj.PublicMethod(
-            o => Assert.IsNull(session2.Transaction));
+            obj.PublicMethod(
+              o => Assert.IsNull(session2.Transaction));
+          }
         }
       }      
     }

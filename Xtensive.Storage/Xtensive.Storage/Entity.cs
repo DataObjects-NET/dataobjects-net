@@ -263,17 +263,14 @@ namespace Xtensive.Storage
     /// </summary>
     protected Entity()
     {
-      using (var transactionScope = Session.OpenTransaction()) {
-        TypeInfo type = Session.Domain.Model.Types[GetType()];
-        Key key = Session.Domain.KeyManager.Next(type);
+      TypeInfo type = Session.Domain.Model.Types[GetType()];
+      Key key = Session.Domain.KeyManager.Next(type);
 
-        if (Log.IsLogged(LogEventTypes.Debug))
-          Log.Debug("Session '{0}'. Creating entity: Key = '{1}'", Session, key);
+      if (Log.IsLogged(LogEventTypes.Debug))
+        Log.Debug("Session '{0}'. Creating entity: Key = '{1}'", Session, key);
 
-        data = Session.DataCache.Create(key, true, Session.Transaction);
-        OnCreating();
-        transactionScope.Complete();
-      }
+      data = Session.DataCache.Create(key, true, Session.Transaction);
+      OnCreating();
     }
 
     /// <summary>
@@ -283,18 +280,14 @@ namespace Xtensive.Storage
     /// <remarks>Use this kind of constructor when you need to explicitly build key for this instance.</remarks>
     protected Entity(Tuple tuple)
     {
-      using (var transactionScope = Session.OpenTransaction()) {
-        TypeInfo type = Session.Domain.Model.Types[GetType()];
-        Key key = Session.Domain.KeyManager.Get(type, tuple);
+      TypeInfo type = Session.Domain.Model.Types[GetType()];
+      Key key = Session.Domain.KeyManager.Get(type, tuple);
 
-        if (Log.IsLogged(LogEventTypes.Debug))
-          Log.Debug("Session '{0}'. Creating entity: Key = '{1}'", Session, key);
+      if (Log.IsLogged(LogEventTypes.Debug))
+        Log.Debug("Session '{0}'. Creating entity: Key = '{1}'", Session, key);
 
-        data = Session.DataCache.Create(key, true, Session.Transaction);
-        OnCreating();
-
-        transactionScope.Complete();
-      }
+      data = Session.DataCache.Create(key, true, Session.Transaction);
+      OnCreating();
     }
 
     /// <summary>

@@ -672,16 +672,18 @@ namespace Xtensive.Storage.Tests.Model
     public void ComplexKeyTest()
     {
       using (Domain.OpenSession()) {
-        Book book = new Book("5-272-00040-4");
-        book.Title = "Assembler";
-        book.Author = new Author();
-        book.Author.Passport.Card.LastName = "Jurov";
-        Person reviewer = new Person();
-        reviewer.Passport.Card.LastName = "Kochetov";
-        reviewer.Passport.Card.FirstName = "Alexius";
-        BookReview review = new BookReview(book.Key, reviewer.Key);
-        Assert.AreEqual((object) book, review.Book);
-        Assert.AreEqual((object) reviewer, review.Reviewer);
+        using (Transaction.Open()) {
+          Book book = new Book("5-272-00040-4");
+          book.Title = "Assembler";
+          book.Author = new Author();
+          book.Author.Passport.Card.LastName = "Jurov";
+          Person reviewer = new Person();
+          reviewer.Passport.Card.LastName = "Kochetov";
+          reviewer.Passport.Card.FirstName = "Alexius";
+          BookReview review = new BookReview(book.Key, reviewer.Key);
+          Assert.AreEqual((object) book, review.Book);
+          Assert.AreEqual((object) reviewer, review.Reviewer);
+        }
       }
     }
   }

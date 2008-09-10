@@ -45,17 +45,20 @@ namespace Xtensive.Storage.Tests.Storage
     {
       Key key;
       using (Domain.OpenSession()) {
-        var descendant = new Descendant();
-        key = descendant.Key;
-        Session.Current.Persist();
+        using (Transaction.Open()) {
+          var descendant = new Descendant();
+          key = descendant.Key;
+          Session.Current.Persist();
+        }        
       }
-
       using (Domain.OpenSession()) {
-        var ancestor = key.Resolve<Ancestor>();
-        Assert.IsNotNull(ancestor);
+        using (Transaction.Open()) {
+          var ancestor = key.Resolve<Ancestor>();
+          Assert.IsNotNull(ancestor);
 
-        var descendant = key.Resolve<Descendant>();
-        Assert.IsNotNull(descendant);
+          var descendant = key.Resolve<Descendant>();
+          Assert.IsNotNull(descendant);
+        }        
       }
     }
   }
