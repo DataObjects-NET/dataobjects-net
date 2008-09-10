@@ -187,6 +187,7 @@ namespace Xtensive.Sql.Dom
           typeof (DateTime),
           typeof (TimeSpan),
           typeof (byte[]),
+          typeof (char[]),
           typeof (Guid)
         }.ToDictionary(type => type);
     }

@@ -5,11 +5,16 @@
 // Created:    2008.09.05
 
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
+using Xtensive.Core.Collections;
+using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
+using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Dml;
 using SqlFactory = Xtensive.Sql.Dom.Sql;
+using System.Linq;
 
 namespace Xtensive.Storage.Providers.Sql.Expressions
 {
@@ -172,12 +177,12 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
 
     private SqlExpression VisitTypeIs(TypeBinaryExpression expression)
     {
-      throw new NotImplementedException();
+      throw new NotSupportedException();
     }
 
     private SqlExpression VisitConditional(ConditionalExpression expression)
     {
-      throw new NotImplementedException();
+      throw new NotSupportedException();
     }
 
     private SqlExpression VisitConstant(ConstantExpression expression)
@@ -190,12 +195,24 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
 
     private SqlExpression VisitParameter(ParameterExpression expression)
     {
-      throw new NotImplementedException();
+      throw new NotSupportedException();
     }
 
     private SqlExpression VisitMemberAccess(MemberExpression expression)
     {
-      throw new NotImplementedException();
+      if (expression.Expression.NodeType == ExpressionType.Constant) {
+        var lambda = Expression.Lambda(expression).Compile();
+        var p = new SqlParameter();
+        request.ParameterBindings.Add(p, () => lambda.DynamicInvoke(ArrayUtils<object>.EmptyArray));
+        return SqlFactory.ParameterRef(p);
+      }
+      if (expression.Expression.NodeType == ExpressionType.MemberAccess && expression.Expression.Type.BaseType == typeof(Core.Parameters.Parameter)) {
+        var lambda = Expression.Lambda(expression).Compile();
+        var p = new SqlParameter();
+        request.ParameterBindings.Add(p, () => lambda.DynamicInvoke(ArrayUtils<object>.EmptyArray));
+        return SqlFactory.ParameterRef(p);
+      }
+      throw new NotSupportedException();
     }
 
     private SqlExpression VisitMethodCall(MethodCallExpression expression)
@@ -214,7 +231,10 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
           return sqlSelect[columnIndex];
         }
       }
-      throw new NotImplementedException();
+      var map = MethodMapping.GetMapping(expression.Method);
+      var target = Visit(expression.Object);
+      var arguments = expression.Arguments.Select(a => Visit(a)).ToArray();
+      return map(target, arguments);
     }
 
     private SqlExpression VisitLambda(LambdaExpression expression)
@@ -224,27 +244,27 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
 
     private SqlExpression VisitNew(NewExpression expression)
     {
-      throw new NotImplementedException();
+      throw new NotSupportedException();
     }
 
     private SqlExpression VisitNewArray(NewArrayExpression expression)
     {
-      throw new NotImplementedException();
+      throw new NotSupportedException();
     }
 
     private SqlExpression VisitInvocation(InvocationExpression expression)
     {
-      throw new NotImplementedException();
+      throw new NotSupportedException();
     }
 
     private SqlExpression VisitMemberInit(MemberInitExpression expression)
     {
-      throw new NotImplementedException();
+      throw new NotSupportedException();
     }
 
     private SqlExpression VisitListInit(ListInitExpression expression)
     {
-      throw new NotImplementedException();
+      throw new NotSupportedException();
     }
 
 

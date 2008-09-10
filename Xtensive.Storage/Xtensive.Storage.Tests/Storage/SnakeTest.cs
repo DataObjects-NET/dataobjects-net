@@ -345,6 +345,66 @@ namespace Xtensive.Storage.Tests.Storage
     }
 
     [Test]
+    public void FilterTest()
+    {
+      const int snakesCount = 1000;
+      const int creaturesCount = 1000;
+      const int lizardsCount = 1000;
+
+      using(Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          for (int i = 0; i < snakesCount; i++) {
+            Snake s = new Snake();
+            s.Name = "Kaa" + i;
+            s.Length = i;
+          }
+          for (int j = 0; j < creaturesCount; j++) {
+            Creature c = new Creature();
+            c.Name = "Creature" + j;
+          }
+          for (int i = 0; i < lizardsCount; i++) {
+            Lizard l = new Lizard();
+            l.Name = "Lizard" + i;
+            l.Color = "Color" + i;
+          }
+          t.Complete();
+        }
+      }
+
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          TypeInfo snakeType = Domain.Model.Types[typeof(Snake)];
+          RecordSet rsSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordSet();
+          string name = "Kaa900";
+          RecordSet result = rsSnakePrimary.Filter(tuple => tuple.GetValue<string>(rsSnakePrimary.IndexOf("Name")).StartsWith(name));
+          Assert.Greater(result.Count(), 0);
+
+          result = rsSnakePrimary.Filter(tuple => tuple.GetValue<string>(rsSnakePrimary.IndexOf("Name")).Contains(name));
+          Assert.Greater(result.Count(), 0);
+
+          name = "90";
+          result = rsSnakePrimary.Filter(tuple => tuple.GetValue<string>(rsSnakePrimary.IndexOf("Name")).EndsWith(name));
+          Assert.Greater(result.Count(), 0);
+
+          result = rsSnakePrimary.Filter(tuple => tuple.GetValue<int>(rsSnakePrimary.IndexOf("Length")) > 10);
+          Assert.Greater(result.Count(), 0);
+
+          int len = 10;
+          result = rsSnakePrimary.Filter(tuple => tuple.GetValue<int>(rsSnakePrimary.IndexOf("Length")) > len);
+          Assert.Greater(result.Count(), 0);
+
+          var pLen = new Parameter<int>();
+          result = rsSnakePrimary.Filter(tuple => tuple.GetValue<int>(rsSnakePrimary.IndexOf("Length")) > pLen.Value);
+          using (new ParameterScope()) {
+            pLen.Value = 10;
+            Assert.Greater(result.Count(), 0);
+          }
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
     public void InterfaceTest()
     {
       const int snakesCount = 10;
