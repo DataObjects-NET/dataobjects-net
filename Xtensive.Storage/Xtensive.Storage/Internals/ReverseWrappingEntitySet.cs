@@ -14,6 +14,8 @@ namespace Xtensive.Storage.Internals
     where T2 : Entity
     where TRef : EntitySetReference<T2, T1>
   {
+    private EntitySet<T2, T1, TRef> set;
+
     public override int RemoveWhere(Predicate<T1> match)
     {
       throw new System.NotImplementedException();
@@ -57,7 +59,7 @@ namespace Xtensive.Storage.Internals
     public ReverseWrappingEntitySet(Persistent owner, FieldInfo field)
       : base(owner, field)
     {
-      
+      set = new EntitySet<T2, T1, TRef>(owner);
     }
   }
 }

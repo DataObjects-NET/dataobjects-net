@@ -638,6 +638,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unable to activate EntitySet for &apos;{0}&apos; field because it does not has association..
+        /// </summary>
+        internal static string ExUnableToActivateEntitySetWithoutAssociation {
+            get {
+                return ResourceManager.GetString("ExUnableToActivateEntitySetWithoutAssociation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to clone system session configuration..
         /// </summary>
         internal static string ExUnableToCloneSystemSessionConfiguration {

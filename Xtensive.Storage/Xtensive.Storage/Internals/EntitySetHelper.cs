@@ -18,7 +18,7 @@ namespace Xtensive.Storage.Internals
     public static Type BuildReferenceType(AssociationInfo association)
     {
       if (association.ReferencingField.IsEntitySet && association.IsMaster) {
-        Type baseType = typeof (EntitySetReference<,>).MakeGenericType(association.ReferencingType.UnderlyingType, association.ReferencedType.UnderlyingType);
+        Type baseType = typeof (EntitySetReference<,>).MakeGenericType(association.ReferencedType.UnderlyingType, association.ReferencingType.UnderlyingType);
         string name = BuildingContext.Current.NameBuilder.Build(association);
         return TypeHelper.CreateDummyType(name, baseType);
       }

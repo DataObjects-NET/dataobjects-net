@@ -105,6 +105,20 @@ namespace Xtensive.Storage.Tests.Model
     }
 
     [Test]
+    public void EntitySetCreation()
+    {
+      // Domain.Model.Dump();
+      using (Domain.OpenSession()) {
+        using (Transaction.Open()) {
+          var a = new A();
+          Assert.IsNotNull(a.ManyToMany);
+          Assert.IsNotNull(a.ManyToOne);
+          Assert.IsNotNull(a.ManyToZero);
+        }
+      }
+    }
+
+    [Test]
     public void OneToOneAssign()
     {
       // Domain.Model.Dump();

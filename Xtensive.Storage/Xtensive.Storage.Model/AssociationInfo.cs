@@ -7,6 +7,7 @@
 using System;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Storage.Model.Resources;
 
 namespace Xtensive.Storage.Model
 {
@@ -24,6 +25,24 @@ namespace Xtensive.Storage.Model
     public TypeInfo ReferencingType
     {
       get { return ReferencingField.DeclaringType; }
+    }
+
+    /// <summary>
+    /// Gets master association.
+    /// </summary>
+    /// <remarks>
+    /// If association is master, returns it. Otherwise returns paired association.
+    /// </remarks>
+    public AssociationInfo MasterAssociation
+    {
+      get
+      {
+        if (isMaster) 
+          return this;
+        if (pairTo==null || !pairTo.isMaster) 
+          throw new InvalidOperationException(String.Format(Strings.ExUnableToFindMasterAssociation, Name));
+        return pairTo;
+      }
     }
 
     /// <summary>

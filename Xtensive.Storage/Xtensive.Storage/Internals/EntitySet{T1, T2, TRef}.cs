@@ -6,16 +6,16 @@
 
 namespace Xtensive.Storage.Internals
 {
-//  internal class EntitySetR<T1, T2, TRef> 
-//    where T1 : Entity
-//    where T2 : Entity
-//    where TRef : EntitySetReference<T1, T2>
-//  {
-//    private Persistent owner;
-//
-//    public EntitySetR(Persistent owner)
-//    {
-//      this.owner = owner;
-//    }
-//  }
+  internal class EntitySet<T1, T2, TRef> 
+    where T1 : Entity
+    where T2 : Entity
+    where TRef : EntitySetReference<T1, T2>
+  {
+    private Persistent owner;
+
+    public EntitySet(Persistent owner)
+    {
+      this.owner = owner;
+    }
+  }
 }

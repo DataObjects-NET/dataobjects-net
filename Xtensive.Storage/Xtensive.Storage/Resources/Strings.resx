@@ -456,4 +456,7 @@
   <data name="ExMasterAssociationIsAlreadyPaired" xml:space="preserve">
     <value>Master association '{0}' is already paired with '{1}'</value>
   </data>
+  <data name="ExUnableToActivateEntitySetWithoutAssociation" xml:space="preserve">
+    <value>Unable to activate EntitySet for '{0}' field because it does not has association.</value>
+  </data>
 </root>

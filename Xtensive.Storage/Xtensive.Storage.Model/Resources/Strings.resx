@@ -123,4 +123,7 @@
   <data name="TypeXIsNotRegistered" xml:space="preserve">
     <value>Type '{0}' is not registered.</value>
   </data>
+  <data name="ExUnableToFindMasterAssociation" xml:space="preserve">
+    <value>Unable to find master association of association '{0}'</value>
+  </data>
 </root>

@@ -5,8 +5,12 @@
 // Created:    2008.09.10
 
 using System;
+using System.Reflection;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Resources;
+using FieldInfo=Xtensive.Storage.Model.FieldInfo;
 
 namespace Xtensive.Storage
 {
@@ -15,7 +19,21 @@ namespace Xtensive.Storage
   {
     internal static IFieldHandler Activate(Type type, Persistent obj, FieldInfo field)
     {
-      throw new NotImplementedException();
+      AssociationInfo association = field.Association;
+      if (association==null) 
+        throw new InvalidOperationException(String.Format(Strings.ExUnableToActivateEntitySetWithoutAssociation, field.Name));
+      if (association.MasterAssociation.EntityType==null) {
+        Type simpleEntitySetType = typeof (SimpleEntitySet<>).MakeGenericType(type);
+        return (IFieldHandler)simpleEntitySetType.InvokeMember("", BindingFlags.CreateInstance, null, null, new object[] {obj, field});
+      }
+      if (association.IsMaster) {
+        // direct
+        Type directEntitySetType = typeof (DirectWrappingEntitySet<,,>).MakeGenericType(type, obj.GetType(), association.EntityType);
+        return (IFieldHandler)directEntitySetType.InvokeMember("", BindingFlags.CreateInstance, null, null, new object[] { obj, field });
+      }
+      // reverse
+      Type reverseEntitySetType = typeof(ReverseWrappingEntitySet<,,>).MakeGenericType(type, obj.GetType(), association.EntityType);
+      return (IFieldHandler)reverseEntitySetType.InvokeMember("", BindingFlags.CreateInstance, null, null, new object[] { obj, field });
     }
 
     /// <inheritdoc/>
