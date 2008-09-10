@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Xtensive.Core;
+using Xtensive.Core.Reflection;
 using Xtensive.Sql.Common;
 using Xtensive.Sql.Dom.Database;
 using Xtensive.Sql.Dom.Ddl;
@@ -1067,7 +1068,12 @@ namespace Xtensive.Sql.Dom
 
     public static SqlLiteral<T> Literal<T>(T value)
     {
-      SqlValidator.EnsureLiteralTypeIsSupported(typeof(T));
+      if (ReferenceEquals(value, null))
+        throw new ArgumentNullException("value");
+      if (typeof (T)==typeof (object))
+        SqlValidator.EnsureLiteralTypeIsSupported(value.GetType());
+      else
+        SqlValidator.EnsureLiteralTypeIsSupported(typeof (T));
       return new SqlLiteral<T>(value);
     }
 

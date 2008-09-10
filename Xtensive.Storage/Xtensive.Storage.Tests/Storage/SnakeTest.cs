@@ -415,6 +415,10 @@ namespace Xtensive.Storage.Tests.Storage
             pLen.Value = 10;
             Assert.Greater(result.Count(), 0);
           }
+
+          result = rsSnakePrimary.Filter(tuple => tuple.GetValue<string>(rsSnakePrimary.IndexOf("Name")).Substring(3, 1) == "9");
+          Assert.Greater(result.Count(), 0);
+
           t.Complete();
         }
       }

@@ -1103,8 +1103,7 @@ namespace Xtensive.Sql.Dom.Compiler
       TypeCode t = Type.GetTypeCode(typeof (T));
       if (t == TypeCode.String || t == TypeCode.Char || typeof(T) == typeof(Guid))
         return QuoteString(Convert.ToString(node.Value, this));
-      else
-        return Convert.ToString(node.Value, this);
+      return Convert.ToString(node.Value, this);
     }
 
     public virtual string Translate(SqlCompilerContext context, SqlMatch node, MatchSection section)
