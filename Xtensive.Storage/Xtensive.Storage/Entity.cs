@@ -13,7 +13,6 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Threading;
 using Xtensive.Core.Tuples;
-using Xtensive.Integrity.Transactions;
 using Xtensive.Integrity.Validation;
 using Xtensive.Integrity.Validation.Interfaces;
 using Xtensive.Storage.Attributes;
@@ -21,7 +20,6 @@ using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.ReferentialIntegrity;
-using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage
 {
@@ -156,7 +154,7 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     /// <exception cref="InvalidOperationException">Entity is removed.</exception>
     protected internal override sealed void OnGettingValue(FieldInfo field)
-    {
+    {   
       if (Log.IsLogged(LogEventTypes.Debug))
         Log.Debug("Session '{0}'. Getting value: Key = '{1}', Field = '{2}'", Session, Key, field);
       data.EnsureCanOperate();

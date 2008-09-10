@@ -31,6 +31,7 @@ namespace Xtensive.Storage.Configuration
     private string name = string.Empty;
     private bool autoValidation = true;
     private int generatorCacheSize = 1024;
+    private bool inconsistentTransactions;
     private SessionConfiguration session;
 
     /// <summary>
@@ -69,6 +70,21 @@ namespace Xtensive.Storage.Configuration
       {
         this.EnsureNotLocked();
         generatorCacheSize = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether inconsistent region should be automatically open within the transaction.
+    /// I.e. all entities, changed within the transaction should be validated on transaction ending only.
+    /// It is recommended to keep this option switched off and define inconsistent regions manually.    
+    /// </summary>
+    public bool InconsistentTransactions
+    {
+      get { return inconsistentTransactions; }
+      set 
+      {
+        this.EnsureNotLocked();
+        inconsistentTransactions = value;
       }
     }
 

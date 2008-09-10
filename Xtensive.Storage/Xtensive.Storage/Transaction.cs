@@ -6,6 +6,7 @@
 
 using System;
 using System.Threading;
+using Xtensive.Core.Disposable;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Integrity.Transactions;
 using Xtensive.Storage.Resources;
@@ -42,14 +43,15 @@ namespace Xtensive.Storage
     protected override void OnBegin()
     {
       Session.OnTransctionBegin();
-      inconsistentRegion = Session.ValidationContext.InconsistentRegion();
+      if (Session.Domain.Configuration.InconsistentTransactions)
+        inconsistentRegion = Session.ValidationContext.InconsistentRegion();
     }
 
     /// <inheritdoc/>
     protected override void OnCommit()
     {
         try {
-          inconsistentRegion.Dispose();
+          inconsistentRegion.DisposeSafely();
         }
         catch {
           OnRollback();
@@ -63,7 +65,7 @@ namespace Xtensive.Storage
     {
       try {
         Session.ValidationContext.ClearValidationQueue();
-        inconsistentRegion.Dispose();
+        inconsistentRegion.DisposeSafely();
       }
       finally {
         Session.OnTransactionRollback();

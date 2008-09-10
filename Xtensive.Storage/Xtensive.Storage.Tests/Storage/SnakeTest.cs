@@ -43,6 +43,7 @@ namespace Xtensive.Storage.Tests.Storage.SnakesModel
   public interface ICreature : IEntity
   {
     [Field(Length = 255)]
+    [Infrastructure]
     string Name { get; set; }
   }
 
@@ -54,7 +55,7 @@ namespace Xtensive.Storage.Tests.Storage.SnakesModel
   {
     [Field]
     public int ID { get; set; }
-
+    
     public string Name { get; set; }
 
     [Field]

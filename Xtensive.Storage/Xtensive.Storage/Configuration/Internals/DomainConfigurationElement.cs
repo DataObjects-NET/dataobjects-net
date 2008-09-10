@@ -26,6 +26,7 @@ namespace Xtensive.Storage.Configuration
     private const string BuildersElementName = "builders";
     private const string TypesElementName = "types";
     private const string AutoValidationElementName = "AutoValidation";
+    private const string InconsistentTransactionsName = "InconsistentTransactions";
     private const string SessionElementName = "session";
 
     /// <summary>
@@ -98,6 +99,18 @@ namespace Xtensive.Storage.Configuration
     {
       get { return (bool) this[AutoValidationElementName]; }
       set { this[AutoValidationElementName] = value; }
+    }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether inconsistent region should be automatically open within the transaction.
+    /// I.e. all entities, changed within the transaction should be validated on transaction ending only.
+    /// It is recommended to keep this option switched off and define inconsistent regions manually.    
+    /// </summary>
+    [ConfigurationProperty(AutoValidationElementName, IsRequired = false, DefaultValue = false)]
+    public bool InconsistentTransactions
+    {
+      get { return (bool) this[InconsistentTransactionsName]; }
+      set { this[InconsistentTransactionsName] = value; }
     }
 
     /// <summary>

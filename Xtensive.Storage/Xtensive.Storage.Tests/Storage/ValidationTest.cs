@@ -51,31 +51,29 @@ namespace Xtensive.Storage.Tests.Storage.Validation
     public void   CombinedTest()
     {
       using (Domain.OpenSession()) {
-
         Mouse mouse;
-        using(var t = Transaction.Open()) {
-          mouse = new Mouse {ButtonCount = 1, ScrollingCount = 1};
+        using (var t = Transaction.Open()) {
+          using (Session.Current.ValidationContext.InconsistentRegion()) {
+            mouse = new Mouse {ButtonCount = 1, ScrollingCount = 1};
+          }          
           t.Complete();
         }
 
-        try {
-          using (var t = Transaction.Open()) {
-            new Mouse {ButtonCount = 2, ScrollingCount = 3}; // Error
-            new Mouse {ButtonCount = 5, ScrollingCount = 3};
-            new Mouse {ButtonCount = 6, ScrollingCount = 3};
-            new Mouse(); // Error
-            new Mouse {ButtonCount = 7, ScrollingCount = 3};
-            mouse.ScrollingCount = 2; // error
-
-            t.Complete();
+        using (var t = Transaction.Open()) {
+          try {
+            using (Session.Current.ValidationContext.InconsistentRegion()) {
+              new Mouse {ButtonCount = 2, ScrollingCount = 3}; // Error
+              new Mouse {ButtonCount = 5, ScrollingCount = 3};
+              new Mouse {ButtonCount = 6, ScrollingCount = 3};
+              new Mouse(); // Error
+              new Mouse {ButtonCount = 7, ScrollingCount = 3};
+              mouse.ScrollingCount = 2; // error
+            }
           }
-        }
-        catch (AggregateException e) {
-          Assert.AreEqual(3, e.Exceptions.Count);
-        }
-        
-        using (Transaction.Open()) {
-          new Mouse {ButtonCount = 2, ScrollingCount = 3};
+          catch (AggregateException e) {
+            Assert.AreEqual(3, e.Exceptions.Count);
+          }
+          t.Complete();
         }
       }
     }
