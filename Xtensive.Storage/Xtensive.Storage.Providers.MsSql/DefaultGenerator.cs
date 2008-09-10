@@ -123,22 +123,23 @@ namespace Xtensive.Storage.Providers.MsSql
     public override void Initialize()
     {
       base.Initialize();
-
-      var sessionHandler = (SessionHandler)BuildingContext.Current.SystemSessionHandler;
+      if (IsGuid)
+        return;
+      var sessionHandler = (SessionHandler) BuildingContext.Current.SystemSessionHandler;
       var keyColumn = Hierarchy.Columns[0];
-      var domainHandler = (DomainHandler)Handlers.DomainHandler;
+      var domainHandler = (DomainHandler) Handlers.DomainHandler;
       schema = domainHandler.Schema;
       generatorTable = schema.CreateTable(Hierarchy.MappingName);
-      if (keyColumn.ValueType == typeof(int))
+      if (keyColumn.ValueType==typeof (int))
         dataType = SqlDataType.Int32;
-      else if (keyColumn.ValueType == typeof(uint))
+      else if (keyColumn.ValueType==typeof (uint))
         dataType = SqlDataType.UInt32;
-      else if (keyColumn.ValueType == typeof(long))
+      else if (keyColumn.ValueType==typeof (long))
         dataType = SqlDataType.Int64;
       else
         dataType = SqlDataType.UInt64;
       var column = generatorTable.CreateColumn("ID", new SqlValueType(dataType));
-      var increment = CacheSize == 0 ? 1: CacheSize;
+      var increment = CacheSize==0 ? 1 : CacheSize;
       column.SequenceDescriptor = new SequenceDescriptor(column, increment, increment);
       SqlBatch batch = SqlFactory.Batch();
       batch.Add(SqlFactory.Create(generatorTable));
@@ -150,10 +151,10 @@ namespace Xtensive.Storage.Providers.MsSql
       }
 
       Type fieldType = Hierarchy.KeyTupleDescriptor[0];
-      var method = typeof(DefaultGenerator)
+      var method = typeof (DefaultGenerator)
         .GetMethod("NextManyInternal", BindingFlags.Instance | BindingFlags.NonPublic)
-        .MakeGenericMethod(new[] { fieldType });
-      getNextMany = (Func<IEnumerable<Tuple>>)Delegate.CreateDelegate(typeof(Func<IEnumerable<Tuple>>), this, method);
+        .MakeGenericMethod(new[] {fieldType});
+      getNextMany = (Func<IEnumerable<Tuple>>) Delegate.CreateDelegate(typeof (Func<IEnumerable<Tuple>>), this, method);
       query = SqlFactory.Batch();
       SqlInsert insert = SqlFactory.Insert(SqlFactory.TableRef(generatorTable));
       query.Add(insert);

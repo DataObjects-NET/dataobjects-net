@@ -14,13 +14,13 @@ using Xtensive.Storage.Tests.Storage.BookAuthorModel;
 
 namespace Xtensive.Storage.Tests.Storage.BookAuthorModel
 {
-  [HierarchyRoot("ID")]
+  [HierarchyRoot(typeof(Generator), "ID")]
   public class Book : Entity
   {
     [Field]
     public int ID { get; private set; }
 
-    [Field(Length = 50)]
+    [Field(Length = 10)]
     public string Title { get; set; }
 
     [Field(LazyLoad = true)]
@@ -30,7 +30,7 @@ namespace Xtensive.Storage.Tests.Storage.BookAuthorModel
     public Author Author { get; set; }
   }
 
-  [HierarchyRoot("ID")]
+  [HierarchyRoot(typeof(Generator), "ID")]
   public class Author : Entity
   {
     [Field]

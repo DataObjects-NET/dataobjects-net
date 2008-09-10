@@ -48,7 +48,7 @@ namespace Xtensive.Storage.Tests.Storage.SnakesModel
 
   [DebuggerDisplay("Name = '{Name}'")]
   [Index("Name")]
-  [HierarchyRoot("ID")]
+  [HierarchyRoot(typeof(Generator), "ID")]
   public class Creature : Entity,
     ICreature
   {

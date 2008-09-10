@@ -122,7 +122,8 @@ namespace Xtensive.Storage.Providers.VistaDb
     public override void Initialize()
     {
       base.Initialize();
-
+      if (IsGuid)
+        return;
       var sessionHandler = (SessionHandler)BuildingContext.Current.SystemSessionHandler;
       var keyColumn = Hierarchy.Columns[0];
       var domainHandler = (DomainHandler)Handlers.DomainHandler;

@@ -185,7 +185,9 @@ namespace Xtensive.Storage.Building.Builders
         Registry<HierarchyInfo, Generator> generators = BuildingContext.Current.Domain.KeyManager.Generators;
         foreach (HierarchyInfo hierarchy in BuildingContext.Current.Model.Hierarchies) {
           Generator generator;
-          if (hierarchy.Generator == null || hierarchy.Generator==typeof (Generator))
+          if (hierarchy.Generator == null)
+            continue;
+          if (hierarchy.Generator==typeof (Generator))
             generator = handlerAccessor.HandlerFactory.CreateHandler<Generator>();
           else
             generator = (Generator) Activator.CreateInstance(hierarchy.Generator);

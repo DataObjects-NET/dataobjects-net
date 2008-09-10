@@ -48,6 +48,11 @@ namespace Xtensive.Storage
       get { return cacheSize; }
     }
 
+    public bool IsGuid
+    {
+      get { return isGuid; }
+    }
+
     /// <summary>
     /// Create the <see cref="Tuple"/> with the unique values in key sequence.
     ///  </summary>
