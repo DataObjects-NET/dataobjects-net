@@ -126,7 +126,7 @@ namespace Xtensive.Core.Diagnostics
 
   <root>
     <level value=""ALL"" />
-    <appender-ref ref=""ConsoleAppender"" />
+    <appender-ref ref=""NullAppender"" />
   </root>
 
   <logger name=""Console"" additivity=""false"">
