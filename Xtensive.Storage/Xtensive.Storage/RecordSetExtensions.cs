@@ -81,10 +81,10 @@ namespace Xtensive.Storage
     private static ColumnGroupMapping GetColumnGroupMapping(RecordSetHeaderParsingContext context, ColumnGroup group)
     {
       int typeIdIndex = -1;
-      Dictionary<ColumnInfo, Column> columnMapping = new Dictionary<ColumnInfo, Column>(group.Columns.Count);
+      Dictionary<ColumnInfo, RawColumn> columnMapping = new Dictionary<ColumnInfo, RawColumn>(group.Columns.Count);
 
       foreach (int columnIndex in group.Columns) {
-        Column column = context.Header.Columns[columnIndex];
+        RawColumn column = (RawColumn)context.Header.Columns[columnIndex];
         ColumnInfo columnInfo = column.ColumnInfoRef.Resolve(context.Domain.Model);
         columnMapping[columnInfo] = column;
         if (columnInfo.Name==NameBuilder.TypeIdFieldName)
@@ -113,7 +113,7 @@ namespace Xtensive.Storage
     {
       List<int> map = new List<int>(type.Columns.Count);
       foreach (ColumnInfo columnInfo in type.Columns) {
-        Column column;
+        RawColumn column;
         if (columnGroupMapping.ColumnInfoMapping.TryGetValue(columnInfo, out column))
           map.Add(column.Index);
         else

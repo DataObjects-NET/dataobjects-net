@@ -60,7 +60,7 @@ namespace Xtensive.Storage.Rse
     public ColumnCollection Alias(string alias)
     {      
       return new ColumnCollection(
-        this.Select(column => new Column(column, alias)));
+        this.Select(column => (Column)new RawColumn(column, alias)));
     }
 
 

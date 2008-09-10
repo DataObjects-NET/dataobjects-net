@@ -28,14 +28,14 @@ namespace Xtensive.Storage.Tests.Rse
       Tuple authorTuple = Tuple.Create(new[] {typeof (int), typeof (string)});
       var personColumns = new[]
         {
-          new Column("ID", 0, typeof (int)),
-          new Column("FirstName", 1, typeof (string)),
-          new Column("LastName", 2, typeof (string)),
+          new RawColumn("ID", 0, typeof (int)),
+          new RawColumn("FirstName", 1, typeof (string)),
+          new RawColumn("LastName", 2, typeof (string)),
         };
       var authorColumns = new[]
         {
-          new Column("ID", 0, typeof (int)),
-          new Column("Title", 1, typeof (string)),
+          new RawColumn("ID", 0, typeof (int)),
+          new RawColumn("Title", 1, typeof (string)),
         };
       var personHeader = new RecordSetHeader(personTuple.Descriptor, personColumns, new[] { new ColumnGroup(new[] { 0 }, new[] { 0, 1, 2}), }, null, null);
       var authorHeader = new RecordSetHeader(authorTuple.Descriptor, authorColumns, new[] { new ColumnGroup(new[] { 0 }, new[] { 0, 1}), }, null, null);      
@@ -79,15 +79,15 @@ namespace Xtensive.Storage.Tests.Rse
       Tuple bookTuple = Tuple.Create(new[] {typeof (int), typeof (int), typeof (string)});
       var authorColumns = new[]
         {
-          new Column("ID", 0, typeof (int)),
-          new Column("FirstName", 1, typeof (string)),
-          new Column("LastName", 2, typeof (string)),
+          new RawColumn("ID", 0, typeof (int)),
+          new RawColumn("FirstName", 1, typeof (string)),
+          new RawColumn("LastName", 2, typeof (string)),
         };
       var bookColumns = new[]
         {
-          new Column("ID", 0, typeof (int)),
-          new Column("IDAuthor", 1, typeof (int)),
-          new Column("Title", 2, typeof (string)),
+          new RawColumn("ID", 0, typeof (int)),
+          new RawColumn("IDAuthor", 1, typeof (int)),
+          new RawColumn("Title", 2, typeof (string)),
         };
 
       var authorHeader = new RecordSetHeader(authorTuple.Descriptor, authorColumns, ArrayUtils<ColumnGroup>.EmptyArray, TupleDescriptor.Empty, new DirectionCollection<int>());
@@ -142,9 +142,9 @@ namespace Xtensive.Storage.Tests.Rse
       Tuple authorTuple = Tuple.Create(new[] { typeof(int), typeof(string), typeof(string) });
       var authorColumns = new[]
         {
-          new Column("ID", 0, typeof (int)),
-          new Column("FirstName", 1, typeof (string)),
-          new Column("LastName", 2, typeof (string)),
+          new RawColumn("ID", 0, typeof (int)),
+          new RawColumn("FirstName", 1, typeof (string)),
+          new RawColumn("LastName", 2, typeof (string)),
         };
       var authorHeader = new RecordSetHeader(authorTuple.Descriptor, authorColumns, ArrayUtils<ColumnGroup>.EmptyArray, TupleDescriptor.Empty, new DirectionCollection<int>());
 
@@ -175,9 +175,9 @@ namespace Xtensive.Storage.Tests.Rse
       Tuple authorTuple = Tuple.Create(new[] { typeof(int), typeof(string), typeof(string) });
       var authorColumns = new[]
         {
-          new Column("ID", 0, typeof (int)),
-          new Column("FirstName", 1, typeof (string)),
-          new Column("LastName", 2, typeof (string)),
+          new RawColumn("ID", 0, typeof (int)),
+          new RawColumn("FirstName", 1, typeof (string)),
+          new RawColumn("LastName", 2, typeof (string)),
         };
       var authorHeader = new RecordSetHeader(authorTuple.Descriptor, authorColumns, ArrayUtils<ColumnGroup>.EmptyArray, TupleDescriptor.Empty, new DirectionCollection<int>());
 

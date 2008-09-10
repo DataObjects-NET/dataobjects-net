@@ -63,6 +63,11 @@ namespace Xtensive.Storage.Rse
       return Range(recordSet, new Range<IEntire<Tuple>>(xPoint, yPoint));
     }
 
+    public static RecordSet CalculateColumns(this RecordSet recordSet, CalculatedColumnDescriptor[] columns)
+    {
+      return new CalculationProvider(recordSet.Provider, columns).Result;
+    }
+
     public static RecordSet Join(this RecordSet left, RecordSet right, params Pair<int>[] joinedColumnIndexes)
     {
       return new JoinProvider(left.Provider, right.Provider, false, joinedColumnIndexes).Result;
@@ -141,7 +146,7 @@ namespace Xtensive.Storage.Rse
 
     public static int IndexOf(this RecordSet recordSet, string columnName)
     {
-      Column column = recordSet.Header.Columns[columnName];
+      RawColumn column = (RawColumn)recordSet.Header.Columns[columnName];
       if (column == null)
         throw new ArgumentException("columnName");
       return column.Index;

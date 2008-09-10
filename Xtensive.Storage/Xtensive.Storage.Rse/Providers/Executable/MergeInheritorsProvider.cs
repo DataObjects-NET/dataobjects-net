@@ -186,9 +186,9 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
         var map = new int[Header.TupleDescriptor.Count];
         for (int i = 0; i < map.Length; i++) {
           map[i] = -1;
-          ColumnInfoRef columnRef = targetColumns[i].ColumnInfoRef;
+          ColumnInfoRef columnRef = ((RawColumn)targetColumns[i]).ColumnInfoRef;
           for (int j = 0; j < sourceColumns.Count; j++) {
-            if (sourceColumns[j].ColumnInfoRef == columnRef) {
+            if (((RawColumn)sourceColumns[j]).ColumnInfoRef == columnRef) {
               map[i] = j;
               break;
             }

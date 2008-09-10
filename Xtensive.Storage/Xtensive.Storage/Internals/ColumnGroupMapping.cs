@@ -18,7 +18,7 @@ namespace Xtensive.Storage.Internals
 
     public int TypeIdIndex { get; private set; }
 
-    public IDictionary<ColumnInfo, Column> ColumnInfoMapping { get; private set; }
+    public IDictionary<ColumnInfo, RawColumn> ColumnInfoMapping { get; private set; }
 
     public ThreadSafeDictionary<TypeInfo, TypeMapping> TypeMappings
     {
@@ -28,11 +28,11 @@ namespace Xtensive.Storage.Internals
 
     // Constructors
 
-    public ColumnGroupMapping(int typeIdIndex, Dictionary<ColumnInfo, Column> columnMapping)
+    public ColumnGroupMapping(int typeIdIndex, Dictionary<ColumnInfo, RawColumn> columnMapping)
     {
       TypeIdIndex = typeIdIndex;
       typeMappings = ThreadSafeDictionary<TypeInfo, TypeMapping>.Create(this);
-      ColumnInfoMapping = new ReadOnlyDictionary<ColumnInfo, Column>(columnMapping);
+      ColumnInfoMapping = new ReadOnlyDictionary<ColumnInfo, RawColumn>(columnMapping);
     }
   }
 }

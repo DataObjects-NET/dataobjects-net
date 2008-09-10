@@ -108,9 +108,24 @@ namespace Xtensive.Storage.Tests.Storage
             new Lizard { Name = ("Lizard" + i), Color = ("Color" + i) };
 
           Session.Current.Persist();
+          var columns = new []{ new CalculatedColumnDescriptor("FullName",typeof(string),(s) => (s.GetValue(2).ToString().Substring(0,2))),
+          new CalculatedColumnDescriptor("FullName2", typeof(string), (s) => (s.GetValue(2).ToString().Substring(0, 3)))};
 
           TypeInfo snakeType = Domain.Model.Types[typeof(Snake)];
-          RecordSet rsSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordSet();
+          
+          RecordSet rsSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordSet()
+            .CalculateColumns(columns)
+            .Take(10);
+
+          Assert.AreEqual(10, rsSnakePrimary.Count());
+
+          foreach (var tuple in rsSnakePrimary) {
+            Assert.AreEqual("Ka", tuple.GetValue(5));
+            Assert.AreEqual("Kaa", tuple.GetValue(6));
+
+          }
+
+          rsSnakePrimary.Count();
 
           string name = "TestName";
           var scope = TemporaryDataScope.Global;

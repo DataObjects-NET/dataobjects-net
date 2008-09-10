@@ -77,6 +77,26 @@ namespace Xtensive.Storage.Rse
     }
 
     /// <summary>
+    /// Adds the specified values to header.
+    /// </summary>
+    /// <param name="values">The values.</param>
+    /// <returns>The constructed header.</returns>
+    public RecordSetHeader Add(CalculatedColumn[] values)
+    {
+      TupleDescriptor resultTupleDescriptor = TupleDescriptor;
+      ColumnCollection resultColumns = Columns;
+      List<Type> typeList = new List<Type>();
+      foreach (var value in values) {
+        typeList.Add(value.Type);
+      }
+      resultTupleDescriptor = TupleDescriptor.Create(new[] { resultTupleDescriptor, TupleDescriptor.Create(typeList) }.SelectMany(descriptor => descriptor));
+      resultColumns = resultColumns.Join(values.Select
+        (column => (Column)new CalculatedColumn(new CalculatedColumnDescriptor(column.Name, column.Type, column.Expression), Columns.Count + column.Index)));
+      return new RecordSetHeader(
+        resultTupleDescriptor, resultColumns, ColumnGroups, OrderTupleDescriptor, Order);
+    }
+
+    /// <summary>
     /// Joins the header with the specified one.
     /// </summary>
     /// <param name="joined">The header to join.</param>
@@ -84,7 +104,7 @@ namespace Xtensive.Storage.Rse
     public RecordSetHeader Join(RecordSetHeader joined)
     {
       ColumnCollection resultColumns = 
-        Columns.Join(joined.Columns.Select(column => new Column(column, Columns.Count + column.Index)));
+        Columns.Join(joined.Columns.Select(column => (Column)new RawColumn(column, Columns.Count + column.Index)));
 
       TupleDescriptor resultTupleDescriptor = 
         TupleDescriptor.Create(new[] {TupleDescriptor, joined.TupleDescriptor}.SelectMany(descriptor => descriptor));      
@@ -118,7 +138,7 @@ namespace Xtensive.Storage.Rse
           .TakeWhile(o => o.Key >= 0));      
 
       ColumnCollection resultColumns =
-        new ColumnCollection(selectedColumns.Select((ic, i) => new Column(Columns[ic], i)));
+        new ColumnCollection(selectedColumns.Select((ic, i) => (Column)new RawColumn(Columns[ic], i)));
 
       ColumnGroupCollection resultGroups = new ColumnGroupCollection(
         ColumnGroups
@@ -180,7 +200,7 @@ namespace Xtensive.Storage.Rse
 
 
       ColumnCollection resultColumns =
-        new ColumnCollection(indexInfo.Columns.Select((c,i) => new Column(c,i,c.ValueType)));
+        new ColumnCollection(indexInfo.Columns.Select((c,i) => (Column) new RawColumn(c,i,c.ValueType)));
 
       ColumnGroupCollection resultGroups =
         new ColumnGroupCollection(new[]{new ColumnGroup(
