@@ -9,6 +9,7 @@ using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Core.Tuples;
+using Xtensive.Integrity.Transactions;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
@@ -30,12 +31,11 @@ namespace Xtensive.Storage.Tests.Rse
     {
       Key key;
       using (Domain.OpenSession()) {
-        using (Transaction.Open()) {
-          Book book = new Book();
-          book.Title = "Title";
-          book.Text = "Text";
+        using (var t = Transaction.Open()) {
+          Book book = new Book {Title = "Title", Text = "Text"};
           key = book.Key;
           Session.Current.Persist();
+          t.Complete();
         }
       }
       using (Domain.OpenSession()) {
