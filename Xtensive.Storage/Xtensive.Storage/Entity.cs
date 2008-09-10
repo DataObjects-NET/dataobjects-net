@@ -70,10 +70,8 @@ namespace Xtensive.Storage
     [Infrastructure]
     public bool IsRemoved
     {
-      get
-      {
-        PersistenceState state = PersistenceState;
-        return state==PersistenceState.Removed || state==PersistenceState.Removing;
+      get {
+        return Data.IsRemoved;
       }
     }
 
@@ -97,16 +95,6 @@ namespace Xtensive.Storage
     {
       [DebuggerStepThrough]
       get { return Data.PersistenceState; }
-      internal set
-      {
-        if (Data.PersistenceState == value)
-          return;
-        Data.PersistenceState = value;
-        if (PersistenceState == PersistenceState.New || 
-          PersistenceState == PersistenceState.Removing || 
-          PersistenceState == PersistenceState.Modified)
-          Session.DirtyData.Register(Data);
-      }
     }
 
     #endregion
@@ -133,20 +121,21 @@ namespace Xtensive.Storage
 
     /// <inheritdoc/>
     public void Remove()
-    {
-      using (var transactionScope = Session.OpenTransaction()) {
-        if (Log.IsLogged(LogEventTypes.Debug))
-          Log.Debug("Session '{0}'. Removing: Key = '{1}'", Session, Key);
+    {      
+      if (Log.IsLogged(LogEventTypes.Debug))
+        Log.Debug("Session '{0}'. Removing: Key = '{1}'", Session, Key);
 
-        EnsureCanOperate();
-        Session.Persist();
-        OnRemoving();
-        ReferenceManager.ClearReferencesTo(this);
-        PersistenceState = PersistenceState.Removing;
-        OnRemoved();
+      data.EnsureCanOperate();
+      OnRemoving();
 
-        transactionScope.Complete();
-      }
+      Session.Persist();        
+      ReferenceManager.ClearReferencesTo(this);
+      Data.IsRemoved = true;
+      // We expect entity's PersistentState to be Synchronized here.
+      Session.removedEntities.Add(Data);
+      Data.PersistenceState = PersistenceState.Removed;
+      
+      OnRemoved();        
     }
 
     #endregion
@@ -157,7 +146,10 @@ namespace Xtensive.Storage
     protected internal override sealed void OnCreating()
     {
       Data.Entity = this;
-      Session.DirtyData.Register(Data);
+      if (PersistenceState!=PersistenceState.New) {
+        Session.newEntities.Add(Data);
+        Data.PersistenceState = PersistenceState.New;
+      }
       this.Validate();
     }
 
@@ -165,9 +157,9 @@ namespace Xtensive.Storage
     /// <exception cref="InvalidOperationException">Entity is removed.</exception>
     protected internal override sealed void OnGettingValue(FieldInfo field)
     {
-//      if (Log.IsLogged(LogEventTypes.Debug))
-//        Log.Debug("Session '{0}'. Getting value: Key = '{1}', Field = '{2}'", Session, Key, field);
-      EnsureCanOperate();
+      if (Log.IsLogged(LogEventTypes.Debug))
+        Log.Debug("Session '{0}'. Getting value: Key = '{1}', Field = '{2}'", Session, Key, field);
+      data.EnsureCanOperate();
       EnsureIsFetched(field);
     }
 
@@ -177,13 +169,16 @@ namespace Xtensive.Storage
     {
       if (Log.IsLogged(LogEventTypes.Debug))
         Log.Debug("Session '{0}'. Setting value: Key = '{1}', Field = '{2}'", Session, Key, field);
-      EnsureCanOperate();
+      data.EnsureCanOperate();
     }
 
     /// <inheritdoc/>
     protected internal override sealed void OnSetValue(FieldInfo field)
     {
-      PersistenceState = PersistenceState.Modified;
+      if (PersistenceState!=PersistenceState.New && PersistenceState!=PersistenceState.Modified) {
+        Session.modifiedEntities.Add(Data);
+        Data.PersistenceState = PersistenceState.Modified;
+      }
       if (Session.Domain.Configuration.AutoValidation)
         this.Validate();
     }
@@ -217,24 +212,9 @@ namespace Xtensive.Storage
 
     internal override sealed void EnsureIsFetched(FieldInfo field)
     {
-      if (Session.DirtyData.GetItems(PersistenceState.New).Contains(Data))
-        return;
-      if (Data.IsAvailable(field.MappingInfo.Offset))
-        return;
-      Fetcher.Fetch(Key, field);
-    }
-
-    [Infrastructure]
-    private void EnsureCanOperate()
-    {
-      if (IsRemoved)
-        throw new InvalidOperationException(Strings.ExEntityIsRemoved);
-
-      if (PersistenceState==PersistenceState.Inconsistent)
-        throw new InvalidOperationException(Strings.ExEntityIsInInconsistentState);
-
-      Data.EnsureDataIsActual();
-    }
+      if (!Data.IsFetched(field.MappingInfo.Offset))
+        Fetcher.Fetch(Key, field);
+    }    
 
     #endregion
 
@@ -251,7 +231,7 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     void IValidationAware.OnValidate()
     {
-      if (IsRemoved || PersistenceState==PersistenceState.Inconsistent)
+      if (IsRemoved)
         return;
 
       this.CheckConstraints();
@@ -290,7 +270,7 @@ namespace Xtensive.Storage
         if (Log.IsLogged(LogEventTypes.Debug))
           Log.Debug("Session '{0}'. Creating entity: Key = '{1}'", Session, key);
 
-        data = Session.DataCache.Create(key, PersistenceState.New, Session.Transaction);
+        data = Session.DataCache.Create(key, true, Session.Transaction);
         OnCreating();
         transactionScope.Complete();
       }
@@ -310,7 +290,7 @@ namespace Xtensive.Storage
         if (Log.IsLogged(LogEventTypes.Debug))
           Log.Debug("Session '{0}'. Creating entity: Key = '{1}'", Session, key);
 
-        data = Session.DataCache.Create(key, PersistenceState.New, Session.Transaction);
+        data = Session.DataCache.Create(key, true, Session.Transaction);
         OnCreating();
 
         transactionScope.Complete();

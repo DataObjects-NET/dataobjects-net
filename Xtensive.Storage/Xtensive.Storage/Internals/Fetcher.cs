@@ -10,7 +10,6 @@ using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Parameters;
-using Xtensive.Core.Threading;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers.Compilable;
@@ -55,7 +54,7 @@ namespace Xtensive.Storage.Internals
       var rs = GetCachedRecordSet(index, columnIndexes);
       using (new ParameterScope()) {
         pKey.Value = key;
-        rs.Import();
+        rs.ImportToDataCache();
       }
     }
 

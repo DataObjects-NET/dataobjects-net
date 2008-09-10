@@ -12,32 +12,23 @@ namespace Xtensive.Storage
   public enum PersistenceState
   {
     /// <summary>
-    /// The same as <see cref="Inconsistent"/>.
+    /// The entity is synchronized with database (there are no unsaved changes).
     /// </summary>
-    Default = Inconsistent,
+    Synchronized = 0,
+
     /// <summary>
-    /// Inconsistent state, e.g. created and rollbacked entity.
-    /// </summary>
-    Inconsistent = 0,
-    /// <summary>
-    /// The entity isn't persisted yet.
+    /// The entity is created, but not persisted yet.
     /// </summary>
     New = 1,
+
     /// <summary>
-    /// The entity is persisted, but has some unpersisted changes.
+    /// The entity presents in database, but has some unpersisted changes.
     /// </summary>
     Modified = 2,
+
     /// <summary>
-    /// The entity was removed, but 'delete' sql-command was not excuted yet.
+    /// The entity is marked as removed, but is not removed from database yet.
     /// </summary>
-    Removing = 3,
-    /// <summary>
-    /// The entity is removed from the storage, i.e. 'delete' sql-command was excuted.
-    /// </summary>
-    Removed = 4,
-    /// <summary>
-    /// The entity is persisted.
-    /// </summary>
-    Persisted = 5,
+    Removed = 3,
   }
 }

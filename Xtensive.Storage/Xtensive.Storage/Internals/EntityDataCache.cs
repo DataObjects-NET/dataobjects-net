@@ -25,9 +25,9 @@ namespace Xtensive.Storage.Internals
     }
 
     [Infrastructure]
-    public EntityData Create(Key key, PersistenceState state, Transaction transaction)
+    public EntityData Create(Key key, bool isNew, Transaction transaction)
     {
-      return Create(key, key.Tuple, state, transaction);
+      return Create(key, key.Tuple, isNew, transaction);
     }
 
     [Infrastructure]
@@ -35,18 +35,12 @@ namespace Xtensive.Storage.Internals
     {
       EntityData data = this[key];
       if (data == null)
-        Create(key, tuple, PersistenceState.Persisted, transaction);
+        Create(key, tuple, false, transaction);
       else {
-        data.DifferentialData.Origin.MergeWith(tuple);
+        data.UpdateOrigin(tuple);
         if (Log.IsLogged(LogEventTypes.Debug))
           Log.Debug("Session '{0}'. Merging: {1}", Session.Current, data);
       }
-    }
-
-    [Infrastructure]
-    public void Remove(Key key)
-    {
-      cache.Remove(key);
     }
 
     [Infrastructure]
@@ -56,28 +50,21 @@ namespace Xtensive.Storage.Internals
     }
 
     [Infrastructure]
-    private EntityData Create(Key key, Tuple tuple, PersistenceState state, Transaction transaction)
+    private EntityData Create(Key key, Tuple tuple, bool isNew, Transaction transaction)
     {
       Tuple origin;
-      if (state == PersistenceState.New)
+      if (isNew)
         origin = Session.Domain.Prototypes[key.Type].Clone();
       else
         origin = Tuple.Create(key.Type.TupleDescriptor);
       tuple.CopyTo(origin);
-      EntityData result = new EntityData(key, new DifferentialTuple(origin), state, transaction);
+      EntityData result = new EntityData(key, new DifferentialTuple(origin), transaction);
       cache.Add(result);
 
       if (Log.IsLogged(LogEventTypes.Debug))
         Log.Debug("Session '{0}'. Caching: {1}", Session.Current, result);
 
       return result;
-    }
-
-    [Infrastructure]
-    public void Reset()
-    {
-      foreach (EntityData data in this)
-        data.Reset();
     }
 
     [Infrastructure]

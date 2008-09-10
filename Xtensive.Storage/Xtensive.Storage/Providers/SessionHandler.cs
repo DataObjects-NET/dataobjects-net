@@ -39,19 +39,14 @@ namespace Xtensive.Storage.Providers
 
     /// <summary>
     /// Persists changed entities.
-    /// </summary>
-    /// <param name="registry">The registry of entities to persist.</param>
-    public void Persist(FlagRegistry<PersistenceState, EntityData> registry)
+    /// </summary>    
+    public void Persist()
     {
-      HashSet<EntityData> @new = registry.GetItems(PersistenceState.New);
-      HashSet<EntityData> modified = registry.GetItems(PersistenceState.Modified);
-      HashSet<EntityData> removing = registry.GetItems(PersistenceState.Removing);
-
-      foreach (EntityData data in @new)
+      foreach (EntityData data in Session.newEntities)
         Insert(data);
-      foreach (EntityData data in modified.Except(@new))
+      foreach (EntityData data in Session.modifiedEntities)
         Update(data);
-      foreach (EntityData data in removing)
+      foreach (EntityData data in Session.removedEntities)
         Remove(data);
     }
 

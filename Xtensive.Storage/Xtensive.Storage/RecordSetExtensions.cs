@@ -41,14 +41,14 @@ namespace Xtensive.Storage
       }
     }
 
-    internal static void Import(this RecordSet source)
+    internal static void ImportToDataCache(this RecordSet source)
     {
       RecordSetHeaderParsingContext context = new RecordSetHeaderParsingContext(Session.Current, source.Header);
       RecordSetMapping mapping = GetRecordSetMapping(context);
 
       foreach (Tuple tuple in source)
         foreach (ColumnGroupMapping columnGroupMapping in mapping.ColumnGroupMappings)
-          ProcessColumnGroup(context, columnGroupMapping, tuple);
+          ProcessColumnGroup(context, columnGroupMapping, tuple);          
     }
 
     private static Key ProcessColumnGroup(RecordSetHeaderParsingContext context, ColumnGroupMapping columnGroupMapping, Tuple tuple)

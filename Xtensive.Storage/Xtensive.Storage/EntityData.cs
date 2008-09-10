@@ -8,6 +8,7 @@ using System;
 using System.Diagnostics;
 using Xtensive.Core.Tuples;
 using Xtensive.Integrity.Transactions;
+using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 
@@ -19,6 +20,21 @@ namespace Xtensive.Storage
   public sealed class EntityData : Tuple
   {
     private Transaction transaction;
+    private bool isRemoved;
+
+    /// <summary>
+    /// Gets or sets a value indicating whether this entity is removed.
+    /// </summary>
+    public bool IsRemoved
+    {
+      get {
+        EnsureDataIsActual();
+        return isRemoved;
+      }
+      internal set {
+        isRemoved = value;
+      }
+    }
 
     /// <summary>
     /// Gets the key.
@@ -54,26 +70,56 @@ namespace Xtensive.Storage
     /// </summary>
     public void EnsureDataIsActual()
     {
-      if ((transaction.State & TransactionState.Completed)!=0) {
-        Reset();
-        transaction = transaction.Session.Transaction;
-        if (transaction==null)
-          throw new InvalidOperationException(Strings.ExTransactionRequired);
-      }
+      if ((transaction.State & TransactionState.Completed)==0)
+        return;
+
+      Reload();
+      transaction = transaction.Session.Transaction;
+      if (transaction==null)
+        throw new InvalidOperationException(Strings.ExTransactionRequired);
     }
 
     /// <summary>
-    /// Resets this entity data.
+    /// Ensures the entity is not removed and data is actual.
+    /// Call this method before getting or setting values.
     /// </summary>
-    public void Reset()
+    public void EnsureCanOperate()
+    {
+      EnsureDataIsActual();
+      if (isRemoved)
+        throw new InvalidOperationException(Strings.ExEntityIsRemoved);
+    }
+
+    /// <summary>
+    /// Reloads this entity data.
+    /// </summary>
+    public void Reload()
     {
       Tuple origin = Create(Type.TupleDescriptor);
       Key.Tuple.CopyTo(origin);
       DifferentialData = new DifferentialTuple(origin);
+      isRemoved = true;
+      Fetcher.Fetch(Key);
+    }
+
+    internal void UpdateOrigin(Tuple tuple)
+    {
+      DifferentialData.Origin.MergeWith(tuple);
+      isRemoved = false;
+    }
+
+    /// <summary>
+    /// Determines whether the field with the specified offset is fetched.
+    /// </summary>
+    /// <param name="offset">The offset of the field.</param>
+    public bool IsFetched(int offset)
+    {
+      return PersistenceState==PersistenceState.New || IsAvailable(offset);
     }
 
     #region Tuple implementation
 
+    /// <inheritdoc/>
     public override TupleFieldState GetFieldState(int fieldIndex)
     {
       return DifferentialData.GetFieldState(fieldIndex);
@@ -109,11 +155,13 @@ namespace Xtensive.Storage
        get { return DifferentialData.Descriptor; }
     }
 
+    /// <inheritdoc/>
     public override bool Equals(object obj)
     {
       return ReferenceEquals(this, obj);
     }
 
+    /// <inheritdoc/>
     public override int GetHashCode()
     {
       return Key.GetHashCode();
@@ -130,12 +178,12 @@ namespace Xtensive.Storage
 
     // Constructors
 
-    internal EntityData(Key key, DifferentialTuple tuple, PersistenceState state, Transaction transaction)
+    internal EntityData(Key key, DifferentialTuple tuple, Transaction transaction)
     {
-      Key = key;
+      Key = key;  
       DifferentialData = tuple;
-      PersistenceState = state;
       this.transaction = transaction;
+      isRemoved = false;
     }
   }
 }

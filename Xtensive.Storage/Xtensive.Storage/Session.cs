@@ -34,7 +34,11 @@ namespace Xtensive.Storage
     private volatile bool isDisposed;
     private readonly Set<object> consumers = new Set<object>();
     private readonly object _lock = new object();
-    private readonly CompilationScope compilationScope;    
+    private readonly CompilationScope compilationScope;
+
+    internal readonly List<EntityData> newEntities = new List<EntityData>();
+    internal readonly List<EntityData> modifiedEntities = new List<EntityData>();
+    internal readonly List<EntityData> removedEntities = new List<EntityData>();
 
     /// <summary>
     /// Gets the configuration of the <see cref="Session"/>.
@@ -68,8 +72,6 @@ namespace Xtensive.Storage
     internal SessionHandler Handler { get; private set; }
 
     internal EntityDataCache DataCache { get; private set; }
-
-    internal FlagRegistry<PersistenceState, EntityData> DirtyData { get; private set; }
 
     #endregion
 
@@ -107,30 +109,29 @@ namespace Xtensive.Storage
     public void Persist()
     {
       EnsureNotDisposed();
-      if (DirtyData.Count==0)
-        return;
       
       if (Log.IsLogged(LogEventTypes.Debug))
-        Log.Debug("Session '{0}'. Persisting dirty data: {1}", this, DirtyData);
+        Log.Debug("Session '{0}'. Persisting.", this);
 
-      Handler.Persist(DirtyData);
+      Handler.Persist();
 
-      HashSet<EntityData> @new = DirtyData.GetItems(PersistenceState.New);
-      HashSet<EntityData> modified = DirtyData.GetItems(PersistenceState.Modified);
-      HashSet<EntityData> removing = DirtyData.GetItems(PersistenceState.Removing);
-      
-      foreach (EntityData data in @new)
-        data.PersistenceState = PersistenceState.Persisted;
+      ClearDirtyData();
+    }
 
-      foreach (EntityData data in modified)
-        data.PersistenceState = PersistenceState.Persisted;
+    private void ClearDirtyData()
+    {
+      foreach (EntityData data in newEntities)
+        data.PersistenceState = PersistenceState.Synchronized;
 
-      foreach (EntityData data in removing) {
-        data.PersistenceState = PersistenceState.Removed;
-        DataCache.Remove(data.Key);
-      }
+      foreach (EntityData data in modifiedEntities)
+        data.PersistenceState = PersistenceState.Synchronized;
 
-      DirtyData.Clear();
+      foreach (EntityData data in removedEntities)
+        data.PersistenceState = PersistenceState.Synchronized;      
+
+      newEntities.Clear();
+      modifiedEntities.Clear();
+      removedEntities.Clear();
     }
 
     public IEnumerable<T> All<T>() 
@@ -168,24 +169,10 @@ namespace Xtensive.Storage
     internal void OnTransactionRollback()
     {
       try {
-        HashSet<EntityData> newEntities = DirtyData.GetItems(PersistenceState.New);
-        HashSet<EntityData> modifiedEntities = DirtyData.GetItems(PersistenceState.Modified);
-        HashSet<EntityData> removingEntities = DirtyData.GetItems(PersistenceState.Removing);
-
-        foreach (EntityData data in newEntities)
-          data.Entity.PersistenceState = PersistenceState.Inconsistent;
-
-        foreach (EntityData data in modifiedEntities.Except(newEntities))
-          data.Entity.PersistenceState = PersistenceState.Persisted;
-
-        foreach (EntityData data in removingEntities)
-          data.Entity.PersistenceState = PersistenceState.Persisted;
-
-        DirtyData.Clear();
-
         Handler.RollbackTransaction();
       }
       finally {
+        ClearDirtyData();
         OnTranscationEnd();
       }
     }
@@ -285,7 +272,6 @@ namespace Xtensive.Storage
       Handlers = domain.Handlers;
       Handler = Handlers.HandlerFactory.CreateHandler<SessionHandler>();
       DataCache = new EntityDataCache(this, Configuration.CacheSize);
-      DirtyData = new FlagRegistry<PersistenceState, EntityData>(e => e.PersistenceState);
       Name = configuration.Name;
       Handler.Session = this;
       Handler.Initialize();

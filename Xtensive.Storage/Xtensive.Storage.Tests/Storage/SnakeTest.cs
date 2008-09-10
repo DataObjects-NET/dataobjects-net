@@ -153,11 +153,11 @@ namespace Xtensive.Storage.Tests.Storage
 
           snake.Name = "Kaa";
           snake.Features = Features.CanCrawl;
-          Assert.AreEqual(PersistenceState.Modified, snake.PersistenceState);
+          Assert.AreEqual(PersistenceState.New, snake.PersistenceState);
           Assert.AreEqual("Kaa", snake.Name);
           Assert.AreEqual(Features.CanCrawl, snake.Features);
           snake.Length = 32;
-          Assert.AreEqual(PersistenceState.Modified, snake.PersistenceState);
+          Assert.AreEqual(PersistenceState.New, snake.PersistenceState);
           Assert.AreEqual(32, snake.Length);
             
           Key key = Key.Get<Snake, int>(snake.ID);
@@ -177,7 +177,7 @@ namespace Xtensive.Storage.Tests.Storage
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           Creature snake = persistedKey.Resolve<Creature>();
-          Assert.AreEqual(PersistenceState.Persisted, snake.PersistenceState);
+          Assert.AreEqual(PersistenceState.Synchronized, snake.PersistenceState);
           Assert.IsNotNull(snake);
           Assert.AreEqual("Kaa", snake.Name);
           Assert.AreEqual(Features.CanCrawl, snake.Features);
@@ -207,11 +207,11 @@ namespace Xtensive.Storage.Tests.Storage
           Snake s = new Snake();
           key = s.Key;
           s.Name = "Kaa";
-          Assert.AreEqual(PersistenceState.Modified, s.PersistenceState);
+          Assert.AreEqual(PersistenceState.New, s.PersistenceState);
           Session.Current.Persist();
 
           Assert.AreEqual("Kaa", s.Name);
-          Assert.AreEqual(PersistenceState.Persisted, s.PersistenceState);
+          Assert.AreEqual(PersistenceState.Synchronized, s.PersistenceState);
 
           t.Complete();
         }
@@ -220,14 +220,14 @@ namespace Xtensive.Storage.Tests.Storage
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           Snake s = key.Resolve<Snake>();
-          Assert.AreEqual(PersistenceState.Persisted, s.PersistenceState);
+          Assert.AreEqual(PersistenceState.Synchronized, s.PersistenceState);
           Assert.AreEqual("Kaa", s.Name);
           s.Length = 32;
           Assert.AreEqual(PersistenceState.Modified, s.PersistenceState);
           Session.Current.Persist();
 
           Assert.AreEqual(32, s.Length);
-          Assert.AreEqual(PersistenceState.Persisted, s.PersistenceState);
+          Assert.AreEqual(PersistenceState.Synchronized, s.PersistenceState);
           t.Complete();
         }
       }
@@ -267,13 +267,13 @@ namespace Xtensive.Storage.Tests.Storage
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           Snake s = key.Resolve<Snake>();
-          Assert.AreEqual(PersistenceState.Persisted, s.PersistenceState);
+          Assert.AreEqual(PersistenceState.Synchronized, s.PersistenceState);
           Assert.AreEqual("Kaa", s.Name);
           Assert.AreEqual(32, s.Length);
+          Assert.IsFalse(s.IsRemoved);
           s.Remove();
-          Assert.AreEqual(PersistenceState.Removing, s.PersistenceState);
-          Session.Current.Persist();
-            Assert.AreEqual(PersistenceState.Removed, s.PersistenceState);
+          Assert.AreEqual(PersistenceState.Removed, s.PersistenceState);
+          Assert.IsTrue(s.IsRemoved);
           t.Complete();
         }
       }
