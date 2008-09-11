@@ -408,6 +408,9 @@ namespace Xtensive.Storage.Tests.Storage
           result = rsSnakePrimary.Filter(tuple => tuple.GetValue<int>(rsSnakePrimary.IndexOf("Length")) > len);
           Assert.Greater(result.Count(), 0);
 
+          result = rsSnakePrimary.Filter(tuple => tuple.GetValue<int>(rsSnakePrimary.IndexOf("Length")) * 2 * tuple.GetValue<int>(rsSnakePrimary.IndexOf("Length")) > len);
+          Assert.Greater(result.Count(), 0);
+
           var pLen = new Parameter<int>();
           result = rsSnakePrimary.Filter(tuple => tuple.GetValue<int>(rsSnakePrimary.IndexOf("Length")) > pLen.Value);
           using (new ParameterScope()) {
