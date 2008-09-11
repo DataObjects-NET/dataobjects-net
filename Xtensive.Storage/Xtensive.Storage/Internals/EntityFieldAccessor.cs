@@ -53,14 +53,14 @@ namespace Xtensive.Storage.Internals
     private void ProcessAssociation(Persistent obj, FieldInfo field, Entity newValue, Key originalKey)
     {
       AssociationInfo association = field.Association;
-      Key newKey = newValue==null ? null : newValue.Key;
+      AssociationInfo pairedAssociation = association.PairTo;
+      Key newKey = newValue == null ? null : newValue.Key;
       if (!ReferenceEquals(originalKey, newKey)) {
         switch (association.Multiplicity) {
         case Multiplicity.OneToZero:
           // Do nothing.
           break;
         case Multiplicity.OneToOne:
-          AssociationInfo pairedAssociation = association.PairTo;
           var pairedAccessor = pairedAssociation.ReferencingField.GetAccessor<Entity>();
           if (!ReferenceEquals(originalKey, null)) {
             var originalValue = originalKey.Resolve();
@@ -73,12 +73,12 @@ namespace Xtensive.Storage.Internals
         case Multiplicity.OneToMany:
           if (IsResolved(obj.Session, originalKey)) {
             var originalValue = (Entity) (object) GetValue(obj, field);
-//todo:              var entitySetFieldAccessor = field.Association.ReferencingField.GetAccessor<EntitySet<T>>();
-//              entitySetFieldAccessor.GetValue(originalValue, field).RemoveCached((Entity) obj);
+            var entitySetFieldAccessor = pairedAssociation.ReferencingField.GetAccessor<EntitySet>();
+            entitySetFieldAccessor.GetValue(originalValue, pairedAssociation.ReferencingField).RemoveFromCache(((Entity)obj).Key);
           }
           if (IsResolved(obj.Session, newKey)) {
-//todo:              var entitySetFieldAccessor = field.Association.ReferencingField.GetAccessor<EntitySet<T>>();
-//              entitySetFieldAccessor.GetValue(newValue, field).AddCached((Entity) obj);
+            var entitySetFieldAccessor = pairedAssociation.ReferencingField.GetAccessor<EntitySet>();
+            entitySetFieldAccessor.GetValue(newValue, pairedAssociation.ReferencingField).AddToCache(((Entity)obj).Key);
           }
           break;
         default:

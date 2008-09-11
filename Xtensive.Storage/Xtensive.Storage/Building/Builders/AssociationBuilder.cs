@@ -7,12 +7,9 @@
 using System;
 using System.Linq;
 using Xtensive.Core;
-using Xtensive.Core.Reflection;
-using Xtensive.Storage.Building.Definitions;
-using Xtensive.Storage.Internals;
-using Xtensive.Storage.Model;
 using Xtensive.Core.Helpers;
-using Xtensive.Storage.Providers;
+using Xtensive.Storage.Building.Definitions;
+using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Building.Builders
@@ -28,7 +25,7 @@ namespace Xtensive.Storage.Building.Builders
       association.Name = context.NameBuilder.Build(association);
       // association.EntityType = EntitySetHelper.BuildReferenceType(association);
       context.Model.Associations.Add(association);
-      
+
       if (!fieldDef.PairTo.IsNullOrEmpty())
         context.PairedAssociations.Add(new Pair<AssociationInfo, string>(association, fieldDef.PairTo));
     }
@@ -42,31 +39,32 @@ namespace Xtensive.Storage.Building.Builders
       context.Model.Associations.Add(association);
 
       Pair<AssociationInfo, string> pairTo = context.PairedAssociations.Where(p => p.First==origin).FirstOrDefault();
-      if (pairTo.First != null)
+      if (pairTo.First!=null)
         context.PairedAssociations.Add(new Pair<AssociationInfo, string>(association, pairTo.Second));
     }
 
     public static void BuildPairedAssociation(AssociationInfo pairedAssociation, string masterFieldName)
     {
       FieldInfo masterField = pairedAssociation.ReferencedType.Fields.TryGetValue(masterFieldName);
-      if (masterField == null)
+      if (masterField==null)
         throw new DomainBuilderException(
-          string.Format(Resources.Strings.ExPairedFieldXWasNotFoundInYType, masterFieldName, pairedAssociation.ReferencedType.Name));
+          string.Format(Strings.ExPairedFieldXWasNotFoundInYType, masterFieldName, pairedAssociation.ReferencedType.Name));
 
       if (masterField.IsPrimitive || masterField.IsStructure)
         throw new DomainBuilderException(
-          string.Format(Resources.Strings.PairedFieldXHasInsufficientTypeItShouldBeReferenceToEntityOrAEntitySet, masterFieldName));
+          string.Format(Strings.PairedFieldXHasInsufficientTypeItShouldBeReferenceToEntityOrAEntitySet, masterFieldName));
 
-      if (pairedAssociation.ReferencingField == masterField)
+      if (pairedAssociation.ReferencingField==masterField)
         throw new DomainBuilderException(
-          string.Format(Resources.Strings.ReferencedFieldXAndPairedFieldAreEqual, pairedAssociation.ReferencingField.Name));
+          string.Format(Strings.ReferencedFieldXAndPairedFieldAreEqual, pairedAssociation.ReferencingField.Name));
 
       FieldInfo pairedField = pairedAssociation.ReferencingField;
       AssociationInfo masterAssociation = masterField.Association;
-      if (masterAssociation.PairTo!=null && masterAssociation.PairTo!=pairedAssociation) 
+      if (masterAssociation.PairTo!=null && masterAssociation.PairTo!=pairedAssociation)
         throw new InvalidOperationException(String.Format(Strings.ExMasterAssociationIsAlreadyPaired, masterAssociation.Name, masterAssociation.PairTo.Name));
 
       masterAssociation.PairTo = pairedAssociation;
+      pairedAssociation.PairTo = masterAssociation;
 
       if (masterAssociation.IsMaster && pairedAssociation.IsMaster)
         masterAssociation.IsMaster = false;
@@ -75,12 +73,10 @@ namespace Xtensive.Storage.Building.Builders
         if (pairedField.IsEntity) {
           masterAssociation.Multiplicity = Multiplicity.OneToOne;
           pairedAssociation.Multiplicity = Multiplicity.OneToOne;
-          pairedAssociation.PairTo = masterAssociation;
         }
         if (pairedField.IsEntitySet) {
           masterAssociation.Multiplicity = Multiplicity.OneToMany;
           pairedAssociation.Multiplicity = Multiplicity.ManyToOne;
-          pairedAssociation.PairTo = masterAssociation;
         }
       }
 
@@ -88,16 +84,12 @@ namespace Xtensive.Storage.Building.Builders
         if (pairedField.IsEntity) {
           masterAssociation.Multiplicity = Multiplicity.ManyToOne;
           pairedAssociation.Multiplicity = Multiplicity.OneToMany;
-          masterAssociation.PairTo = pairedAssociation;
         }
         if (pairedField.IsEntitySet) {
           masterAssociation.Multiplicity = Multiplicity.ManyToMany;
           pairedAssociation.Multiplicity = Multiplicity.ManyToMany;
-          pairedAssociation.PairTo = masterAssociation;
         }
       }
     }
-
-    
   }
 }

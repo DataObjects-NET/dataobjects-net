@@ -95,7 +95,7 @@ namespace Xtensive.Storage.Internals
         // Request from database
         Tuple filterTuple = new CombineTransform(true, ((Entity)Owner).Key.Tuple.Descriptor, item.Key.Tuple.Descriptor).Apply(TupleTransformType.Tuple, ((Entity)Owner).Key.Tuple, item.Key.Tuple);
         if (RecordSet.Range(filterTuple, filterTuple).Count() > 0) {
-          AddToCache(item.Key);
+          cache.Add(new CachedKey(item.Key));
         }
         else {
           return false;
@@ -170,11 +170,15 @@ namespace Xtensive.Storage.Internals
 
     internal override void AddToCache(Key key)
     {
+      EnsureInitialized();
+      count++;
       cache.Add(new CachedKey(key));
     }
 
     internal override void RemoveFromCache(Key key)
     {
+      EnsureInitialized();
+      count--;
       cache.Remove(key);
     }
 
