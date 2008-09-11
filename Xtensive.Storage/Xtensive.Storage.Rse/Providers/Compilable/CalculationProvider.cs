@@ -6,6 +6,7 @@
 
 using System;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Tuples.Transform;
 
 namespace Xtensive.Storage.Rse.Providers.Compilable
 {
@@ -20,12 +21,28 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// </summary>
     public CalculatedColumn[] CalculatedColumns { get; private set; }
 
+    /// <summary>
+    /// Gets header resize transform.
+    /// </summary>
+    public MapTransform ResizeTransform{ get; private set; }
+
+
     /// <inheritdoc/>
     protected override RecordSetHeader BuildHeader()
     {
       RecordSetHeader header = Source.Header;
       header = header.Add(CalculatedColumns);
       return header;
+    }
+
+    /// <inheritdoc/>
+    protected override void Initialize()
+    {
+      base.Initialize();
+      var columnIndexes = new int[Header.Columns.Count];
+      for (int i = 0; i < columnIndexes.Length; i++)
+        columnIndexes[i] = (i < Source.Header.Columns.Count) ? i : MapTransform.NoMapping;
+      ResizeTransform = new MapTransform(false, Header.TupleDescriptor, columnIndexes);
     }
 
 

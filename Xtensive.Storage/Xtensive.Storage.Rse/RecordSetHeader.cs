@@ -103,7 +103,7 @@ namespace Xtensive.Storage.Rse
     public RecordSetHeader Join(RecordSetHeader joined)
     {
       ColumnCollection resultColumns = 
-        Columns.Join(joined.Columns.Select(column => (Column)new RawColumn(column, Columns.Count + column.Index)));
+        Columns.Join(joined.Columns.Select(column => (Column)new MappedColumn(column, Columns.Count + column.Index)));
 
       TupleDescriptor resultTupleDescriptor = 
         TupleDescriptor.Create(new[] {TupleDescriptor, joined.TupleDescriptor}.SelectMany(descriptor => descriptor));      
@@ -137,7 +137,7 @@ namespace Xtensive.Storage.Rse
           .TakeWhile(o => o.Key >= 0));      
 
       ColumnCollection resultColumns =
-        new ColumnCollection(selectedColumns.Select((ic, i) => (Column)new RawColumn(Columns[ic], i)));
+        new ColumnCollection(selectedColumns.Select((ic, i) => (Column)new MappedColumn(Columns[ic], i)));
 
       ColumnGroupCollection resultGroups = new ColumnGroupCollection(
         ColumnGroups
@@ -199,7 +199,7 @@ namespace Xtensive.Storage.Rse
 
 
       ColumnCollection resultColumns =
-        new ColumnCollection(indexInfo.Columns.Select((c,i) => (Column) new RawColumn(c,i,c.ValueType)));
+        new ColumnCollection(indexInfo.Columns.Select((c,i) => (Column) new MappedColumn(c,i,c.ValueType)));
 
       ColumnGroupCollection resultGroups =
         new ColumnGroupCollection(new[]{new ColumnGroup(
