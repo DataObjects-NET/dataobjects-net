@@ -93,7 +93,7 @@ namespace Xtensive.Storage.Internals
       EnsureInitialized();
       if (!cache.Contains(item.Key)) {
         // Request from database
-        Tuple filterTuple = new CombineTransform(true, ((Entity)Owner).Key.Tuple.Descriptor, item.Key.Tuple.Descriptor).Apply(TupleTransformType.Tuple, ((Entity)Owner).Key.Tuple, item.Key.Tuple);
+        Tuple filterTuple = new CombineTransform(true, ((Entity) Owner).Key.Tuple.Descriptor, item.Key.Tuple.Descriptor).Apply(TupleTransformType.Tuple, ((Entity) Owner).Key.Tuple, item.Key.Tuple);
         if (RecordSet.Range(filterTuple, filterTuple).Count() > 0) {
           cache.Add(new CachedKey(item.Key));
         }
@@ -107,8 +107,13 @@ namespace Xtensive.Storage.Internals
     /// <inheritdoc/>
     public override bool Add(T item)
     {
+      ArgumentValidator.EnsureArgumentNotNull(item, "item");
       EnsureInitialized();
-      throw new NotImplementedException();
+      FieldInfo referencingField = Field.Association.PairTo.ReferencingField;
+      var accessor = referencingField.GetAccessor<Entity>();
+      long previouseCount = count.Value;
+      accessor.SetValue(item, referencingField, (Entity) Owner);
+      return previouseCount!=count;
     }
 
     public override IEnumerator<T> GetEnumerator()
@@ -120,8 +125,14 @@ namespace Xtensive.Storage.Internals
     /// <inheritdoc/>
     public override bool Remove(T item)
     {
+      ArgumentValidator.EnsureArgumentNotNull(item, "item");
       EnsureInitialized();
-      throw new NotImplementedException();
+      if (!Contains(item))
+        return false;
+      FieldInfo referencingField = Field.Association.PairTo.ReferencingField;
+      var accessor = referencingField.GetAccessor<Entity>();
+      accessor.SetValue(item, referencingField, null);
+      return true;
     }
 
     /// <inheritdoc/>
