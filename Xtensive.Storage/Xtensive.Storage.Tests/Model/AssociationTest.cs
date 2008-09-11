@@ -7,10 +7,15 @@
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core;
+using Xtensive.Core.Testing;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Model.Association;
 using Xtensive.Integrity.Transactions;
+using System.Linq;
+using System.Collections;
+using System.Collections.Generic;
+using System;
 
 namespace Xtensive.Storage.Tests.Model.Association
 {
@@ -117,6 +122,50 @@ namespace Xtensive.Storage.Tests.Model
           Assert.IsTrue(a.ManyToOne.GetType().Name.StartsWith("SimpleEntitySet"));
           Assert.IsNotNull(a.ManyToZero);
           Assert.IsTrue(a.ManyToZero.GetType().Name.StartsWith("ForwardWrappingEntitySet"));
+        }
+      }
+    }
+
+    [Test]
+    public void SimpleEntitySetEnumerator()
+    {
+      using (Domain.OpenSession()) {
+        A a;
+        F f1;
+        F f2;
+        F f3;
+        F f4;
+        using (var transaction = Transaction.Open()) {
+          a = new A();
+          f1 = new F();
+          f2 = new F();
+          f3 = new F();
+          f4 = new F();
+          transaction.Complete();
+        }
+        IEnumerator<F> enumerator; 
+        using (var transaction = Transaction.Open()) {
+          Assert.AreEqual(0, a.ManyToOne.Count()); // Linq count through enumerate
+          f1.A = a;
+          f2.A = a;
+          f3.A = a;
+          f4.A = a;
+          Assert.AreEqual(4, a.ManyToOne.Count()); // Enumerate through internal cacee
+          foreach (F f in a.ManyToOne) {
+            a.ManyToOne.Contains(f); // Enumerate through internal cahce
+          }
+          enumerator = a.ManyToOne.GetEnumerator();
+          Assert.IsTrue(enumerator.MoveNext());
+          Assert.IsTrue(enumerator.MoveNext());
+          transaction.Complete();
+        }
+        // clear cache
+        using (Transaction.Open()) {
+          AssertEx.Throws<Exception>(()=>enumerator.MoveNext());  
+          Assert.AreEqual(4, a.ManyToOne.Count()); // Enumerate through recordset request
+          foreach (F f in a.ManyToOne) {
+            a.ManyToOne.Contains(f); // Enumerate through recordset request
+          }
         }
       }
     }

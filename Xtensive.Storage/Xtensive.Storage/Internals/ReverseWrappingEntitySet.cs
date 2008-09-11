@@ -27,19 +27,14 @@ namespace Xtensive.Storage.Internals
       throw new NotImplementedException();
     }
 
-    public override void CopyTo(T1[] array, int arrayIndex)
-    {
-      throw new NotImplementedException();
-    }
-
-    public override T1 this[T1 item]
-    {
-      get { throw new NotImplementedException(); }
-    }
-
     public override bool Contains(T1 item)
     {
       throw new NotImplementedException();
+    }
+
+    public override bool Contains(Key key)
+    {
+      throw new System.NotImplementedException();
     }
 
     public override bool Add(T1 item)

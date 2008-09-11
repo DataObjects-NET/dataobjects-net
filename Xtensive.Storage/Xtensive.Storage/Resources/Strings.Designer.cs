@@ -376,6 +376,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Item not found in EntitySet.
+        /// </summary>
+        internal static string ExItemNotFoundInEntitySet {
+            get {
+                return ResourceManager.GetString("ExItemNotFoundInEntitySet", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Key field &apos;{0}&apos; was not found in type &apos;{1}&apos;..
         /// </summary>
         internal static string ExKeyFieldXWasNotFoundInTypeY {

@@ -462,4 +462,7 @@
   <data name="ExEntitySetInvalidBecauseTransactionIsNotActive" xml:space="preserve">
     <value>Entity set is invalid due to current transaction is not active.</value>
   </data>
+  <data name="ExItemNotFoundInEntitySet" xml:space="preserve">
+    <value>Item not found in EntitySet</value>
+  </data>
 </root>

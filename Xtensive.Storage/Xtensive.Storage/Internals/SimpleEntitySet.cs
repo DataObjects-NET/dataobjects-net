@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Tuples;
@@ -55,6 +56,8 @@ namespace Xtensive.Storage.Internals
     private long? count;
     private Transaction transaction;
     private readonly Cache<Key, CachedKey, CachedKey> cache = new Cache<Key, CachedKey, CachedKey>(MaximumCacheSize, cachedKey => cachedKey.Key);
+    private long version;
+    private readonly MapTransform keyTransform;
 
     /// <inheritdoc/>
     public override int RemoveWhere(Predicate<T> match)
@@ -80,37 +83,39 @@ namespace Xtensive.Storage.Internals
     }
 
     /// <inheritdoc/>
-    public override void CopyTo(T[] array, int arrayIndex)
+    public override bool Contains(Key key)
     {
+      ArgumentValidator.EnsureArgumentNotNull(key, "key");
       EnsureInitialized();
-      throw new NotImplementedException();
-    }
-
-    /// <inheritdoc/>
-    public override T this[T item]
-    {
-      get
-      {
-        EnsureInitialized();
-        throw new NotImplementedException();
+      if (key.Type.UnderlyingType!=typeof (T)) {
+        return false;
       }
-    }
-
-    /// <inheritdoc/>
-    public override bool Contains(T item)
-    {
-      EnsureInitialized();
-      if (!cache.Contains(item.Key)) {
+      if (!cache.Contains(key)) {
         // Request from database
-        Tuple filterTuple = new CombineTransform(true, ((Entity) Owner).Key.Tuple.Descriptor, item.Key.Tuple.Descriptor).Apply(TupleTransformType.Tuple, ((Entity) Owner).Key.Tuple, item.Key.Tuple);
-        if (RecordSet.Range(filterTuple, filterTuple).Count() > 0) {
-          cache.Add(new CachedKey(item.Key));
+        Tuple filterTuple = new CombineTransform(true, ((Entity) Owner).Key.Tuple.Descriptor, key.Tuple.Descriptor).Apply(TupleTransformType.Tuple, ((Entity) Owner).Key.Tuple, key.Tuple);
+        if (GetRecordSet().Range(filterTuple, filterTuple).Count() > 0) {
+          cache.Add(new CachedKey(key));
         }
         else {
           return false;
         }
       }
       return true;
+    }
+
+    /// <inheritdoc/>
+    public override bool Contains(T item)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(item, "item");
+      EnsureInitialized();
+      if (cache.Contains(item.Key))
+        return true;
+      FieldInfo referencingField = Field.Association.PairTo.ReferencingField;
+      var accessor = referencingField.GetAccessor<Entity>();
+      bool result = ReferenceEquals(accessor.GetValue(item, referencingField), Owner);
+      if (result)
+        cache.Add(new CachedKey(item.Key));
+      return result;
     }
 
     /// <inheritdoc/>
@@ -128,7 +133,22 @@ namespace Xtensive.Storage.Internals
     public override IEnumerator<T> GetEnumerator()
     {
       EnsureInitialized();
-      throw new NotImplementedException();
+      long startVersion = version;
+      if (count==cache.Count) {
+        foreach (CachedKey key in cache) {
+          EnsureVersion(startVersion);
+          yield return key.Key.Resolve<T>();
+        }
+      }
+      else {
+        RecordSet recordSet = GetRecordSet();
+        foreach (Tuple tuple in recordSet) {
+          EnsureVersion(startVersion);
+          Tuple keyTuple = keyTransform.Apply(TupleTransformType.Tuple, tuple);
+          var key = Key.Get(typeof (T), keyTuple);
+          yield return key.Resolve<T>();
+        }
+      }
     }
 
     /// <inheritdoc/>
@@ -152,21 +172,24 @@ namespace Xtensive.Storage.Internals
       }
     }
 
-    private RecordSet RecordSet
+    private RecordSet GetRecordSet()
     {
-      get
-      {
-        Tuple key = ((Entity) Owner).Key.Tuple;
-        var rs = index.ToRecordSet().Range(key, key);
-        return rs;
-      }
+      Tuple key = ((Entity) Owner).Key.Tuple;
+      var rs = index.ToRecordSet().Range(key, key);
+      return rs;
+    }
+
+    private void EnsureVersion(long currentVersion)
+    {
+      if (version!=currentVersion)
+        Exceptions.CollectionHasBeenChanged(null);
     }
 
     private void EnsureInitialized()
     {
       EnusreTransaction();
       if (!count.HasValue) {
-        count = RecordSet.Count();
+        count = GetRecordSet().Count();
       }
     }
 
@@ -175,6 +198,7 @@ namespace Xtensive.Storage.Internals
       if (Transaction.Current!=transaction) {
         ClearCache();
         transaction = Transaction.Current;
+        IncreaseVersion();
       }
       if (transaction==null || Transaction.Current.State!=TransactionState.Active)
         throw new InvalidOperationException(Strings.ExEntitySetInvalidBecauseTransactionIsNotActive);
@@ -191,6 +215,14 @@ namespace Xtensive.Storage.Internals
     {
       count = null;
       cache.Clear();
+      IncreaseVersion();
+    }
+
+    private void IncreaseVersion()
+    {
+      unchecked {
+        Interlocked.Increment(ref version);
+      }
     }
 
     internal override void AddToCache(Key key)
@@ -198,6 +230,7 @@ namespace Xtensive.Storage.Internals
       EnsureInitialized();
       count++;
       cache.Add(new CachedKey(key));
+      IncreaseVersion();
     }
 
     internal override void RemoveFromCache(Key key)
@@ -205,6 +238,7 @@ namespace Xtensive.Storage.Internals
       EnsureInitialized();
       count--;
       cache.Remove(key);
+      IncreaseVersion();
     }
 
     public SimpleEntitySet(Persistent owner, FieldInfo field)
@@ -213,6 +247,9 @@ namespace Xtensive.Storage.Internals
       EnusreTransaction();
       FieldInfo referencingField = field.Association.PairTo.ReferencingField;
       index = referencingField.ReflectedType.Indexes.GetIndex(referencingField.Name);
+      var keyTupleDescriptor = Owner.Session.Domain.Model.Types[typeof (T)].Hierarchy.KeyTupleDescriptor;
+      IEnumerable<int> columnIndexes = index.Columns.Where(columnInfo => columnInfo.IsPrimaryKey).Select(columnInfo => index.Columns.IndexOf(columnInfo));
+      keyTransform = new MapTransform(true, keyTupleDescriptor, columnIndexes.ToArray());
     }
   }
 }

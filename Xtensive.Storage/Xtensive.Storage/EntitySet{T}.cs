@@ -14,22 +14,18 @@ using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage
 {
-  public abstract class EntitySet<T>: EntitySet, 
-    ISet<T>
+  public abstract class EntitySet<T>: EntitySet,
+    ICollection<T>
     where T: Entity
   {
     internal static int MaximumCacheSize = 10000;
 
-    private readonly AdvancedComparer<T> comparer = AdvancedComparer<T>.Default;
-
-    /// <inheritdoc/>
     public abstract long Count { get; }
 
     /// <inheritdoc/>
-    public abstract T this[T item] { get; }
-
-    /// <inheritdoc/>
     public abstract bool Contains(T item);
+
+    public abstract bool Contains(Key key);
 
     #region Modification methods: Add, Remove, RemoveWhere, Clear, CopyTo
 
@@ -46,15 +42,10 @@ namespace Xtensive.Storage
     public abstract void Clear();
 
     /// <inheritdoc/>
-    public abstract void CopyTo(T[] array, int arrayIndex);
-
-    #endregion
-
-    #region ISet<T> methods
-
-    int ISet<T>.Count
+    public void CopyTo(T[] array, int arrayIndex)
     {
-      get { return checked ((int) Count); }
+      foreach (T item in this) 
+        array[arrayIndex++] = item;
     }
 
     #endregion
@@ -87,12 +78,6 @@ namespace Xtensive.Storage
     public abstract IEnumerator<T> GetEnumerator();
 
     #endregion
-
-    /// <inheritdoc/>
-    public IEqualityComparer<T> Comparer
-    {
-      get { return comparer.EqualityComparerImplementation; }
-    }
 
     /// <inheritdoc/>
     public bool IsReadOnly
