@@ -141,6 +141,11 @@ namespace Xtensive.Storage.Tests.Model
           Assert.IsNotNull(c.A);
           Assert.AreEqual(a.OneToOne, c);
           Assert.AreEqual(c.A, a);
+          c.A = a;
+          Assert.IsNotNull(a.OneToOne);
+          Assert.IsNotNull(c.A);
+          Assert.AreEqual(a.OneToOne, c);
+          Assert.AreEqual(c.A, a);
         }
         using (Transaction.Open()) {
           Assert.IsNull(a.OneToOne);
@@ -221,6 +226,10 @@ namespace Xtensive.Storage.Tests.Model
           Assert.IsNotNull(f.A);
           Assert.AreEqual(1, a.ManyToOne.Count);
           Assert.IsTrue(a.ManyToOne.Contains(f));
+          f.A = a;
+          Assert.IsNotNull(f.A);
+          Assert.AreEqual(1, a.ManyToOne.Count);
+          Assert.IsTrue(a.ManyToOne.Contains(f));
         }
         // rollback
         using (Transaction.Open()) {
@@ -267,6 +276,11 @@ namespace Xtensive.Storage.Tests.Model
           Assert.AreEqual(f.A, a);
           Assert.AreEqual(1, a.ManyToOne.Count);
           Assert.IsTrue(a.ManyToOne.Contains(f));
+          a.ManyToOne.Add(f);
+          Assert.IsNotNull(f.A);
+          Assert.AreEqual(f.A, a);
+          Assert.AreEqual(1, a.ManyToOne.Count);
+          Assert.IsTrue(a.ManyToOne.Contains(f));
         }
         // rollback
         using (Transaction.Open()) {
@@ -274,6 +288,56 @@ namespace Xtensive.Storage.Tests.Model
           Assert.IsNotNull(a.ManyToOne);
           Assert.AreEqual(0, a.ManyToOne.Count);
           Assert.IsFalse(a.ManyToOne.Contains(f));
+        }
+      }
+    }
+
+    [Test]
+    public void ManyToOneChangeOwnerByEntitySet()
+    {
+      using (Domain.OpenSession()) {
+        A a1;
+        A a2;
+        F f;
+        using (var transaction = Transaction.Open()) {
+          a1 = new A();
+          a2 = new A();
+          f = new F();
+          transaction.Complete();
+        }
+        using (Transaction.Open()) {
+          Assert.IsNull(f.A);
+          Assert.IsNotNull(a1.ManyToOne);
+          Assert.IsNotNull(a2.ManyToOne);
+          Assert.IsFalse(a1.ManyToOne.Contains(f));
+          Assert.IsFalse(a2.ManyToOne.Contains(f));
+          Assert.AreEqual(0, a1.ManyToOne.Count);
+          Assert.AreEqual(0, a2.ManyToOne.Count);
+          a1.ManyToOne.Add(f);
+          Assert.IsNotNull(f.A);
+          Assert.AreEqual(f.A, a1);
+          Assert.AreEqual(1, a1.ManyToOne.Count);
+          Assert.AreEqual(0, a2.ManyToOne.Count);
+          Assert.IsTrue(a1.ManyToOne.Contains(f));
+          Assert.IsFalse(a2.ManyToOne.Contains(f));
+          // change owner
+          a2.ManyToOne.Add(f);
+          Assert.IsNotNull(f.A);
+          Assert.AreEqual(f.A, a2);
+          Assert.AreEqual(0, a1.ManyToOne.Count);
+          Assert.AreEqual(1, a2.ManyToOne.Count);
+          Assert.IsFalse(a1.ManyToOne.Contains(f));
+          Assert.IsTrue(a2.ManyToOne.Contains(f));
+        }
+        // rollback
+        using (Transaction.Open()) {
+          Assert.IsNull(f.A);
+          Assert.IsNotNull(a1.ManyToOne);
+          Assert.IsNotNull(a2.ManyToOne);
+          Assert.IsFalse(a1.ManyToOne.Contains(f));
+          Assert.IsFalse(a2.ManyToOne.Contains(f));
+          Assert.AreEqual(0, a1.ManyToOne.Count);
+          Assert.AreEqual(0, a2.ManyToOne.Count);
         }
       }
     }

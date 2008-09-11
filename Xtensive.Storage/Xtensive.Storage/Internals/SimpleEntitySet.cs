@@ -60,14 +60,23 @@ namespace Xtensive.Storage.Internals
     public override int RemoveWhere(Predicate<T> match)
     {
       EnsureInitialized();
-      throw new NotImplementedException();
+      var itemsToRemove = new List<T>();
+      foreach (T item in this) {
+        if (match(item))
+          itemsToRemove.Add(item);
+      }
+      foreach (T itemToRemove in itemsToRemove)
+        RemoveInternal(itemToRemove);
+      return itemsToRemove.Count;
     }
 
     /// <inheritdoc/>
     public override void Clear()
     {
       EnsureInitialized();
-      throw new NotImplementedException();
+      foreach (T itemToRemove in this.ToList()) {
+        RemoveInternal(itemToRemove);
+      }
     }
 
     /// <inheritdoc/>
@@ -129,9 +138,7 @@ namespace Xtensive.Storage.Internals
       EnsureInitialized();
       if (!Contains(item))
         return false;
-      FieldInfo referencingField = Field.Association.PairTo.ReferencingField;
-      var accessor = referencingField.GetAccessor<Entity>();
-      accessor.SetValue(item, referencingField, null);
+      RemoveInternal(item);
       return true;
     }
 
@@ -171,6 +178,13 @@ namespace Xtensive.Storage.Internals
       }
       if (transaction==null || Transaction.Current.State!=TransactionState.Active)
         throw new InvalidOperationException(Strings.ExEntitySetInvalidBecauseTransactionIsNotActive);
+    }
+
+    private void RemoveInternal(T item)
+    {
+      FieldInfo referencingField = Field.Association.PairTo.ReferencingField;
+      var accessor = referencingField.GetAccessor<Entity>();
+      accessor.SetValue(item, referencingField, null);
     }
 
     internal override void ClearCache()

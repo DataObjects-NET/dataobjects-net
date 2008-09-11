@@ -72,7 +72,7 @@ namespace Xtensive.Storage.Internals
           break;
         case Multiplicity.OneToMany:
           if (IsResolved(obj.Session, originalKey)) {
-            var originalValue = (Entity) (object) GetValue(obj, field);
+            var originalValue = originalKey.Resolve();
             var entitySetFieldAccessor = pairedAssociation.ReferencingField.GetAccessor<EntitySet>();
             entitySetFieldAccessor.GetValue(originalValue, pairedAssociation.ReferencingField).RemoveFromCache(((Entity)obj).Key);
           }
