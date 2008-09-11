@@ -431,7 +431,6 @@ namespace Xtensive.Storage.Tests.Model
       }
     }
 
-
     [Test]
     public void ManyToOneChangeOwnerByEntitySet()
     {
@@ -486,6 +485,65 @@ namespace Xtensive.Storage.Tests.Model
           Assert.IsFalse(a2.ManyToOne.Contains(f));
           Assert.AreEqual(0, a1.ManyToOne.Count);
           Assert.AreEqual(0, a2.ManyToOne.Count);
+        }
+      }
+    }
+
+    [Test]
+    public void OneToZero()
+    {
+      using (Domain.OpenSession()) {
+        A a;
+        B b;
+        using (var transaction = Transaction.Open()) {
+          a = new A();
+          b = new B();
+          transaction.Complete();
+        }
+        using (Transaction.Open()) {
+          Assert.IsNull(a.OneToZero);
+          a.OneToZero = b;
+          Assert.AreEqual(a.OneToZero, b);
+          a.OneToZero = null;
+          Assert.IsNull(a.OneToZero);
+          a.OneToZero = b;
+        }
+        using (var transaction = Transaction.Open()) {
+          Assert.IsNull(a.OneToZero);
+          a.OneToZero = b;
+          transaction.Complete();
+        }
+        using (var transaction = Transaction.Open()) {
+          Assert.AreEqual(a.OneToZero, b);
+        }
+      }
+    }
+
+    [Test]
+    public void ManyToMany()
+    {
+      using (Domain.OpenSession()) {
+        A a1;
+        A a2;
+        G g1;
+        G g2;
+        using (var transaction = Transaction.Open()) {
+          a1 = new A();
+          a2 = new A();
+          g1 = new G();
+          g2 = new G();
+          transaction.Complete();
+        }
+        using (Transaction.Open()) {
+          Assert.IsNotNull(a1.ManyToMany);
+          Assert.IsNotNull(g1.As);
+          Assert.AreEqual(0, a1.ManyToMany.Count);
+          Assert.AreEqual(0, g1.As.Count);
+          a1.ManyToMany.Add(g1);
+          a1.ManyToMany.Add(g2);
+          Assert.AreEqual(2, a1.ManyToMany.Count);
+          Assert.AreEqual(1, g1.As.Count);
+          Assert.AreEqual(1, g2.As.Count);
         }
       }
     }

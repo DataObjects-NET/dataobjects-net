@@ -6,76 +6,63 @@
 
 using System;
 using System.Collections.Generic;
+using Xtensive.Core;
+using Xtensive.Core.Tuples;
+using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Internals
 {
-  public class ReverseWrappingEntitySet<T1, T2, TRef> : EntitySet<T1>
+  internal class ReverseWrappingEntitySet<T1, T2, TRef> : SimpleEntitySet<T1>
     where T1 : Entity
     where T2 : Entity
     where TRef : EntitySetReference<T2, T1>
   {
-    private EntitySet<T2, T1, TRef> set;
+    private readonly CombineTransform combineTransform;
 
-    public override int RemoveWhere(Predicate<T1> match)
+    public override bool Add(T1 item)
     {
-      throw new NotImplementedException();
-    }
-
-    public override void Clear()
-    {
-      throw new NotImplementedException();
+      ArgumentValidator.EnsureArgumentNotNull(item, "item");
+      if (!Contains(item)) {
+        Key newEntityKey = Key.Get(typeof(TRef), CombineKey(item.Key));
+        newEntityKey.Resolve();
+        return true;
+      }
+      return false;
     }
 
     public override bool Contains(T1 item)
     {
-      throw new NotImplementedException();
+      ArgumentValidator.EnsureArgumentNotNull(item, "item");
+      return Contains(item.Key);
     }
 
     public override bool Contains(Key key)
     {
-      throw new System.NotImplementedException();
-    }
-
-    public override bool Add(T1 item)
-    {
+      ArgumentValidator.EnsureArgumentNotNull(key, "key");
+      if (Cache.Contains(key))
+        return true;
+      if (Cache.Count == Count)
+        return false;
+      Tuple tupleKey = CombineKey(key);
       throw new NotImplementedException();
     }
 
-    public override IEnumerator<T1> GetEnumerator()
+    private Tuple CombineKey(Key key)
     {
-      throw new NotImplementedException();
+      return combineTransform.Apply(TupleTransformType.TransformedTuple, ((Entity)Owner).Key.Tuple, key.Tuple);
     }
 
-    public override bool Remove(T1 item)
+    protected override IndexInfo GetIndex()
     {
-      throw new NotImplementedException();
-    }
-
-    public override long Count
-    {
-      get { throw new NotImplementedException(); }
-    }
-
-    internal override void ClearCache()
-    {
-      throw new NotImplementedException();
-    }
-
-    internal override void AddToCache(Key key)
-    {
-      throw new NotImplementedException();
-    }
-
-    internal override void RemoveFromCache(Key key)
-    {
-      throw new NotImplementedException();
+      var referencingField = Field.ReflectedType.Model.Types[typeof(TRef)].Fields["Entity1"];
+      return referencingField.ReflectedType.Indexes.GetIndex(referencingField.Name);
     }
 
     public ReverseWrappingEntitySet(Persistent owner, FieldInfo field)
       : base(owner, field)
     {
-      set = new EntitySet<T2, T1, TRef>(owner);
+      combineTransform = new CombineTransform(true, ((Entity)owner).Key.Tuple.Descriptor, field.ReflectedType.Hierarchy.KeyTupleDescriptor);
     }
   }
 }

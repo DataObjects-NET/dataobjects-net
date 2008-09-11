@@ -249,10 +249,15 @@ namespace Xtensive.Core.Reflection
       return null;
     }
 
-    private static T CreateAssociateInternal<T>(Type originalForType, Type currentForType, out Type foundForType,
-      string associateTypePrefix, string[] associateTypeSuffixes,
-      List<Pair<Assembly, string>> locations, Type[] genericArguments, object[] constructorParams)
-      where T : class
+    private static T CreateAssociateInternal<T>(Type originalForType, 
+      Type currentForType, 
+      out Type foundForType,
+      string associateTypePrefix, 
+      string[] associateTypeSuffixes,
+      List<Pair<Assembly, string>> locations, 
+      Type[] genericArguments, 
+      object[] constructorParams)
+        where T : class
     {
       var pair = new Pair<Assembly, string>(typeof (T).Assembly, typeof (T).Namespace);
       if (locations.FindIndex(p => p.First==pair.First && p.Second==pair.Second)<0)

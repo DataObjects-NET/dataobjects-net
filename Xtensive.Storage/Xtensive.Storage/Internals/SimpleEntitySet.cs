@@ -22,42 +22,31 @@ namespace Xtensive.Storage.Internals
   internal class SimpleEntitySet<T> : EntitySet<T>
     where T : Entity
   {
-    #region Nested types
+    private Transaction transaction;
+    private long? count;
+    private long version;
+    private IndexInfo index;
+    private MapTransform keyTransform;
 
-    private class CachedKey : IIdentified<Key>,
-      IHasSize
+    private IndexInfo Index
     {
-      public Key Key { get; private set; }
-
-      object IIdentified.Identifier
+      get
       {
-        get { return Identifier; }
-      }
-
-      public Key Identifier
-      {
-        get { return Key; }
-      }
-
-      public long Size
-      {
-        get { return 1; }
-      }
-
-      public CachedKey(Key key)
-      {
-        Key = key;
+        index = index ?? GetIndex();
+        return index;
       }
     }
 
-    #endregion
+    private MapTransform KeyTransform
+    {
+      get
+      {
+        keyTransform = keyTransform ?? GetKeyTransform();
+        return keyTransform;
+      }
+    }
 
-    private readonly IndexInfo index;
-    private long? count;
-    private Transaction transaction;
-    private readonly Cache<Key, CachedKey, CachedKey> cache = new Cache<Key, CachedKey, CachedKey>(MaximumCacheSize, cachedKey => cachedKey.Key);
-    private long version;
-    private readonly MapTransform keyTransform;
+    internal Cache<Key, CachedKey, CachedKey> Cache { get; private set; }
 
     /// <inheritdoc/>
     public override int RemoveWhere(Predicate<T> match)
@@ -90,11 +79,13 @@ namespace Xtensive.Storage.Internals
       if (key.Type.UnderlyingType!=typeof (T)) {
         return false;
       }
-      if (!cache.Contains(key)) {
+      if (!Cache.Contains(key)) {
+        if (Cache.Count==Count)
+          return false;
         // Request from database
         Tuple filterTuple = new CombineTransform(true, ((Entity) Owner).Key.Tuple.Descriptor, key.Tuple.Descriptor).Apply(TupleTransformType.Tuple, ((Entity) Owner).Key.Tuple, key.Tuple);
         if (GetRecordSet().Range(filterTuple, filterTuple).Count() > 0) {
-          cache.Add(new CachedKey(key));
+          Cache.Add(new CachedKey(key));
         }
         else {
           return false;
@@ -108,13 +99,15 @@ namespace Xtensive.Storage.Internals
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
       EnsureInitialized();
-      if (cache.Contains(item.Key))
+      if (Cache.Contains(item.Key))
         return true;
+      if (Cache.Count==Count)
+        return false;
       FieldInfo referencingField = Field.Association.PairTo.ReferencingField;
       var accessor = referencingField.GetAccessor<Entity>();
       bool result = ReferenceEquals(accessor.GetValue(item, referencingField), Owner);
       if (result)
-        cache.Add(new CachedKey(item.Key));
+        Cache.Add(new CachedKey(item.Key));
       return result;
     }
 
@@ -134,8 +127,8 @@ namespace Xtensive.Storage.Internals
     {
       EnsureInitialized();
       long startVersion = version;
-      if (count==cache.Count) {
-        foreach (CachedKey key in cache) {
+      if (count==Cache.Count) {
+        foreach (CachedKey key in Cache) {
           EnsureVersion(startVersion);
           yield return key.Key.Resolve<T>();
         }
@@ -144,7 +137,7 @@ namespace Xtensive.Storage.Internals
         RecordSet recordSet = GetRecordSet();
         foreach (Tuple tuple in recordSet) {
           EnsureVersion(startVersion);
-          Tuple keyTuple = keyTransform.Apply(TupleTransformType.Tuple, tuple);
+          Tuple keyTuple = KeyTransform.Apply(TupleTransformType.Tuple, tuple);
           var key = Key.Get(typeof (T), keyTuple);
           yield return key.Resolve<T>();
         }
@@ -172,28 +165,64 @@ namespace Xtensive.Storage.Internals
       }
     }
 
-    private RecordSet GetRecordSet()
+    internal sealed override void ClearCache()
+    {
+      count = null;
+      Cache.Clear();
+      IncreaseVersion();
+    }
+
+    internal override void AddToCache(Key key)
+    {
+      EnsureInitialized();
+      count++;
+      Cache.Add(new CachedKey(key));
+      IncreaseVersion();
+    }
+
+    internal override void RemoveFromCache(Key key)
+    {
+      EnsureInitialized();
+      count--;
+      Cache.Remove(key);
+      IncreaseVersion();
+    }
+
+    protected virtual IndexInfo GetIndex()
+    {
+      FieldInfo referencingField = Field.Association.PairTo.ReferencingField;
+      return referencingField.ReflectedType.Indexes.GetIndex(referencingField.Name);
+    }
+
+    protected virtual MapTransform GetKeyTransform()
+    {
+      var keyTupleDescriptor = Owner.Session.Domain.Model.Types[typeof (T)].Hierarchy.KeyTupleDescriptor;
+      IEnumerable<int> columnIndexes = Index.Columns.Where(columnInfo => columnInfo.IsPrimaryKey).Select(columnInfo => Index.Columns.IndexOf(columnInfo));
+      return new MapTransform(true, keyTupleDescriptor, columnIndexes.ToArray());
+    }
+
+    protected RecordSet GetRecordSet()
     {
       Tuple key = ((Entity) Owner).Key.Tuple;
-      var rs = index.ToRecordSet().Range(key, key);
+      var rs = Index.ToRecordSet().Range(key, key);
       return rs;
     }
 
-    private void EnsureVersion(long currentVersion)
+    protected void EnsureInitialized()
     {
-      if (version!=currentVersion)
-        Exceptions.CollectionHasBeenChanged(null);
-    }
-
-    private void EnsureInitialized()
-    {
-      EnusreTransaction();
+      EnusureTransaction();
       if (!count.HasValue) {
         count = GetRecordSet().Count();
       }
     }
 
-    private void EnusreTransaction()
+    protected void EnsureVersion(long currentVersion)
+    {
+      if (version!=currentVersion)
+        Exceptions.CollectionHasBeenChanged(null);
+    }
+
+    private void EnusureTransaction()
     {
       if (Transaction.Current!=transaction) {
         ClearCache();
@@ -204,20 +233,6 @@ namespace Xtensive.Storage.Internals
         throw new InvalidOperationException(Strings.ExEntitySetInvalidBecauseTransactionIsNotActive);
     }
 
-    private void RemoveInternal(T item)
-    {
-      FieldInfo referencingField = Field.Association.PairTo.ReferencingField;
-      var accessor = referencingField.GetAccessor<Entity>();
-      accessor.SetValue(item, referencingField, null);
-    }
-
-    internal override void ClearCache()
-    {
-      count = null;
-      cache.Clear();
-      IncreaseVersion();
-    }
-
     private void IncreaseVersion()
     {
       unchecked {
@@ -225,31 +240,17 @@ namespace Xtensive.Storage.Internals
       }
     }
 
-    internal override void AddToCache(Key key)
+    private void RemoveInternal(T item)
     {
-      EnsureInitialized();
-      count++;
-      cache.Add(new CachedKey(key));
-      IncreaseVersion();
-    }
-
-    internal override void RemoveFromCache(Key key)
-    {
-      EnsureInitialized();
-      count--;
-      cache.Remove(key);
-      IncreaseVersion();
+      FieldInfo referencingField = Field.Association.PairTo.ReferencingField;
+      var accessor = referencingField.GetAccessor<Entity>();
+      accessor.SetValue(item, referencingField, null);
     }
 
     public SimpleEntitySet(Persistent owner, FieldInfo field)
       : base(owner, field)
     {
-      EnusreTransaction();
-      FieldInfo referencingField = field.Association.PairTo.ReferencingField;
-      index = referencingField.ReflectedType.Indexes.GetIndex(referencingField.Name);
-      var keyTupleDescriptor = Owner.Session.Domain.Model.Types[typeof (T)].Hierarchy.KeyTupleDescriptor;
-      IEnumerable<int> columnIndexes = index.Columns.Where(columnInfo => columnInfo.IsPrimaryKey).Select(columnInfo => index.Columns.IndexOf(columnInfo));
-      keyTransform = new MapTransform(true, keyTupleDescriptor, columnIndexes.ToArray());
+      Cache = new Cache<Key, CachedKey, CachedKey>(MaximumCacheSize, cachedKey => cachedKey.Key);
     }
   }
 }
