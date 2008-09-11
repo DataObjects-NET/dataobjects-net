@@ -81,7 +81,7 @@ namespace Xtensive.Storage.Rse
     /// </summary>
     /// <param name="values">The values.</param>
     /// <returns>The constructed header.</returns>
-    public RecordSetHeader Add(CalculatedColumn[] values)
+    public RecordSetHeader Add(Column[] values)
     {
       TupleDescriptor resultTupleDescriptor = TupleDescriptor;
       ColumnCollection resultColumns = Columns;

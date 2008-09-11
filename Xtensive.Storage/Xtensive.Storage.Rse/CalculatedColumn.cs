@@ -25,7 +25,7 @@ namespace Xtensive.Storage.Rse
     // Constructor
 
     /// <summary>
-    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="descriptor"><see cref="CalculatedColumnDescriptor"/> property value.</param>
     /// <param name="index"><see cref="Column.Index"/> property value.</param>

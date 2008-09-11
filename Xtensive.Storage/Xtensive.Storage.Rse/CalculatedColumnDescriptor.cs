@@ -21,14 +21,14 @@ namespace Xtensive.Storage.Rse
     public string Name { get; private set; }
 
     /// <summary>
-    /// Gets the column expression.
-    /// </summary>
-    public Func<Tuple, object> Expression { get; private set; }
-
-    /// <summary>
     /// Gets the column type.
     /// </summary>
     public Type Type { get; private set; }
+
+    /// <summary>
+    /// Gets the column expression.
+    /// </summary>
+    public Func<Tuple, object> Expression { get; private set; }
 
 
     // Constructor
