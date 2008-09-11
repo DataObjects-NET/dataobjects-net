@@ -229,6 +229,20 @@ namespace Xtensive.Storage.Tests.Model
           Assert.AreEqual(0, a.ManyToOne.Count);
           Assert.IsFalse(a.ManyToOne.Contains(f));
         }
+        //assign back and commit
+        using (var transaction = Transaction.Open()) {
+          f.A = a;
+          Assert.IsNotNull(f.A);
+          Assert.AreEqual(1, a.ManyToOne.Count);
+          Assert.IsTrue(a.ManyToOne.Contains(f));
+          transaction.Complete();
+        }
+        // check commited state
+        using (Transaction.Open()) {
+          Assert.IsNotNull(f.A);
+          Assert.AreEqual(1, a.ManyToOne.Count);
+          Assert.IsTrue(a.ManyToOne.Contains(f));
+        }
       }
     }
 
