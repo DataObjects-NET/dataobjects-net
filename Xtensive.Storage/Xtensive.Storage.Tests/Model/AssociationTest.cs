@@ -8,6 +8,7 @@ using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Core.Testing;
+using Xtensive.Core.Tuples;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Model.Association;
@@ -110,6 +111,24 @@ namespace Xtensive.Storage.Tests.Model
     }
 
     [Test]
+    public void ToRecordsetTest()
+    {
+      using (Domain.OpenSession()) {
+        using (Transaction.Open()) {
+          var a1 = new A();
+          var a2 = new A();
+          var rs = a1.Type.Indexes.PrimaryIndex.ToRecordSet();
+          foreach (Tuple tuple in rs) {
+            var rs2 = a1.Type.Indexes.PrimaryIndex.ToRecordSet();
+            foreach (Tuple tuple2 in rs2) {
+              Core.Log.Debug(tuple2.ToString());
+            }
+          }
+        }
+      }
+    }
+
+    [Test]
     public void EntitySetCreation()
     {
       // Domain.Model.Dump();
@@ -164,6 +183,7 @@ namespace Xtensive.Storage.Tests.Model
           AssertEx.Throws<Exception>(()=>enumerator.MoveNext());  
           Assert.AreEqual(4, a.ManyToOne.Count()); // Enumerate through recordset request
           foreach (F f in a.ManyToOne) {
+            a.ManyToOne.Contains(f.Key); // Enumerate through recordset request
             a.ManyToOne.Contains(f); // Enumerate through recordset request
           }
         }
@@ -270,14 +290,17 @@ namespace Xtensive.Storage.Tests.Model
           Assert.IsNull(f.A);
           Assert.IsNotNull(a.ManyToOne);
           Assert.AreEqual(0, a.ManyToOne.Count);
+          Assert.IsFalse(a.ManyToOne.Contains(f.Key));
           Assert.IsFalse(a.ManyToOne.Contains(f));
           f.A = a;
           Assert.IsNotNull(f.A);
           Assert.AreEqual(1, a.ManyToOne.Count);
+          Assert.IsTrue(a.ManyToOne.Contains(f.Key));
           Assert.IsTrue(a.ManyToOne.Contains(f));
           f.A = a;
           Assert.IsNotNull(f.A);
           Assert.AreEqual(1, a.ManyToOne.Count);
+          Assert.IsTrue(a.ManyToOne.Contains(f.Key));
           Assert.IsTrue(a.ManyToOne.Contains(f));
         }
         // rollback
@@ -285,6 +308,7 @@ namespace Xtensive.Storage.Tests.Model
           Assert.IsNull(f.A);
           Assert.IsNotNull(a.ManyToOne);
           Assert.AreEqual(0, a.ManyToOne.Count);
+          Assert.IsFalse(a.ManyToOne.Contains(f.Key));
           Assert.IsFalse(a.ManyToOne.Contains(f));
         }
         //assign back and commit
@@ -292,6 +316,7 @@ namespace Xtensive.Storage.Tests.Model
           f.A = a;
           Assert.IsNotNull(f.A);
           Assert.AreEqual(1, a.ManyToOne.Count);
+          Assert.IsTrue(a.ManyToOne.Contains(f.Key));
           Assert.IsTrue(a.ManyToOne.Contains(f));
           transaction.Complete();
         }
@@ -299,6 +324,7 @@ namespace Xtensive.Storage.Tests.Model
         using (Transaction.Open()) {
           Assert.IsNotNull(f.A);
           Assert.AreEqual(1, a.ManyToOne.Count);
+          Assert.IsTrue(a.ManyToOne.Contains(f.Key));
           Assert.IsTrue(a.ManyToOne.Contains(f));
         }
       }
@@ -319,16 +345,19 @@ namespace Xtensive.Storage.Tests.Model
           Assert.IsNull(f.A);
           Assert.IsNotNull(a.ManyToOne);
           Assert.AreEqual(0, a.ManyToOne.Count);
+          Assert.IsFalse(a.ManyToOne.Contains(f.Key));
           Assert.IsFalse(a.ManyToOne.Contains(f));
           a.ManyToOne.Add(f);
           Assert.IsNotNull(f.A);
           Assert.AreEqual(f.A, a);
           Assert.AreEqual(1, a.ManyToOne.Count);
+          Assert.IsTrue(a.ManyToOne.Contains(f.Key));
           Assert.IsTrue(a.ManyToOne.Contains(f));
           a.ManyToOne.Add(f);
           Assert.IsNotNull(f.A);
           Assert.AreEqual(f.A, a);
           Assert.AreEqual(1, a.ManyToOne.Count);
+          Assert.IsTrue(a.ManyToOne.Contains(f.Key));
           Assert.IsTrue(a.ManyToOne.Contains(f));
         }
         // rollback
@@ -336,6 +365,7 @@ namespace Xtensive.Storage.Tests.Model
           Assert.IsNull(f.A);
           Assert.IsNotNull(a.ManyToOne);
           Assert.AreEqual(0, a.ManyToOne.Count);
+          Assert.IsFalse(a.ManyToOne.Contains(f.Key));
           Assert.IsFalse(a.ManyToOne.Contains(f));
         }
       }
@@ -359,25 +389,33 @@ namespace Xtensive.Storage.Tests.Model
           Assert.IsNull(f2.A);
           Assert.IsNotNull(a.ManyToOne);
           Assert.AreEqual(0, a.ManyToOne.Count);
+          Assert.IsFalse(a.ManyToOne.Contains(f1.Key));
           Assert.IsFalse(a.ManyToOne.Contains(f1));
+          Assert.IsFalse(a.ManyToOne.Contains(f2.Key));
           Assert.IsFalse(a.ManyToOne.Contains(f2));
           f1.A = a;
           Assert.IsNotNull(f1.A);
           Assert.AreEqual(1, a.ManyToOne.Count);
+          Assert.IsTrue(a.ManyToOne.Contains(f1.Key));
           Assert.IsTrue(a.ManyToOne.Contains(f1));
+          Assert.IsFalse(a.ManyToOne.Contains(f2.Key));
           Assert.IsFalse(a.ManyToOne.Contains(f2));
           f2.A = a;
           Assert.IsNotNull(f1.A);
           Assert.IsNotNull(f2.A);
           Assert.AreEqual(2, a.ManyToOne.Count);
           Assert.IsTrue(a.ManyToOne.Contains(f1));
+          Assert.IsTrue(a.ManyToOne.Contains(f1.Key));
+          Assert.IsTrue(a.ManyToOne.Contains(f2.Key));
           Assert.IsTrue(a.ManyToOne.Contains(f2));
           f1.A = null;
           Assert.IsNull(f1.A);
           Assert.IsNotNull(f2.A);
           Assert.IsNotNull(a.ManyToOne);
           Assert.AreEqual(1, a.ManyToOne.Count);
+          Assert.IsFalse(a.ManyToOne.Contains(f1.Key));
           Assert.IsFalse(a.ManyToOne.Contains(f1));
+          Assert.IsTrue(a.ManyToOne.Contains(f2.Key));
           Assert.IsTrue(a.ManyToOne.Contains(f2));
           f1.A = a;
         }
@@ -387,6 +425,7 @@ namespace Xtensive.Storage.Tests.Model
           Assert.IsNull(f2.A);
           Assert.IsNotNull(a.ManyToOne);
           Assert.AreEqual(0, a.ManyToOne.Count);
+          Assert.IsFalse(a.ManyToOne.Contains(f1.Key));
           Assert.IsFalse(a.ManyToOne.Contains(f1));
         }
       }
@@ -410,7 +449,9 @@ namespace Xtensive.Storage.Tests.Model
           Assert.IsNull(f.A);
           Assert.IsNotNull(a1.ManyToOne);
           Assert.IsNotNull(a2.ManyToOne);
+          Assert.IsFalse(a1.ManyToOne.Contains(f.Key));
           Assert.IsFalse(a1.ManyToOne.Contains(f));
+          Assert.IsFalse(a2.ManyToOne.Contains(f.Key));
           Assert.IsFalse(a2.ManyToOne.Contains(f));
           Assert.AreEqual(0, a1.ManyToOne.Count);
           Assert.AreEqual(0, a2.ManyToOne.Count);
@@ -419,7 +460,9 @@ namespace Xtensive.Storage.Tests.Model
           Assert.AreEqual(f.A, a1);
           Assert.AreEqual(1, a1.ManyToOne.Count);
           Assert.AreEqual(0, a2.ManyToOne.Count);
+          Assert.IsTrue(a1.ManyToOne.Contains(f.Key));
           Assert.IsTrue(a1.ManyToOne.Contains(f));
+          Assert.IsFalse(a2.ManyToOne.Contains(f.Key));
           Assert.IsFalse(a2.ManyToOne.Contains(f));
           // change owner
           a2.ManyToOne.Add(f);
@@ -427,7 +470,9 @@ namespace Xtensive.Storage.Tests.Model
           Assert.AreEqual(f.A, a2);
           Assert.AreEqual(0, a1.ManyToOne.Count);
           Assert.AreEqual(1, a2.ManyToOne.Count);
+          Assert.IsFalse(a1.ManyToOne.Contains(f.Key));
           Assert.IsFalse(a1.ManyToOne.Contains(f));
+          Assert.IsTrue(a2.ManyToOne.Contains(f.Key));
           Assert.IsTrue(a2.ManyToOne.Contains(f));
         }
         // rollback
@@ -435,7 +480,9 @@ namespace Xtensive.Storage.Tests.Model
           Assert.IsNull(f.A);
           Assert.IsNotNull(a1.ManyToOne);
           Assert.IsNotNull(a2.ManyToOne);
+          Assert.IsFalse(a1.ManyToOne.Contains(f.Key));
           Assert.IsFalse(a1.ManyToOne.Contains(f));
+          Assert.IsFalse(a2.ManyToOne.Contains(f.Key));
           Assert.IsFalse(a2.ManyToOne.Contains(f));
           Assert.AreEqual(0, a1.ManyToOne.Count);
           Assert.AreEqual(0, a2.ManyToOne.Count);
