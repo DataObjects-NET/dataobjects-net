@@ -84,10 +84,7 @@ namespace Xtensive.Storage
     }
 
     /// <inheritdoc/>
-    public IEnumerator<T> GetEnumerator()
-    {
-      throw new NotImplementedException();
-    }
+    public abstract IEnumerator<T> GetEnumerator();
 
     #endregion
 

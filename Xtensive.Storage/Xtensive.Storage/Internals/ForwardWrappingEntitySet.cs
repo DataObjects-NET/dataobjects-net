@@ -5,6 +5,7 @@
 // Created:    2008.09.05
 
 using System;
+using System.Collections.Generic;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Internals
@@ -18,42 +19,62 @@ namespace Xtensive.Storage.Internals
 
     public override int RemoveWhere(Predicate<T1> match)
     {
-      throw new System.NotImplementedException();
+      throw new NotImplementedException();
     }
 
     public override void Clear()
     {
-      throw new System.NotImplementedException();
+      throw new NotImplementedException();
     }
 
     public override void CopyTo(T1[] array, int arrayIndex)
     {
-      throw new System.NotImplementedException();
+      throw new NotImplementedException();
     }
 
     public override T1 this[T1 item]
     {
-      get { throw new System.NotImplementedException(); }
+      get { throw new NotImplementedException(); }
     }
 
     public override bool Contains(T1 item)
     {
-      throw new System.NotImplementedException();
+      throw new NotImplementedException();
     }
 
     public override bool Add(T1 item)
     {
-      throw new System.NotImplementedException();
+      throw new NotImplementedException();
+    }
+
+    public override IEnumerator<T1> GetEnumerator()
+    {
+      throw new NotImplementedException();
     }
 
     public override bool Remove(T1 item)
     {
-      throw new System.NotImplementedException();
+      throw new NotImplementedException();
     }
 
     public override long Count
     {
-      get { throw new System.NotImplementedException(); }
+      get { throw new NotImplementedException(); }
+    }
+
+    internal override void ClearCache()
+    {
+      throw new NotImplementedException();
+    }
+
+    internal override void AddToCache(Key key)
+    {
+      throw new NotImplementedException();
+    }
+
+    internal override void RemoveFromCache(Key key)
+    {
+      throw new NotImplementedException();
     }
 
     public ForwardWrappingEntitySet(Persistent owner, FieldInfo field)

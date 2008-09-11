@@ -259,6 +259,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Entity set is invalid due to current transaction is not active..
+        /// </summary>
+        internal static string ExEntitySetInvalidBecauseTransactionIsNotActive {
+            get {
+                return ResourceManager.GetString("ExEntitySetInvalidBecauseTransactionIsNotActive", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Some errors have been occurred during storage build. See error log for details..
         /// </summary>
         internal static string ExErrorsDuringStorageBuild {

@@ -42,6 +42,12 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     public FieldInfo Field { get; private set; }
 
+    internal abstract void ClearCache();
+
+    internal abstract void AddToCache(Key key);
+
+    internal abstract void RemoveFromCache(Key key);
+
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
