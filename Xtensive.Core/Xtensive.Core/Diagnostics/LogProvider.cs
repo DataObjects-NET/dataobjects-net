@@ -6,10 +6,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Threading;
+using System.Xml;
 using log4net;
 using log4net.Config;
 using log4net.Util;
@@ -138,7 +140,9 @@ namespace Xtensive.Core.Diagnostics
   </logger>
 </log4net>
 ";
-
+      XmlElement section = ConfigurationManager.GetSection("log4net") as XmlElement;
+      if (section != null)
+        XmlConfigurator.Configure(section);
       if (LogManager.GetCurrentLoggers().Length==0) {
         XmlConfigurator.Configure(new MemoryStream(Encoding.UTF8.GetBytes(defaultConfig)));
         System.Diagnostics.Debug.Assert(LogManager.GetCurrentLoggers().Length > 0);
