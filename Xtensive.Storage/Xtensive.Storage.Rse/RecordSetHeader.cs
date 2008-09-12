@@ -188,11 +188,12 @@ namespace Xtensive.Storage.Rse
           new DirectionCollection<int>(
             indexInfo.KeyColumns.Select((pair, i) => new KeyValuePair<int, Direction>(i, pair.Value)));
       else {
-        var keyColumns = indexInfo.ReflectedType.Indexes.PrimaryIndex.KeyColumns;
-        sortOrder = new DirectionCollection<int>(
-          indexInfo.KeyColumns
-          .Select((p, i) => new KeyValuePair<int, Direction>(i, p.Value))
-          .Union(keyColumns.Select((p, i) => new KeyValuePair<int, Direction>(i+keyColumns.Count, p.Value))));
+        var pkKeys = indexInfo.ReflectedType.Indexes.PrimaryIndex.KeyColumns;
+        sortOrder = new DirectionCollection<int>(indexInfo.KeyColumns.Select((p, i) => new KeyValuePair<int, Direction>(i, p.Value))
+          .Union(indexInfo.ValueColumns
+            .Select((c, i) => new Pair<ColumnInfo, int>(c, i + indexInfo.KeyColumns.Count))
+            .Where(pair => pair.First.IsPrimaryKey)
+            .Select(pair => new KeyValuePair<int, Direction>(pair.Second, pkKeys[pair.First]))));
       }
 
       TupleDescriptor keyDescriptor = TupleDescriptor.Create(indexInfo.KeyColumns.Select(columnInfo => columnInfo.Key.ValueType));
