@@ -40,6 +40,25 @@ namespace Xtensive.Storage.Internals
       return false;
     }
 
+
+    public override bool Remove(T1 item)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(item, "item");
+      if (!Contains(item))
+        return false;
+      Key newEntityKey = Key.Get(typeof(TRef), CombineKey(item.Key));
+      var reference = newEntityKey.Resolve();
+      reference.Remove();
+      if (Field.Association.Multiplicity == Multiplicity.ManyToMany) {
+        //update paired EntitySet
+        FieldInfo referencingField = Field.Association.PairTo.ReferencingField;
+        var accessor = referencingField.GetAccessor<EntitySet>();
+        var pairedEntitySet = accessor.GetValue(item, referencingField);
+        pairedEntitySet.RemoveFromCache(((Entity)Owner).Key);
+      }
+      return true;
+    }
+
     public override bool Contains(T1 item)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");

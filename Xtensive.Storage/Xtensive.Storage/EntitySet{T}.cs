@@ -186,7 +186,7 @@ namespace Xtensive.Storage
     }
 
     /// <inheritdoc/>
-    public bool Remove(T item)
+    public virtual bool Remove(T item)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
       EnsureInitialized();
@@ -246,9 +246,7 @@ namespace Xtensive.Storage
     {
       Tuple key = ((Entity) Owner).Key.Tuple;
       RecordSet recordSet = Index.ToRecordSet();
-      var x = recordSet.Count();
       var rsResult = recordSet.Range(key, key);
-      var y = recordSet.Count();
       return rsResult;
     }
 

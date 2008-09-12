@@ -5,6 +5,7 @@
 // Created:    2008.09.06
 
 using System;
+using System.Reflection;
 using Xtensive.Core.Reflection;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Building.Builders;
@@ -20,7 +21,7 @@ namespace Xtensive.Storage.Internals
       if (association.ReferencingField.IsEntitySet && association.IsMaster) {
         Type baseType = typeof (EntitySetReference<,>).MakeGenericType(association.ReferencedType.UnderlyingType, association.ReferencingType.UnderlyingType);
         string name = BuildingContext.Current.NameBuilder.Build(association);
-        return TypeHelper.CreateDummyType(name, baseType);
+        return TypeHelper.CreateDummyType(name, baseType, true);
       }
       return null;
     }

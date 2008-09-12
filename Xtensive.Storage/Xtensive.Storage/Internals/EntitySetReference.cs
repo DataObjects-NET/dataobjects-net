@@ -4,6 +4,7 @@
 // Created by: Aleksey Gamzov
 // Created:    2008.09.05
 
+using Xtensive.Core.Tuples;
 using Xtensive.Storage.Attributes;
 
 namespace Xtensive.Storage.Internals

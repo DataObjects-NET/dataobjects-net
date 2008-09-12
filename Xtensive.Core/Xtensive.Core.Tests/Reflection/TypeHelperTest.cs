@@ -272,6 +272,54 @@ namespace Xtensive.Core.Tests.Reflection
       Log.Info("List<t1> name: {0}", list.GetType().GetFullName());
     }
 
+    #region Nested types
+    public class TestClass
+    {
+      public string value;
+
+      public TestClass()
+      {
+        value = "Default Constructor";
+      }
+
+      public TestClass(string value)
+      {
+        this.value = value;
+      }
+
+      public TestClass(int intValue, string stringValue)
+      {
+        value = intValue.ToString() + stringValue;
+      }
+
+      private static TestClass ttttt(int intValue, string stringValue)
+      {
+        return new TestClass(intValue, stringValue);
+        
+      }
+    }
+    #endregion
+
+    [Test]
+    public void CreateDummyTypeConstructorTest()
+    {
+      Type type = TypeHelper.CreateDummyType("Test2", typeof(TestClass), true);
+      var defaultConstructorInstance = (TestClass)type.Activate(null);
+      Assert.AreEqual(defaultConstructorInstance.value, "Default Constructor");
+      var customConstructorInstance1 = (TestClass)type.Activate(null, "Custom constructor");
+      Assert.AreEqual(customConstructorInstance1.value, "Custom constructor");
+      var customConstructorInstance2 = (TestClass)type.Activate(null, 11, "test");
+      Assert.AreEqual(customConstructorInstance2.value, "11test");
+      var methods = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Static);
+      Assert.AreEqual(3, methods.Length);
+      var ctor1 = (TestClass)methods[0].Invoke(null, BindingFlags.Static | BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.NonPublic, null, new object[0], null);
+      var ctor2 = (TestClass)methods[1].Invoke(null, BindingFlags.Static | BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.NonPublic, null, new object[] { "Custom constructor" }, null);
+      var ctor3 =(TestClass) methods[2].Invoke(null, BindingFlags.Static | BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.NonPublic, null, new object[] { 11, "test" }, null);
+      Assert.AreEqual(ctor1.value, defaultConstructorInstance.value);
+      Assert.AreEqual(ctor2.value, customConstructorInstance1.value);
+      Assert.AreEqual(ctor3.value, customConstructorInstance2.value);
+    }
+
     [Test]
     public void GetNameAndAddSuffixTest()
     {

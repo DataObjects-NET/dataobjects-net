@@ -18,6 +18,7 @@ using Xtensive.Core.Comparison;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Resources;
 using Xtensive.Core.Threading;
+using System.Linq;
 
 namespace Xtensive.Core.Reflection
 {
@@ -329,6 +330,20 @@ namespace Xtensive.Core.Reflection
     /// <returns><see cref="Type"/> object of newly created type.</returns>
     public static Type CreateDummyType(string namePrefix, Type inheritFrom)
     {
+      return CreateDummyType(namePrefix, inheritFrom, false);
+    }
+
+    /// <summary>
+    /// Creates new dummy type. Such types can be used
+    /// as generic arguments (to instantiate unique generic
+    /// instances).
+    /// </summary>
+    /// <param name="namePrefix">Prefix to include into type name.</param>
+    /// <param name="inheritFrom">The type to inherit the dummy type from.</param>
+    /// <param name="implementProtectedConstructorAccessor">If <see langword="true"/>, static method with name <see cref="DelegateHelper.AspectedProtectedConstructorCallerName"/> will be created for each constructor.</param>
+    /// <returns><see cref="Type"/> object of newly created type.</returns>
+    public static Type CreateDummyType(string namePrefix, Type inheritFrom, bool implementProtectedConstructorAccessor)
+    {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(namePrefix, "namePrefix");
       ArgumentValidator.EnsureArgumentNotNull(inheritFrom, "inheritFrom");
 
@@ -336,7 +351,7 @@ namespace Xtensive.Core.Reflection
       int n = Interlocked.Increment(ref createDummyTypeNumber);
       string typeName = string.Format("{0}.Internal.{1}{2}", typeof (TypeHelper).Namespace, namePrefix, n);
 
-      return CreateInheritedDummyType(typeName, inheritFrom);
+      return CreateInheritedDummyType(typeName, inheritFrom, implementProtectedConstructorAccessor);
     }
 
     /// <summary>
@@ -346,6 +361,17 @@ namespace Xtensive.Core.Reflection
     /// <param name="inheritFrom">The type to inherit the dummy type from.</param>
     /// <returns>New type.</returns>
     public static Type CreateInheritedDummyType(string typeName, Type inheritFrom)
+    {
+      return CreateInheritedDummyType(typeName, inheritFrom, false);
+    }
+    /// <summary>
+    /// Creates new dummy type inherited from another type.
+    /// </summary>
+    /// <param name="typeName">Type name.</param>
+    /// <param name="inheritFrom">The type to inherit the dummy type from.</param>
+    /// <param name="implementProtectedConstructorAccessor">If <see langword="true"/>, static method with name <see cref="DelegateHelper.AspectedProtectedConstructorCallerName"/> will be created for each constructor.</param>
+    /// <returns>New type.</returns>
+    public static Type CreateInheritedDummyType(string typeName, Type inheritFrom, bool implementProtectedConstructorAccessor)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(typeName, "typeName");
       ArgumentValidator.EnsureArgumentNotNull(inheritFrom, "inheritFrom");
@@ -357,18 +383,35 @@ namespace Xtensive.Core.Reflection
           inheritFrom,
           ArrayUtils<Type>.EmptyArray
           );
-        ConstructorBuilder constructorBuilder = typeBuilder.DefineConstructor(
-          MethodAttributes.Private |
-            MethodAttributes.HideBySig |
-              MethodAttributes.RTSpecialName |
-                MethodAttributes.SpecialName,
-          CallingConventions.Standard,
-          ArrayUtils<Type>.EmptyArray
-          );
+        foreach (ConstructorInfo baseConstructor in inheritFrom.GetConstructors(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)) {
+          Type[] parameterTypes = baseConstructor.GetParameters().Select(parameterInfo=>parameterInfo.ParameterType).ToArray();
+          ConstructorBuilder constructorBuilder = typeBuilder.DefineConstructor(
+            baseConstructor.Attributes,
+            CallingConventions.Standard,
+            parameterTypes
+            );
+          
+          // Create constructor
+          ILGenerator methodIL = constructorBuilder.GetILGenerator();
+          methodIL.Emit(OpCodes.Ldarg_0);
+          int parametersCount = baseConstructor.GetParameters().Count();
+          for (short i = 1; i <= parametersCount; i++)
+            methodIL.Emit(OpCodes.Ldarg, i);
+          methodIL.Emit(OpCodes.Call, baseConstructor);
+          methodIL.Emit(OpCodes.Ret);
 
-        ILGenerator methodIL = constructorBuilder.GetILGenerator();
-        methodIL.Emit(OpCodes.Ret);
-
+          // Create ProtectedConstructorAccessor
+          if (implementProtectedConstructorAccessor) {
+            MethodBuilder methodBuilder = typeBuilder.DefineMethod(DelegateHelper.AspectedProtectedConstructorCallerName, 
+              MethodAttributes.Private | MethodAttributes.Static, 
+              CallingConventions.Standard, typeBuilder.UnderlyingSystemType, parameterTypes);
+            ILGenerator accessorIL = methodBuilder.GetILGenerator();
+            for (short i = 0; i < parameterTypes.Length; i++)
+              accessorIL.Emit(OpCodes.Ldarg, i);
+            accessorIL.Emit(OpCodes.Newobj, constructorBuilder);
+            accessorIL.Emit(OpCodes.Ret);
+          }
+        }
         return typeBuilder.CreateType();
       }
     }

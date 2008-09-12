@@ -26,6 +26,8 @@ namespace Xtensive.Storage.Internals
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
       if (!Contains(item)) {
         Key newEntityKey = Key.Get(typeof(TRef), CombineKey(item.Key));
+        newEntityKey.Type = Session.Domain.Model.Types[typeof(TRef)];
+        
         newEntityKey.Resolve(); // Create entity
         if (Field.Association.Multiplicity==Multiplicity.ManyToMany) {
           //update paired EntitySet
