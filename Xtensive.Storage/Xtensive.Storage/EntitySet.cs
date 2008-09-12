@@ -23,16 +23,16 @@ namespace Xtensive.Storage
       if (association==null) 
         throw new InvalidOperationException(String.Format(Strings.ExUnableToActivateEntitySetWithoutAssociation, field.Name));
       if (association.MasterAssociation.EntityType==null) {
-        Type simpleEntitySetType = typeof (SimpleEntitySet<>).MakeGenericType(type);
+        Type simpleEntitySetType = typeof (EntitySet<>).MakeGenericType(type);
         return (IFieldHandler)simpleEntitySetType.InvokeMember("", BindingFlags.CreateInstance, null, null, new object[] {obj, field});
       }
       if (association.IsMaster) {
         // direct
-        Type directEntitySetType = typeof (ForwardWrappingEntitySet<,,>).MakeGenericType(type, obj.GetType(), association.EntityType);
+        Type directEntitySetType = typeof (ForwardEntitySet<,,>).MakeGenericType(type, obj.GetType(), association.EntityType);
         return (IFieldHandler)directEntitySetType.InvokeMember("", BindingFlags.CreateInstance, null, null, new object[] { obj, field });
       }
       // reverse
-      Type reverseEntitySetType = typeof(ReverseWrappingEntitySet<,,>).MakeGenericType(type, obj.GetType(), association.MasterAssociation.EntityType);
+      Type reverseEntitySetType = typeof(ReverseEntitySet<,,>).MakeGenericType(type, obj.GetType(), association.MasterAssociation.EntityType);
       return (IFieldHandler)reverseEntitySetType.InvokeMember("", BindingFlags.CreateInstance, null, null, new object[] { obj, field });
     }
 

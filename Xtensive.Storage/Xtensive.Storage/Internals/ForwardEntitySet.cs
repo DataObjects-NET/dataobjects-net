@@ -15,7 +15,7 @@ using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Internals
 {
-  internal class ForwardWrappingEntitySet<T1, T2, TRef> : SimpleEntitySet<T1>
+  internal class ForwardEntitySet<T1, T2, TRef> : EntitySet<T1>
     where T1 : Entity
     where T2 : Entity
     where TRef : EntitySetReference<T1, T2>
@@ -64,7 +64,7 @@ namespace Xtensive.Storage.Internals
       return new MapTransform(true, keyTupleDescriptor, columnIndexes.ToArray());
     }
 
-    public ForwardWrappingEntitySet(Persistent owner, FieldInfo field)
+    public ForwardEntitySet(Persistent owner, FieldInfo field)
       : base(owner, field)
     {
       combineTransform = new CombineTransform(true, field.ReflectedType.Hierarchy.KeyTupleDescriptor, ((Entity)owner).Key.Tuple.Descriptor);

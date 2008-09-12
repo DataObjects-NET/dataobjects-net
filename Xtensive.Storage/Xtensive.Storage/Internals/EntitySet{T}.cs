@@ -5,6 +5,7 @@
 // Created:    2008.09.10
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -13,13 +14,16 @@ using Xtensive.Core.Collections;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Integrity.Transactions;
+using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 using Xtensive.Storage.Rse;
+using IEnumerable=System.Collections.IEnumerable;
 
-namespace Xtensive.Storage.Internals
+namespace Xtensive.Storage
 {
-  internal class SimpleEntitySet<T> : EntitySet<T>
+  public class EntitySet<T> : EntitySet,
+    ICollection<T>
     where T : Entity
   {
     private Transaction transaction;
@@ -27,6 +31,43 @@ namespace Xtensive.Storage.Internals
     private long version;
     private IndexInfo index;
     private MapTransform keyTransform;
+
+
+    internal static int MaximumCacheSize = 10000;
+
+    /// <inheritdoc/>
+    public bool IsReadOnly
+    {
+      get { return false; }
+    }
+
+    /// <inheritdoc/>
+    public void CopyTo(T[] array, int arrayIndex)
+    {
+      foreach (T item in this)
+        array[arrayIndex++] = item;
+    }
+
+    /// <inheritdoc/>
+    int ICollection<T>.Count
+    {
+      get { return checked((int)Count); }
+    }
+
+    /// <inheritdoc/>
+    void ICollection<T>.Add(T item)
+    {
+      Add(item);
+    }
+
+
+    /// <inheritdoc/>
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+      return GetEnumerator();
+    }
+
+
 
     protected IndexInfo Index
     {
@@ -49,7 +90,7 @@ namespace Xtensive.Storage.Internals
     internal Cache<Key, CachedKey, CachedKey> Cache { get; private set; }
 
     /// <inheritdoc/>
-    public override int RemoveWhere(Predicate<T> match)
+    public int RemoveWhere(Predicate<T> match)
     {
       EnsureInitialized();
       var itemsToRemove = new List<T>();
@@ -63,7 +104,7 @@ namespace Xtensive.Storage.Internals
     }
 
     /// <inheritdoc/>
-    public override void Clear()
+    public void Clear()
     {
       EnsureInitialized();
       foreach (T itemToRemove in this.ToList()) {
@@ -72,7 +113,7 @@ namespace Xtensive.Storage.Internals
     }
 
     /// <inheritdoc/>
-    public override bool Contains(Key key)
+    public virtual bool Contains(Key key)
     {
       ArgumentValidator.EnsureArgumentNotNull(key, "key");
       EnsureInitialized();
@@ -95,7 +136,7 @@ namespace Xtensive.Storage.Internals
     }
 
     /// <inheritdoc/>
-    public override bool Contains(T item)
+    public virtual bool Contains(T item)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
       EnsureInitialized();
@@ -112,7 +153,7 @@ namespace Xtensive.Storage.Internals
     }
 
     /// <inheritdoc/>
-    public override bool Add(T item)
+    public virtual bool Add(T item)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
       EnsureInitialized();
@@ -123,7 +164,7 @@ namespace Xtensive.Storage.Internals
       return previouseCount!=count;
     }
 
-    public override IEnumerator<T> GetEnumerator()
+    public IEnumerator<T> GetEnumerator()
     {
       EnsureInitialized();
       long startVersion = version;
@@ -145,7 +186,7 @@ namespace Xtensive.Storage.Internals
     }
 
     /// <inheritdoc/>
-    public override bool Remove(T item)
+    public bool Remove(T item)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
       EnsureInitialized();
@@ -156,7 +197,7 @@ namespace Xtensive.Storage.Internals
     }
 
     /// <inheritdoc/>
-    public override long Count
+    public long Count
     {
       get
       {
@@ -250,7 +291,7 @@ namespace Xtensive.Storage.Internals
       accessor.SetValue(item, referencingField, null);
     }
 
-    public SimpleEntitySet(Persistent owner, FieldInfo field)
+    public EntitySet(Persistent owner, FieldInfo field)
       : base(owner, field)
     {
       Cache = new Cache<Key, CachedKey, CachedKey>(MaximumCacheSize, cachedKey => cachedKey.Key);
