@@ -13,8 +13,17 @@ using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Internals
 {
+  /// <summary>
+  /// Generator with caching capabilities.
+  /// </summary>
+  /// <typeparam name="TFieldType">The type of the field.</typeparam>
   public abstract class CachingGenerator<TFieldType> : IncrementalGenerator<TFieldType>
   {
+    private readonly object _lock = new object();
+
+    /// <summary>
+    /// Gets the cache.
+    /// </summary>
     protected Queue<TFieldType> Cache { get; private set; }
 
     /// <summary>

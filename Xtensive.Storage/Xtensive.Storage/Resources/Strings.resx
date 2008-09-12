@@ -471,4 +471,10 @@
   <data name="ExCanNotGetValidationContextThereIsNoActiveTransaction" xml:space="preserve">
     <value>Can not get validation context: There is no active transaction.</value>
   </data>
+  <data name="ExDefaultGeneratorCanServeHierarchyWithExactlyOneKeyField" xml:space="preserve">
+    <value>Default generator can serve hierarchy with exactly one key field.</value>
+  </data>
+  <data name="ExTypeXIsNotSupported" xml:space="preserve">
+    <value>Type '{0}' is not supported.</value>
+  </data>
 </root>

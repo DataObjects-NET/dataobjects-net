@@ -14,8 +14,12 @@ using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Providers.MsSql
 {
+  /// <summary>
+  /// Generator factory
+  /// </summary>
   public sealed class GeneratorFactory : Providers.GeneratorFactory
   {
+    /// <inheritdoc/>
     protected override Generator CreateGenerator<TFieldType>(HierarchyInfo hierarchy)
     {
       DomainHandler dh = (DomainHandler)Handlers.DomainHandler;

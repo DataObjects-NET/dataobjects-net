@@ -13,23 +13,33 @@ using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Internals
 {
+  /// <summary>
+  /// Generator that provides incremental sequence of integer values.
+  /// </summary>
+  /// <typeparam name="TFieldType">The type of the field.</typeparam>
   public class IncrementalGenerator<TFieldType> : Generator
   {
-    protected TFieldType Current { get; set; }
+    private TFieldType current;
+    private readonly object _lock = new object();
+
+    /// <summary>
+    /// Gets the <see cref="ArithmeticStruct{T}"/>.
+    /// </summary>
     protected ArithmeticStruct<TFieldType> Arithmetic { get; private set; }
-    protected readonly object _lock = new object();
 
     /// <inheritdoc/>
     public override Tuple Next()
     {
       Tuple result = Tuple.Create(Hierarchy.KeyTupleDescriptor);
       LockType.Exclusive.Execute(_lock, () => {
-        Current = Arithmetic.Add(Current, Arithmetic.One);
-        result.SetValue(0, Current);
+        current = Arithmetic.Add(current, Arithmetic.One);
+        result.SetValue(0, current);
       });
       return result;
     }
 
+
+    // Constructor
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>

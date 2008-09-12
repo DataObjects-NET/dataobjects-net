@@ -9,6 +9,9 @@ using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Providers.Index
 {
+  /// <summary>
+  /// Generator factory
+  /// </summary>
   public class GeneratorFactory : Providers.GeneratorFactory
   {
     /// <inheritdoc/>

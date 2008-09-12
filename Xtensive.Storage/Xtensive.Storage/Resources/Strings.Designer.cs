@@ -223,6 +223,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Default generator can serve hierarchy with exactly one key field..
+        /// </summary>
+        internal static string ExDefaultGeneratorCanServeHierarchyWithExactlyOneKeyField {
+            get {
+                return ResourceManager.GetString("ExDefaultGeneratorCanServeHierarchyWithExactlyOneKeyField", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Element with name &apos;{0}&apos; is contained in this instance already..
         /// </summary>
         internal static string ExElementWithNameContainedInThisInstanceAlready {
@@ -660,6 +669,15 @@ namespace Xtensive.Storage.Resources {
         internal static string ExTypeXIsNotRegisteredInTheModel {
             get {
                 return ResourceManager.GetString("ExTypeXIsNotRegisteredInTheModel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Type &apos;{0}&apos; is not supported..
+        /// </summary>
+        internal static string ExTypeXIsNotSupported {
+            get {
+                return ResourceManager.GetString("ExTypeXIsNotSupported", resourceCulture);
             }
         }
         

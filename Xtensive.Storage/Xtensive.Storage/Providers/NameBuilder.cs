@@ -15,12 +15,11 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
-using Xtensive.Storage.Providers;
 
 namespace Xtensive.Storage.Providers
 {
   /// <summary>
-  /// Name provider for <see cref="DomainModelDef"/>. 
+  /// Name builder for <see cref="DomainModel"/> nodes 
   /// Provides names according to a set of naming rules contained in
   /// <see cref="NamingConvention"/> object.
   /// </summary>

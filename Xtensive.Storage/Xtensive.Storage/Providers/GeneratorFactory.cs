@@ -5,19 +5,30 @@
 // Created:    2008.09.10
 
 using System;
+using Xtensive.Core.Reflection;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Providers
 {
+  /// <summary>
+  /// Generator factory.
+  /// </summary>
   public abstract class GeneratorFactory : HandlerBase
   {
+    /// <summary>
+    /// Creates the generator for the specified <paramref name="hierarchy"/>.
+    /// </summary>
+    /// <param name="hierarchy">The hierarchy to create <see cref="Generator"/> for.</param>
+    /// <returns><see cref="Generator"/> instance.</returns>
+    /// <exception cref="InvalidOperationException">when <paramref name="hierarchy"/> contains more then one key field.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">when <see cref="Type"/> of the key field is not supported.</exception>
     public Generator CreateGenerator(HierarchyInfo hierarchy)
     {
       if (hierarchy.Fields.Count > 2)
-        throw new InvalidOperationException();
+        throw new InvalidOperationException(Resources.Strings.ExDefaultGeneratorCanServeHierarchyWithExactlyOneKeyField);
       if (hierarchy.Fields.Count == 2 && !hierarchy.Fields[1].Key.IsSystem)
-        throw new InvalidOperationException();
+        throw new InvalidOperationException(Resources.Strings.ExDefaultGeneratorCanServeHierarchyWithExactlyOneKeyField);
 
       Generator result = null;
       Type fieldType = hierarchy.Fields[0].Key.ValueType;
@@ -53,7 +64,7 @@ namespace Xtensive.Storage.Providers
         break;
       }
       if (result == null)
-        throw new ArgumentOutOfRangeException();
+        throw new ArgumentOutOfRangeException(string.Format(Resources.Strings.ExTypeXIsNotSupported, fieldType.GetShortName()));
       result.Handlers = Handlers;
       return result;
     }

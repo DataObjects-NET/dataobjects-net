@@ -32,7 +32,7 @@ namespace Xtensive.Storage
     public abstract Tuple Next();
 
     /// <summary>
-    /// Initializer. 
+    /// Initializer.
     /// </summary>
     public virtual void Initialize()
     {

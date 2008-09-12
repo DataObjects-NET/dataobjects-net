@@ -4,8 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2008.07.11
 
-using System;
-
 namespace Xtensive.Storage.Providers
 {
   /// <summary>

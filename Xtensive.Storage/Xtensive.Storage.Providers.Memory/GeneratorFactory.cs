@@ -6,6 +6,9 @@
 
 namespace Xtensive.Storage.Providers.Memory
 {
+  /// <summary>
+  /// Generator factory
+  /// </summary>
   public class GeneratorFactory : Index.GeneratorFactory
   {
   }
