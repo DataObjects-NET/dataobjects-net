@@ -36,6 +36,7 @@ namespace Xtensive.Storage.Internals
           var pairedEntitySet = accessor.GetValue(item, referencingField);
           pairedEntitySet.AddToCache(((Entity)Owner).Key);
         }
+        AddToCache(item.Key);
         return true;
       }
       return false;

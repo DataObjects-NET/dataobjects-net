@@ -18,7 +18,6 @@ using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 using Xtensive.Storage.Rse;
-using IEnumerable=System.Collections.IEnumerable;
 
 namespace Xtensive.Storage
 {
@@ -51,7 +50,7 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     int ICollection<T>.Count
     {
-      get { return checked((int)Count); }
+      get { return checked((int) Count); }
     }
 
     /// <inheritdoc/>
@@ -66,7 +65,6 @@ namespace Xtensive.Storage
     {
       return GetEnumerator();
     }
-
 
 
     protected IndexInfo Index
@@ -206,7 +204,7 @@ namespace Xtensive.Storage
       }
     }
 
-    internal sealed override void ClearCache()
+    internal override sealed void ClearCache()
     {
       count = null;
       Cache.Clear();
