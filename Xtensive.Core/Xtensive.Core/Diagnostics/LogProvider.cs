@@ -140,7 +140,12 @@ namespace Xtensive.Core.Diagnostics
   </logger>
 </log4net>
 ";
-      XmlElement section = ConfigurationManager.GetSection("log4net") as XmlElement;
+      XmlElement section = null;
+      try {
+        section = ConfigurationManager.GetSection("log4net") as XmlElement;
+      }
+      catch {
+      }
       if (section != null)
         XmlConfigurator.Configure(section);
       if (LogManager.GetCurrentLoggers().Length==0) {
