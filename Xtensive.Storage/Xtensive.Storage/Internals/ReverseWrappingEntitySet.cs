@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
@@ -25,7 +26,14 @@ namespace Xtensive.Storage.Internals
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
       if (!Contains(item)) {
         Key newEntityKey = Key.Get(typeof(TRef), CombineKey(item.Key));
-        newEntityKey.Resolve();
+        newEntityKey.Resolve(); // Create entity
+        if (Field.Association.Multiplicity==Multiplicity.ManyToMany) {
+          //update paired EntitySet
+          FieldInfo referencingField = Field.Association.PairTo.ReferencingField;
+          var accessor = referencingField.GetAccessor<EntitySet>();
+          var pairedEntitySet = accessor.GetValue(item, referencingField);
+          pairedEntitySet.AddToCache(((Entity)Owner).Key);
+        }
         return true;
       }
       return false;
@@ -37,17 +45,6 @@ namespace Xtensive.Storage.Internals
       return Contains(item.Key);
     }
 
-    public override bool Contains(Key key)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(key, "key");
-      if (Cache.Contains(key))
-        return true;
-      if (Cache.Count == Count)
-        return false;
-      Tuple tupleKey = CombineKey(key);
-      throw new NotImplementedException();
-    }
-
     private Tuple CombineKey(Key key)
     {
       return combineTransform.Apply(TupleTransformType.TransformedTuple, ((Entity)Owner).Key.Tuple, key.Tuple);
@@ -55,8 +52,15 @@ namespace Xtensive.Storage.Internals
 
     protected override IndexInfo GetIndex()
     {
-      var referencingField = Field.ReflectedType.Model.Types[typeof(TRef)].Fields["Entity1"];
-      return referencingField.ReflectedType.Indexes.GetIndex(referencingField.Name);
+      return Field.ReflectedType.Model.Types[typeof(TRef)].Indexes.First(indexInfo => indexInfo.IsSecondary);
+    }
+
+    protected override MapTransform GetKeyTransform()
+    {
+      throw new NotImplementedException();
+      var keyTupleDescriptor = Owner.Session.Domain.Model.Types[typeof(T1)].Hierarchy.KeyTupleDescriptor;
+      IEnumerable<int> columnIndexes = Index.Columns.Where(columnInfo => columnInfo.IsPrimaryKey).Select(columnInfo => Index.Columns.IndexOf(columnInfo));
+      return new MapTransform(true, keyTupleDescriptor, columnIndexes.ToArray());
     }
 
     public ReverseWrappingEntitySet(Persistent owner, FieldInfo field)

@@ -6,7 +6,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Core;
+using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
@@ -18,42 +20,54 @@ namespace Xtensive.Storage.Internals
     where T2 : Entity
     where TRef : EntitySetReference<T1, T2>
   {
-//    private readonly CombineTransform combineTransform;
-//    private readonly IndexInfo index;
-//
-//    public override bool Add(T1 item)
-//    {
-//      ArgumentValidator.EnsureArgumentNotNull(item, "item");
-//      if (!Contains(item)) {
-//        Key newEntityKey = Key.Get(typeof (TRef), combineTransform.Apply(TupleTransformType.TransformedTuple, item.Key.Tuple, ((Entity) Owner).Key.Tuple));
-//        newEntityKey.Resolve();
-//        return true;
-//      }
-//      return false;
-//    }
-//
-//    public override bool Contains(T1 item)
-//    {
-//      ArgumentValidator.EnsureArgumentNotNull(item, "item");
-//      return Contains(item.Key);
-//    }
-//
-//    public override bool Contains(Key key)
-//    {
-//      ArgumentValidator.EnsureArgumentNotNull(key, "key");
-//      if (Cache.Contains(key))
-//        return true;
-//      if (Cache.Count == Count)
-//        return false;
-//    }
-//
-//    
+    private readonly CombineTransform combineTransform;
+
+    public override bool Add(T1 item)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(item, "item");
+      if (!Contains(item)) {
+        Key newEntityKey = Key.Get(typeof(TRef), CombineKey(item.Key));
+        newEntityKey.Resolve(); // Create entity
+        if (Field.Association.Multiplicity == Multiplicity.ManyToMany) {
+          //update paired EntitySet
+          FieldInfo referencingField = Field.Association.PairTo.ReferencingField;
+          var accessor = referencingField.GetAccessor<EntitySet>();
+          var pairedEntitySet = accessor.GetValue(item, referencingField);
+          pairedEntitySet.AddToCache(((Entity)Owner).Key);
+        }
+        return true;
+      }
+      return false;
+    }
+
+    public override bool Contains(T1 item)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(item, "item");
+      return Contains(item.Key);
+    }
+
+    private Tuple CombineKey(Key key)
+    {
+      return combineTransform.Apply(TupleTransformType.TransformedTuple, key.Tuple, ((Entity)Owner).Key.Tuple);
+    }
+
+    protected override IndexInfo GetIndex()
+    {
+      return Field.ReflectedType.Model.Types[typeof(TRef)].Indexes.Where(indexInfo => indexInfo.IsSecondary).Skip(1).First();
+    }
+
+    protected override MapTransform GetKeyTransform()
+    {
+      throw new NotImplementedException();
+      var keyTupleDescriptor = Owner.Session.Domain.Model.Types[typeof(T1)].Hierarchy.KeyTupleDescriptor;
+      IEnumerable<int> columnIndexes = Index.Columns.Where(columnInfo => columnInfo.IsPrimaryKey).Select(columnInfo => Index.Columns.IndexOf(columnInfo));
+      return new MapTransform(true, keyTupleDescriptor, columnIndexes.ToArray());
+    }
 
     public ForwardWrappingEntitySet(Persistent owner, FieldInfo field)
       : base(owner, field)
     {
-//      combineTransform = new CombineTransform(true, field.ReflectedType.Hierarchy.KeyTupleDescriptor, ((Entity)owner).Key.Tuple.Descriptor);
-//      index = owner.Type.Model.Types[typeof (TRef)].Indexes.PrimaryIndex;
+      combineTransform = new CombineTransform(true, field.ReflectedType.Hierarchy.KeyTupleDescriptor, ((Entity)owner).Key.Tuple.Descriptor);
     }
   }
 }

@@ -28,7 +28,7 @@ namespace Xtensive.Storage.Internals
     private IndexInfo index;
     private MapTransform keyTransform;
 
-    private IndexInfo Index
+    protected IndexInfo Index
     {
       get
       {
@@ -204,8 +204,11 @@ namespace Xtensive.Storage.Internals
     protected RecordSet GetRecordSet()
     {
       Tuple key = ((Entity) Owner).Key.Tuple;
-      var rs = Index.ToRecordSet().Range(key, key);
-      return rs;
+      RecordSet recordSet = Index.ToRecordSet();
+      var x = recordSet.Count();
+      var rsResult = recordSet.Range(key, key);
+      var y = recordSet.Count();
+      return rsResult;
     }
 
     protected void EnsureInitialized()
