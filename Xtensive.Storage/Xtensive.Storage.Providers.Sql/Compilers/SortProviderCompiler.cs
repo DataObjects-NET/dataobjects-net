@@ -17,9 +17,9 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
 {
   internal sealed class SortProviderCompiler : TypeCompiler<SortProvider>
   {
-    protected override ExecutableProvider Compile(SortProvider provider)
+    protected override ExecutableProvider Compile(SortProvider provider, params ExecutableProvider[] compiledSources)
     {
-      var source = provider.Source.Compile() as SqlProvider;
+      var source = compiledSources[0] as SqlProvider;
       if (source == null)
         return null;
 

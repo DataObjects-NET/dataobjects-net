@@ -11,11 +11,11 @@ namespace Xtensive.Storage.Rse.Compilation
 {
   internal sealed class SkipProviderCompiler : TypeCompiler<SkipProvider>
   {
-    protected override ExecutableProvider Compile(SkipProvider provider)
+    protected override ExecutableProvider Compile(SkipProvider provider, params ExecutableProvider[] compiledSources)
     {
       return new Providers.Executable.SkipProvider(
         provider,
-        provider.Source.Compile());
+        compiledSources[0]);
     }
 
     // Constructor

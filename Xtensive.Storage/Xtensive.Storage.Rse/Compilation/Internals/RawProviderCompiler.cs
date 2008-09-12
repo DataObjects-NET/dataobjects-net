@@ -11,7 +11,7 @@ namespace Xtensive.Storage.Rse.Compilation
 {
   internal sealed class RawProviderCompiler : TypeCompiler<RawProvider>
   {
-    protected override ExecutableProvider Compile(RawProvider provider)
+    protected override ExecutableProvider Compile(RawProvider provider, params ExecutableProvider[] compiledSources)
     {
       return new Providers.Executable.RawProvider(provider);
     }

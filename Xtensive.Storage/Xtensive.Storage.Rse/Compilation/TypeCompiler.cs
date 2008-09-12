@@ -25,8 +25,9 @@ namespace Xtensive.Storage.Rse.Compilation
     /// Compiles the specified provider.
     /// </summary>
     /// <param name="provider">The provider to compile.</param>
+    /// <param name="compiledSources">Compiled sources of the <paramref name="provider"/>.</param>
     /// <returns>Compiled provider.</returns>
-    public abstract ExecutableProvider Compile(CompilableProvider provider);
+    public abstract ExecutableProvider Compile(CompilableProvider provider, params ExecutableProvider[] compiledSources);
 
 
     // Constructor

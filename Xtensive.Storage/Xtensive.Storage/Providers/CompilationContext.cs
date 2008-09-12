@@ -12,7 +12,7 @@ namespace Xtensive.Storage.Providers
   /// <summary>
   /// An implementation of <see cref="Rse.Compilation.CompilationContext"/> suitable for storage.
   /// </summary>
-  public class CompilationContext : Rse.Compilation.CompilationContext
+  public sealed class CompilationContext : Rse.Compilation.CompilationContext
   {
     /// <inheritdoc/>
     public override Rse.Providers.EnumerationContext CreateEnumerationContext()

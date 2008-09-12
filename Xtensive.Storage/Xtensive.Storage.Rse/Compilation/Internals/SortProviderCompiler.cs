@@ -11,11 +11,11 @@ namespace Xtensive.Storage.Rse.Compilation
 {
   internal sealed class SortProviderCompiler : TypeCompiler<SortProvider>
   {
-    protected override ExecutableProvider Compile(SortProvider provider)
+    protected override ExecutableProvider Compile(SortProvider provider, params ExecutableProvider[] compiledSources)
     {
       return new Providers.Executable.SortProvider(
         provider, 
-        provider.Source.Compile());
+        compiledSources[0]);
     }
 
 

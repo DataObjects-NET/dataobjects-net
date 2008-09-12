@@ -11,11 +11,11 @@ namespace Xtensive.Storage.Rse.Compilation
 {
   internal sealed class FilterProviderCompiler : TypeCompiler<FilterProvider>
   {
-    protected override ExecutableProvider Compile(FilterProvider provider)
+    protected override ExecutableProvider Compile(FilterProvider provider, params ExecutableProvider[] compiledSources)
     {
       return new Providers.Executable.FilterProvider(
         provider,
-        provider.Source.Compile());
+        compiledSources[0]);
     }
 
 

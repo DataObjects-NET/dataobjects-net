@@ -18,7 +18,7 @@ namespace Xtensive.Storage.Providers.Index.Compilers
   {
     private readonly HandlerAccessor handlerAccessor;
 
-    protected override ExecutableProvider Compile(IndexProvider provider)
+    protected override ExecutableProvider Compile(IndexProvider provider, params ExecutableProvider[] compiledSources)
     {
       IndexInfo indexInfo = provider.Index.Resolve(handlerAccessor.Domain.Model);
       ExecutableProvider result = CompileInternal(provider, indexInfo);

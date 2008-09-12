@@ -26,13 +26,24 @@ namespace Xtensive.Storage.Providers
     /// </summary>
     public Rse.Compilation.CompilationContext CompilationContext { get; private set; }
 
+    /// <summary>
+    /// Gets the client compiler.
+    /// </summary>
+    public ICompiler ClientCompiler { get; protected set; }
+
+    /// <summary>
+    /// Gets the compiler.
+    /// </summary>
+    public ICompiler Compiler { get; private set; }
+   
+
     // Abstract methods
 
     /// <summary>
-    /// Builds the <see cref="CompilationContext"/> value.
+    /// Builds the <see cref="Compiler"/> value.
     /// Invoked from <see cref="Initialize"/>.
     /// </summary>
-    protected abstract Rse.Compilation.CompilationContext BuildCompilationContext();
+    protected abstract ICompiler BuildCompiler();
 
     /// <summary>
     /// Builds the <see cref="Domain"/>.
@@ -69,7 +80,9 @@ namespace Xtensive.Storage.Providers
     public override void Initialize()
     {
       Domain = BuildingContext.Current.Domain;
-      CompilationContext = BuildCompilationContext();
+      ClientCompiler = new DefaultCompiler();
+      Compiler = BuildCompiler();
+      CompilationContext = new CompilationContext(Compiler);
     }
   }
 }

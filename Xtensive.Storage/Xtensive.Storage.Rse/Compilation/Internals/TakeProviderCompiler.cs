@@ -11,11 +11,11 @@ namespace Xtensive.Storage.Rse.Compilation
 {
   internal sealed class TakeProviderCompiler : TypeCompiler<TakeProvider>
   {
-    protected override ExecutableProvider Compile(TakeProvider provider)
+    protected override ExecutableProvider Compile(TakeProvider provider, params ExecutableProvider[] compiledSources)
     {
       return new Providers.Executable.TakeProvider(
         provider,
-        provider.Source.Compile());
+        compiledSources[0]);
     }
 
     // Constructors

@@ -6,6 +6,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
@@ -83,7 +84,7 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <summary>
     /// Gets the compiler used by <see cref="Compile"/> method of this context.
     /// </summary>
-    public ICompiler Compiler { get; private set; }
+    public ICompiler Compiler { get; internal set; }
 
     /// <summary>
     /// Gets the fallback compiler used by <see cref="Compile"/> method of this context 
@@ -114,7 +115,11 @@ namespace Xtensive.Storage.Rse.Compilation
           return entry.Value;
       }
 
-      var result = InnerCompile(provider);
+      var compiler = Compiler;
+      if (compiler == null)
+        throw new InvalidOperationException(
+          Strings.ExCanNotCompileNoCompiler);
+      var result = compiler.Compile(provider, provider.Sources.Select(s => s.Compile()).ToArray());
       
       if (result!=null && result.IsCacheable)
         lock (_lock) {
@@ -125,35 +130,6 @@ namespace Xtensive.Storage.Rse.Compilation
         throw new InvalidOperationException(string.Format(
           Strings.ExCantCompileProviderX, provider));
       return result;
-    }
-
-    /// <exception cref="InvalidOperationException"><see cref="Compiler"/> is <see langword="null" />.</exception>
-    private ExecutableProvider InnerCompile(CompilableProvider provider)
-    {
-      var compiler = Compiler;
-      if (compiler == null)
-        throw new InvalidOperationException(
-          Strings.ExCanNotCompileNoCompiler);
-
-      var originalFallbackCompiler = FallbackCompiler;
-      try {
-        if (compiler.FallbackCompiler != null)
-          FallbackCompiler = compiler.FallbackCompiler;
-        var ep = compiler.Compile(provider);
-        if (ep != null)
-          return ep;
-
-        var fallbackCompiler = FallbackCompiler;
-        if (fallbackCompiler != null) {
-          ep = fallbackCompiler.Compile(provider);
-          if (ep != null)
-            return compiler.IsCompatible(ep) ? ep : compiler.ToCompatible(ep);
-        }
-      }
-      finally {
-        FallbackCompiler = originalFallbackCompiler;
-      }
-      return null;
     }
 
     /// <summary>

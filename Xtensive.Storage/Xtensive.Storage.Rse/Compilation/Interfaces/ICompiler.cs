@@ -14,20 +14,13 @@ namespace Xtensive.Storage.Rse.Compilation
   public interface ICompiler
   {
     /// <summary>
-    /// Gets the fallback compiler. It's a compiler to use, if current compiler 
-    /// can't compile the provider.
-    /// Can be <see langword="null" />.
-    /// </summary>
-    /// <value>The fallback compiler.</value>
-    ICompiler FallbackCompiler { get; }
-
-    /// <summary>
     /// Compiles the specified provider.
     /// </summary>
     /// <param name="provider">The provider to compile.</param>
+    /// <param name="sources">Compiled sources of the <paramref name="provider"/>.</param>
     /// <returns>Compiled provider, if compiler can handle the compilation of specified provider;
     /// otherwise, <see langword="null"/>.</returns>
-    ExecutableProvider Compile(CompilableProvider provider);
+    ExecutableProvider Compile(CompilableProvider provider, ExecutableProvider[] sources);
 
     /// <summary>
     /// Determines whether the <paramref name="provider"/> can be considered 

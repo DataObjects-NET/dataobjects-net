@@ -11,6 +11,7 @@ using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Threading;
 using Xtensive.Storage.Rse.Providers;
+using System.Linq;
 
 namespace Xtensive.Storage.Rse.Compilation
 {
@@ -21,33 +22,25 @@ namespace Xtensive.Storage.Rse.Compilation
   public abstract class Compiler : AssociateProvider,
     ICompiler
   {
-    private static readonly ICompiler noneCompiler = new NoneCompiler();
     private readonly ThreadSafeDictionary<Type, TypeCompiler> typeCompliers = 
       ThreadSafeDictionary<Type, TypeCompiler>.Create(new object());
 
 
-    /// <summary>
-    /// Gets the compiler that compiles nothing.
-    /// </summary>
-    public static ICompiler NoneCompiler
-    {
-      get { return noneCompiler; }
-    }
-
     #region ICompiler methods
 
     /// <inheritdoc/>
-    public ICompiler FallbackCompiler { get; protected set; }
-
-    /// <inheritdoc/>
-    ExecutableProvider ICompiler.Compile(CompilableProvider provider)
+    ExecutableProvider ICompiler.Compile(CompilableProvider provider, ExecutableProvider[] sources)
     {
       if (provider==null)
         return null;
       var c = GetCompiler(provider);
       if (c==null)
         return null;
-      return c.Compile(provider);
+
+      if (sources.Any(s => s == null))
+        return null;
+      var ep = c.Compile(provider, sources.ToArray());
+      return IsCompatible(ep) ? ep : ToCompatible(ep);
     }
 
     /// <inheritdoc/>

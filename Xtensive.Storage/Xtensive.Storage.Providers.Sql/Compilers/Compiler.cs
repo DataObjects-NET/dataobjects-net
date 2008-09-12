@@ -36,7 +36,6 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
     public Compiler(HandlerAccessor handlers)
     {
       Handlers = handlers;
-      FallbackCompiler = new DefaultCompiler();
     }
   }
 }

@@ -23,7 +23,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
     {
     }
 
-    protected override ExecutableProvider Compile(StoredProvider provider)
+    protected override ExecutableProvider Compile(StoredProvider provider, params ExecutableProvider[] compiledSources)
     {
       ExecutableProvider ex = null;
       DomainHandler domainHandler = (DomainHandler) Handlers.DomainHandler;
@@ -31,7 +31,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
       Table table;
       string tableName = string.Format(TABLE_NAME_PATTERN, provider.Name);
       if (provider.Source!=null) {
-        ex = provider.Source.Compile();
+        ex = compiledSources[0];
         if (provider.Scope==TemporaryDataScope.Global)
           table = schema.CreateTable(tableName);
         else

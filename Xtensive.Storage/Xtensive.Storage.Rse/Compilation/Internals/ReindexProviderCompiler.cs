@@ -11,11 +11,11 @@ namespace Xtensive.Storage.Rse.Compilation
 {
   internal sealed class ReindexProviderCompiler : TypeCompiler<ReindexProvider>
   {
-    protected override ExecutableProvider Compile(ReindexProvider provider)
+    protected override ExecutableProvider Compile(ReindexProvider provider, params ExecutableProvider[] compiledSources)
     {
       return new Providers.Executable.ReindexProvider(
         provider,
-        provider.Source.Compile());
+        compiledSources[0]);
     }
 
 

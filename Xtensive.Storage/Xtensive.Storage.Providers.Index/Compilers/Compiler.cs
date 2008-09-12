@@ -29,7 +29,6 @@ namespace Xtensive.Storage.Providers.Index.Compilers
     public Compiler(HandlerAccessor handlerAccessor)
     {
       HandlerAccessor = handlerAccessor;
-      FallbackCompiler = new DefaultCompiler();
     }    
   }
 }

@@ -27,12 +27,5 @@ namespace Xtensive.Storage.Rse.Compilation
       return new StoredProvider(new Providers.Compilable.StoredProvider(provider.Origin), provider);
     }
 
-    /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary> 
-    public DefaultCompiler()
-    {
-      FallbackCompiler = NoneCompiler;
-    }
   }
 }

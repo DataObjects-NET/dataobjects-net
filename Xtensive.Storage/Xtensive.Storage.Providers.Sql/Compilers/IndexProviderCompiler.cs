@@ -23,7 +23,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
 {
   internal sealed class IndexProviderCompiler : TypeCompiler<IndexProvider>
   {
-    protected override ExecutableProvider Compile(IndexProvider provider)
+    protected override ExecutableProvider Compile(IndexProvider provider, params ExecutableProvider[] compiledSources)
     {
       var index = provider.Index.Resolve(Handlers.Domain.Model);
       SqlSelect query = BuildProviderQuery(index);

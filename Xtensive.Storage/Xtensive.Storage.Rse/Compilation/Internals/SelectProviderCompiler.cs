@@ -11,11 +11,11 @@ namespace Xtensive.Storage.Rse.Compilation
 {
   internal sealed class SelectProviderCompiler : TypeCompiler<SelectProvider>
   {
-    protected override ExecutableProvider Compile(SelectProvider provider)
+    protected override ExecutableProvider Compile(SelectProvider provider, params ExecutableProvider[] compiledSources)
     {
       return new Providers.Executable.SelectProvider(
         provider,
-        provider.Source.Compile(), 
+        compiledSources[0], 
         provider.ColumnIndexes);
     }
 

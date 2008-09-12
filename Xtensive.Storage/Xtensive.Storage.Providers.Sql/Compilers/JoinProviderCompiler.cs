@@ -20,10 +20,10 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
   public class JoinProviderCompiler : TypeCompiler<JoinProvider>
   {
     /// <inheritdoc/>
-    protected override ExecutableProvider Compile(JoinProvider provider)
+    protected override ExecutableProvider Compile(JoinProvider provider, params ExecutableProvider[] compiledSources)
     {
-      var left = provider.Left.Compile() as SqlProvider;
-      var right = provider.Right.Compile() as SqlProvider;
+      var left = compiledSources[0] as SqlProvider;
+      var right = compiledSources[1] as SqlProvider;
 
       if (left == null || right == null)
         return null;

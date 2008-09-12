@@ -16,9 +16,9 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
 {
   internal sealed class SeekProviderCompiler : TypeCompiler<SeekProvider>
   {
-    protected override ExecutableProvider Compile(SeekProvider provider)
+    protected override ExecutableProvider Compile(SeekProvider provider, params ExecutableProvider[] compiledSources)
     {
-      var source = provider.Source.Compile() as SqlProvider;
+      var source = compiledSources[0] as SqlProvider;
       if (source == null)
         return null;
 

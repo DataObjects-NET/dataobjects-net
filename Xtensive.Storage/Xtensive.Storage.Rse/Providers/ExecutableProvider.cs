@@ -42,6 +42,11 @@ namespace Xtensive.Storage.Rse.Providers
     public bool IsCacheable { get; protected set; }
 
     /// <summary>
+    /// Gets or sets execution site location.
+    /// </summary>
+    public UrlInfo Location { get; protected set; }
+
+    /// <summary>
     /// Gets the sequence this provider provides in the specified <see cref="EnumerationContext"/>.
     /// Returns either cached result (if available), or a result of <see cref="OnEnumerate"/>.
     /// </summary>

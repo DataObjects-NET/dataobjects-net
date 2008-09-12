@@ -17,17 +17,18 @@ namespace Xtensive.Storage.Rse.Compilation
     where TProvider : CompilableProvider
   {
     /// <inheritdoc/>
-    public sealed override ExecutableProvider Compile(CompilableProvider provider)
+    public sealed override ExecutableProvider Compile(CompilableProvider provider, params ExecutableProvider[] compiledSources)
     {
-      return Compile((TProvider) provider);
+      return Compile((TProvider) provider, compiledSources);
     }
 
     /// <summary>
     /// Compiles the specified provider.
     /// </summary>
     /// <param name="provider">The provider to compile.</param>
+    /// <param name="compiledSources">Compiled sources of the <paramref name="provider"/>.</param>
     /// <returns>Compiled provider.</returns>
-    protected abstract ExecutableProvider Compile(TProvider provider);
+    protected abstract ExecutableProvider Compile(TProvider provider, params ExecutableProvider[] compiledSources);
 
 
     // Constructor

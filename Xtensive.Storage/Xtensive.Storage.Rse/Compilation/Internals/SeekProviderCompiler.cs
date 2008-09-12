@@ -11,11 +11,11 @@ namespace Xtensive.Storage.Rse.Compilation
 {
   internal sealed class SeekProviderCompiler : TypeCompiler<SeekProvider>
   {
-    protected override ExecutableProvider Compile(SeekProvider provider)
+    protected override ExecutableProvider Compile(SeekProvider provider, params ExecutableProvider[] compiledSources)
     {
       return new Providers.Executable.SeekProvider(
         provider,
-        provider.Source.Compile());
+        compiledSources[0]);
     }
 
     // Constructor

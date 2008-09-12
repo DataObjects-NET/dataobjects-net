@@ -14,9 +14,9 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
 {
   internal class FilterProviderCompiler : TypeCompiler<FilterProvider>
   {
-    protected override ExecutableProvider Compile(FilterProvider provider)
+    protected override ExecutableProvider Compile(FilterProvider provider, params ExecutableProvider[] compiledSources)
     {
-      var source = provider.Source.Compile() as SqlProvider;
+      var source = compiledSources[0] as SqlProvider;
       if (source == null)
         return null;
 

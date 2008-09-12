@@ -11,11 +11,11 @@ namespace Xtensive.Storage.Rse.Compilation
 {
   internal sealed class AliasProviderCompiler : TypeCompiler<AliasProvider>
   {
-    protected override ExecutableProvider Compile(AliasProvider provider)
+    protected override ExecutableProvider Compile(AliasProvider provider, params ExecutableProvider[] compiledSources)
     {
       return new Providers.Executable.AliasProvider(
         provider,
-        provider.Source.Compile());
+        compiledSources[0]);
     }
 
 

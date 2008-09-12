@@ -42,10 +42,9 @@ namespace Xtensive.Storage.Providers.Sql
 
     internal SqlDriver Driver { get; private set; }
 
-    /// <inheritdoc/>
-    protected override Rse.Compilation.CompilationContext BuildCompilationContext()
+    protected override ICompiler BuildCompiler()
     {
-      return new CompilationContext(new Compilers.Compiler(Handlers));
+      return new Compilers.Compiler(Handlers);
     }
 
     /// <inheritdoc/>

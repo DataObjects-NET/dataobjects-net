@@ -7,14 +7,15 @@
 using System;
 using Xtensive.Sql.Common;
 using Xtensive.Storage.Providers.MsSql.Resources;
+using Xtensive.Storage.Rse.Compilation;
 
 namespace Xtensive.Storage.Providers.MsSql
 {
   public class DomainHandler : Sql.DomainHandler
   {
-    protected override Rse.Compilation.CompilationContext BuildCompilationContext()
+    protected override ICompiler BuildCompiler()
     {
-      return new CompilationContext(new Compilers.Compiler(Handlers));
+      return new Compilers.Compiler(Handlers);
     }
 
     public override SqlDataType GetSqlDataType(Type type, int? length)

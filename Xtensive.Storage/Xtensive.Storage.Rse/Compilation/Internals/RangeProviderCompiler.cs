@@ -11,11 +11,11 @@ namespace Xtensive.Storage.Rse.Compilation
 {
   internal sealed class RangeProviderCompiler : TypeCompiler<RangeProvider>
   {
-    protected override ExecutableProvider Compile(RangeProvider provider)
+    protected override ExecutableProvider Compile(RangeProvider provider, params ExecutableProvider[] compiledSources)
     {
       return new Providers.Executable.RangeProvider(
         provider,
-        provider.Source.Compile());
+        compiledSources[0]);
     }
 
 

@@ -16,9 +16,9 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
   internal class AliasProviderCompiler : TypeCompiler<AliasProvider>
   {
     /// <inheritdoc/>
-    protected override ExecutableProvider Compile(AliasProvider provider)
+    protected override ExecutableProvider Compile(AliasProvider provider, params ExecutableProvider[] compiledSources)
     {
-      var source = provider.Source.Compile() as SqlProvider;
+      var source = compiledSources[0] as SqlProvider;
       if (source == null)
         return null;
 

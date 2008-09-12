@@ -15,6 +15,7 @@ using Xtensive.Core.Tuples.Transform;
 using Xtensive.Indexing;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
+using Xtensive.Storage.Rse.Compilation;
 
 namespace Xtensive.Storage.Providers.Index
 {
@@ -23,10 +24,9 @@ namespace Xtensive.Storage.Providers.Index
     private readonly Dictionary<IndexInfo, IUniqueOrderedIndex<Tuple, Tuple>> realIndexes = new Dictionary<IndexInfo, IUniqueOrderedIndex<Tuple, Tuple>>();
     private readonly Dictionary<Pair<IndexInfo,TypeInfo>, MapTransform> indexTransforms = new Dictionary<Pair<IndexInfo, TypeInfo>, MapTransform>();
 
-    /// <inheritdoc/>
-    protected override Rse.Compilation.CompilationContext BuildCompilationContext()
+    protected override ICompiler BuildCompiler()
     {
-      return new CompilationContext(new Compilers.Compiler(Handlers));
+      return new Compilers.Compiler(Handlers);
     }
 
     /// <inheritdoc/>
