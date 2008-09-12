@@ -138,6 +138,7 @@ namespace Xtensive.Core.Diagnostics
   </logger>
 </log4net>
 ";
+      XmlConfigurator.Configure();
       if (LogManager.GetCurrentLoggers().Length==0) {
         XmlConfigurator.Configure(new MemoryStream(Encoding.UTF8.GetBytes(defaultConfig)));
         System.Diagnostics.Debug.Assert(LogManager.GetCurrentLoggers().Length > 0);
