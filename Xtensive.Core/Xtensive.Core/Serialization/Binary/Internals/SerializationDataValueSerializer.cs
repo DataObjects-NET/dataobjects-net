@@ -17,6 +17,7 @@ namespace Xtensive.Core.Serialization.Binary
     {
       long length = BaseSerializer.Deserialize(stream);
       long offset = stream.Position;
+      stream.Position = offset + length;
       return new BinarySerializationData(
         new StreamSegment(stream, new Segment<long>(offset, length), true));
     }

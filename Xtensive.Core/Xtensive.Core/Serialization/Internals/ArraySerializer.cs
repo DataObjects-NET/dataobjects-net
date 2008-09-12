@@ -11,7 +11,7 @@ namespace Xtensive.Core.Serialization.Internals
 {
   internal sealed class ArraySerializer<T> : ObjectSerializerBase<T[]>
   {
-    private const string LengthPropertyName = "Length";
+    private const string ItemsPropertyName = "Content";
 
     public override T[] CreateObject(Type type)
     {
@@ -21,18 +21,16 @@ namespace Xtensive.Core.Serialization.Internals
     public override void GetObjectData(T[] source, T[] origin, SerializationData data)
     {
       base.GetObjectData(source, origin, data);
-      data.AddValue(LengthPropertyName, source.Length);
-      for (int i = 0; i < source.Length; i++)
-        data.AddObject(i.ToString(), source[i], true);
+      data.AddObjects(ItemsPropertyName, source, true);
     }
 
     public override T[] SetObjectData(T[] source, SerializationData data)
     {
-      int length = data.GetValue<int>(LengthPropertyName);
-      source = new T[length];
+      var list = data.GetObjects<T>(ItemsPropertyName);
+      source = new T[list.Count];
       data.UpdateSource(source);
       for (int i = 0; i < source.Length; i++)
-        source[i] = data.GetObject<T>(i.ToString());
+        source[i] = list[i];
       return source;
     }
 

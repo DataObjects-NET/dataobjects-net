@@ -54,7 +54,7 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <see cref="CompilableProvider"/>, nor <see cref="ExecutableProvider"/>.</exception>
     public static ExecutableProvider Compile(this Provider provider)
     {
-      return  provider as ExecutableProvider ?? Compile(provider as CompilableProvider);
+      return provider as ExecutableProvider ?? Compile(provider as CompilableProvider);
     }
   }
 }

@@ -31,11 +31,16 @@ namespace Xtensive.Core.Serialization
     #region Properties
 
     /// <summary>
+    /// Gets the context this instance is bound to.
+    /// </summary>
+    public SerializationContext Context { get; private set; }
+
+    /// <summary>
     /// Gets the serializer this instance is bound to.
     /// </summary>
-    public static WorkingSerializerBase Serializer {
+    public WorkingSerializerBase Serializer {
       [DebuggerStepThrough]
-      get { return SerializationContext.Current.Serializer; }
+      get { return Context.Serializer; }
     }
 
     /// <summary>
@@ -81,12 +86,12 @@ namespace Xtensive.Core.Serialization
     /// </summary>
     public virtual Type SerializedType {
       get {
-        Type = GetValue(TypePropertyName, SerializationContext.Current.TypeTokenSerializer).Value;
+        Type = GetValue(TypePropertyName, Context.TypeTokenSerializer).Value;
         return Type;
       }
       set {
         Type = value;
-        var context = SerializationContext.Current;
+        var context = Context;
         AddValue(TypePropertyName, Token.GetOrCreate(context, value), context.TypeTokenSerializer); 
       }
     }
@@ -144,7 +149,7 @@ namespace Xtensive.Core.Serialization
     /// <param name="valueSerializer">The value serializer.</param>
     public void AddValue<T>(string name, T value, bool preferAttributes, ValueSerializer<T> valueSerializer)
     {
-      var context = SerializationContext.Current;
+      var context = Context;
       var oldPreferAttributes = context.PreferAttributes;
       context.PreferAttributes = preferAttributes;
       try {
@@ -218,7 +223,7 @@ namespace Xtensive.Core.Serialization
     public void AddValue<T>(string name, T value, T originValue, bool preferAttributes, ValueSerializer<T> valueSerializer)
     {
       if (!AdvancedComparerStruct<T>.System.Equals(value, originValue)) {
-        var context = SerializationContext.Current;
+        var context = Context;
         var oldPreferAttributes = context.PreferAttributes;
         context.PreferAttributes = preferAttributes;
         try {
@@ -340,7 +345,7 @@ namespace Xtensive.Core.Serialization
     /// </returns>
     public SerializationData AddObject(string name, object value)
     {
-      return AddObject(name, value, null, SerializationContext.Current.PreferNesting);
+      return AddObject(name, value, null, Context.PreferNesting);
     }
 
     /// <summary>
@@ -371,7 +376,7 @@ namespace Xtensive.Core.Serialization
     /// </returns>
     public SerializationData AddObject(string name, object value, object originValue)
     {
-      return AddObject(name, value, originValue, SerializationContext.Current.PreferNesting);
+      return AddObject(name, value, originValue, Context.PreferNesting);
     }
 
     /// <summary>
@@ -407,7 +412,7 @@ namespace Xtensive.Core.Serialization
     /// </returns>
     public SerializationData AddObject<TOwner>(string name, Func<TOwner, object> getter)
     {
-      return AddObject(name, getter, SerializationContext.Current.PreferNesting);
+      return AddObject(name, getter, Context.PreferNesting);
     }
 
     /// <summary>
@@ -427,6 +432,126 @@ namespace Xtensive.Core.Serialization
     public SerializationData AddObject<TOwner>(string name, Func<TOwner, object> getter, bool preferNesting)
     {
       return AddObject(name,
+        getter.Invoke((TOwner) Source),
+        getter.Invoke((TOwner) Origin),
+        preferNesting);
+    }
+
+    #endregion
+
+    #region AddObjects methods
+
+    /// <summary>
+    /// Adds the objects to this instance.
+    /// </summary>
+    /// <param name="name">The name to associate with the objects.</param>
+    /// <param name="values">The objects to add.</param>
+    /// <returns>
+    /// A <see cref="SerializationData"/> describing added objects
+    /// or a reference to it.
+    /// </returns>
+    public List<SerializationData> AddObjects(string name, IEnumerable values)
+    {
+      return AddObjects(name, values, null, Context.PreferNesting);
+    }
+
+    /// <summary>
+    /// Adds the objects to this instance.
+    /// </summary>
+    /// <param name="name">The name to associate with the objects.</param>
+    /// <param name="values">The objects to add.</param>
+    /// <param name="preferNesting"><see langword="true"/> if its preferable to nest them;
+    /// otherwise, <see langword="false"/>.</param>
+    /// <returns>
+    /// A <see cref="SerializationData"/> describing added objects
+    /// or a reference to it.
+    /// </returns>
+    public List<SerializationData> AddObjects(string name, IEnumerable values, bool preferNesting)
+    {
+      return AddObjects(name, values, null, preferNesting);
+    }
+
+    /// <summary>
+    /// Adds the objects to this instance.
+    /// </summary>
+    /// <param name="name">The name to associate with the objects.</param>
+    /// <param name="values">The objects to add.</param>
+    /// <param name="originValues">The origin object values.</param>
+    /// <returns>
+    /// A <see cref="SerializationData"/> describing added objects
+    /// or a reference to it.
+    /// </returns>
+    public List<SerializationData> AddObjects(string name, IEnumerable values, IEnumerable originValues)
+    {
+      return AddObjects(name, values, originValues, Context.PreferNesting);
+    }
+
+    /// <summary>
+    /// Adds the objects to this instance.
+    /// </summary>
+    /// <param name="name">The name to associate with the objects.</param>
+    /// <param name="values">The objects to add.</param>
+    /// <param name="originValues">The origin object values.</param>
+    /// <param name="preferNesting"><see langword="true"/> if its preferable to nest them;
+    /// otherwise, <see langword="false"/>.</param>
+    /// <returns>
+    /// A <see cref="SerializationData"/> describing added objects
+    /// or a reference to it.
+    /// </returns>
+    public virtual List<SerializationData> AddObjects(string name, IEnumerable values, IEnumerable originValues, bool preferNesting)
+    {
+      var data = new List<SerializationData>();
+      if (values!=null) {
+        var originValuesEnumerator = originValues==null ? null : originValues.GetEnumerator();
+        foreach (object item in values) {
+          object originItem = null;
+          if (originValuesEnumerator!=null) {
+            if (originValuesEnumerator.MoveNext())
+              originItem = originValuesEnumerator.Current;
+            else
+              originValuesEnumerator = null;
+          }
+          data.Add(Serializer.GetObjectData(item, originItem, preferNesting));
+        }
+      }
+      AddValue(name, data);
+      return data;
+    }
+
+    /// <summary>
+    /// Adds the objects read by <paramref name="getter"/>
+    /// from the <see cref="Source"/> to this instance,
+    /// providing its origin read from the <see cref="Origin"/> by the same way.
+    /// </summary>
+    /// <typeparam name="TOwner">The type of the value owner.</typeparam>
+    /// <param name="name">The name to associate with the value.</param>
+    /// <param name="getter">The values getter.</param>
+    /// <returns>
+    /// A <see cref="SerializationData"/> describing added objects
+    /// or a reference to it.
+    /// </returns>
+    public List<SerializationData> AddObjects<TOwner>(string name, Func<TOwner, IEnumerable> getter)
+    {
+      return AddObjects(name, getter, Context.PreferNesting);
+    }
+
+    /// <summary>
+    /// Adds the objects read by <paramref name="getter"/>
+    /// from the <see cref="Source"/> to this instance,
+    /// providing its origin read from the <see cref="Origin"/> by the same way.
+    /// </summary>
+    /// <typeparam name="TOwner">The type of the value owner.</typeparam>
+    /// <param name="name">The name to associate with the value.</param>
+    /// <param name="getter">The values getter.</param>
+    /// <param name="preferNesting"><see langword="true"/> if its preferable to nest them;
+    /// otherwise, <see langword="false"/>.</param>
+    /// <returns>
+    /// A <see cref="SerializationData"/> describing added object
+    /// or a reference to it.
+    /// </returns>
+    public List<SerializationData> AddObjects<TOwner>(string name, Func<TOwner, IEnumerable> getter, bool preferNesting)
+    {
+      return AddObjects(name,
         getter.Invoke((TOwner) Source),
         getter.Invoke((TOwner) Origin),
         preferNesting);
@@ -496,6 +621,48 @@ namespace Xtensive.Core.Serialization
 
     #endregion
 
+    #region GetObjects methods
+
+    /// <summary>
+    /// Gets objects from this instance.
+    /// </summary>
+    /// <param name="name">The name associated with the objects.</param>
+    /// <returns>
+    /// The objects associated with the <paramref name="name"/>.
+    /// </returns>
+    public List<T> GetObjects<T>(string name)
+    {
+      return GetObjects<T>(name, null);
+    }
+
+    /// <summary>
+    /// Gets objects from this instance.
+    /// </summary>
+    /// <param name="name">The name associated with the objects.</param>
+    /// <param name="originValues">The origin object values.</param>
+    /// <returns>
+    /// The objects associated with the <paramref name="name"/>.
+    /// </returns>
+    public virtual List<T> GetObjects<T>(string name, IEnumerable originValues)
+    {
+      var data = GetValue<SerializationData[]>(name);
+      var list = new List<T>();
+      var originValuesEnumerator = originValues==null ? null : originValues.GetEnumerator();
+      foreach (SerializationData itemData in data) {
+        object originItem = null;
+        if (originValuesEnumerator!=null) {
+          if (originValuesEnumerator.MoveNext())
+            originItem = originValuesEnumerator.Current;
+          else
+            originValuesEnumerator = null;
+        }
+        list.Add((T) Serializer.SetObjectData(originItem, itemData));
+      }
+      return list;
+    }
+
+    #endregion
+
     #region GetReference methods
 
     /// <summary>
@@ -529,6 +696,55 @@ namespace Xtensive.Core.Serialization
         // We've just deserialized a reference or something else, which isn't referable
         // (the last case will lead to type cast failure)
         return (IReference) source;
+    }
+
+    #endregion
+
+    #region GetReferences methods
+
+    /// <summary>
+    /// Gets references to objects from this instance.
+    /// </summary>
+    /// <param name="name">The name associated with the objects.</param>
+    /// <returns>
+    /// The references to objects associated with the <paramref name="name"/>.
+    /// </returns>
+    public List<IReference> GetReferences(string name)
+    {
+      return GetReferences(name, null);
+    }
+
+    /// <summary>
+    /// Gets references to objects from this instance.
+    /// </summary>
+    /// <param name="name">The name associated with the objects.</param>
+    /// <param name="originValues">The origin object values.</param>
+    /// <returns>
+    /// The references to objects associated with the <paramref name="name"/>.
+    /// </returns>
+    public virtual List<IReference> GetReferences(string name, IEnumerable originValues)
+    {
+      var data = GetValue<SerializationData[]>(name);
+      var list = new List<IReference>();
+      var originValuesEnumerator = originValues==null ? null : originValues.GetEnumerator();
+      foreach (SerializationData itemData in data) {
+        object originItem = null;
+        if (originValuesEnumerator!=null) {
+          if (originValuesEnumerator.MoveNext())
+            originItem = originValuesEnumerator.Current;
+          else
+            originValuesEnumerator = null;
+        }
+        var source = Serializer.SetObjectData(originItem, itemData);
+        if (itemData.Reference!=null)
+          // We've just deserialized an object with reference
+          list.Add(itemData.Reference);
+        else
+          // We've just deserialized a reference or something else, which isn't referable
+          // (the last case will lead to type cast failure)
+          list.Add((IReference) source);
+      }
+      return list;
     }
 
     #endregion
@@ -578,7 +794,7 @@ namespace Xtensive.Core.Serialization
       if (reference.TryResolve(out tmp))
         action.Invoke(target, reference);
       else
-        SerializationContext.Current.FixupManager.Add(target, reference, action);
+        Context.FixupManager.Add(target, reference, action);
     }
 
     /// <summary>
@@ -597,8 +813,52 @@ namespace Xtensive.Core.Serialization
       if (Source!=null && reference.TryResolve(out tmp))
         action.Invoke((T) Source, reference);
       else
-        SerializationContext.Current.FixupManager.Add(this, reference, 
+        Context.FixupManager.Add(this, reference, 
           (d, r) => action.Invoke((T) d.Source, r));
+    }
+
+    #endregion
+
+    #region AddFixups methods
+
+    /// <summary>
+    /// Adds fixup actions to objects 
+    /// associated with the specified <paramref name="name"/>.
+    /// </summary>
+    /// <param name="name">The name associated with the objects.</param>
+    /// <param name="target">Object to execute the <paramref name="action"/> on.</param>
+    /// <param name="action">The action to be executed when the referred object will be deserialized.</param>
+    /// <typeparam name="T">Type of the <paramref name="target"/>.</typeparam>
+    public void AddFixups<T>(string name, T target, Action<T, IReference> action) 
+    {
+      var references = GetReferences(name, null);
+      object tmp;
+      foreach (var reference in references) {
+        if (reference.TryResolve(out tmp))
+          action.Invoke(target, reference);
+        else
+          Context.FixupManager.Add(target, reference, action);
+      }
+    }
+
+    /// <summary>
+    /// Adds fixup actions to objects 
+    /// associated with the specified <paramref name="name"/>.
+    /// </summary>
+    /// <param name="name">The name associated with the objects.</param>
+    /// <param name="action">The action to be executed when the referred object will be deserialized.</param>
+    /// <typeparam name="T">Type of the target object.</typeparam>
+    public void AddFixups<T>(string name, Action<T, IReference> action) 
+    {
+      var references = GetReferences(name, null);
+      object tmp;
+      foreach (var reference in references) {
+        if (Source!=null && reference.TryResolve(out tmp))
+          action.Invoke((T) Source, reference);
+        else
+          Context.FixupManager.Add(this, reference,
+            (d, r) => action.Invoke((T) d.Source, r));
+      }
     }
 
     #endregion
@@ -617,7 +877,7 @@ namespace Xtensive.Core.Serialization
     public void UpdateSource(object source)
     {
       if (Reference!=null)
-        SerializationContext.Current.ReferenceManager.Define(Reference, source);
+        Context.ReferenceManager.Define(Reference, source);
       Source = source;
     }
 
@@ -683,6 +943,7 @@ namespace Xtensive.Core.Serialization
     /// </summary>
     protected SerializationData()
     {
+      Context = SerializationContext.Current;
     }
   }
 }

@@ -173,7 +173,7 @@ namespace Xtensive.Core.Tests.Serialization
   {
     private static bool warmup = false;
     private static bool profile = false;
-    private static int  baseSize = 10000;
+    private static int  baseSize = 4000;
     private static int  iterationCount = 1000;
 
     [Test]
@@ -185,15 +185,15 @@ namespace Xtensive.Core.Tests.Serialization
       TestCloning("int [3]", new [] {1,2,3}, iterationCount / 10);
 
       var ints = InstanceGenerationUtils<int>.GetInstances(r, 0).Take(baseSize).ToArray();
-      TestCloning(string.Format("int [{0}]", ints.Length), ints, iterationCount / 100);
+      TestCloning(string.Format("int [{0}]", ints.Length), ints, iterationCount / 10);
 
       var guids = InstanceGenerationUtils<Guid>.GetInstances(r, 0).Take(baseSize).ToArray();
-      TestCloning(string.Format("Guid [{0}]", guids.Length), guids, iterationCount / 100);
+      TestCloning(string.Format("Guid [{0}]", guids.Length), guids, iterationCount / 10);
 
       var objects = InstanceGenerationUtils<int>.GetInstances(r, 0).Take(baseSize).Cast<object>().ToArray();
       TestCloning(string.Format("Object [{0}]", objects.Length), objects, iterationCount / 100);
 
-      var nodes = new Node(1, null, r, 1000);
+      var nodes = new Node(1, null, r, baseSize);
       TestCloning(string.Format("Node [{0}]", nodes.Count), nodes, iterationCount / 100);
     }
 
@@ -205,14 +205,14 @@ namespace Xtensive.Core.Tests.Serialization
       profile = true;
       Random r = RandomManager.CreateRandom(SeedVariatorType.CallingMethod);
 
-      var nodes = new Node(1, null, r, 1000);
-      TestCloning(string.Format("Node [{0}]", nodes.Count), nodes, iterationCount / 100);
+//      var nodes = new Node(1, null, r, 1000);
+//      TestCloning(string.Format("Node [{0}]", nodes.Count), nodes, iterationCount / 100);
 
 //      var ints = InstanceGenerationUtils<int>.GetInstances(r, 0).Take(baseSize).ToArray();
 //      TestCloning(string.Format("int [{0}]", ints.Length), ints, 1);
 
-//      var objects = InstanceGenerationUtils<int>.GetInstances(r, 0).Take(baseSize).Cast<object>().ToArray();
-//      TestCloning(string.Format("Object [{0}]", objects.Length), objects, 1);
+      var objects = InstanceGenerationUtils<int>.GetInstances(r, 0).Take(baseSize).Cast<object>().ToArray();
+      TestCloning(string.Format("Object [{0}]", objects.Length), objects, 1);
     }
 
     private static void TestCloning<T>(string title, T source)

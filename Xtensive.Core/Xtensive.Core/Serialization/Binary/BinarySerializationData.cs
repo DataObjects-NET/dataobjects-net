@@ -31,7 +31,7 @@ namespace Xtensive.Core.Serialization.Binary
     /// <summary>
     /// Gets the <see cref="SerializationContext"/> this instance belongs to.
     /// </summary>
-    public BinarySerializationContext Context { get; private set; }
+    public new BinarySerializationContext Context { get; private set; }
 
     /// <summary>
     /// Gets the <see cref="ValueSerializerProvider"/> used by this instance.
@@ -308,7 +308,7 @@ namespace Xtensive.Core.Serialization.Binary
     /// <param name="stream">The <see cref="Stream"/> property value.</param>
     public BinarySerializationData(Stream stream)
     {
-      Context = (BinarySerializationContext) SerializationContext.Current;
+      Context = (BinarySerializationContext) base.Context;
       ValueSerializerProvider = (ValueSerializerProvider) Context.ValueSerializerProvider;
       Stream = stream;
     }
@@ -317,7 +317,7 @@ namespace Xtensive.Core.Serialization.Binary
     public BinarySerializationData(IReference reference, object source, object origin)
       : base(reference, source, origin)
     {
-      Context = (BinarySerializationContext) SerializationContext.Current;
+      Context = (BinarySerializationContext) base.Context;
       ValueSerializerProvider = (ValueSerializerProvider) Context.ValueSerializerProvider;
       Stream = new MemoryStream();
       isCompletelyRead = true;
