@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
+using Xtensive.Core;
 using Xtensive.Storage.Building.Builders;
 using Xtensive.Storage.Model;
 using FieldAttributes=Xtensive.Storage.Model.FieldAttributes;
@@ -19,9 +20,10 @@ namespace Xtensive.Storage.Building.Definitions
   public class FieldDef : MappingNode
   {
     private readonly PropertyInfo underlyingProperty;
-    private FieldAttributes attributes;    
-    private ReferentialAction onDelete;    
+    private FieldAttributes attributes;
+    private ReferentialAction onDelete;
     private string pairTo;
+    private int? length;
 
     /// <summary>
     /// Gets or sets a value indicating whether this instance should be loaded on demand.
@@ -33,9 +35,18 @@ namespace Xtensive.Storage.Building.Definitions
     }
 
     /// <summary>
-    /// Gets or sets the length of the property.
+    /// Gets or sets the length of the field.
     /// </summary>
-    public int? Length { get; set; }
+    public int? Length
+    {
+      get { return length; }
+      set
+      {
+        if (value.HasValue)
+          ArgumentValidator.EnsureArgumentIsInRange(value.Value, 1, Int32.MaxValue, "Length");
+        length = value;
+      }
+    }
 
     /// <summary>
     /// Gets or sets a value indicating whether property is nullable.

@@ -6,11 +6,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Model
 {
@@ -23,6 +24,20 @@ namespace Xtensive.Storage.Model
     private readonly DirectionCollection<FieldInfo> fields = new DirectionCollection<FieldInfo>();
     private readonly ColumnInfoCollection columns = new ColumnInfoCollection();
     private TupleDescriptor keyTupleDescriptor;
+    private int generatorCacheSize;
+
+    /// <summary>
+    /// Gets or sets the size of the generator cache.
+    /// </summary>
+    public int GeneratorCacheSize {
+      [DebuggerStepThrough]
+      get { return generatorCacheSize; }
+      [DebuggerStepThrough]
+      set {
+        this.EnsureNotLocked();
+        generatorCacheSize = value;
+      }
+    }
 
     /// <summary>
     /// Gets the columns that are included in the key.

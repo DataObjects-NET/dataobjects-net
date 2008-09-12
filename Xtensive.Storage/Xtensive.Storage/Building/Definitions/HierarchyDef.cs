@@ -17,6 +17,7 @@ namespace Xtensive.Storage.Building.Definitions
   {
     private readonly DirectionCollection<KeyField> keyFields = new DirectionCollection<KeyField>();
     private Type generator;
+    private int? generatorCacheSize;
 
     /// <summary>
     /// Gets the fields that are included in the key for this instance.
@@ -24,6 +25,20 @@ namespace Xtensive.Storage.Building.Definitions
     public DirectionCollection<KeyField> KeyFields
     {
       get { return keyFields; }
+    }
+
+    /// <summary>
+    /// Gets or sets the size of the generator cache.
+    /// </summary>
+    public int? GeneratorCacheSize
+    {
+      get { return generatorCacheSize; }
+      set
+      {
+        if (value.HasValue)
+          ArgumentValidator.EnsureArgumentIsInRange(value.Value, 0, Int32.MaxValue, "GeneratorCacheSize");
+        generatorCacheSize = value;
+      }
     }
 
     /// <summary>

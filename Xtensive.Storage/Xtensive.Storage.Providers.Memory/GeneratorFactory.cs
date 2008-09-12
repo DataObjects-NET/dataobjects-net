@@ -2,13 +2,11 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Dmitri Maximov
-// Created:    2008.07.24
-
-using System;
+// Created:    2008.09.11
 
 namespace Xtensive.Storage.Providers.Memory
 {
-  [Serializable]
-  public sealed class DefaultGenerator : Index.DefaultGenerator
-  {}
+  public class GeneratorFactory : Index.GeneratorFactory
+  {
+  }
 }

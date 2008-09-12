@@ -45,8 +45,6 @@ namespace Xtensive.Storage.Building.Builders
     {
       ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
 
-      XmlConfigurator.Configure();
-
       if (!configuration.IsLocked)
         configuration.Lock(true);
 
@@ -183,15 +181,15 @@ namespace Xtensive.Storage.Building.Builders
       using (Log.InfoRegion(Strings.LogCreatingX, Strings.Generators)) {
         var handlerAccessor = BuildingContext.Current.Domain.Handlers;
         Registry<HierarchyInfo, Generator> generators = BuildingContext.Current.Domain.KeyManager.Generators;
+        GeneratorFactory factory = handlerAccessor.HandlerFactory.CreateHandler<GeneratorFactory>();
         foreach (HierarchyInfo hierarchy in BuildingContext.Current.Model.Hierarchies) {
           Generator generator;
           if (hierarchy.Generator == null)
             continue;
           if (hierarchy.Generator==typeof (Generator))
-            generator = handlerAccessor.HandlerFactory.CreateHandler<Generator>();
+            generator = factory.CreateGenerator(hierarchy);
           else
-            generator = (Generator) Activator.CreateInstance(hierarchy.Generator);
-          generator.Hierarchy = hierarchy;
+            generator = (Generator) Activator.CreateInstance(hierarchy.Generator, new object[] { hierarchy });
           generator.Initialize();
           generators.Register(hierarchy, generator);
         }

@@ -28,8 +28,10 @@ namespace Xtensive.Storage.Providers.Sql
       if (compilationResult!=null)
         return;
       int i = 0;
-      foreach (SqlParameter p in GetParameters())
-        p.ParameterName = "p" + i++;
+      List<SqlParameter> parameters = GetParameters();
+      if (parameters != null)
+        foreach (SqlParameter p in GetParameters())
+          p.ParameterName = "p" + i++;
       compilationResult = driver.Compile(Statement);
     }
 

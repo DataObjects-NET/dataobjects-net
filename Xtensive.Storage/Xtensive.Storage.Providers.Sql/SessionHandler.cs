@@ -118,6 +118,31 @@ namespace Xtensive.Storage.Providers.Sql
       }
     }
 
+    public virtual object ExecuteScalar(SqlScalarRequest request)
+    {
+      EnsureConnectionIsOpen();
+      using (var command = new SqlCommand(connection)) {
+        command.CommandText = request.CompiledStatement;
+        List<SqlParameter> parameters = request.GetParameters();
+        if (parameters != null)
+          command.Parameters.AddRange(parameters.ToArray());
+        command.Prepare();
+        command.Transaction = Transaction;
+        return command.ExecuteScalar();
+      }
+    }
+
+    public virtual object ExecuteScalar(ISqlCompileUnit statement)
+    {
+      EnsureConnectionIsOpen();
+      using (var command = new SqlCommand(connection)) {
+        command.Statement = statement;
+        command.Prepare();
+        command.Transaction = Transaction;
+        return command.ExecuteScalar();
+      }
+    }
+
     public virtual DbDataReader ExecuteReader(SqlQueryRequest request)
     {
       EnsureConnectionIsOpen();

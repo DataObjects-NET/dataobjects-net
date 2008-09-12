@@ -132,17 +132,16 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
   {
     private int counter;
 
-    protected override Tuple NextOne()
+    public override Tuple Next()
     {
       Tuple result = Tuple.Create(counter.ToString());
       counter++;
       return result;
     }
 
-    protected override IEnumerable<Tuple> NextMany()
+    public IsbnKeyProvider(HierarchyInfo hierarchy)
+      : base(hierarchy)
     {
-      for (int i = 0; i < CacheSize; i++)
-        yield return NextOne();
     }
   }
 

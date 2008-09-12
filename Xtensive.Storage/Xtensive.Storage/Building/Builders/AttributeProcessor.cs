@@ -78,6 +78,8 @@ namespace Xtensive.Storage.Building.Builders
     {
       if (attribute.Generator != null)
         hierarchy.Generator = attribute.Generator;
+      if (attribute.generatorCacheSize.HasValue)
+        hierarchy.GeneratorCacheSize = attribute.GeneratorCacheSize;
     }
 
     private static void ProcessKeyFields(HierarchyDef hierarchy, TypeDef type, HierarchyRootAttribute attribute)

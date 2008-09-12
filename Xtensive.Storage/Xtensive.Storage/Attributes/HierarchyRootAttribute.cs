@@ -14,10 +14,21 @@ namespace Xtensive.Storage.Attributes
   [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
   public class HierarchyRootAttribute : StorageAttribute
   {
+    internal int? generatorCacheSize;
+
     /// <summary>
     /// Gets or sets the key generator.
     /// </summary>
     public Type Generator { get; set; }
+
+    /// <summary>
+    /// Gets or sets the size of the generator cache.
+    /// </summary>
+    public int GeneratorCacheSize
+    {
+      get { return generatorCacheSize.HasValue ? generatorCacheSize.Value : 0; }
+      set { generatorCacheSize = value; }
+    }
 
     /// <summary>
     /// Key fields that are included into the primary index.
