@@ -6,9 +6,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Disposable;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Integrity.Resources;
 using Xtensive.Integrity.Validation.Interfaces;
 
@@ -17,45 +17,17 @@ namespace Xtensive.Integrity.Validation
   /// <summary>
   /// Provides consistency validation for see <see cref="IValidationAware"/> implementors.
   /// </summary>
-  public abstract class ValidationContextBase: Context<ValidationScope>
+  public abstract class ValidationContextBase
   {
-    private bool isConsistent = true;
-    private int  activationCount;
     private HashSet<Pair<IValidationAware, Action<IValidationAware>>> registry;
-
-    /// <inheritdoc/>
-    protected override ValidationScope CreateActiveScope()
-    {
-      return new ValidationScope(this);
-    }
-
-    /// <inheritdoc/>
-    public override bool IsActive {
-      [DebuggerStepThrough]
-      get { return ValidationScope.CurrentContext == this; }
-    }
 
     /// <summary>
     /// Gets the value indicating whether this context is in inconsistent state.
     /// </summary>
-    public bool IsConsistent {
-      [DebuggerStepThrough]
-      get {
-        return isConsistent;
-      }
-      private set {
-        if (value==isConsistent)
-          return;
-        isConsistent = value;
-        if (value)
-          LeaveInconsistentRegion();
-        else
-          EnterInconsistentRegion();
-      }
-    }
+    public bool IsConsistent { get; private set; }
 
     /// <summary>
-    /// Creates the "inconsistent region" - the code region, in which Validate method
+    /// Opens the "inconsistent region" - the code region, in which Validate method
     /// should just queue the validation rather then perform it immediately.
     /// </summary>
     /// <returns>
@@ -71,22 +43,15 @@ namespace Xtensive.Integrity.Validation
     /// The validation of all queued to-validate objects will be performed during disposal.
     /// </para>
     /// </remarks>
-    public IDisposable InconsistentRegion()
+    public IDisposable OpenInconsistentRegion()
     {
       if (!IsConsistent)
         return null;
       IsConsistent = false;
+      if (registry==null)
+        registry = new HashSet<Pair<IValidationAware, Action<IValidationAware>>>();
       return 
-        new Disposable<ValidationContextBase>(this, (disposing, context) => context.IsConsistent = true);
-    }
-
-    /// <summary>
-    /// Clears the validation queue.
-    /// </summary>
-    protected void ClearValidationQueue()
-    {
-      if (registry!=null)
-        registry.Clear();
+        new Disposable<ValidationContextBase>(this, (disposing, context) => context.LeaveInconsistentRegion());
     }
 
     #region Protected methods (to override, if necessary)    
@@ -100,7 +65,7 @@ namespace Xtensive.Integrity.Validation
     /// </param>
     internal protected virtual void EnqueueValidate(IValidationAware target, Action<IValidationAware> validationDelegate)
     {
-      if (!target.IsCompatibleWith(this))
+      if (target.Context!=this)
         throw new ArgumentException(Strings.ExObjectAndContextAreIncompatible, "target");
 
       registry.Add(new Pair<IValidationAware, Action<IValidationAware>>(target, validationDelegate));
@@ -116,19 +81,12 @@ namespace Xtensive.Integrity.Validation
     }
 
     /// <summary>
-    /// Enters the inconsistent region.
-    /// </summary>
-    protected virtual void EnterInconsistentRegion()
-    {
-      registry = new HashSet<Pair<IValidationAware, Action<IValidationAware>>>();
-    }
-
-    /// <summary>
     /// Leaves the inconsistent region.
     /// </summary>
     /// <exception cref="AggregateException">Validation failed.</exception>
     protected virtual void LeaveInconsistentRegion()
-    {      
+    {
+      IsConsistent = true;
       IList<Exception> exceptions = null;
       try {
         foreach (var pair in registry) {
@@ -149,30 +107,22 @@ namespace Xtensive.Integrity.Validation
       finally {
         registry = null;
         if (exceptions!=null && exceptions.Count > 0)
-          throw new AggregateException(exceptions);
+          throw new AggregateException(Strings.ExValidationFailed, exceptions);
       }
     }
 
-    /// <summary>
-    /// Called on context activation.
-    /// </summary>
-    /// <param name="scope">The scope activating this context.</param>
-    protected internal virtual void OnActivate(ValidationScope scope)
-    {
-      activationCount++;
-    }
-
-    /// <summary>
-    /// Called on context deactivation.
-    /// </summary>
-    /// <param name="scope">The scope deactivating this context.</param>
-    protected internal void OnDeactivate(ValidationScope scope)
-    {
-      activationCount--;
-      if (activationCount==0 && !IsConsistent)
-        LeaveInconsistentRegion();
-    }
-
     #endregion
+
+
+    // Constructor
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    protected ValidationContextBase()
+    {
+      IsConsistent = true;
+    }
+  
   }
 }

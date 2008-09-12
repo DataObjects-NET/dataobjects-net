@@ -15,6 +15,7 @@ using Xtensive.Core.Threading;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Integrity.Validation;
+using Xtensive.Integrity.Validation.Interfaces;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage
@@ -117,9 +118,20 @@ namespace Xtensive.Storage
 
     /// <inheritdoc/>
     protected internal override sealed void OnSetValue(FieldInfo field)
-    {
+    {      
       if (owner!=null)
         owner.OnSetValue(this.field);
+      base.OnSetValue(field);
+    }
+
+    #endregion
+
+    #region Protected event-like methods
+
+    /// <inheritdoc/> 
+    protected internal override bool SkipValidation
+    {
+      get { return false; }
     }
 
     #endregion
@@ -160,6 +172,6 @@ namespace Xtensive.Storage
       this.owner = owner;
       this.field = field;
       tuple = new SegmentTransform(false, owner.Tuple.Descriptor, new Segment<int>(field.MappingInfo.Offset, field.MappingInfo.Length)).Apply(TupleTransformType.TransformedTuple, owner.Tuple);
-    }
+    }    
   }
 }

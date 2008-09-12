@@ -10,13 +10,16 @@ using Xtensive.Core;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.Tuples;
 using Xtensive.Integrity.Atomicity;
+using Xtensive.Integrity.Validation;
+using Xtensive.Integrity.Validation.Interfaces;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage
 {
   public abstract class Persistent : SessionBound,
-    IAtomicityAware
+    IAtomicityAware,
+    IValidationAware
   {
     private Dictionary<FieldInfo, IFieldHandler> fieldHandlers;
 
@@ -130,6 +133,17 @@ namespace Xtensive.Storage
     [Infrastructure]
     protected internal virtual void OnSetValue(FieldInfo field)
     {
+      if (Session.Domain.Configuration.AutoValidation)
+        this.Validate();
+    }    
+
+    /// <summary>
+    /// Called when entity should be validated.
+    /// Override this method to perform custom validation.
+    /// </summary>    
+    [Infrastructure]
+    public virtual void OnValidate()
+    {
     }
 
     #endregion
@@ -166,13 +180,34 @@ namespace Xtensive.Storage
 
     #endregion
 
-    // Constructors
+    #region IValidationAware members
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Persistent"/> class.
+    /// Gets a value indicating whether validation should be skipped for this entity.
     /// </summary>
-    protected Persistent()
-    {      
+    [Infrastructure]
+    protected internal abstract bool SkipValidation { get; }
+
+    /// <inheritdoc/>
+    [Infrastructure]
+    void IValidationAware.OnValidate()
+    {
+      if (SkipValidation)
+        return;
+
+      this.CheckConstraints();
+      this.OnValidate();
     }
+
+    /// <inheritdoc/>
+    [Infrastructure]
+    ValidationContextBase IContextBound<ValidationContextBase>.Context
+    {
+      get {
+        return Session.ValidationContext;
+      }
+    }
+
+    #endregion
   }
 }

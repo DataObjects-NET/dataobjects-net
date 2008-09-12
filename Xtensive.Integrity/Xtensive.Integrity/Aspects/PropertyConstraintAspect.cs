@@ -123,10 +123,7 @@ namespace Xtensive.Integrity.Aspects
 
     internal void OnSetValue(IValidationAware target, object value)
     {
-      if (target.Context.IsConsistent)
-        CheckValue(target, value);
-      else
-        target.Validate(_target => Check(_target), Mode);
+      target.Validate(_target => Check(_target), Mode);
     }
 
 // ReSharper disable UnusedPrivateMember

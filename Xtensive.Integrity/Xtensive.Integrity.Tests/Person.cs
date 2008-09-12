@@ -21,7 +21,6 @@ namespace Xtensive.Integrity.Tests
   public class Person: AtomicBase
   {
     [Atomic]
-    [Validate]
     public string Name
     {
       get { return (string)this["Name"]; }
@@ -29,13 +28,11 @@ namespace Xtensive.Integrity.Tests
       set {
         ArgumentValidator.EnsureArgumentNotNullOrEmpty(value, "value");
         this.Validate();
-        SetValue("Name", value);
-        //this["Name"] = value;
+        this["Name"] = value;
       }
     }
 
     [Atomic]
-    [Validate]
     public int Age
     {
       get { return (int)(this["Age"] ?? 0); }
@@ -43,8 +40,7 @@ namespace Xtensive.Integrity.Tests
       set {
         ArgumentValidator.EnsureArgumentIsInRange(value, 0, 200, "value");
         this.Validate();
-        SetValue("Age", value);
-        //this["Age"] = value;
+        this["Age"] = value;
       }
     }
     
@@ -60,15 +56,14 @@ namespace Xtensive.Integrity.Tests
       [Trace(TraceOptions.All)]
       set {
         PassportRelationManager.SetMaster(this, value, (me, newValue) => {
-          SetValue("Passport", newValue);
-//          me["Passport"] = newValue;
+          me["Passport"] = newValue;
         });
       }
     }
 
     [Changer]
     [Atomic]
-    [Validate(false)]
+    [Validate]
     [Trace(TraceOptions.All)]
     public void SetAll(string name, int age)
     {
@@ -78,7 +73,7 @@ namespace Xtensive.Integrity.Tests
 
     [Changer]
     [Atomic]
-    [Validate(false)]
+    [Validate]
     [Trace(TraceOptions.All)]
     public void SetAll(string name, int age, Passport passport)
     {
@@ -88,7 +83,7 @@ namespace Xtensive.Integrity.Tests
 
     [Changer]
     [Atomic]
-    [Validate(false)]
+    [Validate]
     [Trace(TraceOptions.All)]
     public void SetAll(string name, int age, string number, string issuedBy)
     {

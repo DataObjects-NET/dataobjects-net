@@ -11,8 +11,7 @@ namespace Xtensive.Integrity.Validation.Interfaces
   /// <summary>
   /// Implemented by objects supporting validation framework.
   /// </summary>
-  public interface IValidationAware : 
-    IContextBound<ValidationContextBase>
+  public interface IValidationAware : IContextBound<ValidationContextBase>
   {
     /// <summary>
     /// Validates the object state right now - i.e. without any delays.
@@ -21,17 +20,5 @@ namespace Xtensive.Integrity.Validation.Interfaces
     /// Throws an exception on validation failure.
     /// </remarks>
     void OnValidate();
-
-    /// <summary>
-    /// Determines whether the specified context is compatible 
-    /// with the current <see cref="IValidationAware"/> object.
-    /// </summary>
-    /// <param name="context">The context to check for compatibility.</param>
-    /// <returns>
-    /// <see langword="true"/> if the specified context is compatible
-    /// with the current <see cref="IValidationAware"/> object; 
-    /// otherwise, <see langword="false"/>.
-    /// </returns>
-    bool IsCompatibleWith(ValidationContextBase context);
   }
 }

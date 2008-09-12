@@ -6,10 +6,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core;
-using Xtensive.Core.Testing;
 using Xtensive.Integrity.Aspects.Constraints;
 using Xtensive.Integrity.Validation;
 using Xtensive.Integrity.Validation.Interfaces;
@@ -30,14 +28,9 @@ namespace Xtensive.Integrity.Tests
         this.CheckConstraints();
       }
 
-      public bool IsCompatibleWith(ValidationContextBase context)
+      ValidationContextBase IContextBound<ValidationContextBase>.Context
       {
-        return context == Context;
-      }
-
-      public ValidationContextBase Context
-      {
-        get { return ConstraintsTest.Context; }
+        get { return Context; }
       }
     }
 
@@ -57,26 +50,24 @@ namespace Xtensive.Integrity.Tests
     [Test]
     public void Test()
     {
-      using (new ValidationScope(Context)) {
-        try { 
-          using (Context.InconsistentRegion()) {
-            Company xtensive = new Company();
-            xtensive.WebSite = "x-tensive.com";
-          }
+      try {
+        using (Context.OpenInconsistentRegion()) {
+          Company xtensive = new Company();
+          xtensive.WebSite = "x-tensive.com";
         }
-        catch (AggregateException e) {
-          List<Exception> errors = e.GetFlatExceptions();
-          Assert.AreEqual(1, errors.Count);
-          
-          foreach (var exception in errors)
-            Assert.AreEqual(typeof (ConstraintViolationException), exception.GetType());
-
-          return; 
-        }
-
-        throw new Exception(
-          string.Format("{0} was not thrown.", typeof(AggregateException)));
       }
+      catch (AggregateException e) {
+        List<Exception> errors = e.GetFlatExceptions();
+        Assert.AreEqual(1, errors.Count);
+
+        foreach (var exception in errors)
+          Assert.AreEqual(typeof (ConstraintViolationException), exception.GetType());
+
+        return;
+      }
+
+      throw new Exception(
+        string.Format("{0} was not thrown.", typeof (AggregateException)));
     }
   }
 }

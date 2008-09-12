@@ -164,8 +164,8 @@ namespace Xtensive.Integrity.Tests
     {
       ValidationContext context = new ValidationContext(session1);
 
-      using (context.InconsistentRegion()) {
-        using (context.InconsistentRegion()) {
+      using (context.OpenInconsistentRegion()) {
+        using (context.OpenInconsistentRegion()) {
           
         }
         Assert.IsFalse(context.IsConsistent);

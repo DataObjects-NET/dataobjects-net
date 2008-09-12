@@ -14,8 +14,10 @@ using Xtensive.Core.Aspects;
 using Xtensive.Core.Aspects.Helpers;
 using Xtensive.Core.Disposable;
 using Xtensive.Core.Helpers;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
 using Xtensive.Integrity.Validation;
+using Xtensive.Integrity.Validation.Interfaces;
 
 namespace Xtensive.Integrity.Aspects
 {
@@ -26,11 +28,9 @@ namespace Xtensive.Integrity.Aspects
   // [MulticastAttributeUsage(MulticastTargets.Property | MulticastTargets.Method)]
   [AttributeUsage(AttributeTargets.Property | AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
   [Serializable]
-  public sealed class ValidateAttribute : OnMethodBoundaryAspect, 
+  public sealed class ValidateAttribute : OnMethodBoundaryAspect,
     ILaosWeavableAspect
   {
-    public bool IsConsistent { get; set; }
-
     int ILaosWeavableAspect.AspectPriority
     {
       get {
@@ -41,7 +41,7 @@ namespace Xtensive.Integrity.Aspects
     /// <inheritdoc/>
     public override bool CompileTimeValidate(MethodBase method)
     {
-      if (!AspectHelper.ValidateContextBoundMethod<ValidationContextBase>(this, method))
+      if (!AspectHelper.ValidateBaseType(this, SeverityType.Error, method.DeclaringType, true, typeof(IValidationAware)))
         return false;
 
       MethodInfo methodInfo = method as MethodInfo;      
@@ -63,47 +63,19 @@ namespace Xtensive.Integrity.Aspects
       return true;
     }
 
+    /// <inheritdoc/>
     [DebuggerStepThrough]
     public override void OnEntry(MethodExecutionEventArgs eventArgs)
     {
-      var validationContextBound = (IContextBound<ValidationContextBase>)eventArgs.Instance;
-      var validationScope        = (ValidationScope)validationContextBound.ActivateContext();
-
-      if (IsConsistent)
-        eventArgs.MethodExecutionTag = validationScope;
-      if (!IsConsistent)
-        if (validationScope==null)
-          // Scope is already active
-          eventArgs.MethodExecutionTag = ValidationScope.CurrentContext.InconsistentRegion();
-        else
-          // Active scope is just created
-          eventArgs.MethodExecutionTag = new Disposable<IDisposable, IDisposable>(
-            validationScope, 
-            validationScope.Context.InconsistentRegion(), 
-            (disposing, d1, d2) => {
-              d2.DisposeSafely();
-              d1.DisposeSafely();
-            });
+      var validatable = (IValidationAware)eventArgs.Instance;
+      eventArgs.MethodExecutionTag = validatable.Context.OpenInconsistentRegion();
     }
 
+    /// <inheritdoc/>
     [DebuggerStepThrough]
     public override void OnExit(MethodExecutionEventArgs eventArgs)
     {
-      var d = (IDisposable)eventArgs.MethodExecutionTag;
-      d.DisposeSafely();
-    }
-
-
-    // Constructors
-
-    public ValidateAttribute()
-      : this(true)
-    {
-    }
-
-    public ValidateAttribute(bool isConsistent)
-    {
-      IsConsistent = isConsistent;
+      ((IDisposable)eventArgs.MethodExecutionTag).DisposeSafely();      
     }
   }
 }

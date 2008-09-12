@@ -29,8 +29,7 @@ namespace Xtensive.Storage
   /// Instance of <see cref="Entity"/> type can be referenced via <see cref="Key"/>.
   /// </summary>
   public abstract class Entity : Persistent,
-    IEntity,
-    IValidationAware
+    IEntity
   {
     private static readonly ThreadSafeDictionary<Type, Func<EntityData, Entity>> activators = 
       ThreadSafeDictionary<Type, Func<EntityData, Entity>>.Create(new object());
@@ -141,6 +140,12 @@ namespace Xtensive.Storage
     #region Protected event-like methods
 
     /// <inheritdoc/>
+    protected internal override bool SkipValidation
+    {
+      get { return IsRemoved; }
+    }
+
+    /// <inheritdoc/>
     protected internal override sealed void OnCreating()
     {
       Data.Entity = this;
@@ -177,9 +182,8 @@ namespace Xtensive.Storage
         Session.modifiedEntities.Add(Data);
         Data.PersistenceState = PersistenceState.Modified;
       }
-      if (Session.Domain.Configuration.AutoValidation)
-        this.Validate();
-    }
+      base.OnSetValue(field);      
+    }    
 
     /// <summary>
     /// Called when entity is to be removed.
@@ -215,47 +219,6 @@ namespace Xtensive.Storage
     }    
 
     #endregion
-
-    #region IValidationAware members
-
-    /// <summary>
-    /// Called when entity should be validated.
-    /// Override this method to perform custom validation.
-    /// </summary>
-    [Infrastructure]
-    public virtual void OnValidate()
-    {
-    }
-
-    /// <inheritdoc/>
-    [Infrastructure]
-    void IValidationAware.OnValidate()
-    {
-      if (IsRemoved)
-        return;
-
-      this.CheckConstraints();
-      this.OnValidate();
-    }
-
-    /// <inheritdoc/>
-    public ValidationContextBase Context
-    {
-      get
-      {
-        return Session.ValidationContext;
-      }
-    }
-
-    /// <inheritdoc/>
-    [Infrastructure]
-    bool IValidationAware.IsCompatibleWith(ValidationContextBase context)
-    {
-      return context==Session.ValidationContext;
-    }
-
-    #endregion
-
 
     // Constructors
 

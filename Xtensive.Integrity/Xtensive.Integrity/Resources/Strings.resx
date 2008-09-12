@@ -192,4 +192,7 @@
   <data name="ExTransactionScopeIsCompletedCanNotBeSetToFalse" xml:space="preserve">
     <value>TransactionScope.IsCompleted can not be set to 'false'.</value>
   </data>
+  <data name="ExValidationFailed" xml:space="preserve">
+    <value>Validation failed.</value>
+  </data>
 </root>

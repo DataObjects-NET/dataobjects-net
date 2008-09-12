@@ -56,9 +56,17 @@ namespace Xtensive.Storage
     public AtomicityContext AtomicityContext { get; private set; }
 
     /// <summary>
-    /// Gets the validation context of this <see cref="Session"/>.
-    /// </summary>    
-    public ValidationContext ValidationContext { get; private set; }
+    /// Gets the current validation context.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">Can not get validation context: There is no active transaction.</exception>
+    public ValidationContext ValidationContext
+    {
+      get {
+        if (Transaction==null)
+          throw new InvalidOperationException(Strings.ExCanNotGetValidationContextThereIsNoActiveTransaction);
+        return Transaction.ValidationContext;
+      }
+    }
 
     /// <summary>
     /// Gets the active transaction.
@@ -89,8 +97,17 @@ namespace Xtensive.Storage
         Transaction = new Transaction(this);
         return (TransactionScope) Transaction.Begin();
       }
-
       return null;
+    }
+
+    /// <summary>
+    /// Opens the "inconsistent region" - the code region, in which changed entities
+    /// should just queue the validation rather then perform it immediately.
+    /// </summary>
+    /// <returns></returns>
+    public IDisposable OpenInconsistentRegion()
+    {
+      return ValidationContext.OpenInconsistentRegion();
     }
 
     /// <summary>
@@ -222,9 +239,8 @@ namespace Xtensive.Storage
     public SessionScope Activate()
     {
       if (IsActive)
-        return null;
-      else 
-        return new SessionScope(this, ValidationContext.Activate());      
+        return null;      
+      return new SessionScope(this, null);      
     }
 
     /// <inheritdoc/>
@@ -277,7 +293,6 @@ namespace Xtensive.Storage
       Handler.Initialize();
       compilationScope = Handlers.DomainHandler.CompilationContext.Activate();
       AtomicityContext = new AtomicityContext(this, AtomicityContextOptions.Undoable);
-      ValidationContext = new ValidationContext();
     }
 
     #region Dispose pattern

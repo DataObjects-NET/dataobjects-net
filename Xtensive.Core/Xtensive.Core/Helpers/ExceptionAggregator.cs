@@ -24,6 +24,7 @@ namespace Xtensive.Core.Helpers
   {
     private Action<Exception> exceptionHandler;
     private List<Exception> exceptions;
+    private string exceptionMessage;
 
     private bool isDisposed = false;
 
@@ -282,20 +283,31 @@ namespace Xtensive.Core.Helpers
     // Constructors
 
     /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     public ExceptionAggregator()
-      : this(null)
+      : this(null, null)
     {
     }
 
     /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="exceptionMessage">The message of <see cref="AggregateException"/>.</param>
+    public ExceptionAggregator(string exceptionMessage)
+      : this (null, exceptionMessage)
+    {
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="exceptionHandler">The exception handler.</param>
-    public ExceptionAggregator(Action<Exception> exceptionHandler)
+    /// <param name="exceptionMessage">The message of <see cref="AggregateException"/>.</param>
+    public ExceptionAggregator(Action<Exception> exceptionHandler, string exceptionMessage)
     {
       this.exceptionHandler = exceptionHandler;
+      this.exceptionMessage = exceptionMessage;
     }
 
     // Descructor
@@ -306,7 +318,9 @@ namespace Xtensive.Core.Helpers
     public void Dispose()
     {
       if (exceptions!=null && exceptions.Count>0) {
-        var exception = new AggregateException(exceptions);
+        Exception exception = string.IsNullOrEmpty(exceptionMessage) ? 
+          new AggregateException(exceptions) : 
+          new AggregateException(exceptionMessage, exceptions);        
         exceptions = null;
         isDisposed = true;
         throw exception;

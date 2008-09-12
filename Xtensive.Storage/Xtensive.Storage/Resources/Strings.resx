@@ -462,7 +462,13 @@
   <data name="ExEntitySetInvalidBecauseTransactionIsNotActive" xml:space="preserve">
     <value>Entity set is invalid due to current transaction is not active.</value>
   </data>
+  <data name="ExCanNotCommitTransactionValidationContextIsInInconsistentState" xml:space="preserve">
+    <value>Can not commit transaction: Validation context is in inconsistent state.</value>
+  </data>
   <data name="ExItemNotFoundInEntitySet" xml:space="preserve">
     <value>Item not found in EntitySet</value>
+  </data>
+  <data name="ExCanNotGetValidationContextThereIsNoActiveTransaction" xml:space="preserve">
+    <value>Can not get validation context: There is no active transaction.</value>
   </data>
 </root>

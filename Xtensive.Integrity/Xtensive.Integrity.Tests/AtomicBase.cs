@@ -74,47 +74,6 @@ namespace Xtensive.Integrity.Tests
       this[index] = value;
     }
 
-
-    #region AKf's experiments
-
-    [Changer]
-    [Atomic("UndoSetValue")]
-    protected void SetValue<T>(string name, T value)
-    {
-      IUndoDescriptor undoDescriptor = UndoScope.CurrentDescriptor;
-      IDictionary<string, object> undoArguments = undoDescriptor.Arguments;
-      object oldValue = null;
-      if (properties.TryGetValue(name, out oldValue))
-        undoArguments["Value"] = oldValue;
-      undoArguments["Name"] = name;
-      undoArguments["ExpectedValue"] = value;
-
-      properties[name] = value;
-
-      undoDescriptor.Complete();
-    }
-
-    private void UndoSetValue(IUndoDescriptor undoDescriptor)
-    {
-      bool validateVersions = (AtomicityScope.CurrentContext.Options & AtomicityContextOptions.Validate)!=0;
-      IDictionary<string, object> arguments = undoDescriptor.Arguments;
-      string index = (string)arguments["Name"];
-      object expectedValue;
-      arguments.TryGetValue("ExpectedValue", out expectedValue);
-      if (validateVersions && !expectedValue.Equals(this[index]))
-        throw new VersionConflictException(this, index, expectedValue, this[index]);
-
-      object value;
-      arguments.TryGetValue("Value", out value);
-      this[index] = value;
-    }
-
-    #endregion
-
-
-
-
-
     [Atomic]
     public void DummyAtomicToAtomicToUndoable(int callCount, int nestedCallCount)
     {
@@ -150,13 +109,12 @@ namespace Xtensive.Integrity.Tests
     {
       return session.ValidationContext==context;
     }
-
-    ValidationContextBase IContextBound<ValidationContextBase>.Context {
-      get {
-        return session.ValidationContext;
-      }
+    
+    public ValidationContextBase Context
+    {
+      get { return session.ValidationContext; }
     }
-
+    
     #endregion
 
     #region IAtomicityAware methods

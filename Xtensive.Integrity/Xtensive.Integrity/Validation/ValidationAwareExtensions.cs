@@ -6,8 +6,10 @@
 // Created:    2008.06.30
 
 using System;
+using Xtensive.Core;
 using Xtensive.Core.Helpers;
 using Xtensive.Integrity.Aspects;
+using Xtensive.Integrity.Resources;
 using Xtensive.Integrity.Validation.Interfaces;
 
 namespace Xtensive.Integrity.Validation
@@ -32,17 +34,22 @@ namespace Xtensive.Integrity.Validation
     /// </returns>
     public static bool Validate(this IValidationAware target, Action<IValidationAware> validator, ValidationMode mode)
     {            
-      ValidationContextBase context = ValidationScope.CurrentContext;
+      ValidationContextBase context = target.Context;
 
       bool immediate = mode==ValidationMode.Immediate || context==null || context.IsConsistent;
 
       if (immediate)
         if (validator==null)
-          target.OnValidate();
+          try {
+            target.OnValidate();
+          }
+          catch (Exception e) {
+            throw new AggregateException(Strings.ExValidationFailed, e);
+          }
         else
           validator.Invoke(target);      
       else
-        context.EnqueueValidate(target, validator);        
+        context.EnqueueValidate(target, validator);   
 
       return immediate;      
     }
@@ -97,9 +104,11 @@ namespace Xtensive.Integrity.Validation
     /// <param name="target">The object to validate.</param>
     public static void CheckConstraints(this IValidationAware target)
     {
-      using (var ea = new ExceptionAggregator())
-        foreach (var constraint in ConstraintRegistry.GetConstraints(target.GetType()))
-          ea.Execute(constraint.Check, target);
+      var constraints = ConstraintRegistry.GetConstraints(target.GetType());
+      if (constraints.Length > 0)
+        using (var ea = new ExceptionAggregator())
+          foreach (var constraint in constraints)
+            ea.Execute(constraint.Check, target);
     }
   }
 }

@@ -196,6 +196,15 @@ namespace Xtensive.Integrity.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Validation failed..
+        /// </summary>
+        internal static string ExValidationFailed {
+            get {
+                return ResourceManager.GetString("ExValidationFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Version conflict..
         /// </summary>
         internal static string ExVersionConflict {

@@ -29,13 +29,7 @@ namespace Xtensive.Integrity.Tests
 
     public IDisposable Activate()
     {
-      return new Disposable<IDisposable, IDisposable>(
-        atomicityContext.Activate(),
-        validationContext.Activate(), 
-        (disposing, d1, d2) => {
-          d2.DisposeSafely();
-          d1.DisposeSafely();
-      });
+      return atomicityContext.Activate();
     }
 
     

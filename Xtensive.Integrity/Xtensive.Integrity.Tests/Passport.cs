@@ -25,8 +25,7 @@ namespace Xtensive.Integrity.Tests
       [Trace(TraceOptions.All)]
       set {
         Person.PassportRelationManager.SetSlave(this, value, (me, newValue) => {
-          SetValue("Person", newValue);
-          //me["Person"] = newValue;
+          me["Person"] = newValue;
         });
       }
     }
@@ -39,8 +38,7 @@ namespace Xtensive.Integrity.Tests
       set {
         ArgumentValidator.EnsureArgumentNotNullOrEmpty(value, "value");
         int.Parse(value);
-        //this["Number"] = value;
-        SetValue("Number", value);
+        this["Number"] = value;
       }
     }
 
@@ -51,8 +49,7 @@ namespace Xtensive.Integrity.Tests
       [Trace(TraceOptions.All)]
       set {
         ArgumentValidator.EnsureArgumentNotNullOrEmpty(value, "value");
-        //this["IssuedBy"] = value;
-        SetValue("IssuedBy", value);
+        this["IssuedBy"] = value;
       }
     }
     

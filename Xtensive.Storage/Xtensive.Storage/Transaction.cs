@@ -31,6 +31,11 @@ namespace Xtensive.Storage
     /// </summary>
     public TransactionTemporaryData TemporaryData { get; private set; }
 
+    /// <summary>
+    /// Gets the validation context of this <see cref="Session"/>.
+    /// </summary>    
+    public ValidationContext ValidationContext { get; private set; }
+
     /// <inheritdoc/>
     protected override Integrity.Transactions.TransactionScope CreateScope()
     {
@@ -42,29 +47,30 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     protected override void OnBegin()
     {
-      Session.OnTransctionBegin();
       if (Session.Domain.Configuration.InconsistentTransactions)
-        inconsistentRegion = Session.ValidationContext.InconsistentRegion();
+        inconsistentRegion = ValidationContext.OpenInconsistentRegion();
+      Session.OnTransctionBegin();
     }
 
     /// <inheritdoc/>
     protected override void OnCommit()
     {
-        try {
-          inconsistentRegion.DisposeSafely();
-        }
-        catch {
-          OnRollback();
-          throw;
-        }
-        Session.OnTransactionCommit();
+      try {
+        inconsistentRegion.DisposeSafely();
+        if (!ValidationContext.IsConsistent)
+          throw new InvalidOperationException(Strings.ExCanNotCommitTransactionValidationContextIsInInconsistentState);
+      }
+      catch {
+        OnRollback();
+        throw;
+      }      
+      Session.OnTransactionCommit();
     }
 
     /// <inheritdoc/>
     protected override void OnRollback()
     {
-      try {
-        Session.ValidationContext.ClearValidationQueue();
+      try {        
         inconsistentRegion.DisposeSafely();
       }
       finally {
@@ -130,6 +136,7 @@ namespace Xtensive.Storage
     {
       Session = session;      
       TemporaryData = new TransactionTemporaryData();
+      ValidationContext = new ValidationContext();
     }
   }
 } 
