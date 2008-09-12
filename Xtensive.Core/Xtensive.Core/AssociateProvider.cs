@@ -80,7 +80,7 @@ namespace Xtensive.Core
     protected void AddHighPriorityLocation(Assembly assembly, string nameSpace, bool overriding)
     {
       lock (_lock) {
-        List<Pair<Assembly, string>> newHighPriorityLocations = new List<Pair<Assembly, string>>(highPriorityLocations);
+        var newHighPriorityLocations = new List<Pair<Assembly, string>>(highPriorityLocations);
         if (overriding)
           newHighPriorityLocations.Insert(0, new Pair<Assembly, string>(assembly, nameSpace));
         else
@@ -209,10 +209,10 @@ namespace Xtensive.Core
     /// location isn't listed in <see cref="HighPriorityLocations"/> list.</returns>
     protected int GetAssociateLocationPosition<TAssociate>(TAssociate associate)
     {
-      Pair<Assembly, string> entry = new Pair<Assembly, string>(
+      var entry = new Pair<Assembly, string>(
         associate.GetType().Assembly,
         associate.GetType().Namespace);
-      List<Pair<Assembly, string>> hpl = HighPriorityLocations;
+      var hpl = HighPriorityLocations;
       for (int i = 0; i < hpl.Count; i++)
         if (AdvancedComparerStruct<Pair<Assembly, string>>.Default.Equals(hpl[i], entry))
           return i;
@@ -227,12 +227,13 @@ namespace Xtensive.Core
     /// <param name="foundFor">The type associate was found for.</param>
     /// <returns>Newly created instance of associate, if found;
     /// otherwise, <see langword="null"/>.</returns>
+    /// <exception cref="InvalidOperationException">Recursive associate lookup.</exception>
     protected virtual TAssociate CreateAssociate<TKey, TAssociate>(out Type foundFor)
       where TAssociate : class
     {
       if (inProgress == null)
         inProgress = new SetSlim<KeyValuePair<Type, Type>>();
-      KeyValuePair<Type, Type> progressionMark = new KeyValuePair<Type, Type>(typeof (TKey), typeof (TAssociate));
+      var progressionMark = new KeyValuePair<Type, Type>(typeof (TKey), typeof (TAssociate));
       if (inProgress.Contains(progressionMark))
         throw new InvalidOperationException(Strings.ExRecursiveAssociateLookupDetected);
       inProgress.Add(progressionMark);
