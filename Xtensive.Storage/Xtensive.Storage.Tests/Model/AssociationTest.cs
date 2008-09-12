@@ -550,12 +550,12 @@ namespace Xtensive.Storage.Tests.Model
           Assert.IsNotNull(g1.As);
           Assert.AreEqual(0, a1.ManyToMany.Count);
           Assert.AreEqual(0, g1.As.Count);
-          a1.ManyToMany.Add(g1);
           a1.ManyToMany.Add(g2);
-          session.Session.Persist();
+          a1.ManyToMany.Add(g1);
+//          session.Session.Persist();
           Assert.AreEqual(2, a1.ManyToMany.Count);
-          Assert.AreEqual(1, g1.As.Count);
-          Assert.AreEqual(1, g2.As.Count);
+          Assert.AreEqual(1, g1.As.Count, "G1");
+          Assert.AreEqual(1, g2.As.Count, "G2");
           a1.ManyToMany.Remove(g1);
           a1.ManyToMany.Remove(g2);
           Assert.IsNotNull(a1.ManyToMany);

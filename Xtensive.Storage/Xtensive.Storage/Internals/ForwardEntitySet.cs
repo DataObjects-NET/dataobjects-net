@@ -7,11 +7,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
+using FieldInfo=Xtensive.Storage.Model.FieldInfo;
 
 namespace Xtensive.Storage.Internals
 {
@@ -26,8 +28,7 @@ namespace Xtensive.Storage.Internals
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
       if (!Contains(item)) {
-        Key newEntityKey = Key.Get(typeof(TRef), CombineKey(item.Key));
-        newEntityKey.Resolve(); // Create entity
+        typeof(TRef).GetConstructor(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, new[] { typeof(Tuple) }, null).Invoke(new object[] { CombineKey(item.Key) });
         if (Field.Association.Multiplicity == Multiplicity.ManyToMany) {
           //update paired EntitySet
           FieldInfo referencingField = Field.Association.PairTo.ReferencingField;
@@ -35,6 +36,7 @@ namespace Xtensive.Storage.Internals
           var pairedEntitySet = accessor.GetValue(item, referencingField);
           pairedEntitySet.AddToCache(((Entity)Owner).Key);
         }
+        AddToCache(item.Key);
         return true;
       }
       return false;
@@ -44,19 +46,21 @@ namespace Xtensive.Storage.Internals
     public override bool Remove(T1 item)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
-      if (!Contains(item))
-        return false;
-      Key newEntityKey = Key.Get(typeof(TRef), CombineKey(item.Key));
-      var reference = newEntityKey.Resolve();
-      reference.Remove();
-      if (Field.Association.Multiplicity == Multiplicity.ManyToMany) {
-        //update paired EntitySet
-        FieldInfo referencingField = Field.Association.PairTo.ReferencingField;
-        var accessor = referencingField.GetAccessor<EntitySet>();
-        var pairedEntitySet = accessor.GetValue(item, referencingField);
-        pairedEntitySet.RemoveFromCache(((Entity)Owner).Key);
+      if (Contains(item)) {
+        Key entityKey = Key.Get(typeof(TRef), CombineKey(item.Key));
+        var referenceEntity = (TRef)entityKey.Resolve(); // Resolve entity
+        referenceEntity.Remove();
+        if (Field.Association.Multiplicity == Multiplicity.ManyToMany) {
+          //update paired EntitySet
+          FieldInfo referencingField = Field.Association.PairTo.ReferencingField;
+          var accessor = referencingField.GetAccessor<EntitySet>();
+          var pairedEntitySet = accessor.GetValue(item, referencingField);
+          pairedEntitySet.RemoveFromCache(((Entity)Owner).Key);
+        }
+        RemoveFromCache(item.Key);
+        return true;
       }
-      return true;
+      return false;
     }
 
     public override bool Contains(T1 item)

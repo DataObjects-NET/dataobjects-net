@@ -213,17 +213,19 @@ namespace Xtensive.Storage
 
     internal override void AddToCache(Key key)
     {
-      EnsureInitialized();
-      count++;
-      Cache.Add(new CachedKey(key));
-      IncreaseVersion();
+      if (EnsureInitialized()) {
+        count++;
+        Cache.Add(new CachedKey(key));
+        IncreaseVersion();
+      }
     }
 
     internal override void RemoveFromCache(Key key)
     {
-      EnsureInitialized();
-      count--;
-      Cache.Remove(key);
+      if(EnsureInitialized()) {
+        count--;
+        Cache.Remove(key);
+      }
       IncreaseVersion();
     }
 
@@ -248,12 +250,15 @@ namespace Xtensive.Storage
       return rsResult;
     }
 
-    protected void EnsureInitialized()
+    protected bool EnsureInitialized()
     {
       EnusureTransaction();
       if (!count.HasValue) {
         count = GetRecordSet().Count();
+        IncreaseVersion();
+        return false;
       }
+      return true;
     }
 
     protected void EnsureVersion(long currentVersion)

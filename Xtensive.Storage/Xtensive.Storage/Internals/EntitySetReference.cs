@@ -19,5 +19,11 @@ namespace Xtensive.Storage.Internals
 
     [Field]
     public T2 Entity2 { get; set; }
+
+    public EntitySetReference(Tuple tuple)
+      :base(tuple)
+    {
+      
+    }
   }
 }
