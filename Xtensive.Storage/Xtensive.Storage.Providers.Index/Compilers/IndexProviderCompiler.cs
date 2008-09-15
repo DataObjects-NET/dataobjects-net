@@ -9,32 +9,31 @@ using System.Linq;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
-using Xtensive.Storage.Rse.Providers.Compilable;
 using Xtensive.Storage.Rse.Providers.InheritanceSupport;
 
 namespace Xtensive.Storage.Providers.Index.Compilers
 {
-  public class IndexProviderCompiler : TypeCompiler<IndexProvider>
+  public class IndexProviderCompiler : TypeCompiler<Rse.Providers.Compilable.IndexProvider>
   {
     private readonly HandlerAccessor handlerAccessor;
 
-    protected override ExecutableProvider Compile(IndexProvider provider, params ExecutableProvider[] compiledSources)
+    protected override ExecutableProvider Compile(Rse.Providers.Compilable.IndexProvider provider, params ExecutableProvider[] compiledSources)
     {
       IndexInfo indexInfo = provider.Index.Resolve(handlerAccessor.Domain.Model);
       ExecutableProvider result = CompileInternal(provider, indexInfo);
       return result;
     }
 
-    private ExecutableProvider CompileInternal(IndexProvider provider, IndexInfo indexInfo)
+    private ExecutableProvider CompileInternal(Rse.Providers.Compilable.IndexProvider provider, IndexInfo indexInfo)
     {
       var handler = (DomainHandler)handlerAccessor.DomainHandler;
       ExecutableProvider result;
       if (!indexInfo.IsVirtual)
-        result = new Rse.Providers.Executable.IndexProvider(provider, provider.Index, handler.GetRealIndex);
+        result = new IndexProvider(provider, provider.Index, handler.GetRealIndex);
       else {
         var firstUnderlyingIndex = indexInfo.UnderlyingIndexes.First();
         if ((indexInfo.Attributes & IndexAttributes.Filtered)!=0) {
-          ExecutableProvider source = CompileInternal(IndexProvider.Get(firstUnderlyingIndex), firstUnderlyingIndex);
+          ExecutableProvider source = CompileInternal(Rse.Providers.Compilable.IndexProvider.Get(firstUnderlyingIndex), firstUnderlyingIndex);
           int columnIndex;
           if (indexInfo.IsPrimary) {
             FieldInfo typeIdField = indexInfo.ReflectedType.Fields[NameBuilder.TypeIdFieldName];
@@ -47,7 +46,7 @@ namespace Xtensive.Storage.Providers.Index.Compilers
           result = new FilterInheritorsProvider(provider, source, columnIndex, handlerAccessor.Domain.Model.Types.Count, typeIdList.ToArray());
         }
         else if ((indexInfo.Attributes & IndexAttributes.Union)!=0) {
-          ExecutableProvider[] sourceProviders = indexInfo.UnderlyingIndexes.Select(index => CompileInternal(IndexProvider.Get(index), index)).ToArray();
+          ExecutableProvider[] sourceProviders = indexInfo.UnderlyingIndexes.Select(index => CompileInternal(Rse.Providers.Compilable.IndexProvider.Get(index), index)).ToArray();
           if (sourceProviders.Length == 1)
             result = sourceProviders[0];
           else
@@ -55,10 +54,10 @@ namespace Xtensive.Storage.Providers.Index.Compilers
         }
         else {
           var baseIndexes = new List<IndexInfo>(indexInfo.UnderlyingIndexes);
-          ExecutableProvider rootProvider = CompileInternal(IndexProvider.Get(firstUnderlyingIndex), firstUnderlyingIndex);
+          ExecutableProvider rootProvider = CompileInternal(Rse.Providers.Compilable.IndexProvider.Get(firstUnderlyingIndex), firstUnderlyingIndex);
           var inheritorsProviders = new ExecutableProvider[baseIndexes.Count - 1];
           for (int i = 1; i < baseIndexes.Count; i++)
-            inheritorsProviders[i - 1] = CompileInternal(IndexProvider.Get(baseIndexes[i]), baseIndexes[i]);
+            inheritorsProviders[i - 1] = CompileInternal(Rse.Providers.Compilable.IndexProvider.Get(baseIndexes[i]), baseIndexes[i]);
 
           result = new JoinInheritorsProvider(provider, baseIndexes[0].IncludedColumns.Count, rootProvider, inheritorsProviders);
         }

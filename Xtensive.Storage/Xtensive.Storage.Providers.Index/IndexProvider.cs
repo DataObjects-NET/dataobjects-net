@@ -9,8 +9,10 @@ using System.Collections.Generic;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
+using Xtensive.Storage.Rse;
+using Xtensive.Storage.Rse.Providers;
 
-namespace Xtensive.Storage.Rse.Providers.Executable
+namespace Xtensive.Storage.Providers.Index
 {
   /// <summary>
   /// General index provider for all indexing storage handlers.
@@ -24,13 +26,15 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     /// <inheritdoc/>
     public override T GetService<T>()
     {
+      Session.Current.Persist();
       var index = indexResolver(indexDescriptor);
       var result = index as T;
       return result;
     }
 
-    protected internal override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
+    protected override IEnumerable<Tuple> OnEnumerate(Rse.Providers.EnumerationContext context)
     {
+      Session.Current.Persist();
       var index = indexResolver(indexDescriptor);
       return index;
     }

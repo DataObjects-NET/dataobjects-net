@@ -48,7 +48,7 @@ namespace Xtensive.Storage.Providers.Index
     {
       var handler = (DomainHandler)Handlers.DomainHandler;
       IndexInfo primaryIndex = data.Type.Indexes.PrimaryIndex;
-      var indexProvider = IndexProvider.Get(primaryIndex);
+      var indexProvider = Rse.Providers.Compilable.IndexProvider.Get(primaryIndex);
       SeekResult<Tuple> result;
       using (EnumerationScope.Open()) {
         result = indexProvider.GetService<IOrderedEnumerable<Tuple, Tuple>>().Seek(new Ray<IEntire<Tuple>>(Entire<Tuple>.Create(data.Key.Tuple)));
@@ -73,7 +73,7 @@ namespace Xtensive.Storage.Providers.Index
     {
       var handler = (DomainHandler)Handlers.DomainHandler;
       IndexInfo primaryIndex = data.Type.Indexes.PrimaryIndex;
-      var indexProvider = IndexProvider.Get(primaryIndex);
+      var indexProvider = Rse.Providers.Compilable.IndexProvider.Get(primaryIndex);
       SeekResult<Tuple> result;
       using (EnumerationScope.Open()) {
         result = indexProvider.GetService<IOrderedEnumerable<Tuple, Tuple>>().Seek(new Ray<IEntire<Tuple>>(Entire<Tuple>.Create(data.Key.Tuple)));
