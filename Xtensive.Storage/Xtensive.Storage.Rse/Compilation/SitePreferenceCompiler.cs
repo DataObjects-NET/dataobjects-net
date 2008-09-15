@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
@@ -24,6 +25,11 @@ namespace Xtensive.Storage.Rse.Compilation
     /// Gets the client side compiler.
     /// </summary>
     public ICompiler ClientCompiler { get; private set; }
+
+    UrlInfo ICompiler.Location
+    {
+      get { throw new NotSupportedException(); }
+    }
 
     /// <inheritdoc/>
     public ExecutableProvider Compile(CompilableProvider provider, ExecutableProvider[] sources)
@@ -44,7 +50,11 @@ namespace Xtensive.Storage.Rse.Compilation
           return ServerCompiler.Compile(provider, sources);
         }
       }
-      return ServerCompiler.Compile(provider, sources);
+      var serverSources = sources.Count(p => p.Location == ServerCompiler.Location);
+      var clientSources = sources.Count(p => p.Location == ClientCompiler.Location);
+      if (serverSources >= clientSources)
+        return ServerCompiler.Compile(provider, sources);
+      return ClientCompiler.Compile(provider, sources);
     }
 
     bool ICompiler.IsCompatible(ExecutableProvider provider)

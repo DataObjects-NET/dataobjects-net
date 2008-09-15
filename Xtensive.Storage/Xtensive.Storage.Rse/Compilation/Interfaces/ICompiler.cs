@@ -4,6 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2008.07.15
 
+using Xtensive.Core;
 using Xtensive.Storage.Rse.Providers;
 
 namespace Xtensive.Storage.Rse.Compilation
@@ -43,5 +44,10 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <returns>Wrapping provider compatible with this compiler;
     /// <see langword="null"/>, if wrapping is not possible.</returns>
     ExecutableProvider ToCompatible(ExecutableProvider provider);
+
+    /// <summary>
+    /// Gets execution site location.
+    /// </summary>
+    UrlInfo Location { get; }
   }
 }

@@ -4,6 +4,7 @@
 // Created by: Alexey Kochetov
 // Created:    2008.07.11
 
+using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
@@ -34,6 +35,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
     ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     public Compiler(HandlerAccessor handlers)
+      : base(handlers.Domain.Configuration.ConnectionInfo)
     {
       Handlers = handlers;
     }

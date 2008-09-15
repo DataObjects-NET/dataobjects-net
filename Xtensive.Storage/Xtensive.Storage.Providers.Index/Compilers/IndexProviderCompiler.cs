@@ -71,7 +71,7 @@ namespace Xtensive.Storage.Providers.Index.Compilers
     public IndexProviderCompiler(Rse.Compilation.Compiler provider)
       : base(provider)
     {
-      handlerAccessor = ((Compiler)provider).HandlerAccessor;
+      handlerAccessor = ((Compiler)provider).Handlers;
     }
   }
 }

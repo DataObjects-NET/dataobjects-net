@@ -4,6 +4,7 @@
 // Created by: Alexey Kochetov
 // Created:    2008.07.08
 
+using Xtensive.Core;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
 
@@ -11,7 +12,7 @@ namespace Xtensive.Storage.Providers.Index.Compilers
 {
   internal sealed class Compiler : Rse.Compilation.Compiler
   {
-    public HandlerAccessor HandlerAccessor { get; private set; }
+    public HandlerAccessor Handlers { get; private set; }
 
     public override bool IsCompatible(ExecutableProvider provider)
     {
@@ -26,9 +27,10 @@ namespace Xtensive.Storage.Providers.Index.Compilers
 
     // Constructor
 
-    public Compiler(HandlerAccessor handlerAccessor)
+    public Compiler(HandlerAccessor handlers)
+      : base(handlers.Domain.Configuration.ConnectionInfo)
     {
-      HandlerAccessor = handlerAccessor;
+      Handlers = handlers;
     }    
   }
 }

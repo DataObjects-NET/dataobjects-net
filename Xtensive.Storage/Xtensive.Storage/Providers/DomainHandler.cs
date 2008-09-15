@@ -82,7 +82,7 @@ namespace Xtensive.Storage.Providers
       Domain = BuildingContext.Current.Domain;
       ClientCompiler = new DefaultCompiler();
       Compiler = BuildCompiler();
-      CompilationContext = new CompilationContext(Compiler);
+      CompilationContext = new CompilationContext(new SitePreferenceCompiler(Compiler, ClientCompiler));
     }
   }
 }

@@ -4,6 +4,7 @@
 // Created by: Alexey Kochetov
 // Created:    2008.07.08
 
+using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Executable;
@@ -27,5 +28,15 @@ namespace Xtensive.Storage.Rse.Compilation
       return new StoredProvider(new Providers.Compilable.StoredProvider(provider.Origin), provider);
     }
 
+
+    // Constructor
+
+    /// <summary>
+    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    public DefaultCompiler()
+      : base(DefaultLocation)
+    {
+    }
   }
 }

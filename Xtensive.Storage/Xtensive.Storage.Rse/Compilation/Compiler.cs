@@ -22,11 +22,23 @@ namespace Xtensive.Storage.Rse.Compilation
   public abstract class Compiler : AssociateProvider,
     ICompiler
   {
+    private static readonly UrlInfo defaultLocation = new UrlInfo("rse://localhost/");
     private readonly ThreadSafeDictionary<Type, TypeCompiler> typeCompliers = 
       ThreadSafeDictionary<Type, TypeCompiler>.Create(new object());
 
 
+    /// <summary>
+    /// Gets the default location.
+    /// </summary>
+    public static UrlInfo DefaultLocation
+    {
+      get { return defaultLocation; }
+    }
+
     #region ICompiler methods
+
+    /// <inheritdoc/>
+    public UrlInfo Location { get; private set; }
 
     /// <inheritdoc/>
     ExecutableProvider ICompiler.Compile(CompilableProvider provider, ExecutableProvider[] sources)
@@ -40,6 +52,7 @@ namespace Xtensive.Storage.Rse.Compilation
       if (sources.Any(s => s == null))
         return null;
       var ep = c.Compile(provider, sources.ToArray());
+      ep.Location = Location;
       return IsCompatible(ep) ? ep : ToCompatible(ep);
     }
 
@@ -117,8 +130,9 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true" />
     /// </summary>
-    protected Compiler()
+    protected Compiler(UrlInfo location)
     {
+      Location = location;
       TypeSuffixes = new[] { "Compiler" };
       Type t = GetType();
       Type baseType = typeof (Compiler);
