@@ -22,7 +22,7 @@ namespace Xtensive.Storage.Providers.Sql
   {
     private SqlScalarRequest nextRequest;
     private readonly ISqlCompileUnit sqlNext;
-    private readonly ISqlCompileUnit sqlCreate;
+    private readonly ISqlCompileUnit sqlInitialize;
 
     /// <inheritdoc/>
     protected override void CacheNext()
@@ -64,9 +64,9 @@ namespace Xtensive.Storage.Providers.Sql
       DomainHandler dh = (DomainHandler) Handlers.DomainHandler;
       dh.Compile(nextRequest);
 
-      if (sqlCreate!=null) {
+      if (sqlInitialize!=null) {
         Sql.SessionHandler sh = (SessionHandler) Handlers.SessionHandler;
-        sh.ExecuteNonQuery(sqlCreate);
+        sh.ExecuteNonQuery(sqlInitialize);
       }
     }
 
@@ -79,12 +79,12 @@ namespace Xtensive.Storage.Providers.Sql
     /// <param name="hierarchy">The hierarchy this instance will serve.</param>
     /// <param name="cacheSize">Size of the cache.</param>
     /// <param name="sqlNext">The <see cref="ISqlCompileUnit"/> statement that will be used for fetching next portion of unique values from database.</param>
-    /// <param name="sqlCreate">The <see cref="ISqlCompileUnit"/> statement that will be used for underlying source of unique sequence creation in database.</param>
-    public SqlCachingGenerator(HierarchyInfo hierarchy, int cacheSize, ISqlCompileUnit sqlNext, ISqlCompileUnit sqlCreate)
+    /// <param name="sqlInitialize">The <see cref="ISqlCompileUnit"/> statement that will be used for underlying source of unique sequence creation in database.</param>
+    public SqlCachingGenerator(HierarchyInfo hierarchy, int cacheSize, ISqlCompileUnit sqlNext, ISqlCompileUnit sqlInitialize)
       : base(hierarchy, cacheSize)
     {
       this.sqlNext = sqlNext;
-      this.sqlCreate = sqlCreate;
+      this.sqlInitialize = sqlInitialize;
     }
   }
 }
