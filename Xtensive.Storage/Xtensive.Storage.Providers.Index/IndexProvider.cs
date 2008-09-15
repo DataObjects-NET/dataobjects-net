@@ -26,7 +26,7 @@ namespace Xtensive.Storage.Providers.Index
     /// <inheritdoc/>
     public override T GetService<T>()
     {
-      Session.Current.Persist();
+//      Session.Current.Persist();
       var index = indexResolver(indexDescriptor);
       var result = index as T;
       return result;

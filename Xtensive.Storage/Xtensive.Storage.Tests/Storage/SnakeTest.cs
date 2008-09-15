@@ -578,6 +578,66 @@ namespace Xtensive.Storage.Tests.Storage
 
 
     [Test]
+    public void ExecutionSiteOptionsTest()
+    {
+      const int snakesCount = 1000;
+      const int creaturesCount = 1000;
+      const int lizardsCount = 1000;
+
+      TestFixtureTearDown();
+      TestFixtureSetUp();
+
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var session = Session.Current;
+          for (int i = 0; i < snakesCount; i++) {
+            Snake s = new Snake();
+            s.Name = "Kaa" + i;
+            s.Length = i;
+          }
+          for (int j = 0; j < creaturesCount; j++) {
+            Creature c = new Creature();
+            c.Name = "Creature" + j;
+          }
+          for (int i = 0; i < lizardsCount; i++) {
+            Lizard l = new Lizard();
+            l.Name = "Lizard" + i;
+            l.Color = "Color" + i;
+          }
+
+          Tuple from = Tuple.Create(21);
+          Tuple to = Tuple.Create(120);
+          Tuple fromName = Tuple.Create("Kaa");
+          Tuple toName = Tuple.Create("Kaa900");
+          TypeInfo snakeType = session.Domain.Model.Types[typeof (Snake)];
+          RecordSet rsSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordSet();
+
+          using (new Measurement("Query performance")) {
+            RecordSet rsSnakeName = snakeType.Indexes.GetIndex("Name").ToRecordSet();
+            rsSnakeName = rsSnakeName
+              .Range(fromName, toName)
+              .OrderBy(OrderBy.Asc(rsSnakeName.IndexOf("ID")))
+              .Alias("NameIndex");
+
+            var snakesRse = rsSnakePrimary
+              .Range(from, to)
+              .Join(rsSnakeName, new Pair<int>(rsSnakePrimary.IndexOf("ID"), rsSnakeName.IndexOf("NameIndex.ID")))
+              .ExecuteAt(ExecutionOptions.Client)
+              .Filter(tuple => tuple.GetValue<int>(rsSnakePrimary.IndexOf("Length")) >= 100)
+              .OrderBy(OrderBy.Desc(rsSnakePrimary.IndexOf("Name")))
+              .Skip(5)
+              .Take(50)
+              .ToEntities<Snake>();
+
+            Assert.AreEqual(15, snakesRse.Count());
+          }
+          t.Complete();
+        }        
+      }
+    }
+
+
+    [Test]
     public void CachedQueryTest()
     {
       const int snakesCount = 1000;

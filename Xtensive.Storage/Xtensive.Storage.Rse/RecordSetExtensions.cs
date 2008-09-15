@@ -161,5 +161,10 @@ namespace Xtensive.Storage.Rse
     {
       return new StoredProvider(recordSet.Provider, scope, name).Result;
     }
+
+    public static RecordSet ExecuteAt(this RecordSet recordSet, ExecutionOptions options)
+    {
+      return new ExecutionSiteProvider(recordSet.Provider, options).Result;
+    }
   }
 }
