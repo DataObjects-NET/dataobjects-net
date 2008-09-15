@@ -211,18 +211,20 @@ namespace Xtensive.Storage
       IncreaseVersion();
     }
 
-    internal override void AddToCache(Key key)
+    internal override void AddToCache(Key key, bool recount)
     {
-      if (EnsureInitialized()) {
+      bool reInitialized = EnsureInitialized();
+      if (recount || reInitialized) {
         count++;
         Cache.Add(new CachedKey(key));
-        IncreaseVersion();
       }
+      IncreaseVersion();
     }
 
-    internal override void RemoveFromCache(Key key)
+    internal override void RemoveFromCache(Key key, bool recount)
     {
-      if(EnsureInitialized()) {
+      bool reInitialized = EnsureInitialized();
+      if(recount || reInitialized) {
         count--;
         Cache.Remove(key);
       }

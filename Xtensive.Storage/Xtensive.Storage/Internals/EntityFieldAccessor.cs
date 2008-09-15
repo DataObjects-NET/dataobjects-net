@@ -74,11 +74,11 @@ namespace Xtensive.Storage.Internals
           if (IsResolved(obj.Session, originalKey)) {
             var originalValue = originalKey.Resolve();
             var entitySetFieldAccessor = pairedAssociation.ReferencingField.GetAccessor<EntitySet>();
-            entitySetFieldAccessor.GetValue(originalValue, pairedAssociation.ReferencingField).RemoveFromCache(((Entity)obj).Key);
+            entitySetFieldAccessor.GetValue(originalValue, pairedAssociation.ReferencingField).RemoveFromCache(((Entity)obj).Key, true);
           }
           if (IsResolved(obj.Session, newKey)) {
             var entitySetFieldAccessor = pairedAssociation.ReferencingField.GetAccessor<EntitySet>();
-            entitySetFieldAccessor.GetValue(newValue, pairedAssociation.ReferencingField).AddToCache(((Entity)obj).Key);
+            entitySetFieldAccessor.GetValue(newValue, pairedAssociation.ReferencingField).AddToCache(((Entity)obj).Key, true);
           }
           break;
         default:

@@ -33,9 +33,9 @@ namespace Xtensive.Storage.Internals
           FieldInfo referencingField = Field.Association.PairTo.ReferencingField;
           var accessor = referencingField.GetAccessor<EntitySet>();
           var pairedEntitySet = accessor.GetValue(item, referencingField);
-          pairedEntitySet.AddToCache(((Entity) Owner).Key);
+          pairedEntitySet.AddToCache(((Entity)Owner).Key, false);
         }
-        AddToCache(item.Key);
+        AddToCache(item.Key, false);
         return true;
       }
       return false;
@@ -53,9 +53,9 @@ namespace Xtensive.Storage.Internals
           FieldInfo referencingField = Field.Association.PairTo.ReferencingField;
           var accessor = referencingField.GetAccessor<EntitySet>();
           var pairedEntitySet = accessor.GetValue(item, referencingField);
-          pairedEntitySet.RemoveFromCache(((Entity) Owner).Key);
+          pairedEntitySet.RemoveFromCache(((Entity) Owner).Key, false);
         }
-        RemoveFromCache(item.Key);
+        RemoveFromCache(item.Key, false);
         return true;
       }
       return false;

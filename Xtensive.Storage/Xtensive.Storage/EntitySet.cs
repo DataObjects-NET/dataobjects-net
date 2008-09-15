@@ -44,9 +44,9 @@ namespace Xtensive.Storage
 
     internal abstract void ClearCache();
 
-    internal abstract void AddToCache(Key key);
+    internal abstract void AddToCache(Key key, bool mandatoryProcess);
 
-    internal abstract void RemoveFromCache(Key key);
+    internal abstract void RemoveFromCache(Key key, bool refresh);
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>

@@ -24,7 +24,7 @@ namespace Xtensive.Storage.Tests.Model.Association
   public abstract class Root : Entity
   {
     [Field]
-    public int Id { get; private set; }
+    public Guid Id { get; private set; }
   }
 
   public class A : Root
@@ -183,7 +183,7 @@ namespace Xtensive.Storage.Tests.Model
           AssertEx.Throws<Exception>(()=>enumerator.MoveNext());  
           Assert.AreEqual(4, a.ManyToOne.Count()); // Enumerate through recordset request
           foreach (F f in a.ManyToOne) {
-            a.ManyToOne.Contains(f.Key); // Enumerate through recordset request
+            // a.ManyToOne.Contains(f.Key); // Enumerate through recordset request
             a.ManyToOne.Contains(f); // Enumerate through recordset request
           }
         }
@@ -531,6 +531,20 @@ namespace Xtensive.Storage.Tests.Model
     }
 
     [Test]
+    public void EntitySetMultipleAddRemove(){
+      using (var session = Domain.OpenSession()) {
+        using (var transaction = Transaction.Open()) {
+          A a1 = new A();
+          A a2 = new A();
+          G g1 = new G();
+          g1.As.Add(a1);
+          g1.As.Add(a1);
+          Assert.AreEqual(1, g1.As.Count);
+        }
+      }
+    }
+
+    [Test]
     public void ManyToMany()
     {
       using (var session = Domain.OpenSession()) {
@@ -563,6 +577,19 @@ namespace Xtensive.Storage.Tests.Model
           Assert.AreEqual(0, a1.ManyToMany.Count);
           Assert.AreEqual(0, g1.As.Count);
           Assert.AreEqual(0, g2.As.Count);
+          session.Session.Persist();
+          a1.ManyToMany.Add(g1);
+          a2.ManyToMany.Add(g1);
+          a1.ManyToMany.Add(g2);
+          a1.ManyToMany.Add(g2);
+          a1.ManyToMany.Add(g1);
+          a1.ManyToMany.Add(g1);
+          g1.As.Add(a1);
+          g1.As.Add(a1);
+          Assert.AreEqual(2, a1.ManyToMany.Count);
+          Assert.AreEqual(2, a2.ManyToMany.Count);
+          Assert.AreEqual(2, g1.As.Count);
+          Assert.AreEqual(2, g2.As.Count);
         }
       }
     }
