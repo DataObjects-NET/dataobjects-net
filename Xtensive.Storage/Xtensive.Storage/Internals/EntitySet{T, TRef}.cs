@@ -12,19 +12,18 @@ using Xtensive.Core;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Model;
-using Xtensive.Storage.Rse;
 using FieldInfo=Xtensive.Storage.Model.FieldInfo;
 
 namespace Xtensive.Storage.Internals
 {
-  internal class ForwardEntitySet<T1, T2, TRef> : EntitySet<T1>
-    where T1 : Entity
-    where T2 : Entity
-    where TRef : EntitySetReference<T1, T2>
+  internal class EntitySet<T, TRef> : EntitySet<T>
+    where T : Entity
+    where TRef : Entity
   {
     private readonly CombineTransform combineTransform;
+    private bool isReverse;
 
-    public override bool Add(T1 item)
+    public override bool Add(T item)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
       if (!Contains(item)) {
@@ -43,7 +42,7 @@ namespace Xtensive.Storage.Internals
     }
 
 
-    public override bool Remove(T1 item)
+    public override bool Remove(T item)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
       if (Contains(item)) {
@@ -63,7 +62,7 @@ namespace Xtensive.Storage.Internals
       return false;
     }
 
-    public override bool Contains(T1 item)
+    public override bool Contains(T item)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
       return Contains(item.Key);
@@ -71,26 +70,33 @@ namespace Xtensive.Storage.Internals
 
     private Tuple CombineKey(Key key)
     {
+      if (isReverse)
+        return combineTransform.Apply(TupleTransformType.TransformedTuple, key.Tuple, ((Entity) Owner).Key.Tuple);
       return combineTransform.Apply(TupleTransformType.TransformedTuple, key.Tuple, ((Entity)Owner).Key.Tuple);
     }
 
     protected override IndexInfo GetIndex()
     {
+      if (isReverse)
+        return Field.ReflectedType.Model.Types[typeof (TRef)].Indexes.First(indexInfo => indexInfo.IsSecondary);
       return Field.ReflectedType.Model.Types[typeof(TRef)].Indexes.Where(indexInfo => indexInfo.IsSecondary).Skip(1).First();
     }
 
     protected override MapTransform GetKeyTransform()
     {
       throw new NotImplementedException();
-      var keyTupleDescriptor = Owner.Session.Domain.Model.Types[typeof(T1)].Hierarchy.KeyTupleDescriptor;
+      var keyTupleDescriptor = Owner.Session.Domain.Model.Types[typeof(T)].Hierarchy.KeyTupleDescriptor;
       IEnumerable<int> columnIndexes = Index.Columns.Where(columnInfo => columnInfo.IsPrimaryKey).Select(columnInfo => Index.Columns.IndexOf(columnInfo));
       return new MapTransform(true, keyTupleDescriptor, columnIndexes.ToArray());
     }
 
-    public ForwardEntitySet(Persistent owner, FieldInfo field)
+    public EntitySet(Persistent owner, FieldInfo field, bool isReverse)
       : base(owner, field)
     {
-      combineTransform = new CombineTransform(true, field.ReflectedType.Hierarchy.KeyTupleDescriptor, ((Entity)owner).Key.Tuple.Descriptor);
+      this.isReverse = isReverse;
+      combineTransform = isReverse 
+        ? new CombineTransform(true, ((Entity)owner).Key.Tuple.Descriptor, field.ReflectedType.Hierarchy.KeyTupleDescriptor) 
+        : new CombineTransform(true, field.ReflectedType.Hierarchy.KeyTupleDescriptor, ((Entity)owner).Key.Tuple.Descriptor);
     }
   }
 }

@@ -28,12 +28,12 @@ namespace Xtensive.Storage
       }
       if (association.IsMaster) {
         // direct
-        Type directEntitySetType = typeof (ForwardEntitySet<,,>).MakeGenericType(type, obj.GetType(), association.EntityType);
-        return (IFieldHandler)directEntitySetType.InvokeMember("", BindingFlags.CreateInstance, null, null, new object[] { obj, field });
+        Type directEntitySetType = typeof (EntitySet<,>).MakeGenericType(type, association.EntityType);
+        return (IFieldHandler)directEntitySetType.InvokeMember("", BindingFlags.CreateInstance, null, null, new object[] { obj, field, false });
       }
       // reverse
-      Type reverseEntitySetType = typeof(ReverseEntitySet<,,>).MakeGenericType(type, obj.GetType(), association.MasterAssociation.EntityType);
-      return (IFieldHandler)reverseEntitySetType.InvokeMember("", BindingFlags.CreateInstance, null, null, new object[] { obj, field });
+      Type reverseEntitySetType = typeof(EntitySet<,>).MakeGenericType(type, association.MasterAssociation.EntityType);
+      return (IFieldHandler)reverseEntitySetType.InvokeMember("", BindingFlags.CreateInstance, null, null, new object[] { obj, field, true });
     }
 
     /// <inheritdoc/>
