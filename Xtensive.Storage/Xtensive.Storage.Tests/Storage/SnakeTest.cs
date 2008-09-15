@@ -379,7 +379,6 @@ namespace Xtensive.Storage.Tests.Storage
             l.Name = "Lizard" + i;
             l.Color = "Color" + i;
           }
-          t.Complete();
         }
       }
 

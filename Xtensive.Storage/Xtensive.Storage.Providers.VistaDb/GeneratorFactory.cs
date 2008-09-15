@@ -32,7 +32,7 @@ namespace Xtensive.Storage.Providers.VistaDb
       if (genTable == null) {
         genTable = schema.CreateTable(hierarchy.MappingName);
         var column = genTable.CreateColumn("ID", new SqlValueType(idColumnType));
-        column.SequenceDescriptor = new SequenceDescriptor(column, 0, cacheSize);
+        column.SequenceDescriptor = new SequenceDescriptor(column, cacheSize, cacheSize);
         sqlCreate = SqlFactory.Batch();
         sqlCreate.Add(SqlFactory.Create(genTable));
       }
