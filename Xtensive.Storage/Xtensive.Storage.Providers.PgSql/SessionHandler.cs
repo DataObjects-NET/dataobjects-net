@@ -2,9 +2,9 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Dmitri Maximov
-// Created:    2008.09.08
+// Created:    2008.09.15
 
-namespace Xtensive.Storage.Providers.VistaDb
+namespace Xtensive.Storage.Providers.PgSql
 {
   public class SessionHandler : Sql.SessionHandler
   {

@@ -209,7 +209,7 @@ namespace Xtensive.Storage.Building.Builders
           Tuple prototype = Tuple.Create(type.TupleDescriptor);
           prototype.Initialize(nullableMap);
           if (type.IsEntity) {
-            FieldInfo typeIdField = type.Fields[NameBuilder.TypeIdFieldName];
+            FieldInfo typeIdField = type.Fields[domain.NameBuilder.TypeIdFieldName];
             prototype.SetValue(typeIdField.MappingInfo.Offset, type.TypeId);
           }
           Log.Info("Type '{0}': {1}", type, prototype);

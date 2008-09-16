@@ -5,22 +5,36 @@
 // Created:    2008.08.27
 
 using System.Collections.Generic;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Compiler;
 
 namespace Xtensive.Storage.Providers.Sql
 {
+  /// <summary>
+  /// Base class for any sql request.
+  /// </summary>
   public abstract class SqlRequest
   {
     private SqlCompilerResults compilationResult;
 
+    /// <summary>
+    /// Gets or sets the statement.
+    /// </summary>
     public ISqlCompileUnit Statement { get; private set; }
 
+    /// <summary>
+    /// Gets the compiled statement.
+    /// </summary>
     public string CompiledStatement
     {
       get { return compilationResult.CommandText; }
     }
 
+    /// <summary>
+    /// Gets the parameters.
+    /// </summary>
+    /// <returns>The <see cref="List{T}"/> of <see cref="SqlParameter"/> instances.</returns>
     public abstract List<SqlParameter> GetParameters();
 
     internal virtual  void CompileWith(SqlDriver driver)
@@ -38,6 +52,10 @@ namespace Xtensive.Storage.Providers.Sql
 
     // Constructors
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="statement">The statement.</param>
     protected SqlRequest(ISqlCompileUnit statement)
     {
       Statement = statement;

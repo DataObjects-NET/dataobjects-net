@@ -178,6 +178,10 @@ namespace Xtensive.Storage.Providers.Sql
       foreach (Table table in schema.Tables)
         batch.Add(SqlFactory.Drop(table));
       schema.Tables.Clear();
+      foreach (Sequence sequence in schema.Sequences) {
+        batch.Add(SqlFactory.Drop(sequence));
+      }
+      schema.Sequences.Clear();
       return batch;
     }
 

@@ -5,18 +5,29 @@
 // Created:    2008.09.11
 
 using System.Collections.Generic;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Sql.Dom;
 
 namespace Xtensive.Storage.Providers.Sql
 {
+  /// <summary>
+  /// Sql request for scalar result.
+  /// </summary>
   public class SqlScalarRequest : SqlRequest
   {
+    /// <inheritdoc/>
     public override List<SqlParameter> GetParameters()
     {
       return null;
     }
 
 
+    // Constructor
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="statement">The statement.</param>
     public SqlScalarRequest(ISqlCompileUnit statement)
       : base(statement)
     {

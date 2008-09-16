@@ -27,12 +27,11 @@ namespace Xtensive.Storage.Providers.VistaDb
       SqlBatch sqlCreate = null;
       Table genTable = schema.Tables[hierarchy.MappingName];
       SqlDataType idColumnType = dh.GetSqlDataType(typeof (TFieldType), null);
-      var cacheSize = hierarchy.GeneratorCacheSize==0 ? 1 : hierarchy.GeneratorCacheSize;
 
       if (genTable == null) {
         genTable = schema.CreateTable(hierarchy.MappingName);
         var column = genTable.CreateColumn("ID", new SqlValueType(idColumnType));
-        column.SequenceDescriptor = new SequenceDescriptor(column, cacheSize, cacheSize);
+        column.SequenceDescriptor = new SequenceDescriptor(column, hierarchy.GeneratorCacheSize, hierarchy.GeneratorCacheSize);
         sqlCreate = SqlFactory.Batch();
         sqlCreate.Add(SqlFactory.Create(genTable));
       }
@@ -44,7 +43,7 @@ namespace Xtensive.Storage.Providers.VistaDb
       select.Columns.Add(SqlFactory.Variable("@IDENTITY", idColumnType));
       sqlNext.Add(select);
 
-      return new SqlCachingGenerator<TFieldType>(hierarchy, cacheSize, sqlNext, sqlCreate);
+      return new SqlCachingGenerator<TFieldType>(hierarchy, hierarchy.GeneratorCacheSize, sqlNext, sqlCreate);
     }
   }
 }

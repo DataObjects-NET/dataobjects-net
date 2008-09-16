@@ -39,7 +39,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     // Constructor
 
-    public SqlRangeProvider(CompilableProvider origin, SqlQueryRequest request, HandlerAccessor handlers, Range<IEntire<Tuple>> original, params ExecutableProvider[] sources)
+    public SqlRangeProvider(CompilableProvider origin, SqlFetchRequest request, HandlerAccessor handlers, Range<IEntire<Tuple>> original, params ExecutableProvider[] sources)
       : base(origin, request, handlers, sources)
     {
       this.original = original;

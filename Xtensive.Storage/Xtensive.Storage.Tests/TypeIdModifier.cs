@@ -18,6 +18,7 @@ namespace Xtensive.Storage.Tests
 
     public virtual void Build(BuildingContext context, DomainModelDef model)
     {
+      TypeIdField = new KeyField(context.NameBuilder.TypeIdFieldName, typeof(int));
     }
 
     public static Type GetModifier(TypeIdBehavior typeIdBehavior)
@@ -30,11 +31,6 @@ namespace Xtensive.Storage.Tests
         default:
           return typeof (TypeIdModifier);
       }
-    }
-
-    public TypeIdModifier()
-    {
-      TypeIdField = new KeyField(NameBuilder.TypeIdFieldName, typeof(int));
     }
   }
 

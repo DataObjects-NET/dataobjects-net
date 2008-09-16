@@ -4,6 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2008.09.11
 
+using System;
 using System.Collections.Generic;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Sql.Dom;
@@ -40,7 +41,8 @@ namespace Xtensive.Storage.Providers.Sql
       using (dh.OpenSession(SessionType.System)) {
         using (var t = Session.Current.OpenTransaction()) {
           Sql.SessionHandler sh = (SessionHandler) Handlers.SessionHandler;
-          upperBound = (TFieldType) sh.ExecuteScalar(nextRequest);
+          object value = sh.ExecuteScalar(nextRequest);
+          upperBound = (TFieldType)Convert.ChangeType(value, typeof (TFieldType));
           t.Complete();
         }
       }

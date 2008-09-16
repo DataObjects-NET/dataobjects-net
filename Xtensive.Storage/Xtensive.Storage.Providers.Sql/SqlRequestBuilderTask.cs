@@ -1,7 +1,7 @@
 // Copyright (C) 2008 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
-// Created by: 
+// Created by: Dmitri Maximov
 // Created:    2008.08.29
 
 using System.Collections;
@@ -9,15 +9,28 @@ using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Providers.Sql
 {
-  public class SqlRequestBuilderTask
+  /// <summary>
+  /// Task for <see cref="SqlRequestBuilder"/>.
+  /// </summary>
+  public sealed class SqlRequestBuilderTask
   {
     private int hashCode;
 
+    /// <summary>
+    /// Gets the type.
+    /// </summary>
     public TypeInfo Type { get; private set; }
 
+    /// <summary>
+    /// Gets the field map that describes updated fields.
+    /// </summary>
     public BitArray FieldMap { get; private set; }
 
-    public SqlRequestKind Kind { get; private set; }
+    /// <summary>
+    /// Gets the <see cref="SqlModificationRequestKind"/>.
+    /// </summary>
+    /// <value></value>
+    public SqlModificationRequestKind Kind { get; private set; }
 
     /// <inheritdoc/>
     public override bool Equals(object obj)
@@ -58,13 +71,13 @@ namespace Xtensive.Storage.Providers.Sql
 
     // Constructors
 
-    public SqlRequestBuilderTask(SqlRequestKind kind, TypeInfo type, BitArray fieldMap)
+    internal SqlRequestBuilderTask(SqlModificationRequestKind kind, TypeInfo type, BitArray fieldMap)
       : this(kind, type)
     {
       FieldMap = fieldMap;
     }
 
-    public SqlRequestBuilderTask(SqlRequestKind kind, TypeInfo type)
+    internal SqlRequestBuilderTask(SqlModificationRequestKind kind, TypeInfo type)
     {
       Kind = kind;
       Type = type;

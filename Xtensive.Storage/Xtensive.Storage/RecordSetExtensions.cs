@@ -87,7 +87,7 @@ namespace Xtensive.Storage
         MappedColumn column = (MappedColumn)context.Header.Columns[columnIndex];
         ColumnInfo columnInfo = column.ColumnInfoRef.Resolve(context.Domain.Model);
         columnMapping[columnInfo] = column;
-        if (columnInfo.Name==NameBuilder.TypeIdFieldName)
+        if (columnInfo.Name==Session.Current.Domain.NameBuilder.TypeIdColumnName)
           typeIdIndex = column.Index;
       }
 

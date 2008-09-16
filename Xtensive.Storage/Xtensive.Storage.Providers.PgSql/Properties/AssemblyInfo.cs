@@ -6,11 +6,11 @@ using System.Security.Permissions;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Xtensive.Storage.Providers.MsSql")]
+[assembly: AssemblyTitle("Xtensive.Storage.Providers.PgSql")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("X-tensive")]
-[assembly: AssemblyProduct("Xtensive.Storage.Providers.MsSql")]
+[assembly: AssemblyProduct("Xtensive.Storage.Providers.PgSql")]
 [assembly: AssemblyCopyright("Copyright © X-tensive 2008")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -21,7 +21,7 @@ using System.Security.Permissions;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("01aa074b-4533-4b27-a63d-f184443b38fb")]
+[assembly: Guid("3d45df47-62e8-4785-a608-f31acc1ee996")]
 
 // Version information for an assembly consists of the following four values:
 //

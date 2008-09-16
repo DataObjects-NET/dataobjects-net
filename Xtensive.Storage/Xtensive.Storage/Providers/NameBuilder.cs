@@ -33,7 +33,12 @@ namespace Xtensive.Storage.Providers
     /// <summary>
     /// Gets the <see cref="Entity.TypeId"/> field name.
     /// </summary>
-    public static readonly string TypeIdFieldName = "TypeId";
+    public string TypeIdFieldName { get; private set; }
+
+    /// <summary>
+    /// Gets the <see cref="Entity.TypeId"/> column name.
+    /// </summary>
+    public string TypeIdColumnName { get; private set; }
 
     /// <summary>
     /// Gets the naming convention object.
@@ -287,6 +292,8 @@ namespace Xtensive.Storage.Providers
       ArgumentValidator.EnsureArgumentNotNull(namingConvention, "namingConvention");
       this.namingConvention = namingConvention;
       hashAlgorithm = new MD5CryptoServiceProvider();
+      TypeIdFieldName = "TypeId";
+      TypeIdColumnName = NamingConvention.Apply(TypeIdFieldName);
     }
   }
 }

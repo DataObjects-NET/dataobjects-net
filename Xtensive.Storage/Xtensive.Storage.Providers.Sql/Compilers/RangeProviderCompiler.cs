@@ -31,7 +31,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
       var query = (SqlSelect)source.Request.Statement.Clone();
       var keyColumns = provider.Header.Order.Select(pair => query.Columns[pair.Key]).ToList();
       var originalRange = provider.CompiledRange.Invoke();
-      var request = new SqlQueryRequest(query, provider.Header.TupleDescriptor, source.Request.ParameterBindings);
+      var request = new SqlFetchRequest(query, provider.Header.TupleDescriptor, source.Request.ParameterBindings);
       var rangeProvider = new SqlRangeProvider(provider, request, Handlers, originalRange, source);
 
       Func<int,SqlParameter,SqlExpression> fromCompiler = null;

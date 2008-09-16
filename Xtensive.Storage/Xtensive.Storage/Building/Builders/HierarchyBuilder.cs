@@ -73,7 +73,12 @@ namespace Xtensive.Storage.Building.Builders
 
       hierarchy.Name = root.Name;
       hierarchy.MappingName = BuildingContext.Current.NameBuilder.Build(hierarchy);
-      hierarchy.GeneratorCacheSize = hierarchyDef.GeneratorCacheSize.HasValue ? hierarchyDef.GeneratorCacheSize.Value : 1;
+      int generatorCacheSize = BuildingContext.Current.Configuration.GeneratorCacheSize;
+
+      if (hierarchyDef.GeneratorCacheSize.HasValue && hierarchyDef.GeneratorCacheSize > 0)
+        hierarchy.GeneratorCacheSize = hierarchyDef.GeneratorCacheSize.Value;
+      else
+        hierarchy.GeneratorCacheSize = generatorCacheSize;
       BuildingContext.Current.Model.Hierarchies.Add(hierarchy);
       return hierarchy;
     }

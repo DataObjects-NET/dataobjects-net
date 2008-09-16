@@ -56,7 +56,7 @@ namespace Xtensive.Storage.Providers.Sql
       }
       sessionHandler.DomainHandler.Compile(modificationRequest);
       foreach (Tuple tuple in Source.ToList()) {
-        modificationRequest.BindTo(tuple);
+        modificationRequest.BindParametersTo(tuple);
         sessionHandler.ExecuteNonQuery(modificationRequest);
       }
     }
@@ -92,7 +92,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     // Constructor
 
-    public SqlStoredProvider(StoredProvider origin, SqlQueryRequest request, HandlerAccessor handlers, ExecutableProvider source, Table table)
+    public SqlStoredProvider(StoredProvider origin, SqlFetchRequest request, HandlerAccessor handlers, ExecutableProvider source, Table table)
       : base(origin, request, handlers, source)
     {
       AddService<IHasNamedResult>();

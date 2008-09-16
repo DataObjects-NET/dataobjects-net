@@ -35,7 +35,7 @@ namespace Xtensive.Storage.Internals
         if (Log.IsLogged(LogEventTypes.Debug))
           Log.Debug("Session '{0}'. Resolving key '{1}'. Exact type is unknown. Fetch is required", session, key);
 
-        FieldInfo field = key.Hierarchy.Root.Fields[NameBuilder.TypeIdFieldName];
+        FieldInfo field = key.Hierarchy.Root.Fields[session.Domain.NameBuilder.TypeIdFieldName];
 
         using (var transactionScope = session.OpenTransaction()) {
           Fetcher.Fetch(key, field);

@@ -27,7 +27,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
     {
       var index = provider.Index.Resolve(Handlers.Domain.Model);
       SqlSelect query = BuildProviderQuery(index);
-      var request = new SqlQueryRequest(query, provider.Header.TupleDescriptor);
+      var request = new SqlFetchRequest(query, provider.Header.TupleDescriptor);
       return new SqlProvider(provider, request, Handlers);
     }
 
@@ -135,7 +135,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
 
       var underlyingIndex = index.UnderlyingIndexes[0];
       var baseQuery = BuildProviderQuery(underlyingIndex);
-      SqlColumn typeIdColumn = baseQuery.Columns[NameBuilder.TypeIdFieldName];
+      SqlColumn typeIdColumn = baseQuery.Columns[Handlers.Domain.NameBuilder.TypeIdColumnName];
       SqlBinary inQuery = SqlFactory.In(typeIdColumn, SqlFactory.Array(typeIds));
       SqlSelect query = SqlFactory.Select(baseQuery.From);
       var atRootPolicy = index.ReflectedType.Hierarchy.Schema == InheritanceSchema.SingleTable;

@@ -14,9 +14,9 @@ namespace Xtensive.Storage.Providers.Sql
   public class SqlProvider : ExecutableProvider
   {
     protected readonly HandlerAccessor handlers;
-    protected SqlQueryRequest request;
+    protected SqlFetchRequest request;
 
-    public SqlQueryRequest Request
+    public SqlFetchRequest Request
     {
       [DebuggerStepThrough]
       get { return request; }
@@ -29,7 +29,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       var sessionHandler = (SessionHandler) handlers.SessionHandler;
       sessionHandler.DomainHandler.Compile(request);
-      request.Bind();
+      request.BindParameters();
       using (var e = sessionHandler.Execute(request)) {
         while (e.MoveNext())
           yield return e.Current;
@@ -39,7 +39,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     // Constructor
 
-    public SqlProvider(CompilableProvider origin, SqlQueryRequest request, HandlerAccessor handlers, params ExecutableProvider[] sources)
+    public SqlProvider(CompilableProvider origin, SqlFetchRequest request, HandlerAccessor handlers, params ExecutableProvider[] sources)
       : base(origin, sources)
     {
       this.request = request;

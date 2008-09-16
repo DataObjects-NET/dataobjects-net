@@ -20,10 +20,10 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
 {
   internal class FilterVisitor
   {
-    private readonly SqlQueryRequest request;
+    private readonly SqlFetchRequest request;
     private readonly SqlSelect query;
 
-    public SqlQueryRequest Request
+    public SqlFetchRequest Request
     {
       get { return request; }
     }
@@ -270,7 +270,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
 
     // Constructor
 
-    public FilterVisitor(SqlQueryRequest request)
+    public FilterVisitor(SqlFetchRequest request)
     {
       this.request = request;
       query = (SqlSelect)request.Statement;

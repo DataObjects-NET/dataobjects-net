@@ -49,7 +49,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
       SqlSelect query = SqlFactory.Select(tr);
       foreach (SqlTableColumn column in tr.Columns)
         query.Columns.Add(column);
-      SqlQueryRequest request = new SqlQueryRequest(query, provider.Header.TupleDescriptor);
+      SqlFetchRequest request = new SqlFetchRequest(query, provider.Header.TupleDescriptor);
       schema.Tables.Remove(table);
 
       return new SqlStoredProvider(provider, request, Handlers, ex, table);

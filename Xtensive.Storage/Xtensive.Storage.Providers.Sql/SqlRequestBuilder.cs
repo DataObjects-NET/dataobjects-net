@@ -5,6 +5,7 @@
 // Created:    2008.08.28
 
 using System;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Dml;
@@ -13,21 +14,29 @@ using SqlFactory = Xtensive.Sql.Dom.Sql;
 
 namespace Xtensive.Storage.Providers.Sql
 {
+  /// <summary>
+  /// Builder of <see cref="SqlRequest"/>s.
+  /// </summary>
   public class SqlRequestBuilder
   {
-    public DomainHandler DomainHandler;
+    private readonly DomainHandler domainHandler;
 
+    /// <summary>
+    /// Builds the request.
+    /// </summary>
+    /// <param name="task">The request builder task.</param>
+    /// <returns><see cref="SqlModificationRequest"/> instance for the specified <paramref name="task"/>.</returns>
     public SqlModificationRequest BuildRequest(SqlRequestBuilderTask task)
     {
       SqlRequestBuilderResult result = null;
       switch (task.Kind) {
-      case SqlRequestKind.Insert:
+      case SqlModificationRequestKind.Insert:
         result = BuildInsertRequest(task);
         break;
-      case SqlRequestKind.Remove:
+      case SqlModificationRequestKind.Remove:
         result = BuildRemoveRequest(task);
         break;
-      case SqlRequestKind.Update:
+      case SqlModificationRequestKind.Update:
         result = BuildUpdateRequest(task);
         break;
       }
@@ -35,7 +44,7 @@ namespace Xtensive.Storage.Providers.Sql
       foreach (var binding in result.ParameterBindings)
         request.ParameterBindings[binding.Key] = binding.Value;
       request.ExpectedResult = result.Batch.Count;
-      DomainHandler.Compile(request);
+      domainHandler.Compile(request);
       return request;
     }
 
@@ -43,7 +52,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       var result = new SqlRequestBuilderResult(task, SqlFactory.Batch());
       foreach (IndexInfo index in result.AffectedIndexes) {
-        SqlTableRef table = SqlFactory.TableRef(DomainHandler.GetTable(index));
+        SqlTableRef table = SqlFactory.TableRef(domainHandler.GetTable(index));
         SqlInsert query = SqlFactory.Insert(table);
 
         for (int i = 0; i < index.Columns.Count; i++) {
@@ -55,7 +64,6 @@ namespace Xtensive.Storage.Providers.Sql
             result.ParameterBindings[p] = CreateTupleFieldAccessor(offset);
           }
         }
-
         result.Batch.Add(query);
       }
       return result;
@@ -65,7 +73,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       var result = new SqlRequestBuilderResult(task, SqlFactory.Batch());
       foreach (IndexInfo index in result.AffectedIndexes) {
-        SqlTableRef table = SqlFactory.TableRef(DomainHandler.GetTable(index));
+        SqlTableRef table = SqlFactory.TableRef(domainHandler.GetTable(index));
         SqlUpdate query = SqlFactory.Update(table);
 
         for (int i = 0; i < index.Columns.Count; i++) {
@@ -91,7 +99,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       var result = new SqlRequestBuilderResult(task, SqlFactory.Batch());
       foreach (IndexInfo index in result.AffectedIndexes) {
-        SqlTableRef table = SqlFactory.TableRef(DomainHandler.GetTable(index));
+        SqlTableRef table = SqlFactory.TableRef(domainHandler.GetTable(index));
         SqlDelete query = SqlFactory.Delete(table);
         query.Where &= BuildWhereExpression(result, table);
         result.Batch.Add(query);
@@ -120,9 +128,13 @@ namespace Xtensive.Storage.Providers.Sql
 
     // Constructor
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="domainHandler">The domain handler.</param>
     public SqlRequestBuilder(DomainHandler domainHandler)
     {
-      DomainHandler = domainHandler;
+      this.domainHandler = domainHandler;
     }
   }
 }
