@@ -31,6 +31,7 @@ namespace Xtensive.Storage
     IContext<SessionScope>,
     IResource
   {
+    private bool isPersisting;
     private volatile bool isDisposed;
     private readonly Set<object> consumers = new Set<object>();
     private readonly object _lock = new object();
@@ -125,14 +126,22 @@ namespace Xtensive.Storage
     /// <exception cref="ObjectDisposedException">Session is already disposed.</exception>
     public void Persist()
     {
-      EnsureNotDisposed();
-      
-      if (Log.IsLogged(LogEventTypes.Debug))
-        Log.Debug("Session '{0}'. Persisting.", this);
+      if (isPersisting)
+        return;
+      isPersisting = true;
+      try {
+        EnsureNotDisposed();
 
-      Handler.Persist();
+        if (Log.IsLogged(LogEventTypes.Debug))
+          Log.Debug("Session '{0}'. Persisting.", this);
 
-      ClearDirtyData();
+        Handler.Persist();
+
+        ClearDirtyData();
+      }
+      finally {
+        isPersisting = false;
+      }
     }
 
     private void ClearDirtyData()

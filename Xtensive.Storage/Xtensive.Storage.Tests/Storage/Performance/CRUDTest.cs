@@ -4,16 +4,15 @@
 // Created by: Alex Yakunin
 // Created:    2008.09.08
 
+using System.Reflection;
 using NUnit.Framework;
-using Xtensive.Core;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
-using Xtensive.Integrity.Transactions;
 
 namespace Xtensive.Storage.Tests.Storage
 {
-  [HierarchyRoot("Id")]
+  [HierarchyRoot(typeof(Generator), "Id")]
   public class Simplest : Entity
   {
     [Field]
@@ -30,31 +29,39 @@ namespace Xtensive.Storage.Tests.Storage
   }
 
   [TestFixture]
-  public class PerformanceTest
+  public class CRUDTest : AutoBuildTest
   {
-    public const int BaseIterationCount = 1000;
-    public const int InsertCount = 100*BaseIterationCount;
+    public const int OperationsCount = 10000;
 
-    public Domain CreateDomain()
+    protected override DomainConfiguration BuildConfiguration()
     {
-      var c = new DomainConfiguration();
-      c.Types.Register(typeof (Simplest).Assembly, typeof (Simplest).Namespace);
-      c.ConnectionInfo = new UrlInfo("memory://localhost/");
-      return Domain.Build(c);
+      DomainConfiguration config = DomainConfigurationFactory.Create("mssql2005");
+      config.Types.Register(typeof(Simplest).Assembly, typeof(Simplest).Namespace);
+      return config;
     }
 
     [Test]
-    public void CombinedTest()
+    public void WarmingTest()
     {
-      int c = InsertCount;
-      using (var d = CreateDomain()) {
+      Combined(0,1);
+    }
+
+    [Test]
+    public void RegularTest()
+    {
+      Combined(1,OperationsCount);
+    }
+
+    private void Combined(int start, int count)
+    {
+      using (var d = Domain) {
         using (var ss = d.OpenSession()) {
           var s = ss.Session;
           long sum = 0;
           using (var ts = s.OpenTransaction()) {
-            using (new Measurement("Insert", c))
-              for (int i = 0; i < c; i++) {
-                var o = new Simplest(i, i);
+            using (new Measurement("Insert", count))
+              for (int i = 0; i < count; i++) {
+                var o = new Simplest(i+start, i);
                 sum += i;
               }
             ts.Complete();
@@ -63,7 +70,7 @@ namespace Xtensive.Storage.Tests.Storage
           using (var ts = s.OpenTransaction()) {
             var rs = d.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordSet();
             var es = rs.ToEntities<Simplest>();
-            using (new Measurement("Fetch & GetField", c))
+            using (new Measurement("Fetch & GetField", count))
               foreach (var o in es) {
                 sum -= o.Id;
               }
@@ -74,7 +81,7 @@ namespace Xtensive.Storage.Tests.Storage
           using (var ts = s.OpenTransaction()) {
             var rs = d.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordSet();
             var es = rs.ToEntities<Simplest>();
-            using (new Measurement("Fetch & Remove", c))
+            using (new Measurement("Fetch & Remove", count))
               foreach (var o in es)
                 o.Remove();
             ts.Complete();
