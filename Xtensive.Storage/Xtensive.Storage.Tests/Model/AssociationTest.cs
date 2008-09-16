@@ -24,7 +24,17 @@ namespace Xtensive.Storage.Tests.Model.Association
   public abstract class Root : Entity
   {
     [Field]
-    public Guid Id { get; private set; }
+    public int Id { get; private set; }
+
+    protected Root(Tuple tuple)
+      : base(tuple)
+    {
+    }
+
+    protected Root()
+    {
+      
+    }
   }
 
   public class A : Root
@@ -53,6 +63,16 @@ namespace Xtensive.Storage.Tests.Model.Association
 
   public class B : Root
   {
+    public B(int id)
+      : base(Tuple.Create(id))
+    {
+      
+    }
+
+    public B()
+    {
+      
+    }
   }
 
   public class C : Root
@@ -108,6 +128,18 @@ namespace Xtensive.Storage.Tests.Model
       DomainConfiguration config = base.BuildConfiguration();
       config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.Model.Association");
       return config;
+    }
+
+    [Test]
+    public void TestRemove()
+    {
+      using (Domain.OpenSession()) {
+        using (Transaction.Open()) {
+          B b = new B(1);
+          b.Remove();
+          b = new B(1);
+        }
+      }
     }
 
     [Test]
@@ -561,6 +593,7 @@ namespace Xtensive.Storage.Tests.Model
           Assert.IsNotNull(g1.As);
           Assert.AreEqual(0, a1.ManyToMany.Count);
           Assert.AreEqual(0, g1.As.Count);
+//          Assert.AreEqual(0, g2.As.Count);
           a1.ManyToMany.Add(g2);
           a1.ManyToMany.Add(g1);
 //          session.Session.Persist();
