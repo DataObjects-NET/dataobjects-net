@@ -107,7 +107,7 @@ namespace Xtensive.Storage.Tests.Model.Association
     public EntitySet<A> As { get; private set; }
   }
 
-  public class E : Root
+  public class E : Root2
   {
   }
 
@@ -673,14 +673,72 @@ namespace Xtensive.Storage.Tests.Model
       }
     }
 
+    [Test]
+    public void ManyToZero()
+    {
+      A a;
+      E e1;
+      E e2;
+      using (var session = Domain.OpenSession()) {
+        using (var transaction = Transaction.Open()) {
+          a = new A();
+          e1 = new E();
+          e2 = new E();
+          transaction.Complete();
+        }
+        using (var transaction = Transaction.Open()) {
+          Assert.IsNotNull(a.ManyToZero);
+          Assert.AreEqual(0, a.ManyToZero.Count);
+          Assert.IsFalse(a.ManyToZero.Contains(e1));
+          Assert.IsFalse(a.ManyToZero.Contains(e2));
+          a.ManyToZero.Add(e1);
+          a.ManyToZero.Add(e2);
+          Assert.AreEqual(2, a.ManyToZero.Count);
+          Assert.IsTrue(a.ManyToZero.Contains(e1));
+          Assert.IsTrue(a.ManyToZero.Contains(e2));
+          a.ManyToZero.Remove(e1);
+          a.ManyToZero.Remove(e2);
+          Assert.AreEqual(0, a.ManyToZero.Count);
+          Assert.IsFalse(a.ManyToZero.Contains(e1));
+          Assert.IsFalse(a.ManyToZero.Contains(e2));
+        }
+      }
+    }
+
+    [Test]
+    public void ManyToZeroEnumerator()
+    {
+      A a;
+      E e1;
+      E e2;
+      using (var session = Domain.OpenSession()) {
+        using (var transaction = Transaction.Open()) {
+          a = new A();
+          e1 = new E();
+          e2 = new E();
+          transaction.Complete();
+        }
+        using (var transaction = Transaction.Open()) {
+          Assert.IsNotNull(a.ManyToZero);
+          Assert.AreEqual(0, a.ManyToZero.Count);
+          Assert.IsFalse(a.ManyToZero.Contains(e1));
+          Assert.IsFalse(a.ManyToZero.Contains(e2));
+          a.ManyToZero.Add(e1);
+          a.ManyToZero.Add(e2);
+          CheckEnumerator(a.ManyToZero, e1, e2);
+        }
+      }
+    }
+
     private void CheckEnumerator<T>(EntitySet<T> entitySet, params T[] items) where T : Entity
     {
-      object x = entitySet.ToArray<T>();
       T[] currentItems = entitySet.ToArray();
       Assert.AreEqual(currentItems.Length, items.Length);
       foreach (T item in items) {
         Assert.IsTrue(currentItems.Contains(item));
       }
     }
+
+    
   }
 }
