@@ -17,6 +17,7 @@ using Xtensive.Core.Parameters;
 using Xtensive.Core.Testing;
 using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
+using Xtensive.Integrity.Transactions;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
@@ -111,7 +112,8 @@ namespace Xtensive.Storage.Tests.Storage
           TypeInfo snakeType = Domain.Model.Types[typeof(Snake)];
           
           RecordSet rsSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordSet()
-            .CalculateColumns(columns)
+            .CalculateColumns(new CalculatedColumnDescriptor("FullName", typeof(string), (s) => (s.GetValue(2).ToString().Substring(0, 2))),
+          new CalculatedColumnDescriptor("FullName2", typeof(string), (s) => (s.GetValue(2).ToString().Substring(0, 3))))
             .Take(10);
 
           Assert.AreEqual(10, rsSnakePrimary.Count());
@@ -119,10 +121,23 @@ namespace Xtensive.Storage.Tests.Storage
           foreach (var tuple in rsSnakePrimary) {
             Assert.AreEqual("Ka", tuple.GetValue(5));
             Assert.AreEqual("Kaa", tuple.GetValue(6));
-
           }
-
           rsSnakePrimary.Count();
+
+            RecordSet aggregate = rsSnakePrimary;
+            aggregate = aggregate.CalculateAggregateFunction(
+              new AggregateColumnDescriptor("Count1", 0, AggregateType.Count),
+              new AggregateColumnDescriptor("Min1", 0, AggregateType.Min),
+              new AggregateColumnDescriptor("Max1", 0, AggregateType.Max),
+              new AggregateColumnDescriptor("Sum1", 0, AggregateType.Sum),
+              new AggregateColumnDescriptor("Avg1", 0, AggregateType.Avg),
+              new AggregateColumnDescriptor("Count2", 2, AggregateType.Count),
+              new AggregateColumnDescriptor("Min2", 2, AggregateType.Min),
+              new AggregateColumnDescriptor("Max2", 2, AggregateType.Max),
+              new AggregateColumnDescriptor("Count3", 3, AggregateType.Count),
+              new AggregateColumnDescriptor("Max3", 3, AggregateType.Max));
+
+            aggregate.Count();
 
           string name = "TestName";
           var scope = TemporaryDataScope.Global;

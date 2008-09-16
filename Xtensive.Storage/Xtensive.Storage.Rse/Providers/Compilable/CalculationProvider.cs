@@ -53,7 +53,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// </summary>
     /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="columnDescriptors">The descriptors of <see cref="CalculatedColumns"/>.</param>
-    public CalculationProvider(CompilableProvider source, CalculatedColumnDescriptor[] columnDescriptors)
+    public CalculationProvider(CompilableProvider source, params CalculatedColumnDescriptor[] columnDescriptors)
       : base(source)
     {
       var columns = new CalculatedColumn[columnDescriptors.Length];

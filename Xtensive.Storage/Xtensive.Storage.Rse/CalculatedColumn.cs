@@ -38,7 +38,7 @@ namespace Xtensive.Storage.Rse
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="column">The original <see cref="Column"/> property value.</param>
+    /// <param name="column">The original <see cref="CalculatedColumn"/> value.</param>
     /// <param name="alias">The alias to add.</param>
     public CalculatedColumn(CalculatedColumn column, string alias)
       : base(alias.IsNullOrEmpty() ? column.Name : string.Concat(alias, ".", column.Name), column.Index, column.Type)

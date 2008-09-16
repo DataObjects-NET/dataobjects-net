@@ -63,7 +63,7 @@ namespace Xtensive.Storage.Rse
       return Range(recordSet, new Range<IEntire<Tuple>>(xPoint, yPoint));
     }
 
-    public static RecordSet CalculateColumns(this RecordSet recordSet, CalculatedColumnDescriptor[] columns)
+    public static RecordSet CalculateColumns(this RecordSet recordSet, params CalculatedColumnDescriptor[] columns)
     {
       return new CalculationProvider(recordSet.Provider, columns).Result;
     }
@@ -161,6 +161,12 @@ namespace Xtensive.Storage.Rse
     {
       return new StoredProvider(recordSet.Provider, scope, name).Result;
     }
+
+    public static RecordSet CalculateAggregateFunction(this RecordSet recordSet, params AggregateColumnDescriptor[] descriptors)
+    {
+      return new AggregateProvider(recordSet.Provider, descriptors).Result;
+    }
+
 
     public static RecordSet ExecuteAt(this RecordSet recordSet, ExecutionOptions options)
     {
