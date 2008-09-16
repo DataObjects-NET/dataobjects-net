@@ -15,7 +15,7 @@ namespace Xtensive.Storage.Rse.Compilation
   /// </summary>
   public sealed class DefaultEnumerationContext : EnumerationContext
   {
-    private static GlobalTemporaryData globalTemporaryData = new GlobalTemporaryData();
+    private static readonly GlobalTemporaryData globalTemporaryData = new GlobalTemporaryData();
 
     /// <inheritdoc/>
     public override GlobalTemporaryData GlobalTemporaryData {
@@ -29,6 +29,12 @@ namespace Xtensive.Storage.Rse.Compilation
     public override TransactionTemporaryData TransactionTemporaryData
     {
       get { throw new NotSupportedException(); }
+    }
+
+    /// <inheritdoc/>
+    protected override EnumerationScope CreateActiveScope()
+    {
+      return new EnumerationScope(this);
     }
   }
 }

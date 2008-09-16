@@ -13,7 +13,7 @@ using Xtensive.Integrity.Transactions;
 
 namespace Xtensive.Storage.Tests.Storage
 {
-  [HierarchyRoot(typeof(Generator), "Id")]
+  [HierarchyRoot("Id")]
   public class Simplest : Entity
   {
     [Field]

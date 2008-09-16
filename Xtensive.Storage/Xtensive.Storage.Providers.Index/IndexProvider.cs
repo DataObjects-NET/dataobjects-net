@@ -26,7 +26,6 @@ namespace Xtensive.Storage.Providers.Index
     /// <inheritdoc/>
     public override T GetService<T>()
     {
-//      Session.Current.Persist();
       var index = indexResolver(indexDescriptor);
       var result = index as T;
       return result;
@@ -34,7 +33,6 @@ namespace Xtensive.Storage.Providers.Index
 
     protected override IEnumerable<Tuple> OnEnumerate(Rse.Providers.EnumerationContext context)
     {
-      Session.Current.Persist();
       var index = indexResolver(indexDescriptor);
       return index;
     }

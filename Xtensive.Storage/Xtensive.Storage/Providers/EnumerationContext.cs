@@ -12,7 +12,7 @@ namespace Xtensive.Storage.Providers
   /// An implementation of <see cref="Rse.Providers.EnumerationContext"/> 
   /// suitable for storage.
   /// </summary>
-  public class EnumerationContext : Rse.Providers.EnumerationContext
+  public sealed class EnumerationContext : Rse.Providers.EnumerationContext
   {
     /// <inheritdoc/>
     public override GlobalTemporaryData GlobalTemporaryData {
@@ -34,6 +34,13 @@ namespace Xtensive.Storage.Providers
     protected override Rse.Providers.EnumerationScope CreateActiveScope()
     {
       return new EnumerationScope(this);
+    }
+
+    /// <inheritdoc/>
+    public override Rse.Providers.EnumerationScope Activate()
+    {
+      Session.Current.Persist();
+      return base.Activate();
     }
   }
 }

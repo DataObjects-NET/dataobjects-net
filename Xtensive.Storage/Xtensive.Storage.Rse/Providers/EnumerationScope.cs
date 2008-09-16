@@ -43,14 +43,12 @@ namespace Xtensive.Storage.Rse.Providers
     /// <returns>Either new <see cref="EnumerationScope"/> or <see langword="null" />.</returns>
     public static EnumerationScope Open()
     {
-      if (CurrentContext==null) {
-        CompilationContext compilationContext = CompilationContext.Current;
-        if (compilationContext==null)
-          throw new InvalidOperationException(Strings.ExCanTOpenEnumerationScopeSinceThereIsNoCurrentCompilationContext);        
-        return compilationContext.CreateEnumerationContext().Activate();
-      }
-      else
+      if (CurrentContext!=null)
         return null;
+      CompilationContext compilationContext = CompilationContext.Current;
+      if (compilationContext==null)
+        throw new InvalidOperationException(Strings.ExCanTOpenEnumerationScopeSinceThereIsNoCurrentCompilationContext);        
+      return compilationContext.CreateEnumerationContext().Activate();
     }
 
     /// <summary>
@@ -67,8 +65,7 @@ namespace Xtensive.Storage.Rse.Providers
     {
       if (CurrentContext==null)
         return null;
-      else
-        return new EnumerationScope(null);
+      return new EnumerationScope(null);
     }
 
 

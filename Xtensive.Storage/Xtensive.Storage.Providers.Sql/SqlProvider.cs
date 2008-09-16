@@ -27,7 +27,6 @@ namespace Xtensive.Storage.Providers.Sql
 
     protected override IEnumerable<Tuple> OnEnumerate(Rse.Providers.EnumerationContext context)
     {
-      Session.Current.Persist();
       var sessionHandler = (SessionHandler) handlers.SessionHandler;
       sessionHandler.DomainHandler.Compile(request);
       request.Bind();

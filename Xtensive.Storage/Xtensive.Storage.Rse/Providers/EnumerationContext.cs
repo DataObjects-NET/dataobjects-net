@@ -82,12 +82,6 @@ namespace Xtensive.Storage.Rse.Providers
     #region IContext<...> methods
 
     /// <inheritdoc/>
-    protected override EnumerationScope CreateActiveScope()
-    {
-      return new EnumerationScope(this);
-    }
-
-    /// <inheritdoc/>
     public override bool IsActive
     {
       get { return EnumerationScope.CurrentContext==this; }

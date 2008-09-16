@@ -22,7 +22,6 @@ namespace Xtensive.Storage
     /// <returns>Newly created <see cref="RecordSet"/> object.</returns>
     public static RecordSet ToRecordSet(this IndexInfo index)
     {
-      Session.Current.Persist();
       return IndexProvider.Get(index).Result;
     }
   }
