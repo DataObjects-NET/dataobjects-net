@@ -48,6 +48,9 @@ namespace Xtensive.Storage
 
     internal abstract void RemoveFromCache(Key key, bool refresh);
 
+
+    // Constructors
+
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>

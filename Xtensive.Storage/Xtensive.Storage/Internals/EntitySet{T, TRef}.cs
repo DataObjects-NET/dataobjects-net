@@ -27,10 +27,15 @@ namespace Xtensive.Storage.Internals
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
       if (!Contains(item)) {
-        Entity entity = (Entity) typeof (TRef).GetConstructor(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, new[] {typeof (Tuple)}, null).Invoke(new object[] {CombineKey(item.Key)});
-        LogTemplate<Log>.Info("{0} key: {1}", entity, entity.Key);
+        Entity entity = (Entity) typeof (TRef)
+          .GetConstructor(
+            BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, 
+            null, 
+            new[] { typeof (Tuple) }, 
+            null)
+          .Invoke(new object[] { CombineKey(item.Key) });
         if (Field.Association.Multiplicity==Multiplicity.ManyToMany) {
-          //update paired EntitySet
+          // Update paired EntitySet
           FieldInfo referencingField = Field.Association.PairTo.ReferencingField;
           var accessor = referencingField.GetAccessor<EntitySet>();
           var pairedEntitySet = accessor.GetValue(item, referencingField);

@@ -66,7 +66,6 @@ namespace Xtensive.Storage
       return GetEnumerator();
     }
 
-
     protected IndexInfo Index
     {
       get
