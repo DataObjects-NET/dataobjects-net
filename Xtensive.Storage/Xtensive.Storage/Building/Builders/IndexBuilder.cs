@@ -18,6 +18,7 @@ using Xtensive.Storage.Model;
 using Xtensive.Core.Reflection;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Resources;
+using Xtensive.Storage.Internals;
 
 namespace Xtensive.Storage.Building.Builders
 {
@@ -472,22 +473,10 @@ namespace Xtensive.Storage.Building.Builders
       result.ShortName = indexDef.Name;
       result.MappingName = indexDef.MappingName;
 
-      Action<FieldInfo, IList<ColumnInfo>> columnsExtractor = null;
-      columnsExtractor = delegate(FieldInfo field, IList<ColumnInfo> columns) {
-        if (field.Column==null) {
-          if (field.IsEntity)
-            foreach (FieldInfo childField in field.Fields)
-              columnsExtractor(childField, columns);
-        }
-        else
-          columns.Add(field.Column);
-      };
-
       // Adding key columns
       foreach (KeyValuePair<string, Direction> pair in indexDef.KeyFields) {
         FieldInfo fieldInfo = typeInfo.Fields[pair.Key];
-        IList<ColumnInfo> columns = new List<ColumnInfo>();
-        columnsExtractor(fieldInfo, columns);
+        IList<ColumnInfo> columns = fieldInfo.ExtractColumns();
 
         if (columns.Count==0)
           throw new DomainBuilderException(
@@ -500,8 +489,7 @@ namespace Xtensive.Storage.Building.Builders
       // Adding included columns
       foreach (string fieldName in indexDef.IncludedFields) {
         FieldInfo fieldInfo = typeInfo.Fields[fieldName];
-        IList<ColumnInfo> columns = new List<ColumnInfo>();
-        columnsExtractor(fieldInfo, columns);
+        IList<ColumnInfo> columns = fieldInfo.ExtractColumns();
 
         if (columns.Count==0)
           throw new DomainBuilderException(
@@ -543,8 +531,7 @@ namespace Xtensive.Storage.Building.Builders
       else {
         foreach (var fieldName in typeInfo.Hierarchy.Fields.Select(pair => pair.Key.Name)) {
           FieldInfo fieldInfo = typeInfo.Fields[fieldName];
-          IList<ColumnInfo> columns = new List<ColumnInfo>();
-          columnsExtractor(fieldInfo, columns);
+          IList<ColumnInfo> columns = fieldInfo.ExtractColumns();
 
           if (columns.Count==0)
             throw new DomainBuilderException(

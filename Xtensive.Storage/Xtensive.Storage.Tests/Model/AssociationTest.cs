@@ -37,6 +37,23 @@ namespace Xtensive.Storage.Tests.Model.Association
     }
   }
 
+  [HierarchyRoot(typeof(Generator), "Id")]
+  public abstract class Root2 : Entity
+  {
+    [Field]
+    public Guid Id { get; private set; }
+
+    protected Root2(Tuple tuple)
+      : base(tuple)
+    {
+    }
+
+    protected Root2()
+    {
+
+    }
+  }
+
   public class A : Root
   {
     [Field]
@@ -100,7 +117,7 @@ namespace Xtensive.Storage.Tests.Model.Association
     public A A { get; set; }
   }
 
-  public class G : Root
+  public class G : Root2
   {
     [Field(PairTo = "ManyToMany")]
     public EntitySet<A> As { get; private set; }
@@ -621,6 +638,48 @@ namespace Xtensive.Storage.Tests.Model
           Assert.AreEqual(2, g1.As.Count);
           Assert.AreEqual(2, g2.As.Count);
         }
+      }
+    }
+
+    [Test]
+    public void ManyToManyEnumerator()
+    {
+      using (var session = Domain.OpenSession()) {
+        A a1;
+        A a2;
+        G g1;
+        G g2;
+        using (var transaction = Transaction.Open()) {
+          a1 = new A();
+          a2 = new A();
+          g1 = new G();
+          g2 = new G();
+          a1.ManyToMany.Add(g1);
+          g2.As.Add(a1);
+          g1.As.Add(a2);
+          a2.ManyToMany.Add(g2);
+          transaction.Complete();
+        }
+        using (var t = Transaction.Open()) {
+          Assert.AreEqual(2, a1.ManyToMany.Count);
+          Assert.AreEqual(2, a2.ManyToMany.Count);
+          Assert.AreEqual(2, g1.As.Count);
+          Assert.AreEqual(2, g2.As.Count);
+          CheckEnumerator(a1.ManyToMany, g1, g2);
+          CheckEnumerator(a2.ManyToMany, g1, g2);
+          CheckEnumerator(g1.As, a1, a2);
+          CheckEnumerator(g2.As, a1, a2);
+        }
+      }
+    }
+
+    private void CheckEnumerator<T>(EntitySet<T> entitySet, params T[] items) where T : Entity
+    {
+      object x = entitySet.ToArray<T>();
+      T[] currentItems = entitySet.ToArray();
+      Assert.AreEqual(currentItems.Length, items.Length);
+      foreach (T item in items) {
+        Assert.IsTrue(currentItems.Contains(item));
       }
     }
   }
