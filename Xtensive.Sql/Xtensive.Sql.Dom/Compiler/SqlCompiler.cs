@@ -454,7 +454,7 @@ namespace Xtensive.Sql.Dom.Compiler
     public virtual void Visit(SqlCreateSequence node)
     {
       ArgumentValidator.EnsureArgumentNotNull(node.Sequence.DataType, "DataType");
-      ArgumentValidator.EnsureArgumentNotNull(node.Sequence.SequenceDescriptor, "IdentityInfo");
+      ArgumentValidator.EnsureArgumentNotNull(node.Sequence.SequenceDescriptor, "SequenceDescriptor");
       using (context.EnterNode(node)) {
         if (node.Sequence.DataType!=null &&
             (!SqlValueType.IsExactNumeric(node.Sequence.DataType) ||

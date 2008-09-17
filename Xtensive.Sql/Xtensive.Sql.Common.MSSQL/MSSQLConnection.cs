@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see license.
 
 using System;
+using System.Collections.Generic;
 using System.Data.Common;
 using System.Data.SqlClient;
 using System.Text;
@@ -24,61 +25,67 @@ namespace Xtensive.Sql.Common.Mssql
       if (info.Password.IndexOfAny(forbiddenChars)>=0)
         throw e;
 
-      StringBuilder sbConnectionString = new StringBuilder();
+      SqlConnectionStringBuilder sb = new SqlConnectionStringBuilder();
 
+      sb.InitialCatalog = info.Database ?? string.Empty;
+      sb.MultipleActiveResultSets = true;
       if (info.Port==0)
-        sbConnectionString.Append("Data Source="+info.Host+";");
+        sb.DataSource = info.Host;
       else
-        sbConnectionString.Append("Data Source="+info.Host+","+info.Port+";");
-      sbConnectionString.Append("Initial Catalog="+(info.Database==null ? "" : info.Database)+";");
-      if (info.User!="") {
-        sbConnectionString.Append("User ID="+info.User+";");
-        sbConnectionString.Append("Password="+info.Password+";");
+        sb.DataSource = info.Host+","+info.Port;
+      if (!string.IsNullOrEmpty(info.User)) {
+        sb.UserID = info.User;
+        sb.Password = info.Password;
       }
-      else
-        sbConnectionString.Append("Integrated Security=SSPI;Persist Security Info=False;");
+      else {
+        sb.IntegratedSecurity = true;
+        sb.PersistSecurityInfo = false;
+      }
 #if !MONO
-      sbConnectionString.Append("Enlist=False;");
+      sb.Enlist = false;
 #endif
 
-      string ct;
-      info.Params.TryGetValue("ConnectionTimeout", out ct);
-      if (ct!=null) {
-        int cti;
-        if (!Int32.TryParse(ct, out cti) || cti<0)
-          throw new ArgumentException("URL contains invalid ConnectionTimeout specification.", "info");
-        sbConnectionString.Append("Connect Timeout="+cti+";");
-      }
+      foreach (var param in info.Params)
+        sb[param.Key] = param.Value;
 
-      string applicationName;
-      info.Params.TryGetValue("ApplicationName", out applicationName);
-      if (applicationName!=null) {
-        applicationName = applicationName.Replace(";", "");
-        if (applicationName.Length>0)
-          sbConnectionString.Append("Application Name="+applicationName+";");
-      }
+//      string ct;
+//      info.Params.TryGetValue("ConnectionTimeout", out ct);
+//      if (ct!=null) {
+//        int cti;
+//        if (!Int32.TryParse(ct, out cti) || cti<0)
+//          throw new ArgumentException("URL contains invalid ConnectionTimeout specification.", "info");
+//        sbConnectionString.Append("Connect Timeout="+cti+";");
+//      }
+//
+//      string applicationName;
+//      info.Params.TryGetValue("ApplicationName", out applicationName);
+//      if (applicationName!=null) {
+//        applicationName = applicationName.Replace(";", "");
+//        if (applicationName.Length>0)
+//          sbConnectionString.Append("Application Name="+applicationName+";");
+//      }
+//
+//      string attachDbFile;
+//      info.Params.TryGetValue("AttachDbFile", out attachDbFile);
+//      if (attachDbFile!=null) {
+//        attachDbFile = attachDbFile.Replace(";", "");
+//        if (attachDbFile.Length>0)
+//          sbConnectionString.Append("AttachDBFilename="+attachDbFile+";");
+//      }
+//
+//      string connectionStringSuffix;
+//      info.Params.TryGetValue("ConnectionStringSuffix", out connectionStringSuffix);
+//      if (connectionStringSuffix!=null) {
+//        if (connectionStringSuffix.Length>=2) {
+//          if ((connectionStringSuffix.StartsWith("'") && connectionStringSuffix.EndsWith("'"))
+//              || (connectionStringSuffix.StartsWith("\"") && connectionStringSuffix.EndsWith("\"")))
+//            connectionStringSuffix = connectionStringSuffix.Substring(1, connectionStringSuffix.Length - 2);
+//        }
+//        if (connectionStringSuffix.Length>0)
+//          sbConnectionString.Append(connectionStringSuffix);
+//      }
 
-      string attachDbFile;
-      info.Params.TryGetValue("AttachDbFile", out attachDbFile);
-      if (attachDbFile!=null) {
-        attachDbFile = attachDbFile.Replace(";", "");
-        if (attachDbFile.Length>0)
-          sbConnectionString.Append("AttachDBFilename="+attachDbFile+";");
-      }
-
-      string connectionStringSuffix;
-      info.Params.TryGetValue("ConnectionStringSuffix", out connectionStringSuffix);
-      if (connectionStringSuffix!=null) {
-        if (connectionStringSuffix.Length>=2) {
-          if ((connectionStringSuffix.StartsWith("'") && connectionStringSuffix.EndsWith("'"))
-              || (connectionStringSuffix.StartsWith("\"") && connectionStringSuffix.EndsWith("\"")))
-            connectionStringSuffix = connectionStringSuffix.Substring(1, connectionStringSuffix.Length - 2);
-        }
-        if (connectionStringSuffix.Length>0)
-          sbConnectionString.Append(connectionStringSuffix);
-      }
-
-      return new SqlConnection(sbConnectionString.ToString());
+      return new SqlConnection(sb.ConnectionString);
     }
 
     public MssqlConnection(ConnectionInfo info, Driver driver)
