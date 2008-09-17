@@ -258,7 +258,7 @@ namespace Xtensive.Storage.Building.Builders
           if (field.Column!=null)
             clone.Column = ColumnBuilder.BuildInheritedColumn(clone, field.Column);
           target.ReflectedType.Fields.Add(clone);
-          if (clone.IsEntity && !EntitySetHelper.IsEntitySetRef(clone.ReflectedType)) {
+          if (clone.IsEntity && !IsEntitySetRef(clone.ReflectedType)) {
             FieldInfo refField = field;
             AssociationInfo origin = context.Model.Associations.Find(context.Model.Types[field.ValueType]).Where(a => a.ReferencingField==refField).FirstOrDefault();
             if (origin != null) {
@@ -268,6 +268,14 @@ namespace Xtensive.Storage.Building.Builders
           }
         }
       }
+    }
+
+    private static bool IsEntitySetRef(TypeInfo type)
+    {
+      Type underlyingBaseType = type.UnderlyingType.BaseType;
+      return underlyingBaseType != null
+        && underlyingBaseType.IsGenericType
+          && underlyingBaseType.GetGenericTypeDefinition() == typeof(EntitySetReference<,>);
     }
   }
 }

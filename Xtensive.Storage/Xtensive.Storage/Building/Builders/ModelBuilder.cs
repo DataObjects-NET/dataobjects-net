@@ -11,6 +11,7 @@ using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
+using Xtensive.Core.Reflection;
 
 namespace Xtensive.Storage.Building.Builders
 {
@@ -147,11 +148,33 @@ namespace Xtensive.Storage.Building.Builders
         context.DiscardedAssociations.Clear();
 
         foreach (AssociationInfo association in context.Model.Associations) {
-          association.EntityType = EntitySetHelper.BuildReferenceType(association);
+          association.EntityType = BuildReferenceType(association);
           if (association.EntityType != null)
-            EntitySetHelper.DefineReferenceType(association);
+            DefineReferenceType(association);
         }
       }
     }
+
+    private static Type BuildReferenceType(AssociationInfo association)
+    {
+      if (association.ReferencingField.IsEntitySet && association.IsMaster) {
+        Type baseType = typeof(EntitySetReference<,>).MakeGenericType(association.ReferencedType.UnderlyingType, association.ReferencingType.UnderlyingType);
+        string name = BuildingContext.Current.NameBuilder.Build(association);
+        return TypeHelper.CreateDummyType(name, baseType, true);
+      }
+      return null;
+    }
+
+    private static void DefineReferenceType(AssociationInfo association)
+    {
+      TypeDef typeDef = TypeBuilder.DefineType(association.EntityType);
+      typeDef.DefineField("Entity1", association.ReferencedType.UnderlyingType);
+      typeDef.DefineField("Entity2", association.ReferencingType.UnderlyingType);
+      typeDef.Name = association.Name;
+      BuildingContext.Current.Definition.Types.Add(typeDef);
+      IndexBuilder.DefineIndexes(typeDef);
+      TypeBuilder.BuildType(typeDef);
+    }
+
   }
 }
