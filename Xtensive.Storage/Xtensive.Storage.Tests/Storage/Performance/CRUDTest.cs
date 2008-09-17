@@ -7,8 +7,10 @@
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core.Diagnostics;
+using Xtensive.Core.Tuples;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
+using System.Linq;
 
 namespace Xtensive.Storage.Tests.Storage
 {
@@ -31,7 +33,7 @@ namespace Xtensive.Storage.Tests.Storage
   [TestFixture]
   public class CRUDTest : AutoBuildTest
   {
-    public const int OperationsCount = 10000;
+    public const int OperationsCount = 1000;
 
     protected override DomainConfiguration BuildConfiguration()
     {
@@ -61,17 +63,19 @@ namespace Xtensive.Storage.Tests.Storage
           using (var ts = s.OpenTransaction()) {
             using (new Measurement("Insert", count))
               for (int i = 0; i < count; i++) {
-                var o = new Simplest(i+start, i);
-                sum += i;
+                var id = i+start;
+                var o = new Simplest(id, i);
+                sum += id;
               }
             ts.Complete();
           }
 
           using (var ts = s.OpenTransaction()) {
-            var rs = d.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordSet();
-            var es = rs.ToEntities<Simplest>();
             using (new Measurement("Fetch & GetField", count))
-              foreach (var o in es) {
+              for (int i = 0; i < count; i++) {
+                long id = i + start;
+                var key = Key.Get<Simplest>(Tuple.Create(id));
+                var o = key.Resolve<Simplest>();
                 sum -= o.Id;
               }
             ts.Complete();
@@ -81,8 +85,17 @@ namespace Xtensive.Storage.Tests.Storage
           using (var ts = s.OpenTransaction()) {
             var rs = d.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordSet();
             var es = rs.ToEntities<Simplest>();
-            using (new Measurement("Fetch & Remove", count))
-              foreach (var o in es)
+            using (new Measurement("Query", count))
+              foreach (var o in es) {
+              }
+            ts.Complete();
+          }
+
+          using (var ts = s.OpenTransaction()) {
+            var rs = d.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordSet();
+            var es = rs.ToEntities<Simplest>();
+            using (new Measurement("Query & Remove", count))
+              foreach (var o in es.ToList())
                 o.Remove();
             ts.Complete();
           }
