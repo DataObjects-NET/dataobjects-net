@@ -156,6 +156,7 @@ namespace Xtensive.Sql.Dom.Dml
           clone.OrderBy.Add((SqlOrder)so.Clone(context));
       clone.Distinct = distinct;
       clone.Top = Top;
+      clone.Offset = Offset;
 
       if (Hints.Count > 0)
         foreach (SqlHint hint in Hints)
