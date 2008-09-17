@@ -27,8 +27,7 @@ namespace Xtensive.Storage
     /// </summary>
     public bool IsRemoved
     {
-      get {
-        EnsureDataIsActual();
+      get {        
         return isRemoved;
       }
       internal set {
@@ -68,20 +67,21 @@ namespace Xtensive.Storage
     /// <summary>
     /// Ensures the data belongs to the current <see cref="Transaction"/> and resents the data if not.
     /// </summary>
-    public void EnsureDataIsActual()
+    public void EnsureIsActual()
     {
-      if ((transaction.State & TransactionState.Completed)==0)
-        return;
+      if (!TransactionIsActive)
+        Fetcher.Fetch(Key);
+    }
 
-      Reload();
-      SetTransaction(transaction = transaction.Session.Transaction);     
+    private bool TransactionIsActive
+    {
+      get { return (transaction.State & TransactionState.Completed)==0; }
     }
 
     private void SetTransaction(Transaction newTransaction)
     {
       if (newTransaction==null)
         throw new InvalidOperationException(Strings.ExTransactionRequired);
-
       transaction = newTransaction;
     }
 
@@ -89,28 +89,20 @@ namespace Xtensive.Storage
     /// Ensures the entity is not removed and data is actual.
     /// Call this method before getting or setting values.
     /// </summary>
-    public void EnsureCanOperate()
+    public void EnsureIsNotRemoved()
     {
-      EnsureDataIsActual();
       if (isRemoved)
         throw new InvalidOperationException(Strings.ExEntityIsRemoved);
     }
 
-    /// <summary>
-    /// Reloads this entity data.
-    /// </summary>
-    public void Reload()
+    internal void Import(Tuple tuple, Transaction newTransaction)
     {
-      Tuple origin = Create(Type.TupleDescriptor);
-      Key.Tuple.CopyTo(origin);
-      DifferentialData = new DifferentialTuple(origin);
-      isRemoved = true;
-      Fetcher.Fetch(Key);
-    }
-
-    internal void UpdateOrigin(Tuple tuple)
-    {
-      DifferentialData.Origin.MergeWith(tuple);
+      if (TransactionIsActive)
+        DifferentialData.Origin.MergeWith(tuple);
+      else {
+        DifferentialData = new DifferentialTuple(tuple.ToRegular());
+        SetTransaction(newTransaction);
+      }
       isRemoved = false;
     }
 

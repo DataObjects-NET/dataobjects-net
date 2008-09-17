@@ -31,7 +31,7 @@ namespace Xtensive.Storage.Tests.Storage.ActivatorModel
 
 namespace Xtensive.Storage.Tests.Storage
 {
-  public class ActivatorTest : AutoBuildTest
+  public class  ActivatorTest : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
     {
@@ -45,10 +45,10 @@ namespace Xtensive.Storage.Tests.Storage
     {
       Key key;
       using (Domain.OpenSession()) {
-        using (Transaction.Open()) {
+        using (var t = Transaction.Open()) {
           var descendant = new Descendant();
-          key = descendant.Key;
-          Session.Current.Persist();
+          key = descendant.Key;          
+          t.Complete();
         }        
       }
       using (Domain.OpenSession()) {

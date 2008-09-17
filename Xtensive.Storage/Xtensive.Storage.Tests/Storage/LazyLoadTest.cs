@@ -79,14 +79,10 @@ namespace Xtensive.Storage.Tests.Storage
         using (var t = Transaction.Open()) {
           Book b = key.Resolve<Book>();
           Tuple tuple = b.Tuple;
-
-          // Assert that fields are not loaded
-          Assert.IsFalse(tuple.IsAvailable(2));
-          Assert.IsFalse(tuple.IsAvailable(3));
-
-          // This should load all not lazy load fields.
-          Assert.AreEqual(TITLE, b.Title);
+          
           Assert.IsTrue(tuple.IsAvailable(2));
+          Assert.IsFalse(tuple.IsAvailable(3));          
+          Assert.AreEqual(TITLE, b.Title);
           Assert.IsFalse(tuple.IsAvailable(3));
 
           // Fetching lazy load field
@@ -105,7 +101,7 @@ namespace Xtensive.Storage.Tests.Storage
           Tuple tuple = b.Tuple;
 
           // Assert that fields are not loaded
-          Assert.IsFalse(tuple.IsAvailable(2));
+          Assert.IsTrue(tuple.IsAvailable(2));
           Assert.IsFalse(tuple.IsAvailable(3));
 
           // This should load all not lazy load fields + selected lazy load field.

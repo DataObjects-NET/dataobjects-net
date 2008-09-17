@@ -40,7 +40,7 @@ namespace Xtensive.Storage.Tests.Storage.TranscationsTest
     }
 
     [Test]
-    public void   RollbackCreationTest()
+    public void RollbackCreationTest()
     {
       using (Domain.OpenSession()) {
         Hexagon hexagon;
@@ -49,7 +49,7 @@ namespace Xtensive.Storage.Tests.Storage.TranscationsTest
         }
         using (Transaction.Open()) {
           Assert.IsTrue(hexagon.IsRemoved);
-        }        
+        }
         AssertEx.ThrowsInvalidOperationException( delegate { hexagon.Kwanza = 15; });
       }
     }
@@ -69,7 +69,7 @@ namespace Xtensive.Storage.Tests.Storage.TranscationsTest
           AssertEx.ThrowsInvalidOperationException( delegate { hexagon.Kwanza = 20; });
         }
           
-        hexagon.Kwanza = 14;
+        hexagon.Kwanza = 14;  
         Assert.AreEqual(14, hexagon.Kwanza);
       }
     }

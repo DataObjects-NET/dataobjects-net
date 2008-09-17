@@ -33,7 +33,7 @@ namespace Xtensive.Storage.Internals
       // Fetching all non-lazyload fields instead of exactly one non-lazy load field.
       if (!field.IsLazyLoad) {
         Fetch(key);
-        return;
+        return;        
       }
 
       // TODO: Cache
@@ -54,7 +54,8 @@ namespace Xtensive.Storage.Internals
       var rs = GetCachedRecordSet(index, columnIndexes);
       using (new ParameterScope()) {
         pKey.Value = key;
-        rs.ImportToDataCache();
+        if (rs.ImportToDataCache() == 0)
+          Session.Current.DataCache.Remove(key);
       }
     }
 
@@ -71,6 +72,5 @@ namespace Xtensive.Storage.Internals
       }
       return value;
     }
-
   }
 }

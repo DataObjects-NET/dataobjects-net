@@ -17,6 +17,8 @@ namespace Xtensive.Storage.Internals
     IEnumerable<EntityData>
   {
     private readonly WeakCache<Key, EntityData> cache;
+
+    private readonly Dictionary<Key, EntityData> removed = new Dictionary<Key, EntityData>();
     
     [Infrastructure]
     public EntityData this[Key key]
@@ -37,10 +39,45 @@ namespace Xtensive.Storage.Internals
       if (data == null)
         Create(key, tuple, false, transaction);
       else {
-        data.UpdateOrigin(tuple);
+        data.Import(tuple, transaction);
         if (Log.IsLogged(LogEventTypes.Debug))
           Log.Debug("Session '{0}'. Merging: {1}", Session.Current, data);
       }
+    }
+
+    [Infrastructure]
+    public void Remove(Key key)
+    {
+      EntityData data = cache[key, false];
+      if (data!=null)
+        Remove(data);      
+    }
+
+    [Infrastructure]
+    public void Remove(EntityData data)
+    {      
+      data.IsRemoved = true;
+      Key key = data.Key;
+      if (!removed.ContainsKey(key))
+        removed[key] = cache[key, false];
+      cache.Remove(key);
+    }
+
+    [Infrastructure]
+    public void ClearRemoved()
+    {
+      removed.Clear();
+    }
+
+    [Infrastructure]
+    public void RestoreRemoved()
+    {
+      foreach (EntityData data in removed.Values) {
+        if (cache.Contains(data.Key))
+          cache.Remove(data);
+        cache.Add(data);
+      }
+      ClearRemoved();
     }
 
     [Infrastructure]
@@ -77,7 +114,7 @@ namespace Xtensive.Storage.Internals
     IEnumerator IEnumerable.GetEnumerator()
     {
       return GetEnumerator();
-    }
+    }    
 
 
     // Constructors

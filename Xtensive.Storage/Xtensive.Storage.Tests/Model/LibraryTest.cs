@@ -661,6 +661,24 @@ namespace Xtensive.Storage.Tests.Model
     }
 
     [Test]
+    public void DuplicatedKeyTest()
+    {
+      using (Domain.OpenSession()) {
+        Book book1;
+        using (Transaction.Open()) {
+          book1 = new Book("0976470705");
+          book1.Remove();
+
+          Book book2 = new Book("0976470705");          
+          book2.Remove();
+
+          Assert.IsNull(Key.Get<Book, string>("0976470705").Resolve());
+        }
+        Assert.AreEqual(Key.Get<Book, string>("0976470705").Resolve(), book1);
+      }
+    }
+
+    [Test]
     public void ModelVerificationTest()
     {
       Domain.Model.Dump();

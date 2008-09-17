@@ -35,11 +35,11 @@ namespace Xtensive.Storage
     private volatile bool isDisposed;
     private readonly Set<object> consumers = new Set<object>();
     private readonly object _lock = new object();
-    private readonly CompilationScope compilationScope;
+    private readonly CompilationScope compilationScope;    
 
     internal readonly List<EntityData> newEntities = new List<EntityData>();
     internal readonly List<EntityData> modifiedEntities = new List<EntityData>();
-    internal readonly List<EntityData> removedEntities = new List<EntityData>();
+    internal readonly List<EntityData> removedEntities = new List<EntityData>();    
 
     /// <summary>
     /// Gets the configuration of the <see cref="Session"/>.
@@ -184,9 +184,10 @@ namespace Xtensive.Storage
       try {
         Persist();
         Handler.CommitTransaction();
+        DataCache.ClearRemoved();
         OnTranscationEnd();
       }
-      catch {
+      catch {        
         OnTransactionRollback();
         throw;
       }
@@ -199,6 +200,7 @@ namespace Xtensive.Storage
       }
       finally {
         ClearDirtyData();
+        DataCache.RestoreRemoved();
         OnTranscationEnd();
       }
     }

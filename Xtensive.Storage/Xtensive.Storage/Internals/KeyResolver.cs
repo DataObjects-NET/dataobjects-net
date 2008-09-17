@@ -5,7 +5,6 @@
 // Created:    2008.07.09
 
 using Xtensive.Core.Diagnostics;
-using Xtensive.Integrity.Transactions;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
 
@@ -53,8 +52,10 @@ namespace Xtensive.Storage.Internals
         Log.Debug("Session '{0}'. Resolving key '{1}'. Exact type is known", session, key);
 
       // Type is known so we can create Entity instance.
-      data = session.DataCache.Create(resolvedKey, false, session.Transaction);
-      return GetEntity(data);
+      Fetcher.Fetch(resolvedKey);
+      data = session.DataCache[resolvedKey];
+
+      return data==null ? null : GetEntity(data);
     }
 
     private static Entity GetEntity(EntityData data)

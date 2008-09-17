@@ -41,14 +41,17 @@ namespace Xtensive.Storage
       }
     }
 
-    internal static void ImportToDataCache(this RecordSet source)
+    internal static int ImportToDataCache(this RecordSet source)
     {
       RecordSetHeaderParsingContext context = new RecordSetHeaderParsingContext(Session.Current, source.Header);
       RecordSetMapping mapping = GetRecordSetMapping(context);
-
-      foreach (Tuple tuple in source)
+      int recordCount = 0;
+      foreach (Tuple tuple in source) {
+        recordCount++;
         foreach (ColumnGroupMapping columnGroupMapping in mapping.ColumnGroupMappings)
-          ProcessColumnGroup(context, columnGroupMapping, tuple);          
+          ProcessColumnGroup(context, columnGroupMapping, tuple);
+      }
+      return recordCount;
     }
 
     private static Key ProcessColumnGroup(RecordSetHeaderParsingContext context, ColumnGroupMapping columnGroupMapping, Tuple tuple)

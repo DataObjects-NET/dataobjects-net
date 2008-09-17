@@ -43,7 +43,7 @@ namespace Xtensive.Core.Collections
     bool Contains(TKey key);
 
     /// <summary>
-    /// Adds a new item to the cache.
+    /// Adds a new item to the cache. If item with this key is already in cache - replaces is with new item.
     /// </summary>
     /// <param name="item">The item to add.</param>
     void Add(TItem item);

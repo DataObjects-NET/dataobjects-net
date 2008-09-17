@@ -68,6 +68,7 @@ namespace Xtensive.Storage
     public bool IsRemoved
     {
       get {
+        Data.EnsureIsActual();
         return Data.IsRemoved;
       }
     }
@@ -122,17 +123,17 @@ namespace Xtensive.Storage
       if (Log.IsLogged(LogEventTypes.Debug))
         Log.Debug("Session '{0}'. Removing: Key = '{1}'", Session, Key);
 
-      data.EnsureCanOperate();
+      data.EnsureIsActual();
+      data.EnsureIsNotRemoved();
       OnRemoving();
 
-      Session.Persist();        
-      ReferenceManager.ClearReferencesTo(this);
-      Data.IsRemoved = true;
-      // We expect entity's PersistentState to be Synchronized here.
+      Session.Persist();
+      ReferenceManager.ClearReferencesTo(this);      
       Session.removedEntities.Add(Data);
+      Session.DataCache.Remove(Data);
       Data.PersistenceState = PersistenceState.Removed;
       
-      OnRemoved();        
+      OnRemoved();
     }
 
     #endregion
@@ -162,7 +163,8 @@ namespace Xtensive.Storage
     {   
       if (Log.IsLogged(LogEventTypes.Debug))
         Log.Debug("Session '{0}'. Getting value: Key = '{1}', Field = '{2}'", Session, Key, field);
-      data.EnsureCanOperate();
+      data.EnsureIsActual();
+      data.EnsureIsNotRemoved();
       EnsureIsFetched(field);
     }
 
@@ -172,7 +174,8 @@ namespace Xtensive.Storage
     { 
       if (Log.IsLogged(LogEventTypes.Debug))
         Log.Debug("Session '{0}'. Setting value: Key = '{1}', Field = '{2}'", Session, Key, field);
-      data.EnsureCanOperate();
+      data.EnsureIsActual();
+      data.EnsureIsNotRemoved();
     }
 
     /// <inheritdoc/>
@@ -207,7 +210,7 @@ namespace Xtensive.Storage
 
     internal static Entity Activate(Type type, EntityData data)
     {
-      return activators.GetValue(type, 
+      return activators.GetValue(type,
         DelegateHelper.CreateConstructorDelegate<Func<EntityData, Entity>>)
         .Invoke(data);
     }
@@ -216,7 +219,7 @@ namespace Xtensive.Storage
     {
       if (!Data.IsFetched(field.MappingInfo.Offset))
         Fetcher.Fetch(Key, field);
-    }    
+    }
 
     #endregion
 

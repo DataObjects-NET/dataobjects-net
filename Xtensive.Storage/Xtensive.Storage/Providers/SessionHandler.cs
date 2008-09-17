@@ -42,12 +42,12 @@ namespace Xtensive.Storage.Providers
     /// </summary>    
     public void Persist()
     {
+      foreach (EntityData data in Session.removedEntities)
+        Remove(data);
       foreach (EntityData data in Session.newEntities)
         Insert(data);
       foreach (EntityData data in Session.modifiedEntities)
         Update(data);
-      foreach (EntityData data in Session.removedEntities)
-        Remove(data);
     }
 
     /// <summary>
