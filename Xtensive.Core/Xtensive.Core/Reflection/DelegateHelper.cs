@@ -13,6 +13,7 @@ using System.Text;
 using System.Threading;
 using Xtensive.Core.Resources;
 using Xtensive.Core.Threading;
+using Xtensive.Core.Collections;
 
 namespace Xtensive.Core.Reflection
 {
@@ -439,7 +440,7 @@ namespace Xtensive.Core.Reflection
           if (result != null)
             return (TDelegate) (object) result;
           methodKey = String.Intern(methodKey);
-          result = (Delegate) (object) CreateDelegate<TDelegate>(null, type, AspectedProtectedConstructorCallerName, new Type[] {});
+          result = (Delegate)(object)CreateDelegate<TDelegate>(null, type, AspectedProtectedConstructorCallerName, ArrayUtils<Type>.EmptyArray);
           AddCachedDelegate(methodKey, result);
         }
       return (TDelegate) (object) result;

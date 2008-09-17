@@ -19,10 +19,10 @@ namespace Xtensive.Integrity.Relations
     where TMaster: class
     where TSlave:  class
   {
-    private static Action<TMaster, TSlave> SetMasterProperty;
-    private static Action<TSlave, TMaster> SetSlaveProperty;
-    private static Func<TMaster, TSlave> GetMasterProperty;
-    private static Func<TSlave, TMaster> GetSlaveProperty;
+    private static Action<TMaster, TSlave> setMasterProperty;
+    private static Action<TSlave, TMaster> setSlaveProperty;
+    private static Func<TMaster, TSlave> getMasterProperty;
+    private static Func<TSlave, TMaster> getSlaveProperty;
     private static bool UndoEnabled;
 
     public static bool Initialize(string masterPropertyName, string slavePropertyName)
@@ -34,10 +34,10 @@ namespace Xtensive.Integrity.Relations
     public static bool Initialize(string masterPropertyName, string slavePropertyName, bool undoEnabled)
     {
       try {
-        SetMasterProperty = DelegateHelper.CreateSetMemberDelegate<TMaster, TSlave>(masterPropertyName);
-        GetMasterProperty = DelegateHelper.CreateGetMemberDelegate<TMaster, TSlave>(masterPropertyName);
-        SetSlaveProperty = DelegateHelper.CreateSetMemberDelegate<TSlave, TMaster>(slavePropertyName);
-        GetSlaveProperty = DelegateHelper.CreateGetMemberDelegate<TSlave, TMaster>(slavePropertyName);
+        setMasterProperty = DelegateHelper.CreateSetMemberDelegate<TMaster, TSlave>(masterPropertyName);
+        getMasterProperty = DelegateHelper.CreateGetMemberDelegate<TMaster, TSlave>(masterPropertyName);
+        setSlaveProperty = DelegateHelper.CreateSetMemberDelegate<TSlave, TMaster>(slavePropertyName);
+        getSlaveProperty = DelegateHelper.CreateGetMemberDelegate<TSlave, TMaster>(slavePropertyName);
         UndoEnabled = undoEnabled;
         return true;
       }
@@ -48,7 +48,7 @@ namespace Xtensive.Integrity.Relations
 
     public static void SetMaster(TMaster master, TSlave value, Action<TMaster, TSlave> actualSetMasterProperty)
     {
-      var oldValue = GetMasterProperty(master);
+      var oldValue = getMasterProperty(master);
       if (oldValue==value)
         return;
       IDisposable scope;
@@ -61,11 +61,11 @@ namespace Xtensive.Integrity.Relations
           if (value!=null) {
             context.OldSlave = oldValue;
             PrepareForCall(context, OneToOneRelationSyncStage.SlaveSetterInvoked, value, master);
-            SetSlaveProperty(value, master);
+            setSlaveProperty(value, master);
           }
           else {
             PrepareForCall(context, OneToOneRelationSyncStage.OldSlaveSetterInvoked, oldValue, null);
-            SetSlaveProperty(oldValue, null); // oldValue!=null here
+            setSlaveProperty(oldValue, null); // oldValue!=null here
           }
           // Slaves are updated. Updating ourselves.
           actualSetMasterProperty(master, value);
@@ -90,7 +90,7 @@ namespace Xtensive.Integrity.Relations
 
     public static void SetSlave(TSlave slave, TMaster value, Action<TSlave, TMaster> actualSetSlaveProperty)
     {
-      var oldValue = GetSlaveProperty(slave);
+      var oldValue = getSlaveProperty(slave);
       if (oldValue==value)
         return;
       IDisposable scope;
@@ -101,18 +101,18 @@ namespace Xtensive.Integrity.Relations
           // Pasing control to master
           if (value!=null) {
             PrepareForCall(context, OneToOneRelationSyncStage.MasterSetterInvoked, value, slave);
-            SetMasterProperty(value, slave);
+            setMasterProperty(value, slave);
           }
           else {
             PrepareForCall(context, OneToOneRelationSyncStage.MasterSetterInvoked, oldValue, null);
-            SetMasterProperty(oldValue, null);
+            setMasterProperty(oldValue, null);
           }
           break;
         case OneToOneRelationSyncStage.SlaveSetterInvoked:
           // Pasing control to old slave, if possible
           if (context.OldSlave!=null) {
             PrepareForCall(context, OneToOneRelationSyncStage.OldSlaveSetterInvoked, context.OldSlave, null);
-            SetSlaveProperty(context.OldSlave, null);
+            setSlaveProperty(context.OldSlave, null);
           }
           // Old slaves is updated. Updating ourselves.
           actualSetSlaveProperty(slave, value);

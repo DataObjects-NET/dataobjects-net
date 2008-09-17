@@ -4,11 +4,14 @@
 // Created by: Aleksey Gamzov
 // Created:    2008.09.05
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Xtensive.Core;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Diagnostics;
+using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Model;
@@ -20,6 +23,7 @@ namespace Xtensive.Storage.Internals
     where T : Entity
     where TRef : Entity
   {
+    private static readonly Func<Tuple, TRef> constructorDelegate = DelegateHelper.CreateDelegate<Func<Tuple, TRef>>(null, typeof(TRef), DelegateHelper.AspectedProtectedConstructorCallerName, ArrayUtils<Type>.EmptyArray);
     private readonly CombineTransform combineTransform;
     private readonly bool isReverse;
 
@@ -27,13 +31,7 @@ namespace Xtensive.Storage.Internals
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
       if (!Contains(item)) {
-        Entity entity = (Entity) typeof (TRef)
-          .GetConstructor(
-            BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, 
-            null, 
-            new[] { typeof (Tuple) }, 
-            null)
-          .Invoke(new object[] { CombineKey(item.Key) });
+        constructorDelegate(CombineKey(item.Key));
         if (Field.Association.Multiplicity==Multiplicity.ManyToMany) {
           // Update paired EntitySet
           FieldInfo referencingField = Field.Association.PairTo.ReferencingField;
