@@ -39,7 +39,7 @@ namespace Xtensive.Storage.Internals
           FieldInfo referencingField = Field.Association.PairTo.ReferencingField;
           var accessor = referencingField.GetAccessor<EntitySet>();
           var pairedEntitySet = accessor.GetValue(item, referencingField);
-          pairedEntitySet.AddToCache(((Entity) Owner).Key, true);
+          pairedEntitySet.AddToCache(((Entity) Owner).Key, false);
         }
         AddToCache(item.Key, false);
         return true;
