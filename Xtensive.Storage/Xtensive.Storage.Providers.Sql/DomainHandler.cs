@@ -174,14 +174,10 @@ namespace Xtensive.Storage.Providers.Sql
       Schema schema = catalog.DefaultSchema;
       foreach (View view in schema.Views)
         batch.Add(SqlFactory.Drop(view));
-      schema.Views.Clear();
       foreach (Table table in schema.Tables)
         batch.Add(SqlFactory.Drop(table));
-      schema.Tables.Clear();
-      foreach (Sequence sequence in schema.Sequences) {
+      foreach (Sequence sequence in schema.Sequences)
         batch.Add(SqlFactory.Drop(sequence));
-      }
-      schema.Sequences.Clear();
       return batch;
     }
 

@@ -41,7 +41,7 @@ namespace Xtensive.Storage.Tests.Model.Association
   public abstract class Root2 : Entity
   {
     [Field]
-    public Guid Id { get; private set; }
+    public int Id { get; private set; }
 
     protected Root2(Tuple tuple)
       : base(tuple)
@@ -143,7 +143,7 @@ namespace Xtensive.Storage.Tests.Model
     protected override DomainConfiguration BuildConfiguration()
     {
       DomainConfiguration config = base.BuildConfiguration();
-      config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.Model.Association");
+      config.Types.Register(Assembly.GetExecutingAssembly(), typeof(A).Namespace);
       return config;
     }
 

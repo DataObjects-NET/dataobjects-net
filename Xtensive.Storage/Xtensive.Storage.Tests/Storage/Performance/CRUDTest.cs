@@ -4,15 +4,14 @@
 // Created by: Alex Yakunin
 // Created:    2008.09.08
 
-using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
-using System.Linq;
+using Xtensive.Storage.Tests.Storage.CrudModel;
 
-namespace Xtensive.Storage.Tests.Storage
+namespace Xtensive.Storage.Tests.Storage.CrudModel
 {
   [HierarchyRoot(typeof(Generator), "Id")]
   public class Simplest : Entity
@@ -29,9 +28,13 @@ namespace Xtensive.Storage.Tests.Storage
       Value = value;
     }
   }
+}
 
+
+namespace Xtensive.Storage.Tests.Storage
+{
   [TestFixture]
-  public class CRUDTest : AutoBuildTest
+  public class CrudTest : AutoBuildTest
   {
     public const int OperationsCount = 1000;
 
@@ -45,16 +48,16 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void WarmingTest()
     {
-      Combined(0,1);
+      Combined(1);
     }
 
     [Test]
     public void RegularTest()
     {
-      Combined(1,OperationsCount);
+      Combined(OperationsCount);
     }
 
-    private void Combined(int start, int count)
+    private void Combined(int count)
     {
       using (var d = Domain) {
         using (var ss = d.OpenSession()) {
@@ -63,9 +66,8 @@ namespace Xtensive.Storage.Tests.Storage
           using (var ts = s.OpenTransaction()) {
             using (new Measurement("Insert", count))
               for (int i = 0; i < count; i++) {
-                var id = i+start;
-                var o = new Simplest(id, i);
-                sum += id;
+                var o = new Simplest(i, i);
+                sum += i;
               }
             ts.Complete();
           }
@@ -73,7 +75,7 @@ namespace Xtensive.Storage.Tests.Storage
           using (var ts = s.OpenTransaction()) {
             using (new Measurement("Fetch & GetField", count))
               for (int i = 0; i < count; i++) {
-                long id = i + start;
+                long id = i;
                 var key = Key.Get<Simplest>(Tuple.Create(id));
                 var o = key.Resolve<Simplest>();
                 sum -= o.Id;
@@ -95,7 +97,7 @@ namespace Xtensive.Storage.Tests.Storage
             var rs = d.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordSet();
             var es = rs.ToEntities<Simplest>();
             using (new Measurement("Query & Remove", count))
-              foreach (var o in es.ToList())
+              foreach (var o in es)
                 o.Remove();
             ts.Complete();
           }

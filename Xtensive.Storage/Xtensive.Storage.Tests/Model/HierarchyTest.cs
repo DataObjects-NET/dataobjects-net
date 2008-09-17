@@ -80,19 +80,19 @@ namespace Xtensive.Storage.Tests.Model.Hierarchies
     {
       TypeDef type;
 
-      type = model.Types["A"];
+      type = model.Types[typeof(A)];
       Assert.IsFalse(context.Definition.FindRoot(type)==type);
 
-      type = model.Types["AB"];
+      type = model.Types[typeof(AB)];
       Assert.IsTrue(context.Definition.FindRoot(type)==type);
 
-      type = model.Types["ABC"];
+      type = model.Types[typeof(ABC)];
       Assert.IsFalse(context.Definition.FindRoot(type)==type);
 
-      type = model.Types["B"];
+      type = model.Types[typeof(B)];
       Assert.IsFalse(context.Definition.FindRoot(type)==type);
 
-      type = model.Types["BC"];
+      type = model.Types[typeof(BC)];
       Assert.IsTrue(context.Definition.FindRoot(type)==type);
     }
   }
@@ -105,7 +105,7 @@ namespace Xtensive.Storage.Tests.Model
     protected override DomainConfiguration BuildConfiguration()
     {
       DomainConfiguration config = base.BuildConfiguration();
-      config.Types.Register(typeof (A).Assembly, "Xtensive.Storage.Tests.Model.Hierarchies");
+      config.Types.Register(typeof (A).Assembly, typeof(A).Namespace);
       config.Builders.Add(typeof (CustomStorageDefinitionBuilder));
       return config;
     }
