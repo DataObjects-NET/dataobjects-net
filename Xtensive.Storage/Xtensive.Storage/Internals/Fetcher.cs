@@ -24,7 +24,7 @@ namespace Xtensive.Storage.Internals
 
     public static void Fetch(Key key)
     {
-      IndexInfo index = key.Type.Indexes.PrimaryIndex;
+      IndexInfo index = (key.Type??key.Hierarchy.Root).Indexes.PrimaryIndex;
       Fetch(index, key, index.Columns.Where(c => !c.IsLazyLoad));
     }
 
