@@ -23,7 +23,7 @@ namespace Xtensive.Integrity.Relations
     private static Action<TSlave, TMaster> setSlaveProperty;
     private static Func<TMaster, TSlave> getMasterProperty;
     private static Func<TSlave, TMaster> getSlaveProperty;
-    private static bool UndoEnabled;
+    private static bool UndoEnabled{ get; set;}
 
     public static bool Initialize(string masterPropertyName, string slavePropertyName)
     {

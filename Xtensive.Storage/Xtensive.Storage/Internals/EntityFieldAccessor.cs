@@ -50,7 +50,7 @@ namespace Xtensive.Storage.Internals
         ProcessAssociation(obj, field, entity, originalKey);
     }
 
-    private void ProcessAssociation(Persistent obj, FieldInfo field, Entity newValue, Key originalKey)
+    private static void ProcessAssociation(Persistent obj, FieldInfo field, Entity newValue, Key originalKey)
     {
       AssociationInfo association = field.Association;
       AssociationInfo pairedAssociation = association.PairTo;
@@ -96,7 +96,7 @@ namespace Xtensive.Storage.Internals
       return (T) (object) key.Resolve();
     }
 
-    private bool IsResolved(Session session, Key key)
+    private static bool IsResolved(Session session, Key key)
     {
       return key!=null && session.DataCache[key]!=null;
     }

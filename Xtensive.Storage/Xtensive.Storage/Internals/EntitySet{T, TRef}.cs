@@ -7,10 +7,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
-using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
@@ -45,7 +43,6 @@ namespace Xtensive.Storage.Internals
       return false;
     }
 
-
     public override bool Remove(T item)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
@@ -72,13 +69,6 @@ namespace Xtensive.Storage.Internals
       return Contains(item.Key);
     }
 
-    private Tuple CombineKey(Key key)
-    {
-      if (isReverse)
-        return combineTransform.Apply(TupleTransformType.TransformedTuple, ((Entity) Owner).Key.Tuple, key.Tuple);
-      return combineTransform.Apply(TupleTransformType.TransformedTuple, key.Tuple, ((Entity) Owner).Key.Tuple);
-    }
-
     protected override IndexInfo GetIndex()
     {
       if (isReverse)
@@ -95,6 +85,16 @@ namespace Xtensive.Storage.Internals
       IEnumerable<int> columnIndexes = columns.Select(columnInfo => Index.Columns.First(columnInfo2 => columnInfo2.Name==columnInfo.Name)).Select(columnInfo => Index.Columns.IndexOf(columnInfo));
       return new MapTransform(true, keyTupleDescriptor, columnIndexes.ToArray());
     }
+
+    private Tuple CombineKey(Key key)
+    {
+      if (isReverse)
+        return combineTransform.Apply(TupleTransformType.TransformedTuple, ((Entity) Owner).Key.Tuple, key.Tuple);
+      return combineTransform.Apply(TupleTransformType.TransformedTuple, key.Tuple, ((Entity) Owner).Key.Tuple);
+    }
+
+
+    // Constructors.
 
     public EntitySet(Persistent owner, FieldInfo field, bool isReverse)
       : base(owner, field)

@@ -11,6 +11,7 @@ using System.Linq;
 using System.Threading;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Integrity.Transactions;
@@ -25,14 +26,32 @@ namespace Xtensive.Storage
     ICollection<T>
     where T : Entity
   {
+    /// <summary>
+    /// Maximum items in <see cref="EntitySet{T}"/> cache.
+    /// </summary>
+    internal static int MaximumCacheSize = 1000;
+
     private Transaction transaction;
     private long? count;
     private long version;
     private IndexInfo index;
     private MapTransform keyTransform;
 
+    /// <inheritdoc/>
+    public long Count
+    {
+      get
+      {
+        EnsureInitialized();
+        return count.Value;
+      }
+    }
 
-    internal static int MaximumCacheSize = 10000;
+    /// <inheritdoc/>
+    int ICollection<T>.Count
+    {
+      get { return checked((int)Count); }
+    }
 
     /// <inheritdoc/>
     public bool IsReadOnly
@@ -41,16 +60,55 @@ namespace Xtensive.Storage
     }
 
     /// <inheritdoc/>
-    public void CopyTo(T[] array, int arrayIndex)
+    public virtual bool Contains(T item)
     {
-      foreach (T item in this)
-        array[arrayIndex++] = item;
+      ArgumentValidator.EnsureArgumentNotNull(item, "item");
+      EnsureInitialized();
+      if (Cache.Contains(item.Key))
+        return true;
+      if (Cache.Count==Count)
+        return false;
+      FieldInfo referencingField = Field.Association.PairTo.ReferencingField;
+      var accessor = referencingField.GetAccessor<Entity>();
+      bool result = ReferenceEquals(accessor.GetValue(item, referencingField), Owner);
+      if (result)
+        Cache.Add(new CachedKey(item.Key));
+      return result;
     }
 
     /// <inheritdoc/>
-    int ICollection<T>.Count
+    public bool Contains(Key key)
     {
-      get { return checked((int) Count); }
+      ArgumentValidator.EnsureArgumentNotNull(key, "key");
+      EnsureInitialized();
+      if (key.Type.UnderlyingType!=typeof (T)) {
+        return false;
+      }
+      if (!Cache.Contains(key)) {
+        if (Cache.Count==Count)
+          return false;
+        // Request from database
+        Tuple filterTuple = new CombineTransform(true, ((Entity) Owner).Key.Tuple.Descriptor, key.Tuple.Descriptor).Apply(TupleTransformType.Tuple, ((Entity) Owner).Key.Tuple, key.Tuple);
+        if (GetRecordSet().Range(filterTuple, filterTuple).Count() > 0) {
+          Cache.Add(new CachedKey(key));
+        }
+        else {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    /// <inheritdoc/>
+    public virtual bool Add(T item)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(item, "item");
+      EnsureInitialized();
+      FieldInfo referencingField = Field.Association.PairTo.ReferencingField;
+      var accessor = referencingField.GetAccessor<Entity>();
+      long previouseCount = count.Value;
+      accessor.SetValue(item, referencingField, (Entity) Owner);
+      return previouseCount!=count;
     }
 
     /// <inheritdoc/>
@@ -59,32 +117,16 @@ namespace Xtensive.Storage
       Add(item);
     }
 
-
     /// <inheritdoc/>
-    IEnumerator IEnumerable.GetEnumerator()
+    public virtual bool Remove(T item)
     {
-      return GetEnumerator();
+      ArgumentValidator.EnsureArgumentNotNull(item, "item");
+      EnsureInitialized();
+      if (!Contains(item))
+        return false;
+      RemoveInternal(item);
+      return true;
     }
-
-    protected IndexInfo Index
-    {
-      get
-      {
-        index = index ?? GetIndex();
-        return index;
-      }
-    }
-
-    private MapTransform KeyTransform
-    {
-      get
-      {
-        keyTransform = keyTransform ?? GetKeyTransform();
-        return keyTransform;
-      }
-    }
-
-    internal Cache<Key, CachedKey, CachedKey> Cache { get; private set; }
 
     /// <inheritdoc/>
     public int RemoveWhere(Predicate<T> match)
@@ -110,57 +152,6 @@ namespace Xtensive.Storage
     }
 
     /// <inheritdoc/>
-    public virtual bool Contains(Key key)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(key, "key");
-      EnsureInitialized();
-      if (key.Type.UnderlyingType!=typeof (T)) {
-        return false;
-      }
-      if (!Cache.Contains(key)) {
-        if (Cache.Count==Count)
-          return false;
-        // Request from database
-        Tuple filterTuple = new CombineTransform(true, ((Entity) Owner).Key.Tuple.Descriptor, key.Tuple.Descriptor).Apply(TupleTransformType.Tuple, ((Entity) Owner).Key.Tuple, key.Tuple);
-        if (GetRecordSet().Range(filterTuple, filterTuple).Count() > 0) {
-          Cache.Add(new CachedKey(key));
-        }
-        else {
-          return false;
-        }
-      }
-      return true;
-    }
-
-    /// <inheritdoc/>
-    public virtual bool Contains(T item)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(item, "item");
-      EnsureInitialized();
-      if (Cache.Contains(item.Key))
-        return true;
-      if (Cache.Count==Count)
-        return false;
-      FieldInfo referencingField = Field.Association.PairTo.ReferencingField;
-      var accessor = referencingField.GetAccessor<Entity>();
-      bool result = ReferenceEquals(accessor.GetValue(item, referencingField), Owner);
-      if (result)
-        Cache.Add(new CachedKey(item.Key));
-      return result;
-    }
-
-    /// <inheritdoc/>
-    public virtual bool Add(T item)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(item, "item");
-      EnsureInitialized();
-      FieldInfo referencingField = Field.Association.PairTo.ReferencingField;
-      var accessor = referencingField.GetAccessor<Entity>();
-      long previouseCount = count.Value;
-      accessor.SetValue(item, referencingField, (Entity) Owner);
-      return previouseCount!=count;
-    }
-
     public IEnumerator<T> GetEnumerator()
     {
       EnsureInitialized();
@@ -183,25 +174,21 @@ namespace Xtensive.Storage
     }
 
     /// <inheritdoc/>
-    public virtual bool Remove(T item)
+    IEnumerator IEnumerable.GetEnumerator()
     {
-      ArgumentValidator.EnsureArgumentNotNull(item, "item");
-      EnsureInitialized();
-      if (!Contains(item))
-        return false;
-      RemoveInternal(item);
-      return true;
+      return GetEnumerator();
     }
 
     /// <inheritdoc/>
-    public long Count
+    public void CopyTo(T[] array, int arrayIndex)
     {
-      get
-      {
-        EnsureInitialized();
-        return count.Value;
-      }
+      foreach (T item in this)
+        array[arrayIndex++] = item;
     }
+
+    #region Protected and Internal
+
+    internal Cache<Key, CachedKey, CachedKey> Cache { get; private set; }
 
     internal override sealed void ClearCache()
     {
@@ -228,6 +215,15 @@ namespace Xtensive.Storage
         Cache.Remove(key);
       }
       IncreaseVersion();
+    }
+
+    protected IndexInfo Index
+    {
+      get
+      {
+        index = index ?? GetIndex();
+        return index;
+      }
     }
 
     protected virtual IndexInfo GetIndex()
@@ -268,6 +264,10 @@ namespace Xtensive.Storage
         Exceptions.CollectionHasBeenChanged(null);
     }
 
+    #endregion
+
+    #region Private methods
+
     private void EnusureTransaction()
     {
       if (Transaction.Current!=transaction) {
@@ -286,6 +286,15 @@ namespace Xtensive.Storage
       }
     }
 
+    private MapTransform KeyTransform
+    {
+      get
+      {
+        keyTransform = keyTransform ?? GetKeyTransform();
+        return keyTransform;
+      }
+    }
+
     private void RemoveInternal(T item)
     {
       FieldInfo referencingField = Field.Association.PairTo.ReferencingField;
@@ -293,6 +302,15 @@ namespace Xtensive.Storage
       accessor.SetValue(item, referencingField, null);
     }
 
+    #endregion
+
+    // Constructors
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="owner">Persistent this entity set belongs to.</param>
+    /// <param name="field">Field corresponds to this entity set.</param>
     public EntitySet(Persistent owner, FieldInfo field)
       : base(owner, field)
     {

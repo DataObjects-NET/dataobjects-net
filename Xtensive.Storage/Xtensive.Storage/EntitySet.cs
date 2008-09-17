@@ -17,6 +17,18 @@ namespace Xtensive.Storage
   public abstract class EntitySet : SessionBound,
     IFieldHandler
   {
+    /// <inheritdoc/>
+    public Persistent Owner { get; private set; }
+
+    /// <inheritdoc/>
+    public FieldInfo Field { get; private set; }
+
+    internal abstract void ClearCache();
+
+    internal abstract void AddToCache(Key key, bool mandatoryProcess);
+
+    internal abstract void RemoveFromCache(Key key, bool refresh);
+
     internal static IFieldHandler Activate(Type type, Persistent obj, FieldInfo field)
     {
       AssociationInfo association = field.Association;
@@ -35,18 +47,6 @@ namespace Xtensive.Storage
       Type reverseEntitySetType = typeof(EntitySet<,>).MakeGenericType(type, association.MasterAssociation.EntityType);
       return (IFieldHandler)reverseEntitySetType.InvokeMember("", BindingFlags.CreateInstance, null, null, new object[] { obj, field, true });
     }
-
-    /// <inheritdoc/>
-    public Persistent Owner { get; private set; }
-
-    /// <inheritdoc/>
-    public FieldInfo Field { get; private set; }
-
-    internal abstract void ClearCache();
-
-    internal abstract void AddToCache(Key key, bool mandatoryProcess);
-
-    internal abstract void RemoveFromCache(Key key, bool refresh);
 
 
     // Constructors
