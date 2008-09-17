@@ -70,7 +70,7 @@ namespace Xtensive.Storage.Building.Builders
       if (indexParameters.Length > 0)
         throw new DomainBuilderException(Resources.Strings.IndexedPropertiesAreNotSupported);
 
-      FieldDef fieldDef = new FieldDef(propertyInfo);
+      var fieldDef = new FieldDef(propertyInfo);
       fieldDef.Name = context.NameBuilder.Build(fieldDef);
 
       AttributeProcessor.Process(fieldDef, 
@@ -101,7 +101,7 @@ namespace Xtensive.Storage.Building.Builders
     {
       Log.Info("Building declared field '{0}.{1}'", type.Name, fieldDef.Name);
       
-      FieldInfo field = new FieldInfo(type, fieldDef.Attributes)
+      var field = new FieldInfo(type, fieldDef.Attributes)
         {
           UnderlyingProperty = fieldDef.UnderlyingProperty, 
           Name = fieldDef.Name, 

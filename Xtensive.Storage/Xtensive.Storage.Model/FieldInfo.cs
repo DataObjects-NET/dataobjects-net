@@ -385,10 +385,9 @@ namespace Xtensive.Storage.Model
       fields.Lock(true);
       if (column!=null) {
         column.Lock(true);
-        if (reflectedType.IsStructure)
-          mappingInfo = new Segment<int>(reflectedType.Columns.IndexOf(column), 1);
-        else
-          mappingInfo = new Segment<int>(reflectedType.Indexes.PrimaryIndex.Columns.IndexOf(column), 1);
+        mappingInfo = reflectedType.IsStructure 
+          ? new Segment<int>(reflectedType.Columns.IndexOf(column), 1) 
+          : new Segment<int>(reflectedType.Indexes.PrimaryIndex.Columns.IndexOf(column), 1);
       }
       else if (fields.Count > 0)
         mappingInfo = new Segment<int>(fields.First().MappingInfo.Offset, fields.Sum(info => info.MappingInfo.Length));
@@ -447,14 +446,15 @@ namespace Xtensive.Storage.Model
     /// </summary>
     public FieldInfo Clone()
     {
-      FieldInfo clone= new FieldInfo(declaringType, reflectedType, attributes);
-      clone.Name = Name;
-      clone.MappingName = MappingName;
-      clone.underlyingProperty = underlyingProperty;
-      clone.valueType = valueType;
-      clone.length = length;
-      clone.association = association;
-
+      var clone= new FieldInfo(declaringType, reflectedType, attributes)
+        {
+          Name = Name, 
+          MappingName = MappingName, 
+          underlyingProperty = underlyingProperty, 
+          valueType = valueType, 
+          length = length, 
+          association = association
+        };
       return clone;
     }
 

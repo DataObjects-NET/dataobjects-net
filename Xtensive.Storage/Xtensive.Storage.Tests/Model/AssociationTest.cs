@@ -632,7 +632,7 @@ namespace Xtensive.Storage.Tests.Model
           a1.ManyToMany.Add(g1);
           a1.ManyToMany.Add(g1);
           g1.As.Add(a1);
-          g1.As.Add(a1);
+          g2.As.Add(a2);
           Assert.AreEqual(2, a1.ManyToMany.Count);
           Assert.AreEqual(2, a2.ManyToMany.Count);
           Assert.AreEqual(2, g1.As.Count);
