@@ -26,7 +26,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
       var query = (SqlSelect)source.Request.Statement.Clone();
       query.OrderBy.Clear();
       foreach (KeyValuePair<int, Direction> sortOrder in provider.Order)
-        query.OrderBy.Add(sortOrder.Key, sortOrder.Value == Direction.Positive);
+        query.OrderBy.Add(sortOrder.Key + 1, sortOrder.Value == Direction.Positive);
 
       var request = new SqlFetchRequest(query, provider.Header.TupleDescriptor, source.Request.ParameterBindings);
       return new SqlProvider(provider, request, Handlers, source);

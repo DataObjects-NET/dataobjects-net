@@ -622,7 +622,10 @@ namespace Xtensive.Storage.Tests.Storage
             RecordSet skip = orderBy.Skip(5);
             RecordSet take = skip.Take(50);
             var snakesRse = take.ToEntities<Snake>();
-
+            t.Complete();
+            foreach (Snake snake in snakesRse) {
+              Console.WriteLine(snake.Key);
+            }
             Assert.AreEqual(15, snakesRse.Count());
           }
 
