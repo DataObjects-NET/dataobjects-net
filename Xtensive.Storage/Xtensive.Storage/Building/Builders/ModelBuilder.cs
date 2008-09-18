@@ -6,6 +6,7 @@
 
 using System;
 using System.Linq;
+using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Internals;
@@ -103,10 +104,36 @@ namespace Xtensive.Storage.Building.Builders
             context.RegisterError(e);
           }
 
+        ValidateHierarchies();
         BuildAssociations();
         BuildColumns();
         IndexBuilder.BuildIndexes();
         BuildHierarchyColumns();
+      }
+    }
+
+    private static void ValidateHierarchies()
+    {
+      BuildingContext context = BuildingContext.Current;
+      foreach (HierarchyDef hierarchy in context.Definition.Hierarchies) {
+        TypeDef root = hierarchy.Root;
+        foreach (KeyField keyField in hierarchy.KeyFields.Keys) {
+          FieldDef srcField = root.Fields.TryGetValue(keyField.Name);
+          if (srcField == null)
+            context.RegisterError(new DomainBuilderException(
+              string.Format(Strings.ExKeyFieldXWasNotFoundInTypeY, keyField.Name, root.Name)));
+          else if (srcField.ValueType!=keyField.ValueType)
+            context.RegisterError(new DomainBuilderException(
+              string.Format(Strings.ValueTypeMismatchForFieldX, keyField.Name)));
+          else if (srcField.UnderlyingProperty != null) {
+            var setMethod = srcField.UnderlyingProperty.GetSetMethod(true);
+            if (setMethod != null) {
+              if ((setMethod.Attributes & MethodAttributes.Private) == 0)
+                context.RegisterError(new DomainBuilderException(
+                  string.Format(Strings.ExKeyFieldXInTypeYShouldNotHaveSetAccessor, keyField.Name, root.Name)));
+            }
+          }
+        }
       }
     }
 

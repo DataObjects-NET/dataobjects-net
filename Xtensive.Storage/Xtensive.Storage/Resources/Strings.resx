@@ -477,4 +477,7 @@
   <data name="ExTypeXIsNotSupported" xml:space="preserve">
     <value>Type '{0}' is not supported.</value>
   </data>
+  <data name="ExKeyFieldXInTypeYShouldNotHaveSetAccessor" xml:space="preserve">
+    <value>Key property '{0}' declared at '{1}' should not have public or protected set accessor. Use  base protected constructor instead.</value>
+  </data>
 </root>

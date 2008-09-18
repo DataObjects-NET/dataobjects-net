@@ -50,11 +50,6 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
     public int Number
     {
       get { return GetValue<int>("Number"); }
-      set
-      {
-        SetValue("Number", value);
-        Passport.Number = value;
-      }
     }
 
     [Field]
@@ -64,8 +59,6 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
       set
       {
         SetValue("Passport", value);
-        if (Number!=value.Number)
-          Number = value.Number;
       }
     }
 
@@ -114,10 +107,10 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
   public class BookReview : Entity
   {
     [Field(MappingName = "Book", OnDelete = ReferentialAction.Cascade)]
-    public Book Book { get; set; }
+    public Book Book { get; private set; }
 
     [Field(OnDelete = ReferentialAction.SetNull)]
-    public Person Reviewer { get; set; }
+    public Person Reviewer { get; private set; }
 
     [Field(Length = 4096)]
     public string Text { get; set; }

@@ -20,7 +20,7 @@ namespace Xtensive.Storage.Tests.Storage.Keys
     public abstract class Fruit : Entity
     {
       [Field(Length = 50)] 
-      public string Tag { get; set;}    
+      public string Tag { get; private set;}    
 
       public Fruit(string tag)
         : base(Tuple.Create(tag)) {}

@@ -70,6 +70,7 @@ namespace Xtensive.Storage.Building.Builders
       if (indexParameters.Length > 0)
         throw new DomainBuilderException(Resources.Strings.IndexedPropertiesAreNotSupported);
 
+
       var fieldDef = new FieldDef(propertyInfo);
       fieldDef.Name = context.NameBuilder.Build(fieldDef);
 

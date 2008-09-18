@@ -17,7 +17,7 @@ namespace Xtensive.Storage.Tests.Storage.CrudModel
   public class Simplest : Entity
   {
     [Field]
-    public long Id { get; set; }
+    public long Id { get; private set; }
 
     [Field]
     public long Value { get; set; }

@@ -19,7 +19,7 @@ namespace Xtensive.Storage.Tests.Model.ReferenceTestModel
   public class A : Entity
   {
     [Field]
-    public int Id { get; set; }
+    public int Id { get; private set; }
 
     [Field]
     public A Parent { get; set; }
@@ -61,21 +61,21 @@ namespace Xtensive.Storage.Tests.Model.ReferenceTestModel
   public class E1 : Entity
   {
     [Field]
-    public int Id { get; set; }
+    public int Id { get; private set; }
   }
 
   [HierarchyRoot(typeof(Generator), "Id")]
   public class E2 : Entity
   {
     [Field]
-    public int Id { get; set; }
+    public int Id { get; private set; }
   }
 
   [HierarchyRoot(typeof(Generator), "Id")]
   public class ERef : Entity
   {
     [Field]
-    public int Id { get; set; }
+    public int Id { get; private set; }
     [Field]
     public E1 Ref1 { get; set; }
     [Field]

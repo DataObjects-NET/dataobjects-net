@@ -17,7 +17,7 @@ namespace Xtensive.Storage.Tests.Storage.Atomicity
   public class Cake : Entity
   {
     [Field]
-    public int ID { get; set; }
+    public int ID { get; private set; }
 
     [Field]
     public bool IsTasty { get; set;}

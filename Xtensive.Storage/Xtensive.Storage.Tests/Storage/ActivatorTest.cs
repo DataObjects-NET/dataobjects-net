@@ -16,13 +16,11 @@ namespace Xtensive.Storage.Tests.Storage.ActivatorModel
   public abstract class Ancestor : Entity
   {
     [Field]
-    public abstract int ID { get; set; }
+    public int ID { get; private set; }
   }
 
   public class Descendant : Ancestor
   {
-    public override int ID { get; set; }
-
     [Field]
     public int Number { get; set; }
   }

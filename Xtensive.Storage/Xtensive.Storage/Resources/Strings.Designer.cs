@@ -412,6 +412,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Key property &apos;{0}&apos; declared at &apos;{1}&apos; should not have public or protected set accessor. Use  base protected constructor instead..
+        /// </summary>
+        internal static string ExKeyFieldXInTypeYShouldNotHaveSetAccessor {
+            get {
+                return ResourceManager.GetString("ExKeyFieldXInTypeYShouldNotHaveSetAccessor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Key field &apos;{0}&apos; was not found in type &apos;{1}&apos;..
         /// </summary>
         internal static string ExKeyFieldXWasNotFoundInTypeY {

@@ -41,7 +41,7 @@ namespace Xtensive.Storage.Tests.Storage.StructureModel
   public class Ray : Entity
   {
     [Field]
-    public int ID { get; set; }
+    public int ID { get; private set; }
 
     [Field]
     public Point Vertex { get; set; }

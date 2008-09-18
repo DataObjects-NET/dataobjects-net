@@ -20,7 +20,7 @@ namespace Xtensive.Storage.Tests.Storage.Validation
     public class Mouse : Entity
     {
       [Field]
-      public int ID { get; set; }
+      public int ID { get; private set; }
 
       [Field]
       public int ButtonCount { get; set; }

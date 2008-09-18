@@ -6,7 +6,6 @@
 
 using Xtensive.Core.Diagnostics;
 using Xtensive.Storage.Model;
-using Xtensive.Storage.Providers;
 
 namespace Xtensive.Storage.Internals
 {

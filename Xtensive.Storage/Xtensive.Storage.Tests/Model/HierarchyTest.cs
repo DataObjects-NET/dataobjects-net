@@ -36,7 +36,7 @@ namespace Xtensive.Storage.Tests.Model.Hierarchies
   public class AB : A
   {
     [Field]
-    public long ID { get; set; }
+    public long ID { get; private set; }
 
     [Field]
     public string ABName { get; set; }
@@ -54,14 +54,14 @@ namespace Xtensive.Storage.Tests.Model.Hierarchies
   public class BC : B
   {
     [Field]
-    public Guid ID { get; set; }
+    public Guid ID { get; private set; }
   }
 
   [HierarchyRoot(typeof (Generator), "ID")]
   public class BD : B
   {
     [Field]
-    public long ID { get; set; }
+    public long ID { get; private set; }
 
     [Field]
     public string AName { get; set; }
@@ -71,7 +71,7 @@ namespace Xtensive.Storage.Tests.Model.Hierarchies
   public class BE : B
   {
     [Field]
-    public int ID { get; set; }
+    public int ID { get; private set; }
   }
 
   public class CustomStorageDefinitionBuilder : IDomainBuilder

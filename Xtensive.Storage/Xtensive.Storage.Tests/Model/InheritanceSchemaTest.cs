@@ -39,7 +39,7 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaModel
   public class A : Entity
   {
     [Field]
-    public long ID { get; set; }
+    public long ID { get; private set; }
   }
 
   [Entity]
@@ -100,7 +100,7 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaModel
   public class X : Entity
   {
     [Field]
-    public long ID { get; set; }
+    public long ID { get; private set; }
 
     [Field(Length = 1000)]
     public string Name { get; set; }

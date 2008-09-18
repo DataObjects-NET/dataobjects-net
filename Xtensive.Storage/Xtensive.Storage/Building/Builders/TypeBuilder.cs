@@ -240,7 +240,7 @@ namespace Xtensive.Storage.Building.Builders
     private static void BuildHierarchyRoot(TypeInfo type, TypeDef typeDef, HierarchyDef hierarchy)
     {
       foreach (KeyField keyField in hierarchy.KeyFields.Keys)
-        BuildKeyField( typeDef, keyField, type);
+        BuildKeyField(typeDef, keyField, type);
 
       type.Hierarchy = HierarchyBuilder.BuildHierarchy(type, hierarchy);
 
@@ -259,13 +259,19 @@ namespace Xtensive.Storage.Building.Builders
     {
       FieldDef srcField = typeDef.Fields.TryGetValue(keyField.Name);
 
-      if (srcField == null)
-        throw new DomainBuilderException(
-          string.Format(Resources.Strings.ExKeyFieldXWasNotFoundInTypeY, keyField.Name, typeDef.Name));
+//      if (srcField == null)
+//        throw new DomainBuilderException(
+//          string.Format(Resources.Strings.ExKeyFieldXWasNotFoundInTypeY, keyField.Name, typeDef.Name));
+//
+//      if (srcField.ValueType!=keyField.ValueType)
+//        throw new DomainBuilderException(
+//          string.Format(Resources.Strings.ValueTypeMismatchForFieldX, keyField.Name));
 
-      if (srcField.ValueType!=keyField.ValueType)
-        throw new DomainBuilderException(
-          string.Format(Resources.Strings.ValueTypeMismatchForFieldX, keyField.Name));
+//      if (srcField.UnderlyingProperty != null) {
+//        if(srcField.UnderlyingProperty.CanWrite)
+//          throw new DomainBuilderException (
+//            string.Format(Resources.Strings.ExKeyFieldXInTypeYShouldNotHaveSetAccessor, keyField.Name, type.Name));
+//      }
 
       FieldBuilder.BuildDeclaredField(type, srcField);
       FieldInfo field = type.Fields[srcField.Name];

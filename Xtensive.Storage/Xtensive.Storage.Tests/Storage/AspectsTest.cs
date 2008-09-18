@@ -21,7 +21,7 @@ namespace Xtensive.Storage.Tests.Storage.AspectsTest
     public class BusinessObject : Entity
     {
       [Field]
-      public int ID { get; set; }
+      public int ID { get; private set; }
 
       public void PublicMethod(Action<BusinessObject> callback)
       {        
