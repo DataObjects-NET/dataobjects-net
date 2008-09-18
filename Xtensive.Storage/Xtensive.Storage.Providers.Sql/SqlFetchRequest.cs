@@ -26,7 +26,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <summary>
     /// Gets or sets the result element descriptor.
     /// </summary>
-    public TupleDescriptor ElementDescriptor { get; private set; }
+    public TupleDescriptor TupleDescriptor { get; private set; }
 
     /// <inheritdoc/>
     public override List<SqlParameter> GetParameters()
@@ -55,7 +55,7 @@ namespace Xtensive.Storage.Providers.Sql
       : base(statement)
     {
       ParameterBindings = new Dictionary<SqlParameter, Func<object>>();
-      ElementDescriptor = elementDescriptor;
+      TupleDescriptor = elementDescriptor;
     }
 
     /// <summary>

@@ -80,7 +80,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       using (DbDataReader reader = ExecuteReader(request)) {
         Tuple tuple;
-        while ((tuple = ReadTuple(reader, request.ElementDescriptor))!=null)
+        while ((tuple = ReadTuple(reader, request.TupleDescriptor))!=null)
           yield return tuple;
       }
     }

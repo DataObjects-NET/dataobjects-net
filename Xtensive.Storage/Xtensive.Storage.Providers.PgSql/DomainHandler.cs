@@ -6,6 +6,7 @@
 
 using System;
 using Xtensive.Sql.Common;
+using Xtensive.Storage.Providers.PgSql.Resources;
 
 namespace Xtensive.Storage.Providers.PgSql
 {
@@ -51,10 +52,7 @@ namespace Xtensive.Storage.Providers.PgSql
         else
           return SqlDataType.VarBinaryMax;
       }
-      if (type == typeof(Guid))
-        return SqlDataType.Guid;
-//      throw new InvalidOperationException(String.Format(Strings.ExUnsupportedColumnType, type.FullName));
-      throw new InvalidOperationException();
+      throw new InvalidOperationException(String.Format(Strings.ExUnsupportedColumnType, type.FullName));
       //    ********** not supported types  *************
       //    SmallMoney 
       //    Money
