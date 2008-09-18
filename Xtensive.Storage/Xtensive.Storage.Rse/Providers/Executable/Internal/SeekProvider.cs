@@ -44,9 +44,6 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     }
 
 
-
-
-
     // Constructors
 
     public SeekProvider(Compilable.SeekProvider origin, ExecutableProvider source)
