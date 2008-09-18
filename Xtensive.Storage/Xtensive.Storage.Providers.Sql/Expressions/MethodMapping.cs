@@ -16,9 +16,9 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
   internal static class MethodMapping
   {
     private static readonly ThreadSafeDictionary<MethodInfo, Func<SqlExpression, SqlExpression[], SqlExpression>> map =
-      ThreadSafeDictionary<MethodInfo, Func<SqlExpression,SqlExpression[], SqlExpression>>.Create(new object());
+      ThreadSafeDictionary<MethodInfo, Func<SqlExpression, SqlExpression[], SqlExpression>>.Create(new object());
 
-    public static Func<SqlExpression,SqlExpression[], SqlExpression> GetMapping(MethodInfo methodInfo)
+    public static Func<SqlExpression, SqlExpression[], SqlExpression> GetMapping(MethodInfo methodInfo)
     {
       Func<SqlExpression, SqlExpression[], SqlExpression> value;
       if (!map.TryGetValue(methodInfo, out value))
