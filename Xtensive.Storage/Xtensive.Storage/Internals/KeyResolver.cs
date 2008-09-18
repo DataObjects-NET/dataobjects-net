@@ -20,8 +20,9 @@ namespace Xtensive.Storage.Internals
       if (data!=null) {
         if (Log.IsLogged(LogEventTypes.Debug))
           Log.Debug("Session '{0}'. Resolving key '{1}'. Key is already resolved", session, key);
-
-        return GetEntity(data);
+        
+        data.EnsureIsActual();
+        return data.IsRemoved ? null : GetEntity(data);
       }
 
       // Probing to get already resolved and cached key
