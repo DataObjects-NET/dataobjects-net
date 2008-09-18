@@ -13,20 +13,19 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 {
   internal class AggregateProvider : UnaryExecutableProvider<Compilable.AggregateProvider>
   {
-    /// <inheritdoc/>
     protected internal override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
       var result = new List<Tuple> { Tuple.Create(Origin.Header.TupleDescriptor) };
       var calculator = new AggregateCalculatorProvider(Origin.AggregateColumns);
-      var actionList = new List<Action<Tuple, Tuple>>();
+      var actionList = new List<Action<Tuple, Tuple, int>>();
 
       foreach (var col in Origin.AggregateColumns)
-        actionList.Add((Action<Tuple, Tuple>)typeof(AggregateCalculatorProvider).GetMethod("GetAggregateCalculator")
-            .MakeGenericMethod(col.Type).Invoke(calculator, new object[] { col.AggregateType, col.SourceIndex, col.Index }));
+        actionList.Add((Action<Tuple, Tuple, int>)typeof(AggregateCalculatorProvider).GetMethod("GetAggregateCalculator")
+            .MakeGenericMethod(col.Type).Invoke(calculator, new object[] { col.AggregateType, col.SourceIndex, col.Index}));
 
       foreach (var tuple in Source.Enumerate(context))
         foreach (var col in Origin.AggregateColumns)
-          actionList[col.Index](tuple, calculator.GetAccumulator(col.Index));
+          actionList[col.Index](tuple, calculator.GetAccumulator(col.Index), 0);
 
       foreach (var col in Origin.AggregateColumns)
         result[0] = (Tuple)typeof(AggregateCalculatorProvider).GetMethod("Calculate")

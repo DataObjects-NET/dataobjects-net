@@ -15,13 +15,13 @@ namespace Xtensive.Storage.Rse
 {
   internal class AggregateCalculatorProvider
   {
-    private readonly Dictionary<int, Tuple> accumulatorSet;
+    private readonly Dictionary<int,List<Tuple>> accumulatorSet;
 
     public AggregateColumn[] Columns { get; set; }
 
-    public Action<Tuple, Tuple> GetAggregateCalculator<T>(AggregateType type, int sourceIndex, int resultIndex)
+    public Action<Tuple, Tuple, int> GetAggregateCalculator<T>(AggregateType type, int sourceIndex, int resultIndex)
     {
-      Action<Tuple, Tuple> action = null;
+      Action<Tuple, Tuple, int> action = null;
 
       switch (type) {
         case AggregateType.Avg:
@@ -48,9 +48,20 @@ namespace Xtensive.Storage.Rse
       return action;
     }
 
+    public Tuple GetAccumulator(int resultIndex, int groupIndex)
+    {
+      int count = groupIndex - accumulatorSet[resultIndex].Count;
+      if (count >= 0)
+        for (int i=0; i<=count; i++)
+          accumulatorSet[resultIndex].Add(null);
+      return accumulatorSet[resultIndex][groupIndex];
+    }
+
     public Tuple GetAccumulator(int resultIndex)
     {
-      return accumulatorSet[resultIndex];
+      if (accumulatorSet[resultIndex].Count == 0)
+        accumulatorSet[resultIndex].Add(null);
+      return accumulatorSet[resultIndex][0];
     }
 
     public Tuple Calculate<T>(AggregateColumn column, Tuple accumulator, Tuple result)
@@ -67,77 +78,77 @@ namespace Xtensive.Storage.Rse
 
     #region Private/Internal methods.
 
-    private Action<Tuple, Tuple> Count(int s, int r)
+    private Action<Tuple, Tuple, int> Count(int s, int r)
     {
-      return delegate(Tuple src, Tuple acc) {
+      return delegate(Tuple src, Tuple acc, int g) {
         if (acc == null) {
           acc = Tuple.Create(new[] { typeof(long) });
           acc.SetValue(0, (long)0);
         }
         acc.SetValue(0, acc.GetValue<long>(0) + 1);
-        accumulatorSet[r] = acc;
+        accumulatorSet[r][g] = acc;
       };
     }
 
-    private Action<Tuple, Tuple> Max<T>(int s, int r)
+    private Action<Tuple, Tuple, int> Max<T>(int s, int r)
     {
-      return delegate(Tuple src, Tuple acc) {
+      return delegate(Tuple src, Tuple acc, int g) {
         if (src.GetValue(s) != null)
           if (acc == null) {
             acc = Tuple.Create(src.GetValue<T>(s));
-            accumulatorSet[r] = acc;
+            accumulatorSet[r][g] = acc;
           }
           else 
             if (Comparer.Default.Compare(src.GetValue<T>(s), acc.GetValue<T>(0)) > 0) {
               acc.SetValue(0, src.GetValue<T>(s));
-              accumulatorSet[r] = acc;
+              accumulatorSet[r][g] = acc;
             }
       };
     }
 
-    private Action<Tuple, Tuple> Min<T>(int s, int r)
+    private Action<Tuple, Tuple, int> Min<T>(int s, int r)
     {
-      return delegate(Tuple src, Tuple acc) {
+      return delegate(Tuple src, Tuple acc, int g) {
         if (src.GetValue(s) != null)
           if (acc == null) {
             acc = Tuple.Create(src.GetValue<T>(s));
-            accumulatorSet[r] = acc;
+            accumulatorSet[r][g] = acc;
           }
           else
             if (Comparer.Default.Compare(src.GetValue<T>(s), acc.GetValue<T>(0)) < 0) {
               acc.SetValue(0, src.GetValue<T>(s));
-              accumulatorSet[r] = acc;
+              accumulatorSet[r][g] = acc;
             }
       };
     }
 
-    private Action<Tuple, Tuple> Sum<T>(int s, int r)
+    private Action<Tuple, Tuple, int> Sum<T>(int s, int r)
     {
-      return delegate(Tuple src, Tuple acc) {
+      return delegate(Tuple src, Tuple acc, int g) {
         if (src.GetValue(s) != null)
           if (acc == null) {
             acc = Tuple.Create(src.GetValue<T>(s));
-            accumulatorSet[r] = acc;
+            accumulatorSet[r][g] = acc;
           }
           else {
             acc.SetValue(0, Arithmetic<T>.Default.Add(acc.GetValue<T>(0), src.GetValue<T>(s)));
-            accumulatorSet[r] = acc;
+            accumulatorSet[r][g] = acc;
           }
       };
     }
 
-    private Action<Tuple, Tuple> Avg<T>(int s, int r)
+    private Action<Tuple, Tuple, int> Avg<T>(int s, int r)
     {
-      return delegate(Tuple src, Tuple acc) {
+      return delegate(Tuple src, Tuple acc, int g) {
         if (src.GetValue(s) != null)
           if (acc == null) {
             acc = Tuple.Create((long)1, src.GetValue<T>(s));
-            accumulatorSet[r] = acc;
+            accumulatorSet[r][g] = acc;
           }
           else {
             acc.SetValue(0, acc.GetValue<long>(0) + 1);
             acc.SetValue(1, Arithmetic<T>.Default.Add(acc.GetValue<T>(1), src.GetValue<T>(s)));
-            accumulatorSet[r] = acc;
+            accumulatorSet[r][g] = acc;
           }
       };
     }
@@ -150,9 +161,9 @@ namespace Xtensive.Storage.Rse
     public AggregateCalculatorProvider(AggregateColumn[] columns)
     {
       Columns = columns;
-      accumulatorSet = new Dictionary<int, Tuple>();
+      accumulatorSet = new Dictionary<int, List<Tuple>>();
       foreach (var column in columns)
-        accumulatorSet.Add(column.Index,null);
+        accumulatorSet.Add(column.Index,new List<Tuple>());
     }
 
   }

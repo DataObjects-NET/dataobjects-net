@@ -107,6 +107,39 @@ namespace Xtensive.Storage.Tests.Storage
     }
 
     [Test]
+    public void GroupTest()
+    {
+      TestFixtureTearDown();
+      TestFixtureSetUp();
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          new Snake {Name = "Kaa1", Length = 2};
+          new Snake { Name = "Kaa2", Length = 1 };
+          new Snake { Name = "Kaa3", Length = 2 };
+          new Snake { Name = "Kaa1", Length = 1 };
+          new Snake { Name = "Kaa1", Length = 1 };
+          new Snake { Name = "Kaa1", Length = 3 };
+
+          Session.Current.Persist();
+
+          TypeInfo snakeType = Domain.Model.Types[typeof(Snake)];
+          RecordSet rsSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordSet();
+          RecordSet aggregate = rsSnakePrimary;
+          
+          aggregate = aggregate.CalculateAggregateFunction(
+            new [] { new AggregateColumnDescriptor("Count1", 0, AggregateType.Count),
+            new AggregateColumnDescriptor("Min1", 0, AggregateType.Min),
+            new AggregateColumnDescriptor("Max1", 0, AggregateType.Max),
+            new AggregateColumnDescriptor("Sum1", 0, AggregateType.Sum),
+            new AggregateColumnDescriptor("Avg1", 0, AggregateType.Avg)}, 4,2);
+
+          aggregate.Count();
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
     public void ProviderTest()
     {
       const int snakesCount = 100;
@@ -118,8 +151,7 @@ namespace Xtensive.Storage.Tests.Storage
 
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
-
-          for (int i = 0; i < snakesCount; i++)
+      for (int i = 0; i < snakesCount; i++)
             new Snake { Name = ("Kaa" + i), Length = i };
           for (int j = 0; j < creaturesCount; j++)
             new Creature { Name = ("Creature" + j) };
@@ -159,6 +191,8 @@ namespace Xtensive.Storage.Tests.Storage
               new AggregateColumnDescriptor("Max3", 3, AggregateType.Max));
 
             aggregate.Count();
+
+
 
           string name = "TestName";
           var scope = TemporaryDataScope.Global;
