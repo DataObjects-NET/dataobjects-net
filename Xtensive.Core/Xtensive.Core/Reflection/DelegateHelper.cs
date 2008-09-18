@@ -281,9 +281,11 @@ namespace Xtensive.Core.Reflection
         BindingFlags.Public |
         BindingFlags.NonPublic |
         BindingFlags.ExactBinding;
-      if (callTarget==null)
+      if (callTarget == null) {
         bindingFlags |= BindingFlags.Static;
-      else 
+        bindingFlags |= BindingFlags.FlattenHierarchy;
+      }
+      else
         bindingFlags |= BindingFlags.Instance;
       string[] genericArgumentNames = new string[genericArgumentTypes.Length]; // Actual names doesn't matter
       Type[] parameterTypes = delegateType.GetInvokeMethod().GetParameterTypes();

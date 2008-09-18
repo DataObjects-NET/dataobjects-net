@@ -38,6 +38,11 @@ namespace Xtensive.Storage.Internals
       AssociationInfo association = field.Association;
       Key originalKey = association==null ? null : GetKey(field, obj);
 
+//      if (association!=null && association.Multiplicity == Multiplicity.OneToOne) {
+//        var setter = (Action<Entity, Entity, Action<Entity, Entity>>) (association.IsMaster ? association.SetMaster : association.MasterAssociation.SetSlave);
+//      }
+
+
       if (entity==null)
         for (int i = field.MappingInfo.Offset; i < field.MappingInfo.Offset + field.MappingInfo.Length; i++)
           obj.Tuple.SetValue(i, null);
@@ -54,31 +59,31 @@ namespace Xtensive.Storage.Internals
     {
       AssociationInfo association = field.Association;
       AssociationInfo pairedAssociation = association.PairTo;
-      Key newKey = newValue == null ? null : newValue.Key;
+      Key newKey = newValue==null ? null : newValue.Key;
       if (!ReferenceEquals(originalKey, newKey)) {
         switch (association.Multiplicity) {
         case Multiplicity.OneToZero:
           // Do nothing.
           break;
         case Multiplicity.OneToOne:
-          var pairedAccessor = pairedAssociation.ReferencingField.GetAccessor<Entity>();
-          if (!ReferenceEquals(originalKey, null)) {
-            var originalValue = originalKey.Resolve();
-            pairedAccessor.SetValue(originalValue, pairedAssociation.ReferencingField, null);
-          }
-          if (!ReferenceEquals(newValue, null)) {
-            pairedAccessor.SetValue(newValue, pairedAssociation.ReferencingField, (Entity) obj);
-          }
+//          var pairedAccessor = pairedAssociation.ReferencingField.GetAccessor<Entity>();
+//          if (!ReferenceEquals(originalKey, null)) {
+//            var originalValue = originalKey.Resolve();
+//            pairedAccessor.SetValue(originalValue, pairedAssociation.ReferencingField, null);
+//          }
+//          if (!ReferenceEquals(newValue, null)) {
+//            pairedAccessor.SetValue(newValue, pairedAssociation.ReferencingField, (Entity) obj);
+//          }
           break;
         case Multiplicity.OneToMany:
           if (IsResolved(obj.Session, originalKey)) {
             var originalValue = originalKey.Resolve();
             var entitySetFieldAccessor = pairedAssociation.ReferencingField.GetAccessor<EntitySet>();
-            entitySetFieldAccessor.GetValue(originalValue, pairedAssociation.ReferencingField).RemoveFromCache(((Entity)obj).Key, true);
+            entitySetFieldAccessor.GetValue(originalValue, pairedAssociation.ReferencingField).RemoveFromCache(((Entity) obj).Key, true);
           }
           if (IsResolved(obj.Session, newKey)) {
             var entitySetFieldAccessor = pairedAssociation.ReferencingField.GetAccessor<EntitySet>();
-            entitySetFieldAccessor.GetValue(newValue, pairedAssociation.ReferencingField).AddToCache(((Entity)obj).Key, true);
+            entitySetFieldAccessor.GetValue(newValue, pairedAssociation.ReferencingField).AddToCache(((Entity) obj).Key, true);
           }
           break;
         default:

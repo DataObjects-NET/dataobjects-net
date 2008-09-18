@@ -97,6 +97,20 @@ namespace Xtensive.Storage
     {
       FieldInfo field = Type.Fields[name];
       OnSettingValue(field);
+      
+      AssociationInfo association = field.Association;
+      if (Type.IsEntity && association != null && association.Multiplicity == Multiplicity.OneToOne) {
+        var setter = (Action<Entity, T, FieldInfo, Action<FieldInfo,T>>)(association.IsMaster ? association.SetMaster : association.MasterAssociation.SetSlave);
+        setter((Entity)this, value, field, SetValueInternal);
+      }
+      else {
+        SetValueInternal(field, value);
+      }
+    }
+
+
+    private void SetValueInternal<T>(FieldInfo field, T value)
+    {
       field.GetAccessor<T>().SetValue(this, field, value);
       OnSetValue(field);
     }

@@ -5,14 +5,18 @@
 // Created:    2007.09.26
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Xtensive.Core;
+using Xtensive.Core.Collections;
+using Xtensive.Core.Diagnostics;
+using Xtensive.Core.Reflection;
+using Xtensive.Integrity.Relations;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
-using Xtensive.Core.Reflection;
 
 namespace Xtensive.Storage.Building.Builders
 {
@@ -26,7 +30,7 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void BuildDefinition()
     {
-      using (Log.InfoRegion(Strings.LogBuildingX, Strings.ModelDefinition)) {
+      using (LogTemplate<Log>.InfoRegion(Strings.LogBuildingX, Strings.ModelDefinition)) {
         BuildingContext context = BuildingContext.Current;
         try {
           context.Definition = new DomainModelDef();
@@ -48,7 +52,7 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void BuildCustomDefinitions()
     {
-      using (Log.InfoRegion(Strings.LogBuildingX, Strings.CustomDefinitions)) {
+      using (LogTemplate<Log>.InfoRegion(Strings.LogBuildingX, Strings.CustomDefinitions)) {
         BuildingContext context = BuildingContext.Current;
         foreach (Type type in BuildingContext.Current.Configuration.Builders) {
           var builder = (IDomainBuilder) Activator.CreateInstance(type);
@@ -59,7 +63,7 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void BuildModel()
     {
-      using (Log.InfoRegion(Strings.LogBuildingX, Strings.ActualModel)) {
+      using (LogTemplate<Log>.InfoRegion(Strings.LogBuildingX, Strings.ActualModel)) {
         BuildingContext context = BuildingContext.Current;
         context.Model = new DomainModel();
         BuildTypes();
@@ -69,7 +73,7 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void DefineTypes()
     {
-      using (Log.InfoRegion(Strings.LogDefiningX, Strings.Types)) {
+      using (LogTemplate<Log>.InfoRegion(Strings.LogDefiningX, Strings.Types)) {
         BuildingContext context = BuildingContext.Current;
         foreach (Type type in context.Configuration.Types) {
           try {
@@ -86,14 +90,13 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void DefineServices()
     {
-      using (Log.InfoRegion(Strings.LogBuildingX, Strings.Services)) {
-
+      using (LogTemplate<Log>.InfoRegion(Strings.LogBuildingX, Strings.Services)) {
       }
     }
 
     private static void BuildTypes()
     {
-      using (Log.InfoRegion(Strings.LogBuildingX, Strings.Types)) {
+      using (LogTemplate<Log>.InfoRegion(Strings.LogBuildingX, Strings.Types)) {
         BuildingContext context = BuildingContext.Current;
 
         foreach (TypeDef typeDef in context.Definition.Types.Where(t => !t.IsInterface))
@@ -139,7 +142,7 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void BuildHierarchyColumns()
     {
-      using (Log.InfoRegion(Strings.LogBuildingX, Strings.HierarchyColumns)) {
+      using (LogTemplate<Log>.InfoRegion(Strings.LogBuildingX, Strings.HierarchyColumns)) {
         foreach (HierarchyInfo hierarchyInfo in BuildingContext.Current.Model.Hierarchies)
           HierarchyBuilder.BuildHierarchyColumns(hierarchyInfo);
       }
@@ -147,7 +150,7 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void BuildColumns()
     {
-      using (Log.InfoRegion(Strings.LogBuildingX, Strings.Columns)) {
+      using (LogTemplate<Log>.InfoRegion(Strings.LogBuildingX, Strings.Columns)) {
         foreach (TypeInfo type in BuildingContext.Current.Model.Types) {
           type.Columns.Clear();
           type.Columns.AddRange(type.Fields.Where(f => f.Column!=null).Select(f => f.Column));
@@ -157,7 +160,7 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void BuildAssociations()
     {
-      using (Log.InfoRegion(Strings.LogBuildingX, Strings.Associations)) {
+      using (LogTemplate<Log>.InfoRegion(Strings.LogBuildingX, Strings.Associations)) {
         BuildingContext context = BuildingContext.Current;
         foreach (Pair<AssociationInfo, string> pair in context.PairedAssociations) {
           if (context.DiscardedAssociations.Contains(pair.First))
@@ -174,10 +177,64 @@ namespace Xtensive.Storage.Building.Builders
           context.Model.Associations.Remove(ai);
         context.DiscardedAssociations.Clear();
 
-        foreach (AssociationInfo association in context.Model.Associations) {
-          association.EntityType = BuildReferenceType(association);
-          if (association.EntityType != null)
-            DefineReferenceType(association);
+        BuildReferenceTypes(context.Model.Associations);
+        BuildRelationManagers(context.Model.Associations);
+      }
+    }
+
+    private static void BuildRelationManagers(IEnumerable<AssociationInfo> associations)
+    {
+      foreach (AssociationInfo association in associations) {
+        if (association.Multiplicity==Multiplicity.OneToOne
+          && association.ReferencingField.UnderlyingProperty!=null
+            && association.PairTo.ReferencingField.UnderlyingProperty!=null
+              && association.IsMaster) {
+          Type variatorType = TypeHelper.CreateDummyType("RelationManagerVariator", typeof (object));
+          Type firstType = association.ReferencingType.UnderlyingType;
+          Type secondType = association.ReferencedType.UnderlyingType;
+          Type managerType = typeof (OneToOneRelationManager<,,>).MakeGenericType(firstType, secondType, variatorType);
+          string masterPropertyName = association.MasterAssociation.ReferencingField.UnderlyingProperty.Name;
+          string slavePropertyName = association.MasterAssociation.PairTo.ReferencingField.UnderlyingProperty.Name;
+          managerType.InvokeMember("Initialize",
+            BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy,
+            null,
+            null,
+            new object[] {masterPropertyName, slavePropertyName});
+          association.MasterAssociation.SetMaster = GetDelegate(managerType, "SetMaster", firstType, secondType);
+          association.MasterAssociation.SetSlave  = GetDelegate(managerType, "SetSlave", secondType, firstType);
+        }
+      }
+    }
+
+    private static Delegate GetDelegate(Type type, string name, Type firstType, Type secondType)
+    {
+      MethodInfo methodInfo = typeof(ModelBuilder).GetMethod("GetRelationManagerDelegate", BindingFlags.Static | BindingFlags.NonPublic);
+      var genericMethod = methodInfo.MakeGenericMethod(firstType, secondType);
+      return (Delegate)genericMethod.Invoke(null, new object[] { type, name });
+    }
+
+// ReSharper disable UnusedPrivateMember
+    private static Action<Entity, TSecond, Model.FieldInfo, Action<Model.FieldInfo, TSecond>> GetRelationManagerDelegate<TFirst, TSecond>(Type managerType, string name) 
+      where TFirst:Entity 
+      where TSecond : Entity
+    {
+      var action = DelegateHelper.CreateDelegate<Action<TFirst, TSecond, Action<TFirst, TSecond>>>(null, managerType, name, ArrayUtils<Type>.EmptyArray);
+      return (a, b, c, d) => action((TFirst) a, b, ((first, second) => d(c, b)));
+    }
+// ReSharper restore UnusedPrivateMember
+
+    private static void BuildReferenceTypes(IEnumerable<AssociationInfo> associations)
+    {
+      foreach (AssociationInfo association in associations) {
+        association.EntityType = BuildReferenceType(association);
+        if (association.EntityType!=null) {
+          TypeDef typeDef = TypeBuilder.DefineType(association.EntityType);
+          typeDef.DefineField("Entity1", association.ReferencedType.UnderlyingType);
+          typeDef.DefineField("Entity2", association.ReferencingType.UnderlyingType);
+          typeDef.Name = association.Name;
+          BuildingContext.Current.Definition.Types.Add(typeDef);
+          IndexBuilder.DefineIndexes(typeDef);
+          TypeBuilder.BuildType(typeDef);
         }
       }
     }
@@ -185,23 +242,11 @@ namespace Xtensive.Storage.Building.Builders
     private static Type BuildReferenceType(AssociationInfo association)
     {
       if (association.ReferencingField.IsEntitySet && association.IsMaster) {
-        Type baseType = typeof(EntitySetReference<,>).MakeGenericType(association.ReferencedType.UnderlyingType, association.ReferencingType.UnderlyingType);
+        Type baseType = typeof (EntitySetReference<,>).MakeGenericType(association.ReferencedType.UnderlyingType, association.ReferencingType.UnderlyingType);
         string name = BuildingContext.Current.NameBuilder.Build(association);
         return TypeHelper.CreateDummyType(name, baseType, true);
       }
       return null;
     }
-
-    private static void DefineReferenceType(AssociationInfo association)
-    {
-      TypeDef typeDef = TypeBuilder.DefineType(association.EntityType);
-      typeDef.DefineField("Entity1", association.ReferencedType.UnderlyingType);
-      typeDef.DefineField("Entity2", association.ReferencingType.UnderlyingType);
-      typeDef.Name = association.Name;
-      BuildingContext.Current.Definition.Types.Add(typeDef);
-      IndexBuilder.DefineIndexes(typeDef);
-      TypeBuilder.BuildType(typeDef);
-    }
-
   }
 }

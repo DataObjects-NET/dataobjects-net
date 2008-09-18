@@ -19,6 +19,9 @@ namespace Xtensive.Storage.Model
     private Type entityType;
     private bool isMaster = true;
 
+    public Delegate SetMaster;
+    public Delegate SetSlave;
+
     /// <summary>
     /// Gets the referencing type.
     /// </summary>
