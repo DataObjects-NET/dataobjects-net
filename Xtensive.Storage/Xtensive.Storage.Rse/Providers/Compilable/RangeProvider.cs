@@ -5,9 +5,7 @@
 // Created:    2008.07.03
 
 using System;
-using System.Linq.Expressions;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Threading;
 using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
 using Xtensive.Storage.Rse.Providers.Compilable;
@@ -20,21 +18,10 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
   [Serializable]
   public class RangeProvider : UnaryProvider
   {
-    private ThreadSafeCached<Func<Range<IEntire<Tuple>>>> compiledRange = ThreadSafeCached<Func<Range<IEntire<Tuple>>>>.Create(new object());
-
     /// <summary>
     /// Gets the range parameter.
     /// </summary>
-    public Expression<Func<Range<IEntire<Tuple>>>> Range { get; private set; }
-
-    /// <summary>
-    /// Gets the compiled <see cref="Range"/>.
-    /// </summary>
-    public Func<Range<IEntire<Tuple>>> CompiledRange {
-      get {
-        return compiledRange.GetValue(_this => _this.Range.Compile(), this);
-      }
-    }
+    public Func<Range<IEntire<Tuple>>> Range { get; private set; }
 
     /// <inheritdoc/>
     public override string ParametersToString()
@@ -45,7 +32,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
 
     // Constructor
 
-    private RangeProvider(CompilableProvider source, Expression<Func<Range<IEntire<Tuple>>>> range, bool hidden)
+    private RangeProvider(CompilableProvider source, Func<Range<IEntire<Tuple>>> range, bool hidden)
       : base(source)
     {
       Range = range;
@@ -57,7 +44,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// </summary>
     /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="range">The <see cref="Range"/> property value.</param>
-    public RangeProvider(CompilableProvider source, Expression<Func<Range<IEntire<Tuple>>>> range)
+    public RangeProvider(CompilableProvider source, Func<Range<IEntire<Tuple>>> range)
       : this(source, range, true)
     {}
 

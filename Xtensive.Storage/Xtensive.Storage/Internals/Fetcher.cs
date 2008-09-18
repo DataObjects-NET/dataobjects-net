@@ -19,9 +19,52 @@ namespace Xtensive.Storage.Internals
   internal static class Fetcher
   {
     private static readonly object syncRoot = new object();
-    private static readonly Dictionary<Pair<IndexInfo, int>, RecordSet> cache = new Dictionary<Pair<IndexInfo, int>, RecordSet>();
+    private static readonly Dictionary<RSKey, RecordSet> cache = new Dictionary<RSKey, RecordSet>();
     private static readonly Parameter<Key> pKey = new Parameter<Key>("Key");
 
+    #region Helper classes
+
+    private class RSKey
+    {
+      public readonly IndexInfo Index;
+      public int ColumnsHashCode;
+
+      public bool Equals(RSKey obj)
+      {
+        if (ReferenceEquals(null, obj))
+          return false;
+        if (ReferenceEquals(this, obj))
+          return true;
+        return Equals(obj.Index, Index) && obj.ColumnsHashCode==ColumnsHashCode;
+      }
+
+      public override bool Equals(object obj)
+      {
+        if (ReferenceEquals(null, obj))
+          return false;
+        if (ReferenceEquals(this, obj))
+          return true;
+        if (obj.GetType()!=typeof (RSKey))
+          return false;
+        return Equals((RSKey) obj);
+      }
+
+      public override int GetHashCode()
+      {
+        unchecked {
+          return (Index.GetHashCode() * 397) ^ ColumnsHashCode;
+        }
+      }
+
+      public RSKey(IndexInfo index, int columnsHashCode)
+      {
+        Index = index;
+        ColumnsHashCode = columnsHashCode;
+      }
+    }
+
+    #endregion
+    
     public static void Fetch(Key key)
     {
       IndexInfo index = (key.Type??key.Hierarchy.Root).Indexes.PrimaryIndex;
@@ -62,7 +105,7 @@ namespace Xtensive.Storage.Internals
     private static RecordSet GetCachedRecordSet(IndexInfo index, int[] columnIndexes)
     {
       var columnsKey = columnIndexes.Select((i, j) => new Pair<int>(i, j)).Aggregate(0, (s, p) => s^((1 >> (p.First)) ^ p.Second*379));
-      var key = new Pair<IndexInfo, int>(index, columnsKey);
+      var key = new RSKey(index, columnsKey);
       RecordSet value;
       if (!cache.TryGetValue(key, out value))lock(syncRoot)if(!cache.TryGetValue(key, out value)) {
         value = IndexProvider.Get(index).Result

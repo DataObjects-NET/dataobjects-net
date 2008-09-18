@@ -34,7 +34,7 @@ namespace Xtensive.Storage.Providers.MsSql.Compilers
       var queryRef = SqlFactory.QueryRef(sourceQuery);
       var query = SqlFactory.Select(queryRef);
       query.Columns.AddRange(queryRef.Columns.Where(column => column.Name != RowNumber).Cast<SqlColumn>());
-      query.Where = sourceQuery[RowNumber] > provider.CompiledCount();
+      query.Where = sourceQuery[RowNumber] > provider.Count();
       foreach (KeyValuePair<int, Direction> sortOrder in provider.Header.Order)
         query.OrderBy.Add(sortOrder.Key, sortOrder.Value==Direction.Positive);
       var request = new SqlFetchRequest(query, provider.Header.TupleDescriptor, source.Request.ParameterBindings);

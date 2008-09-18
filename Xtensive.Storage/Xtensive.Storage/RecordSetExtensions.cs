@@ -43,7 +43,7 @@ namespace Xtensive.Storage
 
     internal static int ImportToDataCache(this RecordSet source)
     {
-      RecordSetHeaderParsingContext context = new RecordSetHeaderParsingContext(Session.Current, source.Header);
+      var context = new RecordSetHeaderParsingContext(Session.Current, source.Header);
       RecordSetMapping mapping = GetRecordSetMapping(context);
       int recordCount = 0;
       foreach (Tuple tuple in source) {

@@ -111,9 +111,8 @@ namespace Xtensive.Storage
     {
       if (other==null)
         return false;
-      if (ReferenceEquals(this, other)) {
+      if (ReferenceEquals(this, other))
         return true;
-      }
       if (hashCode!=other.hashCode)
         return false;
       return Tuple.Equals(other.Tuple) && Hierarchy.Equals(other.Hierarchy);

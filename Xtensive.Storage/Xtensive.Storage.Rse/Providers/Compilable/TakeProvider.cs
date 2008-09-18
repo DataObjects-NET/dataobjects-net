@@ -17,22 +17,10 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
   [Serializable]
   public sealed class TakeProvider : UnaryProvider
   {
-    private ThreadSafeCached<Func<int>> compiledCount = ThreadSafeCached<Func<int>>.Create(new object());
-
     /// <summary>
     /// Take amount function.
     /// </summary>
-    public Expression<Func<int>> Count { get; private set; }
-
-    /// <summary>
-    /// Gets the compiled <see cref="Count"/>.
-    /// </summary>
-    public Func<int> CompiledCount {
-      get {
-        return compiledCount.GetValue(_this => _this.Count.Compile(), this);
-      }
-    }
-
+    public Func<int> Count { get; private set; }
 
     // Constructor
 
@@ -41,7 +29,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// </summary>
     /// <param name="provider">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="count">The <see cref="Count"/> property value.</param>
-    public TakeProvider(CompilableProvider provider, Expression<Func<int>> count)
+    public TakeProvider(CompilableProvider provider, Func<int> count)
       : base(provider)
     {
       Count = count;

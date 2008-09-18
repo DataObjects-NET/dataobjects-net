@@ -24,7 +24,7 @@ namespace Xtensive.Storage.Rse
       return recordSet.Provider.GetService<IListProvider>(true).GetItem(index);
     }
 
-    public static RecordSet Range(this RecordSet recordSet, Expression<Func<Range<IEntire<Tuple>>>> range)
+    public static RecordSet Range(this RecordSet recordSet, Func<Range<IEntire<Tuple>>> range)
     {
       return new RangeProvider(recordSet.Provider, range).Result;
     }
@@ -119,7 +119,7 @@ namespace Xtensive.Storage.Rse
       return new SelectProvider(recordSet.Provider, columnIndexes).Result;
     }
 
-    public static RecordSet Seek(this RecordSet recordSet, Expression<Func<Tuple>> key)
+    public static RecordSet Seek(this RecordSet recordSet, Func<Tuple> key)
     {
       return new SeekProvider(recordSet.Provider, key).Result;
     }

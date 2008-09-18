@@ -28,15 +28,15 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
       for (int i = 0; i < keyColumns.Count - 1; i++) {
         var p = new SqlParameter();
         int index = i;
-        request.ParameterBindings.Add(p, () => provider.CompiledKey.Invoke().GetValue(index));
+        request.ParameterBindings.Add(p, () => provider.Key().GetValue(index));
         query.Where &= keyColumns[i] == SqlFactory.ParameterRef(p);
       }
 
       var lastColumnNA = new SqlParameter();
       var lastColumn = new SqlParameter();
       var lastColumnIndex = keyColumns.Count - 1;
-      request.ParameterBindings.Add(lastColumnNA, () => !provider.CompiledKey.Invoke().IsAvailable(lastColumnIndex));
-      request.ParameterBindings.Add(lastColumn, () => provider.CompiledKey.Invoke().GetValueOrDefault(lastColumnIndex));
+      request.ParameterBindings.Add(lastColumnNA, () => !provider.Key().IsAvailable(lastColumnIndex));
+      request.ParameterBindings.Add(lastColumn, () => provider.Key.Invoke().GetValueOrDefault(lastColumnIndex));
       SqlExpression lastColumnCondition = (SqlFactory.ParameterRef(lastColumnNA) == SqlFactory.Literal("1") | keyColumns[lastColumnIndex]==SqlFactory.ParameterRef(lastColumn));
       query.Where &= lastColumnCondition;
 

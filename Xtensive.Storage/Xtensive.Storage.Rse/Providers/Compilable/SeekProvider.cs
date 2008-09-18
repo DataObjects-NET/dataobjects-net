@@ -19,21 +19,10 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
   [Serializable]
   public sealed class SeekProvider : UnaryProvider
   {
-    private ThreadSafeCached<Func<Tuple>> compiledKey = ThreadSafeCached<Func<Tuple>>.Create(new object());
-
     /// <summary>
     /// Seek parameter.
     /// </summary>
-    public Expression<Func<Tuple>> Key { get; private set; }
-
-    /// <summary>
-    /// Gets the compiled <see cref="Key"/>.
-    /// </summary>
-    public Func<Tuple> CompiledKey {
-      get {
-        return compiledKey.GetValue(_this => _this.Key.Compile(), this);
-      }
-    }
+    public Func<Tuple> Key { get; private set; }
 
 
     // Constructor
@@ -43,7 +32,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// </summary>
     /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="key">The <see cref="Key"/> property value.</param>
-    public SeekProvider(CompilableProvider source, Expression<Func<Tuple>> key)
+    public SeekProvider(CompilableProvider source, Func<Tuple> key)
       : base(source)
     {
       Key = key;

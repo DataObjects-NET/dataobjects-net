@@ -180,7 +180,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     protected internal override void OnBeforeEnumerate(EnumerationContext context)
     {
       base.OnBeforeEnumerate(context);
-      CachedRange = Origin.CompiledRange.Invoke();
+      CachedRange = Origin.Range();
     }
 
     protected internal override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)

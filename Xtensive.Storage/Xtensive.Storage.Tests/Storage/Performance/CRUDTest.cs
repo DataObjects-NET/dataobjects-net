@@ -13,7 +13,7 @@ using Xtensive.Storage.Tests.Storage.CrudModel;
 
 namespace Xtensive.Storage.Tests.Storage.CrudModel
 {
-  [HierarchyRoot(typeof(Generator), "Id")]
+  [HierarchyRoot("Id")]
   public class Simplest : Entity
   {
     [Field]

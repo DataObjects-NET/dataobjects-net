@@ -26,7 +26,7 @@ namespace Xtensive.Storage.Providers.Sql
         var cachedValue = GetCachedValue<object>(EnumerationContext.Current, CachedRange);
         if (cachedValue == null) lock (this) if (GetCachedValue<object>(EnumerationContext.Current, CachedRange) == null) {
           var rangeProvider = (RangeProvider)Origin;
-          var range = rangeProvider.CompiledRange.Invoke();
+          var range = rangeProvider.Range();
           if (original.IsSimilar(range)) {
             SetCachedValue(EnumerationContext.Current, CachedRange, (object) range);
             cachedValue = range;
