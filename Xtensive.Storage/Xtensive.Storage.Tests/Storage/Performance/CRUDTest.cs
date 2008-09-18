@@ -23,8 +23,8 @@ namespace Xtensive.Storage.Tests.Storage.CrudModel
     public long Value { get; set; }
 
     public Simplest(long id, long value)
+      : base (Tuple.Create(id))
     {
-      Id = id;
       Value = value;
     }
   }

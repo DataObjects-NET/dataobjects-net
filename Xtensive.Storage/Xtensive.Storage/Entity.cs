@@ -20,6 +20,7 @@ using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.ReferentialIntegrity;
+using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage
 {
@@ -174,6 +175,8 @@ namespace Xtensive.Storage
     { 
       if (Log.IsLogged(LogEventTypes.Debug))
         Log.Debug("Session '{0}'. Setting value: Key = '{1}', Field = '{2}'", Session, Key, field);
+      if (field.IsPrimaryKey)
+        throw new NotSupportedException(string.Format(Strings.ExUnableToSetKeyFieldXExplicitly, field.Name));
       data.EnsureIsActual();
       data.EnsureIsNotRemoved();
     }

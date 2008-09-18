@@ -728,11 +728,11 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Unable to modify key column..
+        ///   Looks up a localized string similar to Unable to set key field &apos;{0}&apos; explicitly..
         /// </summary>
-        internal static string ExUnableToModifyKeyColumn {
+        internal static string ExUnableToSetKeyFieldXExplicitly {
             get {
-                return ResourceManager.GetString("ExUnableToModifyKeyColumn", resourceCulture);
+                return ResourceManager.GetString("ExUnableToSetKeyFieldXExplicitly", resourceCulture);
             }
         }
         
