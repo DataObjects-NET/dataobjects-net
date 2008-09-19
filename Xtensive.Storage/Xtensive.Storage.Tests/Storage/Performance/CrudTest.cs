@@ -6,10 +6,12 @@
 
 using NUnit.Framework;
 using Xtensive.Core.Diagnostics;
+using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Storage.CrudModel;
+using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Tests.Storage.CrudModel
 {
@@ -36,7 +38,10 @@ namespace Xtensive.Storage.Tests.Storage
   [TestFixture]
   public class CrudTest : AutoBuildTest
   {
-    public const int OperationsCount = 1000;
+    public const int InstanceCount = 1000;
+    public const int QueryCount = 200;
+    private bool warmup  = false;
+    private bool profile = false;
 
     protected override DomainConfiguration BuildConfiguration()
     {
@@ -46,61 +51,106 @@ namespace Xtensive.Storage.Tests.Storage
     }
 
     [Test]
-    public void WarmingTest()
+    public void RegularTest()
     {
-      Combined(1);
+      warmup = true;
+      CombinedTest(10, 10);
+      warmup = false;
+      CombinedTest(InstanceCount, QueryCount);
     }
 
     [Test]
-    public void RegularTest()
+    [Explicit]
+    [Category("Profile")]
+    public void ProfileTest()
     {
-      Combined(OperationsCount);
+      int count = InstanceCount;
+      InsertTest(count);
+      FetchTest(count);
     }
 
-    private void Combined(int count)
+    private void CombinedTest(int instanceCount, int queryCount)
     {
-      using (var d = Domain) {
-        using (var ss = d.OpenSession()) {
-          var s = ss.Session;
-          long sum = 0;
-          using (var ts = s.OpenTransaction()) {
-            using (new Measurement("Insert", count))
-              for (int i = 0; i < count; i++) {
-                var o = new Simplest(i, i);
-                sum += i;
-              }
-            ts.Complete();
-          }
+      InsertTest(instanceCount);
+      FetchTest(instanceCount);
+      QueryTest(queryCount);
+      RemoveTest(instanceCount);
+    }
 
-          using (var ts = s.OpenTransaction()) {
-            using (new Measurement("Fetch & GetField", count))
-              for (int i = 0; i < count; i++) {
-                long id = i;
-                var key = Key.Get<Simplest>(Tuple.Create(id));
-                var o = key.Resolve<Simplest>();
-                sum -= o.Id;
-              }
-            ts.Complete();
-          }
-          Assert.AreEqual(0, sum);
+    private void InsertTest(int count)
+    {
+      var d = Domain;
+      using (var ss = d.OpenSession()) {
+        var s = ss.Session;
+        long sum = 0;
+        using (var ts = s.OpenTransaction()) {
+          using (new Measurement("Insert", count))
+            for (int i = 0; i < count; i++) {
+              var o = new Simplest(i, i);
+              sum += i;
+            }
+          ts.Complete();
+        }
+      }
+    }
 
-          using (var ts = s.OpenTransaction()) {
-            var rs = d.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordSet();
-            var es = rs.ToEntities<Simplest>();
-            using (new Measurement("Query", count))
-              foreach (var o in es) {
-              }
-            ts.Complete();
-          }
+    private void FetchTest(int count)
+    {
+      var d = Domain;
+      using (var ss = d.OpenSession()) {
+        var s = ss.Session;
+        long sum = (long)count*count/2-1;
+        using (var ts = s.OpenTransaction()) {
+          using (new Measurement("Fetch & GetField", count))
+            for (int i = 0; i < count; i++) {
+              long id = i;
+              var key = Key.Get<Simplest>(Tuple.Create(id));
+              var o = key.Resolve<Simplest>();
+              sum -= o.Id;
+            }
+          ts.Complete();
+        }
+        Assert.AreEqual(0, sum);
+      }
+    }
 
-          using (var ts = s.OpenTransaction()) {
-            var rs = d.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordSet();
-            var es = rs.ToEntities<Simplest>();
-            using (new Measurement("Query & Remove", count))
-              foreach (var o in es)
-                o.Remove();
-            ts.Complete();
+    private void QueryTest(int count)
+    {
+      var d = Domain;
+      using (var ss = d.OpenSession()) {
+        var s = ss.Session;
+        using (var ts = s.OpenTransaction()) {
+          using (new Measurement("Query", count)) {
+            for (int i = 0; i < count; i++) {
+              var pKey = new Parameter<Tuple>();
+              var rs = d.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordSet();
+              rs = rs.Seek(() => pKey.Value);
+              using (new ParameterScope()) {
+                pKey.Value = Tuple.Create(i);
+                var es = rs.ToEntities<Simplest>();
+                foreach (var o in es) {
+                  // Doing nothing, just enumerate
+                }
+              }
+            }
           }
+          ts.Complete();
+        }
+      }
+    }
+
+    private void RemoveTest(int count)
+    {
+      var d = Domain;
+      using (var ss = d.OpenSession()) {
+        var s = ss.Session;
+        using (var ts = s.OpenTransaction()) {
+          var rs = d.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordSet();
+          var es = rs.ToEntities<Simplest>();
+          using (new Measurement("Query & Remove", count))
+            foreach (var o in es)
+              o.Remove();
+          ts.Complete();
         }
       }
     }
