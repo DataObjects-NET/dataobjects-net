@@ -13,7 +13,7 @@ using Xtensive.Core.Tuples;
 
 namespace Xtensive.Storage.Internals
 {
-  internal class EntityDataCache : SessionBound,
+  internal class EntityCache : SessionBound,
     IEnumerable<EntityData>
   {
     private readonly WeakCache<Key, EntityData> cache;
@@ -119,7 +119,7 @@ namespace Xtensive.Storage.Internals
 
     // Constructors
 
-    public EntityDataCache(Session session, int cacheSize) : base(session)
+    public EntityCache(Session session, int cacheSize) : base(session)
     {
       cache = new WeakCache<Key, EntityData>(cacheSize, d => d.Key);
     }

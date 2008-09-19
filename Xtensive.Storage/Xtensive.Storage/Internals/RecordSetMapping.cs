@@ -10,7 +10,7 @@ using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Internals
 {
-  internal class RecordSetMapping
+  internal sealed class RecordSetMapping
   {
     public RecordSetHeader Header { get; private set;}
 

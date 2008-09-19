@@ -14,7 +14,7 @@ namespace Xtensive.Storage.Internals
     public static Entity Resolve(Key key)
     {
       Session session = Session.Current;
-      EntityData data = session.DataCache[key];
+      EntityData data = session.Cache[key];
 
       // Key is already resolved
       if (data!=null) {
@@ -41,7 +41,7 @@ namespace Xtensive.Storage.Internals
         // Type is known so we can create Entity instance.
         Fetcher.Fetch(key);
       }
-      data = session.DataCache[key];
+      data = session.Cache[key];
       return data==null ? null : GetEntity(data);
     }
 

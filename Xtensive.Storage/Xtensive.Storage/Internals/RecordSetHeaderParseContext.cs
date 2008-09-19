@@ -8,7 +8,7 @@ using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Internals
 {
-  internal class RecordSetHeaderParsingContext
+  internal sealed class RecordSetHeaderParseContext
   {
     public Session Session { get; private set; }
 
@@ -22,7 +22,7 @@ namespace Xtensive.Storage.Internals
 
     // Constructors
 
-    public RecordSetHeaderParsingContext(Session session, RecordSetHeader header)
+    public RecordSetHeaderParseContext(Session session, RecordSetHeader header)
     {
       Session = session;
       Header = header;

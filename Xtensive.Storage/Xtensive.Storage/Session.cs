@@ -80,7 +80,7 @@ namespace Xtensive.Storage
 
     internal SessionHandler Handler { get; private set; }
 
-    internal EntityDataCache DataCache { get; private set; }
+    internal EntityCache Cache { get; private set; }
 
     #endregion
 
@@ -184,7 +184,7 @@ namespace Xtensive.Storage
       try {
         Persist();
         Handler.CommitTransaction();
-        DataCache.ClearRemoved();
+        Cache.ClearRemoved();
         OnTranscationEnd();
       }
       catch {        
@@ -200,7 +200,7 @@ namespace Xtensive.Storage
       }
       finally {
         ClearDirtyData();
-        DataCache.RestoreRemoved();
+        Cache.RestoreRemoved();
         OnTranscationEnd();
       }
     }
@@ -298,7 +298,7 @@ namespace Xtensive.Storage
       Configuration = configuration;
       Handlers = domain.Handlers;
       Handler = Handlers.HandlerFactory.CreateHandler<SessionHandler>();
-      DataCache = new EntityDataCache(this, Configuration.CacheSize);
+      Cache = new EntityCache(this, Configuration.CacheSize);
       Name = configuration.Name;
       Handler.Session = this;
       Handler.Initialize();

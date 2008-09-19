@@ -101,8 +101,8 @@ namespace Xtensive.Storage.Internals
       var rs = GetCachedRecordSet(index, columnIndexes);
       using (new ParameterScope()) {
         pKey.Value = key;
-        if (rs.ImportToDataCache() == 0)
-          Session.Current.DataCache.Remove(key);
+        if (rs.Parse() == 0)
+          Session.Current.Cache.Remove(key);
       }
     }
 

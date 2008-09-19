@@ -4,12 +4,9 @@
 // Created by: Dmitri Maximov
 // Created:    2008.08.07
 
-using System.Collections.Generic;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core;
-using Xtensive.Core.Tuples;
-using Xtensive.Integrity.Transactions;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
@@ -40,7 +37,7 @@ namespace Xtensive.Storage.Tests.Rse
       }
       using (Domain.OpenSession()) {
         using (Transaction.Open()) {
-          EntityData data = Session.Current.DataCache[key];
+          EntityData data = Session.Current.Cache[key];
           Assert.IsNull(data);
           IndexInfo ii = Domain.Model.Types[typeof (Book)].Indexes.PrimaryIndex;
 
@@ -49,44 +46,44 @@ namespace Xtensive.Storage.Tests.Rse
           foreach (Book book in rsMain.ToEntities<Book>()) {
             ;
           }
-          data = Session.Current.DataCache[key];
+          data = Session.Current.Cache[key];
           Assert.IsNotNull(data);
           Assert.IsTrue(data.IsAvailable(2));
           Assert.IsTrue(data.IsAvailable(3));
-          Session.Current.DataCache.Clear();
+          Session.Current.Cache.Clear();
 
           // Select Id, TypeId, Title
           RecordSet rsTitle = rsMain.Select(0, 1, 2);
           foreach (Book book in rsTitle.ToEntities<Book>()) {
             ;
           }
-          data = Session.Current.DataCache[key];
+          data = Session.Current.Cache[key];
           Assert.IsNotNull(data);
           Assert.IsTrue(data.IsAvailable(2));
           Assert.IsFalse(data.IsAvailable(3));
-          Session.Current.DataCache.Clear();
+          Session.Current.Cache.Clear();
 
           // Select Id, TypeId, Text
           RecordSet rsText = rsMain.Select(0, 1, 3);
           foreach (Book book in rsText.ToEntities<Book>()) {
             ;
           }
-          data = Session.Current.DataCache[key];
+          data = Session.Current.Cache[key];
           Assert.IsNotNull(data);
           Assert.IsFalse(data.IsAvailable(2));
           Assert.IsTrue(data.IsAvailable(3));
-          Session.Current.DataCache.Clear();
+          Session.Current.Cache.Clear();
 
           // Select a.Id, a.TypeId, a.Title, b.Id, b.TypeId, b.Text
           RecordSet rsJoin = rsTitle.Alias("a").Join(rsText.Alias("b"), new Pair<int>(0, 0), new Pair<int>(1, 1));
           foreach (Book book in rsJoin.ToEntities<Book>()) {
             ;
           }
-          data = Session.Current.DataCache[key];
+          data = Session.Current.Cache[key];
           Assert.IsNotNull(data);
           Assert.IsTrue(data.IsAvailable(2));
           Assert.IsTrue(data.IsAvailable(3));
-          Session.Current.DataCache.Clear();
+          Session.Current.Cache.Clear();
         }
       }
     }

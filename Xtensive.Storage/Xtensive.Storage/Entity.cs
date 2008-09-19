@@ -131,7 +131,7 @@ namespace Xtensive.Storage
       Session.Persist();
       ReferenceManager.ClearReferencesTo(this);      
       Session.removedEntities.Add(Data);
-      Session.DataCache.Remove(Data);
+      Session.Cache.Remove(Data);
       Data.PersistenceState = PersistenceState.Removed;
       
       OnRemoved();
@@ -239,7 +239,7 @@ namespace Xtensive.Storage
       if (Log.IsLogged(LogEventTypes.Debug))
         Log.Debug("Session '{0}'. Creating entity: Key = '{1}'", Session, key);
 
-      data = Session.DataCache.Create(key, true, Session.Transaction);
+      data = Session.Cache.Create(key, true, Session.Transaction);
       OnCreating();
     }
 
@@ -256,7 +256,7 @@ namespace Xtensive.Storage
       if (Log.IsLogged(LogEventTypes.Debug))
         Log.Debug("Session '{0}'. Creating entity: Key = '{1}'", Session, key);
 
-      data = Session.DataCache.Create(key, true, Session.Transaction);
+      data = Session.Cache.Create(key, true, Session.Transaction);
       OnCreating();
     }
 

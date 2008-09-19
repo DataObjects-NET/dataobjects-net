@@ -103,7 +103,7 @@ namespace Xtensive.Storage.Internals
 
     private static bool IsResolved(Session session, Key key)
     {
-      return key!=null && session.DataCache[key]!=null;
+      return key!=null && session.Cache[key]!=null;
     }
 
     private static Key GetKey(FieldInfo field, Persistent obj)
