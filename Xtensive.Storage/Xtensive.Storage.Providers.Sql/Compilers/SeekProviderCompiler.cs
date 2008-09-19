@@ -25,20 +25,12 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
       var query = (SqlSelect)source.Request.Statement.Clone();
       var request = new SqlFetchRequest(query, provider.Header.TupleDescriptor, source.Request.ParameterBindings);
       var keyColumns = provider.Header.Order.Select(pair => query.Columns[pair.Key]).ToList();
-      for (int i = 0; i < keyColumns.Count - 1; i++) {
+      for (int i = 0; i < keyColumns.Count; i++) {
         var p = new SqlParameter();
         int index = i;
         request.ParameterBindings.Add(p, () => provider.Key().GetValue(index));
         query.Where &= keyColumns[i] == SqlFactory.ParameterRef(p);
       }
-
-      var lastColumnNA = new SqlParameter();
-      var lastColumn = new SqlParameter();
-      var lastColumnIndex = keyColumns.Count - 1;
-      request.ParameterBindings.Add(lastColumnNA, () => !provider.Key().IsAvailable(lastColumnIndex));
-      request.ParameterBindings.Add(lastColumn, () => provider.Key.Invoke().GetValueOrDefault(lastColumnIndex));
-      SqlExpression lastColumnCondition = (SqlFactory.ParameterRef(lastColumnNA) == SqlFactory.Literal("1") | keyColumns[lastColumnIndex]==SqlFactory.ParameterRef(lastColumn));
-      query.Where &= lastColumnCondition;
 
       return new SqlProvider(provider, request, Handlers, source);
     }
