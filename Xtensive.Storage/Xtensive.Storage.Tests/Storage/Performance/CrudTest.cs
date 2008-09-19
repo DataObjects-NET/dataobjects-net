@@ -7,6 +7,7 @@
 using NUnit.Framework;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Parameters;
+using Xtensive.Core.Testing;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
@@ -38,9 +39,8 @@ namespace Xtensive.Storage.Tests.Storage
   [TestFixture]
   public class CrudTest : AutoBuildTest
   {
-    public const int BaseCount = 1000;
+    public const int BaseCount = 10000;
     public const int InsertCount = BaseCount;
-    public const int QueryCount = BaseCount / 5;
     private bool warmup  = false;
     private bool profile = false;
     private int instanceCount;
@@ -56,9 +56,9 @@ namespace Xtensive.Storage.Tests.Storage
     public void RegularTest()
     {
       warmup = true;
-      CombinedTest(10, 10, 10);
+      CombinedTest(10, 10);
       warmup = false;
-      CombinedTest(BaseCount, InsertCount, QueryCount);
+      CombinedTest(BaseCount, InsertCount);
     }
 
     [Test]
@@ -66,18 +66,18 @@ namespace Xtensive.Storage.Tests.Storage
     [Category("Profile")]
     public void ProfileTest()
     {
-      int instanceCount = 1000;
-      int queryCount = 1000;
+      int instanceCount = 10000;
       InsertTest(instanceCount);
-      FetchTest(instanceCount);
-//      QueryTest(instanceCount, queryCount);
+      BulkFetchTest(instanceCount);
+//      QueryTest(instanceCount / 5);
     }
 
-    private void CombinedTest(int baseCount, int insertCount, int queryCount)
+    private void CombinedTest(int baseCount, int insertCount)
     {
       InsertTest(insertCount);
+      BulkFetchTest(baseCount / 5);
       FetchTest(baseCount);
-      QueryTest(queryCount);
+      QueryTest(baseCount / 5);
       RemoveTest();
     }
 
@@ -88,6 +88,7 @@ namespace Xtensive.Storage.Tests.Storage
         var s = ss.Session;
         long sum = 0;
         using (var ts = s.OpenTransaction()) {
+          TestHelper.CollectGarbage();
           using (warmup ? null : new Measurement("Insert", inserCount))
             for (int i = 0; i < inserCount; i++) {
               var o = new Simplest(i, i);
@@ -106,6 +107,7 @@ namespace Xtensive.Storage.Tests.Storage
         var s = ss.Session;
         long sum = (long)count*(count-1)/2;
         using (var ts = s.OpenTransaction()) {
+          TestHelper.CollectGarbage();
           using (warmup ? null : new Measurement("Fetch & GetField", count))
             for (int i = 0; i < count; i++) {
               var key = Key.Get<Simplest>(Tuple.Create((long)i % instanceCount));
@@ -119,12 +121,37 @@ namespace Xtensive.Storage.Tests.Storage
       }
     }
 
+    private void BulkFetchTest(int count)
+    {
+      var d = Domain;
+      using (var ss = d.OpenSession()) {
+        var s = ss.Session;
+        long sum = 0;
+        int i = 0;
+        using (var ts = s.OpenTransaction()) {
+          var rs = d.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordSet();
+          TestHelper.CollectGarbage();
+          using (warmup ? null : new Measurement("Bulk Fetch & GetField", count)) {
+            while (i<count) {
+              foreach (var o in rs.ToEntities<Simplest>()) {
+                sum += o.Id;
+                if (++i >= count)
+                  break;
+              }
+            }
+          }
+          ts.Complete();
+        }
+      }
+    }
+
     private void QueryTest(int count)
     {
       var d = Domain;
       using (var ss = d.OpenSession()) {
         var s = ss.Session;
         using (var ts = s.OpenTransaction()) {
+          TestHelper.CollectGarbage();
           using (warmup ? null : new Measurement("Query", count)) {
             for (int i = 0; i < count; i++) {
               var pKey = new Parameter<Tuple>();
@@ -152,6 +179,7 @@ namespace Xtensive.Storage.Tests.Storage
         using (var ts = s.OpenTransaction()) {
           var rs = d.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordSet();
           var es = rs.ToEntities<Simplest>();
+          TestHelper.CollectGarbage();
           using (warmup ? null : new Measurement("Remove", instanceCount))
             foreach (var o in es)
               o.Remove();
