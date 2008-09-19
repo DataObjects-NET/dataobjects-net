@@ -64,16 +64,18 @@ namespace Xtensive.Storage.Tests.Storage
     [Category("Profile")]
     public void ProfileTest()
     {
-      int count = 10;
-      InsertTest(count);
-      FetchTest(count);
+      int instanceCount = 10;
+      int queryCount = 10000;
+      InsertTest(instanceCount);
+      FetchTest(instanceCount);
+      QueryTest(instanceCount, queryCount);
     }
 
     private void CombinedTest(int instanceCount, int queryCount)
     {
       InsertTest(instanceCount);
       FetchTest(instanceCount);
-      QueryTest(queryCount);
+      QueryTest(instanceCount, queryCount);
       RemoveTest(instanceCount);
     }
 
@@ -114,19 +116,19 @@ namespace Xtensive.Storage.Tests.Storage
       }
     }
 
-    private void QueryTest(int count)
+    private void QueryTest(int instanceCount, int queryCount)
     {
       var d = Domain;
       using (var ss = d.OpenSession()) {
         var s = ss.Session;
         using (var ts = s.OpenTransaction()) {
-          using (warmup ? null : new Measurement("Query", count)) {
-            for (int i = 0; i < count; i++) {
+          using (warmup ? null : new Measurement("Query", queryCount)) {
+            for (int i = 0; i < queryCount; i++) {
               var pKey = new Parameter<Tuple>();
               var rs = d.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordSet();
               rs = rs.Seek(() => pKey.Value);
               using (new ParameterScope()) {
-                pKey.Value = Tuple.Create(i);
+                pKey.Value = Tuple.Create(i % instanceCount);
                 var es = rs.ToEntities<Simplest>();
                 foreach (var o in es) {
                   // Doing nothing, just enumerate
