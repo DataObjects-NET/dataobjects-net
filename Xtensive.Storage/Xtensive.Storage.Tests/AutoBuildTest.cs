@@ -38,12 +38,12 @@ namespace Xtensive.Storage.Tests
     protected virtual DomainConfiguration BuildConfiguration()
     {
       DomainConfiguration config;
-      config = DomainConfigurationFactory.Create("memory");
+//      config = DomainConfigurationFactory.Create("memory");
 //      config = DomainConfigurationFactory.Create("memory", InheritanceSchema.SingleTable);
 //      config = DomainConfigurationFactory.Create("memory", InheritanceSchema.ConcreteTable);
 //      config = DomainConfigurationFactory.Create("memory", InheritanceSchema.Default, TypeIdBehavior.Include);
 
-//      config = DomainConfigurationFactory.Create("mssql2005");
+      config = DomainConfigurationFactory.Create("mssql2005");
 //      config = DomainConfigurationFactory.Create("mssql2005", InheritanceSchema.SingleTable);
 //      config = DomainConfigurationFactory.Create("mssql2005", InheritanceSchema.ConcreteTable);
 //      config = DomainConfigurationFactory.Create("mssql2005", InheritanceSchema.Default, TypeIdBehavior.Include);

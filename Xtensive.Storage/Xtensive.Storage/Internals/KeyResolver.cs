@@ -25,36 +25,33 @@ namespace Xtensive.Storage.Internals
         return data.IsRemoved ? null : GetEntity(data);
       }
 
-      // Probing to get already resolved and cached key
-      Key resolvedKey = session.Domain.KeyManager.GetCachedKey(key);
+//       Probing to get already resolved and cached key
+//      Key resolvedKey = session.Domain.KeyManager.GetCachedKey(key);
 
       // Key is not fully resolved yet (Type is unknown), so 1 fetch request is required
-      if (resolvedKey.Type==null) {
+      if (key.Type==null) {
 
         if (Log.IsLogged(LogEventTypes.Debug))
           Log.Debug("Session '{0}'. Resolving key '{1}'. Exact type is unknown. Fetch is required", session, key);
 
         FieldInfo field = key.Hierarchy.Root.Fields[session.Domain.NameBuilder.TypeIdFieldName];
+        Fetcher.Fetch(key, field);
 
-        using (var transactionScope = session.OpenTransaction()) {
-          Fetcher.Fetch(key, field);
-          transactionScope.Complete();
-        }
+//        // Resolving key again. If it was successfully fetched then it should contain Type
+//        resolvedKey = session.Domain.KeyManager.GetCachedKey(key);
 
-        // Resolving key again. If it was successfully fetched then it should contain Type
-        resolvedKey = session.Domain.KeyManager.GetCachedKey(key);
-
-        // Key is not found in storage
-        if (resolvedKey.Type==null)
-          return null;
+//        // Key is not found in storage
+//        if (resolvedKey.Type==null)
+//          return null;
       }
-      else if (Log.IsLogged(LogEventTypes.Debug))
-        Log.Debug("Session '{0}'. Resolving key '{1}'. Exact type is known", session, key);
+      else {
+        if(Log.IsLogged(LogEventTypes.Debug))
+          Log.Debug("Session '{0}'. Resolving key '{1}'. Exact type is known", session, key);
 
-      // Type is known so we can create Entity instance.
-      Fetcher.Fetch(resolvedKey);
-      data = session.DataCache[resolvedKey];
-
+        // Type is known so we can create Entity instance.
+        Fetcher.Fetch(key);
+      }
+      data = session.DataCache[key];
       return data==null ? null : GetEntity(data);
     }
 
