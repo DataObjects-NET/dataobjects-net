@@ -318,8 +318,9 @@ namespace Xtensive.Core.Collections
     {
       itemChangingHandler = OnItemChanging;
       itemChangedHandler = OnItemChanged;
-      foreach (TItem item in this)
-        TrySubscribe(item);
+      if (Items.Count>0)
+        foreach (TItem item in this)
+          TrySubscribe(item);
     }
 
 
