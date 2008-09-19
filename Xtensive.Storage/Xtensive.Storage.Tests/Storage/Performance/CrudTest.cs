@@ -64,8 +64,8 @@ namespace Xtensive.Storage.Tests.Storage
     [Category("Profile")]
     public void ProfileTest()
     {
-      int instanceCount = 100;
-      int queryCount = 10000;
+      int instanceCount = 1000;
+      int queryCount = 1000;
       InsertTest(instanceCount);
       FetchTest(instanceCount);
 //      QueryTest(instanceCount, queryCount);

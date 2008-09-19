@@ -25,9 +25,6 @@ namespace Xtensive.Storage.Internals
         return data.IsRemoved ? null : GetEntity(data);
       }
 
-//       Probing to get already resolved and cached key
-//      Key resolvedKey = session.Domain.KeyManager.GetCachedKey(key);
-
       // Key is not fully resolved yet (Type is unknown), so 1 fetch request is required
       if (key.Type==null) {
 
@@ -36,13 +33,6 @@ namespace Xtensive.Storage.Internals
 
         FieldInfo field = key.Hierarchy.Root.Fields[session.Domain.NameBuilder.TypeIdFieldName];
         Fetcher.Fetch(key, field);
-
-//        // Resolving key again. If it was successfully fetched then it should contain Type
-//        resolvedKey = session.Domain.KeyManager.GetCachedKey(key);
-
-//        // Key is not found in storage
-//        if (resolvedKey.Type==null)
-//          return null;
       }
       else {
         if(Log.IsLogged(LogEventTypes.Debug))
