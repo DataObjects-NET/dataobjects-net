@@ -4,9 +4,13 @@
 // Created by: Alexey Kochetov
 // Created:    2008.08.18
 
+using System;
+using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Core;
 using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Dml;
+using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers.Compilable;
@@ -24,7 +28,14 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
 
       var query = (SqlSelect)source.Request.Statement.Clone();
       var request = new SqlFetchRequest(query, provider.Header.TupleDescriptor, source.Request.ParameterBindings);
-      var keyColumns = provider.Header.Order.Select(pair => query.Columns[pair.Key]).ToList();
+      var typeIdColumnName = Handlers.NameBuilder.TypeIdColumnName;
+      Func<KeyValuePair<int, Direction>, bool> filterNonTypeId = 
+        pair => ((MappedColumn)provider.Header.Columns[pair.Key]).ColumnInfoRef.ColumnName!=typeIdColumnName;
+      var keyColumns = provider.Header.Order
+        .Where(filterNonTypeId)
+        .Select(pair => query.Columns[pair.Key])
+        .ToList();
+      
       for (int i = 0; i < keyColumns.Count; i++) {
         var p = new SqlParameter();
         int index = i;
