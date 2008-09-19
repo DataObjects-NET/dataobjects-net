@@ -162,8 +162,8 @@ namespace Xtensive.Storage.Providers.Sql
       SqlModificationRequest request = domainHandler.SqlRequestCache.GetValue(task, _task => DomainHandler.SqlRequestBuilder.BuildRequest(_task));
       request.BindParametersTo(data);
       int rowsAffected = ExecuteNonQuery(request);
-//      if (rowsAffected!=request.ExpectedResult)
-//        throw new InvalidOperationException(String.Format(Strings.ExErrorOnInsert, data.Type.Name, rowsAffected, request.ExpectedResult));
+      if (rowsAffected!=request.ExpectedResult)
+        throw new InvalidOperationException(String.Format(Strings.ExErrorOnInsert, data.Type.Name, rowsAffected, request.ExpectedResult));
     }
 
     /// <inheritdoc/>
@@ -173,8 +173,8 @@ namespace Xtensive.Storage.Providers.Sql
       SqlModificationRequest request = domainHandler.SqlRequestCache.GetValue(task, _task => DomainHandler.SqlRequestBuilder.BuildRequest(_task));
       request.BindParametersTo(data);
       int rowsAffected = ExecuteNonQuery(request);
-//      if (rowsAffected!=request.ExpectedResult)
-//        throw new InvalidOperationException(String.Format(Strings.ExErrorOnUpdate, data.Type.Name, rowsAffected, request.ExpectedResult));
+      if (rowsAffected!=request.ExpectedResult)
+        throw new InvalidOperationException(String.Format(Strings.ExErrorOnUpdate, data.Type.Name, rowsAffected, request.ExpectedResult));
     }
 
     /// <inheritdoc/>
@@ -184,11 +184,11 @@ namespace Xtensive.Storage.Providers.Sql
       SqlModificationRequest request = domainHandler.SqlRequestCache.GetValue(task, _task => DomainHandler.SqlRequestBuilder.BuildRequest(_task));
       request.BindParametersTo(data);
       int rowsAffected = ExecuteNonQuery(request);
-//      if (rowsAffected!=request.ExpectedResult)
-//        if (rowsAffected==0)
-//          throw new InvalidOperationException(String.Format(Strings.ExInstanceNotFound, data.Key.Type.Name));
-//        else
-//          throw new InvalidOperationException(String.Format(Strings.ExInstanceMultipleResults, data.Key.Type.Name));
+      if (rowsAffected!=request.ExpectedResult)
+        if (rowsAffected==0)
+          throw new InvalidOperationException(String.Format(Strings.ExInstanceNotFound, data.Key.Type.Name));
+        else
+          throw new InvalidOperationException(String.Format(Strings.ExInstanceMultipleResults, data.Key.Type.Name));
     }
 
     public void EnsureConnectionIsOpen()

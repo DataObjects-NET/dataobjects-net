@@ -17,9 +17,9 @@ namespace Xtensive.Storage.Providers.Sql
   /// <summary>
   /// Builder of <see cref="SqlRequest"/>s.
   /// </summary>
-  public class SqlRequestBuilder
+  public class SqlRequestBuilder : InitializableHandlerBase
   {
-    private readonly DomainHandler domainHandler;
+    protected DomainHandler DomainHandler { get; private set; }
 
     /// <summary>
     /// Builds the request.
@@ -40,19 +40,25 @@ namespace Xtensive.Storage.Providers.Sql
         result = BuildUpdateRequest(task);
         break;
       }
-      var request = new SqlModificationRequest(result.Batch);
+      SqlModificationRequest request = CreateRequest(result);
       foreach (var binding in result.ParameterBindings)
         request.ParameterBindings[binding.Key] = binding.Value;
-      request.ExpectedResult = result.Batch.Count;
-      domainHandler.Compile(request);
+      DomainHandler.Compile(request);
       return request;
     }
 
-    private SqlRequestBuilderResult BuildInsertRequest(SqlRequestBuilderTask task)
+    protected virtual SqlModificationRequest CreateRequest(SqlRequestBuilderResult result)
+    {
+      var request = new SqlModificationRequest(result.Batch);
+      request.ExpectedResult = result.Batch.Count;
+      return request;
+    }
+
+    protected virtual SqlRequestBuilderResult BuildInsertRequest(SqlRequestBuilderTask task)
     {
       var result = new SqlRequestBuilderResult(task, SqlFactory.Batch());
       foreach (IndexInfo index in result.AffectedIndexes) {
-        SqlTableRef table = SqlFactory.TableRef(domainHandler.GetTable(index));
+        SqlTableRef table = SqlFactory.TableRef(DomainHandler.GetTable(index));
         SqlInsert query = SqlFactory.Insert(table);
 
         for (int i = 0; i < index.Columns.Count; i++) {
@@ -69,11 +75,11 @@ namespace Xtensive.Storage.Providers.Sql
       return result;
     }
 
-    private SqlRequestBuilderResult BuildUpdateRequest(SqlRequestBuilderTask task)
+    protected virtual SqlRequestBuilderResult BuildUpdateRequest(SqlRequestBuilderTask task)
     {
       var result = new SqlRequestBuilderResult(task, SqlFactory.Batch());
       foreach (IndexInfo index in result.AffectedIndexes) {
-        SqlTableRef table = SqlFactory.TableRef(domainHandler.GetTable(index));
+        SqlTableRef table = SqlFactory.TableRef(DomainHandler.GetTable(index));
         SqlUpdate query = SqlFactory.Update(table);
 
         for (int i = 0; i < index.Columns.Count; i++) {
@@ -95,11 +101,11 @@ namespace Xtensive.Storage.Providers.Sql
       return result;
     }
 
-    private SqlRequestBuilderResult BuildRemoveRequest(SqlRequestBuilderTask task)
+    protected virtual SqlRequestBuilderResult BuildRemoveRequest(SqlRequestBuilderTask task)
     {
       var result = new SqlRequestBuilderResult(task, SqlFactory.Batch());
       foreach (IndexInfo index in result.AffectedIndexes) {
-        SqlTableRef table = SqlFactory.TableRef(domainHandler.GetTable(index));
+        SqlTableRef table = SqlFactory.TableRef(DomainHandler.GetTable(index));
         SqlDelete query = SqlFactory.Delete(table);
         query.Where &= BuildWhereExpression(result, table);
         result.Batch.Add(query);
@@ -107,7 +113,7 @@ namespace Xtensive.Storage.Providers.Sql
       return result;
     }
 
-    private static SqlExpression BuildWhereExpression(SqlRequestBuilderResult result, SqlTableRef table)
+    protected virtual SqlExpression BuildWhereExpression(SqlRequestBuilderResult result, SqlTableRef table)
     {
       SqlExpression expression = null;
       int i = 0;
@@ -125,16 +131,20 @@ namespace Xtensive.Storage.Providers.Sql
       return (target => target.IsNull(fieldIndex) ? DBNull.Value : target.GetValue(fieldIndex));
     }
 
+    /// <inheritdoc/>
+    public override void Initialize()
+    {
+      DomainHandler = Handlers.DomainHandler as DomainHandler;
+    }
+
 
     // Constructor
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="domainHandler">The domain handler.</param>
-    public SqlRequestBuilder(DomainHandler domainHandler)
+    public SqlRequestBuilder()
     {
-      this.domainHandler = domainHandler;
     }
   }
 }

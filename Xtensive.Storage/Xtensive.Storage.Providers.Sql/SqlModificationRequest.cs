@@ -27,7 +27,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// Gets or sets the expected result.
     /// </summary>
     /// <remarks>Usually is the number of touched rows.</remarks>
-    public int ExpectedResult { get; internal set; }
+    public int ExpectedResult { get; set; }
 
     /// <inheritdoc/>
     public override List<SqlParameter> GetParameters()

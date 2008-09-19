@@ -57,7 +57,8 @@ namespace Xtensive.Storage.Providers.Sql
     public override void Build()
     {
       SqlRequestCache = ThreadSafeDictionary<SqlRequestBuilderTask, SqlModificationRequest>.Create(new object());
-      SqlRequestBuilder = new SqlRequestBuilder(this);
+      SqlRequestBuilder = Handlers.HandlerFactory.CreateHandler<SqlRequestBuilder>();
+      SqlRequestBuilder.Initialize();
       SessionHandler sessionHandler = ((SessionHandler)BuildingScope.Context.SystemSessionHandler);
       Driver = sessionHandler.Connection.Driver;
       var modelProvider = new SqlModelProvider(sessionHandler.Connection, sessionHandler.Transaction);
