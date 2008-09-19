@@ -113,27 +113,28 @@ namespace Xtensive.Storage.Tests.Storage
       TestFixtureSetUp();
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
-          new Snake {Name = "Kaa1", Length = 2};
-          new Snake { Name = "Kaa2", Length = 1 };
-          new Snake { Name = "Kaa3", Length = 2 };
-          new Snake { Name = "Kaa1", Length = 1 };
-          new Snake { Name = "Kaa1", Length = 1 };
+          new Snake {Name = "Kaa1", Length = 1};
+          new Snake { Name = "Kaa2", Length = 2 };
           new Snake { Name = "Kaa1", Length = 3 };
+          new Snake { Name = "Kaa2", Length = 2 };
+          new Snake { Name = "Kaa1", Length = 3 };
+          new Snake { Name = "Kaa3", Length = 3 };
 
           Session.Current.Persist();
 
           TypeInfo snakeType = Domain.Model.Types[typeof(Snake)];
           RecordSet rsSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordSet();
-          RecordSet aggregate = rsSnakePrimary;
-          
+          var aggregate = rsSnakePrimary.OrderBy(OrderBy.Asc(4)).OrderBy(OrderBy.Asc(2));
+
+          aggregate.Count();
           aggregate = aggregate.CalculateAggregateFunction(
             new [] { new AggregateColumnDescriptor("Count1", 0, AggregateType.Count),
             new AggregateColumnDescriptor("Min1", 0, AggregateType.Min),
             new AggregateColumnDescriptor("Max1", 0, AggregateType.Max),
             new AggregateColumnDescriptor("Sum1", 0, AggregateType.Sum),
-            new AggregateColumnDescriptor("Avg1", 0, AggregateType.Avg)}, 4,2);
+            new AggregateColumnDescriptor("Avg1", 0, AggregateType.Avg)}, 4, 2);
 
-          aggregate.Count();
+          Assert.AreEqual(aggregate.Count(),4);
           t.Complete();
         }
       }
@@ -178,7 +179,7 @@ namespace Xtensive.Storage.Tests.Storage
           rsSnakePrimary.Count();
 
             RecordSet aggregate = rsSnakePrimary;
-            aggregate = aggregate.CalculateAggregateFunction(
+            aggregate = aggregate.CalculateAggregateFunction( new []{ 
               new AggregateColumnDescriptor("Count1", 0, AggregateType.Count),
               new AggregateColumnDescriptor("Min1", 0, AggregateType.Min),
               new AggregateColumnDescriptor("Max1", 0, AggregateType.Max),
@@ -188,11 +189,9 @@ namespace Xtensive.Storage.Tests.Storage
               new AggregateColumnDescriptor("Min2", 2, AggregateType.Min),
               new AggregateColumnDescriptor("Max2", 2, AggregateType.Max),
               new AggregateColumnDescriptor("Count3", 3, AggregateType.Count),
-              new AggregateColumnDescriptor("Max3", 3, AggregateType.Max));
+              new AggregateColumnDescriptor("Max3", 3, AggregateType.Max)});
 
-            aggregate.Count();
-
-
+            Assert.AreEqual(aggregate.Count(),1);
 
           string name = "TestName";
           var scope = TemporaryDataScope.Global;
@@ -700,7 +699,8 @@ namespace Xtensive.Storage.Tests.Storage
               .OrderBy(OrderBy.Desc(rsSnakePrimary.IndexOf(cName)))
               .Skip(5)
               .Take(50)
-              .ToEntities<Snake>();
+              //.ToEntities<Snake>()
+              ;
 
             Assert.AreEqual(15, snakesRse.Count());
           }

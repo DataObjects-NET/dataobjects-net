@@ -162,14 +162,14 @@ namespace Xtensive.Storage.Rse
       return new StoredProvider(recordSet.Provider, scope, name).Result;
     }
 
-    public static RecordSet CalculateAggregateFunction(this RecordSet recordSet, params AggregateColumnDescriptor[] descriptors)
-    {
-      return new AggregateProvider(recordSet.Provider, descriptors).Result;
-    }
+    //public static RecordSet CalculateAggregateFunction(this RecordSet recordSet, params AggregateColumnDescriptor[] descriptors)
+    //{
+    //  return new GroupProvider(recordSet.Provider, descriptors).Result;
+    //}
 
     public static RecordSet CalculateAggregateFunction(this RecordSet recordSet, AggregateColumnDescriptor[] descriptors, params int[] groupIndexes)
     {
-      return new UnOrderedGroupProvider(recordSet.Provider, descriptors, groupIndexes).Result;
+      return new AggregateProvider(recordSet.Provider, descriptors, groupIndexes).Result;
     }
 
     public static RecordSet ExecuteAt(this RecordSet recordSet, ExecutionOptions options)
