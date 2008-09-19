@@ -64,7 +64,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Category("Profile")]
     public void ProfileTest()
     {
-      int count = InstanceCount;
+      int count = 10;
       InsertTest(count);
       FetchTest(count);
     }
@@ -84,7 +84,7 @@ namespace Xtensive.Storage.Tests.Storage
         var s = ss.Session;
         long sum = 0;
         using (var ts = s.OpenTransaction()) {
-          using (new Measurement("Insert", count))
+          using (warmup ? null : new Measurement("Insert", count))
             for (int i = 0; i < count; i++) {
               var o = new Simplest(i, i);
               sum += i;
@@ -99,9 +99,9 @@ namespace Xtensive.Storage.Tests.Storage
       var d = Domain;
       using (var ss = d.OpenSession()) {
         var s = ss.Session;
-        long sum = (long)count*count/2-1;
+        long sum = (long)count*(count-1)/2;
         using (var ts = s.OpenTransaction()) {
-          using (new Measurement("Fetch & GetField", count))
+          using (warmup ? null : new Measurement("Fetch & GetField", count))
             for (int i = 0; i < count; i++) {
               long id = i;
               var key = Key.Get<Simplest>(Tuple.Create(id));
@@ -120,7 +120,7 @@ namespace Xtensive.Storage.Tests.Storage
       using (var ss = d.OpenSession()) {
         var s = ss.Session;
         using (var ts = s.OpenTransaction()) {
-          using (new Measurement("Query", count)) {
+          using (warmup ? null : new Measurement("Query", count)) {
             for (int i = 0; i < count; i++) {
               var pKey = new Parameter<Tuple>();
               var rs = d.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordSet();
@@ -147,7 +147,7 @@ namespace Xtensive.Storage.Tests.Storage
         using (var ts = s.OpenTransaction()) {
           var rs = d.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordSet();
           var es = rs.ToEntities<Simplest>();
-          using (new Measurement("Query & Remove", count))
+          using (warmup ? null : new Measurement("Remove", count))
             foreach (var o in es)
               o.Remove();
           ts.Complete();
