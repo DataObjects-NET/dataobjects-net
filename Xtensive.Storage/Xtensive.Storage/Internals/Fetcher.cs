@@ -18,48 +18,52 @@ namespace Xtensive.Storage.Internals
 {
   internal static class Fetcher
   {
-    private static readonly object syncRoot = new object();
-    private static readonly Dictionary<RSKey, RecordSet> cache = new Dictionary<RSKey, RecordSet>();
+    private static readonly Dictionary<RequestKey, RecordSet> cache = new Dictionary<RequestKey, RecordSet>();
     private static readonly Parameter<Key> pKey = new Parameter<Key>("Key");
+    private static readonly object _lock = new object();
 
-    #region Helper classes
+    #region Nested type: 
 
-    private class RSKey
+    private sealed class RequestKey
     {
       public readonly IndexInfo Index;
-      public int ColumnsHashCode;
+      public readonly int[] ColumnIndexes;
+      private int cachedHashCode;
 
-      public bool Equals(RSKey obj)
+      public bool Equals(RequestKey obj)
       {
         if (ReferenceEquals(null, obj))
           return false;
-        if (ReferenceEquals(this, obj))
-          return true;
-        return Equals(obj.Index, Index) && obj.ColumnsHashCode==ColumnsHashCode;
+        if (cachedHashCode!=obj.cachedHashCode)
+          return false;
+        if (Index!=obj.Index)
+          return false;
+        var objColumnIndexes = obj.ColumnIndexes;
+        if (ColumnIndexes.Length!=objColumnIndexes.Length)
+          return false;
+        for (int i = 0; i < ColumnIndexes.Length; i++)
+          if (ColumnIndexes[i]!=objColumnIndexes[i])
+            return false;
+        return true;
       }
 
       public override bool Equals(object obj)
       {
-        if (ReferenceEquals(null, obj))
-          return false;
-        if (ReferenceEquals(this, obj))
-          return true;
-        if (obj.GetType()!=typeof (RSKey))
-          return false;
-        return Equals((RSKey) obj);
+        return Equals(obj as RequestKey);
       }
 
       public override int GetHashCode()
       {
-        unchecked {
-          return (Index.GetHashCode() * 397) ^ ColumnsHashCode;
-        }
+        return cachedHashCode;
       }
 
-      public RSKey(IndexInfo index, int columnsHashCode)
+      public RequestKey(IndexInfo index, int[] columnIndexes)
       {
         Index = index;
-        ColumnsHashCode = columnsHashCode;
+        ColumnIndexes = columnIndexes;
+        cachedHashCode = columnIndexes.Length;
+        for (int i = 0; i < ColumnIndexes.Length; i++)
+          cachedHashCode = unchecked (379 * cachedHashCode + ColumnIndexes[i]);
       }
     }
 
@@ -104,10 +108,9 @@ namespace Xtensive.Storage.Internals
 
     private static RecordSet GetCachedRecordSet(IndexInfo index, int[] columnIndexes)
     {
-      var columnsKey = columnIndexes.Select((i, j) => new Pair<int>(i, j)).Aggregate(0, (s, p) => s^((1 >> (p.First)) ^ p.Second*379));
-      var key = new RSKey(index, columnsKey);
+      var key = new RequestKey(index, columnIndexes);
       RecordSet value;
-      if (!cache.TryGetValue(key, out value))lock(syncRoot)if(!cache.TryGetValue(key, out value)) {
+      if (!cache.TryGetValue(key, out value)) lock (_lock) if (!cache.TryGetValue(key, out value)) {
         value = IndexProvider.Get(index).Result
         .Seek(() => pKey.Value.Tuple)
         .Select(columnIndexes);

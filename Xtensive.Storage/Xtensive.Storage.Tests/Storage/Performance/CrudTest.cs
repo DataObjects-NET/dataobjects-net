@@ -38,10 +38,12 @@ namespace Xtensive.Storage.Tests.Storage
   [TestFixture]
   public class CrudTest : AutoBuildTest
   {
-    public const int InstanceCount = 1000;
-    public const int QueryCount = 200;
+    public const int BaseCount = 1000;
+    public const int InsertCount = BaseCount;
+    public const int QueryCount = BaseCount / 5;
     private bool warmup  = false;
     private bool profile = false;
+    private int instanceCount;
 
     protected override DomainConfiguration BuildConfiguration()
     {
@@ -54,9 +56,9 @@ namespace Xtensive.Storage.Tests.Storage
     public void RegularTest()
     {
       warmup = true;
-      CombinedTest(10, 10);
+      CombinedTest(10, 10, 10);
       warmup = false;
-      CombinedTest(InstanceCount, QueryCount);
+      CombinedTest(BaseCount, InsertCount, QueryCount);
     }
 
     [Test]
@@ -71,29 +73,30 @@ namespace Xtensive.Storage.Tests.Storage
 //      QueryTest(instanceCount, queryCount);
     }
 
-    private void CombinedTest(int instanceCount, int queryCount)
+    private void CombinedTest(int baseCount, int insertCount, int queryCount)
     {
-      InsertTest(instanceCount);
-      FetchTest(instanceCount);
-      QueryTest(instanceCount, queryCount);
-      RemoveTest(instanceCount);
+      InsertTest(insertCount);
+      FetchTest(baseCount);
+      QueryTest(queryCount);
+      RemoveTest();
     }
 
-    private void InsertTest(int count)
+    private void InsertTest(int inserCount)
     {
       var d = Domain;
       using (var ss = d.OpenSession()) {
         var s = ss.Session;
         long sum = 0;
         using (var ts = s.OpenTransaction()) {
-          using (warmup ? null : new Measurement("Insert", count))
-            for (int i = 0; i < count; i++) {
+          using (warmup ? null : new Measurement("Insert", inserCount))
+            for (int i = 0; i < inserCount; i++) {
               var o = new Simplest(i, i);
               sum += i;
             }
           ts.Complete();
         }
       }
+      instanceCount = inserCount;
     }
 
     private void FetchTest(int count)
@@ -105,25 +108,25 @@ namespace Xtensive.Storage.Tests.Storage
         using (var ts = s.OpenTransaction()) {
           using (warmup ? null : new Measurement("Fetch & GetField", count))
             for (int i = 0; i < count; i++) {
-              long id = i;
-              var key = Key.Get<Simplest>(Tuple.Create(id));
+              var key = Key.Get<Simplest>(Tuple.Create((long)i % instanceCount));
               var o = key.Resolve<Simplest>();
               sum -= o.Id;
             }
           ts.Complete();
         }
-        Assert.AreEqual(0, sum);
+        if (count<=instanceCount)
+          Assert.AreEqual(0, sum);
       }
     }
 
-    private void QueryTest(int instanceCount, int queryCount)
+    private void QueryTest(int count)
     {
       var d = Domain;
       using (var ss = d.OpenSession()) {
         var s = ss.Session;
         using (var ts = s.OpenTransaction()) {
-          using (warmup ? null : new Measurement("Query", queryCount)) {
-            for (int i = 0; i < queryCount; i++) {
+          using (warmup ? null : new Measurement("Query", count)) {
+            for (int i = 0; i < count; i++) {
               var pKey = new Parameter<Tuple>();
               var rs = d.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordSet();
               rs = rs.Seek(() => pKey.Value);
@@ -141,7 +144,7 @@ namespace Xtensive.Storage.Tests.Storage
       }
     }
 
-    private void RemoveTest(int count)
+    private void RemoveTest()
     {
       var d = Domain;
       using (var ss = d.OpenSession()) {
@@ -149,7 +152,7 @@ namespace Xtensive.Storage.Tests.Storage
         using (var ts = s.OpenTransaction()) {
           var rs = d.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordSet();
           var es = rs.ToEntities<Simplest>();
-          using (warmup ? null : new Measurement("Remove", count))
+          using (warmup ? null : new Measurement("Remove", instanceCount))
             foreach (var o in es)
               o.Remove();
           ts.Complete();
