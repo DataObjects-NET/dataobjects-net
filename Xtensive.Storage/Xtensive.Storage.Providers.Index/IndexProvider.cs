@@ -37,7 +37,7 @@ namespace Xtensive.Storage.Providers.Index
       return index;
     }
 
-
+    
     // Constructors
 
     /// <summary>
