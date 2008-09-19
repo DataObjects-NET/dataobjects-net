@@ -190,6 +190,11 @@ namespace Xtensive.Core.Tests.Tuples
       return new ExampleTuple<TDescriptor>(this);
     }
 
+    public override T GetValueOrDefault<T>(int fieldIndex)
+    {
+      return ((ITupleFieldAccessor<T>)this).GetValueOrDefault(fieldIndex);
+    }
+
     public override object GetValueOrDefault(int fieldIndex)
     {
       if (!HasValue(fieldIndex))

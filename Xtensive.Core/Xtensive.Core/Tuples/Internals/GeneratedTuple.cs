@@ -20,12 +20,12 @@ namespace Xtensive.Core.Tuples.Internals
     {
       ((ITupleFieldAccessor<T>)this).SetValue(fieldIndex, fieldValue);
     }
-
-    /// <inheritdoc/>
-    public override sealed T GetValueOrDefault<T>(int fieldIndex)
-    {
-      return ((ITupleFieldAccessor<T>)this).GetValueOrDefault(fieldIndex);
-    }
+//
+//    /// <inheritdoc/>
+//    public override sealed T GetValueOrDefault<T>(int fieldIndex)
+//    {
+//      return ((ITupleFieldAccessor<T>)this).GetValueOrDefault(fieldIndex);
+//    }
 
     /// <summary>
     /// Sets the field state associated with the field.

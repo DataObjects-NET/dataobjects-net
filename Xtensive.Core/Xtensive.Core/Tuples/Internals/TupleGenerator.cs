@@ -52,7 +52,6 @@ namespace Xtensive.Core.Tuples.Internals
     private FieldBuilder descriptorField;
     private MethodBuilder getCountMethod;
     private ConstructorBuilder copyingCtor;
-    
 
     public Tuple Compile(TupleInfo tupleInfo)
     {
@@ -84,15 +83,14 @@ namespace Xtensive.Core.Tuples.Internals
       AddSetFlags();
       AddCtors();
       AddClone();
-      AddGetValueOrDefault();
-      // Do not uncomment this line. It expects abstract GetValueOrDefault<T> method in Tuple class.
-//      AddGetValueOrDefaultGeneric();
-      AddSetValue();
       foreach (KeyValuePair<Type, TupleInterfaceInfo> keyValuePair in tupleInfo.Interfaces) {
         tupleType.AddInterfaceImplementation(keyValuePair.Value.InterfaceType);
         AddGetValueOrDefault(keyValuePair.Value);
         AddSetValue(keyValuePair.Value);
       }
+      AddGetValueOrDefault();
+      AddGetValueOrDefaultGeneric();
+      AddSetValue();
 
       Tuple tuple = (Tuple)tupleType.CreateType().Activate(
         new Type[] {tupleInfo.Descriptor.GetType()}, 
@@ -132,7 +130,7 @@ namespace Xtensive.Core.Tuples.Internals
 
       ILGenerator il = getValueOrDefault.GetILGenerator();
       
-      Dictionary<Type, Pair<Type,LocalBuilder>> localsList = new Dictionary<Type, Pair<Type, LocalBuilder>>();
+      var localsList = new Dictionary<Type, Pair<Type, LocalBuilder>>();
       foreach (TupleFieldInfo fieldInfo in tupleInfo.Fields) {
         if (fieldInfo.IsValueType) {
           if (!localsList.ContainsKey(fieldInfo.Type)) {
@@ -142,7 +140,6 @@ namespace Xtensive.Core.Tuples.Internals
           }
         }
       }
-
 
       Action<int, bool> action =
         delegate(int fieldIndex, bool isDefault) {
@@ -189,8 +186,6 @@ namespace Xtensive.Core.Tuples.Internals
                 InlineGetField(il, field);
                 il.Emit(OpCodes.Ret);
               });
-            il.Emit(OpCodes.Newobj, typeof(NotImplementedException).GetConstructor(Type.EmptyTypes));
-            il.Emit(OpCodes.Throw);
           }
           else {
             il.Emit(OpCodes.Ldstr, "fieldIndex");
@@ -413,8 +408,6 @@ namespace Xtensive.Core.Tuples.Internals
           setValueMethodName,
           MethodAttributes.Private |
           MethodAttributes.Virtual |
-          MethodAttributes.HideBySig |
-          MethodAttributes.NewSlot |
           MethodAttributes.Final,
           null,
           new Type[] {typeof(int), interfaceInfo.InterfaceType.GetGenericArguments()[0]});
@@ -508,8 +501,6 @@ namespace Xtensive.Core.Tuples.Internals
           getValueOrDefaultMethodName,
           MethodAttributes.Private | 
           MethodAttributes.Virtual | 
-          MethodAttributes.HideBySig | 
-          MethodAttributes.NewSlot | 
           MethodAttributes.Final,
           interfaceMethod.ReturnType,
           new Type[] { typeof(int) });
@@ -519,7 +510,7 @@ namespace Xtensive.Core.Tuples.Internals
       Label[] switchLabels = new Label[tupleInfo.Fields.Count];
       for (int fieldIndex = 0; fieldIndex < tupleInfo.Fields.Count; fieldIndex++)
       {
-        if (tupleInfo.Fields[fieldIndex].Type == interfaceInfo.FieldType)
+        if (tupleInfo.Fields[fieldIndex].Type==interfaceInfo.FieldType)
           switchLabels[fieldIndex] = il.DefineLabel();
         else
           switchLabels[fieldIndex] = invalidCastException;
@@ -746,7 +737,7 @@ namespace Xtensive.Core.Tuples.Internals
             setValueMethod = info;
           }
         }
-        if (info.Name == getValueOrDefaultGenericMethodName && !info.ReturnType.IsGenericParameter)
+        if (info.Name == getValueOrDefaultGenericMethodName && info.ReturnType.IsGenericParameter)
           getValueOrDefaultGenericMethod = info;
       }
     }

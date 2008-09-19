@@ -127,11 +127,11 @@ namespace Xtensive.Core.Tuples.Internals
     {
       CompressableTypes.Add(typeof (bool), 1);
       CompressableTypes.Add(typeof (TupleFieldState), 2);
-      CompressableTypes.Add(typeof (byte), 8);
-      CompressableTypes.Add(typeof (sbyte), 8);
-      CompressableTypes.Add(typeof (char), 16);
-      CompressableTypes.Add(typeof (short), 16);
-      CompressableTypes.Add(typeof (ushort), 16);
+//      CompressableTypes.Add(typeof (byte), 8);
+//      CompressableTypes.Add(typeof (sbyte), 8);
+//      CompressableTypes.Add(typeof (char), 16);
+//      CompressableTypes.Add(typeof (short), 16);
+//      CompressableTypes.Add(typeof (ushort), 16);
     }
   }
 }
