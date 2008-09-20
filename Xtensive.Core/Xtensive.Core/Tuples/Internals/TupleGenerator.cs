@@ -25,15 +25,23 @@ namespace Xtensive.Core.Tuples.Internals
     private const string valuePropertyName = "Value";
     private const string getValueOrDefaultMethodName = "GetValueOrDefault";
     private const string getValueOrDefaultGenericMethodName = "GetValueOrDefault";
+    private const string setValueGenericMethodName = "SetValue";
     private const string hasValuePropertyName = "HasValue";
     private const string setValueMethodName = "SetValue";
     private const string getFieldStateMethodName = "GetFieldState";
     private const string setFieldStateMathodName = "SetFieldState";
     private const string createNewMethodName = "CreateNew";
     private const string cloneMethodName = "Clone";
+    private const string equalsMethodName = "Equals";
+    private const string getHashCodeMethodName = "GetHashCode";
 
+    private readonly static MethodInfo referenceEqualsMethod = typeof(object).GetMethod("ReferenceEquals");
+    private readonly static MethodInfo staticEqualsMethod = typeof(object).GetMethod("Equals", new Type[]{typeof(object), typeof(object)});
+    private readonly static MethodInfo objectGetHashCodeMethod = typeof(object).GetMethod("GetHashCode", ArrayUtils<Type>.EmptyArray);
     private readonly static AssemblyName assemblyName = new AssemblyName("Xtensive.GeneratedTuples");
     private readonly static MethodInfo getFlagsMethod = typeof(Tuple).GetMethod("GetFieldState");
+    private readonly static MethodInfo getHashCodeMethod = typeof(Tuple).GetMethod("GetHashCode");
+    private static readonly MethodInfo getDescriptorMethod = typeof(Tuple).GetMethod(WellKnown.GetterPrefix + descriptorPropertyName);
     private readonly static MethodInfo setFlagsMethod = typeof(GeneratedTuple).GetMethod("SetFieldState", 
       BindingFlags.Instance | 
       BindingFlags.NonPublic | 
@@ -41,6 +49,8 @@ namespace Xtensive.Core.Tuples.Internals
     private readonly static MethodInfo getValueOrDefaultMethod;
     private readonly static MethodInfo getValueOrDefaultGenericMethod;
     private readonly static MethodInfo setValueMethod;
+    private readonly static MethodInfo setValueGenericMethod;
+    private readonly static MethodInfo equalsMethod;
     // Static members
     private readonly static AssemblyBuilder assemblyBuilder;
     private readonly static ModuleBuilder moduleBuilder;
@@ -52,6 +62,7 @@ namespace Xtensive.Core.Tuples.Internals
     private FieldBuilder descriptorField;
     private MethodBuilder getCountMethod;
     private ConstructorBuilder copyingCtor;
+   
 
     public Tuple Compile(TupleInfo tupleInfo)
     {
@@ -83,14 +94,16 @@ namespace Xtensive.Core.Tuples.Internals
       AddSetFlags();
       AddCtors();
       AddClone();
+      AddEquals();
+      AddGetHashCode();
+      AddGetValueOrDefault();
+//      AddGetValueOrDefaultGeneric();
+      AddSetValue();
       foreach (KeyValuePair<Type, TupleInterfaceInfo> keyValuePair in tupleInfo.Interfaces) {
         tupleType.AddInterfaceImplementation(keyValuePair.Value.InterfaceType);
         AddGetValueOrDefault(keyValuePair.Value);
         AddSetValue(keyValuePair.Value);
       }
-      AddGetValueOrDefault();
-      AddGetValueOrDefaultGeneric();
-      AddSetValue();
 
       Tuple tuple = (Tuple)tupleType.CreateType().Activate(
         new Type[] {tupleInfo.Descriptor.GetType()}, 
@@ -115,6 +128,148 @@ namespace Xtensive.Core.Tuples.Internals
         BindingFlags.NonPublic);
       descriptorField.SetValue(null, tupleInfo.Descriptor);
       return tuple;
+    }
+
+    private void AddGetHashCode()
+    {
+      MethodBuilder getHashCode = tupleType.DefineMethod(
+         getHashCodeMethodName,
+         MethodAttributes.Public |
+         MethodAttributes.Virtual,
+         typeof(int),
+         ArrayUtils<Type>.EmptyArray);
+
+      ILGenerator il = getHashCode.GetILGenerator();
+      var result = il.DeclareLocal(typeof (int));
+      foreach (var fieldInfo in tupleInfo.Fields) {
+        il.Emit(OpCodes.Ldloc, result);
+        il.Emit(OpCodes.Ldc_I4, Tuple.HashCodeMultiplier);
+        il.Emit(OpCodes.Mul);
+        if (fieldInfo.IsCompressed) {
+          InlineGetField(il, fieldInfo);
+          il.Emit(OpCodes.Xor);
+        }
+        else if (fieldInfo.IsValueType) {
+          il.Emit(OpCodes.Ldarg_0);
+          il.Emit(OpCodes.Ldflda, fieldInfo.FieldBuilder);
+          var structGetHashCode = fieldInfo.Type.GetMethod(getHashCodeMethodName);
+          il.Emit(OpCodes.Call, structGetHashCode);
+          il.Emit(OpCodes.Xor);
+        }
+        else {
+          var skip = il.DefineLabel();
+          il.Emit(OpCodes.Ldarg_0);
+          il.Emit(OpCodes.Ldfld, fieldInfo.FieldBuilder);
+          il.Emit(OpCodes.Brfalse_S, skip);
+          il.Emit(OpCodes.Ldarg_0);
+          il.Emit(OpCodes.Ldfld, fieldInfo.FieldBuilder);
+          il.Emit(OpCodes.Callvirt, objectGetHashCodeMethod);
+          il.Emit(OpCodes.Xor);
+          il.MarkLabel(skip);
+        }
+        il.Emit(OpCodes.Stloc, result);
+      }
+      il.Emit(OpCodes.Ldloc, result);
+      il.Emit(OpCodes.Ret);
+      tupleType.DefineMethodOverride(getHashCode, getHashCodeMethod);
+    }
+
+    private void AddEquals()
+    {
+      MethodBuilder equals = tupleType.DefineMethod(
+         equalsMethodName,
+         MethodAttributes.Public |
+         MethodAttributes.Virtual, 
+         typeof(bool),
+         new Type[]{typeof(Tuple)});
+
+      ILGenerator il = equals.GetILGenerator();
+      Label returnFalse = il.DefineLabel();
+      Label compareDescriptor = il.DefineLabel();
+      Label isSameType = il.DefineLabel();
+      Label compareDefault = il.DefineLabel();
+      var sameType = il.DeclareLocal(tupleType);
+      il.Emit(OpCodes.Ldarg_1);
+      il.Emit(OpCodes.Ldnull);
+      il.Emit(OpCodes.Ceq);
+      il.Emit(OpCodes.Brtrue, returnFalse);
+      il.Emit(OpCodes.Ldarg_0);
+      il.Emit(OpCodes.Ldarg_1);
+      il.Emit(OpCodes.Ceq);
+      il.Emit(OpCodes.Brfalse, compareDescriptor);
+      il.Emit(OpCodes.Ldc_I4_1);
+      il.Emit(OpCodes.Ret);
+      il.MarkLabel(compareDescriptor);
+      il.Emit(OpCodes.Ldarg_0);
+      il.Emit(OpCodes.Callvirt, getDescriptorMethod);
+      il.Emit(OpCodes.Ldarg_1);
+      il.Emit(OpCodes.Callvirt, getDescriptorMethod);
+      il.Emit(OpCodes.Ceq);
+      il.Emit(OpCodes.Brtrue, isSameType);
+      il.Emit(OpCodes.Ldc_I4_0);
+      il.Emit(OpCodes.Ret);
+      il.MarkLabel(isSameType);
+      il.Emit(OpCodes.Ldarg_1);
+      il.Emit(OpCodes.Isinst, tupleType);
+      il.Emit(OpCodes.Stloc, sameType);
+      il.Emit(OpCodes.Ldloc, sameType);
+      il.Emit(OpCodes.Ldnull);
+      il.Emit(OpCodes.Ceq);
+      il.Emit(OpCodes.Brtrue, compareDefault);
+      foreach (var fieldInfo in tupleInfo.ActualCompressingFields) {
+        il.Emit(OpCodes.Ldarg_0);
+        il.Emit(OpCodes.Ldfld, fieldInfo.FieldBuilder);
+        il.Emit(OpCodes.Ldarg_1);
+        il.Emit(OpCodes.Ldfld, fieldInfo.FieldBuilder);
+        il.Emit(OpCodes.Ceq);
+        il.Emit(OpCodes.Brfalse, returnFalse);
+      }
+      foreach (var fieldInfo in tupleInfo.ActualFields) {
+        if (fieldInfo.IsValueType) {
+          il.Emit(OpCodes.Ldarg_0);
+          il.Emit(OpCodes.Ldfld, fieldInfo.FieldBuilder);
+          il.Emit(OpCodes.Ldarg_1);
+          il.Emit(OpCodes.Ldfld, fieldInfo.FieldBuilder);
+          il.Emit(OpCodes.Ceq);
+          il.Emit(OpCodes.Brfalse, returnFalse);
+        }
+        else {
+          il.Emit(OpCodes.Ldarg_0);
+          il.Emit(OpCodes.Ldfld, fieldInfo.FieldBuilder);
+          il.Emit(OpCodes.Ldarg_1);
+          il.Emit(OpCodes.Ldfld, fieldInfo.FieldBuilder);
+          il.Emit(OpCodes.Call, staticEqualsMethod);
+          il.Emit(OpCodes.Brfalse, returnFalse);
+        }
+      }
+      il.Emit(OpCodes.Ldc_I4_1);
+      il.Emit(OpCodes.Ret);
+      il.MarkLabel(compareDefault);
+      for (int fieldIndex = 0; fieldIndex < tupleInfo.Fields.Count; fieldIndex++) {
+        il.Emit(OpCodes.Ldarg_0);
+        il.Emit(OpCodes.Ldc_I4, fieldIndex);
+        il.Emit(OpCodes.Callvirt, getFlagsMethod);
+        il.Emit(OpCodes.Ldarg_1);
+        il.Emit(OpCodes.Ldc_I4, fieldIndex);
+        il.Emit(OpCodes.Callvirt, getFlagsMethod);
+        il.Emit(OpCodes.Ceq);
+        il.Emit(OpCodes.Brfalse, returnFalse);
+        il.Emit(OpCodes.Ldarg_0);
+        il.Emit(OpCodes.Ldc_I4, fieldIndex);
+        il.Emit(OpCodes.Callvirt, getValueOrDefaultMethod);
+        il.Emit(OpCodes.Ldarg_1);
+        il.Emit(OpCodes.Ldc_I4, fieldIndex);
+        il.Emit(OpCodes.Callvirt, getValueOrDefaultMethod);
+        il.Emit(OpCodes.Call, staticEqualsMethod);
+        il.Emit(OpCodes.Brfalse, returnFalse);
+        il.Emit(OpCodes.Ldc_I4_1);
+        il.Emit(OpCodes.Ret);
+      }
+
+      il.MarkLabel(returnFalse);
+      il.Emit(OpCodes.Ldc_I4_0);
+      il.Emit(OpCodes.Ret);
+      tupleType.DefineMethodOverride(equals, equalsMethod);
     }
 
     private void AddGetValueOrDefaultGeneric()
@@ -200,6 +355,110 @@ namespace Xtensive.Core.Tuples.Internals
       tupleType.DefineMethodOverride(getValueOrDefault, getValueOrDefaultGenericMethod);
     }
 
+    private void AddSetValueGeneric()
+    {
+      MethodBuilder setValue = tupleType.DefineMethod(
+          setValueGenericMethodName,
+          MethodAttributes.Public |
+          MethodAttributes.Virtual
+          );
+      GenericTypeParameterBuilder[] genericParameters = setValue.DefineGenericParameters("T");
+      setValue.SetReturnType(null);
+      setValue.SetParameters(new Type[] { typeof(int), genericParameters[0] });
+
+      ILGenerator il = setValue.GetILGenerator();
+
+//      MethodInfo interfaceMethod = interfaceInfo.InterfaceType.GetMethod(setValueMethodName);
+//      MethodBuilder setValue = tupleType.DefineMethod(
+//          setValueMethodName,
+//          MethodAttributes.Private |
+//          MethodAttributes.Virtual |
+//          MethodAttributes.Final,
+//          null,
+//          new Type[] {typeof(int), interfaceInfo.InterfaceType.GetGenericArguments()[0]});
+//
+//      ILGenerator il = setValue.GetILGenerator();
+//      Label invalidCastException = il.DefineLabel();
+//      Label[] switchLabels = new Label[tupleInfo.Fields.Count];
+//      for (int fieldIndex = 0; fieldIndex < tupleInfo.Fields.Count; fieldIndex++) {
+//        if (tupleInfo.Fields[fieldIndex].Type == interfaceInfo.FieldType)
+//          switchLabels[fieldIndex] = il.DefineLabel();
+//        else
+//          switchLabels[fieldIndex] = invalidCastException;
+//      }
+//
+//
+//      Type nullable = null;
+//      il.DeclareLocal(typeof(TupleFieldState));
+//      if (interfaceInfo.IsForNullableType) {
+//        il.DeclareLocal(interfaceInfo.FieldType);
+//        nullable = typeof(Nullable<>).MakeGenericType(interfaceInfo.FieldType);
+//      }
+//      il.Emit(OpCodes.Ldarg_1);
+//      Action<int, bool> action =
+//        delegate(int fieldIndex, bool isDefault) {
+//          if (!isDefault) {
+//            TupleFieldInfo field = tupleInfo.Fields[fieldIndex];
+//            if (field.Type == interfaceInfo.FieldType) {
+//              il.MarkLabel(switchLabels[fieldIndex]);
+//              Label setFlags = il.DefineLabel();
+//              if (interfaceInfo.IsForNullableType) {
+//                Label isNotNull = il.DefineLabel();
+//                il.Emit(OpCodes.Ldarga, 2);
+//                il.Emit(OpCodes.Call, nullable.GetMethod(WellKnown.GetterPrefix+hasValuePropertyName));
+//                il.Emit(OpCodes.Brtrue, isNotNull);
+//                il.Emit(OpCodes.Ldc_I4, (int)(TupleFieldState.IsAvailable | TupleFieldState.IsNull));
+//                il.Emit(OpCodes.Stloc_0);
+//                il.Emit(OpCodes.Br, setFlags);
+//                il.MarkLabel(isNotNull);
+//                il.Emit(OpCodes.Ldc_I4, (int)(TupleFieldState.IsAvailable));
+//                il.Emit(OpCodes.Stloc_0);
+//              }
+//              else if (!interfaceInfo.IsForValueType) {
+//                Label isNotNull = il.DefineLabel();
+//                Label isNull = il.DefineLabel();
+//                il.Emit(OpCodes.Ldarg_2);
+//                il.Emit(OpCodes.Ldnull);
+//                il.Emit(OpCodes.Ceq);
+//                il.Emit(OpCodes.Brfalse, isNotNull);
+//                il.Emit(OpCodes.Ldc_I4, (int)(TupleFieldState.IsAvailable | TupleFieldState.IsNull));
+//                il.Emit(OpCodes.Stloc_0);
+//                il.Emit(OpCodes.Br, isNull);
+//                il.MarkLabel(isNotNull);
+//                il.Emit(OpCodes.Ldc_I4, (int)(TupleFieldState.IsAvailable));
+//                il.Emit(OpCodes.Stloc_0);
+//                il.MarkLabel(isNull);
+//              }
+//              else {
+//                il.Emit(OpCodes.Ldc_I4, (int) (TupleFieldState.IsAvailable));
+//                il.Emit(OpCodes.Stloc_0);
+//              }
+//              if (interfaceInfo.IsForNullableType) {
+//                il.Emit(OpCodes.Ldarga, 2);
+//                il.Emit(OpCodes.Call, nullable.GetMethod(WellKnown.GetterPrefix+valuePropertyName));
+//                il.Emit(OpCodes.Stloc_1);
+//                InlineSetField(il, field, OpCodes.Ldloc_1, false);
+//              }
+//              else
+//                InlineSetField(il, field, OpCodes.Ldarg_2, false);
+//              il.MarkLabel(setFlags);
+//              InlineSetField(il, field.FlagsField, OpCodes.Ldloc_0, false);
+//              il.Emit(OpCodes.Ret);
+//            }
+//          }
+//          else {
+//            il.Emit(OpCodes.Ldstr, "fieldIndex");
+//            il.Emit(OpCodes.Newobj, typeof(ArgumentOutOfRangeException).GetConstructor(new Type[] { typeof(string) }));
+//            il.Emit(OpCodes.Throw);
+//          }
+//        };
+//      EmitHelper.EmitSwitch(il, switchLabels, false, action);
+//      il.MarkLabel(invalidCastException);
+//      il.Emit(OpCodes.Newobj, typeof(InvalidCastException).GetConstructor(Type.EmptyTypes));
+//      il.Emit(OpCodes.Throw);
+//      tupleType.DefineMethodOverride(setValue, interfaceMethod);
+    }
+
     private void AddStaticFields()
     {
       // "private readonly static TDescriptor descriptor;"
@@ -229,8 +488,7 @@ namespace Xtensive.Core.Tuples.Internals
       il.Emit(OpCodes.Ret);
       // "}"
 
-      tupleType.DefineMethodOverride(getDescriptorMethod,
-        typeof(Tuple).GetMethod(WellKnown.GetterPrefix+descriptorPropertyName));
+      tupleType.DefineMethodOverride(getDescriptorMethod, TupleGenerator.getDescriptorMethod);
     }
 
     private void AddFields()
@@ -407,6 +665,8 @@ namespace Xtensive.Core.Tuples.Internals
       MethodBuilder setValue = tupleType.DefineMethod(
           setValueMethodName,
           MethodAttributes.Private |
+          MethodAttributes.HideBySig |
+          MethodAttributes.NewSlot |
           MethodAttributes.Virtual |
           MethodAttributes.Final,
           null,
@@ -499,7 +759,9 @@ namespace Xtensive.Core.Tuples.Internals
       MethodInfo interfaceMethod = interfaceInfo.InterfaceType.GetMethod(getValueOrDefaultMethodName);
       MethodBuilder getValueOrDefault = tupleType.DefineMethod(
           getValueOrDefaultMethodName,
-          MethodAttributes.Private | 
+          MethodAttributes.Private |
+          MethodAttributes.HideBySig |
+          MethodAttributes.NewSlot |
           MethodAttributes.Virtual | 
           MethodAttributes.Final,
           interfaceMethod.ReturnType,
@@ -728,17 +990,23 @@ namespace Xtensive.Core.Tuples.Internals
       foreach (MethodInfo info in tupleType.GetMethods()) {
         if (!info.IsPublic)
           continue;
-        if (info.Name==getValueOrDefaultMethodName) {
-          if (!info.ReturnType.IsGenericParameter)
-            getValueOrDefaultMethod = info;
+        if (info.Name==getValueOrDefaultMethodName && !info.IsGenericMethodDefinition) {
+          getValueOrDefaultMethod = info;
+          continue;
         }
-        else if (info.Name == setValueMethodName) {
-          if (!info.ReturnType.IsGenericParameter) {
-            setValueMethod = info;
-          }
+        if (info.Name==setValueMethodName && !info.IsGenericMethodDefinition) {
+          setValueMethod = info;
+          continue;
         }
-        if (info.Name == getValueOrDefaultGenericMethodName && info.ReturnType.IsGenericParameter)
+        if (info.Name == getValueOrDefaultGenericMethodName && info.IsGenericMethodDefinition)
           getValueOrDefaultGenericMethod = info;
+        if (info.Name == setValueGenericMethodName && info.IsGenericMethodDefinition)
+          setValueGenericMethod = info;
+        if (info.Name == equalsMethodName) {
+          var types = info.GetParameterTypes();
+          if (types[0] == typeof(Tuple))
+            equalsMethod = info;
+        }
       }
     }
   }

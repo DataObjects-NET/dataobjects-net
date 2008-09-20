@@ -97,8 +97,8 @@ namespace Xtensive.Core.Tests.Tuples
       bool boolResult = expectedResult==0;
       Assert.AreEqual(expectedResult, Normalize(comparer.Compare(x, y)));
       Assert.AreEqual(expectedResult, Normalize(x.CompareTo(y)));
-      Assert.AreEqual(boolResult, equalityComparer.Equals(x, y));
       Assert.AreEqual(boolResult, x.Equals(y));
+      Assert.AreEqual(boolResult, equalityComparer.Equals(x, y));
       Assert.AreEqual(expectedResult, Normalize(advancedComparer.Compare(x, y)));
       Assert.AreEqual(boolResult, advancedComparer.Equals(x, y));
 

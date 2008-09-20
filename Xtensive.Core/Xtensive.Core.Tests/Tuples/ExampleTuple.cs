@@ -190,11 +190,6 @@ namespace Xtensive.Core.Tests.Tuples
       return new ExampleTuple<TDescriptor>(this);
     }
 
-    public override T GetValueOrDefault<T>(int fieldIndex)
-    {
-      return ((ITupleFieldAccessor<T>)this).GetValueOrDefault(fieldIndex);
-    }
-
     public override object GetValueOrDefault(int fieldIndex)
     {
       if (!HasValue(fieldIndex))
@@ -267,6 +262,50 @@ namespace Xtensive.Core.Tests.Tuples
           return;
       }
       throw new ArgumentOutOfRangeException();
+    }
+
+    public override bool Equals(Tuple obj)
+    {
+      if (obj == null)
+        return false;
+      if (this == obj)
+        return true;
+      if (Descriptor != obj.Descriptor)
+        return false;
+      var other = obj as ExampleTuple<TDescriptor>;
+      if (other == null) {
+        for (int fieldIndex = 0; fieldIndex < Count; fieldIndex++) {
+          bool xHasNoValue = !IsAvailable(fieldIndex);
+          bool yHasNoValue = !obj.IsAvailable(fieldIndex);
+          if (xHasNoValue) {
+            if (yHasNoValue)
+              continue;
+            return false;
+          }
+          if (yHasNoValue)
+            return false;
+          if (!Equals(GetValueOrDefault(fieldIndex), obj.GetValueOrDefault(fieldIndex)))
+            return false;
+        }
+        return true;
+      }
+      return other.c0==c0 && other.f0==f0 && Equals(other.f1, f1);
+    }
+
+    public override bool Equals(object obj)
+    {
+      return Equals(obj as Tuple);
+    }
+
+    public override int GetHashCode()
+    {
+      unchecked {
+        int result = 0;
+        result = (result * 397) ^ f0;
+        result = (result * 397) ^ ((c0 & 4) >> 2);
+        result = (result * 397) ^ (f1!=null ? f1.GetHashCode() : 0);
+        return result;
+      }
     }
 
     public override int Count

@@ -209,7 +209,7 @@ namespace Xtensive.Storage.Tests.Storage
 
             var loaded = RecordSet.Load(saved.Header, scope, name);
 
-            AssertEx.AreEqual(saved, loaded);
+          AssertEx.AreEqual(saved, loaded);
           t.Complete();
         }
       }

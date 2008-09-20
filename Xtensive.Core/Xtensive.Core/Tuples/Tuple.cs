@@ -22,6 +22,8 @@ namespace Xtensive.Core.Tuples
     IEquatable<Tuple>,
     IComparable<Tuple>
   {
+    public const int HashCodeMultiplier = 0x18d;
+
     /// <inheritdoc />
     public abstract TupleDescriptor Descriptor { get; }
 
@@ -149,11 +151,11 @@ namespace Xtensive.Core.Tuples
     /// <inheritdoc/>
     public int CompareTo(ITuple other)
     {
-      return AdvancedComparerStruct<Tuple>.System.Compare(this, (Tuple)other);
+      return CompareTo((Tuple)other);
     }
 
     /// <inheritdoc/>
-    public bool Equals(Tuple other)
+    public virtual bool Equals(Tuple other)
     {
       return AdvancedComparerStruct<Tuple>.System.Equals(this, other);
     }
@@ -161,7 +163,7 @@ namespace Xtensive.Core.Tuples
     /// <inheritdoc/>
     public bool Equals(ITuple other)
     {
-      return AdvancedComparerStruct<Tuple>.System.Equals(this, (Tuple)other);
+      return Equals((Tuple) other);
     }
 
     #endregion
@@ -184,7 +186,7 @@ namespace Xtensive.Core.Tuples
     bool ITupleActionHandler<TupleGetHashCodeData>.Execute<TFieldType>(ref TupleGetHashCodeData data, int fieldIndex)
     {
       TFieldType valueOrDefault = data.Tuple.GetValueOrDefault<TFieldType>(fieldIndex);
-      data.Result = 29 * data.Result + (valueOrDefault!=null ? valueOrDefault.GetHashCode() : 0);
+      data.Result = HashCodeMultiplier * data.Result ^ (valueOrDefault != null ? valueOrDefault.GetHashCode() : 0);
       return false;
     }
 

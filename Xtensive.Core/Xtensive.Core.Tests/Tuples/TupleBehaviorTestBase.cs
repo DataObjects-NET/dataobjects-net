@@ -143,6 +143,8 @@ namespace Xtensive.Core.Tests.Tuples
         throw new AssertionException("Invalid cast exception should be thrown.");
       } catch (InvalidCastException) {
       }
+
+      Assert.IsTrue(tuple.Equals(tuple));
     }
 
     public void EmptyFieldsTest()
@@ -202,6 +204,8 @@ namespace Xtensive.Core.Tests.Tuples
         
       }
       Assert.AreEqual(dummyTuple.GetHashCode(), tuple.GetHashCode());
+      Assert.IsTrue(dummyTuple.Equals(tuple));
+      Assert.IsTrue(tuple.Equals(dummyTuple));
     }
 
     protected void AssertAreSame(ITuple source, ITuple target, int startIndex, int targetStartIndex, int count)
