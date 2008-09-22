@@ -667,7 +667,7 @@ namespace Xtensive.Storage.Tests.Model
 
           Assert.IsNull(Key.Get<Book, string>("0976470705").Resolve());
         }
-        Assert.AreEqual(Key.Get<Book, string>("0976470705").Resolve(), book1);
+        Assert.AreEqual(null, Key.Get<Book, string>("0976470705").Resolve());
       }
     }
 
