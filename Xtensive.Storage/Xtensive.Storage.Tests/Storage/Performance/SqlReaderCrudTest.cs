@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Tests.Storage
     private bool warmup = false;
     private int instanceCount;
 
-    private readonly SqlConnection con = new SqlConnection(@"Data Source=localhost\sql2005;Initial Catalog = DO40-Tests;"
+    private readonly SqlConnection con = new SqlConnection(@"Data Source=localhost;Initial Catalog = DO40-Tests;"
       + "Integrated Security=SSPI;");
 
     protected override DomainConfiguration BuildConfiguration()
@@ -134,6 +134,7 @@ namespace Xtensive.Storage.Tests.Storage
           }
           dr.Close();
         }
+      Assert.AreEqual((long)count * (count - 1) / 2, sum);
       transaction.Commit();
       con.Close();
     }

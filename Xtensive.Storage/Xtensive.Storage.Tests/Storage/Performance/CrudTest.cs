@@ -68,9 +68,7 @@ namespace Xtensive.Storage.Tests.Storage
     {
       int instanceCount = 1000;
       InsertTest(instanceCount);
-//      BulkFetchTest(instanceCount);
       FetchTest(instanceCount);
-//      QueryTest(instanceCount / 5);
     }
 
     private void CombinedTest(int baseCount, int insertCount)
@@ -143,6 +141,7 @@ namespace Xtensive.Storage.Tests.Storage
           }
           ts.Complete();
         }
+        Assert.AreEqual((long)count*(count-1)/2, sum);
       }
     }
 
