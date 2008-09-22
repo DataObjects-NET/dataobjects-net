@@ -93,7 +93,7 @@ namespace Xtensive.Storage.Tests.Storage
       cmd.Transaction = transaction;
       cmd.Parameters.AddWithValue("@prm", 0);
       cmd.Parameters.AddWithValue("@ptypeid", 0);
-      cmd.CommandText = "Insert into dbo.Simplest (Id, TypeId, Value) VALUES ( @prm, @ptypeid, @prm)";
+      cmd.CommandText = "INSERT INTO [dbo].[Simplest] ([Simplest].[Id], [Simplest].[TypeId], [Simplest].[Value]) VALUES ( @prm, @ptypeid, @prm)";
       TestHelper.CollectGarbage();
 
       using (warmup ? null : new Measurement("Insert", inserCount))
@@ -120,7 +120,7 @@ namespace Xtensive.Storage.Tests.Storage
         while (i < count) {
           SqlCommand cmd = con.CreateCommand();
           cmd.Transaction = transaction;
-          cmd.CommandText = "Select Id, TypeId, Value from dbo.Simplest";
+          cmd.CommandText = "SELECT [Simplest].[Id], [Simplest].[TypeId], [Simplest].[Value] FROM [dbo].[Simplest]";
           SqlDataReader dr = cmd.ExecuteReader();
           while (dr.Read()) {
             var s = new SimplestSql();
@@ -148,7 +148,7 @@ namespace Xtensive.Storage.Tests.Storage
       SqlCommand cmd = con.CreateCommand();
       cmd.Transaction = transaction;
       cmd.Parameters.AddWithValue("@prm", 0);
-      cmd.CommandText = "Select Id, TypeId, Value from dbo.Simplest where Value = @prm";
+      cmd.CommandText = "SELECT [Simplest].[Id], [Simplest].[TypeId], [Simplest].[Value] FROM [dbo].[Simplest] WHERE [Simplest].[Id] = @prm";
       SqlDataReader dr;
 
       TestHelper.CollectGarbage();
@@ -181,7 +181,7 @@ namespace Xtensive.Storage.Tests.Storage
       SqlCommand cmd = con.CreateCommand();
       cmd.Transaction = transaction;
       cmd.Parameters.AddWithValue("@prm", 0);
-      cmd.CommandText = "Select Id, TypeId, Value from dbo.Simplest where Value = @prm";
+      cmd.CommandText = "SELECT [Simplest].[Id], [Simplest].[TypeId], [Simplest].[Value] FROM [dbo].[Simplest] WHERE [Simplest].[id] = @prm";
       SqlDataReader dr;
 
       TestHelper.CollectGarbage();
@@ -211,7 +211,7 @@ namespace Xtensive.Storage.Tests.Storage
       SqlTransaction transaction = con.BeginTransaction();
       SqlCommand cmd = con.CreateCommand();
       cmd.Transaction = transaction;
-      cmd.CommandText = "Select Id, TypeId, Value from dbo.Simplest";
+      cmd.CommandText = "SELECT [Simplest].[Id], [Simplest].[TypeId], [Simplest].[Value] FROM [dbo].[Simplest]";
       cmd.Parameters.AddWithValue("@prm1", 0);
       cmd.Parameters.AddWithValue("@prm2", 0);
       SqlDataReader dr;
@@ -227,10 +227,9 @@ namespace Xtensive.Storage.Tests.Storage
         }
         dr.Close();
 
-        cmd.CommandText = "Delete dbo.Simplest where Id = @prm1 and Value = @prm2";
+        cmd.CommandText = "DELETE [dbo].[Simplest] WHERE [Simplest].[Id] = @prm1";
         foreach (var l in list) {
           cmd.Parameters["@prm1"].SqlValue = l.Id;
-          cmd.Parameters["@prm2"].SqlValue = l.Value;
           cmd.ExecuteNonQuery();
         }
       }
