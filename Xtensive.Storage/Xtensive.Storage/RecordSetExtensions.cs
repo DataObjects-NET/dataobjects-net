@@ -118,7 +118,7 @@ namespace Xtensive.Storage
 
     private static TypeMapping GetTypeMapping(RecordSetHeaderParseContext context, ColumnGroupMapping columnGroupMapping, Tuple tuple)
     {
-      int typeId = tuple.GetValue<int>(columnGroupMapping.TypeIdIndex);
+      int typeId = tuple.GetValueOrDefault<int>(columnGroupMapping.TypeIdIndex);
       TypeInfo type = context.Domain.Model.Types[typeId];
       TypeMapping typeMapping;
       if (columnGroupMapping.TypeMappings.TryGetValue(type, out typeMapping))

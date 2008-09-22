@@ -239,7 +239,7 @@ namespace Xtensive.Storage
       if (Log.IsLogged(LogEventTypes.Debug))
         Log.Debug("Session '{0}'. Creating entity: Key = '{1}'", Session, key);
 
-      data = Session.Cache.Create(key, true, Session.Transaction);
+      data = Session.Cache.Create(key, Session.Transaction);
       OnCreating();
     }
 
@@ -256,7 +256,7 @@ namespace Xtensive.Storage
       if (Log.IsLogged(LogEventTypes.Debug))
         Log.Debug("Session '{0}'. Creating entity: Key = '{1}'", Session, key);
 
-      data = Session.Cache.Create(key, true, Session.Transaction);
+      data = Session.Cache.Create(key, Session.Transaction);
       OnCreating();
     }
 

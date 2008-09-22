@@ -86,8 +86,10 @@ namespace Xtensive.Storage.Providers.Sql
       if (!reader.Read())
         return null;
       var tuple = Tuple.Create(tupleDescriptor);
-      for (int i = 0; i < reader.FieldCount; i++)
-        tuple.SetValue(i, DBNull.Value==reader[i] ? null : reader[i]);
+      for (int i = 0; i < reader.FieldCount; i++) {
+        var value = reader[i];
+        tuple.SetValue(i, DBNull.Value==value ? null : value);
+      }
       return tuple;
     }
 

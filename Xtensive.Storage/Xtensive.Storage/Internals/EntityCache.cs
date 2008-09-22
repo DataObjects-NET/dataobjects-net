@@ -30,9 +30,9 @@ namespace Xtensive.Storage.Internals
     }
 
     [Infrastructure]
-    public EntityData Create(Key key, bool isNew, Transaction transaction)
+    public EntityData Create(Key key, Transaction transaction)
     {
-      return Create(key, key.Tuple, isNew, transaction);
+      return Create(key, key.Tuple, true, transaction);
     }
 
     private EntityData Create(Key key, Tuple tuple, bool isNew, Transaction transaction)
@@ -41,7 +41,7 @@ namespace Xtensive.Storage.Internals
       if (isNew)
         origin = prototypes[key.Type].Clone();
       else
-        origin = Tuple.Create(key.Type.TupleDescriptor);
+        origin = prototypes[key.Type].CreateNew();
       tuple.CopyTo(origin);
       var result = new EntityData(key, new DifferentialTuple(origin), transaction);
       cache.Add(result);
