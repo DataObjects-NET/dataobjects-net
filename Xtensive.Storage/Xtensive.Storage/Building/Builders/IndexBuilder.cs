@@ -637,7 +637,7 @@ namespace Xtensive.Storage.Building.Builders
       if ((indexAttributes & IndexAttributes.Join) > 0)
         result.ValueColumns.AddRange(GetValueColumns(allBaseIndexes.SelectMany(i => i.ValueColumns)));
       else if ((indexAttributes & IndexAttributes.Filtered) > 0) {
-        var types = reflectedType.GetAncestors();
+        var types = reflectedType.GetAncestors().ToList();
         types.Add(reflectedType);
         types.AddRange(reflectedType.GetDescendants(true));
         var columns = types.SelectMany(t => t.Columns.Find(ColumnAttributes.Declared)).ToList();

@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
@@ -28,6 +29,7 @@ namespace Xtensive.Storage.Model
     private readonly NodeCollection<IndexInfo> affectedIndexes;
     private readonly DomainModel model;
     private readonly TypeAttributes attributes;
+    private ReadOnlyList<TypeInfo> ancestors;
     private Type underlyingType;
     private HierarchyInfo hierarchy;
     private int typeId;
@@ -245,16 +247,18 @@ namespace Xtensive.Storage.Model
     /// Gets the ancestors recursively. Root-to-inheritor order.
     /// </summary>
     /// <returns>The ancestor</returns>
-    public List<TypeInfo> GetAncestors()
+    public IList<TypeInfo> GetAncestors()
     {
-      var result = new List<TypeInfo>();
-      var ancestor = model.Types.FindAncestor(this);
-      while(ancestor != null) {
-        result.Add(ancestor);
-        ancestor = model.Types.FindAncestor(ancestor);
+      if (!IsLocked) {
+        var result = new List<TypeInfo>(8);
+        var ancestor = model.Types.FindAncestor(this);
+        while (ancestor!=null) {
+          result.Insert(0,ancestor);
+          ancestor = model.Types.FindAncestor(ancestor);
+        }
+        return result;
       }
-      result.Reverse();
-      return result;
+      return ancestors;
     }
 
     /// <summary>
@@ -277,6 +281,7 @@ namespace Xtensive.Storage.Model
     /// <inheritdoc/>
     public override void Lock(bool recursive)
     {
+      ancestors = new ReadOnlyList<TypeInfo>(GetAncestors());
       base.Lock(recursive);
       if (recursive) {
         affectedIndexes.Lock(true);

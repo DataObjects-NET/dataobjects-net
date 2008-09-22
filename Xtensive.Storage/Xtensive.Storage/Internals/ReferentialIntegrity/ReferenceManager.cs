@@ -4,6 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2008.07.01
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Storage.Model;
@@ -13,7 +14,9 @@ namespace Xtensive.Storage.ReferentialIntegrity
 {
   internal static class ReferenceManager
   {
-    private static readonly Dictionary<ReferentialAction, ActionProcessor> processors = new Dictionary<ReferentialAction, ActionProcessor>(3);
+    private static readonly CascadeProcessor cascadeProcessor = new CascadeProcessor();
+    private static readonly RestrictProcessor restrictProcessor = new RestrictProcessor();
+    private static readonly SetNullProcessor setNullProcessor = new SetNullProcessor();
 
     public static void ClearReferencesTo(Entity referencedObject)
     {
@@ -30,7 +33,21 @@ namespace Xtensive.Storage.ReferentialIntegrity
     private static void ApplyAction(Entity referencedObject, ReferentialAction action)
     {
       TypeInfo type = referencedObject.Type;
-      ActionProcessor processor = GetProcessor(action);
+      ActionProcessor processor;
+      switch(action) {
+        case ReferentialAction.SetNull:
+          processor = setNullProcessor;
+          break;
+        case ReferentialAction.Default:
+          processor = restrictProcessor;
+          break;
+        case ReferentialAction.Cascade:
+          processor = cascadeProcessor;
+          break;
+        default:
+          throw new ArgumentOutOfRangeException("action");
+      }
+
       IEnumerable<AssociationInfo> associations = type.GetAssociations().Where(a => a.OnDelete==action);
 
       foreach (AssociationInfo association in associations) {
@@ -38,11 +55,6 @@ namespace Xtensive.Storage.ReferentialIntegrity
         foreach (Entity referencingObject in referencingObjects)
           processor.Process(referencedObject, referencingObject, association);
       }
-    }
-
-    private static ActionProcessor GetProcessor(ReferentialAction action)
-    {
-      return processors[action];
     }
 
     private static IEnumerable<Entity> FindReferencingObjects(Entity referencedObject, AssociationInfo association)
@@ -56,16 +68,6 @@ namespace Xtensive.Storage.ReferentialIntegrity
           continue;
         yield return referencingObject;
       }
-    }
-
-
-    // Constructors
-
-    static ReferenceManager()
-    {
-      processors[ReferentialAction.SetNull] = new SetNullProcessor();
-      processors[ReferentialAction.Restrict] = new RestrictProcessor();
-      processors[ReferentialAction.Cascade] = new CascadeProcessor();
     }
   }
 }
