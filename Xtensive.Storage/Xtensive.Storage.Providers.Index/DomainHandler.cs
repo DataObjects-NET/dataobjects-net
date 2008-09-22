@@ -62,8 +62,8 @@ namespace Xtensive.Storage.Providers.Index
       TupleDescriptor descriptor = TupleDescriptor.Create(indexInfo.Columns.Select(c => c.ValueType));
       int[] map = indexInfo.Columns
         .Select(c => {
-          var column = type.Columns.TryGetValue(c.Field.Column.Name);
-          return column==null ? MapTransform.NoMapping : column.Field.MappingInfo.Offset; 
+          ColumnInfo column;
+          return type.Columns.TryGetValue(c.Field.Column.Name, out column) ? column.Field.MappingInfo.Offset : MapTransform.NoMapping; 
         }).ToArray();
       return new MapTransform(true, descriptor, map);
     }

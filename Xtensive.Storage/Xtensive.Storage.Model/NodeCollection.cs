@@ -5,11 +5,11 @@
 // Created:    2007.07.30
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using Xtensive.Core.Collections;
-using Xtensive.Core.Comparison;
-using Xtensive.Indexing;
+using Xtensive.Core.Notifications;
 
 namespace Xtensive.Storage.Model
 {
@@ -18,9 +18,8 @@ namespace Xtensive.Storage.Model
     : CollectionBase<TNode>
     where TNode: Node
   {
-    private readonly IUniqueIndex<string, TNode> nameIndex;
-
-    public static NodeCollection<TNode> Empty;
+    private readonly Dictionary<string, TNode> nameIndex = new Dictionary<string, TNode>();
+    public readonly static NodeCollection<TNode> Empty;
 
     /// <summary>
     /// Adds new element to the collection.
@@ -60,16 +59,17 @@ namespace Xtensive.Storage.Model
       return nameIndex.ContainsKey(key);
     }
 
+
     /// <summary>
     /// Gets the value associated with the specified key.
     /// </summary>
     /// <param name="key">The key of the value to get.</param>
-    /// <returns>The value associated with the specified <paramref name="key"/> or <see langword="null"/> 
-    /// if item was not found.</returns>
+    /// <param name="value"><typeparamref name="TNode"/> if it was found; otherwise <see langword="null"/>.</param>
+    /// <returns><see langword="true"/> if value is found by specified <paramref name="key"/>; otherwise <see langword="false"/>.</returns>
     [DebuggerStepThrough]
-    public TNode TryGetValue(string key)
+    public bool TryGetValue(string key, out TNode value)
     {
-      return nameIndex.ContainsKey(key) ? nameIndex.GetItem(key) : null;
+      return nameIndex.TryGetValue(key, out value);
     }
 
     /// <summary>
@@ -82,11 +82,42 @@ namespace Xtensive.Storage.Model
       [DebuggerStepThrough]
       get
       {
-        TNode result = TryGetValue(key);
-        if (key == null)
+        TNode result;
+        if (!TryGetValue(key, out result))
           throw new ArgumentException(String.Format(String.Format("Item by key ='{0}' was not found.", key)));
         return result;
       }
+    }
+
+    protected override void OnInserted(TNode value, int index)
+    {
+      base.OnInserted(value, index);
+      nameIndex.Add(value.Name, value);
+    }
+
+    protected override void OnRemoved(TNode value, int index)
+    {
+      base.OnRemoved(value, index);
+      nameIndex.Remove(value.Name);
+    }
+
+    protected override void OnCleared()
+    {
+      base.OnCleared();
+      nameIndex.Clear();
+    }
+
+    protected override void OnItemChanging(object sender, ChangeNotifierEventArgs e)
+    {
+      base.OnItemChanging(sender, e);
+      nameIndex.Remove(((TNode) sender).Name);
+    }
+
+    protected override void OnItemChanged(object sender, ChangeNotifierEventArgs e)
+    {
+      base.OnItemChanged(sender, e);
+      var tNode = (TNode)sender;
+      nameIndex.Add(tNode.Name, tNode);
     }
 
 
@@ -97,9 +128,6 @@ namespace Xtensive.Storage.Model
     /// </summary>
     public NodeCollection()
     {
-      IndexConfiguration<string, TNode> config = new IndexConfiguration<string, TNode>(delegate (TNode node) { return node.Name; }, AdvancedComparer<string>.Default);
-      IUniqueIndex<string, TNode> implementation = IndexFactory.CreateUnique<string, TNode, DictionaryIndex<string, TNode>>(config);
-      nameIndex = new CollectionIndex<string, TNode>("nameIndex", this, implementation);
     }
 
     static NodeCollection()

@@ -121,8 +121,8 @@ namespace Xtensive.Storage.Building.Builders
       foreach (HierarchyDef hierarchy in context.Definition.Hierarchies) {
         TypeDef root = hierarchy.Root;
         foreach (KeyField keyField in hierarchy.KeyFields.Keys) {
-          FieldDef srcField = root.Fields.TryGetValue(keyField.Name);
-          if (srcField == null)
+          FieldDef srcField;
+          if (!root.Fields.TryGetValue(keyField.Name, out srcField))
             context.RegisterError(new DomainBuilderException(
               string.Format(Strings.ExKeyFieldXWasNotFoundInTypeY, keyField.Name, root.Name)));
           else if (srcField.ValueType!=keyField.ValueType)

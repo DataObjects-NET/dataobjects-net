@@ -26,7 +26,7 @@ namespace Xtensive.Storage.Model
       IFilterable<TypeAttributes, TypeInfo>
   {
     private readonly Type baseType = typeof (object);
-    private readonly IUniqueIndex<Type, TypeInfo> typeIndex;
+    private readonly Dictionary<Type, TypeInfo> typeIndex = new Dictionary<Type, TypeInfo>();
     private readonly Dictionary<TypeInfo, TypeInfo> ancestors = new Dictionary<TypeInfo, TypeInfo>();
     private readonly Dictionary<TypeInfo, HashSet<TypeInfo>> descendants = new Dictionary<TypeInfo, HashSet<TypeInfo>>();
     private readonly Dictionary<TypeInfo, HashSet<TypeInfo>> interfaces = new Dictionary<TypeInfo, HashSet<TypeInfo>>();
@@ -48,11 +48,11 @@ namespace Xtensive.Storage.Model
     /// Gets the value associated with the specified key.
     /// </summary>
     /// <param name="key">The key of the value to get.</param>
-    /// <returns>The value associated with the specified <paramref name="key"/> or <see langword="null"/> 
-    /// if item was not found.</returns>
-    public TypeInfo TryGetValue(Type key)
+    /// <param name="value"><see cref="TypeInfo"/> if it was found; otherwise <see langword="null"/>.</param>
+    /// <returns><see langword="true"/> if value is found by specified <paramref name="key"/>; otherwise <see langword="false"/>.</returns>
+    public bool TryGetValue(Type key, out TypeInfo value)
     {
-      return typeIndex.ContainsKey(key) ? typeIndex.GetItem(key) : null;
+      return typeIndex.TryGetValue(key, out value);
     }
 
     /// <summary>
@@ -63,8 +63,8 @@ namespace Xtensive.Storage.Model
     {
       get
       {
-        TypeInfo result = TryGetValue(key);
-        if (result == null)
+        TypeInfo result;
+        if (!TryGetValue(key, out result))
           throw new ArgumentException(  
             String.Format(Strings.TypeXIsNotRegistered, key.GetShortName()));
         return result;
@@ -232,28 +232,6 @@ namespace Xtensive.Storage.Model
       }
     }
 
-    /// <inheritdoc/>
-    protected override void OnInserted(TypeInfo value, int index)
-    {
-      base.OnInserted(value, index);
-
-      if (value.IsEntity) {
-        descendants[value] = new HashSet<TypeInfo>();
-        interfaces[value] = new HashSet<TypeInfo>();
-        RegisterDescendant(value);
-      }
-      if (value.IsStructure) {
-        descendants[value] = new HashSet<TypeInfo>();
-        RegisterDescendant(value);
-      }
-      if (value.IsInterface) {
-        descendants[value] = new HashSet<TypeInfo>();
-        interfaces[value] = new HashSet<TypeInfo>();
-        implementors[value] = new HashSet<TypeInfo>();
-        RegisterInterface(value);
-      }
-    }
-
     private void RegisterDescendant(TypeInfo descendant)
     {
       TypeInfo ancestor = FindAncestor(descendant.UnderlyingType);
@@ -316,8 +294,8 @@ namespace Xtensive.Storage.Model
 
       Type[] interfaces = type.GetInterfaces();
       for (int index = 0; index < interfaces.Length; index++) {
-        TypeInfo result = TryGetValue(interfaces[index]);
-        if (result != null)
+        TypeInfo result;
+        if (TryGetValue(interfaces[index], out result))
           yield return result;
       }
     }
@@ -364,8 +342,8 @@ namespace Xtensive.Storage.Model
     {
       if (item==null)
         return false;
-      TypeInfo result = TryGetValue(item.UnderlyingType);
-      if (result == null)
+      TypeInfo result;
+      if (!TryGetValue(item.UnderlyingType, out result))
         return false;
       return result==item;
     }
@@ -392,18 +370,44 @@ namespace Xtensive.Storage.Model
         return new EmptyCountable<TypeInfo>();
 
       switch (matchType) {
-        case MatchType.Partial:
-          return new BufferedEnumerable<TypeInfo>(this.Where(f => (f.Attributes & criteria) > 0));
-        case MatchType.Full:
-          return new BufferedEnumerable<TypeInfo>(this.Where(f => (f.Attributes & criteria) == criteria));
-        case MatchType.None:
-        default:
-          return new BufferedEnumerable<TypeInfo>(this.Where(f => (f.Attributes & criteria) == 0));
+      case MatchType.Partial:
+        return new BufferedEnumerable<TypeInfo>(this.Where(f => (f.Attributes & criteria) > 0));
+      case MatchType.Full:
+        return new BufferedEnumerable<TypeInfo>(this.Where(f => (f.Attributes & criteria) == criteria));
+      default:
+        return new BufferedEnumerable<TypeInfo>(this.Where(f => (f.Attributes & criteria) == 0));
       }
 
     }
 
     #endregion
+
+
+    /// <inheritdoc/>
+    protected override void OnInserted(TypeInfo value, int index)
+    {
+      base.OnInserted(value, index);
+      typeIndex.Add(value.UnderlyingType, value);
+
+      if (value.IsEntity)
+      {
+        descendants[value] = new HashSet<TypeInfo>();
+        interfaces[value] = new HashSet<TypeInfo>();
+        RegisterDescendant(value);
+      }
+      if (value.IsStructure)
+      {
+        descendants[value] = new HashSet<TypeInfo>();
+        RegisterDescendant(value);
+      }
+      if (value.IsInterface)
+      {
+        descendants[value] = new HashSet<TypeInfo>();
+        interfaces[value] = new HashSet<TypeInfo>();
+        implementors[value] = new HashSet<TypeInfo>();
+        RegisterInterface(value);
+      }
+    }
 
     /// <inheritdoc/>
     public override void Lock(bool recursive)
@@ -422,10 +426,6 @@ namespace Xtensive.Storage.Model
     /// Initializes a new instance of the <see cref="TypeInfoCollection"/> class.
     /// </summary>
     public TypeInfoCollection()
-    {
-      IndexConfiguration<Type, TypeInfo> config = new IndexConfiguration<Type, TypeInfo>(delegate (TypeInfo item) { return item.UnderlyingType; }, AdvancedComparer<Type>.Default);
-      IUniqueIndex<Type, TypeInfo> implementation = IndexFactory.CreateUnique<Type, TypeInfo, DictionaryIndex<Type, TypeInfo>>(config);
-      typeIndex = new CollectionIndex<Type, TypeInfo>("typeIndex", this, implementation);
-    }
+    {}
   }
 }

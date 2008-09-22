@@ -63,8 +63,8 @@ namespace Xtensive.Storage.Building.Builders
       HierarchyInfo hierarchy = new HierarchyInfo(root, hierarchyDef.Schema, hierarchyDef.Generator);
 
       foreach (KeyValuePair<KeyField, Direction> pair in hierarchyDef.KeyFields) {
-        FieldInfo field = root.Fields.TryGetValue(pair.Key.Name);
-        if (field == null)
+        FieldInfo field;
+        if (!root.Fields.TryGetValue(pair.Key.Name, out field))
           throw new DomainBuilderException(
             string.Format(Resources.Strings.ExKeyFieldXWasNotFoundInTypeY, pair.Key.Name, root.Name));
 

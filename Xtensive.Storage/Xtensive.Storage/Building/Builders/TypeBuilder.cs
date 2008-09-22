@@ -182,7 +182,7 @@ namespace Xtensive.Storage.Building.Builders
     {
       if (type.GetAncestor() != null)
         return;
-      if (type.Fields.TryGetValue(BuildingContext.Current.NameBuilder.TypeIdFieldName) != null)
+      if (type.Fields.Contains(BuildingContext.Current.NameBuilder.TypeIdFieldName))
         return;
 
       var typeId = new FieldDef(typeof(int)) {Name = BuildingContext.Current.NameBuilder.TypeIdFieldName, IsSystem = true};
@@ -193,9 +193,9 @@ namespace Xtensive.Storage.Building.Builders
     {
       foreach (FieldDef srcField in srcType.Fields)
         try {
-          FieldInfo field = type.Fields.TryGetValue(srcField.Name);
-          if (field != null) {
-            if (type.Fields[srcField.Name].ValueType!=srcField.ValueType)
+          FieldInfo field;
+          if (type.Fields.TryGetValue(srcField.Name, out field)){
+            if (field.ValueType!=srcField.ValueType)
               throw new DomainBuilderException(
                 string.Format(Resources.Strings.FieldXIsAlreadyDefinedInTypeXOrItsAncestor, srcField.Name, type.Name));
           }
@@ -215,8 +215,7 @@ namespace Xtensive.Storage.Building.Builders
         return;
 
       foreach (FieldInfo srcField in ancestor.Fields.Find(FieldAttributes.Explicit, MatchType.None)) {
-        FieldInfo field = type.Fields.TryGetValue(srcField.Name);
-        if (field != null)
+        if (type.Fields.Contains(srcField.Name))
           continue;
 
         FieldBuilder.BuildInheritedField(type, srcField);
@@ -229,8 +228,7 @@ namespace Xtensive.Storage.Building.Builders
     private static void ProcessBaseInterface(TypeInfo ancestor, TypeInfo @interface)
     {
       foreach (FieldInfo ancsField in ancestor.Fields.Find(FieldAttributes.Declared)) {
-        FieldInfo field = @interface.Fields.TryGetValue(ancsField.Name);
-        if (field != null)
+        if (@interface.Fields.Contains(ancsField.Name))
           continue;
 
         FieldBuilder.BuildInheritedField(@interface, ancsField);
@@ -257,22 +255,7 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void BuildKeyField(TypeDef typeDef, KeyField keyField, TypeInfo type)
     {
-      FieldDef srcField = typeDef.Fields.TryGetValue(keyField.Name);
-
-//      if (srcField == null)
-//        throw new DomainBuilderException(
-//          string.Format(Resources.Strings.ExKeyFieldXWasNotFoundInTypeY, keyField.Name, typeDef.Name));
-//
-//      if (srcField.ValueType!=keyField.ValueType)
-//        throw new DomainBuilderException(
-//          string.Format(Resources.Strings.ValueTypeMismatchForFieldX, keyField.Name));
-
-//      if (srcField.UnderlyingProperty != null) {
-//        if(srcField.UnderlyingProperty.CanWrite)
-//          throw new DomainBuilderException (
-//            string.Format(Resources.Strings.ExKeyFieldXInTypeYShouldNotHaveSetAccessor, keyField.Name, type.Name));
-//      }
-
+      FieldDef srcField = typeDef.Fields[keyField.Name];
       FieldBuilder.BuildDeclaredField(type, srcField);
       FieldInfo field = type.Fields[srcField.Name];
       field.IsPrimaryKey = true;
@@ -283,8 +266,8 @@ namespace Xtensive.Storage.Building.Builders
       BuildingContext context = BuildingContext.Current;
 
       // EnsureBelongsToHierarchy
-      TypeInfo type = context.Model.Types.TryGetValue(typeDef.UnderlyingType);
-      if (type != null)
+      TypeInfo type;
+      if (context.Model.Types.TryGetValue(typeDef.UnderlyingType, out type))
         if (type.Hierarchy!=implementor.Hierarchy) 
           throw new DomainBuilderException(
             string.Format(Resources.Strings.InterfaceXDoesNotBelongToXHierarchy, type.Name, implementor.Hierarchy.Root.Name));
@@ -311,18 +294,16 @@ namespace Xtensive.Storage.Building.Builders
 
         // Building key & system fields according to implementor
         foreach (FieldInfo implField in implementor.Fields.Find(FieldAttributes.PrimaryKey | FieldAttributes.System)) {
-          FieldInfo field = type.Fields.TryGetValue(implField.Name);
-          if (field == null)
+          if (!type.Fields.Contains(implField.Name))
             FieldBuilder.BuildInterfaceField(type, implField, null);
         }
 
         // Building other declared & inherited interface fields
         foreach (FieldDef fieldDef in typeDef.Fields) {
           string explicitName = context.NameBuilder.BuildExplicit(type, fieldDef.Name);
-          FieldInfo implField = implementor.Fields.TryGetValue(explicitName);
-          if (implField == null) {
-            implField = implementor.Fields.TryGetValue(fieldDef.Name);
-            if (implField == null)
+          FieldInfo implField;
+          if (!implementor.Fields.TryGetValue(explicitName, out implField)) {
+            if (!implementor.Fields.TryGetValue(fieldDef.Name, out implField))
               throw new DomainBuilderException(
                 string.Format(Resources.Strings.TypeXDoesNotImplementYZField, implementor.Name, type.Name, fieldDef.Name));}
 
@@ -337,13 +318,11 @@ namespace Xtensive.Storage.Building.Builders
     {
       foreach (FieldInfo field in @interface.Fields) {
         string explicitName = BuildingContext.Current.NameBuilder.BuildExplicit(field.DeclaringType, field.Name);
-        FieldInfo implField = implementor.Fields.TryGetValue(explicitName);
-
-        if (implField != null) 
+        FieldInfo implField;
+        if (implementor.Fields.TryGetValue(explicitName, out implField)) 
           implField.IsExplicit = true;
         else {
-          implField = implementor.Fields.TryGetValue(field.Name);
-          if (implField == null)
+          if (!implementor.Fields.TryGetValue(field.Name, out implField))
             throw new DomainBuilderException(
               string.Format(Resources.Strings.TypeXDoesNotImplementYZField, implementor.Name, @interface.Name, field.Name));}
 

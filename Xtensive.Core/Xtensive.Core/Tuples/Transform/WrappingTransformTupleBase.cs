@@ -71,6 +71,18 @@ namespace Xtensive.Core.Tuples.Transform
 
     #endregion
 
+    /// <inheritdoc/>
+    public sealed override bool Equals(Tuple other)
+    {
+      return origin.Equals(other);
+    }
+
+    /// <inheritdoc/>
+    public sealed override int GetHashCode()
+    {
+      return origin.GetHashCode();
+    }
+
 
     // Constructors
 

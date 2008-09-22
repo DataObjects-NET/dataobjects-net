@@ -106,7 +106,6 @@ namespace Xtensive.Storage
     #region Equals & GetHashCode
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
     public bool Equals(Key other)
     {
       if (other==null)
