@@ -36,7 +36,7 @@ namespace Xtensive.Storage.Tests.Storage.CrudModel
 namespace Xtensive.Storage.Tests.Storage
 {
   [TestFixture]
-  public class SqlClientCrudTest : AutoBuildTest
+  public class NativeCrudTest : AutoBuildTest
   {
     public const int BaseCount = 10000;
     public const int InsertCount = BaseCount;
