@@ -8,13 +8,10 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using Xtensive.Core;
-using Xtensive.Core.Threading;
 using Xtensive.Core.Disposable;
 using Xtensive.Core.Tuples;
 using Xtensive.Sql.Dom;
 using Xtensive.Storage.Providers.Sql.Resources;
-using SqlFactory = Xtensive.Sql.Dom.Sql;
 
 namespace Xtensive.Storage.Providers.Sql
 {
@@ -22,7 +19,6 @@ namespace Xtensive.Storage.Providers.Sql
   {
     private SqlConnection connection;
     private DomainHandler domainHandler;
-    private object _lock = new object();
 
     /// <summary>
     /// Gets the connection.

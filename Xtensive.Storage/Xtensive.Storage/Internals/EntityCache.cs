@@ -10,6 +10,7 @@ using Xtensive.Core.Aspects;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Tuples;
+using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Internals
 {
@@ -17,8 +18,10 @@ namespace Xtensive.Storage.Internals
     IEnumerable<EntityData>
   {
     private readonly WeakCache<Key, EntityData> cache;
-
     private readonly Dictionary<Key, EntityData> removed = new Dictionary<Key, EntityData>();
+    // Cached properties
+    private readonly Domain domain;
+    private readonly Dictionary<TypeInfo, Tuple> prototypes;
     
     [Infrastructure]
     public EntityData this[Key key]
@@ -33,6 +36,27 @@ namespace Xtensive.Storage.Internals
     }
 
     [Infrastructure]
+    private EntityData Create(Key key, Tuple tuple, bool isNew, Transaction transaction)
+    {
+      Tuple origin;
+      if (isNew)
+        origin = prototypes[key.Type].Clone();
+      else {
+        if (tuple is RegularTuple)
+          origin = tuple.Clone();
+        else
+          origin = tuple.ToRegular();
+      }
+      var result = new EntityData(key, new DifferentialTuple(origin), transaction);
+      cache.Add(result);
+
+      if (Log.IsLogged(LogEventTypes.Debug))
+        Log.Debug("Session '{0}'. Caching: {1}", Session, result);
+
+      return result;
+    }
+
+    [Infrastructure]
     public void Update(Key key, Tuple tuple, Transaction transaction)
     {
       EntityData data = this[key];
@@ -41,7 +65,7 @@ namespace Xtensive.Storage.Internals
       else {
         data.Import(tuple, transaction);
         if (Log.IsLogged(LogEventTypes.Debug))
-          Log.Debug("Session '{0}'. Merging: {1}", Session.Current, data);
+          Log.Debug("Session '{0}'. Merging: {1}", Session, data);
       }
     }
 
@@ -87,24 +111,6 @@ namespace Xtensive.Storage.Internals
     }
 
     [Infrastructure]
-    private EntityData Create(Key key, Tuple tuple, bool isNew, Transaction transaction)
-    {
-      Tuple origin;
-      if (isNew)
-        origin = Session.Domain.Prototypes[key.Type].Clone();
-      else
-        origin = Tuple.Create(key.Type.TupleDescriptor);
-      tuple.CopyTo(origin);
-      EntityData result = new EntityData(key, new DifferentialTuple(origin), transaction);
-      cache.Add(result);
-
-      if (Log.IsLogged(LogEventTypes.Debug))
-        Log.Debug("Session '{0}'. Caching: {1}", Session.Current, result);
-
-      return result;
-    }
-
-    [Infrastructure]
     public IEnumerator<EntityData> GetEnumerator()
     {
       return cache.GetEnumerator();
@@ -122,6 +128,8 @@ namespace Xtensive.Storage.Internals
     public EntityCache(Session session, int cacheSize) : base(session)
     {
       cache = new WeakCache<Key, EntityData>(cacheSize, d => d.Key);
+      domain = session.Domain;
+      prototypes = domain.Prototypes;
     }
   }
 }

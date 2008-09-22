@@ -88,8 +88,8 @@ namespace Xtensive.Storage.Tests.Storage
       SqlTransaction transaction = con.BeginTransaction();
       SqlCommand cmd = con.CreateCommand();
       cmd.Transaction = transaction;
-      cmd.Parameters.AddWithValue("@pId", 0);
-      cmd.Parameters.AddWithValue("@pTypeId", 0);
+      cmd.Parameters.AddWithValue("@pId", (long) 0);
+      cmd.Parameters.AddWithValue("@pTypeId", (long) 0);
       cmd.CommandText = "INSERT INTO " + 
         "[dbo].[Simplest] ([Simplest].[Id], [Simplest].[TypeId], [Simplest].[Value]) " + 
         "VALUES (@pId, @pTypeId, @pId)";
@@ -97,8 +97,8 @@ namespace Xtensive.Storage.Tests.Storage
 
       using (warmup ? null : new Measurement("Insert", inserCount))
         for (int i = 0; i < inserCount; i++) {
-          cmd.Parameters["@pId"].SqlValue = i;
-          cmd.Parameters["@pTypeId"].SqlValue = 0;
+          cmd.Parameters["@pId"].SqlValue = (long) i;
+          cmd.Parameters["@pTypeId"].SqlValue = (long) 0;
           cmd.ExecuteNonQuery();
         }
       instanceCount = inserCount;

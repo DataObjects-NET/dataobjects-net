@@ -19,7 +19,7 @@ namespace Xtensive.Storage.Internals
       // Key is already resolved
       if (data!=null) {
         if (Log.IsLogged(LogEventTypes.Debug))
-          Log.Debug("Session '{0}'. Resolving key '{1}'. Key is already resolved", session, key);
+          Log.Debug("Session '{0}'. Resolving key '{1}'. Key is already resolved.", session, key);
         
         data.EnsureIsActual();
         return data.IsRemoved ? null : GetEntity(data);
@@ -29,14 +29,14 @@ namespace Xtensive.Storage.Internals
       if (key.Type==null) {
 
         if (Log.IsLogged(LogEventTypes.Debug))
-          Log.Debug("Session '{0}'. Resolving key '{1}'. Exact type is unknown. Fetch is required", session, key);
+          Log.Debug("Session '{0}'. Resolving key '{1}'. Exact type is unknown. Fetch is required.", session, key);
 
         FieldInfo field = key.Hierarchy.Root.Fields[session.Domain.NameBuilder.TypeIdFieldName];
         Fetcher.Fetch(key, field);
       }
       else {
         if(Log.IsLogged(LogEventTypes.Debug))
-          Log.Debug("Session '{0}'. Resolving key '{1}'. Exact type is known", session, key);
+          Log.Debug("Session '{0}'. Resolving key '{1}'. Exact type is known.", session, key);
 
         // Type is known so we can create Entity instance.
         Fetcher.Fetch(key);

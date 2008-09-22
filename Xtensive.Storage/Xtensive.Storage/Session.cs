@@ -133,9 +133,12 @@ namespace Xtensive.Storage
         EnsureNotDisposed();
 
         if (Log.IsLogged(LogEventTypes.Debug))
-          Log.Debug("Session '{0}'. Persisting.", this);
+          Log.Debug("Session '{0}'. Persisting...", this);
 
         Handler.Persist();
+
+        if (Log.IsLogged(LogEventTypes.Debug))
+          Log.Debug("Session '{0}'. Persisted.", this);
 
         ClearDirtyData();
       }
@@ -337,7 +340,7 @@ namespace Xtensive.Storage
           return;
         try {
           if (Log.IsLogged(LogEventTypes.Debug))
-            Log.Debug("Session '{0}'. Disposing", this);          
+            Log.Debug("Session '{0}'. Disposing.", this);          
           Handler.DisposeSafely();
           compilationScope.DisposeSafely();
         }
