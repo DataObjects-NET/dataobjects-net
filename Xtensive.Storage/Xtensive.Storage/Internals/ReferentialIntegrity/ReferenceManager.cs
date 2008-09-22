@@ -48,7 +48,7 @@ namespace Xtensive.Storage.ReferentialIntegrity
           throw new ArgumentOutOfRangeException("action");
       }
 
-      IEnumerable<AssociationInfo> associations = type.GetAssociations().Where(a => a.OnDelete==action);
+      IEnumerable<AssociationInfo> associations = type.GetAssociations().Where(a => a.OnRemove==action);
 
       foreach (AssociationInfo association in associations) {
         IEnumerable<Entity> referencingObjects = FindReferencingObjects(referencedObject, association);
@@ -63,7 +63,7 @@ namespace Xtensive.Storage.ReferentialIntegrity
       IndexInfo index = field.DeclaringType.Indexes.GetIndex(field.Name);
       RecordSet rs = index.ToRecordSet().Range(referencedObject.Key.Tuple, referencedObject.Key.Tuple);
 
-      foreach (Entity referencingObject in rs.ToEntities(field.DeclaringType.UnderlyingType).ToList()) {
+      foreach (Entity referencingObject in rs.ToEntities(field.DeclaringType.UnderlyingType)) {
         if (RemovalScope.Context.RemovalQueue.Contains(referencingObject))
           continue;
         yield return referencingObject;

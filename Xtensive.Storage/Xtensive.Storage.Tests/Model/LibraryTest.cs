@@ -86,7 +86,7 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
     [Field(Length = 128)]
     public string Title { get; set; }
 
-    [Field(OnDelete = ReferentialAction.Restrict)]
+    [Field(OnRemove = ReferentialAction.Restrict)]
     public Author Author { get; set; }
 
     public int Rating { get; set; }
@@ -106,10 +106,10 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
   [HierarchyRoot("Book", "Reviewer")]
   public class BookReview : Entity
   {
-    [Field(MappingName = "Book", OnDelete = ReferentialAction.Cascade)]
+    [Field(MappingName = "Book", OnRemove = ReferentialAction.Cascade)]
     public Book Book { get; private set; }
 
-    [Field(OnDelete = ReferentialAction.SetNull)]
+    [Field(OnRemove = ReferentialAction.SetNull)]
     public Person Reviewer { get; private set; }
 
     [Field(Length = 4096)]
@@ -189,9 +189,9 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
         }
       }
 
-      types["Book"].Fields["Author"].OnDelete = ReferentialAction.Restrict;
-      types["BookReview"].Fields["Book"].OnDelete = ReferentialAction.Cascade;
-      types["BookReview"].Fields["Reviewer"].OnDelete = ReferentialAction.SetNull;
+      types["Book"].Fields["Author"].OnRemove = ReferentialAction.Restrict;
+      types["BookReview"].Fields["Book"].OnRemove = ReferentialAction.Cascade;
+      types["BookReview"].Fields["Reviewer"].OnRemove = ReferentialAction.SetNull;
 
 
       IndexDef indexDef;
@@ -300,7 +300,7 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
       Assert.AreEqual(128, typeDef.Fields["Title"].Length);
 
       Assert.IsNotNull(typeDef.Fields["Author"]);
-      Assert.AreEqual(ReferentialAction.Restrict, typeDef.Fields["Author"].OnDelete);
+      Assert.AreEqual(ReferentialAction.Restrict, typeDef.Fields["Author"].OnRemove);
       Assert.AreEqual("Author", typeDef.Fields["Author"].Name);
 
       Assert.IsNotNull(typeDef.Indexes["IX_Title"]);
@@ -323,11 +323,11 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
       // Fields
       Assert.IsNotNull(typeDef.Fields["Book"]);
       Assert.AreEqual("Book", typeDef.Fields["Book"].Name);
-      Assert.AreEqual(ReferentialAction.Cascade, typeDef.Fields["Book"].OnDelete);
+      Assert.AreEqual(ReferentialAction.Cascade, typeDef.Fields["Book"].OnRemove);
 
       Assert.IsNotNull(typeDef.Fields["Reviewer"]);
       Assert.AreEqual("Reviewer", typeDef.Fields["Reviewer"].Name);
-      Assert.AreEqual(ReferentialAction.SetNull, typeDef.Fields["Reviewer"].OnDelete);
+      Assert.AreEqual(ReferentialAction.SetNull, typeDef.Fields["Reviewer"].OnRemove);
 
       Assert.IsNotNull(typeDef.Fields["Text"]);
       Assert.AreEqual("Text", typeDef.Fields["Text"].Name);
@@ -591,7 +591,7 @@ namespace Xtensive.Storage.Tests.Model
       Assert.IsFalse(typeInfo.Fields["Author"].IsStructure);
       Assert.IsTrue(typeInfo.Fields["Author"].IsEntity);
       Assert.IsFalse(typeInfo.Fields["Author"].IsEntitySet);
-      Assert.AreEqual(ReferentialAction.Restrict, typeInfo.Fields["Author"].Association.OnDelete);
+      Assert.AreEqual(ReferentialAction.Restrict, typeInfo.Fields["Author"].Association.OnRemove);
 
       // Indexes
       Assert.AreEqual(3, typeInfo.Indexes.Count);
@@ -629,11 +629,11 @@ namespace Xtensive.Storage.Tests.Model
       // Fields
       Assert.IsNotNull(typeInfo.Fields["Book"]);
       Assert.AreEqual(typeInfo.Fields["Book"].Name, "Book");
-      Assert.AreEqual(ReferentialAction.Cascade, typeInfo.Fields["Book"].Association.OnDelete);
+      Assert.AreEqual(ReferentialAction.Cascade, typeInfo.Fields["Book"].Association.OnRemove);
 
       Assert.IsNotNull(typeInfo.Fields["Reviewer"]);
       Assert.AreEqual(typeInfo.Fields["Reviewer"].Name, "Reviewer");
-      Assert.AreEqual(ReferentialAction.SetNull, typeInfo.Fields["Reviewer"].Association.OnDelete);
+      Assert.AreEqual(ReferentialAction.SetNull, typeInfo.Fields["Reviewer"].Association.OnRemove);
 
       Assert.IsNotNull(typeInfo.Fields["Text"]);
       Assert.AreEqual(typeInfo.Fields["Text"].Name, "Text");
@@ -661,7 +661,7 @@ namespace Xtensive.Storage.Tests.Model
         using (Transaction.Open()) {
           book1 = new Book("0976470705");
           book1.Remove();
-
+          Session.Current.Persist();
           Book book2 = new Book("0976470705");          
           book2.Remove();
 

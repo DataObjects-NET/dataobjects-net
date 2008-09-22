@@ -25,10 +25,10 @@ namespace Xtensive.Storage.Tests.ReferentialIntegrityModel
 
   public class A : Root
   {
-    [Field(OnDelete = ReferentialAction.SetNull)]
+    [Field(OnRemove = ReferentialAction.SetNull)]
     public B B { get; set; }
 
-    [Field(OnDelete = ReferentialAction.Restrict)]
+    [Field(OnRemove = ReferentialAction.Restrict)]
     public C C { get; set; }
   }
 
@@ -37,7 +37,7 @@ namespace Xtensive.Storage.Tests.ReferentialIntegrityModel
     [Field]
     private int Id { get; set; }
 
-    [Field(OnDelete = ReferentialAction.Cascade, PairTo = "B")]
+    [Field(OnRemove = ReferentialAction.Cascade, PairTo = "B")]
     public A A { get; set; }
   }
 
@@ -46,7 +46,7 @@ namespace Xtensive.Storage.Tests.ReferentialIntegrityModel
     [Field]
     private int Id { get; set; }
 
-    [Field(OnDelete = ReferentialAction.Cascade, PairTo = "C")]
+    [Field(OnRemove = ReferentialAction.Cascade, PairTo = "C")]
     public A A { get; set; }
   }
 }
@@ -78,12 +78,12 @@ namespace Xtensive.Storage.Tests.Storage
           Assert.AreEqual(1, Session.Current.All<C>().Count());
 
           a.B.Remove();
-//          Assert.AreEqual(null, a.B);
-//          AssertEx.Throws<ReferentialIntegrityException>(a.C.Remove);
-//          a.Remove();
-//          Assert.AreEqual(0, Session.Current.All<A>().Count());
-//          Assert.AreEqual(0, Session.Current.All<B>().Count());
-//          Assert.AreEqual(0, Session.Current.All<C>().Count());
+          Assert.AreEqual(null, a.B);
+          AssertEx.Throws<ReferentialIntegrityException>(a.C.Remove);
+          a.Remove();
+          Assert.AreEqual(0, Session.Current.All<A>().Count());
+          Assert.AreEqual(0, Session.Current.All<B>().Count());
+          Assert.AreEqual(0, Session.Current.All<C>().Count());
           t.Complete();
         }
       }

@@ -21,7 +21,7 @@ namespace Xtensive.Storage.Building.Definitions
   {
     private readonly PropertyInfo underlyingProperty;
     private FieldAttributes attributes;
-    private ReferentialAction onDelete;
+    private ReferentialAction onRemove;
     private string pairTo;
     private int? length;
 
@@ -148,14 +148,14 @@ namespace Xtensive.Storage.Building.Definitions
     /// Gets or sets the referential action.
     /// </summary>
     /// <exception cref="InvalidOperationException">Field is not reference to entity.</exception>
-    public ReferentialAction OnDelete
+    public ReferentialAction OnRemove
     {
-      get { return onDelete; }
+      get { return onRemove; }
       set
       {
         if (!IsEntity)
           throw new InvalidOperationException("Field is not an entity reference.");
-        onDelete = value;
+        onRemove = value;
       }
     }
 

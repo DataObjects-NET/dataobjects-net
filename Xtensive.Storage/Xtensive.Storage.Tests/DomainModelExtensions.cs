@@ -154,7 +154,7 @@ namespace Xtensive.Storage.Tests
       WriteLine(indent, "Referencing field: " + target.ReferencingField.Name);
       WriteLine(indent, "Referenced type: " + target.ReferencedType.Name);
       WriteLine(indent, "Multiplicity: " + target.Multiplicity);
-      WriteLine(indent, "On Delete: " + target.OnDelete);
+      WriteLine(indent, "On Delete: " + target.OnRemove);
       WriteLine(indent, "Master: " + target.IsMaster);
       if (target.PairTo!=null)
         WriteLine(indent, "PairTo: " + target.PairTo.Name);

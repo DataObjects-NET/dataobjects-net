@@ -151,7 +151,7 @@ namespace Xtensive.Storage.Building.Builders
         throw new DomainBuilderException(
           string.Format(Strings.InvalidOnDeleteAttributeUsageOnFieldXFieldIsNotEntityReference, field.Name));
 
-      field.OnDelete = attribute.OnDelete;
+      field.OnRemove = attribute.OnRemove;
     }
 
     private static void ProcessIsCollatable(FieldDef field, FieldAttribute attribute)

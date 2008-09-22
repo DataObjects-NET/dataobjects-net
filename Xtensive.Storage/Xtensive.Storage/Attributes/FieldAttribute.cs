@@ -61,7 +61,7 @@ namespace Xtensive.Storage.Attributes
     /// <summary>
     /// Gets or sets the referential action.
     /// </summary>
-    public ReferentialAction OnDelete
+    public ReferentialAction OnRemove
     {
       get { return referentialAction.HasValue ? referentialAction.Value : ReferentialAction.Default; }
       set { referentialAction = value; }

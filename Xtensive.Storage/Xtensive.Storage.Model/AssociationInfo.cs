@@ -103,7 +103,7 @@ namespace Xtensive.Storage.Model
     /// <summary>
     /// Gets the <see cref="ReferentialAction"/> that will be applied on <see cref="ReferencedType"/> object removal.
     /// </summary>
-    public ReferentialAction OnDelete { get; private set; }
+    public ReferentialAction OnRemove { get; private set; }
 
     /// <summary>
     /// Gets or sets the master <see cref="AssociationInfo"/> for this instance.
@@ -133,7 +133,7 @@ namespace Xtensive.Storage.Model
       ReferencingField = referencingField;
       ReferencedType = referencedType;
       Multiplicity = multiplicity;
-      OnDelete = onDelete;
+      OnRemove = onDelete;
       referencingField.Association = this;
     }
   }
