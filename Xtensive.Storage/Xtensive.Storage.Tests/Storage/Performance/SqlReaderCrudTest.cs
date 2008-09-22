@@ -5,6 +5,7 @@
 // Created:    2008.19.09
 
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Data.SqlClient;
 using System.Linq;
 using NUnit.Framework;
@@ -42,7 +43,7 @@ namespace Xtensive.Storage.Tests.Storage
     private bool warmup = false;
     private int instanceCount;
 
-    private readonly SqlConnection con = new SqlConnection("Data Source=(local);Initial Catalog = DO40-Tests;"
+    private readonly SqlConnection con = new SqlConnection(@"Data Source=localhost\sql2005;Initial Catalog = DO40-Tests;"
       + "Integrated Security=SSPI;");
 
     protected override DomainConfiguration BuildConfiguration()
@@ -87,17 +88,22 @@ namespace Xtensive.Storage.Tests.Storage
     private void InsertTest(int inserCount)
     {
       con.Open();
+      SqlTransaction transaction = con.BeginTransaction();
       SqlCommand cmd = con.CreateCommand();
+      cmd.Transaction = transaction;
       cmd.Parameters.AddWithValue("@prm", 0);
-      cmd.CommandText = "Insert into dbo.Simplest (Id, TypeId, Value) VALUES ( @prm, 0, @prm)";
+      cmd.Parameters.AddWithValue("@ptypeid", 0);
+      cmd.CommandText = "Insert into dbo.Simplest (Id, TypeId, Value) VALUES ( @prm, @ptypeid, @prm)";
       TestHelper.CollectGarbage();
 
       using (warmup ? null : new Measurement("Insert", inserCount))
         for (int i = 0; i < inserCount; i++) {
           cmd.Parameters["@prm"].SqlValue = i;
+          cmd.Parameters["@ptypeid"].SqlValue = 0;
           cmd.ExecuteNonQuery();
         }
       instanceCount = inserCount;
+      transaction.Commit();
       con.Close();
     }
 
@@ -106,27 +112,29 @@ namespace Xtensive.Storage.Tests.Storage
       long sum = 0;
       int i = 0;
       con.Open();
-      SqlCommand cmd = con.CreateCommand();
-      cmd.CommandText = "Select Id, Value from dbo.Simplest";
-      SqlDataReader dr = cmd.ExecuteReader();
+      SqlTransaction transaction = con.BeginTransaction();
 
       TestHelper.CollectGarbage();
 
       using (warmup ? null : new Measurement("Bulk Fetch & GetField", count))
         while (i < count) {
+          SqlCommand cmd = con.CreateCommand();
+          cmd.Transaction = transaction;
+          cmd.CommandText = "Select Id, TypeId, Value from dbo.Simplest";
+          SqlDataReader dr = cmd.ExecuteReader();
           while (dr.Read()) {
             var s = new SimplestSql();
             if (!dr.IsDBNull(0))
               s.Id = dr.GetInt64(0);
-            if (!dr.IsDBNull(1))
-              s.Value = dr.GetInt64(1);
+            if (!dr.IsDBNull(2))
+              s.Value = dr.GetInt64(2);
             sum += s.Id;
             if (++i >= count)
               break;
           }
           dr.Close();
-          dr = cmd.ExecuteReader();
         }
+      transaction.Commit();
       con.Close();
     }
 
@@ -135,9 +143,11 @@ namespace Xtensive.Storage.Tests.Storage
       long sum = (long) count * (count - 1) / 2;
 
       con.Open();
+      SqlTransaction transaction = con.BeginTransaction();
       SqlCommand cmd = con.CreateCommand();
+      cmd.Transaction = transaction;
       cmd.Parameters.AddWithValue("@prm", 0);
-      cmd.CommandText = "Select Id, Value from dbo.Simplest where Value = @prm";
+      cmd.CommandText = "Select Id, TypeId, Value from dbo.Simplest where Value = @prm";
       SqlDataReader dr;
 
       TestHelper.CollectGarbage();
@@ -151,23 +161,26 @@ namespace Xtensive.Storage.Tests.Storage
           while (dr.Read()) {
             if (!dr.IsDBNull(0))
               s.Id = dr.GetInt64(0);
-            if (!dr.IsDBNull(1))
-              s.Value = dr.GetInt64(1);
+            if (!dr.IsDBNull(2))
+              s.Value = dr.GetInt64(2);
           }
           sum -= s.Id;
           dr.Close();
         }
       if (count <= instanceCount)
         Assert.AreEqual(0, sum);
+      transaction.Commit();
       con.Close();
     }
 
     private void QueryTest(int count)
     {
       con.Open();
+      SqlTransaction transaction = con.BeginTransaction();
       SqlCommand cmd = con.CreateCommand();
+      cmd.Transaction = transaction;
       cmd.Parameters.AddWithValue("@prm", 0);
-      cmd.CommandText = "Select Id, Value from dbo.Simplest where Value = @prm";
+      cmd.CommandText = "Select Id, TypeId, Value from dbo.Simplest where Value = @prm";
       SqlDataReader dr;
 
       TestHelper.CollectGarbage();
@@ -181,11 +194,12 @@ namespace Xtensive.Storage.Tests.Storage
           while (dr.Read()) {
             if (!dr.IsDBNull(0))
               s.Id = dr.GetInt64(0);
-            if (!dr.IsDBNull(1))
-              s.Value = dr.GetInt64(1);
+            if (!dr.IsDBNull(2))
+              s.Value = dr.GetInt64(2);
           }
           dr.Close();
         }
+      transaction.Commit();
       con.Close();
     }
 
@@ -193,8 +207,10 @@ namespace Xtensive.Storage.Tests.Storage
     private void RemoveTest()
     {
       con.Open();
+      SqlTransaction transaction = con.BeginTransaction();
       SqlCommand cmd = con.CreateCommand();
-      cmd.CommandText = "Select Id, Value from dbo.Simplest";
+      cmd.Transaction = transaction;
+      cmd.CommandText = "Select Id, TypeId, Value from dbo.Simplest";
       cmd.Parameters.AddWithValue("@prm1", 0);
       cmd.Parameters.AddWithValue("@prm2", 0);
       SqlDataReader dr;
@@ -205,8 +221,8 @@ namespace Xtensive.Storage.Tests.Storage
         dr = cmd.ExecuteReader();
         var list = new List<SimplestSql>();
         while (dr.Read()) {
-          if (!dr.IsDBNull(0) && !dr.IsDBNull(1))
-            list.Add(new SimplestSql(dr.GetInt64(0), dr.GetInt64(1)));
+          if (!dr.IsDBNull(0) && !dr.IsDBNull(2))
+            list.Add(new SimplestSql(dr.GetInt64(0), dr.GetInt64(2)));
         }
         dr.Close();
 
@@ -217,6 +233,7 @@ namespace Xtensive.Storage.Tests.Storage
           cmd.ExecuteNonQuery();
         }
       }
+      transaction.Commit();
       con.Close();
     }
 
