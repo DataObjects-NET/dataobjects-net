@@ -35,18 +35,14 @@ namespace Xtensive.Storage.Internals
       return Create(key, key.Tuple, isNew, transaction);
     }
 
-    [Infrastructure]
     private EntityData Create(Key key, Tuple tuple, bool isNew, Transaction transaction)
     {
       Tuple origin;
       if (isNew)
         origin = prototypes[key.Type].Clone();
-      else {
-        if (tuple is RegularTuple)
-          origin = tuple.Clone();
-        else
-          origin = tuple.ToRegular();
-      }
+      else
+        origin = Tuple.Create(key.Type.TupleDescriptor);
+      tuple.CopyTo(origin);
       var result = new EntityData(key, new DifferentialTuple(origin), transaction);
       cache.Add(result);
 
