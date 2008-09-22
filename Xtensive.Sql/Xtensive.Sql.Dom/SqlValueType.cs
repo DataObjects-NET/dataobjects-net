@@ -9,7 +9,7 @@ using Xtensive.Sql.Dom.Resources;
 namespace Xtensive.Sql.Dom
 {
   [Serializable]
-  public class SqlValueType : SqlType
+  public sealed class SqlValueType : ICloneable
   {
     private SqlDataType dataType;
     private int size;
@@ -40,7 +40,7 @@ namespace Xtensive.Sql.Dom
       }
     }
 
-    public override object Clone()
+    public object Clone()
     {
       return new SqlValueType(dataType, size, precision, scale);
     }
@@ -85,27 +85,6 @@ namespace Xtensive.Sql.Dom
       else
         return false;
     }
-
-    public SqlValueType(SqlDataType dataType)
-    {
-      this.dataType = dataType;
-    }
-    
-    public SqlValueType(SqlDataType dataType, int size)
-    {
-      if (!(dataType==SqlDataType.Char ||
-          dataType==SqlDataType.VarChar ||
-          dataType==SqlDataType.Binary ||
-          dataType==SqlDataType.VarBinary ||
-          dataType==SqlDataType.AnsiChar ||
-          dataType==SqlDataType.AnsiVarChar))
-        size = 0;
-      if (size<0)
-        throw new ArgumentException(Strings.ExSizeShouldBeNotNegativeValue, "size");
-      
-      this.dataType = dataType;
-      this.size = size;
-    }
     
     public static bool IsNumeric(SqlValueType valueType)
     {
@@ -148,7 +127,28 @@ namespace Xtensive.Sql.Dom
           return false;
       }
     }
+
+    public SqlValueType(SqlDataType dataType)
+    {
+      this.dataType = dataType;
+    }
     
+    public SqlValueType(SqlDataType dataType, int size)
+    {
+      if (!(dataType==SqlDataType.Char ||
+          dataType==SqlDataType.VarChar ||
+          dataType==SqlDataType.Binary ||
+          dataType==SqlDataType.VarBinary ||
+          dataType==SqlDataType.AnsiChar ||
+          dataType==SqlDataType.AnsiVarChar))
+        size = 0;
+      if (size<0)
+        throw new ArgumentException(Strings.ExSizeShouldBeNotNegativeValue, "size");
+      
+      this.dataType = dataType;
+      this.size = size;
+    }
+
     internal SqlValueType(SqlDataType dataType, int size, short precision, short scale)
     {
       if (dataType!=SqlDataType.Float && dataType!=SqlDataType.Decimal && dataType!=SqlDataType.Double) {

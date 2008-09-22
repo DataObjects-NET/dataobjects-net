@@ -13,7 +13,7 @@ namespace Xtensive.Sql.Dom.Compiler
     private Dictionary<SqlTable, string> aliasTable = new Dictionary<SqlTable, string>(16);
     private Dictionary<SqlTable, string> nameTable = new Dictionary<SqlTable, string>(16);
     private Set<string> aliasIndex = new Set<string>();
-    private bool enabled;
+    private int counter;
     private byte prefixIndex;
     private byte suffix;
 
@@ -28,10 +28,19 @@ namespace Xtensive.Sql.Dom.Compiler
           "w", "x", "y", "z"
         };
 
-    public bool Enabled
+    public bool IsEnabled
     {
-      get { return enabled; }
-      set { enabled = value; }
+      get { return counter > 0; }
+    }
+
+    public void Disable()
+    {
+      counter--;
+    }
+
+    public void Enable()
+    {
+      counter++;
     }
 
     internal void Reset()
@@ -52,7 +61,7 @@ namespace Xtensive.Sql.Dom.Compiler
 
       SqlTableRef tableRef = table as SqlTableRef;
       if (tableRef != null) {
-        if (enabled) {
+        if (IsEnabled) {
           if (tableRef.Name != tableRef.DataTable.Name) {
             alias = ConvertTableName(tableRef.Name);
             if (aliasIndex.Contains(alias))
@@ -65,7 +74,7 @@ namespace Xtensive.Sql.Dom.Compiler
           alias = tableRef.DataTable.Name;
       }
       else {
-        if (enabled) {
+        if (IsEnabled) {
           if(!string.IsNullOrEmpty(table.Name))
             alias = ConvertTableName(table.Name);
           else
@@ -75,7 +84,7 @@ namespace Xtensive.Sql.Dom.Compiler
           alias = string.Empty;
       }
 
-//      if (enabled) {
+//      if (isEnabled) {
 //        if ((tableRef != null && tableRef.Name != tableRef.DataTable.Name && !aliasIndex.Contains(tableRef.Name)) || (tableRef == null && !string.IsNullOrEmpty(table.Name)))
 //          alias = ConvertTableName(table.Name);
 //        else
@@ -115,6 +124,9 @@ namespace Xtensive.Sql.Dom.Compiler
 
     internal void Restore()
     {
+      if (IsEnabled)
+        return;
+
       foreach (SqlTable t in nameTable.Keys)
         t.Name = nameTable[t];
 

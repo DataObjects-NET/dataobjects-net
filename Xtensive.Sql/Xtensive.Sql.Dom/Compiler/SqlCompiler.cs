@@ -837,7 +837,7 @@ namespace Xtensive.Sql.Dom.Compiler
 
     public virtual void Visit(SqlQueryRef node)
     {
-      if (context.AliasProvider.Enabled)
+      if (context.AliasProvider.IsEnabled)
         context.AliasProvider.Substitute(node);
       using (context.EnterNode(node)) {
         context.AppendText(translator.Translate(context, node, TableSection.Entry));
@@ -881,7 +881,7 @@ namespace Xtensive.Sql.Dom.Compiler
     public virtual void Visit(SqlSelect node)
     {
       if ((options & SqlCompilerOptions.ForcedAliasing) > 0)
-        context.AliasProvider.Enabled = true;
+        context.AliasProvider.Enable();
       using (context.EnterNode(node)) {
         context.AppendText(translator.Translate(context, node, SelectSection.Entry));
 
@@ -956,8 +956,8 @@ namespace Xtensive.Sql.Dom.Compiler
 
         context.AppendText(translator.Translate(context, node, SelectSection.Exit));
       }
-      if (context.AliasProvider.Enabled)
-        context.AliasProvider.Enabled = false;
+      if (context.AliasProvider.IsEnabled)
+        context.AliasProvider.Disable();
     }
 
     public virtual void Visit(SqlStatementBlock node)
@@ -985,7 +985,7 @@ namespace Xtensive.Sql.Dom.Compiler
 
     public virtual void Visit(SqlTableColumn node)
     {
-      if (context.AliasProvider.Enabled)
+      if (context.AliasProvider.IsEnabled)
         context.AliasProvider.Substitute(node.SqlTable);
       context.AppendText(translator.Translate(context, node, NodeSection.Entry));
     }
@@ -997,7 +997,7 @@ namespace Xtensive.Sql.Dom.Compiler
 
     public virtual void Visit(SqlTableRef node)
     {
-      if (context.AliasProvider.Enabled)
+      if (context.AliasProvider.IsEnabled)
         context.AliasProvider.Substitute(node);
       context.AppendText(
         translator.Translate(context, node, TableSection.Entry)+
