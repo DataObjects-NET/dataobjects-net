@@ -36,7 +36,7 @@ namespace Xtensive.Storage.Tests.Storage.CrudModel
 namespace Xtensive.Storage.Tests.Storage
 {
   [TestFixture]
-  public class SqlReaderCrudTest : AutoBuildTest
+  public class SqlClientCrudTest : AutoBuildTest
   {
     public const int BaseCount = 10000;
     public const int InsertCount = BaseCount;
@@ -55,12 +55,12 @@ namespace Xtensive.Storage.Tests.Storage
 
 
     [Test]
-    public void SqlReaderRegularTest()
+    public void RegularTest()
     {
       warmup = true;
-      SqlReaderCombinedTest(10, 10);
+      CombinedTest(10, 10);
       warmup = false;
-      SqlReaderCombinedTest(BaseCount, InsertCount);
+      CombinedTest(BaseCount, InsertCount);
     }
 
     [Test]
@@ -68,13 +68,12 @@ namespace Xtensive.Storage.Tests.Storage
     [Category("Profile")]
     public void ProfileTest()
     {
-      int instanceCount = 1000;
+      int instanceCount = 10000;
       InsertTest(instanceCount);
-      //      BulkFetchTest(instanceCount);
-      FetchTest(instanceCount);
+      BulkFetchTest(instanceCount);
     }
 
-    private void SqlReaderCombinedTest(int baseCount, int insertCount)
+    private void CombinedTest(int baseCount, int insertCount)
     {
       InsertTest(insertCount);
       BulkFetchTest(baseCount);
@@ -82,24 +81,24 @@ namespace Xtensive.Storage.Tests.Storage
       QueryTest(baseCount / 5);
       RemoveTest();
     }
-
-    #region Create, Insert, BulkFetch, Fetch, Query, Remove for SqlReader
-
+    
     private void InsertTest(int inserCount)
     {
       con.Open();
       SqlTransaction transaction = con.BeginTransaction();
       SqlCommand cmd = con.CreateCommand();
       cmd.Transaction = transaction;
-      cmd.Parameters.AddWithValue("@prm", 0);
-      cmd.Parameters.AddWithValue("@ptypeid", 0);
-      cmd.CommandText = "INSERT INTO [dbo].[Simplest] ([Simplest].[Id], [Simplest].[TypeId], [Simplest].[Value]) VALUES ( @prm, @ptypeid, @prm)";
+      cmd.Parameters.AddWithValue("@pId", 0);
+      cmd.Parameters.AddWithValue("@pTypeId", 0);
+      cmd.CommandText = "INSERT INTO " + 
+        "[dbo].[Simplest] ([Simplest].[Id], [Simplest].[TypeId], [Simplest].[Value]) " + 
+        "VALUES (@pId, @pTypeId, @pId)";
       TestHelper.CollectGarbage();
 
       using (warmup ? null : new Measurement("Insert", inserCount))
         for (int i = 0; i < inserCount; i++) {
-          cmd.Parameters["@prm"].SqlValue = i;
-          cmd.Parameters["@ptypeid"].SqlValue = 0;
+          cmd.Parameters["@pId"].SqlValue = i;
+          cmd.Parameters["@pTypeId"].SqlValue = 0;
           cmd.ExecuteNonQuery();
         }
       instanceCount = inserCount;
@@ -120,7 +119,8 @@ namespace Xtensive.Storage.Tests.Storage
         while (i < count) {
           SqlCommand cmd = con.CreateCommand();
           cmd.Transaction = transaction;
-          cmd.CommandText = "SELECT [Simplest].[Id], [Simplest].[TypeId], [Simplest].[Value] FROM [dbo].[Simplest]";
+          cmd.CommandText = "SELECT [Simplest].[Id], [Simplest].[TypeId], [Simplest].[Value] " + 
+            "FROM [dbo].[Simplest]";
           SqlDataReader dr = cmd.ExecuteReader();
           while (dr.Read()) {
             var s = new SimplestSql();
@@ -147,15 +147,16 @@ namespace Xtensive.Storage.Tests.Storage
       SqlTransaction transaction = con.BeginTransaction();
       SqlCommand cmd = con.CreateCommand();
       cmd.Transaction = transaction;
-      cmd.Parameters.AddWithValue("@prm", 0);
-      cmd.CommandText = "SELECT [Simplest].[Id], [Simplest].[TypeId], [Simplest].[Value] FROM [dbo].[Simplest] WHERE [Simplest].[Id] = @prm";
+      cmd.Parameters.AddWithValue("@pId", 0);
+      cmd.CommandText = "SELECT [Simplest].[Id], [Simplest].[TypeId], [Simplest].[Value] " + 
+        "FROM [dbo].[Simplest] WHERE [Simplest].[Id] = @pId";
       SqlDataReader dr;
 
       TestHelper.CollectGarbage();
 
       using (warmup ? null : new Measurement("Fetch & GetField", count))
         for (int i = 0; i < count; i++) {
-          cmd.Parameters["@prm"].SqlValue = i % instanceCount;
+          cmd.Parameters["@pId"].SqlValue = i % instanceCount;
           dr = cmd.ExecuteReader();
 
           var s = new SimplestSql();
@@ -180,15 +181,16 @@ namespace Xtensive.Storage.Tests.Storage
       SqlTransaction transaction = con.BeginTransaction();
       SqlCommand cmd = con.CreateCommand();
       cmd.Transaction = transaction;
-      cmd.Parameters.AddWithValue("@prm", 0);
-      cmd.CommandText = "SELECT [Simplest].[Id], [Simplest].[TypeId], [Simplest].[Value] FROM [dbo].[Simplest] WHERE [Simplest].[id] = @prm";
+      cmd.Parameters.AddWithValue("@pId", 0);
+      cmd.CommandText = "SELECT [Simplest].[Id], [Simplest].[TypeId], [Simplest].[Value] " + 
+        "FROM [dbo].[Simplest] WHERE [Simplest].[id] = @pId";
       SqlDataReader dr;
 
       TestHelper.CollectGarbage();
 
       using (warmup ? null : new Measurement("Query", count))
         for (int i = 0; i < count; i++) {
-          cmd.Parameters["@prm"].SqlValue = i % instanceCount;
+          cmd.Parameters["@pId"].SqlValue = i % instanceCount;
           dr = cmd.ExecuteReader();
 
           var s = new SimplestSql();
@@ -211,9 +213,9 @@ namespace Xtensive.Storage.Tests.Storage
       SqlTransaction transaction = con.BeginTransaction();
       SqlCommand cmd = con.CreateCommand();
       cmd.Transaction = transaction;
-      cmd.CommandText = "SELECT [Simplest].[Id], [Simplest].[TypeId], [Simplest].[Value] FROM [dbo].[Simplest]";
-      cmd.Parameters.AddWithValue("@prm1", 0);
-      cmd.Parameters.AddWithValue("@prm2", 0);
+      cmd.CommandText = "SELECT [Simplest].[Id], [Simplest].[TypeId], [Simplest].[Value] " + 
+        "FROM [dbo].[Simplest]";
+      cmd.Parameters.AddWithValue("@pId", 0);
       SqlDataReader dr;
 
       TestHelper.CollectGarbage();
@@ -227,16 +229,14 @@ namespace Xtensive.Storage.Tests.Storage
         }
         dr.Close();
 
-        cmd.CommandText = "DELETE [dbo].[Simplest] WHERE [Simplest].[Id] = @prm1";
+        cmd.CommandText = "DELETE [dbo].[Simplest] WHERE [Simplest].[Id] = @pId";
         foreach (var l in list) {
-          cmd.Parameters["@prm1"].SqlValue = l.Id;
+          cmd.Parameters["@pId"].SqlValue = l.Id;
           cmd.ExecuteNonQuery();
         }
       }
       transaction.Commit();
       con.Close();
     }
-
-    #endregion
   }
 }

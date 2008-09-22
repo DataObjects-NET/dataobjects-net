@@ -66,9 +66,9 @@ namespace Xtensive.Storage.Tests.Storage
     [Category("Profile")]
     public void ProfileTest()
     {
-      int instanceCount = 1000;
+      int instanceCount = 10000;
       InsertTest(instanceCount);
-      FetchTest(instanceCount);
+      BulkFetchTest(instanceCount);
     }
 
     private void CombinedTest(int baseCount, int insertCount)
