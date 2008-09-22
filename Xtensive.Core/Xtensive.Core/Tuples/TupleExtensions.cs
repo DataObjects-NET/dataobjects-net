@@ -45,9 +45,12 @@ namespace Xtensive.Core.Tuples
       ArgumentValidator.EnsureArgumentNotNull(target, "target");
       ArgumentValidator.EnsureArgumentIsInRange(startIndex, 0, source.Count, "startIndex");
       ArgumentValidator.EnsureArgumentIsInRange(targetStartIndex, 0, target.Count, "targetStartIndex");
+      for (int i = 0; i < length; i++) {
+        target.SetValue(targetStartIndex + i, source.GetValue(startIndex + i));
+      }
 
-      PartCopyData actionData = new PartCopyData(source, target, startIndex, targetStartIndex, length);
-      source.Descriptor.Execute(partCopyHandler, ref actionData, Direction.Positive);
+//      PartCopyData actionData = new PartCopyData(source, target, startIndex, targetStartIndex, length);
+//      source.Descriptor.Execute(partCopyHandler, ref actionData, Direction.Positive);
     }
 
     /// <summary>

@@ -213,6 +213,24 @@ namespace Xtensive.Core.Tests.Tuples
 
     [Test]
     [Explicit, Category("Performance")]
+    public void CopyToTest()
+    {
+      const int iterationCount = 100000;
+      Random random = RandomManager.CreateRandom(SeedVariatorType.CallingMethod);
+      Tuple tuple = Tuple.Create(10, 20 ,234.456f, 2345.34534d, "aaaaaaaaaaa", DateTime.Now);
+      var hashCode = tuple.GetHashCode();
+      var copy = tuple.CreateNew();
+      using (new Measurement("Copying tuples test", iterationCount)) {
+        for (int i = 0; i < iterationCount; i++) {
+          tuple.CopyTo(copy);
+//          Assert.AreEqual(hashCode, copy.GetHashCode());
+        }
+        
+      }
+    }
+
+    [Test]
+    [Explicit, Category("Performance")]
     public void MemoryUsageTest()
     {
       const int iterationCount = 1000000;

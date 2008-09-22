@@ -125,9 +125,9 @@ namespace Xtensive.Storage.Tests.Storage
           while (dr.Read()) {
             var s = new SimplestSql();
             if (!dr.IsDBNull(0))
-              s.Id = dr.GetInt64(0);
+              s.Id = (long)dr.GetValue(0);
             if (!dr.IsDBNull(2))
-              s.Value = dr.GetInt64(2);
+              s.Value = (long)dr.GetValue(2);
             sum += s.Id;
             if (++i >= count)
               break;
@@ -162,9 +162,9 @@ namespace Xtensive.Storage.Tests.Storage
           var s = new SimplestSql();
           while (dr.Read()) {
             if (!dr.IsDBNull(0))
-              s.Id = dr.GetInt64(0);
+              s.Id = (long)dr.GetValue(0);
             if (!dr.IsDBNull(2))
-              s.Value = dr.GetInt64(2);
+              s.Value = (long)dr.GetValue(2);
           }
           sum -= s.Id;
           dr.Close();
@@ -196,9 +196,9 @@ namespace Xtensive.Storage.Tests.Storage
           var s = new SimplestSql();
           while (dr.Read()) {
             if (!dr.IsDBNull(0))
-              s.Id = dr.GetInt64(0);
+              s.Id = (long)dr.GetValue(0);
             if (!dr.IsDBNull(2))
-              s.Value = dr.GetInt64(2);
+              s.Value = (long)dr.GetValue(2);
           }
           dr.Close();
         }
@@ -225,7 +225,7 @@ namespace Xtensive.Storage.Tests.Storage
         var list = new List<SimplestSql>();
         while (dr.Read()) {
           if (!dr.IsDBNull(0) && !dr.IsDBNull(2))
-            list.Add(new SimplestSql(dr.GetInt64(0), dr.GetInt64(2)));
+            list.Add(new SimplestSql((long)dr.GetValue(0), (long)dr.GetValue(2)));
         }
         dr.Close();
 
