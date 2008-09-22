@@ -59,12 +59,13 @@ namespace Xtensive.Storage.Tests.Storage
       //      BulkFetchTest(instanceCount);
       FetchTest(instanceCount);
     }
-
+    
     private void SqlReaderCombinedTest(int baseCount, int insertCount)
     {
       InsertTest(insertCount);
       BulkFetchTest(baseCount);
       FetchTest(baseCount / 2);
+      QueryTest(baseCount / 5);
       RemoveTest();
     }
 
@@ -74,11 +75,13 @@ namespace Xtensive.Storage.Tests.Storage
     {
       con.Open();
       SqlCommand cmd = con.CreateCommand();
+      cmd.Parameters.AddWithValue("@prm", 0);
       TestHelper.CollectGarbage();
 
       using (warmup ? null : new Measurement("Insert", inserCount))
         for (int i = 0; i < inserCount; i++) {
-          cmd.CommandText = "Insert INTO Simplest VALUES ( " + i + ", 0, " + i + ")";
+          cmd.CommandText = "Insert into Simplest VALUES ( @prm, 0, @prm)";
+          cmd.Parameters["@prm"].SqlValue = i;
           cmd.ExecuteNonQuery();
         }
       instanceCount = inserCount;
@@ -91,7 +94,7 @@ namespace Xtensive.Storage.Tests.Storage
       int i = 0;
       con.Open();
       SqlCommand cmd = con.CreateCommand();
-      cmd.CommandText = "select Id, Value from Simplest";
+      cmd.CommandText = "Select Id, Value from Simplest";
       SqlDataReader dr = cmd.ExecuteReader();
 
       TestHelper.CollectGarbage();
@@ -120,13 +123,15 @@ namespace Xtensive.Storage.Tests.Storage
 
       con.Open();
       SqlCommand cmd = con.CreateCommand();
+      cmd.Parameters.AddWithValue("@prm", 0);
       SqlDataReader dr;
 
       TestHelper.CollectGarbage();
 
       using (warmup ? null : new Measurement("Fetch & GetField", count))
         for (int i = 0; i < count; i++) {
-          cmd.CommandText = "select Id, Value from Simplest where Value = " + (long) i % instanceCount;
+          cmd.Parameters["@prm"].SqlValue = i % instanceCount;
+          cmd.CommandText = "Select Id, Value from Simplest where Value = @prm";
           dr = cmd.ExecuteReader();
 
           var s = new SimplestSql();
@@ -142,6 +147,37 @@ namespace Xtensive.Storage.Tests.Storage
         }
       if (count <= instanceCount)
         Assert.AreEqual(0, sum);
+      con.Close();
+    }
+
+    private void QueryTest(int count)
+    {
+      long sum = (long)count * (count - 1) / 2;
+
+      con.Open();
+      SqlCommand cmd = con.CreateCommand();
+      cmd.Parameters.AddWithValue("@prm", 0);
+      SqlDataReader dr;
+
+      TestHelper.CollectGarbage();
+
+      using (warmup ? null : new Measurement("Query", count))
+        for (int i = 0; i < count; i++)
+        {
+          cmd.Parameters["@prm"].SqlValue = i % instanceCount;
+          cmd.CommandText = "Select Id, Value from Simplest where Value = @prm";
+          dr = cmd.ExecuteReader();
+
+          var s = new SimplestSql();
+          while (dr.Read())
+          {
+            if (!dr.IsDBNull(0))
+              s.Id = dr.GetInt64(0);
+            if (!dr.IsDBNull(1))
+              s.Value = dr.GetInt64(1);
+          }
+          dr.Close();
+        }
       con.Close();
     }
 
