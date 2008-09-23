@@ -48,7 +48,7 @@ namespace Xtensive.Core.Tuples
       for (int i = 0; i < length; i++) {
         int sourceIndex = startIndex + i;
         if (source.IsAvailable(sourceIndex))
-          target.SetValue(targetStartIndex + i, source.GetValue(sourceIndex));
+          target.SetValue(targetStartIndex + i, source.GetValueOrDefault(sourceIndex));
       }
 
 //      PartCopyData actionData = new PartCopyData(source, target, startIndex, targetStartIndex, length);
