@@ -186,7 +186,6 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       con.Close();
     }
 
-
     private void RemoveTest()
     {
       con.Open();
