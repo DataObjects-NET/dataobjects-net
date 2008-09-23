@@ -15,18 +15,6 @@ namespace Xtensive.Core.Tuples.Internals
   [Serializable]
   public abstract class GeneratedTuple: RegularTuple, ITupleFieldAccessor<object>
   {
-    /// <inheritdoc />
-    public override sealed void SetValue<T>(int fieldIndex, T fieldValue)
-    {
-      ((ITupleFieldAccessor<T>)this).SetValue(fieldIndex, fieldValue);
-    }
-
-    /// <inheritdoc/>
-    public override sealed T GetValueOrDefault<T>(int fieldIndex)
-    {
-      return ((ITupleFieldAccessor<T>)this).GetValueOrDefault(fieldIndex);
-    }
-
     /// <summary>
     /// Sets the field state associated with the field.
     /// </summary>

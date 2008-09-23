@@ -45,23 +45,6 @@ namespace Xtensive.Core.Tuples.Transform.Internals
     }
 
     /// <inheritdoc/>
-    public override T GetValueOrDefault<T>(int fieldIndex)
-    {
-      int index = GetMappedFieldIndex(fieldIndex);
-      if (index==MapTransform.NoMapping)
-        return (T) TypedTransform.DefaultResult.GetValueOrDefault(fieldIndex);
-      return tuple.GetValueOrDefault<T>(index);
-    }
-
-    /// <inheritdoc/>
-    public override void SetValue<T>(int fieldIndex, T fieldValue)
-    {
-      if (Transform.IsReadOnly)
-        throw Exceptions.ObjectIsReadOnly(null);
-      tuple.SetValue(GetMappedFieldIndex(fieldIndex), fieldValue);
-    }
-
-    /// <inheritdoc/>
     public override void SetValue(int fieldIndex, object fieldValue)
     {
       if (Transform.IsReadOnly)

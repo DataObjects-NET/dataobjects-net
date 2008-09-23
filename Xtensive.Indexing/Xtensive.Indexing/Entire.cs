@@ -155,24 +155,10 @@ namespace Xtensive.Indexing
     }
 
     /// <inheritdoc/>
-    TFieldType ITuple.GetValue<TFieldType>(int fieldIndex)
-    {
-      // TODO: Get rid of boxing-unboxing here
-      return (TFieldType)(this as ITuple).GetValue(fieldIndex);
-    }
-
-    /// <inheritdoc/>
     object ITuple.GetValue(int fieldIndex)
     {
       EnsureHasValue();
       return Value;
-    }
-
-    /// <inheritdoc/>
-    TFieldType ITuple.GetValueOrDefault<TFieldType>(int fieldIndex)
-    {
-      // TODO: Get rid of boxing here!
-      return (TFieldType)(object)Value;
     }
 
     /// <inheritdoc/>
@@ -184,12 +170,6 @@ namespace Xtensive.Indexing
     #endregion
 
     #region ITuple.SetXxx methods
-
-    /// <inheritdoc/>
-    void ITuple.SetValue<TFieldType>(int fieldIndex, TFieldType fieldValue)
-    {
-      throw Exceptions.ObjectIsReadOnly(null);
-    }
 
     /// <inheritdoc/>
     void ITuple.SetValue(int fieldIndex, object fieldValue)

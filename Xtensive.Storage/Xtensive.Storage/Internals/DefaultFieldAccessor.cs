@@ -7,6 +7,7 @@
 using System;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
+using Xtensive.Core.Tuples;
 
 namespace Xtensive.Storage.Internals
 {

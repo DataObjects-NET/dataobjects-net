@@ -106,14 +106,6 @@ namespace Xtensive.Core.Tuples
     public abstract TupleFieldState GetFieldState(int fieldIndex);
 
     /// <inheritdoc />
-    public T GetValue<T>(int fieldIndex)
-    {
-      if (!IsAvailable(fieldIndex))
-        throw new InvalidOperationException(Strings.ExValueIsNotAvailable);
-      return GetValueOrDefault<T>(fieldIndex);
-    }
-
-    /// <inheritdoc />
     public object GetValue(int fieldIndex)
     {
       if (!IsAvailable(fieldIndex))
@@ -122,18 +114,68 @@ namespace Xtensive.Core.Tuples
     }
 
     /// <inheritdoc/>
-    public abstract T GetValueOrDefault<T>(int fieldIndex);
-
-    /// <inheritdoc/>
     public abstract object GetValueOrDefault(int fieldIndex);
+
+    /// <summary>
+    /// Sets the field value by its index.
+    /// </summary>
+    /// <param name="fieldIndex">Index of the field to set value of.</param>
+    /// <param name="fieldValue">Field value.</param>
+    /// <typeparam name="T">The type of value to set.</typeparam>
+    /// <exception cref="InvalidCastException">Type of stored value and <typeparamref name="T"/>
+    /// are incompatible.</exception>
+    public void SetValue<T>(int fieldIndex, T fieldValue)
+    {
+      SetValue(fieldIndex, (object)fieldValue);
+    }
+
+    /// <summary>
+    /// Gets the value field value by its index, if it is available;
+    /// otherwise returns <see langword="default(T)"/>.
+    /// </summary>
+    /// <param name="fieldIndex">Index of the field to get value of.</param>
+    /// <returns>Field value, if it is available;
+    /// otherwise, <see langword="default(T)"/>.</returns>
+    /// <typeparam name="T">The type of value to get.</typeparam>
+    /// <exception cref="InvalidCastException">Value is available, but it can't be cast
+    /// to specified type. E.g. if value is <see langword="null"/>, field is struct, 
+    /// but <typeparamref name="T"/> is not a <see cref="Nullable{T}"/> type.</exception>
+    public T GetValueOrDefault<T>(int fieldIndex)
+    {
+      var generated = this as GeneratedTuple;
+      if (generated != null)
+        return ((ITupleFieldAccessor<T>)this).GetValueOrDefault(fieldIndex);
+      var value = GetValueOrDefault(fieldIndex);
+      if (value == null)
+        return default(T);
+      return (T)value;
+    }
+
+    /// <summary>
+    /// Gets the value field value by its index.
+    /// </summary>
+    /// <param name="fieldIndex">Index of the field to get value of.</param>
+    /// <returns>Field value.</returns>
+    /// <typeparam name="T">The type of value to get.</typeparam>
+    /// <remarks>
+    /// If field value is not available (see <see cref="Tuple.IsAvailable"/>),
+    /// an exception will be thrown.
+    /// </remarks>
+    /// <exception cref="InvalidOperationException">Field value is not available.</exception>
+    /// <exception cref="InvalidCastException">Value is available, but it can't be cast
+    /// to specified type. E.g. if value is <see langword="null"/>, field is struct, 
+    /// but <typeparamref name="T"/> is not a <see cref="Nullable{T}"/> type.</exception>
+    public T GetValue<T>(int fieldIndex)
+    {
+      if (!IsAvailable(fieldIndex))
+        throw new InvalidOperationException(Strings.ExValueIsNotAvailable);
+      return GetValueOrDefault<T>(fieldIndex);
+    }
 
     #endregion
 
     #region SetValue methods (abstract)
-
-    /// <inheritdoc />
-    public abstract void SetValue<T>(int fieldIndex, T fieldValue);
-
+    
     /// <inheritdoc />
     public abstract void SetValue(int fieldIndex, object fieldValue);
 
@@ -194,7 +236,7 @@ namespace Xtensive.Core.Tuples
     /// <inheritdoc/>
     public override string ToString()
     {
-      StringBuilder sb = new StringBuilder(16);
+      var sb = new StringBuilder(16);
       for (int i = 0; i < Count; i++) {
         if (i > 0)
           sb.Append(", ");
@@ -203,7 +245,7 @@ namespace Xtensive.Core.Tuples
         else if (IsNull(i))
           sb.Append(Strings.Null);
         else if (Descriptor[i] == typeof(string)) {
-          string value = GetValue<string>(i);
+          var value = GetValue(i) as string;
           if (string.IsNullOrEmpty(value))
             sb.Append(Strings.EmptyString);
           else

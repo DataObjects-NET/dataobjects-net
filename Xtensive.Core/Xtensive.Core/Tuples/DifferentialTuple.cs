@@ -101,21 +101,9 @@ namespace Xtensive.Core.Tuples
     }
 
     /// <inheritdoc/>
-    public override T GetValueOrDefault<T>(int fieldIndex)
-    {
-      return GetContainer(fieldIndex).GetValueOrDefault<T>(fieldIndex);
-    }
-
-    /// <inheritdoc/>
     public override object GetValueOrDefault(int fieldIndex)
     {
       return GetContainer(fieldIndex).GetValueOrDefault(fieldIndex);
-    }
-
-    /// <inheritdoc />
-    public override void SetValue<T>(int fieldIndex, T fieldValue)
-    {
-      difference.SetValue(fieldIndex, fieldValue);
     }
 
     /// <inheritdoc />

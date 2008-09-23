@@ -9,6 +9,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Resources;
+using Xtensive.Core.Tuples.Internals;
 using Xtensive.Core.Tuples.Transform;
 
 namespace Xtensive.Core.Tuples
@@ -18,14 +19,70 @@ namespace Xtensive.Core.Tuples
   /// </summary>
   public static class TupleExtensions
   {
-//    private static PartCopyHandler        partCopyHandler   = new PartCopyHandler();
-//    private static MergeHandler           mergeHandler   = new MergeHandler();
-//    private static MapOneCopyHandler      mapOneCopyHandler = new MapOneCopyHandler();
-//    private static MapCopyHandler         mapCopyHandler    = new MapCopyHandler();
-//    private static Map3CopyHandler        map3CopyHandler   = new Map3CopyHandler();
-    private static InitializerHandler     initializerHandler   = new InitializerHandler();
+    private static readonly InitializerHandler     initializerHandler   = new InitializerHandler();
     private static readonly Dictionary<TupleFieldState, Func<TupleFieldState, TupleFieldState, bool>> fieldStatePredicates;
 
+    #region Generic ITuple methods
+
+    /// <summary>
+    /// Sets the field value by its index.
+    /// </summary>
+    /// <param name="tuple"><see cref="Tuple"/> to set value to.</param>
+    /// <param name="fieldIndex">Index of the field to set value of.</param>
+    /// <param name="fieldValue">Field value.</param>
+    /// <typeparam name="T">The type of value to set.</typeparam>
+    /// <exception cref="InvalidCastException">Type of stored value and <typeparamref name="T"/>
+    /// are incompatible.</exception>
+    public static void SetValue<T>(this ITuple tuple, int fieldIndex, T fieldValue)
+    {
+      tuple.SetValue(fieldIndex, fieldValue);
+    }
+
+    /// <summary>
+    /// Gets the value field value by its index, if it is available;
+    /// otherwise returns <see langword="default(T)"/>.
+    /// </summary>
+    /// <param name="tuple">Value container.</param>
+    /// <param name="fieldIndex">Index of the field to get value of.</param>
+    /// <returns>Field value, if it is available;
+    /// otherwise, <see langword="default(T)"/>.</returns>
+    /// <typeparam name="T">The type of value to get.</typeparam>
+    /// <exception cref="InvalidCastException">Value is available, but it can't be cast
+    /// to specified type. E.g. if value is <see langword="null"/>, field is struct, 
+    /// but <typeparamref name="T"/> is not a <see cref="Nullable{T}"/> type.</exception>
+    public static T GetValueOrDefault<T>(this ITuple tuple, int fieldIndex)
+    {
+      var value = tuple.GetValueOrDefault(fieldIndex);
+      if (value == null)
+        return default(T);
+      return (T)value;
+    }
+
+    /// <summary>
+    /// Gets the value field value by its index.
+    /// </summary>
+    /// <param name="tuple">Value container.</param>
+    /// <param name="fieldIndex">Index of the field to get value of.</param>
+    /// <returns>Field value.</returns>
+    /// <typeparam name="T">The type of value to get.</typeparam>
+    /// <remarks>
+    /// If field value is not available (see <see cref="Tuple.IsAvailable"/>),
+    /// an exception will be thrown.
+    /// </remarks>
+    /// <exception cref="InvalidOperationException">Field value is not available.</exception>
+    /// <exception cref="InvalidCastException">Value is available, but it can't be cast
+    /// to specified type. E.g. if value is <see langword="null"/>, field is struct, 
+    /// but <typeparamref name="T"/> is not a <see cref="Nullable{T}"/> type.</exception>
+    public static T GetValue<T>(this ITuple tuple, int fieldIndex)
+    {
+      if (!tuple.IsAvailable(fieldIndex))
+        throw new InvalidOperationException(Strings.ExValueIsNotAvailable);
+      return tuple.GetValueOrDefault<T>(fieldIndex);
+    }
+
+
+    #endregion
+    
     #region Copy methods
 
     /// <summary>
@@ -369,200 +426,6 @@ namespace Xtensive.Core.Tuples
     public static void MergeWith(this ITuple target, ITuple source)
     {
       MergeWith(target, source, 0, target.Count, MergeConflictBehavior.Default);
-    }
-
-    #endregion
-
-    #region Private: Part copy: Data & Handler
-
-    private struct PartCopyData
-    {
-      public ITuple Source;
-      public ITuple Target;
-      public int SourceStartFieldIndex;
-      public int SourceEndFieldIndex;
-      public int ResultStartFieldIndex;
-      public int ResultStartFieldIndexDiff;
-
-      public PartCopyData(ITuple source, ITuple target, int sourceStartFieldIndex, int resultStartFieldIndex, int count)
-      {
-        Source = source;
-        Target = target;
-        SourceStartFieldIndex = sourceStartFieldIndex;
-        SourceEndFieldIndex   = sourceStartFieldIndex + count-1;
-        ResultStartFieldIndex = resultStartFieldIndex;
-        ResultStartFieldIndexDiff = resultStartFieldIndex - sourceStartFieldIndex;
-      }
-    }
-
-    private class PartCopyHandler: ITupleActionHandler<PartCopyData>
-    {
-      public bool Execute<TFieldType>(ref PartCopyData actionData, int fieldIndex)
-      {
-        if (fieldIndex < actionData.SourceStartFieldIndex)
-          return false;
-        if (fieldIndex > actionData.SourceEndFieldIndex)
-          return true;
-
-        if (actionData.Source.IsAvailable(fieldIndex)) {
-          if (actionData.Source.Descriptor[fieldIndex].IsValueType && actionData.Source.IsNull(fieldIndex))
-            actionData.Target.SetValue(fieldIndex + actionData.ResultStartFieldIndexDiff, null);
-          else
-            actionData.Target.SetValue(fieldIndex + actionData.ResultStartFieldIndexDiff, actionData.Source.GetValue<TFieldType>(fieldIndex));
-        }
-        return false;
-      }
-    }
-
-    #endregion
-
-    #region Private: MapOne copy: Data & Handler
-
-    private struct MapOneCopyData
-    {
-      public Tuple Source;
-      public Tuple Target;
-      public int[] Map;
-
-      public MapOneCopyData(Tuple source, Tuple target, int[] map)
-      {
-        Source = source;
-        Target = target;
-        Map = map;
-      }
-    }
-
-    private class MapOneCopyHandler: ITupleActionHandler<MapOneCopyData>
-    {
-      public bool Execute<TFieldType>(ref MapOneCopyData actionData, int fieldIndex)
-      {
-          int sourceFieldIndex = actionData.Map[fieldIndex];
-          if (sourceFieldIndex<0)
-            return false;
-          if (actionData.Source.IsAvailable(sourceFieldIndex)) {
-            if (actionData.Source.Descriptor[sourceFieldIndex].IsValueType && actionData.Source.IsNull(sourceFieldIndex))
-              actionData.Target.SetValue(fieldIndex, null);
-            else
-              actionData.Target.SetValue(fieldIndex, actionData.Source.GetValue<TFieldType>(sourceFieldIndex));
-          }
-        return false;
-      }
-    }
-
-    #endregion
-
-    #region Private: Map copy: Data & Handler
-
-    private struct MapCopyData
-    {
-      public Tuple[] Source;
-      public Tuple Target;
-      public Pair<int,int>[] Map;
-
-      public MapCopyData(Tuple[] source, Tuple target, Pair<int,int>[] map)
-      {
-        Source = source;
-        Target = target;
-        Map = map;
-      }
-    }
-
-    private class MapCopyHandler: ITupleActionHandler<MapCopyData>
-    {
-      public bool Execute<TFieldType>(ref MapCopyData actionData, int fieldIndex)
-      {
-        Pair<int,int> mappedTo = actionData.Map[fieldIndex];
-        if (mappedTo.First<0 | mappedTo.Second<0)
-          return false;
-        Tuple sourceTuple = actionData.Source[mappedTo.First];
-        if (sourceTuple.IsAvailable(mappedTo.Second)) {
-          if (sourceTuple.Descriptor[mappedTo.Second].IsValueType && sourceTuple.IsNull(mappedTo.Second))
-            actionData.Target.SetValue(fieldIndex, null);
-          else
-            actionData.Target.SetValue(fieldIndex, sourceTuple.GetValue<TFieldType>(mappedTo.Second));
-        }
-        return false;
-      }
-    }
-
-    #endregion
-
-    #region Private: Map3 copy: Data & Handler
-
-    private struct Map3CopyData
-    {
-      public FixedList3<Tuple> Source;
-      public Tuple Target;
-      public Pair<int,int>[] Map;
-
-      public Map3CopyData(ref FixedList3<Tuple> source, Tuple target, Pair<int,int>[] map)
-      {
-        Source = source;
-        Target = target;
-        Map = map;
-      }
-    }
-
-    private class Map3CopyHandler: ITupleActionHandler<Map3CopyData>
-    {
-      public bool Execute<TFieldType>(ref Map3CopyData actionData, int fieldIndex)
-      {
-          Pair<int,int> mappedTo = actionData.Map[fieldIndex];
-          if (mappedTo.First<0 | mappedTo.Second<0)
-            return false;
-          Tuple sourceTuple = actionData.Source[mappedTo.First];
-          if (sourceTuple.IsAvailable(mappedTo.Second)) {
-            if (sourceTuple.Descriptor[mappedTo.Second].IsValueType && sourceTuple.IsNull(mappedTo.Second))
-              actionData.Target.SetValue(fieldIndex, null);
-            else
-              actionData.Target.SetValue(fieldIndex, sourceTuple.GetValue<TFieldType>(mappedTo.Second));
-          }
-        return false;
-      }
-    }
-
-    #endregion
-
-    #region Private: Merge: Data & Handler
-
-    private struct MergeData
-    {
-      public ITuple Source;
-      public ITuple Target;
-      public int StartIndex;
-      public int EndIndex;
-      public MergeConflictBehavior Behavior;
-
-      public MergeData(ITuple source, ITuple target, int startIndex, int length, MergeConflictBehavior behavior)
-      {
-        Source = source;
-        Target = target;
-        StartIndex = startIndex;
-        EndIndex   = startIndex + length-1;
-        Behavior = behavior;
-      }
-    }
-
-    private class MergeHandler: ITupleActionHandler<MergeData>
-    {
-      public bool Execute<TFieldType>(ref MergeData actionData, int fieldIndex)
-      {
-        if (fieldIndex < actionData.StartIndex)
-          return false;
-        if (fieldIndex > actionData.EndIndex)
-          return true;
-        if (!actionData.Source.IsAvailable(fieldIndex))
-          return false;
-        if (actionData.Source.IsAvailable(fieldIndex) && actionData.Target.IsAvailable(fieldIndex) 
-          && actionData.Behavior == MergeConflictBehavior.PreferTarget)
-          return false;
-
-        if (actionData.Source.Descriptor[fieldIndex].IsValueType && actionData.Source.IsNull(fieldIndex))
-          actionData.Target.SetValue(fieldIndex, null);
-        else
-          actionData.Target.SetValue(fieldIndex, actionData.Source.GetValue<TFieldType>(fieldIndex));
-        return false;
-      }
     }
 
     #endregion

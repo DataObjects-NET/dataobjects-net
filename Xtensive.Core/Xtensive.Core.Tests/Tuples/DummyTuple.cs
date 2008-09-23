@@ -27,8 +27,6 @@ namespace Xtensive.Core.Tests.Tuples
       set { SetValue(fieldIndex, value); }
     }
 
-    #region CreateNew, Clone methods
-
     public override Tuple CreateNew()
     {
       return new DummyTuple(descriptor);
@@ -42,26 +40,13 @@ namespace Xtensive.Core.Tests.Tuples
       return tuple;
     }
 
-    #endregion
-
-    #region GetFieldState, GetValueOrDefault methods
-
     public override TupleFieldState GetFieldState(int fieldIndex)
     {
       if (!available[fieldIndex])
         return 0;
-      else {
-        return values[fieldIndex] == null ?
-          TupleFieldState.IsNull | TupleFieldState.IsAvailable :
-          TupleFieldState.IsAvailable;
-      }
-    }
-
-    public override T GetValueOrDefault<T>(int fieldIndex)
-    {
-      if (!typeof(T).IsAssignableFrom(descriptor[fieldIndex]))
-        throw new InvalidCastException();
-      return IsAvailable(fieldIndex) ? (T)values[fieldIndex] : default(T);
+      return values[fieldIndex] == null ? 
+        TupleFieldState.IsNull | TupleFieldState.IsAvailable :
+        TupleFieldState.IsAvailable;
     }
 
     public override object GetValueOrDefault(int fieldIndex)
@@ -73,18 +58,6 @@ namespace Xtensive.Core.Tests.Tuples
       return Activator.CreateInstance(descriptor[fieldIndex]);
     }
 
-    #endregion
-
-    #region SetValue methods
-
-    public override void SetValue<T>(int fieldIndex, T fieldValue)
-    {
-      if (!typeof(T).IsAssignableFrom(descriptor[fieldIndex]))
-        throw new InvalidCastException();
-      values[fieldIndex] = fieldValue;
-      available[fieldIndex] = true;
-    }
-
     public override void SetValue(int fieldIndex, object fieldValue)
     {
       if (fieldValue != null && !descriptor[fieldIndex].IsAssignableFrom(fieldValue.GetType()))
@@ -92,8 +65,6 @@ namespace Xtensive.Core.Tests.Tuples
       values[fieldIndex] = fieldValue;
       available[fieldIndex] = true;
     }
-
-    #endregion
 
 
     // Constructors
@@ -103,6 +74,10 @@ namespace Xtensive.Core.Tests.Tuples
       ArgumentValidator.EnsureArgumentNotNull(descriptor, "descriptor");
       this.descriptor = descriptor;
       values = new object[descriptor.Count];
+      for (int i = 0; i < values.Length; i++) {
+        if (descriptor[i].IsValueType)
+          values[i] = Activator.CreateInstance(descriptor[i]);
+      }
       available = new BitArray(new bool[descriptor.Count]);
     }
   }

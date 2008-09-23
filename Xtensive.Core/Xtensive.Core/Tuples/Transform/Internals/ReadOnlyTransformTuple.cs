@@ -36,21 +36,11 @@ namespace Xtensive.Core.Tuples.Transform.Internals
       }
     }
 
-    #region SetValue methods
-
-    /// <inheritdoc />
-    public override void SetValue<T>(int fieldIndex, T fieldValue)
-    {
-      throw Exceptions.ObjectIsReadOnly(null);
-    }
-
     /// <inheritdoc />
     public override void SetValue(int fieldIndex, object fieldValue)
     {
       throw Exceptions.ObjectIsReadOnly(null);
     }
-
-    #endregion
 
 
     // Constructors

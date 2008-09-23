@@ -124,21 +124,9 @@ namespace Xtensive.Storage
     }
 
     /// <inheritdoc/>
-    public override T GetValueOrDefault<T>(int fieldIndex)
-    {
-      return Data.GetValueOrDefault<T>(fieldIndex);
-    }
-
-    /// <inheritdoc/>
     public override object GetValueOrDefault(int fieldIndex)
     {
       return Data.GetValueOrDefault(fieldIndex);
-    }
-
-    /// <inheritdoc/>
-    public override void SetValue<T>(int fieldIndex, T fieldValue)
-    {
-      Data.SetValue(fieldIndex, fieldValue);
     }
 
     /// <inheritdoc/>

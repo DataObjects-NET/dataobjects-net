@@ -46,21 +46,9 @@ namespace Xtensive.Core.Tuples.Transform
     }
 
     /// <inheritdoc/>
-    public override T GetValueOrDefault<T>(int fieldIndex)
-    {
-      return origin.GetValueOrDefault<T>(fieldIndex);
-    }
-
-    /// <inheritdoc/>
     public override object GetValueOrDefault(int fieldIndex)
     {
       return origin.GetValueOrDefault(fieldIndex);
-    }
-
-    /// <inheritdoc />
-    public override void SetValue<T>(int fieldIndex, T fieldValue)
-    {
-      origin.SetValue(fieldIndex, fieldValue);
     }
 
     /// <inheritdoc />
