@@ -18,11 +18,11 @@ namespace Xtensive.Core.Tuples
   /// </summary>
   public static class TupleExtensions
   {
-    private static PartCopyHandler        partCopyHandler   = new PartCopyHandler();
-    private static MergeHandler           mergeHandler   = new MergeHandler();
-    private static MapOneCopyHandler      mapOneCopyHandler = new MapOneCopyHandler();
-    private static MapCopyHandler         mapCopyHandler    = new MapCopyHandler();
-    private static Map3CopyHandler        map3CopyHandler   = new Map3CopyHandler();
+//    private static PartCopyHandler        partCopyHandler   = new PartCopyHandler();
+//    private static MergeHandler           mergeHandler   = new MergeHandler();
+//    private static MapOneCopyHandler      mapOneCopyHandler = new MapOneCopyHandler();
+//    private static MapCopyHandler         mapCopyHandler    = new MapCopyHandler();
+//    private static Map3CopyHandler        map3CopyHandler   = new Map3CopyHandler();
     private static InitializerHandler     initializerHandler   = new InitializerHandler();
     private static readonly Dictionary<TupleFieldState, Func<TupleFieldState, TupleFieldState, bool>> fieldStatePredicates;
 
@@ -114,8 +114,15 @@ namespace Xtensive.Core.Tuples
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
       ArgumentValidator.EnsureArgumentNotNull(target, "target");
 
-      var actionData = new MapOneCopyData(source, target, map);
-      target.Descriptor.Execute(mapOneCopyHandler, ref actionData, Direction.Positive);
+      // A version with boxing. Works 6 times faster!
+      for (int i = 0; i < map.Length; i++) {
+        var sourceIndex = map[i];
+        if (sourceIndex > 0 && source.IsAvailable(sourceIndex))
+          target.SetValue(i, source.GetValueOrDefault(sourceIndex));
+      }
+
+//      var actionData = new MapOneCopyData(source, target, map);
+//      target.Descriptor.Execute(mapOneCopyHandler, ref actionData, Direction.Positive);
     }
 
     /// <summary>
@@ -132,8 +139,18 @@ namespace Xtensive.Core.Tuples
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
       ArgumentValidator.EnsureArgumentNotNull(target, "target");
 
-      var actionData = new MapCopyData(source, target, map);
-      target.Descriptor.Execute(mapCopyHandler, ref actionData, Direction.Positive);
+      for (int i = 0; i < map.Length; i++) {
+        var mappedTo = map[i];
+        var sourceIndex = mappedTo.Second;
+        if (mappedTo.First > 0 && sourceIndex > 0) {
+          var sourceTuple = source[mappedTo.First];
+          if (sourceTuple.IsAvailable(sourceIndex))
+            target.SetValue(i, sourceTuple.GetValueOrDefault(sourceIndex));
+        }
+      }
+
+//      var actionData = new MapCopyData(source, target, map);
+//      target.Descriptor.Execute(mapCopyHandler, ref actionData, Direction.Positive);
     }
 
     /// <summary>
@@ -149,8 +166,18 @@ namespace Xtensive.Core.Tuples
     {
       ArgumentValidator.EnsureArgumentNotNull(target, "target");
 
-      var actionData = new Map3CopyData(ref source, target, map);
-      target.Descriptor.Execute(map3CopyHandler, ref actionData, Direction.Positive);
+      for (int i = 0; i < map.Length; i++) {
+        var mappedTo = map[i];
+        var sourceIndex = mappedTo.Second;
+        if (mappedTo.First > 0 && sourceIndex > 0) {
+          var sourceTuple = source[mappedTo.First];
+          if (sourceTuple.IsAvailable(sourceIndex))
+            target.SetValue(i, sourceTuple.GetValueOrDefault(sourceIndex));
+        }
+      }
+
+//      var actionData = new Map3CopyData(ref source, target, map);
+//      target.Descriptor.Execute(map3CopyHandler, ref actionData, Direction.Positive);
     }
 
     #endregion
@@ -164,7 +191,7 @@ namespace Xtensive.Core.Tuples
     /// as the specified <paramref name="source"/> tuple.</returns>
     public static RegularTuple ToRegular(this ITuple source)
     {
-      RegularTuple result = Tuple.Create(source.Descriptor);
+      var result = Tuple.Create(source.Descriptor);
       source.CopyTo(result);
       return result;
     }
@@ -208,6 +235,8 @@ namespace Xtensive.Core.Tuples
 
       if (target.Descriptor.Count!=nullableMap.Count)
         throw new ArgumentException(String.Format(Strings.ExInvalidFieldMapSizeExpectedX, target.Descriptor.Count));
+
+      // TODO: declare method Initialize for Tuple and generate them
 
       var actionData = new InitializerData(target, nullableMap);
       target.Descriptor.Execute(initializerHandler, ref actionData, Direction.Positive);
@@ -258,9 +287,17 @@ namespace Xtensive.Core.Tuples
         throw new ArgumentException(
           string.Format(Strings.ExInvalidTupleDescriptorExpectedDescriptorIs, target.Descriptor),
           "source");
+      var endIndex = startIndex + length;
+      for (int i = startIndex; i < endIndex; i++) {
+        if (!source.IsAvailable(i))
+          continue;
+        if (target.IsAvailable(i) && behavior == MergeConflictBehavior.PreferTarget)
+          continue;
+        target.SetValue(i, source.GetValueOrDefault(i));
+      }
 
-      MergeData actionData = new MergeData(source, target, startIndex, length, behavior);
-      source.Descriptor.Execute(mergeHandler, ref actionData, Direction.Positive);
+//      MergeData actionData = new MergeData(source, target, startIndex, length, behavior);
+//      source.Descriptor.Execute(mergeHandler, ref actionData, Direction.Positive);
     }
 
     /// <summary>
@@ -399,15 +436,15 @@ namespace Xtensive.Core.Tuples
     {
       public bool Execute<TFieldType>(ref MapOneCopyData actionData, int fieldIndex)
       {
-        int sourceFieldIndex = actionData.Map[fieldIndex];
-        if (sourceFieldIndex<0)
-          return false;
-        if (actionData.Source.IsAvailable(sourceFieldIndex)) {
-          if (actionData.Source.Descriptor[sourceFieldIndex].IsValueType && actionData.Source.IsNull(sourceFieldIndex))
-            actionData.Target.SetValue(fieldIndex, null);
-          else
-            actionData.Target.SetValue(fieldIndex, actionData.Source.GetValue<TFieldType>(sourceFieldIndex));
-        }
+          int sourceFieldIndex = actionData.Map[fieldIndex];
+          if (sourceFieldIndex<0)
+            return false;
+          if (actionData.Source.IsAvailable(sourceFieldIndex)) {
+            if (actionData.Source.Descriptor[sourceFieldIndex].IsValueType && actionData.Source.IsNull(sourceFieldIndex))
+              actionData.Target.SetValue(fieldIndex, null);
+            else
+              actionData.Target.SetValue(fieldIndex, actionData.Source.GetValue<TFieldType>(sourceFieldIndex));
+          }
         return false;
       }
     }
@@ -470,16 +507,16 @@ namespace Xtensive.Core.Tuples
     {
       public bool Execute<TFieldType>(ref Map3CopyData actionData, int fieldIndex)
       {
-        Pair<int,int> mappedTo = actionData.Map[fieldIndex];
-        if (mappedTo.First<0 | mappedTo.Second<0)
-          return false;
-        Tuple sourceTuple = actionData.Source[mappedTo.First];
-        if (sourceTuple.IsAvailable(mappedTo.Second)) {
-          if (sourceTuple.Descriptor[mappedTo.Second].IsValueType && sourceTuple.IsNull(mappedTo.Second))
-            actionData.Target.SetValue(fieldIndex, null);
-          else
-            actionData.Target.SetValue(fieldIndex, sourceTuple.GetValue<TFieldType>(mappedTo.Second));
-        }
+          Pair<int,int> mappedTo = actionData.Map[fieldIndex];
+          if (mappedTo.First<0 | mappedTo.Second<0)
+            return false;
+          Tuple sourceTuple = actionData.Source[mappedTo.First];
+          if (sourceTuple.IsAvailable(mappedTo.Second)) {
+            if (sourceTuple.Descriptor[mappedTo.Second].IsValueType && sourceTuple.IsNull(mappedTo.Second))
+              actionData.Target.SetValue(fieldIndex, null);
+            else
+              actionData.Target.SetValue(fieldIndex, sourceTuple.GetValue<TFieldType>(mappedTo.Second));
+          }
         return false;
       }
     }
