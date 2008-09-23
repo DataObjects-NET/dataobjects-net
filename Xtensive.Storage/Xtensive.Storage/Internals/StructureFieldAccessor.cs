@@ -28,7 +28,7 @@ namespace Xtensive.Storage.Internals
       Structure structure = ((Structure) (object) value);
       if (structure.Owner!=null)
         structure.Owner.EnsureIsFetched(structure.Field);
-      structure.Tuple.CopyTo(obj.Tuple, 0, field.MappingInfo.Offset, field.MappingInfo.Length);
+      structure.Values.CopyTo(obj.Values, 0, field.MappingInfo.Offset, field.MappingInfo.Length);
     }
 
     /// <inheritdoc/>

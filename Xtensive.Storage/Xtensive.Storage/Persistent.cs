@@ -30,7 +30,7 @@ namespace Xtensive.Storage
     public abstract TypeInfo Type { get; }
 
     [Infrastructure]
-    protected internal abstract Tuple Tuple { get; }
+    protected internal abstract Tuple Values { get; }
 
     [Infrastructure]
     internal Dictionary<FieldInfo, IFieldHandler> FieldHandlers

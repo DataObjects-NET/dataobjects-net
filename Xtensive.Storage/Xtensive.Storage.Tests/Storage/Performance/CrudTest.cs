@@ -9,32 +9,11 @@ using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Testing;
 using Xtensive.Core.Tuples;
-using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Tests.Storage.CrudModel;
 using Xtensive.Storage.Rse;
+using Xtensive.Storage.Tests.Storage.Performance.CrudModel;
 
-namespace Xtensive.Storage.Tests.Storage.CrudModel
-{
-  [HierarchyRoot("Id")]
-  public class Simplest : Entity
-  {
-    [Field]
-    public long Id { get; private set; }
-
-    [Field]
-    public long Value { get; set; }
-
-    public Simplest(long id, long value)
-      : base (Tuple.Create(id))
-    {
-      Value = value;
-    }
-  }
-}
-
-
-namespace Xtensive.Storage.Tests.Storage
+namespace Xtensive.Storage.Tests.Storage.Performance
 {
   [TestFixture]
   public class CrudTest : AutoBuildTest

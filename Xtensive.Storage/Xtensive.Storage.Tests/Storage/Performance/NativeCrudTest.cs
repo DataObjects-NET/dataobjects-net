@@ -5,35 +5,14 @@
 // Created:    2008.19.09
 
 using System.Collections.Generic;
-using System.Data.Common;
 using System.Data.SqlClient;
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Testing;
 using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Tests.Storage.CrudModel;
+using Xtensive.Storage.Tests.Storage.Performance.CrudModel;
 
-namespace Xtensive.Storage.Tests.Storage.CrudModel
-{
-  public class SimplestSql
-  {
-    public long Id { get; set; }
-    public long Value { get; set; }
-
-    public SimplestSql(long id, long value)
-    {
-      Id = id;
-      Value = value;
-    }
-
-    public SimplestSql()
-    {
-    }
-  }
-}
-
-namespace Xtensive.Storage.Tests.Storage
+namespace Xtensive.Storage.Tests.Storage.Performance
 {
   [TestFixture]
   public class NativeCrudTest : AutoBuildTest
@@ -123,7 +102,7 @@ namespace Xtensive.Storage.Tests.Storage
             "FROM [dbo].[Simplest]";
           SqlDataReader dr = cmd.ExecuteReader();
           while (dr.Read()) {
-            var s = new SimplestSql();
+            var s = new NativeSimplest();
             if (!dr.IsDBNull(0))
               s.Id = (long)dr.GetValue(0);
             if (!dr.IsDBNull(2))
@@ -159,7 +138,7 @@ namespace Xtensive.Storage.Tests.Storage
           cmd.Parameters["@pId"].SqlValue = i % instanceCount;
           dr = cmd.ExecuteReader();
 
-          var s = new SimplestSql();
+          var s = new NativeSimplest();
           while (dr.Read()) {
             if (!dr.IsDBNull(0))
               s.Id = (long)dr.GetValue(0);
@@ -193,7 +172,7 @@ namespace Xtensive.Storage.Tests.Storage
           cmd.Parameters["@pId"].SqlValue = i % instanceCount;
           dr = cmd.ExecuteReader();
 
-          var s = new SimplestSql();
+          var s = new NativeSimplest();
           while (dr.Read()) {
             if (!dr.IsDBNull(0))
               s.Id = (long)dr.GetValue(0);
@@ -222,10 +201,10 @@ namespace Xtensive.Storage.Tests.Storage
 
       using (warmup ? null : new Measurement("Remove", instanceCount)) {
         dr = cmd.ExecuteReader();
-        var list = new List<SimplestSql>();
+        var list = new List<NativeSimplest>();
         while (dr.Read()) {
           if (!dr.IsDBNull(0) && !dr.IsDBNull(2))
-            list.Add(new SimplestSql((long)dr.GetValue(0), (long)dr.GetValue(2)));
+            list.Add(new NativeSimplest((long)dr.GetValue(0), (long)dr.GetValue(2)));
         }
         dr.Close();
 

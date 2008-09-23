@@ -167,7 +167,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     protected override void Update(EntityData data)
     {
-      SqlRequestBuilderTask task = new SqlRequestBuilderTask(SqlModificationRequestKind.Update, data.Type, data.DifferentialData.Difference.GetFieldStateMap(TupleFieldState.IsAvailable));
+      SqlRequestBuilderTask task = new SqlRequestBuilderTask(SqlModificationRequestKind.Update, data.Type, data.Values.Difference.GetFieldStateMap(TupleFieldState.IsAvailable));
       SqlModificationRequest request = domainHandler.SqlRequestCache.GetValue(task, _task => DomainHandler.SqlRequestBuilder.BuildRequest(_task));
       request.BindParametersTo(data);
       int rowsAffected = ExecuteNonQuery(request);

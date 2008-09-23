@@ -120,6 +120,7 @@ namespace Xtensive.Storage
 
     #endregion
 
+
     // Constructors
 
     internal KeyManager(Domain domain)

@@ -39,7 +39,7 @@ namespace Xtensive.Storage
 
     private readonly Persistent owner;
     private readonly FieldInfo field;
-    private readonly Tuple tuple;
+    private readonly Tuple values;
     private readonly TypeInfo type;
 
     /// <inheritdoc/>
@@ -63,9 +63,9 @@ namespace Xtensive.Storage
     }
 
     /// <inheritdoc/>
-    protected internal override Tuple Tuple {
+    protected internal override Tuple Values {
       [DebuggerStepThrough]
-      get { return tuple; }
+      get { return values; }
     }
 
     #region Equals & GetHashCode
@@ -87,13 +87,13 @@ namespace Xtensive.Storage
         return false;
       if (ReferenceEquals(this, other))
         return true;
-      return AdvancedComparer<Tuple>.Default.Equals(Tuple, other.Tuple);
+      return AdvancedComparer<Tuple>.Default.Equals(Values, other.Values);
     }
 
     /// <inheritdoc/>
     public override int GetHashCode()
     {
-      return Tuple.GetHashCode();
+      return Values.GetHashCode();
     }
 
     #endregion
@@ -158,7 +158,7 @@ namespace Xtensive.Storage
     protected Structure()
     {
       type = Session.Domain.Model.Types[GetType()];
-      tuple = Tuple.Create(type.TupleDescriptor);
+      values = Tuple.Create(type.TupleDescriptor);
     }
 
     /// <summary>
@@ -171,7 +171,7 @@ namespace Xtensive.Storage
       type = Session.Domain.Model.Types[GetType()];
       this.owner = owner;
       this.field = field;
-      tuple = new SegmentTransform(false, owner.Tuple.Descriptor, new Segment<int>(field.MappingInfo.Offset, field.MappingInfo.Length)).Apply(TupleTransformType.TransformedTuple, owner.Tuple);
+      values = new SegmentTransform(false, owner.Values.Descriptor, new Segment<int>(field.MappingInfo.Offset, field.MappingInfo.Length)).Apply(TupleTransformType.TransformedTuple, owner.Values);
     }    
   }
 }

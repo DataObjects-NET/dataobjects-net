@@ -53,7 +53,7 @@ namespace Xtensive.Storage
 
     #endregion
 
-    #region Properties: Key, Type, Tuple, PersistenceState
+    #region Properties: Key, Type, Values, PersistenceState
 
     /// <exception cref="Exception">Property is already initialized.</exception>
     [Infrastructure]
@@ -81,7 +81,7 @@ namespace Xtensive.Storage
     }
 
     /// <inheritdoc/>
-    protected internal sealed override Tuple Tuple {
+    protected internal sealed override Tuple Values {
       [DebuggerStepThrough]
       get { return Data; }
     }
@@ -246,7 +246,7 @@ namespace Xtensive.Storage
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="tuple">The <see cref="Tuple"/> that will be used for key building.</param>
+    /// <param name="tuple">The <see cref="Values"/> that will be used for key building.</param>
     /// <remarks>Use this kind of constructor when you need to explicitly build key for this instance.</remarks>
     protected Entity(Tuple tuple)
     {

@@ -78,7 +78,7 @@ namespace Xtensive.Storage.Tests.Storage
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           Book b = key.Resolve<Book>();
-          Tuple tuple = b.Tuple;
+          Tuple tuple = b.Values;
           
           Assert.IsTrue(tuple.IsAvailable(2));
           Assert.IsFalse(tuple.IsAvailable(3));          
@@ -98,7 +98,7 @@ namespace Xtensive.Storage.Tests.Storage
       using (Domain.OpenSession()) {
         using (var t = Session.Current.OpenTransaction()) {
           Book b = key.Resolve<Book>();
-          Tuple tuple = b.Tuple;
+          Tuple tuple = b.Values;
 
           // Assert that fields are not loaded
           Assert.IsTrue(tuple.IsAvailable(2));

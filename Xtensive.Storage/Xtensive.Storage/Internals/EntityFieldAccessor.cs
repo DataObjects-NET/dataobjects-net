@@ -45,10 +45,10 @@ namespace Xtensive.Storage.Internals
 
       if (entity==null)
         for (int i = field.MappingInfo.Offset; i < field.MappingInfo.Offset + field.MappingInfo.Length; i++)
-          obj.Tuple.SetValue(i, null);
+          obj.Values.SetValue(i, null);
       else {
         ValidateType(field);
-        entity.Key.Tuple.CopyTo(obj.Tuple, 0, field.MappingInfo.Offset, field.MappingInfo.Length);
+        entity.Key.Tuple.CopyTo(obj.Values, 0, field.MappingInfo.Offset, field.MappingInfo.Length);
       }
 
       if (association!=null)
@@ -108,7 +108,7 @@ namespace Xtensive.Storage.Internals
 
     private static Key GetKey(FieldInfo field, Persistent obj)
     {
-      return obj.Session.Domain.KeyManager.Get(field, new SegmentTransform(false, obj.Tuple.Descriptor, new Segment<int>(field.MappingInfo.Offset, field.MappingInfo.Length)).Apply(TupleTransformType.TransformedTuple, obj.Tuple));
+      return obj.Session.Domain.KeyManager.Get(field, new SegmentTransform(false, obj.Values.Descriptor, new Segment<int>(field.MappingInfo.Offset, field.MappingInfo.Length)).Apply(TupleTransformType.TransformedTuple, obj.Values));
     }
 
 

@@ -10,7 +10,6 @@ using Xtensive.Core.Tuples.Transform;
 using Xtensive.Indexing;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers.Index.Resources;
-using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Providers.Index
 {
@@ -59,7 +58,7 @@ namespace Xtensive.Storage.Providers.Index
 
       var tuple = result.Result.CreateNew();
       result.Result.CopyTo(tuple);
-      tuple.MergeWith(data.DifferentialData, MergeConflictBehavior.PreferSource);
+      tuple.MergeWith(data.Values, MergeConflictBehavior.PreferSource);
 
       foreach (IndexInfo indexInfo in data.Type.AffectedIndexes) {
         var index = handler.GetRealIndex(indexInfo);

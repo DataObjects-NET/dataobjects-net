@@ -23,18 +23,18 @@ namespace Xtensive.Storage.Internals
     public override T GetValue(Persistent obj, FieldInfo field)
     {
       ValidateType(field);
-      if (!obj.Tuple.IsAvailable(field.MappingInfo.Offset) || obj.Tuple.IsNull(field.MappingInfo.Offset))
+      if (!obj.Values.IsAvailable(field.MappingInfo.Offset) || obj.Values.IsNull(field.MappingInfo.Offset))
         return (T)@default;
       if (type.IsEnum)
-        return (T)Enum.ToObject(type, obj.Tuple.GetValueOrDefault(field.MappingInfo.Offset));
+        return (T)Enum.ToObject(type, obj.Values.GetValueOrDefault(field.MappingInfo.Offset));
       else
-        return (T)Enum.ToObject(Nullable.GetUnderlyingType(type), obj.Tuple.GetValueOrDefault(field.MappingInfo.Offset));
+        return (T)Enum.ToObject(Nullable.GetUnderlyingType(type), obj.Values.GetValueOrDefault(field.MappingInfo.Offset));
     }
 
     public override void SetValue(Persistent obj, FieldInfo field, T value)
     {
       ValidateType(field);
-      obj.Tuple.SetValue(field.MappingInfo.Offset, Convert.ChangeType(value, field.Column.ValueType));
+      obj.Values.SetValue(field.MappingInfo.Offset, Convert.ChangeType(value, field.Column.ValueType));
     }
 
     private EnumFieldAccessor()

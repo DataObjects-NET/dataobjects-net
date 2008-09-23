@@ -35,7 +35,7 @@ namespace Xtensive.Storage.Internals
       }
 
       ValidateType(field);
-      obj.Tuple.SetValue(field.MappingInfo.Offset, value);
+      obj.Values.SetValue(field.MappingInfo.Offset, value);
     }
 
     public override T GetValue(Persistent obj, FieldInfo field)
@@ -43,9 +43,9 @@ namespace Xtensive.Storage.Internals
       ValidateType(field);
 
       if (isObject)
-        return (T) obj.Tuple.GetValueOrDefault(field.MappingInfo.Offset);
+        return (T) obj.Values.GetValueOrDefault(field.MappingInfo.Offset);
 
-      return obj.Tuple.GetValueOrDefault<T>(field.MappingInfo.Offset);
+      return obj.Values.GetValueOrDefault<T>(field.MappingInfo.Offset);
     }
 
     private DefaultFieldAccessor()
