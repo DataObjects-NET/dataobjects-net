@@ -55,9 +55,9 @@ namespace Xtensive.Core.Collections
 
       public WeakCacheItem(WeakCache<TKey, TItem> cache, TItem item, long size)
       {
+        Cache = cache;
         Item = item;
         Size = size;
-        Cache = cache;
       }
     }
 

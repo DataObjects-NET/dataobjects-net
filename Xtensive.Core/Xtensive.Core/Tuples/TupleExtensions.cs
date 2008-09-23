@@ -45,13 +45,16 @@ namespace Xtensive.Core.Tuples
       ArgumentValidator.EnsureArgumentNotNull(target, "target");
       ArgumentValidator.EnsureArgumentIsInRange(startIndex, 0, source.Count, "startIndex");
       ArgumentValidator.EnsureArgumentIsInRange(targetStartIndex, 0, target.Count, "targetStartIndex");
+      
+      // A version with boxing. Works 6 times faster!
       for (int i = 0; i < length; i++) {
         int sourceIndex = startIndex + i;
         if (source.IsAvailable(sourceIndex))
           target.SetValue(targetStartIndex + i, source.GetValueOrDefault(sourceIndex));
       }
 
-//      PartCopyData actionData = new PartCopyData(source, target, startIndex, targetStartIndex, length);
+//      // Generic version. Slower.
+//      var actionData = new PartCopyData(source, target, startIndex, targetStartIndex, length);
 //      source.Descriptor.Execute(partCopyHandler, ref actionData, Direction.Positive);
     }
 
@@ -111,7 +114,7 @@ namespace Xtensive.Core.Tuples
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
       ArgumentValidator.EnsureArgumentNotNull(target, "target");
 
-      MapOneCopyData actionData = new MapOneCopyData(source, target, map);
+      var actionData = new MapOneCopyData(source, target, map);
       target.Descriptor.Execute(mapOneCopyHandler, ref actionData, Direction.Positive);
     }
 
@@ -129,7 +132,7 @@ namespace Xtensive.Core.Tuples
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
       ArgumentValidator.EnsureArgumentNotNull(target, "target");
 
-      MapCopyData actionData = new MapCopyData(source, target, map);
+      var actionData = new MapCopyData(source, target, map);
       target.Descriptor.Execute(mapCopyHandler, ref actionData, Direction.Positive);
     }
 
@@ -146,7 +149,7 @@ namespace Xtensive.Core.Tuples
     {
       ArgumentValidator.EnsureArgumentNotNull(target, "target");
 
-      Map3CopyData actionData = new Map3CopyData(ref source, target, map);
+      var actionData = new Map3CopyData(ref source, target, map);
       target.Descriptor.Execute(map3CopyHandler, ref actionData, Direction.Positive);
     }
 
@@ -187,7 +190,8 @@ namespace Xtensive.Core.Tuples
     {
       ArgumentValidator.EnsureArgumentNotNull(source1, "source1");
       ArgumentValidator.EnsureArgumentNotNull(source2, "source2");
-      CombineTransform transform = new CombineTransform(false, new[] { source1.Descriptor, source2.Descriptor});
+      
+      var transform = new CombineTransform(false, new[] { source1.Descriptor, source2.Descriptor});
       return transform.Apply(TupleTransformType.TransformedTuple, source1, source2);
     }
 
@@ -205,7 +209,7 @@ namespace Xtensive.Core.Tuples
       if (target.Descriptor.Count!=nullableMap.Count)
         throw new ArgumentException(String.Format(Strings.ExInvalidFieldMapSizeExpectedX, target.Descriptor.Count));
 
-      InitializerData actionData = new InitializerData(target, nullableMap);
+      var actionData = new InitializerData(target, nullableMap);
       target.Descriptor.Execute(initializerHandler, ref actionData, Direction.Positive);
     }
 
@@ -222,7 +226,7 @@ namespace Xtensive.Core.Tuples
 
     private static BitArray GetFieldStateMap(this ITuple target, TupleFieldState state, Func<TupleFieldState, TupleFieldState, bool> predicate)
     {
-      BitArray result = new BitArray(target.Descriptor.Count);
+      var result = new BitArray(target.Descriptor.Count);
 
       for (int i = 0; i < target.Descriptor.Count; i++)
         result[i] = predicate(state, target.GetFieldState(i));
