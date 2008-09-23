@@ -67,12 +67,13 @@ namespace Xtensive.Storage.Tests.Storage.Performance
         long sum = 0;
         using (var ts = s.OpenTransaction()) {
           TestHelper.CollectGarbage();
-          using (warmup ? null : new Measurement("Insert", inserCount))
+          using (warmup ? null : new Measurement("Insert", inserCount)) {
             for (int i = 0; i < inserCount; i++) {
               var o = new Simplest(i, i);
               sum += i;
             }
-          ts.Complete();
+            ts.Complete();
+          }
         }
       }
       instanceCount = inserCount;
@@ -86,13 +87,14 @@ namespace Xtensive.Storage.Tests.Storage.Performance
         long sum = (long)count*(count-1)/2;
         using (var ts = s.OpenTransaction()) {
           TestHelper.CollectGarbage();
-          using (warmup ? null : new Measurement("Fetch & GetField", count))
+          using (warmup ? null : new Measurement("Fetch & GetField", count)) {
             for (int i = 0; i < count; i++) {
-              var key = Key.Get<Simplest>(Tuple.Create((long)i % instanceCount));
+              var key = Key.Get<Simplest>(Tuple.Create((long) i % instanceCount));
               var o = key.Resolve<Simplest>();
               sum -= o.Id;
             }
-          ts.Complete();
+            ts.Complete();
+          }
         }
         if (count<=instanceCount)
           Assert.AreEqual(0, sum);
@@ -117,8 +119,8 @@ namespace Xtensive.Storage.Tests.Storage.Performance
                   break;
               }
             }
+            ts.Complete();
           }
-          ts.Complete();
         }
         Assert.AreEqual((long)count*(count-1)/2, sum);
       }
@@ -144,8 +146,8 @@ namespace Xtensive.Storage.Tests.Storage.Performance
                 }
               }
             }
+            ts.Complete();
           }
-          ts.Complete();
         }
       }
     }
@@ -159,10 +161,11 @@ namespace Xtensive.Storage.Tests.Storage.Performance
           var rs = d.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordSet();
           var es = rs.ToEntities<Simplest>();
           TestHelper.CollectGarbage();
-          using (warmup ? null : new Measurement("Remove", instanceCount))
+          using (warmup ? null : new Measurement("Remove", instanceCount)) {
             foreach (var o in es)
               o.Remove();
-          ts.Complete();
+            ts.Complete();
+          }
         }
       }
     }

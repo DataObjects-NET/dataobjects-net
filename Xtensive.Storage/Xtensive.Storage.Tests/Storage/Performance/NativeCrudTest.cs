@@ -75,14 +75,15 @@ namespace Xtensive.Storage.Tests.Storage.Performance
         "VALUES (@pId, @pTypeId, @pId)";
       TestHelper.CollectGarbage();
 
-      using (warmup ? null : new Measurement("Insert", inserCount))
+      using (warmup ? null : new Measurement("Insert", inserCount)) {
         for (int i = 0; i < inserCount; i++) {
           cmd.Parameters["@pId"].SqlValue = (long) i;
           cmd.Parameters["@pTypeId"].SqlValue = (long) 0;
           cmd.ExecuteNonQuery();
         }
+        transaction.Commit();
+      }
       instanceCount = inserCount;
-      transaction.Commit();
       con.Close();
     }
 
@@ -95,27 +96,28 @@ namespace Xtensive.Storage.Tests.Storage.Performance
 
       TestHelper.CollectGarbage();
 
-      using (warmup ? null : new Measurement("Bulk Fetch & GetField", count))
+      using (warmup ? null : new Measurement("Bulk Fetch & GetField", count)) {
         while (i < count) {
           SqlCommand cmd = con.CreateCommand();
           cmd.Transaction = transaction;
-          cmd.CommandText = "SELECT [Simplest].[Id], [Simplest].[TypeId], [Simplest].[Value] " + 
+          cmd.CommandText = "SELECT [Simplest].[Id], [Simplest].[TypeId], [Simplest].[Value] " +
             "FROM [dbo].[Simplest]";
           SqlDataReader dr = cmd.ExecuteReader();
           while (dr.Read()) {
             var s = new NativeSimplest();
             if (!dr.IsDBNull(0))
-              s.Id = (long)dr.GetValue(0);
+              s.Id = (long) dr.GetValue(0);
             if (!dr.IsDBNull(2))
-              s.Value = (long)dr.GetValue(2);
+              s.Value = (long) dr.GetValue(2);
             sum += s.Id;
             if (++i >= count)
               break;
           }
           dr.Close();
         }
+        transaction.Commit();
+      }
       Assert.AreEqual((long)count * (count - 1) / 2, sum);
-      transaction.Commit();
       con.Close();
     }
 
@@ -134,7 +136,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
 
       TestHelper.CollectGarbage();
 
-      using (warmup ? null : new Measurement("Fetch & GetField", count))
+      using (warmup ? null : new Measurement("Fetch & GetField", count)) {
         for (int i = 0; i < count; i++) {
           cmd.Parameters["@pId"].SqlValue = i % instanceCount;
           dr = cmd.ExecuteReader();
@@ -142,16 +144,17 @@ namespace Xtensive.Storage.Tests.Storage.Performance
           var s = new NativeSimplest();
           while (dr.Read()) {
             if (!dr.IsDBNull(0))
-              s.Id = (long)dr.GetValue(0);
+              s.Id = (long) dr.GetValue(0);
             if (!dr.IsDBNull(2))
-              s.Value = (long)dr.GetValue(2);
+              s.Value = (long) dr.GetValue(2);
           }
           sum -= s.Id;
           dr.Close();
         }
+        transaction.Commit();
+      }
       if (count <= instanceCount)
         Assert.AreEqual(0, sum);
-      transaction.Commit();
       con.Close();
     }
 
@@ -168,7 +171,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
 
       TestHelper.CollectGarbage();
 
-      using (warmup ? null : new Measurement("Query", count))
+      using (warmup ? null : new Measurement("Query", count)) {
         for (int i = 0; i < count; i++) {
           cmd.Parameters["@pId"].SqlValue = i % instanceCount;
           dr = cmd.ExecuteReader();
@@ -176,13 +179,14 @@ namespace Xtensive.Storage.Tests.Storage.Performance
           var s = new NativeSimplest();
           while (dr.Read()) {
             if (!dr.IsDBNull(0))
-              s.Id = (long)dr.GetValue(0);
+              s.Id = (long) dr.GetValue(0);
             if (!dr.IsDBNull(2))
-              s.Value = (long)dr.GetValue(2);
+              s.Value = (long) dr.GetValue(2);
           }
           dr.Close();
         }
-      transaction.Commit();
+        transaction.Commit();
+      }
       con.Close();
     }
 
@@ -213,8 +217,8 @@ namespace Xtensive.Storage.Tests.Storage.Performance
           cmd.Parameters["@pId"].SqlValue = l.Id;
           cmd.ExecuteNonQuery();
         }
+        transaction.Commit();
       }
-      transaction.Commit();
       con.Close();
     }
   }
