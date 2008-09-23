@@ -86,6 +86,5 @@ namespace Xtensive.Core.Tuples.Transform
       Descriptor = TupleDescriptor.Create(fields);
       SingleSourceMap = map;
     }
-    
   }
 }

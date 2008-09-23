@@ -24,6 +24,13 @@ namespace Xtensive.Core.Tuples
     TupleDescriptor Descriptor { get; }
 
     /// <summary>
+    /// Gets the default result tuple.
+    /// Can be used to get default values for the result tuple fields.
+    /// Must be a read-only tuple.
+    /// </summary>
+    Tuple DefaultResult { get; }
+
+    /// <summary>
     /// Indicates whether transform always produces read-only tuples or not.
     /// </summary>
     bool IsReadOnly { get; }

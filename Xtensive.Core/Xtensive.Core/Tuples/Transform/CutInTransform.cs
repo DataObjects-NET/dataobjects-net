@@ -109,6 +109,5 @@ namespace Xtensive.Core.Tuples.Transform
       Descriptor = TupleDescriptor.Create(types);
       Map = map;
     }
-
   }
 }

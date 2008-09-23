@@ -161,9 +161,17 @@ namespace Xtensive.Core.Comparison
         data.Result = descriptorComparer.Compare(data.X.Descriptor, data.Y.Descriptor);
         return true;
       }
+      
+      // Non-generic version, works faster.
       int result = fieldComparer.Compare( // May throw NullReferenceException - but it is always processed by caller
-        data.X.GetValueOrDefault<TFieldType>(fieldIndex),
-        data.Y.GetValueOrDefault<TFieldType>(fieldIndex));
+        (TFieldType) data.X.GetValueOrDefault(fieldIndex),
+        (TFieldType) data.Y.GetValueOrDefault(fieldIndex));
+
+//      // Generic version, slower.
+//      int result = fieldComparer.Compare( // May throw NullReferenceException - but it is always processed by caller
+//        data.X.GetValueOrDefault<TFieldType>(fieldIndex),
+//        data.Y.GetValueOrDefault<TFieldType>(fieldIndex));
+
       if (result!=0) {
         data.Result = result>0 ? (fieldIndex+1) : -(fieldIndex+1);
         return true;

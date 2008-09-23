@@ -69,8 +69,8 @@ namespace Xtensive.Core.Tuples.Transform
       : base(isReadOnly)
     {
       int totalLength = sources.Sum(s => s.Count);
-      Type[] types = new Type[totalLength];
-      Pair<int,int>[] map = new Pair<int, int>[totalLength];
+      var types = new Type[totalLength];
+      var map = new Pair<int, int>[totalLength];
       int index = 0;
       for (int i = 0; i<sources.Length; i++) {
         TupleDescriptor currentDescriptor = sources[i];

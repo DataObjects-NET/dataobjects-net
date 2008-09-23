@@ -16,8 +16,23 @@ namespace Xtensive.Core.Tuples.Transform
   [Serializable]
   public abstract class TupleTransformBase : ITupleTransform
   {
+    private TupleDescriptor descriptor;
+    private Tuple defaultResult;
+
     /// <inheritdoc/>
-    public TupleDescriptor Descriptor { get; protected set; }
+    public TupleDescriptor Descriptor
+    {
+      get { return descriptor; }
+      protected set {
+        descriptor = value;
+        defaultResult = descriptor==null ? null : Tuple.Create(descriptor).ToReadOnly(TupleTransformType.Tuple);
+      }
+    }
+
+    /// <inheritdoc/>
+    public Tuple DefaultResult {
+      get { return defaultResult; }
+    }
 
     /// <inheritdoc/>
     public virtual bool IsReadOnly {

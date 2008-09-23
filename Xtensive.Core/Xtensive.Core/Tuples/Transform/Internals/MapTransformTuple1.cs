@@ -39,8 +39,8 @@ namespace Xtensive.Core.Tuples.Transform.Internals
     public override object GetValueOrDefault(int fieldIndex)
     {
       int index = GetMappedFieldIndex(fieldIndex);
-      if (index == MapTransform.NoMapping)
-        return Descriptor[index].IsClass ? null : Activator.CreateInstance(Descriptor[index]);
+      if (index==MapTransform.NoMapping)
+        return TypedTransform.DefaultResult.GetValueOrDefault(fieldIndex);
       return tuple.GetValueOrDefault(index);
     }
 
@@ -48,11 +48,8 @@ namespace Xtensive.Core.Tuples.Transform.Internals
     public override T GetValueOrDefault<T>(int fieldIndex)
     {
       int index = GetMappedFieldIndex(fieldIndex);
-      if (index == MapTransform.NoMapping) {
-        if (!typeof(T).IsAssignableFrom(Descriptor[index]))
-          throw new InvalidCastException();
-        return default(T);
-      }
+      if (index==MapTransform.NoMapping)
+        return (T) TypedTransform.DefaultResult.GetValueOrDefault(fieldIndex);
       return tuple.GetValueOrDefault<T>(index);
     }
 
