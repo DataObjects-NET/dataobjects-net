@@ -154,39 +154,39 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <inheritdoc/>
-    protected override void Insert(EntityData data)
+    protected override void Insert(EntityState state)
     {
-      SqlRequestBuilderTask task = new SqlRequestBuilderTask(SqlModificationRequestKind.Insert, data.Type);
+      SqlRequestBuilderTask task = new SqlRequestBuilderTask(SqlModificationRequestKind.Insert, state.Type);
       SqlModificationRequest request = domainHandler.SqlRequestCache.GetValue(task, _task => DomainHandler.SqlRequestBuilder.BuildRequest(_task));
-      request.BindParametersTo(data);
+      request.BindParametersTo(state);
       int rowsAffected = ExecuteNonQuery(request);
       if (rowsAffected!=request.ExpectedResult)
-        throw new InvalidOperationException(String.Format(Strings.ExErrorOnInsert, data.Type.Name, rowsAffected, request.ExpectedResult));
+        throw new InvalidOperationException(String.Format(Strings.ExErrorOnInsert, state.Type.Name, rowsAffected, request.ExpectedResult));
     }
 
     /// <inheritdoc/>
-    protected override void Update(EntityData data)
+    protected override void Update(EntityState state)
     {
-      SqlRequestBuilderTask task = new SqlRequestBuilderTask(SqlModificationRequestKind.Update, data.Type, data.Values.Difference.GetFieldStateMap(TupleFieldState.IsAvailable));
+      SqlRequestBuilderTask task = new SqlRequestBuilderTask(SqlModificationRequestKind.Update, state.Type, state.Data.Difference.GetFieldStateMap(TupleFieldState.IsAvailable));
       SqlModificationRequest request = domainHandler.SqlRequestCache.GetValue(task, _task => DomainHandler.SqlRequestBuilder.BuildRequest(_task));
-      request.BindParametersTo(data);
+      request.BindParametersTo(state);
       int rowsAffected = ExecuteNonQuery(request);
       if (rowsAffected!=request.ExpectedResult)
-        throw new InvalidOperationException(String.Format(Strings.ExErrorOnUpdate, data.Type.Name, rowsAffected, request.ExpectedResult));
+        throw new InvalidOperationException(String.Format(Strings.ExErrorOnUpdate, state.Type.Name, rowsAffected, request.ExpectedResult));
     }
 
     /// <inheritdoc/>
-    protected override void Remove(EntityData data)
+    protected override void Remove(EntityState state)
     {
-      SqlRequestBuilderTask task = new SqlRequestBuilderTask(SqlModificationRequestKind.Remove, data.Type);
+      SqlRequestBuilderTask task = new SqlRequestBuilderTask(SqlModificationRequestKind.Remove, state.Type);
       SqlModificationRequest request = domainHandler.SqlRequestCache.GetValue(task, _task => DomainHandler.SqlRequestBuilder.BuildRequest(_task));
-      request.BindParametersTo(data);
+      request.BindParametersTo(state);
       int rowsAffected = ExecuteNonQuery(request);
       if (rowsAffected!=request.ExpectedResult)
         if (rowsAffected==0)
-          throw new InvalidOperationException(String.Format(Strings.ExInstanceNotFound, data.Key.Type.Name));
+          throw new InvalidOperationException(String.Format(Strings.ExInstanceNotFound, state.Key.Type.Name));
         else
-          throw new InvalidOperationException(String.Format(Strings.ExInstanceMultipleResults, data.Key.Type.Name));
+          throw new InvalidOperationException(String.Format(Strings.ExInstanceMultipleResults, state.Key.Type.Name));
     }
 
     public void EnsureConnectionIsOpen()

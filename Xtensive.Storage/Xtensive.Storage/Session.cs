@@ -37,9 +37,9 @@ namespace Xtensive.Storage
     private readonly object _lock = new object();
     private readonly CompilationScope compilationScope;    
 
-    internal readonly List<EntityData> newEntities = new List<EntityData>();
-    internal readonly List<EntityData> modifiedEntities = new List<EntityData>();
-    internal readonly List<EntityData> removedEntities = new List<EntityData>();    
+    internal readonly List<EntityState> newEntities = new List<EntityState>();
+    internal readonly List<EntityState> modifiedEntities = new List<EntityState>();
+    internal readonly List<EntityState> removedEntities = new List<EntityState>();    
 
     /// <summary>
     /// Gets the configuration of the <see cref="Session"/>.
@@ -149,13 +149,13 @@ namespace Xtensive.Storage
 
     private void ClearDirtyData()
     {
-      foreach (EntityData data in newEntities)
+      foreach (EntityState data in newEntities)
         data.PersistenceState = PersistenceState.Synchronized;
 
-      foreach (EntityData data in modifiedEntities)
+      foreach (EntityState data in modifiedEntities)
         data.PersistenceState = PersistenceState.Synchronized;
 
-      foreach (EntityData data in removedEntities)
+      foreach (EntityState data in removedEntities)
         data.PersistenceState = PersistenceState.Synchronized;      
 
       newEntities.Clear();

@@ -32,16 +32,16 @@ namespace Xtensive.Storage
   public abstract class Entity : Persistent,
     IEntity
   {
-    private static readonly ThreadSafeDictionary<Type, Func<EntityData, Entity>> activators = 
-      ThreadSafeDictionary<Type, Func<EntityData, Entity>>.Create(new object());
-    private readonly EntityData data;
+    private static readonly ThreadSafeDictionary<Type, Func<EntityState, Entity>> activators = 
+      ThreadSafeDictionary<Type, Func<EntityState, Entity>>.Create(new object());
+    private readonly EntityState entityState;
 
     #region Internal properties
 
     [Infrastructure]
-    internal EntityData Data {
+    internal EntityState EntityState {
       [DebuggerStepThrough]
-      get { return data; }
+      get { return entityState; }
     }
 
     /// <exception cref="Exception">Property is already initialized.</exception>
@@ -53,13 +53,13 @@ namespace Xtensive.Storage
 
     #endregion
 
-    #region Properties: Key, Type, Values, PersistenceState
+    #region Properties: Key, Type, Data, PersistenceState
 
     /// <exception cref="Exception">Property is already initialized.</exception>
     [Infrastructure]
     public Key Key {
       [DebuggerStepThrough]
-      get { return Data.Key; }
+      get { return EntityState.Key; }
     }
 
     /// <summary>
@@ -69,21 +69,21 @@ namespace Xtensive.Storage
     public bool IsRemoved
     {
       get {
-        Data.EnsureIsActual();
-        return Data.IsRemoved;
+        EntityState.EnsureIsActual();
+        return EntityState.IsRemoved;
       }
     }
 
     /// <inheritdoc/>
     public override sealed TypeInfo Type {
       [DebuggerStepThrough]
-      get { return Data.Type; }
+      get { return EntityState.Type; }
     }
 
     /// <inheritdoc/>
-    protected internal sealed override Tuple Values {
+    protected internal sealed override Tuple Data {
       [DebuggerStepThrough]
-      get { return Data; }
+      get { return EntityState; }
     }
 
     /// <summary>
@@ -93,7 +93,7 @@ namespace Xtensive.Storage
     public PersistenceState PersistenceState
     {
       [DebuggerStepThrough]
-      get { return Data.PersistenceState; }
+      get { return EntityState.PersistenceState; }
     }
 
     #endregion
@@ -124,15 +124,15 @@ namespace Xtensive.Storage
       if (Log.IsLogged(LogEventTypes.Debug))
         Log.Debug("Session '{0}'. Removing: Key = '{1}'", Session, Key);
 
-      data.EnsureIsActual();
-      data.EnsureIsNotRemoved();
+      entityState.EnsureIsActual();
+      entityState.EnsureIsNotRemoved();
       OnRemoving();
 
       Session.Persist();
       ReferenceManager.ClearReferencesTo(this);      
-      Session.removedEntities.Add(Data);
-      Session.Cache.Remove(Data);
-      Data.PersistenceState = PersistenceState.Removed;
+      Session.removedEntities.Add(EntityState);
+      Session.Cache.Remove(EntityState);
+      EntityState.PersistenceState = PersistenceState.Removed;
       
       OnRemoved();
     }
@@ -150,10 +150,10 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     protected internal override sealed void OnCreating()
     {
-      Data.Entity = this;
+      EntityState.Entity = this;
       if (PersistenceState!=PersistenceState.New) {
-        Session.newEntities.Add(Data);
-        Data.PersistenceState = PersistenceState.New;
+        Session.newEntities.Add(EntityState);
+        EntityState.PersistenceState = PersistenceState.New;
       }
       this.Validate();
     }
@@ -164,8 +164,8 @@ namespace Xtensive.Storage
     {   
       if (Log.IsLogged(LogEventTypes.Debug))
         Log.Debug("Session '{0}'. Getting value: Key = '{1}', Field = '{2}'", Session, Key, field);
-      data.EnsureIsActual();
-      data.EnsureIsNotRemoved();
+      entityState.EnsureIsActual();
+      entityState.EnsureIsNotRemoved();
       EnsureIsFetched(field);
     }
 
@@ -177,16 +177,16 @@ namespace Xtensive.Storage
         Log.Debug("Session '{0}'. Setting value: Key = '{1}', Field = '{2}'", Session, Key, field);
       if (field.IsPrimaryKey)
         throw new NotSupportedException(string.Format(Strings.ExUnableToSetKeyFieldXExplicitly, field.Name));
-      data.EnsureIsActual();
-      data.EnsureIsNotRemoved();
+      entityState.EnsureIsActual();
+      entityState.EnsureIsNotRemoved();
     }
 
     /// <inheritdoc/>
     protected internal override sealed void OnSetValue(FieldInfo field)
     {
       if (PersistenceState!=PersistenceState.New && PersistenceState!=PersistenceState.Modified) {
-        Session.modifiedEntities.Add(Data);
-        Data.PersistenceState = PersistenceState.Modified;
+        Session.modifiedEntities.Add(EntityState);
+        EntityState.PersistenceState = PersistenceState.Modified;
       }
       base.OnSetValue(field);      
     }    
@@ -211,16 +211,16 @@ namespace Xtensive.Storage
 
     #region Private \ internal methods
 
-    internal static Entity Activate(Type type, EntityData data)
+    internal static Entity Activate(Type type, EntityState state)
     {
       return activators.GetValue(type,
-        DelegateHelper.CreateConstructorDelegate<Func<EntityData, Entity>>)
-        .Invoke(data);
+        DelegateHelper.CreateConstructorDelegate<Func<EntityState, Entity>>)
+        .Invoke(state);
     }
 
     internal override sealed void EnsureIsFetched(FieldInfo field)
     {
-      if (!Data.IsFetched(field.MappingInfo.Offset))
+      if (!EntityState.IsFetched(field.MappingInfo.Offset))
         Fetcher.Fetch(Key, field);
     }
 
@@ -239,14 +239,14 @@ namespace Xtensive.Storage
       if (Log.IsLogged(LogEventTypes.Debug))
         Log.Debug("Session '{0}'. Creating entity: Key = '{1}'", Session, key);
 
-      data = Session.Cache.Create(key, Session.Transaction);
+      entityState = Session.Cache.Create(key, Session.Transaction);
       OnCreating();
     }
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="tuple">The <see cref="Values"/> that will be used for key building.</param>
+    /// <param name="tuple">The <see cref="Data"/> that will be used for key building.</param>
     /// <remarks>Use this kind of constructor when you need to explicitly build key for this instance.</remarks>
     protected Entity(Tuple tuple)
     {
@@ -256,17 +256,17 @@ namespace Xtensive.Storage
       if (Log.IsLogged(LogEventTypes.Debug))
         Log.Debug("Session '{0}'. Creating entity: Key = '{1}'", Session, key);
 
-      data = Session.Cache.Create(key, Session.Transaction);
+      entityState = Session.Cache.Create(key, Session.Transaction);
       OnCreating();
     }
 
     /// <summary>
     /// <see cref="ClassDocTemplate()" copy="true"/>
     /// </summary>
-    /// <param name="data">The initial data of this instance fetched from storage.</param>
-    protected Entity(EntityData data)
+    /// <param name="state">The initial data of this instance fetched from storage.</param>
+    protected Entity(EntityState state)
     {
-      this.data = data;
+      this.entityState = state;
 
       if (Log.IsLogged(LogEventTypes.Debug))
         Log.Debug("Session '{0}'. Creating entity: Key = '{1}'", Session, Key);

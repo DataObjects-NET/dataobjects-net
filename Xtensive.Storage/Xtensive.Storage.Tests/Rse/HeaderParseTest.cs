@@ -37,8 +37,8 @@ namespace Xtensive.Storage.Tests.Rse
       }
       using (Domain.OpenSession()) {
         using (Transaction.Open()) {
-          EntityData data = Session.Current.Cache[key];
-          Assert.IsNull(data);
+          EntityState state = Session.Current.Cache[key];
+          Assert.IsNull(state);
           IndexInfo ii = Domain.Model.Types[typeof (Book)].Indexes.PrimaryIndex;
 
           // Select *
@@ -46,10 +46,10 @@ namespace Xtensive.Storage.Tests.Rse
           foreach (Book book in rsMain.ToEntities<Book>()) {
             ;
           }
-          data = Session.Current.Cache[key];
-          Assert.IsNotNull(data);
-          Assert.IsTrue(data.IsAvailable(2));
-          Assert.IsTrue(data.IsAvailable(3));
+          state = Session.Current.Cache[key];
+          Assert.IsNotNull(state);
+          Assert.IsTrue(state.IsAvailable(2));
+          Assert.IsTrue(state.IsAvailable(3));
           Session.Current.Cache.Clear();
 
           // Select Id, TypeId, Title
@@ -57,10 +57,10 @@ namespace Xtensive.Storage.Tests.Rse
           foreach (Book book in rsTitle.ToEntities<Book>()) {
             ;
           }
-          data = Session.Current.Cache[key];
-          Assert.IsNotNull(data);
-          Assert.IsTrue(data.IsAvailable(2));
-          Assert.IsFalse(data.IsAvailable(3));
+          state = Session.Current.Cache[key];
+          Assert.IsNotNull(state);
+          Assert.IsTrue(state.IsAvailable(2));
+          Assert.IsFalse(state.IsAvailable(3));
           Session.Current.Cache.Clear();
 
           // Select Id, TypeId, Text
@@ -68,10 +68,10 @@ namespace Xtensive.Storage.Tests.Rse
           foreach (Book book in rsText.ToEntities<Book>()) {
             ;
           }
-          data = Session.Current.Cache[key];
-          Assert.IsNotNull(data);
-          Assert.IsFalse(data.IsAvailable(2));
-          Assert.IsTrue(data.IsAvailable(3));
+          state = Session.Current.Cache[key];
+          Assert.IsNotNull(state);
+          Assert.IsFalse(state.IsAvailable(2));
+          Assert.IsTrue(state.IsAvailable(3));
           Session.Current.Cache.Clear();
 
           // Select a.Id, a.TypeId, a.Title, b.Id, b.TypeId, b.Text
@@ -79,10 +79,10 @@ namespace Xtensive.Storage.Tests.Rse
           foreach (Book book in rsJoin.ToEntities<Book>()) {
             ;
           }
-          data = Session.Current.Cache[key];
-          Assert.IsNotNull(data);
-          Assert.IsTrue(data.IsAvailable(2));
-          Assert.IsTrue(data.IsAvailable(3));
+          state = Session.Current.Cache[key];
+          Assert.IsNotNull(state);
+          Assert.IsTrue(state.IsAvailable(2));
+          Assert.IsTrue(state.IsAvailable(3));
           Session.Current.Cache.Clear();
         }
       }

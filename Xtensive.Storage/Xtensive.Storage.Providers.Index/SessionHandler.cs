@@ -33,57 +33,57 @@ namespace Xtensive.Storage.Providers.Index
       // TODO: Implement transactions;
     }
 
-    protected override void Insert(EntityData data)
+    protected override void Insert(EntityState state)
     {
       var handler = (DomainHandler)Handlers.DomainHandler;
-      foreach (IndexInfo indexInfo in data.Type.AffectedIndexes) {
+      foreach (IndexInfo indexInfo in state.Type.AffectedIndexes) {
         var index = handler.GetRealIndex(indexInfo);
-        var transform = handler.GetIndexTransform(indexInfo, data.Type);
-        index.Add(transform.Apply(TupleTransformType.Tuple, data));
+        var transform = handler.GetIndexTransform(indexInfo, state.Type);
+        index.Add(transform.Apply(TupleTransformType.Tuple, state));
       }
     }
 
-    protected override void Update(EntityData data)
+    protected override void Update(EntityState state)
     {
       var handler = (DomainHandler)Handlers.DomainHandler;
-      IndexInfo primaryIndex = data.Type.Indexes.PrimaryIndex;
+      IndexInfo primaryIndex = state.Type.Indexes.PrimaryIndex;
       var indexProvider = Rse.Providers.Compilable.IndexProvider.Get(primaryIndex);
       SeekResult<Tuple> result;
       using (EnumerationScope.Open()) {
-        result = indexProvider.GetService<IOrderedEnumerable<Tuple, Tuple>>().Seek(new Ray<IEntire<Tuple>>(Entire<Tuple>.Create(data.Key.Tuple)));
+        result = indexProvider.GetService<IOrderedEnumerable<Tuple, Tuple>>().Seek(new Ray<IEntire<Tuple>>(Entire<Tuple>.Create(state.Key.Tuple)));
 
         if (result.ResultType != SeekResultType.Exact)
-          throw new InvalidOperationException(string.Format(Strings.ExInstanceXIsNotFound, data.Key.Type.Name));
+          throw new InvalidOperationException(string.Format(Strings.ExInstanceXIsNotFound, state.Key.Type.Name));
       }
 
       var tuple = result.Result.CreateNew();
       result.Result.CopyTo(tuple);
-      tuple.MergeWith(data.Values, MergeConflictBehavior.PreferSource);
+      tuple.MergeWith(state.Data, MergeConflictBehavior.PreferSource);
 
-      foreach (IndexInfo indexInfo in data.Type.AffectedIndexes) {
+      foreach (IndexInfo indexInfo in state.Type.AffectedIndexes) {
         var index = handler.GetRealIndex(indexInfo);
-        var transform = handler.GetIndexTransform(indexInfo, data.Type);
+        var transform = handler.GetIndexTransform(indexInfo, state.Type);
         index.Remove(transform.Apply(TupleTransformType.TransformedTuple, result.Result));
         index.Add(transform.Apply(TupleTransformType.Tuple, tuple));
       }
     }
 
-    protected override void Remove(EntityData data)
+    protected override void Remove(EntityState state)
     {
       var handler = (DomainHandler)Handlers.DomainHandler;
-      IndexInfo primaryIndex = data.Type.Indexes.PrimaryIndex;
+      IndexInfo primaryIndex = state.Type.Indexes.PrimaryIndex;
       var indexProvider = Rse.Providers.Compilable.IndexProvider.Get(primaryIndex);
       SeekResult<Tuple> result;
       using (EnumerationScope.Open()) {
-        result = indexProvider.GetService<IOrderedEnumerable<Tuple, Tuple>>().Seek(new Ray<IEntire<Tuple>>(Entire<Tuple>.Create(data.Key.Tuple)));
+        result = indexProvider.GetService<IOrderedEnumerable<Tuple, Tuple>>().Seek(new Ray<IEntire<Tuple>>(Entire<Tuple>.Create(state.Key.Tuple)));
 
         if (result.ResultType!=SeekResultType.Exact)
-          throw new InvalidOperationException(string.Format(Strings.ExInstanceXIsNotFound, data.Key.Type.Name));
+          throw new InvalidOperationException(string.Format(Strings.ExInstanceXIsNotFound, state.Key.Type.Name));
       }
 
-      foreach (IndexInfo indexInfo in data.Type.AffectedIndexes) {
+      foreach (IndexInfo indexInfo in state.Type.AffectedIndexes) {
         var index = handler.GetRealIndex(indexInfo);
-        var transform = handler.GetIndexTransform(indexInfo, data.Type);
+        var transform = handler.GetIndexTransform(indexInfo, state.Type);
         index.Remove(transform.Apply(TupleTransformType.TransformedTuple, result.Result));
       }
     }

@@ -14,15 +14,15 @@ namespace Xtensive.Storage.Internals
     public static Entity Resolve(Key key)
     {
       Session session = Session.Current;
-      EntityData data = session.Cache[key];
+      EntityState state = session.Cache[key];
 
       // Key is already resolved
-      if (data!=null) {
+      if (state!=null) {
         if (Log.IsLogged(LogEventTypes.Debug))
           Log.Debug("Session '{0}'. Resolving key '{1}'. Key is already resolved.", session, key);
         
-        data.EnsureIsActual();
-        return data.IsRemoved ? null : GetEntity(data);
+        state.EnsureIsActual();
+        return state.IsRemoved ? null : GetEntity(state);
       }
 
       // Key is not fully resolved yet (Type is unknown), so 1 fetch request is required
@@ -41,16 +41,16 @@ namespace Xtensive.Storage.Internals
         // Type is known so we can create Entity instance.
         Fetcher.Fetch(key);
       }
-      data = session.Cache[key];
-      return data==null ? null : GetEntity(data);
+      state = session.Cache[key];
+      return state==null ? null : GetEntity(state);
     }
 
-    private static Entity GetEntity(EntityData data)
+    private static Entity GetEntity(EntityState state)
     {
-      if (data.Entity != null)
-        return data.Entity;
-      Entity result = Entity.Activate(data.Type.UnderlyingType, data);
-      data.Entity = result;
+      if (state.Entity != null)
+        return state.Entity;
+      Entity result = Entity.Activate(state.Type.UnderlyingType, state);
+      state.Entity = result;
       return result;
     }
   }

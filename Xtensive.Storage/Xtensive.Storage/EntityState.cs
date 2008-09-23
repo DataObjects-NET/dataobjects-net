@@ -17,7 +17,7 @@ namespace Xtensive.Storage
   /// <summary>
   /// The underlying data of the <see cref="Storage.Entity"/>.
   /// </summary>
-  public sealed class EntityData : Tuple
+  public sealed class EntityState : Tuple
   {
     private Transaction transaction;
     private bool isRemoved;
@@ -52,7 +52,7 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets the values as <see cref="DifferentialTuple"/>.
     /// </summary>
-    public DifferentialTuple Values { get; set; }
+    public DifferentialTuple Data { get; set; }
 
     /// <summary>
     /// Gets the the persistence state.
@@ -98,9 +98,9 @@ namespace Xtensive.Storage
     internal void Import(Tuple tuple, Transaction newTransaction)
     {
       if (TransactionIsActive)
-        Values.Origin.MergeWith(tuple);
+        Data.Origin.MergeWith(tuple);
       else {
-        Values = new DifferentialTuple(tuple.ToRegular());
+        Data = new DifferentialTuple(tuple.ToRegular());
         SetTransaction(newTransaction);
       }
       isRemoved = false;
@@ -120,37 +120,37 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     public override TupleFieldState GetFieldState(int fieldIndex)
     {
-      return Values.GetFieldState(fieldIndex);
+      return Data.GetFieldState(fieldIndex);
     }
 
     /// <inheritdoc/>
     public override T GetValueOrDefault<T>(int fieldIndex)
     {
-      return Values.GetValueOrDefault<T>(fieldIndex);
+      return Data.GetValueOrDefault<T>(fieldIndex);
     }
 
     /// <inheritdoc/>
     public override object GetValueOrDefault(int fieldIndex)
     {
-      return Values.GetValueOrDefault(fieldIndex);
+      return Data.GetValueOrDefault(fieldIndex);
     }
 
     /// <inheritdoc/>
     public override void SetValue<T>(int fieldIndex, T fieldValue)
     {
-      Values.SetValue(fieldIndex, fieldValue);
+      Data.SetValue(fieldIndex, fieldValue);
     }
 
     /// <inheritdoc/>
     public override void SetValue(int fieldIndex, object fieldValue)
     {
-      Values.SetValue(fieldIndex, fieldValue);
+      Data.SetValue(fieldIndex, fieldValue);
     }
 
     /// <inheritdoc/>
     public override TupleDescriptor Descriptor
     {
-       get { return Values.Descriptor; }
+       get { return Data.Descriptor; }
     }
 
     /// <inheritdoc/>
@@ -170,16 +170,16 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     public override string ToString()
     {
-      return string.Format("Key = '{0}', Values = {1}, State = {2}", Key, Values.ToRegular(), PersistenceState);
+      return string.Format("Key = '{0}', Values = {1}, State = {2}", Key, Data.ToRegular(), PersistenceState);
     }
 
 
     // Constructors
 
-    internal EntityData(Key key, DifferentialTuple tuple, Transaction transaction)
+    internal EntityState(Key key, DifferentialTuple tuple, Transaction transaction)
     {
       Key = key;
-      Values = tuple;
+      Data = tuple;
       SetTransaction(transaction);
       isRemoved = false;
     }

@@ -42,31 +42,31 @@ namespace Xtensive.Storage.Providers
     /// </summary>    
     public void Persist()
     {
-      foreach (EntityData data in Session.newEntities)
+      foreach (EntityState data in Session.newEntities)
         Insert(data);
-      foreach (EntityData data in Session.modifiedEntities)
+      foreach (EntityState data in Session.modifiedEntities)
         Update(data);
-      foreach (EntityData data in Session.removedEntities)
+      foreach (EntityState data in Session.removedEntities)
         Remove(data);
     }
 
     /// <summary>
     /// Inserts the specified data into database.
     /// </summary>
-    /// <param name="data">The data to insert.</param>
-    protected abstract void Insert(EntityData data);
+    /// <param name="state">The data to insert.</param>
+    protected abstract void Insert(EntityState state);
 
     /// <summary>
     /// Updates the specified data in database.
     /// </summary>
-    /// <param name="data">The data to update.</param>
-    protected abstract void Update(EntityData data);
+    /// <param name="state">The data to update.</param>
+    protected abstract void Update(EntityState state);
 
     /// <summary>
     /// Removes the specified data from database.
     /// </summary>
-    /// <param name="data">The data to remove.</param>
-    protected abstract void Remove(EntityData data);
+    /// <param name="state">The data to remove.</param>
+    protected abstract void Remove(EntityState state);
 
     /// <inheritdoc/>
     public override void Initialize()

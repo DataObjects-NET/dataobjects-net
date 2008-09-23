@@ -15,27 +15,27 @@ using Xtensive.Storage.Model;
 namespace Xtensive.Storage.Internals
 {
   internal class EntityCache : SessionBound,
-    IEnumerable<EntityData>
+    IEnumerable<EntityState>
   {
-    private readonly WeakCache<Key, EntityData> cache;
-    private readonly Dictionary<Key, EntityData> removed = new Dictionary<Key, EntityData>();
+    private readonly WeakCache<Key, EntityState> cache;
+    private readonly Dictionary<Key, EntityState> removed = new Dictionary<Key, EntityState>();
     // Cached properties
     private readonly Domain domain;
     private readonly Dictionary<TypeInfo, Tuple> prototypes;
     
     [Infrastructure]
-    public EntityData this[Key key]
+    public EntityState this[Key key]
     {
       get { return cache[key, true]; }
     }
 
     [Infrastructure]
-    public EntityData Create(Key key, Transaction transaction)
+    public EntityState Create(Key key, Transaction transaction)
     {
       return Create(key, key.Tuple, true, transaction);
     }
 
-    private EntityData Create(Key key, Tuple tuple, bool isNew, Transaction transaction)
+    private EntityState Create(Key key, Tuple tuple, bool isNew, Transaction transaction)
     {
       Tuple origin;
       if (isNew)
@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Internals
       else
         origin = prototypes[key.Type].CreateNew();
       tuple.CopyTo(origin);
-      var result = new EntityData(key, new DifferentialTuple(origin), transaction);
+      var result = new EntityState(key, new DifferentialTuple(origin), transaction);
       cache.Add(result);
 
       if (Log.IsLogged(LogEventTypes.Debug))
@@ -55,29 +55,29 @@ namespace Xtensive.Storage.Internals
     [Infrastructure]
     public void Update(Key key, Tuple tuple, Transaction transaction)
     {
-      EntityData data = this[key];
-      if (data == null)
+      EntityState state = this[key];
+      if (state == null)
         Create(key, tuple, false, transaction);
       else {
-        data.Import(tuple, transaction);
+        state.Import(tuple, transaction);
         if (Log.IsLogged(LogEventTypes.Debug))
-          Log.Debug("Session '{0}'. Merging: {1}", Session, data);
+          Log.Debug("Session '{0}'. Merging: {1}", Session, state);
       }
     }
 
     [Infrastructure]
     public void Remove(Key key)
     {
-      EntityData data = cache[key, false];
-      if (data!=null)
-        Remove(data);      
+      EntityState state = cache[key, false];
+      if (state!=null)
+        Remove(state);      
     }
 
     [Infrastructure]
-    public void Remove(EntityData data)
+    public void Remove(EntityState state)
     {      
-      data.IsRemoved = true;
-      Key key = data.Key;
+      state.IsRemoved = true;
+      Key key = state.Key;
       if (!removed.ContainsKey(key))
         removed[key] = cache[key, false];
       cache.Remove(key);
@@ -92,7 +92,7 @@ namespace Xtensive.Storage.Internals
     [Infrastructure]
     public void RestoreRemoved()
     {
-      foreach (EntityData data in removed.Values) {
+      foreach (EntityState data in removed.Values) {
         if (cache.Contains(data.Key))
           cache.Remove(data);
         cache.Add(data);
@@ -107,7 +107,7 @@ namespace Xtensive.Storage.Internals
     }
 
     [Infrastructure]
-    public IEnumerator<EntityData> GetEnumerator()
+    public IEnumerator<EntityState> GetEnumerator()
     {
       return cache.GetEnumerator();
     }
@@ -123,7 +123,7 @@ namespace Xtensive.Storage.Internals
 
     public EntityCache(Session session, int cacheSize) : base(session)
     {
-      cache = new WeakCache<Key, EntityData>(cacheSize, d => d.Key);
+      cache = new WeakCache<Key, EntityState>(cacheSize, d => d.Key);
       domain = session.Domain;
       prototypes = domain.Prototypes;
     }

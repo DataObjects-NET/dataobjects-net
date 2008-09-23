@@ -203,7 +203,7 @@ namespace Xtensive.Storage.Aspects
       if (baseType==structureType)
         return new[] {persistentType, typeof (FieldInfo)};
       if (baseType==entityType)
-        return new[] {typeof (EntityData)};
+        return new[] {typeof (EntityState)};
       throw Exceptions.InternalError(
         string.Format(Strings.ExWrongPersistentTypeCandidate, type.GetType()), 
         Log.Instance);
