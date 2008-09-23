@@ -18,7 +18,6 @@ namespace Xtensive.Core.Tuples
   /// A base class for auto generated tuples.
   /// </summary>
   public abstract class Tuple : ITuple,
-    ITupleFunctionHandler<TupleGetHashCodeData, int>,
     IEquatable<Tuple>,
     IComparable<Tuple>
   {
@@ -179,15 +178,13 @@ namespace Xtensive.Core.Tuples
     /// <inheritdoc/>
     public override int GetHashCode()
     {
-      var data = new TupleGetHashCodeData(this);
-      return Descriptor.Execute(this, ref data, Direction.Positive);
-    }
-
-    bool ITupleActionHandler<TupleGetHashCodeData>.Execute<TFieldType>(ref TupleGetHashCodeData data, int fieldIndex)
-    {
-      TFieldType valueOrDefault = data.Tuple.GetValueOrDefault<TFieldType>(fieldIndex);
-      data.Result = HashCodeMultiplier * data.Result ^ (valueOrDefault != null ? valueOrDefault.GetHashCode() : 0);
-      return false;
+      var count = Count;
+      int result = 0;
+      for (int i = 0; i<count; i++) {
+        object valueOrDefault = GetValueOrDefault(i);
+        result = HashCodeMultiplier * result ^ (valueOrDefault != null ? valueOrDefault.GetHashCode() : 0);
+      }
+      return result;
     }
 
     #endregion
