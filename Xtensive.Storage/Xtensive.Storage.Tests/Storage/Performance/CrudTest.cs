@@ -45,7 +45,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
     [Category("Profile")]
     public void ProfileTest()
     {
-      int instanceCount = 10000;
+      int instanceCount = 100000;
       InsertTest(instanceCount);
       BulkFetchTest(instanceCount);
     }
