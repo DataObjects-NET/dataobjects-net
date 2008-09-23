@@ -35,6 +35,7 @@ namespace Xtensive.Storage.Internals
       return Create(key, key.Tuple, true, transaction);
     }
 
+    [Infrastructure]
     private EntityState Create(Key key, Tuple tuple, bool isNew, Transaction transaction)
     {
       Tuple origin;
