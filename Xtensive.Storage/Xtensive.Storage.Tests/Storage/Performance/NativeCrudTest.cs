@@ -22,8 +22,8 @@ namespace Xtensive.Storage.Tests.Storage.Performance
     private bool warmup = false;
     private int instanceCount;
 
-    private readonly SqlConnection con = new SqlConnection(@"Data Source=localhost;"
-      + @"Initial Catalog = DO40-Tests;"
+    private readonly SqlConnection con = new SqlConnection("Data Source=localhost;"
+      + "Initial Catalog = DO40-Tests;"
       + "Integrated Security=SSPI;");
 
     protected override DomainConfiguration BuildConfiguration()
