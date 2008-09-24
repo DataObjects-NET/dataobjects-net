@@ -142,9 +142,9 @@ namespace Xtensive.Core.Tuples
     /// but <typeparamref name="T"/> is not a <see cref="Nullable{T}"/> type.</exception>
     public T GetValueOrDefault<T>(int fieldIndex)
     {
-      var generated = this as GeneratedTuple;
+      var generated = this as ITupleFieldAccessor<T>;
       if (generated != null)
-        return ((ITupleFieldAccessor<T>)this).GetValueOrDefault(fieldIndex);
+        return generated.GetValueOrDefault(fieldIndex);
       var value = GetValueOrDefault(fieldIndex);
       if (value == null)
         return default(T);
