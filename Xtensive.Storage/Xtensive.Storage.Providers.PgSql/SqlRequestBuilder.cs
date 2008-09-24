@@ -8,11 +8,10 @@ namespace Xtensive.Storage.Providers.PgSql
 {
   public class SqlRequestBuilder : Sql.SqlRequestBuilder
   {
-    protected override Sql.SqlModificationRequest CreateRequest(Sql.SqlRequestBuilderResult result)
+    /// <inheritdoc/>
+    protected override void  SetExpectedResult(Sql.SqlModificationRequest request)
     {
-      Sql.SqlModificationRequest request = base.CreateRequest(result);
       request.ExpectedResult = 1;
-      return request;
     }
   }
 }

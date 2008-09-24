@@ -60,7 +60,7 @@ namespace Xtensive.Storage.Tests.Storage.DbTypeSupportModel
   public class X : Entity
   {
     [Field]
-    public int Id { get; set; }
+    public int Id { get; private set; }
 
     [Field]
     public bool FBool { get; set; }
@@ -110,8 +110,14 @@ namespace Xtensive.Storage.Tests.Storage.DbTypeSupportModel
     [Field]
     public byte[] FByteArray { get; set; }
 
+    [Field(Length = 8001)]
+    public byte[] FLongByteArray { get; set; }
+
     [Field]
     public string FString { get; set; }
+
+    [Field(Length = 4001)]
+    public string FLongString { get; set; }
 
     [Field]
     public EByte FEByte { get; set; }
@@ -137,35 +143,6 @@ namespace Xtensive.Storage.Tests.Storage.DbTypeSupportModel
     [Field]
     public EULong FEULong { get; set; }
   }
-
-  public abstract class A : Entity
-  {
-    
-  }
-
-  public class E : A
-  {
-    protected E()
-    {
-    }
-  }
-
-  public abstract class B : A
-  {
-    protected B()
-    {
-    }
-  }
-
-  public class C : B
-  {
-    
-  }
-
-  public class D : B
-  {
-    
-  }
 }
 
 namespace Xtensive.Storage.Tests.Storage
@@ -178,6 +155,17 @@ namespace Xtensive.Storage.Tests.Storage
       var config =  base.BuildConfiguration();
       config.Types.Register(typeof(X).Assembly, typeof(X).Namespace);
       return config;
+    }
+
+    [Test]
+    public void MainTest()
+    {
+      using(Domain.OpenSession()) {
+        using (var t = Session.Current.OpenTransaction()) {
+          new X();
+          t.Complete();
+        }
+      }
     }
   }
 }

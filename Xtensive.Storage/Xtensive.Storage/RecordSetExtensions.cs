@@ -46,7 +46,8 @@ namespace Xtensive.Storage
 
       foreach (Tuple tuple in source) {
         Entity entity = null;
-        foreach (var columnGroupMapping in mapping.ColumnGroupMappings) {
+        for (int i = 0; i < mapping.ColumnGroupMappings.Length; i++) {
+          var columnGroupMapping = mapping.ColumnGroupMappings[i];
           Key key = ProcessColumnGroup(context, columnGroupMapping, tuple);
           if (entity==null && type.IsAssignableFrom(key.Type.UnderlyingType))
             entity = key.Resolve();
@@ -62,8 +63,10 @@ namespace Xtensive.Storage
       int recordCount = 0;
       foreach (Tuple tuple in source) {
         recordCount++;
-        foreach (ColumnGroupMapping columnGroupMapping in mapping.ColumnGroupMappings)
+        for (int i = 0; i < mapping.ColumnGroupMappings.Length; i++) {
+          ColumnGroupMapping columnGroupMapping = mapping.ColumnGroupMappings[i];
           ProcessColumnGroup(context, columnGroupMapping, tuple);
+        }
       }
       return recordCount;
     }
@@ -91,7 +94,7 @@ namespace Xtensive.Storage
         if (mapping != null)
           mappings.Add(mapping);
       }
-      result = new RecordSetMapping(context.Header, mappings);
+      result = new RecordSetMapping(context.Header, mappings.ToArray());
 
       context.Domain.RecordSetMappings.SetValue(context.Header, result);
       return result;

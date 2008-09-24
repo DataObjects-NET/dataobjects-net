@@ -28,23 +28,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     public Dictionary<SqlParameter, Func<Tuple, object>> ParameterBindings { get; private set; }
 
-    private readonly Dictionary<ColumnInfo, SqlParameter> parameterMapping = new Dictionary<ColumnInfo, SqlParameter>();
-
-    public SqlParameter GetParameterFor(ColumnInfo column)
-    {
-      SqlParameter result;
-      if (!parameterMapping.TryGetValue(column, out result)) {
-        result = new SqlParameter("p" + parameterMapping.Count);
-        parameterMapping.Add(column, result);
-      }
-      return result;
-    }
-
-    public int GetOffsetFor(ColumnInfo column)
-    {
-      var field = Task.Type.Fields[column.Field.Name];
-      return field == null ? -1 : field.MappingInfo.Offset;
-    }
+    internal readonly Dictionary<ColumnInfo, SqlParameter> ParameterMapping = new Dictionary<ColumnInfo, SqlParameter>();
 
     public SqlRequestBuilderResult(SqlRequestBuilderTask task, SqlBatch batch)
     {
@@ -53,7 +37,7 @@ namespace Xtensive.Storage.Providers.Sql
       Type = task.Type;
       AffectedIndexes = Task.Type.AffectedIndexes.Where(i => i.IsPrimary).ToList();
       PrimaryIndex = Task.Type.Indexes.PrimaryIndex;
-      parameterMapping = new Dictionary<ColumnInfo, SqlParameter>();
+      ParameterMapping = new Dictionary<ColumnInfo, SqlParameter>();
       ParameterBindings = new Dictionary<SqlParameter, Func<Tuple, object>>();
     }
   }

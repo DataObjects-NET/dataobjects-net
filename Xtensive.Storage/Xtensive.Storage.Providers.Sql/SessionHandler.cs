@@ -157,7 +157,7 @@ namespace Xtensive.Storage.Providers.Sql
     protected override void Insert(EntityState state)
     {
       SqlRequestBuilderTask task = new SqlRequestBuilderTask(SqlModificationRequestKind.Insert, state.Type);
-      SqlModificationRequest request = domainHandler.SqlRequestCache.GetValue(task, _task => DomainHandler.SqlRequestBuilder.BuildRequest(_task));
+      SqlModificationRequest request = domainHandler.SqlRequestCache.GetValue(task, _task => DomainHandler.SqlRequestBuilder.Build(_task));
       request.BindParametersTo(state);
       int rowsAffected = ExecuteNonQuery(request);
       if (rowsAffected!=request.ExpectedResult)
@@ -168,7 +168,7 @@ namespace Xtensive.Storage.Providers.Sql
     protected override void Update(EntityState state)
     {
       SqlRequestBuilderTask task = new SqlRequestBuilderTask(SqlModificationRequestKind.Update, state.Type, state.Data.Difference.GetFieldStateMap(TupleFieldState.IsAvailable));
-      SqlModificationRequest request = domainHandler.SqlRequestCache.GetValue(task, _task => DomainHandler.SqlRequestBuilder.BuildRequest(_task));
+      SqlModificationRequest request = domainHandler.SqlRequestCache.GetValue(task, _task => DomainHandler.SqlRequestBuilder.Build(_task));
       request.BindParametersTo(state);
       int rowsAffected = ExecuteNonQuery(request);
       if (rowsAffected!=request.ExpectedResult)
@@ -179,7 +179,7 @@ namespace Xtensive.Storage.Providers.Sql
     protected override void Remove(EntityState state)
     {
       SqlRequestBuilderTask task = new SqlRequestBuilderTask(SqlModificationRequestKind.Remove, state.Type);
-      SqlModificationRequest request = domainHandler.SqlRequestCache.GetValue(task, _task => DomainHandler.SqlRequestBuilder.BuildRequest(_task));
+      SqlModificationRequest request = domainHandler.SqlRequestCache.GetValue(task, _task => DomainHandler.SqlRequestBuilder.Build(_task));
       request.BindParametersTo(state);
       int rowsAffected = ExecuteNonQuery(request);
       if (rowsAffected!=request.ExpectedResult)

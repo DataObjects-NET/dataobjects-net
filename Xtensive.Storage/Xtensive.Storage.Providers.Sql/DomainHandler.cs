@@ -18,6 +18,7 @@ using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Providers.Sql.Mappings;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Providers.Sql.Resources;
 using ColumnInfo = Xtensive.Storage.Model.ColumnInfo;
@@ -30,17 +31,19 @@ namespace Xtensive.Storage.Providers.Sql
 {
   public abstract class DomainHandler : Providers.DomainHandler
   {
-    private readonly Dictionary<IndexInfo, Table> realIndexes = new Dictionary<IndexInfo, Table>();
+    public DomainModelMapping MappingSchema { get; private set; }
 
     public Schema Schema { get; private set; }
 
     public SqlRequestBuilder SqlRequestBuilder { get; private set; }
 
+    public SqlValueTypeMapper ValueTypeMapper { get; private set; }
+
     public ThreadSafeDictionary<SqlRequestBuilderTask, SqlModificationRequest> SqlRequestCache { get; private set; }
 
     internal SqlConnectionProvider ConnectionProvider { get; private set; }
 
-    internal SqlDriver Driver { get; private set; }
+    public SqlDriver Driver { get; private set; }
 
     protected override ICompiler BuildCompiler()
     {
@@ -56,11 +59,14 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     public override void Build()
     {
+      SessionHandler sessionHandler = ((SessionHandler)BuildingScope.Context.SystemSessionHandler);
+      Driver = sessionHandler.Connection.Driver;
+      MappingSchema = new DomainModelMapping();
       SqlRequestCache = ThreadSafeDictionary<SqlRequestBuilderTask, SqlModificationRequest>.Create(new object());
       SqlRequestBuilder = Handlers.HandlerFactory.CreateHandler<SqlRequestBuilder>();
       SqlRequestBuilder.Initialize();
-      SessionHandler sessionHandler = ((SessionHandler)BuildingScope.Context.SystemSessionHandler);
-      Driver = sessionHandler.Connection.Driver;
+      ValueTypeMapper = Handlers.HandlerFactory.CreateHandler<SqlValueTypeMapper>();
+      ValueTypeMapper.Initialize();
       var modelProvider = new SqlModelProvider(sessionHandler.Connection, sessionHandler.Transaction);
       SqlModel existingModel = SqlModel.Build(modelProvider);
       string serverName = existingModel.DefaultServer.Name;
@@ -71,27 +77,6 @@ namespace Xtensive.Storage.Providers.Sql
       sessionHandler.ExecuteNonQuery(syncScript);
       Schema = SqlModel.Build(modelProvider).DefaultServer.Catalogs[catalogName].DefaultSchema;
     }
-
-    public virtual Table GetTable(IndexInfo indexInfo)
-    {
-      Table table;
-      if (!realIndexes.TryGetValue(indexInfo, out table))
-        throw new InvalidOperationException(String.Format(
-          Strings.ExTypeHasNoPrimaryIndex, indexInfo.Name));
-      return table;
-    }
-
-    /// <inheritdoc/>
-    public virtual SqlValueType GetSqlType(Type type, int? length)
-    {
-      // TODO: Get this data from Connection.Driver.ServerInfo.DataTypes
-      var result = (length==null)
-        ? new SqlValueType(GetSqlDataType(type, null))
-        : new SqlValueType(GetSqlDataType(type, length.Value), length.Value);
-      return result;
-    }
-
-    public abstract SqlDataType GetSqlDataType(Type type, int? length);
 
     public static string GetPrimaryIndexColumnName(IndexInfo primaryIndex, ColumnInfo secondaryIndexColumn, IndexInfo secondaryIndex)
     {
@@ -127,30 +112,33 @@ namespace Xtensive.Storage.Providers.Sql
       Schema schema = catalog.CreateSchema(schemaName);
       foreach (TypeInfo type in Handlers.Domain.Model.Types) {
         IndexInfo primaryIndex = type.Indexes.FindFirst(IndexAttributes.Real | IndexAttributes.Primary);
-        if (primaryIndex!=null && !realIndexes.ContainsKey(primaryIndex)) {
-          Table table = schema.CreateTable(primaryIndex.ReflectedType.Name);
-          realIndexes.Add(primaryIndex, table);
-          var keyColumns = new List<TableColumn>();
-          foreach (ColumnInfo column in primaryIndex.Columns) {
-            TableColumn tableColumn = table.CreateColumn(column.Name, GetSqlType(column.ValueType, column.Length));
-            tableColumn.IsNullable = column.IsNullable;
-            if (column.IsPrimaryKey)
-              keyColumns.Add(tableColumn);
+        if (primaryIndex==null || MappingSchema[primaryIndex] != null)
+          continue;
+        Table table = schema.CreateTable(primaryIndex.ReflectedType.Name);
+        PrimaryIndexMapping pim = MappingSchema.RegisterMapping(primaryIndex, table);
+        var keyColumns = new List<TableColumn>();
+        foreach (ColumnInfo columnInfo in primaryIndex.Columns) {
+          TableColumn column = table.CreateColumn(columnInfo.Name, ValueTypeMapper.BuildSqlValueType(columnInfo));
+          pim.RegisterMapping(columnInfo, column);
+          column.IsNullable = columnInfo.IsNullable;
+          if (columnInfo.IsPrimaryKey)
+            keyColumns.Add(column);
+        }
+        table.CreatePrimaryKey(primaryIndex.Name, keyColumns.ToArray());
+
+        // Secondary indexes
+        foreach (IndexInfo indexInfo in type.Indexes.Find(IndexAttributes.Real).Where(ii => !ii.IsPrimary)) {
+          Index index = table.CreateIndex(indexInfo.Name);
+          pim.RegisterMapping(indexInfo, index);
+          index.IsUnique = indexInfo.IsUnique;
+          index.FillFactor = (byte) (indexInfo.FillFactor * 100);
+          foreach (KeyValuePair<ColumnInfo,Direction> keyColumn in indexInfo.KeyColumns) {
+            string primaryIndexColumnName = GetPrimaryIndexColumnName(primaryIndex, keyColumn.Key, indexInfo);
+            index.CreateIndexColumn(table.TableColumns.First(tableColumn => tableColumn.Name==primaryIndexColumnName), keyColumn.Value == Direction.Positive);
           }
-          table.CreatePrimaryKey(primaryIndex.Name, keyColumns.ToArray());
-          // Secondary indexes
-          foreach (IndexInfo secondaryIndex in type.Indexes.Find(IndexAttributes.Real).Where(indexInfo => !indexInfo.IsPrimary)) {
-            Index index = table.CreateIndex(secondaryIndex.Name);
-            index.IsUnique = secondaryIndex.IsUnique;
-            index.FillFactor = (byte) (secondaryIndex.FillFactor * 100);
-            foreach (KeyValuePair<ColumnInfo,Direction> keyColumn in secondaryIndex.KeyColumns) {
-              string primaryIndexColumnName = GetPrimaryIndexColumnName(primaryIndex, keyColumn.Key, secondaryIndex);
-              index.CreateIndexColumn(table.TableColumns.First(tableColumn => tableColumn.Name==primaryIndexColumnName), keyColumn.Value == Direction.Positive);
-            }
-            foreach (var nonKeyColumn in secondaryIndex.IncludedColumns) {
-              string primaryIndexColumnName = GetPrimaryIndexColumnName(primaryIndex, nonKeyColumn, secondaryIndex);
-              index.NonkeyColumns.Add(table.TableColumns.First(tableColumn => tableColumn.Name==primaryIndexColumnName));
-            }
+          foreach (var nonKeyColumn in indexInfo.IncludedColumns) {
+            string primaryIndexColumnName = GetPrimaryIndexColumnName(primaryIndex, nonKeyColumn, indexInfo);
+            index.NonkeyColumns.Add(table.TableColumns.First(tableColumn => tableColumn.Name==primaryIndexColumnName));
           }
         }
       }

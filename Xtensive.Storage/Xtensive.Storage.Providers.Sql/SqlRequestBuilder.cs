@@ -26,46 +26,51 @@ namespace Xtensive.Storage.Providers.Sql
     /// </summary>
     /// <param name="task">The request builder task.</param>
     /// <returns><see cref="SqlModificationRequest"/> instance for the specified <paramref name="task"/>.</returns>
-    public SqlModificationRequest BuildRequest(SqlRequestBuilderTask task)
+    public SqlModificationRequest Build(SqlRequestBuilderTask task)
     {
-      SqlRequestBuilderResult result = null;
+      SqlRequestBuilderResult builderResult = null;
       switch (task.Kind) {
       case SqlModificationRequestKind.Insert:
-        result = BuildInsertRequest(task);
+        builderResult = ProcessInsertTask(task);
         break;
       case SqlModificationRequestKind.Remove:
-        result = BuildRemoveRequest(task);
+        builderResult = ProcessRemoveTask(task);
         break;
       case SqlModificationRequestKind.Update:
-        result = BuildUpdateRequest(task);
+        builderResult = ProcessUpdateTask(task);
         break;
       }
-      SqlModificationRequest request = CreateRequest(result);
-      foreach (var binding in result.ParameterBindings)
+      return CreateRequest(builderResult);
+    }
+
+    private SqlModificationRequest CreateRequest(SqlRequestBuilderResult builderResult)
+    {
+      var request = new SqlModificationRequest(builderResult.Batch);
+      SetExpectedResult(request);
+      foreach (var binding in builderResult.ParameterBindings)
         request.ParameterBindings[binding.Key] = binding.Value;
+
       DomainHandler.Compile(request);
       return request;
     }
 
-    protected virtual SqlModificationRequest CreateRequest(SqlRequestBuilderResult result)
+    protected virtual void SetExpectedResult(SqlModificationRequest request)
     {
-      var request = new SqlModificationRequest(result.Batch);
-      request.ExpectedResult = result.Batch.Count;
-      return request;
+      request.ExpectedResult = ((SqlBatch)request.Statement).Count;
     }
 
-    protected virtual SqlRequestBuilderResult BuildInsertRequest(SqlRequestBuilderTask task)
+    protected virtual SqlRequestBuilderResult ProcessInsertTask(SqlRequestBuilderTask task)
     {
       var result = new SqlRequestBuilderResult(task, SqlFactory.Batch());
       foreach (IndexInfo index in result.AffectedIndexes) {
-        SqlTableRef table = SqlFactory.TableRef(DomainHandler.GetTable(index));
+        SqlTableRef table = SqlFactory.TableRef(DomainHandler.MappingSchema[index].Table);
         SqlInsert query = SqlFactory.Insert(table);
 
         for (int i = 0; i < index.Columns.Count; i++) {
           ColumnInfo column = index.Columns[i];
-          int offset = result.GetOffsetFor(column);
+          int offset = GetOffset(task.Type, column);
           if (offset >= 0) {
-            SqlParameter p = result.GetParameterFor(column);
+            SqlParameter p = BuildParameter(result, column);
             query.Values[table[i]] = p;
             result.ParameterBindings[p] = CreateTupleFieldAccessor(offset);
           }
@@ -75,18 +80,18 @@ namespace Xtensive.Storage.Providers.Sql
       return result;
     }
 
-    protected virtual SqlRequestBuilderResult BuildUpdateRequest(SqlRequestBuilderTask task)
+    protected virtual SqlRequestBuilderResult ProcessUpdateTask(SqlRequestBuilderTask task)
     {
       var result = new SqlRequestBuilderResult(task, SqlFactory.Batch());
       foreach (IndexInfo index in result.AffectedIndexes) {
-        SqlTableRef table = SqlFactory.TableRef(DomainHandler.GetTable(index));
+        SqlTableRef table = SqlFactory.TableRef(DomainHandler.MappingSchema[index].Table);
         SqlUpdate query = SqlFactory.Update(table);
 
         for (int i = 0; i < index.Columns.Count; i++) {
           ColumnInfo column = index.Columns[i];
-          int offset = result.GetOffsetFor(column);
+          int offset = GetOffset(task.Type, column);
           if (offset >= 0 && task.FieldMap[offset]) {
-            SqlParameter p = result.GetParameterFor(column);
+            SqlParameter p = BuildParameter(result, column);
             query.Values[table[i]] = p;
             result.ParameterBindings[p] = CreateTupleFieldAccessor(offset);
           }
@@ -101,11 +106,11 @@ namespace Xtensive.Storage.Providers.Sql
       return result;
     }
 
-    protected virtual SqlRequestBuilderResult BuildRemoveRequest(SqlRequestBuilderTask task)
+    protected virtual SqlRequestBuilderResult ProcessRemoveTask(SqlRequestBuilderTask task)
     {
       var result = new SqlRequestBuilderResult(task, SqlFactory.Batch());
       foreach (IndexInfo index in result.AffectedIndexes) {
-        SqlTableRef table = SqlFactory.TableRef(DomainHandler.GetTable(index));
+        SqlTableRef table = SqlFactory.TableRef(DomainHandler.MappingSchema[index].Table);
         SqlDelete query = SqlFactory.Delete(table);
         query.Where &= BuildWhereExpression(result, table);
         result.Batch.Add(query);
@@ -118,12 +123,28 @@ namespace Xtensive.Storage.Providers.Sql
       SqlExpression expression = null;
       int i = 0;
       foreach (ColumnInfo column in result.PrimaryIndex.KeyColumns.Keys) {
-        int offset = result.GetOffsetFor(column);
-        SqlParameter p = result.GetParameterFor(column);
+        int offset = GetOffset(result.Task.Type, column);
+        SqlParameter p = BuildParameter(result, column);
         expression &= table[i++]==p;
         result.ParameterBindings[p] = CreateTupleFieldAccessor(offset);
       }
       return expression;
+    }
+
+    private static int GetOffset(TypeInfo type, ColumnInfo column)
+    {
+      var field = type.Fields[column.Field.Name];
+      return field == null ? -1 : field.MappingInfo.Offset;
+    }
+
+    private static SqlParameter BuildParameter(SqlRequestBuilderResult builderResult, ColumnInfo column)
+    {
+      SqlParameter result;
+      if (!builderResult.ParameterMapping.TryGetValue(column, out result)) {
+        result = new SqlParameter("p" + builderResult.ParameterMapping.Count);
+        builderResult.ParameterMapping.Add(column, result);
+      }
+      return result;
     }
 
     private static Func<Tuple, object> CreateTupleFieldAccessor(int fieldIndex)

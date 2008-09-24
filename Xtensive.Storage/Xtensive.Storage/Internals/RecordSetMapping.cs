@@ -4,8 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2008.07.31
 
-using System.Collections.Generic;
-using Xtensive.Core.Collections;
 using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Internals
@@ -14,15 +12,15 @@ namespace Xtensive.Storage.Internals
   {
     public RecordSetHeader Header { get; private set;}
 
-    public IList<ColumnGroupMapping> ColumnGroupMappings { get; private set; }
+    public ColumnGroupMapping[] ColumnGroupMappings { get; private set; }
 
 
     // Constructors
 
-    public RecordSetMapping(RecordSetHeader header, IList<ColumnGroupMapping> hierarchyMappings)
+    public RecordSetMapping(RecordSetHeader header, ColumnGroupMapping[] hierarchyMappings)
     {
       Header = header;
-      ColumnGroupMappings = new ReadOnlyList<ColumnGroupMapping>(hierarchyMappings);
+      ColumnGroupMappings = hierarchyMappings;
     }
   }
 }

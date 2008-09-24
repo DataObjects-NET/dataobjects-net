@@ -6,6 +6,7 @@
 
 using Xtensive.Sql.Dom.Database;
 using Xtensive.Sql.Dom.Dml;
+using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
@@ -38,7 +39,8 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
           table = schema.CreateTemporaryTable(tableName);
 
         foreach (Column column in provider.Header.Columns) {
-          TableColumn tableColumn = table.CreateColumn(column.Name, domainHandler.GetSqlType(column.Type, null));
+          ColumnInfo ci = ((MappedColumn) column).ColumnInfoRef.Resolve(domainHandler.Domain.Model);
+          TableColumn tableColumn = table.CreateColumn(column.Name, domainHandler.ValueTypeMapper.BuildSqlValueType(ci));
           tableColumn.IsNullable = true;
         }
       }
