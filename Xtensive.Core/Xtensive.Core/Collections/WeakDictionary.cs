@@ -4,9 +4,12 @@
 // Created by: Alex Gamzov
 // Created:    2007.11.20
 
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using Xtensive.Core.Internals.DocTemplates;
+using System.Linq;
 
 namespace Xtensive.Core.Collections
 {
@@ -16,21 +19,49 @@ namespace Xtensive.Core.Collections
   /// </summary>
   /// <typeparam name="TKey">The type of key.</typeparam>
   /// <typeparam name="TValue">The type of value.</typeparam>
-  public class WeakDictionary<TKey, TValue>
-    : DictionaryBaseSlim<TKey, TValue>
+  public class WeakDictionary<TKey, TValue> : IDictionary<TKey,TValue>,
+    ICountable<KeyValuePair<TKey, TValue>>
     where TValue : class
   {
     // Constants
     private const int MinIterations = 10000;
 
     // Private
-    private readonly Dictionary<TKey, WeakReference<TValue>> dictionary;
+    private Dictionary<TKey, GCHandle> dictionary;
     private int iteration;
 
     /// <inheritdoc/>
-    public override int Count {
-      [DebuggerStepThrough]
+    public TValue this[TKey key]
+    {
       get {
+        TValue value;
+        if (!TryGetValue(key, out value))
+          throw new KeyNotFoundException();
+
+        return value;
+      }
+      set { SetValue(key, value); }
+    }
+
+    /// <inheritdoc/>
+    long ICountable.Count
+    {
+      [DebuggerStepThrough]
+      get { return Count; }
+    }
+
+    /// <inheritdoc/>
+    public bool IsReadOnly
+    {
+      [DebuggerStepThrough]
+      get { return false; }
+    }
+
+    /// <inheritdoc/>
+    public int Count {
+      [DebuggerStepThrough]
+      get
+      {
         IterationalCleanup();
         return dictionary.Count;
       }
@@ -39,63 +70,81 @@ namespace Xtensive.Core.Collections
     #region ContainsKey, TryGetValue methods
 
     /// <inheritdoc/>
-    public override bool ContainsKey(TKey key)
+    public bool ContainsKey(TKey key)
     {
-      ArgumentValidator.EnsureArgumentNotNull(key, "key");
-      IterationalCleanup();
       TValue value;
       return (TryGetValue(key, out value));
     }
 
     /// <inheritdoc/>
-    public override bool TryGetValue(TKey key, out TValue value)
+    public bool TryGetValue(TKey key, out TValue value)
     {
-      ArgumentValidator.EnsureArgumentNotNull(key, "key");
       IterationalCleanup();
-      WeakReference<TValue> weakValue;
-      if (dictionary.TryGetValue(key, out weakValue)) {
-        value = weakValue.Target;
-        if (!weakValue.IsAlive)
-          dictionary.Remove(key);
-        return weakValue.IsAlive;
+      GCHandle gcHandle;
+      if (dictionary.TryGetValue(key, out gcHandle)) {
+        value = (TValue)gcHandle.Target;
+        return value!=null;
       }
       value = null;
       return false;
+    }
+
+    bool ICollection<KeyValuePair<TKey, TValue>>.Contains(KeyValuePair<TKey, TValue> item)
+    {
+      throw new System.NotSupportedException();
+    }
+
+    ICollection<TKey> IDictionary<TKey, TValue>.Keys
+    {
+      get { throw new System.NotSupportedException(); }
+    }
+
+    ICollection<TValue> IDictionary<TKey, TValue>.Values
+    {
+      get { throw new System.NotSupportedException(); }
     }
 
     #endregion
 
     #region Modification methods: Add, SetValue, Remove, Clear
 
-    /// <inheritdoc/>
-    public override void Add(TKey key, TValue value)
+    void ICollection<KeyValuePair<TKey, TValue>>.Add(KeyValuePair<TKey, TValue> item)
     {
-      ArgumentValidator.EnsureArgumentNotNull(key, "key");
+      Add(item.Key, item.Value);
+    }
+
+    bool ICollection<KeyValuePair<TKey, TValue>>.Remove(KeyValuePair<TKey, TValue> item)
+    {
+      return Remove(item.Key);
+    }
+
+    /// <inheritdoc/>
+    public void Add(TKey key, TValue value)
+    {
       IterationalCleanup();
-      WeakReference<TValue> weakValue;
-      if (dictionary.TryGetValue(key, out weakValue) && !weakValue.IsAlive)
+      GCHandle weakValue;
+      if (dictionary.TryGetValue(key, out weakValue) && weakValue.Target == null)
         SetValue(key, value);
       else
-        dictionary.Add(key, WeakReference<TValue>.Create(value));
+        dictionary.Add(key, GCHandle.Alloc(value, GCHandleType.Weak));
     }
 
-    protected override void SetValue(TKey key, TValue value)
+    protected void SetValue(TKey key, TValue value)
     {
-      ArgumentValidator.EnsureArgumentNotNull(key, "key");
       IterationalCleanup();
-      dictionary[key] = WeakReference<TValue>.Create(value);
+      dictionary[key] = GCHandle.Alloc(value, GCHandleType.Weak);
     }
 
     /// <inheritdoc/>
-    public override bool Remove(TKey key)
+    public bool Remove(TKey key)
     {
-      ArgumentValidator.EnsureArgumentNotNull(key, "key");
       IterationalCleanup();
       return dictionary.Remove(key);
     }
 
     /// <inheritdoc/>
-    public override void Clear()
+    [DebuggerStepThrough]
+    public void Clear()
     {
       dictionary.Clear();
     }
@@ -105,38 +154,39 @@ namespace Xtensive.Core.Collections
     #region GetEnumerator<...> methods
 
     /// <inheritdoc/>
-    public override IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
+    public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
     {
-      IterationalCleanup();
-      List<TKey> keysToRemove = new List<TKey>();
-      foreach (KeyValuePair<TKey, WeakReference<TValue>> pair in dictionary) {
-        WeakReference<TValue> weakValue = pair.Value;
-        TValue value = weakValue.Target;
-        if (weakValue.IsAlive)
+      foreach (KeyValuePair<TKey, GCHandle> pair in dictionary) {
+        var value = (TValue)pair.Value.Target;
+        if (value != null)
           yield return new KeyValuePair<TKey, TValue>(pair.Key, value);
-        else 
-          keysToRemove.Add(pair.Key);
-      }
-      foreach (TKey key in keysToRemove) {
-        dictionary.Remove(key);
       }
     }
 
+    [DebuggerStepThrough]
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+      return GetEnumerator();
+    }
+
     #endregion
+
+    void ICollection<KeyValuePair<TKey, TValue>>.CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
+    {
+      this.Copy(array, arrayIndex);
+    }
 
     /// <summary>
     /// Removes dead references from the internal dictionary.
     /// </summary>
     public void Cleanup()
     {
-      List<TKey> itemsToDelete = new List<TKey>();
-      foreach (KeyValuePair<TKey, WeakReference<TValue>> keyValuePair in dictionary) {
-        if (!keyValuePair.Value.IsAlive)
-          itemsToDelete.Add(keyValuePair.Key);
+      var newCopy = new Dictionary<TKey, GCHandle>(dictionary.Count >> 1);
+      foreach (var pair in dictionary) {
+        if (pair.Value.Target != null)
+          newCopy.Add(pair.Key, pair.Value);
       }
-      foreach (TKey key in itemsToDelete) {
-        dictionary.Remove(key);
-      }
+      dictionary = newCopy;
     }
 
     #region Private \ internal methods
@@ -144,7 +194,7 @@ namespace Xtensive.Core.Collections
     private void IterationalCleanup()
     {
       iteration++;
-      if (iteration > MinIterations && iteration > dictionary.Count) {
+      if (iteration > MinIterations && iteration > (dictionary.Count << 1)) {
         Cleanup();
         iteration = 0;
       }
@@ -159,7 +209,7 @@ namespace Xtensive.Core.Collections
     /// <see cref="ClassDocTemplate.Ctor" copy="true" />
     /// </summary>
     public WeakDictionary()
-      : this(0, null)
+      : this(32, null)
     {
     }
 
@@ -177,7 +227,7 @@ namespace Xtensive.Core.Collections
     /// </summary>
     /// <param name="comparer">Initial comparer value.</param>
     public WeakDictionary(IEqualityComparer<TKey> comparer)
-      : this(0, comparer)
+      : this(32, comparer)
     {
     }
 
@@ -188,7 +238,7 @@ namespace Xtensive.Core.Collections
     /// <param name="comparer">Initial comparer value.</param>
     public WeakDictionary(int capacity, IEqualityComparer<TKey> comparer)
     {
-      dictionary = new Dictionary<TKey, WeakReference<TValue>>(capacity, comparer);
+      dictionary = new Dictionary<TKey, GCHandle>(capacity, comparer);
     }
   }
 }
