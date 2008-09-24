@@ -135,29 +135,21 @@ namespace Xtensive.Sql.Dom
     
     public SqlValueType(SqlDataType dataType, int size)
     {
-      if (!(dataType==SqlDataType.Char ||
-          dataType==SqlDataType.VarChar ||
-          dataType==SqlDataType.Binary ||
-          dataType==SqlDataType.VarBinary ||
-          dataType==SqlDataType.AnsiChar ||
-          dataType==SqlDataType.AnsiVarChar))
-        size = 0;
       if (size<0)
         throw new ArgumentException(Strings.ExSizeShouldBeNotNegativeValue, "size");
-      
+
       this.dataType = dataType;
+      if (dataType==SqlDataType.Char ||
+        dataType==SqlDataType.VarChar ||
+          dataType==SqlDataType.Binary ||
+            dataType==SqlDataType.VarBinary ||
+              dataType==SqlDataType.AnsiChar ||
+                dataType==SqlDataType.AnsiVarChar)
       this.size = size;
     }
 
-    internal SqlValueType(SqlDataType dataType, int size, short precision, short scale)
+    private SqlValueType(SqlDataType dataType, int size, short precision, short scale)
     {
-      if (dataType!=SqlDataType.Float && dataType!=SqlDataType.Decimal && dataType!=SqlDataType.Double) {
-        scale = 0;
-        precision = 0;
-      }
-      else if (dataType!=SqlDataType.Decimal)
-        scale = 0;
-
       this.dataType = dataType;
       this.size = size;
       this.scale = scale;
@@ -172,10 +164,22 @@ namespace Xtensive.Sql.Dom
         throw new ArgumentException(Strings.ExPrecisionShouldBeNonNegativeValue, "precision");
       if (scale>precision)
         throw new ArgumentException(Strings.ExTheScaleMustBeLessThanOrEqualToPrecision);
+
+      if (dataType!=SqlDataType.Float && dataType!=SqlDataType.Decimal && dataType!=SqlDataType.Double) {
+        scale = 0;
+        precision = 0;
+      }
+      else if (dataType!=SqlDataType.Decimal)
+        scale = 0;
+
       this.dataType = dataType;
       this.scale = scale;
       this.precision = precision;
     }
 
+    public SqlValueType(DataTypeInfo typeInfo)
+    {
+      
+    }
   }
 }

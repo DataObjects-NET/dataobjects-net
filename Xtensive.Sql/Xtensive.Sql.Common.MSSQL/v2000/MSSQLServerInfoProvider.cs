@@ -483,7 +483,7 @@ namespace Xtensive.Sql.Common.Mssql.v2000
         types.TimeStamp.Length = new ValueRange<int>(8, 8, 8);
         types.TimeStamp.Features = common | index ^ DataTypeFeatures.Multiple ^ DataTypeFeatures.Default;
 
-        types.Variant = new StreamDataTypeInfo(SqlDataType.Variant, null, new string[] {"sql_variant"});
+        types.Variant = new StreamDataTypeInfo(SqlDataType.Variant, typeof(object), new string[] {"sql_variant"});
         types.Variant.Length = new ValueRange<int>(1, 8000, 1);
         types.Variant.Features = common | index;
 
