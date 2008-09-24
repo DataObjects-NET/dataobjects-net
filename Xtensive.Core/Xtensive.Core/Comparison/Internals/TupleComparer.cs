@@ -167,11 +167,6 @@ namespace Xtensive.Core.Comparison
         (TFieldType) data.X.GetValueOrDefault(fieldIndex),
         (TFieldType) data.Y.GetValueOrDefault(fieldIndex));
 
-//      // Generic version, slower.
-//      int result = fieldComparer.Compare( // May throw NullReferenceException - but it is always processed by caller
-//        data.X.GetValueOrDefault<TFieldType>(fieldIndex),
-//        data.Y.GetValueOrDefault<TFieldType>(fieldIndex));
-
       if (result!=0) {
         data.Result = result>0 ? (fieldIndex+1) : -(fieldIndex+1);
         return true;

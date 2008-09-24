@@ -52,10 +52,7 @@ namespace Xtensive.Core.Tuples
     /// but <typeparamref name="T"/> is not a <see cref="Nullable{T}"/> type.</exception>
     public static T GetValueOrDefault<T>(this ITuple tuple, int fieldIndex)
     {
-      var value = tuple.GetValueOrDefault(fieldIndex);
-      if (value == null)
-        return default(T);
-      return (T)value;
+      return (T) tuple.GetValueOrDefault(fieldIndex);
     }
 
     /// <summary>
@@ -75,11 +72,8 @@ namespace Xtensive.Core.Tuples
     /// but <typeparamref name="T"/> is not a <see cref="Nullable{T}"/> type.</exception>
     public static T GetValue<T>(this ITuple tuple, int fieldIndex)
     {
-      if (!tuple.IsAvailable(fieldIndex))
-        throw new InvalidOperationException(Strings.ExValueIsNotAvailable);
-      return tuple.GetValueOrDefault<T>(fieldIndex);
+      return (T) tuple.GetValue(fieldIndex);
     }
-
 
     #endregion
     

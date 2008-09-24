@@ -16,6 +16,7 @@ namespace Xtensive.Core.Tests.DotNetFramework
     [Test]
     public void EqualToNullTest()
     {
+      Assert.AreEqual(default(int?), CastTo<int?>(null));
       // int
       EqualToNull<int>(0);
       EqualToNull<int>(1);
@@ -51,6 +52,11 @@ namespace Xtensive.Core.Tests.DotNetFramework
       InnerIsStruct<int>();
       InnerIsStruct<int?>();
       InnerIsStruct<string>();
+    }
+
+    private T CastTo<T>(object o)
+    {
+      return (T) o;
     }
 
     private void EqualToNull<T>(T o)

@@ -100,10 +100,13 @@ namespace Xtensive.Core.Tuples
 
     #endregion
 
-    #region GetFieldState (abstract), GetValueOrDefault (asbtract), GetValue methods
+    #region GetFieldState (abstract), GetValueOrDefault (asbtract), GetValue, SetValue methods
 
     /// <inheritdoc />
     public abstract TupleFieldState GetFieldState(int fieldIndex);
+
+    /// <inheritdoc/>
+    public abstract object GetValueOrDefault(int fieldIndex);
 
     /// <inheritdoc />
     public object GetValue(int fieldIndex)
@@ -113,21 +116,12 @@ namespace Xtensive.Core.Tuples
       return GetValueOrDefault(fieldIndex);
     }
 
-    /// <inheritdoc/>
-    public abstract object GetValueOrDefault(int fieldIndex);
+    /// <inheritdoc />
+    public abstract void SetValue(int fieldIndex, object fieldValue);
 
-    /// <summary>
-    /// Sets the field value by its index.
-    /// </summary>
-    /// <param name="fieldIndex">Index of the field to set value of.</param>
-    /// <param name="fieldValue">Field value.</param>
-    /// <typeparam name="T">The type of value to set.</typeparam>
-    /// <exception cref="InvalidCastException">Type of stored value and <typeparamref name="T"/>
-    /// are incompatible.</exception>
-    public void SetValue<T>(int fieldIndex, T fieldValue)
-    {
-      SetValue(fieldIndex, (object)fieldValue);
-    }
+    #endregion
+
+    #region SetValue<T>, GetValueOrDefault<T>, GetValue<T> methods
 
     /// <summary>
     /// Gets the value field value by its index, if it is available;
@@ -142,13 +136,7 @@ namespace Xtensive.Core.Tuples
     /// but <typeparamref name="T"/> is not a <see cref="Nullable{T}"/> type.</exception>
     public T GetValueOrDefault<T>(int fieldIndex)
     {
-      var generated = this as ITupleFieldAccessor<T>;
-      if (generated != null)
-        return generated.GetValueOrDefault(fieldIndex);
-      var value = GetValueOrDefault(fieldIndex);
-      if (value == null)
-        return default(T);
-      return (T)value;
+      return (T) GetValueOrDefault(fieldIndex);
     }
 
     /// <summary>
@@ -167,17 +155,21 @@ namespace Xtensive.Core.Tuples
     /// but <typeparamref name="T"/> is not a <see cref="Nullable{T}"/> type.</exception>
     public T GetValue<T>(int fieldIndex)
     {
-      if (!IsAvailable(fieldIndex))
-        throw new InvalidOperationException(Strings.ExValueIsNotAvailable);
-      return GetValueOrDefault<T>(fieldIndex);
+      return (T) GetValue(fieldIndex);
     }
 
-    #endregion
-
-    #region SetValue methods (abstract)
-    
-    /// <inheritdoc />
-    public abstract void SetValue(int fieldIndex, object fieldValue);
+    /// <summary>
+    /// Sets the field value by its index.
+    /// </summary>
+    /// <param name="fieldIndex">Index of the field to set value of.</param>
+    /// <param name="fieldValue">Field value.</param>
+    /// <typeparam name="T">The type of value to set.</typeparam>
+    /// <exception cref="InvalidCastException">Type of stored value and <typeparamref name="T"/>
+    /// are incompatible.</exception>
+    public void SetValue<T>(int fieldIndex, T fieldValue)
+    {
+      SetValue(fieldIndex, (object) fieldValue);
+    }
 
     #endregion
 
