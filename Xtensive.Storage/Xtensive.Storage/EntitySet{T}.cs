@@ -88,7 +88,7 @@ namespace Xtensive.Storage
         if (Cache.Count==Count)
           return false;
         // Request from database
-        Tuple filterTuple = new CombineTransform(true, ((Entity) Owner).Key.Tuple.Descriptor, key.Tuple.Descriptor).Apply(TupleTransformType.Tuple, ((Entity) Owner).Key.Tuple, key.Tuple);
+        Tuple filterTuple = new CombineTransform(true, ((Entity) Owner).Key.Descriptor, key.Descriptor).Apply(TupleTransformType.Tuple, ((Entity) Owner).Key, key);
         if (GetRecordSet().Range(filterTuple, filterTuple).Count() > 0) {
           Cache.Add(new CachedKey(key));
         }
@@ -241,7 +241,7 @@ namespace Xtensive.Storage
 
     protected RecordSet GetRecordSet()
     {
-      Tuple key = ((Entity) Owner).Key.Tuple;
+      Tuple key = ((Entity) Owner).Key;
       RecordSet recordSet = Index.ToRecordSet();
       var rsResult = recordSet.Range(key, key);
       return rsResult;

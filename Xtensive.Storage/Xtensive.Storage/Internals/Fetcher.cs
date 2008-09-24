@@ -112,7 +112,7 @@ namespace Xtensive.Storage.Internals
       RecordSet value;
       if (!cache.TryGetValue(key, out value)) lock (_lock) if (!cache.TryGetValue(key, out value)) {
         value = IndexProvider.Get(index).Result
-        .Seek(() => pKey.Value.Tuple)
+        .Seek(() => pKey.Value)
         .Select(columnIndexes);
         cache.Add(key, value);
       }

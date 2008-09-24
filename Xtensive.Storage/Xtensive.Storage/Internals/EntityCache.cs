@@ -32,7 +32,7 @@ namespace Xtensive.Storage.Internals
     [Infrastructure]
     public EntityState Create(Key key, Transaction transaction)
     {
-      return Create(key, key.Tuple, true, transaction);
+      return Create(key, key, true, transaction);
     }
 
     [Infrastructure]

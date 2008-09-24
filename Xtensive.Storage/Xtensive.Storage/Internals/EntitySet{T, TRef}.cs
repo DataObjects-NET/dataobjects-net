@@ -89,8 +89,8 @@ namespace Xtensive.Storage.Internals
     private Tuple CombineKey(Key key)
     {
       if (isReverse)
-        return combineTransform.Apply(TupleTransformType.TransformedTuple, ((Entity) Owner).Key.Tuple, key.Tuple);
-      return combineTransform.Apply(TupleTransformType.TransformedTuple, key.Tuple, ((Entity) Owner).Key.Tuple);
+        return combineTransform.Apply(TupleTransformType.TransformedTuple, ((Entity) Owner).Key, key);
+      return combineTransform.Apply(TupleTransformType.TransformedTuple, key, ((Entity) Owner).Key);
     }
 
 
@@ -101,8 +101,8 @@ namespace Xtensive.Storage.Internals
     {
       this.isReverse = isReverse;
       combineTransform = isReverse
-        ? new CombineTransform(true, ((Entity) owner).Key.Tuple.Descriptor, field.Association.ReferencedType.Hierarchy.KeyTupleDescriptor)
-        : new CombineTransform(true, field.Association.ReferencedType.Hierarchy.KeyTupleDescriptor, ((Entity) owner).Key.Tuple.Descriptor);
+        ? new CombineTransform(true, ((Entity) owner).Key.Descriptor, field.Association.ReferencedType.Hierarchy.KeyTupleDescriptor)
+        : new CombineTransform(true, field.Association.ReferencedType.Hierarchy.KeyTupleDescriptor, ((Entity) owner).Key.Descriptor);
     }
   }
 }

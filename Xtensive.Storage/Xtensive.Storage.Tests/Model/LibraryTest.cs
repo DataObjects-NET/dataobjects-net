@@ -116,7 +116,7 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
     public string Text { get; set; }
 
     public BookReview(Key book, Key reviewer)
-      : base(book.Tuple.CombineWith(reviewer.Tuple))
+      : base(book.CombineWith(reviewer))
     {
     }
   }

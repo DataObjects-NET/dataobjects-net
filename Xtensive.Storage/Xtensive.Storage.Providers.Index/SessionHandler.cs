@@ -50,7 +50,7 @@ namespace Xtensive.Storage.Providers.Index
       var indexProvider = Rse.Providers.Compilable.IndexProvider.Get(primaryIndex);
       SeekResult<Tuple> result;
       using (EnumerationScope.Open()) {
-        result = indexProvider.GetService<IOrderedEnumerable<Tuple, Tuple>>().Seek(new Ray<IEntire<Tuple>>(Entire<Tuple>.Create(state.Key.Tuple)));
+        result = indexProvider.GetService<IOrderedEnumerable<Tuple, Tuple>>().Seek(new Ray<IEntire<Tuple>>(Entire<Tuple>.Create(state.Key)));
 
         if (result.ResultType != SeekResultType.Exact)
           throw new InvalidOperationException(string.Format(Strings.ExInstanceXIsNotFound, state.Key.Type.Name));
@@ -75,7 +75,7 @@ namespace Xtensive.Storage.Providers.Index
       var indexProvider = Rse.Providers.Compilable.IndexProvider.Get(primaryIndex);
       SeekResult<Tuple> result;
       using (EnumerationScope.Open()) {
-        result = indexProvider.GetService<IOrderedEnumerable<Tuple, Tuple>>().Seek(new Ray<IEntire<Tuple>>(Entire<Tuple>.Create(state.Key.Tuple)));
+        result = indexProvider.GetService<IOrderedEnumerable<Tuple, Tuple>>().Seek(new Ray<IEntire<Tuple>>(Entire<Tuple>.Create(state.Key)));
 
         if (result.ResultType!=SeekResultType.Exact)
           throw new InvalidOperationException(string.Format(Strings.ExInstanceXIsNotFound, state.Key.Type.Name));

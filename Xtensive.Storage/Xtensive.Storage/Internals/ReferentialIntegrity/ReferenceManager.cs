@@ -61,7 +61,7 @@ namespace Xtensive.Storage.ReferentialIntegrity
     {
       FieldInfo field = association.ReferencingField;
       IndexInfo index = field.DeclaringType.Indexes.GetIndex(field.Name);
-      RecordSet rs = index.ToRecordSet().Range(referencedObject.Key.Tuple, referencedObject.Key.Tuple);
+      RecordSet rs = index.ToRecordSet().Range(referencedObject.Key, referencedObject.Key);
 
       foreach (Entity referencingObject in rs.ToEntities(field.DeclaringType.UnderlyingType)) {
         if (RemovalScope.Context.RemovalQueue.Contains(referencingObject))

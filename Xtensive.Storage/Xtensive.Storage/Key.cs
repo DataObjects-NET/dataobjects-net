@@ -18,15 +18,14 @@ namespace Xtensive.Storage
   /// Contains a set of identifying values of an <see cref="Entity"/>.
   /// Every entity is uniquely identified by its <see cref="Key"/>.
   /// </summary>
-  public sealed class Key : IEquatable<Key>
+  public sealed class Key : Tuple,
+    IEquatable<Key>
   {
     private TypeInfo type;
     private readonly int hashCode;
+    private readonly Tuple tuple;
 
-    /// <summary>
-    /// Gets the underlying tuple.
-    /// </summary>
-    public Tuple Tuple { get; private set; }
+    
 
     /// <summary>
     /// Gets the hierarchy this instance belongs to.
@@ -46,6 +45,30 @@ namespace Xtensive.Storage
           throw Exceptions.AlreadyInitialized("Type");
         type = value;
       }
+    }
+
+    /// <inheritdoc/>
+    public override TupleFieldState GetFieldState(int fieldIndex)
+    {
+      return tuple.GetFieldState(fieldIndex);
+    }
+
+    /// <inheritdoc/>
+    public override object GetValueOrDefault(int fieldIndex)
+    {
+      return tuple.GetValueOrDefault(fieldIndex);
+    }
+
+    /// <inheritdoc/>
+    public override void SetValue(int fieldIndex, object fieldValue)
+    {
+      throw Exceptions.ObjectIsReadOnly("Key");
+    }
+
+    /// <inheritdoc/>
+    public override TupleDescriptor Descriptor
+    {
+      get { return tuple.Descriptor; }
     }
 
     /// <summary>
@@ -114,7 +137,7 @@ namespace Xtensive.Storage
         return true;
       if (hashCode!=other.hashCode)
         return false;
-      return Tuple.Equals(other.Tuple) && Hierarchy.Equals(other.Hierarchy);
+      return tuple.Equals(other.tuple) && Hierarchy.Equals(other.Hierarchy);
     }
 
     /// <inheritdoc/>
@@ -139,7 +162,7 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     public override string ToString()
     {
-      return string.Format("{0}, {1}", (Type != null) ? Type.Name : Hierarchy.Name, Tuple.ToRegular());
+      return string.Format("{0}, {1}", (Type != null) ? Type.Name : Hierarchy.Name, tuple.ToRegular());
     }
 
 
@@ -148,7 +171,7 @@ namespace Xtensive.Storage
     internal Key(HierarchyInfo hierarchy, Tuple tuple)
     {
       Hierarchy = hierarchy;
-      Tuple = tuple.ToReadOnly(TupleTransformType.TransformedTuple);
+      this.tuple = tuple;
       hashCode = tuple.GetHashCode() ^ hierarchy.GetHashCode();
     }
   }

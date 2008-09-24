@@ -91,21 +91,12 @@ namespace Xtensive.Core.Tuples
     /// <param name="length">The number of elements to copy.</param>
     public static void CopyTo(this ITuple source, ITuple target, int startIndex, int targetStartIndex, int length)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      ArgumentValidator.EnsureArgumentNotNull(target, "target");
-      ArgumentValidator.EnsureArgumentIsInRange(startIndex, 0, source.Count, "startIndex");
-      ArgumentValidator.EnsureArgumentIsInRange(targetStartIndex, 0, target.Count, "targetStartIndex");
-      
       // A version with boxing. Works 6 times faster!
       for (int i = 0; i < length; i++) {
         int sourceIndex = startIndex + i;
         if (source.IsAvailable(sourceIndex))
           target.SetValue(targetStartIndex + i, source.GetValueOrDefault(sourceIndex));
       }
-
-//      // Generic version. Slower.
-//      var actionData = new PartCopyData(source, target, startIndex, targetStartIndex, length);
-//      source.Descriptor.Execute(partCopyHandler, ref actionData, Direction.Positive);
     }
 
     /// <summary>
@@ -161,18 +152,12 @@ namespace Xtensive.Core.Tuples
     /// Negative value in this map means "skip this element".</param>
     public static void CopyTo(this Tuple source, Tuple target, int[] map)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      ArgumentValidator.EnsureArgumentNotNull(target, "target");
-
       // A version with boxing. Works 6 times faster!
       for (int i = 0; i < map.Length; i++) {
         var sourceIndex = map[i];
         if (sourceIndex >= 0 && source.IsAvailable(sourceIndex))
           target.SetValue(i, source.GetValueOrDefault(sourceIndex));
       }
-
-//      var actionData = new MapOneCopyData(source, target, map);
-//      target.Descriptor.Execute(mapOneCopyHandler, ref actionData, Direction.Positive);
     }
 
     /// <summary>
@@ -186,9 +171,6 @@ namespace Xtensive.Core.Tuples
     /// Negative value in this map means "skip this element".</param>
     public static void CopyTo(this Tuple[] source, Tuple target, Pair<int,int>[] map)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      ArgumentValidator.EnsureArgumentNotNull(target, "target");
-
       for (int i = 0; i < map.Length; i++) {
         var mappedTo = map[i];
         var sourceIndex = mappedTo.Second;
@@ -211,8 +193,6 @@ namespace Xtensive.Core.Tuples
     /// Negative value in this map means "skip this element".</param>
     public static void CopyTo(this FixedList3<Tuple> source, Tuple target, Pair<int,int>[] map)
     {
-      ArgumentValidator.EnsureArgumentNotNull(target, "target");
-
       for (int i = 0; i < map.Length; i++) {
         var mappedTo = map[i];
         var sourceIndex = mappedTo.Second;
@@ -259,9 +239,6 @@ namespace Xtensive.Core.Tuples
     /// <returns></returns>
     public static Tuple CombineWith(this Tuple source1, Tuple source2)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source1, "source1");
-      ArgumentValidator.EnsureArgumentNotNull(source2, "source2");
-      
       var transform = new CombineTransform(false, new[] { source1.Descriptor, source2.Descriptor});
       return transform.Apply(TupleTransformType.TransformedTuple, source1, source2);
     }
@@ -274,9 +251,6 @@ namespace Xtensive.Core.Tuples
     /// <exception cref="ArgumentException">Tuple descriptor field count is not equal to <paramref name="nullableMap"/> count.</exception>
     public static void Initialize(this ITuple target, BitArray nullableMap)
     {
-      ArgumentValidator.EnsureArgumentNotNull(target, "target");
-      ArgumentValidator.EnsureArgumentNotNull(nullableMap, "nullableMap");
-
       if (target.Descriptor.Count!=nullableMap.Count)
         throw new ArgumentException(String.Format(Strings.ExInvalidFieldMapSizeExpectedX, target.Descriptor.Count));
 
@@ -333,9 +307,6 @@ namespace Xtensive.Core.Tuples
     /// <exception cref="ArgumentException">Tuple descriptors mismatch.</exception>
     public static void MergeWith(this ITuple target, ITuple source, int startIndex, int length, MergeConflictBehavior behavior)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      ArgumentValidator.EnsureArgumentNotNull(target, "target");
-      ArgumentValidator.EnsureArgumentIsInRange(startIndex, 0, source.Count, "startIndex");
       if (target.Descriptor!=source.Descriptor)
         throw new ArgumentException(
           string.Format(Strings.ExInvalidTupleDescriptorExpectedDescriptorIs, target.Descriptor),

@@ -48,7 +48,7 @@ namespace Xtensive.Storage.Internals
           obj.Data.SetValue(i, null);
       else {
         ValidateType(field);
-        entity.Key.Tuple.CopyTo(obj.Data, 0, field.MappingInfo.Offset, field.MappingInfo.Length);
+        entity.Key.CopyTo(obj.Data, 0, field.MappingInfo.Offset, field.MappingInfo.Length);
       }
 
       if (association!=null)
