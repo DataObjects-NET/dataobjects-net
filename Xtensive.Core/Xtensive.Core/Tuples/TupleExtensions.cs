@@ -6,10 +6,8 @@
 
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Resources;
-using Xtensive.Core.Tuples.Internals;
 using Xtensive.Core.Tuples.Transform;
 
 namespace Xtensive.Core.Tuples
@@ -20,7 +18,8 @@ namespace Xtensive.Core.Tuples
   public static class TupleExtensions
   {
     private static readonly InitializerHandler     initializerHandler   = new InitializerHandler();
-    private static readonly Dictionary<TupleFieldState, Func<TupleFieldState, TupleFieldState, bool>> fieldStatePredicates;
+    private static readonly Func<TupleFieldState, TupleFieldState, bool> defaultPredicate = (request, result) => (result) == 0;
+    private static readonly Func<TupleFieldState, TupleFieldState, bool> availabilityPredicate = (request, result) => (request & result) > 0;
 
     #region Generic ITuple methods
 
@@ -168,7 +167,7 @@ namespace Xtensive.Core.Tuples
       // A version with boxing. Works 6 times faster!
       for (int i = 0; i < map.Length; i++) {
         var sourceIndex = map[i];
-        if (sourceIndex > 0 && source.IsAvailable(sourceIndex))
+        if (sourceIndex >= 0 && source.IsAvailable(sourceIndex))
           target.SetValue(i, source.GetValueOrDefault(sourceIndex));
       }
 
@@ -193,15 +192,12 @@ namespace Xtensive.Core.Tuples
       for (int i = 0; i < map.Length; i++) {
         var mappedTo = map[i];
         var sourceIndex = mappedTo.Second;
-        if (mappedTo.First > 0 && sourceIndex > 0) {
+        if (mappedTo.First >= 0 && sourceIndex >= 0) {
           var sourceTuple = source[mappedTo.First];
           if (sourceTuple.IsAvailable(sourceIndex))
             target.SetValue(i, sourceTuple.GetValueOrDefault(sourceIndex));
         }
       }
-
-//      var actionData = new MapCopyData(source, target, map);
-//      target.Descriptor.Execute(mapCopyHandler, ref actionData, Direction.Positive);
     }
 
     /// <summary>
@@ -220,15 +216,12 @@ namespace Xtensive.Core.Tuples
       for (int i = 0; i < map.Length; i++) {
         var mappedTo = map[i];
         var sourceIndex = mappedTo.Second;
-        if (mappedTo.First > 0 && sourceIndex > 0) {
+        if (mappedTo.First >= 0 && sourceIndex >= 0) {
           var sourceTuple = source[mappedTo.First];
           if (sourceTuple.IsAvailable(sourceIndex))
             target.SetValue(i, sourceTuple.GetValueOrDefault(sourceIndex));
         }
       }
-
-//      var actionData = new Map3CopyData(ref source, target, map);
-//      target.Descriptor.Execute(map3CopyHandler, ref actionData, Direction.Positive);
     }
 
     #endregion
@@ -301,7 +294,16 @@ namespace Xtensive.Core.Tuples
     /// <returns>Newly created <see cref="BitArray"/> instance which holds inspection result.</returns>
     public static BitArray GetFieldStateMap(this ITuple target, TupleFieldState state)
     {
-      return target.GetFieldStateMap(state, fieldStatePredicates[state]);
+      Func<TupleFieldState, TupleFieldState, bool> predicate;
+      switch (state) {
+        case TupleFieldState.Default:
+          predicate = defaultPredicate;
+          break;
+        default:
+          predicate = availabilityPredicate;
+          break;
+      }
+      return target.GetFieldStateMap(state, predicate);
     }
 
     private static BitArray GetFieldStateMap(this ITuple target, TupleFieldState state, Func<TupleFieldState, TupleFieldState, bool> predicate)
@@ -346,9 +348,6 @@ namespace Xtensive.Core.Tuples
           continue;
         target.SetValue(i, source.GetValueOrDefault(i));
       }
-
-//      MergeData actionData = new MergeData(source, target, startIndex, length, behavior);
-//      source.Descriptor.Execute(mergeHandler, ref actionData, Direction.Positive);
     }
 
     /// <summary>
@@ -428,8 +427,8 @@ namespace Xtensive.Core.Tuples
 
     private struct InitializerData
     {
-      public ITuple Target;
-      private BitArray nullableMap;
+      public readonly ITuple Target;
+      private readonly BitArray nullableMap;
 
       public bool IsNullable(int fieldIndex)
       {
@@ -439,7 +438,7 @@ namespace Xtensive.Core.Tuples
       public InitializerData(ITuple target, BitArray fieldMap)
       {
         Target = target;
-        this.nullableMap = fieldMap;
+        nullableMap = fieldMap;
       }
     }
 
@@ -456,16 +455,5 @@ namespace Xtensive.Core.Tuples
     }
 
     #endregion
-
-
-    // Type initializer
-
-    static TupleExtensions()
-    {
-      fieldStatePredicates = new Dictionary<TupleFieldState, Func<TupleFieldState, TupleFieldState, bool>>();
-      fieldStatePredicates.Add(TupleFieldState.Default, (request, result) => (result)==0);
-      fieldStatePredicates.Add(TupleFieldState.IsAvailable, (request, result) => (request & result) > 0);
-      fieldStatePredicates.Add(TupleFieldState.IsNull, fieldStatePredicates[TupleFieldState.IsAvailable]);
-    }
   }
 }

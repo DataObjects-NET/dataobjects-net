@@ -140,9 +140,10 @@ namespace Xtensive.Core.Tests.Tuples
 
       try {
         tuple.GetValue<byte>(0);
-        throw new AssertionException("Invalid cast exception should be thrown.");
-      } catch (InvalidCastException) {
-      }
+        throw new AssertionException("Null reference or Invalid cast exception should be thrown.");
+      } 
+      catch (NullReferenceException) {}
+      catch (InvalidCastException) {}
 
       Assert.IsTrue(tuple.Equals(tuple));
     }

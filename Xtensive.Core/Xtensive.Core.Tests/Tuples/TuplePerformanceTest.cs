@@ -154,15 +154,6 @@ namespace Xtensive.Core.Tests.Tuples
           tmp = (int)iTuple.GetValue(0);
       Cleanup();
 
-      // ITupleFieldAccessor testing
-      ITupleFieldAccessor<int> fieldAccessor = (ITupleFieldAccessor<int>)tuple;
-      using (new Measurement("ITupleFieldAccessor<T>.SetValue", iterationCount))
-        for (int i = 0; i < iterationCount; i++)
-          fieldAccessor.SetValue(0, i);
-      using (new Measurement("ITupleFieldAccessor<T>.GetValueOrDefault", iterationCount))
-        for (int i = 0; i < iterationCount; i++)
-          fieldAccessor.GetValueOrDefault(0);
-
       // DummyTuple testing
       using (new Measurement("DummyTuple.SetValue<T>", iterationCount))
         for (int i = 0; i < iterationCount; i++)

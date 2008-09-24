@@ -31,8 +31,6 @@ namespace Xtensive.Core.Tuples.Internals
     public readonly int BitShift;
     public readonly TupleFieldInfo FlagsField;
     public readonly TupleFieldInfo CompressingFieldInfo;
-    public readonly TupleInterfaceInfo Interface;
-    public readonly TupleInterfaceInfo NullableInterface; // !=null if IsValueType==true
     private FieldBuilder fieldBuilder;
 
     public FieldBuilder FieldBuilder
@@ -108,17 +106,6 @@ namespace Xtensive.Core.Tuples.Internals
         tupleInfo.Fields.Add(this);
         // Real field, so let's create flags & interfaces for it
         FlagsField = new TupleFieldInfo(tupleInfo, typeof(TupleFieldState), false, true);
-        if (tupleInfo.Interfaces.ContainsKey(type)) {
-          // Interfaces are already created
-          Interface = tupleInfo.Interfaces[type];
-          if (IsValueType)
-            NullableInterface = tupleInfo.Interfaces[typeof (Nullable<>).MakeGenericType(type)];
-        }
-        else {
-          Interface = new TupleInterfaceInfo(tupleInfo, type);
-          if (IsValueType)
-            NullableInterface = new TupleInterfaceInfo(tupleInfo, typeof (Nullable<>).MakeGenericType(type));
-        }
       }
     }
 

@@ -13,7 +13,7 @@ namespace Xtensive.Core.Tuples.Internals
   /// Base class for any generated tuple.
   /// </summary>
   [Serializable]
-  public abstract class GeneratedTuple: RegularTuple, ITupleFieldAccessor<object>
+  public abstract class GeneratedTuple: RegularTuple
   {
     /// <summary>
     /// Sets the field state associated with the field.

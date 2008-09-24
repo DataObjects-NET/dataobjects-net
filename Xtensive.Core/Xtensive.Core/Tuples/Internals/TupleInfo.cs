@@ -19,7 +19,6 @@ namespace Xtensive.Core.Tuples.Internals
     public readonly List<TupleFieldInfo> ActualFields;
     public readonly List<TupleFieldInfo> ActualCompressingFields;
     public readonly List<int> ActualCompressingFieldOccupiedBits;
-    public readonly Dictionary<Type, TupleInterfaceInfo> Interfaces;
 
 
     // Constructors
@@ -27,7 +26,6 @@ namespace Xtensive.Core.Tuples.Internals
     public TupleInfo(TupleDescriptor tupleDescriptor)
     {
       Name = string.Format(NameFormatString, TupleCount++);
-      Interfaces = new Dictionary<Type, TupleInterfaceInfo>();
       Fields = new List<TupleFieldInfo>();
       ActualFields = new List<TupleFieldInfo>();
       ActualCompressingFields = new List<TupleFieldInfo>();
