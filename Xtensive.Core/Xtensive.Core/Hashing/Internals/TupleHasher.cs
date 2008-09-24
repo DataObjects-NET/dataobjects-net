@@ -74,7 +74,7 @@ namespace Xtensive.Core.Hashing
     bool ITupleActionHandler<SingleHashData>.Execute<TFieldType>(ref SingleHashData actionData, int fieldIndex)
     {
       if (actionData.X.IsAvailable(fieldIndex) && actionData.X.HasValue(fieldIndex))
-        actionData.Result ^= Provider.GetHasher<TFieldType>().GetHash((TFieldType)actionData.X.GetValueOrDefault(fieldIndex));        
+        actionData.Result ^= Provider.GetHasher<TFieldType>().GetHash((TFieldType) actionData.X.GetValueOrDefault(fieldIndex));        
       else
         actionData.Result ^= BaseHasher.GetHash(null);
       return false;
@@ -86,7 +86,7 @@ namespace Xtensive.Core.Hashing
       if (!actionData.X.IsAvailable(fieldIndex) || !actionData.X.HasValue(fieldIndex)) 
         hashes = BaseHasher.GetHashes(null, actionData.HashCount);   
       else {
-        var value = actionData.X.GetValueOrDefault<TFieldType>(fieldIndex);
+        var value = (TFieldType) actionData.X.GetValueOrDefault(fieldIndex);
         hashes = Provider.GetHasher<TFieldType>().GetHashes(value, actionData.HashCount);
       }
       for (int i = 0; i < actionData.HashCount; i++) 
