@@ -104,16 +104,16 @@ namespace Xtensive.Core.Tuples.Internals
         new Type[] {tupleInfo.Descriptor.GetType()}, 
         ArrayUtils<object>.EmptyArray);
       // For reverse-engineering of generated code only
-      AppDomain.CurrentDomain.DomainUnload += 
-        delegate(object sender, EventArgs eventArgs) {
-          if (!assemblyIsSaved) {
-            lock (assemblyBuilder) {
-              if (!assemblyIsSaved)
-                assemblyBuilder.Save(assemblyName.Name + ".dll");
-              assemblyIsSaved = true;
-            }
-          }
-        };
+//      AppDomain.CurrentDomain.DomainUnload += 
+//        delegate(object sender, EventArgs eventArgs) {
+//          if (!assemblyIsSaved) {
+//            lock (assemblyBuilder) {
+//              if (!assemblyIsSaved)
+//                assemblyBuilder.Save(assemblyName.Name + ".dll");
+//              assemblyIsSaved = true;
+//            }
+//          }
+//        };
       if (tuple==null)
         throw Exceptions.InternalError(string.Format(
           "Tuple generation has failed for tuple descriptor {0}.", tupleInfo.Descriptor), Log.Instance);
