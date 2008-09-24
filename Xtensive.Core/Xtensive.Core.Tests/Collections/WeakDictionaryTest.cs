@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using NUnit.Framework;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Testing;
 
 namespace Xtensive.Core.Tests.Collections
@@ -10,6 +11,9 @@ namespace Xtensive.Core.Tests.Collections
   [TestFixture]
   public class WeakDictionaryTest
   {
+    Dictionary<int, TestClass> dictionary = new Dictionary<int, TestClass>();
+    List<Pair<int, TestClass>> list = new List<Pair<int, TestClass>>();
+
     public class TestClass
     {
       public string Text;
@@ -77,9 +81,10 @@ namespace Xtensive.Core.Tests.Collections
       TestHelper.CollectGarbage(true);
       dictionary.Cleanup();
       Assert.AreEqual(1, dictionary.Count);
-      Assert.AreEqual(true, dictionary.ContainsKey(2));
       Assert.AreEqual(false, dictionary.ContainsKey(1));
+      Assert.AreEqual(true, dictionary.ContainsKey(2));
 
+      Assert.IsNotNull(value2);
       value2 = null;
       TestHelper.CollectGarbage(true);
       TestClass result;
@@ -174,6 +179,60 @@ namespace Xtensive.Core.Tests.Collections
       Log.Info("Cycle " + DateTime.Now.Subtract(startTime) + " counter:" + counter);
       Log.Info("Objects left: " + dictionary.Count);
       TestHelper.CollectGarbage(true);
+    }
+
+    [Test]
+    public void PerformanceTest()
+    {
+      const int count = 100000;
+      var weakDictionary = new WeakDictionary<int, TestClass>();
+      for (int i = 0; i < count; i++)
+        list.Add(new Pair<int, TestClass>(i, new TestClass(i.ToString())));
+
+      using(new Measurement("Inserting into Dictionary", count))
+        foreach (var pair in list)
+          dictionary.Add(pair.First, pair.Second);
+
+      using (new Measurement("Inserting into WeakDictionary", count))
+        foreach (var pair in list)
+          weakDictionary.Add(pair.First, pair.Second);
+
+      using (new Measurement("Searching through Dictionary", count*2)){
+        foreach (var pair in list) {
+          var exists = dictionary.ContainsKey(pair.First);
+          Assert.IsTrue(exists);
+        }
+        foreach (var pair in list) {
+          var exists = dictionary.ContainsKey(pair.First);
+          Assert.IsTrue(exists);
+        }
+      }
+
+      using (new Measurement("Searching through WeakDictionary", count*2)) {
+        foreach (var pair in list) {
+          var exists = weakDictionary.ContainsKey(pair.First);
+          Assert.IsTrue(exists);
+        }
+        foreach (var pair in list) {
+          var exists = weakDictionary.ContainsKey(pair.First);
+          Assert.IsTrue(exists);
+        }
+      }
+
+      Assert.AreEqual(count, weakDictionary.Count);
+#if !DEBUG
+    list.Clear();
+    list = null;
+    dictionary.Clear();
+    dictionary = null;
+    TestHelper.CollectGarbage(true);
+    foreach (var pair in weakDictionary) {
+      var value = pair.Value;
+      Assert.IsNull(value);
+    }
+    Assert.AreEqual(0, weakDictionary.Count);
+#endif
+
     }
   }
 }
