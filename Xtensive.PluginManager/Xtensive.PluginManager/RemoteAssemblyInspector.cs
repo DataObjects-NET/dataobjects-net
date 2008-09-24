@@ -149,6 +149,8 @@ namespace Xtensive.PluginManager
       try {
         return Assembly.ReflectionOnlyLoadFrom(file);
       }
+      catch (TypeLoadException) {
+      }
       catch (IOException) {
       }
       catch (BadImageFormatException) {
@@ -160,6 +162,9 @@ namespace Xtensive.PluginManager
     {
       try {
         return assembly.GetExportedTypes();
+      }
+      catch (TypeLoadException) {
+        return new Type[0];
       }
       catch (FileNotFoundException) {
         return new Type[0];
