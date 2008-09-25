@@ -4,25 +4,49 @@
 // Created by: Dmitri Maximov
 // Created:    2008.08.08
 
+using System;
 using System.Collections.Generic;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Threading;
+using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Internals
 {
-  internal class ColumnGroupMapping
+  internal sealed class ColumnGroupMapping
   {
-    private ThreadSafeDictionary<TypeInfo, TypeMapping> typeMappings;
-
+    private readonly Dictionary<TypeInfo, TypeMapping> typeMappings = new Dictionary<TypeInfo, TypeMapping>();
+    private readonly Dictionary<ColumnInfo, MappedColumn> columnsMapping;
+    
     public int TypeIdIndex { get; private set; }
 
-    public IDictionary<ColumnInfo, MappedColumn> ColumnInfoMapping { get; private set; }
-
-    public ThreadSafeDictionary<TypeInfo, TypeMapping> TypeMappings
+    public TypeMapping GetTypeMapping(TypeInfo type)
     {
-      get { return typeMappings; }
+      TypeMapping mapping;
+      if (typeMappings.TryGetValue(type, out mapping))
+        return mapping;
+      lock(typeMappings) {
+        if (!typeMappings.TryGetValue(type, out mapping)) {
+          mapping = BuildTypeMapping(type);
+          typeMappings[type] = mapping;
+        }
+      }
+      return mapping;
+    }
+
+    private TypeMapping BuildTypeMapping(TypeInfo type)
+    {
+      var map = new int[type.Columns.Count];
+      for (int i = 0; i < type.Columns.Count; i++) {
+        ColumnInfo columnInfo = type.Columns[i];
+        MappedColumn column;
+        if (columnsMapping.TryGetValue(columnInfo, out column))
+          map[i] = column.Index;
+        else
+          map[i] = MapTransform.NoMapping;
+      }
+      return new TypeMapping(type, new MapTransform(true, type.TupleDescriptor, map));
     }
 
 
@@ -31,8 +55,7 @@ namespace Xtensive.Storage.Internals
     public ColumnGroupMapping(int typeIdIndex, Dictionary<ColumnInfo, MappedColumn> columnMapping)
     {
       TypeIdIndex = typeIdIndex;
-      typeMappings = ThreadSafeDictionary<TypeInfo, TypeMapping>.Create(this);
-      ColumnInfoMapping = new ReadOnlyDictionary<ColumnInfo, MappedColumn>(columnMapping);
+      columnsMapping = columnMapping;
     }
   }
 }

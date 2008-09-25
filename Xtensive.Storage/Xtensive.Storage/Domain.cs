@@ -33,8 +33,7 @@ namespace Xtensive.Storage
   public sealed class Domain : CriticalFinalizerObject,
     IDisposableContainer
   {
-    private readonly ThreadSafeDictionary<RecordSetHeader, RecordSetMapping> recordSetMappings = 
-      ThreadSafeDictionary<RecordSetHeader, RecordSetMapping>.Create(new object());
+    private readonly Dictionary<RecordSetHeader, RecordSetMapping> recordSetMappings = new Dictionary<RecordSetHeader, RecordSetMapping>();
     private int sessionCounter = 1;
 
     /// <summary>
@@ -101,10 +100,50 @@ namespace Xtensive.Storage
 
     internal HandlerAccessor Handlers { get; private set; }
 
-    internal ThreadSafeDictionary<RecordSetHeader, RecordSetMapping> RecordSetMappings
+    #region RecordSet mapping methods
+
+    internal RecordSetMapping GetMapping(RecordSetHeader header)
     {
-      get { return recordSetMappings; }
+      RecordSetMapping result;
+      if (recordSetMappings.TryGetValue(header, out result))
+        return result;
+      lock (recordSetMappings) {
+        if (!recordSetMappings.TryGetValue(header, out result)) {
+          var mappings = new List<ColumnGroupMapping>();
+          foreach (ColumnGroup group in header.ColumnGroups) {
+            ColumnGroupMapping mapping = GetColumnGroupMapping(header, group);
+            if (mapping!=null)
+              mappings.Add(mapping);
+          }
+          result = new RecordSetMapping(header, mappings);
+          recordSetMappings.Add(header, result);
+        }
+        return result;
+      }
     }
+
+    private ColumnGroupMapping GetColumnGroupMapping(RecordSetHeader header, ColumnGroup group)
+    {
+      int typeIdIndex = -1;
+      var typeIdColumnName = NameBuilder.TypeIdColumnName;
+      var columnMapping = new Dictionary<ColumnInfo, MappedColumn>(group.Columns.Count);
+
+      foreach (int columnIndex in group.Columns) {
+        var column = (MappedColumn)header.Columns[columnIndex];
+        ColumnInfo columnInfo = column.ColumnInfoRef.Resolve(Model);
+        columnMapping[columnInfo] = column;
+        if (columnInfo.Name == typeIdColumnName)
+          typeIdIndex = column.Index;
+      }
+
+      if (typeIdIndex == -1)
+        return null;
+
+      return new ColumnGroupMapping(typeIdIndex, columnMapping);
+    }
+
+    #endregion
+
 
     #region OpenSession methods
 

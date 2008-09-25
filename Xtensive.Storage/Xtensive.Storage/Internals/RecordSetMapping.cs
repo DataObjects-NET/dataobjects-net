@@ -4,6 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2008.07.31
 
+using System.Collections.Generic;
 using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Internals
@@ -11,16 +12,15 @@ namespace Xtensive.Storage.Internals
   internal sealed class RecordSetMapping
   {
     public RecordSetHeader Header { get; private set;}
-
-    public ColumnGroupMapping[] ColumnGroupMappings { get; private set; }
+    public List<ColumnGroupMapping> GroupMappings { get; private set; }
 
 
     // Constructors
 
-    public RecordSetMapping(RecordSetHeader header, ColumnGroupMapping[] hierarchyMappings)
+    public RecordSetMapping(RecordSetHeader header, List<ColumnGroupMapping> hierarchyMappings)
     {
       Header = header;
-      ColumnGroupMappings = hierarchyMappings;
+      GroupMappings = hierarchyMappings;
     }
   }
 }
