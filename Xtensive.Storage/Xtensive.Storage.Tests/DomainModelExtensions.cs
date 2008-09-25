@@ -211,8 +211,7 @@ namespace Xtensive.Storage.Tests
         }
       }
       WriteLine(indent, "Column group:");
-      WriteLine(indent + 1, "Hierarchy: " + target.Group.Hierarchy.Name);
-      WriteLine(indent + 1, "Columns: " + target.Group.Columns.Select(c => c.Name).ToCommaDelimitedString());
+      WriteLine(indent + 1, "Columns: " + target.Group.Columns.Select(i => target.Columns[i]).ToCommaDelimitedString());
 
       WriteLine(indent, "KeyColumns:");
       foreach (KeyValuePair<ColumnInfo, Direction> pair in target.KeyColumns) {

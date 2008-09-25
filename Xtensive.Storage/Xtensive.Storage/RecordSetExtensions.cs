@@ -11,7 +11,6 @@ using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
-using ColumnGroup=Xtensive.Storage.Rse.ColumnGroup;
 
 namespace Xtensive.Storage
 {

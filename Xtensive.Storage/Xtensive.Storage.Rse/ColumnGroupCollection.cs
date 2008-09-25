@@ -10,6 +10,7 @@ using System.Linq;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Threading;
+using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Rse
 {

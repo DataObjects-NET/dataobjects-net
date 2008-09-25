@@ -731,10 +731,19 @@ namespace Xtensive.Storage.Building.Builders
     private static ColumnGroup BuildColumnGroup(IndexInfo index)
     {
       var reflectedType = index.ReflectedType;
-      var keyColumns = index.KeyColumns.Select(p => p.Key);
-      return index.IsPrimary ? 
-        new ColumnGroup(reflectedType.Hierarchy, keyColumns, keyColumns.Union(index.ValueColumns)) : 
-        new ColumnGroup(reflectedType.Hierarchy, index.ValueColumns.Take(reflectedType.Hierarchy.Columns.Count), keyColumns.Union(index.ValueColumns));
+      List<int> keyColumns;
+      List<int> columns;
+      if (index.IsPrimary) {
+        keyColumns = new List<int>(index.KeyColumns.Select((_, i) => i));
+        columns = new List<int>(keyColumns);
+        columns.AddRange(index.ValueColumns.Select((_,i) => keyColumns.Count + i));
+      }
+      else {
+        keyColumns = new List<int>(index.ValueColumns.Take(reflectedType.Hierarchy.Columns.Count).Select((_, i) => index.KeyColumns.Count + i));
+        columns = new List<int>(index.KeyColumns.Select((_, i) => i));
+        columns.AddRange(index.ValueColumns.Select((_, i) => index.KeyColumns.Count + i));
+      }
+      return new ColumnGroup(keyColumns, columns);
     }
 
     public static void BuildAffectedIndexes()

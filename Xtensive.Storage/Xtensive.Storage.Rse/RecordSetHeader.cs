@@ -83,16 +83,18 @@ namespace Xtensive.Storage.Rse
     /// <returns>The constructed header.</returns>
     public RecordSetHeader Add(Column[] values)
     {
-      TupleDescriptor resultTupleDescriptor = TupleDescriptor;
-      ColumnCollection resultColumns = Columns;
-      List<Type> typeList = new List<Type>();
-      foreach (var value in values) {
+      var resultColumns = new List<Column>(Columns);
+      resultColumns.AddRange(values);
+      var typeList = new List<Type>(TupleDescriptor);
+      foreach (var value in values)
         typeList.Add(value.Type);
-      }
-      resultTupleDescriptor = TupleDescriptor.Create(new[] { resultTupleDescriptor, TupleDescriptor.Create(typeList) }.SelectMany(descriptor => descriptor));
-      resultColumns = resultColumns.Join(values);
+      var resultTupleDescriptor = TupleDescriptor.Create(typeList);
       return new RecordSetHeader(
-        resultTupleDescriptor, resultColumns, ColumnGroups, OrderTupleDescriptor, Order);
+        resultTupleDescriptor, 
+        resultColumns, 
+        ColumnGroups, 
+        OrderTupleDescriptor, 
+        Order);
     }
 
     /// <summary>
@@ -102,22 +104,26 @@ namespace Xtensive.Storage.Rse
     /// <returns>The joined header.</returns>
     public RecordSetHeader Join(RecordSetHeader joined)
     {
-      ColumnCollection resultColumns = 
-        Columns.Join(joined.Columns.Select(column => (Column)new MappedColumn(column, Columns.Count + column.Index)));
+      var columns = new List<Column>(Columns);
+      var originalColumnsCount = Columns.Count;
+      columns.AddRange(joined.Columns.Select(column => (Column)new MappedColumn(column, originalColumnsCount + column.Index)));
 
-      TupleDescriptor resultTupleDescriptor = 
-        TupleDescriptor.Create(new[] {TupleDescriptor, joined.TupleDescriptor}.SelectMany(descriptor => descriptor));      
+      var types = new List<Type>(TupleDescriptor);
+      types.AddRange(joined.TupleDescriptor);
 
-      ColumnGroupCollection resultGroups = new ColumnGroupCollection(
-        ColumnGroups
-          .Union(joined.ColumnGroups
-            .Select(g => new ColumnGroup(
-              g.Keys.Select(i => Columns.Count + i),
-              g.Columns.Select(i => Columns.Count + i)
-              ))));
-
+      var groups = new List<ColumnGroup>(ColumnGroups);
+      groups.AddRange(
+        joined.ColumnGroups
+          .Select(g => new ColumnGroup(
+            g.Keys.Select(i => originalColumnsCount + i),
+            g.Columns.Select(i => originalColumnsCount + i))));
+      
       return new RecordSetHeader(
-        resultTupleDescriptor, resultColumns, resultGroups, OrderTupleDescriptor, Order);
+        TupleDescriptor.Create(types), 
+        columns, 
+        groups,
+        OrderTupleDescriptor, 
+        Order);
     }
 
     /// <summary>
@@ -128,27 +134,34 @@ namespace Xtensive.Storage.Rse
     public RecordSetHeader Select(IEnumerable<int> selectedColumns)
     {
       var columns = new List<int>(selectedColumns);
+      var columnsMap = new List<int>(Enumerable.Repeat(-1, Columns.Count));
+      for (int newIndex = 0; newIndex < columns.Count; newIndex++) {
+        var oldIndex = columns[newIndex];
+        columnsMap[oldIndex] = newIndex;
+      }
 
-      TupleDescriptor resultTupleDescriptor = Core.Tuples.TupleDescriptor.Create(selectedColumns.Select(i => TupleDescriptor[i]));
-
-      DirectionCollection<int> resultOrder = 
-        new DirectionCollection<int>(Order
-          .Select(o => new KeyValuePair<int, Direction>(columns.IndexOf(o.Key), o.Value))
+      var resultTupleDescriptor = Core.Tuples.TupleDescriptor.Create(columns.Select(i => TupleDescriptor[i]));
+      var resultOrder = new DirectionCollection<int>(
+        Order
+          .Select(o => new KeyValuePair<int, Direction>(columnsMap[o.Key], o.Value))
           .TakeWhile(o => o.Key >= 0));      
 
-      ColumnCollection resultColumns =
-        new ColumnCollection(selectedColumns.Select((ic, i) => (Column)new MappedColumn(Columns[ic], i)));
+      var resultColumns = columns.Select((ic, i) => (Column)new MappedColumn(Columns[ic], i));
 
-      ColumnGroupCollection resultGroups = new ColumnGroupCollection(
-        ColumnGroups
-          .Where(g => g.Keys.All(ci => selectedColumns.Contains(ci)))
-          .Select(cgm => 
-            new ColumnGroup(
-              cgm.Keys.Select(k => columns.IndexOf(k)), 
-              cgm.Columns.Select(c => columns.IndexOf(c)).Where(c => c >= 0))));
+      var resultGroups = ColumnGroups
+          .Where(g => g.Keys.All(k => columnsMap[k] >=0))
+          .Select(g => new ColumnGroup(
+              g.Keys.Select(k => columnsMap[k]), 
+              g.Columns
+                .Select(c => columnsMap[c])
+                .Where(c => c >= 0)));
 
       return new RecordSetHeader(
-        resultTupleDescriptor, resultColumns, resultGroups, null, resultOrder);      
+        resultTupleDescriptor, 
+        resultColumns, 
+        resultGroups, 
+        null, 
+        resultOrder);      
     }
 
     /// <summary>
@@ -179,36 +192,30 @@ namespace Xtensive.Storage.Rse
 
     private static RecordSetHeader CreateHeader(IndexInfo indexInfo)
     {
-      TupleDescriptor resultTupleDescriptor = 
-        TupleDescriptor.Create(indexInfo.Columns.Select(columnInfo => columnInfo.ValueType));      
+      TupleDescriptor resultTupleDescriptor = TupleDescriptor.Create(indexInfo.Columns.Select(columnInfo => columnInfo.ValueType));
 
-      DirectionCollection<int> sortOrder;
-      if (indexInfo.IsPrimary)
-        sortOrder = 
-          new DirectionCollection<int>(
-            indexInfo.KeyColumns.Select((pair, i) => new KeyValuePair<int, Direction>(i, pair.Value)));
-      else {
+      var keyOrder = new List<KeyValuePair<int, Direction>>(indexInfo.KeyColumns.Select((p, i) => new KeyValuePair<int, Direction>(i, p.Value)));
+      
+      if (!indexInfo.IsPrimary) {
         var pkKeys = indexInfo.ReflectedType.Indexes.PrimaryIndex.KeyColumns;
-        sortOrder = new DirectionCollection<int>(indexInfo.KeyColumns.Select((p, i) => new KeyValuePair<int, Direction>(i, p.Value))
-          .Union(indexInfo.ValueColumns
+        keyOrder.AddRange(
+          indexInfo.ValueColumns
             .Select((c, i) => new Pair<ColumnInfo, int>(c, i + indexInfo.KeyColumns.Count))
             .Where(pair => pair.First.IsPrimaryKey)
-            .Select(pair => new KeyValuePair<int, Direction>(pair.Second, pkKeys[pair.First]))));
+            .Select(pair => new KeyValuePair<int, Direction>(pair.Second, pkKeys[pair.First])));
       }
 
-      TupleDescriptor keyDescriptor = TupleDescriptor.Create(indexInfo.KeyColumns.Select(columnInfo => columnInfo.Key.ValueType));
+      var sortOrder = new DirectionCollection<int>(keyOrder);
+      var keyDescriptor = TupleDescriptor.Create(indexInfo.KeyColumns.Select(columnInfo => columnInfo.Key.ValueType));
+      var resultColumns = indexInfo.Columns.Select((c,i) => (Column) new MappedColumn(c,i,c.ValueType));
+      var resultGroups = new[]{indexInfo.Group};
 
-
-      ColumnCollection resultColumns =
-        new ColumnCollection(indexInfo.Columns.Select((c,i) => (Column) new MappedColumn(c,i,c.ValueType)));
-
-      ColumnGroupCollection resultGroups =
-        new ColumnGroupCollection(new[]{new ColumnGroup(
-          indexInfo.Group.KeyColumns.Select(c => indexInfo.Columns.IndexOf(c)),
-          indexInfo.Group.Columns.Select(c => indexInfo.Columns.IndexOf(c)))});
-
-      return 
-        new RecordSetHeader(resultTupleDescriptor, resultColumns, resultGroups, keyDescriptor, sortOrder);
+      return new RecordSetHeader(
+        resultTupleDescriptor, 
+        resultColumns, 
+        resultGroups, 
+        keyDescriptor, 
+        sortOrder);
     }
 
     /// <inheritdoc/>
@@ -245,8 +252,8 @@ namespace Xtensive.Storage.Rse
         ? ColumnGroupCollection.Empty
         : new ColumnGroupCollection(groups);
 
-      this.orderTupleDescriptor = orderKeyDescriptor;
-      this.Order = order ?? new DirectionCollection<int>();
+      orderTupleDescriptor = orderKeyDescriptor;
+      Order = order ?? new DirectionCollection<int>();
     }
   }
 }

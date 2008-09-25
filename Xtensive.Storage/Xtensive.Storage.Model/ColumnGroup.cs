@@ -12,26 +12,10 @@ using Xtensive.Core.Internals.DocTemplates;
 namespace Xtensive.Storage.Model
 {
   [Serializable]
-  public sealed class ColumnGroup
+  public struct ColumnGroup
   {
-    private readonly HierarchyInfo hierarchy;
-    private readonly CollectionBaseSlim<ColumnInfo> keyColumns;
-    private readonly CollectionBaseSlim<ColumnInfo> columns;
-
-    public HierarchyInfo Hierarchy
-    {
-      get { return hierarchy; }
-    }
-
-    public CollectionBaseSlim<ColumnInfo> KeyColumns
-    {
-      get { return keyColumns; }
-    }
-
-    public CollectionBaseSlim<ColumnInfo> Columns
-    {
-      get { return columns; }
-    }
+    public readonly ReadOnlyList<int> Keys;
+    public readonly ReadOnlyList<int> Columns;
 
 
     // Constructors
@@ -39,11 +23,17 @@ namespace Xtensive.Storage.Model
     /// <summary>
     ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public ColumnGroup(HierarchyInfo hierarchyInfo, IEnumerable<ColumnInfo> keyColumns, IEnumerable<ColumnInfo> columns)
+    public ColumnGroup(IEnumerable<int> keys, IEnumerable<int> columns)
+      : this(new List<int>(keys), new List<int>(columns))
+    {}
+
+    /// <summary>
+    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    public ColumnGroup(IList<int> keys, IList<int> columns)
     {
-      this.hierarchy = hierarchyInfo;
-      this.keyColumns = new CollectionBaseSlim<ColumnInfo>(keyColumns);
-      this.columns = new CollectionBaseSlim<ColumnInfo>(columns);
+      Keys = new ReadOnlyList<int>(keys);
+      Columns = new ReadOnlyList<int>(columns);
     }
   }
 }
