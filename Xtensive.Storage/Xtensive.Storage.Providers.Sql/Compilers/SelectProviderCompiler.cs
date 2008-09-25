@@ -28,7 +28,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
       var queryRef = SqlFactory.QueryRef(source.Request.Statement as SqlSelect);
       SqlSelect query = SqlFactory.Select(queryRef);
       query.Columns.AddRange(provider.ColumnIndexes.Select(i => (SqlColumn)queryRef.Columns[i]));
-      var request = new SqlFetchRequest(query, provider.Header.TupleDescriptor, source.Request.ParameterBindings);
+      var request = new SqlFetchRequest(query, provider.Header.TupleDescriptor, source.Request.Parameters);
 
       return new SqlProvider(provider, request, Handlers, source);
     }

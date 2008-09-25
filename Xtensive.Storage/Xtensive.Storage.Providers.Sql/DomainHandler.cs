@@ -39,7 +39,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     public SqlValueTypeMapper ValueTypeMapper { get; private set; }
 
-    public ThreadSafeDictionary<SqlRequestBuilderTask, SqlModificationRequest> SqlRequestCache { get; private set; }
+    public ThreadSafeDictionary<SqlRequestBuilderTask, SqlUpdateRequest> SqlRequestCache { get; private set; }
 
     internal SqlConnectionProvider ConnectionProvider { get; private set; }
 
@@ -62,7 +62,7 @@ namespace Xtensive.Storage.Providers.Sql
       SessionHandler sessionHandler = ((SessionHandler)BuildingScope.Context.SystemSessionHandler);
       Driver = sessionHandler.Connection.Driver;
       MappingSchema = new DomainModelMapping();
-      SqlRequestCache = ThreadSafeDictionary<SqlRequestBuilderTask, SqlModificationRequest>.Create(new object());
+      SqlRequestCache = ThreadSafeDictionary<SqlRequestBuilderTask, SqlUpdateRequest>.Create(new object());
       SqlRequestBuilder = Handlers.HandlerFactory.CreateHandler<SqlRequestBuilder>();
       SqlRequestBuilder.Initialize();
       ValueTypeMapper = Handlers.HandlerFactory.CreateHandler<SqlValueTypeMapper>();

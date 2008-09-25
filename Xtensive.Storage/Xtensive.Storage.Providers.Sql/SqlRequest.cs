@@ -16,7 +16,7 @@ namespace Xtensive.Storage.Providers.Sql
   /// </summary>
   public abstract class SqlRequest
   {
-    private SqlCompilerResults compilationResult;
+    protected SqlCompilerResults CompilationResult;
 
     /// <summary>
     /// Gets or sets the statement.
@@ -28,26 +28,10 @@ namespace Xtensive.Storage.Providers.Sql
     /// </summary>
     public string CompiledStatement
     {
-      get { return compilationResult.CommandText; }
+      get { return CompilationResult.CommandText; }
     }
 
-    /// <summary>
-    /// Gets the parameters.
-    /// </summary>
-    /// <returns>The <see cref="List{T}"/> of <see cref="SqlParameter"/> instances.</returns>
-    public abstract List<SqlParameter> GetParameters();
-
-    internal virtual  void CompileWith(SqlDriver driver)
-    {
-      if (compilationResult!=null)
-        return;
-      int i = 0;
-      List<SqlParameter> parameters = GetParameters();
-      if (parameters != null)
-        foreach (SqlParameter p in GetParameters())
-          p.ParameterName = "p" + i++;
-      compilationResult = driver.Compile(Statement);
-    }
+    internal abstract void CompileWith(SqlDriver driver);
 
 
     // Constructors

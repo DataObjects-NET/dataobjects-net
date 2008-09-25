@@ -16,12 +16,12 @@ namespace Xtensive.Storage.Providers.Sql
   /// <summary>
   /// Modification (insert, update, delete) request.
   /// </summary>
-  public class SqlModificationRequest : SqlRequest
+  public class SqlUpdateRequest : SqlRequest
   {
     /// <summary>
     /// Gets or sets the parameter bindings.
     /// </summary>
-    public Dictionary<SqlParameter, Func<Tuple, object>> ParameterBindings { get; private set; }
+    public HashSet<SqlUpdateRequestParameter> Parameters { get; private set; }
 
     /// <summary>
     /// Gets or sets the expected result.
@@ -29,20 +29,24 @@ namespace Xtensive.Storage.Providers.Sql
     /// <remarks>Usually is the number of touched rows.</remarks>
     public int ExpectedResult { get; set; }
 
-    /// <inheritdoc/>
-    public override List<SqlParameter> GetParameters()
-    {
-      return ParameterBindings.Keys.ToList();
-    }
-
     /// <summary>
     /// Binds the parameters to the specified <paramref name="target"/>.
     /// </summary>
     /// <param name="target">The target to bind parameters to.</param>
-    public void BindParametersTo(Tuple target)
+    public void BindParameters(Tuple target)
     {
-      foreach (KeyValuePair<SqlParameter, Func<Tuple, object>> binding in ParameterBindings)
-        binding.Key.Value = binding.Value.Invoke(target);
+      foreach (var binding in Parameters)
+        binding.Parameter.Value = binding.Value.Invoke(target);
+    }
+
+    internal override void CompileWith(SqlDriver driver)
+    {
+      if (CompilationResult!=null)
+        return;
+      int i = 0;
+      foreach (SqlUpdateRequestParameter binding in Parameters)
+        binding.Parameter.ParameterName = "p" + i++;
+      CompilationResult = driver.Compile(Statement);
     }
 
 
@@ -52,10 +56,10 @@ namespace Xtensive.Storage.Providers.Sql
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="statement">The statement.</param>
-    public SqlModificationRequest(ISqlCompileUnit statement)
+    public SqlUpdateRequest(ISqlCompileUnit statement)
       : base(statement)
     {
-      ParameterBindings = new Dictionary<SqlParameter, Func<Tuple, object>>();
+      Parameters = new HashSet<SqlUpdateRequestParameter>();
     }
   }
 }

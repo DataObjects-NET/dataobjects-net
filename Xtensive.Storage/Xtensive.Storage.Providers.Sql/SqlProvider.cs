@@ -47,8 +47,7 @@ namespace Xtensive.Storage.Providers.Sql
       foreach (ExecutableProvider source in sources) {
         SqlProvider sqlProvider = source as SqlProvider;
         if (sqlProvider!=null && sqlProvider.Request != null)
-          foreach (var pair in sqlProvider.Request.ParameterBindings)
-            request.ParameterBindings[pair.Key] = pair.Value;
+          request.Parameters.UnionWith(sqlProvider.Request.Parameters);
       }
     }
   }

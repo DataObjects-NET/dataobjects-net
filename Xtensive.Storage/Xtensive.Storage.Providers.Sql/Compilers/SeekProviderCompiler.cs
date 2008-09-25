@@ -12,7 +12,6 @@ using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers;
-using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers.Compilable;
 using SqlFactory = Xtensive.Sql.Dom.Sql;
 
@@ -27,20 +26,23 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
         return null;
 
       var query = (SqlSelect)source.Request.Statement.Clone();
-      var request = new SqlFetchRequest(query, provider.Header.TupleDescriptor, source.Request.ParameterBindings);
+      var request = new SqlFetchRequest(query, provider.Header.TupleDescriptor, source.Request.Parameters);
       var typeIdColumnName = Handlers.NameBuilder.TypeIdColumnName;
       Func<KeyValuePair<int, Direction>, bool> filterNonTypeId = 
         pair => ((MappedColumn)provider.Header.Columns[pair.Key]).ColumnInfoRef.ColumnName!=typeIdColumnName;
       var keyColumns = provider.Header.Order
         .Where(filterNonTypeId)
-        .Select(pair => query.Columns[pair.Key])
         .ToList();
       
       for (int i = 0; i < keyColumns.Count; i++) {
-        var p = new SqlParameter();
+        int columnIndex = keyColumns[i].Key;
+        var sqlColumn = query.Columns[columnIndex];
+        var column = provider.Header.Columns[columnIndex] as MappedColumn;
         int index = i;
-        request.ParameterBindings.Add(p, () => provider.Key().GetValue(index));
-        query.Where &= keyColumns[i] == SqlFactory.ParameterRef(p);
+        var cir = column != null ? column.ColumnInfoRef : null;
+        var binding = new SqlFetchRequestParameter(cir, () => provider.Key().GetValue(index));
+        request.Parameters.Add(binding);
+        query.Where &= sqlColumn == SqlFactory.ParameterRef(binding.Parameter);
       }
 
       return new SqlProvider(provider, request, Handlers, source);

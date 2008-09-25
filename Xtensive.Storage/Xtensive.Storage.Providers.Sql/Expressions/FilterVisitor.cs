@@ -202,15 +202,15 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     {
       if (expression.Expression.NodeType == ExpressionType.Constant) {
         var lambda = Expression.Lambda(expression).Compile();
-        var p = new SqlParameter();
-        request.ParameterBindings.Add(p, () => lambda.DynamicInvoke(ArrayUtils<object>.EmptyArray));
-        return SqlFactory.ParameterRef(p);
+        var binding = new SqlFetchRequestParameter(() => lambda.DynamicInvoke(ArrayUtils<object>.EmptyArray));
+        request.Parameters.Add(binding);
+        return binding.Parameter;
       }
       if (expression.Expression.NodeType == ExpressionType.MemberAccess && expression.Expression.Type.BaseType == typeof(Core.Parameters.Parameter)) {
         var lambda = Expression.Lambda(expression).Compile();
-        var p = new SqlParameter();
-        request.ParameterBindings.Add(p, () => lambda.DynamicInvoke(ArrayUtils<object>.EmptyArray));
-        return SqlFactory.ParameterRef(p);
+        var binding = new SqlFetchRequestParameter(() => lambda.DynamicInvoke(ArrayUtils<object>.EmptyArray));
+        request.Parameters.Add(binding);
+        return binding.Parameter;
       }
       throw new NotSupportedException();
     }

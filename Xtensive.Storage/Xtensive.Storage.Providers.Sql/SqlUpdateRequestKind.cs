@@ -7,9 +7,9 @@
 namespace Xtensive.Storage.Providers.Sql
 {
   /// <summary>
-  /// Kinds of <see cref="SqlModificationRequest"/>.
+  /// Kinds of <see cref="SqlUpdateRequest"/>.
   /// </summary>
-  public enum SqlModificationRequestKind
+  public enum SqlUpdateRequestKind
   {
     /// <summary>
     /// Insert request.

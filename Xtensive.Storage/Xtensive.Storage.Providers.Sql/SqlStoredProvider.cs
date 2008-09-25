@@ -10,6 +10,7 @@ using Xtensive.Core.Tuples;
 using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Database;
 using Xtensive.Sql.Dom.Dml;
+using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
 using SqlFactory = Xtensive.Sql.Dom.Sql;
@@ -45,19 +46,19 @@ namespace Xtensive.Storage.Providers.Sql
 
       SqlTableRef tableRef = SqlFactory.TableRef(Table);
       SqlInsert insert = SqlFactory.Insert(tableRef);
-      SqlModificationRequest modificationRequest = new SqlModificationRequest(insert);
+      SqlUpdateRequest updateRequest = new SqlUpdateRequest(insert);
       int i = 0;
       foreach (SqlTableColumn column in tableRef.Columns) {
-        SqlParameter p = new SqlParameter();
-        insert.Values[column] = p;
         int fieldIndex = i;
-        modificationRequest.ParameterBindings.Add(p, (target => target.IsNull(fieldIndex) ? DBNull.Value : target.GetValue(fieldIndex)));
+        SqlUpdateRequestParameter binding = new SqlUpdateRequestParameter((target => target.IsNull(fieldIndex) ? DBNull.Value : target.GetValue(fieldIndex)));
+        insert.Values[column] = binding.Parameter;
+        updateRequest.Parameters.Add(binding);
         i++;
       }
-      sessionHandler.DomainHandler.Compile(modificationRequest);
-      foreach (Tuple tuple in Source.ToList()) {
-        modificationRequest.BindParametersTo(tuple);
-        sessionHandler.ExecuteNonQuery(modificationRequest);
+      sessionHandler.DomainHandler.Compile(updateRequest);
+      foreach (Tuple tuple in Source) {
+        updateRequest.BindParameters(tuple);
+        sessionHandler.ExecuteNonQuery(updateRequest);
       }
     }
 

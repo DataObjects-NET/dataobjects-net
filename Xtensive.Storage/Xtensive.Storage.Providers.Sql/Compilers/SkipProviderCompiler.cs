@@ -21,7 +21,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
 
       var query = (SqlSelect)source.Request.Statement.Clone();
       query.Offset += provider.Count();
-      var request = new SqlFetchRequest(query, provider.Header.TupleDescriptor, source.Request.ParameterBindings);
+      var request = new SqlFetchRequest(query, provider.Header.TupleDescriptor, source.Request.Parameters);
       return new SqlProvider(provider, request, Handlers, source);
     }
 

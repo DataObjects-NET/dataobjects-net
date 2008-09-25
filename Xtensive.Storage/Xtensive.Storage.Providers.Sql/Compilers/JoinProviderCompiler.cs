@@ -42,7 +42,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
 
       SqlSelect query = SqlFactory.Select(joinedTable);
       query.Columns.AddRange(leftQuery.Columns.Union(rightQuery.Columns).Cast<SqlColumn>());
-      var request = new SqlFetchRequest(query, provider.Header.TupleDescriptor, left.Request.ParameterBindings.Union(right.Request.ParameterBindings));
+      var request = new SqlFetchRequest(query, provider.Header.TupleDescriptor, left.Request.Parameters.Union(right.Request.Parameters));
       return new SqlProvider(provider, request, Handlers, left, right);
     }
 

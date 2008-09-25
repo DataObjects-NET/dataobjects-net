@@ -9,7 +9,7 @@ namespace Xtensive.Storage.Providers.PgSql
   public class SqlRequestBuilder : Sql.SqlRequestBuilder
   {
     /// <inheritdoc/>
-    protected override void  SetExpectedResult(Sql.SqlModificationRequest request)
+    protected override void  SetExpectedResult(Sql.SqlUpdateRequest request)
     {
       request.ExpectedResult = 1;
     }

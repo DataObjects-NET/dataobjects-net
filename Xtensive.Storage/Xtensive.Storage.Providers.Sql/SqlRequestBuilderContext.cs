@@ -14,7 +14,7 @@ using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Providers.Sql
 {
-  public class SqlRequestBuilderResult
+  public sealed class SqlRequestBuilderContext
   {
     public SqlBatch Batch { get; private set; }
 
@@ -26,19 +26,27 @@ namespace Xtensive.Storage.Providers.Sql
 
     public IndexInfo PrimaryIndex { get; private set; }
 
-    public Dictionary<SqlParameter, Func<Tuple, object>> ParameterBindings { get; private set; }
+    public Dictionary<ColumnInfo, SqlUpdateRequestParameter> ParameterBindings { get; private set; }
 
-    internal readonly Dictionary<ColumnInfo, SqlParameter> ParameterMapping = new Dictionary<ColumnInfo, SqlParameter>();
+    internal SqlUpdateRequestParameter BuildParameterBinding(ColumnInfo column, Func<Tuple, object> functor)
+    {
+      SqlUpdateRequestParameter result;
+      if (!ParameterBindings.TryGetValue(column, out result)) {
+        result = new SqlUpdateRequestParameter(column, functor);
+        ParameterBindings.Add(column, result);
+      }
+      return result;
+    }
 
-    public SqlRequestBuilderResult(SqlRequestBuilderTask task, SqlBatch batch)
+
+    public SqlRequestBuilderContext(SqlRequestBuilderTask task, SqlBatch batch)
     {
       Task = task;
       Batch = batch;
       Type = task.Type;
       AffectedIndexes = Task.Type.AffectedIndexes.Where(i => i.IsPrimary).ToList();
       PrimaryIndex = Task.Type.Indexes.PrimaryIndex;
-      ParameterMapping = new Dictionary<ColumnInfo, SqlParameter>();
-      ParameterBindings = new Dictionary<SqlParameter, Func<Tuple, object>>();
+      ParameterBindings = new Dictionary<ColumnInfo, SqlUpdateRequestParameter>();
     }
   }
 }

@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Linq;
 using Xtensive.Core.Disposable;
 using Xtensive.Core.Tuples;
 using Xtensive.Sql.Dom;
@@ -104,12 +105,12 @@ namespace Xtensive.Storage.Providers.Sql
       }
     }
 
-    public virtual int ExecuteNonQuery(SqlModificationRequest request)
+    public virtual int ExecuteNonQuery(SqlUpdateRequest request)
     {
       EnsureConnectionIsOpen();
       using (var command = new SqlCommand(connection)) {
         command.CommandText = request.CompiledStatement;
-        command.Parameters.AddRange(request.GetParameters().ToArray());
+        command.Parameters.AddRange(request.Parameters.Select(b => b.Parameter));
         command.Prepare();
         command.Transaction = Transaction;
         return command.ExecuteNonQuery();
@@ -121,9 +122,6 @@ namespace Xtensive.Storage.Providers.Sql
       EnsureConnectionIsOpen();
       using (var command = new SqlCommand(connection)) {
         command.CommandText = request.CompiledStatement;
-        List<SqlParameter> parameters = request.GetParameters();
-        if (parameters != null)
-          command.Parameters.AddRange(parameters.ToArray());
         command.Prepare();
         command.Transaction = Transaction;
         return command.ExecuteScalar();
@@ -146,7 +144,7 @@ namespace Xtensive.Storage.Providers.Sql
       EnsureConnectionIsOpen();
       using (var command = new SqlCommand(connection)) {
         command.CommandText = request.CompiledStatement;
-        command.Parameters.AddRange(request.GetParameters().ToArray());
+        command.Parameters.AddRange(request.Parameters.Select(b => b.Parameter));
         command.Prepare();
         command.Transaction = Transaction;
         return command.ExecuteReader();
@@ -156,9 +154,9 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     protected override void Insert(EntityState state)
     {
-      SqlRequestBuilderTask task = new SqlRequestBuilderTask(SqlModificationRequestKind.Insert, state.Type);
-      SqlModificationRequest request = domainHandler.SqlRequestCache.GetValue(task, _task => DomainHandler.SqlRequestBuilder.Build(_task));
-      request.BindParametersTo(state);
+      SqlRequestBuilderTask task = new SqlRequestBuilderTask(SqlUpdateRequestKind.Insert, state.Type);
+      SqlUpdateRequest request = domainHandler.SqlRequestCache.GetValue(task, _task => DomainHandler.SqlRequestBuilder.Build(_task));
+      request.BindParameters(state);
       int rowsAffected = ExecuteNonQuery(request);
       if (rowsAffected!=request.ExpectedResult)
         throw new InvalidOperationException(String.Format(Strings.ExErrorOnInsert, state.Type.Name, rowsAffected, request.ExpectedResult));
@@ -167,9 +165,9 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     protected override void Update(EntityState state)
     {
-      SqlRequestBuilderTask task = new SqlRequestBuilderTask(SqlModificationRequestKind.Update, state.Type, state.Data.Difference.GetFieldStateMap(TupleFieldState.IsAvailable));
-      SqlModificationRequest request = domainHandler.SqlRequestCache.GetValue(task, _task => DomainHandler.SqlRequestBuilder.Build(_task));
-      request.BindParametersTo(state);
+      SqlRequestBuilderTask task = new SqlRequestBuilderTask(SqlUpdateRequestKind.Update, state.Type, state.Data.Difference.GetFieldStateMap(TupleFieldState.IsAvailable));
+      SqlUpdateRequest request = domainHandler.SqlRequestCache.GetValue(task, _task => DomainHandler.SqlRequestBuilder.Build(_task));
+      request.BindParameters(state);
       int rowsAffected = ExecuteNonQuery(request);
       if (rowsAffected!=request.ExpectedResult)
         throw new InvalidOperationException(String.Format(Strings.ExErrorOnUpdate, state.Type.Name, rowsAffected, request.ExpectedResult));
@@ -178,9 +176,9 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     protected override void Remove(EntityState state)
     {
-      SqlRequestBuilderTask task = new SqlRequestBuilderTask(SqlModificationRequestKind.Remove, state.Type);
-      SqlModificationRequest request = domainHandler.SqlRequestCache.GetValue(task, _task => DomainHandler.SqlRequestBuilder.Build(_task));
-      request.BindParametersTo(state);
+      SqlRequestBuilderTask task = new SqlRequestBuilderTask(SqlUpdateRequestKind.Remove, state.Type);
+      SqlUpdateRequest request = domainHandler.SqlRequestCache.GetValue(task, _task => DomainHandler.SqlRequestBuilder.Build(_task));
+      request.BindParameters(state);
       int rowsAffected = ExecuteNonQuery(request);
       if (rowsAffected!=request.ExpectedResult)
         if (rowsAffected==0)
