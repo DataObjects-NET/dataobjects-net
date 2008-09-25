@@ -263,7 +263,7 @@ namespace Xtensive.Core.Collections
     /// <inheritdoc/>
     void ICollection<KeyValuePair<TKey, TFlag>>.CopyTo(KeyValuePair<TKey, TFlag>[] array, int arrayIndex)
     {
-      throw new NotSupportedException();
+      this.Copy(array, arrayIndex);
     }
 
     /// <inheritdoc/>
