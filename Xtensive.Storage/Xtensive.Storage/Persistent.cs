@@ -108,7 +108,7 @@ namespace Xtensive.Storage
       }
     }
 
-
+    [Infrastructure]
     private void SetValueInternal<T>(FieldInfo field, T value)
     {
       field.GetAccessor<T>().SetValue(this, field, value);

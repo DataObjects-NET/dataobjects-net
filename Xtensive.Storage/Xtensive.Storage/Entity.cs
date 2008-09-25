@@ -119,6 +119,7 @@ namespace Xtensive.Storage
     #region Remove method
 
     /// <inheritdoc/>
+    [Infrastructure]
     public void Remove()
     {      
       if (Log.IsLogged(LogEventTypes.Debug))
