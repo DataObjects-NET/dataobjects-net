@@ -135,7 +135,7 @@ namespace Xtensive.Sql.Common
     /// </summary>
     /// <param name="values">An array of values of type <typeparamref name="T"/>
     /// to be added to the <see cref="ParameterCollection{T}"/>.</param>
-    public void AddRange(T[] values)
+    public void AddRange(IEnumerable<T> values)
     {
       ArgumentValidator.EnsureArgumentNotNull(values, "values");
       foreach (T value in values) {
