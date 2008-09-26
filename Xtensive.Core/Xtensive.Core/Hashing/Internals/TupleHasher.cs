@@ -101,7 +101,6 @@ namespace Xtensive.Core.Hashing
       ArrayHashingHandler h = GetArrayHashingHandler(value.Descriptor);
       DelegateHelper.ExecuteDelegates(h.Handlers, ref data, Direction.Positive);
       return data.Result;
-      //return value.Descriptor.Execute((ITupleFunctionHandler<ArrayHashData, long[]>)this, ref data, Direction.Positive);
     }
 
     private SingleHashingHandler GetSingleHashingHandler(TupleDescriptor descriptor)
