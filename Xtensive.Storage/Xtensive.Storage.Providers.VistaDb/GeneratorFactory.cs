@@ -26,7 +26,7 @@ namespace Xtensive.Storage.Providers.VistaDb
       Schema schema = dh.Schema;
       SqlBatch sqlCreate = null;
       Table genTable = schema.Tables[hierarchy.MappingName];
-      SqlValueType columnType = dh.ValueTypeMapper.BuildSqlValueType(hierarchy.Columns[0]);
+      SqlValueType columnType = dh.ValueTypeMapper.GetSqlValueType(hierarchy.Columns[0]);
 
       if (genTable == null) {
         genTable = schema.CreateTable(hierarchy.MappingName);

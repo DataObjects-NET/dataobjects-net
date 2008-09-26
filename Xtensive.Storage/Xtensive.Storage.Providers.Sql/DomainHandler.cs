@@ -118,7 +118,7 @@ namespace Xtensive.Storage.Providers.Sql
         PrimaryIndexMapping pim = MappingSchema.RegisterMapping(primaryIndex, table);
         var keyColumns = new List<TableColumn>();
         foreach (ColumnInfo columnInfo in primaryIndex.Columns) {
-          TableColumn column = table.CreateColumn(columnInfo.Name, ValueTypeMapper.BuildSqlValueType(columnInfo));
+          TableColumn column = table.CreateColumn(columnInfo.Name, ValueTypeMapper.GetSqlValueType(columnInfo));
           pim.RegisterMapping(columnInfo, column);
           column.IsNullable = columnInfo.IsNullable;
           if (columnInfo.IsPrimaryKey)

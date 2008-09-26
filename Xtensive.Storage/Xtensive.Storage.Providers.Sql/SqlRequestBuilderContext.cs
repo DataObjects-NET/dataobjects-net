@@ -28,7 +28,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     public Dictionary<ColumnInfo, SqlUpdateRequestParameter> ParameterBindings { get; private set; }
 
-    internal SqlUpdateRequestParameter BuildParameterBinding(ColumnInfo column, Func<Tuple, object> functor)
+    internal SqlUpdateRequestParameter GetParameterBinding(ColumnInfo column, Func<Tuple, object> functor)
     {
       SqlUpdateRequestParameter result;
       if (!ParameterBindings.TryGetValue(column, out result)) {

@@ -19,19 +19,26 @@ namespace Xtensive.Storage.Providers.Sql
     public ValueTypeMappingSchema MappingSchema { get; private set; }
 
     /// <exception cref="InvalidOperationException">Type is not supported.</exception>
-    public SqlValueType BuildSqlValueType(Model.ColumnInfo column)
+    public SqlValueType GetSqlValueType(Model.ColumnInfo column)
     {
       int length = column.Length.HasValue ? column.Length.Value : 0;
+      Type type = column.ValueType;
 
+      return GetSqlValueType(type, length);
+    }
+
+    public SqlValueType GetSqlValueType(Type type, int length)
+    {
       {
-        DataTypeInfo dti = MappingSchema.GetExactMapping(column.ValueType);
+        DataTypeInfo dti = MappingSchema.GetExactMapping(type);
         if (dti != null)
           return new SqlValueType(dti.SqlType, length);
       }
 
-      DataTypeInfo[] ambigiousMappings = MappingSchema.GetAmbigiousMappings(column.ValueType);
+      DataTypeInfo[] ambigiousMappings = MappingSchema.GetAmbigiousMappings(type);
       if (ambigiousMappings!=null) {
         foreach (DataTypeInfo dti in ambigiousMappings) {
+
           StreamDataTypeInfo sdti = dti as StreamDataTypeInfo;
           if (sdti == null)
             return new SqlValueType(dti.SqlType);
@@ -45,7 +52,7 @@ namespace Xtensive.Storage.Providers.Sql
           return new SqlValueType(sdti.SqlType, length);
         }
       }
-      throw new InvalidOperationException(string.Format("Type '{0}' is not supported.", column.ValueType.GetShortName()));
+      throw new InvalidOperationException(string.Format("Type '{0}' is not supported.", type.GetShortName()));
     }
 
     /// <inheritdoc/>

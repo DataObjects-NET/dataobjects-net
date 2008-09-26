@@ -7,7 +7,6 @@
 using System;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
-using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Model;
 using SqlFactory = Xtensive.Sql.Dom.Sql;
@@ -65,9 +64,9 @@ namespace Xtensive.Storage.Providers.Sql
 
         for (int i = 0; i < index.Columns.Count; i++) {
           ColumnInfo column = index.Columns[i];
-          int offset = GetColumnIndex(context.Type, column);
-          if (offset >= 0) {
-            SqlUpdateRequestParameter binding = context.BuildParameterBinding(column, BuildTupleFieldAccessor(offset));
+          int fieldIndex = GetFieldIndex(context.Type, column);
+          if (fieldIndex >= 0) {
+            SqlUpdateRequestParameter binding = context.GetParameterBinding(column, GetTupleFieldAccessor(fieldIndex));
             query.Values[table[i]] = binding.Parameter;
           }
         }
@@ -83,9 +82,9 @@ namespace Xtensive.Storage.Providers.Sql
 
         for (int i = 0; i < index.Columns.Count; i++) {
           ColumnInfo column = index.Columns[i];
-          int offset = GetColumnIndex(context.Type, column);
-          if (offset >= 0 && context.Task.FieldMap[offset]) {
-            SqlUpdateRequestParameter binding = context.BuildParameterBinding(column, BuildTupleFieldAccessor(offset));
+          int fieldIndex = GetFieldIndex(context.Type, column);
+          if (fieldIndex >= 0 && context.Task.FieldMap[fieldIndex]) {
+            SqlUpdateRequestParameter binding = context.GetParameterBinding(column, GetTupleFieldAccessor(fieldIndex));
             query.Values[table[i]] = binding.Parameter;
           }
         }
@@ -113,22 +112,22 @@ namespace Xtensive.Storage.Providers.Sql
       SqlExpression expression = null;
       int i = 0;
       foreach (ColumnInfo column in context.PrimaryIndex.KeyColumns.Keys) {
-        int offset = GetColumnIndex(context.Task.Type, column);
-        SqlUpdateRequestParameter binding = context.BuildParameterBinding(column, BuildTupleFieldAccessor(offset));
+        int fieldIndex = GetFieldIndex(context.Task.Type, column);
+        SqlUpdateRequestParameter binding = context.GetParameterBinding(column, GetTupleFieldAccessor(fieldIndex));
         expression &= table[i++]==binding.Parameter;
       }
       return expression;
     }
 
-    private static int GetColumnIndex(TypeInfo type, ColumnInfo column)
+    private static int GetFieldIndex(TypeInfo type, ColumnInfo column)
     {
       var field = type.Fields[column.Field.Name];
       return field == null ? -1 : field.MappingInfo.Offset;
     }
 
-    private static Func<Tuple, object> BuildTupleFieldAccessor(int fieldIndex)
+    private static Func<Tuple, object> GetTupleFieldAccessor(int fieldIndex)
     {
-      return (target => target.IsNull(fieldIndex) ? DBNull.Value : target.GetValue(fieldIndex));
+      return (tuple => tuple.IsNull(fieldIndex) ? DBNull.Value : tuple.GetValue(fieldIndex));
     }
 
     /// <inheritdoc/>

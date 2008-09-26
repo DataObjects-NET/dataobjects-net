@@ -4,6 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2008.09.05
 
+using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Database;
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Model;
@@ -39,8 +40,15 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
           table = schema.CreateTemporaryTable(tableName);
 
         foreach (Column column in provider.Header.Columns) {
-          ColumnInfo ci = ((MappedColumn) column).ColumnInfoRef.Resolve(domainHandler.Domain.Model);
-          TableColumn tableColumn = table.CreateColumn(column.Name, domainHandler.ValueTypeMapper.BuildSqlValueType(ci));
+          SqlValueType svt;
+          MappedColumn mappedColumn = column as MappedColumn;
+          if (mappedColumn!=null) {
+            ColumnInfo ci = mappedColumn.ColumnInfoRef.Resolve(domainHandler.Domain.Model);
+            svt = domainHandler.ValueTypeMapper.GetSqlValueType(ci);
+          }
+          else
+            svt = domainHandler.ValueTypeMapper.GetSqlValueType(column.Type, 0);
+          TableColumn tableColumn = table.CreateColumn(column.Name, svt);
           tableColumn.IsNullable = true;
         }
       }
