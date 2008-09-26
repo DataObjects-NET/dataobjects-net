@@ -14,11 +14,11 @@ namespace Xtensive.Core.SizeCalculators
 {
   [Serializable]
   internal class TupleSizeCalculator : SizeCalculatorBase<Tuple>,
-    IFinalAssociate,
-    ITupleFunctionHandler<TupleSizeCalculator.TupleSizeCalculatorData, int>
+    IFinalAssociate
   {
     private readonly object _lock = new object();
-    private ThreadSafeDictionary<TupleDescriptor, ISizeCalculatorBase[]> calculators = 
+
+    private ThreadSafeDictionary<TupleDescriptor, ISizeCalculatorBase[]> calculators =
       ThreadSafeDictionary<TupleDescriptor, ISizeCalculatorBase[]>.Create(new object());
 
     #region Nested type: TupleSizeCalculatorData 
@@ -42,39 +42,72 @@ namespace Xtensive.Core.SizeCalculators
       }
     }
 
+    private class SizeCulculatorHandler
+    {
+      public ExecutionSequenceHandler<TupleSizeCalculatorData>[] Handlers;
+
+      public SizeCulculatorHandler(TupleDescriptor descriptor)
+      {
+        Handlers = new ExecutionSequenceHandler<TupleSizeCalculatorData>[descriptor.Count];
+      }
+    }
+
     #endregion
+
+    [NonSerialized]
+    private ThreadSafeList<SizeCulculatorHandler> sizeCulculatorHandlers;
 
     /// <inheritdoc/>
     public override int GetValueSize(Tuple value)
     {
-      if (value==null) 
+      if (value==null)
         return SizeCalculatorProvider.PointerFieldSize;
 
       var data = new TupleSizeCalculatorData(value, GetCalculators(value));
-      int result = value.Descriptor.Execute(this, ref data, Direction.Positive);
-
-      return result 
-        + SizeCalculatorProvider.PointerFieldSize 
-        + SizeCalculatorProvider.HeapObjectHeaderSize;
+      SizeCulculatorHandler h = GetSizeCulculatorHandler(value.Descriptor);
+      DelegateHelper.ExecuteDelegates(h.Handlers, ref data, Direction.Positive);
+      return data.Result
+        + SizeCalculatorProvider.PointerFieldSize
+          + SizeCalculatorProvider.HeapObjectHeaderSize;
     }
 
     #region Private \ internal methods
 
-    bool ITupleActionHandler<TupleSizeCalculatorData>.Execute<TFieldType>(ref TupleSizeCalculatorData actionData, int fieldIndex)
+    private SizeCulculatorHandler GetSizeCulculatorHandler(TupleDescriptor descriptor)
+    {
+      return sizeCulculatorHandlers.GetValue(descriptor.Identifier,
+        (indentifier, _this, _descriptor) => {
+          var box = new Box<SizeCulculatorHandler>(new SizeCulculatorHandler(descriptor));
+          ExecutionSequenceHandler<Box<SizeCulculatorHandler>>[] initializers =
+            DelegateHelper.CreateDelegates<ExecutionSequenceHandler<Box<SizeCulculatorHandler>>>(
+              _this, _this.GetType(), "InitializeStep", _descriptor);
+          DelegateHelper.ExecuteDelegates(initializers, ref box, Direction.Positive);
+          return box.Value;
+        },
+        this, descriptor);
+    }
+
+    private bool InitializeStep<TFieldType>(ref Box<SizeCulculatorHandler> data, int fieldIndex)
+    {
+      data.Value.Handlers[fieldIndex] = Execute<TFieldType>;
+      return false;
+    }
+
+    private bool Execute<TFieldType>(ref TupleSizeCalculatorData actionData, int fieldIndex)
     {
       ISizeCalculatorBase sizeCalculator = actionData.Calculators[fieldIndex];
-      ISizeCalculator<TFieldType> calculator = sizeCalculator as ISizeCalculator<TFieldType>;
-      
+      var calculator = sizeCalculator as ISizeCalculator<TFieldType>;
+
       if (!actionData.Tuple.HasValue(fieldIndex)) {
-        if (calculator == null) // Unknown means there is reference field
-          actionData.Result += SizeCalculatorProvider.PointerFieldSize; 
+        if (calculator==null) // Unknown means there is reference field
+          actionData.Result += SizeCalculatorProvider.PointerFieldSize;
         else
           actionData.Result += calculator.GetDefaultSize();
       }
       else {
-        TFieldType value = actionData.Tuple.GetValue<TFieldType>(fieldIndex);
-        if (calculator == null)
-          actionData.Result += Provider.GetSizeCalculatorByInstance(value).GetInstanceSize(value); 
+        var value = actionData.Tuple.GetValue<TFieldType>(fieldIndex);
+        if (calculator==null)
+          actionData.Result += Provider.GetSizeCalculatorByInstance(value).GetInstanceSize(value);
         else
           actionData.Result += calculator.GetValueSize(value);
       }
@@ -83,7 +116,7 @@ namespace Xtensive.Core.SizeCalculators
 
     private ISizeCalculatorBase[] GetCalculators(Tuple tuple)
     {
-      return calculators.GetValue(tuple.Descriptor, 
+      return calculators.GetValue(tuple.Descriptor,
         (descriptor, _this) => {
           int count = descriptor.Count;
           var result = new ISizeCalculatorBase[count];
@@ -95,8 +128,13 @@ namespace Xtensive.Core.SizeCalculators
             result[i] = calculator;
           }
           return result;
-        }, 
+        },
         this);
+    }
+
+    private void Initialize()
+    {
+      sizeCulculatorHandlers.Initialize(new object());
     }
 
     #endregion
@@ -110,6 +148,7 @@ namespace Xtensive.Core.SizeCalculators
     public TupleSizeCalculator(ISizeCalculatorProvider provider)
       : base(provider)
     {
+      Initialize();
     }
   }
 }
