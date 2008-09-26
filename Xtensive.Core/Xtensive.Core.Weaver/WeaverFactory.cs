@@ -32,6 +32,7 @@ namespace Xtensive.Core.Weaver
       var constructorEpilogueAspect = aspect as ImplementConstructorEpilogueAspect;
       var constructorAspect = aspect as ImplementConstructorAspect;
       var protectedConstructorAccessorAspect = aspect as ImplementProtectedConstructorAccessorAspect;
+      var fastMethodBoundaryAspect = aspect as ImplementFastMethodBoundaryAspect;
 
       // Trying ImplementPrivateFieldAccessorsWeaver
       if (privateFieldAccessorsAspect!=null)
@@ -59,6 +60,9 @@ namespace Xtensive.Core.Weaver
           protectedConstructorAccessorAspect.ParameterTypes
             .Select(t => Project.Module.Cache.GetType(t)).ToArray());
       }
+
+      if (fastMethodBoundaryAspect != null)
+        return new ImplementFastMethodBoundaryAspectWeaver();
 
       return null;
     }
