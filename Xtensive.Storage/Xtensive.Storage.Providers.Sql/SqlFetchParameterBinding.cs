@@ -5,28 +5,24 @@
 // Created:    2008.09.25
 
 using System;
-using Xtensive.Sql.Dom;
 using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Providers.Sql
 {
-  public sealed class SqlFetchRequestParameter
+  public sealed class SqlFetchParameterBinding : SqlParameterBinding
   {
     public ColumnInfoRef ColumnRef { get; private set; }
 
-    public SqlParameter Parameter { get; private set; }
-
     public Func<object> Value { get; private set; }
 
-    public SqlFetchRequestParameter(ColumnInfoRef column, Func<object> value)
+    public SqlFetchParameterBinding(ColumnInfoRef column, Func<object> value)
       : this(value)
     {
       ColumnRef = column;
     }
 
-    public SqlFetchRequestParameter(Func<object> value)
+    public SqlFetchParameterBinding(Func<object> value)
     {
-      Parameter = new SqlParameter();
       Value = value;
     }
   }

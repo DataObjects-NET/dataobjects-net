@@ -50,9 +50,9 @@ namespace Xtensive.Storage.Providers.Sql
       int i = 0;
       foreach (SqlTableColumn column in tableRef.Columns) {
         int fieldIndex = i;
-        SqlUpdateRequestParameter binding = new SqlUpdateRequestParameter((target => target.IsNull(fieldIndex) ? DBNull.Value : target.GetValue(fieldIndex)));
+        SqlUpdateParameterBinding binding = new SqlUpdateParameterBinding((target => target.IsNull(fieldIndex) ? DBNull.Value : target.GetValue(fieldIndex)));
         insert.Values[column] = binding.Parameter;
-        updateRequest.Parameters.Add(binding);
+        updateRequest.ParameterBindings.Add(binding);
         i++;
       }
       sessionHandler.DomainHandler.Compile(updateRequest);

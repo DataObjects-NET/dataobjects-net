@@ -32,7 +32,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
       var query = (SqlSelect)source.Request.Statement.Clone();
       var keyColumns = provider.Header.Order.ToList();
       var originalRange = provider.Range();
-      var request = new SqlFetchRequest(query, provider.Header.TupleDescriptor, source.Request.Parameters);
+      var request = new SqlFetchRequest(query, provider.Header, source.Request.ParameterBindings);
       var rangeProvider = new SqlRangeProvider(provider, request, Handlers, originalRange, source);
 
       Func<int,SqlParameter,SqlExpression> fromCompiler = null;
@@ -42,19 +42,19 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
         if (originalRange.EndPoints.First.Count > i && originalRange.EndPoints.First.IsAvailable(i)) {
           var column = provider.Header.Columns[keyColumns[i].Key] as MappedColumn;
           var cir = column!=null ? column.ColumnInfoRef : null;
-          var binding = new SqlFetchRequestParameter(cir, () => rangeProvider.CurrentRange.EndPoints.First.GetValue(i));
+          var binding = new SqlFetchParameterBinding(cir, () => rangeProvider.CurrentRange.EndPoints.First.GetValue(i));
           switch (originalRange.EndPoints.First.GetValueType(i)) {
           case EntireValueType.Default:
-            request.Parameters.Add(binding);
+            request.ParameterBindings.Add(binding);
             result = query.Columns[keyColumns[i].Key] >= binding.Parameter;
             bContinue = true;
             break;
           case EntireValueType.PositiveInfinitesimal:
-            request.Parameters.Add(binding);
+            request.ParameterBindings.Add(binding);
             result = query.Columns[keyColumns[i].Key] > binding.Parameter;
             break;
           case EntireValueType.NegativeInfinitesimal:
-            request.Parameters.Add(binding);
+            request.ParameterBindings.Add(binding);
             result = query.Columns[keyColumns[i].Key] >= binding.Parameter;
             bContinue = true;
             break;
@@ -81,20 +81,20 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
         if (originalRange.EndPoints.Second.Count > i && originalRange.EndPoints.Second.IsAvailable(i)) {
           var column = provider.Header.Columns[keyColumns[i].Key] as MappedColumn;
           var cir = column!=null ? column.ColumnInfoRef : null;
-          var binding = new SqlFetchRequestParameter(cir, () => rangeProvider.CurrentRange.EndPoints.Second.GetValue(i));
+          var binding = new SqlFetchParameterBinding(cir, () => rangeProvider.CurrentRange.EndPoints.Second.GetValue(i));
           switch (originalRange.EndPoints.Second.GetValueType(i)) {
           case EntireValueType.Default:
-            request.Parameters.Add(binding);
+            request.ParameterBindings.Add(binding);
             result = query.Columns[keyColumns[i].Key] <= binding.Parameter;
             bContinue = true;
             break;
           case EntireValueType.PositiveInfinitesimal:
-            request.Parameters.Add(binding);
+            request.ParameterBindings.Add(binding);
             result = query.Columns[keyColumns[i].Key] <= binding.Parameter;
             bContinue = true;
             break;
           case EntireValueType.NegativeInfinitesimal:
-            request.Parameters.Add(binding);
+            request.ParameterBindings.Add(binding);
             result = query.Columns[keyColumns[i].Key] < binding.Parameter;
             break;
           case EntireValueType.PositiveInfinity:

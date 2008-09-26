@@ -6,8 +6,10 @@
 
 using System;
 using NUnit.Framework;
+using Xtensive.Sql.Common;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Tests.Storage.DbTypeSupportModel;
+using Xtensive.Storage.Providers.Sql;
 
 namespace Xtensive.Storage.Tests.Storage.DbTypeSupportModel
 {
@@ -158,11 +160,49 @@ namespace Xtensive.Storage.Tests.Storage
     }
 
     [Test]
-    public void MainTest()
+    public void DefaultValuesTest()
     {
       using(Domain.OpenSession()) {
+        Key key;
         using (var t = Session.Current.OpenTransaction()) {
-          new X();
+          key = new X().Key;
+          t.Complete();
+        }
+        DomainHandler dh =Domain.Handlers.DomainHandler as DomainHandler;
+        DateTime dt = new DateTime();
+        if (dh != null) {
+          RangeDataTypeInfo<DateTime> dti = dh.Driver.ServerInfo.DataTypes.DateTime;
+          dt = dti.Value.MinValue;
+        }
+        using (var t = Session.Current.OpenTransaction()) {
+          X x = key.Resolve<X>();
+          Assert.AreEqual(false, x.FBool);
+          Assert.AreEqual(0, x.FByte);
+          Assert.AreEqual(null, x.FByteArray);
+          Assert.AreEqual(dt, x.FDateTime);
+          Assert.AreEqual(0, x.FDecimal);
+          Assert.AreEqual(0, x.FDouble);
+          Assert.AreEqual(EByte.Min, x.FEByte);
+          Assert.AreEqual(EInt.Min, x.FEInt);
+          Assert.AreEqual(ELong.Min, x.FELong);
+          Assert.AreEqual(ESByte.Min, x.FESByte);
+          Assert.AreEqual(EShort.Min, x.FEShort);
+          Assert.AreEqual(EUInt.Min, x.FEUInt);
+          Assert.AreEqual(ELong.Min, x.FEULong);
+          Assert.AreEqual(EShort.Min, x.FEUShort);
+          Assert.AreEqual(0, x.FFloat);
+          Assert.AreEqual(Guid.Empty, x.FGuid);
+          Assert.AreEqual(0, x.FInt);
+          Assert.AreEqual(0l, x.FLong);
+          Assert.AreEqual(null, x.FLongByteArray);
+          Assert.AreEqual(string.Empty, x.FLongString);
+          Assert.AreEqual(0, x.FSByte);
+          Assert.AreEqual(0, x.FShort);
+          Assert.AreEqual(string.Empty, x.FString);
+          Assert.AreEqual(TimeSpan.Zero, x.FTimeSpan);
+          Assert.AreEqual(0, x.FUInt);
+          Assert.AreEqual(0, x.FULong);
+          Assert.AreEqual(0, x.FUShort);
           t.Complete();
         }
       }

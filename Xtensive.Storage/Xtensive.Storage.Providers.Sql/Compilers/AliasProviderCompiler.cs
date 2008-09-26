@@ -27,7 +27,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
       sqlSelect.Columns.Clear();
       for (int i = 0; i < columns.Count; i++)
         sqlSelect.Columns.Add(columns[i], provider.Header.Columns[i].Name);
-      var request = new SqlFetchRequest(sqlSelect, provider.Header.TupleDescriptor, source.Request.Parameters);
+      var request = new SqlFetchRequest(sqlSelect, provider.Header, source.Request.ParameterBindings);
       return new SqlProvider(provider, request, Handlers, source);
     }
 

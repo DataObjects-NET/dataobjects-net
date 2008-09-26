@@ -77,16 +77,16 @@ namespace Xtensive.Storage.Providers.Sql
     {
       using (DbDataReader reader = ExecuteReader(request)) {
         Tuple tuple;
-        while ((tuple = ReadTuple(reader, request.TupleDescriptor))!=null)
+        while ((tuple = ReadTuple(reader, request))!=null)
           yield return tuple;
       }
     }
 
-    protected virtual Tuple ReadTuple(DbDataReader reader, TupleDescriptor tupleDescriptor)
+    protected virtual Tuple ReadTuple(DbDataReader reader, SqlFetchRequest request)
     {
       if (!reader.Read())
         return null;
-      var tuple = Tuple.Create(tupleDescriptor);
+      var tuple = Tuple.Create(request.TupleDescriptor);
       for (int i = 0; i < reader.FieldCount; i++) {
         var value = reader[i];
         tuple.SetValue(i, DBNull.Value==value ? null : value);
@@ -110,7 +110,7 @@ namespace Xtensive.Storage.Providers.Sql
       EnsureConnectionIsOpen();
       using (var command = new SqlCommand(connection)) {
         command.CommandText = request.CompiledStatement;
-        command.Parameters.AddRange(request.Parameters.Select(b => b.Parameter));
+        command.Parameters.AddRange(request.ParameterBindings.Select(b => b.Parameter));
         command.Prepare();
         command.Transaction = Transaction;
         return command.ExecuteNonQuery();
@@ -144,7 +144,7 @@ namespace Xtensive.Storage.Providers.Sql
       EnsureConnectionIsOpen();
       using (var command = new SqlCommand(connection)) {
         command.CommandText = request.CompiledStatement;
-        command.Parameters.AddRange(request.Parameters.Select(b => b.Parameter));
+        command.Parameters.AddRange(request.ParameterBindings.Select(b => b.Parameter));
         command.Prepare();
         command.Transaction = Transaction;
         return command.ExecuteReader();

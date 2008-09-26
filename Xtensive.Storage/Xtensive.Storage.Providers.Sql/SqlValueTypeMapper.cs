@@ -27,6 +27,7 @@ namespace Xtensive.Storage.Providers.Sql
       return GetSqlValueType(type, length);
     }
 
+    /// <exception cref="InvalidOperationException">Type is not supported.</exception>
     public SqlValueType GetSqlValueType(Type type, int length)
     {
       {
@@ -98,6 +99,10 @@ namespace Xtensive.Storage.Providers.Sql
         return;
 
       MappingSchema.RegisterMapping(dataTypeInfo.Type, dataTypeInfo);
+    }
+
+    public virtual void ConfigureParameter(SqlParameterBinding binding)
+    {
     }
   }
 }

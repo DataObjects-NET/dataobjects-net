@@ -21,7 +21,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <summary>
     /// Gets or sets the parameter bindings.
     /// </summary>
-    public HashSet<SqlUpdateRequestParameter> Parameters { get; private set; }
+    public HashSet<SqlUpdateParameterBinding> ParameterBindings { get; private set; }
 
     /// <summary>
     /// Gets or sets the expected result.
@@ -35,8 +35,11 @@ namespace Xtensive.Storage.Providers.Sql
     /// <param name="target">The target to bind parameters to.</param>
     public void BindParameters(Tuple target)
     {
-      foreach (var binding in Parameters)
-        binding.Parameter.Value = binding.Value.Invoke(target);
+      foreach (var binding in ParameterBindings) {
+        binding.Parameter.Value = binding.Value(target);
+        if (binding.Parameter.Value != DBNull.Value && binding.ValueConverter != null)
+          binding.ValueConverter();
+      }
     }
 
     internal override void CompileWith(SqlDriver driver)
@@ -44,7 +47,7 @@ namespace Xtensive.Storage.Providers.Sql
       if (CompilationResult!=null)
         return;
       int i = 0;
-      foreach (SqlUpdateRequestParameter binding in Parameters)
+      foreach (SqlUpdateParameterBinding binding in ParameterBindings)
         binding.Parameter.ParameterName = "p" + i++;
       CompilationResult = driver.Compile(Statement);
     }
@@ -59,7 +62,7 @@ namespace Xtensive.Storage.Providers.Sql
     public SqlUpdateRequest(ISqlCompileUnit statement)
       : base(statement)
     {
-      Parameters = new HashSet<SqlUpdateRequestParameter>();
+      ParameterBindings = new HashSet<SqlUpdateParameterBinding>();
     }
   }
 }

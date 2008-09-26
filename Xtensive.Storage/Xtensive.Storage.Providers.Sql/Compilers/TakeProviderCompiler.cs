@@ -24,7 +24,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
       var count = provider.Count();
       if (query.Top==0 || query.Top > count)
         query.Top = count;
-      var request = new SqlFetchRequest(query, provider.Header.TupleDescriptor, source.Request.Parameters);
+      var request = new SqlFetchRequest(query, provider.Header, source.Request.ParameterBindings);
       return new SqlProvider(provider, request, Handlers, source);
     }
 

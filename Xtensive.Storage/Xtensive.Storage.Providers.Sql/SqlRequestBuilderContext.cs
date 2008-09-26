@@ -26,13 +26,13 @@ namespace Xtensive.Storage.Providers.Sql
 
     public IndexInfo PrimaryIndex { get; private set; }
 
-    public Dictionary<ColumnInfo, SqlUpdateRequestParameter> ParameterBindings { get; private set; }
+    public Dictionary<ColumnInfo, SqlUpdateParameterBinding> ParameterBindings { get; private set; }
 
-    internal SqlUpdateRequestParameter GetParameterBinding(ColumnInfo column, Func<Tuple, object> functor)
+    internal SqlUpdateParameterBinding GetParameterBinding(ColumnInfo column, Func<Tuple, object> functor)
     {
-      SqlUpdateRequestParameter result;
+      SqlUpdateParameterBinding result;
       if (!ParameterBindings.TryGetValue(column, out result)) {
-        result = new SqlUpdateRequestParameter(column, functor);
+        result = new SqlUpdateParameterBinding(column, functor);
         ParameterBindings.Add(column, result);
       }
       return result;
@@ -46,7 +46,7 @@ namespace Xtensive.Storage.Providers.Sql
       Type = task.Type;
       AffectedIndexes = Task.Type.AffectedIndexes.Where(i => i.IsPrimary).ToList();
       PrimaryIndex = Task.Type.Indexes.PrimaryIndex;
-      ParameterBindings = new Dictionary<ColumnInfo, SqlUpdateRequestParameter>();
+      ParameterBindings = new Dictionary<ColumnInfo, SqlUpdateParameterBinding>();
     }
   }
 }

@@ -26,7 +26,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
         return null;
 
       var query = (SqlSelect)source.Request.Statement.Clone();
-      var request = new SqlFetchRequest(query, provider.Header.TupleDescriptor, source.Request.Parameters);
+      var request = new SqlFetchRequest(query, provider.Header, source.Request.ParameterBindings);
       var typeIdColumnName = Handlers.NameBuilder.TypeIdColumnName;
       Func<KeyValuePair<int, Direction>, bool> filterNonTypeId = 
         pair => ((MappedColumn)provider.Header.Columns[pair.Key]).ColumnInfoRef.ColumnName!=typeIdColumnName;
@@ -40,8 +40,8 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
         var column = provider.Header.Columns[columnIndex] as MappedColumn;
         int index = i;
         var cir = column != null ? column.ColumnInfoRef : null;
-        var binding = new SqlFetchRequestParameter(cir, () => provider.Key().GetValue(index));
-        request.Parameters.Add(binding);
+        var binding = new SqlFetchParameterBinding(cir, () => provider.Key().GetValue(index));
+        request.ParameterBindings.Add(binding);
         query.Where &= sqlColumn == SqlFactory.ParameterRef(binding.Parameter);
       }
 

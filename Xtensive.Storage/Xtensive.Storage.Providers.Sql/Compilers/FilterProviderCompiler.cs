@@ -21,7 +21,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
         return null;
 
       var query = (SqlSelect)source.Request.Statement.Clone();
-      var request = new SqlFetchRequest(query, provider.Header.TupleDescriptor, source.Request.Parameters);
+      var request = new SqlFetchRequest(query, provider.Header, source.Request.ParameterBindings);
       var visitor = new FilterVisitor(request);
       visitor.AppendFilterToRequest(provider.Predicate);
 

@@ -1,7 +1,7 @@
 // Copyright (C) 2008 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
-// Created by: 
+// Created by: Dmitri Maximov
 // Created:    2008.08.28
 
 using System;
@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Providers.Sql
       var result = new SqlUpdateRequest(context.Batch);
 
       foreach (var pair in context.ParameterBindings)
-        result.Parameters.Add(pair.Value);
+        result.ParameterBindings.Add(pair.Value);
 
       SetExpectedResult(result);
       DomainHandler.Compile(result);
@@ -66,7 +66,8 @@ namespace Xtensive.Storage.Providers.Sql
           ColumnInfo column = index.Columns[i];
           int fieldIndex = GetFieldIndex(context.Type, column);
           if (fieldIndex >= 0) {
-            SqlUpdateRequestParameter binding = context.GetParameterBinding(column, GetTupleFieldAccessor(fieldIndex));
+            SqlUpdateParameterBinding binding = context.GetParameterBinding(column, GetTupleFieldAccessor(fieldIndex));
+            DomainHandler.ValueTypeMapper.ConfigureParameter(binding);
             query.Values[table[i]] = binding.Parameter;
           }
         }
@@ -84,7 +85,8 @@ namespace Xtensive.Storage.Providers.Sql
           ColumnInfo column = index.Columns[i];
           int fieldIndex = GetFieldIndex(context.Type, column);
           if (fieldIndex >= 0 && context.Task.FieldMap[fieldIndex]) {
-            SqlUpdateRequestParameter binding = context.GetParameterBinding(column, GetTupleFieldAccessor(fieldIndex));
+            SqlUpdateParameterBinding binding = context.GetParameterBinding(column, GetTupleFieldAccessor(fieldIndex));
+            DomainHandler.ValueTypeMapper.ConfigureParameter(binding);
             query.Values[table[i]] = binding.Parameter;
           }
         }
@@ -113,7 +115,8 @@ namespace Xtensive.Storage.Providers.Sql
       int i = 0;
       foreach (ColumnInfo column in context.PrimaryIndex.KeyColumns.Keys) {
         int fieldIndex = GetFieldIndex(context.Task.Type, column);
-        SqlUpdateRequestParameter binding = context.GetParameterBinding(column, GetTupleFieldAccessor(fieldIndex));
+        SqlUpdateParameterBinding binding = context.GetParameterBinding(column, GetTupleFieldAccessor(fieldIndex));
+        DomainHandler.ValueTypeMapper.ConfigureParameter(binding);
         expression &= table[i++]==binding.Parameter;
       }
       return expression;

@@ -6,9 +6,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Sql.Dom;
+using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Providers.Sql
 {
@@ -20,30 +22,38 @@ namespace Xtensive.Storage.Providers.Sql
     /// <summary>
     /// Gets or sets the parameter bindings.
     /// </summary>
-    public HashSet<SqlFetchRequestParameter> Parameters { get; private set; }
+    public HashSet<SqlFetchParameterBinding> ParameterBindings { get; private set; }
 
     /// <summary>
-    /// Gets or sets the result element descriptor.
+    /// Gets the result element descriptor.
     /// </summary>
     public TupleDescriptor TupleDescriptor { get; private set; }
+
+    /// <summary>
+    /// Gets the record set header.
+    /// </summary>
+    public RecordSetHeader RecordSetHeader { get; private set; }
 
     /// <summary>
     /// Binds the parameters to actual values.
     /// </summary>
     public void BindParameters()
     {
-      foreach (var binding in Parameters)
-        binding.Parameter.Value = binding.Value.Invoke();
+      foreach (var binding in ParameterBindings)
+        binding.Parameter.Value = binding.Value();
     }
 
     internal override void CompileWith(SqlDriver driver)
     {
       if (CompilationResult!=null)
         return;
+
       int i = 0;
-      foreach (SqlFetchRequestParameter binding in Parameters)
+      foreach (SqlFetchParameterBinding binding in ParameterBindings)
         binding.Parameter.ParameterName = "p" + i++;
       CompilationResult = driver.Compile(Statement);
+
+      TupleDescriptor = TupleDescriptor.Create(RecordSetHeader.Columns.Select(c => c.Type));
     }
 
 
@@ -53,24 +63,24 @@ namespace Xtensive.Storage.Providers.Sql
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="statement">The statement.</param>
-    /// <param name="tupleDescriptor">The element descriptor.</param>
-    public SqlFetchRequest(ISqlCompileUnit statement, TupleDescriptor tupleDescriptor)
+    /// <param name="recordSetHeader">The element descriptor.</param>
+    public SqlFetchRequest(ISqlCompileUnit statement, RecordSetHeader recordSetHeader)
       : base(statement)
     {
-      Parameters = new HashSet<SqlFetchRequestParameter>();
-      TupleDescriptor = tupleDescriptor;
+      ParameterBindings = new HashSet<SqlFetchParameterBinding>();
+      RecordSetHeader = recordSetHeader;
     }
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="statement">The statement.</param>
-    /// <param name="tupleDescriptor">The element descriptor.</param>
+    /// <param name="recordSetHeader">The element descriptor.</param>
     /// <param name="parameterBindings">The parameter bindings.</param>
-    public SqlFetchRequest(ISqlCompileUnit statement, TupleDescriptor tupleDescriptor, IEnumerable<SqlFetchRequestParameter> parameterBindings)
-      : this(statement, tupleDescriptor)
+    public SqlFetchRequest(ISqlCompileUnit statement, RecordSetHeader recordSetHeader, IEnumerable<SqlFetchParameterBinding> parameterBindings)
+      : this(statement, recordSetHeader)
     {
-      Parameters.UnionWith(parameterBindings);
+      ParameterBindings.UnionWith(parameterBindings);
     }
 
   }

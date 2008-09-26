@@ -27,7 +27,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
     {
       var index = provider.Index.Resolve(Handlers.Domain.Model);
       SqlSelect query = BuildProviderQuery(index);
-      var request = new SqlFetchRequest(query, provider.Header.TupleDescriptor);
+      var request = new SqlFetchRequest(query, provider.Header);
       return new SqlProvider(provider, request, Handlers);
     }
 
