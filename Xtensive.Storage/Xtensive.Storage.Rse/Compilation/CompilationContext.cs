@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using Xtensive.Core;
+using Xtensive.Core.Caching;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Rse.Providers;
@@ -53,7 +54,7 @@ namespace Xtensive.Storage.Rse.Compilation
     public readonly static int CacheSize = 1024;
 
     private static readonly GlobalTemporaryData globalTemporaryData = new GlobalTemporaryData();
-    private readonly WeakCache<CompilableProvider, CacheEntry> cache;
+    private readonly ICache<CompilableProvider, CacheEntry> cache;
     private readonly object _lock = new object();
 
     /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
@@ -178,9 +179,8 @@ namespace Xtensive.Storage.Rse.Compilation
       Compiler   = compiler;
       Extensions = extensions;
       extensions.LockSafely(true);
-      cache = new WeakCache<CompilableProvider, CacheEntry>(CacheSize, 
-        entry => entry.Key, 
-        entry => 1);
+      cache = new LruCache<CompilableProvider, CacheEntry>(CacheSize, i => i.Key,
+        new WeakestCache<CompilableProvider, CacheEntry>(false, false, i => i.Key));
     }
   }
 }

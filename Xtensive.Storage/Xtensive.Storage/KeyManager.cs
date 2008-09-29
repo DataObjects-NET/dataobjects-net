@@ -6,6 +6,7 @@
 
 using System;
 using Xtensive.Core;
+using Xtensive.Core.Caching;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Disposable;
@@ -23,9 +24,11 @@ namespace Xtensive.Storage
   /// </summary>
   public sealed class KeyManager : IDisposable
   {
+    private long CacheSize = 128*1024;
+
     private readonly Domain domain;
     private readonly object _lock = new object();
-    private readonly WeakSetSlim<Key> cache = new WeakSetSlim<Key>();
+    private readonly ICache<Key, Key> cache;
     internal Registry<HierarchyInfo, Generator> Generators { get; private set; }
 
     #region Public methods
@@ -105,7 +108,7 @@ namespace Xtensive.Storage
 
     private Key Cache(Key candidate)
     {
-      Key cached = cache[candidate];
+      Key cached = cache[candidate, true];
       if (cached==null) {
         cache.Add(candidate);
         return candidate;
@@ -126,6 +129,8 @@ namespace Xtensive.Storage
     internal KeyManager(Domain domain)
     {
       this.domain = domain;
+      cache = new LruCache<Key, Key>(CacheSize, k => k,
+        new WeakestCache<Key, Key>(false, false, k => k));
       Generators = new Registry<HierarchyInfo, Generator>();
     }
 

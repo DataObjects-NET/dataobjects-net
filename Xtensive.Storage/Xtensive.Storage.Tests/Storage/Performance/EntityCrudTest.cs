@@ -48,17 +48,18 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       BulkFetchTest(baseCount);
       FetchTest(baseCount / 2);
       QueryTest(baseCount / 5);
+      CachedQueryTest(baseCount / 5);
       RemoveTest();
     }
 
-    private void InsertTest(int inserCount)
+    private void InsertTest(int insertCount)
     {
       using (var dataContext = new Entities()) {
         dataContext.Connection.Open();
         using (var transaction = dataContext.Connection.BeginTransaction()) {
           TestHelper.CollectGarbage();
-          using (warmup ? null : new Measurement("Insert", inserCount)) {
-            for (int i = 0; i < inserCount; i++) {
+          using (warmup ? null : new Measurement("Insert", insertCount)) {
+            for (int i = 0; i < insertCount; i++) {
               var s = Simplest.CreateSimplest(i, 0, i);
               dataContext.AddToSimplest(s);
             }
@@ -67,7 +68,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
           }
         }
       }
-      instanceCount = inserCount;
+      instanceCount = insertCount;
     }
 
     private void FetchTest(int count)
@@ -122,8 +123,32 @@ namespace Xtensive.Storage.Tests.Storage.Performance
           var simplest = dataContext.Simplest;
           using (warmup ? null : new Measurement("Query", count)) {
             for (int i = 0; i < count; i++) {
-              var s = simplest.Where("it.Value == @pValue", new ObjectParameter("pValue", i % instanceCount));
-              foreach (var o in s) {
+              var pId = new ObjectParameter("pId", i % instanceCount);
+              var query = simplest.Where("it.Id == @pId -- "+i+"\r\n", pId);
+              foreach (var o in query) {
+                // Doing nothing, just enumerate
+              }
+            }
+            transaction.Commit();
+          }
+        }
+      }
+    }
+
+    private void CachedQueryTest(int count)
+    {
+      using (var dataContext = new Entities()) {
+        dataContext.Connection.Open();
+        using (var transaction = dataContext.Connection.BeginTransaction()) {
+          TestHelper.CollectGarbage();
+          var simplest = dataContext.Simplest;
+          var pId = new ObjectParameter("pId", 0);
+          var query = simplest.Where("it.Id == @pId", pId);
+          using (warmup ? null : new Measurement("Cached Query", count)) {
+            for (int i = 0; i < count; i++) {
+              pId.Value = i % instanceCount;
+              foreach (var o in query) {
+                // Doing nothing, just enumerate
               }
             }
             transaction.Commit();

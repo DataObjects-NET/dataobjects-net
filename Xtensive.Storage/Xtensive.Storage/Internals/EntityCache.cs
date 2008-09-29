@@ -7,7 +7,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Xtensive.Core.Aspects;
-using Xtensive.Core.Collections;
+using Xtensive.Core.Caching;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Model;
@@ -17,7 +17,7 @@ namespace Xtensive.Storage.Internals
   internal class EntityCache : SessionBound,
     IEnumerable<EntityState>
   {
-    private readonly WeakCache<Key, EntityState> cache;
+    private readonly ICache<Key, EntityState> cache;
     private readonly Dictionary<Key, EntityState> removed = new Dictionary<Key, EntityState>();
     // Cached properties
     private readonly Domain domain;
@@ -122,9 +122,11 @@ namespace Xtensive.Storage.Internals
 
     // Constructors
 
-    public EntityCache(Session session, int cacheSize) : base(session)
+    public EntityCache(Session session, int cacheSize) 
+      : base(session)
     {
-      cache = new WeakCache<Key, EntityState>(cacheSize, d => d.Key);
+      cache = new LruCache<Key, EntityState>(cacheSize, i => i.Key,
+        new WeakCache<Key, EntityState>(false, i => i.Key));
       domain = session.Domain;
       prototypes = domain.Prototypes;
     }

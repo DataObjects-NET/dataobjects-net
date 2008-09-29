@@ -22,8 +22,8 @@ namespace Xtensive.Storage.Tests.Storage.Performance
   {
     static DataObjects.NET.Domain domain;
 
-    public int BaseCount = 10;
-    public int InsertCount = 10;
+    public const int BaseCount = 10000;
+    public const int InsertCount = BaseCount;
     private bool warmup = false;
     private bool profile = false;
     private int instanceCount;
@@ -38,14 +38,13 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       configuration.Cultures.Add(new Culture("En", "U.S. English", new CultureInfo("en-us", false)));
       configuration.Cultures["En"].Default = true;
       
-      string productKeyFile = Path.Combine(Environment.CurrentDirectory, "Storage/Performance/DO-3.9CrudModel/ProductKey.txt");
+      string productKeyFile = Path.Combine(Environment.CurrentDirectory, @"Storage\Performance\DO39CrudModel\ProductKey.txt");
       string productKey = "";
 
       if (File.Exists(productKeyFile))
         using (StreamReader sr = new StreamReader(productKeyFile))
-        {
           productKey = sr.ReadToEnd().Trim();
-        }
+
       configuration.ProductKey = productKey;
       configuration.DefaultUpdateMode = DomainUpdateMode.Recreate;
 
@@ -57,17 +56,11 @@ namespace Xtensive.Storage.Tests.Storage.Performance
     [Test]
     public void RegularTest()
     {
-      using (var s = domain.CreateSession())
-      {
-        s.BeginTransaction();
-        var o = (Simplest)s.CreateObject(typeof(Simplest), new object[] { 0, 0 });
-        firstId = o.ID + 1;
-        s.Rollback();
-      }
+      Initialize();
       warmup = true;
-      CombinedTest(BaseCount, InsertCount);
-      BaseCount = 10000;
-      InsertCount = BaseCount;
+      CombinedTest(10, 10);
+
+      Initialize();
       warmup = false;
       CombinedTest(BaseCount, InsertCount);
     }
@@ -78,6 +71,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
     public void ProfileTest()
     {
       int instanceCount = 100000;
+      Initialize();
       InsertTest(instanceCount);
       BulkFetchTest(instanceCount);
     }
@@ -91,21 +85,31 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       RemoveTest();
     }
 
-    private void InsertTest(int inserCount)
+    private void Initialize()
+    {
+      using (var s = domain.CreateSession()) {
+        s.BeginTransaction();
+        var o = (Simplest)s.CreateObject(typeof(Simplest), new object[] { (long) 0 });
+        firstId = o.ID + 1;
+        s.Rollback();
+      }
+    }
+
+    private void InsertTest(int insertCount)
     {
       using (var s = domain.CreateSession()) {
         long sum = 0;
         s.BeginTransaction();
         TestHelper.CollectGarbage();
-        using (warmup ? null : new Measurement("Insert", inserCount)) {
-            for (int i = 0; i < inserCount; i++) {
-              var o = (Simplest)s.CreateObject(typeof(Simplest), new object[] { i, i });
-              sum += i;
-            }
-            s.Commit();
+        using (warmup ? null : new Measurement("Insert", insertCount)) {
+          for (int i = 0; i < insertCount; i++) {
+            var o = (Simplest)s.CreateObject(typeof(Simplest), new object[] { (long) i });
+            sum += i;
+          }
+          s.Commit();
         }
       }
-      instanceCount = inserCount;
+      instanceCount = insertCount;
     }
 
     private void FetchTest(int count)
@@ -118,7 +122,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
         using (warmup ? null : new Measurement("Fetch & GetField", count)) {
         for (int i = 0; i < count; i++) {
           var o = (Simplest)s[id++];
-            sum -= o.SimplestId;
+            sum -= o.Value;
         }
       s.Commit();
       }
@@ -139,7 +143,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
         using (warmup ? null : new Measurement("Bulk Fetch & GetField", count)) {
           while (i < count) {
             foreach (Simplest o in q.Execute()) {
-              sum += o.SimplestId;
+              sum += o.Value;
               if (++i >= count)
                 break;
             }
@@ -152,17 +156,18 @@ namespace Xtensive.Storage.Tests.Storage.Performance
 
     private void QueryTest(int count)
     {
-      const string queryText = "Select Simplest instances where {ID}=@pId";
+      string queryText = "Select Simplest instances where {ID}=@pId";
       using (var s = domain.CreateSession()) {
         s.BeginTransaction();
-        Query q = s.CreateQuery(queryText);
-        q.Parameters.Add("@pId", 0);
         TestHelper.CollectGarbage();
         using (warmup ? null : new Measurement("Query", count)) {
           for (int i = 0; i < count; i++) {
+            Query q = s.CreateQuery(queryText);
+            q.Parameters.Add("@pId", 0);
             q.Parameters["@pId"].Value = ((long)i % instanceCount) + firstId;
             var qr = q.Execute();
             foreach (var o in qr) {
+              // Doing nothing, just enumerate
             }
           }
           s.Commit();
@@ -172,12 +177,13 @@ namespace Xtensive.Storage.Tests.Storage.Performance
 
     private void RemoveTest()
     {
+      string queryText = "Select Simplest instances";
       using (var s = domain.CreateSession()) {
         s.BeginTransaction();
         TestHelper.CollectGarbage();
         using (warmup ? null : new Measurement("Remove", instanceCount)) {
-          for (int i = 0; i < InsertCount; i++ )
-            s[firstId++].Remove();
+          foreach (var o in s.CreateQuery(queryText).Execute<Simplest>())
+            o.Remove();
           s.Commit();
         }
       }

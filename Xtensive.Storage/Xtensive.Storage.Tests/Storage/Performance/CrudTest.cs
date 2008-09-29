@@ -27,6 +27,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
     protected override DomainConfiguration BuildConfiguration()
     {
       DomainConfiguration config = DomainConfigurationFactory.Create("mssql2005");
+//      DomainConfiguration config = DomainConfigurationFactory.Create("memory");
       config.Types.Register(typeof(Simplest).Assembly, typeof(Simplest).Namespace);
       return config;
     }
@@ -56,10 +57,11 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       BulkFetchTest(baseCount);
       FetchTest(baseCount / 2);
       QueryTest(baseCount / 5);
+      CachedQueryTest(baseCount / 5);
       RemoveTest();
     }
 
-    private void InsertTest(int inserCount)
+    private void InsertTest(int insertCount)
     {
       var d = Domain;
       using (var ss = d.OpenSession()) {
@@ -67,8 +69,8 @@ namespace Xtensive.Storage.Tests.Storage.Performance
         long sum = 0;
         using (var ts = s.OpenTransaction()) {
           TestHelper.CollectGarbage();
-          using (warmup ? null : new Measurement("Insert", inserCount)) {
-            for (int i = 0; i < inserCount; i++) {
+          using (warmup ? null : new Measurement("Insert", insertCount)) {
+            for (int i = 0; i < insertCount; i++) {
               var o = new Simplest(i, i);
               sum += i;
             }
@@ -76,7 +78,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
           }
         }
       }
-      instanceCount = inserCount;
+      instanceCount = insertCount;
     }
 
     private void FetchTest(int count)
@@ -139,6 +141,32 @@ namespace Xtensive.Storage.Tests.Storage.Performance
               var rs = d.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordSet();
               rs = rs.Seek(() => pKey.Value);
               using (new ParameterScope()) {
+                pKey.Value = Tuple.Create(i % instanceCount);
+                var es = rs.ToEntities<Simplest>();
+                foreach (var o in es) {
+                  // Doing nothing, just enumerate
+                }
+              }
+            }
+            ts.Complete();
+          }
+        }
+      }
+    }
+
+    private void CachedQueryTest(int count)
+    {
+      var d = Domain;
+      using (var ss = d.OpenSession()) {
+        var s = ss.Session;
+        using (var ts = s.OpenTransaction()) {
+          TestHelper.CollectGarbage();
+          var pKey = new Parameter<Tuple>();
+          var rs = d.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordSet();
+          rs = rs.Seek(() => pKey.Value);
+          using (new ParameterScope()) {
+            using (warmup ? null : new Measurement("Cached Query", count)) {
+              for (int i = 0; i < count; i++) {
                 pKey.Value = Tuple.Create(i % instanceCount);
                 var es = rs.ToEntities<Simplest>();
                 foreach (var o in es) {

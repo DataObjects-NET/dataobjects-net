@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Xtensive.Core;
+using Xtensive.Core.Caching;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
@@ -27,9 +28,9 @@ namespace Xtensive.Storage
     where T : Entity
   {
     /// <summary>
-    /// Maximum items in <see cref="EntitySet{T}"/> cache.
+    /// Maximal count of items to cache.
     /// </summary>
-    internal static int MaximumCacheSize = 1000;
+    internal static int CacheSize = 10240;
 
     private Transaction transaction;
     private long? count;
@@ -188,7 +189,7 @@ namespace Xtensive.Storage
 
     #region Protected and Internal
 
-    internal Cache<Key, CachedKey, CachedKey> Cache { get; private set; }
+    internal ICache<Key, CachedKey> Cache { get; private set; }
 
     internal override sealed void ClearCache()
     {
@@ -314,7 +315,7 @@ namespace Xtensive.Storage
     public EntitySet(Persistent owner, FieldInfo field)
       : base(owner, field)
     {
-      Cache = new Cache<Key, CachedKey, CachedKey>(MaximumCacheSize, cachedKey => cachedKey.Key);
+      Cache = new LruCache<Key, CachedKey>(CacheSize, cachedKey => cachedKey.Key);
     }
   }
 }

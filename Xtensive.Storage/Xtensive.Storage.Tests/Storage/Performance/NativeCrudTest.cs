@@ -62,7 +62,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       RemoveTest();
     }
     
-    private void InsertTest(int inserCount)
+    private void InsertTest(int insertCount)
     {
       con.Open();
       SqlTransaction transaction = con.BeginTransaction();
@@ -75,15 +75,15 @@ namespace Xtensive.Storage.Tests.Storage.Performance
         "VALUES (@pId, @pTypeId, @pId)";
       TestHelper.CollectGarbage();
 
-      using (warmup ? null : new Measurement("Insert", inserCount)) {
-        for (int i = 0; i < inserCount; i++) {
+      using (warmup ? null : new Measurement("Insert", insertCount)) {
+        for (int i = 0; i < insertCount; i++) {
           cmd.Parameters["@pId"].SqlValue = (long) i;
           cmd.Parameters["@pTypeId"].SqlValue = (long) 0;
           cmd.ExecuteNonQuery();
         }
         transaction.Commit();
       }
-      instanceCount = inserCount;
+      instanceCount = insertCount;
       con.Close();
     }
 
