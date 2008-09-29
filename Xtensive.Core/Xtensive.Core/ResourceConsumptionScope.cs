@@ -94,7 +94,7 @@ namespace Xtensive.Core
     // Descructors
     
     /// <summary>
-    /// <see cref="ClassDocTemplate.Dispose" copy="true"/>
+    /// <see cref="DisposableDocTemplate.Dispose(bool)" copy="true"/>
     /// </summary>
     protected virtual void Dispose(bool disposing)
     {
@@ -111,16 +111,16 @@ namespace Xtensive.Core
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Dispose" copy="true"/>
+    /// <see cref="DisposableDocTemplate.Dispose()" copy="true"/>
     /// </summary>
     public void Dispose()
     {
-      this.Dispose(true);
+      Dispose(true);
       GC.SuppressFinalize(this);
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Dtor" copy="true"/>
+    /// <see cref="DisposableDocTemplate.Dtor" copy="true"/>
     /// /// </summary>
     ~ResourceConsumptionScope()
     {

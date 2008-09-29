@@ -6,6 +6,7 @@
 
 using System.Collections.Generic;
 using System.Threading;
+using Xtensive.Core.Caching;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Threading;
 
@@ -14,8 +15,8 @@ namespace Xtensive.Core.Tuples.Internals
   internal static class TupleDescriptorCache
   {
     private readonly static ReaderWriterLockSlim _lock = new ReaderWriterLockSlim();
-    private readonly static SetSlim<TupleDescriptor>     compiledDescriptors    = new SetSlim<TupleDescriptor>();
-    private readonly static WeakSetSlim<TupleDescriptor> newDescriptors         = new WeakSetSlim<TupleDescriptor>();
+    private readonly static SetSlim<TupleDescriptor> compiledDescriptors = new SetSlim<TupleDescriptor>();
+    private readonly static WeakestCache<TupleDescriptor, TupleDescriptor> newDescriptors = new WeakestCache<TupleDescriptor, TupleDescriptor>(false, false, td => td);
 
     public static TupleDescriptor Register(TupleDescriptor sample)
     {
@@ -24,13 +25,13 @@ namespace Xtensive.Core.Tuples.Internals
         TupleDescriptor existing = compiledDescriptors[sample];
         if (existing!=null)
           return existing;
-        existing = newDescriptors[sample];
+        existing = newDescriptors[sample, true];
         if (existing!=null)
           return existing;
         LockCookie? c = _lock.BeginWrite();
         try {
           newDescriptors.Add(TupleDescriptorGenerator.Generate(sample));
-          return newDescriptors[sample];
+          return newDescriptors[sample, true];
         }
         finally {
           _lock.EndWrite(c);

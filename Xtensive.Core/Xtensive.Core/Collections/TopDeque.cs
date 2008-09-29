@@ -55,6 +55,18 @@ namespace Xtensive.Core.Collections
     }
 
     /// <inheritdoc/>
+    public bool TryGetValue(K key, out V value)
+    {
+      LinkedListNode<Pair<K, V>> valueContainer;
+      if (map.TryGetValue(key, out valueContainer)) {
+        value = valueContainer.Value.Second;
+        return true;
+      }
+      value = default(V);
+      return false;
+    }
+
+    /// <inheritdoc/>
     public bool Contains(K key)
     {
       return map.ContainsKey(key);

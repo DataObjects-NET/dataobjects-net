@@ -81,6 +81,21 @@ namespace Xtensive.Core.Tests.DotNetFramework
     }
   }
 
+  public class Caller<T>
+  {
+    private IContainer<T> container;
+
+    public virtual void GetContainerValue()
+    {
+      container.GetValue();
+    }
+
+    public Caller(IContainer<T> container)
+    {
+      this.container = container;
+    }
+  }
+
   [TestFixture]
   public class CallTest
   {
@@ -94,6 +109,13 @@ namespace Xtensive.Core.Tests.DotNetFramework
     private static TypeBasedDictionary castCache = TypeBasedDictionary.Create();
 
     [Test]
+    public void RegularTest()
+    {
+      isRegularTestRunning = true;
+      Test(0.01);
+    }
+
+    [Test]
     [Explicit]
     [Category("Performance")]
     public void PeformanceTest()
@@ -103,11 +125,13 @@ namespace Xtensive.Core.Tests.DotNetFramework
     }    
 
     [Test]
-    public void RegularTest()
+    [Explicit]
+    [Category("Profile")]
+    public void ProfileTest()
     {
-      isRegularTestRunning = true;
-      Test(0.01);
-    }
+      isRegularTestRunning = false;
+      VMethodCallTest<int>(1);
+    }    
 
     public void Test(double speedFactor)
     {
@@ -228,6 +252,7 @@ namespace Xtensive.Core.Tests.DotNetFramework
       CallClassVMethod(c, iterations);
       CallClassVMethod_WithBoxing(c, iterations);
       CallInterfaceVMethod(ic, iterations);
+      CallInterfaceVMethod_WithoutCaching(ic, iterations);
       CallInterfaceVMethod_WithCast(c, iterations);
       CallInterfaceVMethod_WithTypeBasedCache(c, iterations);
       // Real test
@@ -248,6 +273,9 @@ namespace Xtensive.Core.Tests.DotNetFramework
         Cleanup();
         using (new Measurement("Interface method                ", MeasurementOptions.Log, iterations))
           CallInterfaceVMethod(ic, iterations);
+        Cleanup();
+        using (new Measurement("Interface method (worst case)   ", MeasurementOptions.Log, iterations))
+          CallInterfaceVMethod_WithoutCaching(ic, iterations);
         // Cleanup();
         using (new Measurement("Interface method (with cast)    ", MeasurementOptions.Log, iterations))
           CallInterfaceVMethod_WithCast(c, iterations);
@@ -530,6 +558,28 @@ namespace Xtensive.Core.Tests.DotNetFramework
         o = c.Value;
         o = c.Value;
       }
+    }
+
+    private void CallInterfaceVMethod_WithoutCaching<T>(IContainer<T> c, int count)
+    {
+      var caller = new Caller<T>(c);
+      for (int i = 0; i<count; i+=10) {
+        caller.GetContainerValue();
+        caller.GetContainerValue();
+        caller.GetContainerValue();
+        caller.GetContainerValue();
+        caller.GetContainerValue();
+        caller.GetContainerValue();
+        caller.GetContainerValue();
+        caller.GetContainerValue();
+        caller.GetContainerValue();
+        caller.GetContainerValue();
+      }
+    }
+
+    protected virtual void GetCValue()
+    {
+      throw new NotImplementedException();
     }
 
     private void CastInterfaceVMethod<T>(IContainer<T> c, int count)

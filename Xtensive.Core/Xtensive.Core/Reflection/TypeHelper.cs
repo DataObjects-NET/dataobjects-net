@@ -260,12 +260,18 @@ namespace Xtensive.Core.Reflection
       object[] constructorParams)
         where T : class
     {
+      int newLocationCount = 0;
       var pair = new Pair<Assembly, string>(typeof (T).Assembly, typeof (T).Namespace);
-      if (locations.FindIndex(p => p.First==pair.First && p.Second==pair.Second)<0)
+      if (locations.FindIndex(p => p.First==pair.First && p.Second==pair.Second)<0) {
         locations.Add(pair);
+        newLocationCount++;
+      }
       pair = new Pair<Assembly, string>(currentForType.Assembly, currentForType.Namespace);
-      if (locations.FindIndex(p => p.First==pair.First && p.Second==pair.Second)<0)
+      if (locations.FindIndex(p => p.First==pair.First && p.Second==pair.Second)<0) {
         locations.Add(pair);
+        newLocationCount++;
+      }
+
       try {
         for (int i = 0; i < locations.Count; i++) {
           Pair<Assembly, string> location = locations[i];
@@ -315,8 +321,8 @@ namespace Xtensive.Core.Reflection
         return null;
       }
       finally {
-        locations.RemoveAt(locations.Count - 1);
-        locations.RemoveAt(locations.Count - 1);
+        for (int i = 0; i < newLocationCount; i++)
+          locations.RemoveAt(locations.Count - 1);
       }
     }
 

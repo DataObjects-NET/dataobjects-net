@@ -5,32 +5,54 @@
 // Created:    2007.05.25
 
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using Xtensive.Core.Conversion;
-using Xtensive.Core.SizeCalculators;
-using Xtensive.Core.Threading;
+using Xtensive.Core.Collections;
 
-namespace Xtensive.Core.Collections
+namespace Xtensive.Core.Caching
 {
-  public interface ICache<TKey, TItem> : 
-    ICountable<TItem>,
-    IHasSize
+  /// <summary>
+  /// Cache contract.
+  /// </summary>
+  /// <typeparam name="TKey">The type of the cache key.</typeparam>
+  /// <typeparam name="TItem">The type of the item to cached.</typeparam>
+  public interface ICache<TKey, TItem> : ICountable<TItem>
   {
+    /// <summary>
+    /// Gets the count of cached items.
+    /// </summary>
+    new int Count { get; }
+
     /// <summary>
     /// Gets the item key extractor.
     /// </summary>
     Converter<TItem, TKey> KeyExtractor { get; }
 
     /// <summary>
+    /// Gets the chained cache, if any.
+    /// </summary>
+    ICache<TKey, TItem> ChainedCache { get; }
+
+    /// <summary>
     /// Gets cached item by its <paramref name="key"/>.
     /// </summary>
     /// <param name="key">The key of the item to get.</param>
-    /// <param name="markAsNewest">Indicates whether the item with specified key 
-    /// should be marked as the newest one.</param>
+    /// <param name="markAsHit">Indicates whether the item with specified key 
+    /// should be marked as hit.</param>
     /// <returns>Item, if found; 
     /// otherwise, <see langword="default(TItem)"/>.</returns>
-    TItem this[TKey key, bool markAsNewest] { get; }
+    TItem this[TKey key, bool markAsHit] { get; }
+
+    /// <summary>
+    /// Tries to get cached item by its <paramref name="key"/>.
+    /// </summary>
+    /// <param name="key">The key of the item to get.</param>
+    /// <param name="markAsHit">Indicates whether the item with specified key
+    /// should be marked as hit.</param>
+    /// <param name="item">The item, if found.</param>
+    /// <returns>
+    /// <see langword="true" />, if the item is found;
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    bool TryGetItem(TKey key, bool markAsHit, out TItem item);
 
     /// <summary>
     /// Determines whether cache contains the item with specified key.

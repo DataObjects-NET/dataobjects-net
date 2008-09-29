@@ -11,6 +11,7 @@ namespace Xtensive.Core.Collections
     int Count { get; }
 
     V this[K key] { get; set; }
+    bool TryGetValue(K key, out V value);
     bool Contains(K key);
 
     V Top { get; }

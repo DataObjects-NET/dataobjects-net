@@ -7,6 +7,7 @@
 using System;
 using System.Collections;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Threading;
 
 namespace Xtensive.Core.Conversion
 {
@@ -19,18 +20,30 @@ namespace Xtensive.Core.Conversion
   public struct Biconverter<TFrom, TTo> :
     IEquatable<Biconverter<TFrom, TTo>>
   {
-    ///<summary>
+    /// <summary>
+    /// Gets the "as is" bidirectional converter.
+    /// Note: it involves boxing on any conversion (for <see cref="ValueType"/>s).
+    /// </summary>
+    public static Biconverter<TFrom, TTo> AsIs {
+      get {
+        return new Biconverter<TFrom, TTo>(
+          value => (TTo) (object) value,
+          value => (TFrom) (object) value);
+      }
+    }
+
+    /// <summary>
     /// Gets the delegate converting specified value 
     /// from <typeparamref name="TFrom"/>
     /// to <typeparamref name="TTo"/>.
-    ///</summary>
+    /// </summary>
     public readonly Converter<TFrom, TTo> ConvertForward;
 
-    ///<summary>
+    /// <summary>
     /// Gets the delegate converting specified value 
     /// from <typeparamref name="TTo"/>
     /// to <typeparamref name="TFrom"/>.
-    ///</summary>
+    /// </summary>
     public readonly Converter<TTo, TFrom> ConvertBackward;
 
     #region Equality members

@@ -27,7 +27,7 @@ namespace Xtensive.Core.Collections
     /// <returns>An array containing all the items from the <paramref name="source"/>.</returns>
     public static TItem[] Copy<TItem>(this TItem[] source)
     {
-      TItem[] items = new TItem[source.Length];
+      var items = new TItem[source.Length];
       source.Copy(items, 0);
       return items;
     }
@@ -42,7 +42,7 @@ namespace Xtensive.Core.Collections
     public static TNewItem[] Cast<TItem, TNewItem>(this TItem[] source)
       where TNewItem: TItem
     {
-      TNewItem[] items = new TNewItem[source.Length];
+      var items = new TNewItem[source.Length];
       int i = 0;
       foreach (TItem item in source)
         items[i++] = (TNewItem)item;
@@ -60,7 +60,7 @@ namespace Xtensive.Core.Collections
     public static TNewItem[] Convert<TItem, TNewItem>(this TItem[] source, Converter<TItem, TNewItem> converter)
     {
       ArgumentValidator.EnsureArgumentNotNull(converter, "converter");
-      TNewItem[] items = new TNewItem[source.Length];
+      var items = new TNewItem[source.Length];
       int i = 0;
       foreach (TItem item in source)
         items[i++] = converter(item);
@@ -76,6 +76,8 @@ namespace Xtensive.Core.Collections
     /// <param name="source">Source array to copy from.</param>
     /// <param name="target">Target array to copy to.</param>
     /// <param name="targetIndex">Index in <paramref name="target"/> array to start from.</param>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="targetIndex"/> is out of range.</exception>
+    /// <exception cref="ArgumentException"><paramref name="target"/> array is too small.</exception>
     public static void Copy<TItem>(this TItem[] source, TItem[] target, int targetIndex)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
@@ -128,6 +130,7 @@ namespace Xtensive.Core.Collections
     /// in the <paramref name="items"/> array, if found;
     /// otherwise, <see langword="-1"/>.
     /// </returns>
+    /// <exception cref="InvalidOperationException">Value type is passed instead of class.</exception>
     public static int IndexOf<TItem>(this TItem[] items, TItem item, bool byReference) 
     {
       ArgumentValidator.EnsureArgumentNotNull(items, "items");
@@ -141,6 +144,59 @@ namespace Xtensive.Core.Collections
         if (ReferenceEquals(item, items[i]))
           return i;
       return -1;
+    }
+
+    /// <summary>
+    /// Selects the specified item from the ordered sequence of items
+    /// produced by ordering the <paramref name="items"/>.
+    /// </summary>
+    /// <typeparam name="TItem">The type of the item.</typeparam>
+    /// <param name="items">The items to select from.</param>
+    /// <param name="index">The offset of the item to select from the ordered sequence.</param>
+    /// <returns>The specified item from the ordered sequence of items.</returns>
+    /// <remarks>
+    /// The original sequence will be partially reordered.
+    /// </remarks>
+    public static TItem Select<TItem>(this TItem[] items, Func<TItem, TItem, int> comparer, int index)
+    {
+      var r = new Random();
+      int leftIndex = 0;
+      int rightIndex = items.Length - 1;
+      while (true) {
+        int pivotIndex = leftIndex + r.Next(rightIndex - leftIndex + 1);
+        pivotIndex = items.Partition(comparer, leftIndex, rightIndex, pivotIndex);
+        if (index==pivotIndex)
+          return items[index];
+        else if (index < pivotIndex)
+          rightIndex = pivotIndex - 1;
+        else
+          leftIndex = pivotIndex + 1;
+      }
+    }
+
+    private static int Partition<TItem>(this TItem[] items, Func<TItem, TItem, int> comparer, int leftIndex, int rightIndex, int pivotIndex)
+    {
+      var pivot = items[pivotIndex];
+      // Swap
+      var tmp = items[rightIndex];
+      items[rightIndex] = pivot;
+      items[pivotIndex] = tmp;
+      // Loop
+      int storeIndex = leftIndex;
+      for (int i = leftIndex; i < rightIndex; i++) {
+        if (comparer(items[i], pivot) < 0) {
+          // Swap
+          tmp = items[storeIndex];
+          items[storeIndex] = items[i];
+          items[i] = tmp;
+          storeIndex++;
+        }
+      }
+      // Swap
+      tmp = items[rightIndex];
+      items[rightIndex] = items[storeIndex];
+      items[storeIndex] = tmp;
+      return storeIndex;
     }
   }
 }
