@@ -86,6 +86,7 @@ namespace Xtensive.Storage
       TypeInfo type = context.Domain.Model.Types[typeId];
       return columnGroupMapping.GetTypeMapping(type);
     }
+
     #endregion
   }
 }
