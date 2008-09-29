@@ -27,7 +27,7 @@ namespace Xtensive.Core.Caching
     IHasSize
     where TCached: IIdentified<TKey>, IHasSize
   {
-    private readonly int maxSize;
+    private readonly long maxSize;
     private readonly TopDeque<TKey, TCached> deque = new TopDeque<TKey, TCached>();
     private readonly Converter<TItem, TKey> keyExtractor;
     private readonly Biconverter<TItem, TCached> cacheConverter;
@@ -57,7 +57,7 @@ namespace Xtensive.Core.Caching
     }
 
     /// <inheritdoc/>
-    public int MaxSize {
+    public long MaxSize {
       [DebuggerStepThrough]
       get { return maxSize; }
     }
@@ -224,7 +224,7 @@ namespace Xtensive.Core.Caching
     /// </summary>
     /// <param name="maxSize"><see cref="MaxSize"/> property value.</param>
     /// <param name="keyExtractor"><see cref="KeyExtractor"/> property value.</param>
-    public LruCache(int maxSize, Converter<TItem, TKey> keyExtractor)
+    public LruCache(long maxSize, Converter<TItem, TKey> keyExtractor)
       : this(maxSize, keyExtractor, Biconverter<TItem, TCached>.AsIs)
     {
     }
@@ -235,7 +235,7 @@ namespace Xtensive.Core.Caching
     /// <param name="maxSize"><see cref="MaxSize"/> property value.</param>
     /// <param name="keyExtractor"><see cref="KeyExtractor"/> property value.</param>
     /// <param name="cacheConverter"><see cref="CacheConverter"/> property value.</param>
-    public LruCache(int maxSize, Converter<TItem, TKey> keyExtractor, Biconverter<TItem, TCached> cacheConverter)
+    public LruCache(long maxSize, Converter<TItem, TKey> keyExtractor, Biconverter<TItem, TCached> cacheConverter)
       : this(maxSize, keyExtractor, cacheConverter, null)
     {
     }
@@ -246,7 +246,7 @@ namespace Xtensive.Core.Caching
     /// <param name="maxSize"><see cref="MaxSize"/> property value.</param>
     /// <param name="keyExtractor"><see cref="KeyExtractor"/> property value.</param>
     /// <param name="chainedCache"><see cref="ChainedCache"/> property value.</param>
-    public LruCache(int maxSize, Converter<TItem, TKey> keyExtractor, ICache<TKey, TItem> chainedCache)
+    public LruCache(long maxSize, Converter<TItem, TKey> keyExtractor, ICache<TKey, TItem> chainedCache)
       : this(maxSize, keyExtractor,  Biconverter<TItem, TCached>.AsIs, chainedCache)
     {
     }
@@ -258,11 +258,11 @@ namespace Xtensive.Core.Caching
     /// <param name="keyExtractor"><see cref="KeyExtractor"/> property value.</param>
     /// <param name="cacheConverter"><see cref="CacheConverter"/> property value.</param>
     /// <param name="chainedCache"><see cref="ChainedCache"/> property value.</param>
-    public LruCache(int maxSize, Converter<TItem, TKey> keyExtractor, 
+    public LruCache(long maxSize, Converter<TItem, TKey> keyExtractor, 
       Biconverter<TItem, TCached> cacheConverter, ICache<TKey, TItem> chainedCache)
     {
       if (maxSize <= 0)
-        ArgumentValidator.EnsureArgumentIsInRange(maxSize, 1, int.MaxValue, "maxSize");
+        ArgumentValidator.EnsureArgumentIsInRange(maxSize, 1, long.MaxValue, "maxSize");
       ArgumentValidator.EnsureArgumentNotNull(keyExtractor, "keyExtractor");
       this.maxSize = maxSize;
       this.keyExtractor = keyExtractor;

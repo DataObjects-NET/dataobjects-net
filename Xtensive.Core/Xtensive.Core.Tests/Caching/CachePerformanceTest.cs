@@ -78,16 +78,18 @@ namespace Xtensive.Core.Tests.Caching
 
     private static LruCache<Item, Item, Item> lruCache = 
       new LruCache<Item, Item, Item>(Capacity, i => i);
+    private static LruCache<Item, Item> lruCache2 = 
+      new LruCache<Item, Item>(Capacity, i => i);
     private static MfLruCache<Item, Item> mfLruCache = 
       new MfLruCache<Item, Item>(LruCapacity, MfuCapacity, 5, i => i);
     private static WeakCache<Item, Item> weakCache = 
       new WeakCache<Item, Item>(false, Capacity, i => i);
     private static WeakestCache<Item, Item> weakestCache = 
       new WeakestCache<Item, Item>(false, false, Capacity, i => i);
-    private static LruCache<Item, Item, Item> lruWeakestCache = 
-      new LruCache<Item, Item, Item>(LruCapacity + MfuCapacity, i => i, 
+    private static LruCache<Item, Item> lruWeakestCache = 
+      new LruCache<Item, Item>(LruCapacity + MfuCapacity, i => i, 
         new WeakestCache<Item, Item>(false, false, i => i));
-    private static ICache<Item, Item>[] caches = new ICache<Item, Item>[] {lruCache, mfLruCache, weakCache, weakestCache, lruWeakestCache};
+    private static ICache<Item, Item>[] caches = new ICache<Item, Item>[] {lruCache, lruCache2, mfLruCache, weakCache, weakestCache, lruWeakestCache};
 
     private bool warmup = false;
 
