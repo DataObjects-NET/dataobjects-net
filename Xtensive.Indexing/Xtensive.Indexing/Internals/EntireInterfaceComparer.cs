@@ -279,8 +279,8 @@ namespace Xtensive.Indexing
         return true;
       }
       int result = fieldComparer.Compare(
-        data.X.GetValueOrDefault<TFieldType>(fieldIndex),
-        data.Y.GetValueOrDefault<TFieldType>(fieldIndex));
+        (TFieldType) data.X.GetValueOrDefault(fieldIndex),
+        (TFieldType) data.Y.GetValueOrDefault(fieldIndex));
       if (result!=0) {
         data.Result = result>0 ? (fieldIndex+1) : -(fieldIndex+1);
         return true;
@@ -338,8 +338,8 @@ namespace Xtensive.Indexing
         return true;
       }
       int result = fieldComparer.Compare(
-        data.X.GetValueOrDefault<TFieldType>(fieldIndex),
-        data.Y.GetValueOrDefault<TFieldType>(fieldIndex));
+        (TFieldType) data.X.GetValueOrDefault(fieldIndex),
+        (TFieldType) data.Y.GetValueOrDefault(fieldIndex));
       if (result!=0) {
         data.Result = result>0 ? (fieldIndex+1) : -(fieldIndex+1);
         return true;

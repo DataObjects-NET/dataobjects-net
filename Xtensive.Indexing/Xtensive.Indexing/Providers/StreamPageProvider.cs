@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using Xtensive.Core;
+using Xtensive.Core.Caching;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Disposable;
 using Xtensive.Core.Internals.DocTemplates;
@@ -37,7 +38,7 @@ namespace Xtensive.Indexing.Providers
     private StreamProvider streamProvider;
     private readonly ISerializer serializer;
     private readonly ValueSerializer<long> offsetSerializer;
-    private readonly WeakCache<IPageRef, Page<TKey, TItem>> pageCache;
+    private readonly ICache<IPageRef, Page<TKey, TItem>> pageCache;
     private readonly ReaderWriterLockSlim pageCacheLock = new ReaderWriterLockSlim();
     private bool descriptorPageIdentifierAssigned;
     private bool rootPageIdentifierAssigned;
@@ -297,10 +298,8 @@ namespace Xtensive.Indexing.Providers
       offsetSerializer = ValueSerializerProvider.Default.GetSerializer<long>();
       if (cacheSize > 0) {
         pageCache =
-          new WeakCache<IPageRef, Page<TKey, TItem>>(
-            cacheSize,
-            value => value.Identifier,
-            value => 1);
+          new LruCache<IPageRef, Page<TKey, TItem>>(cacheSize, p => p.Identifier, 
+            new WeakCache<IPageRef, Page<TKey, TItem>>(false, p => p.Identifier));
       }
     }
 
