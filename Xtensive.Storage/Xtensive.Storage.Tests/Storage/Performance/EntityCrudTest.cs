@@ -161,10 +161,10 @@ namespace Xtensive.Storage.Tests.Storage.Performance
     {
       using (var dataContext = new Entities()) {
         dataContext.Connection.Open();
-        using (var transaction = dataContext.Connection.BeginTransaction()) {
-          TestHelper.CollectGarbage();
-          var simplest = dataContext.Simplest;
-          using (warmup ? null : new Measurement("Remove", instanceCount)) {
+        var simplest = dataContext.Simplest;
+        TestHelper.CollectGarbage();
+        using (warmup ? null : new Measurement("Remove", instanceCount)) {
+          using (var transaction = dataContext.Connection.BeginTransaction()) {
             foreach (var s in simplest) {
               dataContext.DeleteObject(s);
               dataContext.SaveChanges();

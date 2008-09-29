@@ -99,9 +99,9 @@ namespace Xtensive.Storage.Tests.Storage.Performance
     {
       using (var s = domain.CreateSession()) {
         long sum = 0;
-        s.BeginTransaction();
         TestHelper.CollectGarbage();
         using (warmup ? null : new Measurement("Insert", insertCount)) {
+          s.BeginTransaction();
           for (int i = 0; i < insertCount; i++) {
             var o = (Simplest)s.CreateObject(typeof(Simplest), new object[] { (long) i });
             sum += i;
@@ -179,9 +179,9 @@ namespace Xtensive.Storage.Tests.Storage.Performance
     {
       string queryText = "Select Simplest instances";
       using (var s = domain.CreateSession()) {
-        s.BeginTransaction();
         TestHelper.CollectGarbage();
         using (warmup ? null : new Measurement("Remove", instanceCount)) {
+          s.BeginTransaction();
           foreach (var o in s.CreateQuery(queryText).Execute<Simplest>())
             o.Remove();
           s.Commit();

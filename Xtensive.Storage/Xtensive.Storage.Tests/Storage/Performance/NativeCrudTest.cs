@@ -65,22 +65,23 @@ namespace Xtensive.Storage.Tests.Storage.Performance
     private void InsertTest(int insertCount)
     {
       con.Open();
-      SqlTransaction transaction = con.BeginTransaction();
-      SqlCommand cmd = con.CreateCommand();
-      cmd.Transaction = transaction;
-      cmd.Parameters.AddWithValue("@pId", (long) 0);
-      cmd.Parameters.AddWithValue("@pTypeId", (long) 0);
-      cmd.CommandText = "INSERT INTO " + 
-        "[dbo].[Simplest] ([Simplest].[Id], [Simplest].[TypeId], [Simplest].[Value]) " + 
-        "VALUES (@pId, @pTypeId, @pId)";
       TestHelper.CollectGarbage();
-
       using (warmup ? null : new Measurement("Insert", insertCount)) {
+        SqlTransaction transaction = con.BeginTransaction();
+        SqlCommand cmd = con.CreateCommand();
+        cmd.Transaction = transaction;
+        cmd.Parameters.AddWithValue("@pId", (long) 0);
+        cmd.Parameters.AddWithValue("@pTypeId", (long) 0);
+        cmd.CommandText = "INSERT INTO " + 
+          "[dbo].[Simplest] ([Simplest].[Id], [Simplest].[TypeId], [Simplest].[Value]) " + 
+          "VALUES (@pId, @pTypeId, @pId)";
+
         for (int i = 0; i < insertCount; i++) {
           cmd.Parameters["@pId"].SqlValue = (long) i;
           cmd.Parameters["@pTypeId"].SqlValue = (long) 0;
           cmd.ExecuteNonQuery();
         }
+        
         transaction.Commit();
       }
       instanceCount = insertCount;
@@ -95,7 +96,6 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       SqlTransaction transaction = con.BeginTransaction();
 
       TestHelper.CollectGarbage();
-
       using (warmup ? null : new Measurement("Bulk Fetch & GetField", count)) {
         while (i < count) {
           SqlCommand cmd = con.CreateCommand();
@@ -135,7 +135,6 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       SqlDataReader dr;
 
       TestHelper.CollectGarbage();
-
       using (warmup ? null : new Measurement("Fetch & GetField", count)) {
         for (int i = 0; i < count; i++) {
           cmd.Parameters["@pId"].SqlValue = i % instanceCount;
@@ -170,7 +169,6 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       SqlDataReader dr;
 
       TestHelper.CollectGarbage();
-
       using (warmup ? null : new Measurement("Query", count)) {
         for (int i = 0; i < count; i++) {
           cmd.Parameters["@pId"].SqlValue = i % instanceCount;
@@ -193,18 +191,16 @@ namespace Xtensive.Storage.Tests.Storage.Performance
     private void RemoveTest()
     {
       con.Open();
-      SqlTransaction transaction = con.BeginTransaction();
-      SqlCommand cmd = con.CreateCommand();
-      cmd.Transaction = transaction;
-      cmd.CommandText = "SELECT [Simplest].[Id], [Simplest].[TypeId], [Simplest].[Value] " + 
-        "FROM [dbo].[Simplest]";
-      cmd.Parameters.AddWithValue("@pId", 0);
-      SqlDataReader dr;
-
       TestHelper.CollectGarbage();
-
       using (warmup ? null : new Measurement("Remove", instanceCount)) {
-        dr = cmd.ExecuteReader();
+        SqlTransaction transaction = con.BeginTransaction();
+        SqlCommand cmd = con.CreateCommand();
+        cmd.Transaction = transaction;
+        cmd.CommandText = "SELECT [Simplest].[Id], [Simplest].[TypeId], [Simplest].[Value] " + 
+          "FROM [dbo].[Simplest]";
+        cmd.Parameters.AddWithValue("@pId", 0);
+        
+        SqlDataReader dr = cmd.ExecuteReader();
         var list = new List<NativeSimplest>();
         while (dr.Read()) {
           if (!dr.IsDBNull(0) && !dr.IsDBNull(2))

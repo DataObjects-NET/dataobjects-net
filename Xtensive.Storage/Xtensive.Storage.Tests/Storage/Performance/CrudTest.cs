@@ -26,8 +26,8 @@ namespace Xtensive.Storage.Tests.Storage.Performance
 
     protected override DomainConfiguration BuildConfiguration()
     {
-      DomainConfiguration config = DomainConfigurationFactory.Create("mssql2005");
-//      DomainConfiguration config = DomainConfigurationFactory.Create("memory");
+//      DomainConfiguration config = DomainConfigurationFactory.Create("mssql2005");
+      DomainConfiguration config = DomainConfigurationFactory.Create("memory");
       config.Types.Register(typeof(Simplest).Assembly, typeof(Simplest).Namespace);
       return config;
     }
@@ -67,9 +67,9 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       using (var ss = d.OpenSession()) {
         var s = ss.Session;
         long sum = 0;
-        using (var ts = s.OpenTransaction()) {
-          TestHelper.CollectGarbage();
-          using (warmup ? null : new Measurement("Insert", insertCount)) {
+        TestHelper.CollectGarbage();
+        using (warmup ? null : new Measurement("Insert", insertCount)) {
+          using (var ts = s.OpenTransaction()) {
             for (int i = 0; i < insertCount; i++) {
               var o = new Simplest(i, i);
               sum += i;
@@ -185,11 +185,11 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       var d = Domain;
       using (var ss = d.OpenSession()) {
         var s = ss.Session;
-        using (var ts = s.OpenTransaction()) {
-          var rs = d.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordSet();
-          var es = rs.ToEntities<Simplest>();
-          TestHelper.CollectGarbage();
-          using (warmup ? null : new Measurement("Remove", instanceCount)) {
+        TestHelper.CollectGarbage();
+        using (warmup ? null : new Measurement("Remove", instanceCount)) {
+          using (var ts = s.OpenTransaction()) {
+            var rs = d.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordSet();
+            var es = rs.ToEntities<Simplest>();
             foreach (var o in es)
               o.Remove();
             ts.Complete();
