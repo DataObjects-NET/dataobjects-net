@@ -17,13 +17,16 @@ namespace Xtensive.Storage.Providers.Sql.Mappings
 
     public TableColumn Column { get; private set; }
 
+    public DataTypeMapping TypeMapping { get; private set; }
+
 
     // Constructors
 
-    internal ColumnMapping(ColumnInfo columnInfo, TableColumn column)
+    internal ColumnMapping(ColumnInfo columnInfo, TableColumn column, DataTypeMapping typeMapping)
     {
       ColumnInfo = columnInfo;
       Column = column;
+      TypeMapping = typeMapping;
     }
   }
 }

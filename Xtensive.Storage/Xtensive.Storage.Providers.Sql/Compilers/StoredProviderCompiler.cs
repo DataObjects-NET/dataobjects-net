@@ -8,6 +8,7 @@ using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Database;
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Providers.Sql.Mappings;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
@@ -44,10 +45,11 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
           MappedColumn mappedColumn = column as MappedColumn;
           if (mappedColumn!=null) {
             ColumnInfo ci = mappedColumn.ColumnInfoRef.Resolve(domainHandler.Domain.Model);
-            svt = domainHandler.ValueTypeMapper.GetSqlValueType(ci);
+            DataTypeMapping tm = domainHandler.ValueTypeMapper.GetTypeMapping(ci);
+            svt = domainHandler.ValueTypeMapper.BuildSqlValueType(ci);
           }
           else
-            svt = domainHandler.ValueTypeMapper.GetSqlValueType(column.Type, 0);
+            svt = domainHandler.ValueTypeMapper.BuildSqlValueType(column.Type, 0);
           TableColumn tableColumn = table.CreateColumn(column.Name, svt);
           tableColumn.IsNullable = true;
         }

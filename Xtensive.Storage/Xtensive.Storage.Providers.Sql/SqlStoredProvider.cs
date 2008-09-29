@@ -51,7 +51,7 @@ namespace Xtensive.Storage.Providers.Sql
       foreach (SqlTableColumn column in tableRef.Columns) {
         int fieldIndex = i;
         SqlUpdateParameterBinding binding = new SqlUpdateParameterBinding((target => target.IsNull(fieldIndex) ? DBNull.Value : target.GetValue(fieldIndex)));
-        insert.Values[column] = binding.Parameter;
+        insert.Values[column] = binding.SqlParameter;
         updateRequest.ParameterBindings.Add(binding);
         i++;
       }

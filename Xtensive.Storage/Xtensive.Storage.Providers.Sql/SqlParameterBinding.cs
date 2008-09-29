@@ -5,6 +5,7 @@
 // Created:    2008.09.26
 
 using System;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Sql.Dom;
 using Xtensive.Storage.Model;
 using Action=System.Action;
@@ -13,15 +14,25 @@ namespace Xtensive.Storage.Providers.Sql
 {
   public abstract class SqlParameterBinding
   {
+    /// <summary>
+    /// Gets the column.
+    /// </summary>
     public ColumnInfo Column { get; protected set; }
 
-    public SqlParameter Parameter { get; private set; }
+    /// <summary>
+    /// Gets the SQL parameter.
+    /// </summary>
+    public SqlParameter SqlParameter { get; private set; }
 
-    public Action ValueConverter { get; set; }
 
+    // Constructor
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
     protected SqlParameterBinding()
     {
-      Parameter = new SqlParameter();
+      SqlParameter = new SqlParameter();
     }
   }
 }

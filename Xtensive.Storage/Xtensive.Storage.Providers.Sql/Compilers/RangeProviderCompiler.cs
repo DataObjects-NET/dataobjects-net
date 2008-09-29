@@ -46,16 +46,16 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
           switch (originalRange.EndPoints.First.GetValueType(i)) {
           case EntireValueType.Default:
             request.ParameterBindings.Add(binding);
-            result = query.Columns[keyColumns[i].Key] >= binding.Parameter;
+            result = query.Columns[keyColumns[i].Key] >= binding.SqlParameter;
             bContinue = true;
             break;
           case EntireValueType.PositiveInfinitesimal:
             request.ParameterBindings.Add(binding);
-            result = query.Columns[keyColumns[i].Key] > binding.Parameter;
+            result = query.Columns[keyColumns[i].Key] > binding.SqlParameter;
             break;
           case EntireValueType.NegativeInfinitesimal:
             request.ParameterBindings.Add(binding);
-            result = query.Columns[keyColumns[i].Key] >= binding.Parameter;
+            result = query.Columns[keyColumns[i].Key] >= binding.SqlParameter;
             bContinue = true;
             break;
           case EntireValueType.PositiveInfinity:
@@ -67,7 +67,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
           if (pp!=null)
             result = (query.Columns[keyColumns[i-1].Key]==pp) & result;
           if (bContinue) {
-            var nextColumnExpression = fromCompiler(i + 1, binding.Parameter);
+            var nextColumnExpression = fromCompiler(i + 1, binding.SqlParameter);
             if (!SqlExpression.IsNull(nextColumnExpression))
               result = result & nextColumnExpression;
           }
@@ -85,17 +85,17 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
           switch (originalRange.EndPoints.Second.GetValueType(i)) {
           case EntireValueType.Default:
             request.ParameterBindings.Add(binding);
-            result = query.Columns[keyColumns[i].Key] <= binding.Parameter;
+            result = query.Columns[keyColumns[i].Key] <= binding.SqlParameter;
             bContinue = true;
             break;
           case EntireValueType.PositiveInfinitesimal:
             request.ParameterBindings.Add(binding);
-            result = query.Columns[keyColumns[i].Key] <= binding.Parameter;
+            result = query.Columns[keyColumns[i].Key] <= binding.SqlParameter;
             bContinue = true;
             break;
           case EntireValueType.NegativeInfinitesimal:
             request.ParameterBindings.Add(binding);
-            result = query.Columns[keyColumns[i].Key] < binding.Parameter;
+            result = query.Columns[keyColumns[i].Key] < binding.SqlParameter;
             break;
           case EntireValueType.PositiveInfinity:
             break;
@@ -106,7 +106,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
           if (pp!=null)
             result = (query.Columns[keyColumns[i-1].Key]==pp) & result;
           if (bContinue) {
-            var nextColumnExpression = toCompiler(i + 1, binding.Parameter);
+            var nextColumnExpression = toCompiler(i + 1, binding.SqlParameter);
             if (!SqlExpression.IsNull(nextColumnExpression))
               result = result & nextColumnExpression;
           }

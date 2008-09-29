@@ -171,7 +171,7 @@ namespace Xtensive.Storage.Tests.Storage
         DomainHandler dh =Domain.Handlers.DomainHandler as DomainHandler;
         DateTime dt = new DateTime();
         if (dh != null) {
-          RangeDataTypeInfo<DateTime> dti = dh.Driver.ServerInfo.DataTypes.DateTime;
+          RangeDataTypeInfo<DateTime> dti = dh.SqlDriver.ServerInfo.DataTypes.DateTime;
           dt = dti.Value.MinValue;
         }
         using (var t = Session.Current.OpenTransaction()) {

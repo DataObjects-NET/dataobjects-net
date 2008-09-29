@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     internal SqlConnectionProvider ConnectionProvider { get; private set; }
 
-    public SqlDriver Driver { get; private set; }
+    public SqlDriver SqlDriver { get; private set; }
 
     protected override ICompiler BuildCompiler()
     {
@@ -53,14 +53,14 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     public void Compile(SqlRequest request)
     {
-      request.CompileWith(Driver);
+      request.Compile(this);
     }
 
     /// <inheritdoc/>
     public override void Build()
     {
       SessionHandler sessionHandler = ((SessionHandler)BuildingScope.Context.SystemSessionHandler);
-      Driver = sessionHandler.Connection.Driver;
+      SqlDriver = sessionHandler.Connection.Driver;
       MappingSchema = new DomainModelMapping();
       SqlRequestCache = ThreadSafeDictionary<SqlRequestBuilderTask, SqlUpdateRequest>.Create(new object());
       SqlRequestBuilder = Handlers.HandlerFactory.CreateHandler<SqlRequestBuilder>();
@@ -118,8 +118,10 @@ namespace Xtensive.Storage.Providers.Sql
         PrimaryIndexMapping pim = MappingSchema.RegisterMapping(primaryIndex, table);
         var keyColumns = new List<TableColumn>();
         foreach (ColumnInfo columnInfo in primaryIndex.Columns) {
-          TableColumn column = table.CreateColumn(columnInfo.Name, ValueTypeMapper.GetSqlValueType(columnInfo));
-          pim.RegisterMapping(columnInfo, column);
+          TableColumn column = table.CreateColumn(columnInfo.Name);
+          DataTypeMapping typeMapping = ValueTypeMapper.GetTypeMapping(columnInfo);
+          pim.RegisterMapping(columnInfo, column, typeMapping);
+          column.DataType = ValueTypeMapper.BuildSqlValueType(columnInfo);
           column.IsNullable = columnInfo.IsNullable;
           if (columnInfo.IsPrimaryKey)
             keyColumns.Add(column);

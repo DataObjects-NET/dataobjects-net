@@ -86,7 +86,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       if (!reader.Read())
         return null;
-      var tuple = Tuple.Create(request.TupleDescriptor);
+      var tuple = Tuple.Create(request.RecordSetHeader.TupleDescriptor);
       for (int i = 0; i < reader.FieldCount; i++) {
         var value = reader[i];
         tuple.SetValue(i, DBNull.Value==value ? null : value);
@@ -110,7 +110,7 @@ namespace Xtensive.Storage.Providers.Sql
       EnsureConnectionIsOpen();
       using (var command = new SqlCommand(connection)) {
         command.CommandText = request.CompiledStatement;
-        command.Parameters.AddRange(request.ParameterBindings.Select(b => b.Parameter));
+        command.Parameters.AddRange(request.ParameterBindings.Select(b => b.SqlParameter));
         command.Prepare();
         command.Transaction = Transaction;
         return command.ExecuteNonQuery();
@@ -144,7 +144,7 @@ namespace Xtensive.Storage.Providers.Sql
       EnsureConnectionIsOpen();
       using (var command = new SqlCommand(connection)) {
         command.CommandText = request.CompiledStatement;
-        command.Parameters.AddRange(request.ParameterBindings.Select(b => b.Parameter));
+        command.Parameters.AddRange(request.ParameterBindings.Select(b => b.SqlParameter));
         command.Prepare();
         command.Transaction = Transaction;
         return command.ExecuteReader();

@@ -49,9 +49,9 @@ namespace Xtensive.Storage.Providers.Sql.Mappings
 
     private readonly Dictionary<ColumnInfo, ColumnMapping> columnMappings = new Dictionary<ColumnInfo, ColumnMapping>();
 
-    internal ColumnMapping RegisterMapping(ColumnInfo columnInfo, TableColumn column)
+    internal ColumnMapping RegisterMapping(ColumnInfo columnInfo, TableColumn column, DataTypeMapping typeMapping)
     {
-      ColumnMapping result = new ColumnMapping(columnInfo, column);
+      ColumnMapping result = new ColumnMapping(columnInfo, column, typeMapping);
       columnMappings[columnInfo] = result;
       return result;
     }

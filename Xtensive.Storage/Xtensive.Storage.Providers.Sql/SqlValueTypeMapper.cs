@@ -5,10 +5,12 @@
 // Created:    2008.09.23
 
 using System;
+using System.Data.Common;
 using Xtensive.Core.Reflection;
 using Xtensive.Sql.Common;
 using Xtensive.Sql.Dom;
 using Xtensive.Storage.Providers.Sql.Mappings;
+using ColumnInfo=Xtensive.Storage.Model.ColumnInfo;
 
 namespace Xtensive.Storage.Providers.Sql
 {
@@ -16,93 +18,189 @@ namespace Xtensive.Storage.Providers.Sql
   {
     protected DomainHandler DomainHandler { get; private set; }
 
-    public ValueTypeMappingSchema MappingSchema { get; private set; }
+    /// <summary>
+    /// Gets the data type mapping schema.
+    /// </summary>
+    protected DataTypeMappingSchema MappingSchema { get; private set; }
 
-    /// <exception cref="InvalidOperationException">Type is not supported.</exception>
-    public SqlValueType GetSqlValueType(Model.ColumnInfo column)
+    /// <summary>
+    /// Gets the type mapping.
+    /// </summary>
+    /// <param name="column">The column.</param>
+    /// <returns><see cref="DataTypeMapping"/> instance for the specified <paramref name="column"/>.</returns>
+    public DataTypeMapping GetTypeMapping(ColumnInfo column)
     {
       int length = column.Length.HasValue ? column.Length.Value : 0;
       Type type = column.ValueType;
 
-      return GetSqlValueType(type, length);
+      return GetTypeMapping(type, length);
     }
 
-    /// <exception cref="InvalidOperationException">Type is not supported.</exception>
-    public SqlValueType GetSqlValueType(Type type, int length)
+    /// <summary>
+    /// Gets the type mapping.
+    /// </summary>
+    /// <param name="type">The column type.</param>
+    /// <param name="length">The column length.</param>
+    /// <returns><see cref="DataTypeMapping"/> instance for the specified <paramref name="type"/> and <paramref name="length"/>.</returns>
+    /// <exception cref="InvalidOperationException"><param name="type">Type</param> is not supported.</exception>
+    public DataTypeMapping GetTypeMapping(Type type, int length)
     {
       {
-        DataTypeInfo dti = MappingSchema.GetExactMapping(type);
-        if (dti != null)
-          return new SqlValueType(dti.SqlType, length);
+        DataTypeMapping mapping = MappingSchema.GetExactMapping(type);
+        if (mapping != null)
+          return mapping;
       }
 
-      DataTypeInfo[] ambigiousMappings = MappingSchema.GetAmbigiousMappings(type);
+      DataTypeMapping[] ambigiousMappings = MappingSchema.GetAmbigiousMappings(type);
       if (ambigiousMappings!=null) {
-        foreach (DataTypeInfo dti in ambigiousMappings) {
+        foreach (DataTypeMapping mapping in ambigiousMappings) {
 
-          StreamDataTypeInfo sdti = dti as StreamDataTypeInfo;
+          StreamDataTypeInfo sdti = mapping.DataTypeInfo as StreamDataTypeInfo;
           if (sdti == null)
-            return new SqlValueType(dti.SqlType);
+            return mapping;
 
           if (length == 0)
-            return new SqlValueType(sdti.SqlType, sdti.Length.MaxValue);
+            return mapping;
 
           if (sdti.Length.MaxValue < length)
             continue;
 
-          return new SqlValueType(sdti.SqlType, length);
+          return mapping;
         }
       }
       throw new InvalidOperationException(string.Format("Type '{0}' is not supported.", type.GetShortName()));
+    }
+
+    public SqlValueType BuildSqlValueType(ColumnInfo columnInfo)
+    {
+      DataTypeMapping dtm = GetTypeMapping(columnInfo);
+      return BuildSqlValueType(columnInfo, dtm);
+    }
+
+    public SqlValueType BuildSqlValueType(Type type, int length)
+    {
+      DataTypeMapping dtm = GetTypeMapping(type, length);
+      return BuildSqlValueType(type, length, dtm);
+    }
+
+    private SqlValueType BuildSqlValueType(ColumnInfo column, DataTypeMapping typeMapping)
+    {
+      int length = column.Length.HasValue ? column.Length.Value : 0;
+      Type type = column.ValueType;
+
+      return BuildSqlValueType(type, length, typeMapping);
+    }
+
+    private SqlValueType BuildSqlValueType(Type type, int length, DataTypeMapping typeMapping)
+    {
+      StreamDataTypeInfo sdti = typeMapping.DataTypeInfo as StreamDataTypeInfo;
+      if (sdti == null)
+        return new SqlValueType(typeMapping.DataTypeInfo.SqlType);
+
+      if (length == 0)
+        return new SqlValueType(sdti.SqlType, sdti.Length.MaxValue);
+
+      return new SqlValueType(sdti.SqlType, length);
+
     }
 
     /// <inheritdoc/>
     public override void Initialize()
     {
       DomainHandler = Handlers.DomainHandler as DomainHandler;
-      MappingSchema = new ValueTypeMappingSchema();
-      BuildNativeTypeMappings();
-      BuildTypeSubstituteMappings();
+      MappingSchema = new DataTypeMappingSchema();
+      BuildNativeDataTypeMappings();
+      BuildCustomDataTypeMappings();
     }
 
-    protected virtual void BuildTypeSubstituteMappings()
+    private void BuildNativeDataTypeMappings()
+    {
+      DataTypeCollection types = DomainHandler.SqlDriver.ServerInfo.DataTypes;
+      BuildDataTypeMapping(types.Boolean);
+      BuildDataTypeMapping(types.Byte);
+      BuildDataTypeMapping(types.DateTime);
+      BuildDataTypeMapping(types.Decimal);
+      BuildDataTypeMapping(types.Double);
+      BuildDataTypeMapping(types.Float);
+      BuildDataTypeMapping(types.Guid);
+      BuildDataTypeMapping(types.Int16);
+      BuildDataTypeMapping(types.Int32);
+      BuildDataTypeMapping(types.Int64);
+      BuildDataTypeMapping(types.Interval);
+      BuildDataTypeMapping(types.SByte);
+      BuildDataTypeMapping(types.UInt16);
+      BuildDataTypeMapping(types.UInt32);
+      BuildDataTypeMapping(types.UInt64);
+      BuildDataTypeMapping(types.VarBinary);
+      BuildDataTypeMapping(types.VarBinaryMax);
+      BuildDataTypeMapping(types.VarChar);
+      BuildDataTypeMapping(types.VarCharMax);
+    }
+
+    protected virtual void BuildCustomDataTypeMappings()
     {
     }
 
-    protected virtual void BuildNativeTypeMappings()
-    {
-      DataTypeCollection types = DomainHandler.Driver.ServerInfo.DataTypes;
-      Register(types.Boolean);
-      Register(types.Byte);
-      Register(types.DateTime);
-      Register(types.Decimal);
-      Register(types.Double);
-      Register(types.Float);
-      Register(types.Guid);
-      Register(types.Int16);
-      Register(types.Int32);
-      Register(types.Int64);
-      Register(types.Interval);
-      Register(types.SByte);
-      Register(types.UInt16);
-      Register(types.UInt32);
-      Register(types.UInt64);
-      Register(types.VarBinary);
-      Register(types.VarBinaryMax);
-      Register(types.VarChar);
-      Register(types.VarCharMax);
-    }
-
-    protected void Register(DataTypeInfo dataTypeInfo)
+    protected void BuildDataTypeMapping(DataTypeInfo dataTypeInfo)
     {
       if (dataTypeInfo == null)
         return;
 
-      MappingSchema.RegisterMapping(dataTypeInfo.Type, dataTypeInfo);
+      DataTypeMapping mapping = CreateDataTypeMapping(dataTypeInfo);
+
+      MappingSchema.Register(mapping);
     }
 
-    public virtual void ConfigureParameter(SqlParameterBinding binding)
+    protected virtual DataTypeMapping CreateDataTypeMapping(DataTypeInfo dataTypeInfo)
     {
+      return new DataTypeMapping(dataTypeInfo, BuildDataReaderAccessor(dataTypeInfo));
+    }
+
+    protected virtual Func<DbDataReader, int, object> BuildDataReaderAccessor(DataTypeInfo dataTypeInfo)
+    {
+      Type type = dataTypeInfo.Type;
+      TypeCode typeCode = Type.GetTypeCode(type);
+      switch (typeCode) {
+      case TypeCode.Object:
+          if (type == typeof(byte[]))
+            return (reader, fieldIndex) => reader.GetValue(fieldIndex);
+          if (type == typeof(Guid))
+            return (reader, fieldIndex) => reader.GetGuid(fieldIndex);
+          else
+            throw new ArgumentOutOfRangeException();
+      case TypeCode.Boolean:
+        return (reader, fieldIndex) => reader.GetBoolean(fieldIndex);
+      case TypeCode.Char:
+        return (reader, fieldIndex) => reader.GetChar(fieldIndex);
+      case TypeCode.SByte:
+        return (reader, fieldIndex) => Convert.ToSByte(reader.GetInt16(fieldIndex));
+      case TypeCode.Byte:
+        return (reader, fieldIndex) => reader.GetByte(fieldIndex);
+      case TypeCode.Int16:
+        return (reader, fieldIndex) => reader.GetInt16(fieldIndex);
+      case TypeCode.UInt16:
+        return (reader, fieldIndex) => Convert.ToUInt16(reader.GetInt32(fieldIndex));
+      case TypeCode.Int32:
+        return (reader, fieldIndex) => reader.GetInt32(fieldIndex);
+      case TypeCode.UInt32:
+        return (reader, fieldIndex) => Convert.ToUInt32(reader.GetInt64(fieldIndex));
+      case TypeCode.Int64:
+        return (reader, fieldIndex) => reader.GetInt64(fieldIndex);
+      case TypeCode.UInt64:
+        return (reader, fieldIndex) => Convert.ToUInt64(reader.GetDecimal(fieldIndex));
+      case TypeCode.Single:
+        return (reader, fieldIndex) => reader.GetFloat(fieldIndex);
+      case TypeCode.Double:
+        return (reader, fieldIndex) => reader.GetFloat(fieldIndex);
+      case TypeCode.Decimal:
+        return (reader, fieldIndex) => reader.GetDecimal(fieldIndex);
+      case TypeCode.DateTime:
+        return (reader, fieldIndex) => reader.GetDateTime(fieldIndex);
+      case TypeCode.String:
+        return (reader, fieldIndex) => reader.GetString(fieldIndex);
+      default:
+        throw new ArgumentOutOfRangeException();
+      }
     }
   }
 }

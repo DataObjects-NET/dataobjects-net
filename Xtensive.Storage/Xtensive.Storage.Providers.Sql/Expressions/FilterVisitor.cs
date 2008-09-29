@@ -204,13 +204,13 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
         var lambda = Expression.Lambda(expression).Compile();
         var binding = new SqlFetchParameterBinding(() => lambda.DynamicInvoke(ArrayUtils<object>.EmptyArray));
         request.ParameterBindings.Add(binding);
-        return binding.Parameter;
+        return binding.SqlParameter;
       }
       if (expression.Expression.NodeType == ExpressionType.MemberAccess && expression.Expression.Type.BaseType == typeof(Core.Parameters.Parameter)) {
         var lambda = Expression.Lambda(expression).Compile();
         var binding = new SqlFetchParameterBinding(() => lambda.DynamicInvoke(ArrayUtils<object>.EmptyArray));
         request.ParameterBindings.Add(binding);
-        return binding.Parameter;
+        return binding.SqlParameter;
       }
       throw new NotSupportedException();
     }

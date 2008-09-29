@@ -4,11 +4,8 @@
 // Created by: Dmitri Maximov
 // Created:    2008.08.22
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Tuples;
 using Xtensive.Sql.Dom;
 using Xtensive.Storage.Rse;
 
@@ -20,14 +17,9 @@ namespace Xtensive.Storage.Providers.Sql
   public class SqlFetchRequest : SqlRequest
   {
     /// <summary>
-    /// Gets or sets the parameter bindings.
+    /// Gets the parameter bindings.
     /// </summary>
     public HashSet<SqlFetchParameterBinding> ParameterBindings { get; private set; }
-
-    /// <summary>
-    /// Gets the result element descriptor.
-    /// </summary>
-    public TupleDescriptor TupleDescriptor { get; private set; }
 
     /// <summary>
     /// Gets the record set header.
@@ -40,20 +32,14 @@ namespace Xtensive.Storage.Providers.Sql
     public void BindParameters()
     {
       foreach (var binding in ParameterBindings)
-        binding.Parameter.Value = binding.Value();
+        binding.SqlParameter.Value = binding.ValueAccessor();
     }
 
-    internal override void CompileWith(SqlDriver driver)
+    /// <inheritdoc/>
+    protected override IEnumerable<SqlParameterBinding> GetParameterBindings()
     {
-      if (CompilationResult!=null)
-        return;
-
-      int i = 0;
       foreach (SqlFetchParameterBinding binding in ParameterBindings)
-        binding.Parameter.ParameterName = "p" + i++;
-      CompilationResult = driver.Compile(Statement);
-
-      TupleDescriptor = TupleDescriptor.Create(RecordSetHeader.Columns.Select(c => c.Type));
+        yield return binding;
     }
 
 

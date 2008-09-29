@@ -5,6 +5,7 @@
 // Created:    2008.09.25
 
 using System;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Model;
 
@@ -12,17 +13,32 @@ namespace Xtensive.Storage.Providers.Sql
 {
   public sealed class SqlUpdateParameterBinding : SqlParameterBinding
   {
-    public Func<Tuple, object> Value { get; private set; }
+    /// <summary>
+    /// Gets the value accessor.
+    /// </summary>
+    public Func<Tuple, object> ValueAccessor { get; private set; }
 
-    public SqlUpdateParameterBinding(ColumnInfo column, Func<Tuple, object> value)
-      : this(value)
+
+    // Constructors
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="column">The column.</param>
+    /// <param name="valueAccessor">The value accessor.</param>
+    public SqlUpdateParameterBinding(ColumnInfo column, Func<Tuple, object> valueAccessor)
+      : this(valueAccessor)
     {
       Column = column;
     }
 
-    public SqlUpdateParameterBinding(Func<Tuple, object> value)
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="valueAccessor">The value accessor.</param>
+    public SqlUpdateParameterBinding(Func<Tuple, object> valueAccessor)
     {
-      Value = value;
+      ValueAccessor = valueAccessor;
     }
   }
 }

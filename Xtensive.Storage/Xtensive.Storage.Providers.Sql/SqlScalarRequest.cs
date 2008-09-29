@@ -4,6 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2008.09.11
 
+using System.Collections.Generic;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Sql.Dom;
 
@@ -14,11 +15,10 @@ namespace Xtensive.Storage.Providers.Sql
   /// </summary>
   public class SqlScalarRequest : SqlRequest
   {
-    internal override void CompileWith(SqlDriver driver)
+    /// <inheritdoc/>
+    protected override IEnumerable<SqlParameterBinding> GetParameterBindings()
     {
-      if (CompilationResult!=null)
-        return;
-      CompilationResult = driver.Compile(Statement);
+      return null;
     }
 
 

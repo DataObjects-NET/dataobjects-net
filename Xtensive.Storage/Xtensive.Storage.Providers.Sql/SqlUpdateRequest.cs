@@ -36,20 +36,16 @@ namespace Xtensive.Storage.Providers.Sql
     public void BindParameters(Tuple target)
     {
       foreach (var binding in ParameterBindings) {
-        binding.Parameter.Value = binding.Value(target);
-        if (binding.Parameter.Value != DBNull.Value && binding.ValueConverter != null)
-          binding.ValueConverter();
+        object value = binding.ValueAccessor(target);
+        binding.SqlParameter.Value = value;
       }
     }
 
-    internal override void CompileWith(SqlDriver driver)
+    /// <inheritdoc/>
+    protected override IEnumerable<SqlParameterBinding> GetParameterBindings()
     {
-      if (CompilationResult!=null)
-        return;
-      int i = 0;
       foreach (SqlUpdateParameterBinding binding in ParameterBindings)
-        binding.Parameter.ParameterName = "p" + i++;
-      CompilationResult = driver.Compile(Statement);
+        yield return binding;
     }
 
 

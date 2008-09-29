@@ -67,8 +67,7 @@ namespace Xtensive.Storage.Providers.Sql
           int fieldIndex = GetFieldIndex(context.Type, column);
           if (fieldIndex >= 0) {
             SqlUpdateParameterBinding binding = context.GetParameterBinding(column, GetTupleFieldAccessor(fieldIndex));
-            DomainHandler.ValueTypeMapper.ConfigureParameter(binding);
-            query.Values[table[i]] = binding.Parameter;
+            query.Values[table[i]] = binding.SqlParameter;
           }
         }
         context.Batch.Add(query);
@@ -86,8 +85,7 @@ namespace Xtensive.Storage.Providers.Sql
           int fieldIndex = GetFieldIndex(context.Type, column);
           if (fieldIndex >= 0 && context.Task.FieldMap[fieldIndex]) {
             SqlUpdateParameterBinding binding = context.GetParameterBinding(column, GetTupleFieldAccessor(fieldIndex));
-            DomainHandler.ValueTypeMapper.ConfigureParameter(binding);
-            query.Values[table[i]] = binding.Parameter;
+            query.Values[table[i]] = binding.SqlParameter;
           }
         }
 
@@ -116,8 +114,7 @@ namespace Xtensive.Storage.Providers.Sql
       foreach (ColumnInfo column in context.PrimaryIndex.KeyColumns.Keys) {
         int fieldIndex = GetFieldIndex(context.Task.Type, column);
         SqlUpdateParameterBinding binding = context.GetParameterBinding(column, GetTupleFieldAccessor(fieldIndex));
-        DomainHandler.ValueTypeMapper.ConfigureParameter(binding);
-        expression &= table[i++]==binding.Parameter;
+        expression &= table[i++]==binding.SqlParameter;
       }
       return expression;
     }

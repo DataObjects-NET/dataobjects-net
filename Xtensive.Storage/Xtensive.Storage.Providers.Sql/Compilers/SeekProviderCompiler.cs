@@ -42,7 +42,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
         var cir = column != null ? column.ColumnInfoRef : null;
         var binding = new SqlFetchParameterBinding(cir, () => provider.Key().GetValue(index));
         request.ParameterBindings.Add(binding);
-        query.Where &= sqlColumn == SqlFactory.ParameterRef(binding.Parameter);
+        query.Where &= sqlColumn == SqlFactory.ParameterRef(binding.SqlParameter);
       }
 
       return new SqlProvider(provider, request, Handlers, source);

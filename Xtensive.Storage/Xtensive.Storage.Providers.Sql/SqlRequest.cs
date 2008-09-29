@@ -12,7 +12,7 @@ using Xtensive.Sql.Dom.Compiler;
 namespace Xtensive.Storage.Providers.Sql
 {
   /// <summary>
-  /// Base class for any sql request.
+  /// Base class for any SQL request.
   /// </summary>
   public abstract class SqlRequest
   {
@@ -31,7 +31,44 @@ namespace Xtensive.Storage.Providers.Sql
       get { return CompilationResult.CommandText; }
     }
 
-    internal abstract void CompileWith(SqlDriver driver);
+    internal void Compile(DomainHandler domainHandler)
+    {
+      if (CompilationResult!=null)
+        return;
+
+      CompileParameters(domainHandler);
+      CompileStatement(domainHandler);
+    }
+
+    /// <summary>
+    /// Compiles the parameters.
+    /// </summary>
+    /// <param name="domainHandler">The domain handler.</param>
+    protected void CompileParameters(DomainHandler domainHandler)
+    {
+      var bindings = GetParameterBindings();
+      if (bindings == null)
+        return;
+      int i = 0;
+      foreach (SqlParameterBinding binding in bindings) {
+        binding.SqlParameter.ParameterName = "p" + i++;
+      }
+    }
+
+    /// <summary>
+    /// Compiles the <see cref="Statement"/>.
+    /// </summary>
+    /// <param name="domainHandler">The domain handler.</param>
+    protected void CompileStatement(DomainHandler domainHandler)
+    {
+      CompilationResult = domainHandler.SqlDriver.Compile(Statement);
+    }
+
+    /// <summary>
+    /// Gets the parameter bindings.
+    /// </summary>
+    /// <returns>The set of <see cref="SqlParameterBinding"/> instances.</returns>
+    protected abstract IEnumerable<SqlParameterBinding> GetParameterBindings();
 
 
     // Constructors

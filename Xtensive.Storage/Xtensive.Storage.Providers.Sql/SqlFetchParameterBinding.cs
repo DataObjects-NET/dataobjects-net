@@ -5,25 +5,44 @@
 // Created:    2008.09.25
 
 using System;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Providers.Sql
 {
   public sealed class SqlFetchParameterBinding : SqlParameterBinding
   {
+    /// <summary>
+    /// Gets the column reference.
+    /// </summary>
     public ColumnInfoRef ColumnRef { get; private set; }
 
-    public Func<object> Value { get; private set; }
+    /// <summary>
+    /// Gets the value accessor.
+    /// </summary>
+    public Func<object> ValueAccessor { get; private set; }
 
-    public SqlFetchParameterBinding(ColumnInfoRef column, Func<object> value)
-      : this(value)
+
+    // Constructors
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="column">The column reference.</param>
+    /// <param name="valueAccessor">The value accessor.</param>
+    public SqlFetchParameterBinding(ColumnInfoRef column, Func<object> valueAccessor)
+      : this(valueAccessor)
     {
       ColumnRef = column;
     }
 
-    public SqlFetchParameterBinding(Func<object> value)
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="valueAccessor">The value accessor.</param>
+    public SqlFetchParameterBinding(Func<object> valueAccessor)
     {
-      Value = value;
+      ValueAccessor = valueAccessor;
     }
   }
 }
