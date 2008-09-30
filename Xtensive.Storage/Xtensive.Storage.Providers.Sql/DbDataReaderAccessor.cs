@@ -8,32 +8,39 @@ using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using Xtensive.Core.Tuples;
+using System.Linq;
 
 namespace Xtensive.Storage.Providers.Sql
 {
   public sealed class DbDataReaderAccessor
   {
-    private List<Func<DbDataReader, int, object>> readers;
-    private List<Func<object, object>> converters;
+    private Func<DbDataReader, int, object>[] accessors;
 
     public void Read(DbDataReader source, Tuple target)
     {
-      for (int i = 0; i < readers.Count; i++) {
+      for (int i = 0; i < accessors.Length; i++) {
         if (source.IsDBNull(i)) {
           target.SetValue(i, null);
           continue;
         }
-        if (converters[i]!=null)
-          target.SetValue(i, converters[i](readers[i](source, i)));
-        else
-          target.SetValue(i, readers[i](source, i));
+        target.SetValue(i, accessors[i](source, i));
       }
     }
 
+
+    // Constructors
+
     internal DbDataReaderAccessor(IEnumerable<Func<DbDataReader, int, object>> readers, IEnumerable<Func<object, object>> converters)
     {
-      this.readers = new List<Func<DbDataReader, int, object>>(readers);
-      this.converters = new List<Func<object, object>>(converters);
+      accessors = readers.ToArray();
+      int i = 0;
+      foreach (var item in converters) {
+        var converter = item;
+        var accessor = accessors[i];
+        if (converter!=null)
+          accessors[i] = (reader, index) => converter(accessor(reader, index));
+        i++;
+      }
     }
   }
 }
