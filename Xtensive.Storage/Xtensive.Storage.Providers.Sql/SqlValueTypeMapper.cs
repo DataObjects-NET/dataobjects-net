@@ -119,11 +119,11 @@ namespace Xtensive.Storage.Providers.Sql
     {
       DomainHandler = Handlers.DomainHandler as DomainHandler;
       MappingSchema = new DataTypeMappingSchema();
-      BuildNativeDataTypeMappings();
-      BuildCustomDataTypeMappings();
+      BuildNativeTypes();
+      BuildTypeSubstitutes();
     }
 
-    private void BuildNativeDataTypeMappings()
+    private void BuildNativeTypes()
     {
       DataTypeCollection types = DomainHandler.SqlDriver.ServerInfo.DataTypes;
       BuildDataTypeMapping(types.Boolean);
@@ -136,7 +136,6 @@ namespace Xtensive.Storage.Providers.Sql
       BuildDataTypeMapping(types.Int16);
       BuildDataTypeMapping(types.Int32);
       BuildDataTypeMapping(types.Int64);
-      BuildDataTypeMapping(types.Interval);
       BuildDataTypeMapping(types.SByte);
       BuildDataTypeMapping(types.UInt16);
       BuildDataTypeMapping(types.UInt32);
@@ -147,7 +146,7 @@ namespace Xtensive.Storage.Providers.Sql
       BuildDataTypeMapping(types.VarCharMax);
     }
 
-    protected virtual void BuildCustomDataTypeMappings()
+    protected virtual void BuildTypeSubstitutes()
     {
     }
 

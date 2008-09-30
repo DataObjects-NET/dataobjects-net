@@ -14,13 +14,13 @@ namespace Xtensive.Storage.Providers.MsSql
 {
   public sealed class SqlValueTypeMapper : Sql.SqlValueTypeMapper
   {
-    protected override void BuildCustomDataTypeMappings()
+    protected override void BuildTypeSubstitutes()
     {
-      base.BuildCustomDataTypeMappings();
-      var substitute = DomainHandler.SqlDriver.ServerInfo.DataTypes.Int64;
-      var dti = new RangeDataTypeInfo<TimeSpan>(SqlDataType.Int64, null);
-      dti.Value = new ValueRange<TimeSpan>(TimeSpan.FromTicks(substitute.Value.MinValue), TimeSpan.FromTicks(substitute.Value.MaxValue));
-      BuildDataTypeMapping(dti);
+      base.BuildTypeSubstitutes();
+      var int64 = DomainHandler.SqlDriver.ServerInfo.DataTypes.Int64;
+      var ts = new RangeDataTypeInfo<TimeSpan>(SqlDataType.Int64, null);
+      ts.Value = new ValueRange<TimeSpan>(TimeSpan.FromTicks(int64.Value.MinValue), TimeSpan.FromTicks(int64.Value.MaxValue));
+      BuildDataTypeMapping(ts);
     }
 
     protected override DataTypeMapping CreateDataTypeMapping(DataTypeInfo dataTypeInfo)
@@ -31,9 +31,7 @@ namespace Xtensive.Storage.Providers.MsSql
       var dataReaderAccessor = BuildDataReaderAccessor(dataTypeInfo);
       switch (typeCode) {
       case TypeCode.DateTime: {
-        RangeDataTypeInfo<DateTime> dti = DomainHandler.SqlDriver.ServerInfo.DataTypes.DateTime;
-        DateTime min = dti.Value.MinValue;
-        result = new DataTypeMapping(dataTypeInfo, dataReaderAccessor, DbType.DateTime, value => (DateTime) value < min ? min : value, null);
+        result = new DataTypeMapping(dataTypeInfo, dataReaderAccessor, DbType.DateTime2);
         break;
       }
       case TypeCode.Object: {

@@ -14,7 +14,7 @@ namespace Xtensive.Storage.Providers.Sql
 {
   public sealed class DbDataReaderAccessor
   {
-    private Func<DbDataReader, int, object>[] accessors;
+    private readonly Func<DbDataReader, int, object>[] accessors;
 
     public void Read(DbDataReader source, Tuple target)
     {

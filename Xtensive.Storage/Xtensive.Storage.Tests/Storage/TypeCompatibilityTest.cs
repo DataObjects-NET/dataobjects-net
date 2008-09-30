@@ -165,7 +165,8 @@ namespace Xtensive.Storage.Tests.Storage
       using(Domain.OpenSession()) {
         Key key;
         using (var t = Session.Current.OpenTransaction()) {
-          key = new X().Key;
+          X x = new X();
+          key = x.Key;
           t.Complete();
         }
         DomainHandler dh =Domain.Handlers.DomainHandler as DomainHandler;
