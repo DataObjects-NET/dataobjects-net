@@ -97,9 +97,7 @@ namespace Xtensive.Core.Caching
     public virtual bool TryGetItem(TKey key, bool markAsHit, out TItem item)
     {
       TCached cached;
-      if (deque.TryGetValue(key, out cached)) {
-        if (markAsHit)
-          deque.MoveToTop(key);
+      if (deque.TryGetValue(key, markAsHit, out cached)) {
         item = cacheConverter.ConvertBackward(cached);
         return true;
       }
