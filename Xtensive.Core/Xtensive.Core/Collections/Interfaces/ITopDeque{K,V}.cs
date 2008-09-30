@@ -12,6 +12,7 @@ namespace Xtensive.Core.Collections
 
     V this[K key] { get; set; }
     bool TryGetValue(K key, out V value);
+    bool TryGetValue(K key, bool moveToTop, out V value);
     bool Contains(K key);
 
     V Top { get; }
