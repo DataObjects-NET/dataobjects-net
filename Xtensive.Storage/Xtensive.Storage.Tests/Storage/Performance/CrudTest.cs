@@ -26,8 +26,8 @@ namespace Xtensive.Storage.Tests.Storage.Performance
 
     protected override DomainConfiguration BuildConfiguration()
     {
-//      DomainConfiguration config = DomainConfigurationFactory.Create("mssql2005");
-      DomainConfiguration config = DomainConfigurationFactory.Create("memory");
+      DomainConfiguration config = DomainConfigurationFactory.Create("mssql2005");
+//      DomainConfiguration config = DomainConfigurationFactory.Create("memory");
       config.Types.Register(typeof(Simplest).Assembly, typeof(Simplest).Namespace);
       return config;
     }
