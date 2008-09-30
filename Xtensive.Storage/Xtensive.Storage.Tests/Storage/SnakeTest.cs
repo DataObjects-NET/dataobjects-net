@@ -128,7 +128,8 @@ namespace Xtensive.Storage.Tests.Storage
 
           aggregate.Count();
           aggregate = aggregate.CalculateAggregateFunction(
-            new [] { //new AggregateColumnDescriptor("Count1", 0, AggregateType.Count),
+            new [] {
+            new AggregateColumnDescriptor("Count1", 0, AggregateType.Count),
             new AggregateColumnDescriptor("Min1", 0, AggregateType.Min),
             new AggregateColumnDescriptor("Max1", 0, AggregateType.Max),
             new AggregateColumnDescriptor("Sum1", 0, AggregateType.Sum),
@@ -447,6 +448,7 @@ namespace Xtensive.Storage.Tests.Storage
             l.Name = "Lizard" + i;
             l.Color = "Color" + i;
           }
+          t.Complete();
         }
       }
 

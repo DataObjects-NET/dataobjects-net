@@ -4,11 +4,8 @@
 // Created by: Dmitri Maximov
 // Created:    2008.08.29
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Core.Tuples;
-using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Model;
 
@@ -28,16 +25,8 @@ namespace Xtensive.Storage.Providers.Sql
 
     public Dictionary<ColumnInfo, SqlUpdateParameterBinding> ParameterBindings { get; private set; }
 
-    internal SqlUpdateParameterBinding GetParameterBinding(ColumnInfo column, Func<Tuple, object> functor)
-    {
-      SqlUpdateParameterBinding result;
-      if (!ParameterBindings.TryGetValue(column, out result)) {
-        result = new SqlUpdateParameterBinding(column, functor);
-        ParameterBindings.Add(column, result);
-      }
-      return result;
-    }
 
+    // Constructor
 
     public SqlRequestBuilderContext(SqlRequestBuilderTask task, SqlBatch batch)
     {

@@ -5,22 +5,16 @@
 // Created:    2008.09.26
 
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Sql.Dom;
 using Xtensive.Storage.Providers.Sql.Mappings;
 
 namespace Xtensive.Storage.Providers.Sql
 {
-  public abstract class SqlParameterBinding
+  public abstract class SqlParameterBinding<TValueAccessor> : SqlParameterBinding
   {
     /// <summary>
-    /// Gets the type mapping.
+    /// Gets the value accessor.
     /// </summary>
-    public DataTypeMapping TypeMapping { get; private set; }
-
-    /// <summary>
-    /// Gets the SQL parameter.
-    /// </summary>
-    public SqlParameter SqlParameter { get; private set; }
+    public TValueAccessor ValueAccessor { get; private set; }
 
 
     // Constructor
@@ -28,10 +22,10 @@ namespace Xtensive.Storage.Providers.Sql
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    protected SqlParameterBinding(DataTypeMapping typeMapping)
+    protected SqlParameterBinding(TValueAccessor valueAccessor, DataTypeMapping typeMapping)
+      : base(typeMapping)
     {
-      TypeMapping = typeMapping;
-      SqlParameter = new SqlParameter();
+      ValueAccessor = valueAccessor;
     }
   }
 }

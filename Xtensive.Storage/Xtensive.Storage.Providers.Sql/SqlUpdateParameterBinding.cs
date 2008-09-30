@@ -7,38 +7,23 @@
 using System;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
-using Xtensive.Storage.Model;
+using Xtensive.Storage.Providers.Sql.Mappings;
 
 namespace Xtensive.Storage.Providers.Sql
 {
-  public sealed class SqlUpdateParameterBinding : SqlParameterBinding
+  public sealed class SqlUpdateParameterBinding : SqlParameterBinding<Func<Tuple, object>>
   {
-    /// <summary>
-    /// Gets the value accessor.
-    /// </summary>
-    public Func<Tuple, object> ValueAccessor { get; private set; }
-
 
     // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="column">The column.</param>
+    /// <param name="typeMapping">The type mapping.</param>
     /// <param name="valueAccessor">The value accessor.</param>
-    public SqlUpdateParameterBinding(ColumnInfo column, Func<Tuple, object> valueAccessor)
-      : this(valueAccessor)
+    public SqlUpdateParameterBinding(Func<Tuple, object> valueAccessor, DataTypeMapping typeMapping)
+      : base(valueAccessor, typeMapping)
     {
-      Column = column;
-    }
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="valueAccessor">The value accessor.</param>
-    public SqlUpdateParameterBinding(Func<Tuple, object> valueAccessor)
-    {
-      ValueAccessor = valueAccessor;
     }
   }
 }

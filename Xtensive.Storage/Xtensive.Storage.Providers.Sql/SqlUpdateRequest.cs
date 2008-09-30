@@ -4,9 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2008.08.22
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Sql.Dom;
@@ -29,23 +27,21 @@ namespace Xtensive.Storage.Providers.Sql
     /// <remarks>Usually is the number of touched rows.</remarks>
     public int ExpectedResult { get; set; }
 
+    /// <inheritdoc/>
+    protected override IEnumerable<SqlParameterBinding> GetParameterBindings()
+    {
+      foreach (var binding in ParameterBindings)
+        yield return binding;
+    }
+
     /// <summary>
     /// Binds the parameters to the specified <paramref name="target"/>.
     /// </summary>
     /// <param name="target">The target to bind parameters to.</param>
     public void BindParameters(Tuple target)
     {
-      foreach (var binding in ParameterBindings) {
-        object value = binding.ValueAccessor(target);
-        binding.SqlParameter.Value = value;
-      }
-    }
-
-    /// <inheritdoc/>
-    protected override IEnumerable<SqlParameterBinding> GetParameterBindings()
-    {
-      foreach (SqlUpdateParameterBinding binding in ParameterBindings)
-        yield return binding;
+      foreach (var binding in ParameterBindings)
+        BindParameter(binding, binding.ValueAccessor(target));
     }
 
 

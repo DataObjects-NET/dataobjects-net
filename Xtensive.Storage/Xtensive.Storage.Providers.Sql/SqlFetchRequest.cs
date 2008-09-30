@@ -4,9 +4,12 @@
 // Created by: Dmitri Maximov
 // Created:    2008.08.22
 
+using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Sql.Dom;
+using Xtensive.Storage.Providers.Sql.Mappings;
 using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Providers.Sql
@@ -27,19 +30,47 @@ namespace Xtensive.Storage.Providers.Sql
     public RecordSetHeader RecordSetHeader { get; private set; }
 
     /// <summary>
-    /// Binds the parameters to actual values.
+    /// Gets the data reader accessor.
     /// </summary>
-    public void BindParameters()
+    public DbDataReaderAccessor DbDataReaderAccessor { get; private set; }
+
+    internal override void Compile(DomainHandler domainHandler)
     {
-      foreach (var binding in ParameterBindings)
-        binding.SqlParameter.Value = binding.ValueAccessor();
+      if (CompilationResult!=null)
+        return;
+
+      CompileParameters(domainHandler);
+      CompileStatement(domainHandler);
+      CompileDbReaderAccessor(domainHandler);
+    }
+
+    private void CompileDbReaderAccessor(DomainHandler domainHandler)
+    {
+      var readers = new List<Func<DbDataReader, int, object>>(RecordSetHeader.Columns.Count);
+      var converters = new List<Func<object, object>>(RecordSetHeader.Columns.Count);
+
+      foreach (Column column in RecordSetHeader.Columns) {
+        DataTypeMapping typeMapping = domainHandler.ValueTypeMapper.GetTypeMapping(column.Type);
+        readers.Add(typeMapping.DataReaderAccessor);
+        converters.Add(typeMapping.FromSqlValue);
+      }
+      DbDataReaderAccessor = new DbDataReaderAccessor(readers, converters);
     }
 
     /// <inheritdoc/>
     protected override IEnumerable<SqlParameterBinding> GetParameterBindings()
     {
-      foreach (SqlFetchParameterBinding binding in ParameterBindings)
+      foreach (var binding in ParameterBindings)
         yield return binding;
+    }
+
+    /// <summary>
+    /// Binds the parameters to actual values.
+    /// </summary>
+    public void BindParameters()
+    {
+      foreach (var binding in ParameterBindings)
+        BindParameter(binding, binding.ValueAccessor());
     }
 
 

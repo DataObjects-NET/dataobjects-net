@@ -18,42 +18,42 @@ namespace Xtensive.Storage.Tests.Storage.DbTypeSupportModel
 
   public enum EByte : byte
   {
-    Min = byte.MinValue, Max = byte.MaxValue
+    Min = byte.MinValue, Default = 0, Max = byte.MaxValue
   }
 
   public enum ESByte : sbyte
   {
-    Min = sbyte.MinValue, Max = sbyte.MaxValue
+    Min = sbyte.MinValue, Default = 0, Max = sbyte.MaxValue
   }
 
   public enum EShort : short 
   {
-    Min = short.MinValue, Max = short.MaxValue
+    Min = short.MinValue, Default = 0, Max = short.MaxValue
   }
 
   public enum EUShort : ushort 
   {
-    Min = ushort.MinValue, Max = ushort.MaxValue
+    Min = ushort.MinValue, Default = 0, Max = ushort.MaxValue
   }
 
   public enum EInt : int 
   {
-    Min = int.MinValue, Max = int.MaxValue
+    Min = int.MinValue, Default = 0, Max = int.MaxValue
   }
 
   public enum EUInt : uint 
   {
-    Min = uint.MinValue, Max = uint.MaxValue
+    Min = uint.MinValue, Default = 0, Max = uint.MaxValue
   }
 
   public enum ELong : long 
   {
-    Min = long.MinValue, Max = long.MaxValue
+    Min = long.MinValue, Default = 0, Max = long.MaxValue
   }
 
   public enum EULong : ulong
   {
-    Min = ulong.MinValue, Max = ulong.MaxValue
+    Min = ulong.MinValue, Default = 0, Max = ulong.MaxValue
   }
 
   #endregion
@@ -182,23 +182,23 @@ namespace Xtensive.Storage.Tests.Storage
           Assert.AreEqual(dt, x.FDateTime);
           Assert.AreEqual(0, x.FDecimal);
           Assert.AreEqual(0, x.FDouble);
-          Assert.AreEqual(EByte.Min, x.FEByte);
-          Assert.AreEqual(EInt.Min, x.FEInt);
-          Assert.AreEqual(ELong.Min, x.FELong);
-          Assert.AreEqual(ESByte.Min, x.FESByte);
-          Assert.AreEqual(EShort.Min, x.FEShort);
-          Assert.AreEqual(EUInt.Min, x.FEUInt);
-          Assert.AreEqual(ELong.Min, x.FEULong);
-          Assert.AreEqual(EShort.Min, x.FEUShort);
+          Assert.AreEqual(EByte.Default, x.FEByte);
+          Assert.AreEqual(EInt.Default, x.FEInt);
+          Assert.AreEqual(ELong.Default, x.FELong);
+          Assert.AreEqual(ESByte.Default, x.FESByte);
+          Assert.AreEqual(EShort.Default, x.FEShort);
+          Assert.AreEqual(EUInt.Default, x.FEUInt);
+          Assert.AreEqual(EULong.Default, x.FEULong);
+          Assert.AreEqual(EUShort.Default, x.FEUShort);
           Assert.AreEqual(0, x.FFloat);
           Assert.AreEqual(Guid.Empty, x.FGuid);
           Assert.AreEqual(0, x.FInt);
           Assert.AreEqual(0l, x.FLong);
           Assert.AreEqual(null, x.FLongByteArray);
-          Assert.AreEqual(string.Empty, x.FLongString);
+          Assert.AreEqual(null, x.FLongString);
           Assert.AreEqual(0, x.FSByte);
           Assert.AreEqual(0, x.FShort);
-          Assert.AreEqual(string.Empty, x.FString);
+          Assert.AreEqual(null, x.FString);
           Assert.AreEqual(TimeSpan.Zero, x.FTimeSpan);
           Assert.AreEqual(0, x.FUInt);
           Assert.AreEqual(0, x.FULong);

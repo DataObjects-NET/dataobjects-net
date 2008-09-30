@@ -5,16 +5,11 @@
 // Created:    2008.07.14
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Core;
-using Xtensive.Core.Comparison;
-using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
 using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Dml;
-using Xtensive.Storage.Rse;
-using Xtensive.Storage.Rse.Compilation;
+using Xtensive.Storage.Providers.Sql.Mappings;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
 using SqlFactory = Xtensive.Sql.Dom.Sql;
@@ -40,9 +35,9 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
         SqlExpression result = null;
         bool bContinue = false;
         if (originalRange.EndPoints.First.Count > i && originalRange.EndPoints.First.IsAvailable(i)) {
-          var column = provider.Header.Columns[keyColumns[i].Key] as MappedColumn;
-          var cir = column!=null ? column.ColumnInfoRef : null;
-          var binding = new SqlFetchParameterBinding(cir, () => rangeProvider.CurrentRange.EndPoints.First.GetValue(i));
+          var column = provider.Header.Columns[keyColumns[i].Key];
+          DataTypeMapping typeMapping = ((DomainHandler) Handlers.DomainHandler).ValueTypeMapper.GetTypeMapping(column.Type);
+          var binding = new SqlFetchParameterBinding(() => rangeProvider.CurrentRange.EndPoints.First.GetValue(i), typeMapping);
           switch (originalRange.EndPoints.First.GetValueType(i)) {
           case EntireValueType.Default:
             request.ParameterBindings.Add(binding);
@@ -79,9 +74,9 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
         SqlExpression result = null;
         bool bContinue = false;
         if (originalRange.EndPoints.Second.Count > i && originalRange.EndPoints.Second.IsAvailable(i)) {
-          var column = provider.Header.Columns[keyColumns[i].Key] as MappedColumn;
-          var cir = column!=null ? column.ColumnInfoRef : null;
-          var binding = new SqlFetchParameterBinding(cir, () => rangeProvider.CurrentRange.EndPoints.Second.GetValue(i));
+          var column = provider.Header.Columns[keyColumns[i].Key];
+          DataTypeMapping typeMapping = ((DomainHandler) Handlers.DomainHandler).ValueTypeMapper.GetTypeMapping(column.Type);
+          var binding = new SqlFetchParameterBinding(() => rangeProvider.CurrentRange.EndPoints.Second.GetValue(i), typeMapping);
           switch (originalRange.EndPoints.Second.GetValueType(i)) {
           case EntireValueType.Default:
             request.ParameterBindings.Add(binding);

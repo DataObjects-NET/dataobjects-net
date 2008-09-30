@@ -11,7 +11,7 @@ using Xtensive.Sql.Dom;
 namespace Xtensive.Storage.Providers.Sql
 {
   /// <summary>
-  /// Sql request for scalar result.
+  /// SQL request for scalar result.
   /// </summary>
   public class SqlScalarRequest : SqlRequest
   {

@@ -35,7 +35,6 @@ namespace Xtensive.Storage.Providers.Sql
 
       return GetTypeMapping(type, length);
     }
-
     /// <summary>
     /// Gets the type mapping.
     /// </summary>
@@ -71,6 +70,17 @@ namespace Xtensive.Storage.Providers.Sql
       throw new InvalidOperationException(string.Format("Type '{0}' is not supported.", type.GetShortName()));
     }
 
+    /// <summary>
+    /// Gets the type mapping.
+    /// </summary>
+    /// <param name="type">The column type.</param>
+    /// <returns><see cref="DataTypeMapping"/> instance for the specified <paramref name="type"/>.</returns>
+    /// <exception cref="InvalidOperationException"><param name="type">Type</param> is not supported.</exception>
+    public DataTypeMapping GetTypeMapping(Type type)
+    {
+      return GetTypeMapping(type, 0);
+    }
+
     public SqlValueType BuildSqlValueType(ColumnInfo columnInfo)
     {
       DataTypeMapping dtm = GetTypeMapping(columnInfo);
@@ -79,7 +89,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     public SqlValueType BuildSqlValueType(Type type, int length)
     {
-      DataTypeMapping dtm = GetTypeMapping(type, length);
+      DataTypeMapping dtm = GetTypeMapping(type);
       return BuildSqlValueType(type, length, dtm);
     }
 
@@ -173,17 +183,17 @@ namespace Xtensive.Storage.Providers.Sql
       case TypeCode.Char:
         return (reader, fieldIndex) => reader.GetChar(fieldIndex);
       case TypeCode.SByte:
-        return (reader, fieldIndex) => Convert.ToSByte(reader.GetInt16(fieldIndex));
+        return (reader, fieldIndex) => Convert.ToSByte(reader.GetDecimal(fieldIndex));
       case TypeCode.Byte:
         return (reader, fieldIndex) => reader.GetByte(fieldIndex);
       case TypeCode.Int16:
         return (reader, fieldIndex) => reader.GetInt16(fieldIndex);
       case TypeCode.UInt16:
-        return (reader, fieldIndex) => Convert.ToUInt16(reader.GetInt32(fieldIndex));
+        return (reader, fieldIndex) => Convert.ToUInt16(reader.GetDecimal(fieldIndex));
       case TypeCode.Int32:
         return (reader, fieldIndex) => reader.GetInt32(fieldIndex);
       case TypeCode.UInt32:
-        return (reader, fieldIndex) => Convert.ToUInt32(reader.GetInt64(fieldIndex));
+        return (reader, fieldIndex) => Convert.ToUInt32(reader.GetDecimal(fieldIndex));
       case TypeCode.Int64:
         return (reader, fieldIndex) => reader.GetInt64(fieldIndex);
       case TypeCode.UInt64:
@@ -191,7 +201,7 @@ namespace Xtensive.Storage.Providers.Sql
       case TypeCode.Single:
         return (reader, fieldIndex) => reader.GetFloat(fieldIndex);
       case TypeCode.Double:
-        return (reader, fieldIndex) => reader.GetFloat(fieldIndex);
+        return (reader, fieldIndex) => reader.GetDouble(fieldIndex);
       case TypeCode.Decimal:
         return (reader, fieldIndex) => reader.GetDecimal(fieldIndex);
       case TypeCode.DateTime:

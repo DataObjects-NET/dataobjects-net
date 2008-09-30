@@ -31,7 +31,7 @@ namespace Xtensive.Storage.Providers.Sql
       get { return CompilationResult.CommandText; }
     }
 
-    internal void Compile(DomainHandler domainHandler)
+    internal virtual void Compile(DomainHandler domainHandler)
     {
       if (CompilationResult!=null)
         return;
@@ -50,8 +50,12 @@ namespace Xtensive.Storage.Providers.Sql
       if (bindings == null)
         return;
       int i = 0;
-      foreach (SqlParameterBinding binding in bindings) {
+      foreach (var binding in bindings) {
         binding.SqlParameter.ParameterName = "p" + i++;
+        if (binding.TypeMapping == null)
+          continue;
+        if (binding.TypeMapping.DbType.HasValue)
+          binding.SqlParameter.DbType = binding.TypeMapping.DbType.Value;
       }
     }
 
@@ -64,10 +68,17 @@ namespace Xtensive.Storage.Providers.Sql
       CompilationResult = domainHandler.SqlDriver.Compile(Statement);
     }
 
+    protected static void BindParameter(SqlParameterBinding binding, object value)
+    {
+      if (binding.TypeMapping != null && binding.TypeMapping.ToSqlValue != null)
+        value = binding.TypeMapping.ToSqlValue(value);
+      binding.SqlParameter.Value = value;
+    }
+
     /// <summary>
     /// Gets the parameter bindings.
     /// </summary>
-    /// <returns>The set of <see cref="SqlParameterBinding"/> instances.</returns>
+    /// <returns><see cref="IEnumerable{T}"/></returns>
     protected abstract IEnumerable<SqlParameterBinding> GetParameterBindings();
 
 

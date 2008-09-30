@@ -9,6 +9,7 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Providers.Sql.Mappings;
 using SqlFactory = Xtensive.Sql.Dom.Sql;
 
 namespace Xtensive.Storage.Providers.Sql
@@ -66,7 +67,12 @@ namespace Xtensive.Storage.Providers.Sql
           ColumnInfo column = index.Columns[i];
           int fieldIndex = GetFieldIndex(context.Type, column);
           if (fieldIndex >= 0) {
-            SqlUpdateParameterBinding binding = context.GetParameterBinding(column, GetTupleFieldAccessor(fieldIndex));
+            SqlUpdateParameterBinding binding;
+            if (!context.ParameterBindings.TryGetValue(column, out binding)) {
+              DataTypeMapping typeMapping = DomainHandler.ValueTypeMapper.GetTypeMapping(column);
+              binding = new SqlUpdateParameterBinding(GetTupleFieldAccessor(fieldIndex), typeMapping);
+              context.ParameterBindings.Add(column, binding);
+            }
             query.Values[table[i]] = binding.SqlParameter;
           }
         }
@@ -84,7 +90,12 @@ namespace Xtensive.Storage.Providers.Sql
           ColumnInfo column = index.Columns[i];
           int fieldIndex = GetFieldIndex(context.Type, column);
           if (fieldIndex >= 0 && context.Task.FieldMap[fieldIndex]) {
-            SqlUpdateParameterBinding binding = context.GetParameterBinding(column, GetTupleFieldAccessor(fieldIndex));
+            SqlUpdateParameterBinding binding;
+            if (!context.ParameterBindings.TryGetValue(column, out binding)) {
+              DataTypeMapping typeMapping = DomainHandler.ValueTypeMapper.GetTypeMapping(column);
+              binding = new SqlUpdateParameterBinding(GetTupleFieldAccessor(fieldIndex), typeMapping);
+              context.ParameterBindings.Add(column, binding);
+            }
             query.Values[table[i]] = binding.SqlParameter;
           }
         }
@@ -112,8 +123,14 @@ namespace Xtensive.Storage.Providers.Sql
       SqlExpression expression = null;
       int i = 0;
       foreach (ColumnInfo column in context.PrimaryIndex.KeyColumns.Keys) {
+        IndexInfo index = column.Field.DeclaringType.Indexes.PrimaryIndex;
         int fieldIndex = GetFieldIndex(context.Task.Type, column);
-        SqlUpdateParameterBinding binding = context.GetParameterBinding(column, GetTupleFieldAccessor(fieldIndex));
+        SqlUpdateParameterBinding binding;
+        if (!context.ParameterBindings.TryGetValue(column, out binding)) {
+          DataTypeMapping typeMapping = DomainHandler.ValueTypeMapper.GetTypeMapping(column);
+          binding = new SqlUpdateParameterBinding(GetTupleFieldAccessor(fieldIndex), typeMapping);
+          context.ParameterBindings.Add(column, binding);
+        }
         expression &= table[i++]==binding.SqlParameter;
       }
       return expression;

@@ -10,6 +10,7 @@ using Xtensive.Core.Tuples;
 using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Database;
 using Xtensive.Sql.Dom.Dml;
+using Xtensive.Storage.Providers.Sql.Mappings;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
@@ -50,7 +51,8 @@ namespace Xtensive.Storage.Providers.Sql
       int i = 0;
       foreach (SqlTableColumn column in tableRef.Columns) {
         int fieldIndex = i;
-        SqlUpdateParameterBinding binding = new SqlUpdateParameterBinding((target => target.IsNull(fieldIndex) ? DBNull.Value : target.GetValue(fieldIndex)));
+        DataTypeMapping typeMapping = ((DomainHandler) handlers.DomainHandler).ValueTypeMapper.GetTypeMapping(Header.Columns[i].Type);
+        SqlUpdateParameterBinding binding = new SqlUpdateParameterBinding((target => target.IsNull(fieldIndex) ? DBNull.Value : target.GetValue(fieldIndex)), typeMapping);
         insert.Values[column] = binding.SqlParameter;
         updateRequest.ParameterBindings.Add(binding);
         i++;

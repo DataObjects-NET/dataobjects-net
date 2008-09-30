@@ -8,8 +8,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
-using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Dml;
+using Xtensive.Storage.Providers.Sql.Mappings;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
@@ -37,10 +37,10 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
       for (int i = 0; i < keyColumns.Count; i++) {
         int columnIndex = keyColumns[i].Key;
         var sqlColumn = query.Columns[columnIndex];
-        var column = provider.Header.Columns[columnIndex] as MappedColumn;
+        var column = provider.Header.Columns[columnIndex];
+        DataTypeMapping typeMapping = ((DomainHandler) Handlers.DomainHandler).ValueTypeMapper.GetTypeMapping(column.Type);
         int index = i;
-        var cir = column != null ? column.ColumnInfoRef : null;
-        var binding = new SqlFetchParameterBinding(cir, () => provider.Key().GetValue(index));
+        var binding = new SqlFetchParameterBinding(() => provider.Key().GetValue(index), typeMapping);
         request.ParameterBindings.Add(binding);
         query.Where &= sqlColumn == SqlFactory.ParameterRef(binding.SqlParameter);
       }

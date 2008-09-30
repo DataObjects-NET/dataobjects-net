@@ -6,21 +6,12 @@
 
 using System;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Storage.Rse;
+using Xtensive.Storage.Providers.Sql.Mappings;
 
 namespace Xtensive.Storage.Providers.Sql
 {
-  public sealed class SqlFetchParameterBinding : SqlParameterBinding
+  public sealed class SqlFetchParameterBinding : SqlParameterBinding<Func<object>>
   {
-    /// <summary>
-    /// Gets the column reference.
-    /// </summary>
-    public ColumnInfoRef ColumnRef { get; private set; }
-
-    /// <summary>
-    /// Gets the value accessor.
-    /// </summary>
-    public Func<object> ValueAccessor { get; private set; }
 
 
     // Constructors
@@ -28,12 +19,11 @@ namespace Xtensive.Storage.Providers.Sql
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="column">The column reference.</param>
+    /// <param name="typeMapping">The type mapping.</param>
     /// <param name="valueAccessor">The value accessor.</param>
-    public SqlFetchParameterBinding(ColumnInfoRef column, Func<object> valueAccessor)
-      : this(valueAccessor)
+    public SqlFetchParameterBinding(Func<object> valueAccessor, DataTypeMapping typeMapping)
+      : base(valueAccessor, typeMapping)
     {
-      ColumnRef = column;
     }
 
     /// <summary>
@@ -41,8 +31,8 @@ namespace Xtensive.Storage.Providers.Sql
     /// </summary>
     /// <param name="valueAccessor">The value accessor.</param>
     public SqlFetchParameterBinding(Func<object> valueAccessor)
+      : base(valueAccessor, null)
     {
-      ValueAccessor = valueAccessor;
     }
   }
 }
