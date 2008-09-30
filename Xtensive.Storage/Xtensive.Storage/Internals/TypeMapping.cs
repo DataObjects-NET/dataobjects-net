@@ -13,6 +13,8 @@ namespace Xtensive.Storage.Internals
   {
     public TypeInfo Type { get; private set; }
 
+    public int TypeId { get; private set; }
+    
     public MapTransform Transform { get; private set; }
 
 
@@ -21,6 +23,7 @@ namespace Xtensive.Storage.Internals
     public TypeMapping(TypeInfo type, MapTransform transform)
     {
       Type = type;
+      TypeId = type.TypeId;
       Transform = transform;
     }
   }

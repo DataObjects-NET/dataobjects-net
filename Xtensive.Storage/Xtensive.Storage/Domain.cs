@@ -10,12 +10,10 @@ using System.Diagnostics;
 using System.Runtime.ConstrainedExecution;
 using System.Threading;
 using Xtensive.Core;
+using Xtensive.Core.Caching;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Disposable;
-using Xtensive.Core.Helpers;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Threading;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Building.Builders;
 using Xtensive.Storage.Configuration;
@@ -33,7 +31,7 @@ namespace Xtensive.Storage
   public sealed class Domain : CriticalFinalizerObject,
     IDisposableContainer
   {
-    private readonly Dictionary<RecordSetHeader, RecordSetMapping> recordSetMappings = new Dictionary<RecordSetHeader, RecordSetMapping>();
+    private ICache<RecordSetHeader, RecordSetMapping> recordSetMappings;
     private int sessionCounter = 1;
 
     /// <summary>
@@ -100,51 +98,6 @@ namespace Xtensive.Storage
 
     internal HandlerAccessor Handlers { get; private set; }
 
-    #region RecordSet mapping methods
-
-    internal RecordSetMapping GetMapping(RecordSetHeader header)
-    {
-      RecordSetMapping result;
-      if (recordSetMappings.TryGetValue(header, out result))
-        return result;
-      lock (recordSetMappings) {
-        if (!recordSetMappings.TryGetValue(header, out result)) {
-          var mappings = new List<ColumnGroupMapping>();
-          foreach (ColumnGroup group in header.ColumnGroups) {
-            ColumnGroupMapping mapping = GetColumnGroupMapping(header, group);
-            if (mapping!=null)
-              mappings.Add(mapping);
-          }
-          result = new RecordSetMapping(header, mappings);
-          recordSetMappings.Add(header, result);
-        }
-        return result;
-      }
-    }
-
-    private ColumnGroupMapping GetColumnGroupMapping(RecordSetHeader header, ColumnGroup group)
-    {
-      int typeIdIndex = -1;
-      var typeIdColumnName = NameBuilder.TypeIdColumnName;
-      var columnMapping = new Dictionary<ColumnInfo, MappedColumn>(group.Columns.Count);
-
-      foreach (int columnIndex in group.Columns) {
-        var column = (MappedColumn)header.Columns[columnIndex];
-        ColumnInfo columnInfo = column.ColumnInfoRef.Resolve(Model);
-        columnMapping[columnInfo] = column;
-        if (columnInfo.Name == typeIdColumnName)
-          typeIdIndex = column.Index;
-      }
-
-      if (typeIdIndex == -1)
-        return null;
-
-      return new ColumnGroupMapping(typeIdIndex, columnMapping);
-    }
-
-    #endregion
-
-
     #region OpenSession methods
 
     /// <summary>
@@ -190,6 +143,51 @@ namespace Xtensive.Storage
       return DomainBuilder.Build(configuration);
     }
 
+    #region Private \ internal methods
+
+    internal RecordSetMapping GetMapping(RecordSetHeader header)
+    {
+      RecordSetMapping result;
+      lock (recordSetMappings) {
+        result = recordSetMappings[header, true];
+        if (result!=null)
+          return result;
+      }
+      var mappings = new List<ColumnGroupMapping>();
+      foreach (var group in header.ColumnGroups) {
+        var mapping = BuildColumnGroupMapping(header, group);
+        if (mapping!=null)
+          mappings.Add(mapping);
+      }
+      result = new RecordSetMapping(header, mappings);
+      lock (recordSetMappings) {
+        recordSetMappings.Add(result);
+      }
+      return result;
+    }
+
+    private ColumnGroupMapping BuildColumnGroupMapping(RecordSetHeader header, ColumnGroup group)
+    {
+      int typeIdColumnIndex = -1;
+      var typeIdColumnName = NameBuilder.TypeIdColumnName;
+      var columnMapping = new Dictionary<ColumnInfo, MappedColumn>(group.Columns.Count);
+
+      foreach (int columnIndex in group.Columns) {
+        var column = (MappedColumn)header.Columns[columnIndex];
+        ColumnInfo columnInfo = column.ColumnInfoRef.Resolve(Model);
+        columnMapping[columnInfo] = column;
+        if (columnInfo.Name == typeIdColumnName)
+          typeIdColumnIndex = column.Index;
+      }
+
+      if (typeIdColumnIndex == -1)
+        return null;
+
+      return new ColumnGroupMapping(Model, typeIdColumnIndex, columnMapping);
+    }
+
+    #endregion
+
 
     // Constructors
 
@@ -199,6 +197,9 @@ namespace Xtensive.Storage
       Handlers = new HandlerAccessor(this);
       Prototypes = new Dictionary<TypeInfo, Tuple>();
       TemporaryData = new GlobalTemporaryData();
+      recordSetMappings = 
+        new LruCache<RecordSetHeader, RecordSetMapping>(1024, m => m.Header,
+          new WeakestCache<RecordSetHeader, RecordSetMapping>(false, false, m => m.Header));
     }
 
     public void Dispose()

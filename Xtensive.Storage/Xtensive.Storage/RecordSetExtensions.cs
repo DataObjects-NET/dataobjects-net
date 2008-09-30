@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Internals;
-using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage
@@ -41,12 +40,13 @@ namespace Xtensive.Storage
     public static IEnumerable<Entity> ToEntities(this RecordSet source, Type type)
     {
       var context = new RecordSetHeaderParseContext(Session.Current, source.Header);
-      var mapping = context.Domain.GetMapping(source.Header);
+      var recordSetMapping = context.Domain.GetMapping(source.Header);
+      var groupMappings    = recordSetMapping.Mappings;
+      var typeMappings     = new TypeMapping[groupMappings.Length];
       foreach (Tuple tuple in source) {
         Entity entity = null;
-        for (int i = 0; i < mapping.GroupMappings.Count; i++) {
-          var columnGroupMapping = mapping.GroupMappings[i];
-          Key key = ProcessColumnGroup(context, columnGroupMapping, tuple);
+        for (int i = 0; i < groupMappings.Length; i++) {
+          Key key = ProcessColumnGroup(context, groupMappings[i], ref typeMappings[i], tuple);
           if (entity==null && type.IsAssignableFrom(key.Type.UnderlyingType))
             entity = key.Resolve();
         }
@@ -57,35 +57,36 @@ namespace Xtensive.Storage
     public static int Parse(this RecordSet source)
     {
       var context = new RecordSetHeaderParseContext(Session.Current, source.Header);
-      var mapping = context.Domain.GetMapping(source.Header);
+      var recordSetMapping = context.Domain.GetMapping(source.Header);
+      var groupMappings    = recordSetMapping.Mappings;
+      var typeMappings     = new TypeMapping[groupMappings.Length];
       int recordCount = 0;
       foreach (Tuple tuple in source) {
         recordCount++;
-        for (int i = 0; i < mapping.GroupMappings.Count; i++) {
-          ColumnGroupMapping columnGroupMapping = mapping.GroupMappings[i];
-          ProcessColumnGroup(context, columnGroupMapping, tuple);
-        }
+        for (int i = 0; i < groupMappings.Length; i++)
+          ProcessColumnGroup(context, groupMappings[i], ref typeMappings[i], tuple);
       }
       return recordCount;
     }
 
     #region Private \ internal methods
 
-    private static Key ProcessColumnGroup(RecordSetHeaderParseContext context, ColumnGroupMapping columnGroupMapping, Tuple tuple)
+    private static Key ProcessColumnGroup(RecordSetHeaderParseContext context, ColumnGroupMapping columnGroupMapping, ref TypeMapping lastTypeMapping, Tuple record)
     {
-      TypeMapping typeMapping = GetTypeMapping(context, columnGroupMapping, tuple);
-      Tuple transformedTuple = typeMapping.Transform.Apply(TupleTransformType.TransformedTuple, tuple);
-      Key key = context.Domain.KeyManager.Get(typeMapping.Type, transformedTuple);
-      context.Session.Cache.Update(key, transformedTuple, context.Session.Transaction);
+      int typeId = (int) record.GetValueOrDefault(columnGroupMapping.TypeIdColumnIndex);
+      TypeMapping typeMapping;
+      if (lastTypeMapping!=null && typeId==lastTypeMapping.TypeId)
+        typeMapping = lastTypeMapping;
+      else {
+        typeMapping = columnGroupMapping.GetMapping(typeId);
+        lastTypeMapping = typeMapping;
+      }
+      Tuple entityTuple = typeMapping.Transform.Apply(TupleTransformType.TransformedTuple, record);
+      Key key = context.KeyManager.Get(typeMapping.Type, entityTuple);
+      context.Cache.Update(key, entityTuple, context.Session.Transaction);
       return key;
     }
 
-    private static TypeMapping GetTypeMapping(RecordSetHeaderParseContext context, ColumnGroupMapping columnGroupMapping, Tuple tuple)
-    {
-      int typeId = tuple.GetValueOrDefault<int>(columnGroupMapping.TypeIdIndex);
-      TypeInfo type = context.Domain.Model.Types[typeId];
-      return columnGroupMapping.GetTypeMapping(type);
-    }
 
     #endregion
   }

@@ -9,10 +9,8 @@ using System.Linq;
 using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
-using Xtensive.Core.Comparison;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Reflection;
-using Xtensive.Indexing;
 using Xtensive.Storage.Model.Resources;
 
 namespace Xtensive.Storage.Model

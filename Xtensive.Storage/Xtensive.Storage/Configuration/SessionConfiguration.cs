@@ -23,7 +23,7 @@ namespace Xtensive.Storage.Configuration
     /// <summary>
     /// Default cache size;
     /// </summary>
-    public const int DefaultCacheSize = 1024;
+    public const int DefaultCacheSize = 10240;
 
     /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
     public static readonly SessionConfiguration Default;
@@ -51,7 +51,8 @@ namespace Xtensive.Storage.Configuration
     public string CustomAuthParams { get; set; }
 
     /// <summary>
-    /// Gets or sets the size of the session cache. Default value is <see cref="DefaultCacheSize"/>.
+    /// Gets or sets the size of the session cache. 
+    /// Default value is <see cref="DefaultCacheSize"/>.
     /// </summary>
     public int CacheSize { get; set; }
 

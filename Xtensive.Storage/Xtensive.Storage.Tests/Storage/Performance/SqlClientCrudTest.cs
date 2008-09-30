@@ -10,7 +10,7 @@ using NUnit.Framework;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Testing;
 using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Tests.Storage.Performance.CrudModel;
+using Xtensive.Storage.Tests.Storage.Performance.SqlClientCrudModel;
 
 namespace Xtensive.Storage.Tests.Storage.Performance
 {
@@ -29,7 +29,8 @@ namespace Xtensive.Storage.Tests.Storage.Performance
     protected override DomainConfiguration BuildConfiguration()
     {
       DomainConfiguration config = DomainConfigurationFactory.Create("mssql2005");
-      config.Types.Register(typeof (Simplest).Assembly, typeof (Simplest).Namespace);
+      config.Types.Register(
+        typeof (CrudModel.Simplest).Assembly, typeof (CrudModel.Simplest).Namespace);
       return config;
     }
 
@@ -104,7 +105,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
             "FROM [dbo].[Simplest]";
           SqlDataReader dr = cmd.ExecuteReader();
           while (dr.Read()) {
-            var s = new NativeSimplest();
+            var s = new Simplest();
             if (!dr.IsDBNull(0))
               s.Id = (long) dr.GetValue(0);
             if (!dr.IsDBNull(2))
@@ -140,7 +141,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
           cmd.Parameters["@pId"].SqlValue = i % instanceCount;
           dr = cmd.ExecuteReader();
 
-          var s = new NativeSimplest();
+          var s = new Simplest();
           while (dr.Read()) {
             if (!dr.IsDBNull(0))
               s.Id = (long) dr.GetValue(0);
@@ -174,7 +175,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
           cmd.Parameters["@pId"].SqlValue = i % instanceCount;
           dr = cmd.ExecuteReader();
 
-          var s = new NativeSimplest();
+          var s = new Simplest();
           while (dr.Read()) {
             if (!dr.IsDBNull(0))
               s.Id = (long) dr.GetValue(0);
@@ -201,10 +202,10 @@ namespace Xtensive.Storage.Tests.Storage.Performance
         cmd.Parameters.AddWithValue("@pId", 0);
         
         SqlDataReader dr = cmd.ExecuteReader();
-        var list = new List<NativeSimplest>();
+        var list = new List<Simplest>();
         while (dr.Read()) {
           if (!dr.IsDBNull(0) && !dr.IsDBNull(2))
-            list.Add(new NativeSimplest((long)dr.GetValue(0), (long)dr.GetValue(2)));
+            list.Add(new Simplest((long)dr.GetValue(0), (long)dr.GetValue(2)));
         }
         dr.Close();
 

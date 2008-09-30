@@ -11,7 +11,7 @@
 [assembly: global::System.Data.Objects.DataClasses.EdmSchemaAttribute()]
 
 // Original file name:
-// Generation date: 29.09.2008 17:36:27
+// Generation date: 30.09.2008 17:50:31
 namespace Xtensive.Storage.Tests.Storage.Performance.EntityCrudModel
 {
     

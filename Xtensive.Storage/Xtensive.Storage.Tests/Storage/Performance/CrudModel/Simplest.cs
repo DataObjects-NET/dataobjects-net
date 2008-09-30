@@ -27,24 +27,4 @@ namespace Xtensive.Storage.Tests.Storage.Performance.CrudModel
       Value = value;
     }
   }
-
-  public class NativeSimplest
-  {
-    public long Id { get; set; }
-
-    public long Value { get; set; }
-
-    
-    // Constructors
-
-    public NativeSimplest()
-    {
-    }
-
-    public NativeSimplest(long id, long value)
-    {
-      Id = id;
-      Value = value;
-    }
-  }
 }

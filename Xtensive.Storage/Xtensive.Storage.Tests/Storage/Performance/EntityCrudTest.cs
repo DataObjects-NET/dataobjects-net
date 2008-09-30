@@ -10,7 +10,6 @@ using NUnit.Framework;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Testing;
 using Xtensive.Storage.Tests.Storage.Performance.EntityCrudModel;
-using Simplest=Xtensive.Storage.Tests.Storage.Performance.EntityCrudModel.Simplest;
 
 namespace Xtensive.Storage.Tests.Storage.Performance
 {

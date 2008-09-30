@@ -6,21 +6,22 @@
 
 using System.Collections.Generic;
 using Xtensive.Storage.Rse;
+using System.Linq;
 
 namespace Xtensive.Storage.Internals
 {
   internal sealed class RecordSetMapping
   {
     public RecordSetHeader Header { get; private set;}
-    public List<ColumnGroupMapping> GroupMappings { get; private set; }
+    public ColumnGroupMapping[] Mappings { get; private set; }
 
 
     // Constructors
 
-    public RecordSetMapping(RecordSetHeader header, List<ColumnGroupMapping> hierarchyMappings)
+    public RecordSetMapping(RecordSetHeader header, IEnumerable<ColumnGroupMapping> mappings)
     {
       Header = header;
-      GroupMappings = hierarchyMappings;
+      Mappings = mappings.ToArray();
     }
   }
 }

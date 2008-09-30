@@ -10,12 +10,13 @@ namespace Xtensive.Storage.Internals
 {
   internal sealed class RecordSetHeaderParseContext
   {
+    public Domain Domain { get; private set; }
+
+    public KeyManager KeyManager { get; private set; }
+
     public Session Session { get; private set; }
 
-    public Domain Domain
-    {
-      get { return Session.Domain; }
-    }
+    public EntityCache Cache { get; private set; }
 
     public RecordSetHeader Header { get; private set; }
 
@@ -25,6 +26,9 @@ namespace Xtensive.Storage.Internals
     public RecordSetHeaderParseContext(Session session, RecordSetHeader header)
     {
       Session = session;
+      Cache = Session.Cache;
+      Domain = Session.Domain;
+      KeyManager = Domain.KeyManager;
       Header = header;
     }
   }
