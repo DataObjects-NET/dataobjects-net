@@ -7,12 +7,11 @@
 using System;
 using System.Globalization;
 using System.IO;
-using System.Reflection;
 using DataObjects.NET;
 using NUnit.Framework;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Testing;
-using Xtensive.Storage.Tests.Storage.Performance.DO39Model;
+using Xtensive.Storage.Tests.Storage.Performance.DO39CrudModel;
 
 namespace Xtensive.Storage.Tests.Storage.Performance
 {
@@ -32,24 +31,23 @@ namespace Xtensive.Storage.Tests.Storage.Performance
     [TestFixtureSetUp]
     public virtual void TestFixtureSetUp()
     {
-      DomainConfiguration configuration = new DomainConfiguration();
-
+      var configuration = new DomainConfiguration();
       configuration.ConnectionUrl = "mssql://localhost/DO39-Tests";
       configuration.Cultures.Add(new Culture("En", "U.S. English", new CultureInfo("en-us", false)));
       configuration.Cultures["En"].Default = true;
       
-      string productKeyFile = Path.Combine(Environment.CurrentDirectory, @"Storage\Performance\DO39CrudModel\ProductKey.txt");
-      string productKey = "";
+      string productKeyFile = Path.Combine(Environment.CurrentDirectory, @"..\..\ProductKey.txt");
+      string productKey = string.Empty;
 
       if (File.Exists(productKeyFile))
-        using (StreamReader sr = new StreamReader(productKeyFile))
+        using (var sr = new StreamReader(productKeyFile))
           productKey = sr.ReadToEnd().Trim();
 
       configuration.ProductKey = productKey;
       configuration.DefaultUpdateMode = DomainUpdateMode.Recreate;
 
       domain = new DataObjects.NET.Domain(configuration);
-      domain.RegisterTypes("Xtensive.Storage.Tests.Storage.Performance.DO39Model");
+      domain.RegisterTypes("Xtensive.Storage.Tests.Storage.Performance.DO39CrudModel");
       domain.Build();
     }
 

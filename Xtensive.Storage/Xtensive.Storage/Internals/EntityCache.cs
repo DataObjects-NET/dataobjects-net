@@ -81,7 +81,7 @@ namespace Xtensive.Storage.Internals
       Key key = state.Key;
       if (!removed.ContainsKey(key))
         removed[key] = cache[key, false];
-      cache.Remove(key);
+      cache.RemoveKey(key);
     }
 
     [Infrastructure]
@@ -94,7 +94,7 @@ namespace Xtensive.Storage.Internals
     public void RestoreRemoved()
     {
       foreach (EntityState data in removed.Values) {
-        if (cache.Contains(data.Key))
+        if (cache.ContainsKey(data.Key))
           cache.Remove(data);
         cache.Add(data);
       }

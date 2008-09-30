@@ -7,11 +7,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using Xtensive.Core;
 using Xtensive.Core.Caching;
-using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
@@ -39,24 +39,23 @@ namespace Xtensive.Storage
     private MapTransform keyTransform;
 
     /// <inheritdoc/>
-    public long Count
-    {
-      get
-      {
+    public long Count {
+      [DebuggerStepThrough]
+      get {
         EnsureInitialized();
         return count.Value;
       }
     }
 
     /// <inheritdoc/>
-    int ICollection<T>.Count
-    {
-      get { return checked((int)Count); }
+    int ICollection<T>.Count {
+      [DebuggerStepThrough]
+      get { return checked ((int) Count); }
     }
 
     /// <inheritdoc/>
-    public bool IsReadOnly
-    {
+    public bool IsReadOnly {
+      [DebuggerStepThrough]
       get { return false; }
     }
 
@@ -65,7 +64,7 @@ namespace Xtensive.Storage
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
       EnsureInitialized();
-      if (Cache.Contains(item.Key))
+      if (Cache.ContainsKey(item.Key))
         return true;
       if (Cache.Count==Count)
         return false;
@@ -85,7 +84,7 @@ namespace Xtensive.Storage
       if (key.Type.UnderlyingType!=typeof (T)) {
         return false;
       }
-      if (!Cache.Contains(key)) {
+      if (!Cache.ContainsKey(key)) {
         if (Cache.Count==Count)
           return false;
         // Request from database
@@ -211,17 +210,15 @@ namespace Xtensive.Storage
     internal override void RemoveFromCache(Key key, bool recount)
     {
       bool reInitialized = EnsureInitialized();
-      if(recount || reInitialized) {
+      if (recount || reInitialized) {
         count--;
-        Cache.Remove(key);
+        Cache.RemoveKey(key);
       }
       IncreaseVersion();
     }
 
-    protected IndexInfo Index
-    {
-      get
-      {
+    protected IndexInfo Index {
+      get {
         index = index ?? GetIndex();
         return index;
       }
@@ -304,6 +301,7 @@ namespace Xtensive.Storage
     }
 
     #endregion
+
 
     // Constructors
 

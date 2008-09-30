@@ -69,8 +69,8 @@ namespace Xtensive.Core.Tests.Caching
 
     #endregion
 
-    public const int LruCapacity = 9000;
-    public const int MfuCapacity = 1000;
+    public const int LruCapacity = 90000;
+    public const int MfuCapacity = 10000;
     public const int Capacity = LruCapacity + MfuCapacity;
     
     public const int BaseCount = 10000000;

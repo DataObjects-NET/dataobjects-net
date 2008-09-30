@@ -90,11 +90,11 @@ namespace Xtensive.Core.Tests.Caching
     [Test]
     public void ConstructorsTest()
     {
-      LruCache<string, TestClass, TestClass> cache = new LruCache<string, TestClass, TestClass>(
+      var cache = new LruCache<string, TestClass, TestClass>(
         1000,
         value => value.Text);
 
-      LruCache<string, TestClass, TestClass> cache1 = new LruCache<string, TestClass, TestClass>(
+      var cache1 = new LruCache<string, TestClass, TestClass>(
         1000,
         (value) => value.Text,
         new Biconverter<TestClass, TestClass>(value => value, value => value));
@@ -116,7 +116,7 @@ namespace Xtensive.Core.Tests.Caching
     [ExpectedException(typeof(ArgumentOutOfRangeException))]
     public void ConstructorDenyTest()
     {
-      LruCache<string, TestClass, TestClass> cache =
+      var cache =
         new LruCache<string, TestClass, TestClass>(
           -1,
           value => value.Text
@@ -126,7 +126,7 @@ namespace Xtensive.Core.Tests.Caching
     [Test]
     public void AddRemoveTest()
     {
-      LruCache<string, TestClass, TestClass> cache = new LruCache<string, TestClass, TestClass>(
+      var cache = new LruCache<string, TestClass, TestClass>(
         100,
         value => value.Text);
 
@@ -150,7 +150,7 @@ namespace Xtensive.Core.Tests.Caching
     [ExpectedException(typeof(ArgumentNullException))]
     public void AddDenyTest1()
     {
-      LruCache<string, TestClass, TestClass> cache = new LruCache<string, TestClass, TestClass>(
+      var cache = new LruCache<string, TestClass, TestClass>(
         100,
         value => value.Text);
       cache.Add(null);
@@ -160,7 +160,7 @@ namespace Xtensive.Core.Tests.Caching
     [ExpectedException(typeof(ArgumentNullException))]
     public void AddDenyTest3()
     {
-      LruCache<string, BadTestClass, BadTestClass> cache =
+      var cache =
         new LruCache<string, BadTestClass, BadTestClass>(
           100,
           value => value.Identifier);
@@ -172,29 +172,29 @@ namespace Xtensive.Core.Tests.Caching
     [ExpectedException(typeof(ArgumentNullException))]
     public void RemoveDenyTest1()
     {
-      LruCache<string, TestClass, TestClass> cache =
+      var cache =
         new LruCache<string, TestClass, TestClass>(
           100,
           value => value.Text);
-      cache.Remove((TestClass)null);
+      cache.Remove(null);
     }
 
     [Test]
     [ExpectedException(typeof(ArgumentNullException))]
     public void RemoveDenyTest2()
     {
-      LruCache<string, TestClass, TestClass> cache =
+      var cache =
         new LruCache<string, TestClass, TestClass>(
           100,
           value => value.Text);
-      cache.Remove((string)null);
+      cache.RemoveKey(null);
     }
 
     [Test]
     [ExpectedException(typeof(ArgumentNullException))]
     public void RemoveDenyTest3()
     {
-      LruCache<string, BadTestClass, BadTestClass> cache =
+      var cache =
         new LruCache<string, BadTestClass, BadTestClass>(
           100,
           value => value.Identifier);
@@ -205,7 +205,7 @@ namespace Xtensive.Core.Tests.Caching
     [Test]
     public void IEnumerableTest()
     {
-      LruCache<string, TestClass, TestClass> cache =
+      var cache =
         new LruCache<string, TestClass, TestClass>(
           10000,
           value => value.Text);
@@ -234,8 +234,8 @@ namespace Xtensive.Core.Tests.Caching
           value => value.Text);
 
       
-      Thread[] addThreads = new Thread[10];
-      Thread[] removeThreads = new Thread[10];
+      var addThreads = new Thread[10];
+      var removeThreads = new Thread[10];
       for (int i = 0; i < 10; i++)
       {
         addThreads[i] = new Thread(AddItem);

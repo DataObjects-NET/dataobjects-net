@@ -119,8 +119,8 @@ namespace Xtensive.Core.Caching
         item = (TItem) cached.Target;
         if (item!=null)
           return true;
-        cached.Free();
         items.Remove(key);
+        cached.Free();
         return false;
       }
       item = null;
@@ -128,7 +128,13 @@ namespace Xtensive.Core.Caching
     }
 
     /// <inheritdoc/>
-    public bool Contains(TKey key)
+    public bool Contains(TItem item)
+    {
+      return ContainsKey(KeyExtractor(item));
+    }
+
+    /// <inheritdoc/>
+    public bool ContainsKey(TKey key)
     {
       TItem item;
       return TryGetItem(key, false, out item);
@@ -144,8 +150,8 @@ namespace Xtensive.Core.Caching
       var key = KeyExtractor(item);
       GCHandle cached;
       if (items.TryGetValue(key, out cached)) {
-        cached.Free();
         items.Remove(key);
+        cached.Free();
       }
       items[key] = GCHandle.Alloc(item,
         trackResurrection ? GCHandleType.WeakTrackResurrection : GCHandleType.Weak);
@@ -155,29 +161,33 @@ namespace Xtensive.Core.Caching
     public void Remove(TItem item)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
-      Remove(KeyExtractor(item));
+      RemoveKey(KeyExtractor(item));
     }
 
     /// <inheritdoc/>
-    public virtual void Remove(TKey key)
+    public virtual void RemoveKey(TKey key)
     {
       GCHandle cached;
       if (items.TryGetValue(key, out cached)) {
-        cached.Free();
         items.Remove(key);
+        cached.Free();
       }
     }
 
     /// <inheritdoc/>
     public virtual void Clear()
     {
-      foreach (var pair in items)
-        try {
-          pair.Value.Free();
-        }
-        catch {}
-      items = new Dictionary<TKey, GCHandle>();
-      time = 0;
+      try {
+        foreach (var pair in items)
+          try {
+            pair.Value.Free();
+          }
+          catch {}
+      }
+      finally {
+        items = new Dictionary<TKey, GCHandle>();
+        time = 0;
+      }
     }
 
     /// <inheritdoc/>

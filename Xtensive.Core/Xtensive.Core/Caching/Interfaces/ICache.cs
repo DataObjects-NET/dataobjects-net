@@ -55,14 +55,24 @@ namespace Xtensive.Core.Caching
     bool TryGetItem(TKey key, bool markAsHit, out TItem item);
 
     /// <summary>
+    /// Determines whether cache contains the specified item.
+    /// </summary>
+    /// <param name="item">The item to check.</param>
+    /// <returns>
+    /// <see langword="True"/> if cache contains the specified item; 
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    bool Contains(TItem item);
+
+    /// <summary>
     /// Determines whether cache contains the item with specified key.
     /// </summary>
     /// <param name="key">The key to check.</param>
     /// <returns>
-    /// <see langword="True"/> if cache the item with specified key; 
+    /// <see langword="True"/> if cache contains the item with specified key; 
     /// otherwise, <see langword="false"/>.
     /// </returns>
-    bool Contains(TKey key);
+    bool ContainsKey(TKey key);
 
     /// <summary>
     /// Adds a new item to the cache. If item with this key is already in cache - replaces is with new item.
@@ -80,7 +90,7 @@ namespace Xtensive.Core.Caching
     /// Removes the item with specified <paramref name="key"/> from the cache.
     /// </summary>
     /// <param name="key">The key of the item to remove.</param>
-    void Remove(TKey key);
+    void RemoveKey(TKey key);
   
     /// <summary>
     ///  Clears the cache.

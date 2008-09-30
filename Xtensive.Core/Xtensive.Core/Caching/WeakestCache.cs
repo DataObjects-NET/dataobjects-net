@@ -268,7 +268,13 @@ namespace Xtensive.Core.Caching
     }
 
     /// <inheritdoc/>
-    public bool Contains(TKey key)
+    public bool Contains(TItem item)
+    {
+      return ContainsKey(KeyExtractor(item));
+    }
+
+    /// <inheritdoc/>
+    public bool ContainsKey(TKey key)
     {
       TItem item;
       return TryGetItem(key, false, out item);
@@ -287,8 +293,8 @@ namespace Xtensive.Core.Caching
       if (items.TryGetValue(key, out entry)) {
         var pair = entry.Value;
         if (pair.Key==null) {
-          entry.Free();
           items.Remove(key);
+          entry.Free();
         }
       }
       entry = new WeakEntry(key, item, trackKeyResurrection, trackItemResurrection);
@@ -299,30 +305,34 @@ namespace Xtensive.Core.Caching
     public void Remove(TItem item)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
-      Remove(KeyExtractor(item));
+      RemoveKey(KeyExtractor(item));
     }
 
     /// <inheritdoc/>
-    public virtual void Remove(TKey key)
+    public virtual void RemoveKey(TKey key)
     {
       ArgumentValidator.EnsureArgumentNotNull(key, "key");
       WeakEntry entry;
       if (items.TryGetValue(key, out entry)) {
-        entry.Free();
         items.Remove(key);
+        entry.Free();
       }
     }
 
     /// <inheritdoc/>
     public virtual void Clear()
     {
-      foreach (var pair in items)
-        try {
-          pair.Value.Free();
-        }
-        catch {}
-      items = new Dictionary<object, WeakEntry>(new WeakEntryEqualityComparer());;
-      time = 0;
+      try {
+        foreach (var pair in items)
+          try {
+            pair.Value.Free();
+          }
+          catch {}
+      }
+      finally {
+        items = new Dictionary<object, WeakEntry>(new WeakEntryEqualityComparer());;
+        time = 0;
+      }
     }
 
     /// <inheritdoc/>

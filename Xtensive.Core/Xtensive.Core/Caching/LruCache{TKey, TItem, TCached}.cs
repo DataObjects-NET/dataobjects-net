@@ -116,13 +116,19 @@ namespace Xtensive.Core.Caching
     }
 
     /// <inheritdoc/>
-    public virtual bool Contains(TKey key)
+    public bool Contains(TItem item)
+    {
+      return ContainsKey(KeyExtractor(item));
+    }
+
+    /// <inheritdoc/>
+    public virtual bool ContainsKey(TKey key)
     {
       if (deque.Contains(key))
         return true;
       if (chainedCache==null)
         return false;
-      return chainedCache.Contains(key);
+      return chainedCache.ContainsKey(key);
     }
 
     #region Modification methods: Add, Remove, Clear
@@ -157,11 +163,11 @@ namespace Xtensive.Core.Caching
     public void Remove(TItem item)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
-      Remove(KeyExtractor(item));
+      RemoveKey(KeyExtractor(item));
     }
 
     /// <inheritdoc/>
-    public virtual void Remove(TKey key)
+    public virtual void RemoveKey(TKey key)
     {
       TCached oldCached;
       if (deque.TryGetValue(key, out oldCached)) {

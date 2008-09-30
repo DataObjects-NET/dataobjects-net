@@ -6,7 +6,7 @@
 
 using DataObjects.NET;
 
-namespace Xtensive.Storage.Tests.Storage.Performance.DO39Model
+namespace Xtensive.Storage.Tests.Storage.Performance.DO39CrudModel
 {
   public abstract class Simplest : DataObject
   {

@@ -66,6 +66,10 @@ namespace Xtensive.Core.Tests.Caching
       Assert.AreSame(item1, cache.First());
       Assert.AreSame(item1, cache[new Item("1"), true]);
 
+      cache.Remove(item1);
+      Assert.AreEqual(0, cache.Count);
+
+      cache.Add(item1);
       item1 = null;
       TestHelper.CollectGarbage(true);
       cache.CollectGarbage();
