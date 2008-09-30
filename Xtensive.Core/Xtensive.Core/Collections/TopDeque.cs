@@ -196,24 +196,34 @@ namespace Xtensive.Core.Collections
     /// <exception cref="InvalidOperationException">The key is already added.</exception>
     public void AddToTop(K key, V value)
     {
-      if (map.ContainsKey(key))
-        throw new InvalidOperationException(Strings.ExCollectionAlreadyContainsItemWithSpecifiedKey);
-
-      var keyValuePair = new Pair<K, V>(key, value);
-      var valueContainer = list.AddFirst(keyValuePair);
-      map.Add(key, valueContainer);
+      var valueContainer = list.AddFirst(new Pair<K, V>(key, value));
+      try {
+        map.Add(key, valueContainer);
+      }
+      catch (Exception e) {
+        list.RemoveFirst();
+        if (e is ArgumentException)
+          throw new InvalidOperationException(Strings.ExCollectionAlreadyContainsItemWithSpecifiedKey);
+        else
+          throw;
+      }
     }
 
     /// <inheritdoc/>
     /// <exception cref="InvalidOperationException">The key is already added.</exception>
     public void AddToBottom(K key, V value)
     {
-      if (map.ContainsKey(key))
-        throw new InvalidOperationException(Strings.ExCollectionAlreadyContainsItemWithSpecifiedKey);
-
-      var entry = new Pair<K, V>(key, value);
-      var valueContainer = list.AddLast(entry);
-      map.Add(key, valueContainer);
+      var valueContainer = list.AddLast(new Pair<K, V>(key, value));
+      try {
+        map.Add(key, valueContainer);
+      }
+      catch (Exception e) {
+        list.RemoveLast();
+        if (e is ArgumentException)
+          throw new InvalidOperationException(Strings.ExCollectionAlreadyContainsItemWithSpecifiedKey);
+        else
+          throw;
+      }
     }
 
     /// <inheritdoc/>
