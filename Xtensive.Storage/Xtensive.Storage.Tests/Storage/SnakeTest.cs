@@ -161,19 +161,18 @@ namespace Xtensive.Storage.Tests.Storage
             new Lizard { Name = ("Lizard" + i), Color = ("Color" + i) };
 
           Session.Current.Persist();
-          var columns = new []{ new CalculatedColumnDescriptor("FullName",typeof(string),(s) => (s.GetValue(2).ToString().Substring(0,2))),
-          new CalculatedColumnDescriptor("FullName2", typeof(string), (s) => (s.GetValue(2).ToString().Substring(0, 3)))};
 
           TypeInfo snakeType = Domain.Model.Types[typeof(Snake)];
           
-          RecordSet rsSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordSet()
-            .CalculateColumns(new CalculatedColumnDescriptor("FullName", typeof(string), (s) => (s.GetValue(2).ToString().Substring(0, 2))),
-          new CalculatedColumnDescriptor("FullName2", typeof(string), (s) => (s.GetValue(2).ToString().Substring(0, 3))))
+          RecordSet rsSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordSet();
+
+          var rsCalculated = rsSnakePrimary.CalculateColumns(new CalculatedColumnDescriptor("FullName", typeof(string), (s) => (s.GetValue<string>(rsSnakePrimary.IndexOf(cName)).Substring(0, 2))),
+          new CalculatedColumnDescriptor("FullName2", typeof(string), (s) => (s.GetValue<string>(rsSnakePrimary.IndexOf(cName)).Substring(0, 3))))
             .Take(10);
 
-          Assert.AreEqual(10, rsSnakePrimary.Count());
+          Assert.AreEqual(10, rsCalculated.Count());
 
-          foreach (var tuple in rsSnakePrimary) {
+          foreach (var tuple in rsCalculated) {
             Assert.AreEqual("Ka", tuple.GetValue(5));
             Assert.AreEqual("Kaa", tuple.GetValue(6));
           }
@@ -428,6 +427,9 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void FilterTest()
     {
+      TestFixtureTearDown();
+      TestFixtureSetUp();
+
       const int snakesCount = 1000;
       const int creaturesCount = 1000;
       const int lizardsCount = 1000;

@@ -19,7 +19,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
       foreach (var tuple in Source.Enumerate(context)) {
         var resTuple = Origin.ResizeTransform.Apply(TupleTransformType.Tuple, tuple);
         foreach (var col in Origin.CalculatedColumns)
-          resTuple.SetValue(col.Index, col.Expression(tuple));
+          resTuple.SetValue(col.Index, col.Expression.Compile().Invoke(tuple));
         yield return resTuple;
       }
     }

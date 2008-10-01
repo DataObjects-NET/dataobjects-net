@@ -7,6 +7,7 @@
 using System;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
+using System.Linq.Expressions;
 
 namespace Xtensive.Storage.Rse
 {
@@ -28,7 +29,7 @@ namespace Xtensive.Storage.Rse
     /// <summary>
     /// Gets the column expression.
     /// </summary>
-    public Func<Tuple, object> Expression { get; private set; }
+    public Expression<Func<Tuple, object>> Expression { get; private set; }
 
 
     // Constructor
@@ -39,7 +40,7 @@ namespace Xtensive.Storage.Rse
     /// <param name="name">The <see cref="Name"/> property value.</param>
     /// <param name="type">The <see cref="Type"/> property value.</param>
     /// <param name="expression">The <see cref="Expression"/> property value.</param>
-    public CalculatedColumnDescriptor(string name, Type type, Func<Tuple, object> expression)
+    public CalculatedColumnDescriptor(string name, Type type, Expression<Func<Tuple, object>> expression)
     {
       Name = name;
       Type = type;

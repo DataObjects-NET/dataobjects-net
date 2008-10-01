@@ -8,6 +8,8 @@ using System;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Helpers;
+using System.Linq.Expressions;
+
 
 namespace Xtensive.Storage.Rse
 {
@@ -19,7 +21,7 @@ namespace Xtensive.Storage.Rse
     /// <summary>
     /// Gets the column expression.
     /// </summary>
-    public Func<Tuple, object> Expression { get; private set; }
+    public Expression<Func<Tuple, object>> Expression { get; private set; }
 
 
     // Constructor
