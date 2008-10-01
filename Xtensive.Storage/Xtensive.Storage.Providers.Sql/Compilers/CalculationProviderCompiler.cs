@@ -30,14 +30,14 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
         return null;
 
       var sqlSelect = (SqlSelect)source.Request.Statement.Clone();
-      var visitor = new CalculatedColumnVisitor(sqlSelect);
+      var request = new SqlFetchRequest(sqlSelect, provider.Header, source.Request.ParameterBindings);
+      var visitor = new Visitor(request);
 
       foreach (var column in provider.CalculatedColumns) {
         visitor.AppendCalculationToRequest(column.Expression, column.Name);
       }
-
-      var request = visitor.Complete(provider.Header, source.Request.ParameterBindings);
-      return new SqlProvider(provider, request, Handlers, source);
+      var resultRequest = new SqlFetchRequest(request.Statement, provider.Header, request.ParameterBindings);
+      return new SqlProvider(provider, resultRequest, Handlers, source);
     }
 
 

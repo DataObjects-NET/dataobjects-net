@@ -22,7 +22,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
 
       var query = (SqlSelect)source.Request.Statement.Clone();
       var request = new SqlFetchRequest(query, provider.Header, source.Request.ParameterBindings);
-      var visitor = new FilterVisitor(request);
+      var visitor = new Visitor(request);
       visitor.AppendFilterToRequest(provider.Predicate);
 
       return new SqlProvider(provider, request, Handlers, source);

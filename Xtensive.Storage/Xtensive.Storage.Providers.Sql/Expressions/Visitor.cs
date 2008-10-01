@@ -13,34 +13,31 @@ using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
 using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Dml;
-using Xtensive.Storage.Rse;
 using SqlFactory = Xtensive.Sql.Dom.Sql;
 using System.Linq;
 
 namespace Xtensive.Storage.Providers.Sql.Expressions
 {
-  internal class CalculatedColumnVisitor
+  internal class Visitor
   {
-    //private readonly SqlFetchRequest request;
+    private readonly SqlFetchRequest request;
     private readonly SqlSelect query;
-    private readonly List<SqlFetchParameterBinding> bindingList = new List<SqlFetchParameterBinding>();
 
-    public SqlSelect Query
+    public SqlFetchRequest Request
     {
-      get { return query; }
+      get { return request; }
+    }
+
+    public void AppendFilterToRequest(Expression<Func<Tuple,bool>> exp)
+    {
+      var expression = Visit(exp);
+      query.Where &= expression;
     }
 
     public void AppendCalculationToRequest(Expression<Func<Tuple, object>> exp, string name)
     {
       var expression = Visit(exp);
       query.Columns.Add(expression, name);
-    }
-
-    public SqlFetchRequest Complete(RecordSetHeader header, HashSet<SqlFetchParameterBinding> binding)
-    {
-      foreach (var parameterBinding in bindingList)
-        binding.Add(parameterBinding);
-      return new SqlFetchRequest(query, header, binding);
     }
 
     protected virtual SqlExpression Visit(Expression exp)
@@ -212,14 +209,13 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       if (expression.Expression.NodeType == ExpressionType.Constant) {
         var lambda = Expression.Lambda(expression).Compile();
         var binding = new SqlFetchParameterBinding(() => lambda.DynamicInvoke(ArrayUtils<object>.EmptyArray));
-        bindingList.Add(binding);
+        request.ParameterBindings.Add(binding);
         return binding.SqlParameter;
       }
       if (expression.Expression.NodeType == ExpressionType.MemberAccess && expression.Expression.Type.BaseType == typeof(Core.Parameters.Parameter)) {
         var lambda = Expression.Lambda(expression).Compile();
         var binding = new SqlFetchParameterBinding(() => lambda.DynamicInvoke(ArrayUtils<object>.EmptyArray));
-        bindingList.Add(binding);
-        //request.ParameterBindings.Add(binding);
+        request.ParameterBindings.Add(binding);
         return binding.SqlParameter;
       }
       throw new NotSupportedException();
@@ -237,8 +233,8 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
             var columnFunc = Expression.Lambda<Func<int>>(columnArgument).Compile();
             columnIndex = columnFunc();
           }
-          //var sqlSelect = (SqlSelect)request.Statement;
-          return query[columnIndex];
+          var sqlSelect = (SqlSelect)request.Statement;
+          return sqlSelect[columnIndex];
         }
       }
       var map = MethodMapping.GetMapping(expression.Method);
@@ -280,10 +276,10 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
 
     // Constructor
 
-    public CalculatedColumnVisitor(SqlSelect query)
+    public Visitor(SqlFetchRequest request)
     {
-      this.query = query;
-      //query = (SqlSelect)request.Statement;
+      this.request = request;
+      query = (SqlSelect)request.Statement;
     }
   }
 }
