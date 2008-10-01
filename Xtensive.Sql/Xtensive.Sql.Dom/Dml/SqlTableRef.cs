@@ -14,7 +14,7 @@ namespace Xtensive.Sql.Dom.Dml
   [Serializable]
   public class SqlTableRef : SqlTable
   {
-    private readonly DataTable dataTable;
+    private DataTable dataTable;
 
     /// <summary>
     /// Gets the name of the instance.
@@ -40,8 +40,14 @@ namespace Xtensive.Sql.Dom.Dml
         return context.NodeMapping[this];
 
       SqlTableRef clone;
-      clone = new SqlTableRef(dataTable, Name);
+      clone = new SqlTableRef();
+      clone.Name = Name;
+      clone.dataTable = DataTable;
       context.NodeMapping[this] = clone;
+      Collection<SqlTableColumn> columnClones = new Collection<SqlTableColumn>();
+      foreach (var column in columns)
+        columnClones.Add((SqlTableColumn) column.Clone(context));
+      clone.columns = new SqlTableColumnCollection(columnClones);
 
       return clone;
     }
@@ -53,6 +59,10 @@ namespace Xtensive.Sql.Dom.Dml
 
 
     // Constructors
+
+    private SqlTableRef()
+    {
+    }
 
     internal SqlTableRef(DataTable dataTable) : this(dataTable, string.Empty)
     {

@@ -27,7 +27,13 @@ namespace Xtensive.Sql.Dom.Dml
         return context.NodeMapping[this];
 
       SqlQueryRef clone;
-      clone = new SqlQueryRef(query, Name);
+      SqlSelect ss = query as SqlSelect;
+      if (ss != null)
+        clone = new SqlQueryRef((SqlSelect)ss.Clone(context), Name);
+      else {
+        SqlQueryExpression qe = (SqlQueryExpression) query;
+        clone = new SqlQueryRef((SqlQueryExpression)qe.Clone(context), Name);
+      }
       context.NodeMapping[this] = clone;
 
       return clone;

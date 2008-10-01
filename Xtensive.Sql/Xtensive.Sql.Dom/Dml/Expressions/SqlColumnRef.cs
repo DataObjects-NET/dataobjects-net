@@ -36,7 +36,7 @@ namespace Xtensive.Sql.Dom.Dml
       if (context.NodeMapping.ContainsKey(this))
         return context.NodeMapping[this];
 
-      SqlColumnRef clone = new SqlColumnRef(SqlTable, sqlColumn, Name);
+      SqlColumnRef clone = new SqlColumnRef(SqlTable, (SqlColumn)sqlColumn.Clone(context), Name);
       context.NodeMapping[this] = clone;
       return clone;
     }
@@ -50,13 +50,12 @@ namespace Xtensive.Sql.Dom.Dml
     }
 
     internal SqlColumnRef(SqlColumn sqlColumn, string name)
-      : base(sqlColumn.SqlTable, name)
+      : base(null, name)
     {
       this.sqlColumn = sqlColumn;
     }
 
     internal SqlColumnRef(SqlColumn sqlColumn)
-      : base(sqlColumn.SqlTable)
     {
       this.sqlColumn = sqlColumn;
     }
