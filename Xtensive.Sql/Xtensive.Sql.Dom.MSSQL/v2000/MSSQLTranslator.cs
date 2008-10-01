@@ -22,6 +22,22 @@ namespace Xtensive.Sql.Dom.Mssql.v2000
       dateTimeFormat.LongTimePattern = "HH':'mm':'ss'.'fff\\'";
     }
 
+    public override string Translate(SqlCompilerContext context, SqlAggregate node, NodeSection section)
+    {
+      switch (section) {
+        case NodeSection.Entry:
+          string result = Translate(node.NodeType) + "(" + ((node.Distinct) ? "DISTINCT" : string.Empty);
+          if (node.NodeType == SqlNodeType.Count)
+            return "CAST(" + result;
+        return result;
+        case NodeSection.Exit:
+          if (node.NodeType == SqlNodeType.Count)
+            return ") AS bigint)";
+          return ")";
+      }
+      return string.Empty;
+    }
+
     public override string Translate(SqlCompilerContext context, bool cascade, AlterTableSection section)
     {
       return String.Empty;

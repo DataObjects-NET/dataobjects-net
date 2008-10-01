@@ -329,10 +329,7 @@ namespace Xtensive.Sql.Common.VistaDB.v3
         types.SmallDateTime.Features = common | index;
 
         types.DateTime = new RangeDataTypeInfo<DateTime>(SqlDataType.DateTime, new string[] {"datetime"});
-        types.DateTime.Value =
-          new ValueRange<DateTime>(
-            DateTime.ParseExact("1753-01-01", "yyyy-MM-dd", CultureInfo.InvariantCulture.DateTimeFormat),
-            DateTime.ParseExact("9999-12-31", "yyyy-MM-dd", CultureInfo.InvariantCulture.DateTimeFormat));
+        types.DateTime.Value = new ValueRange<DateTime>(DateTime.MinValue, DateTime.MaxValue);
         types.DateTime.Features = common | index;
 
         types.AnsiChar = new StreamDataTypeInfo(SqlDataType.AnsiChar, typeof (string), new string[] {"char", "character"});
