@@ -69,8 +69,6 @@ namespace Xtensive.Storage
       return recordCount;
     }
 
-    #region Private \ internal methods
-
     private static Key ProcessColumnGroup(RecordSetHeaderParseContext context, ColumnGroupMapping columnGroupMapping, ref TypeMapping lastTypeMapping, Tuple record)
     {
       int typeId = (int) record.GetValueOrDefault(columnGroupMapping.TypeIdColumnIndex);
@@ -86,8 +84,5 @@ namespace Xtensive.Storage
       context.Cache.Update(key, entityTuple, context.Session.Transaction);
       return key;
     }
-
-
-    #endregion
   }
 }

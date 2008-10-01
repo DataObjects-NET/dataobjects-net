@@ -5,6 +5,7 @@
 // Created:    2008.09.23
 
 using System;
+using System.Data;
 using System.Data.Common;
 using Xtensive.Core.Reflection;
 using Xtensive.Sql.Common;
@@ -162,7 +163,10 @@ namespace Xtensive.Storage.Providers.Sql
 
     protected virtual DataTypeMapping CreateDataTypeMapping(DataTypeInfo dataTypeInfo)
     {
-      return new DataTypeMapping(dataTypeInfo, BuildDataReaderAccessor(dataTypeInfo));
+      var dataReaderAccessor = BuildDataReaderAccessor(dataTypeInfo);
+      if (dataTypeInfo.Type==typeof (byte[]))
+        return new DataTypeMapping(dataTypeInfo, dataReaderAccessor, DbType.Binary);
+      return new DataTypeMapping(dataTypeInfo, dataReaderAccessor);
     }
 
     protected virtual Func<DbDataReader, int, object> BuildDataReaderAccessor(DataTypeInfo dataTypeInfo)

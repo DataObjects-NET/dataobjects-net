@@ -17,10 +17,10 @@ namespace Xtensive.Storage.Providers.MsSql
     protected override void BuildTypeSubstitutes()
     {
       base.BuildTypeSubstitutes();
-      var int64 = DomainHandler.SqlDriver.ServerInfo.DataTypes.Int64;
-      var ts = new RangeDataTypeInfo<TimeSpan>(SqlDataType.Int64, null);
-      ts.Value = new ValueRange<TimeSpan>(TimeSpan.FromTicks(int64.Value.MinValue), TimeSpan.FromTicks(int64.Value.MaxValue));
-      BuildDataTypeMapping(ts);
+      var @int64 = DomainHandler.SqlDriver.ServerInfo.DataTypes.Int64;
+      var @timespan = new RangeDataTypeInfo<TimeSpan>(SqlDataType.Int64, null);
+      @timespan.Value = new ValueRange<TimeSpan>(TimeSpan.FromTicks(@int64.Value.MinValue), TimeSpan.FromTicks(@int64.Value.MaxValue));
+      BuildDataTypeMapping(@timespan);
     }
 
     protected override DataTypeMapping CreateDataTypeMapping(DataTypeInfo dataTypeInfo)
@@ -31,14 +31,14 @@ namespace Xtensive.Storage.Providers.MsSql
       var dataReaderAccessor = BuildDataReaderAccessor(dataTypeInfo);
       switch (typeCode) {
       case TypeCode.DateTime: {
-        result = new DataTypeMapping(dataTypeInfo, dataReaderAccessor, DbType.DateTime2);
+        RangeDataTypeInfo<DateTime> dti = DomainHandler.SqlDriver.ServerInfo.DataTypes.DateTime;
+        DateTime min = dti.Value.MinValue;
+        result = new DataTypeMapping(dataTypeInfo, dataReaderAccessor, DbType.DateTime, value => (DateTime) value < min ? min : value, null);
         break;
       }
       case TypeCode.Object: {
         if (type==typeof (TimeSpan))
           result = new DataTypeMapping(dataTypeInfo, dataReaderAccessor, DbType.Int64, value => ((TimeSpan) value).Ticks, value => TimeSpan.FromTicks((long) value));
-        else if (type==typeof (byte[]))
-          result = new DataTypeMapping(dataTypeInfo, dataReaderAccessor, DbType.Binary);
         else
           result = base.CreateDataTypeMapping(dataTypeInfo);
         break;

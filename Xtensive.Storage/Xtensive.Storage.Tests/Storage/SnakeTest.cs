@@ -179,15 +179,15 @@ namespace Xtensive.Storage.Tests.Storage
           rsSnakePrimary.Count();
 
             RecordSet aggregate = rsSnakePrimary.CalculateAggregateFunction(new[]{ 
-              //new AggregateColumnDescriptor("Count1", 0, AggregateType.Count),
+              new AggregateColumnDescriptor("Count1", 0, AggregateType.Count),
               new AggregateColumnDescriptor("Min1", 0, AggregateType.Min),
               new AggregateColumnDescriptor("Max1", 0, AggregateType.Max),
               new AggregateColumnDescriptor("Sum1", 0, AggregateType.Sum),
               new AggregateColumnDescriptor("Avg1", 0, AggregateType.Avg),
-              //new AggregateColumnDescriptor("Count2", 2, AggregateType.Count),
+              new AggregateColumnDescriptor("Count2", 2, AggregateType.Count),
               new AggregateColumnDescriptor("Min2", 2, AggregateType.Min),
               new AggregateColumnDescriptor("Max2", 2, AggregateType.Max),
-              //new AggregateColumnDescriptor("Count3", 3, AggregateType.Count),
+              new AggregateColumnDescriptor("Count3", 3, AggregateType.Count),
               new AggregateColumnDescriptor("Max3", 3, AggregateType.Max)});
 
             Assert.AreEqual(aggregate.Count(),1);
