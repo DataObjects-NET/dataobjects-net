@@ -59,7 +59,9 @@ namespace Xtensive.Core.Caching
     #region Nested type: WeakEntry
 
     [DebuggerDisplay("Key = {Key}, Item = {Item}, HashCode = {hashCode}")]
-    internal sealed class WeakEntry : IEquatable<WeakEntry>
+    internal sealed class WeakEntry : 
+      IEquatable<WeakEntry>,
+      IDisposable
     {
       private GCHandle keyHandle;
       private GCHandle itemHandle;
@@ -92,7 +94,7 @@ namespace Xtensive.Core.Caching
         }
       }
 
-      public void Free()
+      public void Dispose()
       {
         keyHandle.Free();
         itemHandle.Free();
@@ -260,8 +262,8 @@ namespace Xtensive.Core.Caching
           item = pair.Value;
           return true;
         }
-        entry.Free();
         items.Remove(key);
+        entry.Dispose();
       }
       item = null;
       return false;
@@ -294,7 +296,7 @@ namespace Xtensive.Core.Caching
         var pair = entry.Value;
         if (pair.Key==null) {
           items.Remove(key);
-          entry.Free();
+          entry.Dispose();
         }
       }
       entry = new WeakEntry(key, item, trackKeyResurrection, trackItemResurrection);
@@ -315,7 +317,7 @@ namespace Xtensive.Core.Caching
       WeakEntry entry;
       if (items.TryGetValue(key, out entry)) {
         items.Remove(key);
-        entry.Free();
+        entry.Dispose();
       }
     }
 
@@ -325,7 +327,7 @@ namespace Xtensive.Core.Caching
       try {
         foreach (var pair in items)
           try {
-            pair.Value.Free();
+            pair.Value.Dispose();
           }
           catch {}
       }
@@ -354,7 +356,7 @@ namespace Xtensive.Core.Caching
           if (value.Key!=null)
             newItems.Add(entry, entry);
           else
-            entry.Free();
+            entry.Dispose();
         }
         removedCount = count - newItems.Count;
 

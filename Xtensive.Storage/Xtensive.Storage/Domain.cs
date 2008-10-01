@@ -89,14 +89,24 @@ namespace Xtensive.Storage
     /// </summary>
     public GlobalTemporaryData TemporaryData { get; private set; }
 
+    /// <summary>
+    /// Indicates whether debug event logging is enabled.
+    /// Caches <see cref="Log.IsLogged"/> method result for <see cref="LogEventTypes.Debug"/> event.
+    /// </summary>
+    public bool IsDebugEventLoggingEnabled { get; private set; }
+
     internal DomainHandler Handler {
       [DebuggerStepThrough]
       get { return Handlers.DomainHandler; }
     }
 
+    #region Private \ internal properties
+
     internal Dictionary<TypeInfo, Tuple> Prototypes { get; private set; }
 
     internal HandlerAccessor Handlers { get; private set; }
+
+    #endregion
 
     #region OpenSession methods
 
@@ -123,7 +133,7 @@ namespace Xtensive.Storage
       }
       configuration.Lock(true);
 
-      if (Log.IsLogged(LogEventTypes.Debug))
+      if (IsDebugEventLoggingEnabled)
         Log.Debug("Opening session '{0}'", configuration);
 
       var session = new Session(this, configuration);
@@ -193,6 +203,7 @@ namespace Xtensive.Storage
 
     internal Domain(DomainConfiguration configuration)
     {
+      IsDebugEventLoggingEnabled = Log.IsLogged(LogEventTypes.Debug); // Just to cache this value
       Configuration = configuration;
       Handlers = new HandlerAccessor(this);
       Prototypes = new Dictionary<TypeInfo, Tuple>();
@@ -218,7 +229,7 @@ namespace Xtensive.Storage
       if (DisposingState == DisposingState.None) lock(this) if (DisposingState == DisposingState.None) {
         DisposingState = DisposingState.Disposing;
         try {
-          if (Log.IsLogged(LogEventTypes.Debug))
+          if (IsDebugEventLoggingEnabled)
             Log.Debug("Domain disposing {0}.", isDisposing ? "explicitly" : "by calling finalizer.");
           Handlers.DisposeSafely();
         }

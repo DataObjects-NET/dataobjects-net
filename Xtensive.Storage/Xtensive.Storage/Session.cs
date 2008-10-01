@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Diagnostics;
@@ -74,6 +73,12 @@ namespace Xtensive.Storage
     /// </summary>    
     public Transaction Transaction { get; private set; }
 
+    /// <summary>
+    /// Indicates whether debug event logging is enabled.
+    /// Caches <see cref="Log.IsLogged"/> method result for <see cref="LogEventTypes.Debug"/> event.
+    /// </summary>
+    public bool IsDebugEventLoggingEnabled { get; private set; }
+
     #region Private \ internal properties
 
     internal HandlerAccessor Handlers { get; private set; }
@@ -132,12 +137,12 @@ namespace Xtensive.Storage
       try {
         EnsureNotDisposed();
 
-        if (Log.IsLogged(LogEventTypes.Debug))
+        if (IsDebugEventLoggingEnabled)
           Log.Debug("Session '{0}'. Persisting...", this);
 
         Handler.Persist();
 
-        if (Log.IsLogged(LogEventTypes.Debug))
+        if (IsDebugEventLoggingEnabled)
           Log.Debug("Session '{0}'. Persisted.", this);
 
         ClearDirtyData();
@@ -145,22 +150,6 @@ namespace Xtensive.Storage
       finally {
         isPersisting = false;
       }
-    }
-
-    private void ClearDirtyData()
-    {
-      foreach (EntityState data in newEntities)
-        data.PersistenceState = PersistenceState.Synchronized;
-
-      foreach (EntityState data in modifiedEntities)
-        data.PersistenceState = PersistenceState.Synchronized;
-
-      foreach (EntityState data in removedEntities)
-        data.PersistenceState = PersistenceState.Synchronized;      
-
-      newEntities.Clear();
-      modifiedEntities.Clear();
-      removedEntities.Clear();
     }
 
     public IEnumerable<T> All<T>() 
@@ -284,6 +273,26 @@ namespace Xtensive.Storage
 
     #endregion
 
+    #region Private \ internal methods
+
+    private void ClearDirtyData()
+    {
+      foreach (EntityState data in newEntities)
+        data.PersistenceState = PersistenceState.Synchronized;
+
+      foreach (EntityState data in modifiedEntities)
+        data.PersistenceState = PersistenceState.Synchronized;
+
+      foreach (EntityState data in removedEntities)
+        data.PersistenceState = PersistenceState.Synchronized;      
+
+      newEntities.Clear();
+      modifiedEntities.Clear();
+      removedEntities.Clear();
+    }
+
+    #endregion
+
     /// <inheritdoc/>
     public override string ToString()
     {
@@ -296,6 +305,7 @@ namespace Xtensive.Storage
     internal Session(Domain domain, SessionConfiguration configuration)
       : base(domain)
     {
+      IsDebugEventLoggingEnabled = Log.IsLogged(LogEventTypes.Debug); // Just to cache this value
       // Both Domain and Configuration are valid references here;
       // Configuration is already locked
       Configuration = configuration;
@@ -305,8 +315,8 @@ namespace Xtensive.Storage
       Name = configuration.Name;
       Handler.Session = this;
       Handler.Initialize();
-      compilationScope = Handlers.DomainHandler.CompilationContext.Activate();
       AtomicityContext = new AtomicityContext(this, AtomicityContextOptions.Undoable);
+      compilationScope = Handlers.DomainHandler.CompilationContext.Activate();
     }
 
     #region Dispose pattern
@@ -339,7 +349,7 @@ namespace Xtensive.Storage
         if (isDisposed)
           return;
         try {
-          if (Log.IsLogged(LogEventTypes.Debug))
+          if (IsDebugEventLoggingEnabled)
             Log.Debug("Session '{0}'. Disposing.", this);          
           Handler.DisposeSafely();
           compilationScope.DisposeSafely();

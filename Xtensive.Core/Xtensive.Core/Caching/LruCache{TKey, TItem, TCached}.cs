@@ -136,17 +136,15 @@ namespace Xtensive.Core.Caching
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
       var key = KeyExtractor(item);
+      TCached cached = cacheConverter.ConvertForward(item);
       TCached oldCached;
-      if (deque.TryGetValue(key, out oldCached)) {
-        deque.Remove(key);
+      if (deque.TryChangeValue(key, cached, true, out oldCached)) {
         size -= oldCached.Size;
         if (chainedCache!=null)
           chainedCache.Add(cacheConverter.ConvertBackward(oldCached));
         ItemRemoved(key);
       }
-      TCached cached = cacheConverter.ConvertForward(item);
       size += cached.Size;
-      deque.AddToTop(key, cached);
       while (size > maxSize && deque.Count > 0) {
         oldCached = deque.PeekBottom();
         size -= oldCached.Size;

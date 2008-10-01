@@ -55,6 +55,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
     {
       InsertTest(insertCount);
       BulkFetchTest(baseCount);
+      BulkFetchOnlyTest(baseCount);
       FetchTest(baseCount / 2);
       QueryTest(baseCount / 5);
       CachedQueryTest(baseCount / 5);
@@ -125,6 +126,29 @@ namespace Xtensive.Storage.Tests.Storage.Performance
           }
         }
         Assert.AreEqual((long)count*(count-1)/2, sum);
+      }
+    }
+
+    private void BulkFetchOnlyTest(int count)
+    {
+      var d = Domain;
+      using (var ss = d.OpenSession()) {
+        var s = ss.Session;
+        long sum = 0;
+        int i = 0;
+        using (var ts = s.OpenTransaction()) {
+          var rs = d.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordSet();
+          TestHelper.CollectGarbage();
+          using (warmup ? null : new Measurement("Bulk Fetch", count)) {
+            while (i<count) {
+              foreach (var o in rs.ToEntities<Simplest>()) {
+                if (++i >= count)
+                  break;
+              }
+            }
+            ts.Complete();
+          }
+        }
       }
     }
 

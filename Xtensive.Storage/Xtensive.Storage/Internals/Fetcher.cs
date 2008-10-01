@@ -95,14 +95,15 @@ namespace Xtensive.Storage.Internals
 
     private static void Fetch(IndexInfo index, Key key, IEnumerable<ColumnInfo> columns)
     {
-      if (Log.IsLogged(LogEventTypes.Debug))
-        Log.Debug("Session '{0}'. Fetching: Key = '{1}', Columns = '{2}'", Session.Current, pKey, columns.Select(c => c.Name).ToCommaDelimitedString());
+      var session = Session.Current;
+      if (session.IsDebugEventLoggingEnabled)
+        Log.Debug("Session '{0}'. Fetching: Key = '{1}', Columns = '{2}'", session, pKey, columns.Select(c => c.Name).ToCommaDelimitedString());
       var columnIndexes = columns.Select(c => index.Columns.IndexOf(c)).ToArray();
       var rs = GetCachedRecordSet(index, columnIndexes);
       using (new ParameterScope()) {
         pKey.Value = key;
         if (rs.Parse() == 0)
-          Session.Current.Cache.Remove(key);
+          session.Cache.Remove(key);
       }
     }
 

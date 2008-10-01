@@ -22,7 +22,7 @@ namespace Xtensive.Storage.Internals
     // Cached properties
     private readonly Domain domain;
     private readonly Dictionary<TypeInfo, Tuple> prototypes;
-    
+
     [Infrastructure]
     public EntityState this[Key key]
     {
@@ -47,7 +47,7 @@ namespace Xtensive.Storage.Internals
       var result = new EntityState(key, new DifferentialTuple(origin), transaction);
       cache.Add(result);
 
-      if (Log.IsLogged(LogEventTypes.Debug))
+      if (Session.IsDebugEventLoggingEnabled)
         Log.Debug("Session '{0}'. Caching: {1}", Session, result);
 
       return result;
@@ -61,7 +61,7 @@ namespace Xtensive.Storage.Internals
         Create(key, tuple, false, transaction);
       else {
         state.Import(tuple, transaction);
-        if (Log.IsLogged(LogEventTypes.Debug))
+        if (Session.IsDebugEventLoggingEnabled)
           Log.Debug("Session '{0}'. Merging: {1}", Session, state);
       }
     }
@@ -117,7 +117,7 @@ namespace Xtensive.Storage.Internals
     IEnumerator IEnumerable.GetEnumerator()
     {
       return GetEnumerator();
-    }    
+    }
 
 
     // Constructors

@@ -121,18 +121,19 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     [Infrastructure]
     public void Remove()
-    {      
-      if (Log.IsLogged(LogEventTypes.Debug))
-        Log.Debug("Session '{0}'. Removing: Key = '{1}'", Session, Key);
+    {
+      var session = Session;
+      if (session.IsDebugEventLoggingEnabled)
+        Log.Debug("Session '{0}'. Removing: Key = '{1}'", session, Key);
 
       entityState.EnsureIsActual();
       entityState.EnsureIsNotRemoved();
       OnRemoving();
 
-      Session.Persist();
+      session.Persist();
       ReferenceManager.ClearReferencesTo(this);      
-      Session.removedEntities.Add(EntityState);
-      Session.Cache.Remove(EntityState);
+      session.removedEntities.Add(EntityState);
+      session.Cache.Remove(EntityState);
       EntityState.PersistenceState = PersistenceState.Removed;
       
       OnRemoved();
@@ -162,8 +163,8 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     /// <exception cref="InvalidOperationException">Entity is removed.</exception>
     protected internal override sealed void OnGettingValue(FieldInfo field)
-    {   
-      if (Log.IsLogged(LogEventTypes.Debug))
+    {
+      if (Session.IsDebugEventLoggingEnabled)
         Log.Debug("Session '{0}'. Getting value: Key = '{1}', Field = '{2}'", Session, Key, field);
       entityState.EnsureIsActual();
       entityState.EnsureIsNotRemoved();
@@ -174,7 +175,7 @@ namespace Xtensive.Storage
     /// <exception cref="InvalidOperationException">Entity is removed.</exception>
     protected internal override sealed void OnSettingValue(FieldInfo field)
     { 
-      if (Log.IsLogged(LogEventTypes.Debug))
+      if (Session.IsDebugEventLoggingEnabled)
         Log.Debug("Session '{0}'. Setting value: Key = '{1}', Field = '{2}'", Session, Key, field);
       if (field.IsPrimaryKey)
         throw new NotSupportedException(string.Format(Strings.ExUnableToSetKeyFieldXExplicitly, field.Name));
@@ -234,13 +235,16 @@ namespace Xtensive.Storage
     /// </summary>
     protected Entity()
     {
-      TypeInfo type = Session.Domain.Model.Types[GetType()];
-      Key key = Session.Domain.KeyManager.Next(type);
+      var session = Session;
+      var domain = session.Domain;
 
-      if (Log.IsLogged(LogEventTypes.Debug))
-        Log.Debug("Session '{0}'. Creating entity: Key = '{1}'", Session, key);
+      TypeInfo type = domain.Model.Types[GetType()];
+      Key key = domain.KeyManager.Next(type);
 
-      entityState = Session.Cache.Create(key, Session.Transaction);
+      if (session.IsDebugEventLoggingEnabled)
+        Log.Debug("Session '{0}'. Creating entity: Key = '{1}'", session, key);
+
+      entityState = session.Cache.Create(key, session.Transaction);
       OnCreating();
     }
 
@@ -251,13 +255,16 @@ namespace Xtensive.Storage
     /// <remarks>Use this kind of constructor when you need to explicitly build key for this instance.</remarks>
     protected Entity(Tuple tuple)
     {
-      TypeInfo type = Session.Domain.Model.Types[GetType()];
-      Key key = Session.Domain.KeyManager.Get(type, tuple);
+      var session = Session;
+      var domain = session.Domain;
 
-      if (Log.IsLogged(LogEventTypes.Debug))
-        Log.Debug("Session '{0}'. Creating entity: Key = '{1}'", Session, key);
+      TypeInfo type = domain.Model.Types[GetType()];
+      Key key = domain.KeyManager.Get(type, tuple);
 
-      entityState = Session.Cache.Create(key, Session.Transaction);
+      if (session.IsDebugEventLoggingEnabled)
+        Log.Debug("Session '{0}'. Creating entity: Key = '{1}'", session, key);
+
+      entityState = session.Cache.Create(key, session.Transaction);
       OnCreating();
     }
 
@@ -267,9 +274,9 @@ namespace Xtensive.Storage
     /// <param name="state">The initial data of this instance fetched from storage.</param>
     protected Entity(EntityState state)
     {
-      this.entityState = state;
+      entityState = state;
 
-      if (Log.IsLogged(LogEventTypes.Debug))
+      if (Session.IsDebugEventLoggingEnabled)
         Log.Debug("Session '{0}'. Creating entity: Key = '{1}'", Session, Key);
     }
   }

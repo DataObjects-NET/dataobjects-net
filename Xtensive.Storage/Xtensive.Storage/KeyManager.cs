@@ -93,8 +93,8 @@ namespace Xtensive.Storage
       Key key = CreateKeyCandidate(type.Hierarchy, tuple);
       key.Type = type;
 
-      if (LogTemplate<Log>.IsLogged(LogEventTypes.Debug))
-        LogTemplate<Log>.Debug("Creating key '{0}'", key);
+      if (domain.IsDebugEventLoggingEnabled)
+        Log.Debug("Creating key '{0}'", key);
 
       return key;
     }

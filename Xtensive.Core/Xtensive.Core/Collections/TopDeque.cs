@@ -83,6 +83,33 @@ namespace Xtensive.Core.Collections
     }
 
     /// <inheritdoc/>
+    public bool TryChangeValue(K key, V value, bool moveToTop, out V oldValue)
+    {
+      LinkedListNode<Pair<K, V>> valueContainer;
+      if (map.TryGetValue(key, out valueContainer)) {
+        oldValue = valueContainer.Value.Second;
+        if (moveToTop) {
+          list.Remove(valueContainer);
+          list.AddFirst(valueContainer);
+        }
+        valueContainer.Value = new Pair<K, V>(key, value);
+        return true;
+      }
+      else {
+        oldValue = default(V);
+        valueContainer = list.AddFirst(new Pair<K, V>(key, value));
+        try {
+          map.Add(key, valueContainer);
+        }
+        catch (Exception e) {
+          list.RemoveFirst();
+          throw;
+        }
+        return false;
+      }
+    }
+
+    /// <inheritdoc/>
     public bool Contains(K key)
     {
       return map.ContainsKey(key);
