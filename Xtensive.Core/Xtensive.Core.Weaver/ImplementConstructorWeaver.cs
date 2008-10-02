@@ -4,6 +4,7 @@
 // Created by: Nick Svetlov
 // Created:    2008.05.29
 
+using System;
 using System.Reflection;
 using PostSharp.CodeModel;
 using PostSharp.Laos.Weaver;
@@ -64,16 +65,16 @@ namespace Xtensive.Core.Weaver
       try {
         baseConstructor = baseTypeDef.Methods.GetMethod(WellKnown.CtorName,
           ctorSignature.Translate(module),
-          BindingOptions.OnlyExisting);
+          BindingOptions.Default);
       } catch {}
-      while (baseConstructor == null && baseType != null)
+      while (baseConstructor == null)
       {
         baseType = baseTypeDef.BaseType;
         baseTypeDef = baseType.GetTypeDefinition();
         try {
           baseConstructor = baseType.Methods.GetMethod(WellKnown.CtorName,
             ctorSignature.Translate(module),
-            BindingOptions.OnlyExisting);
+            BindingOptions.Default);
         } catch {}
       }
       writer.EmitInstructionMethod(OpCodeNumber.Call,
