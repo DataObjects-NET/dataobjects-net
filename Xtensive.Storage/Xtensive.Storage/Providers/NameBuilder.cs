@@ -29,6 +29,8 @@ namespace Xtensive.Storage.Providers
       RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.RightToLeft);
     private NamingConvention namingConvention;
     private HashAlgorithm hashAlgorithm;
+    private const string ASSOCIATION_PATTERN = "{0}-{1}-{2}";
+    private const string GENERATOR_PATTERN = "{0}-Generator";
 
     /// <summary>
     /// Gets the <see cref="Entity.TypeId"/> field name.
@@ -253,7 +255,7 @@ namespace Xtensive.Storage.Providers
     /// <returns>The built name.</returns>
     public virtual string Build(AssociationInfo target)
     {
-      return "Association_" + target.ReferencingType.Name + "_" + target.ReferencingField.Name + "_" + target.ReferencedType.Name;
+      return NamingConvention.Apply(string.Format(ASSOCIATION_PATTERN, target.ReferencingType.Name, target.ReferencingField.Name, target.ReferencedType.Name));
     }
 
     /// <summary>
@@ -262,7 +264,7 @@ namespace Xtensive.Storage.Providers
     /// <param name="hierarchy">The <see cref="HierarchyInfo"/> instance to build name for.</param>
     public string Build(HierarchyInfo hierarchy)
     {
-      return NamingConvention.Apply("Gen_" + hierarchy.Name);
+      return NamingConvention.Apply(string.Format(GENERATOR_PATTERN, hierarchy.Name));
     }
 
     #region Protected methods
