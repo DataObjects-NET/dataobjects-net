@@ -6,18 +6,13 @@
 
 using System.Reflection;
 using NUnit.Framework;
+using Xtensive.Core;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Storage.StructureModel;
 
 namespace Xtensive.Storage.Tests.Storage.StructureModel
 {
-  public enum Direction
-  {
-    Negative = 0,
-    Positive = 1,
-  }
-
   public class Point : Structure
   {
     [Field]
@@ -47,7 +42,7 @@ namespace Xtensive.Storage.Tests.Storage.StructureModel
     public Point Vertex { get; set; }
 
     [Field]
-    public Direction Direction { get; set; }
+    public Core.Direction Direction { get; set; }
 
     public Ray()
     {

@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using Xtensive.Core;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.Tuples;
@@ -19,7 +20,8 @@ namespace Xtensive.Storage
 {
   public abstract class Persistent : SessionBound,
     IAtomicityAware,
-    IValidationAware
+    IValidationAware,
+    INotifyPropertyChanged
   {
     private Dictionary<FieldInfo, IFieldHandler> fieldHandlers;
 
@@ -149,7 +151,8 @@ namespace Xtensive.Storage
     {
       if (Session.Domain.Configuration.AutoValidation)
         this.Validate();
-    }    
+      NotifyPropertyChanged(field);
+    }
 
     /// <summary>
     /// Called when entity should be validated.
@@ -223,5 +226,14 @@ namespace Xtensive.Storage
     }
 
     #endregion
+
+    /// <inheritdoc/>
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    protected internal void NotifyPropertyChanged(FieldInfo field)
+    {
+      if (PropertyChanged != null)
+        PropertyChanged(this, new PropertyChangedEventArgs(field.Name));
+    }
   }
 }
