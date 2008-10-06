@@ -4,17 +4,20 @@
 // Created by: Aleksey Gamzov
 // Created:    2008.08.20
 
-using System;
-
 namespace Xtensive.Storage.Configuration
 {
   /// <summary>
-  /// Session type.
+  /// Enumerates possible types of the <see cref="Session"/>.
   /// </summary>
-  [Flags]
   public enum SessionType
   {
-    User = 0x00,
-    System = 0x01
+    /// <summary>
+    /// A regular user session.
+    /// </summary>
+    User = 0,
+    /// <summary>
+    /// A system session.
+    /// </summary>
+    System = 1,
   }
 }

@@ -13,8 +13,8 @@ namespace Xtensive.Storage.Configuration
     private const string NameElementName = "name";
     private const string UserNameElementName = "userName";
     private const string PasswordElementName = "password";
-    private const string CustomAuthParamsElementName = "customAuthParams";
     private const string CacheSizeElementName = "cacheSize";
+    private const string OptionsElementName = "options";
 
     /// <summary>
     /// Gets user name to authenticate.
@@ -37,16 +37,6 @@ namespace Xtensive.Storage.Configuration
     }
 
     /// <summary>
-    /// Gets custom authentication parameters.
-    /// </summary>
-    [ConfigurationProperty(CustomAuthParamsElementName, IsRequired = false)]
-    public string CustomAuthParams
-    {
-      get { return (string)this[CustomAuthParamsElementName]; }
-      set { this[CustomAuthParamsElementName] = value; }
-    }
-
-    /// <summary>
     /// Gets or sets the size of the session cache. Default value is <see cref="SessionConfiguration.DefaultCacheSize"/>.
     /// </summary>
     [ConfigurationProperty(CacheSizeElementName, IsRequired = false, DefaultValue = SessionConfiguration.DefaultCacheSize)]
@@ -54,6 +44,16 @@ namespace Xtensive.Storage.Configuration
     {
       get { return (int) this[CacheSizeElementName]; }
       set { this[CacheSizeElementName] = value; }
+    }
+
+    /// <summary>
+    /// Gets or sets the session options. Default value is <see cref="SessionOptions.Default"/>.
+    /// </summary>
+    [ConfigurationProperty(OptionsElementName, IsRequired = false, DefaultValue = SessionOptions.Default)]
+    public SessionOptions Options
+    {
+      get { return (SessionOptions) this[OptionsElementName]; }
+      set { this[OptionsElementName] = value; }
     }
 
     /// <summary>
@@ -72,7 +72,6 @@ namespace Xtensive.Storage.Configuration
           UserName = UserName,
           CacheSize = CacheSize,
           Password = Password,
-          CustomAuthParams = CustomAuthParams
         };
       return result;
     }

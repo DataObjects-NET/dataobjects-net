@@ -24,8 +24,7 @@ namespace Xtensive.Storage.Aspects
   internal sealed class SessionBoundMethodAspect : OnMethodBoundaryAspect,
     ILaosWeavableAspect
   {
-    int ILaosWeavableAspect.AspectPriority
-    {
+    int ILaosWeavableAspect.AspectPriority {
       get {
         return (int) StorageAspectPriority.SessionBound;
       }

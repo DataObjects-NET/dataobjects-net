@@ -59,8 +59,7 @@ namespace Xtensive.Storage
     /// Gets the current validation context.
     /// </summary>
     /// <exception cref="InvalidOperationException">Can not get validation context: There is no active transaction.</exception>
-    public ValidationContext ValidationContext
-    {
+    public ValidationContext ValidationContext {
       get {
         if (Transaction==null)
           throw new InvalidOperationException(Strings.ExCanNotGetValidationContextThereIsNoActiveTransaction);

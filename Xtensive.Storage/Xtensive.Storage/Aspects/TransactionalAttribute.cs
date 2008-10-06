@@ -24,8 +24,7 @@ namespace Xtensive.Storage.Aspects
   public sealed class TransactionalAttribute : OnMethodBoundaryAspect,
     ILaosWeavableAspect
   {   
-    int ILaosWeavableAspect.AspectPriority
-    {
+    int ILaosWeavableAspect.AspectPriority {
       get {
         return (int) StorageAspectPriority.Transactional;
       }
@@ -47,28 +46,24 @@ namespace Xtensive.Storage.Aspects
     [DebuggerStepThrough]
     public override void OnEntry(MethodExecutionEventArgs eventArgs)
     {
-      Session session = Session.Current;
-      if (session==null)
-        throw new InvalidOperationException(Strings.SessionIsNotActivated);
-      
-      TransactionScope scope = session.OpenTransaction();
-      eventArgs.MethodExecutionTag = scope;
+      var transactionScope = Transaction.Open();
+      eventArgs.MethodExecutionTag = transactionScope;
     }
 
     /// <inheritdoc/>
     [DebuggerStepThrough]
     public override void OnSuccess(MethodExecutionEventArgs eventArgs)
     {
-      TransactionScope scope = (TransactionScope) eventArgs.MethodExecutionTag;
-      scope.Complete();
+      var transactionScope = (TransactionScope) eventArgs.MethodExecutionTag;
+      transactionScope.Complete();
     }
 
     /// <inheritdoc/>
     [DebuggerStepThrough]
     public override void OnExit(MethodExecutionEventArgs eventArgs)
     {
-      TransactionScope scope = (TransactionScope) eventArgs.MethodExecutionTag;
-      scope.DisposeSafely();
+      var transactionScope = (TransactionScope) eventArgs.MethodExecutionTag;
+      transactionScope.DisposeSafely();
     }
   }
 }

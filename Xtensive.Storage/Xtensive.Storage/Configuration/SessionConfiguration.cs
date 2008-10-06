@@ -36,19 +36,14 @@ namespace Xtensive.Storage.Configuration
     public string Name { get; set; }
 
     /// <summary>
-    /// Gets user name to authenticate.
+    /// Gets or sets user name to authenticate.
     /// </summary>
     public string UserName { get; set; }
 
     /// <summary>
-    /// Gets password to authenticate.
+    /// Gets or sets password to authenticate.
     /// </summary>
     public string Password { get; set; }
-
-    /// <summary>
-    /// Gets custom authentication parameters.
-    /// </summary>
-    public string CustomAuthParams { get; set; }
 
     /// <summary>
     /// Gets or sets the size of the session cache. 
@@ -64,6 +59,11 @@ namespace Xtensive.Storage.Configuration
       get { return type; }
       internal set { type = value; }
     }
+
+    /// <summary>
+    /// Gets or sets session options.
+    /// </summary>
+    public SessionOptions Options { get; set; }
 
     /// <summary>
     /// Gets <see langword="true" /> if session is system, otherwise gets <see langword="fals" />.
@@ -94,9 +94,9 @@ namespace Xtensive.Storage.Configuration
       var configuration = (SessionConfiguration) source;
       if (configuration.IsSystem)
         throw new InvalidOperationException(Resources.Strings.ExUnableToCloneSystemSessionConfiguration);
-      UserName = configuration.UserName;
-      Password = configuration.Password;
-      CustomAuthParams = configuration.CustomAuthParams;
+      Options   = configuration.Options;
+      UserName  = configuration.UserName;
+      Password  = configuration.Password;
       CacheSize = configuration.CacheSize;
     }
 
@@ -119,9 +119,10 @@ namespace Xtensive.Storage.Configuration
         return false;
       if (ReferenceEquals(this, obj))
         return true;
-      return Equals(obj.UserName, UserName)
-        //TODO: && Equals(obj.AuthParams, AuthParams)
-        && obj.CacheSize==CacheSize;
+      return 
+        obj.UserName==UserName &&
+        obj.Options==Options &&
+        obj.CacheSize==CacheSize;
     }
 
     /// <inheritdoc/>
@@ -129,7 +130,7 @@ namespace Xtensive.Storage.Configuration
     {
       unchecked {
         int result = (UserName!=null ? UserName.GetHashCode() : 0);
-        //todo: result = (result * 397) ^ (AuthParams != null ? AuthParams.GetHashCode() : 0);
+        result = (result * 397) ^ (int) Options;
         result = (result * 397) ^ CacheSize;
         return result;
       }
@@ -139,9 +140,9 @@ namespace Xtensive.Storage.Configuration
     public override string ToString()
     {
       if (UserName.IsNullOrEmpty())
-        return string.Format("Name = {0}, CacheSize = {1}", Name, CacheSize);
+        return string.Format("Name = {0}, Options = {1}, CacheSize = {2}", Name, Options, CacheSize);
       else
-        return string.Format("Name = {0}, CacheSize = {1}, UserName = {2}", Name, CacheSize, UserName);
+        return string.Format("Name = {0}, UserName = {1}, Options = {2}, CacheSize = {3}", Name, UserName, Options, CacheSize);
     }
 
 
