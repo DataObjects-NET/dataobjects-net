@@ -100,10 +100,10 @@ namespace Xtensive.Storage.Building.Builders
       for (int index = 0; index < attribute.KeyFields.Length; index++) {        
 
         Pair<string, Direction> result = ParseFieldName(attribute.KeyFields[index]);
-        FieldDef field = type.Fields[result.First];
-        if (field == null)
-            throw new DomainBuilderException(
-              string.Format(Strings.ExFieldXYIsNotFound, type.UnderlyingType.GetShortName(), result.First));
+        FieldDef field;
+        if (!type.Fields.TryGetValue(result.First, out field))
+          throw new DomainBuilderException(
+            string.Format(Strings.ExFieldXYIsNotFound, type.UnderlyingType.GetShortName(), result.First));
 
         KeyField keyField = new KeyField(result.First, field.ValueType);
 

@@ -42,7 +42,8 @@ namespace Xtensive.Storage.Configuration
       get { return name; }
       set
       {
-        ArgumentValidator.EnsureArgumentNotNull(value, "value");
+        this.EnsureNotLocked();
+        ArgumentValidator.EnsureArgumentNotNull(value, "Name");
         name = value;
       }
     }

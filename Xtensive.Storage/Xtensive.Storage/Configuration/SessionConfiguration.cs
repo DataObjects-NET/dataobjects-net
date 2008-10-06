@@ -28,28 +28,67 @@ namespace Xtensive.Storage.Configuration
     /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
     public static readonly SessionConfiguration Default;
 
+    private SessionOptions options;
     private SessionType type = SessionType.User;
+    private string name;
+    private string userName;
+    private string password;
+    private int cacheSize;
 
     /// <summary>
     /// Gets or sets the session name.
     /// </summary>
-    public string Name { get; set; }
+    public string Name
+    {
+      get { return name; }
+      set
+      {
+        this.EnsureNotLocked();
+        ArgumentValidator.EnsureArgumentNotNull(value, "Name");
+        name = value;
+      }
+    }
 
     /// <summary>
     /// Gets or sets user name to authenticate.
     /// </summary>
-    public string UserName { get; set; }
+    public string UserName
+    {
+      get { return userName; }
+      set
+      {
+        this.EnsureNotLocked();
+        userName = value;
+      }
+    }
 
     /// <summary>
     /// Gets or sets password to authenticate.
     /// </summary>
-    public string Password { get; set; }
+    public string Password
+    {
+      get { return password; }
+      set
+      {
+        this.EnsureNotLocked();
+        password = value;
+      }
+    }
 
     /// <summary>
     /// Gets or sets the size of the session cache. 
     /// Default value is <see cref="DefaultCacheSize"/>.
     /// </summary>
-    public int CacheSize { get; set; }
+    public int CacheSize
+    {
+      get { return cacheSize; }
+      set
+      {
+        this.EnsureNotLocked();
+        ArgumentValidator.EnsureArgumentIsInRange(value, 0, Int32.MaxValue, "CacheSize");
+        cacheSize = value;
+      }
+    }
 
     /// <summary>
     /// Gets session type.
@@ -63,14 +102,14 @@ namespace Xtensive.Storage.Configuration
     /// <summary>
     /// Gets or sets session options.
     /// </summary>
-    public SessionOptions Options { get; set; }
-
-    /// <summary>
-    /// Gets <see langword="true" /> if session is system, otherwise gets <see langword="fals" />.
-    /// </summary>
-    public bool IsSystem
+    public SessionOptions Options
     {
-      get { return (type & SessionType.System) > 0; }
+      get { return options; }
+      set
+      {
+        this.EnsureNotLocked();
+        options = value;
+      }
     }
 
     /// <inheritdoc/>
@@ -92,7 +131,7 @@ namespace Xtensive.Storage.Configuration
     {
       base.Clone(source);
       var configuration = (SessionConfiguration) source;
-      if (configuration.IsSystem)
+      if ((configuration.type & SessionType.System) > 0)
         throw new InvalidOperationException(Resources.Strings.ExUnableToCloneSystemSessionConfiguration);
       Options   = configuration.Options;
       UserName  = configuration.UserName;

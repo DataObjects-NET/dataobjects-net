@@ -76,7 +76,7 @@ namespace Xtensive.Storage
     /// Indicates whether debug event logging is enabled.
     /// Caches <see cref="Log.IsLogged"/> method result for <see cref="LogEventTypes.Debug"/> event.
     /// </summary>
-    public bool IsDebugEventLoggingEnabled { get; private set; }
+    internal bool IsDebugEventLoggingEnabled { get; private set; }
 
     #region Private \ internal properties
 
@@ -122,8 +122,7 @@ namespace Xtensive.Storage
     /// This method should be called to ensure that all delayed
     /// updates are flushed to the storage. 
     /// Note, that this method is called automatically when it's necessary,
-    /// e.g. before beginning\committing\rolling back a transaction,
-    /// establishing a save point or rolling back to it, performing a
+    /// e.g. before beginning\committing\rolling back a transaction, performing a
     /// query and so further. So generally you should not worry
     /// about calling this method.
     /// </remarks>
