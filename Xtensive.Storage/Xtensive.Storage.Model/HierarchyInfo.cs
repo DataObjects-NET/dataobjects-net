@@ -20,22 +20,22 @@ namespace Xtensive.Storage.Model
   {
     private readonly TypeInfo root;
     private readonly InheritanceSchema schema;
-    private readonly Type generator;
+    private readonly Type keyGenerator;
     private readonly DirectionCollection<FieldInfo> fields = new DirectionCollection<FieldInfo>();
     private readonly ColumnInfoCollection columns = new ColumnInfoCollection();
     private TupleDescriptor keyTupleDescriptor;
-    private int generatorCacheSize;
+    private int keyGeneratorCacheSize;
 
     /// <summary>
     /// Gets or sets the size of the generator cache.
     /// </summary>
-    public int GeneratorCacheSize {
+    public int KeyGeneratorCacheSize {
       [DebuggerStepThrough]
-      get { return generatorCacheSize; }
+      get { return keyGeneratorCacheSize; }
       [DebuggerStepThrough]
       set {
         this.EnsureNotLocked();
-        generatorCacheSize = value;
+        keyGeneratorCacheSize = value;
       }
     }
 
@@ -58,9 +58,9 @@ namespace Xtensive.Storage.Model
     /// <summary>
     /// Gets or sets the type instance of which is responsible for key generation.
     /// </summary>
-    public Type Generator
+    public Type KeyGenerator
     {
-      get { return generator; }
+      get { return keyGenerator; }
     }
 
     /// <summary>
@@ -110,7 +110,7 @@ namespace Xtensive.Storage.Model
     public HierarchyInfo(TypeInfo root, InheritanceSchema schema, Type keyProvider)
     {
       this.root = root;
-      this.generator = keyProvider;
+      this.keyGenerator = keyProvider;
       this.schema = schema;
     }
   }

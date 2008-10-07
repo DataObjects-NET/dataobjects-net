@@ -33,7 +33,7 @@ namespace Xtensive.Storage.Building.Builders
 
     public static void Process(HierarchyDef hierarchy, TypeDef type, HierarchyRootAttribute attribute)
     {
-      ProcessGenerator(hierarchy, attribute);
+      ProcessKeyGenerator(hierarchy, attribute);
       ProcessKeyFields(hierarchy, type, attribute);
       ProcessInheritanceSchema(hierarchy, attribute);
     }
@@ -74,28 +74,28 @@ namespace Xtensive.Storage.Building.Builders
         field.PairTo = attribute.PairTo;
     }
 
-    private static void ProcessGenerator(HierarchyDef hierarchy, HierarchyRootAttribute attribute)
+    private static void ProcessKeyGenerator(HierarchyDef hierarchy, HierarchyRootAttribute attribute)
     {
-      if (attribute.Generator != null)
-        hierarchy.Generator = attribute.Generator;
-      if (attribute.generatorCacheSize.HasValue)
-        hierarchy.GeneratorCacheSize = attribute.GeneratorCacheSize;
+      if (attribute.KeyGenerator != null)
+        hierarchy.KeyGenerator = attribute.KeyGenerator;
+      if (attribute.keyGeneratorCacheSize.HasValue)
+        hierarchy.KeyGeneratorCacheSize = attribute.KeyGeneratorCacheSize;
     }
 
     private static void ProcessKeyFields(HierarchyDef hierarchy, TypeDef type, HierarchyRootAttribute attribute)
     {
 //      KeyProviderAttribute ks =
 //        (KeyProviderAttribute)
-//          Attribute.GetCustomAttribute(hierarchy.Generator, typeof (KeyProviderAttribute), true);
+//          Attribute.GetCustomAttribute(hierarchy.KeyGenerator, typeof (KeyProviderAttribute), true);
 //
 //      if (ks==null)
 //        throw new DomainBuilderException(
-//          string.Format(Strings.ExKeyProviderXShouldDefineAtLeastOneKeyField, attribute.Generator));
+//          string.Format(Strings.ExKeyProviderXShouldDefineAtLeastOneKeyField, attribute.KeyGenerator));
 //
 //      if (attribute.KeyFields.Length!=ks.Fields.Length)
 //        throw new DomainBuilderException(
 //          string.Format(Strings.ExKeyProviderXAndHierarchyYKeyFieldAmountMismatch, 
-//          attribute.Generator, hierarchy.Root.Name));
+//          attribute.KeyGenerator, hierarchy.Root.Name));
 
       for (int index = 0; index < attribute.KeyFields.Length; index++) {        
 

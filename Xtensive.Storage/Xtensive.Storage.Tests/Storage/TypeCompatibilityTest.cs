@@ -58,7 +58,7 @@ namespace Xtensive.Storage.Tests.Storage.DbTypeSupportModel
 
   #endregion
 
-  [HierarchyRoot(typeof(Generator), "Id")]
+  [HierarchyRoot(typeof(KeyGenerator), "Id")]
   public class X : Entity
   {
     [Field]

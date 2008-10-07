@@ -14,20 +14,20 @@ namespace Xtensive.Storage.Attributes
   [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
   public class HierarchyRootAttribute : StorageAttribute
   {
-    internal int? generatorCacheSize;
+    internal int? keyGeneratorCacheSize;
 
     /// <summary>
     /// Gets or sets the key generator.
     /// </summary>
-    public Type Generator { get; set; }
+    public Type KeyGenerator { get; set; }
 
     /// <summary>
-    /// Gets or sets the size of the generator cache.
+    /// Gets or sets the size of the key generator cache.
     /// </summary>
-    public int GeneratorCacheSize
+    public int KeyGeneratorCacheSize
     {
-      get { return generatorCacheSize.HasValue ? generatorCacheSize.Value : 0; }
-      set { generatorCacheSize = value; }
+      get { return keyGeneratorCacheSize.HasValue ? keyGeneratorCacheSize.Value : 0; }
+      set { keyGeneratorCacheSize = value; }
     }
 
     /// <summary>
@@ -46,12 +46,13 @@ namespace Xtensive.Storage.Attributes
     /// <summary>
     ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="generator">The key provider.</param>
+    /// <param name="keyGenerator">The key provider.</param>
     /// <param name="keyField">The key field.</param>
-    public HierarchyRootAttribute(Type generator, string keyField)
-      : this(generator)
+    public HierarchyRootAttribute(Type keyGenerator, string keyField)
     {
+      ArgumentValidator.EnsureArgumentNotNull(keyGenerator, "keyGenerator");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(keyField, "keyField");
+      KeyGenerator = keyGenerator;
       KeyFields = new[] {keyField};
     }
 
@@ -71,12 +72,6 @@ namespace Xtensive.Storage.Attributes
         KeyFields[0] = keyField;
         Array.Copy(keyFields, 0, KeyFields, 1, keyFields.Length);
       }
-    }
-
-    private HierarchyRootAttribute(Type generator)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(generator, "generator");
-      Generator = generator;
     }
   }
 }

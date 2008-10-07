@@ -16,7 +16,7 @@ namespace Xtensive.Storage.Tests.Storage.TranscationsTest
 {
   public class TranscationsTest  : AutoBuildTest
   {    
-    [HierarchyRoot(typeof (Generator), "ID")]
+    [HierarchyRoot(typeof (KeyGenerator), "ID")]
     public class Hexagon : Entity
     {
       [Field]

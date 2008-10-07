@@ -14,23 +14,23 @@ namespace Xtensive.Storage.Providers
   /// <summary>
   /// Generator factory.
   /// </summary>
-  public abstract class GeneratorFactory : HandlerBase
+  public abstract class KeyGeneratorFactory : HandlerBase
   {
     /// <summary>
     /// Creates the generator for the specified <paramref name="hierarchy"/>.
     /// </summary>
-    /// <param name="hierarchy">The hierarchy to create <see cref="Generator"/> for.</param>
-    /// <returns><see cref="Generator"/> instance.</returns>
+    /// <param name="hierarchy">The hierarchy to create <see cref="KeyGenerator"/> for.</param>
+    /// <returns><see cref="KeyGenerator"/> instance.</returns>
     /// <exception cref="InvalidOperationException">when <paramref name="hierarchy"/> contains more then one key field.</exception>
     /// <exception cref="ArgumentOutOfRangeException">when <see cref="Type"/> of the key field is not supported.</exception>
-    public Generator CreateGenerator(HierarchyInfo hierarchy)
+    public KeyGenerator CreateGenerator(HierarchyInfo hierarchy)
     {
       if (hierarchy.Fields.Count > 2)
         throw new InvalidOperationException(Resources.Strings.ExDefaultGeneratorCanServeHierarchyWithExactlyOneKeyField);
       if (hierarchy.Fields.Count == 2 && !hierarchy.Fields[1].Key.IsSystem)
         throw new InvalidOperationException(Resources.Strings.ExDefaultGeneratorCanServeHierarchyWithExactlyOneKeyField);
 
-      Generator result = null;
+      KeyGenerator result = null;
       Type fieldType = hierarchy.Fields[0].Key.ValueType;
       TypeCode code = Type.GetTypeCode(fieldType);
       switch (code) {
@@ -60,7 +60,7 @@ namespace Xtensive.Storage.Providers
         break;
       case TypeCode.Object:
           if (fieldType == typeof(Guid))
-            result = new GuidGenerator(hierarchy);
+            result = new GuidKeyGenerator(hierarchy);
         break;
       }
       if (result == null)
@@ -69,6 +69,6 @@ namespace Xtensive.Storage.Providers
       return result;
     }
 
-    protected abstract Generator CreateGenerator<TFieldType>(HierarchyInfo hierarchy);
+    protected abstract KeyGenerator CreateGenerator<TFieldType>(HierarchyInfo hierarchy);
   }
 }

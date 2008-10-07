@@ -17,7 +17,7 @@ namespace Xtensive.Storage.Tests.Storage.AspectsTest
   public class AspectsTest : AutoBuildTest
   {
     [Persistent]
-    [HierarchyRoot(typeof (Generator), "ID")]
+    [HierarchyRoot(typeof (KeyGenerator), "ID")]
     public class BusinessObject : Entity
     {
       [Field]

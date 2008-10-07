@@ -12,12 +12,12 @@ namespace Xtensive.Storage.Providers.Index
   /// <summary>
   /// Generator factory
   /// </summary>
-  public class GeneratorFactory : Providers.GeneratorFactory
+  public class KeyGeneratorFactory : Providers.KeyGeneratorFactory
   {
     /// <inheritdoc/>
-    protected override Generator CreateGenerator<TFieldType>(HierarchyInfo hierarchy)
+    protected override KeyGenerator CreateGenerator<TFieldType>(HierarchyInfo hierarchy)
     {
-      return new IncrementalGenerator<TFieldType>(hierarchy);
+      return new IncrementalKeyGenerator<TFieldType>(hierarchy);
     }
   }
 }

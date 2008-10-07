@@ -27,7 +27,7 @@ namespace Xtensive.Storage
     private readonly Domain domain;
     private readonly object _lock = new object();
     private readonly ICache<Key, Key> cache;
-    internal Registry<HierarchyInfo, Generator> Generators { get; private set; }
+    internal Registry<HierarchyInfo, KeyGenerator> Generators { get; private set; }
 
     #region Public methods
 
@@ -57,8 +57,8 @@ namespace Xtensive.Storage
 
     internal Key Next(TypeInfo type)
     {
-      Generator provider = Generators[type.Hierarchy];
-      return GetCachedKey(CreateKey(type, provider.Next()));
+      KeyGenerator keyGenerator = Generators[type.Hierarchy];
+      return GetCachedKey(CreateKey(type, keyGenerator.Next()));
     }
 
     internal Key Get(TypeInfo type, Tuple tuple)
@@ -129,7 +129,7 @@ namespace Xtensive.Storage
       this.domain = domain;
       cache = new LruCache<Key, Key>(domain.Configuration.KeyCacheSize, k => k,
         new WeakestCache<Key, Key>(false, false, k => k));
-      Generators = new Registry<HierarchyInfo, Generator>();
+      Generators = new Registry<HierarchyInfo, KeyGenerator>();
     }
 
     void IDisposable.Dispose()

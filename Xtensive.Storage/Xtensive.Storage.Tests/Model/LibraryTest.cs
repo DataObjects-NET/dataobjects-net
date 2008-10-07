@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
     public IdentityCard Card { get; set; }
   }
 
-  [HierarchyRoot("Number", Generator = typeof(Generator))]
+  [HierarchyRoot("Number", KeyGenerator = typeof(KeyGenerator))]
   public class Person : Entity
   {
     [Field]
@@ -76,7 +76,7 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
     public EntitySet<Book> Books { get; private set; }
   }
 
-  [HierarchyRoot(typeof (IsbnKeyProvider), "Isbn")]
+  [HierarchyRoot(typeof (IsbnKeyGenerator), "Isbn")]
   [Index("Title:ASC")]
   public class Book : Entity
   {
@@ -121,7 +121,7 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
     }
   }
 
-  public class IsbnKeyProvider : Generator
+  public class IsbnKeyGenerator : KeyGenerator
   {
     private int counter;
 
@@ -132,7 +132,7 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
       return result;
     }
 
-    public IsbnKeyProvider(HierarchyInfo hierarchy)
+    public IsbnKeyGenerator(HierarchyInfo hierarchy)
       : base(hierarchy)
     {
     }

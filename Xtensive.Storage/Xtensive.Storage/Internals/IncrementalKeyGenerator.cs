@@ -17,7 +17,7 @@ namespace Xtensive.Storage.Internals
   /// Generator that provides incremental sequence of integer values.
   /// </summary>
   /// <typeparam name="TFieldType">The type of the field.</typeparam>
-  public class IncrementalGenerator<TFieldType> : Generator
+  public class IncrementalKeyGenerator<TFieldType> : KeyGenerator
   {
     private TFieldType current;
     private readonly object _lock = new object();
@@ -45,7 +45,7 @@ namespace Xtensive.Storage.Internals
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="hierarchy">The hierarchy this instance will serve.</param>
-    public IncrementalGenerator(HierarchyInfo hierarchy)
+    public IncrementalKeyGenerator(HierarchyInfo hierarchy)
       : base(hierarchy)
     {
       Arithmetic = Arithmetic<TFieldType>.Default;

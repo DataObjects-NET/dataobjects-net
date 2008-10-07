@@ -60,7 +60,7 @@ namespace Xtensive.Storage.Building.Builders
 
     public static HierarchyInfo BuildHierarchy(TypeInfo root, HierarchyDef hierarchyDef)
     {
-      HierarchyInfo hierarchy = new HierarchyInfo(root, hierarchyDef.Schema, hierarchyDef.Generator);
+      HierarchyInfo hierarchy = new HierarchyInfo(root, hierarchyDef.Schema, hierarchyDef.KeyGenerator);
 
       foreach (KeyValuePair<KeyField, Direction> pair in hierarchyDef.KeyFields) {
         FieldInfo field;
@@ -75,10 +75,10 @@ namespace Xtensive.Storage.Building.Builders
       hierarchy.MappingName = BuildingContext.Current.NameBuilder.Build(hierarchy);
       int generatorCacheSize = BuildingContext.Current.Configuration.KeyGeneratorCacheSize;
 
-      if (hierarchyDef.GeneratorCacheSize.HasValue && hierarchyDef.GeneratorCacheSize > 0)
-        hierarchy.GeneratorCacheSize = hierarchyDef.GeneratorCacheSize.Value;
+      if (hierarchyDef.KeyGeneratorCacheSize.HasValue && hierarchyDef.KeyGeneratorCacheSize > 0)
+        hierarchy.KeyGeneratorCacheSize = hierarchyDef.KeyGeneratorCacheSize.Value;
       else
-        hierarchy.GeneratorCacheSize = generatorCacheSize;
+        hierarchy.KeyGeneratorCacheSize = generatorCacheSize;
       BuildingContext.Current.Model.Hierarchies.Add(hierarchy);
       return hierarchy;
     }

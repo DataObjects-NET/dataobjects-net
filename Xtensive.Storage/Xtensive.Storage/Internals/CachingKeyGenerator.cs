@@ -17,7 +17,7 @@ namespace Xtensive.Storage.Internals
   /// Generator with caching capabilities.
   /// </summary>
   /// <typeparam name="TFieldType">The type of the field.</typeparam>
-  public abstract class CachingGenerator<TFieldType> : IncrementalGenerator<TFieldType>
+  public abstract class CachingKeyGenerator<TFieldType> : IncrementalKeyGenerator<TFieldType>
   {
     private readonly object _lock = new object();
 
@@ -56,7 +56,7 @@ namespace Xtensive.Storage.Internals
     /// </summary>
     /// <param name="hierarchy">The hierarchy this instance will serve.</param>
     /// <param name="cacheSize">Size of the cache.</param>
-    protected CachingGenerator(HierarchyInfo hierarchy, int cacheSize)
+    protected CachingKeyGenerator(HierarchyInfo hierarchy, int cacheSize)
       : base(hierarchy)
     {
       CacheSize = cacheSize;

@@ -179,18 +179,18 @@ namespace Xtensive.Storage.Building.Builders
     {
       using (Log.InfoRegion(Strings.LogCreatingX, Strings.Generators)) {
         var handlerAccessor = BuildingContext.Current.Domain.Handlers;
-        Registry<HierarchyInfo, Generator> generators = BuildingContext.Current.Domain.KeyManager.Generators;
-        GeneratorFactory factory = handlerAccessor.HandlerFactory.CreateHandler<GeneratorFactory>();
+        Registry<HierarchyInfo, KeyGenerator> generators = BuildingContext.Current.Domain.KeyManager.Generators;
+        KeyGeneratorFactory factory = handlerAccessor.HandlerFactory.CreateHandler<KeyGeneratorFactory>();
         foreach (HierarchyInfo hierarchy in BuildingContext.Current.Model.Hierarchies) {
-          Generator generator;
-          if (hierarchy.Generator == null)
+          KeyGenerator keyGenerator;
+          if (hierarchy.KeyGenerator == null)
             continue;
-          if (hierarchy.Generator==typeof (Generator))
-            generator = factory.CreateGenerator(hierarchy);
+          if (hierarchy.KeyGenerator==typeof (KeyGenerator))
+            keyGenerator = factory.CreateGenerator(hierarchy);
           else
-            generator = (Generator) Activator.CreateInstance(hierarchy.Generator, new object[] { hierarchy });
-          generator.Initialize();
-          generators.Register(hierarchy, generator);
+            keyGenerator = (KeyGenerator) Activator.CreateInstance(hierarchy.KeyGenerator, new object[] { hierarchy });
+          keyGenerator.Initialize();
+          generators.Register(hierarchy, keyGenerator);
         }
         generators.Lock();
       }

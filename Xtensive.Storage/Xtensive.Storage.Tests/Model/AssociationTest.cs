@@ -20,7 +20,7 @@ using System;
 
 namespace Xtensive.Storage.Tests.Model.Association
 {
-  [HierarchyRoot(typeof (Generator), "Id")]
+  [HierarchyRoot(typeof (KeyGenerator), "Id")]
   public abstract class Root : Entity
   {
     [Field]
@@ -37,7 +37,7 @@ namespace Xtensive.Storage.Tests.Model.Association
     }
   }
 
-  [HierarchyRoot(typeof(Generator), "Id")]
+  [HierarchyRoot(typeof(KeyGenerator), "Id")]
   public abstract class Root2 : Entity
   {
     [Field]

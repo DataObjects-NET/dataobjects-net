@@ -16,7 +16,7 @@ namespace Xtensive.Storage.Tests.Storage.Validation
 {
   public class ValidationTest : AutoBuildTest
   {
-    [HierarchyRoot(typeof (Generator), "ID")]
+    [HierarchyRoot(typeof (KeyGenerator), "ID")]
     public class Mouse : Entity
     {
       [Field]

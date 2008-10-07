@@ -14,7 +14,7 @@ namespace Xtensive.Storage
   ///<summary>
   /// Base key generator class.
   ///</summary>
-  public abstract class Generator
+  public abstract class KeyGenerator
   {
     /// <summary>
     /// Gets the hierarchy this instance serves.
@@ -45,7 +45,7 @@ namespace Xtensive.Storage
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="hierarchy">The hierarchy this instance will serve.</param>
-    protected Generator(HierarchyInfo hierarchy)
+    protected KeyGenerator(HierarchyInfo hierarchy)
     {
       Hierarchy = hierarchy;
     }

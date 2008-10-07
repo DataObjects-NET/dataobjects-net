@@ -14,7 +14,7 @@ namespace Xtensive.Storage.Internals
   /// <see cref="Guid"/> generator.
   /// </summary>
   [Serializable]
-  internal sealed class GuidGenerator : Generator
+  internal sealed class GuidKeyGenerator : KeyGenerator
   {
     /// <inheritdoc/>
     public override Tuple Next()
@@ -25,7 +25,7 @@ namespace Xtensive.Storage.Internals
 
     // Constructor
 
-    public GuidGenerator(HierarchyInfo hierarchy)
+    public GuidKeyGenerator(HierarchyInfo hierarchy)
       : base(hierarchy)
     {
     }

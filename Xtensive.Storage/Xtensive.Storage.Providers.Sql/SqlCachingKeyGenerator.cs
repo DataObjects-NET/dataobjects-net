@@ -19,7 +19,7 @@ namespace Xtensive.Storage.Providers.Sql
   /// Caching generator implementation for sql-based storages.
   /// </summary>
   /// <typeparam name="TFieldType">The type of the field.</typeparam>
-  public class SqlCachingGenerator<TFieldType> : CachingGenerator<TFieldType>
+  public class SqlCachingKeyGenerator<TFieldType> : CachingKeyGenerator<TFieldType>
   {
     private SqlScalarRequest nextRequest;
     private readonly ISqlCompileUnit sqlNext;
@@ -63,11 +63,11 @@ namespace Xtensive.Storage.Providers.Sql
       base.Initialize();
 
       nextRequest = new SqlScalarRequest(sqlNext);
-      var dh = (DomainHandler) Handlers.DomainHandler;
+      DomainHandler dh = (DomainHandler) Handlers.DomainHandler;
       dh.Compile(nextRequest);
 
       if (sqlInitialize!=null) {
-        var sh = (SessionHandler) Handlers.SessionHandler;
+        Sql.SessionHandler sh = (SessionHandler) Handlers.SessionHandler;
         sh.ExecuteNonQuery(sqlInitialize);
       }
     }
@@ -82,7 +82,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <param name="cacheSize">Size of the cache.</param>
     /// <param name="sqlNext">The <see cref="ISqlCompileUnit"/> statement that will be used for fetching next portion of unique values from database.</param>
     /// <param name="sqlInitialize">The <see cref="ISqlCompileUnit"/> statement that will be used for underlying source of unique sequence creation in database.</param>
-    public SqlCachingGenerator(HierarchyInfo hierarchy, int cacheSize, ISqlCompileUnit sqlNext, ISqlCompileUnit sqlInitialize)
+    public SqlCachingKeyGenerator(HierarchyInfo hierarchy, int cacheSize, ISqlCompileUnit sqlNext, ISqlCompileUnit sqlInitialize)
       : base(hierarchy, cacheSize)
     {
       this.sqlNext = sqlNext;

@@ -15,7 +15,7 @@ namespace Xtensive.Storage.Tests.Model.ReferenceTestModel
 {
   #region SelfReferenced Entity
 
-  [HierarchyRoot(typeof (Generator), "Id")]
+  [HierarchyRoot(typeof (KeyGenerator), "Id")]
   public class A : Entity
   {
     [Field]
@@ -57,21 +57,21 @@ namespace Xtensive.Storage.Tests.Model.ReferenceTestModel
     public S1 Value { get; set; }
   }
 
-  [HierarchyRoot(typeof(Generator), "Id")]
+  [HierarchyRoot(typeof(KeyGenerator), "Id")]
   public class E1 : Entity
   {
     [Field]
     public int Id { get; private set; }
   }
 
-  [HierarchyRoot(typeof(Generator), "Id")]
+  [HierarchyRoot(typeof(KeyGenerator), "Id")]
   public class E2 : Entity
   {
     [Field]
     public int Id { get; private set; }
   }
 
-  [HierarchyRoot(typeof(Generator), "Id")]
+  [HierarchyRoot(typeof(KeyGenerator), "Id")]
   public class ERef : Entity
   {
     [Field]

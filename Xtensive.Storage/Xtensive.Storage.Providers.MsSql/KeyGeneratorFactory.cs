@@ -17,12 +17,12 @@ namespace Xtensive.Storage.Providers.MsSql
   /// <summary>
   /// Generator factory
   /// </summary>
-  public sealed class GeneratorFactory : Providers.GeneratorFactory
+  public sealed class KeyGeneratorFactory : Providers.KeyGeneratorFactory
   {
     /// <inheritdoc/>
-    protected override Generator CreateGenerator<TFieldType>(HierarchyInfo hierarchy)
+    protected override KeyGenerator CreateGenerator<TFieldType>(HierarchyInfo hierarchy)
     {
-      DomainHandler dh = (DomainHandler) Handlers.DomainHandler;
+      DomainHandler dh = (DomainHandler)Handlers.DomainHandler;
       Schema schema = dh.Schema;
       SqlBatch sqlCreate = null;
       Table genTable = schema.Tables[hierarchy.MappingName];
@@ -31,7 +31,7 @@ namespace Xtensive.Storage.Providers.MsSql
       if (genTable == null) {
         genTable = schema.CreateTable(hierarchy.MappingName);
         var column = genTable.CreateColumn("ID", columnType);
-        column.SequenceDescriptor = new SequenceDescriptor(column, hierarchy.GeneratorCacheSize, hierarchy.GeneratorCacheSize);
+        column.SequenceDescriptor = new SequenceDescriptor(column, hierarchy.KeyGeneratorCacheSize, hierarchy.KeyGeneratorCacheSize);
         sqlCreate = SqlFactory.Batch();
         sqlCreate.Add(SqlFactory.Create(genTable));
       }
@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Providers.MsSql
       select.Columns.Add(SqlFactory.Cast(SqlFactory.FunctionCall("SCOPE_IDENTITY"), columnType.DataType));
       sqlNext.Add(select);
 
-      return new SqlCachingGenerator<TFieldType>(hierarchy, hierarchy.GeneratorCacheSize, sqlNext, sqlCreate);
+      return new SqlCachingKeyGenerator<TFieldType>(hierarchy, hierarchy.KeyGeneratorCacheSize, sqlNext, sqlCreate);
     }
   }
 }

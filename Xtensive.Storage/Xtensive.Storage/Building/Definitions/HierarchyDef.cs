@@ -16,8 +16,8 @@ namespace Xtensive.Storage.Building.Definitions
   public sealed class HierarchyDef : Node
   {
     private readonly DirectionCollection<KeyField> keyFields = new DirectionCollection<KeyField>();
-    private Type generator;
-    private int? generatorCacheSize;
+    private Type keyGenerator;
+    private int? keyGeneratorCacheSize;
 
     /// <summary>
     /// Gets the fields that are included in the key for this instance.
@@ -28,29 +28,29 @@ namespace Xtensive.Storage.Building.Definitions
     }
 
     /// <summary>
-    /// Gets or sets the size of the generator cache.
+    /// Gets or sets the size of the keyGenerator cache.
     /// </summary>
-    public int? GeneratorCacheSize
+    public int? KeyGeneratorCacheSize
     {
-      get { return generatorCacheSize; }
+      get { return keyGeneratorCacheSize; }
       set
       {
         if (value.HasValue)
-          ArgumentValidator.EnsureArgumentIsInRange(value.Value, 0, Int32.MaxValue, "GeneratorCacheSize");
-        generatorCacheSize = value;
+          ArgumentValidator.EnsureArgumentIsInRange(value.Value, 0, Int32.MaxValue, "KeyGeneratorCacheSize");
+        keyGeneratorCacheSize = value;
       }
     }
 
     /// <summary>
     /// Gets or sets the type instance of which is responsible for key generation.
     /// </summary>
-    public Type Generator
+    public Type KeyGenerator
     {
-      get { return generator; }
+      get { return keyGenerator; }
       set
       {
         ArgumentValidator.EnsureArgumentNotNull(value, "value");
-        generator = value;
+        keyGenerator = value;
       }
     }
 
