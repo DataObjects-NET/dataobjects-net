@@ -13,8 +13,7 @@ namespace Xtensive.Storage.Tests
   {
     public static DomainConfiguration Create(string protocol)
     {
-      var config = Xtensive.Storage.Configuration.Configuration.Load("Xtensive.Storage");
-      return config.Domains[protocol];
+      return DomainConfiguration.Load(protocol);
     }
 
     public static DomainConfiguration Create(string protocol, InheritanceSchema schema)

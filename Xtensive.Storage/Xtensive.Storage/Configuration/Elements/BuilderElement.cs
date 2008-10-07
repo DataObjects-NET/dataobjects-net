@@ -5,24 +5,28 @@
 // Created:    2008.08.07
 
 using System.Configuration;
-using Xtensive.Core;
 
-namespace Xtensive.Storage.Configuration
+namespace Xtensive.Storage.Configuration.Elements
 {
-  internal class BuilderElement : ConfigurationCollectionElementBase
+  /// <summary>
+  /// Builder configuration element within a configuration file.
+  /// </summary>
+  public class BuilderElement : ConfigurationCollectionElementBase
   {
     private const string TypeElementName = "type";
 
-    [ConfigurationProperty(TypeElementName, IsRequired = true, IsKey = true)]
-    public string Type
-    {
-      get { return (string)this[TypeElementName]; }
-      set { this[TypeElementName] = value; }
+    /// <inheritdoc/>
+    public override object Identifier {
+      get { return Type; }
     }
 
-    public override object GetKey()
-    {
-      return Type;
+    /// <summary>
+    /// Gets or sets the type of the builder.
+    /// </summary>
+    [ConfigurationProperty(TypeElementName, IsRequired = true, IsKey = true)]
+    public string Type {
+      get { return (string)this[TypeElementName]; }
+      set { this[TypeElementName] = value; }
     }
   }
 }

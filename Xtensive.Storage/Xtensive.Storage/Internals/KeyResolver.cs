@@ -4,7 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2008.07.09
 
-using Xtensive.Core.Diagnostics;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Internals

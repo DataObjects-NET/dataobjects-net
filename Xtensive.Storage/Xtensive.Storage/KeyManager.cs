@@ -24,8 +24,6 @@ namespace Xtensive.Storage
   /// </summary>
   public sealed class KeyManager : IDisposable
   {
-    private long CacheSize = 128*1024;
-
     private readonly Domain domain;
     private readonly object _lock = new object();
     private readonly ICache<Key, Key> cache;
@@ -129,7 +127,7 @@ namespace Xtensive.Storage
     internal KeyManager(Domain domain)
     {
       this.domain = domain;
-      cache = new LruCache<Key, Key>(CacheSize, k => k,
+      cache = new LruCache<Key, Key>(domain.Configuration.KeyCacheSize, k => k,
         new WeakestCache<Key, Key>(false, false, k => k));
       Generators = new Registry<HierarchyInfo, Generator>();
     }

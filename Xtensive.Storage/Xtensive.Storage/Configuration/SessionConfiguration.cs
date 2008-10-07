@@ -18,12 +18,17 @@ namespace Xtensive.Storage.Configuration
   /// <para id="About"><see cref="HasStaticDefaultDocTemplate" copy="true" /></para>
   /// </remarks>
   [Serializable]
-  public class SessionConfiguration : ConfigurationBase
+  public class SessionConfiguration : ConfigurationBase,
+    IEquatable<SessionConfiguration>
   {
+    #region Defaults (constants)
+
     /// <summary>
-    /// Default cache size;
+    /// Default cache size.
     /// </summary>
-    public const int DefaultCacheSize = 10240;
+    public const int DefaultCacheSize = 16*1024;
+
+    #endregion
 
     /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
     public static readonly SessionConfiguration Default;
@@ -37,6 +42,7 @@ namespace Xtensive.Storage.Configuration
 
     /// <summary>
     /// Gets or sets the session name.
+    /// Default value is <see langword="null" />.
     /// </summary>
     public string Name
     {
@@ -51,6 +57,7 @@ namespace Xtensive.Storage.Configuration
 
     /// <summary>
     /// Gets or sets user name to authenticate.
+    /// Default value is <see langword="null" />.
     /// </summary>
     public string UserName
     {
@@ -64,6 +71,7 @@ namespace Xtensive.Storage.Configuration
 
     /// <summary>
     /// Gets or sets password to authenticate.
+    /// Default value is <see langword="null" />.
     /// </summary>
     public string Password
     {
@@ -92,6 +100,7 @@ namespace Xtensive.Storage.Configuration
 
     /// <summary>
     /// Gets session type.
+    /// Default value is <see cref="SessionType.Default"/>.
     /// </summary>
     public SessionType Type
     {
@@ -101,6 +110,7 @@ namespace Xtensive.Storage.Configuration
 
     /// <summary>
     /// Gets or sets session options.
+    /// Default value is <see cref="SessionOptions.Default"/>.
     /// </summary>
     public SessionOptions Options
     {
@@ -109,6 +119,24 @@ namespace Xtensive.Storage.Configuration
       {
         this.EnsureNotLocked();
         options = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets a value indicating whether session is system.
+    /// </summary>
+    public bool IsSystem {
+      get {
+        return (type & SessionType.System)!=0;
+      }
+    }
+
+    /// <summary>
+    /// Gets a value indicating whether session uses ambient transactions.
+    /// </summary>
+    public bool UsesAmbientTransactions {
+      get {
+        return (options & SessionOptions.AmbientTransactions)!=0;
       }
     }
 
@@ -133,10 +161,26 @@ namespace Xtensive.Storage.Configuration
       var configuration = (SessionConfiguration) source;
       if ((configuration.type & SessionType.System) > 0)
         throw new InvalidOperationException(Resources.Strings.ExUnableToCloneSystemSessionConfiguration);
-      Options   = configuration.Options;
       UserName  = configuration.UserName;
       Password  = configuration.Password;
+      Options   = configuration.Options;
       CacheSize = configuration.CacheSize;
+    }
+
+    #region Equality members
+
+    /// <inheritdoc/>
+    public bool Equals(SessionConfiguration obj)
+    {
+      if (ReferenceEquals(null, obj))
+        return false;
+      if (ReferenceEquals(this, obj))
+        return true;
+      return 
+        obj.UserName==UserName &&
+          obj.Type==Type &&
+            obj.Options==Options &&
+              obj.CacheSize==CacheSize;
     }
 
     /// <inheritdoc/>
@@ -152,28 +196,18 @@ namespace Xtensive.Storage.Configuration
     }
 
     /// <inheritdoc/>
-    public bool Equals(SessionConfiguration obj)
-    {
-      if (ReferenceEquals(null, obj))
-        return false;
-      if (ReferenceEquals(this, obj))
-        return true;
-      return 
-        obj.UserName==UserName &&
-        obj.Options==Options &&
-        obj.CacheSize==CacheSize;
-    }
-
-    /// <inheritdoc/>
     public override int GetHashCode()
     {
       unchecked {
         int result = (UserName!=null ? UserName.GetHashCode() : 0);
+        result = (result * 397) ^ (int) Type;
         result = (result * 397) ^ (int) Options;
         result = (result * 397) ^ CacheSize;
         return result;
       }
     }
+
+    #endregion
 
     /// <inheritdoc/>
     public override string ToString()

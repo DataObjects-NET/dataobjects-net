@@ -6,12 +6,15 @@
 
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
 using Xtensive.Storage.Building.Definitions;
+using Xtensive.Storage.Configuration.Elements;
 using Xtensive.Storage.Configuration.TypeRegistry;
+using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Configuration
 {
@@ -22,20 +25,88 @@ namespace Xtensive.Storage.Configuration
   public class DomainConfiguration : ConfigurationBase,
     IEquatable<DomainConfiguration>
   {
-    //    private ServiceRegistry services = new ServiceRegistry();
-    private CollectionBaseSlim<Type> builders = new CollectionBaseSlim<Type>();
-    private UrlInfo connectionInfo;
-    private NamingConvention namingConvention;
-    private Registry types = new Registry(new TypeProcessor());
-    private int sessionPoolSize = 64;
+    #region Defaults (constants)
+
+    /// <summary>
+    /// Default <see cref="SectionName"/> value:
+    /// "<see langword="Xtensive.Storage" />".
+    /// </summary>
+    public static string DefaultSectionName = "Xtensive.Storage";
+
+    /// <summary>
+    /// Default <see cref="DomainConfiguration.KeyCacheSize"/> value: 
+    /// <see langword="16*1024" />.
+    /// </summary>
+    public const int DefaultKeyCacheSize = 16*1024;
+
+    /// <summary>
+    /// Default <see cref="DomainConfiguration.KeyGeneratorCacheSize"/> value: 
+    /// <see langword="128" />.
+    /// </summary>
+    public const int DefaultKeyGeneratorCacheSize = 128;
+
+    /// <summary>
+    /// Default <see cref="DomainConfiguration.RecordSetMappingCacheSize"/> value: 
+    /// <see langword="1024" />.
+    /// </summary>
+    public const int DefaultRecordSetMappingCacheSize = 1024;
+
+    /// <summary>
+    /// Default <see cref="DomainConfiguration.SessionPoolSize"/> value: 
+    /// <see langword="64" />.
+    /// </summary>
+    public const int DefaultSessionPoolSize = 64;
+
+    /// <summary>
+    /// Default <see cref="DomainConfiguration.InconsistentTransactions"/> value: 
+    /// <see langword="false" />.
+    /// </summary>
+    public const bool DefaultInconsistentTransactions = false;
+
+    /// <summary>
+    /// Default <see cref="DomainConfiguration.AutoValidation"/> value: 
+    /// <see langword="true" />.
+    /// </summary>
+    public const bool DefaultAutoValidation = true;
+
+    #endregion
+    
+    private static string sectionName = DefaultSectionName;
+    private static bool sectionNameIsDefined;
+
     private string name = string.Empty;
+    private UrlInfo connectionInfo;
+    private Registry types = new Registry(new TypeProcessor());
+    private CollectionBaseSlim<Type> builders = new CollectionBaseSlim<Type>();
+//    private ServiceRegistry services = new ServiceRegistry();
+    private NamingConvention namingConvention;
+    private int keyCacheSize = DefaultKeyCacheSize;
+    private int keyGeneratorCacheSize = DefaultKeyGeneratorCacheSize;
+    private int sessionPoolSize = DefaultSessionPoolSize;
+    private int recordSetMappingCacheSize = DefaultRecordSetMappingCacheSize;
     private bool autoValidation = true;
-    private int generatorCacheSize = 100;
     private bool inconsistentTransactions;
     private SessionConfiguration session;
 
     /// <summary>
-    /// Gets or sets configuration name.
+    /// Gets or sets the name of the section where storage configuration is configuration.
+    /// </summary>
+    /// <exception cref="NotSupportedException">The property is already defined once.</exception>
+    public static string SectionName
+    {
+      get { return sectionName; }
+      set
+      {
+        ArgumentValidator.EnsureArgumentNotNullOrEmpty(value, "value");
+        if (sectionNameIsDefined)
+          throw Exceptions.AlreadyInitialized("SectionName");
+        sectionName = value;
+        sectionNameIsDefined = true;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the domain configuration name.
     /// </summary>
     public string Name
     {
@@ -49,46 +120,33 @@ namespace Xtensive.Storage.Configuration
     }
 
     /// <summary>
-    /// Gets or sets the size of the session pool. The default value is 64.
+    /// Gets or sets the connection info (URL).
     /// </summary>
-    public int SessionPoolSize
+    public UrlInfo ConnectionInfo
     {
-      get { return sessionPoolSize; }
+      get { return connectionInfo; }
       set
       {
         this.EnsureNotLocked();
-        sessionPoolSize = value;
+        connectionInfo = value;
       }
     }
 
     /// <summary>
-    /// Gets or sets the default size of the generator cache.
+    /// Gets the collection of persistent <see cref="Type"/>s that are about to be 
+    /// registered in the <see cref="Domain"/>.
     /// </summary>
-    /// <remarks>Default value is 100.</remarks>
-    public int GeneratorCacheSize
+    public Registry Types
     {
-      get { return generatorCacheSize; }
-      set
-      {
-        this.EnsureNotLocked();
-        ArgumentValidator.EnsureArgumentIsInRange(value, 1, int.MaxValue, "GeneratorCacheSize");
-        generatorCacheSize = value;
-      }
+      get { return types; }
     }
 
     /// <summary>
-    /// Gets or sets a value indicating whether inconsistent region should be automatically open within the transaction.
-    /// I.e. all entities, changed within the transaction should be validated on transaction ending only.
-    /// It is recommended to keep this option switched off and define inconsistent regions manually.    
+    /// Gets the collection of custom <see cref="DomainModelDef"/> builders.
     /// </summary>
-    public bool InconsistentTransactions
+    public IList<Type> Builders
     {
-      get { return inconsistentTransactions; }
-      set 
-      {
-        this.EnsureNotLocked();
-        inconsistentTransactions = value;
-      }
+      get { return builders; }
     }
 
     /// <summary>
@@ -105,30 +163,68 @@ namespace Xtensive.Storage.Configuration
     }
 
     /// <summary>
-    /// Gets the <see cref="ICollection{T}"/> of persistent <see cref="Type"/>s that are about to be 
-    /// registered in <see cref="Domain"/>.
+    /// Gets or sets the size of the key cache.
+    /// Default value is <see cref="DefaultKeyCacheSize"/>.
     /// </summary>
-    public Registry Types
+    public int KeyCacheSize
     {
-      get { return types; }
-    }
-
-    /// <summary>
-    /// Gets or sets the connection info.
-    /// </summary>
-    public UrlInfo ConnectionInfo
-    {
-      get { return connectionInfo; }
+      get { return keyCacheSize; }
       set
       {
         this.EnsureNotLocked();
-        connectionInfo = value;
+        ArgumentValidator.EnsureArgumentIsInRange(value, 1, int.MaxValue, "value");
+        keyCacheSize = value;
       }
     }
 
     /// <summary>
-    /// Gets or sets the value, indicating whether changed entities should be validated automatically.
-    /// Default value is <see langword="true" />.
+    /// Gets or sets the size of the key generator cache.
+    /// Default value is <see cref="DefaultKeyGeneratorCacheSize"/>.
+    /// </summary>
+    public int KeyGeneratorCacheSize
+    {
+      get { return keyGeneratorCacheSize; }
+      set
+      {
+        this.EnsureNotLocked();
+        ArgumentValidator.EnsureArgumentIsInRange(value, 1, int.MaxValue, "value");
+        keyGeneratorCacheSize = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the size of the session pool.
+    /// Default value is <see cref="DefaultSessionPoolSize"/>.
+    /// </summary>
+    public int SessionPoolSize
+    {
+      get { return sessionPoolSize; }
+      set
+      {
+        this.EnsureNotLocked();
+        ArgumentValidator.EnsureArgumentIsInRange(value, 1, int.MaxValue, "value");
+        sessionPoolSize = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the size of the record set mapping cache.
+    /// Default value is <see cref="DefaultRecordSetMappingCacheSize"/>.
+    /// </summary>
+    public int RecordSetMappingCacheSize
+    {
+      get { return recordSetMappingCacheSize; }
+      set
+      {
+        this.EnsureNotLocked();
+        ArgumentValidator.EnsureArgumentIsInRange(value, 1, int.MaxValue, "value");
+        recordSetMappingCacheSize = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the value indicating whether changed entities should be validated automatically.
+    /// Default value is <see cref="DomainConfigurationElement.AutoValidation"/>.
     /// </summary>
     public bool AutoValidation
     {
@@ -141,19 +237,33 @@ namespace Xtensive.Storage.Configuration
     }
 
     /// <summary>
-    /// Gets the collection of custom <see cref="DomainModelDef"/> builders.
+    /// Gets or sets a value indicating whether inconsistent region should be automatically open within the transaction.
+    /// I.e. all the entities changed within the transaction should be validated on transaction commit only.
+    /// It is recommended to keep this option switched off and define inconsistent regions manually.    
+    /// Default value is <see cref="DefaultInconsistentTransactions"/>.
     /// </summary>
-    public IList<Type> Builders
+    public bool InconsistentTransactions
     {
-      get { return builders; }
+      get { return inconsistentTransactions; }
+      set 
+      {
+        this.EnsureNotLocked();
+        inconsistentTransactions = value;
+      }
     }
 
     /// <summary>
-    /// Gets default session configuration.
+    /// Gets or sets default session configuration.
     /// </summary>
     public SessionConfiguration Session
     {
       get { return session; }
+      set
+      {
+        ArgumentValidator.EnsureArgumentNotNull(value, "value");
+        this.EnsureNotLocked();
+        session = value;
+      }
     }
 
     /// <summary>
@@ -164,8 +274,8 @@ namespace Xtensive.Storage.Configuration
     {
       types.Lock(true);
       builders.Lock(true);
+//      services.Lock(true);
       session.Lock(true);
-      //      services.Lock(true);
       base.Lock(recursive);
     }
 
@@ -185,13 +295,34 @@ namespace Xtensive.Storage.Configuration
     {
       base.Clone(source);
       var configuration = (DomainConfiguration) source;
-      builders = new CollectionBase<Type>(configuration.Builders);
-      connectionInfo = new UrlInfo(configuration.ConnectionInfo.ToString());
-      namingConvention = (NamingConvention) configuration.NamingConvention.Clone();
-      types = (Registry) configuration.Types.Clone();
-      sessionPoolSize = configuration.SessionPoolSize;
       name = configuration.Name;
+      connectionInfo = new UrlInfo(configuration.ConnectionInfo.Url);
+      types = (Registry) configuration.Types.Clone();
+      builders = new CollectionBase<Type>(configuration.Builders);
+      namingConvention = (NamingConvention) configuration.NamingConvention.Clone();
+      keyCacheSize = configuration.KeyCacheSize;
+      keyGeneratorCacheSize = configuration.KeyGeneratorCacheSize;
+      sessionPoolSize = configuration.SessionPoolSize;
+      recordSetMappingCacheSize = configuration.RecordSetMappingCacheSize;
       session = configuration.Session;
+    }
+
+    #region Equality members
+
+    /// <inheritdoc/>
+    public bool Equals(DomainConfiguration other)
+    {
+      if (ReferenceEquals(null, other))
+        return false;
+      if (ReferenceEquals(this, other))
+        return true;
+      return builders.EqualsTo(other.builders)
+        && Equals(other.connectionInfo, connectionInfo) 
+          && Equals(other.namingConvention, namingConvention)
+            && types.EqualsTo(other.types)
+              && other.sessionPoolSize == sessionPoolSize 
+                && Equals(other.name, name) 
+                  && Equals(other.session, session);
     }
 
     /// <inheritdoc/>
@@ -207,37 +338,68 @@ namespace Xtensive.Storage.Configuration
     }
 
     /// <inheritdoc/>
-    public bool Equals(DomainConfiguration other)
-    {
-      if (ReferenceEquals(null, other))
-        return false;
-      if (ReferenceEquals(this, other))
-        return true;
-      return builders.EqualsTo(other.builders)
-        && Equals(other.connectionInfo, connectionInfo) 
-        && Equals(other.namingConvention, namingConvention)
-        && types.EqualsTo(other.types)
-        && other.sessionPoolSize == sessionPoolSize 
-        && Equals(other.name, name) 
-        && Equals(other.session, session);
-    }
-
-    /// <inheritdoc/>
     public override int GetHashCode()
     {
       unchecked {
         int result = builders.GetHashCodeRecursive();
+        result = (result * 397) ^ (name != null ? name.GetHashCode() : 0);
         result = (result * 397) ^ (connectionInfo != null ? connectionInfo.GetHashCode() : 0);
         result = (result * 397) ^ (namingConvention != null ? namingConvention.GetHashCode() : 0);
         result = (result * 397) ^ types.GetHashCodeRecursive();
+        result = (result * 397) ^ keyCacheSize;
+        result = (result * 397) ^ recordSetMappingCacheSize;
         result = (result * 397) ^ sessionPoolSize;
-        result = (result * 397) ^ (name != null ? name.GetHashCode() : 0);
         result = (result * 397) ^ (session != null ? session.GetHashCode() : 0);
         return result;
       }
     }
 
-    
+    #endregion
+
+    /// <summary>
+    /// Loads the <see cref="DomainConfiguration"/> for <see cref="Domain"/>
+    /// with the specified <paramref name="name"/>
+    /// from application configuration file (section with <see cref="SectionName"/>).
+    /// </summary>
+    /// <param name="name">Name of the <see cref="Domain"/>.</param>
+    /// <returns>
+    /// The <see cref="DomainConfiguration"/> for the specified domain.
+    /// </returns>
+    /// <exception cref="InvalidOperationException">Section <see cref="SectionName"/>
+    /// is not found in application configuration file, or there is no configuration for
+    /// the <see cref="Domain"/> with specified <paramref name="name"/>.</exception>
+    public static DomainConfiguration Load(string name)
+    {
+      return Load(SectionName, name);
+    }
+
+    /// <summary>
+    /// Loads the <see cref="DomainConfiguration"/> for <see cref="Domain"/>
+    /// with the specified <paramref name="name"/>
+    /// from application configuration file (section with <paramref name="sectionName"/>).
+    /// </summary>
+    /// <param name="sectionName">Name of the section.</param>
+    /// <param name="name">Name of the <see cref="Domain"/>.</param>
+    /// <returns>
+    /// The <see cref="DomainConfiguration"/> for the specified domain.
+    /// </returns>
+    /// <exception cref="InvalidOperationException">Section <paramref name="sectionName"/>
+    /// is not found in application configuration file, or there is no configuration for
+    /// the <see cref="Domain"/> with specified <paramref name="name"/>.</exception>
+    public static DomainConfiguration Load(string sectionName, string name)
+    {
+      var section = (Elements.ConfigurationSection)ConfigurationManager.GetSection(sectionName);
+      if (section==null) 
+        throw new InvalidOperationException(string.Format(
+          Strings.ExSectionIsNotFoundInApplicationConfigurationFile, sectionName));
+      foreach (DomainConfigurationElement domainElement in section.Domains)
+        if (domainElement.Name==name)
+          return domainElement.ToNative();
+      throw new InvalidOperationException(string.Format(
+        Strings.ExConfigurationForDomainIsNotFoundInApplicationConfigurationFile, name, sectionName));
+    }
+
+
     // Constructors
 
     /// <summary>
@@ -259,32 +421,6 @@ namespace Xtensive.Storage.Configuration
     {
       namingConvention = new NamingConvention();
       session = new SessionConfiguration();
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="DomainConfiguration"/> class from specified <see cref="DomainConfigurationElement"/>.
-    /// </summary>
-    /// <param name="configurationElement"><see cref="DomainConfigurationElement"/> to initialize <see cref="DomainConfiguration"/> from.</param>
-    internal DomainConfiguration(DomainConfigurationElement configurationElement)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(configurationElement, "element");
-      name = configurationElement.Name;
-      connectionInfo = configurationElement.ConnectionInfo;
-      sessionPoolSize = configurationElement.SessionPoolSize;
-      foreach (BuilderElement builder in configurationElement.Builders) {
-        Type type = Type.GetType(builder.Type, true);
-        Builders.Add(type);
-      }
-      foreach (TypeElement registry in configurationElement.Types) {
-        Assembly assembly = Assembly.Load(registry.Assembly);
-        if (registry.Namespace.IsNullOrEmpty())
-          Types.Register(assembly);
-        else
-          Types.Register(assembly, registry.Namespace);
-      }
-      namingConvention = configurationElement.NamingConvention.AsNamingConvention();
-      autoValidation = configurationElement.AutoValidation;
-      session = configurationElement.Session.AsSessionConfiguration();
     }
   }
 }

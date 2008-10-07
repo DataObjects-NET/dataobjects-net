@@ -205,6 +205,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Configuration for Domain with name &apos;{0}&apos; is not found in application configuration file (section &apos;{1}&apos;)..
+        /// </summary>
+        internal static string ExConfigurationForDomainIsNotFoundInApplicationConfigurationFile {
+            get {
+                return ResourceManager.GetString("ExConfigurationForDomainIsNotFoundInApplicationConfigurationFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Constraint violation: constraint {0} on field &apos;{1}.{2}&apos; of object &apos;{3}&apos; failed on value {4}..
         /// </summary>
         internal static string ExConstraintViolation {
@@ -561,6 +570,15 @@ namespace Xtensive.Storage.Resources {
         internal static string ExResultTypeIncorrect {
             get {
                 return ResourceManager.GetString("ExResultTypeIncorrect", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Section &apos;{0}&apos; is not found in application configuration file..
+        /// </summary>
+        internal static string ExSectionIsNotFoundInApplicationConfigurationFile {
+            get {
+                return ResourceManager.GetString("ExSectionIsNotFoundInApplicationConfigurationFile", resourceCulture);
             }
         }
         

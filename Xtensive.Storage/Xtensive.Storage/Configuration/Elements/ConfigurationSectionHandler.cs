@@ -6,12 +6,18 @@
 
 using System.Configuration;
 
-namespace Xtensive.Storage.Configuration
+namespace Xtensive.Storage.Configuration.Elements
 {
-  internal class ConfigurationSectionHandler : ConfigurationSection
+  /// <summary>
+  /// A root element of storage configuration section within a configuration file.
+  /// </summary>
+  public class ConfigurationSection : System.Configuration.ConfigurationSection
   {
     private const string DomainCollectionElementName = "domains";
 
+    /// <summary>
+    /// Gets the collection of domain configurations.
+    /// </summary>
     [ConfigurationProperty(DomainCollectionElementName, IsDefaultCollection = false)]
     [ConfigurationCollection(typeof(ConfigurationCollection<DomainConfigurationElement>), AddItemName = "domain")]
     public ConfigurationCollection<DomainConfigurationElement> Domains {

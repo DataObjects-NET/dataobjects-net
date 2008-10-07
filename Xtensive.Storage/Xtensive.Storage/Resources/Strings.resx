@@ -480,4 +480,10 @@
   <data name="ExUnableToSetKeyFieldXExplicitly" xml:space="preserve">
     <value>Unable to set key field '{0}' explicitly.</value>
   </data>
+  <data name="ExSectionIsNotFoundInApplicationConfigurationFile" xml:space="preserve">
+    <value>Section '{0}' is not found in application configuration file.</value>
+  </data>
+  <data name="ExConfigurationForDomainIsNotFoundInApplicationConfigurationFile" xml:space="preserve">
+    <value>Configuration for Domain with name '{0}' is not found in application configuration file (section '{1}').</value>
+  </data>
 </root>

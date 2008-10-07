@@ -1,0 +1,81 @@
+// Copyright (C) 2008 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Alexey Gamzov
+// Created:    2008.08.06
+
+using System;
+using System.Collections.Generic;
+using NUnit.Framework;
+using Xtensive.Core.Testing;
+using Xtensive.Storage.Configuration;
+using System.Reflection;
+
+namespace Xtensive.Storage.Tests.Configuration
+{
+  [TestFixture]
+  public class AppConfigTest
+  {
+    [Test]
+    public void TestDomain1()
+    {
+      var c1 = DomainConfiguration.Load("AppConfigTest", "TestDomain1");
+      Log.Debug("SessionPoolSize: {0}", c1.SessionPoolSize);
+      Log.Debug("ConnectionInfo: {0}", c1.ConnectionInfo);
+      foreach (Type builder in c1.Builders) {
+        Log.Debug("Builder: {0}", builder.FullName);
+      }
+      foreach (Type type in c1.Types) {
+        Log.Debug("Type: {0}", type.FullName);
+      }
+      Log.Debug("NamingConvention.LetterCasePolicy: {0}", c1.NamingConvention.LetterCasePolicy);
+      Log.Debug("NamingConvention.NamespacePolicy: {0}", c1.NamingConvention.NamespacePolicy);
+      Log.Debug("NamingConvention.NamingRules: {0}", c1.NamingConvention.NamingRules);
+      foreach (KeyValuePair<string, string> namespaceSynonym in c1.NamingConvention.NamespaceSynonyms) {
+        Log.Debug("NamingConvention.NamespaceSynonym (key, value): {0} {1}", namespaceSynonym.Key, namespaceSynonym.Value);
+      }
+      Log.Debug("Session settings. UserName: {0}, CacheSize: {1}", c1.Session.UserName, c1.Session.CacheSize);
+      
+      var c2 = new DomainConfiguration("memory://localhost/"){
+          SessionPoolSize = 77,
+          Name = "TestDomain1"
+        };
+      c2.Builders.Add(typeof(string));
+      c2.Builders.Add(typeof(int));
+      c2.Types.Register(Assembly.Load("Xtensive.Storage.Tests"), "Xtensive.Storage.Tests");
+      c2.NamingConvention.LetterCasePolicy = LetterCasePolicy.Uppercase;
+      c2.NamingConvention.NamespacePolicy = NamespacePolicy.Hash;
+      c2.NamingConvention.NamingRules = NamingRules.UnderscoreDots;
+      c2.NamingConvention.NamespaceSynonyms.Add("Xtensive.Storage", "XS");
+      c2.NamingConvention.NamespaceSynonyms.Add("Xtensive.Messaging", "XM");
+      c2.NamingConvention.NamespaceSynonyms.Add("Xtensive.Indexing", "XI");
+      c2.Session.CacheSize = 123;
+      c2.Session.UserName = "TestUserName";
+      
+      Assert.AreEqual(c1, c2);
+    }
+
+    [Test]
+    public void TestDomain2()
+    {
+      var c = DomainConfiguration.Load("AppConfigTest", "TestDomain1");
+      Assert.IsNotNull(c);
+    }
+
+    [Test]
+    public void TestWrongSection()
+    {
+      AssertEx.ThrowsInvalidOperationException(() => {
+        var c = DomainConfiguration.Load("AppConfigTest1", "TestDomain1");
+      });
+    }
+
+    [Test]
+    public void TestWrongDomain()
+    {
+      AssertEx.ThrowsInvalidOperationException(() => {
+        var c = DomainConfiguration.Load("AppConfigTest", "TestDomain0");
+      });
+    }
+  }
+}

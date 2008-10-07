@@ -73,6 +73,11 @@ namespace Xtensive.Storage
     public Transaction Transaction { get; private set; }
 
     /// <summary>
+    /// Gets the ambient transaction scope.
+    /// </summary>    
+    public TransactionScope AmbientTransactionScope { get; private set; }
+
+    /// <summary>
     /// Indicates whether debug event logging is enabled.
     /// Caches <see cref="Log.IsLogged"/> method result for <see cref="LogEventTypes.Debug"/> event.
     /// </summary>
@@ -88,31 +93,16 @@ namespace Xtensive.Storage
 
     #endregion
 
-    /// <summary>
-    /// Opens a new or already running transaction.
-    /// </summary>
-    /// <returns>
-    /// A new <see cref="TransactionScope"/> object, if new
-    /// <see cref="Transaction"/> is created;
-    /// otherwise, <see langword="null"/>.
-    /// </returns>
-    public TransactionScope OpenTransaction()
-    {
-      if (Transaction==null) {
-        Transaction = new Transaction(this);
-        return (TransactionScope) Transaction.Begin();
-      }
-      return null;
-    }
+    public IEnumerable<T> All<T>() 
+      where T : class, IEntity
+    {      
+      EnsureNotDisposed();
+      Persist();
 
-    /// <summary>
-    /// Opens the "inconsistent region" - the code region, in which changed entities
-    /// should just queue the validation rather then perform it immediately.
-    /// </summary>
-    /// <returns></returns>
-    public IDisposable OpenInconsistentRegion()
-    {
-      return ValidationContext.OpenInconsistentRegion();
+      TypeInfo type = Domain.Model.Types[typeof (T)];
+      RecordSet result = type.Indexes.PrimaryIndex.ToRecordSet();
+      foreach (T entity in result.ToEntities<T>())
+        yield return entity;
     }
 
     /// <summary>
@@ -150,17 +140,74 @@ namespace Xtensive.Storage
       }
     }
 
-    public IEnumerable<T> All<T>() 
-      where T : class, IEntity
-    {      
-      EnsureNotDisposed();
-      Persist();
+    #region OpenXxx methods
 
-      TypeInfo type = Domain.Model.Types[typeof (T)];
-      RecordSet result = type.Indexes.PrimaryIndex.ToRecordSet();
-      foreach (T entity in result.ToEntities<T>())
-        yield return entity;
+    /// <summary>
+    /// Opens a new or already running transaction.
+    /// </summary>
+    /// <returns>
+    /// A new <see cref="TransactionScope"/> object, if new
+    /// <see cref="Transaction"/> is created;
+    /// otherwise, <see langword="null"/>.
+    /// </returns>
+    public TransactionScope OpenTransaction()
+    {
+      var transaction = Transaction;
+      if (transaction==null) {
+        transaction = new Transaction(this);
+        Transaction = transaction;
+        var ts = (TransactionScope) transaction.Begin();
+        if (ts!=null && Configuration.UsesAmbientTransactions) {
+          AmbientTransactionScope = ts;
+          return null;
+        }
+        return ts;
+      }
+      return null;
     }
+
+    /// <summary>
+    /// Opens the "inconsistent region" - the code region, in which changed entities
+    /// should just queue the validation rather then perform it immediately.
+    /// </summary>
+    /// <returns></returns>
+    public IDisposable OpenInconsistentRegion()
+    {
+      return ValidationContext.OpenInconsistentRegion();
+    }
+
+    #endregion
+
+    #region Commit & RollbackAmbientTransaction methods
+
+    /// <summary>
+    /// Commits the ambient transaction - 
+    /// i.e. completes <see cref="AmbientTransactionScope"/> and disposes it.
+    /// </summary>
+    public void CommitAmbientTransaction()
+    {
+      var ts = AmbientTransactionScope;
+      try {
+        ts.Complete();
+      }
+      finally {
+        AmbientTransactionScope = null;
+        ts.DisposeSafely();
+      }
+    }
+
+    /// <summary>
+    /// Rolls back the ambient transaction - 
+    /// i.e. disposes <see cref="AmbientTransactionScope"/>.
+    /// </summary>
+    public void RollbackAmbientTransaction()
+    {
+      var ts = AmbientTransactionScope;
+      AmbientTransactionScope = null;
+      ts.DisposeSafely();
+    }
+
+    #endregion
 
     #region OnXxx methods
 
@@ -309,7 +356,7 @@ namespace Xtensive.Storage
       Configuration = configuration;
       Handlers = domain.Handlers;
       Handler = Handlers.HandlerFactory.CreateHandler<SessionHandler>();
-      Cache = new EntityCache(this, Configuration.CacheSize);
+      Cache = new EntityCache(this, configuration.CacheSize);
       Name = configuration.Name;
       Handler.Session = this;
       Handler.Initialize();

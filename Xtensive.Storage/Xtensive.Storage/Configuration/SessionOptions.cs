@@ -20,9 +20,10 @@ namespace Xtensive.Storage.Configuration
     /// </summary>
     Default = 0x0,
     /// <summary>
-    /// Session works in UI mode.
+    /// Session uses ambient transactions.
+    /// This mode must be normally used for UI sessions.
     /// Value is <see langword="0x1" />.
     /// </summary>
-    UI = 0x1
+    AmbientTransactions = 0x1
   }
 }

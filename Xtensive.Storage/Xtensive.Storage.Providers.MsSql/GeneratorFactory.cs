@@ -22,7 +22,7 @@ namespace Xtensive.Storage.Providers.MsSql
     /// <inheritdoc/>
     protected override Generator CreateGenerator<TFieldType>(HierarchyInfo hierarchy)
     {
-      DomainHandler dh = (DomainHandler)Handlers.DomainHandler;
+      DomainHandler dh = (DomainHandler) Handlers.DomainHandler;
       Schema schema = dh.Schema;
       SqlBatch sqlCreate = null;
       Table genTable = schema.Tables[hierarchy.MappingName];

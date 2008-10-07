@@ -63,11 +63,11 @@ namespace Xtensive.Storage.Providers.Sql
       base.Initialize();
 
       nextRequest = new SqlScalarRequest(sqlNext);
-      DomainHandler dh = (DomainHandler) Handlers.DomainHandler;
+      var dh = (DomainHandler) Handlers.DomainHandler;
       dh.Compile(nextRequest);
 
       if (sqlInitialize!=null) {
-        Sql.SessionHandler sh = (SessionHandler) Handlers.SessionHandler;
+        var sh = (SessionHandler) Handlers.SessionHandler;
         sh.ExecuteNonQuery(sqlInitialize);
       }
     }

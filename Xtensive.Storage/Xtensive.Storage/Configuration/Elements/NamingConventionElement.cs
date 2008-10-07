@@ -6,15 +6,21 @@
 
 using System.Configuration;
 
-namespace Xtensive.Storage.Configuration
+namespace Xtensive.Storage.Configuration.Elements
 {
-  internal class NamingConventionElement : ConfigurationElement
+  /// <summary>
+  /// <see cref="NamingConvention"/> configuration element within a configuration file.
+  /// </summary>
+  public class NamingConventionElement : ConfigurationElement
   {
     private const string LetterCasePolicyElementName = "letterCasePolicy";
     private const string NamespacePolicyElementName = "namespacePolicy";
     private const string NamingRulesElementName = "namingRules";
     private const string NamespaceSynonymsElementName = "namespaceSynonyms";
 
+    /// <summary>
+    /// <see cref="NamingConvention.LetterCasePolicy" copy="true"/>
+    /// </summary>
     [ConfigurationProperty(LetterCasePolicyElementName, IsRequired = false, IsKey = false)]
     public LetterCasePolicy LetterCasePolicy
     {
@@ -22,6 +28,9 @@ namespace Xtensive.Storage.Configuration
       set { this[LetterCasePolicyElementName] = value; }
     }
 
+    /// <summary>
+    /// <see cref="NamingConvention.NamespacePolicy" copy="true"/>
+    /// </summary>
     [ConfigurationProperty(NamespacePolicyElementName, IsRequired = false, IsKey = false)]
     public NamespacePolicy NamespacePolicy
     {
@@ -29,6 +38,9 @@ namespace Xtensive.Storage.Configuration
       set { this[NamespacePolicyElementName] = value; }
     }
 
+    /// <summary>
+    /// <see cref="NamingConvention.NamingRules" copy="true"/>
+    /// </summary>
     [ConfigurationProperty(NamingRulesElementName, IsRequired = false, IsKey = false)]
     public NamingRules NamingRules
     {
@@ -36,6 +48,9 @@ namespace Xtensive.Storage.Configuration
       set { this[NamingRulesElementName] = value; }
     }
 
+    /// <summary>
+    /// <see cref="NamingConvention.NamespaceSynonyms" copy="true"/>
+    /// </summary>
     [ConfigurationProperty(NamespaceSynonymsElementName, IsRequired = false, IsKey = false)]
     [ConfigurationCollection(typeof (ConfigurationCollection<NamespaceSynonymElement>), AddItemName = "synonym")]
     public ConfigurationCollection<NamespaceSynonymElement> NamespaceSynonyms
@@ -43,16 +58,20 @@ namespace Xtensive.Storage.Configuration
       get { return (ConfigurationCollection<NamespaceSynonymElement>) this[NamespaceSynonymsElementName]; }
     }
 
-    public NamingConvention AsNamingConvention()
+    /// <summary>
+    /// Converts the element to a native configuration object it corresponds to - 
+    /// i.e. to a <see cref="NamingConvention"/> object.
+    /// </summary>
+    /// <returns>The result of conversion.</returns>
+    public NamingConvention ToNative()
     {
       var result = new NamingConvention{
           LetterCasePolicy = LetterCasePolicy,
           NamespacePolicy = NamespacePolicy,
           NamingRules = NamingRules
         };
-      foreach (NamespaceSynonymElement namespaceSynonym in NamespaceSynonyms) {
+      foreach (var namespaceSynonym in NamespaceSynonyms)
         result.NamespaceSynonyms.Add(namespaceSynonym.Namespace, namespaceSynonym.Synonym);
-      }
       return result;
     }
   }

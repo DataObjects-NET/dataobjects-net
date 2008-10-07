@@ -6,9 +6,12 @@
 
 using System.Configuration;
 
-namespace Xtensive.Storage.Configuration
+namespace Xtensive.Storage.Configuration.Elements
 {
-  internal class SessionElement : ConfigurationElement
+  /// <summary>
+  /// <see cref="Session"/> configuration element within a configuration file.
+  /// </summary>
+  public class SessionElement : ConfigurationCollectionElementBase
   {
     private const string NameElementName = "name";
     private const string UserNameElementName = "userName";
@@ -16,8 +19,24 @@ namespace Xtensive.Storage.Configuration
     private const string CacheSizeElementName = "cacheSize";
     private const string OptionsElementName = "options";
 
+    /// <inheritdoc/>
+    public override object Identifier
+    {
+      get { return Name; }
+    }
+
     /// <summary>
-    /// Gets user name to authenticate.
+    /// <see cref="SessionConfiguration.Name" copy="true"/>
+    /// </summary>
+    [ConfigurationProperty(NameElementName, IsRequired = false, DefaultValue = null)]
+    public string Name
+    {
+      get { return (string) this[NameElementName]; }
+      set { this[NameElementName] = value; }
+    }
+
+    /// <summary>
+    /// <see cref="SessionConfiguration.UserName" copy="true"/>
     /// </summary>
     [ConfigurationProperty(UserNameElementName, IsRequired = false)]
     public string UserName
@@ -27,7 +46,7 @@ namespace Xtensive.Storage.Configuration
     }
 
     /// <summary>
-    /// Gets password to authenticate.
+    /// <see cref="SessionConfiguration.Password" copy="true"/>
     /// </summary>
     [ConfigurationProperty(PasswordElementName, IsRequired = false)]
     public string Password
@@ -37,7 +56,7 @@ namespace Xtensive.Storage.Configuration
     }
 
     /// <summary>
-    /// Gets or sets the size of the session cache. Default value is <see cref="SessionConfiguration.DefaultCacheSize"/>.
+    /// <see cref="SessionConfiguration.CacheSize" copy="true"/>
     /// </summary>
     [ConfigurationProperty(CacheSizeElementName, IsRequired = false, DefaultValue = SessionConfiguration.DefaultCacheSize)]
     public int CacheSize
@@ -47,7 +66,7 @@ namespace Xtensive.Storage.Configuration
     }
 
     /// <summary>
-    /// Gets or sets the session options. Default value is <see cref="SessionOptions.Default"/>.
+    /// <see cref="SessionConfiguration.Options" copy="true"/>
     /// </summary>
     [ConfigurationProperty(OptionsElementName, IsRequired = false, DefaultValue = SessionOptions.Default)]
     public SessionOptions Options
@@ -57,22 +76,18 @@ namespace Xtensive.Storage.Configuration
     }
 
     /// <summary>
-    /// Gets or sets the session name. Default value is <see cref="string.Empty"/>.
+    /// Converts the element to a native configuration object it corresponds to - 
+    /// i.e. to a <see cref="SessionConfiguration"/> object.
     /// </summary>
-    [ConfigurationProperty(NameElementName, IsRequired = false, DefaultValue = "")]
-    public string Name
+    /// <returns>The result of conversion.</returns>
+    public SessionConfiguration ToNative()
     {
-      get { return (string) this[NameElementName]; }
-      set { this[NameElementName] = value; }
-    }
-
-    public SessionConfiguration AsSessionConfiguration()
-    {
-      var result = new SessionConfiguration{
-          UserName = UserName,
-          CacheSize = CacheSize,
-          Password = Password,
-        };
+      var result = new SessionConfiguration {
+        UserName = UserName,
+        Password = Password,
+        CacheSize = CacheSize,
+        Options = Options
+      };
       return result;
     }
   }

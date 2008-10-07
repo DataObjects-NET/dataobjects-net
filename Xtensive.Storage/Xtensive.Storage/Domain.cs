@@ -209,7 +209,8 @@ namespace Xtensive.Storage
       Prototypes = new Dictionary<TypeInfo, Tuple>();
       TemporaryData = new GlobalTemporaryData();
       recordSetMappings = 
-        new LruCache<RecordSetHeader, RecordSetMapping>(1024, m => m.Header,
+        new LruCache<RecordSetHeader, RecordSetMapping>(configuration.RecordSetMappingCacheSize, 
+          m => m.Header,
           new WeakestCache<RecordSetHeader, RecordSetMapping>(false, false, m => m.Header));
     }
 
