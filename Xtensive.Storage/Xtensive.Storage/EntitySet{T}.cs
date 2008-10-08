@@ -7,6 +7,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
@@ -24,7 +26,9 @@ using Xtensive.Storage.Rse;
 namespace Xtensive.Storage
 {
   public class EntitySet<T> : EntitySet,
-    ICollection<T>
+    ICollection<T>,
+    INotifyPropertyChanged,
+    INotifyCollectionChanged
     where T : Entity
   {
     /// <summary>
@@ -89,12 +93,10 @@ namespace Xtensive.Storage
           return false;
         // Request from database
         Tuple filterTuple = new CombineTransform(true, ((Entity) Owner).Key.Descriptor, key.Descriptor).Apply(TupleTransformType.Tuple, ((Entity) Owner).Key, key);
-        if (GetRecordSet().Range(filterTuple, filterTuple).Count() > 0) {
+        if (GetRecordSet().Range(filterTuple, filterTuple).Count() > 0)
           Cache.Add(new CachedKey(key));
-        }
-        else {
+        else
           return false;
-        }
       }
       return true;
     }
@@ -108,7 +110,10 @@ namespace Xtensive.Storage
       var accessor = referencingField.GetAccessor<Entity>();
       long previouseCount = count.Value;
       accessor.SetValue(item, referencingField, (Entity) Owner);
-      return previouseCount!=count;
+      var result = previouseCount!=count;
+      if (result)
+        OnCollectionChanged(NotifyCollectionChangedAction.Add, item);
+      return result;
     }
 
     /// <inheritdoc/>
@@ -125,6 +130,7 @@ namespace Xtensive.Storage
       if (!Contains(item))
         return false;
       RemoveInternal(item);
+      OnCollectionChanged(NotifyCollectionChangedAction.Remove, item);
       return true;
     }
 
@@ -133,12 +139,13 @@ namespace Xtensive.Storage
     {
       EnsureInitialized();
       var itemsToRemove = new List<T>();
-      foreach (T item in this) {
+      foreach (T item in this)
         if (match(item))
           itemsToRemove.Add(item);
-      }
-      foreach (T itemToRemove in itemsToRemove)
+      foreach (T itemToRemove in itemsToRemove) {
         RemoveInternal(itemToRemove);
+        OnCollectionChanged(NotifyCollectionChangedAction.Remove, itemToRemove);
+      }
       return itemsToRemove.Count;
     }
 
@@ -146,9 +153,9 @@ namespace Xtensive.Storage
     public void Clear()
     {
       EnsureInitialized();
-      foreach (T itemToRemove in this.ToList()) {
+      foreach (T itemToRemove in this.ToList())
         RemoveInternal(itemToRemove);
-      }
+      OnCollectionChanged(NotifyCollectionChangedAction.Reset, null);
     }
 
     /// <inheritdoc/>
@@ -298,6 +305,34 @@ namespace Xtensive.Storage
       FieldInfo referencingField = Field.Association.PairTo.ReferencingField;
       var accessor = referencingField.GetAccessor<Entity>();
       accessor.SetValue(item, referencingField, null);
+    }
+
+    #endregion
+
+    #region INotifyPropertyChanged members
+
+    /// <inheritdoc/>
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    protected void OnPropertyChanged(string name)
+    {
+      if (PropertyChanged != null)
+        PropertyChanged(this, new PropertyChangedEventArgs(name));
+    }
+
+    #endregion
+
+    #region INotifyCollectionChanged members
+
+    /// <inheritdoc/>
+    public event NotifyCollectionChangedEventHandler CollectionChanged;
+
+    protected void OnCollectionChanged(NotifyCollectionChangedAction action, Entity item)
+    {
+      if (CollectionChanged != null) {
+        CollectionChanged(this, new NotifyCollectionChangedEventArgs(action, item));
+        OnPropertyChanged("Count");
+      }
     }
 
     #endregion

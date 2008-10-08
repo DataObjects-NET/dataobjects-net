@@ -127,13 +127,13 @@ namespace Xtensive.Storage.Model
     /// <param name="referencingField">The referencing field.</param>
     /// <param name="referencedType">The referenced type.</param>
     /// <param name="multiplicity">The association multiplicity.</param>
-    /// <param name="onDelete">The <see cref="ReferentialAction"/> that will be applied on <see cref="ReferencedType"/> object removal.</param>
-    public AssociationInfo(FieldInfo referencingField, TypeInfo referencedType, Multiplicity multiplicity, ReferentialAction onDelete)
+    /// <param name="onRemove">The <see cref="ReferentialAction"/> that will be applied on <see cref="ReferencedType"/> object removal.</param>
+    public AssociationInfo(FieldInfo referencingField, TypeInfo referencedType, Multiplicity multiplicity, ReferentialAction onRemove)
     {
       ReferencingField = referencingField;
       ReferencedType = referencedType;
       Multiplicity = multiplicity;
-      OnRemove = onDelete;
+      OnRemove = onRemove;
       referencingField.Association = this;
     }
   }
