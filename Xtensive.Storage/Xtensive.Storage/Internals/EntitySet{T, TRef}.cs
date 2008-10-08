@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
@@ -38,6 +39,7 @@ namespace Xtensive.Storage.Internals
           pairedEntitySet.AddToCache(((Entity) Owner).Key, false);
         }
         AddToCache(item.Key, false);
+        OnCollectionChanged(NotifyCollectionChangedAction.Add, item);
         return true;
       }
       return false;
@@ -58,6 +60,7 @@ namespace Xtensive.Storage.Internals
           pairedEntitySet.RemoveFromCache(((Entity) Owner).Key, false);
         }
         RemoveFromCache(item.Key, false);
+        OnCollectionChanged(NotifyCollectionChangedAction.Remove, item);
         return true;
       }
       return false;
