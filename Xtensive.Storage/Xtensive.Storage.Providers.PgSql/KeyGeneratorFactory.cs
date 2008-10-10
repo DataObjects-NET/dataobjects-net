@@ -4,7 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2008.09.10
 
-using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Database;
 using Xtensive.Storage.Providers.Sql;
 using SqlFactory = Xtensive.Sql.Dom.Sql;
@@ -35,7 +34,7 @@ namespace Xtensive.Storage.Providers.PgSql
       }
 
       SqlSelect select = SqlFactory.Select();
-      select.Columns.Add(SqlFactory.FunctionCall("nextval", sequence.Name));
+      select.Columns.Add(SqlFactory.NextValue(sequence));
 
       return new SqlCachingKeyGenerator<TFieldType>(hierarchy, hierarchy.KeyGeneratorCacheSize, select, sqlCreate);
     }
