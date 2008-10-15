@@ -97,8 +97,10 @@ namespace Xtensive.Storage.Rse.Providers
     /// <param name="ctorType">The type, which constructor has invoked this method.</param>
     protected void Initialize(Type ctorType)
     {
-      if (ctorType==GetType() && !isInitialized)
+      if (ctorType==GetType() && !isInitialized) {
+        isInitialized = true;
         Initialize();
+      }
     }
 
     /// <summary>
@@ -107,7 +109,6 @@ namespace Xtensive.Storage.Rse.Providers
     protected virtual void Initialize()
     {
       Header = BuildHeader();
-      isInitialized = true;
     }
 
     #region ToString method
