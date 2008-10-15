@@ -5,6 +5,7 @@
 // Created:    2008.05.27
 
 using System;
+using System.Diagnostics;
 using System.Reflection;
 
 namespace Xtensive.Core.Helpers
@@ -22,6 +23,7 @@ namespace Xtensive.Core.Helpers
     /// <param name="contextBound">The object to activate the context of.</param>
     /// <returns><see cref="IDisposable"/> object (normally - <see cref="Scope{TContext}"/> descendant)
     /// that can be used to deactivate the context by disposing it.</returns>
+    [DebuggerStepThrough]
     public static IDisposable ActivateContext<TContext>(this IContextBound<TContext> contextBound)
       where TContext: class, IContext
     {
