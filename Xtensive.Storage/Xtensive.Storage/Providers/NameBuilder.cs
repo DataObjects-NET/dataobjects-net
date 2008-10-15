@@ -14,6 +14,7 @@ using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Configuration;
+using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Providers
@@ -27,10 +28,10 @@ namespace Xtensive.Storage.Providers
   {
     private static readonly Regex explicitFieldNameRegex = new Regex(@"(?<name>\w+\.\w+)$", 
       RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.RightToLeft);
-    private NamingConvention namingConvention;
+
     private HashAlgorithm hashAlgorithm;
-    private const string ASSOCIATION_PATTERN = "{0}-{1}-{2}";
-    private const string GENERATOR_PATTERN = "{0}-Generator";
+    private const string AssociationPattern = "{0}-{1}-{2}";
+    private const string GeneratorPattern = "{0}-Generator";
 
     /// <summary>
     /// Gets the <see cref="Entity.TypeId"/> field name.
@@ -43,12 +44,19 @@ namespace Xtensive.Storage.Providers
     public string TypeIdColumnName { get; private set; }
 
     /// <summary>
+    /// Gets the name of the <see cref="EntitySetItem{TMaster,TSlave}.Master"/> field.
+    /// </summary>
+    public string EntitySetItemMasterFieldName { get; private set; }
+
+    /// <summary>
+    /// Gets the name of the <see cref="EntitySetItem{TMaster,TSlave}.Slave"/> field.
+    /// </summary>
+    public string EntitySetItemSlaveFieldName { get; private set; }
+
+    /// <summary>
     /// Gets the naming convention object.
     /// </summary>
-    public NamingConvention NamingConvention
-    {
-      get { return namingConvention; }
-    }
+    public NamingConvention NamingConvention { get; private set; }
 
     /// <summary>
     /// Gets the name for <see cref="TypeDef"/> object.
@@ -255,7 +263,7 @@ namespace Xtensive.Storage.Providers
     /// <returns>The built name.</returns>
     public virtual string Build(AssociationInfo target)
     {
-      return NamingConvention.Apply(string.Format(ASSOCIATION_PATTERN, target.ReferencingType.Name, target.ReferencingField.Name, target.ReferencedType.Name));
+      return NamingConvention.Apply(string.Format(AssociationPattern, target.ReferencingType.Name, target.ReferencingField.Name, target.ReferencedType.Name));
     }
 
     /// <summary>
@@ -264,7 +272,7 @@ namespace Xtensive.Storage.Providers
     /// <param name="hierarchy">The <see cref="HierarchyInfo"/> instance to build name for.</param>
     public string Build(HierarchyInfo hierarchy)
     {
-      return NamingConvention.Apply(string.Format(GENERATOR_PATTERN, hierarchy.Name));
+      return NamingConvention.Apply(string.Format(GeneratorPattern, hierarchy.Name));
     }
 
     #region Protected methods
@@ -292,10 +300,12 @@ namespace Xtensive.Storage.Providers
     protected internal virtual void Initialize(NamingConvention namingConvention)
     {
       ArgumentValidator.EnsureArgumentNotNull(namingConvention, "namingConvention");
-      this.namingConvention = namingConvention;
+      NamingConvention = namingConvention;
       hashAlgorithm = new MD5CryptoServiceProvider();
       TypeIdFieldName = "TypeId";
       TypeIdColumnName = NamingConvention.Apply(TypeIdFieldName);
+      EntitySetItemMasterFieldName = "Master";
+      EntitySetItemSlaveFieldName = "Slave";
     }
   }
 }

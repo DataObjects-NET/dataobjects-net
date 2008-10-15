@@ -19,6 +19,7 @@ namespace Xtensive.Storage.Internals
       get { return instance; }
     }
 
+    /// <inheritdoc/>
     public override T GetValue(Persistent obj, FieldInfo field)
     {
       ValidateType(field);
@@ -27,6 +28,8 @@ namespace Xtensive.Storage.Internals
         return (T)result;
       result = EntitySet.Activate(field.ValueType, obj, field);
       obj.FieldHandlers.Add(field, result);
+      EntitySet es = (EntitySet)result;
+      es.Initialize();
       return (T)result;
 
     }

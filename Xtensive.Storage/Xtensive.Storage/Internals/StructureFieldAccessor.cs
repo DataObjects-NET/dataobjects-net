@@ -6,7 +6,6 @@
 
 using Xtensive.Core;
 using Xtensive.Core.Tuples;
-using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Internals
@@ -21,17 +20,6 @@ namespace Xtensive.Storage.Internals
     }
 
     /// <inheritdoc/>
-    public override void SetValue(Persistent obj, FieldInfo field, T value)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(value, "value");
-      ValidateType(field);
-      Structure structure = ((Structure) (object) value);
-      if (structure.Owner!=null)
-        structure.Owner.EnsureIsFetched(structure.Field);
-      structure.Data.CopyTo(obj.Data, 0, field.MappingInfo.Offset, field.MappingInfo.Length);
-    }
-
-    /// <inheritdoc/>
     public override T GetValue(Persistent obj, FieldInfo field)
     {
       ValidateType(field);
@@ -41,6 +29,17 @@ namespace Xtensive.Storage.Internals
       result = Structure.Activate(field.ValueType, obj, field);
       obj.FieldHandlers.Add(field, result);
       return (T) result;
+    }
+
+    /// <inheritdoc/>
+    public override void SetValue(Persistent obj, FieldInfo field, T value)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(value, "value");
+      ValidateType(field);
+      Structure structure = ((Structure) (object) value);
+      if (structure.Owner!=null)
+        structure.Owner.EnsureIsFetched(structure.Field);
+      structure.Data.CopyTo(obj.Data, 0, field.MappingInfo.Offset, field.MappingInfo.Length);
     }
 
     private StructureFieldAccessor()

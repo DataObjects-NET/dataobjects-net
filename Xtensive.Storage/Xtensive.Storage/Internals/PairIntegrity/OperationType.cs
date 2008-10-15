@@ -2,17 +2,16 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Dmitri Maximov
-// Created:    2008.10.08
-
-using Xtensive.Storage.Model;
+// Created:    2008.10.13
 
 namespace Xtensive.Storage.PairIntegrity
 {
-  internal static class PairManager
+  internal enum OperationType
   {
-    public static void Process(Entity owner, FieldInfo field, Entity value)
-    {
-      
-    }
+    Add = 0,
+
+    Set = 1,
+
+    Remove = 2,
   }
 }

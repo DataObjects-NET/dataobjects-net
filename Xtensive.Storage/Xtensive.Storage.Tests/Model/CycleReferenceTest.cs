@@ -101,7 +101,7 @@ namespace Xtensive.Storage.Tests.Model.ReferenceTestModel
 
 namespace Xtensive.Storage.Tests.Model
 {
-  public class ReferenceTest : AutoBuildTest
+  public class CycleReferenceTest : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
     {

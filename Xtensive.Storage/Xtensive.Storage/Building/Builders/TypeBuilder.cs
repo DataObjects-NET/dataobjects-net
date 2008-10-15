@@ -12,7 +12,6 @@ using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Model;
 using Xtensive.Core.Reflection;
-using Xtensive.Storage.Providers;
 using FieldAttributes=Xtensive.Storage.Model.FieldAttributes;
 using FieldInfo=Xtensive.Storage.Model.FieldInfo;
 using Xtensive.Storage.Resources;

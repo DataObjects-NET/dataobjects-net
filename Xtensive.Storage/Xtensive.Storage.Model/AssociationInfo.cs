@@ -15,12 +15,9 @@ namespace Xtensive.Storage.Model
   public class AssociationInfo : Node
   {
     private Multiplicity multiplicity;
-    private AssociationInfo pairTo;
-    private Type entityType;
+    private AssociationInfo reversed;
+    private Type underlyingType;
     private bool isMaster = true;
-
-    public Delegate SetMaster;
-    public Delegate SetSlave;
 
     /// <summary>
     /// Gets the referencing type.
@@ -31,20 +28,28 @@ namespace Xtensive.Storage.Model
     }
 
     /// <summary>
+    /// Gets a value indicating whether this instance is paired.
+    /// </summary>
+    public bool IsPaired
+    {
+      get { return reversed!=null; }
+    }
+
+    /// <summary>
     /// Gets master association.
     /// </summary>
     /// <remarks>
     /// If association is master, returns it. Otherwise returns paired association.
     /// </remarks>
-    public AssociationInfo MasterAssociation
+    public AssociationInfo Master
     {
       get
       {
         if (isMaster) 
           return this;
-        if (pairTo==null || !pairTo.isMaster) 
+        if (reversed==null || !reversed.isMaster) 
           throw new InvalidOperationException(String.Format(Strings.ExUnableToFindMasterAssociation, Name));
-        return pairTo;
+        return reversed;
       }
     }
 
@@ -59,15 +64,15 @@ namespace Xtensive.Storage.Model
     public TypeInfo ReferencedType { get; private set; }
 
     /// <summary>
-    /// Gets the type of association entity.
+    /// Gets the persistent type that represents this association.
     /// </summary>
-    public Type EntityType
+    public Type UnderlyingType
     {
-      get { return entityType; }
+      get { return underlyingType; }
       set
       {
         this.EnsureNotLocked();
-        entityType = value;
+        underlyingType = value;
       }
     }
 
@@ -106,15 +111,15 @@ namespace Xtensive.Storage.Model
     public ReferentialAction OnRemove { get; private set; }
 
     /// <summary>
-    /// Gets or sets the master <see cref="AssociationInfo"/> for this instance.
+    /// Gets or sets the reversed paired <see cref="AssociationInfo"/> for this instance.
     /// </summary>
-    public AssociationInfo PairTo
+    public AssociationInfo Reversed
     {
-      get { return pairTo; }
+      get { return reversed; }
       set
       {
         this.EnsureNotLocked();
-        pairTo = value;
+        reversed = value;
       }
     }
 

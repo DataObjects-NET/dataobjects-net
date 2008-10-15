@@ -127,7 +127,7 @@ namespace Xtensive.Storage.Building.Builders
         BuildReferenceField(field);
 
         Type baseType = field.ReflectedType.UnderlyingType.BaseType;
-        if (!baseType.IsGenericType || baseType.GetGenericTypeDefinition()!=typeof (EntitySetReference<,>))
+        if (!baseType.IsGenericType || baseType.GetGenericTypeDefinition()!=typeof (EntitySetItem<,>))
           AssociationBuilder.BuildAssociation(fieldDef, field);
 
         TypeDef typeDef = BuildingContext.Current.Definition.Types[field.DeclaringType.UnderlyingType];
@@ -259,7 +259,7 @@ namespace Xtensive.Storage.Building.Builders
           if (field.Column!=null)
             clone.Column = ColumnBuilder.BuildInheritedColumn(clone, field.Column);
           target.ReflectedType.Fields.Add(clone);
-          if (clone.IsEntity && !IsEntitySetRef(clone.ReflectedType)) {
+          if (clone.IsEntity && !IsEntitySetItem(clone.ReflectedType)) {
             FieldInfo refField = field;
             AssociationInfo origin = context.Model.Associations.Find(context.Model.Types[field.ValueType]).Where(a => a.ReferencingField==refField).FirstOrDefault();
             if (origin != null) {
@@ -271,12 +271,12 @@ namespace Xtensive.Storage.Building.Builders
       }
     }
 
-    private static bool IsEntitySetRef(TypeInfo type)
+    private static bool IsEntitySetItem(TypeInfo type)
     {
       Type underlyingBaseType = type.UnderlyingType.BaseType;
       return underlyingBaseType != null
         && underlyingBaseType.IsGenericType
-          && underlyingBaseType.GetGenericTypeDefinition() == typeof(EntitySetReference<,>);
+          && underlyingBaseType.GetGenericTypeDefinition() == typeof(EntitySetItem<,>);
     }
   }
 }

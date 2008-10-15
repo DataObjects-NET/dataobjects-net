@@ -8,14 +8,14 @@ using System;
 using System.Reflection;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Internals;
-using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 using FieldInfo=Xtensive.Storage.Model.FieldInfo;
 
 namespace Xtensive.Storage
 {
   public abstract class EntitySet : SessionBound,
-    IFieldHandler
+    IFieldHandler,
+    IHasTransactionalState<EntitySetState>
   {
     /// <inheritdoc/>
     public Persistent Owner { get; private set; }
@@ -23,30 +23,50 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     public FieldInfo Field { get; private set; }
 
-    internal abstract void ClearCache();
-
-    internal abstract void AddToCache(Key key, bool mandatoryProcess);
-
-    internal abstract void RemoveFromCache(Key key, bool refresh);
-
-    internal static IFieldHandler Activate(Type type, Persistent obj, FieldInfo field)
+    internal Entity Entity 
     {
-      AssociationInfo association = field.Association;
-      if (association==null) 
-        throw new InvalidOperationException(String.Format(Strings.ExUnableToActivateEntitySetWithoutAssociation, field.Name));
-      if (association.MasterAssociation.EntityType==null) {
-        Type simpleEntitySetType = typeof (EntitySet<>).MakeGenericType(type);
-        return (IFieldHandler)simpleEntitySetType.InvokeMember("", BindingFlags.CreateInstance, null, null, new object[] {obj, field});
-      }
-      if (association.IsMaster) {
-        // direct
-        Type directEntitySetType = typeof (EntitySet<,>).MakeGenericType(type, association.EntityType);
-        return (IFieldHandler)directEntitySetType.InvokeMember("", BindingFlags.CreateInstance, null, null, new object[] { obj, field, false });
-      }
-      // reverse
-      Type reverseEntitySetType = typeof(EntitySet<,>).MakeGenericType(type, association.MasterAssociation.EntityType);
-      return (IFieldHandler)reverseEntitySetType.InvokeMember("", BindingFlags.CreateInstance, null, null, new object[] { obj, field, true });
+      get { return (Entity) Owner; }
     }
+
+    /// <inheritdoc/>
+    EntitySetState IHasTransactionalState<EntitySetState>.State
+    {
+      get { return State;}
+    }
+
+    protected EntitySetState State { get; private set; }
+
+    internal abstract bool Add(Entity item);
+
+    internal abstract bool Remove(Entity item);
+
+    protected internal abstract void Initialize();
+
+    #region Activation members
+
+    internal static IFieldHandler Activate(Type type, Persistent owner, FieldInfo field)
+    {
+      if (field.Association==null) 
+        throw new InvalidOperationException(String.Format(Strings.ExUnableToActivateEntitySetWithoutAssociation, field.Name));
+
+      Type instanceType;
+      if (field.Association.Master.UnderlyingType==null)
+        instanceType = typeof (EntitySet<>).MakeGenericType(type);
+      else {
+        if (field.Association.IsMaster)
+          instanceType = typeof (EntitySet<,>).MakeGenericType(type, field.Association.UnderlyingType);
+        else
+          instanceType = typeof (ReversedEntitySet<,>).MakeGenericType(type, field.Association.Master.UnderlyingType);
+      }
+      return ActivateInstance(instanceType, owner, field);
+    }
+
+    private static IFieldHandler ActivateInstance(Type type, Persistent owner, FieldInfo field)
+    {
+      return (IFieldHandler)type.InvokeMember(string.Empty, BindingFlags.CreateInstance, null, null, new object[] { owner, field});
+    }
+
+    #endregion
 
 
     // Constructors
@@ -60,6 +80,7 @@ namespace Xtensive.Storage
     {
       Field = field;
       Owner = owner;
+      State = new EntitySetState();
     }
   }
 }

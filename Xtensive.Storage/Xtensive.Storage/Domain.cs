@@ -14,11 +14,14 @@ using Xtensive.Core.Caching;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Disposable;
+using Xtensive.Core.Threading;
 using Xtensive.Core.Tuples;
+using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Building.Builders;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.PairIntegrity;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers.Executable;
@@ -31,7 +34,7 @@ namespace Xtensive.Storage
   public sealed class Domain : CriticalFinalizerObject,
     IDisposableContainer
   {
-    private ICache<RecordSetHeader, RecordSetMapping> recordSetMappings;
+    private readonly ICache<RecordSetHeader, RecordSetMapping> recordSetMappings;
     private int sessionCounter = 1;
 
     /// <summary>
@@ -103,6 +106,11 @@ namespace Xtensive.Storage
     #region Private \ internal properties
 
     internal Dictionary<TypeInfo, Tuple> Prototypes { get; private set; }
+
+    internal Dictionary<AssociationInfo, ActionSet> PairSyncActions { get; private set; }
+
+    internal ThreadSafeDictionary<FieldInfo, SegmentTransform> Transforms { get; private set; }
+
 
     internal HandlerAccessor Handlers { get; private set; }
 
@@ -206,7 +214,9 @@ namespace Xtensive.Storage
       IsDebugEventLoggingEnabled = Log.IsLogged(LogEventTypes.Debug); // Just to cache this value
       Configuration = configuration;
       Handlers = new HandlerAccessor(this);
+      Transforms = ThreadSafeDictionary<FieldInfo, SegmentTransform>.Create(new object());
       Prototypes = new Dictionary<TypeInfo, Tuple>();
+      PairSyncActions = new Dictionary<AssociationInfo, ActionSet>();
       TemporaryData = new GlobalTemporaryData();
       recordSetMappings = 
         new LruCache<RecordSetHeader, RecordSetMapping>(configuration.RecordSetMappingCacheSize, 

@@ -156,8 +156,8 @@ namespace Xtensive.Storage.Tests
       WriteLine(indent, "Multiplicity: " + target.Multiplicity);
       WriteLine(indent, "On Delete: " + target.OnRemove);
       WriteLine(indent, "Master: " + target.IsMaster);
-      if (target.PairTo!=null)
-        WriteLine(indent, "PairTo: " + target.PairTo.Name);
+      if (target.Reversed!=null)
+        WriteLine(indent, "Reversed: " + target.Reversed.Name);
     }
 
     private static void Dump(this TypeInfo target, int indent)

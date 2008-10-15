@@ -14,8 +14,6 @@ using Xtensive.Core.Reflection;
 using Xtensive.Core.Threading;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
-using Xtensive.Integrity.Validation;
-using Xtensive.Integrity.Validation.Interfaces;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage
@@ -171,7 +169,8 @@ namespace Xtensive.Storage
       type = Session.Domain.Model.Types[GetType()];
       this.owner = owner;
       this.field = field;
-      data = new SegmentTransform(false, owner.Data.Descriptor, new Segment<int>(field.MappingInfo.Offset, field.MappingInfo.Length)).Apply(TupleTransformType.TransformedTuple, owner.Data);
-    }    
+      SegmentTransform transform = Session.Domain.Transforms.GetValue(field, arg => new SegmentTransform(false, owner.Data.Descriptor, new Segment<int>(field.MappingInfo.Offset, field.MappingInfo.Length)));
+      data = transform.Apply(TupleTransformType.TransformedTuple, owner.Data);
+    }
   }
 }

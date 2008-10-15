@@ -9,21 +9,22 @@ using Xtensive.Storage.Attributes;
 
 namespace Xtensive.Storage.Internals
 {
-  [HierarchyRoot("Entity1", "Entity2")]
-  public abstract class EntitySetReference<T1, T2> : Entity
-    where T1 : Entity
-    where T2 : Entity
+  public abstract class EntitySetItem<TMaster, TSlave> : Entity
+    where TMaster : Entity
+    where TSlave : Entity
   {
     [Field]
-    public T1 Entity1 { get; set; }
+    public TMaster Master { get; private set; }
 
     [Field]
-    public T2 Entity2 { get; set; }
+    public TSlave Slave { get; private set; }
 
-    public EntitySetReference(Tuple tuple)
+
+    // Constructor
+
+    protected EntitySetItem(Tuple tuple)
       :base(tuple)
     {
-      
     }
   }
 }

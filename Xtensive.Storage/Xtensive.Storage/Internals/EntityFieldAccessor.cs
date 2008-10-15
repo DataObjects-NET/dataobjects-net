@@ -34,15 +34,6 @@ namespace Xtensive.Storage.Internals
         throw new InvalidOperationException(
           string.Format(Strings.EntityXIsBoundToAnotherSession, entity.Key));
 
-
-      AssociationInfo association = field.Association;
-      Key originalKey = association==null ? null : GetKey(field, obj);
-
-//      if (association!=null && association.Multiplicity == Multiplicity.OneToOne) {
-//        var setter = (Action<Entity, Entity, Action<Entity, Entity>>) (association.IsMaster ? association.SetMaster : association.MasterAssociation.SetSlave);
-//      }
-
-
       if (entity==null)
         for (int i = field.MappingInfo.Offset; i < field.MappingInfo.Offset + field.MappingInfo.Length; i++)
           obj.Data.SetValue(i, null);
@@ -50,65 +41,21 @@ namespace Xtensive.Storage.Internals
         ValidateType(field);
         entity.Key.CopyTo(obj.Data, 0, field.MappingInfo.Offset, field.MappingInfo.Length);
       }
-
-      if (association!=null)
-        ProcessAssociation(obj, field, entity, originalKey);
-    }
-
-    private static void ProcessAssociation(Persistent obj, FieldInfo field, Entity newValue, Key originalKey)
-    {
-      AssociationInfo association = field.Association;
-      AssociationInfo pairedAssociation = association.PairTo;
-      Key newKey = newValue==null ? null : newValue.Key;
-      if (!ReferenceEquals(originalKey, newKey)) {
-        switch (association.Multiplicity) {
-        case Multiplicity.OneToZero:
-          // Do nothing.
-          break;
-        case Multiplicity.OneToOne:
-//          var pairedAccessor = pairedAssociation.ReferencingField.GetAccessor<Entity>();
-//          if (!ReferenceEquals(originalKey, null)) {
-//            var originalValue = originalKey.Resolve();
-//            pairedAccessor.SetValue(originalValue, pairedAssociation.ReferencingField, null);
-//          }
-//          if (!ReferenceEquals(newValue, null)) {
-//            pairedAccessor.SetValue(newValue, pairedAssociation.ReferencingField, (Entity) obj);
-//          }
-          break;
-        case Multiplicity.OneToMany:
-          if (IsResolved(obj.Session, originalKey)) {
-            var originalValue = originalKey.Resolve();
-            var entitySetFieldAccessor = pairedAssociation.ReferencingField.GetAccessor<EntitySet>();
-            entitySetFieldAccessor.GetValue(originalValue, pairedAssociation.ReferencingField).RemoveFromCache(((Entity) obj).Key, true);
-          }
-          if (IsResolved(obj.Session, newKey)) {
-            var entitySetFieldAccessor = pairedAssociation.ReferencingField.GetAccessor<EntitySet>();
-            entitySetFieldAccessor.GetValue(newValue, pairedAssociation.ReferencingField).AddToCache(((Entity) obj).Key, true);
-          }
-          break;
-        default:
-          throw new InvalidOperationException(String.Format(Strings.ExAssociationMultiplicityIsNotValidForField, association.Multiplicity, field.Name));
-        }
-      }
     }
 
     public override T GetValue(Persistent obj, FieldInfo field)
     {
       ValidateType(field);
-      Key key = GetKey(field, obj);
+      Key key = ExtractKey(obj, field);
       if (key==null)
         return default(T);
       return (T) (object) key.Resolve();
     }
 
-    private static bool IsResolved(Session session, Key key)
+    internal static Key ExtractKey(Persistent obj, FieldInfo field)
     {
-      return key!=null && session.Cache[key]!=null;
-    }
-
-    private static Key GetKey(FieldInfo field, Persistent obj)
-    {
-      return obj.Session.Domain.KeyManager.Get(field, new SegmentTransform(false, obj.Data.Descriptor, new Segment<int>(field.MappingInfo.Offset, field.MappingInfo.Length)).Apply(TupleTransformType.TransformedTuple, obj.Data));
+      SegmentTransform transform = obj.Session.Domain.Transforms.GetValue(field, arg => new SegmentTransform(false, obj.Data.Descriptor, new Segment<int>(field.MappingInfo.Offset, field.MappingInfo.Length)));
+      return obj.Session.Domain.KeyManager.Get(field, transform.Apply(TupleTransformType.TransformedTuple, obj.Data));
     }
 
 

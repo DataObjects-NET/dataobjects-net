@@ -15,6 +15,7 @@ using Xtensive.Integrity.Validation;
 using Xtensive.Integrity.Validation.Interfaces;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.PairIntegrity;
 
 namespace Xtensive.Storage
 {
@@ -80,13 +81,17 @@ namespace Xtensive.Storage
 
     #endregion
 
-    #region GetValue, SetValue methods
+    #region GetValue, SetValue, GetReference methods
 
     [Infrastructure]
     protected T GetValue<T>(string name)
     {
-      FieldInfo field = Type.Fields[name];
+      return GetValue<T>(Type.Fields[name]);
+    }
 
+    [Infrastructure]
+    protected T GetValue<T>(FieldInfo field)
+    {
       OnGettingValue(field);
       T result = field.GetAccessor<T>().GetValue(this, field);
       OnGetValue(field);
@@ -97,24 +102,41 @@ namespace Xtensive.Storage
     [Infrastructure]
     protected void SetValue<T>(string name, T value)
     {
-      FieldInfo field = Type.Fields[name];
+      SetValue(Type.Fields[name], value);
+    }
+
+    protected void SetValue<T>(FieldInfo field, T value)
+    {
       OnSettingValue(field);
-      
+
       AssociationInfo association = field.Association;
-      if (Type.IsEntity && association != null && association.Multiplicity == Multiplicity.OneToOne) {
-        var setter = (Action<Entity, T, FieldInfo, Action<FieldInfo,T>>)(association.IsMaster ? association.SetMaster : association.MasterAssociation.SetSlave);
-        setter((Entity)this, value, field, SetValue);
+      if (association!=null && association.IsPaired) {
+        Key currentRef = GetReference(field);
+        Key newRef = null;
+        Entity newEntity = (Entity) (object) value;
+        if (newEntity != null)
+          newRef = newEntity.Key;
+        if (currentRef != newRef) {
+          SyncManager.Enlist(OperationType.Set, (Entity) this, newEntity, association);
+          field.GetAccessor<T>().SetValue(this, field, value);
+        }
       }
-      else {
-        SetValue(field, value);
-      }
+      else
+        field.GetAccessor<T>().SetValue(this, field, value);
+
+      OnSetValue(field);
     }
 
     [Infrastructure]
-    private void SetValue<T>(FieldInfo field, T value)
+    internal Key GetReference(string name)
     {
-      field.GetAccessor<T>().SetValue(this, field, value);
-      OnSetValue(field);
+      return GetReference(Type.Fields[name]);
+    }
+
+    [Infrastructure]
+    internal Key GetReference(FieldInfo field)
+    {
+      return EntityFieldAccessor<Entity>.ExtractKey(this, field);
     }
 
     #endregion

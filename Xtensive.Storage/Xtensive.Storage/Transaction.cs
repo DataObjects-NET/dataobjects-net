@@ -5,9 +5,11 @@
 // Created:    2008.08.20
 
 using System;
+using System.Collections.Generic;
 using Xtensive.Core.Disposable;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Integrity.Transactions;
+using Xtensive.Storage.PairIntegrity;
 using Xtensive.Storage.Resources;
 using Xtensive.Storage.Rse.Providers.Executable;
 
@@ -19,6 +21,8 @@ namespace Xtensive.Storage
   public sealed class Transaction : TransactionBase
   {
     private IDisposable inconsistentRegion;
+
+    internal Stack<SyncContext> PairSyncContextStack { get; private set; }
 
     /// <summary>
     /// Gets the session.
@@ -133,9 +137,10 @@ namespace Xtensive.Storage
     internal Transaction(Session session, Guid identifier)
       : base (identifier)
     {
-      Session = session;      
+      Session = session;
       TemporaryData = new TransactionTemporaryData();
       ValidationContext = new ValidationContext();
+      PairSyncContextStack = new Stack<SyncContext>();
     }
   }
 } 

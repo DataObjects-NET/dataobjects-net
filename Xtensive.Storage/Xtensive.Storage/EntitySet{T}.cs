@@ -13,13 +13,12 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using Xtensive.Core;
-using Xtensive.Core.Caching;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Integrity.Transactions;
-using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.PairIntegrity;
 using Xtensive.Storage.Resources;
 using Xtensive.Storage.Rse;
 
@@ -31,24 +30,126 @@ namespace Xtensive.Storage
     INotifyCollectionChanged
     where T : Entity
   {
-    /// <summary>
-    /// Maximal count of items to cache.
-    /// </summary>
-    internal static int CacheSize = 10240;
-
-    private Transaction transaction;
     private long? count;
     private long version;
-    private IndexInfo index;
-    private MapTransform keyTransform;
+    protected RecordSet RecordSet { get; private set; }
+    protected IndexInfo Index { get; private set; }
+    protected MapTransform KeyExtractTransform { get; private set; }
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// Gets the number of elements contained in the <see cref="EntitySet{T}"/>.
+    /// </summary>
+    /// <returns>
+    /// The number of elements contained in the <see cref="EntitySet{T}"/>.
+    /// </returns>
     public long Count {
       [DebuggerStepThrough]
       get {
-        EnsureInitialized();
+        EnsureStateIsConsistent();
         return count.Value;
       }
+    }
+
+    /// <inheritdoc/>
+    public virtual bool Contains(T item)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(item, "item");
+      EnsureStateIsConsistent();
+      if (State.Contains(item.Key))
+        return true;
+      if (Xxx())
+        return false;
+      FieldInfo referencingField = Field.Association.Reversed.ReferencingField;
+
+      if (item.GetReference(referencingField) == Entity.Key) {
+        State.Add(item.Key);
+        return true;
+      }
+      return false;
+    }
+
+    /// <inheritdoc/>
+    public bool Contains(Key key)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(key, "key");
+      EnsureStateIsConsistent();
+      if (!typeof(T).IsAssignableFrom(key.Type.UnderlyingType))
+        return false;
+      if (State.Contains(key))
+        return true;
+      if (Xxx())
+        return false;
+      // Request from database
+      Tuple filterTuple = new CombineTransform(true, Entity.Key.Descriptor, key.Descriptor).Apply(TupleTransformType.Tuple, Entity.Key, key);
+      if (RecordSet.Range(filterTuple, filterTuple).Count() > 0)
+        State.Add(key);
+      else
+        return false;
+      return true;
+    }
+
+    /// <inheritdoc/>
+    public virtual bool Add(T item)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(item, "item");
+      EnsureStateIsConsistent();
+
+      if (Contains(item))
+        return false;
+
+      AssociationInfo association = Field.Association;
+      if (association!=null && association.IsPaired)
+        SyncManager.Enlist(OperationType.Add, Entity, item, association);
+
+      OnCollectionChanged(NotifyCollectionChangedAction.Add, item);
+      return true;
+    }
+
+    /// <inheritdoc/>
+    public virtual bool Remove(T item)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(item, "item");
+      EnsureStateIsConsistent();
+
+      if (!Contains(item))
+        return false;
+
+      AssociationInfo association = Field.Association;
+      if (association!=null && association.IsPaired)
+        SyncManager.Enlist(OperationType.Remove, Entity, item, association);
+
+      OnCollectionChanged(NotifyCollectionChangedAction.Remove, item);
+      return true;
+    }
+
+    /// <inheritdoc/>
+    public void Clear()
+    {
+      EnsureStateIsConsistent();
+      foreach (T item in this.ToList())
+        Remove(item);
+      OnCollectionChanged(NotifyCollectionChangedAction.Reset, null);
+    }
+
+    /// <inheritdoc/>
+    public int RemoveWhere(Predicate<T> match)
+    {
+      EnsureStateIsConsistent();
+      var itemsToRemove = new List<T>();
+      foreach (T item in this)
+        if (match(item))
+          itemsToRemove.Add(item);
+      foreach (T itemToRemove in itemsToRemove)
+        Remove(itemToRemove);
+      return itemsToRemove.Count;
+    }
+
+    #region Other ICollection<T> members
+
+    /// <inheritdoc/>
+    void ICollection<T>.Add(T item)
+    {
+      Add(item);
     }
 
     /// <inheritdoc/>
@@ -64,117 +165,20 @@ namespace Xtensive.Storage
     }
 
     /// <inheritdoc/>
-    public virtual bool Contains(T item)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(item, "item");
-      EnsureInitialized();
-      if (Cache.ContainsKey(item.Key))
-        return true;
-      if (Cache.Count==Count)
-        return false;
-      FieldInfo referencingField = Field.Association.PairTo.ReferencingField;
-      var accessor = referencingField.GetAccessor<Entity>();
-      bool result = ReferenceEquals(accessor.GetValue(item, referencingField), Owner);
-      if (result)
-        Cache.Add(new CachedKey(item.Key));
-      return result;
-    }
-
-    /// <inheritdoc/>
-    public bool Contains(Key key)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(key, "key");
-      EnsureInitialized();
-      if (key.Type.UnderlyingType!=typeof (T)) {
-        return false;
-      }
-      if (!Cache.ContainsKey(key)) {
-        if (Cache.Count==Count)
-          return false;
-        // Request from database
-        Tuple filterTuple = new CombineTransform(true, ((Entity) Owner).Key.Descriptor, key.Descriptor).Apply(TupleTransformType.Tuple, ((Entity) Owner).Key, key);
-        if (GetRecordSet().Range(filterTuple, filterTuple).Count() > 0)
-          Cache.Add(new CachedKey(key));
-        else
-          return false;
-      }
-      return true;
-    }
-
-    /// <inheritdoc/>
-    public virtual bool Add(T item)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(item, "item");
-      EnsureInitialized();
-      FieldInfo referencingField = Field.Association.PairTo.ReferencingField;
-      var accessor = referencingField.GetAccessor<Entity>();
-      long previouseCount = count.Value;
-      accessor.SetValue(item, referencingField, (Entity) Owner);
-      var result = previouseCount!=count;
-      if (result)
-        OnCollectionChanged(NotifyCollectionChangedAction.Add, item);
-      return result;
-    }
-
-    /// <inheritdoc/>
-    void ICollection<T>.Add(T item)
-    {
-      Add(item);
-    }
-
-    /// <inheritdoc/>
-    public virtual bool Remove(T item)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(item, "item");
-      EnsureInitialized();
-      if (!Contains(item))
-        return false;
-      RemoveInternal(item);
-      OnCollectionChanged(NotifyCollectionChangedAction.Remove, item);
-      return true;
-    }
-
-    /// <inheritdoc/>
-    public int RemoveWhere(Predicate<T> match)
-    {
-      EnsureInitialized();
-      var itemsToRemove = new List<T>();
-      foreach (T item in this)
-        if (match(item))
-          itemsToRemove.Add(item);
-      foreach (T itemToRemove in itemsToRemove) {
-        RemoveInternal(itemToRemove);
-        OnCollectionChanged(NotifyCollectionChangedAction.Remove, itemToRemove);
-      }
-      return itemsToRemove.Count;
-    }
-
-    /// <inheritdoc/>
-    public void Clear()
-    {
-      EnsureInitialized();
-      foreach (T itemToRemove in this.ToList())
-        RemoveInternal(itemToRemove);
-      OnCollectionChanged(NotifyCollectionChangedAction.Reset, null);
-    }
-
-    /// <inheritdoc/>
     public IEnumerator<T> GetEnumerator()
     {
-      EnsureInitialized();
-      long startVersion = version;
-      if (count==Cache.Count) {
-        foreach (CachedKey key in Cache) {
-          EnsureVersion(startVersion);
-          yield return key.Key.Resolve<T>();
+      EnsureStateIsConsistent();
+      long initialVersion = version;
+      if (Xxx()) {
+        foreach (Key key in State) {
+          CheckVersion(initialVersion);
+          yield return key.Resolve<T>();
         }
       }
       else {
-        RecordSet recordSet = GetRecordSet();
-        foreach (Tuple tuple in recordSet) {
-          EnsureVersion(startVersion);
-          Tuple keyTuple = KeyTransform.Apply(TupleTransformType.Tuple, tuple);
-          var key = Key.Get(typeof (T), keyTuple);
+        foreach (Tuple tuple in RecordSet) {
+          CheckVersion(initialVersion);
+          var key = Key.Get(typeof (T), KeyExtractTransform.Apply(TupleTransformType.TransformedTuple, tuple));
           yield return key.Resolve<T>();
         }
       }
@@ -193,96 +197,42 @@ namespace Xtensive.Storage
         array[arrayIndex++] = item;
     }
 
+    #endregion
+
     #region Protected and Internal
 
-    internal ICache<Key, CachedKey> Cache { get; private set; }
-
-    internal override sealed void ClearCache()
+    internal override bool Add(Entity item)
     {
-      count = null;
-      Cache.Clear();
-      IncreaseVersion();
+      return Add((T)item);
     }
 
-    internal override void AddToCache(Key key, bool recount)
+    internal override bool Remove(Entity item)
     {
-      bool reInitialized = EnsureInitialized();
-      if (recount || reInitialized) {
-        count++;
-        Cache.Add(new CachedKey(key));
-      }
-      IncreaseVersion();
+      return Remove((T) item);
     }
 
-    internal override void RemoveFromCache(Key key, bool recount)
+    internal protected void EnsureStateIsConsistent()
     {
-      bool reInitialized = EnsureInitialized();
-      if (recount || reInitialized) {
-        count--;
-        Cache.RemoveKey(key);
-      }
-      IncreaseVersion();
-    }
+      Transaction current = Transaction.Current;
+      if (current==null || current.State!=TransactionState.Active)
+        throw new InvalidOperationException(Strings.ExEntitySetInvalidBecauseTransactionIsNotActive);
 
-    protected IndexInfo Index {
-      get {
-        index = index ?? GetIndex();
-        return index;
-      }
-    }
-
-    protected virtual IndexInfo GetIndex()
-    {
-      FieldInfo referencingField = Field.Association.PairTo.ReferencingField;
-      return referencingField.ReflectedType.Indexes.GetIndex(referencingField.Name);
-    }
-
-    protected virtual MapTransform GetKeyTransform()
-    {
-      var keyTupleDescriptor = Owner.Session.Domain.Model.Types[typeof (T)].Hierarchy.KeyTupleDescriptor;
-      IEnumerable<int> columnIndexes = Index.Columns.Where(columnInfo => columnInfo.IsPrimaryKey).Select(columnInfo => Index.Columns.IndexOf(columnInfo));
-      return new MapTransform(true, keyTupleDescriptor, columnIndexes.ToArray());
-    }
-
-    protected RecordSet GetRecordSet()
-    {
-      Tuple key = ((Entity) Owner).Key;
-      RecordSet recordSet = Index.ToRecordSet();
-      var rsResult = recordSet.Range(key, key);
-      return rsResult;
-    }
-
-    protected bool EnsureInitialized()
-    {
-      EnusureTransaction();
-      if (!count.HasValue) {
-        count = GetRecordSet().Count();
+      if (!State.IsConsistent(current)) {
+        State.Reset(current);
+        count = RecordSet.Count();
         IncreaseVersion();
-        return false;
       }
-      return true;
     }
 
-    protected void EnsureVersion(long currentVersion)
+    protected void CheckVersion(long current)
     {
-      if (version!=currentVersion)
+      if (version!=current)
         Exceptions.CollectionHasBeenChanged(null);
     }
 
     #endregion
 
     #region Private methods
-
-    private void EnusureTransaction()
-    {
-      if (Transaction.Current!=transaction) {
-        ClearCache();
-        transaction = Transaction.Current;
-        IncreaseVersion();
-      }
-      if (transaction==null || Transaction.Current.State!=TransactionState.Active)
-        throw new InvalidOperationException(Strings.ExEntitySetInvalidBecauseTransactionIsNotActive);
-    }
 
     private void IncreaseVersion()
     {
@@ -291,20 +241,38 @@ namespace Xtensive.Storage
       }
     }
 
-    private MapTransform KeyTransform
+    private bool Xxx()
     {
-      get
-      {
-        keyTransform = keyTransform ?? GetKeyTransform();
-        return keyTransform;
-      }
+      return count==State.Count;
     }
 
-    private void RemoveInternal(T item)
+    #endregion
+
+    #region Initialization members
+
+    protected internal override void Initialize()
     {
-      FieldInfo referencingField = Field.Association.PairTo.ReferencingField;
-      var accessor = referencingField.GetAccessor<Entity>();
-      accessor.SetValue(item, referencingField, null);
+      Index = GetIndex();
+      RecordSet = GetRecordSet();
+      KeyExtractTransform = GetKeyExtractTransform();
+    }
+
+    protected virtual MapTransform GetKeyExtractTransform()
+    {
+      var keyTupleDescriptor = Owner.Session.Domain.Model.Types[typeof (T)].Hierarchy.KeyTupleDescriptor;
+      IEnumerable<int> columnIndexes = Index.Columns.Where(columnInfo => columnInfo.IsPrimaryKey).Select(columnInfo => Index.Columns.IndexOf(columnInfo));
+      return new MapTransform(true, keyTupleDescriptor, columnIndexes.ToArray());
+    }
+
+    protected virtual IndexInfo GetIndex()
+    {
+      FieldInfo referencingField = Field.Association.Reversed.ReferencingField;
+      return referencingField.ReflectedType.Indexes.GetIndex(referencingField.Name);
+    }
+
+    protected virtual RecordSet GetRecordSet()
+    {
+      return Index.ToRecordSet().Range(Entity.Key, Entity.Key);
     }
 
     #endregion
@@ -329,6 +297,22 @@ namespace Xtensive.Storage
 
     protected void OnCollectionChanged(NotifyCollectionChangedAction action, Entity item)
     {
+      switch (action) {
+      case NotifyCollectionChangedAction.Add:
+        count++;
+        State.Add(item.Key);
+        break;
+      case NotifyCollectionChangedAction.Remove:
+        count--;
+        State.Remove(item.Key);
+        break;
+      case NotifyCollectionChangedAction.Reset:
+        count = null;
+        State.Clear();
+        break;
+      }
+      IncreaseVersion();
+
       if (CollectionChanged != null) {
         CollectionChanged(this, new NotifyCollectionChangedEventArgs(action, item));
         OnPropertyChanged("Count");
@@ -336,7 +320,6 @@ namespace Xtensive.Storage
     }
 
     #endregion
-
 
     // Constructors
 
@@ -348,7 +331,6 @@ namespace Xtensive.Storage
     public EntitySet(Persistent owner, FieldInfo field)
       : base(owner, field)
     {
-      Cache = new LruCache<Key, CachedKey>(CacheSize, cachedKey => cachedKey.Key);
     }
   }
 }

@@ -511,7 +511,7 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &apos;PairTo&apos; attribute can not be used with &apos;{0}&apos; field..
+        ///   Looks up a localized string similar to &apos;Pair&apos; attribute can not be used with &apos;{0}&apos; field..
         /// </summary>
         internal static string ExPairToAttributeCanNotBeUsedWithXField {
             get {
