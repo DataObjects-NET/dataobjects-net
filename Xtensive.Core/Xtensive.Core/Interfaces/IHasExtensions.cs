@@ -9,7 +9,7 @@ using Xtensive.Core.Collections;
 namespace Xtensive.Core
 {
   /// <summary>
-  /// Describes an object having <see cref="Exceptions"/> property.
+  /// Describes an object having <see cref="Extensions"/> property.
   /// </summary>
   public interface IHasExtensions
   {
