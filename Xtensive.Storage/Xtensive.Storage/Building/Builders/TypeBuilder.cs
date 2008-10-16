@@ -258,6 +258,11 @@ namespace Xtensive.Storage.Building.Builders
       FieldBuilder.BuildDeclaredField(type, srcField);
       FieldInfo field = type.Fields[srcField.Name];
       field.IsPrimaryKey = true;
+
+      if (field.IsLazyLoad) {
+        Log.Warning(string.Format(Strings.FieldXCanTBeLoadOnDemandAsItIsIncludedInPrimaryKey, field.Name));
+        field.IsLazyLoad = false;
+      }
     }
 
     private static TypeInfo BuildInterface(TypeDef typeDef, TypeInfo implementor)

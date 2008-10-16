@@ -200,9 +200,15 @@ namespace Xtensive.Storage.Model
     /// <summary>
     /// Gets or sets a value indicating whether property will be loaded on demand.
     /// </summary>
-    public bool IsLazyLoad {
+    public bool IsLazyLoad
+    {
       [DebuggerStepThrough]
       get { return (attributes & FieldAttributes.LazyLoad) != 0; }
+      [DebuggerStepThrough]
+      set {
+        this.EnsureNotLocked();
+        attributes = value ? Attributes | FieldAttributes.LazyLoad : Attributes & ~FieldAttributes.LazyLoad;
+      }
     }
 
     /// <summary>

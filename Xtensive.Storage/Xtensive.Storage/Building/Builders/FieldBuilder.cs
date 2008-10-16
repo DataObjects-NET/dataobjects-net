@@ -141,12 +141,6 @@ namespace Xtensive.Storage.Building.Builders
 
       if (field.IsPrimitive)
         field.Column = ColumnBuilder.BuildColumn(field);
-
-      if (field.IsPrimaryKey && field.IsLazyLoad)
-        throw new DomainBuilderException(
-          string.Format(Resources.Strings.FieldXCanTBeLoadOnDemandAsItIsIncludedInPrimaryKey, field.Name));
-
-      return;
     }
 
     private static void ValidateValueType(Type valueType, Type declaringType)
