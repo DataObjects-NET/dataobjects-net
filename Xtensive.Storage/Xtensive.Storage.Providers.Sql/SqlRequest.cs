@@ -4,6 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2008.08.27
 
+using System;
 using System.Collections.Generic;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Sql.Dom;
@@ -54,8 +55,7 @@ namespace Xtensive.Storage.Providers.Sql
         binding.SqlParameter.ParameterName = "p" + i++;
         if (binding.TypeMapping == null)
           continue;
-        if (binding.TypeMapping.DbType.HasValue)
-          binding.SqlParameter.DbType = binding.TypeMapping.DbType.Value;
+        binding.SqlParameter.DbType = binding.TypeMapping.DbType;
       }
     }
 
@@ -70,7 +70,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     protected static void BindParameter(SqlParameterBinding binding, object value)
     {
-      if (binding.TypeMapping != null && binding.TypeMapping.ToSqlValue != null)
+      if (value != null && value != DBNull.Value && binding.TypeMapping != null && binding.TypeMapping.ToSqlValue != null)
         value = binding.TypeMapping.ToSqlValue(value);
       binding.SqlParameter.Value = value;
     }

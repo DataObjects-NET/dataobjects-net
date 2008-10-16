@@ -157,7 +157,6 @@ namespace Xtensive.Storage.Providers.Sql
         return;
 
       DataTypeMapping mapping = CreateDataTypeMapping(dataTypeInfo);
-
       MappingSchema.Register(mapping);
     }
 
@@ -166,7 +165,62 @@ namespace Xtensive.Storage.Providers.Sql
       var dataReaderAccessor = BuildDataReaderAccessor(dataTypeInfo);
       if (dataTypeInfo.Type==typeof (byte[]))
         return new DataTypeMapping(dataTypeInfo, dataReaderAccessor, DbType.Binary);
-      return new DataTypeMapping(dataTypeInfo, dataReaderAccessor);
+      return new DataTypeMapping(dataTypeInfo, dataReaderAccessor, GetDbType(dataTypeInfo));
+    }
+
+    protected virtual DbType GetDbType(DataTypeInfo dataTypeInfo)
+    {
+      DbType result = DbType.String;
+      TypeCode typeCode = Type.GetTypeCode(dataTypeInfo.Type);
+      switch (typeCode) {
+      case TypeCode.Boolean:
+        result = DbType.Boolean;
+        break;
+      case TypeCode.Char:
+        result = DbType.StringFixedLength;
+        break;
+      case TypeCode.SByte:
+        result = DbType.SByte;
+        break;
+      case TypeCode.Byte:
+        result = DbType.Byte;
+        break;
+      case TypeCode.Int16:
+        result = DbType.Int16;
+        break;
+      case TypeCode.UInt16:
+        result = DbType.UInt16;
+        break;
+      case TypeCode.Int32:
+        result = DbType.Int32;
+        break;
+      case TypeCode.UInt32:
+        result = DbType.UInt32;
+        break;
+      case TypeCode.Int64:
+        result = DbType.Int64;
+        break;
+      case TypeCode.UInt64:
+        result = DbType.UInt64;
+        break;
+      case TypeCode.Single:
+        result = DbType.Single;
+        break;
+      case TypeCode.Double:
+        result = DbType.Double;
+        break;
+      case TypeCode.Decimal:
+        result = DbType.Decimal;
+        break;
+      case TypeCode.DateTime:
+        result = DbType.DateTime;
+        break;
+      case TypeCode.String:
+        break;
+      default:
+        throw new ArgumentOutOfRangeException();
+      }
+      return result;
     }
 
     protected virtual Func<DbDataReader, int, object> BuildDataReaderAccessor(DataTypeInfo dataTypeInfo)

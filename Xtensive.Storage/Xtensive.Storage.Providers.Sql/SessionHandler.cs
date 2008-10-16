@@ -88,10 +88,6 @@ namespace Xtensive.Storage.Providers.Sql
         return null;
       var tuple = Tuple.Create(request.RecordSetHeader.TupleDescriptor);
       request.DbDataReaderAccessor.Read(reader, tuple);
-//      for (int i = 0; i < reader.FieldCount; i++) {
-//        var value = reader[i];
-//        tuple.SetValue(i, DBNull.Value==value ? null : value);
-//      }
       return tuple;
     }
 

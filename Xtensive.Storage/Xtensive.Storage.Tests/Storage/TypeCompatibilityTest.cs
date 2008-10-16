@@ -144,6 +144,77 @@ namespace Xtensive.Storage.Tests.Storage.DbTypeSupportModel
 
     [Field]
     public EULong FEULong { get; set; }
+
+
+    [Field]
+    public bool? FNBool { get; set; }
+
+    [Field]
+    public byte? FNByte { get; set; }
+
+    [Field]
+    public sbyte? FNSByte { get; set; }
+
+    [Field]
+    public short? FNShort { get; set; }
+
+    [Field]
+    public ushort? FNUShort { get; set; }
+
+    [Field]
+    public int? FNInt { get; set; }
+
+    [Field]
+    public uint? FNUInt { get; set; }
+
+    [Field]
+    public long? FNLong { get; set; }
+
+    [Field]
+    public ulong? FNULong { get; set; }
+
+    [Field]
+    public Guid? FNGuid { get; set; }
+
+    [Field]
+    public float? FNFloat { get; set; }
+
+    [Field]
+    public double? FNDouble { get; set; }
+
+    [Field]
+    public decimal? FNDecimal { get; set; }
+
+    [Field]
+    public DateTime? FNDateTime { get; set; }
+
+    [Field]
+    public TimeSpan? FNTimeSpan { get; set; }
+
+    [Field]
+    public EByte? FNEByte { get; set; }
+
+    [Field]
+    public ESByte? FNESByte { get; set; }
+
+    [Field]
+    public EShort? FNEShort { get; set; }
+
+    [Field]
+    public EUShort? FNEUShort { get; set; }
+
+    [Field]
+    public EInt? FNEInt { get; set; }
+
+    [Field]
+    public EUInt? FNEUInt { get; set; }
+
+    [Field]
+    public ELong? FNELong { get; set; }
+
+    [Field]
+    public EULong? FNEULong { get; set; }
+
   }
 }
 
@@ -204,6 +275,31 @@ namespace Xtensive.Storage.Tests.Storage
           Assert.AreEqual(0, x.FUInt);
           Assert.AreEqual(0, x.FULong);
           Assert.AreEqual(0, x.FUShort);
+
+          Assert.AreEqual(null, x.FNBool);
+          Assert.AreEqual(null, x.FNByte);
+          Assert.AreEqual(null, x.FNDateTime);
+          Assert.AreEqual(null, x.FNDecimal);
+          Assert.AreEqual(null, x.FNDouble);
+          Assert.AreEqual(null, x.FNEByte);
+          Assert.AreEqual(null, x.FNEInt);
+          Assert.AreEqual(null, x.FNELong);
+          Assert.AreEqual(null, x.FNESByte);
+          Assert.AreEqual(null, x.FNEShort);
+          Assert.AreEqual(null, x.FNEUInt);
+          Assert.AreEqual(null, x.FNEULong);
+          Assert.AreEqual(null, x.FNEUShort);
+          Assert.AreEqual(null, x.FNFloat);
+          Assert.AreEqual(null, x.FNGuid);
+          Assert.AreEqual(null, x.FNInt);
+          Assert.AreEqual(null, x.FNLong);
+          Assert.AreEqual(null, x.FNSByte);
+          Assert.AreEqual(null, x.FNShort);
+          Assert.AreEqual(null, x.FNTimeSpan);
+          Assert.AreEqual(null, x.FNUInt);
+          Assert.AreEqual(null, x.FNULong);
+          Assert.AreEqual(null, x.FNUShort);
+
           t.Complete();
         }
       }

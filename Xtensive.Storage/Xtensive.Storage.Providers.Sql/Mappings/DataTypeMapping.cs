@@ -18,7 +18,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings
 
     public DataTypeInfo DataTypeInfo { get; private set; }
 
-    public DbType? DbType { get; private set; }
+    public DbType DbType { get; private set; }
 
     public Func<DbDataReader, int, object> DataReaderAccessor { get; private set; }
 
@@ -29,7 +29,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings
 
     // Constructor
 
-    public DataTypeMapping(DataTypeInfo dataTypeInfo, Func<DbDataReader, int, object> dataReaderAccessor)
+    private DataTypeMapping(DataTypeInfo dataTypeInfo, Func<DbDataReader, int, object> dataReaderAccessor)
     {
       Type = dataTypeInfo.Type;
       DataTypeInfo = dataTypeInfo;

@@ -25,41 +25,34 @@ namespace Xtensive.Storage.Providers.MsSql
 
     protected override DataTypeMapping CreateDataTypeMapping(DataTypeInfo dataTypeInfo)
     {
-      DataTypeMapping result = null;
-      Type type = dataTypeInfo.Type;
-      TypeCode typeCode = Type.GetTypeCode(type);
-      var dataReaderAccessor = BuildDataReaderAccessor(dataTypeInfo);
-      switch (typeCode) {
-      case TypeCode.DateTime: {
+      if (dataTypeInfo.Type == typeof(DateTime)) {
         RangeDataTypeInfo<DateTime> dti = DomainHandler.SqlDriver.ServerInfo.DataTypes.DateTime;
         DateTime min = dti.Value.MinValue;
-        result = new DataTypeMapping(dataTypeInfo, dataReaderAccessor, DbType.DateTime, value => (DateTime) value < min ? min : value, null);
-        break;
+        return new DataTypeMapping(dataTypeInfo, BuildDataReaderAccessor(dataTypeInfo), DbType.DateTime, value => (DateTime) value < min ? min : value, null);
       }
-      case TypeCode.Object: {
-        if (type==typeof (TimeSpan))
-          result = new DataTypeMapping(dataTypeInfo, dataReaderAccessor, DbType.Int64, value => ((TimeSpan) value).Ticks, value => TimeSpan.FromTicks((long) value));
-        else
-          result = base.CreateDataTypeMapping(dataTypeInfo);
-        break;
-      }
+
+      if (dataTypeInfo.Type==typeof (TimeSpan))
+        return new DataTypeMapping(dataTypeInfo, BuildDataReaderAccessor(dataTypeInfo), DbType.Int64, value => ((TimeSpan) value).Ticks, value => TimeSpan.FromTicks((long) value));
+
+      return base.CreateDataTypeMapping(dataTypeInfo);
+    }
+
+    protected override DbType GetDbType(DataTypeInfo dataTypeInfo)
+    {
+      Type type = dataTypeInfo.Type;
+      TypeCode typeCode = Type.GetTypeCode(type);
+      switch (typeCode) {
       case TypeCode.SByte:
-        result = new DataTypeMapping(dataTypeInfo, dataReaderAccessor, DbType.Int16);
-        break;
+        return DbType.Int16;
       case TypeCode.UInt16:
-        result = new DataTypeMapping(dataTypeInfo, dataReaderAccessor, DbType.Int32);
-        break;
+        return DbType.Int32;
       case TypeCode.UInt32:
-        result = new DataTypeMapping(dataTypeInfo, dataReaderAccessor, DbType.Int64);
-        break;
+        return DbType.Int64;
       case TypeCode.UInt64:
-        result = new DataTypeMapping(dataTypeInfo, dataReaderAccessor, DbType.Decimal);
-        break;
+        return DbType.Decimal;
       default:
-        result = base.CreateDataTypeMapping(dataTypeInfo);
-        break;
+        return base.GetDbType(dataTypeInfo);
       }
-      return result;
     }
 
     protected override Func<DbDataReader, int, object> BuildDataReaderAccessor(DataTypeInfo dataTypeInfo)
