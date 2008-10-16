@@ -42,6 +42,10 @@ namespace Xtensive.Storage.Providers.MsSql
       Type type = dataTypeInfo.Type;
       TypeCode typeCode = Type.GetTypeCode(type);
       switch (typeCode) {
+      case TypeCode.Object:
+        if (dataTypeInfo.Type == typeof(Guid))
+          return DbType.Guid;
+        break;
       case TypeCode.SByte:
         return DbType.Int16;
       case TypeCode.UInt16:
@@ -50,9 +54,8 @@ namespace Xtensive.Storage.Providers.MsSql
         return DbType.Int64;
       case TypeCode.UInt64:
         return DbType.Decimal;
-      default:
-        return base.GetDbType(dataTypeInfo);
       }
+      return base.GetDbType(dataTypeInfo);
     }
 
     protected override Func<DbDataReader, int, object> BuildDataReaderAccessor(DataTypeInfo dataTypeInfo)

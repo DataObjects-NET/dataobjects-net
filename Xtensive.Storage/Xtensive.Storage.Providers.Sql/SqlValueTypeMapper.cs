@@ -162,65 +162,50 @@ namespace Xtensive.Storage.Providers.Sql
 
     protected virtual DataTypeMapping CreateDataTypeMapping(DataTypeInfo dataTypeInfo)
     {
-      var dataReaderAccessor = BuildDataReaderAccessor(dataTypeInfo);
-      if (dataTypeInfo.Type==typeof (byte[]))
-        return new DataTypeMapping(dataTypeInfo, dataReaderAccessor, DbType.Binary);
-      return new DataTypeMapping(dataTypeInfo, dataReaderAccessor, GetDbType(dataTypeInfo));
+      return new DataTypeMapping(dataTypeInfo, BuildDataReaderAccessor(dataTypeInfo), GetDbType(dataTypeInfo));
     }
 
     protected virtual DbType GetDbType(DataTypeInfo dataTypeInfo)
     {
-      DbType result = DbType.String;
       TypeCode typeCode = Type.GetTypeCode(dataTypeInfo.Type);
       switch (typeCode) {
+      case TypeCode.Object:
+        if (dataTypeInfo.Type == typeof(byte[]))
+          return DbType.Binary;
+        throw new ArgumentOutOfRangeException();
       case TypeCode.Boolean:
-        result = DbType.Boolean;
-        break;
+        return DbType.Boolean;
       case TypeCode.Char:
-        result = DbType.StringFixedLength;
-        break;
+        return DbType.StringFixedLength;
       case TypeCode.SByte:
-        result = DbType.SByte;
-        break;
+        return DbType.SByte;
       case TypeCode.Byte:
-        result = DbType.Byte;
-        break;
+        return DbType.Byte;
       case TypeCode.Int16:
-        result = DbType.Int16;
-        break;
+        return DbType.Int16;
       case TypeCode.UInt16:
-        result = DbType.UInt16;
-        break;
+        return DbType.UInt16;
       case TypeCode.Int32:
-        result = DbType.Int32;
-        break;
+        return DbType.Int32;
       case TypeCode.UInt32:
-        result = DbType.UInt32;
-        break;
+        return DbType.UInt32;
       case TypeCode.Int64:
-        result = DbType.Int64;
-        break;
+        return DbType.Int64;
       case TypeCode.UInt64:
-        result = DbType.UInt64;
-        break;
+        return DbType.UInt64;
       case TypeCode.Single:
-        result = DbType.Single;
-        break;
+        return DbType.Single;
       case TypeCode.Double:
-        result = DbType.Double;
-        break;
+        return DbType.Double;
       case TypeCode.Decimal:
-        result = DbType.Decimal;
-        break;
+        return DbType.Decimal;
       case TypeCode.DateTime:
-        result = DbType.DateTime;
-        break;
+        return DbType.DateTime;
       case TypeCode.String:
-        break;
+        return DbType.String;
       default:
         throw new ArgumentOutOfRangeException();
       }
-      return result;
     }
 
     protected virtual Func<DbDataReader, int, object> BuildDataReaderAccessor(DataTypeInfo dataTypeInfo)
