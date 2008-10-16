@@ -4,6 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2008.01.11
 
+using System;
 using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
@@ -23,17 +24,19 @@ namespace Xtensive.Storage.Building.Builders
         return null;
       Log.Info("Detecting hierarchy.");
 
-      var hierarchyRootAttribute = type.UnderlyingType.GetAttribute<HierarchyRootAttribute>(
-        AttributeSearchOptions.InheritFromAllBase);
-      if (hierarchyRootAttribute==null)
+      var attributes = type.UnderlyingType.GetAttributes<HierarchyRootAttribute>(AttributeSearchOptions.InheritFromAllBase);
+      if (attributes==null || attributes.Length == 0)
         return null;
+
+      if (attributes.Length!=1)
+        throw new DomainBuilderException("Multiple hierarchy attributes are not allowed.");
 
       TypeDef root = BuildingContext.Current.Definition.FindRoot(type);
       if (root!=null)
         return null;
 
       HierarchyDef hierarchy = new HierarchyDef(type);
-      AttributeProcessor.Process(hierarchy, type, hierarchyRootAttribute);
+      AttributeProcessor.Process(hierarchy, type, attributes[0]);
       return hierarchy;
     }
 
