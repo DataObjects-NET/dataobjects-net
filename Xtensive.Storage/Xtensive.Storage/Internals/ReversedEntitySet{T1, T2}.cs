@@ -29,7 +29,7 @@ namespace Xtensive.Storage.Internals
 
       AssociationInfo association = Field.Association;
       if (association!=null && association.IsPaired)
-        SyncManager.Enlist(OperationType.Add, Entity, item, Field.Association);
+        SyncManager.Enlist(OperationType.Add, OwnerEntity, item, Field.Association);
 
       OnCollectionChanged(NotifyCollectionChangedAction.Add, item);
       return true;
@@ -45,7 +45,7 @@ namespace Xtensive.Storage.Internals
 
       AssociationInfo association = Field.Association;
       if (association!=null && association.IsPaired)
-        SyncManager.Enlist(OperationType.Remove, Entity, item, Field.Association);
+        SyncManager.Enlist(OperationType.Remove, OwnerEntity, item, Field.Association);
 
       OnCollectionChanged(NotifyCollectionChangedAction.Remove, item);
       return true;
@@ -76,7 +76,7 @@ namespace Xtensive.Storage.Internals
 
     protected override CombineTransform GetKeyCombineTransform()
     {
-      return new CombineTransform(true, Entity.Key.Descriptor, Field.Association.ReferencedType.Hierarchy.KeyTupleDescriptor);
+      return new CombineTransform(true, OwnerEntity.Key.Descriptor, Field.Association.ReferencedType.Hierarchy.KeyTupleDescriptor);
     }
 
     #endregion

@@ -8,7 +8,9 @@ using System;
 using System.Reflection;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Internals;
+using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
+using Xtensive.Storage.Rse;
 using FieldInfo=Xtensive.Storage.Model.FieldInfo;
 
 namespace Xtensive.Storage
@@ -23,10 +25,13 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     public FieldInfo Field { get; private set; }
 
-    internal Entity Entity 
+    internal Entity OwnerEntity 
     {
       get { return (Entity) Owner; }
     }
+    protected IndexInfo Index { get; private set; }
+
+    protected RecordSet RecordSet { get; private set; }
 
     /// <inheritdoc/>
     EntitySetState IHasTransactionalState<EntitySetState>.State
@@ -40,7 +45,16 @@ namespace Xtensive.Storage
 
     internal abstract bool Remove(Entity item);
 
-    protected internal abstract void Initialize();
+    protected internal virtual void Initialize()
+    {
+      Index = GetIndex();
+      RecordSet = GetRecordSet();
+      State = new EntitySetState(RecordSet);
+    }
+
+    protected abstract IndexInfo GetIndex();
+
+    protected abstract RecordSet GetRecordSet();
 
     #region Activation members
 
@@ -80,7 +94,6 @@ namespace Xtensive.Storage
     {
       Field = field;
       Owner = owner;
-      State = new EntitySetState();
     }
   }
 }

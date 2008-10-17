@@ -262,7 +262,7 @@ namespace Xtensive.Storage.Building.Builders
 
       if (field.IsLazyLoad)
         throw new DomainBuilderException(string.Format(Strings.ExFieldXCanTBeLoadOnDemandAsItIsIncludedInPrimaryKey, field.Name));
-      if (field.IsNullable)
+      if (field.IsNullable && !field.ValueType.IsClass)
         throw new DomainBuilderException(string.Format(Strings.ExFieldXCanTBeNullableAsItIsIncludedInPrimaryKey, field.Name));
     }
 

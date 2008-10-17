@@ -10,7 +10,7 @@ namespace Xtensive.Storage.Internals
   {
     Transaction Transaction { get; }
 
-    bool IsConsistent(Transaction current);
+    void EnsureConsistency(Transaction current);
 
     void Reset(Transaction current);
   }

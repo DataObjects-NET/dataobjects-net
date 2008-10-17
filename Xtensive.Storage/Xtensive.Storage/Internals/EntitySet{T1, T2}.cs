@@ -36,9 +36,9 @@ namespace Xtensive.Storage.Internals
 
       AssociationInfo association = Field.Association;
       if (association!=null && association.IsPaired)
-        SyncManager.Enlist(OperationType.Add, Entity, item, Field.Association);
+        SyncManager.Enlist(OperationType.Add, OwnerEntity, item, Field.Association);
 
-      itemConstructor(KeyCombineTransform.Apply(TupleTransformType.TransformedTuple, item.Key, Entity.Key));
+      itemConstructor(KeyCombineTransform.Apply(TupleTransformType.TransformedTuple, item.Key, OwnerEntity.Key));
       OnCollectionChanged(NotifyCollectionChangedAction.Add, item);
       return true;
     }
@@ -53,9 +53,9 @@ namespace Xtensive.Storage.Internals
 
       AssociationInfo association = Field.Association;
       if (association!=null && association.IsPaired)
-        SyncManager.Enlist(OperationType.Remove, Entity, item, Field.Association);
+        SyncManager.Enlist(OperationType.Remove, OwnerEntity, item, Field.Association);
 
-      Key entityKey = Key.Get(typeof (T2), KeyCombineTransform.Apply(TupleTransformType.TransformedTuple, item.Key, Entity.Key));
+      Key entityKey = Key.Get(typeof (T2), KeyCombineTransform.Apply(TupleTransformType.TransformedTuple, item.Key, OwnerEntity.Key));
       var referenceEntity = (T2) entityKey.Resolve(); // Resolve entity
       referenceEntity.Remove();
       OnCollectionChanged(NotifyCollectionChangedAction.Remove, item);
@@ -93,7 +93,7 @@ namespace Xtensive.Storage.Internals
 
     protected virtual CombineTransform GetKeyCombineTransform()
     {
-      return new CombineTransform(true, Field.Association.ReferencedType.Hierarchy.KeyTupleDescriptor, Entity.Key.Descriptor);
+      return new CombineTransform(true, Field.Association.ReferencedType.Hierarchy.KeyTupleDescriptor, OwnerEntity.Key.Descriptor);
     }
 
     #endregion
