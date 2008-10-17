@@ -28,14 +28,18 @@ namespace Xtensive.Core.Diagnostics.Helpers
     {
       if (IsLogged(eventType)) {
         ThreadContextProperties tcp = ThreadContext.Properties;
-        if (capturedBy==null) {
-          tcp["indent"] = LogIndentScope.CurrentIndent;
-          tcp["indentString"] = LogIndentScope.CurrentIndentString;
+        try {
+          if (capturedBy==null) {
+            tcp["indent"] = LogIndentScope.CurrentIndent;
+            tcp["indentString"] = LogIndentScope.CurrentIndentString;
+          }
+          else {
+            int indent = LogIndentScope.CurrentIndent - capturedBy.InitialIndent;
+            tcp["indent"] = indent;
+            tcp["indentString"] = LogIndent.Create(indent).StringValue;
+          }
         }
-        else {
-          int indent = LogIndentScope.CurrentIndent - capturedBy.InitialIndent;
-          tcp["indent"] = indent;
-          tcp["indentString"] = LogIndent.Create(indent).StringValue;
+        catch (InvalidOperationException) {
         }
         if (exception != null)
           message = message + "\r\nOriginal error:";
