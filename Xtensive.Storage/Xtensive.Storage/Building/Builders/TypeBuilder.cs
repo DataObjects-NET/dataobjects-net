@@ -252,6 +252,7 @@ namespace Xtensive.Storage.Building.Builders
       typeDef.Indexes.Add(index);
     }
 
+    /// <exception cref="DomainBuilderException"><c>DomainBuilderException</c>.</exception>
     private static void BuildKeyField(TypeDef typeDef, KeyField keyField, TypeInfo type)
     {
       FieldDef srcField = typeDef.Fields[keyField.Name];
@@ -259,10 +260,10 @@ namespace Xtensive.Storage.Building.Builders
       FieldInfo field = type.Fields[srcField.Name];
       field.IsPrimaryKey = true;
 
-      if (field.IsLazyLoad) {
-        Log.Warning(string.Format(Strings.FieldXCanTBeLoadOnDemandAsItIsIncludedInPrimaryKey, field.Name));
-        field.IsLazyLoad = false;
-      }
+      if (field.IsLazyLoad)
+        throw new DomainBuilderException(string.Format(Strings.ExFieldXCanTBeLoadOnDemandAsItIsIncludedInPrimaryKey, field.Name));
+      if (field.IsNullable)
+        throw new DomainBuilderException(string.Format(Strings.ExFieldXCanTBeNullableAsItIsIncludedInPrimaryKey, field.Name));
     }
 
     private static TypeInfo BuildInterface(TypeDef typeDef, TypeInfo implementor)
@@ -274,7 +275,7 @@ namespace Xtensive.Storage.Building.Builders
       if (context.Model.Types.TryGetValue(typeDef.UnderlyingType, out type))
         if (type.Hierarchy!=implementor.Hierarchy) 
           throw new DomainBuilderException(
-            string.Format(Resources.Strings.InterfaceXDoesNotBelongToXHierarchy, type.Name, implementor.Hierarchy.Root.Name));
+            string.Format(Strings.InterfaceXDoesNotBelongToXHierarchy, type.Name, implementor.Hierarchy.Root.Name));
 
       if (context.SkippedTypes.Contains(typeDef.UnderlyingType))
         return null;

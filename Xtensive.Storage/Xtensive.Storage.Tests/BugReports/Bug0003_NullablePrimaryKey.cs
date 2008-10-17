@@ -9,36 +9,35 @@ using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Core.Testing;
 using Xtensive.Storage.Attributes;
-using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Tests.BugReports.Bug0002_Model;
+using Xtensive.Storage.Tests.BugReports.Bug0003_Model;
 
-namespace Xtensive.Storage.Tests.BugReports.Bug0002_Model
+namespace Xtensive.Storage.Tests.BugReports.Bug0003_Model
 {
   [HierarchyRoot(typeof (KeyGenerator), "ID")]
   public class X : Entity
   {
-    [Field(LazyLoad = true)]
-    public int ID { get; private set; }
+    [Field]
+    public int? ID { get; private set; }
   }
 }
 
 namespace Xtensive.Storage.Tests.BugReports
 {
   [TestFixture]
-  public class Bug0002_PrimaryKeyWithLazyLoad : AutoBuildTest
+  public class Bug0003_NullablePrimaryKey : AutoBuildTest
   {
-    protected override DomainConfiguration BuildConfiguration()
+    protected override Xtensive.Storage.Configuration.DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
       config.Types.Register(Assembly.GetExecutingAssembly(), typeof(X).Namespace);
       return config;
     }
 
-    protected override Domain BuildDomain(DomainConfiguration configuration)
+    protected override Domain BuildDomain(Xtensive.Storage.Configuration.DomainConfiguration configuration)
     {
-      Domain result = null;
-      AssertEx.Throws<AggregateException>(() => result = base.BuildDomain(configuration));
-      return result;
+      Domain domain = null;
+      AssertEx.Throws<AggregateException>(() => domain = base.BuildDomain(configuration));
+      return domain;
     }
   }
 }

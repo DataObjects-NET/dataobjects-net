@@ -329,7 +329,17 @@ namespace Xtensive.Storage.Resources {
                 return ResourceManager.GetString("ExFieldWithNameAlreadyExistsInEntityFieldsCollection", resourceCulture);
             }
         }
+
+      /// <summary>
+        ///   Looks up a localized string similar to Field &apos;{0}&apos; can&apos;t be Nullable as it is included in primary key..
+        /// </summary>
+        internal static string ExFieldXCanTBeNullableAsItIsIncludedInPrimaryKey {
+            get {
+                return ResourceManager.GetString("ExFieldXCanTBeNullableAsItIsIncludedInPrimaryKey", resourceCulture);
+            }
+        }
         
+
         /// <summary>
         ///   Looks up a localized string similar to Field {0} has &apos;{1}&apos; type but is marked as not nullable..
         /// </summary>
@@ -511,7 +521,7 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &apos;Pair&apos; attribute can not be used with &apos;{0}&apos; field..
+        ///   Looks up a localized string similar to &apos;PairTo&apos; attribute can not be used with &apos;{0}&apos; field..
         /// </summary>
         internal static string ExPairToAttributeCanNotBeUsedWithXField {
             get {
@@ -800,11 +810,11 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Field &apos;{0}&apos; can&apos;t be load on demand as it is included in primary key..
+        ///   Looks up a localized string similar to Field &apos;{0}&apos; can&apos;t LazyLoad attribute as it is included in primary key..
         /// </summary>
-        internal static string FieldXCanTBeLoadOnDemandAsItIsIncludedInPrimaryKey {
+        internal static string ExFieldXCanTBeLoadOnDemandAsItIsIncludedInPrimaryKey {
             get {
-                return ResourceManager.GetString("FieldXCanTBeLoadOnDemandAsItIsIncludedInPrimaryKey", resourceCulture);
+                return ResourceManager.GetString("ExFieldXCanTBeLoadOnDemandAsItIsIncludedInPrimaryKey", resourceCulture);
             }
         }
         

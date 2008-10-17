@@ -9,10 +9,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Xtensive.Core;
-using Xtensive.Core.Collections;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Reflection;
-using Xtensive.Integrity.Relations;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
@@ -107,6 +105,7 @@ namespace Xtensive.Storage.Building.Builders
             context.RegisterError(e);
           }
 
+        context.EnsureBuildSucceed();
         ValidateHierarchies();
         BuildAssociations();
         BuildColumns();

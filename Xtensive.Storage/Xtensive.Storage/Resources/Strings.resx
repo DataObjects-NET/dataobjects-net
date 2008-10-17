@@ -258,8 +258,8 @@
   <data name="ExTypeXIsNotRegisteredInTheModel" xml:space="preserve">
     <value>Type '{0}' is not registered in the model.</value>
   </data>
-  <data name="FieldXCanTBeLoadOnDemandAsItIsIncludedInPrimaryKey" xml:space="preserve">
-    <value>Field '{0}' can't be load on demand as it is included in primary key.</value>
+  <data name="ExFieldXCanTBeLoadOnDemandAsItIsIncludedInPrimaryKey" xml:space="preserve">
+    <value>Field '{0}' can't have LazyLoad attribute as it is included in primary key.</value>
   </data>
   <data name="TypeWithNameXIsAlreadyDefined" xml:space="preserve">
     <value>Type with name '{0}' is already defined.</value>
@@ -485,5 +485,8 @@
   </data>
   <data name="ExConfigurationForDomainIsNotFoundInApplicationConfigurationFile" xml:space="preserve">
     <value>Configuration for Domain with name '{0}' is not found in application configuration file (section '{1}').</value>
+  </data>
+  <data name="ExFieldXCanTBeNullableAsItIsIncludedInPrimaryKey" xml:space="preserve">
+    <value>Field '{0}' can't be Nullable as it is included in primary key.</value>
   </data>
 </root>
