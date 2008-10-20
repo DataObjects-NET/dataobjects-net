@@ -11,7 +11,6 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
@@ -261,7 +260,6 @@ namespace Xtensive.Storage
 
     #region INotifyCollectionChanged members
 
-    /// <inheritdoc/>
     public event NotifyCollectionChangedEventHandler CollectionChanged;
 
     protected void OnCollectionChanged(NotifyCollectionChangedAction action, Entity item)
