@@ -33,6 +33,12 @@ namespace Xtensive.Core.Aspects.Tests
       {
         Log.Info("OnSuccess called.");
       }
+
+      public override bool OnError(object instance, Exception e)
+      {
+        Log.Error(e);
+        return false;
+      }
     }
 
     class BaseClass
@@ -60,6 +66,9 @@ namespace Xtensive.Core.Aspects.Tests
       {
         try {
           return value.ToString();
+        }
+        catch(Exception e) {
+          throw;
         }
         finally {
           

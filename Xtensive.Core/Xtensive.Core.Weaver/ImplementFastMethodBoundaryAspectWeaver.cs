@@ -18,6 +18,7 @@ namespace Xtensive.Core.Weaver
     private IMethod onEntryMethod;
     private IMethod onExitMethod;
     private IMethod onSuccessMethod;
+    private IMethod onErrorMethod;
 
     public override void Implement()
     {
@@ -25,9 +26,10 @@ namespace Xtensive.Core.Weaver
       var module = Task.Project.Module;
       var methodBody = methodDef.MethodBody;
       var writer = Task.InstructionWriter;
-      methodBody.MaxStack += 2;
+      methodBody.MaxStack += 3;
       var restructurer = new MethodBodyRestructurer(methodDef, MethodBodyRestructurerOptions.ChangeReturnInstructions, Task.WeavingHelper);
       restructurer.Restructure(writer);
+      var returnBranchTarget = restructurer.ReturnBranchTarget;
       var rootBlock = methodBody.RootInstructionBlock;
 
       var onEntryBlock = restructurer.AfterInitializationBlock ?? restructurer.EntryBlock;
@@ -62,11 +64,31 @@ namespace Xtensive.Core.Weaver
       writer.EmitInstructionMethod(OpCodeNumber.Callvirt, onExitMethod);
       writer.EmitSymbolSequencePoint(SymbolSequencePoint.Hidden);
       writer.EmitInstruction(OpCodeNumber.Endfinally);
+      writer.EmitInstruction(OpCodeNumber.Nop);
+      writer.EmitInstruction(OpCodeNumber.Nop);
+      writer.DetachInstructionSequence();
+
+      var catchBlock = methodBody.CreateInstructionBlock();
+      ITypeSignature exceptionType = module.FindType(typeof(Exception), BindingOptions.Default);
+      var exception = onEntryBlock.DefineLocalVariable(exceptionType, "e");
+      lastChildBlock.AddExceptionHandlerCatch(exceptionType, catchBlock, NodePosition.Before, null);
+      var onErrorSequence = methodBody.CreateInstructionSequence();
+      catchBlock.AddInstructionSequence(onErrorSequence, NodePosition.After, null);
+      writer.AttachInstructionSequence(onErrorSequence);
+      writer.EmitSymbolSequencePoint(SymbolSequencePoint.Hidden);
+      writer.EmitInstructionLocalVariable(OpCodeNumber.Stloc, exception);
+      writer.EmitInstructionField(OpCodeNumber.Ldsfld, AspectRuntimeInstanceField);
+      writer.EmitInstruction(OpCodeNumber.Ldarg_0);
+      writer.EmitInstructionLocalVariable(OpCodeNumber.Ldloc, exception);
+      writer.EmitInstructionMethod(OpCodeNumber.Callvirt, onErrorMethod);
+      writer.EmitBranchingInstruction(OpCodeNumber.Brfalse, returnBranchTarget);
+      writer.EmitInstruction(OpCodeNumber.Rethrow);
+      writer.EmitInstruction(OpCodeNumber.Nop);
+      writer.EmitInstruction(OpCodeNumber.Nop);
       writer.DetachInstructionSequence();
 
       var returnBlock = methodBody.CreateInstructionBlock();
       rootBlock.AddChildBlock(returnBlock, NodePosition.After, null);
-      var returnBranchTarget = restructurer.ReturnBranchTarget;
       if (returnBranchTarget.ParentInstructionBlock==null)
         returnBlock.AddInstructionSequence(returnBranchTarget, NodePosition.After, null);
       writer.AttachInstructionSequence(returnBranchTarget);
@@ -86,6 +108,7 @@ namespace Xtensive.Core.Weaver
       onEntryMethod = (IMethod)module.Cache.GetItem(theModule => theModule.FindMethod(typeof (ImplementFastMethodBoundaryAspect).GetMethod("OnEntry"), BindingOptions.RequireGenericDefinition));
       onExitMethod = (IMethod)module.Cache.GetItem(theModule => theModule.FindMethod(typeof (ImplementFastMethodBoundaryAspect).GetMethod("OnExit"), BindingOptions.RequireGenericDefinition));
       onSuccessMethod = (IMethod)module.Cache.GetItem(theModule => theModule.FindMethod(typeof (ImplementFastMethodBoundaryAspect).GetMethod("OnSuccess"), BindingOptions.RequireGenericDefinition));
+      onErrorMethod = (IMethod)module.Cache.GetItem(theModule => theModule.FindMethod(typeof (ImplementFastMethodBoundaryAspect).GetMethod("OnError"), BindingOptions.RequireGenericDefinition));
     }
   }
 }

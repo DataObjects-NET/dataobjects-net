@@ -73,5 +73,13 @@ namespace Xtensive.Core.Aspects.Helpers
     /// </summary>
     /// <param name="instance">Current object instance on which this attribute is applied.</param>
     public abstract void OnSuccess(object instance);
+
+    /// <summary>
+    /// Method executed when the body of methods to which this aspect is applied throws an exception.
+    /// </summary>
+    /// <returns>An exception will be thrown when result is <see langword="true"/>.</returns>
+    /// <param name="instance">Current object instance on which this attribute is applied.</param>
+    /// <param name="e">Throwed exception.</param>
+    public abstract bool OnError(object instance, Exception e);
   }
 }
