@@ -87,6 +87,8 @@ namespace Xtensive.Integrity.Validation
     protected virtual void LeaveInconsistentRegion()
     {
       IsConsistent = true;
+      if (registry==null)
+        return;
       IList<Exception> exceptions = null;
       try {
         foreach (var pair in registry) {
@@ -123,6 +125,5 @@ namespace Xtensive.Integrity.Validation
     {
       IsConsistent = true;
     }
-  
   }
 }
