@@ -8,7 +8,6 @@ using System;
 using System.Reflection;
 using PostSharp.Extensibility;
 using PostSharp.Laos;
-using Xtensive.Core;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.Aspects.Helpers;
 using Xtensive.Core.Collections;
@@ -123,7 +122,12 @@ namespace Xtensive.Integrity.Aspects
 
     internal void OnSetValue(IValidationAware target, object value)
     {
-      target.Validate(_target => Check(_target), Mode);
+      var context = target.Context;
+      bool immediate = Mode==ValidationMode.Immediate || context==null || context.IsConsistent;
+      if (immediate)
+        CheckValue(target, value);
+      else
+        context.EnqueueValidate(target, _target => Check(_target));   
     }
 
 // ReSharper disable UnusedPrivateMember

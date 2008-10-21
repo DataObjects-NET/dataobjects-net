@@ -7,12 +7,13 @@
 using System;
 using System.Text.RegularExpressions;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Integrity.Resources;
 using Xtensive.Integrity.Validation.Interfaces;
 
 namespace Xtensive.Integrity.Aspects.Constraints
 {
   /// <summary>
-  /// Ensures field value matches specified regular expression.
+  /// Ensures property value matches specified regular expression.
   /// </summary>
   [Serializable]
   public class RegexConstraintAttribute : PropertyConstraintAspect
@@ -26,7 +27,7 @@ namespace Xtensive.Integrity.Aspects.Constraints
 
       if (!string.IsNullOrEmpty(stringValue) && !regex.IsMatch(stringValue))
         throw new ConstraintViolationException(
-          string.Format(Resources.Strings.StringXDoesNotMatchRegexPatternY, value, regex));
+          string.Format(Strings.StringXDoesNotMatchRegexPatternY, value, regex));
     }
 
     /// <inheritdoc/>

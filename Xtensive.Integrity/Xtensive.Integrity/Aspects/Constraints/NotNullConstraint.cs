@@ -14,22 +14,20 @@ namespace Xtensive.Integrity.Aspects.Constraints
   /// Ensures property value is not null or empty.
   /// </summary>
   [Serializable]
-  public class NotNullOrEmptyConstraintAttribute : PropertyConstraintAspect
+  public class NotNullConstraintAttribute : PropertyConstraintAspect
   {
     /// <inheritdoc/>
     public override void CheckValue(IValidationAware target, object value)
     {
-      string stringValue = (string) value;
-      
-      if (string.IsNullOrEmpty(stringValue))
+      if (value==null)
         throw new ConstraintViolationException(
-          string.Format(Strings.ValueCanNotBeEmpty));
+          string.Format(Strings.ValueCanNotBeNull));
     }
 
     /// <inheritdoc/>
     public override bool IsSupported(Type valueType)
     {
-      return valueType==typeof (string);
+      return true;
     }
   }
 }

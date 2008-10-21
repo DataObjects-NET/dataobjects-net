@@ -268,6 +268,33 @@ namespace Xtensive.Integrity.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Value can not be null..
+        /// </summary>
+        internal static string ValueCanNotBeNull {
+            get {
+                return ResourceManager.GetString("ValueCanNotBeNull", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Length of the value must be in [{0} ... {1}] range..
+        /// </summary>
+        internal static string ValueLengthMustBeInXYRange {
+            get {
+                return ResourceManager.GetString("ValueLengthMustBeInXYRange", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Value must be in [{0} ... {1}] range..
+        /// </summary>
+        internal static string ValueMustBeInXYRange {
+            get {
+                return ResourceManager.GetString("ValueMustBeInXYRange", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {0}.
         /// </summary>
         internal static string X {
@@ -286,11 +313,11 @@ namespace Xtensive.Integrity.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &apos;{0}&apos; interface should be implemented to use field constraints..
+        ///   Looks up a localized string similar to &apos;{0}&apos; interface should be implemented to use property constraints..
         /// </summary>
-        internal static string XInterfaceShouldBeImplementedToUseFieldConstraints {
+        internal static string XInterfaceShouldBeImplementedToUsePropertyConstraints {
             get {
-                return ResourceManager.GetString("XInterfaceShouldBeImplementedToUseFieldConstraints", resourceCulture);
+                return ResourceManager.GetString("XInterfaceShouldBeImplementedToUsePropertyConstraints", resourceCulture);
             }
         }
     }
