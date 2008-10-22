@@ -277,7 +277,7 @@ namespace Xtensive.Storage
       }
 
       if (CollectionChanged != null) {
-        CollectionChanged(this, new NotifyCollectionChangedEventArgs(action, item));
+        CollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
         OnPropertyChanged("Count");
       }
     }
