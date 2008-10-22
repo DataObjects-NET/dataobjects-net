@@ -31,7 +31,7 @@ namespace Xtensive.Storage.Building.Builders
   public static class DomainBuilder
   {
     private static readonly PluginManager<ProviderAttribute> pluginManager =
-      new PluginManager<ProviderAttribute>(typeof (HandlerFactory), Environment.CurrentDirectory);
+      new PluginManager<ProviderAttribute>(typeof (HandlerFactory), AppDomain.CurrentDomain.BaseDirectory);
 
     /// <summary>
     /// Builds the new <see cref="Domain"/> according to specified configuration.
