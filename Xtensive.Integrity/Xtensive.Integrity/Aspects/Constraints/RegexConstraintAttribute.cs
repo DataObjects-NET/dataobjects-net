@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Integrity.Resources;
 using Xtensive.Integrity.Validation.Interfaces;
+using Xtensive.Core.Reflection;
 
 namespace Xtensive.Integrity.Aspects.Constraints
 {
@@ -18,16 +19,21 @@ namespace Xtensive.Integrity.Aspects.Constraints
   [Serializable]
   public class RegexConstraintAttribute : PropertyConstraintAspect
   {
-    private readonly Regex regex;
+    /// <summary>
+    /// Gets or sets the <see cref="Regex"/> to use.
+    /// </summary>
+    public Regex Regex { get; set; }
     
     /// <inheritdoc/>
+    /// <exception cref="ConstraintViolationException">Value check failed.</exception>
     public override void CheckValue(IValidationAware target, object value)
     {
       string stringValue = (string) value;
 
-      if (!string.IsNullOrEmpty(stringValue) && !regex.IsMatch(stringValue))
-        throw new ConstraintViolationException(
-          string.Format(Strings.StringXDoesNotMatchRegexPatternY, value, regex));
+      if (!string.IsNullOrEmpty(stringValue) && !Regex.IsMatch(stringValue))
+        throw new ConstraintViolationException(string.Format(
+          Strings.PropertyValueDoesNotMatchRegexPattern, 
+          Property.GetShortName(true), Regex));
     }
 
     /// <inheritdoc/>
@@ -36,13 +42,16 @@ namespace Xtensive.Integrity.Aspects.Constraints
       return valueType==typeof (string);
     }
 
+    
+    // Constructors
+
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="regexPattern">The regular expression pattern.</param>
     public RegexConstraintAttribute(string regexPattern)
     {
-      regex = new Regex(regexPattern);
+      Regex = new Regex(regexPattern, RegexOptions.Compiled);
     }
   }
 }

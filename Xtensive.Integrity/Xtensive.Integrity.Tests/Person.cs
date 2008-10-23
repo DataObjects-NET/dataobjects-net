@@ -63,7 +63,7 @@ namespace Xtensive.Integrity.Tests
 
     [Changer]
     [Atomic]
-    [Validate]
+    [InconsistentRegion]
     [Trace(TraceOptions.All)]
     public void SetAll(string name, int age)
     {
@@ -73,7 +73,7 @@ namespace Xtensive.Integrity.Tests
 
     [Changer]
     [Atomic]
-    [Validate]
+    [InconsistentRegion]
     [Trace(TraceOptions.All)]
     public void SetAll(string name, int age, Passport passport)
     {
@@ -83,7 +83,7 @@ namespace Xtensive.Integrity.Tests
 
     [Changer]
     [Atomic]
-    [Validate]
+    [InconsistentRegion]
     [Trace(TraceOptions.All)]
     public void SetAll(string name, int age, string number, string issuedBy)
     {

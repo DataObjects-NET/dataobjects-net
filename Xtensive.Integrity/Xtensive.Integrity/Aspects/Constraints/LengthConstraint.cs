@@ -8,6 +8,7 @@ using System;
 using System.Collections;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Reflection;
 using Xtensive.Integrity.Resources;
 using Xtensive.Integrity.Validation.Interfaces;
 
@@ -19,17 +20,31 @@ namespace Xtensive.Integrity.Aspects.Constraints
   [Serializable]
   public class LengthConstraintAttribute : PropertyConstraintAspect
   {
-    /// <summary>
-    /// Gets the minimal allowed length.
-    /// </summary>
-    public long MinLength { get; private set; }
+    private long minLength = long.MinValue;
+    private long maxLength = long.MaxValue;
 
     /// <summary>
-    /// Gets the maximal allowed length.
+    /// Gets or sets the minimal allowed length.
+    /// Default is <see cref="long.MinValue"/>.
     /// </summary>
-    public long MaxLength { get; private set; }
+    public long MinLength
+    {
+      get { return minLength; }
+      set { minLength = value; }
+    }
+
+    /// <summary>
+    /// Gets or sets the maximal allowed length.
+    /// Default is <see cref="long.MaxValue"/>.
+    /// </summary>
+    public long MaxLength
+    {
+      get { return maxLength; }
+      set { maxLength = value; }
+    }
 
     /// <inheritdoc/>
+    /// <exception cref="ConstraintViolationException">Value check failed.</exception>
     public override void CheckValue(IValidationAware target, object value)
     {
       long length;
@@ -43,8 +58,9 @@ namespace Xtensive.Integrity.Aspects.Constraints
         length = ((ICollection)value).Count;
 
       if (length<MinLength || length>MaxLength)
-        throw new ConstraintViolationException(
-          string.Format(Strings.ValueLengthMustBeInXYRange, MinLength, MaxLength));
+        throw new ConstraintViolationException(string.Format(
+          Strings.PropertyValueLengthMustBeInXYRange, 
+          Property.GetShortName(true), MinLength, MaxLength));
     }
 
     /// <inheritdoc/>
@@ -62,10 +78,17 @@ namespace Xtensive.Integrity.Aspects.Constraints
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
+    public LengthConstraintAttribute()
+    {
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
     /// <param name="maxLength"><see cref="MaxLength"/> property value.</param>
     public LengthConstraintAttribute(long maxLength)
-      : this(0, maxLength)
     {
+      MaxLength = maxLength;
     }
 
     /// <summary>

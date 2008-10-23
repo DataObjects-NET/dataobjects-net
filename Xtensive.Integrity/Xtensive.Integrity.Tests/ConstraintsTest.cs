@@ -44,7 +44,7 @@ namespace Xtensive.Integrity.Tests
     internal class NamedObject : ValidatableObject
     {
       [RegexConstraint(@"^[^1-9]*$", Mode = ValidationMode.Immediate)]
-      [NotNullOrEmptyConstraint]
+      [RequiredConstraint(true)]
       public string Name { get; set;}      
     }
 
@@ -60,12 +60,10 @@ namespace Xtensive.Integrity.Tests
     public void AgedObjectTest()
     {
       AssertEx.Throws<ConstraintViolationException>(() => {
-        var a = new AgedObject();
-        a.Age = -1;
+        var a = new AgedObject {Age = (-1)};
       });
       AssertEx.Throws<ConstraintViolationException>(() => {
-        var a = new AgedObject();
-        a.Age = 101;
+        var a = new AgedObject {Age = 101};
       });
       using (Context.OpenInconsistentRegion()) {
         var a = new AgedObject();
@@ -73,14 +71,19 @@ namespace Xtensive.Integrity.Tests
         a.Age = 100;
       }
       {
-        var a = new AgedObject();
-        a.Age = 100;
+        var a = new AgedObject {Age = 100};
       }
     }
 
     [Test]
     public void NamedObjectTest()
     {
+      AssertEx.Throws<ConstraintViolationException>(() => {
+        var c = new NamedObject {Name = null};
+      });
+      AssertEx.Throws<ConstraintViolationException>(() => {
+        var c = new NamedObject {Name = string.Empty};
+      });
       AssertEx.Throws<AggregateException>(() => {
         using (Context.OpenInconsistentRegion()) {
           var c = new NamedObject();
@@ -89,8 +92,7 @@ namespace Xtensive.Integrity.Tests
         }
       });
       {
-        var c = new NamedObject();
-        c.Name = "Xtensive";
+        var c = new NamedObject {Name = "Xtensive"};
       }
     }
 
@@ -103,12 +105,10 @@ namespace Xtensive.Integrity.Tests
         w.Url = "www.x-tensive.com";
       }
       {
-        var w = new WebObject();
-        w.Url = "www.x-tensive.com";
+        var w = new WebObject {Url = "www.x-tensive.com"};
       }
       AssertEx.Throws<ConstraintViolationException>(() => {
-        var w = new WebObject();
-        w.Url = "x-tensive.com";
+        var w = new WebObject {Url = "x-tensive.com"};
       });
     }
   }

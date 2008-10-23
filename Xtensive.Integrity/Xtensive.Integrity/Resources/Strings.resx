@@ -168,11 +168,11 @@
   <data name="LogRelationSyncUndoError" xml:space="preserve">
     <value>Error during undoing the relation synchronization.</value>
   </data>
-  <data name="StringXDoesNotMatchRegexPatternY" xml:space="preserve">
-    <value>String '{0}' does not match regex pattern '{1}'.</value>
+  <data name="PropertyValueDoesNotMatchRegexPattern" xml:space="preserve">
+    <value>{0}: value does not match regex pattern '{1}'.</value>
   </data>
-  <data name="ValueCanNotBeEmpty" xml:space="preserve">
-    <value>Value can not be empty.</value>
+  <data name="PropertyValueCanNotBeEmpty" xml:space="preserve">
+    <value>{0}: value can not be empty.</value>
   </data>
   <data name="FieldConstraintCanNotBeAppliedToReadOnlyProperty" xml:space="preserve">
     <value>Field constraint can not be applied to read only property.</value>
@@ -195,13 +195,16 @@
   <data name="ExValidationFailed" xml:space="preserve">
     <value>Validation failed.</value>
   </data>
-  <data name="ValueCanNotBeNull" xml:space="preserve">
-    <value>Value can not be null.</value>
+  <data name="PropertyValueCanNotBeNull" xml:space="preserve">
+    <value>{0}: value can not be null.</value>
   </data>
-  <data name="ValueLengthMustBeInXYRange" xml:space="preserve">
-    <value>Length of the value must be in [{0} ... {1}] range.</value>
+  <data name="PropertyValueLengthMustBeInXYRange" xml:space="preserve">
+    <value>{0}: length of the value must be in [{1} ... {2}] range.</value>
   </data>
-  <data name="ValueMustBeInXYRange" xml:space="preserve">
-    <value>Value must be in [{0} ... {1}] range.</value>
+  <data name="PropertyValueMustBeInXYRange" xml:space="preserve">
+    <value>{0}: value must be in [{1} ... {2}] range.</value>
+  </data>
+  <data name="AspectExNoComparer" xml:space="preserve">
+    <value>[{0}] attribute requires a comparer for type '{1}'.</value>
   </data>
 </root>

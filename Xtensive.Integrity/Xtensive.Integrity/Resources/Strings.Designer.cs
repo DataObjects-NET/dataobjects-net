@@ -61,6 +61,15 @@ namespace Xtensive.Integrity.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to [{0}] attribute requires a comparer for type &apos;{1}&apos;..
+        /// </summary>
+        internal static string AspectExNoComparer {
+            get {
+                return ResourceManager.GetString("AspectExNoComparer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to UndoDescriptor is already completed..
         /// </summary>
         internal static string ExAlreadyCompleted {
@@ -250,47 +259,47 @@ namespace Xtensive.Integrity.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to String &apos;{0}&apos; does not match regex pattern &apos;{1}&apos;..
+        ///   Looks up a localized string similar to {0}: value can not be empty..
         /// </summary>
-        internal static string StringXDoesNotMatchRegexPatternY {
+        internal static string PropertyValueCanNotBeEmpty {
             get {
-                return ResourceManager.GetString("StringXDoesNotMatchRegexPatternY", resourceCulture);
+                return ResourceManager.GetString("PropertyValueCanNotBeEmpty", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Value can not be empty..
+        ///   Looks up a localized string similar to {0}: value can not be null..
         /// </summary>
-        internal static string ValueCanNotBeEmpty {
+        internal static string PropertyValueCanNotBeNull {
             get {
-                return ResourceManager.GetString("ValueCanNotBeEmpty", resourceCulture);
+                return ResourceManager.GetString("PropertyValueCanNotBeNull", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Value can not be null..
+        ///   Looks up a localized string similar to {0}: value does not match regex pattern &apos;{1}&apos;..
         /// </summary>
-        internal static string ValueCanNotBeNull {
+        internal static string PropertyValueDoesNotMatchRegexPattern {
             get {
-                return ResourceManager.GetString("ValueCanNotBeNull", resourceCulture);
+                return ResourceManager.GetString("PropertyValueDoesNotMatchRegexPattern", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Length of the value must be in [{0} ... {1}] range..
+        ///   Looks up a localized string similar to {0}: length of the value must be in [{1} ... {2}] range..
         /// </summary>
-        internal static string ValueLengthMustBeInXYRange {
+        internal static string PropertyValueLengthMustBeInXYRange {
             get {
-                return ResourceManager.GetString("ValueLengthMustBeInXYRange", resourceCulture);
+                return ResourceManager.GetString("PropertyValueLengthMustBeInXYRange", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Value must be in [{0} ... {1}] range..
+        ///   Looks up a localized string similar to {0}: value must be in [{1} ... {2}] range..
         /// </summary>
-        internal static string ValueMustBeInXYRange {
+        internal static string PropertyValueMustBeInXYRange {
             get {
-                return ResourceManager.GetString("ValueMustBeInXYRange", resourceCulture);
+                return ResourceManager.GetString("PropertyValueMustBeInXYRange", resourceCulture);
             }
         }
         

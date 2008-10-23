@@ -9,12 +9,9 @@ using System.Diagnostics;
 using System.Reflection;
 using PostSharp.Extensibility;
 using PostSharp.Laos;
-using Xtensive.Core;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.Aspects.Helpers;
 using Xtensive.Core.Disposable;
-using Xtensive.Core.Helpers;
-using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
 using Xtensive.Integrity.Validation;
 using Xtensive.Integrity.Validation.Interfaces;
@@ -22,19 +19,19 @@ using Xtensive.Integrity.Validation.Interfaces;
 namespace Xtensive.Integrity.Aspects
 {
   /// <summary>
-  /// Provides validation feature for methods it is applied on
-  /// by <see cref="ValidationContextBase"/> activation.
+  /// Wraps a method of property body into so-called "inconsistent region"
+  /// using <see cref="ValidationContextBase.OpenInconsistentRegion"/> method.
   /// </summary>
   // [MulticastAttributeUsage(MulticastTargets.Property | MulticastTargets.Method)]
   [AttributeUsage(AttributeTargets.Property | AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
   [Serializable]
-  public sealed class ValidateAttribute : OnMethodBoundaryAspect,
+  public sealed class InconsistentRegionAttribute : OnMethodBoundaryAspect,
     ILaosWeavableAspect
   {
     int ILaosWeavableAspect.AspectPriority
     {
       get {
-        return (int)IntegrityAspectPriority.Validate;
+        return (int)IntegrityAspectPriority.InconsistentRegion;
       }
     }
 
@@ -44,17 +41,17 @@ namespace Xtensive.Integrity.Aspects
       if (!AspectHelper.ValidateBaseType(this, SeverityType.Error, method.DeclaringType, true, typeof(IValidationAware)))
         return false;
 
-      MethodInfo methodInfo = method as MethodInfo;      
+      var methodInfo = method as MethodInfo;      
 
       if (methodInfo.IsGetter()) {
-        // This is getter; let's check if it is explicitely marked as [Validate]
+        // This is getter; let's check if it is explicitely marked as [InconsistentRegion]
         var propertyInfo = methodInfo.GetProperty();
         if (propertyInfo!=null && propertyInfo.GetAttribute<AtomicAttribute>(
           AttributeSearchOptions.Default)!=null)
-          // Property itself is marked as [Validate]
+          // Property itself is marked as [InconsistentRegion]
           return false;
         
-        // Property getter is marked as [Validate]
+        // Property getter is marked as [InconsistentRegion]
         ErrorLog.Write(SeverityType.Warning, AspectMessageType.AspectPossiblyMissapplied,
           AspectHelper.FormatType(GetType()),
           AspectHelper.FormatMember(methodInfo.DeclaringType, methodInfo));
