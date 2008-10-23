@@ -147,7 +147,7 @@ namespace Xtensive.Storage.Building.Builders
       if (attribute.referentialAction==null)
         return;
 
-      if (!field.IsEntity)
+      if (!(field.IsEntity || field.IsEntitySet))
         throw new DomainBuilderException(
           string.Format(Strings.InvalidOnDeleteAttributeUsageOnFieldXFieldIsNotEntityReference, field.Name));
 

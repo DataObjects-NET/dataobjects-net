@@ -153,8 +153,8 @@ namespace Xtensive.Storage.Building.Definitions
       get { return onRemove; }
       set
       {
-        if (!IsEntity)
-          throw new InvalidOperationException("Field is not an entity reference.");
+        if (!(IsEntity || IsEntitySet))
+          throw new InvalidOperationException("Field is not an entity reference or entity set.");
         onRemove = value;
       }
     }

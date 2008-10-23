@@ -25,7 +25,7 @@ namespace Xtensive.Storage.Tests.ReferentialIntegrityModel
 
   public class A : Root
   {
-    [Field(OnRemove = ReferentialAction.SetNull)]
+    [Field(OnRemove = ReferentialAction.Clear)]
     public B B { get; set; }
 
     [Field(OnRemove = ReferentialAction.Restrict)]
@@ -34,20 +34,26 @@ namespace Xtensive.Storage.Tests.ReferentialIntegrityModel
 
   public class B : Root
   {
-    [Field]
-    private int Id { get; set; }
-
     [Field(OnRemove = ReferentialAction.Cascade, PairTo = "B")]
     public A A { get; set; }
   }
 
   public class C : Root
   {
-    [Field]
-    private int Id { get; set; }
-
     [Field(OnRemove = ReferentialAction.Cascade, PairTo = "C")]
     public A A { get; set; }
+  }
+
+  public class Master : Root
+  {
+    [Field(OnRemove = ReferentialAction.Clear)]
+    public EntitySet<Slave> Slaves { get; private set; }
+  }
+
+  public class Slave : Root
+  {
+    [Field(PairTo = "Slaves")]
+    public Master Master { get; private set; }
   }
 }
 
@@ -84,6 +90,12 @@ namespace Xtensive.Storage.Tests.Storage
           Assert.AreEqual(0, Session.Current.All<A>().Count());
           Assert.AreEqual(0, Session.Current.All<B>().Count());
           Assert.AreEqual(0, Session.Current.All<C>().Count());
+
+          Master m = new Master();
+          m.Slaves.Add(new Slave());
+          Assert.AreEqual(1, m.Slaves.Count);
+          m.Slaves.First().Remove();
+          Assert.AreEqual(0, m.Slaves.Count);
           t.Complete();
         }
       }

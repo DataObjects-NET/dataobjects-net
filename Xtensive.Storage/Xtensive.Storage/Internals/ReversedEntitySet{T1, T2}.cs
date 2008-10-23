@@ -74,11 +74,6 @@ namespace Xtensive.Storage.Internals
       return new MapTransform(true, keyTupleDescriptor, columnIndexes.ToArray());
     }
 
-    protected override CombineTransform GetKeyCombineTransform()
-    {
-      return new CombineTransform(true, OwnerEntity.Key.Descriptor, Field.Association.ReferencedType.Hierarchy.KeyTupleDescriptor);
-    }
-
     #endregion
 
 

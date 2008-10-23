@@ -54,7 +54,7 @@ namespace Xtensive.Storage
         return true;
 
       FieldInfo referencingField = Field.Association.Reversed.ReferencingField;
-      if (item.GetReference(referencingField) == OwnerEntity.Key) {
+      if (item.GetKey(referencingField) == OwnerEntity.Key) {
         State.Cache(item.Key);
         return true;
       }
@@ -154,15 +154,24 @@ namespace Xtensive.Storage
       get { return false; }
     }
 
-    /// <inheritdoc/>
     public IEnumerator<T> GetEnumerator()
+    {
+      foreach (Key key in GetKeys())
+        yield return key.Resolve<T>();
+    }
+
+    /// <summary>
+    /// Gets the keys.
+    /// </summary>
+    /// <returns>The <see cref="IEnumerable{Key}"/> collection of <see cref="Key"/> instances.</returns>
+    public IEnumerable<Key> GetKeys()
     {
       State.EnsureConsistency(Transaction.Current);
       long version = State.Version;
       if (State.IsConsistent) {
         foreach (Key key in State) {
           CheckVersion(version);
-          yield return key.Resolve<T>();
+          yield return key;
         }
       }
       else {
@@ -170,7 +179,7 @@ namespace Xtensive.Storage
           CheckVersion(version);
           var key = Key.Get(typeof (T), KeyExtractTransform.Apply(TupleTransformType.TransformedTuple, tuple));
           State.Cache(key);
-          yield return key.Resolve<T>();
+          yield return key;
         }
       }
     }
@@ -260,6 +269,9 @@ namespace Xtensive.Storage
 
     #region INotifyCollectionChanged members
 
+    /// <summary>
+    /// Occurs when the collection changes.
+    /// </summary>
     public event NotifyCollectionChangedEventHandler CollectionChanged;
 
     protected void OnCollectionChanged(NotifyCollectionChangedAction action, Entity item)

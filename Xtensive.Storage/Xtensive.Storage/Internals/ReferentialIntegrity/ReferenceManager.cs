@@ -16,7 +16,7 @@ namespace Xtensive.Storage.ReferentialIntegrity
   {
     private static readonly CascadeProcessor cascadeProcessor = new CascadeProcessor();
     private static readonly RestrictProcessor restrictProcessor = new RestrictProcessor();
-    private static readonly SetNullProcessor setNullProcessor = new SetNullProcessor();
+    private static readonly ClearProcessor clearProcessor = new ClearProcessor();
 
     public static void ClearReferencesTo(Entity referencedObject)
     {
@@ -25,7 +25,7 @@ namespace Xtensive.Storage.ReferentialIntegrity
       using (context.Activate()) {
         context.RemovalQueue.Add(referencedObject);
         ApplyAction(referencedObject, ReferentialAction.Restrict);
-        ApplyAction(referencedObject, ReferentialAction.SetNull);
+        ApplyAction(referencedObject, ReferentialAction.Clear);
         ApplyAction(referencedObject, ReferentialAction.Cascade);
       }
     }
@@ -35,8 +35,8 @@ namespace Xtensive.Storage.ReferentialIntegrity
       TypeInfo type = referencedObject.Type;
       ActionProcessor processor;
       switch(action) {
-        case ReferentialAction.SetNull:
-          processor = setNullProcessor;
+        case ReferentialAction.Clear:
+          processor = clearProcessor;
           break;
         case ReferentialAction.Default:
           processor = restrictProcessor;

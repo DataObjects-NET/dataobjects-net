@@ -81,7 +81,7 @@ namespace Xtensive.Storage
 
     #endregion
 
-    #region GetValue, SetValue, GetReference methods
+    #region GetValue, SetValue, GetKey methods
 
     [Infrastructure]
     protected T GetValue<T>(string name)
@@ -111,7 +111,7 @@ namespace Xtensive.Storage
 
       AssociationInfo association = field.Association;
       if (association!=null && association.IsPaired) {
-        Key currentRef = GetReference(field);
+        Key currentRef = GetKey(field);
         Key newRef = null;
         Entity newEntity = (Entity) (object) value;
         if (newEntity != null)
@@ -128,13 +128,13 @@ namespace Xtensive.Storage
     }
 
     [Infrastructure]
-    internal Key GetReference(string name)
+    internal Key GetKey(string name)
     {
-      return GetReference(Type.Fields[name]);
+      return GetKey(Type.Fields[name]);
     }
 
     [Infrastructure]
-    internal Key GetReference(FieldInfo field)
+    internal Key GetKey(FieldInfo field)
     {
       return EntityFieldAccessor<Entity>.ExtractKey(this, field);
     }

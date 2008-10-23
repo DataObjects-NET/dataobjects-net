@@ -7,12 +7,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Caching;
 using Xtensive.Integrity.Transactions;
 using Xtensive.Storage.Resources;
-using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Internals
 {
@@ -24,9 +22,9 @@ namespace Xtensive.Storage.Internals
     private const int CacheSize = 10240;
     private readonly ICache<Key, CachedKey> cache;
     private Transaction transaction;
-    private RecordSet recordSet;
     private int count;
     private int version;
+    private readonly Func<int> getCount;
 
     public int Count
     {
@@ -98,7 +96,7 @@ namespace Xtensive.Storage.Internals
     {
       Clear();
       transaction = current;
-      count = recordSet.Count();
+      count = getCount();
       version++;
     }
 
@@ -117,10 +115,10 @@ namespace Xtensive.Storage.Internals
 
     // Constructor
 
-    public EntitySetState(RecordSet recordSet)
+    public EntitySetState(Func<int> getCount)
     {
       cache = new LruCache<Key, CachedKey>(CacheSize, cachedKey => cachedKey.Key);
-      this.recordSet = recordSet;
+      this.getCount = getCount;
     }
   }
 }

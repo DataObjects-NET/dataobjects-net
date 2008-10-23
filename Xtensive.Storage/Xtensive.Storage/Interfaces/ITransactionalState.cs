@@ -4,12 +4,10 @@
 // Created by: Dmitri Maximov
 // Created:    2008.10.15
 
-namespace Xtensive.Storage.Internals
+namespace Xtensive.Storage
 {
-  public interface ITransactionalState
+  public interface ITransactionalState : ITransactionBound
   {
-    Transaction Transaction { get; }
-
     void EnsureConsistency(Transaction current);
 
     void Reset(Transaction current);

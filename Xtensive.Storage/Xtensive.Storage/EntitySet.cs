@@ -5,6 +5,7 @@
 // Created:    2008.09.10
 
 using System;
+using System.Linq;
 using System.Reflection;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Internals;
@@ -49,7 +50,7 @@ namespace Xtensive.Storage
     {
       Index = GetIndex();
       RecordSet = GetRecordSet();
-      State = new EntitySetState(RecordSet);
+      State = new EntitySetState(() => RecordSet.Count());
     }
 
     protected abstract IndexInfo GetIndex();

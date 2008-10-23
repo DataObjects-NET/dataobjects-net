@@ -24,7 +24,6 @@ namespace Xtensive.Storage.Internals
     where T2 : Entity
   {
     private static readonly Func<Tuple, T2> itemConstructor = DelegateHelper.CreateDelegate<Func<Tuple, T2>>(null, typeof(T2), DelegateHelper.AspectedProtectedConstructorCallerName, ArrayUtils<Type>.EmptyArray);
-    protected CombineTransform KeyCombineTransform { get; private set; }
 
     /// <inheritdoc/>
     public override bool Add(T1 item)
@@ -38,7 +37,7 @@ namespace Xtensive.Storage.Internals
       if (association!=null && association.IsPaired)
         SyncManager.Enlist(OperationType.Add, OwnerEntity, item, Field.Association);
 
-      itemConstructor(KeyCombineTransform.Apply(TupleTransformType.TransformedTuple, item.Key, OwnerEntity.Key));
+      itemConstructor(item.Key.CombineWith(OwnerEntity.Key));
       OnCollectionChanged(NotifyCollectionChangedAction.Add, item);
       return true;
     }
@@ -55,7 +54,7 @@ namespace Xtensive.Storage.Internals
       if (association!=null && association.IsPaired)
         SyncManager.Enlist(OperationType.Remove, OwnerEntity, item, Field.Association);
 
-      Key entityKey = Key.Get(typeof (T2), KeyCombineTransform.Apply(TupleTransformType.TransformedTuple, item.Key, OwnerEntity.Key));
+      Key entityKey = Key.Get(typeof (T2), item.Key.CombineWith(OwnerEntity.Key));
       var referenceEntity = (T2) entityKey.Resolve(); // Resolve entity
       referenceEntity.Remove();
       OnCollectionChanged(NotifyCollectionChangedAction.Remove, item);
@@ -70,12 +69,6 @@ namespace Xtensive.Storage.Internals
 
     #region Initialization members
 
-    protected internal override void Initialize()
-    {
-      base.Initialize();
-      KeyCombineTransform = GetKeyCombineTransform();
-    }
-
     protected override IndexInfo GetIndex()
     {
       return Field.ReflectedType.Model.Types[typeof (T2)].Indexes.Where(indexInfo => indexInfo.IsSecondary).Skip(1).First();
@@ -89,11 +82,6 @@ namespace Xtensive.Storage.Internals
       var keyTupleDescriptor = types[typeof (T1)].Hierarchy.KeyTupleDescriptor;
       IEnumerable<int> columnIndexes = columns.Select(columnInfo => Index.Columns.First(columnInfo2 => columnInfo2.Name==columnInfo.Name)).Select(columnInfo => Index.Columns.IndexOf(columnInfo));
       return new MapTransform(true, keyTupleDescriptor, columnIndexes.ToArray());
-    }
-
-    protected virtual CombineTransform GetKeyCombineTransform()
-    {
-      return new CombineTransform(true, Field.Association.ReferencedType.Hierarchy.KeyTupleDescriptor, OwnerEntity.Key.Descriptor);
     }
 
     #endregion

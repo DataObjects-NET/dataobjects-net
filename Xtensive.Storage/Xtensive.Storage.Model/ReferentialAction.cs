@@ -17,10 +17,10 @@ namespace Xtensive.Storage.Model
   {
     /// <summary>
     /// Indicates that ORM is capable to assign <b>NULL</b> to a field
-    /// referenced by foreign key constraint in order to preserve referential 
-    /// integrity if it violated by some executed instruction.
+    /// referenced by foreign key constraint or to remove the whole item that is used in n-ry relations
+    /// in order to preserve referential integrity if it violated by some executed instruction.
     /// </summary>
-    SetNull = 0,
+    Clear = 0,
 
     /// <summary>
     /// The same as <see cref="Restrict"/>.
