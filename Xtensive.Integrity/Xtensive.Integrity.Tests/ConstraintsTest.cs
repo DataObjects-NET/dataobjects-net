@@ -38,7 +38,10 @@ namespace Xtensive.Integrity.Tests
     internal class AgedObject : ValidatableObject
     {      
       [RangeConstraint(0, 100)]
-      public int Age{ get; set;}
+      public int Age { get; set;}
+
+//      [RangeConstraint(10)]
+//      public AgedObject Wrong { get; set; }
     }
 
     internal class NamedObject : ValidatableObject

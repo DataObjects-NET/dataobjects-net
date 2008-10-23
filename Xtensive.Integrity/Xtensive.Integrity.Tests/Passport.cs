@@ -6,10 +6,8 @@
 
 using System;
 using System.Runtime.Serialization;
-using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Core.Aspects;
-using Xtensive.Integrity.Atomicity;
 using Xtensive.Integrity.Aspects;
 
 namespace Xtensive.Integrity.Tests
@@ -67,7 +65,15 @@ namespace Xtensive.Integrity.Tests
       return string.Format("Passport #{0} from {1}", Number, IssuedBy);
     }
 
-    #region Equals implementation
+    #region Equality members
+
+    public override int GetHashCode()
+    {
+      return unchecked (
+        Number.GetHashCode() * 329 + 
+        IssuedBy.GetHashCode()
+        );
+    }
 
     public bool Equals(Passport obj)
     {

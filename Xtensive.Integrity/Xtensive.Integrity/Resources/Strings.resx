@@ -205,6 +205,6 @@
     <value>{0}: value must be in [{1} ... {2}] range.</value>
   </data>
   <data name="AspectExNoComparer" xml:space="preserve">
-    <value>[{0}] attribute requires a comparer for type '{1}'.</value>
+    <value>[{0}] attribute on '{1}' requires a comparer for type '{2}'.</value>
   </data>
 </root>

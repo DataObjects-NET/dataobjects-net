@@ -61,7 +61,7 @@ namespace Xtensive.Integrity.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to [{0}] attribute requires a comparer for type &apos;{1}&apos;..
+        ///   Looks up a localized string similar to [{0}] attribute on &apos;{1}&apos; requires a comparer for type &apos;{2}&apos;..
         /// </summary>
         internal static string AspectExNoComparer {
             get {

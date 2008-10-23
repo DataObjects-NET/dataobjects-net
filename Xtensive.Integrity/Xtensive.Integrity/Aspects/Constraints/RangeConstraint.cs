@@ -5,6 +5,7 @@
 // Created:    2008.07.25
 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.Serialization;
 using PostSharp.Extensibility;
@@ -54,11 +55,13 @@ namespace Xtensive.Integrity.Aspects.Constraints
       Func<object, object, int> comparer = null;
       try {
         comparer = GetCachedComparer();
+        ErrorLog.Debug("Comparer: {0} for {1}", comparer, Property.GetShortName(true));
       }
       catch {}
       if (comparer==null) {
         ErrorLog.Write(SeverityType.Error, Strings.AspectExNoComparer,
           AspectHelper.FormatType(GetType()),
+          AspectHelper.FormatMember(Property.DeclaringType, Property),
           AspectHelper.FormatType(Property.PropertyType));
         return false;
       }
@@ -101,7 +104,11 @@ namespace Xtensive.Integrity.Aspects.Constraints
     private Func<object, object, int> GetComparer<T>()
 // ReSharper restore UnusedPrivateMember
     {
+      if (!typeof(IComparable<T>).IsAssignableFrom(typeof(T)))
+        return null;
       var compare = AdvancedComparer<T>.System.Compare;
+      if (compare==null)
+        return null;
       return (l, r) => r==null ? 0 : compare((T) l, (T) r);
     }
 
