@@ -65,6 +65,65 @@ namespace Xtensive.Core.Aspects.Tests
       }
     }
 
+    struct TestStruct
+    {
+      [LogMethodAspect]
+      public string Method(int value)
+      {
+        return value.ToString();
+      }
+
+      [LogMethodAspect]
+      public string Method(string value)
+      {
+        return value;
+      }
+
+      [LogMethodAspect]
+      public string MethodGeneric<T>(T value)
+      {
+        return value.ToString();
+      }
+
+      [LogMethodAspect]
+      public string MethodGeneric<T>(T value, bool isTrue)
+      {
+        if (isTrue)
+          return value+".IsTrue";
+        return value.ToString();
+      }
+    }
+
+    static class TestClassStatic
+    {
+      [LogMethodAspect]
+      public static string Method(int value)
+      {
+        return value.ToString();
+      }
+
+      [LogMethodAspect]
+      public static string Method(string value)
+      {
+        return value;
+      }
+
+      [LogMethodAspect]
+      public static string MethodGeneric<T>(T value)
+      {
+        return value.ToString();
+      }
+
+      [LogMethodAspect]
+      public static string MethodGeneric<T>(T value, bool isTrue)
+      {
+        if (isTrue)
+          return value + ".IsTrue";
+        return value.ToString();
+      }
+
+    }
+
     class TestClass : BaseClass<int>
     {
       private static LogMethodAspect testAspect = new LogMethodAspect();
@@ -90,6 +149,8 @@ namespace Xtensive.Core.Aspects.Tests
       [LogMethodAspect]
       public string MethodGeneric<T>(T value, bool isTrue)
       {
+        if (isTrue)
+          return value + ".IsTrue";
         return value.ToString();
       }
 
@@ -137,12 +198,25 @@ namespace Xtensive.Core.Aspects.Tests
     [Test]
     public void Test()
     {
-      TestClass testClass = new TestClass(512);
-      testClass.Method(20);
-      testClass.Method("20");
-      testClass.NotAspectedMethodGeneric(20);
-      testClass.MethodGeneric(20);
-      testClass.MethodGeneric("20", true);
+      var testClass = new TestClass(512);
+      Assert.AreEqual("20", testClass.Method(20));
+      Assert.AreEqual("20", testClass.Method("20"));
+      Assert.AreEqual("20", testClass.MethodGeneric(20));
+      Assert.AreEqual("20", testClass.MethodGeneric("20", false));
+      Assert.AreEqual("20.IsTrue", testClass.MethodGeneric("20", true));
+
+      var testStruct = new TestStruct();
+      Assert.AreEqual("20", testStruct.Method(20));
+      Assert.AreEqual("20", testStruct.Method("20"));
+      Assert.AreEqual("20", testStruct.MethodGeneric(20));
+      Assert.AreEqual("20", testStruct.MethodGeneric("20", false));
+      Assert.AreEqual("20.IsTrue", testStruct.MethodGeneric("20", true));
+
+      Assert.AreEqual("20", TestClassStatic.Method(20));
+      Assert.AreEqual("20", TestClassStatic.Method("20"));
+      Assert.AreEqual("20", TestClassStatic.MethodGeneric(20));
+      Assert.AreEqual("20", TestClassStatic.MethodGeneric("20", false));
+      Assert.AreEqual("20.IsTrue", TestClassStatic.MethodGeneric("20", true));
     }
 
     [Test]

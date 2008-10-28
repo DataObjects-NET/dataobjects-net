@@ -21,7 +21,7 @@ namespace Xtensive.Storage.Aspects
   [MulticastAttributeUsage(MulticastTargets.Method)]
   [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
   [Serializable]
-  internal sealed class SessionBoundMethodAspect : OnMethodBoundaryAspect,
+  internal sealed class SessionBoundMethodAspect : ImplementFastMethodBoundaryAspect,
     ILaosWeavableAspect
   {
     int ILaosWeavableAspect.AspectPriority {
@@ -41,19 +41,33 @@ namespace Xtensive.Storage.Aspects
       return true;
     }
 
+    /// <inheritdoc/>
     [DebuggerStepThrough]
-    public override void OnEntry(MethodExecutionEventArgs eventArgs)
+    public override object OnEntry(object instance)
     {
-      var sessionBound = (SessionBound) eventArgs.Instance;
-      var sessionScope = (SessionScope) sessionBound.ActivateContext();
-      eventArgs.MethodExecutionTag = sessionScope;
+      var sessionBound = (SessionBound)instance;
+      var sessionScope = (SessionScope)sessionBound.ActivateContext();
+      return sessionScope;
     }
 
+    /// <inheritdoc/>
     [DebuggerStepThrough]
-    public override void OnExit(MethodExecutionEventArgs eventArgs)
+    public override void OnExit(object instance, object onEntryResult)
     {
-      var d = (IDisposable) eventArgs.MethodExecutionTag;
+      var d = (IDisposable)onEntryResult;
       d.DisposeSafely();
+    }
+
+    /// <inheritdoc/>
+    [DebuggerStepThrough]
+    public override void OnSuccess(object instance, object onEntryResult)
+    {}
+
+    /// <inheritdoc/>
+    [DebuggerStepThrough]
+    public override bool OnError(object instance, Exception e)
+    {
+      return true;
     }
   }
 }

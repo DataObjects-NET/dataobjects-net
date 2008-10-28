@@ -21,7 +21,7 @@ namespace Xtensive.Storage.Aspects
   [MulticastAttributeUsage(MulticastTargets.Method)]
   [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)] 
   [Serializable]
-  public sealed class TransactionalAttribute : OnMethodBoundaryAspect,
+  public sealed class TransactionalAttribute : ImplementFastMethodBoundaryAspect,
     ILaosWeavableAspect
   {   
     int ILaosWeavableAspect.AspectPriority {
@@ -44,26 +44,33 @@ namespace Xtensive.Storage.Aspects
 
     /// <inheritdoc/>
     [DebuggerStepThrough]
-    public override void OnEntry(MethodExecutionEventArgs eventArgs)
+    public override object OnEntry(object instance)
     {
       var transactionScope = Transaction.Open();
-      eventArgs.MethodExecutionTag = transactionScope;
+      return transactionScope;
     }
 
     /// <inheritdoc/>
     [DebuggerStepThrough]
-    public override void OnSuccess(MethodExecutionEventArgs eventArgs)
+    public override void OnExit(object instance, object onEntryResult)
     {
-      var transactionScope = (TransactionScope) eventArgs.MethodExecutionTag;
+      var transactionScope = (TransactionScope)onEntryResult;
+      transactionScope.DisposeSafely();
+    }
+
+    /// <inheritdoc/>
+    [DebuggerStepThrough]
+    public override void OnSuccess(object instance, object onEntryResult)
+    {
+      var transactionScope = (TransactionScope)onEntryResult;
       transactionScope.Complete();
     }
 
     /// <inheritdoc/>
     [DebuggerStepThrough]
-    public override void OnExit(MethodExecutionEventArgs eventArgs)
+    public override bool OnError(object instance, Exception e)
     {
-      var transactionScope = (TransactionScope) eventArgs.MethodExecutionTag;
-      transactionScope.DisposeSafely();
+      return true;
     }
   }
 }
