@@ -6,6 +6,7 @@
 
 using System;
 using NUnit.Framework;
+using PostSharp.Reflection;
 using Xtensive.Core.Aspects.Helpers;
 
 namespace Xtensive.Core.Aspects.Tests
@@ -56,6 +57,8 @@ namespace Xtensive.Core.Aspects.Tests
 
     class TestClass : BaseClass<int>
     {
+      private static LogMethodAspect testAspect = new LogMethodAspect();
+
       [LogMethodAspect]
       public override string AspectedMethod(int value)
       {
@@ -86,6 +89,26 @@ namespace Xtensive.Core.Aspects.Tests
         return value.ToString();
       }
 
+      public string NotAspectedMethodGeneric<T>(T value)
+      {
+        string returnValue = null;
+        object onEntryResult = testAspect.OnEntry(this);
+        try {
+          string v = value.ToString();
+          returnValue = v;
+        }
+        catch (Exception e) {
+          if (testAspect.OnError(this, e)) {
+            throw;
+          }
+        }
+        finally {
+          testAspect.OnExit(this, onEntryResult);
+        }
+        testAspect.OnSuccess(this, onEntryResult);
+        return returnValue;
+      }
+
       public string NotAspectedMethod(int value)
       {
         try {
@@ -114,9 +137,17 @@ namespace Xtensive.Core.Aspects.Tests
       var result = testClass.AspectedMethod(123321);
       testClass.Method(20);
       testClass.Method("20");
+      testClass.NotAspectedMethodGeneric(20);
       testClass.MethodGeneric(20);
       testClass.MethodGeneric("20", true);
       Assert.AreEqual("123321", result);
+    }
+
+    [Test]
+    public void GenericTest()
+    {
+      var method = ReflectionHelper.GetMethod(typeof(TestClass), "MethodGeneric", "System.String MethodGeneric[T](T, Boolean)");
+      var i = 10;
     }
   }
 }
