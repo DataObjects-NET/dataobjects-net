@@ -29,7 +29,7 @@ namespace Xtensive.Core.Aspects.Tests
         Log.Info(string.Format("OnEntry result: {0}", onEntryResult));
       }
 
-      public override void OnSuccess(object instance)
+      public override void OnSuccess(object instance, object onEntryResult)
       {
         Log.Info("OnSuccess called.");
       }
@@ -41,9 +41,9 @@ namespace Xtensive.Core.Aspects.Tests
       }
     }
 
-    class BaseClass
+    class BaseClass<T>
     {
-      public virtual string AspectedMethod(int value)
+      public virtual string AspectedMethod(T value)
       {
         throw new NotImplementedException();
       }
@@ -54,10 +54,34 @@ namespace Xtensive.Core.Aspects.Tests
       }
     }
 
-    class TestClass : BaseClass
+    class TestClass : BaseClass<int>
     {
       [LogMethodAspect]
       public override string AspectedMethod(int value)
+      {
+        return value.ToString();
+      }
+
+      [LogMethodAspect]
+      public string Method(int value)
+      {
+        return value.ToString();
+      }
+
+      [LogMethodAspect]
+      public string Method(string value)
+      {
+        return value;
+      }
+
+      [LogMethodAspect]
+      public string MethodGeneric<T>(T value)
+      {
+        return value.ToString();
+      }
+
+      [LogMethodAspect]
+      public string MethodGeneric<T>(T value, bool isTrue)
       {
         return value.ToString();
       }
@@ -88,6 +112,10 @@ namespace Xtensive.Core.Aspects.Tests
     {
       TestClass testClass = new TestClass(512);
       var result = testClass.AspectedMethod(123321);
+      testClass.Method(20);
+      testClass.Method("20");
+      testClass.MethodGeneric(20);
+      testClass.MethodGeneric("20", true);
       Assert.AreEqual("123321", result);
     }
   }

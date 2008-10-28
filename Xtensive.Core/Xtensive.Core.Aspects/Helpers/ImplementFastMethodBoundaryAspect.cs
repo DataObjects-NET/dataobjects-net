@@ -72,7 +72,8 @@ namespace Xtensive.Core.Aspects.Helpers
     /// the method.).
     /// </summary>
     /// <param name="instance">Current object instance on which this attribute is applied.</param>
-    public abstract void OnSuccess(object instance);
+    /// <param name="onEntryResult">Result of <see cref="OnEntry"/> method call.</param>
+    public abstract void OnSuccess(object instance, object onEntryResult);
 
     /// <summary>
     /// Method executed when the body of methods to which this aspect is applied throws an exception.

@@ -8,6 +8,7 @@ using System;
 using PostSharp.CodeModel;
 using PostSharp.CodeWeaver;
 using PostSharp.Collections;
+using PostSharp.Laos;
 using PostSharp.Laos.Weaver;
 using Xtensive.Core.Aspects.Helpers;
 
@@ -64,8 +65,6 @@ namespace Xtensive.Core.Weaver
       writer.EmitInstructionMethod(OpCodeNumber.Callvirt, onExitMethod);
       writer.EmitSymbolSequencePoint(SymbolSequencePoint.Hidden);
       writer.EmitInstruction(OpCodeNumber.Endfinally);
-      writer.EmitInstruction(OpCodeNumber.Nop);
-      writer.EmitInstruction(OpCodeNumber.Nop);
       writer.DetachInstructionSequence();
 
       var catchBlock = methodBody.CreateInstructionBlock();
@@ -83,8 +82,6 @@ namespace Xtensive.Core.Weaver
       writer.EmitInstructionMethod(OpCodeNumber.Callvirt, onErrorMethod);
       writer.EmitBranchingInstruction(OpCodeNumber.Brfalse, returnBranchTarget);
       writer.EmitInstruction(OpCodeNumber.Rethrow);
-      writer.EmitInstruction(OpCodeNumber.Nop);
-      writer.EmitInstruction(OpCodeNumber.Nop);
       writer.DetachInstructionSequence();
 
       var returnBlock = methodBody.CreateInstructionBlock();
@@ -94,7 +91,8 @@ namespace Xtensive.Core.Weaver
       writer.AttachInstructionSequence(returnBranchTarget);
       writer.EmitInstructionField(OpCodeNumber.Ldsfld, AspectRuntimeInstanceField);
       writer.EmitInstruction(OpCodeNumber.Ldarg_0);
-        writer.EmitInstructionMethod(OpCodeNumber.Callvirt, onSuccessMethod);
+      writer.EmitInstructionLocalVariable(OpCodeNumber.Ldloc, onEntryResult);
+      writer.EmitInstructionMethod(OpCodeNumber.Callvirt, onSuccessMethod);
       if (restructurer.ReturnValueVariable!=null)
         writer.EmitInstructionLocalVariable(OpCodeNumber.Ldloc, restructurer.ReturnValueVariable);
       writer.EmitInstruction(OpCodeNumber.Ret);
