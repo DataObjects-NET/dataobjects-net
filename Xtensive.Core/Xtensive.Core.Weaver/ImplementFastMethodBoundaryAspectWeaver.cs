@@ -28,6 +28,7 @@ namespace Xtensive.Core.Weaver
       var methodBody = methodDef.MethodBody;
       var writer = Task.InstructionWriter;
       methodBody.MaxStack += 3;
+      methodBody.InitLocalVariables = true;
       var restructurer = new MethodBodyRestructurer(methodDef, MethodBodyRestructurerOptions.ChangeReturnInstructions, Task.WeavingHelper);
       restructurer.Restructure(writer);
       var returnBranchTarget = restructurer.ReturnBranchTarget;
@@ -72,6 +73,7 @@ namespace Xtensive.Core.Weaver
       var exception = onEntryBlock.DefineLocalVariable(exceptionType, "e");
       lastChildBlock.AddExceptionHandlerCatch(exceptionType, catchBlock, NodePosition.Before, null);
       var onErrorSequence = methodBody.CreateInstructionSequence();
+      var rethrowSequence = methodBody.CreateInstructionSequence();
       catchBlock.AddInstructionSequence(onErrorSequence, NodePosition.After, null);
       writer.AttachInstructionSequence(onErrorSequence);
       writer.EmitSymbolSequencePoint(SymbolSequencePoint.Hidden);
@@ -80,8 +82,12 @@ namespace Xtensive.Core.Weaver
       writer.EmitInstruction(OpCodeNumber.Ldarg_0);
       writer.EmitInstructionLocalVariable(OpCodeNumber.Ldloc, exception);
       writer.EmitInstructionMethod(OpCodeNumber.Callvirt, onErrorMethod);
-      writer.EmitBranchingInstruction(OpCodeNumber.Brfalse, returnBranchTarget);
+      writer.EmitBranchingInstruction(OpCodeNumber.Brfalse, rethrowSequence);
       writer.EmitInstruction(OpCodeNumber.Rethrow);
+      writer.DetachInstructionSequence();
+      catchBlock.AddInstructionSequence(rethrowSequence, NodePosition.After, null);
+      writer.AttachInstructionSequence(rethrowSequence);
+      writer.EmitBranchingInstruction(OpCodeNumber.Leave, returnBranchTarget);
       writer.DetachInstructionSequence();
 
       var returnBlock = methodBody.CreateInstructionBlock();

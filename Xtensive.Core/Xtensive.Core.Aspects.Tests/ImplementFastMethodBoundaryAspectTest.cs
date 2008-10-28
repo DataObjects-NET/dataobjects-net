@@ -54,7 +54,7 @@ namespace Xtensive.Core.Aspects.Tests
 
     class BaseClass<T>
     {
-      public virtual string AspectedMethod(T value)
+      public virtual string Method(T value)
       {
         throw new NotImplementedException();
       }
@@ -70,13 +70,7 @@ namespace Xtensive.Core.Aspects.Tests
       private static LogMethodAspect testAspect = new LogMethodAspect();
 
       [LogMethodAspect]
-      public override string AspectedMethod(int value)
-      {
-        return value.ToString();
-      }
-
-      [LogMethodAspect]
-      public string Method(int value)
+      public override string Method(int value)
       {
         return value.ToString();
       }
@@ -144,13 +138,11 @@ namespace Xtensive.Core.Aspects.Tests
     public void Test()
     {
       TestClass testClass = new TestClass(512);
-      var result = testClass.AspectedMethod(123321);
       testClass.Method(20);
       testClass.Method("20");
       testClass.NotAspectedMethodGeneric(20);
       testClass.MethodGeneric(20);
       testClass.MethodGeneric("20", true);
-      Assert.AreEqual("123321", result);
     }
 
     [Test]
