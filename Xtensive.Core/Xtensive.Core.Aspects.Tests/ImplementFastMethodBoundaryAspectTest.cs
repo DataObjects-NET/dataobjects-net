@@ -5,22 +5,26 @@
 // Created:    2008.09.26
 
 using System;
+using System.Reflection;
 using NUnit.Framework;
 using PostSharp.Reflection;
 using Xtensive.Core.Aspects.Helpers;
+using Xtensive.Core.Reflection;
 
 namespace Xtensive.Core.Aspects.Tests
 {
   [TestFixture]
   public class ImplementFastMethodBoundaryAspectTest
   {
-    [AttributeUsage(AttributeTargets.Method |AttributeTargets.Constructor, AllowMultiple = false, Inherited = false)]
+    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Constructor, AllowMultiple = false, Inherited = false)]
     [Serializable]
     internal class LogMethodAspect : ImplementFastMethodBoundaryAspect
     {
+      public MethodBase Method { get; private set; }
+
       public override object OnEntry(object instance)
       {
-        Log.Info("OnEntry called.");
+        Log.Info("OnEntry called on {0}.", Method.GetShortName(true));
         return "OnEntry";
       }
 
@@ -39,6 +43,12 @@ namespace Xtensive.Core.Aspects.Tests
       {
         Log.Error(e);
         return false;
+      }
+
+      public override void RuntimeInitialize(MethodBase method)
+      {
+        Method = method;
+        Log.Info("RuntimeInitialize for {0}.", method.GetShortName(true));
       }
     }
 

@@ -293,13 +293,15 @@ namespace Xtensive.Core.Reflection
     /// <returns>Short member name.</returns>
     public static string GetShortName(this MemberInfo member, bool includeTypeName)
     {
+      if (member==null)
+        return null;
       var name = member.Name;
       if (!includeTypeName) {
         int i = name.LastIndexOf('.');
-        if (i<0)
+        if (i<=0)
           return name;
         i = name.LastIndexOf('.', i-1);
-        if (i<0)
+        if (i<=0)
           return name;
         return name.Substring(i + 1);
       }
