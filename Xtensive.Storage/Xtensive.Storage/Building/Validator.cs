@@ -14,7 +14,6 @@ namespace Xtensive.Storage.Building
   {
     private static readonly Dictionary<ValidationRule, Regex> regexps = new Dictionary<ValidationRule, Regex>(5);
 
-
     /// <summary>
     /// Determines whether the specified name is valid.
     /// </summary>
@@ -37,6 +36,9 @@ namespace Xtensive.Storage.Building
       throw new ArgumentOutOfRangeException("rule",
         string.Format("Unknown validation rule '{0}'.", rule));
     }
+
+
+    // Type initializer
 
     static Validator()
     {
