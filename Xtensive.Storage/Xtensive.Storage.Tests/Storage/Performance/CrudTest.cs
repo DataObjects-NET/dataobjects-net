@@ -4,6 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2008.09.08
 
+using System;
 using NUnit.Framework;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Parameters;
@@ -54,6 +55,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
     private void CombinedTest(int baseCount, int insertCount)
     {
       InsertTest(insertCount);
+      BulkFetchRawTest(baseCount);
       BulkFetchTest(baseCount);
       BulkFetchOnlyTest(baseCount);
       FetchTest(baseCount / 2);
@@ -101,6 +103,34 @@ namespace Xtensive.Storage.Tests.Storage.Performance
         }
         if (count<=instanceCount)
           Assert.AreEqual(0, sum);
+      }
+    }
+
+    private void BulkFetchRawTest(int count)
+    {
+      var d = Domain;
+      using (var ss = d.OpenSession()) {
+        var s = ss.Session;
+        long sum = 0;
+        int i = 0;
+        using (var ts = s.OpenTransaction()) {
+          var rs = d.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordSet();
+          TestHelper.CollectGarbage();
+          using (warmup ? null : new Measurement("Bulk Fetch Raw & GetField", count)) {
+            while (i < count) {
+              foreach (var tuple in rs) {
+                var o = new SqlClientCrudModel.Simplest();
+                o.Id = tuple.GetValueOrDefault<long>(0);
+                o.Value = tuple.GetValueOrDefault<long>(2);
+                sum += o.Id;
+                if (++i >= count)
+                  break;
+              }
+            }
+            ts.Complete();
+          }
+        }
+        Assert.AreEqual((long) count * (count - 1) / 2, sum);
       }
     }
 
