@@ -36,7 +36,7 @@ namespace Xtensive.Core.Aspects.Helpers
     AttributeTargets.Constructor, 
     AllowMultiple = true, Inherited = false)]
   [Serializable]
-  public abstract class ImplementFastMethodBoundaryAspect : LaosMethodLevelAspect
+  public abstract class ReprocessMethodBoundaryAspect : LaosMethodLevelAspect
   {
     /// <inheritdoc/>
     public override PostSharpRequirements GetPostSharpRequirements()
@@ -83,9 +83,9 @@ namespace Xtensive.Core.Aspects.Helpers
     /// <returns>An exception will be thrown when result is <see langword="true"/>.</returns>
     /// <param name="instance">Current object instance on which this attribute is applied.</param>
     /// <param name="e">Throwed exception.</param>
-    public virtual bool OnError(object instance, Exception e)
+    public virtual ErrorFlowBehavior OnError(object instance, Exception e)
     {
-      return true;
+      return ErrorFlowBehavior.Rethrow;
     }
   }
 }

@@ -16,9 +16,9 @@ namespace Xtensive.Core.Aspects.Tests
   [TestFixture]
   public class ImplementFastMethodBoundaryAspectTest
   {
-    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Constructor, AllowMultiple = false, Inherited = false)]
+    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Constructor, AllowMultiple = true, Inherited = false)]
     [Serializable]
-    internal class LogMethodAspect : ImplementFastMethodBoundaryAspect
+    internal class LogMethodAspect : ReprocessMethodBoundaryAspect
     {
       public MethodBase Method { get; private set; }
 
@@ -39,10 +39,10 @@ namespace Xtensive.Core.Aspects.Tests
         Log.Info("OnSuccess called.");
       }
 
-      public override bool OnError(object instance, Exception e)
+      public override ErrorFlowBehavior OnError(object instance, Exception e)
       {
         Log.Error(e);
-        return true;
+        return ErrorFlowBehavior.Reprocess;
       }
 
       public override void RuntimeInitialize(MethodBase method)
@@ -127,10 +127,15 @@ namespace Xtensive.Core.Aspects.Tests
     class TestClass : BaseClass<int>
     {
       private static LogMethodAspect testAspect = new LogMethodAspect();
+      private int iterationCount = 0;
 
       [LogMethodAspect]
       public override string Method(int value)
       {
+        if (iterationCount == 0) {
+          iterationCount++;
+          throw new InvalidOperationException();
+        }
         return value.ToString();
       }
 
@@ -154,39 +159,7 @@ namespace Xtensive.Core.Aspects.Tests
         return value.ToString();
       }
 
-      public string NotAspectedMethodGeneric<T>(T value)
-      {
-        string returnValue = null;
-        object onEntryResult = testAspect.OnEntry(this);
-        try {
-          string v = value.ToString();
-          returnValue = v;
-        }
-        catch (Exception e) {
-          if (testAspect.OnError(this, e)) {
-            throw;
-          }
-        }
-        finally {
-          testAspect.OnExit(this, onEntryResult);
-        }
-        testAspect.OnSuccess(this, onEntryResult);
-        return returnValue;
-      }
-
-      public string NotAspectedMethod(int value)
-      {
-        try {
-          return value.ToString();
-        }
-        catch(Exception e) {
-          throw;
-        }
-        finally {
-          
-        }
-      }
-
+      [LogMethodAspect]
       [LogMethodAspect]
       public TestClass(int value)
       {

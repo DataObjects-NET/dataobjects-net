@@ -21,7 +21,7 @@ namespace Xtensive.Storage.Aspects
   [MulticastAttributeUsage(MulticastTargets.Method)]
   [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)] 
   [Serializable]
-  public sealed class TransactionalAttribute : ImplementFastMethodBoundaryAspect,
+  public sealed class TransactionalAttribute : ReprocessMethodBoundaryAspect,
     ILaosWeavableAspect
   {   
     int ILaosWeavableAspect.AspectPriority {

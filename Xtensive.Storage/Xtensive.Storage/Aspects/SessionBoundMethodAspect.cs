@@ -21,7 +21,7 @@ namespace Xtensive.Storage.Aspects
   [MulticastAttributeUsage(MulticastTargets.Method)]
   [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
   [Serializable]
-  internal sealed class SessionBoundMethodAspect : ImplementFastMethodBoundaryAspect,
+  internal sealed class SessionBoundMethodAspect : ReprocessMethodBoundaryAspect,
     ILaosWeavableAspect
   {
     int ILaosWeavableAspect.AspectPriority {

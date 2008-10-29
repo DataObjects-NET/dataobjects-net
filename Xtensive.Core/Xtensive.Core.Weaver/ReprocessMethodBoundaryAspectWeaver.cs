@@ -14,7 +14,7 @@ using Xtensive.Core.Aspects.Helpers;
 
 namespace Xtensive.Core.Weaver
 {
-  internal class ImplementFastMethodBoundaryAspectWeaver : MethodLevelAspectWeaver, IMethodLevelAdvice
+  internal class ReprocessMethodBoundaryAspectWeaver : MethodLevelAspectWeaver, IMethodLevelAdvice
   {
     private IMethod onEntryMethod;
     private IMethod onErrorMethod;
@@ -23,6 +23,7 @@ namespace Xtensive.Core.Weaver
     private MethodDefDeclaration targetMethodDef;
     private LocalVariableSymbol onEntryResult;
     private JoinPointKinds joinPoints;
+    private InstructionSequence beforeMethodSequence;
 
     #region IMethodLevelAdvice Members
 
@@ -97,86 +98,91 @@ namespace Xtensive.Core.Weaver
       MethodBodyDeclaration methodBody = targetMethodDef.MethodBody;
       ITypeSignature objectType = module.FindType(typeof(object), BindingOptions.Default);
       onEntryResult = methodBody.RootInstructionBlock.DefineLocalVariable(objectType, "onEntryResult");
-      InstructionWriter instructionWriter = context.InstructionWriter;
-      InstructionSequence newSequence = block.MethodBody.CreateInstructionSequence();
-      block.AddInstructionSequence(newSequence, NodePosition.Before, null);
-      instructionWriter.AttachInstructionSequence(newSequence);
-      instructionWriter.EmitSymbolSequencePoint(SymbolSequencePoint.Hidden);
-      instructionWriter.EmitInstructionField(OpCodeNumber.Ldsfld, AspectRuntimeInstanceField);
-      instructionWriter.EmitInstruction(OpCodeNumber.Ldarg_0);
-      instructionWriter.EmitInstructionMethod(OpCodeNumber.Callvirt, onEntryMethod);
-      instructionWriter.EmitInstructionLocalVariable(OpCodeNumber.Stloc, onEntryResult);
-      instructionWriter.DetachInstructionSequence();
+      InstructionWriter writer = context.InstructionWriter;
+      beforeMethodSequence = block.MethodBody.CreateInstructionSequence();
+      block.AddInstructionSequence(beforeMethodSequence, NodePosition.Before, null);
+      writer.AttachInstructionSequence(beforeMethodSequence);
+      writer.EmitSymbolSequencePoint(SymbolSequencePoint.Hidden);
+      writer.EmitInstructionField(OpCodeNumber.Ldsfld, AspectRuntimeInstanceField);
+      writer.EmitInstruction(OpCodeNumber.Ldarg_0);
+      writer.EmitInstructionMethod(OpCodeNumber.Callvirt, onEntryMethod);
+      writer.EmitInstructionLocalVariable(OpCodeNumber.Stloc, onEntryResult);
+      writer.DetachInstructionSequence();
     }
 
     private void WeaveOnExit(WeavingContext context, InstructionBlock block)
     {
-      InstructionWriter instructionWriter = context.InstructionWriter;
+      InstructionWriter writer = context.InstructionWriter;
       InstructionSequence newSequence = block.MethodBody.CreateInstructionSequence();
       block.AddInstructionSequence(newSequence, NodePosition.Before, null);
-      instructionWriter.AttachInstructionSequence(newSequence);
-      instructionWriter.EmitSymbolSequencePoint(SymbolSequencePoint.Hidden);
-      instructionWriter.EmitInstructionField(OpCodeNumber.Ldsfld, AspectRuntimeInstanceField);
-      instructionWriter.EmitInstruction(OpCodeNumber.Ldarg_0);
-      instructionWriter.EmitInstructionLocalVariable(OpCodeNumber.Ldloc, onEntryResult);
-      instructionWriter.EmitInstructionMethod(OpCodeNumber.Callvirt, onExitMethod);
-      instructionWriter.DetachInstructionSequence();
+      writer.AttachInstructionSequence(newSequence);
+      writer.EmitSymbolSequencePoint(SymbolSequencePoint.Hidden);
+      writer.EmitInstructionField(OpCodeNumber.Ldsfld, AspectRuntimeInstanceField);
+      writer.EmitInstruction(OpCodeNumber.Ldarg_0);
+      writer.EmitInstructionLocalVariable(OpCodeNumber.Ldloc, onEntryResult);
+      writer.EmitInstructionMethod(OpCodeNumber.Callvirt, onExitMethod);
+      writer.DetachInstructionSequence();
 
     }
 
     private void WeaveOnSuccess(WeavingContext context, InstructionBlock block)
     {
-      InstructionWriter instructionWriter = context.InstructionWriter;
+      InstructionWriter writer = context.InstructionWriter;
       InstructionSequence newSequence = block.MethodBody.CreateInstructionSequence();
       block.AddInstructionSequence(newSequence, NodePosition.Before, null);
-      instructionWriter.AttachInstructionSequence(newSequence);
-      instructionWriter.EmitSymbolSequencePoint(SymbolSequencePoint.Hidden);
-      instructionWriter.EmitInstructionField(OpCodeNumber.Ldsfld, AspectRuntimeInstanceField);
-      instructionWriter.EmitInstruction(OpCodeNumber.Ldarg_0);
-      instructionWriter.EmitInstructionLocalVariable(OpCodeNumber.Ldloc, onEntryResult);
-      instructionWriter.EmitInstructionMethod(OpCodeNumber.Callvirt, onSuccessMethod);
-      instructionWriter.DetachInstructionSequence();
+      writer.AttachInstructionSequence(newSequence);
+      writer.EmitSymbolSequencePoint(SymbolSequencePoint.Hidden);
+      writer.EmitInstructionField(OpCodeNumber.Ldsfld, AspectRuntimeInstanceField);
+      writer.EmitInstruction(OpCodeNumber.Ldarg_0);
+      writer.EmitInstructionLocalVariable(OpCodeNumber.Ldloc, onEntryResult);
+      writer.EmitInstructionMethod(OpCodeNumber.Callvirt, onSuccessMethod);
+      writer.DetachInstructionSequence();
 
     }
 
     private void WeaveOnError(WeavingContext context, InstructionBlock block)
     {
-      InstructionWriter instructionWriter = context.InstructionWriter;
+      InstructionWriter writer = context.InstructionWriter;
       ModuleDeclaration module = block.Module;
       MethodBodyDeclaration methodBody = block.MethodBody;
       LocalVariableSymbol exceptionLocal = methodBody.RootInstructionBlock.DefineLocalVariable(module.Cache.GetType(typeof(Exception)), "~exception~{0}");
       InstructionSequence newSequence = methodBody.CreateInstructionSequence();
       block.AddInstructionSequence(newSequence, NodePosition.Before, null);
-      instructionWriter.AttachInstructionSequence(newSequence);
-      instructionWriter.EmitSymbolSequencePoint(SymbolSequencePoint.Hidden);
-      instructionWriter.EmitInstructionLocalVariable(OpCodeNumber.Stloc, exceptionLocal);
+      writer.AttachInstructionSequence(newSequence);
+      writer.EmitSymbolSequencePoint(SymbolSequencePoint.Hidden);
+      writer.EmitInstructionLocalVariable(OpCodeNumber.Stloc, exceptionLocal);
       
-      instructionWriter.EmitInstructionField(OpCodeNumber.Ldsfld, AspectRuntimeInstanceField);
-      instructionWriter.EmitInstruction(OpCodeNumber.Ldarg_0);
-      instructionWriter.EmitInstructionLocalVariable(OpCodeNumber.Ldloc, exceptionLocal);
-      instructionWriter.EmitInstructionMethod(OpCodeNumber.Callvirt, onErrorMethod);
+      writer.EmitInstructionField(OpCodeNumber.Ldsfld, AspectRuntimeInstanceField);
+      writer.EmitInstruction(OpCodeNumber.Ldarg_0);
+      writer.EmitInstructionLocalVariable(OpCodeNumber.Ldloc, exceptionLocal);
+      writer.EmitInstructionMethod(OpCodeNumber.Callvirt, onErrorMethod);
       
-      InstructionSequence rethrowSequence = methodBody.CreateInstructionSequence();
+      var rethrowSequence = methodBody.CreateInstructionSequence();
       block.AddInstructionSequence(rethrowSequence, NodePosition.After, null);
-      InstructionSequence leaveSequence = methodBody.CreateInstructionSequence();
-      block.AddInstructionSequence(leaveSequence, NodePosition.After, null);
-      instructionWriter.EmitBranchingInstruction(OpCodeNumber.Brfalse, leaveSequence);
-      instructionWriter.DetachInstructionSequence();
-      instructionWriter.AttachInstructionSequence(rethrowSequence);
-      instructionWriter.EmitInstruction(OpCodeNumber.Rethrow);
-      instructionWriter.DetachInstructionSequence();
+      var reprocessSequence = methodBody.CreateInstructionSequence();
+      block.AddInstructionSequence(reprocessSequence, NodePosition.After, null);
+      var skipSequence = methodBody.CreateInstructionSequence();
+      block.AddInstructionSequence(skipSequence, NodePosition.After, null);
+      writer.EmitSwitchInstruction(new[]{rethrowSequence, reprocessSequence, skipSequence});
+      writer.DetachInstructionSequence();
+      writer.AttachInstructionSequence(rethrowSequence);
+      writer.EmitInstruction(OpCodeNumber.Rethrow);
+      writer.DetachInstructionSequence();
+      writer.AttachInstructionSequence(reprocessSequence);
+      writer.EmitBranchingInstruction(OpCodeNumber.Leave, beforeMethodSequence);
+      writer.DetachInstructionSequence();
     }
 
     public override void Initialize()
     {
       base.Initialize();
       ModuleDeclaration module = Task.Project.Module;
-      onEntryMethod = (IMethod) module.Cache.GetItem(theModule => theModule.FindMethod(typeof (ImplementFastMethodBoundaryAspect).GetMethod("OnEntry"), BindingOptions.RequireGenericDefinition));
-      onExitMethod = (IMethod) module.Cache.GetItem(theModule => theModule.FindMethod(typeof (ImplementFastMethodBoundaryAspect).GetMethod("OnExit"), BindingOptions.RequireGenericDefinition));
-      onSuccessMethod = (IMethod) module.Cache.GetItem(theModule => theModule.FindMethod(typeof (ImplementFastMethodBoundaryAspect).GetMethod("OnSuccess"), BindingOptions.RequireGenericDefinition));
-      onErrorMethod = (IMethod) module.Cache.GetItem(theModule => theModule.FindMethod(typeof (ImplementFastMethodBoundaryAspect).GetMethod("OnError"), BindingOptions.RequireGenericDefinition));
+      onEntryMethod = (IMethod) module.Cache.GetItem(theModule => theModule.FindMethod(typeof (ReprocessMethodBoundaryAspect).GetMethod("OnEntry"), BindingOptions.RequireGenericDefinition));
+      onExitMethod = (IMethod) module.Cache.GetItem(theModule => theModule.FindMethod(typeof (ReprocessMethodBoundaryAspect).GetMethod("OnExit"), BindingOptions.RequireGenericDefinition));
+      onSuccessMethod = (IMethod) module.Cache.GetItem(theModule => theModule.FindMethod(typeof (ReprocessMethodBoundaryAspect).GetMethod("OnSuccess"), BindingOptions.RequireGenericDefinition));
+      onErrorMethod = (IMethod) module.Cache.GetItem(theModule => theModule.FindMethod(typeof (ReprocessMethodBoundaryAspect).GetMethod("OnError"), BindingOptions.RequireGenericDefinition));
       var aspectType = MethodLevelAspect.GetType();
-      var baseType = typeof (ImplementFastMethodBoundaryAspect);
+      var baseType = typeof (ReprocessMethodBoundaryAspect);
       var onExit = aspectType.GetMethod("OnExit");
       var onSuccess = aspectType.GetMethod("OnSuccess");
       var onError = aspectType.GetMethod("OnError");
