@@ -65,12 +65,5 @@ namespace Xtensive.Storage.Aspects
       var transactionScope = (TransactionScope)onEntryResult;
       transactionScope.Complete();
     }
-
-    /// <inheritdoc/>
-    [DebuggerStepThrough]
-    public override bool OnError(object instance, Exception e)
-    {
-      return true;
-    }
   }
 }

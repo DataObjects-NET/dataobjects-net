@@ -57,17 +57,5 @@ namespace Xtensive.Storage.Aspects
       var d = (IDisposable)onEntryResult;
       d.DisposeSafely();
     }
-
-    /// <inheritdoc/>
-    [DebuggerStepThrough]
-    public override void OnSuccess(object instance, object onEntryResult)
-    {}
-
-    /// <inheritdoc/>
-    [DebuggerStepThrough]
-    public override bool OnError(object instance, Exception e)
-    {
-      return true;
-    }
   }
 }
