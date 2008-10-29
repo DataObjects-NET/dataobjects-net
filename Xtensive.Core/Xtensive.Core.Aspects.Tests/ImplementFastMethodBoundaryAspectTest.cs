@@ -42,7 +42,7 @@ namespace Xtensive.Core.Aspects.Tests
       public override bool OnError(object instance, Exception e)
       {
         Log.Error(e);
-        return false;
+        return true;
       }
 
       public override void RuntimeInitialize(MethodBase method)
@@ -223,7 +223,10 @@ namespace Xtensive.Core.Aspects.Tests
     public void GenericTest()
     {
       var method = ReflectionHelper.GetMethod(typeof(TestClass), "MethodGeneric", "System.String MethodGeneric[T](T, Boolean)");
+      var type = typeof (LogMethodAspect);
       var i = 10;
+
     }
+
   }
 }
