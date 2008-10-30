@@ -27,8 +27,8 @@ namespace Xtensive.Storage.Tests.Storage.Performance
 
     protected override DomainConfiguration BuildConfiguration()
     {
-      DomainConfiguration config = DomainConfigurationFactory.Create("mssql2005");
-//      DomainConfiguration config = DomainConfigurationFactory.Create("memory");
+//      DomainConfiguration config = DomainConfigurationFactory.Create("mssql2005");
+      DomainConfiguration config = DomainConfigurationFactory.Create("memory");
       config.Types.Register(typeof(Simplest).Assembly, typeof(Simplest).Namespace);
       return config;
     }
@@ -55,9 +55,9 @@ namespace Xtensive.Storage.Tests.Storage.Performance
     private void CombinedTest(int baseCount, int insertCount)
     {
       InsertTest(insertCount);
-      BulkFetchRawTest(baseCount);
       BulkFetchTest(baseCount);
       BulkFetchOnlyTest(baseCount);
+      RawBulkFetchTest(baseCount);
       FetchTest(baseCount / 2);
       QueryTest(baseCount / 5);
       CachedQueryTest(baseCount / 5);
@@ -106,7 +106,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       }
     }
 
-    private void BulkFetchRawTest(int count)
+    private void RawBulkFetchTest(int count)
     {
       var d = Domain;
       using (var ss = d.OpenSession()) {
@@ -116,12 +116,13 @@ namespace Xtensive.Storage.Tests.Storage.Performance
         using (var ts = s.OpenTransaction()) {
           var rs = d.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordSet();
           TestHelper.CollectGarbage();
-          using (warmup ? null : new Measurement("Bulk Fetch Raw & GetField", count)) {
+          using (warmup ? null : new Measurement("Raw Bulk Fetch & GetField", count)) {
             while (i < count) {
               foreach (var tuple in rs) {
-                var o = new SqlClientCrudModel.Simplest();
-                o.Id = tuple.GetValueOrDefault<long>(0);
-                o.Value = tuple.GetValueOrDefault<long>(2);
+                var o = new SqlClientCrudModel.Simplest {
+                  Id = tuple.GetValueOrDefault<long>(0), 
+                  Value = tuple.GetValueOrDefault<long>(2)
+                };
                 sum += o.Id;
                 if (++i >= count)
                   break;
