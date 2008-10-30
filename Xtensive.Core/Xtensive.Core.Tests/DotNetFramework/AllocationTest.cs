@@ -5,6 +5,7 @@
 // Created:    2008.04.17
 
 using System;
+using System.Runtime.Serialization;
 using NUnit.Framework;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Reflection;
@@ -72,6 +73,7 @@ namespace Xtensive.Core.Tests.DotNetFramework
       // Warmup
       int iterations = 100;
       AllocateClass_SlimObject(iterations);
+      AllocateClass_SlimObject_ByFormatterServices(iterations);
       AllocateClass_FinalizableSlimObject(iterations);
       AllocateClass<SlimObject>(iterations);
       AllocateClass<FinalizableSlimObject>(iterations);
@@ -86,6 +88,9 @@ namespace Xtensive.Core.Tests.DotNetFramework
         using (Log.InfoRegion("Allocation to nothing")) {
           using (new Measurement("SlimObject", MeasurementOptions.Log, iterations))
             AllocateClass_SlimObject(iterations);
+          TestHelper.CollectGarbage();
+          using (new Measurement("SlimObject (using FormatterServices)", MeasurementOptions.Log, iterations))
+            AllocateClass_SlimObject_ByFormatterServices(iterations);
           TestHelper.CollectGarbage();
           using (new Measurement("FinalizableSlimObject", MeasurementOptions.Log, iterations))
             AllocateClass_FinalizableSlimObject(iterations);
@@ -158,6 +163,23 @@ namespace Xtensive.Core.Tests.DotNetFramework
         new SlimObject();
         new SlimObject();
         new SlimObject();
+      }
+    }
+
+    private void AllocateClass_SlimObject_ByFormatterServices(int iterationCount)
+    {
+      var type = typeof(SlimObject);
+      for (int i = 0; i<iterationCount; i+=10) {
+        FormatterServices.GetUninitializedObject(type);
+        FormatterServices.GetUninitializedObject(type);
+        FormatterServices.GetUninitializedObject(type);
+        FormatterServices.GetUninitializedObject(type);
+        FormatterServices.GetUninitializedObject(type);
+        FormatterServices.GetUninitializedObject(type);
+        FormatterServices.GetUninitializedObject(type);
+        FormatterServices.GetUninitializedObject(type);
+        FormatterServices.GetUninitializedObject(type);
+        FormatterServices.GetUninitializedObject(type);
       }
     }
 
