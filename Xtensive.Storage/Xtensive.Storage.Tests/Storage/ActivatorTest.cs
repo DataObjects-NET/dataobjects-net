@@ -9,6 +9,7 @@ using NUnit.Framework;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Storage.ActivatorModel;
+using System.Linq;
 
 namespace Xtensive.Storage.Tests.Storage.ActivatorModel
 {
@@ -25,6 +26,14 @@ namespace Xtensive.Storage.Tests.Storage.ActivatorModel
     public int Number { get; set; }
   }
 
+  [HierarchyRoot(typeof(KeyGenerator), "ID")]
+  public class InitializebleClass : Entity
+  {
+    public object syncRoot = new object();
+
+    [Field]
+    public int ID { get; private set; }
+  }
 }
 
 namespace Xtensive.Storage.Tests.Storage
@@ -36,6 +45,29 @@ namespace Xtensive.Storage.Tests.Storage
       DomainConfiguration config = base.BuildConfiguration();
       config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.Storage.ActivatorModel");
       return config;
+    }
+
+    [Test]
+    public void TestFieldInitializer()
+    {
+      using (Domain.OpenSession())
+      {
+        using (var t = Transaction.Open())
+        {
+          var obj1 = new InitializebleClass();
+          Assert.IsNotNull(obj1.syncRoot);
+          t.Complete();
+        }
+      }
+      using (Domain.OpenSession())
+      {
+        using (var t = Transaction.Open())
+        {
+          var obj1 = Session.Current.All<InitializebleClass>().First();
+          Assert.IsNotNull(obj1.syncRoot);
+          t.Complete();
+        }
+      }
     }
 
     [Test]
