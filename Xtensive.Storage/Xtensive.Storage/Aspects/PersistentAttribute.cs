@@ -16,6 +16,7 @@ using Xtensive.Integrity.Aspects;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Resources;
 using FieldInfo = Xtensive.Storage.Model.FieldInfo;
+using System.Linq;
 
 namespace Xtensive.Storage.Aspects
 {
@@ -62,7 +63,7 @@ namespace Xtensive.Storage.Aspects
 //      ProvideAtomicAspects(type, collection);
     }
 
-    private void ProvideSessionBoundAspects(Type type, LaosReflectionAspectCollection collection)
+    private static void ProvideSessionBoundAspects(Type type, LaosReflectionAspectCollection collection)
     {
       foreach (MethodInfo method in type.GetMethods(
         BindingFlags.Public |
@@ -79,7 +80,7 @@ namespace Xtensive.Storage.Aspects
       }
     }
 
-    private void ProvideTransactionalAspects(Type type, LaosReflectionAspectCollection collection)
+    private static void ProvideTransactionalAspects(Type type, LaosReflectionAspectCollection collection)
     {
       foreach (MethodInfo method in type.GetMethods(
         BindingFlags.Public |          
@@ -114,21 +115,22 @@ namespace Xtensive.Storage.Aspects
       }
     }
 
-    private void ProvidePersistentAspects(Type type, LaosReflectionAspectCollection collection)
+    private static void ProvidePersistentAspects(Type type, LaosReflectionAspectCollection collection)
     {
       ProvideConstructorDelegateAspect(type, collection);
       ProvideAutoPropertyAspects(type, collection);
       ProvideConstructorAspect(type, collection);
     }
 
-    private void ProvideAutoPropertyAspects(Type type, LaosReflectionAspectCollection collection)
+    private static void ProvideAutoPropertyAspects(Type type, LaosReflectionAspectCollection collection)
     {
       foreach (PropertyInfo pi in type.GetProperties(
         BindingFlags.Public |
-          BindingFlags.NonPublic |
-            BindingFlags.Instance |
-              BindingFlags.DeclaredOnly)) 
+        BindingFlags.NonPublic |
+        BindingFlags.Instance |
+        BindingFlags.DeclaredOnly)) 
       {
+        var hierarchyRootAttribute = type.GetAttribute<HierarchyRootAttribute>(AttributeSearchOptions.InheritNone);
         try {
           var fieldAttribute = pi.GetAttribute<FieldAttribute>(
             AttributeSearchOptions.InheritFromAllBase);
@@ -148,6 +150,12 @@ namespace Xtensive.Storage.Aspects
             collection.AddAspect(getter, getterAspect);
         }
         if (setter!=null) {
+          if (hierarchyRootAttribute!=null) {
+            if (hierarchyRootAttribute.KeyFields.Contains(pi.Name)) {
+              collection.AddAspect(setter, new NotSupportedMethodAspect(string.Format(Strings.ExKeyFieldXInTypeYShouldNotHaveSetAccessor, pi.Name, type.Name)));
+              continue;
+            }
+          }
           var setterAspect = ImplementAutoPropertyReplacementAspect.ApplyOnce(setter, persistentType, HandlerMethodSuffix);
           if (setterAspect!=null)
             collection.AddAspect(setter, setterAspect);
@@ -155,7 +163,7 @@ namespace Xtensive.Storage.Aspects
       }
     }
 
-    private void ProvideConstructorAspect(Type type, LaosReflectionAspectCollection collection)
+    private static void ProvideConstructorAspect(Type type, LaosReflectionAspectCollection collection)
     {
       if (type==entityType || type==structureType || type==persistentType)
         return;
@@ -165,7 +173,7 @@ namespace Xtensive.Storage.Aspects
         collection.AddAspect(type, aspect);
     }
 
-    private void ProvideConstructorDelegateAspect(Type type, LaosReflectionAspectCollection collection)
+    private static void ProvideConstructorDelegateAspect(Type type, LaosReflectionAspectCollection collection)
     {
       if (type.IsAbstract)
         return;
@@ -187,7 +195,7 @@ namespace Xtensive.Storage.Aspects
 
     #region Private \ internal methods
 
-    private Type GetBasePersistentType(Type type)
+    private static Type GetBasePersistentType(Type type)
     {
       if (structureType.IsAssignableFrom(type))
         return structureType;
@@ -197,7 +205,7 @@ namespace Xtensive.Storage.Aspects
     }
 
     /// <exception cref="Exception">[Suppresses warning]</exception>
-    private Type[] GetInternalConstructorParameterTypes(Type type)
+    private static Type[] GetInternalConstructorParameterTypes(Type type)
     {
       var baseType = GetBasePersistentType(type);
       if (baseType==structureType)

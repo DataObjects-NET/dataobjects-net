@@ -69,6 +69,30 @@ namespace Xtensive.Storage.Tests.Storage.AspectsTest
 
     }
 
+    [HierarchyRoot(typeof(KeyGenerator), "ID")]
+    public class MasterEntity : Entity
+    {
+      [Field]
+      public Guid ID { get; private set; }
+
+      [Field]
+      public EntitySet<SlaveEntity> Slaves { get; private set; }
+
+      [Field]
+      public SlaveEntity PrimarySlave { get; set; }
+
+    }
+
+    [HierarchyRoot(typeof(KeyGenerator), "ID")]
+    public class SlaveEntity : Entity
+    {
+      [Field]
+      public Guid ID { get; private set; }
+
+      [Field(PairTo = "Slaves")]
+      public MasterEntity Master { get; set; }
+    }
+
     protected override DomainConfiguration BuildConfiguration()
     {
       DomainConfiguration config = base.BuildConfiguration();
@@ -122,6 +146,29 @@ namespace Xtensive.Storage.Tests.Storage.AspectsTest
           }
         }
       }      
+    }
+
+    [Test]
+    public void MasterSlave()
+    {
+      using (var session = Domain.OpenSession()) {
+        using (var tran = Transaction.Open()) {
+          var master = new MasterEntity();
+          var slave1 = new SlaveEntity();
+          slave1.Master = master;
+
+          var slave2 = new SlaveEntity();
+          slave2.Master = master;
+          master.PrimarySlave = slave2;
+
+          var slave3 = new SlaveEntity();
+          slave3.Master = master;
+
+          foreach (SlaveEntity slave in master.Slaves) {
+            Assert.IsTrue(slave.Master == master);
+          }
+        }
+      }
     }
   }
 }
