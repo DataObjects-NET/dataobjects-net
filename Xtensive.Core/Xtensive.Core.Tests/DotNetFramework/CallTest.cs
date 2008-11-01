@@ -130,7 +130,8 @@ namespace Xtensive.Core.Tests.DotNetFramework
     public void ProfileTest()
     {
       isRegularTestRunning = false;
-      VMethodCallTest<int>(1);
+      GVMethod1CallTest<int,int>(1);
+      GVMethod1CallTest<string,string>(1);
     }    
 
     public void Test(double speedFactor)
@@ -147,7 +148,9 @@ namespace Xtensive.Core.Tests.DotNetFramework
       VMethodCallTest<Pair<Pair<Guid, Guid>, Pair<Guid, Guid>>>(0.1*speedFactor);
       VMethodCallTest<string>(0.3*speedFactor);
       GVMethod1CallTest<int,int>(0.5*speedFactor);
+      GVMethod1CallTest<string,string>(0.5*speedFactor);
       GVMethod2CallTest<int,int,int>(0.25*speedFactor);
+      GVMethod2CallTest<string,string,string>(0.25*speedFactor);
     }
 
     private void MethodCallTest<T>(double speedFactor)
