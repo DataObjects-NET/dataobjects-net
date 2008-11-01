@@ -49,16 +49,16 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
     [Field]
     public int Number
     {
-      get { return GetValue<int>("Number"); }
+      get { return GetField<int>("Number"); }
     }
 
     [Field]
     public Passport Passport
     {
-      get { return GetValue<Passport>("Passport"); }
+      get { return GetField<Passport>("Passport"); }
       set
       {
-        SetValue("Passport", value);
+        SetField("Passport", value);
       }
     }
 

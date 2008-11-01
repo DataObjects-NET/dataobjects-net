@@ -34,11 +34,12 @@ namespace Xtensive.Storage
     private volatile bool isDisposed;
     private readonly Set<object> consumers = new Set<object>();
     private readonly object _lock = new object();
-    private readonly CompilationScope compilationScope;    
+    private readonly CompilationScope compilationScope;
+    private readonly EntityAccessor entityAccessor = new EntityAccessor();
 
     internal readonly List<EntityState> newEntities = new List<EntityState>();
     internal readonly List<EntityState> modifiedEntities = new List<EntityState>();
-    internal readonly List<EntityState> removedEntities = new List<EntityState>();    
+    internal readonly List<EntityState> removedEntities = new List<EntityState>();
 
     /// <summary>
     /// Gets the configuration of the <see cref="Session"/>.
@@ -54,6 +55,11 @@ namespace Xtensive.Storage
     /// Gets the atomicity context.
     /// </summary>
     public AtomicityContext AtomicityContext { get; private set; }
+
+    internal PersistentAccessor GetAccessor(Persistent obj)
+    {
+      return entityAccessor;
+    }
 
     /// <summary>
     /// Gets the current validation context.

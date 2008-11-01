@@ -19,14 +19,14 @@ using FieldInfo=Xtensive.Storage.Model.FieldInfo;
 
 namespace Xtensive.Storage.Internals
 {
-  internal class EntitySet<T1, T2> : EntitySet<T1>
-    where T1 : Entity
-    where T2 : Entity
+  internal class EntitySet<TEntity, TEntitySetItem> : EntitySet<TEntity>
+    where TEntity : Entity
+    where TEntitySetItem : Entity
   {
-    private static readonly Func<Tuple, T2> itemConstructor = DelegateHelper.CreateDelegate<Func<Tuple, T2>>(null, typeof(T2), DelegateHelper.AspectedProtectedConstructorCallerName, ArrayUtils<Type>.EmptyArray);
+    private static readonly Func<Tuple, TEntitySetItem> itemConstructor = DelegateHelper.CreateDelegate<Func<Tuple, TEntitySetItem>>(null, typeof(TEntitySetItem), DelegateHelper.AspectedProtectedConstructorCallerName, ArrayUtils<Type>.EmptyArray);
 
     /// <inheritdoc/>
-    public override bool Add(T1 item)
+    public override bool Add(TEntity item)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
 
@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Internals
     }
 
     /// <inheritdoc/>
-    public override bool Remove(T1 item)
+    public override bool Remove(TEntity item)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
 
@@ -54,14 +54,14 @@ namespace Xtensive.Storage.Internals
       if (association!=null && association.IsPaired)
         SyncManager.Enlist(OperationType.Remove, OwnerEntity, item, Field.Association);
 
-      Key entityKey = new Key(typeof (T2), item.Key.CombineWith(OwnerEntity.Key));
-      var referenceEntity = (T2) entityKey.Resolve(); // Resolve entity
+      Key entityKey = new Key(typeof (TEntitySetItem), item.Key.CombineWith(OwnerEntity.Key));
+      var referenceEntity = (TEntitySetItem) entityKey.Resolve(); // Resolve entity
       referenceEntity.Remove();
       OnCollectionChanged(NotifyCollectionChangedAction.Remove, item);
       return true;
     }
 
-    public override bool Contains(T1 item)
+    public override bool Contains(TEntity item)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
       return Contains(item.Key);
@@ -71,15 +71,15 @@ namespace Xtensive.Storage.Internals
 
     protected override IndexInfo GetIndex()
     {
-      return Field.ReflectedType.Model.Types[typeof (T2)].Indexes.Where(indexInfo => indexInfo.IsSecondary).Skip(1).First();
+      return Field.ReflectedType.Model.Types[typeof (TEntitySetItem)].Indexes.Where(indexInfo => indexInfo.IsSecondary).Skip(1).First();
     }
 
     protected override MapTransform GetKeyExtractTransform()
     {
       TypeInfoCollection types = Session.Domain.Model.Types;
-      var field = types[typeof (T2)].Fields[Session.Domain.NameBuilder.EntitySetItemMasterFieldName];
+      var field = types[typeof (TEntitySetItem)].Fields[Session.Domain.NameBuilder.EntitySetItemMasterFieldName];
       var columns = field.Fields.ExtractColumns();
-      var keyTupleDescriptor = types[typeof (T1)].Hierarchy.KeyTupleDescriptor;
+      var keyTupleDescriptor = types[typeof (TEntity)].Hierarchy.KeyTupleDescriptor;
       IEnumerable<int> columnIndexes = columns.Select(columnInfo => Index.Columns.First(columnInfo2 => columnInfo2.Name==columnInfo.Name)).Select(columnInfo => Index.Columns.IndexOf(columnInfo));
       return new MapTransform(true, keyTupleDescriptor, columnIndexes.ToArray());
     }

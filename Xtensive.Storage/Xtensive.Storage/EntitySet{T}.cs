@@ -54,7 +54,7 @@ namespace Xtensive.Storage
         return true;
 
       FieldInfo referencingField = Field.Association.Reversed.ReferencingField;
-      if (item.GetKey(referencingField) == OwnerEntity.Key) {
+      if (Session.GetAccessor(item).GetKey(item, referencingField) == OwnerEntity.Key) {
         State.Cache(item.Key);
         return true;
       }

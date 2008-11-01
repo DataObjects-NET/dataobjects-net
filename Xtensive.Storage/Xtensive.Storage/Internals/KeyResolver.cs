@@ -38,7 +38,7 @@ namespace Xtensive.Storage.Internals
     {
       if (state.Entity != null)
         return state.Entity;
-      Entity result = Entity.Activate(state.Type.UnderlyingType, state);
+      Entity result = Activator.CreateEntity(state.Type.UnderlyingType, state);
       state.Entity = result;
       return result;
     }

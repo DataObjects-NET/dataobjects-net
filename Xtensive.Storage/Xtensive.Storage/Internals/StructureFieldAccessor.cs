@@ -26,7 +26,7 @@ namespace Xtensive.Storage.Internals
       IFieldHandler result;
       if (obj.FieldHandlers.TryGetValue(field, out result))
         return (T) result;
-      result = Structure.Activate(field.ValueType, obj, field);
+      result = Activator.CreateStructure(field.ValueType, obj, field);
       obj.FieldHandlers.Add(field, result);
       return (T) result;
     }

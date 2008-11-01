@@ -25,6 +25,7 @@ namespace Xtensive.Storage
     INotifyPropertyChanged
   {
     private Dictionary<FieldInfo, IFieldHandler> fieldHandlers;
+    private PersistentAccessor accessor;
 
     /// <summary>
     /// Gets the type of this instance.
@@ -49,6 +50,11 @@ namespace Xtensive.Storage
     [Infrastructure]
     internal abstract void EnsureIsFetched(FieldInfo field);
 
+    internal virtual void Initialize()
+    {
+      OnInitialized();
+    }
+
     #region this[...], GetProperty, SetProperty methods
 
     [Infrastructure]
@@ -65,7 +71,7 @@ namespace Xtensive.Storage
       // TODO: Improve (use DelegateHelper)
       if (field.UnderlyingProperty!=null)
         return (T) field.UnderlyingProperty.GetValue(this, null);
-      return GetValue<T>(name);
+      return GetField<T>(name);
     }
 
     [Infrastructure]
@@ -76,67 +82,41 @@ namespace Xtensive.Storage
       if (field.UnderlyingProperty!=null)
         field.UnderlyingProperty.SetValue(this, value, null);
       else
-        SetValue(name, value);
+        SetField(name, value);
     }
 
     #endregion
 
-    #region GetValue, SetValue, GetKey methods
+    #region GetField, SetField, GetKey methods
 
     [Infrastructure]
-    protected T GetValue<T>(string name)
+    protected T GetField<T>(string name)
     {
-      return GetValue<T>(Type.Fields[name]);
+      return GetField<T>(Type.Fields[name]);
     }
 
     [Infrastructure]
-    protected T GetValue<T>(FieldInfo field)
+    protected T GetField<T>(FieldInfo field)
     {
-      OnGettingValue(field);
-      T result = field.GetAccessor<T>().GetValue(this, field);
-      OnGetValue(field);
+      OnGettingField(field);
+      T result = accessor.GetField<T>(this, field);
+      OnGetField(field, result);
 
       return result;
     }
 
     [Infrastructure]
-    protected void SetValue<T>(string name, T value)
+    protected void SetField<T>(string name, T value)
     {
-      SetValue(Type.Fields[name], value);
+      SetField(Type.Fields[name], value);
     }
 
-    protected void SetValue<T>(FieldInfo field, T value)
+    protected void SetField<T>(FieldInfo field, T value)
     {
-      OnSettingValue(field);
-
-      AssociationInfo association = field.Association;
-      if (association!=null && association.IsPaired) {
-        Key currentRef = GetKey(field);
-        Key newRef = null;
-        Entity newEntity = (Entity) (object) value;
-        if (newEntity != null)
-          newRef = newEntity.Key;
-        if (currentRef != newRef) {
-          SyncManager.Enlist(OperationType.Set, (Entity) this, newEntity, association);
-          field.GetAccessor<T>().SetValue(this, field, value);
-        }
-      }
-      else
-        field.GetAccessor<T>().SetValue(this, field, value);
-
-      OnSetValue(field);
-    }
-
-    [Infrastructure]
-    internal Key GetKey(string name)
-    {
-      return GetKey(Type.Fields[name]);
-    }
-
-    [Infrastructure]
-    internal Key GetKey(FieldInfo field)
-    {
-      return EntityFieldAccessor<Entity>.ExtractKey(this, field);
+      OnSettingField(field, value);
+      T oldValue = field.GetAccessor<T>().GetValue(this, field);
+      accessor.SetField(this, field, value);
+      OnSetField(field, oldValue, value);
     }
 
     #endregion
@@ -144,36 +124,28 @@ namespace Xtensive.Storage
     #region Protected event-like methods
 
     [Infrastructure]
-    protected internal virtual void OnCreating()
+    protected virtual void OnInitialized()
     {
     }
 
     [Infrastructure]
-    protected internal virtual void OnCreated(Type constructedType)
+    protected virtual void OnGettingField(FieldInfo field)
     {
     }
 
     [Infrastructure]
-    protected internal virtual void OnGettingValue(FieldInfo field)
+    protected virtual void OnGetField<T>(FieldInfo field, T value)
     {
     }
 
     [Infrastructure]
-    protected internal virtual void OnGetValue(FieldInfo field)
+    protected virtual void OnSettingField<T>(FieldInfo field, T value)
     {
     }
 
     [Infrastructure]
-    protected internal virtual void OnSettingValue(FieldInfo field)
+    protected virtual void OnSetField<T>(FieldInfo field, T oldValue, T newValue)
     {
-    }
-
-    [Infrastructure]
-    protected internal virtual void OnSetValue(FieldInfo field)
-    {
-      if (Session.Domain.Configuration.AutoValidation)
-        this.Validate();
-      NotifyPropertyChanged(field);
     }
 
     /// <summary>
@@ -256,6 +228,11 @@ namespace Xtensive.Storage
     {
       if (PropertyChanged != null)
         PropertyChanged(this, new PropertyChangedEventArgs(field.Name));
+    }
+
+    internal Persistent()
+    {
+      accessor = Session.GetAccessor(this);
     }
   }
 }

@@ -28,7 +28,7 @@ namespace Xtensive.Storage.Aspects
   [Serializable]
   public sealed class PersistentAttribute : CompoundAspect
   {
-    private const string HandlerMethodSuffix = "Value";
+    private const string HandlerMethodSuffix = "Field";
     private static readonly Type persistentType   = typeof(Persistent);
     private static readonly Type entityType       = typeof(Entity);
     private static readonly Type structureType    = typeof(Structure);

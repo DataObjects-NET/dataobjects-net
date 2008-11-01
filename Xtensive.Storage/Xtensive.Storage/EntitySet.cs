@@ -57,32 +57,6 @@ namespace Xtensive.Storage
 
     protected abstract RecordSet GetRecordSet();
 
-    #region Activation members
-
-    internal static IFieldHandler Activate(Type type, Persistent owner, FieldInfo field)
-    {
-      if (field.Association==null) 
-        throw new InvalidOperationException(String.Format(Strings.ExUnableToActivateEntitySetWithoutAssociation, field.Name));
-
-      Type instanceType;
-      if (field.Association.Master.UnderlyingType==null)
-        instanceType = typeof (EntitySet<>).MakeGenericType(type);
-      else {
-        if (field.Association.IsMaster)
-          instanceType = typeof (EntitySet<,>).MakeGenericType(type, field.Association.UnderlyingType);
-        else
-          instanceType = typeof (ReversedEntitySet<,>).MakeGenericType(type, field.Association.Master.UnderlyingType);
-      }
-      return ActivateInstance(instanceType, owner, field);
-    }
-
-    private static IFieldHandler ActivateInstance(Type type, Persistent owner, FieldInfo field)
-    {
-      return (IFieldHandler)type.InvokeMember(string.Empty, BindingFlags.CreateInstance, null, null, new object[] { owner, field});
-    }
-
-    #endregion
-
 
     // Constructors
 

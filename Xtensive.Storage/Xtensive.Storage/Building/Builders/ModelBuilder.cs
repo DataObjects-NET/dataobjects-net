@@ -15,6 +15,7 @@ using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
+using Activator=System.Activator;
 
 namespace Xtensive.Storage.Building.Builders
 {
