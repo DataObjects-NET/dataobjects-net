@@ -55,7 +55,8 @@ namespace Xtensive.Storage.Internals
     internal static Key ExtractKey(Persistent obj, FieldInfo field)
     {
       SegmentTransform transform = obj.Session.Domain.Transforms.GetValue(field, arg => new SegmentTransform(false, obj.Data.Descriptor, new Segment<int>(field.MappingInfo.Offset, field.MappingInfo.Length)));
-      return obj.Session.Domain.KeyManager.Get(field, transform.Apply(TupleTransformType.TransformedTuple, obj.Data));
+      TypeInfo type = obj.Session.Domain.Model.Types[field.ValueType];
+      return new Key(type, transform.Apply(TupleTransformType.TransformedTuple, obj.Data));
     }
 
 

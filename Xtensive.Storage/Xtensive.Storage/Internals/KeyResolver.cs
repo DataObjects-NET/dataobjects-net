@@ -24,21 +24,12 @@ namespace Xtensive.Storage.Internals
         return state.IsRemoved ? null : GetEntity(state);
       }
 
-      // Key is not fully resolved yet (Type is unknown), so 1 fetch request is required
-      if (key.Type==null) {
-        if (session.IsDebugEventLoggingEnabled)
-          Log.Debug("Session '{0}'. Resolving key '{1}'. Exact type is unknown. Fetch is required.", session, key);
+      if(session.IsDebugEventLoggingEnabled)
+        Log.Debug("Session '{0}'. Resolving key '{1}'. Exact type is known.", session, key);
 
-        FieldInfo field = key.Hierarchy.Root.Fields[session.Domain.NameBuilder.TypeIdFieldName];
-        Fetcher.Fetch(key, field);
-      }
-      else {
-        if(session.IsDebugEventLoggingEnabled)
-          Log.Debug("Session '{0}'. Resolving key '{1}'. Exact type is known.", session, key);
+      // Type is known so we can create Entity instance.
+      Fetcher.Fetch(key);
 
-        // Type is known so we can create Entity instance.
-        Fetcher.Fetch(key);
-      }
       state = session.Cache[key];
       return state==null ? null : GetEntity(state);
     }

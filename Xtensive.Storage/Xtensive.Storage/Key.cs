@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics;
 using Xtensive.Core;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Internals;
@@ -95,10 +96,10 @@ namespace Xtensive.Storage
     /// <typeparam name="T">Type of <see cref="Entity"/> descendant to get <see cref="Key"/> for.</typeparam>
     /// <param name="tuple"><see cref="Tuple"/> with key values.</param>
     /// <returns>Newly created <see cref="Key"/> instance.</returns>
-    public static Key Get<T>(Tuple tuple)
+    public static Key CreateKey<T>(Tuple tuple)
       where T: Entity
     {
-      return Get(typeof (T), tuple);
+      return new Key(typeof (T), tuple);
     }
 
     /// <summary>
@@ -108,25 +109,19 @@ namespace Xtensive.Storage
     /// <typeparam name="TKey">Key value type.</typeparam>
     /// <param name="keyValue">Key value.</param>
     /// <returns>Newly created <see cref="Key"/> instance.</returns>
-    public static Key Get<TEntity, TKey>(TKey keyValue)
+    public static Key CreateKey<TEntity, TKey>(TKey keyValue)
       where TEntity: Entity
     {
-      return Get(typeof(TEntity), Tuple.Create(keyValue));
+      return new Key(typeof(TEntity), Tuple.Create(keyValue));
     }
 
-    /// <summary>
-    /// Builds the <see cref="Key"/> according to specified <paramref name="tuple"/>.
-    /// </summary>
-    /// <param name="type">The type of <see cref="Entity"/> descendant to create a <see cref="Key"/> for.</param>
-    /// <param name="tuple"><see cref="Tuple"/> with key values.</param>
-    /// <returns>Newly created <see cref="Key"/> instance.</returns>
-    /// <exception cref="ArgumentException"><paramref name="type"/> is not <see cref="Entity"/> descendant.</exception>
-    public static Key Get(Type type, Tuple tuple)
+    internal bool IsResolved()
     {
-      return Session.Current.Domain.KeyManager.Get(type, tuple);
+      return type!=null ? true : false;
     }
 
-    #region Equals & GetHashCode
+
+    #region Equals, GetHashCode, ==, != 
 
     /// <inheritdoc/>
     public bool Equals(Key other)
@@ -150,6 +145,20 @@ namespace Xtensive.Storage
       return false;
     }
 
+    /// <see cref="ClassDocTemplate.OperatorEq" copy="true" />
+    [DebuggerStepThrough]
+    public static bool operator ==(Key left, Key right)
+    {
+      return Equals(left, right);
+    }
+
+    /// <see cref="ClassDocTemplate.OperatorNeq" copy="true" />
+    [DebuggerStepThrough]
+    public static bool operator !=(Key left, Key right)
+    {
+      return !Equals(left, right);
+    }
+
     /// <inheritdoc/>
     [DebuggerStepThrough]
     public override int GetHashCode()
@@ -168,11 +177,34 @@ namespace Xtensive.Storage
 
     // Constructors
 
-    internal Key(HierarchyInfo hierarchy, Tuple tuple)
+    ///<summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///</summary>
+    ///<param name="hierarchy">Hierarchy value</param>
+    ///<param name="tuple">Tuple value</param>
+    public Key(HierarchyInfo hierarchy, Tuple tuple)
     {
       Hierarchy = hierarchy;
       this.tuple = tuple;
       hashCode = tuple.GetHashCode() ^ hierarchy.GetHashCode();
+    }
+
+    ///<summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///</summary>
+    ///<param name="type">Type value</param>
+    ///<param name="tuple">Tuple value</param>
+    public Key(Type type, Tuple tuple)
+      :this(Session.Current.Domain.Model.Types[type],tuple)
+    {
+    }
+
+    internal Key(TypeInfo type, Tuple tuple)
+    {
+      Hierarchy = type.Hierarchy;
+      this.tuple = tuple;
+      hashCode = tuple.GetHashCode() ^ type.Hierarchy.GetHashCode();
+      this.type = type;
     }
   }
 }

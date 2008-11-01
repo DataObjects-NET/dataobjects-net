@@ -35,6 +35,8 @@ namespace Xtensive.Storage
     private static readonly ThreadSafeDictionary<Type, Func<EntityState, Entity>> activators = 
       ThreadSafeDictionary<Type, Func<EntityState, Entity>>.Create(new object());
     private readonly EntityState entityState;
+    internal Registry<HierarchyInfo, KeyGenerator> Generators { get; private set; }
+
 
     #region Internal properties
 
@@ -239,7 +241,8 @@ namespace Xtensive.Storage
       var domain = session.Domain;
 
       TypeInfo type = domain.Model.Types[GetType()];
-      Key key = domain.KeyManager.Next(type);
+      KeyGenerator keyGenerator = Generators[type.Hierarchy];
+      Key key = new Key(type, keyGenerator.Next());
 
       if (session.IsDebugEventLoggingEnabled)
         Log.Debug("Session '{0}'. Creating entity: Key = '{1}'", session, key);
@@ -259,7 +262,7 @@ namespace Xtensive.Storage
       var domain = session.Domain;
 
       TypeInfo type = domain.Model.Types[GetType()];
-      Key key = domain.KeyManager.Get(type, tuple);
+      var key = new Key(type, tuple);
 
       if (session.IsDebugEventLoggingEnabled)
         Log.Debug("Session '{0}'. Creating entity: Key = '{1}'", session, key);
