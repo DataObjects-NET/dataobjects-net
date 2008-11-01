@@ -7,14 +7,9 @@
 using System;
 using Xtensive.Core;
 using Xtensive.Core.Caching;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Disposable;
-using Xtensive.Core.Threading;
-using Xtensive.Core.Tuples;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
-using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage
 {
@@ -25,7 +20,6 @@ namespace Xtensive.Storage
   public sealed class KeyManager : IDisposable
   {
     private readonly Domain domain;
-    private readonly object _lock = new object();
     private readonly ICache<Key, Pair<Key, TypeInfo>> cache;
     internal Registry<HierarchyInfo, KeyGenerator> Generators { get; private set; }
 
@@ -33,23 +27,21 @@ namespace Xtensive.Storage
 
     internal TypeInfo ResolveType(Key key)
     {
-      if (!key.IsResolved()) {
+      if (key.IsResolved())
+        return key.Type;
 
-        Pair<Key, TypeInfo> result;
-        cache.TryGetItem(key, true, out result);
+      Pair<Key, TypeInfo> result;
+      if (cache.TryGetItem(key, true, out result))
+        return result.Second;
 
-        if (result.Second != null)
-          return result.Second;
+      var session = Session.Current;
+      if (session.IsDebugEventLoggingEnabled)
+        Log.Debug("Session '{0}'. Resolving key '{1}'. Exact type is unknown. Fetch is required.", session, key);
 
-        var session = Session.Current;
-        if (session.IsDebugEventLoggingEnabled)
-          Log.Debug("Session '{0}'. Resolving key '{1}'. Exact type is unknown. Fetch is required.", session, key);
+      FieldInfo field = key.Hierarchy.Root.Fields[session.Domain.NameBuilder.TypeIdFieldName];
+      Fetcher.Fetch(key, field);
 
-        FieldInfo field = key.Hierarchy.Root.Fields[session.Domain.NameBuilder.TypeIdFieldName];
-        Fetcher.Fetch(key, field);
-
-        //cache.Add(new Pair<Key, TypeInfo>(key, candidate.Type));
-      }
+      //cache.Add(new Pair<Key, TypeInfo>(key, candidate.Type));
       throw new InvalidOperationException();
     }
 

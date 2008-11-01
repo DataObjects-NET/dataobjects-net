@@ -4,8 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2008.07.09
 
-using Xtensive.Storage.Model;
-
 namespace Xtensive.Storage.Internals
 {
   internal static class KeyResolver
@@ -40,6 +38,7 @@ namespace Xtensive.Storage.Internals
         return state.Entity;
       Entity result = Activator.CreateEntity(state.Type.UnderlyingType, state);
       state.Entity = result;
+      result.Initialize();
       return result;
     }
   }

@@ -9,7 +9,6 @@ using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
-using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 
@@ -26,8 +25,6 @@ namespace Xtensive.Storage
     private readonly int hashCode;
     private readonly Tuple tuple;
 
-    
-
     /// <summary>
     /// Gets the hierarchy this instance belongs to.
     /// </summary>
@@ -36,17 +33,25 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets the type of <see cref="Entity"/> this instance identifies.
     /// </summary>
+    /// <exception cref="NotSupportedException">Type is already initialized.</exception>
     public TypeInfo Type
     {
       [DebuggerStepThrough]
-      get { return type; }
+      get
+      {
+        if (type == null)
+          type = Session.Current.Domain.KeyManager.ResolveType(this);
+        return type;
+      }
       [DebuggerStepThrough]
       internal set {
-        if (type!=null && type!=value)
+        if (type!=null)
           throw Exceptions.AlreadyInitialized("Type");
         type = value;
       }
     }
+
+    #region Tuple methods
 
     /// <inheritdoc/>
     public override TupleFieldState GetFieldState(int fieldIndex)
@@ -61,9 +66,10 @@ namespace Xtensive.Storage
     }
 
     /// <inheritdoc/>
+    /// <exception cref="Exception">Instance is read-only.</exception>
     public override void SetValue(int fieldIndex, object fieldValue)
     {
-      throw Exceptions.ObjectIsReadOnly("Key");
+      throw Exceptions.ObjectIsReadOnly(null);
     }
 
     /// <inheritdoc/>
@@ -71,6 +77,8 @@ namespace Xtensive.Storage
     {
       get { return tuple.Descriptor; }
     }
+
+    #endregion
 
     /// <summary>
     /// Resolves this instance.
@@ -96,7 +104,7 @@ namespace Xtensive.Storage
     /// <typeparam name="T">Type of <see cref="Entity"/> descendant to get <see cref="Key"/> for.</typeparam>
     /// <param name="tuple"><see cref="Tuple"/> with key values.</param>
     /// <returns>Newly created <see cref="Key"/> instance.</returns>
-    public static Key CreateKey<T>(Tuple tuple)
+    public static Key Create<T>(Tuple tuple)
       where T: Entity
     {
       return new Key(typeof (T), tuple);
@@ -109,10 +117,10 @@ namespace Xtensive.Storage
     /// <typeparam name="TKey">Key value type.</typeparam>
     /// <param name="keyValue">Key value.</param>
     /// <returns>Newly created <see cref="Key"/> instance.</returns>
-    public static Key CreateKey<TEntity, TKey>(TKey keyValue)
+    public static Key Create<TEntity, TKey>(TKey keyValue)
       where TEntity: Entity
     {
-      return new Key(typeof(TEntity), Tuple.Create(keyValue));
+      return new Key(typeof(TEntity), Create(keyValue));
     }
 
     internal bool IsResolved()
@@ -139,9 +147,8 @@ namespace Xtensive.Storage
     [DebuggerStepThrough]
     public override bool Equals(object obj)
     {
-      if (obj is Key) {
+      if (obj is Key)
         return Equals((Key) obj);
-      }
       return false;
     }
 
@@ -195,15 +202,13 @@ namespace Xtensive.Storage
     ///<param name="type">Type value</param>
     ///<param name="tuple">Tuple value</param>
     public Key(Type type, Tuple tuple)
-      :this(Session.Current.Domain.Model.Types[type],tuple)
+      :this(Session.Current.Domain.Model.Types[type].Hierarchy, tuple)
     {
     }
 
     internal Key(TypeInfo type, Tuple tuple)
+      : this(type.Hierarchy, tuple)
     {
-      Hierarchy = type.Hierarchy;
-      this.tuple = tuple;
-      hashCode = tuple.GetHashCode() ^ type.Hierarchy.GetHashCode();
       this.type = type;
     }
   }

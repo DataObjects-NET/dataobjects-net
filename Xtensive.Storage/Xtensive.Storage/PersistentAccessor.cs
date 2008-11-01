@@ -126,7 +126,8 @@ namespace Xtensive.Storage
     {
     }
 
-    internal PersistentAccessor()
+    internal PersistentAccessor(Session session)
+      : base(session)
     {
     }
   }

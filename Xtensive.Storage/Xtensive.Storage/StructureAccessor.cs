@@ -39,5 +39,10 @@ namespace Xtensive.Storage
         Session.GetAccessor(obj).OnSetField(structure.Owner, structure.Field);
       base.OnSetField(obj, field);
     }
+
+    public StructureAccessor(Session session)
+      : base(session)
+    {
+    }
   }
 }

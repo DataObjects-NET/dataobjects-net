@@ -94,7 +94,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
           TestHelper.CollectGarbage();
           using (warmup ? null : new Measurement("Fetch & GetField", count)) {
             for (int i = 0; i < count; i++) {
-              var key = Key.CreateKey<Simplest>(Tuple.Create((long) i % instanceCount));
+              var key = Key.Create<Simplest>(Tuple.Create((long) i % instanceCount));
               var o = key.Resolve<Simplest>();
               sum -= o.Id;
             }

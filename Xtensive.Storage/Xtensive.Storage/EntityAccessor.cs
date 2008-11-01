@@ -5,7 +5,6 @@
 // Created:    2008.11.01
 
 using System;
-using Xtensive.Core.Aspects;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Integrity.Validation;
 using Xtensive.Storage.Model;
@@ -59,6 +58,11 @@ namespace Xtensive.Storage
         entity.EntityState.PersistenceState = PersistenceState.Modified;
       }
       base.OnSetField(obj, field);
+    }
+
+    public EntityAccessor(Session session)
+      : base(session)
+    {
     }
   }
 }
