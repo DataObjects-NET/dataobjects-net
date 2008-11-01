@@ -232,6 +232,16 @@ namespace Xtensive.Core.Tuples
     }
 
     /// <summary>
+    /// Converts <paramref name="source"/> tuple to fast read-only one.
+    /// </summary>
+    /// <param name="source">The tuple to convert to fast read-only.</param>
+    /// <returns>Fast read-only version of <paramref name="source"/> tuple.</returns>
+    public static Tuple ToFastReadOnly(this Tuple source)
+    {
+      return new FastReadOnlyTuple(source);
+    }
+
+    /// <summary>
     /// Combines the <paramref name="source1"/> with <paramref name="source2"/>.
     /// </summary>
     /// <param name="source1">The source <see cref="Tuple"/> to combine with the <paramref name="source2"/>.</param>

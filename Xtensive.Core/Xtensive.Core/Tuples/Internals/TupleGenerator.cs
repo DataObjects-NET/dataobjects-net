@@ -350,6 +350,47 @@ namespace Xtensive.Core.Tuples.Internals
       tupleType.DefineMethodOverride(getValueOrDefault, getValueOrDefaultGenericMethod);
     }
 
+    private void AddGetValueOrDefault()
+    {
+      MethodBuilder getValueOrDefault = tupleType.DefineMethod(
+        getValueOrDefaultMethodName,
+        MethodAttributes.Public | MethodAttributes.Virtual,
+        typeof(object),
+        new Type[]{typeof(int)});
+
+      ILGenerator il = getValueOrDefault.GetILGenerator();
+
+      Label argumentOutOfRangeException = il.DefineLabel();
+      Label returnNull = il.DefineLabel();
+      il.Emit(OpCodes.Ldarg_1);
+      Action<int, bool> getFlagsAction =
+        delegate(int fieldIndex, bool isDefault) {
+          if (!isDefault) {
+            TupleFieldInfo field = tupleInfo.Fields[fieldIndex];
+            InlineGetField(il, field.FlagsField);
+            il.Emit(OpCodes.Ldc_I4, (int)TupleFieldState.IsAvailable);
+            il.Emit(OpCodes.Xor);
+            il.Emit(OpCodes.Brtrue, returnNull);
+            InlineGetField(il, field);
+            if (field.IsValueType)
+              il.Emit(OpCodes.Box, field.Type);
+            il.Emit(OpCodes.Ret);
+          }
+          else
+            il.Emit(OpCodes.Br, argumentOutOfRangeException);
+        };
+      EmitHelper.EmitSwitch(il, tupleInfo.Fields.Count, false, getFlagsAction);
+      il.MarkLabel(argumentOutOfRangeException);
+      il.Emit(OpCodes.Ldstr, "fieldIndex");
+      il.Emit(OpCodes.Newobj, typeof(ArgumentOutOfRangeException).GetConstructor(new Type[] { typeof(string) }));
+      il.Emit(OpCodes.Throw);
+      il.MarkLabel(returnNull);
+
+      il.Emit(OpCodes.Ldnull);
+      il.Emit(OpCodes.Ret);
+      tupleType.DefineMethodOverride(getValueOrDefault, getValueOrDefaultMethod);
+    }
+
     private void AddSetValueGeneric()
     {
       MethodBuilder setValue = tupleType.DefineMethod(
@@ -452,6 +493,59 @@ namespace Xtensive.Core.Tuples.Internals
 //      il.Emit(OpCodes.Newobj, typeof(InvalidCastException).GetConstructor(Type.EmptyTypes));
 //      il.Emit(OpCodes.Throw);
 //      tupleType.DefineMethodOverride(setValue, interfaceMethod);
+    }
+
+    private void AddSetValue()
+    {
+      MethodBuilder setValue = tupleType.DefineMethod(
+        setValueMethodName,
+        MethodAttributes.Public | MethodAttributes.Virtual,
+        null,
+        new Type[] { typeof(int), typeof(object) });
+
+      ILGenerator il = setValue.GetILGenerator();
+      il.DeclareLocal(typeof (TupleFieldState));
+      il.Emit(OpCodes.Ldarg_1);
+      Action<int, bool> setValueAction =
+        delegate(int fieldIndex, bool isDefault) {
+          if (!isDefault) {
+            Label setFlags = il.DefineLabel();
+            TupleFieldInfo field = tupleInfo.Fields[fieldIndex];
+            Label isNotNull = il.DefineLabel();
+            Label isNull = il.DefineLabel();
+            if (field.IsValueType) {
+              il.Emit(OpCodes.Ldarg_2);
+              il.Emit(OpCodes.Ldnull);
+              il.Emit(OpCodes.Ceq);
+              il.Emit(OpCodes.Brfalse, isNotNull);
+              il.Emit(OpCodes.Ldc_I4, (int)(TupleFieldState.IsAvailable | TupleFieldState.IsNull));
+              il.Emit(OpCodes.Stloc_0);
+              il.Emit(OpCodes.Br, setFlags);
+            }
+            else {
+              il.Emit(OpCodes.Ldarg_2);
+              il.Emit(OpCodes.Ldnull);
+              il.Emit(OpCodes.Ceq);
+              il.Emit(OpCodes.Brfalse, isNotNull);
+              il.Emit(OpCodes.Ldc_I4, (int)(TupleFieldState.IsAvailable | TupleFieldState.IsNull));
+              il.Emit(OpCodes.Stloc_0);
+              il.Emit(OpCodes.Br, isNull);
+            }
+            il.MarkLabel(isNotNull);
+            il.Emit(OpCodes.Ldc_I4, (int)(TupleFieldState.IsAvailable));
+            il.Emit(OpCodes.Stloc_0);
+            il.MarkLabel(isNull);
+            InlineSetField(il, field, OpCodes.Ldarg_2, true);
+            il.MarkLabel(setFlags);
+            InlineSetField(il, field.FlagsField, OpCodes.Ldloc_0, false);
+            il.Emit(OpCodes.Ret);
+          }
+        };
+      EmitHelper.EmitSwitch(il, tupleInfo.Fields.Count, false, setValueAction);
+      il.Emit(OpCodes.Ldstr, "fieldIndex");
+      il.Emit(OpCodes.Newobj, typeof(ArgumentOutOfRangeException).GetConstructor(new Type[] { typeof(string) }));
+      il.Emit(OpCodes.Throw);
+      tupleType.DefineMethodOverride(setValue, setValueMethod);
     }
 
     private void AddStaticFields()
@@ -652,100 +746,6 @@ namespace Xtensive.Core.Tuples.Internals
 
       MethodInfo cloneMethod = typeof(Tuple).GetMethod(cloneMethodName);
       tupleType.DefineMethodOverride(clone, cloneMethod);
-    }
-
-    private void AddSetValue()
-    {
-      MethodBuilder setValue = tupleType.DefineMethod(
-          setValueMethodName,
-          MethodAttributes.Public | MethodAttributes.Virtual,
-          null,
-          new Type[] { typeof(int), typeof(object) });
-
-      ILGenerator il = setValue.GetILGenerator();
-      il.DeclareLocal(typeof (TupleFieldState));
-      il.Emit(OpCodes.Ldarg_1);
-      Action<int, bool> setValueAction =
-        delegate(int fieldIndex, bool isDefault) {
-          if (!isDefault) {
-            Label setFlags = il.DefineLabel();
-            TupleFieldInfo field = tupleInfo.Fields[fieldIndex];
-            Label isNotNull = il.DefineLabel();
-            Label isNull = il.DefineLabel();
-            if (field.IsValueType) {
-              il.Emit(OpCodes.Ldarg_2);
-              il.Emit(OpCodes.Ldnull);
-              il.Emit(OpCodes.Ceq);
-              il.Emit(OpCodes.Brfalse, isNotNull);
-              il.Emit(OpCodes.Ldc_I4, (int)(TupleFieldState.IsAvailable | TupleFieldState.IsNull));
-              il.Emit(OpCodes.Stloc_0);
-              il.Emit(OpCodes.Br, setFlags);
-            }
-            else {
-              il.Emit(OpCodes.Ldarg_2);
-              il.Emit(OpCodes.Ldnull);
-              il.Emit(OpCodes.Ceq);
-              il.Emit(OpCodes.Brfalse, isNotNull);
-              il.Emit(OpCodes.Ldc_I4, (int)(TupleFieldState.IsAvailable | TupleFieldState.IsNull));
-              il.Emit(OpCodes.Stloc_0);
-              il.Emit(OpCodes.Br, isNull);
-            }
-            il.MarkLabel(isNotNull);
-            il.Emit(OpCodes.Ldc_I4, (int)(TupleFieldState.IsAvailable));
-            il.Emit(OpCodes.Stloc_0);
-            il.MarkLabel(isNull);
-            InlineSetField(il, field, OpCodes.Ldarg_2, true);
-            il.MarkLabel(setFlags);
-            InlineSetField(il, field.FlagsField, OpCodes.Ldloc_0, false);
-            il.Emit(OpCodes.Ret);
-          }
-        };
-      EmitHelper.EmitSwitch(il, tupleInfo.Fields.Count, false, setValueAction);
-      il.Emit(OpCodes.Ldstr, "fieldIndex");
-      il.Emit(OpCodes.Newobj, typeof(ArgumentOutOfRangeException).GetConstructor(new Type[] { typeof(string) }));
-      il.Emit(OpCodes.Throw);
-      tupleType.DefineMethodOverride(setValue, setValueMethod);
-    }
-
-    private void AddGetValueOrDefault()
-    {
-      MethodBuilder getValueOrDefault = tupleType.DefineMethod(
-          getValueOrDefaultMethodName,
-          MethodAttributes.Public | MethodAttributes.Virtual,
-          typeof(object),
-          new Type[]{typeof(int)});
-
-      ILGenerator il = getValueOrDefault.GetILGenerator();
-
-      Label argumentOutOfRangeException = il.DefineLabel();
-      Label returnNull = il.DefineLabel();
-      il.Emit(OpCodes.Ldarg_1);
-      Action<int, bool> getFlagsAction =
-        delegate(int fieldIndex, bool isDefault) {
-          if (!isDefault) {
-            TupleFieldInfo field = tupleInfo.Fields[fieldIndex];
-            InlineGetField(il, field.FlagsField);
-            il.Emit(OpCodes.Ldc_I4, (int)TupleFieldState.IsAvailable);
-            il.Emit(OpCodes.Xor);
-            il.Emit(OpCodes.Brtrue, returnNull);
-            InlineGetField(il, field);
-            if (field.IsValueType)
-              il.Emit(OpCodes.Box, field.Type);
-            il.Emit(OpCodes.Ret);
-          }
-          else
-            il.Emit(OpCodes.Br, argumentOutOfRangeException);
-        };
-      EmitHelper.EmitSwitch(il, tupleInfo.Fields.Count, false, getFlagsAction);
-      il.MarkLabel(argumentOutOfRangeException);
-      il.Emit(OpCodes.Ldstr, "fieldIndex");
-      il.Emit(OpCodes.Newobj, typeof(ArgumentOutOfRangeException).GetConstructor(new Type[] { typeof(string) }));
-      il.Emit(OpCodes.Throw);
-      il.MarkLabel(returnNull);
-
-      il.Emit(OpCodes.Ldnull);
-      il.Emit(OpCodes.Ret);
-      tupleType.DefineMethodOverride(getValueOrDefault, getValueOrDefaultMethod);
     }
 
     private static void InlineSetField(ILGenerator il, TupleFieldInfo field, OpCode loadValueOpCode, bool unbox)
