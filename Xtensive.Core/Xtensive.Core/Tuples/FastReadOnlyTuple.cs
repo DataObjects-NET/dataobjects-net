@@ -14,11 +14,12 @@ namespace Xtensive.Core.Tuples
   /// Fast read-only <see cref="Tuple"/> implementation.
   /// </summary>
   [Serializable]
-  public class FastReadOnlyTuple : Tuple
+  public sealed class FastReadOnlyTuple : Tuple
   {
     private readonly TupleDescriptor descriptor;
     private TupleFieldState[] states;
     private object[] values;
+    private int? cachedHash;
 
     /// <inheritdoc/>
     public override TupleDescriptor Descriptor
@@ -49,6 +50,14 @@ namespace Xtensive.Core.Tuples
       throw Exceptions.ObjectIsReadOnly(null);
     }
 
+    /// <inheritdoc/>
+    public override int GetHashCode()
+    {
+      if (!cachedHash.HasValue)
+        cachedHash = base.GetHashCode();
+      return cachedHash.GetValueOrDefault();
+    }
+
     
     // Constructors
 
@@ -58,7 +67,6 @@ namespace Xtensive.Core.Tuples
     /// <param name="source">The tuple to create the fast read-only tuple from.</param>
     public FastReadOnlyTuple(Tuple source)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
       descriptor = source.Descriptor;
       int count = descriptor.Count;
       values = new object[count];

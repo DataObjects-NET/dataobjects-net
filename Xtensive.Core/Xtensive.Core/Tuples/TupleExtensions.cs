@@ -238,6 +238,9 @@ namespace Xtensive.Core.Tuples
     /// <returns>Fast read-only version of <paramref name="source"/> tuple.</returns>
     public static Tuple ToFastReadOnly(this Tuple source)
     {
+      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      if (source.GetType()==typeof(FastReadOnlyTuple))
+        return source;
       return new FastReadOnlyTuple(source);
     }
 
