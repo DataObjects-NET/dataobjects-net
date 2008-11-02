@@ -239,7 +239,6 @@ namespace Xtensive.Storage
         try {
           if (IsDebugEventLoggingEnabled)
             Log.Debug("Domain disposing {0}.", isDisposing ? "explicitly" : "by calling finalizer.");
-          Handlers.DisposeSafely();
           KeyGenerators.DisposeSafely();
         }
         finally {

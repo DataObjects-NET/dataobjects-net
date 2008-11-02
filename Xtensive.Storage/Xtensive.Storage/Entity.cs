@@ -11,12 +11,10 @@ using Xtensive.Core.Aspects;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
-using Xtensive.Integrity.Validation;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.ReferentialIntegrity;
-using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage
 {
@@ -130,7 +128,7 @@ namespace Xtensive.Storage
         LogTemplate<Log>.Debug("Session '{0}'. Removing: Key = '{1}'", session, Key);
 
       entityState.EnsureIsActual();
-      entityState.EnsureIsNotRemoved();
+      entityState.EnsureNotRemoved();
       OnRemoving();
 
       session.Persist();

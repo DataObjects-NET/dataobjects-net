@@ -69,7 +69,7 @@ namespace Xtensive.Storage.Internals
     
     public static void Fetch(Key key)
     {
-      IndexInfo index = (key.Type??key.Hierarchy.Root).Indexes.PrimaryIndex;
+      IndexInfo index = (key.Type ?? key.Hierarchy.Root).Indexes.PrimaryIndex;
       Fetch(index, key, index.Columns.Where(c => !c.IsLazyLoad));
     }
 
@@ -100,8 +100,13 @@ namespace Xtensive.Storage.Internals
       var rs = GetCachedRecordSet(index, columnIndexes);
       using (new ParameterScope()) {
         pKey.Value = key;
-        if (rs.Parse() == 0)
+        if (rs.Parse() == 0) {
+          var state = session.Cache[key];
+          if (state==null)
+            state = session.Cache.Create(key, session.Transaction);
+          state.Update(null, session.Transaction); // Update to the state of removed entity
           session.Cache.Remove(key);
+        }
       }
     }
 

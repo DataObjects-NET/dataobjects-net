@@ -12,7 +12,7 @@ namespace Xtensive.Storage
   public enum PersistenceState
   {
     /// <summary>
-    /// The entity is synchronized with database (there are no unsaved changes).
+    /// The entity is synchronized with the database (there are no unsaved changes).
     /// </summary>
     Synchronized = 0,
 

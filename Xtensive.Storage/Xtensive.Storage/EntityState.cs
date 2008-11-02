@@ -6,11 +6,13 @@
 
 using System;
 using System.Diagnostics;
+using Xtensive.Core;
 using Xtensive.Core.Tuples;
 using Xtensive.Integrity.Transactions;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
+using Activator=Xtensive.Storage.Internals.Activator;
 
 namespace Xtensive.Storage
 {
@@ -19,29 +21,13 @@ namespace Xtensive.Storage
   /// </summary>
   public sealed class EntityState : Tuple
   {
-    private Transaction transaction;
-    private bool isRemoved;
-
-    /// <summary>
-    /// Gets or sets a value indicating whether this entity is removed.
-    /// </summary>
-    public bool IsRemoved
-    {
-      get {        
-        return isRemoved;
-      }
-      internal set {
-        isRemoved = value;
-      }
-    }
-
     /// <summary>
     /// Gets the key.
     /// </summary>
     public Key Key { get; internal set; }
 
     /// <summary>
-    /// Gets the type.
+    /// Gets the entity type.
     /// </summary>
     public TypeInfo Type
     {
@@ -52,58 +38,28 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets the values as <see cref="DifferentialTuple"/>.
     /// </summary>
-    public DifferentialTuple Data { get; set; }
+    public DifferentialTuple Data { get; private set; }
 
+    /// <summary>
+    /// Gets the transaction the state belongs to.
+    /// </summary>
+    public Transaction Transaction { get; private set; }
+    
     /// <summary>
     /// Gets the the persistence state.
     /// </summary>
     public PersistenceState PersistenceState { get; internal set; }
 
     /// <summary>
-    /// Gets the owner of this instance.
+    /// Gets the <see cref="Entity"/> associated with this state.
     /// </summary>
     public Entity Entity { get; internal set; }
 
     /// <summary>
-    /// Ensures the data belongs to the current <see cref="Transaction"/> and resents the data if not.
+    /// Gets a value indicating whether this entity is removed.
     /// </summary>
-    public void EnsureIsActual()
-    {
-      if (!TransactionIsActive)
-        Fetcher.Fetch(Key);
-    }
-
-    private bool TransactionIsActive
-    {
-      get { return (transaction.State & TransactionState.Completed)==0; }
-    }
-
-    private void SetTransaction(Transaction newTransaction)
-    {
-      if (newTransaction==null)
-        throw new InvalidOperationException(Strings.ExTransactionRequired);
-      transaction = newTransaction;
-    }
-
-    /// <summary>
-    /// Ensures the entity is not removed and data is actual.
-    /// Call this method before getting or setting values.
-    /// </summary>
-    public void EnsureIsNotRemoved()
-    {
-      if (isRemoved)
-        throw new InvalidOperationException(Strings.ExEntityIsRemoved);
-    }
-
-    internal void Import(Tuple tuple, Transaction newTransaction)
-    {
-      if (TransactionIsActive)
-        Data.Origin.MergeWith(tuple);
-      else {
-        Data = new DifferentialTuple(tuple.ToRegular());
-        SetTransaction(newTransaction);
-      }
-      isRemoved = false;
+    public bool IsRemoved {
+      get { return Data==null; }
     }
 
     /// <summary>
@@ -114,6 +70,65 @@ namespace Xtensive.Storage
     {
       return PersistenceState==PersistenceState.New || IsAvailable(offset);
     }
+
+    /// <summary>
+    /// Updates the entity state to the most current one.
+    /// </summary>
+    /// <param name="tuple">The state change tuple, or a new state tuple. 
+    /// If <see langword="null" />, the entity is considered as removed.</param>
+    /// <param name="transaction">The transaction.</param>
+    public void Update(Tuple tuple, Transaction transaction)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(transaction, "transaction");
+      if (Transaction.State.IsActive()) {
+        if (tuple==null)
+          Data = null;
+        else
+          Data.Origin.MergeWith(tuple);
+      }
+      else {
+        Transaction = transaction;
+        Data = tuple==null ? null : new DifferentialTuple(tuple.ToRegular());
+      }
+    }
+
+    #region EnsureXxx methods
+
+    /// <summary>
+    /// Ensures the data belongs to the current <see cref="Transaction"/> and resents the data if not.
+    /// </summary>
+    public void EnsureIsActual()
+    {
+      if (!Transaction.State.IsActive())
+        Fetcher.Fetch(Key);
+    }
+
+    /// <summary>
+    /// Ensures the <see cref="Entity"/> property has been set,
+    /// i.e. <see cref="Xtensive.Storage.Entity"/> is associated
+    /// with this state.
+    /// </summary>
+    public void EnsureHasEntity()
+    {
+      if (Entity!=null)
+        return;
+      var entity = Activator.CreateEntity(Type.UnderlyingType, this);
+      entity.Initialize();
+      Entity = entity;
+    }
+
+    /// <summary>
+    /// Ensures the entity is not removed and its data is actual.
+    /// Call this method before getting or setting values.
+    /// </summary>
+    public void EnsureNotRemoved()
+    {
+      EnsureIsActual();
+      if (IsRemoved)
+        throw new InvalidOperationException(Strings.ExEntityIsRemoved);
+    }
+
+    #endregion
 
     #region Tuple implementation
 
@@ -138,7 +153,7 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     public override TupleDescriptor Descriptor
     {
-       get { return Data.Descriptor; }
+      get { return Data.Descriptor; }
     }
 
     /// <inheritdoc/>
@@ -166,10 +181,11 @@ namespace Xtensive.Storage
 
     internal EntityState(Key key, DifferentialTuple tuple, Transaction transaction)
     {
+      ArgumentValidator.EnsureArgumentNotNull(key, "key");
+      ArgumentValidator.EnsureArgumentNotNull(transaction, "transaction");
       Key = key;
       Data = tuple;
-      SetTransaction(transaction);
-      isRemoved = false;
+      Transaction = transaction;
     }
   }
 }

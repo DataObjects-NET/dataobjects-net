@@ -22,7 +22,7 @@ namespace Xtensive.Storage
       Domain domain = Session.Domain;
       TypeInfo type = domain.Model.Types[obj.GetType()];
 
-      KeyGenerator keyGenerator = domain.KeyManager.Generators[type.Hierarchy];
+      KeyGenerator keyGenerator = domain.KeyGenerators[type.Hierarchy];
       Initialize((Entity)obj, type, keyGenerator.Next());
     }
 

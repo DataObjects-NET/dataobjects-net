@@ -19,7 +19,7 @@ namespace Xtensive.Storage.Providers
   /// Provided by protected members, such as <see cref="HandlerBase.Handlers"/> 
   /// to provide access to other available handlers.
   /// </summary>
-  public sealed class HandlerAccessor : IDisposable
+  public sealed class HandlerAccessor
   {
     /// <summary>
     /// Gets the <see cref="Xtensive.Storage.Domain"/> 
@@ -37,11 +37,6 @@ namespace Xtensive.Storage.Providers
     /// Gets the name builder.
     /// </summary>
     public NameBuilder NameBuilder { get; internal set; }
-
-    /// <summary>
-    /// Gets the key manager.
-    /// </summary>
-    public KeyManager KeyManager { get; internal set; }
 
     /// <summary>
     /// Gets the <see cref="Domain"/> handler.
@@ -63,15 +58,5 @@ namespace Xtensive.Storage.Providers
     {
       Domain = domain;
     }
-
-    #region Implementation of IDisposable
-
-    void IDisposable.Dispose()
-    {
-      if (Domain.CheckItemDisposing())
-        KeyManager.DisposeSafely();
-    }
-
-    #endregion
   }
 }

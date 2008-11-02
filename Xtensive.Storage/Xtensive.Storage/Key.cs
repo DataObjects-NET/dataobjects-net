@@ -44,29 +44,25 @@ namespace Xtensive.Storage
           if (session!=null) {
             var domain = session.Domain;
             var keyCache = domain.KeyCache;
-            Key cached;
+            Key cachedKey;
             bool cachedIsFound;
             lock (keyCache) {
-              cachedIsFound = keyCache.TryGetItem(this, true, out cached);
+              cachedIsFound = keyCache.TryGetItem(this, true, out cachedKey);
             }
-            if (!cachedIsFound) {
+            while (!cachedIsFound) {
               if (session.IsDebugEventLoggingEnabled)
                 Log.Debug("Session '{0}'. Resolving key '{1}'. Exact type is unknown. Fetch is required.", session, this);
 
               var field = Hierarchy.Root.Fields[domain.NameBuilder.TypeIdFieldName];
               Fetcher.Fetch(this, field);
-              Entity e = Resolve(session);
-
+              lock (keyCache) {
+                cachedIsFound = keyCache.TryGetItem(this, true, out cachedKey);
+              }
             }
+            type = cachedKey.type;
           }
         }
         return type;
-      }
-      [DebuggerStepThrough]
-      internal set {
-        if (type!=null)
-          throw Exceptions.AlreadyInitialized("Type");
-        type = value;
       }
     }
 
@@ -108,8 +104,8 @@ namespace Xtensive.Storage
     {
       var session = Session.Current;
       if (session==null)
-        throw new InvalidOperationException(Strings.ExNoCuurentSession)
-      return KeyResolver.Resolve(this);
+        throw new InvalidOperationException(Strings.ExNoCurrentSession);
+      return Resolve(session);
     }
 
     /// <summary>
@@ -119,7 +115,28 @@ namespace Xtensive.Storage
     /// <returns>The <see cref="Entity"/> this key belongs to.</returns>
     public Entity Resolve(Session session)
     {
-      return KeyResolver.Resolve(this);
+      var entityCache = session.Cache;
+      var state = entityCache[this];
+      bool hasBeenFetched = false;
+
+      if (state==null) {
+        if (session.IsDebugEventLoggingEnabled)
+          Log.Debug("Session '{0}'. Resolving key '{1}'. Exact type is {0}.", session, this,
+            IsTypeCached ? "known" : "unknown");
+        Fetcher.Fetch(this);
+        state = entityCache[this];
+        hasBeenFetched = true;
+      }
+
+      if (!hasBeenFetched && session.IsDebugEventLoggingEnabled)
+        Log.Debug("Session '{0}'. Resolving key '{1}'. Key is already resolved.", session, this);
+      
+      state.EnsureIsActual();
+      if (state.IsRemoved)
+        return null;
+
+      state.EnsureHasEntity();
+      return state.Entity;
     }
 
     #region Tuple methods

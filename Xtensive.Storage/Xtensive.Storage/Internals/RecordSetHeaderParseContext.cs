@@ -4,6 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2008.08.08
 
+using Xtensive.Core.Caching;
 using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Internals
@@ -12,7 +13,7 @@ namespace Xtensive.Storage.Internals
   {
     public Domain Domain { get; private set; }
 
-    public KeyManager KeyManager { get; private set; }
+    public ICache<Key, Key> KeyCache { get; private set; }
 
     public Session Session { get; private set; }
 
@@ -28,7 +29,7 @@ namespace Xtensive.Storage.Internals
       Session = session;
       Cache = Session.Cache;
       Domain = Session.Domain;
-      KeyManager = Domain.KeyManager;
+      KeyCache = Domain.KeyCache;
       Header = header;
     }
   }

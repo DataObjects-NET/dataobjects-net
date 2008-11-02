@@ -80,7 +80,11 @@ namespace Xtensive.Storage
         lastTypeMapping = typeMapping;
       }
       Tuple entityTuple = typeMapping.Transform.Apply(TupleTransformType.TransformedTuple, record);
-      Key key = new Key(typeMapping.Type, entityTuple);
+      var key = new Key(typeMapping.Type, entityTuple);
+      var keyCache = context.KeyCache;
+      lock (keyCache) {
+        key = keyCache.Add(key, false);
+      }
       context.Cache.Update(key, entityTuple, context.Session.Transaction);
       return key;
     }

@@ -8,7 +8,6 @@ using System.Collections;
 using System.Collections.Generic;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.Caching;
-using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Model;
 
@@ -60,7 +59,7 @@ namespace Xtensive.Storage.Internals
       if (state == null)
         Create(key, tuple, false, transaction);
       else {
-        state.Import(tuple, transaction);
+        state.Update(tuple, transaction);
         if (Session.IsDebugEventLoggingEnabled)
           Log.Debug("Session '{0}'. Merging: {1}", Session, state);
       }
@@ -77,7 +76,7 @@ namespace Xtensive.Storage.Internals
     [Infrastructure]
     public void Remove(EntityState state)
     {      
-      state.IsRemoved = true;
+      state.Update(null, Session.Transaction);
       Key key = state.Key;
       if (!removed.ContainsKey(key))
         removed[key] = cache[key, false];

@@ -67,7 +67,6 @@ namespace Xtensive.Storage.Building.Builders
                 BuildingScope.Context.SystemSessionHandler = Session.Current.Handler;
                 using (Log.InfoRegion(String.Format(Strings.LogBuildingX, typeof (DomainHandler).GetShortName())))
                   context.Domain.Handler.Build();
-                CreateKeyManager();
                 CreateGenerators();
                 transactionScope.Complete();
               } 
@@ -165,33 +164,24 @@ namespace Xtensive.Storage.Building.Builders
       }
     }
 
-    private static void CreateKeyManager()
-    {
-      using (Log.InfoRegion(Strings.LogCreatingX, typeof(KeyManager).GetShortName())) {
-        var domain = BuildingContext.Current.Domain;
-        var handlerAccessor = BuildingContext.Current.Domain.Handlers;
-        handlerAccessor.KeyManager = new KeyManager(domain);
-      }
-    }
-
     private static void CreateGenerators()
     {
       using (Log.InfoRegion(Strings.LogCreatingX, Strings.Generators)) {
         var handlerAccessor = BuildingContext.Current.Domain.Handlers;
-        Registry<HierarchyInfo, KeyGenerator> generators = BuildingContext.Current.Domain.KeyManager.Generators;
-        KeyGeneratorFactory factory = handlerAccessor.HandlerFactory.CreateHandler<KeyGeneratorFactory>();
+        var keyGenerators = BuildingContext.Current.Domain.KeyGenerators;
+        var generatorFactory = handlerAccessor.HandlerFactory.CreateHandler<KeyGeneratorFactory>();
         foreach (HierarchyInfo hierarchy in BuildingContext.Current.Model.Hierarchies) {
           KeyGenerator keyGenerator;
           if (hierarchy.KeyGenerator == null)
             continue;
           if (hierarchy.KeyGenerator==typeof (KeyGenerator))
-            keyGenerator = factory.CreateGenerator(hierarchy);
+            keyGenerator = generatorFactory.CreateGenerator(hierarchy);
           else
             keyGenerator = (KeyGenerator) Activator.CreateInstance(hierarchy.KeyGenerator, new object[] { hierarchy });
           keyGenerator.Initialize();
-          generators.Register(hierarchy, keyGenerator);
+          keyGenerators.Register(hierarchy, keyGenerator);
         }
-        generators.Lock();
+        keyGenerators.Lock();
       }
     }
 
