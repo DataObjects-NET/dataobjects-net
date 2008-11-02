@@ -11,6 +11,7 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage
 {
@@ -37,10 +38,28 @@ namespace Xtensive.Storage
     public TypeInfo Type
     {
       [DebuggerStepThrough]
-      get
-      {
-        if (type == null)
-          type = Session.Current.Domain.KeyManager.ResolveType(this);
+      get {
+        if (type == null) {
+          var session = Session.Current;
+          if (session!=null) {
+            var domain = session.Domain;
+            var keyCache = domain.KeyCache;
+            Key cached;
+            bool cachedIsFound;
+            lock (keyCache) {
+              cachedIsFound = keyCache.TryGetItem(this, true, out cached);
+            }
+            if (!cachedIsFound) {
+              if (session.IsDebugEventLoggingEnabled)
+                Log.Debug("Session '{0}'. Resolving key '{1}'. Exact type is unknown. Fetch is required.", session, this);
+
+              var field = Hierarchy.Root.Fields[domain.NameBuilder.TypeIdFieldName];
+              Fetcher.Fetch(this, field);
+              Entity e = Resolve(session);
+
+            }
+          }
+        }
         return type;
       }
       [DebuggerStepThrough]
@@ -49,6 +68,58 @@ namespace Xtensive.Storage
           throw Exceptions.AlreadyInitialized("Type");
         type = value;
       }
+    }
+
+    /// <summary>
+    /// Determines whether <see cref="Type"/> property has cached type value or not.
+    /// </summary>
+    public bool IsTypeCached {
+      get { return type!=null ? true : false; }
+    }
+
+    /// <summary>
+    /// Resolves this key.
+    /// </summary>
+    /// <typeparam name="T">Type of <see cref="Entity"/> descendant to resolve this instance to.</typeparam>
+    /// <returns>The <see cref="Entity"/> this key belongs to.</returns>
+    public T Resolve<T>()
+      where T : Entity
+    {
+      return (T) Resolve();
+    }
+
+    /// <summary>
+    /// Resolves this key.
+    /// </summary>
+    /// <typeparam name="T">Type of <see cref="Entity"/> descendant to resolve this instance to.</typeparam>
+    /// <param name="session">The session to resolve the key in.</param>
+    /// <returns>The <see cref="Entity"/> this key belongs to.</returns>
+    public T Resolve<T>(Session session)
+      where T : Entity
+    {
+      return (T) Resolve(session);
+    }
+
+    /// <summary>
+    /// Resolves this instance.
+    /// </summary>
+    /// <returns>The <see cref="Entity"/> this key belongs to.</returns>
+    public Entity Resolve()
+    {
+      var session = Session.Current;
+      if (session==null)
+        throw new InvalidOperationException(Strings.ExNoCuurentSession)
+      return KeyResolver.Resolve(this);
+    }
+
+    /// <summary>
+    /// Resolves this instance.
+    /// </summary>
+    /// <param name="session">The session to resolve the key in.</param>
+    /// <returns>The <see cref="Entity"/> this key belongs to.</returns>
+    public Entity Resolve(Session session)
+    {
+      return KeyResolver.Resolve(this);
     }
 
     #region Tuple methods
@@ -80,76 +151,30 @@ namespace Xtensive.Storage
 
     #endregion
 
-    /// <summary>
-    /// Resolves this instance.
-    /// </summary>
-    /// <typeparam name="T">Type of <see cref="Entity"/> descendant to resolve this instance to.</typeparam>
-    public T Resolve<T>()
-      where T : Entity
-    {
-      return (T)Resolve();
-    }
-
-    /// <summary>
-    /// Resolves this instance.
-    /// </summary>
-    public Entity Resolve()
-    {
-      return KeyResolver.Resolve(this);
-    }
-
-    /// <summary>
-    /// Builds the <see cref="Key"/> according to specified <paramref name="tuple"/>.
-    /// </summary>
-    /// <typeparam name="T">Type of <see cref="Entity"/> descendant to get <see cref="Key"/> for.</typeparam>
-    /// <param name="tuple"><see cref="Tuple"/> with key values.</param>
-    /// <returns>Newly created <see cref="Key"/> instance.</returns>
-    public static Key Create<T>(Tuple tuple)
-      where T: Entity
-    {
-      return new Key(typeof (T), tuple);
-    }
-
-    /// <summary>
-    /// Builds the <see cref="Key"/> according to specified key value.
-    /// </summary
-    /// <typeparam name="TEntity">Type of <see cref="Entity"/> descendant to get <see cref="Key"/> for.</typeparam>
-    /// <typeparam name="TKey">Key value type.</typeparam>
-    /// <param name="keyValue">Key value.</param>
-    /// <returns>Newly created <see cref="Key"/> instance.</returns>
-    public static Key Create<TEntity, TKey>(TKey keyValue)
-      where TEntity: Entity
-    {
-      return new Key(typeof(TEntity), Create(keyValue));
-    }
-
-    internal bool IsResolved()
-    {
-      return type!=null ? true : false;
-    }
-
-
     #region Equals, GetHashCode, ==, != 
 
     /// <inheritdoc/>
+    [DebuggerStepThrough]
     public bool Equals(Key other)
     {
       if (other==null)
         return false;
-      if (ReferenceEquals(this, other))
-        return true;
       if (hashCode!=other.hashCode)
         return false;
-      return tuple.Equals(other.tuple) && Hierarchy.Equals(other.Hierarchy);
+      if (Hierarchy!=other.Hierarchy)
+        return false;
+      return tuple.Equals(other.tuple);
     }
 
     /// <inheritdoc/>
     [DebuggerStepThrough]
     public override bool Equals(object obj)
     {
-      if (obj is Key)
-        return Equals((Key) obj);
-      return false;
+      if (obj==null)
+        return false;
+      if (obj.GetType()!=typeof(Key))
+        return false;
+      return Equals(obj as Key);
     }
 
     /// <see cref="ClassDocTemplate.OperatorEq" copy="true" />
@@ -180,6 +205,35 @@ namespace Xtensive.Storage
     {
       return string.Format("{0}, {1}", (Type != null) ? Type.Name : Hierarchy.Name, tuple.ToRegular());
     }
+
+    #region Create methods
+
+    /// <summary>
+    /// Builds the <see cref="Key"/> according to specified <paramref name="tuple"/>.
+    /// </summary>
+    /// <typeparam name="T">Type of <see cref="Entity"/> descendant to get <see cref="Key"/> for.</typeparam>
+    /// <param name="tuple"><see cref="Tuple"/> with key values.</param>
+    /// <returns>Newly created <see cref="Key"/> instance.</returns>
+    public static Key Create<T>(Tuple tuple)
+      where T: Entity
+    {
+      return new Key(typeof (T), tuple);
+    }
+
+    /// <summary>
+    /// Builds the <see cref="Key"/> according to specified key value.
+    /// </summary
+    /// <typeparam name="TEntity">Type of <see cref="Entity"/> descendant to get <see cref="Key"/> for.</typeparam>
+    /// <typeparam name="TKey">Key value type.</typeparam>
+    /// <param name="keyValue">Key value.</param>
+    /// <returns>Newly created <see cref="Key"/> instance.</returns>
+    public static Key Create<TEntity, TKey>(TKey keyValue)
+      where TEntity: Entity
+    {
+      return new Key(typeof(TEntity), Create(keyValue));
+    }
+
+    #endregion
 
 
     // Constructors

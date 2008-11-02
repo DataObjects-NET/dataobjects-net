@@ -798,7 +798,7 @@ namespace Xtensive.Storage.Tests.Storage
       using (Domain.OpenSession()) {
         using (Transaction.Open()) {
           Snake s = new Snake();          
-          const int count = 10000;
+          const int count = 100000;
           using (new Measurement("Setting value...", count)) {
             for (int i = 0; i < count; i+=10) {
               s.Name = "Aaa";
@@ -825,7 +825,7 @@ namespace Xtensive.Storage.Tests.Storage
           Snake s = new Snake();
           s.Name = "SuperSnake";
           string value;
-          const int count = 10000;
+          const int count = 100000;
           using (new Measurement("Getting value...", count)) {
             for (int i = 0; i < count; i+=10) {
               value = s.Name;

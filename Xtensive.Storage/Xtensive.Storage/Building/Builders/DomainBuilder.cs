@@ -69,7 +69,6 @@ namespace Xtensive.Storage.Building.Builders
                   context.Domain.Handler.Build();
                 CreateKeyManager();
                 CreateGenerators();
-
                 transactionScope.Complete();
               } 
             }

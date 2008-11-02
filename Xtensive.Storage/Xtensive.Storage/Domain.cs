@@ -80,14 +80,6 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
-    /// Gets the key manager.
-    /// </summary>
-    public KeyManager KeyManager {
-      [DebuggerStepThrough]
-      get { return Handlers.KeyManager; }
-    }
-
-    /// <summary>
     /// Gets the domain-level temporary data.
     /// </summary>
     public GlobalTemporaryData TemporaryData { get; private set; }
@@ -105,14 +97,17 @@ namespace Xtensive.Storage
 
     #region Private \ internal properties
 
+    internal HandlerAccessor Handlers { get; private set; }
+
+    internal Registry<HierarchyInfo, KeyGenerator> KeyGenerators { get; private set; }
+
+    internal ICache<Key, Key> KeyCache { get; private set; }
+
     internal Dictionary<TypeInfo, Tuple> Prototypes { get; private set; }
 
     internal Dictionary<AssociationInfo, ActionSet> PairSyncActions { get; private set; }
 
     internal ThreadSafeDictionary<FieldInfo, SegmentTransform> Transforms { get; private set; }
-
-
-    internal HandlerAccessor Handlers { get; private set; }
 
     #endregion
 
@@ -214,6 +209,8 @@ namespace Xtensive.Storage
       IsDebugEventLoggingEnabled = Log.IsLogged(LogEventTypes.Debug); // Just to cache this value
       Configuration = configuration;
       Handlers = new HandlerAccessor(this);
+      KeyGenerators = new Registry<HierarchyInfo, KeyGenerator>();
+      KeyCache = new LruCache<Key, Key>(Configuration.KeyCacheSize, k => k);
       Transforms = ThreadSafeDictionary<FieldInfo, SegmentTransform>.Create(new object());
       Prototypes = new Dictionary<TypeInfo, Tuple>();
       PairSyncActions = new Dictionary<AssociationInfo, ActionSet>();
@@ -243,6 +240,7 @@ namespace Xtensive.Storage
           if (IsDebugEventLoggingEnabled)
             Log.Debug("Domain disposing {0}.", isDisposing ? "explicitly" : "by calling finalizer.");
           Handlers.DisposeSafely();
+          KeyGenerators.DisposeSafely();
         }
         finally {
           DisposingState=DisposingState.Disposed;

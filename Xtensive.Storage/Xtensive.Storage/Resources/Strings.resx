@@ -489,4 +489,7 @@
   <data name="ExFieldXCanTBeNullableAsItIsIncludedInPrimaryKey" xml:space="preserve">
     <value>Field '{0}' can't be Nullable as it is included in primary key.</value>
   </data>
+  <data name="ExNoCurrentSession" xml:space="preserve">
+    <value>There is no current Session.</value>
+  </data>
 </root>
