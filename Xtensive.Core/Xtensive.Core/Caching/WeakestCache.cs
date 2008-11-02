@@ -285,7 +285,13 @@ namespace Xtensive.Core.Caching
     #region Modification methods: Add, Remove, Clear
 
     /// <inheritdoc/>
-    public virtual void Add(TItem item)
+    public void Add(TItem item)
+    {
+      Add(item, true);
+    }
+
+    /// <inheritdoc/>
+    public virtual TItem Add(TItem item, bool replaceIfExists)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
       var key = KeyExtractor(item);
@@ -294,6 +300,10 @@ namespace Xtensive.Core.Caching
       WeakEntry entry;
       if (items.TryGetValue(key, out entry)) {
         var pair = entry.Value;
+        if (!replaceIfExists) {
+          if (pair.Key!=null && pair.Value!=null)
+            return pair.Value;
+        }
         if (pair.Key==null) {
           items.Remove(key);
           entry.Dispose();
@@ -301,6 +311,7 @@ namespace Xtensive.Core.Caching
       }
       entry = new WeakEntry(key, item, trackKeyResurrection, trackItemResurrection);
       items[entry] = entry;
+      return item;
     }
 
     /// <inheritdoc/>

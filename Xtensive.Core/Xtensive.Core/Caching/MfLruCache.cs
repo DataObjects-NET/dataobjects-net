@@ -153,7 +153,7 @@ namespace Xtensive.Core.Caching
       }
       if (chainedCache.TryGetItem(key, false, out item)) {
         chainedCache.Remove(item);
-        Add(item);
+        Add(item, true);
         return true;
       }
       return false;
@@ -178,15 +178,23 @@ namespace Xtensive.Core.Caching
     #region Modification methods: Add, Remove, Clear
 
     /// <inheritdoc/>
-    public virtual void Add(TItem item)
+    public void Add(TItem item)
+    {
+      Add(item, true);
+    }
+
+    /// <inheritdoc/>
+    public virtual TItem Add(TItem item, bool replaceIfExists)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
       OnOperation2();
       var key = KeyExtractor(item);
       CachedItem cached;
       if (items.TryGetValue(key, out cached)) {
+        if (!replaceIfExists)
+          return cached.Item;
         if (chainedCache!=null)
-          chainedCache.Add(cached.Item);
+          chainedCache.Add(cached.Item, true);
         items.Remove(key);
         ItemRemoved(key);
       }
@@ -196,6 +204,7 @@ namespace Xtensive.Core.Caching
       };
       items[key] = cached;
       ItemAdded(key);
+      return item;
     }
 
     /// <inheritdoc/>
@@ -211,7 +220,7 @@ namespace Xtensive.Core.Caching
       CachedItem cached;
       if (items.TryGetValue(key, out cached)) {
         if (chainedCache!=null)
-          chainedCache.Add(cached.Item);
+          chainedCache.Add(cached.Item, true);
         items.Remove(key);
         ItemRemoved(key);
       }
@@ -224,7 +233,7 @@ namespace Xtensive.Core.Caching
         var key = pair.Key;
         var cached = pair.Value;
         if (chainedCache!=null)
-          chainedCache.Add(cached.Item);
+          chainedCache.Add(cached.Item, true);
         ItemRemoved(key);
       }
       items.Clear();
@@ -282,7 +291,7 @@ namespace Xtensive.Core.Caching
           else {
             removedCount++;
             if (chainedCache!=null)
-              chainedCache.Add(cached.Item);
+              chainedCache.Add(cached.Item, true);
             ItemRemoved(pair.Key);
           }
         }

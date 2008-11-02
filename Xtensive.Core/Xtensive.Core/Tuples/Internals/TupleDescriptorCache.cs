@@ -30,7 +30,7 @@ namespace Xtensive.Core.Tuples.Internals
           return existing;
         LockCookie? c = _lock.BeginWrite();
         try {
-          newDescriptors.Add(TupleDescriptorGenerator.Generate(sample));
+          newDescriptors.Add(TupleDescriptorGenerator.Generate(sample), true);
           return newDescriptors[sample, true];
         }
         finally {

@@ -107,7 +107,7 @@ namespace Xtensive.Core.Caching
       }
       if (chainedCache.TryGetItem(key, false, out item)) {
         chainedCache.Remove(item);
-        Add(item);
+        Add(item, true);
         return true;
       }
       return false;
@@ -132,16 +132,24 @@ namespace Xtensive.Core.Caching
     #region Modification methods: Add, Remove, Clear
 
     /// <inheritdoc/>
-    public virtual void Add(TItem item)
+    public void Add(TItem item)
+    {
+      Add(item, true);
+    }
+
+    /// <inheritdoc/>
+    public virtual TItem Add(TItem item, bool replaceIfExists)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
       var key = KeyExtractor(item);
       TCached cached = cacheConverter.ConvertForward(item);
       TCached oldCached;
-      if (deque.TryChangeValue(key, cached, true, out oldCached)) {
+      if (deque.TryChangeValue(key, cached, true, replaceIfExists, out oldCached)) {
+        if (!replaceIfExists)
+          return cacheConverter.ConvertBackward(oldCached);
         size -= oldCached.Size;
         if (chainedCache!=null)
-          chainedCache.Add(cacheConverter.ConvertBackward(oldCached));
+          chainedCache.Add(cacheConverter.ConvertBackward(oldCached), true);
         ItemRemoved(key);
       }
       size += cached.Size;
@@ -149,10 +157,11 @@ namespace Xtensive.Core.Caching
         oldCached = deque.PeekBottom();
         size -= oldCached.Size;
         if (chainedCache!=null)
-          chainedCache.Add(cacheConverter.ConvertBackward(oldCached));
+          chainedCache.Add(cacheConverter.ConvertBackward(oldCached), true);
         ItemRemoved(key);
       }
       ItemAdded(key);
+      return item;
     }
 
     /// <inheritdoc/>
@@ -170,7 +179,7 @@ namespace Xtensive.Core.Caching
         deque.Remove(key);
         size -= oldCached.Size;
         if (chainedCache!=null)
-          chainedCache.Add(cacheConverter.ConvertBackward(oldCached));
+          chainedCache.Add(cacheConverter.ConvertBackward(oldCached), true);
         ItemRemoved(key);
       }
     }
@@ -183,7 +192,7 @@ namespace Xtensive.Core.Caching
         var key = cached.Identifier;
         size -= cached.Size;
         if (chainedCache!=null)
-          chainedCache.Add(cacheConverter.ConvertBackward(cached));
+          chainedCache.Add(cacheConverter.ConvertBackward(cached), true);
         ItemRemoved(key);
       }
       size = 0;

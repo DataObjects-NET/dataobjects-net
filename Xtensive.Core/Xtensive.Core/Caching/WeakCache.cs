@@ -143,18 +143,30 @@ namespace Xtensive.Core.Caching
     #region Modification methods: Add, Remove, Clear
 
     /// <inheritdoc/>
-    public virtual void Add(TItem item)
+    public void Add(TItem item)
+    {
+      Add(item, true);
+    }
+
+    /// <inheritdoc/>
+    public virtual TItem Add(TItem item, bool replaceIfExists)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
       OnOperation2();
       var key = KeyExtractor(item);
       GCHandle cached;
       if (items.TryGetValue(key, out cached)) {
+        if (!replaceIfExists) {
+          var cachedItem = (TItem) cached.Target;
+          if (cachedItem!=null)
+            return cachedItem;
+        }
         items.Remove(key);
         cached.Free();
       }
       items[key] = GCHandle.Alloc(item,
         trackResurrection ? GCHandleType.WeakTrackResurrection : GCHandleType.Weak);
+      return item;
     }
 
     /// <inheritdoc/>

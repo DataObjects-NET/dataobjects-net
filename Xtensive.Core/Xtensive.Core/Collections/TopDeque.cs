@@ -83,7 +83,7 @@ namespace Xtensive.Core.Collections
     }
 
     /// <inheritdoc/>
-    public bool TryChangeValue(K key, V value, bool moveToTop, out V oldValue)
+    public bool TryChangeValue(K key, V value, bool moveToTop, bool replaceIfExists, out V oldValue)
     {
       LinkedListNode<Pair<K, V>> valueContainer;
       if (map.TryGetValue(key, out valueContainer)) {
@@ -92,7 +92,8 @@ namespace Xtensive.Core.Collections
           list.Remove(valueContainer);
           list.AddFirst(valueContainer);
         }
-        valueContainer.Value = new Pair<K, V>(key, value);
+        if (replaceIfExists)
+          valueContainer.Value = new Pair<K, V>(key, value);
         return true;
       }
       else {
