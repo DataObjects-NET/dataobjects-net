@@ -14,7 +14,6 @@ using Xtensive.Core.Tuples;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
-using Xtensive.Storage.ReferentialIntegrity;
 
 namespace Xtensive.Storage
 {
@@ -35,7 +34,12 @@ namespace Xtensive.Storage
     {
       [DebuggerStepThrough]
       get { return entityState; }
-      set { entityState = value; }
+      set
+      {
+        entityState = value;
+        if (value.Entity == null)
+          value.Entity = this;
+      }
     }
 
     /// <exception cref="Exception">Property is already initialized.</exception>
@@ -123,20 +127,8 @@ namespace Xtensive.Storage
     [Infrastructure]
     public void Remove()
     {
-      var session = Session;
-      if (session.IsDebugEventLoggingEnabled)
-        LogTemplate<Log>.Debug("Session '{0}'. Removing: Key = '{1}'", session, Key);
-
-      entityState.EnsureIsActual();
-      entityState.EnsureNotRemoved();
       OnRemoving();
-
-      session.Persist();
-      ReferenceManager.ClearReferencesTo(this);
-      session.removedEntities.Add(EntityState);
-      session.Cache.Remove(EntityState);
-      EntityState.PersistenceState = PersistenceState.Removed;
-
+      Accessor.Remove(this);
       OnRemoved();
     }
 
@@ -151,7 +143,7 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
-    /// Called when entity is to be removed.
+    /// Called when entity is about to be removed.
     /// </summary>
     [Infrastructure]
     protected virtual void OnRemoving()
@@ -185,7 +177,7 @@ namespace Xtensive.Storage
     /// </summary>
     protected Entity()
     {
-      Session.GetAccessor(this).Initialize(this);
+      Accessor.Initialize(this);
     }
 
     /// <summary>
@@ -195,7 +187,7 @@ namespace Xtensive.Storage
     /// <remarks>Use this kind of constructor when you need to explicitly set key for this instance.</remarks>
     protected Entity(Tuple tuple)
     {
-      Session.GetAccessor(this).Initialize(this, tuple);
+      Accessor.Initialize(this, tuple);
     }
 
     /// <summary>

@@ -4,7 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2007.08.03
 
-using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using Xtensive.Core;
@@ -15,7 +14,6 @@ using Xtensive.Integrity.Validation;
 using Xtensive.Integrity.Validation.Interfaces;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
-using Xtensive.Storage.PairIntegrity;
 
 namespace Xtensive.Storage
 {
@@ -25,7 +23,6 @@ namespace Xtensive.Storage
     INotifyPropertyChanged
   {
     private Dictionary<FieldInfo, IFieldHandler> fieldHandlers;
-    private PersistentAccessor accessor;
 
     /// <summary>
     /// Gets the type of this instance.
@@ -50,7 +47,8 @@ namespace Xtensive.Storage
     [Infrastructure]
     internal abstract void EnsureIsFetched(FieldInfo field);
 
-    internal virtual void Initialize()
+    [Infrastructure]
+    internal void Initialize()
     {
       OnInitialized();
     }
@@ -87,7 +85,7 @@ namespace Xtensive.Storage
 
     #endregion
 
-    #region GetField, SetField, GetKey methods
+    #region GetField, SetField methods
 
     [Infrastructure]
     protected T GetField<T>(string name)
@@ -99,7 +97,7 @@ namespace Xtensive.Storage
     protected T GetField<T>(FieldInfo field)
     {
       OnGettingField(field);
-      T result = accessor.GetField<T>(this, field);
+      T result = Accessor.GetField<T>(this, field);
       OnGetField(field, result);
 
       return result;
@@ -111,12 +109,14 @@ namespace Xtensive.Storage
       SetField(Type.Fields[name], value);
     }
 
+    [Infrastructure]
     protected void SetField<T>(FieldInfo field, T value)
     {
       OnSettingField(field, value);
-      T oldValue = field.GetAccessor<T>().GetValue(this, field);
-      accessor.SetField(this, field, value);
+      T oldValue = Accessor.GetField<T>(this, field);
+      Accessor.SetField(this, field, value);
       OnSetField(field, oldValue, value);
+      NotifyPropertyChanged(field);
     }
 
     #endregion
@@ -232,7 +232,6 @@ namespace Xtensive.Storage
 
     internal Persistent()
     {
-      accessor = Session.GetAccessor(this);
     }
   }
 }

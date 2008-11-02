@@ -21,6 +21,8 @@ namespace Xtensive.Storage
   /// </summary>
   public sealed class EntityState : Tuple
   {
+    private Entity entity;
+
     /// <summary>
     /// Gets the key.
     /// </summary>
@@ -51,9 +53,20 @@ namespace Xtensive.Storage
     public PersistenceState PersistenceState { get; internal set; }
 
     /// <summary>
-    /// Gets the <see cref="Entity"/> associated with this state.
+    /// Gets the owner of this instance.
     /// </summary>
-    public Entity Entity { get; internal set; }
+    public Entity Entity
+    {
+      get
+      {
+        EnsureHasEntity();
+        return entity;
+      }
+      internal set
+      {
+        entity = value;
+      }
+    }
 
     /// <summary>
     /// Gets a value indicating whether this entity is removed.
@@ -110,11 +123,11 @@ namespace Xtensive.Storage
     /// </summary>
     public void EnsureHasEntity()
     {
-      if (Entity!=null)
+      if (entity!=null)
         return;
-      var entity = Activator.CreateEntity(Type.UnderlyingType, this);
-      entity.Initialize();
-      Entity = entity;
+      var result = Activator.CreateEntity(Type.UnderlyingType, this);
+      result.Initialize();
+      Entity = result;
     }
 
     /// <summary>
@@ -179,10 +192,11 @@ namespace Xtensive.Storage
 
     // Constructors
 
-    internal EntityState(Key key, DifferentialTuple tuple, Transaction transaction)
+    internal EntityState(Key key, DifferentialTuple tuple, Entity entity, Transaction transaction)
     {
       ArgumentValidator.EnsureArgumentNotNull(key, "key");
       ArgumentValidator.EnsureArgumentNotNull(transaction, "transaction");
+      this.entity = entity;
       Key = key;
       Data = tuple;
       Transaction = transaction;

@@ -36,27 +36,31 @@ namespace Xtensive.Storage
     private readonly TypeInfo type;
 
     /// <inheritdoc/>
-    public override TypeInfo Type {
+    public override TypeInfo Type
+    {
       [DebuggerStepThrough]
       get { return type; }
     }
 
     /// <inheritdoc/>
     [Infrastructure]
-    public Persistent Owner {
+    public Persistent Owner
+    {
       [DebuggerStepThrough]
       get { return owner; }
     }
 
     /// <inheritdoc/>
     [Infrastructure]
-    public FieldInfo Field {
+    public FieldInfo Field
+    {
       [DebuggerStepThrough]
       get { return field; }
     }
 
     /// <inheritdoc/>
-    protected internal override Tuple Data {
+    protected internal override Tuple Data
+    {
       [DebuggerStepThrough]
       get { return data; }
     }
@@ -69,7 +73,7 @@ namespace Xtensive.Storage
       if (obj==null || !(obj is Structure)) {
         return false;
       }
-      return Equals((Structure)obj);
+      return Equals((Structure) obj);
     }
 
     /// <inheritdoc/>
@@ -101,9 +105,9 @@ namespace Xtensive.Storage
 
     #endregion
 
-    internal sealed override void EnsureIsFetched(FieldInfo field)
+    internal override sealed void EnsureIsFetched(FieldInfo field)
     {
-      if (owner != null)
+      if (owner!=null)
         owner.EnsureIsFetched(field);
     }
 
@@ -116,7 +120,7 @@ namespace Xtensive.Storage
     protected Structure()
     {
       type = Session.Domain.Model.Types[GetType()];
-      data = Tuple.Create(type.TupleDescriptor);
+      data = Session.Domain.Prototypes[type].Clone();
     }
 
     /// <summary>

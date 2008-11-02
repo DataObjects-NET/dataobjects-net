@@ -48,6 +48,19 @@ namespace Xtensive.Storage.Tests.Storage.Keys
     }
 
     [Test]
+    public void MainTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          Key k1 = Key.Create<Apple, string>("1");
+          Key k2 = Key.Create<Apple, string>("1");
+          Assert.AreEqual(k1, k2);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
     [Ignore("Erroneous behavior")]
     public void CombinedTest()
     {

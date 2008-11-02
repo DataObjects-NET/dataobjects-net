@@ -5,23 +5,18 @@
 // Created:    2007.08.03
 
 using System;
-using System.Collections;
 using System.Globalization;
-using System.Linq;
 using System.Reflection;
-using log4net.Config;
 using Xtensive.Core;
-using Xtensive.Core.Tuples;
-using Xtensive.Integrity.Transactions;
+using Xtensive.Core.Diagnostics;
+using Xtensive.Core.Reflection;
 using Xtensive.PluginManager;
-using Xtensive.Storage.Building.Builders;
 using Xtensive.Storage.Configuration;
+using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Resources;
-using Xtensive.Core.Reflection;
-using FieldInfo=Xtensive.Storage.Model.FieldInfo;
-using TypeInfo=Xtensive.Storage.Model.TypeInfo;
+using Activator=System.Activator;
 
 namespace Xtensive.Storage.Building.Builders
 {
@@ -48,12 +43,12 @@ namespace Xtensive.Storage.Building.Builders
       if (!configuration.IsLocked)
         configuration.Lock(true);
 
-      using (Log.InfoRegion(Strings.LogValidatingX, typeof(DomainConfiguration).GetShortName()))
+      using (LogTemplate<Log>.InfoRegion(Strings.LogValidatingX, typeof (DomainConfiguration).GetShortName()))
         Validate(configuration);
 
       var context = new BuildingContext(configuration);
 
-      using (Log.InfoRegion(Strings.LogBuildingX, typeof(Domain).GetShortName())) {
+      using (LogTemplate<Log>.InfoRegion(Strings.LogBuildingX, typeof (Domain).GetShortName())) {
         using (new BuildingScope(context)) {
           try {
             CreateDomain();
@@ -65,11 +60,11 @@ namespace Xtensive.Storage.Building.Builders
             using (context.Domain.Handler.OpenSession(SessionType.System)) {
               using (var transactionScope = Transaction.Open()) {
                 BuildingScope.Context.SystemSessionHandler = Session.Current.Handler;
-                using (Log.InfoRegion(String.Format(Strings.LogBuildingX, typeof (DomainHandler).GetShortName())))
+                using (LogTemplate<Log>.InfoRegion(String.Format(Strings.LogBuildingX, typeof (DomainHandler).GetShortName())))
                   context.Domain.Handler.Build();
                 CreateGenerators();
                 transactionScope.Complete();
-              } 
+              }
             }
           }
           catch (DomainBuilderException e) {
@@ -112,7 +107,7 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void CreateDomain()
     {
-      using (Log.InfoRegion(Strings.LogCreatingX, typeof(Domain).GetShortName())) {
+      using (LogTemplate<Log>.InfoRegion(Strings.LogCreatingX, typeof (Domain).GetShortName())) {
         var domain = new Domain(BuildingContext.Current.Configuration);
         BuildingContext.Current.Domain = domain;
       }
@@ -120,7 +115,7 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void CreateHandlerFactory()
     {
-      using (Log.InfoRegion(Strings.LogCreatingX, typeof(HandlerFactory).GetShortName())) {
+      using (LogTemplate<Log>.InfoRegion(Strings.LogCreatingX, typeof (HandlerFactory).GetShortName())) {
         string protocol = BuildingContext.Current.Configuration.ConnectionInfo.Protocol;
         Type handlerProviderType;
         lock (pluginManager) {
@@ -139,7 +134,7 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void CreateNameBuilder()
     {
-      using (Log.InfoRegion(Strings.LogCreatingX, typeof(NameBuilder).GetShortName())) {
+      using (LogTemplate<Log>.InfoRegion(Strings.LogCreatingX, typeof (NameBuilder).GetShortName())) {
         var handlerAccessor = BuildingContext.Current.Domain.Handlers;
         handlerAccessor.NameBuilder = handlerAccessor.HandlerFactory.CreateHandler<NameBuilder>();
         handlerAccessor.NameBuilder.Initialize(handlerAccessor.Domain.Configuration.NamingConvention);
@@ -148,7 +143,7 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void CreateDomainHandler()
     {
-      using (Log.InfoRegion(Strings.LogCreatingX, typeof(DomainHandler).GetShortName())) {
+      using (LogTemplate<Log>.InfoRegion(Strings.LogCreatingX, typeof (DomainHandler).GetShortName())) {
         var handlerAccessor = BuildingContext.Current.Domain.Handlers;
         handlerAccessor.DomainHandler = handlerAccessor.HandlerFactory.CreateHandler<DomainHandler>();
         handlerAccessor.DomainHandler.Initialize();
@@ -157,7 +152,7 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void BuildModel()
     {
-      using (Log.InfoRegion(Strings.LogBuildingX, Strings.Model)) {
+      using (LogTemplate<Log>.InfoRegion(Strings.LogBuildingX, Strings.Model)) {
         ModelBuilder.Build();
         var domain = BuildingContext.Current.Domain;
         domain.Model = BuildingContext.Current.Model;
@@ -166,18 +161,18 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void CreateGenerators()
     {
-      using (Log.InfoRegion(Strings.LogCreatingX, Strings.Generators)) {
+      using (LogTemplate<Log>.InfoRegion(Strings.LogCreatingX, Strings.Generators)) {
         var handlerAccessor = BuildingContext.Current.Domain.Handlers;
         var keyGenerators = BuildingContext.Current.Domain.KeyGenerators;
         var generatorFactory = handlerAccessor.HandlerFactory.CreateHandler<KeyGeneratorFactory>();
         foreach (HierarchyInfo hierarchy in BuildingContext.Current.Model.Hierarchies) {
           KeyGenerator keyGenerator;
-          if (hierarchy.KeyGenerator == null)
+          if (hierarchy.KeyGenerator==null)
             continue;
           if (hierarchy.KeyGenerator==typeof (KeyGenerator))
             keyGenerator = generatorFactory.CreateGenerator(hierarchy);
           else
-            keyGenerator = (KeyGenerator) Activator.CreateInstance(hierarchy.KeyGenerator, new object[] { hierarchy });
+            keyGenerator = (KeyGenerator) Activator.CreateInstance(hierarchy.KeyGenerator, new object[] {hierarchy});
           keyGenerator.Initialize();
           keyGenerators.Register(hierarchy, keyGenerator);
         }
@@ -187,23 +182,8 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void BuildPrototypes()
     {
-      using (Log.InfoRegion(Strings.LogCreatingX, "persistent objects prototypes")) {
-        var domain = BuildingContext.Current.Domain;
-        foreach (TypeInfo type in domain.Model.Types.Where(t => !t.IsInterface)) {
-          BitArray nullableMap = new BitArray(type.TupleDescriptor.Count);
-          int i = 0;
-          foreach (ColumnInfo column in type.Columns)
-            nullableMap[i++] = column.IsNullable;
-          Tuple prototype = Tuple.Create(type.TupleDescriptor);
-          prototype.Initialize(nullableMap);
-          if (type.IsEntity) {
-            FieldInfo typeIdField = type.Fields[domain.NameBuilder.TypeIdFieldName];
-            prototype.SetValue(typeIdField.MappingInfo.Offset, type.TypeId);
-          }
-          Log.Info("Type '{0}': {1}", type, prototype);
-          domain.Prototypes[type] = prototype;
-        }
-      }
+      using (Log.InfoRegion(Strings.LogCreatingX, "persistent objects prototypes"))
+        BuildingContext.Current.Domain.Prototypes.Build();
     }
   }
 }

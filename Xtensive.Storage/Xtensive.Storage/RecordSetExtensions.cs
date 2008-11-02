@@ -6,9 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Core.Tuples;
-using Xtensive.Core.Tuples.Transform;
-using Xtensive.Storage.Internals;
 using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage
@@ -39,54 +36,7 @@ namespace Xtensive.Storage
     /// <returns>The sequence of <see cref="Entity"/> instances.</returns>
     public static IEnumerable<Entity> ToEntities(this RecordSet source, Type type)
     {
-      var context = new RecordSetHeaderParseContext(Session.Current, source.Header);
-      var recordSetMapping = context.Domain.GetMapping(source.Header);
-      var groupMappings    = recordSetMapping.Mappings;
-      var typeMappings     = new TypeMapping[groupMappings.Length];
-      foreach (Tuple tuple in source) {
-        Entity entity = null;
-        for (int i = 0; i < groupMappings.Length; i++) {
-          Key key = ProcessColumnGroup(context, groupMappings[i], ref typeMappings[i], tuple);
-          if (entity==null && type.IsAssignableFrom(key.Type.UnderlyingType))
-            entity = key.Resolve();
-        }
-        yield return entity;
-      }
-    }
-
-    public static int Parse(this RecordSet source)
-    {
-      var context = new RecordSetHeaderParseContext(Session.Current, source.Header);
-      var recordSetMapping = context.Domain.GetMapping(source.Header);
-      var groupMappings    = recordSetMapping.Mappings;
-      var typeMappings     = new TypeMapping[groupMappings.Length];
-      int recordCount = 0;
-      foreach (Tuple tuple in source) {
-        recordCount++;
-        for (int i = 0; i < groupMappings.Length; i++)
-          ProcessColumnGroup(context, groupMappings[i], ref typeMappings[i], tuple);
-      }
-      return recordCount;
-    }
-
-    private static Key ProcessColumnGroup(RecordSetHeaderParseContext context, ColumnGroupMapping columnGroupMapping, ref TypeMapping lastTypeMapping, Tuple record)
-    {
-      int typeId = (int) record.GetValueOrDefault(columnGroupMapping.TypeIdColumnIndex);
-      TypeMapping typeMapping;
-      if (lastTypeMapping!=null && typeId==lastTypeMapping.TypeId)
-        typeMapping = lastTypeMapping;
-      else {
-        typeMapping = columnGroupMapping.GetMapping(typeId);
-        lastTypeMapping = typeMapping;
-      }
-      Tuple entityTuple = typeMapping.Transform.Apply(TupleTransformType.TransformedTuple, record);
-      var key = new Key(typeMapping.Type, entityTuple);
-      var keyCache = context.KeyCache;
-      lock (keyCache) {
-        key = keyCache.Add(key, false);
-      }
-      context.Cache.Update(key, entityTuple, context.Session.Transaction);
-      return key;
+      return Session.Current.Domain.RecordSetParser.ToEntities(source, type);
     }
   }
 }

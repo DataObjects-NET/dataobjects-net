@@ -8,8 +8,8 @@ using System;
 using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Storage.Attributes;
 using Xtensive.Core.Aspects;
+using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage
 {
@@ -31,6 +31,22 @@ namespace Xtensive.Storage
       get { return session; }
       [DebuggerStepThrough]
       internal set { session = value; }
+    }
+
+    /// <summary>
+    /// Gets the low-level accessor.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">Caller is not registered in <see cref="DomainModel"/>.</exception>
+    protected internal LowLevelAccessor Accessor
+    {
+      [DebuggerStepThrough]
+      get
+      {
+        // TODO: Add check for services also.
+        if (!Session.Domain.Model.Types.Contains(GetType()))
+          throw new InvalidOperationException("Unauthorized access. Caller is not registered in model.");
+        return session.Accessor;
+      }
     }
 
     #region IContextBound<Session> Members

@@ -29,7 +29,13 @@ namespace Xtensive.Storage.Tests.Storage.ActivatorModel
   [HierarchyRoot(typeof(KeyGenerator), "ID")]
   public class InitializebleClass : Entity
   {
-    public object syncRoot = new object();
+    public object syncRoot;
+
+    protected override void OnInitialized()
+    {
+      base.OnInitialized();
+      syncRoot = new object();
+    }
 
     [Field]
     public int ID { get; private set; }

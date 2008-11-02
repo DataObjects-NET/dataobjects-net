@@ -35,6 +35,7 @@ namespace Xtensive.Storage
     /// Gets the type of <see cref="Entity"/> this instance identifies.
     /// </summary>
     /// <exception cref="NotSupportedException">Type is already initialized.</exception>
+    /// <exception cref="InvalidOperationException">Unable to resolve type for Key.</exception>
     public TypeInfo Type
     {
       [DebuggerStepThrough]
@@ -45,19 +46,16 @@ namespace Xtensive.Storage
             var domain = session.Domain;
             var keyCache = domain.KeyCache;
             Key cachedKey;
-            bool cachedIsFound;
-            lock (keyCache) {
-              cachedIsFound = keyCache.TryGetItem(this, true, out cachedKey);
-            }
-            while (!cachedIsFound) {
+            lock (keyCache)
+              keyCache.TryGetItem(this, true, out cachedKey);
+            if (cachedKey == null) {
               if (session.IsDebugEventLoggingEnabled)
                 Log.Debug("Session '{0}'. Resolving key '{1}'. Exact type is unknown. Fetch is required.", session, this);
 
               var field = Hierarchy.Root.Fields[domain.NameBuilder.TypeIdFieldName];
-              Fetcher.Fetch(this, field);
-              lock (keyCache) {
-                cachedIsFound = keyCache.TryGetItem(this, true, out cachedKey);
-              }
+              cachedKey = Fetcher.Fetch(this, field);
+              if (cachedKey == null)
+                throw new InvalidOperationException(string.Format("Unable to resolve type for Key '{0}'.", this));
             }
             type = cachedKey.type;
           }
@@ -263,8 +261,9 @@ namespace Xtensive.Storage
     public Key(HierarchyInfo hierarchy, Tuple tuple)
     {
       Hierarchy = hierarchy;
-      this.tuple = tuple;
-      hashCode = tuple.GetHashCode() ^ hierarchy.GetHashCode();
+      this.tuple = Create(hierarchy.KeyTupleDescriptor);
+      tuple.CopyTo(this.tuple, 0, this.tuple.Count);
+      hashCode = this.tuple.GetHashCode() ^ hierarchy.GetHashCode();
     }
 
     ///<summary>

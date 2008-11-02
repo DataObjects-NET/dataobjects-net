@@ -14,7 +14,7 @@ namespace Xtensive.Storage.Internals
     public TypeInfo Type { get; private set; }
 
     public int TypeId { get; private set; }
-    
+
     public MapTransform Transform { get; private set; }
 
 

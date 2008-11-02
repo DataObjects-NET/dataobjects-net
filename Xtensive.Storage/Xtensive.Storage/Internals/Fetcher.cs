@@ -20,7 +20,7 @@ namespace Xtensive.Storage.Internals
     private static readonly Parameter<Key> pKey = new Parameter<Key>("Key");
     private static readonly object _lock = new object();
 
-    #region Nested type: 
+    #region Nested type: RequestKey
 
     private sealed class RequestKey
     {
@@ -67,47 +67,50 @@ namespace Xtensive.Storage.Internals
 
     #endregion
     
-    public static void Fetch(Key key)
+    public static Key Fetch(Key key)
     {
-      IndexInfo index = (key.Type ?? key.Hierarchy.Root).Indexes.PrimaryIndex;
-      Fetch(index, key, index.Columns.Where(c => !c.IsLazyLoad));
+      IndexInfo index = (key.IsTypeCached ? key.Type : key.Hierarchy.Root).Indexes.PrimaryIndex;
+      return Fetch(index, key, index.Columns.Where(c => !c.IsLazyLoad));
     }
 
-    public static void Fetch(Key key, FieldInfo field)
+    public static Key Fetch(Key key, FieldInfo field)
     {
       // Fetching all non-lazyload fields instead of exactly one non-lazy load field.
       if (!field.IsLazyLoad) {
-        Fetch(key);
-        return;        
+        return Fetch(key);
       }
 
       // TODO: Cache
-      IndexInfo index = key.Type.Indexes.PrimaryIndex;
-      IEnumerable<ColumnInfo> columns = key.Type.Columns
+      IndexInfo index = (key.IsTypeCached ? key.Type : key.Hierarchy.Root).Indexes.PrimaryIndex;
+      IEnumerable<ColumnInfo> columns = index.Columns
         .Where(c => c.IsPrimaryKey || c.IsSystem || !c.IsLazyLoad)
-        .Union(key.Type.Columns
+        .Union(index.Columns
           .Skip(field.MappingInfo.Offset)
           .Take(field.MappingInfo.Length));
-      Fetch(index, key, columns);
+      return Fetch(index, key, columns);
     }
 
-    private static void Fetch(IndexInfo index, Key key, IEnumerable<ColumnInfo> columns)
+    private static Key Fetch(IndexInfo index, Key key, IEnumerable<ColumnInfo> columns)
     {
+      Key result;
       var session = Session.Current;
       if (session.IsDebugEventLoggingEnabled)
         Log.Debug("Session '{0}'. Fetching: Key = '{1}', Columns = '{2}'", session, pKey, columns.Select(c => c.Name).ToCommaDelimitedString());
+
       var columnIndexes = columns.Select(c => index.Columns.IndexOf(c)).ToArray();
       var rs = GetCachedRecordSet(index, columnIndexes);
       using (new ParameterScope()) {
         pKey.Value = key;
-        if (rs.Parse() == 0) {
+        result = session.Domain.RecordSetParser.ParseFirstFast(rs);
+        if (result == null) {
           var state = session.Cache[key];
           if (state==null)
-            state = session.Cache.Create(key, session.Transaction);
+            state = session.Cache.Create(key, null, session.Transaction);
           state.Update(null, session.Transaction); // Update to the state of removed entity
           session.Cache.Remove(key);
         }
       }
+      return result;
     }
 
     private static RecordSet GetCachedRecordSet(IndexInfo index, int[] columnIndexes)

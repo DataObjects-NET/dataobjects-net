@@ -20,7 +20,7 @@ namespace Xtensive.Storage.Internals
     private readonly Dictionary<Key, EntityState> removed = new Dictionary<Key, EntityState>();
     // Cached properties
     private readonly Domain domain;
-    private readonly Dictionary<TypeInfo, Tuple> prototypes;
+    private readonly PrototypeProvider prototypes;
 
     [Infrastructure]
     public EntityState this[Key key]
@@ -29,13 +29,13 @@ namespace Xtensive.Storage.Internals
     }
 
     [Infrastructure]
-    public EntityState Create(Key key, Transaction transaction)
+    public EntityState Create(Key key, Entity entity, Transaction transaction)
     {
-      return Create(key, key, true, transaction);
+      return Create(key, key, entity, transaction, true);
     }
 
     [Infrastructure]
-    private EntityState Create(Key key, Tuple tuple, bool isNew, Transaction transaction)
+    private EntityState Create(Key key, Tuple tuple, Entity entity, Transaction transaction, bool isNew)
     {
       Tuple origin;
       if (isNew)
@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Internals
       else
         origin = prototypes[key.Type].CreateNew();
       tuple.CopyTo(origin);
-      var result = new EntityState(key, new DifferentialTuple(origin), transaction);
+      var result = new EntityState(key, new DifferentialTuple(origin), entity, transaction);
       cache.Add(result);
 
       if (Session.IsDebugEventLoggingEnabled)
@@ -57,7 +57,7 @@ namespace Xtensive.Storage.Internals
     {
       EntityState state = this[key];
       if (state == null)
-        Create(key, tuple, false, transaction);
+        Create(key, tuple, null, transaction, false);
       else {
         state.Update(tuple, transaction);
         if (Session.IsDebugEventLoggingEnabled)
@@ -70,7 +70,7 @@ namespace Xtensive.Storage.Internals
     {
       EntityState state = cache[key, false];
       if (state!=null)
-        Remove(state);      
+        Remove(state);
     }
 
     [Infrastructure]

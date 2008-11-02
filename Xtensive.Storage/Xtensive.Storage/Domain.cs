@@ -23,7 +23,6 @@ using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.PairIntegrity;
 using Xtensive.Storage.Providers;
-using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers.Executable;
 
 namespace Xtensive.Storage
@@ -34,7 +33,6 @@ namespace Xtensive.Storage
   public sealed class Domain : CriticalFinalizerObject,
     IDisposableContainer
   {
-    private readonly ICache<RecordSetHeader, RecordSetMapping> recordSetMappings;
     private int sessionCounter = 1;
 
     /// <summary>
@@ -52,6 +50,11 @@ namespace Xtensive.Storage
     /// Gets the configuration.
     /// </summary>
     public DomainConfiguration Configuration { get; private set; }
+    
+    /// <summary>
+    /// Gets the <see cref="RecordSetParser"/> instance.
+    /// </summary>
+    internal RecordSetParser RecordSetParser { get; private set; }
 
     /// <summary>
     /// Gets the disposing state of the domain.
@@ -103,7 +106,7 @@ namespace Xtensive.Storage
 
     internal ICache<Key, Key> KeyCache { get; private set; }
 
-    internal Dictionary<TypeInfo, Tuple> Prototypes { get; private set; }
+    internal PrototypeProvider Prototypes { get; private set; }
 
     internal Dictionary<AssociationInfo, ActionSet> PairSyncActions { get; private set; }
 
@@ -156,51 +159,6 @@ namespace Xtensive.Storage
       return DomainBuilder.Build(configuration);
     }
 
-    #region Private \ internal methods
-
-    internal RecordSetMapping GetMapping(RecordSetHeader header)
-    {
-      RecordSetMapping result;
-      lock (recordSetMappings) {
-        result = recordSetMappings[header, true];
-        if (result!=null)
-          return result;
-      }
-      var mappings = new List<ColumnGroupMapping>();
-      foreach (var group in header.ColumnGroups) {
-        var mapping = BuildColumnGroupMapping(header, group);
-        if (mapping!=null)
-          mappings.Add(mapping);
-      }
-      result = new RecordSetMapping(header, mappings);
-      lock (recordSetMappings) {
-        recordSetMappings.Add(result);
-      }
-      return result;
-    }
-
-    private ColumnGroupMapping BuildColumnGroupMapping(RecordSetHeader header, ColumnGroup group)
-    {
-      int typeIdColumnIndex = -1;
-      var typeIdColumnName = NameBuilder.TypeIdColumnName;
-      var columnMapping = new Dictionary<ColumnInfo, MappedColumn>(group.Columns.Count);
-
-      foreach (int columnIndex in group.Columns) {
-        var column = (MappedColumn)header.Columns[columnIndex];
-        ColumnInfo columnInfo = column.ColumnInfoRef.Resolve(Model);
-        columnMapping[columnInfo] = column;
-        if (columnInfo.Name == typeIdColumnName)
-          typeIdColumnIndex = column.Index;
-      }
-
-      if (typeIdColumnIndex == -1)
-        return null;
-
-      return new ColumnGroupMapping(Model, typeIdColumnIndex, columnMapping);
-    }
-
-    #endregion
-
 
     // Constructors
 
@@ -209,18 +167,16 @@ namespace Xtensive.Storage
       IsDebugEventLoggingEnabled = Log.IsLogged(LogEventTypes.Debug); // Just to cache this value
       Configuration = configuration;
       Handlers = new HandlerAccessor(this);
+      RecordSetParser = new RecordSetParser(this);
       KeyGenerators = new Registry<HierarchyInfo, KeyGenerator>();
       KeyCache = new LruCache<Key, Key>(Configuration.KeyCacheSize, k => k);
       Transforms = ThreadSafeDictionary<FieldInfo, SegmentTransform>.Create(new object());
-      Prototypes = new Dictionary<TypeInfo, Tuple>();
+      Prototypes = new PrototypeProvider();
       PairSyncActions = new Dictionary<AssociationInfo, ActionSet>();
       TemporaryData = new GlobalTemporaryData();
-      recordSetMappings = 
-        new LruCache<RecordSetHeader, RecordSetMapping>(configuration.RecordSetMappingCacheSize, 
-          m => m.Header,
-          new WeakestCache<RecordSetHeader, RecordSetMapping>(false, false, m => m.Header));
     }
 
+    /// <inheritdoc/>
     public void Dispose()
     {
       Dispose(true);

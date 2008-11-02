@@ -242,7 +242,7 @@ namespace Xtensive.Storage.Tests.Storage
             
           Key key = Key.Create<Snake, int>(snake.ID);
           Assert.IsTrue(snake.Key.Equals(key));
-          Assert.IsTrue(ReferenceEquals(snake.Key, key));
+          Assert.AreEqual(snake.Key, key);
 
           Lizard lizard = new Lizard();
           lizard.Color = "#ff5544";

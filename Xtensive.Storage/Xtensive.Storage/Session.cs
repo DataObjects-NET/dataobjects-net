@@ -35,7 +35,6 @@ namespace Xtensive.Storage
     private readonly Set<object> consumers = new Set<object>();
     private readonly object _lock = new object();
     private readonly CompilationScope compilationScope;
-    private readonly EntityAccessor entityAccessor;
 
     internal readonly List<EntityState> newEntities = new List<EntityState>();
     internal readonly List<EntityState> modifiedEntities = new List<EntityState>();
@@ -56,10 +55,7 @@ namespace Xtensive.Storage
     /// </summary>
     public AtomicityContext AtomicityContext { get; private set; }
 
-    internal PersistentAccessor GetAccessor(Persistent obj)
-    {
-      return entityAccessor;
-    }
+    internal LowLevelAccessor Accessor { get; private set; }
 
     /// <summary>
     /// Gets the current validation context.
@@ -368,7 +364,7 @@ namespace Xtensive.Storage
       Handler.Initialize();
       AtomicityContext = new AtomicityContext(this, AtomicityContextOptions.Undoable);
       compilationScope = Handlers.DomainHandler.CompilationContext.Activate();
-      entityAccessor = new EntityAccessor(this);
+      Accessor = new LowLevelAccessor(this);
     }
 
     #region Dispose pattern
