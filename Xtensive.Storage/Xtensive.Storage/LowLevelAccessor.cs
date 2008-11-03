@@ -27,6 +27,15 @@ namespace Xtensive.Storage
     public Persistent CreateInstance(Type type)
     {
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
+      
+      TypeInfo typeInfo = Session.Domain.Model.Types[type];
+      if (typeInfo.IsEntity) {
+        KeyGenerator keyGenerator = Session.Domain.KeyGenerators[typeInfo.Hierarchy];
+        Key key = new Key(typeInfo.Hierarchy, keyGenerator.Next());
+        EntityState state = Session.Cache.Add(key);
+        Initialize(state.Entity, state);
+        return state.Entity;
+      }
       throw new NotImplementedException();
     }
 
@@ -35,6 +44,14 @@ namespace Xtensive.Storage
     {
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
       ArgumentValidator.EnsureArgumentNotNull(tuple, "tuple");
+
+      TypeInfo typeInfo = Session.Domain.Model.Types[type];
+      if (typeInfo.IsEntity) {
+        Key key = new Key(typeInfo.Hierarchy, tuple);
+        EntityState state = Session.Cache.Add(key);
+        Initialize(state.Entity, state);
+        return state.Entity;
+      }
       throw new NotImplementedException();
     }
 
@@ -100,9 +117,9 @@ namespace Xtensive.Storage
 
       Session.Persist();
       ReferenceManager.ClearReferencesTo(target);
-      Session.removedEntities.Add(target.EntityState);
-      Session.Cache.Remove(target.EntityState);
       target.EntityState.PersistenceState = PersistenceState.Removed;
+      Session.State.Register(target.EntityState);
+      Session.Cache.Remove(target.EntityState);
     }
 
     [Infrastructure]
@@ -146,17 +163,15 @@ namespace Xtensive.Storage
     [Infrastructure]
     internal void Initialize(Entity target)
     {
-      Domain domain = Session.Domain;
-      TypeInfo type = domain.Model.Types[target.GetType()];
-      KeyGenerator keyGenerator = domain.KeyGenerators[type.Hierarchy];
+      TypeInfo type = Session.Domain.Model.Types[target.GetType()];
+      KeyGenerator keyGenerator = Session.Domain.KeyGenerators[type.Hierarchy];
       Initialize(target, type, keyGenerator.Next());
     }
 
     [Infrastructure]
     internal void Initialize(Entity target, Tuple tuple)
     {
-      Domain domain = Session.Domain;
-      TypeInfo type = domain.Model.Types[target.GetType()];
+      TypeInfo type = Session.Domain.Model.Types[target.GetType()];
       Initialize(target, type, tuple);
     }
 
@@ -167,10 +182,15 @@ namespace Xtensive.Storage
       if (Session.IsDebugEventLoggingEnabled)
         LogTemplate<Log>.Debug("Session '{0}'. Creating entity: Key = '{1}'", Session, key);
 
-      var state = Session.Cache.Create(key, target, Session.Transaction);
+      var state = Session.Cache.Add(key, target);
+      Initialize(target, state);
+    }
+
+    private void Initialize(Entity target, EntityState state)
+    {
       target.EntityState = state;
-      Session.newEntities.Add(state);
       state.PersistenceState = PersistenceState.New;
+      Session.State.Register(state);
       target.Initialize();
     }
 
@@ -240,8 +260,8 @@ namespace Xtensive.Storage
       }
       else {
         if (entity.PersistenceState!=PersistenceState.New && entity.PersistenceState!=PersistenceState.Modified) {
-          Session.modifiedEntities.Add(entity.EntityState);
           entity.EntityState.PersistenceState = PersistenceState.Modified;
+          Session.State.Register(entity.EntityState);
         }
       }
 

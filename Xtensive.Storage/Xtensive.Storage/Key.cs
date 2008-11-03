@@ -272,7 +272,7 @@ namespace Xtensive.Storage
     ///<param name="type">Type value</param>
     ///<param name="tuple">Tuple value</param>
     public Key(Type type, Tuple tuple)
-      :this(Session.Current.Domain.Model.Types[type].Hierarchy, tuple)
+      :this(Domain.Current.Model.Types[type].Hierarchy, tuple)
     {
     }
 

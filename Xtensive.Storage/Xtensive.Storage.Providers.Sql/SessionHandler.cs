@@ -175,7 +175,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       SqlRequestBuilderTask task = new SqlRequestBuilderTask(SqlUpdateRequestKind.Remove, state.Type);
       SqlUpdateRequest request = domainHandler.SqlRequestCache.GetValue(task, _task => DomainHandler.SqlRequestBuilder.Build(_task));
-      request.BindParameters(state);
+      request.BindParameters(state.Key);
       int rowsAffected = ExecuteNonQuery(request);
       if (rowsAffected!=request.ExpectedResult)
         if (rowsAffected==0)

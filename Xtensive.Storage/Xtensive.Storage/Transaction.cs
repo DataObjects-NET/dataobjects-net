@@ -52,7 +52,7 @@ namespace Xtensive.Storage
     {
       if (Session.Domain.Configuration.InconsistentTransactions)
         inconsistentRegion = ValidationContext.OpenInconsistentRegion();
-      Session.OnTransctionBegin();
+      Session.OnBeginTransaction();
     }
 
     /// <inheritdoc/>
@@ -67,7 +67,7 @@ namespace Xtensive.Storage
         OnRollback();
         throw;
       }      
-      Session.OnTransactionCommit();
+      Session.OnCommitTransaction();
     }
 
     /// <inheritdoc/>
@@ -77,7 +77,7 @@ namespace Xtensive.Storage
         inconsistentRegion.DisposeSafely();
       }
       finally {
-        Session.OnTransactionRollback();
+        Session.OnRollbackTransaction();
       }
     }
 

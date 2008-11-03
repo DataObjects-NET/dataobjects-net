@@ -4,17 +4,14 @@
 // Created by: Dmitri Maximov
 // Created:    2008.07.28
 
-using System.Collections;
 using System.Collections.Generic;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.Caching;
 using Xtensive.Core.Tuples;
-using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Internals
 {
-  internal class EntityCache : SessionBound,
-    IEnumerable<EntityState>
+  internal class SessionCache : SessionBound
   {
     private readonly ICache<Key, EntityState> cache;
     private readonly Dictionary<Key, EntityState> removed = new Dictionary<Key, EntityState>();
@@ -29,21 +26,17 @@ namespace Xtensive.Storage.Internals
     }
 
     [Infrastructure]
-    public EntityState Create(Key key, Entity entity, Transaction transaction)
+    public EntityState Add(Key key)
     {
-      return Create(key, key, entity, transaction, true);
+      return Add(key, (Entity) null);
     }
 
     [Infrastructure]
-    private EntityState Create(Key key, Tuple tuple, Entity entity, Transaction transaction, bool isNew)
+    public EntityState Add(Key key, Entity entity)
     {
-      Tuple origin;
-      if (isNew)
-        origin = prototypes[key.Type].Clone();
-      else
-        origin = prototypes[key.Type].CreateNew();
-      tuple.CopyTo(origin);
-      var result = new EntityState(key, new DifferentialTuple(origin), entity, transaction);
+      Tuple origin = prototypes[key.Type].Clone();
+      key.CopyTo(origin);
+      var result = new EntityState(key, new DifferentialTuple(origin), Session.Transaction, entity);
       cache.Add(result);
 
       if (Session.IsDebugEventLoggingEnabled)
@@ -53,16 +46,24 @@ namespace Xtensive.Storage.Internals
     }
 
     [Infrastructure]
-    public void Update(Key key, Tuple tuple, Transaction transaction)
+    public EntityState Add(Key key, Tuple tuple)
     {
-      EntityState state = this[key];
-      if (state == null)
-        Create(key, tuple, null, transaction, false);
-      else {
-        state.Update(tuple, transaction);
+      EntityState result = this[key];
+      if (result == null) {
+        Tuple origin = Tuple.Create(key.Type.TupleDescriptor);
+        tuple.CopyTo(origin);
+        result = new EntityState(key, new DifferentialTuple(origin), Session.Transaction);
+        cache.Add(result);
+
         if (Session.IsDebugEventLoggingEnabled)
-          Log.Debug("Session '{0}'. Merging: {1}", Session, state);
+          Log.Debug("Session '{0}'. Caching: {1}", Session, result);
       }
+      else {
+        result.Update(tuple, Session.Transaction);
+        if (Session.IsDebugEventLoggingEnabled)
+          Log.Debug("Session '{0}'. Updating cache: {1}", Session, result);
+      }
+      return result;
     }
 
     [Infrastructure]
@@ -75,7 +76,7 @@ namespace Xtensive.Storage.Internals
 
     [Infrastructure]
     public void Remove(EntityState state)
-    {      
+    {
       state.Update(null, Session.Transaction);
       Key key = state.Key;
       if (!removed.ContainsKey(key))
@@ -106,22 +107,10 @@ namespace Xtensive.Storage.Internals
       cache.Clear();
     }
 
-    [Infrastructure]
-    public IEnumerator<EntityState> GetEnumerator()
-    {
-      return cache.GetEnumerator();
-    }
-
-    [Infrastructure]
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-      return GetEnumerator();
-    }
-
 
     // Constructors
 
-    public EntityCache(Session session, int cacheSize) 
+    public SessionCache(Session session, int cacheSize) 
       : base(session)
     {
       cache = new LruCache<Key, EntityState>(cacheSize, i => i.Key,

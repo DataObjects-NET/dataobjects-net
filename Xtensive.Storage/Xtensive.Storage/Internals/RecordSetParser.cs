@@ -90,7 +90,7 @@ namespace Xtensive.Storage.Internals
       }
       Tuple entityTuple = typeMapping.Transform.Apply(TupleTransformType.TransformedTuple, record);
       Key key = new Key(typeMapping.Type, entityTuple);
-      context.Cache.Update(key, entityTuple, context.Session.Transaction);
+      context.Cache.Add(key, entityTuple);
       var keyCache = context.KeyCache;
       lock (keyCache) {
         key = keyCache.Add(key, false);

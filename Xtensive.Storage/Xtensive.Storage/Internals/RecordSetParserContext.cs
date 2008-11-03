@@ -15,7 +15,7 @@ namespace Xtensive.Storage.Internals
 
     public Session Session { get; private set; }
 
-    public EntityCache Cache { get; private set; }
+    public SessionCache Cache { get; private set; }
 
     public RecordSetHeader Header { get; private set; }
 

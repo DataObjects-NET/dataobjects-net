@@ -192,11 +192,16 @@ namespace Xtensive.Storage
 
     // Constructors
 
-    internal EntityState(Key key, DifferentialTuple tuple, Entity entity, Transaction transaction)
+    internal EntityState(Key key, DifferentialTuple tuple, Transaction transaction, Entity entity)
+      : this(key, tuple, transaction)
+    {
+      this.entity = entity;
+    }
+
+    internal EntityState(Key key, DifferentialTuple tuple, Transaction transaction)
     {
       ArgumentValidator.EnsureArgumentNotNull(key, "key");
       ArgumentValidator.EnsureArgumentNotNull(transaction, "transaction");
-      this.entity = entity;
       Key = key;
       Data = tuple;
       Transaction = transaction;

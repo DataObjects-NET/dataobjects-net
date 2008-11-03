@@ -265,7 +265,7 @@ namespace Xtensive.Storage.Tests.Storage
           Assert.AreEqual(0, x.FFloat);
           Assert.AreEqual(Guid.Empty, x.FGuid);
           Assert.AreEqual(0, x.FInt);
-          Assert.AreEqual(0l, x.FLong);
+          Assert.AreEqual(0L, x.FLong);
           Assert.AreEqual(null, x.FLongByteArray);
           Assert.AreEqual(null, x.FLongString);
           Assert.AreEqual(0, x.FSByte);

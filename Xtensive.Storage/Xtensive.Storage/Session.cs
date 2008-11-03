@@ -36,9 +36,7 @@ namespace Xtensive.Storage
     private readonly object _lock = new object();
     private readonly CompilationScope compilationScope;
 
-    internal readonly List<EntityState> newEntities = new List<EntityState>();
-    internal readonly List<EntityState> modifiedEntities = new List<EntityState>();
-    internal readonly List<EntityState> removedEntities = new List<EntityState>();
+    internal SessionState State { get; private set; }
 
     /// <summary>
     /// Gets the configuration of the <see cref="Session"/>.
@@ -91,7 +89,7 @@ namespace Xtensive.Storage
 
     internal SessionHandler Handler { get; private set; }
 
-    internal EntityCache Cache { get; private set; }
+    internal SessionCache Cache { get; private set; }
 
     #endregion
 
@@ -135,7 +133,7 @@ namespace Xtensive.Storage
         if (IsDebugEventLoggingEnabled)
           Log.Debug("Session '{0}'. Persisted.", this);
 
-        ClearDirtyData();
+        State.Clear();
       }
       finally {
         isPersisting = false;
@@ -213,38 +211,38 @@ namespace Xtensive.Storage
 
     #region OnXxx methods
 
-    internal void OnTransctionBegin()
+    internal void OnBeginTransaction()
     {
       Handler.BeginTransaction();
     }
 
-    internal void OnTransactionCommit()
+    internal void OnCommitTransaction()
     {
       try {
         Persist();
         Handler.CommitTransaction();
         Cache.ClearRemoved();
-        OnTranscationEnd();
+        OnCompleteTransaction();
       }
       catch {        
-        OnTransactionRollback();
+        OnRollbackTransaction();
         throw;
       }
     }
 
-    internal void OnTransactionRollback()
+    internal void OnRollbackTransaction()
     {
       try {
         Handler.RollbackTransaction();
       }
       finally {
-        ClearDirtyData();
+        State.Clear();
         Cache.RestoreRemoved();
-        OnTranscationEnd();
+        OnCompleteTransaction();
       }
     }
 
-    private void OnTranscationEnd()
+    private void OnCompleteTransaction()
     {
       Transaction = null;
     }
@@ -320,26 +318,6 @@ namespace Xtensive.Storage
 
     #endregion
 
-    #region Private \ internal methods
-
-    private void ClearDirtyData()
-    {
-      foreach (EntityState data in newEntities)
-        data.PersistenceState = PersistenceState.Synchronized;
-
-      foreach (EntityState data in modifiedEntities)
-        data.PersistenceState = PersistenceState.Synchronized;
-
-      foreach (EntityState data in removedEntities)
-        data.PersistenceState = PersistenceState.Synchronized;      
-
-      newEntities.Clear();
-      modifiedEntities.Clear();
-      removedEntities.Clear();
-    }
-
-    #endregion
-
     /// <inheritdoc/>
     public override string ToString()
     {
@@ -358,13 +336,14 @@ namespace Xtensive.Storage
       Configuration = configuration;
       Handlers = domain.Handlers;
       Handler = Handlers.HandlerFactory.CreateHandler<SessionHandler>();
-      Cache = new EntityCache(this, configuration.CacheSize);
+      Cache = new SessionCache(this, configuration.CacheSize);
       Name = configuration.Name;
       Handler.Session = this;
       Handler.Initialize();
       AtomicityContext = new AtomicityContext(this, AtomicityContextOptions.Undoable);
       compilationScope = Handlers.DomainHandler.CompilationContext.Activate();
       Accessor = new LowLevelAccessor(this);
+      State = new SessionState(this);
     }
 
     #region Dispose pattern
