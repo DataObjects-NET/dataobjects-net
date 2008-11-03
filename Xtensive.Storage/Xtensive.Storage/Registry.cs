@@ -16,14 +16,12 @@ namespace Xtensive.Storage
   {
     private readonly object _lock = new object();
     private bool isDisposed;
-    private readonly Dictionary<TKey, TValue> providers = new Dictionary<TKey, TValue>();
+    private readonly Dictionary<TKey, TValue> map = new Dictionary<TKey, TValue>();
 
-    public TValue this[TKey key]
-    {
-      get
-      {
+    public TValue this[TKey key] {
+      get {
         TValue value;
-        if (providers.TryGetValue(key, out value))
+        if (map.TryGetValue(key, out value))
           return value;
         return default(TValue);
       }
@@ -31,14 +29,14 @@ namespace Xtensive.Storage
 
     public void Register(TKey key, TValue value)
     {
-      providers.Add(key, value);
+      map.Add(key, value);
     }
 
     public void Dispose()
     {
       if (!isDisposed) lock (_lock) if (!isDisposed) {
         try {
-          foreach (var pair in providers) {
+          foreach (var pair in map) {
             var disposable = pair.Value as IDisposable;
             disposable.DisposeSafely();
           }
