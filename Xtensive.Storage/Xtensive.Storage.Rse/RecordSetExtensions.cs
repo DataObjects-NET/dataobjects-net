@@ -14,6 +14,7 @@ using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
+using System.Linq;
 
 namespace Xtensive.Storage.Rse
 {
@@ -63,7 +64,7 @@ namespace Xtensive.Storage.Rse
       return Range(recordSet, new Range<IEntire<Tuple>>(xPoint, yPoint));
     }
 
-    public static RecordSet CalculateColumns(this RecordSet recordSet, params CalculatedColumnDescriptor[] columns)
+    public static RecordSet Calculate(this RecordSet recordSet, params CalculatedColumnDescriptor[] columns)
     {
       return new CalculationProvider(recordSet.Provider, columns).Result;
     }
@@ -129,6 +130,25 @@ namespace Xtensive.Storage.Rse
       return new SeekProvider(recordSet.Provider, key).Result;
     }
 
+    public static RecordSet Aggregate(this RecordSet recordSet, int[] groupIndexes, params AggregateColumnDescriptor[] descriptors)
+    {
+      return new AggregateProvider(recordSet.Provider, groupIndexes, descriptors).Result;
+    }
+
+    public static Func<long> GetCountDelegate(this RecordSet recordSet)
+    {
+      var resultSet = recordSet.Aggregate(null, 
+        new AggregateColumnDescriptor("$Count", 0, AggregateType.Count));
+      return () => resultSet.First().GetValue<long>(0);
+    }
+
+    public static long Count(this RecordSet recordSet)
+    {
+      var resultSet = recordSet.Aggregate(null, 
+        new AggregateColumnDescriptor("$Count", 0, AggregateType.Count));
+      return resultSet.First().GetValue<long>(0);
+    }
+
     public static RecordSet Skip(this RecordSet recordSet, int count)
     {
       return new SkipProvider(recordSet.Provider, count).Result;
@@ -137,19 +157,6 @@ namespace Xtensive.Storage.Rse
     public static RecordSet Take(this RecordSet recordSet, int count)
     {
       return new TakeProvider(recordSet.Provider, count).Result;
-    }
-
-    public static RecordSet ToRecordSet(this Tuple[] tuples, RecordSetHeader header)
-    {
-      return new RawProvider(header, tuples).Result;
-    }
-
-    public static int IndexOf(this RecordSet recordSet, string columnName)
-    {
-      MappedColumn column = (MappedColumn)recordSet.Header.Columns[columnName];
-      if (column == null)
-        throw new ArgumentException("columnName");
-      return column.Index;
     }
 
     public static RecordSet Save(this RecordSet recordSet)
@@ -162,19 +169,14 @@ namespace Xtensive.Storage.Rse
       return new StoredProvider(recordSet.Provider, scope, name).Result;
     }
 
-    //public static RecordSet CalculateAggregateFunction(this RecordSet recordSet, params AggregateColumnDescriptor[] descriptors)
-    //{
-    //  return new GroupProvider(recordSet.Provider, descriptors).Result;
-    //}
-
-    public static RecordSet CalculateAggregateFunction(this RecordSet recordSet, AggregateColumnDescriptor[] descriptors, params int[] groupIndexes)
-    {
-      return new AggregateProvider(recordSet.Provider, descriptors, groupIndexes).Result;
-    }
-
     public static RecordSet ExecuteAt(this RecordSet recordSet, ExecutionOptions options)
     {
       return new ExecutionSiteProvider(recordSet.Provider, options).Result;
+    }
+
+    public static RecordSet ToRecordSet(this Tuple[] tuples, RecordSetHeader header)
+    {
+      return new RawProvider(header, tuples).Result;
     }
   }
 }

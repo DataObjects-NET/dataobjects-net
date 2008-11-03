@@ -4,7 +4,8 @@
 // Created by: Alex Yakunin
 // Created:    2008.08.12
 
-using Xtensive.Core.Collections;
+using System;
+using System.Collections.Generic;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Rse
@@ -14,6 +15,19 @@ namespace Xtensive.Storage.Rse
   /// </summary>
   public static class RecordSetHeaderExtensions
   {
+    /// <summary>
+    /// Gets index of column with specified name.
+    /// </summary>
+    /// <param name="header">The header to search in.</param>
+    /// <param name="columnName">Name of the column to get.</param>
+    /// <returns>Index of the specified column.
+    /// <see langword="-1" />, if there is no column with specified name.</returns>
+    public static int IndexOf(this RecordSetHeader header, string columnName)
+    {
+      var column = (MappedColumn) header.Columns[columnName];
+      return column==null? -1 : column.Index;
+    }
+
     /// <summary>
     /// Gets the <see cref="RecordSetHeader"/> object for the specified <paramref name="indexInfo"/>.
     /// </summary>

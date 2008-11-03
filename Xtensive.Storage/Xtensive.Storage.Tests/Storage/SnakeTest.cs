@@ -17,7 +17,6 @@ using Xtensive.Core.Parameters;
 using Xtensive.Core.Testing;
 using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
-using Xtensive.Integrity.Transactions;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
@@ -25,7 +24,6 @@ using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
 using Xtensive.Storage.Tests.Storage.SnakesModel;
-using FieldInfo=System.Reflection.FieldInfo;
 
 
 namespace Xtensive.Storage.Tests.Storage.SnakesModel
@@ -124,18 +122,18 @@ namespace Xtensive.Storage.Tests.Storage
 
           TypeInfo snakeType = Domain.Model.Types[typeof(Snake)];
           RecordSet rsSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordSet();
-          var aggregate = rsSnakePrimary.OrderBy(OrderBy.Asc(4)).OrderBy(OrderBy.Asc(2));
+          var rs = rsSnakePrimary.OrderBy(OrderBy.Asc(4)).OrderBy(OrderBy.Asc(2));
 
-          aggregate.Count();
-          aggregate = aggregate.CalculateAggregateFunction(
-            new [] {
+          rs.Count();
+          rs = rs.Aggregate(
+            new [] {4, 2},
             new AggregateColumnDescriptor("Count1", 0, AggregateType.Count),
             new AggregateColumnDescriptor("Min1", 0, AggregateType.Min),
             new AggregateColumnDescriptor("Max1", 0, AggregateType.Max),
             new AggregateColumnDescriptor("Sum1", 0, AggregateType.Sum),
-            new AggregateColumnDescriptor("Avg1", 0, AggregateType.Avg)}, 4, 2);
+            new AggregateColumnDescriptor("Avg1", 0, AggregateType.Avg));
 
-          Assert.AreEqual(aggregate.Count(),4);
+          Assert.AreEqual(rs.Count(),4);
           t.Complete();
         }
       }
@@ -166,8 +164,8 @@ namespace Xtensive.Storage.Tests.Storage
           
           RecordSet rsSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordSet();
 
-          var rsCalculated = rsSnakePrimary.CalculateColumns(new CalculatedColumnDescriptor("FullName", typeof(string), (s) => (s.GetValue<string>(rsSnakePrimary.IndexOf(cName)).Substring(0, 2))),
-          new CalculatedColumnDescriptor("FullName2", typeof(string), (s) => (s.GetValue<string>(rsSnakePrimary.IndexOf(cName)).Substring(0, 3))))
+          var rsCalculated = rsSnakePrimary.Calculate(new CalculatedColumnDescriptor("FullName", typeof(string), (s) => (s.GetValue<string>(rsSnakePrimary.Header.IndexOf(cName)).Substring(0, 2))),
+          new CalculatedColumnDescriptor("FullName2", typeof(string), (s) => (s.GetValue<string>(rsSnakePrimary.Header.IndexOf(cName)).Substring(0, 3))))
             .Take(10);
 
           Assert.AreEqual(10, rsCalculated.Count());
@@ -178,19 +176,19 @@ namespace Xtensive.Storage.Tests.Storage
           }
           rsSnakePrimary.Count();
 
-            RecordSet aggregate = rsSnakePrimary.CalculateAggregateFunction(new[]{ 
-              new AggregateColumnDescriptor("Count1", 0, AggregateType.Count),
-              new AggregateColumnDescriptor("Min1", 0, AggregateType.Min),
-              new AggregateColumnDescriptor("Max1", 0, AggregateType.Max),
-              new AggregateColumnDescriptor("Sum1", 0, AggregateType.Sum),
-              new AggregateColumnDescriptor("Avg1", 0, AggregateType.Avg),
-              new AggregateColumnDescriptor("Count2", 2, AggregateType.Count),
-              new AggregateColumnDescriptor("Min2", 2, AggregateType.Min),
-              new AggregateColumnDescriptor("Max2", 2, AggregateType.Max),
-              new AggregateColumnDescriptor("Count3", 3, AggregateType.Count),
-              new AggregateColumnDescriptor("Max3", 3, AggregateType.Max)});
+          RecordSet aggregates = rsSnakePrimary.Aggregate(null, 
+            new AggregateColumnDescriptor("Count1", 0, AggregateType.Count),
+            new AggregateColumnDescriptor("Min1", 0, AggregateType.Min),
+            new AggregateColumnDescriptor("Max1", 0, AggregateType.Max),
+            new AggregateColumnDescriptor("Sum1", 0, AggregateType.Sum),
+            new AggregateColumnDescriptor("Avg1", 0, AggregateType.Avg),
+            new AggregateColumnDescriptor("Count2", 2, AggregateType.Count),
+            new AggregateColumnDescriptor("Min2", 2, AggregateType.Min),
+            new AggregateColumnDescriptor("Max2", 2, AggregateType.Max),
+            new AggregateColumnDescriptor("Count3", 3, AggregateType.Count),
+            new AggregateColumnDescriptor("Max3", 3, AggregateType.Max));
 
-            Assert.AreEqual(aggregate.Count(),1);
+          Assert.AreEqual(aggregates.Count(), 1);
 
           string name = "TestName";
           var scope = TemporaryDataScope.Global;
@@ -410,8 +408,8 @@ namespace Xtensive.Storage.Tests.Storage
             .Range(() => pID.Value)
             .Join(rsSnakeName
               .Range(() => pName.Value)
-              .OrderBy(OrderBy.Asc(rsSnakeName.IndexOf(cID)))
-              .Alias("NameIndex"), rsSnakePrimary.IndexOf(cID), rsSnakeName.IndexOf(cID));
+              .OrderBy(OrderBy.Asc(rsSnakeName.Header.IndexOf(cID)))
+              .Alias("NameIndex"), rsSnakePrimary.Header.IndexOf(cID), rsSnakeName.Header.IndexOf(cID));
           
           using(new ParameterScope()) {
             pID.Value = new Range<IEntire<Tuple>>(Entire<Tuple>.Create(Tuple.Create(21)), Entire<Tuple>.Create(Tuple.Create(120)));
@@ -459,34 +457,34 @@ namespace Xtensive.Storage.Tests.Storage
           TypeInfo snakeType = Domain.Model.Types[typeof(Snake)];
           RecordSet rsSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordSet();
           string name = "Kaa900";
-          RecordSet result = rsSnakePrimary.Filter(tuple => tuple.GetValue<string>(rsSnakePrimary.IndexOf(cName)).StartsWith(name));
+          RecordSet result = rsSnakePrimary.Filter(tuple => tuple.GetValue<string>(rsSnakePrimary.Header.IndexOf(cName)).StartsWith(name));
           Assert.Greater(result.Count(), 0);
 
-          result = rsSnakePrimary.Filter(tuple => tuple.GetValue<string>(rsSnakePrimary.IndexOf(cName)).Contains(name));
+          result = rsSnakePrimary.Filter(tuple => tuple.GetValue<string>(rsSnakePrimary.Header.IndexOf(cName)).Contains(name));
           Assert.Greater(result.Count(), 0);
 
           name = "90";
-          result = rsSnakePrimary.Filter(tuple => tuple.GetValue<string>(rsSnakePrimary.IndexOf(cName)).EndsWith(name));
+          result = rsSnakePrimary.Filter(tuple => tuple.GetValue<string>(rsSnakePrimary.Header.IndexOf(cName)).EndsWith(name));
           Assert.Greater(result.Count(), 0);
 
-          result = rsSnakePrimary.Filter(tuple => tuple.GetValue<int>(rsSnakePrimary.IndexOf(cLength)) > 10);
+          result = rsSnakePrimary.Filter(tuple => tuple.GetValue<int>(rsSnakePrimary.Header.IndexOf(cLength)) > 10);
           Assert.Greater(result.Count(), 0);
 
           int len = 10;
-          result = rsSnakePrimary.Filter(tuple => tuple.GetValue<int>(rsSnakePrimary.IndexOf(cLength)) > len);
+          result = rsSnakePrimary.Filter(tuple => tuple.GetValue<int>(rsSnakePrimary.Header.IndexOf(cLength)) > len);
           Assert.Greater(result.Count(), 0);
 
-          result = rsSnakePrimary.Filter(tuple => tuple.GetValue<int>(rsSnakePrimary.IndexOf(cLength)) * 2 * tuple.GetValue<int>(rsSnakePrimary.IndexOf(cLength)) > len);
+          result = rsSnakePrimary.Filter(tuple => tuple.GetValue<int>(rsSnakePrimary.Header.IndexOf(cLength)) * 2 * tuple.GetValue<int>(rsSnakePrimary.Header.IndexOf(cLength)) > len);
           Assert.Greater(result.Count(), 0);
 
           var pLen = new Parameter<int>();
-          result = rsSnakePrimary.Filter(tuple => tuple.GetValue<int>(rsSnakePrimary.IndexOf(cLength)) > pLen.Value);
+          result = rsSnakePrimary.Filter(tuple => tuple.GetValue<int>(rsSnakePrimary.Header.IndexOf(cLength)) > pLen.Value);
           using (new ParameterScope()) {
             pLen.Value = 10;
             Assert.Greater(result.Count(), 0);
           }
 
-          result = rsSnakePrimary.Filter(tuple => tuple.GetValue<string>(rsSnakePrimary.IndexOf(cName)).Substring(3, 1) == "9");
+          result = rsSnakePrimary.Filter(tuple => tuple.GetValue<string>(rsSnakePrimary.Header.IndexOf(cName)).Substring(3, 1) == "9");
           Assert.Greater(result.Count(), 0);
 
           t.Complete();
@@ -614,13 +612,13 @@ namespace Xtensive.Storage.Tests.Storage
             RecordSet rsSnakeName = snakeType.Indexes.GetIndex("Name").ToRecordSet();
             rsSnakeName = rsSnakeName
               .Range(fromName, toName)
-              .OrderBy(OrderBy.Asc(rsSnakeName.IndexOf(cID)))
+              .OrderBy(OrderBy.Asc(rsSnakeName.Header.IndexOf(cID)))
               .Alias("NameIndex");
 
             RecordSet range = rsSnakePrimary.Range(from, to);
-            RecordSet join = range.Join(rsSnakeName, new Pair<int>(rsSnakePrimary.IndexOf(cID), rsSnakeName.IndexOf("NameIndex."+cID)));
-            RecordSet where = join.Filter(tuple => tuple.GetValue<int>(rsSnakePrimary.IndexOf(cLength)) >= 100);
-            RecordSet orderBy = where.OrderBy(OrderBy.Desc(rsSnakePrimary.IndexOf(cName)));
+            RecordSet join = range.Join(rsSnakeName, new Pair<int>(rsSnakePrimary.Header.IndexOf(cID), rsSnakeName.Header.IndexOf("NameIndex."+cID)));
+            RecordSet where = join.Filter(tuple => tuple.GetValue<int>(rsSnakePrimary.Header.IndexOf(cLength)) >= 100);
+            RecordSet orderBy = where.OrderBy(OrderBy.Desc(rsSnakePrimary.Header.IndexOf(cName)));
             RecordSet skip = orderBy.Skip(5);
             RecordSet take = skip.Take(50);
             var snakesRse = take.ToEntities<Snake>();
@@ -691,15 +689,15 @@ namespace Xtensive.Storage.Tests.Storage
             RecordSet rsSnakeName = snakeType.Indexes.GetIndex("Name").ToRecordSet();
             rsSnakeName = rsSnakeName
               .Range(fromName, toName)
-              .OrderBy(OrderBy.Asc(rsSnakeName.IndexOf(cID)))
+              .OrderBy(OrderBy.Asc(rsSnakeName.Header.IndexOf(cID)))
               .Alias("NameIndex");
 
             var snakesRse = rsSnakePrimary
               .Range(from, to)
-              .Join(rsSnakeName, new Pair<int>(rsSnakePrimary.IndexOf(cID), rsSnakeName.IndexOf("NameIndex."+cID)))
+              .Join(rsSnakeName, new Pair<int>(rsSnakePrimary.Header.IndexOf(cID), rsSnakeName.Header.IndexOf("NameIndex."+cID)))
               .ExecuteAt(ExecutionOptions.Client)
-              .Filter(tuple => tuple.GetValue<int>(rsSnakePrimary.IndexOf(cLength)) >= 100)
-              .OrderBy(OrderBy.Desc(rsSnakePrimary.IndexOf(cName)))
+              .Filter(tuple => tuple.GetValue<int>(rsSnakePrimary.Header.IndexOf(cLength)) >= 100)
+              .OrderBy(OrderBy.Desc(rsSnakePrimary.Header.IndexOf(cName)))
               .Skip(5)
               .Take(50)
               //.ToEntities<Snake>()
@@ -748,10 +746,10 @@ namespace Xtensive.Storage.Tests.Storage
             .Range(() => pID.Value)
             .Join(rsSnakeName
               .Range(() => pName.Value)
-              .OrderBy(OrderBy.Asc(rsSnakeName.IndexOf(cID)))
-              .Alias("NameIndex"), rsSnakePrimary.IndexOf(cID), rsSnakeName.IndexOf(cID))
-            .Filter(tuple => tuple.GetValue<int>(rsSnakePrimary.IndexOf(cLength)) >= pLength.Value)
-            .OrderBy(OrderBy.Desc(rsSnakePrimary.IndexOf(cName)))
+              .OrderBy(OrderBy.Asc(rsSnakeName.Header.IndexOf(cID)))
+              .Alias("NameIndex"), rsSnakePrimary.Header.IndexOf(cID), rsSnakeName.Header.IndexOf(cID))
+            .Filter(tuple => tuple.GetValue<int>(rsSnakePrimary.Header.IndexOf(cLength)) >= pLength.Value)
+            .OrderBy(OrderBy.Desc(rsSnakePrimary.Header.IndexOf(cName)))
             .Skip(5)
             .Take(50);
         t.Complete();

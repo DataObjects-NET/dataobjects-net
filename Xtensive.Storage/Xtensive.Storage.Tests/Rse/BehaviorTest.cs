@@ -66,7 +66,7 @@ namespace Xtensive.Storage.Tests.Rse
       RecordSet result = personIndexed.JoinLeft(authorsIndexed, 0, 0);
 
       using (EnumerationScope.Open()) {
-        int count = result.Count();
+        int count = (int) result.Count();
         Assert.AreEqual(personCount, count);
       }
     }

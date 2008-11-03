@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
@@ -61,7 +62,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     }
 
 
-    // Constructor
+    // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
@@ -69,12 +70,12 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="columnDescriptors">The descriptors of <see cref="AggregateColumns"/>.</param>
     /// <param name="groupIndexes">The column indexes to group by.</param>
-    public AggregateProvider(CompilableProvider source, AggregateColumnDescriptor[] columnDescriptors, params int[] groupIndexes)
+    public AggregateProvider(CompilableProvider source, int[] groupIndexes, params AggregateColumnDescriptor[] columnDescriptors)
       : base(source)
     {
+      groupIndexes = groupIndexes ?? ArrayUtils<int>.EmptyArray;
       var columns = new AggregateColumn[columnDescriptors.Length];
-      for (int i = 0; i < columnDescriptors.Length; i++)
-      {
+      for (int i = 0; i < columnDescriptors.Length; i++) {
         AggregateColumnDescriptor descriptor = columnDescriptors[i];
         Type type = descriptor.AggregateType == AggregateType.Count ? typeof(long) : Source.Header.Columns[descriptor.SourceIndex].Type;
         var col = new AggregateColumn(descriptor, groupIndexes.Length + i, type);

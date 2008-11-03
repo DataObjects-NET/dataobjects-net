@@ -36,7 +36,7 @@ namespace Xtensive.Storage
     /// <returns>The sequence of <see cref="Entity"/> instances.</returns>
     public static IEnumerable<Entity> ToEntities(this RecordSet source, Type type)
     {
-      return Session.Current.Domain.RecordSetParser.ToEntities(source, type);
+      return Domain.Current.RecordSetParser.ToEntities(source, type);
     }
   }
 }
