@@ -13,6 +13,7 @@ using Xtensive.Core.Tuples;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Tests.Storage.Performance.CrudModel;
+using System.Linq;
 
 namespace Xtensive.Storage.Tests.Storage.Performance
 {
