@@ -174,6 +174,8 @@ namespace Xtensive.Storage
     {
       if (other==null)
         return false;
+      if (ReferenceEquals(this, other))
+        return true;
       if (hashCode!=other.hashCode)
         return false;
       if (Hierarchy!=other.Hierarchy)
