@@ -71,7 +71,7 @@ namespace Xtensive.Storage.Internals
     [Infrastructure]
     public void Remove(EntityState state)
     {
-      state.Update(null, Session.Transaction);
+      state.Remove(Session.Transaction);
       Key key = state.Key;
       if (!removed.ContainsKey(key))
         removed[key] = cache[key, false];

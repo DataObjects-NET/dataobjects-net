@@ -19,7 +19,8 @@ namespace Xtensive.Storage
   /// <summary>
   /// The underlying data of the <see cref="Storage.Entity"/>.
   /// </summary>
-  public sealed class EntityState : Tuple
+  public sealed class EntityState : Tuple,
+    ITransactionalState
   {
     private Entity entity;
 
@@ -71,7 +72,8 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets a value indicating whether this entity is removed.
     /// </summary>
-    public bool IsRemoved {
+    public bool IsRemoved
+    {
       get { return Data==null; }
     }
 
@@ -93,27 +95,40 @@ namespace Xtensive.Storage
     public void Update(Tuple tuple, Transaction transaction)
     {
       ArgumentValidator.EnsureArgumentNotNull(transaction, "transaction");
-      if (Transaction.State.IsActive()) {
-        if (tuple==null)
-          Data = null;
-        else
-          Data.Origin.MergeWith(tuple);
-      }
-      else {
-        Transaction = transaction;
-        Data = tuple==null ? null : new DifferentialTuple(tuple.ToRegular());
-      }
+      EnsureConsistency(transaction);
+      if (Data == null)
+        Data = new DifferentialTuple(tuple.ToRegular());
+      else
+        Data.Origin.MergeWith(tuple);
+    }
+
+    /// <summary>
+    /// Marks this instance as removed.
+    /// </summary>
+    /// <param name="transaction">The transaction.</param>
+    public void Remove(Transaction transaction)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(transaction, "transaction");
+      EnsureConsistency(transaction);
+      Data = null;
     }
 
     #region EnsureXxx methods
 
-    /// <summary>
-    /// Ensures the data belongs to the current <see cref="Transaction"/> and resents the data if not.
-    /// </summary>
-    public void EnsureIsActual()
+    /// <inheritdoc/>
+    public void EnsureConsistency(Transaction transaction)
     {
-      if (!Transaction.State.IsActive())
+      if (!Transaction.State.IsActive()) {
+        Reset(transaction);
         Fetcher.Fetch(Key);
+      }
+    }
+
+    /// <inheritdoc/>
+    public void Reset(Transaction transaction)
+    {
+      Transaction = transaction;
+      Data = null;
     }
 
     /// <summary>
@@ -134,9 +149,9 @@ namespace Xtensive.Storage
     /// Ensures the entity is not removed and its data is actual.
     /// Call this method before getting or setting values.
     /// </summary>
-    public void EnsureNotRemoved()
+    public void EnsureNotRemoved(Transaction transaction)
     {
-      EnsureIsActual();
+      EnsureConsistency(transaction);
       if (IsRemoved)
         throw new InvalidOperationException(Strings.ExEntityIsRemoved);
     }

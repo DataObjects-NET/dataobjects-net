@@ -64,7 +64,7 @@ namespace Xtensive.Storage
     {
       get
       {
-        State.EnsureIsActual();
+        State.EnsureConsistency(Session.Transaction);
         return State.IsRemoved;
       }
     }

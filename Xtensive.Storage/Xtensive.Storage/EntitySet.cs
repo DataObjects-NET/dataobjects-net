@@ -17,8 +17,7 @@ using FieldInfo=Xtensive.Storage.Model.FieldInfo;
 namespace Xtensive.Storage
 {
   public abstract class EntitySet : SessionBound,
-    IFieldHandler,
-    IHasTransactionalState<EntitySetState>
+    IFieldHandler
   {
     /// <inheritdoc/>
     public Persistent Owner { get; private set; }
@@ -34,12 +33,6 @@ namespace Xtensive.Storage
 
     protected internal RecordSet RecordSet { get; private set; }
 
-    /// <inheritdoc/>
-    EntitySetState IHasTransactionalState<EntitySetState>.State
-    {
-      get { return State;}
-    }
-
     protected EntitySetState State { get; private set; }
 
     internal abstract bool Add(Entity item);
@@ -50,7 +43,7 @@ namespace Xtensive.Storage
     {
       Index = GetIndex();
       RecordSet = GetRecordSet();
-      State = new EntitySetState(() => (int) RecordSet.Count());
+      State = new EntitySetState(() => (int) RecordSet.Count(), Session.Transaction);
     }
 
     protected abstract IndexInfo GetIndex();

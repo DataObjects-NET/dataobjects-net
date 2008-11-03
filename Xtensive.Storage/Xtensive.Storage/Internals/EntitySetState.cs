@@ -10,7 +10,6 @@ using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Core.Caching;
 using Xtensive.Integrity.Transactions;
-using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Internals
 {
@@ -21,12 +20,14 @@ namespace Xtensive.Storage.Internals
   {
     private const int CacheSize = 10240;
     private readonly ICache<Key, CachedKey> cache;
-    private Transaction transaction;
-    private int count;
+    private long count;
     private int version;
-    private readonly Func<int> getCount;
+    private readonly Func<long> getCount;
 
-    public int Count
+    /// <inheritdoc/>
+    public Transaction Transaction { get; private set; }
+
+    public long Count
     {
       get { return count; }
     }
@@ -78,24 +79,16 @@ namespace Xtensive.Storage.Internals
       return GetEnumerator();
     }
 
-    public Transaction Transaction
+    public void EnsureConsistency(Transaction transaction)
     {
-      get { return transaction; }
+      if (!Transaction.State.IsActive())
+        Reset(transaction);
     }
 
-    public void EnsureConsistency(Transaction current)
-    {
-      if (current==null || current.State!=TransactionState.Active)
-        throw new InvalidOperationException(Strings.ExEntitySetInvalidBecauseTransactionIsNotActive);
-
-      if (transaction!=current)
-        Reset(current);
-    }
-
-    public void Reset(Transaction current)
+    public void Reset(Transaction transaction)
     {
       Clear();
-      transaction = current;
+      this.Transaction = transaction;
       count = getCount();
       version++;
     }
@@ -115,10 +108,13 @@ namespace Xtensive.Storage.Internals
 
     // Constructor
 
-    public EntitySetState(Func<int> getCount)
+    public EntitySetState(Func<long> getCount, Transaction transaction)
     {
+      ArgumentValidator.EnsureArgumentNotNull(transaction, "transaction");
+
       cache = new LruCache<Key, CachedKey>(CacheSize, cachedKey => cachedKey.Key);
       this.getCount = getCount;
+      Transaction = transaction;
     }
   }
 }

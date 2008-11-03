@@ -8,8 +8,8 @@ namespace Xtensive.Storage
 {
   public interface ITransactionalState : ITransactionBound
   {
-    void EnsureConsistency(Transaction current);
+    void EnsureConsistency(Transaction transaction);
 
-    void Reset(Transaction current);
+    void Reset(Transaction transaction);
   }
 }

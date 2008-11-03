@@ -111,8 +111,7 @@ namespace Xtensive.Storage
       if (Session.IsDebugEventLoggingEnabled)
         LogTemplate<Log>.Debug("Session '{0}'. Removing: Key = '{1}'", Session, target.Key);
 
-      target.State.EnsureIsActual();
-      target.State.EnsureNotRemoved();
+      target.State.EnsureNotRemoved(Session.Transaction);
 
       Session.Persist();
       ReferenceManager.ClearReferencesTo(target);
@@ -254,8 +253,7 @@ namespace Xtensive.Storage
       else {
         if (Session.IsDebugEventLoggingEnabled)
           LogTemplate<Log>.Debug("Session '{0}'. Getting value: Key = '{1}', Field = '{2}'", Session, entity.Key, field);
-        entity.State.EnsureIsActual();
-        entity.State.EnsureNotRemoved();
+        entity.State.EnsureNotRemoved(Session.Transaction);
         target.EnsureIsFetched(field);
       }
     }
@@ -286,8 +284,7 @@ namespace Xtensive.Storage
           LogTemplate<Log>.Debug("Session '{0}'. Setting value: Key = '{1}', Field = '{2}'", Session, entity.Key, field);
         if (field.IsPrimaryKey)
           throw new NotSupportedException(string.Format(Strings.ExUnableToSetKeyFieldXExplicitly, field.Name));
-        entity.State.EnsureIsActual();
-        entity.State.EnsureNotRemoved();
+        entity.State.EnsureNotRemoved(Session.Transaction);
       }
     }
 
