@@ -49,7 +49,7 @@ namespace Xtensive.Core.Caching
     private readonly bool trackResurrection;
     private readonly int efficiencyFactor;
     private readonly Converter<TItem, TKey> keyExtractor;
-    private Dictionary<TKey, GCHandle> items = new Dictionary<TKey, GCHandle>();
+    private Dictionary<TKey, GCHandle> items;
     private int time;
     private int timeShift = 1;
 
@@ -342,6 +342,7 @@ namespace Xtensive.Core.Caching
       if (efficiencyFactor<0)
         timeShift = -efficiencyFactor-1; // Constant timeShift is defined
       this.keyExtractor = keyExtractor;
+      items = new Dictionary<TKey, GCHandle>(1024);
     }
 
     // Dispose pattern

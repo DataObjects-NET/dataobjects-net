@@ -26,7 +26,7 @@ namespace Xtensive.Core.Caching
     IHasSize
   {
     private readonly long maxSize;
-    private readonly TopDeque<TKey, KeyValuePair<TKey, TItem>> deque = new TopDeque<TKey, KeyValuePair<TKey, TItem>>();
+    private readonly TopDeque<TKey, KeyValuePair<TKey, TItem>> deque;
     private readonly Converter<TItem, TKey> keyExtractor;
     private readonly Func<TItem, long> sizeExtractor;
     private readonly ICache<TKey, TItem> chainedCache;
@@ -279,6 +279,7 @@ namespace Xtensive.Core.Caching
       this.keyExtractor = keyExtractor;
       this.sizeExtractor = sizeExtractor;
       this.chainedCache = chainedCache;
+      deque = new TopDeque<TKey, KeyValuePair<TKey, TItem>>(1 + (int) maxSize);
     }
   }
 }

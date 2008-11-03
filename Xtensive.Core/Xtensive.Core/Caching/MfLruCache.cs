@@ -43,7 +43,7 @@ namespace Xtensive.Core.Caching
     private readonly int efficiencyFactor;
     private readonly Converter<TItem, TKey> keyExtractor;
     private readonly ICache<TKey, TItem> chainedCache;
-    private Dictionary<TKey, CachedItem> items = new Dictionary<TKey, CachedItem>();
+    private Dictionary<TKey, CachedItem> items;
     private int time;
     private int timeShift = 1;
 
@@ -455,6 +455,7 @@ namespace Xtensive.Core.Caching
         timeShift = -efficiencyFactor-1; // Constant timeShift is defined
       this.keyExtractor = keyExtractor;
       this.chainedCache = chainedCache;
+      items = new Dictionary<TKey, CachedItem>(1 + capacity);
     }
   }
 }

@@ -306,11 +306,32 @@ namespace Xtensive.Core.Collections
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
+    /// <param name="capacity">The initial capacity.</param>
+    public TopDeque(int capacity)
+    {
+      list = new LinkedList<Pair<K, V>>();
+      map = new Dictionary<K, LinkedListNode<Pair<K, V>>>(capacity);
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
     /// <param name="keyComparer">The key comparer.</param>
     public TopDeque(IEqualityComparer<K> keyComparer)
     {
       list = new LinkedList<Pair<K, V>>();
       map = new Dictionary<K, LinkedListNode<Pair<K, V>>>(keyComparer);
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="keyComparer">The key comparer.</param>
+    /// <param name="capacity">The initial capacity.</param>
+    public TopDeque(IEqualityComparer<K> keyComparer, int capacity)
+    {
+      list = new LinkedList<Pair<K, V>>();
+      map = new Dictionary<K, LinkedListNode<Pair<K, V>>>(capacity, keyComparer);
     }
   }
 }

@@ -51,8 +51,7 @@ namespace Xtensive.Core.Caching
     private readonly bool trackItemResurrection;
     private readonly int efficiencyFactor;
     private readonly Converter<TItem, TKey> keyExtractor;
-    private Dictionary<object, WeakEntry> items = 
-      new Dictionary<object, WeakEntry>(new WeakEntryEqualityComparer());
+    private Dictionary<object, WeakEntry> items;
     private int time;
     private int timeShift = 1;
 
@@ -491,6 +490,7 @@ namespace Xtensive.Core.Caching
       if (efficiencyFactor<0)
         timeShift = -efficiencyFactor-1; // Constant timeShift is defined
       this.keyExtractor = keyExtractor;
+      items = new Dictionary<object, WeakEntry>(1024, new WeakEntryEqualityComparer());
     }
 
     // Dispose pattern
