@@ -12,14 +12,14 @@ namespace Xtensive.Indexing.Tests
   /// <summary>
   /// Log for this namespace.
   /// </summary>
-  public sealed class Log: LogTemplate<Log>
+  public sealed class Log : LogTemplate<Log>
   {
     // Copy-paste this code!
     public static readonly string Name;
-    
+
     static Log()
     {
-      string className = MethodInfo.GetCurrentMethod().DeclaringType.FullName;
+      string className = MethodBase.GetCurrentMethod().DeclaringType.FullName;
       Name = className.Substring(0, className.LastIndexOf('.'));
     }
   }
