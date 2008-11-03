@@ -4,7 +4,6 @@
 // Created by: Alex Yakunin
 // Created:    2008.09.08
 
-using System;
 using NUnit.Framework;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Parameters;
@@ -13,7 +12,6 @@ using Xtensive.Core.Tuples;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Tests.Storage.Performance.CrudModel;
-using System.Linq;
 
 namespace Xtensive.Storage.Tests.Storage.Performance
 {
@@ -28,8 +26,8 @@ namespace Xtensive.Storage.Tests.Storage.Performance
 
     protected override DomainConfiguration BuildConfiguration()
     {
-      DomainConfiguration config = DomainConfigurationFactory.Create("mssql2005");
-//      DomainConfiguration config = DomainConfigurationFactory.Create("memory");
+//      DomainConfiguration config = DomainConfigurationFactory.Create("mssql2005");
+      DomainConfiguration config = DomainConfigurationFactory.Create("memory");
       config.Types.Register(typeof(Simplest).Assembly, typeof(Simplest).Namespace);
       return config;
     }
