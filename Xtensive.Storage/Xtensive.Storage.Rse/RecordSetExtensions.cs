@@ -135,13 +135,6 @@ namespace Xtensive.Storage.Rse
       return new AggregateProvider(recordSet.Provider, groupIndexes, descriptors).Result;
     }
 
-    public static Func<long> GetCountDelegate(this RecordSet recordSet)
-    {
-      var resultSet = recordSet.Aggregate(null, 
-        new AggregateColumnDescriptor("$Count", 0, AggregateType.Count));
-      return () => resultSet.First().GetValue<long>(0);
-    }
-
     public static long Count(this RecordSet recordSet)
     {
       var resultSet = recordSet.Aggregate(null, 
