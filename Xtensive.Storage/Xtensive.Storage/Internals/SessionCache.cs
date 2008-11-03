@@ -28,15 +28,9 @@ namespace Xtensive.Storage.Internals
     [Infrastructure]
     public EntityState Add(Key key)
     {
-      return Add(key, (Entity) null);
-    }
-
-    [Infrastructure]
-    public EntityState Add(Key key, Entity entity)
-    {
       Tuple origin = prototypes[key.Type].Clone();
       key.CopyTo(origin);
-      var result = new EntityState(key, new DifferentialTuple(origin), Session.Transaction, entity);
+      var result = new EntityState(key, new DifferentialTuple(origin), Session.Transaction);
       cache.Add(result);
 
       if (Session.IsDebugEventLoggingEnabled)

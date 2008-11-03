@@ -32,7 +32,7 @@ namespace Xtensive.Storage
     }
     protected IndexInfo Index { get; private set; }
 
-    protected RecordSet RecordSet { get; private set; }
+    protected internal RecordSet RecordSet { get; private set; }
 
     /// <inheritdoc/>
     EntitySetState IHasTransactionalState<EntitySetState>.State

@@ -137,23 +137,23 @@ namespace Xtensive.Storage.Building.Builders
 //        MethodInfo cmi = mi.MakeGenericMethod(new[] {typeof(Entity), typeof (Entity)});
 //        return (Func<Entity, Entity>) cmi.Invoke(null, new[] {association.ReferencingField.UnderlyingProperty.Name});
 //      }
-      return entity => entity.GetProperty<Entity>(association.ReferencingField.Name);
+      return entity => entity.Accessor.GetField<Entity>(entity, association.ReferencingField);
     }
 
     private static Action<Entity, Entity> BuildBreakAssociationAction(AssociationInfo association, OperationType type)
     {
       if (type == OperationType.Set)
-        return (master, slave) => master.SetProperty<Entity>(association.ReferencingField.Name, null);
+        return (master, slave) => master.Accessor.SetField<Entity>(master, association.ReferencingField, null);
       else
-        return (master, slave) => master.GetProperty<EntitySet>(association.ReferencingField.Name).Remove(slave);
+        return (master, slave) => master.Accessor.GetField<EntitySet>(master, association.ReferencingField).Remove(slave);
     }
 
     private static Action<Entity, Entity> BuildCreateAssociationAction(AssociationInfo association, OperationType type)
     {
       if (type == OperationType.Set)
-        return (master, slave) => master.SetProperty<Entity>(association.ReferencingField.Name, slave);
+        return (master, slave) => master.Accessor.SetField(master, association.ReferencingField, slave);
       else
-        return (master, slave) => master.GetProperty<EntitySet>(association.ReferencingField.Name).Add(slave);
+        return (master, slave) => master.Accessor.GetField<EntitySet>(master, association.ReferencingField).Add(slave);
     }
   }
 }

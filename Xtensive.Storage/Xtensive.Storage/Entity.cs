@@ -25,21 +25,15 @@ namespace Xtensive.Storage
   public abstract class Entity : Persistent,
     IEntity
   {
-    private EntityState entityState;
-
     #region Internal properties
 
     [Infrastructure]
-    internal EntityState EntityState
+    internal EntityState State
     {
       [DebuggerStepThrough]
-      get { return entityState; }
-      set
-      {
-        entityState = value;
-        if (value.Entity == null)
-          value.Entity = this;
-      }
+      get;
+      [DebuggerStepThrough]
+      set;
     }
 
     /// <exception cref="Exception">Property is already initialized.</exception>
@@ -59,7 +53,7 @@ namespace Xtensive.Storage
     public Key Key
     {
       [DebuggerStepThrough]
-      get { return EntityState.Key; }
+      get { return State.Key; }
     }
 
     /// <summary>
@@ -70,8 +64,8 @@ namespace Xtensive.Storage
     {
       get
       {
-        EntityState.EnsureIsActual();
-        return EntityState.IsRemoved;
+        State.EnsureIsActual();
+        return State.IsRemoved;
       }
     }
 
@@ -79,14 +73,14 @@ namespace Xtensive.Storage
     public override sealed TypeInfo Type
     {
       [DebuggerStepThrough]
-      get { return EntityState.Type; }
+      get { return State.Type; }
     }
 
     /// <inheritdoc/>
     protected internal override sealed Tuple Data
     {
       [DebuggerStepThrough]
-      get { return EntityState; }
+      get { return State; }
     }
 
     /// <summary>
@@ -96,7 +90,7 @@ namespace Xtensive.Storage
     public PersistenceState PersistenceState
     {
       [DebuggerStepThrough]
-      get { return EntityState.PersistenceState; }
+      get { return State.PersistenceState; }
     }
 
     #endregion
@@ -164,7 +158,7 @@ namespace Xtensive.Storage
 
     internal override sealed void EnsureIsFetched(FieldInfo field)
     {
-      if (!EntityState.IsFetched(field.MappingInfo.Offset))
+      if (!State.IsFetched(field.MappingInfo.Offset))
         Fetcher.Fetch(Key, field);
     }
 
@@ -187,19 +181,17 @@ namespace Xtensive.Storage
     /// <remarks>Use this kind of constructor when you need to explicitly set key for this instance.</remarks>
     protected Entity(Tuple tuple)
     {
+      ArgumentValidator.EnsureArgumentNotNull(tuple, "tuple");
       Accessor.Initialize(this, tuple);
     }
 
     /// <summary>
     /// <see cref="ClassDocTemplate()" copy="true"/>
     /// </summary>
-    /// <param name="state">The initial data of this instance fetched from storage.</param>
+    /// <param name="state">The initial state of this instance fetched from storage.</param>
     protected Entity(EntityState state)
     {
-      entityState = state;
-
-      if (Session.IsDebugEventLoggingEnabled)
-        LogTemplate<Log>.Debug("Session '{0}'. Initializing entity: Key = '{1}'", Session, Key);
+      State = state;
     }
   }
 }

@@ -9,19 +9,19 @@ using Xtensive.Core;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Tuples;
-using Xtensive.Integrity.Validation;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.PairIntegrity;
 using Xtensive.Storage.ReferentialIntegrity;
 using Xtensive.Storage.Resources;
 using Xtensive.Storage.Rse;
+using Activator=Xtensive.Storage.Internals.Activator;
 
 namespace Xtensive.Storage
 {
   public sealed class LowLevelAccessor : SessionBound
   {
-    #region Public methods
+    #region Entity/Structure-related methods
 
     [Infrastructure]
     public Persistent CreateInstance(Type type)
@@ -30,11 +30,10 @@ namespace Xtensive.Storage
       
       TypeInfo typeInfo = Session.Domain.Model.Types[type];
       if (typeInfo.IsEntity) {
-        KeyGenerator keyGenerator = Session.Domain.KeyGenerators[typeInfo.Hierarchy];
-        Key key = new Key(typeInfo.Hierarchy, keyGenerator.Next());
-        EntityState state = Session.Cache.Add(key);
-        Initialize(state.Entity, state);
-        return state.Entity;
+        Key key = Key.Create(type);
+        Entity result = null;
+        OnInitializing(key, ref result);
+        return result;
       }
       throw new NotImplementedException();
     }
@@ -47,10 +46,10 @@ namespace Xtensive.Storage
 
       TypeInfo typeInfo = Session.Domain.Model.Types[type];
       if (typeInfo.IsEntity) {
-        Key key = new Key(typeInfo.Hierarchy, tuple);
-        EntityState state = Session.Cache.Add(key);
-        Initialize(state.Entity, state);
-        return state.Entity;
+        Key key = Key.Create(type, tuple);
+        Entity result = null;
+        OnInitializing(key, ref result);
+        return result;
       }
       throw new NotImplementedException();
     }
@@ -112,22 +111,35 @@ namespace Xtensive.Storage
       if (Session.IsDebugEventLoggingEnabled)
         LogTemplate<Log>.Debug("Session '{0}'. Removing: Key = '{1}'", Session, target.Key);
 
-      target.EntityState.EnsureIsActual();
-      target.EntityState.EnsureNotRemoved();
+      target.State.EnsureIsActual();
+      target.State.EnsureNotRemoved();
 
       Session.Persist();
       ReferenceManager.ClearReferencesTo(target);
-      target.EntityState.PersistenceState = PersistenceState.Removed;
-      Session.State.Register(target.EntityState);
-      Session.Cache.Remove(target.EntityState);
+      target.State.PersistenceState = PersistenceState.Removed;
+      Session.State.Register(target.State);
+      Session.Cache.Remove(target.State);
     }
+
+    #endregion
+
+    #region EntitySet-related methods
 
     [Infrastructure]
     public RecordSet GetRecordSet(EntitySet target)
     {
       ArgumentValidator.EnsureArgumentNotNull(target, "target");
+      return target.RecordSet;
+    }
 
-      throw new NotImplementedException();
+    [Infrastructure]
+    public RecordSet GetRecordSet(Persistent target, FieldInfo field)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(target, "target");
+      ArgumentValidator.EnsureArgumentNotNull(field, "field");
+      EnsureFieldIsEntitySet(field);
+
+      return GetRecordSet(GetField<EntitySet>(target, field));
     }
 
     [Infrastructure]
@@ -140,12 +152,34 @@ namespace Xtensive.Storage
     }
 
     [Infrastructure]
+    public bool Add(Entity target, FieldInfo field, Entity item)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(target, "target");
+      ArgumentValidator.EnsureArgumentNotNull(field, "field");
+      ArgumentValidator.EnsureArgumentNotNull(item, "item");
+      EnsureFieldIsEntitySet(field);
+
+      return Add(GetField<EntitySet>(target, field), item);
+    }
+
+    [Infrastructure]
     public bool Remove(EntitySet target, Entity item)
     {
       ArgumentValidator.EnsureArgumentNotNull(target, "target");
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
 
       throw new NotImplementedException();
+    }
+
+    [Infrastructure]
+    public bool Remove(Entity target, FieldInfo field, Entity item)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(target, "target");
+      ArgumentValidator.EnsureArgumentNotNull(field, "field");
+      ArgumentValidator.EnsureArgumentNotNull(item, "item");
+      EnsureFieldIsEntitySet(field);
+
+      return Remove(GetField<EntitySet>(target, field), item);
     }
 
     [Infrastructure]
@@ -156,6 +190,16 @@ namespace Xtensive.Storage
       throw new NotImplementedException();
     }
 
+    [Infrastructure]
+    public void Clear(Entity target, FieldInfo field)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(target, "target");
+      ArgumentValidator.EnsureArgumentNotNull(field, "field");
+      EnsureFieldIsEntitySet(field);
+
+      Clear(GetField<EntitySet>(target, field));
+    }
+
     #endregion
 
     #region Entity initialization methods
@@ -163,40 +207,39 @@ namespace Xtensive.Storage
     [Infrastructure]
     internal void Initialize(Entity target)
     {
-      TypeInfo type = Session.Domain.Model.Types[target.GetType()];
-      KeyGenerator keyGenerator = Session.Domain.KeyGenerators[type.Hierarchy];
-      Initialize(target, type, keyGenerator.Next());
+      Key key = Key.Create(target.Session.Domain.Model.Types[target.GetType()]);
+      OnInitializing(key, ref target);
+      target.Initialize();
     }
 
     [Infrastructure]
     internal void Initialize(Entity target, Tuple tuple)
     {
-      TypeInfo type = Session.Domain.Model.Types[target.GetType()];
-      Initialize(target, type, tuple);
-    }
-
-    private void Initialize(Entity target, TypeInfo type, Tuple tuple)
-    {
-      Key key = new Key(type, tuple);
-
-      if (Session.IsDebugEventLoggingEnabled)
-        LogTemplate<Log>.Debug("Session '{0}'. Creating entity: Key = '{1}'", Session, key);
-
-      var state = Session.Cache.Add(key, target);
-      Initialize(target, state);
-    }
-
-    private void Initialize(Entity target, EntityState state)
-    {
-      target.EntityState = state;
-      state.PersistenceState = PersistenceState.New;
-      Session.State.Register(state);
+      Key key = Key.Create(target.Session.Domain.Model.Types[target.GetType()], tuple);
+      OnInitializing(key, ref target);
       target.Initialize();
     }
 
     #endregion
 
     #region Before/After methods
+
+    [Infrastructure]
+    private void OnInitializing(Key key, ref Entity target)
+    {
+      if (Session.IsDebugEventLoggingEnabled)
+        LogTemplate<Log>.Debug("Session '{0}'. Creating entity: Key = '{1}'", Session, key);
+
+      var state = Session.Cache.Add(key);
+      state.PersistenceState = PersistenceState.New;
+      Session.State.Register(state);
+
+      if (target == null)
+        target = Activator.CreateEntity(key.Type.UnderlyingType, state);
+
+      target.State = state;
+      state.Entity = target;
+    }
 
     [Infrastructure]
     private void OnGettingField(Persistent target, FieldInfo field)
@@ -211,8 +254,8 @@ namespace Xtensive.Storage
       else {
         if (Session.IsDebugEventLoggingEnabled)
           LogTemplate<Log>.Debug("Session '{0}'. Getting value: Key = '{1}', Field = '{2}'", Session, entity.Key, field);
-        entity.EntityState.EnsureIsActual();
-        entity.EntityState.EnsureNotRemoved();
+        entity.State.EnsureIsActual();
+        entity.State.EnsureNotRemoved();
         target.EnsureIsFetched(field);
       }
     }
@@ -243,8 +286,8 @@ namespace Xtensive.Storage
           LogTemplate<Log>.Debug("Session '{0}'. Setting value: Key = '{1}', Field = '{2}'", Session, entity.Key, field);
         if (field.IsPrimaryKey)
           throw new NotSupportedException(string.Format(Strings.ExUnableToSetKeyFieldXExplicitly, field.Name));
-        entity.EntityState.EnsureIsActual();
-        entity.EntityState.EnsureNotRemoved();
+        entity.State.EnsureIsActual();
+        entity.State.EnsureNotRemoved();
       }
     }
 
@@ -260,13 +303,10 @@ namespace Xtensive.Storage
       }
       else {
         if (entity.PersistenceState!=PersistenceState.New && entity.PersistenceState!=PersistenceState.Modified) {
-          entity.EntityState.PersistenceState = PersistenceState.Modified;
-          Session.State.Register(entity.EntityState);
+          entity.State.PersistenceState = PersistenceState.Modified;
+          Session.State.Register(entity.State);
         }
       }
-
-      if (Session.Domain.Configuration.AutoValidation)
-        target.Validate();
     }
 
     [Infrastructure]
@@ -281,6 +321,15 @@ namespace Xtensive.Storage
 
     #endregion
 
+    #region Private members
+
+    private static void EnsureFieldIsEntitySet(FieldInfo field)
+    {
+      if (!field.IsEntitySet)
+        throw new InvalidOperationException(string.Format("Field '{0}' is not an EntitySet field.", field.Name));
+    }
+
+    #endregion
 
     // Constructor
 

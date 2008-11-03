@@ -38,28 +38,30 @@ namespace Xtensive.Storage
     /// <exception cref="InvalidOperationException">Unable to resolve type for Key.</exception>
     public TypeInfo Type
     {
-      [DebuggerStepThrough]
-      get {
-        if (type == null) {
-          var session = Session.Current;
-          if (session!=null) {
-            var domain = session.Domain;
-            var keyCache = domain.KeyCache;
-            Key cachedKey;
-            lock (keyCache)
-              keyCache.TryGetItem(this, true, out cachedKey);
-            if (cachedKey == null) {
-              if (session.IsDebugEventLoggingEnabled)
-                Log.Debug("Session '{0}'. Resolving key '{1}'. Exact type is unknown. Fetch is required.", session, this);
+      get
+      {
+        if (type!=null)
+          return type;
 
-              var field = Hierarchy.Root.Fields[domain.NameBuilder.TypeIdFieldName];
-              cachedKey = Fetcher.Fetch(this, field);
-              if (cachedKey == null)
-                throw new InvalidOperationException(string.Format("Unable to resolve type for Key '{0}'.", this));
-            }
-            type = cachedKey.type;
-          }
+        var session = Session.Current;
+        if (session==null)
+          return null;
+
+        var domain = session.Domain;
+        var keyCache = domain.KeyCache;
+        Key cachedKey;
+        lock (keyCache)
+          keyCache.TryGetItem(this, true, out cachedKey);
+        if (cachedKey==null) {
+          if (session.IsDebugEventLoggingEnabled)
+            Log.Debug("Session '{0}'. Resolving key '{1}'. Exact type is unknown. Fetch is required.", session, this);
+
+          var field = Hierarchy.Root.Fields[domain.NameBuilder.TypeIdFieldName];
+          cachedKey = Fetcher.Fetch(this, field);
+          if (cachedKey==null)
+            throw new InvalidOperationException(string.Format("Unable to resolve type for Key '{0}'.", this));
         }
+        type = cachedKey.type;
         return type;
       }
     }
@@ -133,7 +135,6 @@ namespace Xtensive.Storage
       if (state.IsRemoved)
         return null;
 
-      state.EnsureHasEntity();
       return state.Entity;
     }
 
@@ -248,6 +249,27 @@ namespace Xtensive.Storage
       where TEntity: Entity
     {
       return new Key(typeof(TEntity), Create(keyValue));
+    }
+
+    internal static Key Create(Type type)
+    {
+      return Create(Domain.Current.Model.Types[type]);
+    }
+
+    internal static Key Create(TypeInfo type)
+    {
+      KeyGenerator keyGenerator = Domain.Current.KeyGenerators[type.Hierarchy];
+      return new Key(type, keyGenerator.Next());
+    }
+
+    internal static Key Create(Type type, Tuple tuple)
+    {
+      return Create(Domain.Current.Model.Types[type], tuple);
+    }
+
+    internal static Key Create(TypeInfo type, Tuple tuple)
+    {
+      return new Key(type, tuple);
     }
 
     #endregion

@@ -51,6 +51,7 @@ namespace Xtensive.Storage
     internal void Initialize()
     {
       OnInitialized();
+      this.Validate();
     }
 
     #region this[...], GetProperty, SetProperty methods
@@ -116,6 +117,8 @@ namespace Xtensive.Storage
       T oldValue = Accessor.GetField<T>(this, field);
       Accessor.SetField(this, field, value);
       OnSetField(field, oldValue, value);
+      if (Session.Domain.Configuration.AutoValidation)
+        this.Validate();
       NotifyPropertyChanged(field);
     }
 
@@ -207,7 +210,7 @@ namespace Xtensive.Storage
         return;
 
       this.CheckConstraints();
-      this.OnValidate();
+      OnValidate();
     }
 
     /// <inheritdoc/>

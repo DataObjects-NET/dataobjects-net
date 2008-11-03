@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Core;
+using Xtensive.Core.Aspects;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Disposable;
@@ -89,6 +90,7 @@ namespace Xtensive.Storage
 
     internal SessionHandler Handler { get; private set; }
 
+    [Infrastructure]
     internal SessionCache Cache { get; private set; }
 
     #endregion
