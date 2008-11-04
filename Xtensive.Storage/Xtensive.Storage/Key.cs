@@ -364,21 +364,19 @@ namespace Xtensive.Storage
       if (value.Descriptor!=hierarchy.KeyTupleDescriptor)
         throw new ArgumentException(Strings.ExWrongKeyStructure);
       var key = new Key(type.Hierarchy, exactType ? type : null, value);
-      if (!canCache || domain==null)
+      if (!canCache || domain==null) {
+        key.value = value.ToFastReadOnly();
         return key;
+      }
       var keyCache = domain.KeyCache;
       lock (keyCache) {
         Key foundKey;
         if (keyCache.TryGetItem(key, true, out foundKey))
           key = foundKey;
-        else if (exactType) {
-          // The type is known exactly, so we must cache it
-          key.value = value.ToFastReadOnly();
-          keyCache.Add(key);
-        }
         else {
-          // The type isn't known yet, so let's just prevent its value from being modified
           key.value = value.ToFastReadOnly();
+          if (exactType)
+            keyCache.Add(key);
         }
       }
       return key;
