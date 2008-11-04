@@ -28,7 +28,7 @@ namespace Xtensive.Storage.Providers.PgSql
       if (sequence == null) {
         sequence = schema.CreateSequence(hierarchy.MappingName);
         sequence.SequenceDescriptor = new SequenceDescriptor(sequence, hierarchy.KeyGeneratorCacheSize, hierarchy.KeyGeneratorCacheSize);
-        sequence.DataType = dh.ValueTypeMapper.BuildSqlValueType(hierarchy.Columns[0]);
+        sequence.DataType = dh.ValueTypeMapper.BuildSqlValueType(hierarchy.KeyColumns[0]);
         sqlCreate = SqlFactory.Batch();
         sqlCreate.Add(SqlFactory.Create(sequence));
       }

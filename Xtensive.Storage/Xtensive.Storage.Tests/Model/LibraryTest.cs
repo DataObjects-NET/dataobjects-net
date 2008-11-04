@@ -665,8 +665,8 @@ namespace Xtensive.Storage.Tests.Model
           Book book2 = new Book("0976470705");          
           book2.Remove();
 
-          Assert.IsNull(Key.Create<Book, string>("0976470705").Resolve());
-          Assert.AreEqual(null, Key.Create<Book, string>("0976470705").Resolve());
+          Assert.IsNull(Key.Create<Book>(Tuple.Create("0976470705")).Resolve());
+          Assert.AreEqual(null, Key.Create<Book>(Tuple.Create("0976470705")).Resolve());
         }
       }
     }

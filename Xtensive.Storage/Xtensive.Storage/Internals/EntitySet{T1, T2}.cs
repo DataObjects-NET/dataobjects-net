@@ -54,8 +54,8 @@ namespace Xtensive.Storage.Internals
       if (association!=null && association.IsPaired)
         SyncManager.Enlist(OperationType.Remove, OwnerEntity, item, Field.Association);
 
-      Key entityKey = new Key(typeof (TEntitySetItem), item.Key.CombineWith(OwnerEntity.Key));
-      var referenceEntity = (TEntitySetItem) entityKey.Resolve(); // Resolve entity
+      var combinedKey = Key.Create<TEntitySetItem>(item.Key.CombineWith(OwnerEntity.Key));
+      var referenceEntity = (TEntitySetItem) combinedKey.Resolve(); // Resolve entity
       referenceEntity.Remove();
       OnCollectionChanged(NotifyCollectionChangedAction.Remove, item);
       return true;

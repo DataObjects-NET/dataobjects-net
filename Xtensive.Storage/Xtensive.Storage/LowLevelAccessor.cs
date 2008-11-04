@@ -214,7 +214,7 @@ namespace Xtensive.Storage
     [Infrastructure]
     internal void Initialize(Entity target, Tuple tuple)
     {
-      Key key = Key.Create(target.Session.Domain.Model.Types[target.GetType()], tuple);
+      Key key = Key.Create(target.Session.Domain.Model.Types[target.GetType()], tuple, true);
       OnInitializing(key, ref target);
       target.Initialize();
     }

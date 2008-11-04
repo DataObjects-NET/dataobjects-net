@@ -529,7 +529,7 @@ namespace Xtensive.Storage.Building.Builders
         result.ValueColumns.AddRange(GetValueColumns(columns));
       }
       else {
-        foreach (var fieldName in typeInfo.Hierarchy.Fields.Select(pair => pair.Key.Name)) {
+        foreach (var fieldName in typeInfo.Hierarchy.KeyFields.Select(pair => pair.Key.Name)) {
           FieldInfo fieldInfo = typeInfo.Fields[fieldName];
           IList<ColumnInfo> columns = fieldInfo.ExtractColumns();
 
@@ -739,7 +739,7 @@ namespace Xtensive.Storage.Building.Builders
         columns.AddRange(index.ValueColumns.Select((_,i) => keyColumns.Count + i));
       }
       else {
-        keyColumns = new List<int>(index.ValueColumns.Take(reflectedType.Hierarchy.Columns.Count).Select((_, i) => index.KeyColumns.Count + i));
+        keyColumns = new List<int>(index.ValueColumns.Take(reflectedType.Hierarchy.KeyColumns.Count).Select((_, i) => index.KeyColumns.Count + i));
         columns = new List<int>(index.KeyColumns.Select((_, i) => i));
         columns.AddRange(index.ValueColumns.Select((_, i) => index.KeyColumns.Count + i));
       }

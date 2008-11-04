@@ -25,13 +25,13 @@ namespace Xtensive.Storage.Providers
     /// <exception cref="ArgumentOutOfRangeException">when <see cref="Type"/> of the key field is not supported.</exception>
     public KeyGenerator CreateGenerator(HierarchyInfo hierarchy)
     {
-      if (hierarchy.Fields.Count > 2)
+      if (hierarchy.KeyFields.Count > 2)
         throw new InvalidOperationException(Resources.Strings.ExDefaultGeneratorCanServeHierarchyWithExactlyOneKeyField);
-      if (hierarchy.Fields.Count == 2 && !hierarchy.Fields[1].Key.IsSystem)
+      if (hierarchy.KeyFields.Count == 2 && !hierarchy.KeyFields[1].Key.IsSystem)
         throw new InvalidOperationException(Resources.Strings.ExDefaultGeneratorCanServeHierarchyWithExactlyOneKeyField);
 
       KeyGenerator result = null;
-      Type fieldType = hierarchy.Fields[0].Key.ValueType;
+      Type fieldType = hierarchy.KeyFields[0].Key.ValueType;
       TypeCode code = Type.GetTypeCode(fieldType);
       switch (code) {
       case TypeCode.SByte:

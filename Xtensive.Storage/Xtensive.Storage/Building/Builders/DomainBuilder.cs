@@ -5,14 +5,16 @@
 // Created:    2007.08.03
 
 using System;
+using System.Collections;
 using System.Globalization;
+using System.Linq;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Reflection;
+using Xtensive.Core.Tuples;
 using Xtensive.PluginManager;
 using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Resources;
@@ -55,7 +57,7 @@ namespace Xtensive.Storage.Building.Builders
             CreateHandlerFactory();
             CreateNameBuilder();
             BuildModel();
-            BuildPrototypes();
+            BuildEntityTuplePrototypes();
             CreateDomainHandler();
             using (context.Domain.Handler.OpenSession(SessionType.System)) {
               using (var transactionScope = Transaction.Open()) {
@@ -167,12 +169,12 @@ namespace Xtensive.Storage.Building.Builders
         var generatorFactory = handlerAccessor.HandlerFactory.CreateHandler<KeyGeneratorFactory>();
         foreach (HierarchyInfo hierarchy in BuildingContext.Current.Model.Hierarchies) {
           KeyGenerator keyGenerator;
-          if (hierarchy.KeyGenerator==null)
+          if (hierarchy.KeyGeneratorType==null)
             continue;
-          if (hierarchy.KeyGenerator==typeof (KeyGenerator))
+          if (hierarchy.KeyGeneratorType==typeof (KeyGenerator))
             keyGenerator = generatorFactory.CreateGenerator(hierarchy);
           else
-            keyGenerator = (KeyGenerator) Activator.CreateInstance(hierarchy.KeyGenerator, new object[] {hierarchy});
+            keyGenerator = (KeyGenerator) Activator.CreateInstance(hierarchy.KeyGeneratorType, new object[] {hierarchy});
           keyGenerator.Initialize();
           keyGenerators.Register(hierarchy, keyGenerator);
         }
@@ -180,10 +182,27 @@ namespace Xtensive.Storage.Building.Builders
       }
     }
 
-    private static void BuildPrototypes()
+    private static void BuildEntityTuplePrototypes()
     {
-      using (Log.InfoRegion(Strings.LogCreatingX, "persistent objects prototypes"))
-        BuildingContext.Current.Domain.Prototypes.Build();
+      using (Log.InfoRegion(Strings.LogCreatingX, "Entity tuple prototypes")) {
+        var domain = BuildingContext.Current.Domain;
+        var model = domain.Model;
+        var prototypes = domain.EntityTuplePrototypes;
+        foreach (var type in (from t in model.Types where !t.IsInterface select t)) {
+          var nullableMap = new BitArray(type.TupleDescriptor.Count);
+          int i = 0;
+          foreach (var column in type.Columns)
+            nullableMap[i++] = column.IsNullable;
+          Tuple prototype = Tuple.Create(type.TupleDescriptor);
+          prototype.Initialize(nullableMap);
+          if (type.IsEntity) {
+            var typeIdField = type.Fields[domain.NameBuilder.TypeIdFieldName];
+            prototype.SetValue(typeIdField.MappingInfo.Offset, type.TypeId);
+          }
+          Log.Info("Type '{0}': {1}", type, prototype);
+          prototypes[type] = prototype;
+        }
+      }
     }
   }
 }

@@ -55,12 +55,17 @@ namespace Xtensive.Storage.Internals
     // TODO: Refactor
     internal static Key ExtractKey(Persistent obj, FieldInfo field)
     {
-      SegmentTransform transform = obj.Session.Domain.Transforms.GetValue(field, arg => new SegmentTransform(false, obj.Data.Descriptor, new Segment<int>(field.MappingInfo.Offset, field.MappingInfo.Length)));
-      TypeInfo type = obj.Session.Domain.Model.Types[field.ValueType];
+      var session = obj.Session;
+      var domain = session.Domain;
+      var mappingInfo = field.MappingInfo;
+      SegmentTransform transform = domain.GetFieldTransformCache.GetValue(field, 
+        arg => new SegmentTransform(false, obj.Data.Descriptor, 
+          new Segment<int>(mappingInfo.Offset, mappingInfo.Length)));
+      var type = domain.Model.Types[field.ValueType];
       var tuple = transform.Apply(TupleTransformType.TransformedTuple, obj.Data);
       if (tuple.ContainsEmptyValues())
         return null;
-      return new Key(type, tuple);
+      return Key.Create(type, tuple);
     }
 
 

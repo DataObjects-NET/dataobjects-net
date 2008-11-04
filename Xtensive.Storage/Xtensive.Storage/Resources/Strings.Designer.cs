@@ -800,6 +800,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Wrong key structure..
+        /// </summary>
+        internal static string ExWrongKeyStructure {
+            get {
+                return ResourceManager.GetString("ExWrongKeyStructure", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Wrong persistent type candidate: &apos;{0}&apos;..
         /// </summary>
         internal static string ExWrongPersistentTypeCandidate {

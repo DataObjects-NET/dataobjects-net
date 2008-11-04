@@ -106,11 +106,11 @@ namespace Xtensive.Storage
 
     internal ICache<Key, Key> KeyCache { get; private set; }
 
-    internal PrototypeProvider Prototypes { get; private set; }
+    internal Dictionary<TypeInfo, Tuple> EntityTuplePrototypes { get; private set; }
+
+    internal ThreadSafeDictionary<FieldInfo, SegmentTransform> GetFieldTransformCache { get; private set; }
 
     internal Dictionary<AssociationInfo, ActionSet> PairSyncActions { get; private set; }
-
-    internal ThreadSafeDictionary<FieldInfo, SegmentTransform> Transforms { get; private set; }
 
     #endregion
 
@@ -170,9 +170,9 @@ namespace Xtensive.Storage
       RecordSetParser = new RecordSetParser(this);
       KeyGenerators = new Registry<HierarchyInfo, KeyGenerator>();
       KeyCache = new LruCache<Key, Key>(Configuration.KeyCacheSize, k => k);
-      Transforms = ThreadSafeDictionary<FieldInfo, SegmentTransform>.Create(new object());
-      Prototypes = new PrototypeProvider();
-      PairSyncActions = new Dictionary<AssociationInfo, ActionSet>();
+      GetFieldTransformCache = ThreadSafeDictionary<FieldInfo, SegmentTransform>.Create(new object());
+      EntityTuplePrototypes = new Dictionary<TypeInfo, Tuple>(1024);
+      PairSyncActions = new Dictionary<AssociationInfo, ActionSet>(1024);
       TemporaryData = new GlobalTemporaryData();
     }
 

@@ -492,4 +492,7 @@
   <data name="ExNoCurrentSession" xml:space="preserve">
     <value>There is no current Session.</value>
   </data>
+  <data name="ExWrongKeyStructure" xml:space="preserve">
+    <value>Wrong key structure.</value>
+  </data>
 </root>

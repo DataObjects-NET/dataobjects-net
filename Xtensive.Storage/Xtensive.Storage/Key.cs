@@ -19,27 +19,29 @@ namespace Xtensive.Storage
   /// Contains a set of identifying values of an <see cref="Entity"/>.
   /// Every entity is uniquely identified by its <see cref="Key"/>.
   /// </summary>
+  [Serializable]
   public sealed class Key : Tuple,
     IEquatable<Key>
   {
-    private TypeInfo type;
+    private readonly HierarchyInfo hierarchy;
+    private Tuple value;
     private readonly int hashCode;
-    private readonly Tuple tuple;
+    private TypeInfo type;
 
     /// <summary>
     /// Gets the hierarchy this instance belongs to.
     /// </summary>
-    public HierarchyInfo Hierarchy { get; private set; }
+    public HierarchyInfo Hierarchy {
+      get { return hierarchy; }
+    }
 
     /// <summary>
     /// Gets the type of <see cref="Entity"/> this instance identifies.
     /// </summary>
     /// <exception cref="NotSupportedException">Type is already initialized.</exception>
     /// <exception cref="InvalidOperationException">Unable to resolve type for Key.</exception>
-    public TypeInfo Type
-    {
-      get
-      {
+    public TypeInfo Type {
+      get {
         if (type!=null)
           return type;
 
@@ -141,15 +143,15 @@ namespace Xtensive.Storage
     #region Tuple methods
 
     /// <inheritdoc/>
-    public override TupleFieldState GetFieldState(int fieldIndex)
+    public override TupleDescriptor Descriptor
     {
-      return tuple.GetFieldState(fieldIndex);
+      get { return value.Descriptor; }
     }
 
     /// <inheritdoc/>
     public override object GetValueOrDefault(int fieldIndex)
     {
-      return tuple.GetValueOrDefault(fieldIndex);
+      return value.GetValueOrDefault(fieldIndex);
     }
 
     /// <inheritdoc/>
@@ -160,9 +162,9 @@ namespace Xtensive.Storage
     }
 
     /// <inheritdoc/>
-    public override TupleDescriptor Descriptor
+    public override TupleFieldState GetFieldState(int fieldIndex)
     {
-      get { return tuple.Descriptor; }
+      return value.GetFieldState(fieldIndex);
     }
 
     #endregion
@@ -181,7 +183,7 @@ namespace Xtensive.Storage
         return false;
       if (Hierarchy!=other.Hierarchy)
         return false;
-      return tuple.Equals(other.tuple);
+      return value.Equals(other.value);
     }
 
     /// <inheritdoc/>
@@ -221,55 +223,165 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     public override string ToString()
     {
-      return string.Format("{0}, {1}", (Type != null) ? Type.Name : Hierarchy.Name, tuple.ToRegular());
+      return string.Format("{0}, {1}", 
+        IsTypeCached ? Type.Name : Hierarchy.Name, 
+        value.ToRegular());
     }
 
     #region Create methods
 
     /// <summary>
-    /// Builds the <see cref="Key"/> according to specified <paramref name="tuple"/>.
+    /// Creates <see cref="Key"/> instance 
+    /// for the specified <see cref="Entity"/> type <typeparamref name="T"/>
+    /// with newly generated value.
     /// </summary>
     /// <typeparam name="T">Type of <see cref="Entity"/> descendant to get <see cref="Key"/> for.</typeparam>
-    /// <param name="tuple"><see cref="Tuple"/> with key values.</param>
-    /// <returns>Newly created <see cref="Key"/> instance.</returns>
-    public static Key Create<T>(Tuple tuple)
+    /// <returns>A newly created or existing <see cref="Key"/> instance .</returns>
+    public static Key Create<T>()
       where T: Entity
     {
-      return new Key(typeof (T), tuple);
+      return Create(typeof (T));
     }
 
     /// <summary>
-    /// Builds the <see cref="Key"/> according to specified key value.
-    /// </summary
-    /// <typeparam name="TEntity">Type of <see cref="Entity"/> descendant to get <see cref="Key"/> for.</typeparam>
-    /// <typeparam name="TKey">Key value type.</typeparam>
-    /// <param name="keyValue">Key value.</param>
-    /// <returns>Newly created <see cref="Key"/> instance.</returns>
-    public static Key Create<TEntity, TKey>(TKey keyValue)
-      where TEntity: Entity
+    /// Creates <see cref="Key"/> instance 
+    /// for the specified <see cref="Entity"/> <paramref name="type"/>
+    /// with newly generated value.
+    /// </summary>
+    /// <returns>A newly created or existing <see cref="Key"/> instance .</returns>
+    public static Key Create(Type type)
     {
-      return new Key(typeof(TEntity), Create(keyValue));
+      var domain = Domain.Current;
+      var typeInfo = domain.Model.Types[type];
+      var keyGenerator = domain.KeyGenerators[typeInfo.Hierarchy];
+      return Create(domain, typeInfo, keyGenerator.Next(), true, false);
     }
 
-    internal static Key Create(Type type)
+    /// <summary>
+    /// Creates <see cref="Key"/> instance 
+    /// for the specified <see cref="Entity"/> <paramref name="type"/>
+    /// with newly generated value.
+    /// </summary>
+    /// <returns>A newly created or existing <see cref="Key"/> instance .</returns>
+    public static Key Create(TypeInfo type)
     {
-      return Create(Domain.Current.Model.Types[type]);
+      var domain = Domain.Current;
+      var keyGenerator = domain.KeyGenerators[type.Hierarchy];
+      return Create(domain, type, keyGenerator.Next(), true, false);
     }
 
-    internal static Key Create(TypeInfo type)
+    /// <summary>
+    /// Creates <see cref="Key"/> instance
+    /// for the specified <see cref="Entity"/> type <typeparamref name="T"/>
+    /// and with specified <paramref name="value"/>.
+    /// </summary>
+    /// <typeparam name="T">Type of <see cref="Entity"/> descendant to get <see cref="Key"/> for.</typeparam>
+    /// <param name="value">Key value.</param>
+    /// <returns>
+    /// A newly created or existing <see cref="Key"/> instance .
+    /// </returns>
+    public static Key Create<T>(Tuple value)
+      where T: Entity
     {
-      KeyGenerator keyGenerator = Domain.Current.KeyGenerators[type.Hierarchy];
-      return new Key(type, keyGenerator.Next());
+      return Create(typeof (T), value, false);
     }
 
-    internal static Key Create(Type type, Tuple tuple)
+    /// <summary>
+    /// Creates <see cref="Key"/> instance
+    /// for the specified <see cref="Entity"/> type <typeparamref name="T"/>
+    /// and with specified <paramref name="value"/>.
+    /// </summary>
+    /// <typeparam name="T">Type of <see cref="Entity"/> descendant to get <see cref="Key"/> for.</typeparam>
+    /// <param name="value">Key value.</param>
+    /// <param name="exactType">Specified whether type is known exactly or not.</param>
+    /// <returns>
+    /// A newly created or existing <see cref="Key"/> instance .
+    /// </returns>
+    public static Key Create<T>(Tuple value, bool exactType)
+      where T: Entity
     {
-      return Create(Domain.Current.Model.Types[type], tuple);
+      return Create(typeof (T), value, exactType);
     }
 
-    internal static Key Create(TypeInfo type, Tuple tuple)
+    /// <summary>
+    /// Creates <see cref="Key"/> instance 
+    /// for the specified <see cref="Entity"/> <paramref name="type"/>
+    /// and with specified <paramref name="value"/>.
+    /// </summary>
+    /// <param name="value">Key value.</param>
+    /// <returns>A newly created or existing <see cref="Key"/> instance .</returns>
+    public static Key Create(Type type, Tuple value)
     {
-      return new Key(type, tuple);
+      var domain = Domain.Current;
+      return Create(domain, domain.Model.Types[type], value, false, false);
+    }
+
+    /// <summary>
+    /// Creates <see cref="Key"/> instance 
+    /// for the specified <see cref="Entity"/> <paramref name="type"/>
+    /// and with specified <paramref name="value"/>.
+    /// </summary>
+    /// <param name="value">Key value.</param>
+    /// <param name="exactType">Specified whether type is known exactly or not.</param>
+    /// <returns>A newly created or existing <see cref="Key"/> instance .</returns>
+    public static Key Create(Type type, Tuple value, bool exactType)
+    {
+      var domain = Domain.Current;
+      return Create(domain, domain.Model.Types[type], value, exactType, false);
+    }
+
+    /// <summary>
+    /// Creates <see cref="Key"/> instance 
+    /// for the specified <see cref="Entity"/> <paramref name="type"/>
+    /// and with specified <paramref name="value"/>.
+    /// </summary>
+    /// <param name="value">Key value.</param>
+    /// <returns>A newly created or existing <see cref="Key"/> instance .</returns>
+    public static Key Create(TypeInfo type, Tuple value)
+    {
+      return Create(Domain.Current, type, value, false, false);
+    }
+
+    /// <summary>
+    /// Creates <see cref="Key"/> instance 
+    /// for the specified <see cref="Entity"/> <paramref name="type"/>
+    /// and with specified <paramref name="value"/>.
+    /// </summary>
+    /// <param name="value">Key value.</param>
+    /// <param name="exactType">Specified whether type is known exactly or not.</param>
+    /// <returns>A newly created or existing <see cref="Key"/> instance .</returns>
+    public static Key Create(TypeInfo type, Tuple value, bool exactType)
+    {
+      return Create(Domain.Current, type, value, exactType, false);
+    }
+
+    /// <exception cref="ArgumentException">Wrong key structure for the specified <paramref name="type"/>.</exception>
+    internal static Key Create(Domain domain, TypeInfo type, Tuple value, bool exactType, bool canCache)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(type, "type");
+      ArgumentValidator.EnsureArgumentNotNull(value, "value");
+      var hierarchy = type.Hierarchy;
+      if (value.Descriptor!=hierarchy.KeyTupleDescriptor)
+        throw new ArgumentException(Strings.ExWrongKeyStructure);
+      var key = new Key(type.Hierarchy, exactType ? type : null, value);
+      if (!canCache || domain==null)
+        return key;
+      var keyCache = domain.KeyCache;
+      lock (keyCache) {
+        Key foundKey;
+        if (keyCache.TryGetItem(key, true, out foundKey))
+          key = foundKey;
+        else if (exactType) {
+          // The type is known exactly, so we must cache it
+          key.value = value.ToFastReadOnly();
+          keyCache.Add(key);
+        }
+        else {
+          // The type isn't known yet, so let's just prevent its value from being modified
+          key.value = value.ToFastReadOnly();
+        }
+      }
+      return key;
     }
 
     #endregion
@@ -277,33 +389,12 @@ namespace Xtensive.Storage
 
     // Constructors
 
-    ///<summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    ///</summary>
-    ///<param name="hierarchy">Hierarchy value</param>
-    ///<param name="tuple">Tuple value</param>
-    public Key(HierarchyInfo hierarchy, Tuple tuple)
+    private Key(HierarchyInfo hierarchy, TypeInfo type, Tuple value)
     {
-      Hierarchy = hierarchy;
-      this.tuple = Create(hierarchy.KeyTupleDescriptor);
-      tuple.CopyTo(this.tuple, 0, this.tuple.Count);
-      hashCode = this.tuple.GetHashCode() ^ hierarchy.GetHashCode();
-    }
-
-    ///<summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    ///</summary>
-    ///<param name="type">Type value</param>
-    ///<param name="tuple">Tuple value</param>
-    public Key(Type type, Tuple tuple)
-      :this(Domain.Current.Model.Types[type].Hierarchy, tuple)
-    {
-    }
-
-    internal Key(TypeInfo type, Tuple tuple)
-      : this(type.Hierarchy, tuple)
-    {
+      this.hierarchy = hierarchy;
       this.type = type;
+      this.value = value;
+      hashCode = value.GetHashCode() ^ hierarchy.GetHashCode();
     }
   }
 }

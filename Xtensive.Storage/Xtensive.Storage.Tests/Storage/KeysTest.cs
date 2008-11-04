@@ -52,8 +52,8 @@ namespace Xtensive.Storage.Tests.Storage.Keys
     {
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
-          Key k1 = Key.Create<Apple, string>("1");
-          Key k2 = Key.Create<Apple, string>("1");
+          Key k1 = Key.Create<Apple>(Tuple.Create("1"));
+          Key k2 = Key.Create<Apple>(Tuple.Create("1"));
           Assert.AreEqual(k1, k2);
           t.Complete();
         }

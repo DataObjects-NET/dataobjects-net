@@ -88,13 +88,12 @@ namespace Xtensive.Storage.Internals
         typeMapping = columnGroupMapping.GetMapping(typeId);
         lastTypeMapping = typeMapping;
       }
-      Tuple entityTuple = typeMapping.Transform.Apply(TupleTransformType.TransformedTuple, record);
-      Key key = new Key(typeMapping.Type, entityTuple);
-      context.Cache.Add(key, entityTuple);
-      var keyCache = context.KeyCache;
-      lock (keyCache) {
-        key = keyCache.Add(key, false);
-      }
+      
+      var keyTuple = typeMapping.KeyTransform.Apply(TupleTransformType.TransformedTuple, record);
+      var key = Key.Create(context.Domain, typeMapping.Type, keyTuple, true, true);
+
+      var entityTuple = typeMapping.Transform.Apply(TupleTransformType.TransformedTuple, record);
+      context.SessionCache.Add(key, entityTuple);
       return key;
     }
 

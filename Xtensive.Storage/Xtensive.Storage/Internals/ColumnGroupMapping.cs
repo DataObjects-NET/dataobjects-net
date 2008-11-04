@@ -27,16 +27,32 @@ namespace Xtensive.Storage.Internals
       return typeMappings.GetValue(typeId,
         _typeId => {
           var type = Model.Types[typeId];
-          var map = new int[type.Columns.Count];
-          for (int i = 0; i < type.Columns.Count; i++) {
-            ColumnInfo columnInfo = type.Columns[i];
+          // Building typeMap
+          var columnCount = type.Columns.Count;
+          var typeMap = new int[columnCount];
+          for (int i = 0; i < columnCount; i++) {
+            var columnInfo = type.Columns[i];
             MappedColumn column;
             if (columnsMapping.TryGetValue(columnInfo, out column))
-              map[i] = column.Index;
+              typeMap[i] = column.Index;
             else
-              map[i] = MapTransform.NoMapping;
+              typeMap[i] = MapTransform.NoMapping;
           }
-          return new TypeMapping(type, new MapTransform(true, type.TupleDescriptor, map));
+          // Building keyMap
+          var columns = type.Hierarchy.KeyColumns;
+          columnCount = columns.Count;
+          var keyMap = new int[columnCount];
+          for (int i = 0; i < columnCount; i++) {
+            var columnInfo = columns[i];
+            MappedColumn column;
+            if (columnsMapping.TryGetValue(columnInfo, out column))
+              keyMap[i] = column.Index;
+            else
+              keyMap[i] = MapTransform.NoMapping;
+          }
+          return new TypeMapping(type,
+            new MapTransform(true, type.Hierarchy.KeyTupleDescriptor, keyMap), 
+            new MapTransform(true, type.TupleDescriptor, typeMap));
         });
     }
 

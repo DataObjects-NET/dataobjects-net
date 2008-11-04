@@ -86,7 +86,7 @@ namespace Xtensive.Storage.Building.Builders
     {
 //      KeyProviderAttribute ks =
 //        (KeyProviderAttribute)
-//          Attribute.GetCustomAttribute(hierarchy.KeyGenerator, typeof (KeyProviderAttribute), true);
+//          Attribute.GetCustomAttribute(hierarchy.KeyGeneratorType, typeof (KeyProviderAttribute), true);
 //
 //      if (ks==null)
 //        throw new DomainBuilderException(

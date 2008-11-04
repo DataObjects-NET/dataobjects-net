@@ -296,7 +296,8 @@ namespace Xtensive.Storage.Model
       columns = new ColumnInfoCollection();
       columns.AddRange(orderedColumns);
       columns.Lock(true);
-      tupleDescriptor = TupleDescriptor.Create(Columns.Select(c => c.ValueType));
+      tupleDescriptor = TupleDescriptor.Create(
+        from c in Columns select c.ValueType);
     }
 
 

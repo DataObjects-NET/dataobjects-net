@@ -15,15 +15,18 @@ namespace Xtensive.Storage.Internals
 
     public int TypeId { get; private set; }
 
+    public MapTransform KeyTransform { get; private set; }
+
     public MapTransform Transform { get; private set; }
 
 
     // Constructors
 
-    public TypeMapping(TypeInfo type, MapTransform transform)
+    public TypeMapping(TypeInfo type, MapTransform keyTransform, MapTransform transform)
     {
       Type = type;
       TypeId = type.TypeId;
+      KeyTransform = keyTransform;
       Transform = transform;
     }
   }

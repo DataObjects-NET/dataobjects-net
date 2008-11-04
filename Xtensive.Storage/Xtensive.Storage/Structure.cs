@@ -120,7 +120,7 @@ namespace Xtensive.Storage
     protected Structure()
     {
       type = Session.Domain.Model.Types[GetType()];
-      data = Session.Domain.Prototypes[type].Clone();
+      data = Session.Domain.EntityTuplePrototypes[type].Clone();
     }
 
     /// <summary>
@@ -133,7 +133,7 @@ namespace Xtensive.Storage
       type = Session.Domain.Model.Types[GetType()];
       this.owner = owner;
       this.field = field;
-      SegmentTransform transform = Session.Domain.Transforms.GetValue(field, arg => new SegmentTransform(false, owner.Data.Descriptor, new Segment<int>(field.MappingInfo.Offset, field.MappingInfo.Length)));
+      SegmentTransform transform = Session.Domain.GetFieldTransformCache.GetValue(field, arg => new SegmentTransform(false, owner.Data.Descriptor, new Segment<int>(field.MappingInfo.Offset, field.MappingInfo.Length)));
       data = transform.Apply(TupleTransformType.TransformedTuple, owner.Data);
     }
   }

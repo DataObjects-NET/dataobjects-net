@@ -71,7 +71,7 @@ namespace Xtensive.Storage.Building.Builders
           throw new DomainBuilderException(
             string.Format(Resources.Strings.ExKeyFieldXWasNotFoundInTypeY, pair.Key.Name, root.Name));
 
-        hierarchy.Fields.Add(field, pair.Value);
+        hierarchy.KeyFields.Add(field, pair.Value);
       }
 
       hierarchy.Name = root.Name;
@@ -91,9 +91,9 @@ namespace Xtensive.Storage.Building.Builders
       DirectionCollection<ColumnInfo> columnsCollection = hierarchyInfo.Root.Indexes.PrimaryIndex.KeyColumns;
 
       for (int i = 0; i < columnsCollection.Count; i++)
-        hierarchyInfo.Columns.Add(columnsCollection[i].Key);
+        hierarchyInfo.KeyColumns.Add(columnsCollection[i].Key);
 
-      hierarchyInfo.Columns.Lock();
+      hierarchyInfo.KeyColumns.Lock();
     }
   }
 }

@@ -177,7 +177,7 @@ namespace Xtensive.Storage
       else {
         foreach (Tuple tuple in RecordSet) {
           CheckVersion(version);
-          var key = new Key(typeof (T), KeyExtractTransform.Apply(TupleTransformType.TransformedTuple, tuple));
+          var key = Key.Create<T>(KeyExtractTransform.Apply(TupleTransformType.TransformedTuple, tuple));
           State.Cache(key);
           yield return key;
         }

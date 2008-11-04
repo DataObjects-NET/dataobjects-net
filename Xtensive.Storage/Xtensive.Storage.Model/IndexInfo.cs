@@ -12,6 +12,7 @@ using Xtensive.Core.Collections;
 using System.Linq;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Tuples;
 using Xtensive.Storage.Configuration;
 
 namespace Xtensive.Storage.Model
@@ -36,6 +37,8 @@ namespace Xtensive.Storage.Model
     private double fillFactor;
     private string shortName;
     private ReadOnlyList<ColumnInfo> columns;
+    private TupleDescriptor tupleDescriptor;
+    private TupleDescriptor keyTupleDescriptor;
 
     public string ShortName {
       [DebuggerStepThrough]
@@ -67,6 +70,9 @@ namespace Xtensive.Storage.Model
       }
     }
 
+    /// <summary>
+    /// Gets a collection of all the columns that are included into the index.
+    /// </summary>
     public ReadOnlyList<ColumnInfo> Columns {
       [DebuggerStepThrough]
       get {
@@ -75,7 +81,7 @@ namespace Xtensive.Storage.Model
     }
 
     /// <summary>
-    /// The collection of columns that are included into the index as index key.
+    /// Gets a collection of columns that are included into the index as index key.
     /// </summary>
     public DirectionCollection<ColumnInfo> KeyColumns
     {
@@ -84,7 +90,7 @@ namespace Xtensive.Storage.Model
     }
 
     /// <summary>
-    /// The collection of non key columns that are included into the index as index value.
+    /// Gets a collection of non key columns that are included into the index as index value.
     /// </summary>
     public ColumnInfoCollection ValueColumns
     {
@@ -93,11 +99,27 @@ namespace Xtensive.Storage.Model
     }
 
     /// <summary>
-    /// Collection of columns that are included into the index.
+    /// Gets a Collection of columns that are included into the index.
     /// </summary>
     public ColumnInfoCollection IncludedColumns
     {
       get { return includedColumns; }
+    }
+
+    /// <summary>
+    /// Gets the tuple descriptor containing all the <see cref="Columns"/>.
+    /// </summary>
+    public TupleDescriptor TupleDescriptor
+    {
+      get { return tupleDescriptor; }
+    }
+
+    /// <summary>
+    /// Gets the tuple descriptor containing just <see cref="KeyColumns"/>.
+    /// </summary>
+    public TupleDescriptor KeyTupleDescriptor
+    {
+      get { return keyTupleDescriptor; }
     }
 
     /// <summary>
@@ -212,6 +234,10 @@ namespace Xtensive.Storage.Model
       foreach (IndexInfo baseIndex in underlyingIndexes)
         baseIndex.Lock();
       underlyingIndexes.Lock();
+      tupleDescriptor = TupleDescriptor.Create(
+        from c in Columns select c.ValueType);
+      keyTupleDescriptor = TupleDescriptor.Create(
+        from c in KeyColumns select c.Key.ValueType);
     }
 
 

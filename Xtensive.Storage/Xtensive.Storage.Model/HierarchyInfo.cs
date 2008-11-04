@@ -12,6 +12,7 @@ using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Configuration;
+using System.Linq;
 
 namespace Xtensive.Storage.Model
 {
@@ -20,48 +21,11 @@ namespace Xtensive.Storage.Model
   {
     private readonly TypeInfo root;
     private readonly InheritanceSchema schema;
-    private readonly Type keyGenerator;
-    private readonly DirectionCollection<FieldInfo> fields = new DirectionCollection<FieldInfo>();
-    private readonly ColumnInfoCollection columns = new ColumnInfoCollection();
-    private TupleDescriptor keyTupleDescriptor;
+    private readonly DirectionCollection<FieldInfo> keyFields = new DirectionCollection<FieldInfo>();
+    private readonly ColumnInfoCollection keyColumns = new ColumnInfoCollection();
+    private readonly Type keyGeneratorType;
     private int keyGeneratorCacheSize;
-
-    /// <summary>
-    /// Gets or sets the size of the generator cache.
-    /// </summary>
-    public int KeyGeneratorCacheSize {
-      [DebuggerStepThrough]
-      get { return keyGeneratorCacheSize; }
-      [DebuggerStepThrough]
-      set {
-        this.EnsureNotLocked();
-        keyGeneratorCacheSize = value;
-      }
-    }
-
-    /// <summary>
-    /// Gets the columns that are included in the key.
-    /// </summary>
-    public ColumnInfoCollection Columns
-    {
-      get { return columns; }
-    }
-
-    /// <summary>
-    /// Gets the fields that are included in the key.
-    /// </summary>
-    public DirectionCollection<FieldInfo> Fields
-    {
-      get { return fields; }
-    }
-
-    /// <summary>
-    /// Gets or sets the type instance of which is responsible for key generation.
-    /// </summary>
-    public Type KeyGenerator
-    {
-      get { return keyGenerator; }
-    }
+    private TupleDescriptor keyTupleDescriptor;
 
     /// <summary>
     /// Gets the root of the hierarchy.
@@ -80,6 +44,43 @@ namespace Xtensive.Storage.Model
     }
 
     /// <summary>
+    /// Gets the fields that are included in the key.
+    /// </summary>
+    public DirectionCollection<FieldInfo> KeyFields
+    {
+      get { return keyFields; }
+    }
+
+    /// <summary>
+    /// Gets the columns that are included in the key.
+    /// </summary>
+    public ColumnInfoCollection KeyColumns
+    {
+      get { return keyColumns; }
+    }
+
+    /// <summary>
+    /// Gets or sets the size of the generator cache.
+    /// </summary>
+    public int KeyGeneratorCacheSize {
+      [DebuggerStepThrough]
+      get { return keyGeneratorCacheSize; }
+      [DebuggerStepThrough]
+      set {
+        this.EnsureNotLocked();
+        keyGeneratorCacheSize = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the type instance of which is responsible for key generation.
+    /// </summary>
+    public Type KeyGeneratorType
+    {
+      get { return keyGeneratorType; }
+    }
+
+    /// <summary>
     /// Gets the tuple descriptor of the key.
     /// </summary>
     /// <value></value>
@@ -92,10 +93,8 @@ namespace Xtensive.Storage.Model
     public override void Lock(bool recursive)
     {
       base.Lock(recursive);
-      List<Type> columnTypes = new List<Type>();
-      foreach (ColumnInfo column in Columns)
-        columnTypes.Add(column.ValueType);
-      keyTupleDescriptor = TupleDescriptor.Create(columnTypes);
+      keyTupleDescriptor = TupleDescriptor.Create(
+        from c in KeyColumns select c.ValueType);
     }
 
 
@@ -110,7 +109,7 @@ namespace Xtensive.Storage.Model
     public HierarchyInfo(TypeInfo root, InheritanceSchema schema, Type keyProvider)
     {
       this.root = root;
-      this.keyGenerator = keyProvider;
+      this.keyGeneratorType = keyProvider;
       this.schema = schema;
     }
   }
