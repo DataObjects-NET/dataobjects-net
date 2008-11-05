@@ -10,7 +10,9 @@ namespace Xtensive.Indexing
   {
     public static bool IsInfinity(this EntireValueType valueType)
     {
-      return valueType==EntireValueType.PositiveInfinity || valueType==EntireValueType.NegativeInfinity;
+      return 
+        valueType==EntireValueType.PositiveInfinity || 
+        valueType==EntireValueType.NegativeInfinity;
     }
   }
 }

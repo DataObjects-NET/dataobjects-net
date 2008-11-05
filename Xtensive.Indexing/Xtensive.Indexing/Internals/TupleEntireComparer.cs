@@ -5,10 +5,8 @@
 // Created:    2008.11.01
 
 using System;
-using Xtensive.Core;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Threading;
 using Xtensive.Core.Tuples;
 
 namespace Xtensive.Indexing
@@ -30,7 +28,7 @@ namespace Xtensive.Indexing
     {
       if (x.Value == null) {
         if (y == null)
-          return (int)x.ValueType * DefaultDirectionMultiplier;
+          return (int) x.ValueType * DefaultDirectionMultiplier;
         if (x.ValueType.IsInfinity())
           return (int) x.ValueType * DefaultDirectionMultiplier;
         return -DefaultDirectionMultiplier;
@@ -38,31 +36,31 @@ namespace Xtensive.Indexing
       if (y == null)
         return x.ValueType==EntireValueType.NegativeInfinitesimal ? DefaultDirectionMultiplier : (int) x.ValueType * DefaultDirectionMultiplier;
 
-      var valuesComparison = BaseComparer.Compare(x.Value, y);
-      if (valuesComparison != 0) {
-        var itemIndex = Math.Abs(valuesComparison);
-        if (itemIndex==x.Value.Count + 1)
+      int r = BaseComparer.Compare(x.Value, y);
+      var xValueCount = x.Value.Count;
+      if (r != 0) {
+        var itemIndex = r>=0 ? r : -r;
+        if (itemIndex==(xValueCount + 1))
           if (x.ValueType!=EntireValueType.Exact)
             return (int) x.ValueType * DefaultDirectionMultiplier * (int) ComparisonRules[itemIndex - 2].Value.Direction;
-        if (itemIndex == x.Value.Count) {
-          if (itemIndex == x.Value.Count)
-            if (x.ValueType.IsInfinity())
-              return (int)x.ValueType * DefaultDirectionMultiplier * (int)ComparisonRules[x.Value.Count - 1].Value.Direction;
+        if (itemIndex == xValueCount) {
+          if (x.ValueType.IsInfinity())
+            return (int)x.ValueType * DefaultDirectionMultiplier * (int) ComparisonRules[xValueCount - 1].Value.Direction;
         }
-        return valuesComparison;
+        return r;
       }
 
-      var countDiff = x.Value.Count - y.Count;
-      if (countDiff == 0)
-        return (int)x.ValueType * DefaultDirectionMultiplier * (int)ComparisonRules[x.Value.Count - 1].Value.Direction;
-      if (countDiff < 0)
-        return (int)x.ValueType * DefaultDirectionMultiplier * (int)ComparisonRules[x.Value.Count - 1].Value.Direction;
-      return valuesComparison;
+      var countDelta = xValueCount - y.Count;
+      if (countDelta == 0)
+        return (int) x.ValueType * DefaultDirectionMultiplier * (int) ComparisonRules[xValueCount - 1].Value.Direction;
+      if (countDelta < 0)
+        return (int) x.ValueType * DefaultDirectionMultiplier * (int) ComparisonRules[xValueCount - 1].Value.Direction;
+      return r;
     }
 
     public override int Compare(Entire<T> x, Entire<T> y)
     {
-      var valueTypesComparison = (x.ValueType - y.ValueType);
+      int valueTypesComparison = (x.ValueType - y.ValueType);
       if (x.Value == null) {
         if (y.Value == null)
           return valueTypesComparison * DefaultDirectionMultiplier;
@@ -76,40 +74,42 @@ namespace Xtensive.Indexing
       if (y.Value == null)
         return valueTypesComparison * DefaultDirectionMultiplier;
 
-      var countDiff = x.Value.Count - y.Value.Count;
-      var valuesComparison = BaseComparer.Compare(x.Value, y.Value);
+      int xValueCount = x.Value.Count;
+      int yValueCount = y.Value.Count;
+      int countDelta = xValueCount - yValueCount;
+      int r = BaseComparer.Compare(x.Value, y.Value);
 
-      if (valuesComparison != 0) {
-        var itemIndex = Math.Abs(valuesComparison);
-        if (itemIndex==x.Value.Count + 1)
+      if (r !=0 ) {
+        var itemIndex = r>=0 ? r : -r;
+        if (itemIndex==xValueCount + 1)
           if (x.ValueType!=EntireValueType.Exact)
             return (int) x.ValueType * DefaultDirectionMultiplier * (int) ComparisonRules[itemIndex - 2].Value.Direction;
-        if (itemIndex==y.Value.Count + 1)
+        if (itemIndex==yValueCount + 1)
           if (y.ValueType!=EntireValueType.Exact)
             return -(int) y.ValueType * DefaultDirectionMultiplier * (int) ComparisonRules[itemIndex - 2].Value.Direction;
-        if (itemIndex == x.Value.Count) {
+        if (itemIndex == xValueCount) {
           var xIsInfinity = x.ValueType.IsInfinity();
-          if (countDiff == 0) {
+          if (countDelta == 0) {
             var yIsInfinity = y.ValueType.IsInfinity();
             if (xIsInfinity || yIsInfinity)
-              return valueTypesComparison * DefaultDirectionMultiplier * (int)ComparisonRules[x.Value.Count - 1].Value.Direction;
+              return valueTypesComparison * DefaultDirectionMultiplier * (int)ComparisonRules[xValueCount - 1].Value.Direction;
           }
           if (xIsInfinity)
-            return (int)x.ValueType * DefaultDirectionMultiplier * (int)ComparisonRules[x.Value.Count - 1].Value.Direction;
+            return (int)x.ValueType * DefaultDirectionMultiplier * (int) ComparisonRules[xValueCount - 1].Value.Direction;
         }
-        if (itemIndex == y.Value.Count) {
+        if (itemIndex == yValueCount) {
           var yIsInfinity = y.ValueType.IsInfinity();
           if (yIsInfinity)
-            return -(int)y.ValueType * DefaultDirectionMultiplier * (int)ComparisonRules[x.Value.Count - 1].Value.Direction;
+            return -(int)y.ValueType * DefaultDirectionMultiplier * (int) ComparisonRules[xValueCount - 1].Value.Direction;
         }
-        return valuesComparison;
+        return r;
       }
 
-      if (countDiff == 0)
-        return valueTypesComparison * DefaultDirectionMultiplier * (int)ComparisonRules[x.Value.Count - 1].Value.Direction;
-      if (countDiff < 0)
-        return (int)x.ValueType * DefaultDirectionMultiplier * (int)ComparisonRules[x.Value.Count - 1].Value.Direction;
-      return (int)y.ValueType * DefaultDirectionMultiplier * (int)ComparisonRules[y.Value.Count - 1].Value.Direction;
+      if (countDelta == 0)
+        return valueTypesComparison * DefaultDirectionMultiplier * (int) ComparisonRules[xValueCount - 1].Value.Direction;
+      if (countDelta < 0)
+        return (int) x.ValueType * DefaultDirectionMultiplier * (int) ComparisonRules[xValueCount - 1].Value.Direction;
+      return (int) y.ValueType * DefaultDirectionMultiplier * (int) ComparisonRules[yValueCount - 1].Value.Direction;
     }
 
     public override bool Equals(Entire<T> x, Entire<T> y)
