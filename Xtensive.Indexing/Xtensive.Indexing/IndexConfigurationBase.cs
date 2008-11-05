@@ -31,9 +31,9 @@ namespace Xtensive.Indexing
     private Converter<TItem, TKey> keyExtractor;
     private AdvancedComparer<TKey> keyComparer;
     [NonSerialized] 
-    private AdvancedComparer<IEntire<TKey>> entireKeyComparer;
+    private AdvancedComparer<Entire<TKey>> entireKeyComparer;
     [NonSerialized]
-    private Func<IEntire<TKey>, TKey, int> asymmetricKeyCompare;
+    private Func<Entire<TKey>, TKey, int> asymmetricKeyCompare;
     private IMeasureSet<TItem> measures = new MeasureSet<TItem>();
     private UrlInfo location;
 
@@ -86,16 +86,16 @@ namespace Xtensive.Indexing
         ArgumentValidator.EnsureArgumentNotNull(value, "value");
         keyComparer = value;
         if (entireKeyComparer==null && keyComparer.Provider!=null)
-          entireKeyComparer = keyComparer.Provider.GetComparer<IEntire<TKey>>().ApplyRules(keyComparer.ComparisonRules);
+          entireKeyComparer = keyComparer.Provider.GetComparer<Entire<TKey>>().ApplyRules(keyComparer.ComparisonRules);
         if (asymmetricKeyCompare==null && entireKeyComparer!=null)
           asymmetricKeyCompare = entireKeyComparer.GetAsymmetric<TKey>();
       }
     }
 
     /// <summary>
-    /// Gets or sets the <see cref="IEntire{T}"/> comparer for <typeparamref name="TKey"/> type.
+    /// Gets or sets the <see cref="Entire{T}"/> comparer for <typeparamref name="TKey"/> type.
     /// </summary>
-    public AdvancedComparer<IEntire<TKey>> EntireKeyComparer
+    public AdvancedComparer<Entire<TKey>> EntireKeyComparer
     {
       [DebuggerStepThrough]
       get { return entireKeyComparer; }
@@ -109,9 +109,9 @@ namespace Xtensive.Indexing
 
     /// <summary>
     /// Gets or sets the delegate used to compare 
-    /// <see cref="IEntire{T}"/> for <typeparamref name="TKey"/> type and <typeparamref name="TKey"/> type.
+    /// <see cref="Entire{T}"/> for <typeparamref name="TKey"/> type and <typeparamref name="TKey"/> type.
     /// </summary>
-    public Func<IEntire<TKey>, TKey, int> AsymmetricKeyCompare
+    public Func<Entire<TKey>, TKey, int> AsymmetricKeyCompare
     {
       [DebuggerStepThrough]
       get { return asymmetricKeyCompare; }
@@ -192,7 +192,7 @@ namespace Xtensive.Indexing
       IDeserializationCallback deserializationCallback = keyComparer.Provider as IDeserializationCallback;
       if (deserializationCallback!=null)
         deserializationCallback.OnDeserialization(sender);
-      entireKeyComparer = keyComparer.Provider.GetComparer<IEntire<TKey>>().ApplyRules(keyComparer.ComparisonRules);
+      entireKeyComparer = keyComparer.Provider.GetComparer<Entire<TKey>>().ApplyRules(keyComparer.ComparisonRules);
       asymmetricKeyCompare = entireKeyComparer.GetAsymmetric<TKey>();
     }
   }

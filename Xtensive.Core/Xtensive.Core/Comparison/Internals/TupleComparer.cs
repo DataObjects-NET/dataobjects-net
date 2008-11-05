@@ -51,10 +51,9 @@ namespace Xtensive.Core.Comparison
       if (x==null) {
         if (y==null)
           return 0;
-        else
-          return -DefaultDirectionMultiplier;
+        return -DefaultDirectionMultiplier;
       }
-      else if (y==null)
+      if (y==null)
         return DefaultDirectionMultiplier;
 
       var dx = x.Descriptor;
@@ -67,13 +66,11 @@ namespace Xtensive.Core.Comparison
         DelegateHelper.ExecuteDelegates(h.Handlers, ref data, Direction.Positive);
         if (data.Result==int.MinValue) // There is no result yet
           return 0;
-        else
-          return data.Result;
+        return data.Result;
       }
-      else if (dx.Count<=dy.Count)
+      if (dx.Count<=dy.Count)
         return Compare_DifferentDescriptors(x, y, dx, dy);
-      else
-        return -Compare_DifferentDescriptors(y, x, dy, dx);
+      return -Compare_DifferentDescriptors(y, x, dy, dx);
     }
 
     private int Compare_DifferentDescriptors(Tuple x, Tuple y, TupleDescriptor dx, TupleDescriptor dy)
@@ -87,12 +84,9 @@ namespace Xtensive.Core.Comparison
         int count = data.X.Count;
         if (data.FieldData[count].First==0) // And next direction to compare is none
           return 0;
-        else
-          return -count
-            * DefaultDirectionMultiplier;
+        return -(count + 1) * DefaultDirectionMultiplier;
       }
-      else
-        return data.Result;
+      return data.Result;
     }
 
     public override bool Equals(Tuple x, Tuple y)

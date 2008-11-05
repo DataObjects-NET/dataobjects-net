@@ -7,18 +7,28 @@
 using System;
 using Xtensive.Core;
 using Xtensive.Core.Comparison;
+using Xtensive.Core.Reflection;
+using Xtensive.Core.Tuples;
 
 namespace Xtensive.Indexing
 {
   [Serializable]
   internal sealed class EntireComparer<T>: WrappingComparer<Entire<T>, T>,
-    IComparer<Entire<T>, T>, ISystemComparer<Entire<T>>
+    IComparer<Entire<T>, T>, 
+    ISystemComparer<Entire<T>>,
+    ISubstitutable<IAdvancedComparer<Entire<T>>>
   {
-    private static readonly int[,] nearestMatrix = new int[,] {
+    private readonly IAdvancedComparer<Entire<T>> substitution;
+    private static readonly int[,] nearestMatrix = new[,] {
       { -1, -1,  0 }, 
       { -1,  0,  1 }, 
       {  0,  1,  1 }, 
     };
+
+    IAdvancedComparer<Entire<T>> ISubstitutable<IAdvancedComparer<Entire<T>>>.Substitution
+    {
+      get { return substitution; }
+    }
 
     protected override IAdvancedComparer<Entire<T>> CreateNew(ComparisonRules rules)
     {
@@ -40,33 +50,33 @@ namespace Xtensive.Indexing
         if (r!=0)
           return r;
       }
-      return ((int)x.valueType - (int)y.valueType) * DefaultDirectionMultiplier * (int)ComparisonRules[0].Value.Direction;
+      return ((int)x.valueType - (int)y.valueType) * DefaultDirectionMultiplier;
     }
 
     public int Compare(Entire<T> x, T y)
     {
       switch (x.valueType) {
-      case EntireValueType.NegativeInfinity:
-      case EntireValueType.PositiveInfinity:
-        return (int)x.valueType * DefaultDirectionMultiplier * (int)ComparisonRules[0].Value.Direction;
-      case EntireValueType.NegativeInfinitesimal:
-      case EntireValueType.PositiveInfinitesimal:
-        int result = BaseComparer.Compare(x.value, y);
-        return result!=0 ? result : (int) x.valueType * DefaultDirectionMultiplier * (int)ComparisonRules[0].Value.Direction;
-      case EntireValueType.Exact:
-        return BaseComparer.Compare(x.value, y);
-      default:
-        throw Exceptions.InternalError("Unknown EntireValueType.", Log.Instance);
+        case EntireValueType.NegativeInfinity:
+        case EntireValueType.PositiveInfinity:
+          return (int)x.valueType * DefaultDirectionMultiplier;
+        case EntireValueType.NegativeInfinitesimal:
+        case EntireValueType.PositiveInfinitesimal:
+          int result = BaseComparer.Compare(x.value, y);
+          return result!=0 ? result : (int) x.valueType * DefaultDirectionMultiplier;
+        case EntireValueType.Exact:
+          return BaseComparer.Compare(x.value, y);
+        default:
+          throw Exceptions.InternalError("Unknown EntireValueType.", Log.Instance);
       }
     }
 
     public override bool Equals(Entire<T> x, Entire<T> y)
     {
+      if (x.HasValue ^ y.HasValue)
+        return false;
       EntireValueType xEntireValueType = x.ValueType;
       if (xEntireValueType != y.ValueType)
         return false;
-      if (xEntireValueType != EntireValueType.Exact)
-        return true;
       return BaseComparer.Equals(x.Value, y.Value);
     }
 
@@ -77,11 +87,10 @@ namespace Xtensive.Indexing
 
     public override Entire<T> GetNearestValue(Entire<T> value, Direction direction)
     {
-      int d = (int) direction * DefaultDirectionMultiplier * (int)ComparisonRules[0].Value.Direction;
+      int d = (int) direction * DefaultDirectionMultiplier;
       if (d==0 || !value.HasValue)
         return value;
-      else
-        return new Entire<T>(value.value, (Direction) nearestMatrix[1 + (int)value.valueType, 1 + d]);
+      return new Entire<T>(value.value, (Direction) nearestMatrix[1 + (int)value.valueType, 1 + d]);
     }
 
 
@@ -90,14 +99,18 @@ namespace Xtensive.Indexing
     public EntireComparer(IComparerProvider provider, ComparisonRules comparisonRules)
       : base(provider, comparisonRules)
     {
+      if (typeof(Tuple).IsAssignableFrom(typeof(T))) {
+        var tupleEntireComparer = typeof (TupleEntireComparer<>).Activate(new[] {typeof (T)}, new object[] {provider, comparisonRules});
+        substitution = tupleEntireComparer as IAdvancedComparer<Entire<T>>;
+      }
       ValueRangeInfo<T> baseValueRangeInfo = BaseComparer.ValueRangeInfo;
-      Entire<T> min = (Entire<T>) Entire<T>.MinValue;
-      Entire<T> max = (Entire<T>) Entire<T>.MaxValue;
+      Entire<T> min = Entire<T>.MinValue;
+      Entire<T> max = Entire<T>.MaxValue;
       ValueRangeInfo = new ValueRangeInfo<Entire<T>>(
         true, min, 
         true, max, 
         baseValueRangeInfo.HasDeltaValue, 
-        baseValueRangeInfo.HasDeltaValue ? (Entire<T>)Entire<T>.Create(baseValueRangeInfo.DeltaValue) : (Entire<T>)Entire<T>.Create(default(T)));
+        baseValueRangeInfo.HasDeltaValue ? new Entire<T>(baseValueRangeInfo.DeltaValue) : new Entire<T>(default(T)));
     }
   }
 }

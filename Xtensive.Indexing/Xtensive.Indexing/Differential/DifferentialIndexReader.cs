@@ -10,7 +10,6 @@ using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Disposable;
-using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Indexing.Differential
@@ -19,7 +18,7 @@ namespace Xtensive.Indexing.Differential
     where TImpl : IUniqueOrderedIndex<TKey, TItem>, IConfigurable<IndexConfigurationBase<TKey, TItem>>, new()
   {
     private readonly DifferentialIndex<TKey, TItem, TImpl> index;
-    private Range<IEntire<TKey>> range;
+    private Range<Entire<TKey>> range;
     private IIndexReader<TKey, TItem> originReader;
     private IIndexReader<TKey, TItem> insertionsReader;
     private IIndexReader<TKey, TItem> removalsReader;
@@ -39,7 +38,7 @@ namespace Xtensive.Indexing.Differential
     }
 
     /// <inheritdoc/>
-    public Range<IEntire<TKey>> Range
+    public Range<Entire<TKey>> Range
     {
       [DebuggerStepThrough]
       get { return range; }
@@ -131,20 +130,20 @@ namespace Xtensive.Indexing.Differential
     }
 
     /// <inheritdoc/>
-    public void MoveTo(IEntire<TKey> key)
+    public void MoveTo(Entire<TKey> key)
     {
       EndOfOriginReached = false;
       EndOfInsertionsReached = false;
       EndOfRemovalsReached = false;
       atTheBeginning = true;
 
-      IEntire<TKey> point;
+      Entire<TKey> point;
       if (index.Insertions.ContainsKey(key.Value)) {
         insertionsReader.MoveTo(key);
         currentReader = insertionsReader;
         readerState = DifferentialReaderState.ReadingInsertions;
         if (index.Origin.Count!=0) {
-          point = Entire<TKey>.Create(index.KeyExtractor(index.Origin.Seek(new Ray<IEntire<TKey>>(key, currentReader.Direction)).Result));
+          point = new Entire<TKey>(index.KeyExtractor(index.Origin.Seek(new Ray<Entire<TKey>>(key, currentReader.Direction)).Result));
           if (Compare(point.Value, key.Value) > 0)
             EndOfOriginReached = true;
           else
@@ -156,7 +155,7 @@ namespace Xtensive.Indexing.Differential
         currentReader = originReader;
         readerState = DifferentialReaderState.ReadingOrigin;
         if (index.Insertions.Count!=0) {
-          point = Entire<TKey>.Create(index.KeyExtractor(index.Insertions.Seek(new Ray<IEntire<TKey>>(key, currentReader.Direction)).Result));
+          point = new Entire<TKey>(index.KeyExtractor(index.Insertions.Seek(new Ray<Entire<TKey>>(key, currentReader.Direction)).Result));
           if (Compare(point.Value, key.Value) > 0)
             EndOfInsertionsReached = true;
           else
@@ -164,7 +163,7 @@ namespace Xtensive.Indexing.Differential
         }
       }
       if (index.Removals.Count!=0) {
-        point = Entire<TKey>.Create(index.KeyExtractor(index.Removals.Seek(new Ray<IEntire<TKey>>(key, currentReader.Direction)).Result));
+        point = new Entire<TKey>(index.KeyExtractor(index.Removals.Seek(new Ray<Entire<TKey>>(key, currentReader.Direction)).Result));
         if (Compare(point.Value, key.Value) > 0)
           EndOfRemovalsReached = true;
         else
@@ -264,7 +263,7 @@ namespace Xtensive.Indexing.Differential
     /// </summary>
     /// <param name="index">The index.</param>
     /// <param name="range">The range.</param>
-    public DifferentialIndexReader(DifferentialIndex<TKey, TItem, TImpl> index, Range<IEntire<TKey>> range)
+    public DifferentialIndexReader(DifferentialIndex<TKey, TItem, TImpl> index, Range<Entire<TKey>> range)
     {
       this.index = index;
       this.range = range;

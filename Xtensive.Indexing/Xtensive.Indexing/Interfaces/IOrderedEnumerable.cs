@@ -26,21 +26,21 @@ namespace Xtensive.Indexing
     /// </summary>
     /// <param name="range">A <see cref="Range{T}"/> to enumerate through.</param>
     /// <returns>The <see cref="IEnumerable{T}"/> for the range.</returns>
-    IEnumerable<TKey> GetKeys(Range<IEntire<TKey>> range);
+    IEnumerable<TKey> GetKeys(Range<Entire<TKey>> range);
 
     /// <summary>
     /// Gets the <see cref="IEnumerable{T}"/> enumerating all the <typeparamref name="TItem"/>s in the given range.
     /// </summary>
     /// <param name="range">A <see cref="Range{T}"/> to enumerate through.</param>
     /// <returns>The <see cref="IEnumerable{T}"/> for the range.</returns>
-    IEnumerable<TItem> GetItems(Range<IEntire<TKey>> range);
+    IEnumerable<TItem> GetItems(Range<Entire<TKey>> range);
 
     /// <summary>
     /// Seeks for the specified item in the ordered enumerable.
     /// </summary>
     /// <param name="ray">Item to locate.</param>
     /// <returns>Result of seek operation.</returns>
-    SeekResult<TItem> Seek(Ray<IEntire<TKey>> ray);
+    SeekResult<TItem> Seek(Ray<Entire<TKey>> ray);
 
     /// <summary>
     /// Seeks for the specified item in the ordered enumerable.
@@ -54,6 +54,6 @@ namespace Xtensive.Indexing
     /// the items in the specified <paramref name="range"/>.
     /// </summary>
     /// <param name="range">The range to provide the reader for.</param>
-    IIndexReader<TKey, TItem> CreateReader(Range<IEntire<TKey>> range);
+    IIndexReader<TKey, TItem> CreateReader(Range<Entire<TKey>> range);
   }
 }

@@ -25,8 +25,8 @@ namespace Xtensive.Indexing.Tests
     [Test]
     public void TestConstruction()
     {
-      AdvancedComparer<IEntire<Tuple>> comparer =
-        AdvancedComparer<IEntire<Tuple>>.Default.Cast<IEntire<Tuple>>();
+      AdvancedComparer<Entire<Tuple>> comparer =
+        AdvancedComparer<Entire<Tuple>>.Default.Cast<Entire<Tuple>>();
       Composite.IndexConfiguration<Tuple,Tuple> compositeIndexConfig = new Composite.IndexConfiguration<Tuple,Tuple>();
       compositeIndexConfig.KeyExtractor = delegate(Tuple item) { return new SegmentTransform(false, item.Descriptor, new Segment<int>(0,1))
                                                                               .Apply(TupleTransformType.TransformedTuple, item); };

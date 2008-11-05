@@ -5,7 +5,6 @@
 // Created:    2008.02.04
 
 using System;
-using Xtensive.Core.Tuples;
 
 namespace Xtensive.Indexing
 {
@@ -14,11 +13,11 @@ namespace Xtensive.Indexing
   /// </summary>
   /// <typeparam name="T">The type wrapped by entire.</typeparam>
   public interface IEntire<T>
-    : ITuple,
-      IComparable<T>,
+    : IComparable<T>,
       IEquatable<T>,
       IComparable<IEntire<T>>,
-      IEquatable<IEntire<T>>
+      IEquatable<IEntire<T>>,
+      ICloneable
   {
     /// <summary>
     /// Gets the underlying value of the entire.
@@ -28,13 +27,6 @@ namespace Xtensive.Indexing
     /// <summary>
     /// Gets the types of each nested value of the entire.
     /// </summary>
-    EntireValueType[] ValueTypes { get; }
-
-    /// <summary>
-    /// Gets the type of the field value.
-    /// </summary>
-    /// <param name="fieldIndex">Index of the field.</param>
-    /// <returns><see cref="EntireValueType"/> for the specified <paramref name="fieldIndex"/>.</returns>
-    EntireValueType GetValueType(int fieldIndex);
+    EntireValueType ValueType { get; }
   }
 }

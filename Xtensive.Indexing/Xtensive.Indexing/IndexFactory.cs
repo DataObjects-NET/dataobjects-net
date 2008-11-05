@@ -166,7 +166,7 @@ namespace Xtensive.Indexing
       if (implConfig.KeyComparer == null)
         implConfig.KeyComparer = compositeConfig.KeyComparer.Provider.GetComparer<TKey>();
       implConfig.EntireKeyComparer =
-        compositeConfig.KeyComparer.Provider.GetComparer<IEntire<TKey>>().Cast<IEntire<TKey>>();
+        compositeConfig.KeyComparer.Provider.GetComparer<Entire<TKey>>();
 
       TImplementation uniqueIndex = new TImplementation();
       uniqueIndex.Configure(implConfig);

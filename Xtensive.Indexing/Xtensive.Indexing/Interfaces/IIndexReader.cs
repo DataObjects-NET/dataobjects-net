@@ -22,7 +22,7 @@ namespace Xtensive.Indexing
     /// <summary>
     /// Gets the range of enumeration.
     /// </summary>
-    Range<IEntire<TKey>> Range { get; }
+    Range<Entire<TKey>> Range { get; }
 
     /// <summary>
     /// Gets the direction of enumeration relatively to index key comparer.
@@ -42,6 +42,6 @@ namespace Xtensive.Indexing
     ///   inside the <see cref="Range"/> of this reader.
     /// </note>
     ///  </remarks>
-    void MoveTo(IEntire<TKey> key);
+    void MoveTo(Entire<TKey> key);
   }
 }

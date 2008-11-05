@@ -83,7 +83,7 @@ namespace Xtensive.Indexing.Implementation
     /// </summary>
     /// <param name="ray">The ray to seek for.</param>
     /// <returns>Standard seek operation result.</returns>
-    public abstract SeekResultPointer<int> Seek(Ray<IEntire<TKey>> ray);
+    public abstract SeekResultPointer<int> Seek(Ray<Entire<TKey>> ray);
 
     #endregion
 

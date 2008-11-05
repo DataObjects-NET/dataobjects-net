@@ -19,7 +19,7 @@ namespace Xtensive.Indexing.Composite
     where TItem : Tuple
   {
     private readonly IndexSegment<TKey, TItem> index;
-    private Range<IEntire<TKey>> range; // Non-readonly - to avoid stack growth
+    private Range<Entire<TKey>> range; // Non-readonly - to avoid stack growth
     private readonly IIndexReader<TKey, TItem> reader;
 
     public IIndex<TKey, TItem> Index
@@ -28,7 +28,7 @@ namespace Xtensive.Indexing.Composite
       get { return index; }
     }
 
-    public Range<IEntire<TKey>> Range
+    public Range<Entire<TKey>> Range
     {
       [DebuggerStepThrough]
       get { return range; }
@@ -66,7 +66,7 @@ namespace Xtensive.Indexing.Composite
       return false;
     }
 
-    public void MoveTo(IEntire<TKey> key)
+    public void MoveTo(Entire<TKey> key)
     {
       reader.MoveTo(index.EntireConverter(key));
     }
@@ -94,7 +94,7 @@ namespace Xtensive.Indexing.Composite
     /// </summary>
     /// <param name="index">The index.</param>
     /// <param name="range">The range to read.</param>
-    public IndexSegmentReader(IndexSegment<TKey, TItem> index, Range<IEntire<TKey>> range)
+    public IndexSegmentReader(IndexSegment<TKey, TItem> index, Range<Entire<TKey>> range)
     {
       this.index = index;
       this.range = range;

@@ -22,7 +22,7 @@ namespace Xtensive.Indexing
     /// <param name="index">The index to get the full range for.</param>
     /// <returns><see cref="Range{T}"/> object describing full key range 
     /// which endpoints are ordered in <see cref="Direction.Positive"/> direction.</returns>
-    public static Range<IEntire<TKey>> GetFullRange<TKey>(this IHasKeyComparers<TKey> index)
+    public static Range<Entire<TKey>> GetFullRange<TKey>(this IHasKeyComparers<TKey> index)
     {
       return GetFullRange(index, Direction.Positive);
     }
@@ -37,9 +37,9 @@ namespace Xtensive.Indexing
     /// <param name="direction">The direction of the range endpoints.</param>
     /// <returns><see cref="Range{T}"/> object describing full key range 
     /// which endpoints are ordered in specified <paramref name="direction"/>.</returns>
-    public static Range<IEntire<TKey>> GetFullRange<TKey>(this IHasKeyComparers<TKey> index, Direction direction)
+    public static Range<Entire<TKey>> GetFullRange<TKey>(this IHasKeyComparers<TKey> index, Direction direction)
     {
-      return Range<IEntire<TKey>>.Full.Redirect(direction, index.EntireKeyComparer);
+      return Range<Entire<TKey>>.Full.Redirect(direction, index.EntireKeyComparer);
     }
   }
 }

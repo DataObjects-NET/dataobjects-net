@@ -25,9 +25,9 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 
     private const string CachedRangeName = "CachedRange";
 
-    private Range<IEntire<Tuple>> CachedRange
+    private Range<Entire<Tuple>> CachedRange
     {
-      get { return (Range<IEntire<Tuple>>)GetCachedValue<object>(EnumerationContext.Current, CachedRangeName); }
+      get { return (Range<Entire<Tuple>>)GetCachedValue<object>(EnumerationContext.Current, CachedRangeName); }
       set { SetCachedValue(EnumerationContext.Current, CachedRangeName, (object)value); }
     }
 
@@ -53,7 +53,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
       }
     }
 
-    public AdvancedComparer<IEntire<Tuple>> EntireKeyComparer
+    public AdvancedComparer<Entire<Tuple>> EntireKeyComparer
     {
       get
       {
@@ -62,7 +62,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
       }
     }
 
-    public Func<IEntire<Tuple>, Tuple, int> AsymmetricKeyCompare
+    public Func<Entire<Tuple>, Tuple, int> AsymmetricKeyCompare
     {
       get
       {
@@ -72,23 +72,23 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     }
 
     /// <inheritdoc/>
-    public IEnumerable<Tuple> GetKeys(Range<IEntire<Tuple>> range)
+    public IEnumerable<Tuple> GetKeys(Range<Entire<Tuple>> range)
     {
       var sourceEnumerable = Source.GetService<IOrderedEnumerable<Tuple, Tuple>>(true);
-      Range<IEntire<Tuple>> intersected = CachedRange.Intersect(range, EntireKeyComparer);
+      Range<Entire<Tuple>> intersected = CachedRange.Intersect(range, EntireKeyComparer);
       return sourceEnumerable.GetKeys(intersected);
     }
 
     /// <inheritdoc/>
-    public IEnumerable<Tuple> GetItems(Range<IEntire<Tuple>> range)
+    public IEnumerable<Tuple> GetItems(Range<Entire<Tuple>> range)
     {
       var sourceEnumerable = Source.GetService<IOrderedEnumerable<Tuple, Tuple>>(true);
-      Range<IEntire<Tuple>> intersected = CachedRange.Intersect(range, EntireKeyComparer);
+      Range<Entire<Tuple>> intersected = CachedRange.Intersect(range, EntireKeyComparer);
       return sourceEnumerable.GetItems(intersected);
     }
 
     /// <inheritdoc/>
-    public SeekResult<Tuple> Seek(Ray<IEntire<Tuple>> ray)
+    public SeekResult<Tuple> Seek(Ray<Entire<Tuple>> ray)
     {
       var sourceEnumerable = Source.GetService<IOrderedEnumerable<Tuple, Tuple>>(true);
       if (CachedRange.Contains(ray.Point, EntireKeyComparer))
@@ -100,13 +100,13 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     public SeekResult<Tuple> Seek(Tuple key)
     {
       var sourceEnumerable = Source.GetService<IOrderedEnumerable<Tuple, Tuple>>(true);
-      if (CachedRange.Contains(Entire<Tuple>.Create(key), EntireKeyComparer))
+      if (CachedRange.Contains(new Entire<Tuple>(key), EntireKeyComparer))
         return sourceEnumerable.Seek(key);
       return new SeekResult<Tuple>(SeekResultType.None, null);
     }
 
     /// <inheritdoc/>
-    public IIndexReader<Tuple, Tuple> CreateReader(Range<IEntire<Tuple>> range)
+    public IIndexReader<Tuple, Tuple> CreateReader(Range<Entire<Tuple>> range)
     {
       var sourceEnumerable = Source.GetService<IOrderedEnumerable<Tuple, Tuple>>(true);
       var intersect = CachedRange.Intersect(range, EntireKeyComparer);
@@ -160,18 +160,18 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     }
 
     /// <inheritdoc/>
-    public object GetMeasureResult(Range<IEntire<Tuple>> range, string name)
+    public object GetMeasureResult(Range<Entire<Tuple>> range, string name)
     {
       var sourceMeasurable = Source.GetService<IRangeMeasurable<Tuple, Tuple>>(true);
-      Range<IEntire<Tuple>> intersected = CachedRange.Intersect(range, EntireKeyComparer);
+      Range<Entire<Tuple>> intersected = CachedRange.Intersect(range, EntireKeyComparer);
       return sourceMeasurable.GetMeasureResult(intersected, name);
     }
 
     /// <inheritdoc/>
-    public object[] GetMeasureResults(Range<IEntire<Tuple>> range, params string[] names)
+    public object[] GetMeasureResults(Range<Entire<Tuple>> range, params string[] names)
     {
       var sourceMeasurable = Source.GetService<IRangeMeasurable<Tuple, Tuple>>(true);
-      Range<IEntire<Tuple>> intersected = CachedRange.Intersect(range, EntireKeyComparer);
+      Range<Entire<Tuple>> intersected = CachedRange.Intersect(range, EntireKeyComparer);
       return sourceMeasurable.GetMeasureResults(intersected, names);
     }
 

@@ -46,12 +46,12 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
       }
     }
 
-    Func<IEntire<Tuple>, Tuple, int> IHasKeyComparers<Tuple>.AsymmetricKeyCompare
+    Func<Entire<Tuple>, Tuple, int> IHasKeyComparers<Tuple>.AsymmetricKeyCompare
     {
       get { return rootEnumerable.AsymmetricKeyCompare; }
     }
 
-    AdvancedComparer<IEntire<Tuple>> IHasKeyComparers<Tuple>.EntireKeyComparer
+    AdvancedComparer<Entire<Tuple>> IHasKeyComparers<Tuple>.EntireKeyComparer
     {
       get { return rootEnumerable.EntireKeyComparer; }
     }
@@ -67,27 +67,24 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
       get { return rootEnumerable.KeyExtractor; }
     }
 
-    IEnumerable<Tuple> IOrderedEnumerable<Tuple, Tuple>.GetKeys(Range<IEntire<Tuple>> range)
+    IEnumerable<Tuple> IOrderedEnumerable<Tuple, Tuple>.GetKeys(Range<Entire<Tuple>> range)
     {
       return rootEnumerable.GetKeys(range);
     }
 
-    IIndexReader<Tuple, Tuple> IOrderedEnumerable<Tuple, Tuple>.CreateReader(Range<IEntire<Tuple>> range)
+    IIndexReader<Tuple, Tuple> IOrderedEnumerable<Tuple, Tuple>.CreateReader(Range<Entire<Tuple>> range)
     {
       return new JoinInheritorsReader(this, range,  root, inheritors, mapTransform);
     }
 
-    SeekResult<Tuple> IOrderedEnumerable<Tuple, Tuple>.Seek(Ray<IEntire<Tuple>> ray)
+    SeekResult<Tuple> IOrderedEnumerable<Tuple, Tuple>.Seek(Ray<Entire<Tuple>> ray)
     {
       SeekResult<Tuple> seek = rootEnumerable.Seek(ray);
       if (seek.ResultType != SeekResultType.None) {
-        var entireValueTypes = new EntireValueType[ray.Point.Count];
-        for (int i = 0; i < ray.Point.Count; i++)
-          entireValueTypes[i] = ray.Point.GetValueType(i);
         var resultTuples = new Tuple[1+inheritors.Length];
         resultTuples[0] = seek.Result;
         for (int i = 0; i < inheritors.Length; i++) {
-          var rightRay = new Ray<IEntire<Tuple>>(Entire<Tuple>.Create(KeyExtractor(seek.Result), entireValueTypes));
+          var rightRay = new Ray<Entire<Tuple>>(new Entire<Tuple>(KeyExtractor(seek.Result), ray.Point.ValueType));
           SeekResult<Tuple> seekRight = inheritors[i].GetService<IOrderedEnumerable<Tuple,Tuple>>().Seek(rightRay);
           if (seekRight.ResultType == SeekResultType.Exact)
             resultTuples[1+i] = seekRight.Result;
@@ -119,7 +116,7 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
       return seek;
     }
 
-    IEnumerable<Tuple> IOrderedEnumerable<Tuple, Tuple>.GetItems(Range<IEntire<Tuple>> range)
+    IEnumerable<Tuple> IOrderedEnumerable<Tuple, Tuple>.GetItems(Range<Entire<Tuple>> range)
     {
       return InheritanceJoiner.Join(
         rootEnumerable.GetItems(range),

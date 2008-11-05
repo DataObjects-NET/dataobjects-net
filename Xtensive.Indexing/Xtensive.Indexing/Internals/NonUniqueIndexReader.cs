@@ -15,7 +15,7 @@ namespace Xtensive.Indexing
   internal struct NonUniqueIndexReader<TKey,TUniqueKey,TItem> : IIndexReader<TKey,TItem>
   {
     private readonly NonUniqueIndex<TKey,TUniqueKey,TItem> index;
-    private Range<IEntire<TKey>> range; // Non-readonly - to avoid stack growth
+    private Range<Entire<TKey>> range; // Non-readonly - to avoid stack growth
     private readonly IIndexReader<TUniqueKey, TItem> reader;
 
     public IIndex<TKey, TItem> Index
@@ -24,7 +24,7 @@ namespace Xtensive.Indexing
       get { return index; }
     }
 
-    public Range<IEntire<TKey>> Range
+    public Range<Entire<TKey>> Range
     {
       [DebuggerStepThrough]
       get { return range; }
@@ -53,7 +53,7 @@ namespace Xtensive.Indexing
       return reader.MoveNext();
     }
 
-    public void MoveTo(IEntire<TKey> key)
+    public void MoveTo(Entire<TKey> key)
     {
       reader.MoveTo(index.EntireConverter(key));
     }
@@ -81,7 +81,7 @@ namespace Xtensive.Indexing
     /// </summary>
     /// <param name="index">The index.</param>
     /// <param name="range">The range to read.</param>
-    public NonUniqueIndexReader(NonUniqueIndex<TKey,TUniqueKey,TItem> index, Range<IEntire<TKey>> range)
+    public NonUniqueIndexReader(NonUniqueIndex<TKey,TUniqueKey,TItem> index, Range<Entire<TKey>> range)
     {
       this.index = index;
       this.range = range;

@@ -30,85 +30,75 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
       var request = new SqlFetchRequest(query, provider.Header, source.Request.ParameterBindings);
       var rangeProvider = new SqlRangeProvider(provider, request, Handlers, originalRange, source);
 
-      Func<int,SqlParameter,SqlExpression> fromCompiler = null;
-      fromCompiler = (i,pp) => {
-        SqlExpression result = null;
-        bool bContinue = false;
-        if (originalRange.EndPoints.First.Count > i && originalRange.EndPoints.First.IsAvailable(i)) {
+      if (originalRange.EndPoints.First.HasValue) {
+        for (int i = 0; i < originalRange.EndPoints.First.Value.Count; i++) {
           var column = provider.Header.Columns[keyColumns[i].Key];
-          DataTypeMapping typeMapping = ((DomainHandler) Handlers.DomainHandler).ValueTypeMapper.GetTypeMapping(column.Type);
-          var binding = new SqlFetchParameterBinding(() => rangeProvider.CurrentRange.EndPoints.First.GetValue(i), typeMapping);
-          switch (originalRange.EndPoints.First.GetValueType(i)) {
-          case EntireValueType.Default:
-            request.ParameterBindings.Add(binding);
-            result = query.Columns[keyColumns[i].Key] >= binding.SqlParameter;
-            bContinue = true;
-            break;
-          case EntireValueType.PositiveInfinitesimal:
-            request.ParameterBindings.Add(binding);
-            result = query.Columns[keyColumns[i].Key] > binding.SqlParameter;
-            break;
-          case EntireValueType.NegativeInfinitesimal:
-            request.ParameterBindings.Add(binding);
-            result = query.Columns[keyColumns[i].Key] >= binding.SqlParameter;
-            bContinue = true;
-            break;
-          case EntireValueType.PositiveInfinity:
-            result = SqlFactory.Native("1") == SqlFactory.Native("0");
-            break;
-          case EntireValueType.NegativeInfinity:
-            break;
+          DataTypeMapping typeMapping = ((DomainHandler)Handlers.DomainHandler).ValueTypeMapper.GetTypeMapping(column.Type);
+          int fieldIndex = i;
+          var binding = new SqlFetchParameterBinding(() => rangeProvider.CurrentRange.EndPoints.First.Value.GetValue(fieldIndex), typeMapping);
+          request.ParameterBindings.Add(binding);
+          if (i == originalRange.EndPoints.First.Value.Count - 1) {
+            switch (originalRange.EndPoints.First.ValueType) {
+              case EntireValueType.Default:
+                request.ParameterBindings.Add(binding);
+                query.Where &= query.Columns[keyColumns[i].Key] >= binding.SqlParameter;
+                break;
+              case EntireValueType.PositiveInfinitesimal:
+                request.ParameterBindings.Add(binding);
+                query.Where &= query.Columns[keyColumns[i].Key] > binding.SqlParameter;
+                break;
+              case EntireValueType.NegativeInfinitesimal:
+                request.ParameterBindings.Add(binding);
+                query.Where &= query.Columns[keyColumns[i].Key] >= binding.SqlParameter;
+                break;
+              case EntireValueType.PositiveInfinity:
+                query.Where &= SqlFactory.Native("1") == SqlFactory.Native("0");
+                break;
+              case EntireValueType.NegativeInfinity:
+                break;
+            }
           }
-          if (pp!=null)
-            result = (query.Columns[keyColumns[i-1].Key]==pp) & result;
-          if (bContinue) {
-            var nextColumnExpression = fromCompiler(i + 1, binding.SqlParameter);
-            if (!SqlExpression.IsNull(nextColumnExpression))
-              result = result & nextColumnExpression;
-          }
+          else
+            query.Where &= query.Columns[keyColumns[i].Key] >= binding.SqlParameter;
         }
-        return result;
-      };
-      Func<int,SqlParameter,SqlExpression> toCompiler = null;
-      toCompiler = (i,pp) => {
-        SqlExpression result = null;
-        bool bContinue = false;
-        if (originalRange.EndPoints.Second.Count > i && originalRange.EndPoints.Second.IsAvailable(i)) {
+      }
+      else if (originalRange.EndPoints.First.ValueType==EntireValueType.PositiveInfinity)
+        query.Where &= SqlFactory.Native("1")==SqlFactory.Native("0");
+
+      if (originalRange.EndPoints.Second.HasValue) {
+        for (int i = 0; i < originalRange.EndPoints.Second.Value.Count; i++) {
           var column = provider.Header.Columns[keyColumns[i].Key];
-          DataTypeMapping typeMapping = ((DomainHandler) Handlers.DomainHandler).ValueTypeMapper.GetTypeMapping(column.Type);
-          var binding = new SqlFetchParameterBinding(() => rangeProvider.CurrentRange.EndPoints.Second.GetValue(i), typeMapping);
-          switch (originalRange.EndPoints.Second.GetValueType(i)) {
-          case EntireValueType.Default:
-            request.ParameterBindings.Add(binding);
-            result = query.Columns[keyColumns[i].Key] <= binding.SqlParameter;
-            bContinue = true;
-            break;
-          case EntireValueType.PositiveInfinitesimal:
-            request.ParameterBindings.Add(binding);
-            result = query.Columns[keyColumns[i].Key] <= binding.SqlParameter;
-            bContinue = true;
-            break;
-          case EntireValueType.NegativeInfinitesimal:
-            request.ParameterBindings.Add(binding);
-            result = query.Columns[keyColumns[i].Key] < binding.SqlParameter;
-            break;
-          case EntireValueType.PositiveInfinity:
-            break;
-          case EntireValueType.NegativeInfinity:
-            result = SqlFactory.Native("1") == SqlFactory.Native("0");
-            break;
+          DataTypeMapping typeMapping = ((DomainHandler)Handlers.DomainHandler).ValueTypeMapper.GetTypeMapping(column.Type);
+          int fieldIndex = i;
+          var binding = new SqlFetchParameterBinding(() => rangeProvider.CurrentRange.EndPoints.Second.Value.GetValue(fieldIndex), typeMapping);
+          request.ParameterBindings.Add(binding);
+          if (i == originalRange.EndPoints.Second.Value.Count - 1) {
+            switch (originalRange.EndPoints.Second.ValueType) {
+              case EntireValueType.Default:
+                request.ParameterBindings.Add(binding);
+                query.Where &= query.Columns[keyColumns[i].Key] <= binding.SqlParameter;
+                break;
+              case EntireValueType.PositiveInfinitesimal:
+                request.ParameterBindings.Add(binding);
+                query.Where &= query.Columns[keyColumns[i].Key] <= binding.SqlParameter;
+                break;
+              case EntireValueType.NegativeInfinitesimal:
+                request.ParameterBindings.Add(binding);
+                query.Where &= query.Columns[keyColumns[i].Key] < binding.SqlParameter;
+                break;
+              case EntireValueType.PositiveInfinity:
+                break;
+              case EntireValueType.NegativeInfinity:
+                query.Where &= SqlFactory.Native("1") == SqlFactory.Native("0");
+                break;
+            }
           }
-          if (pp!=null)
-            result = (query.Columns[keyColumns[i-1].Key]==pp) & result;
-          if (bContinue) {
-            var nextColumnExpression = toCompiler(i + 1, binding.SqlParameter);
-            if (!SqlExpression.IsNull(nextColumnExpression))
-              result = result & nextColumnExpression;
-          }
+          else
+            query.Where &= query.Columns[keyColumns[i].Key] >= binding.SqlParameter;
         }
-        return result;
-      };
-      query.Where &= fromCompiler(0, null) && toCompiler(0, null);
+      }
+      else if (originalRange.EndPoints.First.ValueType==EntireValueType.PositiveInfinity)
+        query.Where &= SqlFactory.Native("1")==SqlFactory.Native("0");
 
       return rangeProvider;
     }

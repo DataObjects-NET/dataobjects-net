@@ -19,7 +19,7 @@ namespace Xtensive.Storage.Rse.Providers.Internals
   internal abstract class ProviderReader: IIndexReader<Tuple, Tuple>
   {
     private readonly Provider provider;
-    private Range<IEntire<Tuple>> range; // Non-readonly - to avoid stack growth
+    private Range<Entire<Tuple>> range; // Non-readonly - to avoid stack growth
     private readonly Direction direction;
 
     /// <summary>
@@ -31,7 +31,7 @@ namespace Xtensive.Storage.Rse.Providers.Internals
     }
 
     /// <inheritdoc/>
-    public Range<IEntire<Tuple>> Range
+    public Range<Entire<Tuple>> Range
     {
       get { return range; }
     }
@@ -57,7 +57,7 @@ namespace Xtensive.Storage.Rse.Providers.Internals
     public abstract bool MoveNext();
     
     /// <inheritdoc/>
-    public abstract void MoveTo(IEntire<Tuple> key);
+    public abstract void MoveTo(Entire<Tuple> key);
 
     /// <inheritdoc/>
     public abstract void Reset();
@@ -79,7 +79,7 @@ namespace Xtensive.Storage.Rse.Providers.Internals
     /// </summary>
     /// <param name="provider"><see cref="Provider"/> property value.</param>
     /// <param name="range">The <see cref="Range"/> property value.</param>
-    protected ProviderReader(Provider provider, Range<IEntire<Tuple>> range)
+    protected ProviderReader(Provider provider, Range<Entire<Tuple>> range)
     {
       this.provider = provider;
       this.range = range;

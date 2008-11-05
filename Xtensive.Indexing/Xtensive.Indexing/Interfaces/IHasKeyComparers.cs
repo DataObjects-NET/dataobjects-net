@@ -21,14 +21,14 @@ namespace Xtensive.Indexing
     AdvancedComparer<TKey> KeyComparer { get; }
 
     /// <summary>
-    /// Gets the <see cref="IEntire{T}"/> comparer for <typeparamref name="TKey"/> type.
+    /// Gets the <see cref="Entire{T}"/> comparer for <typeparamref name="TKey"/> type.
     /// </summary>
-    AdvancedComparer<IEntire<TKey>> EntireKeyComparer { get; }
+    AdvancedComparer<Entire<TKey>> EntireKeyComparer { get; }
 
     /// <summary>
     /// Gets the delegate used to compare 
-    /// <see cref="IEntire{T}"/> for <typeparamref name="TKey"/> type and <typeparamref name="TKey"/> type.
+    /// <see cref="Entire{T}"/> for <typeparamref name="TKey"/> type and <typeparamref name="TKey"/> type.
     /// </summary>
-    Func<IEntire<TKey>, TKey, int> AsymmetricKeyCompare { get; }
+    Func<Entire<TKey>, TKey, int> AsymmetricKeyCompare { get; }
   }
 }

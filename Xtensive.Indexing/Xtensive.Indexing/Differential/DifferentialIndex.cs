@@ -26,7 +26,7 @@ namespace Xtensive.Indexing.Differential
     private IUniqueOrderedIndex<TKey, TItem> origin;
     private IUniqueOrderedIndex<TKey, TItem> insertions;
     private IUniqueOrderedIndex<TKey, TItem> removals;
-    private Converter<TKey, IEntire<TKey>> entireConverter;
+    private Converter<TKey, Entire<TKey>> entireConverter;
     private IMeasureResultSet<TItem> measureResults;
 
     #region Properties: Origin, Insertions, Removals, MeasureResults, EntireConverter
@@ -68,7 +68,7 @@ namespace Xtensive.Indexing.Differential
     /// <summary>
     /// Gets the entire converter.
     /// </summary>
-    public Converter<TKey, IEntire<TKey>> EntireConverter
+    public Converter<TKey, Entire<TKey>> EntireConverter
     {
       [DebuggerStepThrough]
       get { return entireConverter; }
@@ -201,7 +201,7 @@ namespace Xtensive.Indexing.Differential
     }
 
     /// <inheritdoc/>
-    public override object GetMeasureResult(Range<IEntire<TKey>> range, string name)
+    public override object GetMeasureResult(Range<Entire<TKey>> range, string name)
     {
       IMeasure<TItem> measure = Measures[name];
       if (measure==null)
@@ -217,7 +217,7 @@ namespace Xtensive.Indexing.Differential
     }
 
     /// <inheritdoc/>
-    public override object[] GetMeasureResults(Range<IEntire<TKey>> range, params string[] names)
+    public override object[] GetMeasureResults(Range<Entire<TKey>> range, params string[] names)
     {
       IMeasure<TItem> measure;
       foreach (string name in names) {
@@ -249,7 +249,7 @@ namespace Xtensive.Indexing.Differential
     #region Seek, CreateReader methods.
 
     /// <inheritdoc/>
-    public override SeekResult<TItem> Seek(Ray<IEntire<TKey>> ray)
+    public override SeekResult<TItem> Seek(Ray<Entire<TKey>> ray)
     {
       SeekResult<TItem> originResult = origin.Seek(ray);
       SeekResult<TItem> insertionsResult = insertions.Seek(ray);
@@ -295,7 +295,7 @@ namespace Xtensive.Indexing.Differential
     } 
 
     /// <inheritdoc/>
-    public override IIndexReader<TKey, TItem> CreateReader(Range<IEntire<TKey>> range)
+    public override IIndexReader<TKey, TItem> CreateReader(Range<Entire<TKey>> range)
     {
       return new DifferentialIndexReader<TKey, TItem, TImpl>(this, range);
     }
@@ -308,7 +308,7 @@ namespace Xtensive.Indexing.Differential
       base.OnConfigured();
       var configuration = (DifferentialIndexConfiguration<TKey, TItem>) Configuration;
       origin = configuration.Origin;
-      entireConverter = (key => Entire<TKey>.Create(key));
+      entireConverter = (key => new Entire<TKey>(key));
       measureResults = new MeasureResultSet<TItem>(Measures);
       if (configuration.Insertions == null && configuration.Removals == null)
       {

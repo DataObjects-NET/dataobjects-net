@@ -21,7 +21,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <summary>
     /// Gets the range parameter.
     /// </summary>
-    public Func<Range<IEntire<Tuple>>> Range { get; private set; }
+    public Func<Range<Entire<Tuple>>> Range { get; private set; }
 
     /// <inheritdoc/>
     public override string ParametersToString()
@@ -32,7 +32,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
 
     // Constructor
 
-    private RangeProvider(CompilableProvider source, Func<Range<IEntire<Tuple>>> range, bool hidden)
+    private RangeProvider(CompilableProvider source, Func<Range<Entire<Tuple>>> range, bool hidden)
       : base(source)
     {
       Range = range;
@@ -44,7 +44,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// </summary>
     /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="range">The <see cref="Range"/> property value.</param>
-    public RangeProvider(CompilableProvider source, Func<Range<IEntire<Tuple>>> range)
+    public RangeProvider(CompilableProvider source, Func<Range<Entire<Tuple>>> range)
       : this(source, range, true)
     {}
 
@@ -53,7 +53,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// </summary>
     /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="range">The value for <see cref="Range"/> function property.</param>
-    public RangeProvider(CompilableProvider source, Range<IEntire<Tuple>> range)
+    public RangeProvider(CompilableProvider source, Range<Entire<Tuple>> range)
       : this(source, () => range, true)
     {}
   }

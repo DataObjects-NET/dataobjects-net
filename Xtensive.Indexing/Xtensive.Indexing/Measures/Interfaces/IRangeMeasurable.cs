@@ -22,7 +22,7 @@ namespace Xtensive.Indexing.Measures
     /// <param name="range">The range of <typeparamref name="TKey"/>s.</param>
     /// <param name="name">The name of the measure.</param>
     /// <returns>The measurement result.</returns>
-    object GetMeasureResult(Range<IEntire<TKey>> range, string name);
+    object GetMeasureResult(Range<Entire<TKey>> range, string name);
 
     /// <summary>
     /// Gets the measurement result for a set of <see cref="IMeasure{TItem,TResult}"/> with the specified <paramref name="names"/>.
@@ -30,6 +30,6 @@ namespace Xtensive.Indexing.Measures
     /// <param name="range">The range of <typeparamref name="TKey"/>s.</param>
     /// <param name="names">The names of measures to get.</param>
     /// <returns>The <see cref="Array"/> of measurement results for specified <see cref="IMeasure{TItem,TResult}"/>s.</returns>
-    object[] GetMeasureResults(Range<IEntire<TKey>> range, params string[] names);
+    object[] GetMeasureResults(Range<Entire<TKey>> range, params string[] names);
   }
 }

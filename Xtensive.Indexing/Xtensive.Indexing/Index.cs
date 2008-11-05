@@ -186,7 +186,7 @@ namespace Xtensive.Indexing
 
 
     /// <inheritdoc/>
-    public override SeekResult<TItem> Seek(Ray<IEntire<TKey>> ray)
+    public override SeekResult<TItem> Seek(Ray<Entire<TKey>> ray)
     {
       EnsureConfigured();
       TItem result;
@@ -199,7 +199,7 @@ namespace Xtensive.Indexing
     }
 
     /// <inheritdoc/>
-    public override IIndexReader<TKey, TItem> CreateReader(Range<IEntire<TKey>> range)
+    public override IIndexReader<TKey, TItem> CreateReader(Range<Entire<TKey>> range)
     {
       EnsureConfigured();
       return new IndexReader<TKey, TItem>(this, range);

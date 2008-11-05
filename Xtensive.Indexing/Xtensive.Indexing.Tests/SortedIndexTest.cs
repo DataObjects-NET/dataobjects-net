@@ -80,12 +80,12 @@ namespace Xtensive.Indexing.Tests
       Assert.AreEqual(6, index.Count);
       List<Pair<int, string>> list;
 
-      list = new List<Pair<int, string>>(index.GetItems(new Range<IEntire<int>>(Entire<int>.Create(7), Entire<int>.Create(12))));
+      list = new List<Pair<int, string>>(index.GetItems(new Range<Entire<int>>(new Entire<int>(7), new Entire<int>(12))));
       Assert.AreEqual(2, list.Count);
       Assert.AreEqual(7, list[0].First);
       Assert.AreEqual(12, list[1].First);
 
-      list = new List<Pair<int, string>>(index.GetItems(new Range<IEntire<int>>(Entire<int>.Create(13), Entire<int>.Create(6))));
+      list = new List<Pair<int, string>>(index.GetItems(new Range<Entire<int>>(new Entire<int>(13), new Entire<int>(6))));
       Assert.AreEqual(2, list.Count);
       Assert.AreEqual(12, list[0].First);
       Assert.AreEqual(7, list[1].First);

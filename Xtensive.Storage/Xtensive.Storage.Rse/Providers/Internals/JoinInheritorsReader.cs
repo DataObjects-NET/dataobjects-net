@@ -40,7 +40,7 @@ namespace Xtensive.Storage.Rse.Providers.Internals
       return enumerator.MoveNext();
     }
 
-    public override void MoveTo(IEntire<Tuple> key)
+    public override void MoveTo(Entire<Tuple> key)
     {
       reader.MoveTo(key);
       foreach (IIndexReader<Tuple, Tuple> rightReader in rightReaders)
@@ -81,7 +81,7 @@ namespace Xtensive.Storage.Rse.Providers.Internals
 
     // Constructor
 
-    public JoinInheritorsReader(Provider provider, Range<IEntire<Tuple>> range, Provider root, Provider[] inheritors, MapTransform transform)
+    public JoinInheritorsReader(Provider provider, Range<Entire<Tuple>> range, Provider root, Provider[] inheritors, MapTransform transform)
       : base(provider, range)
     {
       this.root = root;

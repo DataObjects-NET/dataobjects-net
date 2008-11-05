@@ -126,14 +126,14 @@ namespace Xtensive.Indexing.Tests
     public AnimalCollection()
     {
       // Unique index creation
-      IndexConfigurationBase<string, Animal> uniqueIndexConfig = new IndexConfigurationBase<string, Animal>();
-      uniqueIndexConfig.KeyExtractor = delegate(Animal item) { return item.Name; };
+      var uniqueIndexConfig = new IndexConfigurationBase<string, Animal>();
+      uniqueIndexConfig.KeyExtractor = (item => item.Name);
       uniqueIndexConfig.KeyComparer = AdvancedComparer<string>.Default;
       nameIndex = IndexFactory.CreateUnique<string, Animal, DictionaryIndex<string, Animal>>(uniqueIndexConfig);
 
       // Unique sorted index creation for nonunique index
-      TupleDescriptor td = TupleDescriptor.Create(new Type[] { typeof(int), typeof(string) });
-      IndexConfigurationBase<Tuple, Animal> orderedIndexConfig = new IndexConfigurationBase<Tuple, Animal>();
+      TupleDescriptor td = TupleDescriptor.Create(new[] { typeof(int), typeof(string) });
+      var orderedIndexConfig = new IndexConfigurationBase<Tuple, Animal>();
       orderedIndexConfig.KeyExtractor = delegate(Animal item) {
                                           Tuple tuple = Tuple.Create(td);
                                           tuple.SetValue(0, item.Age);
@@ -142,15 +142,10 @@ namespace Xtensive.Indexing.Tests
       orderedIndexConfig.KeyComparer = AdvancedComparer<Tuple>.Default;
 
       // Nonunique index creation
-      NonUniqueIndexConfiguration<int, Tuple, Animal> nonUniqueIndexConfig = new NonUniqueIndexConfiguration<int, Tuple, Animal>();
-      nonUniqueIndexConfig.KeyExtractor = delegate(Animal item) { return item.Age; };
+      var nonUniqueIndexConfig = new NonUniqueIndexConfiguration<int, Tuple, Animal>();
+      nonUniqueIndexConfig.KeyExtractor = (item => item.Age);
       nonUniqueIndexConfig.KeyComparer = AdvancedComparer<int>.Default;
-      nonUniqueIndexConfig.EntireConverter = delegate(IEntire<int> age) {
-                                          Tuple tuple = Tuple.Create(td);
-                                          tuple.SetValue(0, age.GetValue(0));
-                                            return
-                                              Entire<Tuple>.Create(tuple, age.GetValueType(0));
-                                          };
+      nonUniqueIndexConfig.EntireConverter = (age => new Entire<Tuple>(Tuple.Create(age.Value), age.ValueType));
       nonUniqueIndexConfig.UniqueIndexConfiguration = orderedIndexConfig;
       ageIndex = IndexFactory.CreateNonUnique<int, Tuple, Animal, SortedListIndex<Tuple, Animal>>(nonUniqueIndexConfig);
 
@@ -196,31 +191,21 @@ namespace Xtensive.Indexing.Tests
     public AnimalSet()
     {
       // Unique index creation
-      IndexConfigurationBase<string, Animal> uniqueIndexConfig = new IndexConfigurationBase<string, Animal>();
-      uniqueIndexConfig.KeyExtractor = delegate(Animal item) { return item.Name; };
+      var uniqueIndexConfig = new IndexConfigurationBase<string, Animal>();
+      uniqueIndexConfig.KeyExtractor = (item => item.Name);
       uniqueIndexConfig.KeyComparer = AdvancedComparer<string>.Default;
       nameIndex = IndexFactory.CreateUnique<string, Animal, DictionaryIndex<string, Animal>>(uniqueIndexConfig);
 
       // Unique sorted index creation for nonunique index
-      TupleDescriptor td = TupleDescriptor.Create(new Type[] { typeof(int), typeof(string) });
-      IndexConfigurationBase<Tuple, Animal> orderedIndexConfig = new IndexConfigurationBase<Tuple, Animal>();
-      orderedIndexConfig.KeyExtractor = delegate(Animal item) {
-                                          Tuple tuple = Tuple.Create(td);
-                                          tuple.SetValue(0, item.Age);
-                                          tuple.SetValue(1, item.Name);
-                                          return tuple;};
+      var orderedIndexConfig = new IndexConfigurationBase<Tuple, Animal>();
+      orderedIndexConfig.KeyExtractor = (item => Tuple.Create(item.Age, item.Name));
       orderedIndexConfig.KeyComparer = AdvancedComparer<Tuple>.Default;
 
       // Nonunique index creation
-      NonUniqueIndexConfiguration<int, Tuple, Animal> nonUniqueIndexConfig = new NonUniqueIndexConfiguration<int, Tuple, Animal>();
-      nonUniqueIndexConfig.KeyExtractor = delegate(Animal item) { return item.Age; };
+      var nonUniqueIndexConfig = new NonUniqueIndexConfiguration<int, Tuple, Animal>();
+      nonUniqueIndexConfig.KeyExtractor = (item => item.Age);
       nonUniqueIndexConfig.KeyComparer = AdvancedComparer<int>.Default;
-      nonUniqueIndexConfig.EntireConverter = delegate(IEntire<int> age) {
-                                          Tuple tuple = Tuple.Create(td);
-                                          tuple.SetValue(0, age.GetValue(0));
-                                            return
-                                              Entire<Tuple>.Create(tuple, age.GetValueType(0));
-                                          };
+      nonUniqueIndexConfig.EntireConverter = (age => new Entire<Tuple>(Tuple.Create(age.Value), age.ValueType));
       nonUniqueIndexConfig.UniqueIndexConfiguration = orderedIndexConfig;
       ageIndex = IndexFactory.CreateNonUnique<int, Tuple, Animal, SortedListIndex<Tuple, Animal>>(nonUniqueIndexConfig);
 

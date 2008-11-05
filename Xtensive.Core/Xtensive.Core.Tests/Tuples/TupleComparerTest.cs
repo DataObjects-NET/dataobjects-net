@@ -35,6 +35,20 @@ namespace Xtensive.Core.Tests.Tuples
     }
 
     [Test]
+    public void ComparisonResultsTest()
+    {
+      Assert.AreEqual(2,  advancedComparer.Compare(Tuple.Create(1, 2),    Tuple.Create(1)));
+      Assert.AreEqual(-2, advancedComparer.Compare(Tuple.Create(1, 2, 3), Tuple.Create(1, 3, 5)));
+      Assert.AreEqual(-1, advancedComparer.Compare(Tuple.Create(1),       Tuple.Create(2)));
+      Assert.AreEqual(-1, advancedComparer.Compare(Tuple.Create(1),       Tuple.Create(5)));
+
+      Assert.AreEqual(2,  comparer.Compare(Tuple.Create(1, 2), Tuple.Create(1)));
+      Assert.AreEqual(-2, comparer.Compare(Tuple.Create(1, 2, 3), Tuple.Create(1, 3, 5)));
+      Assert.AreEqual(-1, comparer.Compare(Tuple.Create(1), Tuple.Create(2)));
+      Assert.AreEqual(-1, comparer.Compare(Tuple.Create(1), Tuple.Create(5)));
+    }
+
+    [Test]
     public void DifferentSizeAndTypeTest()
     {
       CheckComparisons(Tuple.Create(1), Tuple.Create("1"), -1);

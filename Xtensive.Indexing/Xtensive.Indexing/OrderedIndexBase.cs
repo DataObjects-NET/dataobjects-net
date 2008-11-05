@@ -18,32 +18,32 @@ namespace Xtensive.Indexing
     IOrderedIndex<TKey, TItem>
   {
     /// <inheritdoc/>
-    public IEnumerable<TKey> GetKeys(Range<IEntire<TKey>> range)
+    public IEnumerable<TKey> GetKeys(Range<Entire<TKey>> range)
     {
       foreach (TItem item in GetItems(range))
         yield return KeyExtractor(item);
     }
 
     /// <inheritdoc/>
-    public IEnumerable<TItem> GetItems(Range<IEntire<TKey>> range)
+    public IEnumerable<TItem> GetItems(Range<Entire<TKey>> range)
     {
       return CreateReader(range);
     }
     
     /// <inheritdoc/>
-    public abstract SeekResult<TItem> Seek(Ray<IEntire<TKey>> ray);
+    public abstract SeekResult<TItem> Seek(Ray<Entire<TKey>> ray);
 
     /// <inheritdoc/>
     public abstract SeekResult<TItem> Seek(TKey key);
 
     /// <inheritdoc/>
-    public abstract IIndexReader<TKey, TItem> CreateReader(Range<IEntire<TKey>> range);
+    public abstract IIndexReader<TKey, TItem> CreateReader(Range<Entire<TKey>> range);
 
     /// <inheritdoc/>
-    public abstract object GetMeasureResult(Range<IEntire<TKey>> range, string name);
+    public abstract object GetMeasureResult(Range<Entire<TKey>> range, string name);
 
     /// <inheritdoc/>
-    public abstract object[] GetMeasureResults(Range<IEntire<TKey>> range, params string[] names);
+    public abstract object[] GetMeasureResults(Range<Entire<TKey>> range, params string[] names);
 
     /// <inheritdoc/>
     public override IEnumerator<TItem> GetEnumerator()

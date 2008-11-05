@@ -11,6 +11,7 @@ using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Tuples;
 using Xtensive.Indexing.Resources;
 
 namespace Xtensive.Indexing
@@ -188,7 +189,7 @@ namespace Xtensive.Indexing
     /// <param name="asymmetricCompare">The comparer to use.</param>
     /// <returns><see langword="True"/> if range contains specified point;
     /// otherwise, <see langword="false"/>.</returns>
-    public static bool Contains<T>(this Range<IEntire<T>> range, T point, Func<IEntire<T>,T,int> asymmetricCompare)
+    public static bool Contains<T>(this Range<Entire<T>> range, T point, Func<Entire<T>,T,int> asymmetricCompare)
     {
       // ArgumentValidator.EnsureArgumentNotNull(comparer, "comparer");
       if (range.IsEmpty)
@@ -422,34 +423,43 @@ namespace Xtensive.Indexing
     /// <returns>
     /// 	<see langword="true"/> if the specified range is similar; otherwise, <see langword="false"/>.
     /// </returns>
-    public static bool IsSimilar<T>(this Range<IEntire<T>> range, Range<IEntire<T>> other)
+    public static bool IsSimilar<T>(this Range<Entire<T>> range, Range<Entire<T>> other)
     {
-      bool result = range.EndPoints.First.Descriptor.Equals(other.EndPoints.First.Descriptor);
-      if (!result)
-        return false;
-      result = range.EndPoints.Second.Descriptor.Equals(other.EndPoints.Second.Descriptor);
-      if (!result)
-        return false;
+      if (typeof (Tuple).IsAssignableFrom(typeof (T))) {
+        var x1 = range.EndPoints.First.Value as Tuple;
+        var x2 = other.EndPoints.First.Value as Tuple;
+        var y1 = range.EndPoints.Second.Value as Tuple;
+        var y2 = other.EndPoints.Second.Value as Tuple;
 
-      result = range.EndPoints.First.ValueTypes.EqualsTo(other.EndPoints.First.ValueTypes);
-      if (!result)
-        return false;
+        bool result = x1.Descriptor.Equals(x2.Descriptor);
+        if (!result)
+          return false;
+        result = y1.Descriptor.Equals(y2.Descriptor);
+        if (!result)
+          return false;
 
-      result = range.EndPoints.Second.ValueTypes.EqualsTo(other.EndPoints.Second.ValueTypes);
-      if (!result)
-        return false;
+        result = range.EndPoints.First.ValueType == other.EndPoints.First.ValueType;
+        if (!result)
+          return false;
 
-      var indexes = Enumerable.Range(0, range.EndPoints.First.Count).ToList();
-      result = indexes.Select(i => range.EndPoints.First.HasValue(i)).SequenceEqual(indexes.Select(i => range.EndPoints.Second.HasValue(i)));
+        result = range.EndPoints.Second.ValueType == other.EndPoints.Second.ValueType;
+        if (!result)
+          return false;
 
-      return result;
+        var indexes = Enumerable.Range(0, x1.Count).ToList();
+        result = indexes.Select(i => x1.HasValue(i)).SequenceEqual(indexes.Select(i => y1.HasValue(i)));
+
+        return result;
+      }
+      return
+        range.EndPoints.First.ValueType==other.EndPoints.First.ValueType &&
+        range.EndPoints.Second.ValueType==other.EndPoints.Second.ValueType;
     }
-
     #endregion
 
     #region Static internal \ private methods
 
-    private static PointComparisonResult Compare<T>(T point, Pair<IEntire<T>> points, Func<IEntire<T>, T, int> asymmetricCompare)
+    private static PointComparisonResult Compare<T>(T point, Pair<Entire<T>> points, Func<Entire<T>, T, int> asymmetricCompare)
     {
       return new PointComparisonResult(
         asymmetricCompare(points.First, point),

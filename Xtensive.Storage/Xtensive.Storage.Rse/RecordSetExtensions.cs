@@ -25,43 +25,43 @@ namespace Xtensive.Storage.Rse
       return recordSet.Provider.GetService<IListProvider>(true).GetItem(index);
     }
 
-    public static RecordSet Range(this RecordSet recordSet, Func<Range<IEntire<Tuple>>> range)
+    public static RecordSet Range(this RecordSet recordSet, Func<Range<Entire<Tuple>>> range)
     {
       return new RangeProvider(recordSet.Provider, range).Result;
     }
 
-    public static RecordSet Range(this RecordSet recordSet, Range<IEntire<Tuple>> range)
+    public static RecordSet Range(this RecordSet recordSet, Range<Entire<Tuple>> range)
     {
       return new RangeProvider(recordSet.Provider, range).Result;
     }
 
-    public static RecordSet Range(this RecordSet recordSet, IEntire<Tuple> from, IEntire<Tuple> to)
+    public static RecordSet Range(this RecordSet recordSet, Entire<Tuple> from, Entire<Tuple> to)
     {
-      return Range(recordSet, new Range<IEntire<Tuple>>(from, to));
+      return Range(recordSet, new Range<Entire<Tuple>>(from, to));
     }
 
     public static RecordSet Range(this RecordSet recordSet, Tuple from, Tuple to)
     {
-      IEntire<Tuple> xPoint;
-      IEntire<Tuple> yPoint;
+      Entire<Tuple> xPoint;
+      Entire<Tuple> yPoint;
       Direction rangeDirection = new Range<Tuple>(from,to).GetDirection(AdvancedComparer<Tuple>.Default);
       DirectionCollection<int> directions = recordSet.Provider.Header.Order;
 
       if (directions.Count > from.Count) {
         Direction fromDirection = directions[from.Count].Value;
-        xPoint = Entire<Tuple>.Create(from, (Direction)((int)rangeDirection * (int)fromDirection * -1));
+        xPoint = new Entire<Tuple>(from, (Direction)((int)rangeDirection * (int)fromDirection * -1));
       }
       else
-        xPoint = Entire<Tuple>.Create(from);
+        xPoint = new Entire<Tuple>(from);
 
       if (directions.Count > to.Count) {
         Direction toDirection = directions[to.Count].Value;
-        yPoint = Entire<Tuple>.Create(to, (Direction)((int)rangeDirection * (int)toDirection));
+        yPoint = new Entire<Tuple>(to, (Direction)((int)rangeDirection * (int)toDirection));
       }
       else
-        yPoint = Entire<Tuple>.Create(to);
+        yPoint = new Entire<Tuple>(to);
 
-      return Range(recordSet, new Range<IEntire<Tuple>>(xPoint, yPoint));
+      return Range(recordSet, new Range<Entire<Tuple>>(xPoint, yPoint));
     }
 
     public static RecordSet Calculate(this RecordSet recordSet, params CalculatedColumnDescriptor[] columns)

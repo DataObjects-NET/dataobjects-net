@@ -67,7 +67,7 @@ namespace Xtensive.Indexing.Tests.Index
           foreach (TItem item in list)
           {
             var key = keyExtractor(item);
-            SeekResult<TItem> result = readOnlyIndex.Seek(new Ray<IEntire<TKey>>(Entire<TKey>.Create(key)));
+            SeekResult<TItem> result = readOnlyIndex.Seek(new Ray<Entire<TKey>>(new Entire<TKey>(key)));
           }
       }
 
@@ -95,9 +95,9 @@ namespace Xtensive.Indexing.Tests.Index
           {
             var from = keyExtractor(orderedList[j]);
             var to = keyExtractor(orderedList[count - 1]);
-            readOnlyIndex.GetItems(new Range<IEntire<TKey>>(
-              Entire<TKey>.Create(from),
-              Entire<TKey>.Create(to)));
+            readOnlyIndex.GetItems(new Range<Entire<TKey>>(
+              new Entire<TKey>(from),
+              new Entire<TKey>(to)));
           }
       }
 
@@ -113,9 +113,9 @@ namespace Xtensive.Indexing.Tests.Index
           {
             var from = keyExtractor(orderedList[j]);
             var to = keyExtractor(orderedList[count - 1]);
-            TItem first = readOnlyIndex.GetItems(new Range<IEntire<TKey>>(
-              Entire<TKey>.Create(from),
-              Entire<TKey>.Create(to))).First();
+            TItem first = readOnlyIndex.GetItems(new Range<Entire<TKey>>(
+              new Entire<TKey>(from),
+              new Entire<TKey>(to))).First();
             
           }
       }
@@ -128,9 +128,9 @@ namespace Xtensive.Indexing.Tests.Index
         TestHelper.CollectGarbage();
         int count = ItemsCount;
         using (new Measurement("GetItems,Enumerator.MoveNext+Current", MeasurementOptions.Log, count))
-          foreach (TItem i in readOnlyIndex.GetItems(new Range<IEntire<TKey>>(
-            Entire<TKey>.Create(InfinityType.Negative),
-            Entire<TKey>.Create(InfinityType.Positive))))
+          foreach (TItem i in readOnlyIndex.GetItems(new Range<Entire<TKey>>(
+            new Entire<TKey>(InfinityType.Negative),
+            new Entire<TKey>(InfinityType.Positive))))
           {
           }
       }

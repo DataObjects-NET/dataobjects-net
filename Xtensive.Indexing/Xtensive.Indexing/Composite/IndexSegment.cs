@@ -24,7 +24,7 @@ namespace Xtensive.Indexing.Composite
     private readonly int segmentNumber;
     private Converter<TKey, TKey> keyConverter;
     private Converter<TItem, TItem> itemConverter;
-    private Converter<IEntire<TKey>, IEntire<TKey>> entireConverter;
+    private Converter<Entire<TKey>, Entire<TKey>> entireConverter;
     private IMeasureResultSet<TItem> measureResults;
     private Dictionary<TupleDescriptor, CutOutTransform> CutOutTransformDictionary;
     private Dictionary<TupleDescriptor, CutInTransform<int>> CutInTransformDictionary;
@@ -61,7 +61,7 @@ namespace Xtensive.Indexing.Composite
     /// <summary>
     /// Gets the entire converter.
     /// </summary>
-    public Converter<IEntire<TKey>, IEntire<TKey>> EntireConverter
+    public Converter<Entire<TKey>, Entire<TKey>> EntireConverter
     {
       [DebuggerStepThrough]
       get { return entireConverter; }
@@ -105,13 +105,13 @@ namespace Xtensive.Indexing.Composite
     /// <inheritdoc/>
     public override SeekResult<TItem> Seek(TKey key)
     {
-      return Seek(new Ray<IEntire<TKey>>(Entire<TKey>.Create(key)));
+      return Seek(new Ray<Entire<TKey>>(new Entire<TKey>(key)));
     }
 
     /// <inheritdoc/>
-    public override SeekResult<TItem> Seek(Ray<IEntire<TKey>> ray)
+    public override SeekResult<TItem> Seek(Ray<Entire<TKey>> ray)
     {
-      Ray<IEntire<TKey>> compositeRay = GetCompositeIndexRay(ray);
+      Ray<Entire<TKey>> compositeRay = GetCompositeIndexRay(ray);
 
       SeekResult<TItem> result = compositeIndex.Implementation.Seek(compositeRay);
       if (result.ResultType!=SeekResultType.None) {
@@ -123,22 +123,22 @@ namespace Xtensive.Indexing.Composite
           return new SeekResult<TItem>(result.ResultType, (TItem) resultTuple);
         }
       }
-      IEntire<TKey> x, y;
+      Entire<TKey> x, y;
 
       if (compositeRay.Direction==Direction.Negative) {
-        x = Entire<TKey>.Create(InfinityType.Negative);
-        y = Entire<TKey>.Create(compositeRay.Point.Value, compositeRay.Point.ValueTypes);
+        x = new Entire<TKey>(InfinityType.Negative);
+        y = new Entire<TKey>(compositeRay.Point.Value, compositeRay.Point.ValueType);
       }
       else if (compositeRay.Direction==Direction.Positive) {
-        y = Entire<TKey>.Create(InfinityType.Positive);
-        x = Entire<TKey>.Create(compositeRay.Point.Value, compositeRay.Point.ValueTypes);
+        y = new Entire<TKey>(InfinityType.Positive);
+        x = new Entire<TKey>(compositeRay.Point.Value, compositeRay.Point.ValueType);
       }
       else {
-        x = Entire<TKey>.Create(compositeRay.Point.Value, compositeRay.Point.ValueTypes);
+        x = new Entire<TKey>(compositeRay.Point.Value, compositeRay.Point.ValueType);
         y = x;
       }
 
-      Range<IEntire<TKey>> readerRange = new Range<IEntire<TKey>>(x, y);
+      Range<Entire<TKey>> readerRange = new Range<Entire<TKey>>(x, y);
       IndexSegmentReader<TKey, TItem> reader = new IndexSegmentReader<TKey, TItem>(this, readerRange);
       reader.MoveTo(compositeRay.Point);
       if (reader.MoveNext())
@@ -147,7 +147,7 @@ namespace Xtensive.Indexing.Composite
     }
 
     /// <inheritdoc/>
-    public override IIndexReader<TKey, TItem> CreateReader(Range<IEntire<TKey>> range)
+    public override IIndexReader<TKey, TItem> CreateReader(Range<Entire<TKey>> range)
     {
       return new IndexSegmentReader<TKey, TItem>(this, range);
     }
@@ -202,9 +202,9 @@ namespace Xtensive.Indexing.Composite
     #region Measure related methods
 
     /// <inheritdoc/>
-    public override object GetMeasureResult(Range<IEntire<TKey>> range, string name)
+    public override object GetMeasureResult(Range<Entire<TKey>> range, string name)
     {
-      Range<IEntire<TKey>> compositeRange = new Range<IEntire<TKey>>(
+      Range<Entire<TKey>> compositeRange = new Range<Entire<TKey>>(
         entireConverter(range.EndPoints.First), entireConverter(range.EndPoints.Second));
       //string compositeName = GetCompositeIndexMeasureName(name);
 
@@ -222,9 +222,9 @@ namespace Xtensive.Indexing.Composite
     }
 
     /// <inheritdoc/>
-    public override object[] GetMeasureResults(Range<IEntire<TKey>> range, params string[] names)
+    public override object[] GetMeasureResults(Range<Entire<TKey>> range, params string[] names)
     {
-      Range<IEntire<TKey>> compositeRange = new Range<IEntire<TKey>>(
+      Range<Entire<TKey>> compositeRange = new Range<Entire<TKey>>(
         entireConverter(range.EndPoints.First), entireConverter(range.EndPoints.Second));
 
       IMeasure<TItem> measure;
@@ -268,14 +268,14 @@ namespace Xtensive.Indexing.Composite
 
     #region Private \ internal methods
 
-    internal Ray<IEntire<TKey>> GetCompositeIndexRay(Ray<IEntire<TKey>> ray)
+    internal Ray<Entire<TKey>> GetCompositeIndexRay(Ray<Entire<TKey>> ray)
     {
-      return new Ray<IEntire<TKey>>(entireConverter(ray.Point), ray.Direction);
+      return new Ray<Entire<TKey>>(entireConverter(ray.Point), ray.Direction);
     }
 
-    internal Range<IEntire<TKey>> GetCompositeIndexRange(Range<IEntire<TKey>> range)
+    internal Range<Entire<TKey>> GetCompositeIndexRange(Range<Entire<TKey>> range)
     {
-      return new Range<IEntire<TKey>>(
+      return new Range<Entire<TKey>>(
         entireConverter(range.EndPoints.First),
         entireConverter(range.EndPoints.Second));
     }
@@ -320,13 +320,12 @@ namespace Xtensive.Indexing.Composite
         CutInTransform<int> keyTransform = GetCutInTransform(key.Count, item.Descriptor);
         return (TItem) keyTransform.Apply(TupleTransformType.TransformedTuple, item, segmentNumber);
       };
-      entireConverter = delegate(IEntire<TKey> entire) {
+      entireConverter = delegate(Entire<TKey> entire) {
+        if (!entire.HasValue)
+          return entire;
         CutInTransform<int> entireTransform = GetCutInTransform(entire.Value.Count, entire.Value.Descriptor);
         Tuple key = entireTransform.Apply(TupleTransformType.TransformedTuple, entire.Value, segmentNumber);
-        EntireValueType[] valueType = new EntireValueType[entire.Count + 1];
-        entire.ValueTypes.CopyTo(valueType, 0);
-        valueType[entire.Count] = EntireValueType.Exact;
-        IEntire<TKey> result = Entire<TKey>.Create((TKey) key, valueType);
+        var result = new Entire<TKey>((TKey) key, entire.ValueType);
         return result;
       };
       measureResults = new MeasureResultSet<TItem>(Measures);

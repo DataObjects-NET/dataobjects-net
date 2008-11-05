@@ -56,7 +56,7 @@ namespace Xtensive.Indexing
     /// <inheritdoc/>
     public override TItem GetItem(TKey key)
     {
-      SeekResult<TItem> seekResult = Seek(new Ray<IEntire<TKey>>(Entire<TKey>.Create(key)));
+      SeekResult<TItem> seekResult = Seek(new Ray<Entire<TKey>>(new Entire<TKey>(key)));
       if (seekResult.ResultType==SeekResultType.Exact) {
         return seekResult.Result;
       }
@@ -74,7 +74,7 @@ namespace Xtensive.Indexing
     /// <inheritdoc/>
     public override bool ContainsKey(TKey key)
     {
-      return InternalSeek(new Ray<IEntire<TKey>>(Entire<TKey>.Create(key))).ResultType == SeekResultType.Exact;
+      return InternalSeek(new Ray<Entire<TKey>>(new Entire<TKey>(key))).ResultType == SeekResultType.Exact;
     }
 
     #endregion
@@ -94,7 +94,7 @@ namespace Xtensive.Indexing
     }
 
     /// <inheritdoc/>
-    public override SeekResult<TItem> Seek(Ray<IEntire<TKey>> ray)
+    public override SeekResult<TItem> Seek(Ray<Entire<TKey>> ray)
     {
       TItem result;
       var seekResult = InternalSeek(ray);
@@ -106,7 +106,7 @@ namespace Xtensive.Indexing
     }
 
     /// <inheritdoc/>
-    public override IIndexReader<TKey, TItem> CreateReader(Range<IEntire<TKey>> range)
+    public override IIndexReader<TKey, TItem> CreateReader(Range<Entire<TKey>> range)
     {
       return new SortedListIndexReader<TKey, TItem>(this, range);
     }
@@ -119,7 +119,7 @@ namespace Xtensive.Indexing
     /// <exception cref="InvalidOperationException"><paramref name="item"/> is already added.</exception>
     public override void Add(TItem item)
     {
-      var seekResult = InternalSeek(new Ray<IEntire<TKey>>(Entire<TKey>.Create(KeyExtractor(item))));
+      var seekResult = InternalSeek(new Ray<Entire<TKey>>(new Entire<TKey>(KeyExtractor(item))));
       if (seekResult.ResultType==SeekResultType.Exact)
         throw new InvalidOperationException();
       Changed();
@@ -137,7 +137,7 @@ namespace Xtensive.Indexing
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="item"/> could not be replaced.</exception>
     public override void Replace(TItem item)
     {
-      var seekResult = InternalSeek(new Ray<IEntire<TKey>>(Entire<TKey>.Create(KeyExtractor(item))));
+      var seekResult = InternalSeek(new Ray<Entire<TKey>>(new Entire<TKey>(KeyExtractor(item))));
       if (seekResult.ResultType != SeekResultType.Exact)
         throw new ArgumentOutOfRangeException("item");
       Changed();
@@ -147,7 +147,7 @@ namespace Xtensive.Indexing
     /// <inheritdoc/>
     public override bool RemoveKey(TKey key)
     {
-      var seekResult = InternalSeek(new Ray<IEntire<TKey>>(Entire<TKey>.Create(key)));
+      var seekResult = InternalSeek(new Ray<Entire<TKey>>(new Entire<TKey>(key)));
       if (seekResult.ResultType != SeekResultType.Exact)
         return false;
       Changed();
@@ -184,7 +184,7 @@ namespace Xtensive.Indexing
     }
 
     /// <inheritdoc/>
-    public override object GetMeasureResult(Range<IEntire<TKey>> range, string name)
+    public override object GetMeasureResult(Range<Entire<TKey>> range, string name)
     {
       IMeasure<TItem> measure = Measures[name];
       if (measure == null)
@@ -200,7 +200,7 @@ namespace Xtensive.Indexing
     }
 
     /// <inheritdoc/>
-    public override object[] GetMeasureResults(Range<IEntire<TKey>> range, params string[] names)
+    public override object[] GetMeasureResults(Range<Entire<TKey>> range, params string[] names)
     {
       IMeasure<TItem> measure;
 
@@ -283,9 +283,9 @@ namespace Xtensive.Indexing
         new SortedListIndexPointer<TKey, TItem>(this, index));
     }
 
-    internal SeekResultPointer<SortedListIndexPointer<TKey, TItem>> InternalSeek(Ray<IEntire<TKey>> ray)
+    internal SeekResultPointer<SortedListIndexPointer<TKey, TItem>> InternalSeek(Ray<Entire<TKey>> ray)
     {
-      Func<IEntire<TKey>, TKey, int> asymmetricKeyCompare = AsymmetricKeyCompare;
+      Func<Entire<TKey>, TKey, int> asymmetricKeyCompare = AsymmetricKeyCompare;
       SeekResultType resultType = SeekResultType.None;
       int index = 0;
       int maxIndex = items.Count - 1;

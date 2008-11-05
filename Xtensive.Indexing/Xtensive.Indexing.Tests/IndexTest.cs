@@ -151,9 +151,9 @@ namespace Xtensive.Indexing.Tests
       IIndexReader<TKey, TItem> backwardReader = index.CreateReader(index.GetFullRange().Invert());
       for (int i = 0; i < context.SortedItems.Count; i++) {
         TItem item = context.SortedItems[i];
-        forwardReader.MoveTo(Entire<TKey>.Create(index.KeyExtractor(item)));
+        forwardReader.MoveTo(new Entire<TKey>(index.KeyExtractor(item)));
         forwardReader.MoveNext();
-        backwardReader.MoveTo(Entire<TKey>.Create(index.KeyExtractor(item)));
+        backwardReader.MoveTo(new Entire<TKey>(index.KeyExtractor(item)));
         backwardReader.MoveNext();
         Assert.IsTrue(context.ItemComparer.Equals(item, forwardReader.Current));
         if (i==context.SortedItems.Count - 1)
@@ -233,12 +233,12 @@ namespace Xtensive.Indexing.Tests
     {
       Context<TKey, TItem> context = Scope<TKey, TItem>.CurrentContext;
       foreach(TItem item in context.Items) {
-        SeekResult<TItem> seekResult = index.Seek(new Ray<IEntire<TKey>>(Entire<TKey>.Create(index.KeyExtractor(item))));
+        SeekResult<TItem> seekResult = index.Seek(new Ray<Entire<TKey>>(new Entire<TKey>(index.KeyExtractor(item))));
         Assert.AreEqual(SeekResultType.Exact, seekResult.ResultType);
         Assert.IsTrue(context.ItemComparer.Equals(item, seekResult.Result));
       }
       foreach (TItem item in context.MissingItems) {
-        SeekResult<TItem> seekResult = index.Seek(new Ray<IEntire<TKey>>(Entire<TKey>.Create(index.KeyExtractor(item))));
+        SeekResult<TItem> seekResult = index.Seek(new Ray<Entire<TKey>>(new Entire<TKey>(index.KeyExtractor(item))));
         Assert.AreNotEqual(SeekResultType.Exact, seekResult.ResultType);
         Assert.IsFalse(context.ItemComparer.Equals(item, seekResult.Result));
       }
@@ -246,7 +246,7 @@ namespace Xtensive.Indexing.Tests
       int itemIndex = context.Random.Next((int) (index.Count - 1));
       TItem removedItem = context.SortedItems[itemIndex];
       index.Remove(removedItem);
-      SeekResult<TItem> removeSeekResult = index.Seek(new Ray<IEntire<TKey>>(Entire<TKey>.Create(index.KeyExtractor(removedItem))));
+      SeekResult<TItem> removeSeekResult = index.Seek(new Ray<Entire<TKey>>(new Entire<TKey>(index.KeyExtractor(removedItem))));
       Assert.AreEqual(SeekResultType.Nearest, removeSeekResult.ResultType);
       Assert.IsTrue(context.ItemComparer.Equals(context.SortedItems[itemIndex + 1], removeSeekResult.Result));
       context.SortedItems.RemoveAt(itemIndex);
@@ -254,7 +254,7 @@ namespace Xtensive.Indexing.Tests
       removedItem = context.SortedItems[context.SortedItems.Count - 1];
       index.Remove(removedItem);
 
-      removeSeekResult = index.Seek(new Ray<IEntire<TKey>>(Entire<TKey>.Create(index.KeyExtractor(removedItem))));
+      removeSeekResult = index.Seek(new Ray<Entire<TKey>>(new Entire<TKey>(index.KeyExtractor(removedItem))));
       Assert.AreEqual(SeekResultType.None, removeSeekResult.ResultType);
       context.SortedItems.RemoveAt(context.SortedItems.Count - 1);
       PopulateIndex(index);
@@ -272,9 +272,9 @@ namespace Xtensive.Indexing.Tests
         AssertEx.Throws<KeyNotFoundException>(() => index.GetItem(index.KeyExtractor(missingItem)));
 
       //Getting all items in reverse order
-      List<TItem> foundItems = index.GetItems(new Range<IEntire<TKey>>(
-        Entire<TKey>.Create(InfinityType.Positive),
-        Entire<TKey>.Create(InfinityType.Negative))).ToList();
+      List<TItem> foundItems = index.GetItems(new Range<Entire<TKey>>(
+        new Entire<TKey>(InfinityType.Positive),
+        new Entire<TKey>(InfinityType.Negative))).ToList();
       Assert.AreEqual(context.Count, foundItems.Count);
 
       int i = 0;
@@ -285,9 +285,9 @@ namespace Xtensive.Indexing.Tests
       }
 
        //Getting all items in pre order
-      foundItems = index.GetItems(new Range<IEntire<TKey>>(
-        Entire<TKey>.Create(InfinityType.Negative),
-        Entire<TKey>.Create(InfinityType.Positive))).ToList();
+      foundItems = index.GetItems(new Range<Entire<TKey>>(
+        new Entire<TKey>(InfinityType.Negative),
+        new Entire<TKey>(InfinityType.Positive))).ToList();
       Assert.AreEqual(context.Items.Count, foundItems.Count);
 
       i = 0;
@@ -302,9 +302,9 @@ namespace Xtensive.Indexing.Tests
       TItem first = context.SortedItems[position1];
       TItem second = context.SortedItems[position2];
 
-      Range<IEntire<TKey>> range = new Range<IEntire<TKey>>(
-        Entire<TKey>.Create(index.KeyExtractor(first)),
-        Entire<TKey>.Create(index.KeyExtractor(second)));
+      Range<Entire<TKey>> range = new Range<Entire<TKey>>(
+        new Entire<TKey>(index.KeyExtractor(first)),
+        new Entire<TKey>(index.KeyExtractor(second)));
 
       Direction direction = range.GetDirection(index.EntireKeyComparer);
       foundItems = index.GetItems(range).ToList();

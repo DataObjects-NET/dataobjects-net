@@ -24,17 +24,19 @@ namespace Xtensive.Indexing
   /// <typeparam name="T">The type to extend with <see cref="ValueType"/> information.</typeparam>
   [Serializable]
   public struct Entire<T> : 
-    IEntire<T>
+    IComparable<T>,
+    IEquatable<T>,
+    IComparable<Entire<T>>,
+    IEquatable<Entire<T>>,
+    ICloneable
   {
     private static readonly object typeLock = new object();
-    private static readonly TupleDescriptor defaultDescriptor = TupleDescriptor.Create(new Type[] {typeof (T)});
-    private static readonly IEntire<T> minValue = Create(InfinityType.Negative);
-    private static readonly IEntire<T> maxValue = Create(InfinityType.Positive);
+    private static readonly Entire<T> minValue = new Entire<T>(InfinityType.Negative);
+    private static readonly Entire<T> maxValue = new Entire<T>(InfinityType.Positive);
     private static Func<Entire<T>, T, int> asymmetricCompare;
+    private readonly bool hasValue;
     internal readonly T value;
     internal readonly EntireValueType valueType;
-    internal TupleDescriptor descriptor;
-    private static IEntireFactory<T> factory;
 
     #region MinValue \ MaxValue
 
@@ -42,7 +44,7 @@ namespace Xtensive.Indexing
     /// The smallest possible value of <see cref="Entire{T}"/> (negative infinity). 
     /// </summary>
     /// <value>The negative infinity.</value>
-    public static IEntire<T> MinValue {
+    public static Entire<T> MinValue {
       [DebuggerStepThrough]
       get {
         return minValue;
@@ -53,7 +55,7 @@ namespace Xtensive.Indexing
     /// The largest possible value of <see cref="Entire{T}"/> (positive infinity). 
     /// </summary>
     /// <value>The positive infinity.</value>
-    public static IEntire<T> MaxValue {
+    public static Entire<T> MaxValue {
       [DebuggerStepThrough]
       get { 
         return maxValue;
@@ -78,108 +80,13 @@ namespace Xtensive.Indexing
     }
 
     /// <inheritdoc/>
-    public EntireValueType[] ValueTypes {
-      [DebuggerStepThrough]
-      get {
-        return new EntireValueType[] {valueType};
-      }
-    }
-
-    #region IEntire.GetXxx methods
-
-    /// <inheritdoc/>
-    EntireValueType IEntire<T>.GetValueType(int fieldIndex)
-    {
-      return valueType;
-    }
-
-    #endregion
-
-    #region ITuple.Descriptor, Count, indexer
-
-    /// <inheritdoc/>
-    TupleDescriptor ITuple.Descriptor
+    public bool HasValue
     {
       [DebuggerStepThrough]
-      get { return descriptor; }
+      get { return hasValue; }
     }
 
-    /// <inheritdoc/>
-    int ITuple.Count
-    {
-      [DebuggerStepThrough]
-      get { return 1; }
-    }
-
-    /// <inheritdoc/>
-    object ITuple.this[int fieldIndex]
-    {
-      get { return ((ITuple)this).GetValue(fieldIndex); }
-      set { ((ITuple)this).SetValue(fieldIndex, value); }
-    }
-
-    #endregion
-
-    #region ITuple.IsXxx \ HasXxx methods
-
-    /// <inheritdoc/>
-    bool ITuple.IsAvailable(int fieldIndex)
-    {
-      return HasValue;
-    }
-
-    /// <inheritdoc/>
-    bool ITuple.IsNull(int fieldIndex)
-    {
-      EnsureHasValue();
-      return Value==null;
-    }
-
-    /// <inheritdoc/>
-    bool ITuple.HasValue(int fieldIndex)
-    {
-      return HasValue;
-    }
-
-    #endregion
-
-    #region ITuple.GetXxx methods
-
-    public TupleFieldState GetFieldState(int fieldIndex)
-    {
-      if (!HasValue)
-        return 0;
-      if (value==null)
-        return TupleFieldState.IsAvailable | TupleFieldState.IsNull;
-      return TupleFieldState.IsAvailable;
-    }
-
-    /// <inheritdoc/>
-    object ITuple.GetValue(int fieldIndex)
-    {
-      EnsureHasValue();
-      return Value;
-    }
-
-    /// <inheritdoc/>
-    object ITuple.GetValueOrDefault(int fieldIndex)
-    {
-      return Value;
-    }
-
-    #endregion
-
-    #region ITuple.SetXxx methods
-
-    /// <inheritdoc/>
-    void ITuple.SetValue(int fieldIndex, object fieldValue)
-    {
-      throw Exceptions.ObjectIsReadOnly(null);
-    }
-
-    #endregion
-
-    #region Clone \ ITuple.CreateNew methods
+    #region Clone
 
     /// <inheritdoc/>
     public Entire<T> Clone()
@@ -188,21 +95,9 @@ namespace Xtensive.Indexing
     }
 
     /// <inheritdoc/>
-    ITuple ITuple.Clone()
-    {
-      return Clone();
-    }
-
-    /// <inheritdoc/>
     object ICloneable.Clone()
     {
       return Clone();
-    }
-
-    /// <inheritdoc/>
-    ITuple ITupleFactory.CreateNew()
-    {
-      throw Exceptions.ObjectIsReadOnly(null);
     }
 
     #endregion
@@ -262,14 +157,9 @@ namespace Xtensive.Indexing
     }
 
     /// <inheritdoc/>
-    int IComparable<IEntire<T>>.CompareTo(IEntire<T> other)
+    int IComparable<Entire<T>>.CompareTo(Entire<T> other)
     {
-      if (other == null)
-        return 1;
-      if (other is Entire<T>)
-        return AdvancedComparerStruct<Entire<T>>.System.Compare(this, (Entire<T>)other);
-      else 
-        return AdvancedComparerStruct<IEntire<T>>.System.Compare(this, other);
+      return AdvancedComparerStruct<Entire<T>>.System.Compare(this, other);
     }
 
     /// <inheritdoc/>
@@ -285,14 +175,9 @@ namespace Xtensive.Indexing
     }
 
     /// <inheritdoc/>
-    bool IEquatable<IEntire<T>>.Equals(IEntire<T> other)
+    bool IEquatable<Entire<T>>.Equals(Entire<T> other)
     {
-      if (other == null)
-        return false;
-      if (other is Entire<T>)
-        return AdvancedComparerStruct<Entire<T>>.System.Equals(this, (Entire<T>)other);
-      else 
-        return AdvancedComparerStruct<IEntire<T>>.System.Equals(this, other);
+      return AdvancedComparerStruct<Entire<T>>.System.Equals(this, other);
     }
 
     /// <inheritdoc/>
@@ -310,12 +195,10 @@ namespace Xtensive.Indexing
     {
       if (obj==null)
         return Equals((T)obj); // Assymetric comparison for nullable & class types
-      else if (obj is Entire<T>)
+      if (obj is Entire<T>)
         return Equals((Entire<T>)obj);
-      else if (obj is T)
+      if (obj is T)
         return Equals((T)obj); // Assymetric comparison
-      else if (obj is IEntire<T>)
-        return AdvancedComparerStruct<IEntire<T>>.System.Equals(this, (IEntire<T>)obj);
       return false;
     }
 
@@ -335,21 +218,6 @@ namespace Xtensive.Indexing
 
     #region Private \ internal methods
 
-    internal bool HasValue {
-      [DebuggerStepThrough]
-      get {
-        return 
-          valueType!=EntireValueType.PositiveInfinity && 
-          valueType!=EntireValueType.NegativeInfinity;
-      }
-    }
-
-    internal void EnsureHasValue()
-    {
-      if (!HasValue)
-        throw new InvalidOperationException(Strings.ExValueIsNotAvailable);
-    }
-
     internal static Func<Entire<T>, T, int> AsymmetricCompare {
       get {
         if (asymmetricCompare==null) lock (typeLock) if (asymmetricCompare==null) {
@@ -359,76 +227,22 @@ namespace Xtensive.Indexing
       }
     }
 
-    internal static string ToString(IEntire<T> entire)
+    internal static string ToString(Entire<T> entire)
     {
-      StringBuilder sb = new StringBuilder(16);
-      for (int i = 0; i<entire.Count; i++) {
-        if (i>0)
-          sb.Append(", ");
-        EntireValueType valueType = entire.GetValueType(i);
-        switch (valueType) {
-        case EntireValueType.NegativeInfinity:
-        case EntireValueType.PositiveInfinity:
-          sb.Append((int)valueType < 0 ? "-" : "+");
-          sb.Append(Strings.Infinity);
-          break;
-        case EntireValueType.NegativeInfinitesimal:
-        case EntireValueType.PositiveInfinitesimal:
-        case EntireValueType.Exact:
-          string value;
-          if (!entire.IsAvailable(i))
-            value = Strings.NotAvailable;
-          else if (entire.IsNull(i))
-            value = Strings.Null;
-          else
-            value = entire.GetValue(i).ToString();
-          if (valueType==EntireValueType.Exact)
-            sb.Append(value);
-          else
-            sb.Append(String.Format(Strings.InfinitesimalFormat, value, (int)valueType < 0 ? "-" : "+"));
-          break;
-        default:
-          throw Exceptions.InternalError("Unknown EntireValueType.", Log.Instance);
-        }
+      var sb = new StringBuilder(16);
+      sb.AppendFormat("{0}", entire.Value);
+      if (entire.ValueType.IsInfinity()) {
+        sb.Append((int) entire.ValueType < 0 ? "-" : "+");
+        sb.Append(Strings.Infinity);
       }
+      else if (entire.ValueType != EntireValueType.Exact)
+        sb.Append((int)entire.ValueType < 0 ? "-" : "+");
       return String.Format(Strings.EntireFormat, sb);
     }
 
     #endregion
 
-    #region Create methods (factory provider invokers)
-
-    private static IEntireFactory<T> Factory {
-      get {
-        if (factory == null) lock (typeLock) if (factory == null)
-          factory = EntireFactoryProvider.Default.GetFactory<T>();  
-        return factory;
-      }
-    }
-
-    public static IEntire<T> Create(T value)
-    {
-      return Factory.CreateEntire(value);
-    }
-
-    public static IEntire<T> Create(InfinityType infinityType)
-    {
-      return Factory.CreateEntire(infinityType);
-    }
-
-    public static IEntire<T> Create(T value, Direction infinitesimalShiftDirection)
-    {
-      return Factory.CreateEntire(value, infinitesimalShiftDirection);
-    }
-
-    public static IEntire<T> Create(T value, params EntireValueType[] fieldValueTypes)
-    {
-      return Factory.CreateEntire(value, fieldValueTypes);
-    }
-
-    #endregion
-
-
+    
     // Constructors
 
     /// <summary>
@@ -443,7 +257,7 @@ namespace Xtensive.Indexing
         ? EntireValueType.PositiveInfinity
         : EntireValueType.NegativeInfinity;
       value = default(T);
-      descriptor = defaultDescriptor;
+      hasValue = false;
     }
 
     /// <summary>
@@ -454,7 +268,19 @@ namespace Xtensive.Indexing
     {
       valueType = EntireValueType.Exact;
       this.value = value;
-      descriptor = defaultDescriptor;
+      hasValue = true;
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// </summary>
+    /// <param name="value">The value.</param>
+    /// <param name="lastValueType"><see cref="ValueType"/> property value.</param>
+    public Entire(T value, EntireValueType lastValueType)
+    {
+      valueType = lastValueType;
+      this.value = value;
+      hasValue = true;
     }
 
     /// <summary>
@@ -471,14 +297,7 @@ namespace Xtensive.Indexing
         ? EntireValueType.PositiveInfinitesimal
         : EntireValueType.NegativeInfinitesimal;
       this.value = value;
-      descriptor = defaultDescriptor;
-    }
-
-    internal Entire(T value, EntireValueType valueType)
-    {
-      this.valueType = valueType;
-      this.value = value;
-      descriptor = defaultDescriptor;
+      hasValue = true;
     }
   }
 }

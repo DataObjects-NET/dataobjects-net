@@ -14,7 +14,7 @@ namespace Xtensive.Indexing
 {
   partial class Index<TKey, TItem>
   {
-    internal SeekResultPointer<IndexPointer<TKey, TItem>> InternalSeek(DataPage<TKey, TItem> page, Ray<IEntire<TKey>> ray)
+    internal SeekResultPointer<IndexPointer<TKey, TItem>> InternalSeek(DataPage<TKey, TItem> page, Ray<Entire<TKey>> ray)
     {
       LeafPage<TKey, TItem> leafPage = page.AsLeafPage;
       InnerPage<TKey, TItem> innerPage = page.AsInnerPage;

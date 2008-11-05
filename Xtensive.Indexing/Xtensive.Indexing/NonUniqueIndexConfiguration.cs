@@ -24,13 +24,13 @@ namespace Xtensive.Indexing
   [Serializable]
   public class NonUniqueIndexConfiguration<TKey, TUniqueKey, TItem>: UniqueIndexWrapperConfiguration<TKey, TItem, TUniqueKey, TItem> 
   {
-    private Converter<IEntire<TKey>, IEntire<TUniqueKey>> entireConverter;
+    private Converter<Entire<TKey>, Entire<TUniqueKey>> entireConverter;
 
     /// <summary>
     /// Gets or sets the key converter.
     /// </summary>
     /// <value>The key converter.</value>
-    public Converter<IEntire<TKey>, IEntire<TUniqueKey>> EntireConverter
+    public Converter<Entire<TKey>, Entire<TUniqueKey>> EntireConverter
     {
       [DebuggerStepThrough]
       get { return entireConverter; }

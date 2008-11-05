@@ -16,7 +16,7 @@ namespace Xtensive.Indexing
     where TIndex: IIndex<TKey, TItem>, IHasKeyComparers<TKey>
   {
     private readonly TIndex index;
-    private Range<IEntire<TKey>> range; // Non-readonly - to avoid stack growth
+    private Range<Entire<TKey>> range; // Non-readonly - to avoid stack growth
     private readonly Direction direction;
     
     public TIndex Index
@@ -25,7 +25,7 @@ namespace Xtensive.Indexing
       get { return index; }
     }
 
-    public Range<IEntire<TKey>> Range
+    public Range<Entire<TKey>> Range
     {
       [DebuggerStepThrough]
       get { return range; }
@@ -47,7 +47,7 @@ namespace Xtensive.Indexing
 
     public abstract bool MoveNext();
 
-    public abstract void MoveTo(IEntire<TKey> key);
+    public abstract void MoveTo(Entire<TKey> key);
 
     public abstract void Reset();
 
@@ -68,7 +68,7 @@ namespace Xtensive.Indexing
     /// </summary>
     /// <param name="index">The index.</param>
     /// <param name="range">The range to read.</param>
-    public IndexReaderBase(TIndex index, Range<IEntire<TKey>> range)
+    public IndexReaderBase(TIndex index, Range<Entire<TKey>> range)
     {
       this.index = index;
       this.range = range;

@@ -53,7 +53,7 @@ namespace Xtensive.Indexing
     // IRangeMeasureable<...> methods
 
     /// <inheritdoc/>
-    public override object GetMeasureResult(Range<IEntire<TKey>> range, string name)
+    public override object GetMeasureResult(Range<Entire<TKey>> range, string name)
     {
       ArgumentValidator.EnsureArgumentNotNull(range, "range");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
@@ -66,9 +66,9 @@ namespace Xtensive.Indexing
         return measure.CreateNew().Result;
 
       int index = Measures.IndexOf(measure);
-      Range<IEntire<TKey>> positiveRange = range.Redirect(Direction.Positive, Configuration.EntireKeyComparer);
-      var rangeLeftPtr  = InternalSeek(RootPage, new Ray<IEntire<TKey>>(positiveRange.EndPoints.First));
-      var rangeRightPtr = InternalSeek(RootPage, new Ray<IEntire<TKey>>(positiveRange.EndPoints.Second, Direction.Negative));
+      Range<Entire<TKey>> positiveRange = range.Redirect(Direction.Positive, Configuration.EntireKeyComparer);
+      var rangeLeftPtr  = InternalSeek(RootPage, new Ray<Entire<TKey>>(positiveRange.EndPoints.First));
+      var rangeRightPtr = InternalSeek(RootPage, new Ray<Entire<TKey>>(positiveRange.EndPoints.Second, Direction.Negative));
       if (rangeLeftPtr.ResultType==SeekResultType.None || rangeRightPtr.ResultType==SeekResultType.None) {
         return measure.Result; // Empty result.
       }
@@ -95,7 +95,7 @@ namespace Xtensive.Indexing
     }
 
     /// <inheritdoc/>
-    public override object[] GetMeasureResults(Range<IEntire<TKey>> range, params string[] names)
+    public override object[] GetMeasureResults(Range<Entire<TKey>> range, params string[] names)
     {
       object[] result = new object[names.Length];
       for (int i = 0; i < names.Length; i++)

@@ -134,9 +134,9 @@ namespace Xtensive.Indexing.Implementation
     }
 
     /// <inheritdoc/>
-    public override SeekResultPointer<int> Seek(Ray<IEntire<TKey>> ray)
+    public override SeekResultPointer<int> Seek(Ray<Entire<TKey>> ray)
     {
-      Func<IEntire<TKey>, TKey, int> asymmetricKeyCompare = Provider.Index.AsymmetricKeyCompare;
+      Func<Entire<TKey>, TKey, int> asymmetricKeyCompare = Provider.Index.AsymmetricKeyCompare;
       SeekResultType resultType = SeekResultType.None;
       int minIndex = 0;
       int maxIndex = CurrentSize - 1;

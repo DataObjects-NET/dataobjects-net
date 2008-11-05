@@ -16,10 +16,10 @@ namespace Xtensive.Storage.Providers.Sql
 {
   internal sealed class SqlRangeProvider : SqlProvider
   {
-    private readonly Range<IEntire<Tuple>> original;
+    private readonly Range<Entire<Tuple>> original;
     private const string CachedRange = "CachedRange";
 
-    public Range<IEntire<Tuple>> CurrentRange
+    public Range<Entire<Tuple>> CurrentRange
     {
       get
       {
@@ -32,14 +32,14 @@ namespace Xtensive.Storage.Providers.Sql
             cachedValue = range;
           }
         }
-        return (Range<IEntire<Tuple>>)cachedValue;
+        return (Range<Entire<Tuple>>)cachedValue;
       }
     }
 
 
     // Constructor
 
-    public SqlRangeProvider(CompilableProvider origin, SqlFetchRequest request, HandlerAccessor handlers, Range<IEntire<Tuple>> original, params ExecutableProvider[] sources)
+    public SqlRangeProvider(CompilableProvider origin, SqlFetchRequest request, HandlerAccessor handlers, Range<Entire<Tuple>> original, params ExecutableProvider[] sources)
       : base(origin, request, handlers, sources)
     {
       this.original = original;

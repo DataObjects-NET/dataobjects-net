@@ -123,26 +123,26 @@ namespace Xtensive.Indexing.Tests.Index
 
       public IEnumerable<IndexedPerson> FilterByBirthday(DateTime from, DateTime to)
       {
-        var range = new Range<IEntire<DateTime>>(
-          Entire<DateTime>.Create(from,Direction.Negative),
-          Entire<DateTime>.Create(to,Direction.Positive));
+        var range = new Range<Entire<DateTime>>(
+          new Entire<DateTime>(from,Direction.Negative),
+          new Entire<DateTime>(to,Direction.Positive));
         foreach (IndexedPerson item in BirthdayIndex.GetItems(range))
           yield return item;
       }
 
       public int CountByBirthday(DateTime from, DateTime to)
       {
-        var range = new Range<IEntire<DateTime>>(
-          Entire<DateTime>.Create(from,Direction.Negative),
-          Entire<DateTime>.Create(to,Direction.Positive));
+        var range = new Range<Entire<DateTime>>(
+          new Entire<DateTime>(from,Direction.Negative),
+          new Entire<DateTime>(to,Direction.Positive));
         return (int) (long) birthdayIndex.GetMeasureResult(range, CountMeasure<object, long>.CommonName);
       }
 
       public double AverageAgeByBirthday(DateTime from, DateTime to)
       {
-        var range = new Range<IEntire<DateTime>>(
-          Entire<DateTime>.Create(from, Direction.Negative),
-          Entire<DateTime>.Create(to, Direction.Positive));
+        var range = new Range<Entire<DateTime>>(
+          new Entire<DateTime>(from, Direction.Negative),
+          new Entire<DateTime>(to, Direction.Positive));
         var measures = birthdayIndex.Measures;
         object[] result = birthdayIndex.GetMeasureResults(range, CountMeasure<object, long>.CommonName, "AgeSum");
         int count = (int) (long) result[0];
@@ -176,7 +176,7 @@ namespace Xtensive.Indexing.Tests.Index
           new NonUniqueIndexConfiguration<DateTime, Tuple, IndexedPerson>();
         birthdayIndexConfig.KeyExtractor = item => item.Birthday;
         birthdayIndexConfig.KeyComparer = AdvancedComparer<DateTime>.Default;
-        birthdayIndexConfig.EntireConverter = item => Entire<Tuple>.Create(Tuple.Create(descriptor2, item.GetValueOrDefault<DateTime>(0)), item.GetValueType(0));
+        birthdayIndexConfig.EntireConverter = item => new Entire<Tuple>(Tuple.Create(descriptor2, item.Value), item.ValueType);
         birthdayIndexConfig.UniqueIndexConfiguration = bnIndexConfig;
         birthdayIndexConfig.Measures.Add(new SumMeasure<IndexedPerson, long>("AgeSum", GetAgeSumValueDelegate));
         birthdayIndex = IndexFactory.CreateNonUnique<DateTime, Tuple, IndexedPerson, Index<Tuple, IndexedPerson>>(birthdayIndexConfig);

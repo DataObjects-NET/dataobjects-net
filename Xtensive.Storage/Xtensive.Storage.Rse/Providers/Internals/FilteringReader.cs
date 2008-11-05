@@ -33,7 +33,7 @@ namespace Xtensive.Storage.Rse.Providers.Internals
       return false;
     }
 
-    public override void MoveTo(IEntire<Tuple> key)
+    public override void MoveTo(Entire<Tuple> key)
     {
       reader.MoveTo(key);
     }
@@ -51,7 +51,7 @@ namespace Xtensive.Storage.Rse.Providers.Internals
 
     // Constructor
 
-    public FilteringReader(Provider provider, Range<IEntire<Tuple>> range, Provider toFilter, Func<Tuple,bool> predicate)
+    public FilteringReader(Provider provider, Range<Entire<Tuple>> range, Provider toFilter, Func<Tuple,bool> predicate)
       : base(provider, range)
     {
       this.toFilter = toFilter;

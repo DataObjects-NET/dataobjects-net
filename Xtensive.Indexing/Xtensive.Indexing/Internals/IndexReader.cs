@@ -60,7 +60,7 @@ namespace Xtensive.Indexing
           nextPtr.Version = nextPtr.Value.Pointer.Page.Version;
         }
         if (lastPtrIsNotActual) {
-          lastPtr.Value = Index.InternalSeek(Index.RootPage, new Ray<IEntire<TKey>>(Range.EndPoints.Second, Direction.Invert()));
+          lastPtr.Value = Index.InternalSeek(Index.RootPage, new Ray<Entire<TKey>>(Range.EndPoints.Second, Direction.Invert()));
           lastPtr.Version = lastPtr.Value.Pointer.Page.Version;
         }
         return MoveNext();
@@ -89,7 +89,7 @@ namespace Xtensive.Indexing
         return true;
       }
       // Let's ensure pointers will be compared to check Range border conditions 
-      // on the next MoveNext() call, rather then IEntire<TKey>
+      // on the next MoveNext() call, rather then Entire<TKey>
       nextPtr.Value.ResultType = SeekResultType.Exact;
       // Version could change, since the Page could change on moving
       nextPtr.Version = nextPtr.Value.Pointer.Page.Version;
@@ -97,12 +97,12 @@ namespace Xtensive.Indexing
       return true;
     }
 
-    public override void MoveTo(IEntire<TKey> key)
+    public override void MoveTo(Entire<TKey> key)
     {
       current = default(TItem); // No Current yet
-      nextPtr.Value = Index.InternalSeek(Index.RootPage, new Ray<IEntire<TKey>>(key, Direction));
+      nextPtr.Value = Index.InternalSeek(Index.RootPage, new Ray<Entire<TKey>>(key, Direction));
       nextPtr.Version = nextPtr.Value.Pointer.Page.Version;
-      lastPtr.Value = Index.InternalSeek(Index.RootPage, new Ray<IEntire<TKey>>(Range.EndPoints.Second, Direction.Invert()));
+      lastPtr.Value = Index.InternalSeek(Index.RootPage, new Ray<Entire<TKey>>(Range.EndPoints.Second, Direction.Invert()));
       lastPtr.Version = lastPtr.Value.Pointer.Page.Version;
       if (nextPtr.Value.ResultType != SeekResultType.None) {
         lastKey = Index.KeyExtractor(nextPtr.Value.Pointer.Current);
@@ -147,7 +147,7 @@ namespace Xtensive.Indexing
     /// </summary>
     /// <param name="index">The index.</param>
     /// <param name="range">The range to read.</param>
-    public IndexReader(Index<TKey, TItem> index, Range<IEntire<TKey>> range)
+    public IndexReader(Index<TKey, TItem> index, Range<Entire<TKey>> range)
       : base(index, range)
     {
       Reset();

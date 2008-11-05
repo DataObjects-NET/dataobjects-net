@@ -18,7 +18,7 @@ namespace Xtensive.Indexing
     private HasVersion<SeekResultPointer<SortedListIndexPointer<TKey, TItem>>, int?> nextPtr;
     private HasVersion<SeekResultPointer<SortedListIndexPointer<TKey, TItem>>, int?> lastPtr;
     private TItem current;
-    private IEntire<TKey> currentKey;
+    private Entire<TKey>? currentKey;
     private EnumerationState state;
 
     public override TItem Current {
@@ -49,9 +49,9 @@ namespace Xtensive.Indexing
         // Actualizing both currentPtr and lastPtr
         var key = GetCurrentKey();
         if (nextPtrIsNotActual)
-          Seek(ref nextPtr, new Ray<IEntire<TKey>>(key, Direction));
+          Seek(ref nextPtr, new Ray<Entire<TKey>>(key, Direction));
         if (lastPtrIsNotActual)
-          Seek(ref lastPtr, new Ray<IEntire<TKey>>(Range.EndPoints.Second, Direction.Invert()));
+          Seek(ref lastPtr, new Ray<Entire<TKey>>(Range.EndPoints.Second, Direction.Invert()));
         if (Range.Contains(key, Index.EntireKeyComparer))
           state = EnumerationState.NotStarted;
         else
@@ -67,13 +67,12 @@ namespace Xtensive.Indexing
         return false;
       case SeekResultType.Nearest:
         // nextPtr is in the Index, but probably out of Range
-        var foundKey = Entire<TKey>.Create(Index.KeyExtractor(nextPtr.Value.Pointer.Current));
+        var foundKey = new Entire<TKey>(Index.KeyExtractor(nextPtr.Value.Pointer.Current));
         if (!Range.Contains(foundKey, Index.EntireKeyComparer)) {
           state = EnumerationState.Finished;
           return false;
         }
-        else
-          break;
+        break;
       }
 
       // nextPtr is in Range; let's update current
@@ -100,7 +99,7 @@ namespace Xtensive.Indexing
       return true;
     }
 
-    public override void MoveTo(IEntire<TKey> key)
+    public override void MoveTo(Entire<TKey> key)
     {
       current = default(TItem); // No Current yet
       currentKey = key; // But GetCurrentKey() should return this
@@ -120,15 +119,14 @@ namespace Xtensive.Indexing
 
     #region Private \ internal methods
 
-    private IEntire<TKey> GetCurrentKey()
+    private Entire<TKey> GetCurrentKey()
     {
-      if (currentKey!=null)
-        return currentKey;
-      else
-        return Entire<TKey>.Create(Index.KeyExtractor(current));
+      if (currentKey.HasValue)
+        return currentKey.Value;
+      return new Entire<TKey>(Index.KeyExtractor(current));
     }
 
-    private void Seek(ref HasVersion<SeekResultPointer<SortedListIndexPointer<TKey,TItem>>,int?> pointer, Ray<IEntire<TKey>> newPosition)
+    private void Seek(ref HasVersion<SeekResultPointer<SortedListIndexPointer<TKey,TItem>>,int?> pointer, Ray<Entire<TKey>> newPosition)
     {
       pointer.Value   = Index.InternalSeek(newPosition);
       pointer.Version = pointer.Value.Pointer.Owner.Version;
@@ -151,7 +149,7 @@ namespace Xtensive.Indexing
     /// </summary>
     /// <param name="index">The index.</param>
     /// <param name="range">The range to read.</param>
-    public SortedListIndexReader(SortedListIndex<TKey, TItem> index, Range<IEntire<TKey>> range)
+    public SortedListIndexReader(SortedListIndex<TKey, TItem> index, Range<Entire<TKey>> range)
       : base(index, range)
     {
       Reset();

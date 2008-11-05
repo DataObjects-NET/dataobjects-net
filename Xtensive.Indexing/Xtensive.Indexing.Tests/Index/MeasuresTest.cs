@@ -108,7 +108,7 @@ namespace Xtensive.Indexing.Tests.Index
         if (compareResult!=0) {
           Entire<TKey> firstEntire = new Entire<TKey>(keyExtractor(firstValue));
           Entire<TKey> secondEntire = new Entire<TKey>(keyExtractor(secondValue));
-          Range<IEntire<TKey>> range = new Range<IEntire<TKey>>(firstEntire, secondEntire);
+          Range<Entire<TKey>> range = new Range<Entire<TKey>>(firstEntire, secondEntire);
           for (int measureIndex = 0; measureIndex < measureCount; measureIndex++) {
             string measureName = indexes[0].Measures[measureIndex].Name;
             object firstMeasurement = indexes[0].GetMeasureResult(range, measureName);

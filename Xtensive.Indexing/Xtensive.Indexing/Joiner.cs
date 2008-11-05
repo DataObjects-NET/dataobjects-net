@@ -47,7 +47,7 @@ namespace Xtensive.Indexing
         else if (result < 0) {
           rScanCount = 0;
           if (lScanCount > SCAN_ITERATIONS && rList.Count == 0) {
-            lReader.MoveTo(Entire<TKey>.Create(rKey));
+            lReader.MoveTo(new Entire<TKey>(rKey));
             haveValues &= lReader.MoveNext();
             lScanCount = 0;
           }
@@ -68,7 +68,7 @@ namespace Xtensive.Indexing
           lScanCount = 0;
           rList.Clear();
           if (rScanCount > SCAN_ITERATIONS) {
-            rReader.MoveTo(Entire<TKey>.Create(lKey));
+            rReader.MoveTo(new Entire<TKey>(lKey));
             haveValues &= rReader.MoveNext();
             rScanCount = 0;
           }
@@ -203,7 +203,7 @@ namespace Xtensive.Indexing
             else {
               rList.Clear();
               if (rScanCount > SCAN_ITERATIONS) {
-                rReader.MoveTo(Entire<TKey>.Create(lKey));
+                rReader.MoveTo(new Entire<TKey>(lKey));
                 haveRValues = rReader.MoveNext();
                 rScanCount = 0;
               }
@@ -224,7 +224,7 @@ namespace Xtensive.Indexing
     {
       foreach (TValue lValue in left) {
         TKey key = keyExtractor(lValue);
-        foreach (TRightValue rValue in right.GetItems(new Range<IEntire<TKey>>(Entire<TKey>.Create(key), Entire<TKey>.Create(key))))
+        foreach (TRightValue rValue in right.GetItems(new Range<Entire<TKey>>(new Entire<TKey>(key), new Entire<TKey>(key))))
           yield return new Pair<TValue, TRightValue>(lValue, rValue);
       }
     }
@@ -237,7 +237,7 @@ namespace Xtensive.Indexing
       foreach (TValue lValue in left) {
         TKey key = keyExtractor(lValue);
         bool match = false;
-        foreach (TRightValue rValue in right.GetItems(new Range<IEntire<TKey>>(Entire<TKey>.Create(key), Entire<TKey>.Create(key)))) {
+        foreach (TRightValue rValue in right.GetItems(new Range<Entire<TKey>>(new Entire<TKey>(key), new Entire<TKey>(key)))) {
           yield return new Pair<TValue, TRightValue>(lValue, rValue);
           match = true;
         }

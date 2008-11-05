@@ -397,8 +397,8 @@ namespace Xtensive.Storage.Tests.Storage
 
           Session.Current.Persist();
 
-          var pID = new Parameter<Range<IEntire<Tuple>>>();
-          var pName = new Parameter<Range<IEntire<Tuple>>>();
+          var pID = new Parameter<Range<Entire<Tuple>>>();
+          var pName = new Parameter<Range<Entire<Tuple>>>();
 
           TypeInfo snakeType = Domain.Model.Types[typeof (Snake)];
           RecordSet rsSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordSet();
@@ -412,8 +412,8 @@ namespace Xtensive.Storage.Tests.Storage
               .Alias("NameIndex"), rsSnakePrimary.Header.IndexOf(cID), rsSnakeName.Header.IndexOf(cID));
           
           using(new ParameterScope()) {
-            pID.Value = new Range<IEntire<Tuple>>(Entire<Tuple>.Create(Tuple.Create(21)), Entire<Tuple>.Create(Tuple.Create(120)));
-            pName.Value = new Range<IEntire<Tuple>>(Entire<Tuple>.Create(Tuple.Create("Kaa")), Entire<Tuple>.Create(Tuple.Create("Kaa900")));
+            pID.Value = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(21)), new Entire<Tuple>(Tuple.Create(120)));
+            pName.Value = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create("Kaa")), new Entire<Tuple>(Tuple.Create("Kaa900")));
             var count = result.Count();
             Assert.AreEqual(91, count);
           }
@@ -734,8 +734,8 @@ namespace Xtensive.Storage.Tests.Storage
           Session.Current.Persist();
 
 
-          var pID = new Parameter<Range<IEntire<Tuple>>>();
-          var pName = new Parameter<Range<IEntire<Tuple>>>();
+          var pID = new Parameter<Range<Entire<Tuple>>>();
+          var pName = new Parameter<Range<Entire<Tuple>>>();
           var pLength = new Parameter<int>();
 
           TypeInfo snakeType = Domain.Model.Types[typeof (Snake)];

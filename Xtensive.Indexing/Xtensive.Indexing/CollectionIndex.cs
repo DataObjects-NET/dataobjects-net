@@ -72,14 +72,14 @@ namespace Xtensive.Indexing
     }
 
     /// <inheritdoc/>
-    public AdvancedComparer<IEntire<TKey>> EntireKeyComparer
+    public AdvancedComparer<Entire<TKey>> EntireKeyComparer
     {
       [DebuggerStepThrough]
       get { return orderedIndex.EntireKeyComparer; }
     }
 
     /// <inheritdoc/>
-    public Func<IEntire<TKey>, TKey, int> AsymmetricKeyCompare
+    public Func<Entire<TKey>, TKey, int> AsymmetricKeyCompare
     {
       [DebuggerStepThrough]
       get { return orderedIndex.AsymmetricKeyCompare; }
@@ -137,7 +137,7 @@ namespace Xtensive.Indexing
     #region IRangeMeasurable<TKey,TItem> Members
 
     /// <inheritdoc/>
-    public object GetMeasureResult(Range<IEntire<TKey>> range, string name)
+    public object GetMeasureResult(Range<Entire<TKey>> range, string name)
     {
       if (rangeMeasurable == null)
         throw new NotSupportedException();
@@ -145,7 +145,7 @@ namespace Xtensive.Indexing
     }
 
     /// <inheritdoc/>
-    public object[] GetMeasureResults(Range<IEntire<TKey>> range, params string[] names)
+    public object[] GetMeasureResults(Range<Entire<TKey>> range, params string[] names)
     {
       if (rangeMeasurable == null)
         throw new NotSupportedException();
@@ -222,7 +222,7 @@ namespace Xtensive.Indexing
     #region IOrderedEnumerable<TKey,TItem> Members
 
     /// <inheritdoc/>
-    SeekResult<TItem> IOrderedEnumerable<TKey, TItem>.Seek(Ray<IEntire<TKey>> ray)
+    SeekResult<TItem> IOrderedEnumerable<TKey, TItem>.Seek(Ray<Entire<TKey>> ray)
     {
       if (orderedIndex == null)
         throw new NotSupportedException();
@@ -238,7 +238,7 @@ namespace Xtensive.Indexing
     }
 
     /// <inheritdoc/>
-    IEnumerable<TKey> IOrderedEnumerable<TKey, TItem>.GetKeys(Range<IEntire<TKey>> range)
+    IEnumerable<TKey> IOrderedEnumerable<TKey, TItem>.GetKeys(Range<Entire<TKey>> range)
     {
       if (orderedIndex == null)
         throw new NotSupportedException();
@@ -246,7 +246,7 @@ namespace Xtensive.Indexing
     }
 
     /// <inheritdoc/>
-    IIndexReader<TKey, TItem> IOrderedEnumerable<TKey, TItem>.CreateReader(Range<IEntire<TKey>> range)
+    IIndexReader<TKey, TItem> IOrderedEnumerable<TKey, TItem>.CreateReader(Range<Entire<TKey>> range)
     {
       if (orderedIndex == null)
         throw new NotSupportedException();
@@ -254,7 +254,7 @@ namespace Xtensive.Indexing
     }
 
     /// <inheritdoc/>
-    IEnumerable<TItem> IOrderedEnumerable<TKey, TItem>.GetItems(Range<IEntire<TKey>> range)
+    IEnumerable<TItem> IOrderedEnumerable<TKey, TItem>.GetItems(Range<Entire<TKey>> range)
     {
       if (orderedIndex == null)
         throw new NotSupportedException();

@@ -22,7 +22,7 @@ namespace Xtensive.Indexing
     INonUniqueIndex<TKey, TItem>
   {
     private IUniqueOrderedIndex<TUniqueKey, TItem> uniqueIndex;
-    private Converter<IEntire<TKey>, IEntire<TUniqueKey>> entireConverter;
+    private Converter<Entire<TKey>, Entire<TUniqueKey>> entireConverter;
 
     /// <summary>
     /// Gets the underlying unique index.
@@ -37,7 +37,7 @@ namespace Xtensive.Indexing
     /// Gets the entire converter.
     /// </summary>
     /// <value>The key converter.</value>
-    protected internal Converter<IEntire<TKey>, IEntire<TUniqueKey>> EntireConverter
+    protected internal Converter<Entire<TKey>, Entire<TUniqueKey>> EntireConverter
     {
       [DebuggerStepThrough]
       get { return entireConverter; }
@@ -69,7 +69,7 @@ namespace Xtensive.Indexing
     #region GetKeys, GetItems methods
 
     /// <inheritdoc/>
-    public IEnumerable<TKey> GetKeys(Range<IEntire<TKey>> range)
+    public IEnumerable<TKey> GetKeys(Range<Entire<TKey>> range)
     {
       TKey previousKey = default(TKey);
       bool bFirst = true;
@@ -92,15 +92,15 @@ namespace Xtensive.Indexing
     /// <inheritdoc/>
     public IEnumerable<TItem> GetItems(TKey key)
     {
-      var keyRange = new Range<IEntire<TKey>>(
-        Entire<TKey>.Create(key, Direction.Negative),
-        Entire<TKey>.Create(key, Direction.Positive))
-        .Redirect(Direction.Positive, EntireKeyComparer);
+      var keyRange = new Range<Entire<TKey>>(
+        new Entire<TKey>(key, Direction.Negative),
+        new Entire<TKey>(key, Direction.Positive))
+        .Redirect<Entire<TKey>>(Direction.Positive, EntireKeyComparer);
       return GetItems(keyRange);
     }
 
     /// <inheritdoc/>
-    public IEnumerable<TItem> GetItems(Range<IEntire<TKey>> range)
+    public IEnumerable<TItem> GetItems(Range<Entire<TKey>> range)
     {
       return CreateReader(range);
     }
@@ -112,17 +112,17 @@ namespace Xtensive.Indexing
     /// <inheritdoc/>
     public SeekResult<TItem> Seek(TKey key)
     {
-      return Seek(new Ray<IEntire<TKey>>(Entire<TKey>.Create(key)));
+      return Seek(new Ray<Entire<TKey>>(new Entire<TKey>(key)));
     }
 
     /// <inheritdoc/>
-    public SeekResult<TItem> Seek(Ray<IEntire<TKey>> ray)
+    public SeekResult<TItem> Seek(Ray<Entire<TKey>> ray)
     {
       return uniqueIndex.Seek(GetUniqueIndexRay(ray));
     }
 
     /// <inheritdoc/>
-    public IIndexReader<TKey, TItem> CreateReader(Range<IEntire<TKey>> range)
+    public IIndexReader<TKey, TItem> CreateReader(Range<Entire<TKey>> range)
     {
       return new NonUniqueIndexReader<TKey, TUniqueKey, TItem>(this, range);
     }
@@ -183,13 +183,13 @@ namespace Xtensive.Indexing
     }
 
     /// <inheritdoc/>
-    public object GetMeasureResult(Range<IEntire<TKey>> range, string name)
+    public object GetMeasureResult(Range<Entire<TKey>> range, string name)
     {
       return uniqueIndex.GetMeasureResult(GetUniqueIndexRange(range), name);
     }
 
     /// <inheritdoc/>
-    public object[] GetMeasureResults(Range<IEntire<TKey>> range, params string[] names)
+    public object[] GetMeasureResults(Range<Entire<TKey>> range, params string[] names)
     {
       return uniqueIndex.GetMeasureResults(GetUniqueIndexRange(range), names);
     }
@@ -208,17 +208,17 @@ namespace Xtensive.Indexing
 
     #region Private \ internal methods
 
-    internal Ray<IEntire<TUniqueKey>> GetUniqueIndexRay(Ray<IEntire<TKey>> ray)
+    internal Ray<Entire<TUniqueKey>> GetUniqueIndexRay(Ray<Entire<TKey>> ray)
     {
-      IEntire<TUniqueKey> point = EntireConverter(ray.Point);
-      return new Ray<IEntire<TUniqueKey>>(point, ray.Direction);
+      Entire<TUniqueKey> point = EntireConverter(ray.Point);
+      return new Ray<Entire<TUniqueKey>>(point, ray.Direction);
     }
 
-    internal Range<IEntire<TUniqueKey>> GetUniqueIndexRange(Range<IEntire<TKey>> range)
+    internal Range<Entire<TUniqueKey>> GetUniqueIndexRange(Range<Entire<TKey>> range)
     {
-      IEntire<TUniqueKey> firstPoint  = EntireConverter(range.EndPoints.First);
-      IEntire<TUniqueKey> secondPoint = EntireConverter(range.EndPoints.Second);
-      return new Range<IEntire<TUniqueKey>>(new Pair<IEntire<TUniqueKey>>(firstPoint, secondPoint));
+      Entire<TUniqueKey> firstPoint  = EntireConverter(range.EndPoints.First);
+      Entire<TUniqueKey> secondPoint = EntireConverter(range.EndPoints.Second);
+      return new Range<Entire<TUniqueKey>>(new Pair<Entire<TUniqueKey>>(firstPoint, secondPoint));
     }
 
     #endregion

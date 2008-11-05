@@ -42,7 +42,7 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
     }
 
     /// <inheritdoc/>
-    public Func<IEntire<Tuple>, Tuple, int> AsymmetricKeyCompare
+    public Func<Entire<Tuple>, Tuple, int> AsymmetricKeyCompare
     {
       get
       {
@@ -52,7 +52,7 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
     }
 
     /// <inheritdoc/>
-    public AdvancedComparer<IEntire<Tuple>> EntireKeyComparer
+    public AdvancedComparer<Entire<Tuple>> EntireKeyComparer
     {
       get
       {
@@ -78,13 +78,13 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
     }
 
     /// <inheritdoc/>
-    public IIndexReader<Tuple, Tuple> CreateReader(Range<IEntire<Tuple>> range)
+    public IIndexReader<Tuple, Tuple> CreateReader(Range<Entire<Tuple>> range)
     {
       return new MergeInheritorsReader(this, range, sourceProviders, transforms);
     }
 
     /// <inheritdoc/>
-    public SeekResult<Tuple> Seek(Ray<IEntire<Tuple>> ray)
+    public SeekResult<Tuple> Seek(Ray<Entire<Tuple>> ray)
     {
       var comparer = KeyComparer;
       var seekResults = new List<SeekResult<Tuple>>();
@@ -146,14 +146,14 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
     }
 
     /// <inheritdoc/>
-    public IEnumerable<Tuple> GetKeys(Range<IEntire<Tuple>> range)
+    public IEnumerable<Tuple> GetKeys(Range<Entire<Tuple>> range)
     {
       foreach (Tuple item in GetItems(range))
         yield return keyExtractor(item);
     }
 
     /// <inheritdoc/>
-    public IEnumerable<Tuple> GetItems(Range<IEntire<Tuple>> range)
+    public IEnumerable<Tuple> GetItems(Range<Entire<Tuple>> range)
     {
       return InheritanceMerger.Merge(
         sourceProviders[0].GetService<IOrderedEnumerable<Tuple,Tuple>>(true).KeyComparer,

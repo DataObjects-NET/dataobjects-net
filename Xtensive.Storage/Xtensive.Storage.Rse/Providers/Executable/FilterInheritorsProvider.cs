@@ -42,13 +42,13 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
     #region Root delegating members
 
     /// <inheritdoc/>
-    public Func<IEntire<Tuple>, Tuple, int> AsymmetricKeyCompare
+    public Func<Entire<Tuple>, Tuple, int> AsymmetricKeyCompare
     {
       get { return source.AsymmetricKeyCompare; }
     }
 
     /// <inheritdoc/>
-    public AdvancedComparer<IEntire<Tuple>> EntireKeyComparer
+    public AdvancedComparer<Entire<Tuple>> EntireKeyComparer
     {
       get { return source.EntireKeyComparer; }
     }
@@ -68,21 +68,21 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
     #endregion
 
     /// <inheritdoc/>
-    public IEnumerable<Tuple> GetItems(Range<IEntire<Tuple>> range)
+    public IEnumerable<Tuple> GetItems(Range<Entire<Tuple>> range)
     {
       IEnumerable<Tuple> items = source.GetItems(range);
       return items.Where(predicate);
     }
 
     /// <inheritdoc/>
-    public IEnumerable<Tuple> GetKeys(Range<IEntire<Tuple>> range)
+    public IEnumerable<Tuple> GetKeys(Range<Entire<Tuple>> range)
     {
       IEnumerable<Tuple> items = source.GetItems(range);
       return items.Where(predicate).Select(tuple => KeyExtractor(tuple));
     }
 
     /// <inheritdoc/>
-    public SeekResult<Tuple> Seek(Ray<IEntire<Tuple>> ray)
+    public SeekResult<Tuple> Seek(Ray<Entire<Tuple>> ray)
     {
       SeekResult<Tuple> seek = source.Seek(ray);
       if (seek.ResultType==SeekResultType.Exact)
@@ -102,7 +102,7 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
     }
 
     /// <inheritdoc/>
-    public IIndexReader<Tuple, Tuple> CreateReader(Range<IEntire<Tuple>> range)
+    public IIndexReader<Tuple, Tuple> CreateReader(Range<Entire<Tuple>> range)
     {
       return new FilteringReader(this, range, Source, predicate);
     }

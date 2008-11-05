@@ -23,8 +23,8 @@ namespace Xtensive.Indexing
   public abstract class IndexBase<TKey, TItem>: ConfigurableBase<IndexConfigurationBase<TKey, TItem>>,
     IIndex<TKey, TItem>
   {
-    private Func<IEntire<TKey>, TKey, int> asymmetricKeyCompare;
-    private AdvancedComparer<IEntire<TKey>> entireKeyComparer;
+    private Func<Entire<TKey>, TKey, int> asymmetricKeyCompare;
+    private AdvancedComparer<Entire<TKey>> entireKeyComparer;
     private AdvancedComparer<TKey> keyComparer;
     private Converter<TItem, TKey> keyExtractor;
     private IMeasureSet<TItem> measures;
@@ -38,13 +38,13 @@ namespace Xtensive.Indexing
     }
 
     /// <inheritdoc/>
-    public AdvancedComparer<IEntire<TKey>> EntireKeyComparer
+    public AdvancedComparer<Entire<TKey>> EntireKeyComparer
     {
       get { return entireKeyComparer; }
     }
 
     /// <inheritdoc/>
-    public Func<IEntire<TKey>, TKey, int> AsymmetricKeyCompare
+    public Func<Entire<TKey>, TKey, int> AsymmetricKeyCompare
     {
       get { return asymmetricKeyCompare; }
     }

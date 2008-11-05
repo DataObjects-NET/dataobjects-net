@@ -120,9 +120,9 @@ namespace Xtensive.Indexing.Tests
       for (int i = 0; i < list.Count; i++)
       {
         TItem item = list[i];
-        forwardReader.MoveTo(Entire<TKey>.Create(difIndex.KeyExtractor(item)));
+        forwardReader.MoveTo(new Entire<TKey>(difIndex.KeyExtractor(item)));
         forwardReader.MoveNext();
-        backwardReader.MoveTo(Entire<TKey>.Create(difIndex.KeyExtractor(item)));
+        backwardReader.MoveTo(new Entire<TKey>(difIndex.KeyExtractor(item)));
         backwardReader.MoveNext();
         Assert.AreEqual(item, forwardReader.Current);
         if (i == list.Count - 1)
@@ -169,7 +169,7 @@ namespace Xtensive.Indexing.Tests
     {
       foreach (TItem item in list)
       {
-        SeekResult<TItem> seekResult = difIndex.Seek(new Ray<IEntire<TKey>>(Entire<TKey>.Create(difIndex.KeyExtractor(item))));
+        SeekResult<TItem> seekResult = difIndex.Seek(new Ray<Entire<TKey>>(new Entire<TKey>(difIndex.KeyExtractor(item))));
         Assert.AreEqual(SeekResultType.Exact, seekResult.ResultType);
         Assert.AreEqual(item, seekResult.Result);
       }
@@ -184,9 +184,9 @@ namespace Xtensive.Indexing.Tests
       }
 
       //Getting all items in reverse order
-      List<TItem> foundItems = difIndex.GetItems(new Range<IEntire<TKey>>(
-        Entire<TKey>.Create(InfinityType.Positive),
-        Entire<TKey>.Create(InfinityType.Negative))).ToList();
+      List<TItem> foundItems = difIndex.GetItems(new Range<Entire<TKey>>(
+        new Entire<TKey>(InfinityType.Positive),
+        new Entire<TKey>(InfinityType.Negative))).ToList();
       Assert.AreEqual(list.Count, foundItems.Count);
 
       int i = 0;
@@ -197,9 +197,9 @@ namespace Xtensive.Indexing.Tests
       }
 
       //Getting all items in pre order
-      foundItems = difIndex.GetItems(new Range<IEntire<TKey>>(
-        Entire<TKey>.Create(InfinityType.Negative),
-        Entire<TKey>.Create(InfinityType.Positive))).ToList();
+      foundItems = difIndex.GetItems(new Range<Entire<TKey>>(
+        new Entire<TKey>(InfinityType.Negative),
+        new Entire<TKey>(InfinityType.Positive))).ToList();
       Assert.AreEqual(list.Count, foundItems.Count);
 
       i = 0;
