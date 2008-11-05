@@ -8,7 +8,6 @@ using System;
 using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Aspects;
-using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Attributes;
@@ -60,11 +59,8 @@ namespace Xtensive.Storage
     /// Gets a value indicating whether this entity is removed.
     /// </summary>
     [Infrastructure]
-    public bool IsRemoved
-    {
-      get
-      {
-        State.EnsureConsistency(Session.Transaction);
+    public bool IsRemoved {
+      get {
         return State.IsRemoved;
       }
     }
@@ -80,7 +76,7 @@ namespace Xtensive.Storage
     protected internal override sealed Tuple Data
     {
       [DebuggerStepThrough]
-      get { return State; }
+      get { return State.Data; }
     }
 
     /// <summary>
@@ -158,14 +154,21 @@ namespace Xtensive.Storage
 
     internal override sealed void EnsureIsFetched(FieldInfo field)
     {
-      if (!State.IsFetched(field.MappingInfo.Offset))
+      var state = State;
+      if (!(state.PersistenceState==PersistenceState.New || 
+            state.Data.IsAvailable(field.MappingInfo.Offset)))
         Fetcher.Fetch(Key, field);
     }
 
     #endregion
 
+
     // Constructors
 
+    private Entity(bool nullEntity)
+    {
+    }
+    
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>

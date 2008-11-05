@@ -153,7 +153,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       SqlRequestBuilderTask task = new SqlRequestBuilderTask(SqlUpdateRequestKind.Insert, state.Type);
       SqlUpdateRequest request = domainHandler.SqlRequestCache.GetValue(task, _task => DomainHandler.SqlRequestBuilder.Build(_task));
-      request.BindParameters(state);
+      request.BindParameters(state.Data);
       int rowsAffected = ExecuteNonQuery(request);
       if (rowsAffected!=request.ExpectedResult)
         throw new InvalidOperationException(String.Format(Strings.ExErrorOnInsert, state.Type.Name, rowsAffected, request.ExpectedResult));
@@ -164,7 +164,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       SqlRequestBuilderTask task = new SqlRequestBuilderTask(SqlUpdateRequestKind.Update, state.Type, state.Data.Difference.GetFieldStateMap(TupleFieldState.IsAvailable));
       SqlUpdateRequest request = domainHandler.SqlRequestCache.GetValue(task, _task => DomainHandler.SqlRequestBuilder.Build(_task));
-      request.BindParameters(state);
+      request.BindParameters(state.Data);
       int rowsAffected = ExecuteNonQuery(request);
       if (rowsAffected!=request.ExpectedResult)
         throw new InvalidOperationException(String.Format(Strings.ExErrorOnUpdate, state.Type.Name, rowsAffected, request.ExpectedResult));

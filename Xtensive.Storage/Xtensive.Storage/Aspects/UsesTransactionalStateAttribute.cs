@@ -1,37 +1,37 @@
 // Copyright (C) 2008 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
-// Created by: 
-// Created:    2008.08.21
+// Created by: Alex Yakunin
+// Created:    2008.11.05
 
 using System;
 using System.Diagnostics;
 using PostSharp.Extensibility;
 using PostSharp.Laos;
 using Xtensive.Core.Aspects.Helpers;
-using Xtensive.Core.Disposable;
 
 namespace Xtensive.Storage.Aspects
 {
   /// <summary>
-  /// Wraps method into transaction, if it is necessary.
+  /// Puts transactional state validation check on method entry point.
   /// </summary>
   [MulticastAttributeUsage(MulticastTargets.Method)]
   [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)] 
   [Serializable]
-  public sealed class TransactionalAttribute : ReprocessMethodBoundaryAspect,
+  public sealed class UsesTransactionalStateAttribute : ReprocessMethodBoundaryAspect,
     ILaosWeavableAspect
   {   
     int ILaosWeavableAspect.AspectPriority {
       get {
-        return (int) StorageAspectPriority.Transactional;
+        return (int) StorageAspectPriority.UsesTransactionalState;
       }
     }
 
     /// <inheritdoc/>
     public override bool CompileTimeValidate(System.Reflection.MethodBase method)
     {
-      if (!AspectHelper.ValidateContextBoundMethod<Session>(this, method))
+      if (!AspectHelper.ValidateBaseType(this, SeverityType.Error, 
+        method.DeclaringType, true, typeof(TransactionalStateContainer)))
         return false;
 
       if (!AspectHelper.ValidateNotInfrastructure(this, method))
@@ -44,24 +44,8 @@ namespace Xtensive.Storage.Aspects
     [DebuggerStepThrough]
     public override object OnEntry(object instance)
     {
-      var transactionScope = Transaction.Open();
-      return transactionScope;
-    }
-
-    /// <inheritdoc/>
-    [DebuggerStepThrough]
-    public override void OnExit(object instance, object onEntryResult)
-    {
-      var transactionScope = (TransactionScope)onEntryResult;
-      transactionScope.DisposeSafely();
-    }
-
-    /// <inheritdoc/>
-    [DebuggerStepThrough]
-    public override void OnSuccess(object instance, object onEntryResult)
-    {
-      var transactionScope = (TransactionScope)onEntryResult;
-      transactionScope.Complete();
+      (instance as TransactionalStateContainer).EnsureStateIsActual();
+      return null;
     }
   }
 }

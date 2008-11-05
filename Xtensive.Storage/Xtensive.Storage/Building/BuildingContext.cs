@@ -21,7 +21,7 @@ using Xtensive.Storage.Resources;
 namespace Xtensive.Storage.Building
 {
   /// <summary>
-  /// State keeper for <see cref="DomainBuilder"/> building process.
+  /// EntityStateRegistry keeper for <see cref="DomainBuilder"/> building process.
   /// </summary>
   public sealed class BuildingContext
   {

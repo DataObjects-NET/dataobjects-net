@@ -37,7 +37,7 @@ namespace Xtensive.Storage
     private readonly object _lock = new object();
     private readonly CompilationScope compilationScope;
 
-    internal SessionState State { get; private set; }
+    internal EntityStateRegistry EntityStateRegistry { get; private set; }
 
     /// <summary>
     /// Gets the configuration of the <see cref="Session"/>.
@@ -135,7 +135,7 @@ namespace Xtensive.Storage
         if (IsDebugEventLoggingEnabled)
           Log.Debug("Session '{0}'. Persisted.", this);
 
-        State.Clear();
+        EntityStateRegistry.Clear();
       }
       finally {
         isPersisting = false;
@@ -238,7 +238,7 @@ namespace Xtensive.Storage
         Handler.RollbackTransaction();
       }
       finally {
-        State.Clear();
+        EntityStateRegistry.Clear();
         Cache.RestoreRemoved();
         OnCompleteTransaction();
       }
@@ -345,7 +345,7 @@ namespace Xtensive.Storage
       AtomicityContext = new AtomicityContext(this, AtomicityContextOptions.Undoable);
       compilationScope = Handlers.DomainHandler.CompilationContext.Activate();
       Accessor = new LowLevelAccessor(this);
-      State = new SessionState(this);
+      EntityStateRegistry = new EntityStateRegistry(this);
     }
 
     #region Dispose pattern

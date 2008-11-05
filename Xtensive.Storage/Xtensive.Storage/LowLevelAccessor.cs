@@ -111,12 +111,13 @@ namespace Xtensive.Storage
       if (Session.IsDebugEventLoggingEnabled)
         LogTemplate<Log>.Debug("Session '{0}'. Removing: Key = '{1}'", Session, target.Key);
 
-      target.State.EnsureNotRemoved(Session.Transaction);
+      var targetState = target.State;
+      targetState.EnsureNotRemoved();
 
       Session.Persist();
       ReferenceManager.ClearReferencesTo(target);
-      target.State.PersistenceState = PersistenceState.Removed;
-      Session.State.Register(target.State);
+      targetState.PersistenceState = PersistenceState.Removed;
+      Session.EntityStateRegistry.Register(target.State);
       Session.Cache.Remove(target.State);
     }
 
@@ -231,7 +232,6 @@ namespace Xtensive.Storage
 
       var state = Session.Cache.Add(key);
       state.PersistenceState = PersistenceState.New;
-      Session.State.Register(state);
 
       if (target == null)
         target = Activator.CreateEntity(key.Type.UnderlyingType, state);
@@ -246,14 +246,14 @@ namespace Xtensive.Storage
       Structure structure = target as Structure;
       Entity entity = target as Entity;
 
-      if (structure != null) {
+      if (structure!=null) {
         if (structure.Owner!=null)
           structure.Owner.Accessor.OnGettingField(structure.Owner, structure.Field);
       }
       else {
         if (Session.IsDebugEventLoggingEnabled)
           LogTemplate<Log>.Debug("Session '{0}'. Getting value: Key = '{1}', Field = '{2}'", Session, entity.Key, field);
-        entity.State.EnsureNotRemoved(Session.Transaction);
+        entity.State.EnsureNotRemoved();
         target.EnsureIsFetched(field);
       }
     }
@@ -263,7 +263,7 @@ namespace Xtensive.Storage
     {
       Structure structure = target as Structure;
 
-      if (structure != null) {
+      if (structure!=null) {
         if (structure.Owner!=null)
           structure.Owner.Accessor.OnGetField(structure.Owner, structure.Field);
       }
@@ -284,7 +284,7 @@ namespace Xtensive.Storage
           LogTemplate<Log>.Debug("Session '{0}'. Setting value: Key = '{1}', Field = '{2}'", Session, entity.Key, field);
         if (field.IsPrimaryKey)
           throw new NotSupportedException(string.Format(Strings.ExUnableToSetKeyFieldXExplicitly, field.Name));
-        entity.State.EnsureNotRemoved(Session.Transaction);
+        entity.State.EnsureNotRemoved();
       }
     }
 
@@ -301,7 +301,7 @@ namespace Xtensive.Storage
       else {
         if (entity.PersistenceState!=PersistenceState.New && entity.PersistenceState!=PersistenceState.Modified) {
           entity.State.PersistenceState = PersistenceState.Modified;
-          Session.State.Register(entity.State);
+          Session.EntityStateRegistry.Register(entity.State);
         }
       }
     }

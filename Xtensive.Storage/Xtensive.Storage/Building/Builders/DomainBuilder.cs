@@ -187,7 +187,7 @@ namespace Xtensive.Storage.Building.Builders
       using (Log.InfoRegion(Strings.LogCreatingX, "Entity tuple prototypes")) {
         var domain = BuildingContext.Current.Domain;
         var model = domain.Model;
-        var prototypes = domain.EntityTuplePrototypes;
+        var prototypes = domain.PersistentTuplePrototypes;
         foreach (var type in (from t in model.Types where !t.IsInterface select t)) {
           var nullableMap = new BitArray(type.TupleDescriptor.Count);
           int i = 0;

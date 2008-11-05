@@ -18,7 +18,7 @@ namespace Xtensive.Storage.Internals
     private readonly Dictionary<Key, EntityState> removed = new Dictionary<Key, EntityState>();
     // Cached properties
     private readonly Domain domain;
-    private readonly Dictionary<TypeInfo, Tuple> entityTuplePrototypes;
+    private readonly Dictionary<TypeInfo, Tuple> persistentTuplePrototypes;
 
     [Infrastructure]
     public EntityState this[Key key]
@@ -29,45 +29,47 @@ namespace Xtensive.Storage.Internals
     [Infrastructure]
     public EntityState Add(Key key)
     {
+      var session = Session;
       EntityState result;
       if (key.IsTypeCached) {
-        var origin = entityTuplePrototypes[key.Type].Clone();
+        var origin = persistentTuplePrototypes[key.Type].Clone();
         key.CopyTo(origin);
-        result = new EntityState(key, new DifferentialTuple(origin), Session.Transaction);
+        result = new EntityState(session, key, origin);
       }
       else {
         // Key belongs to non-existing Entity
-        result = new EntityState(key, null, Session.Transaction);
+        result = new EntityState(session, key, null);
       }
       cache.Add(result);
 
-      if (Session.IsDebugEventLoggingEnabled)
-        Log.Debug("Session '{0}'. Caching: {1}", Session, result);
+      if (session.IsDebugEventLoggingEnabled)
+        Log.Debug("Session '{0}'. Caching: {1}", session, result);
       return result;
     }
 
     [Infrastructure]
     public EntityState Add(Key key, Tuple tuple)
     {
+      var session = Session;
       EntityState result = this[key];
       if (result == null) {
         if (key.IsTypeCached) {
-          var origin = entityTuplePrototypes[key.Type].Clone();
+          var origin = persistentTuplePrototypes[key.Type].Clone();
           tuple.CopyTo(origin);
-          result = new EntityState(key, new DifferentialTuple(origin), Session.Transaction);
+          result = new EntityState(session, key, origin);
         }
         else {
           // Key belongs to non-existing Entity
-          result = new EntityState(key, null, Session.Transaction);
+          result = new EntityState(session, key, null);
         }
         cache.Add(result);
-        if (Session.IsDebugEventLoggingEnabled)
-          Log.Debug("Session '{0}'. Caching: {1}", Session, result);
+        if (session.IsDebugEventLoggingEnabled)
+          Log.Debug("Session '{0}'. Caching: {1}", session, result);
       }
       else {
-        result.Update(tuple, Session.Transaction);
-        if (Session.IsDebugEventLoggingEnabled)
-          Log.Debug("Session '{0}'. Updating cache: {1}", Session, result);
+        result.Update(tuple);
+        if (session.IsDebugEventLoggingEnabled)
+          Log.Debug("Session '{0}'. Updating cache: {1}", session, result);
       }
       return result;
     }
@@ -83,8 +85,8 @@ namespace Xtensive.Storage.Internals
     [Infrastructure]
     public void Remove(EntityState state)
     {
-      state.Remove(Session.Transaction);
-      Key key = state.Key;
+      state.Update(null);
+      var key = state.Key;
       if (!removed.ContainsKey(key))
         removed[key] = cache[key, false];
       cache.RemoveKey(key);
@@ -122,7 +124,7 @@ namespace Xtensive.Storage.Internals
       cache = new LruCache<Key, EntityState>(cacheSize, i => i.Key,
         new WeakCache<Key, EntityState>(false, i => i.Key));
       domain = session.Domain;
-      entityTuplePrototypes = domain.EntityTuplePrototypes;
+      persistentTuplePrototypes = domain.PersistentTuplePrototypes;
     }
   }
 }

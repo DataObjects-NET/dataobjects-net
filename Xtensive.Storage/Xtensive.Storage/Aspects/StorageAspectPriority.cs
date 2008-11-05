@@ -19,6 +19,11 @@ namespace Xtensive.Storage.Aspects
     /// <summary>
     /// Priority of <see cref="TransactionalAttribute"/>
     /// </summary>
-    Transactional = -190000 
+    Transactional = -190000,
+
+    /// <summary>
+    /// Priority of <see cref="UsesTransactionalStateAttribute"/>
+    /// </summary>
+    UsesTransactionalState = -180000,
   }
 }

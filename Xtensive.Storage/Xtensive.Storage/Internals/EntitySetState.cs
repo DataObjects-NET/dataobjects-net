@@ -8,90 +8,23 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Xtensive.Core;
-using Xtensive.Core.Caching;
-using Xtensive.Integrity.Transactions;
+using Xtensive.Core.Aspects;
 
 namespace Xtensive.Storage.Internals
 {
   [Serializable]
-  public sealed class EntitySetState : IEnumerable<Key>,
-    ITransactionalState,
+  public sealed class EntitySetState : TransactionalStateContainer<EntitySetStateCache>,
+    IEnumerable<Key>,
     IHasVersion<long>
   {
     private const int CacheSize = 10240;
-    private readonly ICache<Key, CachedKey> cache;
-    private long count;
-    private int version;
-    private readonly Func<long> getCount;
+    private readonly Func<long> countLoader;
+
+    #region IHasVersion<...> methods
 
     /// <inheritdoc/>
-    public Transaction Transaction { get; private set; }
-
-    public long Count
-    {
-      get { return count; }
-    }
-
-    public void Add(Key key)
-    {
-      Cache(key);
-      count++;
-      version++;
-    }
-
-    public void Cache(Key key)
-    {
-      cache.Add(new CachedKey(key));
-    }
-
-    public void Remove(Key key)
-    {
-      cache.RemoveKey(key);
-      count--;
-      version++;
-    }
-
-    public void Clear()
-    {
-      cache.Clear();
-      count = 0;
-      version++;
-    }
-
-    public bool Contains(Key key)
-    {
-      return cache.ContainsKey(key);
-    }
-
-    public bool IsConsistent
-    {
-      get { return count==cache.Count; }
-    }
-
-    public IEnumerator<Key> GetEnumerator()
-    {
-      foreach (CachedKey cachedKey in cache)
-        yield return cachedKey.Key;
-    }
-
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-      return GetEnumerator();
-    }
-
-    public void EnsureConsistency(Transaction transaction)
-    {
-      if (!Transaction.State.IsActive())
-        Reset(transaction);
-    }
-
-    public void Reset(Transaction transaction)
-    {
-      Clear();
-      this.Transaction = transaction;
-      count = getCount();
-      version++;
-    }
+    [Infrastructure]
+    public long Version { get; private set; }
 
     /// <inheritdoc/>
     object IHasVersion.Version
@@ -99,22 +32,92 @@ namespace Xtensive.Storage.Internals
       get { return Version; }
     }
 
-    /// <inheritdoc/>
-    public long Version
-    {
-      get { return version; }
+
+    #endregion
+
+    [Infrastructure]
+    public bool IsFullyLoaded {
+      get {
+        var state = State;
+        return state.Count.HasValue && 
+          state.Count.GetValueOrDefault()==state.ExistingKeys.Count;
+      }
     }
+
+    [Infrastructure]
+    public long Count {
+      get {
+        var state = State;
+        if (!state.Count.HasValue)
+          state.Count = countLoader.Invoke();
+        return state.Count.GetValueOrDefault();
+      }
+    }
+
+    public bool Contains(Key key)
+    {
+      return State.ExistingKeys.ContainsKey(key);
+    }
+
+    public void Cache(Key key)
+    {
+      State.ExistingKeys.Add(key);
+    }
+
+    public void Add(Key key)
+    {
+      Cache(key);
+      var state = State;
+      if (state.Count.HasValue)
+        state.Count++;
+      Version++;
+    }
+
+    public void Remove(Key key)
+    {
+      var state = State;
+      state.ExistingKeys.RemoveKey(key);
+      if (state.Count.HasValue)
+        state.Count--;
+      Version++;
+    }
+
+    public void Clear()
+    {
+      State.ExistingKeys.Clear();
+      State.Count = 0;
+      Version++;
+    }
+
+    /// <inheritdoc/>
+    protected override EntitySetStateCache LoadState()
+    {
+      return new EntitySetStateCache(CacheSize);
+    }
+
+    #region GetEnumerator<...> methods
+
+    public IEnumerator<Key> GetEnumerator()
+    {
+      return State.ExistingKeys.GetEnumerator();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+      return GetEnumerator();
+    }
+
+    #endregion
 
 
     // Constructor
 
-    public EntitySetState(Func<long> getCount, Transaction transaction)
+    /// <inheritdoc/>
+    /// <param name="countLoader">The load count.</param>
+    public EntitySetState(Session session, Func<long> countLoader)
+      : base(session)
     {
-      ArgumentValidator.EnsureArgumentNotNull(transaction, "transaction");
-
-      cache = new LruCache<Key, CachedKey>(CacheSize, cachedKey => cachedKey.Key);
-      this.getCount = getCount;
-      Transaction = transaction;
+      this.countLoader = countLoader;
     }
   }
 }

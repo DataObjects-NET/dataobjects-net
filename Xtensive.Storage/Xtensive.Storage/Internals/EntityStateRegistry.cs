@@ -6,27 +6,43 @@
 
 using System;
 using System.Collections.Generic;
+using Xtensive.Core.Aspects;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Storage.Internals
 {
-  internal class SessionState : SessionBound
+  /// <summary>
+  /// Registers <see cref="EntityState"/> changes.
+  /// </summary>
+  public class EntityStateRegistry : SessionBound
   {
     private readonly List<EntityState> @new = new List<EntityState>();
     private readonly List<EntityState> modified = new List<EntityState>();
     private readonly List<EntityState> removed = new List<EntityState>();
 
-    public void Register(EntityState item)
+    [Infrastructure]
+    internal void Register(EntityState item)
     {
       List<EntityState> container = GetContainer(item.PersistenceState);
       container.Add(item);
     }
 
+    /// <summary>
+    /// Gets the items with specified <paramref name="state"/>.
+    /// </summary>
+    /// <param name="state">The state of items to get.</param>
+    /// <returns>The sequence of items with specified state.</returns>
+    [Infrastructure]
     public IEnumerable<EntityState> GetItems(PersistenceState state)
     {
       foreach (var item in GetContainer(state))
         yield return item;
     }
 
+    /// <summary>
+    /// Clears the registry.
+    /// </summary>
+    [Infrastructure]
     public void Clear()
     {
       foreach (var item in @new)
@@ -41,6 +57,8 @@ namespace Xtensive.Storage.Internals
       removed.Clear();
     }
 
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="state"/> is out of range.</exception>
+    [Infrastructure]
     private List<EntityState> GetContainer(PersistenceState state)
     {
       switch (state) {
@@ -51,16 +69,20 @@ namespace Xtensive.Storage.Internals
       case PersistenceState.Removed:
         return removed;
       default:
-        throw new ArgumentOutOfRangeException();
+        throw new ArgumentOutOfRangeException("state");
       }
     }
 
-    // Constructor
 
-    public SessionState(Session session)
+    // Constructors
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="session">The session this registry belongs to.</param>
+    public EntityStateRegistry(Session session)
       : base(session)
     {
-      
     }
   }
 }

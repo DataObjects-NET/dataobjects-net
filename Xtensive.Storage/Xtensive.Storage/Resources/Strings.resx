@@ -495,4 +495,7 @@
   <data name="ExWrongKeyStructure" xml:space="preserve">
     <value>Wrong key structure.</value>
   </data>
+  <data name="ExStateTransactionIsDifferent" xml:space="preserve">
+    <value>StateTransaction property value differs from the current transaction.</value>
+  </data>
 </root>

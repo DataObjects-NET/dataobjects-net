@@ -106,8 +106,7 @@ namespace Xtensive.Storage.Internals
           var state = session.Cache[key];
           if (state==null)
             state = session.Cache.Add(key);
-          state.Remove(session.Transaction);
-          session.Cache.Remove(key);
+          state.Update(null);
         }
       }
       return result;

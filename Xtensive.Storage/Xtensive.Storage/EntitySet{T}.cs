@@ -39,7 +39,6 @@ namespace Xtensive.Storage
     public long Count {
       [DebuggerStepThrough]
       get {
-        State.EnsureConsistency(Transaction.Current);
         return State.Count;
       }
     }
@@ -48,7 +47,6 @@ namespace Xtensive.Storage
     public virtual bool Contains(T item)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
-      State.EnsureConsistency(Transaction.Current);
 
       if (State.Contains(item.Key))
         return true;
@@ -67,7 +65,6 @@ namespace Xtensive.Storage
       ArgumentValidator.EnsureArgumentNotNull(key, "key");
       if (!typeof(T).IsAssignableFrom(key.Type.UnderlyingType))
         return false;
-      State.EnsureConsistency(Transaction.Current);
 
       if (State.Contains(key))
         return true;
@@ -84,7 +81,6 @@ namespace Xtensive.Storage
     public virtual bool Add(T item)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
-      State.EnsureConsistency(Transaction.Current);
 
       if (Contains(item))
         return false;
@@ -101,7 +97,6 @@ namespace Xtensive.Storage
     public virtual bool Remove(T item)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
-      State.EnsureConsistency(Transaction.Current);
 
       if (!Contains(item))
         return false;
@@ -117,8 +112,6 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     public void Clear()
     {
-      State.EnsureConsistency(Transaction.Current);
-
       foreach (T item in this.ToList())
         Remove(item);
       OnCollectionChanged(NotifyCollectionChangedAction.Reset, null);
@@ -126,8 +119,6 @@ namespace Xtensive.Storage
 
     public int RemoveWhere(Predicate<T> criteria)
     {
-      State.EnsureConsistency(Transaction.Current);
-
       var items = this.Where(i => criteria(i)).ToList();
       foreach (T item in items)
         Remove(item);
@@ -166,17 +157,16 @@ namespace Xtensive.Storage
     /// <returns>The <see cref="IEnumerable{Key}"/> collection of <see cref="Key"/> instances.</returns>
     public IEnumerable<Key> GetKeys()
     {
-      State.EnsureConsistency(Transaction.Current);
       long version = State.Version;
-      if (State.IsConsistent) {
+      if (State.IsFullyLoaded) {
         foreach (Key key in State) {
-          CheckVersion(version);
+          EnsureVersionIs(version);
           yield return key;
         }
       }
       else {
         foreach (Tuple tuple in RecordSet) {
-          CheckVersion(version);
+          EnsureVersionIs(version);
           var key = Key.Create<T>(KeyExtractTransform.Apply(TupleTransformType.TransformedTuple, tuple));
           State.Cache(key);
           yield return key;
@@ -211,9 +201,9 @@ namespace Xtensive.Storage
       return Remove((T) item);
     }
 
-    protected void CheckVersion(long current)
+    protected void EnsureVersionIs(long expectedVersion)
     {
-      if (current!=State.Version)
+      if (expectedVersion!=State.Version)
         Exceptions.CollectionHasBeenChanged(null);
     }
 

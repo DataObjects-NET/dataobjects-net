@@ -628,6 +628,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to StateTransaction property value differs from the current transaction..
+        /// </summary>
+        internal static string ExStateTransactionIsDifferent {
+            get {
+                return ResourceManager.GetString("ExStateTransactionIsDifferent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Handler provider not found for &quot;{0}&quot; connection type. Search folder &quot;{1}&quot;..
         /// </summary>
         internal static string ExStorageProviderNotFound {

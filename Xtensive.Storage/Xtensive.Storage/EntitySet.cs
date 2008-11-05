@@ -43,7 +43,7 @@ namespace Xtensive.Storage
     {
       Index = GetIndex();
       RecordSet = GetRecordSet();
-      State = new EntitySetState(() => (int) RecordSet.Count(), Session.Transaction);
+      State = new EntitySetState(Session, () => (int) RecordSet.Count());
     }
 
     protected abstract IndexInfo GetIndex();

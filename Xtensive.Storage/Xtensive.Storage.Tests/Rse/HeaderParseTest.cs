@@ -48,8 +48,8 @@ namespace Xtensive.Storage.Tests.Rse
           }
           state = Session.Current.Cache[key];
           Assert.IsNotNull(state);
-          Assert.IsTrue(state.IsAvailable(2));
-          Assert.IsTrue(state.IsAvailable(3));
+          Assert.IsTrue(state.Data.IsAvailable(2));
+          Assert.IsTrue(state.Data.IsAvailable(3));
           Session.Current.Cache.Clear();
 
           // Select Id, TypeId, Title
@@ -59,8 +59,8 @@ namespace Xtensive.Storage.Tests.Rse
           }
           state = Session.Current.Cache[key];
           Assert.IsNotNull(state);
-          Assert.IsTrue(state.IsAvailable(2));
-          Assert.IsFalse(state.IsAvailable(3));
+          Assert.IsTrue(state.Data.IsAvailable(2));
+          Assert.IsFalse(state.Data.IsAvailable(3));
           Session.Current.Cache.Clear();
 
           // Select Id, TypeId, Text
@@ -70,8 +70,8 @@ namespace Xtensive.Storage.Tests.Rse
           }
           state = Session.Current.Cache[key];
           Assert.IsNotNull(state);
-          Assert.IsFalse(state.IsAvailable(2));
-          Assert.IsTrue(state.IsAvailable(3));
+          Assert.IsFalse(state.Data.IsAvailable(2));
+          Assert.IsTrue(state.Data.IsAvailable(3));
           Session.Current.Cache.Clear();
 
           // Select a.Id, a.TypeId, a.Title, b.Id, b.TypeId, b.Text
@@ -81,8 +81,8 @@ namespace Xtensive.Storage.Tests.Rse
           }
           state = Session.Current.Cache[key];
           Assert.IsNotNull(state);
-          Assert.IsTrue(state.IsAvailable(2));
-          Assert.IsTrue(state.IsAvailable(3));
+          Assert.IsTrue(state.Data.IsAvailable(2));
+          Assert.IsTrue(state.Data.IsAvailable(3));
           Session.Current.Cache.Clear();
         }
       }

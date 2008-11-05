@@ -7,8 +7,8 @@
 using System;
 using System.Diagnostics;
 using Xtensive.Core;
+using Xtensive.Core.Aspects;
 using Xtensive.Core.Tuples;
-using Xtensive.Integrity.Transactions;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
@@ -17,73 +17,98 @@ using Activator=Xtensive.Storage.Internals.Activator;
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// The underlying data of the <see cref="Storage.Entity"/>.
+  /// The underlying state of the <see cref="Storage.Entity"/>.
   /// </summary>
-  public sealed class EntityState : Tuple,
-    ITransactionalState
+  public sealed class EntityState : TransactionalStateContainer<DifferentialTuple>
   {
+    private Key key;
+    private PersistenceState persistenceState;
+    private bool hasEntity;
     private Entity entity;
 
     /// <summary>
     /// Gets the key.
     /// </summary>
-    public Key Key { get; internal set; }
+    [Infrastructure]
+    public Key Key {
+      get { return key; }
+    }
 
     /// <summary>
     /// Gets the entity type.
     /// </summary>
+    [Infrastructure]
     public TypeInfo Type
     {
       [DebuggerStepThrough]
-      get { return Key.Type; }
+      get { return key.Type; }
     }
 
     /// <summary>
     /// Gets the values as <see cref="DifferentialTuple"/>.
     /// </summary>
-    public DifferentialTuple Data { get; private set; }
-
-    /// <summary>
-    /// Gets the transaction the state belongs to.
-    /// </summary>
-    public Transaction Transaction { get; private set; }
-    
-    /// <summary>
-    /// Gets the the persistence state.
-    /// </summary>
-    public PersistenceState PersistenceState { get; internal set; }
+    [Infrastructure]
+    public DifferentialTuple Data {
+      get { return State; }
+      private set { State = value; }
+    }
 
     /// <summary>
     /// Gets the owner of this instance.
     /// </summary>
-    public Entity Entity
-    {
-      get
-      {
-        EnsureHasEntity();
-        return entity;
+    /// <exception cref="NotSupportedException">Property value is already set.</exception>
+    [Infrastructure]
+    public Entity Entity {
+      get {
+        var isRemoved = IsRemoved;
+        if (!hasEntity) {
+          entity = isRemoved ? null : Activator.CreateEntity(Type.UnderlyingType, this);
+          hasEntity = true;
+        }
+        return isRemoved ? null : entity;
       }
-      internal set
-      {
+      internal set {
+        if (hasEntity)
+          throw Exceptions.AlreadyInitialized("Entity");
         entity = value;
+        hasEntity = true;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the persistence state.
+    /// </summary>
+    [Infrastructure]
+    public PersistenceState PersistenceState {
+      get { return persistenceState; }
+      set {
+        if (value==persistenceState)
+          return;
+        persistenceState = value;
+        if (value==PersistenceState.Synchronized)
+          return;
+        Session.EntityStateRegistry.Register(this);
       }
     }
 
     /// <summary>
     /// Gets a value indicating whether this entity is removed.
     /// </summary>
-    public bool IsRemoved
-    {
-      get { return Data==null; }
+    [Infrastructure]
+    public bool IsRemoved {
+      get {
+        return Data==null;
+      }
     }
 
     /// <summary>
-    /// Determines whether the field with the specified offset is fetched.
+    /// Ensures the entity is not removed and its data is actual.
     /// </summary>
-    /// <param name="offset">The offset of the field.</param>
-    public bool IsFetched(int offset)
+    [Infrastructure]
+    public void EnsureNotRemoved()
     {
-      return PersistenceState==PersistenceState.New || IsAvailable(offset);
+      if (IsRemoved)
+        throw new InvalidOperationException(Strings.ExEntityIsRemoved);
     }
 
     /// <summary>
@@ -91,98 +116,30 @@ namespace Xtensive.Storage
     /// </summary>
     /// <param name="tuple">The state change tuple, or a new state tuple. 
     /// If <see langword="null" />, the entity is considered as removed.</param>
-    /// <param name="transaction">The transaction.</param>
-    public void Update(Tuple tuple, Transaction transaction)
+    [Infrastructure]
+    public void Update(Tuple tuple)
     {
-      ArgumentValidator.EnsureArgumentNotNull(transaction, "transaction");
-      EnsureConsistency(transaction);
-      if (Data == null)
-        Data = new DifferentialTuple(tuple.ToRegular());
-      else
-        Data.Origin.MergeWith(tuple);
-    }
-
-    /// <summary>
-    /// Marks this instance as removed.
-    /// </summary>
-    /// <param name="transaction">The transaction.</param>
-    public void Remove(Transaction transaction)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(transaction, "transaction");
-      EnsureConsistency(transaction);
-      Data = null;
-    }
-
-    #region EnsureXxx methods
-
-    /// <inheritdoc/>
-    public void EnsureConsistency(Transaction transaction)
-    {
-      if (!Transaction.State.IsActive()) {
-        Reset(transaction);
-        Fetcher.Fetch(Key);
+      EnsureStateIsActual();
+      if (tuple==null) // Entity is removed
+        Data = null;
+      else {
+        var data = Data;
+        if (data==null) // Entity was marked as removed before
+          Data = new DifferentialTuple(tuple.ToRegular());
+        else
+          data.Origin.MergeWith(tuple);
       }
     }
 
     /// <inheritdoc/>
-    public void Reset(Transaction transaction)
+    protected override DifferentialTuple LoadState()
     {
-      Transaction = transaction;
       Data = null;
+      Fetcher.Fetch(key);
+      return Data;
     }
 
-    /// <summary>
-    /// Ensures the <see cref="Entity"/> property has been set,
-    /// i.e. <see cref="Xtensive.Storage.Entity"/> is associated
-    /// with this state.
-    /// </summary>
-    public void EnsureHasEntity()
-    {
-      if (entity!=null)
-        return;
-      var result = Activator.CreateEntity(Type.UnderlyingType, this);
-      result.Initialize();
-      Entity = result;
-    }
-
-    /// <summary>
-    /// Ensures the entity is not removed and its data is actual.
-    /// Call this method before getting or setting values.
-    /// </summary>
-    public void EnsureNotRemoved(Transaction transaction)
-    {
-      EnsureConsistency(transaction);
-      if (IsRemoved)
-        throw new InvalidOperationException(Strings.ExEntityIsRemoved);
-    }
-
-    #endregion
-
-    #region Tuple implementation
-
-    /// <inheritdoc/>
-    public override TupleFieldState GetFieldState(int fieldIndex)
-    {
-      return Data.GetFieldState(fieldIndex);
-    }
-
-    /// <inheritdoc/>
-    public override object GetValueOrDefault(int fieldIndex)
-    {
-      return Data.GetValueOrDefault(fieldIndex);
-    }
-
-    /// <inheritdoc/>
-    public override void SetValue(int fieldIndex, object fieldValue)
-    {
-      Data.SetValue(fieldIndex, fieldValue);
-    }
-
-    /// <inheritdoc/>
-    public override TupleDescriptor Descriptor
-    {
-      get { return Data.Descriptor; }
-    }
+    #region Equality members
 
     /// <inheritdoc/>
     public override bool Equals(object obj)
@@ -199,27 +156,21 @@ namespace Xtensive.Storage
     #endregion
 
     /// <inheritdoc/>
+    [Infrastructure]
     public override string ToString()
     {
-      return string.Format("Key = '{0}', Values = {1}, State = {2}", Key, Data.ToRegular(), PersistenceState);
+      return string.Format("Key = '{0}', Data = {1}, State = {2}", Key, Data.ToRegular(), PersistenceState);
     }
 
 
     // Constructors
 
-    internal EntityState(Key key, DifferentialTuple tuple, Transaction transaction, Entity entity)
-      : this(key, tuple, transaction)
-    {
-      this.entity = entity;
-    }
-
-    internal EntityState(Key key, DifferentialTuple tuple, Transaction transaction)
+    internal EntityState(Session session, Key key, Tuple data)
+      : base(session)
     {
       ArgumentValidator.EnsureArgumentNotNull(key, "key");
-      ArgumentValidator.EnsureArgumentNotNull(transaction, "transaction");
-      Key = key;
-      Data = tuple;
-      Transaction = transaction;
+      this.key = key;
+      Update(data);
     }
   }
 }

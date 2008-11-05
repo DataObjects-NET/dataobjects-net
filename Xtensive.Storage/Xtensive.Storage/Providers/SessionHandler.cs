@@ -39,11 +39,11 @@ namespace Xtensive.Storage.Providers
     /// </summary>    
     public void Persist()
     {
-      foreach (EntityState data in Session.State.GetItems(PersistenceState.New))
+      foreach (EntityState data in Session.EntityStateRegistry.GetItems(PersistenceState.New))
         Insert(data);
-      foreach (EntityState data in Session.State.GetItems(PersistenceState.Modified))
+      foreach (EntityState data in Session.EntityStateRegistry.GetItems(PersistenceState.Modified))
         Update(data);
-      foreach (EntityState data in Session.State.GetItems(PersistenceState.Removed))
+      foreach (EntityState data in Session.EntityStateRegistry.GetItems(PersistenceState.Removed))
         Remove(data);
     }
 

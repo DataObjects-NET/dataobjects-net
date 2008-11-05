@@ -133,7 +133,6 @@ namespace Xtensive.Storage
       if (!hasBeenFetched && session.IsDebugEventLoggingEnabled)
         Log.Debug("Session '{0}'. Resolving key '{1}'. Key is already resolved.", session, this);
       
-      state.EnsureConsistency(session.Transaction);
       if (state.IsRemoved)
         return null;
 
