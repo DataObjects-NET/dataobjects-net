@@ -61,9 +61,9 @@ namespace Xtensive.Storage.Aspects
         ProvidePersistentAspects(type, collection);
       if (sessionBoundType.IsAssignableFrom(type))
         ProvideTransactionalAspects(type, collection);
-      if (transactionalStateContainerType.IsAssignableFrom(type))
-        ProvideUsesTransactionalStateAspects(type, collection);
 
+//      if (transactionalStateContainerType.IsAssignableFrom(type))
+//        ProvideUsesTransactionalStateAspects(type, collection);
 //      ProvideAtomicAspects(type, collection);
     }
 

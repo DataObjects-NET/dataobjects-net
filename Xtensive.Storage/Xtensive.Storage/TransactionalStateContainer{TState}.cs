@@ -15,6 +15,7 @@ namespace Xtensive.Storage
   /// <typeparam name="TState">The type of the transactional state.</typeparam>
   public abstract class TransactionalStateContainer<TState> : TransactionalStateContainer
   {
+    private bool isStateLoaded;
     private TState state;
 
     /// <summary>
@@ -23,19 +24,17 @@ namespace Xtensive.Storage
     [Infrastructure]
     protected TState State {
       get {
-        EnsureStateIsActual();
         if (!IsStateLoaded) {
           BindStateTransaction();
           LoadState();
-          IsStateLoaded = true;
+          isStateLoaded = true;
         }
         return state;
       }
       set {
-        EnsureStateIsActual();
         if (!IsStateLoaded) {
           BindStateTransaction();
-          IsStateLoaded = true;
+          isStateLoaded = true;
         }
         state = value;
       }
@@ -45,7 +44,12 @@ namespace Xtensive.Storage
     /// Gets a value indicating whether base state is loaded or not.
     /// </summary>
     [Infrastructure]
-    protected bool IsStateLoaded { get; private set; }
+    protected bool IsStateLoaded {
+      get {
+        EnsureStateIsActual();
+        return isStateLoaded;
+      }
+    }
 
     [Infrastructure]
     protected abstract TState LoadState();
@@ -53,7 +57,7 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     protected override void ResetState()
     {
-      IsStateLoaded = false;
+      isStateLoaded = false;
       state = default(TState);
     }
 
