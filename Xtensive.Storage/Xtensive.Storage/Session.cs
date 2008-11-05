@@ -54,7 +54,7 @@ namespace Xtensive.Storage
     /// </summary>
     public AtomicityContext AtomicityContext { get; private set; }
 
-    internal LowLevelAccessor Accessor { get; private set; }
+    internal LowLevelServiceMap LowLevelServices { get; private set; }
 
     /// <summary>
     /// Gets the current validation context.
@@ -344,7 +344,7 @@ namespace Xtensive.Storage
       Handler.Initialize();
       AtomicityContext = new AtomicityContext(this, AtomicityContextOptions.Undoable);
       compilationScope = Handlers.DomainHandler.CompilationContext.Activate();
-      Accessor = new LowLevelAccessor(this);
+      LowLevelServices = new LowLevelServiceMap(this);
       EntityStateRegistry = new EntityStateRegistry(this);
     }
 

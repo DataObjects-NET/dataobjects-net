@@ -32,6 +32,7 @@ namespace Xtensive.Storage.Internals
       var session = Session;
       EntityState result;
       if (key.IsTypeCached) {
+        // New instance contains a tuple with all fields set with default values.
         var origin = persistentTuplePrototypes[key.Type].Clone();
         key.CopyTo(origin);
         result = new EntityState(session, key, origin);
@@ -40,6 +41,7 @@ namespace Xtensive.Storage.Internals
         // Key belongs to non-existing Entity
         result = new EntityState(session, key, null);
       }
+      result.PersistenceState = PersistenceState.New;
       cache.Add(result);
 
       if (session.IsDebugEventLoggingEnabled)
@@ -54,7 +56,10 @@ namespace Xtensive.Storage.Internals
       EntityState result = this[key];
       if (result == null) {
         if (key.IsTypeCached) {
-          var origin = persistentTuplePrototypes[key.Type].Clone();
+          // Fetched instance contains a tuple with some fields set with fetched values.
+          // Other fields MUST be not available.
+          // That is why Tuple.Create() is used instead of prototype.Clone();
+          var origin = Tuple.Create(key.Type.TupleDescriptor);
           tuple.CopyTo(origin);
           result = new EntityState(session, key, origin);
         }
@@ -62,6 +67,7 @@ namespace Xtensive.Storage.Internals
           // Key belongs to non-existing Entity
           result = new EntityState(session, key, null);
         }
+        result.PersistenceState = PersistenceState.Synchronized;
         cache.Add(result);
         if (session.IsDebugEventLoggingEnabled)
           Log.Debug("Session '{0}'. Caching: {1}", session, result);

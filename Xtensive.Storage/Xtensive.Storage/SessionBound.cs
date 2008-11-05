@@ -37,7 +37,8 @@ namespace Xtensive.Storage
     /// Gets the low-level accessor.
     /// </summary>
     /// <exception cref="InvalidOperationException">Caller is not registered in <see cref="DomainModel"/>.</exception>
-    protected internal LowLevelAccessor Accessor
+    [Infrastructure]
+    protected internal LowLevelServiceMap LowLevelServices
     {
       [DebuggerStepThrough]
       get
@@ -45,7 +46,7 @@ namespace Xtensive.Storage
         // TODO: Add check for services also.
         if (!Session.Domain.Model.Types.Contains(GetType()))
           throw new InvalidOperationException("Unauthorized access. Caller is not registered in model.");
-        return session.Accessor;
+        return session.LowLevelServices;
       }
     }
 

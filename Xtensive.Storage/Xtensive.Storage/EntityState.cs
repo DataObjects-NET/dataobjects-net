@@ -63,6 +63,8 @@ namespace Xtensive.Storage
         var isRemoved = IsRemoved;
         if (!hasEntity) {
           entity = isRemoved ? null : Activator.CreateEntity(Type.UnderlyingType, this);
+          if (entity != null)
+            entity.Initialize(true);
           hasEntity = true;
         }
         return isRemoved ? null : entity;
@@ -137,6 +139,17 @@ namespace Xtensive.Storage
       Data = null;
       Fetcher.Fetch(key);
       return Data;
+    }
+
+    [Infrastructure]
+    internal void Bind(Entity target)
+    {
+      if (entity != null)
+        throw Exceptions.AlreadyInitialized("Entity");
+      if (entity.State != this)
+        throw Exceptions.AlreadyInitialized("Entity.State");
+      Entity = target;
+      entity.State = this;
     }
 
     #region Equality members

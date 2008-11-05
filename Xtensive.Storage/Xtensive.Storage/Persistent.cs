@@ -4,6 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2007.08.03
 
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using Xtensive.Core;
@@ -14,6 +15,7 @@ using Xtensive.Integrity.Validation;
 using Xtensive.Integrity.Validation.Interfaces;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.PairIntegrity;
 
 namespace Xtensive.Storage
 {
@@ -47,14 +49,7 @@ namespace Xtensive.Storage
     [Infrastructure]
     internal abstract void EnsureIsFetched(FieldInfo field);
 
-    [Infrastructure]
-    internal void Initialize()
-    {
-      OnInitialized();
-      this.Validate();
-    }
-
-    #region this[...], GetProperty, SetProperty methods
+    #region this[...], GetProperty, SetProperty members
 
     [Infrastructure]
     public object this[string name]
@@ -86,7 +81,7 @@ namespace Xtensive.Storage
 
     #endregion
 
-    #region GetField, SetField methods
+    #region Public user-level GetField, SetField members
 
     [Infrastructure]
     protected T GetField<T>(string name)
@@ -97,11 +92,7 @@ namespace Xtensive.Storage
     [Infrastructure]
     protected T GetField<T>(FieldInfo field)
     {
-      OnGettingField(field);
-      T result = Accessor.GetField<T>(this, field);
-      OnGetField(field, result);
-
-      return result;
+      return GetField<T>(field, true);
     }
 
     [Infrastructure]
@@ -113,21 +104,15 @@ namespace Xtensive.Storage
     [Infrastructure]
     protected void SetField<T>(FieldInfo field, T value)
     {
-      OnSettingField(field, value);
-      T oldValue = Accessor.GetField<T>(this, field);
-      Accessor.SetField(this, field, value);
-      OnSetField(field, oldValue, value);
-      if (Session.Domain.Configuration.AutoValidation)
-        this.Validate();
-      NotifyPropertyChanged(field);
+      SetField(field, value, true);
     }
 
     #endregion
 
-    #region Protected event-like methods
+    #region Protected user-level event-like members
 
     [Infrastructure]
-    protected virtual void OnInitialized()
+    protected virtual void OnInitialize()
     {
     }
 
@@ -157,6 +142,119 @@ namespace Xtensive.Storage
     /// </summary>    
     [Infrastructure]
     public virtual void OnValidate()
+    {
+    }
+
+    #endregion
+
+    #region System-level GetField, SetField, GetKey, Remove members
+
+    [Infrastructure]
+    internal void Initialize(bool notify)
+    {
+      OnBeforeInitialize();
+      if (notify) {
+        OnInitialize();
+        this.Validate();
+      }
+      OnAfterInitialize();
+    }
+
+    [Infrastructure]
+    internal T GetField<T>(FieldInfo field, bool notify)
+    {
+      if (notify)
+        OnGettingField(field);
+
+      OnBeforeGetField(field);
+      T result = field.GetAccessor<T>().GetValue(this, field);
+      OnAfterGetField(field);
+
+      if (notify)
+        OnGetField(field, result);
+
+      return result;
+    }
+
+    [Infrastructure]
+    internal void SetField<T>(FieldInfo field, T value, bool notify)
+    {
+      if (notify)
+        OnSettingField(field, value);
+
+      OnBeforeSetField(field);
+      T oldValue = default(T);
+      if (notify)
+        oldValue = GetField<T>(field, false);
+      AssociationInfo association = field.Association;
+      if (association!=null && association.IsPaired) {
+        Key currentRef = GetKey(field);
+        Key newRef = null;
+        Entity newEntity = (Entity) (object) value;
+        if (newEntity!=null)
+          newRef = newEntity.Key;
+        if (currentRef!=newRef) {
+          SyncManager.Enlist(OperationType.Set, (Entity) this, newEntity, association);
+          field.GetAccessor<T>().SetValue(this, field, value);
+        }
+      }
+      else
+        field.GetAccessor<T>().SetValue(this, field, value);
+      OnAfterSetField(field);
+
+      if (notify)
+        OnSetField(field, oldValue, value);
+      if (Session.Domain.Configuration.AutoValidation)
+        this.Validate();
+      if (notify)
+        NotifyPropertyChanged(field);
+    }
+
+    [Infrastructure]
+    internal Key GetKey(FieldInfo field)
+    {
+      if (!field.IsEntity)
+        throw new InvalidOperationException(string.Format("Field '{0}' is not an Entity field.", field.Name));
+
+      OnBeforeGetField(field);
+      // TODO: Refactor
+      Key result = EntityFieldAccessor<Entity>.ExtractKey(this, field);
+      OnAfterGetField(field);
+
+      return result;
+    }
+
+    #endregion
+
+    #region System-level event-like members
+
+    [Infrastructure]
+    protected internal virtual void OnBeforeInitialize()
+    {
+    }
+
+    [Infrastructure]
+    protected internal virtual void OnAfterInitialize()
+    {
+    }
+
+    [Infrastructure]
+    protected internal virtual void OnBeforeGetField(FieldInfo field)
+    {
+    }
+
+    [Infrastructure]
+    protected internal virtual void OnAfterGetField(FieldInfo field)
+    {
+    }
+
+    [Infrastructure]
+    protected internal virtual void OnBeforeSetField(FieldInfo field)
+    {
+    }
+
+    [Infrastructure]
+    protected internal virtual void OnAfterSetField(FieldInfo field)
     {
     }
 

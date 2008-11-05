@@ -52,7 +52,7 @@ namespace Xtensive.Storage
         return true;
 
       FieldInfo referencingField = Field.Association.Reversed.ReferencingField;
-      if (item.Accessor.GetKey(item, referencingField) == OwnerEntity.Key) {
+      if (item.GetKey(referencingField) == OwnerEntity.Key) {
         State.Cache(item.Key);
         return true;
       }
@@ -70,7 +70,7 @@ namespace Xtensive.Storage
         return true;
 
       Tuple filterTuple = KeyFilterTransform.Apply(TupleTransformType.Tuple, OwnerEntity.Key, key);
-      if (RecordSet.Range(filterTuple, filterTuple).Count() > 0) {
+      if (RecordSet.Seek(filterTuple).Count() > 0) {
         State.Add(key);
         return true;
       }
@@ -145,6 +145,7 @@ namespace Xtensive.Storage
       get { return false; }
     }
 
+    /// <inheritdoc/>
     public IEnumerator<T> GetEnumerator()
     {
       foreach (Key key in GetKeys())

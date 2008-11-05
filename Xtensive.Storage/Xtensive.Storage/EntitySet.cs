@@ -4,15 +4,10 @@
 // Created by: Aleksey Gamzov
 // Created:    2008.09.10
 
-using System;
-using System.Linq;
-using System.Reflection;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
-using Xtensive.Storage.Resources;
 using Xtensive.Storage.Rse;
-using FieldInfo=Xtensive.Storage.Model.FieldInfo;
 
 namespace Xtensive.Storage
 {
@@ -25,10 +20,11 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     public FieldInfo Field { get; private set; }
 
-    internal Entity OwnerEntity 
+    internal Entity OwnerEntity
     {
       get { return (Entity) Owner; }
     }
+
     protected IndexInfo Index { get; private set; }
 
     protected internal RecordSet RecordSet { get; private set; }

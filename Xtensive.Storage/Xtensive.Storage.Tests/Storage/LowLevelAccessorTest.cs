@@ -36,9 +36,9 @@ namespace Xtensive.Storage.Tests.Storage.LowLevelAccessorModel
 
     #region Custom business logic
 
-    protected override void OnInitialized()
+    protected override void OnInitialize()
     {
-      base.OnInitialized();
+      base.OnInitialize();
       throw new InvalidOperationException();
     }
 
@@ -94,7 +94,7 @@ namespace Xtensive.Storage.Tests.Storage
     {
       using(Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
-          var accessor = Session.Current.Accessor;
+          var accessor = Session.Current.LowLevelServices.EntityAccessor;
           X instance = (X)accessor.CreateInstance(typeof (X));
           t.Complete();
         }
@@ -106,9 +106,9 @@ namespace Xtensive.Storage.Tests.Storage
     {
       using(Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
-          var accessor = Session.Current.Accessor;
+          var accessor = Session.Current.LowLevelServices.EntityAccessor;
           X instance = (X)accessor.CreateInstance(typeof (X));
-          instance.Accessor.SetField(instance, instance.Type.Fields["Value"], "Value");
+          instance.LowLevelServices.EntityAccessor.SetField(instance, instance.Type.Fields["Value"], "Value");
           Assert.AreEqual("Value", instance.Value);
           t.Complete();
         }
@@ -120,11 +120,11 @@ namespace Xtensive.Storage.Tests.Storage
     {
       using(Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
-          var accessor = Session.Current.Accessor;
+          var accessor = Session.Current.LowLevelServices.EntityAccessor;
           X instance = (X)accessor.CreateInstance(typeof (X));
           Key key = instance.Key;
           Assert.IsNotNull(key.Resolve());
-          instance.Accessor.Remove(instance);
+          instance.LowLevelServices.EntityAccessor.Remove(instance);
           Assert.AreEqual(PersistenceState.Removed, instance.PersistenceState);
           Assert.IsNull(key.Resolve());
           t.Complete();

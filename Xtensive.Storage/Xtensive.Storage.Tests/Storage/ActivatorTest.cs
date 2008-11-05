@@ -31,9 +31,9 @@ namespace Xtensive.Storage.Tests.Storage.ActivatorModel
   {
     public object syncRoot;
 
-    protected override void OnInitialized()
+    protected override void OnInitialize()
     {
-      base.OnInitialized();
+      base.OnInitialize();
       syncRoot = new object();
     }
 

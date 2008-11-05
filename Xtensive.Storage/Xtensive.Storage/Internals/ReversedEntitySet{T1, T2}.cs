@@ -23,6 +23,7 @@ namespace Xtensive.Storage.Internals
     public override bool Add(TEntity item)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
+      State.EnsureStateIsActual();
 
       if (Contains(item))
         return false;
@@ -39,6 +40,7 @@ namespace Xtensive.Storage.Internals
     public override bool Remove(TEntity item)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
+      State.EnsureStateIsActual();
 
       if (!Contains(item))
         return false;
@@ -49,12 +51,6 @@ namespace Xtensive.Storage.Internals
 
       OnCollectionChanged(NotifyCollectionChangedAction.Remove, item);
       return true;
-    }
-
-    public override bool Contains(TEntity item)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(item, "item");
-      return Contains(item.Key);
     }
 
     #region Initialization members

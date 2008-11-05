@@ -65,6 +65,61 @@ namespace Xtensive.Storage
       get { return data; }
     }
 
+    /// <inheritdoc/> 
+    protected internal override bool SkipValidation
+    {
+      get { return false; }
+    }
+
+    internal override sealed void EnsureIsFetched(FieldInfo field)
+    {
+      if (owner!=null)
+        owner.EnsureIsFetched(field);
+    }
+
+    #region System-level event-like members
+
+    // This is done just to make it sealed
+    protected internal sealed override void OnBeforeInitialize()
+    {
+      base.OnBeforeInitialize();
+    }
+
+    // This is done just to make it sealed
+    protected internal sealed override void OnAfterInitialize()
+    {
+      base.OnAfterInitialize();
+    }
+
+    protected sealed internal override void OnBeforeGetField(FieldInfo field)
+    {
+      base.OnBeforeGetField(field);
+      if (Owner!=null)
+        Owner.OnBeforeGetField(Field);
+    }
+
+    // This is done just to make it sealed
+    protected sealed internal override void OnAfterGetField(FieldInfo field)
+    {
+      base.OnAfterGetField(field);
+    }
+
+    protected sealed internal override void OnBeforeSetField(FieldInfo field)
+    {
+      base.OnBeforeSetField(field);
+      if (Owner!=null)
+        Owner.OnBeforeSetField(Field);
+    }
+
+    protected internal sealed override void OnAfterSetField(FieldInfo field)
+    {
+      base.OnAfterSetField(field);
+      if (Owner!=null)
+        Owner.OnAfterSetField(Field);
+    }
+
+    #endregion
+
     #region Equals & GetHashCode
 
     /// <inheritdoc/>
@@ -94,22 +149,6 @@ namespace Xtensive.Storage
     }
 
     #endregion
-
-    #region Protected methods
-
-    /// <inheritdoc/> 
-    protected internal override bool SkipValidation
-    {
-      get { return false; }
-    }
-
-    #endregion
-
-    internal override sealed void EnsureIsFetched(FieldInfo field)
-    {
-      if (owner!=null)
-        owner.EnsureIsFetched(field);
-    }
 
 
     // Constructors
