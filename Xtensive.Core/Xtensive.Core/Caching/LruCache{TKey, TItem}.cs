@@ -279,7 +279,8 @@ namespace Xtensive.Core.Caching
       this.keyExtractor = keyExtractor;
       this.sizeExtractor = sizeExtractor;
       this.chainedCache = chainedCache;
-      deque = new TopDeque<TKey, KeyValuePair<TKey, TItem>>(1 + (int) maxSize);
+      // deque = new TopDeque<TKey, KeyValuePair<TKey, TItem>>(1 + (int) maxSize);
+      deque = new TopDeque<TKey, KeyValuePair<TKey, TItem>>();
     }
   }
 }
