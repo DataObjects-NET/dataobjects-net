@@ -17,6 +17,8 @@ namespace Xtensive.Storage.Rse
   [Serializable]
   public sealed class IndexInfoRef
   {
+    private const string ToStringFormat = "Index '{0}' @ {1}";
+
     /// <summary>
     /// Name of the index.
     /// </summary>
@@ -46,7 +48,7 @@ namespace Xtensive.Storage.Rse
     /// <inheritdoc/>
       public override string ToString()
     {
-      return string.Format("Type: {0}, Index: {1}", TypeName, IndexName);
+      return string.Format(ToStringFormat, IndexName, TypeName);
     }
 
 

@@ -5,8 +5,10 @@
 // Created:    2008.07.09
 
 using System;
+using System.Linq.Expressions;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
+using Xtensive.Core.Helpers;
 
 namespace Xtensive.Storage.Rse.Providers.Compilable
 {
@@ -17,16 +19,34 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
   public class RawProvider : CompilableProvider
   {
     private readonly RecordSetHeader header;
+    private Func<Tuple[]> compiledSource;
 
     /// <summary>
     /// Raw data source - an array of tuples.
     /// </summary>
-    public Func<Tuple[]> Source { get; private set; }
+    public Expression<Func<Tuple[]>> Source { get; private set; }
+
+    /// <summary>
+    /// Gets the compiled <see cref="Source"/>.
+    /// </summary>
+    public Func<Tuple[]> CompiledSource {
+      get {
+        if (compiledSource==null)
+          compiledSource = Source.Compile();
+        return compiledSource;
+      }
+    }
 
     /// <inheritdoc/>
     protected override RecordSetHeader BuildHeader()
     {
       return header;
+    }
+
+    /// <inheritdoc/>
+    public override string ParametersToString()
+    {
+      return Source.ToString(true);
     }
 
 
@@ -37,7 +57,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// </summary>
     /// <param name="header">The <see cref="Provider.Header"/> property value.</param>
     /// <param name="source">The <see cref="Source"/> property value.</param>
-    public RawProvider(RecordSetHeader header, Func<Tuple[]> source)
+    public RawProvider(RecordSetHeader header, Expression<Func<Tuple[]>> source)
     {
       Source = source;
       this.header = header;

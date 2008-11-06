@@ -5,17 +5,22 @@
 // Created:    2008.09.09
 
 using System;
+using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using System.Linq.Expressions;
+using Xtensive.Core.Reflection;
 
 namespace Xtensive.Storage.Rse
 {
   /// <summary>
   /// Descriptor of the calculated column.
   /// </summary>
+  [Serializable]
   public class CalculatedColumnDescriptor
   {
+    private const string ToStringFormat = "{0} {1} = {2}";
+
     /// <summary>
     /// Gets the column name.
     /// </summary>
@@ -30,6 +35,13 @@ namespace Xtensive.Storage.Rse
     /// Gets the column expression.
     /// </summary>
     public Expression<Func<Tuple, object>> Expression { get; private set; }
+
+    /// <inheritdoc/>
+    public override string ToString()
+    {
+      return string.Format(ToStringFormat,
+        Type.GetShortName(), Name, Expression.ToString(true));
+    }
 
 
     // Constructor

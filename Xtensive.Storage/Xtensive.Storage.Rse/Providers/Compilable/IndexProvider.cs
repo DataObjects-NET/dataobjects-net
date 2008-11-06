@@ -37,6 +37,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
       return Index.ToString();
     }
 
+
     // Factory method
 
     /// <summary>

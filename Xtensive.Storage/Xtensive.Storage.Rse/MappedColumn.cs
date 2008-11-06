@@ -16,6 +16,8 @@ namespace Xtensive.Storage.Rse
   [Serializable]
   public sealed class MappedColumn : Column
   {
+    private const string ToStringFormat = "{0} = {1}";
+
     /// <summary>
     /// Gets the reference that describes a column.
     /// </summary>    
@@ -60,6 +62,13 @@ namespace Xtensive.Storage.Rse
     }
 
     #endregion
+
+    /// <inheritdoc/>
+    public override string ToString()
+    {
+      return string.Format(ToStringFormat, base.ToString(), ColumnInfoRef);
+    }
+
 
     // Constructors
 

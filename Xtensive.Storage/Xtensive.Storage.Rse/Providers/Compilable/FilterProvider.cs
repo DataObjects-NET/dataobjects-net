@@ -20,10 +20,23 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
   [Serializable]
   public class FilterProvider : UnaryProvider
   {
+    private Func<Tuple, bool> compiledPredicate;
+
     /// <summary>
     /// Filtering predicate expression.
     /// </summary>
     public Expression<Func<Tuple, bool>> Predicate { get; private set; }
+
+    /// <summary>
+    /// Gets the compiled <see cref="Predicate"/>.
+    /// </summary>
+    public Func<Tuple, bool> CompiledPredicate {
+      get {
+        if (compiledPredicate==null)
+          compiledPredicate = Predicate.Compile();
+        return compiledPredicate;
+      }
+    }
 
     /// <inheritdoc/>
     public override string ParametersToString()

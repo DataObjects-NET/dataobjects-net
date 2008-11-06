@@ -18,6 +18,8 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
   /// </summary>
   public class AggregateProvider : UnaryProvider
   {
+    private const string ToStringFormat = "{0}, Group by ({1})";
+
     /// <summary>
     /// Gets the aggregate columns.
     /// </summary>
@@ -44,6 +46,17 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
 
       var rs = Source.Header.Select(GroupColumnIndexes);
       return new RecordSetHeader(TupleDescriptor.Create(types), rs.Add(AggregateColumns).Columns, null, null, null);
+    }
+
+    /// <inheritdoc/>
+    public override string ParametersToString()
+    {
+      if (GroupColumnIndexes.Length==0)
+        return AggregateColumns.ToCommaDelimitedString();
+      else
+        return string.Format(ToStringFormat,
+          AggregateColumns.ToCommaDelimitedString(), 
+          GroupColumnIndexes.ToCommaDelimitedString());
     }
 
     /// <inheritdoc/>

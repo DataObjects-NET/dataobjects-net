@@ -7,6 +7,7 @@
 using System;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples.Transform;
+using Xtensive.Core.Collections;
 
 namespace Xtensive.Storage.Rse.Providers.Compilable
 {
@@ -24,15 +25,21 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <summary>
     /// Gets header resize transform.
     /// </summary>
-    public MapTransform ResizeTransform{ get; private set; }
+    public MapTransform ResizeTransform { get; private set; }
 
 
     /// <inheritdoc/>
     protected override RecordSetHeader BuildHeader()
     {
-      RecordSetHeader header = Source.Header;
+      var header = Source.Header;
       header = header.Add(CalculatedColumns);
       return header;
+    }
+
+    /// <inheritdoc/>
+    public override string ParametersToString()
+    {
+      return CalculatedColumns.ToCommaDelimitedString();
     }
 
     /// <inheritdoc/>

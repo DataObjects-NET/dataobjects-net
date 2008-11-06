@@ -13,8 +13,11 @@ namespace Xtensive.Storage.Rse
   /// <summary>
   /// Descriptor of the calculated column.
   /// </summary>
+  [Serializable]
   public class AggregateColumnDescriptor
   {
+    private const string ToStringFormat = "{0} = {1} on ({2})";
+
     /// <summary>
     /// Gets the column index.
     /// </summary>
@@ -29,6 +32,13 @@ namespace Xtensive.Storage.Rse
     /// Gets the column type.
     /// </summary>
     public AggregateType AggregateType { get; private set; }
+
+    /// <inheritdoc/>
+    public override string ToString()
+    {
+      return string.Format(ToStringFormat,
+        base.ToString(), AggregateType, SourceIndex);
+    }
 
 
     // Constructor

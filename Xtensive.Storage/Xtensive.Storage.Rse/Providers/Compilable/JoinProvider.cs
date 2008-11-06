@@ -22,6 +22,8 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
   [Serializable]
   public sealed class JoinProvider : BinaryProvider
   {
+    private const string ToStringFormat = "{0}, {1}";
+
     /// <summary>
     /// Indicates whether current join operation should be executed as left join.
     /// </summary>
@@ -40,9 +42,9 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <inheritdoc/>
     public override string ParametersToString()
     {
-      return string.Format("{0}, {1}",
-        LeftJoin ? "Left" : "Inner",
-        EqualColumns.Select(p => p.First.Name + "=" + p.Second.Name).ToCommaDelimitedString());
+      return string.Format(ToStringFormat,
+        LeftJoin ? "Left join" : "Inner join",
+        EqualColumns.Select(p => p.First.Name + " == " + p.Second.Name).ToCommaDelimitedString());
     }
 
     /// <inheritdoc/>

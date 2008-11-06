@@ -5,10 +5,8 @@
 // Created:    2008.08.11
 
 using Xtensive.Sql.Dom.Dml;
-using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
-using SqlFactory = Xtensive.Sql.Dom.Sql;
 
 namespace Xtensive.Storage.Providers.Sql.Compilers
 {
@@ -21,7 +19,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
         return null;
 
       var query = (SqlSelect)source.Request.Statement.Clone();
-      var count = provider.Count();
+      var count = provider.CompiledCount.Invoke();
       if (query.Top==0 || query.Top > count)
         query.Top = count;
       var request = new SqlFetchRequest(query, provider.Header, source.Request.ParameterBindings);

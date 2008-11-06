@@ -16,12 +16,22 @@ namespace Xtensive.Storage.Rse
   /// <summary>
   /// Calculated column of the record.
   /// </summary>
+  [Serializable]
   public class CalculatedColumn : Column
   {
+    private const string ToStringFormat = "{0} = {1}";
+
     /// <summary>
     /// Gets the column expression.
     /// </summary>
     public Expression<Func<Tuple, object>> Expression { get; private set; }
+
+    /// <inheritdoc/>
+    public override string ToString()
+    {
+      return string.Format(ToStringFormat,
+        base.ToString(), Expression.ToString(true));
+    }
 
 
     // Constructor

@@ -5,10 +5,14 @@
 // Created:    2008.07.03
 
 using System;
+using System.Linq.Expressions;
+using System.Reflection;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
 using Xtensive.Storage.Rse.Providers.Compilable;
+using Xtensive.Core.Helpers;
 
 namespace Xtensive.Storage.Rse.Providers.Compilable
 {
@@ -18,15 +22,28 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
   [Serializable]
   public class RangeProvider : UnaryProvider
   {
+    private Func<Range<Entire<Tuple>>> compiledRange;
+
     /// <summary>
     /// Gets the range parameter.
     /// </summary>
-    public Func<Range<Entire<Tuple>>> Range { get; private set; }
+    public Expression<Func<Range<Entire<Tuple>>>> Range { get; private set; }
+
+    /// <summary>
+    /// Gets the compiled <see cref="Range"/>.
+    /// </summary>
+    public Func<Range<Entire<Tuple>>> CompiledRange {
+      get {
+        if (compiledRange==null)
+          compiledRange = Range.Compile();
+        return compiledRange;
+      }
+    }
 
     /// <inheritdoc/>
     public override string ParametersToString()
     {
-      return Range.ToString();
+      return Range.ToString(true);
     }
 
     /// <inheritdoc/>
@@ -34,12 +51,22 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     {
       base.Initialize();
       // To improve comparison speed
-      Range = delegate {
-        var endPoints = Range().EndPoints;
-        return new Range<Entire<Tuple>>(
-          new Entire<Tuple>(endPoints.First.Value.ToFastReadOnly(), endPoints.First.ValueType),
-          new Entire<Tuple>(endPoints.Second.Value.ToFastReadOnly(), endPoints.Second.ValueType));
-      };
+      Range = Expression.Lambda<Func<Range<Entire<Tuple>>>>(
+        Expression.Call(GetType().GetMethod("ToFastRange"),
+          Expression.Call(Range, typeof(Func<Range<Entire<Tuple>>>).GetMethod("Invoke"))));
+    }
+
+    /// <summary>
+    /// Converts the range to fast key.
+    /// </summary>
+    /// <param name="range">The range to convert.</param>
+    /// <returns>Conversion result.</returns>
+    public static Range<Entire<Tuple>> ToFastRange(Range<Entire<Tuple>> range)
+    {
+      var endPoints = range.EndPoints;
+      return new Range<Entire<Tuple>>(
+        new Entire<Tuple>(endPoints.First.Value.ToFastReadOnly(), endPoints.First.ValueType),
+        new Entire<Tuple>(endPoints.Second.Value.ToFastReadOnly(), endPoints.Second.ValueType));
     }
 
 
@@ -50,7 +77,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// </summary>
     /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="range">The <see cref="Range"/> property value.</param>
-    public RangeProvider(CompilableProvider source, Func<Range<Entire<Tuple>>> range)
+    public RangeProvider(CompilableProvider source, Expression<Func<Range<Entire<Tuple>>>> range)
       : base(source)
     {
       Range = range;

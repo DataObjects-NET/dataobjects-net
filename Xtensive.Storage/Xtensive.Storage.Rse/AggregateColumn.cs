@@ -15,8 +15,11 @@ namespace Xtensive.Storage.Rse
   /// <summary>
   /// Calculated column of the record.
   /// </summary>
+  [Serializable]
   public class AggregateColumn : Column
   {
+    private const string ToStringFormat = "{0} = {1} on ({2})";
+
     /// <summary>
     /// Gets the aggregate function.
     /// </summary>
@@ -26,6 +29,13 @@ namespace Xtensive.Storage.Rse
     /// Gets the source column index.
     /// </summary>
     public int SourceIndex { get; private set; }
+
+    /// <inheritdoc/>
+    public override string ToString()
+    {
+      return string.Format(ToStringFormat,
+        base.ToString(), AggregateType, SourceIndex);
+    }
 
 
     // Constructor

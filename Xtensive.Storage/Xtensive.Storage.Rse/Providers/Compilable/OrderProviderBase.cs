@@ -57,6 +57,14 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     }
 
     /// <inheritdoc/>
+    public override string ParametersToString()
+    {
+      return Order
+        .Select(pair => Header.Columns[pair.Key].Name + (pair.Value == Direction.Negative ? " desc" : string.Empty))
+        .ToCommaDelimitedString();
+    }
+
+    /// <inheritdoc/>
     protected override void Initialize()
     {
       base.Initialize();
@@ -75,14 +83,6 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
         Order.Select(p => p.Key).ToArray());
       OrderKeyComparer = AdvancedComparer<Tuple>.Default.ApplyRules(
         new ComparisonRules(ComparisonRule.Positive, comparisonRules, ComparisonRules.None));
-    }
-
-    /// <inheritdoc/>
-    public override string ParametersToString()
-    {
-      return Order
-        .Select(pair => Header.Columns[pair.Key].Name + (pair.Value == Direction.Negative ? " desc" : string.Empty))
-        .ToCommaDelimitedString();
     }
 
 

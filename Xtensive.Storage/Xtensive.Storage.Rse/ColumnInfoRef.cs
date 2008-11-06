@@ -64,21 +64,15 @@ namespace Xtensive.Storage.Rse
       return new ColumnInfoRef(columnInfo);
     }
 
-    /// <summary>
-    ///   Equality operator. Returns <see langword="true"/> if arguments are equal; otherwise <see langword="false"/>.
-    /// </summary>
-    /// <param name="x">First.</param>
-    /// <param name="y">Second</param>
+    #region Equality members, ==, !=
+
+    /// <see cref="ClassDocTemplate.OperatorEq" copy="true" />
     public static bool operator !=(ColumnInfoRef x, ColumnInfoRef y)
     {
       return !Equals(x, y);
     }
 
-    /// <summary>
-    ///   Inequality operator. Returns <see langword="false"/> if arguments are equal; otherwise <see langword="true"/>.
-    /// </summary>
-    /// <param name="x">First.</param>
-    /// <param name="y">Second</param>
+    /// <see cref="ClassDocTemplate.OperatorNEq" copy="true" />
     public static bool operator ==(ColumnInfoRef x, ColumnInfoRef y)
     {
       return Equals(x, y);
@@ -87,9 +81,11 @@ namespace Xtensive.Storage.Rse
     /// <inheritdoc/>
     public bool Equals(ColumnInfoRef other)
     {
-      if (ReferenceEquals(other,null))
+      if (ReferenceEquals(other, null))
         return false;
-      return Equals(FieldName, other.FieldName) && Equals(TypeName, other.TypeName);
+      return 
+        FieldName==FieldName && 
+          TypeName==TypeName;
     }
 
     /// <inheritdoc/>
@@ -103,8 +99,10 @@ namespace Xtensive.Storage.Rse
     /// <inheritdoc/>
     public override int GetHashCode()
     {
-      return FieldName.GetHashCode() + 29*TypeName.GetHashCode();
+      return unchecked( FieldName.GetHashCode() + 29*TypeName.GetHashCode() );
     }
+
+    #endregion
 
     /// <inheritdoc/>
     public override string ToString()

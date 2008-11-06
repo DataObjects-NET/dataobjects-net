@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Helpers;
 using Xtensive.Indexing;
@@ -32,7 +31,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     protected internal override void OnBeforeEnumerate(EnumerationContext context)
     {
       base.OnBeforeEnumerate(context);
-      CachedKey = Origin.Key();
+      CachedKey = Origin.CompiledKey.Invoke();
     }
 
     protected internal override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)

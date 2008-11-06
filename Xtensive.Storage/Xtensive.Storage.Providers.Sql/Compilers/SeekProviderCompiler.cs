@@ -40,7 +40,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
         var column = provider.Header.Columns[columnIndex];
         DataTypeMapping typeMapping = ((DomainHandler) Handlers.DomainHandler).ValueTypeMapper.GetTypeMapping(column.Type);
         int index = i;
-        var binding = new SqlFetchParameterBinding(() => provider.Key().GetValue(index), typeMapping);
+        var binding = new SqlFetchParameterBinding(() => provider.CompiledKey.Invoke().GetValue(index), typeMapping);
         request.ParameterBindings.Add(binding);
         query.Where &= sqlColumn == SqlFactory.ParameterRef(binding.SqlParameter);
       }

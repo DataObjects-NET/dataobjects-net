@@ -4,6 +4,7 @@
 // Created by: Alex Kofman
 // Created:    2008.08.07
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -17,6 +18,7 @@ namespace Xtensive.Storage.Rse
   /// <summary>
   /// Read only collection of <see cref="ColumnGroup"/>.
   /// </summary>
+  [Serializable]
   public class ColumnGroupCollection : ReadOnlyCollection<ColumnGroup>
   {
     private static ThreadSafeCached<ColumnGroupCollection> cachedEmpty =
@@ -33,8 +35,11 @@ namespace Xtensive.Storage.Rse
       }
     }
 
+    
+    // Constructors
+
     /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="items">The collection items.</param>
     public ColumnGroupCollection(IEnumerable<ColumnGroup> items)

@@ -14,19 +14,10 @@ namespace Xtensive.Storage.Rse.Providers.Executable
   [Serializable]
   internal sealed class FilterProvider : UnaryExecutableProvider<Compilable.FilterProvider>
   {
-    private Func<Tuple, bool> predicate;
-
     /// <inheritdoc/>
     protected internal override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
-      return Source.Enumerate(context).Where(predicate);
-    }
-
-    /// <inheritdoc/>
-    protected override void Initialize()
-    {
-      base.Initialize();
-      predicate = Origin.Predicate.Compile();
+      return Source.Enumerate(context).Where(Origin.CompiledPredicate);
     }
 
 

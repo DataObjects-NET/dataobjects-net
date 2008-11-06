@@ -5,7 +5,6 @@
 // Created:    2008.09.08
 
 using Xtensive.Sql.Dom.Dml;
-using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
 
@@ -20,7 +19,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
         return null;
 
       var query = (SqlSelect)source.Request.Statement.Clone();
-      query.Offset += provider.Count();
+      query.Offset += provider.CompiledCount.Invoke();
       var request = new SqlFetchRequest(query, provider.Header, source.Request.ParameterBindings);
       return new SqlProvider(provider, request, Handlers, source);
     }

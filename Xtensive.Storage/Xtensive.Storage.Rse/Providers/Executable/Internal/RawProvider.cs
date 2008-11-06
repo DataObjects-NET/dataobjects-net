@@ -39,7 +39,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     protected internal override void OnBeforeEnumerate(EnumerationContext context)
     {
       base.OnBeforeEnumerate(context);
-      CachedSource = Origin.Source.Invoke();
+      CachedSource = Origin.CompiledSource.Invoke();
     }
 
     /// <inheritdoc/>

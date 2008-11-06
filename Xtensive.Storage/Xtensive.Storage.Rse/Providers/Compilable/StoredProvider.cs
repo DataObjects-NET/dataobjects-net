@@ -17,6 +17,8 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
   [Serializable]
   public class StoredProvider : CompilableProvider
   {
+    private const string ToStringFormat = "{0}, '{1}'";
+
     private readonly RecordSetHeader header;
 
     /// <summary>
@@ -38,6 +40,12 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     protected override RecordSetHeader BuildHeader()
     {
       return header;
+    }
+
+    /// <inheritdoc/>
+    public override string ParametersToString()
+    {
+      return string.Format(ToStringFormat, Scope, Name);
     }
 
 
@@ -80,8 +88,13 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// </summary>
     /// <param name="source">The <see cref="Source"/> property value.</param>
     public StoredProvider(Provider source)
-      : this(source, TemporaryDataScope.Enumeration, Guid.NewGuid().ToString())
+      : base(source)
     {
+      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      Scope = TemporaryDataScope.Enumeration;
+      Name = Guid.NewGuid().ToString();
+      Source = source;
+      header = source.Header;
     }
   }
 }

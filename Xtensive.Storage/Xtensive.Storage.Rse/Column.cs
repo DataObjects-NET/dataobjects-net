@@ -12,6 +12,7 @@ namespace Xtensive.Storage.Rse
   /// <summary>
   /// Column of the record.
   /// </summary>
+  [Serializable]
   public abstract class Column : IEquatable<Column>
   {
     private const string ToStringFormat = "{0} {1} ({2})";

@@ -7,7 +7,7 @@
 using System;
 using System.Linq.Expressions;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Threading;
+using Xtensive.Core.Helpers;
 
 namespace Xtensive.Storage.Rse.Providers.Compilable
 {
@@ -17,10 +17,29 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
   [Serializable]
   public sealed class SkipProvider : UnaryProvider
   {
+    private Func<int> compiledCount;
+
     /// <summary>
     /// Skip amount function.
     /// </summary>
-    public Func<int> Count { get; private set; }
+    public Expression<Func<int>> Count { get; private set; }
+
+    /// <summary>
+    /// Gets the compiled <see cref="Count"/>.
+    /// </summary>
+    public Func<int> CompiledCount {
+      get {
+        if (compiledCount==null)
+          compiledCount = Count.Compile();
+        return compiledCount;
+      }
+    }
+
+    /// <inheritdoc/>
+    public override string ParametersToString()
+    {
+      return Count.ToString(true);
+    }
 
 
     // Constructors
@@ -30,7 +49,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// </summary>
     /// <param name="provider">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="count">The <see cref="Count"/> property value.</param>
-    public SkipProvider(CompilableProvider provider, Func<int> count)
+    public SkipProvider(CompilableProvider provider, Expression<Func<int>> count)
       : base(provider)
     {
       Count = count;

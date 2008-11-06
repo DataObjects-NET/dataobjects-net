@@ -23,6 +23,12 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// </summary>
     public UrlInfo Location { get; private set; }
 
+    /// <inheritdoc/>
+    public override string ParametersToString()
+    {
+      return Location.ToString();
+    }
+
 
     // Constructor
 
