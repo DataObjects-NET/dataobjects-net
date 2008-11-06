@@ -5,11 +5,11 @@
 // Created:    2008.01.29
 
 using System;
+using System.Collections;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Threading;
 using Xtensive.Core.Tuples;
-using Xtensive.Core.Tuples.Internals;
 
 namespace Xtensive.Core.Comparison
 {
@@ -17,28 +17,12 @@ namespace Xtensive.Core.Comparison
   internal sealed class TupleComparer : AdvancedComparerBase<Tuple>,
     ISystemComparer<Tuple>
   {
-    #region Nested type: ComparisonHandler
-
-    internal class ComparisonHandler
-    {
-      public ExecutionSequenceHandler<TupleComparerData>[] Handlers;
-      public Pair<int, object>[] FieldData;
-
-      public ComparisonHandler(TupleDescriptor descriptor)
-      {
-        Handlers  = new ExecutionSequenceHandler<TupleComparerData>[descriptor.Count];
-        FieldData = new Pair<int, object>[descriptor.Count];
-      }
-    }
-
-    #endregion
-
     [NonSerialized]
     private int nullHashCode;
     [NonSerialized]
     private AdvancedComparer<TupleDescriptor> descriptorComparer;
     [NonSerialized]
-    private ThreadSafeList<ComparisonHandler> comparisonHandlers;
+    private ThreadSafeList<Pair<int, IComparer>[]> comparersInfo;
 
 
     protected override IAdvancedComparer<Tuple> CreateNew(ComparisonRules rules)
@@ -59,34 +43,37 @@ namespace Xtensive.Core.Comparison
       var dx = x.Descriptor;
       var dy = y.Descriptor;
 
-      if (dx==dy) {
-        var data = new TupleComparerData(x, y);
-        ComparisonHandler h = GetComparisonHandler(dx);
-        data.FieldData = h.FieldData;
-        DelegateHelper.ExecuteDelegates(h.Handlers, ref data, Direction.Positive);
-        if (data.Result==int.MinValue) // There is no result yet
-          return 0;
-        return data.Result;
-      }
-      if (dx.Count<=dy.Count)
-        return Compare_DifferentDescriptors(x, y, dx, dy);
-      return -Compare_DifferentDescriptors(y, x, dy, dx);
-    }
+      var length = dx.GetCommonPartLength(dy);
+      Pair<int, IComparer>[] comparers = GetComparersInfo(dx);
 
-    private int Compare_DifferentDescriptors(Tuple x, Tuple y, TupleDescriptor dx, TupleDescriptor dy)
-    {
-      var data = new TupleComparerData(x, y);
-      ComparisonHandler hx = GetComparisonHandler(dx);
-      ComparisonHandler hy = GetComparisonHandler(dy);
-      data.FieldData = hy.FieldData; // Longer Tuple's data
-      DelegateHelper.ExecuteDelegates(hx.Handlers /* Shorter Tuple's handlers */, ref data, Direction.Positive);
-      if (data.Result==int.MinValue) { // There is no result yet 
-        int count = data.X.Count;
-        if (data.FieldData[count].First==0) // And next direction to compare is none
+      for (int fieldIndex = 0; fieldIndex < length; fieldIndex++) {
+        Pair<int, IComparer> comparerInfo = comparers[fieldIndex];
+        if (comparerInfo.First==0) // Direction check
           return 0;
-        return -(count + 1) * DefaultDirectionMultiplier;
+
+        bool xHasNoValue = !x.IsAvailable(fieldIndex);
+        bool yHasNoValue = !y.IsAvailable(fieldIndex);
+        if (xHasNoValue) {
+          if (yHasNoValue)
+            continue;
+          return -comparerInfo.First * (fieldIndex + 1);
+        } 
+        if (yHasNoValue)
+          return comparerInfo.First * (fieldIndex + 1);
+
+        var fieldComparer = comparerInfo.Second;
+
+        int valueComparison = fieldComparer.Compare(
+          x.GetValueOrDefault(fieldIndex),
+          y.GetValueOrDefault(fieldIndex));
+
+        if (valueComparison != 0)
+          return valueComparison > 0 ? (fieldIndex + 1) : -(fieldIndex + 1);
       }
-      return data.Result;
+
+      if (dx == dy)
+        return 0;
+      return descriptorComparer.Compare(dx, dy);
     }
 
     public override bool Equals(Tuple x, Tuple y)
@@ -101,13 +88,13 @@ namespace Xtensive.Core.Comparison
       return obj.GetHashCode();
     }
 
-    private ComparisonHandler GetComparisonHandler(TupleDescriptor descriptor)
+    private Pair<int, IComparer>[] GetComparersInfo(TupleDescriptor descriptor)
     {
-      return comparisonHandlers.GetValue(descriptor.Identifier,
+      return comparersInfo.GetValue(descriptor.Identifier,
         (indentifier, _this, _descriptor) => {
-          var box = new Box<ComparisonHandler>(new ComparisonHandler(_descriptor));
-          ExecutionSequenceHandler<Box<ComparisonHandler>>[] initializers =
-            DelegateHelper.CreateDelegates<ExecutionSequenceHandler<Box<ComparisonHandler>>>(
+          var box = new Box<Pair<int, IComparer>[]>(new Pair<int, IComparer>[descriptor.Count]);
+          ExecutionSequenceHandler<Box<Pair<int, IComparer>[]>>[] initializers =
+            DelegateHelper.CreateDelegates<ExecutionSequenceHandler<Box<Pair<int, IComparer>[]>>>(
               _this, _this.GetType(), "InitializeStep", _descriptor);
           DelegateHelper.ExecuteDelegates(initializers, ref box, Direction.Positive);
           return box.Value;
@@ -115,66 +102,19 @@ namespace Xtensive.Core.Comparison
         this, descriptor);
     }
 
-    #region Initialize\Compare\Equals steps
-
-    bool InitializeStep<TFieldType>(ref Box<ComparisonHandler> data, int fieldIndex)
+    bool InitializeStep<TFieldType>(ref Box<Pair<int, IComparer>[]> data, int fieldIndex)
     {
-      data.Value.Handlers[fieldIndex] = CompareStep<TFieldType>;
-      data.Value.FieldData[fieldIndex] = new Pair<int, object>(
+      data.Value[fieldIndex] = new Pair<int, IComparer>(
         (int)ComparisonRules.GetDefaultRuleDirection(fieldIndex),
-        Provider.GetComparer<TFieldType>().ApplyRules(ComparisonRules[fieldIndex]));
+        Provider.GetComparer<TFieldType>().ApplyRules(ComparisonRules[fieldIndex]).Implementation);
       return false;
     }
-
-    bool CompareStep<TFieldType>(ref TupleComparerData data, int fieldIndex)
-    {
-      Pair<int, object> fieldData = data.FieldData[fieldIndex];
-      if (fieldData.First == 0) { // Direction check
-        data.Result = 0;
-        return true;
-      }
-      if (data.X.Count == fieldIndex)
-        return true;
-    
-      bool xHasNoValue = !data.X.IsAvailable(fieldIndex);
-      bool yHasNoValue = !data.Y.IsAvailable(fieldIndex);
-      if (xHasNoValue) {
-        if (yHasNoValue)
-          return false;
-        data.Result = -fieldData.First * (fieldIndex+1);
-        return true;
-      }
-      if (yHasNoValue) {
-        data.Result = fieldData.First * (fieldIndex+1);
-        return true;
-      }
-
-      var fieldComparer = fieldData.Second as AdvancedComparer<TFieldType>;
-      if (fieldComparer==null) {
-        // Field types are different
-        data.Result = descriptorComparer.Compare(data.X.Descriptor, data.Y.Descriptor);
-        return true;
-      }
-      
-      // Non-generic version, works faster.
-      int result = fieldComparer.Compare( // May throw NullReferenceException - but it is always processed by caller
-        (TFieldType) data.X.GetValueOrDefault(fieldIndex),
-        (TFieldType) data.Y.GetValueOrDefault(fieldIndex));
-
-      if (result!=0) {
-        data.Result = result>0 ? (fieldIndex+1) : -(fieldIndex+1);
-        return true;
-      }
-      return false;
-    }
-
-    #endregion
 
     private void Initialize()
     {
       nullHashCode       = SystemComparerStruct<Tuple>.Instance.GetHashCode(null);
       descriptorComparer = Provider.GetComparer<TupleDescriptor>().ApplyRules(ComparisonRules);
-      comparisonHandlers.Initialize(new object());
+      comparersInfo.Initialize(new object());
     }
 
 

@@ -52,14 +52,14 @@ namespace Xtensive.Core.Tests.Performance
     }
 
     [Test]
+    [Explicit]
+    [Category("Performance")]
     public void RegularTest()
     {
       Test(0.001);
     }
 
     [Test]
-    [Explicit]
-    [Category("Debug")]
     public void ShortTest()
     {
       StructTest<Direction>(0.5);

@@ -5,12 +5,13 @@
 // Created:    2008.01.29
 
 using System;
+using System.Collections;
 
 namespace Xtensive.Core.Tuples.Internals
 {
   internal struct TupleComparerData : ITupleFunctionData<int>
   {
-    public Pair<int, object>[] FieldData;
+    public Pair<int, IComparer>[] FieldData;
     public Tuple X;
     public Tuple Y;
     public int Result;

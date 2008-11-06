@@ -4,12 +4,14 @@
 // Created by: Alex Yakunin
 // Created:    2008.01.22
 
+using System.Collections;
+
 namespace Xtensive.Core.Comparison
 {
   /// <summary>
   /// Very base interface for any comparer supported by <see cref="IComparerProvider"/>.
   /// </summary>
-  public interface IAdvancedComparerBase
+  public interface IAdvancedComparerBase : IComparer
   {
     /// <summary>
     /// Gets the provider this comparer is associated with.

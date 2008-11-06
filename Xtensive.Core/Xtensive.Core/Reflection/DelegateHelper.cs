@@ -374,19 +374,13 @@ namespace Xtensive.Core.Reflection
       int count = delegates.Length;
       if (direction==Direction.Positive) {
         for (int i = 0; i<count; i++)
-          try {
-            if (delegates[i].Invoke(ref argument, i))
-              return;
-          }
-          catch(NullReferenceException) {}
+          if (delegates[i].Invoke(ref argument, i))
+            return;
       }
       else {
         for (int i = count-1; i>=0; i--)
-          try {
-            if (delegates[i].Invoke(ref argument, i))
-              return;
-          }
-          catch (NullReferenceException) {}
+          if (delegates[i].Invoke(ref argument, i))
+            return;
       }
     }
 

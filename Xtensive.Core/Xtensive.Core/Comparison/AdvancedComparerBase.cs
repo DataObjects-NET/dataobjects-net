@@ -5,6 +5,7 @@
 // Created:    2008.01.23
 
 using System;
+using System.Collections;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 using Xtensive.Core.Arithmetic;
@@ -77,6 +78,11 @@ namespace Xtensive.Core.Comparison
     public virtual Func<T, TSecond, int> GetAsymmetric<TSecond>()
     {
       throw new NotSupportedException();
+    }
+
+    int IComparer.Compare(object x, object y)
+    {
+      return Compare((T) x, (T) y);
     }
 
     /// <inheritdoc/>

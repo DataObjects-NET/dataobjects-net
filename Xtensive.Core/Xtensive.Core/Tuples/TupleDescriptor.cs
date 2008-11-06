@@ -97,6 +97,22 @@ namespace Xtensive.Core.Tuples
       }
     }
 
+    /// <summary>
+    /// Gets the length of the common part.
+    /// </summary>
+    /// <param name="other">The other descriptor.</param>
+    public int GetCommonPartLength(TupleDescriptor other)
+    {
+      if (other==null)
+        throw new ArgumentNullException("other");
+      int minCount = fieldCount < other.fieldCount ? fieldCount : other.fieldCount;
+      for (int i = 0; i < minCount; i++) {
+        if (fieldTypes[i] != other.fieldTypes[i])
+          return i;
+      }
+      return minCount;
+    }
+
     #region Execute methods
 
     /// <summary>
