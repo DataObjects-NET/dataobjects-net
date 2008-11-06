@@ -202,12 +202,12 @@ namespace Xtensive.Storage
         field.GetAccessor<T>().SetValue(this, field, value);
       OnAfterSetField(field);
 
-      if (notify)
+      if (notify) {
         OnSetField(field, oldValue, value);
-      if (Session.Domain.Configuration.AutoValidation)
-        this.Validate();
-      if (notify)
+        if (Session.Domain.Configuration.AutoValidation)
+          this.Validate();
         NotifyPropertyChanged(field);
+      }
     }
 
     [Infrastructure]

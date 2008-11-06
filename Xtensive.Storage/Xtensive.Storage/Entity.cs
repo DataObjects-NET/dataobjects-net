@@ -272,7 +272,7 @@ namespace Xtensive.Storage
     protected Entity(EntityState state)
     {
       State = state;
-      Initialize(true);
+      Initialize(false);
     }
   }
 }

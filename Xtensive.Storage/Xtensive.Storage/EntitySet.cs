@@ -20,7 +20,7 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     public FieldInfo Field { get; private set; }
 
-    internal Entity OwnerEntity
+    internal Entity ConcreteOwner
     {
       get { return (Entity) Owner; }
     }

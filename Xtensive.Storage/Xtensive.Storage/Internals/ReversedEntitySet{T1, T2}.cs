@@ -30,7 +30,7 @@ namespace Xtensive.Storage.Internals
 
       AssociationInfo association = Field.Association;
       if (association!=null && association.IsPaired)
-        SyncManager.Enlist(OperationType.Add, OwnerEntity, item, Field.Association);
+        SyncManager.Enlist(OperationType.Add, ConcreteOwner, item, Field.Association);
 
       OnCollectionChanged(NotifyCollectionChangedAction.Add, item);
       return true;
@@ -47,7 +47,7 @@ namespace Xtensive.Storage.Internals
 
       AssociationInfo association = Field.Association;
       if (association!=null && association.IsPaired)
-        SyncManager.Enlist(OperationType.Remove, OwnerEntity, item, Field.Association);
+        SyncManager.Enlist(OperationType.Remove, ConcreteOwner, item, Field.Association);
 
       OnCollectionChanged(NotifyCollectionChangedAction.Remove, item);
       return true;

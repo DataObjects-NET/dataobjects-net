@@ -10,8 +10,9 @@ namespace Xtensive.Storage
 {
   public sealed class LowLevelServiceMap : SessionBound
   {
-    public EntityAccessor EntityAccessor { get; private set; }
+    public PersistentAccessor PersistentAccessor { get; private set; }
 
+    public EntitySetAccessor EntitySetAccessor { get; private set; }
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
@@ -20,7 +21,8 @@ namespace Xtensive.Storage
     public LowLevelServiceMap(Session session)
       : base(session)
     {
-      EntityAccessor = new EntityAccessor(session);
+      PersistentAccessor = new PersistentAccessor(session);
+      EntitySetAccessor = new EntitySetAccessor(session);
     }
   }
 }

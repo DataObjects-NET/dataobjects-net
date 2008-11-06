@@ -94,7 +94,7 @@ namespace Xtensive.Storage.Tests.Storage
     {
       using(Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
-          var accessor = Session.Current.LowLevelServices.EntityAccessor;
+          var accessor = Session.Current.LowLevelServices.PersistentAccessor;
           X instance = (X)accessor.CreateInstance(typeof (X));
           t.Complete();
         }
@@ -106,9 +106,9 @@ namespace Xtensive.Storage.Tests.Storage
     {
       using(Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
-          var accessor = Session.Current.LowLevelServices.EntityAccessor;
+          var accessor = Session.Current.LowLevelServices.PersistentAccessor;
           X instance = (X)accessor.CreateInstance(typeof (X));
-          instance.LowLevelServices.EntityAccessor.SetField(instance, instance.Type.Fields["Value"], "Value");
+          instance.LowLevelServices.PersistentAccessor.SetField(instance, instance.Type.Fields["Value"], "Value");
           Assert.AreEqual("Value", instance.Value);
           t.Complete();
         }
@@ -120,11 +120,11 @@ namespace Xtensive.Storage.Tests.Storage
     {
       using(Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
-          var accessor = Session.Current.LowLevelServices.EntityAccessor;
+          var accessor = Session.Current.LowLevelServices.PersistentAccessor;
           X instance = (X)accessor.CreateInstance(typeof (X));
           Key key = instance.Key;
           Assert.IsNotNull(key.Resolve());
-          instance.LowLevelServices.EntityAccessor.Remove(instance);
+          instance.LowLevelServices.PersistentAccessor.Remove(instance);
           Assert.AreEqual(PersistenceState.Removed, instance.PersistenceState);
           Assert.IsNull(key.Resolve());
           t.Complete();

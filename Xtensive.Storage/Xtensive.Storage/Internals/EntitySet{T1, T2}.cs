@@ -36,9 +36,9 @@ namespace Xtensive.Storage.Internals
 
       AssociationInfo association = Field.Association;
       if (association!=null && association.IsPaired)
-        SyncManager.Enlist(OperationType.Add, OwnerEntity, item, Field.Association);
+        SyncManager.Enlist(OperationType.Add, ConcreteOwner, item, Field.Association);
 
-      itemConstructor(item.Key.Value.CombineWith(OwnerEntity.Key.Value));
+      itemConstructor(item.Key.Value.CombineWith(ConcreteOwner.Key.Value));
       OnCollectionChanged(NotifyCollectionChangedAction.Add, item);
       return true;
     }
@@ -54,9 +54,9 @@ namespace Xtensive.Storage.Internals
 
       AssociationInfo association = Field.Association;
       if (association!=null && association.IsPaired)
-        SyncManager.Enlist(OperationType.Remove, OwnerEntity, item, Field.Association);
+        SyncManager.Enlist(OperationType.Remove, ConcreteOwner, item, Field.Association);
 
-      var combinedKey = Key.Create<TEntitySetItem>(item.Key.Value.CombineWith(OwnerEntity.Key.Value));
+      var combinedKey = Key.Create<TEntitySetItem>(item.Key.Value.CombineWith(ConcreteOwner.Key.Value));
       var referenceEntity = (TEntitySetItem) combinedKey.Resolve(); // Resolve entity
       referenceEntity.Remove();
       OnCollectionChanged(NotifyCollectionChangedAction.Remove, item);

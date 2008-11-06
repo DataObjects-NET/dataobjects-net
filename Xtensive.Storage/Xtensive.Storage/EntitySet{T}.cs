@@ -21,11 +21,11 @@ using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage
 {
-  public class EntitySet<T> : EntitySet,
-    ICollection<T>,
+  public class EntitySet<TItem> : EntitySet,
+    ICollection<TItem>,
     INotifyPropertyChanged,
     INotifyCollectionChanged
-    where T : Entity
+    where TItem : Entity
   {
     protected MapTransform KeyExtractTransform { get; private set; }
     protected CombineTransform KeyFilterTransform { get; private set; }
@@ -44,7 +44,7 @@ namespace Xtensive.Storage
     }
 
     /// <inheritdoc/>
-    public virtual bool Contains(T item)
+    public virtual bool Contains(TItem item)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
 
@@ -52,7 +52,7 @@ namespace Xtensive.Storage
         return true;
 
       FieldInfo referencingField = Field.Association.Reversed.ReferencingField;
-      if (item.GetKey(referencingField) == OwnerEntity.Key) {
+      if (item.GetKey(referencingField) == ConcreteOwner.Key) {
         State.Cache(item.Key);
         return true;
       }
@@ -63,13 +63,13 @@ namespace Xtensive.Storage
     public bool Contains(Key key)
     {
       ArgumentValidator.EnsureArgumentNotNull(key, "key");
-      if (!typeof(T).IsAssignableFrom(key.Type.UnderlyingType))
+      if (!typeof(TItem).IsAssignableFrom(key.Type.UnderlyingType))
         return false;
 
       if (State.Contains(key))
         return true;
 
-      Tuple filterTuple = KeyFilterTransform.Apply(TupleTransformType.Tuple, OwnerEntity.Key, key);
+      Tuple filterTuple = KeyFilterTransform.Apply(TupleTransformType.Tuple, ConcreteOwner.Key, key);
       if (RecordSet.Seek(filterTuple).Count() > 0) {
         State.Add(key);
         return true;
@@ -78,7 +78,7 @@ namespace Xtensive.Storage
     }
 
     /// <inheritdoc/>
-    public virtual bool Add(T item)
+    public virtual bool Add(TItem item)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
 
@@ -87,14 +87,14 @@ namespace Xtensive.Storage
 
       AssociationInfo association = Field.Association;
       if (association!=null && association.IsPaired)
-        SyncManager.Enlist(OperationType.Add, OwnerEntity, item, association);
+        SyncManager.Enlist(OperationType.Add, ConcreteOwner, item, association);
 
       OnCollectionChanged(NotifyCollectionChangedAction.Add, item);
       return true;
     }
 
     /// <inheritdoc/>
-    public virtual bool Remove(T item)
+    public virtual bool Remove(TItem item)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
 
@@ -103,7 +103,7 @@ namespace Xtensive.Storage
 
       AssociationInfo association = Field.Association;
       if (association!=null && association.IsPaired)
-        SyncManager.Enlist(OperationType.Remove, OwnerEntity, item, association);
+        SyncManager.Enlist(OperationType.Remove, ConcreteOwner, item, association);
 
       OnCollectionChanged(NotifyCollectionChangedAction.Remove, item);
       return true;
@@ -112,15 +112,15 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     public void Clear()
     {
-      foreach (T item in this.ToList())
+      foreach (TItem item in this.ToList())
         Remove(item);
       OnCollectionChanged(NotifyCollectionChangedAction.Reset, null);
     }
 
-    public int RemoveWhere(Predicate<T> criteria)
+    public int RemoveWhere(Predicate<TItem> criteria)
     {
       var items = this.Where(i => criteria(i)).ToList();
-      foreach (T item in items)
+      foreach (TItem item in items)
         Remove(item);
       return items.Count;
     }
@@ -128,13 +128,13 @@ namespace Xtensive.Storage
     #region Other ICollection<T> members
 
     /// <inheritdoc/>
-    void ICollection<T>.Add(T item)
+    void ICollection<TItem>.Add(TItem item)
     {
       Add(item);
     }
 
     /// <inheritdoc/>
-    int ICollection<T>.Count {
+    int ICollection<TItem>.Count {
       [DebuggerStepThrough]
       get { return checked ((int) Count); }
     }
@@ -146,10 +146,10 @@ namespace Xtensive.Storage
     }
 
     /// <inheritdoc/>
-    public IEnumerator<T> GetEnumerator()
+    public IEnumerator<TItem> GetEnumerator()
     {
       foreach (Key key in GetKeys())
-        yield return key.Resolve<T>();
+        yield return key.Resolve<TItem>();
     }
 
     /// <summary>
@@ -168,7 +168,7 @@ namespace Xtensive.Storage
       else {
         foreach (Tuple tuple in RecordSet) {
           EnsureVersionIs(version);
-          var key = Key.Create<T>(KeyExtractTransform.Apply(TupleTransformType.TransformedTuple, tuple));
+          var key = Key.Create<TItem>(KeyExtractTransform.Apply(TupleTransformType.TransformedTuple, tuple), true);
           State.Cache(key);
           yield return key;
         }
@@ -182,9 +182,9 @@ namespace Xtensive.Storage
     }
 
     /// <inheritdoc/>
-    public void CopyTo(T[] array, int arrayIndex)
+    public void CopyTo(TItem[] array, int arrayIndex)
     {
-      foreach (T item in this)
+      foreach (TItem item in this)
         array[arrayIndex++] = item;
     }
 
@@ -194,12 +194,12 @@ namespace Xtensive.Storage
 
     internal override bool Add(Entity item)
     {
-      return Add((T)item);
+      return Add((TItem)item);
     }
 
     internal override bool Remove(Entity item)
     {
-      return Remove((T) item);
+      return Remove((TItem) item);
     }
 
     protected void EnsureVersionIs(long expectedVersion)
@@ -221,13 +221,13 @@ namespace Xtensive.Storage
 
     protected virtual CombineTransform GetKeyFilterTransform()
     {
-      HierarchyInfo hi = Session.Domain.Model.Types[typeof (T)].Hierarchy;
-      return new CombineTransform(true, OwnerEntity.Key.Value.Descriptor, hi.KeyTupleDescriptor);
+      HierarchyInfo hi = Session.Domain.Model.Types[typeof (TItem)].Hierarchy;
+      return new CombineTransform(true, ConcreteOwner.Key.Value.Descriptor, hi.KeyTupleDescriptor);
     }
 
     protected virtual MapTransform GetKeyExtractTransform()
     {
-      var keyTupleDescriptor = Owner.Session.Domain.Model.Types[typeof (T)].Hierarchy.KeyTupleDescriptor;
+      var keyTupleDescriptor = Owner.Session.Domain.Model.Types[typeof (TItem)].Hierarchy.KeyTupleDescriptor;
       IEnumerable<int> columnIndexes = Index.Columns.Where(columnInfo => columnInfo.IsPrimaryKey).Select(columnInfo => Index.Columns.IndexOf(columnInfo));
       return new MapTransform(true, keyTupleDescriptor, columnIndexes.ToArray());
     }
@@ -240,7 +240,7 @@ namespace Xtensive.Storage
 
     protected override RecordSet GetRecordSet()
     {
-      return Index.ToRecordSet().Range(OwnerEntity.Key.Value, OwnerEntity.Key.Value);
+      return Index.ToRecordSet().Range(ConcreteOwner.Key.Value, ConcreteOwner.Key.Value);
     }
 
     #endregion
