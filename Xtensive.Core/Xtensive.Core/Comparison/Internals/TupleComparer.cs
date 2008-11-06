@@ -90,16 +90,16 @@ namespace Xtensive.Core.Comparison
 
     private Pair<int, IComparer>[] GetComparersInfo(TupleDescriptor descriptor)
     {
-      return comparersInfo.GetValue(descriptor.Identifier,
-        (indentifier, _this, _descriptor) => {
-          var box = new Box<Pair<int, IComparer>[]>(new Pair<int, IComparer>[descriptor.Count]);
-          ExecutionSequenceHandler<Box<Pair<int, IComparer>[]>>[] initializers =
-            DelegateHelper.CreateDelegates<ExecutionSequenceHandler<Box<Pair<int, IComparer>[]>>>(
-              _this, _this.GetType(), "InitializeStep", _descriptor);
-          DelegateHelper.ExecuteDelegates(initializers, ref box, Direction.Positive);
-          return box.Value;
-        },
-        this, descriptor);
+      return comparersInfo.GetValue(descriptor.Identifier, Generator, this, descriptor);
+    }
+
+    private static Pair<int, IComparer>[] Generator(int indentifier, TupleComparer tupleComparer, TupleDescriptor descriptor) {
+      var box = new Box<Pair<int, IComparer>[]>(new Pair<int, IComparer>[descriptor.Count]);
+      ExecutionSequenceHandler<Box<Pair<int, IComparer>[]>>[] initializers = 
+        DelegateHelper.CreateDelegates<ExecutionSequenceHandler<Box<Pair<int, IComparer>[]>>>(
+          tupleComparer, tupleComparer.GetType(), "InitializeStep", descriptor);
+      DelegateHelper.ExecuteDelegates(initializers, ref box, Direction.Positive);
+      return box.Value;
     }
 
     bool InitializeStep<TFieldType>(ref Box<Pair<int, IComparer>[]> data, int fieldIndex)
