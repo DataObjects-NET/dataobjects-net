@@ -39,7 +39,7 @@ namespace Xtensive.Storage.Internals
           obj.Data.SetValue(i, null);
       else {
         ValidateType(field);
-        entity.Key.CopyTo(obj.Data, 0, field.MappingInfo.Offset, field.MappingInfo.Length);
+        entity.Key.Value.CopyTo(obj.Data, 0, field.MappingInfo.Offset, field.MappingInfo.Length);
       }
     }
 

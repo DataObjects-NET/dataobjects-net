@@ -34,7 +34,7 @@ namespace Xtensive.Storage.Internals
       if (key.IsTypeCached) {
         // New instance contains a tuple with all fields set with default values.
         var origin = persistentTuplePrototypes[key.Type].Clone();
-        key.CopyTo(origin);
+        key.Value.CopyTo(origin);
         result = new EntityState(session, key, origin);
       }
       else {

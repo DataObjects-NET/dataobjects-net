@@ -115,8 +115,8 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
     [Field(Length = 4096)]
     public string Text { get; set; }
 
-    public BookReview(Key book, Key reviewer)
-      : base(book.CombineWith(reviewer))
+    public BookReview(Key bookKey, Key reviewerKey)
+      : base(bookKey.Value.CombineWith(reviewerKey.Value))
     {
     }
   }

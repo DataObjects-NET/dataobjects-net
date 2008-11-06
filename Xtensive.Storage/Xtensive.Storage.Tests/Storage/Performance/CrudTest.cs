@@ -37,8 +37,8 @@ namespace Xtensive.Storage.Tests.Storage.Performance
     {
       warmup = true;
       CombinedTest(10, 10);
-      warmup = false;
-      CombinedTest(BaseCount, InsertCount);
+//      warmup = false;
+//      CombinedTest(BaseCount, InsertCount);
     }
 
     [Test]

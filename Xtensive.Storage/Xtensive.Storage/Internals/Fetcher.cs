@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Parameters;
+using Xtensive.Core.Tuples;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers.Compilable;
@@ -17,7 +18,7 @@ namespace Xtensive.Storage.Internals
   internal static class Fetcher
   {
     private static readonly Dictionary<RequestKey, RecordSet> cache = new Dictionary<RequestKey, RecordSet>();
-    private static readonly Parameter<Key> pKey = new Parameter<Key>("Key");
+    private static readonly Parameter<Tuple> pKey = new Parameter<Tuple>("Key");
     private static readonly object _lock = new object();
 
     #region Nested type: RequestKey
@@ -100,7 +101,7 @@ namespace Xtensive.Storage.Internals
       var columnIndexes = columns.Select(c => index.Columns.IndexOf(c)).ToArray();
       var rs = GetCachedRecordSet(index, columnIndexes);
       using (new ParameterScope()) {
-        pKey.Value = key;
+        pKey.Value = key.Value;
         result = session.Domain.RecordSetParser.ParseFirstFast(rs);
         if (result == null) {
           var state = session.Cache[key];

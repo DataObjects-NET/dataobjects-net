@@ -222,7 +222,7 @@ namespace Xtensive.Storage
     protected virtual CombineTransform GetKeyFilterTransform()
     {
       HierarchyInfo hi = Session.Domain.Model.Types[typeof (T)].Hierarchy;
-      return new CombineTransform(true, OwnerEntity.Key.Descriptor, hi.KeyTupleDescriptor);
+      return new CombineTransform(true, OwnerEntity.Key.Value.Descriptor, hi.KeyTupleDescriptor);
     }
 
     protected virtual MapTransform GetKeyExtractTransform()
@@ -240,7 +240,7 @@ namespace Xtensive.Storage
 
     protected override RecordSet GetRecordSet()
     {
-      return Index.ToRecordSet().Range(OwnerEntity.Key, OwnerEntity.Key);
+      return Index.ToRecordSet().Range(OwnerEntity.Key.Value, OwnerEntity.Key.Value);
     }
 
     #endregion

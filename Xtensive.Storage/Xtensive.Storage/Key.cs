@@ -20,8 +20,7 @@ namespace Xtensive.Storage
   /// Every entity is uniquely identified by its <see cref="Key"/>.
   /// </summary>
   [Serializable]
-  public sealed class Key : Tuple,
-    IEquatable<Key>
+  public sealed class Key : IEquatable<Key>
   {
     private readonly HierarchyInfo hierarchy;
     private Tuple value;
@@ -33,6 +32,13 @@ namespace Xtensive.Storage
     /// </summary>
     public HierarchyInfo Hierarchy {
       get { return hierarchy; }
+    }
+
+    /// <summary>
+    /// Gets the key value.
+    /// </summary>
+    public Tuple Value {
+      get { return value; }
     }
 
     /// <summary>
@@ -139,35 +145,6 @@ namespace Xtensive.Storage
       return state.Entity;
     }
 
-    #region Tuple methods
-
-    /// <inheritdoc/>
-    public override TupleDescriptor Descriptor
-    {
-      get { return value.Descriptor; }
-    }
-
-    /// <inheritdoc/>
-    public override object GetValueOrDefault(int fieldIndex)
-    {
-      return value.GetValueOrDefault(fieldIndex);
-    }
-
-    /// <inheritdoc/>
-    /// <exception cref="Exception">Instance is read-only.</exception>
-    public override void SetValue(int fieldIndex, object fieldValue)
-    {
-      throw Exceptions.ObjectIsReadOnly(null);
-    }
-
-    /// <inheritdoc/>
-    public override TupleFieldState GetFieldState(int fieldIndex)
-    {
-      return value.GetFieldState(fieldIndex);
-    }
-
-    #endregion
-
     #region Equals, GetHashCode, ==, != 
 
     /// <inheritdoc/>
@@ -218,14 +195,6 @@ namespace Xtensive.Storage
     }
 
     #endregion
-
-    /// <inheritdoc/>
-    public override string ToString()
-    {
-      return string.Format("{0}, {1}", 
-        IsTypeCached ? Type.Name : Hierarchy.Name, 
-        value.ToRegular());
-    }
 
     #region Create methods
 
@@ -382,6 +351,14 @@ namespace Xtensive.Storage
     }
 
     #endregion
+
+    /// <inheritdoc/>
+    public override string ToString()
+    {
+      return string.Format("{0}, {1}", 
+        IsTypeCached ? Type.Name : Hierarchy.Name, 
+        value.ToRegular());
+    }
 
 
     // Constructors
