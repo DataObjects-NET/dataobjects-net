@@ -19,7 +19,6 @@ namespace Xtensive.Storage.Providers.Sql
   public abstract class SessionHandler : Providers.SessionHandler
   {
     private SqlConnection connection;
-    private DomainHandler domainHandler;
 
     /// <summary>
     /// Gets the connection.
@@ -36,20 +35,17 @@ namespace Xtensive.Storage.Providers.Sql
     /// </summary>    
     public DbTransaction Transaction { get; private set; }
 
-    protected internal DomainHandler DomainHandler
-    {
-      get { return domainHandler; }
-      set { domainHandler = value; }
-    }
+    /// <summary>
+    /// Gets the domain handler.
+    /// </summary>
+    protected internal DomainHandler DomainHandler { get; private set; }
 
     /// <inheritdoc/>
     public override void BeginTransaction()
     {
       EnsureConnectionIsOpen();
-
       if (Transaction!=null)
         throw new InvalidOperationException(Strings.TransactionIsAlreadyOpen);
-
       Transaction = connection.BeginTransaction();
     }
 
@@ -58,7 +54,6 @@ namespace Xtensive.Storage.Providers.Sql
     {
       if (Transaction==null)
         throw new InvalidOperationException(Strings.TransactionIsNotOpen);
-
       Transaction.Commit();
       Transaction = null;
     }
@@ -68,14 +63,13 @@ namespace Xtensive.Storage.Providers.Sql
     {
       if (Transaction==null)
         throw new InvalidOperationException(Strings.TransactionIsNotOpen);
-
       Transaction.Rollback();
       Transaction = null;
     }
 
     public IEnumerator<Tuple> Execute(SqlFetchRequest request)
     {
-      using (DbDataReader reader = ExecuteReader(request)) {
+      using (var reader = ExecuteReader(request)) {
         Tuple tuple;
         while ((tuple = ReadTuple(reader, request))!=null)
           yield return tuple;
@@ -151,8 +145,8 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     protected override void Insert(EntityState state)
     {
-      SqlRequestBuilderTask task = new SqlRequestBuilderTask(SqlUpdateRequestKind.Insert, state.Type);
-      SqlUpdateRequest request = domainHandler.SqlRequestCache.GetValue(task, _task => DomainHandler.SqlRequestBuilder.Build(_task));
+      var task = new SqlRequestBuilderTask(SqlUpdateRequestKind.Insert, state.Type);
+      var request = DomainHandler.SqlRequestCache.GetValue(task, _task => DomainHandler.SqlRequestBuilder.Build(_task));
       request.BindParameters(state.Data);
       int rowsAffected = ExecuteNonQuery(request);
       if (rowsAffected!=request.ExpectedResult)
@@ -162,8 +156,8 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     protected override void Update(EntityState state)
     {
-      SqlRequestBuilderTask task = new SqlRequestBuilderTask(SqlUpdateRequestKind.Update, state.Type, state.Data.Difference.GetFieldStateMap(TupleFieldState.IsAvailable));
-      SqlUpdateRequest request = domainHandler.SqlRequestCache.GetValue(task, _task => DomainHandler.SqlRequestBuilder.Build(_task));
+      var task = new SqlRequestBuilderTask(SqlUpdateRequestKind.Update, state.Type, state.Data.Difference.GetFieldStateMap(TupleFieldState.IsAvailable));
+      var request = DomainHandler.SqlRequestCache.GetValue(task, _task => DomainHandler.SqlRequestBuilder.Build(_task));
       request.BindParameters(state.Data);
       int rowsAffected = ExecuteNonQuery(request);
       if (rowsAffected!=request.ExpectedResult)
@@ -173,8 +167,8 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     protected override void Remove(EntityState state)
     {
-      SqlRequestBuilderTask task = new SqlRequestBuilderTask(SqlUpdateRequestKind.Remove, state.Type);
-      SqlUpdateRequest request = domainHandler.SqlRequestCache.GetValue(task, _task => DomainHandler.SqlRequestBuilder.Build(_task));
+      var task = new SqlRequestBuilderTask(SqlUpdateRequestKind.Remove, state.Type);
+      var request = DomainHandler.SqlRequestCache.GetValue(task, _task => DomainHandler.SqlRequestBuilder.Build(_task));
       request.BindParameters(state.Key.Value);
       int rowsAffected = ExecuteNonQuery(request);
       if (rowsAffected!=request.ExpectedResult)
@@ -186,12 +180,13 @@ namespace Xtensive.Storage.Providers.Sql
 
     public void EnsureConnectionIsOpen()
     {
-      if (connection==null || connection.State!=ConnectionState.Open) {
-        connection = ((DomainHandler) Handlers.DomainHandler).ConnectionProvider.CreateConnection(Handlers.Domain.Configuration.ConnectionInfo.ToString()) as SqlConnection;
-        if (connection==null)
-          throw new InvalidOperationException(Strings.ExUnableToCreateConnection);
-        connection.Open();
-      }
+      if (connection!=null && connection.State==ConnectionState.Open)
+        return;
+      connection = DomainHandler.ConnectionProvider.CreateConnection(
+        Handlers.Domain.Configuration.ConnectionInfo.ToString()) as SqlConnection;
+      if (connection==null)
+        throw new InvalidOperationException(Strings.ExUnableToCreateConnection);
+      connection.Open();
     }
 
     /// <inheritdoc/>
