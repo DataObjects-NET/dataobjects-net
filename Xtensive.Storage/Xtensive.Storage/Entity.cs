@@ -178,8 +178,6 @@ namespace Xtensive.Storage
       Session.Persist();
       ReferenceManager.ClearReferencesTo(this);
       State.PersistenceState = PersistenceState.Removed;
-      Session.EntityStateRegistry.Register(State);
-      Session.Cache.Remove(State);
 
       if (notify)
         OnRemoved();
@@ -231,10 +229,8 @@ namespace Xtensive.Storage
     protected internal sealed override void OnAfterSetField(FieldInfo field)
     {
       base.OnAfterSetField(field);
-      if (PersistenceState!=PersistenceState.New && PersistenceState!=PersistenceState.Modified) {
+      if (PersistenceState!=PersistenceState.New && PersistenceState!=PersistenceState.Modified)
         State.PersistenceState = PersistenceState.Modified;
-        Session.EntityStateRegistry.Register(State);
-      }
     }
 
     #endregion

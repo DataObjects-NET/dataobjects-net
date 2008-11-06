@@ -85,8 +85,15 @@ namespace Xtensive.Storage
         if (value==persistenceState)
           return;
         persistenceState = value;
-        if (value==PersistenceState.Synchronized)
+        switch (persistenceState) {
+        case PersistenceState.Synchronized:
           return;
+        case PersistenceState.Removed:
+          Update(null);
+          break;
+        default:
+          break;
+        }
         Session.EntityStateRegistry.Register(this);
       }
     }

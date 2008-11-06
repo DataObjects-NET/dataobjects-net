@@ -15,7 +15,6 @@ namespace Xtensive.Storage.Internals
   internal class SessionCache : SessionBound
   {
     private readonly ICache<Key, EntityState> cache;
-    private readonly Dictionary<Key, EntityState> removed = new Dictionary<Key, EntityState>();
     // Cached properties
     private readonly Domain domain;
     private readonly Dictionary<TypeInfo, Tuple> persistentTuplePrototypes;
@@ -78,41 +77,6 @@ namespace Xtensive.Storage.Internals
           Log.Debug("Session '{0}'. Updating cache: {1}", session, result);
       }
       return result;
-    }
-
-    [Infrastructure]
-    public void Remove(Key key)
-    {
-      EntityState state = cache[key, false];
-      if (state!=null)
-        Remove(state);
-    }
-
-    [Infrastructure]
-    public void Remove(EntityState state)
-    {
-      state.Update(null);
-      var key = state.Key;
-      if (!removed.ContainsKey(key))
-        removed[key] = cache[key, false];
-      cache.RemoveKey(key);
-    }
-
-    [Infrastructure]
-    public void ClearRemoved()
-    {
-      removed.Clear();
-    }
-
-    [Infrastructure]
-    public void RestoreRemoved()
-    {
-      foreach (EntityState data in removed.Values) {
-        if (cache.ContainsKey(data.Key))
-          cache.Remove(data);
-        cache.Add(data);
-      }
-      ClearRemoved();
     }
 
     [Infrastructure]

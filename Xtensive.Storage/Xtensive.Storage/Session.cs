@@ -223,7 +223,6 @@ namespace Xtensive.Storage
       try {
         Persist();
         Handler.CommitTransaction();
-        Cache.ClearRemoved();
         OnCompleteTransaction();
       }
       catch {        
@@ -239,7 +238,6 @@ namespace Xtensive.Storage
       }
       finally {
         EntityStateRegistry.Clear();
-        Cache.RestoreRemoved();
         OnCompleteTransaction();
       }
     }
