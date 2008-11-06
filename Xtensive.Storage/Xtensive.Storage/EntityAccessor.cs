@@ -30,7 +30,6 @@ namespace Xtensive.Storage
         var key = Key.Create(type);
         var state = Session.Cache.Add(key);
         var result = Activator.CreateEntity(type, state);
-        state.Bind(result);
         return result;
       }
       throw new NotImplementedException();
@@ -47,7 +46,6 @@ namespace Xtensive.Storage
         var key = Key.Create(type, tuple, true);
         var state = Session.Cache.Add(key);
         var result = Activator.CreateEntity(type, state);
-        state.Bind(result);
         return result;
       }
       throw new NotImplementedException();

@@ -63,8 +63,6 @@ namespace Xtensive.Storage
         var isRemoved = IsRemoved;
         if (!hasEntity) {
           entity = isRemoved ? null : Activator.CreateEntity(Type.UnderlyingType, this);
-          if (entity != null)
-            entity.Initialize(true);
           hasEntity = true;
         }
         return isRemoved ? null : entity;
@@ -113,6 +111,20 @@ namespace Xtensive.Storage
         throw new InvalidOperationException(Strings.ExEntityIsRemoved);
     }
 
+    /// <exception cref="NotSupportedException">Wrong <paramref name="target"/> 
+    /// or <see cref="Entity"/> state.</exception>
+    [Infrastructure]
+    internal void Bind(Entity target)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(target, "target");
+      if (entity != null)
+        throw Exceptions.AlreadyInitialized("Entity");
+      if (target.State != null && target.State != this)
+        throw Exceptions.AlreadyInitialized("target.State");
+      Entity = target;
+      entity.State = this;
+    }
+
     /// <summary>
     /// Updates the entity state to the most current one.
     /// </summary>
@@ -139,17 +151,6 @@ namespace Xtensive.Storage
       Data = null;
       Fetcher.Fetch(key);
       return Data;
-    }
-
-    [Infrastructure]
-    internal void Bind(Entity target)
-    {
-      if (entity != null)
-        throw Exceptions.AlreadyInitialized("Entity");
-      if (entity.State != this)
-        throw Exceptions.AlreadyInitialized("Entity.State");
-      Entity = target;
-      entity.State = this;
     }
 
     #region Equality members
@@ -183,6 +184,7 @@ namespace Xtensive.Storage
     {
       ArgumentValidator.EnsureArgumentNotNull(key, "key");
       this.key = key;
+      Data = null;
       Update(data);
     }
   }
