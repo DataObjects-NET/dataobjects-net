@@ -83,6 +83,5 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
       : this(source, TemporaryDataScope.Enumeration, Guid.NewGuid().ToString())
     {
     }
-
   }
 }

@@ -5,13 +5,10 @@
 // Created:    2008.07.03
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Tuples;
 using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Rse.Providers.Compilable

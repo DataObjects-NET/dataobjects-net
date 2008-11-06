@@ -24,6 +24,20 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// </summary>
     public Func<Tuple> Key { get; private set; }
 
+    /// <inheritdoc/>
+    public override string ParametersToString()
+    {
+      return Key.ToString();
+    }
+
+    /// <inheritdoc/>
+    protected override void Initialize()
+    {
+      base.Initialize();
+      // To improve comparison speed
+      Key = () => Key().ToFastReadOnly();
+    }
+
 
     // Constructor
 

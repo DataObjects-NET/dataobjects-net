@@ -35,37 +35,29 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 
     #region Implementation of IOrderedEnumerable<Tuple,Tuple>
 
-    public Converter<Tuple, Tuple> KeyExtractor
-    {
-      get
-      {
+    public Converter<Tuple, Tuple> KeyExtractor {
+      get {
         var sourceEnumerable = Source.GetService<IOrderedEnumerable<Tuple, Tuple>>(true);
         return sourceEnumerable.KeyExtractor;
       }
     }
 
-    public AdvancedComparer<Tuple> KeyComparer
-    {
-      get
-      {
+    public AdvancedComparer<Tuple> KeyComparer {
+      get {
         var sourceEnumerable = Source.GetService<IOrderedEnumerable<Tuple, Tuple>>(true);
         return sourceEnumerable.KeyComparer;
       }
     }
 
-    public AdvancedComparer<Entire<Tuple>> EntireKeyComparer
-    {
-      get
-      {
+    public AdvancedComparer<Entire<Tuple>> EntireKeyComparer {
+      get {
         var sourceEnumerable = Source.GetService<IOrderedEnumerable<Tuple, Tuple>>(true);
         return sourceEnumerable.EntireKeyComparer;
       }
     }
 
-    public Func<Entire<Tuple>, Tuple, int> AsymmetricKeyCompare
-    {
-      get
-      {
+    public Func<Entire<Tuple>, Tuple, int> AsymmetricKeyCompare {
+      get {
         var sourceEnumerable = Source.GetService<IOrderedEnumerable<Tuple, Tuple>>(true);
         return sourceEnumerable.AsymmetricKeyCompare;
       }
