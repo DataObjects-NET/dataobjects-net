@@ -279,8 +279,14 @@ namespace Xtensive.Indexing
     public Entire(T value, EntireValueType lastValueType)
     {
       valueType = lastValueType;
-      this.value = value;
-      hasValue = true;
+      if (lastValueType.IsInfinity()) {
+        this.value = default(T);
+        hasValue = false;
+      }
+      else {
+        this.value = value;
+        hasValue = true;
+      }
     }
 
     /// <summary>

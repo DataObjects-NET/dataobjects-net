@@ -89,7 +89,7 @@ namespace Xtensive.Indexing.Tests
       Assert.IsFalse(entire2.Equals(new Entire<Tuple>(tuple2, Direction.Negative)));
       Assert.IsFalse(entire2.Equals(new Entire<Tuple>(InfinityType.Positive)));
       Assert.IsTrue(entire2.Equals(new Entire<Tuple>(InfinityType.Negative)));
-      Assert.IsFalse(entire2.Equals(new Entire<Tuple>(tuple2, EntireValueType.NegativeInfinity)));
+      Assert.IsTrue(entire2.Equals(new Entire<Tuple>(tuple2, EntireValueType.NegativeInfinity)));
       Assert.IsFalse(entire2.Equals(new Entire<Tuple>(tuple2, EntireValueType.NegativeInfinitesimal)));
       Assert.IsFalse(entire2.Equals(new Entire<Tuple>(tuple2, EntireValueType.PositiveInfinitesimal)));
       Assert.IsFalse(entire2.Equals(new Entire<Tuple>(tuple2, EntireValueType.PositiveInfinity)));
@@ -180,11 +180,10 @@ namespace Xtensive.Indexing.Tests
       Assert.IsTrue(entire2.CompareTo(new Entire<Tuple>(tuple2, Direction.Negative)) < 0);
       Assert.IsTrue(entire2.CompareTo(new Entire<Tuple>(InfinityType.Positive)) < 0 );
       Assert.IsTrue(entire2.CompareTo(new Entire<Tuple>(InfinityType.Negative)) == 0);
-      Assert.IsTrue(entire2.CompareTo(new Entire<Tuple>(tuple2, EntireValueType.NegativeInfinity)) < 0);
+      Assert.IsTrue(entire2.CompareTo(new Entire<Tuple>(tuple2, EntireValueType.NegativeInfinity)) == 0);
       Assert.IsTrue(entire2.CompareTo(new Entire<Tuple>(tuple2, EntireValueType.NegativeInfinitesimal)) < 0);
       Assert.IsTrue(entire2.CompareTo(new Entire<Tuple>(tuple2, EntireValueType.PositiveInfinitesimal)) < 0);
       Assert.IsTrue(entire2.CompareTo(new Entire<Tuple>(tuple2, EntireValueType.PositiveInfinity)) < 0);
-      Assert.IsTrue(entire2.CompareTo(new Entire<Tuple>(tuple1, EntireValueType.NegativeInfinity)) == 0);
       Assert.IsTrue(entire2.CompareTo(new Entire<Tuple>(tuple1, EntireValueType.NegativeInfinitesimal)) < 0);
       Assert.IsTrue(entire2.CompareTo(new Entire<Tuple>(tuple1, EntireValueType.PositiveInfinitesimal)) < 0);
       Assert.IsTrue(entire2.CompareTo(new Entire<Tuple>(tuple1, EntireValueType.PositiveInfinity)) < 0);
@@ -202,11 +201,10 @@ namespace Xtensive.Indexing.Tests
       Assert.IsTrue(entire2.CompareTo(new Entire<Tuple>(tuple2, EntireValueType.NegativeInfinity)) > 0);
       Assert.IsTrue(entire2.CompareTo(new Entire<Tuple>(tuple2, EntireValueType.NegativeInfinitesimal)) > 0);
       Assert.IsTrue(entire2.CompareTo(new Entire<Tuple>(tuple2, EntireValueType.PositiveInfinitesimal)) > 0);
-      Assert.IsTrue(entire2.CompareTo(new Entire<Tuple>(tuple2, EntireValueType.PositiveInfinity)) > 0);
+      Assert.IsTrue(entire2.CompareTo(new Entire<Tuple>(tuple2, EntireValueType.PositiveInfinity)) == 0);
       Assert.IsTrue(entire2.CompareTo(new Entire<Tuple>(tuple1, EntireValueType.NegativeInfinity)) > 0);
       Assert.IsTrue(entire2.CompareTo(new Entire<Tuple>(tuple1, EntireValueType.NegativeInfinitesimal)) > 0);
       Assert.IsTrue(entire2.CompareTo(new Entire<Tuple>(tuple1, EntireValueType.PositiveInfinitesimal)) > 0);
-      Assert.IsTrue(entire2.CompareTo(new Entire<Tuple>(tuple1, EntireValueType.PositiveInfinity)) == 0);
       Assert.IsTrue(entire2.CompareTo(new Entire<Tuple>(tuple1, EntireValueType.PositiveInfinity)) == 0);
 
     }
