@@ -55,7 +55,7 @@ namespace Xtensive.Integrity.Aspects.Constraints
       Func<object, object, int> comparer = null;
       try {
         comparer = GetCachedComparer();
-        ErrorLog.Debug("Comparer: {0} for {1}", comparer, Property.GetShortName(true));
+        // ErrorLog.Debug("Comparer: {0} for {1}", comparer, Property.GetShortName(true));
       }
       catch {}
       if (comparer==null) {
