@@ -15,17 +15,17 @@ namespace Xtensive.Storage.Internals
 {
   internal static class Activator
   {
-    private static readonly ThreadSafeDictionary<Type, Func<EntityState, Entity>> entityActivators =
-      ThreadSafeDictionary<Type, Func<EntityState, Entity>>.Create(new object());
+    private static readonly ThreadSafeDictionary<Type, Func<EntityState, bool, Entity>> entityActivators =
+      ThreadSafeDictionary<Type, Func<EntityState, bool, Entity>>.Create(new object());
 
     private static readonly ThreadSafeDictionary<Type, Func<Persistent, FieldInfo, Structure>> structureActivators =
       ThreadSafeDictionary<Type, Func<Persistent, FieldInfo, Structure>>.Create(new object());
 
-    internal static Entity CreateEntity(Type type, EntityState state)
+    internal static Entity CreateEntity(Type type, EntityState state, bool notify)
     {
       return entityActivators.GetValue(type,
-        DelegateHelper.CreateConstructorDelegate<Func<EntityState, Entity>>)
-        .Invoke(state);
+        DelegateHelper.CreateConstructorDelegate<Func<EntityState, bool, Entity>>)
+        .Invoke(state, notify);
     }
 
     internal static Structure CreateStructure(Type type, Persistent owner, FieldInfo field)

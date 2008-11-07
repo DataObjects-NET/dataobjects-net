@@ -26,7 +26,7 @@ namespace Xtensive.Storage
       if (typeInfo.IsEntity) {
         var key = Key.Create(type);
         var state = Session.CreateNewEntityState(key);
-        var result = Activator.CreateEntity(type, state);
+        var result = Activator.CreateEntity(type, state, false);
         return result;
       }
       throw new NotImplementedException();
@@ -42,7 +42,7 @@ namespace Xtensive.Storage
       if (typeInfo.IsEntity) {
         var key = Key.Create(type, tuple, true);
         var state = Session.CreateNewEntityState(key);
-        var result = Activator.CreateEntity(type, state);
+        var result = Activator.CreateEntity(type, state, false);
         return result;
       }
       throw new NotImplementedException();

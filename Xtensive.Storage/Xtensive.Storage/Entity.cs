@@ -190,9 +190,6 @@ namespace Xtensive.Storage
     protected internal sealed override void OnBeforeInitialize()
     {
       base.OnBeforeInitialize();
-      if (Session.IsDebugEventLoggingEnabled)
-        Log.Debug("Session '{0}'. Creating entity: Key = '{1}'", Session, State.Key);
-      State.Bind(this);
     }
 
     // This is done just to make it sealed
@@ -269,10 +266,13 @@ namespace Xtensive.Storage
     /// <see cref="ClassDocTemplate()" copy="true"/>
     /// </summary>
     /// <param name="state">The initial state of this instance fetched from storage.</param>
-    protected Entity(EntityState state)
+    /// <param name="notify">If set to <see langword="true"/>, 
+    /// initialization related events will be raised.</param>
+    protected Entity(EntityState state, bool notify)
     {
+      state.Entity = this;
       State = state;
-      Initialize(false);
+      Initialize(notify);
     }
   }
 }

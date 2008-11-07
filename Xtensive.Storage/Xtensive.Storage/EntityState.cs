@@ -23,7 +23,6 @@ namespace Xtensive.Storage
   {
     private Key key;
     private PersistenceState persistenceState;
-    private bool hasEntity;
     private Entity entity;
 
     /// <summary>
@@ -61,17 +60,14 @@ namespace Xtensive.Storage
     public Entity Entity {
       get {
         var isRemoved = IsRemoved;
-        if (!hasEntity) {
-          entity = isRemoved ? null : Activator.CreateEntity(Type.UnderlyingType, this);
-          hasEntity = true;
-        }
+        if (entity==null && !isRemoved)
+          entity = Activator.CreateEntity(Type.UnderlyingType, this, true);
         return isRemoved ? null : entity;
       }
       internal set {
-        if (hasEntity)
+        if (entity!=null)
           throw Exceptions.AlreadyInitialized("Entity");
         entity = value;
-        hasEntity = true;
       }
     }
 
@@ -116,20 +112,6 @@ namespace Xtensive.Storage
     {
       if (IsRemoved)
         throw new InvalidOperationException(Strings.ExEntityIsRemoved);
-    }
-
-    /// <exception cref="NotSupportedException">Wrong <paramref name="target"/> 
-    /// or <see cref="Entity"/> state.</exception>
-    [Infrastructure]
-    internal void Bind(Entity target)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(target, "target");
-      if (entity != null)
-        throw Exceptions.AlreadyInitialized("Entity");
-      if (target.State != null && target.State != this)
-        throw Exceptions.AlreadyInitialized("target.State");
-      Entity = target;
-      entity.State = this;
     }
 
     /// <summary>

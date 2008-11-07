@@ -33,8 +33,6 @@ namespace Xtensive.Storage.Aspects
     private static readonly Type entityType       = typeof(Entity);
     private static readonly Type structureType    = typeof(Structure);
     private static readonly Type sessionBoundType = typeof(SessionBound);
-    private static readonly Type transactionalStateContainerType = 
-      typeof(TransactionalStateContainer);
 
     /// <inheritdoc/>
     public override bool CompileTimeValidate(object element)
@@ -212,7 +210,7 @@ namespace Xtensive.Storage.Aspects
       if (baseType==structureType)
         return new[] {persistentType, typeof (FieldInfo)};
       if (baseType==entityType)
-        return new[] {typeof (EntityState)};
+        return new[] {typeof (EntityState), typeof(bool)};
       throw Exceptions.InternalError(
         string.Format(Strings.ExWrongPersistentTypeCandidate, type.GetType()), 
         Log.Instance);
