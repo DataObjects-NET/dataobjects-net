@@ -51,11 +51,9 @@ namespace Xtensive.Core.Tests.Tuples
 
     public override object GetValueOrDefault(int fieldIndex)
     {
-      if (IsAvailable(fieldIndex))
+      if ((GetFieldState(fieldIndex) ^ TupleFieldState.IsAvailable) == TupleFieldState.Default)
         return values[fieldIndex];
-      if (descriptor[fieldIndex].IsClass)
-        return null;
-      return Activator.CreateInstance(descriptor[fieldIndex]);
+      return null;
     }
 
     public override void SetValue(int fieldIndex, object fieldValue)
@@ -74,10 +72,6 @@ namespace Xtensive.Core.Tests.Tuples
       ArgumentValidator.EnsureArgumentNotNull(descriptor, "descriptor");
       this.descriptor = descriptor;
       values = new object[descriptor.Count];
-      for (int i = 0; i < values.Length; i++) {
-        if (descriptor[i].IsValueType)
-          values[i] = Activator.CreateInstance(descriptor[i]);
-      }
       available = new BitArray(new bool[descriptor.Count]);
     }
   }
