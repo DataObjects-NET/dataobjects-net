@@ -63,8 +63,6 @@ namespace Xtensive.Storage
         var isRemoved = IsRemoved;
         if (!hasEntity) {
           entity = isRemoved ? null : Activator.CreateEntity(Type.UnderlyingType, this);
-          if (entity != null)
-            entity.Initialize(true);
           hasEntity = true;
         }
         return isRemoved ? null : entity;
