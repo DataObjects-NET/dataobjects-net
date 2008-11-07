@@ -53,6 +53,14 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
+    /// Gets a value indicating whether <see cref="Data"/> value is already loaded.
+    /// </summary>
+    [Infrastructure]
+    public bool IsDataLoaded {
+      get { return IsStateLoaded; }
+    }
+
+    /// <summary>
     /// Gets the owner of this instance.
     /// </summary>
     /// <exception cref="NotSupportedException">Property value is already set.</exception>
@@ -126,8 +134,8 @@ namespace Xtensive.Storage
       if (tuple==null) // Entity is removed
         Data = null;
       else {
-        var data = Data;
-        if (data==null) // Entity was marked as removed before
+        var data = IsDataLoaded ? Data : null;
+        if (data==null) // Entity was marked as removed before, or it is unfetched at all yet
           Data = new DifferentialTuple(tuple.ToRegular());
         else
           data.Origin.MergeWith(tuple);
