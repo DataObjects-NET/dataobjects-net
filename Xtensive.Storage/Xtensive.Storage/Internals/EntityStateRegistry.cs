@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Generic;
 using Xtensive.Core.Aspects;
-using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Storage.Internals
 {
@@ -76,10 +75,7 @@ namespace Xtensive.Storage.Internals
 
     // Constructors
 
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="session">The session this registry belongs to.</param>
+    /// <inheritdoc/>
     public EntityStateRegistry(Session session)
       : base(session)
     {

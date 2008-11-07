@@ -23,7 +23,6 @@ namespace Xtensive.Storage.Internals
     public override bool Add(TEntity item)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
-      State.EnsureStateIsActual();
 
       if (Contains(item))
         return false;
@@ -40,7 +39,6 @@ namespace Xtensive.Storage.Internals
     public override bool Remove(TEntity item)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
-      State.EnsureStateIsActual();
 
       if (!Contains(item))
         return false;

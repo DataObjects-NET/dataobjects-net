@@ -248,7 +248,7 @@ namespace Xtensive.Storage
     protected Entity()
     {
       Key key = Key.Create(Session.Domain.Model.Types[GetType()]);
-      State = Session.Cache.Add(key);
+      State = Session.CreateNewEntityState(key);
       Initialize(true);
     }
 
@@ -261,7 +261,7 @@ namespace Xtensive.Storage
     {
       ArgumentValidator.EnsureArgumentNotNull(tuple, "tuple");
       Key key = Key.Create(Session.Domain.Model.Types[GetType()], tuple, true);
-      State = Session.Cache.Add(key);
+      State = Session.CreateNewEntityState(key);
       Initialize(true);
     }
 

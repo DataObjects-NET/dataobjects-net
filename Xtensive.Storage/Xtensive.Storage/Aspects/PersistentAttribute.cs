@@ -61,10 +61,7 @@ namespace Xtensive.Storage.Aspects
         ProvidePersistentAspects(type, collection);
       if (sessionBoundType.IsAssignableFrom(type))
         ProvideTransactionalAspects(type, collection);
-
-//      if (transactionalStateContainerType.IsAssignableFrom(type))
-//        ProvideUsesTransactionalStateAspects(type, collection);
-//      ProvideAtomicAspects(type, collection);
+      // ProvideAtomicAspects(type, collection);
     }
 
     private static void ProvideSessionBoundAspects(Type type, LaosReflectionAspectCollection collection)
@@ -98,23 +95,6 @@ namespace Xtensive.Storage.Aspects
           continue;
 
         collection.AddAspect(method, new TransactionalAttribute());
-      }
-    }
-
-    private static void ProvideUsesTransactionalStateAspects(Type type, LaosReflectionAspectCollection collection)
-    {
-      foreach (MethodInfo method in type.GetMethods(
-        BindingFlags.Public |
-        BindingFlags.NonPublic |
-        BindingFlags.Instance |
-        BindingFlags.DeclaredOnly))
-      {
-        if (method.IsAbstract)
-          continue;
-        if (AspectHelper.IsInfrastructureMethod(method))
-          continue;
-
-        collection.AddAspect(method, new UsesTransactionalStateAttribute());
       }
     }
 

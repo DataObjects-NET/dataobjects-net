@@ -37,7 +37,7 @@ namespace Xtensive.Storage.Tests.Rse
       }
       using (Domain.OpenSession()) {
         using (Transaction.Open()) {
-          EntityState state = Session.Current.Cache[key];
+          EntityState state = Session.Current.EntityStateCache[key, true];
           Assert.IsNull(state);
           IndexInfo ii = Domain.Model.Types[typeof (Book)].Indexes.PrimaryIndex;
 
@@ -46,44 +46,44 @@ namespace Xtensive.Storage.Tests.Rse
           foreach (Book book in rsMain.ToEntities<Book>()) {
             ;
           }
-          state = Session.Current.Cache[key];
+          state = Session.Current.EntityStateCache[key, true];
           Assert.IsNotNull(state);
           Assert.IsTrue(state.Data.IsAvailable(2));
           Assert.IsTrue(state.Data.IsAvailable(3));
-          Session.Current.Cache.Clear();
+          state.ResetState();
 
           // Select Id, TypeId, Title
           RecordSet rsTitle = rsMain.Select(0, 1, 2);
           foreach (Book book in rsTitle.ToEntities<Book>()) {
             ;
           }
-          state = Session.Current.Cache[key];
+          state = Session.Current.EntityStateCache[key, true];
           Assert.IsNotNull(state);
           Assert.IsTrue(state.Data.IsAvailable(2));
           Assert.IsFalse(state.Data.IsAvailable(3));
-          Session.Current.Cache.Clear();
+          state.ResetState();
 
           // Select Id, TypeId, Text
           RecordSet rsText = rsMain.Select(0, 1, 3);
           foreach (Book book in rsText.ToEntities<Book>()) {
             ;
           }
-          state = Session.Current.Cache[key];
+          state = Session.Current.EntityStateCache[key, true];
           Assert.IsNotNull(state);
           Assert.IsFalse(state.Data.IsAvailable(2));
           Assert.IsTrue(state.Data.IsAvailable(3));
-          Session.Current.Cache.Clear();
+          state.ResetState();
 
           // Select a.Id, a.TypeId, a.Title, b.Id, b.TypeId, b.Text
           RecordSet rsJoin = rsTitle.Alias("a").Join(rsText.Alias("b"), new Pair<int>(0, 0), new Pair<int>(1, 1));
           foreach (Book book in rsJoin.ToEntities<Book>()) {
             ;
           }
-          state = Session.Current.Cache[key];
+          state = Session.Current.EntityStateCache[key, true];
           Assert.IsNotNull(state);
           Assert.IsTrue(state.Data.IsAvailable(2));
           Assert.IsTrue(state.Data.IsAvailable(3));
-          Session.Current.Cache.Clear();
+          state.ResetState();
         }
       }
     }

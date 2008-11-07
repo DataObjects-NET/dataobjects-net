@@ -25,7 +25,7 @@ namespace Xtensive.Storage
       TypeInfo typeInfo = Session.Domain.Model.Types[type];
       if (typeInfo.IsEntity) {
         var key = Key.Create(type);
-        var state = Session.Cache.Add(key);
+        var state = Session.CreateNewEntityState(key);
         var result = Activator.CreateEntity(type, state);
         return result;
       }
@@ -41,7 +41,7 @@ namespace Xtensive.Storage
       TypeInfo typeInfo = Session.Domain.Model.Types[type];
       if (typeInfo.IsEntity) {
         var key = Key.Create(type, tuple, true);
-        var state = Session.Cache.Add(key);
+        var state = Session.CreateNewEntityState(key);
         var result = Activator.CreateEntity(type, state);
         return result;
       }

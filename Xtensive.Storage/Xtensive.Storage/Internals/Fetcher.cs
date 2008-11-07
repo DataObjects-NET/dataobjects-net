@@ -103,12 +103,9 @@ namespace Xtensive.Storage.Internals
       using (new ParameterScope()) {
         pKey.Value = key.Value;
         result = session.Domain.RecordSetParser.ParseFirstFast(rs);
-        if (result == null) {
-          var state = session.Cache[key];
-          if (state==null)
-            state = session.Cache.Add(key);
-          state.Update(null);
-        }
+        if (result==null)
+          // Ensures there will be "removed" EntityState associated with this key
+          session.UpdateEntityState(key, null);
       }
       return result;
     }

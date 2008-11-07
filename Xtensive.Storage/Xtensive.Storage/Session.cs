@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Core;
+using Xtensive.Core.Caching;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Disposable;
@@ -195,16 +196,20 @@ namespace Xtensive.Storage
       // Both Domain and Configuration are valid references here;
       // Configuration is already locked
       Configuration = configuration;
+      Name = configuration.Name;
+      // Handlers
       Handlers = domain.Handlers;
       Handler = Handlers.HandlerFactory.CreateHandler<SessionHandler>();
-      Cache = new SessionCache(this, configuration.CacheSize);
-      Name = configuration.Name;
       Handler.Session = this;
       Handler.Initialize();
-      AtomicityContext = new AtomicityContext(this, AtomicityContextOptions.Undoable);
       compilationScope = Handlers.DomainHandler.CompilationContext.Activate();
-      CoreServices = new CoreServiceAccessor(this);
+      // Caches, registry
+      EntityStateCache = new LruCache<Key, EntityState>(configuration.CacheSize, i => i.Key,
+        new WeakCache<Key, EntityState>(false, i => i.Key));
       EntityStateRegistry = new EntityStateRegistry(this);
+      // Etc...
+      AtomicityContext = new AtomicityContext(this, AtomicityContextOptions.Undoable);
+      CoreServices = new CoreServiceAccessor(this);
     }
 
     #region Dispose pattern

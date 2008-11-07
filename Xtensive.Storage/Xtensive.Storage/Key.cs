@@ -123,8 +123,8 @@ namespace Xtensive.Storage
     /// <returns>The <see cref="Entity"/> this key belongs to.</returns>
     public Entity Resolve(Session session)
     {
-      var entityCache = session.Cache;
-      var state = entityCache[this];
+      var cache = session.EntityStateCache;
+      var state = cache[this, true];
       bool hasBeenFetched = false;
 
       if (state==null) {
@@ -132,7 +132,7 @@ namespace Xtensive.Storage
           Log.Debug("Session '{0}'. Resolving key '{1}'. Exact type is {0}.", session, this,
             IsTypeCached ? "known" : "unknown");
         Fetcher.Fetch(this);
-        state = entityCache[this];
+        state = cache[this, true];
         hasBeenFetched = true;
       }
 

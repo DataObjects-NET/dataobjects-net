@@ -5,7 +5,6 @@
 // Created:    2008.11.05
 
 using System;
-using Xtensive.Core;
 using Xtensive.Core.Aspects;
 using Xtensive.Integrity.Transactions;
 using Xtensive.Storage.Resources;
@@ -45,7 +44,7 @@ namespace Xtensive.Storage
     /// <see cref="StateTransaction"/> to <see langword="null" />.
     /// </summary>
     [Infrastructure]
-    protected internal void EnsureStateIsActual()
+    protected void EnsureStateIsActual()
     {
       if (IsStateActual)
         return;
@@ -57,7 +56,7 @@ namespace Xtensive.Storage
     /// Resets the cached transactional state.
     /// </summary>
     [Infrastructure]
-    protected abstract void ResetState();
+    protected internal abstract void ResetState();
 
     /// <exception cref="NotSupportedException"></exception>
     [Infrastructure]

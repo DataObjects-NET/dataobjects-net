@@ -93,7 +93,7 @@ namespace Xtensive.Storage.Internals
       var key = Key.Create(context.Domain, typeMapping.Type, keyTuple, true, true);
 
       var entityTuple = typeMapping.Transform.Apply(TupleTransformType.TransformedTuple, record);
-      context.SessionCache.Add(key, entityTuple);
+      context.Session.UpdateEntityState(key, entityTuple);
       return key;
     }
 

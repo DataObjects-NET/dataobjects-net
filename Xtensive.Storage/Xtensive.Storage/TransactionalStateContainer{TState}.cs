@@ -55,7 +55,7 @@ namespace Xtensive.Storage
     protected abstract TState LoadState();
 
     /// <inheritdoc/>
-    protected override void ResetState()
+    protected internal override void ResetState()
     {
       isStateLoaded = false;
       state = default(TState);

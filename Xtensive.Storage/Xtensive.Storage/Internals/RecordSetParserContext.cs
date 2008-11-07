@@ -4,7 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2008.08.08
 
-using Xtensive.Core.Caching;
 using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Internals
@@ -15,8 +14,6 @@ namespace Xtensive.Storage.Internals
 
     public Session Session { get; private set; }
 
-    public SessionCache SessionCache { get; private set; }
-
     public RecordSetHeader Header { get; private set; }
 
 
@@ -26,7 +23,6 @@ namespace Xtensive.Storage.Internals
     {
       Session = Session.Current;
       Domain = Session.Domain;
-      SessionCache = Session.Cache;
       Header = source.Header;
     }
   }
