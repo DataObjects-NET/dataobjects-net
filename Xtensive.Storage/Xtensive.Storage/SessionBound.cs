@@ -34,19 +34,18 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
-    /// Gets the low-level accessor.
+    /// Gets the core services accessor.
     /// </summary>
-    /// <exception cref="InvalidOperationException">Caller is not registered in <see cref="DomainModel"/>.</exception>
+    /// <exception cref="InvalidOperationException">Caller is not registered in <see cref="DomainModel"/> of the 
+    /// <see cref="Domain"/> this instance belongs to.</exception>
     [Infrastructure]
-    protected internal LowLevelServiceMap LowLevelServices
-    {
+    protected internal CoreServiceAccessor CoreServices {
       [DebuggerStepThrough]
-      get
-      {
+      get {
         // TODO: Add check for services also.
         if (!Session.Domain.Model.Types.Contains(GetType()))
           throw new InvalidOperationException("Unauthorized access. Caller is not registered in model.");
-        return session.LowLevelServices;
+        return session.CoreServices;
       }
     }
 

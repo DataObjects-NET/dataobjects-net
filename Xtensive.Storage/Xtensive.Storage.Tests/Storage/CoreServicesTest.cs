@@ -8,9 +8,9 @@ using System;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Storage.Attributes;
-using Xtensive.Storage.Tests.Storage.LowLevelAccessorModel;
+using Xtensive.Storage.Tests.Storage.CoreServicesModel;
 
-namespace Xtensive.Storage.Tests.Storage.LowLevelAccessorModel
+namespace Xtensive.Storage.Tests.Storage.CoreServicesModel
 {
   [HierarchyRoot(typeof(KeyGenerator), "Id")]
   public class X : Entity
@@ -80,7 +80,7 @@ namespace Xtensive.Storage.Tests.Storage.LowLevelAccessorModel
 namespace Xtensive.Storage.Tests.Storage
 {
   [TestFixture]
-  public class LowLevelAccessorTest : AutoBuildTest
+  public class CoreServicesTest : AutoBuildTest
   {
     protected override Xtensive.Storage.Configuration.DomainConfiguration BuildConfiguration()
     {
@@ -94,7 +94,7 @@ namespace Xtensive.Storage.Tests.Storage
     {
       using(Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
-          var accessor = Session.Current.LowLevelServices.PersistentAccessor;
+          var accessor = Session.Current.CoreServices.PersistentAccessor;
           X instance = (X)accessor.CreateInstance(typeof (X));
           t.Complete();
         }
@@ -106,9 +106,9 @@ namespace Xtensive.Storage.Tests.Storage
     {
       using(Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
-          var accessor = Session.Current.LowLevelServices.PersistentAccessor;
+          var accessor = Session.Current.CoreServices.PersistentAccessor;
           X instance = (X)accessor.CreateInstance(typeof (X));
-          instance.LowLevelServices.PersistentAccessor.SetField(instance, instance.Type.Fields["Value"], "Value");
+          instance.CoreServices.PersistentAccessor.SetField(instance, instance.Type.Fields["Value"], "Value");
           Assert.AreEqual("Value", instance.Value);
           t.Complete();
         }
@@ -120,11 +120,11 @@ namespace Xtensive.Storage.Tests.Storage
     {
       using(Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
-          var accessor = Session.Current.LowLevelServices.PersistentAccessor;
+          var accessor = Session.Current.CoreServices.PersistentAccessor;
           X instance = (X)accessor.CreateInstance(typeof (X));
           Key key = instance.Key;
           Assert.IsNotNull(key.Resolve());
-          instance.LowLevelServices.PersistentAccessor.Remove(instance);
+          instance.CoreServices.PersistentAccessor.Remove(instance);
           Assert.AreEqual(PersistenceState.Removed, instance.PersistenceState);
           Assert.IsNull(key.Resolve());
           t.Complete();

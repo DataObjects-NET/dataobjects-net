@@ -9,7 +9,6 @@ using Xtensive.Core;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Model;
-using Xtensive.Storage.Rse;
 using Activator=Xtensive.Storage.Internals.Activator;
 
 namespace Xtensive.Storage
@@ -91,6 +90,7 @@ namespace Xtensive.Storage
     }
 
     #endregion
+
 
     // Constructor
 
