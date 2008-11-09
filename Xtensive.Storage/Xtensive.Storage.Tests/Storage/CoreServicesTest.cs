@@ -42,15 +42,15 @@ namespace Xtensive.Storage.Tests.Storage.CoreServicesModel
       throw new InvalidOperationException();
     }
 
-    protected override void OnSettingField<T>(Xtensive.Storage.Model.FieldInfo field, T value)
+    protected override void OnSettingField(Xtensive.Storage.Model.FieldInfo field, object value)
     {
-      base.OnSettingField<T>(field, value);
+      base.OnSettingField(field, value);
       throw new InvalidOperationException();
     }
 
-    protected override void OnSetField<T>(Xtensive.Storage.Model.FieldInfo field, T oldValue, T newValue)
+    protected override void OnSetField(Xtensive.Storage.Model.FieldInfo field, object oldValue, object newValue)
     {
-      base.OnSetField<T>(field, oldValue, newValue);
+      base.OnSetField(field, oldValue, newValue);
       throw new InvalidOperationException();
     }
 

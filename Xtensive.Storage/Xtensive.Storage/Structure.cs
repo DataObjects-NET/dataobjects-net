@@ -80,42 +80,36 @@ namespace Xtensive.Storage
     #region System-level event-like members
 
     // This is done just to make it sealed
-    protected internal sealed override void OnBeforeInitialize()
+    protected sealed internal override void OnInitialize(bool notify)
     {
-      base.OnBeforeInitialize();
+      base.OnInitialize(notify);
+    }
+
+    protected sealed internal override void OnGettingField(FieldInfo field, bool notify)
+    {
+      base.OnGettingField(field, notify);
+      if (Owner!=null)
+        Owner.OnGettingField(Field, notify);
     }
 
     // This is done just to make it sealed
-    protected internal sealed override void OnAfterInitialize()
+    protected sealed internal override void OnGetField(FieldInfo field, object value, bool notify)
     {
-      base.OnAfterInitialize();
+      base.OnGetField(field, value, notify);
     }
 
-    protected sealed internal override void OnBeforeGetField(FieldInfo field)
+    protected sealed internal override void OnSettingField(FieldInfo field, object value, bool notify)
     {
-      base.OnBeforeGetField(field);
+      base.OnSettingField(field, value, notify);
       if (Owner!=null)
-        Owner.OnBeforeGetField(Field);
+        Owner.OnSettingField(Field, value, notify);
     }
 
-    // This is done just to make it sealed
-    protected sealed internal override void OnAfterGetField(FieldInfo field)
+    protected internal sealed override void OnSetField(FieldInfo field, object oldValue, object newValue, bool notify)
     {
-      base.OnAfterGetField(field);
-    }
-
-    protected sealed internal override void OnBeforeSetField(FieldInfo field)
-    {
-      base.OnBeforeSetField(field);
       if (Owner!=null)
-        Owner.OnBeforeSetField(Field);
-    }
-
-    protected internal sealed override void OnAfterSetField(FieldInfo field)
-    {
-      base.OnAfterSetField(field);
-      if (Owner!=null)
-        Owner.OnAfterSetField(Field);
+        Owner.OnSetField(Field, oldValue, newValue, notify);
+      base.OnSetField(field, oldValue, newValue, notify);
     }
 
     #endregion

@@ -82,7 +82,7 @@ namespace Xtensive.Storage
 
     #endregion
 
-    #region Public user-level GetField, SetField members
+    #region User-level GetField, SetField members
 
     [Infrastructure]
     protected T GetField<T>(string name)
@@ -108,9 +108,21 @@ namespace Xtensive.Storage
       SetField(field, value, true);
     }
 
+    [Infrastructure]
+    protected bool IsFieldAvailable(string name)
+    {
+      return IsFieldAvailable(Type.Fields[name]);
+    }
+
+    [Infrastructure]
+    protected bool IsFieldAvailable(FieldInfo field)
+    {
+      return Data.IsAvailable(field.MappingInfo.Offset);
+    }
+
     #endregion
 
-    #region Protected user-level event-like members
+    #region User-level event-like members
 
     [Infrastructure]
     protected virtual void OnInitialize()
@@ -123,17 +135,17 @@ namespace Xtensive.Storage
     }
 
     [Infrastructure]
-    protected virtual void OnGetField<T>(FieldInfo field, T value)
+    protected virtual void OnGetField(FieldInfo field, object value)
     {
     }
 
     [Infrastructure]
-    protected virtual void OnSettingField<T>(FieldInfo field, T value)
+    protected virtual void OnSettingField(FieldInfo field, object value)
     {
     }
 
     [Infrastructure]
-    protected virtual void OnSetField<T>(FieldInfo field, T oldValue, T newValue)
+    protected virtual void OnSetField(FieldInfo field, object oldValue, object newValue)
     {
     }
 
@@ -151,31 +163,11 @@ namespace Xtensive.Storage
     #region System-level GetField, SetField, GetKey, Remove members
 
     [Infrastructure]
-    internal void Initialize(bool notify)
-    {
-      if (Session.IsDebugEventLoggingEnabled && this is Entity)
-        Log.Debug("Session '{0}'. Materializing {1}: Key = '{2}'", 
-          Session, GetType().GetShortName(), (this as Entity).State.Key);
-      OnBeforeInitialize();
-      if (notify) {
-        OnInitialize();
-        this.Validate();
-      }
-      OnAfterInitialize();
-    }
-
-    [Infrastructure]
     internal T GetField<T>(FieldInfo field, bool notify)
     {
-      if (notify)
-        OnGettingField(field);
-
-      OnBeforeGetField(field);
+      OnGettingField(field, notify);
       T result = field.GetAccessor<T>().GetValue(this, field);
-      OnAfterGetField(field);
-
-      if (notify)
-        OnGetField(field, result);
+      OnGetField(field, result, notify);
 
       return result;
     }
@@ -183,13 +175,8 @@ namespace Xtensive.Storage
     [Infrastructure]
     internal void SetField<T>(FieldInfo field, T value, bool notify)
     {
-      if (notify)
-        OnSettingField(field, value);
-
-      OnBeforeSetField(field);
-      T oldValue = default(T);
-      if (notify)
-        oldValue = GetField<T>(field, false);
+      OnSettingField(field, value, notify);
+      T oldValue = GetField<T>(field, false);
       AssociationInfo association = field.Association;
       if (association!=null && association.IsPaired) {
         Key currentRef = GetKey(field);
@@ -204,14 +191,7 @@ namespace Xtensive.Storage
       }
       else
         field.GetAccessor<T>().SetValue(this, field, value);
-      OnAfterSetField(field);
-
-      if (notify) {
-        OnSetField(field, oldValue, value);
-        if (Session.Domain.Configuration.AutoValidation)
-          this.Validate();
-        NotifyPropertyChanged(field);
-      }
+      OnSetField(field, oldValue, value, notify);
     }
 
     [Infrastructure]
@@ -220,10 +200,10 @@ namespace Xtensive.Storage
       if (!field.IsEntity)
         throw new InvalidOperationException(string.Format("Field '{0}' is not an Entity field.", field.Name));
 
-      OnBeforeGetField(field);
+      OnGettingField(field, false);
       // TODO: Refactor
       Key result = EntityFieldAccessor<Entity>.ExtractKey(this, field);
-      OnAfterGetField(field);
+      OnGetField(field, result, false);
 
       return result;
     }
@@ -233,33 +213,47 @@ namespace Xtensive.Storage
     #region System-level event-like members
 
     [Infrastructure]
-    protected internal virtual void OnBeforeInitialize()
+    protected internal virtual void OnInitialize(bool notify)
     {
+      if (!notify)
+        return;
+      OnInitialize();
+      this.Validate();
     }
 
     [Infrastructure]
-    protected internal virtual void OnAfterInitialize()
+    protected internal virtual void OnGettingField(FieldInfo field, bool notify)
     {
+      if (!notify)
+        return;
+      OnGettingField(field);
     }
 
     [Infrastructure]
-    protected internal virtual void OnBeforeGetField(FieldInfo field)
+    protected internal virtual void OnGetField(FieldInfo field, object value, bool notify)
     {
+      if (!notify)
+        return;
+      OnGetField(field, value);
     }
 
     [Infrastructure]
-    protected internal virtual void OnAfterGetField(FieldInfo field)
+    protected internal virtual void OnSettingField(FieldInfo field, object value, bool notify)
     {
+      if (!notify)
+        return;
+      OnSettingField(field, value);
     }
 
     [Infrastructure]
-    protected internal virtual void OnBeforeSetField(FieldInfo field)
+    protected internal virtual void OnSetField(FieldInfo field, object oldValue, object newValue, bool notify)
     {
-    }
-
-    [Infrastructure]
-    protected internal virtual void OnAfterSetField(FieldInfo field)
-    {
+      if (!notify)
+        return;
+      OnSetField(field, oldValue, newValue);
+      if (Session.Domain.Configuration.AutoValidation)
+        this.Validate();
+      NotifyPropertyChanged(field);
     }
 
     #endregion
