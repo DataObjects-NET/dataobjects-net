@@ -22,32 +22,26 @@ namespace Xtensive.Core.Comparison
       if (x==null) {
         if (y==null)
           return 0;
-        else
-          return -DefaultDirectionMultiplier;
+        return -DefaultDirectionMultiplier;
       }
-      else {
-        if (y==null)
-          return DefaultDirectionMultiplier;
-        else {
-          int minLength = x.Length;
-          int result = -minLength-1;
-          if (minLength>y.Length) {
-            minLength = y.Length;
-            result = minLength+1;
-          }
-          for (int i = 0; i<minLength;) {
-            int r = BaseComparer.Compare(x[i], y[i]);
-            i++;
-            if (r==0)
-              continue;
-            else if (r>0)
-              return i;
-            else
-              return -i;
-          }
-          return result * DefaultDirectionMultiplier;
-        }
+      if (y==null)
+        return DefaultDirectionMultiplier;
+      int minLength = x.Length;
+      int result = -minLength - 1;
+      if (minLength > y.Length) {
+        minLength = y.Length;
+        result = minLength + 1;
       }
+      for (int i = 0; i < minLength;) {
+        int r = BaseComparer.Compare(x[i], y[i]);
+        i++;
+        if (r==0)
+          continue;
+        if (r > 0)
+          return i;
+        return -i;
+      }
+      return result * (int)ComparisonRules.GetDefaultRuleDirection(minLength);
     }
 
     public override bool Equals(T[] x, T[] y)
@@ -55,23 +49,18 @@ namespace Xtensive.Core.Comparison
       if (x==null) {
         if (y==null)
           return true;
-        else
+        return false;
+      }
+      if (y==null)
+        return false;
+      int r = x.Length - y.Length;
+      if (r!=0)
+        return false;
+      for (int i = x.Length - 1; i >= 0; i--) {
+        if (!BaseComparer.Equals(x[i], y[i]))
           return false;
       }
-      else {
-        if (y==null)
-          return false;
-        else {
-          int r = x.Length - y.Length;
-          if (r!=0)
-            return false;
-          for (int i = x.Length-1; i>=0; i--) {
-            if (!BaseComparer.Equals(x[i], y[i]))
-              return false;
-          }
-          return true;
-        }
-      }
+      return true;
     }
 
     public override int GetHashCode(T[] obj)
