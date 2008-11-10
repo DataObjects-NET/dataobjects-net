@@ -13,6 +13,8 @@ using Xtensive.Core;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Threading;
+using Xtensive.Core.Tuples;
+using Xtensive.Core.Tuples.Transform;
 
 namespace Xtensive.Storage.Model
 {
@@ -34,6 +36,8 @@ namespace Xtensive.Storage.Model
     private AssociationInfo association;
     private CultureInfo cultureInfo = CultureInfo.InvariantCulture;
     private ThreadSafeCached<int> cachedHashCode = ThreadSafeCached<int>.Create(new object());
+    private SegmentTransform valueExtractorTransform;
+    private Func<Tuple, Tuple> valueExtractor;
 
     #region IsXxx properties
 
@@ -382,6 +386,21 @@ namespace Xtensive.Storage.Model
       }
     }
 
+    /// <summary>
+    /// Gets or sets the value extractor.
+    /// </summary>
+    public Func<Tuple, Tuple> ValueExtractor
+    {
+      [DebuggerStepThrough]
+      get { return valueExtractor; }
+      [DebuggerStepThrough]
+      set
+      {
+        this.EnsureNotLocked();
+        valueExtractor = value;
+      }
+    }
+
     /// <inheritdoc/>
     public override void Lock(bool recursive)
     {
@@ -397,6 +416,10 @@ namespace Xtensive.Storage.Model
       }
       else if (fields.Count > 0)
         mappingInfo = new Segment<int>(fields.First().MappingInfo.Offset, fields.Sum(info => info.MappingInfo.Length));
+      if (IsEntity || IsStructure) {
+        valueExtractorTransform = new SegmentTransform(false, reflectedType.TupleDescriptor, new Segment<int>(mappingInfo.Offset, mappingInfo.Length));
+        valueExtractor = tuple => valueExtractorTransform.Apply(TupleTransformType.TransformedTuple, tuple);
+      }
     }
 
     #region Equals, GetHashCode methods

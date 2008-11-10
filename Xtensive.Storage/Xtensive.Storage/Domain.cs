@@ -108,8 +108,6 @@ namespace Xtensive.Storage
 
     internal Dictionary<TypeInfo, Tuple> PersistentTuplePrototypes { get; private set; }
 
-    internal ThreadSafeDictionary<FieldInfo, SegmentTransform> GetFieldTransformCache { get; private set; }
-
     internal Dictionary<AssociationInfo, ActionSet> PairSyncActions { get; private set; }
 
     #endregion
@@ -170,7 +168,6 @@ namespace Xtensive.Storage
       RecordSetParser = new RecordSetParser(this);
       KeyGenerators = new Registry<HierarchyInfo, KeyGenerator>();
       KeyCache = new LruCache<Key, Key>(Configuration.KeyCacheSize, k => k);
-      GetFieldTransformCache = ThreadSafeDictionary<FieldInfo, SegmentTransform>.Create(new object());
       PersistentTuplePrototypes = new Dictionary<TypeInfo, Tuple>(1024);
       PairSyncActions = new Dictionary<AssociationInfo, ActionSet>(1024);
       TemporaryData = new GlobalTemporaryData();

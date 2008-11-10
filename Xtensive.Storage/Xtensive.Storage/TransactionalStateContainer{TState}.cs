@@ -26,7 +26,7 @@ namespace Xtensive.Storage
       get {
         if (!IsStateLoaded) {
           BindStateTransaction();
-          LoadState();
+          state = LoadState();
           isStateLoaded = true;
         }
         return state;

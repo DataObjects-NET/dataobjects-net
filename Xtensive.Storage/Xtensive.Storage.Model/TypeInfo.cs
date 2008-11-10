@@ -252,6 +252,7 @@ namespace Xtensive.Storage.Model
       if (!IsLocked) {
         var result = new List<TypeInfo>(8);
         var ancestor = model.Types.FindAncestor(this);
+        // TODO: Refactor
         while (ancestor!=null) {
           result.Insert(0,ancestor);
           ancestor = model.Types.FindAncestor(ancestor);
@@ -288,16 +289,19 @@ namespace Xtensive.Storage.Model
         indexes.Lock(true);
         columns.Lock(true);
         fieldMap.Lock(true);
-        fields.Lock(true);
       }
-      if (IsInterface)
+      if (IsInterface) {
+        if (recursive)
+          fields.Lock(true);
         return;
+      }
       var orderedColumns = columns.OrderBy(c => c.Field.MappingInfo.Offset).ToList();
       columns = new ColumnInfoCollection();
       columns.AddRange(orderedColumns);
       columns.Lock(true);
       tupleDescriptor = TupleDescriptor.Create(
         from c in Columns select c.ValueType);
+      fields.Lock(true);
     }
 
 

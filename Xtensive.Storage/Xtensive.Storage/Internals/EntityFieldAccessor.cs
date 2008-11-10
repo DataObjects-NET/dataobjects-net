@@ -57,12 +57,8 @@ namespace Xtensive.Storage.Internals
     {
       var session = obj.Session;
       var domain = session.Domain;
-      var mappingInfo = field.MappingInfo;
-      SegmentTransform transform = domain.GetFieldTransformCache.GetValue(field, 
-        arg => new SegmentTransform(false, obj.Data.Descriptor, 
-          new Segment<int>(mappingInfo.Offset, mappingInfo.Length)));
       var type = domain.Model.Types[field.ValueType];
-      var tuple = transform.Apply(TupleTransformType.TransformedTuple, obj.Data);
+      var tuple = field.ValueExtractor(obj.Data);
       if (tuple.ContainsEmptyValues())
         return null;
       return Key.Create(type, tuple);
