@@ -4,7 +4,10 @@
 // Created by: 
 // Created:    2008.09.17
 
+using System;
+using System.Collections.Generic;
 using System.Reflection;
+using System.Web;
 using NUnit.Framework;
 using Xtensive.Storage.Attributes;
 using Xtensive.Core.Tuples;
@@ -38,6 +41,41 @@ namespace Xtensive.Storage.Tests.Storage.Keys
         : base(tag) {}
     }
 
+    [HierarchyRoot("Key1", "Key2", "Key3", "Key4", "Key5", "Key6", "Key7", "Key8",
+      "Key9", "Key10", "Key11", "Key12", "Key13", "Key14")]
+    public class Test : Entity
+    {
+      [Field]
+      public string Key1 { get; private set; }
+      [Field]
+      public Byte Key2 { get; private set; }
+      [Field]
+      public SByte Key3 { get; private set; }
+      [Field]
+      public DateTime Key4 { get; private set; }
+      [Field]
+      public Int32 Key5 { get; private set; }
+      [Field]
+      public Int64 Key6 { get; private set; }
+      [Field]
+      public UInt16 Key7 { get; private set; }
+      [Field]
+      public UInt32 Key8 { get; private set; }
+      [Field]
+      public Guid Key9 { get; private set; }
+      [Field]
+      public float Key10 { get; private set; }
+      [Field]
+      public double Key11 { get; private set; }
+      [Field]
+      public decimal Key12 { get; private set; }
+      [Field]
+      public bool Key13 { get; private set; }
+      [Field]
+      public string Key14 { get; private set; }
+
+    }
+
     #endregion
 
     protected override DomainConfiguration BuildConfiguration()
@@ -54,6 +92,48 @@ namespace Xtensive.Storage.Tests.Storage.Keys
         using (var t = Transaction.Open()) {
           Key k1 = Key.Create<Apple>(Tuple.Create("1"));
           Key k2 = Key.Create<Apple>(Tuple.Create("1"));
+          Assert.AreEqual(k1, k2);
+
+          Key kk = Key.Create<Apple>(Tuple.Create("a ab"));
+          var s = kk.StringValue;
+          var k = Key.ResolveKey(s);
+          Assert.AreEqual(k, kk);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void ResolveKeyTest()
+    {
+      using (Domain.OpenSession())
+      {
+        using (var t = Transaction.Open())
+        {
+          TupleDescriptor descriptor = TupleDescriptor.Create(new[] { typeof (string), typeof (Byte), typeof (SByte),
+              typeof (DateTime), typeof (Int32), typeof (Int64), typeof (UInt16), typeof (UInt32), typeof (Guid), 
+              typeof (float), typeof (double), typeof (decimal), typeof (bool), typeof (string)
+            });
+
+          Tuple tuple = Tuple.Create(descriptor);
+          tuple.SetValue(0," , ");
+          tuple.SetValue<Byte>(1, 1);
+          tuple.SetValue<SByte>(2, -1);
+          tuple.SetValue(3, DateTime.Now);
+          tuple.SetValue(4, -1);
+          tuple.SetValue<Int64>(5, -1);
+          tuple.SetValue<UInt16>(6, 1);
+          tuple.SetValue<UInt32>(7, 1);
+          tuple.SetValue(8, new Guid(new byte[] {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}));
+          tuple.SetValue<float>(9, 1);
+          tuple.SetValue<double>(10, 1);
+          tuple.SetValue<decimal>(11, 1);
+          tuple.SetValue(12, true);
+          tuple.SetValue(13, " , ");
+
+          Key k1 = Key.Create<Test>(tuple);
+          var stringValue = k1.StringValue;
+          var k2 = Key.ResolveKey(stringValue);
           Assert.AreEqual(k1, k2);
           t.Complete();
         }

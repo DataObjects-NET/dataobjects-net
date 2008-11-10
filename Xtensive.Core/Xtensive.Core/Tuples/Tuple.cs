@@ -6,9 +6,15 @@
 
 using System;
 using System.Diagnostics;
+using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
+using System.Web;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Comparison;
+using Xtensive.Core.Conversion;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Reflection;
 using Xtensive.Core.Resources;
 using Xtensive.Core.Tuples.Internals;
 
@@ -223,7 +229,7 @@ namespace Xtensive.Core.Tuples
 
     #endregion
 
-    #region ToString method
+    #region ToString methods
 
     /// <inheritdoc/>
     public override string ToString()
@@ -249,7 +255,32 @@ namespace Xtensive.Core.Tuples
       return string.Format(Strings.TupleFormat, sb);
     }
 
+    ///<summary>
+    /// Returns the <see cref="string"/> that represents the current <see cref="Tuple"/>.
+    ///</summary>
+    ///<param name="isParseable">Is this string parseable.</param>
+    ///<returns>The <see cref="string"/> that represents the current <see cref="Tuple"/>.</returns>
+    public string ToString(bool isParseable)
+    {
+      if (!isParseable)
+        return ToString();
+      return this.ConvertToString();
+  }
+
     #endregion
+
+    ///<summary>
+    /// Returns the parsed <see cref="Tuple"/> by <see cref="TupleDescriptor"/> and string representation.
+    ///</summary>
+    ///<param name="descriptor">The <see cref="TupleDescriptor"/></param>
+    ///<param name="parsedString">The string representation of <see cref="Tuple"/></param>
+    ///<returns>The parsed <see cref="Tuple"/ by <see cref="TupleDescriptor"/> and string representation.</returns>
+    public static Tuple Parse(TupleDescriptor descriptor, string parsedString)
+    {
+      var tuple = Create(descriptor);
+      return tuple.ConvertFromString(parsedString);
+    }
+
 
     #region Create methods (base)
 

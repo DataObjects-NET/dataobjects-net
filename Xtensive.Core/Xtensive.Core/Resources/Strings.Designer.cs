@@ -979,6 +979,15 @@ namespace Xtensive.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to String does not correspond to the specified descriptor..
+        /// </summary>
+        internal static string ExStringNotCorrespondDescriptor {
+            get {
+                return ResourceManager.GetString("ExStringNotCorrespondDescriptor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to System date \ time has been changed..
         /// </summary>
         internal static string ExSystemTimeChanged {

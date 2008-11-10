@@ -251,5 +251,14 @@ namespace Xtensive.Core.Tests.Tuples
       }
       Thread.Sleep(5*baseSleepTime);
     }
+    [Test]
+    public void Test()
+    {
+      Tuple t = Tuple.Create(" , ", 1, "qwe");
+      var s = t.ToString(true);
+      var tt = Tuple.Parse(t.Descriptor,s);
+
+      Assert.AreEqual(t,tt);
+    }
   }
 }

@@ -564,4 +564,7 @@
   <data name="ExInvalidObjectSerializerSimilarValueSerializerExists" xml:space="preserve">
     <value>Object serializer is invalid, since similar value serializer exists.</value>
   </data>
+  <data name="ExStringNotCorrespondDescriptor" xml:space="preserve">
+    <value>String does not correspond to the specified descriptor.</value>
+  </data>
 </root>

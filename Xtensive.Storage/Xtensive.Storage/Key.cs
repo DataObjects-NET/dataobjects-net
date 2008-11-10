@@ -5,7 +5,11 @@
 // Created:    2007.12.20
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Web;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
@@ -26,11 +30,13 @@ namespace Xtensive.Storage
     private Tuple value;
     private readonly int hashCode;
     private TypeInfo type;
+    private string stringValue;
 
     /// <summary>
     /// Gets the hierarchy this instance belongs to.
     /// </summary>
-    public HierarchyInfo Hierarchy {
+    public HierarchyInfo Hierarchy
+    {
       get { return hierarchy; }
     }
 
@@ -46,8 +52,10 @@ namespace Xtensive.Storage
     /// </summary>
     /// <exception cref="NotSupportedException">Type is already initialized.</exception>
     /// <exception cref="InvalidOperationException">Unable to resolve type for Key.</exception>
-    public TypeInfo Type {
-      get {
+    public TypeInfo Type
+    {
+      get
+      {
         if (type!=null)
           return type;
 
@@ -77,7 +85,8 @@ namespace Xtensive.Storage
     /// <summary>
     /// Determines whether <see cref="Type"/> property has cached type value or not.
     /// </summary>
-    public bool IsTypeCached {
+    public bool IsTypeCached
+    {
       get { return type!=null ? true : false; }
     }
 
@@ -138,7 +147,7 @@ namespace Xtensive.Storage
 
       if (!hasBeenFetched && session.IsDebugEventLoggingEnabled)
         Log.Debug("Session '{0}'. Resolving key '{1}'. Key is already resolved.", session, this);
-      
+
       if (state.IsRemoved)
         return null;
 
@@ -168,7 +177,7 @@ namespace Xtensive.Storage
     {
       if (obj==null)
         return false;
-      if (obj.GetType()!=typeof(Key))
+      if (obj.GetType()!=typeof (Key))
         return false;
       return Equals(obj as Key);
     }
@@ -196,6 +205,48 @@ namespace Xtensive.Storage
 
     #endregion
 
+    ///<summary>
+    ///The string value of this instance.
+    ///</summary>
+    public string StringValue
+    {
+      get
+      {
+        if (stringValue==null) {
+          var builder = new StringBuilder();
+          builder.Append(hierarchy.Root.TypeId);
+          builder.Append(":");
+          builder.Append(value.ToString(true));
+          stringValue = builder.ToString();
+        }
+        return stringValue;
+      }
+    }
+
+    ///<summary>
+    ///Resolves the string value of the key.
+    ///</summary>
+    ///<param name="strValue">The string value of the key.</param>
+    ///<returns>The <see cref="Key"/>.</returns>
+    public static Key ResolveKey(string strValue)
+    {
+      var regex = new Regex(@"^((?<hierarchy>.*?)\:)");
+      var match = regex.Match(strValue);
+
+      var hierachyGroup = match.Groups["hierarchy"].Value;
+      var hierarchy = Domain.Current.Model.Types[Int32.Parse(hierachyGroup)].Hierarchy;
+
+      return Create(hierarchy.Root.GetRoot(), Tuple.Parse(hierarchy.KeyTupleDescriptor, regex.Replace(strValue, string.Empty)));
+    }
+
+    /// <inheritdoc/>
+    public override string ToString()
+    {
+      return string.Format("{0}, {1}",
+        IsTypeCached ? Type.Name : Hierarchy.Name,
+        value.ToRegular());
+    }
+
     #region Create methods
 
     /// <summary>
@@ -206,7 +257,7 @@ namespace Xtensive.Storage
     /// <typeparam name="T">Type of <see cref="Entity"/> descendant to get <see cref="Key"/> for.</typeparam>
     /// <returns>A newly created or existing <see cref="Key"/> instance .</returns>
     public static Key Create<T>()
-      where T: Entity
+      where T : Entity
     {
       return Create(typeof (T));
     }
@@ -249,7 +300,7 @@ namespace Xtensive.Storage
     /// A newly created or existing <see cref="Key"/> instance .
     /// </returns>
     public static Key Create<T>(Tuple value)
-      where T: Entity
+      where T : Entity
     {
       return Create(typeof (T), value, false);
     }
@@ -266,7 +317,7 @@ namespace Xtensive.Storage
     /// A newly created or existing <see cref="Key"/> instance .
     /// </returns>
     public static Key Create<T>(Tuple value, bool exactType)
-      where T: Entity
+      where T : Entity
     {
       return Create(typeof (T), value, exactType);
     }
@@ -351,14 +402,6 @@ namespace Xtensive.Storage
     }
 
     #endregion
-
-    /// <inheritdoc/>
-    public override string ToString()
-    {
-      return string.Format("{0}, {1}", 
-        IsTypeCached ? Type.Name : Hierarchy.Name, 
-        value.ToRegular());
-    }
 
 
     // Constructors

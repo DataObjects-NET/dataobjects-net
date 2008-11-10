@@ -6,7 +6,11 @@
 
 using System;
 using System.Collections;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Web;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Conversion;
 using Xtensive.Core.Resources;
 using Xtensive.Core.Tuples.Transform;
 
@@ -17,9 +21,10 @@ namespace Xtensive.Core.Tuples
   /// </summary>
   public static class TupleExtensions
   {
-    private static readonly InitializerHandler     initializerHandler   = new InitializerHandler();
-    private static readonly Func<TupleFieldState, TupleFieldState, bool> defaultPredicate = (request, result) => (result) == 0;
+    private static readonly InitializerHandler initializerHandler = new InitializerHandler();
+    private static readonly Func<TupleFieldState, TupleFieldState, bool> defaultPredicate = (request, result) => (result)==0;
     private static readonly Func<TupleFieldState, TupleFieldState, bool> availabilityPredicate = (request, result) => (request & result) > 0;
+    private static ConverterHandler converterHandler = new ConverterHandler();
 
     #region Generic ITuple methods
 
@@ -75,7 +80,7 @@ namespace Xtensive.Core.Tuples
     }
 
     #endregion
-    
+
     #region Copy methods
 
     /// <summary>
@@ -169,7 +174,7 @@ namespace Xtensive.Core.Tuples
     /// <param name="target">Tuple that receives the data.</param>
     /// <param name="map">Target-to-source field index map.
     /// Negative value in this map means "skip this element".</param>
-    public static void CopyTo(this Tuple[] source, Tuple target, Pair<int,int>[] map)
+    public static void CopyTo(this Tuple[] source, Tuple target, Pair<int, int>[] map)
     {
       for (int i = 0; i < map.Length; i++) {
         var mappedTo = map[i];
@@ -191,7 +196,7 @@ namespace Xtensive.Core.Tuples
     /// <param name="target">Tuple that receives the data.</param>
     /// <param name="map">Target-to-source field index map.
     /// Negative value in this map means "skip this element".</param>
-    public static void CopyTo(this FixedList3<Tuple> source, Tuple target, Pair<int,int>[] map)
+    public static void CopyTo(this FixedList3<Tuple> source, Tuple target, Pair<int, int>[] map)
     {
       for (int i = 0; i < map.Length; i++) {
         var mappedTo = map[i];
@@ -239,7 +244,7 @@ namespace Xtensive.Core.Tuples
     public static Tuple ToFastReadOnly(this Tuple source)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      if (source.GetType()==typeof(FastReadOnlyTuple))
+      if (source.GetType()==typeof (FastReadOnlyTuple))
         return source;
       return new FastReadOnlyTuple(source);
     }
@@ -252,7 +257,7 @@ namespace Xtensive.Core.Tuples
     /// <returns></returns>
     public static Tuple CombineWith(this Tuple source1, Tuple source2)
     {
-      var transform = new CombineTransform(false, new[] { source1.Descriptor, source2.Descriptor});
+      var transform = new CombineTransform(false, new[] {source1.Descriptor, source2.Descriptor});
       return transform.Apply(TupleTransformType.TransformedTuple, source1, source2);
     }
 
@@ -283,12 +288,12 @@ namespace Xtensive.Core.Tuples
     {
       Func<TupleFieldState, TupleFieldState, bool> predicate;
       switch (state) {
-        case TupleFieldState.Default:
-          predicate = defaultPredicate;
-          break;
-        default:
-          predicate = availabilityPredicate;
-          break;
+      case TupleFieldState.Default:
+        predicate = defaultPredicate;
+        break;
+      default:
+        predicate = availabilityPredicate;
+        break;
       }
       return target.GetFieldStateMap(state, predicate);
     }
@@ -328,7 +333,7 @@ namespace Xtensive.Core.Tuples
       for (int i = startIndex; i < endIndex; i++) {
         if (!source.IsAvailable(i))
           continue;
-        if (target.IsAvailable(i) && behavior == MergeConflictBehavior.PreferTarget)
+        if (target.IsAvailable(i) && behavior==MergeConflictBehavior.PreferTarget)
           continue;
         target.SetValue(i, source.GetValueOrDefault(i));
       }
@@ -407,6 +412,47 @@ namespace Xtensive.Core.Tuples
 
     #endregion
 
+    #region Converter methods 
+
+    ///<summary>
+    /// Returns string representation of the specified <see cref="Tuple"/>.
+    ///</summary>
+    ///<param name="source">The specified <see cref="Tuple"/></param>
+    ///<returns>String representation of the specified <see cref="Tuple"/>.</returns>
+    public static string ConvertToString(this Tuple source)
+    {
+      var actionData = new ConverterData(source, new StringBuilder(), true);
+      for (int i = 0; i < source.Count; i++)
+        source.Descriptor.Execute(converterHandler, ref actionData, i);
+      return actionData.Target.ToString();
+    }
+
+    ///<summary>
+    /// Returns the specified <see cref="Tuple"/> from the string representation.
+    ///</summary>
+    ///<param name="target">The specified <see cref="Tuple"/></param>
+    ///<param name="source">The string to convert from.</param>
+    ///<returns>The specified <see cref="Tuple"/> from the string representation.</returns>
+    public static Tuple ConvertFromString(this Tuple target, string source)
+    {
+      var actionData = new ConverterData(target, new StringBuilder(), false);
+      var res = actionData.StrRegex.Matches(source);
+      if (res.Count + 1!=target.Count)
+        throw new InvalidOperationException(Strings.ExStringNotCorrespondDescriptor);
+
+      var regex = res.Count!=0 ? actionData.EndOfStrRegex.Match(source).Groups["value"].Value : 
+        actionData.OnlyEndOfStrRegex.Match(source).Groups["value"].Value;
+
+      for (int i = 0; i <= res.Count; i++) {
+        var v = i != res.Count ? res[i].Groups["value"].Value : regex;
+        actionData.PartOfString = HttpUtility.HtmlDecode(v);
+        target.Descriptor.Execute(converterHandler, ref actionData, i);
+      }
+      return actionData.Source;
+    }
+
+    #endregion
+
     #region Private: Initializer: Data & Handler
 
     private struct InitializerData
@@ -426,7 +472,7 @@ namespace Xtensive.Core.Tuples
       }
     }
 
-    private class InitializerHandler: ITupleActionHandler<InitializerData>
+    private class InitializerHandler : ITupleActionHandler<InitializerData>
     {
       public bool Execute<TFieldType>(ref InitializerData actionData, int fieldIndex)
       {
@@ -435,6 +481,70 @@ namespace Xtensive.Core.Tuples
         else
           actionData.Target.SetValue(fieldIndex, default(TFieldType));
         return false;
+      }
+    }
+
+    private struct ConverterData
+    {
+      public Tuple Source;
+      public StringBuilder Target;
+      public bool IsToString;
+      public string PartOfString;
+      public readonly string StrFormat;
+      public readonly string ValueFormat;
+      public readonly string LastStrFormat;
+      public readonly string LastValueFormat;
+      public readonly Regex StrRegex;
+      public readonly Regex EndOfStrRegex;
+      public readonly Regex OnlyEndOfStrRegex;
+
+      public ConverterData(Tuple source, StringBuilder target, bool isToString)
+      {
+        Source = source;
+        Target = target;
+        IsToString = isToString;
+        StrFormat = " \"{0}\",";
+        ValueFormat = " {0},";
+        LastStrFormat = " \"{0}\"";
+        LastValueFormat = " {0}";
+        StrRegex = new Regex("(( (?<value>[^\"]+?),)|( \"(?<value>.*?)\",))", RegexOptions.CultureInvariant);
+        EndOfStrRegex = new Regex("(, \"(?<value>.*?)\"$)|(, (?<value>[^\"]+?)$)", RegexOptions.RightToLeft | RegexOptions.CultureInvariant);
+        OnlyEndOfStrRegex = new Regex("( \"(?<value>.*)\"$)|( (?<value>[^\"]+)$)", RegexOptions.CultureInvariant);
+        PartOfString = string.Empty;
+      }
+    }
+
+    private class ConverterHandler : ITupleActionHandler<ConverterData>
+    {
+      public bool Execute<TFieldType>(ref ConverterData actionData, int fieldIndex)
+      {
+        try {
+          if (actionData.IsToString) {
+            var tuple = actionData.Source;
+            var converter = AdvancedConverterProvider.Default.GetConverter<TFieldType, string>();
+            var str = converter.Convert(tuple.GetValue<TFieldType>(fieldIndex));
+            if (str.Length > 50 || str.StartsWith(" ") || str.EndsWith(" ") || str.Contains("\"") || str.Contains(",")) {
+              if (fieldIndex==tuple.Count - 1)
+                actionData.Target.Append(String.Format(actionData.LastStrFormat, HttpUtility.HtmlEncode(str)));
+              else
+                actionData.Target.Append(String.Format(actionData.StrFormat, HttpUtility.HtmlEncode(str)));
+            }
+            else {
+              if (fieldIndex==tuple.Count - 1)
+                actionData.Target.Append(String.Format(actionData.LastValueFormat, HttpUtility.HtmlEncode(str)));
+              else
+                actionData.Target.Append(String.Format(actionData.ValueFormat, HttpUtility.HtmlEncode(str)));
+            }
+          }
+          else {
+            var converter = AdvancedConverterProvider.Default.GetConverter<string, TFieldType>();
+            actionData.Source.SetValue(fieldIndex, converter.Convert(actionData.PartOfString));
+          }
+          return true;
+        }
+        catch {
+          return false;
+        }
       }
     }
 

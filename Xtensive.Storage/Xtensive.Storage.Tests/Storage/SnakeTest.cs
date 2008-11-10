@@ -215,6 +215,9 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void MainTest()
     {
+
+      int i = (int) Convert.ChangeType("123", typeof (Int32));
+
       Key persistedKey = null;
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
@@ -239,6 +242,9 @@ namespace Xtensive.Storage.Tests.Storage
           Assert.AreEqual(32, snake.Length);
             
           Key key = Key.Create<Snake>(Tuple.Create(snake.ID));
+          var keyString = key.StringValue;
+          Assert.AreEqual(Key.ResolveKey(keyString), key);
+          
           Assert.IsTrue(snake.Key.Equals(key));
           Assert.AreEqual(snake.Key, key);
 
