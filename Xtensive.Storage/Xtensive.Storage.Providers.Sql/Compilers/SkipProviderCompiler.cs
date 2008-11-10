@@ -19,7 +19,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
         return null;
 
       var query = (SqlSelect)source.Request.Statement.Clone();
-      query.Offset += provider.CompiledCount.Invoke();
+      query.Offset += provider.CompiledCount();
       var request = new SqlFetchRequest(query, provider.Header, source.Request.ParameterBindings);
       return new SqlProvider(provider, request, Handlers, source);
     }

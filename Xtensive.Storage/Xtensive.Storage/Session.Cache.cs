@@ -40,7 +40,7 @@ namespace Xtensive.Storage
     {
       EntityState result = EntityStateCache[key, true];
       if (result == null) {
-        if (key.IsTypeCached) {
+        if (key.IsTypeCached && tuple != null) {
           // Fetched instance contains a tuple with some fields set with fetched values.
           // Other fields MUST be not available.
           // That is why Tuple.Create() is used instead of prototype.Clone();
