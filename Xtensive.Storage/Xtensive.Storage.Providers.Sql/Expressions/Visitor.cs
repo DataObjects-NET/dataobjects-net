@@ -5,20 +5,17 @@
 // Created:    2008.09.05
 
 using System;
-using System.Collections.Generic;
 using System.Linq.Expressions;
-using System.Reflection;
 using Xtensive.Core.Collections;
-using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
-using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Dml;
+using Xtensive.Storage.Rse.Compilation.Expressions.Visitors;
 using SqlFactory = Xtensive.Sql.Dom.Sql;
 using System.Linq;
 
 namespace Xtensive.Storage.Providers.Sql.Expressions
 {
-  internal class Visitor
+  internal class Visitor : Visitor<SqlExpression>
   {
     private readonly SqlFetchRequest request;
     private readonly SqlSelect query;
@@ -40,76 +37,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       query.Columns.Add(expression, name);
     }
 
-    protected virtual SqlExpression Visit(Expression exp)
-    {
-      if (exp == null)
-        return null;
-
-      switch (exp.NodeType) {
-        case ExpressionType.Negate:
-        case ExpressionType.NegateChecked:
-        case ExpressionType.Not:
-        case ExpressionType.Convert:
-        case ExpressionType.ConvertChecked:
-        case ExpressionType.ArrayLength:
-        case ExpressionType.Quote:
-        case ExpressionType.TypeAs:
-          return VisitUnary((UnaryExpression)exp);
-        case ExpressionType.Add:
-        case ExpressionType.AddChecked:
-        case ExpressionType.Subtract:
-        case ExpressionType.SubtractChecked:
-        case ExpressionType.Multiply:
-        case ExpressionType.MultiplyChecked:
-        case ExpressionType.Divide:
-        case ExpressionType.Modulo:
-        case ExpressionType.And:
-        case ExpressionType.AndAlso:
-        case ExpressionType.Or:
-        case ExpressionType.OrElse:
-        case ExpressionType.LessThan:
-        case ExpressionType.LessThanOrEqual:
-        case ExpressionType.GreaterThan:
-        case ExpressionType.GreaterThanOrEqual:
-        case ExpressionType.Equal:
-        case ExpressionType.NotEqual:
-        case ExpressionType.Coalesce:
-        case ExpressionType.ArrayIndex:
-        case ExpressionType.RightShift:
-        case ExpressionType.LeftShift:
-        case ExpressionType.ExclusiveOr:
-          return VisitBinary((BinaryExpression)exp);
-        case ExpressionType.TypeIs:
-          return VisitTypeIs((TypeBinaryExpression)exp);
-        case ExpressionType.Conditional:
-          return VisitConditional((ConditionalExpression)exp);
-        case ExpressionType.Constant:
-          return VisitConstant((ConstantExpression)exp);
-        case ExpressionType.Parameter:
-          return VisitParameter((ParameterExpression)exp);
-        case ExpressionType.MemberAccess:
-          return VisitMemberAccess((MemberExpression)exp);
-        case ExpressionType.Call:
-          return VisitMethodCall((MethodCallExpression)exp);
-        case ExpressionType.Lambda:
-          return VisitLambda((LambdaExpression)exp);
-        case ExpressionType.New:
-          return VisitNew((NewExpression)exp);
-        case ExpressionType.NewArrayInit:
-        case ExpressionType.NewArrayBounds:
-          return VisitNewArray((NewArrayExpression)exp);
-        case ExpressionType.Invoke:
-          return VisitInvocation((InvocationExpression)exp);
-        case ExpressionType.MemberInit:
-          return VisitMemberInit((MemberInitExpression)exp);
-        case ExpressionType.ListInit:
-          return VisitListInit((ListInitExpression)exp);
-        default:
-          throw new Exception(string.Format("Unhandled expression type: '{0}'", exp.NodeType));
-      }
-    }
-
-    private SqlExpression VisitUnary(UnaryExpression expression)
+    protected override SqlExpression VisitUnary(UnaryExpression expression)
     {
       var operand = Visit(expression.Operand);
       switch (expression.NodeType) {
@@ -130,7 +58,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       return operand;
     }
 
-    private SqlExpression VisitBinary(BinaryExpression expression)
+    protected override SqlExpression VisitBinary(BinaryExpression expression)
     {
       var left = Visit(expression.Left);
       var right = Visit(expression.Right);
@@ -181,17 +109,17 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       }
     }
 
-    private SqlExpression VisitTypeIs(TypeBinaryExpression expression)
+    protected override SqlExpression VisitTypeIs(TypeBinaryExpression expression)
     {
       throw new NotSupportedException();
     }
 
-    private SqlExpression VisitConditional(ConditionalExpression expression)
+    protected override SqlExpression VisitConditional(ConditionalExpression expression)
     {
       throw new NotSupportedException();
     }
 
-    private SqlExpression VisitConstant(ConstantExpression expression)
+    protected override SqlExpression VisitConstant(ConstantExpression expression)
     {
       var constant = expression.Value != null ? 
         SqlFactory.Literal(expression.Value) : 
@@ -199,12 +127,12 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       return constant;
     }
 
-    private SqlExpression VisitParameter(ParameterExpression expression)
+    protected override SqlExpression VisitParameter(ParameterExpression expression)
     {
       throw new NotSupportedException();
     }
 
-    private SqlExpression VisitMemberAccess(MemberExpression expression)
+    protected override SqlExpression VisitMemberAccess(MemberExpression expression)
     {
       if (expression.Expression.NodeType == ExpressionType.Constant) {
         var lambda = Expression.Lambda(expression).Compile();
@@ -221,7 +149,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       throw new NotSupportedException();
     }
 
-    private SqlExpression VisitMethodCall(MethodCallExpression expression)
+    protected override SqlExpression VisitMethodCall(MethodCallExpression expression)
     {
       if (expression.Object.Type == typeof(Tuple)) {
         if (expression.Method.Name == "GetValue" || expression.Method.Name == "GetValueOrDefault") {
@@ -243,37 +171,37 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       return map(target, arguments);
     }
 
-    private SqlExpression VisitLambda(LambdaExpression expression)
+    protected override SqlExpression VisitLambda(LambdaExpression expression)
     {
       return Visit(expression.Body);
     }
 
-    private SqlExpression VisitNew(NewExpression expression)
+    protected override SqlExpression VisitNew(NewExpression expression)
     {
       throw new NotSupportedException();
     }
 
-    private SqlExpression VisitNewArray(NewArrayExpression expression)
+    protected override SqlExpression VisitNewArray(NewArrayExpression expression)
     {
       throw new NotSupportedException();
     }
 
-    private SqlExpression VisitInvocation(InvocationExpression expression)
+    protected override SqlExpression VisitInvocation(InvocationExpression expression)
     {
       throw new NotSupportedException();
     }
 
-    private SqlExpression VisitMemberInit(MemberInitExpression expression)
+    protected override SqlExpression VisitMemberInit(MemberInitExpression expression)
     {
       throw new NotSupportedException();
     }
 
-    private SqlExpression VisitListInit(ListInitExpression expression)
+    protected override SqlExpression VisitListInit(ListInitExpression expression)
     {
       throw new NotSupportedException();
     }
 
-
+    
     // Constructor
 
     public Visitor(SqlFetchRequest request)
