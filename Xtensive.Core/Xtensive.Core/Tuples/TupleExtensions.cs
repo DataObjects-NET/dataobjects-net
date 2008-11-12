@@ -12,6 +12,7 @@ using System.Web;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Conversion;
 using Xtensive.Core.Resources;
+using Xtensive.Core.Tuples.Internals;
 using Xtensive.Core.Tuples.Transform;
 
 namespace Xtensive.Core.Tuples
@@ -24,7 +25,6 @@ namespace Xtensive.Core.Tuples
     private static readonly InitializerHandler initializerHandler = new InitializerHandler();
     private static readonly Func<TupleFieldState, TupleFieldState, bool> defaultPredicate = (request, result) => (result)==0;
     private static readonly Func<TupleFieldState, TupleFieldState, bool> availabilityPredicate = (request, result) => (request & result) > 0;
-    private static ConverterHandler converterHandler = new ConverterHandler();
 
     #region Generic ITuple methods
 
@@ -308,6 +308,20 @@ namespace Xtensive.Core.Tuples
       return result;
     }
 
+    ///<summary>
+    /// Returns the <see cref="string"/> that represents the current <see cref="Tuple"/>.
+    ///</summary>
+    ///<param name="source">The <see cref="Tuple"/> to represent.</param>
+    ///<param name="isParseable">Is this string parseable.</param>
+    ///<returns>The <see cref="string"/> that represents the current <see cref="Tuple"/>.</returns>
+    public static string ToString(this Tuple source, bool isParseable)
+    {
+      if (!isParseable)
+        return source.ToString();
+      return FormatTupleExtentions.ConvertToString(source);
+    }
+
+    
     #region Merge methods
 
     /// <summary>
@@ -412,47 +426,6 @@ namespace Xtensive.Core.Tuples
 
     #endregion
 
-    #region Converter methods 
-
-    ///<summary>
-    /// Returns string representation of the specified <see cref="Tuple"/>.
-    ///</summary>
-    ///<param name="source">The specified <see cref="Tuple"/></param>
-    ///<returns>String representation of the specified <see cref="Tuple"/>.</returns>
-    public static string ConvertToString(this Tuple source)
-    {
-      var actionData = new ConverterData(source, new StringBuilder(), true);
-      for (int i = 0; i < source.Count; i++)
-        source.Descriptor.Execute(converterHandler, ref actionData, i);
-      return actionData.Target.ToString();
-    }
-
-    ///<summary>
-    /// Returns the specified <see cref="Tuple"/> from the string representation.
-    ///</summary>
-    ///<param name="target">The specified <see cref="Tuple"/></param>
-    ///<param name="source">The string to convert from.</param>
-    ///<returns>The specified <see cref="Tuple"/> from the string representation.</returns>
-    public static Tuple ConvertFromString(this Tuple target, string source)
-    {
-      var actionData = new ConverterData(target, new StringBuilder(), false);
-      var res = actionData.StrRegex.Matches(source);
-      if (res.Count + 1!=target.Count)
-        throw new InvalidOperationException(Strings.ExStringNotCorrespondDescriptor);
-
-      var regex = res.Count!=0 ? actionData.EndOfStrRegex.Match(source).Groups["value"].Value : 
-        actionData.OnlyEndOfStrRegex.Match(source).Groups["value"].Value;
-
-      for (int i = 0; i <= res.Count; i++) {
-        var v = i != res.Count ? res[i].Groups["value"].Value : regex;
-        actionData.PartOfString = HttpUtility.HtmlDecode(v);
-        target.Descriptor.Execute(converterHandler, ref actionData, i);
-      }
-      return actionData.Source;
-    }
-
-    #endregion
-
     #region Private: Initializer: Data & Handler
 
     private struct InitializerData
@@ -481,70 +454,6 @@ namespace Xtensive.Core.Tuples
         else
           actionData.Target.SetValue(fieldIndex, default(TFieldType));
         return false;
-      }
-    }
-
-    private struct ConverterData
-    {
-      public Tuple Source;
-      public StringBuilder Target;
-      public bool IsToString;
-      public string PartOfString;
-      public readonly string StrFormat;
-      public readonly string ValueFormat;
-      public readonly string LastStrFormat;
-      public readonly string LastValueFormat;
-      public readonly Regex StrRegex;
-      public readonly Regex EndOfStrRegex;
-      public readonly Regex OnlyEndOfStrRegex;
-
-      public ConverterData(Tuple source, StringBuilder target, bool isToString)
-      {
-        Source = source;
-        Target = target;
-        IsToString = isToString;
-        StrFormat = " \"{0}\",";
-        ValueFormat = " {0},";
-        LastStrFormat = " \"{0}\"";
-        LastValueFormat = " {0}";
-        StrRegex = new Regex("(( (?<value>[^\"]+?),)|( \"(?<value>.*?)\",))", RegexOptions.CultureInvariant);
-        EndOfStrRegex = new Regex("(, \"(?<value>.*?)\"$)|(, (?<value>[^\"]+?)$)", RegexOptions.RightToLeft | RegexOptions.CultureInvariant);
-        OnlyEndOfStrRegex = new Regex("( \"(?<value>.*)\"$)|( (?<value>[^\"]+)$)", RegexOptions.CultureInvariant);
-        PartOfString = string.Empty;
-      }
-    }
-
-    private class ConverterHandler : ITupleActionHandler<ConverterData>
-    {
-      public bool Execute<TFieldType>(ref ConverterData actionData, int fieldIndex)
-      {
-        try {
-          if (actionData.IsToString) {
-            var tuple = actionData.Source;
-            var converter = AdvancedConverterProvider.Default.GetConverter<TFieldType, string>();
-            var str = converter.Convert(tuple.GetValue<TFieldType>(fieldIndex));
-            if (str.Length > 50 || str.StartsWith(" ") || str.EndsWith(" ") || str.Contains("\"") || str.Contains(",")) {
-              if (fieldIndex==tuple.Count - 1)
-                actionData.Target.Append(String.Format(actionData.LastStrFormat, HttpUtility.HtmlEncode(str)));
-              else
-                actionData.Target.Append(String.Format(actionData.StrFormat, HttpUtility.HtmlEncode(str)));
-            }
-            else {
-              if (fieldIndex==tuple.Count - 1)
-                actionData.Target.Append(String.Format(actionData.LastValueFormat, HttpUtility.HtmlEncode(str)));
-              else
-                actionData.Target.Append(String.Format(actionData.ValueFormat, HttpUtility.HtmlEncode(str)));
-            }
-          }
-          else {
-            var converter = AdvancedConverterProvider.Default.GetConverter<string, TFieldType>();
-            actionData.Source.SetValue(fieldIndex, converter.Convert(actionData.PartOfString));
-          }
-          return true;
-        }
-        catch {
-          return false;
-        }
       }
     }
 

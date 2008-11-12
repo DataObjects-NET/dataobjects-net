@@ -23,6 +23,7 @@ namespace Xtensive.Core.Conversion
     IAdvancedConverter<byte, double>,
     IAdvancedConverter<byte, decimal>,
     IAdvancedConverter<byte, DateTime>,
+    IAdvancedConverter<byte, TimeSpan>,
     IAdvancedConverter<byte, string>,
     IAdvancedConverter<byte, char>
   {
@@ -30,8 +31,8 @@ namespace Xtensive.Core.Conversion
 
     sbyte IAdvancedConverter<byte, sbyte>.Convert(byte value)
     {
-      checked{
-        return (sbyte)value;
+      checked {
+        return (sbyte) value;
       }
     }
 
@@ -82,8 +83,15 @@ namespace Xtensive.Core.Conversion
 
     DateTime IAdvancedConverter<byte, DateTime>.Convert(byte value)
     {
-      checked{
+      checked {
         return new DateTime(value + baseDateTimeTicks, DateTimeKind.Utc);
+      }
+    }
+
+    TimeSpan IAdvancedConverter<byte, TimeSpan>.Convert(byte value)
+    {
+      checked {
+        return new TimeSpan(value);
       }
     }
 

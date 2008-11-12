@@ -23,6 +23,7 @@ namespace Xtensive.Core.Conversion
     IAdvancedConverter<sbyte, double>,
     IAdvancedConverter<sbyte, decimal>,
     IAdvancedConverter<sbyte, DateTime>,
+    IAdvancedConverter<sbyte, TimeSpan>,
     IAdvancedConverter<sbyte, string>,
     IAdvancedConverter<sbyte, char>
   {
@@ -90,6 +91,13 @@ namespace Xtensive.Core.Conversion
     {
       checked{
         return new DateTime(value + baseDateTimeTicks, DateTimeKind.Utc);
+      }
+    }
+
+    TimeSpan IAdvancedConverter<sbyte, TimeSpan>.Convert(sbyte value)
+    {
+      checked {
+        return new TimeSpan(value);
       }
     }
 

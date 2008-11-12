@@ -42,7 +42,7 @@ namespace Xtensive.Storage.Tests.Storage.Keys
     }
 
     [HierarchyRoot("Key1", "Key2", "Key3", "Key4", "Key5", "Key6", "Key7", "Key8",
-      "Key9", "Key10", "Key11", "Key12", "Key13", "Key14")]
+      "Key9", "Key10", "Key11", "Key12", "Key13", "Key14", "Key15")]
     public class Test : Entity
     {
       [Field]
@@ -73,7 +73,8 @@ namespace Xtensive.Storage.Tests.Storage.Keys
       public bool Key13 { get; private set; }
       [Field]
       public string Key14 { get; private set; }
-
+      [Field]
+      public TimeSpan Key15 { get; private set; }
     }
 
     #endregion
@@ -94,7 +95,7 @@ namespace Xtensive.Storage.Tests.Storage.Keys
           Key k2 = Key.Create<Apple>(Tuple.Create("1"));
           Assert.AreEqual(k1, k2);
 
-          Key kk = Key.Create<Apple>(Tuple.Create("a ab"));
+          Key kk = Key.Create<Apple>(Tuple.Create(""));
           var s = kk.StringValue;
           var k = Key.ResolveKey(s);
           Assert.AreEqual(k, kk);
@@ -112,7 +113,7 @@ namespace Xtensive.Storage.Tests.Storage.Keys
         {
           TupleDescriptor descriptor = TupleDescriptor.Create(new[] { typeof (string), typeof (Byte), typeof (SByte),
               typeof (DateTime), typeof (Int32), typeof (Int64), typeof (UInt16), typeof (UInt32), typeof (Guid), 
-              typeof (float), typeof (double), typeof (decimal), typeof (bool), typeof (string)
+              typeof (float), typeof (double), typeof (decimal), typeof (bool), typeof (string), typeof(TimeSpan)
             });
 
           Tuple tuple = Tuple.Create(descriptor);
@@ -130,6 +131,7 @@ namespace Xtensive.Storage.Tests.Storage.Keys
           tuple.SetValue<decimal>(11, 1);
           tuple.SetValue(12, true);
           tuple.SetValue(13, " , ");
+          tuple.SetValue(14, new TimeSpan());
 
           Key k1 = Key.Create<Test>(tuple);
           var stringValue = k1.StringValue;

@@ -23,6 +23,7 @@ namespace Xtensive.Core.Conversion
     IAdvancedConverter<double, float>,
     IAdvancedConverter<double, decimal>,
     IAdvancedConverter<double, DateTime>,
+    IAdvancedConverter<double, TimeSpan>,
     IAdvancedConverter<double, char>
   {
     private readonly long baseDateTimeTicks;
@@ -65,16 +66,16 @@ namespace Xtensive.Core.Conversion
     long IAdvancedConverter<double, long>.Convert(double value)
     {
       // Since "Convert.ToInt64(double)" does not check overflow:
-      checked{
-        return (long)Math.Round(value);
+      checked {
+        return (long) Math.Round(value);
       }
     }
 
     ulong IAdvancedConverter<double, ulong>.Convert(double value)
     {
       // Since "Convert.ToUInt64(double)" does not check overflow:
-      checked{
-        return (ulong)Math.Round(value);
+      checked {
+        return (ulong) Math.Round(value);
       }
     }
 
@@ -90,22 +91,30 @@ namespace Xtensive.Core.Conversion
 
     DateTime IAdvancedConverter<double, DateTime>.Convert(double value)
     {
-      checked{
-        return new DateTime((long)Math.Round(value) + baseDateTimeTicks, DateTimeKind.Utc);
+      checked {
+        return new DateTime((long) Math.Round(value) + baseDateTimeTicks, DateTimeKind.Utc);
+      }
+    }
+
+    TimeSpan IAdvancedConverter<double, TimeSpan>.Convert(double value)
+    {
+      checked {
+        return new TimeSpan((long) Math.Round(value));
       }
     }
 
     char IAdvancedConverter<double, char>.Convert(double value)
     {
-      checked{
-        return Convert.ToChar((long)Math.Round(value));
+      checked {
+        return Convert.ToChar((long) Math.Round(value));
       }
     }
 
 
     // Constructors
 
-    public DoubleRoughAdvancedConverter(IAdvancedConverterProvider provider) : base(provider)
+    public DoubleRoughAdvancedConverter(IAdvancedConverterProvider provider)
+      : base(provider)
     {
       baseDateTimeTicks = provider.BaseTime.Ticks;
     }

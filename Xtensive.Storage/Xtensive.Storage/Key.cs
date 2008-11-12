@@ -236,7 +236,7 @@ namespace Xtensive.Storage
       var hierachyGroup = match.Groups["hierarchy"].Value;
       var hierarchy = Domain.Current.Model.Types[Int32.Parse(hierachyGroup)].Hierarchy;
 
-      return Create(hierarchy.Root.GetRoot(), Tuple.Parse(hierarchy.KeyTupleDescriptor, regex.Replace(strValue, string.Empty)));
+      return Create(hierarchy.Root.GetRoot(), Tuple.Parse(regex.Replace(strValue, string.Empty),hierarchy.KeyTupleDescriptor));
     }
 
     /// <inheritdoc/>

@@ -23,6 +23,7 @@ namespace Xtensive.Core.Conversion
     IAdvancedConverter<float, double>,
     IAdvancedConverter<float, decimal>,
     IAdvancedConverter<float, DateTime>,
+    IAdvancedConverter<float, TimeSpan>,
     IAdvancedConverter<float, char>
   {
     private readonly long baseDateTimeTicks;
@@ -93,6 +94,14 @@ namespace Xtensive.Core.Conversion
       // Since "Convert.ToUInt64(double)" does not check overflow:
       checked{
         return new DateTime((long)Math.Round(value) + baseDateTimeTicks, DateTimeKind.Utc);
+      }
+    }
+
+    TimeSpan IAdvancedConverter<float, TimeSpan>.Convert(float value)
+    {
+      // Since "Convert.ToUInt64(double)" does not check overflow:
+      checked {
+        return new TimeSpan((long)Math.Round(value));
       }
     }
 

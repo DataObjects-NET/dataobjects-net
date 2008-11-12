@@ -22,6 +22,7 @@ namespace Xtensive.Core.Conversion
     IAdvancedConverter<DateTime, ulong>,
     IAdvancedConverter<DateTime, decimal>,
     IAdvancedConverter<DateTime, DateTime>,
+    IAdvancedConverter<DateTime, TimeSpan>,
     IAdvancedConverter<DateTime, string>
   {
     private readonly long baseDateTimeTicks;
@@ -90,6 +91,11 @@ namespace Xtensive.Core.Conversion
     DateTime IAdvancedConverter<DateTime, DateTime>.Convert(DateTime value)
     {
       return value;
+    }
+
+    TimeSpan IAdvancedConverter<DateTime, TimeSpan>.Convert(DateTime value)
+    {
+      return new TimeSpan(value.Ticks - baseDateTimeTicks);
     }
 
     string IAdvancedConverter<DateTime, string>.Convert(DateTime value)

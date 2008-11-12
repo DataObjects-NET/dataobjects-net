@@ -255,32 +255,7 @@ namespace Xtensive.Core.Tuples
       return string.Format(Strings.TupleFormat, sb);
     }
 
-    ///<summary>
-    /// Returns the <see cref="string"/> that represents the current <see cref="Tuple"/>.
-    ///</summary>
-    ///<param name="isParseable">Is this string parseable.</param>
-    ///<returns>The <see cref="string"/> that represents the current <see cref="Tuple"/>.</returns>
-    public string ToString(bool isParseable)
-    {
-      if (!isParseable)
-        return ToString();
-      return this.ConvertToString();
-  }
-
     #endregion
-
-    ///<summary>
-    /// Returns the parsed <see cref="Tuple"/> by <see cref="TupleDescriptor"/> and string representation.
-    ///</summary>
-    ///<param name="descriptor">The <see cref="TupleDescriptor"/></param>
-    ///<param name="parsedString">The string representation of <see cref="Tuple"/></param>
-    ///<returns>The parsed <see cref="Tuple"/ by <see cref="TupleDescriptor"/> and string representation.</returns>
-    public static Tuple Parse(TupleDescriptor descriptor, string parsedString)
-    {
-      var tuple = Create(descriptor);
-      return tuple.ConvertFromString(parsedString);
-    }
-
 
     #region Create methods (base)
 
@@ -570,6 +545,16 @@ namespace Xtensive.Core.Tuples
 
     #endregion
 
+    ///<summary>
+    /// Returns the parsed <see cref="Tuple"/> by <see cref="TupleDescriptor"/> and string representation.
+    ///</summary>
+    ///<param name="parseString">The string representation of <see cref="Tuple"/></param>
+    ///<param name="descriptor">The <see cref="TupleDescriptor"/></param>
+    ///<returns>The parsed <see cref="Tuple"/ by <see cref="TupleDescriptor"/> and string representation.</returns>
+    public static Tuple Parse(string parseString, TupleDescriptor descriptor)
+    {
+      return FormatTupleExtentions.ConvertFromString(parseString, descriptor);
+    }
 
     // Constructors
 

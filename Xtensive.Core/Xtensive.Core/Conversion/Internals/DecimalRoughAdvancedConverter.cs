@@ -23,6 +23,7 @@ namespace Xtensive.Core.Conversion
     IAdvancedConverter<decimal, float>,
     IAdvancedConverter<decimal, double>,
     IAdvancedConverter<decimal, DateTime>,
+    IAdvancedConverter<decimal, TimeSpan>,
     IAdvancedConverter<decimal, char>
   {
     private readonly long baseDateTimeTicks;
@@ -100,6 +101,13 @@ namespace Xtensive.Core.Conversion
     }
 
     /// <inheritdoc/>
+    TimeSpan IAdvancedConverter<decimal, TimeSpan>.Convert(decimal value)
+    {
+      return new TimeSpan(Convert.ToInt64(value));
+    }
+
+
+    /// <inheritdoc/>
     char IAdvancedConverter<decimal, char>.Convert(decimal value)
     {
       return Convert.ToChar(Convert.ToInt64(value));
@@ -108,7 +116,8 @@ namespace Xtensive.Core.Conversion
 
     // Constructors
 
-    public DecimalRoughAdvancedConverter(IAdvancedConverterProvider provider): base(provider)
+    public DecimalRoughAdvancedConverter(IAdvancedConverterProvider provider)
+      : base(provider)
     {
       baseDateTimeTicks = provider.BaseTime.Ticks;
     }

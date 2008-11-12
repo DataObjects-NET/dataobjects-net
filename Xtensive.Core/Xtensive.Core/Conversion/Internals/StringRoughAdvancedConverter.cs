@@ -25,6 +25,7 @@ namespace Xtensive.Core.Conversion
     IAdvancedConverter<string, double>,
     IAdvancedConverter<string, decimal>,
     IAdvancedConverter<string, DateTime>,
+    IAdvancedConverter<string, TimeSpan>,
     IAdvancedConverter<string, Guid>
   {
     bool IAdvancedConverter<string, bool>.Convert(string value)
@@ -152,6 +153,11 @@ namespace Xtensive.Core.Conversion
       catch (FormatException) {
         return DateTime.Parse(value, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind);
       }
+    }
+
+    TimeSpan IAdvancedConverter<string, TimeSpan>.Convert(string value)
+    {
+      return TimeSpan.Parse(value);
     }
 
     Guid IAdvancedConverter<string, Guid>.Convert(string value)

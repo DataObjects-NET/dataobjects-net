@@ -23,6 +23,7 @@ namespace Xtensive.Core.Conversion
     IAdvancedConverter<short, double>,
     IAdvancedConverter<short, decimal>,
     IAdvancedConverter<short, DateTime>,
+    IAdvancedConverter<short, TimeSpan>,
     IAdvancedConverter<short, string>,
     IAdvancedConverter<short, char>
   {
@@ -92,6 +93,13 @@ namespace Xtensive.Core.Conversion
     {
       checked{
         return new DateTime(value + baseDateTimeTicks, DateTimeKind.Utc);
+      }
+    }
+
+    TimeSpan IAdvancedConverter<short, TimeSpan>.Convert(short value)
+    {
+      checked {
+        return new TimeSpan(value);
       }
     }
 

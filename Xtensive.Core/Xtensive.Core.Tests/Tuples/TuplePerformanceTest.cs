@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Threading;
 using NUnit.Framework;
+using Xtensive.Core.Conversion;
 using Xtensive.Core.Testing;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Diagnostics;
@@ -239,7 +240,6 @@ namespace Xtensive.Core.Tests.Tuples
       using (new Measurement("Tuple memory usage", iterationCount))
         while (iteration++ <= iterationCount)
           tuplesList.Add(tuple.CreateNew());
-      
     }
 
     private static void Cleanup()
@@ -254,9 +254,15 @@ namespace Xtensive.Core.Tests.Tuples
     [Test]
     public void Test()
     {
-      Tuple t = Tuple.Create(" , ", 1, "qwe");
+      Tuple t = Tuple.Create(TupleDescriptor.Create<string, int, string, TimeSpan, string, string>());
+      t.SetValue(0,string.Empty);
+      t.SetValue(2,"n\\a");
+      t.SetValue(3, new TimeSpan());
+      t.SetValue(4,null);
+      t.SetValue(5,"null");
+
       var s = t.ToString(true);
-      var tt = Tuple.Parse(t.Descriptor,s);
+      var tt = Tuple.Parse(s, t.Descriptor);
 
       Assert.AreEqual(t,tt);
     }
