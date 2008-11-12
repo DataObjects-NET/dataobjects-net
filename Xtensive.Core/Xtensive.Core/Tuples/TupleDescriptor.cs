@@ -22,7 +22,7 @@ namespace Xtensive.Core.Tuples
 {
   /// <summary>
   /// Tuple descriptor.
-  /// Provides information about <see cref="ITuple"/> structure.
+  /// Provides information about <see cref="Tuple"/> structure.
   /// </summary>
   [Serializable]
   public class TupleDescriptor : 
@@ -75,7 +75,7 @@ namespace Xtensive.Core.Tuples
 
     /// <summary>
     /// Indicates whether class for handling underlying 
-    /// <see cref="ITuple"/> is already compiled.
+    /// <see cref="Tuple"/> is already compiled.
     /// </summary>
     public bool IsCompiled
     {
@@ -84,7 +84,7 @@ namespace Xtensive.Core.Tuples
     }
 
     /// <summary>
-    /// Gets the type of underlying <see cref="ITuple"/>
+    /// Gets the type of underlying <see cref="Tuple"/>
     /// implementation. <see langword="Null"/>, if
     /// <see cref="IsCompiled"/>==<see langword="false"/>.
     /// </summary>

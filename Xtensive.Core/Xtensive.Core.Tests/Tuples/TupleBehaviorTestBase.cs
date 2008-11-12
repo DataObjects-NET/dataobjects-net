@@ -94,7 +94,7 @@ namespace Xtensive.Core.Tests.Tuples
       TestTuple(exampleTuple);
     }
 
-    private static void TestTuple(ITuple tuple)
+    private static void TestTuple(Tuple tuple)
     {
       Assert.IsFalse(tuple.IsAvailable(0));
 

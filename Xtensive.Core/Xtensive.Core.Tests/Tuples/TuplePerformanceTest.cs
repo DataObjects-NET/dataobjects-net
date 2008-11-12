@@ -1,10 +1,7 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Threading;
 using NUnit.Framework;
-using Xtensive.Core.Conversion;
 using Xtensive.Core.Testing;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Diagnostics;
@@ -70,23 +67,13 @@ namespace Xtensive.Core.Tests.Tuples
       const int iterationCount = 10000000;
       TupleDescriptor descriptor = TupleDescriptor.Create(shortFieldTypes);
       Tuple tuple = Tuple.Create(descriptor);
-      ITuple iTuple = tuple;
       tuple.SetValue(0, 0);
       tuple.GetValue<int>(0);
       tuple.SetValue(0, (object)0);
       tuple.GetValue(0);
-      using (new Measurement("ITuple.SetValue<T>", iterationCount))
-        for (int i = 0; i < iterationCount; i++)
-          iTuple.SetValue(0, i);
       using (new Measurement("Tuple.SetValue<T>", iterationCount))
         for (int i = 0; i < iterationCount; i++)
           tuple.SetValue(0, i);
-      using (new Measurement("ITuple.GetValueOrDefault<T>", iterationCount))
-        for (int i = 0; i < iterationCount; i++)
-          iTuple.GetValueOrDefault<int>(0);
-      using (new Measurement("ITuple.GetValueOrDefault<T?>", iterationCount))
-        for (int i = 0; i < iterationCount; i++)
-          iTuple.GetValueOrDefault<int?>(0);
       using (new Measurement("Tuple.GetValueOrDefault<T>", iterationCount))
         for (int i = 0; i < iterationCount; i++)
           tuple.GetValueOrDefault<int>(0);
@@ -102,9 +89,7 @@ namespace Xtensive.Core.Tests.Tuples
       const int iterationCount = 10000000;
       TupleDescriptor descriptor = TupleDescriptor.Create(shortFieldTypes);
       Tuple tuple = Tuple.Create(descriptor);
-      ITuple iTuple = tuple;
       DummyTuple dummyTuple = new DummyTuple(descriptor);
-      ITuple dummyITuple = dummyTuple;
       tuple.SetValue(0, 0);
       tuple.GetValue<int>(0);
       tuple.SetValue(0, (object)0);
@@ -139,22 +124,6 @@ namespace Xtensive.Core.Tests.Tuples
           tmp = (int)tuple.GetValue(0);
       Cleanup();
 
-      // ITuple testing
-      using (new Measurement("ITuple.SetValue<T>", iterationCount))
-        for (int i = 0; i < iterationCount; i++)
-          iTuple.SetValue(0, i);
-      using (new Measurement("ITuple.GetValue<T>", iterationCount))
-        for (int i = 0; i < iterationCount; i++)
-          iTuple.GetValue<int>(0);
-      using (new Measurement("ITuple.SetValue", iterationCount))
-        for (int i = 0; i < iterationCount; i++)
-          iTuple.SetValue(0, (object)i);
-      Cleanup();
-      using (new Measurement("ITuple.GetValue", iterationCount))
-        for (int i = 0; i < iterationCount; i++)
-          tmp = (int)iTuple.GetValue(0);
-      Cleanup();
-
       // DummyTuple testing
       using (new Measurement("DummyTuple.SetValue<T>", iterationCount))
         for (int i = 0; i < iterationCount; i++)
@@ -169,22 +138,6 @@ namespace Xtensive.Core.Tests.Tuples
       using (new Measurement("DummyTuple.GetValue", iterationCount))
         for (int i = 0; i < iterationCount; i++)
           tmp = (int)dummyTuple.GetValue(0);
-      Cleanup();
-      
-      // DummyTuple as ITuple testing
-      using (new Measurement("(DummyTuple as ITuple).SetValue<T>", iterationCount))
-        for (int i = 0; i < iterationCount; i++)
-          dummyITuple.SetValue(0, i);
-      using (new Measurement("(DummyTuple as ITuple).GetValue<T>", iterationCount))
-        for (int i = 0; i < iterationCount; i++)
-          dummyITuple.GetValue<int>(0);
-      using (new Measurement("(DummyTuple as ITuple).SetValue", iterationCount))
-        for (int i = 0; i < iterationCount; i++)
-          dummyITuple.SetValue(0, (object)i);
-      Cleanup();
-      using (new Measurement("(DummyTuple as ITuple).GetValue", iterationCount))
-        for (int i = 0; i < iterationCount; i++)
-          tmp = (int)dummyITuple.GetValue(0);
       Cleanup();
     }
 
@@ -261,8 +214,8 @@ namespace Xtensive.Core.Tests.Tuples
       t.SetValue(4,null);
       t.SetValue(5,"null");
 
-      var s = t.ToString(true);
-      var tt = Tuple.Parse(s, t.Descriptor);
+      var s = t.Format();
+      var tt = Tuple.Parse(t.Descriptor, s);
 
       Assert.AreEqual(t,tt);
     }

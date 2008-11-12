@@ -981,9 +981,9 @@ namespace Xtensive.Core.Resources {
         /// <summary>
         ///   Looks up a localized string similar to String does not correspond to the specified descriptor..
         /// </summary>
-        internal static string ExStringNotCorrespondDescriptor {
+        internal static string ExStringDoesNotCorrespondToDescriptor {
             get {
-                return ResourceManager.GetString("ExStringNotCorrespondDescriptor", resourceCulture);
+                return ResourceManager.GetString("ExStringDoesNotCorrespondToDescriptor", resourceCulture);
             }
         }
         

@@ -545,16 +545,12 @@ namespace Xtensive.Core.Tuples
 
     #endregion
 
-    ///<summary>
-    /// Returns the parsed <see cref="Tuple"/> by <see cref="TupleDescriptor"/> and string representation.
-    ///</summary>
-    ///<param name="parseString">The string representation of <see cref="Tuple"/></param>
-    ///<param name="descriptor">The <see cref="TupleDescriptor"/></param>
-    ///<returns>The parsed <see cref="Tuple"/ by <see cref="TupleDescriptor"/> and string representation.</returns>
-    public static Tuple Parse(string parseString, TupleDescriptor descriptor)
+    /// <see cref="TupleFormatExtensions.Parse" copy="true" />
+    public static Tuple Parse(TupleDescriptor descriptor, string source)
     {
-      return FormatTupleExtentions.ConvertFromString(parseString, descriptor);
+      return descriptor.Parse(source);
     }
+
 
     // Constructors
 
