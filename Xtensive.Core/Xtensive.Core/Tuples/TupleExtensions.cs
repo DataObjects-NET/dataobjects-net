@@ -224,19 +224,6 @@ namespace Xtensive.Core.Tuples
     }
 
     /// <summary>
-    /// Converts the <paramref name="source"/> <see cref="Tuple"/> to 
-    /// its string representation.
-    /// </summary>
-    /// <param name="source">The tuple to convert.</param>
-    /// <param name="format">Indicates whether to use <see cref="TupleFormatExtensions.Format"/>,
-    /// or <see cref="Tuple.ToString"/> method.</param>
-    /// <returns>String representation of <paramref name="source"/> <see cref="Tuple"/>.</returns>
-    public static string ToString(this Tuple source, bool format)
-    {
-      return format ? source.Format() : source.ToString();
-    }
-
-    /// <summary>
     /// Creates <see cref="RegularTuple"/> instance "filled" with the same field values
     /// as the specified <paramref name="source"/> tuple.
     /// </summary>

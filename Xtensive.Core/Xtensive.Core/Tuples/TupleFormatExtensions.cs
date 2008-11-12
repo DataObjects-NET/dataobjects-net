@@ -62,7 +62,18 @@ namespace Xtensive.Core.Tuples
 
     #endregion
 
-    #region Conversion methods
+    /// <summary>
+    /// Converts the <paramref name="source"/> <see cref="Tuple"/> to 
+    /// its string representation.
+    /// </summary>
+    /// <param name="source">The tuple to convert.</param>
+    /// <param name="format">Indicates whether to use <see cref="Format"/>,
+    /// or <see cref="Tuple.ToString"/> method.</param>
+    /// <returns>String representation of <paramref name="source"/> <see cref="Tuple"/>.</returns>
+    public static string ToString(this Tuple source, bool format)
+    {
+      return format ? source.Format() : source.ToString();
+    }
 
     /// <summary>
     /// Returns string representation of the specified <paramref name="tuple"/>.
@@ -111,8 +122,6 @@ namespace Xtensive.Core.Tuples
       }
       return actionData.Target;
     }
-
-    #endregion
 
     #region Private methods
 
