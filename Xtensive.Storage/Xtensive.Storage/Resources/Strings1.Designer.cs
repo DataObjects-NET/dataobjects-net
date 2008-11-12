@@ -421,6 +421,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to String representaion of the Key has invalid format..
+        /// </summary>
+        internal static string ExInvalidKeyString {
+            get {
+                return ResourceManager.GetString("ExInvalidKeyString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Invalid &apos;Length&apos; attribute on &apos;{0}&apos; field..
         /// </summary>
         internal static string ExInvalidLengthAttributeOnXField {

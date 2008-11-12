@@ -498,4 +498,7 @@
   <data name="ExStateTransactionIsDifferent" xml:space="preserve">
     <value>StateTransaction property value differs from the current transaction.</value>
   </data>
+  <data name="ExInvalidKeyString" xml:space="preserve">
+    <value>String representaion of the Key has invalid format.</value>
+  </data>
 </root>

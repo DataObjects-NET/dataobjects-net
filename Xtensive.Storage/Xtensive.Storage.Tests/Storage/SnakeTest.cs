@@ -242,8 +242,8 @@ namespace Xtensive.Storage.Tests.Storage
           Assert.AreEqual(32, snake.Length);
             
           Key key = Key.Create<Snake>(Tuple.Create(snake.ID));
-          var keyString = key.StringValue;
-          Assert.AreEqual(Key.ResolveKey(keyString), key);
+          var keyString = key.Format();
+          Assert.AreEqual(Key.Parse(keyString), key);
           
           Assert.IsTrue(snake.Key.Equals(key));
           Assert.AreEqual(snake.Key, key);

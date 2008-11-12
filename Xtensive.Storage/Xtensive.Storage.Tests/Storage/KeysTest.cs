@@ -96,8 +96,8 @@ namespace Xtensive.Storage.Tests.Storage.Keys
           Assert.AreEqual(k1, k2);
 
           Key kk = Key.Create<Apple>(Tuple.Create(""));
-          var s = kk.StringValue;
-          var k = Key.ResolveKey(s);
+          var s = kk.Format();
+          var k = Key.Parse(s);
           Assert.AreEqual(k, kk);
           t.Complete();
         }
@@ -134,8 +134,8 @@ namespace Xtensive.Storage.Tests.Storage.Keys
           tuple.SetValue(14, new TimeSpan());
 
           Key k1 = Key.Create<Test>(tuple);
-          var stringValue = k1.StringValue;
-          var k2 = Key.ResolveKey(stringValue);
+          var stringValue = k1.Format();
+          var k2 = Key.Parse(stringValue);
           Assert.AreEqual(k1, k2);
           t.Complete();
         }

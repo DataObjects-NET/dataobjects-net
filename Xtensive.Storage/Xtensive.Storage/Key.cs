@@ -30,7 +30,7 @@ namespace Xtensive.Storage
     private Tuple value;
     private readonly int hashCode;
     private TypeInfo type;
-    private string stringValue;
+    private string cachedFormatResult;
 
     /// <summary>
     /// Gets the hierarchy this instance belongs to.
@@ -52,10 +52,8 @@ namespace Xtensive.Storage
     /// </summary>
     /// <exception cref="NotSupportedException">Type is already initialized.</exception>
     /// <exception cref="InvalidOperationException">Unable to resolve type for Key.</exception>
-    public TypeInfo Type
-    {
-      get
-      {
+    public TypeInfo Type {
+      get {
         if (type!=null)
           return type;
 
@@ -85,8 +83,7 @@ namespace Xtensive.Storage
     /// <summary>
     /// Determines whether <see cref="Type"/> property has cached type value or not.
     /// </summary>
-    public bool IsTypeCached
-    {
+    public bool IsTypeCached {
       get { return type!=null ? true : false; }
     }
 
@@ -205,39 +202,59 @@ namespace Xtensive.Storage
 
     #endregion
 
-    ///<summary>
-    ///The string value of this instance.
-    ///</summary>
-    public string StringValue
+    #region ToString(bool), Format, Parse methods
+
+    /// <summary>
+    /// Converts the <see cref="Key"/> to its string representation.
+    /// </summary>
+    /// <param name="format">Indicates whether to use <see cref="Format"/>,
+    /// or <see cref="ToString()"/> method.</param>
+    /// <returns>String representation of the <see cref="Key"/>.</returns>
+    public string ToString(bool format)
     {
-      get
-      {
-        if (stringValue==null) {
-          var builder = new StringBuilder();
-          builder.Append(hierarchy.Root.TypeId);
-          builder.Append(":");
-          builder.Append(value.ToString(true));
-          stringValue = builder.ToString();
-        }
-        return stringValue;
+      return format ? Format() : ToString();
+    }
+
+    /// <summary>
+    /// Gets the string representation of this instance.
+    /// </summary>
+    public string Format()
+    {
+      if (cachedFormatResult==null) {
+        var builder = new StringBuilder();
+        builder.Append(hierarchy.Root.TypeId);
+        builder.Append(":");
+        builder.Append(value.Format());
+        cachedFormatResult = builder.ToString();
       }
+      return cachedFormatResult;
     }
 
-    ///<summary>
-    ///Resolves the string value of the key.
-    ///</summary>
-    ///<param name="strValue">The string value of the key.</param>
-    ///<returns>The <see cref="Key"/>.</returns>
-    public static Key ResolveKey(string strValue)
+    /// <summary>
+    /// Parses the specified <paramref name="source"/> string 
+    /// produced by <see cref="Format"/> back to the <see cref="Key"/>
+    /// instance.
+    /// </summary>
+    /// <param name="source">The string to parse.</param>
+    /// <returns><see cref="Key"/> instance corresponding to the specified
+    /// <paramref name="source"/> string.</returns>
+    public static Key Parse(string source)
     {
-      var regex = new Regex(@"^((?<hierarchy>.*?)\:)");
-      var match = regex.Match(strValue);
+      int separatorIndex = source.IndexOf(':');
+      if (separatorIndex<0)
+        throw new InvalidOperationException(Strings.ExInvalidKeyString);
 
-      var hierachyGroup = match.Groups["hierarchy"].Value;
-      var hierarchy = Domain.Current.Model.Types[Int32.Parse(hierachyGroup)].Hierarchy;
+      string typeIdString = source.Substring(0, separatorIndex);
+      string valueString = source.Substring(separatorIndex+1);
 
-      return Create(hierarchy.Root.GetRoot(), Tuple.Parse(regex.Replace(strValue, string.Empty),hierarchy.KeyTupleDescriptor));
+      var domain = Domain.Current;
+      var type = domain.Model.Types[Int32.Parse(typeIdString)];
+      var keyTupleDescriptor = type.Hierarchy.KeyTupleDescriptor;
+      
+      return Create(domain, type, keyTupleDescriptor.Parse(valueString), false, false);
     }
+
+    #endregion
 
     /// <inheritdoc/>
     public override string ToString()
