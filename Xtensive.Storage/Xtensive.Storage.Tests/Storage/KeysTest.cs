@@ -77,6 +77,16 @@ namespace Xtensive.Storage.Tests.Storage.Keys
       public TimeSpan Key15 { get; private set; }
     }
 
+    [HierarchyRoot(typeof(KeyGenerator), "ID")]
+    public class Conteiner : Entity
+    {
+      [Field]
+      public Guid ID { get; private set; }
+      
+      [Field]
+      public Key StringKey { get; set; } 
+    }
+
     #endregion
 
     protected override DomainConfiguration BuildConfiguration()
@@ -117,7 +127,7 @@ namespace Xtensive.Storage.Tests.Storage.Keys
             });
 
           Tuple tuple = Tuple.Create(descriptor);
-          tuple.SetValue(0," , ");
+          tuple.SetValue(0, " , ");
           tuple.SetValue<Byte>(1, 1);
           tuple.SetValue<SByte>(2, -1);
           tuple.SetValue(3, DateTime.Now);
@@ -125,7 +135,7 @@ namespace Xtensive.Storage.Tests.Storage.Keys
           tuple.SetValue<Int64>(5, -1);
           tuple.SetValue<UInt16>(6, 1);
           tuple.SetValue<UInt32>(7, 1);
-          tuple.SetValue(8, new Guid(new byte[] {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}));
+          tuple.SetValue(8, new Guid(new byte[] { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }));
           tuple.SetValue<float>(9, 1);
           tuple.SetValue<double>(10, 1);
           tuple.SetValue<decimal>(11, 1);
@@ -137,6 +147,31 @@ namespace Xtensive.Storage.Tests.Storage.Keys
           var stringValue = k1.Format();
           var k2 = Key.Parse(stringValue);
           Assert.AreEqual(k1, k2);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void StoreKeyTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+
+          var a = new Apple("1");
+          var b = new Banana("2");
+          var c = new Conteiner();
+
+          c.StringKey = a.Key;
+          Session.Current.Persist();
+
+          Assert.AreEqual(c.StringKey, a.Key);
+          c.StringKey = b.Key;
+          Assert.AreEqual(c.StringKey, b.Key);
+
+          c.StringKey = null;
+          Session.Current.Persist();
+          Assert.AreEqual(c.StringKey, null);
           t.Complete();
         }
       }

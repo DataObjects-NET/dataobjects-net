@@ -23,17 +23,23 @@ namespace Xtensive.Storage.Providers.Sql.Mappings
     public Func<DbDataReader, int, object> DataReaderAccessor { get; private set; }
 
     public Func<object, object> ToSqlValue { get; private set; }
-    
+
     public Func<object, object> FromSqlValue { get; private set; }
 
 
     // Constructor
 
-    private DataTypeMapping(DataTypeInfo dataTypeInfo, Func<DbDataReader, int, object> dataReaderAccessor)
+    private DataTypeMapping(Type type, DataTypeInfo dataTypeInfo, Func<DbDataReader, int, object> dataReaderAccessor)
     {
-      Type = dataTypeInfo.Type;
+      Type = type;
       DataTypeInfo = dataTypeInfo;
       DataReaderAccessor = dataReaderAccessor;
+    }
+
+
+    private DataTypeMapping(DataTypeInfo dataTypeInfo, Func<DbDataReader, int, object> dataReaderAccessor)
+      : this(dataTypeInfo.Type, dataTypeInfo, dataReaderAccessor)
+    {
     }
 
     public DataTypeMapping(DataTypeInfo dataTypeInfo, Func<DbDataReader, int, object> dataReaderAccessor, DbType dbType)
@@ -45,6 +51,14 @@ namespace Xtensive.Storage.Providers.Sql.Mappings
     public DataTypeMapping(DataTypeInfo dataTypeInfo, Func<DbDataReader, int, object> dataReaderAccessor, DbType dbType, Func<object, object> toSqlValue, Func<object, object> fromSqlValue)
       : this(dataTypeInfo, dataReaderAccessor, dbType)
     {
+      ToSqlValue = toSqlValue;
+      FromSqlValue = fromSqlValue;
+    }
+
+    public DataTypeMapping(Type type, DataTypeInfo dataTypeInfo, Func<DbDataReader, int, object> dataReaderAccessor, DbType dbType, Func<object, object> toSqlValue, Func<object, object> fromSqlValue)
+      : this(type, dataTypeInfo, dataReaderAccessor)
+    {
+      DbType = dbType;
       ToSqlValue = toSqlValue;
       FromSqlValue = fromSqlValue;
     }

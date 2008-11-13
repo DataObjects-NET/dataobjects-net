@@ -24,7 +24,7 @@ namespace Xtensive.Storage.Building.Builders
       Log.Info("Defining fields.");
 
       var fields = new List<FieldDef>();
-      var properties = 
+      var properties =
         typeDef.UnderlyingType.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 
       foreach (PropertyInfo propertyInfo in properties)
@@ -35,13 +35,13 @@ namespace Xtensive.Storage.Building.Builders
           }
           catch (DomainBuilderException e) {
             BuildingContext.Current.RegisterError(e);
-          }        
-      
+          }
+
       return fields;
     }
 
     private static bool IsDeclaredAsPersistent(PropertyInfo propertyInfo)
-    {            
+    {
       if (propertyInfo.GetAttribute<FieldAttribute>(AttributeSearchOptions.InheritAll)==null)
         return false;
 
@@ -60,8 +60,8 @@ namespace Xtensive.Storage.Building.Builders
     public static FieldDef DefineField(TypeDef typeDef, PropertyInfo propertyInfo)
     {
       BuildingContext context = BuildingContext.Current;
-      Log.Info("Defining field '{0}'", propertyInfo.Name);            
-      
+      Log.Info("Defining field '{0}'", propertyInfo.Name);
+
       ValidateValueType(propertyInfo.PropertyType, typeDef.UnderlyingType);
 
       // We do not support "persistent" indexers
@@ -74,7 +74,7 @@ namespace Xtensive.Storage.Building.Builders
       var fieldDef = new FieldDef(propertyInfo);
       fieldDef.Name = context.NameBuilder.Build(fieldDef);
 
-      AttributeProcessor.Process(fieldDef, 
+      AttributeProcessor.Process(fieldDef,
         propertyInfo.GetAttribute<FieldAttribute>(AttributeSearchOptions.InheritAll));
 
       return fieldDef;
@@ -101,13 +101,13 @@ namespace Xtensive.Storage.Building.Builders
     public static void BuildDeclaredField(TypeInfo type, FieldDef fieldDef)
     {
       Log.Info("Building declared field '{0}.{1}'", type.Name, fieldDef.Name);
-      
+
       var field = new FieldInfo(type, fieldDef.Attributes)
         {
-          UnderlyingProperty = fieldDef.UnderlyingProperty, 
-          Name = fieldDef.Name, 
-          MappingName = fieldDef.MappingName, 
-          ValueType = fieldDef.ValueType, 
+          UnderlyingProperty = fieldDef.UnderlyingProperty,
+          Name = fieldDef.Name,
+          MappingName = fieldDef.MappingName,
+          ValueType = fieldDef.ValueType,
           Length = fieldDef.Length
         };
 
@@ -137,7 +137,7 @@ namespace Xtensive.Storage.Building.Builders
       if (field.IsStructure) {
         TypeBuilder.BuildType(field.ValueType);
         BuildStructureField(field);
-      }      
+      }
 
       if (field.IsPrimitive)
         field.Column = ColumnBuilder.BuildColumn(field);
@@ -153,9 +153,9 @@ namespace Xtensive.Storage.Building.Builders
         }
       }
 
-      if (valueType.IsPrimitive || valueType.IsEnum || typeof (string)==valueType 
-        || typeof(byte[])==valueType || typeof(Guid)==valueType || valueType == typeof(DateTime)
-        || valueType == typeof(TimeSpan) || valueType == typeof(decimal))
+      if (valueType.IsPrimitive || valueType.IsEnum || typeof (string)==valueType
+        || typeof (byte[])==valueType || typeof (Guid)==valueType || valueType==typeof (DateTime)
+          || valueType==typeof (TimeSpan) || valueType==typeof (decimal) || valueType==typeof (Key))
         return;
 
       if (typeof (Entity).IsAssignableFrom(valueType))
@@ -164,11 +164,11 @@ namespace Xtensive.Storage.Building.Builders
       if (valueType.IsSubclassOf(typeof (Structure)))
         return;
 
-      if (valueType.IsInterface && typeof(IEntity).IsAssignableFrom(valueType) && valueType!=typeof(IEntity))
+      if (valueType.IsInterface && typeof (IEntity).IsAssignableFrom(valueType) && valueType!=typeof (IEntity))
         return;
 
       if (valueType.IsGenericType && valueType.GetGenericTypeDefinition()==typeof (EntitySet<>)) {
-        if (declaringType.IsSubclassOf(typeof(Structure)))
+        if (declaringType.IsSubclassOf(typeof (Structure)))
           throw new DomainBuilderException(
             string.Format("Structures do not support fields of type '{0}'.", valueType.Name));
 
@@ -181,7 +181,7 @@ namespace Xtensive.Storage.Building.Builders
 
     internal static void ValidateIsNullable(Type valueType)
     {
-      if (!(valueType.IsSubclassOf(typeof(Entity)) || valueType == typeof(string) || valueType == typeof(byte[])))
+      if (!(valueType.IsSubclassOf(typeof (Entity)) || valueType==typeof (string) || valueType==typeof (byte[])))
         throw new DomainBuilderException(String.Format("Field of type '{0}' cannot be nullable. For value types consider using Nullable<T>.", valueType));
     }
 
@@ -202,7 +202,7 @@ namespace Xtensive.Storage.Building.Builders
         field.Column = ColumnBuilder.BuildInheritedColumn(field, inheritedField.Column);
     }
 
-    public static void BuildInterfaceField(TypeInfo type, FieldInfo implField, FieldDef fieldDef) 
+    public static void BuildInterfaceField(TypeInfo type, FieldInfo implField, FieldDef fieldDef)
     {
       string name = fieldDef!=null ? fieldDef.Name : implField.Name;
       Log.Info("Building interface field '{0}.{1}'", type.Name, name);
@@ -240,8 +240,7 @@ namespace Xtensive.Storage.Building.Builders
       BuildingContext context = BuildingContext.Current;
 
       foreach (FieldInfo field in fields) {
-
-        if (field.IsStructure||field.IsEntity)
+        if (field.IsStructure || field.IsEntity)
           BuildNestedFields(target, field.Fields);
         else {
           FieldInfo clone = field.Clone();
@@ -256,7 +255,7 @@ namespace Xtensive.Storage.Building.Builders
           if (clone.IsEntity && !IsEntitySetItem(clone.ReflectedType)) {
             FieldInfo refField = field;
             AssociationInfo origin = context.Model.Associations.Find(context.Model.Types[field.ValueType]).Where(a => a.ReferencingField==refField).FirstOrDefault();
-            if (origin != null) {
+            if (origin!=null) {
               AssociationBuilder.BuildAssociation(origin, clone);
               context.DiscardedAssociations.Add(origin);
             }
@@ -268,9 +267,9 @@ namespace Xtensive.Storage.Building.Builders
     private static bool IsEntitySetItem(TypeInfo type)
     {
       Type underlyingBaseType = type.UnderlyingType.BaseType;
-      return underlyingBaseType != null
+      return underlyingBaseType!=null
         && underlyingBaseType.IsGenericType
-          && underlyingBaseType.GetGenericTypeDefinition() == typeof(EntitySetItem<,>);
+          && underlyingBaseType.GetGenericTypeDefinition()==typeof (EntitySetItem<,>);
     }
   }
 }

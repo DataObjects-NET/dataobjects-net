@@ -11,7 +11,7 @@ using Xtensive.Core.Reflection;
 using Xtensive.Sql.Common;
 using Xtensive.Sql.Dom;
 using Xtensive.Storage.Providers.Sql.Mappings;
-using ColumnInfo=Xtensive.Storage.Model.ColumnInfo;
+using ColumnInfo = Xtensive.Storage.Model.ColumnInfo;
 
 namespace Xtensive.Storage.Providers.Sql
 {
@@ -36,6 +36,7 @@ namespace Xtensive.Storage.Providers.Sql
 
       return GetTypeMapping(type, length);
     }
+
     /// <summary>
     /// Gets the type mapping.
     /// </summary>
@@ -47,19 +48,18 @@ namespace Xtensive.Storage.Providers.Sql
     {
       {
         DataTypeMapping mapping = MappingSchema.GetExactMapping(type);
-        if (mapping != null)
+        if (mapping!=null)
           return mapping;
       }
 
       DataTypeMapping[] ambigiousMappings = MappingSchema.GetAmbigiousMappings(type);
       if (ambigiousMappings!=null) {
         foreach (DataTypeMapping mapping in ambigiousMappings) {
-
           StreamDataTypeInfo sdti = mapping.DataTypeInfo as StreamDataTypeInfo;
-          if (sdti == null)
+          if (sdti==null)
             return mapping;
 
-          if (length == 0)
+          if (length==0)
             return mapping;
 
           if (sdti.Length.MaxValue < length)
@@ -105,14 +105,13 @@ namespace Xtensive.Storage.Providers.Sql
     private SqlValueType BuildSqlValueType(Type type, int length, DataTypeMapping typeMapping)
     {
       StreamDataTypeInfo sdti = typeMapping.DataTypeInfo as StreamDataTypeInfo;
-      if (sdti == null)
+      if (sdti==null)
         return new SqlValueType(typeMapping.DataTypeInfo.SqlType);
 
-      if (length == 0)
+      if (length==0)
         return new SqlValueType(sdti.SqlType, sdti.Length.MaxValue);
 
       return new SqlValueType(sdti.SqlType, length);
-
     }
 
     /// <inheritdoc/>
@@ -149,11 +148,14 @@ namespace Xtensive.Storage.Providers.Sql
 
     protected virtual void BuildTypeSubstitutes()
     {
+      var mapping = new DataTypeMapping(typeof (Key), DomainHandler.SqlDriver.ServerInfo.DataTypes.VarCharMax,
+        (reader, fieldIndex) => reader.GetValue(fieldIndex), DbType.String, value => ((Key) value).Format(), value => Key.Parse((string) value));
+      MappingSchema.Register(mapping);
     }
 
     protected void BuildDataTypeMapping(DataTypeInfo dataTypeInfo)
     {
-      if (dataTypeInfo == null)
+      if (dataTypeInfo==null)
         return;
 
       DataTypeMapping mapping = CreateDataTypeMapping(dataTypeInfo);
@@ -170,7 +172,7 @@ namespace Xtensive.Storage.Providers.Sql
       TypeCode typeCode = Type.GetTypeCode(dataTypeInfo.Type);
       switch (typeCode) {
       case TypeCode.Object:
-        if (dataTypeInfo.Type == typeof(byte[]))
+        if (dataTypeInfo.Type==typeof (byte[]))
           return DbType.Binary;
         throw new ArgumentOutOfRangeException();
       case TypeCode.Boolean:
@@ -214,12 +216,12 @@ namespace Xtensive.Storage.Providers.Sql
       TypeCode typeCode = Type.GetTypeCode(type);
       switch (typeCode) {
       case TypeCode.Object:
-          if (type == typeof(byte[]))
-            return (reader, fieldIndex) => reader.GetValue(fieldIndex);
-          if (type == typeof(Guid))
-            return (reader, fieldIndex) => reader.GetGuid(fieldIndex);
-          else
-            throw new ArgumentOutOfRangeException();
+        if (type==typeof (byte[]))
+          return (reader, fieldIndex) => reader.GetValue(fieldIndex);
+        if (type==typeof (Guid))
+          return (reader, fieldIndex) => reader.GetGuid(fieldIndex);
+        else
+          throw new ArgumentOutOfRangeException();
       case TypeCode.Boolean:
         return (reader, fieldIndex) => reader.GetBoolean(fieldIndex);
       case TypeCode.Char:
