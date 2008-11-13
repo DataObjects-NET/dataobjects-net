@@ -36,14 +36,8 @@ namespace Xtensive.Storage.Providers.Sql.Mappings
       DataReaderAccessor = dataReaderAccessor;
     }
 
-
-    private DataTypeMapping(DataTypeInfo dataTypeInfo, Func<DbDataReader, int, object> dataReaderAccessor)
-      : this(dataTypeInfo.Type, dataTypeInfo, dataReaderAccessor)
-    {
-    }
-
     public DataTypeMapping(DataTypeInfo dataTypeInfo, Func<DbDataReader, int, object> dataReaderAccessor, DbType dbType)
-      : this(dataTypeInfo, dataReaderAccessor)
+      : this(dataTypeInfo.Type, dataTypeInfo, dataReaderAccessor)
     {
       DbType = dbType;
     }
