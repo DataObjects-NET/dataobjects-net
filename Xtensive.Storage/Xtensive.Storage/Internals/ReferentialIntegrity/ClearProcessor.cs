@@ -19,7 +19,7 @@ namespace Xtensive.Storage.ReferentialIntegrity
         break;
       case Multiplicity.ManyToOne:
       case Multiplicity.ManyToMany:
-        referencingObject.GetProperty<EntitySet>(association.ReferencingField.Name).Remove(referencedObject);
+        referencingObject.GetProperty<EntitySetBase>(association.ReferencingField.Name).Remove(referencedObject, true);
         break;
       }
     }

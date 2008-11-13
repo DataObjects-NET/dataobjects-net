@@ -68,9 +68,6 @@ namespace Xtensive.Storage.Building.Builders
       master.Reversed = slave;
       slave.Reversed = master;
 
-      if (master.IsMaster && slave.IsMaster)
-        master.IsMaster = false;
-
       if (masterField.IsEntity) {
         if (pairedField.IsEntity) {
           master.Multiplicity = Multiplicity.OneToOne;
@@ -91,6 +88,11 @@ namespace Xtensive.Storage.Building.Builders
           master.Multiplicity = Multiplicity.ManyToMany;
           slave.Multiplicity = Multiplicity.ManyToMany;
         }
+      }
+
+      if (master.Multiplicity == Multiplicity.ManyToOne) {
+        master.IsMaster = false;
+        slave.IsMaster = true;
       }
 
       BuildPairSyncActions(master);
@@ -145,7 +147,7 @@ namespace Xtensive.Storage.Building.Builders
       if (type == OperationType.Set)
         return (master, slave) => master.SetField<Entity>(association.ReferencingField, null, false);
       else
-        return (master, slave) => master.GetField<EntitySet>(association.ReferencingField, false).Remove(slave);
+        return (master, slave) => master.GetField<EntitySetBase>(association.ReferencingField, false).Remove(slave, false);
     }
 
     private static Action<Entity, Entity> BuildCreateAssociationAction(AssociationInfo association, OperationType type)
@@ -153,7 +155,7 @@ namespace Xtensive.Storage.Building.Builders
       if (type == OperationType.Set)
         return (master, slave) => master.SetField(association.ReferencingField, slave, false);
       else
-        return (master, slave) => master.GetField<EntitySet>(association.ReferencingField, false).Add(slave);
+        return (master, slave) => master.GetField<EntitySetBase>(association.ReferencingField, false).Add(slave, false);
     }
   }
 }

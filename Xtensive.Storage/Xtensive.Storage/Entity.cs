@@ -146,7 +146,7 @@ namespace Xtensive.Storage
     /// Called when become removed.
     /// </summary>
     [Infrastructure]
-    protected virtual void OnRemoved()
+    protected virtual void OnRemove()
     {
     }
 
@@ -181,22 +181,23 @@ namespace Xtensive.Storage
       State.PersistenceState = PersistenceState.Removed;
 
       if (notify)
-        OnRemoved();
+        OnRemove();
     }
 
     #endregion
 
     #region System-level event-like members
 
-    protected internal sealed override void OnInitialize(bool notify)
+    internal sealed override void OnInitialize(bool notify)
     {
       base.OnInitialize(notify);
+      State.Entity = this;
       if (Session.IsDebugEventLoggingEnabled)
         Log.Debug("Session '{0}'. Materializing {1}: Key = '{2}'", 
           Session, GetType().GetShortName(), State.Key);
     }
 
-    protected internal sealed override void OnGettingField(FieldInfo field, bool notify)
+    internal sealed override void OnGettingField(FieldInfo field, bool notify)
     {
       base.OnGettingField(field, notify);
       if (Session.IsDebugEventLoggingEnabled)
@@ -206,12 +207,12 @@ namespace Xtensive.Storage
     }
 
     // This is done just to make it sealed
-    protected sealed internal override void OnGetField(FieldInfo field, object value, bool notify)
+    sealed internal override void OnGetField(FieldInfo field, object value, bool notify)
     {
       base.OnGetField(field, value, notify);
     }
 
-    protected sealed internal override void OnSettingField(FieldInfo field, object value, bool notify)
+    sealed internal override void OnSettingField(FieldInfo field, object value, bool notify)
     {
       base.OnSettingField(field, value, notify);
       if (Session.IsDebugEventLoggingEnabled)
@@ -221,7 +222,7 @@ namespace Xtensive.Storage
       State.EnsureNotRemoved();
     }
 
-    protected internal sealed override void OnSetField(FieldInfo field, object oldValue, object newValue, bool notify)
+    internal sealed override void OnSetField(FieldInfo field, object oldValue, object newValue, bool notify)
     {
       if (PersistenceState!=PersistenceState.New && PersistenceState!=PersistenceState.Modified)
         State.PersistenceState = PersistenceState.Modified;
@@ -268,7 +269,6 @@ namespace Xtensive.Storage
     /// initialization related events will be raised.</param>
     protected Entity(EntityState state, bool notify)
     {
-      state.Entity = this;
       State = state;
       OnInitialize(notify);
     }

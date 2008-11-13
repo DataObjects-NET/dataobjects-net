@@ -46,22 +46,10 @@ namespace Xtensive.Storage.Internals
     public override T GetValue(Persistent obj, FieldInfo field)
     {
       ValidateType(field);
-      Key key = ExtractKey(obj, field);
+      Key key = obj.GetKey(field);
       if (key==null)
         return default(T);
       return (T) (object) key.Resolve();
-    }
-
-    // TODO: Refactor
-    internal static Key ExtractKey(Persistent obj, FieldInfo field)
-    {
-      var session = obj.Session;
-      var domain = session.Domain;
-      var type = domain.Model.Types[field.ValueType];
-      var tuple = field.ValueExtractor(obj.Data);
-      if (tuple.ContainsEmptyValues())
-        return null;
-      return Key.Create(type, tuple);
     }
 
 

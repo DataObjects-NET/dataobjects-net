@@ -16,7 +16,7 @@ namespace Xtensive.Storage.Model
   {
     private Multiplicity multiplicity;
     private AssociationInfo reversed;
-    private Type underlyingType;
+    private TypeInfo underlyingType;
     private bool isMaster = true;
 
     /// <summary>
@@ -66,7 +66,7 @@ namespace Xtensive.Storage.Model
     /// <summary>
     /// Gets the persistent type that represents this association.
     /// </summary>
-    public Type UnderlyingType
+    public TypeInfo UnderlyingType
     {
       get { return underlyingType; }
       set

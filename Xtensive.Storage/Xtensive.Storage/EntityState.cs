@@ -69,7 +69,7 @@ namespace Xtensive.Storage
       get {
         var isRemoved = IsRemoved;
         if (entity==null && !isRemoved)
-          entity = Activator.CreateEntity(Type.UnderlyingType, this, true);
+          Activator.CreateEntity(Type.UnderlyingType, this, true);
         return isRemoved ? null : entity;
       }
       internal set {

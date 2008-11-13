@@ -26,10 +26,10 @@ namespace Xtensive.Storage.Internals
       IFieldHandler result;
       if (obj.FieldHandlers.TryGetValue(field, out result))
         return (T)result;
-      result = Activator.CreateEntitySet(field.ValueType, obj, field);
+      result = Activator.CreateEntitySet(field.ValueType, obj, field, true);
       obj.FieldHandlers.Add(field, result);
-      EntitySet es = (EntitySet)result;
-      es.Initialize();
+      EntitySetBase es = (EntitySetBase)result;
+      es.Initialize(true);
       return (T)result;
 
     }

@@ -177,38 +177,40 @@ namespace Xtensive.Storage.Building.Builders
           context.Model.Associations.Remove(ai);
         context.DiscardedAssociations.Clear();
 
-        BuildEntitySetItems(context.Model.Associations);
+        BuildEntitySetTypes(context.Model.Associations);
       }
     }
 
-    private static void BuildEntitySetItems(IEnumerable<AssociationInfo> associations)
+    private static void BuildEntitySetTypes(IEnumerable<AssociationInfo> associations)
     {
       BuildingContext context = BuildingContext.Current;
       foreach (AssociationInfo association in associations) {
-        association.UnderlyingType = BuildEntitySetItem(association);
-        if (association.UnderlyingType!=null) {
-          TypeDef typeDef = TypeBuilder.DefineType(association.UnderlyingType);
-          FieldDef master = typeDef.DefineField(context.NameBuilder.EntitySetItemMasterFieldName, association.ReferencedType.UnderlyingType);
-          FieldDef slave = typeDef.DefineField(context.NameBuilder.EntitySetItemSlaveFieldName, association.ReferencingType.UnderlyingType);
-          typeDef.Name = association.Name;
-          context.Definition.Types.Add(typeDef);
-          IndexBuilder.DefineIndexes(typeDef);
-          HierarchyDef hierarchy = context.Definition.DefineHierarchy(typeDef);
-          hierarchy.KeyFields.Add(new KeyField(master.Name, master.ValueType), Direction.Positive);
-          hierarchy.KeyFields.Add(new KeyField(slave.Name, slave.ValueType), Direction.Positive);
-          TypeBuilder.BuildType(typeDef);
-        }
-      }
-    }
+        if (!association.IsMaster)
+          continue;
 
-    private static Type BuildEntitySetItem(AssociationInfo association)
-    {
-      if (association.ReferencingField.IsEntitySet && association.IsMaster) {
-        Type baseType = typeof (EntitySetItem<,>).MakeGenericType(association.ReferencedType.UnderlyingType, association.ReferencingType.UnderlyingType);
-        string typeName = BuildingContext.Current.NameBuilder.Build(association);
-        return TypeHelper.CreateDummyType(typeName, baseType, true);
+        var multiplicity = association.Multiplicity;
+        if (!(multiplicity == Multiplicity.ManyToZero || multiplicity == Multiplicity.ManyToMany))
+          continue;
+
+        var masterType = association.ReferencedType.UnderlyingType;
+        var slaveType = association.ReferencingType.UnderlyingType;
+        Type baseType = typeof (EntitySetItem<,>).MakeGenericType(masterType, slaveType);
+        Type type = TypeHelper.CreateDummyType(BuildingContext.Current.NameBuilder.Build(association), baseType, true);
+
+        TypeDef typeDef = TypeBuilder.DefineType(type);
+        FieldDef masterField = typeDef.DefineField(context.NameBuilder.EntitySetItemMasterFieldName, masterType);
+        FieldDef slaveField = typeDef.DefineField(context.NameBuilder.EntitySetItemSlaveFieldName, slaveType);
+        typeDef.Name = association.Name;
+        context.Definition.Types.Add(typeDef);
+        IndexBuilder.DefineIndexes(typeDef);
+
+        HierarchyDef hierarchy = context.Definition.DefineHierarchy(typeDef);
+        hierarchy.KeyFields.Add(new KeyField(masterField.Name, masterField.ValueType), Direction.Positive);
+        hierarchy.KeyFields.Add(new KeyField(slaveField.Name, slaveField.ValueType), Direction.Positive);
+
+        TypeBuilder.BuildType(typeDef);
+        association.UnderlyingType = context.Model.Types[type];
       }
-      return null;
     }
   }
 }

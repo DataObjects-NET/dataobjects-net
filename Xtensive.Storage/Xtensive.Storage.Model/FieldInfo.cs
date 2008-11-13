@@ -24,15 +24,12 @@ namespace Xtensive.Storage.Model
     ICloneable
   {
     private PropertyInfo underlyingProperty;
-    private FieldAttributes attributes;
     private Type valueType;
     private int? length;
     private TypeInfo reflectedType;
     private TypeInfo declaringType;
-    private readonly FieldInfoCollection fields;
     private FieldInfo parent;
     private ColumnInfo column;
-    private Segment<int> mappingInfo;
     private AssociationInfo association;
     private CultureInfo cultureInfo = CultureInfo.InvariantCulture;
     private ThreadSafeCached<int> cachedHashCode = ThreadSafeCached<int>.Create(new object());
@@ -46,11 +43,11 @@ namespace Xtensive.Storage.Model
     /// </summary>
     public bool IsSystem {
       [DebuggerStepThrough]
-      get { return (attributes & FieldAttributes.System) != 0; }
+      get { return (Attributes & FieldAttributes.System) != 0; }
       [DebuggerStepThrough]
       set {
         this.EnsureNotLocked();
-        attributes = value ? Attributes | FieldAttributes.System : Attributes & ~FieldAttributes.System;
+        Attributes = value ? Attributes | FieldAttributes.System : Attributes & ~FieldAttributes.System;
       }
     }
 
@@ -63,7 +60,7 @@ namespace Xtensive.Storage.Model
       [DebuggerStepThrough]
       set {
         this.EnsureNotLocked();
-        attributes = value
+        Attributes = value
           ? (Attributes | FieldAttributes.Declared) & ~FieldAttributes.Inherited
           : (Attributes & ~FieldAttributes.Declared) | FieldAttributes.Inherited;
       }
@@ -74,10 +71,10 @@ namespace Xtensive.Storage.Model
     /// </summary>
     public bool IsEnum { 
       [DebuggerStepThrough]
-      get { return (attributes & FieldAttributes.Enum) > 0; }
+      get { return (Attributes & FieldAttributes.Enum) > 0; }
       private set {
         this.EnsureNotLocked();
-        attributes = value
+        Attributes = value
           ? (Attributes | FieldAttributes.Enum)
           : (Attributes & ~FieldAttributes.Enum);
       }
@@ -92,7 +89,7 @@ namespace Xtensive.Storage.Model
       [DebuggerStepThrough]
       set {
         this.EnsureNotLocked();
-        attributes = value
+        Attributes = value
           ? (Attributes | FieldAttributes.Inherited) & ~FieldAttributes.Declared
           : (Attributes & ~FieldAttributes.Inherited) | FieldAttributes.Declared;
       }
@@ -107,11 +104,11 @@ namespace Xtensive.Storage.Model
       [DebuggerStepThrough]
       set {
         this.EnsureNotLocked();
-        attributes = value ? Attributes | FieldAttributes.PrimaryKey : Attributes & ~FieldAttributes.PrimaryKey;
+        Attributes = value ? Attributes | FieldAttributes.PrimaryKey : Attributes & ~FieldAttributes.PrimaryKey;
         if (column != null)
           column.IsPrimaryKey = true;
         else
-          foreach (FieldInfo childField in fields)
+          foreach (FieldInfo childField in Fields)
             childField.IsPrimaryKey = true;
       }
     }
@@ -125,7 +122,7 @@ namespace Xtensive.Storage.Model
       [DebuggerStepThrough]
       set {
         this.EnsureNotLocked();
-        attributes = value ? Attributes | FieldAttributes.Nested : Attributes & ~FieldAttributes.Nested;
+        Attributes = value ? Attributes | FieldAttributes.Nested : Attributes & ~FieldAttributes.Nested;
       }
     }
 
@@ -134,11 +131,11 @@ namespace Xtensive.Storage.Model
     /// </summary>
     public bool IsExplicit {
       [DebuggerStepThrough]
-      get { return (attributes & FieldAttributes.Explicit) != 0; }
+      get { return (Attributes & FieldAttributes.Explicit) != 0; }
       [DebuggerStepThrough]
       set {
         this.EnsureNotLocked();
-        attributes = value ? Attributes | FieldAttributes.Explicit : Attributes & ~FieldAttributes.Explicit;
+        Attributes = value ? Attributes | FieldAttributes.Explicit : Attributes & ~FieldAttributes.Explicit;
       }
     }
 
@@ -147,11 +144,11 @@ namespace Xtensive.Storage.Model
     /// </summary>
     public bool IsInterfaceImplementation {
       [DebuggerStepThrough]
-      get { return (attributes & FieldAttributes.InterfaceImplementation) != 0; }
+      get { return (Attributes & FieldAttributes.InterfaceImplementation) != 0; }
       [DebuggerStepThrough]
       set {
         this.EnsureNotLocked();
-        attributes = value ? Attributes | FieldAttributes.InterfaceImplementation : Attributes & ~FieldAttributes.InterfaceImplementation;
+        Attributes = value ? Attributes | FieldAttributes.InterfaceImplementation : Attributes & ~FieldAttributes.InterfaceImplementation;
       }
     }
 
@@ -168,7 +165,7 @@ namespace Xtensive.Storage.Model
     /// </summary>
     public bool IsEntity {
       [DebuggerStepThrough]
-      get { return (attributes & FieldAttributes.Entity) != 0; }
+      get { return (Attributes & FieldAttributes.Entity) != 0; }
     }
 
     /// <summary>
@@ -176,7 +173,7 @@ namespace Xtensive.Storage.Model
     /// </summary>
     public bool IsStructure {
       [DebuggerStepThrough]
-      get { return (attributes & FieldAttributes.Structure) != 0; }
+      get { return (Attributes & FieldAttributes.Structure) != 0; }
     }
 
     /// <summary>
@@ -184,7 +181,7 @@ namespace Xtensive.Storage.Model
     /// </summary>
     public bool IsEntitySet {
       [DebuggerStepThrough]
-      get { return (attributes & FieldAttributes.EntitySet) != 0; }
+      get { return (Attributes & FieldAttributes.EntitySet) != 0; }
     }
 
     /// <summary>
@@ -193,11 +190,11 @@ namespace Xtensive.Storage.Model
     public bool IsNullable
     {
       [DebuggerStepThrough]
-      get { return (attributes & FieldAttributes.Nullable) != 0; }
+      get { return (Attributes & FieldAttributes.Nullable) != 0; }
       [DebuggerStepThrough]
       set {
         this.EnsureNotLocked();
-        attributes = value ? Attributes | FieldAttributes.Nullable : Attributes & ~FieldAttributes.Nullable;
+        Attributes = value ? Attributes | FieldAttributes.Nullable : Attributes & ~FieldAttributes.Nullable;
       }
     }
 
@@ -207,11 +204,11 @@ namespace Xtensive.Storage.Model
     public bool IsLazyLoad
     {
       [DebuggerStepThrough]
-      get { return (attributes & FieldAttributes.LazyLoad) != 0; }
+      get { return (Attributes & FieldAttributes.LazyLoad) != 0; }
       [DebuggerStepThrough]
       set {
         this.EnsureNotLocked();
-        attributes = value ? Attributes | FieldAttributes.LazyLoad : Attributes & ~FieldAttributes.LazyLoad;
+        Attributes = value ? Attributes | FieldAttributes.LazyLoad : Attributes & ~FieldAttributes.LazyLoad;
       }
     }
 
@@ -220,7 +217,7 @@ namespace Xtensive.Storage.Model
     /// </summary>
     public bool IsTranslatable {
       [DebuggerStepThrough]
-      get { return (attributes & FieldAttributes.Translatable) != 0; }
+      get { return (Attributes & FieldAttributes.Translatable) != 0; }
     }
 
     /// <summary>
@@ -228,7 +225,7 @@ namespace Xtensive.Storage.Model
     /// </summary>
     public bool IsCollatable {
       [DebuggerStepThrough]
-      get { return (attributes & FieldAttributes.Collatable) != 0; }
+      get { return (Attributes & FieldAttributes.Collatable) != 0; }
     }
 
     #endregion
@@ -263,18 +260,12 @@ namespace Xtensive.Storage.Model
     /// <summary>
     /// Gets the attributes.
     /// </summary>
-    public FieldAttributes Attributes {
-      [DebuggerStepThrough]
-      get { return attributes; }
-    }
+    public FieldAttributes Attributes { get; private set; }
 
     /// <summary>
     /// Gets <see cref="MappingInfo"/> for current field.
     /// </summary>
-    public Segment<int> MappingInfo {
-      [DebuggerStepThrough]
-      get { return mappingInfo; }
-    }
+    public Segment<int> MappingInfo { get; private set; }
 
     /// <summary>
     /// Gets the underlying system property.
@@ -342,10 +333,7 @@ namespace Xtensive.Storage.Model
     /// <summary>
     /// Gets the nested fields.
     /// </summary>
-    public FieldInfoCollection Fields {
-      [DebuggerStepThrough]
-      get { return fields; }
-    }
+    public FieldInfoCollection Fields { get; private set; }
 
     /// <summary>
     /// Gets or sets the column associated with this instance.
@@ -407,17 +395,17 @@ namespace Xtensive.Storage.Model
       base.Lock(recursive);
       if (!recursive)
         return;
-      fields.Lock(true);
+      Fields.Lock(true);
       if (column!=null) {
         column.Lock(true);
-        mappingInfo = reflectedType.IsStructure 
+        MappingInfo = reflectedType.IsStructure 
           ? new Segment<int>(reflectedType.Columns.IndexOf(column), 1) 
           : new Segment<int>(reflectedType.Indexes.PrimaryIndex.Columns.IndexOf(column), 1);
       }
-      else if (fields.Count > 0)
-        mappingInfo = new Segment<int>(fields.First().MappingInfo.Offset, fields.Sum(info => info.MappingInfo.Length));
+      else if (Fields.Count > 0)
+        MappingInfo = new Segment<int>(Fields.First().MappingInfo.Offset, Fields.Sum(info => info.MappingInfo.Length));
       if (IsEntity || IsStructure) {
-        valueExtractorTransform = new SegmentTransform(false, reflectedType.TupleDescriptor, new Segment<int>(mappingInfo.Offset, mappingInfo.Length));
+        valueExtractorTransform = new SegmentTransform(false, reflectedType.TupleDescriptor, new Segment<int>(MappingInfo.Offset, MappingInfo.Length));
         valueExtractor = tuple => valueExtractorTransform.Apply(TupleTransformType.TransformedTuple, tuple);
       }
     }
@@ -475,7 +463,7 @@ namespace Xtensive.Storage.Model
     /// </summary>
     public FieldInfo Clone()
     {
-      var clone= new FieldInfo(declaringType, reflectedType, attributes)
+      var clone= new FieldInfo(declaringType, reflectedType, Attributes)
         {
           Name = Name, 
           MappingName = MappingName, 
@@ -499,15 +487,15 @@ namespace Xtensive.Storage.Model
     /// <param name="attributes">The attributes.</param>
     public FieldInfo(TypeInfo type, FieldAttributes attributes) : this(type, type, attributes)
     {
-      this.attributes |= FieldAttributes.Declared;
+      this.Attributes |= FieldAttributes.Declared;
     }
 
     private FieldInfo(TypeInfo declaringType, TypeInfo reflectedType, FieldAttributes attributes)
     {
-      this.attributes = attributes;
+      Attributes = attributes;
       this.declaringType = declaringType;
       this.reflectedType = reflectedType;
-      fields = IsEntity || IsStructure ? new FieldInfoCollection() : FieldInfoCollection.Empty;
+      Fields = IsEntity || IsStructure ? new FieldInfoCollection() : FieldInfoCollection.Empty;
     }
   }
 }

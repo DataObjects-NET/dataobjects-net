@@ -80,12 +80,12 @@ namespace Xtensive.Storage
     #region System-level event-like members
 
     // This is done just to make it sealed
-    protected sealed internal override void OnInitialize(bool notify)
+    sealed internal override void OnInitialize(bool notify)
     {
       base.OnInitialize(notify);
     }
 
-    protected sealed internal override void OnGettingField(FieldInfo field, bool notify)
+    sealed internal override void OnGettingField(FieldInfo field, bool notify)
     {
       base.OnGettingField(field, notify);
       if (Owner!=null)
@@ -93,19 +93,19 @@ namespace Xtensive.Storage
     }
 
     // This is done just to make it sealed
-    protected sealed internal override void OnGetField(FieldInfo field, object value, bool notify)
+    sealed internal override void OnGetField(FieldInfo field, object value, bool notify)
     {
       base.OnGetField(field, value, notify);
     }
 
-    protected sealed internal override void OnSettingField(FieldInfo field, object value, bool notify)
+    sealed internal override void OnSettingField(FieldInfo field, object value, bool notify)
     {
       base.OnSettingField(field, value, notify);
       if (Owner!=null)
         Owner.OnSettingField(Field, value, notify);
     }
 
-    protected internal sealed override void OnSetField(FieldInfo field, object oldValue, object newValue, bool notify)
+    internal sealed override void OnSetField(FieldInfo field, object oldValue, object newValue, bool notify)
     {
       if (Owner!=null)
         Owner.OnSetField(Field, oldValue, newValue, notify);

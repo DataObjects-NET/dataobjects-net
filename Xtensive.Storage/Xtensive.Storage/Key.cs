@@ -157,7 +157,7 @@ namespace Xtensive.Storage
     [DebuggerStepThrough]
     public bool Equals(Key other)
     {
-      if (other==null)
+      if (ReferenceEquals(other, null))
         return false;
       if (ReferenceEquals(this, other))
         return true;

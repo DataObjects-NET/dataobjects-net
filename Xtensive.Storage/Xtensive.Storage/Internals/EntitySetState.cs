@@ -9,16 +9,19 @@ using System.Collections;
 using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Core.Aspects;
+using Xtensive.Core.Caching;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Storage.Internals
 {
   [Serializable]
-  public sealed class EntitySetState : TransactionalStateContainer<EntitySetStateCache>,
+  public sealed class EntitySetState :
     IEnumerable<Key>,
     IHasVersion<long>
   {
-    private const int CacheSize = 10240;
-    private readonly Func<long> countLoader;
+    private readonly Func<long> getCount;
+    private long? count;
+    internal ICache<Key, Key> keys;
 
     #region IHasVersion<...> methods
 
@@ -32,74 +35,67 @@ namespace Xtensive.Storage.Internals
       get { return Version; }
     }
 
-
     #endregion
 
     [Infrastructure]
-    public bool IsFullyLoaded {
-      get {
-        var state = State;
-        return state.Count.HasValue && 
-          state.Count.GetValueOrDefault()==state.ExistingKeys.Count;
+    public bool IsFullyLoaded
+    {
+      get
+      {
+        return count.HasValue &&
+          count.GetValueOrDefault()==keys.Count;
       }
     }
 
     [Infrastructure]
-    public long Count {
-      get {
-        var state = State;
-        if (!state.Count.HasValue)
-          state.Count = countLoader.Invoke();
-        return state.Count.GetValueOrDefault();
+    public long Count
+    {
+      get
+      {
+        if (!count.HasValue)
+          count = getCount();
+        return count.GetValueOrDefault();
       }
     }
 
     public bool Contains(Key key)
     {
-      return State.ExistingKeys.ContainsKey(key);
+      return keys.ContainsKey(key);
     }
 
-    public void Cache(Key key)
+    public void Register(Key key)
     {
-      State.ExistingKeys.Add(key);
+      keys.Add(key);
     }
 
     public void Add(Key key)
     {
-      Cache(key);
-      var state = State;
-      if (state.Count.HasValue)
-        state.Count++;
+      Register(key);
+      if (count.HasValue)
+        count++;
       Version++;
     }
 
     public void Remove(Key key)
     {
-      var state = State;
-      state.ExistingKeys.RemoveKey(key);
-      if (state.Count.HasValue)
-        state.Count--;
+      keys.RemoveKey(key);
+      if (count.HasValue)
+        count--;
       Version++;
     }
 
     public void Clear()
     {
-      State.ExistingKeys.Clear();
-      State.Count = 0;
+      keys.Clear();
+      count = 0;
       Version++;
-    }
-
-    /// <inheritdoc/>
-    protected override EntitySetStateCache LoadState()
-    {
-      return new EntitySetStateCache(CacheSize);
     }
 
     #region GetEnumerator<...> methods
 
     public IEnumerator<Key> GetEnumerator()
     {
-      return State.ExistingKeys.GetEnumerator();
+      return keys.GetEnumerator();
     }
 
     IEnumerator IEnumerable.GetEnumerator()
@@ -109,15 +105,18 @@ namespace Xtensive.Storage.Internals
 
     #endregion
 
-
     // Constructor
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="cacheSize">Size of the cache.</param>
+    /// <param name="getCount">The load count.</param>
     /// <inheritdoc/>
-    /// <param name="countLoader">The load count.</param>
-    public EntitySetState(Session session, Func<long> countLoader)
-      : base(session)
+    public EntitySetState(long cacheSize, Func<long> getCount)
     {
-      this.countLoader = countLoader;
+      this.getCount = getCount;
+      keys = new LruCache<Key, Key>(cacheSize, cachedKey => cachedKey);
     }
   }
 }

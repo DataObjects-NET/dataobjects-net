@@ -35,21 +35,13 @@ namespace Xtensive.Storage.Internals
         .Invoke(owner, field);
     }
 
-    internal static IFieldHandler CreateEntitySet(Type type, Persistent owner, FieldInfo field)
+    internal static IFieldHandler CreateEntitySet(Type type, Persistent owner, FieldInfo field, bool notify)
     {
       if (field.Association==null)
         throw new InvalidOperationException(String.Format(Strings.ExUnableToActivateEntitySetWithoutAssociation, field.Name));
 
-      Type instanceType;
-      if (field.Association.Master.UnderlyingType==null)
-        instanceType = typeof (EntitySet<>).MakeGenericType(type);
-      else {
-        if (field.Association.IsMaster)
-          instanceType = typeof (EntitySet<,>).MakeGenericType(type, field.Association.UnderlyingType);
-        else
-          instanceType = typeof (ReversedEntitySet<,>).MakeGenericType(type, field.Association.Master.UnderlyingType);
-      }
-      return (IFieldHandler) instanceType.InvokeMember(String.Empty, BindingFlags.CreateInstance, null, null, new object[] {owner, field});
+      Type instanceType = typeof (EntitySet<>).MakeGenericType(type);
+      return (IFieldHandler) instanceType.InvokeMember(String.Empty, BindingFlags.CreateInstance, null, null, new object[] {owner, field, notify});
     }
   }
 }

@@ -60,7 +60,7 @@ namespace Xtensive.Storage.Tests.Storage.CoreServicesModel
       throw new InvalidOperationException();
     }
 
-    protected override void OnRemoved()
+    protected override void OnRemove()
     {
       base.OnRemoving();
       throw new InvalidOperationException();

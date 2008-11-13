@@ -201,8 +201,9 @@ namespace Xtensive.Storage
         throw new InvalidOperationException(string.Format("Field '{0}' is not an Entity field.", field.Name));
 
       OnGettingField(field, false);
-      // TODO: Refactor
-      Key result = EntityFieldAccessor<Entity>.ExtractKey(this, field);
+      var type = Session.Domain.Model.Types[field.ValueType];
+      var tuple = field.ValueExtractor(Data);
+      Key result = tuple.ContainsEmptyValues() ? null : Key.Create(type, tuple);
       OnGetField(field, result, false);
 
       return result;
@@ -213,7 +214,7 @@ namespace Xtensive.Storage
     #region System-level event-like members
 
     [Infrastructure]
-    protected internal virtual void OnInitialize(bool notify)
+    internal virtual void OnInitialize(bool notify)
     {
       if (!notify)
         return;
@@ -222,7 +223,7 @@ namespace Xtensive.Storage
     }
 
     [Infrastructure]
-    protected internal virtual void OnGettingField(FieldInfo field, bool notify)
+    internal virtual void OnGettingField(FieldInfo field, bool notify)
     {
       if (!notify)
         return;
@@ -230,7 +231,7 @@ namespace Xtensive.Storage
     }
 
     [Infrastructure]
-    protected internal virtual void OnGetField(FieldInfo field, object value, bool notify)
+    internal virtual void OnGetField(FieldInfo field, object value, bool notify)
     {
       if (!notify)
         return;
@@ -238,7 +239,7 @@ namespace Xtensive.Storage
     }
 
     [Infrastructure]
-    protected internal virtual void OnSettingField(FieldInfo field, object value, bool notify)
+    internal virtual void OnSettingField(FieldInfo field, object value, bool notify)
     {
       if (!notify)
         return;
@@ -246,7 +247,7 @@ namespace Xtensive.Storage
     }
 
     [Infrastructure]
-    protected internal virtual void OnSetField(FieldInfo field, object oldValue, object newValue, bool notify)
+    internal virtual void OnSetField(FieldInfo field, object oldValue, object newValue, bool notify)
     {
       if (!notify)
         return;

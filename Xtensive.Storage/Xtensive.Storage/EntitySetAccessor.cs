@@ -15,21 +15,21 @@ namespace Xtensive.Storage
   public sealed class EntitySetAccessor : SessionBound
   {
     [Infrastructure]
-    public RecordSet GetRecordSet(EntitySet target)
+    public RecordSet GetRecordSet(EntitySetBase target)
     {
       ValidateArguments(target);
-      return target.RecordSet;
+      return target.Items;
     }
 
     [Infrastructure]
     public RecordSet GetRecordSet(Persistent target, FieldInfo field)
     {
       ValidateArguments(target, field);
-      return GetRecordSet(target.GetField<EntitySet>(field, false));
+      return GetRecordSet(target.GetField<EntitySetBase>(field, false));
     }
 
     [Infrastructure]
-    public bool Add(EntitySet target, Entity item)
+    public bool Add(EntitySetBase target, Entity item)
     {
       ValidateArguments(target, item);
       throw new NotImplementedException();
@@ -39,11 +39,11 @@ namespace Xtensive.Storage
     public bool Add(Entity target, FieldInfo field, Entity item)
     {
       ValidateArguments(target, field, item);
-      return Add(target.GetField<EntitySet>(field, false), item);
+      return Add(target.GetField<EntitySetBase>(field, false), item);
     }
 
     [Infrastructure]
-    public bool Remove(EntitySet target, Entity item)
+    public bool Remove(EntitySetBase target, Entity item)
     {
       ValidateArguments(target, item);
       throw new NotImplementedException();
@@ -53,11 +53,11 @@ namespace Xtensive.Storage
     public bool Remove(Entity target, FieldInfo field, Entity item)
     {
       ValidateArguments(target, field, item);
-      return Remove(target.GetField<EntitySet>(field, false), item);
+      return Remove(target.GetField<EntitySetBase>(field, false), item);
     }
 
     [Infrastructure]
-    public void Clear(EntitySet target)
+    public void Clear(EntitySetBase target)
     {
       ValidateArguments(target);
       throw new NotImplementedException();
@@ -67,7 +67,7 @@ namespace Xtensive.Storage
     public void Clear(Entity target, FieldInfo field)
     {
       ValidateArguments(target, field);
-      Clear(target.GetField<EntitySet>(field, false));
+      Clear(target.GetField<EntitySetBase>(field, false));
     }
 
     private static void ValidateArguments(object target)
@@ -85,7 +85,7 @@ namespace Xtensive.Storage
         throw new InvalidOperationException(string.Format("Field '{0}' is not an EntitySet field.", field.Name));
     }
 
-    private static void ValidateArguments(EntitySet target, Entity item)
+    private static void ValidateArguments(EntitySetBase target, Entity item)
     {
       ValidateArguments(target);
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
