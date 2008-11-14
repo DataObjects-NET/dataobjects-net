@@ -12,6 +12,8 @@ namespace Xtensive.Storage.ReferentialIntegrity
   {
     private readonly HashSet<Entity> removalQueue = new HashSet<Entity>();
 
+    public bool Notify { get; private set; }
+
     public HashSet<Entity> RemovalQueue
     {
       get { return removalQueue; }
@@ -27,6 +29,14 @@ namespace Xtensive.Storage.ReferentialIntegrity
     public override bool IsActive
     {
       get { return RemovalScope.Context==this; }
+    }
+
+
+    // Constructor
+
+    public RemovalContext(bool notify)
+    {
+      Notify = notify;
     }
   }
 }

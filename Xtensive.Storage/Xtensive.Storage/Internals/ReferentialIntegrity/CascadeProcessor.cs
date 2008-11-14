@@ -12,7 +12,7 @@ namespace Xtensive.Storage.ReferentialIntegrity
   {
     public override void Process(Entity referencedObject, Entity referencingObject, AssociationInfo association)
     {
-      referencingObject.Remove();
+      referencingObject.Remove(RemovalScope.Context.Notify);
     }
   }
 }

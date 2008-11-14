@@ -15,11 +15,11 @@ namespace Xtensive.Storage.ReferentialIntegrity
       switch (association.Multiplicity) {
       case Multiplicity.OneToOne:
       case Multiplicity.OneToMany:
-        referencingObject[association.ReferencingField.Name] = null;
+        referencingObject.SetField<Entity>(association.ReferencingField, null, RemovalScope.Context.Notify);
         break;
       case Multiplicity.ManyToOne:
       case Multiplicity.ManyToMany:
-        referencingObject.GetProperty<EntitySetBase>(association.ReferencingField.Name).Remove(referencedObject, true);
+        referencingObject.GetProperty<EntitySetBase>(association.ReferencingField.Name).Remove(referencedObject, RemovalScope.Context.Notify);
         break;
       }
     }

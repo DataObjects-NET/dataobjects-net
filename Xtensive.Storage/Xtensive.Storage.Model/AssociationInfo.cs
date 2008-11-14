@@ -5,8 +5,12 @@
 // Created:    2008.07.02
 
 using System;
+using System.Linq;
+using Xtensive.Core;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Tuples;
+using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Model.Resources;
 
 namespace Xtensive.Storage.Model
@@ -120,6 +124,51 @@ namespace Xtensive.Storage.Model
       {
         this.EnsureNotLocked();
         reversed = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets the underlying index for this instance.
+    /// </summary>
+    /// <value>The underlying index.</value>
+    public IndexInfo UnderlyingIndex { get; private set; }
+
+    /// <summary>
+    /// Gets the foreign key extraction transform.
+    /// </summary>
+    public SegmentTransform ExtractForeignKeyTransform { get; private set; }
+
+    /// <summary>
+    /// Gets the foreign key extraction delegate.
+    /// </summary>
+    public Func<Tuple, Tuple> ExtractForeignKey { get; private set; }
+
+    /// <inheritdoc/>
+    public override void Lock(bool recursive)
+    {
+      base.Lock(recursive);
+      if (!ReferencingType.IsEntity)
+        return;
+      switch (Multiplicity) {
+      case Multiplicity.OneToZero:
+      case Multiplicity.OneToOne:
+      case Multiplicity.OneToMany:
+        UnderlyingIndex = ReferencingType.Indexes.GetIndex(ReferencingField.Name);
+        ExtractForeignKeyTransform = ReferencingField.ExtractValueTransform;
+        ExtractForeignKey = ReferencingField.ExtractValue;
+        break;
+      case Multiplicity.ManyToOne:
+        UnderlyingIndex = Reversed.ReferencingType.Indexes.GetIndex(Reversed.ReferencingField.Name);
+        break;
+      case Multiplicity.ManyToZero:
+      case Multiplicity.ManyToMany:
+        UnderlyingIndex = underlyingType.Indexes.Where(indexInfo => indexInfo.IsSecondary).Skip(IsMaster ? 1 : 0).First();
+        break;
+      }
+      if (ExtractForeignKey == null) {
+        Segment<int> foreignKeySegment = new Segment<int>(ReferencingType.Hierarchy.MappingInfo.Length, ReferencedType.Hierarchy.MappingInfo.Length);
+        ExtractForeignKeyTransform = new SegmentTransform(true, UnderlyingIndex.TupleDescriptor, foreignKeySegment);
+        ExtractForeignKey = tuple => ExtractForeignKeyTransform.Apply(TupleTransformType.TransformedTuple, tuple);
       }
     }
 

@@ -41,8 +41,6 @@ namespace Xtensive.Storage
     private Func<Tuple, Entity>                       itemConstructor;
     private RecordSet                                 count;
     private RecordSet                                 seek;
-    private Func<Tuple, Tuple>                        extractKey;
-    private SegmentTransform                          extractKeyTransform;
     private Func<Tuple, Tuple>                        combineKey;
     private CombineTransform                          combineKeyTransform;
 
@@ -134,40 +132,19 @@ namespace Xtensive.Storage
         underlyingType = association.UnderlyingType;
         itemConstructor = DelegateHelper.CreateDelegate<Func<Tuple, Entity>>(null, underlyingType.UnderlyingType, DelegateHelper.AspectedProtectedConstructorCallerName, ArrayUtils<Type>.EmptyArray);
       }
-      IndexInfo index = GetIndex();
-      Items = index.ToRecordSet().Range(ConcreteOwner.Key.Value, ConcreteOwner.Key.Value);
-      seek = index.ToRecordSet().Seek(() => pKey.Value);
+      Items = association.UnderlyingIndex.ToRecordSet().Range(ConcreteOwner.Key.Value, ConcreteOwner.Key.Value);
+      seek = association.UnderlyingIndex.ToRecordSet().Seek(() => pKey.Value);
       count = Items.Aggregate(null, new AggregateColumnDescriptor("$Count", 0, AggregateType.Count));
-      extractKey = BuildExtractKey(index);
       combineKey = BuildCombineKey();
       OnInitialize(notify);
     }
 
-    private IndexInfo GetIndex()
-    {
-      if (underlyingType == null) {
-        FieldInfo referencingField = association.Reversed.ReferencingField;
-        return referencingField.ReflectedType.Indexes.GetIndex(referencingField.Name);
-      }
-      if (association.IsMaster)
-        return underlyingType.Indexes.Where(indexInfo => indexInfo.IsSecondary).Skip(1).First();
-      return underlyingType.Indexes.Where(indexInfo => indexInfo.IsSecondary).First();
-    }
-
-    private Func<Tuple, Tuple> BuildExtractKey(IndexInfo index)
-    {
-      Segment<int> foreignKeySegment = new Segment<int>(association.ReferencingType.Hierarchy.MappingInfo.Length, association.ReferencedType.Hierarchy.MappingInfo.Length);
-      extractKeyTransform = new SegmentTransform(true, index.TupleDescriptor, foreignKeySegment);
-      return tuple => extractKeyTransform.Apply(TupleTransformType.TransformedTuple, tuple);
-    }
-
     private Func<Tuple, Tuple> BuildCombineKey()
     {
-      if (underlyingType == null) {
+      if (underlyingType==null)
         combineKeyTransform = new CombineTransform(true, association.ReferencedType.Hierarchy.KeyTupleDescriptor, association.ReferencingType.Hierarchy.KeyTupleDescriptor);
-        return tuple => combineKeyTransform.Apply(TupleTransformType.TransformedTuple, ConcreteOwner.Key.Value, tuple);
-      }
-      combineKeyTransform = new CombineTransform(true, association.ReferencingType.Hierarchy.KeyTupleDescriptor, association.ReferencedType.Hierarchy.KeyTupleDescriptor);
+      else
+        combineKeyTransform = new CombineTransform(true, association.ReferencingType.Hierarchy.KeyTupleDescriptor, association.ReferencedType.Hierarchy.KeyTupleDescriptor);
       return tuple => combineKeyTransform.Apply(TupleTransformType.TransformedTuple, ConcreteOwner.Key.Value, tuple);
     }
 
@@ -250,7 +227,7 @@ namespace Xtensive.Storage
     private IEnumerable<Key> FetchKeys()
     {
       foreach (Tuple tuple in Items)
-        yield return Key.Create(Field.ValueType, extractKey(tuple));
+        yield return Key.Create(Field.ValueType, association.ExtractForeignKey(tuple));
     }
 
     #endregion

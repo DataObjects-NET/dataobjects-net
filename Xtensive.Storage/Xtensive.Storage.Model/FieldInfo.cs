@@ -33,8 +33,6 @@ namespace Xtensive.Storage.Model
     private AssociationInfo association;
     private CultureInfo cultureInfo = CultureInfo.InvariantCulture;
     private ThreadSafeCached<int> cachedHashCode = ThreadSafeCached<int>.Create(new object());
-    private SegmentTransform valueExtractorTransform;
-    private Func<Tuple, Tuple> valueExtractor;
 
     #region IsXxx properties
 
@@ -375,19 +373,14 @@ namespace Xtensive.Storage.Model
     }
 
     /// <summary>
-    /// Gets or sets the value extractor.
+    /// Gets the extract value transform.
     /// </summary>
-    public Func<Tuple, Tuple> ValueExtractor
-    {
-      [DebuggerStepThrough]
-      get { return valueExtractor; }
-      [DebuggerStepThrough]
-      set
-      {
-        this.EnsureNotLocked();
-        valueExtractor = value;
-      }
-    }
+    public SegmentTransform ExtractValueTransform { get; private set; }
+
+    /// <summary>
+    /// Gets the value extractor.
+    /// </summary>
+    public Func<Tuple, Tuple> ExtractValue { get; private set; }
 
     /// <inheritdoc/>
     public override void Lock(bool recursive)
@@ -405,8 +398,8 @@ namespace Xtensive.Storage.Model
       else if (Fields.Count > 0)
         MappingInfo = new Segment<int>(Fields.First().MappingInfo.Offset, Fields.Sum(info => info.MappingInfo.Length));
       if (IsEntity || IsStructure) {
-        valueExtractorTransform = new SegmentTransform(false, reflectedType.TupleDescriptor, new Segment<int>(MappingInfo.Offset, MappingInfo.Length));
-        valueExtractor = tuple => valueExtractorTransform.Apply(TupleTransformType.TransformedTuple, tuple);
+        ExtractValueTransform = new SegmentTransform(false, reflectedType.TupleDescriptor, new Segment<int>(MappingInfo.Offset, MappingInfo.Length));
+        ExtractValue = tuple => ExtractValueTransform.Apply(TupleTransformType.TransformedTuple, tuple);
       }
     }
 

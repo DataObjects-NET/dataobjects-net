@@ -18,9 +18,9 @@ namespace Xtensive.Storage.ReferentialIntegrity
     private static readonly RestrictProcessor restrictProcessor = new RestrictProcessor();
     private static readonly ClearProcessor clearProcessor = new ClearProcessor();
 
-    public static void ClearReferencesTo(Entity referencedObject)
+    public static void ClearReferencesTo(Entity referencedObject, bool notify)
     {
-      RemovalContext context = RemovalScope.Context ?? new RemovalContext();
+      RemovalContext context = RemovalScope.Context ?? new RemovalContext(notify);
 
       using (context.Activate()) {
         context.RemovalQueue.Add(referencedObject);
@@ -51,23 +51,25 @@ namespace Xtensive.Storage.ReferentialIntegrity
       IEnumerable<AssociationInfo> associations = type.GetAssociations().Where(a => a.OnRemove==action);
 
       foreach (AssociationInfo association in associations) {
-        IEnumerable<Entity> referencingObjects = FindReferencingObjects(referencedObject, association);
+        var referencingObjects = FindReferencingObjects(referencedObject, association);
         foreach (Entity referencingObject in referencingObjects)
           processor.Process(referencedObject, referencingObject, association);
       }
     }
 
-    private static IEnumerable<Entity> FindReferencingObjects(Entity referencedObject, AssociationInfo association)
+    private static List<Entity> FindReferencingObjects(Entity referencedObject, AssociationInfo association)
     {
       FieldInfo field = association.ReferencingField;
       IndexInfo index = field.DeclaringType.Indexes.GetIndex(field.Name);
       RecordSet rs = index.ToRecordSet().Range(referencedObject.Key.Value, referencedObject.Key.Value);
+      List<Entity> result = new List<Entity>();
 
       foreach (Entity referencingObject in rs.ToEntities(field.DeclaringType.UnderlyingType)) {
         if (RemovalScope.Context.RemovalQueue.Contains(referencingObject))
           continue;
-        yield return referencingObject;
+        result.Add(referencingObject);
       }
+      return result;
     }
   }
 }

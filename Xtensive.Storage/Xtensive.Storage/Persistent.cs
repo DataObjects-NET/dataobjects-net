@@ -202,7 +202,7 @@ namespace Xtensive.Storage
 
       OnGettingField(field, false);
       var type = Session.Domain.Model.Types[field.ValueType];
-      var tuple = field.ValueExtractor(Data);
+      var tuple = field.ExtractValue(Data);
       Key result = tuple.ContainsEmptyValues() ? null : Key.Create(type, tuple);
       OnGetField(field, result, false);
 

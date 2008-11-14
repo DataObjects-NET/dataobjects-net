@@ -166,7 +166,7 @@ namespace Xtensive.Storage
       type = Session.Domain.Model.Types[GetType()];
       this.owner = owner;
       this.field = field;
-      data = field.ValueExtractor(owner.Data);
+      data = field.ExtractValue(owner.Data);
     }
   }
 }
