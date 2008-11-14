@@ -358,7 +358,6 @@ namespace Xtensive.Storage
     #region INotifyPropertyChanged members
 
     /// <inheritdoc/>
-    [Infrastructure]
     public event PropertyChangedEventHandler PropertyChanged;
 
     protected void OnPropertyChanged(string name)
@@ -374,7 +373,6 @@ namespace Xtensive.Storage
     /// <summary>
     /// Occurs when the collection changes.
     /// </summary>
-    [Infrastructure]
     public event NotifyCollectionChangedEventHandler CollectionChanged;
 
     private void OnCollectionChanged(NotifyCollectionChangedAction action, Entity item)
