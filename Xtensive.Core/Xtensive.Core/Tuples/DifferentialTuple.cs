@@ -47,6 +47,7 @@ namespace Xtensive.Core.Tuples
 
     /// <summary>
     /// Gets or sets difference tuple.
+    /// Can be <see langword="null" /> (acts as if no values are available in this tuple).
     /// </summary>
     public Tuple Difference
     {
@@ -54,8 +55,7 @@ namespace Xtensive.Core.Tuples
       get { return difference; }
       [DebuggerStepThrough]
       set {
-        ArgumentValidator.EnsureArgumentNotNull(origin, "value");
-        if (value.Descriptor!=Descriptor)
+        if (value!=null && value.Descriptor!=Descriptor)
           throw new ArgumentException(
             string.Format(Strings.ExInvalidTupleDescriptorExpectedDescriptorIs, Descriptor),
             "value");
@@ -71,6 +71,8 @@ namespace Xtensive.Core.Tuples
     /// otherwise, <see langword="false"/>.</returns>
     public bool IsChanged(int fieldIndex)
     {
+      if (difference==null)
+        return false;
       return difference.IsAvailable(fieldIndex);
     }
 
@@ -79,7 +81,10 @@ namespace Xtensive.Core.Tuples
     /// </summary>
     public void Merge()
     {
-      origin.MergeWith(difference, 0, origin.Descriptor.Count, MergeConflictBehavior.PreferSource);
+      if (difference==null)
+        return;
+      origin.ToRegular().MergeWith(difference, 0, origin.Descriptor.Count, MergeConflictBehavior.PreferSource);
+      difference = null;
     }
 
     /// <summary>
@@ -90,6 +95,8 @@ namespace Xtensive.Core.Tuples
     /// <returns>Value container.</returns>
     public Tuple GetContainer(int fieldIndex)
     {
+      if (difference==null)
+        return origin;
       return difference.IsAvailable(fieldIndex) ? difference : origin;
     }
 
@@ -110,6 +117,8 @@ namespace Xtensive.Core.Tuples
     /// <inheritdoc />
     public override void SetValue(int fieldIndex, object fieldValue)
     {
+      if (difference==null)
+        difference = Create(origin.Descriptor);
       difference.SetValue(fieldIndex, fieldValue);
     }
 
@@ -120,13 +129,13 @@ namespace Xtensive.Core.Tuples
     /// <inheritdoc/>
     public override Tuple CreateNew()
     {
-      return new DifferentialTuple(Create(Descriptor));
+      return new DifferentialTuple(Create(origin.Descriptor));
     }
 
     /// <inheritdoc/>
     public override Tuple Clone()
     {
-      return new DifferentialTuple(origin, Create(Descriptor));
+      return new DifferentialTuple(origin.Clone(), difference==null ? null : difference.Clone());
     }
 
     /// <summary>
@@ -134,7 +143,7 @@ namespace Xtensive.Core.Tuples
     /// </summary>
     public void Reset()
     {
-      difference = Create(Descriptor);
+      difference = null;
     }
 
     #endregion
@@ -150,7 +159,7 @@ namespace Xtensive.Core.Tuples
     {
       ArgumentValidator.EnsureArgumentNotNull(origin, "origin");
       this.origin = origin;
-      difference = Origin.CreateNew();
+      difference = null;
     }
 
     /// <summary>
@@ -162,7 +171,7 @@ namespace Xtensive.Core.Tuples
     public DifferentialTuple(Tuple origin, Tuple difference)
     {
       ArgumentValidator.EnsureArgumentNotNull(origin, "origin");
-      if (origin.Descriptor!=difference.Descriptor)
+      if (difference!=null && origin.Descriptor!=difference.Descriptor)
         throw new ArgumentException(
           string.Format(Strings.ExInvalidTupleDescriptorExpectedDescriptorIs, origin.Descriptor),
           "difference");

@@ -135,10 +135,12 @@ namespace Xtensive.Storage
         Data = null;
       else {
         var data = IsDataLoaded ? Data : null;
-        if (data==null) // Entity was marked as removed before, or it is unfetched at all yet
-          Data = new DifferentialTuple(tuple.ToRegular());
+        if (data==null) 
+          // Entity was marked as removed before, or it is unfetched at all yet
+          Data = new DifferentialTuple(tuple);
         else
-          data.Origin.MergeWith(tuple);
+          // ToRegular ensures we'll never modify the Origin tuple
+          data.Origin.ToRegular().MergeWith(tuple);
       }
     }
 

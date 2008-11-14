@@ -206,22 +206,129 @@ namespace Xtensive.Core.Tuples
 
     #endregion
 
+    #region Combine methods
+
     /// <summary>
-    /// Initializes the specified <see cref="Tuple"/> with default values.
+    /// Combines the <paramref name="left"/> with <paramref name="right"/>.
     /// </summary>
-    /// <param name="target">Tuple to initialize.</param>
-    /// <param name="nullableMap"><see cref="BitArray"/> instance that flags that field should have null value.</param>
-    /// <exception cref="ArgumentException">Tuple descriptor field count is not equal to <paramref name="nullableMap"/> count.</exception>
-    public static void Initialize(this Tuple target, BitArray nullableMap)
+    /// <param name="left">The first <see cref="Tuple"/> to combine.</param>
+    /// <param name="right">The second <see cref="Tuple"/> to combine.</param>
+    /// <returns></returns>
+    public static Tuple Combine(this Tuple left, Tuple right)
     {
-      if (target.Descriptor.Count!=nullableMap.Count)
-        throw new ArgumentException(String.Format(Strings.ExInvalidFieldMapSizeExpectedX, target.Descriptor.Count));
-
-      // TODO: declare method Initialize for Tuple and generate them
-
-      var actionData = new InitializerData(target, nullableMap);
-      target.Descriptor.Execute(initializerHandler, ref actionData, Direction.Positive);
+      var transform = new CombineTransform(false, new[] {left.Descriptor, right.Descriptor});
+      return transform.Apply(TupleTransformType.TransformedTuple, left, right);
     }
+
+    #endregion
+
+    #region Merge methods
+
+    /// <summary>
+    /// Merges a range of fields from <paramref name="difference"/>
+    /// <see cref="Tuple"/> starting at the specified index with the fields from
+    /// <paramref name="target"/> <see cref="Tuple"/> with the specified
+    /// <paramref name="behavior"/>.
+    /// </summary>
+    /// <param name="target">Tuple that receives the data.</param>
+    /// <param name="difference">Tuple with differences to merge with.</param>
+    /// <param name="startIndex">The index in the <paramref name="difference"/> tuple at which merging begins.</param>
+    /// <param name="length">The number of elements to process.</param>
+    /// <param name="behavior">The merge behavior that will be used to resolve conflicts when both values 
+    /// from <paramref name="difference"/> and <paramref name="target"/> are available.</param>
+    /// <exception cref="ArgumentException">Tuple descriptors mismatch.</exception>
+    public static void MergeWith(this Tuple target, Tuple difference, int startIndex, int length, MergeConflictBehavior behavior)
+    {
+      if (difference==null)
+        return;
+      if (target.Descriptor!=difference.Descriptor)
+        throw new ArgumentException(
+          string.Format(Strings.ExInvalidTupleDescriptorExpectedDescriptorIs, target.Descriptor),
+          "difference");
+      var endIndex = startIndex + length;
+      for (int i = startIndex; i < endIndex; i++) {
+        if (!difference.IsAvailable(i))
+          continue;
+        if (target.IsAvailable(i) && behavior==MergeConflictBehavior.PreferTarget)
+          continue;
+        target.SetValue(i, difference.GetValueOrDefault(i));
+      }
+    }
+
+    /// <summary>
+    /// Merges a range of fields from <paramref name="difference"/>
+    /// <see cref="Tuple"/> starting at the specified index with the fields from
+    /// <paramref name="target"/> <see cref="Tuple"/> with the default <see cref="MergeConflictBehavior"/>.
+    /// </summary>
+    /// <param name="target">Tuple that receives the data.</param>
+    /// <param name="difference">Tuple with differences to merge with.</param>
+    /// <param name="startIndex">The index in the <paramref name="difference"/> tuple at which merging begins.</param>
+    /// <param name="length">The number of elements to process.</param>
+    /// from <paramref name="difference"/> and <paramref name="target"/> are available.</param>
+    public static void MergeWith(this Tuple target, Tuple difference, int startIndex, int length)
+    {
+      MergeWith(target, difference, startIndex, length, MergeConflictBehavior.Default);
+    }
+
+    /// <summary>
+    /// Merges a range of fields from <paramref name="difference"/>
+    /// <see cref="Tuple"/> starting at the specified index with the fields from
+    /// <paramref name="target"/> <see cref="Tuple"/> with the specified
+    /// <paramref name="behavior"/>.
+    /// </summary>
+    /// <param name="target">Tuple that receives the data.</param>
+    /// <param name="difference">Tuple with differences to merge with.</param>
+    /// <param name="startIndex">The index in the <paramref name="difference"/> tuple at which merging begins.</param>
+    /// <param name="behavior">The merge behavior that will be used to resolve conflicts when both values 
+    /// from <paramref name="difference"/> and <paramref name="target"/> are available.</param>
+    public static void MergeWith(this Tuple target, Tuple difference, int startIndex, MergeConflictBehavior behavior)
+    {
+      MergeWith(target, difference, startIndex, target.Count, behavior);
+    }
+
+    /// <summary>
+    /// Merges a range of fields from <paramref name="difference"/>
+    /// <see cref="Tuple"/> starting at the specified index with the fields from
+    /// <paramref name="target"/> <see cref="Tuple"/> with the default value of <see cref="MergeConflictBehavior"/>.
+    /// </summary>
+    /// <param name="target">Tuple that receives the data.</param>
+    /// <param name="difference">Tuple with differences to merge with.</param>
+    /// <param name="startIndex">The index in the <paramref name="difference"/> tuple at which merging begins.</param>
+    /// from <paramref name="difference"/> and <paramref name="target"/> are available.</param>
+    public static void MergeWith(this Tuple target, Tuple difference, int startIndex)
+    {
+      MergeWith(target, difference, startIndex, target.Count, MergeConflictBehavior.Default);
+    }
+
+    /// <summary>
+    /// Merges a range of fields from <paramref name="difference"/>
+    /// <see cref="Tuple"/> starting at the specified index with the fields from
+    /// <paramref name="target"/> <see cref="Tuple"/> with the default value of <see cref="MergeConflictBehavior"/>.
+    /// </summary>
+    /// <param name="target">Tuple that receives the data.</param>
+    /// <param name="difference">Tuple with differences to merge with.</param>
+    /// from <paramref name="difference"/> and <paramref name="target"/> are available.</param>
+    public static void MergeWith(this Tuple target, Tuple difference, MergeConflictBehavior behavior)
+    {
+      MergeWith(target, difference, 0, target.Count, behavior);
+    }
+
+    /// <summary>
+    /// Merges a range of fields from <paramref name="difference"/>
+    /// <see cref="Tuple"/> starting at the specified index with the fields from
+    /// <paramref name="target"/> <see cref="Tuple"/> with the default value of <see cref="MergeConflictBehavior"/>.
+    /// </summary>
+    /// <param name="target">Tuple that receives the data.</param>
+    /// <param name="difference">Tuple with differences to merge with.</param>
+    /// from <paramref name="difference"/> and <paramref name="target"/> are available.</param>
+    public static void MergeWith(this Tuple target, Tuple difference)
+    {
+      MergeWith(target, difference, 0, target.Count, MergeConflictBehavior.Default);
+    }
+
+    #endregion
+
+    #region ToXxx methods
 
     /// <summary>
     /// Creates <see cref="RegularTuple"/> instance "filled" with the same field values
@@ -261,17 +368,7 @@ namespace Xtensive.Core.Tuples
       return new FastReadOnlyTuple(source);
     }
 
-    /// <summary>
-    /// Combines the <paramref name="source1"/> with <paramref name="source2"/>.
-    /// </summary>
-    /// <param name="source1">The source <see cref="Tuple"/> to combine with the <paramref name="source2"/>.</param>
-    /// <param name="source2">The <see cref="Tuple"/> to combine with.</param>
-    /// <returns></returns>
-    public static Tuple CombineWith(this Tuple source1, Tuple source2)
-    {
-      var transform = new CombineTransform(false, new[] {source1.Descriptor, source2.Descriptor});
-      return transform.Apply(TupleTransformType.TransformedTuple, source1, source2);
-    }
+    #endregion
 
     /// <summary>
     /// Gets the field state map of the specified <see cref="Tuple"/>.
@@ -303,109 +400,22 @@ namespace Xtensive.Core.Tuples
       return result;
     }
 
-    #region Merge methods
-
     /// <summary>
-    /// Merges a range of fields from <paramref name="source"/>
-    /// <see cref="Tuple"/> starting at the specified index with the fields from
-    /// <paramref name="target"/> <see cref="Tuple"/> with the specified
-    /// <paramref name="behavior"/>.
+    /// Initializes the specified <see cref="Tuple"/> with default values.
     /// </summary>
-    /// <param name="target">Tuple that receives the data.</param>
-    /// <param name="source">Source tuple to merge with.</param>
-    /// <param name="startIndex">The index in the <paramref name="source"/> tuple at which merging begins.</param>
-    /// <param name="length">The number of elements to process.</param>
-    /// <param name="behavior">The merge behavior that will be used to resolve conflicts when both values 
-    /// from <paramref name="source"/> and <paramref name="target"/> are available.</param>
-    /// <exception cref="ArgumentException">Tuple descriptors mismatch.</exception>
-    public static void MergeWith(this Tuple target, Tuple source, int startIndex, int length, MergeConflictBehavior behavior)
+    /// <param name="target">Tuple to initialize.</param>
+    /// <param name="nullableMap"><see cref="BitArray"/> instance that flags that field should have null value.</param>
+    /// <exception cref="ArgumentException">Tuple descriptor field count is not equal to <paramref name="nullableMap"/> count.</exception>
+    public static void Initialize(this Tuple target, BitArray nullableMap)
     {
-      if (target.Descriptor!=source.Descriptor)
-        throw new ArgumentException(
-          string.Format(Strings.ExInvalidTupleDescriptorExpectedDescriptorIs, target.Descriptor),
-          "source");
-      var endIndex = startIndex + length;
-      for (int i = startIndex; i < endIndex; i++) {
-        if (!source.IsAvailable(i))
-          continue;
-        if (target.IsAvailable(i) && behavior==MergeConflictBehavior.PreferTarget)
-          continue;
-        target.SetValue(i, source.GetValueOrDefault(i));
-      }
-    }
+      if (target.Descriptor.Count!=nullableMap.Count)
+        throw new ArgumentException(String.Format(Strings.ExInvalidFieldMapSizeExpectedX, target.Descriptor.Count));
 
-    /// <summary>
-    /// Merges a range of fields from <paramref name="source"/>
-    /// <see cref="Tuple"/> starting at the specified index with the fields from
-    /// <paramref name="target"/> <see cref="Tuple"/> with the default <see cref="MergeConflictBehavior"/>.
-    /// </summary>
-    /// <param name="target">Tuple that receives the data.</param>
-    /// <param name="source">Source tuple to merge with.</param>
-    /// <param name="startIndex">The index in the <paramref name="source"/> tuple at which merging begins.</param>
-    /// <param name="length">The number of elements to process.</param>
-    /// from <paramref name="source"/> and <paramref name="target"/> are available.</param>
-    public static void MergeWith(this Tuple target, Tuple source, int startIndex, int length)
-    {
-      MergeWith(target, source, startIndex, length, MergeConflictBehavior.Default);
-    }
+      // TODO: declare method Initialize for Tuple and generate them
 
-    /// <summary>
-    /// Merges a range of fields from <paramref name="source"/>
-    /// <see cref="Tuple"/> starting at the specified index with the fields from
-    /// <paramref name="target"/> <see cref="Tuple"/> with the specified
-    /// <paramref name="behavior"/>.
-    /// </summary>
-    /// <param name="target">Tuple that receives the data.</param>
-    /// <param name="source">Source tuple to process.</param>
-    /// <param name="startIndex">The index in the <paramref name="source"/> tuple at which merging begins.</param>
-    /// <param name="behavior">The merge behavior that will be used to resolve conflicts when both values 
-    /// from <paramref name="source"/> and <paramref name="target"/> are available.</param>
-    public static void MergeWith(this Tuple target, Tuple source, int startIndex, MergeConflictBehavior behavior)
-    {
-      MergeWith(target, source, startIndex, target.Count, behavior);
+      var actionData = new InitializerData(target, nullableMap);
+      target.Descriptor.Execute(initializerHandler, ref actionData, Direction.Positive);
     }
-
-    /// <summary>
-    /// Merges a range of fields from <paramref name="source"/>
-    /// <see cref="Tuple"/> starting at the specified index with the fields from
-    /// <paramref name="target"/> <see cref="Tuple"/> with the default value of <see cref="MergeConflictBehavior"/>.
-    /// </summary>
-    /// <param name="target">Tuple that receives the data.</param>
-    /// <param name="source">Source tuple to process.</param>
-    /// <param name="startIndex">The index in the <paramref name="source"/> tuple at which merging begins.</param>
-    /// from <paramref name="source"/> and <paramref name="target"/> are available.</param>
-    public static void MergeWith(this Tuple target, Tuple source, int startIndex)
-    {
-      MergeWith(target, source, startIndex, target.Count, MergeConflictBehavior.Default);
-    }
-
-    /// <summary>
-    /// Merges a range of fields from <paramref name="source"/>
-    /// <see cref="Tuple"/> starting at the specified index with the fields from
-    /// <paramref name="target"/> <see cref="Tuple"/> with the default value of <see cref="MergeConflictBehavior"/>.
-    /// </summary>
-    /// <param name="target">Tuple that receives the data.</param>
-    /// <param name="source">Source tuple to process.</param>
-    /// from <paramref name="source"/> and <paramref name="target"/> are available.</param>
-    public static void MergeWith(this Tuple target, Tuple source, MergeConflictBehavior behavior)
-    {
-      MergeWith(target, source, 0, target.Count, behavior);
-    }
-
-    /// <summary>
-    /// Merges a range of fields from <paramref name="source"/>
-    /// <see cref="Tuple"/> starting at the specified index with the fields from
-    /// <paramref name="target"/> <see cref="Tuple"/> with the default value of <see cref="MergeConflictBehavior"/>.
-    /// </summary>
-    /// <param name="target">Tuple that receives the data.</param>
-    /// <param name="source">Source tuple to process.</param>
-    /// from <paramref name="source"/> and <paramref name="target"/> are available.</param>
-    public static void MergeWith(this Tuple target, Tuple source)
-    {
-      MergeWith(target, source, 0, target.Count, MergeConflictBehavior.Default);
-    }
-
-    #endregion
 
     #region Private: Initializer: Data & Handler
 

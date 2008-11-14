@@ -175,7 +175,7 @@ namespace Xtensive.Storage
         SyncManager.Enlist(OperationType.Add, ConcreteOwner, item, association);
 
       if (underlyingType!=null && association.IsMaster)
-        itemConstructor(item.Key.Value.CombineWith(ConcreteOwner.Key.Value));
+        itemConstructor(item.Key.Value.Combine(ConcreteOwner.Key.Value));
 
       State.Add(item.Key);
       OnAdd(item, notify);
@@ -194,7 +194,7 @@ namespace Xtensive.Storage
         SyncManager.Enlist(OperationType.Remove, ConcreteOwner, item, association);
 
       if (underlyingType!=null && association.IsMaster) {
-        var combinedKey = Key.Create(underlyingType, item.Key.Value.CombineWith(ConcreteOwner.Key.Value));
+        var combinedKey = Key.Create(underlyingType, item.Key.Value.Combine(ConcreteOwner.Key.Value));
         Entity underlyingItem = combinedKey.Resolve();
         underlyingItem.Remove();
       }
