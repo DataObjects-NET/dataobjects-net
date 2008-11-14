@@ -13,8 +13,10 @@ using Xtensive.Core;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
+using Xtensive.Core.Tuples.Transform;
 using Xtensive.PluginManager;
 using Xtensive.Storage.Configuration;
+using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Resources;
@@ -187,20 +189,36 @@ namespace Xtensive.Storage.Building.Builders
       using (Log.InfoRegion(Strings.LogCreatingX, "Entity tuple prototypes")) {
         var domain = BuildingContext.Current.Domain;
         var model = domain.Model;
-        var prototypes = domain.PersistentTuplePrototypes;
+        var prototypes = domain.PersistentPrototypes;
         foreach (var type in (from t in model.Types where !t.IsInterface select t)) {
+          // Building nullable map
           var nullableMap = new BitArray(type.TupleDescriptor.Count);
           int i = 0;
           foreach (var column in type.Columns)
             nullableMap[i++] = column.IsNullable;
-          Tuple prototype = Tuple.Create(type.TupleDescriptor);
-          prototype.Initialize(nullableMap);
+
+          // Building tuple
+          Tuple tuple = Tuple.Create(type.TupleDescriptor);
+          tuple.Initialize(nullableMap);
           if (type.IsEntity) {
             var typeIdField = type.Fields[domain.NameBuilder.TypeIdFieldName];
-            prototype.SetValue(typeIdField.MappingInfo.Offset, type.TypeId);
+            tuple.SetValue(typeIdField.MappingInfo.Offset, type.TypeId);
           }
-          Log.Info("Type '{0}': {1}", type, prototype);
-          prototypes[type] = prototype;
+          tuple = tuple.ToFastReadOnly();
+          Log.Info("Type '{0}': {1}", type, tuple);
+
+          MapTransform keyInjector = null;
+          if (!type.IsStructure) {
+            var fieldCount = tuple.Count;
+            var keyFieldCount = type.Hierarchy.KeyTupleDescriptor.Count;
+            var fieldMap = new Pair<int, int>[fieldCount];
+            for (i = 0; i < fieldCount; i++)
+              fieldMap[i] = new Pair<int, int>((i < keyFieldCount) ? 0 : 1, i);
+            keyInjector = new MapTransform(true, tuple.Descriptor, fieldMap);
+          }
+
+          // And finally...
+          prototypes[type] = new PersistentPrototype(type, tuple, keyInjector);
         }
       }
     }

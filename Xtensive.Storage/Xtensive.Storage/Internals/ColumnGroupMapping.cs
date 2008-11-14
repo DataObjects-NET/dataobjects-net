@@ -27,6 +27,7 @@ namespace Xtensive.Storage.Internals
       return typeMappings.GetValue(typeId,
         _typeId => {
           var type = Model.Types[typeId];
+
           // Building typeMap
           var columnCount = type.Columns.Count;
           var typeMap = new int[columnCount];
@@ -38,6 +39,7 @@ namespace Xtensive.Storage.Internals
             else
               typeMap[i] = MapTransform.NoMapping;
           }
+
           // Building keyMap
           var columns = type.Hierarchy.KeyColumns;
           columnCount = columns.Count;

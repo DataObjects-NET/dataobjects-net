@@ -153,7 +153,7 @@ namespace Xtensive.Storage
     protected Structure()
     {
       type = Session.Domain.Model.Types[GetType()];
-      data = Session.Domain.PersistentTuplePrototypes[type].Clone();
+      data = Session.Domain.PersistentPrototypes[type].Tuple;
     }
 
     /// <summary>

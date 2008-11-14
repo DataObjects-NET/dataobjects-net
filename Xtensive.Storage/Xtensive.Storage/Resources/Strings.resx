@@ -501,4 +501,7 @@
   <data name="ExInvalidKeyString" xml:space="preserve">
     <value>String representaion of the Key has invalid format.</value>
   </data>
+  <data name="ExCantAssociateNonEmptyEntityStateWithKeyOfUnknownType" xml:space="preserve">
+    <value>Attempt to associate non-empty EntityState with Key of unknown type.</value>
+  </data>
 </root>

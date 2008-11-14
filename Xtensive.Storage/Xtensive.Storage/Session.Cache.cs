@@ -4,9 +4,13 @@
 // Created by: Alex Yakunin
 // Created:    2008.11.07
 
+using System;
+using Xtensive.Core;
 using Xtensive.Core.Caching;
 using Xtensive.Core.Tuples;
+using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Internals;
+using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage
 {
@@ -17,18 +21,17 @@ namespace Xtensive.Storage
 
     internal EntityState CreateNewEntityState(Key key)
     {
-      EntityState result;
+      // If type is unknown, we consider tuple is null, 
+      // so its Entity is considered as non-existing
+      Tuple tuple = null; 
       if (key.IsTypeCached) {
-        // New instance contains a tuple with all fields set with default values.
-        var origin = Domain.PersistentTuplePrototypes[key.Type].Clone();
-        key.Value.CopyTo(origin);
-        result = new EntityState(this, key, origin);
+        // New instance contains a tuple with all fields set with default values;
+        var prototype = Domain.PersistentPrototypes[key.Type];
+        tuple = prototype.KeyInjector.Apply(TupleTransformType.TransformedTuple, key.Value, prototype.Tuple);
       }
-      else {
-        // Key belongs to non-existing Entity
-        result = new EntityState(this, key, null);
-      }
-      result.PersistenceState = PersistenceState.New;
+      var result = new EntityState(this, key, tuple) {
+        PersistenceState = PersistenceState.New
+      };
       EntityStateCache.Add(result);
 
       if (IsDebugEventLoggingEnabled)
@@ -36,23 +39,18 @@ namespace Xtensive.Storage
       return result;
     }
 
+    /// <exception cref="InvalidOperationException">Attempt to associate 
+    /// non-null <paramref name="tuple"/> with <paramref name="key"/> of
+    /// unknown type.</exception>
     internal EntityState UpdateEntityState(Key key, Tuple tuple)
     {
-      EntityState result = EntityStateCache[key, true];
+      var result = EntityStateCache[key, true];
       if (result == null) {
-        if (key.IsTypeCached && tuple != null) {
-          // Fetched instance contains a tuple with some fields set with fetched values.
-          // Other fields MUST be not available.
-          // That is why Tuple.Create() is used instead of prototype.Clone();
-          var origin = Tuple.Create(key.Type.TupleDescriptor);
-          tuple.CopyTo(origin);
-          result = new EntityState(this, key, origin);
-        }
-        else {
-          // Key belongs to non-existing Entity
-          result = new EntityState(this, key, null);
-        }
-        result.PersistenceState = PersistenceState.Synchronized;
+        if (!key.IsTypeCached && tuple!=null)
+          throw Exceptions.InternalError(Strings.ExCantAssociateNonEmptyEntityStateWithKeyOfUnknownType, Log.Instance);
+        result = new EntityState(this, key, tuple) {
+          PersistenceState = PersistenceState.Synchronized
+        };
         EntityStateCache.Add(result);
         if (IsDebugEventLoggingEnabled)
           Log.Debug("Session '{0}'. Caching: {1}", this, result);

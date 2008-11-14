@@ -339,6 +339,8 @@ namespace Xtensive.Core.Tuples
     /// as the specified <paramref name="source"/> tuple.</returns>
     public static RegularTuple ToRegular(this Tuple source)
     {
+      if (source==null)
+        return null;
       var result = Tuple.Create(source.Descriptor);
       source.CopyTo(result);
       return result;
@@ -352,6 +354,8 @@ namespace Xtensive.Core.Tuples
     /// <returns>Read-only version of <paramref name="source"/> tuple.</returns>
     public static Tuple ToReadOnly(this Tuple source, TupleTransformType transformType)
     {
+      if (source==null)
+        return null;
       return ReadOnlyTransform.Instance.Apply(transformType, source);
     }
 
@@ -362,7 +366,8 @@ namespace Xtensive.Core.Tuples
     /// <returns>Fast read-only version of <paramref name="source"/> tuple.</returns>
     public static Tuple ToFastReadOnly(this Tuple source)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      if (source==null)
+        return null;
       if (source.GetType()==typeof (FastReadOnlyTuple))
         return source;
       return new FastReadOnlyTuple(source);

@@ -92,7 +92,7 @@ namespace Xtensive.Storage.Internals
       var keyTuple = typeMapping.KeyTransform.Apply(TupleTransformType.TransformedTuple, record);
       var key = Key.Create(context.Domain, typeMapping.Type, keyTuple, true, true);
 
-      var entityTuple = typeMapping.Transform.Apply(TupleTransformType.TransformedTuple, record);
+      var entityTuple = typeMapping.Transform.Apply(TupleTransformType.Tuple, record);
       context.Session.UpdateEntityState(key, entityTuple);
       return key;
     }
@@ -145,9 +145,11 @@ namespace Xtensive.Storage.Internals
       : base(domain)
     {
       cache = 
-        new LruCache<RecordSetHeader, RecordSetMapping>(domain.Configuration.RecordSetMappingCacheSize, 
+        new LruCache<RecordSetHeader, RecordSetMapping>(
+          domain.Configuration.RecordSetMappingCacheSize, 
           m => m.Header,
-          new WeakestCache<RecordSetHeader, RecordSetMapping>(false, false, m => m.Header));
+          new WeakestCache<RecordSetHeader, RecordSetMapping>(false, false, 
+            m => m.Header));
     }
   }
 }

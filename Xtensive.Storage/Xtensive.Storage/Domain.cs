@@ -106,7 +106,7 @@ namespace Xtensive.Storage
 
     internal ICache<Key, Key> KeyCache { get; private set; }
 
-    internal Dictionary<TypeInfo, Tuple> PersistentTuplePrototypes { get; private set; }
+    internal Dictionary<TypeInfo, PersistentPrototype> PersistentPrototypes { get; private set; }
 
     internal Dictionary<AssociationInfo, ActionSet> PairSyncActions { get; private set; }
 
@@ -168,7 +168,7 @@ namespace Xtensive.Storage
       RecordSetParser = new RecordSetParser(this);
       KeyGenerators = new Registry<HierarchyInfo, KeyGenerator>();
       KeyCache = new LruCache<Key, Key>(Configuration.KeyCacheSize, k => k);
-      PersistentTuplePrototypes = new Dictionary<TypeInfo, Tuple>(1024);
+      PersistentPrototypes = new Dictionary<TypeInfo, PersistentPrototype>(1024);
       PairSyncActions = new Dictionary<AssociationInfo, ActionSet>(1024);
       TemporaryData = new GlobalTemporaryData();
     }
