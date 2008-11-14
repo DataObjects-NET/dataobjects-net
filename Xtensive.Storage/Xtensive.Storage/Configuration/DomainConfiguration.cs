@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Reflection;
+using Microsoft.Practices.Unity;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
@@ -78,7 +79,6 @@ namespace Xtensive.Storage.Configuration
     private UrlInfo connectionInfo;
     private Registry types = new Registry(new TypeProcessor());
     private CollectionBaseSlim<Type> builders = new CollectionBaseSlim<Type>();
-//    private ServiceRegistry services = new ServiceRegistry();
     private NamingConvention namingConvention;
     private int keyCacheSize = DefaultKeyCacheSize;
     private int keyGeneratorCacheSize = DefaultKeyGeneratorCacheSize;
@@ -86,6 +86,7 @@ namespace Xtensive.Storage.Configuration
     private int recordSetMappingCacheSize = DefaultRecordSetMappingCacheSize;
     private bool autoValidation = true;
     private bool inconsistentTransactions;
+    private UnityContainer serviceContainer;
     private SessionConfiguration session;
 
     /// <summary>
@@ -267,6 +268,14 @@ namespace Xtensive.Storage.Configuration
     }
 
     /// <summary>
+    /// Gets the service container.
+    /// </summary>
+    public UnityContainer ServiceContainer
+    {
+      get { return serviceContainer; }
+    }
+
+    /// <summary>
     /// Locks the instance and (possible) all dependent objects.
     /// </summary>
     /// <param name="recursive"><see langword="True"/> if all dependent objects should be locked as well.</param>
@@ -274,7 +283,6 @@ namespace Xtensive.Storage.Configuration
     {
       types.Lock(true);
       builders.Lock(true);
-//      services.Lock(true);
       session.Lock(true);
       base.Lock(recursive);
     }
@@ -305,6 +313,7 @@ namespace Xtensive.Storage.Configuration
       sessionPoolSize = configuration.SessionPoolSize;
       recordSetMappingCacheSize = configuration.RecordSetMappingCacheSize;
       session = configuration.Session;
+      serviceContainer = configuration.serviceContainer;
     }
 
     #region Equality members
@@ -421,6 +430,8 @@ namespace Xtensive.Storage.Configuration
     {
       namingConvention = new NamingConvention();
       session = new SessionConfiguration();
+      serviceContainer = new UnityContainer();
+      serviceContainer.AddExtension(new SingletonExtension());
     }
   }
 }

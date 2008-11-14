@@ -7,6 +7,7 @@
 using System;
 using System.Configuration;
 using System.Reflection;
+using Microsoft.Practices.Unity.Configuration;
 using Xtensive.Core;
 using Xtensive.Core.Helpers;
 
@@ -29,6 +30,8 @@ namespace Xtensive.Storage.Configuration.Elements
     private const string AutoValidationElementName = "autoValidation";
     private const string InconsistentTransactionsElementName = "inconsistentTransactions";
     private const string SessionElementName = "session";
+    private const string TypeAliasesElementName = "typeAliases";
+    private const string ServicesElementName = "services";
 
     /// <inheritdoc/>
     public override object Identifier
@@ -161,6 +164,33 @@ namespace Xtensive.Storage.Configuration.Elements
     }
 
     /// <summary>
+    /// Provides access to the type alias information in the section.
+    /// </summary>
+    [ConfigurationProperty(TypeAliasesElementName, IsRequired = false)]
+    [ConfigurationCollection(typeof(UnityTypeAliasCollection), AddItemName = "typeAlias")]
+    public UnityTypeAliasCollection TypeAliases
+    {
+      get { return (UnityTypeAliasCollection)base[TypeAliasesElementName]; }
+    }
+
+
+    /// <summary>
+    /// A <see cref="System.Configuration.ConfigurationElement" /> that stores the configuration information
+    /// for a services provided by <see cref="Microsoft.Practices.Unity.IUnityContainer" />.
+    /// </summary>
+    [ConfigurationProperty(ServicesElementName)]
+    [ConfigurationCollection(typeof(UnityTypeElementCollection), AddItemName = "service")]
+    public UnityTypeElementCollection Services
+    {
+      get
+      {
+        var services = (UnityTypeElementCollection)base[ServicesElementName];
+        services.TypeResolver = new UnityTypeResolver(TypeAliases);
+        return services;
+      }
+    }
+
+    /// <summary>
     /// Converts the element to a native configuration object it corresponds to - 
     /// i.e. to a <see cref="DomainConfiguration"/> object.
     /// </summary>
@@ -189,6 +219,9 @@ namespace Xtensive.Storage.Configuration.Elements
           c.Types.Register(assembly, entry.Namespace);
       }
       c.Session = Session.ToNative();
+      foreach (UnityTypeElement typeElement in Services)
+        typeElement.Configure(c.ServiceContainer);
+
       return c;
     }
   }

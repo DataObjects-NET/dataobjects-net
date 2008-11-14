@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Microsoft.Practices.Unity;
 using Xtensive.Core;
 using Xtensive.Core.Caching;
 using Xtensive.Core.Collections;
@@ -213,6 +214,7 @@ namespace Xtensive.Storage
       // Etc...
       AtomicityContext = new AtomicityContext(this, AtomicityContextOptions.Undoable);
       CoreServices = new CoreServiceAccessor(this);
+      servicesContainer = domain.Configuration.ServiceContainer.CreateChildContainer();
       PairSyncManager = new SyncManager(this);
     }
 
