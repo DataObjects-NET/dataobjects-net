@@ -8,6 +8,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Core;
+using Xtensive.Core.Aspects;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Model;
 
@@ -18,27 +19,35 @@ namespace Xtensive.Storage
     where TItem : Entity
   {
     /// <inheritdoc/>
+    [Infrastructure]
     public bool Contains(TItem item)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
       return base.Contains(item);
     }
 
-    /// <inheritdoc/>
-    public virtual bool Add(TItem item)
+    /// <summary>
+    /// Adds the specified element to the <see cref="EntitySet{TItem}"/>.
+    /// </summary>
+    /// <param name="item">Item to add to the set.</param>
+    /// <returns><see langword="True"/> if the element is added to the <see cref="EntitySet{TItem}"/> object; otherwise, <see langword="false"/>.</returns>
+    [Infrastructure]
+    public bool Add(TItem item)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
       return Add(item, true);
     }
 
     /// <inheritdoc/>
-    public virtual bool Remove(TItem item)
+    [Infrastructure]
+    public bool Remove(TItem item)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
       return Remove(item, true);
     }
 
     /// <inheritdoc/>
+    [Infrastructure]
     public void Clear()
     {
       Clear(true);
@@ -47,12 +56,14 @@ namespace Xtensive.Storage
     #region Explicit ICollection<T> members
 
     /// <inheritdoc/>
+    [Infrastructure]
     void ICollection<TItem>.Add(TItem item)
     {
       Add(item);
     }
 
     /// <inheritdoc/>
+    [Infrastructure]
     int ICollection<TItem>.Count
     {
       [DebuggerStepThrough]
@@ -60,6 +71,7 @@ namespace Xtensive.Storage
     }
 
     /// <inheritdoc/>
+    [Infrastructure]
     public bool IsReadOnly
     {
       [DebuggerStepThrough]
@@ -67,6 +79,7 @@ namespace Xtensive.Storage
     }
 
     /// <inheritdoc/>
+    [Infrastructure]
     public IEnumerator<TItem> GetEnumerator()
     {
       foreach (Key key in GetKeys())
@@ -74,12 +87,14 @@ namespace Xtensive.Storage
     }
 
     /// <inheritdoc/>
+    [Infrastructure]
     IEnumerator IEnumerable.GetEnumerator()
     {
       return GetEnumerator();
     }
 
     /// <inheritdoc/>
+    [Infrastructure]
     public void CopyTo(TItem[] array, int arrayIndex)
     {
       foreach (TItem item in this)

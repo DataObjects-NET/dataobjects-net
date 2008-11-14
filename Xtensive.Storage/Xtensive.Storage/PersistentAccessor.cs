@@ -66,7 +66,6 @@ namespace Xtensive.Storage
     public Key GetKey(Persistent target, FieldInfo field)
     {
       ValidateArguments(target, field);
-      // TODO: Refactor
       return target.GetKey(field);
     }
 

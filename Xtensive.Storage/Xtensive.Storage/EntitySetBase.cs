@@ -11,6 +11,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using Xtensive.Core;
+using Xtensive.Core.Aspects;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Parameters;
@@ -24,6 +25,9 @@ using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage
 {
+  /// <summary>
+  /// Base class for <see cref="EntitySet{TItem}"/>.
+  /// </summary>
   public abstract class EntitySetBase : TransactionalStateContainer<EntitySetState>,
     IFieldHandler,
     INotifyPropertyChanged,
@@ -32,7 +36,7 @@ namespace Xtensive.Storage
     private const int                                 CacheSize = 10240;
     private static readonly Parameter<Tuple>          pKey = new Parameter<Tuple>("Key");
 
-    private AssociationInfo                  association;
+    private AssociationInfo                           association;
     private TypeInfo                                  underlyingType;
     private Func<Tuple, Entity>                       itemConstructor;
     private RecordSet                                 count;
@@ -42,7 +46,7 @@ namespace Xtensive.Storage
     private Func<Tuple, Tuple>                        combineKey;
     private CombineTransform                          combineKeyTransform;
 
-    internal RecordSet Items { get; private set; }
+    #region Public Count, Contains, GetKeys members
 
     /// <summary>
     /// Gets the number of elements contained in the <see cref="EntitySetBase"/>.
@@ -50,6 +54,7 @@ namespace Xtensive.Storage
     /// <returns>
     /// The number of elements contained in the <see cref="EntitySetBase"/>.
     /// </returns>
+    [Infrastructure]
     public long Count
     {
       [DebuggerStepThrough]
@@ -63,6 +68,7 @@ namespace Xtensive.Storage
     /// <returns>
     /// <see langword="true"/> if <see cref="EntitySetBase"/> contains the specified item; otherwise, <see langword="false"/>.
     /// </returns>
+    [Infrastructure]
     public bool Contains(Entity item)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
@@ -77,6 +83,7 @@ namespace Xtensive.Storage
     /// <see langword="true"/> if <see cref="EntitySetBase"/> contains the specified <see cref="Key"/>; otherwise, <see langword="false"/>.
     /// </returns>
     /// <exception cref="InvalidOperationException">Entity type is not supported.</exception>
+    [Infrastructure]
     public bool Contains(Key key)
     {
       ArgumentValidator.EnsureArgumentNotNull(key, "key");
@@ -100,6 +107,7 @@ namespace Xtensive.Storage
     /// Gets the keys.
     /// </summary>
     /// <returns>The <see cref="IEnumerable{Key}"/> collection of <see cref="Key"/> instances.</returns>
+    [Infrastructure]
     public IEnumerable<Key> GetKeys()
     {
       long version = State.Version;
@@ -114,8 +122,11 @@ namespace Xtensive.Storage
       }
     }
 
+    #endregion
+
     #region Initialization members
 
+    [Infrastructure]
     internal void Initialize(bool notify)
     {
       association = Field.Association;
@@ -128,7 +139,7 @@ namespace Xtensive.Storage
       seek = index.ToRecordSet().Seek(() => pKey.Value);
       count = Items.Aggregate(null, new AggregateColumnDescriptor("$Count", 0, AggregateType.Count));
       extractKey = BuildExtractKey(index);
-      combineKey = BuildCombineKey(index);
+      combineKey = BuildCombineKey();
       OnInitialize(notify);
     }
 
@@ -150,7 +161,7 @@ namespace Xtensive.Storage
       return tuple => extractKeyTransform.Apply(TupleTransformType.TransformedTuple, tuple);
     }
 
-    private Func<Tuple, Tuple> BuildCombineKey(IndexInfo index)
+    private Func<Tuple, Tuple> BuildCombineKey()
     {
       if (underlyingType == null) {
         combineKeyTransform = new CombineTransform(true, association.ReferencedType.Hierarchy.KeyTupleDescriptor, association.ReferencingType.Hierarchy.KeyTupleDescriptor);
@@ -162,7 +173,9 @@ namespace Xtensive.Storage
 
     #endregion
 
-    #region Internal Add, Remove, Clear members
+    #region Internal Items, Add, Remove, Clear members
+
+    internal RecordSet Items { get; private set; }
 
     internal bool Add(Entity item, bool notify)
     {
@@ -221,6 +234,8 @@ namespace Xtensive.Storage
       return new EntitySetState(CacheSize, () => count.First().GetValue<long>(0));
     }
 
+    #region Private members
+
     private Entity ConcreteOwner
     {
       get { return (Entity) Owner; }
@@ -237,6 +252,8 @@ namespace Xtensive.Storage
       foreach (Tuple tuple in Items)
         yield return Key.Create(Field.ValueType, extractKey(tuple));
     }
+
+    #endregion
 
     #region System-level events
 
@@ -329,9 +346,11 @@ namespace Xtensive.Storage
     #region IFieldHandler members
 
     /// <inheritdoc/>
+    [Infrastructure]
     public Persistent Owner { get; private set; }
 
     /// <inheritdoc/>
+    [Infrastructure]
     public FieldInfo Field { get; private set; }
 
     #endregion
@@ -339,6 +358,7 @@ namespace Xtensive.Storage
     #region INotifyPropertyChanged members
 
     /// <inheritdoc/>
+    [Infrastructure]
     public event PropertyChangedEventHandler PropertyChanged;
 
     protected void OnPropertyChanged(string name)
@@ -354,9 +374,10 @@ namespace Xtensive.Storage
     /// <summary>
     /// Occurs when the collection changes.
     /// </summary>
+    [Infrastructure]
     public event NotifyCollectionChangedEventHandler CollectionChanged;
 
-    protected void OnCollectionChanged(NotifyCollectionChangedAction action, Entity item)
+    private void OnCollectionChanged(NotifyCollectionChangedAction action, Entity item)
     {
       if (CollectionChanged==null)
         return;
@@ -371,7 +392,7 @@ namespace Xtensive.Storage
     // Constructors
 
     /// <summary>
-    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="owner">Persistent this entity set belongs to.</param>
     /// <param name="field">Field corresponds to this entity set.</param>

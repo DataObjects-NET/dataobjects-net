@@ -11,6 +11,9 @@ namespace Xtensive.Storage
   /// </summary>
   public sealed class CoreServiceAccessor : SessionBound
   {
+    /// <summary>
+    /// Gets the accessor for <see cref="Persistent"/> descendants.
+    /// </summary>
     public PersistentAccessor PersistentAccessor { get; private set; }
 
 
