@@ -185,7 +185,7 @@ namespace Xtensive.Storage
         if (newEntity!=null)
           newRef = newEntity.Key;
         if (currentRef!=newRef) {
-          SyncManager.Enlist(OperationType.Set, (Entity) this, newEntity, association);
+          Session.PairSyncManager.Enlist(OperationType.Set, (Entity) this, newEntity, association);
           field.GetAccessor<T>().SetValue(this, field, value);
         }
       }

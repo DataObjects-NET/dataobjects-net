@@ -22,8 +22,6 @@ namespace Xtensive.Storage
   {
     private IDisposable inconsistentRegion;
 
-    internal Stack<SyncContext> PairSyncContextStack { get; private set; }
-
     /// <summary>
     /// Gets the session.
     /// </summary>
@@ -140,7 +138,6 @@ namespace Xtensive.Storage
       Session = session;
       TemporaryData = new TransactionTemporaryData();
       ValidationContext = new ValidationContext();
-      PairSyncContextStack = new Stack<SyncContext>();
     }
   }
 } 

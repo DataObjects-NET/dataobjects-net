@@ -6,15 +6,12 @@
 
 using System;
 using System.Linq;
-using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Helpers;
-using Xtensive.Core.Reflection;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.PairIntegrity;
 using Xtensive.Storage.Resources;
-using FieldInfo=Xtensive.Storage.Model.FieldInfo;
 
 namespace Xtensive.Storage.Building.Builders
 {
@@ -90,7 +87,7 @@ namespace Xtensive.Storage.Building.Builders
         }
       }
 
-      if (master.Multiplicity == Multiplicity.ManyToOne) {
+      if (master.Multiplicity==Multiplicity.ManyToOne) {
         master.IsMaster = false;
         slave.IsMaster = true;
       }
@@ -127,24 +124,18 @@ namespace Xtensive.Storage.Building.Builders
       default:
         return;
       }
-      PairIntegrity.ActionSet actionSet = new ActionSet(getValue, @break, create);
+      ActionSet actionSet = new ActionSet(getValue, @break, create);
       BuildingContext.Current.Domain.PairSyncActions.Add(association, actionSet);
     }
 
     private static Func<Entity, Entity> BuildGetPairedValueAction(AssociationInfo association)
     {
-//      if (association.ReferencingField.UnderlyingProperty!=null) {
-//        Type dh = typeof (DelegateHelper);
-//        MethodInfo mi = dh.GetMethod("CreateGetMemberDelegate");
-//        MethodInfo cmi = mi.MakeGenericMethod(new[] {typeof(Entity), typeof (Entity)});
-//        return (Func<Entity, Entity>) cmi.Invoke(null, new[] {association.ReferencingField.UnderlyingProperty.Name});
-//      }
       return entity => entity.GetField<Entity>(association.ReferencingField, false);
     }
 
     private static Action<Entity, Entity> BuildBreakAssociationAction(AssociationInfo association, OperationType type)
     {
-      if (type == OperationType.Set)
+      if (type==OperationType.Set)
         return (master, slave) => master.SetField<Entity>(association.ReferencingField, null, false);
       else
         return (master, slave) => master.GetField<EntitySetBase>(association.ReferencingField, false).Remove(slave, false);
@@ -152,7 +143,7 @@ namespace Xtensive.Storage.Building.Builders
 
     private static Action<Entity, Entity> BuildCreateAssociationAction(AssociationInfo association, OperationType type)
     {
-      if (type == OperationType.Set)
+      if (type==OperationType.Set)
         return (master, slave) => master.SetField(association.ReferencingField, slave, false);
       else
         return (master, slave) => master.GetField<EntitySetBase>(association.ReferencingField, false).Add(slave, false);

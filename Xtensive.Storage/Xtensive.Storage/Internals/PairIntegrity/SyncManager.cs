@@ -5,18 +5,20 @@
 // Created:    2008.10.08
 
 using System;
+using System.Collections.Generic;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.PairIntegrity
 {
-  internal static class SyncManager
+  internal class SyncManager : SessionBound
   {
-    public static void Enlist(OperationType type, Entity owner, Entity value, AssociationInfo association)
+    private readonly Stack<SyncContext> contextStack = new Stack<SyncContext>();
+
+    public void Enlist(OperationType type, Entity owner, Entity value, AssociationInfo association)
     {
-      var stack = owner.Session.Transaction.PairSyncContextStack;
       SyncContext context = null;
-      if (stack.Count > 0)
-        context = stack.Peek();
+      if (contextStack.Count > 0)
+        context = contextStack.Peek();
 
       // Existing & corrrect context
       if (context!=null && context.Contains(owner, association)) {
@@ -40,7 +42,7 @@ namespace Xtensive.Storage.PairIntegrity
           master2 = slaveActions.GetPairedValue(slave2);
 
         context = new SyncContext();
-        stack.Push(context);
+        contextStack.Push(context);
 
         switch (type) {
         case OperationType.Add:
@@ -69,8 +71,16 @@ namespace Xtensive.Storage.PairIntegrity
         }
 
         context.ExecuteNextAction();
-        stack.Pop();
+        contextStack.Pop();
       }
+    }
+
+
+    // Constructor
+
+    public SyncManager(Session session)
+      : base(session)
+    {
     }
   }
 }

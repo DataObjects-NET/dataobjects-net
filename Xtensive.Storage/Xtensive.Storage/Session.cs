@@ -17,6 +17,7 @@ using Xtensive.Integrity.Atomicity;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.PairIntegrity;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Resources;
@@ -61,6 +62,8 @@ namespace Xtensive.Storage
     internal HandlerAccessor Handlers { get; private set; }
 
     internal CoreServiceAccessor CoreServices { get; private set; }
+
+    internal SyncManager PairSyncManager { get; private set; }
 
     #endregion
 
@@ -210,6 +213,7 @@ namespace Xtensive.Storage
       // Etc...
       AtomicityContext = new AtomicityContext(this, AtomicityContextOptions.Undoable);
       CoreServices = new CoreServiceAccessor(this);
+      PairSyncManager = new SyncManager(this);
     }
 
     #region Dispose pattern
