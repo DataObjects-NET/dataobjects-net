@@ -154,26 +154,22 @@ namespace Xtensive.Storage.Model
       if (!ReferencingType.IsEntity)
         return;
       switch (Multiplicity) {
-      case Multiplicity.OneToZero:
+      case Multiplicity.ZeroToOne:
       case Multiplicity.OneToOne:
-      case Multiplicity.OneToMany:
-        UnderlyingIndex = ReferencingType.Indexes.GetIndex(ReferencingField.Name);
-        ExtractForeignKeyTransform = ReferencingField.ExtractValueTransform;
-        ExtractForeignKey = ReferencingField.ExtractValue;
-        break;
       case Multiplicity.ManyToOne:
+        UnderlyingIndex = ReferencingType.Indexes.GetIndex(ReferencingField.Name);
+        break;
+      case Multiplicity.OneToMany:
         UnderlyingIndex = Reversed.ReferencingType.Indexes.GetIndex(Reversed.ReferencingField.Name);
         break;
-      case Multiplicity.ManyToZero:
+      case Multiplicity.ZeroToMany:
       case Multiplicity.ManyToMany:
         UnderlyingIndex = underlyingType.Indexes.Where(indexInfo => indexInfo.IsSecondary).Skip(IsMaster ? 1 : 0).First();
         break;
       }
-      if (ExtractForeignKey == null) {
-        Segment<int> foreignKeySegment = new Segment<int>(ReferencingType.Hierarchy.MappingInfo.Length, ReferencedType.Hierarchy.MappingInfo.Length);
-        ExtractForeignKeyTransform = new SegmentTransform(true, UnderlyingIndex.TupleDescriptor, foreignKeySegment);
-        ExtractForeignKey = tuple => ExtractForeignKeyTransform.Apply(TupleTransformType.TransformedTuple, tuple);
-      }
+      Segment<int> foreignKeySegment = new Segment<int>(ReferencingType.Hierarchy.MappingInfo.Length, ReferencedType.Hierarchy.MappingInfo.Length);
+      ExtractForeignKeyTransform = new SegmentTransform(true, UnderlyingIndex.TupleDescriptor, foreignKeySegment);
+      ExtractForeignKey = tuple => ExtractForeignKeyTransform.Apply(TupleTransformType.TransformedTuple, tuple);
 
       if (underlyingType==null)
         BuildPrimaryKeyTransform = new CombineTransform(true, ReferencedType.Hierarchy.KeyTupleDescriptor, ReferencingType.Hierarchy.KeyTupleDescriptor);

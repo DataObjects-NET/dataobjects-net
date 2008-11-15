@@ -189,7 +189,7 @@ namespace Xtensive.Storage.Building.Builders
           continue;
 
         var multiplicity = association.Multiplicity;
-        if (!(multiplicity == Multiplicity.ManyToZero || multiplicity == Multiplicity.ManyToMany))
+        if (!(multiplicity == Multiplicity.ZeroToMany || multiplicity == Multiplicity.ManyToMany))
           continue;
 
         var masterType = association.ReferencedType.UnderlyingType;

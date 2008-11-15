@@ -16,11 +16,9 @@ namespace Xtensive.Storage.Model
   public enum ReferentialAction
   {
     /// <summary>
-    /// Indicates that ORM is capable to assign <b>NULL</b> to a field
-    /// referenced by foreign key constraint or to remove the whole item that is used in n-ry relations
-    /// in order to preserve referential integrity if it violated by some executed instruction.
+    /// Indicates that ORM is capable to perform no action.
     /// </summary>
-    Clear = 0,
+    NoAction = 0,
 
     /// <summary>
     /// The same as <see cref="Restrict"/>.
@@ -39,5 +37,12 @@ namespace Xtensive.Storage.Model
     /// it violated by some executed instruction.
     /// </summary>
     Cascade = 2,
+
+    /// <summary>
+    /// Indicates that ORM is capable to assign <see langword="null"/> to a field
+    /// referenced by foreign key constraint or to remove the whole item that is used in n-ry relations
+    /// in order to preserve referential integrity if it violated by some executed instruction.
+    /// </summary>
+    Clear = 3,
   }
 }

@@ -21,8 +21,8 @@ namespace Xtensive.Storage.Building.Builders
     {
       BuildingContext context = BuildingContext.Current;
       TypeInfo referencedType = context.Model.Types[field.ValueType];
-      Multiplicity m = field.IsEntitySet ? Multiplicity.ManyToZero : Multiplicity.OneToZero;
-      var association = new AssociationInfo(field, referencedType, m, fieldDef.OnRemove);
+      Multiplicity multiplicity = field.IsEntitySet ? Multiplicity.ZeroToMany : Multiplicity.ZeroToOne;
+      var association = new AssociationInfo(field, referencedType, multiplicity, fieldDef.OnRemove);
       association.Name = context.NameBuilder.Build(association);
       context.Model.Associations.Add(association);
 
@@ -71,15 +71,15 @@ namespace Xtensive.Storage.Building.Builders
           slave.Multiplicity = Multiplicity.OneToOne;
         }
         if (pairedField.IsEntitySet) {
-          master.Multiplicity = Multiplicity.OneToMany;
-          slave.Multiplicity = Multiplicity.ManyToOne;
+          master.Multiplicity = Multiplicity.ManyToOne;
+          slave.Multiplicity = Multiplicity.OneToMany;
         }
       }
 
       if (masterField.IsEntitySet) {
         if (pairedField.IsEntity) {
-          master.Multiplicity = Multiplicity.ManyToOne;
-          slave.Multiplicity = Multiplicity.OneToMany;
+          master.Multiplicity = Multiplicity.OneToMany;
+          slave.Multiplicity = Multiplicity.ManyToOne;
         }
         if (pairedField.IsEntitySet) {
           master.Multiplicity = Multiplicity.ManyToMany;
@@ -87,7 +87,7 @@ namespace Xtensive.Storage.Building.Builders
         }
       }
 
-      if (master.Multiplicity==Multiplicity.ManyToOne) {
+      if (master.Multiplicity==Multiplicity.OneToMany) {
         master.IsMaster = false;
         slave.IsMaster = true;
       }
@@ -109,13 +109,13 @@ namespace Xtensive.Storage.Building.Builders
         create = BuildCreateAssociationAction(association, OperationType.Set);
         break;
       case Multiplicity.OneToMany:
+        @break = BuildBreakAssociationAction(association, OperationType.Remove);
+        create = BuildCreateAssociationAction(association, OperationType.Add);
+        break;
+      case Multiplicity.ManyToOne:
         getValue = BuildGetPairedValueAction(association);
         @break = BuildBreakAssociationAction(association, OperationType.Set);
         create = BuildCreateAssociationAction(association, OperationType.Set);
-        break;
-      case Multiplicity.ManyToOne:
-        @break = BuildBreakAssociationAction(association, OperationType.Remove);
-        create = BuildCreateAssociationAction(association, OperationType.Add);
         break;
       case Multiplicity.ManyToMany:
         @break = BuildBreakAssociationAction(association, OperationType.Remove);

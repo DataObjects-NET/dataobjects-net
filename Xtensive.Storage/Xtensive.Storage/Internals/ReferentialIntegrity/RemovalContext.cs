@@ -4,38 +4,32 @@
 // Created by: Dmitri Maximov
 // Created:    2008.07.02
 
+using System;
 using System.Collections.Generic;
 
 namespace Xtensive.Storage.ReferentialIntegrity
 {
-  internal class RemovalContext : Core.Context<RemovalScope>
+  internal class RemovalContext : IDisposable
   {
-    private readonly HashSet<Entity> removalQueue = new HashSet<Entity>();
+    public ReferenceManager ReferenceManager { get; private set; }
 
     public bool Notify { get; private set; }
 
-    public HashSet<Entity> RemovalQueue
-    {
-      get { return removalQueue; }
-    }
+    public HashSet<EntityState> RemovalQueue { get; private set; }
 
-    /// <inheritdoc/>
-    protected override RemovalScope CreateActiveScope()
+    public void Dispose()
     {
-      return new RemovalScope(this);
-    }
-
-    /// <inheritdoc/>
-    public override bool IsActive
-    {
-      get { return RemovalScope.Context==this; }
+      RemovalQueue.Clear();
+      ReferenceManager.Context = null;
     }
 
 
     // Constructor
 
-    public RemovalContext(bool notify)
+    public RemovalContext(ReferenceManager referenceManager, bool notify)
     {
+      ReferenceManager = referenceManager;
+      RemovalQueue = new HashSet<EntityState>();
       Notify = notify;
     }
   }

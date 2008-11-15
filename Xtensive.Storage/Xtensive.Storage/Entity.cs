@@ -177,7 +177,7 @@ namespace Xtensive.Storage
       State.EnsureNotRemoved();
 
       Session.Persist();
-      ReferenceManager.ClearReferencesTo(this, notify);
+      Session.ReferenceManager.ClearReferencesTo(this, notify);
       State.PersistenceState = PersistenceState.Removed;
 
       if (notify)

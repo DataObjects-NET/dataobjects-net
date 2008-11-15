@@ -10,6 +10,6 @@ namespace Xtensive.Storage.ReferentialIntegrity
 {
   internal abstract class ActionProcessor
   {
-    public abstract void Process(Entity referencedObject, Entity referencingObject, AssociationInfo association);
+    public abstract void Process(RemovalContext context, AssociationInfo association, Entity referencingObject, Entity referencedObject);
   }
 }

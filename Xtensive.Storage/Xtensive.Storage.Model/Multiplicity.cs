@@ -8,13 +8,13 @@ namespace Xtensive.Storage.Model
 {
   public enum Multiplicity
   {
-    OneToZero = 1,
+    ZeroToOne = 1,
 
-    OneToOne = 2,
+    ZeroToMany = 2,
 
-    OneToMany = 3,
+    OneToOne = 3,
 
-    ManyToZero = 4,
+    OneToMany = 4,
 
     ManyToOne = 5,
 

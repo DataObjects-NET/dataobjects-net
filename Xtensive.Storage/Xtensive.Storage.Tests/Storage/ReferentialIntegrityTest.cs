@@ -75,9 +75,7 @@ namespace Xtensive.Storage.Tests.Storage
         using (var t = Transaction.Open()) {
           A a = new A();
           a.B = new B();
-          a.B.A = a;
           a.C = new C();
-          a.C.A = a;
           Session.Current.Persist();
           Assert.AreEqual(1, Session.Current.All<A>().Count());
           Assert.AreEqual(1, Session.Current.All<B>().Count());

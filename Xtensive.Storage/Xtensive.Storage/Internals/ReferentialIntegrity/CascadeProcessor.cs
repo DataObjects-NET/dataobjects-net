@@ -10,9 +10,9 @@ namespace Xtensive.Storage.ReferentialIntegrity
 {
   internal class CascadeProcessor : ActionProcessor
   {
-    public override void Process(Entity referencedObject, Entity referencingObject, AssociationInfo association)
+    public override void Process(RemovalContext context, AssociationInfo association, Entity referencingObject, Entity referencedObject)
     {
-      referencingObject.Remove(RemovalScope.Context.Notify);
+      referencingObject.Remove(context.Notify);
     }
   }
 }

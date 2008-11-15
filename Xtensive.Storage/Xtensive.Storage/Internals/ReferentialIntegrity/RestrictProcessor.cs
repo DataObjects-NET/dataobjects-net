@@ -10,7 +10,7 @@ namespace Xtensive.Storage.ReferentialIntegrity
 {
   internal class RestrictProcessor : ActionProcessor
   {
-    public override void Process(Entity referencedObject, Entity referencingObject, AssociationInfo association)
+    public override void Process(RemovalContext context, AssociationInfo association, Entity referencingObject, Entity referencedObject)
     {
       throw new ReferentialIntegrityException(referencedObject);
     }

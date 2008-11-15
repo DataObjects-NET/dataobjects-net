@@ -25,18 +25,19 @@ namespace Xtensive.Storage.Model
   [Serializable]
   public sealed class TypeInfo: MappingNode
   {
-    private ColumnInfoCollection columns;
-    private readonly FieldMap fieldMap;
-    private readonly FieldInfoCollection fields;
-    private readonly TypeIndexInfoCollection indexes;
-    private readonly NodeCollection<IndexInfo> affectedIndexes;
-    private readonly DomainModel model;
-    private readonly TypeAttributes attributes;
-    private ReadOnlyList<TypeInfo> ancestors;
-    private Type underlyingType;
-    private HierarchyInfo hierarchy;
-    private int typeId;
-    private TupleDescriptor tupleDescriptor;
+    private ColumnInfoCollection                            columns;
+    private readonly FieldMap                               fieldMap;
+    private readonly FieldInfoCollection                    fields;
+    private readonly TypeIndexInfoCollection                indexes;
+    private readonly NodeCollection<IndexInfo>              affectedIndexes;
+    private readonly DomainModel                            model;
+    private readonly TypeAttributes                         attributes;
+    private ReadOnlyList<TypeInfo>                          ancestors;
+    private ReadOnlyList<AssociationInfo>                   associations;
+    private Type                                            underlyingType;
+    private HierarchyInfo                                   hierarchy;
+    private int                                             typeId;
+    private TupleDescriptor                                 tupleDescriptor;
 
     /// <summary>
     /// Gets a value indicating whether this instance is entity.
@@ -271,17 +272,18 @@ namespace Xtensive.Storage.Model
     /// <returns>The ancestor</returns>
     public IList<TypeInfo> GetAncestors()
     {
-      if (!IsLocked) {
-        var result = new List<TypeInfo>(8);
-        var ancestor = model.Types.FindAncestor(this);
-        // TODO: Refactor
-        while (ancestor!=null) {
-          result.Insert(0,ancestor);
-          ancestor = model.Types.FindAncestor(ancestor);
-        }
-        return result;
+      if (IsLocked)
+        return ancestors;
+
+      var result = new List<TypeInfo>();
+      var ancestor = model.Types.FindAncestor(this);
+      // TODO: Refactor
+      while (ancestor!=null) {
+        result.Add(ancestor);
+        ancestor = model.Types.FindAncestor(ancestor);
       }
-      return ancestors;
+      result.Reverse();
+      return result;
     }
 
     /// <summary>
@@ -296,15 +298,19 @@ namespace Xtensive.Storage.Model
     /// <summary>
     /// Gets the associations this instance is participating in.
     /// </summary>
-    public IEnumerable<AssociationInfo> GetAssociations()
+    public IList<AssociationInfo> GetAssociations()
     {
-      return model.Associations.Find(this);
+      if (IsLocked)
+        return associations;
+
+      return model.Associations.Find(this).ToList();
     }
 
     /// <inheritdoc/>
     public override void Lock(bool recursive)
     {
       ancestors = new ReadOnlyList<TypeInfo>(GetAncestors());
+      associations = new ReadOnlyList<AssociationInfo>(GetAssociations());
       base.Lock(recursive);
       if (recursive) {
         affectedIndexes.Lock(true);

@@ -7,69 +7,74 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.ReferentialIntegrity
 {
-  internal static class ReferenceManager
+  internal class ReferenceManager : SessionBound
   {
     private static readonly CascadeProcessor cascadeProcessor = new CascadeProcessor();
     private static readonly RestrictProcessor restrictProcessor = new RestrictProcessor();
     private static readonly ClearProcessor clearProcessor = new ClearProcessor();
 
-    public static void ClearReferencesTo(Entity referencedObject, bool notify)
-    {
-      RemovalContext context = RemovalScope.Context ?? new RemovalContext(notify);
+    public RemovalContext Context { get; internal set; }
 
-      using (context.Activate()) {
-        context.RemovalQueue.Add(referencedObject);
-        ApplyAction(referencedObject, ReferentialAction.Restrict);
-        ApplyAction(referencedObject, ReferentialAction.Clear);
-        ApplyAction(referencedObject, ReferentialAction.Cascade);
+    public void ClearReferencesTo(Entity referencedObject, bool notify)
+    {
+      if (Context!=null) {
+        ClearReferencesTo(Context, referencedObject);
+        return;
       }
+
+      using (Context = new RemovalContext(this, notify))
+        ClearReferencesTo(Context, referencedObject);
     }
 
-    private static void ApplyAction(Entity referencedObject, ReferentialAction action)
+    private static void ClearReferencesTo(RemovalContext context, Entity referencedObject)
     {
-      TypeInfo type = referencedObject.Type;
-      ActionProcessor processor;
-      switch(action) {
-        case ReferentialAction.Clear:
-          processor = clearProcessor;
-          break;
-        case ReferentialAction.Default:
-          processor = restrictProcessor;
-          break;
-        case ReferentialAction.Cascade:
-          processor = cascadeProcessor;
-          break;
-        default:
-          throw new ArgumentOutOfRangeException("action");
-      }
+      context.RemovalQueue.Add(referencedObject.State);
+      ApplyAction(context, referencedObject, ReferentialAction.Restrict);
+      ApplyAction(context, referencedObject, ReferentialAction.Clear);
+      ApplyAction(context, referencedObject, ReferentialAction.Cascade);
+    }
 
-      IEnumerable<AssociationInfo> associations = type.GetAssociations().Where(a => a.OnRemove==action);
+    private static void ApplyAction(RemovalContext context, Entity referencedObject, ReferentialAction action)
+    {
+      IEnumerable<AssociationInfo> associations = referencedObject.Type.GetAssociations().Where(a => a.OnRemove==action);
+      if (associations == null)
+        return;
 
+      ActionProcessor processor = GetProcessor(action);
       foreach (AssociationInfo association in associations) {
-        var referencingObjects = FindReferencingObjects(referencedObject, association);
+        var referencingObjects = AssociationBrowser.FindReferencingObjects(association, referencedObject).ToList();
         foreach (Entity referencingObject in referencingObjects)
-          processor.Process(referencedObject, referencingObject, association);
+          if (!context.RemovalQueue.Contains(referencingObject.State))
+            processor.Process(context, association, referencingObject, referencedObject);
       }
     }
 
-    private static List<Entity> FindReferencingObjects(Entity referencedObject, AssociationInfo association)
+    private static ActionProcessor GetProcessor(ReferentialAction action)
     {
-      FieldInfo field = association.ReferencingField;
-      IndexInfo index = field.DeclaringType.Indexes.GetIndex(field.Name);
-      RecordSet rs = index.ToRecordSet().Range(referencedObject.Key.Value, referencedObject.Key.Value);
-      List<Entity> result = new List<Entity>();
-
-      foreach (Entity referencingObject in rs.ToEntities(field.DeclaringType.UnderlyingType)) {
-        if (RemovalScope.Context.RemovalQueue.Contains(referencingObject))
-          continue;
-        result.Add(referencingObject);
+      switch (action) {
+      case ReferentialAction.Clear:
+        return clearProcessor;
+      case ReferentialAction.Default:
+        return restrictProcessor;
+      case ReferentialAction.Cascade:
+        return cascadeProcessor;
+      default:
+        throw new ArgumentOutOfRangeException("action");
       }
-      return result;
+    }
+
+
+    // Constructor
+
+    public ReferenceManager(Session session)
+      : base(session)
+    {
     }
   }
 }

@@ -4,17 +4,21 @@
 // Created by: Dmitri Maximov
 // Created:    2008.10.23
 
-using System;
 using System.Collections.Generic;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Internals
 {
   internal static class AssociationBrowser
   {
-    public static IEnumerable<Entity> FindReferencingObjects(AssociationInfo association, Entity referencedEntity)
+    public static IEnumerable<Entity> FindReferencingObjects(AssociationInfo association, Entity referencedObject)
     {
-      throw new NotImplementedException();
+      var key = referencedObject.Key.Value;
+      RecordSet rs = association.UnderlyingIndex.ToRecordSet().Range(key, key);
+
+      foreach (Entity referencingObject in rs.ToEntities(association.ReferencingField.DeclaringType.UnderlyingType))
+        yield return referencingObject;
     }
   }
 }
