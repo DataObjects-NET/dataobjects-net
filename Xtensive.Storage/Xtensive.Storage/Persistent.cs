@@ -16,7 +16,6 @@ using Xtensive.Integrity.Validation.Interfaces;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.PairIntegrity;
-using Xtensive.Core.Reflection;
 
 namespace Xtensive.Storage
 {

@@ -35,10 +35,11 @@ namespace Xtensive.Storage
     private const int                                 CacheSize = 10240;
     private static readonly Parameter<Tuple>          pKey = new Parameter<Tuple>("Key");
 
-    private AssociationInfo                           association;
-    private Func<Tuple, Entity>                       itemConstructor;
+    internal RecordSet                                items;
     private RecordSet                                 count;
     private RecordSet                                 seek;
+    private Func<Tuple, Entity>                       itemCtor;
+    private AssociationInfo                           association;
 
     #region Public Count, Contains, GetKeys members
 
@@ -125,18 +126,16 @@ namespace Xtensive.Storage
     {
       association = Field.Association;
       if (association.UnderlyingType!=null)
-        itemConstructor = DelegateHelper.CreateDelegate<Func<Tuple, Entity>>(null, association.UnderlyingType.UnderlyingType, DelegateHelper.AspectedProtectedConstructorCallerName, ArrayUtils<Type>.EmptyArray);
-      Items = association.UnderlyingIndex.ToRecordSet().Range(ConcreteOwner.Key.Value, ConcreteOwner.Key.Value);
+        itemCtor = DelegateHelper.CreateDelegate<Func<Tuple, Entity>>(null, association.UnderlyingType.UnderlyingType, DelegateHelper.AspectedProtectedConstructorCallerName, ArrayUtils<Type>.EmptyArray);
+      items = association.UnderlyingIndex.ToRecordSet().Range(ConcreteOwner.Key.Value, ConcreteOwner.Key.Value);
       seek = association.UnderlyingIndex.ToRecordSet().Seek(() => pKey.Value);
-      count = Items.Aggregate(null, new AggregateColumnDescriptor("$Count", 0, AggregateType.Count));
+      count = items.Aggregate(null, new AggregateColumnDescriptor("$Count", 0, AggregateType.Count));
       OnInitialize(notify);
     }
 
     #endregion
 
-    #region Internal Items, Add, Remove, Clear members
-
-    internal RecordSet Items { get; private set; }
+    #region Internal Add, Remove, Clear members
 
     internal bool Add(Entity item, bool notify)
     {
@@ -149,7 +148,7 @@ namespace Xtensive.Storage
         Session.PairSyncManager.Enlist(OperationType.Add, ConcreteOwner, item, association);
 
       if (association.UnderlyingType!=null && association.IsMaster)
-        itemConstructor(item.Key.Value.Combine(ConcreteOwner.Key.Value));
+        itemCtor(item.Key.Value.Combine(ConcreteOwner.Key.Value));
 
       State.Add(item.Key);
       OnAdd(item, notify);
@@ -210,7 +209,7 @@ namespace Xtensive.Storage
 
     private IEnumerable<Key> FetchKeys()
     {
-      foreach (Tuple tuple in Items)
+      foreach (Tuple tuple in items)
         yield return Key.Create(Field.ValueType, association.ExtractForeignKey(tuple));
     }
 

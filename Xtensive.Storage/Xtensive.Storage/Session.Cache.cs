@@ -26,8 +26,8 @@ namespace Xtensive.Storage
       Tuple tuple = null; 
       if (key.IsTypeCached) {
         // New instance contains a tuple with all fields set with default values;
-        var prototype = Domain.PersistentPrototypes[key.Type];
-        tuple = prototype.KeyInjector.Apply(TupleTransformType.TransformedTuple, key.Value, prototype.Tuple);
+        var type = key.Type;
+        tuple = type.InjectPrimaryKey.Apply(TupleTransformType.TransformedTuple, key.Value, type.Prototype);
       }
       var result = new EntityState(this, key, tuple) {
         PersistenceState = PersistenceState.New

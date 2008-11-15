@@ -27,6 +27,7 @@ namespace Xtensive.Storage.Model
     LazyLoad = 0x0800,
     InterfaceImplementation = 0x1000,
     Explicit = 0x2000,
-    Enum = 0x4000
+    Enum = 0x4000,
+    TypeId = 0X8000
   }
 }

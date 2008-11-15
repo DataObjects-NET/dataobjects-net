@@ -42,11 +42,14 @@ namespace Xtensive.Storage.Model
     public bool IsSystem {
       [DebuggerStepThrough]
       get { return (Attributes & FieldAttributes.System) != 0; }
+    }
+
+    /// <summary>
+    /// Gets a value indicating whether this property contains Type identifier.
+    /// </summary>
+    public bool IsTypeId {
       [DebuggerStepThrough]
-      set {
-        this.EnsureNotLocked();
-        Attributes = value ? Attributes | FieldAttributes.System : Attributes & ~FieldAttributes.System;
-      }
+      get { return (Attributes & FieldAttributes.TypeId) != 0; }
     }
 
     /// <summary>
@@ -480,7 +483,7 @@ namespace Xtensive.Storage.Model
     /// <param name="attributes">The attributes.</param>
     public FieldInfo(TypeInfo type, FieldAttributes attributes) : this(type, type, attributes)
     {
-      this.Attributes |= FieldAttributes.Declared;
+      Attributes |= FieldAttributes.Declared;
     }
 
     private FieldInfo(TypeInfo declaringType, TypeInfo reflectedType, FieldAttributes attributes)

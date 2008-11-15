@@ -6,12 +6,10 @@
 
 using System;
 using System.Diagnostics;
-using Xtensive.Core;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
-using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage
@@ -80,12 +78,12 @@ namespace Xtensive.Storage
     #region System-level event-like members
 
     // This is done just to make it sealed
-    sealed internal override void OnInitialize(bool notify)
+    internal override sealed void OnInitialize(bool notify)
     {
       base.OnInitialize(notify);
     }
 
-    sealed internal override void OnGettingField(FieldInfo field, bool notify)
+    internal override sealed void OnGettingField(FieldInfo field, bool notify)
     {
       base.OnGettingField(field, notify);
       if (Owner!=null)
@@ -93,19 +91,19 @@ namespace Xtensive.Storage
     }
 
     // This is done just to make it sealed
-    sealed internal override void OnGetField(FieldInfo field, object value, bool notify)
+    internal override sealed void OnGetField(FieldInfo field, object value, bool notify)
     {
       base.OnGetField(field, value, notify);
     }
 
-    sealed internal override void OnSettingField(FieldInfo field, object value, bool notify)
+    internal override sealed void OnSettingField(FieldInfo field, object value, bool notify)
     {
       base.OnSettingField(field, value, notify);
       if (Owner!=null)
         Owner.OnSettingField(Field, value, notify);
     }
 
-    internal sealed override void OnSetField(FieldInfo field, object oldValue, object newValue, bool notify)
+    internal override sealed void OnSetField(FieldInfo field, object oldValue, object newValue, bool notify)
     {
       if (Owner!=null)
         Owner.OnSetField(Field, oldValue, newValue, notify);
@@ -144,7 +142,6 @@ namespace Xtensive.Storage
 
     #endregion
 
-
     // Constructors
 
     /// <summary>
@@ -153,7 +150,7 @@ namespace Xtensive.Storage
     protected Structure()
     {
       type = Session.Domain.Model.Types[GetType()];
-      data = Session.Domain.PersistentPrototypes[type].Tuple;
+      data = type.Prototype;
     }
 
     /// <summary>

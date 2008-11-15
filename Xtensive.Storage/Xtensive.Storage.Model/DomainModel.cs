@@ -46,9 +46,9 @@ namespace Xtensive.Storage.Model
       if (!recursive)
         return;
       Services.Lock(true);
+      Hierarchies.Lock(true);
       Types.Lock(true);
       RealIndexes.Lock(true);
-      Hierarchies.Lock(true);
       Associations.Lock(true);
     }
 

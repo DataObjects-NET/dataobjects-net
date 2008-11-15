@@ -18,7 +18,7 @@ namespace Xtensive.Storage
     public RecordSet GetRecordSet(EntitySetBase target)
     {
       ValidateArguments(target);
-      return target.Items;
+      return target.items;
     }
 
     [Infrastructure]

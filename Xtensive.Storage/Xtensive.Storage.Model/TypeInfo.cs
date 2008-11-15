@@ -5,13 +5,16 @@
 // Created:    2007.08.27
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
+using Xtensive.Core.Tuples.Transform;
 
 namespace Xtensive.Storage.Model
 {
@@ -160,6 +163,10 @@ namespace Xtensive.Storage.Model
       }
     }
 
+    /// <summary>
+    /// Gets or sets the type id.
+    /// </summary>
+    /// <value></value>
     public int TypeId
     {
       [DebuggerStepThrough]
@@ -181,6 +188,16 @@ namespace Xtensive.Storage.Model
       [DebuggerStepThrough]
       get { return tupleDescriptor; }
     }
+
+    /// <summary>
+    /// Gets the persistent type prototype.
+    /// </summary>
+    public Tuple Prototype { get; private set; }
+
+    /// <summary>
+    /// Gets the primary key injector.
+    /// </summary>
+    public MapTransform InjectPrimaryKey { get; private set; }
 
     /// <summary>
     /// Gets the direct descendants of this instance.
@@ -302,6 +319,31 @@ namespace Xtensive.Storage.Model
       tupleDescriptor = TupleDescriptor.Create(
         from c in Columns select c.ValueType);
       fields.Lock(true);
+
+      if (IsEntity || IsStructure) {
+        // Building nullable map
+        var nullableMap = new BitArray(TupleDescriptor.Count);
+        int i = 0;
+        foreach (var column in Columns)
+          nullableMap[i++] = column.IsNullable;
+
+        // Building prototype
+        Prototype = Tuple.Create(TupleDescriptor);
+        Prototype.Initialize(nullableMap);
+        if (IsEntity) {
+          var typeIdField = Fields.Where(f => f.IsTypeId).First();
+          Prototype.SetValue(typeIdField.MappingInfo.Offset, TypeId);
+
+          // Building primary key injector
+          var fieldCount = TupleDescriptor.Count;
+          var keyFieldCount = Hierarchy.KeyTupleDescriptor.Count;
+          var keyFieldMap = new Pair<int, int>[fieldCount];
+          for (i = 0; i < fieldCount; i++)
+            keyFieldMap[i] = new Pair<int, int>((i < keyFieldCount) ? 0 : 1, i);
+          InjectPrimaryKey = new MapTransform(true, TupleDescriptor, keyFieldMap);
+        }
+        Prototype = Prototype.ToFastReadOnly();
+      }
     }
 
 

@@ -124,6 +124,15 @@ namespace Xtensive.Storage.Building.Definitions
     }
 
     /// <summary>
+    /// Gets a value indicating whether this property contains information about Type identifier.
+    /// </summary>
+    public bool IsTypeId
+    {
+      get { return (attributes & FieldAttributes.TypeId) != 0; }
+      internal set { attributes = value ? attributes | FieldAttributes.TypeId | FieldAttributes.System : attributes & ~FieldAttributes.TypeId; }
+    }
+
+    /// <summary>
     /// Gets the underlying system property.
     /// </summary>
     public PropertyInfo UnderlyingProperty

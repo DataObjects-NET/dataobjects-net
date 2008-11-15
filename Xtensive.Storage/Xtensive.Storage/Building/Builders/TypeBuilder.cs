@@ -184,7 +184,7 @@ namespace Xtensive.Storage.Building.Builders
       if (type.Fields.Contains(BuildingContext.Current.NameBuilder.TypeIdFieldName))
         return;
 
-      var typeId = new FieldDef(typeof(int)) {Name = BuildingContext.Current.NameBuilder.TypeIdFieldName, IsSystem = true};
+      var typeId = new FieldDef(typeof(int)) {Name = BuildingContext.Current.NameBuilder.TypeIdFieldName, IsTypeId = true};
       FieldBuilder.BuildDeclaredField(type, typeId);
     }
 
