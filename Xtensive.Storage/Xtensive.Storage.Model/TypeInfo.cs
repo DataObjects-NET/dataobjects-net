@@ -195,9 +195,14 @@ namespace Xtensive.Storage.Model
     public Tuple Prototype { get; private set; }
 
     /// <summary>
+    /// Gets the primary key injector transform.
+    /// </summary>
+    public MapTransform InjectPrimaryKeyTransform { get; private set; }
+
+    /// <summary>
     /// Gets the primary key injector.
     /// </summary>
-    public MapTransform InjectPrimaryKey { get; private set; }
+    public Func<Tuple, Tuple> InjectPrimaryKey { get; private set; }
 
     /// <summary>
     /// Gets the direct descendants of this instance.
@@ -340,7 +345,8 @@ namespace Xtensive.Storage.Model
           var keyFieldMap = new Pair<int, int>[fieldCount];
           for (i = 0; i < fieldCount; i++)
             keyFieldMap[i] = new Pair<int, int>((i < keyFieldCount) ? 0 : 1, i);
-          InjectPrimaryKey = new MapTransform(true, TupleDescriptor, keyFieldMap);
+          InjectPrimaryKeyTransform = new MapTransform(true, TupleDescriptor, keyFieldMap);
+          InjectPrimaryKey = keyValue => InjectPrimaryKeyTransform.Apply(TupleTransformType.TransformedTuple, keyValue, Prototype);
         }
         Prototype = Prototype.ToFastReadOnly();
       }

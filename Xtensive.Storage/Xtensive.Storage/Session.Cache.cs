@@ -8,7 +8,6 @@ using System;
 using Xtensive.Core;
 using Xtensive.Core.Caching;
 using Xtensive.Core.Tuples;
-using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Resources;
 
@@ -19,15 +18,14 @@ namespace Xtensive.Storage
     internal ICache<Key, EntityState> EntityStateCache { get; private set; }
     internal EntityStateRegistry EntityStateRegistry { get; private set; }
 
-    internal EntityState CreateNewEntityState(Key key)
+    internal EntityState CreateEntityState(Key key)
     {
       // If type is unknown, we consider tuple is null, 
       // so its Entity is considered as non-existing
       Tuple tuple = null; 
       if (key.IsTypeCached) {
         // New instance contains a tuple with all fields set with default values;
-        var type = key.Type;
-        tuple = type.InjectPrimaryKey.Apply(TupleTransformType.TransformedTuple, key.Value, type.Prototype);
+        tuple = key.Type.InjectPrimaryKey(key.Value);
       }
       var result = new EntityState(this, key, tuple) {
         PersistenceState = PersistenceState.New
