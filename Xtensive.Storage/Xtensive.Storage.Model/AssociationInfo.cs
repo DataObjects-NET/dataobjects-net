@@ -143,6 +143,10 @@ namespace Xtensive.Storage.Model
     /// </summary>
     public Func<Tuple, Tuple> ExtractForeignKey { get; private set; }
 
+    public CombineTransform BuildPrimaryKeyTransform { get; private set; }
+
+    public Func<Tuple, Tuple, Tuple> BuildPrimaryKey { get; private set; }
+
     /// <inheritdoc/>
     public override void Lock(bool recursive)
     {
@@ -170,6 +174,12 @@ namespace Xtensive.Storage.Model
         ExtractForeignKeyTransform = new SegmentTransform(true, UnderlyingIndex.TupleDescriptor, foreignKeySegment);
         ExtractForeignKey = tuple => ExtractForeignKeyTransform.Apply(TupleTransformType.TransformedTuple, tuple);
       }
+
+      if (underlyingType==null)
+        BuildPrimaryKeyTransform = new CombineTransform(true, ReferencedType.Hierarchy.KeyTupleDescriptor, ReferencingType.Hierarchy.KeyTupleDescriptor);
+      else
+        BuildPrimaryKeyTransform = new CombineTransform(true, ReferencingType.Hierarchy.KeyTupleDescriptor, ReferencedType.Hierarchy.KeyTupleDescriptor);
+      BuildPrimaryKey = (owner, item) => BuildPrimaryKeyTransform.Apply(TupleTransformType.TransformedTuple, owner, item);
     }
 
 

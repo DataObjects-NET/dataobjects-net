@@ -17,7 +17,6 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
-using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.PairIntegrity;
@@ -37,12 +36,9 @@ namespace Xtensive.Storage
     private static readonly Parameter<Tuple>          pKey = new Parameter<Tuple>("Key");
 
     private AssociationInfo                           association;
-    private TypeInfo                                  underlyingType;
     private Func<Tuple, Entity>                       itemConstructor;
     private RecordSet                                 count;
     private RecordSet                                 seek;
-    private Func<Tuple, Tuple>                        combineKey;
-    private CombineTransform                          combineKeyTransform;
 
     #region Public Count, Contains, GetKeys members
 
@@ -93,7 +89,7 @@ namespace Xtensive.Storage
 
       bool result;
       using (new ParameterScope()) {
-        pKey.Value = combineKey(key.Value);
+        pKey.Value = association.BuildPrimaryKey(ConcreteOwner.Key.Value, key.Value);
         result = seek.FirstOrDefault() != null;
       }
       if (result)
@@ -128,24 +124,12 @@ namespace Xtensive.Storage
     internal void Initialize(bool notify)
     {
       association = Field.Association;
-      if (association.UnderlyingType != null) {
-        underlyingType = association.UnderlyingType;
-        itemConstructor = DelegateHelper.CreateDelegate<Func<Tuple, Entity>>(null, underlyingType.UnderlyingType, DelegateHelper.AspectedProtectedConstructorCallerName, ArrayUtils<Type>.EmptyArray);
-      }
+      if (association.UnderlyingType!=null)
+        itemConstructor = DelegateHelper.CreateDelegate<Func<Tuple, Entity>>(null, association.UnderlyingType.UnderlyingType, DelegateHelper.AspectedProtectedConstructorCallerName, ArrayUtils<Type>.EmptyArray);
       Items = association.UnderlyingIndex.ToRecordSet().Range(ConcreteOwner.Key.Value, ConcreteOwner.Key.Value);
       seek = association.UnderlyingIndex.ToRecordSet().Seek(() => pKey.Value);
       count = Items.Aggregate(null, new AggregateColumnDescriptor("$Count", 0, AggregateType.Count));
-      combineKey = BuildCombineKey();
       OnInitialize(notify);
-    }
-
-    private Func<Tuple, Tuple> BuildCombineKey()
-    {
-      if (underlyingType==null)
-        combineKeyTransform = new CombineTransform(true, association.ReferencedType.Hierarchy.KeyTupleDescriptor, association.ReferencingType.Hierarchy.KeyTupleDescriptor);
-      else
-        combineKeyTransform = new CombineTransform(true, association.ReferencingType.Hierarchy.KeyTupleDescriptor, association.ReferencedType.Hierarchy.KeyTupleDescriptor);
-      return tuple => combineKeyTransform.Apply(TupleTransformType.TransformedTuple, ConcreteOwner.Key.Value, tuple);
     }
 
     #endregion
@@ -164,7 +148,7 @@ namespace Xtensive.Storage
       if (association.IsPaired)
         Session.PairSyncManager.Enlist(OperationType.Add, ConcreteOwner, item, association);
 
-      if (underlyingType!=null && association.IsMaster)
+      if (association.UnderlyingType!=null && association.IsMaster)
         itemConstructor(item.Key.Value.Combine(ConcreteOwner.Key.Value));
 
       State.Add(item.Key);
@@ -183,8 +167,8 @@ namespace Xtensive.Storage
       if (association.IsPaired)
         Session.PairSyncManager.Enlist(OperationType.Remove, ConcreteOwner, item, association);
 
-      if (underlyingType!=null && association.IsMaster) {
-        var combinedKey = Key.Create(underlyingType, item.Key.Value.Combine(ConcreteOwner.Key.Value));
+      if (association.UnderlyingType!=null && association.IsMaster) {
+        var combinedKey = Key.Create(association.UnderlyingType, item.Key.Value.Combine(ConcreteOwner.Key.Value));
         Entity underlyingItem = combinedKey.Resolve();
         underlyingItem.Remove();
       }
