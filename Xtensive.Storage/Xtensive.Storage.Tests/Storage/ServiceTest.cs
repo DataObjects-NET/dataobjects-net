@@ -48,12 +48,12 @@ namespace Xtensive.Storage.Tests.Storage
     public void BehaviorTest()
     {
       using(domain.OpenSession()) {
-        var ss1_1 = Session.Current.GetService<SimpleService>("ss1");
-        var ss1_2 = Session.Current.GetService<SimpleService>("ss1");
+        var ss1_1 = Session.Current.Services.Get<SimpleService>("ss1");
+        var ss1_2 = Session.Current.Services.Get<SimpleService>("ss1");
         Assert.AreSame(ss1_1, ss1_2);
         Assert.AreEqual(123, ss1_1.Value);
-        var ss2_1 = Session.Current.GetService<SimpleService>("ss2");
-        var ss2_2 = Session.Current.GetService<SimpleService>("ss2");
+        var ss2_1 = Session.Current.Services.Get<SimpleService>("ss2");
+        var ss2_2 = Session.Current.Services.Get<SimpleService>("ss2");
         Assert.AreNotSame(ss2_1,ss2_2);
         Assert.AreEqual(123321, ss2_1.Value);
       }
@@ -62,18 +62,18 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void PerformanceTest()
     {
-      const int iterationsCount = 1000000;
+      const int iterationsCount = 100000;
       using (domain.OpenSession()) {
         using (new Measurement("Getting session-singleton service.", iterationsCount)) {
           var session = Session.Current;
           for (int i = 0; i < iterationsCount; i++) {
-            session.GetService<SimpleService>("ss1");
+            session.Services.Get<SimpleService>("ss1");
           }
         }
         using (new Measurement("Getting transient service.", iterationsCount)) {
           var session = Session.Current;
           for (int i = 0; i < iterationsCount; i++) {
-            session.GetService<SimpleService>("ss2");
+            session.Services.Get<SimpleService>("ss2");
           }
         }
       }

@@ -38,6 +38,8 @@ namespace Xtensive.Storage
     private readonly Set<object> consumers = new Set<object>();
     private readonly object _lock = new object();
     private readonly CompilationScope compilationScope;
+    private ServiceProvider serviceProvider;
+
 
     /// <summary>
     /// Gets the configuration of the <see cref="Session"/>.
@@ -67,6 +69,19 @@ namespace Xtensive.Storage
     internal SyncManager PairSyncManager { get; private set; }
 
     #endregion
+
+    /// <summary>
+    /// Gets the session service provder.
+    /// </summary>
+    public ServiceProvider Services
+    {
+      get
+      {
+        if (serviceProvider==null)
+          serviceProvider = new ServiceProvider(this);
+        return serviceProvider;
+      }
+    }
 
     public IEnumerable<T> All<T>() 
       where T : class, IEntity
@@ -214,7 +229,6 @@ namespace Xtensive.Storage
       // Etc...
       AtomicityContext = new AtomicityContext(this, AtomicityContextOptions.Undoable);
       CoreServices = new CoreServiceAccessor(this);
-      servicesContainer = domain.Configuration.ServiceContainer.CreateChildContainer();
       PairSyncManager = new SyncManager(this);
     }
 
