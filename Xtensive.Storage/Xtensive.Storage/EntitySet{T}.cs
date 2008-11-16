@@ -111,8 +111,12 @@ namespace Xtensive.Storage
     /// </summary>
     /// <param name="owner">Persistent this entity set belongs to.</param>
     /// <param name="field">Field corresponds to this entity set.</param>
-    /// <param name="notify">If set to <see langword="true"/>, 
-    /// initialization related events will be raised.</param>
+    public EntitySet(Persistent owner, FieldInfo field)
+      : this(owner, field, true)
+    {
+    }
+
+    /// <inheritdoc/>
     public EntitySet(Persistent owner, FieldInfo field, bool notify)
       : base(owner, field, notify)
     {

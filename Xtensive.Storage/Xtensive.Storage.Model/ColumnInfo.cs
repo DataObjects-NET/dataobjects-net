@@ -271,7 +271,7 @@ namespace Xtensive.Storage.Model
       IsNullable = field.IsNullable;
       IsLazyLoad = field.IsLazyLoad;
       IsCollatable = field.IsCollatable;
-      valueType = field.ValueType.IsEnum ? Enum.GetUnderlyingType(field.ValueType) : field.ValueType;
+      valueType = field.IsEnum ? Enum.GetUnderlyingType(field.ValueType) : field.ValueType;
       length = field.Length;
     }
   }

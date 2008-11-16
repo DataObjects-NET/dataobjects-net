@@ -84,7 +84,7 @@ namespace Xtensive.Storage
     public bool Contains(Key key)
     {
       ArgumentValidator.EnsureArgumentNotNull(key, "key");
-      if (!Field.ValueType.IsAssignableFrom(key.Type.UnderlyingType))
+      if (!Field.ItemType.IsAssignableFrom(key.Type.UnderlyingType))
         throw new InvalidOperationException(string.Format("Entity type {0} is not supported by this instance.", key.Type.Name));
 
       if (State.Contains(key))
@@ -217,7 +217,7 @@ namespace Xtensive.Storage
     private IEnumerable<Key> FetchKeys()
     {
       foreach (Tuple tuple in items)
-        yield return Key.Create(Field.ValueType, association.ExtractForeignKey(tuple));
+        yield return Key.Create(Field.ItemType, association.ExtractForeignKey(tuple));
     }
 
     #endregion

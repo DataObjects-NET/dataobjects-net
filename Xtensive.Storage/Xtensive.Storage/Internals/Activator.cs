@@ -18,8 +18,11 @@ namespace Xtensive.Storage.Internals
     private static readonly ThreadSafeDictionary<Type, Func<EntityState, bool, Entity>> entityActivators =
       ThreadSafeDictionary<Type, Func<EntityState, bool, Entity>>.Create(new object());
 
-    private static readonly ThreadSafeDictionary<Type, Func<Persistent, FieldInfo, Structure>> structureActivators =
-      ThreadSafeDictionary<Type, Func<Persistent, FieldInfo, Structure>>.Create(new object());
+    private static readonly ThreadSafeDictionary<Type, Func<Persistent, FieldInfo, bool, Structure>> structureActivators =
+      ThreadSafeDictionary<Type, Func<Persistent, FieldInfo, bool, Structure>>.Create(new object());
+
+    private static readonly ThreadSafeDictionary<Type, Func<Persistent, FieldInfo, bool, EntitySetBase>> entitySetActivators =
+      ThreadSafeDictionary<Type, Func<Persistent, FieldInfo, bool, EntitySetBase>>.Create(new object());
 
     internal static Entity CreateEntity(Type type, EntityState state, bool notify)
     {
@@ -28,20 +31,23 @@ namespace Xtensive.Storage.Internals
         .Invoke(state, notify);
     }
 
-    internal static Structure CreateStructure(Type type, Persistent owner, FieldInfo field)
+    internal static Structure CreateStructure(Type type, Persistent owner, FieldInfo field, bool notify)
     {
       return structureActivators.GetValue(type,
-        DelegateHelper.CreateConstructorDelegate<Func<Persistent, FieldInfo, Structure>>)
-        .Invoke(owner, field);
+        DelegateHelper.CreateConstructorDelegate<Func<Persistent, FieldInfo, bool, Structure>>)
+        .Invoke(owner, field, notify);
     }
 
-    internal static IFieldHandler CreateEntitySet(Type type, Persistent owner, FieldInfo field, bool notify)
+    internal static EntitySetBase CreateEntitySet(Type type, Persistent owner, FieldInfo field, bool notify)
     {
-      if (field.Association==null)
-        throw new InvalidOperationException(String.Format(Strings.ExUnableToActivateEntitySetWithoutAssociation, field.Name));
+      if (field.ValueType.IsGenericType && field.ValueType.GetGenericTypeDefinition() == typeof(EntitySet<>)) {
+        Type instanceType = typeof (EntitySet<>).MakeGenericType(type);
+        return (EntitySetBase) instanceType.InvokeMember(String.Empty, BindingFlags.CreateInstance, null, null, new object[] {owner, field, notify});
+      }
 
-      Type instanceType = typeof (EntitySet<>).MakeGenericType(type);
-      return (IFieldHandler) instanceType.InvokeMember(String.Empty, BindingFlags.CreateInstance, null, null, new object[] {owner, field, notify});
+      return entitySetActivators.GetValue(type,
+        DelegateHelper.CreateConstructorDelegate<Func<Persistent, FieldInfo, bool, EntitySetBase>>)
+        .Invoke(owner, field, notify);
     }
   }
 }

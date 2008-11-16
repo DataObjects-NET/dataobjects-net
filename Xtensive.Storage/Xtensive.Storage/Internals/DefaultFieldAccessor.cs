@@ -23,7 +23,7 @@ namespace Xtensive.Storage.Internals
       get { return instance; }
     }
 
-    public override void SetValue(Persistent obj, FieldInfo field, T value)
+    public override void SetValue(Persistent obj, FieldInfo field, T value, bool notify)
     {
       if (!field.IsNullable && value==null)
         throw new InvalidOperationException(string.Format(Strings.ExNotNullableConstraintViolationOnFieldX, field));
@@ -39,7 +39,7 @@ namespace Xtensive.Storage.Internals
       obj.Data.SetValue(field.MappingInfo.Offset, value);
     }
 
-    public override T GetValue(Persistent obj, FieldInfo field)
+    public override T GetValue(Persistent obj, FieldInfo field, bool notify)
     {
       ValidateType(field);
 

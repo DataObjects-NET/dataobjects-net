@@ -20,7 +20,7 @@ namespace Xtensive.Storage.Internals
       get { return instance; }
     }
 
-    public override T GetValue(Persistent obj, FieldInfo field)
+    public override T GetValue(Persistent obj, FieldInfo field, bool notify)
     {
       ValidateType(field);
       if (!obj.Data.IsAvailable(field.MappingInfo.Offset) || obj.Data.IsNull(field.MappingInfo.Offset))
@@ -31,7 +31,7 @@ namespace Xtensive.Storage.Internals
         return (T)Enum.ToObject(Nullable.GetUnderlyingType(type), obj.Data.GetValueOrDefault(field.MappingInfo.Offset));
     }
 
-    public override void SetValue(Persistent obj, FieldInfo field, T value)
+    public override void SetValue(Persistent obj, FieldInfo field, T value, bool notify)
     {
       ValidateType(field);
       obj.Data.SetValue(field.MappingInfo.Offset, Convert.ChangeType(value, field.Column.ValueType));

@@ -31,6 +31,7 @@ namespace Xtensive.Storage.Aspects
     private const string HandlerMethodSuffix = "Field";
     private static readonly Type persistentType   = typeof(Persistent);
     private static readonly Type entityType       = typeof(Entity);
+    private static readonly Type entitySetType    = typeof(EntitySetBase);
     private static readonly Type structureType    = typeof(Structure);
     private static readonly Type sessionBoundType = typeof(SessionBound);
 
@@ -57,6 +58,8 @@ namespace Xtensive.Storage.Aspects
         ProvideSessionBoundAspects(type, collection);
       if (persistentType.IsAssignableFrom(type))
         ProvidePersistentAspects(type, collection);
+      if (entitySetType.IsAssignableFrom(type))
+        ProvideEntitySetAspects(type, collection);
       if (sessionBoundType.IsAssignableFrom(type))
         ProvideTransactionalAspects(type, collection);
       // ProvideAtomicAspects(type, collection);
@@ -118,6 +121,12 @@ namespace Xtensive.Storage.Aspects
     {
       ProvideConstructorDelegateAspect(type, collection);
       ProvideAutoPropertyAspects(type, collection);
+      ProvideConstructorAspect(type, collection);
+    }
+
+    private static void ProvideEntitySetAspects(Type type, LaosReflectionAspectCollection collection)
+    {
+      ProvideConstructorDelegateAspect(type, collection);
       ProvideConstructorAspect(type, collection);
     }
 
@@ -200,6 +209,8 @@ namespace Xtensive.Storage.Aspects
         return structureType;
       if (entityType.IsAssignableFrom(type))
         return entityType;
+      if (entitySetType.IsAssignableFrom(type))
+        return entitySetType;
       return null;
     }
 
@@ -208,9 +219,11 @@ namespace Xtensive.Storage.Aspects
     {
       var baseType = GetBasePersistentType(type);
       if (baseType==structureType)
-        return new[] {persistentType, typeof (FieldInfo)};
+        return new[] {persistentType, typeof (FieldInfo), typeof(bool)};
       if (baseType==entityType)
         return new[] {typeof (EntityState), typeof(bool)};
+      if (baseType==entitySetType)
+        return new[] {persistentType, typeof (FieldInfo), typeof(bool)};
       throw Exceptions.InternalError(
         string.Format(Strings.ExWrongPersistentTypeCandidate, type.GetType()), 
         Log.Instance);

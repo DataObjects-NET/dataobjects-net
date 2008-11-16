@@ -20,7 +20,7 @@ namespace Xtensive.Storage.Building.Builders
     public static void BuildAssociation(FieldDef fieldDef, FieldInfo field)
     {
       BuildingContext context = BuildingContext.Current;
-      TypeInfo referencedType = context.Model.Types[field.ValueType];
+      TypeInfo referencedType = field.IsEntity ? context.Model.Types[field.ValueType] : context.Model.Types[field.ItemType];
       Multiplicity multiplicity = field.IsEntitySet ? Multiplicity.ZeroToMany : Multiplicity.ZeroToOne;
       var association = new AssociationInfo(field, referencedType, multiplicity, fieldDef.OnRemove);
       association.Name = context.NameBuilder.Build(association);

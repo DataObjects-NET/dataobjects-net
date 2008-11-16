@@ -22,7 +22,7 @@ namespace Xtensive.Storage.Internals
       get { return instance; }
     }
 
-    public override void SetValue(Persistent obj, FieldInfo field, T value)
+    public override void SetValue(Persistent obj, FieldInfo field, T value, bool notify)
     {
       var entity = value as Entity;
 
@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Internals
       }
     }
 
-    public override T GetValue(Persistent obj, FieldInfo field)
+    public override T GetValue(Persistent obj, FieldInfo field, bool notify)
     {
       ValidateType(field);
       Key key = obj.GetKey(field);

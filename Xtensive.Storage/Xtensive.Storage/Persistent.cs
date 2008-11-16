@@ -165,7 +165,7 @@ namespace Xtensive.Storage
     internal T GetField<T>(FieldInfo field, bool notify)
     {
       OnGettingField(field, notify);
-      T result = field.GetAccessor<T>().GetValue(this, field);
+      T result = field.GetAccessor<T>().GetValue(this, field, notify);
       OnGetField(field, result, notify);
 
       return result;
@@ -185,11 +185,11 @@ namespace Xtensive.Storage
           newRef = newEntity.Key;
         if (currentRef!=newRef) {
           Session.PairSyncManager.Enlist(OperationType.Set, (Entity) this, newEntity, association, notify);
-          field.GetAccessor<T>().SetValue(this, field, value);
+          field.GetAccessor<T>().SetValue(this, field, value, notify);
         }
       }
       else
-        field.GetAccessor<T>().SetValue(this, field, value);
+        field.GetAccessor<T>().SetValue(this, field, value, notify);
       OnSetField(field, oldValue, value, notify);
     }
 

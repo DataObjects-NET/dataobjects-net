@@ -108,21 +108,23 @@ namespace Xtensive.Storage.Building.Builders
           Name = fieldDef.Name,
           MappingName = fieldDef.MappingName,
           ValueType = fieldDef.ValueType,
+          ItemType = fieldDef.ItemType,
           Length = fieldDef.Length
         };
 
       type.Fields.Add(field);
 
-      ValidateValueType(field.ValueType, type.UnderlyingType);
 
       if (field.IsEntitySet) {
-        TypeBuilder.BuildType(field.ValueType);
+        ValidateValueType(field.ItemType, type.UnderlyingType);
+        TypeBuilder.BuildType(field.ItemType);
 
         AssociationBuilder.BuildAssociation(fieldDef, field);
         return;
       }
 
       if (field.IsEntity) {
+        ValidateValueType(field.ValueType, type.UnderlyingType);
         TypeBuilder.BuildType(field.ValueType);
         BuildReferenceField(field);
 
@@ -135,12 +137,15 @@ namespace Xtensive.Storage.Building.Builders
       }
 
       if (field.IsStructure) {
+        ValidateValueType(field.ValueType, type.UnderlyingType);
         TypeBuilder.BuildType(field.ValueType);
         BuildStructureField(field);
       }
 
-      if (field.IsPrimitive)
+      if (field.IsPrimitive) {
+        ValidateValueType(field.ValueType, type.UnderlyingType);
         field.Column = ColumnBuilder.BuildColumn(field);
+      }
     }
 
     private static void ValidateValueType(Type valueType, Type declaringType)
@@ -167,11 +172,10 @@ namespace Xtensive.Storage.Building.Builders
       if (valueType.IsInterface && typeof (IEntity).IsAssignableFrom(valueType) && valueType!=typeof (IEntity))
         return;
 
-      if (valueType.IsGenericType && valueType.GetGenericTypeDefinition()==typeof (EntitySet<>)) {
+      if (valueType.IsOfGenericType(typeof(EntitySet<>))) {
         if (declaringType.IsSubclassOf(typeof (Structure)))
           throw new DomainBuilderException(
             string.Format("Structures do not support fields of type '{0}'.", valueType.Name));
-
         return;
       }
 

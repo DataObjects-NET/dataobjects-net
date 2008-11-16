@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using Xtensive.Core;
+using Xtensive.Core.Reflection;
 using Xtensive.Storage.Building.Builders;
 using Xtensive.Storage.Model;
 using FieldAttributes=Xtensive.Storage.Model.FieldAttributes;
@@ -146,6 +147,11 @@ namespace Xtensive.Storage.Building.Definitions
     public Type ValueType { get; private set; }
 
     /// <summary>
+    /// Gets or sets the item type for field that describes the EntitySet.
+    /// </summary>
+    public Type ItemType { get; private set; }
+
+    /// <summary>
     /// Gets the attributes.
     /// </summary>
     public FieldAttributes Attributes
@@ -213,9 +219,9 @@ namespace Xtensive.Storage.Building.Definitions
       ValueType = valueType;
       if (valueType.IsGenericType) {
         Type genericType = valueType.GetGenericTypeDefinition();
-        IsEntitySet = genericType == typeof(EntitySet<>) || genericType.IsSubclassOf(typeof(EntitySet<>));
+        IsEntitySet = genericType.IsOfGenericType(typeof(EntitySet<>));
         if (IsEntitySet)
-          ValueType = valueType.GetGenericArguments()[0];
+          ItemType = valueType.GetGenericArguments()[0];
         if (genericType == typeof(Nullable<>)) {
           ValueType = Nullable.GetUnderlyingType(valueType);
           attributes |= FieldAttributes.Nullable;

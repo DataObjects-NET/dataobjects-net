@@ -4,8 +4,12 @@
 // Created by: Dmitri Maximov
 // Created:    2008.11.07
 
+using System;
+using NUnit.Framework;
+using Xtensive.Core.Reflection;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Tests.Storage.CustomEntitySetModel;
 
 namespace Xtensive.Storage.Tests.Storage.CustomEntitySetModel
 {
@@ -16,31 +20,31 @@ namespace Xtensive.Storage.Tests.Storage.CustomEntitySetModel
     public int Id { get; private set; }
   }
 
-  public class A : Root
+  public class Master : Root
   {
     [Field]
-    public CustomEntitySet<B> ManyToZero { get; private set; }
+    public CustomEntitySet<Slave> ZeroToMany { get; private set; }
 
     [Field]
-    public CustomEntitySet<B> ManyToOne { get; private set; }
+    public CustomEntitySet<Slave> OneToMany { get; private set; }
 
     [Field]
-    public CustomEntitySet<B> ManyToMany { get; private set; }
+    public CustomEntitySet<Slave> ManyToMany { get; private set; }
   }
 
-  public class B : Root
+  public class Slave : Root
   {
-    [Field(PairTo="ManyToOne")]
-    public A OneToMany { get; set; }
+    [Field(PairTo="OneToMany")]
+    public Master ManyToOne { get; set; }
 
     [Field(PairTo="ManyToMany")]
-    public CustomEntitySet<A> ManyToMany { get; private set; }
+    public CustomEntitySet<Master> ManyToMany { get; private set; }
   }
 
   public class CustomEntitySet<T> : EntitySet<T> where T : Entity
   {
-    public CustomEntitySet(Persistent owner, FieldInfo field, bool notify)
-      : base(owner, field, notify)
+    public CustomEntitySet(Persistent owner, FieldInfo field)
+      : base(owner, field)
     {
     }
   }
@@ -51,6 +55,23 @@ namespace Xtensive.Storage.Tests.Storage
 {
   public class CustomEntitySetTest : AutoBuildTest
   {
-    
+    protected override Xtensive.Storage.Configuration.DomainConfiguration BuildConfiguration()
+    {
+      var config = base.BuildConfiguration();
+      config.Types.Register(typeof (Master).Assembly, typeof (Master).Namespace);
+      return config;
+    }
+
+    public void Maintest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          Master m = new Master();
+          m.ManyToMany.Add(new Slave());
+          Assert.AreEqual(1, m.ManyToMany.Count);
+          t.Complete();
+        }
+      }
+    }
   }
 }

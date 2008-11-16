@@ -33,6 +33,7 @@ namespace Xtensive.Storage.Model
     private AssociationInfo association;
     private CultureInfo cultureInfo = CultureInfo.InvariantCulture;
     private ThreadSafeCached<int> cachedHashCode = ThreadSafeCached<int>.Create(new object());
+    private Type itemType;
 
     #region IsXxx properties
 
@@ -246,6 +247,19 @@ namespace Xtensive.Storage.Model
     }
 
     /// <summary>
+    /// Gets or sets the item type for field that describes the EntitySet.
+    /// </summary>
+    public Type ItemType {
+      [DebuggerStepThrough]
+      get { return itemType; }
+      [DebuggerStepThrough]
+      set {
+        this.EnsureNotLocked();
+        itemType = value;
+      }
+    }
+
+    /// <summary>
     /// Gets or sets the length of the property.
     /// </summary>
     public int? Length {
@@ -302,6 +316,7 @@ namespace Xtensive.Storage.Model
         IsPrimaryKey = value.IsPrimaryKey;
         IsNullable = value.IsNullable;
         association = value.association;
+        itemType = value.itemType;
       }
     }
 

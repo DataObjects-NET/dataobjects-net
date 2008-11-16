@@ -158,12 +158,15 @@ namespace Xtensive.Storage
     /// </summary>
     /// <param name="owner">The owner of this instance.</param>
     /// <param name="field">The owner field that describes this instance.</param>
-    protected Structure(Persistent owner, FieldInfo field)
+    /// <param name="notify">If set to <see langword="true"/>, 
+    /// initialization related events will be raised.</param>
+    protected Structure(Persistent owner, FieldInfo field, bool notify)
     {
       type = Session.Domain.Model.Types[GetType()];
       this.owner = owner;
       this.field = field;
       data = field.ExtractValue(owner.Data);
+      OnInitialize(notify);
     }
   }
 }

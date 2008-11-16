@@ -20,13 +20,13 @@ namespace Xtensive.Storage.Internals
     }
 
     /// <inheritdoc/>
-    public override T GetValue(Persistent obj, FieldInfo field)
+    public override T GetValue(Persistent obj, FieldInfo field, bool notify)
     {
       ValidateType(field);
       IFieldHandler result;
       if (obj.FieldHandlers.TryGetValue(field, out result))
         return (T)result;
-      result = Activator.CreateEntitySet(field.ValueType, obj, field, true);
+      result = Activator.CreateEntitySet(field.ItemType, obj, field, notify);
       obj.FieldHandlers.Add(field, result);
       EntitySetBase es = (EntitySetBase)result;
       es.Initialize(true);
@@ -34,7 +34,7 @@ namespace Xtensive.Storage.Internals
 
     }
 
-    public override void SetValue(Persistent obj, FieldInfo field, T value)
+    public override void SetValue(Persistent obj, FieldInfo field, T value, bool notify)
     {
       // Unable to change EntitySet
       throw new InvalidOperationException(Strings.ExEntitySetCanTBeAssigned);
