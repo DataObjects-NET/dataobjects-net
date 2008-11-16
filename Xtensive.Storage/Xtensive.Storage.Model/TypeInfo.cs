@@ -193,17 +193,25 @@ namespace Xtensive.Storage.Model
     /// <summary>
     /// Gets the persistent type prototype.
     /// </summary>
-    public Tuple Prototype { get; private set; }
+    public Tuple TuplePrototype { get; private set; }
 
     /// <summary>
-    /// Gets the primary key injector transform.
+    /// Gets the primary key injection transform.
     /// </summary>
-    public MapTransform InjectPrimaryKeyTransform { get; private set; }
+    public MapTransform PrimaryKeyInjector { get; private set; }
 
     /// <summary>
-    /// Gets the primary key injector.
+    /// Creates the tuple prototype with specified <paramref name="primaryKey"/>.
     /// </summary>
-    public Func<Tuple, Tuple> InjectPrimaryKey { get; private set; }
+    /// <param name="primaryKey">The primary key to use.</param>
+    /// <returns>
+    /// The <see cref="TuplePrototype"/> with "injected"
+    /// (see <see cref="PrimaryKeyInjector"/>) <paramref name="primaryKey"/>.
+    /// </returns>
+    public Tuple CreateTuplePrototype(Tuple primaryKey)
+    {
+      return PrimaryKeyInjector.Apply(TupleTransformType.TransformedTuple, primaryKey, TuplePrototype);
+    }
 
     /// <summary>
     /// Gets the direct descendants of this instance.
@@ -338,12 +346,12 @@ namespace Xtensive.Storage.Model
         foreach (var column in Columns)
           nullableMap[i++] = column.IsNullable;
 
-        // Building prototype
-        Prototype = Tuple.Create(TupleDescriptor);
-        Prototype.Initialize(nullableMap);
+        // Building TuplePrototype
+        var tuple = Tuple.Create(TupleDescriptor);
+        tuple.Initialize(nullableMap);
         if (IsEntity) {
           var typeIdField = Fields.Where(f => f.IsTypeId).First();
-          Prototype.SetValue(typeIdField.MappingInfo.Offset, TypeId);
+          tuple.SetValue(typeIdField.MappingInfo.Offset, TypeId);
 
           // Building primary key injector
           var fieldCount = TupleDescriptor.Count;
@@ -351,10 +359,9 @@ namespace Xtensive.Storage.Model
           var keyFieldMap = new Pair<int, int>[fieldCount];
           for (i = 0; i < fieldCount; i++)
             keyFieldMap[i] = new Pair<int, int>((i < keyFieldCount) ? 0 : 1, i);
-          InjectPrimaryKeyTransform = new MapTransform(true, TupleDescriptor, keyFieldMap);
-          InjectPrimaryKey = keyValue => InjectPrimaryKeyTransform.Apply(TupleTransformType.TransformedTuple, keyValue, Prototype);
+          PrimaryKeyInjector = new MapTransform(true, TupleDescriptor, keyFieldMap);
         }
-        Prototype = Prototype.ToFastReadOnly();
+        TuplePrototype = tuple.ToFastReadOnly();
       }
     }
 

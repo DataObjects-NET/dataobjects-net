@@ -150,7 +150,7 @@ namespace Xtensive.Storage
     protected Structure()
     {
       type = Session.Domain.Model.Types[GetType()];
-      data = type.Prototype;
+      data = type.TuplePrototype;
     }
 
     /// <summary>

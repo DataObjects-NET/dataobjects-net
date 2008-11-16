@@ -22,11 +22,10 @@ namespace Xtensive.Storage
     {
       // If type is unknown, we consider tuple is null, 
       // so its Entity is considered as non-existing
-      Tuple tuple = null; 
-      if (key.IsTypeCached) {
-        // New instance contains a tuple with all fields set with default values;
-        tuple = key.Type.InjectPrimaryKey(key.Value);
-      }
+      Tuple tuple = null;
+      if (key.IsTypeCached)
+        // A tuple with all the fields set to default values rather then N/A
+        tuple = key.Type.CreateTuplePrototype(key.Value);
       var result = new EntityState(this, key, tuple) {
         PersistenceState = PersistenceState.New
       };
