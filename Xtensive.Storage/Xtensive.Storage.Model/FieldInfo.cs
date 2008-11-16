@@ -420,7 +420,8 @@ namespace Xtensive.Storage.Model
       }
       else if (Fields.Count > 0)
         MappingInfo = new Segment<int>(Fields.First().MappingInfo.Offset, Fields.Sum(info => info.MappingInfo.Length));
-      ValueExtractorTransform = new SegmentTransform(false, reflectedType.TupleDescriptor, new Segment<int>(MappingInfo.Offset, MappingInfo.Length));
+      if (IsEntity || IsStructure)
+        ValueExtractorTransform = new SegmentTransform(false, reflectedType.TupleDescriptor, new Segment<int>(MappingInfo.Offset, MappingInfo.Length));
     }
 
     #region Equals, GetHashCode methods
