@@ -47,13 +47,22 @@ namespace Xtensive.Storage.Tests.ReferentialIntegrityModel
   public class Master : Root
   {
     [Field(OnRemove = ReferentialAction.Clear)]
-    public EntitySet<Slave> Slaves { get; private set; }
+    public EntitySet<Slave> OneToMany { get; private set; }
+
+    [Field(OnRemove = ReferentialAction.Clear)]
+    public EntitySet<Slave> ZeroToMany { get; private set; }
+
+    [Field(OnRemove = ReferentialAction.Clear)]
+    public EntitySet<Slave> ManyToMany { get; private set; }
   }
 
   public class Slave : Root
   {
-    [Field(PairTo = "Slaves")]
-    public Master Master { get; private set; }
+    [Field(PairTo = "OneToMany")]
+    public Master ManyToOne { get; private set; }
+
+    [Field(PairTo = "ManyToMany")]
+    public EntitySet<Master> ManyToMany { get; private set; }
   }
 }
 
@@ -90,10 +99,27 @@ namespace Xtensive.Storage.Tests.Storage
           Assert.AreEqual(0, Session.Current.All<C>().Count());
 
           Master m = new Master();
-          m.Slaves.Add(new Slave());
-          Assert.AreEqual(1, m.Slaves.Count);
-          m.Slaves.First().Remove();
-          Assert.AreEqual(0, m.Slaves.Count);
+          m.OneToMany.Add(new Slave());
+          m.OneToMany.Add(new Slave());
+          m.OneToMany.Add(new Slave());
+          Assert.AreEqual(3, m.OneToMany.Count);
+          m.OneToMany.First().Remove();
+          Assert.AreEqual(2, m.OneToMany.Count);
+
+          m.ZeroToMany.Add(new Slave());
+          m.ZeroToMany.Add(new Slave());
+          m.ZeroToMany.Add(new Slave());
+          Assert.AreEqual(3, m.ZeroToMany.Count);
+          m.ZeroToMany.First().Remove();
+          Assert.AreEqual(2, m.ZeroToMany.Count);
+
+          m.ManyToMany.Add(new Slave());
+          m.ManyToMany.Add(new Slave());
+          m.ManyToMany.Add(new Slave());
+          Assert.AreEqual(3, m.ManyToMany.Count);
+          m.ManyToMany.First().Remove();
+          Assert.AreEqual(2, m.ManyToMany.Count);
+
           t.Complete();
         }
       }

@@ -13,9 +13,9 @@ using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Internals
 {
-  internal static class AssociationBrowser
+  internal static class AssociationInfoExtensions
   {
-    public static IEnumerable<Entity> FindReferencingObjects(AssociationInfo association, Entity referencedObject)
+    public static IEnumerable<Entity> FindReferencingObjects(this AssociationInfo association, Entity referencedObject)
     {
       IndexInfo index;
       Tuple keyTuple;
@@ -26,21 +26,24 @@ namespace Xtensive.Storage.Internals
         index = association.ReferencingType.Indexes.GetIndex(association.ReferencingField.Name);
         keyTuple = referencedObject.Key.Value;
         rs = index.ToRecordSet().Range(keyTuple, keyTuple);
-        return rs.ToEntities(association.ReferencingField.DeclaringType.UnderlyingType);
+        foreach(Entity item in rs.ToEntities(association.ReferencingField.DeclaringType.UnderlyingType))
+          yield return item;
+          break;
       case Multiplicity.OneToOne:
       case Multiplicity.OneToMany:
         Key key = referencedObject.GetKey(association.Reversed.ReferencingField);
         if (key!=null)
-          return new [] { key.Resolve() };
+          yield return key.Resolve();
         break;
       case Multiplicity.ZeroToMany:
       case Multiplicity.ManyToMany:
-        index = association.UnderlyingType.Indexes.Where(indexInfo => indexInfo.IsSecondary).Skip(association.IsMaster ? 1 : 0).First();
+        index = association.UnderlyingType.Indexes.Where(indexInfo => indexInfo.IsSecondary).Skip(association.IsMaster ? 0 : 1).First();
         keyTuple = referencedObject.Key.Value;
         rs = index.ToRecordSet().Range(keyTuple, keyTuple);
-        return rs.ToEntities(association.ReferencingField.DeclaringType.UnderlyingType);
+        foreach (Tuple item in rs)
+          yield return Key.Create(association.ReferencingType, association.ExtractForeignKey(item)).Resolve();
+          break;
       }
-      return null;
     }
   }
 }
