@@ -14,7 +14,7 @@ namespace Xtensive.Storage.PairIntegrity
   {
     private readonly Stack<SyncContext> contextStack = new Stack<SyncContext>();
 
-    public void Enlist(OperationType type, Entity owner, Entity value, AssociationInfo association)
+    public void Enlist(OperationType type, Entity owner, Entity value, AssociationInfo association, bool notify)
     {
       SyncContext context = null;
       if (contextStack.Count > 0)
@@ -37,9 +37,9 @@ namespace Xtensive.Storage.PairIntegrity
         Entity master2 = null;
       
         if (masterActions.GetPairedValue!=null)
-          slave1 = masterActions.GetPairedValue(master1);
+          slave1 = masterActions.GetPairedValue(master1, notify);
         if (slave2 != null && slaveActions.GetPairedValue != null)
-          master2 = slaveActions.GetPairedValue(slave2);
+          master2 = slaveActions.GetPairedValue(slave2, notify);
 
         context = new SyncContext();
         contextStack.Push(context);
@@ -49,21 +49,21 @@ namespace Xtensive.Storage.PairIntegrity
         case OperationType.Set:
           // Breaking existing associations
           if (master2!=null) {
-            context.RegisterAction(masterActions.BreakAssociation, master2, slave2);
+            context.RegisterAction(masterActions.BreakAssociation, master2, slave2, notify);
             context.RegisterParticipant(master2, association);
           }
           if (slave1!=null) {
-            context.RegisterAction(slaveActions.BreakAssociation, slave1, master1);
+            context.RegisterAction(slaveActions.BreakAssociation, slave1, master1, notify);
             context.RegisterParticipant(slave1, association.Reversed);
           }
           // Setting new association value for slave
           if (slave2!=null) {
-            context.RegisterAction(slaveActions.CreateAssociation, slave2, master1);
+            context.RegisterAction(slaveActions.CreateAssociation, slave2, master1, notify);
             context.RegisterParticipant(slave2, association.Reversed);
           }
           break;
         case OperationType.Remove:
-          context.RegisterAction(slaveActions.BreakAssociation, slave2, master1);
+          context.RegisterAction(slaveActions.BreakAssociation, slave2, master1, notify);
           context.RegisterParticipant(slave2, association.Reversed);
           break;
         default:

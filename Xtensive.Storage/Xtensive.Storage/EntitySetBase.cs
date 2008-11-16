@@ -152,7 +152,7 @@ namespace Xtensive.Storage
         return false;
 
       if (association.IsPaired)
-        Session.PairSyncManager.Enlist(OperationType.Add, ConcreteOwner, item, association);
+        Session.PairSyncManager.Enlist(OperationType.Add, ConcreteOwner, item, association, notify);
 
       if (association.UnderlyingType!=null && association.IsMaster)
         itemCtor(item.Key.Value.Combine(ConcreteOwner.Key.Value));
@@ -171,7 +171,7 @@ namespace Xtensive.Storage
         return false;
 
       if (association.IsPaired)
-        Session.PairSyncManager.Enlist(OperationType.Remove, ConcreteOwner, item, association);
+        Session.PairSyncManager.Enlist(OperationType.Remove, ConcreteOwner, item, association, notify);
 
       if (association.UnderlyingType!=null && association.IsMaster) {
         var combinedKey = Key.Create(association.UnderlyingType, item.Key.Value.Combine(ConcreteOwner.Key.Value));

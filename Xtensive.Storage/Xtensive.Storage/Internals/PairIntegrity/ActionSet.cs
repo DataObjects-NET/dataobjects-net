@@ -10,16 +10,16 @@ namespace Xtensive.Storage.PairIntegrity
 {
   internal struct ActionSet
   {
-    public Func<Entity, Entity> GetPairedValue { get; private set; }
+    public Func<Entity, bool,  Entity> GetPairedValue { get; private set; }
 
-    public Action<Entity, Entity> BreakAssociation { get; private set; }
+    public Action<Entity, Entity, bool> BreakAssociation { get; private set; }
 
-    public Action<Entity, Entity> CreateAssociation { get; private set; }
+    public Action<Entity, Entity, bool> CreateAssociation { get; private set; }
 
 
     // Constructor
 
-    public ActionSet(Func<Entity, Entity> getPairedValue, Action<Entity, Entity> breakAssociation, Action<Entity, Entity> createAssociation)
+    public ActionSet(Func<Entity, bool, Entity> getPairedValue, Action<Entity, Entity, bool> breakAssociation, Action<Entity, Entity, bool> createAssociation)
       : this()
     {
       GetPairedValue = getPairedValue;

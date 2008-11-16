@@ -48,7 +48,9 @@ namespace Xtensive.Storage.ReferentialIntegrity
 
       ActionProcessor processor = GetProcessor(action);
       foreach (AssociationInfo association in associations) {
-        var referencingObjects = AssociationBrowser.FindReferencingObjects(association, referencedObject).ToList();
+        var referencingObjects = AssociationBrowser.FindReferencingObjects(association, referencedObject);
+        if (referencingObjects == null)
+          continue;
         foreach (Entity referencingObject in referencingObjects)
           if (!context.RemovalQueue.Contains(referencingObject.State))
             processor.Process(context, association, referencingObject, referencedObject);
