@@ -45,6 +45,7 @@ namespace Xtensive.Storage.Model
     /// <remarks>
     /// If association is master, returns it. Otherwise returns paired association.
     /// </remarks>
+    /// <exception cref="InvalidOperationException">Unable to find master association.</exception>
     public AssociationInfo Master
     {
       get
@@ -136,12 +137,17 @@ namespace Xtensive.Storage.Model
     /// <summary>
     /// Gets the foreign key extraction transform.
     /// </summary>
-    public SegmentTransform ExtractForeignKeyTransform { get; private set; }
+    public SegmentTransform ForeignKeyExtractorTransform { get; private set; }
 
     /// <summary>
-    /// Gets the foreign key extraction delegate.
+    /// Extracts the foreign key from the specified <see cref="Tuple"/>.
     /// </summary>
-    public Func<Tuple, Tuple> ExtractForeignKey { get; private set; }
+    /// <param name="tuple">The tuple.</param>
+    /// <returns><see cref="Tuple"/> instance with the extracted foreign key.</returns>
+    public Tuple ExtractForeignKey(Tuple tuple)
+    {
+      return ForeignKeyExtractorTransform.Apply(TupleTransformType.TransformedTuple, tuple);
+    }
 
     public CombineTransform BuildPrimaryKeyTransform { get; private set; }
 
@@ -157,7 +163,8 @@ namespace Xtensive.Storage.Model
       case Multiplicity.ZeroToOne:
       case Multiplicity.OneToOne:
       case Multiplicity.ManyToOne:
-        UnderlyingIndex = ReferencingType.Indexes.GetIndex(ReferencingField.Name);
+        UnderlyingIndex = ReferencingType.Indexes.PrimaryIndex;
+        ForeignKeyExtractorTransform = ReferencingField.ValueExtractorTransform;
         break;
       case Multiplicity.OneToMany:
         UnderlyingIndex = Reversed.ReferencingType.Indexes.GetIndex(Reversed.ReferencingField.Name);
@@ -167,9 +174,10 @@ namespace Xtensive.Storage.Model
         UnderlyingIndex = underlyingType.Indexes.Where(indexInfo => indexInfo.IsSecondary).Skip(IsMaster ? 1 : 0).First();
         break;
       }
-      Segment<int> foreignKeySegment = new Segment<int>(ReferencingType.Hierarchy.MappingInfo.Length, ReferencedType.Hierarchy.MappingInfo.Length);
-      ExtractForeignKeyTransform = new SegmentTransform(true, UnderlyingIndex.TupleDescriptor, foreignKeySegment);
-      ExtractForeignKey = tuple => ExtractForeignKeyTransform.Apply(TupleTransformType.TransformedTuple, tuple);
+      if (ForeignKeyExtractorTransform == null) {
+        var foreignKeySegment = new Segment<int>(ReferencingType.Hierarchy.MappingInfo.Length, ReferencedType.Hierarchy.MappingInfo.Length);
+        ForeignKeyExtractorTransform = new SegmentTransform(true, UnderlyingIndex.TupleDescriptor, foreignKeySegment);
+      }
 
       if (underlyingType==null)
         BuildPrimaryKeyTransform = new CombineTransform(true, ReferencedType.Hierarchy.KeyTupleDescriptor, ReferencingType.Hierarchy.KeyTupleDescriptor);

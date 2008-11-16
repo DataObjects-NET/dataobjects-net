@@ -57,19 +57,19 @@ namespace Xtensive.Storage.Tests.Model.Association
   public class A : Root
   {
     [Field]
-    public B OneToZero { get; set; }
+    public B ZeroToOne { get; set; }
 
     [Field]
     public C OneToOneMaster { get; set; }
 
     [Field]
-    public D OneToManyMaster { get; set; }
+    public D ManyToOneMaster { get; set; }
 
     [Field]
-    public EntitySet<E> ManyToZero { get; private set; }
+    public EntitySet<E> ZeroToMany { get; private set; }
 
     [Field]
-    public EntitySet<F> ManyToOneMaster { get; private set; }
+    public EntitySet<F> OneToManyMaster { get; private set; }
 
     [Field]
     public EntitySet<G> ManyToManyMaster { get; private set; }
@@ -103,8 +103,8 @@ namespace Xtensive.Storage.Tests.Model.Association
 
   public class D : Root2
   {
-    [Field(PairTo = "OneToManyMaster")]
-    public EntitySet<A> ManyToOnePaired { get; private set; }
+    [Field(PairTo = "ManyToOneMaster")]
+    public EntitySet<A> OneToManyPaired { get; private set; }
   }
 
   public class E : Root2
@@ -113,8 +113,8 @@ namespace Xtensive.Storage.Tests.Model.Association
 
   public class F : Root2
   {
-    [Field(PairTo = "ManyToOneMaster")]
-    public A OneToManyPaired { get; set; }
+    [Field(PairTo = "OneToManyMaster")]
+    public A ManyToOnePaired { get; set; }
   }
 
   public class G : Root2
@@ -173,8 +173,8 @@ namespace Xtensive.Storage.Tests.Model
         using (Transaction.Open()) {
           var a = new A();
           Assert.IsNotNull(a.ManyToManyMaster);
-          Assert.IsNotNull(a.ManyToOneMaster);
-          Assert.IsNotNull(a.ManyToZero);
+          Assert.IsNotNull(a.OneToManyMaster);
+          Assert.IsNotNull(a.ZeroToMany);
         }
       }
     }
@@ -198,17 +198,17 @@ namespace Xtensive.Storage.Tests.Model
         }
         IEnumerator<F> enumerator; 
         using (var transaction = Transaction.Open()) {
-          Assert.AreEqual(0, a.ManyToOneMaster.Count()); // Linq count through enumerate
-          f1.OneToManyPaired = a;
-          f2.OneToManyPaired = a;
-          f3.OneToManyPaired = a;
-          f4.OneToManyPaired = a;
+          Assert.AreEqual(0, a.OneToManyMaster.Count()); // Linq count through enumerate
+          f1.ManyToOnePaired = a;
+          f2.ManyToOnePaired = a;
+          f3.ManyToOnePaired = a;
+          f4.ManyToOnePaired = a;
 
-          Assert.AreEqual(4, a.ManyToOneMaster.Count()); // Enumerate through internal cacee
-          foreach (F f in a.ManyToOneMaster) {
-            a.ManyToOneMaster.Contains(f); // Enumerate through internal cahce
+          Assert.AreEqual(4, a.OneToManyMaster.Count()); // Enumerate through internal cacee
+          foreach (F f in a.OneToManyMaster) {
+            a.OneToManyMaster.Contains(f); // Enumerate through internal cahce
           }
-          enumerator = a.ManyToOneMaster.GetEnumerator();
+          enumerator = a.OneToManyMaster.GetEnumerator();
           Assert.IsTrue(enumerator.MoveNext());
           Assert.IsTrue(enumerator.MoveNext());
           transaction.Complete();
@@ -216,10 +216,10 @@ namespace Xtensive.Storage.Tests.Model
         // clear cache
         using (Transaction.Open()) {
           AssertEx.Throws<Exception>(()=>enumerator.MoveNext());  
-          Assert.AreEqual(4, a.ManyToOneMaster.Count()); // Enumerate through recordset request
-          foreach (F f in a.ManyToOneMaster) {
-            // a.ManyToOneMaster.Contains(f.Key); // Enumerate through recordset request
-            a.ManyToOneMaster.Contains(f); // Enumerate through recordset request
+          Assert.AreEqual(4, a.OneToManyMaster.Count()); // Enumerate through recordset request
+          foreach (F f in a.OneToManyMaster) {
+            // a.OneToManyMaster.Contains(f.Key); // Enumerate through recordset request
+            a.OneToManyMaster.Contains(f); // Enumerate through recordset request
           }
         }
       }
@@ -322,45 +322,45 @@ namespace Xtensive.Storage.Tests.Model
           transaction.Complete();
         }
         using (Transaction.Open()) {
-          Assert.IsNull(f.OneToManyPaired);
-          Assert.IsNotNull(a.ManyToOneMaster);
-          Assert.AreEqual(0, a.ManyToOneMaster.Count);
-          Assert.IsFalse(a.ManyToOneMaster.Contains(f.Key));
-          Assert.IsFalse(a.ManyToOneMaster.Contains(f));
-          f.OneToManyPaired = a;
-          Assert.IsNotNull(f.OneToManyPaired);
-          Assert.AreEqual(1, a.ManyToOneMaster.Count);
-          Assert.IsTrue(a.ManyToOneMaster.Contains(f.Key));
-          Assert.IsTrue(a.ManyToOneMaster.Contains(f));
-          f.OneToManyPaired = a;
-          Assert.IsNotNull(f.OneToManyPaired);
-          Assert.AreEqual(1, a.ManyToOneMaster.Count);
-          Assert.IsTrue(a.ManyToOneMaster.Contains(f.Key));
-          Assert.IsTrue(a.ManyToOneMaster.Contains(f));
+          Assert.IsNull(f.ManyToOnePaired);
+          Assert.IsNotNull(a.OneToManyMaster);
+          Assert.AreEqual(0, a.OneToManyMaster.Count);
+          Assert.IsFalse(a.OneToManyMaster.Contains(f.Key));
+          Assert.IsFalse(a.OneToManyMaster.Contains(f));
+          f.ManyToOnePaired = a;
+          Assert.IsNotNull(f.ManyToOnePaired);
+          Assert.AreEqual(1, a.OneToManyMaster.Count);
+          Assert.IsTrue(a.OneToManyMaster.Contains(f.Key));
+          Assert.IsTrue(a.OneToManyMaster.Contains(f));
+          f.ManyToOnePaired = a;
+          Assert.IsNotNull(f.ManyToOnePaired);
+          Assert.AreEqual(1, a.OneToManyMaster.Count);
+          Assert.IsTrue(a.OneToManyMaster.Contains(f.Key));
+          Assert.IsTrue(a.OneToManyMaster.Contains(f));
         }
         // rollback
         using (Transaction.Open()) {
-          Assert.IsNull(f.OneToManyPaired);
-          Assert.IsNotNull(a.ManyToOneMaster);
-          Assert.AreEqual(0, a.ManyToOneMaster.Count);
-          Assert.IsFalse(a.ManyToOneMaster.Contains(f.Key));
-          Assert.IsFalse(a.ManyToOneMaster.Contains(f));
+          Assert.IsNull(f.ManyToOnePaired);
+          Assert.IsNotNull(a.OneToManyMaster);
+          Assert.AreEqual(0, a.OneToManyMaster.Count);
+          Assert.IsFalse(a.OneToManyMaster.Contains(f.Key));
+          Assert.IsFalse(a.OneToManyMaster.Contains(f));
         }
         //assign back and commit
         using (var transaction = Transaction.Open()) {
-          f.OneToManyPaired = a;
-          Assert.IsNotNull(f.OneToManyPaired);
-          Assert.AreEqual(1, a.ManyToOneMaster.Count);
-          Assert.IsTrue(a.ManyToOneMaster.Contains(f.Key));
-          Assert.IsTrue(a.ManyToOneMaster.Contains(f));
+          f.ManyToOnePaired = a;
+          Assert.IsNotNull(f.ManyToOnePaired);
+          Assert.AreEqual(1, a.OneToManyMaster.Count);
+          Assert.IsTrue(a.OneToManyMaster.Contains(f.Key));
+          Assert.IsTrue(a.OneToManyMaster.Contains(f));
           transaction.Complete();
         }
         // check commited state
         using (Transaction.Open()) {
-          Assert.IsNotNull(f.OneToManyPaired);
-          Assert.AreEqual(1, a.ManyToOneMaster.Count);
-          Assert.IsTrue(a.ManyToOneMaster.Contains(f.Key));
-          Assert.IsTrue(a.ManyToOneMaster.Contains(f));
+          Assert.IsNotNull(f.ManyToOnePaired);
+          Assert.AreEqual(1, a.OneToManyMaster.Count);
+          Assert.IsTrue(a.OneToManyMaster.Contains(f.Key));
+          Assert.IsTrue(a.OneToManyMaster.Contains(f));
         }
       }
     }
@@ -377,31 +377,31 @@ namespace Xtensive.Storage.Tests.Model
           transaction.Complete();
         }
         using (Transaction.Open()) {
-          Assert.IsNull(f.OneToManyPaired);
-          Assert.IsNotNull(a.ManyToOneMaster);
-          Assert.AreEqual(0, a.ManyToOneMaster.Count);
-          Assert.IsFalse(a.ManyToOneMaster.Contains(f.Key));
-          Assert.IsFalse(a.ManyToOneMaster.Contains(f));
-          a.ManyToOneMaster.Add(f);
-          Assert.IsNotNull(f.OneToManyPaired);
-          Assert.AreEqual(f.OneToManyPaired, a);
-          Assert.AreEqual(1, a.ManyToOneMaster.Count);
-          Assert.IsTrue(a.ManyToOneMaster.Contains(f.Key));
-          Assert.IsTrue(a.ManyToOneMaster.Contains(f));
-          a.ManyToOneMaster.Add(f);
-          Assert.IsNotNull(f.OneToManyPaired);
-          Assert.AreEqual(f.OneToManyPaired, a);
-          Assert.AreEqual(1, a.ManyToOneMaster.Count);
-          Assert.IsTrue(a.ManyToOneMaster.Contains(f.Key));
-          Assert.IsTrue(a.ManyToOneMaster.Contains(f));
+          Assert.IsNull(f.ManyToOnePaired);
+          Assert.IsNotNull(a.OneToManyMaster);
+          Assert.AreEqual(0, a.OneToManyMaster.Count);
+          Assert.IsFalse(a.OneToManyMaster.Contains(f.Key));
+          Assert.IsFalse(a.OneToManyMaster.Contains(f));
+          a.OneToManyMaster.Add(f);
+          Assert.IsNotNull(f.ManyToOnePaired);
+          Assert.AreEqual(f.ManyToOnePaired, a);
+          Assert.AreEqual(1, a.OneToManyMaster.Count);
+          Assert.IsTrue(a.OneToManyMaster.Contains(f.Key));
+          Assert.IsTrue(a.OneToManyMaster.Contains(f));
+          a.OneToManyMaster.Add(f);
+          Assert.IsNotNull(f.ManyToOnePaired);
+          Assert.AreEqual(f.ManyToOnePaired, a);
+          Assert.AreEqual(1, a.OneToManyMaster.Count);
+          Assert.IsTrue(a.OneToManyMaster.Contains(f.Key));
+          Assert.IsTrue(a.OneToManyMaster.Contains(f));
         }
         // rollback
         using (Transaction.Open()) {
-          Assert.IsNull(f.OneToManyPaired);
-          Assert.IsNotNull(a.ManyToOneMaster);
-          Assert.AreEqual(0, a.ManyToOneMaster.Count);
-          Assert.IsFalse(a.ManyToOneMaster.Contains(f.Key));
-          Assert.IsFalse(a.ManyToOneMaster.Contains(f));
+          Assert.IsNull(f.ManyToOnePaired);
+          Assert.IsNotNull(a.OneToManyMaster);
+          Assert.AreEqual(0, a.OneToManyMaster.Count);
+          Assert.IsFalse(a.OneToManyMaster.Contains(f.Key));
+          Assert.IsFalse(a.OneToManyMaster.Contains(f));
         }
       }
     }
@@ -420,48 +420,48 @@ namespace Xtensive.Storage.Tests.Model
           transaction.Complete();
         }
         using (Transaction.Open()) {
-          Assert.IsNull(f1.OneToManyPaired);
-          Assert.IsNull(f2.OneToManyPaired);
-          Assert.IsNotNull(a.ManyToOneMaster);
-          Assert.AreEqual(0, a.ManyToOneMaster.Count);
-          Assert.IsFalse(a.ManyToOneMaster.Contains(f1.Key));
-          Assert.IsFalse(a.ManyToOneMaster.Contains(f1));
-          Assert.IsFalse(a.ManyToOneMaster.Contains(f2.Key));
-          Assert.IsFalse(a.ManyToOneMaster.Contains(f2));
-          f1.OneToManyPaired = a;
-          Assert.IsNotNull(f1.OneToManyPaired);
-          Assert.AreEqual(1, a.ManyToOneMaster.Count);
-          Assert.IsTrue(a.ManyToOneMaster.Contains(f1.Key));
-          Assert.IsTrue(a.ManyToOneMaster.Contains(f1));
-          Assert.IsFalse(a.ManyToOneMaster.Contains(f2.Key));
-          Assert.IsFalse(a.ManyToOneMaster.Contains(f2));
-          f2.OneToManyPaired = a;
-          Assert.IsNotNull(f1.OneToManyPaired);
-          Assert.IsNotNull(f2.OneToManyPaired);
-          Assert.AreEqual(2, a.ManyToOneMaster.Count);
-          Assert.IsTrue(a.ManyToOneMaster.Contains(f1));
-          Assert.IsTrue(a.ManyToOneMaster.Contains(f1.Key));
-          Assert.IsTrue(a.ManyToOneMaster.Contains(f2.Key));
-          Assert.IsTrue(a.ManyToOneMaster.Contains(f2));
-          f1.OneToManyPaired = null;
-          Assert.IsNull(f1.OneToManyPaired);
-          Assert.IsNotNull(f2.OneToManyPaired);
-          Assert.IsNotNull(a.ManyToOneMaster);
-          Assert.AreEqual(1, a.ManyToOneMaster.Count);
-          Assert.IsFalse(a.ManyToOneMaster.Contains(f1.Key));
-          Assert.IsFalse(a.ManyToOneMaster.Contains(f1));
-          Assert.IsTrue(a.ManyToOneMaster.Contains(f2.Key));
-          Assert.IsTrue(a.ManyToOneMaster.Contains(f2));
-          f1.OneToManyPaired = a;
+          Assert.IsNull(f1.ManyToOnePaired);
+          Assert.IsNull(f2.ManyToOnePaired);
+          Assert.IsNotNull(a.OneToManyMaster);
+          Assert.AreEqual(0, a.OneToManyMaster.Count);
+          Assert.IsFalse(a.OneToManyMaster.Contains(f1.Key));
+          Assert.IsFalse(a.OneToManyMaster.Contains(f1));
+          Assert.IsFalse(a.OneToManyMaster.Contains(f2.Key));
+          Assert.IsFalse(a.OneToManyMaster.Contains(f2));
+          f1.ManyToOnePaired = a;
+          Assert.IsNotNull(f1.ManyToOnePaired);
+          Assert.AreEqual(1, a.OneToManyMaster.Count);
+          Assert.IsTrue(a.OneToManyMaster.Contains(f1.Key));
+          Assert.IsTrue(a.OneToManyMaster.Contains(f1));
+          Assert.IsFalse(a.OneToManyMaster.Contains(f2.Key));
+          Assert.IsFalse(a.OneToManyMaster.Contains(f2));
+          f2.ManyToOnePaired = a;
+          Assert.IsNotNull(f1.ManyToOnePaired);
+          Assert.IsNotNull(f2.ManyToOnePaired);
+          Assert.AreEqual(2, a.OneToManyMaster.Count);
+          Assert.IsTrue(a.OneToManyMaster.Contains(f1));
+          Assert.IsTrue(a.OneToManyMaster.Contains(f1.Key));
+          Assert.IsTrue(a.OneToManyMaster.Contains(f2.Key));
+          Assert.IsTrue(a.OneToManyMaster.Contains(f2));
+          f1.ManyToOnePaired = null;
+          Assert.IsNull(f1.ManyToOnePaired);
+          Assert.IsNotNull(f2.ManyToOnePaired);
+          Assert.IsNotNull(a.OneToManyMaster);
+          Assert.AreEqual(1, a.OneToManyMaster.Count);
+          Assert.IsFalse(a.OneToManyMaster.Contains(f1.Key));
+          Assert.IsFalse(a.OneToManyMaster.Contains(f1));
+          Assert.IsTrue(a.OneToManyMaster.Contains(f2.Key));
+          Assert.IsTrue(a.OneToManyMaster.Contains(f2));
+          f1.ManyToOnePaired = a;
         }
         // rollback
         using (Transaction.Open()) {
-          Assert.IsNull(f1.OneToManyPaired);
-          Assert.IsNull(f2.OneToManyPaired);
-          Assert.IsNotNull(a.ManyToOneMaster);
-          Assert.AreEqual(0, a.ManyToOneMaster.Count);
-          Assert.IsFalse(a.ManyToOneMaster.Contains(f1.Key));
-          Assert.IsFalse(a.ManyToOneMaster.Contains(f1));
+          Assert.IsNull(f1.ManyToOnePaired);
+          Assert.IsNull(f2.ManyToOnePaired);
+          Assert.IsNotNull(a.OneToManyMaster);
+          Assert.AreEqual(0, a.OneToManyMaster.Count);
+          Assert.IsFalse(a.OneToManyMaster.Contains(f1.Key));
+          Assert.IsFalse(a.OneToManyMaster.Contains(f1));
         }
       }
     }
@@ -480,57 +480,57 @@ namespace Xtensive.Storage.Tests.Model
           transaction.Complete();
         }
         using (Transaction.Open()) {
-          Assert.IsNull(f.OneToManyPaired);
-          Assert.IsNotNull(a1.ManyToOneMaster);
-          Assert.IsNotNull(a2.ManyToOneMaster);
-          Assert.IsFalse(a1.ManyToOneMaster.Contains(f.Key));
-          Assert.IsFalse(a1.ManyToOneMaster.Contains(f));
-          Assert.IsFalse(a2.ManyToOneMaster.Contains(f.Key));
-          Assert.IsFalse(a2.ManyToOneMaster.Contains(f));
-          Assert.AreEqual(0, a1.ManyToOneMaster.Count);
-          Assert.AreEqual(0, a2.ManyToOneMaster.Count);
-          a1.ManyToOneMaster.Add(f);
-          Assert.IsNotNull(f.OneToManyPaired);
-          Assert.AreEqual(f.OneToManyPaired, a1);
-          Assert.AreEqual(1, a1.ManyToOneMaster.Count);
-          Assert.AreEqual(0, a2.ManyToOneMaster.Count);
-          Assert.IsTrue(a1.ManyToOneMaster.Contains(f.Key));
-          Assert.IsTrue(a1.ManyToOneMaster.Contains(f));
-          Assert.IsFalse(a2.ManyToOneMaster.Contains(f.Key));
-          Assert.IsFalse(a2.ManyToOneMaster.Contains(f));
-          a1.ManyToOneMaster.Remove(f);
-          Assert.IsNull(f.OneToManyPaired);
-          Assert.IsNotNull(a1.ManyToOneMaster);
-          Assert.IsNotNull(a2.ManyToOneMaster);
-          Assert.IsFalse(a1.ManyToOneMaster.Contains(f.Key));
-          Assert.IsFalse(a1.ManyToOneMaster.Contains(f));
-          Assert.IsFalse(a2.ManyToOneMaster.Contains(f.Key));
-          Assert.IsFalse(a2.ManyToOneMaster.Contains(f));
-          Assert.AreEqual(0, a1.ManyToOneMaster.Count);
-          Assert.AreEqual(0, a2.ManyToOneMaster.Count);
-          a1.ManyToOneMaster.Add(f);
+          Assert.IsNull(f.ManyToOnePaired);
+          Assert.IsNotNull(a1.OneToManyMaster);
+          Assert.IsNotNull(a2.OneToManyMaster);
+          Assert.IsFalse(a1.OneToManyMaster.Contains(f.Key));
+          Assert.IsFalse(a1.OneToManyMaster.Contains(f));
+          Assert.IsFalse(a2.OneToManyMaster.Contains(f.Key));
+          Assert.IsFalse(a2.OneToManyMaster.Contains(f));
+          Assert.AreEqual(0, a1.OneToManyMaster.Count);
+          Assert.AreEqual(0, a2.OneToManyMaster.Count);
+          a1.OneToManyMaster.Add(f);
+          Assert.IsNotNull(f.ManyToOnePaired);
+          Assert.AreEqual(f.ManyToOnePaired, a1);
+          Assert.AreEqual(1, a1.OneToManyMaster.Count);
+          Assert.AreEqual(0, a2.OneToManyMaster.Count);
+          Assert.IsTrue(a1.OneToManyMaster.Contains(f.Key));
+          Assert.IsTrue(a1.OneToManyMaster.Contains(f));
+          Assert.IsFalse(a2.OneToManyMaster.Contains(f.Key));
+          Assert.IsFalse(a2.OneToManyMaster.Contains(f));
+          a1.OneToManyMaster.Remove(f);
+          Assert.IsNull(f.ManyToOnePaired);
+          Assert.IsNotNull(a1.OneToManyMaster);
+          Assert.IsNotNull(a2.OneToManyMaster);
+          Assert.IsFalse(a1.OneToManyMaster.Contains(f.Key));
+          Assert.IsFalse(a1.OneToManyMaster.Contains(f));
+          Assert.IsFalse(a2.OneToManyMaster.Contains(f.Key));
+          Assert.IsFalse(a2.OneToManyMaster.Contains(f));
+          Assert.AreEqual(0, a1.OneToManyMaster.Count);
+          Assert.AreEqual(0, a2.OneToManyMaster.Count);
+          a1.OneToManyMaster.Add(f);
           // change owner
-          a2.ManyToOneMaster.Add(f);
-          Assert.IsNotNull(f.OneToManyPaired);
-          Assert.AreEqual(f.OneToManyPaired, a2);
-          Assert.AreEqual(0, a1.ManyToOneMaster.Count);
-          Assert.AreEqual(1, a2.ManyToOneMaster.Count);
-          Assert.IsFalse(a1.ManyToOneMaster.Contains(f.Key));
-          Assert.IsFalse(a1.ManyToOneMaster.Contains(f));
-          Assert.IsTrue(a2.ManyToOneMaster.Contains(f.Key));
-          Assert.IsTrue(a2.ManyToOneMaster.Contains(f));
+          a2.OneToManyMaster.Add(f);
+          Assert.IsNotNull(f.ManyToOnePaired);
+          Assert.AreEqual(f.ManyToOnePaired, a2);
+          Assert.AreEqual(0, a1.OneToManyMaster.Count);
+          Assert.AreEqual(1, a2.OneToManyMaster.Count);
+          Assert.IsFalse(a1.OneToManyMaster.Contains(f.Key));
+          Assert.IsFalse(a1.OneToManyMaster.Contains(f));
+          Assert.IsTrue(a2.OneToManyMaster.Contains(f.Key));
+          Assert.IsTrue(a2.OneToManyMaster.Contains(f));
         }
         // rollback
         using (Transaction.Open()) {
-          Assert.IsNull(f.OneToManyPaired);
-          Assert.IsNotNull(a1.ManyToOneMaster);
-          Assert.IsNotNull(a2.ManyToOneMaster);
-          Assert.IsFalse(a1.ManyToOneMaster.Contains(f.Key));
-          Assert.IsFalse(a1.ManyToOneMaster.Contains(f));
-          Assert.IsFalse(a2.ManyToOneMaster.Contains(f.Key));
-          Assert.IsFalse(a2.ManyToOneMaster.Contains(f));
-          Assert.AreEqual(0, a1.ManyToOneMaster.Count);
-          Assert.AreEqual(0, a2.ManyToOneMaster.Count);
+          Assert.IsNull(f.ManyToOnePaired);
+          Assert.IsNotNull(a1.OneToManyMaster);
+          Assert.IsNotNull(a2.OneToManyMaster);
+          Assert.IsFalse(a1.OneToManyMaster.Contains(f.Key));
+          Assert.IsFalse(a1.OneToManyMaster.Contains(f));
+          Assert.IsFalse(a2.OneToManyMaster.Contains(f.Key));
+          Assert.IsFalse(a2.OneToManyMaster.Contains(f));
+          Assert.AreEqual(0, a1.OneToManyMaster.Count);
+          Assert.AreEqual(0, a2.OneToManyMaster.Count);
         }
       }
     }
@@ -547,20 +547,20 @@ namespace Xtensive.Storage.Tests.Model
           transaction.Complete();
         }
         using (Transaction.Open()) {
-          Assert.IsNull(a.OneToZero);
-          a.OneToZero = b;
-          Assert.AreEqual(a.OneToZero, b);
-          a.OneToZero = null;
-          Assert.IsNull(a.OneToZero);
-          a.OneToZero = b;
+          Assert.IsNull(a.ZeroToOne);
+          a.ZeroToOne = b;
+          Assert.AreEqual(a.ZeroToOne, b);
+          a.ZeroToOne = null;
+          Assert.IsNull(a.ZeroToOne);
+          a.ZeroToOne = b;
         }
         using (var transaction = Transaction.Open()) {
-          Assert.IsNull(a.OneToZero);
-          a.OneToZero = b;
+          Assert.IsNull(a.ZeroToOne);
+          a.ZeroToOne = b;
           transaction.Complete();
         }
         using (var transaction = Transaction.Open()) {
-          Assert.AreEqual(a.OneToZero, b);
+          Assert.AreEqual(a.ZeroToOne, b);
         }
       }
     }
@@ -676,20 +676,20 @@ namespace Xtensive.Storage.Tests.Model
           transaction.Complete();
         }
         using (var transaction = Transaction.Open()) {
-          Assert.IsNotNull(a.ManyToZero);
-          Assert.AreEqual(0, a.ManyToZero.Count);
-          Assert.IsFalse(a.ManyToZero.Contains(e1));
-          Assert.IsFalse(a.ManyToZero.Contains(e2));
-          a.ManyToZero.Add(e1);
-          a.ManyToZero.Add(e2);
-          Assert.AreEqual(2, a.ManyToZero.Count);
-          Assert.IsTrue(a.ManyToZero.Contains(e1));
-          Assert.IsTrue(a.ManyToZero.Contains(e2));
-          a.ManyToZero.Remove(e1);
-          a.ManyToZero.Remove(e2);
-          Assert.AreEqual(0, a.ManyToZero.Count);
-          Assert.IsFalse(a.ManyToZero.Contains(e1));
-          Assert.IsFalse(a.ManyToZero.Contains(e2));
+          Assert.IsNotNull(a.ZeroToMany);
+          Assert.AreEqual(0, a.ZeroToMany.Count);
+          Assert.IsFalse(a.ZeroToMany.Contains(e1));
+          Assert.IsFalse(a.ZeroToMany.Contains(e2));
+          a.ZeroToMany.Add(e1);
+          a.ZeroToMany.Add(e2);
+          Assert.AreEqual(2, a.ZeroToMany.Count);
+          Assert.IsTrue(a.ZeroToMany.Contains(e1));
+          Assert.IsTrue(a.ZeroToMany.Contains(e2));
+          a.ZeroToMany.Remove(e1);
+          a.ZeroToMany.Remove(e2);
+          Assert.AreEqual(0, a.ZeroToMany.Count);
+          Assert.IsFalse(a.ZeroToMany.Contains(e1));
+          Assert.IsFalse(a.ZeroToMany.Contains(e2));
         }
       }
     }
@@ -708,13 +708,13 @@ namespace Xtensive.Storage.Tests.Model
           transaction.Complete();
         }
         using (var transaction = Transaction.Open()) {
-          Assert.IsNotNull(a.ManyToZero);
-          Assert.AreEqual(0, a.ManyToZero.Count);
-          Assert.IsFalse(a.ManyToZero.Contains(e1));
-          Assert.IsFalse(a.ManyToZero.Contains(e2));
-          a.ManyToZero.Add(e1);
-          a.ManyToZero.Add(e2);
-          CheckEnumerator(a.ManyToZero, e1, e2);
+          Assert.IsNotNull(a.ZeroToMany);
+          Assert.AreEqual(0, a.ZeroToMany.Count);
+          Assert.IsFalse(a.ZeroToMany.Contains(e1));
+          Assert.IsFalse(a.ZeroToMany.Contains(e2));
+          a.ZeroToMany.Add(e1);
+          a.ZeroToMany.Add(e2);
+          CheckEnumerator(a.ZeroToMany, e1, e2);
         }
       }
     }

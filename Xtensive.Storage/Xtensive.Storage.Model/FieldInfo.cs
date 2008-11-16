@@ -378,12 +378,17 @@ namespace Xtensive.Storage.Model
     /// <summary>
     /// Gets the extract value transform.
     /// </summary>
-    public SegmentTransform ExtractValueTransform { get; private set; }
+    public SegmentTransform ValueExtractorTransform { get; private set; }
 
     /// <summary>
-    /// Gets the value extractor.
+    /// Extracts the field value from the specified <see cref="Tuple"/>.
     /// </summary>
-    public Func<Tuple, Tuple> ExtractValue { get; private set; }
+    /// <param name="tuple">The tuple to extract value from.</param>
+    /// <returns><see cref="Tuple"/> instance with the extracted value.</returns>
+    public Tuple ExtractValue (Tuple tuple)
+    {
+      return ValueExtractorTransform.Apply(TupleTransformType.TransformedTuple, tuple);
+    }
 
     /// <inheritdoc/>
     public override void Lock(bool recursive)
@@ -400,10 +405,7 @@ namespace Xtensive.Storage.Model
       }
       else if (Fields.Count > 0)
         MappingInfo = new Segment<int>(Fields.First().MappingInfo.Offset, Fields.Sum(info => info.MappingInfo.Length));
-      if (IsEntity || IsStructure) {
-        ExtractValueTransform = new SegmentTransform(false, reflectedType.TupleDescriptor, new Segment<int>(MappingInfo.Offset, MappingInfo.Length));
-        ExtractValue = tuple => ExtractValueTransform.Apply(TupleTransformType.TransformedTuple, tuple);
-      }
+      ValueExtractorTransform = new SegmentTransform(false, reflectedType.TupleDescriptor, new Segment<int>(MappingInfo.Offset, MappingInfo.Length));
     }
 
     #region Equals, GetHashCode methods
