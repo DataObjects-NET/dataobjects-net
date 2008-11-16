@@ -734,6 +734,24 @@ namespace Xtensive.Core.Reflection
       return delegateType.GetMethod(invokeMethodName);
     }
 
+    /// <summary>
+    /// Determines whether the specified <paramref name="type"/> inherits the <paramref name="baseType"/>.
+    /// </summary>
+    /// <param name="type">The type to check.</param>
+    /// <param name="baseType">Type of the generic.</param>
+    /// <returns>
+    /// <see langword="true"/> if the specified <paramref name="type"/> inherits the <paramref name="baseType"/>; otherwise, <see langword="false"/>.
+    /// </returns>
+    public static bool IsOfGenericType(this Type type, Type baseType)
+    {
+      Type t = type;
+      while (t != typeof(object)) {
+        if (t.IsGenericType && t.GetGenericTypeDefinition() == baseType)
+          return true;
+       t = t.BaseType;
+      }
+      return false;
+    }
     #region Private \ internal methods
 
     private static string TrimGenericSuffix(string @string)
