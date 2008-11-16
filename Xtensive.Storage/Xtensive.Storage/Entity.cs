@@ -5,6 +5,7 @@
 // Created:    2007.08.01
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Aspects;
@@ -15,7 +16,6 @@ using Xtensive.Core.Tuples;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
-using Xtensive.Storage.ReferentialIntegrity;
 using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage
@@ -115,13 +115,38 @@ namespace Xtensive.Storage
 
     #endregion
 
-    #region Remove method
+    #region Public members
 
     /// <inheritdoc/>
     [Infrastructure]
     public void Remove()
     {
       Remove(true);
+    }
+
+    /// <summary>
+    /// Finds the objects that reference this instance.
+    /// </summary>
+    /// <returns>The set of objects that reference this instance</returns>
+    [Infrastructure]
+    public IEnumerable<Entity> FindReferencingObjects()
+    {
+      foreach (AssociationInfo association in Type.GetAssociations())
+        foreach (Entity item in association.FindReferencingObjects(this))
+          yield return item;
+    }
+
+    /// <summary>
+    /// Finds the objects that reference this instance within specified <paramref name="association"/>.
+    /// </summary>
+    /// <returns>The set of objects that reference this instance within specified <paramref name="association"/>.</returns>
+    /// <exception cref="InvalidOperationException">Type doesn't participate in the specified association.</exception>
+    [Infrastructure]
+    public IEnumerable<Entity> FindReferencingObjects(AssociationInfo association)
+    {
+      if (!association.ReferencedType.UnderlyingType.IsAssignableFrom(Type.UnderlyingType))
+        throw new InvalidOperationException(string.Format("Type '{0}' doesn't participate in the specified association.", Type.Name));
+      return association.FindReferencingObjects(this);
     }
 
     #endregion

@@ -103,6 +103,7 @@ namespace Xtensive.Storage.Tests.Storage
           m.OneToMany.Add(new Slave());
           m.OneToMany.Add(new Slave());
           Assert.AreEqual(3, m.OneToMany.Count);
+          Assert.AreEqual(3, m.FindReferencingObjects(m.Type.Fields["OneToMany"].Association.Reversed).Count());
           m.OneToMany.First().Remove();
           Assert.AreEqual(2, m.OneToMany.Count);
 

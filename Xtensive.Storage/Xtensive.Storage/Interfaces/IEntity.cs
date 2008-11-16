@@ -4,7 +4,6 @@
 // Created by: Alex Yakunin
 // Created:    2007.05.25
 
-using System;
 using Xtensive.Core;
 
 namespace Xtensive.Storage
