@@ -17,6 +17,7 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
+using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.PairIntegrity;
@@ -40,6 +41,7 @@ namespace Xtensive.Storage
     private RecordSet                                 seek;
     private Func<Tuple, Entity>                       itemCtor;
     private AssociationInfo                           association;
+    private CombineTransform                          seekTransform;
 
     #region Public Count, Contains, GetKeys members
 
@@ -90,7 +92,7 @@ namespace Xtensive.Storage
 
       bool result;
       using (new ParameterScope()) {
-        pKey.Value = association.BuildPrimaryKey(ConcreteOwner.Key.Value, key.Value);
+        pKey.Value = seekTransform.Apply(TupleTransformType.TransformedTuple, ConcreteOwner.Key.Value, key.Value);
         result = seek.FirstOrDefault() != null;
       }
       if (result)
@@ -130,6 +132,11 @@ namespace Xtensive.Storage
       items = association.UnderlyingIndex.ToRecordSet().Range(ConcreteOwner.Key.Value, ConcreteOwner.Key.Value);
       seek = association.UnderlyingIndex.ToRecordSet().Seek(() => pKey.Value);
       count = items.Aggregate(null, new AggregateColumnDescriptor("$Count", 0, AggregateType.Count));
+
+      if (association.UnderlyingType==null)
+        seekTransform = new CombineTransform(true, association.ReferencedType.Hierarchy.KeyTupleDescriptor, association.ReferencingType.Hierarchy.KeyTupleDescriptor);
+      else
+        seekTransform = new CombineTransform(true, association.ReferencingType.Hierarchy.KeyTupleDescriptor, association.ReferencedType.Hierarchy.KeyTupleDescriptor);
       OnInitialize(notify);
     }
 
