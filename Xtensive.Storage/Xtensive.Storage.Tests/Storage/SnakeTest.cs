@@ -7,8 +7,12 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Resources;
+using System.Text;
+using System.Threading;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
@@ -70,6 +74,17 @@ namespace Xtensive.Storage.Tests.Storage.SnakesModel
   {
     [Field(Length = 20)]
     public string Color { get; set; }
+  }
+
+  [DebuggerDisplay("Name = '{Name}'; Length = {Length}")]
+  [Index("Length", "Description")]
+  public class ClearSnake : Creature
+  {
+    [Field]
+    public int? Length { get; set; }
+
+    [Field]
+    public string Description { get; set; }
   }
 }
 
@@ -373,6 +388,34 @@ namespace Xtensive.Storage.Tests.Storage
         }
       }
     }
+    [Test]
+    [Ignore]
+    public void StringComparisonTest()
+    {
+      //var stringList = new string[] {"k", "K", "kK","kk!", "Kk", "KKy", "kkx", "KKK"+'\u00FF', "KKKK", "kkjkllkj", string.Concat('\u0920','\u00FF'), string.Concat('\u0920','\u0920')};
+      var stringList = new string[] { "KAA10" + '\u00FF', "Kaa1000" };
+      var signList = new List<string>();
+      
+      for(int i = 0; i<stringList.Length-1; i++) {
+        if (stringList[i].CompareTo(stringList[i + 1]) < 0) {
+          signList.Add("<");
+          continue;
+        }
+        if (stringList[i].CompareTo(stringList[i + 1]) > 0) {
+          signList.Add(">");
+          continue;
+        }
+        signList.Add("=");
+      }
+
+      var result = new StringBuilder(stringList[0] + " ");
+      for (int i = 0; i < signList.Count; i++)
+        result.Append(signList[i]).Append(" ").Append(stringList[i + 1]).Append(" ");
+      
+      Log.Info(result.ToString());
+      Log.Info('K'.CompareTo(char.MinValue).ToString());
+
+    }
 
     [Test]
     public void RangeTest()
@@ -423,6 +466,54 @@ namespace Xtensive.Storage.Tests.Storage
             var count = result.Count();
             Assert.AreEqual(91, count);
           }
+
+          result = rsSnakeName
+          .OrderBy(OrderBy.Desc(rsSnakeName.Header.IndexOf(cName)))
+          .Like(Tuple.Create("Kaa" + 10));
+          
+          var cc= result.Count();
+          Assert.AreEqual(cc,11);
+          
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void LikeTest()
+    {
+      TestFixtureTearDown();
+      TestFixtureSetUp();
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+
+          ClearSnake s = new ClearSnake();
+          s.Description = "kkKklm";
+          s.Length = 1;
+
+          ClearSnake s1 = new ClearSnake();
+          s1.Description = "kKklm";
+          s1.Length = 3;
+
+          ClearSnake s2 = new ClearSnake();
+          s2.Description = "KKK";
+          s2.Length = 1;
+
+          ClearSnake s3 = new ClearSnake();
+          s3.Description = "Kkl";
+          s3.Length = 1;
+
+          Session.Current.Persist();
+
+          TypeInfo snakeType = Domain.Model.Types[typeof(ClearSnake)];
+          RecordSet rsSnake = snakeType.Indexes.GetIndex(cLength, "Description").ToRecordSet();
+
+          RecordSet result = rsSnake
+            .Like(Tuple.Create(1, "KkK"));
+
+          var c = result.Count();
+          Assert.AreEqual(c, 2);
+          
           t.Complete();
         }
       }

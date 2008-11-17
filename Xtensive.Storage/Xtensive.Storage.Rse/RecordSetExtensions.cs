@@ -5,6 +5,7 @@
 // Created:    2008.05.08
 
 using System;
+using System.Globalization;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
@@ -62,6 +63,19 @@ namespace Xtensive.Storage.Rse
         yPoint = new Entire<Tuple>(to);
 
       return Range(recordSet, new Range<Entire<Tuple>>(xPoint, yPoint));
+    }
+
+    public static RecordSet Like(this RecordSet recordSet, Tuple like)
+    {
+      var from = like.Clone();
+      var to = like.Clone();
+      for (int i = 0; i < like.Count; i++) {
+        if (like.Descriptor[i]==typeof (string)) {
+            from.SetValue(i, like.GetValue<string>(i).ToLower(CultureInfo.InvariantCulture));
+            to.SetValue(i, like.GetValue<string>(i).ToUpper(CultureInfo.InvariantCulture) + '\u00FF');
+        }
+      }
+      return Range(recordSet, from, to);
     }
 
     public static RecordSet Calculate(this RecordSet recordSet, params CalculatedColumnDescriptor[] columns)

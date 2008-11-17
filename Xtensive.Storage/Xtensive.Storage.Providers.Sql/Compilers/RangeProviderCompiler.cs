@@ -94,7 +94,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
             }
           }
           else
-            query.Where &= query.Columns[keyColumns[i].Key] >= binding.SqlParameter;
+            query.Where &= query.Columns[keyColumns[i].Key] <= binding.SqlParameter;
         }
       }
       else if (originalRange.EndPoints.First.ValueType==EntireValueType.PositiveInfinity)
