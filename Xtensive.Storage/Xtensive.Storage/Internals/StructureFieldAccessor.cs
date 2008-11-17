@@ -23,7 +23,7 @@ namespace Xtensive.Storage.Internals
     public override T GetValue(Persistent obj, FieldInfo field, bool notify)
     {
       ValidateType(field);
-      IFieldHandler result;
+      IFieldValueAdapter result;
       if (obj.FieldHandlers.TryGetValue(field, out result))
         return (T) result;
       result = Activator.CreateStructure(field.ValueType, obj, field, notify);
@@ -36,14 +36,10 @@ namespace Xtensive.Storage.Internals
     {
       ArgumentValidator.EnsureArgumentNotNull(value, "value");
       ValidateType(field);
-      Structure structure = ((Structure) (object) value);
+      var structure = (Structure) (object) value;
       if (structure.Owner!=null)
         structure.Owner.EnsureIsFetched(structure.Field);
-      structure.Data.CopyTo(obj.Data, 0, field.MappingInfo.Offset, field.MappingInfo.Length);
-    }
-
-    private StructureFieldAccessor()
-    {
+      structure.Tuple.CopyTo(obj.Tuple, 0, field.MappingInfo.Offset, field.MappingInfo.Length);
     }
   }
 }

@@ -26,46 +26,41 @@ namespace Xtensive.Storage
   /// </remarks>
   public abstract class Structure : Persistent,
     IEquatable<Structure>,
-    IFieldHandler
+    IFieldValueAdapter
   {
     private readonly Persistent owner;
     private readonly FieldInfo field;
-    private readonly Tuple data;
+    private readonly Tuple tuple;
     private readonly TypeInfo type;
 
     /// <inheritdoc/>
-    public override TypeInfo Type
-    {
+    public override TypeInfo Type {
       [DebuggerStepThrough]
       get { return type; }
     }
 
     /// <inheritdoc/>
     [Infrastructure]
-    public Persistent Owner
-    {
+    public Persistent Owner {
       [DebuggerStepThrough]
       get { return owner; }
     }
 
     /// <inheritdoc/>
     [Infrastructure]
-    public FieldInfo Field
-    {
+    public FieldInfo Field {
       [DebuggerStepThrough]
       get { return field; }
     }
 
     /// <inheritdoc/>
-    protected internal override Tuple Data
-    {
+    protected internal override Tuple Tuple {
       [DebuggerStepThrough]
-      get { return data; }
+      get { return tuple; }
     }
 
     /// <inheritdoc/> 
-    protected internal override bool SkipValidation
-    {
+    protected internal override bool SkipValidation {
       get { return false; }
     }
 
@@ -131,16 +126,17 @@ namespace Xtensive.Storage
         return false;
       if (ReferenceEquals(this, other))
         return true;
-      return AdvancedComparer<Tuple>.Default.Equals(Data, other.Data);
+      return AdvancedComparer<Tuple>.Default.Equals(Tuple, other.Tuple);
     }
 
     /// <inheritdoc/>
     public override int GetHashCode()
     {
-      return Data.GetHashCode();
+      return Tuple.GetHashCode();
     }
 
     #endregion
+
 
     // Constructors
 
@@ -150,7 +146,7 @@ namespace Xtensive.Storage
     protected Structure()
     {
       type = Session.Domain.Model.Types[GetType()];
-      data = type.TuplePrototype;
+      tuple = type.TuplePrototype.Clone();
     }
 
     /// <summary>
@@ -165,7 +161,7 @@ namespace Xtensive.Storage
       type = Session.Domain.Model.Types[GetType()];
       this.owner = owner;
       this.field = field;
-      data = field.ExtractValue(owner.Data);
+      tuple = field.ExtractValue(owner.Tuple);
       OnInitialize(notify);
     }
   }

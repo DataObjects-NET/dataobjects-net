@@ -39,7 +39,7 @@ namespace Xtensive.Storage.Providers.Index
       foreach (IndexInfo indexInfo in state.Type.AffectedIndexes) {
         var index = handler.GetRealIndex(indexInfo);
         var transform = handler.GetIndexTransform(indexInfo, state.Type);
-        index.Add(transform.Apply(TupleTransformType.Tuple, state.Data));
+        index.Add(transform.Apply(TupleTransformType.Tuple, state.Tuple));
       }
     }
 
@@ -57,9 +57,9 @@ namespace Xtensive.Storage.Providers.Index
             state.Key.Type.Name));
       }
 
-      var tuple = seekResult.Result.CreateNew();
+      var tuple = Tuple.Create(seekResult.Result.Descriptor);
       seekResult.Result.CopyTo(tuple);
-      tuple.MergeWith(state.Data, MergeConflictBehavior.PreferSource);
+      tuple.MergeWith(state.Tuple, MergeBehavior.PreferOrigin);
 
       foreach (IndexInfo indexInfo in state.Type.AffectedIndexes) {
         var index = handler.GetRealIndex(indexInfo);

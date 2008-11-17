@@ -31,30 +31,22 @@ namespace Xtensive.Storage
     #region Internal properties
 
     [Infrastructure]
-    internal EntityState State
-    {
-      [DebuggerStepThrough]
-      get;
-      [DebuggerStepThrough]
-      set;
-    }
+    internal EntityState State { get; set; }
 
     /// <exception cref="Exception">Property is already initialized.</exception>
     [Field]
-    internal int TypeId
-    {
+    internal int TypeId {
       [DebuggerStepThrough]
       get { return GetField<int>(Session.Domain.NameBuilder.TypeIdFieldName); }
     }
 
     #endregion
 
-    #region Properties: Key, Type, Data, PersistenceState
+    #region Properties: Key, Type, Tuple, PersistenceState
 
     /// <exception cref="Exception">Property is already initialized.</exception>
     [Infrastructure]
-    public Key Key
-    {
+    public Key Key {
       [DebuggerStepThrough]
       get { return State.Key; }
     }
@@ -64,31 +56,26 @@ namespace Xtensive.Storage
     /// </summary>
     [Infrastructure]
     public bool IsRemoved {
-      get {
-        return State.IsRemoved;
-      }
+      get { return State.IsRemoved; }
     }
 
     /// <inheritdoc/>
-    public override sealed TypeInfo Type
-    {
+    public override sealed TypeInfo Type {
       [DebuggerStepThrough]
       get { return State.Type; }
     }
 
     /// <inheritdoc/>
-    protected internal override sealed Tuple Data
-    {
+    protected internal override sealed Tuple Tuple {
       [DebuggerStepThrough]
-      get { return State.Data; }
+      get { return State.Tuple; }
     }
 
     /// <summary>
     /// Gets persistence state of the entity.
     /// </summary>
     [Infrastructure]
-    public PersistenceState PersistenceState
-    {
+    public PersistenceState PersistenceState {
       [DebuggerStepThrough]
       get { return State.PersistenceState; }
     }
@@ -183,7 +170,7 @@ namespace Xtensive.Storage
     {
       var state = State;
       if (!(state.PersistenceState==PersistenceState.New || 
-            state.Data.IsAvailable(field.MappingInfo.Offset)))
+            state.Tuple.IsAvailable(field.MappingInfo.Offset)))
         Fetcher.Fetch(Key, field);
     }
 
@@ -256,8 +243,8 @@ namespace Xtensive.Storage
 
     #endregion
 
-    // Constructors
 
+    // Constructors
 
     private Entity(bool nullEntity)
     {
@@ -276,7 +263,7 @@ namespace Xtensive.Storage
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="tuple">The <see cref="Data"/> that will be used for key building.</param>
+    /// <param name="tuple">The <see cref="Tuple"/> that will be used for key building.</param>
     /// <remarks>Use this kind of constructor when you need to explicitly set key for this instance.</remarks>
     protected Entity(Tuple tuple)
     {

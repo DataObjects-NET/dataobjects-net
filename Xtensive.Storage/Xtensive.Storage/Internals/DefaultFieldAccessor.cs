@@ -23,34 +23,35 @@ namespace Xtensive.Storage.Internals
       get { return instance; }
     }
 
+    /// <inheritdoc/>
     public override void SetValue(Persistent obj, FieldInfo field, T value, bool notify)
     {
       if (!field.IsNullable && value==null)
-        throw new InvalidOperationException(string.Format(Strings.ExNotNullableConstraintViolationOnFieldX, field));
+        throw new InvalidOperationException(string.Format(
+          Strings.ExNotNullableConstraintViolationOnFieldX, field));
 
       if (value!=null && field.Length > 0) {
         if (isString && field.Length < ((string) (object) value).Length)
-          throw new InvalidOperationException(string.Format(Strings.ExLengthConstraintViolationOnFieldX, field));
+          throw new InvalidOperationException(string.Format(
+            Strings.ExLengthConstraintViolationOnFieldX, field));
         if (isByteArray && field.Length < ((byte[]) (object) value).Length)
-          throw new InvalidOperationException(string.Format(Strings.ExLengthConstraintViolationOnFieldX, field));
+          throw new InvalidOperationException(string.Format(
+            Strings.ExLengthConstraintViolationOnFieldX, field));
       }
 
       ValidateType(field);
-      obj.Data.SetValue(field.MappingInfo.Offset, value);
+      obj.Tuple.SetValue(field.MappingInfo.Offset, value);
     }
 
+    /// <inheritdoc/>
     public override T GetValue(Persistent obj, FieldInfo field, bool notify)
     {
       ValidateType(field);
 
       if (isObject)
-        return (T) obj.Data.GetValueOrDefault(field.MappingInfo.Offset);
+        return (T) obj.Tuple.GetValueOrDefault(field.MappingInfo.Offset);
 
-      return obj.Data.GetValueOrDefault<T>(field.MappingInfo.Offset);
-    }
-
-    private DefaultFieldAccessor()
-    {
+      return obj.Tuple.GetValueOrDefault<T>(field.MappingInfo.Offset);
     }
   }
 }

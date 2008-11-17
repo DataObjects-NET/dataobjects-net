@@ -21,7 +21,8 @@ namespace Xtensive.Storage.Internals
       Type resultType = typeof(T);
       Type valueType = fieldInfo.IsEntitySet ? fieldInfo.UnderlyingProperty.PropertyType : fieldInfo.ValueType;
       if (!resultType.IsAssignableFrom(valueType))
-        throw new InvalidOperationException(String.Format(Strings.ExResultTypeIncorrect, valueType.Name, resultType.Name));
+        throw new InvalidOperationException(String.Format(
+          Strings.ExResultTypeIncorrect, valueType.Name, resultType.Name));
     }
   }
 }

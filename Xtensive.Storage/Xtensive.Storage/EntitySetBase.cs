@@ -29,7 +29,7 @@ namespace Xtensive.Storage
   /// Base class for <see cref="EntitySet{TItem}"/>.
   /// </summary>
   public abstract class EntitySetBase : TransactionalStateContainer<EntitySetState>,
-    IFieldHandler,
+    IFieldValueAdapter,
     INotifyPropertyChanged,
     INotifyCollectionChanged
   {
@@ -310,7 +310,7 @@ namespace Xtensive.Storage
 
     #endregion
 
-    #region IFieldHandler members
+    #region IFieldValueAdapter members
 
     /// <inheritdoc/>
     [Infrastructure]

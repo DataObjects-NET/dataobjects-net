@@ -24,7 +24,7 @@ namespace Xtensive.Storage
     IValidationAware,
     INotifyPropertyChanged
   {
-    private Dictionary<FieldInfo, IFieldHandler> fieldHandlers;
+    private Dictionary<FieldInfo, IFieldValueAdapter> fieldHandlers;
 
     /// <summary>
     /// Gets the type of this instance.
@@ -33,15 +33,13 @@ namespace Xtensive.Storage
     public abstract TypeInfo Type { get; }
 
     [Infrastructure]
-    protected internal abstract Tuple Data { get; }
+    protected internal abstract Tuple Tuple { get; }
 
     [Infrastructure]
-    internal Dictionary<FieldInfo, IFieldHandler> FieldHandlers
-    {
-      get
-      {
+    internal Dictionary<FieldInfo, IFieldValueAdapter> FieldHandlers {
+      get {
         if (fieldHandlers==null)
-          fieldHandlers = new Dictionary<FieldInfo, IFieldHandler>();
+          fieldHandlers = new Dictionary<FieldInfo, IFieldValueAdapter>();
         return fieldHandlers;
       }
     }
@@ -116,7 +114,7 @@ namespace Xtensive.Storage
     [Infrastructure]
     protected bool IsFieldAvailable(FieldInfo field)
     {
-      return Data.IsAvailable(field.MappingInfo.Offset);
+      return Tuple.IsAvailable(field.MappingInfo.Offset);
     }
 
     #endregion
@@ -201,7 +199,7 @@ namespace Xtensive.Storage
 
       OnGettingField(field, false);
       var type = Session.Domain.Model.Types[field.ValueType];
-      var tuple = field.ExtractValue(Data);
+      var tuple = field.ExtractValue(Tuple);
       Key result = tuple.ContainsEmptyValues() ? null : Key.Create(type, tuple);
       OnGetField(field, result, false);
 

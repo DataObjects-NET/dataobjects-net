@@ -147,7 +147,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       var task = new SqlRequestBuilderTask(SqlUpdateRequestKind.Insert, state.Type);
       var request = DomainHandler.SqlRequestCache.GetValue(task, _task => DomainHandler.SqlRequestBuilder.Build(_task));
-      request.BindParameters(state.Data);
+      request.BindParameters(state.Tuple);
       int rowsAffected = ExecuteNonQuery(request);
       if (rowsAffected!=request.ExpectedResult)
         throw new InvalidOperationException(String.Format(Strings.ExErrorOnInsert, state.Type.Name, rowsAffected, request.ExpectedResult));
@@ -156,11 +156,11 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     protected override void Update(EntityState state)
     {
-      if (state.Data == null)
+      if (state.Tuple == null)
       return;
-      var task = new SqlRequestBuilderTask(SqlUpdateRequestKind.Update, state.Type, state.Data.Difference.GetFieldStateMap(TupleFieldState.IsAvailable));
+      var task = new SqlRequestBuilderTask(SqlUpdateRequestKind.Update, state.Type, state.Tuple.Difference.GetFieldStateMap(TupleFieldState.IsAvailable));
       var request = DomainHandler.SqlRequestCache.GetValue(task, _task => DomainHandler.SqlRequestBuilder.Build(_task));
-      request.BindParameters(state.Data);
+      request.BindParameters(state.Tuple);
       int rowsAffected = ExecuteNonQuery(request);
       if (rowsAffected!=request.ExpectedResult)
         throw new InvalidOperationException(String.Format(Strings.ExErrorOnUpdate, state.Type.Name, rowsAffected, request.ExpectedResult));

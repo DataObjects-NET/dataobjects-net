@@ -361,7 +361,7 @@ namespace Xtensive.Storage.Model
             keyFieldMap[i] = new Pair<int, int>((i < keyFieldCount) ? 0 : 1, i);
           PrimaryKeyInjector = new MapTransform(true, TupleDescriptor, keyFieldMap);
         }
-        TuplePrototype = tuple.ToFastReadOnly();
+        TuplePrototype = IsEntity ? tuple.ToFastReadOnly() : tuple;
       }
     }
 

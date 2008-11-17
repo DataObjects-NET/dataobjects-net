@@ -47,16 +47,16 @@ namespace Xtensive.Storage
     /// Gets the values as <see cref="DifferentialTuple"/>.
     /// </summary>
     [Infrastructure]
-    public DifferentialTuple Data {
+    public DifferentialTuple Tuple {
       get { return State; }
       private set { State = value; }
     }
 
     /// <summary>
-    /// Gets a value indicating whether <see cref="Data"/> value is already loaded.
+    /// Gets a value indicating whether <see cref="Tuple"/> value is already loaded.
     /// </summary>
     [Infrastructure]
-    public bool IsDataLoaded {
+    public bool IsTupleLoaded {
       get { return IsStateLoaded; }
     }
 
@@ -108,7 +108,7 @@ namespace Xtensive.Storage
     [Infrastructure]
     public bool IsRemoved {
       get {
-        return Data==null;
+        return Tuple==null;
       }
     }
 
@@ -125,31 +125,36 @@ namespace Xtensive.Storage
     /// <summary>
     /// Updates the entity state to the most current one.
     /// </summary>
-    /// <param name="tuple">The state change tuple, or a new state tuple. 
+    /// <param name="update">The state change tuple, or a new state tuple. 
     /// If <see langword="null" />, the entity is considered as removed.</param>
     [Infrastructure]
-    public void Update(Tuple tuple)
+    public void Update(Tuple update)
     {
       EnsureStateIsActual();
-      if (tuple==null) // Entity is removed
-        Data = null;
+      if (update==null) // Entity is removed
+        Tuple = null;
       else {
-        var data = IsDataLoaded ? Data : null;
-        if (data==null) 
+        var tuple = IsTupleLoaded ? Tuple : null;
+        if (tuple==null)
           // Entity was marked as removed before, or it is unfetched at all yet
-          Data = new DifferentialTuple(tuple);
-        else
+          Tuple = new DifferentialTuple(update);
+        else {
           // ToRegular ensures we'll never modify the Origin tuple
-          data.Origin.ToRegular().MergeWith(tuple);
+          var origin = tuple.Origin;
+          if (!(origin is RegularTuple))
+            origin = origin.ToRegular();
+          origin.MergeWith(update, MergeBehavior.PreferDifference);
+          tuple.Origin = origin;
+        }
       }
     }
 
     /// <inheritdoc/>
     protected override DifferentialTuple LoadState()
     {
-      Data = null;
+      Tuple = null;
       Fetcher.Fetch(key);
-      return Data;
+      return Tuple;
     }
 
     #region Equality members
@@ -172,7 +177,7 @@ namespace Xtensive.Storage
     [Infrastructure]
     public override string ToString()
     {
-      return string.Format("Key = '{0}', Data = {1}, State = {2}", Key, Data.ToRegular(), PersistenceState);
+      return string.Format("Key = '{0}', Tuple = {1}, State = {2}", Key, Tuple.ToRegular(), PersistenceState);
     }
 
 
@@ -183,7 +188,7 @@ namespace Xtensive.Storage
     {
       ArgumentValidator.EnsureArgumentNotNull(key, "key");
       this.key = key;
-      Data = null;
+      Tuple = null;
       Update(data);
     }
   }
