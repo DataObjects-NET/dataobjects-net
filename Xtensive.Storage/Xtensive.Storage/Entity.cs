@@ -200,13 +200,19 @@ namespace Xtensive.Storage
 
     #region System-level event-like members
 
-    internal sealed override void OnInitialize(bool notify)
+    internal sealed override void OnInitializing(bool notify)
     {
-      base.OnInitialize(notify);
+      base.OnInitializing(notify);
       State.Entity = this;
       if (Session.IsDebugEventLoggingEnabled)
         Log.Debug("Session '{0}'. Materializing {1}: Key = '{2}'", 
           Session, GetType().GetShortName(), State.Key);
+    }
+
+    // This is done just to make it sealed
+    internal sealed override void OnInitialize(bool notify)
+    {
+      base.OnInitialize(notify);
     }
 
     internal sealed override void OnGettingField(FieldInfo field, bool notify)
@@ -257,7 +263,7 @@ namespace Xtensive.Storage
     {
       Key key = Key.Create(Session.Domain.Model.Types[GetType()]);
       State = Session.CreateEntityState(key);
-      OnInitialize(true);
+      OnInitializing(true);
     }
 
     /// <summary>
@@ -270,7 +276,7 @@ namespace Xtensive.Storage
       ArgumentValidator.EnsureArgumentNotNull(tuple, "tuple");
       Key key = Key.Create(Session.Domain.Model.Types[GetType()], tuple, true);
       State = Session.CreateEntityState(key);
-      OnInitialize(true);
+      OnInitializing(true);
     }
 
     /// <summary>
@@ -282,7 +288,7 @@ namespace Xtensive.Storage
     protected Entity(EntityState state, bool notify)
     {
       State = state;
-      OnInitialize(notify);
+      OnInitializing(notify);
     }
   }
 }

@@ -19,10 +19,12 @@ using Xtensive.Storage.PairIntegrity;
 
 namespace Xtensive.Storage
 {
+  [Initializable]
   public abstract class Persistent : SessionBound,
     IAtomicityAware,
     IValidationAware,
-    INotifyPropertyChanged
+    INotifyPropertyChanged,
+    IInitializable
   {
     private Dictionary<FieldInfo, IFieldValueAdapter> fieldHandlers;
 
@@ -211,6 +213,11 @@ namespace Xtensive.Storage
     #region System-level event-like members
 
     [Infrastructure]
+    internal virtual void OnInitializing(bool notify)
+    {
+    }
+
+    [Infrastructure]
     internal virtual void OnInitialize(bool notify)
     {
       if (!notify)
@@ -314,6 +321,21 @@ namespace Xtensive.Storage
       get {
         return Session.ValidationContext;
       }
+    }
+
+    #endregion
+
+    #region Initializable aspect support
+
+    /// <summary>
+    /// Initializes this instance.
+    /// </summary>
+    /// <param name="ctorType">Type of the instance that is being constructed.</param>
+    protected void Initialize(Type ctorType)
+    {
+      if (ctorType!=GetType())
+        return;
+      OnInitialize(true);
     }
 
     #endregion

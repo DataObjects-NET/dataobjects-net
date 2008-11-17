@@ -8,7 +8,6 @@ using System;
 using System.Reflection;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Threading;
-using Xtensive.Storage.Resources;
 using FieldInfo=Xtensive.Storage.Model.FieldInfo;
 
 namespace Xtensive.Storage.Internals
@@ -26,16 +25,20 @@ namespace Xtensive.Storage.Internals
 
     internal static Entity CreateEntity(Type type, EntityState state, bool notify)
     {
-      return entityActivators.GetValue(type,
+      Entity result = entityActivators.GetValue(type,
         DelegateHelper.CreateConstructorDelegate<Func<EntityState, bool, Entity>>)
         .Invoke(state, notify);
+      result.OnInitialize(notify);
+      return result;
     }
 
     internal static Structure CreateStructure(Type type, Persistent owner, FieldInfo field, bool notify)
     {
-      return structureActivators.GetValue(type,
+      Structure result = structureActivators.GetValue(type,
         DelegateHelper.CreateConstructorDelegate<Func<Persistent, FieldInfo, bool, Structure>>)
         .Invoke(owner, field, notify);
+      result.OnInitialize(notify);
+      return result;
     }
 
     internal static EntitySetBase CreateEntitySet(Type type, Persistent owner, FieldInfo field, bool notify)

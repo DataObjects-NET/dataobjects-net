@@ -73,9 +73,15 @@ namespace Xtensive.Storage
     #region System-level event-like members
 
     // This is done just to make it sealed
-    internal override sealed void OnInitialize(bool notify)
+    internal override sealed void OnInitializing(bool notify)
     {
-      base.OnInitialize(notify);
+      base.OnInitializing(notify);
+    }
+
+    // This is done just to make it sealed
+    internal sealed override void OnInitialize(bool notify)
+    {
+      base.OnInitialize();
     }
 
     internal override sealed void OnGettingField(FieldInfo field, bool notify)
@@ -162,7 +168,7 @@ namespace Xtensive.Storage
       this.owner = owner;
       this.field = field;
       tuple = field.ExtractValue(owner.Tuple);
-      OnInitialize(notify);
+      OnInitializing(notify);
     }
   }
 }
