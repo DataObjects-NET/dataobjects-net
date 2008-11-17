@@ -252,10 +252,6 @@ namespace Xtensive.Storage
 
     // Constructors
 
-    private Entity(bool nullEntity)
-    {
-    }
-    
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
