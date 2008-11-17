@@ -41,14 +41,14 @@ namespace Xtensive.Storage.Internals
       return result;
     }
 
-    internal static EntitySetBase CreateEntitySet(Type type, Persistent owner, FieldInfo field, bool notify)
+    internal static EntitySetBase CreateEntitySet(Persistent owner, FieldInfo field, bool notify)
     {
       if (field.ValueType.IsGenericType && field.ValueType.GetGenericTypeDefinition() == typeof(EntitySet<>)) {
-        Type instanceType = typeof (EntitySet<>).MakeGenericType(type);
+        Type instanceType = typeof (EntitySet<>).MakeGenericType(field.ItemType);
         return (EntitySetBase) instanceType.InvokeMember(String.Empty, BindingFlags.CreateInstance, null, null, new object[] {owner, field, notify});
       }
 
-      return entitySetActivators.GetValue(type,
+      return entitySetActivators.GetValue(field.ValueType,
         DelegateHelper.CreateConstructorDelegate<Func<Persistent, FieldInfo, bool, EntitySetBase>>)
         .Invoke(owner, field, notify);
     }

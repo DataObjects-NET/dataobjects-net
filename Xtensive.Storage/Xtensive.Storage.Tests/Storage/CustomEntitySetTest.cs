@@ -62,6 +62,7 @@ namespace Xtensive.Storage.Tests.Storage
       return config;
     }
 
+    [Test]
     public void Maintest()
     {
       using (Domain.OpenSession()) {

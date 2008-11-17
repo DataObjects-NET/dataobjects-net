@@ -26,7 +26,7 @@ namespace Xtensive.Storage.Internals
       IFieldValueAdapter result;
       if (obj.FieldHandlers.TryGetValue(field, out result))
         return (T)result;
-      result = Activator.CreateEntitySet(field.ItemType, obj, field, notify);
+      result = Activator.CreateEntitySet(obj, field, notify);
       obj.FieldHandlers.Add(field, result);
       var es = (EntitySetBase) result;
       es.Initialize(true);
