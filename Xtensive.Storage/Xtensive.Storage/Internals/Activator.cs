@@ -48,9 +48,11 @@ namespace Xtensive.Storage.Internals
 //        return (EntitySetBase) instanceType.InvokeMember(String.Empty, BindingFlags.CreateInstance, null, null, new object[] {owner, field, notify});
 //      }
 
-      return entitySetActivators.GetValue(field.ValueType,
+      EntitySetBase result = entitySetActivators.GetValue(field.ValueType,
         DelegateHelper.CreateConstructorDelegate<Func<Entity, FieldInfo, bool, EntitySetBase>>)
         .Invoke(owner, field, notify);
+      result.Initialize(notify);
+      return result;
     }
   }
 }
