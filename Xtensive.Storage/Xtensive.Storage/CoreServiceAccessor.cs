@@ -16,6 +16,11 @@ namespace Xtensive.Storage
     /// </summary>
     public PersistentAccessor PersistentAccessor { get; private set; }
 
+    /// <summary>
+    /// Gets the accessor for <see cref="EntitySet{TItem}"/> descendants.
+    /// </summary>
+    public EntitySetAccessor EntitySetAccessor { get; private set; }
+
 
     // Constructors
 
@@ -24,6 +29,7 @@ namespace Xtensive.Storage
       : base(session)
     {
       PersistentAccessor = new PersistentAccessor(session);
+      EntitySetAccessor = new EntitySetAccessor(session);
     }
   }
 }

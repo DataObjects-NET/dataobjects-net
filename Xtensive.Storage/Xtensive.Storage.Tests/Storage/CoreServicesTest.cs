@@ -9,11 +9,12 @@ using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Tests.Storage.CoreServicesModel;
+using FieldInfo=Xtensive.Storage.Model.FieldInfo;
 
 namespace Xtensive.Storage.Tests.Storage.CoreServicesModel
 {
   [HierarchyRoot(typeof(KeyGenerator), "Id")]
-  public class X : Entity
+  public class MyEntity : Entity
   {
     [Field]
     public int Id { get; private set; }
@@ -28,6 +29,9 @@ namespace Xtensive.Storage.Tests.Storage.CoreServicesModel
         SetField("Value", value);
       }
     }
+
+    [Field]
+    public MyEntitySet<MyEntity> Items { get; private set; }
 
     #region Custom business logic
 
@@ -69,13 +73,13 @@ namespace Xtensive.Storage.Tests.Storage.CoreServicesModel
 
     #endregion
 
-    public X()
+    public MyEntity()
     {
       throw new InvalidOperationException();
     }
   }
 
-  public class Y : Structure
+  public class MyStructure : Structure
   {
     [Field]
     public string Value
@@ -116,11 +120,55 @@ namespace Xtensive.Storage.Tests.Storage.CoreServicesModel
 
     #endregion
 
-    public Y()
+    public MyStructure()
+    {
+      throw new InvalidOperationException();
+    }
+  }
+
+  public class MyEntitySet<T> : EntitySet<T>
+    where T : Entity
+  {
+
+    protected override void OnAdding(Entity item)
     {
       throw new InvalidOperationException();
     }
 
+    protected override void OnAdd(Entity item)
+    {
+      throw new InvalidOperationException();
+    }
+
+    protected override void OnRemoving(Entity item)
+    {
+      throw new InvalidOperationException();
+    }
+
+    protected override void OnRemove(Entity item)
+    {
+      throw new InvalidOperationException();
+    }
+
+    protected override void OnClearing()
+    {
+      throw new InvalidOperationException();
+    }
+
+    protected override void OnClear()
+    {
+      throw new InvalidOperationException();
+    }
+
+    protected override void OnInitialize()
+    {
+      throw new InvalidOperationException();
+    }
+
+    public MyEntitySet(Persistent owner, FieldInfo field)
+      : base(owner, field)
+    {
+    }
   }
 }
 
@@ -132,7 +180,7 @@ namespace Xtensive.Storage.Tests.Storage
     protected override Xtensive.Storage.Configuration.DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(Assembly.GetExecutingAssembly(), typeof(X).Namespace);
+      config.Types.Register(Assembly.GetExecutingAssembly(), typeof(MyEntity).Namespace);
       return config;
     }
 
@@ -142,8 +190,8 @@ namespace Xtensive.Storage.Tests.Storage
       using(Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var accessor = Session.Current.CoreServices.PersistentAccessor;
-          accessor.CreateEntity(typeof (X));
-          accessor.CreateStructure(typeof (Y));
+          accessor.CreateEntity(typeof (MyEntity));
+          accessor.CreateStructure(typeof (MyStructure));
           t.Complete();
         }
       }
@@ -155,12 +203,12 @@ namespace Xtensive.Storage.Tests.Storage
       using(Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var accessor = Session.Current.CoreServices.PersistentAccessor;
-          X x = (X)accessor.CreateEntity(typeof (X));
-          x.CoreServices.PersistentAccessor.SetField(x, x.Type.Fields["Value"], "Value");
-          Assert.AreEqual("Value", x.Value);
-          Y y = (Y) accessor.CreateStructure(typeof(Y));
-          y.CoreServices.PersistentAccessor.SetField(y, y.Type.Fields["Value"], "Value");
-          Assert.AreEqual("Value", y.Value);
+          MyEntity myEntity = (MyEntity)accessor.CreateEntity(typeof (MyEntity));
+          myEntity.CoreServices.PersistentAccessor.SetField(myEntity, myEntity.Type.Fields["Value"], "Value");
+          Assert.AreEqual("Value", myEntity.Value);
+          MyStructure myStructure = (MyStructure) accessor.CreateStructure(typeof(MyStructure));
+          myStructure.CoreServices.PersistentAccessor.SetField(myStructure, myStructure.Type.Fields["Value"], "Value");
+          Assert.AreEqual("Value", myStructure.Value);
           t.Complete();
         }
       }
@@ -172,16 +220,34 @@ namespace Xtensive.Storage.Tests.Storage
       using(Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var accessor = Session.Current.CoreServices.PersistentAccessor;
-          X x = (X)accessor.CreateEntity(typeof (X));
-          Key key = x.Key;
+          MyEntity myEntity = (MyEntity)accessor.CreateEntity(typeof (MyEntity));
+          Key key = myEntity.Key;
           Assert.IsNotNull(key.Resolve());
-          x.CoreServices.PersistentAccessor.Remove(x);
-          Assert.AreEqual(PersistenceState.Removed, x.PersistenceState);
+          myEntity.CoreServices.PersistentAccessor.Remove(myEntity);
+          Assert.AreEqual(PersistenceState.Removed, myEntity.PersistenceState);
           Assert.IsNull(key.Resolve());
           t.Complete();
         }
       }
     }
 
+    [Test]
+    public void EntitySetTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var pa = Session.Current.CoreServices.PersistentAccessor;
+          MyEntity container = (MyEntity)pa.CreateEntity(typeof (MyEntity));
+          MyEntity item1 = (MyEntity)pa.CreateEntity(typeof (MyEntity));
+          MyEntity item2 = (MyEntity)pa.CreateEntity(typeof (MyEntity));
+
+          var esa = Session.Current.CoreServices.EntitySetAccessor;
+          esa.Add(container.Items, item1);
+          esa.Add(container.Items, item2);
+          Assert.AreEqual(2, container.Items.Count);
+          t.Complete();
+        }
+      }
+    }
   }
 }

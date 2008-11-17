@@ -280,30 +280,37 @@ namespace Xtensive.Storage
 
     #region User-level events
 
+    [Infrastructure]
     protected virtual void OnInitialize()
     {
     }
 
+    [Infrastructure]
     protected virtual void OnAdding(Entity item)
     {
     }
 
+    [Infrastructure]
     protected virtual void OnAdd(Entity item)
     {
     }
 
+    [Infrastructure]
     protected virtual void OnRemoving(Entity item)
     {
     }
 
+    [Infrastructure]
     protected virtual void OnRemove(Entity item)
     {
     }
 
+    [Infrastructure]
     protected virtual void OnClearing()
     {
     }
 
+    [Infrastructure]
     protected virtual void OnClear()
     {
     }
