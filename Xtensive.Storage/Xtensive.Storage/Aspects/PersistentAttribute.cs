@@ -34,7 +34,6 @@ namespace Xtensive.Storage.Aspects
     private static readonly Type entitySetType    = typeof(EntitySetBase);
     private static readonly Type structureType    = typeof(Structure);
     private static readonly Type sessionBoundType = typeof(SessionBound);
-    private static readonly InitializableAttribute initAttribute = new InitializableAttribute();
 
     /// <inheritdoc/>
     public override bool CompileTimeValidate(object element)
@@ -57,10 +56,8 @@ namespace Xtensive.Storage.Aspects
       var type = (Type) element;
       if (sessionBoundType.IsAssignableFrom(type))
         ProvideSessionBoundAspects(type, collection);
-      if (persistentType.IsAssignableFrom(type)) {
+      if (persistentType.IsAssignableFrom(type))
         ProvidePersistentAspects(type, collection);
-        initAttribute.ProvideAspects(type, collection);
-      }
       if (entitySetType.IsAssignableFrom(type))
         ProvideEntitySetAspects(type, collection);
       if (sessionBoundType.IsAssignableFrom(type))
@@ -125,6 +122,7 @@ namespace Xtensive.Storage.Aspects
       ProvideConstructorDelegateAspect(type, collection);
       ProvideAutoPropertyAspects(type, collection);
       ProvideConstructorAspect(type, collection);
+      new InitializableAttribute().ProvideAspects(type, collection);
     }
 
     private static void ProvideEntitySetAspects(Type type, LaosReflectionAspectCollection collection)

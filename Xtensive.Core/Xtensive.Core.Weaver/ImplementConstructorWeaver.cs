@@ -9,6 +9,8 @@ using System.Reflection;
 using PostSharp.CodeModel;
 using PostSharp.Laos.Weaver;
 using PostSharp.ModuleWriter;
+using Xtensive.Core.Aspects;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Reflection;
 
 namespace Xtensive.Core.Weaver
@@ -62,11 +64,15 @@ namespace Xtensive.Core.Weaver
         writer.EmitInstructionParameter(OpCodeNumber.Ldarg, ctorDef.Parameters[i]);
 
       IMethod baseConstructor = null;
+      ErrorLog.Debug("Finding base for: {0}", typeDef.GetReflectionWrapper(
+        ArrayUtils<Type>.EmptyArray, ArrayUtils<Type>.EmptyArray).FullName);
       try {
         baseConstructor = baseTypeDef.Methods.GetMethod(WellKnown.CtorName,
           ctorSignature.Translate(module),
           BindingOptions.Default);
-      } catch {}
+      } catch (Exception e) {
+        ErrorLog.Debug("..Error: {0}", e);
+      }
       while (baseConstructor == null)
       {
         baseType = baseTypeDef.BaseType;
@@ -75,7 +81,9 @@ namespace Xtensive.Core.Weaver
           baseConstructor = baseType.Methods.GetMethod(WellKnown.CtorName,
             ctorSignature.Translate(module),
             BindingOptions.Default);
-        } catch {}
+        } catch (Exception e) {
+          ErrorLog.Debug("..Error: {0}", e);
+        }
       }
       writer.EmitInstructionMethod(OpCodeNumber.Call,
         (IMethod)baseConstructor.Translate(module));
