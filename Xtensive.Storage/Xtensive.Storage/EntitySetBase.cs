@@ -370,7 +370,7 @@ namespace Xtensive.Storage
     /// <param name="field">Field corresponds to this entity set.</param>
     /// <param name="notify">If set to <see langword="true"/>, 
     /// initialization related events will be raised.</param>
-    protected EntitySetBase(Persistent owner, FieldInfo field, bool notify)
+    protected EntitySetBase(Entity owner, FieldInfo field, bool notify)
     {
       Field = field;
       Owner = owner;

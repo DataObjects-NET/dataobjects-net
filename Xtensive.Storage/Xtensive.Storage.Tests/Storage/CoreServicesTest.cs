@@ -165,7 +165,7 @@ namespace Xtensive.Storage.Tests.Storage.CoreServicesModel
       throw new InvalidOperationException();
     }
 
-    public MyEntitySet(Persistent owner, FieldInfo field)
+    public MyEntitySet(Entity owner, FieldInfo field)
       : base(owner, field)
     {
     }

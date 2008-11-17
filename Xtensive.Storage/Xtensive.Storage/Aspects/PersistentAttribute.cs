@@ -226,7 +226,7 @@ namespace Xtensive.Storage.Aspects
       if (baseType==entityType)
         return new[] {typeof (EntityState), typeof(bool)};
       if (baseType==entitySetType)
-        return new[] {persistentType, typeof (FieldInfo), typeof(bool)};
+        return new[] {entityType, typeof (FieldInfo), typeof(bool)};
       throw Exceptions.InternalError(
         string.Format(Strings.ExWrongPersistentTypeCandidate, type.GetType()), 
         Log.Instance);

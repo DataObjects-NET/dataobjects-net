@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Tests.Storage.CustomEntitySetModel
 
   public class CustomEntitySet<T> : EntitySet<T> where T : Entity
   {
-    public CustomEntitySet(Persistent owner, FieldInfo field)
+    public CustomEntitySet(Entity owner, FieldInfo field)
       : base(owner, field)
     {
     }

@@ -20,8 +20,8 @@ namespace Xtensive.Storage.Internals
     private static readonly ThreadSafeDictionary<Type, Func<Persistent, FieldInfo, bool, Structure>> structureActivators =
       ThreadSafeDictionary<Type, Func<Persistent, FieldInfo, bool, Structure>>.Create(new object());
 
-    private static readonly ThreadSafeDictionary<Type, Func<Persistent, FieldInfo, bool, EntitySetBase>> entitySetActivators =
-      ThreadSafeDictionary<Type, Func<Persistent, FieldInfo, bool, EntitySetBase>>.Create(new object());
+    private static readonly ThreadSafeDictionary<Type, Func<Entity, FieldInfo, bool, EntitySetBase>> entitySetActivators =
+      ThreadSafeDictionary<Type, Func<Entity, FieldInfo, bool, EntitySetBase>>.Create(new object());
 
     internal static Entity CreateEntity(Type type, EntityState state, bool notify)
     {
@@ -41,15 +41,15 @@ namespace Xtensive.Storage.Internals
       return result;
     }
 
-    internal static EntitySetBase CreateEntitySet(Persistent owner, FieldInfo field, bool notify)
+    internal static EntitySetBase CreateEntitySet(Entity owner, FieldInfo field, bool notify)
     {
-      if (field.ValueType.IsGenericType && field.ValueType.GetGenericTypeDefinition() == typeof(EntitySet<>)) {
-        Type instanceType = typeof (EntitySet<>).MakeGenericType(field.ItemType);
-        return (EntitySetBase) instanceType.InvokeMember(String.Empty, BindingFlags.CreateInstance, null, null, new object[] {owner, field, notify});
-      }
+//      if (field.ValueType.IsGenericType && field.ValueType.GetGenericTypeDefinition() == typeof(EntitySet<>)) {
+//        Type instanceType = typeof (EntitySet<>).MakeGenericType(field.ItemType);
+//        return (EntitySetBase) instanceType.InvokeMember(String.Empty, BindingFlags.CreateInstance, null, null, new object[] {owner, field, notify});
+//      }
 
       return entitySetActivators.GetValue(field.ValueType,
-        DelegateHelper.CreateConstructorDelegate<Func<Persistent, FieldInfo, bool, EntitySetBase>>)
+        DelegateHelper.CreateConstructorDelegate<Func<Entity, FieldInfo, bool, EntitySetBase>>)
         .Invoke(owner, field, notify);
     }
   }
