@@ -1,7 +1,7 @@
 // Copyright (C) 2007 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
-// Created by: Nick Svetlov
+// Created by: Alex Yakunin
 // Created:    2008.05.22
 
 using System;
@@ -19,19 +19,17 @@ namespace Xtensive.Core.Tuples
   [Serializable]
   public sealed class DifferentialTuple : Tuple
   {
-    private readonly Tuple origin;
+    private Tuple origin;
     private Tuple difference;
 
     /// <inheritdoc/>
-    public override TupleDescriptor Descriptor
-    {
+    public override TupleDescriptor Descriptor {
       [DebuggerStepThrough]
       get { return origin.Descriptor; }
     }
 
     /// <inheritdoc />
-    public override int Count
-    {
+    public override int Count {
       [DebuggerStepThrough]
       get { return origin.Count; }
     }
@@ -39,18 +37,18 @@ namespace Xtensive.Core.Tuples
     /// <summary>
     /// Gets original tuple.
     /// </summary>
-    public Tuple Origin
-    {
+    public Tuple Origin {
       [DebuggerStepThrough]
       get { return origin; }
+      [DebuggerStepThrough]
+      set { origin = value; }
     }
 
     /// <summary>
     /// Gets or sets difference tuple.
     /// Can be <see langword="null" /> (acts as if no values are available in this tuple).
     /// </summary>
-    public Tuple Difference
-    {
+    public Tuple Difference {
       [DebuggerStepThrough]
       get { return difference; }
       [DebuggerStepThrough]
@@ -83,7 +81,7 @@ namespace Xtensive.Core.Tuples
     {
       if (difference==null)
         return;
-      origin.ToRegular().MergeWith(difference, 0, origin.Descriptor.Count, MergeConflictBehavior.PreferSource);
+      origin.ToRegular().MergeWith(difference, 0, origin.Descriptor.Count, MergeBehavior.PreferDifference);
       difference = null;
     }
 

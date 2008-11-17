@@ -7,23 +7,23 @@
 namespace Xtensive.Core.Tuples
 {
   /// <summary>
-  /// Merge behavior enum.
+  /// Possible tuple merge behaviors.
   /// </summary>
-  public enum MergeConflictBehavior
+  public enum MergeBehavior
   {
     /// <summary>
-    /// The same as <see cref="PreferTarget"/>
+    /// The same as <see cref="PreferOrigin"/>
     /// </summary>
-    Default = PreferTarget,
+    Default = PreferOrigin,
 
     /// <summary>
-    /// Target values are more preferrable.
+    /// Origin values are preferrable.
     /// </summary>
-    PreferTarget = 0,
+    PreferOrigin = 0,
 
     /// <summary>
-    /// Source values are more preferrable.
+    /// Difference values are preferrable.
     /// </summary>
-    PreferSource = 1,
+    PreferDifference = 1,
   }
 }
