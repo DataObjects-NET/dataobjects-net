@@ -167,7 +167,10 @@ namespace Xtensive.Storage
       type = Session.Domain.Model.Types[GetType()];
       this.owner = owner;
       this.field = field;
-      tuple = field.ExtractValue(owner.Tuple);
+      if (owner == null || field == null)
+        tuple = type.TuplePrototype.Clone();
+      else
+        tuple = field.ExtractValue(owner.Tuple);
       OnInitializing(notify);
     }
   }

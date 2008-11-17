@@ -29,11 +29,6 @@ namespace Xtensive.Storage.Tests.Storage.CoreServicesModel
       }
     }
 
-    public X()
-    {
-      throw new InvalidOperationException();
-    }
-
     #region Custom business logic
 
     protected override void OnInitialize()
@@ -73,8 +68,60 @@ namespace Xtensive.Storage.Tests.Storage.CoreServicesModel
     }
 
     #endregion
+
+    public X()
+    {
+      throw new InvalidOperationException();
+    }
   }
 
+  public class Y : Structure
+  {
+    [Field]
+    public string Value
+    {
+      get { return GetField<string>("Value"); }
+      set
+      {
+        throw new InvalidOperationException();
+        SetField("Value", value);
+      }
+    }
+
+    #region Custom business logic
+
+    protected override void OnInitialize()
+    {
+      base.OnInitialize();
+      throw new InvalidOperationException();
+    }
+
+    protected override void OnSettingField(Xtensive.Storage.Model.FieldInfo field, object value)
+    {
+      base.OnSettingField(field, value);
+      throw new InvalidOperationException();
+    }
+
+    protected override void OnSetField(Xtensive.Storage.Model.FieldInfo field, object oldValue, object newValue)
+    {
+      base.OnSetField(field, oldValue, newValue);
+      throw new InvalidOperationException();
+    }
+
+    public override void OnValidate()
+    {
+      base.OnValidate();
+      throw new InvalidOperationException();
+    }
+
+    #endregion
+
+    public Y()
+    {
+      throw new InvalidOperationException();
+    }
+
+  }
 }
 
 namespace Xtensive.Storage.Tests.Storage
@@ -95,7 +142,8 @@ namespace Xtensive.Storage.Tests.Storage
       using(Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var accessor = Session.Current.CoreServices.PersistentAccessor;
-          X instance = (X)accessor.CreateInstance(typeof (X));
+          accessor.CreateEntity(typeof (X));
+          accessor.CreateStructure(typeof (Y));
           t.Complete();
         }
       }
@@ -107,9 +155,12 @@ namespace Xtensive.Storage.Tests.Storage
       using(Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var accessor = Session.Current.CoreServices.PersistentAccessor;
-          X instance = (X)accessor.CreateInstance(typeof (X));
-          instance.CoreServices.PersistentAccessor.SetField(instance, instance.Type.Fields["Value"], "Value");
-          Assert.AreEqual("Value", instance.Value);
+          X x = (X)accessor.CreateEntity(typeof (X));
+          x.CoreServices.PersistentAccessor.SetField(x, x.Type.Fields["Value"], "Value");
+          Assert.AreEqual("Value", x.Value);
+          Y y = (Y) accessor.CreateStructure(typeof(Y));
+          y.CoreServices.PersistentAccessor.SetField(y, y.Type.Fields["Value"], "Value");
+          Assert.AreEqual("Value", y.Value);
           t.Complete();
         }
       }
@@ -121,11 +172,11 @@ namespace Xtensive.Storage.Tests.Storage
       using(Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var accessor = Session.Current.CoreServices.PersistentAccessor;
-          X instance = (X)accessor.CreateInstance(typeof (X));
-          Key key = instance.Key;
+          X x = (X)accessor.CreateEntity(typeof (X));
+          Key key = x.Key;
           Assert.IsNotNull(key.Resolve());
-          instance.CoreServices.PersistentAccessor.Remove(instance);
-          Assert.AreEqual(PersistenceState.Removed, instance.PersistenceState);
+          x.CoreServices.PersistentAccessor.Remove(x);
+          Assert.AreEqual(PersistenceState.Removed, x.PersistenceState);
           Assert.IsNull(key.Resolve());
           t.Complete();
         }

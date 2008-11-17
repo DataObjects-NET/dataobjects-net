@@ -18,34 +18,38 @@ namespace Xtensive.Storage
     #region Entity/Structure-related methods
 
     [Infrastructure]
-    public Persistent CreateInstance(Type type)
+    public Entity CreateEntity(Type type)
     {
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
+      if (!typeof(Entity).IsAssignableFrom(type))
+        throw new InvalidOperationException(string.Format("Type '{0}' is not an Entity descendant.", type));
 
-      TypeInfo typeInfo = Session.Domain.Model.Types[type];
-      if (typeInfo.IsEntity) {
-        var key = Key.Create(type);
-        var state = Session.CreateEntityState(key);
-        var result = Activator.CreateEntity(type, state, false);
-        return result;
-      }
-      throw new NotImplementedException();
+      var key = Key.Create(type);
+      var state = Session.CreateEntityState(key);
+      return Activator.CreateEntity(type, state, false);
     }
 
     [Infrastructure]
-    public Persistent CreateInstance(Type type, Tuple tuple)
+    public Entity CreateEntity(Type type, Tuple tuple)
     {
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
       ArgumentValidator.EnsureArgumentNotNull(tuple, "tuple");
+      if (!typeof(Entity).IsAssignableFrom(type))
+        throw new InvalidOperationException(string.Format("Type '{0}' is not an Entity descendant.", type));
 
-      TypeInfo typeInfo = Session.Domain.Model.Types[type];
-      if (typeInfo.IsEntity) {
-        var key = Key.Create(type, tuple, true);
-        var state = Session.CreateEntityState(key);
-        var result = Activator.CreateEntity(type, state, false);
-        return result;
-      }
-      throw new NotImplementedException();
+      var key = Key.Create(type, tuple, true);
+      var state = Session.CreateEntityState(key);
+      return Activator.CreateEntity(type, state, false);
+    }
+
+    [Infrastructure]
+    public Structure CreateStructure(Type type)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(type, "type");
+      if (!typeof(Structure).IsAssignableFrom(type))
+        throw new InvalidOperationException(string.Format("Type '{0}' is not an Structure descendant.", type));
+
+      return Activator.CreateStructure(type, null, null, false);
     }
 
     [Infrastructure]
