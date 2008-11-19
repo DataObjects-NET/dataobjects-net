@@ -34,16 +34,9 @@ namespace Xtensive.Core.Weaver
         parameterTypes,
         0);
 
-      IMethod ctor;
-      try {
-        ctor = genericType.Methods.GetMethod(WellKnown.CtorName,
-          ctorSignature.Translate(module),
-          BindingOptions.Default);
-      }
-      catch (Exception e) {
-        ErrorLog.Debug("..Error: {0}", e);
-        return;
-      }
+      IMethod ctor = genericType.Methods.GetMethod(WellKnown.CtorName,
+        ctorSignature.Translate(module),
+        BindingOptions.Default);
 
       var callerDef = new MethodDefDeclaration();
       callerDef.Name = DelegateHelper.AspectedProtectedConstructorCallerName;
