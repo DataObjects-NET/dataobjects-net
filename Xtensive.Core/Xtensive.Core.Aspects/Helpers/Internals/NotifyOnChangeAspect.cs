@@ -12,12 +12,15 @@ using PostSharp.Laos;
 using Xtensive.Core.Notifications;
 using Xtensive.Core.Reflection;
 
-namespace Xtensive.Core.Aspects.Helpers
+namespace Xtensive.Core.Aspects.Helpers.Internals
 {
+  /// <summary>
+  /// Internally applied by <see cref="ChangerAttribute"/>.
+  /// </summary>
   [MulticastAttributeUsage(MulticastTargets.Property | MulticastTargets.Method)]
   [AttributeUsage(AttributeTargets.Property | AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
   [Serializable]
-  public sealed class ImplementChangerAspect : OnMethodBoundaryAspect, ILaosWeavableAspect
+  public sealed class NotifyOnChangeAspect : OnMethodBoundaryAspect, ILaosWeavableAspect
   {
     private ChangerAttribute changerAttribute;
 
@@ -57,7 +60,7 @@ namespace Xtensive.Core.Aspects.Helpers
       if (composed==null)
         // TODO: AY: Support custom IChangeNotifier implementations?
         return;
-      ChangeNotifierImplementation implementation = (ChangeNotifierImplementation)composed.GetImplementation(eventArgs.InstanceCredentials);
+      ChangeNotifier implementation = (ChangeNotifier)composed.GetImplementation(eventArgs.InstanceCredentials);
       if (!implementation.IsEnabled)
         return;
 
@@ -74,7 +77,7 @@ namespace Xtensive.Core.Aspects.Helpers
       IComposed<IChangeNotifier> composed = eventArgs.Instance as IComposed<IChangeNotifier>;
       if (composed==null)
         return;
-      ChangeNotifierImplementation implementation = (ChangeNotifierImplementation)composed.GetImplementation(eventArgs.InstanceCredentials);
+      ChangeNotifier implementation = (ChangeNotifier)composed.GetImplementation(eventArgs.InstanceCredentials);
       ChangeNotifierEventArgs notifyEventArgs = (ChangeNotifierEventArgs)eventArgs.MethodExecutionTag;
       if (notifyEventArgs==null)
         return; // There was no notification
@@ -85,7 +88,7 @@ namespace Xtensive.Core.Aspects.Helpers
     
     // Constructors
 
-    internal ImplementChangerAspect(ChangerAttribute changerAttribute)
+    internal NotifyOnChangeAspect(ChangerAttribute changerAttribute)
     {
       this.changerAttribute = changerAttribute;
     }

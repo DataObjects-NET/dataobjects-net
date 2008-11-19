@@ -15,7 +15,7 @@ namespace Xtensive.Core.Aspects.Tests
   [TestFixture]
   public class ImplementPrivateFieldAccessorTest
   {
-    [ImplementPrivateFieldAccessorsAspect("field1", "field2")]
+    [PrivateFieldAccessorsAspect("field1", "field2")]
     public class TestClass
     {
       private int field1;

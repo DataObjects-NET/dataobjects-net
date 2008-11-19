@@ -21,8 +21,12 @@ namespace Xtensive.Core.Aspects.Helpers
   [MulticastAttributeUsage(MulticastTargets.Class)]
   [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = false)]
   [Serializable]
-  public sealed class ImplementProtectedConstructorAccessorAspect : LaosTypeLevelAspect
+  public sealed class ProtectedConstructorAccessorAspect : LaosTypeLevelAspect,
+    ILaosWeavableAspect
   {
+    /// <inheritdoc/>
+    int ILaosWeavableAspect.AspectPriority { get { return (int)CoreAspectPriority.ProtectedConstructorAccessor; } }
+
     /// <summary>
     /// Gets the protected constructor argument types.
     /// </summary>
@@ -56,14 +60,14 @@ namespace Xtensive.Core.Aspects.Helpers
     /// <param name="parameterTypes">Types of constructor parameters.</param>
     /// <returns>If it was the first application with the specified set of arguments, the newly created aspect;
     /// otherwise, <see langword="null" />.</returns>
-    public static ImplementProtectedConstructorAccessorAspect ApplyOnce(Type type, params Type[] parameterTypes)
+    public static ProtectedConstructorAccessorAspect ApplyOnce(Type type, params Type[] parameterTypes)
     {
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
       ArgumentValidator.EnsureArgumentNotNull(parameterTypes, "parameterTypes");
 
       return AppliedAspectSet.Add(
         string.Format("{0}({1})", type.FullName, parameterTypes.Select(t => t.FullName).ToCommaDelimitedString()),
-        () => new ImplementProtectedConstructorAccessorAspect(parameterTypes));
+        () => new ProtectedConstructorAccessorAspect(parameterTypes));
     }
 
 
@@ -73,7 +77,7 @@ namespace Xtensive.Core.Aspects.Helpers
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="parameterTypes"><see cref="ParameterTypes"/> property value.</param>
-    public ImplementProtectedConstructorAccessorAspect(params Type[] parameterTypes)
+    public ProtectedConstructorAccessorAspect(params Type[] parameterTypes)
     {
       ParameterTypes = parameterTypes;
     }

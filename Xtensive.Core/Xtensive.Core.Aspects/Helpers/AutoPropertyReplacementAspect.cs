@@ -26,7 +26,7 @@ namespace Xtensive.Core.Aspects.Helpers
   [MulticastAttributeUsage(MulticastTargets.Method)]
   [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
   [Serializable]
-  public sealed class ImplementAutoPropertyReplacementAspect : LaosMethodLevelAspect
+  public sealed class AutoPropertyReplacementAspect : LaosMethodLevelAspect
   {
     /// <summary>
     /// Gets the type where handlers are declared.
@@ -80,14 +80,14 @@ namespace Xtensive.Core.Aspects.Helpers
     /// <param name="handlerMethodSuffix"><see cref="HandlerMethodSuffix"/> property value.</param>
     /// <returns>If it was the first application with the specified set of arguments, the newly created aspect;
     /// otherwise, <see langword="null" />.</returns>
-    public static ImplementAutoPropertyReplacementAspect ApplyOnce(MethodInfo getterOrSetter, Type handlerType, string handlerMethodSuffix)
+    public static AutoPropertyReplacementAspect ApplyOnce(MethodInfo getterOrSetter, Type handlerType, string handlerMethodSuffix)
     {
       ArgumentValidator.EnsureArgumentNotNull(getterOrSetter, "getterOrSetter");
       ArgumentValidator.EnsureArgumentNotNull(handlerType, "handlerType");
       ArgumentValidator.EnsureArgumentNotNull(handlerMethodSuffix, "handlerMethodSuffix");
 
       return AppliedAspectSet.Add(getterOrSetter, 
-        () => new ImplementAutoPropertyReplacementAspect(handlerType, handlerMethodSuffix));
+        () => new AutoPropertyReplacementAspect(handlerType, handlerMethodSuffix));
     }
 
 
@@ -98,7 +98,7 @@ namespace Xtensive.Core.Aspects.Helpers
     /// </summary>
     /// <param name="handlerType"><see cref="HandlerType"/> property value.</param>
     /// <param name="handlerMethodSuffix"><see cref="HandlerMethodSuffix"/> property value.</param>
-    public ImplementAutoPropertyReplacementAspect(Type handlerType, string handlerMethodSuffix)
+    public AutoPropertyReplacementAspect(Type handlerType, string handlerMethodSuffix)
     {
       HandlerType = handlerType;
       HandlerMethodSuffix = handlerMethodSuffix;

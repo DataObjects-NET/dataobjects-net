@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Linq;
 using PostSharp.Extensibility;
 using PostSharp.Laos;
+using Xtensive.Core.Aspects.Helpers.Internals;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Collections;
 
@@ -21,9 +22,13 @@ namespace Xtensive.Core.Aspects.Helpers
   [MulticastAttributeUsage(MulticastTargets.Class)]
   [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
   [Serializable]
-  public sealed class ConstructorAspect : CompoundAspect
+  public sealed class ProtectedConstructorAspect : CompoundAspect,
+    ILaosWeavableAspect
   {
-    private static Type surrogateType = null; 
+    private static Type surrogateType = null;
+
+    /// <inheritdoc/>
+    int ILaosWeavableAspect.AspectPriority { get { return (int)CoreAspectPriority.ProtectedConstructor; } }
 
     /// <summary>
     /// Gets the constructor parameter types.
@@ -62,7 +67,7 @@ namespace Xtensive.Core.Aspects.Helpers
            where !typeof (Attribute).IsAssignableFrom(t) && t.IsClass
            select t).First();
       collection.AddAspect(surrogateType, new DeclareConstructorAspect(this));
-      collection.AddAspect(surrogateType, new BuildConstructorAspect(this));
+      collection.AddAspect(surrogateType, new ImplementProtectedConstructorBodyAspect(this));
     }
 
 
@@ -81,14 +86,14 @@ namespace Xtensive.Core.Aspects.Helpers
     /// <param name="parameterTypes">Types of constructor parameters.</param>
     /// <returns>If it was the first application with the specified set of arguments, the newly created aspect;
     /// otherwise, <see langword="null" />.</returns>
-    public static ConstructorAspect ApplyOnce(Type type, params Type[] parameterTypes)
+    public static ProtectedConstructorAspect ApplyOnce(Type type, params Type[] parameterTypes)
     {
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
       ArgumentValidator.EnsureArgumentNotNull(parameterTypes, "parameterTypes");
 
       return AppliedAspectSet.Add(
         string.Format("{0}({1})", type.FullName, parameterTypes.Select(t => t.FullName).ToCommaDelimitedString()),
-        () => new ConstructorAspect(parameterTypes));
+        () => new ProtectedConstructorAspect(parameterTypes));
     }
 
 
@@ -98,7 +103,7 @@ namespace Xtensive.Core.Aspects.Helpers
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="parameterTypes"><see cref="ParameterTypes"/> property value.</param>
-    public ConstructorAspect(params Type[] parameterTypes)
+    public ProtectedConstructorAspect(params Type[] parameterTypes)
     {
       ParameterTypes = parameterTypes;
     }

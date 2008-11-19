@@ -11,7 +11,6 @@ using PostSharp.Extensibility;
 using PostSharp.Laos;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Reflection;
 
 namespace Xtensive.Core.Aspects.Helpers
 {
@@ -22,7 +21,7 @@ namespace Xtensive.Core.Aspects.Helpers
   [MulticastAttributeUsage(MulticastTargets.Class | MulticastTargets.Struct)]
   [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = false, Inherited = false)]
   [Serializable]
-  public sealed class ImplementPrivateFieldAccessorsAspect : LaosTypeLevelAspect
+  public sealed class PrivateFieldAccessorsAspect : LaosTypeLevelAspect
   {
     private readonly HashSet<string> targetFields;
 
@@ -74,12 +73,12 @@ namespace Xtensive.Core.Aspects.Helpers
     /// <param name="field">The field to apply the aspect to.</param>
     /// <returns>If it was the first application with the specified set of arguments, the newly created aspect;
     /// otherwise, <see langword="null" />.</returns>
-    public static ImplementPrivateFieldAccessorsAspect ApplyOnce(FieldInfo field)
+    public static PrivateFieldAccessorsAspect ApplyOnce(FieldInfo field)
     {
       ArgumentValidator.EnsureArgumentNotNull(field, "field");
 
       return AppliedAspectSet.AddOrCombine(field, 
-        new ImplementPrivateFieldAccessorsAspect(field.Name),
+        new PrivateFieldAccessorsAspect(field.Name),
         (a1, a2) => a1.targetFields.UnionWith(a2.targetFields));
     }
 
@@ -90,7 +89,7 @@ namespace Xtensive.Core.Aspects.Helpers
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="targetFields"><see cref="TargetFields"/> property value.</param>
-    public ImplementPrivateFieldAccessorsAspect(IEnumerable<string> targetFields)
+    public PrivateFieldAccessorsAspect(IEnumerable<string> targetFields)
     {
       this.targetFields = new HashSet<string>(targetFields);
     }
@@ -99,7 +98,7 @@ namespace Xtensive.Core.Aspects.Helpers
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="targetFields"><see cref="TargetFields"/> property value.</param>
-    public ImplementPrivateFieldAccessorsAspect(params string[] targetFields)
+    public PrivateFieldAccessorsAspect(params string[] targetFields)
     {
       this.targetFields = new HashSet<string>(targetFields);
     }

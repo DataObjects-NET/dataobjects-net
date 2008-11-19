@@ -35,17 +35,17 @@ namespace Xtensive.Core.Aspects.Tests
     {
       public int Property1
       {
-        [ImplementAutoPropertyReplacementAspect(typeof(TestClassBase), "Property")]
+        [AutoPropertyReplacementAspect(typeof(TestClassBase), "Property")]
         get; 
-        [ImplementAutoPropertyReplacementAspect(typeof(TestClassBase), "Property")]
+        [AutoPropertyReplacementAspect(typeof(TestClassBase), "Property")]
         set;
       }
 
       public int Property2
       {
-        [ImplementAutoPropertyReplacementAspect(typeof(TestClassBase), "Property")]
+        [AutoPropertyReplacementAspect(typeof(TestClassBase), "Property")]
         get; 
-        [ImplementAutoPropertyReplacementAspect(typeof(TestClassBase), "Property")]
+        [AutoPropertyReplacementAspect(typeof(TestClassBase), "Property")]
         set;
       }
     }

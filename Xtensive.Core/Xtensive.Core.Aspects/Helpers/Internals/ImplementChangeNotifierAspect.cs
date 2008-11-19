@@ -10,8 +10,11 @@ using PostSharp.Extensibility;
 using PostSharp.Laos;
 using Xtensive.Core.Notifications;
 
-namespace Xtensive.Core.Aspects.Helpers
+namespace Xtensive.Core.Aspects.Helpers.Internals
 {
+  /// <summary>
+  /// Internally applied by <see cref="ChangerAttribute"/>.
+  /// </summary>
   [MulticastAttributeUsage(MulticastTargets.Class)]
   [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
   [Serializable]
@@ -28,7 +31,7 @@ namespace Xtensive.Core.Aspects.Helpers
 
     public override object CreateImplementationObject(InstanceBoundLaosEventArgs eventArgs)
     {
-      return new ChangeNotifierImplementation(eventArgs.Instance);
+      return new ChangeNotifier(eventArgs.Instance);
     }
 
     public override Type GetPublicInterface(Type containerType)

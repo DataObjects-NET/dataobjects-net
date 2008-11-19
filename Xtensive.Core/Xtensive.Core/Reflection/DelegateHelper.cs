@@ -35,19 +35,19 @@ namespace Xtensive.Core.Reflection
     /// Aspected private field getter prefix.
     /// </summary>
     public static readonly string AspectedPrivateFieldGetterPrefix =
-      "~Xtensive.Core.Aspects.ImplementPrivateFieldAccessorAspect~Get_";
+      "~Xtensive.Core.Aspects.PrivateFieldAccessorAspect~Get_";
 
     /// <summary>
     /// Aspected private field setter prefix.
     /// </summary>
     public static readonly string AspectedPrivateFieldSetterPrefix =
-      "~Xtensive.Core.Aspects.ImplementPrivateFieldAccessorAspect~Set_";
+      "~Xtensive.Core.Aspects.PrivateFieldAccessorAspect~Set_";
 
     /// <summary>
     /// Aspected protected constructor caller name.
     /// </summary>
     public static readonly string AspectedProtectedConstructorCallerName =
-      "~Xtensive.Core.Aspects.ImplementProtectedConstructorAccessor";
+      "~Xtensive.Core.Aspects.ProtectedConstructorAccessor";
 
     #endregion
 

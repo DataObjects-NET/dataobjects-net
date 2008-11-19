@@ -7,11 +7,13 @@
 using System;
 using Xtensive.Core.Notifications;
 
-namespace Xtensive.Core.Aspects.Helpers
+namespace Xtensive.Core.Aspects.Helpers.Internals
 {
-  // TODO: AY: Provide atomicity (i.e. allow to pass initial state info from Changing to Changed event)
-
-  public class ChangeNotifierImplementation: IChangeNotifier
+  /// <summary>
+  /// Provides implementation of of <see cref="IChangeNotifier"/>
+  /// for <see cref="ImplementChangeNotifierAspect"/>.
+  /// </summary>
+  public class ChangeNotifier: IChangeNotifier
   {
     private object instance;
     private bool isEnabled = true;
@@ -54,7 +56,7 @@ namespace Xtensive.Core.Aspects.Helpers
 
     // Constructors
 
-    public ChangeNotifierImplementation(object instance)
+    public ChangeNotifier(object instance)
     {
       ArgumentValidator.EnsureArgumentNotNull(instance, "instance");
       this.instance = instance;

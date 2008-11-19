@@ -20,7 +20,7 @@ namespace Xtensive.Core.Aspects.Helpers
   [MulticastAttributeUsage(MulticastTargets.Constructor)]
   [AttributeUsage(AttributeTargets.Constructor, AllowMultiple = false, Inherited = false)]
   [Serializable]
-  public sealed class ImplementConstructorEpilogueAspect : LaosMethodLevelAspect
+  public sealed class ConstructorEpilogueAspect : LaosMethodLevelAspect
   {
     /// <summary>
     /// Gets the type where epilogue method is declared.
@@ -82,14 +82,14 @@ namespace Xtensive.Core.Aspects.Helpers
     /// <param name="handlerMethodName"><see cref="HandlerMethodName"/> property value.</param>
     /// <returns>If it was the first application with the specified set of arguments, the newly created aspect;
     /// otherwise, <see langword="null" />.</returns>
-    public static ImplementConstructorEpilogueAspect ApplyOnce(ConstructorInfo ctor, Type handlerType, string handlerMethodName)
+    public static ConstructorEpilogueAspect ApplyOnce(ConstructorInfo ctor, Type handlerType, string handlerMethodName)
     {
       ArgumentValidator.EnsureArgumentNotNull(ctor, "ctor");
       ArgumentValidator.EnsureArgumentNotNull(handlerType, "handlerType");
       ArgumentValidator.EnsureArgumentNotNull(handlerMethodName, "handlerMethodName");
 
       return AppliedAspectSet.Add(new Triplet<ConstructorInfo, Type, string>(ctor, handlerType, handlerMethodName), 
-        () => new ImplementConstructorEpilogueAspect(handlerType, handlerMethodName));
+        () => new ConstructorEpilogueAspect(handlerType, handlerMethodName));
     }
 
 
@@ -100,7 +100,7 @@ namespace Xtensive.Core.Aspects.Helpers
     /// </summary>
     /// <param name="handlerType"><see cref="HandlerType"/> property value.</param>
     /// <param name="handlerMethodName"><see cref="HandlerMethodName"/> property value.</param>
-    public ImplementConstructorEpilogueAspect(Type handlerType, string handlerMethodName)
+    public ConstructorEpilogueAspect(Type handlerType, string handlerMethodName)
     {
       HandlerType = handlerType;
       HandlerMethodName = handlerMethodName;

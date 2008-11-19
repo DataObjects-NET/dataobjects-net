@@ -27,7 +27,7 @@ namespace Xtensive.Core.Aspects.Tests
           CtorInvocationCount++;
       }
 
-      [ImplementConstructorEpilogueAspect(typeof(HandlerTargetBase), "Handler")]
+      [ConstructorEpilogueAspect(typeof(HandlerTargetBase), "Handler")]
       public HandlerTargetBase()
       {
       }
@@ -35,7 +35,7 @@ namespace Xtensive.Core.Aspects.Tests
 
     public class HandlerTarget: HandlerTargetBase
     {
-      [ImplementConstructorEpilogueAspect(typeof(HandlerTargetBase), "Handler")]
+      [ConstructorEpilogueAspect(typeof(HandlerTargetBase), "Handler")]
       public HandlerTarget()
       {
       }
