@@ -18,13 +18,7 @@ namespace Xtensive.Core.Weaver
   /// </summary>
   public class WeaverFactory : Task, ILaosAspectWeaverFactory
   {
-    /// <summary>
-    /// Called by PostSharp Laos to get the weaver of a given aspect.
-    /// If the current plug-in does not know this aspect, it should return <b>null</b>.
-    /// </summary>
-    /// <param name="aspect">The aspect requiring a weaver.</param>
-    /// <returns>A weaver (<see cref="LaosAspectWeaver"/>), or <b>null</b> if the <paramref name="aspect"/>
-    /// is not recognized by the current factory.</returns>
+    /// <inheritdoc/>
     public LaosAspectWeaver CreateAspectWeaver(ILaosAspect aspect)
     {
       var privateFieldAccessorsAspect = aspect as PrivateFieldAccessorsAspect;
@@ -37,40 +31,40 @@ namespace Xtensive.Core.Weaver
       var buildConstructorAspect = aspect as ImplementProtectedConstructorBodyAspect;
 
 
-      // Trying ImplementPrivateFieldAccessorsWeaver
+      // Trying PrivateFieldAccessorsWeaver
       if (privateFieldAccessorsAspect!=null)
-        return new ImplementPrivateFieldAccessorsWeaver(privateFieldAccessorsAspect.TargetFields);
+        return new PrivateFieldAccessorsWeaver(privateFieldAccessorsAspect.TargetFields);
 
-      // Trying ImplementAutoPropertyReplacementWeaver
+      // Trying AutoPropertyReplacementWeaver
       if (autoPropertyReplacementAspect!=null)
-        return new ImplementAutoPropertyReplacementWeaver(
+        return new AutoPropertyReplacementWeaver(
           Project.Module.Cache.GetType(autoPropertyReplacementAspect.HandlerType),
           autoPropertyReplacementAspect.HandlerMethodSuffix);
 
-      // Trying ImplementConstructorEpilogueWeaver
+      // Trying ConstructorEpilogueWeaver
       if (constructorEpilogueAspect!=null)
-        return new ImplementConstructorEpilogueWeaver(
+        return new ConstructorEpilogueWeaver(
           Project.Module.Cache.GetType(constructorEpilogueAspect.HandlerType), constructorEpilogueAspect.HandlerMethodName);
 
       // Trying DeclareConstructorAspect
       if (declareConstructorAspect!=null)
-        return new DeclareConstructorAspectWeaver(declareConstructorAspect.ProtectedConstructorAspect.TargetType,
+        return new DeclareProtectedConstructorAspectWeaver(declareConstructorAspect.ProtectedConstructorAspect.TargetType,
           declareConstructorAspect.ProtectedConstructorAspect.ParameterTypes.Select(t => Project.Module.Cache.GetType(t)).ToArray());
 
       // Trying ImplementProtectedConstructorBodyAspect
       if (buildConstructorAspect != null)
-        return new BuildConstructorAspectWeaver(buildConstructorAspect.ProtectedConstructorAspect.TargetType,
+        return new ImplementProtectedConstructorBodyWeaver(buildConstructorAspect.ProtectedConstructorAspect.TargetType,
           buildConstructorAspect.ProtectedConstructorAspect.ParameterTypes.Select(t => Project.Module.Cache.GetType(t)).ToArray());
 
-      // Trying ImplementProtectedConstructorAccessorWeaver
+      // Trying ProtectedConstructorAccessorWeaver
       if (protectedConstructorAccessorAspect!=null) {
-        return new ImplementProtectedConstructorAccessorWeaver(
+        return new ProtectedConstructorAccessorWeaver(
           protectedConstructorAccessorAspect.ParameterTypes
             .Select(t => Project.Module.Cache.GetType(t)).ToArray());
       }
 
       if (reprocessMethodBoundaryAspect != null)
-        return new ReprocessMethodBoundaryAspectWeaver();
+        return new ReprocessMethodBoundaryWeaver();
 
       if (notSupportedMethodAspect != null)
         return new NotSupportedMethodAspectWeaver();

@@ -13,7 +13,7 @@ using Xtensive.Core.Aspects;
 
 namespace Xtensive.Core.Weaver
 {
-  internal class ImplementConstructorEpilogueWeaver : MethodLevelAspectWeaver
+  internal class ConstructorEpilogueWeaver : MethodLevelAspectWeaver
   {
     private const string GetTypeFromHandleMethodName = "GetTypeFromHandle";
 
@@ -22,16 +22,16 @@ namespace Xtensive.Core.Weaver
 
     public override void Implement()
     {
-      MethodDefDeclaration methodDef = (MethodDefDeclaration) TargetMethod;
-      TypeDefDeclaration baseTypeRef = handlerTypeSignature.GetTypeDefinition();
+      var methodDef = (MethodDefDeclaration) TargetMethod;
+      var baseTypeRef = handlerTypeSignature.GetTypeDefinition();
       if (baseTypeRef == null)
         return;
 
-      ModuleDeclaration module = Task.Project.Module;
-      MethodBodyDeclaration methodBody = methodDef.MethodBody;
-      InstructionWriter writer = Task.InstructionWriter;
+      var module = Task.Project.Module;
+      var methodBody = methodDef.MethodBody;
+      var writer = Task.InstructionWriter;
             
-      MethodBodyRestructurer restructurer = 
+      var restructurer = 
         new MethodBodyRestructurer(methodDef, MethodBodyRestructurerOptions.ChangeReturnInstructions, Task.WeavingHelper);
 
       restructurer.Restructure(writer);      
@@ -50,7 +50,7 @@ namespace Xtensive.Core.Weaver
         typeof (Type).GetMethod(GetTypeFromHandleMethodName, new [] {typeof(RuntimeTypeHandle)}), BindingOptions.Default);
       writer.EmitInstructionMethod(OpCodeNumber.Call, getTypeFromHandleMethod);
 
-      MethodSignature handlerSignature =
+      var handlerSignature =
         new MethodSignature(CallingConvention.HasThis, module.Cache.GetIntrinsic(IntrinsicType.Void),
           new [] {getTypeFromHandleMethod.ReturnType}, 0);
       writer.EmitInstructionMethod(OpCodeNumber.Call,
@@ -65,10 +65,10 @@ namespace Xtensive.Core.Weaver
     
     // Constructors
 
-    internal ImplementConstructorEpilogueWeaver(ITypeSignature handlerTypeSignature, string handlerName)
+    internal ConstructorEpilogueWeaver(ITypeSignature handlerTypeSignature, string handlerMethodName)
     {
       this.handlerTypeSignature = handlerTypeSignature;
-      this.handlerMethodName = handlerName;
+      this.handlerMethodName = handlerMethodName;
     }
   }
 }

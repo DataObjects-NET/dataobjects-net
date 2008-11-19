@@ -7,17 +7,14 @@
 using System;
 using PostSharp.CodeModel;
 using PostSharp.CodeModel.Helpers;
-using PostSharp.CodeModel.TypeSignatures;
 using PostSharp.Extensibility;
 using PostSharp.Laos.Weaver;
 using Xtensive.Core.Aspects;
-using Xtensive.Core.Collections;
 using Xtensive.Core.Reflection;
-using Xtensive.Core.Weaver.Resources;
 
 namespace Xtensive.Core.Weaver
 {
-  internal class BuildConstructorAspectWeaver : TypeLevelAspectWeaver
+  internal class ImplementProtectedConstructorBodyWeaver : TypeLevelAspectWeaver
   {
     private readonly ITypeSignature[] argumentTypes;
     private readonly Type targetType;
@@ -41,7 +38,8 @@ namespace Xtensive.Core.Weaver
           BindingOptions.Default);
       var body = ctorDef.MethodBody;
 
-      ErrorLog.Write(SeverityType.Warning, "Build constructor for {0}. Module: {1}.", type, module);
+      ErrorLog.Write(SeverityType.Warning, 
+        "Implementing .ctor body for {0}, module: {1}.", type, module);
 
       IMethod baseConstructor = null;
       try {
@@ -68,7 +66,7 @@ namespace Xtensive.Core.Weaver
       writer.DetachInstructionSequence();
     }
 
-    public BuildConstructorAspectWeaver(Type targetType, ITypeSignature[] argumentTypes)
+    public ImplementProtectedConstructorBodyWeaver(Type targetType, ITypeSignature[] argumentTypes)
     {
       this.argumentTypes = argumentTypes;
       this.targetType = targetType;

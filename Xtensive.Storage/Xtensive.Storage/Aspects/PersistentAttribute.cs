@@ -154,7 +154,7 @@ namespace Xtensive.Storage.Aspects
         var getter = pi.GetGetMethod(true);
         var setter = pi.GetSetMethod(true);
         if (getter!=null) {
-          var getterAspect = ImplementAutoPropertyReplacementAspect.ApplyOnce(getter, persistentType, HandlerMethodSuffix);
+          var getterAspect = AutoPropertyReplacementAspect.ApplyOnce(getter, persistentType, HandlerMethodSuffix);
           if (getterAspect!=null)
             collection.AddAspect(getter, getterAspect);
         }
@@ -165,7 +165,7 @@ namespace Xtensive.Storage.Aspects
               continue;
             }
           }
-          var setterAspect = ImplementAutoPropertyReplacementAspect.ApplyOnce(setter, persistentType, HandlerMethodSuffix);
+          var setterAspect = AutoPropertyReplacementAspect.ApplyOnce(setter, persistentType, HandlerMethodSuffix);
           if (setterAspect!=null)
             collection.AddAspect(setter, setterAspect);
         }
@@ -176,7 +176,7 @@ namespace Xtensive.Storage.Aspects
     {
       if (type==entityType || type==structureType || type==persistentType)
         return;
-      var aspect = ConstructorAspect.ApplyOnce(type, 
+      var aspect = ProtectedConstructorAspect.ApplyOnce(type, 
         GetInternalConstructorParameterTypes(type));
 
       if (aspect != null && aspect.CompileTimeValidate(type))
@@ -187,7 +187,7 @@ namespace Xtensive.Storage.Aspects
     {
       if (type.IsAbstract)
         return;
-      var aspect = ImplementProtectedConstructorAccessorAspect.ApplyOnce(type,
+      var aspect = ProtectedConstructorAccessorAspect.ApplyOnce(type,
         GetInternalConstructorParameterTypes(type));
       if (aspect!=null)
         collection.AddAspect(type, aspect);

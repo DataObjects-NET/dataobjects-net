@@ -5,19 +5,16 @@
 // Created:    2008.11.18
 
 using System;
-using System.Collections.Generic;
 using System.Reflection;
 using PostSharp.CodeModel;
-using PostSharp.CodeModel.Helpers;
 using PostSharp.Extensibility;
 using PostSharp.Laos.Weaver;
 using Xtensive.Core.Aspects;
-using Xtensive.Core.Aspects.Helpers;
 using Xtensive.Core.Reflection;
 
 namespace Xtensive.Core.Weaver
 {
-  internal class DeclareConstructorAspectWeaver : TypeLevelAspectWeaver
+  internal class DeclareProtectedConstructorAspectWeaver : TypeLevelAspectWeaver
   {
     private const string ParameterNamePrefix = "arg";
     private readonly ITypeSignature[] argumentTypes;
@@ -28,6 +25,7 @@ namespace Xtensive.Core.Weaver
       var type = targetType;
       var typeDef = Task.Project.Module.Domain.FindTypeDefinition(type);
       var module = Task.Project.Module;
+
       var ctorDef = new MethodDefDeclaration();
       ctorDef.Name = WellKnown.CtorName;
       ctorDef.CallingConvention = CallingConvention.HasThis;
@@ -43,10 +41,15 @@ namespace Xtensive.Core.Weaver
         ctorDef.Parameters.Add(new ParameterDeclaration(i, ParameterNamePrefix + i, argumentTypes[i]));
       ctorDef.MethodBody = new MethodBodyDeclaration();
       ctorDef.MethodBody.RootInstructionBlock = ctorDef.MethodBody.CreateInstructionBlock();
-      ErrorLog.Write(SeverityType.Warning, "Declare constructor for {0}. Module: {1}.", type, module);
+
+      ErrorLog.Write(SeverityType.Warning, 
+        "Declaring .ctor for {0}, module: {1}.", type, module);
     }
 
-    public DeclareConstructorAspectWeaver(Type targetType, ITypeSignature[] argumentTypes)
+
+    // Constructors
+
+    public DeclareProtectedConstructorAspectWeaver(Type targetType, ITypeSignature[] argumentTypes)
     {
       this.argumentTypes = argumentTypes;
       this.targetType = targetType;

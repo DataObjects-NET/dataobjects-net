@@ -22,21 +22,24 @@ namespace Xtensive.Core.Weaver
     {
       base.Implement();
       var methodDef = (MethodDefDeclaration)TargetElement;
-      var methodBody = methodDef.MethodBody;
+      var body = methodDef.MethodBody;
       var writer = Task.InstructionWriter;
-      methodBody.RootInstructionBlock = methodBody.CreateInstructionBlock();
-      var sequence = methodBody.CreateInstructionSequence();
-      methodBody.RootInstructionBlock.AddInstructionSequence(sequence, NodePosition.Before, null);
+
+      body.RootInstructionBlock = body.CreateInstructionBlock();
+      var sequence = body.CreateInstructionSequence();
+      body.RootInstructionBlock.AddInstructionSequence(sequence, NodePosition.Before, null);
       writer.AttachInstructionSequence(sequence);
       writer.EmitSymbolSequencePoint(SymbolSequencePoint.Hidden);
+
       var aspect = (NotSupportedMethodAspect)Aspect;
       var hasDescription = !aspect.Text.IsNullOrEmpty();
       if (hasDescription)
         writer.EmitInstructionString(OpCodeNumber.Ldstr, new LiteralString(aspect.Text));
 
-      ModuleDeclaration module = Task.Project.Module;
+      var module = Task.Project.Module;
       var ctorString = (IMethod)module.Cache.GetItem(theModule => theModule.FindMethod(typeof(InvalidOperationException).GetConstructor(new[] { typeof(string) }), BindingOptions.RequireGenericDefinition));
       var ctorEmpty = (IMethod)module.Cache.GetItem(theModule => theModule.FindMethod(typeof(InvalidOperationException).GetConstructor(ArrayUtils<Type>.EmptyArray), BindingOptions.RequireGenericDefinition));
+      
       if (hasDescription)
         writer.EmitInstructionMethod(OpCodeNumber.Newobj, ctorString);
       else

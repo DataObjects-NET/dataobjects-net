@@ -14,7 +14,8 @@ using Xtensive.Core.Aspects.Helpers;
 
 namespace Xtensive.Core.Weaver
 {
-  internal class ReprocessMethodBoundaryAspectWeaver : MethodLevelAspectWeaver, IMethodLevelAdvice
+  internal class ReprocessMethodBoundaryWeaver : MethodLevelAspectWeaver, 
+    IMethodLevelAdvice
   {
     private IMethod onEntryMethod;
     private IMethod onErrorMethod;
@@ -94,14 +95,16 @@ namespace Xtensive.Core.Weaver
 
     private void WeaveOnEntry(WeavingContext context, InstructionBlock block)
     {
-      ModuleDeclaration module = block.Module;
-      MethodBodyDeclaration methodBody = targetMethodDef.MethodBody;
-      ITypeSignature objectType = module.FindType(typeof(object), BindingOptions.Default);
+      var module = block.Module;
+      var methodBody = targetMethodDef.MethodBody;
+      var objectType = module.FindType(typeof(object), BindingOptions.Default);
+
       onEntryResult = methodBody.RootInstructionBlock.DefineLocalVariable(objectType, "onEntryResult");
-      InstructionWriter writer = context.InstructionWriter;
+      var writer = context.InstructionWriter;
       beforeMethodSequence = block.MethodBody.CreateInstructionSequence();
       block.AddInstructionSequence(beforeMethodSequence, NodePosition.Before, null);
       writer.AttachInstructionSequence(beforeMethodSequence);
+
       writer.EmitSymbolSequencePoint(SymbolSequencePoint.Hidden);
       writer.EmitInstructionField(OpCodeNumber.Ldsfld, AspectRuntimeInstanceField);
       writer.EmitInstruction(OpCodeNumber.Ldarg_0);
@@ -113,9 +116,10 @@ namespace Xtensive.Core.Weaver
     private void WeaveOnExit(WeavingContext context, InstructionBlock block)
     {
       InstructionWriter writer = context.InstructionWriter;
-      InstructionSequence newSequence = block.MethodBody.CreateInstructionSequence();
-      block.AddInstructionSequence(newSequence, NodePosition.Before, null);
-      writer.AttachInstructionSequence(newSequence);
+      InstructionSequence sequence = block.MethodBody.CreateInstructionSequence();
+      block.AddInstructionSequence(sequence, NodePosition.Before, null);
+      writer.AttachInstructionSequence(sequence);
+
       writer.EmitSymbolSequencePoint(SymbolSequencePoint.Hidden);
       writer.EmitInstructionField(OpCodeNumber.Ldsfld, AspectRuntimeInstanceField);
       writer.EmitInstruction(OpCodeNumber.Ldarg_0);
@@ -128,16 +132,16 @@ namespace Xtensive.Core.Weaver
     private void WeaveOnSuccess(WeavingContext context, InstructionBlock block)
     {
       InstructionWriter writer = context.InstructionWriter;
-      InstructionSequence newSequence = block.MethodBody.CreateInstructionSequence();
-      block.AddInstructionSequence(newSequence, NodePosition.Before, null);
-      writer.AttachInstructionSequence(newSequence);
+      InstructionSequence sequence = block.MethodBody.CreateInstructionSequence();
+      block.AddInstructionSequence(sequence, NodePosition.Before, null);
+      writer.AttachInstructionSequence(sequence);
+
       writer.EmitSymbolSequencePoint(SymbolSequencePoint.Hidden);
       writer.EmitInstructionField(OpCodeNumber.Ldsfld, AspectRuntimeInstanceField);
       writer.EmitInstruction(OpCodeNumber.Ldarg_0);
       writer.EmitInstructionLocalVariable(OpCodeNumber.Ldloc, onEntryResult);
       writer.EmitInstructionMethod(OpCodeNumber.Callvirt, onSuccessMethod);
       writer.DetachInstructionSequence();
-
     }
 
     private void WeaveOnError(WeavingContext context, InstructionBlock block)
@@ -146,12 +150,12 @@ namespace Xtensive.Core.Weaver
       ModuleDeclaration module = block.Module;
       MethodBodyDeclaration methodBody = block.MethodBody;
       LocalVariableSymbol exceptionLocal = methodBody.RootInstructionBlock.DefineLocalVariable(module.Cache.GetType(typeof(Exception)), "~exception~{0}");
-      InstructionSequence newSequence = methodBody.CreateInstructionSequence();
-      block.AddInstructionSequence(newSequence, NodePosition.Before, null);
-      writer.AttachInstructionSequence(newSequence);
+      InstructionSequence sequence = methodBody.CreateInstructionSequence();
+      block.AddInstructionSequence(sequence, NodePosition.Before, null);
+      writer.AttachInstructionSequence(sequence);
+
       writer.EmitSymbolSequencePoint(SymbolSequencePoint.Hidden);
       writer.EmitInstructionLocalVariable(OpCodeNumber.Stloc, exceptionLocal);
-      
       writer.EmitInstructionField(OpCodeNumber.Ldsfld, AspectRuntimeInstanceField);
       writer.EmitInstruction(OpCodeNumber.Ldarg_0);
       writer.EmitInstructionLocalVariable(OpCodeNumber.Ldloc, exceptionLocal);
@@ -176,16 +180,18 @@ namespace Xtensive.Core.Weaver
     public override void Initialize()
     {
       base.Initialize();
-      ModuleDeclaration module = Task.Project.Module;
+      var module = Task.Project.Module;
       onEntryMethod = (IMethod) module.Cache.GetItem(theModule => theModule.FindMethod(typeof (ReprocessMethodBoundaryAspect).GetMethod("OnEntry"), BindingOptions.RequireGenericDefinition));
       onExitMethod = (IMethod) module.Cache.GetItem(theModule => theModule.FindMethod(typeof (ReprocessMethodBoundaryAspect).GetMethod("OnExit"), BindingOptions.RequireGenericDefinition));
       onSuccessMethod = (IMethod) module.Cache.GetItem(theModule => theModule.FindMethod(typeof (ReprocessMethodBoundaryAspect).GetMethod("OnSuccess"), BindingOptions.RequireGenericDefinition));
       onErrorMethod = (IMethod) module.Cache.GetItem(theModule => theModule.FindMethod(typeof (ReprocessMethodBoundaryAspect).GetMethod("OnError"), BindingOptions.RequireGenericDefinition));
+
       var aspectType = MethodLevelAspect.GetType();
       var baseType = typeof (ReprocessMethodBoundaryAspect);
       var onExit = aspectType.GetMethod("OnExit");
       var onSuccess = aspectType.GetMethod("OnSuccess");
       var onError = aspectType.GetMethod("OnError");
+
       joinPoints = JoinPointKinds.BeforeMethodBody;
       if (onExit.DeclaringType != baseType)
         joinPoints |= JoinPointKinds.AfterMethodBodyAlways;

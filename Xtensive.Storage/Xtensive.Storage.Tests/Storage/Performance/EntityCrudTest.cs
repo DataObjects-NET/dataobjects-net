@@ -9,18 +9,29 @@ using System.Data.Objects;
 using NUnit.Framework;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Testing;
+using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Storage.Performance.EntityCrudModel;
 
 namespace Xtensive.Storage.Tests.Storage.Performance
 {
   [TestFixture]
-  public class EntityCrudTest
+  public class EntityCrudTest : AutoBuildTest
   {
     public const int BaseCount = 10000;
     public const int InsertCount = BaseCount;
     private bool warmup = false;
     private bool profile = false;
     private int instanceCount;
+
+    protected override DomainConfiguration BuildConfiguration()
+    {
+      // Just to ensure schema is ready
+      var config = DomainConfigurationFactory.Create("mssql2005");
+      config.Types.Register(
+        typeof (CrudModel.Simplest).Assembly, typeof (CrudModel.Simplest).Namespace);
+      return config;
+    }
+
 
     [Test]
     public void RegularTest()

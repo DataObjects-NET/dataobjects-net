@@ -12,15 +12,14 @@ using Xtensive.Core.Reflection;
 
 namespace Xtensive.Core.Weaver
 {
-  internal class ImplementPrivateFieldAccessorsWeaver : TypeLevelAspectWeaver
+  internal class PrivateFieldAccessorsWeaver : TypeLevelAspectWeaver
   {
     private readonly HashSet<string> targetFields;
 
     public override void Implement()
     {
-      TypeDefDeclaration typeDef = (TypeDefDeclaration)TargetType;
-
-      foreach (FieldDefDeclaration fieldDef in typeDef.Fields) {
+      var typeDef = (TypeDefDeclaration)TargetType;
+      foreach (var fieldDef in typeDef.Fields) {
         if (!targetFields.Contains(fieldDef.Name))
           continue;
         ImplementGetter(fieldDef);
@@ -30,10 +29,10 @@ namespace Xtensive.Core.Weaver
 
     private void ImplementGetter(FieldDefDeclaration fieldDef)
     {
-      TypeDefDeclaration typeDef = fieldDef.DeclaringType;
+      var typeDef = fieldDef.DeclaringType;
 
       // Declare get method.
-      MethodDefDeclaration methodDef = new MethodDefDeclaration();
+      var methodDef = new MethodDefDeclaration();
       methodDef.Name = DelegateHelper.AspectedPrivateFieldGetterPrefix + fieldDef.Name;
       methodDef.Attributes = MethodAttributes.Assembly;
       typeDef.Methods.Add(methodDef);
@@ -45,11 +44,11 @@ namespace Xtensive.Core.Weaver
       methodDef.ReturnParameter.Attributes = ParameterAttributes.Retval;
 
       // Define the body
-      MethodBodyDeclaration methodBody = new MethodBodyDeclaration();
-      methodDef.MethodBody = methodBody;
-      InstructionBlock instructionBlock = methodBody.CreateInstructionBlock();
-      methodBody.RootInstructionBlock = instructionBlock;
-      InstructionSequence sequence = methodBody.CreateInstructionSequence();
+      var body = new MethodBodyDeclaration();
+      methodDef.MethodBody = body;
+      InstructionBlock instructionBlock = body.CreateInstructionBlock();
+      body.RootInstructionBlock = instructionBlock;
+      InstructionSequence sequence = body.CreateInstructionSequence();
       instructionBlock.AddInstructionSequence(sequence, PostSharp.Collections.NodePosition.After, null);
       InstructionWriter writer = Task.InstructionWriter;
       writer.AttachInstructionSequence(sequence);
@@ -62,11 +61,11 @@ namespace Xtensive.Core.Weaver
 
     private void ImplementSetter(FieldDefDeclaration fieldDef)
     {
-      TypeDefDeclaration typeDef = fieldDef.DeclaringType;
-      ModuleDeclaration module = this.Task.Project.Module;
+      var typeDef = fieldDef.DeclaringType;
+      var module  = Task.Project.Module;
 
       // Declare get method.
-      MethodDefDeclaration methodDef = new MethodDefDeclaration();
+      var methodDef = new MethodDefDeclaration();
       methodDef.Name = DelegateHelper.AspectedPrivateFieldSetterPrefix + fieldDef.Name;
       methodDef.Attributes = MethodAttributes.Assembly;
       typeDef.Methods.Add(methodDef);
@@ -80,11 +79,11 @@ namespace Xtensive.Core.Weaver
       methodDef.Parameters.Add(new ParameterDeclaration(0, "value", fieldDef.FieldType));
 
       // Define the body
-      MethodBodyDeclaration methodBody = new MethodBodyDeclaration();
-      methodDef.MethodBody = methodBody;
-      InstructionBlock instructionBlock = methodBody.CreateInstructionBlock();
-      methodBody.RootInstructionBlock = instructionBlock;
-      InstructionSequence sequence = methodBody.CreateInstructionSequence();
+      var body = new MethodBodyDeclaration();
+      methodDef.MethodBody = body;
+      var instructionBlock = body.CreateInstructionBlock();
+      body.RootInstructionBlock = instructionBlock;
+      InstructionSequence sequence = body.CreateInstructionSequence();
       instructionBlock.AddInstructionSequence(sequence, PostSharp.Collections.NodePosition.After, null);
       InstructionWriter writer = Task.InstructionWriter;
       writer.AttachInstructionSequence(sequence);
@@ -99,7 +98,7 @@ namespace Xtensive.Core.Weaver
     
     // Constructors
 
-    internal ImplementPrivateFieldAccessorsWeaver(string[] targetFields)
+    internal PrivateFieldAccessorsWeaver(string[] targetFields)
     {
       this.targetFields = new HashSet<string>(targetFields);
     }

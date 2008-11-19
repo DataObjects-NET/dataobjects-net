@@ -13,7 +13,7 @@ using Xtensive.Core.Reflection;
 
 namespace Xtensive.Core.Weaver
 {
-  internal class ImplementAutoPropertyReplacementWeaver : MethodLevelAspectWeaver
+  internal class AutoPropertyReplacementWeaver : MethodLevelAspectWeaver
   {
     private const string AutoPropertyBackingFieldFormat = "<{0}>k__BackingField";
     private const string HandlerGetMethodPrefix = "Get";
@@ -24,8 +24,8 @@ namespace Xtensive.Core.Weaver
 
     public override void Implement()
     {
-      MethodDefDeclaration methodDef = (MethodDefDeclaration) TargetElement;
-      TypeDefDeclaration   typeDef   = methodDef.DeclaringType;
+      var methodDef = (MethodDefDeclaration) TargetElement;
+      var typeDef   = methodDef.DeclaringType;
 
       int splitterPos = methodDef.Name.IndexOf('_');
       if (splitterPos <= 0)
@@ -34,14 +34,15 @@ namespace Xtensive.Core.Weaver
       string propertyName = methodDef.Name.Substring(splitterPos + 1);
       string fieldName    = string.Format(AutoPropertyBackingFieldFormat, propertyName);
       bool   isGetter     = methodDef.Name.Substring(0, splitterPos + 1) == WellKnown.GetterPrefix;
-      FieldDefDeclaration fieldDef = typeDef.Fields.GetByName(fieldName);
+      
+      var fieldDef = typeDef.Fields.GetByName(fieldName);
       if (fieldDef == null)
         return;
 
-      ModuleDeclaration module = Task.Project.Module;
-      TypeDefDeclaration handlerTypeDef = handlerTypeSignature.GetTypeDefinition();
+      var module = Task.Project.Module;
+      var handlerTypeDef = handlerTypeSignature.GetTypeDefinition();
 
-      MethodBodyDeclaration methodBody = new MethodBodyDeclaration();
+      var methodBody = new MethodBodyDeclaration();
       methodDef.MethodBody = methodBody;
       InstructionBlock instructionBlock = methodBody.CreateInstructionBlock();
       methodBody.RootInstructionBlock = instructionBlock;
@@ -55,7 +56,7 @@ namespace Xtensive.Core.Weaver
       if (!isGetter)
         writer.EmitInstruction(OpCodeNumber.Ldarg_1);
 
-      MethodSignature replacementMethodSignature =
+      var replacementMethodSignature =
         new MethodSignature(CallingConvention.HasThis,
           isGetter
             ? (ITypeSignature) module.Cache.GetGenericParameter(0, GenericParameterKind.Method)
@@ -106,7 +107,7 @@ namespace Xtensive.Core.Weaver
 
     // Constructors
 
-    internal ImplementAutoPropertyReplacementWeaver(ITypeSignature handlerTypeSignature, string handlerMethodSuffix)
+    internal AutoPropertyReplacementWeaver(ITypeSignature handlerTypeSignature, string handlerMethodSuffix)
     {
       this.handlerTypeSignature = handlerTypeSignature;
       this.handlerMethodSuffix  = handlerMethodSuffix;

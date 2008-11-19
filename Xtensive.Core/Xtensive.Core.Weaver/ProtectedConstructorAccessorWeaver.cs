@@ -9,14 +9,14 @@ using System.Reflection;
 using System.Text;
 using PostSharp.CodeModel;
 using PostSharp.CodeModel.Helpers;
+using PostSharp.Extensibility;
 using PostSharp.Laos.Weaver;
-using PostSharp.ModuleWriter;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.Reflection;
 
 namespace Xtensive.Core.Weaver
 {
-  internal class ImplementProtectedConstructorAccessorWeaver : TypeLevelAspectWeaver
+  internal class ProtectedConstructorAccessorWeaver : TypeLevelAspectWeaver
   {
     private const string ParameterNamePrefix = "arg";
 
@@ -28,16 +28,15 @@ namespace Xtensive.Core.Weaver
       var genericType = GenericHelper.GetTypeCanonicalGenericInstance(typeDef);
       var module = Task.Project.Module;
 
-
       var ctorSignature = new MethodSignature(
         CallingConvention.HasThis,
         module.Cache.GetIntrinsic(IntrinsicType.Void),
         parameterTypes,
         0);
 
-      IMethod constructor;
+      IMethod ctor;
       try {
-        constructor = genericType.Methods.GetMethod(WellKnown.CtorName,
+        ctor = genericType.Methods.GetMethod(WellKnown.CtorName,
           ctorSignature.Translate(module),
           BindingOptions.Default);
       }
@@ -62,11 +61,11 @@ namespace Xtensive.Core.Weaver
         callerDef.Parameters.Add(parameter);
       }
 
-      var methodBody = new MethodBodyDeclaration();
-      callerDef.MethodBody = methodBody;
-      InstructionBlock instructionBlock = methodBody.CreateInstructionBlock();
-      methodBody.RootInstructionBlock = instructionBlock;
-      InstructionSequence sequence = methodBody.CreateInstructionSequence();
+      var body = new MethodBodyDeclaration();
+      callerDef.MethodBody = body;
+      var instructionBlock = body.CreateInstructionBlock();
+      body.RootInstructionBlock = instructionBlock;
+      var sequence = body.CreateInstructionSequence();
       instructionBlock.AddInstructionSequence(sequence, PostSharp.Collections.NodePosition.Before, null);
       InstructionWriter writer = Task.InstructionWriter;
       writer.AttachInstructionSequence(sequence);
@@ -74,25 +73,28 @@ namespace Xtensive.Core.Weaver
       for (short i = 0; i < parameterTypes.Length; i++)
         writer.EmitInstructionParameter(OpCodeNumber.Ldarg, callerDef.Parameters[i]);
 
-      writer.EmitInstructionMethod(OpCodeNumber.Newobj, constructor);
+      writer.EmitInstructionMethod(OpCodeNumber.Newobj, ctor);
       writer.EmitInstruction(OpCodeNumber.Ret);
       writer.DetachInstructionSequence();
+
+      ErrorLog.Write(SeverityType.Warning, 
+        "Declaring .ctor accessor for {0}, module: {1}.", typeDef, module);
     }
 
     private IMethod FindConstructor(IType typeDef, ModuleDeclaration module)
     {
       IMethod foundConstructor = null;
-      foreach (IMethod constructor in typeDef.Methods.GetByName(WellKnown.CtorName)) {
-        if (constructor.ParameterCount == parameterTypes.Length) {
+      foreach (var ctor in typeDef.Methods.GetByName(WellKnown.CtorName)) {
+        if (ctor.ParameterCount == parameterTypes.Length) {
           int i = 0;
           for (; i < parameterTypes.Length; i++) {
-            var parameterName = GetTypeName(constructor.GetParameterType(i));
+            var parameterName = GetTypeName(ctor.GetParameterType(i));
             var targetParameterName = GetTypeName(parameterTypes[i]);
             if (parameterName != targetParameterName)
               break;
           }
           if (i == parameterTypes.Length) {
-            foundConstructor = (IMethod) constructor.Translate(module);
+            foundConstructor = (IMethod) ctor.Translate(module);
             break;
           }
         }
@@ -110,7 +112,7 @@ namespace Xtensive.Core.Weaver
 
     // Constructors
 
-    internal ImplementProtectedConstructorAccessorWeaver(ITypeSignature[] parameterTypes)
+    internal ProtectedConstructorAccessorWeaver(ITypeSignature[] parameterTypes)
     {
       this.parameterTypes = parameterTypes;
     }
