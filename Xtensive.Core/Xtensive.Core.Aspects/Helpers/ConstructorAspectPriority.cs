@@ -13,12 +13,14 @@ namespace Xtensive.Core.Aspects.Helpers
   {
     /// <summary>
     /// Priority of <see cref="DeclareConstructorAspect"/>.
+    /// Value is <see langword="-2" />.
     /// </summary>
-    Declare = 20,
+    Declare = -2,
 
     /// <summary>
     /// Priority of <see cref="BuildConstructorAspect"/>.
+    /// Value is <see langword="-1" />.
     /// </summary>
-    Build = 30 
+    Build = -1, 
   }
 }

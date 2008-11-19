@@ -5,11 +5,9 @@
 // Created:    2008.06.02
 
 using System;
-using System.Collections.Generic;
 using System.Reflection;
 using System.Linq;
 using PostSharp.Extensibility;
-using PostSharp.CodeModel;
 using PostSharp.Laos;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Collections;
@@ -59,7 +57,10 @@ namespace Xtensive.Core.Aspects.Helpers
     {
       TargetType = (Type)element;
       if (surrogateType == null)
-        surrogateType = TargetType.Module.GetTypes().Where(type => !typeof(ILaosAspect).IsAssignableFrom(type)).First();
+        surrogateType = 
+          (from t in TargetType.Module.GetTypes()
+           where !typeof (Attribute).IsAssignableFrom(t) && t.IsClass
+           select t).First();
       collection.AddAspect(surrogateType, new DeclareConstructorAspect(this));
       collection.AddAspect(surrogateType, new BuildConstructorAspect(this));
     }
