@@ -59,7 +59,7 @@ namespace Xtensive.Core.Aspects.Helpers
     {
       TargetType = (Type)element;
       if (surrogateType == null)
-        surrogateType = TargetType.Module.GetTypes()[0];
+        surrogateType = TargetType.Module.GetTypes().Where(type => !typeof(ILaosAspect).IsAssignableFrom(type)).First();
       collection.AddAspect(surrogateType, new DeclareConstructorAspect(this));
       collection.AddAspect(surrogateType, new BuildConstructorAspect(this));
     }
