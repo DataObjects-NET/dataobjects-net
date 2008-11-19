@@ -25,18 +25,18 @@ namespace Xtensive.Storage.Internals
 
     internal static Entity CreateEntity(Type type, EntityState state, bool notify)
     {
-      Entity result = entityActivators.GetValue(type,
-        DelegateHelper.CreateConstructorDelegate<Func<EntityState, bool, Entity>>)
-        .Invoke(state, notify);
+      var activator = entityActivators.GetValue(type,
+        DelegateHelper.CreateConstructorDelegate<Func<EntityState, bool, Entity>>);
+      Entity result = activator(state, notify);
       result.OnInitialize(notify);
       return result;
     }
 
     internal static Structure CreateStructure(Type type, Persistent owner, FieldInfo field, bool notify)
     {
-      Structure result = structureActivators.GetValue(type,
-        DelegateHelper.CreateConstructorDelegate<Func<Persistent, FieldInfo, bool, Structure>>)
-        .Invoke(owner, field, notify);
+      var activator = structureActivators.GetValue(type,
+        DelegateHelper.CreateConstructorDelegate<Func<Persistent, FieldInfo, bool, Structure>>);
+      Structure result = activator(owner, field, notify);
       result.OnInitialize(notify);
       return result;
     }

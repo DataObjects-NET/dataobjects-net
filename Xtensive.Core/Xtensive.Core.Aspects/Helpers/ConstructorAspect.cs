@@ -5,9 +5,11 @@
 // Created:    2008.06.02
 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Linq;
 using PostSharp.Extensibility;
+using PostSharp.CodeModel;
 using PostSharp.Laos;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Collections;
@@ -19,27 +21,49 @@ namespace Xtensive.Core.Aspects.Helpers
   /// Implemented constructor will call the constructor with the same set of arguments from the base type.
   /// </summary>
   [MulticastAttributeUsage(MulticastTargets.Class)]
-  [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = false)]
+  [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
   [Serializable]
-  public sealed class ImplementConstructorAspect : LaosTypeLevelAspect
+  public sealed class ConstructorAspect : CompoundAspect
   {
+    private static Type surrogateType = null; 
+
     /// <summary>
     /// Gets the constructor parameter types.
     /// </summary>
     public Type[] ParameterTypes { get; private set; }
 
+    /// <summary>
+    /// Gets or sets the target type.
+    /// </summary>
+    public Type TargetType { get; private set; }
+
     /// <inheritdoc/>
-    public override bool CompileTimeValidate(Type type)
+    public override bool CompileTimeValidate(object element)
     {
-      ConstructorInfo constructor;
-      return AspectHelper.ValidateConstructor(this, SeverityType.Error,
-        type.UnderlyingSystemType, false, 
-        BindingFlags.Public | 
-        BindingFlags.NonPublic | 
-        BindingFlags.ExactBinding, 
-        ParameterTypes, 
-        out constructor);
+      var type = (Type)element;
+      var ci = type.GetConstructor(
+        BindingFlags.Static |
+          BindingFlags.Instance |
+          BindingFlags.Public |
+          BindingFlags.NonPublic |
+          BindingFlags.ExactBinding,
+        null,
+        ParameterTypes,
+        null);
+      if (ci != null)
+        return false;
+      return true;
     }
+
+    public override void ProvideAspects(object element, LaosReflectionAspectCollection collection)
+    {
+      TargetType = (Type)element;
+      if (surrogateType == null)
+        surrogateType = TargetType.Module.GetTypes()[0];
+      collection.AddAspect(surrogateType, new DeclareConstructorAspect(this));
+      collection.AddAspect(surrogateType, new BuildConstructorAspect(this));
+    }
+
 
     /// <inheritdoc/>
     public override PostSharpRequirements GetPostSharpRequirements()
@@ -56,14 +80,14 @@ namespace Xtensive.Core.Aspects.Helpers
     /// <param name="parameterTypes">Types of constructor parameters.</param>
     /// <returns>If it was the first application with the specified set of arguments, the newly created aspect;
     /// otherwise, <see langword="null" />.</returns>
-    public static ImplementConstructorAspect ApplyOnce(Type type, params Type[] parameterTypes)
+    public static ConstructorAspect ApplyOnce(Type type, params Type[] parameterTypes)
     {
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
       ArgumentValidator.EnsureArgumentNotNull(parameterTypes, "parameterTypes");
 
       return AppliedAspectSet.Add(
         string.Format("{0}({1})", type.FullName, parameterTypes.Select(t => t.FullName).ToCommaDelimitedString()),
-        () => new ImplementConstructorAspect(parameterTypes));
+        () => new ConstructorAspect(parameterTypes));
     }
 
 
@@ -73,7 +97,7 @@ namespace Xtensive.Core.Aspects.Helpers
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="parameterTypes"><see cref="ParameterTypes"/> property value.</param>
-    public ImplementConstructorAspect(params Type[] parameterTypes)
+    public ConstructorAspect(params Type[] parameterTypes)
     {
       ParameterTypes = parameterTypes;
     }

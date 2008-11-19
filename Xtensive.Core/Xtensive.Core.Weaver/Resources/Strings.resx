@@ -120,6 +120,9 @@
   <data name="ExCantWeavePublicMember" xml:space="preserve">
     <value>Can't apply {{{0}}} weaver to a public member {{{1}}}.</value>
   </data>
+  <data name="ExCouldNotFindBaseConstructorForX" xml:space="preserve">
+    <value>Could not find base constructor for type '{0}'.</value>
+  </data>
   <data name="WeaverDebug" xml:space="preserve">
     <value>{{{0}}}</value>
   </data>

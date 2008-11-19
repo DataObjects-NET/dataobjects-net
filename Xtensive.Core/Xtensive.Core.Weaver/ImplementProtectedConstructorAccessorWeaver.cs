@@ -8,6 +8,7 @@ using System;
 using System.Reflection;
 using System.Text;
 using PostSharp.CodeModel;
+using PostSharp.CodeModel.Helpers;
 using PostSharp.Laos.Weaver;
 using PostSharp.ModuleWriter;
 using Xtensive.Core.Aspects;
@@ -24,11 +25,26 @@ namespace Xtensive.Core.Weaver
     public override void Implement()
     {
       var typeDef = (TypeDefDeclaration) TargetElement;
+      var genericType = GenericHelper.GetTypeCanonicalGenericInstance(typeDef);
       var module = Task.Project.Module;
 
-      IMethod constructor = FindConstructor(typeDef, module);
-      if (constructor == null)
+
+      var ctorSignature = new MethodSignature(
+        CallingConvention.HasThis,
+        module.Cache.GetIntrinsic(IntrinsicType.Void),
+        parameterTypes,
+        0);
+
+      IMethod constructor;
+      try {
+        constructor = genericType.Methods.GetMethod(WellKnown.CtorName,
+          ctorSignature.Translate(module),
+          BindingOptions.Default);
+      }
+      catch (Exception e) {
+        ErrorLog.Debug("..Error: {0}", e);
         return;
+      }
 
       var callerDef = new MethodDefDeclaration();
       callerDef.Name = DelegateHelper.AspectedProtectedConstructorCallerName;
@@ -37,13 +53,12 @@ namespace Xtensive.Core.Weaver
       typeDef.Methods.Add(callerDef);
 
       callerDef.ReturnParameter = new ParameterDeclaration();
-      callerDef.ReturnParameter.ParameterType = typeDef;
+      callerDef.ReturnParameter.ParameterType = genericType;
       callerDef.ReturnParameter.Attributes = ParameterAttributes.Retval;
       callerDef.CustomAttributes.Add(Task.WeavingHelper.GetDebuggerNonUserCodeAttribute());
 
       for (int i = 0; i < parameterTypes.Length; i++) {
-        ParameterDeclaration parameter =
-          new ParameterDeclaration(i, ParameterNamePrefix+i, parameterTypes[i]);
+        var parameter = new ParameterDeclaration(i, ParameterNamePrefix+i, parameterTypes[i]);
         callerDef.Parameters.Add(parameter);
       }
 
@@ -64,7 +79,7 @@ namespace Xtensive.Core.Weaver
       writer.DetachInstructionSequence();
     }
 
-    private IMethod FindConstructor(TypeDefDeclaration typeDef, ModuleDeclaration module)
+    private IMethod FindConstructor(IType typeDef, ModuleDeclaration module)
     {
       IMethod foundConstructor = null;
       foreach (IMethod constructor in typeDef.Methods.GetByName(WellKnown.CtorName)) {

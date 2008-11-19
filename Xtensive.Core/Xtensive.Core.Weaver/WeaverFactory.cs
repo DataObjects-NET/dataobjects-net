@@ -30,10 +30,11 @@ namespace Xtensive.Core.Weaver
       var privateFieldAccessorsAspect = aspect as ImplementPrivateFieldAccessorsAspect;
       var autoPropertyReplacementAspect = aspect as ImplementAutoPropertyReplacementAspect;
       var constructorEpilogueAspect = aspect as ImplementConstructorEpilogueAspect;
-      var constructorAspect = aspect as ImplementConstructorAspect;
       var protectedConstructorAccessorAspect = aspect as ImplementProtectedConstructorAccessorAspect;
       var reprocessMethodBoundaryAspect = aspect as ReprocessMethodBoundaryAspect;
       var notSupportedMethodAspect = aspect as NotSupportedMethodAspect;
+      var declareConstructorAspect = aspect as DeclareConstructorAspect;
+      var buildConstructorAspect = aspect as BuildConstructorAspect;
 
 
       // Trying ImplementPrivateFieldAccessorsWeaver
@@ -51,10 +52,15 @@ namespace Xtensive.Core.Weaver
         return new ImplementConstructorEpilogueWeaver(
           Project.Module.Cache.GetType(constructorEpilogueAspect.HandlerType), constructorEpilogueAspect.HandlerMethodName);
 
-      // Trying ImplementConstructorAspect
-      if (constructorAspect!=null)
-        return new ImplementConstructorWeaver(
-          constructorAspect.ParameterTypes.Select(t => Project.Module.Cache.GetType(t)).ToArray());
+      // Trying DeclareConstructorAspect
+      if (declareConstructorAspect!=null)
+        return new DeclareConstructorAspectWeaver(declareConstructorAspect.ConstructorAspect.TargetType,
+          declareConstructorAspect.ConstructorAspect.ParameterTypes.Select(t => Project.Module.Cache.GetType(t)).ToArray());
+
+      // Trying BuildConstructorAspect
+      if (buildConstructorAspect != null)
+        return new BuildConstructorAspectWeaver(buildConstructorAspect.ConstructorAspect.TargetType,
+          buildConstructorAspect.ConstructorAspect.ParameterTypes.Select(t => Project.Module.Cache.GetType(t)).ToArray());
 
       // Trying ImplementProtectedConstructorAccessorWeaver
       if (protectedConstructorAccessorAspect!=null) {

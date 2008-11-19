@@ -176,10 +176,11 @@ namespace Xtensive.Storage.Aspects
     {
       if (type==entityType || type==structureType || type==persistentType)
         return;
-      var aspect = ImplementConstructorAspect.ApplyOnce(type, 
+      var aspect = ConstructorAspect.ApplyOnce(type, 
         GetInternalConstructorParameterTypes(type));
-      if (aspect!=null)
-        collection.AddAspect(type, aspect);
+
+      if (aspect != null && aspect.CompileTimeValidate(type))
+        aspect.ProvideAspects(type, collection);
     }
 
     private static void ProvideConstructorDelegateAspect(Type type, LaosReflectionAspectCollection collection)
