@@ -42,8 +42,8 @@ namespace Xtensive.Core.Weaver
       ctorDef.MethodBody = new MethodBodyDeclaration();
       ctorDef.MethodBody.RootInstructionBlock = ctorDef.MethodBody.CreateInstructionBlock();
 
-      ErrorLog.Write(SeverityType.Warning, 
-        "Declaring .ctor for {0}, module: {1}.", type, module);
+//      ErrorLog.Write(SeverityType.Warning, 
+//        "Declaring .ctor for {0}, module: {1}.", type, module);
     }
 
 

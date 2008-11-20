@@ -16,7 +16,7 @@ using Xtensive.Core.Reflection;
 
 namespace Xtensive.Core.Weaver
 {
-  internal class ProtectedConstructorAccessorWeaver : TypeLevelAspectWeaver
+  internal class ImplementProtectedConstructorAccessorWeaver : TypeLevelAspectWeaver
   {
     private const string ParameterNamePrefix = "arg";
 
@@ -72,14 +72,14 @@ namespace Xtensive.Core.Weaver
       writer.EmitInstruction(OpCodeNumber.Ret);
       writer.DetachInstructionSequence();
 
-      ErrorLog.Write(SeverityType.Warning, 
-        "Implementing .ctor accessor for {0}, module: {1}.", typeDef, module);
+//      ErrorLog.Write(SeverityType.Warning, 
+//        "Implementing .ctor accessor for {0}, module: {1}.", typeDef, module);
     }
 
 
     // Constructors
 
-    public ProtectedConstructorAccessorWeaver(Type targetType, ITypeSignature[] argumentTypes)
+    public ImplementProtectedConstructorAccessorWeaver(Type targetType, ITypeSignature[] argumentTypes)
     {
       this.targetType = targetType;
       this.argumentTypes = argumentTypes;

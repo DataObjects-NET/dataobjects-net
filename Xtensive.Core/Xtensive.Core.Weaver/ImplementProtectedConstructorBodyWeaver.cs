@@ -38,9 +38,6 @@ namespace Xtensive.Core.Weaver
           BindingOptions.Default);
       var body = ctorDef.MethodBody;
 
-      ErrorLog.Write(SeverityType.Warning, 
-        "Implementing .ctor body for {0}, module: {1}.", type, module);
-
       IMethod baseConstructor = null;
       try {
         baseConstructor = baseType.Methods.GetMethod(WellKnown.CtorName,
@@ -64,6 +61,9 @@ namespace Xtensive.Core.Weaver
         (IMethod)baseConstructor.Translate(module));
       writer.EmitInstruction(OpCodeNumber.Ret);
       writer.DetachInstructionSequence();
+
+//      ErrorLog.Write(SeverityType.Warning,
+//        "Implementing .ctor body for {0}, module: {1}.", type, module);
     }
 
     public ImplementProtectedConstructorBodyWeaver(Type targetType, ITypeSignature[] argumentTypes)
