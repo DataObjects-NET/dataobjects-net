@@ -30,6 +30,5 @@ namespace Xtensive.Core.Aspects.Helpers.Internals
     /// Value is <see langword="-200" />.
     /// </summary>
     ImplementAccessor = -200,
- 
   }
 }
