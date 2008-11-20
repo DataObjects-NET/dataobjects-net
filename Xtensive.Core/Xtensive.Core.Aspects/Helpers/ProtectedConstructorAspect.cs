@@ -22,14 +22,8 @@ namespace Xtensive.Core.Aspects.Helpers
   [MulticastAttributeUsage(MulticastTargets.Class)]
   [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
   [Serializable]
-  public sealed class ProtectedConstructorAspect : CompoundAspect,
-    ILaosWeavableAspect
+  public sealed class ProtectedConstructorAspect : CompoundAspect
   {
-    private static Type surrogateType = null;
-
-    /// <inheritdoc/>
-    int ILaosWeavableAspect.AspectPriority { get { return (int)CoreAspectPriority.ProtectedConstructor; } }
-
     /// <summary>
     /// Gets the constructor parameter types.
     /// </summary>
@@ -61,11 +55,7 @@ namespace Xtensive.Core.Aspects.Helpers
     public override void ProvideAspects(object element, LaosReflectionAspectCollection collection)
     {
       TargetType = (Type)element;
-      if (surrogateType == null)
-        surrogateType = 
-          (from t in TargetType.Module.GetTypes()
-           where !typeof (Attribute).IsAssignableFrom(t) && t.IsClass
-           select t).First();
+      var surrogateType = AspectHelper.GetSurrogateType(TargetType.Module);
       collection.AddAspect(surrogateType, new DeclareConstructorAspect(this));
       collection.AddAspect(surrogateType, new ImplementProtectedConstructorBodyAspect(this));
     }

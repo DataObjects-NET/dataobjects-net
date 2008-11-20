@@ -24,11 +24,11 @@ namespace Xtensive.Core.Weaver
       var privateFieldAccessorsAspect = aspect as PrivateFieldAccessorsAspect;
       var autoPropertyReplacementAspect = aspect as AutoPropertyReplacementAspect;
       var constructorEpilogueAspect = aspect as ConstructorEpilogueAspect;
-      var protectedConstructorAccessorAspect = aspect as ProtectedConstructorAccessorAspect;
       var reprocessMethodBoundaryAspect = aspect as ReprocessMethodBoundaryAspect;
       var notSupportedMethodAspect = aspect as NotSupportedMethodAspect;
       var declareConstructorAspect = aspect as DeclareConstructorAspect;
       var buildConstructorAspect = aspect as ImplementProtectedConstructorBodyAspect;
+      var buildConstructorAccessorAspect = aspect as ImplementProtectedConstructorAccessorAspect;
 
 
       // Trying PrivateFieldAccessorsWeaver
@@ -48,19 +48,18 @@ namespace Xtensive.Core.Weaver
 
       // Trying DeclareConstructorAspect
       if (declareConstructorAspect!=null)
-        return new DeclareProtectedConstructorAspectWeaver(declareConstructorAspect.ProtectedConstructorAspect.TargetType,
-          declareConstructorAspect.ProtectedConstructorAspect.ParameterTypes.Select(t => Project.Module.Cache.GetType(t)).ToArray());
+        return new DeclareProtectedConstructorAspectWeaver(declareConstructorAspect.Aspect.TargetType,
+          declareConstructorAspect.Aspect.ParameterTypes.Select(t => Project.Module.Cache.GetType(t)).ToArray());
 
       // Trying ImplementProtectedConstructorBodyAspect
       if (buildConstructorAspect != null)
-        return new ImplementProtectedConstructorBodyWeaver(buildConstructorAspect.ProtectedConstructorAspect.TargetType,
-          buildConstructorAspect.ProtectedConstructorAspect.ParameterTypes.Select(t => Project.Module.Cache.GetType(t)).ToArray());
+        return new ImplementProtectedConstructorBodyWeaver(buildConstructorAspect.Aspect.TargetType,
+          buildConstructorAspect.Aspect.ParameterTypes.Select(t => Project.Module.Cache.GetType(t)).ToArray());
 
       // Trying ProtectedConstructorAccessorWeaver
-      if (protectedConstructorAccessorAspect!=null) {
-        return new ProtectedConstructorAccessorWeaver(
-          protectedConstructorAccessorAspect.ParameterTypes
-            .Select(t => Project.Module.Cache.GetType(t)).ToArray());
+      if (buildConstructorAccessorAspect != null) {
+        return new ProtectedConstructorAccessorWeaver(buildConstructorAccessorAspect.Aspect.TargetType,
+          buildConstructorAccessorAspect.Aspect.ParameterTypes.Select(t => Project.Module.Cache.GetType(t)).ToArray());
       }
 
       if (reprocessMethodBoundaryAspect != null)

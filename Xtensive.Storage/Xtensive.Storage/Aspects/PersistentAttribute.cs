@@ -119,15 +119,15 @@ namespace Xtensive.Storage.Aspects
 
     private static void ProvidePersistentAspects(Type type, LaosReflectionAspectCollection collection)
     {
-      ProvideConstructorDelegateAspect(type, collection);
       ProvideAutoPropertyAspects(type, collection);
       ProvideConstructorAspect(type, collection);
+      ProvideConstructorAccessorAspect(type, collection);
       new InitializableAttribute().ProvideAspects(type, collection);
     }
 
     private static void ProvideEntitySetAspects(Type type, LaosReflectionAspectCollection collection)
     {
-      ProvideConstructorDelegateAspect(type, collection);
+      ProvideConstructorAccessorAspect(type, collection);
       ProvideConstructorAspect(type, collection);
     }
 
@@ -183,14 +183,14 @@ namespace Xtensive.Storage.Aspects
         aspect.ProvideAspects(type, collection);
     }
 
-    private static void ProvideConstructorDelegateAspect(Type type, LaosReflectionAspectCollection collection)
+    private static void ProvideConstructorAccessorAspect(Type type, LaosReflectionAspectCollection collection)
     {
       if (type.IsAbstract)
         return;
       var aspect = ProtectedConstructorAccessorAspect.ApplyOnce(type,
         GetInternalConstructorParameterTypes(type));
       if (aspect!=null)
-        collection.AddAspect(type, aspect);
+        aspect.ProvideAspects(type, collection);
     }
 
     #endregion

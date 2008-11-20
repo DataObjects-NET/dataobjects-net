@@ -16,11 +16,11 @@ namespace Xtensive.Core.Aspects.Helpers.Internals
   public sealed class ImplementProtectedConstructorBodyAspect : LaosTypeLevelAspect,
     ILaosWeavableAspect
   {
-    private readonly ProtectedConstructorAspect protectedConstructorAspect;
+    private readonly ProtectedConstructorAspect constructorAspect;
 
-    public ProtectedConstructorAspect ProtectedConstructorAspect
+    public ProtectedConstructorAspect Aspect
     {
-      get { return protectedConstructorAspect; }
+      get { return constructorAspect; }
     }
 
     int ILaosWeavableAspect.AspectPriority
@@ -33,7 +33,7 @@ namespace Xtensive.Core.Aspects.Helpers.Internals
 
     internal ImplementProtectedConstructorBodyAspect(ProtectedConstructorAspect protectedConstructorAspect)
     {
-      this.protectedConstructorAspect = protectedConstructorAspect;
+      constructorAspect = protectedConstructorAspect;
     }
   }
 }

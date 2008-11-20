@@ -5,12 +5,14 @@
 // Created:    2008.07.30
 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using PostSharp.Extensibility;
 using Xtensive.Core.Aspects.Resources;
 using Xtensive.Core.Reflection;
 using System.Linq;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Threading;
 
 namespace Xtensive.Core.Aspects.Helpers
 {
@@ -23,6 +25,9 @@ namespace Xtensive.Core.Aspects.Helpers
       "Xtensive.Core.Weaver";
     private const string XtensiveCoreWeaverWeaverFactory = 
       "Xtensive.Core.Weaver.WeaverFactory";
+    
+    private static readonly object lockObject = new object();
+    private static readonly Dictionary<string, Type> surrogateTypeCache = new Dictionary<string, Type>();
 
     #region FormatXxx methods
 
@@ -504,6 +509,23 @@ namespace Xtensive.Core.Aspects.Helpers
     public static bool IsInfrastructureMethod(MethodBase method)
     {
       return method.GetAttribute<InfrastructureAttribute>(AttributeSearchOptions.InheritAll)!=null;
+    }
+
+    public static Type GetSurrogateType(Module module)
+    {
+      lock (lockObject) {
+        Type result;
+        var key = module.Name;
+        if (surrogateTypeCache.TryGetValue(key, out result))
+          return result;
+        result = (
+            from t in module.GetTypes()
+            where !typeof (Attribute).IsAssignableFrom(t) && t.IsClass
+            select t
+          ).First();
+        surrogateTypeCache.Add(key, result);
+        return result;
+      }
     }
   }
 }

@@ -19,16 +19,6 @@ namespace Xtensive.Core.Aspects
     /// </summary>
     Trace = -1000000,
     /// <summary>
-    /// <see cref="ProtectedConstructorAspect"/> priority.
-    /// Value is <see langword="-101" />.
-    /// </summary>
-    ProtectedConstructor = -101,
-    /// <summary>
-    /// <see cref="ProtectedConstructorAccessorAspect"/> priority.
-    /// Value is <see langword="-100" />.
-    /// </summary>
-    ProtectedConstructorAccessor = -100,
-    /// <summary>
     /// <see cref="ChangerAttribute"/> aspect priority.
     /// Value is <see langword="1000000" />.
     /// </summary>

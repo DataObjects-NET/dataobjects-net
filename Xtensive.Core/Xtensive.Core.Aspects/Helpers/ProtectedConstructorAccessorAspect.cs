@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Linq;
 using PostSharp.Extensibility;
 using PostSharp.Laos;
+using Xtensive.Core.Aspects.Helpers.Internals;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Collections;
 
@@ -21,16 +22,25 @@ namespace Xtensive.Core.Aspects.Helpers
   [MulticastAttributeUsage(MulticastTargets.Class)]
   [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = false)]
   [Serializable]
-  public sealed class ProtectedConstructorAccessorAspect : LaosTypeLevelAspect,
-    ILaosWeavableAspect
+  public sealed class ProtectedConstructorAccessorAspect : CompoundAspect
   {
-    /// <inheritdoc/>
-    int ILaosWeavableAspect.AspectPriority { get { return (int)CoreAspectPriority.ProtectedConstructorAccessor; } }
 
     /// <summary>
     /// Gets the protected constructor argument types.
     /// </summary>
     public Type[] ParameterTypes { get; private set; }
+
+    /// <summary>
+    /// Gets or sets the target type.
+    /// </summary>
+    public Type TargetType { get; private set; }
+
+    public override void ProvideAspects(object element, LaosReflectionAspectCollection collection)
+    {
+      TargetType = (Type)element;
+      var surrogateType = AspectHelper.GetSurrogateType(TargetType.Module);
+      collection.AddAspect(surrogateType, new ImplementProtectedConstructorAccessorAspect(this));
+    }
 
     /// <inheritdoc/>
     public override PostSharpRequirements GetPostSharpRequirements()

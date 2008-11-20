@@ -15,14 +15,21 @@ namespace Xtensive.Core.Aspects.Helpers.Internals
   {
     /// <summary>
     /// Priority of <see cref="DeclareConstructorAspect"/>.
-    /// Value is <see langword="-201" />.
+    /// Value is <see langword="-220" />.
     /// </summary>
-    Declare = -201,
+    Declare = -220,
 
     /// <summary>
     /// Priority of <see cref="ImplementProtectedConstructorBodyAspect"/>.
+    /// Value is <see langword="-210" />.
+    /// </summary>
+    ImplementBody = -210,
+
+    /// <summary>
+    /// Priority of <see cref="ImplementProtectedConstructorAccessorAspect"/>.
     /// Value is <see langword="-200" />.
     /// </summary>
-    ImplementBody = -200, 
+    ImplementAccessor = -200,
+ 
   }
 }
