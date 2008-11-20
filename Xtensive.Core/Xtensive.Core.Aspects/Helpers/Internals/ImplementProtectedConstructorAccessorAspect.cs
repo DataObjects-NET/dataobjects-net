@@ -24,7 +24,7 @@ namespace Xtensive.Core.Aspects.Helpers.Internals
 
     int ILaosWeavableAspect.AspectPriority
     {
-      get { return (int)ProtectedConstructorAspectPriority.ImplementBody; }
+      get { return (int)ProtectedConstructorAspectPriority.ImplementAccessor; }
     }
 
     /// <inheritdoc/>
