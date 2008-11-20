@@ -33,19 +33,6 @@ namespace Xtensive.Core.Aspects.Helpers
     public Type[] ParameterTypes { get; private set; }
 
     /// <inheritdoc/>
-    public override bool CompileTimeValidate(Type type)
-    {
-      ConstructorInfo constructor;
-      return AspectHelper.ValidateConstructor(this, SeverityType.Error,
-        type.UnderlyingSystemType, false, 
-        BindingFlags.Public | 
-        BindingFlags.NonPublic |
-        BindingFlags.ExactBinding, 
-        ParameterTypes, 
-        out constructor);
-    }
-
-    /// <inheritdoc/>
     public override PostSharpRequirements GetPostSharpRequirements()
     {
       PostSharpRequirements requirements = base.GetPostSharpRequirements();
