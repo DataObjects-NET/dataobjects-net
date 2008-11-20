@@ -56,9 +56,9 @@ namespace Xtensive.Core.Weaver
         return new ImplementProtectedConstructorBodyWeaver(buildConstructorAspect.Aspect.TargetType,
           buildConstructorAspect.Aspect.ParameterTypes.Select(t => Project.Module.Cache.GetType(t)).ToArray());
 
-      // Trying ProtectedConstructorAccessorWeaver
+      // Trying ImplementProtectedConstructorAccessorWeaver
       if (buildConstructorAccessorAspect != null) {
-        return new ProtectedConstructorAccessorWeaver(buildConstructorAccessorAspect.Aspect.TargetType,
+        return new ImplementProtectedConstructorAccessorWeaver(buildConstructorAccessorAspect.Aspect.TargetType,
           buildConstructorAccessorAspect.Aspect.ParameterTypes.Select(t => Project.Module.Cache.GetType(t)).ToArray());
       }
 
