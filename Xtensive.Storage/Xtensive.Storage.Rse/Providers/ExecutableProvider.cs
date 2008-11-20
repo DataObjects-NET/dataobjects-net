@@ -216,11 +216,11 @@ namespace Xtensive.Storage.Rse.Providers
 
     protected internal override void AppendBodyTo(StringBuilder sb, int indent)
     {
-      int nextIndent = indent + ToString_IndentSize;
       AppendTitleTo(sb, indent);
-      AppendOriginTo(sb, nextIndent);
+      indent = indent + ToString_IndentSize;
+      AppendOriginTo(sb, indent);
       foreach (Provider source in Sources)
-        source.AppendBodyTo(sb, nextIndent);
+        source.AppendBodyTo(sb, indent);
     }
 
     protected virtual void AppendOriginTo(StringBuilder sb, int indent)
@@ -230,7 +230,8 @@ namespace Xtensive.Storage.Rse.Providers
       sb.Append(new string(' ', indent))
         .Append("[Origin: ")
         .Append(Origin.TitleToString())
-        .Append("]");
+        .Append("]")
+        .AppendLine();
     }
 
     /// <inheritdoc/>

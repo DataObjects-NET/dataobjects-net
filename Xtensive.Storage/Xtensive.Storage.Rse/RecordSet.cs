@@ -68,6 +68,13 @@ namespace Xtensive.Storage.Rse
 
     #endregion
 
+    /// <inheritdoc/>
+    public override string ToString()
+    {
+      return Provider.ToString();
+    }
+
+
     // Constructors
 
     /// <summary>

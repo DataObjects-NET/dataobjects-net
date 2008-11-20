@@ -468,11 +468,11 @@ namespace Xtensive.Storage.Tests.Storage
           }
 
           result = rsSnakeName
-          .OrderBy(OrderBy.Desc(rsSnakeName.Header.IndexOf(cName)))
-          .Like(Tuple.Create("Kaa" + 10));
-          
-          var cc= result.Count();
-          Assert.AreEqual(cc,11);
+            .OrderBy(OrderBy.Desc(rsSnakeName.Header.IndexOf(cName)), true)
+            .Like(Tuple.Create("Kaa" + 10));
+
+          var cc = result.Count();
+          Assert.AreEqual(cc, 11);
           
           t.Complete();
         }

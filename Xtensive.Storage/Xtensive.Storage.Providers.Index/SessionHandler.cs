@@ -59,7 +59,7 @@ namespace Xtensive.Storage.Providers.Index
 
       var tuple = Tuple.Create(seekResult.Result.Descriptor);
       seekResult.Result.CopyTo(tuple);
-      tuple.MergeWith(state.Tuple, MergeBehavior.PreferOrigin);
+      tuple.MergeWith(state.Tuple, MergeBehavior.PreferDifference);
 
       foreach (IndexInfo indexInfo in state.Type.AffectedIndexes) {
         var index = handler.GetRealIndex(indexInfo);

@@ -65,14 +65,14 @@ namespace Xtensive.Storage.Rse
       return Range(recordSet, new Range<Entire<Tuple>>(xPoint, yPoint));
     }
 
-    public static RecordSet Like(this RecordSet recordSet, Tuple like)
+    public static RecordSet Like(this RecordSet recordSet, Tuple beginning)
     {
-      var from = like.Clone();
-      var to = like.Clone();
-      for (int i = 0; i < like.Count; i++) {
-        if (like.Descriptor[i]==typeof (string)) {
-            from.SetValue(i, like.GetValue<string>(i).ToLower(CultureInfo.InvariantCulture));
-            to.SetValue(i, like.GetValue<string>(i).ToUpper(CultureInfo.InvariantCulture) + '\u00FF');
+      var from = beginning.Clone();
+      var to = beginning.Clone();
+      for (int i = 0; i < beginning.Count; i++) {
+        if (beginning.Descriptor[i]==typeof (string)) {
+            from.SetValue(i, beginning.GetValue<string>(i).ToLower(CultureInfo.InvariantCulture));
+            to.SetValue(i, beginning.GetValue<string>(i).ToUpper(CultureInfo.InvariantCulture) + '\u00FF');
         }
       }
       return Range(recordSet, from, to);

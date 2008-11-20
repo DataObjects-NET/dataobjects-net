@@ -129,8 +129,9 @@ namespace Xtensive.Storage.Rse.Providers
     protected internal virtual void AppendBodyTo(StringBuilder sb, int indent)
     {
       AppendTitleTo(sb, indent);
+      indent = indent + ToString_IndentSize;
       foreach (Provider source in Sources)
-        source.AppendBodyTo(sb, indent + ToString_IndentSize);
+        source.AppendBodyTo(sb, indent);
     }
 
     /// <summary>
@@ -142,7 +143,7 @@ namespace Xtensive.Storage.Rse.Providers
     {      
       sb.Append(new string(' ', indent))
         .Append(TitleToString())
-        .Append(Environment.NewLine);
+        .AppendLine();
     }
 
     /// <summary>
