@@ -6,6 +6,7 @@
 
 using System;
 using System.Reflection;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Threading;
 using FieldInfo=Xtensive.Storage.Model.FieldInfo;
@@ -43,14 +44,9 @@ namespace Xtensive.Storage.Internals
 
     internal static EntitySetBase CreateEntitySet(Entity owner, FieldInfo field, bool notify)
     {
-//      if (field.ValueType.IsGenericType && field.ValueType.GetGenericTypeDefinition() == typeof(EntitySet<>)) {
-//        Type instanceType = typeof (EntitySet<>).MakeGenericType(field.ItemType);
-//        return (EntitySetBase) instanceType.InvokeMember(String.Empty, BindingFlags.CreateInstance, null, null, new object[] {owner, field, notify});
-//      }
-
-      EntitySetBase result = entitySetActivators.GetValue(field.ValueType,
-        DelegateHelper.CreateConstructorDelegate<Func<Entity, FieldInfo, bool, EntitySetBase>>)
-        .Invoke(owner, field, notify);
+      var activator = entitySetActivators.GetValue(field.ValueType,
+        DelegateHelper.CreateConstructorDelegate<Func<Entity, FieldInfo, bool, EntitySetBase>>);
+      EntitySetBase result = activator.Invoke(owner, field, notify);
       result.Initialize(notify);
       return result;
     }
