@@ -17,33 +17,46 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     protected internal override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
       Tuple lastTuple = null;
-      int groupIndex = -1;
-      var calculator = new AggregateCalculatorProvider(Origin.AggregateColumns);
-      var actionList = new List<Action<Tuple, Tuple, int>>();
+      int lastGroupIndex = -1;
+      var calculator = new AggregateCalculatorProvider(Origin.Header, true);
+      var actionList = new List<Action<Tuple, int>>();
       var result = new List<Tuple>();
 
-      foreach (var col in Origin.AggregateColumns)
-        actionList.Add((Action<Tuple, Tuple, int>)typeof(AggregateCalculatorProvider).GetMethod("GetAggregateCalculator")
-            .MakeGenericMethod(col.Type).Invoke(calculator, new object[] { col.AggregateType, col.SourceIndex, col.Index}));
+      // Preparing actions
+      foreach (var c in Origin.AggregateColumns)
+        actionList.Add((Action<Tuple, int>)
+          typeof(AggregateCalculatorProvider)
+            .GetMethod("GetAggregateCalculator")
+            .MakeGenericMethod(c.Type)
+            .Invoke(calculator, new object[] { c.AggregateType, c.Index, c.SourceIndex }));
 
+
+      // TODO: optimize with yield return
+
+      // Calculating aggregate values
       foreach (var tuple in Source.Enumerate(context)){
         var resultTuple = Origin.Transform.Apply(TupleTransformType.Tuple, tuple);
         if (!AdvancedComparer<Tuple>.Default.Equals(lastTuple,resultTuple)){
-          groupIndex++;
+          lastGroupIndex++;
           result.Add(Tuple.Create(Origin.Header.TupleDescriptor));
-          resultTuple.CopyTo(result[groupIndex]);
+          resultTuple.CopyTo(result[lastGroupIndex]);
           lastTuple = resultTuple;
         }
-        foreach (var col in Origin.AggregateColumns) {
-          actionList[col.Index - Origin.GroupColumnIndexes.Length](tuple, calculator.GetAccumulator(col.Index, groupIndex), groupIndex);
-        }
+        foreach (var col in Origin.AggregateColumns)
+          actionList[col.Index - Origin.GroupColumnIndexes.Length].Invoke(tuple, lastGroupIndex);
       }
 
-      for (int i = 0; i <= groupIndex; i++) {
-        foreach (var col in Origin.AggregateColumns)
-          result[i] = (Tuple)typeof(AggregateCalculatorProvider).GetMethod("Calculate")
-            .MakeGenericMethod(col.Type).Invoke(calculator, new object[] { col, calculator.GetAccumulator(col.Index, i), result[i] });
+      // TODO: optimize: cache delegates
+
+      // Computing final value for each aggregate
+      for (int groupIndex = 0; groupIndex <= lastGroupIndex; groupIndex++) {
+        foreach (var c in Origin.AggregateColumns)
+          result[groupIndex] = (Tuple) typeof(AggregateCalculatorProvider)
+            .GetMethod("Calculate")
+            .MakeGenericMethod(c.Type)
+            .Invoke(calculator, new object[] { c, groupIndex, result[groupIndex] });
       }
+
       return result;
     }
 

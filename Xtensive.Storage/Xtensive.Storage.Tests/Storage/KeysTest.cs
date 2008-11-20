@@ -79,7 +79,7 @@ namespace Xtensive.Storage.Tests.Storage.Keys
     }
 
     [HierarchyRoot(typeof(KeyGenerator), "ID")]
-    public class Conteiner : Entity
+    public class Container : Entity
     {
       [Field]
       public Guid ID { get; private set; }
@@ -161,7 +161,7 @@ namespace Xtensive.Storage.Tests.Storage.Keys
 
           var a = new Apple("1");
           var b = new Banana("2");
-          var c = new Conteiner();
+          var c = new Container();
 
           c.StringKey = a.Key;
           Session.Current.Persist();

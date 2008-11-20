@@ -16,20 +16,29 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     protected internal override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
       var result = new List<Tuple> { Tuple.Create(Origin.Header.TupleDescriptor) };
-      var calculator = new AggregateCalculatorProvider(Origin.AggregateColumns);
-      var actionList = new List<Action<Tuple, Tuple, int>>();
+      var calculator = new AggregateCalculatorProvider(Origin.Header, false);
+      var actionList = new List<Action<Tuple, int>>();
 
-      foreach (var col in Origin.AggregateColumns)
-        actionList.Add((Action<Tuple, Tuple, int>)typeof(AggregateCalculatorProvider).GetMethod("GetAggregateCalculator")
-            .MakeGenericMethod(col.Type).Invoke(calculator, new object[] { col.AggregateType, col.SourceIndex, col.Index}));
+      // Preparing actions
+      foreach (var c in Origin.AggregateColumns)
+        actionList.Add((Action<Tuple, int>)
+          typeof(AggregateCalculatorProvider)
+            .GetMethod("GetAggregateCalculator")
+            .MakeGenericMethod(c.Type)
+            .Invoke(calculator, new object[] { c.AggregateType, c.Index, c.SourceIndex}));
 
+      // Calculating aggregate values
       foreach (var tuple in Source.Enumerate(context))
-        foreach (var col in Origin.AggregateColumns)
-          actionList[col.Index](tuple, calculator.GetAccumulator(col.Index), 0);
+        foreach (var c in Origin.AggregateColumns)
+          actionList[c.Index].Invoke(tuple, -1);
 
-      foreach (var col in Origin.AggregateColumns)
-        result[0] = (Tuple)typeof(AggregateCalculatorProvider).GetMethod("Calculate")
-            .MakeGenericMethod(col.Type).Invoke(calculator, new object[] { col, calculator.GetAccumulator(col.Index), result[0] });
+      // Computing final value for each aggregate
+      foreach (var c in Origin.AggregateColumns)
+        result[0] = (Tuple) typeof(AggregateCalculatorProvider)
+          .GetMethod("Calculate")
+          .MakeGenericMethod(c.Type)
+          .Invoke(calculator, new object[] { c, -1, result[0] });
+
       return result;
     }
 
