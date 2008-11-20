@@ -4,6 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2008.11.20
 
+using System;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core;
@@ -19,6 +20,15 @@ namespace Xtensive.Storage.Tests.BugReports.Bug0005_Model
   {
     [Field]
     public int Id { get; private set; }
+
+    [Field]
+    public int Field1 { get; set; }
+
+    [Field]
+    public int Field2 { get; set; }
+
+    [Field]
+    public int Field3 { get; set; }
   }
 }
 
@@ -55,6 +65,7 @@ namespace Xtensive.Storage.Tests.BugReports
         Assert.AreEqual(0, rsTakeSkipMyEntities.Count());
         Assert.AreEqual(1, rsTakeTakeMyEntities.Count());
         Assert.AreEqual(0, rsSkipSkipMyEntities.Count());
+        trs.Complete();
       }
     }
   }
