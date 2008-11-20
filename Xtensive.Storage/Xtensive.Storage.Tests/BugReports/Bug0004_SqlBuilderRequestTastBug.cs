@@ -45,7 +45,7 @@ namespace Xtensive.Storage.Tests.BugReports
     }
 
     [Test]
-    public void SqlTaskTest()
+    public void MainTest()
     {
       using (Domain.OpenSession()) {
         SqlTaskEntity e1;
