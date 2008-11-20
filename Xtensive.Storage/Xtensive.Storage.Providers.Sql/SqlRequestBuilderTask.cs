@@ -46,7 +46,17 @@ namespace Xtensive.Storage.Providers.Sql
         return false;
       if (Kind != other.Kind)
         return false;
-      return GetHashCode()==other.GetHashCode();
+      if (GetHashCode() != other.GetHashCode())
+        return false;
+      if (FieldMap==null && other.FieldMap == null)
+        return true;
+      if (FieldMap != null && other.FieldMap != null && FieldMap.Count == other.FieldMap.Count) {
+        for (int i = 0; i < FieldMap.Count; i++)
+          if (FieldMap[i] != other.FieldMap[i])
+            return false;
+        return true;
+      }
+      return false;
     }
 
     /// <inheritdoc/>
@@ -60,12 +70,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     public void UpdateHashCode()
     {
-      int result = Type.GetHashCode() ^ Kind.GetHashCode();
-      if (FieldMap!=null)
-        for (int i = 0; i < FieldMap.Count; i++)
-          if (FieldMap[i])
-            result ^= i;
-      hashCode = result;
+      hashCode = Type.GetHashCode() ^ Kind.GetHashCode();
     }
 
 
