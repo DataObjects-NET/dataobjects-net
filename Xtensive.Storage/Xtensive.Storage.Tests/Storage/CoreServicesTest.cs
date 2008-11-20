@@ -241,10 +241,16 @@ namespace Xtensive.Storage.Tests.Storage
           MyEntity item1 = (MyEntity)pa.CreateEntity(typeof (MyEntity));
           MyEntity item2 = (MyEntity)pa.CreateEntity(typeof (MyEntity));
 
-          var esa = Session.Current.CoreServices.EntitySetAccessor;
-          esa.Add(container.Items, item1);
-          esa.Add(container.Items, item2);
-          Assert.AreEqual(2, container.Items.Count);
+          var entitySetAccessor = Session.Current.CoreServices.EntitySetAccessor;
+          var field = container.Type.Fields["Items"];
+          var entitySet = entitySetAccessor.GetEntitySet(container, field);
+          entitySetAccessor.Add(entitySet, item1);
+          entitySetAccessor.Add(entitySet, item2);
+          Assert.AreEqual(2, entitySet.Count);
+          entitySetAccessor.Remove(entitySet, item2);
+          Assert.AreEqual(1, entitySet.Count);
+          entitySetAccessor.Clear(entitySet);
+          Assert.AreEqual(0, entitySet.Count);
           t.Complete();
         }
       }

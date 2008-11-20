@@ -29,7 +29,7 @@ namespace Xtensive.Storage.Internals
       result = Activator.CreateEntitySet((Entity) obj, field, notify);
       obj.FieldHandlers.Add(field, result);
       var es = (EntitySetBase) result;
-      es.Initialize(true);
+      es.Initialize(notify);
       return (T) result;
 
     }

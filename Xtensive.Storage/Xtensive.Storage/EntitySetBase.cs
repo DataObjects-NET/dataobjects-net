@@ -188,7 +188,7 @@ namespace Xtensive.Storage
     internal void Clear(bool notify)
     {
       OnClearing(notify);
-      foreach (Key key in GetKeys())
+      foreach (Key key in GetKeys().ToList())
         Remove(key.Resolve(), notify);
       OnClear(notify);
     }

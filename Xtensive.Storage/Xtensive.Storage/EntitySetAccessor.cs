@@ -14,6 +14,14 @@ namespace Xtensive.Storage
 {
   public sealed class EntitySetAccessor : SessionBound
   {
+
+    [Infrastructure]
+    public EntitySetBase GetEntitySet(Entity target, FieldInfo field)
+    {
+      ValidateArguments(target, field);
+      return target.GetField<EntitySetBase>(field, false);
+    }
+
     [Infrastructure]
     public RecordSet GetRecordSet(EntitySetBase target)
     {
@@ -22,52 +30,52 @@ namespace Xtensive.Storage
     }
 
     [Infrastructure]
-    public RecordSet GetRecordSet(Persistent target, FieldInfo field)
+    public RecordSet GetRecordSet(Entity target, FieldInfo field)
     {
       ValidateArguments(target, field);
-      return GetRecordSet(target.GetField<EntitySetBase>(field, false));
+      return GetRecordSet(GetEntitySet(target, field));
     }
 
     [Infrastructure]
     public bool Add(EntitySetBase target, Entity item)
     {
       ValidateArguments(target, item);
-      throw new NotImplementedException();
+      return target.Add(item, false);
     }
 
     [Infrastructure]
     public bool Add(Entity target, FieldInfo field, Entity item)
     {
       ValidateArguments(target, field, item);
-      return Add(target.GetField<EntitySetBase>(field, false), item);
+      return Add(GetEntitySet(target, field), item);
     }
 
     [Infrastructure]
     public bool Remove(EntitySetBase target, Entity item)
     {
       ValidateArguments(target, item);
-      throw new NotImplementedException();
+      return target.Remove(item, false);
     }
 
     [Infrastructure]
     public bool Remove(Entity target, FieldInfo field, Entity item)
     {
       ValidateArguments(target, field, item);
-      return Remove(target.GetField<EntitySetBase>(field, false), item);
+      return Remove(GetEntitySet(target, field), item);
     }
 
     [Infrastructure]
     public void Clear(EntitySetBase target)
     {
       ValidateArguments(target);
-      throw new NotImplementedException();
+      target.Clear(false);
     }
 
     [Infrastructure]
     public void Clear(Entity target, FieldInfo field)
     {
       ValidateArguments(target, field);
-      Clear(target.GetField<EntitySetBase>(field, false));
+      Clear(GetEntitySet(target, field));
     }
 
     private static void ValidateArguments(object target)
