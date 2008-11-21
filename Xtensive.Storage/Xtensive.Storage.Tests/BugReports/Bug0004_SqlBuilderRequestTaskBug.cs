@@ -35,7 +35,7 @@ namespace Xtensive.Storage.Tests.BugReports.Bug0004_Model
 
 namespace Xtensive.Storage.Tests.BugReports
 {
-  public class Bug0004_SqlBuilderRequestTastBug : AutoBuildTest
+  public class Bug0004_SqlBuilderRequestTaskBug : AutoBuildTest
   {
     protected override Xtensive.Storage.Configuration.DomainConfiguration BuildConfiguration()
     {

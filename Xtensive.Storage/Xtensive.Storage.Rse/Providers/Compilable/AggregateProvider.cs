@@ -62,8 +62,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
       var types = new List<Type>();
       int i = 0;
       var columnIndexes = new int[GroupColumnIndexes.Length];
-      foreach (var index in GroupColumnIndexes)
-      {
+      foreach (var index in GroupColumnIndexes) {
         types.Add(Source.Header.Columns[index].Type);
         columnIndexes[i++] = index;
       }

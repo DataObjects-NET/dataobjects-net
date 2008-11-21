@@ -88,6 +88,15 @@ namespace Xtensive.Storage.Model.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Type with TypeId={0} is not registered..
+        /// </summary>
+        internal static string TypeIdXIsNotRegistered {
+            get {
+                return ResourceManager.GetString("TypeIdXIsNotRegistered", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Type &apos;{0}&apos; is not registered..
         /// </summary>
         internal static string TypeXIsNotRegistered {

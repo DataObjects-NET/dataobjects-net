@@ -129,4 +129,7 @@
   <data name="ExCouldNotResolveXYWithinDomain" xml:space="preserve">
     <value>Could not resolve {0} '{1}' within the domain.</value>
   </data>
+  <data name="TypeIdXIsNotRegistered" xml:space="preserve">
+    <value>Type with TypeId={0} is not registered.</value>
+  </data>
 </root>

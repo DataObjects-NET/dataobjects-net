@@ -29,7 +29,8 @@ namespace Xtensive.Storage.Model
     private readonly Dictionary<TypeInfo, HashSet<TypeInfo>> descendants = new Dictionary<TypeInfo, HashSet<TypeInfo>>();
     private readonly Dictionary<TypeInfo, HashSet<TypeInfo>> interfaces = new Dictionary<TypeInfo, HashSet<TypeInfo>>();
     private readonly Dictionary<TypeInfo, HashSet<TypeInfo>> implementors = new Dictionary<TypeInfo, HashSet<TypeInfo>>();
-
+    private Dictionary<int, TypeInfo> typeIdIndex;
+    
     /// <summary>
     /// Determines whether this instance contains an item with the specified key.
     /// </summary>
@@ -57,14 +58,34 @@ namespace Xtensive.Storage.Model
     /// An indexer that provides access to collection items.
     /// </summary>
     /// <exception cref="ArgumentException"> when item was not found.</exception>
-    public TypeInfo this[Type key]
-    {
-      get
-      {
+    public TypeInfo this[Type key] {
+      get {
         TypeInfo result;
         if (!TryGetValue(key, out result))
           throw new ArgumentException(  
             String.Format(Strings.TypeXIsNotRegistered, key.GetShortName()));
+        return result;
+      }
+    }
+
+    /// <summary>
+    /// An indexer that provides access to collection items by their <see cref="TypeInfo.TypeId"/>.
+    /// </summary>
+    /// <exception cref="ArgumentException"> when item was not found.</exception>
+    public new TypeInfo this[int typeId] {
+      get {
+        TypeInfo result = null;
+        if (typeIdIndex!=null)
+          typeIdIndex.TryGetValue(typeId, out result);
+        else {
+          foreach (var type in this) {
+            if (type.TypeId==typeId)
+              result = type;
+          }
+        }
+        if (result==null)
+          throw new ArgumentException(  
+            String.Format(Strings.TypeIdXIsNotRegistered, typeId));
         return result;
       }
     }
@@ -160,7 +181,7 @@ namespace Xtensive.Storage.Model
     public IEnumerable<TypeInfo> FindInterfaces(TypeInfo item, bool recursive)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
-      HashSet<TypeInfo> result = new HashSet<TypeInfo>(interfaces[item]);
+      var result = new HashSet<TypeInfo>(interfaces[item]);
       if (!recursive)
         return result;
       foreach (TypeInfo @interface in interfaces[item])
@@ -411,8 +432,15 @@ namespace Xtensive.Storage.Model
     public override void Lock(bool recursive)
     {
       this.EnsureNotLocked();
-      for (int i = 0; i < Count; i++)
-        this[i].TypeId = i;
+      
+      // Building TypeId index
+      typeIdIndex = new Dictionary<int, TypeInfo>();
+      int typeId = TypeInfo.MinTypeId;
+      foreach (var type in this) {
+        if (type.TypeId==TypeInfo.NoTypeId)
+          type.TypeId = typeId++;
+        typeIdIndex[type.TypeId] = type;
+      }
 
       base.Lock(recursive);
     }

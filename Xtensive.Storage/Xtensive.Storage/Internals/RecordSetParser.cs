@@ -42,29 +42,11 @@ namespace Xtensive.Storage.Internals
         Entity entity = null;
         for (int i = 0; i < groupMappingCount; i++) {
           Key key = Parse(context, tuple, groupMappings[i], ref typeMappings[i]);
-          if (entity==null && type.IsAssignableFrom(key.Type.UnderlyingType))
+          if (entity==null && key!=null && type.IsAssignableFrom(key.Type.UnderlyingType))
             entity = key.Resolve();
         }
         yield return entity;
       }
-    }
-
-    public int Parse(RecordSet source)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
-
-      var context = new RecordSetParserContext(source);
-      var recordSetMapping = GetMapping(source.Header);
-      var groupMappings    = recordSetMapping.Mappings;
-      var typeMappings     = new TypeMapping[groupMappings.Length];
-      int recordCount = 0;
-
-      foreach (Tuple tuple in source) {
-        recordCount++;
-        for (int i = 0; i < groupMappings.Length; i++)
-          Parse(context, tuple, groupMappings[i], ref typeMappings[i]);
-      }
-      return recordCount;
     }
 
     public Key ParseFirstFast(RecordSet source)
@@ -85,19 +67,21 @@ namespace Xtensive.Storage.Internals
     private static Key Parse(RecordSetParserContext context, Tuple record, ColumnGroupMapping columnGroupMapping, ref TypeMapping lastTypeMapping)
     {
       int typeIdColumnIndex = columnGroupMapping.TypeIdColumnIndex;
-      int typeId = 0;
+      int typeId = TypeInfo.NoTypeId;
       if (typeIdColumnIndex>=0)
         typeId = (int) record.GetValueOrDefault(typeIdColumnIndex);
       TypeMapping typeMapping;
-      if (lastTypeMapping!=null && typeId==lastTypeMapping.TypeId)
+      if (typeId!=TypeInfo.NoTypeId && lastTypeMapping!=null && typeId==lastTypeMapping.TypeId)
         typeMapping = lastTypeMapping;
       else {
         typeMapping = columnGroupMapping.GetMapping(typeId);
+        if (typeMapping==null)
+          return null;
         lastTypeMapping = typeMapping;
       }
       
       var keyTuple = typeMapping.KeyTransform.Apply(TupleTransformType.TransformedTuple, record);
-      if (typeId==0) // No TypeId in this column group
+      if (typeId==TypeInfo.NoTypeId) // No TypeId in this column group
         return Key.Create(context.Domain, columnGroupMapping.Hierarchy.Root, keyTuple, false, false);
 
       var key = Key.Create(context.Domain, typeMapping.Type, keyTuple, true, true);

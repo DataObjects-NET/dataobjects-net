@@ -25,6 +25,18 @@ namespace Xtensive.Storage.Model
   [Serializable]
   public sealed class TypeInfo: MappingNode
   {
+    /// <summary>
+    /// "No <see cref="TypeId"/>" value (<see cref="TypeId"/> is unknown or undefined).
+    /// Value is <see langword="0" />.
+    /// </summary>
+    public const int NoTypeId = 0;
+
+    /// <summary>
+    /// Minimal possible <see cref="TypeId"/> value.
+    /// Value is <see langword="1" />.
+    /// </summary>
+    public const int MinTypeId = 1;
+
     private ColumnInfoCollection                            columns;
     private readonly FieldMap                               fieldMap;
     private readonly FieldInfoCollection                    fields;
@@ -36,7 +48,7 @@ namespace Xtensive.Storage.Model
     private ReadOnlyList<AssociationInfo>                   associations;
     private Type                                            underlyingType;
     private HierarchyInfo                                   hierarchy;
-    private int                                             typeId;
+    private int                                             typeId = NoTypeId;
     private TupleDescriptor                                 tupleDescriptor;
 
     /// <summary>
