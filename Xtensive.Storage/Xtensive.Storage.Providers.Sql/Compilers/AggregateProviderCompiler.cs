@@ -30,8 +30,10 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
       sqlSelect.Columns.Clear();
 
       for(int i = 0; i < provider.GroupColumnIndexes.Length; i++) {
-        sqlSelect.Columns.Add(columns[provider.GroupColumnIndexes[i]]);
-        sqlSelect.GroupBy.Add(columns[provider.GroupColumnIndexes[i]]);
+        var columnIndex = provider.GroupColumnIndexes[i];
+        var column = columns[columnIndex];
+        sqlSelect.Columns.Add(column);
+        sqlSelect.GroupBy.Add(column);
       }
 
       foreach (var col in provider.AggregateColumns) {
