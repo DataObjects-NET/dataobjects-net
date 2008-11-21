@@ -31,12 +31,16 @@ namespace Xtensive.Storage.Internals
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
 
       var context = new RecordSetParserContext(source);
-      var recordSetMapping = GetMapping(source.Header);
-      var groupMappings    = recordSetMapping.Mappings;
-      var typeMappings     = new TypeMapping[groupMappings.Length];
-      foreach (Tuple tuple in source) {
+      var recordSetMapping  = GetMapping(source.Header);
+      var groupMappings     = recordSetMapping.Mappings;
+      var groupMappingCount = groupMappings.Length;
+      if (groupMappingCount==0)
+        yield break;
+      var typeMappings = new TypeMapping[groupMappingCount];
+
+      foreach (var tuple in source) {
         Entity entity = null;
-        for (int i = 0; i < groupMappings.Length; i++) {
+        for (int i = 0; i < groupMappingCount; i++) {
           Key key = Parse(context, tuple, groupMappings[i], ref typeMappings[i]);
           if (entity==null && type.IsAssignableFrom(key.Type.UnderlyingType))
             entity = key.Resolve();
@@ -80,7 +84,10 @@ namespace Xtensive.Storage.Internals
 
     private static Key Parse(RecordSetParserContext context, Tuple record, ColumnGroupMapping columnGroupMapping, ref TypeMapping lastTypeMapping)
     {
-      int typeId = (int) record.GetValueOrDefault(columnGroupMapping.TypeIdColumnIndex);
+      int typeIdColumnIndex = columnGroupMapping.TypeIdColumnIndex;
+      int typeId = 0;
+      if (typeIdColumnIndex>=0)
+        typeId = (int) record.GetValueOrDefault(typeIdColumnIndex);
       TypeMapping typeMapping;
       if (lastTypeMapping!=null && typeId==lastTypeMapping.TypeId)
         typeMapping = lastTypeMapping;
@@ -90,8 +97,10 @@ namespace Xtensive.Storage.Internals
       }
       
       var keyTuple = typeMapping.KeyTransform.Apply(TupleTransformType.TransformedTuple, record);
-      var key = Key.Create(context.Domain, typeMapping.Type, keyTuple, true, true);
+      if (typeId==0) // No TypeId in this column group
+        return Key.Create(context.Domain, columnGroupMapping.Hierarchy.Root, keyTuple, false, false);
 
+      var key = Key.Create(context.Domain, typeMapping.Type, keyTuple, true, true);
       var entityTuple = typeMapping.Transform.Apply(TupleTransformType.Tuple, record);
       context.Session.UpdateEntityState(key, entityTuple);
       return key;
@@ -120,22 +129,20 @@ namespace Xtensive.Storage.Internals
 
     private ColumnGroupMapping BuildColumnGroupMapping(RecordSetHeader header, ColumnGroup group)
     {
+      var model = Domain.Model;
       int typeIdColumnIndex = -1;
       var typeIdColumnName = Domain.NameBuilder.TypeIdColumnName;
       var columnMapping = new Dictionary<ColumnInfo, MappedColumn>(group.Columns.Count);
 
       foreach (int columnIndex in group.Columns) {
         var column = (MappedColumn)header.Columns[columnIndex];
-        ColumnInfo columnInfo = column.ColumnInfoRef.Resolve(Domain.Model);
+        ColumnInfo columnInfo = column.ColumnInfoRef.Resolve(model);
         columnMapping[columnInfo] = column;
         if (columnInfo.Name == typeIdColumnName)
           typeIdColumnIndex = column.Index;
       }
 
-      if (typeIdColumnIndex == -1)
-        return null;
-
-      return new ColumnGroupMapping(Domain.Model, typeIdColumnIndex, columnMapping);
+      return new ColumnGroupMapping(model, group.Hierarchy.Resolve(model), typeIdColumnIndex, columnMapping);
     }
 
 

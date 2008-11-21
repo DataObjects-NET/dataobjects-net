@@ -7,12 +7,9 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using System.Resources;
 using System.Text;
-using System.Threading;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
@@ -28,6 +25,7 @@ using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
 using Xtensive.Storage.Tests.Storage.SnakesModel;
+using Xtensive.Storage;
 
 
 namespace Xtensive.Storage.Tests.Storage.SnakesModel
@@ -553,9 +551,13 @@ namespace Xtensive.Storage.Tests.Storage
         using (var t = Transaction.Open()) {
           TypeInfo snakeType = Domain.Model.Types[typeof(Snake)];
           RecordSet rsSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordSet();
-          string name = "Kaa900";
-          RecordSet result = rsSnakePrimary.Filter(tuple => tuple.GetValue<string>(rsSnakePrimary.Header.IndexOf(cName)).StartsWith(name));
+          string name = "Kaa90";
+          RecordSet result = rsSnakePrimary
+            .Filter(tuple => tuple.GetValue<string>(rsSnakePrimary.Header.IndexOf(cName)).StartsWith(name))
+            .Select(0);
           Assert.Greater(result.Count(), 0);
+          Assert.IsTrue(result.ToEntities<Snake>()
+            .Where(s => s!=null && s.Name.StartsWith(name)).Count() > 1);
 
           result = rsSnakePrimary.Filter(tuple => tuple.GetValue<string>(rsSnakePrimary.Header.IndexOf(cName)).Contains(name));
           Assert.Greater(result.Count(), 0);

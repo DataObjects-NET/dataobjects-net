@@ -743,7 +743,7 @@ namespace Xtensive.Storage.Building.Builders
         columns = new List<int>(index.KeyColumns.Select((_, i) => i));
         columns.AddRange(index.ValueColumns.Select((_, i) => index.KeyColumns.Count + i));
       }
-      return new ColumnGroup(keyColumns, columns);
+      return new ColumnGroup(reflectedType.Hierarchy, keyColumns, columns);
     }
 
     public static void BuildAffectedIndexes()

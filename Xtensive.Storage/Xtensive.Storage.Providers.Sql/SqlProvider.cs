@@ -21,15 +21,14 @@ namespace Xtensive.Storage.Providers.Sql
     private const string ToString_ParametersEnd = "]";
     private const string ToString_Parameter = "{0} = \"{1}\"";
 
-    public SqlFetchRequest Request
-    {
+    public SqlFetchRequest Request {
       [DebuggerStepThrough]
       get { return request; }
-
       [DebuggerStepThrough]
       set { request = value; }
     }
 
+    /// <inheritdoc/>
     protected override IEnumerable<Tuple> OnEnumerate(Rse.Providers.EnumerationContext context)
     {
       var sessionHandler = (SessionHandler) handlers.SessionHandler;
@@ -43,6 +42,15 @@ namespace Xtensive.Storage.Providers.Sql
 
     #region ToString related methods
 
+    /// <inheritdoc/>
+    public override string ParametersToString()
+    {
+      // No need to show parameters - they are meaningless, since provider is always the same.
+      // Finally, they're printed as part of the [Origin: ...]
+      return string.Empty;
+    }
+    
+    /// <inheritdoc/>
     protected override void AppendDescriptionTo(StringBuilder sb, int indent)
     {
       AppendOriginTo(sb, indent);
@@ -55,6 +63,7 @@ namespace Xtensive.Storage.Providers.Sql
       AppendParametersTo(sb, indent);
     }
 
+    /// <inheritdoc/>
     protected virtual void AppendCommandTo(StringBuilder sb, int indent)
     {
       sb.Append(new string(' ', indent))
@@ -62,6 +71,7 @@ namespace Xtensive.Storage.Providers.Sql
         .AppendLine();
     }
 
+    /// <inheritdoc/>
     private void AppendParametersTo(StringBuilder sb, int indent)
     {
       if (request.ParameterBindings.Count == 0)

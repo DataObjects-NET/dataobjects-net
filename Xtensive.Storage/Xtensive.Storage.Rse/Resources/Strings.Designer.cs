@@ -106,15 +106,6 @@ namespace Xtensive.Storage.Rse.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Could not resolve {0} &apos;{1}&apos; within the domain..
-        /// </summary>
-        internal static string ExCouldNotResolveXYWithinDomain {
-            get {
-                return ResourceManager.GetString("ExCouldNotResolveXYWithinDomain", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Invalid field name &apos;{0}&apos;..
         /// </summary>
         internal static string ExInvalidFieldNameX {

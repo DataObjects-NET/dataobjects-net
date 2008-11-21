@@ -7,9 +7,9 @@
 using System;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Model;
-using Xtensive.Storage.Rse.Resources;
+using Xtensive.Storage.Model.Resources;
 
-namespace Xtensive.Storage.Rse
+namespace Xtensive.Storage.Model
 {
   /// <summary>
   /// Loosely-coupled reference that describes <see cref="IndexInfo"/> instance.
@@ -45,8 +45,55 @@ namespace Xtensive.Storage.Rse
       return index;
     }
 
+    /// <summary>
+    /// Creates reference for <see cref="IndexInfo"/>.
+    /// </summary>
+    public static implicit operator IndexInfoRef (IndexInfo indexInfo)
+    {
+      return new IndexInfoRef(indexInfo);
+    }
+
+    #region Equality members, ==, !=
+
+    /// <see cref="ClassDocTemplate.OperatorEq" copy="true" />
+    public static bool operator !=(IndexInfoRef x, IndexInfoRef y)
+    {
+      return !Equals(x, y);
+    }
+
+    /// <see cref="ClassDocTemplate.OperatorNeq" copy="true" />
+    public static bool operator ==(IndexInfoRef x, IndexInfoRef y)
+    {
+      return Equals(x, y);
+    }
+
     /// <inheritdoc/>
-      public override string ToString()
+    public bool Equals(IndexInfoRef other)
+    {
+      if (ReferenceEquals(other, null))
+        return false;
+      return 
+        TypeName==TypeName;
+    }
+
+    /// <inheritdoc/>
+    public override bool Equals(object obj)
+    {
+      if (ReferenceEquals(this, obj))
+        return true;
+      return Equals(obj as IndexInfoRef);
+    }
+
+    /// <inheritdoc/>
+    public override int GetHashCode()
+    {
+      return unchecked( TypeName.GetHashCode() );
+    }
+
+    #endregion
+
+    /// <inheritdoc/>
+    public override string ToString()
     {
       return string.Format(ToStringFormat, IndexName, TypeName);
     }

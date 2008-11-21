@@ -8,10 +8,9 @@ using System;
 using System.Globalization;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Storage.Model;
-using Xtensive.Storage.Rse.Resources;
+using Xtensive.Storage.Model.Resources;
 
-namespace Xtensive.Storage.Rse
+namespace Xtensive.Storage.Model
 {
   /// <summary>
   /// Loosely-coupled reference that describes <see cref="ColumnInfo"/> instance.
@@ -72,7 +71,7 @@ namespace Xtensive.Storage.Rse
       return !Equals(x, y);
     }
 
-    /// <see cref="ClassDocTemplate.OperatorNEq" copy="true" />
+    /// <see cref="ClassDocTemplate.OperatorNeq" copy="true" />
     public static bool operator ==(ColumnInfoRef x, ColumnInfoRef y)
     {
       return Equals(x, y);

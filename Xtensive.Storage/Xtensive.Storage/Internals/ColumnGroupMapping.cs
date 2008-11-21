@@ -5,6 +5,7 @@
 // Created:    2008.08.08
 
 using System.Collections.Generic;
+using log4net.Repository.Hierarchy;
 using Xtensive.Core.Threading;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Model;
@@ -20,13 +21,15 @@ namespace Xtensive.Storage.Internals
     
     public DomainModel Model { get; private set; }
 
+    public HierarchyInfo Hierarchy { get; private set; }
+
     public int TypeIdColumnIndex { get; private set; }
 
     public TypeMapping GetMapping(int typeId)
     {
       return typeMappings.GetValue(typeId,
         _typeId => {
-          var type = Model.Types[typeId];
+          var type = typeId==0 ? Hierarchy.Root : Model.Types[typeId];
 
           // Building typeMap
           var columnCount = type.Columns.Count;
@@ -61,9 +64,10 @@ namespace Xtensive.Storage.Internals
 
     // Constructors
 
-    public ColumnGroupMapping(DomainModel model, int typeIdColumnIndex, Dictionary<ColumnInfo, MappedColumn> columnMapping)
+    public ColumnGroupMapping(DomainModel model, HierarchyInfo hierarchy, int typeIdColumnIndex, Dictionary<ColumnInfo, MappedColumn> columnMapping)
     {
       Model = model;
+      Hierarchy = hierarchy;
       TypeIdColumnIndex = typeIdColumnIndex;
       columnsMapping = columnMapping;
     }

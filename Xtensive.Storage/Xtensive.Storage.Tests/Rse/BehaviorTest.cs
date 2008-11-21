@@ -38,8 +38,12 @@ namespace Xtensive.Storage.Tests.Rse
           new MappedColumn("ID", 0, typeof (int)),
           new MappedColumn("Title", 1, typeof (string)),
         };
-      var personHeader = new RecordSetHeader(personTuple.Descriptor, personColumns, new[] { new ColumnGroup(new[] { 0 }, new[] { 0, 1, 2}), }, null, null);
-      var authorHeader = new RecordSetHeader(authorTuple.Descriptor, authorColumns, new[] { new ColumnGroup(new[] { 0 }, new[] { 0, 1}), }, null, null);      
+      var personHeader = new RecordSetHeader(personTuple.Descriptor, personColumns, new[] {
+        new ColumnGroup(null, new[] { 0 }, new[] { 0, 1, 2}),
+        }, null, null);
+      var authorHeader = new RecordSetHeader(authorTuple.Descriptor, authorColumns, new[] {
+        new ColumnGroup(null, new[] { 0 }, new[] { 0, 1}),
+        }, null, null);      
 
       var persons = new Tuple[personCount];
       var authors = new Tuple[personCount / 2];

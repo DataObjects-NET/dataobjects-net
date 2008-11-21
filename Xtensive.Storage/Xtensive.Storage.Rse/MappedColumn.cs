@@ -7,6 +7,7 @@
 using System;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Rse
 {
@@ -21,7 +22,7 @@ namespace Xtensive.Storage.Rse
     /// <summary>
     /// Gets the reference that describes a column.
     /// </summary>    
-    public ColumnInfoRef ColumnInfoRef { get; private set; }
+    public Model.ColumnInfoRef ColumnInfoRef { get; private set; }
 
     #region Equals, GetHashCode
 

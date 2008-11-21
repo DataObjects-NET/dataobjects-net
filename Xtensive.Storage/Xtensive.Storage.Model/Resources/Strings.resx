@@ -126,4 +126,7 @@
   <data name="ExUnableToFindMasterAssociation" xml:space="preserve">
     <value>Unable to find master association of association '{0}'</value>
   </data>
+  <data name="ExCouldNotResolveXYWithinDomain" xml:space="preserve">
+    <value>Could not resolve {0} '{1}' within the domain.</value>
+  </data>
 </root>
