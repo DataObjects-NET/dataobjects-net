@@ -10,7 +10,7 @@ using Xtensive.Core.Internals.DocTemplates;
 namespace Xtensive.Storage.Rse
 {
   /// <summary>
-  /// Column of the record.
+  /// Base class for any column of the <see cref="RecordSetHeader"/>.
   /// </summary>
   [Serializable]
   public abstract class Column : IEquatable<Column>
@@ -35,16 +35,11 @@ namespace Xtensive.Storage.Rse
     #region Equals, GetHashCode, ==, !=
 
     /// <inheritdoc/>
-    public bool Equals(Column column)
+    public bool Equals(Column other)
     {
-      if (column==null)
+      if (other==null)
         return false;
-      if (!Equals(Name, column.Name))
-        return false;
-      if (!Equals(Type, column.Type))
-        return false;
-
-      return true;
+      return Name==other.Name;
     }
 
     /// <inheritdoc/>
@@ -80,6 +75,13 @@ namespace Xtensive.Storage.Rse
     {
       return string.Format(ToStringFormat, Type.Name, Name, Index);
     }
+
+    /// <summary>
+    /// Creates clone of the column, but with another <see cref="Index"/> value.
+    /// </summary>
+    /// <param name="newIndex">The new index value.</param>
+    /// <returns>Clone of the column, but with another <see cref="Index"/> value</returns>
+    public abstract Column Clone(int newIndex);
 
 
     // Constructor

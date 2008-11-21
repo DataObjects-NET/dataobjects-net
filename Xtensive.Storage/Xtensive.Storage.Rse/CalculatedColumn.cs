@@ -14,10 +14,10 @@ using System.Linq.Expressions;
 namespace Xtensive.Storage.Rse
 {
   /// <summary>
-  /// Calculated column of the record.
+  /// Calculated column of the <see cref="RecordSetHeader"/>.
   /// </summary>
   [Serializable]
-  public class CalculatedColumn : Column
+  public sealed class CalculatedColumn : Column
   {
     private const string ToStringFormat = "{0} = {1}";
 
@@ -31,6 +31,12 @@ namespace Xtensive.Storage.Rse
     {
       return string.Format(ToStringFormat,
         base.ToString(), Expression.ToString(true));
+    }
+
+    /// <inheritdoc/>
+    public override Column Clone(int newIndex)
+    {
+      return new CalculatedColumn(this, newIndex);
     }
 
 
@@ -54,6 +60,12 @@ namespace Xtensive.Storage.Rse
     /// <param name="alias">The alias to add.</param>
     public CalculatedColumn(CalculatedColumn column, string alias)
       : base(alias.IsNullOrEmpty() ? column.Name : string.Concat(alias, ".", column.Name), column.Index, column.Type)
+    {
+      Expression = column.Expression;
+    }
+ 
+    private CalculatedColumn(CalculatedColumn column, int newIndex)
+      : base(column.Name, newIndex, column.Type)
     {
       Expression = column.Expression;
     }

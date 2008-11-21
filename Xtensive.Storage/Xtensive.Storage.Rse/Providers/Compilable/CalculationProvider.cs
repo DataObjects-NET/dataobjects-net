@@ -31,9 +31,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <inheritdoc/>
     protected override RecordSetHeader BuildHeader()
     {
-      var header = Source.Header;
-      header = header.Add(CalculatedColumns);
-      return header;
+      return Source.Header.Add(CalculatedColumns);
     }
 
     /// <inheritdoc/>

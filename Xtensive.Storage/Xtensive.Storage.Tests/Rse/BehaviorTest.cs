@@ -95,8 +95,8 @@ namespace Xtensive.Storage.Tests.Rse
           new MappedColumn("Title", 2, typeof (string)),
         };
 
-      var authorHeader = new RecordSetHeader(authorTuple.Descriptor, authorColumns, ArrayUtils<ColumnGroup>.EmptyArray, TupleDescriptor.Empty, new DirectionCollection<int>());
-      var bookHeader = new RecordSetHeader(bookTuple.Descriptor, bookColumns, null, null, null);
+      var authorHeader = new RecordSetHeader(authorTuple.Descriptor, authorColumns);
+      var bookHeader = new RecordSetHeader(bookTuple.Descriptor, bookColumns);
 
 
       var authors = new Tuple[authorCount];
@@ -151,7 +151,7 @@ namespace Xtensive.Storage.Tests.Rse
           new MappedColumn("FirstName", 1, typeof (string)),
           new MappedColumn("LastName", 2, typeof (string)),
         };
-      var authorHeader = new RecordSetHeader(authorTuple.Descriptor, authorColumns, ArrayUtils<ColumnGroup>.EmptyArray, TupleDescriptor.Empty, new DirectionCollection<int>());
+      var authorHeader = new RecordSetHeader(authorTuple.Descriptor, authorColumns);
 
       var authors = new Tuple[authorCount];
       for (int i = 0; i < authorCount; i++)
@@ -184,7 +184,7 @@ namespace Xtensive.Storage.Tests.Rse
           new MappedColumn("FirstName", 1, typeof (string)),
           new MappedColumn("LastName", 2, typeof (string)),
         };
-      var authorHeader = new RecordSetHeader(authorTuple.Descriptor, authorColumns, ArrayUtils<ColumnGroup>.EmptyArray, TupleDescriptor.Empty, new DirectionCollection<int>());
+      var authorHeader = new RecordSetHeader(authorTuple.Descriptor, authorColumns);
 
       var authors = new Tuple[authorCount];
       for (int i = 0; i < authorCount; i++) {

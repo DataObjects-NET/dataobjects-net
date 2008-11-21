@@ -5,11 +5,13 @@
 // Created:    2008.07.31
 
 using System.Collections.Generic;
+using System.Diagnostics;
 using Xtensive.Storage.Rse;
 using System.Linq;
 
 namespace Xtensive.Storage.Internals
 {
+  [DebuggerDisplay("Header = {Header}")]
   internal sealed class RecordSetMapping
   {
     public RecordSetHeader Header { get; private set;}

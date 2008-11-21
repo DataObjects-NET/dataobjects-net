@@ -12,7 +12,7 @@ using Xtensive.Storage.Model;
 namespace Xtensive.Storage.Rse
 {
   /// <summary>
-  /// Column of the record.
+  /// Mapped column of the <see cref="RecordSetHeader"/>.
   /// </summary>
   [Serializable]
   public sealed class MappedColumn : Column
@@ -22,52 +22,18 @@ namespace Xtensive.Storage.Rse
     /// <summary>
     /// Gets the reference that describes a column.
     /// </summary>    
-    public Model.ColumnInfoRef ColumnInfoRef { get; private set; }
-
-    #region Equals, GetHashCode
-
-    /// <inheritdoc/>
-    public bool Equals(MappedColumn column)
-    {
-      if (column==null)
-        return false;
-      if (ColumnInfoRef==null) {
-        if (!Equals(Name, column.Name))
-          return false;
-      }
-      else if (!ColumnInfoRef.Equals(column.ColumnInfoRef))
-        return false;
-
-      if (!Equals(Type, column.Type))
-        return false;
-
-      return true;
-    }
-
-    /// <inheritdoc/>
-    public override bool Equals(object obj)
-    {
-      if (ReferenceEquals(this, obj))
-        return true;
-      return Equals(obj as MappedColumn);
-    }
-
-    /// <inheritdoc/>
-    public override int GetHashCode()
-    {
-      int result = ColumnInfoRef!=null ? ColumnInfoRef.GetHashCode() : 0;
-      if (result==0)
-        result = 29 * result + Name.GetHashCode();
-      result = 29 * result + Type.GetHashCode();
-      return result;
-    }
-
-    #endregion
+    public ColumnInfoRef ColumnInfoRef { get; private set; }
 
     /// <inheritdoc/>
     public override string ToString()
     {
       return string.Format(ToStringFormat, base.ToString(), ColumnInfoRef);
+    }
+
+    /// <inheritdoc/>
+    public override Column Clone(int newIndex)
+    {
+      return new MappedColumn(ColumnInfoRef, Name, newIndex, Type);
     }
 
 

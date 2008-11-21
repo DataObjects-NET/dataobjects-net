@@ -22,6 +22,7 @@ namespace Xtensive.Storage.Rse.Providers
   /// Abstract base class for any <see cref="RecordSet"/> <see cref="RecordSet.Provider"/>.
   /// </summary>
   [Serializable]
+  [DebuggerDisplay("{DebuggerDisplayName}, Source count = {Sources.Count}")]
   public abstract class Provider : 
     IEnumerable<Tuple>,
     IHasServices,
@@ -87,6 +88,10 @@ namespace Xtensive.Storage.Rse.Providers
     }
 
     #endregion
+
+    private string DebuggerDisplayName {
+      get { return GetType().GetShortName(); }
+    }
 
 
     /// <summary>

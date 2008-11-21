@@ -55,6 +55,5 @@ namespace Xtensive.Storage.Rse
       SourceIndex = index;
       AggregateType = aggregateType;
     }
-    
   }
 }

@@ -5,12 +5,14 @@
 // Created:    2008.09.23
 
 using System;
+using System.Diagnostics;
 using Xtensive.Sql.Dom.Database;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Providers.Sql.Mappings
 {
   [Serializable]
+  [DebuggerDisplay("ColumnInfo = {ColumnInfo}")]
   public sealed class ColumnMapping
   {
     public ColumnInfo ColumnInfo { get; private set; }

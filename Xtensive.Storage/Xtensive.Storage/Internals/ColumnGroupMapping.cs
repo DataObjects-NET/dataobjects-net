@@ -5,7 +5,7 @@
 // Created:    2008.08.08
 
 using System.Collections.Generic;
-using log4net.Repository.Hierarchy;
+using System.Diagnostics;
 using Xtensive.Core.Threading;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Model;
@@ -13,6 +13,7 @@ using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Internals
 {
+  [DebuggerDisplay("Hierarchy = {Hierarchy.Name}, TypeIdColumnIndex = {TypeIdColumnIndex}")]
   internal sealed class ColumnGroupMapping
   {
     private readonly Dictionary<ColumnInfo, MappedColumn> columnsMapping;

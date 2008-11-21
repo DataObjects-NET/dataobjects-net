@@ -142,7 +142,7 @@ namespace Xtensive.Storage.Internals
           typeIdColumnIndex = column.Index;
       }
 
-      return new ColumnGroupMapping(model, group.Hierarchy.Resolve(model), typeIdColumnIndex, columnMapping);
+      return new ColumnGroupMapping(model, group.HierarchyInfoRef.Resolve(model), typeIdColumnIndex, columnMapping);
     }
 
 

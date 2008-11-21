@@ -13,10 +13,10 @@ using Xtensive.Storage.Rse;
 namespace Xtensive.Storage.Rse
 {
   /// <summary>
-  /// Calculated column of the record.
+  /// Aggregate column of the <see cref="RecordSetHeader"/>.
   /// </summary>
   [Serializable]
-  public class AggregateColumn : Column
+  public sealed class AggregateColumn : Column
   {
     private const string ToStringFormat = "{0} = {1} on ({2})";
 
@@ -37,6 +37,12 @@ namespace Xtensive.Storage.Rse
         base.ToString(), AggregateType, SourceIndex);
     }
 
+    /// <inheritdoc/>
+    public override Column Clone(int newIndex)
+    {
+      return new AggregateColumn(this, newIndex);
+    }
+
 
     // Constructor
 
@@ -53,13 +59,20 @@ namespace Xtensive.Storage.Rse
       SourceIndex = descriptor.SourceIndex;
     }
 
-        /// <summary>
+    /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="column">The original <see cref="AggregateColumn"/> value.</param>
     /// <param name="alias">The alias to add.</param>
     public AggregateColumn(AggregateColumn column, string alias)
       : base(alias.IsNullOrEmpty() ? column.Name : string.Concat(alias, ".", column.Name), column.Index, column.Type)
+    {
+      AggregateType = column.AggregateType;
+      SourceIndex = column.SourceIndex;
+    }
+
+    private AggregateColumn(AggregateColumn column, int newIndex)
+      : base(column.Name, newIndex, column.Type)
     {
       AggregateType = column.AggregateType;
       SourceIndex = column.SourceIndex;

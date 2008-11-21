@@ -5,6 +5,7 @@
 // Created:    2007.09.21
 
 using System;
+using System.Diagnostics;
 using System.Globalization;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
@@ -16,6 +17,7 @@ namespace Xtensive.Storage.Model
   /// Loosely-coupled reference that describes <see cref="ColumnInfo"/> instance.
   /// </summary>
   [Serializable]
+  [DebuggerDisplay("TypeName = {TypeName}, FieldName = {FieldName}, ColumnName = {ColumnName}, CultureInfo = {CultureInfo}")]
   public sealed class ColumnInfoRef: IEquatable<ColumnInfoRef>
   {
     /// <summary>

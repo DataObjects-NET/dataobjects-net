@@ -6,22 +6,24 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Storage.Model
 {
   /// <summary>
-  /// Describes a group of columns that belongs to the specified <see cref="Hierarchy"/>.
+  /// Describes a group of columns that belongs to the specified <see cref="HierarchyInfoRef"/>.
   /// </summary>
   [Serializable]
+  [DebuggerDisplay("Hierarchy = {HierarchyInfoRef}, Keys = {Keys}, Columns = {Columns}")]
   public sealed class ColumnGroup
   {
     /// <summary>
-    /// Gets the <see cref="HierarchyInfoRef"/> pointing to <see cref="HierarchyInfo"/>
+    /// Gets the <see cref="Model.HierarchyInfoRef"/> pointing to <see cref="HierarchyInfo"/>
     /// this column group belongs to.
     /// </summary>
-    public HierarchyInfoRef Hierarchy { get; private set; }
+    public HierarchyInfoRef HierarchyInfoRef { get; private set; }
 
     /// <summary>
     /// Gets the indexes of key columns.
@@ -55,7 +57,7 @@ namespace Xtensive.Storage.Model
     /// <param name="columns">The columns.</param>
     public ColumnGroup(HierarchyInfoRef hierarchy, IList<int> keys, IList<int> columns)
     {
-      Hierarchy = hierarchy;
+      HierarchyInfoRef = hierarchy;
       Keys = new ReadOnlyList<int>(keys);
       Columns = new ReadOnlyList<int>(columns);
     }

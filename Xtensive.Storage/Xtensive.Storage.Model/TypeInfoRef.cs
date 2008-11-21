@@ -5,6 +5,7 @@
 // Created:    2008.07.22
 
 using System;
+using System.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Model.Resources;
@@ -15,6 +16,7 @@ namespace Xtensive.Storage.Model
   /// Loosely-coupled reference that describes <see cref="TypeInfo"/> instance.
   /// </summary>
   [Serializable]
+  [DebuggerDisplay("TypeName = {TypeName}")]
   public sealed class TypeInfoRef
   {
     private const string ToStringFormat = "Type '{0}'";

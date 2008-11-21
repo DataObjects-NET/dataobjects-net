@@ -10,6 +10,7 @@ using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
+using System.Linq;
 
 namespace Xtensive.Storage.Rse.Providers.Compilable
 {
@@ -38,14 +39,9 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <inheritdoc/>
     protected override RecordSetHeader BuildHeader()
     {
-      var types = new List<Type>();
-      foreach (var index in GroupColumnIndexes)
-        types.Add(Source.Header.Columns[index].Type);
-      foreach (var col in AggregateColumns)
-        types.Add(col.Type);
-
-      var rs = Source.Header.Select(GroupColumnIndexes);
-      return new RecordSetHeader(TupleDescriptor.Create(types), rs.Add(AggregateColumns).Columns, null, null, null);
+      return Source.Header
+        .Select(GroupColumnIndexes)
+        .Add(AggregateColumns);
     }
 
     /// <inheritdoc/>
