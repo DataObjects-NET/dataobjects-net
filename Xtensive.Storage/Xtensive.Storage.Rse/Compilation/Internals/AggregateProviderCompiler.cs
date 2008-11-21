@@ -39,7 +39,7 @@ namespace Xtensive.Storage.Rse.Compilation
         source = (source.Sources.Length != 0) ? (CompilableProvider)source.Sources[0] : null;
       }
 
-          return new Providers.Executable.UnOrderedGroupProvider(
+          return new Providers.Executable.UnorderedGroupProvider(
           provider,
           compiledSources[0]);
   }

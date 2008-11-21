@@ -11,7 +11,7 @@ using Xtensive.Core.Tuples.Transform;
 
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
-  internal class UnOrderedGroupProvider : UnaryExecutableProvider<Compilable.AggregateProvider>
+  internal class UnorderedGroupProvider : UnaryExecutableProvider<Compilable.AggregateProvider>
   {
 
     protected internal override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
@@ -61,7 +61,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 
     // Constructor
 
-    public UnOrderedGroupProvider(Compilable.AggregateProvider origin, ExecutableProvider source)
+    public UnorderedGroupProvider(Compilable.AggregateProvider origin, ExecutableProvider source)
       : base(origin, source)
     {
     }

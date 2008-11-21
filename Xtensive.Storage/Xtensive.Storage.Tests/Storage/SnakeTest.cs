@@ -554,7 +554,8 @@ namespace Xtensive.Storage.Tests.Storage
           string name = "Kaa90";
           RecordSet result = rsSnakePrimary
             .Filter(tuple => tuple.GetValue<string>(rsSnakePrimary.Header.IndexOf(cName)).StartsWith(name))
-            .Aggregate(new[] {0} , new AggregateColumnDescriptor("Count", 1, AggregateType.Count));
+            .Aggregate(new[] {0}, new AggregateColumnDescriptor("Count", 1, AggregateType.Count))
+            .Filter(tuple => tuple.GetValue<long>(1) > 0);
           Assert.Greater(result.Count(), 0);
           Assert.IsTrue(result.ToEntities<Snake>()
             .Where(s => s!=null && s.Name.StartsWith(name)).Count() > 1);
