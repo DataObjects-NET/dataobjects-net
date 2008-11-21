@@ -63,7 +63,9 @@ namespace Xtensive.Storage.Providers.Index
       int[] map = indexInfo.Columns
         .Select(c => {
           ColumnInfo column;
-          return type.Columns.TryGetValue(c.Field.Column.Name, out column) ? column.Field.MappingInfo.Offset : MapTransform.NoMapping; 
+          return type.Columns.TryGetValue(c.Field.Column.Name, out column) ? 
+            column.Field.MappingInfo.Offset : 
+            MapTransform.NoMapping; 
         }).ToArray();
       return new MapTransform(true, descriptor, map);
     }

@@ -39,7 +39,8 @@ namespace Xtensive.Storage.Providers.Index
       foreach (IndexInfo indexInfo in state.Type.AffectedIndexes) {
         var index = handler.GetRealIndex(indexInfo);
         var transform = handler.GetIndexTransform(indexInfo, state.Type);
-        index.Add(transform.Apply(TupleTransformType.Tuple, state.Tuple));
+        var item = transform.Apply(TupleTransformType.Tuple, state.Tuple);
+        index.Add(item);
       }
     }
 
@@ -48,24 +49,27 @@ namespace Xtensive.Storage.Providers.Index
       var handler = (DomainHandler)Handlers.DomainHandler;
       IndexInfo primaryIndex = state.Type.Indexes.PrimaryIndex;
       var indexProvider = Rse.Providers.Compilable.IndexProvider.Get(primaryIndex);
-      SeekResult<Tuple> seekResult;
+      SeekResult<Tuple> pkSeekResult;
       using (EnumerationScope.Open()) {
-        seekResult = indexProvider.GetService<IOrderedEnumerable<Tuple, Tuple>>().Seek(
-          new Ray<Entire<Tuple>>(new Entire<Tuple>(state.Key.Value)));
-        if (seekResult.ResultType != SeekResultType.Exact)
+        pkSeekResult = indexProvider
+          .GetService<IOrderedEnumerable<Tuple, Tuple>>()
+          .Seek(new Ray<Entire<Tuple>>(new Entire<Tuple>(state.Key.Value)));
+        if (pkSeekResult.ResultType != SeekResultType.Exact)
           throw new InvalidOperationException(string.Format(Strings.ExInstanceXIsNotFound, 
             state.Key.Type.Name));
       }
 
-      var tuple = Tuple.Create(seekResult.Result.Descriptor);
-      seekResult.Result.CopyTo(tuple);
-      tuple.MergeWith(state.Tuple, MergeBehavior.PreferDifference);
+      var pkItem = Tuple.Create(pkSeekResult.Result.Descriptor);
+      pkSeekResult.Result.CopyTo(pkItem);
+      pkItem.MergeWith(state.Tuple, MergeBehavior.PreferDifference);
 
       foreach (IndexInfo indexInfo in state.Type.AffectedIndexes) {
         var index = handler.GetRealIndex(indexInfo);
         var transform = handler.GetIndexTransform(indexInfo, state.Type);
-        index.Remove(transform.Apply(TupleTransformType.TransformedTuple, seekResult.Result));
-        index.Add(transform.Apply(TupleTransformType.Tuple, tuple));
+        var oldItem = transform.Apply(TupleTransformType.TransformedTuple, pkSeekResult.Result).ToFastReadOnly();
+        var item    = transform.Apply(TupleTransformType.Tuple, pkItem);
+        index.Remove(oldItem);
+        index.Add(item);
       }
     }
 
@@ -74,11 +78,12 @@ namespace Xtensive.Storage.Providers.Index
       var handler = (DomainHandler)Handlers.DomainHandler;
       IndexInfo primaryIndex = state.Type.Indexes.PrimaryIndex;
       var indexProvider = Rse.Providers.Compilable.IndexProvider.Get(primaryIndex);
-      SeekResult<Tuple> seekResult;
+      SeekResult<Tuple> pkSeekResult;
       using (EnumerationScope.Open()) {
-        seekResult = indexProvider.GetService<IOrderedEnumerable<Tuple, Tuple>>().Seek(
-          new Ray<Entire<Tuple>>(new Entire<Tuple>(state.Key.Value)));
-        if (seekResult.ResultType!=SeekResultType.Exact)
+        pkSeekResult = indexProvider
+          .GetService<IOrderedEnumerable<Tuple, Tuple>>()
+          .Seek(new Ray<Entire<Tuple>>(new Entire<Tuple>(state.Key.Value)));
+        if (pkSeekResult.ResultType!=SeekResultType.Exact)
           throw new InvalidOperationException(string.Format(Strings.ExInstanceXIsNotFound, 
             state.Key.Type.Name));
       }
@@ -86,7 +91,8 @@ namespace Xtensive.Storage.Providers.Index
       foreach (IndexInfo indexInfo in state.Type.AffectedIndexes) {
         var index = handler.GetRealIndex(indexInfo);
         var transform = handler.GetIndexTransform(indexInfo, state.Type);
-        index.Remove(transform.Apply(TupleTransformType.TransformedTuple, seekResult.Result));
+        var oldItem = transform.Apply(TupleTransformType.TransformedTuple, pkSeekResult.Result).ToFastReadOnly();
+        index.Remove(oldItem);
       }
     }
 
