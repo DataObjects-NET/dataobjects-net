@@ -155,12 +155,14 @@ namespace Xtensive.Storage.Tests.Model
           var a1 = new A();
           var a2 = new A();
           var rs = a1.Type.Indexes.PrimaryIndex.ToRecordSet();
+
           foreach (Tuple tuple in rs) {
             var rs2 = a1.Type.Indexes.PrimaryIndex.ToRecordSet();
             foreach (Tuple tuple2 in rs2) {
               Core.Log.Debug(tuple2.ToString());
             }
           }
+          // Rollback
         }
       }
     }
@@ -175,6 +177,7 @@ namespace Xtensive.Storage.Tests.Model
           Assert.IsNotNull(a.ManyToManyMaster);
           Assert.IsNotNull(a.OneToManyMaster);
           Assert.IsNotNull(a.ZeroToMany);
+          // Rollback
         }
       }
     }
@@ -213,7 +216,7 @@ namespace Xtensive.Storage.Tests.Model
           Assert.IsTrue(enumerator.MoveNext());
           transaction.Complete();
         }
-        // clear cache
+        // Cache is invalidated here
         using (Transaction.Open()) {
           AssertEx.Throws<Exception>(()=>enumerator.MoveNext());  
           Assert.AreEqual(4, a.OneToManyMaster.Count()); // Enumerate through recordset request
@@ -221,6 +224,7 @@ namespace Xtensive.Storage.Tests.Model
             // a.OneToManyMaster.Contains(f.Key); // Enumerate through recordset request
             a.OneToManyMaster.Contains(f); // Enumerate through recordset request
           }
+          // Rollback
         }
       }
     }
@@ -232,11 +236,13 @@ namespace Xtensive.Storage.Tests.Model
       using (Domain.OpenSession()) {
         C c;
         A a;
+
         using (var t = Transaction.Open()) {
           c = new C();
           a = new A();
           t.Complete();        
         }
+
         using (Transaction.Open()) {
           Assert.IsNull(a.OneToOneMaster);
           Assert.IsNull(c.OneToOnePaired);
@@ -250,7 +256,9 @@ namespace Xtensive.Storage.Tests.Model
           Assert.IsNotNull(c.OneToOnePaired);
           Assert.AreEqual(a.OneToOneMaster, c);
           Assert.AreEqual(c.OneToOnePaired, a);
+          // Rollback
         }
+
         using (Transaction.Open()) {
           Assert.IsNull(a.OneToOneMaster);
           Assert.IsNull(c.OneToOnePaired);
@@ -271,12 +279,14 @@ namespace Xtensive.Storage.Tests.Model
         C c;
         A a1;
         A a2;
+
         using (var t = Transaction.Open()) {
           c = new C();
           a1 = new A();
           a2 = new A();
           t.Complete();
         }
+
         using (Transaction.Open()) {
           Assert.IsNull(a1.OneToOneMaster);
           Assert.IsNull(a2.OneToOneMaster);
@@ -287,25 +297,28 @@ namespace Xtensive.Storage.Tests.Model
           Assert.IsNotNull(c.OneToOnePaired);
           Assert.AreEqual(a1.OneToOneMaster, c);
           Assert.AreEqual(c.OneToOnePaired, a1);
-          //change owner
+          // Change owner
           c.OneToOnePaired = a2;
           Assert.IsNull(a1.OneToOneMaster);
           Assert.IsNotNull(a2.OneToOneMaster);
           Assert.IsNotNull(c.OneToOnePaired);
           Assert.AreEqual(a2.OneToOneMaster, c);
           Assert.AreEqual(c.OneToOnePaired, a2);
-          // change back trough another class
+          // Change back trough another class
           a1.OneToOneMaster = c;
           Assert.IsNotNull(a1.OneToOneMaster);
           Assert.IsNull(a2.OneToOneMaster);
           Assert.IsNotNull(c.OneToOnePaired);
           Assert.AreEqual(a1.OneToOneMaster, c);
           Assert.AreEqual(c.OneToOnePaired, a1);
+          // Rollback
         }
+
         using (Transaction.Open()) {
           Assert.IsNull(a1.OneToOneMaster);
           Assert.IsNull(a2.OneToOneMaster);
           Assert.IsNull(c.OneToOnePaired);
+          // Rollback
         }
       }
     }
@@ -316,11 +329,13 @@ namespace Xtensive.Storage.Tests.Model
       using (Domain.OpenSession()) {
         A a;
         F f;
+
         using (var transaction = Transaction.Open()) {
           a = new A();
           f = new F();
           transaction.Complete();
         }
+
         using (Transaction.Open()) {
           Assert.IsNull(f.ManyToOnePaired);
           Assert.IsNotNull(a.OneToManyMaster);
@@ -337,16 +352,19 @@ namespace Xtensive.Storage.Tests.Model
           Assert.AreEqual(1, a.OneToManyMaster.Count);
           Assert.IsTrue(a.OneToManyMaster.Contains(f.Key));
           Assert.IsTrue(a.OneToManyMaster.Contains(f));
+          // Rollback
         }
-        // rollback
+
         using (Transaction.Open()) {
           Assert.IsNull(f.ManyToOnePaired);
           Assert.IsNotNull(a.OneToManyMaster);
           Assert.AreEqual(0, a.OneToManyMaster.Count);
           Assert.IsFalse(a.OneToManyMaster.Contains(f.Key));
           Assert.IsFalse(a.OneToManyMaster.Contains(f));
+          // Rollback
         }
-        //assign back and commit
+        
+        // Assign back and commit
         using (var transaction = Transaction.Open()) {
           f.ManyToOnePaired = a;
           Assert.IsNotNull(f.ManyToOnePaired);
@@ -355,12 +373,14 @@ namespace Xtensive.Storage.Tests.Model
           Assert.IsTrue(a.OneToManyMaster.Contains(f));
           transaction.Complete();
         }
-        // check commited state
+
+        // Check commited state
         using (Transaction.Open()) {
           Assert.IsNotNull(f.ManyToOnePaired);
           Assert.AreEqual(1, a.OneToManyMaster.Count);
           Assert.IsTrue(a.OneToManyMaster.Contains(f.Key));
           Assert.IsTrue(a.OneToManyMaster.Contains(f));
+          // Rollback
         }
       }
     }
@@ -371,11 +391,13 @@ namespace Xtensive.Storage.Tests.Model
       using (Domain.OpenSession()) {
         A a;
         F f;
+
         using (var transaction = Transaction.Open()) {
           a = new A();
           f = new F();
           transaction.Complete();
         }
+
         using (Transaction.Open()) {
           Assert.IsNull(f.ManyToOnePaired);
           Assert.IsNotNull(a.OneToManyMaster);
@@ -394,14 +416,16 @@ namespace Xtensive.Storage.Tests.Model
           Assert.AreEqual(1, a.OneToManyMaster.Count);
           Assert.IsTrue(a.OneToManyMaster.Contains(f.Key));
           Assert.IsTrue(a.OneToManyMaster.Contains(f));
+          // Rollback
         }
-        // rollback
+
         using (Transaction.Open()) {
           Assert.IsNull(f.ManyToOnePaired);
           Assert.IsNotNull(a.OneToManyMaster);
           Assert.AreEqual(0, a.OneToManyMaster.Count);
           Assert.IsFalse(a.OneToManyMaster.Contains(f.Key));
           Assert.IsFalse(a.OneToManyMaster.Contains(f));
+          // Rollback
         }
       }
     }
@@ -413,12 +437,14 @@ namespace Xtensive.Storage.Tests.Model
         A a;
         F f1;
         F f2;
+
         using (var transaction = Transaction.Open()) {
           a = new A();
           f1 = new F();
           f2 = new F();
           transaction.Complete();
         }
+
         using (Transaction.Open()) {
           Assert.IsNull(f1.ManyToOnePaired);
           Assert.IsNull(f2.ManyToOnePaired);
@@ -453,8 +479,9 @@ namespace Xtensive.Storage.Tests.Model
           Assert.IsTrue(a.OneToManyMaster.Contains(f2.Key));
           Assert.IsTrue(a.OneToManyMaster.Contains(f2));
           f1.ManyToOnePaired = a;
+          // Rollback
         }
-        // rollback
+
         using (Transaction.Open()) {
           Assert.IsNull(f1.ManyToOnePaired);
           Assert.IsNull(f2.ManyToOnePaired);
@@ -462,6 +489,7 @@ namespace Xtensive.Storage.Tests.Model
           Assert.AreEqual(0, a.OneToManyMaster.Count);
           Assert.IsFalse(a.OneToManyMaster.Contains(f1.Key));
           Assert.IsFalse(a.OneToManyMaster.Contains(f1));
+          // Rollback
         }
       }
     }
@@ -473,12 +501,14 @@ namespace Xtensive.Storage.Tests.Model
         A a1;
         A a2;
         F f;
+
         using (var transaction = Transaction.Open()) {
           a1 = new A();
           a2 = new A();
           f = new F();
           transaction.Complete();
         }
+
         using (Transaction.Open()) {
           Assert.IsNull(f.ManyToOnePaired);
           Assert.IsNotNull(a1.OneToManyMaster);
@@ -509,7 +539,7 @@ namespace Xtensive.Storage.Tests.Model
           Assert.AreEqual(0, a1.OneToManyMaster.Count);
           Assert.AreEqual(0, a2.OneToManyMaster.Count);
           a1.OneToManyMaster.Add(f);
-          // change owner
+          // Change owner
           a2.OneToManyMaster.Add(f);
           Assert.IsNotNull(f.ManyToOnePaired);
           Assert.AreEqual(f.ManyToOnePaired, a2);
@@ -519,8 +549,9 @@ namespace Xtensive.Storage.Tests.Model
           Assert.IsFalse(a1.OneToManyMaster.Contains(f));
           Assert.IsTrue(a2.OneToManyMaster.Contains(f.Key));
           Assert.IsTrue(a2.OneToManyMaster.Contains(f));
+          // Rollback
         }
-        // rollback
+
         using (Transaction.Open()) {
           Assert.IsNull(f.ManyToOnePaired);
           Assert.IsNotNull(a1.OneToManyMaster);
@@ -531,6 +562,7 @@ namespace Xtensive.Storage.Tests.Model
           Assert.IsFalse(a2.OneToManyMaster.Contains(f));
           Assert.AreEqual(0, a1.OneToManyMaster.Count);
           Assert.AreEqual(0, a2.OneToManyMaster.Count);
+          // Rollback
         }
       }
     }
@@ -546,6 +578,7 @@ namespace Xtensive.Storage.Tests.Model
           b = new B();
           transaction.Complete();
         }
+
         using (Transaction.Open()) {
           Assert.IsNull(a.ZeroToOne);
           a.ZeroToOne = b;
@@ -553,14 +586,18 @@ namespace Xtensive.Storage.Tests.Model
           a.ZeroToOne = null;
           Assert.IsNull(a.ZeroToOne);
           a.ZeroToOne = b;
+          // Rollback
         }
-        using (var transaction = Transaction.Open()) {
+
+        using (var transactionScope = Transaction.Open()) {
           Assert.IsNull(a.ZeroToOne);
           a.ZeroToOne = b;
-          transaction.Complete();
+          transactionScope.Complete();
         }
-        using (var transaction = Transaction.Open()) {
+
+        using (Transaction.Open()) {
           Assert.AreEqual(a.ZeroToOne, b);
+          // Rollback
         }
       }
     }
@@ -587,6 +624,7 @@ namespace Xtensive.Storage.Tests.Model
         A a2;
         G g1;
         G g2;
+
         using (var transaction = Transaction.Open()) {
           a1 = new A();
           a2 = new A();
@@ -594,6 +632,7 @@ namespace Xtensive.Storage.Tests.Model
           g2 = new G();
           transaction.Complete();
         }
+
         using (var t = Transaction.Open()) {
           Assert.IsNotNull(a1.ManyToManyMaster);
           Assert.IsNotNull(g1.ManytoManyPaired);
@@ -626,6 +665,7 @@ namespace Xtensive.Storage.Tests.Model
           Assert.AreEqual(2, a2.ManyToManyMaster.Count);
           Assert.AreEqual(2, g1.ManytoManyPaired.Count);
           Assert.AreEqual(2, g2.ManytoManyPaired.Count);
+          // Rollback
         }
       }
     }
@@ -638,6 +678,7 @@ namespace Xtensive.Storage.Tests.Model
         A a2;
         G g1;
         G g2;
+
         using (var transaction = Transaction.Open()) {
           a1 = new A();
           a2 = new A();
@@ -649,6 +690,7 @@ namespace Xtensive.Storage.Tests.Model
           a2.ManyToManyMaster.Add(g2);
           transaction.Complete();
         }
+
         using (var t = Transaction.Open()) {
           Assert.AreEqual(2, a1.ManyToManyMaster.Count);
           Assert.AreEqual(2, a2.ManyToManyMaster.Count);
@@ -658,6 +700,7 @@ namespace Xtensive.Storage.Tests.Model
           CheckEnumerator(a2.ManyToManyMaster, g1, g2);
           CheckEnumerator(g1.ManytoManyPaired, a1, a2);
           CheckEnumerator(g2.ManytoManyPaired, a1, a2);
+          // Rollback
         }
       }
     }
@@ -669,12 +712,14 @@ namespace Xtensive.Storage.Tests.Model
       E e1;
       E e2;
       using (var session = Domain.OpenSession()) {
+
         using (var transaction = Transaction.Open()) {
           a = new A();
           e1 = new E();
           e2 = new E();
           transaction.Complete();
         }
+
         using (var transaction = Transaction.Open()) {
           Assert.IsNotNull(a.ZeroToMany);
           Assert.AreEqual(0, a.ZeroToMany.Count);
@@ -690,6 +735,7 @@ namespace Xtensive.Storage.Tests.Model
           Assert.AreEqual(0, a.ZeroToMany.Count);
           Assert.IsFalse(a.ZeroToMany.Contains(e1));
           Assert.IsFalse(a.ZeroToMany.Contains(e2));
+          // Rollback
         }
       }
     }
@@ -701,12 +747,14 @@ namespace Xtensive.Storage.Tests.Model
       E e1;
       E e2;
       using (var session = Domain.OpenSession()) {
+
         using (var transaction = Transaction.Open()) {
           a = new A();
           e1 = new E();
           e2 = new E();
           transaction.Complete();
         }
+
         using (var transaction = Transaction.Open()) {
           Assert.IsNotNull(a.ZeroToMany);
           Assert.AreEqual(0, a.ZeroToMany.Count);
@@ -715,6 +763,7 @@ namespace Xtensive.Storage.Tests.Model
           a.ZeroToMany.Add(e1);
           a.ZeroToMany.Add(e2);
           CheckEnumerator(a.ZeroToMany, e1, e2);
+          // Rollback
         }
       }
     }
@@ -727,7 +776,5 @@ namespace Xtensive.Storage.Tests.Model
         Assert.IsTrue(currentItems.Contains(item));
       }
     }
-
-    
   }
 }
