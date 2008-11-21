@@ -46,29 +46,6 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
       return Range.ToString(true);
     }
 
-    /// <inheritdoc/>
-    protected override void Initialize()
-    {
-      base.Initialize();
-      // To improve comparison speed
-      Range = Expression.Lambda<Func<Range<Entire<Tuple>>>>(
-        Expression.Call(GetType().GetMethod("ToFastRange"),
-          Expression.Call(Range, typeof(Func<Range<Entire<Tuple>>>).GetMethod("Invoke"))));
-    }
-
-    /// <summary>
-    /// Converts the range to fast key.
-    /// </summary>
-    /// <param name="range">The range to convert.</param>
-    /// <returns>Conversion result.</returns>
-    public static Range<Entire<Tuple>> ToFastRange(Range<Entire<Tuple>> range)
-    {
-      var endPoints = range.EndPoints;
-      return new Range<Entire<Tuple>>(
-        new Entire<Tuple>(endPoints.First.Value.ToFastReadOnly(), endPoints.First.ValueType),
-        new Entire<Tuple>(endPoints.Second.Value.ToFastReadOnly(), endPoints.Second.ValueType));
-    }
-
 
     // Constructor
 

@@ -6,12 +6,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Text;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
 using Xtensive.Indexing.Measures;
 using Xtensive.Core.Helpers;
+using Xtensive.Storage.Rse.Resources;
 
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
@@ -20,6 +22,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     IOrderedEnumerable<Tuple,Tuple>,
     IRangeMeasurable<Tuple,Tuple>
   {
+    private const string ToString_RangeParameters = "{0}, Value: {1}";
 
     #region Cached properties
 
@@ -169,16 +172,31 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 
     #endregion
 
+    /// <inheritdoc/>
     protected internal override void OnBeforeEnumerate(EnumerationContext context)
     {
       base.OnBeforeEnumerate(context);
       CachedRange = Origin.CompiledRange.Invoke();
     }
 
+    /// <inheritdoc/>
     protected internal override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
       var sourceEnumerable = Source.GetService<IOrderedEnumerable<Tuple, Tuple>>(true);
       return sourceEnumerable.GetItems(CachedRange);
+    }
+
+    /// <inheritdoc/>
+    public override string ParametersToString()
+    {
+      Range<Entire<Tuple>>? range = null;
+      try {
+        range = Origin.CompiledRange.Invoke();
+      }
+      catch {}
+      return string.Format(ToString_RangeParameters,
+        base.ParametersToString(),
+        range.HasValue ? range.GetValueOrDefault().ToString() : Strings.NotAvailable);
     }
 
 

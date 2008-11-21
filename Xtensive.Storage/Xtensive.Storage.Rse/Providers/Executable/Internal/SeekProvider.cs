@@ -9,12 +9,15 @@ using System.Collections.Generic;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Helpers;
 using Xtensive.Indexing;
+using Xtensive.Storage.Rse.Resources;
 
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
   [Serializable]
   internal sealed class SeekProvider : UnaryExecutableProvider<Compilable.SeekProvider>
   {
+    private const string ToString_SeekParameters = "{0}, Value: {1}";
+
     #region Cached properties
 
     private const string CachedKeyName = "CachedKey";
@@ -34,12 +37,26 @@ namespace Xtensive.Storage.Rse.Providers.Executable
       CachedKey = Origin.CompiledKey.Invoke();
     }
 
+    /// <inheritdoc/>
     protected internal override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
       var sourceEnumerable = Source.GetService<IOrderedEnumerable<Tuple, Tuple>>(true);
       SeekResult<Tuple> seekResult = sourceEnumerable.Seek(CachedKey);
       if (seekResult.ResultType == SeekResultType.Exact)
         yield return seekResult.Result;
+    }
+
+    /// <inheritdoc/>
+    public override string ParametersToString()
+    {
+      Tuple key = null;
+      try {
+        key  = Origin.CompiledKey.Invoke();
+      }
+      catch {}
+      return string.Format(ToString_SeekParameters,
+        base.ParametersToString(),
+        key!=null ? key.ToString() : Strings.NotAvailable);
     }
 
 

@@ -147,4 +147,7 @@
   <data name="ExCanTOpenEnumerationScopeSinceThereIsNoCurrentCompilationContext" xml:space="preserve">
     <value>Can't open EnumerationScope, since there is no current CompilationContext.</value>
   </data>
+  <data name="NotAvailable" xml:space="preserve">
+    <value>n/a</value>
+  </data>
 </root>

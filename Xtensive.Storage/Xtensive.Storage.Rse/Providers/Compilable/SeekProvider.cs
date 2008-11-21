@@ -45,26 +45,6 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
       return Key.ToString(true);
     }
 
-    /// <inheritdoc/>
-    protected override void Initialize()
-    {
-      base.Initialize();
-      // To improve comparison speed
-      Key = Expression.Lambda<Func<Tuple>>(
-        Expression.Call(GetType().GetMethod("ToFastKey"),
-          Expression.Call(Key, typeof(Func<Tuple>).GetMethod("Invoke"))));
-    }
-
-    /// <summary>
-    /// Converts the key to fast key.
-    /// </summary>
-    /// <param name="key">The key to convert.</param>
-    /// <returns>Conversion result.</returns>
-    public static Tuple ToFastKey(Tuple key)
-    {
-      return key.ToFastReadOnly();
-    }
-
 
     // Constructor
 

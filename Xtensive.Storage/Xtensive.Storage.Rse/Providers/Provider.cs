@@ -28,6 +28,7 @@ namespace Xtensive.Storage.Rse.Providers
     IInitializable
   {
     protected const string ToString_ProviderTypeSuffix = "Provider";
+    protected const string ToString_Parameters = " ({0})";
     protected const int    ToString_IndentSize = 2;
     private Provider[] sources;
     private RecordSetHeader header;
@@ -159,7 +160,7 @@ namespace Xtensive.Storage.Rse.Providers
 
       sb.Append(providerName);
       if (!parameters.IsNullOrEmpty())
-        sb.AppendFormat(" ({0})", parameters);
+        sb.AppendFormat(ToString_Parameters, parameters);
       return sb.ToString();
     }
 

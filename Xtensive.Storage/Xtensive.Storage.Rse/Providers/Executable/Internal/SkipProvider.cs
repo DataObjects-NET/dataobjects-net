@@ -8,12 +8,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core.Tuples;
+using Xtensive.Storage.Rse.Resources;
 
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
   [Serializable]
   internal sealed class SkipProvider : UnaryExecutableProvider<Compilable.SkipProvider>
   {
+    private const string ToString_SkipParameters = "{0}, Value: {1}";
+
     #region Cached properties
 
     private const string CachedCountName = "CachedCount";
@@ -36,6 +39,19 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     protected internal override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
       return Source.Enumerate(context).Skip(CachedCount);
+    }
+
+    /// <inheritdoc/>
+    public override string ParametersToString()
+    {
+      long? count = null;
+      try {
+        count = Origin.CompiledCount.Invoke();
+      }
+      catch {}
+      return string.Format(ToString_SkipParameters,
+        base.ParametersToString(),
+        count.HasValue ? count.ToString() : Strings.NotAvailable);
     }
 
 

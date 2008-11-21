@@ -25,7 +25,9 @@ namespace Xtensive.Storage.Rse.Providers
   public abstract class ExecutableProvider : Provider,
     ICachingProvider
   {
+    protected const string ToString_Origin = "[Origin: {0}]";
     private const string CachedResultKey = "Results";
+
     private readonly HashSet<Type> supportedServices = new HashSet<Type>();
 
     /// <summary>
@@ -228,9 +230,7 @@ namespace Xtensive.Storage.Rse.Providers
       if (Origin==null)
         return;
       sb.Append(new string(' ', indent))
-        .Append("[Origin: ")
-        .Append(Origin.TitleToString())
-        .Append("]")
+        .AppendFormat(ToString_Origin, Origin.TitleToString())
         .AppendLine();
     }
 
