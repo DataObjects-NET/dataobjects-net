@@ -58,13 +58,9 @@ namespace Xtensive.Storage.Tests.BugReports
 
         Assert.AreEqual(2, rsMyEntities.Count());
 
-        var rsTakeSkipMyEntities = rsMyEntities.Take(1).Skip(1);
-        var rsTakeTakeMyEntities = rsMyEntities.Take(1).Take(2);
-        var rsSkipSkipMyEntities = rsMyEntities.Skip(1).Skip(1);
-
-        Assert.AreEqual(0, rsTakeSkipMyEntities.Count());
-        Assert.AreEqual(1, rsTakeTakeMyEntities.Count());
-        Assert.AreEqual(0, rsSkipSkipMyEntities.Count());
+        Assert.AreEqual(0, rsMyEntities.Take(1).Skip(1).Count());
+        Assert.AreEqual(1, rsMyEntities.Take(1).Take(2).Count());
+        Assert.AreEqual(0, rsMyEntities.Skip(1).Skip(1).Count());
         trs.Complete();
       }
     }
