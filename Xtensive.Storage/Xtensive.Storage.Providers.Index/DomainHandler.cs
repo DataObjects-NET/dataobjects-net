@@ -73,14 +73,20 @@ namespace Xtensive.Storage.Providers.Index
     private void BuildRealIndexes()
     {
       foreach (IndexInfo indexInfo in Handlers.Domain.Model.RealIndexes) {
-        var indexConfig = new IndexConfiguration<Tuple, Tuple>();
         DirectionCollection<ColumnInfo> orderingRule;
         if (indexInfo.IsUnique | indexInfo.IsPrimary)
           orderingRule = new DirectionCollection<ColumnInfo>(indexInfo.KeyColumns);
-        else
-          orderingRule = new DirectionCollection<ColumnInfo>(
-            indexInfo.KeyColumns
-              .Union(indexInfo.ValueColumns.Select(info => new KeyValuePair<ColumnInfo, Direction>(info, Direction.Positive))));
+        else {
+          orderingRule = new DirectionCollection<ColumnInfo>(indexInfo.KeyColumns);
+          for (int i = 0; i < indexInfo.ValueColumns.Count; i++) {
+            var column = indexInfo.ValueColumns[i];
+            if (indexInfo.IncludedColumns.Contains(column))
+              break;
+            orderingRule.Add(column, Direction.Positive); 
+          }
+        }
+
+        var indexConfig = new IndexConfiguration<Tuple, Tuple>();
         indexConfig.KeyComparer = AdvancedComparer<Tuple>.Default.ApplyRules(new ComparisonRules(
           ComparisonRule.Positive,
           orderingRule.Select(pair => (ComparisonRules)new ComparisonRule(pair.Value, CultureInfo.InvariantCulture)).ToArray(),
