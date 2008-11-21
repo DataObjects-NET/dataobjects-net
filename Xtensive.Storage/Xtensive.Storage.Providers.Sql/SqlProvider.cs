@@ -17,6 +17,9 @@ namespace Xtensive.Storage.Providers.Sql
     protected readonly HandlerAccessor handlers;
     protected SqlFetchRequest request;
     private const string ToString_Command = "[Command: \"{0}\"]";
+    private const string ToString_ParametersBegin = "[Parameters: ";
+    private const string ToString_ParametersEnd = "]";
+    private const string ToString_Parameter = "{0} = \"{1}\"";
 
     public SqlFetchRequest Request
     {
@@ -43,16 +46,35 @@ namespace Xtensive.Storage.Providers.Sql
     protected override void AppendDescriptionTo(StringBuilder sb, int indent)
     {
       AppendOriginTo(sb, indent);
+      if (request.CompilationResult == null) {
+        var sessionHandler = (SessionHandler) handlers.SessionHandler;
+        sessionHandler.DomainHandler.Compile(request);
+        request.BindParameters();
+      }
       AppendCommandTo(sb, indent);
+      AppendParametersTo(sb, indent);
     }
 
     protected virtual void AppendCommandTo(StringBuilder sb, int indent)
     {
-      if (request==null)
-        return;
       sb.Append(new string(' ', indent))
-        .AppendFormat(ToString_Command, request)
+        .AppendFormat(ToString_Command, request.CompiledStatement)
         .AppendLine();
+    }
+
+    private void AppendParametersTo(StringBuilder sb, int indent)
+    {
+      if (request.ParameterBindings.Count == 0)
+        return;
+      sb.Append(new string(' ', indent)).Append(ToString_ParametersBegin);
+      int i = 0;
+      foreach (var item in request.ParameterBindings) {
+        if (i > 0)
+          sb.Append(", ");
+        sb.AppendFormat(ToString_Parameter, item.SqlParameter.ParameterName, item.ValueAccessor());
+        i++;
+      }
+      sb.Append(ToString_ParametersEnd).AppendLine();
     }
 
     #endregion

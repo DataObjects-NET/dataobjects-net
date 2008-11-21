@@ -17,7 +17,7 @@ namespace Xtensive.Storage.Providers.Sql
   /// </summary>
   public abstract class SqlRequest
   {
-    protected SqlCompilerResults CompilationResult;
+    protected internal SqlCompilerResults CompilationResult;
 
     /// <summary>
     /// Gets or sets the statement.
