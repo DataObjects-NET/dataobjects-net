@@ -234,4 +234,7 @@
   <data name="SeekResultFormat" xml:space="preserve">
     <value>{0} ({1}</value>
   </data>
+  <data name="ExIndexesCannotBeMerged" xml:space="preserve">
+    <value>Indexes cannot be merged.</value>
+  </data>
 </root>

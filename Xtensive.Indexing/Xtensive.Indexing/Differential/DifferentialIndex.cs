@@ -302,6 +302,21 @@ namespace Xtensive.Indexing.Differential
 
     #endregion
 
+    /// <summary>
+    /// Merges slices of the specified index.
+    /// </summary>
+    public void Merge()
+    {
+      foreach (var item in removals) {
+        origin.Remove(item);
+        removals.Remove(item);
+      }
+      foreach (var item in insertions) {
+        origin.Add(item);
+        insertions.Remove(item);
+      }
+    }
+
     /// <inheritdoc/>
     protected override void OnConfigured()
     {

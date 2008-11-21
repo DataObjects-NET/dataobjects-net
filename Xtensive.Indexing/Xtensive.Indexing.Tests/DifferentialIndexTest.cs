@@ -19,7 +19,7 @@ namespace Xtensive.Indexing.Tests
   {
     private static readonly IInstanceGenerator<int> instanceGenerator = InstanceGeneratorProvider.Default.GetInstanceGenerator<int>();
     private readonly AdvancedComparer<int> comparer = AdvancedComparer<int>.Default;
-    private DifferentialIndex<int, int, SortedListIndex<int, int>> index;
+    private DifferentialIndex<int, int, SortedListIndex<int, int>> index, index1, index2;
     private SortedListIndex<int, int> sortedListIndex;
 
     [Test]
@@ -40,9 +40,8 @@ namespace Xtensive.Indexing.Tests
     [Test]
     public void RandomTest()
     {
-      int count = 5;
-      Triplet<int>[] list = new Triplet<int>[count];
-      int l = 0;
+      const int count = 5;
+      var list = new Triplet<int>[count];
 
       // Step 0.
       for (int j1 = 0; j1 < 2; j1++)
@@ -73,7 +72,6 @@ namespace Xtensive.Indexing.Tests
                                     ConstructIndex(count, list);
                                     TestIndex();
                                     ClearIndex();
-                                    l++;
                                   }
     }
 
@@ -106,8 +104,7 @@ namespace Xtensive.Indexing.Tests
     {
       IEnumerator<TItem> enumerator = difIndex.GetEnumerator();
       int i = 0;
-      while (enumerator.MoveNext())
-      {
+      while (enumerator.MoveNext()) {
         Assert.AreEqual(list[i++], enumerator.Current);
       }
       Assert.AreEqual(i, list.Count);
@@ -117,25 +114,22 @@ namespace Xtensive.Indexing.Tests
     {
       IIndexReader<TKey, TItem> forwardReader = difIndex.CreateReader(difIndex.GetFullRange());
       IIndexReader<TKey, TItem> backwardReader = difIndex.CreateReader(difIndex.GetFullRange().Invert());
-      for (int i = 0; i < list.Count; i++)
-      {
+      for (int i = 0; i < list.Count; i++) {
         TItem item = list[i];
         forwardReader.MoveTo(new Entire<TKey>(difIndex.KeyExtractor(item)));
         forwardReader.MoveNext();
         backwardReader.MoveTo(new Entire<TKey>(difIndex.KeyExtractor(item)));
         backwardReader.MoveNext();
         Assert.AreEqual(item, forwardReader.Current);
-        if (i == list.Count - 1)
+        if (i==list.Count - 1)
           Assert.IsFalse(forwardReader.MoveNext());
-        else
-        {
+        else {
           Assert.IsTrue(forwardReader.MoveNext());
           Assert.AreEqual(list[i + 1], forwardReader.Current);
         }
-        if (i == 0)
+        if (i==0)
           Assert.IsFalse(backwardReader.MoveNext());
-        else
-        {
+        else {
           Assert.IsTrue(backwardReader.MoveNext());
         }
       }
@@ -143,8 +137,7 @@ namespace Xtensive.Indexing.Tests
 
     private static void TestContains<TKey, TItem>(IIndex<TKey, TItem> difIndex, SortedListIndex<TKey, TItem> list)
     {
-      for (int i = 0; i < list.Count; i++)
-      {
+      for (int i = 0; i < list.Count; i++) {
         TItem item = list[i];
         Assert.IsTrue(difIndex.Contains(item));
         Assert.IsTrue(difIndex.ContainsKey(difIndex.KeyExtractor(item)));
@@ -153,8 +146,7 @@ namespace Xtensive.Indexing.Tests
 
     private static void TestModification<TKey, TItem>(IIndex<TKey, TItem> difIndex, SortedListIndex<TKey, TItem> list)
     {
-      foreach (TItem item in list)
-      {
+      foreach (TItem item in list) {
         Assert.AreEqual(list.Count, difIndex.Count);
         Assert.IsTrue(difIndex.Contains(item));
         Assert.IsTrue(difIndex.ContainsKey(difIndex.KeyExtractor(item)));
@@ -167,8 +159,7 @@ namespace Xtensive.Indexing.Tests
 
     private static void TestSeek<TKey, TItem>(IOrderedIndex<TKey, TItem> difIndex, SortedListIndex<TKey, TItem> list)
     {
-      foreach (TItem item in list)
-      {
+      foreach (TItem item in list) {
         SeekResult<TItem> seekResult = difIndex.Seek(new Ray<Entire<TKey>>(new Entire<TKey>(difIndex.KeyExtractor(item))));
         Assert.AreEqual(SeekResultType.Exact, seekResult.ResultType);
         Assert.AreEqual(item, seekResult.Result);
@@ -177,8 +168,7 @@ namespace Xtensive.Indexing.Tests
 
     private static void TestGetItems<TKey, TItem>(IUniqueOrderedIndex<TKey, TItem> difIndex, SortedListIndex<TKey, TItem> list)
     {
-      foreach (TItem item in list)
-      {
+      foreach (TItem item in list) {
         TItem foundItem = difIndex.GetItem(difIndex.KeyExtractor(item));
         Assert.AreEqual(item, foundItem);
       }
@@ -190,9 +180,8 @@ namespace Xtensive.Indexing.Tests
       Assert.AreEqual(list.Count, foundItems.Count);
 
       int i = 0;
-      while (i < list.Count)
-      {
-        Assert.AreEqual(list[(int)list.Count - 1 - i], foundItems[i]);
+      while (i < list.Count) {
+        Assert.AreEqual(list[(int) list.Count - 1 - i], foundItems[i]);
         i++;
       }
 
@@ -203,31 +192,29 @@ namespace Xtensive.Indexing.Tests
       Assert.AreEqual(list.Count, foundItems.Count);
 
       i = 0;
-      while (i < list.Count)
-      {
+      while (i < list.Count) {
         Assert.AreEqual(list[i], foundItems[i]);
         i++;
       }
     }
 
-
     #region Random test methods.
 
     private void ConstructIndex(int count, Triplet<int>[] list)
     {
-      IndexConfigurationBase<int, int> originConfiguration = new IndexConfigurationBase<int, int>(item => item, comparer);
+      var originConfiguration = new IndexConfigurationBase<int, int>(item => item, comparer);
       IUniqueOrderedIndex<int, int> origin = IndexFactory.CreateUniqueOrdered<int, int, SortedListIndex<int, int>>(originConfiguration);
 
-      IndexConfigurationBase<int, int> insertionsConfiguration = new IndexConfigurationBase<int, int>(item => item, comparer);
+      var insertionsConfiguration = new IndexConfigurationBase<int, int>(item => item, comparer);
       IUniqueOrderedIndex<int, int> insertions = IndexFactory.CreateUniqueOrdered<int, int, SortedListIndex<int, int>>(insertionsConfiguration);
 
-      IndexConfigurationBase<int, int> removalsConfiguration = new IndexConfigurationBase<int, int>(item => item, comparer);
+      var removalsConfiguration = new IndexConfigurationBase<int, int>(item => item, comparer);
       IUniqueOrderedIndex<int, int> removals = IndexFactory.CreateUniqueOrdered<int, int, SortedListIndex<int, int>>(removalsConfiguration);
 
-      IndexConfigurationBase<int, int> sortedListConfiguration = new IndexConfigurationBase<int, int>(item => item, comparer);
+      var sortedListConfiguration = new IndexConfigurationBase<int, int>(item => item, comparer);
       sortedListIndex = new SortedListIndex<int, int>(sortedListConfiguration);
 
-      IEnumerator<int> enumerator = instanceGenerator.GetInstances(RandomManager.CreateRandom(SeedVariatorType.CallingMethod),10000).GetEnumerator();
+      IEnumerator<int> enumerator = instanceGenerator.GetInstances(RandomManager.CreateRandom(SeedVariatorType.CallingMethod), 10000).GetEnumerator();
       int value = enumerator.Current;
       for (int i = 0; i < count; i++) {
         while (list[i].First==1 && list[i].Second==1 && list[i].Third==0) {
@@ -249,7 +236,7 @@ namespace Xtensive.Indexing.Tests
         }
       }
 
-      DifferentialIndexConfiguration<int, int> indexConfig = new DifferentialIndexConfiguration<int, int>(origin, insertions, removals);
+      var indexConfig = new DifferentialIndexConfiguration<int, int>(origin, insertions, removals);
       index = IndexFactory.CreateDifferential<int, int, DifferentialIndex<int, int, SortedListIndex<int, int>>, SortedListIndex<int, int>>(indexConfig);
     }
 
@@ -268,56 +255,63 @@ namespace Xtensive.Indexing.Tests
 
     private void Test1()
     {
-      IndexConfigurationBase<int, int> originConfiguration = new IndexConfigurationBase<int, int>(item => item, comparer);
-      IUniqueOrderedIndex<int, int> origin = IndexFactory.CreateUniqueOrdered<int, int, SortedListIndex<int, int>>(originConfiguration);
-      for (int i = 0; i <= 10; i = i + 5)
-      {
+      var originConfiguration = new IndexConfigurationBase<int, int>(item => item, comparer);
+      var origin = IndexFactory.CreateUniqueOrdered<int, int, SortedListIndex<int, int>>(originConfiguration);
+      for (int i = 0; i <= 10; i = i + 5) {
         origin.Add(i);
         origin.Add(i + 1);
         origin.Add(i + 2);
       }
-      DifferentialIndexConfiguration<int, int> indexConfig = new DifferentialIndexConfiguration<int, int>(origin);
+      var indexConfig = new DifferentialIndexConfiguration<int, int>(origin);
       index = IndexFactory.CreateDifferential<int, int, DifferentialIndex<int, int, SortedListIndex<int, int>>, SortedListIndex<int, int>>(indexConfig);
-      IndexConfigurationBase<int, int> sortedListConfiguration = new IndexConfigurationBase<int, int>(item => item, comparer);
+      var sortedListConfiguration = new IndexConfigurationBase<int, int>(item => item, comparer);
       sortedListIndex = new SortedListIndex<int, int>(sortedListConfiguration);
-      for (int i = 3; i <= 10; i = i + 4)
-      {
+      for (int i = 3; i <= 10; i = i + 4) {
         index.Add(i++);
         index.Add(i);
       }
-      for (int i = 1; i <= 10 + 1; i = i + 4)
-      {
+      for (int i = 1; i <= 10 + 1; i = i + 4) {
         index.Remove(i++);
         index.Remove(i);
       }
-      for (int i = 0; i <= 10; i = i + 5)
-      {
+      for (int i = 0; i <= 10; i = i + 5) {
         sortedListIndex.Add(i);
-        if (i != 10)
-        {
+        if (i!=10) {
           sortedListIndex.Add(i + 3);
           sortedListIndex.Add(i + 4);
         }
       }
 
       TestIndex();
+      
+      index.Merge();
+      Assert.AreEqual(index.Count, index.Origin.Count);
+      Assert.AreEqual(index.Removals.Count, index.Insertions.Count, 0);
+      
+      TestIndex();
       ClearIndex();
     }
 
     private void Test2()
     {
-      IndexConfigurationBase<int, int> originConfiguration = new IndexConfigurationBase<int, int>(item => item, comparer);
-      IUniqueOrderedIndex<int, int> origin = IndexFactory.CreateUniqueOrdered<int, int, SortedListIndex<int, int>>(originConfiguration);
+      var originConfiguration = new IndexConfigurationBase<int, int>(item => item, comparer);
+      var origin = IndexFactory.CreateUniqueOrdered<int, int, SortedListIndex<int, int>>(originConfiguration);
       for (int i = 1; i < 10; i += 2)
         origin.Add(i);
-      DifferentialIndexConfiguration<int, int> indexConfig = new DifferentialIndexConfiguration<int, int>(origin);
+      var indexConfig = new DifferentialIndexConfiguration<int, int>(origin);
       index = IndexFactory.CreateDifferential<int, int, DifferentialIndex<int, int, SortedListIndex<int, int>>, SortedListIndex<int, int>>(indexConfig);
-      IndexConfigurationBase<int, int> sortedListConfiguration = new IndexConfigurationBase<int, int>(item => item, comparer);
+      var sortedListConfiguration = new IndexConfigurationBase<int, int>(item => item, comparer);
       sortedListIndex = new SortedListIndex<int, int>(sortedListConfiguration);
       for (int i = 0; i <= 10; i++)
         index.Add(i);
       for (int i = 0; i <= 10; i++)
         sortedListIndex.Add(i);
+
+      TestIndex();
+
+      index.Merge();
+      Assert.AreEqual(index.Count, index.Origin.Count);
+      Assert.AreEqual(index.Removals.Count, index.Insertions.Count, 0);
 
       TestIndex();
       ClearIndex();
@@ -325,13 +319,13 @@ namespace Xtensive.Indexing.Tests
 
     private void Test3()
     {
-      IndexConfigurationBase<int, int> originConfiguration = new IndexConfigurationBase<int, int>(item => item, comparer);
+      var originConfiguration = new IndexConfigurationBase<int, int>(item => item, comparer);
       IUniqueOrderedIndex<int, int> origin = IndexFactory.CreateUniqueOrdered<int, int, SortedListIndex<int, int>>(originConfiguration);
       for (int i = 0; i <= 6; i++)
         origin.Add(i);
-      DifferentialIndexConfiguration<int, int> indexConfig = new DifferentialIndexConfiguration<int, int>(origin);
+      var indexConfig = new DifferentialIndexConfiguration<int, int>(origin);
       index = IndexFactory.CreateDifferential<int, int, DifferentialIndex<int, int, SortedListIndex<int, int>>, SortedListIndex<int, int>>(indexConfig);
-      IndexConfigurationBase<int, int> sortedListConfiguration = new IndexConfigurationBase<int, int>(item => item, comparer);
+      var sortedListConfiguration = new IndexConfigurationBase<int, int>(item => item, comparer);
       sortedListIndex = new SortedListIndex<int, int>(sortedListConfiguration);
       for (int i = 0; i <= 6; i += 2)
         index.Remove(i);
@@ -339,18 +333,24 @@ namespace Xtensive.Indexing.Tests
         sortedListIndex.Add(i);
 
       TestIndex();
+
+      index.Merge();
+      Assert.AreEqual(index.Count, index.Origin.Count);
+      Assert.AreEqual(index.Removals.Count, index.Insertions.Count, 0);
+
+      TestIndex();
       ClearIndex();
     }
 
     private void Test4()
     {
-      IndexConfigurationBase<int, int> originConfiguration = new IndexConfigurationBase<int, int>(item => item, comparer);
+      var originConfiguration = new IndexConfigurationBase<int, int>(item => item, comparer);
       IUniqueOrderedIndex<int, int> origin = IndexFactory.CreateUniqueOrdered<int, int, SortedListIndex<int, int>>(originConfiguration);
       for (int i = 0; i <= 5; i++)
         origin.Add(i);
-      DifferentialIndexConfiguration<int, int> indexConfig = new DifferentialIndexConfiguration<int, int>(origin);
+      var indexConfig = new DifferentialIndexConfiguration<int, int>(origin);
       index = IndexFactory.CreateDifferential<int, int, DifferentialIndex<int, int, SortedListIndex<int, int>>, SortedListIndex<int, int>>(indexConfig);
-      IndexConfigurationBase<int, int> sortedListConfiguration = new IndexConfigurationBase<int, int>(item => item, comparer);
+      var sortedListConfiguration = new IndexConfigurationBase<int, int>(item => item, comparer);
       sortedListIndex = new SortedListIndex<int, int>(sortedListConfiguration);
       index.Remove(1);
       index.Remove(5);
@@ -360,18 +360,24 @@ namespace Xtensive.Indexing.Tests
         sortedListIndex.Add(i);
 
       TestIndex();
+
+      index.Merge();
+      Assert.AreEqual(index.Count, index.Origin.Count);
+      Assert.AreEqual(index.Removals.Count, index.Insertions.Count, 0);
+
+      TestIndex();
       ClearIndex();
     }
 
     private void Test5()
     {
-      IndexConfigurationBase<int, int> originConfiguration = new IndexConfigurationBase<int, int>(item => item, comparer);
-      IUniqueOrderedIndex<int, int> origin = IndexFactory.CreateUniqueOrdered<int, int, SortedListIndex<int, int>>(originConfiguration);
+      var originConfiguration = new IndexConfigurationBase<int, int>(item => item, comparer);
+      var origin = IndexFactory.CreateUniqueOrdered<int, int, SortedListIndex<int, int>>(originConfiguration);
       for (int i = 7; i <= 10; i++)
         origin.Add(i);
-      DifferentialIndexConfiguration<int, int> indexConfig = new DifferentialIndexConfiguration<int, int>(origin);
+      var indexConfig = new DifferentialIndexConfiguration<int, int>(origin);
       index = IndexFactory.CreateDifferential<int, int, DifferentialIndex<int, int, SortedListIndex<int, int>>, SortedListIndex<int, int>>(indexConfig);
-      IndexConfigurationBase<int, int> sortedListConfiguration = new IndexConfigurationBase<int, int>(item => item, comparer);
+      var sortedListConfiguration = new IndexConfigurationBase<int, int>(item => item, comparer);
       sortedListIndex = new SortedListIndex<int, int>(sortedListConfiguration);
       for (int i = 0; i <= 3; i++)
         index.Add(i);
@@ -387,21 +393,33 @@ namespace Xtensive.Indexing.Tests
         sortedListIndex.Add(i);
 
       TestIndex();
+
+      index.Merge();
+      Assert.AreEqual(index.Count, index.Origin.Count);
+      Assert.AreEqual(index.Removals.Count, index.Insertions.Count, 0);
+
+      TestIndex();
       ClearIndex();
     }
 
     private void Test6()
     {
-      IndexConfigurationBase<int, int> originConfiguration = new IndexConfigurationBase<int, int>(item => item, comparer);
-      IUniqueOrderedIndex<int, int> origin = IndexFactory.CreateUniqueOrdered<int, int, SortedListIndex<int, int>>(originConfiguration);
+      var originConfiguration = new IndexConfigurationBase<int, int>(item => item, comparer);
+      var origin = IndexFactory.CreateUniqueOrdered<int, int, SortedListIndex<int, int>>(originConfiguration);
       for (int i = 0; i <= 5; i++)
         origin.Add(i);
-      DifferentialIndexConfiguration<int, int> indexConfig = new DifferentialIndexConfiguration<int, int>(origin);
+      var indexConfig = new DifferentialIndexConfiguration<int, int>(origin);
       index = IndexFactory.CreateDifferential<int, int, DifferentialIndex<int, int, SortedListIndex<int, int>>, SortedListIndex<int, int>>(indexConfig);
-      IndexConfigurationBase<int, int> sortedListConfiguration = new IndexConfigurationBase<int, int>(item => item, comparer);
+      var sortedListConfiguration = new IndexConfigurationBase<int, int>(item => item, comparer);
       sortedListIndex = new SortedListIndex<int, int>(sortedListConfiguration);
       for (int i = 0; i <= 5; i++)
         index.Remove(i);
+
+      TestIndex();
+
+      index.Merge();
+      Assert.AreEqual(index.Count, index.Origin.Count);
+      Assert.AreEqual(index.Removals.Count, index.Insertions.Count, 0);
 
       TestIndex();
       ClearIndex();
@@ -409,21 +427,26 @@ namespace Xtensive.Indexing.Tests
 
     private void Test7()
     {
-      IndexConfigurationBase<int, int> originConfiguration = new IndexConfigurationBase<int, int>(item => item, comparer);
-      IUniqueOrderedIndex<int, int> origin = IndexFactory.CreateUniqueOrdered<int, int, SortedListIndex<int, int>>(originConfiguration);
+      var originConfiguration = new IndexConfigurationBase<int, int>(item => item, comparer);
+      var origin = IndexFactory.CreateUniqueOrdered<int, int, SortedListIndex<int, int>>(originConfiguration);
       for (int i = 0; i <= 5; i++)
         origin.Add(i);
-      DifferentialIndexConfiguration<int, int> indexConfig = new DifferentialIndexConfiguration<int, int>(origin);
+      var indexConfig = new DifferentialIndexConfiguration<int, int>(origin);
       index = IndexFactory.CreateDifferential<int, int, DifferentialIndex<int, int, SortedListIndex<int, int>>, SortedListIndex<int, int>>(indexConfig);
-      IndexConfigurationBase<int, int> sortedListConfiguration = new IndexConfigurationBase<int, int>(item => item, comparer);
+      var sortedListConfiguration = new IndexConfigurationBase<int, int>(item => item, comparer);
       sortedListIndex = new SortedListIndex<int, int>(sortedListConfiguration);
       for (int i = 0; i <= 5; i++)
         index.Remove(i);
-      for (int i = 0; i <= 5; i++)
-      {
+      for (int i = 0; i <= 5; i++) {
         index.Add(i);
         sortedListIndex.Add(i);
       }
+
+      TestIndex();
+
+      index.Merge();
+      Assert.AreEqual(index.Count, index.Origin.Count);
+      Assert.AreEqual(index.Removals.Count, index.Insertions.Count, 0);
 
       TestIndex();
       ClearIndex();
@@ -431,12 +454,12 @@ namespace Xtensive.Indexing.Tests
 
     private void Test8()
     {
-      IndexConfigurationBase<int, int> originConfiguration = new IndexConfigurationBase<int, int>(item => item, comparer);
-      IUniqueOrderedIndex<int, int> origin = IndexFactory.CreateUniqueOrdered<int, int, SortedListIndex<int, int>>(originConfiguration);
+      var originConfiguration = new IndexConfigurationBase<int, int>(item => item, comparer);
+      var origin = IndexFactory.CreateUniqueOrdered<int, int, SortedListIndex<int, int>>(originConfiguration);
       origin.Add(0);
       origin.Add(1);
       origin.Add(5);
-      DifferentialIndexConfiguration<int, int> indexConfig = new DifferentialIndexConfiguration<int, int>(origin);
+      var indexConfig = new DifferentialIndexConfiguration<int, int>(origin);
       index = IndexFactory.CreateDifferential<int, int, DifferentialIndex<int, int, SortedListIndex<int, int>>, SortedListIndex<int, int>>(indexConfig);
       index.Remove(0);
       index.Remove(1);
@@ -448,14 +471,14 @@ namespace Xtensive.Indexing.Tests
       index.Remove(-3);
       index.Add(1);
 
-      IndexConfigurationBase<int, int> sortedListConfiguration = new IndexConfigurationBase<int, int>(item => item, comparer);
-      sortedListIndex = new SortedListIndex<int, int>(sortedListConfiguration);
-      sortedListIndex.Add(-2);
-      sortedListIndex.Add(-1);
-      sortedListIndex.Add(1);
-      sortedListIndex.Add(2);
-      sortedListIndex.Add(3);
-      sortedListIndex.Add(5);
+      var sortedListConfiguration = new IndexConfigurationBase<int, int>(item => item, comparer);
+      sortedListIndex = new SortedListIndex<int, int>(sortedListConfiguration) {-2, -1, 1, 2, 3, 5};
+
+      TestIndex();
+
+      index.Merge();
+      Assert.AreEqual(index.Count, index.Origin.Count);
+      Assert.AreEqual(index.Removals.Count, index.Insertions.Count, 0);
 
       TestIndex();
       ClearIndex();
@@ -463,27 +486,28 @@ namespace Xtensive.Indexing.Tests
 
     private void Test9()
     {
-      IndexConfigurationBase<int, int> originConfiguration = new IndexConfigurationBase<int, int>(item => item, comparer);
-      IUniqueOrderedIndex<int, int> origin = IndexFactory.CreateUniqueOrdered<int, int, SortedListIndex<int, int>>(originConfiguration);
+      var originConfiguration = new IndexConfigurationBase<int, int>(item => item, comparer);
+      var origin = IndexFactory.CreateUniqueOrdered<int, int, SortedListIndex<int, int>>(originConfiguration);
       origin.Add(-3);
       origin.Add(-2);
       origin.Add(-1);
       origin.Add(4);
       origin.Add(5);
-      DifferentialIndexConfiguration<int, int> indexConfig = new DifferentialIndexConfiguration<int, int>(origin);
+      var indexConfig = new DifferentialIndexConfiguration<int, int>(origin);
       index = IndexFactory.CreateDifferential<int, int, DifferentialIndex<int, int, SortedListIndex<int, int>>, SortedListIndex<int, int>>(indexConfig);
       index.Add(1);
       index.Add(2);
       index.Remove(1);
       index.Remove(2);
 
-      IndexConfigurationBase<int, int> sortedListConfiguration = new IndexConfigurationBase<int, int>(item => item, comparer);
-      sortedListIndex = new SortedListIndex<int, int>(sortedListConfiguration);
-      sortedListIndex.Add(-3);
-      sortedListIndex.Add(-2);
-      sortedListIndex.Add(-1);
-      sortedListIndex.Add(4);
-      sortedListIndex.Add(5);
+      var sortedListConfiguration = new IndexConfigurationBase<int, int>(item => item, comparer);
+      sortedListIndex = new SortedListIndex<int, int>(sortedListConfiguration) {-3, -2, -1, 4, 5};
+
+      TestIndex();
+
+      index.Merge();
+      Assert.AreEqual(index.Count, index.Origin.Count);
+      Assert.AreEqual(index.Removals.Count, index.Insertions.Count, 0);
 
       TestIndex();
       ClearIndex();
@@ -491,11 +515,11 @@ namespace Xtensive.Indexing.Tests
 
     private void Test10()
     {
-      IndexConfigurationBase<int, int> originConfiguration = new IndexConfigurationBase<int, int>(item => item, comparer);
-      IUniqueOrderedIndex<int, int> origin = IndexFactory.CreateUniqueOrdered<int, int, SortedListIndex<int, int>>(originConfiguration);
+      var originConfiguration = new IndexConfigurationBase<int, int>(item => item, comparer);
+      var origin = IndexFactory.CreateUniqueOrdered<int, int, SortedListIndex<int, int>>(originConfiguration);
       origin.Add(0);
       origin.Add(1);
-      DifferentialIndexConfiguration<int, int> indexConfig = new DifferentialIndexConfiguration<int, int>(origin);
+      var indexConfig = new DifferentialIndexConfiguration<int, int>(origin);
       index = IndexFactory.CreateDifferential<int, int, DifferentialIndex<int, int, SortedListIndex<int, int>>, SortedListIndex<int, int>>(indexConfig);
       index.Remove(0);
       index.Remove(1);
@@ -507,6 +531,5 @@ namespace Xtensive.Indexing.Tests
     #endregion
 
     #endregion
-
   }
 }
