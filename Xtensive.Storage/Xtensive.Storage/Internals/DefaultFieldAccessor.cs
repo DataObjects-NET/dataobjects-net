@@ -18,12 +18,25 @@ namespace Xtensive.Storage.Internals
     private static readonly bool isString = (typeof (T)==typeof (string));
     private static readonly bool isByteArray = (typeof (T)==typeof (byte[]));
 
-    public static FieldAccessorBase<T> Instance
-    {
+    public static FieldAccessorBase<T> Instance {
       get { return instance; }
     }
 
     /// <inheritdoc/>
+    public override T GetValue(Persistent obj, FieldInfo field, bool notify)
+    {
+      ValidateType(field);
+      int fieldIndex = field.MappingInfo.Offset;
+      var tuple = obj.Tuple;
+
+      if (isObject)
+        return (T) tuple.GetValueOrDefault(fieldIndex);
+
+      return tuple.GetValueOrDefault<T>(fieldIndex);
+    }
+
+    /// <inheritdoc/>
+    /// <exception cref="InvalidOperationException">Invalid arguments.</exception>
     public override void SetValue(Persistent obj, FieldInfo field, T value, bool notify)
     {
       if (!field.IsNullable && value==null)
@@ -41,17 +54,6 @@ namespace Xtensive.Storage.Internals
 
       ValidateType(field);
       obj.Tuple.SetValue(field.MappingInfo.Offset, value);
-    }
-
-    /// <inheritdoc/>
-    public override T GetValue(Persistent obj, FieldInfo field, bool notify)
-    {
-      ValidateType(field);
-
-      if (isObject)
-        return (T) obj.Tuple.GetValueOrDefault(field.MappingInfo.Offset);
-
-      return obj.Tuple.GetValueOrDefault<T>(field.MappingInfo.Offset);
     }
   }
 }

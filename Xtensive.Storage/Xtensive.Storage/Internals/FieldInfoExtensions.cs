@@ -36,6 +36,8 @@ namespace Xtensive.Storage.Internals
         return EnumFieldAccessor<T>.Instance;
       if (field.IsEntitySet)
         return EntitySetFieldAccessor<T>.Instance;
+      if (field.ValueType==typeof(Key))
+        return KeyFieldAccessor<T>.Instance;
       return DefaultFieldAccessor<T>.Instance;
     }
 

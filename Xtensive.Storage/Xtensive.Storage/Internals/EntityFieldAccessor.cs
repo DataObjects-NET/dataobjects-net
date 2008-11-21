@@ -15,12 +15,12 @@ namespace Xtensive.Storage.Internals
   {
     private static readonly FieldAccessorBase<T> instance = new EntityFieldAccessor<T>();
 
-    public static FieldAccessorBase<T> Instance
-    {
+    public static FieldAccessorBase<T> Instance {
       get { return instance; }
     }
 
     /// <inheritdoc/>
+    /// <exception cref="InvalidOperationException">Invalid arguments.</exception>
     public override void SetValue(Persistent obj, FieldInfo field, T value, bool notify)
     {
       var entity = value as Entity;
@@ -33,12 +33,16 @@ namespace Xtensive.Storage.Internals
         throw new InvalidOperationException(string.Format(
           Strings.EntityXIsBoundToAnotherSession, entity.Key));
 
-      if (entity==null)
-        for (int i = field.MappingInfo.Offset; i < field.MappingInfo.Offset + field.MappingInfo.Length; i++)
+      var mappingInfo = field.MappingInfo;
+      int fieldIndex = mappingInfo.Offset;
+      if (entity==null) {
+        int nextFieldIndex = fieldIndex + mappingInfo.Length;
+        for (int i = fieldIndex; i < nextFieldIndex; i++)
           obj.Tuple.SetValue(i, null);
+      }
       else {
         ValidateType(field);
-        entity.Key.Value.CopyTo(obj.Tuple, 0, field.MappingInfo.Offset, field.MappingInfo.Length);
+        entity.Key.Value.CopyTo(obj.Tuple, 0, fieldIndex, mappingInfo.Length);
       }
     }
 

@@ -14,8 +14,7 @@ namespace Xtensive.Storage.Internals
   {
     private static readonly FieldAccessorBase<T> instance = new StructureFieldAccessor<T>();
 
-    public static FieldAccessorBase<T> Instance
-    {
+    public static FieldAccessorBase<T> Instance {
       get { return instance; }
     }
 

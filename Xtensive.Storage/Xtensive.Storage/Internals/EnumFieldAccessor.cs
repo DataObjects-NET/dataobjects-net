@@ -5,18 +5,23 @@
 // Created:    2008.06.07
 
 using System;
+using Xtensive.Core.Conversion;
+using Xtensive.Core.Threading;
 using Xtensive.Storage.Model;
+using Xtensive.Core.Reflection;
 
 namespace Xtensive.Storage.Internals
 {
   internal class EnumFieldAccessor<T> : FieldAccessorBase<T> 
   {
     private static readonly FieldAccessorBase<T> instance = new EnumFieldAccessor<T>();
-    private static Type type = typeof(T);
-    private static readonly object @default = (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>)) ? null : Enum.GetValues(type).GetValue(0);
+    private static readonly Type type = typeof(T);
+    private static readonly object @default = 
+      type.IsNullable() ? null : Enum.GetValues(type).GetValue(0);
+    private static ThreadSafeDictionary<Type, Biconverter<T, object>> converters =
+      ThreadSafeDictionary<Type, Biconverter<T, object>>.Create(new object());
 
-    public static FieldAccessorBase<T> Instance
-    {
+    public static FieldAccessorBase<T> Instance {
       get { return instance; }
     }
 
@@ -24,19 +29,32 @@ namespace Xtensive.Storage.Internals
     public override T GetValue(Persistent obj, FieldInfo field, bool notify)
     {
       ValidateType(field);
-      if (!obj.Tuple.IsAvailable(field.MappingInfo.Offset) || obj.Tuple.IsNull(field.MappingInfo.Offset))
+      int fieldIndex = field.MappingInfo.Offset;
+      var tuple = obj.Tuple;
+
+      // Biconverter<object, T> converter = GetConverter(field.ValueType);
+      if (!tuple.IsAvailable(fieldIndex) || tuple.IsNull(fieldIndex))
         return (T)@default;
       if (type.IsEnum)
-        return (T)Enum.ToObject(type, obj.Tuple.GetValueOrDefault(field.MappingInfo.Offset));
+        return (T)Enum.ToObject(type, tuple.GetValueOrDefault(fieldIndex));
       else
-        return (T)Enum.ToObject(Nullable.GetUnderlyingType(type), obj.Tuple.GetValueOrDefault(field.MappingInfo.Offset));
+        return (T)Enum.ToObject(Nullable.GetUnderlyingType(type), tuple.GetValueOrDefault(fieldIndex));
     }
 
     /// <inheritdoc/>
     public override void SetValue(Persistent obj, FieldInfo field, T value, bool notify)
     {
       ValidateType(field);
+      // Biconverter<object, T> converter = GetConverter(field.ValueType);
       obj.Tuple.SetValue(field.MappingInfo.Offset, Convert.ChangeType(value, field.Column.ValueType));
+    }
+
+    private Biconverter<object, T> GetConverter(Type type)
+    {
+      throw new NotImplementedException();
+//      return converters.GetValue(type, (_type) => 
+//        ...
+//        , type);
     }
   }
 }

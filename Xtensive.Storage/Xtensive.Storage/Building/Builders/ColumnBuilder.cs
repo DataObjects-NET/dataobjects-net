@@ -12,7 +12,9 @@ namespace Xtensive.Storage.Building.Builders
   {
     public static ColumnInfo BuildColumn(FieldInfo field)
     {
-      ColumnInfo column = new ColumnInfo(field);
+      var column = field.ValueType==typeof(Key) ? 
+        new ColumnInfo(field, typeof(string)) :
+        new ColumnInfo(field);
       column.Name = BuildingContext.Current.NameBuilder.Build(field, column);
       column.IsNullable = field.IsNullable;
 
@@ -21,7 +23,7 @@ namespace Xtensive.Storage.Building.Builders
 
     public static ColumnInfo BuildInheritedColumn(FieldInfo field, ColumnInfo ancestor)
     {
-      ColumnInfo column = ancestor.Clone();
+      var column = ancestor.Clone();
       column.Field = field;
       column.Name = BuildingContext.Current.NameBuilder.Build(field, ancestor);
       column.IsDeclared = field.IsDeclared;

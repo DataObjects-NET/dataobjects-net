@@ -240,6 +240,8 @@ namespace Xtensive.Storage
     /// <paramref name="source"/> string.</returns>
     public static Key Parse(string source)
     {
+      if (source==null)
+        return null;
       int separatorIndex = source.IndexOf(':');
       if (separatorIndex<0)
         throw new InvalidOperationException(Strings.ExInvalidKeyString);

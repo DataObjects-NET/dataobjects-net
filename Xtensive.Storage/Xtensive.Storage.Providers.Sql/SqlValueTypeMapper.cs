@@ -148,9 +148,6 @@ namespace Xtensive.Storage.Providers.Sql
 
     protected virtual void BuildTypeSubstitutes()
     {
-      var mapping = new DataTypeMapping(typeof (Key), DomainHandler.SqlDriver.ServerInfo.DataTypes.VarCharMax,
-        (reader, fieldIndex) => reader.GetValue(fieldIndex), DbType.String, value => ((Key) value).Format(), value => Key.Parse((string) value));
-      MappingSchema.Register(mapping);
     }
 
     protected void BuildDataTypeMapping(DataTypeInfo dataTypeInfo)

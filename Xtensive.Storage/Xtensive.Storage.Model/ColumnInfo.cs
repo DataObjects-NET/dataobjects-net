@@ -274,5 +274,23 @@ namespace Xtensive.Storage.Model
       valueType = field.IsEnum ? Enum.GetUnderlyingType(field.ValueType) : field.ValueType;
       length = field.Length;
     }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="field"><see cref="Field"/> property value.</param>
+    /// <param name="valueType"><see cref="ValueType"/> property value.</param>
+    public ColumnInfo(FieldInfo field, Type valueType)
+    {
+      indexes = NodeCollection<IndexInfo>.Empty;
+      this.field = field;
+      this.valueType = valueType;
+      IsSystem = field.IsSystem;
+      IsDeclared = true;
+      IsNullable = field.IsNullable;
+      IsLazyLoad = field.IsLazyLoad;
+      IsCollatable = field.IsCollatable;
+      length = field.Length;
+    }
   }
 }

@@ -28,6 +28,6 @@ namespace Xtensive.Storage.Model
     InterfaceImplementation = 0x1000,
     Explicit = 0x2000,
     Enum = 0x4000,
-    TypeId = 0X8000
+    TypeId = 0x8000,
   }
 }

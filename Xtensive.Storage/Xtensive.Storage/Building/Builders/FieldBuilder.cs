@@ -128,11 +128,11 @@ namespace Xtensive.Storage.Building.Builders
         TypeBuilder.BuildType(field.ValueType);
         BuildReferenceField(field);
 
-        Type baseType = field.ReflectedType.UnderlyingType.BaseType;
+        var baseType = field.ReflectedType.UnderlyingType.BaseType;
         if (!baseType.IsGenericType || baseType.GetGenericTypeDefinition()!=typeof (EntitySetItem<,>))
           AssociationBuilder.BuildAssociation(fieldDef, field);
 
-        TypeDef typeDef = BuildingContext.Current.Definition.Types[field.DeclaringType.UnderlyingType];
+        var typeDef = BuildingContext.Current.Definition.Types[field.DeclaringType.UnderlyingType];
         typeDef.Indexes.Add(IndexBuilder.DefineForeignKey(typeDef, fieldDef));
       }
 
@@ -145,6 +145,10 @@ namespace Xtensive.Storage.Building.Builders
       if (field.IsPrimitive) {
         ValidateValueType(field.ValueType, type.UnderlyingType);
         field.Column = ColumnBuilder.BuildColumn(field);
+        if (field.ValueType==typeof(Key)) {
+          var typeDef = BuildingContext.Current.Definition.Types[field.DeclaringType.UnderlyingType];
+          typeDef.Indexes.Add(IndexBuilder.DefineForeignKey(typeDef, fieldDef));
+        }
       }
     }
 
