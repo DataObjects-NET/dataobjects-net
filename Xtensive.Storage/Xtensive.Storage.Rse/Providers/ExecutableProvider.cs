@@ -216,13 +216,9 @@ namespace Xtensive.Storage.Rse.Providers
 
     #region ToString related methods
 
-    protected internal override void AppendBodyTo(StringBuilder sb, int indent)
+    protected override void AppendDescriptionTo(StringBuilder sb, int indent)
     {
-      AppendTitleTo(sb, indent);
-      indent = indent + ToString_IndentSize;
       AppendOriginTo(sb, indent);
-      foreach (Provider source in Sources)
-        source.AppendBodyTo(sb, indent);
     }
 
     protected virtual void AppendOriginTo(StringBuilder sb, int indent)

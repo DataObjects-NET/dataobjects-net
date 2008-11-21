@@ -6,6 +6,7 @@
 
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Text;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Rse.Providers;
 
@@ -15,6 +16,7 @@ namespace Xtensive.Storage.Providers.Sql
   {
     protected readonly HandlerAccessor handlers;
     protected SqlFetchRequest request;
+    private const string ToString_Command = "[Command: \"{0}\"]";
 
     public SqlFetchRequest Request
     {
@@ -35,6 +37,25 @@ namespace Xtensive.Storage.Providers.Sql
           yield return e.Current;
       }
     }
+
+    #region ToString related methods
+
+    protected override void AppendDescriptionTo(StringBuilder sb, int indent)
+    {
+      AppendOriginTo(sb, indent);
+      AppendCommandTo(sb, indent);
+    }
+
+    protected virtual void AppendCommandTo(StringBuilder sb, int indent)
+    {
+      if (request==null)
+        return;
+      sb.Append(new string(' ', indent))
+        .AppendFormat(ToString_Command, request)
+        .AppendLine();
+    }
+
+    #endregion
 
 
     // Constructor

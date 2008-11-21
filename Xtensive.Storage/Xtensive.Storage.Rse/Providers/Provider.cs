@@ -127,12 +127,22 @@ namespace Xtensive.Storage.Rse.Providers
     /// </summary>
     /// <param name="sb">The <see cref="StringBuilder"/> to use.</param>
     /// <param name="indent">The indent.</param>
-    protected internal virtual void AppendBodyTo(StringBuilder sb, int indent)
+    protected internal void AppendBodyTo(StringBuilder sb, int indent)
     {
       AppendTitleTo(sb, indent);
       indent = indent + ToString_IndentSize;
+      AppendDescriptionTo(sb, indent);
       foreach (Provider source in Sources)
         source.AppendBodyTo(sb, indent);
+    }
+
+    /// <summary>
+    /// Appends the provider's description to the specified <see cref="StringBuilder"/>.
+    /// </summary>
+    /// <param name="sb">The <see cref="StringBuilder"/> to use.</param>
+    /// <param name="indent">The indent.</param>
+    protected virtual void AppendDescriptionTo(StringBuilder sb, int indent)
+    {
     }
 
     /// <summary>
