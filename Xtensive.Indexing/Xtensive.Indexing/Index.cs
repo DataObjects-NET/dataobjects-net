@@ -149,6 +149,7 @@ namespace Xtensive.Indexing
     public override TItem GetItem(TKey key)
     {
       EnsureConfigured();
+      key = ToFastKey(key);
       return InternalGetItem(RootPage, key);
     }
 
@@ -162,6 +163,7 @@ namespace Xtensive.Indexing
     public override bool ContainsKey(TKey key)
     {
       EnsureConfigured();
+      key = ToFastKey(key);
       if (DescriptorPage.BloomFilter!=null && !DescriptorPage.BloomFilter.HasValue(key))
         return false;
       return InternalContainsKey(RootPage, key);
@@ -175,6 +177,7 @@ namespace Xtensive.Indexing
     public override SeekResult<TItem> Seek(TKey key)
     {
       EnsureConfigured();
+      key = ToFastKey(key);
       TItem result;
       var seekResult = InternalSeek(RootPage, key);
       if (seekResult.ResultType == SeekResultType.Exact || seekResult.ResultType == SeekResultType.Nearest)
@@ -189,6 +192,7 @@ namespace Xtensive.Indexing
     public override SeekResult<TItem> Seek(Ray<Entire<TKey>> ray)
     {
       EnsureConfigured();
+      ToFastRay(ref ray);
       TItem result;
       var seekResult = InternalSeek(RootPage, ray);
       if (seekResult.ResultType==SeekResultType.Exact || seekResult.ResultType==SeekResultType.Nearest)
@@ -202,6 +206,7 @@ namespace Xtensive.Indexing
     public override IIndexReader<TKey, TItem> CreateReader(Range<Entire<TKey>> range)
     {
       EnsureConfigured();
+      ToFastRange(ref range);
       return new IndexReader<TKey, TItem>(this, range);
     }
 

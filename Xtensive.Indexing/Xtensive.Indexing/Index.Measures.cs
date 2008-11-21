@@ -7,7 +7,6 @@
 using System;
 using System.Diagnostics;
 using Xtensive.Core;
-using Xtensive.Indexing.Implementation;
 using Xtensive.Indexing.Measures;
 using Xtensive.Indexing.Resources;
 
@@ -43,7 +42,7 @@ namespace Xtensive.Indexing
     /// <inheritdoc/>
     public override object[] GetMeasureResults(params string[] names)
     {
-      object[] result = new object[names.Length];
+      var result = new object[names.Length];
       for (int i = 0; i < names.Length; i++)
         result[i] = GetMeasureResult(names[i]);
       return result;
@@ -59,34 +58,34 @@ namespace Xtensive.Indexing
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
       EnsureConfigured();
 
-      IMeasure<TItem> measure = Measures.GetItem<IMeasure<TItem>>(name);
+      var measure = Measures.GetItem<IMeasure<TItem>>(name);
       if (measure==null)
         throw new InvalidOperationException(String.Format(Strings.ExMeasureIsNotDefined, name));
       if (range.IsEmpty)
         return measure.CreateNew().Result;
 
       int index = Measures.IndexOf(measure);
-      Range<Entire<TKey>> positiveRange = range.Redirect(Direction.Positive, Configuration.EntireKeyComparer);
+      var positiveRange = range.Redirect(Direction.Positive, Configuration.EntireKeyComparer);
       var rangeLeftPtr  = InternalSeek(RootPage, new Ray<Entire<TKey>>(positiveRange.EndPoints.First));
       var rangeRightPtr = InternalSeek(RootPage, new Ray<Entire<TKey>>(positiveRange.EndPoints.Second, Direction.Negative));
       if (rangeLeftPtr.ResultType==SeekResultType.None || rangeRightPtr.ResultType==SeekResultType.None) {
         return measure.Result; // Empty result.
       }
 
-      LeafPage<TKey, TItem> firstPage = rangeLeftPtr.Pointer.Page;
+      var firstPage = rangeLeftPtr.Pointer.Page;
       int firstPageIndex = rangeLeftPtr.Pointer.Index;
-      LeafPage<TKey, TItem> lastPage = rangeRightPtr.Pointer.Page;
+      var lastPage = rangeRightPtr.Pointer.Page;
       int lastPageIndex = rangeRightPtr.Pointer.Index;
       if (firstPage==lastPage || firstPage.RightPage==lastPage)
         return MeasureUtils<TItem>.BatchCalculate(measure, GetItems(positiveRange)).Result; // Results within one similar page or witihin neighbour pages
       
       // Add intermediate measurements to result
-      IMeasure<TItem> result = measure.CreateNew();
-      foreach (TItem item in firstPage.GetItems(firstPageIndex, firstPage.CurrentSize - firstPageIndex))
+      var result = measure.CreateNew();
+      foreach (var item in firstPage.GetItems(firstPageIndex, firstPage.CurrentSize - firstPageIndex))
         result.Add(item);
-      foreach (TItem item in lastPage.GetItems(0, lastPageIndex + 1))
+      foreach (var item in lastPage.GetItems(0, lastPageIndex + 1))
         result.Add(item);
-      LeafPage<TKey, TItem> intermediatePage = rangeLeftPtr.Pointer.Page.RightPage;
+      var intermediatePage = rangeLeftPtr.Pointer.Page.RightPage;
       while (intermediatePage!=rangeRightPtr.Pointer.Page) {
         result.AddWith(intermediatePage.MeasureResults[index]);
         intermediatePage = intermediatePage.RightPage;
@@ -97,7 +96,7 @@ namespace Xtensive.Indexing
     /// <inheritdoc/>
     public override object[] GetMeasureResults(Range<Entire<TKey>> range, params string[] names)
     {
-      object[] result = new object[names.Length];
+      var result = new object[names.Length];
       for (int i = 0; i < names.Length; i++)
         result[i] = GetMeasureResult(range, names[i]);
       return result;

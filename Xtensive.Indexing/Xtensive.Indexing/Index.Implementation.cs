@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using Xtensive.Core;
+using Xtensive.Core.Tuples;
 using Xtensive.Indexing.Implementation;
 using Xtensive.Indexing.Resources;
 
@@ -14,13 +15,45 @@ namespace Xtensive.Indexing
 {
   partial class Index<TKey, TItem>
   {
+    private readonly static bool keyIsTuple = typeof(TKey)==typeof(Tuple);
+
+    internal static TKey ToFastKey(TKey key)
+    {
+      if (!keyIsTuple)
+        return key;
+      return (TKey) (object) (key as Tuple).ToFastReadOnly();
+    }
+
+    internal void ToFastRay(ref Ray<Entire<TKey>> ray)
+    {
+      if (!keyIsTuple)
+        return;
+      var point = ray.Point;
+      ray = new Ray<Entire<TKey>>(
+        new Entire<TKey>(
+          (TKey) (object) (point.Value as Tuple).ToFastReadOnly(),
+          point.ValueType));
+    }
+
+    internal void ToFastRange(ref Range<Entire<TKey>> range)
+    {
+      if (!keyIsTuple)
+        return;
+      var endPoints = range.EndPoints;
+      var first = endPoints.First;
+      var second = endPoints.Second;
+      range = new Range<Entire<TKey>>(
+        new Entire<TKey>((TKey) (object) (first.Value as Tuple).ToFastReadOnly(), first.ValueType),
+        new Entire<TKey>((TKey) (object) (second.Value as Tuple).ToFastReadOnly(), second.ValueType));
+    }
+
     internal SeekResultPointer<IndexPointer<TKey, TItem>> InternalSeek(DataPage<TKey, TItem> page, Ray<Entire<TKey>> ray)
     {
-      LeafPage<TKey, TItem> leafPage = page.AsLeafPage;
-      InnerPage<TKey, TItem> innerPage = page.AsInnerPage;
-      SeekResultPointer<int> result = page.Seek(ray);
+      var leafPage  = page.AsLeafPage;
+      var innerPage = page.AsInnerPage;
+      var result = page.Seek(ray);
       int index = result.Pointer;
-      SeekResultType resultType = result.ResultType;
+      var resultType = result.ResultType;
       if (leafPage!=null) {
         if (resultType==SeekResultType.Default) {
           if (ray.Direction==Direction.Positive) {
@@ -47,11 +80,11 @@ namespace Xtensive.Indexing
 
     internal SeekResultPointer<IndexPointer<TKey, TItem>> InternalSeek(DataPage<TKey, TItem> page, TKey key)
     {
-      LeafPage<TKey, TItem> leafPage = page.AsLeafPage;
-      InnerPage<TKey, TItem> innerPage = page.AsInnerPage;
-      SeekResultPointer<int> result = page.Seek(key);
+      var leafPage  = page.AsLeafPage;
+      var innerPage = page.AsInnerPage;
+      var result = page.Seek(key);
       int index = result.Pointer;
-      SeekResultType resultType = result.ResultType;
+      var resultType = result.ResultType;
       if (leafPage!=null) {
         if (resultType==SeekResultType.Default && leafPage.RightPageRef!=null) {
           leafPage = leafPage.RightPage;
@@ -68,9 +101,9 @@ namespace Xtensive.Indexing
 
     private TItem InternalGetItem(DataPage<TKey, TItem> page, TKey key)
     {
-      LeafPage<TKey, TItem> leafPage = page.AsLeafPage;
-      InnerPage<TKey, TItem> innerPage = page.AsInnerPage;
-      SeekResultPointer<int> result = page.Seek(key);
+      var leafPage  = page.AsLeafPage;
+      var innerPage = page.AsInnerPage;
+      var result = page.Seek(key);
       if (innerPage!=null)
         return InternalGetItem(innerPage.GetPage(result.Pointer), key);
       if (result.ResultType!=SeekResultType.Exact)
@@ -80,8 +113,8 @@ namespace Xtensive.Indexing
 
     private bool InternalContainsKey(DataPage<TKey, TItem> page, TKey key)
     {
-      InnerPage<TKey, TItem> innerPage = page.AsInnerPage;
-      SeekResultPointer<int> result = page.Seek(key);
+      var innerPage = page.AsInnerPage;
+      var result = page.Seek(key);
       if (innerPage!=null)
         return InternalContainsKey(innerPage.GetPage(result.Pointer), key);
       return result.ResultType==SeekResultType.Exact;
@@ -89,24 +122,24 @@ namespace Xtensive.Indexing
 
     private DataPage<TKey, TItem> InternalAdd(DataPage<TKey, TItem> page, TKey key, TItem item)
     {
-      LeafPage<TKey, TItem> leafPage = page.AsLeafPage;
-      InnerPage<TKey, TItem> innerPage = page.AsInnerPage;
-      SeekResultPointer<int> result = page.Seek(key);
+      var leafPage  = page.AsLeafPage;
+      var innerPage = page.AsInnerPage;
+      var result = page.Seek(key);
       
       if (innerPage != null) {
-        DataPage<TKey, TItem> insertedPage = InternalAdd(innerPage.GetPage(result.Pointer), key, item);
+        var insertedPage = InternalAdd(innerPage.GetPage(result.Pointer), key, item);
         if (insertedPage==null) {
           innerPage.AddToMeasures(item);
           return null;
         }
-        TKey lowestKey = insertedPage.Key;
+        var lowestKey = insertedPage.Key;
         if (page.CurrentSize < PageSize) {
           innerPage.Insert(result.Pointer + 1, lowestKey, insertedPage.Identifier);
           innerPage.AddToMeasures(item);
           return null;
         }
 
-        InnerPage<TKey, TItem> rightPage = innerPage.Split().AsInnerPage;
+        var rightPage = innerPage.Split().AsInnerPage;
         if (result.Pointer < PageSize/2) {
           innerPage.Insert(result.Pointer + 1, lowestKey, insertedPage.Identifier);
           innerPage.AddToMeasures(insertedPage);
@@ -127,7 +160,7 @@ namespace Xtensive.Indexing
           leafPage.AddToMeasures(item);
           return null;
         }
-        LeafPage<TKey, TItem> rightPage = leafPage.Split().AsLeafPage;
+        var rightPage = leafPage.Split().AsLeafPage;
 
         if (leafPage.RightPageRef==null)
           RightmostPageRef = rightPage.Identifier;
@@ -145,14 +178,13 @@ namespace Xtensive.Indexing
     }
 
     /// <returns>Replaced item.</returns>
-    private TItem InternalReplace(DataPage<TKey, TItem> page, TItem item)
+    private TItem InternalReplace(DataPage<TKey, TItem> page, TKey key, TItem item)
     {
-      LeafPage<TKey, TItem> leafPage = page.AsLeafPage;
-      InnerPage<TKey, TItem> innerPage = page.AsInnerPage;
-      TKey key = KeyExtractor(item);
-      SeekResultPointer<int> result = page.Seek(key);
+      var leafPage  = page.AsLeafPage;
+      var innerPage = page.AsInnerPage;
+      var result = page.Seek(key);
       if (innerPage!=null) {
-        TItem replacedItem = InternalReplace(innerPage.GetPage(result.Pointer), item);
+        var replacedItem = InternalReplace(innerPage.GetPage(result.Pointer), key, item);
         innerPage.SubtractFromMeasures(replacedItem);
         innerPage.AddToMeasures(item);
         return replacedItem;
@@ -160,7 +192,7 @@ namespace Xtensive.Indexing
       else {
         if (result.ResultType!=SeekResultType.Exact)
           throw new ArgumentOutOfRangeException("item", "Specified key could not be found.");
-        TItem replacedItem = leafPage[result.Pointer];
+        var replacedItem = leafPage[result.Pointer];
         leafPage[result.Pointer] = item;
         leafPage.SubtractFromMeasures(replacedItem);
         leafPage.AddToMeasures(item);
@@ -170,12 +202,12 @@ namespace Xtensive.Indexing
 
     private bool InternalRemove(DataPage<TKey, TItem> page, TKey key, out TItem item)
     {
-      LeafPage<TKey, TItem> leafPage = page.AsLeafPage;
-      InnerPage<TKey, TItem> innerPage = page.AsInnerPage;
-      SeekResultPointer<int> result = page.Seek(key);
+      var leafPage  = page.AsLeafPage;
+      var innerPage = page.AsInnerPage;
+      var result = page.Seek(key);
 
       if (innerPage!=null) {
-        DataPage<TKey, TItem> childPage = innerPage.GetPage(result.Pointer);
+        var childPage = innerPage.GetPage(result.Pointer);
         bool find = InternalRemove(childPage, key, out item);
         if (childPage.CurrentSize < PageSize / 2)
           MergePages(innerPage, result.Pointer, childPage);
@@ -239,9 +271,9 @@ namespace Xtensive.Indexing
 
     private void ChangeRootPage(DataPage<TKey, TItem> newInnerPage)
     {
-      DataPage<TKey, TItem> oldRoot = RootPage;
+      var oldRoot = RootPage;
       RootPageRef = new InnerPage<TKey, TItem>(provider);
-      InnerPage<TKey, TItem> rootPage = RootPage.AsInnerPage;
+      var rootPage = RootPage.AsInnerPage;
       rootPage.Insert(-1, default(TKey), oldRoot.Identifier);
       rootPage.Insert(0, newInnerPage.Key, newInnerPage.Identifier);
       if (HasMeasures) {

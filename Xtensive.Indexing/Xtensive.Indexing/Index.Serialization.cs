@@ -6,8 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Core.Comparison;
-using Xtensive.Indexing.BloomFilter;
 using Xtensive.Indexing.Implementation;
 using Xtensive.Indexing.Resources;
 
@@ -30,17 +28,17 @@ namespace Xtensive.Indexing
         if ((provider.Features & IndexFeatures.Serialize)==0)
           throw new InvalidOperationException(Strings.ExIndexPageProviderDoesntSupportSerialize);
 
-        DescriptorPage<TKey, TItem> descriptorPage = provider.Index.DescriptorPage;
+        var descriptorPage = provider.Index.DescriptorPage;
         int pageSize = provider.Index.DescriptorPage.PageSize;
-        AdvancedComparer<TKey> comparer = provider.Index.KeyComparer;
-        Converter<TItem, TKey> extractor = provider.Index.KeyExtractor;
+        var comparer = provider.Index.KeyComparer;
+        var extractor = provider.Index.KeyExtractor;
         bool bFirstPair = true;
         TKey previousKey = default(TKey);
 
-        LeafPage<TKey, TItem> leafPage = new LeafPage<TKey, TItem>(provider);
-        IList<InnerPage<TKey, TItem>> branch = new List<InnerPage<TKey, TItem>>();
+        var leafPage = new LeafPage<TKey, TItem>(provider);
+        var branch = new List<InnerPage<TKey, TItem>>();
         descriptorPage.LeftmostPageRef = StreamPageRef<TKey, TItem>.Create((long) 0);
-        IBloomFilter<TKey> bloomFilter = provider.GetBloomFilter(source);
+        var bloomFilter = provider.GetBloomFilter(source);
 
         foreach (TItem item in source) {
           TKey key = extractor(item);
@@ -83,7 +81,7 @@ namespace Xtensive.Indexing
           if (level==0)
             indexSerializer.SerializeLeafPage(leafPage);
           else {
-            InnerPage<TKey, TItem> innerPage = (InnerPage<TKey, TItem>) page;
+            var innerPage = (InnerPage<TKey, TItem>) page;
             indexSerializer.SerializeInnerPage(innerPage);
             provider.AddToCache(innerPage);
           }
@@ -96,7 +94,7 @@ namespace Xtensive.Indexing
             break;
           branch.Add(new InnerPage<TKey, TItem>(provider));
         }
-        InnerPage<TKey, TItem> abovePage = branch[level];
+        var abovePage = branch[level];
 
         if (page!=null) {
           // Insertion to abovePage

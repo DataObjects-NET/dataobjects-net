@@ -5,7 +5,6 @@
 // Created:    2007.08.28
 
 using System;
-using Xtensive.Indexing.Implementation;
 using Xtensive.Indexing.Resources;
 
 namespace Xtensive.Indexing
@@ -20,8 +19,8 @@ namespace Xtensive.Indexing
       EnsureConfigured();
       if ((Features & IndexFeatures.Write)==0)
         throw new NotSupportedException(Strings.ExIndexPageProviderDoesntSupportWrite);
-      TKey key = KeyExtractor(item);
-      DataPage<TKey, TItem> newPage = InternalAdd(RootPage, key, item);
+      var key = ToFastKey(KeyExtractor(item));
+      var newPage = InternalAdd(RootPage, key, item);
       if (newPage!=null)
         ChangeRootPage(newPage);
     }
@@ -39,6 +38,7 @@ namespace Xtensive.Indexing
       EnsureConfigured();
       if ((Features & IndexFeatures.Write)==0)
         throw new NotSupportedException(Strings.ExIndexPageProviderDoesntSupportWrite);
+      key = ToFastKey(key);
       TItem item;
       return InternalRemove(RootPage, key, out item);
     }
@@ -50,7 +50,8 @@ namespace Xtensive.Indexing
       EnsureConfigured();
       if ((Features & IndexFeatures.Write)==0)
         throw new NotSupportedException(Strings.ExIndexPageProviderDoesntSupportWrite);
-      InternalReplace(RootPage, item);
+      var key = ToFastKey(KeyExtractor(item));
+      InternalReplace(RootPage, key, item);
     }
 
     /// <inheritdoc/>
