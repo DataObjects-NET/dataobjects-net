@@ -4,13 +4,9 @@
 // Created by: Alexey Kochetov
 // Created:    2008.07.14
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Core.Tuples;
-using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Dml;
-using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
 using SqlFactory = Xtensive.Sql.Dom.Sql;
@@ -27,7 +23,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
 
       var queryRef = SqlFactory.QueryRef(source.Request.Statement as SqlSelect);
       SqlSelect query = SqlFactory.Select(queryRef);
-      query.Columns.AddRange(provider.ColumnIndexes.Select(i => (SqlColumn)queryRef.Columns[i]));
+      query.Columns.AddRange(provider.ColumnIndexes.Select(i => (SqlColumn) queryRef.Columns[i]));
       var request = new SqlFetchRequest(query, provider.Header, source.Request.ParameterBindings);
 
       return new SqlProvider(provider, request, Handlers, source);
