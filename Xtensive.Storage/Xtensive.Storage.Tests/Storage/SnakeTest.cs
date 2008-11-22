@@ -551,19 +551,11 @@ namespace Xtensive.Storage.Tests.Storage
         using (var t = Transaction.Open()) {
           TypeInfo snakeType = Domain.Model.Types[typeof(Snake)];
           RecordSet rsSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordSet();
-          string name = "Kaa90";
-          RecordSet result = rsSnakePrimary
-            .Filter(tuple => tuple.GetValue<string>(rsSnakePrimary.Header.IndexOf(cName)).StartsWith(name))
-            .Aggregate(new[] {0}, new AggregateColumnDescriptor("Count", 1, AggregateType.Count))
-            .Filter(tuple => tuple.GetValue<long>(1) > 0);
-          Assert.Greater(result.Count(), 0);
-          Assert.IsTrue(result.ToEntities<Snake>()
-            .Where(s => s!=null && s.Name.StartsWith(name)).Count() > 1);
+          string name = "90";
 
-          result = rsSnakePrimary.Filter(tuple => tuple.GetValue<string>(rsSnakePrimary.Header.IndexOf(cName)).Contains(name));
+          RecordSet result = rsSnakePrimary.Filter(tuple => tuple.GetValue<string>(rsSnakePrimary.Header.IndexOf(cName)).Contains(name));
           Assert.Greater(result.Count(), 0);
-
-          name = "90";
+          
           result = rsSnakePrimary.Filter(tuple => tuple.GetValue<string>(rsSnakePrimary.Header.IndexOf(cName)).EndsWith(name));
           Assert.Greater(result.Count(), 0);
 
@@ -586,6 +578,15 @@ namespace Xtensive.Storage.Tests.Storage
 
           result = rsSnakePrimary.Filter(tuple => tuple.GetValue<string>(rsSnakePrimary.Header.IndexOf(cName)).Substring(3, 1) == "9");
           Assert.Greater(result.Count(), 0);
+
+          name = "Kaa90";
+          result = rsSnakePrimary
+            .Filter(tuple => tuple.GetValue<string>(rsSnakePrimary.Header.IndexOf(cName)).StartsWith(name))
+            .Aggregate(new[] { 0 }, new AggregateColumnDescriptor("Count", 1, AggregateType.Count))
+            .Filter(tuple => tuple.GetValue<long>(1) > 0);
+          Assert.Greater(result.Count(), 0);
+          Assert.IsTrue(result.ToEntities<Snake>()
+            .Where(s => s != null && s.Name.StartsWith(name)).Count() > 1);
 
           t.Complete();
         }

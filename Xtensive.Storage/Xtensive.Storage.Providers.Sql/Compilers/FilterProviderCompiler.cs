@@ -8,7 +8,9 @@ using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Providers.Sql.Expressions;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Compilation;
+using SqlFactory = Xtensive.Sql.Dom.Sql;
 using Xtensive.Storage.Rse.Providers.Compilable;
+using System.Linq;
 
 namespace Xtensive.Storage.Providers.Sql.Compilers
 {
@@ -20,7 +22,15 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
       if (source == null)
         return null;
 
-      var query = (SqlSelect)source.Request.Statement.Clone();
+      SqlSelect query;
+      if (provider.Source is AggregateProvider) {
+        var queryRef = SqlFactory.QueryRef(source.Request.Statement as SqlSelect);
+        query = SqlFactory.Select(queryRef);
+        query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
+      }
+      else
+        query = (SqlSelect) source.Request.Statement.Clone();
+
       var request = new SqlFetchRequest(query, provider.Header, source.Request.ParameterBindings);
       var visitor = new Visitor(request);
       visitor.AppendFilterToRequest(provider.Predicate);
