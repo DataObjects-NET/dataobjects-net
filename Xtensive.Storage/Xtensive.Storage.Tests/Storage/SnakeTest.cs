@@ -583,6 +583,7 @@ namespace Xtensive.Storage.Tests.Storage
           result = rsSnakePrimary
             .Filter(tuple => tuple.GetValue<string>(rsSnakePrimary.Header.IndexOf(cName)).StartsWith(name))
             .Aggregate(new[] { 0 }, new AggregateColumnDescriptor("Count", 1, AggregateType.Count))
+            .Select(0,1)
             .Filter(tuple => tuple.GetValue<long>(1) > 0);
           Assert.Greater(result.Count(), 0);
           Assert.IsTrue(result.ToEntities<Snake>()
