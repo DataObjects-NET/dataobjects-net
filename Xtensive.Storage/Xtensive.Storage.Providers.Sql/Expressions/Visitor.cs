@@ -31,7 +31,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       query.Where &= expression;
     }
 
-    public void AppendCalculationToRequest(Expression<Func<Tuple, object>> exp, string name)
+    public void AppendCalculatedColumnToRequest(Expression<Func<Tuple, object>> exp, string name)
     {
       var expression = Visit(exp);
       query.Columns.Add(expression, name);

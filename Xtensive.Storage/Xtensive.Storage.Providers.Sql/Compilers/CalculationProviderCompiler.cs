@@ -25,9 +25,9 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
       var request = new SqlFetchRequest(sqlSelect, provider.Header, source.Request.ParameterBindings);
       var visitor = new Visitor(request);
 
-      foreach (var column in provider.CalculatedColumns) {
-        visitor.AppendCalculationToRequest(column.Expression, column.Name);
-      }
+      foreach (var column in provider.CalculatedColumns)
+        visitor.AppendCalculatedColumnToRequest(column.Expression, column.Name);
+
       return new SqlProvider(provider, request, Handlers, source);
     }
 
