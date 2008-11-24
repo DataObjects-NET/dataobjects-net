@@ -146,7 +146,7 @@ namespace Xtensive.Sql.Dom.Dml
         clone.Columns.Add((SqlColumn)c.Clone(context));
       if (groupBy != null)
         foreach (SqlColumn c in groupBy)
-          clone.Columns.Add((SqlColumn)c.Clone(context));
+          clone.GroupBy.Add((SqlColumn)c.Clone(context));
       if (!SqlExpression.IsNull(where))
         clone.Where = (SqlExpression)where.Clone(context);
       if (!SqlExpression.IsNull(having))

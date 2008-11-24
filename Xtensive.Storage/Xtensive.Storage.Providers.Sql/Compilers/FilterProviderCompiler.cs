@@ -23,13 +23,13 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
         return null;
 
       SqlSelect query;
-//      if (provider.Source is AggregateProvider) {
+      if (provider.Source is AggregateProvider) {
         var queryRef = SqlFactory.QueryRef(source.Request.Statement as SqlSelect);
         query = SqlFactory.Select(queryRef);
         query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
-//      }
-//      else
-//        query = (SqlSelect) source.Request.Statement.Clone();
+      }
+      else
+        query = (SqlSelect) source.Request.Statement.Clone();
 
       var request = new SqlFetchRequest(query, provider.Header, source.Request.ParameterBindings);
       var visitor = new Visitor(request);
