@@ -6,15 +6,12 @@
 
 using System.Reflection;
 using NUnit.Framework;
-using Xtensive.Core;
 using Xtensive.Core.Testing;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Model.Association;
-using Xtensive.Integrity.Transactions;
 using System.Linq;
-using System.Collections;
 using System.Collections.Generic;
 using System;
 
@@ -25,16 +22,6 @@ namespace Xtensive.Storage.Tests.Model.Association
   {
     [Field]
     public int Id { get; private set; }
-
-    protected Root(Tuple tuple)
-      : base(tuple)
-    {
-    }
-
-    protected Root()
-    {
-      
-    }
   }
 
   [HierarchyRoot(typeof(KeyGenerator), "Id")]
@@ -42,16 +29,6 @@ namespace Xtensive.Storage.Tests.Model.Association
   {
     [Field]
     public Guid Id { get; private set; }
-
-    protected Root2(Tuple tuple)
-      : base(tuple)
-    {
-    }
-
-    protected Root2()
-    {
-
-    }
   }
 
   public class A : Root
@@ -80,16 +57,6 @@ namespace Xtensive.Storage.Tests.Model.Association
 
   public class B : Root2
   {
-    public B(int id)
-      : base(Tuple.Create(id))
-    {
-      
-    }
-
-    public B()
-    {
-      
-    }
   }
 
   public class C : Root2
@@ -121,6 +88,15 @@ namespace Xtensive.Storage.Tests.Model.Association
   {
     [Field(PairTo = "ManyToManyMaster")]
     public EntitySet<A> ManytoManyPaired { get; private set; }
+  }
+
+  public class H : Root2
+  {
+    [Field]
+    public H Parent { get; set; }
+
+    [Field(PairTo = "Parent")]
+    public EntitySet<H> Children { get; private set; }
   }
 
   public class IntermediateStructure1 : Structure
@@ -774,6 +750,19 @@ namespace Xtensive.Storage.Tests.Model
       Assert.AreEqual(currentItems.Length, items.Length);
       foreach (T item in items) {
         Assert.IsTrue(currentItems.Contains(item));
+      }
+    }
+
+    [Test]
+    public void ParentChildrenTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          H h = new H();
+          h.Children.Add(new H());
+          Assert.AreSame(h, h.Children.First().Parent);
+          // Rollback
+        }
       }
     }
   }
