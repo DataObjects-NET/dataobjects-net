@@ -371,7 +371,6 @@ namespace Xtensive.Storage
     {
       Field = field;
       Owner = owner;
-      Initialize(notify);
     }
   }
 }

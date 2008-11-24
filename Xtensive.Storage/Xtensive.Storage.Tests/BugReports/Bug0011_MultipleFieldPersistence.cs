@@ -6,11 +6,11 @@
 
 using NUnit.Framework;
 using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Tests.BugReports.Bug0005_Model;
+using Xtensive.Storage.Tests.BugReports.Bug0012_Model;
 
 namespace Xtensive.Storage.Tests.BugReports
 {
-  public class Bug0006_MultipleFieldPersistence : AutoBuildTest
+  public class Bug0011_MultipleFieldPersistence : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
     {

@@ -114,6 +114,7 @@ namespace Xtensive.Storage
     public EntitySet(Entity owner, FieldInfo field)
       : base(owner, field, true)
     {
+      Initialize(true);
     }
   }
 }

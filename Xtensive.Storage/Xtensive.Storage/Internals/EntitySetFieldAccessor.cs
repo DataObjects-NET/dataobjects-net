@@ -27,8 +27,6 @@ namespace Xtensive.Storage.Internals
         return (T)result;
       result = Activator.CreateEntitySet((Entity) obj, field, notify);
       obj.FieldHandlers.Add(field, result);
-      var es = (EntitySetBase) result;
-      es.Initialize(notify);
       return (T) result;
 
     }
