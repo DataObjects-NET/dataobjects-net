@@ -5,6 +5,7 @@
 // Created:    2008.09.23
 
 using System.Data;
+using System.Linq;
 using System.Data.Objects;
 using NUnit.Framework;
 using Xtensive.Core.Diagnostics;
@@ -133,6 +134,9 @@ namespace Xtensive.Storage.Tests.Storage.Performance
           var simplest = dataContext.Simplest;
           using (warmup ? null : new Measurement("Query", count)) {
             for (int i = 0; i < count; i++) {
+//              var query = from s in dataContext.Simplest
+//                          where s.Id == i 
+//                          select s;
               var pId = new ObjectParameter("pId", i % instanceCount);
               var query = simplest.Where("it.Id == @pId -- "+i+"\r\n", pId);
               foreach (var o in query) {

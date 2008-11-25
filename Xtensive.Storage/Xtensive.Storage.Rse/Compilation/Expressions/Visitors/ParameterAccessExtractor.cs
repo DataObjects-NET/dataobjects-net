@@ -4,12 +4,9 @@
 // Created by: Alexey Kochetov
 // Created:    2008.11.11
 
-using System;
-using System.Linq.Expressions;
-
 namespace Xtensive.Storage.Rse.Compilation.Expressions.Visitors
 {
-  public class ConstantVisitor : ExpressionVisitor
+  public sealed class ParameterAccessExtractor : ExpressionVisitor
   {
     
   }

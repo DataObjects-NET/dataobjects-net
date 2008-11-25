@@ -2,12 +2,13 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kochetov
-// Created:    2008.11.11
+// Created:    2008.11.25
 
-namespace Xtensive.Storage.Rse.Compilation.Expressions.Visitors
+namespace Xtensive.Storage.Rse.Compilation.Expressions
 {
-  public class ParameterVisitor : ExpressionVisitor
+  public enum ExtendedExpressionType
   {
-    
+    FieldAccess = 1000,
+    ParameterAccess
   }
 }

@@ -12,7 +12,7 @@ namespace Xtensive.Storage.Rse.Compilation.Expressions
   public sealed class FieldAccessExpression : Expression
   {
     public FieldAccessExpression(Type type)
-      : base(ExpressionType.Constant, type)
+      : base((ExpressionType)ExtendedExpressionType.FieldAccess, type)
     {}
   }
 }

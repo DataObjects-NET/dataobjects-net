@@ -83,7 +83,7 @@ namespace Xtensive.Storage.Rse.Compilation.Expressions.Visitors
       case ExpressionType.ListInit:
         return VisitListInit((ListInitExpression) exp);
       default:
-        throw new Exception(string.Format("Unhandled expression type: '{0}'", exp.NodeType));
+        return VisitUnknown(exp);
       }
     }
 
@@ -97,6 +97,10 @@ namespace Xtensive.Storage.Rse.Compilation.Expressions.Visitors
       return results.AsReadOnly();
     }
 
+    protected virtual TResult VisitUnknown(Expression expression)
+    {
+      throw new Exception(string.Format("Unhandled expression type: '{0}'", expression.NodeType));
+    }
 
     protected abstract TResult VisitUnary(UnaryExpression u);
     protected abstract TResult VisitBinary(BinaryExpression b);

@@ -12,7 +12,7 @@ namespace Xtensive.Storage.Rse.Compilation.Expressions
   public class ParameterAccessExpression : Expression
   {
     public ParameterAccessExpression(Type type)
-      : base(ExpressionType.Constant, type)
+      : base((ExpressionType)ExtendedExpressionType.ParameterAccess, type)
     {
     }
   }
