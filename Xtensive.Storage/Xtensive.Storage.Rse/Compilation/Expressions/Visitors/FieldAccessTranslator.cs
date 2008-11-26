@@ -6,7 +6,7 @@
 
 namespace Xtensive.Storage.Rse.Compilation.Expressions.Visitors
 {
-  public class FieldAccessExtractor : ExpressionVisitor
+  public class FieldAccessTranslator : ExpressionVisitor
   {
     
   }
