@@ -15,7 +15,7 @@ namespace Xtensive.Storage.Rse.Compilation.Expressions
 
     public override string ToString()
     {
-      return "Param : " + Binding;
+      return string.Format("Param[{0}]", Binding.Body);
     }
 
     // Constructors

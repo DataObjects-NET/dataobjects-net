@@ -5,6 +5,7 @@
 // Created:    2008.11.11
 
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using Xtensive.Core.Collections;
 
@@ -12,19 +13,43 @@ namespace Xtensive.Storage.Rse.Compilation.Expressions.Visitors
 {
   public sealed class ParameterAccessTranslator : ExpressionVisitor
   {
-    public Expression Translate (Expression expression)
+    private readonly HashSet<Expression> candidates;
+
+    public static Expression Translate(Expression expression, HashSet<Expression> candidates)
     {
-      return Visit(expression);
+      var pat = new ParameterAccessTranslator(candidates);
+      return pat.Visit(expression);
     }
 
-    protected override Expression VisitMemberAccess(MemberExpression m)
+    protected override Expression Visit(Expression exp)
     {
-      Expression e = m;
-      Type type = m.Type;
-//      if (type.IsValueType)
-//        e = Expression.Convert(e, typeof(object));
-      Expression<Func<object>> lambda = Expression.Lambda<Func<object>>(e);
+      if (exp == null)
+        return null;
+      if (candidates.Contains(exp) && exp.NodeType!=ExpressionType.Constant)
+        return ExtractParameter(exp);
+      return base.Visit(exp);
+    }
+
+    private Expression ExtractParameter(Expression expression)
+    {
+      Type type = expression.Type;
+      if (type.IsValueType)
+        expression = Expression.Convert(expression, typeof(object));
+      Expression<Func<object>> lambda = Expression.Lambda<Func<object>>(expression);
       return new ParameterAccessExpression(type, lambda);
+    }
+
+    protected override Expression VisitUnknown(Expression expression)
+    {
+      return expression;
+    }
+
+
+    // Constructor
+    
+    private ParameterAccessTranslator(HashSet<Expression> candidates)
+    {
+      this.candidates = candidates;
     }
   }
 }

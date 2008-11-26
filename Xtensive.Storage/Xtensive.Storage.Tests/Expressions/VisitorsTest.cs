@@ -49,7 +49,7 @@ namespace Xtensive.Storage.Tests.Expressions
     }
 
     [Test]
-    public void ConstantEvaluatorTest()
+    public void PreprocessorTest()
     {
       using (Domain.OpenSession()) {
         using (Transaction.Open()) {
@@ -61,72 +61,36 @@ namespace Xtensive.Storage.Tests.Expressions
           Expression<Func<Tuple, bool>> a = tuple => tuple.GetValue<string>(rsSnakePrimary.Header.IndexOf(cName)).Contains(name);
           Expression<Func<Tuple, bool>> b = tuple => tuple.GetValue<string>(rsSnakePrimary.Header.IndexOf(cName)).EndsWith(name);
           Expression<Func<Tuple, bool>> c = tuple => tuple.GetValue<int>(rsSnakePrimary.Header.IndexOf(cLength)) > 10;
-          Expression<Func<Tuple, bool>> d = tuple => tuple.GetValue<int>(rsSnakePrimary.Header.IndexOf(cLength)) * 2 * tuple.GetValue<int>(rsSnakePrimary.Header.IndexOf(cID)) > len;
+          Expression<Func<Tuple, bool>> d = tuple => tuple.GetValue<int>(rsSnakePrimary.Header.IndexOf(cLength)) * 2 * tuple.GetValue<int>(rsSnakePrimary.Header.IndexOf(cID)) > len * 3 * pLen.Value;
           Expression<Func<Tuple, bool>> e = tuple => tuple.GetValue<int>(rsSnakePrimary.Header.IndexOf(cLength)) > pLen.Value;
 
           Console.Out.WriteLine("Original");
           Console.Out.WriteLine(ExpressionWriter.WriteToString(a));
           Console.Out.WriteLine("Processed");
-          Console.Out.WriteLine(ExpressionWriter.WriteToString(ConstantEvaluator.Eval(a)));
+          Console.Out.WriteLine(ExpressionWriter.WriteToString(QueryPreprocessor.Translate(a)));
+          Console.Out.WriteLine();
           Console.Out.WriteLine("Original");
           Console.Out.WriteLine(ExpressionWriter.WriteToString(b));
           Console.Out.WriteLine("Processed");
-          Console.Out.WriteLine(ExpressionWriter.WriteToString(ConstantEvaluator.Eval(b)));
+          Console.Out.WriteLine(ExpressionWriter.WriteToString(QueryPreprocessor.Translate(b)));
+          Console.Out.WriteLine();
           Console.Out.WriteLine("Original");
           Console.Out.WriteLine(ExpressionWriter.WriteToString(c));
           Console.Out.WriteLine("Processed");
-          Console.Out.WriteLine(ExpressionWriter.WriteToString(ConstantEvaluator.Eval(c)));
+          Console.Out.WriteLine(ExpressionWriter.WriteToString(QueryPreprocessor.Translate(c)));
+          Console.Out.WriteLine();
           Console.Out.WriteLine("Original");
           Console.Out.WriteLine(ExpressionWriter.WriteToString(d));
           Console.Out.WriteLine("Processed");
-          Console.Out.WriteLine(ExpressionWriter.WriteToString(ConstantEvaluator.Eval(d)));
-//          Console.Out.WriteLine("Original");
-//          Console.Out.WriteLine(ExpressionWriter.WriteToString(e));
-//          Console.Out.WriteLine("Processed");
-//          Console.Out.WriteLine(ExpressionWriter.WriteToString(ConstantEvaluator.Eval(e)));
-        }
-      }
-    }
-
-    [Test]
-    public void ParameterAccessExtractorTest()
-    {
-      var pat = new ParameterAccessTranslator();
-      using (Domain.OpenSession()) {
-        using (Transaction.Open()) {
-          TypeInfo snakeType = Domain.Model.Types[typeof (Snake)];
-          RecordSet rsSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordSet();
-          string name = "90";
-          int len = 10;
-          var pLen = new Parameter<int>();
-          Expression<Func<Tuple, bool>> a = tuple => tuple.GetValue<string>(rsSnakePrimary.Header.IndexOf(cName)).Contains(name);
-          Expression<Func<Tuple, bool>> b = tuple => tuple.GetValue<string>(rsSnakePrimary.Header.IndexOf(cName)).EndsWith(name);
-          Expression<Func<Tuple, bool>> c = tuple => tuple.GetValue<int>(rsSnakePrimary.Header.IndexOf(cLength)) > 10;
-          Expression<Func<Tuple, bool>> d = tuple => tuple.GetValue<int>(rsSnakePrimary.Header.IndexOf(cLength)) * 2 * tuple.GetValue<int>(rsSnakePrimary.Header.IndexOf(cID)) > len;
-          Expression<Func<Tuple, bool>> e = tuple => tuple.GetValue<int>(rsSnakePrimary.Header.IndexOf(cLength)) > pLen.Value;
-
-          Console.Out.WriteLine("Original");
-          Console.Out.WriteLine(ExpressionWriter.WriteToString(a));
-          Console.Out.WriteLine("Processed");
-          Console.Out.WriteLine(ExpressionWriter.WriteToString(pat.Translate(a)));
-          Console.Out.WriteLine("Original");
-          Console.Out.WriteLine(ExpressionWriter.WriteToString(b));
-          Console.Out.WriteLine("Processed");
-          Console.Out.WriteLine(ExpressionWriter.WriteToString(pat.Translate(b)));
-          Console.Out.WriteLine("Original");
-          Console.Out.WriteLine(ExpressionWriter.WriteToString(c));
-          Console.Out.WriteLine("Processed");
-          Console.Out.WriteLine(ExpressionWriter.WriteToString(pat.Translate(c)));
-          Console.Out.WriteLine("Original");
-          Console.Out.WriteLine(ExpressionWriter.WriteToString(d));
-          Console.Out.WriteLine("Processed");
-          Console.Out.WriteLine(ExpressionWriter.WriteToString(pat.Translate(d)));
+          Console.Out.WriteLine(ExpressionWriter.WriteToString(QueryPreprocessor.Translate(d)));
+          Console.Out.WriteLine();
           Console.Out.WriteLine("Original");
           Console.Out.WriteLine(ExpressionWriter.WriteToString(e));
           Console.Out.WriteLine("Processed");
-          Console.Out.WriteLine(ExpressionWriter.WriteToString(pat.Translate(e)));
+          Console.Out.WriteLine(ExpressionWriter.WriteToString(QueryPreprocessor.Translate(e)));
         }
       }
     }
+
   }
 }

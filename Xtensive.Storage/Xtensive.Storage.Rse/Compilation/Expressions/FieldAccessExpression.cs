@@ -11,8 +11,18 @@ namespace Xtensive.Storage.Rse.Compilation.Expressions
 {
   public sealed class FieldAccessExpression : Expression
   {
-    public FieldAccessExpression(Type type)
+    public int ColumnIndex { get; private set; }
+
+    public override string ToString()
+    {
+      return string.Format("Field[{0}]", ColumnIndex);
+    }
+
+
+    public FieldAccessExpression(Type type, int columnIndex)
       : base((ExpressionType)ExtendedExpressionType.FieldAccess, type)
-    {}
+    {
+      ColumnIndex = columnIndex;
+    }
   }
 }
