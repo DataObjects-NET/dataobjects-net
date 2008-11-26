@@ -854,7 +854,9 @@ namespace Xtensive.Storage.Tests.Storage
             .OrderBy(OrderBy.Desc(rsSnakePrimary.Header.IndexOf(cName)))
             .Skip(5)
             .Take(50);
-        t.Complete();
+
+          Assert.AreEqual(15, snakesRse.Count());
+          t.Complete();
         }
       }
     }
