@@ -33,6 +33,9 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
           compiledCount = Count.Compile();
         return compiledCount;
       }
+      internal set {
+        compiledCount = value;
+      }
     }
 
     /// <inheritdoc/>

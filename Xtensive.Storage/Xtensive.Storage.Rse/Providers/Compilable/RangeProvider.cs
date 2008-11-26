@@ -38,6 +38,9 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
           compiledRange = Range.Compile();
         return compiledRange;
       }
+      internal set {
+        compiledRange = value;
+      }
     }
 
     /// <inheritdoc/>

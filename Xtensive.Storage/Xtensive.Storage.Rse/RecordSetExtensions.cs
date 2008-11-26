@@ -26,7 +26,12 @@ namespace Xtensive.Storage.Rse
       return recordSet.Provider.GetService<IListProvider>(true).GetItem(index);
     }
 
-    public static RecordSet Range(this RecordSet recordSet, Expression<Func<Range<Entire<Tuple>>>> range)
+    public static RecordSet Range(this RecordSet recordSet, Func<Range<Entire<Tuple>>> range)
+    {
+      return new RangeProvider(recordSet.Provider, ()=>range.Invoke()){CompiledRange = range}.Result;
+    }
+
+    public static RecordSet Range(this RecordSet recordSet, Expression<Func<Range<Entire<Tuple>>>> range, bool isExpression)
     {
       return new RangeProvider(recordSet.Provider, range).Result;
     }
@@ -134,7 +139,12 @@ namespace Xtensive.Storage.Rse
       return new SelectProvider(recordSet.Provider, columnIndexes).Result;
     }
 
-    public static RecordSet Seek(this RecordSet recordSet, Expression<Func<Tuple>> key)
+    public static RecordSet Seek(this RecordSet recordSet, Func<Tuple> key)
+    {
+      return new SeekProvider(recordSet.Provider, () => key.Invoke()) {CompiledKey = key}.Result;
+    }
+
+    public static RecordSet Seek(this RecordSet recordSet, Expression<Func<Tuple>> key, bool isExpression)
     {
       return new SeekProvider(recordSet.Provider, key).Result;
     }
@@ -156,7 +166,12 @@ namespace Xtensive.Storage.Rse
       return resultSet.First().GetValue<long>(0);
     }
 
-    public static RecordSet Skip(this RecordSet recordSet, Expression<Func<int>> count)
+    public static RecordSet Skip(this RecordSet recordSet, Func<int> count)
+    {
+      return new SkipProvider(recordSet.Provider, ()=>count.Invoke()){CompiledCount = count}.Result;
+    }
+
+    public static RecordSet Skip(this RecordSet recordSet, Expression<Func<int>> count, bool isExpression)
     {
       return new SkipProvider(recordSet.Provider, count).Result;
     }
@@ -166,7 +181,12 @@ namespace Xtensive.Storage.Rse
       return new SkipProvider(recordSet.Provider, count).Result;
     }
 
-    public static RecordSet Take(this RecordSet recordSet, Expression<Func<int>> count)
+    public static RecordSet Take(this RecordSet recordSet, Func<int> count)
+    {
+      return new TakeProvider(recordSet.Provider, ()=>count.Invoke()){CompiledCount = count}.Result;
+    }
+
+    public static RecordSet Take(this RecordSet recordSet, Expression<Func<int>> count, bool isExpression)
     {
       return new TakeProvider(recordSet.Provider, count).Result;
     }

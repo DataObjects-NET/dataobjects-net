@@ -36,6 +36,9 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
           compiledKey = Key.Compile();
         return compiledKey;
       }
+      internal set {
+        compiledKey = value;
+      }
     }
 
 
