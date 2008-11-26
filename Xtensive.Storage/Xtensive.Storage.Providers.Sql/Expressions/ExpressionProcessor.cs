@@ -9,13 +9,14 @@ using System.Linq.Expressions;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Tuples;
 using Xtensive.Sql.Dom.Dml;
+using Xtensive.Storage.Rse.Compilation.Expressions;
 using Xtensive.Storage.Rse.Compilation.Expressions.Visitors;
 using SqlFactory = Xtensive.Sql.Dom.Sql;
 using System.Linq;
 
 namespace Xtensive.Storage.Providers.Sql.Expressions
 {
-  internal class Visitor : Visitor<SqlExpression>
+  internal class ExpressionProcessor : Visitor<SqlExpression>
   {
     private readonly SqlFetchRequest request;
     private readonly SqlSelect query;
@@ -27,14 +28,43 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
 
     public void AppendFilterToRequest(Expression<Func<Tuple,bool>> exp)
     {
-      var expression = Visit(exp);
-      query.Where &= expression;
+      var expression = QueryPreprocessor.Translate(exp);
+      var result = Visit(expression);
+      query.Where &= result;
     }
 
     public void AppendCalculatedColumnToRequest(Expression<Func<Tuple, object>> exp, string name)
     {
-      var expression = Visit(exp);
-      query.Columns.Add(expression, name);
+      var expression = QueryPreprocessor.Translate(exp);
+      var result = Visit(expression);
+      query.Columns.Add(result, name);
+    }
+
+    protected override SqlExpression VisitUnknown(Expression expression)
+    {
+      var type = (ExtendedExpressionType) expression.NodeType;
+      switch (type) {
+        case ExtendedExpressionType.FieldAccess:
+          return VisitFieldAccess((FieldAccessExpression)expression);
+        case ExtendedExpressionType.ParameterAccess:
+          return VisitParameterAccess((ParameterAccessExpression)expression);
+        default:
+          throw new ArgumentOutOfRangeException();
+      }
+    }
+
+    private SqlExpression VisitParameterAccess(ParameterAccessExpression expression)
+    {
+      var binding = new SqlFetchParameterBinding(expression.Binding.Compile());
+      request.ParameterBindings.Add(binding);
+      return binding.SqlParameter;
+
+    }
+
+    private SqlExpression VisitFieldAccess(FieldAccessExpression expression)
+    {
+      var sqlSelect = (SqlSelect)request.Statement;
+      return sqlSelect[expression.ColumnIndex];
     }
 
     protected override SqlExpression VisitUnary(UnaryExpression expression)
@@ -132,39 +162,13 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       throw new NotSupportedException();
     }
 
-    protected override SqlExpression VisitMemberAccess(MemberExpression expression)
+    protected override SqlExpression VisitMemberAccess(MemberExpression m)
     {
-      if (expression.Expression.NodeType == ExpressionType.Constant) {
-        var lambda = Expression.Lambda(expression).Compile();
-        var binding = new SqlFetchParameterBinding(() => lambda.DynamicInvoke(ArrayUtils<object>.EmptyArray));
-        request.ParameterBindings.Add(binding);
-        return binding.SqlParameter;
-      }
-      if (expression.Expression.NodeType == ExpressionType.MemberAccess && expression.Expression.Type.BaseType == typeof(Core.Parameters.Parameter)) {
-        var lambda = Expression.Lambda(expression).Compile();
-        var binding = new SqlFetchParameterBinding(() => lambda.DynamicInvoke(ArrayUtils<object>.EmptyArray));
-        request.ParameterBindings.Add(binding);
-        return binding.SqlParameter;
-      }
       throw new NotSupportedException();
     }
 
     protected override SqlExpression VisitMethodCall(MethodCallExpression expression)
     {
-      if (expression.Object.Type == typeof(Tuple)) {
-        if (expression.Method.Name == "GetValue" || expression.Method.Name == "GetValueOrDefault") {
-          var columnArgument = expression.Arguments[0];
-          int columnIndex;
-          if (columnArgument.NodeType==ExpressionType.Constant)
-            columnIndex = (int) ((ConstantExpression) columnArgument).Value;
-          else {
-            var columnFunc = Expression.Lambda<Func<int>>(columnArgument).Compile();
-            columnIndex = columnFunc();
-          }
-          var sqlSelect = (SqlSelect)request.Statement;
-          return sqlSelect[columnIndex];
-        }
-      }
       var map = MethodMapping.GetMapping(expression.Method);
       var target = Visit(expression.Object);
       var arguments = expression.Arguments.Select(a => Visit(a)).ToArray();
@@ -201,10 +205,10 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       throw new NotSupportedException();
     }
 
-    
+
     // Constructor
 
-    public Visitor(SqlFetchRequest request)
+    public ExpressionProcessor(SqlFetchRequest request)
     {
       this.request = request;
       query = (SqlSelect)request.Statement;
