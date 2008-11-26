@@ -100,6 +100,10 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void BuildPairSyncActions(AssociationInfo association)
     {
+      if (BuildingContext.Current.Domain.PairSyncActions.ContainsKey(association))
+        throw new DomainBuilderException(string.Format(Strings.ExPairToAttributeCanNotBeAppliedToXField,
+          association.ReferencingField, association.Reversed.ReferencingField));
+
       Func<Entity, bool, Entity> getValue = null;
       Action<Entity, Entity, bool> @break;
       Action<Entity, Entity, bool> create;
@@ -127,10 +131,6 @@ namespace Xtensive.Storage.Building.Builders
         return;
       }
       var actionSet = new ActionSet(getValue, @break, create);
-
-      if (BuildingContext.Current.Domain.PairSyncActions.ContainsKey(association))
-        throw new DomainBuilderException(string.Format(Strings.ExPairToAttributeCanNotBeAppliedToXField,
-          association.ReferencingField, association.Reversed.ReferencingField));
 
       BuildingContext.Current.Domain.PairSyncActions.Add(association, actionSet);
     }
