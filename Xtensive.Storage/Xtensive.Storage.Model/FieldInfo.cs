@@ -314,7 +314,8 @@ namespace Xtensive.Storage.Model
         declaringType = value.DeclaringType;
         IsDeclared = value.IsDeclared;
         IsPrimaryKey = value.IsPrimaryKey;
-        IsNullable = value.IsNullable;
+        if (value.IsEntity)
+          IsNullable = value.IsNullable;
         association = value.association;
         itemType = value.itemType;
       }

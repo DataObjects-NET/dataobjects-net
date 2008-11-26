@@ -19,12 +19,27 @@ namespace Xtensive.Storage.Tests.Bug0007_Model
 
     [Field]
     public Address Address { get; set; }
+
+    [Field]
+    public City City { get; set; }
   }
 
   public class Address : Structure
   {
     [Field]
     public string Street { get; set; }
+
+    [Field]
+    public int House { get; set; }
+  }
+
+  [HierarchyRoot(typeof(KeyGenerator), "ID")]
+  public class City : Entity
+  {
+    [Field]
+    public int ID { get; private set; }
+
+    public string Name { get; set; }
   }
 }
 
@@ -43,6 +58,9 @@ namespace Xtensive.Storage.Tests.BugReports
     public void MainTest()
     {
       Assert.AreEqual(true, Domain.Model.Types[typeof (Person)].Fields["Address.Street"].IsNullable);
+      Assert.AreEqual(false, Domain.Model.Types[typeof (Person)].Fields["Address.House"].IsNullable);
+      Assert.AreEqual(true, Domain.Model.Types[typeof (Person)].Fields["City"].IsNullable);
+      Assert.AreEqual(true, Domain.Model.Types[typeof (Person)].Fields["City.ID"].IsNullable);
     }
   }
 }
