@@ -504,4 +504,7 @@
   <data name="ExCantAssociateNonEmptyEntityStateWithKeyOfUnknownType" xml:space="preserve">
     <value>Attempt to associate non-empty EntityState with Key of unknown type.</value>
   </data>
+  <data name="ExPairToAttributeCanNotBeAppliedToXField" xml:space="preserve">
+    <value>'PairTo' attribute can not be applied to field '{0}'. It is already applied to field '{1}'.</value>
+  </data>
 </root>
