@@ -7,6 +7,8 @@
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
+using SqlFactory = Xtensive.Sql.Dom.Sql;
+using System.Linq;
 
 namespace Xtensive.Storage.Providers.Sql.Compilers
 {
@@ -18,8 +20,10 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
       if (source == null)
         return null;
 
-      var query = (SqlSelect)source.Request.Statement.Clone();
-      query.Offset += provider.CompiledCount();
+      var queryRef = SqlFactory.QueryRef(source.Request.Statement as SqlSelect);
+      var query = SqlFactory.Select(queryRef);
+      query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
+      query.Offset = provider.CompiledCount();
       var request = new SqlFetchRequest(query, provider.Header, source.Request.ParameterBindings);
       return new SqlProvider(provider, request, Handlers, source);
     }
