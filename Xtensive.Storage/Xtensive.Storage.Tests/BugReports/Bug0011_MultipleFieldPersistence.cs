@@ -30,6 +30,7 @@ namespace Xtensive.Storage.Tests.BugReports
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var e1 = new MyEntity();
+          e1.Field3 = 3;
           Session.Current.Persist();
           e1.Field3 = 3;
           Session.Current.Persist();

@@ -21,7 +21,7 @@ namespace Xtensive.Storage
   /// </summary>
   public sealed class EntityState : TransactionalStateContainer<DifferentialTuple>
   {
-    private Key key;
+    private readonly Key key;
     private PersistenceState persistenceState;
     private Entity entity;
 
