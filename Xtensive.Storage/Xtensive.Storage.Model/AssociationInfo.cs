@@ -167,7 +167,10 @@ namespace Xtensive.Storage.Model
         break;
       case Multiplicity.ZeroToMany:
       case Multiplicity.ManyToMany:
-        UnderlyingIndex = underlyingType.Indexes.Where(indexInfo => indexInfo.IsSecondary).Skip(IsMaster ? 1 : 0).First();
+        if (IsMaster)
+          UnderlyingIndex = underlyingType.Indexes.Where(indexInfo => indexInfo.IsSecondary).Skip(1).First();
+        else
+          UnderlyingIndex = Reversed.UnderlyingType.Indexes.Where(indexInfo => indexInfo.IsSecondary).  First();
         break;
       }
       if (ForeignKeyExtractorTransform == null) {

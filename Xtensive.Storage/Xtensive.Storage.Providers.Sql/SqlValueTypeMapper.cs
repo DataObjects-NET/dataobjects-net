@@ -171,6 +171,8 @@ namespace Xtensive.Storage.Providers.Sql
       case TypeCode.Object:
         if (dataTypeInfo.Type==typeof (byte[]))
           return DbType.Binary;
+        if (dataTypeInfo.Type == typeof(Guid))
+          return DbType.Guid;
         throw new ArgumentOutOfRangeException();
       case TypeCode.Boolean:
         return DbType.Boolean;

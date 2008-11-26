@@ -62,6 +62,8 @@ namespace Xtensive.Storage.Building.Builders
       if (master.Reversed!=null && master.Reversed!=slave)
         throw new InvalidOperationException(String.Format(Strings.ExMasterAssociationIsAlreadyPaired, master.Name, master.Reversed.Name));
 
+      slave.IsMaster = false;
+
       master.Reversed = slave;
       slave.Reversed = master;
 

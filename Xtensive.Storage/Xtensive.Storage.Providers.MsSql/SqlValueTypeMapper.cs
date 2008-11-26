@@ -42,10 +42,6 @@ namespace Xtensive.Storage.Providers.MsSql
       Type type = dataTypeInfo.Type;
       TypeCode typeCode = Type.GetTypeCode(type);
       switch (typeCode) {
-      case TypeCode.Object:
-        if (dataTypeInfo.Type == typeof(Guid))
-          return DbType.Guid;
-        break;
       case TypeCode.SByte:
         return DbType.Int16;
       case TypeCode.UInt16:
