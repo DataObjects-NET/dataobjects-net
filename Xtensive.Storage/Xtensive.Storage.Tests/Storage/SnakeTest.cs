@@ -855,7 +855,13 @@ namespace Xtensive.Storage.Tests.Storage
             .Skip(5)
             .Take(50);
 
-          Assert.AreEqual(15, snakesRse.Count());
+          using (new ParameterScope()) {
+            pID.Value = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(21)), new Entire<Tuple>(Tuple.Create(120)));
+            pName.Value = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create("Kaa")), new Entire<Tuple>(Tuple.Create("Kaa900")));
+            pLength.Value = 100;
+            Assert.AreEqual(15, result.Count());
+          }
+
           t.Complete();
         }
       }
