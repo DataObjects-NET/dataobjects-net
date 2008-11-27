@@ -81,7 +81,8 @@ namespace Xtensive.Core.Tuples
     {
       if (difference==null)
         return;
-      origin.ToRegular().MergeWith(difference, 0, origin.Descriptor.Count, MergeBehavior.PreferDifference);
+      origin = origin.ToRegular();
+      origin.MergeWith(difference, 0, origin.Descriptor.Count, MergeBehavior.PreferDifference);
       difference = null;
     }
 
