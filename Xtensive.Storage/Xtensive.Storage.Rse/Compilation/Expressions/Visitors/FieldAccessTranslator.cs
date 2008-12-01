@@ -23,7 +23,8 @@ namespace Xtensive.Storage.Rse.Compilation.Expressions.Visitors
 
     protected override Expression VisitMethodCall(MethodCallExpression expression)
     {
-      if (expression.Object.Type == typeof(Tuple)) {
+
+      if (expression.Object != null && expression.Object.Type == typeof(Tuple)) {
         if (expression.Method.Name == "GetValue" || expression.Method.Name == "GetValueOrDefault") {
           var type = expression.Method.ReturnType;
           var columnArgument = expression.Arguments[0];

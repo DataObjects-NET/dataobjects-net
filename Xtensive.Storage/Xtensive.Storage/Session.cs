@@ -86,16 +86,17 @@ namespace Xtensive.Storage
       }
     }
 
-    public IEnumerable<T> All<T>() 
+    public Query<T> All<T>() 
       where T : class, IEntity
     {      
       EnsureNotDisposed();
       Persist();
 
-      TypeInfo type = Domain.Model.Types[typeof (T)];
-      RecordSet result = type.Indexes.PrimaryIndex.ToRecordSet();
-      foreach (T entity in result.ToEntities<T>())
-        yield return entity;
+      return new Query<T>(Handler.LinqProvider);
+//      TypeInfo type = Domain.Model.Types[typeof (T)];
+//      RecordSet result = type.Indexes.PrimaryIndex.ToRecordSet();
+//      foreach (T entity in result.ToEntities<T>())
+//        yield return entity;
     }
 
     /// <summary>

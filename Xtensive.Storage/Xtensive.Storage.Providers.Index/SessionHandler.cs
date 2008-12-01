@@ -5,11 +5,13 @@
 // Created:    2008.07.01
 
 using System;
+using System.Linq;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Indexing;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers.Index.Resources;
+using Xtensive.Storage.Rse.Compilation.Linq;
 
 namespace Xtensive.Storage.Providers.Index
 {
@@ -98,6 +100,7 @@ namespace Xtensive.Storage.Providers.Index
 
     public override void Initialize()
     {
+      LinqProvider = new RseQueryProvider(Session.Domain.Model);
       // TODO: Think what should be done here.
     }
 

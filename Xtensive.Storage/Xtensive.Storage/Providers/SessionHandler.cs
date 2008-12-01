@@ -5,6 +5,7 @@
 // Created:    2008.05.19
 
 using System;
+using System.Linq;
 
 namespace Xtensive.Storage.Providers
 {
@@ -18,6 +19,11 @@ namespace Xtensive.Storage.Providers
     /// Gets the current <see cref="Session"/>.
     /// </summary>
     public Session Session { get; internal set; }
+
+    /// <summary>
+    /// Gets the <see cref="IQueryProvider"/> implementation.
+    /// </summary>
+    public IQueryProvider LinqProvider { get; protected set; }
 
     /// <summary>
     /// Opens the transaction.

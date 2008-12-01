@@ -13,6 +13,36 @@ namespace Xtensive.Storage.Rse.Compilation.Expressions.Visitors
 {
   public sealed class ParameterAccessTranslator : ExpressionVisitor
   {
+    #region Nested helper classes
+
+    class MemberAccessChecker : ExpressionVisitor
+    {
+      private bool containsMemberAccess;
+
+      public static bool ContainsMemberAccess(Expression expression)
+      {
+        var mac = new MemberAccessChecker();
+        mac.Visit(expression);
+        return mac.containsMemberAccess;
+      }
+
+      protected override Expression VisitMemberAccess(MemberExpression m)
+      {
+        containsMemberAccess = true;
+        return base.VisitMemberAccess(m);
+      }
+
+      protected override Expression VisitUnknown(Expression expression)
+      {
+        return expression;
+      }
+
+      private MemberAccessChecker()
+      {}
+    }
+
+    #endregion
+    
     private readonly HashSet<Expression> candidates;
 
     public static Expression Translate(Expression expression, HashSet<Expression> candidates)
@@ -25,7 +55,7 @@ namespace Xtensive.Storage.Rse.Compilation.Expressions.Visitors
     {
       if (exp == null)
         return null;
-      if (candidates.Contains(exp) && exp.NodeType!=ExpressionType.Constant)
+      if (candidates.Contains(exp) && MemberAccessChecker.ContainsMemberAccess(exp))
         return ExtractParameter(exp);
       return base.Visit(exp);
     }

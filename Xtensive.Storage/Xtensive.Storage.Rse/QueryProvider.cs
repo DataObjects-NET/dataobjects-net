@@ -9,11 +9,14 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core.Reflection;
+using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Rse
 {
   public abstract class QueryProvider : IQueryProvider
   {
+    public DomainModel Model { get; private set; }
+
     IQueryable IQueryProvider.CreateQuery(Expression expression)
     {
       Type elementType = TypeHelper.GetElementType(expression.Type);
@@ -42,5 +45,13 @@ namespace Xtensive.Storage.Rse
     }
 
     protected abstract object Execute(Expression expression);
+
+
+    // Constructor
+
+    protected QueryProvider(DomainModel model)
+    {
+      Model = model;
+    }
   }
 }

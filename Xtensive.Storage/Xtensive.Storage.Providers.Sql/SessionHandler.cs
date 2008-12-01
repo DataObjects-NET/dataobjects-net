@@ -13,6 +13,7 @@ using Xtensive.Core.Disposable;
 using Xtensive.Core.Tuples;
 using Xtensive.Sql.Dom;
 using Xtensive.Storage.Providers.Sql.Resources;
+using Xtensive.Storage.Rse.Compilation.Linq;
 
 namespace Xtensive.Storage.Providers.Sql
 {
@@ -195,6 +196,7 @@ namespace Xtensive.Storage.Providers.Sql
     public override void Initialize()
     {
       DomainHandler = Handlers.DomainHandler as DomainHandler;
+      LinqProvider = new RseQueryProvider(Session.Domain.Model);
     }
 
     /// <inheritdoc/>
