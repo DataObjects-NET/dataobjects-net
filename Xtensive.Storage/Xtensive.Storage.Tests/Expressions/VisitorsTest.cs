@@ -63,6 +63,7 @@ namespace Xtensive.Storage.Tests.Expressions
           Expression<Func<Tuple, bool>> c = tuple => tuple.GetValue<int>(rsSnakePrimary.Header.IndexOf(cLength)) > 10;
           Expression<Func<Tuple, bool>> d = tuple => tuple.GetValue<int>(rsSnakePrimary.Header.IndexOf(cLength)) * 2 * tuple.GetValue<int>(rsSnakePrimary.Header.IndexOf(cID)) > len * 3 * pLen.Value;
           Expression<Func<Tuple, bool>> e = tuple => tuple.GetValue<int>(rsSnakePrimary.Header.IndexOf(cLength)) > pLen.Value;
+          Expression<Func<Tuple, bool>> f = tuple => tuple.GetValue<string>(rsSnakePrimary.Header.IndexOf(cName)).Length > pLen.Value;
 
           Console.Out.WriteLine("Original");
           Console.Out.WriteLine(ExpressionWriter.WriteToString(a));
@@ -88,6 +89,11 @@ namespace Xtensive.Storage.Tests.Expressions
           Console.Out.WriteLine(ExpressionWriter.WriteToString(e));
           Console.Out.WriteLine("Processed");
           Console.Out.WriteLine(ExpressionWriter.WriteToString(QueryPreprocessor.Translate(e)));
+          Console.Out.WriteLine();
+          Console.Out.WriteLine("Original");
+          Console.Out.WriteLine(ExpressionWriter.WriteToString(f));
+          Console.Out.WriteLine("Processed");
+          Console.Out.WriteLine(ExpressionWriter.WriteToString(QueryPreprocessor.Translate(f)));
         }
       }
     }
