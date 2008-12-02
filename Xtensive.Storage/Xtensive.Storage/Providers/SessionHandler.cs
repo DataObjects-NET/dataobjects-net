@@ -50,6 +50,8 @@ namespace Xtensive.Storage.Providers
         data.Tuple.Merge();
       }
       foreach (EntityState data in Session.EntityStateRegistry.GetItems(PersistenceState.Modified)) {
+        if (data.IsRemoved)
+          continue;
         Update(data);
         data.Tuple.Merge();
       }

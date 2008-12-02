@@ -28,7 +28,7 @@ namespace Xtensive.Storage.Tests.Bug0014_Model
 }
 namespace Xtensive.Storage.Tests.BugReports
 {
-  public class Bug0014_SymmetricMNRelationshipIsUnsupported : AutoBuildTest
+  public class Bug0014_SymmetricRelationshipIsUnsupported : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
     {

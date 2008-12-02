@@ -8,7 +8,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Xtensive.Core;
-using Xtensive.Core.Aspects;
 using Xtensive.Core.Caching;
 using Xtensive.Core.Internals.DocTemplates;
 
@@ -26,7 +25,6 @@ namespace Xtensive.Storage.Internals
     #region IHasVersion<...> methods
 
     /// <inheritdoc/>
-    [Infrastructure]
     public long Version { get; private set; }
 
     /// <inheritdoc/>
@@ -37,7 +35,6 @@ namespace Xtensive.Storage.Internals
 
     #endregion
 
-    [Infrastructure]
     public bool IsFullyLoaded
     {
       get
@@ -47,7 +44,6 @@ namespace Xtensive.Storage.Internals
       }
     }
 
-    [Infrastructure]
     public long Count
     {
       get

@@ -157,8 +157,6 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     protected override void Update(EntityState state)
     {
-      if (state.Tuple == null)
-      return;
       var task = new SqlRequestBuilderTask(SqlUpdateRequestKind.Update, state.Type, state.Tuple.Difference.GetFieldStateMap(TupleFieldState.IsAvailable));
       var request = DomainHandler.SqlRequestCache.GetValue(task, _task => DomainHandler.SqlRequestBuilder.Build(_task));
       request.BindParameters(state.Tuple);
