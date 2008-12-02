@@ -9,6 +9,7 @@ using System.Linq.Expressions;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse.Compilation.Expressions.Visitors;
+using Xtensive.Storage;
 
 namespace Xtensive.Storage.Rse.Compilation.Linq
 {
@@ -17,7 +18,7 @@ namespace Xtensive.Storage.Rse.Compilation.Linq
     protected override object Execute(Expression expression)
     {
       expression = QueryPreprocessor.Translate(expression);
-      RecordSet result = RseQueryTranslator.Translate(expression);
+      RecordSet result = RseQueryTranslator.Translate(expression, this);
       throw new NotImplementedException();
     }
 

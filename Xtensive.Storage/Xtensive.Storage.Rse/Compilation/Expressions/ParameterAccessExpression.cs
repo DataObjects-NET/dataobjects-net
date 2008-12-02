@@ -9,7 +9,7 @@ using System.Linq.Expressions;
 
 namespace Xtensive.Storage.Rse.Compilation.Expressions
 {
-  public class ParameterAccessExpression : Expression
+  public class ParameterAccessExpression : ExtendedExpression
   {
     public Expression<Func<object>> Binding { get; private set; }
 
@@ -21,7 +21,7 @@ namespace Xtensive.Storage.Rse.Compilation.Expressions
     // Constructors
 
     public ParameterAccessExpression(Type type, Expression<Func<object>> binding)
-      : base((ExpressionType)ExtendedExpressionType.ParameterAccess, type)
+      : base(ExtendedExpressionType.ParameterAccess, type)
     {
       Binding = binding;
     }

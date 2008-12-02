@@ -27,6 +27,25 @@ namespace Xtensive.Storage.Tests.Linq
       return result;
     }
 
+    [TestFixtureSetUp]
+    public void SetUp()
+    {
+      const int snakesCount = 100;
+      const int creaturesCount = 100;
+      const int lizardsCount = 100;
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          for (int i = 0; i < snakesCount; i++)
+            new Snake {Name = ("Kaa" + i), Length = i};
+          for (int j = 0; j < creaturesCount; j++)
+            new Creature {Name = ("Creature" + j)};
+          for (int i = 0; i < lizardsCount; i++)
+            new Lizard {Name = ("Lizard" + i), Color = ("Color" + i)};
+          t.Complete();
+        }
+      }
+    }
+
     [Test]
     public void Test()
     {

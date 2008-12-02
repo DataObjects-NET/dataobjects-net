@@ -2,16 +2,17 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kochetov
-// Created:    2008.11.25
+// Created:    2008.12.02
+
+using System;
 
 namespace Xtensive.Storage.Rse.Compilation.Expressions
 {
-  public enum ExtendedExpressionType
+  public sealed class RangeExpression : ExtendedExpression
   {
-    FieldAccess = 1000,
-    ParameterAccess,
-    IndexAccess,
-    Range,
-    Seek
+    public RangeExpression(Type type)
+      : base(ExtendedExpressionType.Range, type)
+    {
+    }
   }
 }
