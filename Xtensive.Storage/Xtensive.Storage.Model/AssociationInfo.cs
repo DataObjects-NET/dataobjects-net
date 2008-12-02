@@ -32,33 +32,6 @@ namespace Xtensive.Storage.Model
     }
 
     /// <summary>
-    /// Gets a value indicating whether this instance is paired.
-    /// </summary>
-    public bool IsPaired
-    {
-      get { return reversed!=null; }
-    }
-
-    /// <summary>
-    /// Gets master association.
-    /// </summary>
-    /// <remarks>
-    /// If association is master, returns it. Otherwise returns paired association.
-    /// </remarks>
-    /// <exception cref="InvalidOperationException">Unable to find master association.</exception>
-    public AssociationInfo Master
-    {
-      get
-      {
-        if (isMaster) 
-          return this;
-        if (reversed==null || !reversed.isMaster) 
-          throw new InvalidOperationException(String.Format(Strings.ExUnableToFindMasterAssociation, Name));
-        return reversed;
-      }
-    }
-
-    /// <summary>
     /// Gets the referencing field.
     /// </summary>
     public FieldInfo ReferencingField { get; private set; }
@@ -82,17 +55,10 @@ namespace Xtensive.Storage.Model
     }
 
     /// <summary>
-    /// Gets the association multiplicity.
+    /// Gets the underlying index for this instance.
     /// </summary>
-    public Multiplicity Multiplicity
-    {
-      get { return multiplicity; }
-      set
-      {
-        this.EnsureNotLocked();
-        multiplicity = value;
-      }
-    }
+    /// <value>The underlying index.</value>
+    public IndexInfo UnderlyingIndex { get; private set; }
 
     /// <summary>
     /// Gets a value indicating whether this instance is master association.
@@ -111,9 +77,52 @@ namespace Xtensive.Storage.Model
     }
 
     /// <summary>
-    /// Gets the <see cref="ReferentialAction"/> that will be applied on <see cref="ReferencedType"/> object removal.
+    /// Gets a value indicating whether this instance is paired.
     /// </summary>
-    public ReferentialAction OnRemove { get; private set; }
+    public bool IsPaired
+    {
+      get { return reversed!=null; }
+    }
+
+    /// <summary>
+    /// Gets a value indicating whether this instance represents loop.
+    /// </summary>
+    public bool IsLoop
+    {
+      get { return IsPaired && Reversed == this; }
+    }
+
+    /// <summary>
+    /// Gets master association.
+    /// </summary>
+    /// <remarks>
+    /// If association is master, returns it. Otherwise returns paired association.
+    /// </remarks>
+    /// <exception cref="InvalidOperationException">Unable to find master association.</exception>
+    public AssociationInfo Master
+    {
+      get
+      {
+        if (isMaster) 
+          return this;
+        if (reversed==null || !reversed.isMaster) 
+          throw new InvalidOperationException(String.Format(Strings.ExUnableToFindMasterAssociation, Name));
+        return reversed;
+      }
+    }
+
+    /// <summary>
+    /// Gets the association multiplicity.
+    /// </summary>
+    public Multiplicity Multiplicity
+    {
+      get { return multiplicity; }
+      set
+      {
+        this.EnsureNotLocked();
+        multiplicity = value;
+      }
+    }
 
     /// <summary>
     /// Gets or sets the reversed paired <see cref="AssociationInfo"/> for this instance.
@@ -129,10 +138,9 @@ namespace Xtensive.Storage.Model
     }
 
     /// <summary>
-    /// Gets the underlying index for this instance.
+    /// Gets the <see cref="ReferentialAction"/> that will be applied on <see cref="ReferencedType"/> object removal.
     /// </summary>
-    /// <value>The underlying index.</value>
-    public IndexInfo UnderlyingIndex { get; private set; }
+    public ReferentialAction OnRemove { get; private set; }
 
     /// <summary>
     /// Gets the foreign key extraction transform.
@@ -170,7 +178,7 @@ namespace Xtensive.Storage.Model
         if (IsMaster)
           UnderlyingIndex = underlyingType.Indexes.Where(indexInfo => indexInfo.IsSecondary).Skip(1).First();
         else
-          UnderlyingIndex = Reversed.UnderlyingType.Indexes.Where(indexInfo => indexInfo.IsSecondary).  First();
+          UnderlyingIndex = Reversed.UnderlyingType.Indexes.Where(indexInfo => indexInfo.IsSecondary).First();
         break;
       }
       if (ForeignKeyExtractorTransform == null) {

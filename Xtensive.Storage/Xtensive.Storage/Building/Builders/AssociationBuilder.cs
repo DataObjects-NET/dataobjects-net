@@ -53,9 +53,6 @@ namespace Xtensive.Storage.Building.Builders
         throw new DomainBuilderException(
           string.Format(Strings.PairedFieldXHasInsufficientTypeItShouldBeReferenceToEntityOrAEntitySet, masterFieldName));
 
-      if (slave.ReferencingField==masterField)
-        throw new DomainBuilderException(
-          string.Format(Strings.ReferencedFieldXAndPairedFieldAreEqual, slave.ReferencingField.Name));
 
       FieldInfo pairedField = slave.ReferencingField;
       AssociationInfo master = masterField.Association;
@@ -63,6 +60,7 @@ namespace Xtensive.Storage.Building.Builders
         throw new InvalidOperationException(String.Format(Strings.ExMasterAssociationIsAlreadyPaired, master.Name, master.Reversed.Name));
 
       slave.IsMaster = false;
+      master.IsMaster = true;
 
       master.Reversed = slave;
       slave.Reversed = master;
@@ -95,7 +93,8 @@ namespace Xtensive.Storage.Building.Builders
       }
 
       BuildPairSyncActions(master);
-      BuildPairSyncActions(slave);
+      if (!master.IsLoop)
+        BuildPairSyncActions(slave);
     }
 
     private static void BuildPairSyncActions(AssociationInfo association)

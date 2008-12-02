@@ -5,6 +5,7 @@
 // Created:    2008.11.26
 
 
+using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Storage.Attributes;
@@ -24,6 +25,9 @@ namespace Xtensive.Storage.Tests.Bug0014_Model
 
     [Field(PairTo = "Friends")]
     public EntitySet<Person> Friends { get; set; }
+
+    [Field(PairTo = "BestFriend")]
+    public Person BestFriend { get; set;}
   }
 }
 namespace Xtensive.Storage.Tests.BugReports
@@ -38,30 +42,63 @@ namespace Xtensive.Storage.Tests.BugReports
     }
 
     [Test]
-    public void MainTest()
+    public void ManyToManyTest()
     {
       using (Domain.OpenSession()) {
-        Person person1, friend1, friend2;
         using (var t = Transaction.Open()) {
-          person1 = new Person {Name = "Person1"};
-          friend1 = new Person {Name = "Friend1"};
-          friend2 = new Person {Name = "Friend2"};
+          Person first = new Person {Name = "First"};
+          Person second = new Person {Name = "Second"};
+          Person third = new Person {Name = "Third"};
 
-          person1.Friends.Add(friend1);
-          person1.Friends.Add(friend2);
-          
-          //Session.Current.Persist();
+          first.Friends.Add(second);
+          first.Friends.Add(third);
+          Assert.AreEqual(2,first.Friends.Count);
+          Assert.AreSame(first, first.Friends.First().Friends.First());
+          Assert.AreSame(first, first.Friends.Skip(1).First().Friends.First());
+
+          first.Friends.Add(first);
+          Assert.AreEqual(3,first.Friends.Count);
+
+          first.Friends.Remove(first);
+          Assert.AreEqual(2,first.Friends.Count);
+
           t.Complete();
-        }
-        using (var t = Transaction.Open()) {
-          Assert.AreEqual(2,person1.Friends.Count);
         }
       }
     }
 
-    private void Fill()
+
+    [Test]
+    public void OneToOneTest()
     {
-      
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          Person first = new Person {Name = "First"};
+          Person second = new Person {Name = "Second"};
+          Person third = new Person {Name = "Third"};
+
+          first.BestFriend = second;
+          Assert.AreSame(first.BestFriend, second);
+          Assert.AreSame(first, second.BestFriend);
+
+          first.BestFriend = third;
+          Assert.AreSame(first.BestFriend, third);
+          Assert.AreSame(first, third.BestFriend);
+          Assert.AreSame(null, second.BestFriend);
+
+          first.BestFriend = null;
+          Assert.AreSame(null, first.BestFriend);
+          Assert.AreSame(null, third.BestFriend);
+
+          first.BestFriend = first;
+          Assert.AreSame(first.BestFriend, first);
+
+          first.BestFriend = null;
+          Assert.AreSame(null, first.BestFriend);
+
+          t.Complete();
+        }
+      }
     }
   }
 }

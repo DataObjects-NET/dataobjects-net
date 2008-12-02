@@ -57,20 +57,23 @@ namespace Xtensive.Storage.PairIntegrity
             context.RegisterParticipant(slave1, association.Reversed);
           }
           // Setting new association value for slave
-          if (slave2!=null) {
+          if (slave2!=null && !(association.IsLoop && master1 == slave2)) {
             context.RegisterAction(slaveActions.CreateAssociation, slave2, master1, notify);
             context.RegisterParticipant(slave2, association.Reversed);
           }
           break;
         case OperationType.Remove:
-          context.RegisterAction(slaveActions.BreakAssociation, slave2, master1, notify);
-          context.RegisterParticipant(slave2, association.Reversed);
+          if (!(association.IsLoop && master1 == slave2)) {
+            context.RegisterAction(slaveActions.BreakAssociation, slave2, master1, notify);
+            context.RegisterParticipant(slave2, association.Reversed);
+          }
           break;
         default:
           throw new ArgumentOutOfRangeException();
         }
 
-        context.ExecuteNextAction();
+        if (context.HasNextAction())
+          context.ExecuteNextAction();
         contextStack.Pop();
       }
     }
