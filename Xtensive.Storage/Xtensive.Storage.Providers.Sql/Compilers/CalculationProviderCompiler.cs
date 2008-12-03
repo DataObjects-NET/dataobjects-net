@@ -23,7 +23,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
 
       var sqlSelect = (SqlSelect) source.Request.Statement.Clone();
       var request = new SqlFetchRequest(sqlSelect, provider.Header, source.Request.ParameterBindings);
-      var visitor = new ExpressionProcessor(request);
+      var visitor = new ExpressionProcessor(request, Handlers.Domain.Model);
 
       foreach (var column in provider.CalculatedColumns)
         visitor.AppendCalculatedColumnToRequest(column.Expression, column.Name);

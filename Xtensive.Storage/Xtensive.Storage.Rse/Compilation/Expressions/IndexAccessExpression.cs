@@ -14,6 +14,11 @@ namespace Xtensive.Storage.Rse.Compilation.Expressions
   {
     public IndexInfo Index { get; private set; }
 
+    public override string ToString()
+    {
+      return string.Format("Index[{0}]", Index.Name);
+    }
+
     public IndexAccessExpression(Type type, IndexInfo index)
       : base(ExtendedExpressionType.IndexAccess, type)
     {

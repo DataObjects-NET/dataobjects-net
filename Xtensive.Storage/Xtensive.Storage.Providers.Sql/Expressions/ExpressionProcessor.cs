@@ -9,6 +9,7 @@ using System.Linq.Expressions;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Tuples;
 using Xtensive.Sql.Dom.Dml;
+using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse.Compilation.Expressions;
 using Xtensive.Storage.Rse.Compilation.Expressions.Visitors;
 using SqlFactory = Xtensive.Sql.Dom.Sql;
@@ -18,6 +19,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
 {
   internal class ExpressionProcessor : Visitor<SqlExpression>
   {
+    private readonly DomainModel model;
     private readonly SqlFetchRequest request;
     private readonly SqlSelect query;
 
@@ -28,14 +30,14 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
 
     public void AppendFilterToRequest(Expression<Func<Tuple,bool>> exp)
     {
-      var expression = QueryPreprocessor.Translate(exp);
+      var expression = QueryPreprocessor.Translate(exp, model);
       var result = Visit(expression);
       query.Where &= result;
     }
 
     public void AppendCalculatedColumnToRequest(Expression<Func<Tuple, object>> exp, string name)
     {
-      var expression = QueryPreprocessor.Translate(exp);
+      var expression = QueryPreprocessor.Translate(exp, model);
       var result = Visit(expression);
       query.Columns.Add(result, name);
     }
@@ -45,7 +47,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       var type = (ExtendedExpressionType) expression.NodeType;
       switch (type) {
         case ExtendedExpressionType.FieldAccess:
-          return VisitFieldAccess((FieldAccessExpression)expression);
+          return VisitFieldAccess((ColumnAccessExpression)expression);
         case ExtendedExpressionType.ParameterAccess:
           return VisitParameterAccess((ParameterAccessExpression)expression);
         default:
@@ -61,7 +63,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
 
     }
 
-    private SqlExpression VisitFieldAccess(FieldAccessExpression expression)
+    private SqlExpression VisitFieldAccess(ColumnAccessExpression expression)
     {
       var sqlSelect = (SqlSelect)request.Statement;
       return sqlSelect[expression.ColumnIndex];
@@ -208,9 +210,10 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
 
     // Constructor
 
-    public ExpressionProcessor(SqlFetchRequest request)
+    public ExpressionProcessor(SqlFetchRequest request, DomainModel model)
     {
       this.request = request;
+      this.model = model;
       query = (SqlSelect)request.Statement;
     }
   }

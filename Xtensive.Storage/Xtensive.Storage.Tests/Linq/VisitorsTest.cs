@@ -68,32 +68,32 @@ namespace Xtensive.Storage.Tests.Expressions
           Console.Out.WriteLine("Original");
           Console.Out.WriteLine(ExpressionWriter.WriteToString(a));
           Console.Out.WriteLine("Processed");
-          Console.Out.WriteLine(ExpressionWriter.WriteToString(QueryPreprocessor.Translate(a)));
+          Console.Out.WriteLine(ExpressionWriter.WriteToString(QueryPreprocessor.Translate(a, Domain.Model)));
           Console.Out.WriteLine();
           Console.Out.WriteLine("Original");
           Console.Out.WriteLine(ExpressionWriter.WriteToString(b));
           Console.Out.WriteLine("Processed");
-          Console.Out.WriteLine(ExpressionWriter.WriteToString(QueryPreprocessor.Translate(b)));
+          Console.Out.WriteLine(ExpressionWriter.WriteToString(QueryPreprocessor.Translate(b, Domain.Model)));
           Console.Out.WriteLine();
           Console.Out.WriteLine("Original");
           Console.Out.WriteLine(ExpressionWriter.WriteToString(c));
           Console.Out.WriteLine("Processed");
-          Console.Out.WriteLine(ExpressionWriter.WriteToString(QueryPreprocessor.Translate(c)));
+          Console.Out.WriteLine(ExpressionWriter.WriteToString(QueryPreprocessor.Translate(c, Domain.Model)));
           Console.Out.WriteLine();
           Console.Out.WriteLine("Original");
           Console.Out.WriteLine(ExpressionWriter.WriteToString(d));
           Console.Out.WriteLine("Processed");
-          Console.Out.WriteLine(ExpressionWriter.WriteToString(QueryPreprocessor.Translate(d)));
+          Console.Out.WriteLine(ExpressionWriter.WriteToString(QueryPreprocessor.Translate(d, Domain.Model)));
           Console.Out.WriteLine();
           Console.Out.WriteLine("Original");
           Console.Out.WriteLine(ExpressionWriter.WriteToString(e));
           Console.Out.WriteLine("Processed");
-          Console.Out.WriteLine(ExpressionWriter.WriteToString(QueryPreprocessor.Translate(e)));
+          Console.Out.WriteLine(ExpressionWriter.WriteToString(QueryPreprocessor.Translate(e, Domain.Model)));
           Console.Out.WriteLine();
           Console.Out.WriteLine("Original");
           Console.Out.WriteLine(ExpressionWriter.WriteToString(f));
           Console.Out.WriteLine("Processed");
-          Console.Out.WriteLine(ExpressionWriter.WriteToString(QueryPreprocessor.Translate(f)));
+          Console.Out.WriteLine(ExpressionWriter.WriteToString(QueryPreprocessor.Translate(f, Domain.Model)));
         }
       }
     }

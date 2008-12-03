@@ -4,10 +4,12 @@
 // Created by: Alexey Kochetov
 // Created:    2008.11.27
 
+using System;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Storage.SnakesModel;
+using System.Linq;
 
 namespace Xtensive.Storage.Tests.Linq
 {
@@ -28,8 +30,9 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [TestFixtureSetUp]
-    public void SetUp()
+    public override void TestFixtureSetUp()
     {
+      base.TestFixtureSetUp();
       const int snakesCount = 100;
       const int creaturesCount = 100;
       const int lizardsCount = 100;
@@ -47,13 +50,45 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    public void Test()
+    public void WhereTest()
     {
       using (Domain.OpenSession()) {
         using (Transaction.Open()) {
           var snakes = Session.Current.All<Snake>();
-          foreach (var snake in snakes) {
-            
+          foreach (var snake in snakes.Where(s => s.Name == "Kaa20")) {
+            Console.Out.WriteLine(snake.Name);
+          }
+        }
+      }
+    }
+
+    [Test]
+    public void NativeLanguageTest()
+    {
+      using (Domain.OpenSession()) {
+        using (Transaction.Open()) {
+          var snakes = Session.Current.All<Snake>();
+          var result = from s in snakes
+                       where s.Name=="Kaa20"
+                       select s;
+          foreach (var snake in result) {
+            Console.Out.WriteLine(snake.Name);
+          }
+        }
+      }
+    }
+
+    [Test]
+    public void SelectTest()
+    {
+      using (Domain.OpenSession()) {
+        using (Transaction.Open()) {
+          var snakes = Session.Current.All<Snake>();
+          var result = from s in snakes
+                       where s.Name=="Kaa20"
+                       select new {s.ID, s.Name};
+          foreach (var snake in result) {
+            Console.Out.WriteLine(string.Format("ID:{0}; Name:{1}.", snake.ID, snake.Name));
           }
         }
       }
