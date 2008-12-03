@@ -11,9 +11,10 @@ using Xtensive.Core;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Rse;
-using Xtensive.Storage.Tests.BugReports.Bug0012_Model;
+using Xtensive.Storage.Tests.Issues.Issue0012_Model;
+using Xtensive.Storage.Tests.Issues.Issue0012_Model;
 
-namespace Xtensive.Storage.Tests.BugReports.Bug0012_Model
+namespace Xtensive.Storage.Tests.Issues.Issue0012_Model
 {
   [HierarchyRoot(typeof (KeyGenerator), "Id")]
   public class MyEntity : Entity
@@ -32,9 +33,9 @@ namespace Xtensive.Storage.Tests.BugReports.Bug0012_Model
   }
 }
 
-namespace Xtensive.Storage.Tests.BugReports
+namespace Xtensive.Storage.Tests.Issues
 {
-  public class Bug0012_TakeSkipSequence : AutoBuildTest
+  public class Issue0012_TakeSkipSequence : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
     {

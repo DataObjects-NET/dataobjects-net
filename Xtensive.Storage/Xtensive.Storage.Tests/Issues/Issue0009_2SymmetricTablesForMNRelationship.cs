@@ -8,9 +8,10 @@ using System;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Storage.Attributes;
-using Xtensive.Storage.Tests.BugReports.Bug0009_Model;
+using Xtensive.Storage.Tests.Issues.Issue0009_Model;
+using Xtensive.Storage.Tests.Issues.Issue0009_Model;
 
-namespace Xtensive.Storage.Tests.BugReports.Bug0009_Model
+namespace Xtensive.Storage.Tests.Issues.Issue0009_Model
 {
   [HierarchyRoot(typeof(KeyGenerator), "ID")]
   public class Book : Entity
@@ -34,9 +35,9 @@ namespace Xtensive.Storage.Tests.BugReports.Bug0009_Model
 
 }
 
-namespace Xtensive.Storage.Tests.BugReports
+namespace Xtensive.Storage.Tests.Issues
 {
-  public class Bug0009_2SymmetricTablesForMNRelationship : AutoBuildTest
+  public class Issue0009_2SymmetricTablesForMNRelationship : AutoBuildTest
   {
     protected override Xtensive.Storage.Configuration.DomainConfiguration BuildConfiguration()
     {

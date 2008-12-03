@@ -10,27 +10,33 @@ using Xtensive.Core;
 using Xtensive.Core.Testing;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Tests.BugReports.Bug0002_Model;
+using Xtensive.Storage.Tests.Issues.Issue0001_Model;
+using Xtensive.Storage.Tests.Issues.Issue0001_Model;
 
-namespace Xtensive.Storage.Tests.BugReports.Bug0002_Model
+namespace Xtensive.Storage.Tests.Issues.Issue0001_Model
 {
   [HierarchyRoot(typeof (KeyGenerator), "ID")]
   public class X : Entity
   {
-    [Field(LazyLoad = true)]
+    [Field]
     public int ID { get; private set; }
+  }
+
+  [HierarchyRoot(typeof (KeyGenerator), "ID")]
+  public class Y : X
+  {
   }
 }
 
-namespace Xtensive.Storage.Tests.BugReports
+namespace Xtensive.Storage.Tests.Issues
 {
   [TestFixture]
-  public class Bug0002_PrimaryKeyWithLazyLoad : AutoBuildTest
+  public class Issue0001_MultipleHierarchyRootAttributes : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(Assembly.GetExecutingAssembly(), typeof(X).Namespace);
+      config.Types.Register(Assembly.GetExecutingAssembly(), typeof (X).Namespace);
       return config;
     }
 

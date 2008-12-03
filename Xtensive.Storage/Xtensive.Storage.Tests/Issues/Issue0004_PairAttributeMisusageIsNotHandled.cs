@@ -10,9 +10,9 @@ using Xtensive.Core;
 using Xtensive.Core.Testing;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Tests.Bug0004_Model;
+using Xtensive.Storage.Tests.Issue0004_Model;
 
-namespace Xtensive.Storage.Tests.Bug0004_Model
+namespace Xtensive.Storage.Tests.Issue0004_Model
 {
   [HierarchyRoot(typeof(KeyGenerator), "ID")]
   public class User : Entity
@@ -41,9 +41,9 @@ namespace Xtensive.Storage.Tests.Bug0004_Model
   }
 }
 
-namespace Xtensive.Storage.Tests.BugReports
+namespace Xtensive.Storage.Tests.Issues
 {
-  public class Bug0004_PairAttributeMisusageIsNotHandled : AutoBuildTest
+  public class Issue0004_PairAttributeMisusageIsNotHandled : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
     {

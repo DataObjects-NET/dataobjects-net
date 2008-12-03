@@ -7,9 +7,9 @@
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Storage.Attributes;
-using Xtensive.Storage.Tests.Bug0007_Model;
+using Xtensive.Storage.Tests.Issues.Issue0007_Model;
 
-namespace Xtensive.Storage.Tests.Bug0007_Model
+namespace Xtensive.Storage.Tests.Issues.Issue0007_Model
 {
   [HierarchyRoot(typeof (KeyGenerator), "ID")]
   public class Person : Entity
@@ -43,9 +43,9 @@ namespace Xtensive.Storage.Tests.Bug0007_Model
   }
 }
 
-namespace Xtensive.Storage.Tests.BugReports
+namespace Xtensive.Storage.Tests.Issues
 {
-  public class Bug0007_InvalidNotNullConstraint : AutoBuildTest
+  public class Issue0007_InvalidNotNullConstraint : AutoBuildTest
   {
     protected override Xtensive.Storage.Configuration.DomainConfiguration BuildConfiguration()
     {

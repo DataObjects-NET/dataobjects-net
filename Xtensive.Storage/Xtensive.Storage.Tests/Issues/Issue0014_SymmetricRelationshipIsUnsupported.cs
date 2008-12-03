@@ -10,9 +10,10 @@ using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Tests.Bug0014_Model;
+using Xtensive.Storage.Tests.Issues.Issue0014_Model;
+using Xtensive.Storage.Tests.Issues.Issue0014_Model;
 
-namespace Xtensive.Storage.Tests.Bug0014_Model
+namespace Xtensive.Storage.Tests.Issues.Issue0014_Model
 {
   [HierarchyRoot(typeof(KeyGenerator), "ID")]
   public class Person : Entity
@@ -30,9 +31,9 @@ namespace Xtensive.Storage.Tests.Bug0014_Model
     public Person BestFriend { get; set;}
   }
 }
-namespace Xtensive.Storage.Tests.BugReports
+namespace Xtensive.Storage.Tests.Issues
 {
-  public class Bug0014_SymmetricRelationshipIsUnsupported : AutoBuildTest
+  public class Issue0014_SymmetricRelationshipIsUnsupported : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
     {

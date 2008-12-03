@@ -6,9 +6,10 @@
 
 using NUnit.Framework;
 using Xtensive.Storage.Attributes;
-using Xtensive.Storage.Tests.BugReports.Bug0013_Model;
+using Xtensive.Storage.Tests.Issues.Issue0013_Model;
+using Xtensive.Storage.Tests.Issues.Issue0013_Model;
 
-namespace Xtensive.Storage.Tests.BugReports.Bug0013_Model
+namespace Xtensive.Storage.Tests.Issues.Issue0013_Model
 {
   [HierarchyRoot(typeof (KeyGenerator), "ID")]
   public class SqlTaskEntity : Entity
@@ -33,9 +34,9 @@ namespace Xtensive.Storage.Tests.BugReports.Bug0013_Model
   }
 }
 
-namespace Xtensive.Storage.Tests.BugReports
+namespace Xtensive.Storage.Tests.Issues
 {
-  public class Bug0013_SqlBuilderRequestTaskBug : AutoBuildTest
+  public class Issue0013_SqlBuilderRequestTaskBug : AutoBuildTest
   {
     protected override Xtensive.Storage.Configuration.DomainConfiguration BuildConfiguration()
     {

@@ -9,9 +9,10 @@ using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Core.Testing;
 using Xtensive.Storage.Attributes;
-using Xtensive.Storage.Tests.BugReports.Bug0003_Model;
+using Xtensive.Storage.Tests.Issues.Issue0003_Model;
+using Xtensive.Storage.Tests.Issues.Issue0003_Model;
 
-namespace Xtensive.Storage.Tests.BugReports.Bug0003_Model
+namespace Xtensive.Storage.Tests.Issues.Issue0003_Model
 {
   [HierarchyRoot(typeof (KeyGenerator), "ID")]
   public class X : Entity
@@ -21,10 +22,10 @@ namespace Xtensive.Storage.Tests.BugReports.Bug0003_Model
   }
 }
 
-namespace Xtensive.Storage.Tests.BugReports
+namespace Xtensive.Storage.Tests.Issues
 {
   [TestFixture]
-  public class Bug0003_NullablePrimaryKey : AutoBuildTest
+  public class Issue0003_NullablePrimaryKey : AutoBuildTest
   {
     protected override Xtensive.Storage.Configuration.DomainConfiguration BuildConfiguration()
     {
