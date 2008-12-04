@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
@@ -68,6 +69,19 @@ namespace Xtensive.Storage.Rse.Compilation.Expressions.Visitors
       return base.Visit(exp);
     }
 
+    protected override Expression VisitConstant(ConstantExpression c)
+    {
+      if (c.Value == null)
+        return c;
+      var rootPoint = c.Value as IQueryable;
+      if (rootPoint != null) {
+        var type = model.Types[rootPoint.ElementType];
+        var index = type.Indexes.PrimaryIndex;
+        return new IndexAccessExpression(c.Type, index);
+      }
+      return base.VisitConstant(c);
+    }
+
     protected override Expression VisitMethodCall(MethodCallExpression expression)
     {
       if (expression.Object != null && expression.Object.Type == typeof(Tuple)) {
@@ -87,12 +101,22 @@ namespace Xtensive.Storage.Rse.Compilation.Expressions.Visitors
       return base.VisitMethodCall(expression);
     }
 
+    protected override Expression VisitMemberAccess(MemberExpression m)
+    {
+      if (m.Expression.NodeType == ExpressionType.Parameter) {
+        var type = model.Types[m.Expression.Type];
+        var field = type.Fields[m.Member.Name];
+        return new ColumnAccessExpression(m.Type, field.MappingInfo.Offset);
+      }
+      return base.VisitMemberAccess(m);
+    }
+
     protected override Expression VisitUnknown(Expression expression)
     {
       return expression;
     }
 
-    private Expression ExtractParameter(Expression expression)
+    private static Expression ExtractParameter(Expression expression)
     {
       Type type = expression.Type;
       if (type.IsValueType)
@@ -101,7 +125,7 @@ namespace Xtensive.Storage.Rse.Compilation.Expressions.Visitors
       return new ParameterAccessExpression(type, lambda);
     }
 
-    private Expression Evaluate(Expression e)
+    private static Expression Evaluate(Expression e)
     {
       if (e.NodeType == ExpressionType.Constant)
         return e;

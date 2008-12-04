@@ -17,11 +17,9 @@ namespace Xtensive.Storage.Rse.Compilation.Linq
   {
     protected override object Execute(Expression expression)
     {
-      Console.Out.WriteLine(ExpressionWriter.WriteToString(expression));
       expression = QueryPreprocessor.Translate(expression, Model);
       var rewriter = new RseQueryRewriter(this);
       expression  = rewriter.Rewrite(expression);
-      Console.Out.WriteLine(ExpressionWriter.WriteToString(expression));
 //      RecordSet result = RseQueryTranslator.Translate(expression, this);
       throw new NotImplementedException();
     }

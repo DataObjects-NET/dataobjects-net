@@ -55,6 +55,9 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (Transaction.Open()) {
           var snakes = Session.Current.All<Snake>();
+          foreach (var snake in snakes.Where(s => s.ID == 20)) {
+            Console.Out.WriteLine(snake.Name);
+          }
           foreach (var snake in snakes.Where(s => s.Name == "Kaa20")) {
             Console.Out.WriteLine(snake.Name);
           }

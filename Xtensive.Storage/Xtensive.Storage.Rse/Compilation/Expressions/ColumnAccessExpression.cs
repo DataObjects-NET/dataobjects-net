@@ -15,7 +15,7 @@ namespace Xtensive.Storage.Rse.Compilation.Expressions
 
     public override string ToString()
     {
-      return string.Format("Field[{0}]", ColumnIndex);
+      return string.Format("Column[{0}]", ColumnIndex);
     }
 
 

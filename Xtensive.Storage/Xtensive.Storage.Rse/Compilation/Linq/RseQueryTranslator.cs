@@ -23,19 +23,25 @@ namespace Xtensive.Storage.Rse.Compilation.Linq
       return translator.result;
     }
 
-
-    protected override Expression VisitConstant(ConstantExpression c)
+    protected override Expression VisitUnknown(Expression expression)
     {
-      if (c.Value == null)
-        return c;
-      var rootPoint = c.Value as IQueryable;
-      if (rootPoint != null) {
-        var type = provider.Model.Types[rootPoint.ElementType];
-        var index = type.Indexes.PrimaryIndex;
-        result = IndexProvider.Get(index).Result;
-      }
-      return base.VisitConstant(c);
+
+      return expression;
     }
+
+
+//    protected override Expression VisitConstant(ConstantExpression c)
+//    {
+//      if (c.Value == null)
+//        return c;
+//      var rootPoint = c.Value as IQueryable;
+//      if (rootPoint != null) {
+//        var type = provider.Model.Types[rootPoint.ElementType];
+//        var index = type.Indexes.PrimaryIndex;
+//        result = IndexProvider.Get(index).Result;
+//      }
+//      return base.VisitConstant(c);
+//    }
 
     
     
