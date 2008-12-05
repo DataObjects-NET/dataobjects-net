@@ -34,7 +34,7 @@ namespace Xtensive.Storage.Tests.Configuration
       foreach (KeyValuePair<string, string> namespaceSynonym in c1.NamingConvention.NamespaceSynonyms) {
         Log.Debug("NamingConvention.NamespaceSynonym (key, value): {0} {1}", namespaceSynonym.Key, namespaceSynonym.Value);
       }
-      Log.Debug("Session settings. UserName: {0}, CacheSize: {1}", c1.Session.UserName, c1.Session.CacheSize);
+      Log.Debug("Session settings. UserName: {0}, CacheSize: {1}", c1.Sessions.Default.UserName, c1.Sessions.Default.CacheSize);
       
       var c2 = new DomainConfiguration("memory://localhost/"){
           SessionPoolSize = 77,
@@ -49,9 +49,8 @@ namespace Xtensive.Storage.Tests.Configuration
       c2.NamingConvention.NamespaceSynonyms.Add("Xtensive.Storage", "XS");
       c2.NamingConvention.NamespaceSynonyms.Add("Xtensive.Messaging", "XM");
       c2.NamingConvention.NamespaceSynonyms.Add("Xtensive.Indexing", "XI");
-      c2.Session.CacheSize = 123;
-      c2.Session.UserName = "TestUserName";
-      
+      c2.Sessions.Add(new SessionConfiguration { CacheSize = 123, Name = "Default" });
+      c2.Sessions.Add(new SessionConfiguration { CacheSize = 123, Name = "UserSession", UserName = "UserSession" });
       Assert.AreEqual(c1, c2);
     }
 

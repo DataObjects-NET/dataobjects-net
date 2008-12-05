@@ -118,7 +118,7 @@ namespace Xtensive.Storage
     /// <returns>New <see cref="SessionConsumptionScope"/> object.</returns>
     public SessionConsumptionScope OpenSession()
     {
-      return OpenSession((SessionConfiguration)Configuration.Session.Clone());
+      return OpenSession((SessionConfiguration)Configuration.Sessions.Default.Clone());
     }
 
     /// <summary>

@@ -507,4 +507,7 @@
   <data name="ExPairToAttributeCanNotBeAppliedToXField" xml:space="preserve">
     <value>'PairTo' attribute can not be applied to field '{0}'. It is already applied to field '{1}'.</value>
   </data>
+  <data name="ExSessionWithNameXAlreadyExists" xml:space="preserve">
+    <value>Session with name '{0}' already exists.</value>
+  </data>
 </root>

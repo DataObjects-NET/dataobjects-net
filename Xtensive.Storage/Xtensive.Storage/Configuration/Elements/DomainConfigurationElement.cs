@@ -29,7 +29,7 @@ namespace Xtensive.Storage.Configuration.Elements
     private const string RecordSetMappingCacheSizeElementName = "recordSetMappingCacheSizeSize";
     private const string AutoValidationElementName = "autoValidation";
     private const string InconsistentTransactionsElementName = "inconsistentTransactions";
-    private const string SessionElementName = "session";
+    private const string SessionsElementName = "sessions";
     private const string TypeAliasesElementName = "typeAliases";
     private const string ServicesElementName = "services";
 
@@ -154,13 +154,13 @@ namespace Xtensive.Storage.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="DomainConfiguration.Session" copy="true"/>
+    /// <see cref="DomainConfiguration.Sessions" copy="true"/>
     /// </summary>
-    [ConfigurationProperty(SessionElementName, IsRequired = false)]
-    public SessionElement Session
+    [ConfigurationProperty(SessionsElementName, IsDefaultCollection = false)]
+    [ConfigurationCollection(typeof(ConfigurationCollection<SessionElement>), AddItemName = "session")]
+    public ConfigurationCollection<SessionElement> Sessions
     {
-      get { return (SessionElement) this[SessionElementName]; }
-      set { this[SessionElementName] = value; }
+      get { return (ConfigurationCollection<SessionElement>) this[SessionsElementName]; }
     }
 
     /// <summary>
@@ -218,7 +218,9 @@ namespace Xtensive.Storage.Configuration.Elements
         else
           c.Types.Register(assembly, entry.Namespace);
       }
-      c.Session = Session.ToNative();
+      foreach (var session in Sessions)
+        c.Sessions.Add(session.ToNative());
+
       foreach (UnityTypeElement typeElement in Services)
         typeElement.Configure(c.ServiceContainer);
 

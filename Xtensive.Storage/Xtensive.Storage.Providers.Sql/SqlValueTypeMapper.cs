@@ -104,7 +104,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     private SqlValueType BuildSqlValueType(Type type, int length, DataTypeMapping typeMapping)
     {
-      StreamDataTypeInfo sdti = typeMapping.DataTypeInfo as StreamDataTypeInfo;
+      var sdti = typeMapping.DataTypeInfo as StreamDataTypeInfo;
       if (sdti==null)
         return new SqlValueType(typeMapping.DataTypeInfo.SqlType);
 

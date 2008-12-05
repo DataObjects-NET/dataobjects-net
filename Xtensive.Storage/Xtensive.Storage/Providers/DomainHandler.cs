@@ -57,7 +57,9 @@ namespace Xtensive.Storage.Providers
     /// <returns>New <see cref="SessionConsumptionScope"/> object.</returns>
     public SessionConsumptionScope OpenSession(SessionType type)
     {
-      return OpenSession(type, (SessionConfiguration)Domain.Configuration.Session.Clone());
+      if ((type & SessionType.System)!=0)
+        return OpenSession(type, (SessionConfiguration)Domain.Configuration.Sessions.System.Clone());
+      return OpenSession(type, (SessionConfiguration)Domain.Configuration.Sessions.Default.Clone());
     }
 
     /// <summary>

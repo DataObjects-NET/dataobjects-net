@@ -1,7 +1,7 @@
 // Copyright (C) 2008 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
-// Created by: 
+// Created by: Elena Vakhtina
 // Created:    2008.12.02
 
 using System.Reflection;

@@ -655,6 +655,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Session with name &apos;{0}&apos; already exists..
+        /// </summary>
+        internal static string ExSessionWithNameXAlreadyExists {
+            get {
+                return ResourceManager.GetString("ExSessionWithNameXAlreadyExists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to StateTransaction property value differs from the current transaction..
         /// </summary>
         internal static string ExStateTransactionIsDifferent {

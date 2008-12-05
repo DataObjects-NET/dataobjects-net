@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.Configuration;
-using System.Reflection;
 using Microsoft.Practices.Unity;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
@@ -87,7 +86,7 @@ namespace Xtensive.Storage.Configuration
     private bool autoValidation = true;
     private bool inconsistentTransactions;
     private UnityContainer serviceContainer;
-    private SessionConfiguration session;
+    private SessionConfigurationCollection sessions;
 
     /// <summary>
     /// Gets or sets the name of the section where storage configuration is configuration.
@@ -254,16 +253,15 @@ namespace Xtensive.Storage.Configuration
     }
 
     /// <summary>
-    /// Gets or sets default session configuration.
+    /// Gets available session configurations.
     /// </summary>
-    public SessionConfiguration Session
+    public SessionConfigurationCollection Sessions
     {
-      get { return session; }
-      set
-      {
+      get { return sessions; }
+      set {
         ArgumentValidator.EnsureArgumentNotNull(value, "value");
         this.EnsureNotLocked();
-        session = value;
+        sessions = value;
       }
     }
 
@@ -283,7 +281,7 @@ namespace Xtensive.Storage.Configuration
     {
       types.Lock(true);
       builders.Lock(true);
-      session.Lock(true);
+      sessions.Default.Lock(true);
       base.Lock(recursive);
     }
 
@@ -312,7 +310,7 @@ namespace Xtensive.Storage.Configuration
       keyGeneratorCacheSize = configuration.KeyGeneratorCacheSize;
       sessionPoolSize = configuration.SessionPoolSize;
       recordSetMappingCacheSize = configuration.RecordSetMappingCacheSize;
-      session = configuration.Session;
+      sessions = configuration.Sessions;
       serviceContainer = configuration.serviceContainer;
     }
 
@@ -331,7 +329,7 @@ namespace Xtensive.Storage.Configuration
             && types.EqualsTo(other.types)
               && other.sessionPoolSize == sessionPoolSize 
                 && Equals(other.name, name) 
-                  && Equals(other.session, session);
+                  && Equals(other.sessions, sessions);
     }
 
     /// <inheritdoc/>
@@ -358,7 +356,7 @@ namespace Xtensive.Storage.Configuration
         result = (result * 397) ^ keyCacheSize;
         result = (result * 397) ^ recordSetMappingCacheSize;
         result = (result * 397) ^ sessionPoolSize;
-        result = (result * 397) ^ (session != null ? session.GetHashCode() : 0);
+        result = (result * 397) ^ (sessions.Default != null ? sessions.Default.GetHashCode() : 0);
         return result;
       }
     }
@@ -429,7 +427,7 @@ namespace Xtensive.Storage.Configuration
     public DomainConfiguration()
     {
       namingConvention = new NamingConvention();
-      session = new SessionConfiguration();
+      sessions = new SessionConfigurationCollection();
       serviceContainer = new UnityContainer();
       serviceContainer.AddExtension(new SingletonExtension());
     }
