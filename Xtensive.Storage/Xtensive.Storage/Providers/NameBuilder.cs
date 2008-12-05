@@ -302,10 +302,10 @@ namespace Xtensive.Storage.Providers
       ArgumentValidator.EnsureArgumentNotNull(namingConvention, "namingConvention");
       NamingConvention = namingConvention;
       hashAlgorithm = new MD5CryptoServiceProvider();
-      TypeIdFieldName = NamingConvention.Apply("TypeId");
+      TypeIdFieldName = "TypeId";
+      EntitySetItemMasterFieldName = "Master";
+      EntitySetItemSlaveFieldName = "Slave";
       TypeIdColumnName = NamingConvention.Apply(TypeIdFieldName);
-      EntitySetItemMasterFieldName = NamingConvention.Apply("Master");
-      EntitySetItemSlaveFieldName = NamingConvention .Apply("Slave");
     }
   }
 }
