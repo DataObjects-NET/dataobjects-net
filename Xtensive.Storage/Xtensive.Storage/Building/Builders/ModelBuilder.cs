@@ -203,7 +203,7 @@ namespace Xtensive.Storage.Building.Builders
 
         string masterFieldName;
         string slaveFieldName;
-        if (association.IsLoop) {
+        if (masterFieldType == slaveFieldType) {
           masterFieldName = context.NameBuilder.EntitySetItemMasterFieldName;
           slaveFieldName = context.NameBuilder.EntitySetItemSlaveFieldName;
         }
