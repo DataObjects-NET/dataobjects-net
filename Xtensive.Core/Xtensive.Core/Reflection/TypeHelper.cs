@@ -745,7 +745,7 @@ namespace Xtensive.Core.Reflection
     public static bool IsOfGenericType(this Type type, Type baseType)
     {
       Type t = type;
-      while (t != typeof(object)) {
+      while (!(t == null || t == typeof(object))) {
         if (t.IsGenericType && t.GetGenericTypeDefinition() == baseType)
           return true;
        t = t.BaseType;
