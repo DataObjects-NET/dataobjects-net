@@ -5,11 +5,13 @@
 // Created:    2008.11.27
 
 using System;
+using System.Collections;
 using System.Linq.Expressions;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse.Compilation.Expressions.Visitors;
 using Xtensive.Storage;
+using Xtensive.Storage.Rse.Compilation.Expressions;
 
 namespace Xtensive.Storage.Rse.Compilation.Linq
 {
@@ -20,8 +22,15 @@ namespace Xtensive.Storage.Rse.Compilation.Linq
       expression = QueryPreprocessor.Translate(expression, Model);
       var rewriter = new RseQueryRewriter(this);
       expression  = rewriter.Rewrite(expression);
-//      RecordSet result = RseQueryTranslator.Translate(expression, this);
-      throw new NotImplementedException();
+      var translator = new RseQueryTranslator(this);
+      translator.Translate(expression);
+      var shaper = translator.Shaper;
+      var result = translator.Result;
+      if (shaper != null)
+        return shaper(result);
+      var arguments = expression.Type.GetGenericArguments();
+      var r = (IEnumerable)EntityMaterializer(result, arguments[0]);
+      return r;
     }
 
 
@@ -30,8 +39,8 @@ namespace Xtensive.Storage.Rse.Compilation.Linq
     /// <summary>
     ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public RseQueryProvider(DomainModel model)
-      : base(model)
+    public RseQueryProvider(DomainModel model, Func<RecordSet, Type, IEnumerable> entityMaterializer)
+      : base(model, entityMaterializer)
     {
     }
   }

@@ -5,6 +5,7 @@
 // Created:    2008.11.26
 
 using System;
+using System.Collections;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -16,6 +17,7 @@ namespace Xtensive.Storage.Rse
   public abstract class QueryProvider : IQueryProvider
   {
     public DomainModel Model { get; private set; }
+    public Func<RecordSet, Type, IEnumerable> EntityMaterializer { get; set; }
 
     IQueryable IQueryProvider.CreateQuery(Expression expression)
     {
@@ -49,9 +51,10 @@ namespace Xtensive.Storage.Rse
 
     // Constructor
 
-    protected QueryProvider(DomainModel model)
+    protected QueryProvider(DomainModel model, Func<RecordSet, Type, IEnumerable> entityMaterializer)
     {
       Model = model;
+      EntityMaterializer = entityMaterializer;
     }
   }
 }

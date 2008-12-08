@@ -154,8 +154,8 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     protected override SqlExpression VisitConstant(ConstantExpression expression)
     {
       var constant = expression.Value != null ? 
-        SqlFactory.Literal(expression.Value) : 
-        (SqlExpression)SqlFactory.Null;
+        SqlFactory.Literal(expression.Value, expression.Type) : 
+        SqlFactory.Null;
       return constant;
     }
 

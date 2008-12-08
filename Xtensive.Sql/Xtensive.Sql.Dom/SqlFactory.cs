@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Reflection;
 using Xtensive.Sql.Common;
@@ -1166,6 +1167,16 @@ namespace Xtensive.Sql.Dom
     {
       return new SqlLiteral<Guid>(value);
     }
+
+    public static SqlExpression Literal(object value, Type valueType)
+    {
+      var type = typeof (SqlLiteral<>).MakeGenericType(valueType);
+      var method = type.GetMethod("Create", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
+      var result = (SqlExpression)method.Invoke(null, new[] {value});
+      return result;
+    }
+
+
 
     #endregion
 

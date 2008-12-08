@@ -48,6 +48,11 @@ namespace Xtensive.Sql.Dom.Dml
       visitor.Visit(this);
     }
 
+    internal static SqlLiteral<T> Create(T value)
+    {
+      return new SqlLiteral<T>(value);
+    }
+
     // Constructor
 
     internal SqlLiteral(T value) : base(SqlNodeType.Literal)

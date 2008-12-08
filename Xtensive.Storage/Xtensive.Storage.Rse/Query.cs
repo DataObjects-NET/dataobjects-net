@@ -34,7 +34,9 @@ namespace Xtensive.Storage.Rse
 
     public IEnumerator<T> GetEnumerator()
     {
-      return ((IEnumerable<T>)provider.Execute(expression)).GetEnumerator();
+      var result = (IEnumerable)provider.Execute(expression);
+      foreach (var item in result)
+        yield return (T)item;
     }
 
     IEnumerator IEnumerable.GetEnumerator()
