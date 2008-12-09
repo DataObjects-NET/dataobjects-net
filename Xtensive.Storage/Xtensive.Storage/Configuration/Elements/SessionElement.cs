@@ -28,7 +28,7 @@ namespace Xtensive.Storage.Configuration.Elements
     /// <summary>
     /// <see cref="SessionConfiguration.Name" copy="true"/>
     /// </summary>
-    [ConfigurationProperty(NameElementName, IsRequired = false, IsKey = true)]
+    [ConfigurationProperty(NameElementName, IsRequired = false, IsKey = true, DefaultValue = "Default")]
     public string Name
     {
       get { return (string) this[NameElementName]; }

@@ -20,6 +20,7 @@ namespace Xtensive.Storage.Configuration
     private const string systemValue = "System";
     private const string serviceValue = "Service";
     private static readonly StringComparer comparer = StringComparer.OrdinalIgnoreCase;
+    private bool defaultSessionIsAdded;
 
     ///<summary>
     /// Gets the default session configuration.
@@ -58,14 +59,25 @@ namespace Xtensive.Storage.Configuration
       if (this[item.Name]!=null)
         throw new InvalidOperationException(string.Format(Strings.ExSessionWithNameXAlreadyExists, item.Name));
 
-      base.Add(item);
-
-      if (comparer.Compare(item.Name, defaultValue)==0)
-        Default = item;
-      else if (comparer.Compare(item.Name, systemValue)==0)
-        System = item;
-      else if (comparer.Compare(item.Name, serviceValue)==0)
-        Service = item;
+      var result = (SessionConfiguration) item.Clone();
+      result.Name = item.Name;
+      if (comparer.Compare(result.Name, defaultValue)==0) {
+        Default = result;
+        for (int i = 0; i < Count; i++)
+          ApplyDefaultSettings(this[i]);
+        ApplyDefaultSettings(System);
+        ApplyDefaultSettings(Service);
+        defaultSessionIsAdded = true;
+      }
+      else {
+        if (defaultSessionIsAdded)
+          ApplyDefaultSettings(result);
+        if (comparer.Compare(result.Name, systemValue)==0)
+          System = result;
+        else if (comparer.Compare(result.Name, serviceValue)==0)
+          Service = result;
+      }
+      base.Add(result);
     }
 
     #region Equality members
@@ -92,6 +104,8 @@ namespace Xtensive.Storage.Configuration
       foreach (var configuration in obj)
         if (this[configuration.Name]==null)
           return false;
+      if (!Default.Equals(obj.Default) || !System.Equals(obj.System) || !Service.Equals(obj.Service))
+        return false;
       return true;
     }
 
@@ -107,6 +121,17 @@ namespace Xtensive.Storage.Configuration
     }
 
     #endregion
+
+    private void ApplyDefaultSettings(SessionConfiguration config)
+    {
+      if (string.IsNullOrEmpty(config.UserName))
+        config.UserName = Default.UserName;
+      if (string.IsNullOrEmpty(config.Password))
+        config.Password = Default.Password;
+      if (config.CacheSize!=Default.CacheSize && config.CacheSize==SessionConfiguration.DefaultCacheSize)
+        config.CacheSize = Default.CacheSize;
+      config.Options = config.Options | Default.Options;
+    }
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>

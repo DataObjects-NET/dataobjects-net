@@ -49,9 +49,21 @@ namespace Xtensive.Storage.Tests.Configuration
       c2.NamingConvention.NamespaceSynonyms.Add("Xtensive.Storage", "XS");
       c2.NamingConvention.NamespaceSynonyms.Add("Xtensive.Messaging", "XM");
       c2.NamingConvention.NamespaceSynonyms.Add("Xtensive.Indexing", "XI");
-      c2.Sessions.Add(new SessionConfiguration { CacheSize = 123, Name = "Default" });
-      c2.Sessions.Add(new SessionConfiguration { CacheSize = 123, Name = "UserSession", UserName = "UserSession" });
+      c2.Sessions.Add(new SessionConfiguration { CacheSize = 111, UserName = "User"});
+      c2.Sessions.Add(new SessionConfiguration { Name = "UserSession", CacheSize=324, Password="222" });
+      c2.Sessions.Add(new SessionConfiguration {Name = "System", UserName = "dfdfdfd", Password = "333", Options = SessionOptions.AmbientTransactions});
       Assert.AreEqual(c1, c2);
+    }
+
+    [Test]
+    public void TestSessionConfiguration()
+    {
+      var c = DomainConfiguration.Load("AppConfigTest", "TestDomain1");
+      var cc = c.Sessions;
+      Assert.AreEqual(c.Sessions.Default, new SessionConfiguration { CacheSize = 111, UserName = "User" });
+      Assert.AreEqual(c.Sessions.Service, new SessionConfiguration { Name = "Service", UserName = "User", CacheSize = 111 });
+      Assert.AreEqual(c.Sessions.System, new SessionConfiguration { Name = "System", UserName = "dfdfdfd", Password = "333", Options = SessionOptions.AmbientTransactions, CacheSize = 111 });
+      Assert.AreEqual(c.Sessions["UserSession"], new SessionConfiguration { UserName = "User", CacheSize = 324, Password = "222" });
     }
 
     [Test]

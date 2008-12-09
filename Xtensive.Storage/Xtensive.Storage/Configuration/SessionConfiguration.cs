@@ -26,13 +26,13 @@ namespace Xtensive.Storage.Configuration
     /// <summary>
     /// Default cache size.
     /// </summary>
-    public const int DefaultCacheSize = 16*1024;
+    public const int DefaultCacheSize = 16 * 1024;
 
     #endregion
 
     /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
     public static readonly SessionConfiguration Default;
-
+    
     private SessionOptions options;
     private SessionType type = SessionType.User;
     private string name;
@@ -125,19 +125,17 @@ namespace Xtensive.Storage.Configuration
     /// <summary>
     /// Gets a value indicating whether session is system.
     /// </summary>
-    public bool IsSystem {
-      get {
-        return (type & SessionType.System)!=0;
-      }
+    public bool IsSystem
+    {
+      get { return (type & SessionType.System)!=0; }
     }
 
     /// <summary>
     /// Gets a value indicating whether session uses ambient transactions.
     /// </summary>
-    public bool UsesAmbientTransactions {
-      get {
-        return (options & SessionOptions.AmbientTransactions)!=0;
-      }
+    public bool UsesAmbientTransactions
+    {
+      get { return (options & SessionOptions.AmbientTransactions)!=0; }
     }
 
     /// <inheritdoc/>
@@ -161,9 +159,9 @@ namespace Xtensive.Storage.Configuration
       var configuration = (SessionConfiguration) source;
       if ((configuration.type & SessionType.System) > 0)
         throw new InvalidOperationException(Resources.Strings.ExUnableToCloneSystemSessionConfiguration);
-      UserName  = configuration.UserName;
-      Password  = configuration.Password;
-      Options   = configuration.Options;
+      UserName = configuration.UserName;
+      Password = configuration.Password;
+      Options = configuration.Options;
       CacheSize = configuration.CacheSize;
     }
 
@@ -176,7 +174,7 @@ namespace Xtensive.Storage.Configuration
         return false;
       if (ReferenceEquals(this, obj))
         return true;
-      return 
+      return
         obj.UserName==UserName &&
           obj.Type==Type &&
             obj.Options==Options &&
@@ -227,6 +225,9 @@ namespace Xtensive.Storage.Configuration
     public SessionConfiguration()
     {
       CacheSize = DefaultCacheSize;
+      Name = "Default";
+      UserName = string.Empty;
+      Password = string.Empty;
     }
 
     // Type initializer
