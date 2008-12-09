@@ -43,7 +43,9 @@ namespace Xtensive.Storage.Rse
 
     TResult IQueryProvider.Execute<TResult>(Expression expression)
     {
-      return (TResult)Execute(expression);
+      object execute = Execute(expression);
+      execute = execute ?? default(TResult);
+      return (TResult)execute;
     }
 
     protected abstract object Execute(Expression expression);

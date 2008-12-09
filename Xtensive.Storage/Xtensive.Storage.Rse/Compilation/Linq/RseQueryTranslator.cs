@@ -24,6 +24,7 @@ namespace Xtensive.Storage.Rse.Compilation.Linq
     private ParameterExpression parameter;
     private readonly MethodInfo nonGenericAccessor;
     private readonly MethodInfo genericAccessor;
+    private Expression root;
 
     public RecordSet Result
     {
@@ -38,6 +39,7 @@ namespace Xtensive.Storage.Rse.Compilation.Linq
 
     public void Translate(Expression  expression)
     {
+      root = expression;
       Visit(expression);
     }
 
@@ -49,10 +51,100 @@ namespace Xtensive.Storage.Rse.Compilation.Linq
           case "Where":
             VisitWhere(m.Arguments[0], (LambdaExpression)m.Arguments[1].StripQuotes());
             break;
+          case "Count":
+          case "Min":
+          case "Max":
+          case "Sum":
+          case "Average":
+          if (m.Arguments.Count==1)
+            VisitAggregate(m.Arguments[0], m.Method, null, m==root);
+          else if (m.Arguments.Count==2) {
+            var selector = (LambdaExpression) m.Arguments[1].StripQuotes();
+            VisitAggregate(m.Arguments[0], m.Method, selector, m==root);
+          }
+          break;
+          case "First":
+          case "FirstOrDefault":
+          case "Single":
+          case "SingleOrDefault":
+          if (m.Arguments.Count==1)
+            BindFirst(m.Arguments[0], null, m.Method, m==root);
+          else if (m.Arguments.Count==2) {
+            var predicate = (LambdaExpression) m.Arguments[1].StripQuotes();
+            BindFirst(m.Arguments[0], predicate, m.Method, m==root);
+          }
+          break;
         }
         return m;
       }
       return base.VisitMethodCall(m);
+    }
+
+    private void BindFirst(Expression expression, LambdaExpression predicate, MethodInfo method, bool isRoot)
+    {
+      if (!isRoot)
+        throw new NotImplementedException();
+      if (predicate != null)
+        VisitWhere(expression, predicate);
+      else
+        Visit(expression);
+      result = result.Take(2);
+//      MethodInfo enumerableMethod = null;
+//      var enumerableType = typeof (Enumerable);
+//      if (method.Name == "First")
+//        enumerableMethod = enumerableType.GetMethod("First", )
+      shaper = set => provider.EntityMaterializer(set, expression.Type);
+    }
+
+    private void VisitAggregate(Expression expression, MethodInfo method, LambdaExpression argument, bool isRoot)
+    {
+      if (!isRoot)
+        throw new NotImplementedException();
+      string name = null;
+      AggregateType type = AggregateType.Count;
+      int aggregateColumn = 0;
+      if (method.Name == "Count") {
+        name = "$Count";
+        type = AggregateType.Count;
+        shaper = set => (int)(set.First().GetValue<long>(0));
+        if (argument != null)
+          VisitWhere(expression, argument);
+        else
+          Visit(expression);
+      }
+      else {
+        Visit(expression);
+
+        if (argument==null) 
+          throw new NotSupportedException();
+        
+        var column = argument.Body as ColumnAccessExpression;
+        if (column==null)
+          throw new NotSupportedException();
+        aggregateColumn = column.ColumnIndex;
+        shaper = set => set.First().GetValueOrDefault(0);
+
+        switch (method.Name) {
+        case "Min":
+          name = "$Min";
+          type = AggregateType.Min;
+          break;
+        case "Max":
+          name = "$Max";
+          type = AggregateType.Max;
+          break;
+        case "Sum":
+          name = "$Sum";
+          type = AggregateType.Sum;
+          break;
+        case "Average":
+          name = "$Avg";
+          type = AggregateType.Avg;
+          break;
+        }
+      }
+
+      result = result.Aggregate(null, new AggregateColumnDescriptor(name, aggregateColumn, type));
     }
 
     private void VisitWhere(Expression expression, LambdaExpression lambdaExpression)

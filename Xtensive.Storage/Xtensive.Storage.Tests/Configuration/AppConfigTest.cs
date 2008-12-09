@@ -59,7 +59,6 @@ namespace Xtensive.Storage.Tests.Configuration
     public void TestSessionConfiguration()
     {
       var c = DomainConfiguration.Load("AppConfigTest", "TestDomain1");
-      var cc = c.Sessions;
       Assert.AreEqual(c.Sessions.Default, new SessionConfiguration { CacheSize = 111, UserName = "User" });
       Assert.AreEqual(c.Sessions.Service, new SessionConfiguration { Name = "Service", UserName = "User", CacheSize = 111 });
       Assert.AreEqual(c.Sessions.System, new SessionConfiguration { Name = "System", UserName = "dfdfdfd", Password = "333", Options = SessionOptions.AmbientTransactions, CacheSize = 111 });

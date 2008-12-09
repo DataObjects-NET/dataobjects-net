@@ -184,7 +184,7 @@ namespace Xtensive.Storage.Tests.Storage
           Assert.AreEqual(10, rsCalculated.Count());
 
           foreach (var tuple in rsCalculated) {
-            Assert.AreEqual("Ka", tuple.GetValue(5));
+            Assert.AreEqual("Ka", tuple.GetValue(5)); 
             Assert.AreEqual("Kaa", tuple.GetValue(6));
           }
           rsSnakePrimary.Count();
