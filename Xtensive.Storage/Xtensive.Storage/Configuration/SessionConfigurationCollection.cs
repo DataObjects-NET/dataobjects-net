@@ -19,6 +19,7 @@ namespace Xtensive.Storage.Configuration
     private const string defaultValue = "Default";
     private const string systemValue = "System";
     private const string serviceValue = "Service";
+    private const string generatorValue = "Generator";
     private static readonly StringComparer comparer = StringComparer.OrdinalIgnoreCase;
     private bool defaultSessionIsAdded;
 
@@ -36,6 +37,11 @@ namespace Xtensive.Storage.Configuration
     /// Gets the service session configuration.
     ///</summary>
     public SessionConfiguration Service { get; private set; }
+
+    ///<summary>
+    /// Gets the generator session configuration.
+    ///</summary>
+    public SessionConfiguration Generator { get; private set; }
 
 
     ///<summary>
@@ -67,6 +73,7 @@ namespace Xtensive.Storage.Configuration
           ApplyDefaultSettings(this[i]);
         ApplyDefaultSettings(System);
         ApplyDefaultSettings(Service);
+        ApplyDefaultSettings(Generator);
         defaultSessionIsAdded = true;
       }
       else {
@@ -76,6 +83,8 @@ namespace Xtensive.Storage.Configuration
           System = result;
         else if (comparer.Compare(result.Name, serviceValue)==0)
           Service = result;
+        else if (comparer.Compare(result.Name, generatorValue) == 0)
+          Generator = result;
       }
       base.Add(result);
     }
@@ -104,7 +113,8 @@ namespace Xtensive.Storage.Configuration
       foreach (var configuration in obj)
         if (this[configuration.Name]==null)
           return false;
-      if (!Default.Equals(obj.Default) || !System.Equals(obj.System) || !Service.Equals(obj.Service))
+      if (!Default.Equals(obj.Default) || !System.Equals(obj.System)
+        || !Service.Equals(obj.Service) || !Generator.Equals(obj.Generator))
         return false;
       return true;
     }
@@ -116,6 +126,7 @@ namespace Xtensive.Storage.Configuration
         int result = (Default!=null ? Default.GetHashCode() : 0);
         result = (result * 397) ^ (System!=null ? System.GetHashCode() : 0);
         result = (result * 397) ^ (Service!=null ? Service.GetHashCode() : 0);
+        result = (result * 397) ^ (Generator != null ? Generator.GetHashCode() : 0);
         return result;
       }
     }
@@ -141,6 +152,7 @@ namespace Xtensive.Storage.Configuration
       Default = new SessionConfiguration {Name = defaultValue};
       System = new SessionConfiguration {Name = systemValue};
       Service = new SessionConfiguration {Name = serviceValue};
+      Generator = new SessionConfiguration { Name = generatorValue };
     }
   }
 }
