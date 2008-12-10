@@ -70,6 +70,7 @@ namespace Xtensive.Storage.Tests.Storage
         using (var t = Transaction.Open())
         {
           var obj1 = Session.Current.All<InitializebleClass>().First();
+          Assert.IsNotNull(obj1);
           Assert.IsNotNull(obj1.syncRoot);
           t.Complete();
         }

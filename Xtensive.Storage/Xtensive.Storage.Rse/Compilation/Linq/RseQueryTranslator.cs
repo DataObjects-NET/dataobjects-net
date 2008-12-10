@@ -5,6 +5,8 @@
 // Created:    2008.11.27
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -68,10 +70,10 @@ namespace Xtensive.Storage.Rse.Compilation.Linq
           case "Single":
           case "SingleOrDefault":
           if (m.Arguments.Count==1)
-            BindFirst(m.Arguments[0], null, m.Method, m==root);
+            VisitFirst(m.Arguments[0], null, m.Method, m==root);
           else if (m.Arguments.Count==2) {
             var predicate = (LambdaExpression) m.Arguments[1].StripQuotes();
-            BindFirst(m.Arguments[0], predicate, m.Method, m==root);
+            VisitFirst(m.Arguments[0], predicate, m.Method, m==root);
           }
           break;
         }
@@ -80,7 +82,7 @@ namespace Xtensive.Storage.Rse.Compilation.Linq
       return base.VisitMethodCall(m);
     }
 
-    private void BindFirst(Expression expression, LambdaExpression predicate, MethodInfo method, bool isRoot)
+    private void VisitFirst(Expression expression, LambdaExpression predicate, MethodInfo method, bool isRoot)
     {
       if (!isRoot)
         throw new NotImplementedException();
@@ -88,12 +90,30 @@ namespace Xtensive.Storage.Rse.Compilation.Linq
         VisitWhere(expression, predicate);
       else
         Visit(expression);
-      result = result.Take(2);
-//      MethodInfo enumerableMethod = null;
-//      var enumerableType = typeof (Enumerable);
-//      if (method.Name == "First")
-//        enumerableMethod = enumerableType.GetMethod("First", )
-      shaper = set => provider.EntityMaterializer(set, expression.Type);
+      switch(method.Name) {
+        case "First":
+          result = result.Take(1);
+          break;
+        case "FirstOrDefault":
+          result = result.Take(1);
+          break;
+        case "Single":
+          result = result.Take(2);
+          break;
+        case "SingleOrDefault":
+          result = result.Take(2);
+          break;
+      }
+      var enumerableType = typeof(Enumerable);
+      MethodInfo enumerableMethod = enumerableType.GetMethods(BindingFlags.Static | BindingFlags.Public).First(m => m.Name==method.Name && m.GetParameters().Length==1);
+      enumerableMethod = enumerableMethod.MakeGenericMethod(method.ReturnType);
+      MethodInfo castMethod = enumerableType.GetMethod("Cast").MakeGenericMethod(method.ReturnType);
+      shaper = delegate(RecordSet set) {
+        IEnumerable enumerable = provider.EntityMaterializer(set, method.ReturnType);
+        object cast = castMethod.Invoke(null, new[] {enumerable});
+        object item = enumerableMethod.Invoke(null, new[] {cast});
+        return item;
+      };
     }
 
     private void VisitAggregate(Expression expression, MethodInfo method, LambdaExpression argument, bool isRoot)
