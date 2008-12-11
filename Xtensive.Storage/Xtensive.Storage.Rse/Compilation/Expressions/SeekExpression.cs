@@ -8,6 +8,7 @@ using System;
 
 namespace Xtensive.Storage.Rse.Compilation.Expressions
 {
+  [Serializable]
   public sealed class SeekExpression : ExtendedExpression
   {
     public SeekExpression(Type type)

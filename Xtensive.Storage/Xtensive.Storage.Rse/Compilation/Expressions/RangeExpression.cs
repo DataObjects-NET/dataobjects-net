@@ -8,6 +8,7 @@ using System;
 
 namespace Xtensive.Storage.Rse.Compilation.Expressions
 {
+  [Serializable]
   public sealed class RangeExpression : ExtendedExpression
   {
     public RangeExpression(Type type)

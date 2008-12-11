@@ -8,7 +8,8 @@ namespace Xtensive.Storage.Rse.Compilation.Expressions
 {
   public enum ExtendedExpressionType
   {
-    FieldAccess = 1000,
+    RseResult = 1000,
+    FieldAccess,
     ParameterAccess,
     IndexAccess,
     Range,

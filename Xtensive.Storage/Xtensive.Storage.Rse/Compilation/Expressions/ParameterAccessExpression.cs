@@ -9,7 +9,8 @@ using System.Linq.Expressions;
 
 namespace Xtensive.Storage.Rse.Compilation.Expressions
 {
-  public class ParameterAccessExpression : ExtendedExpression
+  [Serializable]
+  public sealed class ParameterAccessExpression : ExtendedExpression
   {
     public Expression<Func<object>> Binding { get; private set; }
 

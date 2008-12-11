@@ -5,11 +5,13 @@
 // Created:    2008.12.02
 
 using System;
+using System.Diagnostics;
 using System.Linq.Expressions;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Rse.Compilation.Expressions
 {
+  [Serializable]
   public sealed class IndexAccessExpression : ExtendedExpression
   {
     public IndexInfo Index { get; private set; }

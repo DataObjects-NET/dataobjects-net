@@ -53,6 +53,30 @@ namespace Xtensive.Storage.Rse.Compilation.Linq
           case "Where":
             VisitWhere(m.Arguments[0], (LambdaExpression)m.Arguments[1].StripQuotes());
             break;
+          case "Select":
+            VisitSelect(m.Type, m.Arguments[0], (LambdaExpression)m.Arguments[1].StripQuotes());
+            break;
+          case "SelectMany":
+            if (m.Arguments.Count == 2) {
+              VisitSelectMany(
+                m.Type, m.Arguments[0],
+                (LambdaExpression)m.Arguments[1].StripQuotes(),
+                null);
+            }
+            else if (m.Arguments.Count == 3) {
+              VisitSelectMany(
+                m.Type, m.Arguments[0],
+                (LambdaExpression)m.Arguments[1].StripQuotes(),
+                (LambdaExpression)m.Arguments[2].StripQuotes());
+            }
+            break;
+          case "Join":
+            VisitJoin(
+              m.Type, m.Arguments[0], m.Arguments[1],
+              (LambdaExpression)m.Arguments[2].StripQuotes(),
+              (LambdaExpression)m.Arguments[3].StripQuotes(),
+              (LambdaExpression)m.Arguments[4].StripQuotes());
+            break;
           case "Count":
           case "Min":
           case "Max":
@@ -80,6 +104,21 @@ namespace Xtensive.Storage.Rse.Compilation.Linq
         return m;
       }
       return base.VisitMethodCall(m);
+    }
+
+    private void VisitSelect(Type resultType, Expression source, LambdaExpression selector)
+    {
+      throw new NotImplementedException();
+    }
+
+    private void VisitSelectMany(Type resultType, Expression source, LambdaExpression collectionSelector, LambdaExpression resultSelector)
+    {
+      throw new NotImplementedException();
+    }
+
+    private void VisitJoin(Type resultType, Expression outerSource, Expression innerSource, LambdaExpression outerKey, LambdaExpression innerKey, LambdaExpression resultSelector)
+    {
+      throw new NotImplementedException();
     }
 
     private void VisitFirst(Expression expression, LambdaExpression predicate, MethodInfo method, bool isRoot)
