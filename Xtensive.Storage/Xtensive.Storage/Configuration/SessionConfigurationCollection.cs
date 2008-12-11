@@ -6,43 +6,78 @@
 
 using System;
 using Xtensive.Core.Collections;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Configuration
 {
   ///<summary>
   /// The collection of <see cref="SessionConfiguration"./>
   ///</summary>
+  [Serializable]
   public class SessionConfigurationCollection : CollectionBaseSlim<SessionConfiguration>
   {
-    private const string defaultValue = "Default";
-    private const string systemValue = "System";
-    private const string serviceValue = "Service";
-    private const string generatorValue = "Generator";
+    private const string DefaultName = "Default";
+    private const string SystemName = "System";
+    private const string ServiceName = "Service";
+    private const string GeneratorName = "Generator";
+
     private static readonly StringComparer comparer = StringComparer.OrdinalIgnoreCase;
-    private bool defaultSessionIsAdded;
+
+    private SessionConfiguration @default;
+    private SessionConfiguration system;
+    private SessionConfiguration service;
+    private SessionConfiguration generator;
 
     ///<summary>
     /// Gets the default session configuration.
     ///</summary>
-    public SessionConfiguration Default { get; private set; }
+    public SessionConfiguration Default
+    {
+      get
+      {
+        if (!IsLocked)
+          return this[DefaultName];
+        return @default;
+      }
+    }
 
     ///<summary>
     /// Gets the system session configuration.
     ///</summary>
-    public SessionConfiguration System { get; private set; }
+    public SessionConfiguration System
+    {
+      get
+      {
+        if (!IsLocked)
+          return this[SystemName];
+        return system;
+      }
+    }
 
     ///<summary>
     /// Gets the service session configuration.
     ///</summary>
-    public SessionConfiguration Service { get; private set; }
+    public SessionConfiguration Service
+    {
+      get
+      {
+        if (!IsLocked)
+          return this[ServiceName];
+        return service;
+      }
+    }
 
     ///<summary>
     /// Gets the generator session configuration.
     ///</summary>
-    public SessionConfiguration Generator { get; private set; }
-
+    public SessionConfiguration Generator
+    {
+      get
+      {
+        if (!IsLocked)
+          return this[GeneratorName];
+        return generator;
+      }
+    }
 
     ///<summary>
     /// Gets the element with the specified name.
@@ -52,41 +87,11 @@ namespace Xtensive.Storage.Configuration
     {
       get
       {
-        foreach (var session in this)
-          if (comparer.Compare(session.Name, name)==0)
-            return session;
+        foreach (var item in this)
+          if (comparer.Compare(item.Name, name)==0)
+            return item;
         return null;
       }
-    }
-
-    /// <inheritdoc/>
-    public override void Add(SessionConfiguration item)
-    {
-      if (this[item.Name]!=null)
-        throw new InvalidOperationException(string.Format(Strings.ExSessionWithNameXAlreadyExists, item.Name));
-
-      var result = (SessionConfiguration) item.Clone();
-      result.Name = item.Name;
-      if (comparer.Compare(result.Name, defaultValue)==0) {
-        Default = result;
-        for (int i = 0; i < Count; i++)
-          ApplyDefaultSettings(this[i]);
-        ApplyDefaultSettings(System);
-        ApplyDefaultSettings(Service);
-        ApplyDefaultSettings(Generator);
-        defaultSessionIsAdded = true;
-      }
-      else {
-        if (defaultSessionIsAdded)
-          ApplyDefaultSettings(result);
-        if (comparer.Compare(result.Name, systemValue)==0)
-          System = result;
-        else if (comparer.Compare(result.Name, serviceValue)==0)
-          Service = result;
-        else if (comparer.Compare(result.Name, generatorValue) == 0)
-          Generator = result;
-      }
-      base.Add(result);
     }
 
     #region Equality members
@@ -98,9 +103,10 @@ namespace Xtensive.Storage.Configuration
         return false;
       if (ReferenceEquals(this, obj))
         return true;
-      if (obj.GetType()!=typeof (SessionConfigurationCollection))
+      SessionConfigurationCollection scc = obj as SessionConfigurationCollection;
+      if (scc == null)
         return false;
-      return Equals((SessionConfigurationCollection) obj);
+      return Equals(scc);
     }
 
     /// <inheritdoc/>
@@ -110,12 +116,15 @@ namespace Xtensive.Storage.Configuration
         return false;
       if (ReferenceEquals(this, obj))
         return true;
-      foreach (var configuration in obj)
-        if (this[configuration.Name]==null)
-          return false;
-      if (!Default.Equals(obj.Default) || !System.Equals(obj.System)
-        || !Service.Equals(obj.Service) || !Generator.Equals(obj.Generator))
+      if (Count != obj.Count)
         return false;
+      foreach (var item2 in obj) {
+        var item1 = this[item2.Name];
+        if (item1==null)
+          return false;
+        if (!item2.Equals(item1))
+          return false;
+      }
       return true;
     }
 
@@ -126,12 +135,37 @@ namespace Xtensive.Storage.Configuration
         int result = (Default!=null ? Default.GetHashCode() : 0);
         result = (result * 397) ^ (System!=null ? System.GetHashCode() : 0);
         result = (result * 397) ^ (Service!=null ? Service.GetHashCode() : 0);
-        result = (result * 397) ^ (Generator != null ? Generator.GetHashCode() : 0);
+        result = (result * 397) ^ (Generator!=null ? Generator.GetHashCode() : 0);
         return result;
       }
     }
 
     #endregion
+
+    /// <inheritdoc/>
+    public override void Lock(bool recursive)
+    {
+      @default = BuildConfiguration(DefaultName);
+      system = BuildConfiguration(SystemName);
+      service = BuildConfiguration(ServiceName);
+      generator = BuildConfiguration(GeneratorName);
+      foreach (var item in this) {
+        ApplyDefaultSettings(item);
+        item.Lock(recursive);
+      }
+      base.Lock(recursive);
+    }
+
+    private SessionConfiguration BuildConfiguration(string name)
+    {
+      var result = this[name];
+      if (result!=null)
+        return result;
+
+      result = new SessionConfiguration {Name = name};
+      Add(result);
+      return result;
+    }
 
     private void ApplyDefaultSettings(SessionConfiguration config)
     {
@@ -142,17 +176,6 @@ namespace Xtensive.Storage.Configuration
       if (config.CacheSize!=Default.CacheSize && config.CacheSize==SessionConfiguration.DefaultCacheSize)
         config.CacheSize = Default.CacheSize;
       config.Options = config.Options | Default.Options;
-    }
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    public SessionConfigurationCollection()
-    {
-      Default = new SessionConfiguration {Name = defaultValue};
-      System = new SessionConfiguration {Name = systemValue};
-      Service = new SessionConfiguration {Name = serviceValue};
-      Generator = new SessionConfiguration { Name = generatorValue };
     }
   }
 }

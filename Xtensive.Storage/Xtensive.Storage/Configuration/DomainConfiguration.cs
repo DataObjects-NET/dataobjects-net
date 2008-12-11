@@ -281,7 +281,7 @@ namespace Xtensive.Storage.Configuration
     {
       types.Lock(true);
       builders.Lock(true);
-      sessions.Default.Lock(true);
+      sessions.Lock(true);
       base.Lock(recursive);
     }
 
