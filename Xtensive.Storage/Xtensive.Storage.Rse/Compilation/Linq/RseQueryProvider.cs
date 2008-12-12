@@ -22,15 +22,15 @@ namespace Xtensive.Storage.Rse.Compilation.Linq
       expression = QueryPreprocessor.Translate(expression, Model);
       var rewriter = new RseQueryRewriter(this);
       expression  = rewriter.Rewrite(expression);
-      var translator = new RseQueryTranslator(this);
-      translator.Translate(expression);
-      var shaper = translator.Shaper;
-      var result = translator.Result;
+      var compiler = new RseQueryCompiler(this);
+      var result = compiler.Translate(expression);
+      var shaper = result.Shaper;
+      var rs = result.RecordSet;
       if (shaper != null)
-        return shaper(result);
+        return shaper(rs);
+
       var arguments = expression.Type.GetGenericArguments();
-      var r = (IEnumerable)EntityMaterializer(result, arguments[0]);
-      return r;
+      return EntityMaterializer(rs, arguments[0]);
     }
 
 

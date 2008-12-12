@@ -12,11 +12,11 @@ namespace Xtensive.Storage.Rse.Compilation.Expressions
 {
   public static class ExpressionHelper
   {
-    public static Expression StripQuotes(this Expression expression)
+    public static LambdaExpression StripQuotes(this Expression expression)
     {
       while (expression.NodeType == ExpressionType.Quote)
         expression = ((UnaryExpression)expression).Operand;
-      return expression;
+      return (LambdaExpression)expression;
     }
 
     public static bool IsQuery(this Expression expression)
