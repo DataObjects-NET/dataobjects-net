@@ -22,7 +22,7 @@ namespace Xtensive.Storage.Rse.Compilation.Linq
       expression = QueryPreprocessor.Translate(expression, Model);
       var rewriter = new RseQueryRewriter(this);
       expression  = rewriter.Rewrite(expression);
-      var compiler = new RseQueryCompiler(this);
+      var compiler = new RseQueryTranslator(this);
       var result = compiler.Translate(expression);
       var shaper = result.Shaper;
       var rs = result.RecordSet;
