@@ -14,7 +14,7 @@ namespace Xtensive.Storage.PairIntegrity
   internal class SyncContext
   {
     private readonly List<Pair<Entity, AssociationInfo>> participants = new List<Pair<Entity, AssociationInfo>>(3);
-    private readonly List<Action<Entity, Entity, bool>> actions = new List<Action<Entity, Entity, bool>>(3);
+    private readonly List<Action<IEntity, IEntity, bool>> actions = new List<Action<IEntity, IEntity, bool>>(3);
     private readonly List<Triplet<Entity, Entity, bool>> arguments = new List<Triplet<Entity, Entity, bool>>(3);
     private int stage;
 
@@ -46,7 +46,7 @@ namespace Xtensive.Storage.PairIntegrity
       action(args.First, args.Second, args.Third);
     }
 
-    public void RegisterAction(Action<Entity, Entity, bool> action, Entity arg0, Entity arg1, bool arg2)
+    public void RegisterAction(Action<IEntity, IEntity, bool> action, Entity arg0, Entity arg1, bool arg2)
     {
       actions.Add(action);
       arguments.Add(new Triplet<Entity, Entity, bool>(arg0, arg1, arg2));

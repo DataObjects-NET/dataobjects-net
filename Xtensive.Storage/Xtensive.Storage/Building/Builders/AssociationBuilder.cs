@@ -103,9 +103,9 @@ namespace Xtensive.Storage.Building.Builders
         throw new DomainBuilderException(string.Format(Strings.ExPairToAttributeCanNotBeAppliedToXField,
           association.ReferencingField, association.Reversed.ReferencingField));
 
-      Func<Entity, bool, Entity> getValue = null;
-      Action<Entity, Entity, bool> @break;
-      Action<Entity, Entity, bool> create;
+      Func<IEntity, bool, IEntity> getValue = null;
+      Action<IEntity, IEntity, bool> @break;
+      Action<IEntity, IEntity, bool> create;
 
       switch (association.Multiplicity) {
       case Multiplicity.OneToOne:
@@ -134,25 +134,25 @@ namespace Xtensive.Storage.Building.Builders
       BuildingContext.Current.Domain.PairSyncActions.Add(association, actionSet);
     }
 
-    private static Func<Entity, bool, Entity> BuildGetPairedValueAction(AssociationInfo association)
+    private static Func<IEntity, bool, IEntity> BuildGetPairedValueAction(AssociationInfo association)
     {
-      return (entity, notify) => entity.GetField<Entity>(association.ReferencingField, notify);
+      return (entity, notify) => ((Entity)entity).GetField<IEntity>(association.ReferencingField, notify);
     }
 
-    private static Action<Entity, Entity, bool> BuildBreakAssociationAction(AssociationInfo association, OperationType type)
+    private static Action<IEntity, IEntity, bool> BuildBreakAssociationAction(AssociationInfo association, OperationType type)
     {
       if (type==OperationType.Set)
-        return (master, slave, notify) => master.SetField<Entity>(association.ReferencingField, null, notify);
+        return (master, slave, notify) => ((Entity)master).SetField<IEntity>(association.ReferencingField, null, notify);
       else
-        return (master, slave, notify) => master.GetField<EntitySetBase>(association.ReferencingField, notify).Remove(slave, notify);
+        return (master, slave, notify) => ((Entity)master).GetField<EntitySetBase>(association.ReferencingField, notify).Remove((Entity)slave, notify);
     }
 
-    private static Action<Entity, Entity, bool> BuildCreateAssociationAction(AssociationInfo association, OperationType type)
+    private static Action<IEntity, IEntity, bool> BuildCreateAssociationAction(AssociationInfo association, OperationType type)
     {
       if (type==OperationType.Set)
-        return (master, slave, notify) => master.SetField(association.ReferencingField, slave, notify);
+        return (master, slave, notify) => ((Entity)master).SetField(association.ReferencingField, slave, notify);
       else
-        return (master, slave, notify) => master.GetField<EntitySetBase>(association.ReferencingField, notify).Add(slave, notify);
+        return (master, slave, notify) => ((Entity)master).GetField<EntitySetBase>(association.ReferencingField, notify).Add((Entity)slave, notify);
     }
   }
 }

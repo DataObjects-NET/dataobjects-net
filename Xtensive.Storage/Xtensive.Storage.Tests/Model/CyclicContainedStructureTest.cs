@@ -13,31 +13,7 @@ using Xtensive.Storage.Configuration;
 
 namespace Xtensive.Storage.Tests.Model.ReferenceTestModel
 {
-  #region SelfReferenced Entity
-
-  [HierarchyRoot(typeof (KeyGenerator), "Id")]
-  public class A : Entity
-  {
-    [Field]
-    public int Id { get; private set; }
-
-    [Field]
-    public A Parent { get; set; }
-  }
-
-  #endregion
-
-  #region SelfContained Structure
-
-  public class SelfContained : Structure
-  {
-    [Field]
-    public SelfContained Value { get; set; }
-  }
-
-  #endregion
-
-  #region Cyclic Referenced Structures
+  #region Cyclic referenced structures
 
   public class S1 : Structure
   {
@@ -57,34 +33,9 @@ namespace Xtensive.Storage.Tests.Model.ReferenceTestModel
     public S1 Value { get; set; }
   }
 
-  [HierarchyRoot(typeof(KeyGenerator), "Id")]
-  public class E1 : Entity
-  {
-    [Field]
-    public int Id { get; private set; }
-  }
-
-  [HierarchyRoot(typeof(KeyGenerator), "Id")]
-  public class E2 : Entity
-  {
-    [Field]
-    public int Id { get; private set; }
-  }
-
-  [HierarchyRoot(typeof(KeyGenerator), "Id")]
-  public class ERef : Entity
-  {
-    [Field]
-    public int Id { get; private set; }
-    [Field]
-    public E1 Ref1 { get; set; }
-    [Field]
-    public E2 Ref2 { get; set; }
-  }
-
   #endregion
 
-  #region Cyclic Referenced Structures with Inheritance
+  #region Cyclic contained structures with inheritance
 
   public class Parent : Structure
   {
@@ -101,7 +52,7 @@ namespace Xtensive.Storage.Tests.Model.ReferenceTestModel
 
 namespace Xtensive.Storage.Tests.Model
 {
-  public class CycleReferenceTest : AutoBuildTest
+  public class CyclicContainedStructureTest : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
     {
@@ -117,7 +68,7 @@ namespace Xtensive.Storage.Tests.Model
         domain = Domain.Build(configuration);
       }
       catch (AggregateException e) {
-        Assert.AreEqual(3, e.Exceptions.Count());
+        Assert.AreEqual(2, e.Exceptions.Count());
       }
       return domain;
     }

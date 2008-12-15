@@ -37,9 +37,9 @@ namespace Xtensive.Storage.PairIntegrity
         Entity master2 = null;
       
         if (masterActions.GetPairedValue!=null)
-          slave1 = masterActions.GetPairedValue(master1, notify);
+          slave1 = (Entity) masterActions.GetPairedValue(master1, notify);
         if (slave2 != null && slaveActions.GetPairedValue != null)
-          master2 = slaveActions.GetPairedValue(slave2, notify);
+          master2 = (Entity) slaveActions.GetPairedValue(slave2, notify);
 
         context = new SyncContext();
         contextStack.Push(context);

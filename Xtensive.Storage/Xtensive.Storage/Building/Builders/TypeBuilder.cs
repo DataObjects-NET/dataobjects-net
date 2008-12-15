@@ -90,11 +90,26 @@ namespace Xtensive.Storage.Building.Builders
     {
       BuildingContext context = BuildingContext.Current;
 
-      if (typeDef.IsInterface)
-        return;
-
       if (context.SkippedTypes.Contains(typeDef.UnderlyingType))
         return;
+
+      if (typeDef.IsInterface) {
+        if (context.Model.Types.Contains(typeDef.UnderlyingType))
+          return;
+        foreach (TypeDef implementor in context.Definition.Types) {
+          if (!implementor.IsEntity)
+            continue;
+          if (implementor.UnderlyingType.IsInterface)
+            continue;
+          if (context.Model.Types.Contains(implementor.UnderlyingType))
+            continue;
+          foreach (TypeDef @interface in context.Definition.Types.FindInterfaces(implementor.UnderlyingType))
+            if (@interface==typeDef) {
+              BuildType(implementor);
+              return;
+            }
+        }
+      }
 
       if (typeDef.IsEntity)
         if (!context.Model.Types.Contains(typeDef.UnderlyingType))
@@ -137,14 +152,16 @@ namespace Xtensive.Storage.Building.Builders
           ProcessSkippedAncestors(typeDef);
           BuildHierarchyRoot(type, typeDef, hierarchy);
           BuildSystemFields(type);
-          BuildDeclaredFields(type, typeDef);
           BuildInterfaces(type);
+          BuildDeclaredFields(type, typeDef);
+          BuildInterfaceFields(type);
         }
         else {
           AssignHierarchy(type);
           ProcessAncestor(type);
           BuildDeclaredFields(type, typeDef);
           BuildInterfaces(type);
+          BuildInterfaceFields(type);
         }
       }
     }
@@ -170,11 +187,34 @@ namespace Xtensive.Storage.Building.Builders
     {
       foreach (TypeDef @interfaceDef in BuildingContext.Current.Definition.Types.FindInterfaces(type.UnderlyingType)) {
         TypeInfo @interface = BuildInterface(@interfaceDef, type);
-        if (@interface != null)
+        if (@interface!=null)
           BuildingContext.Current.Model.Types.RegisterImplementor(@interface, type);
       }
-      foreach (TypeInfo @interface in type.GetInterfaces(true))
-        BuildFieldMap(@interface, type);
+    }
+
+    private static void BuildInterfaceFields(TypeInfo implementor)
+    {
+      foreach (TypeInfo @interface in implementor.GetInterfaces(false)) {
+        ProcessBaseInterface(@interface, implementor);
+
+        // Building other declared & inherited interface fields
+        foreach (FieldDef fieldDef in BuildingContext.Current.Definition.Types[implementor.UnderlyingType].Fields) {
+          if (@interface.Fields.Contains(fieldDef.Name))
+            continue;
+          string explicitName = BuildingContext.Current.NameBuilder.BuildExplicit(@interface, fieldDef.Name);
+          FieldInfo implField;
+          if (!implementor.Fields.TryGetValue(explicitName, out implField)) {
+            if (!implementor.Fields.TryGetValue(fieldDef.Name, out implField))
+              throw new DomainBuilderException(
+                string.Format(Strings.TypeXDoesNotImplementYZField, implementor.Name, @interface.Name, fieldDef.Name));}
+
+          if (implField!=null)
+            FieldBuilder.BuildInterfaceField(@interface, implField, fieldDef);
+        }
+      }
+
+      foreach (TypeInfo @interface in implementor.GetInterfaces(true))
+        BuildFieldMap(@interface, implementor);
     }
 
     private static void BuildSystemFields(TypeInfo type)
@@ -205,7 +245,6 @@ namespace Xtensive.Storage.Building.Builders
           BuildingContext.Current.RegisterError(e);
         }
     }
-
 
     private static void ProcessAncestor(TypeInfo type)
     {
@@ -294,26 +333,10 @@ namespace Xtensive.Storage.Building.Builders
 
       using (Log.InfoRegion(Strings.LogBuildingX, typeDef.UnderlyingType.FullName)) {
 
-        foreach (TypeInfo @interface in context.Model.Types.FindInterfaces(type, false))
-          ProcessBaseInterface(@interface, type);
-
         // Building key & system fields according to implementor
         foreach (FieldInfo implField in implementor.Fields.Find(FieldAttributes.PrimaryKey | FieldAttributes.System)) {
           if (!type.Fields.Contains(implField.Name))
             FieldBuilder.BuildInterfaceField(type, implField, null);
-        }
-
-        // Building other declared & inherited interface fields
-        foreach (FieldDef fieldDef in typeDef.Fields) {
-          string explicitName = context.NameBuilder.BuildExplicit(type, fieldDef.Name);
-          FieldInfo implField;
-          if (!implementor.Fields.TryGetValue(explicitName, out implField)) {
-            if (!implementor.Fields.TryGetValue(fieldDef.Name, out implField))
-              throw new DomainBuilderException(
-                string.Format(Resources.Strings.TypeXDoesNotImplementYZField, implementor.Name, type.Name, fieldDef.Name));}
-
-          if (implField!=null)
-            FieldBuilder.BuildInterfaceField(type, implField, fieldDef);
         }
       }
       return type;
