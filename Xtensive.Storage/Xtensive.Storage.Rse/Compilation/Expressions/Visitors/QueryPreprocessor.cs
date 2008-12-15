@@ -95,7 +95,7 @@ namespace Xtensive.Storage.Rse.Compilation.Expressions.Visitors
             var columnFunc = Expression.Lambda<Func<int>>(columnArgument).Compile();
             columnIndex = columnFunc();
           }
-          return new ColumnAccessExpression(type, columnIndex);
+          return new FieldAccessExpression(type, columnIndex);
         }
       }
       return base.VisitMethodCall(expression);
@@ -106,7 +106,7 @@ namespace Xtensive.Storage.Rse.Compilation.Expressions.Visitors
       if (m.Expression.NodeType == ExpressionType.Parameter) {
         var type = model.Types[m.Expression.Type];
         var field = type.Fields[m.Member.Name];
-        return new ColumnAccessExpression(m.Type, field.MappingInfo.Offset);
+        return new FieldAccessExpression(m.Type, field.MappingInfo.Offset);
       }
       return base.VisitMemberAccess(m);
     }

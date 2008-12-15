@@ -9,7 +9,7 @@ using System.Linq.Expressions;
 
 namespace Xtensive.Storage.Rse.Compilation.Expressions
 {
-  public sealed class ColumnAccessExpression : ExtendedExpression
+  public sealed class FieldAccessExpression : RseExpression
   {
     public int ColumnIndex { get; private set; }
 
@@ -19,8 +19,8 @@ namespace Xtensive.Storage.Rse.Compilation.Expressions
     }
 
 
-    public ColumnAccessExpression(Type type, int columnIndex)
-      : base(ExtendedExpressionType.FieldAccess, type)
+    public FieldAccessExpression(Type type, int columnIndex)
+      : base(RseExpressionType.FieldAccess, type)
     {
       ColumnIndex = columnIndex;
     }

@@ -44,11 +44,11 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
 
     protected override SqlExpression VisitUnknown(Expression expression)
     {
-      var type = (ExtendedExpressionType) expression.NodeType;
+      var type = (RseExpressionType) expression.NodeType;
       switch (type) {
-        case ExtendedExpressionType.FieldAccess:
-          return VisitFieldAccess((ColumnAccessExpression)expression);
-        case ExtendedExpressionType.ParameterAccess:
+        case RseExpressionType.FieldAccess:
+          return VisitFieldAccess((FieldAccessExpression)expression);
+        case RseExpressionType.ParameterAccess:
           return VisitParameterAccess((ParameterAccessExpression)expression);
         default:
           throw new ArgumentOutOfRangeException();
@@ -63,7 +63,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
 
     }
 
-    private SqlExpression VisitFieldAccess(ColumnAccessExpression expression)
+    private SqlExpression VisitFieldAccess(FieldAccessExpression expression)
     {
       var sqlSelect = (SqlSelect)request.Statement;
       return sqlSelect[expression.ColumnIndex];

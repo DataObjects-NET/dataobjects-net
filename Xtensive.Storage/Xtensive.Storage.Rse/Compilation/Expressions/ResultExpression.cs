@@ -9,7 +9,7 @@ using System;
 namespace Xtensive.Storage.Rse.Compilation.Expressions
 {
   [Serializable]
-  public sealed class RseResultExpression : ExtendedExpression
+  public sealed class ResultExpression : RseExpression
   {
     public RecordSet RecordSet { get; private set; }
     public bool IsMultipleResults { get; private set; }
@@ -18,8 +18,8 @@ namespace Xtensive.Storage.Rse.Compilation.Expressions
 
     // Constructors
 
-    public RseResultExpression(Type type, RecordSet recordSet, Func<RecordSet,object> shaper, bool isMultiple)
-      : base(ExtendedExpressionType.RseResult, type)
+    public ResultExpression(Type type, RecordSet recordSet, Func<RecordSet,object> shaper, bool isMultiple)
+      : base(RseExpressionType.Result, type)
     {
       RecordSet = recordSet;
       Shaper = shaper;

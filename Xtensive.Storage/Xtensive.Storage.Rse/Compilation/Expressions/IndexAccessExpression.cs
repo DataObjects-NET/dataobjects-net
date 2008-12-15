@@ -12,7 +12,7 @@ using Xtensive.Storage.Model;
 namespace Xtensive.Storage.Rse.Compilation.Expressions
 {
   [Serializable]
-  public sealed class IndexAccessExpression : ExtendedExpression
+  public sealed class IndexAccessExpression : RseExpression
   {
     public IndexInfo Index { get; private set; }
 
@@ -22,7 +22,7 @@ namespace Xtensive.Storage.Rse.Compilation.Expressions
     }
 
     public IndexAccessExpression(Type type, IndexInfo index)
-      : base(ExtendedExpressionType.IndexAccess, type)
+      : base(RseExpressionType.IndexAccess, type)
     {
       Index = index;
     }

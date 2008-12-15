@@ -9,14 +9,14 @@ using System.Linq.Expressions;
 
 namespace Xtensive.Storage.Rse.Compilation.Expressions
 {
-  public abstract class ExtendedExpression : Expression
+  public abstract class RseExpression : Expression
   {
-    public new ExtendedExpressionType NodeType
+    public new RseExpressionType NodeType
     {
-      get { return (ExtendedExpressionType) base.NodeType; }
+      get { return (RseExpressionType) base.NodeType; }
     }
 
-    protected ExtendedExpression(ExtendedExpressionType nodeType, Type type)
+    protected RseExpression(RseExpressionType nodeType, Type type)
       : base((ExpressionType)nodeType, type)
     {
     }

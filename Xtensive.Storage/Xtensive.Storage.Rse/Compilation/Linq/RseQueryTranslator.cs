@@ -25,10 +25,10 @@ namespace Xtensive.Storage.Rse.Compilation.Linq
     private Expression root;
     private ParameterExpression parameter;
 
-    public RseResultExpression Translate(Expression expression)
+    public ResultExpression Translate(Expression expression)
     {
       root = expression;
-      return (RseResultExpression) Visit(expression);
+      return (ResultExpression) Visit(expression);
     }
 
     protected bool IsRoot(Expression expression)
@@ -181,9 +181,9 @@ namespace Xtensive.Storage.Rse.Compilation.Linq
     {
       if (!isRoot)
         throw new NotImplementedException();
-      RseResultExpression result = predicate!=null ? 
-        (RseResultExpression) VisitWhere(source, predicate) : 
-        (RseResultExpression) Visit(source);
+      ResultExpression result = predicate!=null ? 
+        (ResultExpression) VisitWhere(source, predicate) : 
+        (ResultExpression) Visit(source);
       RecordSet recordSet = null;
       switch (method.Name) {
         case "First":
@@ -219,7 +219,7 @@ namespace Xtensive.Storage.Rse.Compilation.Linq
 //        return item;
 //      };
 
-      return new RseResultExpression(method.ReturnType, recordSet, shaper, false);
+      return new ResultExpression(method.ReturnType, recordSet, shaper, false);
     }
 
     private Expression VisitTake(Expression source, Expression take)
@@ -244,21 +244,21 @@ namespace Xtensive.Storage.Rse.Compilation.Linq
       string name = "$Count";
       AggregateType type = AggregateType.Count;
       Func<RecordSet, object> shaper;
-      RseResultExpression result;
+      ResultExpression result;
       int aggregateColumn = 0;
       if (method.Name == "Count") {
         shaper = set => (int)(set.First().GetValue<long>(0));
         if (argument != null)
-          result = (RseResultExpression) VisitWhere(source, argument);
+          result = (ResultExpression) VisitWhere(source, argument);
         else
-          result = (RseResultExpression) Visit(source);
+          result = (ResultExpression) Visit(source);
       }
       else {
-        result = (RseResultExpression)Visit(source);
+        result = (ResultExpression)Visit(source);
         if (argument==null) 
           throw new NotSupportedException();
 
-        var column = argument.Body as ColumnAccessExpression;
+        var column = argument.Body as FieldAccessExpression;
         if (column==null)
           throw new NotSupportedException();
         aggregateColumn = column.ColumnIndex;
@@ -284,7 +284,7 @@ namespace Xtensive.Storage.Rse.Compilation.Linq
       }
 
       var recordSet = result.RecordSet.Aggregate(null, new AggregateColumnDescriptor(name, aggregateColumn, type));
-      return new RseResultExpression(result.Type, recordSet, shaper, false);
+      return new ResultExpression(result.Type, recordSet, shaper, false);
     }
 
     private Expression VisitGroupBy(Expression source, LambdaExpression keySelector, LambdaExpression elementSelector, LambdaExpression resultSelector)
@@ -319,34 +319,34 @@ namespace Xtensive.Storage.Rse.Compilation.Linq
 
     private Expression VisitWhere(Expression expression, LambdaExpression lambdaExpression)
     {
-      var source = (RseResultExpression)Visit(expression);
+      var source = (ResultExpression)Visit(expression);
       parameter = Expression.Parameter(typeof(Tuple), "t");
       var body = Visit(lambdaExpression.Body);
       var predicate = Expression.Lambda(typeof(Func<Tuple, bool>), body, parameter);
       var recordSet = source.RecordSet.Filter((Expression<Func<Tuple, bool>>)predicate);
-      return new RseResultExpression(expression.Type, recordSet, null, true);
+      return new ResultExpression(expression.Type, recordSet, null, true);
 
     }
 
     protected override Expression VisitUnknown(Expression expression)
     {
-      var extendedExpression = (ExtendedExpression) expression;
+      var extendedExpression = (RseExpression) expression;
       switch (extendedExpression.NodeType) {
-      case ExtendedExpressionType.FieldAccess:
-        return VisitFieldAccess((ColumnAccessExpression) extendedExpression);
-      case ExtendedExpressionType.ParameterAccess:
+      case RseExpressionType.FieldAccess:
+        return VisitFieldAccess((FieldAccessExpression) extendedExpression);
+      case RseExpressionType.ParameterAccess:
         return expression;
-      case ExtendedExpressionType.IndexAccess:
+      case RseExpressionType.IndexAccess:
         return VisitIndexAccess((IndexAccessExpression) extendedExpression);
-      case ExtendedExpressionType.Range:
+      case RseExpressionType.Range:
         return VisitRange((RangeExpression) extendedExpression);
-      case ExtendedExpressionType.Seek:
+      case RseExpressionType.Seek:
         return VisitSeek((SeekExpression) extendedExpression);
       }
       throw new ArgumentOutOfRangeException();
     }
 
-    private Expression VisitFieldAccess(ColumnAccessExpression expression)
+    private Expression VisitFieldAccess(FieldAccessExpression expression)
     {
       var method = expression.Type == typeof(object) ? nonGenericAccessor : genericAccessor.MakeGenericMethod(expression.Type);
       return Expression.Call(parameter, method, Expression.Constant(expression.ColumnIndex));
@@ -354,7 +354,7 @@ namespace Xtensive.Storage.Rse.Compilation.Linq
 
     private Expression VisitIndexAccess(IndexAccessExpression expression)
     {
-      return new RseResultExpression(
+      return new ResultExpression(
         expression.Type,
         IndexProvider.Get(expression.Index).Result,
         null,

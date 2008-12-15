@@ -9,10 +9,10 @@ using System;
 namespace Xtensive.Storage.Rse.Compilation.Expressions
 {
   [Serializable]
-  public sealed class RangeExpression : ExtendedExpression
+  public sealed class RangeExpression : RseExpression
   {
     public RangeExpression(Type type)
-      : base(ExtendedExpressionType.Range, type)
+      : base(RseExpressionType.Range, type)
     {
     }
   }
