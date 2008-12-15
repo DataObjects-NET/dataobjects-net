@@ -261,7 +261,7 @@ namespace Xtensive.Storage.Rse.Compilation.Linq
         var column = argument.Body as FieldAccessExpression;
         if (column==null)
           throw new NotSupportedException();
-        aggregateColumn = column.ColumnIndex;
+        aggregateColumn = column.Field.MappingInfo.Offset;
         shaper = set => set.First().GetValueOrDefault(0);
         switch (method.Name) {
         case "Min":
@@ -349,7 +349,7 @@ namespace Xtensive.Storage.Rse.Compilation.Linq
     private Expression VisitFieldAccess(FieldAccessExpression expression)
     {
       var method = expression.Type == typeof(object) ? nonGenericAccessor : genericAccessor.MakeGenericMethod(expression.Type);
-      return Expression.Call(parameter, method, Expression.Constant(expression.ColumnIndex));
+      return Expression.Call(parameter, method, Expression.Constant(expression.Field.MappingInfo.Offset));
     }
 
     private Expression VisitIndexAccess(IndexAccessExpression expression)

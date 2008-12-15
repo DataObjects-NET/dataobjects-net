@@ -20,8 +20,8 @@ namespace Xtensive.Storage.Rse.Compilation.Linq
     protected override object Execute(Expression expression)
     {
       expression = QueryPreprocessor.Translate(expression, Model);
-      var rewriter = new RseQueryRewriter(this);
-      expression  = rewriter.Rewrite(expression);
+//      var rewriter = new RseQueryRewriter(this);
+//      expression  = rewriter.Rewrite(expression);
       var compiler = new RseQueryTranslator(this);
       var result = compiler.Translate(expression);
       var shaper = result.Shaper;

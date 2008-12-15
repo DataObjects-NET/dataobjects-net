@@ -86,16 +86,17 @@ namespace Xtensive.Storage.Rse.Compilation.Expressions.Visitors
     {
       if (expression.Object != null && expression.Object.Type == typeof(Tuple)) {
         if (expression.Method.Name == "GetValue" || expression.Method.Name == "GetValueOrDefault") {
-          var type = expression.Method.ReturnType;
           var columnArgument = expression.Arguments[0];
-          int columnIndex;
-          if (columnArgument.NodeType == ExpressionType.Constant)
-            columnIndex = (int)((ConstantExpression)columnArgument).Value;
-          else {
-            var columnFunc = Expression.Lambda<Func<int>>(columnArgument).Compile();
-            columnIndex = columnFunc();
+          if (evaluationCandidates.Contains(columnArgument)) {
+            int columnIndex;
+            if (columnArgument.NodeType==ExpressionType.Constant)
+              columnIndex = (int) ((ConstantExpression) columnArgument).Value;
+            else {
+              var columnFunc = Expression.Lambda<Func<int>>(columnArgument).Compile();
+              columnIndex = columnFunc();
+            }
+            return Expression.Call(expression.Object, expression.Method, Expression.Constant(columnIndex));
           }
-          return new FieldAccessExpression(type, columnIndex);
         }
       }
       return base.VisitMethodCall(expression);
@@ -103,12 +104,25 @@ namespace Xtensive.Storage.Rse.Compilation.Expressions.Visitors
 
     protected override Expression VisitMemberAccess(MemberExpression m)
     {
-      if (m.Expression.NodeType == ExpressionType.Parameter) {
-        var type = model.Types[m.Expression.Type];
-        var field = type.Fields[m.Member.Name];
-        return new FieldAccessExpression(m.Type, field.MappingInfo.Offset);
+      var memberNames = new Stack<string>();
+      Expression e = m;
+      while(e.NodeType == ExpressionType.MemberAccess) {
+        var memberAccess = (MemberExpression)e;
+        memberNames.Push(memberAccess.Member.Name);
+        e = memberAccess.Expression;
       }
-      return base.VisitMemberAccess(m);
+      if (e.NodeType == ExpressionType.Parameter) {
+        var type = model.Types[m.Expression.Type];
+        var fields = type.Fields;
+        FieldInfo field = null;
+        while(memberNames.Count > 0) {
+          var name = memberNames.Pop();
+          field = fields[name];
+          fields = field.Fields;
+        }
+        return new FieldAccessExpression(m.Type, field);
+      }
+      throw new InvalidOperationException();
     }
 
     protected override Expression VisitUnknown(Expression expression)

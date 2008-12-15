@@ -66,7 +66,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     private SqlExpression VisitFieldAccess(FieldAccessExpression expression)
     {
       var sqlSelect = (SqlSelect)request.Statement;
-      return sqlSelect[expression.ColumnIndex];
+      return sqlSelect[expression.Field.MappingInfo.Offset];
     }
 
     protected override SqlExpression VisitUnary(UnaryExpression expression)
@@ -171,6 +171,21 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
 
     protected override SqlExpression VisitMethodCall(MethodCallExpression expression)
     {
+      if (expression.Object != null && expression.Object.Type == typeof(Tuple)) {
+        if (expression.Method.Name == "GetValue" || expression.Method.Name == "GetValueOrDefault") {
+          var type = expression.Method.ReturnType;
+          var columnArgument = expression.Arguments[0];
+          int columnIndex;
+          if (columnArgument.NodeType == ExpressionType.Constant)
+            columnIndex = (int)((ConstantExpression)columnArgument).Value;
+          else {
+            var columnFunc = Expression.Lambda<Func<int>>(columnArgument).Compile();
+            columnIndex = columnFunc();
+          }
+          var sqlSelect = (SqlSelect)request.Statement;
+          return sqlSelect[columnIndex];
+        }
+      }
       var map = MethodMapping.GetMapping(expression.Method);
       var target = Visit(expression.Object);
       var arguments = expression.Arguments.Select(a => Visit(a)).ToArray();

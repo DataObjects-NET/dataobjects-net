@@ -6,23 +6,24 @@
 
 using System;
 using System.Linq.Expressions;
+using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Rse.Compilation.Expressions
 {
   public sealed class FieldAccessExpression : RseExpression
   {
-    public int ColumnIndex { get; private set; }
+    public FieldInfo Field { get; private set; }
 
     public override string ToString()
     {
-      return string.Format("Column[{0}]", ColumnIndex);
+      return string.Format("Field[{0}]", Field.Name);
     }
 
 
-    public FieldAccessExpression(Type type, int columnIndex)
+    public FieldAccessExpression(Type type, FieldInfo field)
       : base(RseExpressionType.FieldAccess, type)
     {
-      ColumnIndex = columnIndex;
+      Field = field;
     }
   }
 }
