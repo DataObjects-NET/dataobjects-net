@@ -196,15 +196,28 @@ namespace Xtensive.Storage.Rse.Compilation.Linq
           break;
       }
       var enumerableType = typeof(Enumerable);
-      MethodInfo enumerableMethod = enumerableType.GetMethods(BindingFlags.Static | BindingFlags.Public).First(m => m.Name == method.Name && m.GetParameters().Length == 1);
-      enumerableMethod = enumerableMethod.MakeGenericMethod(method.ReturnType);
+      MethodInfo enumerableMethod = enumerableType
+        .GetMethods(BindingFlags.Static | BindingFlags.Public)
+        .First(m => m.Name == method.Name && m.GetParameters().Length == 1)
+        .MakeGenericMethod(method.ReturnType);
       MethodInfo castMethod = enumerableType.GetMethod("Cast").MakeGenericMethod(method.ReturnType);
-      Func<RecordSet,object> shaper = delegate(RecordSet set) {
-        IEnumerable enumerable = provider.EntityMaterializer(set, method.ReturnType);
-        object cast = castMethod.Invoke(null, new[] { enumerable });
-        object item = enumerableMethod.Invoke(null, new[] { cast });
-        return item;
-      };
+      Expression<Func<RecordSet,object>> materializer = set => provider.EntityMaterializer(set, method.ReturnType);
+      LambdaExpression materializerLe = materializer;
+      ParameterExpression rs = materializerLe.Parameters[0];
+      Expression body = Expression.Convert(Expression.Call(null, enumerableMethod, Expression.Call(null, castMethod, materializerLe.Body)), typeof(object));
+      LambdaExpression le = Expression.Lambda(body, rs);
+      Func<RecordSet,object> shaper = (Func<RecordSet, object>) le.Compile();
+//      Expression<Func<RecordSet, object>> exp = rs => provider.EntityMaterializer(rs, method.ReturnType).Cast<Type>().First();
+
+//      Console.Out.WriteLine(exp);
+
+
+//      Func<RecordSet,object> shaper = delegate(RecordSet set) {
+//        IEnumerable enumerable = provider.EntityMaterializer(set, method.ReturnType);
+//        object cast = castMethod.Invoke(null, new[] { enumerable });
+//        object item = enumerableMethod.Invoke(null, new[] { cast });
+//        return item;
+//      };
 
       return new RseResultExpression(method.ReturnType, recordSet, shaper, false);
     }

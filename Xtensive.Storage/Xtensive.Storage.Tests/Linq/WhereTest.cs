@@ -60,9 +60,9 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var suppliers = Session.Current.All<Supplier>();
-          var supplier = suppliers.Where(s => s.CompanyName=="Country20").First();
+          var supplier = suppliers.Where(s => s.CompanyName=="Company20").First();
           Assert.IsNotNull(supplier);
-          Assert.AreEqual("Country20", supplier.CompanyName);
+          Assert.AreEqual("Company20", supplier.CompanyName);
           t.Complete();
         }
       }
