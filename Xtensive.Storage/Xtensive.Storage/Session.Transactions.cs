@@ -97,6 +97,12 @@ namespace Xtensive.Storage
         Handler.RollbackTransaction();
       }
       finally {
+        foreach (var item in EntityStateRegistry.GetItems(PersistenceState.New))
+          item.PersistenceState = PersistenceState.Synchronized;
+        foreach (var item in EntityStateRegistry.GetItems(PersistenceState.Modified))
+          item.PersistenceState = PersistenceState.Synchronized;
+        foreach (var item in EntityStateRegistry.GetItems(PersistenceState.Removed))
+          item.PersistenceState = PersistenceState.Synchronized;
         EntityStateRegistry.Clear();
         OnCompleteTransaction();
       }

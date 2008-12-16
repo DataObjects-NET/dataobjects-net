@@ -127,6 +127,10 @@ namespace Xtensive.Storage
         if (IsDebugEventLoggingEnabled)
           Log.Debug("Session '{0}'. Persisted.", this);
 
+        foreach (var item in EntityStateRegistry.GetItems(PersistenceState.New))
+          item.PersistenceState = PersistenceState.Synchronized;
+        foreach (var item in EntityStateRegistry.GetItems(PersistenceState.Modified))
+          item.PersistenceState = PersistenceState.Synchronized;
         EntityStateRegistry.Clear();
       }
       finally {

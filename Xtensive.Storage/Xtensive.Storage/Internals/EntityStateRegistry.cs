@@ -44,13 +44,6 @@ namespace Xtensive.Storage.Internals
     [Infrastructure]
     public void Clear()
     {
-      foreach (var item in @new)
-        item.PersistenceState = PersistenceState.Synchronized;
-      foreach (var item in modified)
-        item.PersistenceState = PersistenceState.Synchronized;
-      foreach (var item in removed)
-        item.PersistenceState = PersistenceState.Synchronized;
-
       @new.Clear();
       modified.Clear();
       removed.Clear();

@@ -42,8 +42,8 @@ namespace Xtensive.Storage.ReferentialIntegrity
 
     private static void ApplyAction(RemovalContext context, Entity referencedObject, ReferentialAction action)
     {
-      IEnumerable<AssociationInfo> associations = referencedObject.Type.GetAssociations().Where(a => a.OnRemove==action);
-      if (associations == null)
+      List<AssociationInfo> associations = referencedObject.Type.GetAssociations().Where(a => a.OnRemove==action).ToList();
+      if (associations.Count == 0)
         return;
 
       ActionProcessor processor = GetProcessor(action);
