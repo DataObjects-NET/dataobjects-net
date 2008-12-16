@@ -7,10 +7,11 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
+using Xtensive.Storage.Linq;
+using Xtensive.Storage.Linq.Expressions.Visitors;
 using Xtensive.Storage.Rse.Compilation.Expressions;
-using Xtensive.Storage.Rse.Compilation.Expressions.Visitors;
 
-namespace Xtensive.Storage.Rse.Compilation.Linq
+namespace Xtensive.Storage.Linq.Linq2Rse
 {
   public sealed class RseQueryRewriter : ExpressionVisitor
   {

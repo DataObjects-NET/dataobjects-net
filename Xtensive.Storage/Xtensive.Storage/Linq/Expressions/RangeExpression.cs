@@ -6,13 +6,13 @@
 
 using System;
 
-namespace Xtensive.Storage.Rse.Compilation.Expressions
+namespace Xtensive.Storage.Linq.Expressions
 {
   [Serializable]
-  public sealed class SeekExpression : RseExpression
+  public sealed class RangeExpression : ExtendedExpression
   {
-    public SeekExpression(Type type)
-      : base(RseExpressionType.Seek, type)
+    public RangeExpression(Type type)
+      : base(ExtendedExpressionType.Range, type)
     {
     }
   }

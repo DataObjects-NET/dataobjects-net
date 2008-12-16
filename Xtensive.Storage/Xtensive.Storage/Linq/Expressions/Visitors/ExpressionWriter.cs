@@ -14,7 +14,7 @@ using System.Linq.Expressions;
 using System.Text;
 using Xtensive.Core.Reflection;
 
-namespace Xtensive.Storage.Rse.Compilation.Expressions.Visitors
+namespace Xtensive.Storage.Linq.Expressions.Visitors
 {
   /// <summary>
   /// Writes out an expression tree in a C#-ish syntax

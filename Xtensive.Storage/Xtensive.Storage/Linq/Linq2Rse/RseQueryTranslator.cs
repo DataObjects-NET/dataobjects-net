@@ -11,11 +11,14 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Tuples;
+using Xtensive.Storage.Linq;
+using Xtensive.Storage.Linq.Expressions;
+using Xtensive.Storage.Linq.Expressions.Visitors;
+using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Compilation.Expressions;
-using Xtensive.Storage.Rse.Compilation.Expressions.Visitors;
 using Xtensive.Storage.Rse.Providers.Compilable;
 
-namespace Xtensive.Storage.Rse.Compilation.Linq
+namespace Xtensive.Storage.Linq.Linq2Rse
 {
   public class RseQueryTranslator : ExpressionVisitor
   {
@@ -182,18 +185,18 @@ namespace Xtensive.Storage.Rse.Compilation.Linq
       if (!isRoot)
         throw new NotImplementedException();
       ResultExpression result = predicate!=null ? 
-        (ResultExpression) VisitWhere(source, predicate) : 
-        (ResultExpression) Visit(source);
+                                                  (ResultExpression) VisitWhere(source, predicate) : 
+                                                                                                     (ResultExpression) Visit(source);
       RecordSet recordSet = null;
       switch (method.Name) {
-        case "First":
-        case "FirstOrDefault":
-          recordSet = result.RecordSet.Take(1);
-          break;
-        case "Single":
-        case "SingleOrDefault":
-          recordSet = result.RecordSet.Take(2);
-          break;
+      case "First":
+      case "FirstOrDefault":
+        recordSet = result.RecordSet.Take(1);
+        break;
+      case "Single":
+      case "SingleOrDefault":
+        recordSet = result.RecordSet.Take(2);
+        break;
       }
       var enumerableType = typeof(Enumerable);
       MethodInfo enumerableMethod = enumerableType
@@ -239,7 +242,7 @@ namespace Xtensive.Storage.Rse.Compilation.Linq
 
     private Expression VisitAggregate(Expression source, MethodInfo method, LambdaExpression argument, bool isRoot)
     {
-       if (!isRoot)
+      if (!isRoot)
         throw new NotImplementedException();
       string name = "$Count";
       AggregateType type = AggregateType.Count;
@@ -330,17 +333,17 @@ namespace Xtensive.Storage.Rse.Compilation.Linq
 
     protected override Expression VisitUnknown(Expression expression)
     {
-      var extendedExpression = (RseExpression) expression;
+      var extendedExpression = (ExtendedExpression) expression;
       switch (extendedExpression.NodeType) {
-      case RseExpressionType.FieldAccess:
+      case ExtendedExpressionType.FieldAccess:
         return VisitFieldAccess((FieldAccessExpression) extendedExpression);
-      case RseExpressionType.ParameterAccess:
+      case ExtendedExpressionType.ParameterAccess:
         return expression;
-      case RseExpressionType.IndexAccess:
+      case ExtendedExpressionType.IndexAccess:
         return VisitIndexAccess((IndexAccessExpression) extendedExpression);
-      case RseExpressionType.Range:
+      case ExtendedExpressionType.Range:
         return VisitRange((RangeExpression) extendedExpression);
-      case RseExpressionType.Seek:
+      case ExtendedExpressionType.Seek:
         return VisitSeek((SeekExpression) extendedExpression);
       }
       throw new ArgumentOutOfRangeException();

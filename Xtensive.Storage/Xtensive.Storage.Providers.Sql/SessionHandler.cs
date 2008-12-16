@@ -12,8 +12,8 @@ using System.Linq;
 using Xtensive.Core.Disposable;
 using Xtensive.Core.Tuples;
 using Xtensive.Sql.Dom;
+using Xtensive.Storage.Linq.Linq2Rse;
 using Xtensive.Storage.Providers.Sql.Resources;
-using Xtensive.Storage.Rse.Compilation.Linq;
 
 namespace Xtensive.Storage.Providers.Sql
 {

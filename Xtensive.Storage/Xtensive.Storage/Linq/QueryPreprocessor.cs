@@ -11,10 +11,12 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
+using Xtensive.Storage.Linq.Expressions;
+using Xtensive.Storage.Linq.Expressions.Visitors;
 using Xtensive.Storage.Model;
 using FieldInfo=Xtensive.Storage.Model.FieldInfo;
 
-namespace Xtensive.Storage.Rse.Compilation.Expressions.Visitors
+namespace Xtensive.Storage.Linq
 {
   public sealed class QueryPreprocessor : ExpressionVisitor
   {

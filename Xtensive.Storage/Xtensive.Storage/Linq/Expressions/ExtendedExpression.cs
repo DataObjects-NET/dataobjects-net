@@ -7,16 +7,16 @@
 using System;
 using System.Linq.Expressions;
 
-namespace Xtensive.Storage.Rse.Compilation.Expressions
+namespace Xtensive.Storage.Linq.Expressions
 {
-  public abstract class RseExpression : Expression
+  public abstract class ExtendedExpression : Expression
   {
-    public new RseExpressionType NodeType
+    public new ExtendedExpressionType NodeType
     {
-      get { return (RseExpressionType) base.NodeType; }
+      get { return (ExtendedExpressionType) base.NodeType; }
     }
 
-    protected RseExpression(RseExpressionType nodeType, Type type)
+    protected ExtendedExpression(ExtendedExpressionType nodeType, Type type)
       : base((ExpressionType)nodeType, type)
     {
     }

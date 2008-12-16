@@ -17,11 +17,11 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Integrity.Atomicity;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Internals;
+using Xtensive.Storage.Linq;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.PairIntegrity;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.ReferentialIntegrity;
-using Xtensive.Storage.Rse;
 using Xtensive.Storage.Resources;
 using Xtensive.Storage.Rse.Compilation;
 

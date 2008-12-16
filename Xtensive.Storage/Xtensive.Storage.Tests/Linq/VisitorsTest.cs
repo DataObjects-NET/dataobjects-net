@@ -11,9 +11,10 @@ using NUnit.Framework;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Configuration;
+using Xtensive.Storage.Linq;
+using Xtensive.Storage.Linq.Expressions.Visitors;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
-using Xtensive.Storage.Rse.Compilation.Expressions.Visitors;
 using Xtensive.Storage.Tests.Storage.SnakesModel;
 
 namespace Xtensive.Storage.Tests.Expressions

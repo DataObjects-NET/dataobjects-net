@@ -5,14 +5,15 @@
 // Created:    2008.12.02
 
 using System;
+using Xtensive.Storage.Linq.Expressions;
 
 namespace Xtensive.Storage.Rse.Compilation.Expressions
 {
   [Serializable]
-  public sealed class RangeExpression : RseExpression
+  public sealed class SeekExpression : ExtendedExpression
   {
-    public RangeExpression(Type type)
-      : base(RseExpressionType.Range, type)
+    public SeekExpression(Type type)
+      : base(ExtendedExpressionType.Seek, type)
     {
     }
   }

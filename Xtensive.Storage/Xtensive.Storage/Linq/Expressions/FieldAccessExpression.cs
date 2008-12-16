@@ -8,9 +8,9 @@ using System;
 using System.Linq.Expressions;
 using Xtensive.Storage.Model;
 
-namespace Xtensive.Storage.Rse.Compilation.Expressions
+namespace Xtensive.Storage.Linq.Expressions
 {
-  public sealed class FieldAccessExpression : RseExpression
+  public sealed class FieldAccessExpression : ExtendedExpression
   {
     public FieldInfo Field { get; private set; }
 
@@ -21,7 +21,7 @@ namespace Xtensive.Storage.Rse.Compilation.Expressions
 
 
     public FieldAccessExpression(Type type, FieldInfo field)
-      : base(RseExpressionType.FieldAccess, type)
+      : base(ExtendedExpressionType.FieldAccess, type)
     {
       Field = field;
     }

@@ -4,9 +4,9 @@
 // Created by: Alexey Kochetov
 // Created:    2008.11.25
 
-namespace Xtensive.Storage.Rse.Compilation.Expressions
+namespace Xtensive.Storage.Linq.Expressions
 {
-  public enum RseExpressionType
+  public enum ExtendedExpressionType
   {
     Result = 1000,
     FieldAccess,

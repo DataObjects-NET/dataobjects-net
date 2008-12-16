@@ -8,7 +8,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core.Reflection;
 
-namespace Xtensive.Storage.Rse.Compilation.Expressions
+namespace Xtensive.Storage.Linq.Expressions
 {
   public static class ExpressionHelper
   {

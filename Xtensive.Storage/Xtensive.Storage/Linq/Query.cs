@@ -10,7 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 
-namespace Xtensive.Storage.Rse
+namespace Xtensive.Storage.Linq
 {
   public sealed class Query<T> : IOrderedQueryable<T>
   {

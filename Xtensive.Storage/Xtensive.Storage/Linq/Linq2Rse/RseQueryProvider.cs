@@ -8,12 +8,13 @@ using System;
 using System.Collections;
 using System.Linq.Expressions;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Storage.Linq;
 using Xtensive.Storage.Model;
-using Xtensive.Storage.Rse.Compilation.Expressions.Visitors;
 using Xtensive.Storage;
+using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Compilation.Expressions;
 
-namespace Xtensive.Storage.Rse.Compilation.Linq
+namespace Xtensive.Storage.Linq.Linq2Rse
 {
   public class RseQueryProvider : QueryProvider
   {

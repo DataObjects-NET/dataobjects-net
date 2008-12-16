@@ -9,9 +9,10 @@ using System.Linq.Expressions;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Tuples;
 using Xtensive.Sql.Dom.Dml;
+using Xtensive.Storage.Linq;
+using Xtensive.Storage.Linq.Expressions;
+using Xtensive.Storage.Linq.Expressions.Visitors;
 using Xtensive.Storage.Model;
-using Xtensive.Storage.Rse.Compilation.Expressions;
-using Xtensive.Storage.Rse.Compilation.Expressions.Visitors;
 using SqlFactory = Xtensive.Sql.Dom.Sql;
 using System.Linq;
 
@@ -44,11 +45,11 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
 
     protected override SqlExpression VisitUnknown(Expression expression)
     {
-      var type = (RseExpressionType) expression.NodeType;
+      var type = (ExtendedExpressionType) expression.NodeType;
       switch (type) {
-        case RseExpressionType.FieldAccess:
+        case ExtendedExpressionType.FieldAccess:
           return VisitFieldAccess((FieldAccessExpression)expression);
-        case RseExpressionType.ParameterAccess:
+        case ExtendedExpressionType.ParameterAccess:
           return VisitParameterAccess((ParameterAccessExpression)expression);
         default:
           throw new ArgumentOutOfRangeException();

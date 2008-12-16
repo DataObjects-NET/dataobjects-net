@@ -10,9 +10,11 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core.Reflection;
+using Xtensive.Storage.Linq;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Rse;
 
-namespace Xtensive.Storage.Rse
+namespace Xtensive.Storage.Linq
 {
   public abstract class QueryProvider : IQueryProvider
   {

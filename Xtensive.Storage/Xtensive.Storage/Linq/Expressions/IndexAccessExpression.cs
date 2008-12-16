@@ -9,10 +9,10 @@ using System.Diagnostics;
 using System.Linq.Expressions;
 using Xtensive.Storage.Model;
 
-namespace Xtensive.Storage.Rse.Compilation.Expressions
+namespace Xtensive.Storage.Linq.Expressions
 {
   [Serializable]
-  public sealed class IndexAccessExpression : RseExpression
+  public sealed class IndexAccessExpression : ExtendedExpression
   {
     public IndexInfo Index { get; private set; }
 
@@ -22,7 +22,7 @@ namespace Xtensive.Storage.Rse.Compilation.Expressions
     }
 
     public IndexAccessExpression(Type type, IndexInfo index)
-      : base(RseExpressionType.IndexAccess, type)
+      : base(ExtendedExpressionType.IndexAccess, type)
     {
       Index = index;
     }

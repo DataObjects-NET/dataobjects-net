@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq.Expressions;
 
-namespace Xtensive.Storage.Rse.Compilation.Expressions.Visitors
+namespace Xtensive.Storage.Linq.Expressions.Visitors
 {
   /// <summary>
   /// Abstract Expression visitor class.
