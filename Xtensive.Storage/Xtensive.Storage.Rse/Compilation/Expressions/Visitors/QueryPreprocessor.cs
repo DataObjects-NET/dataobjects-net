@@ -112,17 +112,12 @@ namespace Xtensive.Storage.Rse.Compilation.Expressions.Visitors
         e = memberAccess.Expression;
       }
       if (e.NodeType == ExpressionType.Parameter) {
-        var type = model.Types[m.Expression.Type];
-        var fields = type.Fields;
-        FieldInfo field = null;
-        while(memberNames.Count > 0) {
-          var name = memberNames.Pop();
-          field = fields[name];
-          fields = field.Fields;
-        }
+        var type = model.Types[e.Type];
+        var name = string.Join(".", memberNames.ToArray());
+        var field = type.Fields[name];
         return new FieldAccessExpression(m.Type, field);
       }
-      throw new InvalidOperationException();
+      return base.VisitMemberAccess(m);
     }
 
     protected override Expression VisitUnknown(Expression expression)
