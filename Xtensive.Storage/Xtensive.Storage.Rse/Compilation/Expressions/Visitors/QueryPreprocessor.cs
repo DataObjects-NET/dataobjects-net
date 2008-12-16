@@ -8,9 +8,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Model;
+using FieldInfo=Xtensive.Storage.Model.FieldInfo;
 
 namespace Xtensive.Storage.Rse.Compilation.Expressions.Visitors
 {
@@ -108,16 +110,44 @@ namespace Xtensive.Storage.Rse.Compilation.Expressions.Visitors
       Expression e = m;
       while(e.NodeType == ExpressionType.MemberAccess) {
         var memberAccess = (MemberExpression)e;
-        memberNames.Push(memberAccess.Member.Name);
+        var member = (PropertyInfo)memberAccess.Member;
+        TypeInfo type;
+        if (model.Types.TryGetValue(member.PropertyType, out type) && !type.IsStructure) {
+          memberNames.Push(memberAccess.Member.Name);
+        }
+        else {
+          if (memberNames.Count > 0) {
+            var name = memberNames.Pop();
+            name = string.Format("{0}.{1}", memberAccess.Member.Name, name);
+            memberNames.Push(name);
+          }
+          else
+            memberNames.Push(memberAccess.Member.Name);
+        }
         e = memberAccess.Expression;
       }
       if (e.NodeType == ExpressionType.Parameter) {
         var type = model.Types[e.Type];
-        var name = string.Join(".", memberNames.ToArray());
-        var field = type.Fields[name];
+        var fields = type.Fields;
+        FieldInfo field = null;
+        while(memberNames.Count > 0) {
+          var name = memberNames.Pop();
+          if (name == "Key")
+            return m;
+          field = fields[name];
+          fields = field.Fields;
+        }
         return new FieldAccessExpression(m.Type, field);
       }
       return base.VisitMemberAccess(m);
+    }
+
+    protected override Expression VisitBinary(BinaryExpression b)
+    {
+      Expression left = Visit(b.Left);
+      Expression right = Visit(b.Right);
+      int i = 0;
+      return base.VisitBinary(b);
     }
 
     protected override Expression VisitUnknown(Expression expression)

@@ -46,6 +46,11 @@ namespace Xtensive.Storage.Rse.Compilation.Expressions.Visitors
       return expression;
     }
 
+    protected override Expression VisitUnknown(Expression expression)
+    {
+      return expression;
+    }
+
     private static bool DefaultPredicate(Expression expression)
     {
       var cex = expression as ConstantExpression;

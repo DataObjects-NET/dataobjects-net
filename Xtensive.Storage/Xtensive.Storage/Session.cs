@@ -93,10 +93,6 @@ namespace Xtensive.Storage
       Persist();
 
       return new Query<T>(Handler.LinqProvider);
-//      TypeInfo type = Domain.Model.Types[typeof (T)];
-//      RecordSet result = type.Indexes.PrimaryIndex.ToRecordSet();
-//      foreach (T entity in result.ToEntities<T>())
-//        yield return entity;
     }
 
     /// <summary>
