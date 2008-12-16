@@ -257,7 +257,7 @@ namespace Xtensive.Storage.Model
     /// <param name="recursive">if set to <see langword="true"/> then both direct and non-direct implemented interfaces will be returned.</param>
     public IEnumerable<TypeInfo> GetInterfaces(bool recursive)
     {
-      return model.Types.FindInterfaces(this, true);
+      return model.Types.FindInterfaces(this, recursive);
     }
 
     /// <summary>

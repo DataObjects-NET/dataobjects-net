@@ -159,8 +159,8 @@ namespace Xtensive.Storage.Building.Builders
         else {
           AssignHierarchy(type);
           ProcessAncestor(type);
-          BuildDeclaredFields(type, typeDef);
           BuildInterfaces(type);
+          BuildDeclaredFields(type, typeDef);
           BuildInterfaceFields(type);
         }
       }
@@ -195,10 +195,11 @@ namespace Xtensive.Storage.Building.Builders
     private static void BuildInterfaceFields(TypeInfo implementor)
     {
       foreach (TypeInfo @interface in implementor.GetInterfaces(false)) {
-        ProcessBaseInterface(@interface, implementor);
+        foreach (TypeInfo ancestor in @interface.GetInterfaces(false))
+          ProcessBaseInterface(ancestor, @interface);
 
         // Building other declared & inherited interface fields
-        foreach (FieldDef fieldDef in BuildingContext.Current.Definition.Types[implementor.UnderlyingType].Fields) {
+        foreach (FieldDef fieldDef in BuildingContext.Current.Definition.Types[@interface.UnderlyingType].Fields) {
           if (@interface.Fields.Contains(fieldDef.Name))
             continue;
           string explicitName = BuildingContext.Current.NameBuilder.BuildExplicit(@interface, fieldDef.Name);

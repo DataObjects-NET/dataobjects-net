@@ -12,6 +12,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0016_Model
 {
   public interface IMaster : IEntity
   {
+    [Field]
     Slave Slave { get; set; }
   }
 
@@ -21,7 +22,6 @@ namespace Xtensive.Storage.Tests.Issues.Issue0016_Model
     [Field]
     public int Id { get; private set; }
 
-    [Field]
     public Slave Slave { get; set; }
   }
 
