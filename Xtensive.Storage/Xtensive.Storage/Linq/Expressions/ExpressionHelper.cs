@@ -23,6 +23,5 @@ namespace Xtensive.Storage.Linq.Expressions
     {
       return expression.Type.IsOfGenericType(typeof(IQueryable<>));
     }
-
   }
 }

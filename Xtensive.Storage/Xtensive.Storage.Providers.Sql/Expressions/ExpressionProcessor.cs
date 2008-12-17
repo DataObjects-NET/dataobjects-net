@@ -43,14 +43,14 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       query.Columns.Add(result, name);
     }
 
-    protected override SqlExpression VisitUnknown(Expression expression)
+    protected override SqlExpression VisitUnknown(Expression e)
     {
-      var type = (ExtendedExpressionType) expression.NodeType;
+      var type = (ExtendedExpressionType) e.NodeType;
       switch (type) {
         case ExtendedExpressionType.FieldAccess:
-          return VisitFieldAccess((FieldAccessExpression)expression);
+          return VisitFieldAccess((FieldAccessExpression)e);
         case ExtendedExpressionType.ParameterAccess:
-          return VisitParameterAccess((ParameterAccessExpression)expression);
+          return VisitParameterAccess((ParameterAccessExpression)e);
         default:
           throw new ArgumentOutOfRangeException();
       }
@@ -142,7 +142,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       }
     }
 
-    protected override SqlExpression VisitTypeIs(TypeBinaryExpression expression)
+    protected override SqlExpression VisitTypeIs(TypeBinaryExpression tb)
     {
       throw new NotSupportedException();
     }
@@ -170,12 +170,12 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       throw new NotSupportedException();
     }
 
-    protected override SqlExpression VisitMethodCall(MethodCallExpression expression)
+    protected override SqlExpression VisitMethodCall(MethodCallExpression mc)
     {
-      if (expression.Object != null && expression.Object.Type == typeof(Tuple)) {
-        if (expression.Method.Name == "GetValue" || expression.Method.Name == "GetValueOrDefault") {
-          var type = expression.Method.ReturnType;
-          var columnArgument = expression.Arguments[0];
+      if (mc.Object != null && mc.Object.Type == typeof(Tuple)) {
+        if (mc.Method.Name == "GetValue" || mc.Method.Name == "GetValueOrDefault") {
+          var type = mc.Method.ReturnType;
+          var columnArgument = mc.Arguments[0];
           int columnIndex;
           if (columnArgument.NodeType == ExpressionType.Constant)
             columnIndex = (int)((ConstantExpression)columnArgument).Value;
@@ -187,18 +187,18 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
           return sqlSelect[columnIndex];
         }
       }
-      var map = MethodMapping.GetMapping(expression.Method);
-      var target = Visit(expression.Object);
-      var arguments = expression.Arguments.Select(a => Visit(a)).ToArray();
+      var map = MethodMapping.GetMapping(mc.Method);
+      var target = Visit(mc.Object);
+      var arguments = mc.Arguments.Select(a => Visit(a)).ToArray();
       return map(target, arguments);
     }
 
-    protected override SqlExpression VisitLambda(LambdaExpression expression)
+    protected override SqlExpression VisitLambda(LambdaExpression l)
     {
-      return Visit(expression.Body);
+      return Visit(l.Body);
     }
 
-    protected override SqlExpression VisitNew(NewExpression expression)
+    protected override SqlExpression VisitNew(NewExpression n)
     {
       throw new NotSupportedException();
     }
@@ -208,17 +208,17 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       throw new NotSupportedException();
     }
 
-    protected override SqlExpression VisitInvocation(InvocationExpression expression)
+    protected override SqlExpression VisitInvocation(InvocationExpression i)
     {
       throw new NotSupportedException();
     }
 
-    protected override SqlExpression VisitMemberInit(MemberInitExpression expression)
+    protected override SqlExpression VisitMemberInit(MemberInitExpression mi)
     {
       throw new NotSupportedException();
     }
 
-    protected override SqlExpression VisitListInit(ListInitExpression expression)
+    protected override SqlExpression VisitListInit(ListInitExpression li)
     {
       throw new NotSupportedException();
     }

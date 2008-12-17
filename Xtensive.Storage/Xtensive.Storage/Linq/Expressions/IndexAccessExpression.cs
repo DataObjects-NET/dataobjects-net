@@ -5,8 +5,6 @@
 // Created:    2008.12.02
 
 using System;
-using System.Diagnostics;
-using System.Linq.Expressions;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Linq.Expressions
@@ -16,10 +14,14 @@ namespace Xtensive.Storage.Linq.Expressions
   {
     public IndexInfo Index { get; private set; }
 
+    /// <inheritdoc/>
     public override string ToString()
     {
       return string.Format("Index[{0}]", Index.Name);
     }
+
+
+    // Constructors
 
     public IndexAccessExpression(Type type, IndexInfo index)
       : base(ExtendedExpressionType.IndexAccess, type)

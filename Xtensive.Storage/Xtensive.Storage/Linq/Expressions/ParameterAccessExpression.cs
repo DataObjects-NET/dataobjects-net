@@ -14,10 +14,12 @@ namespace Xtensive.Storage.Linq.Expressions
   {
     public Expression<Func<object>> Binding { get; private set; }
 
+    /// <inheritdoc/>
     public override string ToString()
     {
       return string.Format("Param[{0}]", Binding.Body);
     }
+
 
     // Constructors
 

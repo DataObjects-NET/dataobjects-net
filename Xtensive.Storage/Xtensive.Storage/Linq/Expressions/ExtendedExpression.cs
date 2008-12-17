@@ -9,12 +9,16 @@ using System.Linq.Expressions;
 
 namespace Xtensive.Storage.Linq.Expressions
 {
+  [Serializable]
   public abstract class ExtendedExpression : Expression
   {
     public new ExtendedExpressionType NodeType
     {
       get { return (ExtendedExpressionType) base.NodeType; }
     }
+
+
+    // Constructors
 
     protected ExtendedExpression(ExtendedExpressionType nodeType, Type type)
       : base((ExpressionType)nodeType, type)

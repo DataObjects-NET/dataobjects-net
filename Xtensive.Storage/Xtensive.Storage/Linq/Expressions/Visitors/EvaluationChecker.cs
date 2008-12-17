@@ -29,26 +29,26 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
       return evaluationChecker.candidates;
     }
 
-    protected override Expression Visit(Expression expression)
+    protected override Expression Visit(Expression e)
     {
-      if (expression != null)
+      if (e != null)
       {
         bool saveCannotBeEvaluated = cannotBeEvaluated;
         cannotBeEvaluated = false;
-        base.Visit(expression);
+        base.Visit(e);
         if (!cannotBeEvaluated)
-          if (evaluatorPredicate(expression))
-            candidates.Add(expression);
+          if (evaluatorPredicate(e))
+            candidates.Add(e);
           else
             cannotBeEvaluated = true;
         cannotBeEvaluated |= saveCannotBeEvaluated;
       }
-      return expression;
+      return e;
     }
 
-    protected override Expression VisitUnknown(Expression expression)
+    protected override Expression VisitUnknown(Expression e)
     {
-      return expression;
+      return e;
     }
 
     private static bool DefaultPredicate(Expression expression)

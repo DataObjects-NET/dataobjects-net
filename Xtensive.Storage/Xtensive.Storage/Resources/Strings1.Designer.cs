@@ -827,6 +827,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unknown expression type: &apos;{0} ({1})&apos;.
+        /// </summary>
+        internal static string ExUnknownExpressionType {
+            get {
+                return ResourceManager.GetString("ExUnknownExpressionType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unsupported type: {0}..
         /// </summary>
         internal static string ExUnsupportedType {

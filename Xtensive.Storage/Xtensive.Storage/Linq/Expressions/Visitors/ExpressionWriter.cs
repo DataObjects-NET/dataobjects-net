@@ -17,7 +17,7 @@ using Xtensive.Core.Reflection;
 namespace Xtensive.Storage.Linq.Expressions.Visitors
 {
   /// <summary>
-  /// Writes out an expression tree in a C#-ish syntax
+  /// Writes out an expression tree in a C#-ish syntax.
   /// </summary>
   public class ExpressionWriter : ExpressionVisitor
   {
@@ -25,7 +25,6 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
     private static readonly char[] splitters = new[] {'\n', '\r'};
     private readonly TextWriter writer;
     private int depth;
-    private int indent = 2;
 
     #region Nested type: Indentation
 
@@ -38,11 +37,7 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
 
     #endregion
 
-    protected int IndentationWidth
-    {
-      get { return indent; }
-      set { indent = value; }
-    }
+    protected int IndentationWidth { get; set; }
 
     public static void Write(TextWriter writer, Expression expression)
     {
@@ -60,7 +55,7 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
     {
       writer.WriteLine();
       Indent(style);
-      for (int i = 0, n = depth * indent; i < n; i++) {
+      for (int i = 0, n = depth * IndentationWidth; i < n; i++) {
         writer.Write(" ");
       }
     }
@@ -320,38 +315,38 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
       return original;
     }
 
-    protected override ReadOnlyCollection<Expression> VisitExpressionList(ReadOnlyCollection<Expression> original)
+    protected override ReadOnlyCollection<Expression> VisitExpressionList(ReadOnlyCollection<Expression> expressions)
     {
-      for (int i = 0, n = original.Count; i < n; i++) {
-        Visit(original[i]);
+      for (int i = 0, n = expressions.Count; i < n; i++) {
+        Visit(expressions[i]);
         if (i < n - 1) {
           Write(",");
           WriteLine(Indentation.Same);
         }
       }
-      return original;
+      return expressions;
     }
 
-    protected override Expression VisitInvocation(InvocationExpression iv)
+    protected override Expression VisitInvocation(InvocationExpression i)
     {
       Write("Invoke(");
       WriteLine(Indentation.Inner);
-      VisitExpressionList(iv.Arguments);
+      VisitExpressionList(i.Arguments);
       Write(", ");
       WriteLine(Indentation.Same);
-      Visit(iv.Expression);
+      Visit(i.Expression);
       WriteLine(Indentation.Same);
       Write(")");
       Indent(Indentation.Outer);
-      return iv;
+      return i;
     }
 
-    protected override Expression VisitLambda(LambdaExpression lambda)
+    protected override Expression VisitLambda(LambdaExpression l)
     {
-      if (lambda.Parameters.Count > 1) {
+      if (l.Parameters.Count > 1) {
         Write("(");
-        for (int i = 0, n = lambda.Parameters.Count; i < n; i++) {
-          Write(lambda.Parameters[i].Name);
+        for (int i = 0, n = l.Parameters.Count; i < n; i++) {
+          Write(l.Parameters[i].Name);
           if (i < n - 1) {
             Write(", ");
           }
@@ -359,22 +354,22 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
         Write(")");
       }
       else {
-        Write(lambda.Parameters[0].Name);
+        Write(l.Parameters[0].Name);
       }
       Write(" => ");
-      Visit(lambda.Body);
-      return lambda;
+      Visit(l.Body);
+      return l;
     }
 
-    protected override Expression VisitListInit(ListInitExpression init)
+    protected override Expression VisitListInit(ListInitExpression li)
     {
-      Visit(init.NewExpression);
+      Visit(li.NewExpression);
       Write(" {");
       WriteLine(Indentation.Inner);
-      VisitElementInitializerList(init.Initializers);
+      VisitElementInitializerList(li.Initializers);
       WriteLine(Indentation.Outer);
       Write("}");
-      return init;
+      return li;
     }
 
     protected override Expression VisitMemberAccess(MemberExpression m)
@@ -393,15 +388,15 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
       return assignment;
     }
 
-    protected override Expression VisitMemberInit(MemberInitExpression init)
+    protected override Expression VisitMemberInit(MemberInitExpression mi)
     {
-      Visit(init.NewExpression);
+      Visit(mi.NewExpression);
       Write(" {");
       WriteLine(Indentation.Inner);
-      VisitBindingList(init.Bindings);
+      VisitBindingList(mi.Bindings);
       WriteLine(Indentation.Outer);
       Write("}");
-      return init;
+      return mi;
     }
 
     protected override MemberListBinding VisitMemberListBinding(MemberListBinding binding)
@@ -426,38 +421,38 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
       return binding;
     }
 
-    protected override Expression VisitMethodCall(MethodCallExpression m)
+    protected override Expression VisitMethodCall(MethodCallExpression mc)
     {
-      if (m.Object!=null) {
-        Visit(m.Object);
+      if (mc.Object!=null) {
+        Visit(mc.Object);
       }
       else {
-        Write(GetTypeName(m.Method.DeclaringType));
+        Write(GetTypeName(mc.Method.DeclaringType));
       }
       Write(".");
-      Write(m.Method.Name);
+      Write(mc.Method.Name);
       Write("(");
-      if (m.Arguments.Count > 1)
+      if (mc.Arguments.Count > 1)
         WriteLine(Indentation.Inner);
-      VisitExpressionList(m.Arguments);
-      if (m.Arguments.Count > 1)
+      VisitExpressionList(mc.Arguments);
+      if (mc.Arguments.Count > 1)
         WriteLine(Indentation.Outer);
       Write(")");
-      return m;
+      return mc;
     }
 
-    protected override Expression VisitNew(NewExpression nex)
+    protected override Expression VisitNew(NewExpression n)
     {
       Write("new ");
-      Write(GetTypeName(nex.Constructor.DeclaringType));
+      Write(GetTypeName(n.Constructor.DeclaringType));
       Write("(");
-      if (nex.Arguments.Count > 1)
+      if (n.Arguments.Count > 1)
         WriteLine(Indentation.Inner);
-      VisitExpressionList(nex.Arguments);
-      if (nex.Arguments.Count > 1)
+      VisitExpressionList(n.Arguments);
+      if (n.Arguments.Count > 1)
         WriteLine(Indentation.Outer);
       Write(")");
-      return nex;
+      return n;
     }
 
     protected override Expression VisitNewArray(NewArrayExpression na)
@@ -480,18 +475,18 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
       return p;
     }
 
-    protected override Expression VisitTypeIs(TypeBinaryExpression b)
+    protected override Expression VisitTypeIs(TypeBinaryExpression tb)
     {
-      Visit(b.Expression);
+      Visit(tb.Expression);
       Write(" is ");
-      Write(GetTypeName(b.TypeOperand));
-      return b;
+      Write(GetTypeName(tb.TypeOperand));
+      return tb;
     }
 
-    protected override Expression VisitUnknown(Expression expression)
+    protected override Expression VisitUnknown(Expression e)
     {
-      Write(expression.ToString());
-      return expression;
+      Write(e.ToString());
+      return e;
     }
 
 
@@ -500,6 +495,7 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
     protected ExpressionWriter(TextWriter writer)
     {
       this.writer = writer;
+      IndentationWidth = 2;
     }
   }
 }

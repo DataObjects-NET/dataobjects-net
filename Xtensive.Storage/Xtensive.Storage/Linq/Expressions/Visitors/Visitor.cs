@@ -8,22 +8,32 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq.Expressions;
+using Xtensive.Core.Reflection;
+using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Linq.Expressions.Visitors
 {
   /// <summary>
-  /// Abstract Expression visitor class.
+  /// Abstract <see cref="Expression"/> visitor class.
   /// </summary>
-  /// <typeparam name="TResult">The type of the result.</typeparam>
+  /// <typeparam name="TResult">Type of the visit result.</typeparam>
   public abstract class Visitor<TResult>
     where TResult : class
   {
-    protected virtual TResult Visit(Expression exp)
+    private readonly Dictionary<Expression, TResult> cache = null;
+
+    protected virtual TResult Visit(Expression e)
     {
-      if (exp==null)
+      if (e==null)
         return null;
 
-      switch (exp.NodeType) {
+      TResult result;
+      if (cache!=null) {
+        if (cache.TryGetValue(e, out result))
+          return result;
+      }
+
+      switch (e.NodeType) {
       case ExpressionType.Negate:
       case ExpressionType.NegateChecked:
       case ExpressionType.Not:
@@ -32,7 +42,8 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
       case ExpressionType.ArrayLength:
       case ExpressionType.Quote:
       case ExpressionType.TypeAs:
-        return VisitUnary((UnaryExpression) exp);
+        result = VisitUnary((UnaryExpression) e);
+        break;
       case ExpressionType.Add:
       case ExpressionType.AddChecked:
       case ExpressionType.Subtract:
@@ -56,65 +67,98 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
       case ExpressionType.RightShift:
       case ExpressionType.LeftShift:
       case ExpressionType.ExclusiveOr:
-        return VisitBinary((BinaryExpression) exp);
+        result = VisitBinary((BinaryExpression) e);
+        break;
       case ExpressionType.TypeIs:
-        return VisitTypeIs((TypeBinaryExpression) exp);
+        result = VisitTypeIs((TypeBinaryExpression) e);
+        break;
       case ExpressionType.Conditional:
-        return VisitConditional((ConditionalExpression) exp);
+        result = VisitConditional((ConditionalExpression) e);
+        break;
       case ExpressionType.Constant:
-        return VisitConstant((ConstantExpression) exp);
+        result = VisitConstant((ConstantExpression) e);
+        break;
       case ExpressionType.Parameter:
-        return VisitParameter((ParameterExpression) exp);
+        result = VisitParameter((ParameterExpression) e);
+        break;
       case ExpressionType.MemberAccess:
-        return VisitMemberAccess((MemberExpression) exp);
+        result = VisitMemberAccess((MemberExpression) e);
+        break;
       case ExpressionType.Call:
-        return VisitMethodCall((MethodCallExpression) exp);
+        result = VisitMethodCall((MethodCallExpression) e);
+        break;
       case ExpressionType.Lambda:
-        return VisitLambda((LambdaExpression) exp);
+        result = VisitLambda((LambdaExpression) e);
+        break;
       case ExpressionType.New:
-        return VisitNew((NewExpression) exp);
+        result = VisitNew((NewExpression) e);
+        break;
       case ExpressionType.NewArrayInit:
       case ExpressionType.NewArrayBounds:
-        return VisitNewArray((NewArrayExpression) exp);
+        result = VisitNewArray((NewArrayExpression) e);
+        break;
       case ExpressionType.Invoke:
-        return VisitInvocation((InvocationExpression) exp);
+        result = VisitInvocation((InvocationExpression) e);
+        break;
       case ExpressionType.MemberInit:
-        return VisitMemberInit((MemberInitExpression) exp);
+        result = VisitMemberInit((MemberInitExpression) e);
+        break;
       case ExpressionType.ListInit:
-        return VisitListInit((ListInitExpression) exp);
+        result = VisitListInit((ListInitExpression) e);
+        break;
       default:
-        return VisitUnknown(exp);
+        result = VisitUnknown(e);
+        break;
       }
+
+      if (cache!=null)
+        cache[e] = result;
+      return result;
     }
 
-    protected virtual ReadOnlyCollection<TResult> VisitExpressionList(ReadOnlyCollection<Expression> original)
+    protected virtual ReadOnlyCollection<TResult> VisitExpressionList(ReadOnlyCollection<Expression> expressions)
     {
       var results = new List<TResult>();
-      for (int i = 0, n = original.Count; i < n; i++) {
-        TResult p = Visit(original[i]);
+      for (int i = 0, n = expressions.Count; i < n; i++) {
+        TResult p = Visit(expressions[i]);
         results.Add(p);
       }
       return results.AsReadOnly();
     }
 
-    protected virtual TResult VisitUnknown(Expression expression)
+    protected virtual TResult VisitUnknown(Expression e)
     {
-      throw new Exception(string.Format("Unhandled expression type: '{0}'", expression.NodeType));
+      throw new NotSupportedException(string.Format(
+        Strings.ExUnknownExpressionType, e.GetType().GetShortName(), e.NodeType));
     }
 
     protected abstract TResult VisitUnary(UnaryExpression u);
     protected abstract TResult VisitBinary(BinaryExpression b);
-    protected abstract TResult VisitTypeIs(TypeBinaryExpression b);
+    protected abstract TResult VisitTypeIs(TypeBinaryExpression tb);
     protected abstract TResult VisitConstant(ConstantExpression c);
     protected abstract TResult VisitConditional(ConditionalExpression c);
     protected abstract TResult VisitParameter(ParameterExpression p);
     protected abstract TResult VisitMemberAccess(MemberExpression m);
-    protected abstract TResult VisitMethodCall(MethodCallExpression m);
-    protected abstract TResult VisitLambda(LambdaExpression lambda);
-    protected abstract TResult VisitNew(NewExpression nex);
-    protected abstract TResult VisitMemberInit(MemberInitExpression init);
-    protected abstract TResult VisitListInit(ListInitExpression init);
+    protected abstract TResult VisitMethodCall(MethodCallExpression mc);
+    protected abstract TResult VisitLambda(LambdaExpression l);
+    protected abstract TResult VisitNew(NewExpression n);
+    protected abstract TResult VisitMemberInit(MemberInitExpression mi);
+    protected abstract TResult VisitListInit(ListInitExpression li);
     protected abstract TResult VisitNewArray(NewArrayExpression na);
-    protected abstract TResult VisitInvocation(InvocationExpression iv);
+    protected abstract TResult VisitInvocation(InvocationExpression i);
+
+    
+    // Constructors
+
+    protected Visitor()
+      : this(false)
+    {
+    }
+
+    protected Visitor(bool isCaching)
+    {
+      if (isCaching)
+        cache = new Dictionary<Expression, TResult>();
+    }
   }
 }

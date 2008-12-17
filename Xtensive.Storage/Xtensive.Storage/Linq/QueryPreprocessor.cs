@@ -19,10 +19,12 @@ using FieldInfo=Xtensive.Storage.Model.FieldInfo;
 
 namespace Xtensive.Storage.Linq
 {
+  // TODO: Split to a set of visitors, + use visitors specific to RSE
   public sealed class QueryPreprocessor : ExpressionVisitor
   {
     #region Nested helper classes
 
+    // TODO: Extract to "Internals" namespace
     class MemberAccessChecker : ExpressionVisitor
     {
       private bool containsMemberAccess;
@@ -40,9 +42,9 @@ namespace Xtensive.Storage.Linq
         return base.VisitMemberAccess(m);
       }
 
-      protected override Expression VisitUnknown(Expression expression)
+      protected override Expression VisitUnknown(Expression e)
       {
-        return expression;
+        return e;
       }
 
       private MemberAccessChecker()
@@ -62,16 +64,16 @@ namespace Xtensive.Storage.Linq
       return expression;
     }
 
-    protected override Expression Visit(Expression exp)
+    protected override Expression Visit(Expression e)
     {
-      if (exp == null)
+      if (e == null)
         return null;
-      if (evaluationCandidates.Contains(exp)) {
-        if (MemberAccessChecker.ContainsMemberAccess(exp))
-          return ExtractParameter(exp);
-        return Evaluate(exp);
+      if (evaluationCandidates.Contains(e)) {
+        if (MemberAccessChecker.ContainsMemberAccess(e))
+          return ExtractParameter(e);
+        return Evaluate(e);
       }
-      return base.Visit(exp);
+      return base.Visit(e);
     }
 
     protected override Expression VisitConstant(ConstantExpression c)
@@ -87,11 +89,12 @@ namespace Xtensive.Storage.Linq
       return base.VisitConstant(c);
     }
 
-    protected override Expression VisitMethodCall(MethodCallExpression expression)
+    protected override Expression VisitMethodCall(MethodCallExpression mc)
     {
-      if (expression.Object != null && expression.Object.Type == typeof(Tuple)) {
-        if (expression.Method.Name == "GetValue" || expression.Method.Name == "GetValueOrDefault") {
-          var columnArgument = expression.Arguments[0];
+      if (mc.Object != null && mc.Object.Type == typeof(Tuple)) {
+        // TODO: => Core.Wellknown
+        if (mc.Method.Name == "GetValue" || mc.Method.Name == "GetValueOrDefault") {
+          var columnArgument = mc.Arguments[0];
           if (evaluationCandidates.Contains(columnArgument)) {
             int columnIndex;
             if (columnArgument.NodeType==ExpressionType.Constant)
@@ -100,11 +103,11 @@ namespace Xtensive.Storage.Linq
               var columnFunc = Expression.Lambda<Func<int>>(columnArgument).Compile();
               columnIndex = columnFunc();
             }
-            return Expression.Call(expression.Object, expression.Method, Expression.Constant(columnIndex));
+            return Expression.Call(mc.Object, mc.Method, Expression.Constant(columnIndex));
           }
         }
       }
-      return base.VisitMethodCall(expression);
+      return base.VisitMethodCall(mc);
     }
 
     protected override Expression VisitMemberAccess(MemberExpression m)
@@ -149,7 +152,7 @@ namespace Xtensive.Storage.Linq
     {
       bool isKey = typeof(Key).IsAssignableFrom(b.Left.Type);
       bool isEntity = typeof(IEntity).IsAssignableFrom(b.Left.Type);
-      if(isKey || isEntity) {
+      if (isKey || isEntity) {
         if (b.NodeType!=ExpressionType.Equal && b.NodeType!=ExpressionType.NotEqual) 
           throw new InvalidOperationException();
 
@@ -188,9 +191,9 @@ namespace Xtensive.Storage.Linq
       return base.VisitBinary(b);
     }
 
-    protected override Expression VisitUnknown(Expression expression)
+    protected override Expression VisitUnknown(Expression e)
     {
-      return expression;
+      return e;
     }
 
     private static Expression ExtractParameter(Expression expression)
@@ -198,7 +201,7 @@ namespace Xtensive.Storage.Linq
       Type type = expression.Type;
       if (type.IsValueType)
         expression = Expression.Convert(expression, typeof(object));
-      Expression<Func<object>> lambda = Expression.Lambda<Func<object>>(expression);
+      var lambda = Expression.Lambda<Func<object>>(expression);
       return new ParameterAccessExpression(type, lambda);
     }
 
@@ -209,9 +212,9 @@ namespace Xtensive.Storage.Linq
       Type type = e.Type;
       if (type.IsValueType)
         e = Expression.Convert(e, typeof(object));
-      Expression<Func<object>> lambda = Expression.Lambda<Func<object>>(e);
-      Func<object> fn = lambda.Compile();
-      return Expression.Constant(fn(), type);
+      var lambda = Expression.Lambda<Func<object>>(e);
+      var func = lambda.Compile();
+      return Expression.Constant(func(), type);
     }
 
 

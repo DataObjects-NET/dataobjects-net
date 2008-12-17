@@ -9,7 +9,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Storage.Linq;
 using Xtensive.Storage.Linq.Expressions.Visitors;
-using Xtensive.Storage.Rse.Compilation.Expressions;
 
 namespace Xtensive.Storage.Linq.Linq2Rse
 {
@@ -22,15 +21,15 @@ namespace Xtensive.Storage.Linq.Linq2Rse
       return Visit(expression);
     }
 
-    protected override Expression VisitMethodCall(MethodCallExpression m)
+    protected override Expression VisitMethodCall(MethodCallExpression mc)
     {
-      if (m.Method.DeclaringType == typeof(Queryable) || m.Method.DeclaringType == typeof(Enumerable)) {
-//        switch (m.Method.Name) {
+      if (mc.Method.DeclaringType == typeof(Queryable) || mc.Method.DeclaringType == typeof(Enumerable)) {
+//        switch (mc.Method.Name) {
 //          case "Where":
-//            return RewriteWhere(m.Type, m.Arguments[0], (LambdaExpression)m.Arguments[1].StripQuotes());
+//            return RewriteWhere(mc.Type, mc.Arguments[0], (LambdaExpression)mc.Arguments[1].StripQuotes());
 //        }
       }
-      return base.VisitMethodCall(m);
+      return base.VisitMethodCall(mc);
     }
 
     private Expression RewriteWhere(Type type, Expression expression, LambdaExpression lambdaExpression)
@@ -38,9 +37,9 @@ namespace Xtensive.Storage.Linq.Linq2Rse
       throw new NotImplementedException();
     }
 
-    protected override Expression VisitUnknown(Expression expression)
+    protected override Expression VisitUnknown(Expression e)
     {
-      return expression;
+      return e;
     }
 
 

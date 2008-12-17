@@ -10,9 +10,7 @@ using System.Linq.Expressions;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Linq;
 using Xtensive.Storage.Model;
-using Xtensive.Storage;
 using Xtensive.Storage.Rse;
-using Xtensive.Storage.Rse.Compilation.Expressions;
 
 namespace Xtensive.Storage.Linq.Linq2Rse
 {
@@ -26,19 +24,20 @@ namespace Xtensive.Storage.Linq.Linq2Rse
       var compiler = new RseQueryTranslator(this);
       var result = compiler.Translate(expression);
       var shaper = result.Shaper;
-      var rs = result.RecordSet;
+      var recordSet = result.RecordSet;
+      // TODO: Always use Shaper
       if (shaper != null)
-        return shaper(rs);
+        return shaper(recordSet);
 
       var arguments = expression.Type.GetGenericArguments();
-      return EntityMaterializer(rs, arguments[0]);
+      return EntityMaterializer(recordSet, arguments[0]);
     }
 
 
     // Constructor
 
     /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     public RseQueryProvider(DomainModel model, Func<RecordSet, Type, IEnumerable> entityMaterializer)
       : base(model, entityMaterializer)

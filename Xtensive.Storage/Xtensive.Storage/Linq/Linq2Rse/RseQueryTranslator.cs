@@ -39,69 +39,70 @@ namespace Xtensive.Storage.Linq.Linq2Rse
       return root==expression;
     }
 
-    protected override Expression VisitMethodCall(MethodCallExpression m)
+    protected override Expression VisitMethodCall(MethodCallExpression mc)
     {
-      if (m.Method.DeclaringType==typeof (Queryable) || m.Method.DeclaringType==typeof (Enumerable)) {
-        switch (m.Method.Name) {
+      if (mc.Method.DeclaringType==typeof (Queryable) || mc.Method.DeclaringType==typeof (Enumerable)) {
+        switch (mc.Method.Name) {
+        // TODO: => Core.Wellknown
         case "Where":
-          return VisitWhere(m.Arguments[0], m.Arguments[1].StripQuotes());
+          return VisitWhere(mc.Arguments[0], mc.Arguments[1].StripQuotes());
         case "Select":
-          return VisitSelect(m.Type, m.Arguments[0], m.Arguments[1].StripQuotes());
+          return VisitSelect(mc.Type, mc.Arguments[0], mc.Arguments[1].StripQuotes());
         case "SelectMany":
-          if (m.Arguments.Count==2) {
+          if (mc.Arguments.Count==2) {
             return VisitSelectMany(
-              m.Type, m.Arguments[0],
-              m.Arguments[1].StripQuotes(),
+              mc.Type, mc.Arguments[0],
+              mc.Arguments[1].StripQuotes(),
               null);
           }
-          if (m.Arguments.Count==3) {
+          if (mc.Arguments.Count==3) {
             return VisitSelectMany(
-              m.Type, m.Arguments[0],
-              m.Arguments[1].StripQuotes(),
-              m.Arguments[2].StripQuotes());
+              mc.Type, mc.Arguments[0],
+              mc.Arguments[1].StripQuotes(),
+              mc.Arguments[2].StripQuotes());
           }
           break;
         case "Join":
           return VisitJoin(
-            m.Type, m.Arguments[0], m.Arguments[1],
-            m.Arguments[2].StripQuotes(),
-            m.Arguments[3].StripQuotes(),
-            m.Arguments[4].StripQuotes());
+            mc.Type, mc.Arguments[0], mc.Arguments[1],
+            mc.Arguments[2].StripQuotes(),
+            mc.Arguments[3].StripQuotes(),
+            mc.Arguments[4].StripQuotes());
         case "OrderBy":
-          return VisitOrderBy(m.Type, m.Arguments[0], (m.Arguments[1].StripQuotes()), Direction.Positive);
+          return VisitOrderBy(mc.Type, mc.Arguments[0], (mc.Arguments[1].StripQuotes()), Direction.Positive);
         case "OrderByDescending":
-          return VisitOrderBy(m.Type, m.Arguments[0], (m.Arguments[1].StripQuotes()), Direction.Negative);
+          return VisitOrderBy(mc.Type, mc.Arguments[0], (mc.Arguments[1].StripQuotes()), Direction.Negative);
         case "ThenBy":
-          return VisitThenBy(m.Arguments[0], (m.Arguments[1].StripQuotes()), Direction.Positive);
+          return VisitThenBy(mc.Arguments[0], (mc.Arguments[1].StripQuotes()), Direction.Positive);
         case "ThenByDescending":
-          return VisitThenBy(m.Arguments[0], (m.Arguments[1].StripQuotes()), Direction.Negative);
+          return VisitThenBy(mc.Arguments[0], (mc.Arguments[1].StripQuotes()), Direction.Negative);
         case "GroupBy":
-          if (m.Arguments.Count==2) {
+          if (mc.Arguments.Count==2) {
             return VisitGroupBy(
-              m.Arguments[0],
-              (m.Arguments[1].StripQuotes()),
+              mc.Arguments[0],
+              (mc.Arguments[1].StripQuotes()),
               null,
               null
               );
           }
-          if (m.Arguments.Count==3) {
-            LambdaExpression lambda1 = (m.Arguments[1].StripQuotes());
-            LambdaExpression lambda2 = (m.Arguments[2].StripQuotes());
+          if (mc.Arguments.Count==3) {
+            LambdaExpression lambda1 = (mc.Arguments[1].StripQuotes());
+            LambdaExpression lambda2 = (mc.Arguments[2].StripQuotes());
             if (lambda2.Parameters.Count==1) {
               // second lambda is element selector
-              return VisitGroupBy(m.Arguments[0], lambda1, lambda2, null);
+              return VisitGroupBy(mc.Arguments[0], lambda1, lambda2, null);
             }
             if (lambda2.Parameters.Count==2) {
               // second lambda is result selector
-              return VisitGroupBy(m.Arguments[0], lambda1, null, lambda2);
+              return VisitGroupBy(mc.Arguments[0], lambda1, null, lambda2);
             }
           }
-          else if (m.Arguments.Count==4) {
+          else if (mc.Arguments.Count==4) {
             return VisitGroupBy(
-              m.Arguments[0],
-              (m.Arguments[1].StripQuotes()),
-              (m.Arguments[2].StripQuotes()),
-              (m.Arguments[3].StripQuotes())
+              mc.Arguments[0],
+              (mc.Arguments[1].StripQuotes()),
+              (mc.Arguments[2].StripQuotes()),
+              (mc.Arguments[3].StripQuotes())
               );
           }
           break;
@@ -110,64 +111,64 @@ namespace Xtensive.Storage.Linq.Linq2Rse
         case "Max":
         case "Sum":
         case "Average":
-          if (m.Arguments.Count==1) {
-            return VisitAggregate(m.Arguments[0], m.Method, null, IsRoot(m));
+          if (mc.Arguments.Count==1) {
+            return VisitAggregate(mc.Arguments[0], mc.Method, null, IsRoot(mc));
           }
-          if (m.Arguments.Count==2) {
-            LambdaExpression selector = (m.Arguments[1].StripQuotes());
-            return VisitAggregate(m.Arguments[0], m.Method, selector, IsRoot(m));
+          if (mc.Arguments.Count==2) {
+            LambdaExpression selector = (mc.Arguments[1].StripQuotes());
+            return VisitAggregate(mc.Arguments[0], mc.Method, selector, IsRoot(mc));
           }
           break;
         case "Distinct":
-          if (m.Arguments.Count==1) {
-            return VisitDistinct(m.Arguments[0]);
+          if (mc.Arguments.Count==1) {
+            return VisitDistinct(mc.Arguments[0]);
           }
           break;
         case "Skip":
-          if (m.Arguments.Count==2) {
-            return VisitSkip(m.Arguments[0], m.Arguments[1]);
+          if (mc.Arguments.Count==2) {
+            return VisitSkip(mc.Arguments[0], mc.Arguments[1]);
           }
           break;
         case "Take":
-          if (m.Arguments.Count==2) {
-            return VisitTake(m.Arguments[0], m.Arguments[1]);
+          if (mc.Arguments.Count==2) {
+            return VisitTake(mc.Arguments[0], mc.Arguments[1]);
           }
           break;
         case "First":
         case "FirstOrDefault":
         case "Single":
         case "SingleOrDefault":
-          if (m.Arguments.Count==1) {
-            return VisitFirst(m.Arguments[0], null, m.Method, IsRoot(m));
+          if (mc.Arguments.Count==1) {
+            return VisitFirst(mc.Arguments[0], null, mc.Method, IsRoot(mc));
           }
-          if (m.Arguments.Count==2) {
-            LambdaExpression predicate = (m.Arguments[1].StripQuotes());
-            return VisitFirst(m.Arguments[0], predicate, m.Method, IsRoot(m));
+          if (mc.Arguments.Count==2) {
+            LambdaExpression predicate = (mc.Arguments[1].StripQuotes());
+            return VisitFirst(mc.Arguments[0], predicate, mc.Method, IsRoot(mc));
           }
           break;
         case "Any":
-          if (m.Arguments.Count==1) {
-            return VisitAnyAll(m.Arguments[0], m.Method, null, IsRoot(m));
+          if (mc.Arguments.Count==1) {
+            return VisitAnyAll(mc.Arguments[0], mc.Method, null, IsRoot(mc));
           }
-          if (m.Arguments.Count==2) {
-            LambdaExpression predicate = (m.Arguments[1].StripQuotes());
-            return VisitAnyAll(m.Arguments[0], m.Method, predicate, IsRoot(m));
+          if (mc.Arguments.Count==2) {
+            LambdaExpression predicate = (mc.Arguments[1].StripQuotes());
+            return VisitAnyAll(mc.Arguments[0], mc.Method, predicate, IsRoot(mc));
           }
           break;
         case "All":
-          if (m.Arguments.Count==2) {
-            var predicate = (LambdaExpression) (m.Arguments[1]);
-            return VisitAnyAll(m.Arguments[0], m.Method, predicate, IsRoot(m));
+          if (mc.Arguments.Count==2) {
+            var predicate = (LambdaExpression) (mc.Arguments[1]);
+            return VisitAnyAll(mc.Arguments[0], mc.Method, predicate, IsRoot(mc));
           }
           break;
         case "Contains":
-          if (m.Arguments.Count==2) {
-            return VisitContains(m.Arguments[0], m.Arguments[1], IsRoot(m));
+          if (mc.Arguments.Count==2) {
+            return VisitContains(mc.Arguments[0], mc.Arguments[1], IsRoot(mc));
           }
           break;
         }
       }
-      return base.VisitMethodCall(m);
+      return base.VisitMethodCall(mc);
     }
 
     private Expression VisitContains(Expression source, Expression match, bool isRoot)
@@ -331,14 +332,14 @@ namespace Xtensive.Storage.Linq.Linq2Rse
 
     }
 
-    protected override Expression VisitUnknown(Expression expression)
+    protected override Expression VisitUnknown(Expression e)
     {
-      var extendedExpression = (ExtendedExpression) expression;
+      var extendedExpression = (ExtendedExpression) e;
       switch (extendedExpression.NodeType) {
       case ExtendedExpressionType.FieldAccess:
         return VisitFieldAccess((FieldAccessExpression) extendedExpression);
       case ExtendedExpressionType.ParameterAccess:
-        return expression;
+        return e;
       case ExtendedExpressionType.IndexAccess:
         return VisitIndexAccess((IndexAccessExpression) extendedExpression);
       case ExtendedExpressionType.Range:

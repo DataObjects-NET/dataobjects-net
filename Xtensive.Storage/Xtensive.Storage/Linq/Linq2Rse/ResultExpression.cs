@@ -13,6 +13,7 @@ namespace Xtensive.Storage.Linq.Expressions
   public sealed class ResultExpression : ExtendedExpression
   {
     public RecordSet RecordSet { get; private set; }
+    // TODO: => IsSingleResult
     public bool IsMultipleResults { get; private set; }
     public Func<RecordSet, object> Shaper { get; private set; }
 

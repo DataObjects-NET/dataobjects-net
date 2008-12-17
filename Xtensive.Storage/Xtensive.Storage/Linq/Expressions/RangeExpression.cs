@@ -11,6 +11,8 @@ namespace Xtensive.Storage.Linq.Expressions
   [Serializable]
   public sealed class RangeExpression : ExtendedExpression
   {
+    // Constructors
+
     public RangeExpression(Type type)
       : base(ExtendedExpressionType.Range, type)
     {

@@ -12,6 +12,8 @@ namespace Xtensive.Storage.Rse.Compilation.Expressions
   [Serializable]
   public sealed class SeekExpression : ExtendedExpression
   {
+    // Constructors
+
     public SeekExpression(Type type)
       : base(ExtendedExpressionType.Seek, type)
     {
