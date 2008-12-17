@@ -150,8 +150,9 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var products = Session.Current.All<Product>();
-          var product = products.Where(p => p.Category.Key == category.Key).First();
+          var product = products.Where(p => p.Supplier.Key == supplier20.Key).First();
           Assert.IsNotNull(product);
+          Assert.AreEqual("Product_19_0", product.ProductName);
           t.Complete();
         }
       }
@@ -163,8 +164,9 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var products = Session.Current.All<Product>();
-          var product = products.Where(p => p.Category.Id == category.Id).First();
+          var product = products.Where(p => p.Supplier.Id == supplier20.Id).First();
           Assert.IsNotNull(product);
+          Assert.AreEqual("Product_19_0", product.ProductName);
           t.Complete();
         }
       }
@@ -176,8 +178,9 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var products = Session.Current.All<Product>();
-          var product = products.Where(p => p.Category == category).First();
+          var product = products.Where(p => p.Supplier == supplier20).First();
           Assert.IsNotNull(product);
+          Assert.AreEqual("Product_19_0", product.ProductName);
           t.Complete();
         }
       }

@@ -54,8 +54,7 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
     private static bool DefaultPredicate(Expression expression)
     {
       var cex = expression as ConstantExpression;
-      if (cex != null)
-      {
+      if (cex != null) {
         var query = cex.Value as IQueryable;
         if (query != null)
           return false;
@@ -65,6 +64,8 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
         return false;
       if (expression.NodeType == ExpressionType.Convert && expression.Type == typeof(object))
         return true;
+      if (expression is ExtendedExpression)
+        return false;
       return expression.NodeType != ExpressionType.Parameter &&
         expression.NodeType != ExpressionType.Lambda;
     }
