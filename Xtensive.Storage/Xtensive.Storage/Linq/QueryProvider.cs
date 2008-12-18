@@ -19,7 +19,6 @@ namespace Xtensive.Storage.Linq
   public abstract class QueryProvider : IQueryProvider
   {
     public DomainModel Model { get; private set; }
-    public Func<RecordSet, Type, IEnumerable> EntityMaterializer { get; set; }
 
     IQueryable IQueryProvider.CreateQuery(Expression expression)
     {
@@ -55,10 +54,9 @@ namespace Xtensive.Storage.Linq
 
     // Constructor
 
-    protected QueryProvider(DomainModel model, Func<RecordSet, Type, IEnumerable> entityMaterializer)
+    protected QueryProvider(DomainModel model)
     {
       Model = model;
-      EntityMaterializer = entityMaterializer;
     }
   }
 }

@@ -23,6 +23,8 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     private readonly DomainModel model;
     private readonly SqlFetchRequest request;
     private readonly SqlSelect query;
+    private ExpressionEvaluator evaluator;
+    private ParameterExtractor parameterExtractor;
 
     public SqlFetchRequest Request
     {
@@ -31,24 +33,40 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
 
     public void AppendFilterToRequest(Expression<Func<Tuple,bool>> exp)
     {
-      var expression = QueryPreprocessor.Translate(exp, model);
-      var result = Visit(expression);
+      var result = Transform(exp);
       query.Where &= result;
     }
 
     public void AppendCalculatedColumnToRequest(Expression<Func<Tuple, object>> exp, string name)
     {
-      var expression = QueryPreprocessor.Translate(exp, model);
-      var result = Visit(expression);
+      var result = Transform(exp);
       query.Columns.Add(result, name);
+    }
+
+    private SqlExpression Transform(Expression e)
+    {
+      evaluator = new ExpressionEvaluator(e);
+      parameterExtractor = new ParameterExtractor(evaluator);
+      var result = Visit(e);
+      return result;
+    }
+
+    protected override SqlExpression Visit(Expression e)
+    {
+      if (e == null)
+        return null;
+      if (evaluator.CanBeEvaluated(e)) {
+        if (parameterExtractor.IsParameter(e))
+          return VisitParameterAccess(parameterExtractor.ExtractParameter(e));
+        return VisitConstant(evaluator.Evaluate(e));
+      }
+      return base.Visit(e);
     }
 
     protected override SqlExpression VisitUnknown(Expression e)
     {
       var type = (ExtendedExpressionType) e.NodeType;
       switch (type) {
-        case ExtendedExpressionType.FieldAccess:
-          return VisitFieldAccess((FieldAccessExpression)e);
         case ExtendedExpressionType.ParameterAccess:
           return VisitParameterAccess((ParameterAccessExpression)e);
         default:
@@ -62,12 +80,6 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       request.ParameterBindings.Add(binding);
       return binding.SqlParameter;
 
-    }
-
-    private SqlExpression VisitFieldAccess(FieldAccessExpression expression)
-    {
-      var sqlSelect = (SqlSelect)request.Statement;
-      return sqlSelect[expression.Field.MappingInfo.Offset];
     }
 
     protected override SqlExpression VisitUnary(UnaryExpression expression)

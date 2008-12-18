@@ -218,5 +218,19 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
         return i;
       return Expression.Invoke(expression, arguments);
     }
+
+
+    // Constructors
+
+    /// <inheritdoc/>
+    protected ExpressionVisitor()
+    {
+    }
+
+    /// <inheritdoc/>
+    protected ExpressionVisitor(bool isCaching)
+      : base(isCaching)
+    {
+    }
   }
 }

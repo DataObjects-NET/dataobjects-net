@@ -23,22 +23,56 @@ namespace Xtensive.Storage.Linq.Linq2Rse
   public class RseQueryTranslator : ExpressionVisitor
   {
     private readonly QueryProvider provider;
+    private readonly Expression query;
+    private readonly ExpressionEvaluator evaluator;
+    private readonly ParameterExtractor parameterExtractor;
+
+
     private static readonly MethodInfo nonGenericAccessor;
     private static readonly MethodInfo genericAccessor;
-    private Expression root;
     private ParameterExpression parameter;
 
-    public ResultExpression Translate(Expression expression)
+    public ResultExpression Translate()
     {
-      root = expression;
-      return (ResultExpression) Visit(expression);
+      return (ResultExpression) Visit(query);
     }
 
     protected bool IsRoot(Expression expression)
     {
-      return root==expression;
+      return query==expression;
     }
 
+    protected override Expression Visit(Expression e)
+    {
+      if (e == null)
+        return null;
+      if (evaluator.CanBeEvaluated(e)) {
+        if (parameterExtractor.IsParameter(e))
+          return parameterExtractor.ExtractParameter(e);
+        return evaluator.Evaluate(e);
+      }
+      return base.Visit(e);
+    }
+
+
+    protected override Expression VisitConstant(ConstantExpression c)
+    {
+      if (c.Value == null)
+        return c;
+      var rootPoint = c.Value as IQueryable;
+      if (rootPoint != null) {
+        var type = provider.Model.Types[rootPoint.ElementType];
+        var index = type.Indexes.PrimaryIndex;
+        return new ResultExpression(
+          c.Type,
+          IndexProvider.Get(index).Result,
+          null,
+          true);
+      }
+      return base.VisitConstant(c);
+    }
+
+    /// <inheritdoc/>
     protected override Expression VisitMethodCall(MethodCallExpression mc)
     {
       if (mc.Method.DeclaringType==typeof (Queryable) || mc.Method.DeclaringType==typeof (Enumerable)) {
@@ -205,24 +239,11 @@ namespace Xtensive.Storage.Linq.Linq2Rse
         .First(m => m.Name == method.Name && m.GetParameters().Length == 1)
         .MakeGenericMethod(method.ReturnType);
       MethodInfo castMethod = enumerableType.GetMethod("Cast").MakeGenericMethod(method.ReturnType);
-      Expression<Func<RecordSet,object>> materializer = set => provider.EntityMaterializer(set, method.ReturnType);
-      LambdaExpression materializerLe = materializer;
-      ParameterExpression rs = materializerLe.Parameters[0];
-      Expression body = Expression.Convert(Expression.Call(null, enumerableMethod, Expression.Call(null, castMethod, materializerLe.Body)), typeof(object));
-      LambdaExpression le = Expression.Lambda(body, rs);
-      Func<RecordSet,object> shaper = (Func<RecordSet, object>) le.Compile();
-//      Expression<Func<RecordSet, object>> exp = rs => provider.EntityMaterializer(rs, method.ReturnType).Cast<Type>().First();
-
-//      Console.Out.WriteLine(exp);
-
-
-//      Func<RecordSet,object> shaper = delegate(RecordSet set) {
-//        IEnumerable enumerable = provider.EntityMaterializer(set, method.ReturnType);
-//        object cast = castMethod.Invoke(null, new[] { enumerable });
-//        object item = enumerableMethod.Invoke(null, new[] { cast });
-//        return item;
-//      };
-
+      Expression<Func<RecordSet,object>> materializer = set => set.ToEntities(method.ReturnType);
+      var rs = materializer.Parameters[0];
+      var body = Expression.Convert(Expression.Call(null, enumerableMethod, Expression.Call(null, castMethod, materializer.Body)), typeof(object));
+      var le = Expression.Lambda(body, rs);
+      var shaper = (Func<RecordSet, object>) le.Compile();
       return new ResultExpression(method.ReturnType, recordSet, shaper, false);
     }
 
@@ -340,8 +361,6 @@ namespace Xtensive.Storage.Linq.Linq2Rse
         return VisitFieldAccess((FieldAccessExpression) extendedExpression);
       case ExtendedExpressionType.ParameterAccess:
         return e;
-      case ExtendedExpressionType.IndexAccess:
-        return VisitIndexAccess((IndexAccessExpression) extendedExpression);
       case ExtendedExpressionType.Range:
         return VisitRange((RangeExpression) extendedExpression);
       case ExtendedExpressionType.Seek:
@@ -354,15 +373,6 @@ namespace Xtensive.Storage.Linq.Linq2Rse
     {
       var method = expression.Type == typeof(object) ? nonGenericAccessor : genericAccessor.MakeGenericMethod(expression.Type);
       return Expression.Call(parameter, method, Expression.Constant(expression.Field.MappingInfo.Offset));
-    }
-
-    private Expression VisitIndexAccess(IndexAccessExpression expression)
-    {
-      return new ResultExpression(
-        expression.Type,
-        IndexProvider.Get(expression.Index).Result,
-        null,
-        true);
     }
 
     private Expression VisitRange(RangeExpression expression)
@@ -378,9 +388,12 @@ namespace Xtensive.Storage.Linq.Linq2Rse
 
     // Constructor
 
-    public RseQueryTranslator(QueryProvider provider)
+    public RseQueryTranslator(QueryProvider provider, Expression query)
     {
       this.provider = provider;
+      this.query = query;
+      evaluator = new ExpressionEvaluator(query);
+      parameterExtractor = new ParameterExtractor(evaluator);
     }
 
     static RseQueryTranslator()

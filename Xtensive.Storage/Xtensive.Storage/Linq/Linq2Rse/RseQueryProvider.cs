@@ -18,11 +18,8 @@ namespace Xtensive.Storage.Linq.Linq2Rse
   {
     protected override object Execute(Expression expression)
     {
-      expression = QueryPreprocessor.Translate(expression, Model);
-//      var rewriter = new RseQueryRewriter(this);
-//      expression  = rewriter.Rewrite(expression);
-      var compiler = new RseQueryTranslator(this);
-      var result = compiler.Translate(expression);
+      var compiler = new RseQueryTranslator(this, expression);
+      var result = compiler.Translate();
       var shaper = result.Shaper;
       var recordSet = result.RecordSet;
       // TODO: Always use Shaper
@@ -30,7 +27,7 @@ namespace Xtensive.Storage.Linq.Linq2Rse
         return shaper(recordSet);
 
       var arguments = expression.Type.GetGenericArguments();
-      return EntityMaterializer(recordSet, arguments[0]);
+      return recordSet.ToEntities(arguments[0]);
     }
 
 
@@ -39,8 +36,8 @@ namespace Xtensive.Storage.Linq.Linq2Rse
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public RseQueryProvider(DomainModel model, Func<RecordSet, Type, IEnumerable> entityMaterializer)
-      : base(model, entityMaterializer)
+    public RseQueryProvider(DomainModel model)
+      : base(model)
     {
     }
   }
