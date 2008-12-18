@@ -22,9 +22,9 @@ namespace Xtensive.Storage.Tests.Rse
   public class BehaviorTest
   {
     [Test]
-    public void LeftJoinTest()
+    public void JoinTest()
     {
-      const int personCount = 2000;
+      const int personCount = 100;
       Tuple personTuple = Tuple.Create(new[] {typeof (int), typeof (string), typeof (string)});
       Tuple authorTuple = Tuple.Create(new[] {typeof (int), typeof (string)});
       var personColumns = new[]
@@ -67,12 +67,21 @@ namespace Xtensive.Storage.Tests.Rse
       RecordSet personIndexed = personsRS.OrderBy(OrderBy.Asc(0), true);
       RecordSet authorsIndexed = authorsRS.OrderBy(OrderBy.Asc(0), true).Alias("Authors");
 
-      RecordSet result = personIndexed.JoinLeft(authorsIndexed, 0, 0);
+      RecordSet resultLeft = personIndexed.JoinLeft(authorsIndexed, 0, 0);
+      RecordSet resultLeft1 = personIndexed.JoinLeft(authorsIndexed, JoinType.Hash, 0, 0);
+      TestJoinCount(resultLeft, resultLeft1, personCount);
 
-      using (EnumerationScope.Open()) {
-        int count = (int) result.Count();
-        Assert.AreEqual(personCount, count);
-      }
+      resultLeft = personIndexed.Join(authorsIndexed, 0, 0);
+      resultLeft1 = personIndexed.Join(authorsIndexed, JoinType.Hash, 0, 0);
+      TestJoinCount(resultLeft, resultLeft1, personCount/2);
+
+      resultLeft = authorsIndexed.JoinLeft(personIndexed, 0, 0);
+      resultLeft1 = authorsIndexed.JoinLeft(personIndexed, JoinType.Hash, 0, 0);
+      TestJoinCount(resultLeft, resultLeft1, personCount/2);
+      
+      resultLeft = authorsIndexed.Join(personIndexed, 0, 0);
+      resultLeft1 = authorsIndexed.Join(personIndexed, JoinType.Hash, 0, 0);
+      TestJoinCount(resultLeft, resultLeft1, personCount/2);
     }
 
     [Test]
@@ -219,6 +228,16 @@ namespace Xtensive.Storage.Tests.Rse
 // NOTE: Cached!!!!
 //      Assert.AreEqual(0, authorRS.Count());
 
+    }
+
+    private void TestJoinCount(RecordSet item1, RecordSet item2, int resultCount)
+    {
+      using (EnumerationScope.Open()) {
+        var count1 = (int) item1.Count();
+        var count2 = (int) item2.Count();
+        Assert.AreEqual(count1, count2);
+        Assert.AreEqual(resultCount, count1);
+      }
     }
   }
 }
