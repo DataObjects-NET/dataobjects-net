@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -14,9 +15,11 @@ using Xtensive.Core.Tuples;
 using Xtensive.Storage.Linq;
 using Xtensive.Storage.Linq.Expressions;
 using Xtensive.Storage.Linq.Expressions.Visitors;
+using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Compilation.Expressions;
 using Xtensive.Storage.Rse.Providers.Compilable;
+using FieldInfo=Xtensive.Storage.Model.FieldInfo;
 
 namespace Xtensive.Storage.Linq.Linq2Rse
 {
@@ -24,9 +27,8 @@ namespace Xtensive.Storage.Linq.Linq2Rse
   {
     private readonly QueryProvider provider;
     private readonly Expression query;
-    private readonly ExpressionEvaluator evaluator;
-    private readonly ParameterExtractor parameterExtractor;
-
+    private readonly DomainModel model;
+    private readonly FieldAccessTranslator fieldAccessTranslator;
 
     private static readonly MethodInfo nonGenericAccessor;
     private static readonly MethodInfo genericAccessor;
@@ -41,19 +43,6 @@ namespace Xtensive.Storage.Linq.Linq2Rse
     {
       return query==expression;
     }
-
-    protected override Expression Visit(Expression e)
-    {
-      if (e == null)
-        return null;
-      if (evaluator.CanBeEvaluated(e)) {
-        if (parameterExtractor.IsParameter(e))
-          return parameterExtractor.ExtractParameter(e);
-        return evaluator.Evaluate(e);
-      }
-      return base.Visit(e);
-    }
-
 
     protected override Expression VisitConstant(ConstantExpression c)
     {
@@ -345,9 +334,11 @@ namespace Xtensive.Storage.Linq.Linq2Rse
     private Expression VisitWhere(Expression expression, LambdaExpression lambdaExpression)
     {
       var source = (ResultExpression)Visit(expression);
-      parameter = Expression.Parameter(typeof(Tuple), "t");
-      var body = Visit(lambdaExpression.Body);
-      var predicate = Expression.Lambda(typeof(Func<Tuple, bool>), body, parameter);
+      source = fieldAccessTranslator.FlattenFieldAccess(source, lambdaExpression);
+      var predicate = fieldAccessTranslator.Translate(source, lambdaExpression);
+//      parameter = Expression.Parameter(typeof(Tuple), "t");
+//      var body = Visit(lambdaExpression.Body);
+//      var predicate = Expression.Lambda(typeof(Func<Tuple, bool>), body, parameter);
       var recordSet = source.RecordSet.Filter((Expression<Func<Tuple, bool>>)predicate);
       return new ResultExpression(expression.Type, recordSet, null, true);
 
@@ -390,10 +381,10 @@ namespace Xtensive.Storage.Linq.Linq2Rse
 
     public RseQueryTranslator(QueryProvider provider, Expression query)
     {
+      model = provider.Model;
       this.provider = provider;
       this.query = query;
-      evaluator = new ExpressionEvaluator(query);
-      parameterExtractor = new ParameterExtractor(evaluator);
+      fieldAccessTranslator = new FieldAccessTranslator(model, query);
     }
 
     static RseQueryTranslator()
