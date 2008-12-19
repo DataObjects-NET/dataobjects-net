@@ -44,7 +44,7 @@ namespace Xtensive.Storage.Rse.Providers
         if (compiled==null) lock (this) if (CachedCompiled==null) {
           CachedCompiled = compiled = this.Compile();
         }
-          return compiled;
+        return compiled;
       }
     }
 
