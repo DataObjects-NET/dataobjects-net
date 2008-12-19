@@ -29,6 +29,7 @@ namespace Xtensive.Storage.Linq.Linq2Rse
     private readonly Expression query;
     private readonly DomainModel model;
     private readonly FieldAccessTranslator fieldAccessTranslator;
+    private readonly FieldAccessFlattener fieldAccessFlattener;
     
     public ResultExpression Translate()
     {
@@ -330,7 +331,7 @@ namespace Xtensive.Storage.Linq.Linq2Rse
     private Expression VisitWhere(Expression expression, LambdaExpression lambdaExpression)
     {
       var source = (ResultExpression)Visit(expression);
-      source = fieldAccessTranslator.FlattenFieldAccess(source, lambdaExpression);
+      source = fieldAccessFlattener.FlattenFieldAccess(source, lambdaExpression);
       var predicate = fieldAccessTranslator.Translate(source, lambdaExpression);
       var recordSet = source.RecordSet.Filter((Expression<Func<Tuple, bool>>)predicate);
       return new ResultExpression(expression.Type, recordSet, null, true);
@@ -346,6 +347,7 @@ namespace Xtensive.Storage.Linq.Linq2Rse
       this.provider = provider;
       this.query = query;
       fieldAccessTranslator = new FieldAccessTranslator(model, query);
+      fieldAccessFlattener = new FieldAccessFlattener(model, query);
     }
   }
 }

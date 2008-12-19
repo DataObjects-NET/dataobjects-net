@@ -6,6 +6,7 @@
 
 using System;
 using System.Linq.Expressions;
+using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Linq.Expressions
@@ -17,6 +18,11 @@ namespace Xtensive.Storage.Linq.Expressions
     // TODO: => IsSingleResult
     public bool IsMultipleResults { get; private set; }
     public Func<RecordSet, object> Shaper { get; private set; }
+
+    public int GetColumnIndex (ColumnInfo columnInfo)
+    {
+      throw new NotImplementedException();
+    }
 
 
     // Constructors
