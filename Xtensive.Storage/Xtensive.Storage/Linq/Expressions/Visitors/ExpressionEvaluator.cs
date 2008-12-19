@@ -69,8 +69,6 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
         return false;
       if (expression.NodeType == ExpressionType.Convert && expression.Type == typeof(object))
         return true;
-      if (expression is ExtendedExpression)
-        return false;
       return expression.NodeType != ExpressionType.Parameter &&
         expression.NodeType != ExpressionType.Lambda;
     }

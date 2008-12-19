@@ -17,7 +17,6 @@ using Xtensive.Storage.Linq.Expressions;
 using Xtensive.Storage.Linq.Expressions.Visitors;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
-using Xtensive.Storage.Rse.Compilation.Expressions;
 using Xtensive.Storage.Rse.Providers.Compilable;
 using FieldInfo=Xtensive.Storage.Model.FieldInfo;
 
@@ -29,11 +28,7 @@ namespace Xtensive.Storage.Linq.Linq2Rse
     private readonly Expression query;
     private readonly DomainModel model;
     private readonly FieldAccessTranslator fieldAccessTranslator;
-
-    private static readonly MethodInfo nonGenericAccessor;
-    private static readonly MethodInfo genericAccessor;
-    private ParameterExpression parameter;
-
+    
     public ResultExpression Translate()
     {
       return (ResultExpression) Visit(query);
@@ -272,10 +267,10 @@ namespace Xtensive.Storage.Linq.Linq2Rse
         if (argument==null) 
           throw new NotSupportedException();
 
-        var column = argument.Body as FieldAccessExpression;
-        if (column==null)
-          throw new NotSupportedException();
-        aggregateColumn = column.Field.MappingInfo.Offset;
+//        var column = argument.Body as FieldAccessExpression;
+//        if (column==null)
+//          throw new NotSupportedException();
+//        aggregateColumn = column.Field.MappingInfo.Offset;
         shaper = set => set.First().GetValueOrDefault(0);
         switch (method.Name) {
         case "Min":
@@ -336,44 +331,9 @@ namespace Xtensive.Storage.Linq.Linq2Rse
       var source = (ResultExpression)Visit(expression);
       source = fieldAccessTranslator.FlattenFieldAccess(source, lambdaExpression);
       var predicate = fieldAccessTranslator.Translate(source, lambdaExpression);
-//      parameter = Expression.Parameter(typeof(Tuple), "t");
-//      var body = Visit(lambdaExpression.Body);
-//      var predicate = Expression.Lambda(typeof(Func<Tuple, bool>), body, parameter);
       var recordSet = source.RecordSet.Filter((Expression<Func<Tuple, bool>>)predicate);
       return new ResultExpression(expression.Type, recordSet, null, true);
 
-    }
-
-    protected override Expression VisitUnknown(Expression e)
-    {
-      var extendedExpression = (ExtendedExpression) e;
-      switch (extendedExpression.NodeType) {
-      case ExtendedExpressionType.FieldAccess:
-        return VisitFieldAccess((FieldAccessExpression) extendedExpression);
-      case ExtendedExpressionType.ParameterAccess:
-        return e;
-      case ExtendedExpressionType.Range:
-        return VisitRange((RangeExpression) extendedExpression);
-      case ExtendedExpressionType.Seek:
-        return VisitSeek((SeekExpression) extendedExpression);
-      }
-      throw new ArgumentOutOfRangeException();
-    }
-
-    private Expression VisitFieldAccess(FieldAccessExpression expression)
-    {
-      var method = expression.Type == typeof(object) ? nonGenericAccessor : genericAccessor.MakeGenericMethod(expression.Type);
-      return Expression.Call(parameter, method, Expression.Constant(expression.Field.MappingInfo.Offset));
-    }
-
-    private Expression VisitRange(RangeExpression expression)
-    {
-      throw new NotImplementedException();
-    }
-
-    private Expression VisitSeek(SeekExpression expression)
-    {
-      throw new NotImplementedException();
     }
 
 
@@ -385,18 +345,6 @@ namespace Xtensive.Storage.Linq.Linq2Rse
       this.provider = provider;
       this.query = query;
       fieldAccessTranslator = new FieldAccessTranslator(model, query);
-    }
-
-    static RseQueryTranslator()
-    {
-      foreach (var method in typeof(Tuple).GetMethods()) {
-        if (method.Name == "GetValueOrDefault") {
-          if (method.IsGenericMethod)
-            genericAccessor = method;
-          else
-            nonGenericAccessor = method;
-        }
-      }
     }
   }
 }

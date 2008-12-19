@@ -63,20 +63,9 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       return base.Visit(e);
     }
 
-    protected override SqlExpression VisitUnknown(Expression e)
+    private SqlExpression VisitParameterAccess(Expression<Func<object>> expression)
     {
-      var type = (ExtendedExpressionType) e.NodeType;
-      switch (type) {
-        case ExtendedExpressionType.ParameterAccess:
-          return VisitParameterAccess((ParameterAccessExpression)e);
-        default:
-          throw new ArgumentOutOfRangeException();
-      }
-    }
-
-    private SqlExpression VisitParameterAccess(ParameterAccessExpression expression)
-    {
-      var binding = new SqlFetchParameterBinding(expression.Binding.Compile());
+      var binding = new SqlFetchParameterBinding(expression.Compile());
       request.ParameterBindings.Add(binding);
       return binding.SqlParameter;
 

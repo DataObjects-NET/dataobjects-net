@@ -24,13 +24,13 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
       return containsMemberAccess;
     }
 
-    public ParameterAccessExpression ExtractParameter(Expression expression)
+    public Expression<Func<object>> ExtractParameter(Expression expression)
     {
       Type type = expression.Type;
       if (type.IsValueType)
         expression = Expression.Convert(expression, typeof(object));
       var lambda = Expression.Lambda<Func<object>>(expression);
-      return new ParameterAccessExpression(type, lambda);
+      return lambda;
     }
 
     protected override Expression VisitMemberAccess(MemberExpression m)

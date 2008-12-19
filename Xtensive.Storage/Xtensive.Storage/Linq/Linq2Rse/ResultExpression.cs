@@ -5,12 +5,13 @@
 // Created:    2008.12.11
 
 using System;
+using System.Linq.Expressions;
 using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Linq.Expressions
 {
   [Serializable]
-  public sealed class ResultExpression : ExtendedExpression
+  public sealed class ResultExpression : Expression
   {
     public RecordSet RecordSet { get; private set; }
     // TODO: => IsSingleResult
@@ -21,7 +22,7 @@ namespace Xtensive.Storage.Linq.Expressions
     // Constructors
 
     public ResultExpression(Type type, RecordSet recordSet, Func<RecordSet,object> shaper, bool isMultiple)
-      : base(ExtendedExpressionType.Result, type)
+      : base(ExpressionType.Constant, type)
     {
       RecordSet = recordSet;
       Shaper = shaper;
