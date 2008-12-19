@@ -11,6 +11,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
+using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Linq;
 using Xtensive.Storage.Linq.Expressions;
@@ -62,11 +63,11 @@ namespace Xtensive.Storage.Linq.Linq2Rse
       if (mc.Method.DeclaringType==typeof (Queryable) || mc.Method.DeclaringType==typeof (Enumerable)) {
         switch (mc.Method.Name) {
         // TODO: => Core.Wellknown
-        case "Where":
+        case WellKnown.Queryable.Where:
           return VisitWhere(mc.Arguments[0], mc.Arguments[1].StripQuotes());
-        case "Select":
+        case WellKnown.Queryable.Select:
           return VisitSelect(mc.Type, mc.Arguments[0], mc.Arguments[1].StripQuotes());
-        case "SelectMany":
+        case WellKnown.Queryable.SelectMany:
           if (mc.Arguments.Count==2) {
             return VisitSelectMany(
               mc.Type, mc.Arguments[0],
@@ -80,21 +81,21 @@ namespace Xtensive.Storage.Linq.Linq2Rse
               mc.Arguments[2].StripQuotes());
           }
           break;
-        case "Join":
+        case WellKnown.Queryable.Join:
           return VisitJoin(
             mc.Type, mc.Arguments[0], mc.Arguments[1],
             mc.Arguments[2].StripQuotes(),
             mc.Arguments[3].StripQuotes(),
             mc.Arguments[4].StripQuotes());
-        case "OrderBy":
+        case WellKnown.Queryable.OrderBy:
           return VisitOrderBy(mc.Type, mc.Arguments[0], (mc.Arguments[1].StripQuotes()), Direction.Positive);
-        case "OrderByDescending":
+        case WellKnown.Queryable.OrderByDescending:
           return VisitOrderBy(mc.Type, mc.Arguments[0], (mc.Arguments[1].StripQuotes()), Direction.Negative);
-        case "ThenBy":
+        case WellKnown.Queryable.ThenBy:
           return VisitThenBy(mc.Arguments[0], (mc.Arguments[1].StripQuotes()), Direction.Positive);
-        case "ThenByDescending":
+        case WellKnown.Queryable.ThenByDescending:
           return VisitThenBy(mc.Arguments[0], (mc.Arguments[1].StripQuotes()), Direction.Negative);
-        case "GroupBy":
+        case WellKnown.Queryable.GroupBy:
           if (mc.Arguments.Count==2) {
             return VisitGroupBy(
               mc.Arguments[0],
@@ -124,11 +125,11 @@ namespace Xtensive.Storage.Linq.Linq2Rse
               );
           }
           break;
-        case "Count":
-        case "Min":
-        case "Max":
-        case "Sum":
-        case "Average":
+        case WellKnown.Queryable.Count:
+        case WellKnown.Queryable.Min:
+        case WellKnown.Queryable.Max:
+        case WellKnown.Queryable.Sum:
+        case WellKnown.Queryable.Average:
           if (mc.Arguments.Count==1) {
             return VisitAggregate(mc.Arguments[0], mc.Method, null, IsRoot(mc));
           }
@@ -137,25 +138,25 @@ namespace Xtensive.Storage.Linq.Linq2Rse
             return VisitAggregate(mc.Arguments[0], mc.Method, selector, IsRoot(mc));
           }
           break;
-        case "Distinct":
+        case WellKnown.Queryable.Distinct:
           if (mc.Arguments.Count==1) {
             return VisitDistinct(mc.Arguments[0]);
           }
           break;
-        case "Skip":
+        case WellKnown.Queryable.Skip:
           if (mc.Arguments.Count==2) {
             return VisitSkip(mc.Arguments[0], mc.Arguments[1]);
           }
           break;
-        case "Take":
+        case WellKnown.Queryable.Take:
           if (mc.Arguments.Count==2) {
             return VisitTake(mc.Arguments[0], mc.Arguments[1]);
           }
           break;
-        case "First":
-        case "FirstOrDefault":
-        case "Single":
-        case "SingleOrDefault":
+        case WellKnown.Queryable.First:
+        case WellKnown.Queryable.FirstOrDefault:
+        case WellKnown.Queryable.Single:
+        case WellKnown.Queryable.SingleOrDefault:
           if (mc.Arguments.Count==1) {
             return VisitFirst(mc.Arguments[0], null, mc.Method, IsRoot(mc));
           }
@@ -164,7 +165,7 @@ namespace Xtensive.Storage.Linq.Linq2Rse
             return VisitFirst(mc.Arguments[0], predicate, mc.Method, IsRoot(mc));
           }
           break;
-        case "Any":
+        case WellKnown.Queryable.Any:
           if (mc.Arguments.Count==1) {
             return VisitAnyAll(mc.Arguments[0], mc.Method, null, IsRoot(mc));
           }
@@ -173,13 +174,13 @@ namespace Xtensive.Storage.Linq.Linq2Rse
             return VisitAnyAll(mc.Arguments[0], mc.Method, predicate, IsRoot(mc));
           }
           break;
-        case "All":
+        case WellKnown.Queryable.All:
           if (mc.Arguments.Count==2) {
             var predicate = (LambdaExpression) (mc.Arguments[1]);
             return VisitAnyAll(mc.Arguments[0], mc.Method, predicate, IsRoot(mc));
           }
           break;
-        case "Contains":
+        case WellKnown.Queryable.Contains:
           if (mc.Arguments.Count==2) {
             return VisitContains(mc.Arguments[0], mc.Arguments[1], IsRoot(mc));
           }
@@ -204,16 +205,16 @@ namespace Xtensive.Storage.Linq.Linq2Rse
       if (!isRoot)
         throw new NotImplementedException();
       ResultExpression result = predicate!=null ? 
-                                                  (ResultExpression) VisitWhere(source, predicate) : 
-                                                                                                     (ResultExpression) Visit(source);
+        (ResultExpression) VisitWhere(source, predicate) : 
+        (ResultExpression) Visit(source);
       RecordSet recordSet = null;
       switch (method.Name) {
-      case "First":
-      case "FirstOrDefault":
+      case WellKnown.Queryable.First:
+      case WellKnown.Queryable.FirstOrDefault:
         recordSet = result.RecordSet.Take(1);
         break;
-      case "Single":
-      case "SingleOrDefault":
+      case WellKnown.Queryable.Single:
+      case WellKnown.Queryable.SingleOrDefault:
         recordSet = result.RecordSet.Take(2);
         break;
       }
@@ -255,7 +256,7 @@ namespace Xtensive.Storage.Linq.Linq2Rse
       Func<RecordSet, object> shaper;
       ResultExpression result;
       int aggregateColumn = 0;
-      if (method.Name == "Count") {
+      if (method.Name == WellKnown.Queryable.Count) {
         shaper = set => (int)(set.First().GetValue<long>(0));
         if (argument != null)
           result = (ResultExpression) VisitWhere(source, argument);
@@ -273,19 +274,19 @@ namespace Xtensive.Storage.Linq.Linq2Rse
 //        aggregateColumn = column.Field.MappingInfo.Offset;
         shaper = set => set.First().GetValueOrDefault(0);
         switch (method.Name) {
-        case "Min":
+        case WellKnown.Queryable.Min:
           name = "$Min";
           type = AggregateType.Min;
           break;
-        case "Max":
+        case WellKnown.Queryable.Max:
           name = "$Max";
           type = AggregateType.Max;
           break;
-        case "Sum":
+        case WellKnown.Queryable.Sum:
           name = "$Sum";
           type = AggregateType.Sum;
           break;
-        case "Average":
+        case WellKnown.Queryable.Average:
           name = "$Avg";
           type = AggregateType.Avg;
           break;
