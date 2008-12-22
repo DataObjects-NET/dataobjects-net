@@ -46,7 +46,7 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
   [HierarchyRoot("Number", KeyGenerator = typeof(KeyGenerator))]
   public class Person : Entity
   {
-    [Field]
+    [Field(MappingName = "PassportNumber")]
     public int Number
     {
       get { return GetField<int>("Number"); }
@@ -86,7 +86,7 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
     [Field(Length = 128)]
     public string Title { get; set; }
 
-    [Field(OnRemove = ReferentialAction.Restrict)]
+    [Field(OnRemove = ReferentialAction.Restrict, MappingName = "BookAuthor")]
     public Author Author { get; set; }
 
     public int Rating { get; set; }
