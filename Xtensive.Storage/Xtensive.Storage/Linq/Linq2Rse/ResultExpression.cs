@@ -5,6 +5,7 @@
 // Created:    2008.12.11
 
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
@@ -14,14 +15,19 @@ namespace Xtensive.Storage.Linq.Expressions
   [Serializable]
   public sealed class ResultExpression : Expression
   {
+    private readonly Dictionary<string,int> fieldMapping = new Dictionary<string, int>();
+
     public RecordSet RecordSet { get; private set; }
     // TODO: => IsSingleResult
     public bool IsMultipleResults { get; private set; }
     public Func<RecordSet, object> Shaper { get; private set; }
-
-    public int GetColumnIndex (ColumnInfo columnInfo)
+    
+    public int GetColumnIndex(string fieldName)
     {
-      throw new NotImplementedException();
+      int value;
+      if (fieldMapping.TryGetValue(fieldName, out value))
+        return value;
+      return -1;
     }
 
 

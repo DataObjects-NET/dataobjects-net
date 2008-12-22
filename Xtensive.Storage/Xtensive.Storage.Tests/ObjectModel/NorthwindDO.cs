@@ -122,7 +122,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
   [HierarchyRoot(typeof(KeyGenerator), "Id")]
   public class Supplier : BusinessContact
   {
-    [Field(MappingName = "SupplierId")]
+    [Field]
     public int Id { get; private set; }
 
     [Field]
@@ -147,7 +147,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
   [HierarchyRoot(typeof(KeyGenerator), "Id")]
   public class Product : Entity
   {
-    [Field(MappingName = "ProductId")]
+    [Field]
     public int Id { get; private set; }
 
     [Field(Length = 40)]

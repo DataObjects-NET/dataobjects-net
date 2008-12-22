@@ -53,30 +53,30 @@ namespace Xtensive.Storage.Linq.Linq2Rse
       return base.Visit(e);
     }
 
-//    protected override Expression VisitMemberAccess(MemberExpression m)
-//    {
-//      var memberNames = new Stack<string>();
-//      Expression e = m;
-//      while(e.NodeType == ExpressionType.MemberAccess) {
-//        var memberAccess = (MemberExpression)e;
-//        var member = (PropertyInfo)memberAccess.Member;
-//        TypeInfo type;
-//        if (model.Types.TryGetValue(member.PropertyType, out type) && !type.IsStructure) {
-//          memberNames.Push(memberAccess.Member.Name);
-//        }
-//        else {
-//          if (memberNames.Count > 0) {
-//            var name = memberNames.Pop();
-//            name = string.Format("{0}.{1}", memberAccess.Member.Name, name);
-//            memberNames.Push(name);
-//          }
-//          else
-//            memberNames.Push(memberAccess.Member.Name);
-//        }
-//        e = memberAccess.Expression;
-//      }
-//      if (e.NodeType == ExpressionType.Parameter) {
-//        var type = model.Types[e.Type];
+    protected override Expression VisitMemberAccess(MemberExpression m)
+    {
+      var memberNames = new Stack<string>();
+      Expression e = m;
+      while(e.NodeType == ExpressionType.MemberAccess) {
+        var memberAccess = (MemberExpression)e;
+        var member = (PropertyInfo)memberAccess.Member;
+        TypeInfo type;
+        if (model.Types.TryGetValue(member.PropertyType, out type) && !type.IsStructure) {
+          memberNames.Push(memberAccess.Member.Name);
+        }
+        else {
+          if (memberNames.Count > 0) {
+            var name = memberNames.Pop();
+            name = string.Format("{0}.{1}", memberAccess.Member.Name, name);
+            memberNames.Push(name);
+          }
+          else
+            memberNames.Push(memberAccess.Member.Name);
+        }
+        e = memberAccess.Expression;
+      }
+      if (e.NodeType == ExpressionType.Parameter) {
+        var type = model.Types[e.Type];
 //        var fields = type.Fields;
 //        FieldInfo field = null;
 //        while(memberNames.Count > 0) {
@@ -86,51 +86,66 @@ namespace Xtensive.Storage.Linq.Linq2Rse
 //        }
 //        var method = m.Type == typeof(object) ? nonGenericAccessor : genericAccessor.MakeGenericMethod(m.Type);
 //        return Expression.Call(parameter, method, Expression.Constant(field.MappingInfo.Offset));
-//      }
-//      return base.VisitMemberAccess(m);
-//    }
+      }
+      return base.VisitMemberAccess(m);
+    }
 
     protected override Expression VisitBinary(BinaryExpression b)
     {
       bool isKey = typeof(Key).IsAssignableFrom(b.Left.Type);
       bool isEntity = typeof(IEntity).IsAssignableFrom(b.Left.Type);
       bool isStructure = typeof(Structure).IsAssignableFrom(b.Left.Type);
+      bool leftIsParameter = parameterExtractor.IsParameter(b.Left);
       bool rightIsParameter = parameterExtractor.IsParameter(b.Right);
+      var first = b.Left;
+      var second = b.Right;
       if (isKey || isEntity || isStructure) {
         if (b.NodeType!=ExpressionType.Equal && b.NodeType!=ExpressionType.NotEqual) 
           throw new InvalidOperationException();
-        if (rightIsParameter) {
-          if (isStructure)
-            throw new NotImplementedException();
-
-          TypeInfo type;
-          if (isKey) {
-            var keyAccess = (MemberExpression) b.Left;
-            type = model.Types[keyAccess.Expression.Type];
-          }
-          else
-            type = model.Types[b.Left.Type];
-          Expression result = null;
-          var key = isKey ? b.Right : Expression.MakeMemberAccess(b.Right, identifierAccessor);
-          foreach (var pair in type.Hierarchy.KeyColumns.Select((kc,i) => new { ColumnIndex = source.GetColumnIndex(kc), ParameterIndex = i})) {
-            var method = genericAccessor.MakeGenericMethod(source.RecordSet.Header.TupleDescriptor[pair.ColumnIndex]);
-            Expression left = Expression.Call(parameter, method, Expression.Constant(pair.ColumnIndex));
-            Expression right = Expression.Lambda(Expression.Call(Expression.MakeMemberAccess(key, keyValueAccessor), method, Expression.Constant(pair.ParameterIndex)));
-            if (result==null)
-              result = b.NodeType==ExpressionType.Equal ? 
-                Expression.Equal(left, right) : 
-                Expression.NotEqual(left, right);
-            else
-              result = b.NodeType==ExpressionType.Equal ? 
-                Expression.AndAlso(result, Expression.Equal(left, right)) : 
-                Expression.AndAlso(result, Expression.NotEqual(left, right));
-          }
-          return result;
-        }
-        else {
+        if (isStructure)
           throw new NotImplementedException();
+        if (!leftIsParameter && !rightIsParameter) {
+          
+        }
+        if (leftIsParameter) {
+          first = b.Right;
+          second = b.Left;
+        }
+        TypeInfo type;
+        if (isKey) {
+          var keyAccess = (MemberExpression) first;
+          type = model.Types[keyAccess.Expression.Type];
+        }
+        else
+          type = model.Types[first.Type];
+        Expression result = null;
+        var key = isKey ? second : Expression.MakeMemberAccess(second, identifierAccessor);
+        string fieldName = null;
+        while (first.NodeType == ExpressionType.MemberAccess) {
+          var memberAccess = (MemberExpression)first;
+          var memberName = memberAccess.Member.Name;
+          if (fieldName == null)
+            fieldName = memberName;
+          else
+            fieldName = string.Format("{0}.{1}", memberName, fieldName);
+          first = memberAccess.Expression;
         }
 
+        var keyColumns = type.Hierarchy.KeyFields.Select((kf,i) => new { ColumnIndex = source.GetColumnIndex(string.Format("{0}.{1}", fieldName, kf.Key.Name)), ParameterIndex = i});
+        foreach (var pair in keyColumns) {
+          var method = genericAccessor.MakeGenericMethod(source.RecordSet.Header.TupleDescriptor[pair.ColumnIndex]);
+          Expression left = Expression.Call(parameter, method, Expression.Constant(pair.ColumnIndex));
+          Expression right = Expression.Lambda(Expression.Call(Expression.MakeMemberAccess(key, keyValueAccessor), method, Expression.Constant(pair.ParameterIndex)));
+          if (result==null)
+            result = b.NodeType==ExpressionType.Equal ? 
+              Expression.Equal(left, right) : 
+              Expression.NotEqual(left, right);
+          else
+            result = b.NodeType==ExpressionType.Equal ? 
+              Expression.AndAlso(result, Expression.Equal(left, right)) : 
+              Expression.AndAlso(result, Expression.NotEqual(left, right));
+        }
+        return result;
       }
       return base.VisitBinary(b);
     }
