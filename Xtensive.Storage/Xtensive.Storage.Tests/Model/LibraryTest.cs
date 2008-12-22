@@ -62,7 +62,7 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
       }
     }
 
-    [Field]
+    [Field(PairTo = "Reviewer")]
     public EntitySet<BookReview> Reviews { get; private set; }
   }
 
