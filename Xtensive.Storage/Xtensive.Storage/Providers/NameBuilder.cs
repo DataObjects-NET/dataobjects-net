@@ -158,8 +158,14 @@ namespace Xtensive.Storage.Providers
       ArgumentValidator.EnsureArgumentNotNull(field, "field");
       ArgumentValidator.EnsureArgumentNotNull(baseColumn, "baseColumn");
 
-      string prefix = field.MappingName ?? field.Name;
-      string result = field.IsStructure ? prefix + "." + baseColumn.Name : prefix;
+      string name = field.MappingName ?? field.Name;
+      var currentField = field.Parent;
+      while (currentField!=null) {
+        name = currentField.MappingName ?? currentField.Name + "." + name;
+        currentField = currentField.Parent;
+      }
+
+      string result = field.IsStructure ? name + "." + baseColumn.Name : name;
       return NamingConvention.Apply(result);
     }
 

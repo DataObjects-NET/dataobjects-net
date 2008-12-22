@@ -248,15 +248,16 @@ namespace Xtensive.Storage.Building.Builders
       BuildingContext context = BuildingContext.Current;
 
       foreach (FieldInfo field in fields) {
+        FieldInfo clone = field.Clone();
+        if (target.IsDeclared)
+          clone.Name = BuildingContext.Current.NameBuilder.Build(target, field);
+        if (target.Fields.Contains(clone.Name))
+          continue;
+        clone.Parent = target;
+
         if (field.IsStructure || field.IsEntity)
-          BuildNestedFields(target, field.Fields);
+          BuildNestedFields(clone, field.Fields);
         else {
-          FieldInfo clone = field.Clone();
-          if (target.IsDeclared)
-            clone.Name = BuildingContext.Current.NameBuilder.Build(target, field);
-          if (target.Fields.Contains(clone.Name))
-            continue;
-          clone.Parent = target;
           if (field.Column!=null)
             clone.Column = ColumnBuilder.BuildInheritedColumn(clone, field.Column);
           target.ReflectedType.Fields.Add(clone);
