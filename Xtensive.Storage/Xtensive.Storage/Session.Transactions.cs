@@ -4,6 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2008.11.07
 
+using System.Transactions;
 using Xtensive.Core.Disposable;
 
 namespace Xtensive.Storage
@@ -23,16 +24,17 @@ namespace Xtensive.Storage
     /// <summary>
     /// Opens a new or already running transaction.
     /// </summary>
+    /// <param name="isolationLevel">The isolation level.</param>
     /// <returns>
     /// A new <see cref="TransactionScope"/> object, if new
     /// <see cref="Transaction"/> is created;
     /// otherwise, <see langword="null"/>.
     /// </returns>
-    public TransactionScope OpenTransaction()
+    public TransactionScope OpenTransaction(IsolationLevel isolationLevel)
     {
       var transaction = Transaction;
       if (transaction==null) {
-        transaction = new Transaction(this);
+        transaction = new Transaction(this, isolationLevel);
         Transaction = transaction;
         var ts = (TransactionScope) transaction.Begin();
         if (ts!=null && Configuration.UsesAmbientTransactions) {
@@ -42,6 +44,19 @@ namespace Xtensive.Storage
         return ts;
       }
       return null;
+    }
+
+    /// <summary>
+    /// Opens a new or already running transaction.
+    /// </summary>
+    /// <returns>
+    /// A new <see cref="TransactionScope"/> object, if new
+    /// <see cref="Transaction"/> is created;
+    /// otherwise, <see langword="null"/>.
+    /// </returns>
+    public TransactionScope OpenTransaction()
+    {
+      return OpenTransaction(Handler.DefaultIsolationLevel);
     }
 
     /// <summary>

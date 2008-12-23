@@ -14,6 +14,7 @@ using Xtensive.Core.Tuples;
 using Xtensive.Sql.Dom;
 using Xtensive.Storage.Linq.Linq2Rse;
 using Xtensive.Storage.Providers.Sql.Resources;
+using IsolationLevel=System.Transactions.IsolationLevel;
 
 namespace Xtensive.Storage.Providers.Sql
 {
@@ -47,7 +48,8 @@ namespace Xtensive.Storage.Providers.Sql
       EnsureConnectionIsOpen();
       if (Transaction!=null)
         throw new InvalidOperationException(Strings.TransactionIsAlreadyOpen);
-      Transaction = connection.BeginTransaction();
+      Transaction = connection.BeginTransaction(
+        IsolationLevelConverter.Convert(Session.Transaction.IsolationLevel));
     }
 
     /// <inheritdoc/>

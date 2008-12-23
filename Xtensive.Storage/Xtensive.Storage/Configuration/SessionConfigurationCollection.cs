@@ -103,7 +103,7 @@ namespace Xtensive.Storage.Configuration
         return false;
       if (ReferenceEquals(this, obj))
         return true;
-      SessionConfigurationCollection scc = obj as SessionConfigurationCollection;
+      var scc = obj as SessionConfigurationCollection;
       if (scc == null)
         return false;
       return Equals(scc);
@@ -175,6 +175,9 @@ namespace Xtensive.Storage.Configuration
         config.Password = Default.Password;
       if (config.CacheSize!=Default.CacheSize && config.CacheSize==SessionConfiguration.DefaultCacheSize)
         config.CacheSize = Default.CacheSize;
+      if (config.DefaultIsolationLevel != Default.DefaultIsolationLevel
+        && config.DefaultIsolationLevel == SessionConfiguration.DefaultIsolationLevelValue)
+        config.DefaultIsolationLevel = Default.DefaultIsolationLevel;
       config.Options = config.Options | Default.Options;
     }
   }

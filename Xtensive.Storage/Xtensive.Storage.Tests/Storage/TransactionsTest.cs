@@ -6,9 +6,9 @@
 
 using System;
 using System.Reflection;
+using System.Transactions;
 using NUnit.Framework;
 using Xtensive.Core.Testing;
-using Xtensive.Integrity.Transactions;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
 
@@ -68,7 +68,6 @@ namespace Xtensive.Storage.Tests.Storage.TranscationsTest
             hexagon.Remove();
           AssertEx.ThrowsInvalidOperationException( delegate { hexagon.Kwanza = 20; });
         }
-          
         hexagon.Kwanza = 14;  
         Assert.AreEqual(14, hexagon.Kwanza);
       }

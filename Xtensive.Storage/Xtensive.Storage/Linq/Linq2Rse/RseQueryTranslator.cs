@@ -63,7 +63,6 @@ namespace Xtensive.Storage.Linq.Linq2Rse
     {
       if (mc.Method.DeclaringType==typeof (Queryable) || mc.Method.DeclaringType==typeof (Enumerable)) {
         switch (mc.Method.Name) {
-        // TODO: => Core.Wellknown
         case WellKnown.Queryable.Where:
           return VisitWhere(mc.Arguments[0], mc.Arguments[1].StripQuotes());
         case WellKnown.Queryable.Select:

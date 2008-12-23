@@ -5,11 +5,10 @@
 // Created:    2008.08.20
 
 using System;
-using System.Collections.Generic;
+using System.Transactions;
 using Xtensive.Core.Disposable;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Integrity.Transactions;
-using Xtensive.Storage.PairIntegrity;
 using Xtensive.Storage.Resources;
 using Xtensive.Storage.Rse.Providers.Executable;
 
@@ -95,7 +94,27 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
-    /// Does the same as <see cref="Storage.Session.OpenTransaction"/>,
+    /// Does the same as <see cref="Storage.Session.OpenTransaction()"/>,
+    /// but for the <see cref="Current"/> transaction.
+    /// </summary>
+    /// <param name="isolationLevel">The isolation level.</param>
+    /// <returns>
+    /// A new <see cref="TransactionScope"/> object, if new
+    /// <see cref="Transaction"/> is created;
+    /// otherwise, <see langword="null"/>.
+    /// </returns>
+    /// <exception cref="InvalidOperationException">There is no <see cref="Storage.Session.Current"/> <see cref="Session"/>.</exception>
+    public static TransactionScope Open(IsolationLevel isolationLevel)
+    {
+      var session = Session.Current;
+      if (session==null)
+        throw new InvalidOperationException(
+          Strings.ExCanNotOpenTransactionNoCurrentSession);
+      return session.OpenTransaction(isolationLevel);
+    }
+
+    /// <summary>
+    /// Does the same as <see cref="Storage.Session.OpenTransaction()"/>,
     /// but for the <see cref="Current"/> transaction.
     /// </summary>
     /// <returns>
@@ -107,7 +126,7 @@ namespace Xtensive.Storage
     public static TransactionScope Open()
     {
       var session = Session.Current;
-      if (session==null)
+      if (session == null)
         throw new InvalidOperationException(
           Strings.ExCanNotOpenTransactionNoCurrentSession);
       return session.OpenTransaction();
@@ -122,8 +141,9 @@ namespace Xtensive.Storage
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="session">The session.</param>
-    internal Transaction(Session session)
-      : this (session, Guid.NewGuid())
+    /// <param name="isolationLevel">The isolation level.</param>
+    internal Transaction(Session session, IsolationLevel isolationLevel)
+      : this (session, Guid.NewGuid(), isolationLevel)
     {
     }
 
@@ -132,8 +152,9 @@ namespace Xtensive.Storage
     /// </summary>
     /// <param name="session">The session.</param>
     /// <param name="identifier">The identifier.</param>
-    internal Transaction(Session session, Guid identifier)
-      : base (identifier)
+    /// <param name="isolationLevel">The isolation level.</param>
+    internal Transaction(Session session, Guid identifier, IsolationLevel isolationLevel)
+      : base (identifier, isolationLevel)
     {
       Session = session;
       TemporaryData = new TransactionTemporaryData();

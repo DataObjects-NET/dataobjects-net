@@ -224,6 +224,7 @@ namespace Xtensive.Storage
       Handlers = domain.Handlers;
       Handler = Handlers.HandlerFactory.CreateHandler<SessionHandler>();
       Handler.Session = this;
+      Handler.DefaultIsolationLevel = configuration.DefaultIsolationLevel;
       Handler.Initialize();
       compilationScope = Handlers.DomainHandler.CompilationContext.Activate();
       // Caches, registry

@@ -5,6 +5,7 @@
 // Created:    2008.08.11
 
 using System.Configuration;
+using System.Transactions;
 
 namespace Xtensive.Storage.Configuration.Elements
 {
@@ -18,6 +19,7 @@ namespace Xtensive.Storage.Configuration.Elements
     private const string PasswordElementName = "password";
     private const string CacheSizeElementName = "cacheSize";
     private const string OptionsElementName = "options";
+    private const string IsolationLevelElementName = "isolationLevel";
 
     /// <inheritdoc/>
     public override object Identifier
@@ -76,6 +78,17 @@ namespace Xtensive.Storage.Configuration.Elements
     }
 
     /// <summary>
+    /// <see cref="SessionConfiguration.DefaultIsolationLevel" copy="true"/>
+    /// </summary>
+    [ConfigurationProperty(IsolationLevelElementName, IsRequired = false,DefaultValue = SessionConfiguration.DefaultIsolationLevelValue, IsKey = false)]
+    public IsolationLevel DefaultIsolationLevel
+    {
+      get { return (IsolationLevel)this[IsolationLevelElementName]; }
+      set { this[IsolationLevelElementName] = value; }
+    }
+
+
+    /// <summary>
     /// Converts the element to a native configuration object it corresponds to - 
     /// i.e. to a <see cref="SessionConfiguration"/> object.
     /// </summary>
@@ -87,7 +100,8 @@ namespace Xtensive.Storage.Configuration.Elements
         UserName = UserName,
         Password = Password,
         CacheSize = CacheSize,
-        Options = Options
+        Options = Options,
+        DefaultIsolationLevel = DefaultIsolationLevel
       };
       return result;
     }

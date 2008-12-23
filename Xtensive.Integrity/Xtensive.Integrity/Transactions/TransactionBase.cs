@@ -19,7 +19,6 @@ namespace Xtensive.Integrity.Transactions
   public abstract class TransactionBase : ITransaction    
   {
     private readonly Guid identifier;
-    private IsolationLevel isolationLevel;
     private TransactionScope scope;
 
     #region IIdentified<Guid> Members
@@ -42,10 +41,7 @@ namespace Xtensive.Integrity.Transactions
     public TransactionState State { get; private set; }
 
     /// <inheritdoc/>
-    public IsolationLevel IsolationLevel {
-      [DebuggerStepThrough]
-      get { return isolationLevel; }
-    }
+    public IsolationLevel IsolationLevel { get; protected set; }
 
     /// <summary>
     /// Begins this transaction.
@@ -130,13 +126,15 @@ namespace Xtensive.Integrity.Transactions
 
     
     // Constructors
-    
+
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true" />
     /// </summary>
     /// <param name="identifier">The identifier.</param>
-    protected TransactionBase(Guid identifier)
+    /// <param name="isolationLevel">The isolation level.</param>
+    protected TransactionBase(Guid identifier, IsolationLevel isolationLevel)
     {
+      IsolationLevel = isolationLevel;
       this.identifier = identifier;
       State = TransactionState.NotActivated;
     }

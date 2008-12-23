@@ -5,6 +5,7 @@
 // Created:    2008.05.19
 
 using System;
+using System.Transactions;
 using System.Linq;
 
 namespace Xtensive.Storage.Providers
@@ -24,6 +25,11 @@ namespace Xtensive.Storage.Providers
     /// Gets the <see cref="IQueryProvider"/> implementation.
     /// </summary>
     public IQueryProvider LinqProvider { get; protected set; }
+
+    ///<summary>
+    /// Gets the specified <see cref="System.Transactions.IsolationLevel"/>.
+    ///</summary>
+    public IsolationLevel DefaultIsolationLevel { get; internal set; }
 
     /// <summary>
     /// Opens the transaction.

@@ -5,6 +5,7 @@
 // Created:    2007.08.29
 
 using System;
+using System.Transactions;
 using Xtensive.Core;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
@@ -28,6 +29,11 @@ namespace Xtensive.Storage.Configuration
     /// </summary>
     public const int DefaultCacheSize = 16 * 1024;
 
+    ///<summary>
+    /// Default isolation level.
+    ///</summary>
+    public const IsolationLevel DefaultIsolationLevelValue = IsolationLevel.ReadCommitted;
+
     #endregion
 
     /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
@@ -39,6 +45,8 @@ namespace Xtensive.Storage.Configuration
     private string userName;
     private string password;
     private int cacheSize;
+    private IsolationLevel defaultIsolationLevel;
+
 
     /// <summary>
     /// Gets or sets the session name.
@@ -95,6 +103,20 @@ namespace Xtensive.Storage.Configuration
         this.EnsureNotLocked();
         ArgumentValidator.EnsureArgumentIsInRange(value, 0, Int32.MaxValue, "CacheSize");
         cacheSize = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the default isolation level. 
+    /// Default value is <see cref="DefaultIsolationLevelValue"/>.
+    /// </summary>
+    public IsolationLevel DefaultIsolationLevel
+    {
+      get { return defaultIsolationLevel; }
+      set 
+      {
+        this.EnsureNotLocked();
+        defaultIsolationLevel = value;
       }
     }
 
@@ -163,6 +185,7 @@ namespace Xtensive.Storage.Configuration
       Password = configuration.Password;
       Options = configuration.Options;
       CacheSize = configuration.CacheSize;
+      DefaultIsolationLevel = configuration.DefaultIsolationLevel;
     }
 
     #region Equality members
@@ -178,7 +201,8 @@ namespace Xtensive.Storage.Configuration
         obj.UserName==UserName &&
           obj.Type==Type &&
             obj.Options==Options &&
-              obj.CacheSize==CacheSize;
+              obj.CacheSize==CacheSize &&
+                obj.DefaultIsolationLevel==DefaultIsolationLevel;
     }
 
     /// <inheritdoc/>
@@ -201,6 +225,7 @@ namespace Xtensive.Storage.Configuration
         result = (result * 397) ^ (int) Type;
         result = (result * 397) ^ (int) Options;
         result = (result * 397) ^ CacheSize;
+        result = (result * 397) ^ (int)DefaultIsolationLevel;
         return result;
       }
     }
@@ -211,9 +236,8 @@ namespace Xtensive.Storage.Configuration
     public override string ToString()
     {
       if (UserName.IsNullOrEmpty())
-        return string.Format("Name = {0}, Options = {1}, CacheSize = {2}", Name, Options, CacheSize);
-      else
-        return string.Format("Name = {0}, UserName = {1}, Options = {2}, CacheSize = {3}", Name, UserName, Options, CacheSize);
+        return string.Format("Name = {0}, Options = {1}, CacheSize = {2}, DefaultIsolationLevel = {3}", Name, Options, CacheSize, DefaultIsolationLevel);
+      return string.Format("Name = {0}, UserName = {1}, Options = {2}, CacheSize = {3}, DefaultIsolationLevel = {4}", Name, UserName, Options, CacheSize, DefaultIsolationLevel);
     }
 
 
@@ -225,6 +249,7 @@ namespace Xtensive.Storage.Configuration
     public SessionConfiguration()
     {
       CacheSize = DefaultCacheSize;
+      DefaultIsolationLevel = DefaultIsolationLevelValue;
       Name = "Default";
       UserName = string.Empty;
       Password = string.Empty;
