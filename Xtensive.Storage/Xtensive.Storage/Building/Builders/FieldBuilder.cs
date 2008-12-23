@@ -198,13 +198,11 @@ namespace Xtensive.Storage.Building.Builders
       Log.Info("Building inherited field '{0}.{1}'", type.Name, inheritedField.Name);
       FieldInfo field = inheritedField.Clone();
       type.Fields.Add(field);
-      if (inheritedField.Parent!=null)
-        field.Parent = type.Fields[inheritedField.Parent.Name];
-      else {
-        field.ReflectedType = type;
-        field.DeclaringType = inheritedField.DeclaringType;
-        field.IsInherited = true;
-      }
+      field.ReflectedType = type;
+      field.DeclaringType = inheritedField.DeclaringType;
+      field.IsInherited = true;
+
+      BuildNestedFields(field, field, inheritedField.Fields);
 
       if (inheritedField.Column!=null)
         field.Column = ColumnBuilder.BuildInheritedColumn(field, inheritedField.Column);
@@ -232,7 +230,7 @@ namespace Xtensive.Storage.Building.Builders
       IEnumerable<FieldInfo> fields = type.Hierarchy.KeyFields.Keys.Join(type.Fields, key => key.Name,
         fld => fld.Name, (key, fld) => fld);
 
-      BuildNestedFields(field, fields);
+      BuildNestedFields(field, field, fields);
     }
 
     public static void BuildStructureField(FieldInfo field)
@@ -240,31 +238,36 @@ namespace Xtensive.Storage.Building.Builders
       BuildingContext context = BuildingContext.Current;
       TypeInfo type = context.Model.Types[field.ValueType];
 
-      BuildNestedFields(field, type.Fields);
+      BuildNestedFields(field, field, type.Fields);
     }
 
-    private static void BuildNestedFields(FieldInfo target, IEnumerable<FieldInfo> fields)
+    private static void BuildNestedFields(FieldInfo root, FieldInfo target, IEnumerable<FieldInfo> fields)
     {
       BuildingContext context = BuildingContext.Current;
 
       foreach (FieldInfo field in fields) {
         FieldInfo clone = field.Clone();
-        if (target.IsDeclared)
+        if (target.IsDeclared) {
           clone.Name = BuildingContext.Current.NameBuilder.Build(target, field);
-        if (target.Fields.Contains(clone.Name))
+          clone.MappingName = BuildingContext.Current.NameBuilder.BuildMappingName(target, field);
+        }
+        if (root.Fields.Contains(clone.Name))
           continue;
         clone.Parent = target;
+        target.ReflectedType.Fields.Add(clone);
 
-        if (field.IsStructure || field.IsEntity)
-          BuildNestedFields(clone, field.Fields);
+        if (field.IsStructure || field.IsEntity) {
+          BuildNestedFields(root, clone, field.Fields);
+          foreach (FieldInfo clonedFields in clone.Fields)
+            target.Fields.Add(clonedFields);
+        }
         else {
-          if (field.Column!=null)
+          if (field.Column != null)
             clone.Column = ColumnBuilder.BuildInheritedColumn(clone, field.Column);
-          target.ReflectedType.Fields.Add(clone);
           if (clone.IsEntity && !IsEntitySetItem(clone.ReflectedType)) {
             FieldInfo refField = field;
-            AssociationInfo origin = context.Model.Associations.Find(context.Model.Types[field.ValueType]).Where(a => a.ReferencingField==refField).FirstOrDefault();
-            if (origin!=null) {
+            AssociationInfo origin = context.Model.Associations.Find(context.Model.Types[field.ValueType]).Where(a => a.ReferencingField == refField).FirstOrDefault();
+            if (origin != null) {
               AssociationBuilder.BuildAssociation(origin, clone);
               context.DiscardedAssociations.Add(origin);
             }

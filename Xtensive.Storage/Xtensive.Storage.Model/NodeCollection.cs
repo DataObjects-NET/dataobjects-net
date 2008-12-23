@@ -31,6 +31,10 @@ namespace Xtensive.Storage.Model
       try {
         base.Add(item);
       }
+      catch (ArgumentException e){
+        throw new InvalidOperationException(
+          string.Format(CultureInfo.InvariantCulture, "Item with name '{0}' already exists.", item.Name), e);
+      }
       catch (InvalidOperationException e) {
         throw new InvalidOperationException(
           string.Format(CultureInfo.InvariantCulture, "Item with name '{0}' already exists.", item.Name), e);

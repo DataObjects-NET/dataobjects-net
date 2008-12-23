@@ -15,6 +15,7 @@ using Xtensive.Core.Reflection;
 using FieldAttributes=Xtensive.Storage.Model.FieldAttributes;
 using FieldInfo=Xtensive.Storage.Model.FieldInfo;
 using Xtensive.Storage.Resources;
+using System.Linq;
 
 namespace Xtensive.Storage.Building.Builders
 {
@@ -253,7 +254,7 @@ namespace Xtensive.Storage.Building.Builders
       if (ancestor==null)
         return;
 
-      foreach (FieldInfo srcField in ancestor.Fields.Find(FieldAttributes.Explicit, MatchType.None)) {
+      foreach (FieldInfo srcField in ancestor.Fields.Find(FieldAttributes.Explicit, MatchType.None).Where(f => f.Parent == null)) {
         if (type.Fields.Contains(srcField.Name))
           continue;
 
@@ -266,7 +267,7 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void ProcessBaseInterface(TypeInfo ancestor, TypeInfo @interface)
     {
-      foreach (FieldInfo ancsField in ancestor.Fields.Find(FieldAttributes.Declared)) {
+      foreach (FieldInfo ancsField in ancestor.Fields.Find(FieldAttributes.Declared).Where(f => f.Parent == null)) {
         if (@interface.Fields.Contains(ancsField.Name))
           continue;
 

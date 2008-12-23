@@ -153,7 +153,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     [Field(Length = 40)]
     public string ProductName { get; set; }
 
-    [Field]
+    [Field(MappingName = "Seller")]
     public Supplier Supplier { get; set; }
 
     [Field]

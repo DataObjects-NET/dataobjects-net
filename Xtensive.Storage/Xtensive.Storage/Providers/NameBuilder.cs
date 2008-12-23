@@ -139,12 +139,27 @@ namespace Xtensive.Storage.Providers
     /// </summary>
     /// <param name="complexField">The complex field.</param>
     /// <param name="childField">The child field.</param>
-    /// <returns>The built name.</returns>
     public virtual string Build(FieldInfo complexField, FieldInfo childField)
     {
       ArgumentValidator.EnsureArgumentNotNull(complexField, "complexField");
       ArgumentValidator.EnsureArgumentNotNull(childField, "childField");
+      if (complexField.Parent!=null)
+        return string.Concat(complexField.Parent.Name, ".", childField.Name);
       return string.Concat(complexField.Name, ".", childField.Name);
+    }
+
+
+    /// <summary>
+    /// Builds the <see cref="MappingNode.MappingName"/>.
+    /// </summary>
+    /// <param name="complexField">The complex field.</param>
+    /// <param name="childField">The child field.</param>
+    public string BuildMappingName(FieldInfo complexField, FieldInfo childField)
+    {
+      Func<FieldInfo, string> getMappingName = f => f.MappingName ?? f.Name;
+      if (complexField.Parent != null)
+        return string.Concat(getMappingName(complexField.Parent), ".", getMappingName(childField));
+      return string.Concat(getMappingName(complexField), ".", getMappingName(childField));
     }
 
     /// <summary>
@@ -158,14 +173,16 @@ namespace Xtensive.Storage.Providers
       ArgumentValidator.EnsureArgumentNotNull(field, "field");
       ArgumentValidator.EnsureArgumentNotNull(baseColumn, "baseColumn");
 
-      string name = field.MappingName ?? field.Name;
-      var currentField = field.Parent;
-      while (currentField!=null) {
-        name = currentField.MappingName ?? currentField.Name + "." + name;
-        currentField = currentField.Parent;
-      }
+      var result = field.MappingName ?? field.Name;
 
-      string result = field.IsStructure ? name + "." + baseColumn.Name : name;
+//      string name = field.MappingName ?? field.Name;
+//      var currentField = field.Parent;
+//      while (currentField!=null) {
+//        name = currentField.MappingName ?? currentField.Name + "." + name;
+//        currentField = currentField.Parent;
+//      }
+//
+//      string result = field.IsStructure ? name + "." + baseColumn.Name : name;
       return NamingConvention.Apply(result);
     }
 
