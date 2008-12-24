@@ -19,7 +19,7 @@ using FieldInfo=Xtensive.Storage.Model.FieldInfo;
 
 namespace Xtensive.Storage.Linq.Linq2Rse
 {
-  public class FieldAccessTranslator : ExpressionVisitor
+  internal class FieldAccessTranslator : ExpressionVisitor
   {
     private readonly DomainModel model;
     private readonly ExpressionEvaluator evaluator;

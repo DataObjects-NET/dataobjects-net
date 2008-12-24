@@ -17,7 +17,7 @@ using System.Linq;
 
 namespace Xtensive.Storage.Linq.Linq2Rse
 {
-  public class FieldAccessFlattener : ExpressionVisitor
+  internal class FieldAccessFlattener : ExpressionVisitor
   {
     private readonly DomainModel model;
     private readonly ExpressionEvaluator evaluator;

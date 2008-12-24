@@ -16,6 +16,7 @@ using Xtensive.Core.Tuples;
 using Xtensive.Storage.Linq;
 using Xtensive.Storage.Linq.Expressions;
 using Xtensive.Storage.Linq.Expressions.Visitors;
+using Xtensive.Storage.Linq.Linq2Rse.Internal;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers.Compilable;
@@ -23,7 +24,7 @@ using FieldInfo=Xtensive.Storage.Model.FieldInfo;
 
 namespace Xtensive.Storage.Linq.Linq2Rse
 {
-  public class RseQueryTranslator : ExpressionVisitor
+  internal class RseQueryTranslator : ExpressionVisitor
   {
     private readonly QueryProvider provider;
     private readonly Expression query;
@@ -49,9 +50,14 @@ namespace Xtensive.Storage.Linq.Linq2Rse
       if (rootPoint != null) {
         var type = provider.Model.Types[rootPoint.ElementType];
         var index = type.Indexes.PrimaryIndex;
+
+        var fieldMapping = new Dictionary<string, int>();
+        var mappings = new TypeMapping(type, fieldMapping, new Dictionary<string, TypeMapping>());
+
         return new ResultExpression(
           c.Type,
           IndexProvider.Get(index).Result,
+          new[]{mappings},
           null,
           true);
       }
@@ -229,7 +235,7 @@ namespace Xtensive.Storage.Linq.Linq2Rse
       var body = Expression.Convert(Expression.Call(null, enumerableMethod, Expression.Call(null, castMethod, materializer.Body)), typeof(object));
       var le = Expression.Lambda(body, rs);
       var shaper = (Func<RecordSet, object>) le.Compile();
-      return new ResultExpression(method.ReturnType, recordSet, shaper, false);
+      return new ResultExpression(method.ReturnType, recordSet, result.Mappings, shaper, false);
     }
 
     private Expression VisitTake(Expression source, Expression take)
@@ -294,7 +300,7 @@ namespace Xtensive.Storage.Linq.Linq2Rse
       }
 
       var recordSet = result.RecordSet.Aggregate(null, new AggregateColumnDescriptor(name, aggregateColumn, type));
-      return new ResultExpression(result.Type, recordSet, shaper, false);
+      return new ResultExpression(result.Type, recordSet, null, shaper, false);
     }
 
     private Expression VisitGroupBy(Expression source, LambdaExpression keySelector, LambdaExpression elementSelector, LambdaExpression resultSelector)
@@ -333,7 +339,7 @@ namespace Xtensive.Storage.Linq.Linq2Rse
       source = fieldAccessFlattener.FlattenFieldAccess(source, lambdaExpression);
       var predicate = fieldAccessTranslator.Translate(source, lambdaExpression);
       var recordSet = source.RecordSet.Filter((Expression<Func<Tuple, bool>>)predicate);
-      return new ResultExpression(expression.Type, recordSet, null, true);
+      return new ResultExpression(expression.Type, recordSet, source.Mappings, null, true);
 
     }
 

@@ -8,13 +8,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using Xtensive.Core.Tuples;
+using Xtensive.Storage.Linq.Linq2Rse.Internal;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Linq.Expressions
 {
   [Serializable]
-  public sealed class ResultExpression : Expression
+  internal sealed class ResultExpression : Expression
   {
     private readonly Dictionary<string,int> fieldMapping = new Dictionary<string, int>();
 
@@ -22,6 +23,8 @@ namespace Xtensive.Storage.Linq.Expressions
     // TODO: => IsSingleResult
     public bool IsMultipleResults { get; private set; }
     public Func<RecordSet, object> Shaper { get; private set; }
+    public TypeMapping[] Mappings { get; private set; }
+
     
     public int GetColumnIndex(string fieldName)
     {
@@ -34,10 +37,11 @@ namespace Xtensive.Storage.Linq.Expressions
 
     // Constructors
 
-    public ResultExpression(Type type, RecordSet recordSet, Func<RecordSet,object> shaper, bool isMultiple)
+    public ResultExpression(Type type, RecordSet recordSet, TypeMapping[] mappings, Func<RecordSet,object> shaper, bool isMultiple)
       : base(ExpressionType.Constant, type)
     {
       RecordSet = recordSet;
+      Mappings = mappings;
       Shaper = shaper;
       IsMultipleResults = isMultiple;
       foreach (var column in recordSet.Header.Columns) {
