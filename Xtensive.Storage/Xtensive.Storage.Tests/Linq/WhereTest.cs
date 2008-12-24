@@ -16,8 +16,8 @@ namespace Xtensive.Storage.Tests.Linq
   [TestFixture]
   public class WhereTest : AutoBuildTest
   {
-    private Supplier supplier20;
-    private Category category;
+    private Key supplier20Key;
+    private Key categoryKey;
 
     protected override DomainConfiguration BuildConfiguration()
     {
@@ -38,9 +38,10 @@ namespace Xtensive.Storage.Tests.Linq
       base.TestFixtureSetUp();
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
-          category = new Category();
+          var category = new Category();
           category.CategoryName = "Category";
           category.Description = "Description of category";
+          categoryKey = category.Key;
           for (int i = 0; i < 100; i++) {
             var supplier = new Supplier();
             supplier.Address = new Address();
@@ -56,7 +57,7 @@ namespace Xtensive.Storage.Tests.Linq
             supplier.Fax = "Fax" + i;
             supplier.HomePage = "www.homepage.com" + i;
             if (supplier.Id == 20)
-              supplier20 = supplier;
+              supplier20Key = supplier.Key;
             for (int j = 0; j < 10; j++) {
               Product product = new Product();
               product.ProductName = string.Format("Product_{0}_{1}", i, j);
@@ -135,6 +136,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
+          var supplier20 = supplier20Key.Resolve<Supplier>();
           var suppliers = Session.Current.All<Supplier>();
           var supplier = suppliers.Where(s => s == supplier20).First();
           Assert.IsNotNull(supplier);
@@ -149,6 +151,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
+          var supplier20 = supplier20Key.Resolve<Supplier>();
           var products = Session.Current.All<Product>();
           var product = products.Where(p => p.Supplier.Key == supplier20.Key).First();
           Assert.IsNotNull(product);
@@ -163,6 +166,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
+          var supplier20 = supplier20Key.Resolve<Supplier>();
           var products = Session.Current.All<Product>();
           var product = products.Where(p => p.Supplier.Id == supplier20.Id).First();
           Assert.IsNotNull(product);
@@ -177,6 +181,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
+          var supplier20 = supplier20Key.Resolve<Supplier>();
           var products = Session.Current.All<Product>();
           var product = products.Where(p => p.Supplier == supplier20).First();
           Assert.IsNotNull(product);

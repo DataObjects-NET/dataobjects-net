@@ -39,6 +39,8 @@ namespace Xtensive.Storage.Linq.Linq2Rse
         string fieldName = null;
         string lastFieldName = null;
         Expression expression = m;
+        if (typeof(Key).IsAssignableFrom(m.Type))
+          expression = ((MemberExpression) expression).Expression;
         while (expression.NodeType==ExpressionType.MemberAccess) {
           var memberAccess = (MemberExpression) expression;
           var member = (PropertyInfo) memberAccess.Member;

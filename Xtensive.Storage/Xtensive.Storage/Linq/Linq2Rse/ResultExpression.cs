@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using Xtensive.Core.Tuples;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
 
@@ -39,6 +40,13 @@ namespace Xtensive.Storage.Linq.Expressions
       RecordSet = recordSet;
       Shaper = shaper;
       IsMultipleResults = isMultiple;
+      foreach (var column in recordSet.Header.Columns) {
+        var calculated = column as CalculatedColumn;
+        var aggregate = column as AggregateColumn;
+        var mapped = column as MappedColumn;
+        if (mapped!=null)
+          fieldMapping.Add(mapped.ColumnInfoRef.FieldName, mapped.Index);
+      }
     }
   }
 }

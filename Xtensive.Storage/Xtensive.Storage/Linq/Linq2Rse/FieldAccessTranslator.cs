@@ -47,7 +47,7 @@ namespace Xtensive.Storage.Linq.Linq2Rse
         return null;
       if (evaluator.CanBeEvaluated(e)) {
         if (parameterExtractor.IsParameter(e))
-          return parameterExtractor.ExtractParameter(e);
+          return e;
         return evaluator.Evaluate(e);
       }
       return base.Visit(e);
@@ -76,7 +76,8 @@ namespace Xtensive.Storage.Linq.Linq2Rse
         e = memberAccess.Expression;
       }
       if (e.NodeType == ExpressionType.Parameter) {
-        var type = model.Types[e.Type];
+        var name = string.Join(".", memberNames.ToArray());
+//        var type = model.Types[e.Type];
 //        var fields = type.Fields;
 //        FieldInfo field = null;
 //        while(memberNames.Count > 0) {
@@ -84,8 +85,8 @@ namespace Xtensive.Storage.Linq.Linq2Rse
 //          field = fields[name];
 //          fields = field.Fields;
 //        }
-//        var method = m.Type == typeof(object) ? nonGenericAccessor : genericAccessor.MakeGenericMethod(m.Type);
-//        return Expression.Call(parameter, method, Expression.Constant(field.MappingInfo.Offset));
+        var method = m.Type == typeof(object) ? nonGenericAccessor : genericAccessor.MakeGenericMethod(m.Type);
+        return Expression.Call(parameter, method, Expression.Constant(source.GetColumnIndex(name)));
       }
       return base.VisitMemberAccess(m);
     }
@@ -121,6 +122,7 @@ namespace Xtensive.Storage.Linq.Linq2Rse
         Expression result = null;
         var key = isKey ? second : Expression.MakeMemberAccess(second, identifierAccessor);
         string fieldName = null;
+        first = isKey ? ((MemberExpression) first).Expression : first;
         while (first.NodeType == ExpressionType.MemberAccess) {
           var memberAccess = (MemberExpression)first;
           var memberName = memberAccess.Member.Name;
@@ -131,19 +133,24 @@ namespace Xtensive.Storage.Linq.Linq2Rse
           first = memberAccess.Expression;
         }
 
-        var keyColumns = type.Hierarchy.KeyFields.Select((kf,i) => new { ColumnIndex = source.GetColumnIndex(string.Format("{0}.{1}", fieldName, kf.Key.Name)), ParameterIndex = i});
+        var keyColumns = type.Hierarchy.KeyFields.Select((kf, i) => new { FieldName = fieldName == null ? kf.Key.Name :  string.Format("{0}.{1}", fieldName, kf.Key.Name), ParameterIndex = i });
         foreach (var pair in keyColumns) {
-          var method = genericAccessor.MakeGenericMethod(source.RecordSet.Header.TupleDescriptor[pair.ColumnIndex]);
-          Expression left = Expression.Call(parameter, method, Expression.Constant(pair.ColumnIndex));
-          Expression right = Expression.Lambda(Expression.Call(Expression.MakeMemberAccess(key, keyValueAccessor), method, Expression.Constant(pair.ParameterIndex)));
-          if (result==null)
-            result = b.NodeType==ExpressionType.Equal ? 
-              Expression.Equal(left, right) : 
+          var columnIndex = source.GetColumnIndex(pair.FieldName);
+          if (columnIndex < 0)
+            throw new InvalidOperationException(string.Format("Field '{0}' is not found.", pair.FieldName));
+          var method = genericAccessor.MakeGenericMethod(source.RecordSet.Header.TupleDescriptor[columnIndex]);
+          Expression left = Expression.Call(parameter, method, Expression.Constant(columnIndex));
+          Expression right = Expression.Call(Expression.MakeMemberAccess(key, keyValueAccessor), method, Expression.Constant(pair.ParameterIndex));
+          if (result == null) {
+            result = b.NodeType == ExpressionType.Equal ?
+              Expression.Equal(left, right) :
               Expression.NotEqual(left, right);
-          else
-            result = b.NodeType==ExpressionType.Equal ? 
-              Expression.AndAlso(result, Expression.Equal(left, right)) : 
+          }
+          else {
+            result = b.NodeType == ExpressionType.Equal ?
+              Expression.AndAlso(result, Expression.Equal(left, right)) :
               Expression.AndAlso(result, Expression.NotEqual(left, right));
+          }
         }
         return result;
       }
