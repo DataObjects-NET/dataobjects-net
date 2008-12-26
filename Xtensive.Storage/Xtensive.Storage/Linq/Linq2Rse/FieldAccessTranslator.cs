@@ -10,10 +10,12 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Linq.Expressions;
 using Xtensive.Storage.Linq.Expressions.Visitors;
+using Xtensive.Storage.Linq.Linq2Rse.Internal;
 using Xtensive.Storage.Model;
 using FieldInfo=Xtensive.Storage.Model.FieldInfo;
 
@@ -41,6 +43,55 @@ namespace Xtensive.Storage.Linq.Linq2Rse
       return lambda;
     }
 
+    public Deque<MappingPathItem> Translate(Expression me)
+    {
+      var result = new Deque<MappingPathItem>();
+      string fieldName = null;
+      bool isJoined = false;
+      Expression expression = me;
+      if (typeof(Key).IsAssignableFrom(me.Type))
+        expression = ((MemberExpression)expression).Expression;
+      while (expression.NodeType == ExpressionType.MemberAccess) {
+        var memberAccess = (MemberExpression)expression;
+        var member = (PropertyInfo)memberAccess.Member;
+        expression = memberAccess.Expression;
+        if (typeof (IEntity).IsAssignableFrom(memberAccess.Type)) {
+          var type = model.Types[memberAccess.Type];
+          if (fieldName == null) {
+            fieldName = member.Name;
+            isJoined = true;
+          }
+          else {
+            if (type.Fields[fieldName].IsPrimaryKey)
+              fieldName = member.Name + "." + fieldName;
+            else {
+              var pathItem = new MappingPathItem(
+                type,
+                isJoined ? null : fieldName, 
+                isJoined ? fieldName : null);
+              result.AddHead(pathItem);
+              fieldName = null;
+            }
+          }
+        }
+        else
+          fieldName = fieldName==null ? member.Name : member.Name + "." + fieldName;
+      }
+      if (expression.NodeType == ExpressionType.Parameter) {
+        var type = model.Types[expression.Type];
+        if (fieldName != null) {
+          var pathItem = new MappingPathItem(
+            type,
+            isJoined ? null : fieldName,
+            isJoined ? fieldName : null);
+          result.AddHead(pathItem);
+        }
+      }
+      else
+        return null;
+      return result;
+    }
+
     protected override Expression Visit(Expression e)
     {
       if (e == null)
@@ -55,40 +106,11 @@ namespace Xtensive.Storage.Linq.Linq2Rse
 
     protected override Expression VisitMemberAccess(MemberExpression m)
     {
-      var memberNames = new Stack<string>();
-      Expression e = m;
-      while(e.NodeType == ExpressionType.MemberAccess) {
-        var memberAccess = (MemberExpression)e;
-        var member = (PropertyInfo)memberAccess.Member;
-        TypeInfo type;
-        if (model.Types.TryGetValue(member.PropertyType, out type) && !type.IsStructure) {
-          memberNames.Push(memberAccess.Member.Name);
-        }
-        else {
-          if (memberNames.Count > 0) {
-            var name = memberNames.Pop();
-            name = string.Format("{0}.{1}", memberAccess.Member.Name, name);
-            memberNames.Push(name);
-          }
-          else
-            memberNames.Push(memberAccess.Member.Name);
-        }
-        e = memberAccess.Expression;
-      }
-      if (e.NodeType == ExpressionType.Parameter) {
-        var name = string.Join(".", memberNames.ToArray());
-//        var type = model.Types[e.Type];
-//        var fields = type.Fields;
-//        FieldInfo field = null;
-//        while(memberNames.Count > 0) {
-//          var name = memberNames.Pop();
-//          field = fields[name];
-//          fields = field.Fields;
-//        }
-        var method = m.Type == typeof(object) ? nonGenericAccessor : genericAccessor.MakeGenericMethod(m.Type);
-        return Expression.Call(parameter, method, Expression.Constant(source.GetColumnIndex(name)));
-      }
-      return base.VisitMemberAccess(m);
+      var fieldPath = Translate(m);
+      if (fieldPath == null)
+        return m;
+      var method = m.Type == typeof(object) ? nonGenericAccessor : genericAccessor.MakeGenericMethod(m.Type);
+      return Expression.Call(parameter, method, Expression.Constant(source.GetColumnIndex(fieldPath)));
     }
 
     protected override Expression VisitBinary(BinaryExpression b)
@@ -121,21 +143,19 @@ namespace Xtensive.Storage.Linq.Linq2Rse
           type = model.Types[first.Type];
         Expression result = null;
         var key = isKey ? second : Expression.MakeMemberAccess(second, identifierAccessor);
-        string fieldName = null;
-        first = isKey ? ((MemberExpression) first).Expression : first;
-        while (first.NodeType == ExpressionType.MemberAccess) {
-          var memberAccess = (MemberExpression)first;
-          var memberName = memberAccess.Member.Name;
-          if (fieldName == null)
-            fieldName = memberName;
-          else
-            fieldName = string.Format("{0}.{1}", memberName, fieldName);
-          first = memberAccess.Expression;
-        }
-
-        var keyColumns = type.Hierarchy.KeyFields.Select((kf, i) => new { FieldName = fieldName == null ? kf.Key.Name :  string.Format("{0}.{1}", fieldName, kf.Key.Name), ParameterIndex = i });
+        var fieldStack = Translate(first);
+        if (fieldStack == null)
+          throw new InvalidOperationException();
+        MappingPathItem pathItem = null;
+        if (fieldStack.Count!=0)
+          pathItem = fieldStack.ExtractTail();
+        var keyColumns = type.Hierarchy.KeyFields.Select((kf, i) => new { FieldName = kf.Key.Name, ParameterIndex = i });
         foreach (var pair in keyColumns) {
-          var columnIndex = source.GetColumnIndex(pair.FieldName);
+          var fieldName = pathItem == null ? pair.FieldName : pathItem.JoinedFieldName + "." + pair.FieldName;
+          var keyItem = new MappingPathItem(pathItem == null ? type : pathItem.Type, fieldName, null);
+          fieldStack.AddTail(keyItem);
+          var columnIndex = source.GetColumnIndex(fieldStack);
+          fieldStack.ExtractTail();
           if (columnIndex < 0)
             throw new InvalidOperationException(string.Format("Field '{0}' is not found.", pair.FieldName));
           var method = genericAccessor.MakeGenericMethod(source.RecordSet.Header.TupleDescriptor[columnIndex]);

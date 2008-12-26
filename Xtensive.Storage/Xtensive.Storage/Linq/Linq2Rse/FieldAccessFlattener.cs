@@ -12,17 +12,23 @@ using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Linq.Expressions;
 using Xtensive.Storage.Linq.Expressions.Visitors;
+using Xtensive.Storage.Linq.Linq2Rse.Internal;
 using Xtensive.Storage.Model;
 using System.Linq;
+using Xtensive.Storage.Rse.Providers.Compilable;
+using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Linq.Linq2Rse
 {
   internal class FieldAccessFlattener : ExpressionVisitor
   {
+    private const string aliasPrefix = "alias";
     private readonly DomainModel model;
     private readonly ExpressionEvaluator evaluator;
     private readonly ParameterExtractor parameterExtractor;
     private ResultExpression result;
+    private int aliasSuffix = 0;
+    
 
     public ResultExpression FlattenFieldAccess(ResultExpression source, LambdaExpression le)
     {
@@ -64,14 +70,38 @@ namespace Xtensive.Storage.Linq.Linq2Rse
             }
           }
         }
+        var parameterType = model.Types[expression.Type];
         if (typesStack.Count > 0)
           typesPath.Push(new Pair<TypeInfo, string>(typesStack.Peek(), fieldName));
         List<Pair<TypeInfo, string>> list = typesPath.ToList();
+        var mapping = result.Mappings[parameterType];
         foreach (var pair in list) {
-          throw new NotImplementedException();
+          TypeMapping innerMapping;
+          if(!mapping.JoinedRelations.TryGetValue(pair.Second, out innerMapping)) {
+            var joinedIndex = pair.First.Indexes.PrimaryIndex;
+            var joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(GetNextAlias());
+            var keyPairs = pair.First.Hierarchy.KeyFields.Select((kf,i) => new Pair<int>(mapping.FieldMapping[pair.Second + "." + kf.Key], i)).ToArray();
+            var rs = result.RecordSet.Join(joinedRs, JoinType.Default, keyPairs);
+            var fieldMapping = new Dictionary<string, int>();
+            var joinedMapping = new TypeMapping(pair.First, fieldMapping, new Dictionary<string, TypeMapping>());
+            mapping.JoinedRelations.Add(pair.Second, joinedMapping);
+            foreach (var column in joinedRs.Header.Columns) {
+              var mapped = column as MappedColumn;
+              if (mapped != null)
+                fieldMapping.Add(mapped.ColumnInfoRef.FieldName, mapped.Index + result.RecordSet.Header.Columns.Count);
+            }
+            result = new ResultExpression(result.Type, rs, result.Mappings, result.Shaper, true);
+
+          }
+          mapping = innerMapping;
         }
       }
       return m;
+    }
+
+    private string GetNextAlias()
+    {
+      return aliasPrefix + aliasSuffix++;
     }
 
 

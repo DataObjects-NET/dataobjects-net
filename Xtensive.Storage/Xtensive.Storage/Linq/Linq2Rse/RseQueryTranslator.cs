@@ -52,12 +52,18 @@ namespace Xtensive.Storage.Linq.Linq2Rse
         var index = type.Indexes.PrimaryIndex;
 
         var fieldMapping = new Dictionary<string, int>();
-        var mappings = new TypeMapping(type, fieldMapping, new Dictionary<string, TypeMapping>());
-
+        var mappings = new Dictionary<TypeInfo, TypeMapping> {{type, new TypeMapping(type, fieldMapping, new Dictionary<string, TypeMapping>())}};
+        var recordSet = IndexProvider.Get(index).Result;
+        foreach (var column in recordSet.Header.Columns) {
+          var mapped = column as MappedColumn;
+          if (mapped != null)
+            fieldMapping.Add(mapped.ColumnInfoRef.FieldName, mapped.Index);
+        }
+        
         return new ResultExpression(
           c.Type,
-          IndexProvider.Get(index).Result,
-          new[]{mappings},
+          recordSet,
+          mappings,
           null,
           true);
       }
