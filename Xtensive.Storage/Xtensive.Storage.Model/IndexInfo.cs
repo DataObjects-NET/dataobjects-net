@@ -210,16 +210,6 @@ namespace Xtensive.Storage.Model
       get { return (attributes & IndexAttributes.Secondary) > 0; }
     }
 
-    /// <summary>
-    /// Gets the root <see cref="IndexInfo"/> for virtual indexes.
-    /// </summary>
-    public IndexInfo GetRoot()
-    {
-      return IsVirtual && (Attributes & IndexAttributes.Union)==0
-        ? UnderlyingIndexes[0]
-        : this;
-    }
-
     /// <inheritdoc/>
     public override void Lock(bool recursive)
     {

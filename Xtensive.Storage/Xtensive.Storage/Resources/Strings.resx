@@ -505,7 +505,7 @@
     <value>Attempt to associate non-empty EntityState with Key of unknown type.</value>
   </data>
   <data name="ExPairToAttributeCanNotBeAppliedToXField" xml:space="preserve">
-    <value>'PairTo' attribute can not be applied to field '{0}'. It is already applied to field '{1}'.</value>
+    <value>'PairTo' attribute can not be applied to field '{0}' of type '{1}'. It is already applied to field '{2}' of type '{3}'.</value>
   </data>
   <data name="ExSessionWithNameXAlreadyExists" xml:space="preserve">
     <value>Session with name '{0}' already exists.</value>

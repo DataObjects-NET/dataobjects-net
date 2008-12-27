@@ -130,7 +130,7 @@ namespace Xtensive.Storage.Providers.Sql
       BuildDataTypeMapping(types.Byte);
       BuildDataTypeMapping(types.DateTime);
       BuildDataTypeMapping(types.Decimal);
-      BuildDataTypeMapping(types.Double);
+      BuildDataTypeMapping(types.Double); 
       BuildDataTypeMapping(types.Float);
       BuildDataTypeMapping(types.Guid);
       BuildDataTypeMapping(types.Int16);

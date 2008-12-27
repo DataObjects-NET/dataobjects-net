@@ -49,11 +49,7 @@ namespace Xtensive.Storage.Model
     [DebuggerStepThrough]
     public IndexInfo GetIndex(string fieldName, params string[] fieldNames)
     {
-      if (!IsLocked)
-        throw new InvalidOperationException();
-
-      var names = new List<string>();
-      names.Add(fieldName);
+      var names = new List<string> {fieldName};
       names.AddRange(fieldNames);
 
       var fields = new List<FieldInfo>();
@@ -65,6 +61,20 @@ namespace Xtensive.Storage.Model
       if (fields.Count == 0)
         return null;
 
+      return GetIndex(fields);
+    }
+
+    public IndexInfo GetIndex(FieldInfo field, params FieldInfo[] fields)
+    {
+      var fieldInfos = new List<FieldInfo> {field};
+      fieldInfos.AddRange(fields);
+      return GetIndex(fieldInfos);
+    }
+
+    public IndexInfo GetIndex(IEnumerable<FieldInfo> fields)
+    {
+      if (!IsLocked)
+        throw new InvalidOperationException();
       Action<IEnumerable<FieldInfo>, IList<ColumnInfo>> columnsExtractor = null;
       columnsExtractor = ((fieldsToExtract, extractedColumns) => {
         foreach (var field in fieldsToExtract) {

@@ -101,7 +101,7 @@ namespace Xtensive.Storage.Building.Builders
     {
       if (BuildingContext.Current.Domain.PairSyncActions.ContainsKey(association))
         throw new DomainBuilderException(string.Format(Strings.ExPairToAttributeCanNotBeAppliedToXField,
-          association.ReferencingField, association.Reversed.ReferencingField));
+          association.ReferencingField, association.ReferencingType.UnderlyingType.FullName, association.Reversed.ReferencingField, association.Reversed.ReferencingType.UnderlyingType.FullName));
 
       Func<IEntity, bool, IEntity> getValue = null;
       Action<IEntity, IEntity, bool> @break;

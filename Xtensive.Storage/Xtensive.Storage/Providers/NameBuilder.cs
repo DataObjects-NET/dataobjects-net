@@ -96,6 +96,43 @@ namespace Xtensive.Storage.Providers
     }
 
     /// <summary>
+    /// Build table name by index.
+    /// </summary>
+    /// <param name="indexInfo">Index to build table name for.</param>
+    /// <returns>Table name</returns>
+    public virtual string BuildTableName(IndexInfo indexInfo)
+    {
+      return NamingConvention.Apply(indexInfo.ReflectedType.Name);
+    }
+
+    /// <summary>
+    /// Build table column name by <see cref="ColumnInfo"/>.
+    /// </summary>
+    /// <param name="columnInfo"><see cref="ColumnInfo"/> to build column table name for.</param>
+    /// <returns>Column name</returns>
+    public virtual string BuildTableColumnName(ColumnInfo columnInfo)
+    {
+      return NamingConvention.Apply(columnInfo.Name);
+    }
+
+    /// <summary>
+    /// Builds foreign key name.
+    /// </summary>
+    /// <param name="referencingIndex">Referencing index.</param>
+    /// <param name="referencingColumns">Foreign key columns in referencing index.</param>
+    /// <param name="referencedIndex">Referenced index.</param>
+    /// <returns>Foreign key name.</returns>
+    public virtual string BuildForeignKeyName(IndexInfo referencingIndex, IEnumerable<ColumnInfo> referencingColumns, IndexInfo referencedIndex)
+    {
+      var stringBuilder = new StringBuilder("FK_");
+      stringBuilder.Append(BuildTableName(referencedIndex));
+      stringBuilder.AppendFormat("_{0}", BuildTableName(referencingIndex));
+      foreach (ColumnInfo columnInfo in referencingColumns)
+        stringBuilder.AppendFormat("_{0}", columnInfo.Name);
+      return NamingConvention.Apply(stringBuilder.ToString());
+    }
+
+    /// <summary>
     /// Gets the name for <see cref="FieldDef"/> object.
     /// </summary>
     /// <param name="field">The <see cref="FieldDef"/> object.</param>

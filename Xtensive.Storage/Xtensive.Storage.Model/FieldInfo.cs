@@ -5,6 +5,7 @@
 // Created:    2007.09.10
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Diagnostics;
@@ -406,6 +407,17 @@ namespace Xtensive.Storage.Model
       return ValueExtractorTransform.Apply(TupleTransformType.TransformedTuple, tuple);
     }
 
+    /// <summary>
+    /// Extracts field columns recursive.
+    /// </summary>
+    /// <returns>List of <see cref="ColumnInfo"/>.</returns>
+    public IList<ColumnInfo> ExtractColumns()
+    {
+      IList<ColumnInfo> result = new List<ColumnInfo>();
+      ExtractColumns(this, result);
+      return result;
+    }
+
     /// <inheritdoc/>
     public override void Lock(bool recursive)
     {
@@ -493,6 +505,16 @@ namespace Xtensive.Storage.Model
 
     #endregion
 
+    private static void ExtractColumns(FieldInfo field, ICollection<ColumnInfo> columns)
+    {
+      if (field.Column == null) {
+        if (field.IsEntity)
+          foreach (FieldInfo childField in field.Fields)
+            ExtractColumns(childField, columns);
+      }
+      else
+        columns.Add(field.Column);
+    }
 
     // Constructors
 

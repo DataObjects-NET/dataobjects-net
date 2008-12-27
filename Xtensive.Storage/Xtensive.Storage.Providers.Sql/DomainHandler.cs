@@ -5,27 +5,24 @@
 // Created:    2008.05.20
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
+using Xtensive.Core.Collections;
+using Xtensive.Core.Helpers;
 using Xtensive.Core.Threading;
-using Xtensive.Sql.Common;
 using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Database;
 using Xtensive.Sql.Dom.Database.Providers;
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Building;
-using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers.Sql.Mappings;
-using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Providers.Sql.Resources;
-using ColumnInfo = Xtensive.Storage.Model.ColumnInfo;
-using IndexInfo  = Xtensive.Storage.Model.IndexInfo;
+using Xtensive.Storage.Rse.Compilation;
+using Compiler=Xtensive.Storage.Providers.Sql.Compilers.Compiler;
 using SqlFactory = Xtensive.Sql.Dom.Sql;
 using SqlModel = Xtensive.Sql.Dom.Database.Model;
-using Xtensive.Core.Helpers;
 
 namespace Xtensive.Storage.Providers.Sql
 {
@@ -47,7 +44,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     protected override ICompiler BuildCompiler()
     {
-      return new Compilers.Compiler(Handlers);
+      return new Compiler(Handlers);
     }
 
     /// <inheritdoc/>
@@ -59,7 +56,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     public override void Build()
     {
-      SessionHandler sessionHandler = ((SessionHandler)BuildingScope.Context.SystemSessionHandler);
+      var sessionHandler = ((SessionHandler) BuildingScope.Context.SystemSessionHandler);
       SqlDriver = sessionHandler.Connection.Driver;
       MappingSchema = new DomainModelMapping();
       SqlRequestCache = ThreadSafeDictionary<SqlRequestBuilderTask, SqlUpdateRequest>.Create(new object());
@@ -78,7 +75,7 @@ namespace Xtensive.Storage.Providers.Sql
       Schema = SqlModel.Build(modelProvider).DefaultServer.Catalogs[catalogName].DefaultSchema;
     }
 
-    public static string GetPrimaryIndexColumnName(IndexInfo primaryIndex, ColumnInfo secondaryIndexColumn, IndexInfo secondaryIndex)
+    internal static string GetPrimaryIndexColumnName(IndexInfo primaryIndex, ColumnInfo secondaryIndexColumn, IndexInfo secondaryIndex)
     {
       string primaryIndexColumnName = null;
       foreach (ColumnInfo primaryColumn in primaryIndex.Columns) {
@@ -89,8 +86,8 @@ namespace Xtensive.Storage.Providers.Sql
       }
       if (primaryIndexColumnName.IsNullOrEmpty())
         throw new InvalidOperationException(String.Format(
-          Strings.ExUnableToFindColumnInPrimaryIndex, 
-          secondaryIndexColumn.Name, 
+          Strings.ExUnableToFindColumnInPrimaryIndex,
+          secondaryIndexColumn.Name,
           secondaryIndex.Name));
       return primaryIndexColumnName;
     }
@@ -106,52 +103,121 @@ namespace Xtensive.Storage.Providers.Sql
 
     protected virtual SqlModel BuildSqlModel(string serverName, string catalogName, string schemaName)
     {
-      var model = new SqlModel();
-      Server server = model.CreateServer(serverName);
+      var sqlModel = new SqlModel();
+      Server server = sqlModel.CreateServer(serverName);
       Catalog catalog = server.CreateCatalog(catalogName);
       Schema schema = catalog.CreateSchema(schemaName);
-      foreach (TypeInfo type in Handlers.Domain.Model.Types) {
+      DomainModel domainModel = Handlers.Domain.Model;
+      var tables = new Dictionary<IndexInfo, Table>();
+      foreach (TypeInfo type in domainModel.Types) {
         IndexInfo primaryIndex = type.Indexes.FindFirst(IndexAttributes.Real | IndexAttributes.Primary);
-        if (primaryIndex==null || MappingSchema[primaryIndex] != null)
+        if (primaryIndex==null || MappingSchema[primaryIndex]!=null)
           continue;
-        Table table = schema.CreateTable(primaryIndex.ReflectedType.Name);
+        Table table = schema.CreateTable(Domain.NameBuilder.BuildTableName(primaryIndex));
+        tables.Add(primaryIndex, table);
         PrimaryIndexMapping pim = MappingSchema.RegisterMapping(primaryIndex, table);
-        var keyColumns = new List<TableColumn>();
-        foreach (ColumnInfo columnInfo in primaryIndex.Columns) {
-          TableColumn column = table.CreateColumn(columnInfo.Name);
-          DataTypeMapping typeMapping = ValueTypeMapper.GetTypeMapping(columnInfo);
-          pim.RegisterMapping(columnInfo, column, typeMapping);
-          column.DataType = ValueTypeMapper.BuildSqlValueType(columnInfo);
-          column.IsNullable = columnInfo.IsNullable;
-          if (columnInfo.IsPrimaryKey)
-            keyColumns.Add(column);
-        }
-        table.CreatePrimaryKey(primaryIndex.Name, keyColumns.ToArray());
 
-        // Secondary indexes
-        foreach (IndexInfo indexInfo in type.Indexes.Find(IndexAttributes.Real).Where(ii => !ii.IsPrimary)) {
-          Index index = table.CreateIndex(indexInfo.Name);
-          pim.RegisterMapping(indexInfo, index);
-          index.IsUnique = indexInfo.IsUnique;
-          index.FillFactor = (byte) (indexInfo.FillFactor * 100);
-          foreach (KeyValuePair<ColumnInfo,Direction> keyColumn in indexInfo.KeyColumns) {
-            string primaryIndexColumnName = GetPrimaryIndexColumnName(primaryIndex, keyColumn.Key, indexInfo);
-            index.CreateIndexColumn(table.TableColumns.First(tableColumn => tableColumn.Name==primaryIndexColumnName), keyColumn.Value == Direction.Positive);
+        CreateColumns(primaryIndex, table, pim);
+        CreateSecondaryIndexes(type, primaryIndex, table, pim);
+      }
+      foreach (TypeInfo type in domainModel.Types) {
+        foreach (AssociationInfo association in type.GetAssociations().Where(associationInfo=>associationInfo.IsMaster)) {
+          Table referencingTable;
+          Table referencedTable;
+          IList<ColumnInfo> referencingColumns;
+          ICollection<ColumnInfo> referencedColumns;
+          string foreignKeyName;
+          if (association.UnderlyingType == null) {
+            IndexInfo referencingIndex = FindRealIndex(association.ReferencingType.Indexes.PrimaryIndex, association.ReferencingField);
+            referencingTable = tables[referencingIndex];
+            referencingColumns = association.ReferencingField.ExtractColumns();
+            IndexInfo referencedIndex = FindRealIndex(association.ReferencedType.Indexes.PrimaryIndex, null);
+            referencedTable = tables[referencedIndex];
+            referencedColumns = association.ReferencedType.Indexes.PrimaryIndex.KeyColumns.Keys;
+            foreignKeyName = Domain.NameBuilder.BuildForeignKeyName(association.ReferencingType.Indexes.PrimaryIndex, referencingColumns, association.ReferencedType.Indexes.PrimaryIndex);
           }
-          foreach (var nonKeyColumn in indexInfo.IncludedColumns) {
-            string primaryIndexColumnName = GetPrimaryIndexColumnName(primaryIndex, nonKeyColumn, indexInfo);
-            index.NonkeyColumns.Add(table.TableColumns.First(tableColumn => tableColumn.Name==primaryIndexColumnName));
+          else {
+            referencingTable = tables[association.UnderlyingType.Indexes.PrimaryIndex];
+            IndexInfo referencedIndex = FindRealIndex(association.ReferencingType.Indexes.PrimaryIndex, null);
+            referencedTable = tables[referencedIndex];
+            referencedColumns = referencedIndex.KeyColumns.Keys;
+            FieldInfo referencingField = association.UnderlyingType.Fields.First(fieldInfo => fieldInfo.IsEntity && fieldInfo.ValueType == association.ReferencingType.UnderlyingType);
+            referencingColumns = referencingField.ExtractColumns();
+            foreignKeyName = Domain.NameBuilder.BuildForeignKeyName(association.UnderlyingType.Indexes.PrimaryIndex, referencingColumns, referencedIndex);
+          }
+          var foreignKey = referencingTable.CreateForeignKey(foreignKeyName);
+          foreach (ColumnInfo column in referencingColumns) {
+            var columnName = Domain.NameBuilder.BuildTableColumnName(column);
+            var tableColumn = referencingTable.TableColumns.First(dataTableColumn => dataTableColumn.Name == columnName);
+            foreignKey.Columns.Add(tableColumn);
+          }
+          foreignKey.ReferencedTable = referencedTable;
+          foreach (ColumnInfo keyColumn in referencedColumns) {
+            var columnName = Domain.NameBuilder.BuildTableColumnName(keyColumn);
+            var tableColumn = referencedTable.TableColumns.First(dataTableColumn => dataTableColumn.Name == columnName);
+            foreignKey.ReferencedColumns.Add(tableColumn);
           }
         }
       }
-      return model;
+      return sqlModel;
+    }
+
+
+    private IndexInfo FindRealIndex(IndexInfo index, FieldInfo field)
+    {
+      if (index.IsVirtual) {
+        foreach (var underlyingIndex in index.UnderlyingIndexes) {
+          var result = FindRealIndex(underlyingIndex, field);
+          if (result!=null)
+            return result;
+        }
+      }
+      else {
+        if (field==null || index.Columns.ContainsAny(field.ExtractColumns()))
+          return index;
+      }
+      return null;
+    }
+
+    private void CreateSecondaryIndexes(TypeInfo type, IndexInfo primaryIndex, Table table, PrimaryIndexMapping pim)
+    {
+      foreach (IndexInfo indexInfo in type.Indexes.Find(IndexAttributes.Real).Where(ii => !ii.IsPrimary)) {
+        Index index = table.CreateIndex(indexInfo.Name);
+        pim.RegisterMapping(indexInfo, index);
+        index.IsUnique = indexInfo.IsUnique;
+        index.FillFactor = (byte) (indexInfo.FillFactor * 100);
+        foreach (KeyValuePair<ColumnInfo, Direction> keyColumn in indexInfo.KeyColumns) {
+          string primaryIndexColumnName = GetPrimaryIndexColumnName(primaryIndex, keyColumn.Key, indexInfo);
+          index.CreateIndexColumn(table.TableColumns.First(tableColumn => tableColumn.Name==primaryIndexColumnName), keyColumn.Value==Direction.Positive);
+        }
+        foreach (var nonKeyColumn in indexInfo.IncludedColumns) {
+          string primaryIndexColumnName = GetPrimaryIndexColumnName(primaryIndex, nonKeyColumn, indexInfo);
+          index.NonkeyColumns.Add(table.TableColumns.First(tableColumn => tableColumn.Name==primaryIndexColumnName));
+        }
+      }
+    }
+
+    private void CreateColumns(IndexInfo primaryIndex, Table table, PrimaryIndexMapping pim)
+    {
+      var keyColumns = new List<TableColumn>();
+      foreach (ColumnInfo columnInfo in primaryIndex.Columns) {
+        TableColumn column = table.CreateColumn(Domain.NameBuilder.BuildTableColumnName(columnInfo));
+        DataTypeMapping typeMapping = ValueTypeMapper.GetTypeMapping(columnInfo);
+        pim.RegisterMapping(columnInfo, column, typeMapping);
+        column.DataType = ValueTypeMapper.BuildSqlValueType(columnInfo);
+        column.IsNullable = columnInfo.IsNullable;
+        if (columnInfo.IsPrimaryKey)
+          keyColumns.Add(column);
+      }
+      if (keyColumns.Count > 0)
+        table.CreatePrimaryKey(primaryIndex.Name, keyColumns.ToArray());
     }
 
     protected virtual ISqlCompileUnit GenerateSyncCatalogScript(DomainModel domainModel, Catalog existingCatalog, Catalog newCatalog)
     {
       SqlBatch batch = SqlFactory.Batch();
-      batch.AddRange(GenerateClearCatalogScript(existingCatalog));
-      batch.AddRange(GenerateBuildCatalogScript(newCatalog));
+      batch.Add(GenerateClearCatalogScript(existingCatalog));
+      batch.Add(GenerateBuildCatalogScript(newCatalog));
       return batch;
     }
 
@@ -165,6 +231,13 @@ namespace Xtensive.Storage.Providers.Sql
       Schema schema = catalog.DefaultSchema;
       foreach (View view in schema.Views)
         batch.Add(SqlFactory.Drop(view));
+      foreach (Table table in schema.Tables) {
+        foreach (TableConstraint tableConstraint in table.TableConstraints) {
+          var fk = tableConstraint as ForeignKey;
+          if (fk!=null)
+            batch.Add(SqlFactory.Alter(table, SqlFactory.DropConstraint(tableConstraint)));
+        }
+      }
       foreach (Table table in schema.Tables)
         batch.Add(SqlFactory.Drop(table));
       foreach (Sequence sequence in schema.Sequences)
@@ -175,12 +248,19 @@ namespace Xtensive.Storage.Providers.Sql
     private static SqlBatch GenerateBuildCatalogScript(Catalog catalog)
     {
       SqlBatch batch = SqlFactory.Batch();
+      var constraints = new List<Pair<Table, List<TableConstraint>>>();
       foreach (Table table in catalog.DefaultSchema.Tables) {
+        var tableConstraints = new List<TableConstraint>(table.TableConstraints.Where(tableConstraint => tableConstraint is ForeignKey));
+        constraints.Add(new Pair<Table, List<TableConstraint>>(table, tableConstraints));
+        foreach (TableConstraint foreignKeyConstraint in tableConstraints)
+          table.TableConstraints.Remove(foreignKeyConstraint);
         batch.Add(SqlFactory.Create(table));
-        foreach (Index index in table.Indexes) {
+        foreach (Index index in table.Indexes)
           batch.Add(SqlFactory.Create(index));
-        }
       }
+      foreach (Pair<Table, List<TableConstraint>> constraint in constraints)
+        foreach (TableConstraint tableConstraint in constraint.Second)
+          batch.Add(SqlFactory.Alter(constraint.First, SqlFactory.AddConstraint(tableConstraint)));
       return batch;
     }
 

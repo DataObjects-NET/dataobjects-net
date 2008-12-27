@@ -40,5 +40,7 @@ using Xtensive.Core.Aspects;
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
 
+[assembly: InternalsVisibleTo("Xtensive.Storage.Tests")]
+
 // This ensures the RecordSetProvider & its ancestors will be "initializable"
 [assembly:Initializable(AttributeTargetTypes = "*")]
