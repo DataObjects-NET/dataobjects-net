@@ -120,14 +120,32 @@ namespace Xtensive.Storage.Providers.Sql
         CreateColumns(primaryIndex, table, pim);
         CreateSecondaryIndexes(type, primaryIndex, table, pim);
       }
-      foreach (TypeInfo type in domainModel.Types) {
-        foreach (AssociationInfo association in type.GetAssociations().Where(associationInfo=>associationInfo.IsMaster)) {
+      BuildForeignKeys(domainModel.Types, tables);
+      return sqlModel;
+    }
+
+    protected virtual ISqlCompileUnit GenerateSyncCatalogScript(DomainModel domainModel, Catalog existingCatalog, Catalog newCatalog)
+    {
+      SqlBatch batch = SqlFactory.Batch();
+      batch.Add(GenerateClearCatalogScript(existingCatalog));
+      batch.Add(GenerateBuildCatalogScript(newCatalog));
+      return batch;
+    }
+
+    #endregion
+
+    #region Private / internal methods
+
+    private void BuildForeignKeys(IEnumerable<TypeInfo> types, Dictionary<IndexInfo, Table> tables)
+    {
+      foreach (TypeInfo type in types) {
+        foreach (AssociationInfo association in type.GetAssociations().Where(associationInfo => associationInfo.IsMaster)) {
           Table referencingTable;
           Table referencedTable;
           IList<ColumnInfo> referencingColumns;
           ICollection<ColumnInfo> referencedColumns;
           string foreignKeyName;
-          if (association.UnderlyingType == null) {
+          if (association.UnderlyingType==null) {
             IndexInfo referencingIndex = FindRealIndex(association.ReferencingType.Indexes.PrimaryIndex, association.ReferencingField);
             referencingTable = tables[referencingIndex];
             referencingColumns = association.ReferencingField.ExtractColumns();
@@ -141,25 +159,67 @@ namespace Xtensive.Storage.Providers.Sql
             IndexInfo referencedIndex = FindRealIndex(association.ReferencingType.Indexes.PrimaryIndex, null);
             referencedTable = tables[referencedIndex];
             referencedColumns = referencedIndex.KeyColumns.Keys;
-            FieldInfo referencingField = association.UnderlyingType.Fields.First(fieldInfo => fieldInfo.IsEntity && fieldInfo.ValueType == association.ReferencingType.UnderlyingType);
+            FieldInfo referencingField = association.UnderlyingType.Fields.First(fieldInfo => fieldInfo.IsEntity && fieldInfo.ValueType==association.ReferencingType.UnderlyingType);
             referencingColumns = referencingField.ExtractColumns();
             foreignKeyName = Domain.NameBuilder.BuildForeignKeyName(association.UnderlyingType.Indexes.PrimaryIndex, referencingColumns, referencedIndex);
           }
-          var foreignKey = referencingTable.CreateForeignKey(foreignKeyName);
-          foreach (ColumnInfo column in referencingColumns) {
-            var columnName = Domain.NameBuilder.BuildTableColumnName(column);
-            var tableColumn = referencingTable.TableColumns.First(dataTableColumn => dataTableColumn.Name == columnName);
-            foreignKey.Columns.Add(tableColumn);
-          }
-          foreignKey.ReferencedTable = referencedTable;
-          foreach (ColumnInfo keyColumn in referencedColumns) {
-            var columnName = Domain.NameBuilder.BuildTableColumnName(keyColumn);
-            var tableColumn = referencedTable.TableColumns.First(dataTableColumn => dataTableColumn.Name == columnName);
-            foreignKey.ReferencedColumns.Add(tableColumn);
+          CreateForeignKey(foreignKeyName, referencingTable, referencingColumns, referencedTable, referencedColumns);
+        }
+      }
+      // Build key references
+      var indexPairs = new Dictionary<Pair<IndexInfo>, object>();
+      foreach (TypeInfo type in types) {
+        if (type.Indexes.PrimaryIndex.IsVirtual) {
+          List<IndexInfo> realPrimaryIndexes = GetRealPrimaryIndexes(type.Indexes.PrimaryIndex);
+          for (int i = 0; i < realPrimaryIndexes.Count - 1; i++) {
+            if (realPrimaryIndexes[i] != realPrimaryIndexes[i + 1]) {
+              var pair = new Pair<IndexInfo>(realPrimaryIndexes[i], realPrimaryIndexes[i + 1]);
+              indexPairs[pair] = null;
+            }
           }
         }
       }
-      return sqlModel;
+      foreach (Pair<IndexInfo> indexPair in indexPairs.Keys) {
+        var referencingIndex = indexPair.First;
+        IEnumerable<ColumnInfo> referencingColumns = referencingIndex.KeyColumns.Keys;
+        var referencedIndex = indexPair.Second;
+        IEnumerable<ColumnInfo> referencedColumns = referencedIndex.KeyColumns.Keys;
+        string foreignKeyName = Domain.NameBuilder.BuildForeignKeyName(referencingIndex, referencingColumns, referencedIndex);
+        CreateForeignKey(foreignKeyName, tables[referencingIndex], referencingColumns, tables[referencedIndex], referencedColumns);
+      }
+    }
+
+    private void CreateForeignKey(string foreignKeyName, Table referencingTable, IEnumerable<ColumnInfo> referencingColumns, Table referencedTable, IEnumerable<ColumnInfo> referencedColumns)
+    {
+      var foreignKey = referencingTable.CreateForeignKey(foreignKeyName);
+      foreach (ColumnInfo column in referencingColumns) {
+        var columnName = Domain.NameBuilder.BuildTableColumnName(column);
+        var tableColumn = FindColumnByName(referencingTable, columnName);
+        foreignKey.Columns.Add(tableColumn);
+      }
+      foreignKey.ReferencedTable = referencedTable;
+      foreach (ColumnInfo keyColumn in referencedColumns) {
+        var columnName = Domain.NameBuilder.BuildTableColumnName(keyColumn);
+        var tableColumn = FindColumnByName(referencedTable,columnName);
+        foreignKey.ReferencedColumns.Add(tableColumn);
+      }
+    }
+
+    private TableColumn FindColumnByName(Table referencingTable, string columnName)
+    {
+      return referencingTable.TableColumns.First(dataTableColumn => dataTableColumn.Name==columnName);
+    }
+
+    private List<IndexInfo> GetRealPrimaryIndexes(IndexInfo index)
+    {
+      var result = new List<IndexInfo>();
+      foreach (IndexInfo underlyingIndex in index.UnderlyingIndexes) {
+        if (underlyingIndex.IsPrimary && !underlyingIndex.IsVirtual)
+          result.Add(underlyingIndex);
+        else
+          result.AddRange(GetRealPrimaryIndexes(underlyingIndex));
+      }
+      return result;
     }
 
 
@@ -212,18 +272,6 @@ namespace Xtensive.Storage.Providers.Sql
       if (keyColumns.Count > 0)
         table.CreatePrimaryKey(primaryIndex.Name, keyColumns.ToArray());
     }
-
-    protected virtual ISqlCompileUnit GenerateSyncCatalogScript(DomainModel domainModel, Catalog existingCatalog, Catalog newCatalog)
-    {
-      SqlBatch batch = SqlFactory.Batch();
-      batch.Add(GenerateClearCatalogScript(existingCatalog));
-      batch.Add(GenerateBuildCatalogScript(newCatalog));
-      return batch;
-    }
-
-    #endregion
-
-    #region Private / internal methods
 
     private static SqlBatch GenerateClearCatalogScript(Catalog catalog)
     {

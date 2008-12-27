@@ -150,7 +150,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
       // Get current SQL model
       var domainHandler = domain.Handlers.DomainHandler;
       using (var connection = (SqlConnection) ((DomainHandler) domainHandler).ConnectionProvider.CreateConnection(configuration.ConnectionInfo.ToString())) {
-        SqlModelProvider modelProvider = new SqlModelProvider(connection);
+        var modelProvider = new SqlModelProvider(connection);
         var sqlModel = Xtensive.Sql.Dom.Database.Model.Build(modelProvider);
         existingSchema = sqlModel.DefaultServer.DefaultCatalog.DefaultSchema;
         Assert.IsNotNull(existingSchema);
