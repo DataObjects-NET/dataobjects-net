@@ -116,20 +116,21 @@ namespace Xtensive.Storage.Providers
     }
 
     /// <summary>
-    /// Builds foreign key name.
+    /// Builds foreign key name by association.
     /// </summary>
-    /// <param name="referencingIndex">Referencing index.</param>
-    /// <param name="referencingColumns">Foreign key columns in referencing index.</param>
-    /// <param name="referencedIndex">Referenced index.</param>
     /// <returns>Foreign key name.</returns>
-    public virtual string BuildForeignKeyName(IndexInfo referencingIndex, IEnumerable<ColumnInfo> referencingColumns, IndexInfo referencedIndex)
+    public virtual string BuildForeignKeyName(AssociationInfo association)
     {
-      var stringBuilder = new StringBuilder("FK_");
-      stringBuilder.Append(BuildTableName(referencedIndex));
-      stringBuilder.AppendFormat("_{0}", BuildTableName(referencingIndex));
-      foreach (ColumnInfo columnInfo in referencingColumns)
-        stringBuilder.AppendFormat("_{0}", columnInfo.Name);
-      return NamingConvention.Apply(stringBuilder.ToString());
+      return NamingConvention.Apply(string.Format("FK_{0}", association.Name));
+    }
+
+    /// <summary>
+    /// Builds foreign key name for in-hierarchy primary key references.
+    /// </summary>
+    /// <returns>Foreign key name.</returns>
+    public virtual string BuildForeignKeyName(TypeInfo baseType, TypeInfo descendantType)
+    {
+      return NamingConvention.Apply(string.Format("FK_{0}_1", baseType.Name, descendantType.Name));
     }
 
     /// <summary>

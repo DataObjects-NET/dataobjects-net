@@ -120,9 +120,11 @@ namespace Xtensive.Storage.Providers.Sql
         CreateColumns(primaryIndex, table, pim);
         CreateSecondaryIndexes(type, primaryIndex, table, pim);
       }
-      BuildForeignKeys(domainModel.Types, tables);
+      BuildForeignKeys(domainModel.Associations, tables);
+      BuildHierarchyReferences(domainModel.Types.Entities, tables);
       return sqlModel;
     }
+
 
     protected virtual ISqlCompileUnit GenerateSyncCatalogScript(DomainModel domainModel, Catalog existingCatalog, Catalog newCatalog)
     {
@@ -136,39 +138,43 @@ namespace Xtensive.Storage.Providers.Sql
 
     #region Private / internal methods
 
-    private void BuildForeignKeys(IEnumerable<TypeInfo> types, Dictionary<IndexInfo, Table> tables)
+    private void BuildForeignKeys(IEnumerable<AssociationInfo> associations, Dictionary<IndexInfo, Table> tables)
     {
-      foreach (TypeInfo type in types) {
-        foreach (AssociationInfo association in type.GetAssociations().Where(associationInfo => associationInfo.IsMaster)) {
-          Table referencingTable;
-          Table referencedTable;
-          IList<ColumnInfo> referencingColumns;
-          ICollection<ColumnInfo> referencedColumns;
-          string foreignKeyName;
-          if (association.UnderlyingType==null) {
-            IndexInfo referencingIndex = FindRealIndex(association.ReferencingType.Indexes.PrimaryIndex, association.ReferencingField);
-            referencingTable = tables[referencingIndex];
-            referencingColumns = association.ReferencingField.ExtractColumns();
-            IndexInfo referencedIndex = FindRealIndex(association.ReferencedType.Indexes.PrimaryIndex, null);
-            referencedTable = tables[referencedIndex];
-            referencedColumns = association.ReferencedType.Indexes.PrimaryIndex.KeyColumns.Keys;
-            foreignKeyName = Domain.NameBuilder.BuildForeignKeyName(association.ReferencingType.Indexes.PrimaryIndex, referencingColumns, association.ReferencedType.Indexes.PrimaryIndex);
-          }
-          else {
-            referencingTable = tables[association.UnderlyingType.Indexes.PrimaryIndex];
-            IndexInfo referencedIndex = FindRealIndex(association.ReferencingType.Indexes.PrimaryIndex, null);
-            referencedTable = tables[referencedIndex];
-            referencedColumns = referencedIndex.KeyColumns.Keys;
-            FieldInfo referencingField = association.UnderlyingType.Fields.First(fieldInfo => fieldInfo.IsEntity && fieldInfo.ValueType==association.ReferencingType.UnderlyingType);
-            referencingColumns = referencingField.ExtractColumns();
-            foreignKeyName = Domain.NameBuilder.BuildForeignKeyName(association.UnderlyingType.Indexes.PrimaryIndex, referencingColumns, referencedIndex);
-          }
-          CreateForeignKey(foreignKeyName, referencingTable, referencingColumns, referencedTable, referencedColumns);
+      foreach (AssociationInfo association in associations.Where(associationInfo => associationInfo.IsMaster)) {
+        Table referencingTable;
+        Table referencedTable;
+        IList<ColumnInfo> referencingColumns;
+        ICollection<ColumnInfo> referencedColumns;
+        string foreignKeyName;
+        if (association.UnderlyingType==null) {
+          // TODO: Remove comparison with null than Structure association bug fixed.
+          if (association.ReferencingType.Indexes.PrimaryIndex==null)
+            continue;
+          IndexInfo referencingIndex = FindRealIndex(association.ReferencingType.Indexes.PrimaryIndex, association.ReferencingField);
+          referencingTable = tables[referencingIndex];
+          referencingColumns = association.ReferencingField.ExtractColumns();
+          IndexInfo referencedIndex = FindRealIndex(association.ReferencedType.Indexes.PrimaryIndex, null);
+          referencedTable = tables[referencedIndex];
+          referencedColumns = association.ReferencedType.Indexes.PrimaryIndex.KeyColumns.Keys;
+          foreignKeyName = Domain.NameBuilder.BuildForeignKeyName(association);
         }
+        else {
+          referencingTable = tables[association.UnderlyingType.Indexes.PrimaryIndex];
+          IndexInfo referencedIndex = FindRealIndex(association.ReferencingType.Indexes.PrimaryIndex, null);
+          referencedTable = tables[referencedIndex];
+          referencedColumns = referencedIndex.KeyColumns.Keys;
+          FieldInfo referencingField = association.UnderlyingType.Fields.First(fieldInfo => fieldInfo.IsEntity && fieldInfo.ValueType==association.ReferencingType.UnderlyingType);
+          referencingColumns = referencingField.ExtractColumns();
+          foreignKeyName = Domain.NameBuilder.BuildForeignKeyName(association);
+        }
+        CreateForeignKey(foreignKeyName, referencingTable, referencingColumns, referencedTable, referencedColumns);
       }
-      // Build key references
+    }
+
+    private void BuildHierarchyReferences(ICountable<TypeInfo> entities, Dictionary<IndexInfo, Table> tables)
+    {
       var indexPairs = new Dictionary<Pair<IndexInfo>, object>();
-      foreach (TypeInfo type in types) {
+      foreach (TypeInfo type in entities) {
         if (type.Indexes.PrimaryIndex.IsVirtual) {
           List<IndexInfo> realPrimaryIndexes = GetRealPrimaryIndexes(type.Indexes.PrimaryIndex);
           for (int i = 0; i < realPrimaryIndexes.Count - 1; i++) {
@@ -184,7 +190,7 @@ namespace Xtensive.Storage.Providers.Sql
         IEnumerable<ColumnInfo> referencingColumns = referencingIndex.KeyColumns.Keys;
         var referencedIndex = indexPair.Second;
         IEnumerable<ColumnInfo> referencedColumns = referencedIndex.KeyColumns.Keys;
-        string foreignKeyName = Domain.NameBuilder.BuildForeignKeyName(referencingIndex, referencingColumns, referencedIndex);
+        string foreignKeyName = Domain.NameBuilder.BuildForeignKeyName(referencingIndex.ReflectedType, referencedIndex.ReflectedType);
         CreateForeignKey(foreignKeyName, tables[referencingIndex], referencingColumns, tables[referencedIndex], referencedColumns);
       }
     }
@@ -200,7 +206,7 @@ namespace Xtensive.Storage.Providers.Sql
       foreignKey.ReferencedTable = referencedTable;
       foreach (ColumnInfo keyColumn in referencedColumns) {
         var columnName = Domain.NameBuilder.BuildTableColumnName(keyColumn);
-        var tableColumn = FindColumnByName(referencedTable,columnName);
+        var tableColumn = FindColumnByName(referencedTable, columnName);
         foreignKey.ReferencedColumns.Add(tableColumn);
       }
     }
