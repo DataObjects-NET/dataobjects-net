@@ -326,7 +326,17 @@ namespace Xtensive.Storage.Linq.Linq2Rse
 
     private Expression VisitJoin(Type resultType, Expression outerSource, Expression innerSource, LambdaExpression outerKey, LambdaExpression innerKey, LambdaExpression resultSelector)
     {
-      throw new NotImplementedException();
+      var outer = (ResultExpression)Visit(outerSource);
+      var inner = (ResultExpression)Visit(innerSource);
+      outer = fieldAccessFlattener.FlattenFieldAccess(outer, outerKey);
+      inner = fieldAccessFlattener.FlattenFieldAccess(inner, innerKey);
+      var outerKeyPath = fieldAccessTranslator.Translate(outerKey.Body);
+      var innerKeyPath = fieldAccessTranslator.Translate(innerKey.Body);
+      if (outerKeyPath == null || innerKeyPath == null) {
+        throw new InvalidOperationException();
+      }
+
+      throw new NotImplementedException(ExpressionWriter.WriteToString(query));
     }
 
     private Expression VisitSelectMany(Type resultType, Expression source, LambdaExpression collectionSelector, LambdaExpression resultSelector)

@@ -4,6 +4,7 @@
 // Created by: Alexey Kochetov
 // Created:    2008.12.17
 
+using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Storage.Configuration;
@@ -70,6 +71,22 @@ namespace Xtensive.Storage.Tests.Linq
       }
     }
 
+    [Test]
+    public void OneToOneTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var products = Session.Current.All<Product>();
+          var suppliers = Session.Current.All<Supplier>();
+          var result = from p in products
+                       join s in suppliers on p.Supplier.Id equals s.Id
+                       select new { p, s };
+          var list = result.ToList();
+          Assert.AreEqual(1000, list.Count);
+          t.Complete();
+        }
+      }
+    }
 
 
   }

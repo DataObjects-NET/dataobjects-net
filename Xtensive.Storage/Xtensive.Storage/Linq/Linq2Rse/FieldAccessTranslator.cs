@@ -70,7 +70,8 @@ namespace Xtensive.Storage.Linq.Linq2Rse
                 isJoined ? null : fieldName, 
                 isJoined ? fieldName : null);
               result.AddHead(pathItem);
-              fieldName = null;
+              fieldName = member.Name;
+              isJoined = true;
             }
           }
         }

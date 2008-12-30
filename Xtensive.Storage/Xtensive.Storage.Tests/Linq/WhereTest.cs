@@ -89,6 +89,19 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    public void CalculatedTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var products = Session.Current.All<Product>();
+          var list = products.Where(p => p.UnitPrice * p.UnitsInStock==90).ToList();
+          Assert.AreEqual(100, list.Count);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
     public void StructureTest()
     {
       using (Domain.OpenSession()) {
@@ -198,6 +211,9 @@ namespace Xtensive.Storage.Tests.Linq
         using (var t = Transaction.Open()) {
           var products = Session.Current.All<Product>();
           var product = products.Where(p => p.Supplier.CompanyName == "Company20").First();
+          Assert.IsNotNull(product);
+          Assert.AreEqual("Company20", product.Supplier.CompanyName);
+          product = products.Where(p => p.Supplier.CompanyName == "Company20" && p.Category.Key == categoryKey && p.Supplier.ContactTitle == "Title20" ).First();
           Assert.IsNotNull(product);
           Assert.AreEqual("Company20", product.Supplier.CompanyName);
           t.Complete();

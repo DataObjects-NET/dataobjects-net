@@ -40,7 +40,7 @@ namespace Xtensive.Storage.Linq.Expressions
       else
         mapping = mapping.JoinedRelations[first.JoinedFieldName];
 
-      for (int i = 1; i < pathList.Count - 1; i++) {
+      for (int i = 1; i < pathList.Count; i++) {
         var item = pathList[i];
         if (item.FieldName != null) {
           if (mapping.FieldMapping.TryGetValue(item.FieldName, out result))
