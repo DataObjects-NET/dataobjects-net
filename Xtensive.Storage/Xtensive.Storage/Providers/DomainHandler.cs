@@ -46,9 +46,31 @@ namespace Xtensive.Storage.Providers
     protected abstract ICompiler BuildCompiler();
 
     /// <summary>
-    /// Builds the <see cref="Domain"/>.
+    /// Builds the <see cref="Domain"/> in recreate mode.
     /// </summary>
-    public abstract void Build();
+    public abstract void BuildRecreate();
+
+
+    /// <summary>
+    /// Builds <see cref="Domain"/>s in recycling data while upgrade.
+    /// </summary>
+    public abstract void BuildRecycling();
+
+    /// <summary>
+    /// Checks if storage contains correct system metadata.
+    /// </summary>
+    /// <returns></returns>
+    public abstract bool CheckSystemTypes();
+
+    /// <summary>
+    /// Deletes recycling data after upgrade.
+    /// </summary>
+    public abstract void DeleteRecycledData();
+
+    /// <summary>
+    /// Builds <see cref="Domain"/> in Perform mode.
+    /// </summary>
+    public abstract void BuildPerform();
 
     /// <summary>
     /// Opens the session with specified <paramref name="type"/>.

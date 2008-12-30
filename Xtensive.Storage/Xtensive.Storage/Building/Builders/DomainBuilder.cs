@@ -5,22 +5,16 @@
 // Created:    2007.08.03
 
 using System;
-using System.Collections;
 using System.Globalization;
-using System.Linq;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Reflection;
-using Xtensive.Core.Tuples;
-using Xtensive.Core.Tuples.Transform;
 using Xtensive.PluginManager;
 using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Resources;
-using Activator=System.Activator;
 
 namespace Xtensive.Storage.Building.Builders
 {
@@ -63,9 +57,53 @@ namespace Xtensive.Storage.Building.Builders
             using (context.Domain.Handler.OpenSession(SessionType.System)) {
               using (var transactionScope = Transaction.Open()) {
                 BuildingScope.Context.SystemSessionHandler = Session.Current.Handler;
-                using (LogTemplate<Log>.InfoRegion(String.Format(Strings.LogBuildingX, typeof (DomainHandler).GetShortName())))
-                  context.Domain.Handler.Build();
-                CreateGenerators();
+                using (LogTemplate<Log>.InfoRegion(String.Format(Strings.LogBuildingX, typeof (DomainHandler).GetShortName()))) {
+                  bool sysTables = context.Domain.Handler.CheckSystemTypes();
+                  if (!sysTables) {
+                    context.Domain.Handler.BuildRecreate();
+                    CreateGenerators();
+                  }
+                  else if (!CheckAssemblyVersions())
+                    using (new UpgradeScope(new UpgradeContext())) {
+                      BuildRcModel();
+                      context.Domain.Handler.BuildRecycling(); // Creating rcTables, copy data, create new structures
+                      CreateGenerators();
+                      RunUpgradeScripts();
+                      context.Domain.Handler.DeleteRecycledData();
+                      UpdateAssembliesData();
+                    }
+                  else {
+                    switch (context.Domain.Configuration.BuildMode) {
+                    case DomainBuildMode.Perform:
+                      context.Domain.Handler.BuildPerform();
+                      break;
+                    case DomainBuildMode.Skip:
+                      throw new NotImplementedException();
+                      break;
+                    case DomainBuildMode.SkipButExtract:
+                      throw new NotImplementedException();
+                      break;
+                    case DomainBuildMode.SkipButExtractAndCompare:
+                      throw new NotImplementedException();
+                      break;
+                    case DomainBuildMode.PerformSafe:
+                      throw new NotImplementedException();
+                      break;
+                    case DomainBuildMode.PerformComplete:
+                      throw new NotImplementedException();
+                      break;
+                    case DomainBuildMode.Recreate:
+                      context.Domain.Handler.BuildRecreate();
+                      break;
+                    case DomainBuildMode.Block:
+                        throw new NotImplementedException();
+                      break;
+                    default:
+                        throw new NotImplementedException();
+                    }
+                    CreateGenerators();
+                  }
+                }
                 transactionScope.Complete();
               }
             }
@@ -78,6 +116,28 @@ namespace Xtensive.Storage.Building.Builders
         }
       }
       return context.Domain;
+    }
+
+    private static void UpdateAssembliesData()
+    {
+      throw new NotImplementedException();
+    }
+
+    private static void RunUpgradeScripts()
+    {
+      throw new NotImplementedException();
+    }
+
+    private static void BuildRcModel()
+    {
+      throw new NotImplementedException();
+    }
+
+    private static bool CheckAssemblyVersions()
+    {
+      // TODO: Implement
+      return true;
+      throw new NotImplementedException();
     }
 
     #region ValidateXxx methods

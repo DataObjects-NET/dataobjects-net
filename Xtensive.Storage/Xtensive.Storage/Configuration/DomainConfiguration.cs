@@ -11,6 +11,7 @@ using Microsoft.Practices.Unity;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
+using Xtensive.Storage.Building;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Configuration.Elements;
 using Xtensive.Storage.Configuration.TypeRegistry;
@@ -26,6 +27,12 @@ namespace Xtensive.Storage.Configuration
     IEquatable<DomainConfiguration>
   {
     #region Defaults (constants)
+
+    /// <summary>
+    /// Default <see cref="BuildMode"/> value:
+    /// "<see langword="DomainBuildMode.Perform" />".
+    /// </summary>
+    public const DomainBuildMode DefaultBuildMode = DomainBuildMode.Default;
 
     /// <summary>
     /// Default <see cref="SectionName"/> value:
@@ -87,6 +94,7 @@ namespace Xtensive.Storage.Configuration
     private bool inconsistentTransactions;
     private UnityContainer serviceContainer;
     private SessionConfigurationCollection sessions;
+    private DomainBuildMode buildMode;
 
     /// <summary>
     /// Gets or sets the name of the section where storage configuration is configuration.
@@ -249,6 +257,20 @@ namespace Xtensive.Storage.Configuration
       {
         this.EnsureNotLocked();
         inconsistentTransactions = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets a value indicating domain upgrade behavior. 
+    /// Default value is <see cref="DefaultBuildMode"/>.
+    /// </summary>
+    public DomainBuildMode BuildMode
+    {
+      get { return buildMode; }
+      set
+      {
+        this.EnsureNotLocked();
+        buildMode = value;
       }
     }
 

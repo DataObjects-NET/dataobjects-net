@@ -10,6 +10,7 @@ using System.Reflection;
 using Microsoft.Practices.Unity.Configuration;
 using Xtensive.Core;
 using Xtensive.Core.Helpers;
+using Xtensive.Storage.Building;
 
 namespace Xtensive.Storage.Configuration.Elements
 {
@@ -18,6 +19,7 @@ namespace Xtensive.Storage.Configuration.Elements
   /// </summary>
   public class DomainConfigurationElement : ConfigurationCollectionElementBase
   {
+    private const string BuildModeElementName = "buildMode";
     private const string NameElementName = "name";
     private const string ConnectionUrlElementName = "connectionUrl";
     private const string TypesElementName = "types";
@@ -154,6 +156,16 @@ namespace Xtensive.Storage.Configuration.Elements
     }
 
     /// <summary>
+    /// <see cref="DomainConfiguration.BuildMode" copy="true"/>
+    /// </summary>
+    [ConfigurationProperty(BuildModeElementName, IsRequired = false, DefaultValue = DomainConfiguration.DefaultBuildMode)]
+    public DomainBuildMode BuildMode
+    {
+      get { return (DomainBuildMode)this[BuildModeElementName]; }
+      set { this[BuildModeElementName] = value; }
+    }
+
+    /// <summary>
     /// <see cref="DomainConfiguration.Sessions" copy="true"/>
     /// </summary>
     [ConfigurationProperty(SessionsElementName, IsDefaultCollection = false)]
@@ -207,6 +219,7 @@ namespace Xtensive.Storage.Configuration.Elements
       c.RecordSetMappingCacheSize = RecordSetMappingCacheSize;
       c.AutoValidation = AutoValidation;
       c.InconsistentTransactions = InconsistentTransactions;
+      c.BuildMode = BuildMode;
       foreach (var builder in Builders) {
         var type = Type.GetType(builder.Type, true);
         c.Builders.Add(type);

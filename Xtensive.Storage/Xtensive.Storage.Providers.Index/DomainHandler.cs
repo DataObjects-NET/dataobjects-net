@@ -30,13 +30,33 @@ namespace Xtensive.Storage.Providers.Index
     }
 
     /// <inheritdoc/>
-    public override void Build()
+    public override void BuildRecreate()
     {
       BuildRealIndexes();
       foreach (var pair in Handlers.Domain.Model.Types.SelectMany(type => type.Indexes.Where(i => i.ReflectedType==type).Union(type.AffectedIndexes).Distinct().Select(i => new Pair<IndexInfo, TypeInfo>(i, type)))) {
         MapTransform transform = BuildIndexTransform(pair.First, pair.Second);
         indexTransforms.Add(pair, transform);
       }
+    }
+
+    public override void BuildRecycling()
+    {
+      throw new System.NotImplementedException();
+    }
+
+    public override bool CheckSystemTypes()
+    {
+      throw new System.NotImplementedException();
+    }
+
+    public override void DeleteRecycledData()
+    {
+      throw new System.NotImplementedException();
+    }
+
+    public override void BuildPerform()
+    {
+      throw new System.NotImplementedException();
     }
 
     #region Private / internal methods

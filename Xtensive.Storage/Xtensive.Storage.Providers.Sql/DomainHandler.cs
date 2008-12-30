@@ -54,7 +54,7 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <inheritdoc/>
-    public override void Build()
+    public override void BuildRecreate()
     {
       var sessionHandler = ((SessionHandler) BuildingScope.Context.SystemSessionHandler);
       SqlDriver = sessionHandler.Connection.Driver;
@@ -73,6 +73,30 @@ namespace Xtensive.Storage.Providers.Sql
       ISqlCompileUnit syncScript = GenerateSyncCatalogScript(Handlers.Domain.Model, existingModel.DefaultServer.Catalogs[catalogName], newModel.DefaultServer.Catalogs[catalogName]);
       sessionHandler.ExecuteNonQuery(syncScript);
       Schema = SqlModel.Build(modelProvider).DefaultServer.Catalogs[catalogName].DefaultSchema;
+    }
+
+    public override void BuildRecycling()
+    {
+      throw new System.NotImplementedException();
+    }
+
+    public override bool CheckSystemTypes()
+    {
+      // TODO: Implement
+      return true;
+      throw new System.NotImplementedException();
+    }
+
+    public override void DeleteRecycledData()
+    {
+      throw new System.NotImplementedException();
+    }
+
+    public override void BuildPerform()
+    {
+      // todo: Implement
+      BuildRecreate();
+//      throw new System.NotImplementedException();
     }
 
     internal static string GetPrimaryIndexColumnName(IndexInfo primaryIndex, ColumnInfo secondaryIndexColumn, IndexInfo secondaryIndex)
@@ -227,7 +251,6 @@ namespace Xtensive.Storage.Providers.Sql
       }
       return result;
     }
-
 
     private IndexInfo FindRealIndex(IndexInfo index, FieldInfo field)
     {
