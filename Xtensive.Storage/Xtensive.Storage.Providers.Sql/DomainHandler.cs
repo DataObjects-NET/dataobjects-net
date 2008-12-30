@@ -120,8 +120,8 @@ namespace Xtensive.Storage.Providers.Sql
         CreateColumns(primaryIndex, table, pim);
         CreateSecondaryIndexes(type, primaryIndex, table, pim);
       }
-//      BuildForeignKeys(domainModel.Associations, tables);
-//      BuildHierarchyReferences(domainModel.Types.Entities, tables);
+      // BuildForeignKeys(domainModel.Associations, tables);
+      // BuildHierarchyReferences(domainModel.Types.Entities, tables);
       return sqlModel;
     }
 

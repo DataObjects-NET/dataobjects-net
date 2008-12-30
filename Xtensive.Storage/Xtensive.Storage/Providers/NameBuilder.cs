@@ -130,7 +130,7 @@ namespace Xtensive.Storage.Providers
     /// <returns>Foreign key name.</returns>
     public virtual string BuildForeignKeyName(TypeInfo baseType, TypeInfo descendantType)
     {
-      return NamingConvention.Apply(string.Format("FK_{0}_1", baseType.Name, descendantType.Name));
+      return NamingConvention.Apply(string.Format("FK_{0}_{1}", baseType.Name, descendantType.Name));
     }
 
     /// <summary>
