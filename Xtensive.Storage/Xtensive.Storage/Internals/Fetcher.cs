@@ -93,7 +93,7 @@ namespace Xtensive.Storage.Internals
 
     private static Key Fetch(IndexInfo index, Key key, IEnumerable<ColumnInfo> columns)
     {
-      Key result;
+      Key result = null;
       var session = Session.Current;
       if (session.IsDebugEventLoggingEnabled)
         Log.Debug("Session '{0}'. Fetching: Key = '{1}', Columns = '{2}'", session, pKey, columns.Select(c => c.Name).ToCommaDelimitedString());
@@ -102,10 +102,13 @@ namespace Xtensive.Storage.Internals
       var rs = GetCachedRecordSet(index, columnIndexes);
       using (new ParameterScope()) {
         pKey.Value = key.Value;
-        result = session.Domain.RecordSetParser.ParseFirstFast(rs);
-        if (result==null)
+        var record = session.Domain.RecordSetParser.ParseFirst(rs);
+        if (record == null) {
           // Ensures there will be "removed" EntityState associated with this key
           session.UpdateEntityState(key, null);
+        }
+        else
+          result = record.DefaultKey;
       }
       return result;
     }

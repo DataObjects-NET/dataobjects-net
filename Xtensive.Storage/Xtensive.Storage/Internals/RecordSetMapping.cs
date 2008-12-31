@@ -6,6 +6,7 @@
 
 using System.Collections.Generic;
 using System.Diagnostics;
+using Xtensive.Core.Collections;
 using Xtensive.Storage.Rse;
 using System.Linq;
 
@@ -14,16 +15,18 @@ namespace Xtensive.Storage.Internals
   [DebuggerDisplay("Header = {Header}")]
   internal sealed class RecordSetMapping
   {
+    public Domain CurrentDomain { get; private set; }
     public RecordSetHeader Header { get; private set;}
-    public ColumnGroupMapping[] Mappings { get; private set; }
+    public ReadOnlyList<ColumnGroupMapping> Mappings { get; private set; }
 
 
     // Constructors
 
-    public RecordSetMapping(RecordSetHeader header, IEnumerable<ColumnGroupMapping> mappings)
+    public RecordSetMapping(Domain currentDomain, RecordSetHeader header, IList<ColumnGroupMapping> mappings)
     {
+      CurrentDomain = currentDomain;
       Header = header;
-      Mappings = mappings.ToArray();
+      Mappings = new ReadOnlyList<ColumnGroupMapping>(mappings);
     }
   }
 }

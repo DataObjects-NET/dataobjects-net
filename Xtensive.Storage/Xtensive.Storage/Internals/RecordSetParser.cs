@@ -35,7 +35,7 @@ namespace Xtensive.Storage.Internals
       var context = new RecordSetParserContext(source);
       var recordSetMapping  = GetMapping(source.Header);
       var groupMappings     = recordSetMapping.Mappings;
-      var groupMappingCount = groupMappings.Length;
+      var groupMappingCount = groupMappings.Count;
       if (groupMappingCount==0)
         yield break;
       var typeMappings = new TypeMapping[groupMappingCount];
@@ -49,21 +49,6 @@ namespace Xtensive.Storage.Internals
         }
         yield return entity;
       }
-    }
-
-    public Key ParseFirstFast(RecordSet source)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
-
-      Tuple record = source.FirstOrDefault();
-      if (record == null)
-        return null;
-
-      var context = new RecordSetParserContext(source);
-      var recordSetMapping = GetMapping(source.Header);
-      var groupMappings    = recordSetMapping.Mappings;
-      var typeMappings     = new TypeMapping[groupMappings.Length];
-      return Parse(context, record, groupMappings[0], ref typeMappings[0]);
     }
 
     private static Key Parse(RecordSetParserContext context, Tuple record, ColumnGroupMapping columnGroupMapping, ref TypeMapping lastTypeMapping)
@@ -96,9 +81,47 @@ namespace Xtensive.Storage.Internals
 
     public IEnumerable<Record> Parse(RecordSet source)
     {
+      var session = Session.Current;
       var recordSetMapping = GetMapping(source.Header);
+      foreach (Tuple tuple in source)
+        yield return ParseSingleRow(tuple, recordSetMapping, session);
+    }
 
-      throw new NotImplementedException();
+    public Record ParseFirst(RecordSet source)
+    {
+      Tuple tuple = source.FirstOrDefault();
+      if (tuple == null)
+        return null;
+      var session = Session.Current;
+      var recordSetMapping = GetMapping(source.Header);
+      return ParseSingleRow(tuple, recordSetMapping, session);
+    }
+
+    private static Record ParseSingleRow(Tuple tuple, RecordSetMapping mapping, Session session)
+    {
+      var keyList = new List<Key>(mapping.Mappings.Count);
+      foreach (var groupMapping in mapping.Mappings) {
+        int typeIdColumnIndex = groupMapping.TypeIdColumnIndex;
+        int typeId = TypeInfo.NoTypeId;
+        if (typeIdColumnIndex >= 0)
+          typeId = (int)tuple.GetValueOrDefault(typeIdColumnIndex);
+        var typeMapping = groupMapping.GetMapping(typeId);
+        if (typeMapping != null) {
+          var keyTuple = typeMapping.KeyTransform.Apply(TupleTransformType.TransformedTuple, tuple);
+          Key key;
+          if (typeId == TypeInfo.NoTypeId) // No TypeId in this column group
+          {
+            key = Key.Create(mapping.CurrentDomain, groupMapping.Hierarchy.Root, keyTuple, false, false);
+          }
+          else {
+            key = Key.Create(mapping.CurrentDomain, typeMapping.Type, keyTuple, true, true);
+            var entityTuple = typeMapping.Transform.Apply(TupleTransformType.Tuple, tuple);
+            session.UpdateEntityState(key, entityTuple);
+          }
+          keyList.Add(key);
+        }
+      }
+      return new Record(tuple, keyList);
     }
 
     private RecordSetMapping GetMapping(RecordSetHeader header)
@@ -165,7 +188,7 @@ namespace Xtensive.Storage.Internals
         var mapping =  new ColumnGroupMapping(hierarchy, typeIdColumnIndex, typeMappings);
         mappings.Add(mapping);
       }
-      result = new RecordSetMapping(header, mappings);
+      result = new RecordSetMapping(Domain, header, mappings);
       lock (cache) {
         cache.Add(result);
       }

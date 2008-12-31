@@ -36,17 +36,40 @@ namespace Xtensive.Storage
     /// <returns>The sequence of <see cref="Entity"/> instances.</returns>
     public static IEnumerable<Entity> ToEntities(this RecordSet source, Type type)
     {
+
+//      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+//
+//      var context = new RecordSetParserContext(source);
+//      var recordSetMapping = GetMapping(source.Header);
+//      var groupMappings = recordSetMapping.Mappings;
+//      var groupMappingCount = groupMappings.Count;
+//      if (groupMappingCount == 0)
+//        yield break;
+//      var typeMappings = new TypeMapping[groupMappingCount];
+//
+//      foreach (var tuple in source)
+//      {
+//        Entity entity = null;
+//        for (int i = 0; i < groupMappingCount; i++)
+//        {
+//          Key key = Parse(context, tuple, groupMappings[i], ref typeMappings[i]);
+//          if (entity == null && key != null && type.IsAssignableFrom(key.Type.UnderlyingType))
+//            entity = key.Resolve();
+//        }
+//        yield return entity;
+//      }
+
       return Domain.Current.RecordSetParser.ToEntities(source, type);
     }
 
     public static IEnumerable<Record> Parse(this RecordSet source)
     {
-      throw new NotImplementedException();
+      return Domain.Current.RecordSetParser.Parse(source);
     }
 
     public static Record ParseFirst(this RecordSet source)
     {
-      throw new NotImplementedException();
+      return Domain.Current.RecordSetParser.ParseFirst(source);
     }
   }
 }
