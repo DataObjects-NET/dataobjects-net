@@ -15,6 +15,7 @@ using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
+using Xtensive.Storage.Model.Resources;
 
 namespace Xtensive.Storage.Model
 {
@@ -35,7 +36,7 @@ namespace Xtensive.Storage.Model
     /// Minimal possible <see cref="TypeId"/> value.
     /// Value is <see langword="1" />.
     /// </summary>
-    public const int MinTypeId = 1;
+    public const int MinTypeId = 100;
 
     private ColumnInfoCollection                            columns;
     private readonly FieldMap                               fieldMap;
@@ -85,6 +86,15 @@ namespace Xtensive.Storage.Model
     {
       [DebuggerStepThrough]
       get { return (attributes & TypeAttributes.Structure) > 0; }
+    }
+
+    /// <summary>
+    /// Gets a value indicating whether this instance is system type.
+    /// </summary>
+    public bool IsSystem
+    {
+      [DebuggerStepThrough]
+      get { return (attributes & TypeAttributes.System) > 0; }
     }
 
     /// <summary>
@@ -184,10 +194,12 @@ namespace Xtensive.Storage.Model
     {
       [DebuggerStepThrough]
       get { return typeId; }
-      [DebuggerStepThrough]
-      set
-      {
-        this.EnsureNotLocked();
+      [DebuggerStepThrough] 
+      set 
+      { 
+        if (typeId != 0)
+          throw new InvalidOperationException(
+            string.Format(Strings.TypeIdForTypeXIsAlreadyAssigned, underlyingType.Name));
         typeId = value;
       }
     }

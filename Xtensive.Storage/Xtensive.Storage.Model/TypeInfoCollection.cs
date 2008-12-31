@@ -433,16 +433,20 @@ namespace Xtensive.Storage.Model
     {
       this.EnsureNotLocked();
       
-      // Building TypeId index
-      typeIdIndex = new Dictionary<int, TypeInfo>();
+      GenerateTypeIds();
+
+      base.Lock(recursive);
+    }
+
+    private void GenerateTypeIds()
+    {
+      typeIdIndex = new Dictionary<int, TypeInfo>(this.Count);
       int typeId = TypeInfo.MinTypeId;
-      foreach (var type in this) {
+      foreach (TypeInfo type in this) {
         if (type.TypeId==TypeInfo.NoTypeId)
           type.TypeId = typeId++;
         typeIdIndex[type.TypeId] = type;
       }
-
-      base.Lock(recursive);
     }
 
 

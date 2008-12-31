@@ -45,6 +45,14 @@ namespace Xtensive.Storage.Building.Definitions
     }
 
     /// <summary>
+    /// Gets a value indicating whether this instance is system type.
+    /// </summary>
+    public bool IsSystem
+    {
+      get { return (attributes & TypeAttributes.System) > 0; }
+    }
+
+    /// <summary>
     /// Gets a value indicating whether this instance is interface.
     /// </summary>
     public bool IsInterface
@@ -76,7 +84,6 @@ namespace Xtensive.Storage.Building.Definitions
       get { return attributes; }
       set { attributes = value; }
     }
-
 
     /// <summary>
     /// Gets the indexes for this instance.

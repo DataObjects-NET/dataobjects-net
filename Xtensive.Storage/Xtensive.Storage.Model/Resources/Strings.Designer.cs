@@ -88,6 +88,15 @@ namespace Xtensive.Storage.Model.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to TypeId for type {0} is already assigned..
+        /// </summary>
+        internal static string TypeIdForTypeXIsAlreadyAssigned {
+            get {
+                return ResourceManager.GetString("TypeIdForTypeXIsAlreadyAssigned", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Type with TypeId={0} is not registered..
         /// </summary>
         internal static string TypeIdXIsNotRegistered {

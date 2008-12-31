@@ -16,6 +16,7 @@ using FieldAttributes=Xtensive.Storage.Model.FieldAttributes;
 using FieldInfo=Xtensive.Storage.Model.FieldInfo;
 using Xtensive.Storage.Resources;
 using System.Linq;
+using TypeAttributes=Xtensive.Storage.Model.TypeAttributes;
 
 namespace Xtensive.Storage.Building.Builders
 {
@@ -32,6 +33,7 @@ namespace Xtensive.Storage.Building.Builders
 
         TypeDef typeDef = new TypeDef(type);
 
+        ProcessSystemTypeAttribute(type, typeDef);
         ProcessEntityAtribute(type, typeDef);
         ProcessMaterializedViewAttribute(type, typeDef);
 
@@ -57,6 +59,15 @@ namespace Xtensive.Storage.Building.Builders
             string.Format(Strings.FieldWithNameXIsAlreadyRegistered, fieldDef.Name));
 
         typeDef.Fields.Add(fieldDef);
+      }
+    }
+
+    private static void ProcessSystemTypeAttribute(Type type, TypeDef typeDef)
+    {
+      SystemTypeAttribute attribute = type.GetAttribute<SystemTypeAttribute>(AttributeSearchOptions.Default);
+      if (attribute != null) {
+        typeDef.Attributes |= TypeAttributes.System;
+        BuildingContext.Current.SystemTypeIds[type] = attribute.TypeId;
       }
     }
 

@@ -11,6 +11,7 @@ using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Reflection;
+using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
@@ -42,11 +43,36 @@ namespace Xtensive.Storage.Building.Builders
         }
         context.EnsureBuildSucceed();
 
-        if (context.Configuration.Builders.Count==0)
-          return;
+        if (context.Configuration.Builders.Count>0)
+          BuildCustomDefinitions();
 
-        BuildCustomDefinitions();
+        DefineSystemTypes();
       }
+    }
+
+    private static void DefineSystemTypes()
+    {
+      using (LogTemplate<Log>.InfoRegion(Strings.LogDefiningX, Strings.SystemTypes)) {
+        BuildingContext context = BuildingContext.Current;       
+
+        foreach (Type type in GetSystemTypes()) {
+          try {
+            TypeDef typeDef = TypeBuilder.DefineType(type);
+            context.Definition.Types.Add(typeDef);
+            IndexBuilder.DefineIndexes(typeDef);
+          }
+          catch (DomainBuilderException e) {
+            context.RegisterError(e);
+          }
+        }
+      }
+    }
+    
+    private static IEnumerable<Type> GetSystemTypes()
+    {
+      return AssemblyHelper.FindTypes(
+        Assembly.GetExecutingAssembly(), typeof(Persistent),
+        (type, filterCriteria) => type.GetAttributes<SystemTypeAttribute>(AttributeSearchOptions.Default).Count() > 0);
     }
 
     private static void BuildCustomDefinitions()
@@ -65,7 +91,7 @@ namespace Xtensive.Storage.Building.Builders
       using (LogTemplate<Log>.InfoRegion(Strings.LogBuildingX, Strings.ActualModel)) {
         BuildingContext context = BuildingContext.Current;
         context.Model = new DomainModel();
-        BuildTypes();
+        BuildTypes();        
         context.Model.Lock(true);
       }
     }

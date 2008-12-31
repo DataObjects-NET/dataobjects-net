@@ -16,6 +16,7 @@ namespace Xtensive.Storage.Model
     Structure = 0x4,
     Interface = 0x8,
     Abstract = 0x10,
-    Materialized = 0x20
+    Materialized = 0x20,
+    System = 0x40
   }
 }

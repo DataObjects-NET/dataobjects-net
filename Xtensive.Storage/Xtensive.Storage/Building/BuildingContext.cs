@@ -33,6 +33,7 @@ namespace Xtensive.Storage.Building
     internal List<Pair<AssociationInfo, string>> PairedAssociations { get; private set; }
     internal CircularReferenceFinder<Type> CircularReferenceFinder { get; private set; }
     internal HashSet<AssociationInfo> DiscardedAssociations { get; private set; }
+    internal Dictionary<Type, int> SystemTypeIds { get; private set; }
 
     #endregion
 
@@ -127,6 +128,7 @@ namespace Xtensive.Storage.Building
       PairedAssociations = new List<Pair<AssociationInfo, string>>();
       CircularReferenceFinder = new CircularReferenceFinder<Type>(TypeHelper.GetShortName);
       DiscardedAssociations = new HashSet<AssociationInfo>();
+      SystemTypeIds = new Dictionary<Type, int>();
     }
   }
 }

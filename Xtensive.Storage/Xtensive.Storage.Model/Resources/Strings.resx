@@ -132,4 +132,7 @@
   <data name="TypeIdXIsNotRegistered" xml:space="preserve">
     <value>Type with TypeId={0} is not registered.</value>
   </data>
+  <data name="TypeIdForTypeXIsAlreadyAssigned" xml:space="preserve">
+    <value>TypeId for type {0} is already assigned.</value>
+  </data>
 </root>

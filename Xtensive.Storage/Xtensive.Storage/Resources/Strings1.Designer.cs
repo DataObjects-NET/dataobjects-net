@@ -1124,6 +1124,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to system types.
+        /// </summary>
+        internal static string SystemTypes {
+            get {
+                return ResourceManager.GetString("SystemTypes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Types.
         /// </summary>
         internal static string Types {

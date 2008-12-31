@@ -15,6 +15,7 @@ using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Resources;
+using TypeInfo=Xtensive.Storage.Model.TypeInfo;
 
 namespace Xtensive.Storage.Building.Builders
 {
@@ -102,7 +103,7 @@ namespace Xtensive.Storage.Building.Builders
         }
       }
       return context.Domain;
-    }
+    }    
 
     private static void UpdateAssembliesData()
     {
@@ -153,6 +154,31 @@ namespace Xtensive.Storage.Building.Builders
     }
 
     #endregion
+
+
+    private static void AssignSystemTypeIds()
+    {
+      foreach (TypeInfo type in BuildingContext.Current.Model.Types)
+        if (type.IsSystem)
+          type.TypeId = BuildingContext.Current.SystemTypeIds[type.UnderlyingType];
+    }
+
+    private static void ReadExistingTypeIds()
+    {
+      //TODO: Optimize this code
+      foreach (SystemTypes.Type type in Session.Current.All<SystemTypes.Type>()) {
+        foreach (TypeInfo typeInfo in BuildingContext.Current.Model.Types) {
+          if (typeInfo.UnderlyingType.FullName==type.FullName)
+            typeInfo.TypeId = type.Id;
+        }
+      }
+    }    
+
+    private static void GenerateNewTypeIds()
+    {
+      
+    }
+
 
     private static void CreateDomain()
     {
