@@ -77,29 +77,15 @@ namespace Xtensive.Storage.Building.Builders
                     case DomainBuildMode.Perform:
                       context.Domain.Handler.BuildPerform();
                       break;
-                    case DomainBuildMode.Skip:
+                    case DomainBuildMode.PerformStrict:
                       throw new NotImplementedException();
-                      break;
-                    case DomainBuildMode.SkipButExtract:
-                      throw new NotImplementedException();
-                      break;
-                    case DomainBuildMode.SkipButExtractAndCompare:
-                      throw new NotImplementedException();
-                      break;
-                    case DomainBuildMode.PerformSafe:
-                      throw new NotImplementedException();
-                      break;
-                    case DomainBuildMode.PerformComplete:
-                      throw new NotImplementedException();
-                      break;
                     case DomainBuildMode.Recreate:
                       context.Domain.Handler.BuildRecreate();
                       break;
-                    case DomainBuildMode.Block:
-                        throw new NotImplementedException();
-                      break;
+                    case DomainBuildMode.BlockUpgrade:
+                      throw new NotImplementedException();
                     default:
-                        throw new NotImplementedException();
+                      throw new NotImplementedException();
                     }
                     CreateGenerators();
                   }

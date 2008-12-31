@@ -20,6 +20,7 @@ namespace Xtensive.Storage.Configuration.Elements
   public class DomainConfigurationElement : ConfigurationCollectionElementBase
   {
     private const string BuildModeElementName = "buildMode";
+    private const string ForeignKeyModeElementName = "foreignKeyMode";
     private const string NameElementName = "name";
     private const string ConnectionUrlElementName = "connectionUrl";
     private const string TypesElementName = "types";
@@ -166,6 +167,16 @@ namespace Xtensive.Storage.Configuration.Elements
     }
 
     /// <summary>
+    /// <see cref="DomainConfiguration.ForeignKeyMode" copy="true"/>
+    /// </summary>
+    [ConfigurationProperty(ForeignKeyModeElementName, IsRequired = false, DefaultValue = DomainConfiguration.DefaultForeignKeyMode)]
+    public ForeignKeyMode ForeignKeyMode
+    {
+      get { return (ForeignKeyMode)this[ForeignKeyModeElementName]; }
+      set { this[ForeignKeyModeElementName] = value; }
+    }
+
+    /// <summary>
     /// <see cref="DomainConfiguration.Sessions" copy="true"/>
     /// </summary>
     [ConfigurationProperty(SessionsElementName, IsDefaultCollection = false)]
@@ -220,6 +231,7 @@ namespace Xtensive.Storage.Configuration.Elements
       c.AutoValidation = AutoValidation;
       c.InconsistentTransactions = InconsistentTransactions;
       c.BuildMode = BuildMode;
+      c.ForeignKeyMode = ForeignKeyMode;
       foreach (var builder in Builders) {
         var type = Type.GetType(builder.Type, true);
         c.Builders.Add(type);

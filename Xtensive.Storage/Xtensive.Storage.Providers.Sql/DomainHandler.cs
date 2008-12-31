@@ -77,19 +77,19 @@ namespace Xtensive.Storage.Providers.Sql
 
     public override void BuildRecycling()
     {
-      throw new System.NotImplementedException();
+      throw new NotImplementedException();
     }
 
     public override bool CheckSystemTypes()
     {
       // TODO: Implement
       return true;
-      throw new System.NotImplementedException();
+      throw new NotImplementedException();
     }
 
     public override void DeleteRecycledData()
     {
-      throw new System.NotImplementedException();
+      throw new NotImplementedException();
     }
 
     public override void BuildPerform()
@@ -144,8 +144,10 @@ namespace Xtensive.Storage.Providers.Sql
         CreateColumns(primaryIndex, table, pim);
         CreateSecondaryIndexes(type, primaryIndex, table, pim);
       }
-      // BuildForeignKeys(domainModel.Associations, tables);
-      // BuildHierarchyReferences(domainModel.Types.Entities, tables);
+      if ((Handlers.Domain.Configuration.ForeignKeyMode & ForeignKeyMode.Reference) > 0)
+        BuildForeignKeys(domainModel.Associations, tables);
+      if ((Handlers.Domain.Configuration.ForeignKeyMode & ForeignKeyMode.Hierarchy) > 0)
+        BuildHierarchyReferences(domainModel.Types.Entities, tables);
       return sqlModel;
     }
 
@@ -202,7 +204,7 @@ namespace Xtensive.Storage.Providers.Sql
         if (type.Indexes.PrimaryIndex.IsVirtual) {
           List<IndexInfo> realPrimaryIndexes = GetRealPrimaryIndexes(type.Indexes.PrimaryIndex);
           for (int i = 0; i < realPrimaryIndexes.Count - 1; i++) {
-            if (realPrimaryIndexes[i] != realPrimaryIndexes[i + 1]) {
+            if (realPrimaryIndexes[i]!=realPrimaryIndexes[i + 1]) {
               var pair = new Pair<IndexInfo>(realPrimaryIndexes[i], realPrimaryIndexes[i + 1]);
               indexPairs[pair] = null;
             }

@@ -30,9 +30,15 @@ namespace Xtensive.Storage.Configuration
 
     /// <summary>
     /// Default <see cref="BuildMode"/> value:
-    /// "<see langword="DomainBuildMode.Perform" />".
+    /// "<see cref="DomainBuildMode.Default" />".
     /// </summary>
     public const DomainBuildMode DefaultBuildMode = DomainBuildMode.Default;
+
+    /// <summary>
+    /// Default <see cref="ForeignKeyMode"/> value:
+    /// "<see cref="ForeignKeyMode.Default" />".
+    /// </summary>
+    public const ForeignKeyMode DefaultForeignKeyMode = ForeignKeyMode.Default;
 
     /// <summary>
     /// Default <see cref="SectionName"/> value:
@@ -95,6 +101,7 @@ namespace Xtensive.Storage.Configuration
     private UnityContainer serviceContainer;
     private SessionConfigurationCollection sessions;
     private DomainBuildMode buildMode;
+    private ForeignKeyMode foreignKeyMode;
 
     /// <summary>
     /// Gets or sets the name of the section where storage configuration is configuration.
@@ -275,6 +282,20 @@ namespace Xtensive.Storage.Configuration
     }
 
     /// <summary>
+    /// Gets or sets a value indicating foreign key mode. 
+    /// Default value is <see cref="DefaultForeignKeyMode"/>.
+    /// </summary>
+    public ForeignKeyMode ForeignKeyMode
+    {
+      get { return foreignKeyMode; }
+      set
+      {
+        this.EnsureNotLocked();
+        foreignKeyMode = value;
+      }
+    }
+
+    /// <summary>
     /// Gets available session configurations.
     /// </summary>
     public SessionConfigurationCollection Sessions
@@ -334,6 +355,8 @@ namespace Xtensive.Storage.Configuration
       recordSetMappingCacheSize = configuration.RecordSetMappingCacheSize;
       sessions = configuration.Sessions;
       serviceContainer = configuration.serviceContainer;
+      buildMode = configuration.buildMode;
+      foreignKeyMode = configuration.foreignKeyMode;
     }
 
     #region Equality members
@@ -351,7 +374,9 @@ namespace Xtensive.Storage.Configuration
             && types.EqualsTo(other.types)
               && other.sessionPoolSize == sessionPoolSize 
                 && Equals(other.name, name) 
-                  && Equals(other.sessions, sessions);
+                  && Equals(other.sessions, sessions)
+                    && Equals(other.buildMode, buildMode)
+                      && Equals(other.foreignKeyMode, foreignKeyMode);
     }
 
     /// <inheritdoc/>
@@ -379,6 +404,8 @@ namespace Xtensive.Storage.Configuration
         result = (result * 397) ^ recordSetMappingCacheSize;
         result = (result * 397) ^ sessionPoolSize;
         result = (result * 397) ^ (sessions.Default != null ? sessions.Default.GetHashCode() : 0);
+        result = (result * 397) ^ (int)buildMode;
+        result = (result * 397) ^ (int)foreignKeyMode;
         return result;
       }
     }
