@@ -38,5 +38,15 @@ namespace Xtensive.Storage
     {
       return Domain.Current.RecordSetParser.ToEntities(source, type);
     }
+
+    public static IEnumerable<Record> Parse(this RecordSet source)
+    {
+      throw new NotImplementedException();
+    }
+
+    public static Record ParseFirst(this RecordSet source)
+    {
+      throw new NotImplementedException();
+    }
   }
 }

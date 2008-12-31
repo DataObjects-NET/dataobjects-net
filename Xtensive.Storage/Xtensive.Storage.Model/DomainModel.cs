@@ -5,6 +5,7 @@
 // Created:    2007.07.11
 
 using System;
+using System.Linq.Expressions;
 
 namespace Xtensive.Storage.Model
 {
@@ -38,6 +39,43 @@ namespace Xtensive.Storage.Model
     /// Gets or sets the associations.
     /// </summary>
     public AssociationInfoCollection Associations { get; private set;}
+
+    /// <summary>
+    /// Gets the field from the current <see cref="DomainModel"/> by <paramref name="fieldExtractor"/> expression.
+    /// </summary>
+    /// <typeparam name="T">Type of the entity.</typeparam>
+    /// <param name="fieldExtractor">The field expression.</param>
+    public FieldInfo GetField<T>(Expression<Func<T,object>> fieldExtractor)
+    {
+      var e = fieldExtractor.Body;
+      var me = e as MemberExpression;
+      if (me == null)
+        throw new ArgumentException();
+
+      string fieldName = null;
+      while (e.NodeType == ExpressionType.MemberAccess) {
+        TypeInfo type;
+        me = (MemberExpression)e;
+        e = me.Expression;
+        if (Types.TryGetValue(me.Type, out type)) {
+          if (type.IsEntity) {
+            if (fieldName == null) {
+              fieldName = me.Member.Name;
+              continue;
+            }
+            return type.Fields[fieldName];
+          }
+        }
+        if (fieldName == null)
+          fieldName = me.Member.Name;
+        else
+          fieldName = me.Member.Name + "." + fieldName;
+      }
+
+      FieldInfo result = Types[typeof(T)].Fields[fieldName];
+      return result;
+    }
+      
 
     /// <inheritdoc/>
     public override void Lock(bool recursive)

@@ -5,6 +5,7 @@
 // Created:    2008.01.11
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
@@ -42,6 +43,11 @@ namespace Xtensive.Storage.Model
     public ColumnInfoCollection KeyColumns { get; private set; }
 
     /// <summary>
+    /// Gets the types of the current <see cref="HierarchyInfo"/>.
+    /// </summary>
+    public ReadOnlyList<TypeInfo> Types { get; private set; }
+
+    /// <summary>
     /// Gets <see cref="MappingInfo"/> for hierarchy key.
     /// </summary>
     public Segment<int> MappingInfo { get; private set; }
@@ -77,6 +83,9 @@ namespace Xtensive.Storage.Model
       KeyTupleDescriptor = TupleDescriptor.Create(
         from c in KeyColumns select c.ValueType);
       MappingInfo = new Segment<int>(0, KeyTupleDescriptor.Count);
+      var list = new List<TypeInfo> {Root};
+      list.AddRange(Root.GetDescendants(true));
+      Types = new ReadOnlyList<TypeInfo>(list);
     }
 
 

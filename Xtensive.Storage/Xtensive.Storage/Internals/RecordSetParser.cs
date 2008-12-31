@@ -20,6 +20,8 @@ namespace Xtensive.Storage.Internals
   {
     private readonly ICache<RecordSetHeader, RecordSetMapping> cache;
 
+    #region Deprecated
+
     /// <summary>
     /// Converts the <see cref="RecordSet"/> items to <see cref="Entity"/> instances.
     /// </summary>
@@ -90,43 +92,84 @@ namespace Xtensive.Storage.Internals
       return key;
     }
 
+    #endregion
+
+    public IEnumerable<Record> Parse(RecordSet source)
+    {
+      var recordSetMapping = GetMapping(source.Header);
+
+      throw new NotImplementedException();
+    }
+
     private RecordSetMapping GetMapping(RecordSetHeader header)
     {
       RecordSetMapping result;
       lock (cache) {
         result = cache[header, true];
-        if (result!=null)
+        if (result != null)
           return result;
       }
       var mappings = new List<ColumnGroupMapping>();
+      var typeIdColumnName = Domain.NameBuilder.TypeIdColumnName;
+
       foreach (var group in header.ColumnGroups) {
-        var mapping = BuildColumnGroupMapping(header, group);
-        if (mapping!=null)
-          mappings.Add(mapping);
+        var model = Domain.Model;
+        int typeIdColumnIndex = -1;
+        var columnMapping = new Dictionary<ColumnInfo, MappedColumn>(group.Columns.Count);
+        var hierarchy = group.HierarchyInfoRef.Resolve(model);
+
+        foreach (int columnIndex in group.Columns) {
+          var column = (MappedColumn)header.Columns[columnIndex];
+          ColumnInfo columnInfo = column.ColumnInfoRef.Resolve(model);
+          columnMapping[columnInfo] = column;
+          if (columnInfo.Name == typeIdColumnName)
+            typeIdColumnIndex = column.Index;
+        }
+
+        var typeMappings = new Dictionary<int, TypeMapping>(hierarchy.Types.Count + 1);
+        foreach (TypeInfo type in hierarchy.Types) {
+          // Building typeMap
+          var columnCount = type.Columns.Count;
+          var typeMap = new int[columnCount];
+          for (int i = 0; i < columnCount; i++) {
+            var columnInfo = type.Columns[i];
+            MappedColumn column;
+            if (columnMapping.TryGetValue(columnInfo, out column))
+              typeMap[i] = column.Index;
+            else
+              typeMap[i] = MapTransform.NoMapping;
+          }
+  
+          // Building keyMap
+          var columns = type.Hierarchy.KeyColumns;
+          columnCount = columns.Count;
+          var keyMap = new int[columnCount];
+          bool hasKey = false;
+          for (int i = 0; i < columnCount; i++) {
+            var columnInfo = columns[i];
+            MappedColumn column;
+            if (columnMapping.TryGetValue(columnInfo, out column)) {
+              keyMap[i] = column.Index;
+              hasKey = true;
+            }
+            else
+              keyMap[i] = MapTransform.NoMapping;
+          }
+          if (hasKey) {
+            var typeMapping = new TypeMapping(type,
+              new MapTransform(true, type.Hierarchy.KeyTupleDescriptor, keyMap),
+              new MapTransform(true, type.TupleDescriptor, typeMap));
+            typeMappings.Add(type.TypeId, typeMapping);
+          }
+        }
+        var mapping =  new ColumnGroupMapping(hierarchy, typeIdColumnIndex, typeMappings);
+        mappings.Add(mapping);
       }
       result = new RecordSetMapping(header, mappings);
       lock (cache) {
         cache.Add(result);
       }
       return result;
-    }
-
-    private ColumnGroupMapping BuildColumnGroupMapping(RecordSetHeader header, ColumnGroup group)
-    {
-      var model = Domain.Model;
-      int typeIdColumnIndex = -1;
-      var typeIdColumnName = Domain.NameBuilder.TypeIdColumnName;
-      var columnMapping = new Dictionary<ColumnInfo, MappedColumn>(group.Columns.Count);
-
-      foreach (int columnIndex in group.Columns) {
-        var column = (MappedColumn)header.Columns[columnIndex];
-        ColumnInfo columnInfo = column.ColumnInfoRef.Resolve(model);
-        columnMapping[columnInfo] = column;
-        if (columnInfo.Name == typeIdColumnName)
-          typeIdColumnIndex = column.Index;
-      }
-
-      return new ColumnGroupMapping(model, group.HierarchyInfoRef.Resolve(model), typeIdColumnIndex, columnMapping);
     }
 
 

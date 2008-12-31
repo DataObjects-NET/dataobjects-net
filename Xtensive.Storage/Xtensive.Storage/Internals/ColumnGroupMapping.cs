@@ -16,11 +16,7 @@ namespace Xtensive.Storage.Internals
   [DebuggerDisplay("Hierarchy = {Hierarchy.Name}, TypeIdColumnIndex = {TypeIdColumnIndex}")]
   internal sealed class ColumnGroupMapping
   {
-    private readonly Dictionary<ColumnInfo, MappedColumn> columnsMapping;
-    private ThreadSafeList<TypeMapping> typeMappings = 
-      ThreadSafeList<TypeMapping>.Create(new object());
-    
-    public DomainModel Model { get; private set; }
+    private readonly Dictionary<int, TypeMapping> typeMappings;
 
     public HierarchyInfo Hierarchy { get; private set; }
 
@@ -28,55 +24,63 @@ namespace Xtensive.Storage.Internals
 
     public TypeMapping GetMapping(int typeId)
     {
-      return typeMappings.GetValue(typeId,
-        _typeId => {
-          var type = typeId==TypeInfo.NoTypeId ? Hierarchy.Root : Model.Types[typeId];
-
-          // Building typeMap
-          var columnCount = type.Columns.Count;
-          var typeMap = new int[columnCount];
-          for (int i = 0; i < columnCount; i++) {
-            var columnInfo = type.Columns[i];
-            MappedColumn column;
-            if (columnsMapping.TryGetValue(columnInfo, out column))
-              typeMap[i] = column.Index;
-            else
-              typeMap[i] = MapTransform.NoMapping;
-          }
-
-          // Building keyMap
-          var columns = type.Hierarchy.KeyColumns;
-          columnCount = columns.Count;
-          var keyMap = new int[columnCount];
-          bool hasKey = false;
-          for (int i = 0; i < columnCount; i++) {
-            var columnInfo = columns[i];
-            MappedColumn column;
-            if (columnsMapping.TryGetValue(columnInfo, out column)) {
-              keyMap[i] = column.Index;
-              hasKey = true;
-            }
-            else
-              keyMap[i] = MapTransform.NoMapping;
-          }
-          if (!hasKey)
-            return null;
-          else
-            return new TypeMapping(type,
-              new MapTransform(true, type.Hierarchy.KeyTupleDescriptor, keyMap), 
-              new MapTransform(true, type.TupleDescriptor, typeMap));
-        });
+      typeId = typeId==TypeInfo.NoTypeId ? Hierarchy.Root.TypeId : typeId;
+      TypeMapping result;
+      if (typeMappings.TryGetValue(typeId, out result))
+        return result;
+      return null;
     }
+
+//    public TypeMapping GetMapping(int typeId)
+//    {
+//      return typeMappings.GetValue(typeId,
+//        _typeId => {
+//          var type = typeId==TypeInfo.NoTypeId ? Hierarchy.Root : model.Types[typeId];
+//
+//          // Building typeMap
+//          var columnCount = type.Columns.Count;
+//          var typeMap = new int[columnCount];
+//          for (int i = 0; i < columnCount; i++) {
+//            var columnInfo = type.Columns[i];
+//            MappedColumn column;
+//            if (columnsMapping.TryGetValue(columnInfo, out column))
+//              typeMap[i] = column.Index;
+//            else
+//              typeMap[i] = MapTransform.NoMapping;
+//          }
+//
+//          // Building keyMap
+//          var columns = type.Hierarchy.KeyColumns;
+//          columnCount = columns.Count;
+//          var keyMap = new int[columnCount];
+//          bool hasKey = false;
+//          for (int i = 0; i < columnCount; i++) {
+//            var columnInfo = columns[i];
+//            MappedColumn column;
+//            if (columnsMapping.TryGetValue(columnInfo, out column)) {
+//              keyMap[i] = column.Index;
+//              hasKey = true;
+//            }
+//            else
+//              keyMap[i] = MapTransform.NoMapping;
+//          }
+//          if (!hasKey)
+//            return null;
+//          else
+//            return new TypeMapping(type,
+//              new MapTransform(true, type.Hierarchy.KeyTupleDescriptor, keyMap), 
+//              new MapTransform(true, type.TupleDescriptor, typeMap));
+//        });
+//    }
 
 
     // Constructors
 
-    public ColumnGroupMapping(DomainModel model, HierarchyInfo hierarchy, int typeIdColumnIndex, Dictionary<ColumnInfo, MappedColumn> columnMapping)
+    public ColumnGroupMapping(HierarchyInfo hierarchy, int typeIdColumnIndex, Dictionary<int, TypeMapping> typeMappings)
     {
-      Model = model;
+      this.typeMappings = typeMappings;
       Hierarchy = hierarchy;
       TypeIdColumnIndex = typeIdColumnIndex;
-      columnsMapping = columnMapping;
     }
   }
 }
