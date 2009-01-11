@@ -38,6 +38,7 @@ namespace Xtensive.Storage
     public static IEnumerable<Entity> ToEntities(this RecordSet source, Type type)
     {
       var parser = Domain.Current.RecordSetParser;
+      var session = Session.Current;
       int keyIndex = -1;
       foreach (var record in parser.Parse(source)) {
         if (keyIndex == -1)
@@ -51,7 +52,40 @@ namespace Xtensive.Storage
         var pk = record[keyIndex];
         var entity = null as Entity;
         if (pk != null)
-          entity = pk.Resolve();
+          entity = pk.Resolve(session);
+        yield return entity;
+      }
+    }
+
+    /// <summary>
+    /// Converts the <see cref="RecordSet"/> items to <see cref="Entity"/> instances.
+    /// </summary>
+    /// <typeparam name="T">The type of <see cref="Entity"/> instances to get.</typeparam>
+    /// <param name="source">The <see cref="RecordSet"/> to process.</param>
+    /// <param name="primaryKeyIndex">Index of primary key within the <see cref="Record"/>.</param>
+    /// <returns>The sequence of <see cref="Entity"/> instances.</returns>
+    public static IEnumerable<T> ToEntities<T>(this RecordSet source, int primaryKeyIndex)
+      where T : class, IEntity
+    {
+      foreach (var entity in ToEntities(source, primaryKeyIndex))
+        yield return entity as T;
+    }
+
+    /// <summary>
+    /// Converts the <see cref="RecordSet"/> items to <see cref="Entity"/> instances.
+    /// </summary>
+    /// <param name="source">The <see cref="RecordSet"/> to process.</param>
+    /// <param name="primaryKeyIndex">Index of primary key within the <see cref="Record"/>.</param>
+    /// <returns>The sequence of <see cref="Entity"/> instances.</returns>
+    public static IEnumerable<Entity> ToEntities(this RecordSet source, int primaryKeyIndex)
+    {
+      var parser = Domain.Current.RecordSetParser;
+      var session = Session.Current;
+      foreach (var record in parser.Parse(source)) {
+        var pk = record[primaryKeyIndex];
+        var entity = null as Entity;
+        if (pk != null)
+          entity = pk.Resolve(session);
         yield return entity;
       }
     }
