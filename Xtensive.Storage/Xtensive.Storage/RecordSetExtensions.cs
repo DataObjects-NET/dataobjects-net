@@ -38,29 +38,22 @@ namespace Xtensive.Storage
     public static IEnumerable<Entity> ToEntities(this RecordSet source, Type type)
     {
       var parser = Domain.Current.RecordSetParser;
+      int keyIndex = -1;
       foreach (var record in parser.Parse(source)) {
-        Entity entity = null;
-        foreach (var key in record.PrimaryKeys) {
-          if (entity == null && key != null && type.IsAssignableFrom(key.Type.UnderlyingType))
-            entity = key.Resolve();
-        }
+        if (keyIndex == -1)
+          for (int i = 0; i < record.PrimaryKeys.Count; i++) {
+            var key = record.PrimaryKeys[i];
+            if (key != null && type.IsAssignableFrom(key.Type.UnderlyingType)) {
+              keyIndex = i;
+              break;
+            }
+          }
+        var pk = record[keyIndex];
+        var entity = null as Entity;
+        if (pk != null)
+          entity = pk.Resolve();
         yield return entity;
       }
-
-
-//      var mapping = parser.GetMapping(source.Header);
-//      var typeInfo = Domain.Current.Model.Types[type];
-//      var matchedGroup = mapping.Mappings.Select((gm,i) => new {gm,i}).FirstOrDefault(p => p.gm.GetMapping(typeInfo.TypeId) != null);
-//      if (matchedGroup == null)
-//        throw new InvalidOperationException(string.Format("Could not resolve into entities of type '{0}'", type));
-//      int groupIndex = matchedGroup.i;
-//
-//      foreach (var record in parser.Parse(source)) {
-//        var key = record[groupIndex];
-//        if (key != null)
-//          yield return key.Resolve();
-//        yield return null;
-//      }
     }
 
     public static IEnumerable<Record> Parse(this RecordSet source)
