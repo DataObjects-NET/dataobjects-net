@@ -6,10 +6,7 @@
 
 using System.Collections.Generic;
 using System.Diagnostics;
-using Xtensive.Core.Threading;
-using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Model;
-using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Internals
 {
@@ -30,48 +27,6 @@ namespace Xtensive.Storage.Internals
         return result;
       return null;
     }
-
-//    public TypeMapping GetMapping(int typeId)
-//    {
-//      return typeMappings.GetValue(typeId,
-//        _typeId => {
-//          var type = typeId==TypeInfo.NoTypeId ? Hierarchy.Root : model.Types[typeId];
-//
-//          // Building typeMap
-//          var columnCount = type.Columns.Count;
-//          var typeMap = new int[columnCount];
-//          for (int i = 0; i < columnCount; i++) {
-//            var columnInfo = type.Columns[i];
-//            MappedColumn column;
-//            if (columnsMapping.TryGetValue(columnInfo, out column))
-//              typeMap[i] = column.Index;
-//            else
-//              typeMap[i] = MapTransform.NoMapping;
-//          }
-//
-//          // Building keyMap
-//          var columns = type.Hierarchy.KeyColumns;
-//          columnCount = columns.Count;
-//          var keyMap = new int[columnCount];
-//          bool hasKey = false;
-//          for (int i = 0; i < columnCount; i++) {
-//            var columnInfo = columns[i];
-//            MappedColumn column;
-//            if (columnsMapping.TryGetValue(columnInfo, out column)) {
-//              keyMap[i] = column.Index;
-//              hasKey = true;
-//            }
-//            else
-//              keyMap[i] = MapTransform.NoMapping;
-//          }
-//          if (!hasKey)
-//            return null;
-//          else
-//            return new TypeMapping(type,
-//              new MapTransform(true, type.Hierarchy.KeyTupleDescriptor, keyMap), 
-//              new MapTransform(true, type.TupleDescriptor, typeMap));
-//        });
-//    }
 
 
     // Constructors

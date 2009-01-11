@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using Xtensive.Storage.Rse;
+using System.Linq;
 
 namespace Xtensive.Storage
 {
@@ -36,30 +37,30 @@ namespace Xtensive.Storage
     /// <returns>The sequence of <see cref="Entity"/> instances.</returns>
     public static IEnumerable<Entity> ToEntities(this RecordSet source, Type type)
     {
+      var parser = Domain.Current.RecordSetParser;
+      foreach (var record in parser.Parse(source)) {
+        Entity entity = null;
+        foreach (var key in record.PrimaryKeys) {
+          if (entity == null && key != null && type.IsAssignableFrom(key.Type.UnderlyingType))
+            entity = key.Resolve();
+        }
+        yield return entity;
+      }
 
-//      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+
+//      var mapping = parser.GetMapping(source.Header);
+//      var typeInfo = Domain.Current.Model.Types[type];
+//      var matchedGroup = mapping.Mappings.Select((gm,i) => new {gm,i}).FirstOrDefault(p => p.gm.GetMapping(typeInfo.TypeId) != null);
+//      if (matchedGroup == null)
+//        throw new InvalidOperationException(string.Format("Could not resolve into entities of type '{0}'", type));
+//      int groupIndex = matchedGroup.i;
 //
-//      var context = new RecordSetParserContext(source);
-//      var recordSetMapping = GetMapping(source.Header);
-//      var groupMappings = recordSetMapping.Mappings;
-//      var groupMappingCount = groupMappings.Count;
-//      if (groupMappingCount == 0)
-//        yield break;
-//      var typeMappings = new TypeMapping[groupMappingCount];
-//
-//      foreach (var tuple in source)
-//      {
-//        Entity entity = null;
-//        for (int i = 0; i < groupMappingCount; i++)
-//        {
-//          Key key = Parse(context, tuple, groupMappings[i], ref typeMappings[i]);
-//          if (entity == null && key != null && type.IsAssignableFrom(key.Type.UnderlyingType))
-//            entity = key.Resolve();
-//        }
-//        yield return entity;
+//      foreach (var record in parser.Parse(source)) {
+//        var key = record[groupIndex];
+//        if (key != null)
+//          yield return key.Resolve();
+//        yield return null;
 //      }
-
-      return Domain.Current.RecordSetParser.ToEntities(source, type);
     }
 
     public static IEnumerable<Record> Parse(this RecordSet source)

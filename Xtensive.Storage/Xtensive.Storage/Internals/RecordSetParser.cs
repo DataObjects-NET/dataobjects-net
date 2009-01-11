@@ -20,65 +20,6 @@ namespace Xtensive.Storage.Internals
   {
     private readonly ICache<RecordSetHeader, RecordSetMapping> cache;
 
-    #region Deprecated
-
-    /// <summary>
-    /// Converts the <see cref="RecordSet"/> items to <see cref="Entity"/> instances.
-    /// </summary>
-    /// <param name="source">The <see cref="RecordSet"/> to process.</param>
-    /// <param name="type">The type of <see cref="Entity"/> instances to get.</param>
-    /// <returns>The sequence of <see cref="Entity"/> instances.</returns>
-    public IEnumerable<Entity> ToEntities(RecordSet source, Type type)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
-
-      var context = new RecordSetParserContext(source);
-      var recordSetMapping  = GetMapping(source.Header);
-      var groupMappings     = recordSetMapping.Mappings;
-      var groupMappingCount = groupMappings.Count;
-      if (groupMappingCount==0)
-        yield break;
-      var typeMappings = new TypeMapping[groupMappingCount];
-
-      foreach (var tuple in source) {
-        Entity entity = null;
-        for (int i = 0; i < groupMappingCount; i++) {
-          Key key = Parse(context, tuple, groupMappings[i], ref typeMappings[i]);
-          if (entity==null && key!=null && type.IsAssignableFrom(key.Type.UnderlyingType))
-            entity = key.Resolve();
-        }
-        yield return entity;
-      }
-    }
-
-    private static Key Parse(RecordSetParserContext context, Tuple record, ColumnGroupMapping columnGroupMapping, ref TypeMapping lastTypeMapping)
-    {
-      int typeIdColumnIndex = columnGroupMapping.TypeIdColumnIndex;
-      int typeId = TypeInfo.NoTypeId;
-      if (typeIdColumnIndex>=0)
-        typeId = (int) record.GetValueOrDefault(typeIdColumnIndex);
-      TypeMapping typeMapping;
-      if (typeId!=TypeInfo.NoTypeId && lastTypeMapping!=null && typeId==lastTypeMapping.TypeId)
-        typeMapping = lastTypeMapping;
-      else {
-        typeMapping = columnGroupMapping.GetMapping(typeId);
-        if (typeMapping==null)
-          return null;
-        lastTypeMapping = typeMapping;
-      }
-      
-      var keyTuple = typeMapping.KeyTransform.Apply(TupleTransformType.TransformedTuple, record);
-      if (typeId==TypeInfo.NoTypeId) // No TypeId in this column group
-        return Key.Create(context.Domain, columnGroupMapping.Hierarchy.Root, keyTuple, false, false);
-
-      var key = Key.Create(context.Domain, typeMapping.Type, keyTuple, true, true);
-      var entityTuple = typeMapping.Transform.Apply(TupleTransformType.Tuple, record);
-      context.Session.UpdateEntityState(key, entityTuple);
-      return key;
-    }
-
-    #endregion
-
     public IEnumerable<Record> Parse(RecordSet source)
     {
       var session = Session.Current;
@@ -120,11 +61,13 @@ namespace Xtensive.Storage.Internals
           }
           keyList.Add(key);
         }
+        else
+          keyList.Add(null);
       }
       return new Record(tuple, keyList);
     }
 
-    private RecordSetMapping GetMapping(RecordSetHeader header)
+    internal RecordSetMapping GetMapping(RecordSetHeader header)
     {
       RecordSetMapping result;
       lock (cache) {

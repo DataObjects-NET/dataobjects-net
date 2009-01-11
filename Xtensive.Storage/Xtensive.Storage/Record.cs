@@ -7,15 +7,22 @@
 using System;
 using System.Collections.Generic;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage
 {
+  /// <summary>
+  /// Contains raw <see cref="Data"/> as a <see cref="Tuple"/> and parsed <see cref="PrimaryKeys"/>.
+  /// </summary>
   public sealed class Record
   {
     private readonly ReadOnlyList<Key> primaryKeys;
 
+    /// <summary>
+    /// Gets the first primary key in the <see cref="Record"/>.
+    /// </summary>
     public Key DefaultKey
     {
       get
@@ -26,6 +33,9 @@ namespace Xtensive.Storage
       }
     }
 
+    /// <summary>
+    /// Gets the <see cref="Xtensive.Storage.Key"/> by specified column group.
+    /// </summary>
     public Key this[int columnGroup]
     {
       get
@@ -36,6 +46,9 @@ namespace Xtensive.Storage
       }
     }
 
+    /// <summary>
+    /// Gets the <see cref="Xtensive.Storage.Key"/> by specified column group and foreign key <see cref="FieldInfo"/>.
+    /// </summary>
     public Key this[int columnGroup, FieldInfo foreignKeyField]
     {
       get
@@ -44,12 +57,26 @@ namespace Xtensive.Storage
       }
     }
 
+    /// <summary>
+    /// Gets raw data.
+    /// </summary>
     public Tuple Data { get; private set; }
+
+    /// <summary>
+    /// Gets the primary keys collection.
+    /// </summary>
+    public ReadOnlyList<Key> PrimaryKeys
+    {
+      get { return primaryKeys; }
+    }
 
 
     // Constructors
 
-    public Record(Tuple data, IList<Key> primaryKeys)
+    /// <summary>
+    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    internal Record(Tuple data, IList<Key> primaryKeys)
     {
       Data = data;
       this.primaryKeys = new ReadOnlyList<Key>(primaryKeys);
