@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Transactions;
 using NUnit.Framework;
 using Xtensive.Core.Testing;
+using Xtensive.Storage.Building;
 using Xtensive.Storage.Configuration;
 using System.Reflection;
 using Xtensive.Storage.Tests.Storage.TranscationsTest;

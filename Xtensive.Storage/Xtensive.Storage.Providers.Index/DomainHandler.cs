@@ -13,6 +13,7 @@ using Xtensive.Core.Comparison;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Indexing;
+using Xtensive.Storage.Building;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Compilation;
@@ -44,8 +45,10 @@ namespace Xtensive.Storage.Providers.Index
       throw new System.NotImplementedException();
     }
 
-    public override bool CheckSystemTypes()
+    public override StorageConformity CheckStorageConformity()
     {
+      // TODO: Implement
+      return StorageConformity.Match;
       throw new System.NotImplementedException();
     }
 

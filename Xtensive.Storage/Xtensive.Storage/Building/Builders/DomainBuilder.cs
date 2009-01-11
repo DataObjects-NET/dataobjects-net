@@ -59,8 +59,8 @@ namespace Xtensive.Storage.Building.Builders
               using (var transactionScope = Transaction.Open()) {
                 BuildingScope.Context.SystemSessionHandler = Session.Current.Handler;
                 using (LogTemplate<Log>.InfoRegion(String.Format(Strings.LogBuildingX, typeof (DomainHandler).GetShortName()))) {
-                  bool sysTables = context.Domain.Handler.CheckSystemTypes();
-                  if (!sysTables) {
+                  StorageConformity storageConformity = context.Domain.Handler.CheckStorageConformity();
+                  if (storageConformity==StorageConformity.SystemTypesMissing) {
                     context.Domain.Handler.BuildRecreate();
                     CreateGenerators();
                   }

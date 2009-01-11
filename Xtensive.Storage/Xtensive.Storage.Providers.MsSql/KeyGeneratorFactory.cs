@@ -4,7 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2008.09.10
 
-using Xtensive.Sql.Common;
 using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Database;
 using Xtensive.Storage.Providers.Sql;
@@ -22,7 +21,7 @@ namespace Xtensive.Storage.Providers.MsSql
     /// <inheritdoc/>
     protected override KeyGenerator CreateGenerator<TFieldType>(HierarchyInfo hierarchy)
     {
-      DomainHandler dh = (DomainHandler)Handlers.DomainHandler;
+      var dh = (DomainHandler)Handlers.DomainHandler;
       Schema schema = dh.Schema;
       SqlBatch sqlCreate = null;
       Table genTable = schema.Tables[hierarchy.MappingName];

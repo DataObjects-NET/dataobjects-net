@@ -100,8 +100,8 @@ namespace Xtensive.Storage.Configuration
     private bool inconsistentTransactions;
     private UnityContainer serviceContainer;
     private SessionConfigurationCollection sessions;
-    private DomainBuildMode buildMode;
-    private ForeignKeyMode foreignKeyMode;
+    private DomainBuildMode buildMode = DefaultBuildMode;
+    private ForeignKeyMode foreignKeyMode = DefaultForeignKeyMode;
 
     /// <summary>
     /// Gets or sets the name of the section where storage configuration is configuration.

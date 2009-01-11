@@ -57,10 +57,10 @@ namespace Xtensive.Storage.Providers
     public abstract void BuildRecycling();
 
     /// <summary>
-    /// Checks if storage contains correct system metadata.
+    /// Checks storage conformity with model.
     /// </summary>
     /// <returns></returns>
-    public abstract bool CheckSystemTypes();
+    public abstract StorageConformity CheckStorageConformity();
 
     /// <summary>
     /// Deletes recycling data after upgrade.
@@ -79,7 +79,7 @@ namespace Xtensive.Storage.Providers
     /// <returns>New <see cref="SessionConsumptionScope"/> object.</returns>
     public SessionConsumptionScope OpenSession(SessionType type)
     {
-      if ((type & SessionType.System)!=0)
+      if (type == SessionType.System)
         return OpenSession(type, (SessionConfiguration)Domain.Configuration.Sessions.System.Clone());
       return OpenSession(type, (SessionConfiguration)Domain.Configuration.Sessions.Default.Clone());
     }

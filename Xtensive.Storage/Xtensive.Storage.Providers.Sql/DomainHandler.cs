@@ -80,10 +80,10 @@ namespace Xtensive.Storage.Providers.Sql
       throw new NotImplementedException();
     }
 
-    public override bool CheckSystemTypes()
+    public override StorageConformity CheckStorageConformity()
     {
       // TODO: Implement
-      return true;
+      return StorageConformity.Match;
       throw new NotImplementedException();
     }
 
