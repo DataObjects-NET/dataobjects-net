@@ -46,16 +46,16 @@ namespace Xtensive.Storage
       }
     }
 
-    /// <summary>
-    /// Gets the <see cref="Xtensive.Storage.Key"/> by specified column group and foreign key <see cref="FieldInfo"/>.
-    /// </summary>
-    public Key this[int columnGroup, FieldInfo foreignKeyField]
-    {
-      get
-      {
-        throw new NotImplementedException();
-      }
-    }
+//    /// <summary>
+//    /// Gets the <see cref="Xtensive.Storage.Key"/> by specified column group and foreign key <see cref="FieldInfo"/>.
+//    /// </summary>
+//    public Key this[int columnGroup, FieldInfo foreignKeyField]
+//    {
+//      get
+//      {
+//        throw new NotImplementedException();
+//      }
+//    }
 
     /// <summary>
     /// Gets raw data.
