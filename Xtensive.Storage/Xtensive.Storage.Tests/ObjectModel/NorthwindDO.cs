@@ -90,6 +90,9 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
 
     [Field(LazyLoad = true, Length = 1073741823)]
     public byte[] Picture { get; set; }
+    
+    [Field(PairTo = "Category")]
+    public EntitySet<Product> Products { get; private set; }
   }
 
   [Entity(MappingName = "Customers")]
@@ -127,6 +130,9 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
 
     [Field]
     public string HomePage { get; set; }
+    
+    [Field(PairTo = "Supplier")]
+    public EntitySet<Product> Products { get; private set; }
   }
 
   [Entity(MappingName = "Shippers")]

@@ -30,8 +30,6 @@ namespace Xtensive.Storage.Linq.Linq2Rse
     private static readonly MethodInfo genericAccessor;
     private static readonly PropertyInfo keyValueAccessor;
     private static readonly MemberInfo identifierAccessor;
-    
-
 
     public LambdaExpression Translate(ResultExpression source, LambdaExpression le)
     {

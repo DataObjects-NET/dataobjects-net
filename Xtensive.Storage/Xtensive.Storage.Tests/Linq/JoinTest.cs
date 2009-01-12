@@ -80,7 +80,7 @@ namespace Xtensive.Storage.Tests.Linq
           var suppliers = Session.Current.All<Supplier>();
           var result = from p in products
                        join s in suppliers on p.Supplier.Id equals s.Id
-                       select new { p, s };
+                       select s.Phone;
           var list = result.ToList();
           Assert.AreEqual(1000, list.Count);
           t.Complete();

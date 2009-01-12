@@ -365,9 +365,46 @@ namespace Xtensive.Storage.Linq.Linq2Rse
       if (outerKeyPath == null || innerKeyPath == null) {
         throw new InvalidOperationException();
       }
-      var innerRecordSet = inner.RecordSet.Alias(GetNextAlias());
 
-//      var recordSet = outer.RecordSet.Join(inner.RecordSet, outer.GetColumnIndex(outerKeyPath), inner.GetColumnIndex(innerKeyPath));
+      var keyPairs = new List<Pair<int>>();
+      bool isKey = typeof(Key).IsAssignableFrom(outerKey.Body.Type);
+      bool isEntity = typeof(IEntity).IsAssignableFrom(outerKey.Body.Type);
+      bool isStructure = typeof(Structure).IsAssignableFrom(outerKey.Body.Type);
+
+      if (isKey || isEntity || isStructure) {
+        if (isStructure)
+          throw new NotImplementedException();
+
+        TypeInfo type;
+        if (isKey) {
+          var keyAccess = (MemberExpression) outerKey.Body;
+          type = Model.Types[keyAccess.Expression.Type];
+        }
+        else
+          type = Model.Types[outerKey.Body.Type];
+        MappingPathItem pathItem = null;
+        if (outerKeyPath.Count != 0)
+          pathItem = outerKeyPath.ExtractTail();
+        if (innerKeyPath.Count != 0)
+          pathItem = innerKeyPath.ExtractTail();
+        foreach (var field in type.Hierarchy.KeyFields.Keys) {
+          var fieldName = pathItem == null ? field.Name : pathItem.JoinedFieldName + "." + field.Name;
+          var keyItem = new MappingPathItem(pathItem==null ? type : pathItem.Type, fieldName, null);
+          outerKeyPath.AddTail(keyItem);
+          innerKeyPath.AddTail(keyItem);
+          keyPairs.Add(new Pair<int>(
+            outer.GetColumnIndex(outerKeyPath), 
+            outer.GetColumnIndex(innerKeyPath)));
+          outerKeyPath.ExtractTail();
+          innerKeyPath.ExtractTail();
+        }
+      }
+      else {
+        keyPairs.Add(new Pair<int>(outer.GetColumnIndex(outerKeyPath), inner.GetColumnIndex(innerKeyPath)));
+      }
+
+      var innerRecordSet = inner.RecordSet.Alias(GetNextAlias());
+      var recordSet = outer.RecordSet.Join(innerRecordSet, keyPairs.ToArray());
 //      Dictionary<TypeInfo, TypeMapping> typeMappings = null;
 //      Func<RecordSet, object> shaper = null;
 //      return new ResultExpression(resultType, recordSet, typeMappings, shaper, true);
