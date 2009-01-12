@@ -23,15 +23,14 @@ namespace Xtensive.Storage.Linq.Linq2Rse
 {
   internal class FieldAccessTranslator : ExpressionVisitor
   {
-    private readonly DomainModel model;
-    private readonly ExpressionEvaluator evaluator;
-    private readonly ParameterExtractor parameterExtractor;
+    private readonly RseQueryTranslator translator;
     private ResultExpression source;
     private ParameterExpression parameter;
     private static readonly MethodInfo nonGenericAccessor;
     private static readonly MethodInfo genericAccessor;
     private static readonly PropertyInfo keyValueAccessor;
     private static readonly MemberInfo identifierAccessor;
+    
 
 
     public LambdaExpression Translate(ResultExpression source, LambdaExpression le)
@@ -56,7 +55,7 @@ namespace Xtensive.Storage.Linq.Linq2Rse
         var member = (PropertyInfo)memberAccess.Member;
         expression = memberAccess.Expression;
         if (typeof (IEntity).IsAssignableFrom(memberAccess.Type)) {
-          var type = model.Types[memberAccess.Type];
+          var type = translator.Model.Types[memberAccess.Type];
           if (fieldName == null) {
             fieldName = member.Name;
             isJoined = true;
@@ -79,7 +78,7 @@ namespace Xtensive.Storage.Linq.Linq2Rse
           fieldName = fieldName==null ? member.Name : member.Name + "." + fieldName;
       }
       if (expression.NodeType == ExpressionType.Parameter) {
-        var type = model.Types[expression.Type];
+        var type = translator.Model.Types[expression.Type];
         if (fieldName != null) {
           var pathItem = new MappingPathItem(
             type,
@@ -97,10 +96,10 @@ namespace Xtensive.Storage.Linq.Linq2Rse
     {
       if (e == null)
         return null;
-      if (evaluator.CanBeEvaluated(e)) {
-        if (parameterExtractor.IsParameter(e))
+      if (translator.Evaluator.CanBeEvaluated(e)) {
+        if (translator.ParameterExtractor.IsParameter(e))
           return e;
-        return evaluator.Evaluate(e);
+        return translator.Evaluator.Evaluate(e);
       }
       return base.Visit(e);
     }
@@ -119,8 +118,8 @@ namespace Xtensive.Storage.Linq.Linq2Rse
       bool isKey = typeof(Key).IsAssignableFrom(b.Left.Type);
       bool isEntity = typeof(IEntity).IsAssignableFrom(b.Left.Type);
       bool isStructure = typeof(Structure).IsAssignableFrom(b.Left.Type);
-      bool leftIsParameter = parameterExtractor.IsParameter(b.Left);
-      bool rightIsParameter = parameterExtractor.IsParameter(b.Right);
+      bool leftIsParameter = translator.ParameterExtractor.IsParameter(b.Left);
+      bool rightIsParameter = translator.ParameterExtractor.IsParameter(b.Right);
       var first = b.Left;
       var second = b.Right;
       if (isKey || isEntity || isStructure) {
@@ -129,7 +128,7 @@ namespace Xtensive.Storage.Linq.Linq2Rse
         if (isStructure)
           throw new NotImplementedException();
         if (!leftIsParameter && !rightIsParameter) {
-          
+          throw new NotImplementedException();
         }
         if (leftIsParameter) {
           first = b.Right;
@@ -138,10 +137,10 @@ namespace Xtensive.Storage.Linq.Linq2Rse
         TypeInfo type;
         if (isKey) {
           var keyAccess = (MemberExpression) first;
-          type = model.Types[keyAccess.Expression.Type];
+          type = translator.Model.Types[keyAccess.Expression.Type];
         }
         else
-          type = model.Types[first.Type];
+          type = translator.Model.Types[first.Type];
         Expression result = null;
         var key = isKey ? second : Expression.MakeMemberAccess(second, identifierAccessor);
         var fieldStack = Translate(first);
@@ -184,11 +183,9 @@ namespace Xtensive.Storage.Linq.Linq2Rse
     /// <summary>
     ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public FieldAccessTranslator(DomainModel model, Expression query)
+    public FieldAccessTranslator(RseQueryTranslator translator)
     {
-      this.model = model;
-      evaluator = new ExpressionEvaluator(query);
-      parameterExtractor = new ParameterExtractor(evaluator);
+      this.translator = translator;
     }
 
     static FieldAccessTranslator()

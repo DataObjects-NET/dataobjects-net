@@ -88,6 +88,25 @@ namespace Xtensive.Storage.Tests.Linq
       }
     }
 
+    [Test]
+    public void MultipleTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var products = Session.Current.All<Product>();
+          var suppliers = Session.Current.All<Supplier>();
+          var categories = Session.Current.All<Category>();
+          var result = from p in products
+                       join s in suppliers on p.Supplier.Id equals s.Id
+                       join c in categories on p.Category.Id equals c.Id
+                       select new { p, s, c.CategoryName };
+          var list = result.ToList();
+          Assert.AreEqual(1000, list.Count);
+          t.Complete();
+        }
+      }
+    }
+
 
   }
 }

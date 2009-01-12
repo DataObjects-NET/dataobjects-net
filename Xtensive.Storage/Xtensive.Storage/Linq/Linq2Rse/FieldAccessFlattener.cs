@@ -22,13 +22,9 @@ namespace Xtensive.Storage.Linq.Linq2Rse
 {
   internal class FieldAccessFlattener : ExpressionVisitor
   {
-    private const string aliasPrefix = "alias";
-    private readonly DomainModel model;
-    private readonly ExpressionEvaluator evaluator;
-    private readonly ParameterExtractor parameterExtractor;
+    private readonly RseQueryTranslator translator;
     private ResultExpression result;
-    private int aliasSuffix = 0;
-    
+
 
     public ResultExpression FlattenFieldAccess(ResultExpression source, LambdaExpression le)
     {
@@ -39,7 +35,7 @@ namespace Xtensive.Storage.Linq.Linq2Rse
 
     protected override Expression VisitMemberAccess(MemberExpression m)
     {
-      if (!evaluator.CanBeEvaluated(m)) {
+      if (!translator.Evaluator.CanBeEvaluated(m)) {
         var typesStack = new Stack<TypeInfo>();
         var typesPath = new Stack<Pair<TypeInfo, string>>();
         string fieldName = null;
@@ -57,7 +53,7 @@ namespace Xtensive.Storage.Linq.Linq2Rse
             fieldName = member.Name + "." + fieldName;
           if (expression.NodeType==ExpressionType.MemberAccess) {
             if (typeof (IEntity).IsAssignableFrom(expression.Type)) {
-              var type = model.Types[expression.Type];
+              var type = translator.Model.Types[expression.Type];
               var field = type.Fields[fieldName];
               if(!field.IsPrimaryKey)
                 typesStack.Push(type);
@@ -70,7 +66,7 @@ namespace Xtensive.Storage.Linq.Linq2Rse
             }
           }
         }
-        var parameterType = model.Types[expression.Type];
+        var parameterType = translator.Model.Types[expression.Type];
         if (typesStack.Count > 0)
           typesPath.Push(new Pair<TypeInfo, string>(typesStack.Peek(), fieldName));
         List<Pair<TypeInfo, string>> list = typesPath.ToList();
@@ -79,7 +75,7 @@ namespace Xtensive.Storage.Linq.Linq2Rse
           TypeMapping innerMapping;
           if(!mapping.JoinedRelations.TryGetValue(pair.Second, out innerMapping)) {
             var joinedIndex = pair.First.Indexes.PrimaryIndex;
-            var joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(GetNextAlias());
+            var joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(translator.GetNextAlias());
             var keyPairs = pair.First.Hierarchy.KeyFields.Select((kf,i) => new Pair<int>(mapping.FieldMapping[pair.Second + "." + kf.Key], i)).ToArray();
             var rs = result.RecordSet.Join(joinedRs, JoinType.Default, keyPairs);
             var fieldMapping = new Dictionary<string, int>();
@@ -99,20 +95,15 @@ namespace Xtensive.Storage.Linq.Linq2Rse
       return m;
     }
 
-    private string GetNextAlias()
-    {
-      return aliasPrefix + aliasSuffix++;
-    }
-
+   
+    // Constructor
 
     /// <summary>
     ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public FieldAccessFlattener(DomainModel model, Expression query)
+    public FieldAccessFlattener(RseQueryTranslator translator)
     {
-      this.model = model;
-      evaluator = new ExpressionEvaluator(query);
-      parameterExtractor = new ParameterExtractor(evaluator);
+      this.translator = translator;
     }
   }
 }

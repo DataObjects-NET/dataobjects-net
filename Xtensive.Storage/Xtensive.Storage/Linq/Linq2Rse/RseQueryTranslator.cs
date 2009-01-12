@@ -26,12 +26,36 @@ namespace Xtensive.Storage.Linq.Linq2Rse
 {
   internal class RseQueryTranslator : ExpressionVisitor
   {
+    private const string aliasPrefix = "alias";
+    private int aliasSuffix = 0;
     private readonly QueryProvider provider;
     private readonly Expression query;
     private readonly DomainModel model;
     private readonly FieldAccessTranslator fieldAccessTranslator;
     private readonly FieldAccessFlattener fieldAccessFlattener;
-    
+    private readonly ExpressionEvaluator evaluator;
+    private readonly ParameterExtractor parameterExtractor;
+
+    public Expression Query
+    {
+      get { return query; }
+    }
+
+    public DomainModel Model
+    {
+      get { return model; }
+    }
+
+    public ExpressionEvaluator Evaluator
+    {
+      get { return evaluator; }
+    }
+
+    public ParameterExtractor ParameterExtractor
+    {
+      get { return parameterExtractor; }
+    }
+
     public ResultExpression Translate()
     {
       return (ResultExpression) Visit(query);
@@ -41,6 +65,12 @@ namespace Xtensive.Storage.Linq.Linq2Rse
     {
       return query==expression;
     }
+
+    public string GetNextAlias()
+    {
+      return aliasPrefix + aliasSuffix++;
+    }
+
 
     protected override Expression VisitConstant(ConstantExpression c)
     {
@@ -335,6 +365,12 @@ namespace Xtensive.Storage.Linq.Linq2Rse
       if (outerKeyPath == null || innerKeyPath == null) {
         throw new InvalidOperationException();
       }
+      var innerRecordSet = inner.RecordSet.Alias(GetNextAlias());
+
+//      var recordSet = outer.RecordSet.Join(inner.RecordSet, outer.GetColumnIndex(outerKeyPath), inner.GetColumnIndex(innerKeyPath));
+//      Dictionary<TypeInfo, TypeMapping> typeMappings = null;
+//      Func<RecordSet, object> shaper = null;
+//      return new ResultExpression(resultType, recordSet, typeMappings, shaper, true);
 
       throw new NotImplementedException(ExpressionWriter.WriteToString(query));
     }
@@ -367,8 +403,10 @@ namespace Xtensive.Storage.Linq.Linq2Rse
       model = provider.Model;
       this.provider = provider;
       this.query = query;
-      fieldAccessTranslator = new FieldAccessTranslator(model, query);
-      fieldAccessFlattener = new FieldAccessFlattener(model, query);
+      evaluator = new ExpressionEvaluator(query);
+      parameterExtractor = new ParameterExtractor(evaluator);
+      fieldAccessTranslator = new FieldAccessTranslator(this);
+      fieldAccessFlattener = new FieldAccessFlattener(this);
     }
   }
 }
