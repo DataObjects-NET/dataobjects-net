@@ -8,6 +8,9 @@ using System;
 
 namespace Xtensive.Storage.Attributes
 {
+  /// <summary>
+  /// Base class for all mapping attributes.
+  /// </summary>
   [Serializable]
   public abstract class MappingAttribute : StorageAttribute
   {

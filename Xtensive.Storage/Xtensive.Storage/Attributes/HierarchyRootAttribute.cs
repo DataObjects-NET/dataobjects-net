@@ -11,6 +11,9 @@ using Xtensive.Storage.Configuration;
 
 namespace Xtensive.Storage.Attributes
 {
+  /// <summary>
+  /// Defines the root class of hierarchy of persistent classes.
+  /// </summary>
   [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
   public class HierarchyRootAttribute : StorageAttribute
   {
