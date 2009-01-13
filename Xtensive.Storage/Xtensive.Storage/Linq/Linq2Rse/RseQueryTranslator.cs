@@ -33,6 +33,7 @@ namespace Xtensive.Storage.Linq.Linq2Rse
     private readonly DomainModel model;
     private readonly FieldAccessTranslator fieldAccessTranslator;
     private readonly FieldAccessFlattener fieldAccessFlattener;
+    private readonly ProjectionBuilder projectionBuilder;
     private readonly ExpressionEvaluator evaluator;
     private readonly ParameterExtractor parameterExtractor;
 
@@ -417,9 +418,11 @@ namespace Xtensive.Storage.Linq.Linq2Rse
       throw new NotImplementedException();
     }
 
-    private Expression VisitSelect(Type type, Expression expression, LambdaExpression lambdaExpression)
+    private Expression VisitSelect(Type resultType, Expression expression, LambdaExpression lambdaExpression)
     {
-      throw new NotImplementedException();
+      var source = (ResultExpression)Visit(expression);
+      var shaper = projectionBuilder.Build(lambdaExpression);
+      return new ResultExpression(resultType, source.RecordSet, null, shaper.Compile(), true);
     }
 
     private Expression VisitWhere(Expression expression, LambdaExpression lambdaExpression)
@@ -444,6 +447,7 @@ namespace Xtensive.Storage.Linq.Linq2Rse
       parameterExtractor = new ParameterExtractor(evaluator);
       fieldAccessTranslator = new FieldAccessTranslator(this);
       fieldAccessFlattener = new FieldAccessFlattener(this);
+      projectionBuilder = new ProjectionBuilder(this);
     }
   }
 }

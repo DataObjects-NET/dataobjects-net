@@ -221,7 +221,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    public void NestedQueryTest() 
+    public void CorrelatedQueryTest() 
     {
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
@@ -240,7 +240,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    public void NestedQueryAnonymousTest() 
+    public void CorrelatedQueryAnonymousTest() 
     {
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
@@ -252,6 +252,25 @@ namespace Xtensive.Storage.Tests.Linq
                                      where s.Id == p.Supplier.Id
                                      select s.CompanyName
                        };
+          var list = result.ToList();
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void NestedQueryTest() 
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var products = Session.Current.All<Product>();
+          var result = from pd in (
+                         from p in products
+                         select new {p.Key, p.ProductName, TotalPrice = p.UnitPrice * p.UnitsInStock}
+                       )
+                       where pd.TotalPrice > 100
+                       select new {pd.Key, pd.ProductName};
+                       
           var list = result.ToList();
           t.Complete();
         }
