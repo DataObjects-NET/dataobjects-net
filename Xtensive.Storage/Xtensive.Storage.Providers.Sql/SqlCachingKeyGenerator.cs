@@ -22,13 +22,15 @@ namespace Xtensive.Storage.Providers.Sql
   public class SqlCachingKeyGenerator<TFieldType> : CachingKeyGenerator<TFieldType>
   {
     private SqlScalarRequest nextRequest;
+
     private readonly ISqlCompileUnit sqlNext;
+
     private readonly ISqlCompileUnit sqlInitialize;
 
     /// <inheritdoc/>
     protected override void CacheNext()
     {
-      List<TFieldType> result = new List<TFieldType>(FetchNext());
+      var result = new List<TFieldType>(FetchNext());
       foreach (TFieldType value in result)
         Cache.Enqueue(value);
     }
@@ -37,18 +39,18 @@ namespace Xtensive.Storage.Providers.Sql
     protected virtual IEnumerable<TFieldType> FetchNext()
     {
       TFieldType upperBound;
-      DomainHandler dh = (DomainHandler) Handlers.DomainHandler;
-      using (dh.OpenSession(SessionType.System)) {
+      var domainHandler = (DomainHandler) Handlers.DomainHandler;
+      using (domainHandler.OpenSession(SessionType.System)) {
         using (var t = Session.Current.OpenTransaction()) {
-          Sql.SessionHandler sh = (SessionHandler) Handlers.SessionHandler;
-          object value = sh.ExecuteScalar(nextRequest);
+          var sessionHandler = (SessionHandler) Handlers.SessionHandler;
+          object value = sessionHandler.ExecuteScalar(nextRequest);
           upperBound = (TFieldType)Convert.ChangeType(value, typeof (TFieldType));
           t.Complete();
         }
       }
 
       TFieldType current = upperBound;
-      List<TFieldType> results = new List<TFieldType>(CacheSize);
+      var results = new List<TFieldType>(CacheSize);
       for (int i = 0; i < CacheSize; i++) {
         results.Add(current);
         current = Arithmetic.Subtract(current, Arithmetic.One);
@@ -63,15 +65,14 @@ namespace Xtensive.Storage.Providers.Sql
       base.Initialize();
 
       nextRequest = new SqlScalarRequest(sqlNext);
-      DomainHandler dh = (DomainHandler) Handlers.DomainHandler;
-      dh.Compile(nextRequest);
+      var domainHandler = (DomainHandler) Handlers.DomainHandler;
+      domainHandler.Compile(nextRequest);
 
       if (sqlInitialize!=null) {
-        Sql.SessionHandler sh = (SessionHandler) Handlers.SessionHandler;
-        sh.ExecuteNonQuery(sqlInitialize);
+        var sessionHandler = (SessionHandler) Handlers.SessionHandler;
+        sessionHandler.ExecuteNonQuery(sqlInitialize);
       }
     }
-
 
     // Constructor
 
@@ -81,7 +82,18 @@ namespace Xtensive.Storage.Providers.Sql
     /// <param name="hierarchy">The hierarchy this instance will serve.</param>
     /// <param name="cacheSize">Size of the cache.</param>
     /// <param name="sqlNext">The <see cref="ISqlCompileUnit"/> statement that will be used for fetching next portion of unique values from database.</param>
-    /// <param name="sqlInitialize">The <see cref="ISqlCompileUnit"/> statement that will be used for underlying source of unique sequence creation in database.</param>
+    public SqlCachingKeyGenerator(HierarchyInfo hierarchy, int cacheSize, ISqlCompileUnit sqlNext)
+      : this(hierarchy, cacheSize, sqlNext, null)
+    {
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="hierarchy">The hierarchy this instance will serve.</param>
+    /// <param name="cacheSize">Size of the cache.</param>
+    /// <param name="sqlNext">The <see cref="ISqlCompileUnit"/> statement that will be used for fetching next portion of unique values from database.</param>
+    /// <param name="sqlInitialize">The <see cref="ISqlCompileUnit"/> statement that will be used for initializing sequence in database (if necessary).</param>
     public SqlCachingKeyGenerator(HierarchyInfo hierarchy, int cacheSize, ISqlCompileUnit sqlNext, ISqlCompileUnit sqlInitialize)
       : base(hierarchy, cacheSize)
     {

@@ -6,10 +6,10 @@
 
 using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Database;
-using Xtensive.Storage.Providers.Sql;
-using SqlFactory = Xtensive.Sql.Dom.Sql;
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Providers.Sql;
+using SqlFactory = Xtensive.Sql.Dom.Sql;
 
 namespace Xtensive.Storage.Providers.MsSql
 {
@@ -21,19 +21,13 @@ namespace Xtensive.Storage.Providers.MsSql
     /// <inheritdoc/>
     protected override KeyGenerator CreateGenerator<TFieldType>(HierarchyInfo hierarchy)
     {
-      var dh = (DomainHandler)Handlers.DomainHandler;
+      var dh = (DomainHandler) Handlers.DomainHandler;
       Schema schema = dh.Schema;
-      SqlBatch sqlCreate = null;
-      Table genTable = schema.Tables[hierarchy.MappingName];
       SqlValueType columnType = dh.ValueTypeMapper.BuildSqlValueType(hierarchy.KeyColumns[0]);
 
-      if (genTable == null) {
-        genTable = schema.CreateTable(hierarchy.MappingName);
-        var column = genTable.CreateColumn("ID", columnType);
-        column.SequenceDescriptor = new SequenceDescriptor(column, hierarchy.KeyGeneratorCacheSize, hierarchy.KeyGeneratorCacheSize);
-        sqlCreate = SqlFactory.Batch();
-        sqlCreate.Add(SqlFactory.Create(genTable));
-      }
+      var genTable = schema.CreateTable(hierarchy.MappingName);
+      var column = genTable.CreateColumn("ID", columnType);
+      column.SequenceDescriptor = new SequenceDescriptor(column, hierarchy.KeyGeneratorCacheSize, hierarchy.KeyGeneratorCacheSize);
 
       SqlBatch sqlNext = SqlFactory.Batch();
       SqlInsert insert = SqlFactory.Insert(SqlFactory.TableRef(genTable));
@@ -42,7 +36,7 @@ namespace Xtensive.Storage.Providers.MsSql
       select.Columns.Add(SqlFactory.Cast(SqlFactory.FunctionCall("SCOPE_IDENTITY"), columnType.DataType));
       sqlNext.Add(select);
 
-      return new SqlCachingKeyGenerator<TFieldType>(hierarchy, hierarchy.KeyGeneratorCacheSize, sqlNext, sqlCreate);
+      return new SqlCachingKeyGenerator<TFieldType>(hierarchy, hierarchy.KeyGeneratorCacheSize, sqlNext);
     }
   }
 }

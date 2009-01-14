@@ -58,17 +58,17 @@ namespace Xtensive.Storage.Building.Builders
             using (context.Domain.Handler.OpenSession(SessionType.System)) {
               using (var transactionScope = Transaction.Open()) {
                 BuildingScope.Context.SystemSessionHandler = Session.Current.Handler;
-                using (LogTemplate<Log>.InfoRegion(String.Format(Strings.LogBuildingX, typeof (DomainHandler).GetShortName()))) {
+                BuildingContext.Current.Domain.Handler.InitializeSessionRelatedData();
+                CreateGenerators();
+                using (LogTemplate<Log>.InfoRegion(String.Format(Strings.LogBuildingX, typeof(DomainHandler).GetShortName()))) {
                   StorageConformity storageConformity = context.Domain.Handler.CheckStorageConformity();
                   if (storageConformity==StorageConformity.SystemTypesMissing) {
                     context.Domain.Handler.BuildRecreate();
-                    CreateGenerators();
                   }
                   else if (!CheckAssemblyVersions())
                     using (new UpgradeScope(new UpgradeContext())) {
                       BuildRcModel();
                       context.Domain.Handler.BuildRecycling(); // Creating rcTables, copy data, create new structures
-                      CreateGenerators();
                       RunUpgradeScripts();
                       context.Domain.Handler.DeleteRecycledData();
                       UpdateAssembliesData();
@@ -88,7 +88,6 @@ namespace Xtensive.Storage.Building.Builders
                     default:
                       throw new NotImplementedException();
                     }
-                    CreateGenerators();
                   }
                 }
                 transactionScope.Complete();

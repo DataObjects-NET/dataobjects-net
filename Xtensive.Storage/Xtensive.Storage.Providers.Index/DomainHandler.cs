@@ -59,7 +59,8 @@ namespace Xtensive.Storage.Providers.Index
 
     public override void BuildPerform()
     {
-      throw new System.NotImplementedException();
+      BuildRecreate();
+      // TODO: throw new System.NotImplementedException();
     }
 
     #region Private / internal methods

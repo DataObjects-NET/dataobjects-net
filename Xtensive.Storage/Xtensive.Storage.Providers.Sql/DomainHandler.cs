@@ -28,6 +28,8 @@ namespace Xtensive.Storage.Providers.Sql
 {
   public abstract class DomainHandler : Providers.DomainHandler
   {
+    private Schema existingSchema;
+
     public DomainModelMapping MappingSchema { get; private set; }
 
     public Schema Schema { get; private set; }
@@ -57,21 +59,10 @@ namespace Xtensive.Storage.Providers.Sql
     public override void BuildRecreate()
     {
       var sessionHandler = ((SessionHandler) BuildingScope.Context.SystemSessionHandler);
-      SqlDriver = sessionHandler.Connection.Driver;
-      MappingSchema = new DomainModelMapping();
-      SqlRequestCache = ThreadSafeDictionary<SqlRequestBuilderTask, SqlUpdateRequest>.Create(new object());
-      SqlRequestBuilder = Handlers.HandlerFactory.CreateHandler<SqlRequestBuilder>();
-      SqlRequestBuilder.Initialize();
-      ValueTypeMapper = Handlers.HandlerFactory.CreateHandler<SqlValueTypeMapper>();
-      ValueTypeMapper.Initialize();
       var modelProvider = new SqlModelProvider(sessionHandler.Connection, sessionHandler.Transaction);
-      SqlModel existingModel = SqlModel.Build(modelProvider);
-      string serverName = existingModel.DefaultServer.Name;
-      string catalogName = Handlers.Domain.Configuration.ConnectionInfo.Resource;
-      string schemaName = existingModel.DefaultServer.Catalogs[catalogName].DefaultSchema.Name;
-      SqlModel newModel = BuildSqlModel(serverName, catalogName, schemaName);
-      ISqlCompileUnit syncScript = GenerateSyncCatalogScript(Handlers.Domain.Model, existingModel.DefaultServer.Catalogs[catalogName], newModel.DefaultServer.Catalogs[catalogName]);
+      ISqlCompileUnit syncScript = GenerateSyncCatalogScript(Handlers.Domain.Model, existingSchema, Schema);
       sessionHandler.ExecuteNonQuery(syncScript);
+      string catalogName = Handlers.Domain.Configuration.ConnectionInfo.Resource;
       Schema = SqlModel.Build(modelProvider).DefaultServer.Catalogs[catalogName].DefaultSchema;
     }
 
@@ -121,23 +112,45 @@ namespace Xtensive.Storage.Providers.Sql
     {
       base.Initialize();
       ConnectionProvider = new SqlConnectionProvider();
+      MappingSchema = new DomainModelMapping();
+      SqlRequestCache = ThreadSafeDictionary<SqlRequestBuilderTask, SqlUpdateRequest>.Create(new object());
+      SqlRequestBuilder = Handlers.HandlerFactory.CreateHandler<SqlRequestBuilder>();
+      SqlRequestBuilder.Initialize();
+    }
+
+    public override void InitializeSessionRelatedData()
+    {
+      base.InitializeSessionRelatedData();
+      SqlDriver = ((SessionHandler)BuildingContext.Current.SystemSessionHandler).Connection.Driver;
+      ValueTypeMapper = Handlers.HandlerFactory.CreateHandler<SqlValueTypeMapper>();
+      ValueTypeMapper.Initialize();
+
+      var sessionHandler = ((SessionHandler)BuildingScope.Context.SystemSessionHandler);
+      var modelProvider = new SqlModelProvider(sessionHandler.Connection, sessionHandler.Transaction);
+      SqlModel existingModel = SqlModel.Build(modelProvider);
+      string serverName = existingModel.DefaultServer.Name;
+      string catalogName = Handlers.Domain.Configuration.ConnectionInfo.Resource;
+      existingSchema = existingModel.DefaultServer.Catalogs[catalogName].DefaultSchema;
+      string schemaName = existingSchema.Name;
+
+      var sqlModel = new SqlModel();
+      Server server = sqlModel.CreateServer(serverName);
+      Catalog catalog = server.CreateCatalog(catalogName);
+      Schema = catalog.CreateSchema(schemaName);
+      BuildNewSchema();
     }
 
     #region Build related methods
 
-    protected virtual SqlModel BuildSqlModel(string serverName, string catalogName, string schemaName)
+    protected virtual void BuildNewSchema()
     {
-      var sqlModel = new SqlModel();
-      Server server = sqlModel.CreateServer(serverName);
-      Catalog catalog = server.CreateCatalog(catalogName);
-      Schema schema = catalog.CreateSchema(schemaName);
       DomainModel domainModel = Handlers.Domain.Model;
       var tables = new Dictionary<IndexInfo, Table>();
       foreach (TypeInfo type in domainModel.Types) {
         IndexInfo primaryIndex = type.Indexes.FindFirst(IndexAttributes.Real | IndexAttributes.Primary);
         if (primaryIndex==null || MappingSchema[primaryIndex]!=null)
           continue;
-        Table table = schema.CreateTable(Domain.NameBuilder.BuildTableName(primaryIndex));
+        Table table = Schema.CreateTable(Domain.NameBuilder.BuildTableName(primaryIndex));
         tables.Add(primaryIndex, table);
         PrimaryIndexMapping pim = MappingSchema.RegisterMapping(primaryIndex, table);
 
@@ -148,15 +161,14 @@ namespace Xtensive.Storage.Providers.Sql
         BuildForeignKeys(domainModel.Associations, tables);
       if ((Handlers.Domain.Configuration.ForeignKeyMode & ForeignKeyMode.Hierarchy) > 0)
         BuildHierarchyReferences(domainModel.Types.Entities, tables);
-      return sqlModel;
+
     }
 
-
-    protected virtual ISqlCompileUnit GenerateSyncCatalogScript(DomainModel domainModel, Catalog existingCatalog, Catalog newCatalog)
+    protected virtual ISqlCompileUnit GenerateSyncCatalogScript(DomainModel domainModel, Schema existingSchema, Schema newSchema)
     {
       SqlBatch batch = SqlFactory.Batch();
-      batch.Add(GenerateClearCatalogScript(existingCatalog));
-      batch.Add(GenerateBuildCatalogScript(newCatalog));
+      batch.Add(GenerateClearCatalogScript(existingSchema));
+      batch.Add(GenerateBuildCatalogScript(newSchema));
       return batch;
     }
 
@@ -304,10 +316,9 @@ namespace Xtensive.Storage.Providers.Sql
         table.CreatePrimaryKey(primaryIndex.Name, keyColumns.ToArray());
     }
 
-    private static SqlBatch GenerateClearCatalogScript(Catalog catalog)
+    private static SqlBatch GenerateClearCatalogScript(Schema schema)
     {
       SqlBatch batch = SqlFactory.Batch();
-      Schema schema = catalog.DefaultSchema;
       foreach (View view in schema.Views)
         batch.Add(SqlFactory.Drop(view));
       foreach (Table table in schema.Tables) {
@@ -324,11 +335,11 @@ namespace Xtensive.Storage.Providers.Sql
       return batch;
     }
 
-    private static SqlBatch GenerateBuildCatalogScript(Catalog catalog)
+    private static SqlBatch GenerateBuildCatalogScript(Schema schema)
     {
       SqlBatch batch = SqlFactory.Batch();
       var constraints = new List<Pair<Table, List<TableConstraint>>>();
-      foreach (Table table in catalog.DefaultSchema.Tables) {
+      foreach (Table table in schema.Tables) {
         var tableConstraints = new List<TableConstraint>(table.TableConstraints.Where(tableConstraint => tableConstraint is ForeignKey));
         constraints.Add(new Pair<Table, List<TableConstraint>>(table, tableConstraints));
         foreach (TableConstraint foreignKeyConstraint in tableConstraints)
@@ -344,5 +355,6 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     #endregion
+
   }
 }

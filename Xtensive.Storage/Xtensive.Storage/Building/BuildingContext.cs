@@ -121,10 +121,7 @@ namespace Xtensive.Storage.Building
     {
       Log = StringLog.Create("DomainBuilder");
       Configuration = configuration;
-      SkippedTypes = new HashSet<Type>();
-      SkippedTypes.Add(typeof (Entity));
-      SkippedTypes.Add(typeof (IEntity));
-      SkippedTypes.Add(typeof (Structure));
+      SkippedTypes = new HashSet<Type> {typeof (Entity), typeof (IEntity), typeof (Structure)};
       PairedAssociations = new List<Pair<AssociationInfo, string>>();
       CircularReferenceFinder = new CircularReferenceFinder<Type>(TypeHelper.GetShortName);
       DiscardedAssociations = new HashSet<AssociationInfo>();

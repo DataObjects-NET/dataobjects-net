@@ -4,6 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2008.09.10
 
+using Xtensive.Core.Collections;
 using Xtensive.Sql.Common;
 using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Database;
@@ -22,19 +23,13 @@ namespace Xtensive.Storage.Providers.VistaDb
     /// <inheritdoc/>
     protected override KeyGenerator CreateGenerator<TFieldType>(HierarchyInfo hierarchy)
     {
-      DomainHandler dh = (DomainHandler)Handlers.DomainHandler;
+      var dh = (DomainHandler)Handlers.DomainHandler;
       Schema schema = dh.Schema;
-      SqlBatch sqlCreate = null;
-      Table genTable = schema.Tables[hierarchy.MappingName];
       SqlValueType columnType = dh.ValueTypeMapper.BuildSqlValueType(hierarchy.KeyColumns[0]);
 
-      if (genTable == null) {
-        genTable = schema.CreateTable(hierarchy.MappingName);
-        var column = genTable.CreateColumn("ID", columnType);
-        column.SequenceDescriptor = new SequenceDescriptor(column, hierarchy.KeyGeneratorCacheSize, hierarchy.KeyGeneratorCacheSize);
-        sqlCreate = SqlFactory.Batch();
-        sqlCreate.Add(SqlFactory.Create(genTable));
-      }
+      Table genTable = schema.CreateTable(hierarchy.MappingName);
+      var column = genTable.CreateColumn("ID", columnType);
+      column.SequenceDescriptor = new SequenceDescriptor(column, hierarchy.KeyGeneratorCacheSize, hierarchy.KeyGeneratorCacheSize);
 
       SqlBatch sqlNext = SqlFactory.Batch();
       SqlInsert insert = SqlFactory.Insert(SqlFactory.TableRef(genTable));
@@ -43,7 +38,7 @@ namespace Xtensive.Storage.Providers.VistaDb
       select.Columns.Add(SqlFactory.Variable("@IDENTITY", columnType.DataType));
       sqlNext.Add(select);
 
-      return new SqlCachingKeyGenerator<TFieldType>(hierarchy, hierarchy.KeyGeneratorCacheSize, sqlNext, sqlCreate);
+      return new SqlCachingKeyGenerator<TFieldType>(hierarchy, hierarchy.KeyGeneratorCacheSize, sqlNext);
     }
   }
 }

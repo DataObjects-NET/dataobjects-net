@@ -108,5 +108,10 @@ namespace Xtensive.Storage.Providers
       Compiler = BuildCompiler();
       CompilationContext = new CompilationContext(new SitePreferenceCompiler(Compiler, ClientCompiler));
     }
+
+    public virtual void InitializeSessionRelatedData()
+    {
+      
+    }
   }
 }
