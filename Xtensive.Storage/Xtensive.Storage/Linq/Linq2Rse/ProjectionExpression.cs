@@ -17,12 +17,10 @@ using System.Linq;
 namespace Xtensive.Storage.Linq.Expressions
 {
   [Serializable]
-  internal sealed class ResultExpression : Expression
+  internal sealed class ProjectionExpression : Expression
   {
     public RecordSet RecordSet { get; private set; }
-    // TODO: => IsSingleResult
-    public bool IsMultipleResults { get; private set; }
-    public Func<RecordSet, object> Shaper { get; private set; }
+    public Expression<Func<RecordSet, object>> Projector { get; private set; }
     public Dictionary<TypeInfo, TypeMapping> Mappings { get; private set; }
 
     public int GetColumnIndex(IEnumerable<MappingPathItem> fieldPath)
@@ -54,13 +52,12 @@ namespace Xtensive.Storage.Linq.Expressions
 
     // Constructors
 
-    public ResultExpression(Type type, RecordSet recordSet, Dictionary<TypeInfo, TypeMapping> mappings, Func<RecordSet,object> shaper, bool isMultiple)
+    public ProjectionExpression(Type type, RecordSet recordSet, Dictionary<TypeInfo, TypeMapping> mappings, Expression<Func<RecordSet, object>> projector)
       : base(ExpressionType.Constant, type)
     {
       RecordSet = recordSet;
       Mappings = mappings;
-      Shaper = shaper;
-      IsMultipleResults = isMultiple;
+      Projector = projector;
     }
   }
 }

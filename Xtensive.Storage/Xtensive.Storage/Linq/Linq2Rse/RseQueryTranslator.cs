@@ -57,9 +57,9 @@ namespace Xtensive.Storage.Linq.Linq2Rse
       get { return parameterExtractor; }
     }
 
-    public ResultExpression Translate()
+    public ProjectionExpression Translate()
     {
-      return (ResultExpression) Visit(query);
+      return (ProjectionExpression) Visit(query);
     }
 
     protected bool IsRoot(Expression expression)
@@ -91,12 +91,11 @@ namespace Xtensive.Storage.Linq.Linq2Rse
             fieldMapping.Add(mapped.ColumnInfoRef.FieldName, mapped.Index);
         }
         
-        return new ResultExpression(
+        return new ProjectionExpression(
           c.Type,
           recordSet,
           mappings,
-          null,
-          true);
+          null);
       }
       return base.VisitConstant(c);
     }
@@ -247,18 +246,18 @@ namespace Xtensive.Storage.Linq.Linq2Rse
     {
       if (!isRoot)
         throw new NotImplementedException();
-      ResultExpression result = predicate!=null ? 
-        (ResultExpression) VisitWhere(source, predicate) : 
-        (ResultExpression) Visit(source);
+      ProjectionExpression projection = predicate!=null ? 
+        (ProjectionExpression) VisitWhere(source, predicate) : 
+        (ProjectionExpression) Visit(source);
       RecordSet recordSet = null;
       switch (method.Name) {
       case WellKnown.Queryable.First:
       case WellKnown.Queryable.FirstOrDefault:
-        recordSet = result.RecordSet.Take(1);
+        recordSet = projection.RecordSet.Take(1);
         break;
       case WellKnown.Queryable.Single:
       case WellKnown.Queryable.SingleOrDefault:
-        recordSet = result.RecordSet.Take(2);
+        recordSet = projection.RecordSet.Take(2);
         break;
       }
       var enumerableType = typeof(Enumerable);
@@ -271,8 +270,7 @@ namespace Xtensive.Storage.Linq.Linq2Rse
       var rs = materializer.Parameters[0];
       var body = Expression.Convert(Expression.Call(null, enumerableMethod, Expression.Call(null, castMethod, materializer.Body)), typeof(object));
       var le = Expression.Lambda(body, rs);
-      var shaper = (Func<RecordSet, object>) le.Compile();
-      return new ResultExpression(method.ReturnType, recordSet, result.Mappings, shaper, false);
+      return new ProjectionExpression(method.ReturnType, recordSet, projection.Mappings, (Expression<Func<RecordSet, object>>) le);
     }
 
     private Expression VisitTake(Expression source, Expression take)
@@ -296,18 +294,18 @@ namespace Xtensive.Storage.Linq.Linq2Rse
         throw new NotImplementedException();
       string name = "$Count";
       AggregateType type = AggregateType.Count;
-      Func<RecordSet, object> shaper;
-      ResultExpression result;
+      Expression<Func<RecordSet, object>> shaper;
+      ProjectionExpression projection;
       int aggregateColumn = 0;
       if (method.Name == WellKnown.Queryable.Count) {
         shaper = set => (int)(set.First().GetValue<long>(0));
         if (argument != null)
-          result = (ResultExpression) VisitWhere(source, argument);
+          projection = (ProjectionExpression) VisitWhere(source, argument);
         else
-          result = (ResultExpression) Visit(source);
+          projection = (ProjectionExpression) Visit(source);
       }
       else {
-        result = (ResultExpression)Visit(source);
+        projection = (ProjectionExpression)Visit(source);
         if (argument==null) 
           throw new NotSupportedException();
 
@@ -336,8 +334,8 @@ namespace Xtensive.Storage.Linq.Linq2Rse
         }
       }
 
-      var recordSet = result.RecordSet.Aggregate(null, new AggregateColumnDescriptor(name, aggregateColumn, type));
-      return new ResultExpression(result.Type, recordSet, null, shaper, false);
+      var recordSet = projection.RecordSet.Aggregate(null, new AggregateColumnDescriptor(name, aggregateColumn, type));
+      return new ProjectionExpression(projection.Type, recordSet, null, shaper);
     }
 
     private Expression VisitGroupBy(Expression source, LambdaExpression keySelector, LambdaExpression elementSelector, LambdaExpression resultSelector)
@@ -357,8 +355,8 @@ namespace Xtensive.Storage.Linq.Linq2Rse
 
     private Expression VisitJoin(Type resultType, Expression outerSource, Expression innerSource, LambdaExpression outerKey, LambdaExpression innerKey, LambdaExpression resultSelector)
     {
-      var outer = (ResultExpression)Visit(outerSource);
-      var inner = (ResultExpression)Visit(innerSource);
+      var outer = (ProjectionExpression)Visit(outerSource);
+      var inner = (ProjectionExpression)Visit(innerSource);
       outer = fieldAccessFlattener.FlattenFieldAccess(outer, outerKey);
       inner = fieldAccessFlattener.FlattenFieldAccess(inner, innerKey);
       var outerKeyPath = fieldAccessTranslator.Translate(outerKey.Body);
@@ -408,7 +406,7 @@ namespace Xtensive.Storage.Linq.Linq2Rse
       var recordSet = outer.RecordSet.Join(innerRecordSet, keyPairs.ToArray());
 //      Dictionary<TypeInfo, TypeMapping> typeMappings = null;
 //      Func<RecordSet, object> shaper = null;
-//      return new ResultExpression(resultType, recordSet, typeMappings, shaper, true);
+//      return new ProjectionExpression(resultType, recordSet, typeMappings, shaper, true);
 
       throw new NotImplementedException(ExpressionWriter.WriteToString(query));
     }
@@ -420,18 +418,18 @@ namespace Xtensive.Storage.Linq.Linq2Rse
 
     private Expression VisitSelect(Type resultType, Expression expression, LambdaExpression lambdaExpression)
     {
-      var source = (ResultExpression)Visit(expression);
+      var source = (ProjectionExpression)Visit(expression);
       var shaper = projectionBuilder.Build(lambdaExpression);
-      return new ResultExpression(resultType, source.RecordSet, null, shaper.Compile(), true);
+      return new ProjectionExpression(resultType, source.RecordSet, null, shaper);
     }
 
     private Expression VisitWhere(Expression expression, LambdaExpression lambdaExpression)
     {
-      var source = (ResultExpression)Visit(expression);
+      var source = (ProjectionExpression)Visit(expression);
       source = fieldAccessFlattener.FlattenFieldAccess(source, lambdaExpression);
       var predicate = fieldAccessTranslator.Translate(source, lambdaExpression);
       var recordSet = source.RecordSet.Filter((Expression<Func<Tuple, bool>>)predicate);
-      return new ResultExpression(expression.Type, recordSet, source.Mappings, null, true);
+      return new ProjectionExpression(expression.Type, recordSet, source.Mappings, null);
 
     }
 

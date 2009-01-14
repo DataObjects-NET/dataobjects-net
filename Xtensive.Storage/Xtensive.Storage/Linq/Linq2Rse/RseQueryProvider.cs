@@ -20,11 +20,13 @@ namespace Xtensive.Storage.Linq.Linq2Rse
     {
       var compiler = new RseQueryTranslator(this, expression);
       var result = compiler.Translate();
-      var shaper = result.Shaper;
+      var shaper = result.Projector;
       var recordSet = result.RecordSet;
-      // TODO: Always use Shaper
-      if (shaper != null)
-        return shaper(recordSet);
+      // TODO: Always use Projector
+      if (shaper != null) {
+        var compiled = shaper.Compile();
+        return compiled(recordSet);
+      }
 
       var arguments = expression.Type.GetGenericArguments();
       return recordSet.ToEntities(arguments[0]);

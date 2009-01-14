@@ -23,14 +23,14 @@ namespace Xtensive.Storage.Linq.Linq2Rse
   internal class FieldAccessFlattener : ExpressionVisitor
   {
     private readonly RseQueryTranslator translator;
-    private ResultExpression result;
+    private ProjectionExpression projection;
 
 
-    public ResultExpression FlattenFieldAccess(ResultExpression source, LambdaExpression le)
+    public ProjectionExpression FlattenFieldAccess(ProjectionExpression source, LambdaExpression le)
     {
-      result = source;
+      projection = source;
       Visit(le);
-      return result;
+      return projection;
     }
 
     protected override Expression VisitMemberAccess(MemberExpression m)
@@ -70,23 +70,23 @@ namespace Xtensive.Storage.Linq.Linq2Rse
         if (typesStack.Count > 0)
           typesPath.Push(new Pair<TypeInfo, string>(typesStack.Peek(), fieldName));
         List<Pair<TypeInfo, string>> list = typesPath.ToList();
-        var mapping = result.Mappings[parameterType];
+        var mapping = projection.Mappings[parameterType];
         foreach (var pair in list) {
           TypeMapping innerMapping;
           if(!mapping.JoinedRelations.TryGetValue(pair.Second, out innerMapping)) {
             var joinedIndex = pair.First.Indexes.PrimaryIndex;
             var joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(translator.GetNextAlias());
             var keyPairs = pair.First.Hierarchy.KeyFields.Select((kf,i) => new Pair<int>(mapping.FieldMapping[pair.Second + "." + kf.Key], i)).ToArray();
-            var rs = result.RecordSet.Join(joinedRs, JoinType.Default, keyPairs);
+            var rs = projection.RecordSet.Join(joinedRs, JoinType.Default, keyPairs);
             var fieldMapping = new Dictionary<string, int>();
             var joinedMapping = new TypeMapping(pair.First, fieldMapping, new Dictionary<string, TypeMapping>());
             mapping.JoinedRelations.Add(pair.Second, joinedMapping);
             foreach (var column in joinedRs.Header.Columns) {
               var mapped = column as MappedColumn;
               if (mapped != null)
-                fieldMapping.Add(mapped.ColumnInfoRef.FieldName, mapped.Index + result.RecordSet.Header.Columns.Count);
+                fieldMapping.Add(mapped.ColumnInfoRef.FieldName, mapped.Index + projection.RecordSet.Header.Columns.Count);
             }
-            result = new ResultExpression(result.Type, rs, result.Mappings, result.Shaper, true);
+            projection = new ProjectionExpression(projection.Type, rs, projection.Mappings, projection.Projector);
 
           }
           mapping = innerMapping;

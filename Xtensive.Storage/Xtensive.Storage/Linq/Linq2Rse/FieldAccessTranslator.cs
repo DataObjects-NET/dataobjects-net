@@ -24,14 +24,14 @@ namespace Xtensive.Storage.Linq.Linq2Rse
   internal class FieldAccessTranslator : ExpressionVisitor
   {
     private readonly RseQueryTranslator translator;
-    private ResultExpression source;
+    private ProjectionExpression source;
     private ParameterExpression parameter;
     private static readonly MethodInfo nonGenericAccessor;
     private static readonly MethodInfo genericAccessor;
     private static readonly PropertyInfo keyValueAccessor;
     private static readonly MemberInfo identifierAccessor;
 
-    public LambdaExpression Translate(ResultExpression source, LambdaExpression le)
+    public LambdaExpression Translate(ProjectionExpression source, LambdaExpression le)
     {
       this.source = source;
       parameter = Expression.Parameter(typeof(Tuple), "t");
