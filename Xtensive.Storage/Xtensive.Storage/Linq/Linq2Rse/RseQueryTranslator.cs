@@ -83,7 +83,7 @@ namespace Xtensive.Storage.Linq.Linq2Rse
         var index = type.Indexes.PrimaryIndex;
 
         var fieldMapping = new Dictionary<string, int>();
-        var mappings = new Dictionary<TypeInfo, TypeMapping> {{type, new TypeMapping(type, fieldMapping, new Dictionary<string, TypeMapping>())}};
+        var mapping = new TypeMapping(fieldMapping, new Dictionary<string, TypeMapping>());
         var recordSet = IndexProvider.Get(index).Result;
         foreach (var column in recordSet.Header.Columns) {
           var mapped = column as MappedColumn;
@@ -94,7 +94,7 @@ namespace Xtensive.Storage.Linq.Linq2Rse
         return new ProjectionExpression(
           c.Type,
           recordSet,
-          mappings,
+          mapping,
           null);
       }
       return base.VisitConstant(c);
@@ -270,7 +270,7 @@ namespace Xtensive.Storage.Linq.Linq2Rse
       var rs = materializer.Parameters[0];
       var body = Expression.Convert(Expression.Call(null, enumerableMethod, Expression.Call(null, castMethod, materializer.Body)), typeof(object));
       var le = Expression.Lambda(body, rs);
-      return new ProjectionExpression(method.ReturnType, recordSet, projection.Mappings, (Expression<Func<RecordSet, object>>) le);
+      return new ProjectionExpression(method.ReturnType, recordSet, projection.Mapping, (Expression<Func<RecordSet, object>>) le);
     }
 
     private Expression VisitTake(Expression source, Expression take)
@@ -388,7 +388,7 @@ namespace Xtensive.Storage.Linq.Linq2Rse
           pathItem = innerKeyPath.ExtractTail();
         foreach (var field in type.Hierarchy.KeyFields.Keys) {
           var fieldName = pathItem == null ? field.Name : pathItem.JoinedFieldName + "." + field.Name;
-          var keyItem = new MappingPathItem(pathItem==null ? type : pathItem.Type, fieldName, null);
+          var keyItem = new MappingPathItem(fieldName, null);
           outerKeyPath.AddTail(keyItem);
           innerKeyPath.AddTail(keyItem);
           keyPairs.Add(new Pair<int>(
@@ -429,8 +429,7 @@ namespace Xtensive.Storage.Linq.Linq2Rse
       source = fieldAccessFlattener.FlattenFieldAccess(source, lambdaExpression);
       var predicate = fieldAccessTranslator.Translate(source, lambdaExpression);
       var recordSet = source.RecordSet.Filter((Expression<Func<Tuple, bool>>)predicate);
-      return new ProjectionExpression(expression.Type, recordSet, source.Mappings, null);
-
+      return new ProjectionExpression(expression.Type, recordSet, source.Mapping, null);
     }
 
 

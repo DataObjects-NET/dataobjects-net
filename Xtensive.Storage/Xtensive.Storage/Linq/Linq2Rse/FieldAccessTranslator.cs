@@ -62,9 +62,7 @@ namespace Xtensive.Storage.Linq.Linq2Rse
             if (type.Fields[fieldName].IsPrimaryKey)
               fieldName = member.Name + "." + fieldName;
             else {
-              var pathItem = new MappingPathItem(
-                type,
-                isJoined ? null : fieldName, 
+              var pathItem = new MappingPathItem(isJoined ? null : fieldName, 
                 isJoined ? fieldName : null);
               result.AddHead(pathItem);
               fieldName = member.Name;
@@ -78,9 +76,7 @@ namespace Xtensive.Storage.Linq.Linq2Rse
       if (expression.NodeType == ExpressionType.Parameter) {
         var type = translator.Model.Types[expression.Type];
         if (fieldName != null) {
-          var pathItem = new MappingPathItem(
-            type,
-            isJoined ? null : fieldName,
+          var pathItem = new MappingPathItem(isJoined ? null : fieldName,
             isJoined ? fieldName : null);
           result.AddHead(pathItem);
         }
@@ -150,7 +146,7 @@ namespace Xtensive.Storage.Linq.Linq2Rse
         var keyColumns = type.Hierarchy.KeyFields.Select((kf, i) => new { FieldName = kf.Key.Name, ParameterIndex = i });
         foreach (var pair in keyColumns) {
           var fieldName = pathItem == null ? pair.FieldName : pathItem.JoinedFieldName + "." + pair.FieldName;
-          var keyItem = new MappingPathItem(pathItem == null ? type : pathItem.Type, fieldName, null);
+          var keyItem = new MappingPathItem(fieldName, null);
           fieldStack.AddTail(keyItem);
           var columnIndex = source.GetColumnIndex(fieldStack);
           fieldStack.ExtractTail();

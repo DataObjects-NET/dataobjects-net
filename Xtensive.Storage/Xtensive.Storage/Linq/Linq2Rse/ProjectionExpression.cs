@@ -21,7 +21,7 @@ namespace Xtensive.Storage.Linq.Expressions
   {
     public RecordSet RecordSet { get; private set; }
     public Expression<Func<RecordSet, object>> Projector { get; private set; }
-    public Dictionary<TypeInfo, TypeMapping> Mappings { get; private set; }
+    public TypeMapping Mapping { get; private set; }
 
     public int GetColumnIndex(IEnumerable<MappingPathItem> fieldPath)
     {
@@ -30,7 +30,7 @@ namespace Xtensive.Storage.Linq.Expressions
       if (pathList.Count == 0)
         return result;
       var first = pathList[0];
-      var mapping = Mappings[first.Type];
+      var mapping = Mapping;
       if (first.FieldName != null) {
         if (mapping.FieldMapping.TryGetValue(first.FieldName, out result))
           return result;
@@ -52,11 +52,11 @@ namespace Xtensive.Storage.Linq.Expressions
 
     // Constructors
 
-    public ProjectionExpression(Type type, RecordSet recordSet, Dictionary<TypeInfo, TypeMapping> mappings, Expression<Func<RecordSet, object>> projector)
+    public ProjectionExpression(Type type, RecordSet recordSet, TypeMapping mapping, Expression<Func<RecordSet, object>> projector)
       : base(ExpressionType.Constant, type)
     {
       RecordSet = recordSet;
-      Mappings = mappings;
+      Mapping = mapping;
       Projector = projector;
     }
   }

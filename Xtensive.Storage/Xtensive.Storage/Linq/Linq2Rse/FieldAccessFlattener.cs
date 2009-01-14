@@ -70,7 +70,7 @@ namespace Xtensive.Storage.Linq.Linq2Rse
         if (typesStack.Count > 0)
           typesPath.Push(new Pair<TypeInfo, string>(typesStack.Peek(), fieldName));
         List<Pair<TypeInfo, string>> list = typesPath.ToList();
-        var mapping = projection.Mappings[parameterType];
+        var mapping = projection.Mapping;
         foreach (var pair in list) {
           TypeMapping innerMapping;
           if(!mapping.JoinedRelations.TryGetValue(pair.Second, out innerMapping)) {
@@ -79,14 +79,14 @@ namespace Xtensive.Storage.Linq.Linq2Rse
             var keyPairs = pair.First.Hierarchy.KeyFields.Select((kf,i) => new Pair<int>(mapping.FieldMapping[pair.Second + "." + kf.Key], i)).ToArray();
             var rs = projection.RecordSet.Join(joinedRs, JoinType.Default, keyPairs);
             var fieldMapping = new Dictionary<string, int>();
-            var joinedMapping = new TypeMapping(pair.First, fieldMapping, new Dictionary<string, TypeMapping>());
+            var joinedMapping = new TypeMapping(fieldMapping, new Dictionary<string, TypeMapping>());
             mapping.JoinedRelations.Add(pair.Second, joinedMapping);
             foreach (var column in joinedRs.Header.Columns) {
               var mapped = column as MappedColumn;
               if (mapped != null)
                 fieldMapping.Add(mapped.ColumnInfoRef.FieldName, mapped.Index + projection.RecordSet.Header.Columns.Count);
             }
-            projection = new ProjectionExpression(projection.Type, rs, projection.Mappings, projection.Projector);
+            projection = new ProjectionExpression(projection.Type, rs, projection.Mapping, projection.Projector);
 
           }
           mapping = innerMapping;
