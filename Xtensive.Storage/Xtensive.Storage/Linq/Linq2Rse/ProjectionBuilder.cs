@@ -6,6 +6,8 @@
 
 using System;
 using System.Linq.Expressions;
+using Xtensive.Core.Tuples;
+using Xtensive.Storage.Linq.Expressions;
 using Xtensive.Storage.Linq.Expressions.Visitors;
 using Xtensive.Storage.Rse;
 
@@ -14,10 +16,15 @@ namespace Xtensive.Storage.Linq.Linq2Rse
   internal class ProjectionBuilder : ExpressionVisitor
   {
     private readonly RseQueryTranslator translator;
+    private ParameterExpression parameter;
 
-    public Expression<Func<RecordSet, object>> Build(LambdaExpression le)
+    public ProjectionExpression Build(ProjectionExpression source, Expression body)
     {
-      throw new NotImplementedException();
+      parameter = Expression.Parameter(typeof(RecordSet), "rs");
+      var newBody = Expression.Convert(Visit(body), typeof(object));
+      var lambda = Expression.Lambda(newBody, parameter);
+//      source.RecordSet.Calculate()
+      return new ProjectionExpression(body.Type, null, null, (Expression<Func<RecordSet, object>>) lambda);
     }
 
 

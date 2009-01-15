@@ -36,6 +36,7 @@ namespace Xtensive.Storage.Linq.Linq2Rse
     private readonly ProjectionBuilder projectionBuilder;
     private readonly ExpressionEvaluator evaluator;
     private readonly ParameterExtractor parameterExtractor;
+    private readonly Dictionary<ParameterExpression, ProjectionExpression> map;
 
     public Expression Query
     {
@@ -55,6 +56,11 @@ namespace Xtensive.Storage.Linq.Linq2Rse
     public ParameterExtractor ParameterExtractor
     {
       get { return parameterExtractor; }
+    }
+
+    public ProjectionExpression GetProjection(ParameterExpression pe)
+    {
+      return map[pe];
     }
 
     public ProjectionExpression Translate()
@@ -309,6 +315,7 @@ namespace Xtensive.Storage.Linq.Linq2Rse
         if (argument==null) 
           throw new NotSupportedException();
 
+        map[argument.Parameters[0]] = projection;
 //        var column = argument.Body as FieldAccessExpression;
 //        if (column==null)
 //          throw new NotSupportedException();
@@ -416,18 +423,20 @@ namespace Xtensive.Storage.Linq.Linq2Rse
       throw new NotImplementedException();
     }
 
-    private Expression VisitSelect(Type resultType, Expression expression, LambdaExpression lambdaExpression)
+    private Expression VisitSelect(Type resultType, Expression expression, LambdaExpression le)
     {
       var source = (ProjectionExpression)Visit(expression);
-      var shaper = projectionBuilder.Build(lambdaExpression);
-      return new ProjectionExpression(resultType, source.RecordSet, null, shaper);
+      map[le.Parameters[0]] = source;
+      var result = projectionBuilder.Build(source, le.Body);
+      return result;
     }
 
-    private Expression VisitWhere(Expression expression, LambdaExpression lambdaExpression)
+    private Expression VisitWhere(Expression expression, LambdaExpression le)
     {
       var source = (ProjectionExpression)Visit(expression);
-      source = fieldAccessFlattener.FlattenFieldAccess(source, lambdaExpression);
-      var predicate = fieldAccessTranslator.Translate(source, lambdaExpression);
+      map[le.Parameters[0]] = source;
+      source = fieldAccessFlattener.FlattenFieldAccess(source, le);
+      var predicate = fieldAccessTranslator.Translate(source, le);
       var recordSet = source.RecordSet.Filter((Expression<Func<Tuple, bool>>)predicate);
       return new ProjectionExpression(expression.Type, recordSet, source.Mapping, null);
     }
@@ -440,6 +449,7 @@ namespace Xtensive.Storage.Linq.Linq2Rse
       model = provider.Model;
       this.provider = provider;
       this.query = query;
+      map = new Dictionary<ParameterExpression, ProjectionExpression>();
       evaluator = new ExpressionEvaluator(query);
       parameterExtractor = new ParameterExtractor(evaluator);
       fieldAccessTranslator = new FieldAccessTranslator(this);
