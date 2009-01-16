@@ -4,10 +4,14 @@
 // Created by: Alexey Kochetov
 // Created:    2009.01.12
 
+using System;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using NUnit.Framework;
+using Xtensive.Core.Tuples;
 using Xtensive.Storage.Configuration;
+using Xtensive.Storage.Rse;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 
 namespace Xtensive.Storage.Tests.Linq

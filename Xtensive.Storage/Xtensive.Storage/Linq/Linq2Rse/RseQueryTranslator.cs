@@ -281,12 +281,16 @@ namespace Xtensive.Storage.Linq.Linq2Rse
 
     private Expression VisitTake(Expression source, Expression take)
     {
-      throw new NotImplementedException();
+      var projection = (ProjectionExpression)Visit(source);
+      var rs = projection.RecordSet.Take((Expression<Func<int>>) take, true);
+      return new ProjectionExpression(projection.Type, rs, projection.Mapping, projection.Projector);
     }
 
     private Expression VisitSkip(Expression source, Expression skip)
     {
-      throw new NotImplementedException();
+      var projection = (ProjectionExpression)Visit(source);
+      var rs = projection.RecordSet.Skip((Expression<Func<int>>)skip, true);
+      return new ProjectionExpression(projection.Type, rs, projection.Mapping, projection.Projector);
     }
 
     private Expression VisitDistinct(Expression expression)

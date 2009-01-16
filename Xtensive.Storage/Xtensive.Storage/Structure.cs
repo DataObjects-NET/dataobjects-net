@@ -34,21 +34,21 @@ namespace Xtensive.Storage
     private readonly TypeInfo type;
 
     /// <inheritdoc/>
-    public override TypeInfo Type {
+    internal override TypeInfo Type {
       [DebuggerStepThrough]
       get { return type; }
     }
 
     /// <inheritdoc/>
     [Infrastructure]
-    public Persistent Owner {
+    Persistent IFieldValueAdapter.Owner {
       [DebuggerStepThrough]
       get { return owner; }
     }
 
     /// <inheritdoc/>
     [Infrastructure]
-    public FieldInfo Field {
+    FieldInfo IFieldValueAdapter.Field {
       [DebuggerStepThrough]
       get { return field; }
     }
@@ -87,8 +87,8 @@ namespace Xtensive.Storage
     internal override sealed void OnGettingField(FieldInfo field, bool notify)
     {
       base.OnGettingField(field, notify);
-      if (Owner!=null)
-        Owner.OnGettingField(Field, notify);
+      if (owner!=null)
+        owner.OnGettingField(this.field, notify);
     }
 
     // This is done just to make it sealed
@@ -100,14 +100,14 @@ namespace Xtensive.Storage
     internal override sealed void OnSettingField(FieldInfo field, object value, bool notify)
     {
       base.OnSettingField(field, value, notify);
-      if (Owner!=null)
-        Owner.OnSettingField(Field, value, notify);
+      if (owner!=null)
+        owner.OnSettingField(this.field, value, notify);
     }
 
     internal override sealed void OnSetField(FieldInfo field, object oldValue, object newValue, bool notify)
     {
-      if (Owner!=null)
-        Owner.OnSetField(Field, oldValue, newValue, notify);
+      if (owner!=null)
+        owner.OnSetField(this.field, oldValue, newValue, notify);
       base.OnSetField(field, oldValue, newValue, notify);
     }
 

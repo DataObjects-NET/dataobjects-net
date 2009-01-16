@@ -60,7 +60,7 @@ namespace Xtensive.Storage
     }
 
     /// <inheritdoc/>
-    public override sealed TypeInfo Type {
+    internal override sealed TypeInfo Type {
       [DebuggerStepThrough]
       get { return State.Type; }
     }

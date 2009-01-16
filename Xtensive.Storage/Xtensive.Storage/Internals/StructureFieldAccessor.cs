@@ -36,8 +36,9 @@ namespace Xtensive.Storage.Internals
       ArgumentValidator.EnsureArgumentNotNull(value, "value");
       ValidateType(field);
       var structure = (Structure) (object) value;
-      if (structure.Owner!=null)
-        structure.Owner.EnsureIsFetched(structure.Field);
+      var adapter = (IFieldValueAdapter)value;
+      if (adapter.Owner!=null)
+        adapter.Owner.EnsureIsFetched(adapter.Field);
       structure.Tuple.CopyTo(obj.Tuple, 0, field.MappingInfo.Offset, field.MappingInfo.Length);
     }
   }
