@@ -74,7 +74,6 @@ namespace Xtensive.Storage.Linq.Linq2Rse
           fieldName = fieldName==null ? member.Name : member.Name + "." + fieldName;
       }
       if (expression.NodeType == ExpressionType.Parameter) {
-        var type = translator.Model.Types[expression.Type];
         if (fieldName != null) {
           var pathItem = new MappingPathItem(isJoined ? null : fieldName,
             isJoined ? fieldName : null);
@@ -104,7 +103,7 @@ namespace Xtensive.Storage.Linq.Linq2Rse
       if (fieldPath == null)
         return m;
       var method = m.Type == typeof(object) ? nonGenericAccessor : genericAccessor.MakeGenericMethod(m.Type);
-      return Expression.Call(parameter, method, Expression.Constant(source.GetColumnIndex(fieldPath)));
+      return Expression.Call(parameter, method, Expression.Constant(source.GetFieldSegment(fieldPath)));
     }
 
     protected override Expression VisitBinary(BinaryExpression b)
@@ -148,12 +147,12 @@ namespace Xtensive.Storage.Linq.Linq2Rse
           var fieldName = pathItem == null ? pair.FieldName : pathItem.JoinedFieldName + "." + pair.FieldName;
           var keyItem = new MappingPathItem(fieldName, null);
           fieldStack.AddTail(keyItem);
-          var columnIndex = source.GetColumnIndex(fieldStack);
+          var segment = source.GetFieldSegment(fieldStack);
           fieldStack.ExtractTail();
-          if (columnIndex < 0)
+          if (segment.Length == 0)
             throw new InvalidOperationException(string.Format("Field '{0}' is not found.", pair.FieldName));
-          var method = genericAccessor.MakeGenericMethod(source.RecordSet.Header.TupleDescriptor[columnIndex]);
-          Expression left = Expression.Call(parameter, method, Expression.Constant(columnIndex));
+          var method = genericAccessor.MakeGenericMethod(source.RecordSet.Header.TupleDescriptor[segment.Offset]);
+          Expression left = Expression.Call(parameter, method, Expression.Constant(segment));
           Expression right = Expression.Call(Expression.MakeMemberAccess(key, keyValueAccessor), method, Expression.Constant(pair.ParameterIndex));
           if (result == null) {
             result = b.NodeType == ExpressionType.Equal ?

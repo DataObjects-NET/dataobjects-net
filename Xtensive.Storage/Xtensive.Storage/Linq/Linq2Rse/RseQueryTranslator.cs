@@ -58,6 +58,16 @@ namespace Xtensive.Storage.Linq.Linq2Rse
       get { return parameterExtractor; }
     }
 
+    public FieldAccessTranslator FieldAccessTranslator
+    {
+      get { return fieldAccessTranslator; }
+    }
+
+    public FieldAccessFlattener FieldAccessFlattener
+    {
+      get { return fieldAccessFlattener; }
+    }
+
     public ProjectionExpression GetProjection(ParameterExpression pe)
     {
       return map[pe];
@@ -88,15 +98,14 @@ namespace Xtensive.Storage.Linq.Linq2Rse
         var type = provider.Model.Types[rootPoint.ElementType];
         var index = type.Indexes.PrimaryIndex;
 
-        var fieldMapping = new Dictionary<string, int>();
+        var fieldMapping = new Dictionary<string, Segment<int>>(type.Fields.Count);
         var mapping = new TypeMapping(fieldMapping, new Dictionary<string, TypeMapping>());
         var recordSet = IndexProvider.Get(index).Result;
-        foreach (var column in recordSet.Header.Columns) {
-          var mapped = column as MappedColumn;
-          if (mapped != null)
-            fieldMapping.Add(mapped.ColumnInfoRef.FieldName, mapped.Index);
-        }
-        
+        foreach (var field in type.Fields)
+          fieldMapping.Add(field.Name, field.MappingInfo);
+        var keySegment = new Segment<int>(0, type.Hierarchy.KeyFields.Sum(pair => pair.Key.MappingInfo.Length));
+        fieldMapping.Add("Key", keySegment);
+
         return new ProjectionExpression(
           c.Type,
           recordSet,
@@ -403,14 +412,14 @@ namespace Xtensive.Storage.Linq.Linq2Rse
           outerKeyPath.AddTail(keyItem);
           innerKeyPath.AddTail(keyItem);
           keyPairs.Add(new Pair<int>(
-            outer.GetColumnIndex(outerKeyPath), 
-            outer.GetColumnIndex(innerKeyPath)));
+            outer.GetFieldSegment(outerKeyPath).Offset, 
+            outer.GetFieldSegment(innerKeyPath).Offset));
           outerKeyPath.ExtractTail();
           innerKeyPath.ExtractTail();
         }
       }
       else {
-        keyPairs.Add(new Pair<int>(outer.GetColumnIndex(outerKeyPath), inner.GetColumnIndex(innerKeyPath)));
+        keyPairs.Add(new Pair<int>(outer.GetFieldSegment(outerKeyPath).Offset, inner.GetFieldSegment(innerKeyPath).Offset));
       }
 
       var innerRecordSet = inner.RecordSet.Alias(GetNextAlias());

@@ -66,7 +66,6 @@ namespace Xtensive.Storage.Linq.Linq2Rse
             }
           }
         }
-        var parameterType = translator.Model.Types[expression.Type];
         if (typesStack.Count > 0)
           typesPath.Push(new Pair<TypeInfo, string>(typesStack.Peek(), fieldName));
         List<Pair<TypeInfo, string>> list = typesPath.ToList();
@@ -76,18 +75,17 @@ namespace Xtensive.Storage.Linq.Linq2Rse
           if(!mapping.JoinedRelations.TryGetValue(pair.Second, out innerMapping)) {
             var joinedIndex = pair.First.Indexes.PrimaryIndex;
             var joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(translator.GetNextAlias());
-            var keyPairs = pair.First.Hierarchy.KeyFields.Select((kf,i) => new Pair<int>(mapping.FieldMapping[pair.Second + "." + kf.Key], i)).ToArray();
+            var keySegment = mapping.FieldMapping[pair.Second];
+            var keyPairs = Enumerable.Range(keySegment.Offset, keySegment.Length).Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex)).ToArray();
             var rs = projection.RecordSet.Join(joinedRs, JoinType.Default, keyPairs);
-            var fieldMapping = new Dictionary<string, int>();
+            var fieldMapping = new Dictionary<string, Segment<int>>();
             var joinedMapping = new TypeMapping(fieldMapping, new Dictionary<string, TypeMapping>());
             mapping.JoinedRelations.Add(pair.Second, joinedMapping);
-            foreach (var column in joinedRs.Header.Columns) {
-              var mapped = column as MappedColumn;
-              if (mapped != null)
-                fieldMapping.Add(mapped.ColumnInfoRef.FieldName, mapped.Index + projection.RecordSet.Header.Columns.Count);
-            }
+            foreach (var field in pair.First.Fields)
+              fieldMapping.Add(field.Name, new Segment<int>(projection.RecordSet.Header.Columns.Count + field.MappingInfo.Offset, field.MappingInfo.Length));
+            var joinedKeySegment = new Segment<int>(projection.RecordSet.Header.Columns.Count, pair.First.Hierarchy.KeyFields.Sum(kf => kf.Key.MappingInfo.Length));
+            fieldMapping.Add("Key", joinedKeySegment);
             projection = new ProjectionExpression(projection.Type, rs, projection.Mapping, projection.Projector);
-
           }
           mapping = innerMapping;
         }

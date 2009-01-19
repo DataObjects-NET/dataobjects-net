@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Linq.Expressions;
@@ -27,6 +28,8 @@ namespace Xtensive.Storage.Linq.Linq2Rse
     private RecordSet recordSet;
     private TypeMapping mapping;
     private static readonly MethodInfo selectMethod;
+    private static readonly MethodInfo genericAccessor;
+    private static readonly MethodInfo nonGenericAccessor;
 
     public ProjectionExpression Build(ProjectionExpression source, Expression body)
     {
@@ -47,12 +50,15 @@ namespace Xtensive.Storage.Linq.Linq2Rse
         var method = selectMethod.MakeGenericMethod(typeof (Tuple), newBody.Type);
         lambda = Expression.Lambda<Func<RecordSet, object>>(Expression.Convert(Expression.Call(null, method, rs, Expression.Lambda(newBody, tuple)), typeof(object)), rs);
       }
-
-//      parameter = Expression.Parameter(typeof(RecordSet), "rs");
-//      var newBody = Expression.Convert(Visit(body), typeof(object));
-//      var lambda = Expression.Lambda(newBody, parameter);
-//      source.RecordSet.Calculate()
       return new ProjectionExpression(body.Type, recordSet, mapping, lambda);
+    }
+
+    protected override Expression VisitMemberAccess(MemberExpression m)
+    {
+      var path = translator.FieldAccessTranslator.Translate(m);
+      var method = m.Type == typeof(object) ? nonGenericAccessor : genericAccessor.MakeGenericMethod(m.Type);
+//      return Expression.Call(tuple, method, Expression.Constant(source.GetFieldSegment(path)));
+      throw new NotImplementedException();
     }
 
 
@@ -66,6 +72,14 @@ namespace Xtensive.Storage.Linq.Linq2Rse
     static ProjectionBuilder()
     {
       selectMethod = typeof (Enumerable).GetMethods().Where(m => m.Name==WellKnown.Queryable.Select).First();
+      foreach (var method in typeof(Tuple).GetMethods()) {
+        if (method.Name == "GetValueOrDefault") {
+          if (method.IsGenericMethod)
+            genericAccessor = method;
+          else
+            nonGenericAccessor = method;
+        }
+      }
     }
   }
 }

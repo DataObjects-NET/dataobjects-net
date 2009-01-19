@@ -23,9 +23,9 @@ namespace Xtensive.Storage.Linq.Expressions
     public Expression<Func<RecordSet, object>> Projector { get; private set; }
     public TypeMapping Mapping { get; private set; }
 
-    public int GetColumnIndex(IEnumerable<MappingPathItem> fieldPath)
+    public Segment<int> GetFieldSegment(IEnumerable<MappingPathItem> fieldPath)
     {
-      var result = -1;
+      var result = default(Segment<int>);
       var pathList = fieldPath.ToList();
       if (pathList.Count == 0)
         return result;
@@ -46,7 +46,7 @@ namespace Xtensive.Storage.Linq.Expressions
         }
         mapping = mapping.JoinedRelations[item.JoinedFieldName];
       }
-      return -1;
+      return result;
     }
 
 
