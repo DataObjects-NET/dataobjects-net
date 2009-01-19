@@ -351,6 +351,8 @@ namespace Xtensive.Storage.Providers.Sql
       foreach (Pair<Table, List<TableConstraint>> constraint in constraints)
         foreach (TableConstraint tableConstraint in constraint.Second)
           batch.Add(SqlFactory.Alter(constraint.First, SqlFactory.AddConstraint(tableConstraint)));
+      foreach (Sequence sequence in schema.Sequences)
+        batch.Add(SqlFactory.Create(sequence));
       return batch;
     }
 
