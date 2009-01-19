@@ -88,6 +88,8 @@ namespace Xtensive.Storage.Tests.Linq
           var result = from p in products
                        select 0;
           var list = result.ToList();
+          foreach (var i in list)
+            Assert.AreEqual(0, i);
           t.Complete();
         }
       }
@@ -102,6 +104,8 @@ namespace Xtensive.Storage.Tests.Linq
           var result = from p in products
                        select (string)null;
           var list = result.ToList();
+          foreach (var s in list)
+            Assert.AreEqual(null, s);
           t.Complete();
         }
       }
@@ -119,6 +123,12 @@ namespace Xtensive.Storage.Tests.Linq
           var result = from p in products
                        select x;
           var list = result.ToList();
+          foreach (var i in list)
+            Assert.AreEqual(10, i);
+          x = 20;
+          list = result.ToList();
+          foreach (var i in list)
+            Assert.AreEqual(20, i);
           t.Complete();
         }
       }
@@ -134,6 +144,8 @@ namespace Xtensive.Storage.Tests.Linq
           var result = from p in products
                        select p.ProductName;
           var list = result.ToList();
+          foreach (var s in list)
+            Assert.IsNotNull(s);
           t.Complete();
         }
       }
@@ -238,6 +250,12 @@ namespace Xtensive.Storage.Tests.Linq
                          select s.CompanyName
                        );
           var list = result.ToList();
+          Assert.Greater(list.Count , 0);
+          foreach (var strings in list) {
+            foreach (var s in strings) {
+              Assert.IsNotNull(s);
+            }
+          }
           t.Complete();
         }
       }
@@ -257,6 +275,12 @@ namespace Xtensive.Storage.Tests.Linq
                                      select s.CompanyName
                        };
           var list = result.ToList();
+          Assert.Greater(list.Count, 0);
+          foreach (var p in list) {
+            foreach (var companyName in p.Suppliers) {
+              Assert.IsNotNull(companyName);
+            }
+          }
           t.Complete();
         }
       }
