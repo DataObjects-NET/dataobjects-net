@@ -55,6 +55,8 @@ namespace Xtensive.Storage.Linq.Linq2Rse
 
     protected override Expression VisitMemberAccess(MemberExpression m)
     {
+      if (translator.Evaluator.CanBeEvaluated(m) && translator.ParameterExtractor.IsParameter(m))
+        return m;
       var path = translator.FieldAccessTranslator.Translate(m);
       var method = m.Type == typeof(object) ? nonGenericAccessor : genericAccessor.MakeGenericMethod(m.Type);
 //      return Expression.Call(tuple, method, Expression.Constant(source.GetFieldSegment(path)));

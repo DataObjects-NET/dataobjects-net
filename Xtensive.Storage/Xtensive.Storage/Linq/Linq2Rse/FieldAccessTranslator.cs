@@ -46,11 +46,9 @@ namespace Xtensive.Storage.Linq.Linq2Rse
       string fieldName = null;
       bool isJoined = false;
       Expression expression = me;
-      if (typeof(Key).IsAssignableFrom(me.Type))
-        expression = ((MemberExpression)expression).Expression;
       while (expression.NodeType == ExpressionType.MemberAccess) {
         var memberAccess = (MemberExpression)expression;
-        var member = (PropertyInfo)memberAccess.Member;
+        var member = memberAccess.Member;
         expression = memberAccess.Expression;
         if (typeof (IEntity).IsAssignableFrom(memberAccess.Type)) {
           var type = translator.Model.Types[memberAccess.Type];
@@ -59,7 +57,7 @@ namespace Xtensive.Storage.Linq.Linq2Rse
             isJoined = true;
           }
           else {
-            if (type.Fields[fieldName].IsPrimaryKey)
+            if (fieldName == "Key" || type.Fields[fieldName].IsPrimaryKey)
               fieldName = member.Name + "." + fieldName;
             else {
               var pathItem = new MappingPathItem(isJoined ? null : fieldName, 
@@ -103,7 +101,8 @@ namespace Xtensive.Storage.Linq.Linq2Rse
       if (fieldPath == null)
         return m;
       var method = m.Type == typeof(object) ? nonGenericAccessor : genericAccessor.MakeGenericMethod(m.Type);
-      return Expression.Call(parameter, method, Expression.Constant(source.GetFieldSegment(fieldPath)));
+      // TODO: handle structures
+      return Expression.Call(parameter, method, Expression.Constant(source.GetFieldSegment(fieldPath).Offset));
     }
 
     protected override Expression VisitBinary(BinaryExpression b)
@@ -127,32 +126,23 @@ namespace Xtensive.Storage.Linq.Linq2Rse
           first = b.Right;
           second = b.Left;
         }
-        TypeInfo type;
-        if (isKey) {
-          var keyAccess = (MemberExpression) first;
-          type = translator.Model.Types[keyAccess.Expression.Type];
-        }
-        else
-          type = translator.Model.Types[first.Type];
         Expression result = null;
         var key = isKey ? second : Expression.MakeMemberAccess(second, identifierAccessor);
         var fieldStack = Translate(first);
         if (fieldStack == null)
           throw new InvalidOperationException();
-        MappingPathItem pathItem = null;
-        if (fieldStack.Count!=0)
-          pathItem = fieldStack.ExtractTail();
-        var keyColumns = type.Hierarchy.KeyFields.Select((kf, i) => new { FieldName = kf.Key.Name, ParameterIndex = i });
-        foreach (var pair in keyColumns) {
-          var fieldName = pathItem == null ? pair.FieldName : pathItem.JoinedFieldName + "." + pair.FieldName;
-          var keyItem = new MappingPathItem(fieldName, null);
-          fieldStack.AddTail(keyItem);
-          var segment = source.GetFieldSegment(fieldStack);
-          fieldStack.ExtractTail();
-          if (segment.Length == 0)
-            throw new InvalidOperationException(string.Format("Field '{0}' is not found.", pair.FieldName));
+        if (!isKey) {
+          if (fieldStack.Count==0)
+            fieldStack.AddHead(new MappingPathItem("Key", null));
+          else
+            fieldStack.AddHead(new MappingPathItem(fieldStack.ExtractHead().JoinedFieldName + ".Key", null));
+        }
+        var segment = source.GetFieldSegment(fieldStack);
+        if (segment.Length == 0)
+          throw new InvalidOperationException();
+        foreach (var pair in Enumerable.Range(segment.Offset, segment.Length).Select((ColumnIndex, ParameterIndex) => new {ColumnIndex, ParameterIndex})) {
           var method = genericAccessor.MakeGenericMethod(source.RecordSet.Header.TupleDescriptor[segment.Offset]);
-          Expression left = Expression.Call(parameter, method, Expression.Constant(segment));
+          Expression left = Expression.Call(parameter, method, Expression.Constant(pair.ColumnIndex));
           Expression right = Expression.Call(Expression.MakeMemberAccess(key, keyValueAccessor), method, Expression.Constant(pair.ParameterIndex));
           if (result == null) {
             result = b.NodeType == ExpressionType.Equal ?

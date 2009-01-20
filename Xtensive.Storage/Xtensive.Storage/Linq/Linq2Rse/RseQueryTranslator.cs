@@ -78,6 +78,20 @@ namespace Xtensive.Storage.Linq.Linq2Rse
       return (ProjectionExpression) Visit(query);
     }
 
+    public Dictionary<string, Segment<int>> BuildFieldMapping(TypeInfo type, int offset)
+    {
+      var fieldMapping = new Dictionary<string, Segment<int>>();
+      foreach (var field in type.Fields) {
+        fieldMapping.Add(field.Name, new Segment<int>(offset + field.MappingInfo.Offset, field.MappingInfo.Length)); 
+        if (field.IsEntity)
+          fieldMapping.Add(field.Name + ".Key", new Segment<int>(offset + field.MappingInfo.Offset, field.MappingInfo.Length));
+      }
+      var keySegment = new Segment<int>(offset, type.Hierarchy.KeyFields.Sum(pair => pair.Key.MappingInfo.Length));
+      fieldMapping.Add("Key", keySegment);
+
+      return fieldMapping;
+    }
+
     protected bool IsRoot(Expression expression)
     {
       return query==expression;
@@ -98,13 +112,9 @@ namespace Xtensive.Storage.Linq.Linq2Rse
         var type = provider.Model.Types[rootPoint.ElementType];
         var index = type.Indexes.PrimaryIndex;
 
-        var fieldMapping = new Dictionary<string, Segment<int>>(type.Fields.Count);
+        var fieldMapping = BuildFieldMapping(type, 0);
         var mapping = new TypeMapping(fieldMapping, new Dictionary<string, TypeMapping>());
         var recordSet = IndexProvider.Get(index).Result;
-        foreach (var field in type.Fields)
-          fieldMapping.Add(field.Name, field.MappingInfo);
-        var keySegment = new Segment<int>(0, type.Hierarchy.KeyFields.Sum(pair => pair.Key.MappingInfo.Length));
-        fieldMapping.Add("Key", keySegment);
 
         return new ProjectionExpression(
           c.Type,

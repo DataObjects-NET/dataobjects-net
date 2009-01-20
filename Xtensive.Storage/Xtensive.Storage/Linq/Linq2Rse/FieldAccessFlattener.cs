@@ -78,13 +78,10 @@ namespace Xtensive.Storage.Linq.Linq2Rse
             var keySegment = mapping.FieldMapping[pair.Second];
             var keyPairs = Enumerable.Range(keySegment.Offset, keySegment.Length).Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex)).ToArray();
             var rs = projection.RecordSet.Join(joinedRs, JoinType.Default, keyPairs);
-            var fieldMapping = new Dictionary<string, Segment<int>>();
+            var fieldMapping = translator.BuildFieldMapping(pair.First, projection.RecordSet.Header.Columns.Count);
             var joinedMapping = new TypeMapping(fieldMapping, new Dictionary<string, TypeMapping>());
             mapping.JoinedRelations.Add(pair.Second, joinedMapping);
-            foreach (var field in pair.First.Fields)
-              fieldMapping.Add(field.Name, new Segment<int>(projection.RecordSet.Header.Columns.Count + field.MappingInfo.Offset, field.MappingInfo.Length));
-            var joinedKeySegment = new Segment<int>(projection.RecordSet.Header.Columns.Count, pair.First.Hierarchy.KeyFields.Sum(kf => kf.Key.MappingInfo.Length));
-            fieldMapping.Add("Key", joinedKeySegment);
+            
             projection = new ProjectionExpression(projection.Type, rs, projection.Mapping, projection.Projector);
           }
           mapping = innerMapping;
