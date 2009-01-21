@@ -160,6 +160,8 @@ namespace Xtensive.Storage.Tests.Linq
           var result = from p in products
                        select p.UnitsInStock * p.UnitPrice;
           var list = result.ToList();
+          var checkList = products.AsEnumerable().Select(p => p.UnitsInStock * p.UnitPrice).ToList();
+          list.SequenceEqual(checkList);
           t.Complete();
         }
       }
@@ -174,6 +176,7 @@ namespace Xtensive.Storage.Tests.Linq
           var result = from p in products
                        select new { p.ProductName, p.UnitPrice, p.UnitsInStock };
           var list = result.ToList();
+          Assert.Greater(list.Count, 0);
           t.Complete();
         }
       }
@@ -188,6 +191,7 @@ namespace Xtensive.Storage.Tests.Linq
           var result = from p in products
                        select new {};
           var list = result.ToList();
+          Assert.Greater(list.Count, 0);
           t.Complete();
         }
       }
@@ -202,6 +206,53 @@ namespace Xtensive.Storage.Tests.Linq
           var result = from p in products
                        select new { p.ProductName, TotalPriceInStock = p.UnitPrice * p.UnitsInStock };
           var list = result.ToList();
+          Assert.Greater(list.Count, 0);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void JoinedEntityColumnTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var products = Session.Current.All<Product>();
+          var result = from p in products
+                       select p.Supplier.CompanyName;
+          var list = result.ToList();
+          Assert.Greater(list.Count, 0);
+          t.Complete();
+        }
+      }
+    }
+
+
+    [Test]
+    public void JoinedEntityTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var products = Session.Current.All<Product>();
+          var result = from p in products
+                       select p.Supplier;
+          var list = result.ToList();
+          Assert.Greater(list.Count, 0);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void StructureColumnTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var products = Session.Current.All<Product>();
+          var result = from p in products
+                       select p.Supplier.Address;
+          var list = result.ToList();
+          Assert.Greater(list.Count, 0);
           t.Complete();
         }
       }
@@ -216,6 +267,7 @@ namespace Xtensive.Storage.Tests.Linq
           var result = from p in products
                        select new { p.ProductName, Product = p };
           var list = result.ToList();
+          Assert.Greater(list.Count, 0);
           t.Complete();
         }
       }
@@ -231,6 +283,7 @@ namespace Xtensive.Storage.Tests.Linq
           var result = from p in products
                        select new { p, Desc = new {p.ProductName, p.UnitPrice} };
           var list = result.ToList();
+          Assert.Greater(list.Count, 0);
           t.Complete();
         }
       }

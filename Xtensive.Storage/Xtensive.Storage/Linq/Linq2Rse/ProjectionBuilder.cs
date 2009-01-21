@@ -21,6 +21,7 @@ namespace Xtensive.Storage.Linq.Linq2Rse
   internal class ProjectionBuilder : ExpressionVisitor
   {
     private readonly RseQueryTranslator translator;
+    private ProjectionExpression source;
     private ParameterExpression tuple;
     private ParameterExpression record;
     private bool tupleIsUsed;
@@ -33,6 +34,7 @@ namespace Xtensive.Storage.Linq.Linq2Rse
 
     public ProjectionExpression Build(ProjectionExpression source, Expression body)
     {
+      this.source = source;
       tuple = Expression.Parameter(typeof (Tuple), "t");
       record = Expression.Parameter(typeof (Record), "r");
       tupleIsUsed = false;
@@ -42,7 +44,7 @@ namespace Xtensive.Storage.Linq.Linq2Rse
       Expression<Func<RecordSet, object>> lambda = null;
 
       var newBody = Visit(body);
-      if (tupleIsUsed || recordIsUsed) {
+      if (recordIsUsed) {
         
       }
       else {
@@ -57,10 +59,15 @@ namespace Xtensive.Storage.Linq.Linq2Rse
     {
       if (translator.Evaluator.CanBeEvaluated(m) && translator.ParameterExtractor.IsParameter(m))
         return m;
+      if (typeof(IEntity).IsAssignableFrom(m.Type) || typeof(EntitySetBase).IsAssignableFrom(m.Type))
+        throw new NotImplementedException();
       var path = translator.FieldAccessTranslator.Translate(m);
       var method = m.Type == typeof(object) ? nonGenericAccessor : genericAccessor.MakeGenericMethod(m.Type);
-//      return Expression.Call(tuple, method, Expression.Constant(source.GetFieldSegment(path)));
-      throw new NotImplementedException();
+      var segment = source.GetFieldSegment(path);
+      if (segment.Length != 1)
+        throw new InvalidOperationException();
+      tupleIsUsed = true;
+      return Expression.Call(tuple, method, Expression.Constant(segment.Offset));
     }
 
 
