@@ -26,10 +26,10 @@ namespace Xtensive.Storage.Linq.Linq2Rse
     private ProjectionExpression projection;
 
 
-    public ProjectionExpression FlattenFieldAccess(ProjectionExpression source, LambdaExpression le)
+    public ProjectionExpression FlattenFieldAccess(ProjectionExpression source, Expression e)
     {
       projection = source;
-      Visit(le);
+      Visit(e);
       return projection;
     }
 

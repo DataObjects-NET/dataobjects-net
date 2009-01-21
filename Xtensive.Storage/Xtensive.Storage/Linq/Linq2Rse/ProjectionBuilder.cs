@@ -34,12 +34,12 @@ namespace Xtensive.Storage.Linq.Linq2Rse
 
     public ProjectionExpression Build(ProjectionExpression source, Expression body)
     {
-      this.source = source;
+      this.source = translator.FieldAccessFlattener.FlattenFieldAccess(source, body);
       tuple = Expression.Parameter(typeof (Tuple), "t");
       record = Expression.Parameter(typeof (Record), "r");
       tupleIsUsed = false;
       recordIsUsed = false;
-      recordSet = source.RecordSet;
+      recordSet = this.source.RecordSet;
       mapping = source.Mapping;
       Expression<Func<RecordSet, object>> lambda = null;
 

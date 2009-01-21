@@ -458,7 +458,7 @@ namespace Xtensive.Storage.Linq.Linq2Rse
     {
       var source = (ProjectionExpression)Visit(expression);
       map[le.Parameters[0]] = source;
-      source = fieldAccessFlattener.FlattenFieldAccess(source, le);
+      source = fieldAccessFlattener.FlattenFieldAccess(source, le.Body);
       var predicate = fieldAccessTranslator.Translate(source, le);
       var recordSet = source.RecordSet.Filter((Expression<Func<Tuple, bool>>)predicate);
       return new ProjectionExpression(expression.Type, recordSet, source.Mapping, null);
