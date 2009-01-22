@@ -8,20 +8,18 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Xtensive.Core.Collections;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Linq.Expressions;
 using Xtensive.Storage.Linq.Expressions.Visitors;
-using Xtensive.Storage.Linq.Linq2Rse.Internal;
 using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Linq.Linq2Rse
 {
   internal class ProjectionBuilder : ExpressionVisitor
   {
-    private readonly RseQueryTranslator translator;
-    private ProjectionExpression source;
+    private readonly QueryTranslator translator;
+    private ResultExpression source;
     private ParameterExpression tuple;
     private ParameterExpression record;
     private bool tupleIsUsed;
@@ -32,9 +30,9 @@ namespace Xtensive.Storage.Linq.Linq2Rse
     private static readonly MethodInfo genericAccessor;
     private static readonly MethodInfo nonGenericAccessor;
 
-    public ProjectionExpression Build(ProjectionExpression source, Expression body)
+    public ResultExpression Build(ResultExpression source, Expression body)
     {
-      this.source = translator.FieldAccessFlattener.FlattenFieldAccess(source, body);
+      this.source = translator.AccessBasedJoiner.Apply(source, body);
       tuple = Expression.Parameter(typeof (Tuple), "t");
       record = Expression.Parameter(typeof (Record), "r");
       tupleIsUsed = false;
@@ -52,7 +50,7 @@ namespace Xtensive.Storage.Linq.Linq2Rse
         var method = selectMethod.MakeGenericMethod(typeof (Tuple), newBody.Type);
         lambda = Expression.Lambda<Func<RecordSet, object>>(Expression.Convert(Expression.Call(null, method, rs, Expression.Lambda(newBody, tuple)), typeof(object)), rs);
       }
-      return new ProjectionExpression(body.Type, recordSet, mapping, lambda);
+      return new ResultExpression(body.Type, recordSet, mapping, lambda);
     }
 
     protected override Expression VisitMemberAccess(MemberExpression m)
@@ -89,7 +87,7 @@ namespace Xtensive.Storage.Linq.Linq2Rse
 
     // Constructor
 
-    public ProjectionBuilder(RseQueryTranslator translator)
+    public ProjectionBuilder(QueryTranslator translator)
     {
       this.translator = translator;
     }

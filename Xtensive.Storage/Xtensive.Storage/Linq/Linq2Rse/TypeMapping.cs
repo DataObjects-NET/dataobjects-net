@@ -7,7 +7,7 @@
 using System.Collections.Generic;
 using Xtensive.Core;
 
-namespace Xtensive.Storage.Linq.Linq2Rse.Internal
+namespace Xtensive.Storage.Linq.Linq2Rse
 {
   internal class TypeMapping
   {

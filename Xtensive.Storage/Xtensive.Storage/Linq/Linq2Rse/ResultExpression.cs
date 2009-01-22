@@ -8,16 +8,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using Xtensive.Core;
-using Xtensive.Core.Tuples;
-using Xtensive.Storage.Linq.Linq2Rse.Internal;
-using Xtensive.Storage.Model;
+using Xtensive.Storage.Linq.Linq2Rse;
 using Xtensive.Storage.Rse;
 using System.Linq;
 
 namespace Xtensive.Storage.Linq.Expressions
 {
   [Serializable]
-  internal sealed class ProjectionExpression : Expression
+  internal sealed class ResultExpression : Expression
   {
     public RecordSet RecordSet { get; private set; }
     public Expression<Func<RecordSet, object>> Projector { get; private set; }
@@ -52,7 +50,7 @@ namespace Xtensive.Storage.Linq.Expressions
 
     // Constructors
 
-    public ProjectionExpression(Type type, RecordSet recordSet, TypeMapping mapping, Expression<Func<RecordSet, object>> projector)
+    public ResultExpression(Type type, RecordSet recordSet, TypeMapping mapping, Expression<Func<RecordSet, object>> projector)
       : base(ExpressionType.Constant, type)
     {
       RecordSet = recordSet;

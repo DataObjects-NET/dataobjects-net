@@ -100,7 +100,7 @@ namespace Xtensive.Storage.Providers.Index
 
     public override void Initialize()
     {
-      LinqProvider = new RseQueryProvider(Session.Domain.Model);
+      LinqProvider = new QueryProvider(Session.Domain.Model);
       // TODO: Think what should be done here.
     }
 

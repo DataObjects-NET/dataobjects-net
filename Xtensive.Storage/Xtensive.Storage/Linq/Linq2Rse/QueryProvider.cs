@@ -4,24 +4,21 @@
 // Created by: Alexey Kochetov
 // Created:    2008.11.27
 
-using System;
-using System.Collections;
 using System.Linq.Expressions;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Storage.Linq;
 using Xtensive.Storage.Model;
-using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Linq.Linq2Rse
 {
-  public class RseQueryProvider : QueryProvider
+  public class QueryProvider : Linq.QueryProvider
   {
     protected override object Execute(Expression expression)
     {
-      var compiler = new RseQueryTranslator(this, expression);
+      var compiler = new QueryTranslator(this, expression);
       var result = compiler.Translate();
       var shaper = result.Projector;
       var recordSet = result.RecordSet;
+      
       // TODO: Always use Projector
       if (shaper != null) {
         var compiled = shaper.Compile();
@@ -33,12 +30,13 @@ namespace Xtensive.Storage.Linq.Linq2Rse
     }
 
 
-    // Constructor
+    // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public RseQueryProvider(DomainModel model)
+    /// <param name="model">The model to use.</param>
+    public QueryProvider(DomainModel model)
       : base(model)
     {
     }

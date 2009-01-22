@@ -5,33 +5,28 @@
 // Created:    2008.12.18
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
-using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Linq.Expressions;
 using Xtensive.Storage.Linq.Expressions.Visitors;
-using Xtensive.Storage.Linq.Linq2Rse.Internal;
-using Xtensive.Storage.Model;
-using FieldInfo=Xtensive.Storage.Model.FieldInfo;
 
 namespace Xtensive.Storage.Linq.Linq2Rse
 {
   internal class FieldAccessTranslator : ExpressionVisitor
   {
-    private readonly RseQueryTranslator translator;
-    private ProjectionExpression source;
+    private readonly QueryTranslator translator;
+    private ResultExpression source;
     private ParameterExpression parameter;
     private static readonly MethodInfo nonGenericAccessor;
     private static readonly MethodInfo genericAccessor;
     private static readonly PropertyInfo keyValueAccessor;
     private static readonly MemberInfo identifierAccessor;
 
-    public LambdaExpression Translate(ProjectionExpression source, LambdaExpression le)
+    public LambdaExpression Translate(ResultExpression source, LambdaExpression le)
     {
       this.source = source;
       parameter = Expression.Parameter(typeof(Tuple), "t");
@@ -163,18 +158,17 @@ namespace Xtensive.Storage.Linq.Linq2Rse
 
     // Constructors
 
-    /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    public FieldAccessTranslator(RseQueryTranslator translator)
+    public FieldAccessTranslator(QueryTranslator translator)
     {
       this.translator = translator;
     }
 
+    // Type initializer
+
     static FieldAccessTranslator()
     {
       keyValueAccessor = typeof (Key).GetProperty("Value");
-      identifierAccessor = typeof(IIdentified<Key>).GetMember("Identifier")[0];
+      identifierAccessor = typeof (IIdentified<Key>).GetMember("Identifier")[0];
       foreach (var method in typeof(Tuple).GetMethods()) {
         if (method.Name == "GetValueOrDefault") {
           if (method.IsGenericMethod)

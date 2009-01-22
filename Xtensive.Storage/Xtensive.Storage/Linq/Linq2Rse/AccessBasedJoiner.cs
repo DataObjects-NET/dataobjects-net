@@ -4,15 +4,12 @@
 // Created by: Alexey Kochetov
 // Created:    2008.12.19
 
-using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
-using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Linq.Expressions;
 using Xtensive.Storage.Linq.Expressions.Visitors;
-using Xtensive.Storage.Linq.Linq2Rse.Internal;
 using Xtensive.Storage.Model;
 using System.Linq;
 using Xtensive.Storage.Rse.Providers.Compilable;
@@ -20,17 +17,16 @@ using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Linq.Linq2Rse
 {
-  internal class FieldAccessFlattener : ExpressionVisitor
+  internal class AccessBasedJoiner : ExpressionVisitor
   {
-    private readonly RseQueryTranslator translator;
-    private ProjectionExpression projection;
+    private readonly QueryTranslator translator;
+    private ResultExpression result;
 
-
-    public ProjectionExpression FlattenFieldAccess(ProjectionExpression source, Expression e)
+    public ResultExpression Apply(ResultExpression source, Expression e)
     {
-      projection = source;
+      result = source;
       Visit(e);
-      return projection;
+      return result;
     }
 
     protected override Expression VisitMemberAccess(MemberExpression m)
@@ -69,7 +65,7 @@ namespace Xtensive.Storage.Linq.Linq2Rse
         if (typesStack.Count > 0)
           typesPath.Push(new Pair<TypeInfo, string>(typesStack.Peek(), fieldName));
         List<Pair<TypeInfo, string>> list = typesPath.ToList();
-        var mapping = projection.Mapping;
+        var mapping = result.Mapping;
         foreach (var pair in list) {
           TypeMapping innerMapping;
           if(!mapping.JoinedRelations.TryGetValue(pair.Second, out innerMapping)) {
@@ -77,12 +73,12 @@ namespace Xtensive.Storage.Linq.Linq2Rse
             var joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(translator.GetNextAlias());
             var keySegment = mapping.FieldMapping[pair.Second];
             var keyPairs = Enumerable.Range(keySegment.Offset, keySegment.Length).Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex)).ToArray();
-            var rs = projection.RecordSet.Join(joinedRs, JoinType.Default, keyPairs);
-            var fieldMapping = translator.BuildFieldMapping(pair.First, projection.RecordSet.Header.Columns.Count);
+            var rs = result.RecordSet.Join(joinedRs, JoinType.Default, keyPairs);
+            var fieldMapping = translator.BuildFieldMapping(pair.First, result.RecordSet.Header.Columns.Count);
             var joinedMapping = new TypeMapping(fieldMapping, new Dictionary<string, TypeMapping>());
             mapping.JoinedRelations.Add(pair.Second, joinedMapping);
             
-            projection = new ProjectionExpression(projection.Type, rs, projection.Mapping, projection.Projector);
+            result = new ResultExpression(result.Type, rs, result.Mapping, result.Projector);
           }
           mapping = innerMapping;
         }
@@ -93,10 +89,7 @@ namespace Xtensive.Storage.Linq.Linq2Rse
    
     // Constructor
 
-    /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    public FieldAccessFlattener(RseQueryTranslator translator)
+    public AccessBasedJoiner(QueryTranslator translator)
     {
       this.translator = translator;
     }

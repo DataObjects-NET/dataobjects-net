@@ -196,7 +196,7 @@ namespace Xtensive.Storage.Providers.Sql
     public override void Initialize()
     {
       DomainHandler = Handlers.DomainHandler as DomainHandler;
-      LinqProvider = new RseQueryProvider(Session.Domain.Model);
+      LinqProvider = new QueryProvider(Session.Domain.Model);
     }
 
     /// <inheritdoc/>

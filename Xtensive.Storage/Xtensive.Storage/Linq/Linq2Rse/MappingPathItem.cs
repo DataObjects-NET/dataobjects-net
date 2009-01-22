@@ -4,9 +4,7 @@
 // Created by: Alexey Kochetov
 // Created:    2008.12.26
 
-using Xtensive.Storage.Model;
-
-namespace Xtensive.Storage.Linq.Linq2Rse.Internal
+namespace Xtensive.Storage.Linq.Linq2Rse
 {
   internal class MappingPathItem
   {
