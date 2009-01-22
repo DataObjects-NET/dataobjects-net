@@ -25,14 +25,14 @@ namespace Xtensive.Storage.Linq.Linq2Rse
     private bool tupleIsUsed;
     private bool recordIsUsed;
     private RecordSet recordSet;
-    private TypeMapping mapping;
+    private ResultMapping mapping;
     private static readonly MethodInfo selectMethod;
     private static readonly MethodInfo genericAccessor;
     private static readonly MethodInfo nonGenericAccessor;
 
     public ResultExpression Build(ResultExpression source, Expression body)
     {
-      this.source = translator.AccessBasedJoiner.Apply(source, body);
+      this.source = translator.AccessBasedJoiner.Process(source, body);
       tuple = Expression.Parameter(typeof (Tuple), "t");
       record = Expression.Parameter(typeof (Record), "r");
       tupleIsUsed = false;
@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Linq.Linq2Rse
 
       var newBody = Visit(body);
       if (recordIsUsed) {
-        
+        // TODO: implement
       }
       else {
         var rs = Expression.Parameter(typeof(RecordSet), "rs");
@@ -64,33 +64,37 @@ namespace Xtensive.Storage.Linq.Linq2Rse
       if (isEntity || isEntitySet || isStructure) {
         recordIsUsed = true;
         if (isStructure) {
-          
+          // TODO: implement
         }
         else if (isEntity) {
-          
+          // TODO: implement
         }
         else {
-          
+          // TODO: implement
         }
         throw new NotImplementedException();
       }
       else if (isKey) {
-        
+        // TODO: implement
       }
       var path = translator.FieldAccessTranslator.Translate(m);
-      var method = m.Type == typeof(object) ? nonGenericAccessor : genericAccessor.MakeGenericMethod(m.Type);
+      var method = m.Type == typeof(object) ? 
+        nonGenericAccessor : 
+        genericAccessor.MakeGenericMethod(m.Type);
       var segment = source.GetFieldSegment(path);
       tupleIsUsed = true;
       return Expression.Call(tuple, method, Expression.Constant(segment.Offset));
     }
 
 
-    // Constructor
+    // Constructors
 
     public ProjectionBuilder(QueryTranslator translator)
     {
       this.translator = translator;
     }
+
+    // Type initializer
 
     static ProjectionBuilder()
     {

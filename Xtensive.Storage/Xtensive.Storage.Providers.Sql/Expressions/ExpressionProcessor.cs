@@ -18,7 +18,7 @@ using System.Linq;
 
 namespace Xtensive.Storage.Providers.Sql.Expressions
 {
-  internal class ExpressionProcessor : Visitor<SqlExpression>
+  internal class ExpressionProcessor : ExpressionVisitor<SqlExpression>
   {
     private readonly DomainModel model;
     private readonly SqlFetchRequest request;

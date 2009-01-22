@@ -56,6 +56,7 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
       return e;
     }
 
+    // Private methods
 
     private static bool CanEvaluateExpression(Expression expression)
     {

@@ -12,10 +12,10 @@ using System.Linq.Expressions;
 namespace Xtensive.Storage.Linq.Expressions.Visitors
 {
   /// <summary>
-  /// An abstract base implementation of <see cref="Visitor{TResult}"/>
+  /// An abstract base implementation of <see cref="ExpressionVisitor{TResult}"/>
   /// returning <see cref="Expression"/> as its visit result.
   /// </summary>
-  public abstract class ExpressionVisitor : Visitor<Expression>
+  public abstract class ExpressionVisitor : ExpressionVisitor<Expression>
   {
     protected virtual ElementInit VisitElementInitializer(ElementInit initializer)
     {

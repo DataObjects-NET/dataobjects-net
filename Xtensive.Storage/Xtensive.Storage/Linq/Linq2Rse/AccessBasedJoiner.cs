@@ -20,13 +20,13 @@ namespace Xtensive.Storage.Linq.Linq2Rse
   internal class AccessBasedJoiner : ExpressionVisitor
   {
     private readonly QueryTranslator translator;
-    private ResultExpression result;
+    private ResultExpression currentResult;
 
-    public ResultExpression Apply(ResultExpression source, Expression e)
+    public ResultExpression Process(ResultExpression source, Expression e)
     {
-      result = source;
+      currentResult = source;
       Visit(e);
-      return result;
+      return currentResult;
     }
 
     protected override Expression VisitMemberAccess(MemberExpression m)
@@ -65,20 +65,20 @@ namespace Xtensive.Storage.Linq.Linq2Rse
         if (typesStack.Count > 0)
           typesPath.Push(new Pair<TypeInfo, string>(typesStack.Peek(), fieldName));
         List<Pair<TypeInfo, string>> list = typesPath.ToList();
-        var mapping = result.Mapping;
+        var mapping = currentResult.Mapping;
         foreach (var pair in list) {
-          TypeMapping innerMapping;
+          ResultMapping innerMapping;
           if(!mapping.JoinedRelations.TryGetValue(pair.Second, out innerMapping)) {
             var joinedIndex = pair.First.Indexes.PrimaryIndex;
             var joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(translator.GetNextAlias());
-            var keySegment = mapping.FieldMapping[pair.Second];
+            var keySegment = mapping.Fields[pair.Second];
             var keyPairs = Enumerable.Range(keySegment.Offset, keySegment.Length).Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex)).ToArray();
-            var rs = result.RecordSet.Join(joinedRs, JoinType.Default, keyPairs);
-            var fieldMapping = translator.BuildFieldMapping(pair.First, result.RecordSet.Header.Columns.Count);
-            var joinedMapping = new TypeMapping(fieldMapping, new Dictionary<string, TypeMapping>());
+            var rs = currentResult.RecordSet.Join(joinedRs, JoinType.Default, keyPairs);
+            var fieldMapping = translator.BuildFieldMapping(pair.First, currentResult.RecordSet.Header.Columns.Count);
+            var joinedMapping = new ResultMapping(fieldMapping, new Dictionary<string, ResultMapping>());
             mapping.JoinedRelations.Add(pair.Second, joinedMapping);
             
-            result = new ResultExpression(result.Type, rs, result.Mapping, result.Projector);
+            currentResult = new ResultExpression(currentResult.Type, rs, currentResult.Mapping, currentResult.Projector);
           }
           mapping = innerMapping;
         }

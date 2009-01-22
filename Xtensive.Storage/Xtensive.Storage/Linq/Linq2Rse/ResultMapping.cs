@@ -9,17 +9,17 @@ using Xtensive.Core;
 
 namespace Xtensive.Storage.Linq.Linq2Rse
 {
-  internal class TypeMapping
+  internal class ResultMapping
   {
-    public Dictionary<string, Segment<int>> FieldMapping { get; private set; }
-    public Dictionary<string, TypeMapping> JoinedRelations { get; private set; }
+    public Dictionary<string, Segment<int>> Fields { get; private set; }
+    public Dictionary<string, ResultMapping> JoinedRelations { get; private set; }
 
 
     // Constructors
 
-    public TypeMapping(Dictionary<string, Segment<int>> fieldMapping, Dictionary<string, TypeMapping> joinedRelations)
+    public ResultMapping(Dictionary<string, Segment<int>> fieldMapping, Dictionary<string, ResultMapping> joinedRelations)
     {
-      FieldMapping = fieldMapping;
+      Fields = fieldMapping;
       JoinedRelations = joinedRelations;
     }
   }

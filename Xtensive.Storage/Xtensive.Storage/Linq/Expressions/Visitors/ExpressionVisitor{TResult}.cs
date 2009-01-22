@@ -17,7 +17,7 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
   /// Abstract <see cref="Expression"/> visitor class.
   /// </summary>
   /// <typeparam name="TResult">Type of the visit result.</typeparam>
-  public abstract class Visitor<TResult>
+  public abstract class ExpressionVisitor<TResult>
     where TResult : class
   {
     private readonly Dictionary<Expression, TResult> cache = null;
@@ -150,12 +150,12 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
     
     // Constructors
 
-    protected Visitor()
+    protected ExpressionVisitor()
       : this(false)
     {
     }
 
-    protected Visitor(bool isCaching)
+    protected ExpressionVisitor(bool isCaching)
     {
       if (isCaching)
         cache = new Dictionary<Expression, TResult>();

@@ -110,7 +110,7 @@ namespace Xtensive.Storage.Linq.Linq2Rse
         var index = type.Indexes.PrimaryIndex;
 
         var fieldMapping = BuildFieldMapping(type, 0);
-        var mapping = new TypeMapping(fieldMapping, new Dictionary<string, TypeMapping>());
+        var mapping = new ResultMapping(fieldMapping, new Dictionary<string, ResultMapping>());
         var recordSet = IndexProvider.Get(index).Result;
 
         return new ResultExpression(
@@ -383,8 +383,8 @@ namespace Xtensive.Storage.Linq.Linq2Rse
     {
       var outer = (ResultExpression)Visit(outerSource);
       var inner = (ResultExpression)Visit(innerSource);
-      outer = accessBasedJoiner.Apply(outer, outerKey);
-      inner = accessBasedJoiner.Apply(inner, innerKey);
+      outer = accessBasedJoiner.Process(outer, outerKey);
+      inner = accessBasedJoiner.Process(inner, innerKey);
       var outerKeyPath = fieldAccessTranslator.Translate(outerKey.Body);
       var innerKeyPath = fieldAccessTranslator.Translate(innerKey.Body);
       if (outerKeyPath == null || innerKeyPath == null) {
@@ -430,7 +430,7 @@ namespace Xtensive.Storage.Linq.Linq2Rse
 
       var innerRecordSet = inner.RecordSet.Alias(GetNextAlias());
       var recordSet = outer.RecordSet.Join(innerRecordSet, keyPairs.ToArray());
-//      Dictionary<TypeInfo, TypeMapping> typeMappings = null;
+//      Dictionary<TypeInfo, ResultMapping> typeMappings = null;
 //      Func<RecordSet, object> shaper = null;
 //      return new ResultExpression(resultType, recordSet, typeMappings, shaper, true);
 
@@ -452,12 +452,12 @@ namespace Xtensive.Storage.Linq.Linq2Rse
 
     private Expression VisitWhere(Expression expression, LambdaExpression le)
     {
-      var source = (ResultExpression)Visit(expression);
-      map[le.Parameters[0]] = source;
-      source = accessBasedJoiner.Apply(source, le.Body);
-      var predicate = fieldAccessTranslator.Translate(source, le);
-      var recordSet = source.RecordSet.Filter((Expression<Func<Tuple, bool>>)predicate);
-      return new ResultExpression(expression.Type, recordSet, source.Mapping, null);
+      var result = (ResultExpression) Visit(expression);
+      map[le.Parameters[0]] = result;
+      result = accessBasedJoiner.Process(result, le.Body);
+      var predicate = fieldAccessTranslator.Translate(result, le);
+      var recordSet = result.RecordSet.Filter((Expression<Func<Tuple, bool>>)predicate);
+      return new ResultExpression(expression.Type, recordSet, result.Mapping, null);
     }
 
 
