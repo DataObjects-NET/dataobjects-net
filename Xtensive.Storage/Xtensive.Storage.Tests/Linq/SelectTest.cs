@@ -168,6 +168,22 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    public void KeyTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var products = Session.Current.All<Product>();
+          var result = from p in products
+                       select p.Key;
+          var list = result.ToList();
+          foreach (var k in list)
+            Assert.IsNotNull(k);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
     public void AnonymousTest()
     {
       using (Domain.OpenSession()) {

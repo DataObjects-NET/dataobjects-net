@@ -59,13 +59,29 @@ namespace Xtensive.Storage.Linq.Linq2Rse
     {
       if (translator.Evaluator.CanBeEvaluated(m) && translator.ParameterExtractor.IsParameter(m))
         return m;
-      if (typeof(IEntity).IsAssignableFrom(m.Type) || typeof(EntitySetBase).IsAssignableFrom(m.Type))
+      var isEntity = typeof(IEntity).IsAssignableFrom(m.Type);
+      var isEntitySet = typeof(EntitySetBase).IsAssignableFrom(m.Type);
+      var isStructure = typeof(Structure).IsAssignableFrom(m.Type);
+      var isKey = typeof(Key).IsAssignableFrom(m.Type);
+      if (isEntity || isEntitySet || isStructure) {
+        recordIsUsed = true;
+        if (isStructure) {
+          
+        }
+        else if (isEntity) {
+          
+        }
+        else {
+          
+        }
         throw new NotImplementedException();
+      }
+      else if (isKey) {
+        
+      }
       var path = translator.FieldAccessTranslator.Translate(m);
       var method = m.Type == typeof(object) ? nonGenericAccessor : genericAccessor.MakeGenericMethod(m.Type);
       var segment = source.GetFieldSegment(path);
-      if (segment.Length != 1)
-        throw new InvalidOperationException();
       tupleIsUsed = true;
       return Expression.Call(tuple, method, Expression.Constant(segment.Offset));
     }
