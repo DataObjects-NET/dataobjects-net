@@ -6,7 +6,9 @@
 
 namespace Xtensive.Storage.Linq.Linq2Rse
 {
-  internal class MappingPathItem
+  // TODO: Refactor
+
+  internal class AccessPathItem
   {
     public string FieldName { get; private set; }
     public string JoinedFieldName { get; private set; }
@@ -14,7 +16,7 @@ namespace Xtensive.Storage.Linq.Linq2Rse
 
     // Constructor
 
-    public MappingPathItem(string fieldName, string joinedFieldName)
+    public AccessPathItem(string fieldName, string joinedFieldName)
     {
       FieldName = fieldName;
       JoinedFieldName = joinedFieldName;

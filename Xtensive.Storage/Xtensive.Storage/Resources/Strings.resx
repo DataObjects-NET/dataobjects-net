@@ -516,4 +516,7 @@
   <data name="SystemTypes" xml:space="preserve">
     <value>system types</value>
   </data>
+  <data name="ExUnsupportedExpressionType" xml:space="preserve">
+    <value>Unsupported expression type: {0}</value>
+  </data>
 </root>

@@ -32,7 +32,7 @@ namespace Xtensive.Storage.Linq.Linq2Rse
 
     public ResultExpression Build(ResultExpression source, Expression body)
     {
-      this.source = translator.AccessBasedJoiner.Process(source, body);
+      this.source = translator.FieldAccessBasedJoiner.Process(source, body);
       tuple = Expression.Parameter(typeof (Tuple), "t");
       record = Expression.Parameter(typeof (Record), "r");
       tupleIsUsed = false;
@@ -77,7 +77,7 @@ namespace Xtensive.Storage.Linq.Linq2Rse
       else if (isKey) {
         // TODO: implement
       }
-      var path = translator.FieldAccessTranslator.Translate(m);
+      var path = translator.FieldAccessReplacer.GetAccessPath(m);
       var method = m.Type == typeof(object) ? 
         nonGenericAccessor : 
         genericAccessor.MakeGenericMethod(m.Type);

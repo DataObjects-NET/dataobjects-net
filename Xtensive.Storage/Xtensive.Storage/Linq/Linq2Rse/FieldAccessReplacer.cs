@@ -11,12 +11,13 @@ using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Tuples;
+using Xtensive.Storage.Resources;
 using Xtensive.Storage.Linq.Expressions;
 using Xtensive.Storage.Linq.Expressions.Visitors;
 
 namespace Xtensive.Storage.Linq.Linq2Rse
 {
-  internal class FieldAccessTranslator : ExpressionVisitor
+  internal class FieldAccessReplacer : ExpressionVisitor
   {
     private readonly QueryTranslator translator;
     private ResultExpression source;
@@ -26,7 +27,7 @@ namespace Xtensive.Storage.Linq.Linq2Rse
     private static readonly PropertyInfo keyValueAccessor;
     private static readonly MemberInfo identifierAccessor;
 
-    public LambdaExpression Translate(ResultExpression source, LambdaExpression le)
+    public LambdaExpression ProcessPredicate(ResultExpression source, LambdaExpression le)
     {
       this.source = source;
       parameter = Expression.Parameter(typeof(Tuple), "t");
@@ -35,16 +36,16 @@ namespace Xtensive.Storage.Linq.Linq2Rse
       return lambda;
     }
 
-    public Deque<MappingPathItem> Translate(Expression me)
+    public Deque<AccessPathItem> GetAccessPath(Expression e)
     {
-      var result = new Deque<MappingPathItem>();
+      var result = new Deque<AccessPathItem>();
       string fieldName = null;
       bool isJoined = false;
-      Expression expression = me;
-      while (expression.NodeType == ExpressionType.MemberAccess) {
-        var memberAccess = (MemberExpression)expression;
+      Expression current = e;
+      while (current.NodeType == ExpressionType.MemberAccess) {
+        var memberAccess = (MemberExpression) current;
         var member = memberAccess.Member;
-        expression = memberAccess.Expression;
+        current = memberAccess.Expression;
         if (typeof (IEntity).IsAssignableFrom(memberAccess.Type)) {
           var type = translator.Model.Types[memberAccess.Type];
           if (fieldName == null) {
@@ -55,7 +56,7 @@ namespace Xtensive.Storage.Linq.Linq2Rse
             if (fieldName == "Key" || type.Fields[fieldName].IsPrimaryKey)
               fieldName = member.Name + "." + fieldName;
             else {
-              var pathItem = new MappingPathItem(isJoined ? null : fieldName, 
+              var pathItem = new AccessPathItem(isJoined ? null : fieldName, 
                 isJoined ? fieldName : null);
               result.AddHead(pathItem);
               fieldName = member.Name;
@@ -66,15 +67,16 @@ namespace Xtensive.Storage.Linq.Linq2Rse
         else
           fieldName = fieldName==null ? member.Name : member.Name + "." + fieldName;
       }
-      if (expression.NodeType == ExpressionType.Parameter) {
+      if (current.NodeType == ExpressionType.Parameter) {
         if (fieldName != null) {
-          var pathItem = new MappingPathItem(isJoined ? null : fieldName,
+          var pathItem = new AccessPathItem(isJoined ? null : fieldName,
             isJoined ? fieldName : null);
           result.AddHead(pathItem);
         }
       }
       else
-        return null;
+        throw Exceptions.InternalError(string.Format(
+          Strings.ExUnsupportedExpressionType, current.NodeType), Log.Instance);
       return result;
     }
 
@@ -92,7 +94,7 @@ namespace Xtensive.Storage.Linq.Linq2Rse
 
     protected override Expression VisitMemberAccess(MemberExpression m)
     {
-      var fieldPath = Translate(m);
+      var fieldPath = GetAccessPath(m);
       if (fieldPath == null)
         return m;
       var method = m.Type == typeof(object) ? nonGenericAccessor : genericAccessor.MakeGenericMethod(m.Type);
@@ -123,14 +125,14 @@ namespace Xtensive.Storage.Linq.Linq2Rse
         }
         Expression result = null;
         var key = isKey ? second : Expression.MakeMemberAccess(second, identifierAccessor);
-        var fieldStack = Translate(first);
+        var fieldStack = GetAccessPath(first);
         if (fieldStack == null)
           throw new InvalidOperationException();
         if (!isKey) {
           if (fieldStack.Count==0)
-            fieldStack.AddHead(new MappingPathItem("Key", null));
+            fieldStack.AddHead(new AccessPathItem("Key", null));
           else
-            fieldStack.AddHead(new MappingPathItem(fieldStack.ExtractHead().JoinedFieldName + ".Key", null));
+            fieldStack.AddHead(new AccessPathItem(fieldStack.ExtractHead().JoinedFieldName + ".Key", null));
         }
         var segment = source.GetFieldSegment(fieldStack);
         if (segment.Length == 0)
@@ -158,14 +160,14 @@ namespace Xtensive.Storage.Linq.Linq2Rse
 
     // Constructors
 
-    public FieldAccessTranslator(QueryTranslator translator)
+    public FieldAccessReplacer(QueryTranslator translator)
     {
       this.translator = translator;
     }
 
     // Type initializer
 
-    static FieldAccessTranslator()
+    static FieldAccessReplacer()
     {
       keyValueAccessor = typeof (Key).GetProperty("Value");
       identifierAccessor = typeof (IIdentified<Key>).GetMember("Identifier")[0];

@@ -17,7 +17,7 @@ using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Linq.Linq2Rse
 {
-  internal class AccessBasedJoiner : ExpressionVisitor
+  internal class FieldAccessBasedJoiner : ExpressionVisitor
   {
     private readonly QueryTranslator translator;
     private ResultExpression currentResult;
@@ -89,7 +89,7 @@ namespace Xtensive.Storage.Linq.Linq2Rse
    
     // Constructor
 
-    public AccessBasedJoiner(QueryTranslator translator)
+    public FieldAccessBasedJoiner(QueryTranslator translator)
     {
       this.translator = translator;
     }

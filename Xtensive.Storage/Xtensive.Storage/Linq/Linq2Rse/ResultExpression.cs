@@ -21,7 +21,7 @@ namespace Xtensive.Storage.Linq.Expressions
     public Expression<Func<RecordSet, object>> Projector { get; private set; }
     public ResultMapping Mapping { get; private set; }
 
-    public Segment<int> GetFieldSegment(IEnumerable<MappingPathItem> fieldPath)
+    public Segment<int> GetFieldSegment(IEnumerable<AccessPathItem> fieldPath)
     {
       var result = default(Segment<int>);
       var pathList = fieldPath.ToList();
