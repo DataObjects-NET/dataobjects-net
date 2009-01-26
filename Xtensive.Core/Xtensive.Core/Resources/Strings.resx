@@ -567,4 +567,7 @@
   <data name="ExStringDoesNotCorrespondToDescriptor" xml:space="preserve">
     <value>String does not correspond to the specified descriptor.</value>
   </data>
+  <data name="ExUnknownExpressionType" xml:space="preserve">
+    <value>Unknown expression type: '{0} ({1})'</value>
+  </data>
 </root>

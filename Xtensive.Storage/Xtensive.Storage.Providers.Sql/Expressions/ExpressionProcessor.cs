@@ -7,6 +7,7 @@
 using System;
 using System.Linq.Expressions;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Linq;
 using Xtensive.Core.Tuples;
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Linq;

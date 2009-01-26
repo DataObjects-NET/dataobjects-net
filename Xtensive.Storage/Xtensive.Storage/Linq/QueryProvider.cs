@@ -2,61 +2,43 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kochetov
-// Created:    2008.11.26
+// Created:    2008.11.27
 
-using System;
-using System.Collections;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
-using Xtensive.Core.Reflection;
-using Xtensive.Storage.Linq;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Model;
-using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Linq
 {
-  public abstract class QueryProvider : IQueryProvider
+  public class QueryProvider : Linq.QueryProviderBase
   {
-    public DomainModel Model { get; private set; }
-
-    IQueryable IQueryProvider.CreateQuery(Expression expression)
+    protected override object Execute(Expression expression)
     {
-      Type elementType = TypeHelper.GetElementType(expression.Type);
-      try {
-        var query = (IQueryable)typeof (Query<>).Activate(new[] {elementType}, new object[] {this, expression});
-        return query;
+      var compiler = new QueryTranslator(this, expression);
+      var result = compiler.Translate();
+      var shaper = result.Projector;
+      var recordSet = result.RecordSet;
+      
+      // TODO: Always use Projector
+      if (shaper != null) {
+        var compiled = shaper.Compile();
+        return compiled(recordSet);
       }
-      catch (TargetInvocationException tie) {
-        throw tie.InnerException;
-      }
+
+      var arguments = expression.Type.GetGenericArguments();
+      return recordSet.ToEntities(arguments[0]);
     }
 
-    IQueryable<TElement> IQueryProvider.CreateQuery<TElement>(Expression expression)
+
+    // Constructors
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="model">The model to use.</param>
+    public QueryProvider(DomainModel model)
+      : base(model)
     {
-      return new Query<TElement>(this, expression);
-    }
-
-    object IQueryProvider.Execute(Expression expression)
-    {
-      return Execute(expression);
-    }
-
-    TResult IQueryProvider.Execute<TResult>(Expression expression)
-    {
-      object execute = Execute(expression);
-      execute = execute ?? default(TResult);
-      return (TResult)execute;
-    }
-
-    protected abstract object Execute(Expression expression);
-
-
-    // Constructor
-
-    protected QueryProvider(DomainModel model)
-    {
-      Model = model;
     }
   }
 }

@@ -12,7 +12,7 @@ using System.Linq;
 using Xtensive.Core.Disposable;
 using Xtensive.Core.Tuples;
 using Xtensive.Sql.Dom;
-using Xtensive.Storage.Linq.Linq2Rse;
+using Xtensive.Storage.Linq;
 using Xtensive.Storage.Providers.Sql.Resources;
 using IsolationLevel=System.Transactions.IsolationLevel;
 
