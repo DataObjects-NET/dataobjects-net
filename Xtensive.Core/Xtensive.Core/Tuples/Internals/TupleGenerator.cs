@@ -18,30 +18,14 @@ namespace Xtensive.Core.Tuples.Internals
 {
   internal class TupleGenerator
   {
-    // Consts
-    private const string descriptorFieldName = "descriptor";
-    private const string descriptorPropertyName = "Descriptor";
-    private const string countPropertyName = "Count";
-    private const string valuePropertyName = "Value";
-    private const string getValueOrDefaultMethodName = "GetValueOrDefault";
-    private const string getValueOrDefaultGenericMethodName = "GetValueOrDefault";
-    private const string setValueGenericMethodName = "SetValue";
-    private const string hasValuePropertyName = "HasValue";
-    private const string setValueMethodName = "SetValue";
-    private const string getFieldStateMethodName = "GetFieldState";
-    private const string setFieldStateMathodName = "SetFieldState";
-    private const string createNewMethodName = "CreateNew";
-    private const string cloneMethodName = "Clone";
-    private const string equalsMethodName = "Equals";
-    private const string getHashCodeMethodName = "GetHashCode";
-
+    // Static members
     private readonly static MethodInfo referenceEqualsMethod = typeof(object).GetMethod("ReferenceEquals");
     private readonly static MethodInfo staticEqualsMethod = typeof(object).GetMethod("Equals", new Type[]{typeof(object), typeof(object)});
     private readonly static MethodInfo objectGetHashCodeMethod = typeof(object).GetMethod("GetHashCode", ArrayUtils<Type>.EmptyArray);
     private readonly static AssemblyName assemblyName = new AssemblyName("Xtensive.GeneratedTuples");
     private readonly static MethodInfo getFlagsMethod = typeof(Tuple).GetMethod("GetFieldState");
     private readonly static MethodInfo getHashCodeMethod = typeof(Tuple).GetMethod("GetHashCode");
-    private static readonly MethodInfo getDescriptorMethod = typeof(Tuple).GetMethod(WellKnown.GetterPrefix + descriptorPropertyName);
+    private static readonly MethodInfo getDescriptorMethod = typeof(Tuple).GetMethod(WellKnown.GetterPrefix + WellKnown.Tuple.Descriptor);
     private readonly static MethodInfo setFlagsMethod = typeof(GeneratedTuple).GetMethod("SetFieldState", 
       BindingFlags.Instance | 
       BindingFlags.NonPublic | 
@@ -51,7 +35,6 @@ namespace Xtensive.Core.Tuples.Internals
     private readonly static MethodInfo setValueMethod;
     private readonly static MethodInfo setValueGenericMethod;
     private readonly static MethodInfo equalsMethod;
-    // Static members
     private readonly static AssemblyBuilder assemblyBuilder;
     private readonly static ModuleBuilder moduleBuilder;
     private static volatile bool assemblyIsSaved;
@@ -118,7 +101,7 @@ namespace Xtensive.Core.Tuples.Internals
         throw Exceptions.InternalError(string.Format(
           "Tuple generation has failed for tuple descriptor {0}.", tupleInfo.Descriptor), Log.Instance);
 
-      FieldInfo descriptorField = tuple.GetType().GetField(descriptorFieldName, 
+      FieldInfo descriptorField = tuple.GetType().GetField(WellKnown.Tuple.DescriptorFieldName, 
         BindingFlags.Static | 
         BindingFlags.NonPublic);
       descriptorField.SetValue(null, tupleInfo.Descriptor);
@@ -128,7 +111,7 @@ namespace Xtensive.Core.Tuples.Internals
     private void AddGetHashCode()
     {
       MethodBuilder getHashCode = tupleType.DefineMethod(
-         getHashCodeMethodName,
+         WellKnown.Object.GetHashCode,
          MethodAttributes.Public |
          MethodAttributes.Virtual,
          typeof(int),
@@ -147,7 +130,7 @@ namespace Xtensive.Core.Tuples.Internals
         else if (fieldInfo.IsValueType) {
           il.Emit(OpCodes.Ldarg_0);
           il.Emit(OpCodes.Ldflda, fieldInfo.FieldBuilder);
-          var structGetHashCode = fieldInfo.Type.GetMethod(getHashCodeMethodName);
+          var structGetHashCode = fieldInfo.Type.GetMethod(WellKnown.Object.GetHashCode);
           il.Emit(OpCodes.Call, structGetHashCode);
           il.Emit(OpCodes.Xor);
         }
@@ -172,7 +155,7 @@ namespace Xtensive.Core.Tuples.Internals
     private void AddEquals()
     {
       MethodBuilder equals = tupleType.DefineMethod(
-         equalsMethodName,
+         WellKnown.Object.Equals,
          MethodAttributes.Public |
          MethodAttributes.Virtual, 
          typeof(bool),
@@ -270,7 +253,7 @@ namespace Xtensive.Core.Tuples.Internals
     private void AddGetValueOrDefaultGeneric()
     {
       MethodBuilder getValueOrDefault = tupleType.DefineMethod(
-          getValueOrDefaultGenericMethodName,
+          WellKnown.Tuple.GetValueOrDefault,
           MethodAttributes.Public |
           MethodAttributes.Virtual
           );
@@ -353,7 +336,7 @@ namespace Xtensive.Core.Tuples.Internals
     private void AddGetValueOrDefault()
     {
       MethodBuilder getValueOrDefault = tupleType.DefineMethod(
-        getValueOrDefaultMethodName,
+        WellKnown.Tuple.GetValueOrDefault,
         MethodAttributes.Public | MethodAttributes.Virtual,
         typeof(object),
         new Type[]{typeof(int)});
@@ -394,7 +377,7 @@ namespace Xtensive.Core.Tuples.Internals
     private void AddSetValueGeneric()
     {
       MethodBuilder setValue = tupleType.DefineMethod(
-          setValueGenericMethodName,
+          WellKnown.Tuple.SetValue,
           MethodAttributes.Public |
           MethodAttributes.Virtual
           );
@@ -404,9 +387,9 @@ namespace Xtensive.Core.Tuples.Internals
 
       ILGenerator il = setValue.GetILGenerator();
 
-//      MethodInfo interfaceMethod = interfaceInfo.InterfaceType.GetMethod(setValueMethodName);
+//      MethodInfo interfaceMethod = interfaceInfo.InterfaceType.GetMethod(WellKnown.Tuple.SetValue);
 //      MethodBuilder setValue = tupleType.DefineMethod(
-//          setValueMethodName,
+//          WellKnown.Tuple.SetValue,
 //          MethodAttributes.Private |
 //          MethodAttributes.Virtual |
 //          MethodAttributes.Final,
@@ -498,7 +481,7 @@ namespace Xtensive.Core.Tuples.Internals
     private void AddSetValue()
     {
       MethodBuilder setValue = tupleType.DefineMethod(
-        setValueMethodName,
+        WellKnown.Tuple.SetValue,
         MethodAttributes.Public | MethodAttributes.Virtual,
         null,
         new Type[] { typeof(int), typeof(object) });
@@ -552,7 +535,7 @@ namespace Xtensive.Core.Tuples.Internals
     {
       // "private readonly static TDescriptor descriptor;"
       descriptorField = tupleType.DefineField(
-        descriptorFieldName,
+        WellKnown.Tuple.DescriptorFieldName,
         tDescriptorParameter,
         FieldAttributes.Private | 
         FieldAttributes.Static |
@@ -563,7 +546,7 @@ namespace Xtensive.Core.Tuples.Internals
     {
       // "public override TDescriptor Descriptor {"
       MethodBuilder getDescriptorMethod = tupleType.DefineMethod(
-        WellKnown.GetterPrefix+descriptorPropertyName,
+        WellKnown.GetterPrefix+WellKnown.Tuple.Descriptor,
           MethodAttributes.Public |
           MethodAttributes.Virtual |
           MethodAttributes.SpecialName |
@@ -603,7 +586,7 @@ namespace Xtensive.Core.Tuples.Internals
     {
       // "public override int Count {"
       getCountMethod =
-        tupleType.DefineMethod(WellKnown.GetterPrefix+countPropertyName,
+        tupleType.DefineMethod(WellKnown.GetterPrefix+WellKnown.Tuple.Count,
           MethodAttributes.Public |
           MethodAttributes.Virtual |
           MethodAttributes.SpecialName |
@@ -620,7 +603,7 @@ namespace Xtensive.Core.Tuples.Internals
 
     private void AddGetFlags()
     {
-      MethodBuilder getFlags = tupleType.DefineMethod(getFieldStateMethodName,
+      MethodBuilder getFlags = tupleType.DefineMethod(WellKnown.Tuple.GetFieldState,
         MethodAttributes.Public |
         MethodAttributes.Virtual,
         typeof(TupleFieldState),
@@ -646,7 +629,7 @@ namespace Xtensive.Core.Tuples.Internals
 
     private void AddSetFlags()
     {
-      MethodBuilder setFlags = tupleType.DefineMethod(setFieldStateMathodName,
+      MethodBuilder setFlags = tupleType.DefineMethod(WellKnown.Tuple.SetFieldState,
         MethodAttributes.Public |
         MethodAttributes.Virtual,
         null,
@@ -690,7 +673,7 @@ namespace Xtensive.Core.Tuples.Internals
       il.Emit(OpCodes.Call, tupleConstructorInfo);
       il.Emit(OpCodes.Ret);
 
-      MethodBuilder methodBuilder = tupleType.DefineMethod(createNewMethodName,
+      MethodBuilder methodBuilder = tupleType.DefineMethod(WellKnown.Tuple.CreateNew,
         MethodAttributes.Public |
         MethodAttributes.Virtual,
         typeof(Tuple),
@@ -701,7 +684,7 @@ namespace Xtensive.Core.Tuples.Internals
       il.Emit(OpCodes.Ret);
 
       tupleType.DefineMethodOverride(methodBuilder,
-        typeof(Tuple).GetMethod(createNewMethodName));
+        typeof(Tuple).GetMethod(WellKnown.Tuple.CreateNew));
 
       // Copying constructor.
       copyingCtor = tupleType.DefineConstructor(
@@ -733,7 +716,7 @@ namespace Xtensive.Core.Tuples.Internals
     private void AddClone()
     {
       MethodBuilder clone = tupleType.DefineMethod(
-          cloneMethodName,
+          WellKnown.Object.Clone,
           MethodAttributes.Public | MethodAttributes.Virtual,
           typeof(Tuple),
           Type.EmptyTypes);
@@ -744,7 +727,7 @@ namespace Xtensive.Core.Tuples.Internals
       il.Emit(OpCodes.Newobj, copyingCtor);
       il.Emit(OpCodes.Ret);
 
-      MethodInfo cloneMethod = typeof(Tuple).GetMethod(cloneMethodName);
+      MethodInfo cloneMethod = typeof(Tuple).GetMethod(WellKnown.Object.Clone);
       tupleType.DefineMethodOverride(clone, cloneMethod);
     }
 
@@ -814,19 +797,19 @@ namespace Xtensive.Core.Tuples.Internals
       foreach (MethodInfo info in tupleType.GetMethods()) {
         if (!info.IsPublic)
           continue;
-        if (info.Name==getValueOrDefaultMethodName && !info.IsGenericMethodDefinition) {
+        if (info.Name==WellKnown.Tuple.GetValueOrDefault && !info.IsGenericMethodDefinition) {
           getValueOrDefaultMethod = info;
           continue;
         }
-        if (info.Name==setValueMethodName && !info.IsGenericMethodDefinition) {
+        if (info.Name==WellKnown.Tuple.SetValue && !info.IsGenericMethodDefinition) {
           setValueMethod = info;
           continue;
         }
-        if (info.Name == getValueOrDefaultGenericMethodName && info.IsGenericMethodDefinition)
+        if (info.Name == WellKnown.Tuple.GetValueOrDefault && info.IsGenericMethodDefinition)
           getValueOrDefaultGenericMethod = info;
-        if (info.Name == setValueGenericMethodName && info.IsGenericMethodDefinition)
+        if (info.Name == WellKnown.Tuple.SetValue && info.IsGenericMethodDefinition)
           setValueGenericMethod = info;
-        if (info.Name == equalsMethodName) {
+        if (info.Name == WellKnown.Object.Equals) {
           var types = info.GetParameterTypes();
           if (types[0] == typeof(Tuple))
             equalsMethod = info;

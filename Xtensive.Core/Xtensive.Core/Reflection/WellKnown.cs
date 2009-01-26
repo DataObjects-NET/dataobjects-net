@@ -41,15 +41,83 @@ namespace Xtensive.Core.Reflection
     /// </summary>
     public static readonly string RuntimeMethodInfoName = "System.Reflection.RuntimeMethodInfo";
 
-    /// <summary>
-    /// Returns "GetValueOrDefault".
-    /// </summary>
-    public static readonly string GetValueOrDefault = "GetValueOrDefault";
+    ///<summary>
+    /// Various well-known constants related to <see cref="Object"/>.
+    ///</summary>
+    public static class Object
+    {
+      /// <summary>
+      /// Returns "Clone".
+      /// </summary>
+      public const string Clone = "Clone";
 
-    /// <summary>
-    /// Returns "GetValue".
-    /// </summary>
-    public static readonly string GetValue = "GetValue";
+      /// <summary>
+      /// Returns "Equals".
+      /// </summary>
+      public const string Equals = "Equals";
+
+      /// <summary>
+      /// Returns "GetHashCode".
+      /// </summary>
+      public const string GetHashCode = "GetHashCode";
+    }
+
+    ///<summary>
+    /// Various well-known constants related to <see cref="Tuple"/>.
+    ///</summary>
+    public static class Tuple
+    {
+
+      /// <summary>
+      /// Returns "GetValueOrDefault".
+      /// </summary>
+      public const string GetValueOrDefault = "GetValueOrDefault";
+
+      /// <summary>
+      /// Returns "GetValue".
+      /// </summary>
+      public const string GetValue = "GetValue";
+
+      /// <summary>
+      /// Returns "SetValue".
+      /// </summary>
+      public const string SetValue = "SetValue";
+
+      /// <summary>
+      /// Returns "HasValue".
+      /// </summary>
+      public const string HasValue = "HasValue";
+
+      /// <summary>
+      /// Returns "GetFieldState".
+      /// </summary>
+      public const string GetFieldState = "GetFieldState";
+
+      /// <summary>
+      /// Returns "SetFieldState".
+      /// </summary>
+      public const string SetFieldState = "SetFieldState";
+
+      /// <summary>
+      /// Returns "descriptor".
+      /// </summary>
+      public const string DescriptorFieldName = "descriptor";
+
+      /// <summary>
+      /// Returns "Descriptor".
+      /// </summary>
+      public const string Descriptor = "Descriptor";
+
+      /// <summary>
+      /// Returns "Count".
+      /// </summary>
+      public const string Count = "Count";
+
+      /// <summary>
+      /// Returns "CreateNew".
+      /// </summary>
+      public const string CreateNew = "CreateNew";
+    }
 
     ///<summary>
     /// Various well-known constants related to <see cref="IQueryable"/>.
