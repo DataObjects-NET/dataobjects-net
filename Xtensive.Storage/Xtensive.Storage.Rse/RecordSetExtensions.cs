@@ -235,5 +235,10 @@ namespace Xtensive.Storage.Rse
     {
       return new RawProvider(header, tuples).Result;
     }
+
+    public static RecordSet Distinct(this RecordSet recordSet)
+    {
+      return new DistinctProvider(recordSet.Provider).Result;
+    }
   }
 }

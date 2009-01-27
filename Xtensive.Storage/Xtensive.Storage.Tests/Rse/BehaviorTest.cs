@@ -239,5 +239,35 @@ namespace Xtensive.Storage.Tests.Rse
         Assert.AreEqual(resultCount, count1);
       }
     }
+
+    [Test]
+    public void DistinctTest()
+    {
+      const int authorCount = 1000;
+      Tuple authorTuple = Tuple.Create(new[] { typeof(int), typeof(string), typeof(string) });
+      var authorColumns = new[]
+        {
+          new MappedColumn("ID", 0, typeof (int)),
+          new MappedColumn("FirstName", 1, typeof (string)),
+          new MappedColumn("LastName", 2, typeof (string)),
+        };
+      var authorHeader = new RecordSetHeader(authorTuple.Descriptor, authorColumns);
+
+      var authors = new Tuple[authorCount];
+      for (int i = 0; i < authorCount; i++) {
+        Tuple author = authorTuple.CreateNew();
+        author.SetValue(0, 1);
+        author.SetValue(1, "FirstName");
+        author.SetValue(2, "LastName");
+        authors[i] = author;
+      }
+
+      RecordSet authorRS = authors
+        .ToRecordSet(authorHeader)
+        .Distinct();
+
+      Assert.AreEqual(1, authorRS.Count());
+
+    }
   }
 }
