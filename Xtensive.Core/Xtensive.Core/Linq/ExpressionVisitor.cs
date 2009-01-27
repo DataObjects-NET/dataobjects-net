@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq.Expressions;
 
-namespace Xtensive.Storage.Linq.Expressions.Visitors
+namespace Xtensive.Core.Linq
 {
   /// <summary>
   /// An abstract base implementation of <see cref="ExpressionVisitor{TResult}"/>

@@ -9,9 +9,9 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq.Expressions;
 using Xtensive.Core.Reflection;
-using Xtensive.Storage.Resources;
+using Xtensive.Core.Resources;
 
-namespace Xtensive.Storage.Linq.Expressions.Visitors
+namespace Xtensive.Core.Linq
 {
   /// <summary>
   /// Abstract <see cref="Expression"/> visitor class.

@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using Xtensive.Core;
-using Xtensive.Storage.Linq.Linq2Rse;
+using Xtensive.Storage.Linq;
 using Xtensive.Storage.Rse;
 using System.Linq;
 

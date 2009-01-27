@@ -7,7 +7,7 @@
 using System.Collections.Generic;
 using Xtensive.Core;
 
-namespace Xtensive.Storage.Linq.Linq2Rse
+namespace Xtensive.Storage.Linq
 {
   internal class ResultMapping
   {

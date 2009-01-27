@@ -12,9 +12,10 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
+using Xtensive.Core.Linq;
 using Xtensive.Core.Reflection;
 
-namespace Xtensive.Storage.Linq.Expressions.Visitors
+namespace Xtensive.Core.Linq
 {
   /// <summary>
   /// Writes out an expression tree in a C#-ish syntax.

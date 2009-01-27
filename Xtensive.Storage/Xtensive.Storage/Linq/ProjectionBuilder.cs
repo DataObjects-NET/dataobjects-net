@@ -8,13 +8,14 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Xtensive.Core.Linq;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Linq.Expressions;
 using Xtensive.Storage.Linq.Expressions.Visitors;
 using Xtensive.Storage.Rse;
 
-namespace Xtensive.Storage.Linq.Linq2Rse
+namespace Xtensive.Storage.Linq
 {
   internal class ProjectionBuilder : ExpressionVisitor
   {

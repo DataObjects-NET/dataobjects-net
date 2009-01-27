@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
+using Xtensive.Core.Linq;
 using Xtensive.Storage.Linq.Expressions;
 using Xtensive.Storage.Linq.Expressions.Visitors;
 using Xtensive.Storage.Model;
@@ -15,7 +16,7 @@ using System.Linq;
 using Xtensive.Storage.Rse.Providers.Compilable;
 using Xtensive.Storage.Rse;
 
-namespace Xtensive.Storage.Linq.Linq2Rse
+namespace Xtensive.Storage.Linq
 {
   internal class FieldAccessBasedJoiner : ExpressionVisitor
   {

@@ -7,6 +7,7 @@
 using System;
 using System.Linq.Expressions;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Linq;
 
 namespace Xtensive.Storage.Linq.Expressions.Visitors
 {

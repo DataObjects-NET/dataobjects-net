@@ -10,12 +10,13 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Linq;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Resources;
 using Xtensive.Storage.Linq.Expressions;
 using Xtensive.Storage.Linq.Expressions.Visitors;
 
-namespace Xtensive.Storage.Linq.Linq2Rse
+namespace Xtensive.Storage.Linq
 {
   internal class FieldAccessReplacer : ExpressionVisitor
   {

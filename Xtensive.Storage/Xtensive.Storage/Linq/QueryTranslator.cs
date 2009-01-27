@@ -10,6 +10,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
+using Xtensive.Core.Linq;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Linq.Expressions;
@@ -18,14 +19,14 @@ using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers.Compilable;
 
-namespace Xtensive.Storage.Linq.Linq2Rse
+namespace Xtensive.Storage.Linq
 {
   internal class QueryTranslator : ExpressionVisitor
   {
     private const string AliasPrefix = "alias";
 
     private int aliasSuffix = 0;
-    private readonly Linq.QueryProvider provider;
+    private readonly Linq.QueryProviderBase provider;
     private readonly Expression query;
     private readonly DomainModel model;
     private readonly FieldAccessReplacer fieldAccessReplacer;
@@ -463,7 +464,7 @@ namespace Xtensive.Storage.Linq.Linq2Rse
 
     // Constructor
 
-    public QueryTranslator(Linq.QueryProvider provider, Expression query)
+    public QueryTranslator(Linq.QueryProviderBase provider, Expression query)
     {
       model = provider.Model;
       this.provider = provider;

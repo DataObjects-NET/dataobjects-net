@@ -4,11 +4,11 @@
 // Created by: Alexey Kochetov
 // Created:    2008.12.26
 
-namespace Xtensive.Storage.Linq.Linq2Rse
+namespace Xtensive.Storage.Linq
 {
   // TODO: Refactor
 
-  internal class AccessPathItem
+  public class AccessPathItem
   {
     public string FieldName { get; private set; }
     public string JoinedFieldName { get; private set; }
