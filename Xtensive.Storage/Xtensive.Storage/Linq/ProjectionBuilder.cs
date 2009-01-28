@@ -78,11 +78,11 @@ namespace Xtensive.Storage.Linq
       else if (isKey) {
         // TODO: implement
       }
-      var path = translator.FieldAccessReplacer.GetAccessPath(m);
+      var path = AccessPath.Parse(m, translator.Model);
       var method = m.Type == typeof(object) ? 
         nonGenericAccessor : 
         genericAccessor.MakeGenericMethod(m.Type);
-      var segment = source.GetFieldSegment(path);
+      var segment = source.GetMemberSegment(path);
       tupleIsUsed = true;
       return Expression.Call(tuple, method, Expression.Constant(segment.Offset));
     }

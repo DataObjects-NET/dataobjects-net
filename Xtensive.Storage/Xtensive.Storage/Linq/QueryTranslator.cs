@@ -386,8 +386,8 @@ namespace Xtensive.Storage.Linq
       var inner = (ResultExpression)Visit(innerSource);
       outer = fieldAccessBasedJoiner.Process(outer, outerKey);
       inner = fieldAccessBasedJoiner.Process(inner, innerKey);
-      var outerKeyPath = fieldAccessReplacer.GetAccessPath(outerKey.Body);
-      var innerKeyPath = fieldAccessReplacer.GetAccessPath(innerKey.Body);
+      var outerKeyPath = AccessPath.Parse(outerKey.Body, model);
+      var innerKeyPath = AccessPath.Parse(innerKey.Body, model);
       if (outerKeyPath == null || innerKeyPath == null) {
         throw new InvalidOperationException();
       }
@@ -408,25 +408,25 @@ namespace Xtensive.Storage.Linq
         }
         else
           type = Model.Types[outerKey.Body.Type];
-        AccessPathItem pathItem = null;
-        if (outerKeyPath.Count != 0)
-          pathItem = outerKeyPath.ExtractTail();
-        if (innerKeyPath.Count != 0)
-          pathItem = innerKeyPath.ExtractTail();
-        foreach (var field in type.Hierarchy.KeyFields.Keys) {
-          var fieldName = pathItem == null ? field.Name : pathItem.JoinedFieldName + "." + field.Name;
-          var keyItem = new AccessPathItem(fieldName, null);
-          outerKeyPath.AddTail(keyItem);
-          innerKeyPath.AddTail(keyItem);
-          keyPairs.Add(new Pair<int>(
-            outer.GetFieldSegment(outerKeyPath).Offset, 
-            outer.GetFieldSegment(innerKeyPath).Offset));
-          outerKeyPath.ExtractTail();
-          innerKeyPath.ExtractTail();
-        }
+//        AccessPathItem pathItem = null;
+//        if (outerKeyPath.Count != 0)
+//          pathItem = outerKeyPath.ExtractTail();
+//        if (innerKeyPath.Count != 0)
+//          pathItem = innerKeyPath.ExtractTail();
+//        foreach (var field in type.Hierarchy.KeyFields.Keys) {
+//          var fieldName = pathItem == null ? field.Name : pathItem.JoinedFieldName + "." + field.Name;
+//          var keyItem = new AccessPathItem(fieldName, null);
+//          outerKeyPath.AddTail(keyItem);
+//          innerKeyPath.AddTail(keyItem);
+//          keyPairs.Add(new Pair<int>(
+//            outer.GetMemberSegment(outerKeyPath).Offset, 
+//            outer.GetMemberSegment(innerKeyPath).Offset));
+//          outerKeyPath.ExtractTail();
+//          innerKeyPath.ExtractTail();
+//        }
       }
       else {
-        keyPairs.Add(new Pair<int>(outer.GetFieldSegment(outerKeyPath).Offset, inner.GetFieldSegment(innerKeyPath).Offset));
+        keyPairs.Add(new Pair<int>(outer.GetMemberSegment(outerKeyPath).Offset, inner.GetMemberSegment(innerKeyPath).Offset));
       }
 
       var innerRecordSet = inner.RecordSet.Alias(GetNextAlias());

@@ -12,7 +12,6 @@ namespace Xtensive.Storage.Linq
     Key,
     Struct,
     Entity,
-    EntitySet,
-    JoinedEntity,
+    EntitySet
   }
 }

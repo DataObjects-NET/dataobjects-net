@@ -14,6 +14,11 @@ namespace Xtensive.Storage
   public interface IEntity: IIdentified<Key>
   {
     /// <summary>
+    /// Gets the <see cref="Key"/> of the <see cref="Entity"/>.
+    /// </summary>
+    Key Key { get; }
+
+    /// <summary>
     /// Gets persistence state of the entity.
     /// </summary>
     PersistenceState PersistenceState { get; }

@@ -21,28 +21,28 @@ namespace Xtensive.Storage.Linq.Expressions
     public Expression<Func<RecordSet, object>> Projector { get; private set; }
     public ResultMapping Mapping { get; private set; }
 
-    public Segment<int> GetFieldSegment(IEnumerable<AccessPathItem> fieldPath)
+    public Segment<int> GetMemberSegment(AccessPath fieldPath)
     {
-      var result = default(Segment<int>);
+      var result = new Segment<int>(0, Mapping.Fields.Max(pair => pair.Value.Offset) + 1);
       var pathList = fieldPath.ToList();
       if (pathList.Count == 0)
         return result;
       var first = pathList[0];
       var mapping = Mapping;
-      if (first.FieldName != null) {
-        if (mapping.Fields.TryGetValue(first.FieldName, out result))
+      if (first.Type != AccessType.Entity) {
+        if (mapping.Fields.TryGetValue(first.Name, out result))
           return result;
       }
       else
-        mapping = mapping.JoinedRelations[first.JoinedFieldName];
+        mapping = mapping.JoinedRelations[first.Name];
 
       for (int i = 1; i < pathList.Count; i++) {
         var item = pathList[i];
-        if (item.FieldName != null) {
-          if (mapping.Fields.TryGetValue(item.FieldName, out result))
+        if (item.Type != AccessType.Entity) {
+          if (mapping.Fields.TryGetValue(item.Name, out result))
             return result;
         }
-        mapping = mapping.JoinedRelations[item.JoinedFieldName];
+        mapping = mapping.JoinedRelations[item.Name];
       }
       return result;
     }

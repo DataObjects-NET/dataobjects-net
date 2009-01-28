@@ -4,22 +4,24 @@
 // Created by: Alexey Kochetov
 // Created:    2008.12.26
 
+using System.Linq.Expressions;
+
 namespace Xtensive.Storage.Linq
 {
-  // TODO: Refactor
-
   public class AccessPathItem
   {
-    public string FieldName { get; private set; }
-    public string JoinedFieldName { get; private set; }
+    public string Name { get; private set; }
+    public AccessType Type { get; set; }
+    public Expression Expression { get; set; }
 
 
     // Constructor
 
-    public AccessPathItem(string fieldName, string joinedFieldName)
+    public AccessPathItem(string name, AccessType type, Expression expression)
     {
-      FieldName = fieldName;
-      JoinedFieldName = joinedFieldName;
+      Name = name;
+      Type = type;
+      Expression = expression;
     }
   }
 }

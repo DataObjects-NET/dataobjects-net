@@ -26,6 +26,7 @@ namespace Xtensive.Storage.Linq
     private static readonly MethodInfo nonGenericAccessor;
     private static readonly MethodInfo genericAccessor;
     private static readonly PropertyInfo keyValueAccessor;
+    private static readonly PropertyInfo keyAccessor;
     private static readonly MemberInfo identifierAccessor;
 
     public LambdaExpression ProcessPredicate(ResultExpression source, LambdaExpression le)
@@ -37,49 +38,49 @@ namespace Xtensive.Storage.Linq
       return lambda;
     }
 
-    public Deque<AccessPathItem> GetAccessPath(Expression e)
-    {
-      var result = new Deque<AccessPathItem>();
-      string fieldName = null;
-      bool isJoined = false;
-      Expression current = e;
-      while (current.NodeType == ExpressionType.MemberAccess) {
-        var memberAccess = (MemberExpression) current;
-        var member = memberAccess.Member;
-        current = memberAccess.Expression;
-        if (typeof (IEntity).IsAssignableFrom(memberAccess.Type)) {
-          var type = translator.Model.Types[memberAccess.Type];
-          if (fieldName == null) {
-            fieldName = member.Name;
-            isJoined = true;
-          }
-          else {
-            if (fieldName == "Key" || type.Fields[fieldName].IsPrimaryKey)
-              fieldName = member.Name + "." + fieldName;
-            else {
-              var pathItem = new AccessPathItem(isJoined ? null : fieldName, 
-                isJoined ? fieldName : null);
-              result.AddHead(pathItem);
-              fieldName = member.Name;
-              isJoined = true;
-            }
-          }
-        }
-        else
-          fieldName = fieldName==null ? member.Name : member.Name + "." + fieldName;
-      }
-      if (current.NodeType == ExpressionType.Parameter) {
-        if (fieldName != null) {
-          var pathItem = new AccessPathItem(isJoined ? null : fieldName,
-            isJoined ? fieldName : null);
-          result.AddHead(pathItem);
-        }
-      }
-      else
-        throw Exceptions.InternalError(string.Format(
-          Strings.ExUnsupportedExpressionType, current.NodeType), Log.Instance);
-      return result;
-    }
+//    public Deque<AccessPathItem> GetAccessPath(Expression e)
+//    {
+//      var result = new Deque<AccessPathItem>();
+//      string fieldName = null;
+//      bool isJoined = false;
+//      Expression current = e;
+//      while (current.NodeType == ExpressionType.MemberAccess) {
+//        var memberAccess = (MemberExpression) current;
+//        var member = memberAccess.Member;
+//        current = memberAccess.Expression;
+//        if (typeof (IEntity).IsAssignableFrom(memberAccess.Type)) {
+//          var type = translator.Model.Types[memberAccess.Type];
+//          if (fieldName == null) {
+//            fieldName = member.Name;
+//            isJoined = true;
+//          }
+//          else {
+//            if (fieldName == "Key" || type.Fields[fieldName].IsPrimaryKey)
+//              fieldName = member.Name + "." + fieldName;
+//            else {
+//              var pathItem = new AccessPathItem(isJoined ? null : fieldName, 
+//                isJoined ? fieldName : null);
+//              result.AddHead(pathItem);
+//              fieldName = member.Name;
+//              isJoined = true;
+//            }
+//          }
+//        }
+//        else
+//          fieldName = fieldName==null ? member.Name : member.Name + "." + fieldName;
+//      }
+//      if (current.NodeType == ExpressionType.Parameter) {
+//        if (fieldName != null) {
+//          var pathItem = new AccessPathItem(isJoined ? null : fieldName,
+//            isJoined ? fieldName : null);
+//          result.AddHead(pathItem);
+//        }
+//      }
+//      else
+//        throw Exceptions.InternalError(string.Format(
+//          Strings.ExUnsupportedExpressionType, current.NodeType), Log.Instance);
+//      return result;
+//    }
 
     protected override Expression Visit(Expression e)
     {
@@ -95,12 +96,12 @@ namespace Xtensive.Storage.Linq
 
     protected override Expression VisitMemberAccess(MemberExpression m)
     {
-      var fieldPath = GetAccessPath(m);
-      if (fieldPath == null)
+      var fieldPath = AccessPath.Parse(m, translator.Model);
+      if (fieldPath.Count == 0)
         return m;
       var method = m.Type == typeof(object) ? nonGenericAccessor : genericAccessor.MakeGenericMethod(m.Type);
       // TODO: handle structures
-      return Expression.Call(parameter, method, Expression.Constant(source.GetFieldSegment(fieldPath).Offset));
+      return Expression.Call(parameter, method, Expression.Constant(source.GetMemberSegment(fieldPath).Offset));
     }
 
     protected override Expression VisitBinary(BinaryExpression b)
@@ -126,16 +127,15 @@ namespace Xtensive.Storage.Linq
         }
         Expression result = null;
         var key = isKey ? second : Expression.MakeMemberAccess(second, identifierAccessor);
-        var fieldStack = GetAccessPath(first);
-        if (fieldStack == null)
-          throw new InvalidOperationException();
-        if (!isKey) {
-          if (fieldStack.Count==0)
-            fieldStack.AddHead(new AccessPathItem("Key", null));
-          else
-            fieldStack.AddHead(new AccessPathItem(fieldStack.ExtractHead().JoinedFieldName + ".Key", null));
-        }
-        var segment = source.GetFieldSegment(fieldStack);
+        first = isKey ? first : Expression.MakeMemberAccess(first, keyAccessor);
+        var fieldStack = AccessPath.Parse(first, translator.Model);
+//        if (!isKey) {
+//          if (fieldStack.Count==0)
+//            fieldStack.AddHead(new AccessPathItem("Key", null));
+//          else
+//            fieldStack.AddHead(new AccessPathItem(fieldStack.ExtractHead().JoinedFieldName + ".Key", null));
+//        }
+        var segment = source.GetMemberSegment(fieldStack);
         if (segment.Length == 0)
           throw new InvalidOperationException();
         foreach (var pair in Enumerable.Range(segment.Offset, segment.Length).Select((ColumnIndex, ParameterIndex) => new {ColumnIndex, ParameterIndex})) {
@@ -171,6 +171,7 @@ namespace Xtensive.Storage.Linq
     static FieldAccessReplacer()
     {
       keyValueAccessor = typeof (Key).GetProperty("Value");
+      keyAccessor = typeof (IEntity).GetProperty("Key");
       identifierAccessor = typeof (IIdentified<Key>).GetMember("Identifier")[0];
       foreach (var method in typeof(Tuple).GetMethods()) {
         if (method.Name == "GetValueOrDefault") {
