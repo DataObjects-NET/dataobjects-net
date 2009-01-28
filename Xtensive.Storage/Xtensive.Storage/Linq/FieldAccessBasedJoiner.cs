@@ -40,55 +40,32 @@ namespace Xtensive.Storage.Linq
     protected override Expression VisitMemberAccess(MemberExpression m)
     {
       if (!translator.Evaluator.CanBeEvaluated(m)) {
-        var typesStack = new Stack<TypeInfo>();
-        var typesPath = new Stack<Pair<TypeInfo, string>>();
-        string fieldName = null;
-        string lastFieldName = null;
-        Expression expression = m;
-        if (typeof(Key).IsAssignableFrom(m.Type))
-          expression = ((MemberExpression) expression).Expression;
-        while (expression.NodeType==ExpressionType.MemberAccess) {
-          var memberAccess = (MemberExpression) expression;
-          var member = (PropertyInfo) memberAccess.Member;
-          expression = memberAccess.Expression;
-          if (fieldName == null)
-            fieldName = member.Name;
-          else
-            fieldName = member.Name + "." + fieldName;
-          if (expression.NodeType==ExpressionType.MemberAccess) {
-            if (typeof (IEntity).IsAssignableFrom(expression.Type)) {
-              var type = translator.Model.Types[expression.Type];
-              var field = type.Fields[fieldName];
-              if(!field.IsPrimaryKey)
-                typesStack.Push(type);
-              if (lastFieldName == null)
-                lastFieldName = fieldName;
-              else {
-                typesPath.Push(new Pair<TypeInfo, string>(typesStack.Peek(),fieldName));
-              }
-              fieldName = null;
-            }
-          }
-        }
-        if (typesStack.Count > 0)
-          typesPath.Push(new Pair<TypeInfo, string>(typesStack.Peek(), fieldName));
-        List<Pair<TypeInfo, string>> list = typesPath.ToList();
+        var path = AccessPath.Parse(m, translator.Model);
         var mapping = currentResult.Mapping;
-        foreach (var pair in list) {
-          ResultMapping innerMapping;
-          if(!mapping.JoinedRelations.TryGetValue(pair.Second, out innerMapping)) {
-            var joinedIndex = pair.First.Indexes.PrimaryIndex;
-            var joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(translator.GetNextAlias());
-            var keySegment = mapping.Fields[pair.Second];
-            var keyPairs = Enumerable.Range(keySegment.Offset, keySegment.Length).Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex)).ToArray();
-            var rs = currentResult.RecordSet.Join(joinedRs, JoinType.Default, keyPairs);
-            var fieldMapping = translator.BuildFieldMapping(pair.First, currentResult.RecordSet.Header.Columns.Count);
-            var joinedMapping = new ResultMapping(fieldMapping, new Dictionary<string, ResultMapping>());
-            mapping.JoinedRelations.Add(pair.Second, joinedMapping);
-            
-            currentResult = new ResultExpression(currentResult.Type, rs, currentResult.Mapping, currentResult.Projector);
+        int number = 0;
+        foreach (var item in path) {
+          number++;
+          if (item.Type == AccessType.Entity && (joinFinalEntity || number != path.Count)) {
+            ResultMapping innerMapping;
+            var name = item.Name;
+            var typeInfo = translator.Model.Types[item.Expression.Type];
+            if (!mapping.JoinedRelations.TryGetValue(name, out innerMapping)) {
+              var joinedIndex = typeInfo.Indexes.PrimaryIndex;
+              var joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(translator.GetNextAlias());
+              var keySegment = mapping.Fields[name];
+              var keyPairs =
+                Enumerable.Range(keySegment.Offset, keySegment.Length).Select(
+                  (leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex)).ToArray();
+              var rs = currentResult.RecordSet.Join(joinedRs, JoinType.Default, keyPairs);
+              var fieldMapping = translator.BuildFieldMapping(typeInfo, currentResult.RecordSet.Header.Columns.Count);
+              var joinedMapping = new ResultMapping(fieldMapping, new Dictionary<string, ResultMapping>());
+              mapping.JoinedRelations.Add(name, joinedMapping);
+
+              currentResult = new ResultExpression(currentResult.Type, rs, currentResult.Mapping,
+                                                   currentResult.Projector);
+            }
+            mapping = innerMapping;
           }
-          mapping = innerMapping;
         }
       }
       return m;

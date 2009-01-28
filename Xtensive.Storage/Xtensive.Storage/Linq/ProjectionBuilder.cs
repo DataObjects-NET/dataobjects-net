@@ -37,7 +37,7 @@ namespace Xtensive.Storage.Linq
 
     public ResultExpression Build(ResultExpression source, Expression body)
     {
-      this.source = translator.FieldAccessBasedJoiner.Process(source, body);
+      this.source = translator.FieldAccessBasedJoiner.Process(source, body, true);
       tuple = Expression.Parameter(typeof (Tuple), "t");
       record = Expression.Parameter(typeof (Record), "r");
       tupleIsUsed = false;

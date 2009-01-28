@@ -152,9 +152,9 @@ namespace Xtensive.Storage.Linq
             mc.Arguments[3].StripQuotes(),
             mc.Arguments[4].StripQuotes());
         case WellKnown.Queryable.OrderBy:
-          return VisitOrderBy(mc.Type, mc.Arguments[0], (mc.Arguments[1].StripQuotes()), Direction.Positive);
+          return VisitOrderBy(mc.Arguments[0], (mc.Arguments[1].StripQuotes()), Direction.Positive);
         case WellKnown.Queryable.OrderByDescending:
-          return VisitOrderBy(mc.Type, mc.Arguments[0], (mc.Arguments[1].StripQuotes()), Direction.Negative);
+          return VisitOrderBy(mc.Arguments[0], (mc.Arguments[1].StripQuotes()), Direction.Negative);
         case WellKnown.Queryable.ThenBy:
           return VisitThenBy(mc.Arguments[0], (mc.Arguments[1].StripQuotes()), Direction.Positive);
         case WellKnown.Queryable.ThenByDescending:
@@ -375,7 +375,7 @@ namespace Xtensive.Storage.Linq
       throw new NotImplementedException();
     }
 
-    private Expression VisitOrderBy(Type type, Expression expression, LambdaExpression lambdaExpression, Direction direction)
+    private Expression VisitOrderBy(Expression expression, LambdaExpression lambdaExpression, Direction direction)
     {
       throw new NotImplementedException();
     }
