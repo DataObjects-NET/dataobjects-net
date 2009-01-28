@@ -11,8 +11,10 @@ using System.Reflection;
 using Xtensive.Core.Linq;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
+using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Linq.Expressions;
 using Xtensive.Storage.Linq.Expressions.Visitors;
+using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Linq
@@ -27,6 +29,8 @@ namespace Xtensive.Storage.Linq
     private bool recordIsUsed;
     private RecordSet recordSet;
     private ResultMapping mapping;
+    private static readonly MethodInfo transformApplyMethod;
+    private static readonly MethodInfo keyCreateMethod;
     private static readonly MethodInfo selectMethod;
     private static readonly MethodInfo genericAccessor;
     private static readonly MethodInfo nonGenericAccessor;
@@ -76,6 +80,17 @@ namespace Xtensive.Storage.Linq
         throw new NotImplementedException();
       }
       else if (isKey) {
+        var keyPath = AccessPath.Parse(m, translator.Model);
+        var type = translator.Model.Types[m.Expression.Type];
+        var transform = new SegmentTransform(true, type.Hierarchy.KeyTupleDescriptor, source.GetMemberSegment(keyPath));
+        var keyExtractor = Expression.Call(keyCreateMethod, Expression.Constant(type),
+                                           Expression.Call(Expression.Constant(transform), transformApplyMethod,
+                                                           Expression.Constant(TupleTransformType.Auto), tuple),
+                                           Expression.Constant(false));
+        return keyExtractor;
+
+//        Expression<Func<Tuple, Key>> keyExtractor = t => Key.Create(type, transform.Apply(TupleTransformType.Auto, t), false);
+
         // TODO: implement
       }
       var path = AccessPath.Parse(m, translator.Model);
@@ -100,6 +115,8 @@ namespace Xtensive.Storage.Linq
     static ProjectionBuilder()
     {
       selectMethod = typeof (Enumerable).GetMethods().Where(m => m.Name==WellKnown.Queryable.Select).First();
+      keyCreateMethod = typeof (Key).GetMethod("Create", new[] {typeof (TypeInfo), typeof (Tuple), typeof (bool)});
+      transformApplyMethod = typeof (SegmentTransform).GetMethod("Apply", new[] {typeof (TupleTransformType), typeof (Tuple)});
       foreach (var method in typeof(Tuple).GetMethods()) {
         if (method.Name == "GetValueOrDefault") {
           if (method.IsGenericMethod)

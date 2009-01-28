@@ -9,6 +9,7 @@ using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
 using Xtensive.Storage.Model;
@@ -262,11 +263,13 @@ namespace Xtensive.Storage.Tests.Rse
         authors[i] = author;
       }
 
-      RecordSet authorRS = authors
-        .ToRecordSet(authorHeader)
-        .Distinct();
+      using (new Measurement(authorCount)) {
+        RecordSet authorRS = authors
+          .ToRecordSet(authorHeader)
+          .Distinct();
 
-      Assert.AreEqual(1, authorRS.Count());
+        Assert.AreEqual(1, authorRS.Count());
+      }
 
     }
   }

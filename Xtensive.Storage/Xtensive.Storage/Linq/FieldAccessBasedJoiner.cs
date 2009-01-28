@@ -22,9 +22,16 @@ namespace Xtensive.Storage.Linq
   {
     private readonly QueryTranslator translator;
     private ResultExpression currentResult;
+    private bool joinFinalEntity;
 
     public ResultExpression Process(ResultExpression source, Expression e)
     {
+      return Process(source, e, false);
+    }
+
+    public ResultExpression Process(ResultExpression source, Expression e, bool joinFinalEntity)
+    {
+      this.joinFinalEntity = joinFinalEntity;
       currentResult = source;
       Visit(e);
       return currentResult;

@@ -176,8 +176,12 @@ namespace Xtensive.Storage.Tests.Linq
           var result = from p in products
                        select p.Key;
           var list = result.ToList();
-          foreach (var k in list)
+          Assert.Greater(list.Count, 0);
+          foreach (var k in list) {
             Assert.IsNotNull(k);
+            var p = k.Resolve<Product>();
+            Assert.IsNotNull(p);
+          }
           t.Complete();
         }
       }
