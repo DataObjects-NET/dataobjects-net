@@ -5,6 +5,7 @@
 // Created:    2009.01.13
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -34,6 +35,8 @@ namespace Xtensive.Storage.Linq
     private static readonly MethodInfo selectMethod;
     private static readonly MethodInfo genericAccessor;
     private static readonly MethodInfo nonGenericAccessor;
+    private static readonly MethodInfo recordKeyAccessor;
+    private static readonly MethodInfo keyResolveMethod;
 
     public ResultExpression Build(ResultExpression source, Expression body)
     {
@@ -44,16 +47,28 @@ namespace Xtensive.Storage.Linq
       recordIsUsed = false;
       recordSet = this.source.RecordSet;
       mapping = source.Mapping;
-      Expression<Func<RecordSet, object>> lambda = null;
+      Expression<Func<RecordSet, object>> lambda;
 
+      var rs = Expression.Parameter(typeof(RecordSet), "rs");
       var newBody = Visit(body);
       if (recordIsUsed) {
-        // TODO: implement
+        var method = typeof (ProjectionBuilder)
+          .GetMethod("MakeProjection", BindingFlags.NonPublic | BindingFlags.Static)
+          .MakeGenericMethod(newBody.Type);
+        lambda = Expression.Lambda<Func<RecordSet, object>>(
+          Expression.Convert(
+            Expression.Call(method, rs,
+              Expression.Lambda(
+                typeof (Func<,,>).MakeGenericType(typeof(Tuple), typeof(Record), newBody.Type),
+                newBody,
+                tuple,
+                record)),
+            typeof (object)),
+          rs);
       }
       else {
-        var rs = Expression.Parameter(typeof(RecordSet), "rs");
         var method = selectMethod.MakeGenericMethod(typeof (Tuple), newBody.Type);
-        lambda = Expression.Lambda<Func<RecordSet, object>>(Expression.Convert(Expression.Call(null, method, rs, Expression.Lambda(newBody, tuple)), typeof(object)), rs);
+        lambda = Expression.Lambda<Func<RecordSet, object>>(Expression.Convert(Expression.Call(method, rs, Expression.Lambda(newBody, tuple)), typeof(object)), rs);
       }
       return new ResultExpression(body.Type, recordSet, mapping, lambda);
     }
@@ -72,7 +87,14 @@ namespace Xtensive.Storage.Linq
           // TODO: implement
         }
         else if (isEntity) {
-          // TODO: implement
+          var entityPath = AccessPath.Parse(m, translator.Model);
+          var entitySegment = source.GetMemberSegment(entityPath);
+          int groupIndex = source.RecordSet.Header.ColumnGroups.GetGroupIndexBySegment(entitySegment);
+          var result = Expression.Convert(
+              Expression.Call(
+                Expression.Call(record, recordKeyAccessor, Expression.Constant(groupIndex)),
+                  keyResolveMethod), m.Type);
+          return result;
         }
         else {
           // TODO: implement
@@ -102,6 +124,13 @@ namespace Xtensive.Storage.Linq
       return Expression.Call(tuple, method, Expression.Constant(segment.Offset));
     }
 
+    private static IEnumerable<TResult> MakeProjection<TResult>(RecordSet rs, Expression<Func<Tuple, Record, TResult>> le)
+    {
+      var func = le.Compile();
+      foreach (var r in rs.Parse())
+        yield return func(r.Data, r);
+    }
+
 
     // Constructors
 
@@ -117,6 +146,13 @@ namespace Xtensive.Storage.Linq
       selectMethod = typeof (Enumerable).GetMethods().Where(m => m.Name==WellKnown.Queryable.Select).First();
       keyCreateMethod = typeof (Key).GetMethod("Create", new[] {typeof (TypeInfo), typeof (Tuple), typeof (bool)});
       transformApplyMethod = typeof (SegmentTransform).GetMethod("Apply", new[] {typeof (TupleTransformType), typeof (Tuple)});
+      recordKeyAccessor = typeof(Record).GetProperty("Item", typeof(Key), new[]{typeof(int)}).GetGetMethod();
+      keyResolveMethod =typeof (Key).GetMethods()
+        .Where(
+          mi => mi.Name == "Resolve" && 
+          mi.IsGenericMethodDefinition == false && 
+          mi.GetParameters().Length == 0)
+        .Single();
       foreach (var method in typeof(Tuple).GetMethods()) {
         if (method.Name == "GetValueOrDefault") {
           if (method.IsGenericMethod)

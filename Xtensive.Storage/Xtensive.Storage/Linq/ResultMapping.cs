@@ -5,6 +5,7 @@
 // Created:    2008.12.24
 
 using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Core;
 
 namespace Xtensive.Storage.Linq
@@ -13,6 +14,7 @@ namespace Xtensive.Storage.Linq
   {
     public Dictionary<string, Segment<int>> Fields { get; private set; }
     public Dictionary<string, ResultMapping> JoinedRelations { get; private set; }
+    public Segment<int> Segment { private set; get; }
 
 
     // Constructors
@@ -21,6 +23,7 @@ namespace Xtensive.Storage.Linq
     {
       Fields = fieldMapping;
       JoinedRelations = joinedRelations;
+      Segment = new Segment<int>(Fields.Min(pair => pair.Value.Offset), Fields.Max(pair => pair.Value.Offset) + 1);
     }
   }
 }

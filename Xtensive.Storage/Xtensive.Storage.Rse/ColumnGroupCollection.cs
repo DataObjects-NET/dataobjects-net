@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Threading;
@@ -33,6 +34,24 @@ namespace Xtensive.Storage.Rse
         return cachedEmpty.GetValue(
           () => new ColumnGroupCollection(Enumerable.Empty<ColumnGroup>()));
       }
+    }
+
+    /// <summary>
+    /// Gets the index of the group by provided <paramref name="segment"/>.
+    /// </summary>
+    /// <param name="segment">Segment of record' columns.</param>
+    public int GetGroupIndexBySegment(Segment<int> segment)
+    {
+      int index = 0;
+      foreach (var columnGroup in this) {
+        Func<int, bool> predicate = i => i >= segment.Offset && i < segment.EndOffset;
+        if (columnGroup.Keys.Any(predicate))
+          return index;
+        if (columnGroup.Columns.Any(predicate))
+          return index;
+        index++;
+      }
+      throw new InvalidOperationException("Column group could not be found.");
     }
 
     

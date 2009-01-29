@@ -6,6 +6,7 @@
 
 using System.Linq;
 using System.Linq.Expressions;
+using Xtensive.Core.Linq;
 using Xtensive.Core.Reflection;
 
 namespace Xtensive.Storage.Linq.Expressions
@@ -22,6 +23,11 @@ namespace Xtensive.Storage.Linq.Expressions
     public static bool IsQuery(this Expression expression)
     {
       return expression.Type.IsOfGenericType(typeof(IQueryable<>));
+    }
+
+    public static string ToSharpString(this Expression e)
+    {
+      return ExpressionWriter.WriteToString(e);
     }
   }
 }

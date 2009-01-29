@@ -379,20 +379,6 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    public void AssociationSingleTest() 
-    {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
-          var products = Session.Current.All<Product>();
-          var result = from p in products
-                       select p.Supplier;
-          var list = result.ToList();
-          t.Complete();
-        }
-      }
-    }
-
-    [Test]
     public void AssociationMultipleTest() 
     {
       using (Domain.OpenSession()) {
