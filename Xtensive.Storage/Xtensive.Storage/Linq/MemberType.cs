@@ -6,7 +6,7 @@
 
 namespace Xtensive.Storage.Linq
 {
-  public enum AccessType
+  public enum MemberType
   {
     Field,
     Key,

@@ -18,7 +18,7 @@ using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Linq
 {
-  internal class FieldAccessBasedJoiner : ExpressionVisitor
+  internal class MemberAccessBasedJoiner : ExpressionVisitor
   {
     private readonly QueryTranslator translator;
     private ResultExpression currentResult;
@@ -40,12 +40,12 @@ namespace Xtensive.Storage.Linq
     protected override Expression VisitMemberAccess(MemberExpression m)
     {
       if (!translator.Evaluator.CanBeEvaluated(m)) {
-        var path = AccessPath.Parse(m, translator.Model);
+        var path = MemberPath.Parse(m, translator.Model);
         var mapping = currentResult.Mapping;
         int number = 0;
         foreach (var item in path) {
           number++;
-          if (item.Type == AccessType.Entity && (joinFinalEntity || number != path.Count)) {
+          if (item.Type == MemberType.Entity && (joinFinalEntity || number != path.Count)) {
             ResultMapping innerMapping;
             var name = item.Name;
             var typeInfo = translator.Model.Types[item.Expression.Type];
@@ -74,7 +74,7 @@ namespace Xtensive.Storage.Linq
    
     // Constructor
 
-    public FieldAccessBasedJoiner(QueryTranslator translator)
+    public MemberAccessBasedJoiner(QueryTranslator translator)
     {
       this.translator = translator;
     }

@@ -29,8 +29,8 @@ namespace Xtensive.Storage.Linq
     private readonly Linq.QueryProviderBase provider;
     private readonly Expression query;
     private readonly DomainModel model;
-    private readonly FieldAccessReplacer fieldAccessReplacer;
-    private readonly FieldAccessBasedJoiner fieldAccessBasedJoiner;
+    private readonly MemberAccessReplacer memberAccessReplacer;
+    private readonly MemberAccessBasedJoiner memberAccessBasedJoiner;
     private readonly ProjectionBuilder projectionBuilder;
     private readonly ExpressionEvaluator evaluator;
     private readonly ParameterExtractor parameterExtractor;
@@ -56,14 +56,14 @@ namespace Xtensive.Storage.Linq
       get { return parameterExtractor; }
     }
 
-    public FieldAccessReplacer FieldAccessReplacer
+    public MemberAccessReplacer MemberAccessReplacer
     {
-      get { return fieldAccessReplacer; }
+      get { return memberAccessReplacer; }
     }
 
-    public FieldAccessBasedJoiner FieldAccessBasedJoiner
+    public MemberAccessBasedJoiner MemberAccessBasedJoiner
     {
-      get { return fieldAccessBasedJoiner; }
+      get { return memberAccessBasedJoiner; }
     }
 
     public ResultExpression GetProjection(ParameterExpression pe)
@@ -384,10 +384,10 @@ namespace Xtensive.Storage.Linq
     {
       var outer = (ResultExpression)Visit(outerSource);
       var inner = (ResultExpression)Visit(innerSource);
-      outer = fieldAccessBasedJoiner.Process(outer, outerKey);
-      inner = fieldAccessBasedJoiner.Process(inner, innerKey);
-      var outerKeyPath = AccessPath.Parse(outerKey.Body, model);
-      var innerKeyPath = AccessPath.Parse(innerKey.Body, model);
+      outer = memberAccessBasedJoiner.Process(outer, outerKey);
+      inner = memberAccessBasedJoiner.Process(inner, innerKey);
+      var outerKeyPath = MemberPath.Parse(outerKey.Body, model);
+      var innerKeyPath = MemberPath.Parse(innerKey.Body, model);
       if (outerKeyPath == null || innerKeyPath == null) {
         throw new InvalidOperationException();
       }
@@ -408,14 +408,14 @@ namespace Xtensive.Storage.Linq
         }
         else
           type = Model.Types[outerKey.Body.Type];
-//        AccessPathItem pathItem = null;
+//        MemberPathItem pathItem = null;
 //        if (outerKeyPath.Count != 0)
 //          pathItem = outerKeyPath.ExtractTail();
 //        if (innerKeyPath.Count != 0)
 //          pathItem = innerKeyPath.ExtractTail();
 //        foreach (var field in type.Hierarchy.KeyFields.Keys) {
 //          var fieldName = pathItem == null ? field.Name : pathItem.JoinedFieldName + "." + field.Name;
-//          var keyItem = new AccessPathItem(fieldName, null);
+//          var keyItem = new MemberPathItem(fieldName, null);
 //          outerKeyPath.AddTail(keyItem);
 //          innerKeyPath.AddTail(keyItem);
 //          keyPairs.Add(new Pair<int>(
@@ -455,8 +455,8 @@ namespace Xtensive.Storage.Linq
     {
       var result = (ResultExpression) Visit(expression);
       map[le.Parameters[0]] = result;
-      result = fieldAccessBasedJoiner.Process(result, le.Body);
-      var predicate = fieldAccessReplacer.ProcessPredicate(result, le);
+      result = memberAccessBasedJoiner.Process(result, le.Body);
+      var predicate = memberAccessReplacer.ProcessPredicate(result, le);
       var recordSet = result.RecordSet.Filter((Expression<Func<Tuple, bool>>)predicate);
       return new ResultExpression(expression.Type, recordSet, result.Mapping, null);
     }
@@ -472,8 +472,8 @@ namespace Xtensive.Storage.Linq
       map = new Dictionary<ParameterExpression, ResultExpression>();
       evaluator = new ExpressionEvaluator(query);
       parameterExtractor = new ParameterExtractor(evaluator);
-      fieldAccessReplacer = new FieldAccessReplacer(this);
-      fieldAccessBasedJoiner = new FieldAccessBasedJoiner(this);
+      memberAccessReplacer = new MemberAccessReplacer(this);
+      memberAccessBasedJoiner = new MemberAccessBasedJoiner(this);
       projectionBuilder = new ProjectionBuilder(this);
     }
   }

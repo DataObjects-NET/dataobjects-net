@@ -40,7 +40,7 @@ namespace Xtensive.Storage.Linq
 
     public ResultExpression Build(ResultExpression source, Expression body)
     {
-      this.source = translator.FieldAccessBasedJoiner.Process(source, body, true);
+      this.source = translator.MemberAccessBasedJoiner.Process(source, body, true);
       tuple = Expression.Parameter(typeof (Tuple), "t");
       record = Expression.Parameter(typeof (Record), "r");
       tupleIsUsed = false;
@@ -87,7 +87,7 @@ namespace Xtensive.Storage.Linq
           // TODO: implement
         }
         else if (isEntity) {
-          var entityPath = AccessPath.Parse(m, translator.Model);
+          var entityPath = MemberPath.Parse(m, translator.Model);
           var entitySegment = source.GetMemberSegment(entityPath);
           int groupIndex = source.RecordSet.Header.ColumnGroups.GetGroupIndexBySegment(entitySegment);
           var result = Expression.Convert(
@@ -102,7 +102,7 @@ namespace Xtensive.Storage.Linq
         throw new NotImplementedException();
       }
       else if (isKey) {
-        var keyPath = AccessPath.Parse(m, translator.Model);
+        var keyPath = MemberPath.Parse(m, translator.Model);
         var type = translator.Model.Types[m.Expression.Type];
         var transform = new SegmentTransform(true, type.Hierarchy.KeyTupleDescriptor, source.GetMemberSegment(keyPath));
         var keyExtractor = Expression.Call(keyCreateMethod, Expression.Constant(type),
@@ -110,18 +110,29 @@ namespace Xtensive.Storage.Linq
                                                            Expression.Constant(TupleTransformType.Auto), tuple),
                                            Expression.Constant(false));
         return keyExtractor;
-
-//        Expression<Func<Tuple, Key>> keyExtractor = t => Key.Create(type, transform.Apply(TupleTransformType.Auto, t), false);
-
-        // TODO: implement
       }
-      var path = AccessPath.Parse(m, translator.Model);
+      var path = MemberPath.Parse(m, translator.Model);
       var method = m.Type == typeof(object) ? 
         nonGenericAccessor : 
         genericAccessor.MakeGenericMethod(m.Type);
       var segment = source.GetMemberSegment(path);
       tupleIsUsed = true;
       return Expression.Call(tuple, method, Expression.Constant(segment.Offset));
+    }
+
+    protected override Expression VisitParameter(ParameterExpression p)
+    {
+      return base.VisitParameter(p);
+    }
+
+    protected override MemberBinding VisitBinding(MemberBinding binding)
+    {
+      return base.VisitBinding(binding);
+    }
+
+    protected override MemberMemberBinding VisitMemberMemberBinding(MemberMemberBinding binding)
+    {
+      return base.VisitMemberMemberBinding(binding);
     }
 
     private static IEnumerable<TResult> MakeProjection<TResult>(RecordSet rs, Expression<Func<Tuple, Record, TResult>> le)

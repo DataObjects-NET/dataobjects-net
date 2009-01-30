@@ -15,9 +15,9 @@ using Xtensive.Core.Collections;
 
 namespace Xtensive.Storage.Linq
 {
-  public class AccessPath : IEnumerable<AccessPathItem>
+  public class MemberPath : IEnumerable<MemberPathItem>
   {
-    private Deque<AccessPathItem> pathItems;
+    private Deque<MemberPathItem> pathItems;
 
     public int Count
     {
@@ -27,10 +27,10 @@ namespace Xtensive.Storage.Linq
       }
     }
 
-    public static AccessPath Parse(Expression e, DomainModel model)
+    public static MemberPath Parse(Expression e, DomainModel model)
     {
-      var result = new Deque<AccessPathItem>();
-      AccessPathItem lastItem = null;
+      var result = new Deque<MemberPathItem>();
+      MemberPathItem lastItem = null;
       Expression current = e;
       bool entityKeyAssociation = false;
       while (current.NodeType == ExpressionType.MemberAccess) {
@@ -41,16 +41,16 @@ namespace Xtensive.Storage.Linq
         bool isEntity = typeof(IEntity).IsAssignableFrom(memberAccess.Type);
         bool isEntitySet = typeof(EntitySetBase).IsAssignableFrom(memberAccess.Type);
         bool isStructure = typeof(Structure).IsAssignableFrom(memberAccess.Type);
-        AccessPathItem item;
+        MemberPathItem item;
         if (isKey) {
-          item = new AccessPathItem(member.Name, AccessType.Key, memberAccess);
+          item = new MemberPathItem(member.Name, MemberType.Key, memberAccess);
         }
         else if(isStructure) {
           if (lastItem == null) {
-            item = new AccessPathItem(member.Name, AccessType.Struct, memberAccess);
+            item = new MemberPathItem(member.Name, MemberType.Struct, memberAccess);
           }
           else {
-            item = new AccessPathItem(
+            item = new MemberPathItem(
               member.Name + "." + lastItem.Name, 
               lastItem.Type, 
               lastItem.Expression);
@@ -58,21 +58,21 @@ namespace Xtensive.Storage.Linq
         }
         else if (isEntity) {
           if (lastItem == null) {
-            item = new AccessPathItem(member.Name, AccessType.Entity, memberAccess);
+            item = new MemberPathItem(member.Name, MemberType.Entity, memberAccess);
           }
           else {
-            if (lastItem.Type == AccessType.Key) {
+            if (lastItem.Type == MemberType.Key) {
               if (!entityKeyAssociation) {
-                item = new AccessPathItem (
+                item = new MemberPathItem (
                   member.Name + "." + lastItem.Name,
                   lastItem.Type,
                   lastItem.Expression);
                 entityKeyAssociation = true;
               }
               else {
-                item = new AccessPathItem(
+                item = new MemberPathItem(
                   member.Name,
-                  AccessType.Entity, 
+                  MemberType.Entity, 
                   memberAccess);
                 result.AddHead(lastItem);
               }
@@ -83,15 +83,15 @@ namespace Xtensive.Storage.Linq
               if(!type.Fields.TryGetValue(lastItem.Name, out field))
                 throw new InvalidOperationException(string.Format(Strings.ExFieldNotFoundInModel, lastItem.Name));
               if (field.IsPrimaryKey) {
-                item = new AccessPathItem(
+                item = new MemberPathItem(
                   member.Name + "." + lastItem.Name,
                   lastItem.Type,
                   lastItem.Expression);
               }
               else {
-                item = new AccessPathItem(
+                item = new MemberPathItem(
                   member.Name,
-                  AccessType.Entity,
+                  MemberType.Entity,
                   memberAccess);
                 result.AddHead(lastItem);
               }
@@ -99,10 +99,10 @@ namespace Xtensive.Storage.Linq
           }
         }
         else if (isEntitySet) {
-          item = new AccessPathItem(member.Name, AccessType.EntitySet, memberAccess);
+          item = new MemberPathItem(member.Name, MemberType.EntitySet, memberAccess);
         }
         else {
-          item = new AccessPathItem(member.Name, AccessType.Field, memberAccess);
+          item = new MemberPathItem(member.Name, MemberType.Field, memberAccess);
         }
         lastItem = item;
       }
@@ -113,11 +113,11 @@ namespace Xtensive.Storage.Linq
       else
         throw Exceptions.InternalError(string.Format(
           Strings.ExUnsupportedExpressionType, current.NodeType), Log.Instance);
-      return new AccessPath(result);
+      return new MemberPath(result);
     }
 
     /// <inheritdoc/>
-    public IEnumerator<AccessPathItem> GetEnumerator()
+    public IEnumerator<MemberPathItem> GetEnumerator()
     {
       return pathItems.GetEnumerator();
     }
@@ -130,7 +130,7 @@ namespace Xtensive.Storage.Linq
 
     // Constructor
 
-    private AccessPath(Deque<AccessPathItem> pathItems)
+    private MemberPath(Deque<MemberPathItem> pathItems)
     {
       this.pathItems = pathItems;
     }

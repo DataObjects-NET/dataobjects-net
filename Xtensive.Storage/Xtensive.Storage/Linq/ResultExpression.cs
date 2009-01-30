@@ -21,7 +21,7 @@ namespace Xtensive.Storage.Linq.Expressions
     public Expression<Func<RecordSet, object>> Projector { get; private set; }
     public ResultMapping Mapping { get; private set; }
 
-    public Segment<int> GetMemberSegment(AccessPath fieldPath)
+    public Segment<int> GetMemberSegment(MemberPath fieldPath)
     {
       Segment<int> result;
       var pathList = fieldPath.ToList();
@@ -29,7 +29,7 @@ namespace Xtensive.Storage.Linq.Expressions
         return Mapping.Segment;
       var first = pathList[0];
       var mapping = Mapping;
-      if (first.Type != AccessType.Entity) {
+      if (first.Type != MemberType.Entity) {
         if (mapping.Fields.TryGetValue(first.Name, out result))
           return result;
       }
@@ -40,7 +40,7 @@ namespace Xtensive.Storage.Linq.Expressions
 
       for (int i = 1; i < pathList.Count; i++) {
         var item = pathList[i];
-        if (item.Type != AccessType.Entity) {
+        if (item.Type != MemberType.Entity) {
           if (mapping.Fields.TryGetValue(item.Name, out result))
             return result;
         }

@@ -8,16 +8,16 @@ using System.Linq.Expressions;
 
 namespace Xtensive.Storage.Linq
 {
-  public class AccessPathItem
+  public class MemberPathItem
   {
     public string Name { get; private set; }
-    public AccessType Type { get; set; }
+    public MemberType Type { get; set; }
     public Expression Expression { get; set; }
 
 
     // Constructor
 
-    public AccessPathItem(string name, AccessType type, Expression expression)
+    public MemberPathItem(string name, MemberType type, Expression expression)
     {
       Name = name;
       Type = type;
