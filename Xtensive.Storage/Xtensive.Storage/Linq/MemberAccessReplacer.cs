@@ -38,6 +38,15 @@ namespace Xtensive.Storage.Linq
       return lambda;
     }
 
+    public LambdaExpression ProcessSelector(ResultExpression source, LambdaExpression le)
+    {
+      this.source = source;
+      parameter = Expression.Parameter(typeof(Tuple), "t");
+      var body = Visit(le.Body);
+      var lambda = Expression.Lambda(typeof(Func<Tuple, object>), Expression.Convert(body, typeof(object)), parameter);
+      return lambda;
+    }
+
     protected override Expression Visit(Expression e)
     {
       if (e == null)
