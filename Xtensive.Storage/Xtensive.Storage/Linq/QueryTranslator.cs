@@ -10,6 +10,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Linq;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
@@ -370,14 +371,42 @@ namespace Xtensive.Storage.Linq
       throw new NotImplementedException();
     }
 
-    private Expression VisitThenBy(Expression expression, LambdaExpression lambdaExpression, Direction direaction)
+    private Expression VisitThenBy(Expression expression, LambdaExpression lambdaExpression, Direction direction)
     {
-      throw new NotImplementedException();
+      var result = (ResultExpression) Visit(expression);
+      result = MemberAccessBasedJoiner.Process(result, lambdaExpression.Body);
+      MemberPath path = MemberPath.Parse(lambdaExpression.Body, model);
+      var segment = result.GetMemberSegment(path);
+      var dc = ((SortProvider) result.RecordSet.Provider).Order;
+      for (int i = segment.Offset; i < segment.EndOffset; i++)
+        if (!dc.ContainsKey(i))
+          dc.Add(i, direction);
+      return result;
     }
 
     private Expression VisitOrderBy(Expression expression, LambdaExpression lambdaExpression, Direction direction)
     {
-      throw new NotImplementedException();
+      var result = (ResultExpression) Visit(expression);
+      result = MemberAccessBasedJoiner.Process(result, lambdaExpression.Body);
+      MemberPath path = MemberPath.Parse(lambdaExpression.Body, model);
+      if (path.IsValid) {
+        var segment = result.GetMemberSegment(path);
+        var dc = new DirectionCollection<int>();
+        for (int i = segment.Offset; i < segment.EndOffset; i++)
+          dc.Add(i, direction);
+        var rs = result.RecordSet.OrderBy(dc);
+        return new ResultExpression(result.Type, rs, result.Mapping, result.Projector);
+      }
+      else {
+        LambdaExpression le = memberAccessReplacer.ProcessSelector(result, lambdaExpression);
+        CalculatedColumnDescriptor ccd = new CalculatedColumnDescriptor(GetNextAlias(), lambdaExpression.Body.Type, (Expression<Func<Tuple, object>>) le);
+        var crs = result.RecordSet.Calculate(ccd);
+        int position = crs.Header.Columns.Count;
+        var dc = new DirectionCollection<int>();
+        dc.Add(position, direction);
+        var rs = crs.OrderBy(dc);
+        return new ResultExpression(result.Type, rs, result.Mapping, result.Projector);
+      }
     }
 
     private Expression VisitJoin(Type resultType, Expression outerSource, Expression innerSource, LambdaExpression outerKey, LambdaExpression innerKey, LambdaExpression resultSelector)

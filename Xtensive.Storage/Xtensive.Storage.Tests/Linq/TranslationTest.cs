@@ -40,11 +40,11 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           for (int i = 0; i < snakesCount; i++)
-            new Snake {Name = ("Kaa" + i), Length = i};
+            new Snake {Name = ("Kaa" + i%10), Length = i};
           for (int j = 0; j < creaturesCount; j++)
-            new Creature {Name = ("Creature" + j)};
+            new Creature {Name = ("Creature" + j%10)};
           for (int i = 0; i < lizardsCount; i++)
-            new Lizard {Name = ("Lizard" + i), Color = ("Color" + i)};
+            new Lizard {Name = ("Lizard" + i%10), Color = ("Color" + i)};
           t.Complete();
         }
       }
@@ -109,10 +109,25 @@ namespace Xtensive.Storage.Tests.Linq
           result = snakes.Count(snake => snake.Length == 10);
           Assert.AreEqual(1, result);
           var maxLen = snakes.Max(snake => snake.Length);
-          Assert.AreEqual(snakesCount - 1, maxLen.Value);
+            Assert.AreEqual(snakesCount - 1, maxLen.Value);
         }
       }
     }
-    
+
+    [Test]
+    public void OrderByTest()
+    {
+      using (Domain.OpenSession()) {
+        using (Transaction.Open()) {
+          var creatures = Session.Current.All<Creature>().OrderBy(s => s.Name);
+          foreach (var item in creatures)
+            Console.WriteLine(item.Name);
+          foreach (var item in creatures.OrderByDescending(s => s.Name))
+            Console.WriteLine(item.Name);
+          foreach (var item in creatures.ThenBy(s => s.Name))
+            Console.WriteLine(item.Name);
+        }
+      }
+    }
   }
 }

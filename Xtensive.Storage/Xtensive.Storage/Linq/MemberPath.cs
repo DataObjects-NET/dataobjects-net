@@ -8,7 +8,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using Xtensive.Core;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 using Xtensive.Core.Collections;
@@ -21,10 +20,12 @@ namespace Xtensive.Storage.Linq
 
     public int Count
     {
-      get
-      {
-        return pathItems.Count;
-      }
+      get { return pathItems != null ? pathItems.Count : 0; }
+    }
+
+    public bool IsValid
+    {
+      get { return pathItems!=null; }
     }
 
     public static MemberPath Parse(Expression e, DomainModel model)
@@ -111,8 +112,7 @@ namespace Xtensive.Storage.Linq
           result.AddHead(lastItem);
       }
       else
-        throw Exceptions.InternalError(string.Format(
-          Strings.ExUnsupportedExpressionType, current.NodeType), Log.Instance);
+        return new MemberPath();
       return new MemberPath(result);
     }
 
@@ -133,6 +133,10 @@ namespace Xtensive.Storage.Linq
     private MemberPath(Deque<MemberPathItem> pathItems)
     {
       this.pathItems = pathItems;
+    }
+
+    private MemberPath()
+    {
     }
   }
 }

@@ -68,6 +68,7 @@ namespace Xtensive.Storage.Tests.Issues
           foreach (var d in allD) {
             d.Remove();
           }
+          t.Complete();
         }
       }
     }
