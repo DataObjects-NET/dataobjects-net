@@ -114,12 +114,16 @@ namespace Xtensive.Storage.Linq
         var fieldMapping = BuildFieldMapping(type, 0);
         var mapping = new ResultMapping(fieldMapping, new Dictionary<string, ResultMapping>());
         var recordSet = IndexProvider.Get(index).Result;
-
+        Expression<Func<RecordSet, object>> projector = rs => rs.Parse().Select(r => r.DefaultKey.Resolve());
+        Expression<Func<Record, Entity>> ipt = r => r.DefaultKey.Resolve();
+        LambdaExpression itemProjector = Expression.Lambda(Expression.Convert(ipt.Body, rootPoint.ElementType), ipt.Parameters[0]);
+        
         return new ResultExpression(
           c.Type,
           recordSet,
           mapping,
-          null);
+          projector, 
+          itemProjector);
       }
       return base.VisitConstant(c);
     }
@@ -293,21 +297,21 @@ namespace Xtensive.Storage.Linq
       var rs = materializer.Parameters[0];
       var body = Expression.Convert(Expression.Call(null, enumerableMethod, Expression.Call(null, castMethod, materializer.Body)), typeof(object));
       var le = Expression.Lambda(body, rs);
-      return new ResultExpression(method.ReturnType, recordSet, result.Mapping, (Expression<Func<RecordSet, object>>) le);
+      return new ResultExpression(method.ReturnType, recordSet, result.Mapping, (Expression<Func<RecordSet, object>>) le, null);
     }
 
     private Expression VisitTake(Expression source, Expression take)
     {
       var projection = (ResultExpression)Visit(source);
       var rs = projection.RecordSet.Take((Expression<Func<int>>) take, true);
-      return new ResultExpression(projection.Type, rs, projection.Mapping, projection.Projector);
+      return new ResultExpression(projection.Type, rs, projection.Mapping, projection.Projector, projection.ItemProjector);
     }
 
     private Expression VisitSkip(Expression source, Expression skip)
     {
       var projection = (ResultExpression)Visit(source);
       var rs = projection.RecordSet.Skip((Expression<Func<int>>)skip, true);
-      return new ResultExpression(projection.Type, rs, projection.Mapping, projection.Projector);
+      return new ResultExpression(projection.Type, rs, projection.Mapping, projection.Projector, projection.ItemProjector);
     }
 
     private Expression VisitDistinct(Expression expression)
@@ -363,7 +367,7 @@ namespace Xtensive.Storage.Linq
       }
 
       var recordSet = result.RecordSet.Aggregate(null, new AggregateColumnDescriptor(name, aggregateColumn, type));
-      return new ResultExpression(result.Type, recordSet, null, shaper);
+      return new ResultExpression(result.Type, recordSet, null, shaper, null);
     }
 
     private Expression VisitGroupBy(Expression source, LambdaExpression keySelector, LambdaExpression elementSelector, LambdaExpression resultSelector)
@@ -395,7 +399,7 @@ namespace Xtensive.Storage.Linq
         for (int i = segment.Offset; i < segment.EndOffset; i++)
           dc.Add(i, direction);
         var rs = result.RecordSet.OrderBy(dc);
-        return new ResultExpression(result.Type, rs, result.Mapping, result.Projector);
+        return new ResultExpression(result.Type, rs, result.Mapping, result.Projector, result.ItemProjector);
       }
       else {
         LambdaExpression le = memberAccessReplacer.ProcessSelector(result, lambdaExpression);
@@ -405,7 +409,7 @@ namespace Xtensive.Storage.Linq
         var dc = new DirectionCollection<int>();
         dc.Add(position, direction);
         var rs = crs.OrderBy(dc);
-        return new ResultExpression(result.Type, rs, result.Mapping, result.Projector);
+        return new ResultExpression(result.Type, rs, result.Mapping, result.Projector, result.ItemProjector);
       }
     }
 
@@ -487,7 +491,7 @@ namespace Xtensive.Storage.Linq
       result = memberAccessBasedJoiner.Process(result, le.Body);
       var predicate = memberAccessReplacer.ProcessPredicate(result, le);
       var recordSet = result.RecordSet.Filter((Expression<Func<Tuple, bool>>)predicate);
-      return new ResultExpression(expression.Type, recordSet, result.Mapping, null);
+      return new ResultExpression(expression.Type, recordSet, result.Mapping, result.Projector, result.ItemProjector);
     }
 
 

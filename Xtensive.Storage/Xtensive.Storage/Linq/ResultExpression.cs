@@ -19,6 +19,7 @@ namespace Xtensive.Storage.Linq.Expressions
   {
     public RecordSet RecordSet { get; private set; }
     public Expression<Func<RecordSet, object>> Projector { get; private set; }
+    public LambdaExpression ItemProjector { get; private set; }
     public ResultMapping Mapping { get; private set; }
 
     public Segment<int> GetMemberSegment(MemberPath fieldPath)
@@ -53,12 +54,13 @@ namespace Xtensive.Storage.Linq.Expressions
 
     // Constructors
 
-    public ResultExpression(Type type, RecordSet recordSet, ResultMapping mapping, Expression<Func<RecordSet, object>> projector)
+    public ResultExpression(Type type, RecordSet recordSet, ResultMapping mapping, Expression<Func<RecordSet, object>> projector, LambdaExpression itemProjector)
       : base(ExpressionType.Constant, type)
     {
       RecordSet = recordSet;
       Mapping = mapping;
       Projector = projector;
+      ItemProjector = itemProjector;
     }
   }
 }

@@ -62,7 +62,7 @@ namespace Xtensive.Storage.Linq
               mapping.JoinedRelations.Add(name, joinedMapping);
 
               currentResult = new ResultExpression(currentResult.Type, rs, currentResult.Mapping,
-                                                   currentResult.Projector);
+                                                   currentResult.Projector, currentResult.ItemProjector);
             }
             mapping = innerMapping;
           }

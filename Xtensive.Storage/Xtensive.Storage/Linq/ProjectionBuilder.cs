@@ -47,7 +47,8 @@ namespace Xtensive.Storage.Linq
       recordIsUsed = false;
       recordSet = this.source.RecordSet;
       mapping = source.Mapping;
-      Expression<Func<RecordSet, object>> lambda;
+      Expression<Func<RecordSet, object>> projector;
+      LambdaExpression itemProjector;
 
       var rs = Expression.Parameter(typeof(RecordSet), "rs");
       var newBody = Visit(body);
@@ -55,22 +56,23 @@ namespace Xtensive.Storage.Linq
         var method = typeof (ProjectionBuilder)
           .GetMethod("MakeProjection", BindingFlags.NonPublic | BindingFlags.Static)
           .MakeGenericMethod(newBody.Type);
-        lambda = Expression.Lambda<Func<RecordSet, object>>(
+        itemProjector = Expression.Lambda(
+          typeof (Func<,,>).MakeGenericType(typeof(Tuple), typeof(Record), newBody.Type),
+          newBody,
+          tuple,
+          record);
+        projector = Expression.Lambda<Func<RecordSet, object>>(
           Expression.Convert(
-            Expression.Call(method, rs,
-              Expression.Lambda(
-                typeof (Func<,,>).MakeGenericType(typeof(Tuple), typeof(Record), newBody.Type),
-                newBody,
-                tuple,
-                record)),
+            Expression.Call(method, rs,itemProjector),
             typeof (object)),
           rs);
       }
       else {
         var method = selectMethod.MakeGenericMethod(typeof (Tuple), newBody.Type);
-        lambda = Expression.Lambda<Func<RecordSet, object>>(Expression.Convert(Expression.Call(method, rs, Expression.Lambda(newBody, tuple)), typeof(object)), rs);
+        itemProjector = Expression.Lambda(newBody, tuple);
+        projector = Expression.Lambda<Func<RecordSet, object>>(Expression.Convert(Expression.Call(method, rs, itemProjector), typeof(object)), rs);
       }
-      return new ResultExpression(body.Type, recordSet, mapping, lambda);
+      return new ResultExpression(body.Type, recordSet, mapping, projector, itemProjector);
     }
 
     protected override Expression VisitMemberAccess(MemberExpression m)
@@ -133,6 +135,16 @@ namespace Xtensive.Storage.Linq
     protected override MemberMemberBinding VisitMemberMemberBinding(MemberMemberBinding binding)
     {
       return base.VisitMemberMemberBinding(binding);
+    }
+
+    protected override Expression VisitMemberInit(MemberInitExpression mi)
+    {
+      return base.VisitMemberInit(mi);
+    }
+
+    protected override Expression VisitNew(NewExpression n)
+    {
+      return base.VisitNew(n);
     }
 
     private static IEnumerable<TResult> MakeProjection<TResult>(RecordSet rs, Expression<Func<Tuple, Record, TResult>> le)
