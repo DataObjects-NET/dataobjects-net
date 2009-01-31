@@ -30,6 +30,7 @@ namespace Xtensive.Storage.Linq
     private bool recordIsUsed;
     private RecordSet recordSet;
     private ResultMapping mapping;
+    private ProjectionParameterRewriter parameterRewriter;
     private static readonly MethodInfo transformApplyMethod;
     private static readonly MethodInfo keyCreateMethod;
     private static readonly MethodInfo selectMethod;
@@ -43,6 +44,7 @@ namespace Xtensive.Storage.Linq
       this.source = translator.MemberAccessBasedJoiner.Process(source, body, true);
       tuple = Expression.Parameter(typeof (Tuple), "t");
       record = Expression.Parameter(typeof (Record), "r");
+      parameterRewriter = new ProjectionParameterRewriter(tuple, record);
       tupleIsUsed = false;
       recordIsUsed = false;
       recordSet = this.source.RecordSet;
@@ -124,7 +126,7 @@ namespace Xtensive.Storage.Linq
 
     protected override Expression VisitParameter(ParameterExpression p)
     {
-      return base.VisitParameter(p);
+      return parameterRewriter.Rewrite(source.ItemProjector.Body, out recordIsUsed);
     }
 
     protected override MemberBinding VisitBinding(MemberBinding binding)
