@@ -23,7 +23,10 @@ namespace Xtensive.Storage.Linq
     {
       Fields = fieldMapping;
       JoinedRelations = joinedRelations;
-      Segment = new Segment<int>(Fields.Min(pair => pair.Value.Offset), Fields.Max(pair => pair.Value.Offset) + 1);
+      if (Fields.Count > 0)
+        Segment = new Segment<int>(Fields.Min(pair => pair.Value.Offset), Fields.Max(pair => pair.Value.Offset) + 1);
+      else
+        Segment = new Segment<int>(0,0);
     }
   }
 }

@@ -480,7 +480,7 @@ namespace Xtensive.Storage.Linq
     {
       var source = (ResultExpression)Visit(expression);
       map[le.Parameters[0]] = source;
-      var result = projectionBuilder.Build(source, le.Body);
+      var result = projectionBuilder.Build(source, le);
       return result;
     }
 

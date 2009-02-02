@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Xtensive.Core;
 using Xtensive.Core.Linq;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
@@ -29,8 +30,10 @@ namespace Xtensive.Storage.Linq
     private bool tupleIsUsed;
     private bool recordIsUsed;
     private RecordSet recordSet;
-    private ResultMapping mapping;
+    private Dictionary<string, Segment<int>> fieldsMapping;
+    private Dictionary<Expression, string> prefixMap;
     private ProjectionParameterRewriter parameterRewriter;
+    private ParameterExpression parameter;
     private static readonly MethodInfo transformApplyMethod;
     private static readonly MethodInfo keyCreateMethod;
     private static readonly MethodInfo selectMethod;
@@ -39,8 +42,11 @@ namespace Xtensive.Storage.Linq
     private static readonly MethodInfo recordKeyAccessor;
     private static readonly MethodInfo keyResolveMethod;
 
-    public ResultExpression Build(ResultExpression source, Expression body)
+    public ResultExpression Build(ResultExpression source, LambdaExpression le)
     {
+      parameter = le.Parameters[0];
+      var body = le.Body;
+      prefixMap = new Dictionary<Expression, string>();
       this.source = translator.MemberAccessBasedJoiner.Process(source, body, true);
       tuple = Expression.Parameter(typeof (Tuple), "t");
       record = Expression.Parameter(typeof (Record), "r");
@@ -48,7 +54,7 @@ namespace Xtensive.Storage.Linq
       tupleIsUsed = false;
       recordIsUsed = false;
       recordSet = this.source.RecordSet;
-      mapping = source.Mapping;
+      fieldsMapping = new Dictionary<string, Segment<int>>();
       Expression<Func<RecordSet, object>> projector;
       LambdaExpression itemProjector;
 
@@ -74,6 +80,7 @@ namespace Xtensive.Storage.Linq
         itemProjector = Expression.Lambda(newBody, tuple);
         projector = Expression.Lambda<Func<RecordSet, object>>(Expression.Convert(Expression.Call(method, rs, itemProjector), typeof(object)), rs);
       }
+      var mapping = new ResultMapping(fieldsMapping, new Dictionary<string, ResultMapping>());
       return new ResultExpression(body.Type, recordSet, mapping, projector, itemProjector);
     }
 
@@ -88,6 +95,9 @@ namespace Xtensive.Storage.Linq
       if (isEntity || isEntitySet || isStructure) {
         recordIsUsed = true;
         if (isStructure) {
+          var structurePath = MemberPath.Parse(m, translator.Model);
+          var structureSegment = source.GetMemberSegment(structurePath);
+          int groupIndex = source.RecordSet.Header.ColumnGroups.GetGroupIndexBySegment(structureSegment);
           // TODO: implement
         }
         else if (isEntity) {
@@ -107,7 +117,10 @@ namespace Xtensive.Storage.Linq
       }
       else if (isKey) {
         var keyPath = MemberPath.Parse(m, translator.Model);
-        var type = translator.Model.Types[m.Expression.Type];
+        var keySegment = source.GetMemberSegment(keyPath);
+        var keyColumn = (MappedColumn) source.RecordSet.Header.Columns[keySegment.Offset];
+        var type = keyColumn.ColumnInfoRef.Resolve(translator.Model).Field.ReflectedType;
+//        var type = translator.Model.Types[m.Expression.Type];
         var transform = new SegmentTransform(true, type.Hierarchy.KeyTupleDescriptor, source.GetMemberSegment(keyPath));
         var keyExtractor = Expression.Call(keyCreateMethod, Expression.Constant(type),
                                            Expression.Call(Expression.Constant(transform), transformApplyMethod,
@@ -129,24 +142,49 @@ namespace Xtensive.Storage.Linq
       return parameterRewriter.Rewrite(source.ItemProjector.Body, out recordIsUsed);
     }
 
-    protected override MemberBinding VisitBinding(MemberBinding binding)
-    {
-      return base.VisitBinding(binding);
-    }
-
-    protected override MemberMemberBinding VisitMemberMemberBinding(MemberMemberBinding binding)
-    {
-      return base.VisitMemberMemberBinding(binding);
-    }
-
-    protected override Expression VisitMemberInit(MemberInitExpression mi)
-    {
-      return base.VisitMemberInit(mi);
-    }
-
     protected override Expression VisitNew(NewExpression n)
     {
-      return base.VisitNew(n);
+      var arguments = new List<Expression>();
+      string prefix = null;
+      prefixMap.TryGetValue(n, out prefix);
+      if (n.Members == null)
+        throw new NotSupportedException(n.ToSharpString());
+      for (int i = 0; i < n.Arguments.Count; i++) {
+        var arg = n.Arguments[i];
+        var newArg = (Expression) null;
+        var member = n.Members[i];
+        var memberName = member.Name.Replace(WellKnown.GetterPrefix, string.Empty);
+        var newName = prefix != null ? prefix + "." + memberName : memberName;
+        var path = MemberPath.Parse(arg, translator.Model);
+        if (path.IsValid) {
+          var segment = source.GetMemberSegment(path);
+          var mapping = source.Mapping.Fields.Where(p => p.Value.Offset >= segment.Offset && p.Value.EndOffset <= segment.EndOffset);
+          var oldName = mapping.Select(pair => pair.Key).OrderByDescending(s => s.Length).First();
+          mapping = mapping.Select(pair => new KeyValuePair<string, Segment<int>>(pair.Key.Replace(oldName, newName), pair.Value));
+          foreach (var pair in mapping) {
+            if(!fieldsMapping.ContainsKey(pair.Key))
+              fieldsMapping.Add(pair.Key, pair.Value);
+          }
+        }
+        else {
+          if (arg.NodeType == ExpressionType.New) {
+            prefixMap.Add(arg, newName);
+          }
+          else {
+            // TODO: Add check of queries
+            var le = translator.MemberAccessReplacer.ProcessSelector(source, Expression.Lambda(arg, parameter));
+            var ccd = new CalculatedColumnDescriptor(translator.GetNextAlias(), arg.Type, (Expression<Func<Tuple, object>>) le);
+            recordSet = recordSet.Calculate(ccd);
+            int position = recordSet.Header.Columns.Count - 1;
+            var method = genericAccessor.MakeGenericMethod(arg.Type);
+            tupleIsUsed = true;
+            newArg = Expression.Call(tuple, method, Expression.Constant(position));
+          }
+        }
+        newArg = newArg ?? Visit(arg);
+        arguments.Add(newArg);
+      }
+      return Expression.New(n.Constructor, arguments, n.Members);
     }
 
     private static IEnumerable<TResult> MakeProjection<TResult>(RecordSet rs, Expression<Func<Tuple, Record, TResult>> le)

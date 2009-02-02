@@ -367,10 +367,10 @@ namespace Xtensive.Storage.Tests.Linq
           var products = Session.Current.All<Product>();
           var result = from pd in (
                          from p in products
-                         select new {p.Key, p.ProductName, TotalPrice = p.UnitPrice * p.UnitsInStock}
+                         select new {ProductKey = p.Key, p.ProductName, TotalPrice = p.UnitPrice * p.UnitsInStock, Product = new {Entity = p}}
                        )
                        where pd.TotalPrice > 100
-                       select new {pd.Key, pd.ProductName};
+                       select new {PKey = pd.ProductKey, pd.ProductName, Anonimous = pd.Product, Product = pd.Product.Entity};
                        
           var list = result.ToList();
           t.Complete();
