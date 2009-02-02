@@ -22,14 +22,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void MainTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
-              
-
-
-          // Rollback
-        }
-      }
+      DataBaseFiller.Fill(Domain);
     }
   }
 }

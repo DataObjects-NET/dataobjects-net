@@ -5,6 +5,8 @@
 // Created:    2008.12.13
 
 using System;
+using System.Data;
+using System.Data.SqlClient;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Attributes;
 
@@ -315,6 +317,322 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     public OrderDetails(Order order, Product product)
       : base(Tuple.Create(order.Id, product.Id))
     {
+    }
+  }
+
+  public class DataBaseFiller
+  {
+    private static readonly SqlConnection con = new SqlConnection(@"Data Source=localhost\sql2005;"
+      + "Initial Catalog = Northwind;"
+        + "Integrated Security=SSPI;");
+
+    public static void Fill(Domain domain)
+    {
+      con.Open();
+      SqlTransaction transaction = con.BeginTransaction();
+      SqlCommand cmd = con.CreateCommand();
+      cmd.Transaction = transaction;
+      cmd.CommandText = "Select * from [dbo].[Categories]";
+      var reader = cmd.ExecuteReader();
+
+      using (domain.OpenSession())
+      using (var tr = Transaction.Open()) {
+        #region  Categories
+
+        if (reader!=null) {
+          while (reader.Read()) {
+            var category = new Category();
+            for (int i = 1; i < reader.FieldCount; i++)
+              category[reader.GetName(i)] = !reader.IsDBNull(i) ? reader.GetValue(i) : null;
+          }
+          reader.Close();
+        }
+
+        #endregion
+
+        #region Customers
+
+        cmd.CommandText = "Select * from [dbo].[Customers]";
+        reader = cmd.ExecuteReader();
+        if (reader!=null) {
+          while (reader.Read()) {
+            var customer = new Customer(reader.GetString(0));
+            for (int i = 1; i < reader.FieldCount; i++) {
+              string dbName = reader.GetName(i);
+              string fieldName;
+              Address address = customer.Address;
+              switch (dbName) {
+                case "Address":
+                  address.StreetAddress = (string) (!reader.IsDBNull(i) ? reader.GetValue(i) : null);
+                  break;
+                case "City":
+                case "Region":
+                case "PostalCode":
+                case "Country":
+                  fieldName = dbName;
+                  address[fieldName] = !reader.IsDBNull(i) ? reader.GetValue(i) : null;
+                  break;
+                default:
+                  fieldName = dbName;
+                  customer[fieldName] = !reader.IsDBNull(i) ? reader.GetValue(i) : null;
+                  break;
+              }
+            }
+          }
+          reader.Close();
+        }
+
+        #endregion
+
+        #region Regions
+
+        cmd.CommandText = "Select * from [dbo].[Region]";
+        reader = cmd.ExecuteReader();
+        if (reader!=null) {
+          while (reader.Read()) {
+            var region = new Region();
+            for (int i = 1; i < reader.FieldCount; i++)
+              region[reader.GetName(i)] = !reader.IsDBNull(i) ? reader.GetValue(i) : null;
+          }
+          reader.Close();
+        }
+
+        #endregion
+
+        #region Suppliers
+
+        cmd.CommandText = "Select * from [dbo].[Suppliers]";
+        reader = cmd.ExecuteReader();
+        if (reader!=null) {
+          while (reader.Read()) {
+            var supplier = new Supplier();
+            for (int i = 1; i < reader.FieldCount; i++) {
+              string dbName = reader.GetName(i);
+              string fieldName;
+              Address address = supplier.Address;
+              switch (dbName) {
+              case "Address":
+                address.StreetAddress = (string) (!reader.IsDBNull(i) ? reader.GetValue(i) : null);
+                break;
+              case "City":
+              case "Region":
+              case "PostalCode":
+              case "Country":
+                fieldName = dbName;
+                address[fieldName] = !reader.IsDBNull(i) ? reader.GetValue(i) : null;
+                break;
+              default:
+                fieldName = dbName;
+                supplier[fieldName] = !reader.IsDBNull(i) ? reader.GetValue(i) : null;
+                break;
+              }
+            }
+          }
+          reader.Close();
+        }
+
+        #endregion
+
+        #region Shippers
+
+        cmd.CommandText = "Select * from [dbo].[Shippers]";
+        reader = cmd.ExecuteReader();
+        if (reader!=null) {
+          while (reader.Read()) {
+            var shipper = new Shipper();
+            for (int i = 1; i < reader.FieldCount; i++)
+              shipper[reader.GetName(i)] = !reader.IsDBNull(i) ? reader.GetValue(i) : null;
+          }
+          reader.Close();
+        }
+
+        #endregion
+
+        #region Products
+
+        cmd.CommandText = "Select * from [dbo].[Products]";
+        reader = cmd.ExecuteReader(CommandBehavior.KeyInfo);
+        if (reader!=null) {
+          while (reader.Read()) {
+            var product = new Product();
+            for (int i = 1; i < reader.FieldCount; i++)
+              switch (i) {
+              case 2:
+                product.Supplier = !reader.IsDBNull(i) ? Key.Create<Supplier>(
+                  Tuple.Create(reader.GetInt32(i))).Resolve<Supplier>() : null;
+                break;
+              case 3:
+                product.Category = !reader.IsDBNull(i) ? Key.Create<Category>(
+                  Tuple.Create(reader.GetInt32(i))).Resolve<Category>() : null;
+                break;
+              default:
+                product[reader.GetName(i)] = !reader.IsDBNull(i) ? reader.GetValue(i) : null;
+                break;
+              }
+          }
+          reader.Close();
+        }
+
+        #endregion
+
+        #region Employees
+
+        cmd.CommandText = "Select * from [dbo].[Employees]";
+        reader = cmd.ExecuteReader();
+        if (reader!=null) {
+          while (reader.Read()) {
+            var employee = new Employee();
+            for (int i = 1; i < reader.FieldCount; i++) {
+              if (i == 16)
+                continue;
+              string dbName = reader.GetName(i);
+              string fieldName;
+              Address address = employee.Address;
+              switch (dbName) {
+              case "Address":
+                address.StreetAddress = (string) (!reader.IsDBNull(i) ? reader.GetValue(i) : null);
+                break;
+              case "City":
+              case "Region":
+              case "PostalCode":
+              case "Country":
+                fieldName = dbName;
+                address[fieldName] = !reader.IsDBNull(i) ? reader.GetValue(i) : null;
+                break;
+              default:
+                fieldName = dbName;
+                employee[fieldName] = !reader.IsDBNull(i) ? reader.GetValue(i) : null;
+                break;
+              }
+            }
+          }
+          reader.Close();
+        }
+
+        reader = cmd.ExecuteReader();
+        if (reader!=null) {
+          while (reader.Read()) {
+            var employee = Key.Create<Employee>(Tuple.Create(reader.GetInt32(0))).Resolve<Employee>();
+            employee.ReportsTo = !reader.IsDBNull(16) ? Key.Create<Employee>(
+              Tuple.Create(reader.GetInt32(16))).Resolve<Employee>() : null;
+          }
+          reader.Close();
+        }
+
+        #endregion
+
+        #region Territories
+
+        cmd.CommandText = "Select * from [dbo].[Territories]";
+        reader = cmd.ExecuteReader();
+        if (reader!=null) {
+          while (reader.Read()) {
+            new Territory(reader.GetString(0))
+              {
+                TerritoryDescription = reader.GetString(1),
+                Region = Key.Create<Region>(Tuple.Create(reader.GetInt32(2))).Resolve<Region>()
+              };
+          }
+          reader.Close();
+        }
+
+        #endregion
+
+        #region EmployeeTerritories
+
+        cmd.CommandText = "Select * from [dbo].[EmployeeTerritories]";
+        reader = cmd.ExecuteReader();
+        if (reader!=null) {
+          while (reader.Read()) {
+            var territory = Key.Create<Territory>(Tuple.Create(reader.GetString(1))).Resolve<Territory>();
+            territory.Employees.Add(Key.Create<Employee>(Tuple.Create(reader.GetInt32(0))).Resolve<Employee>());
+          }
+          reader.Close();
+        }
+
+        #endregion
+
+        #region Orders
+
+        cmd.CommandText = "Select * from [dbo].[Orders]";
+        reader = cmd.ExecuteReader(CommandBehavior.KeyInfo);
+        if (reader!=null) {
+          while (reader.Read()) {
+            var order = new Order();
+            for (int i = 1; i < reader.FieldCount; i++)
+              switch (i) {
+              case 1:
+                order.Customer = !reader.IsDBNull(i) ? Key.Create<Customer>(
+                  Tuple.Create(reader.GetString(i))).Resolve<Customer>() : null;
+                break;
+              case 2:
+                order.Employee = !reader.IsDBNull(i) ? Key.Create<Employee>(
+                  Tuple.Create(reader.GetInt32(i))).Resolve<Employee>() : null;
+                break;
+              case 6:
+                order.ShipVia = !reader.IsDBNull(i) ? Key.Create<Shipper>(
+                  Tuple.Create(reader.GetInt32(i))).Resolve<Shipper>() : null;
+                break;
+              default:
+                string dbName = reader.GetName(i);
+                string fieldName;
+                Address address = order.ShippingAddress;
+                switch (dbName) {
+                case "ShipAddress":
+                  address.StreetAddress = (string) (!reader.IsDBNull(i) ? reader.GetValue(i) : null);
+                  break;
+                case "ShipCity":
+                case "ShipRegion":
+                case "ShipPostalCode":
+                case "ShipCountry":
+                  fieldName = dbName.Substring(4);
+                  address[fieldName] = !reader.IsDBNull(i) ? reader.GetValue(i) : null;
+                  break;
+                default:
+                  fieldName = dbName;
+                  order[fieldName] = !reader.IsDBNull(i) ? reader.GetValue(i) : null;
+                  break;
+                }
+                break;
+              }
+          }
+          reader.Close();
+        }
+
+        #endregion
+
+        #region OrderDetails
+
+        cmd.CommandText = "Select Min(OrderID) from [dbo].[Orders]";
+        reader = cmd.ExecuteReader();
+        int minValue = -1;
+        if (reader!=null) {
+          reader.Read();
+          minValue = reader.GetInt32(0) - 1;
+          reader.Close();
+        }
+
+        cmd.CommandText = "Select * from [dbo].[Order Details]";
+        reader = cmd.ExecuteReader();
+        if (reader!=null) {
+          while (reader.Read()) {
+            var order = Key.Create<Order>(Tuple.Create(reader.GetInt32(0) - minValue)).Resolve<Order>();
+            var product = Key.Create<Product>(Tuple.Create(reader.GetInt32(1))).Resolve<Product>();
+            var orderDetails = new OrderDetails(order, product);
+
+            for (int i = 2; i < reader.FieldCount; i++)
+              orderDetails[reader.GetName(i)] = !reader.IsDBNull(i) ? reader.GetValue(i) : null;
+          }
+          reader.Close();
+        }
+
+        #endregion
+
+        Session.Current.Persist();
+        tr.Complete();
+      }
+      transaction.Commit();
+      con.Close();
     }
   }
 }
