@@ -398,11 +398,15 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var products = Session.Current.All<Product>();
-          var result = from pd in (
-                         from p in products
-                         select new {ProductKey = p.Key, SupplierAddress = p.Supplier.Address}
-                       )
-                       select new {PKey = pd.ProductKey, pd.SupplierAddress, SupplierCity = pd.SupplierAddress.City};
+          var result = 
+            from a in (
+              from pd in (
+                from p in products
+                select new {ProductKey = p.Key, SupplierAddress = p.Supplier.Address}
+              )
+              select new {PKey = pd.ProductKey, pd.SupplierAddress, SupplierCity = pd.SupplierAddress.City}
+            )
+            select new { a.PKey, a.SupplierAddress, a.SupplierCity };
                        
           var list = result.ToList();
           t.Complete();

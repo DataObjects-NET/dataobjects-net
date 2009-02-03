@@ -177,8 +177,8 @@ namespace Xtensive.Storage.Linq
           else {
             mapping = mapping.Select(pair => new KeyValuePair<string, Segment<int>>(newName + "." + pair.Key, pair.Value)).ToList();
             mapping.Add(new KeyValuePair<string, Segment<int>>(newName, segment));
-            if (prefix != null)
-              mapping.Add(new KeyValuePair<string, Segment<int>>(prefix, segment));
+//            if (prefix != null)
+//              mapping.Add(new KeyValuePair<string, Segment<int>>(prefix, segment));
           }
           
           foreach (var pair in mapping) {
