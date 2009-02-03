@@ -97,8 +97,17 @@ namespace Xtensive.Storage.Linq
         if (isStructure) {
           var structurePath = MemberPath.Parse(m, translator.Model);
           var structureSegment = source.GetMemberSegment(structurePath);
+          var structureColumn = (MappedColumn)source.RecordSet.Header.Columns[structureSegment.Offset];
+          var field = structureColumn.ColumnInfoRef.Resolve(translator.Model).Field;
+          while (!field.IsStructure && field.Parent != null)
+            field = field.Parent;
           int groupIndex = source.RecordSet.Header.ColumnGroups.GetGroupIndexBySegment(structureSegment);
-          // TODO: implement
+          var result = Expression.MakeMemberAccess(
+            Expression.Convert(
+              Expression.Call(
+                Expression.Call(record, recordKeyAccessor, Expression.Constant(groupIndex)),
+                  keyResolveMethod), field.ReflectedType.UnderlyingType), field.UnderlyingProperty);
+          return result;
         }
         else if (isEntity) {
           var entityPath = MemberPath.Parse(m, translator.Model);
@@ -120,7 +129,6 @@ namespace Xtensive.Storage.Linq
         var keySegment = source.GetMemberSegment(keyPath);
         var keyColumn = (MappedColumn) source.RecordSet.Header.Columns[keySegment.Offset];
         var type = keyColumn.ColumnInfoRef.Resolve(translator.Model).Field.ReflectedType;
-//        var type = translator.Model.Types[m.Expression.Type];
         var transform = new SegmentTransform(true, type.Hierarchy.KeyTupleDescriptor, source.GetMemberSegment(keyPath));
         var keyExtractor = Expression.Call(keyCreateMethod, Expression.Constant(type),
                                            Expression.Call(Expression.Constant(transform), transformApplyMethod,

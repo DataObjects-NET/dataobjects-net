@@ -279,6 +279,20 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    public void EntitySetTest() 
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var suppliers = Session.Current.All<Supplier>();
+          var result = from s in suppliers
+                       select s.Products;
+          var list = result.ToList();
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
     public void AnonymousWithEntityTest() 
     {
       using (Domain.OpenSession()) {
@@ -408,22 +422,6 @@ namespace Xtensive.Storage.Tests.Linq
                        )
                        select new {PKey = pd.ProductKey, pd.Product.Name, Anonimous = pd.Product, Product = pd.Product.Entity};
                        
-          var list = result.ToList();
-          t.Complete();
-        }
-      }
-    }
-
-
-
-    [Test]
-    public void AssociationMultipleTest() 
-    {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
-          var suppliers = Session.Current.All<Supplier>();
-          var result = from s in suppliers
-                       select s.Products;
           var list = result.ToList();
           t.Complete();
         }
