@@ -12,22 +12,8 @@ using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 
 namespace Xtensive.Storage.Tests.Linq
 {
-  public class OrderByTest : AutoBuildTest
+  public class OrderByTest : NorthwindDOModelTest
   {
-    protected override DomainConfiguration BuildConfiguration()
-    {
-      var config = base.BuildConfiguration();
-      config.Types.Register(typeof(Supplier).Assembly, typeof(Supplier).Namespace);
-      return config;
-    }
-
-    protected override Domain BuildDomain(DomainConfiguration configuration)
-    {
-      Domain domain = base.BuildDomain(configuration);
-      DataBaseFiller.Fill(domain);
-      return domain;
-    }
-
     [Test]
     public void MainTest()
     {

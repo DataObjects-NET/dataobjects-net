@@ -322,7 +322,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
 
   public class DataBaseFiller
   {
-    private static readonly SqlConnection con = new SqlConnection(@"Data Source=localhost\sql2005;"
+    private static readonly SqlConnection con = new SqlConnection(@"Data Source=localhost;"
       + "Initial Catalog = Northwind;"
         + "Integrated Security=SSPI;");
 
