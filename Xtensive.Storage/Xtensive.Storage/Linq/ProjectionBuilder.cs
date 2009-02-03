@@ -99,7 +99,7 @@ namespace Xtensive.Storage.Linq
           var structureSegment = source.GetMemberSegment(structurePath);
           var structureColumn = (MappedColumn)source.RecordSet.Header.Columns[structureSegment.Offset];
           var field = structureColumn.ColumnInfoRef.Resolve(translator.Model).Field;
-          while (!field.IsStructure && field.Parent != null)
+          while (field.Parent != null)
             field = field.Parent;
           int groupIndex = source.RecordSet.Header.ColumnGroups.GetGroupIndexBySegment(structureSegment);
           var result = Expression.MakeMemberAccess(
@@ -120,9 +120,10 @@ namespace Xtensive.Storage.Linq
           return result;
         }
         else {
-          // TODO: implement
+          var expression = Visit(m.Expression);
+          var result = Expression.MakeMemberAccess(expression, m.Member);
+          return result;
         }
-        throw new NotImplementedException();
       }
       else if (isKey) {
         var keyPath = MemberPath.Parse(m, translator.Model);
