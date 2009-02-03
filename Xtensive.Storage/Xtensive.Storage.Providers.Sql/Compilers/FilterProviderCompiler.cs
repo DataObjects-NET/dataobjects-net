@@ -23,7 +23,7 @@ namespace Xtensive.Storage.Providers.Sql.Compilers
         return null;
 
       SqlSelect query;
-      if (provider.Source is AggregateProvider) {
+      if (provider.Source is AggregateProvider || provider.Source is CalculationProvider) {
         var queryRef = SqlFactory.QueryRef(source.Request.Statement as SqlSelect);
         query = SqlFactory.Select(queryRef);
         query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());

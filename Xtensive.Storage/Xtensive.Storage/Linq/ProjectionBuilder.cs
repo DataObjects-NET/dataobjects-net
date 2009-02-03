@@ -158,9 +158,19 @@ namespace Xtensive.Storage.Linq
         var path = MemberPath.Parse(arg, translator.Model);
         if (path.IsValid) {
           var segment = source.GetMemberSegment(path);
-          var mapping = source.Mapping.Fields.Where(p => p.Value.Offset >= segment.Offset && p.Value.EndOffset <= segment.EndOffset);
-          var oldName = mapping.Select(pair => pair.Key).OrderByDescending(s => s.Length).First();
-          mapping = mapping.Select(pair => new KeyValuePair<string, Segment<int>>(pair.Key.Replace(oldName, newName), pair.Value));
+          var mapping = source.Mapping.Fields.Where(p => p.Value.Offset >= segment.Offset && p.Value.EndOffset <= segment.EndOffset).ToList();
+          var oldName = mapping.Select(pair => pair.Key).OrderBy(s => s.Length).First();
+          var startsWithOldName = mapping.All(pair => pair.Key.StartsWith(oldName));
+          if (startsWithOldName) {
+            mapping = mapping.Select(pair => new KeyValuePair<string, Segment<int>>(pair.Key.Replace(oldName, newName), pair.Value)).ToList();
+          }
+          else {
+            mapping = mapping.Select(pair => new KeyValuePair<string, Segment<int>>(newName + "." + pair.Key, pair.Value)).ToList();
+            mapping.Add(new KeyValuePair<string, Segment<int>>(newName, segment));
+            if (prefix != null)
+              mapping.Add(new KeyValuePair<string, Segment<int>>(prefix, segment));
+          }
+          
           foreach (var pair in mapping) {
             if(!fieldsMapping.ContainsKey(pair.Key))
               fieldsMapping.Add(pair.Key, pair.Value);
@@ -179,6 +189,7 @@ namespace Xtensive.Storage.Linq
             var method = genericAccessor.MakeGenericMethod(arg.Type);
             tupleIsUsed = true;
             newArg = Expression.Call(tuple, method, Expression.Constant(position));
+            fieldsMapping.Add(newName, new Segment<int>(position, 1));
           }
         }
         newArg = newArg ?? Visit(arg);

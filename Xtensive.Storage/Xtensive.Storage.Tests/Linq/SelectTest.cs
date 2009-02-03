@@ -367,16 +367,54 @@ namespace Xtensive.Storage.Tests.Linq
           var products = Session.Current.All<Product>();
           var result = from pd in (
                          from p in products
-                         select new {ProductKey = p.Key, p.ProductName, TotalPrice = p.UnitPrice * p.UnitsInStock, Product = new {Entity = p}}
+                         select new {ProductKey = p.Key, p.ProductName, TotalPrice = p.UnitPrice * p.UnitsInStock}
                        )
                        where pd.TotalPrice > 100
-                       select new {PKey = pd.ProductKey, pd.ProductName, Anonimous = pd.Product, Product = pd.Product.Entity};
+                       select new {PKey = pd.ProductKey, pd.ProductName, Total = pd.TotalPrice};
                        
           var list = result.ToList();
           t.Complete();
         }
       }
     }
+
+    [Test]
+    public void NestedQueryWithEntitiesTest() 
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var products = Session.Current.All<Product>();
+          var result = from pd in (
+                         from p in products
+                         select new {ProductKey = p.Key, Product = p}
+                       )
+                       select new {PKey = pd.ProductKey, pd.Product};
+                       
+          var list = result.ToList();
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void NestedQueryWithAnonimousTest() 
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var products = Session.Current.All<Product>();
+          var result = from pd in (
+                         from p in products
+                         select new {ProductKey = p.Key, Product = new {Entity = p, Name = p.ProductName}}
+                       )
+                       select new {PKey = pd.ProductKey, pd.Product.Name, Anonimous = pd.Product, Product = pd.Product.Entity};
+                       
+          var list = result.ToList();
+          t.Complete();
+        }
+      }
+    }
+
+
 
     [Test]
     public void AssociationMultipleTest() 
