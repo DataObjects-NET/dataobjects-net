@@ -167,7 +167,8 @@ namespace Xtensive.Storage.Linq
         var path = MemberPath.Parse(arg, translator.Model);
         if (path.IsValid) {
           var segment = source.GetMemberSegment(path);
-          var mapping = source.Mapping.Fields.Where(p => p.Value.Offset >= segment.Offset && p.Value.EndOffset <= segment.EndOffset).ToList();
+          var resultMapping = source.GetMemberMapping(path);
+          var mapping = resultMapping.Fields.Where(p => p.Value.Offset >= segment.Offset && p.Value.EndOffset <= segment.EndOffset).ToList();
           var oldName = mapping.Select(pair => pair.Key).OrderBy(s => s.Length).First();
           var startsWithOldName = mapping.All(pair => pair.Key.StartsWith(oldName));
           if (startsWithOldName) {

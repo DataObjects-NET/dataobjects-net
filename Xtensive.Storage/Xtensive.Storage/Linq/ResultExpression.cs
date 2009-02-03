@@ -52,6 +52,29 @@ namespace Xtensive.Storage.Linq.Expressions
     }
 
 
+    public ResultMapping GetMemberMapping(MemberPath fieldPath)
+    {
+      var pathList = fieldPath.ToList();
+      if (pathList.Count == 0)
+        return Mapping;
+      var first = pathList[0];
+      var mapping = Mapping;
+      if (first.Type == MemberType.Entity)
+        mapping = mapping.JoinedRelations[first.Name];
+      else
+        return mapping;
+
+      for (int i = 1; i < pathList.Count; i++) {
+        var item = pathList[i];
+        if (item.Type != MemberType.Entity) {
+          return mapping;
+        }
+        mapping = mapping.JoinedRelations[item.Name];
+      }
+      return mapping;
+    }
+
+
     // Constructors
 
     public ResultExpression(Type type, RecordSet recordSet, ResultMapping mapping, Expression<Func<RecordSet, object>> projector, LambdaExpression itemProjector)
