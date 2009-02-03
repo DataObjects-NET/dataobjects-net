@@ -393,6 +393,25 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    public void NestedQueryWithStructuresTest() 
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var products = Session.Current.All<Product>();
+          var result = from pd in (
+                         from p in products
+                         select new {ProductKey = p.Key, SupplierAddress = p.Supplier.Address}
+                       )
+                       select new {PKey = pd.ProductKey, pd.SupplierAddress, SupplierCity = pd.SupplierAddress.City};
+                       
+          var list = result.ToList();
+          t.Complete();
+        }
+      }
+    }
+
+
+    [Test]
     public void NestedQueryWithEntitiesTest() 
     {
       using (Domain.OpenSession()) {
