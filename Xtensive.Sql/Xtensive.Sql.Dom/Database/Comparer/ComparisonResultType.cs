@@ -20,17 +20,17 @@ namespace Xtensive.Sql.Dom.Database.Comparer
     Unchanged = 0x00,
 
     /// <summary>
-    /// New node was added to scheme.
+    /// New node is added to scheme.
     /// </summary>
     Added = 0x01,
 
     /// <summary>
-    /// Original node was removed from scheme.
+    /// Original node is removed from scheme.
     /// </summary>
     Removed = 0x02,
 
     /// <summary>
-    /// Original node was modified and become new node.
+    /// Original node is modified.
     /// </summary>
     Modified = 0x04,
 
