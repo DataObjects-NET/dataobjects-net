@@ -103,6 +103,19 @@ namespace Xtensive.Storage.Linq
           item = new MemberPathItem(member.Name, MemberType.EntitySet, memberAccess);
         }
         else {
+          if (lastItem != null)
+            return new MemberPath();
+          var sourceType = memberAccess.Expression.Type;
+          var sourceIsEntity = typeof(IEntity).IsAssignableFrom(sourceType);
+          var sourceIsStructure = typeof(Structure).IsAssignableFrom(sourceType);
+          var sourceIsKey = typeof(Key).IsAssignableFrom(sourceType);
+          if (sourceIsKey)
+            return new MemberPath();
+          if (sourceIsStructure || sourceIsEntity) {
+            var sourceTypeInfo = model.Types[sourceType];
+            if (!sourceTypeInfo.Fields.Contains(member.Name))
+              return new MemberPath();
+          }
           item = new MemberPathItem(member.Name, MemberType.Field, memberAccess);
         }
         lastItem = item;
@@ -119,6 +132,8 @@ namespace Xtensive.Storage.Linq
     /// <inheritdoc/>
     public IEnumerator<MemberPathItem> GetEnumerator()
     {
+      if (!IsValid)
+        throw new InvalidOperationException();
       return pathItems.GetEnumerator();
     }
 

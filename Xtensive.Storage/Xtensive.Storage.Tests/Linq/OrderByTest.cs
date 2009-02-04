@@ -5,9 +5,9 @@
 // Created:    2009.01.29
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
-using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 
 namespace Xtensive.Storage.Tests.Linq
@@ -15,15 +15,39 @@ namespace Xtensive.Storage.Tests.Linq
   public class OrderByTest : NorthwindDOModelTest
   {
     [Test]
-    public void MainTest()
+    public void OrderByPersistentPropertyTest()
     {
       using (Domain.OpenSession()) {
         using (Transaction.Open()) {
-          var contacts = Enumerable.OrderBy(Session.Current.All<Customer>(), s => s.ContactName);
-          foreach (var item in contacts)
-            Console.WriteLine(item.ContactName);
-          foreach (var item in contacts.OrderByDescending(s => s.ContactName))
-            Console.WriteLine(item.ContactName);
+          var contacts = Session.Current.All<Customer>();
+          var original = contacts.Select(c => c.ContactName).ToList();
+          Assert.Greater(original.Count, 0);
+          original.Sort();
+
+          var test = new List<string>(original.Count);
+          foreach (var item in contacts.OrderBy(c => c.ContactName))
+            test.Add(item.ContactName);
+
+          Assert.IsTrue(original.SequenceEqual(test));
+        }
+      }
+    }
+
+    [Test]
+    public void OrderByExpressionTest()
+    {
+      using (Domain.OpenSession()) {
+        using (Transaction.Open()) {
+          var contacts = Session.Current.All<Customer>();
+          var original = contacts.Select(c => c.ContactName).AsEnumerable().Select(s =>s.Length).ToList();
+          Assert.Greater(original.Count, 0);
+          original.Sort();
+
+          var test = new List<int>(original.Count);
+          foreach (var item in contacts.OrderBy(c => c.ContactName.Length))
+            test.Add(item.ContactName.Length);
+
+          Assert.IsTrue(original.SequenceEqual(test));
         }
       }
     }
