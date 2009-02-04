@@ -27,5 +27,75 @@ namespace Xtensive.Storage.Tests.Linq
         }
       }
     }
+
+    /*public void TestOrderBy()
+            {
+                TestQuery(
+                    db.Customers.OrderBy(c => c.CustomerID)
+                    );
+            }
+
+            public void TestOrderBySelect()
+            {
+                TestQuery(
+                    db.Customers.OrderBy(c => c.CustomerID).Select(c => c.ContactName)
+                    );
+            }
+
+            public void TestOrderByOrderBy()
+            {
+                TestQuery(
+                    db.Customers.OrderBy(c => c.CustomerID).OrderBy(c => c.Country).Select(c => c.City)
+                    );
+            }
+
+            public void TestOrderByThenBy()
+            {
+                TestQuery(
+                    db.Customers.OrderBy(c => c.CustomerID).ThenBy(c => c.Country).Select(c => c.City)
+                    );
+            }
+
+            public void TestOrderByDescending()
+            {
+                TestQuery(
+                    db.Customers.OrderByDescending(c => c.CustomerID).Select(c => c.City)
+                    );
+            }
+
+            public void TestOrderByDescendingThenBy()
+            {
+                TestQuery(
+                    db.Customers.OrderByDescending(c => c.CustomerID).ThenBy(c => c.Country).Select(c => c.City)
+                    );
+            }
+
+            public void TestOrderByDescendingThenByDescending()
+            {
+                TestQuery(
+                    db.Customers.OrderByDescending(c => c.CustomerID).ThenByDescending(c => c.Country).Select(c => c.City)
+                    );
+            }
+
+            public void TestOrderByJoin()
+            {
+                TestQuery(
+                    from c in db.Customers.OrderBy(c => c.CustomerID)
+                    join o in db.Orders.OrderBy(o => o.OrderID) on c.CustomerID equals o.CustomerID
+                    select new { c.CustomerID, o.OrderID }
+                    );
+            }
+
+            public void TestOrderBySelectMany()
+            {
+                TestQuery(
+                    from c in db.Customers.OrderBy(c => c.CustomerID)
+                    from o in db.Orders.OrderBy(o => o.OrderID)
+                    where c.CustomerID == o.CustomerID
+                    select new { c.ContactName, o.OrderID }
+                    );
+
+            }*/
+
   }
 }
