@@ -8,8 +8,9 @@ using System;
 
 namespace Xtensive.Sql.Dom.Database.Comparer
 {
+  // TODO: PartitionFunction, PartitionSchema
   [Serializable]
-  internal class CatalogComparer : WrappingNodeComparer<Catalog, Schema> //TODO: PartitionFunction, PartitionSchema
+  internal class CatalogComparer : WrappingNodeComparer<Catalog, Schema> 
   {
     public override IComparisonResult<Catalog> Compare(Catalog originalNode, Catalog newNode)
     {
