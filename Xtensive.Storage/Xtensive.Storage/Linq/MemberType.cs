@@ -9,12 +9,11 @@ namespace Xtensive.Storage.Linq
   public enum MemberType
   {
     Default = Unknown,
-    Primitive = 0,
-    Key = 1,
-    Structure = 2,
-    Entity = 3,
-    EntitySet = 4,
-    NonPersistent = 5,
-    Unknown = 6,
+    Unknown = 0,
+    Field,
+    Key,
+    Structure,
+    Entity,
+    EntitySet
   }
 }
