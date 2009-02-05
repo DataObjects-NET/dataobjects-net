@@ -2,21 +2,16 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexis Kochetov
-// Created:    2009.01.26
+// Created:    2009.02.05
 
 using System;
 
 namespace Xtensive.Storage.Linq
 {
   [Serializable]
-  public enum MemberType
+  internal enum ExtendedExpressionType
   {
-    Default = Unknown,
-    Unknown = 0,
-    Primitive,
-    Key,
-    Structure,
-    Entity,
-    EntitySet
+    Result = 1000,
+    MemberPath
   }
 }

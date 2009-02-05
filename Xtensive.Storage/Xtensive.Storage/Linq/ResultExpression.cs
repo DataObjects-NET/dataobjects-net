@@ -78,7 +78,7 @@ namespace Xtensive.Storage.Linq.Expressions
     // Constructors
 
     public ResultExpression(Type type, RecordSet recordSet, ResultMapping mapping, Expression<Func<RecordSet, object>> projector, LambdaExpression itemProjector)
-      : base(ExpressionType.Constant, type)
+      : base((ExpressionType)ExtendedExpressionType.Result, type)
     {
       RecordSet = recordSet;
       Mapping = mapping;

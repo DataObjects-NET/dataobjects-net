@@ -4,10 +4,12 @@
 // Created by: Alexey Kochetov
 // Created:    2008.12.26
 
+using System;
 using System.Linq.Expressions;
 
 namespace Xtensive.Storage.Linq
 {
+  [Serializable]
   public class MemberPathItem
   {
     public string Name { get; private set; }
