@@ -18,7 +18,7 @@ using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Linq
 {
-  internal class MemberAccessBasedJoiner : ExpressionVisitor
+  internal class MemberAccessBasedJoiner : MemberPathVisitor
   {
     private readonly QueryTranslator translator;
     private ResultExpression currentResult;
@@ -39,42 +39,48 @@ namespace Xtensive.Storage.Linq
 
     protected override Expression VisitMemberAccess(MemberExpression m)
     {
-      if (!translator.Evaluator.CanBeEvaluated(m)) {
-        var path = MemberPath.Parse(m, translator.Model);
-        var mapping = currentResult.Mapping;
-        int number = 0;
-        foreach (var item in path) {
-          number++;
-          if (item.Type == MemberType.Entity && (joinFinalEntity || number != path.Count)) {
-            ResultMapping innerMapping;
-            var name = item.Name;
-            var typeInfo = translator.Model.Types[item.Expression.Type];
-            if (!mapping.JoinedRelations.TryGetValue(name, out innerMapping)) {
-              var joinedIndex = typeInfo.Indexes.PrimaryIndex;
-              var joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(translator.GetNextAlias());
-              var keySegment = mapping.Fields[name];
-              var keyPairs =
-                Enumerable.Range(keySegment.Offset, keySegment.Length).Select(
-                  (leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex)).ToArray();
-              var rs = currentResult.RecordSet.Join(joinedRs, JoinType.Default, keyPairs);
-              var fieldMapping = translator.BuildFieldMapping(typeInfo, currentResult.RecordSet.Header.Columns.Count);
-              var joinedMapping = new ResultMapping(fieldMapping, new Dictionary<string, ResultMapping>());
-              mapping.JoinedRelations.Add(name, joinedMapping);
-
-              currentResult = new ResultExpression(currentResult.Type, rs, currentResult.Mapping,
-                                                   currentResult.Projector, currentResult.ItemProjector);
-            }
-            mapping = innerMapping;
-          }
-        }
-      }
-      return m;
+      if (translator.Evaluator.CanBeEvaluated(m))
+        return m;
+      return base.VisitMemberAccess(m);
     }
 
-   
+    protected override Expression VisitMemberPath(MemberPathExpression mpe)
+    {
+      var path = mpe.Path;
+      var mapping = currentResult.Mapping;
+      int number = 0;
+      foreach (var item in path) {
+        number++;
+        if (item.Type == MemberType.Entity && (joinFinalEntity || number != path.Count)) {
+          ResultMapping innerMapping;
+          var name = item.Name;
+          var typeInfo = translator.Model.Types[item.Expression.Type];
+          if (!mapping.JoinedRelations.TryGetValue(name, out innerMapping)) {
+            var joinedIndex = typeInfo.Indexes.PrimaryIndex;
+            var joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(translator.GetNextAlias());
+            var keySegment = mapping.Fields[name];
+            var keyPairs =
+              Enumerable.Range(keySegment.Offset, keySegment.Length).Select(
+                (leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex)).ToArray();
+            var rs = currentResult.RecordSet.Join(joinedRs, JoinType.Default, keyPairs);
+            var fieldMapping = translator.BuildFieldMapping(typeInfo, currentResult.RecordSet.Header.Columns.Count);
+            var joinedMapping = new ResultMapping(fieldMapping, new Dictionary<string, ResultMapping>());
+            mapping.JoinedRelations.Add(name, joinedMapping);
+
+            currentResult = new ResultExpression(currentResult.Type, rs, currentResult.Mapping,
+                                                 currentResult.Projector, currentResult.ItemProjector);
+          }
+          mapping = innerMapping;
+        }
+      }
+      return mpe.Expression;
+    }
+
+
     // Constructor
 
     public MemberAccessBasedJoiner(QueryTranslator translator)
+      : base (translator.Model)
     {
       this.translator = translator;
     }
