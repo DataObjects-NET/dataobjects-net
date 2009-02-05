@@ -21,13 +21,12 @@ using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Linq
 {
-  internal class ProjectionBuilder : ExpressionVisitor
+  internal class ProjectionBuilder : MemberPathVisitor
   {
     private readonly QueryTranslator translator;
     private ResultExpression source;
     private ParameterExpression tuple;
     private ParameterExpression record;
-    private bool tupleIsUsed;
     private bool recordIsUsed;
     private RecordSet recordSet;
     private Dictionary<string, Segment<int>> fieldsMapping;
@@ -51,7 +50,6 @@ namespace Xtensive.Storage.Linq
       tuple = Expression.Parameter(typeof (Tuple), "t");
       record = Expression.Parameter(typeof (Record), "r");
       parameterRewriter = new ProjectionParameterRewriter(tuple, record);
-      tupleIsUsed = false;
       recordIsUsed = false;
       recordSet = this.source.RecordSet;
       fieldsMapping = new Dictionary<string, Segment<int>>();
@@ -84,19 +82,18 @@ namespace Xtensive.Storage.Linq
       return new ResultExpression(body.Type, recordSet, mapping, projector, itemProjector);
     }
 
-    protected override Expression VisitMemberAccess(MemberExpression m)
+    protected override Expression VisitMemberPath(MemberPathExpression mpe)
     {
-      if (translator.Evaluator.CanBeEvaluated(m) && translator.ParameterExtractor.IsParameter(m))
-        return m;
-      var isEntity = typeof(IEntity).IsAssignableFrom(m.Type);
-      var isEntitySet = typeof(EntitySetBase).IsAssignableFrom(m.Type);
-      var isStructure = typeof(Structure).IsAssignableFrom(m.Type);
-      var isKey = typeof(Key).IsAssignableFrom(m.Type);
+      var resultType = mpe.Expression.Type;
+      var isEntity = typeof(IEntity).IsAssignableFrom(resultType);
+      var isEntitySet = typeof(EntitySetBase).IsAssignableFrom(resultType);
+      var isStructure = typeof(Structure).IsAssignableFrom(resultType);
+      var isKey = typeof(Key).IsAssignableFrom(resultType);
+      var path = mpe.Path;
       if (isEntity || isEntitySet || isStructure) {
         recordIsUsed = true;
         if (isStructure) {
-          var structurePath = MemberPath.Parse(m, translator.Model);
-          var structureSegment = source.GetMemberSegment(structurePath);
+          var structureSegment = source.GetMemberSegment(path);
           var structureColumn = (MappedColumn)source.RecordSet.Header.Columns[structureSegment.Offset];
           var field = structureColumn.ColumnInfoRef.Resolve(translator.Model).Field;
           while (field.Parent != null)
@@ -109,41 +106,45 @@ namespace Xtensive.Storage.Linq
                   keyResolveMethod), field.ReflectedType.UnderlyingType), field.UnderlyingProperty);
           return result;
         }
-        else if (isEntity) {
-          var entityPath = MemberPath.Parse(m, translator.Model);
-          var entitySegment = source.GetMemberSegment(entityPath);
+        if (isEntity) {
+          var entitySegment = source.GetMemberSegment(path);
           int groupIndex = source.RecordSet.Header.ColumnGroups.GetGroupIndexBySegment(entitySegment);
           var result = Expression.Convert(
-              Expression.Call(
-                Expression.Call(record, recordKeyAccessor, Expression.Constant(groupIndex)),
-                  keyResolveMethod), m.Type);
+            Expression.Call(
+              Expression.Call(record, recordKeyAccessor, Expression.Constant(groupIndex)),
+              keyResolveMethod), resultType);
           return result;
         }
         else {
+          var m = (MemberExpression) mpe.Expression;
           var expression = Visit(m.Expression);
           var result = Expression.MakeMemberAccess(expression, m.Member);
           return result;
         }
       }
-      else if (isKey) {
-        var keyPath = MemberPath.Parse(m, translator.Model);
-        var keySegment = source.GetMemberSegment(keyPath);
+      if (isKey) {
+        var keySegment = source.GetMemberSegment(path);
         var keyColumn = (MappedColumn) source.RecordSet.Header.Columns[keySegment.Offset];
         var type = keyColumn.ColumnInfoRef.Resolve(translator.Model).Field.ReflectedType;
-        var transform = new SegmentTransform(true, type.Hierarchy.KeyTupleDescriptor, source.GetMemberSegment(keyPath));
+        var transform = new SegmentTransform(true, type.Hierarchy.KeyTupleDescriptor, source.GetMemberSegment(path));
         var keyExtractor = Expression.Call(keyCreateMethod, Expression.Constant(type),
                                            Expression.Call(Expression.Constant(transform), transformApplyMethod,
                                                            Expression.Constant(TupleTransformType.Auto), tuple),
                                            Expression.Constant(false));
         return keyExtractor;
       }
-      var path = MemberPath.Parse(m, translator.Model);
-      var method = m.Type == typeof(object) ? 
+      var method = resultType == typeof(object) ? 
         nonGenericAccessor : 
-        genericAccessor.MakeGenericMethod(m.Type);
+        genericAccessor.MakeGenericMethod(resultType);
       var segment = source.GetMemberSegment(path);
-      tupleIsUsed = true;
       return Expression.Call(tuple, method, Expression.Constant(segment.Offset));
+    }
+
+    protected override Expression VisitMemberAccess(MemberExpression m)
+    {
+      if (translator.Evaluator.CanBeEvaluated(m) && translator.ParameterExtractor.IsParameter(m))
+        return m;
+      return base.VisitMemberAccess(m);
     }
 
     protected override Expression VisitParameter(ParameterExpression p)
@@ -197,7 +198,6 @@ namespace Xtensive.Storage.Linq
             recordSet = recordSet.Calculate(ccd);
             int position = recordSet.Header.Columns.Count - 1;
             var method = genericAccessor.MakeGenericMethod(arg.Type);
-            tupleIsUsed = true;
             newArg = Expression.Call(tuple, method, Expression.Constant(position));
             fieldsMapping.Add(newName, new Segment<int>(position, 1));
           }
@@ -219,6 +219,7 @@ namespace Xtensive.Storage.Linq
     // Constructors
 
     public ProjectionBuilder(QueryTranslator translator)
+      : base(translator.Model)
     {
       this.translator = translator;
     }
