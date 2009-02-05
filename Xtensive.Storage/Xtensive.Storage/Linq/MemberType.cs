@@ -10,7 +10,7 @@ namespace Xtensive.Storage.Linq
   {
     Default = Unknown,
     Unknown = 0,
-    Field,
+    Primitive,
     Key,
     Structure,
     Entity,

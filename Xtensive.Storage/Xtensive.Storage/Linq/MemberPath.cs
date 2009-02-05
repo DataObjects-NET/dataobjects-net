@@ -16,7 +16,7 @@ namespace Xtensive.Storage.Linq
 {
   public class MemberPath : IEnumerable<MemberPathItem>
   {
-    private Deque<MemberPathItem> pathItems;
+    private readonly Deque<MemberPathItem> pathItems;
 
     public int Count
     {
@@ -40,6 +40,7 @@ namespace Xtensive.Storage.Linq
         return MemberType.EntitySet;
       return MemberType.Unknown;
     }
+
     public static MemberPath Parse(Expression e, DomainModel model)
     {
       var result = new Deque<MemberPathItem>();
@@ -50,15 +51,12 @@ namespace Xtensive.Storage.Linq
         var memberAccess = (MemberExpression) current;
         var member = memberAccess.Member;
         current = memberAccess.Expression;
-        bool isKey = typeof(Key).IsAssignableFrom(memberAccess.Type);
-        bool isEntity = typeof(IEntity).IsAssignableFrom(memberAccess.Type);
-        bool isEntitySet = typeof(EntitySetBase).IsAssignableFrom(memberAccess.Type);
-        bool isStructure = typeof(Structure).IsAssignableFrom(memberAccess.Type);
         MemberPathItem item;
-        if (isKey) {
+        switch (GetMemberType(memberAccess.Type)) {
+        case MemberType.Key:
           item = new MemberPathItem(member.Name, MemberType.Key, memberAccess);
-        }
-        else if(isStructure) {
+          break;
+        case MemberType.Structure:
           if (lastItem == null) {
             item = new MemberPathItem(member.Name, MemberType.Structure, memberAccess);
           }
@@ -68,8 +66,8 @@ namespace Xtensive.Storage.Linq
               lastItem.Type, 
               lastItem.Expression);
           }
-        }
-        else if (isEntity) {
+          break;
+        case MemberType.Entity:
           if (lastItem == null) {
             item = new MemberPathItem(member.Name, MemberType.Entity, memberAccess);
           }
@@ -110,25 +108,28 @@ namespace Xtensive.Storage.Linq
               }
             }
           }
-        }
-        else if (isEntitySet) {
+          break;
+        case MemberType.EntitySet:
           item = new MemberPathItem(member.Name, MemberType.EntitySet, memberAccess);
-        }
-        else {
+          break;
+        default:
           if (lastItem != null)
             return new MemberPath();
-          var sourceType = memberAccess.Expression.Type;
-          var sourceIsEntity = typeof(IEntity).IsAssignableFrom(sourceType);
-          var sourceIsStructure = typeof(Structure).IsAssignableFrom(sourceType);
-          var sourceIsKey = typeof(Key).IsAssignableFrom(sourceType);
-          if (sourceIsKey)
+          Type sourceType = memberAccess.Expression.Type;
+          MemberType memberType = GetMemberType(sourceType);
+          switch (memberType) {
+          case MemberType.Key:
             return new MemberPath();
-          if (sourceIsStructure || sourceIsEntity) {
+          case MemberType.Entity:
+          case MemberType.Structure: {
             var sourceTypeInfo = model.Types[sourceType];
             if (!sourceTypeInfo.Fields.Contains(member.Name))
               return new MemberPath();
           }
-          item = new MemberPathItem(member.Name, MemberType.Field, memberAccess);
+            break;
+          }
+          item = new MemberPathItem(member.Name, MemberType.Primitive, memberAccess);
+          break;
         }
         lastItem = item;
       }
