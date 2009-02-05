@@ -18,7 +18,7 @@ using Xtensive.Storage.Linq.Expressions.Visitors;
 
 namespace Xtensive.Storage.Linq
 {
-  internal class MemberAccessReplacer : ExpressionVisitor
+  internal class MemberAccessReplacer : MemberPathVisitor
   {
     private readonly QueryTranslator translator;
     private ResultExpression source;
@@ -59,14 +59,12 @@ namespace Xtensive.Storage.Linq
       return base.Visit(e);
     }
 
-    protected override Expression VisitMemberAccess(MemberExpression m)
+    protected override Expression VisitMemberPath(MemberPathExpression mpe)
     {
-      var fieldPath = MemberPath.Parse(m, translator.Model);
-      if (fieldPath.Count == 0)
-        return m;
-      var method = m.Type == typeof(object) ? nonGenericAccessor : genericAccessor.MakeGenericMethod(m.Type);
+      var path = mpe.Path;
+      var method = mpe.Type == typeof(object) ? nonGenericAccessor : genericAccessor.MakeGenericMethod(mpe.Type);
       // TODO: handle structures
-      return Expression.Call(parameter, method, Expression.Constant(source.GetMemberSegment(fieldPath).Offset));
+      return Expression.Call(parameter, method, Expression.Constant(source.GetMemberSegment(path).Offset));
     }
 
     protected override Expression VisitBinary(BinaryExpression b)
@@ -94,16 +92,10 @@ namespace Xtensive.Storage.Linq
         var key = isKey ? second : Expression.MakeMemberAccess(second, identifierAccessor);
         first = isKey ? first : Expression.MakeMemberAccess(first, keyAccessor);
         var fieldStack = MemberPath.Parse(first, translator.Model);
-//        if (!isKey) {
-//          if (fieldStack.Count==0)
-//            fieldStack.AddHead(new MemberPathItem("Key", null));
-//          else
-//            fieldStack.AddHead(new MemberPathItem(fieldStack.ExtractHead().JoinedFieldName + ".Key", null));
-//        }
         var segment = source.GetMemberSegment(fieldStack);
         if (segment.Length == 0)
           throw new InvalidOperationException();
-        foreach (var pair in Enumerable.Range(segment.Offset, segment.Length).Select((ColumnIndex, ParameterIndex) => new {ColumnIndex, ParameterIndex})) {
+        foreach (var pair in Enumerable.Range(segment.Offset, segment.Length).Select((ci, pi) => new {ColumnIndex = ci, ParameterIndex = pi})) {
           var method = genericAccessor.MakeGenericMethod(source.RecordSet.Header.TupleDescriptor[segment.Offset]);
           Expression left = Expression.Call(parameter, method, Expression.Constant(pair.ColumnIndex));
           Expression right = Expression.Call(Expression.MakeMemberAccess(key, keyValueAccessor), method, Expression.Constant(pair.ParameterIndex));
@@ -127,6 +119,7 @@ namespace Xtensive.Storage.Linq
     // Constructors
 
     public MemberAccessReplacer(QueryTranslator translator)
+      : base(translator.Model)
     {
       this.translator = translator;
     }
