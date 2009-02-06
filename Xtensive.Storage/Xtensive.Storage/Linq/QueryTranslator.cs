@@ -403,7 +403,7 @@ namespace Xtensive.Storage.Linq
         return new ResultExpression(result.Type, rs, result.Mapping, result.Projector, result.ItemProjector);
       }
       else {
-        LambdaExpression le = memberAccessReplacer.ProcessSelector(result, lambdaExpression);
+        LambdaExpression le = memberAccessReplacer.ProcessCalculated(result, lambdaExpression);
         CalculatedColumnDescriptor ccd = new CalculatedColumnDescriptor(GetNextAlias(), lambdaExpression.Body.Type, (Expression<Func<Tuple, object>>) le);
         var crs = result.RecordSet.Calculate(ccd);
         int position = crs.Header.Columns.Count;

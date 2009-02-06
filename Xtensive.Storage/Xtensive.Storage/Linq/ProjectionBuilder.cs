@@ -193,7 +193,7 @@ namespace Xtensive.Storage.Linq
           }
           else {
             // TODO: Add check of queries
-            var le = translator.MemberAccessReplacer.ProcessSelector(source, Expression.Lambda(arg, parameter));
+            var le = translator.MemberAccessReplacer.ProcessCalculated(source, Expression.Lambda(arg, parameter));
             var ccd = new CalculatedColumnDescriptor(translator.GetNextAlias(), arg.Type, (Expression<Func<Tuple, object>>) le);
             recordSet = recordSet.Calculate(ccd);
             int position = recordSet.Header.Columns.Count - 1;

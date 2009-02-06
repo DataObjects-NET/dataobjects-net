@@ -730,7 +730,7 @@ namespace Xtensive.Storage.Tests.Storage
             }
             Assert.AreEqual(15, snakesRse.Count());
           }
-
+          
           IEnumerable<Snake> snakes = session.All<Snake>();
           Assert.AreEqual(snakesCount, snakes.Count());
           IEnumerable<Creature> creatures = session.All<Creature>();

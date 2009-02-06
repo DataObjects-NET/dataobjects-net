@@ -33,6 +33,30 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       return config;
     }
 
+//    [Test]
+//    public void AggreagteTest()
+//    {
+//      InsertTest(100);  
+
+//      using (var dataContext = new Entities()) {
+//        dataContext.Connection.Open();
+//        using (var transaction = dataContext.Connection.BeginTransaction()) {
+//          var query = from s in dataContext.Simplest
+//                      where dataContext.Simplest.Any(simplest => simplest.Id == s.Id) 
+//                      select s;
+//          var list = query.ToList();
+
+//          var maxSimplest = dataContext.Simplest.Aggregate(10, (i, s) => (int)s.Value * i);
+//          Assert.Greater(maxSimplest, 10);
+
+//          for (int i = 0; i < insertCount; i++) {
+//            var s = Simplest.CreateSimplest(i, 0, i);
+//            dataContext.AddToSimplest(s);
+//          }
+//          transaction.Commit();
+//        }
+//      }
+//    }
 
     [Test]
     public void RegularTest()
