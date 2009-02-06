@@ -256,6 +256,8 @@ namespace Xtensive.Storage.Linq
             return VisitContains(mc.Arguments[0], mc.Arguments[1], IsRoot(mc));
           }
           break;
+        default:
+          throw new NotSupportedException();
         }
       }
       return base.VisitMethodCall(mc);
@@ -318,14 +320,15 @@ namespace Xtensive.Storage.Linq
 
     private Expression VisitDistinct(Expression expression)
     {
-      throw new NotImplementedException();
+      var result = (ResultExpression)Visit(expression);
+      var rs = result.RecordSet.Distinct();
+      return new ResultExpression(result.Type, rs, result.Mapping, result.Projector, result.ItemProjector);
     }
 
     private Expression VisitAggregate(Expression source, MethodInfo method, LambdaExpression argument, bool isRoot)
     {
       if (!isRoot)
         throw new NotImplementedException();
-      string name = "$Count";
       AggregateType type = AggregateType.Count;
       Expression<Func<RecordSet, object>> shaper;
       ResultExpression result;
@@ -350,25 +353,21 @@ namespace Xtensive.Storage.Linq
         shaper = set => set.First().GetValueOrDefault(0);
         switch (method.Name) {
         case WellKnown.Queryable.Min:
-          name = "$Min";
           type = AggregateType.Min;
           break;
         case WellKnown.Queryable.Max:
-          name = "$Max";
           type = AggregateType.Max;
           break;
         case WellKnown.Queryable.Sum:
-          name = "$Sum";
           type = AggregateType.Sum;
           break;
         case WellKnown.Queryable.Average:
-          name = "$Avg";
           type = AggregateType.Avg;
           break;
         }
       }
 
-      var recordSet = result.RecordSet.Aggregate(null, new AggregateColumnDescriptor(name, aggregateColumn, type));
+      var recordSet = result.RecordSet.Aggregate(null, new AggregateColumnDescriptor(GetNextAlias(), aggregateColumn, type));
       return new ResultExpression(result.Type, recordSet, null, shaper, null);
     }
 
