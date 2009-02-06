@@ -24,23 +24,23 @@ namespace Xtensive.Storage.Providers
     /// Gets the <see cref="Rse.Compilation.CompilationContext"/>
     /// associated with the domain.
     /// </summary>
-    public Rse.Compilation.CompilationContext CompilationContext { get; private set; }
+    public CompilationContext CompilationContext { get; private set; }
 
     /// <summary>
-    /// Gets the client compiler.
+    /// Gets the client side RSE compiler.
     /// </summary>
-    public ICompiler ClientCompiler { get; protected set; }
+    public ICompiler ClientSideCompiler { get; protected set; }
 
     /// <summary>
-    /// Gets the compiler.
+    /// Gets the server side RSE compiler.
     /// </summary>
-    public ICompiler Compiler { get; private set; }
+    public ICompiler ServerSideCompiler { get; protected set; }
    
 
     // Abstract methods
 
     /// <summary>
-    /// Builds the <see cref="Compiler"/> value.
+    /// Builds the <see cref="ServerSideCompiler"/> value.
     /// Invoked from <see cref="Initialize"/>.
     /// </summary>
     protected abstract ICompiler BuildCompiler();
@@ -104,14 +104,13 @@ namespace Xtensive.Storage.Providers
     public override void Initialize()
     {
       Domain = BuildingContext.Current.Domain;
-      ClientCompiler = new DefaultCompiler();
-      Compiler = BuildCompiler();
-      CompilationContext = new CompilationContext(new SitePreferenceCompiler(Compiler, ClientCompiler));
+      ClientSideCompiler = new DefaultCompiler();
+      ServerSideCompiler = BuildCompiler();
+      CompilationContext = new CompilationContext(new SitePreferenceCompiler(ServerSideCompiler, ClientSideCompiler));
     }
 
-    public virtual void InitializeSessionRelatedData()
+    public virtual void InitializeSystemSession()
     {
-      
     }
   }
 }

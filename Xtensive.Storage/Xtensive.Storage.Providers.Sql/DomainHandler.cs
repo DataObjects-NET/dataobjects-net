@@ -118,9 +118,9 @@ namespace Xtensive.Storage.Providers.Sql
       SqlRequestBuilder.Initialize();
     }
 
-    public override void InitializeSessionRelatedData()
+    public override void InitializeSystemSession()
     {
-      base.InitializeSessionRelatedData();
+      base.InitializeSystemSession();
       SqlDriver = ((SessionHandler)BuildingContext.Current.SystemSessionHandler).Connection.Driver;
       ValueTypeMapper = Handlers.HandlerFactory.CreateHandler<SqlValueTypeMapper>();
       ValueTypeMapper.Initialize();

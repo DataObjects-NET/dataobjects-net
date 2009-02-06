@@ -17,6 +17,7 @@ using Xtensive.Core.Tuples;
 using Xtensive.Storage.Linq.Expressions;
 using Xtensive.Storage.Linq.Expressions.Visitors;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Resources;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers.Compilable;
 
@@ -27,7 +28,7 @@ namespace Xtensive.Storage.Linq
     private const string AliasPrefix = "alias";
 
     private int aliasSuffix = 0;
-    private readonly Linq.QueryProviderBase provider;
+    private readonly QueryProviderBase provider;
     private readonly Expression query;
     private readonly DomainModel model;
     private readonly MemberAccessReplacer memberAccessReplacer;
@@ -108,7 +109,7 @@ namespace Xtensive.Storage.Linq
         return c;
       var rootPoint = c.Value as IQueryable;
       if (rootPoint != null) {
-        var type = provider.Model.Types[rootPoint.ElementType];
+        var type = model.Types[rootPoint.ElementType];
         var index = type.Indexes.PrimaryIndex;
 
         var fieldMapping = BuildFieldMapping(type, 0);
@@ -497,9 +498,13 @@ namespace Xtensive.Storage.Linq
 
     // Constructor
 
-    public QueryTranslator(Linq.QueryProviderBase provider, Expression query)
+    /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
+    public QueryTranslator(QueryProviderBase provider, Expression query)
     {
-      model = provider.Model;
+      var domain = Domain.Current;
+      if (domain==null)
+        throw new InvalidOperationException(Strings.ExNoCurrentSession);
+      model = domain.Model;
       this.provider = provider;
       this.query = query;
       map = new Dictionary<ParameterExpression, ResultExpression>();

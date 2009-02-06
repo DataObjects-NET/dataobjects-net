@@ -12,6 +12,7 @@ using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Reflection;
 using Xtensive.PluginManager;
 using Xtensive.Storage.Configuration;
+using Xtensive.Storage.Linq;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Resources;
@@ -58,7 +59,7 @@ namespace Xtensive.Storage.Building.Builders
             using (context.Domain.Handler.OpenSession(SessionType.System)) {
               using (var transactionScope = Transaction.Open()) {
                 BuildingScope.Context.SystemSessionHandler = Session.Current.Handler;
-                BuildingContext.Current.Domain.Handler.InitializeSessionRelatedData();
+                BuildingContext.Current.Domain.Handler.InitializeSystemSession();
                 CreateGenerators();
                 using (LogTemplate<Log>.InfoRegion(String.Format(Strings.LogBuildingX, typeof(DomainHandler).GetShortName()))) {
                   StorageConformity storageConformity = context.Domain.Handler.CheckStorageConformity();
@@ -165,7 +166,7 @@ namespace Xtensive.Storage.Building.Builders
     private static void ReadExistingTypeIds()
     {
       //TODO: Optimize this code
-      foreach (SystemTypes.Type type in Session.Current.All<SystemTypes.Type>()) {
+      foreach (SystemTypes.Type type in Query<SystemTypes.Type>.All) {
         foreach (TypeInfo typeInfo in BuildingContext.Current.Model.Types) {
           if (typeInfo.UnderlyingType.FullName==type.FullName)
             typeInfo.TypeId = type.Id;

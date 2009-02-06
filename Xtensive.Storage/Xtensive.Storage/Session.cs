@@ -5,9 +5,7 @@
 // Created:    2007.08.10
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using Microsoft.Practices.Unity;
 using Xtensive.Core;
 using Xtensive.Core.Caching;
 using Xtensive.Core.Collections;
@@ -18,7 +16,6 @@ using Xtensive.Integrity.Atomicity;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Linq;
-using Xtensive.Storage.Model;
 using Xtensive.Storage.PairIntegrity;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.ReferentialIntegrity;
@@ -84,15 +81,6 @@ namespace Xtensive.Storage
           serviceProvider = new ServiceProvider(this);
         return serviceProvider;
       }
-    }
-
-    public Query<T> All<T>() 
-      where T : class, IEntity
-    {      
-      EnsureNotDisposed();
-      Persist();
-
-      return new Query<T>(Handler.LinqProvider);
     }
 
     /// <summary>

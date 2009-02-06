@@ -21,11 +21,6 @@ namespace Xtensive.Storage.Providers
     /// </summary>
     public Session Session { get; internal set; }
 
-    /// <summary>
-    /// Gets the <see cref="IQueryProvider"/> implementation.
-    /// </summary>
-    public IQueryProvider LinqProvider { get; protected set; }
-
     ///<summary>
     /// Gets the specified <see cref="System.Transactions.IsolationLevel"/>.
     ///</summary>

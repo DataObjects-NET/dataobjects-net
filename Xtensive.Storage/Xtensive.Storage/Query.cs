@@ -9,70 +9,90 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Xtensive.Core;
+using Xtensive.Storage.Linq;
 
-namespace Xtensive.Storage.Linq
+namespace Xtensive.Storage
 {
+  /// <summary>
+  /// An implementation of <see cref="IQueryable{T}"/>.
+  /// </summary>
+  /// <typeparam name="T">The type of the content item of the data source.</typeparam>
   public sealed class Query<T> : IOrderedQueryable<T>
   {
-    private readonly IQueryProvider provider;
+    private static readonly IQueryProvider provider = new QueryProvider();
     private readonly Expression expression;
 
+    /// <inheritdoc/>
     Expression IQueryable.Expression
     {
       get { return expression; }
     }
 
+    /// <inheritdoc/>
     Type IQueryable.ElementType
     {
       get { return typeof (T); }
     }
 
+    /// <inheritdoc/>
     IQueryProvider IQueryable.Provider
     {
       get { return provider; }
     }
 
+    #region IEnumerable<...> members
+
+    /// <inheritdoc/>
     public IEnumerator<T> GetEnumerator()
     {
-      var result = (IEnumerable)provider.Execute(expression);
+      var result = (IEnumerable) (this as IQueryable<T>).Provider.Execute(expression);
       foreach (var item in result)
         yield return (T)item;
     }
 
+    /// <inheritdoc/>
     IEnumerator IEnumerable.GetEnumerator()
     {
       return GetEnumerator();
     }
 
+    #endregion
+
+    /// <inheritdoc/>
     public override string ToString()
     {
+      // TODO: Make the output readable?
       if (expression.NodeType==ExpressionType.Constant && ((ConstantExpression) expression).Value==this)
         return string.Format("Query({0})", typeof (T));
       return expression.ToString();
     }
 
+    // Constructor-like static members 
+
+    public static Query<T> All {
+      get {
+        if (!typeof(IEntity).IsAssignableFrom(typeof(T)))
+          Exceptions.InvalidArgument(typeof(T), "T");
+        return new Query<T>();
+      }
+    }
+
 
     // Constructors
 
-    public Query(IQueryProvider provider)
+    private Query()
     {
-      if (provider == null)
-      {
-        throw new ArgumentNullException("provider");
-      }
-      this.provider = provider;
       expression = Expression.Constant(this);
     }
 
-    public Query(IQueryProvider provider, Expression expression)
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="expression"/>  is out of range.</exception>
+    internal Query(Expression expression)
     {
-      if (provider==null)
-        throw new ArgumentNullException("provider");
-      if (expression==null)
-        throw new ArgumentNullException("expression");
+      ArgumentValidator.EnsureArgumentNotNull(provider, "provider");
+      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
       if (!typeof (IQueryable<T>).IsAssignableFrom(expression.Type))
         throw new ArgumentOutOfRangeException("expression");
-      this.provider = provider;
       this.expression = expression;
     }
   }

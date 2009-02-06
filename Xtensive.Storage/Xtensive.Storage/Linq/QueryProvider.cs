@@ -5,13 +5,12 @@
 // Created:    2008.11.27
 
 using System.Linq.Expressions;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Linq
 {
-  public class QueryProvider : Linq.QueryProviderBase
+  internal sealed class QueryProvider : QueryProviderBase
   {
+    /// <inheritdoc/>
     protected override object Execute(Expression expression)
     {
       var compiler = new QueryTranslator(this, expression);
@@ -32,12 +31,7 @@ namespace Xtensive.Storage.Linq
 
     // Constructors
 
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="model">The model to use.</param>
-    public QueryProvider(DomainModel model)
-      : base(model)
+    public QueryProvider()
     {
     }
   }

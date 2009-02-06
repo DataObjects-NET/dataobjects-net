@@ -5,21 +5,20 @@
 // Created:    2008.11.26
 
 using System;
-using System.Collections;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
-using Xtensive.Storage.Linq;
-using Xtensive.Storage.Model;
-using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Linq
 {
+  /// <summary>
+  /// Base class for <see cref="IQueryProvider"/> implementation.
+  /// </summary>
   public abstract class QueryProviderBase : IQueryProvider
   {
-    public DomainModel Model { get; private set; }
-
+    /// <inheritdoc/>
     IQueryable IQueryProvider.CreateQuery(Expression expression)
     {
       Type elementType = TypeHelper.GetElementType(expression.Type);
@@ -32,16 +31,19 @@ namespace Xtensive.Storage.Linq
       }
     }
 
+    /// <inheritdoc/>
     IQueryable<TElement> IQueryProvider.CreateQuery<TElement>(Expression expression)
     {
-      return new Query<TElement>(this, expression);
+      return new Query<TElement>(expression);
     }
 
+    /// <inheritdoc/>
     object IQueryProvider.Execute(Expression expression)
     {
       return Execute(expression);
     }
 
+    /// <inheritdoc/>
     TResult IQueryProvider.Execute<TResult>(Expression expression)
     {
       object execute = Execute(expression);
@@ -49,14 +51,23 @@ namespace Xtensive.Storage.Linq
       return (TResult)execute;
     }
 
+    /// <summary>
+    /// Executes the query represented by a specified expression tree.
+    /// </summary>
+    /// <param name="expression">An expression tree that represents a LINQ query.</param>
+    /// <returns>
+    /// The value that results from executing the specified query.
+    /// </returns>
     protected abstract object Execute(Expression expression);
 
 
-    // Constructor
+    // Constructors
 
-    protected QueryProviderBase(DomainModel model)
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    protected QueryProviderBase()
     {
-      Model = model;
     }
   }
 }
