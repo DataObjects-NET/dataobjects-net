@@ -423,51 +423,22 @@ namespace Xtensive.Storage.Linq
       var inner = (ResultExpression)Visit(innerSource);
       outer = memberAccessBasedJoiner.Process(outer, outerKey);
       inner = memberAccessBasedJoiner.Process(inner, innerKey);
-      var outerKeyPath = MemberPath.Parse(outerKey.Body, model);
-      var innerKeyPath = MemberPath.Parse(innerKey.Body, model);
-      if (outerKeyPath == null || innerKeyPath == null) {
-        throw new InvalidOperationException();
-      }
+      IEnumerable<int> outerColumns;
+      IEnumerable<int> innerColumns;
+      outer = columnProjector.GetColumns(outer, outerKey.Body, out outerColumns);
+      inner = columnProjector.GetColumns(inner, innerKey.Body, out innerColumns);
+      map[outerKey.Parameters[0]] = outer;
+      map[innerKey.Parameters[0]] = inner;
 
-      var keyPairs = new List<Pair<int>>();
-      bool isKey = typeof(Key).IsAssignableFrom(outerKey.Body.Type);
-      bool isEntity = typeof(IEntity).IsAssignableFrom(outerKey.Body.Type);
-      bool isStructure = typeof(Structure).IsAssignableFrom(outerKey.Body.Type);
-
-      if (isKey || isEntity || isStructure) {
-        if (isStructure)
-          throw new NotImplementedException();
-
-        TypeInfo type;
-        if (isKey) {
-          var keyAccess = (MemberExpression) outerKey.Body;
-          type = Model.Types[keyAccess.Expression.Type];
-        }
-        else
-          type = Model.Types[outerKey.Body.Type];
-//        MemberPathItem pathItem = null;
-//        if (outerKeyPath.Count != 0)
-//          pathItem = outerKeyPath.ExtractTail();
-//        if (innerKeyPath.Count != 0)
-//          pathItem = innerKeyPath.ExtractTail();
-//        foreach (var field in type.Hierarchy.KeyFields.Keys) {
-//          var fieldName = pathItem == null ? field.Name : pathItem.JoinedFieldName + "." + field.Name;
-//          var keyItem = new MemberPathItem(fieldName, null);
-//          outerKeyPath.AddTail(keyItem);
-//          innerKeyPath.AddTail(keyItem);
-//          keyPairs.Add(new Pair<int>(
-//            outer.GetMemberSegment(outerKeyPath).Offset, 
-//            outer.GetMemberSegment(innerKeyPath).Offset));
-//          outerKeyPath.ExtractTail();
-//          innerKeyPath.ExtractTail();
-//        }
-      }
-      else {
-        keyPairs.Add(new Pair<int>(outer.GetMemberSegment(outerKeyPath).Offset, inner.GetMemberSegment(innerKeyPath).Offset));
-      }
+      var pairsQuery = 
+              from o in outerColumns.Select((column, index) => new {column, index})
+              join i in innerColumns.Select((column, index) => new {column, index}) on o.index equals i.index
+              select new Pair<int>(o.column, i.column);
+      var keyPairs = pairsQuery.ToArray();
 
       var innerRecordSet = inner.RecordSet.Alias(GetNextAlias());
       var recordSet = outer.RecordSet.Join(innerRecordSet, keyPairs.ToArray());
+//      var result = projectionBuilder.Build()
 //      Dictionary<TypeInfo, ResultMapping> typeMappings = null;
 //      Func<RecordSet, object> shaper = null;
 //      return new ResultExpression(resultType, recordSet, typeMappings, shaper, true);
