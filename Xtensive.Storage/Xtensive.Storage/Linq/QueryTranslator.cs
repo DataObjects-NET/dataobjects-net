@@ -196,6 +196,7 @@ namespace Xtensive.Storage.Linq
               );
           }
           break;
+        case WellKnown.Queryable.LongCount:
         case WellKnown.Queryable.Count:
         case WellKnown.Queryable.Min:
         case WellKnown.Queryable.Max:
@@ -333,8 +334,11 @@ namespace Xtensive.Storage.Linq
       Expression<Func<RecordSet, object>> shaper;
       ResultExpression result;
       int aggregateColumn = 0;
-      if (method.Name == WellKnown.Queryable.Count) {
-        shaper = set => (int)(set.First().GetValue<long>(0));
+      if (method.Name == WellKnown.Queryable.Count || method.Name == WellKnown.Queryable.LongCount) {
+        if (method.ReturnType == typeof (int))
+          shaper = set => (int)(set.First().GetValue<long>(0));
+        else
+          shaper = set => (set.First().GetValue<long>(0));
         if (argument != null)
           result = (ResultExpression) VisitWhere(source, argument);
         else
@@ -346,10 +350,12 @@ namespace Xtensive.Storage.Linq
           throw new NotSupportedException();
 
         map[argument.Parameters[0]] = result;
-//        var column = argument.Body as FieldAccessExpression;
-//        if (column==null)
-//          throw new NotSupportedException();
-//        aggregateColumn = column.Field.MappingInfo.Offset;
+        IEnumerable<int> columnIndexes;
+        result = columnProjector.GetColumns(result, argument.Body, out columnIndexes);
+        var columnList = columnIndexes.ToList();
+        if (columnList.Count != 1)
+          throw new NotSupportedException();
+        aggregateColumn = columnList[0];
         shaper = set => set.First().GetValueOrDefault(0);
         switch (method.Name) {
         case WellKnown.Queryable.Min:
@@ -391,15 +397,6 @@ namespace Xtensive.Storage.Linq
           dc.Add(item);
       }
       return result;
-//      var rs = result.RecordSet.OrderBy(dc);
-//      return new ResultExpression(result.Type, rs, result.Mapping, result.Projector, result.ItemProjector);
-//      MemberPath path = MemberPath.Parse(lambdaExpression.Body, model);
-//      var segment = result.GetMemberSegment(path);
-//      var dc = ((SortProvider) result.RecordSet.Provider).Order;
-//      for (int i = segment.Offset; i < segment.EndOffset; i++)
-//        if (!dc.ContainsKey(i))
-//          dc.Add(i, direction);
-//      return result;
     }
 
     private Expression VisitOrderBy(Expression expression, LambdaExpression lambdaExpression, Direction direction)
@@ -414,26 +411,6 @@ namespace Xtensive.Storage.Linq
       var dc = new DirectionCollection<int>(orderItems);
       var rs = result.RecordSet.OrderBy(dc);
       return new ResultExpression(result.Type, rs, result.Mapping, result.Projector, result.ItemProjector);
-
-//      MemberPath path = MemberPath.Parse(lambdaExpression.Body, model);
-//      if (path.IsValid) {
-//        var segment = result.GetMemberSegment(path);
-//        var dc = new DirectionCollection<int>();
-//        for (int i = segment.Offset; i < segment.EndOffset; i++)
-//          dc.Add(i, direction);
-//        var rs = result.RecordSet.OrderBy(dc);
-//        return new ResultExpression(result.Type, rs, result.Mapping, result.Projector, result.ItemProjector);
-//      }
-//      else {
-//        LambdaExpression le = memberAccessReplacer.ProcessCalculated(result, lambdaExpression);
-//        CalculatedColumnDescriptor ccd = new CalculatedColumnDescriptor(GetNextAlias(), lambdaExpression.Body.Type, (Expression<Func<Tuple, object>>) le);
-//        var crs = result.RecordSet.Calculate(ccd);
-//        int position = crs.Header.Columns.Count;
-//        var dc = new DirectionCollection<int>();
-//        dc.Add(position, direction);
-//        var rs = crs.OrderBy(dc);
-//        return new ResultExpression(result.Type, rs, result.Mapping, result.Projector, result.ItemProjector);
-//      }
     }
 
     private Expression VisitJoin(Type resultType, Expression outerSource, Expression innerSource, LambdaExpression outerKey, LambdaExpression innerKey, LambdaExpression resultSelector)
