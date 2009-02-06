@@ -4,10 +4,8 @@
 // Created by: Alexey Kochetov
 // Created:    2008.12.13
 
-using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core.Tuples;
-using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 using System.Linq;
 
