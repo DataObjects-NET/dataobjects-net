@@ -36,6 +36,7 @@ namespace Xtensive.Storage.Linq
     private readonly ProjectionBuilder projectionBuilder;
     private readonly ExpressionEvaluator evaluator;
     private readonly ParameterExtractor parameterExtractor;
+    private readonly ColumnProjector columnProjector;
     private readonly Dictionary<ParameterExpression, ResultExpression> map;
 
     public Expression Query
@@ -380,38 +381,60 @@ namespace Xtensive.Storage.Linq
     {
       var result = (ResultExpression) Visit(expression);
       result = MemberAccessBasedJoiner.Process(result, lambdaExpression.Body);
-      MemberPath path = MemberPath.Parse(lambdaExpression.Body, model);
-      var segment = result.GetMemberSegment(path);
-      var dc = ((SortProvider) result.RecordSet.Provider).Order;
-      for (int i = segment.Offset; i < segment.EndOffset; i++)
-        if (!dc.ContainsKey(i))
-          dc.Add(i, direction);
+      IEnumerable<int> columnIndexes;
+      result = columnProjector.GetColumns(result, lambdaExpression.Body, out columnIndexes);
+      var orderItems = columnIndexes
+        .Distinct()
+        .Select(ci => new KeyValuePair<int, Direction>(ci, direction));
+      var dc = ((SortProvider)result.RecordSet.Provider).Order;
+      foreach (var item in orderItems) {
+        if (!dc.ContainsKey(item.Key))
+          dc.Add(item);
+      }
       return result;
+//      var rs = result.RecordSet.OrderBy(dc);
+//      return new ResultExpression(result.Type, rs, result.Mapping, result.Projector, result.ItemProjector);
+//      MemberPath path = MemberPath.Parse(lambdaExpression.Body, model);
+//      var segment = result.GetMemberSegment(path);
+//      var dc = ((SortProvider) result.RecordSet.Provider).Order;
+//      for (int i = segment.Offset; i < segment.EndOffset; i++)
+//        if (!dc.ContainsKey(i))
+//          dc.Add(i, direction);
+//      return result;
     }
 
     private Expression VisitOrderBy(Expression expression, LambdaExpression lambdaExpression, Direction direction)
     {
       var result = (ResultExpression) Visit(expression);
       result = MemberAccessBasedJoiner.Process(result, lambdaExpression.Body);
-      MemberPath path = MemberPath.Parse(lambdaExpression.Body, model);
-      if (path.IsValid) {
-        var segment = result.GetMemberSegment(path);
-        var dc = new DirectionCollection<int>();
-        for (int i = segment.Offset; i < segment.EndOffset; i++)
-          dc.Add(i, direction);
-        var rs = result.RecordSet.OrderBy(dc);
-        return new ResultExpression(result.Type, rs, result.Mapping, result.Projector, result.ItemProjector);
-      }
-      else {
-        LambdaExpression le = memberAccessReplacer.ProcessCalculated(result, lambdaExpression);
-        CalculatedColumnDescriptor ccd = new CalculatedColumnDescriptor(GetNextAlias(), lambdaExpression.Body.Type, (Expression<Func<Tuple, object>>) le);
-        var crs = result.RecordSet.Calculate(ccd);
-        int position = crs.Header.Columns.Count;
-        var dc = new DirectionCollection<int>();
-        dc.Add(position, direction);
-        var rs = crs.OrderBy(dc);
-        return new ResultExpression(result.Type, rs, result.Mapping, result.Projector, result.ItemProjector);
-      }
+      IEnumerable<int> columnIndexes;
+      result = columnProjector.GetColumns(result, lambdaExpression.Body, out columnIndexes);
+      var orderItems = columnIndexes
+        .Distinct()
+        .Select(ci => new KeyValuePair<int, Direction>(ci, direction));
+      var dc = new DirectionCollection<int>(orderItems);
+      var rs = result.RecordSet.OrderBy(dc);
+      return new ResultExpression(result.Type, rs, result.Mapping, result.Projector, result.ItemProjector);
+
+//      MemberPath path = MemberPath.Parse(lambdaExpression.Body, model);
+//      if (path.IsValid) {
+//        var segment = result.GetMemberSegment(path);
+//        var dc = new DirectionCollection<int>();
+//        for (int i = segment.Offset; i < segment.EndOffset; i++)
+//          dc.Add(i, direction);
+//        var rs = result.RecordSet.OrderBy(dc);
+//        return new ResultExpression(result.Type, rs, result.Mapping, result.Projector, result.ItemProjector);
+//      }
+//      else {
+//        LambdaExpression le = memberAccessReplacer.ProcessCalculated(result, lambdaExpression);
+//        CalculatedColumnDescriptor ccd = new CalculatedColumnDescriptor(GetNextAlias(), lambdaExpression.Body.Type, (Expression<Func<Tuple, object>>) le);
+//        var crs = result.RecordSet.Calculate(ccd);
+//        int position = crs.Header.Columns.Count;
+//        var dc = new DirectionCollection<int>();
+//        dc.Add(position, direction);
+//        var rs = crs.OrderBy(dc);
+//        return new ResultExpression(result.Type, rs, result.Mapping, result.Projector, result.ItemProjector);
+//      }
     }
 
     private Expression VisitJoin(Type resultType, Expression outerSource, Expression innerSource, LambdaExpression outerKey, LambdaExpression innerKey, LambdaExpression resultSelector)
@@ -513,6 +536,7 @@ namespace Xtensive.Storage.Linq
       memberAccessReplacer = new MemberAccessReplacer(this);
       memberAccessBasedJoiner = new MemberAccessBasedJoiner(this);
       projectionBuilder = new ProjectionBuilder(this);
+      columnProjector = new ColumnProjector(this);
     }
   }
 }
