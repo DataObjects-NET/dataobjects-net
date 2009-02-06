@@ -278,7 +278,10 @@ namespace Xtensive.Sql.Dom.Mssql.v2000
     {
       switch (section) {
         case SelectSection.Entry:
-          return (node.Top > 0) ? "SELECT TOP " + node.Top : "SELECT TOP 100 PERCENT";
+          if (node.Distinct)
+            return (node.Top > 0) ? "SELECT DISTINCT TOP " + node.Top : "SELECT DISTINCT TOP 100 PERCENT";
+          else
+            return (node.Top > 0) ? "SELECT TOP " + node.Top : "SELECT TOP 100 PERCENT";
         case SelectSection.Exit:
           if (node.Hints.Count == 0)
             return string.Empty;
