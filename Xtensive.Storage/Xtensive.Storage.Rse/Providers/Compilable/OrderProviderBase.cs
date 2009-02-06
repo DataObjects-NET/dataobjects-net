@@ -71,9 +71,11 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
       var comparisonRules = new ComparisonRules[Order.Count];
       for (int i = 0; i < Order.Count; i++) {
         var orderItem = Order[i];
-        CultureInfo culture = ((MappedColumn)Header.Columns[orderItem.Key]).ColumnInfoRef != null
-          ? ((MappedColumn)Header.Columns[orderItem.Key]).ColumnInfoRef.CultureInfo
-          : CultureInfo.InvariantCulture;
+        var culture = CultureInfo.InvariantCulture;
+        var column = Header.Columns[orderItem.Key];
+        var mappedColumn = column as MappedColumn;
+        if (mappedColumn != null && mappedColumn.ColumnInfoRef != null)
+          culture = mappedColumn.ColumnInfoRef.CultureInfo;
         comparisonRules[i] = new ComparisonRule(orderItem.Value, culture);
       }
 

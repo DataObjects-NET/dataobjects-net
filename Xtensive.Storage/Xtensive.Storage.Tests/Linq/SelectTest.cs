@@ -373,7 +373,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    public void NestedQueryWithAnonimousTest() 
+    public void NestedQueryWithAnonymousTest() 
     {
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
@@ -382,7 +382,7 @@ namespace Xtensive.Storage.Tests.Linq
                          from p in products
                          select new {ProductKey = p.Key, Product = new {Entity = p, Name = p.ProductName}}
                        )
-                       select new {PKey = pd.ProductKey, pd.Product.Name, Anonimous = pd.Product, Product = pd.Product.Entity};
+                       select new {PKey = pd.ProductKey, pd.Product.Name, Anonymous = pd.Product, Product = pd.Product.Entity};
                        
           var list = result.ToList();
           t.Complete();

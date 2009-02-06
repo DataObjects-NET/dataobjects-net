@@ -39,13 +39,13 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (Transaction.Open()) {
           var contacts = Query<Customer>.All;
-          var original = contacts.Select(c => c.ContactName).AsEnumerable().Select(s =>s.Length).ToList();
+          var original = contacts.Select(c => c.ContactName).AsEnumerable().Select(s =>s.ToUpper()).ToList();
           Assert.Greater(original.Count, 0);
           original.Sort();
 
-          var test = new List<int>(original.Count);
-          foreach (var item in contacts.OrderBy(c => c.ContactName.Length))
-            test.Add(item.ContactName.Length);
+          var test = new List<string>(original.Count);
+          foreach (var item in contacts.OrderBy(c => c.ContactName.ToUpper()))
+            test.Add(item.ContactName.ToUpper());
 
           Assert.IsTrue(original.SequenceEqual(test));
         }
