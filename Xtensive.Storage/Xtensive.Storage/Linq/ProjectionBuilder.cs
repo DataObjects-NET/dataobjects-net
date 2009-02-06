@@ -30,7 +30,7 @@ namespace Xtensive.Storage.Linq
     private Dictionary<string, Segment<int>> fieldsMapping;
     private Dictionary<Expression, string> prefixMap;
     private ProjectionParameterRewriter parameterRewriter;
-    private ParameterExpression parameter;
+    private ParameterExpression[] parameters;
     private static readonly MethodInfo transformApplyMethod;
     private static readonly MethodInfo keyCreateMethod;
     private static readonly MethodInfo selectMethod;
@@ -41,7 +41,7 @@ namespace Xtensive.Storage.Linq
 
     public ResultExpression Build(ResultExpression source, LambdaExpression le)
     {
-      parameter = le.Parameters[0];
+      parameters = le.Parameters.ToArray();
       var body = le.Body;
       prefixMap = new Dictionary<Expression, string>();
       this.source = translator.MemberAccessBasedJoiner.Process(source, body, true);
@@ -191,7 +191,7 @@ namespace Xtensive.Storage.Linq
           }
           else {
             // TODO: Add check of queries
-            var le = translator.MemberAccessReplacer.ProcessCalculated(source, Expression.Lambda(arg, parameter));
+            var le = translator.MemberAccessReplacer.ProcessCalculated(source, Expression.Lambda(arg, parameters));
             var ccd = new CalculatedColumnDescriptor(translator.GetNextAlias(), arg.Type, (Expression<Func<Tuple, object>>) le);
             recordSet = recordSet.Calculate(ccd);
             int position = recordSet.Header.Columns.Count - 1;

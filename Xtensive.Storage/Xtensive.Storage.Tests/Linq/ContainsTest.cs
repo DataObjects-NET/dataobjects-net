@@ -4,8 +4,11 @@
 // Created by: Alexis Kochetov
 // Created:    2009.02.04
 
+using NUnit.Framework;
+
 namespace Xtensive.Storage.Tests.Linq
 {
+  [Ignore("Not implemented")]
   public class ContainsTest : NorthwindDOModelTest
   {
     /*public void TestAnyWithSubquery()
