@@ -344,10 +344,11 @@ namespace Xtensive.Storage.Linq
       }
       else {
         result = (ResultExpression)Visit(source);
-        List<int> columnList;
+        var columnList = new List<int>();
         if (argument == null) {
-
-          throw new NotSupportedException();
+          if (result.Mapping.Segment.Length > 1)
+            throw new NotSupportedException();
+          columnList.Add(0);
         }
         else {
           map[argument.Parameters[0]] = result;
