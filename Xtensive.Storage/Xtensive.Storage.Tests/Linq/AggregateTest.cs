@@ -6,12 +6,22 @@
 
 using System.Linq;
 using NUnit.Framework;
+using Xtensive.Core.Testing;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 
 namespace Xtensive.Storage.Tests.Linq
 {
   public class AggregateTest : NorthwindDOModelTest
   {
+    [Test]
+    public void EntityNotSupportedTest()
+    {
+      using (Domain.OpenSession())
+      using (var t = Transaction.Open()) {
+        AssertEx.ThrowsNotSupportedException(() => Query<Order>.All.Max());
+      }
+    }
+
     [Test]
     public void SumWithNoArgTest()
     {
