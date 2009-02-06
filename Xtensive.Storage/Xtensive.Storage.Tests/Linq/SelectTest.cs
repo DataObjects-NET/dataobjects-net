@@ -23,7 +23,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
-          var products = Session.Current.All<Product>();
+          var products = Query<Product>.All;
           var result = from p in products
                        select 0;
           var list = result.ToList();
@@ -39,7 +39,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
-          var products = Session.Current.All<Product>();
+          var products = Query<Product>.All;
           var result = from p in products
                        select (string)null;
           var list = result.ToList();
@@ -58,7 +58,7 @@ namespace Xtensive.Storage.Tests.Linq
 // ReSharper disable ConvertToConstant
           int x = 10;
 // ReSharper restore ConvertToConstant
-          var products = Session.Current.All<Product>();
+          var products = Query<Product>.All;
           var result = from p in products
                        select x;
           var list = result.ToList();
@@ -79,7 +79,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
-          var products = Session.Current.All<Product>();
+          var products = Query<Product>.All;
           var result = from p in products
                        select p.ProductName;
           var list = result.ToList();
@@ -95,7 +95,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
-          var products = Session.Current.All<Product>();
+          var products = Query<Product>.All;
           var result = from p in products
                        select p.UnitsInStock * p.UnitPrice;
           var list = result.ToList();
@@ -111,7 +111,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
-          var products = Session.Current.All<Product>();
+          var products = Query<Product>.All;
           var result = from p in products
                        select p.Key;
           var list = result.ToList();
@@ -131,7 +131,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
-          var products = Session.Current.All<Product>();
+          var products = Query<Product>.All;
           var result = from p in products
                        select new { p.ProductName, p.UnitPrice, p.UnitsInStock };
           var list = result.ToList();
@@ -146,7 +146,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
-          var products = Session.Current.All<Product>();
+          var products = Query<Product>.All;
           var result = from p in products
                        select new {};
           var list = result.ToList();
@@ -161,7 +161,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
-          var products = Session.Current.All<Product>();
+          var products = Query<Product>.All;
           var result = from p in products
                        select new { p.ProductName, TotalPriceInStock = p.UnitPrice * p.UnitsInStock };
           var list = result.ToList();
@@ -176,7 +176,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
-          var products = Session.Current.All<Product>();
+          var products = Query<Product>.All;
           var result = from p in products
                        select p.Supplier.CompanyName;
           var list = result.ToList();
@@ -192,7 +192,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
-          var products = Session.Current.All<Product>();
+          var products = Query<Product>.All;
           var result = from p in products
                        select p.Supplier;
           var list = result.ToList();
@@ -207,7 +207,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
-          var products = Session.Current.All<Product>();
+          var products = Query<Product>.All;
           var result = from p in products
                        select p.Supplier.Address;
           var list = result.ToList();
@@ -222,7 +222,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
-          var suppliers = Session.Current.All<Supplier>();
+          var suppliers = Query<Supplier>.All;
           var result = from s in suppliers
                        select s.Products;
           var list = result.ToList();
@@ -236,7 +236,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
-          var products = Session.Current.All<Product>();
+          var products = Query<Product>.All;
           var result = from p in products
                        select new { p.ProductName, Product = p };
           var list = result.ToList();
@@ -252,7 +252,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
-          var products = Session.Current.All<Product>();
+          var products = Query<Product>.All;
           var result = from p in products
                        select new { p, Desc = new {p.ProductName, p.UnitPrice} };
           var list = result.ToList();
@@ -267,8 +267,8 @@ namespace Xtensive.Storage.Tests.Linq
     {
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
-          var products = Session.Current.All<Product>();
-          var suppliers = Session.Current.All<Supplier>();
+          var products = Query<Product>.All;
+          var suppliers = Query<Supplier>.All;
           var result = from p in products
                        select (
                          from s in suppliers
@@ -292,8 +292,8 @@ namespace Xtensive.Storage.Tests.Linq
     {
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
-          var products = Session.Current.All<Product>();
-          var suppliers = Session.Current.All<Supplier>();
+          var products = Query<Product>.All;
+          var suppliers = Query<Supplier>.All;
           var result = from p in products
                        select new {
                          Suppliers = from s in suppliers
@@ -317,7 +317,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
-          var products = Session.Current.All<Product>();
+          var products = Query<Product>.All;
           var result = from pd in (
                          from p in products
                          select new {ProductKey = p.Key, p.ProductName, TotalPrice = p.UnitPrice * p.UnitsInStock}
@@ -336,7 +336,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
-          var products = Session.Current.All<Product>();
+          var products = Query<Product>.All;
           var result = 
             from a in (
               from pd in (
@@ -359,7 +359,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
-          var products = Session.Current.All<Product>();
+          var products = Query<Product>.All;
           var result = from pd in (
                          from p in products
                          select new {ProductKey = p.Key, Product = p}
@@ -377,7 +377,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
-          var products = Session.Current.All<Product>();
+          var products = Query<Product>.All;
           var result = from pd in (
                          from p in products
                          select new {ProductKey = p.Key, Product = new {Entity = p, Name = p.ProductName}}

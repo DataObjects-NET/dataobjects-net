@@ -19,8 +19,8 @@ namespace Xtensive.Storage.Tests.Linq
     {
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
-          var products = Session.Current.All<Product>();
-          var suppliers = Session.Current.All<Supplier>();
+          var products = Query<Product>.All;
+          var suppliers = Query<Supplier>.All;
           var result = from p in products
                        join s in suppliers on p.Supplier.Id equals s.Id
                        select s.Phone;
@@ -36,9 +36,9 @@ namespace Xtensive.Storage.Tests.Linq
     {
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
-          var products = Session.Current.All<Product>();
-          var suppliers = Session.Current.All<Supplier>();
-          var categories = Session.Current.All<Category>();
+          var products = Query<Product>.All;
+          var suppliers = Query<Supplier>.All;
+          var categories = Query<Category>.All;
           var result = from p in products
                        join s in suppliers on p.Supplier.Id equals s.Id
                        join c in categories on p.Category.Id equals c.Id
@@ -57,9 +57,9 @@ namespace Xtensive.Storage.Tests.Linq
       {
         using (var t = Transaction.Open())
         {
-          var products = Session.Current.All<Product>();
-          var suppliers = Session.Current.All<Supplier>();
-          var categories = Session.Current.All<Category>();
+          var products = Query<Product>.All;
+          var suppliers = Query<Supplier>.All;
+          var categories = Query<Category>.All;
           var result = from p in products
                        from s in suppliers
                        from c in categories

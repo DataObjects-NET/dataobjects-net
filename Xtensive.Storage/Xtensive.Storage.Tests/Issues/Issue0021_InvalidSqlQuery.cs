@@ -64,7 +64,7 @@ namespace Xtensive.Storage.Tests.Issues
           t.Complete();
         }
         using (var t = Transaction.Open()) {
-          var allD = t.Transaction.Session.All<DerivedClassTable>();
+          var allD = Query<DerivedClassTable>.All;
           foreach (var d in allD) {
             d.Remove();
           }

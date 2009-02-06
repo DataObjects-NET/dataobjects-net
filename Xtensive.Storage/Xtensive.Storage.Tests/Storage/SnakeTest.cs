@@ -669,7 +669,7 @@ namespace Xtensive.Storage.Tests.Storage
 
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
-          Assert.AreEqual(0, Session.Current.All<ICreature>().Count());
+          Assert.AreEqual(0, Query<Snake>.All.Count());
           t.Complete();
         }
       }
@@ -731,17 +731,17 @@ namespace Xtensive.Storage.Tests.Storage
             Assert.AreEqual(15, snakesRse.Count());
           }
           
-          IEnumerable<Snake> snakes = session.All<Snake>();
+          IEnumerable<Snake> snakes = Query<Snake>.All;
           Assert.AreEqual(snakesCount, snakes.Count());
-          IEnumerable<Creature> creatures = session.All<Creature>();
+          IEnumerable<Creature> creatures = Query<Creature>.All;
           Assert.AreEqual(creaturesCount + snakesCount + lizardsCount, creatures.Count());
 
-          Snake snakeKaa53 = session.All<Snake>()
+          Snake snakeKaa53 = Query<Snake>.All
             .Where(snake => snake.Name=="Kaa53")
             .First();
           Assert.AreEqual("Kaa53", snakeKaa53.Name);
 
-          var result = from s in session.All<Snake>()
+          var result = from s in Query<Snake>.All
           where s.Length >= 500
           select s;
           Assert.AreEqual(500, result.Count());

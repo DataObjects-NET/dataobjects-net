@@ -86,17 +86,17 @@ namespace Xtensive.Storage.Tests.Storage
           a.B = new B();
           a.C = new C();
           Session.Current.Persist();
-          Assert.AreEqual(1, Session.Current.All<A>().Count());
-          Assert.AreEqual(1, Session.Current.All<B>().Count());
-          Assert.AreEqual(1, Session.Current.All<C>().Count());
+          Assert.AreEqual(1, Query<A>.All.Count());
+          Assert.AreEqual(1, Query<B>.All.Count());
+          Assert.AreEqual(1, Query<C>.All.Count());
 
           a.B.Remove();
           Assert.AreEqual(null, a.B);
           AssertEx.Throws<ReferentialIntegrityException>(a.C.Remove);
           a.Remove();
-          Assert.AreEqual(0, Session.Current.All<A>().Count());
-          Assert.AreEqual(0, Session.Current.All<B>().Count());
-          Assert.AreEqual(0, Session.Current.All<C>().Count());
+          Assert.AreEqual(0, Query<A>.All.Count());
+          Assert.AreEqual(0, Query<B>.All.Count());
+          Assert.AreEqual(0, Query<C>.All.Count());
 
           Master m = new Master();
           m.OneToMany.Add(new Slave());

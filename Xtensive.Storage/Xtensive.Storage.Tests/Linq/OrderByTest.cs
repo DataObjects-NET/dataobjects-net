@@ -19,7 +19,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       using (Domain.OpenSession()) {
         using (Transaction.Open()) {
-          var contacts = Session.Current.All<Customer>();
+          var contacts = Query<Customer>.All;
           var original = contacts.Select(c => c.ContactName).ToList();
           Assert.Greater(original.Count, 0);
           original.Sort();
@@ -38,7 +38,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       using (Domain.OpenSession()) {
         using (Transaction.Open()) {
-          var contacts = Session.Current.All<Customer>();
+          var contacts = Query<Customer>.All;
           var original = contacts.Select(c => c.ContactName).AsEnumerable().Select(s =>s.Length).ToList();
           Assert.Greater(original.Count, 0);
           original.Sort();

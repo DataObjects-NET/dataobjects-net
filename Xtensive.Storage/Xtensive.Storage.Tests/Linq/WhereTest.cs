@@ -23,8 +23,8 @@ namespace Xtensive.Storage.Tests.Linq
     {
       base.TestFixtureSetUp();
       using (Domain.OpenSession()) {
-        supplier20Key = Session.Current.All<Supplier>().Single(s => s.Id == 20).Key;
-        category1Key = Session.Current.All<Category>().Single(c => c.Id == 1).Key;
+        supplier20Key = Query<Supplier>.All.Single(s => s.Id == 20).Key;
+        category1Key = Query<Category>.All.Single(c => c.Id == 1).Key;
       }
     }
 
@@ -34,7 +34,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
-          var suppliers = Session.Current.All<Supplier>();
+          var suppliers = Query<Supplier>.All;
           var supplier = suppliers.Where(s => s.CompanyName == "Tokyo Traders").First();
           Assert.IsNotNull(supplier);
           Assert.AreEqual("Tokyo Traders", supplier.CompanyName);
@@ -48,7 +48,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
-          var products = Session.Current.All<Product>();
+          var products = Query<Product>.All;
           var list = products.Where(p => p.UnitPrice * p.UnitsInStock >= 100).ToList();
           Assert.AreEqual(67, list.Count);
           t.Complete();
@@ -61,7 +61,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
-          var suppliers = Session.Current.All<Supplier>();
+          var suppliers = Query<Supplier>.All;
           var supplier = suppliers.Where(s => s.Address.Region == "Victoria").First();
           Assert.IsNotNull(supplier);
           Assert.AreEqual("Victoria", supplier.Address.Region);
@@ -75,7 +75,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
-          var suppliers = Session.Current.All<Supplier>();
+          var suppliers = Query<Supplier>.All;
           var supplier = suppliers.Where(s => s.Id == 20 ).First();
           Assert.IsNotNull(supplier);
           Assert.AreEqual("Leka Trading", supplier.CompanyName);
@@ -89,7 +89,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
-          var suppliers = Session.Current.All<Supplier>();
+          var suppliers = Query<Supplier>.All;
           var key = Key.Create<Supplier>(Tuple.Create(20));
           var supplier = suppliers.Where(s => s.Key == key).First();
           Assert.IsNotNull(supplier);
@@ -105,7 +105,7 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var supplier20 = supplier20Key.Resolve<Supplier>();
-          var suppliers = Session.Current.All<Supplier>();
+          var suppliers = Query<Supplier>.All;
           var supplier = suppliers.Where(s => s == supplier20).First();
           Assert.IsNotNull(supplier);
           Assert.AreEqual("Leka Trading", supplier.CompanyName);
@@ -120,7 +120,7 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var supplier20 = supplier20Key.Resolve<Supplier>();
-          var products = Session.Current.All<Product>();
+          var products = Query<Product>.All;
           var product = products.Where(p => p.Supplier.Key == supplier20.Key).First();
           Assert.IsNotNull(product);
           Assert.AreEqual("Singaporean Hokkien Fried Mee", product.ProductName);
@@ -135,7 +135,7 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var supplier20 = supplier20Key.Resolve<Supplier>();
-          var products = Session.Current.All<Product>();
+          var products = Query<Product>.All;
           var product = products.Where(p => p.Supplier.Id == supplier20.Id).First();
           Assert.IsNotNull(product);
           Assert.AreEqual("Singaporean Hokkien Fried Mee", product.ProductName);
@@ -150,7 +150,7 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var supplier20 = supplier20Key.Resolve<Supplier>();
-          var products = Session.Current.All<Product>();
+          var products = Query<Product>.All;
           var product = products.Where(p => p.Supplier == supplier20).First();
           Assert.IsNotNull(product);
           Assert.AreEqual("Singaporean Hokkien Fried Mee", product.ProductName);
@@ -164,7 +164,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
-          var products = Session.Current.All<Product>();
+          var products = Query<Product>.All;
           var product = products.Where(p => p.Supplier.CompanyName == "Leka Trading").First();
           Assert.IsNotNull(product);
           Assert.AreEqual("Leka Trading", product.Supplier.CompanyName);
