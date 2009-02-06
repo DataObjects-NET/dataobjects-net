@@ -9,9 +9,9 @@ using System.Linq.Expressions;
 using Xtensive.Core.Linq;
 using Xtensive.Core.Reflection;
 
-namespace Xtensive.Storage.Linq.Expressions
+namespace Xtensive.Storage.Linq
 {
-  public static class ExpressionHelper
+  internal static class ExpressionHelper
   {
     public static LambdaExpression StripQuotes(this Expression expression)
     {

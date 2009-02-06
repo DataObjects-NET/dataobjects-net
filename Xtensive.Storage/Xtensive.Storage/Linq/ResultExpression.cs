@@ -12,7 +12,7 @@ using Xtensive.Storage.Linq;
 using Xtensive.Storage.Rse;
 using System.Linq;
 
-namespace Xtensive.Storage.Linq.Expressions
+namespace Xtensive.Storage.Linq
 {
   [Serializable]
   internal sealed class ResultExpression : Expression

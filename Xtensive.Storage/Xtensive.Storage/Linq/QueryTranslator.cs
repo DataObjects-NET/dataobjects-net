@@ -14,8 +14,6 @@ using Xtensive.Core.Collections;
 using Xtensive.Core.Linq;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
-using Xtensive.Storage.Linq.Expressions;
-using Xtensive.Storage.Linq.Expressions.Visitors;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 using Xtensive.Storage.Rse;
@@ -346,13 +344,18 @@ namespace Xtensive.Storage.Linq
       }
       else {
         result = (ResultExpression)Visit(source);
-        if (argument==null) 
-          throw new NotSupportedException();
+        List<int> columnList;
+        if (argument == null) {
 
-        map[argument.Parameters[0]] = result;
-        IEnumerable<int> columnIndexes;
-        result = columnProjector.GetColumns(result, argument.Body, out columnIndexes);
-        var columnList = columnIndexes.ToList();
+          throw new NotSupportedException();
+        }
+        else {
+          map[argument.Parameters[0]] = result;
+          IEnumerable<int> columnIndexes;
+          result = columnProjector.GetColumns(result, argument.Body, out columnIndexes);
+          columnList = columnIndexes.ToList();
+        }
+        
         if (columnList.Count != 1)
           throw new NotSupportedException();
         aggregateColumn = columnList[0];

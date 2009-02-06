@@ -15,7 +15,7 @@ using Xtensive.Core.Collections;
 namespace Xtensive.Storage.Linq
 {
   [Serializable]
-  public class MemberPath : IEnumerable<MemberPathItem>
+  internal class MemberPath : IEnumerable<MemberPathItem>
   {
     private readonly Deque<MemberPathItem> pathItems;
 

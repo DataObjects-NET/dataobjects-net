@@ -11,8 +11,6 @@ using Xtensive.Core.Linq;
 using Xtensive.Core.Tuples;
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Linq;
-using Xtensive.Storage.Linq.Expressions;
-using Xtensive.Storage.Linq.Expressions.Visitors;
 using Xtensive.Storage.Model;
 using SqlFactory = Xtensive.Sql.Dom.Sql;
 using System.Linq;

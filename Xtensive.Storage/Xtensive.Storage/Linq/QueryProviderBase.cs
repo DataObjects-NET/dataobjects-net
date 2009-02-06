@@ -16,7 +16,7 @@ namespace Xtensive.Storage.Linq
   /// <summary>
   /// Base class for <see cref="IQueryProvider"/> implementation.
   /// </summary>
-  public abstract class QueryProviderBase : IQueryProvider
+  internal abstract class QueryProviderBase : IQueryProvider
   {
     /// <inheritdoc/>
     IQueryable IQueryProvider.CreateQuery(Expression expression)

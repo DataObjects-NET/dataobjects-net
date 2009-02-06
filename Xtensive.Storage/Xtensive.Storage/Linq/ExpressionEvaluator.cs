@@ -8,20 +8,36 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Linq;
 
-namespace Xtensive.Storage.Linq.Expressions.Visitors
+namespace Xtensive.Storage.Linq
 {
+  /// <summary>
+  /// Expression visitor that checks ability to evaluate expression to <see cref="ConstantExpression"/>.
+  /// </summary>
   public sealed class ExpressionEvaluator : ExpressionVisitor
   {
     private readonly HashSet<Expression> candidates = new HashSet<Expression>();
     private bool couldBeEvaluated;
 
+
+    /// <summary>
+    /// Determines whether specified <paramref name="e"/> can be evaluated.
+    /// </summary>
+    /// <param name="e">The expression.</param>
+    /// <returns>
+    /// 	<see langword="true" /> if <paramref name="e"/> can be evaluated; otherwise, <see langword="false" />.
+    /// </returns>
     public bool CanBeEvaluated(Expression e)
     {
       return candidates.Contains(e);
     }
 
+    /// <summary>
+    /// Evaluates the specified <paramref name="e"/> into <see cref="ConstantExpression"/>.
+    /// </summary>
+    /// <param name="e">The expression.</param>
     public ConstantExpression Evaluate(Expression e)
     {
       if (e == null)
@@ -36,6 +52,7 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
       return Expression.Constant(func(), type);
     }
 
+    /// <inheritdoc/>
     protected override Expression Visit(Expression e)
     {
       if (e != null) {
@@ -52,6 +69,7 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
       return e;
     }
 
+    /// <inheritdoc/>
     protected override Expression VisitUnknown(Expression e)
     {
       return e;
@@ -72,12 +90,15 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
       if (expression.NodeType == ExpressionType.Convert && expression.Type == typeof(object))
         return true;
       return expression.NodeType != ExpressionType.Parameter &&
-        expression.NodeType != ExpressionType.Lambda;
+             expression.NodeType != ExpressionType.Lambda;
     }
 
 
     // Constructors
-
+    
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
     public ExpressionEvaluator(Expression e)
     {
       couldBeEvaluated = true;

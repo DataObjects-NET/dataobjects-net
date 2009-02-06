@@ -9,13 +9,23 @@ using System.Linq.Expressions;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Linq;
 
-namespace Xtensive.Storage.Linq.Expressions.Visitors
+namespace Xtensive.Storage.Linq
 {
+  /// <summary>
+  /// Expression visitor that determines whether <see cref="Expression"/> could be parameter.
+  /// </summary>
   public class ParameterExtractor : ExpressionVisitor
   {
     private readonly ExpressionEvaluator evaluator;
     private bool containsMemberAccess;
 
+    /// <summary>
+    /// Determines whether the specified <paramref name="e"/> is parameter.
+    /// </summary>
+    /// <param name="e">The expression.</param>
+    /// <returns>
+    ///   <see langword="true" /> if the specified <paramref name="e"/> is parameter; otherwise, <see langword="false" />.
+    /// </returns>
     public bool IsParameter(Expression e)
     {
       if (!evaluator.CanBeEvaluated(e))
@@ -25,6 +35,10 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
       return containsMemberAccess;
     }
 
+    /// <summary>
+    /// Extracts the parameter.
+    /// </summary>
+    /// <param name="expression">The expression.</param>
     public Expression<Func<object>> ExtractParameter(Expression expression)
     {
       Type type = expression.Type;
@@ -34,12 +48,14 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
       return lambda;
     }
 
+    /// <inheritdoc/>
     protected override Expression VisitMemberAccess(MemberExpression m)
     {
       containsMemberAccess = true;
       return base.VisitMemberAccess(m);
     }
 
+    /// <inheritdoc/>
     protected override Expression VisitUnknown(Expression e)
     {
       return e;
