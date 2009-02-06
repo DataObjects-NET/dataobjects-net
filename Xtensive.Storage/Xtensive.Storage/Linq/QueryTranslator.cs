@@ -346,7 +346,7 @@ namespace Xtensive.Storage.Linq
         result = (ResultExpression)Visit(source);
         var columnList = new List<int>();
         if (argument == null) {
-          if (result.Mapping.Segment.Length > 1)
+          if (result.Mapping.Segment.Length > 1 || result.ItemProjector.Body.Type != result.RecordSet.Header.Columns[0].Type)
             throw new NotSupportedException();
           columnList.Add(0);
         }
