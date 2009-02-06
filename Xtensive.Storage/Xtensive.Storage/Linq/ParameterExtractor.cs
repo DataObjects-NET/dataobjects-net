@@ -39,12 +39,14 @@ namespace Xtensive.Storage.Linq
     /// Extracts the parameter.
     /// </summary>
     /// <param name="expression">The expression.</param>
-    public Expression<Func<object>> ExtractParameter(Expression expression)
+    public Expression<Func<T>> ExtractParameter<T>(Expression expression)
     {
+      if (expression.NodeType == ExpressionType.Lambda)
+        return (Expression<Func<T>>) expression;
       Type type = expression.Type;
       if (type.IsValueType)
-        expression = Expression.Convert(expression, typeof(object));
-      var lambda = Expression.Lambda<Func<object>>(expression);
+        expression = Expression.Convert(expression, typeof(T));
+      var lambda = Expression.Lambda<Func<T>>(expression);
       return lambda;
     }
 

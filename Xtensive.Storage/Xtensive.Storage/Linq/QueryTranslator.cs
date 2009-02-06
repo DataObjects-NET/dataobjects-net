@@ -306,14 +306,16 @@ namespace Xtensive.Storage.Linq
     private Expression VisitTake(Expression source, Expression take)
     {
       var projection = (ResultExpression)Visit(source);
-      var rs = projection.RecordSet.Take((Expression<Func<int>>) take, true);
+      var parameter = parameterExtractor.ExtractParameter<int>(take);
+      var rs = projection.RecordSet.Take(parameter, true);
       return new ResultExpression(projection.Type, rs, projection.Mapping, projection.Projector, projection.ItemProjector);
     }
 
     private Expression VisitSkip(Expression source, Expression skip)
     {
       var projection = (ResultExpression)Visit(source);
-      var rs = projection.RecordSet.Skip((Expression<Func<int>>)skip, true);
+      var parameter = parameterExtractor.ExtractParameter<int>(skip);
+      var rs = projection.RecordSet.Skip(parameter, true);
       return new ResultExpression(projection.Type, rs, projection.Mapping, projection.Projector, projection.ItemProjector);
     }
 
