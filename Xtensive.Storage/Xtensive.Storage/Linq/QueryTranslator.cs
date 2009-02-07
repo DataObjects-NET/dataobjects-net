@@ -436,17 +436,19 @@ namespace Xtensive.Storage.Linq
               select new Pair<int>(o.column, i.column);
       var keyPairs = pairsQuery.ToArray();
 
-      var inner = GetProjection(innerParameter);
       var outer = GetProjection(outerParameter);
+      var inner = GetProjection(innerParameter);
 
       var innerRecordSet = inner.RecordSet.Alias(GetNextAlias());
       var recordSet = outer.RecordSet.Join(innerRecordSet, keyPairs.ToArray());
-//      var result = projectionBuilder.Build()
-//      Dictionary<TypeInfo, ResultMapping> typeMappings = null;
-//      Func<RecordSet, object> shaper = null;
-//      return new ResultExpression(resultType, recordSet, typeMappings, shaper, true);
+      var outerLength = outer.RecordSet.Header.Columns.Count;
+      outer = new ResultExpression(outer.Type, recordSet, outer.Mapping, outer.Projector, outer.ItemProjector);
+      inner = new ResultExpression(inner.Type, recordSet, inner.Mapping.ShiftOffset(outerLength), inner.Projector, inner.ItemProjector);
+      SetProjection(resultSelector.Parameters[0], outer);
+      SetProjection(resultSelector.Parameters[1], inner);
 
-      throw new NotImplementedException(ExpressionWriter.WriteToString(query));
+      var result = projectionBuilder.Build(resultSelector);
+      return result;
     }
 
     private Expression VisitSelectMany(Type resultType, Expression source, LambdaExpression collectionSelector, LambdaExpression resultSelector)
