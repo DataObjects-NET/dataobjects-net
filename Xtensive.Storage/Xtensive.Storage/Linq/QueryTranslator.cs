@@ -72,6 +72,11 @@ namespace Xtensive.Storage.Linq
       return map[pe];
     }
 
+    public void SetProjection(ParameterExpression pe, ResultExpression value)
+    {
+      map[pe] = value;
+    }
+
     public ResultExpression Translate()
     {
       return (ResultExpression) Visit(query);
@@ -353,10 +358,9 @@ namespace Xtensive.Storage.Linq
           columnList.Add(0);
         }
         else {
-          map[argument.Parameters[0]] = result;
-          IEnumerable<int> columnIndexes;
-          result = columnProjector.GetColumns(result, argument.Body, out columnIndexes);
-          columnList = columnIndexes.ToList();
+          SetProjection(argument.Parameters[0], result);
+          columnList = columnProjector.GetColumns(argument).ToList();
+          result = GetProjection(argument.Parameters[0]);
         }
         
         if (columnList.Count != 1)
@@ -388,15 +392,14 @@ namespace Xtensive.Storage.Linq
       throw new NotImplementedException();
     }
 
-    private Expression VisitThenBy(Expression expression, LambdaExpression lambdaExpression, Direction direction)
+    private Expression VisitThenBy(Expression expression, LambdaExpression le, Direction direction)
     {
-      var result = (ResultExpression) Visit(expression);
-      result = MemberAccessBasedJoiner.Process(result, lambdaExpression.Body);
-      IEnumerable<int> columnIndexes;
-      result = columnProjector.GetColumns(result, lambdaExpression.Body, out columnIndexes);
-      var orderItems = columnIndexes
+      SetProjection(le.Parameters[0], (ResultExpression) Visit(expression));
+      MemberAccessBasedJoiner.Process(le.Body);
+      var orderItems = columnProjector.GetColumns(le)
         .Distinct()
         .Select(ci => new KeyValuePair<int, Direction>(ci, direction));
+      var result = GetProjection(le.Parameters[0]);
       var dc = ((SortProvider)result.RecordSet.Provider).Order;
       foreach (var item in orderItems) {
         if (!dc.ContainsKey(item.Key))
@@ -405,38 +408,36 @@ namespace Xtensive.Storage.Linq
       return result;
     }
 
-    private Expression VisitOrderBy(Expression expression, LambdaExpression lambdaExpression, Direction direction)
+    private Expression VisitOrderBy(Expression expression, LambdaExpression le, Direction direction)
     {
-      var result = (ResultExpression) Visit(expression);
-      result = MemberAccessBasedJoiner.Process(result, lambdaExpression.Body);
-      IEnumerable<int> columnIndexes;
-      result = columnProjector.GetColumns(result, lambdaExpression.Body, out columnIndexes);
-      var orderItems = columnIndexes
+      SetProjection(le.Parameters[0], (ResultExpression)Visit(expression));
+      MemberAccessBasedJoiner.Process(le.Body);
+      var orderItems = columnProjector.GetColumns(le)
         .Distinct()
         .Select(ci => new KeyValuePair<int, Direction>(ci, direction));
       var dc = new DirectionCollection<int>(orderItems);
+      var result = GetProjection(le.Parameters[0]);
       var rs = result.RecordSet.OrderBy(dc);
       return new ResultExpression(result.Type, rs, result.Mapping, result.Projector, result.ItemProjector);
     }
 
     private Expression VisitJoin(Type resultType, Expression outerSource, Expression innerSource, LambdaExpression outerKey, LambdaExpression innerKey, LambdaExpression resultSelector)
     {
-      var outer = (ResultExpression)Visit(outerSource);
-      var inner = (ResultExpression)Visit(innerSource);
-      outer = memberAccessBasedJoiner.Process(outer, outerKey);
-      inner = memberAccessBasedJoiner.Process(inner, innerKey);
-      IEnumerable<int> outerColumns;
-      IEnumerable<int> innerColumns;
-      outer = columnProjector.GetColumns(outer, outerKey.Body, out outerColumns);
-      inner = columnProjector.GetColumns(inner, innerKey.Body, out innerColumns);
-      map[outerKey.Parameters[0]] = outer;
-      map[innerKey.Parameters[0]] = inner;
+      var outerParameter = outerKey.Parameters[0];
+      var innerParameter = innerKey.Parameters[0];
+      SetProjection(outerParameter, (ResultExpression)Visit(outerSource));
+      SetProjection(innerParameter, (ResultExpression)Visit(innerSource));
+      memberAccessBasedJoiner.Process(outerKey);
+      memberAccessBasedJoiner.Process(innerKey);
 
       var pairsQuery = 
-              from o in outerColumns.Select((column, index) => new {column, index})
-              join i in innerColumns.Select((column, index) => new {column, index}) on o.index equals i.index
+              from o in columnProjector.GetColumns(outerKey).Select((column, index) => new {column, index})
+              join i in columnProjector.GetColumns(innerKey).Select((column, index) => new {column, index}) on o.index equals i.index
               select new Pair<int>(o.column, i.column);
       var keyPairs = pairsQuery.ToArray();
+
+      var inner = GetProjection(innerParameter);
+      var outer = GetProjection(outerParameter);
 
       var innerRecordSet = inner.RecordSet.Alias(GetNextAlias());
       var recordSet = outer.RecordSet.Join(innerRecordSet, keyPairs.ToArray());
@@ -456,19 +457,19 @@ namespace Xtensive.Storage.Linq
     private Expression VisitSelect(Type resultType, Expression expression, LambdaExpression le)
     {
       var source = (ResultExpression)Visit(expression);
-      map[le.Parameters[0]] = source;
+      SetProjection(le.Parameters[0], source);
       var result = projectionBuilder.Build(source, le);
       return result;
     }
 
     private Expression VisitWhere(Expression expression, LambdaExpression le)
     {
-      var result = (ResultExpression) Visit(expression);
-      map[le.Parameters[0]] = result;
-      result = memberAccessBasedJoiner.Process(result, le.Body);
-      var predicate = memberAccessReplacer.ProcessPredicate(result, le);
-      var recordSet = result.RecordSet.Filter((Expression<Func<Tuple, bool>>)predicate);
-      return new ResultExpression(expression.Type, recordSet, result.Mapping, result.Projector, result.ItemProjector);
+      SetProjection(le.Parameters[0], (ResultExpression) Visit(expression));
+      memberAccessBasedJoiner.Process(le);
+      var predicate = memberAccessReplacer.ProcessPredicate(le);
+      var source = GetProjection(le.Parameters[0]);
+      var recordSet = source.RecordSet.Filter((Expression<Func<Tuple, bool>>)predicate);
+      return new ResultExpression(expression.Type, recordSet, source.Mapping, source.Projector, source.ItemProjector);
     }
 
 

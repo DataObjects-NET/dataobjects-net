@@ -19,39 +19,35 @@ namespace Xtensive.Storage.Linq
   internal class MemberAccessReplacer : MemberPathVisitor
   {
     private readonly QueryTranslator translator;
-    private ResultExpression source;
-    private ParameterExpression parameter;
+    private ParameterExpression resultParameter;
     private static readonly MethodInfo nonGenericAccessor;
     private static readonly MethodInfo genericAccessor;
     private static readonly PropertyInfo keyValueAccessor;
     private static readonly PropertyInfo keyAccessor;
     private static readonly MemberInfo identifierAccessor;
 
-    public LambdaExpression ProcessPredicate(ResultExpression source, LambdaExpression le)
+    public LambdaExpression ProcessPredicate(LambdaExpression le)
     {
-      this.source = source;
-      parameter = Expression.Parameter(typeof(Tuple), "t");
+      resultParameter = Expression.Parameter(typeof(Tuple), "t");
       var body = Visit(le.Body);
-      var lambda = Expression.Lambda(typeof(Func<Tuple, bool>), body, parameter);
+      var lambda = Expression.Lambda(typeof(Func<Tuple, bool>), body, resultParameter);
       return lambda;
     }
 
-    public LambdaExpression ProcessCalculated(ResultExpression source, LambdaExpression le)
+    public LambdaExpression ProcessCalculated(LambdaExpression le)
     {
-      this.source = source;
-      parameter = Expression.Parameter(typeof(Tuple), "t");
+      resultParameter = Expression.Parameter(typeof(Tuple), "t");
       var body = Visit(le.Body);
-      var lambda = Expression.Lambda(typeof(Func<Tuple, object>), Expression.Convert(body, typeof(object)), parameter);
+      var lambda = Expression.Lambda(typeof(Func<Tuple, object>), Expression.Convert(body, typeof(object)), resultParameter);
       return lambda;
     }
 
-    public LambdaExpression ProcessCalculated(ResultExpression source, Expression e)
+    public LambdaExpression ProcessCalculated(Expression e)
     {
       e = e.NodeType == ExpressionType.Lambda ? ((LambdaExpression)e).Body : e;
-      this.source = source;
-      parameter = Expression.Parameter(typeof(Tuple), "t");
+      resultParameter = Expression.Parameter(typeof(Tuple), "t");
       var body = Visit(e);
-      var lambda = Expression.Lambda(typeof(Func<Tuple, object>), Expression.Convert(body, typeof(object)), parameter);
+      var lambda = Expression.Lambda(typeof(Func<Tuple, object>), Expression.Convert(body, typeof(object)), resultParameter);
       return lambda;
     }
 
@@ -72,7 +68,8 @@ namespace Xtensive.Storage.Linq
       var path = mpe.Path;
       var method = mpe.Type == typeof(object) ? nonGenericAccessor : genericAccessor.MakeGenericMethod(mpe.Type);
       // TODO: handle structures
-      return Expression.Call(parameter, method, Expression.Constant(source.GetMemberSegment(path).Offset));
+      var source = translator.GetProjection(path.Parameter);
+      return Expression.Call(resultParameter, method, Expression.Constant(source.GetMemberSegment(path).Offset));
     }
 
     protected override Expression VisitBinary(BinaryExpression b)
@@ -99,13 +96,14 @@ namespace Xtensive.Storage.Linq
         Expression result = null;
         var key = isKey ? second : Expression.MakeMemberAccess(second, identifierAccessor);
         first = isKey ? first : Expression.MakeMemberAccess(first, keyAccessor);
-        var fieldStack = MemberPath.Parse(first, translator.Model);
-        var segment = source.GetMemberSegment(fieldStack);
+        var path = MemberPath.Parse(first, translator.Model);
+        var source = translator.GetProjection(path.Parameter);
+        var segment = source.GetMemberSegment(path);
         if (segment.Length == 0)
           throw new InvalidOperationException();
         foreach (var pair in Enumerable.Range(segment.Offset, segment.Length).Select((ci, pi) => new {ColumnIndex = ci, ParameterIndex = pi})) {
           var method = genericAccessor.MakeGenericMethod(source.RecordSet.Header.TupleDescriptor[segment.Offset]);
-          Expression left = Expression.Call(parameter, method, Expression.Constant(pair.ColumnIndex));
+          Expression left = Expression.Call(resultParameter, method, Expression.Constant(pair.ColumnIndex));
           Expression right = Expression.Call(Expression.MakeMemberAccess(key, keyValueAccessor), method, Expression.Constant(pair.ParameterIndex));
           if (result == null) {
             result = b.NodeType == ExpressionType.Equal ?

@@ -19,27 +19,28 @@ namespace Xtensive.Storage.Linq
   {
     private readonly QueryTranslator translator;
     private List<int> projectedColumns;
-    private ResultExpression source;
-    private List<CalculatedColumnDescriptor> calculatedColumns;
+    private Queue<CalculatedColumnDescriptor> calculatedColumns;
 
-    public ResultExpression GetColumns(ResultExpression source, Expression projector, out IEnumerable<int> columnIndexes)
+    public IEnumerable<int> GetColumns(LambdaExpression le)
     {
-      this.source = source;
       projectedColumns = new List<int>();
-      calculatedColumns = new List<CalculatedColumnDescriptor>();
-      Visit(projector);
-      columnIndexes = projectedColumns;
+      calculatedColumns = new Queue<CalculatedColumnDescriptor>();
+      Visit(le.Body);
+      var source = translator.GetProjection(le.Parameters[0]);
       var recordSet = calculatedColumns.Count > 0 ? 
         source.RecordSet.Calculate(calculatedColumns.ToArray()) : 
         source.RecordSet;
       var result = new ResultExpression(source.Type, recordSet, source.Mapping, source.Projector, source.ItemProjector);
-      return result;
+      translator.SetProjection(le.Parameters[0], result);
+      var ccIndex = source.RecordSet.Header.Columns.Count;
+      return projectedColumns.Select(pc => pc == int.MinValue ? ccIndex++ : pc).ToList();
     }
 
     protected override Expression Visit(Expression e)
     {
       var path = MemberPath.Parse(e, translator.Model);
       if (path.IsValid) {
+        var source = translator.GetProjection(path.Parameter);
         var segment = source.GetMemberSegment(path);
         projectedColumns.AddRange(Enumerable.Range(segment.Offset, segment.Length));
       }
@@ -47,10 +48,10 @@ namespace Xtensive.Storage.Linq
         if (e.NodeType == ExpressionType.New)
           return VisitNew((NewExpression) e);
         // Calculated column processing
-        LambdaExpression le = translator.MemberAccessReplacer.ProcessCalculated(source, e);
+        LambdaExpression le = translator.MemberAccessReplacer.ProcessCalculated(e);
         var ccd = new CalculatedColumnDescriptor(translator.GetNextAlias(), e.Type, (Expression<Func<Tuple, object>>) le);
-        projectedColumns.Add(source.Mapping.Segment.Length + calculatedColumns.Count);
-        calculatedColumns.Add(ccd);
+        projectedColumns.Add(int.MinValue); // calculated column placeholder
+        calculatedColumns.Enqueue(ccd);
       }
       return e;
     }

@@ -44,7 +44,8 @@ namespace Xtensive.Storage.Linq
       parameters = le.Parameters.ToArray();
       var body = le.Body;
       prefixMap = new Dictionary<Expression, string>();
-      this.source = translator.MemberAccessBasedJoiner.Process(source, body, true);
+      translator.MemberAccessBasedJoiner.Process(body, true);
+      this.source = translator.GetProjection(le.Parameters[0]);
       tuple = Expression.Parameter(typeof (Tuple), "t");
       record = Expression.Parameter(typeof (Record), "r");
       parameterRewriter = new ProjectionParameterRewriter(tuple, record);
@@ -191,7 +192,7 @@ namespace Xtensive.Storage.Linq
           }
           else {
             // TODO: Add check of queries
-            var le = translator.MemberAccessReplacer.ProcessCalculated(source, Expression.Lambda(arg, parameters));
+            var le = translator.MemberAccessReplacer.ProcessCalculated(Expression.Lambda(arg, parameters));
             var ccd = new CalculatedColumnDescriptor(translator.GetNextAlias(), arg.Type, (Expression<Func<Tuple, object>>) le);
             recordSet = recordSet.Calculate(ccd);
             int position = recordSet.Header.Columns.Count - 1;

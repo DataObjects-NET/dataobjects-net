@@ -19,20 +19,17 @@ namespace Xtensive.Storage.Linq
   internal class MemberAccessBasedJoiner : MemberPathVisitor
   {
     private readonly QueryTranslator translator;
-    private ResultExpression currentResult;
     private bool joinFinalEntity;
 
-    public ResultExpression Process(ResultExpression source, Expression e)
+    public void Process(Expression e)
     {
-      return Process(source, e, false);
+      Process(e, false);
     }
 
-    public ResultExpression Process(ResultExpression source, Expression e, bool joinFinalEntity)
+    public void Process(Expression e, bool joinFinalEntity)
     {
       this.joinFinalEntity = joinFinalEntity;
-      currentResult = source;
       Visit(e);
-      return currentResult;
     }
 
     protected override Expression VisitMemberAccess(MemberExpression m)
@@ -45,7 +42,9 @@ namespace Xtensive.Storage.Linq
     protected override Expression VisitMemberPath(MemberPathExpression mpe)
     {
       var path = mpe.Path;
-      var mapping = currentResult.Mapping;
+      var pe = path.Parameter;
+      var source = translator.GetProjection(pe);
+      var mapping = source.Mapping;
       int number = 0;
       foreach (var item in path) {
         number++;
@@ -60,13 +59,13 @@ namespace Xtensive.Storage.Linq
             var keyPairs =
               Enumerable.Range(keySegment.Offset, keySegment.Length).Select(
                 (leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex)).ToArray();
-            var rs = currentResult.RecordSet.Join(joinedRs, JoinType.Default, keyPairs);
-            var fieldMapping = translator.BuildFieldMapping(typeInfo, currentResult.RecordSet.Header.Columns.Count);
+            var rs = source.RecordSet.Join(joinedRs, JoinType.Default, keyPairs);
+            var fieldMapping = translator.BuildFieldMapping(typeInfo, source.RecordSet.Header.Columns.Count);
             var joinedMapping = new ResultMapping(fieldMapping, new Dictionary<string, ResultMapping>());
             mapping.JoinedRelations.Add(name, joinedMapping);
 
-            currentResult = new ResultExpression(currentResult.Type, rs, currentResult.Mapping,
-                                                 currentResult.Projector, currentResult.ItemProjector);
+            source = new ResultExpression(source.Type, rs, source.Mapping, source.Projector, source.ItemProjector);
+            translator.SetProjection(pe, source);
           }
           mapping = innerMapping;
         }
