@@ -34,7 +34,8 @@ namespace Xtensive.Storage.Linq
       if (Fields.Count > 0)
         Segment = new Segment<int>(Fields.Min(pair => pair.Value.Offset), Fields.Max(pair => pair.Value.Offset) + 1);
       else
-        Segment = new Segment<int>(0,0);
+        // TODO: refecator this code to support primitive type projections and empty projections
+        Segment = new Segment<int>(0,1);
     }
   }
 }
