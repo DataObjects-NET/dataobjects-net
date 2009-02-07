@@ -29,6 +29,8 @@ namespace Xtensive.Storage.Linq
       get { return pathItems!=null; }
     }
 
+    public ParameterExpression Parameter { get; private set; }
+
     private static MemberType GetMemberType(Type type)
     {
       if (typeof(Key).IsAssignableFrom(type))
@@ -137,10 +139,10 @@ namespace Xtensive.Storage.Linq
       if (current.NodeType == ExpressionType.Parameter) {
         if (lastItem != null)
           result.AddHead(lastItem);
+        return new MemberPath(result, (ParameterExpression) current);
       }
       else
         return new MemberPath();
-      return new MemberPath(result);
     }
 
     /// <inheritdoc/>
@@ -159,8 +161,9 @@ namespace Xtensive.Storage.Linq
 
     // Constructor
 
-    private MemberPath(Deque<MemberPathItem> pathItems)
+    private MemberPath(Deque<MemberPathItem> pathItems, ParameterExpression parameter)
     {
+      Parameter = parameter;
       this.pathItems = pathItems;
     }
 
