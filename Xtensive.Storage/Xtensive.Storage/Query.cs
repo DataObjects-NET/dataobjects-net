@@ -11,6 +11,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Storage.Linq;
+using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage
 {
@@ -20,25 +21,34 @@ namespace Xtensive.Storage
   /// <typeparam name="T">The type of the content item of the data source.</typeparam>
   public sealed class Query<T> : IOrderedQueryable<T>
   {
-    private static readonly IQueryProvider provider = new QueryProvider();
+    private static readonly QueryProvider provider = new QueryProvider();
     private readonly Expression expression;
 
     /// <inheritdoc/>
-    Expression IQueryable.Expression
+    public Expression Expression
     {
       get { return expression; }
     }
 
     /// <inheritdoc/>
-    Type IQueryable.ElementType
+    public Type ElementType
     {
       get { return typeof (T); }
     }
 
     /// <inheritdoc/>
-    IQueryProvider IQueryable.Provider
+    public IQueryProvider Provider
     {
       get { return provider; }
+    }
+
+
+    /// <summary>
+    /// Gets the <see cref="RecordSet"/> this query is compiled to.
+    /// </summary>
+    public RecordSet Compiled
+    {
+      get { return provider.Compile(expression).RecordSet; }
     }
 
     #region IEnumerable<...> members
@@ -46,7 +56,7 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     public IEnumerator<T> GetEnumerator()
     {
-      var result = (IEnumerable) (this as IQueryable<T>).Provider.Execute(expression);
+      var result = (IEnumerable) this.Provider.Execute(expression);
       foreach (var item in result)
         yield return (T)item;
     }
@@ -70,7 +80,13 @@ namespace Xtensive.Storage
 
     // Constructor-like static members 
 
-    public static Query<T> All {
+    /// <summary>
+    /// The "starting point" for any LINQ query -
+    /// a <see cref="IQueryable{T}"/> enumerating all the instances
+    /// of type <typeparamref name="T"/> (<typeparamref name="T"/>
+    /// must be assignable to <see cref="Entity"/> or <see cref="IEntity"/> type).
+    /// </summary>
+    public static IQueryable<T> All {
       get {
         if (!typeof(IEntity).IsAssignableFrom(typeof(T)))
           Exceptions.InvalidArgument(typeof(T), "T");

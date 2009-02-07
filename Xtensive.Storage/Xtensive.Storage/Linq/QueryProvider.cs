@@ -5,6 +5,7 @@
 // Created:    2008.11.27
 
 using System.Linq.Expressions;
+using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Linq
 {
@@ -13,19 +14,25 @@ namespace Xtensive.Storage.Linq
     /// <inheritdoc/>
     protected override object Execute(Expression expression)
     {
-      var compiler = new QueryTranslator(this, expression);
-      var result = compiler.Translate();
-      var shaper = result.Projector;
+      var result = Compile(expression);
+      var projector = result.Projector;
       var recordSet = result.RecordSet;
-      
-      // TODO: Always use Projector
-      if (shaper != null) {
-        var compiled = shaper.Compile();
-        return compiled(recordSet);
-      }
 
-      var arguments = expression.Type.GetGenericArguments();
-      return recordSet.ToEntities(arguments[0]);
+      // TODO: Always use Projector
+      if (projector != null) {
+        var compiledProjector = projector.Compile();
+        return compiledProjector(recordSet);
+      }
+      else {
+        var arguments = expression.Type.GetGenericArguments();
+        return recordSet.ToEntities(arguments[0]);
+      }
+    }
+
+    internal ResultExpression Compile(Expression expression)
+    {
+      var compiler = new QueryTranslator(this, expression);
+      return compiler.Translate();
     }
 
 
