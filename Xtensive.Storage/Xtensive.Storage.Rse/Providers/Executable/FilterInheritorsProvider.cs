@@ -30,6 +30,7 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
     private readonly IOrderedEnumerable<Tuple,Tuple> source;
     private readonly Func<Tuple, bool> predicate;
     private readonly bool[] typeIdMatch;
+    private readonly IEnumerable<int> typeIds;
 
     /// <inheritdoc/>
     public long Count {
@@ -122,22 +123,19 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
     /// <param name="origin">The <see cref="ExecutableProvider{TOrigin}.Origin"/> property value.</param>
     /// <param name="provider">Source executable provider.</param>
     /// <param name="typeIdColumn">Index of typeId column.</param>
-    /// <param name="typesCount">Amount of types in the model.</param>
     /// <param name="typeIds">Identifiers of descendants types.</param>
-    public FilterInheritorsProvider(Compilable.IndexProvider origin, ExecutableProvider provider,  int typeIdColumn, int typesCount,  params int[] typeIds)
+    public FilterInheritorsProvider(Compilable.IndexProvider origin, ExecutableProvider provider,  int typeIdColumn, IEnumerable<int> typeIds)
       : base(origin, provider)
     {
       AddService<IOrderedEnumerable<Tuple, Tuple>>();
       AddService<ICountable>();
 
       source = provider.GetService<IOrderedEnumerable<Tuple,Tuple>>(true);
-      typeIdMatch = new bool[typesCount + 1];
-      foreach (int typeId in typeIds)
-        typeIdMatch[typeId] = true;
-      predicate = delegate(Tuple item)
-      {
+      this.typeIds = typeIds;
+
+      predicate = delegate(Tuple item) {
         int typeId = item.GetValueOrDefault<int>(typeIdColumn);
-        return typeIdMatch[typeId];
+        return typeIds.Contains(typeId);
       };
     }
   }

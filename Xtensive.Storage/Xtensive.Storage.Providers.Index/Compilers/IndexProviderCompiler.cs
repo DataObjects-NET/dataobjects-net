@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Providers.Index.Compilers
             columnIndex = indexInfo.Columns.Select((c, i) => c.Field.Name==handlerAccessor.Domain.NameBuilder.TypeIdFieldName ? i : 0).Sum();
           List<int> typeIdList = indexInfo.ReflectedType.GetDescendants(true).Select(info => info.TypeId).ToList();
           typeIdList.Add(indexInfo.ReflectedType.TypeId);
-          result = new FilterInheritorsProvider(provider, source, columnIndex, handlerAccessor.Domain.Model.Types.Count, typeIdList.ToArray());
+          result = new FilterInheritorsProvider(provider, source, columnIndex, typeIdList.ToArray());
         }
         else if ((indexInfo.Attributes & IndexAttributes.Union)!=0) {
           ExecutableProvider[] sourceProviders = indexInfo.UnderlyingIndexes.Select(index => CompileInternal(Rse.Providers.Compilable.IndexProvider.Get(index), index)).ToArray();

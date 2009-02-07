@@ -68,8 +68,13 @@ namespace Xtensive.Storage.Tests.Storage
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           Master m = new Master();
+          
           m.ManyToMany.Add(new Slave());
           Assert.AreEqual(1, m.ManyToMany.Count);
+
+          m.ManyToMany.Add(new Slave());
+          Assert.AreEqual(2, m.ManyToMany.Count);
+
           t.Complete();
         }
       }
