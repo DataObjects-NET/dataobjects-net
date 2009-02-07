@@ -456,18 +456,18 @@ namespace Xtensive.Storage.Linq
 
     private Expression VisitSelect(Type resultType, Expression expression, LambdaExpression le)
     {
-      var source = (ResultExpression)Visit(expression);
-      SetProjection(le.Parameters[0], source);
-      var result = projectionBuilder.Build(source, le);
+      SetProjection(le.Parameters[0], (ResultExpression)Visit(expression));
+      var result = projectionBuilder.Build(le);
       return result;
     }
 
     private Expression VisitWhere(Expression expression, LambdaExpression le)
     {
-      SetProjection(le.Parameters[0], (ResultExpression) Visit(expression));
+      var parameter = le.Parameters[0];
+      SetProjection(parameter, (ResultExpression) Visit(expression));
       memberAccessBasedJoiner.Process(le);
       var predicate = memberAccessReplacer.ProcessPredicate(le);
-      var source = GetProjection(le.Parameters[0]);
+      var source = GetProjection(parameter);
       var recordSet = source.RecordSet.Filter((Expression<Func<Tuple, bool>>)predicate);
       return new ResultExpression(expression.Type, recordSet, source.Mapping, source.Projector, source.ItemProjector);
     }

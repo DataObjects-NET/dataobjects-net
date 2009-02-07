@@ -22,15 +22,14 @@ namespace Xtensive.Storage.Linq
   internal class ProjectionBuilder : MemberPathVisitor
   {
     private readonly QueryTranslator translator;
-    private ResultExpression source;
     private ParameterExpression tuple;
     private ParameterExpression record;
     private bool recordIsUsed;
-    private RecordSet recordSet;
     private Dictionary<string, Segment<int>> fieldsMapping;
     private Dictionary<Expression, string> prefixMap;
     private ProjectionParameterRewriter parameterRewriter;
     private ParameterExpression[] parameters;
+    private List<CalculatedColumnDescriptor> calculatedColumns;
     private static readonly MethodInfo transformApplyMethod;
     private static readonly MethodInfo keyCreateMethod;
     private static readonly MethodInfo selectMethod;
@@ -39,18 +38,17 @@ namespace Xtensive.Storage.Linq
     private static readonly MethodInfo recordKeyAccessor;
     private static readonly MethodInfo keyResolveMethod;
 
-    public ResultExpression Build(ResultExpression source, LambdaExpression le)
+    public ResultExpression Build(LambdaExpression le)
     {
+      calculatedColumns = new List<CalculatedColumnDescriptor>();
       parameters = le.Parameters.ToArray();
       var body = le.Body;
       prefixMap = new Dictionary<Expression, string>();
       translator.MemberAccessBasedJoiner.Process(body, true);
-      this.source = translator.GetProjection(le.Parameters[0]);
       tuple = Expression.Parameter(typeof (Tuple), "t");
       record = Expression.Parameter(typeof (Record), "r");
       parameterRewriter = new ProjectionParameterRewriter(tuple, record);
       recordIsUsed = false;
-      recordSet = this.source.RecordSet;
       fieldsMapping = new Dictionary<string, Segment<int>>();
       Expression<Func<RecordSet, object>> projector;
       LambdaExpression itemProjector;
@@ -78,6 +76,11 @@ namespace Xtensive.Storage.Linq
         projector = Expression.Lambda<Func<RecordSet, object>>(Expression.Convert(Expression.Call(method, rs, itemProjector), typeof(object)), rs);
       }
       var mapping = new ResultMapping(fieldsMapping, new Dictionary<string, ResultMapping>());
+      // projection for any parameter could be used
+      // because these projections contain same record set
+      var recordSet = translator.GetProjection(le.Parameters[0]).RecordSet;
+      if (calculatedColumns.Count > 0)
+        recordSet = recordSet.Calculate(calculatedColumns.ToArray());
       return new ResultExpression(body.Type, recordSet, mapping, projector, itemProjector);
     }
 
@@ -89,6 +92,7 @@ namespace Xtensive.Storage.Linq
       var isStructure = typeof(Structure).IsAssignableFrom(resultType);
       var isKey = typeof(Key).IsAssignableFrom(resultType);
       var path = mpe.Path;
+      var source = translator.GetProjection(path.Parameter);
       if (isEntity || isEntitySet || isStructure) {
         recordIsUsed = true;
         if (isStructure) {
@@ -148,6 +152,7 @@ namespace Xtensive.Storage.Linq
 
     protected override Expression VisitParameter(ParameterExpression p)
     {
+      var source = translator.GetProjection(p);
       return parameterRewriter.Rewrite(source.ItemProjector.Body, out recordIsUsed);
     }
 
@@ -166,6 +171,7 @@ namespace Xtensive.Storage.Linq
         var newName = prefix != null ? prefix + "." + memberName : memberName;
         var path = MemberPath.Parse(arg, translator.Model);
         if (path.IsValid) {
+          var source = translator.GetProjection(path.Parameter);
           var segment = source.GetMemberSegment(path);
           var resultMapping = source.GetMemberMapping(path);
           var mapping = resultMapping.Fields.Where(p => p.Value.Offset >= segment.Offset && p.Value.EndOffset <= segment.EndOffset).ToList();
@@ -177,8 +183,6 @@ namespace Xtensive.Storage.Linq
           else {
             mapping = mapping.Select(pair => new KeyValuePair<string, Segment<int>>(newName + "." + pair.Key, pair.Value)).ToList();
             mapping.Add(new KeyValuePair<string, Segment<int>>(newName, segment));
-//            if (prefix != null)
-//              mapping.Add(new KeyValuePair<string, Segment<int>>(prefix, segment));
           }
           
           foreach (var pair in mapping) {
@@ -194,8 +198,8 @@ namespace Xtensive.Storage.Linq
             // TODO: Add check of queries
             var le = translator.MemberAccessReplacer.ProcessCalculated(Expression.Lambda(arg, parameters));
             var ccd = new CalculatedColumnDescriptor(translator.GetNextAlias(), arg.Type, (Expression<Func<Tuple, object>>) le);
-            recordSet = recordSet.Calculate(ccd);
-            int position = recordSet.Header.Columns.Count - 1;
+            calculatedColumns.Add(ccd);
+            int position = translator.GetProjection(parameters[0]).RecordSet.Header.Columns.Count + calculatedColumns.Count - 1;
             var method = genericAccessor.MakeGenericMethod(arg.Type);
             newArg = Expression.Call(tuple, method, Expression.Constant(position));
             fieldsMapping.Add(newName, new Segment<int>(position, 1));

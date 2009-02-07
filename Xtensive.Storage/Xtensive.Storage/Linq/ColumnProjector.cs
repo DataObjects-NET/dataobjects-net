@@ -19,12 +19,12 @@ namespace Xtensive.Storage.Linq
   {
     private readonly QueryTranslator translator;
     private List<int> projectedColumns;
-    private Queue<CalculatedColumnDescriptor> calculatedColumns;
+    private List<CalculatedColumnDescriptor> calculatedColumns;
 
     public IEnumerable<int> GetColumns(LambdaExpression le)
     {
       projectedColumns = new List<int>();
-      calculatedColumns = new Queue<CalculatedColumnDescriptor>();
+      calculatedColumns = new List<CalculatedColumnDescriptor>();
       Visit(le.Body);
       var source = translator.GetProjection(le.Parameters[0]);
       var recordSet = calculatedColumns.Count > 0 ? 
@@ -51,7 +51,7 @@ namespace Xtensive.Storage.Linq
         LambdaExpression le = translator.MemberAccessReplacer.ProcessCalculated(e);
         var ccd = new CalculatedColumnDescriptor(translator.GetNextAlias(), e.Type, (Expression<Func<Tuple, object>>) le);
         projectedColumns.Add(int.MinValue); // calculated column placeholder
-        calculatedColumns.Enqueue(ccd);
+        calculatedColumns.Add(ccd);
       }
       return e;
     }
