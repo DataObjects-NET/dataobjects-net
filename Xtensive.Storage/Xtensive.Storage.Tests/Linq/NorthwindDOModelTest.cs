@@ -4,11 +4,13 @@
 // Created by: Alexis Kochetov
 // Created:    2009.02.03
 
+using NUnit.Framework;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 
 namespace Xtensive.Storage.Tests.Linq
 {
+  [TestFixture]
   public abstract class NorthwindDOModelTest : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()

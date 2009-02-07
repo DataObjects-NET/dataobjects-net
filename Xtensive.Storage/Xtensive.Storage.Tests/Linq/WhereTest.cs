@@ -17,6 +17,7 @@ namespace Xtensive.Storage.Tests.Linq
     private Key supplier20Key;
     private Key category1Key;
 
+    [TestFixtureSetUp]
     public override void TestFixtureSetUp()
     {
       base.TestFixtureSetUp();

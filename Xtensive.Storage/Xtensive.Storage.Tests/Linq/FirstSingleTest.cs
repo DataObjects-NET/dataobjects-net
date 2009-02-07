@@ -4,93 +4,143 @@
 // Created by: Alexis Kochetov
 // Created:    2009.02.04
 
+using NUnit.Framework;
+using Xtensive.Core.Testing;
+using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
+using System.Linq;
+
 namespace Xtensive.Storage.Tests.Linq
 {
+  [TestFixture]
   public class FirstSingleTest : NorthwindDOModelTest
   {
-    /*        public void TestFirst()
-        {
-            TestQuery(
-                () => db.Customers.First()
-                );
-        }
+    [Test]
+    public void FirstTest()
+    {
+      using (Domain.OpenSession())
+      using (var t = Transaction.Open()) {
+        var customer = Query<Customer>.All.First();
+        Assert.IsNotNull(customer);
+        t.Complete();
+      }
+    }
 
-        public void TestFirstPredicate()
-        {
-            TestQuery(
-                () => db.Customers.First(c => c.CustomerID == "ALFKI")
-                );
-        }
+    [Test]
+    public void FirstPredicateTest()
+    {
+      using (Domain.OpenSession())
+      using (var t = Transaction.Open()) {
+        var customer = Query<Customer>.All.First(c => c.Id=="ALFKI");
+        Assert.IsNotNull(customer);
+        t.Complete();
+      }
+    }
 
-        public void TestWhereFirst()
-        {
-            TestQuery(
-                () => db.Customers.Where(c => c.CustomerID == "ALFKI").First()
-                );
-        }
+    [Test]
+    public void WhereFirstTest()
+    {
+      using (Domain.OpenSession())
+      using (var t = Transaction.Open()) {
+        var customer = Query<Customer>.All.Where(c => c.Id=="ALFKI").First();
+        Assert.IsNotNull(customer);
+        t.Complete();
+      }
+    }
 
-        public void TestFirstOrDefault()
-        {
-            TestQuery(
-                () => db.Customers.FirstOrDefault()
-                );
-        }
+    [Test]
+    public void FirstOrDefaultTest()
+    {
+      using (Domain.OpenSession())
+      using (var t = Transaction.Open()) {
+        var customer = Query<Customer>.All.FirstOrDefault();
+        Assert.IsNotNull(customer);
+        t.Complete();
+      }
+    }
 
-        public void TestFirstOrDefaultPredicate()
-        {
-            TestQuery(
-                () => db.Customers.FirstOrDefault(c => c.CustomerID == "ALFKI")
-                );
-        }
+    [Test]
+    public void FirstOrDefaultPredicateTest()
+    {
+      using (Domain.OpenSession())
+      using (var t = Transaction.Open()) {
+        Query<Customer>.All.FirstOrDefault(c => c.Id == "ALFKI");
+        t.Complete();
+      }
+    }
 
-        public void TestWhereFirstOrDefault()
-        {
-            TestQuery(
-                () => db.Customers.Where(c => c.CustomerID == "ALFKI").FirstOrDefault()
-                );
-        }
+    [Test]
+    public void WhereFirstOrDefaultTest()
+    {
+      using (Domain.OpenSession())
+      using (var t = Transaction.Open()) {
+        var customer = Query<Customer>.All.Where(c => c.Id == "ALFKI").FirstOrDefault();
+        Assert.IsNotNull(customer);
+        t.Complete();
+      }
+    }
 
-        public void TestSingle()
-        {
-            TestQueryFails(
-                () => db.Customers.Single()
-                );
-        }
+    [Test]
+    public void SingleTest()
+    {
+      using (Domain.OpenSession())
+      using (var t = Transaction.Open()) {
+        AssertEx.ThrowsInvalidOperationException(() => Query<Customer>.All.Single());
+        t.Complete();
+      }
+    }
 
-        public void TestSinglePredicate()
-        {
-            TestQuery(
-                () => db.Customers.Single(c => c.CustomerID == "ALFKI")
-                );
-        }
+    [Test]
+    public void SinglePredicateTest()
+    {
+      using (Domain.OpenSession())
+      using (var t = Transaction.Open()) {
+        var customer = Query<Customer>.All.Single(c => c.Id == "ALFKI");
+        Assert.IsNotNull(customer);
+        t.Complete();
+      }
+    }
 
-        public void TestWhereSingle()
-        {
-            TestQuery(
-                () => db.Customers.Where(c => c.CustomerID == "ALFKI").Single()
-                );
-        }
+    [Test]
+    public void WhereSingleTest()
+    {
+      using (Domain.OpenSession())
+      using (var t = Transaction.Open()) {
+        var customer = Query<Customer>.All.Where(c => c.Id == "ALFKI").Single();
+        Assert.IsNotNull(customer);
+        t.Complete();
+      }
+    }
 
-        public void TestSingleOrDefault()
-        {
-            TestQueryFails(
-                () => db.Customers.SingleOrDefault()
-                );
-        }
+    [Test]
+    public void SingleOrDefaultTest()
+    {
+      using (Domain.OpenSession())
+      using (var t = Transaction.Open()) {
+        AssertEx.ThrowsInvalidOperationException(() => Query<Customer>.All.SingleOrDefault());
+        t.Complete();
+      }
+    }
 
-        public void TestSingleOrDefaultPredicate()
-        {
-            TestQuery(
-                () => db.Customers.SingleOrDefault(c => c.CustomerID == "ALFKI")
-                );
-        }
+    [Test]
+    public void SingleOrDefaultPredicateTest()
+    {
+      using (Domain.OpenSession())
+      using (var t = Transaction.Open()) {
+        var customer = Query<Customer>.All.SingleOrDefault(c => c.Id=="ALFKI");
+        Assert.IsNotNull(customer);
+        t.Complete();
+      }
+    }
 
-        public void TestWhereSingleOrDefault()
-        {
-            TestQuery(
-                () => db.Customers.Where(c => c.CustomerID == "ALFKI").SingleOrDefault()
-                );
-        }
-*/
+    [Test]
+    public void WhereSingleOrDefaultTest()
+    {
+      using (Domain.OpenSession())
+      using (var t = Transaction.Open()) {
+        var customer = Query<Customer>.All.Where(c => c.Id == "ALFKI").SingleOrDefault();
+        Assert.IsNotNull(customer);
+        t.Complete();
+      }
+    }
   }
 }

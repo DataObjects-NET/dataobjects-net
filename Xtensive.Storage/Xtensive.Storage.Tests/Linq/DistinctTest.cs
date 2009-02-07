@@ -10,6 +10,7 @@ using System.Linq;
 
 namespace Xtensive.Storage.Tests.Linq
 {
+  [TestFixture]
   public class DistinctTest : NorthwindDOModelTest
   {
     [Test]

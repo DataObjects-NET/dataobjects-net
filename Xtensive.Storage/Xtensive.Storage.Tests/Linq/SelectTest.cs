@@ -4,18 +4,13 @@
 // Created by: Alexey Kochetov
 // Created:    2009.01.12
 
-using System;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
 using NUnit.Framework;
-using Xtensive.Core.Tuples;
-using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Rse;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 
 namespace Xtensive.Storage.Tests.Linq
 {
+  [TestFixture]
   public class SelectTest : NorthwindDOModelTest
   {
     [Test]
@@ -60,7 +55,9 @@ namespace Xtensive.Storage.Tests.Linq
 // ReSharper restore ConvertToConstant
           var products = Query<Product>.All;
           var result = from p in products
+// ReSharper disable AccessToModifiedClosure
                        select x;
+// ReSharper restore AccessToModifiedClosure
           var list = result.ToList();
           foreach (var i in list)
             Assert.AreEqual(10, i);
@@ -262,6 +259,7 @@ namespace Xtensive.Storage.Tests.Linq
       }
     }
 
+    [Ignore("Not implemented.")]
     [Test]
     public void CorrelatedQueryTest() 
     {
@@ -287,6 +285,7 @@ namespace Xtensive.Storage.Tests.Linq
       }
     }
 
+    [Ignore("Not implemented.")]
     [Test]
     public void CorrelatedQueryAnonymousTest() 
     {

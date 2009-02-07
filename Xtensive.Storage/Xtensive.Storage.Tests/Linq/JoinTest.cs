@@ -12,6 +12,7 @@ using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 
 namespace Xtensive.Storage.Tests.Linq
 {
+  [TestFixture]
   public class JoinTest : NorthwindDOModelTest
   {
     [Test]
@@ -52,6 +53,7 @@ namespace Xtensive.Storage.Tests.Linq
       }
     }
 
+    [Ignore("Not implemented.")]
     [Test]
     public void SelectManyTest()
     {

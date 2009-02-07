@@ -8,6 +8,7 @@ using NUnit.Framework;
 
 namespace Xtensive.Storage.Tests.Linq
 {
+  [TestFixture]
   [Ignore("Not implemented")]
   public class GroupByTest : NorthwindDOModelTest
   {

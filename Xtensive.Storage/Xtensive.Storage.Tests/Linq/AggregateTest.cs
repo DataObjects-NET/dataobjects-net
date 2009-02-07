@@ -11,6 +11,7 @@ using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 
 namespace Xtensive.Storage.Tests.Linq
 {
+  [TestFixture]
   public class AggregateTest : NorthwindDOModelTest
   {
     [Test]
@@ -19,6 +20,7 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession())
       using (var t = Transaction.Open()) {
         AssertEx.ThrowsNotSupportedException(() => Query<Order>.All.Max());
+        t.Complete();
       }
     }
 
@@ -29,11 +31,12 @@ namespace Xtensive.Storage.Tests.Linq
       using (var t = Transaction.Open()) {
         var sum = Query<Order>.All.Select(o => o.Id).Sum();
         Assert.Greater(sum, 0);
+        t.Complete();
       }
     }
 
     [Test]
-    public void TestSumWithArg()
+    public void SumWithArgTest()
     {
       using (Domain.OpenSession())
       using (var t = Transaction.Open()) {
