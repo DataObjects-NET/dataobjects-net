@@ -15,28 +15,30 @@ namespace Xtensive.Storage.Tests.Linq
   public class JoinTest : NorthwindDOModelTest
   {
     [Test]
-    public void OneToOneTest()
+    public void SingleTest()
     {
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var products = Query<Product>.All;
+          var productsCount = products.Count();
           var suppliers = Query<Supplier>.All;
           var result = from p in products
                        join s in suppliers on p.Supplier.Id equals s.Id
-                       select s.Phone;
+                       select new {p.ProductName, s.ContactName, s.Phone};
           var list = result.ToList();
-//          Assert.AreEqual(1000, list.Count);
+          Assert.AreEqual(productsCount, list.Count);
           t.Complete();
         }
       }
     }
 
     [Test]
-    public void MultipleTest()
+    public void SeveralTest()
     {
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var products = Query<Product>.All;
+          var productsCount = products.Count();
           var suppliers = Query<Supplier>.All;
           var categories = Query<Category>.All;
           var result = from p in products
@@ -44,7 +46,7 @@ namespace Xtensive.Storage.Tests.Linq
                        join c in categories on p.Category.Id equals c.Id
                        select new { p, s, c.CategoryName };
           var list = result.ToList();
-//          Assert.AreEqual(1000, list.Count);
+          Assert.AreEqual(productsCount, list.Count);
           t.Complete();
         }
       }
