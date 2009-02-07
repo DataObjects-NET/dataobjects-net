@@ -161,6 +161,12 @@ namespace Xtensive.Storage.Linq
             mc.Arguments[2].StripQuotes(),
             mc.Arguments[3].StripQuotes(),
             mc.Arguments[4].StripQuotes());
+        case WellKnown.Queryable.GroupJoin:
+          return VisitGroupJoin(
+            mc.Type, mc.Arguments[0], mc.Arguments[1],
+            mc.Arguments[2].StripQuotes(),
+            mc.Arguments[3].StripQuotes(),
+            mc.Arguments[4].StripQuotes());
         case WellKnown.Queryable.OrderBy:
           return VisitOrderBy(mc.Arguments[0], (mc.Arguments[1].StripQuotes()), Direction.Positive);
         case WellKnown.Queryable.OrderByDescending:
@@ -449,6 +455,11 @@ namespace Xtensive.Storage.Linq
 
       var result = projectionBuilder.Build(resultSelector);
       return result;
+    }
+
+    private Expression VisitGroupJoin(Type resultType, Expression outerSource, Expression innerSource, LambdaExpression outerKey, LambdaExpression innerKey, LambdaExpression resultSelector)
+    {
+      throw new NotImplementedException();
     }
 
     private Expression VisitSelectMany(Type resultType, Expression source, LambdaExpression collectionSelector, LambdaExpression resultSelector)
