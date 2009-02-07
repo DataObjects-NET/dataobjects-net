@@ -31,19 +31,6 @@ namespace Xtensive.Storage.Linq
 
     public ParameterExpression Parameter { get; private set; }
 
-    private static MemberType GetMemberType(Type type)
-    {
-      if (typeof(Key).IsAssignableFrom(type))
-        return MemberType.Key;
-      if (typeof(IEntity).IsAssignableFrom(type))
-        return MemberType.Entity;
-      if (typeof(Structure).IsAssignableFrom(type))
-        return MemberType.Structure;
-      if (typeof(EntitySetBase).IsAssignableFrom(type))
-        return MemberType.EntitySet;
-      return MemberType.Unknown;
-    }
-
     public static MemberPath Parse(Expression e, DomainModel model)
     {
       var result = new Deque<MemberPathItem>();
@@ -55,7 +42,7 @@ namespace Xtensive.Storage.Linq
         var member = memberAccess.Member;
         current = memberAccess.Expression;
         MemberPathItem item;
-        switch (GetMemberType(memberAccess.Type)) {
+        switch (memberAccess.GetMemberType()) {
         case MemberType.Key:
           item = new MemberPathItem(member.Name, MemberType.Key, memberAccess);
           break;
@@ -102,6 +89,13 @@ namespace Xtensive.Storage.Linq
                   lastItem.Type,
                   lastItem.Expression);
               }
+              else if(memberAccess.Expression.Type.BaseType == typeof(object)) {
+                // anonymous type detection
+                item = new MemberPathItem(
+                  member.Name + "." + lastItem.Name,
+                  lastItem.Type,
+                  lastItem.Expression);
+              }
               else {
                 item = new MemberPathItem(
                   member.Name,
@@ -118,14 +112,13 @@ namespace Xtensive.Storage.Linq
         default:
           if (lastItem != null)
             return new MemberPath();
-          Type sourceType = memberAccess.Expression.Type;
-          MemberType memberType = GetMemberType(sourceType);
+          MemberType memberType = memberAccess.Expression.GetMemberType();
           switch (memberType) {
           case MemberType.Key:
             return new MemberPath();
           case MemberType.Entity:
           case MemberType.Structure: {
-            var sourceTypeInfo = model.Types[sourceType];
+            var sourceTypeInfo = model.Types[memberAccess.Expression.Type];
             if (!sourceTypeInfo.Fields.Contains(member.Name))
               return new MemberPath();
           }

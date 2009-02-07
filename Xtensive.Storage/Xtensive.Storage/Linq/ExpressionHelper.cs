@@ -29,5 +29,19 @@ namespace Xtensive.Storage.Linq
     {
       return ExpressionWriter.WriteToString(e);
     }
+
+    public static MemberType GetMemberType(this Expression e)
+    {
+      var type = e.Type;
+      if (typeof(Key).IsAssignableFrom(type))
+        return MemberType.Key;
+      if (typeof(IEntity).IsAssignableFrom(type))
+        return MemberType.Entity;
+      if (typeof(Structure).IsAssignableFrom(type))
+        return MemberType.Structure;
+      if (typeof(EntitySetBase).IsAssignableFrom(type))
+        return MemberType.EntitySet;
+      return MemberType.Unknown;
+    }
   }
 }

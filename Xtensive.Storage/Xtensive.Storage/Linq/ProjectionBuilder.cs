@@ -26,6 +26,7 @@ namespace Xtensive.Storage.Linq
     private ParameterExpression record;
     private bool recordIsUsed;
     private Dictionary<string, Segment<int>> fieldsMapping;
+    private Dictionary<string, ResultMapping> joinedRelations;
     private Dictionary<Expression, string> prefixMap;
     private ProjectionParameterRewriter parameterRewriter;
     private ParameterExpression[] parameters;
@@ -50,6 +51,7 @@ namespace Xtensive.Storage.Linq
       parameterRewriter = new ProjectionParameterRewriter(tuple, record);
       recordIsUsed = false;
       fieldsMapping = new Dictionary<string, Segment<int>>();
+      joinedRelations = new Dictionary<string, ResultMapping>();
       Expression<Func<RecordSet, object>> projector;
       LambdaExpression itemProjector;
 
@@ -75,7 +77,7 @@ namespace Xtensive.Storage.Linq
         itemProjector = Expression.Lambda(newBody, tuple);
         projector = Expression.Lambda<Func<RecordSet, object>>(Expression.Convert(Expression.Call(method, rs, itemProjector), typeof(object)), rs);
       }
-      var mapping = new ResultMapping(fieldsMapping, new Dictionary<string, ResultMapping>());
+      var mapping = new ResultMapping(fieldsMapping, joinedRelations);
       // projection for any parameter could be used
       // because these projections contain same record set
       var recordSet = translator.GetProjection(le.Parameters[0]).RecordSet;
@@ -189,6 +191,9 @@ namespace Xtensive.Storage.Linq
             if(!fieldsMapping.ContainsKey(pair.Key))
               fieldsMapping.Add(pair.Key, pair.Value);
           }
+          var memberType = arg.GetMemberType();
+          if (memberType==MemberType.Entity)
+            joinedRelations.Add(newName, resultMapping);
         }
         else {
           if (arg.NodeType == ExpressionType.New) {
