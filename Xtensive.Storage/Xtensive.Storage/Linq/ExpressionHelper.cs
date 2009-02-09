@@ -25,11 +25,6 @@ namespace Xtensive.Storage.Linq
       return expression.Type.IsOfGenericType(typeof(IQueryable<>));
     }
 
-    public static string ToSharpString(this Expression e)
-    {
-      return ExpressionWriter.WriteToString(e);
-    }
-
     public static MemberType GetMemberType(this Expression e)
     {
       var type = e.Type;

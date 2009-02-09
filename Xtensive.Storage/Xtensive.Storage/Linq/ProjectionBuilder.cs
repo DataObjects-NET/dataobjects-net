@@ -10,6 +10,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
+using Xtensive.Core.Helpers;
 using Xtensive.Core.Linq;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
@@ -164,7 +165,7 @@ namespace Xtensive.Storage.Linq
       string prefix = null;
       prefixMap.TryGetValue(n, out prefix);
       if (n.Members == null)
-        throw new NotSupportedException(n.ToSharpString());
+        throw new NotSupportedException(n.ToString(true));
       for (int i = 0; i < n.Arguments.Count; i++) {
         var arg = n.Arguments[i];
         var newArg = (Expression) null;

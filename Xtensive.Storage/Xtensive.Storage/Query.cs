@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
+using Xtensive.Core.Reflection;
 using Xtensive.Storage.Linq;
 using Xtensive.Storage.Rse;
 
@@ -74,7 +75,7 @@ namespace Xtensive.Storage
     {
       // TODO: Make the output readable?
       if (expression.NodeType==ExpressionType.Constant && ((ConstantExpression) expression).Value==this)
-        return string.Format("Query({0})", typeof (T));
+        return string.Format("Query<{0}>.All", typeof(T).GetShortName());
       return expression.ToString();
     }
 
