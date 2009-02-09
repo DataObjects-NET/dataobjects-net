@@ -273,11 +273,14 @@ namespace Xtensive.Core.Linq
       string name = type.Name;
       name = name.Replace('+', '.');
       
-      int iAnonymous = name.IndexOf("__AnonymousType");
-      if (iAnonymous>0) {
+      if (name.IndexOf("__DisplayClass")>0 && 
+          type.GetAttributes<CompilerGeneratedAttribute>(AttributeSearchOptions.InheritNone).Length > 0)
+        return "@";
+
+      if (name.IndexOf("__AnonymousType")>0 && 
+          type.GetAttributes<CompilerGeneratedAttribute>(AttributeSearchOptions.InheritNone).Length > 0)
         return string.Format("@<{0}>",
           (from pi in type.GetProperties() select pi.Name).ToCommaDelimitedString());
-      }
 
       int iGeneneric = name.IndexOf('`');
       if (iGeneneric > 0)
@@ -330,10 +333,16 @@ namespace Xtensive.Core.Linq
     /// <inheritdoc/>
     protected override Expression VisitConstant(ConstantExpression c)
     {
-      if (c.Value==null) {
+      Type type = c.Type;
+      if (type.Name.IndexOf("__DisplayClass")>0 && 
+          type.GetAttributes<CompilerGeneratedAttribute>(AttributeSearchOptions.InheritNone).Length > 0) {
+        // A constant of display class type
+        Write("@");
+      }
+      else if (c.Value==null) {
         Write("null");
       }
-      else if (c.Type==typeof (string)) {
+      else if (type==typeof (string)) {
         string value = c.Value.ToString();
         if (value.IndexOfAny(special) >= 0)
           Write("@");
@@ -341,13 +350,13 @@ namespace Xtensive.Core.Linq
         Write(c.Value.ToString());
         Write("\"");
       }
-      else if (c.Type==typeof (DateTime)) {
+      else if (type==typeof (DateTime)) {
         Write("new DataTime(\"");
         Write(c.Value.ToString());
         Write("\")");
       }
-      else if (c.Type.IsArray) {
-        Type elementType = c.Type.GetElementType();
+      else if (type.IsArray) {
+        Type elementType = type.GetElementType();
         VisitNewArray(
           Expression.NewArrayInit(
             elementType,
@@ -515,7 +524,7 @@ namespace Xtensive.Core.Linq
         Visit(mc.Object);
       else {
         // Static method
-        if (mc.Method.GetAttribute<ExtensionAttribute>(AttributeSearchOptions.InheritNone)!=null) {
+        if (mc.Method.GetAttributes<ExtensionAttribute>(AttributeSearchOptions.InheritNone).Length>0) {
           // A special case: extension method
           Visit(mc.Arguments[0]);
           arguments = new System.Collections.ObjectModel.ReadOnlyCollection<Expression>(mc.Arguments.Skip(1).ToList());

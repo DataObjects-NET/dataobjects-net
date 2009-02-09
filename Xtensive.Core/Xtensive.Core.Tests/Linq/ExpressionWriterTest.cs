@@ -20,8 +20,11 @@ namespace Xtensive.Core.Tests.Linq
       IEnumerable<string> enumerable = new[] {"A", "B", "C"};
       var queryable = enumerable.AsQueryable();
 
-      Dump(from i in queryable select i.Length);
+      int p = 1;
+
+      Dump(from i in queryable where i.Length==p select i);
       Dump(from i in queryable select new {i.Length});
+      Dump(from i in queryable select i.Length);
     }
 
     private void Dump(IQueryable query)
