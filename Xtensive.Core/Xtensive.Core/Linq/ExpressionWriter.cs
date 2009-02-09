@@ -6,12 +6,14 @@
 
 using System;
 using System.Collections;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 using System.Text;
+using Xtensive.Core.Collections;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Linq;
 using Xtensive.Core.Reflection;
 
@@ -25,11 +27,12 @@ namespace Xtensive.Core.Linq
     private static readonly char[] special = new[] {'\n', '\n', '\\'};
     private static readonly char[] splitters = new[] {'\n', '\r'};
     private readonly TextWriter writer;
-    private int depth;
+    private readonly int indentSize;
+    private int currentDepth;
 
-    #region Nested type: Indentation
+    #region Nested type: IndentType
 
-    protected enum Indentation
+    protected enum IndentType
     {
       Same,
       Inner,
@@ -38,29 +41,59 @@ namespace Xtensive.Core.Linq
 
     #endregion
 
-    protected int IndentationWidth { get; set; }
+    /// <summary>
+    /// Gets the writer used by the instance.
+    /// </summary>
+    public TextWriter Writer { 
+      get { return writer; }
+    }
 
+    /// <summary>
+    /// Gets the size of the indent.
+    /// </summary>
+    public int IndentSize {
+      get { return indentSize; }
+    }
+
+    /// <summary>
+    /// Writes the expression to the specified writer.
+    /// </summary>
+    /// <param name="writer">The writer to use.</param>
+    /// <param name="expression">The expression to write.</param>
     public static void Write(TextWriter writer, Expression expression)
     {
       new ExpressionWriter(writer).Visit(expression);
     }
 
-    public static string WriteToString(Expression expression)
+    /// <summary>
+    /// Writes the expression to string.
+    /// </summary>
+    /// <param name="expression">The expression to write.</param>
+    /// <returns>The string containing written expression.</returns>
+    public static string Write(Expression expression)
     {
       var sw = new StringWriter();
       Write(sw, expression);
       return sw.ToString();
     }
 
-    protected void WriteLine(Indentation style)
+    /// <summary>
+    /// Writes the line break.
+    /// </summary>
+    /// <param name="indentType">Type of the indent to use for the further lines.</param>
+    protected void WriteLine(IndentType indentType)
     {
       writer.WriteLine();
-      Indent(style);
-      for (int i = 0, n = depth * IndentationWidth; i < n; i++) {
+      ChangeIndent(indentType);
+      for (int i = 0, n = currentDepth * IndentSize; i < n; i++) {
         writer.Write(" ");
       }
     }
 
+    /// <summary>
+    /// Writes the specified text.
+    /// </summary>
+    /// <param name="text">The text to write.</param>
     protected void Write(string text)
     {
       if (text.IndexOf('\n') >= 0) {
@@ -68,7 +101,7 @@ namespace Xtensive.Core.Linq
         for (int i = 0, n = lines.Length; i < n; i++) {
           Write(lines[i]);
           if (i < n - 1) {
-            WriteLine(Indentation.Same);
+            WriteLine(IndentType.Same);
           }
         }
       }
@@ -77,17 +110,43 @@ namespace Xtensive.Core.Linq
       }
     }
 
-    protected void Indent(Indentation style)
+    /// <summary>
+    /// Writes the list of arguments.
+    /// </summary>
+    /// <param name="prefix">The prefix.</param>
+    /// <param name="arguments">The arguments.</param>
+    /// <param name="suffix">The suffix.</param>
+    protected void WriteArguments(string prefix, System.Collections.ObjectModel.ReadOnlyCollection<Expression> arguments, string suffix)
     {
-      if (style==Indentation.Inner) {
-        depth++;
+      Write(prefix);
+      if (arguments.Count > 1)
+        WriteLine(IndentType.Inner);
+      VisitExpressionList(arguments);
+      if (arguments.Count > 1)
+        WriteLine(IndentType.Outer);
+      Write(suffix);
+    }
+
+    /// <summary>
+    /// Changes the indent.
+    /// </summary>
+    /// <param name="indentType">New type of the indent.</param>
+    protected void ChangeIndent(IndentType indentType)
+    {
+      if (indentType==IndentType.Inner) {
+        currentDepth++;
       }
-      else if (style==Indentation.Outer) {
-        depth--;
-        Debug.Assert(depth >= 0);
+      else if (indentType==IndentType.Outer) {
+        currentDepth--;
+        Debug.Assert(currentDepth >= 0);
       }
     }
 
+    /// <summary>
+    /// Gets the C# operator for the specified expression type.
+    /// </summary>
+    /// <param name="type">The type of expression to get the operator for.</param>
+    /// <returns>The C# operator.</returns>
     protected virtual string GetOperator(ExpressionType type)
     {
       switch (type) {
@@ -141,6 +200,7 @@ namespace Xtensive.Core.Linq
       }
     }
 
+    /// <inheritdoc/>
     protected override Expression VisitBinary(BinaryExpression b)
     {
       switch (b.NodeType) {
@@ -168,6 +228,7 @@ namespace Xtensive.Core.Linq
       return b;
     }
 
+    /// <inheritdoc/>
     protected override Expression VisitUnary(UnaryExpression u)
     {
       switch (u.NodeType) {
@@ -202,26 +263,36 @@ namespace Xtensive.Core.Linq
       return u;
     }
 
+    /// <summary>
+    /// Gets the name of the type.
+    /// </summary>
+    /// <param name="type">The type to get the name for.</param>
+    /// <returns>The name of the type.</returns>
     protected virtual string GetTypeName(Type type)
     {
       string name = type.Name;
       name = name.Replace('+', '.');
-      int iGeneneric = name.IndexOf('`');
-      if (iGeneneric > 0) {
-        name = name.Substring(0, iGeneneric);
+      
+      int iAnonymous = name.IndexOf("__AnonymousType");
+      if (iAnonymous>0) {
+        return string.Format("@<{0}>",
+          (from pi in type.GetProperties() select pi.Name).ToCommaDelimitedString());
       }
+
+      int iGeneneric = name.IndexOf('`');
+      if (iGeneneric > 0)
+        name = name.Substring(0, iGeneneric);
+
       if (type.IsGenericType || type.IsGenericTypeDefinition) {
         var sb = new StringBuilder();
         sb.Append(name);
         sb.Append("<");
         Type[] args = type.GetGenericArguments();
         for (int i = 0, n = args.Length; i < n; i++) {
-          if (i > 0) {
+          if (i > 0)
             sb.Append(",");
-          }
-          if (type.IsGenericType) {
+          if (type.IsGenericType)
             sb.Append(GetTypeName(args[i]));
-          }
         }
         sb.Append(">");
         name = sb.ToString();
@@ -229,31 +300,34 @@ namespace Xtensive.Core.Linq
       return name;
     }
 
+    /// <inheritdoc/>
     protected override Expression VisitConditional(ConditionalExpression c)
     {
       Visit(c.Test);
-      WriteLine(Indentation.Inner);
+      WriteLine(IndentType.Inner);
       Write("? ");
       Visit(c.IfTrue);
-      WriteLine(Indentation.Same);
+      WriteLine(IndentType.Same);
       Write(": ");
       Visit(c.IfFalse);
-      Indent(Indentation.Outer);
+      ChangeIndent(IndentType.Outer);
       return c;
     }
 
-    protected override ReadOnlyCollection<MemberBinding> VisitBindingList(ReadOnlyCollection<MemberBinding> original)
+    /// <inheritdoc/>
+    protected override System.Collections.ObjectModel.ReadOnlyCollection<MemberBinding> VisitBindingList(System.Collections.ObjectModel.ReadOnlyCollection<MemberBinding> original)
     {
       for (int i = 0, n = original.Count; i < n; i++) {
         VisitBinding(original[i]);
         if (i < n - 1) {
           Write(",");
-          WriteLine(Indentation.Same);
+          WriteLine(IndentType.Same);
         }
       }
       return original;
     }
 
+    /// <inheritdoc/>
     protected override Expression VisitConstant(ConstantExpression c)
     {
       if (c.Value==null) {
@@ -286,6 +360,7 @@ namespace Xtensive.Core.Linq
       return c;
     }
 
+    /// <inheritdoc/>
     protected override ElementInit VisitElementInitializer(ElementInit initializer)
     {
       if (initializer.Arguments.Count > 1) {
@@ -304,44 +379,48 @@ namespace Xtensive.Core.Linq
       return initializer;
     }
 
-    protected override ReadOnlyCollection<ElementInit> VisitElementInitializerList(ReadOnlyCollection<ElementInit> original)
+    /// <inheritdoc/>
+    protected override System.Collections.ObjectModel.ReadOnlyCollection<ElementInit> VisitElementInitializerList(System.Collections.ObjectModel.ReadOnlyCollection<ElementInit> original)
     {
       for (int i = 0, n = original.Count; i < n; i++) {
         VisitElementInitializer(original[i]);
         if (i < n - 1) {
           Write(",");
-          WriteLine(Indentation.Same);
+          WriteLine(IndentType.Same);
         }
       }
       return original;
     }
 
-    protected override ReadOnlyCollection<Expression> VisitExpressionList(ReadOnlyCollection<Expression> expressions)
+    /// <inheritdoc/>
+    protected override System.Collections.ObjectModel.ReadOnlyCollection<Expression> VisitExpressionList(System.Collections.ObjectModel.ReadOnlyCollection<Expression> expressions)
     {
       for (int i = 0, n = expressions.Count; i < n; i++) {
         Visit(expressions[i]);
         if (i < n - 1) {
           Write(",");
-          WriteLine(Indentation.Same);
+          WriteLine(IndentType.Same);
         }
       }
       return expressions;
     }
 
+    /// <inheritdoc/>
     protected override Expression VisitInvocation(InvocationExpression i)
     {
       Write("Invoke(");
-      WriteLine(Indentation.Inner);
+      WriteLine(IndentType.Inner);
       VisitExpressionList(i.Arguments);
       Write(", ");
-      WriteLine(Indentation.Same);
+      WriteLine(IndentType.Same);
       Visit(i.Expression);
-      WriteLine(Indentation.Same);
+      WriteLine(IndentType.Same);
       Write(")");
-      Indent(Indentation.Outer);
+      ChangeIndent(IndentType.Outer);
       return i;
     }
 
+    /// <inheritdoc/>
     protected override Expression VisitLambda(LambdaExpression l)
     {
       if (l.Parameters.Count > 1) {
@@ -362,17 +441,19 @@ namespace Xtensive.Core.Linq
       return l;
     }
 
+    /// <inheritdoc/>
     protected override Expression VisitListInit(ListInitExpression li)
     {
       Visit(li.NewExpression);
       Write(" {");
-      WriteLine(Indentation.Inner);
+      WriteLine(IndentType.Inner);
       VisitElementInitializerList(li.Initializers);
-      WriteLine(Indentation.Outer);
+      WriteLine(IndentType.Outer);
       Write("}");
       return li;
     }
 
+    /// <inheritdoc/>
     protected override Expression VisitMemberAccess(MemberExpression m)
     {
       Visit(m.Expression);
@@ -381,101 +462,99 @@ namespace Xtensive.Core.Linq
       return m;
     }
 
-    protected override MemberAssignment VisitMemberAssignment(MemberAssignment assignment)
+    /// <inheritdoc/>
+    protected override MemberAssignment VisitMemberAssignment(MemberAssignment ma)
     {
-      Write(assignment.Member.Name);
+      Write(ma.Member.Name);
       Write(" = ");
-      Visit(assignment.Expression);
-      return assignment;
+      Visit(ma.Expression);
+      return ma;
     }
 
+    /// <inheritdoc/>
     protected override Expression VisitMemberInit(MemberInitExpression mi)
     {
       Visit(mi.NewExpression);
       Write(" {");
-      WriteLine(Indentation.Inner);
+      WriteLine(IndentType.Inner);
       VisitBindingList(mi.Bindings);
-      WriteLine(Indentation.Outer);
+      WriteLine(IndentType.Outer);
       Write("}");
       return mi;
     }
 
+    /// <inheritdoc/>
     protected override MemberListBinding VisitMemberListBinding(MemberListBinding binding)
     {
       Write(binding.Member.Name);
       Write(" = {");
-      WriteLine(Indentation.Inner);
+      WriteLine(IndentType.Inner);
       VisitElementInitializerList(binding.Initializers);
-      WriteLine(Indentation.Outer);
+      WriteLine(IndentType.Outer);
       Write("}");
       return binding;
     }
 
+    /// <inheritdoc/>
     protected override MemberMemberBinding VisitMemberMemberBinding(MemberMemberBinding binding)
     {
       Write(binding.Member.Name);
       Write(" = {");
-      WriteLine(Indentation.Inner);
+      WriteLine(IndentType.Inner);
       VisitBindingList(binding.Bindings);
-      WriteLine(Indentation.Outer);
+      WriteLine(IndentType.Outer);
       Write("}");
       return binding;
     }
 
+    /// <inheritdoc/>
     protected override Expression VisitMethodCall(MethodCallExpression mc)
     {
-      if (mc.Object!=null) {
+      var arguments = mc.Arguments;
+      if (mc.Object!=null)
         Visit(mc.Object);
-      }
       else {
-        Write(GetTypeName(mc.Method.DeclaringType));
+        // Static method
+        if (mc.Method.GetAttribute<ExtensionAttribute>(AttributeSearchOptions.InheritNone)!=null) {
+          // A special case: extension method
+          Visit(mc.Arguments[0]);
+          arguments = new System.Collections.ObjectModel.ReadOnlyCollection<Expression>(mc.Arguments.Skip(1).ToList());
+        }
+        else
+          Write(GetTypeName(mc.Method.DeclaringType));
       }
       Write(".");
       Write(mc.Method.Name);
-      Write("(");
-      if (mc.Arguments.Count > 1)
-        WriteLine(Indentation.Inner);
-      VisitExpressionList(mc.Arguments);
-      if (mc.Arguments.Count > 1)
-        WriteLine(Indentation.Outer);
-      Write(")");
+      WriteArguments("(", arguments, ")");
       return mc;
     }
 
+    /// <inheritdoc/>
     protected override Expression VisitNew(NewExpression n)
     {
       Write("new ");
       Write(GetTypeName(n.Constructor.DeclaringType));
-      Write("(");
-      if (n.Arguments.Count > 1)
-        WriteLine(Indentation.Inner);
-      VisitExpressionList(n.Arguments);
-      if (n.Arguments.Count > 1)
-        WriteLine(Indentation.Outer);
-      Write(")");
+      WriteArguments("(", n.Arguments, ")");
       return n;
     }
 
+    /// <inheritdoc/>
     protected override Expression VisitNewArray(NewArrayExpression na)
     {
       Write("new ");
       Write(GetTypeName(TypeHelper.GetElementType(na.Type)));
-      Write("[] {");
-      if (na.Expressions.Count > 1)
-        WriteLine(Indentation.Inner);
-      VisitExpressionList(na.Expressions);
-      if (na.Expressions.Count > 1)
-        WriteLine(Indentation.Outer);
-      Write("}");
+      WriteArguments("[] {", na.Expressions, "}");
       return na;
     }
 
+    /// <inheritdoc/>
     protected override Expression VisitParameter(ParameterExpression p)
     {
       Write(p.Name);
       return p;
     }
 
+    /// <inheritdoc/>
     protected override Expression VisitTypeIs(TypeBinaryExpression tb)
     {
       Visit(tb.Expression);
@@ -484,6 +563,7 @@ namespace Xtensive.Core.Linq
       return tb;
     }
 
+    /// <inheritdoc/>
     protected override Expression VisitUnknown(Expression e)
     {
       Write(e.ToString());
@@ -493,10 +573,24 @@ namespace Xtensive.Core.Linq
 
     // Constructors
 
-    protected ExpressionWriter(TextWriter writer)
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="writer">The writer to write to.</param>
+    public ExpressionWriter(TextWriter writer)
+      : this(writer, 2)
+    {
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="writer">The writer to write to.</param>
+    /// <param name="indentSize">Size of the indent to use.</param>
+    public ExpressionWriter(TextWriter writer, int indentSize)
     {
       this.writer = writer;
-      IndentationWidth = 2;
+      this.indentSize = indentSize;
     }
   }
 }

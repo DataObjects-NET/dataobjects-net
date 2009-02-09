@@ -17,6 +17,11 @@ namespace Xtensive.Core.Linq
   /// </summary>
   public abstract class ExpressionVisitor : ExpressionVisitor<Expression>
   {
+    /// <summary>
+    /// Visits the element initializer expression.
+    /// </summary>
+    /// <param name="initializer">The initializer.</param>
+    /// <returns>Visit result.</returns>
     protected virtual ElementInit VisitElementInitializer(ElementInit initializer)
     {
       ReadOnlyCollection<Expression> arguments = VisitExpressionList(initializer.Arguments);
@@ -26,6 +31,11 @@ namespace Xtensive.Core.Linq
       return initializer;
     }
 
+    /// <summary>
+    /// Visits the element initializer list.
+    /// </summary>
+    /// <param name="original">The original element initializer list.</param>
+    /// <returns>Visit result.</returns>
     protected virtual ReadOnlyCollection<ElementInit> VisitElementInitializerList(ReadOnlyCollection<ElementInit> original)
     {
       var results = new List<ElementInit>();
@@ -36,6 +46,7 @@ namespace Xtensive.Core.Linq
       return results.AsReadOnly();
     }
 
+    /// <inheritdoc/>
     protected override Expression VisitUnary(UnaryExpression u)
     {
       Expression operand = Visit(u.Operand);
@@ -45,6 +56,7 @@ namespace Xtensive.Core.Linq
 
     }
 
+    /// <inheritdoc/>
     protected override Expression VisitBinary(BinaryExpression b)
     {
       Expression left = Visit(b.Left);
@@ -55,6 +67,7 @@ namespace Xtensive.Core.Linq
 
     }
 
+    /// <inheritdoc/>
     protected override Expression VisitTypeIs(TypeBinaryExpression tb)
     {
       Expression expression = Visit(tb.Expression);
@@ -64,11 +77,13 @@ namespace Xtensive.Core.Linq
 
     }
 
+    /// <inheritdoc/>
     protected override Expression VisitConstant(ConstantExpression c)
     {
       return c;
     }
 
+    /// <inheritdoc/>
     protected override Expression VisitConditional(ConditionalExpression c)
     {
       Expression test = Visit(c.Test);
@@ -80,11 +95,13 @@ namespace Xtensive.Core.Linq
 
     }
 
+    /// <inheritdoc/>
     protected override Expression VisitParameter(ParameterExpression p)
     {
       return p;
     }
 
+    /// <inheritdoc/>
     protected override Expression VisitMemberAccess(MemberExpression m)
     {
       Expression expression = Visit(m.Expression);
@@ -94,6 +111,7 @@ namespace Xtensive.Core.Linq
 
     }
 
+    /// <inheritdoc/>
     protected override Expression VisitMethodCall(MethodCallExpression mc)
     {
       Expression instance = Visit(mc.Object);
@@ -103,18 +121,91 @@ namespace Xtensive.Core.Linq
       return Expression.Call(instance, mc.Method, arguments);
     }
 
-
-    protected virtual MemberAssignment VisitMemberAssignment(MemberAssignment assignment)
+    /// <summary>
+    /// Visits the member assignment expression.
+    /// </summary>
+    /// <param name="ma">The member assignment expression.</param>
+    /// <returns>Visit result.</returns>
+    protected virtual MemberAssignment VisitMemberAssignment(MemberAssignment ma)
     {
-      Expression expression = Visit(assignment.Expression);
-      if (expression!=assignment.Expression)
-        return Expression.Bind(assignment.Member, expression);
-      return assignment;
+      Expression expression = Visit(ma.Expression);
+      if (expression!=ma.Expression)
+        return Expression.Bind(ma.Member, expression);
+      return ma;
 
+    }
+
+    /// <inheritdoc/>
+    protected override Expression VisitLambda(LambdaExpression l)
+    {
+      Expression body = Visit(l.Body);
+      if (body!=l.Body)
+        return Expression.Lambda(l.Type, body, l.Parameters);
+      return l;
+
+    }
+
+    /// <inheritdoc/>
+    protected override Expression VisitNew(NewExpression n)
+    {
+      IEnumerable<Expression> arguments = VisitExpressionList(n.Arguments);
+      if (arguments==n.Arguments)
+        return n;
+      if (n.Members!=null)
+        return Expression.New(n.Constructor, arguments, n.Members);
+      return Expression.New(n.Constructor, arguments);
+    }
+
+    /// <inheritdoc/>
+    protected override Expression VisitMemberInit(MemberInitExpression mi)
+    {
+      var newExpression = (NewExpression)VisitNew(mi.NewExpression);
+      IEnumerable<MemberBinding> bindings = VisitBindingList(mi.Bindings);
+      if ((newExpression==mi.NewExpression) && (bindings==mi.Bindings))
+        return mi;
+      return Expression.MemberInit(newExpression, bindings);
+
+    }
+
+    /// <inheritdoc/>
+    protected override Expression VisitListInit(ListInitExpression li)
+    {
+      var newExpression = (NewExpression) VisitNew(li.NewExpression);
+      IEnumerable<ElementInit> initializers = VisitElementInitializerList(li.Initializers);
+      if ((newExpression==li.NewExpression) && (initializers==li.Initializers))
+        return li;
+      return Expression.ListInit(newExpression, initializers);
+
+    }
+
+    /// <inheritdoc/>
+    protected override Expression VisitNewArray(NewArrayExpression na)
+    {
+      IEnumerable<Expression> initializers = VisitExpressionList(na.Expressions);
+      if (initializers==na.Expressions)
+        return na;
+      if (na.NodeType==ExpressionType.NewArrayInit)
+        return Expression.NewArrayInit(na.Type.GetElementType(), initializers);
+      return Expression.NewArrayBounds(na.Type.GetElementType(), initializers);
+    }
+
+    /// <inheritdoc/>
+    protected override Expression VisitInvocation(InvocationExpression i)
+    {
+      IEnumerable<Expression> arguments = VisitExpressionList(i.Arguments);
+      Expression expression = Visit(i.Expression);
+      if ((arguments==i.Arguments) && (expression==i.Expression))
+        return i;
+      return Expression.Invoke(expression, arguments);
     }
 
     #region Member bindings methods
 
+    /// <summary>
+    /// Visits the member binding.
+    /// </summary>
+    /// <param name="binding">The member binding.</param>
+    /// <returns>Visit result.</returns>
     protected virtual MemberBinding VisitBinding(MemberBinding binding)
     {
       switch (binding.BindingType) {
@@ -129,6 +220,11 @@ namespace Xtensive.Core.Linq
       }
     }
 
+    /// <summary>
+    /// Visits the member member binding.
+    /// </summary>
+    /// <param name="binding">The member member binding.</param>
+    /// <returns>Visit result.</returns>
     protected virtual MemberMemberBinding VisitMemberMemberBinding(MemberMemberBinding binding)
     {
       IEnumerable<MemberBinding> bindings = VisitBindingList(binding.Bindings);
@@ -140,6 +236,11 @@ namespace Xtensive.Core.Linq
 
     }
 
+    /// <summary>
+    /// Visits the binding list.
+    /// </summary>
+    /// <param name="original">The original binding list.</param>
+    /// <returns>Visit result.</returns>
     protected virtual ReadOnlyCollection<MemberBinding> VisitBindingList(ReadOnlyCollection<MemberBinding> original)
     {
       var results = new List<MemberBinding>();
@@ -160,64 +261,6 @@ namespace Xtensive.Core.Linq
     }
 
     #endregion
-
-    protected override Expression VisitLambda(LambdaExpression l)
-    {
-      Expression body = Visit(l.Body);
-      if (body!=l.Body)
-        return Expression.Lambda(l.Type, body, l.Parameters);
-      return l;
-
-    }
-
-    protected override Expression VisitNew(NewExpression n)
-    {
-      IEnumerable<Expression> arguments = VisitExpressionList(n.Arguments);
-      if (arguments==n.Arguments)
-        return n;
-      if (n.Members!=null)
-        return Expression.New(n.Constructor, arguments, n.Members);
-      return Expression.New(n.Constructor, arguments);
-    }
-
-    protected override Expression VisitMemberInit(MemberInitExpression mi)
-    {
-      var newExpression = (NewExpression)VisitNew(mi.NewExpression);
-      IEnumerable<MemberBinding> bindings = VisitBindingList(mi.Bindings);
-      if ((newExpression==mi.NewExpression) && (bindings==mi.Bindings))
-        return mi;
-      return Expression.MemberInit(newExpression, bindings);
-
-    }
-
-    protected override Expression VisitListInit(ListInitExpression li)
-    {
-      var newExpression = (NewExpression) VisitNew(li.NewExpression);
-      IEnumerable<ElementInit> initializers = VisitElementInitializerList(li.Initializers);
-      if ((newExpression==li.NewExpression) && (initializers==li.Initializers))
-        return li;
-      return Expression.ListInit(newExpression, initializers);
-
-    }
-
-    protected override Expression VisitNewArray(NewArrayExpression na)
-    {
-      IEnumerable<Expression> initializers = VisitExpressionList(na.Expressions);
-      if (initializers==na.Expressions)
-        return na;
-      if (na.NodeType==ExpressionType.NewArrayInit)
-        return Expression.NewArrayInit(na.Type.GetElementType(), initializers);
-      return Expression.NewArrayBounds(na.Type.GetElementType(), initializers);
-    }
-
-    protected override Expression VisitInvocation(InvocationExpression i)
-    {
-      IEnumerable<Expression> arguments = VisitExpressionList(i.Arguments);
-      Expression expression = Visit(i.Expression);
-      if ((arguments==i.Arguments) && (expression==i.Expression))
-        return i;
-      return Expression.Invoke(expression, arguments);
-    }
 
 
     // Constructors

@@ -6,8 +6,10 @@
 
 using System;
 using System.Diagnostics;
+using System.IO;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
+using Xtensive.Core.Linq;
 
 namespace Xtensive.Core.Helpers
 {
@@ -16,19 +18,26 @@ namespace Xtensive.Core.Helpers
   /// </summary>
   public static class ExpressionExtensions
   {
+
     /// <summary>
     /// Formats the <paramref name="expression"/>.
     /// </summary>
     /// <param name="expression">The expression to format.</param>
-    /// <param name="beautify">If set to <see langword="true"/>, the result will be much more human-readable.</param>
+    /// <param name="inCSharpNotation">If set to <see langword="true"/>, 
+    /// the result will be returned in C# notation 
+    /// (<see cref="ExpressionWriter"/> will be used).</param>
     /// <returns>A string containing formatted expression.</returns>
-    public static string ToString(this Expression expression, bool beautify)
+    public static string ToString(this Expression expression, bool inCSharpNotation)
     {
-      if (!beautify)
+      if (!inCSharpNotation)
         return expression.ToString();
-      string result = expression.ToString();
-      result = Regex.Replace(result, @"value\([^)]+DisplayClass[^)]+\)\.", "");
-      return result;
+
+      return ExpressionWriter.Write(expression);
+
+//      // The old code
+//      string result = expression.ToString();
+//      result = Regex.Replace(result, @"value\([^)]+DisplayClass[^)]+\)\.", "");
+//      return result;
     }
   }
 }
