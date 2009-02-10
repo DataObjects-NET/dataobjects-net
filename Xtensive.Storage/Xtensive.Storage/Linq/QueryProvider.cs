@@ -18,21 +18,14 @@ namespace Xtensive.Storage.Linq
       var projector = result.Projector;
       var recordSet = result.RecordSet;
 
-      // TODO: Always use Projector
-      if (projector != null) {
-        var compiledProjector = projector.Compile();
-        return compiledProjector(recordSet);
-      }
-      else {
-        var arguments = expression.Type.GetGenericArguments();
-        return recordSet.ToEntities(arguments[0]);
-      }
+      var compiledProjector = projector.Compile();
+      return compiledProjector(recordSet);
     }
 
     internal ResultExpression Compile(Expression expression)
     {
-      var compiler = new QueryTranslator(this, expression);
-      return compiler.Translate();
+      var context = new TranslatorContext(expression);
+      return context.Translator.Translate();
     }
 
 

@@ -18,7 +18,7 @@ namespace Xtensive.Storage.Linq
 {
   internal class MemberAccessReplacer : MemberPathVisitor
   {
-    private readonly QueryTranslator translator;
+    private readonly TranslatorContext context;
     private ParameterExpression resultParameter;
     private static readonly MethodInfo nonGenericAccessor;
     private static readonly MethodInfo genericAccessor;
@@ -55,10 +55,10 @@ namespace Xtensive.Storage.Linq
     {
       if (e == null)
         return null;
-      if (translator.Evaluator.CanBeEvaluated(e)) {
-        if (translator.ParameterExtractor.IsParameter(e))
+      if (context.Evaluator.CanBeEvaluated(e)) {
+        if (context.ParameterExtractor.IsParameter(e))
           return e;
-        return translator.Evaluator.Evaluate(e);
+        return context.Evaluator.Evaluate(e);
       }
       return base.Visit(e);
     }
@@ -68,7 +68,7 @@ namespace Xtensive.Storage.Linq
       var path = mpe.Path;
       var method = mpe.Type == typeof(object) ? nonGenericAccessor : genericAccessor.MakeGenericMethod(mpe.Type);
       // TODO: handle structures
-      var source = translator.GetProjection(path.Parameter);
+      var source = context.GetBound(path.Parameter);
       return Expression.Call(resultParameter, method, Expression.Constant(source.GetMemberSegment(path).Offset));
     }
 
@@ -77,8 +77,8 @@ namespace Xtensive.Storage.Linq
       bool isKey = typeof(Key).IsAssignableFrom(b.Left.Type);
       bool isEntity = typeof(IEntity).IsAssignableFrom(b.Left.Type);
       bool isStructure = typeof(Structure).IsAssignableFrom(b.Left.Type);
-      bool leftIsParameter = translator.ParameterExtractor.IsParameter(b.Left);
-      bool rightIsParameter = translator.ParameterExtractor.IsParameter(b.Right);
+      bool leftIsParameter = context.ParameterExtractor.IsParameter(b.Left);
+      bool rightIsParameter = context.ParameterExtractor.IsParameter(b.Right);
       var first = b.Left;
       var second = b.Right;
       if (isKey || isEntity || isStructure) {
@@ -96,8 +96,8 @@ namespace Xtensive.Storage.Linq
         Expression result = null;
         var key = isKey ? second : Expression.MakeMemberAccess(second, identifierAccessor);
         first = isKey ? first : Expression.MakeMemberAccess(first, keyAccessor);
-        var path = MemberPath.Parse(first, translator.Model);
-        var source = translator.GetProjection(path.Parameter);
+        var path = MemberPath.Parse(first, context.Model);
+        var source = context.GetBound(path.Parameter);
         var segment = source.GetMemberSegment(path);
         if (segment.Length == 0)
           throw new InvalidOperationException();
@@ -124,10 +124,10 @@ namespace Xtensive.Storage.Linq
 
     // Constructors
 
-    public MemberAccessReplacer(QueryTranslator translator)
-      : base(translator.Model)
+    public MemberAccessReplacer(TranslatorContext context)
+      : base(context.Model)
     {
-      this.translator = translator;
+      this.context = context;
     }
 
     // Type initializer

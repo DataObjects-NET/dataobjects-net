@@ -18,7 +18,7 @@ namespace Xtensive.Storage.Linq
 {
   internal class MemberAccessBasedJoiner : MemberPathVisitor
   {
-    private readonly QueryTranslator translator;
+    private readonly TranslatorContext context;
     private bool joinFinalEntity;
 
     public void Process(Expression e)
@@ -34,7 +34,7 @@ namespace Xtensive.Storage.Linq
 
     protected override Expression VisitMemberAccess(MemberExpression m)
     {
-      if (translator.Evaluator.CanBeEvaluated(m))
+      if (context.Evaluator.CanBeEvaluated(m))
         return m;
       return base.VisitMemberAccess(m);
     }
@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Linq
     {
       var path = mpe.Path;
       var pe = path.Parameter;
-      var source = translator.GetProjection(pe);
+      var source = context.GetBound(pe);
       var mapping = source.Mapping;
       int number = 0;
       foreach (var item in path) {
@@ -51,21 +51,21 @@ namespace Xtensive.Storage.Linq
         if (item.Type == MemberType.Entity && (joinFinalEntity || number != path.Count)) {
           ResultMapping innerMapping;
           var name = item.Name;
-          var typeInfo = translator.Model.Types[item.Expression.Type];
+          var typeInfo = context.Model.Types[item.Expression.Type];
           if (!mapping.JoinedRelations.TryGetValue(name, out innerMapping)) {
             var joinedIndex = typeInfo.Indexes.PrimaryIndex;
-            var joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(translator.GetNextAlias());
+            var joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(context.GetNextAlias());
             var keySegment = mapping.Fields[name];
             var keyPairs =
               Enumerable.Range(keySegment.Offset, keySegment.Length).Select(
                 (leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex)).ToArray();
             var rs = source.RecordSet.Join(joinedRs, JoinType.Default, keyPairs);
-            var fieldMapping = translator.BuildFieldMapping(typeInfo, source.RecordSet.Header.Columns.Count);
+            var fieldMapping = Translator.BuildFieldMapping(typeInfo, source.RecordSet.Header.Columns.Count);
             var joinedMapping = new ResultMapping(fieldMapping, new Dictionary<string, ResultMapping>());
             mapping.JoinedRelations.Add(name, joinedMapping);
 
             source = new ResultExpression(source.Type, rs, source.Mapping, source.Projector, source.ItemProjector);
-            translator.SetProjection(pe, source);
+            context.ReplaceBound(pe, source);
           }
           mapping = innerMapping;
         }
@@ -76,10 +76,10 @@ namespace Xtensive.Storage.Linq
 
     // Constructor
 
-    public MemberAccessBasedJoiner(QueryTranslator translator)
-      : base (translator.Model)
+    public MemberAccessBasedJoiner(TranslatorContext context)
+      : base (context.Model)
     {
-      this.translator = translator;
+      this.context = context;
     }
   }
 }

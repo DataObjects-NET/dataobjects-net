@@ -23,7 +23,7 @@ namespace Xtensive.Storage.Linq
     {
       Type elementType = TypeHelper.GetElementType(expression.Type);
       try {
-        var query = (IQueryable)typeof (Query<>).Activate(new[] {elementType}, new object[] {this, expression});
+        var query = (IQueryable)typeof (Query<>).Activate(new[] {elementType}, new object[] {expression});
         return query;
       }
       catch (TargetInvocationException tie) {

@@ -17,7 +17,7 @@ namespace Xtensive.Storage.Linq
 {
   internal sealed class ColumnProjector : ExpressionVisitor
   {
-    private readonly QueryTranslator translator;
+    private readonly TranslatorContext context;
     private List<int> projectedColumns;
     private List<CalculatedColumnDescriptor> calculatedColumns;
 
@@ -26,21 +26,21 @@ namespace Xtensive.Storage.Linq
       projectedColumns = new List<int>();
       calculatedColumns = new List<CalculatedColumnDescriptor>();
       Visit(le.Body);
-      var source = translator.GetProjection(le.Parameters[0]);
+      var source = context.GetBound(le.Parameters[0]);
       var recordSet = calculatedColumns.Count > 0 ? 
         source.RecordSet.Calculate(calculatedColumns.ToArray()) : 
         source.RecordSet;
       var result = new ResultExpression(source.Type, recordSet, source.Mapping, source.Projector, source.ItemProjector);
-      translator.SetProjection(le.Parameters[0], result);
+      context.ReplaceBound(le.Parameters[0], result);
       var ccIndex = source.RecordSet.Header.Columns.Count;
       return projectedColumns.Select(pc => pc == int.MinValue ? ccIndex++ : pc).ToList();
     }
 
     protected override Expression Visit(Expression e)
     {
-      var path = MemberPath.Parse(e, translator.Model);
+      var path = MemberPath.Parse(e, context.Model);
       if (path.IsValid) {
-        var source = translator.GetProjection(path.Parameter);
+        var source = context.GetBound(path.Parameter);
         var segment = source.GetMemberSegment(path);
         projectedColumns.AddRange(Enumerable.Range(segment.Offset, segment.Length));
       }
@@ -48,8 +48,8 @@ namespace Xtensive.Storage.Linq
         if (e.NodeType == ExpressionType.New)
           return VisitNew((NewExpression) e);
         // Calculated column processing
-        LambdaExpression le = translator.MemberAccessReplacer.ProcessCalculated(e);
-        var ccd = new CalculatedColumnDescriptor(translator.GetNextAlias(), e.Type, (Expression<Func<Tuple, object>>) le);
+        LambdaExpression le = context.MemberAccessReplacer.ProcessCalculated(e);
+        var ccd = new CalculatedColumnDescriptor(context.GetNextAlias(), e.Type, (Expression<Func<Tuple, object>>) le);
         projectedColumns.Add(int.MinValue); // calculated column placeholder
         calculatedColumns.Add(ccd);
       }
@@ -70,9 +70,9 @@ namespace Xtensive.Storage.Linq
 
     // Constructors
       
-    public ColumnProjector(QueryTranslator translator)
+    public ColumnProjector(TranslatorContext context)
     {
-      this.translator = translator;
+      this.context = context;
     }
   }
 }

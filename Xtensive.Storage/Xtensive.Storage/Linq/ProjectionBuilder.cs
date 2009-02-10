@@ -22,7 +22,7 @@ namespace Xtensive.Storage.Linq
 {
   internal class ProjectionBuilder : MemberPathVisitor
   {
-    private readonly QueryTranslator translator;
+    private readonly TranslatorContext context;
     private ParameterExpression tuple;
     private ParameterExpression record;
     private bool recordIsUsed;
@@ -46,7 +46,7 @@ namespace Xtensive.Storage.Linq
       parameters = le.Parameters.ToArray();
       var body = le.Body;
       prefixMap = new Dictionary<Expression, string>();
-      translator.MemberAccessBasedJoiner.Process(body, true);
+      context.MemberAccessBasedJoiner.Process(body, true);
       tuple = Expression.Parameter(typeof (Tuple), "t");
       record = Expression.Parameter(typeof (Record), "r");
       parameterRewriter = new ProjectionParameterRewriter(tuple, record);
@@ -81,7 +81,7 @@ namespace Xtensive.Storage.Linq
       var mapping = new ResultMapping(fieldsMapping, joinedRelations);
       // projection for any parameter could be used
       // because these projections contain same record set
-      var recordSet = translator.GetProjection(le.Parameters[0]).RecordSet;
+      var recordSet = context.GetBound(le.Parameters[0]).RecordSet;
       if (calculatedColumns.Count > 0)
         recordSet = recordSet.Calculate(calculatedColumns.ToArray());
       return new ResultExpression(body.Type, recordSet, mapping, projector, itemProjector);
@@ -95,13 +95,13 @@ namespace Xtensive.Storage.Linq
       var isStructure = typeof(Structure).IsAssignableFrom(resultType);
       var isKey = typeof(Key).IsAssignableFrom(resultType);
       var path = mpe.Path;
-      var source = translator.GetProjection(path.Parameter);
+      var source = context.GetBound(path.Parameter);
       if (isEntity || isEntitySet || isStructure) {
         recordIsUsed = true;
         if (isStructure) {
           var structureSegment = source.GetMemberSegment(path);
           var structureColumn = (MappedColumn)source.RecordSet.Header.Columns[structureSegment.Offset];
-          var field = structureColumn.ColumnInfoRef.Resolve(translator.Model).Field;
+          var field = structureColumn.ColumnInfoRef.Resolve(context.Model).Field;
           while (field.Parent != null)
             field = field.Parent;
           int groupIndex = source.RecordSet.Header.ColumnGroups.GetGroupIndexBySegment(structureSegment);
@@ -131,7 +131,7 @@ namespace Xtensive.Storage.Linq
       if (isKey) {
         var keySegment = source.GetMemberSegment(path);
         var keyColumn = (MappedColumn) source.RecordSet.Header.Columns[keySegment.Offset];
-        var type = keyColumn.ColumnInfoRef.Resolve(translator.Model).Field.ReflectedType;
+        var type = keyColumn.ColumnInfoRef.Resolve(context.Model).Field.ReflectedType;
         var transform = new SegmentTransform(true, type.Hierarchy.KeyTupleDescriptor, source.GetMemberSegment(path));
         var keyExtractor = Expression.Call(keyCreateMethod, Expression.Constant(type),
                                            Expression.Call(Expression.Constant(transform), transformApplyMethod,
@@ -148,14 +148,14 @@ namespace Xtensive.Storage.Linq
 
     protected override Expression VisitMemberAccess(MemberExpression m)
     {
-      if (translator.Evaluator.CanBeEvaluated(m) && translator.ParameterExtractor.IsParameter(m))
+      if (context.Evaluator.CanBeEvaluated(m) && context.ParameterExtractor.IsParameter(m))
         return m;
       return base.VisitMemberAccess(m);
     }
 
     protected override Expression VisitParameter(ParameterExpression p)
     {
-      var source = translator.GetProjection(p);
+      var source = context.GetBound(p);
       return parameterRewriter.Rewrite(source.ItemProjector.Body, out recordIsUsed);
     }
 
@@ -172,9 +172,9 @@ namespace Xtensive.Storage.Linq
         var member = n.Members[i];
         var memberName = member.Name.Replace(WellKnown.GetterPrefix, string.Empty);
         var newName = prefix != null ? prefix + "." + memberName : memberName;
-        var path = MemberPath.Parse(arg, translator.Model);
+        var path = MemberPath.Parse(arg, context.Model);
         if (path.IsValid) {
-          var source = translator.GetProjection(path.Parameter);
+          var source = context.GetBound(path.Parameter);
           var segment = source.GetMemberSegment(path);
           var resultMapping = source.GetMemberMapping(path);
           var mapping = resultMapping.Fields.Where(p => p.Value.Offset >= segment.Offset && p.Value.EndOffset <= segment.EndOffset).ToList();
@@ -202,10 +202,10 @@ namespace Xtensive.Storage.Linq
           }
           else {
             // TODO: Add check of queries
-            var le = translator.MemberAccessReplacer.ProcessCalculated(Expression.Lambda(arg, parameters));
-            var ccd = new CalculatedColumnDescriptor(translator.GetNextAlias(), arg.Type, (Expression<Func<Tuple, object>>) le);
+            var le = context.MemberAccessReplacer.ProcessCalculated(Expression.Lambda(arg, parameters));
+            var ccd = new CalculatedColumnDescriptor(context.GetNextAlias(), arg.Type, (Expression<Func<Tuple, object>>) le);
             calculatedColumns.Add(ccd);
-            int position = translator.GetProjection(parameters[0]).RecordSet.Header.Columns.Count + calculatedColumns.Count - 1;
+            int position = context.GetBound(parameters[0]).RecordSet.Header.Columns.Count + calculatedColumns.Count - 1;
             var method = genericAccessor.MakeGenericMethod(arg.Type);
             newArg = Expression.Call(tuple, method, Expression.Constant(position));
             fieldsMapping.Add(newName, new Segment<int>(position, 1));
@@ -227,10 +227,10 @@ namespace Xtensive.Storage.Linq
 
     // Constructors
 
-    public ProjectionBuilder(QueryTranslator translator)
-      : base(translator.Model)
+    public ProjectionBuilder(TranslatorContext context)
+      : base(context.Model)
     {
-      this.translator = translator;
+      this.context = context;
     }
 
     // Type initializer
