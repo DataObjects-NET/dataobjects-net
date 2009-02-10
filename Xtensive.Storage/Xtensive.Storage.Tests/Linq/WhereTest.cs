@@ -175,6 +175,64 @@ namespace Xtensive.Storage.Tests.Linq
       }
     }
 
+    [Test]
+    public void CoalesceTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var customers = Query<Customer>.All;
+          var customer = customers.Where(c => (c.Address.City ?? "Seattle") == "Seattle").First();
+          Assert.IsNotNull(customer);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void ConditionalTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var customers = Query<Customer>.All;
+          var customer = customers.Where(c => (c.Address.City ?? "Seattle") == "Seattle").First();
+          Assert.IsNotNull(customer);
+          t.Complete();
+        }
+      }
+    }
+
+
+      //    public void TestCoalsce()
+      //    {
+      //        TestQuery(db.Customers.Where(c => (c.City ?? "Seattle") == "Seattle"));
+      //    }
+      //
+      //    public void TestCoalesce2()
+      //    {
+      //        TestQuery(db.Customers.Where(c => (c.City ?? c.Country ?? "Seattle") == "Seattle"));
+      //    }
+      //
+      //    public void TestConditional()
+      //    {
+      //        TestQuery(db.Orders.Where(o => (o.CustomerID == "ALFKI" ? 1000 : 0) == 1000));
+      //    }
+      //
+      //    public void TestConditional2()
+      //    {
+      //        TestQuery(db.Orders.Where(o => (o.CustomerID == "ALFKI" ? 1000 : o.CustomerID == "ABCDE" ? 2000 : 0) == 1000));
+      //    }
+      //
+      //    public void TestConditionalTestIsValue()
+      //    {
+      //        TestQuery(db.Orders.Where(o => (((bool)(object)o.OrderID) ? 100 : 200) == 100));
+      //    }
+      //
+      //    public void TestConditionalResultsArePredicates()
+      //    {
+      //        TestQuery(db.Orders.Where(o => (o.CustomerID == "ALFKI" ? o.OrderID < 10 : o.OrderID > 10)));
+      //    }
+
+
 //    public void TestStringLength()
 //    {
 //        TestQuery(db.Customers.Where(c => c.City.Length == 7));
@@ -689,34 +747,5 @@ namespace Xtensive.Storage.Tests.Linq
 //        TestQuery(db.Customers.Where(c => null == c.City));
 //    }
 //
-//    public void TestCoalsce()
-//    {
-//        TestQuery(db.Customers.Where(c => (c.City ?? "Seattle") == "Seattle"));
-//    }
-//
-//    public void TestCoalesce2()
-//    {
-//        TestQuery(db.Customers.Where(c => (c.City ?? c.Country ?? "Seattle") == "Seattle"));
-//    }
-//
-//    public void TestConditional()
-//    {
-//        TestQuery(db.Orders.Where(o => (o.CustomerID == "ALFKI" ? 1000 : 0) == 1000));
-//    }
-//
-//    public void TestConditional2()
-//    {
-//        TestQuery(db.Orders.Where(o => (o.CustomerID == "ALFKI" ? 1000 : o.CustomerID == "ABCDE" ? 2000 : 0) == 1000));
-//    }
-//
-//    public void TestConditionalTestIsValue()
-//    {
-//        TestQuery(db.Orders.Where(o => (((bool)(object)o.OrderID) ? 100 : 200) == 100));
-//    }
-//
-//    public void TestConditionalResultsArePredicates()
-//    {
-//        TestQuery(db.Orders.Where(o => (o.CustomerID == "ALFKI" ? o.OrderID < 10 : o.OrderID > 10)));
-//    }
   }
 }

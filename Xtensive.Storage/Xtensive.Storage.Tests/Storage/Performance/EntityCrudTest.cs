@@ -53,6 +53,21 @@ namespace Xtensive.Storage.Tests.Storage.Performance
 //        }
 //      }
 //    } 
+    [Test]
+    public void ConditionalTest()
+    {
+      InsertTest(5);
+      using (var dataContext = new Entities()) {
+        dataContext.Connection.Open();
+        using (var transaction = dataContext.Connection.BeginTransaction()) {
+          var query = from s in dataContext.Simplest
+                      where (s.Value == 1 ? 2 : 3) == 2
+                      select s;
+          var list = query.ToList();
+          transaction.Commit();
+        }
+      }
+    }
 
     [Test]
     public void RegularTest()

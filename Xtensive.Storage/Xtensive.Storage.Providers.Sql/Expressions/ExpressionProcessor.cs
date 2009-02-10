@@ -105,8 +105,8 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
           return SqlFactory.And(left, right);
         case ExpressionType.AndAlso:
           return SqlFactory.And(left, right);
-//        case ExpressionType.Coalesce:
-//          break;
+        case ExpressionType.Coalesce:
+          return SqlFactory.Coalesce(left,right);
         case ExpressionType.Divide:
           return SqlFactory.Divide(left, right);
         case ExpressionType.Equal:
@@ -149,6 +149,10 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
 
     protected override SqlExpression VisitConditional(ConditionalExpression expression)
     {
+      var check = Visit(expression.Test);
+      var ifTrue = Visit(expression.IfTrue);
+      var ifFalse = Visit(expression.IfFalse);
+
       throw new NotSupportedException();
     }
 
