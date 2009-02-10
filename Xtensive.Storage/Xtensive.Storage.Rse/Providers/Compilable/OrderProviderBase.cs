@@ -25,6 +25,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
   [Serializable]
   public abstract class OrderProviderBase : UnaryProvider
   {
+    // NOTE: We should not reference columns by its index!!!
     /// <summary>
     /// Sort order of the index.
     /// </summary>
