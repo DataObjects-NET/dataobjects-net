@@ -392,9 +392,8 @@ namespace Xtensive.Storage.Linq
         outer = new ResultExpression(outer.Type, recordSet, outer.Mapping, outer.Projector, outer.ItemProjector);
         inner = new ResultExpression(inner.Type, recordSet, inner.Mapping.ShiftOffset(outerLength), inner.Projector, inner.ItemProjector);
 
-        var p0 = resultSelector.Parameters[0];
-        var p1 = resultSelector.Parameters[1];
-        using (context.Bind(p0, outer) & context.Bind(p1, inner)) {
+        using (context.Bind(resultSelector.Parameters[0], outer))
+        using (context.Bind(resultSelector.Parameters[1], inner)) {
           var result = context.ProjectionBuilder.Build(resultSelector);
           return result;
         }
