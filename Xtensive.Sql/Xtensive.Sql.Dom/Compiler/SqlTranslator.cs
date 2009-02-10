@@ -1685,6 +1685,8 @@ namespace Xtensive.Sql.Dom.Compiler
           return "ATAN";
         case SqlFunctionType.Ceiling:
           return "CEILING";
+        case SqlFunctionType.Coalesce:
+          return "COALESCE";
         case SqlFunctionType.Cos:
           return "COS";
         case SqlFunctionType.Cot:
