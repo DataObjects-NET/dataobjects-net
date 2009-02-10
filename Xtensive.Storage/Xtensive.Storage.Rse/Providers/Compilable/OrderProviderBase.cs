@@ -96,7 +96,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="order">The <see cref="Order"/> property value.</param>
     protected OrderProviderBase(CompilableProvider source, DirectionCollection<int> order)
-      : base(ProviderType.Order, source)
+      : base(ProviderType.Sort, source)
     {
       Order = order;
     }
