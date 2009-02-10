@@ -152,8 +152,10 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       var check = Visit(expression.Test);
       var ifTrue = Visit(expression.IfTrue);
       var ifFalse = Visit(expression.IfFalse);
-
-      throw new NotSupportedException();
+      var c = SqlFactory.Case();
+      c[check] = ifTrue;
+      c.Else = ifFalse;
+      return c;
     }
 
     protected override SqlExpression VisitConstant(ConstantExpression expression)
