@@ -328,7 +328,7 @@ namespace Xtensive.Storage.Linq
         }
       }
 
-      var recordSet = result.RecordSet.Aggregate(null, new AggregateColumnDescriptor(context.GetNextAlias(), aggregateColumn, type));
+      var recordSet = result.RecordSet.Aggregate(null, new AggregateColumnDescriptor(context.GetNextColumnAlias(), aggregateColumn, type));
       return new ResultExpression(result.Type, recordSet, null, shaper, null);
     }
 

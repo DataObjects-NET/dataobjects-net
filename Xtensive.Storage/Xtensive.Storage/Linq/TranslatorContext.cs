@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using Xtensive.Core.Helpers;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 
@@ -15,8 +16,6 @@ namespace Xtensive.Storage.Linq
   [Serializable]
   internal sealed class TranslatorContext
   {
-    private const string AliasPrefix = "alias";
-    private int aliasSuffix;
     private readonly Expression query;
     private readonly DomainModel model;
     private readonly Translator translator;
@@ -27,6 +26,8 @@ namespace Xtensive.Storage.Linq
     private readonly ParameterExtractor parameterExtractor;
     private readonly ColumnProjector columnProjector;
     private readonly Dictionary<ParameterExpression, ResultExpression> parameterBindings;
+    private readonly AliasGenerator resultAliasGenerator;
+    private readonly AliasGenerator columnAliasGenerator;
 
     public Expression Query
     {
@@ -80,7 +81,12 @@ namespace Xtensive.Storage.Linq
 
     public string GetNextAlias()
     {
-      return AliasPrefix + aliasSuffix++;
+      return resultAliasGenerator.Next();
+    }
+
+    public string GetNextColumnAlias()
+    {
+      return resultAliasGenerator.Next();
     }
 
     public ParameterBinding Bind(ParameterExpression pe, ResultExpression re)
@@ -115,6 +121,8 @@ namespace Xtensive.Storage.Linq
 
     public TranslatorContext(Expression query)
     {
+      resultAliasGenerator = AliasGenerator.Create();
+      columnAliasGenerator = AliasGenerator.Create(new[] {"column"});
       this.query = query;
       translator = new Translator(this);
       var domain = Domain.Current;

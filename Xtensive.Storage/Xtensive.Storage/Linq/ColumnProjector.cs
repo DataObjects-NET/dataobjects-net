@@ -49,7 +49,7 @@ namespace Xtensive.Storage.Linq
           return VisitNew((NewExpression) e);
         // Calculated column processing
         LambdaExpression le = context.MemberAccessReplacer.ProcessCalculated(e);
-        var ccd = new CalculatedColumnDescriptor(context.GetNextAlias(), e.Type, (Expression<Func<Tuple, object>>) le);
+        var ccd = new CalculatedColumnDescriptor(context.GetNextColumnAlias(), e.Type, (Expression<Func<Tuple, object>>) le);
         projectedColumns.Add(int.MinValue); // calculated column placeholder
         calculatedColumns.Add(ccd);
       }

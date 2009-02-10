@@ -203,7 +203,7 @@ namespace Xtensive.Storage.Linq
           else {
             // TODO: Add check of queries
             var le = context.MemberAccessReplacer.ProcessCalculated(Expression.Lambda(arg, parameters));
-            var ccd = new CalculatedColumnDescriptor(context.GetNextAlias(), arg.Type, (Expression<Func<Tuple, object>>) le);
+            var ccd = new CalculatedColumnDescriptor(context.GetNextColumnAlias(), arg.Type, (Expression<Func<Tuple, object>>) le);
             calculatedColumns.Add(ccd);
             int position = context.GetBound(parameters[0]).RecordSet.Header.Columns.Count + calculatedColumns.Count - 1;
             var method = genericAccessor.MakeGenericMethod(arg.Type);

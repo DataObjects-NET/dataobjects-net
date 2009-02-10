@@ -33,26 +33,26 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       return config;
     }
 
-    [Test]
-    public void GroupJoinTest()
-    {
-      InsertTest(100);  
-
-      using (var dataContext = new Entities()) {
-        dataContext.Connection.Open();
-        using (var transaction = dataContext.Connection.BeginTransaction()) {
-          var query = from s in dataContext.Simplest
-                      join ss in dataContext.Simplest on s.Id equals ss.Id into g
-                      select new {s.Value, Group = g};
-          var list = query.ToList();
-
-          var query1 =  from s in dataContext.Simplest
-                        from ss in dataContext.Simplest.Where(x => x.Id == s.Id)
-                        select new { s.Value, Left = ss.Value };
-          var list1 = query1.ToList();
-        }
-      }
-    } 
+//    [Test]
+//    public void GroupJoinTest()
+//    {
+//      InsertTest(100);  
+//
+//      using (var dataContext = new Entities()) {
+//        dataContext.Connection.Open();
+//        using (var transaction = dataContext.Connection.BeginTransaction()) {
+//          var query = from s in dataContext.Simplest
+//                      join ss in dataContext.Simplest on s.Id equals ss.Id into g
+//                      select new {s.Value, Group = g};
+//          var list = query.ToList();
+//
+//          var query1 =  from s in dataContext.Simplest
+//                        from ss in dataContext.Simplest.Where(x => x.Id == s.Id)
+//                        select new { s.Value, Left = ss.Value };
+//          var list1 = query1.ToList();
+//        }
+//      }
+//    } 
 
     [Test]
     public void RegularTest()
