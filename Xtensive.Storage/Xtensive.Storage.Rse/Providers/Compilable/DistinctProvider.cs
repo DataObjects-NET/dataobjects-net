@@ -23,7 +23,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// </summary>
     /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
     public DistinctProvider(CompilableProvider source)
-      : base(source)
+      : base(ProviderType.Distinct, source)
     {
     }
   }

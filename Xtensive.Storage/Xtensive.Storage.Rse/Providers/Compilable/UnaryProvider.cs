@@ -29,11 +29,12 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     // Constructor
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
+    /// <param name="type">The type of the provider.</param>
     /// <param name="source">The <see cref="Source"/> property value.</param>
-    protected UnaryProvider(CompilableProvider source)
-      : base(source)
+    protected UnaryProvider(ProviderType type, CompilableProvider source)
+      : base(type, source)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
       Source = source;

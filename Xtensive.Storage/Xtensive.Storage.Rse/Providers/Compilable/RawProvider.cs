@@ -58,6 +58,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <param name="header">The <see cref="Provider.Header"/> property value.</param>
     /// <param name="source">The <see cref="Source"/> property value.</param>
     public RawProvider(RecordSetHeader header, Expression<Func<Tuple[]>> source)
+      : base(ProviderType.Join)
     {
       Source = source;
       this.header = header;

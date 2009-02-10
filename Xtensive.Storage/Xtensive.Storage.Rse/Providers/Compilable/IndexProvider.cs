@@ -54,6 +54,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     // Constructor
 
     private IndexProvider(IndexInfo index)
+      : base (ProviderType.Index)
     {
       indexHeader = index.GetRecordSetHeader();
       Index = new IndexInfoRef(index);

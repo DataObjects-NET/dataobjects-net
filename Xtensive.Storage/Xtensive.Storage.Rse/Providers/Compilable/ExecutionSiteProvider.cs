@@ -50,7 +50,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <param name="options">The <see cref="Options"/> property value.</param>
     /// <param name="location">The <see cref="Location"/> property value.</param>
     public ExecutionSiteProvider(CompilableProvider source, ExecutionOptions options, UrlInfo location)
-      : base(source)
+      : base(ProviderType.ExecutionSite, source)
     {
       Options = options;
       if (!ReferenceEquals(location, null))

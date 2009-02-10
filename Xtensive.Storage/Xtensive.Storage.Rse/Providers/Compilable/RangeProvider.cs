@@ -58,7 +58,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="range">The <see cref="Range"/> property value.</param>
     public RangeProvider(CompilableProvider source, Expression<Func<Range<Entire<Tuple>>>> range)
-      : base(source)
+      : base(ProviderType.Range, source)
     {
       Range = range;
     }
@@ -69,7 +69,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="range">The value for <see cref="Range"/> function property.</param>
     public RangeProvider(CompilableProvider source, Range<Entire<Tuple>> range)
-      : base(source)
+      : base(ProviderType.Range, source)
     {
       Range = () => range;
     }

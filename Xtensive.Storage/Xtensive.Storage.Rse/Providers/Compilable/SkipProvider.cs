@@ -53,7 +53,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <param name="provider">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="count">The <see cref="Count"/> property value.</param>
     public SkipProvider(CompilableProvider provider, Expression<Func<int>> count)
-      : base(provider)
+      : base(ProviderType.Skip, provider)
     {
       Count = count;
     }
@@ -64,7 +64,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <param name="provider">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="count">The value for <see cref="Count"/> function property.</param>
     public SkipProvider(CompilableProvider provider, int count)
-      : base(provider)
+      : base(ProviderType.Skip, provider)
     {
       Count = () => count;
     }

@@ -57,7 +57,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="key">The <see cref="Key"/> property value.</param>
     public SeekProvider(CompilableProvider source, Expression<Func<Tuple>> key)
-      : base(source)
+      : base(ProviderType.Seek, source)
     {
       Key = key;
     }
@@ -68,7 +68,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="key">Wrapped to <see cref="Key"/> property value.</param>
     public SeekProvider(CompilableProvider source, Tuple key)
-      : base(source)
+      : base(ProviderType.Seek, source)
     {
       Key = () => key;
     }

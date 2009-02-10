@@ -77,7 +77,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <exception cref="ArgumentException">Wrong arguments.</exception>
     public JoinProvider(CompilableProvider left, CompilableProvider right, bool leftJoin, JoinType joinType, 
       params Pair<int>[] equalIndexes)
-      : base(left, right)
+      : base(ProviderType.Join, left, right)
     {
       if (equalIndexes==null || equalIndexes.Length==0)
         throw new ArgumentException(
@@ -99,7 +99,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <exception cref="ArgumentException">Wrong arguments.</exception>
     public JoinProvider(CompilableProvider left, CompilableProvider right, bool leftJoin, JoinType joinType, 
       params int[] equalIndexes)
-      : base(left, right)
+      : base(ProviderType.Join, left, right)
     {
       JoinType = joinType;
       if (equalIndexes==null || equalIndexes.Length<2)

@@ -58,6 +58,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <param name="scope">The <see cref="Scope"/> property value.</param>
     /// <param name="name">The <see cref="Name"/> property value.</param>
     public StoredProvider(RecordSetHeader header, TemporaryDataScope scope, string name)
+      : base (ProviderType.Store)
     {
       ArgumentValidator.EnsureArgumentNotNull(header, "header");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
@@ -73,7 +74,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <param name="scope">The <see cref="Scope"/> property value.</param>
     /// <param name="name">The <see cref="Name"/> property value.</param>
     public StoredProvider(Provider source, TemporaryDataScope scope, string name)
-      : base(source)
+      : base(ProviderType.Store, source)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
@@ -88,7 +89,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// </summary>
     /// <param name="source">The <see cref="Source"/> property value.</param>
     public StoredProvider(Provider source)
-      : base(source)
+      : base(ProviderType.Store, source)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
       Scope = TemporaryDataScope.Enumeration;

@@ -48,7 +48,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     public SelectProvider(CompilableProvider provider, int[] columnIndexes)
-      : base(provider)
+      : base(ProviderType.Select, provider)
     {
       this.columnIndexes = columnIndexes;      
     }

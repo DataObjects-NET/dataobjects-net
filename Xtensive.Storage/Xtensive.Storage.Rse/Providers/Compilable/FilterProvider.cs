@@ -53,7 +53,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <param name="source">The source provider.</param>
     /// <param name="predicate">The predicate.</param>
     public FilterProvider(CompilableProvider source, Expression<Func<Tuple, bool>> predicate)
-      : base(source)
+      : base(ProviderType.Filter, source)
     {
       Predicate = predicate;
     }

@@ -42,7 +42,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <param name="provider">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="alias">The <see cref="Alias"/> property value.</param>
     public AliasProvider(CompilableProvider provider, string alias)
-      : base(provider)
+      : base(ProviderType.Alias, provider)
     {
       Alias = alias;
     }

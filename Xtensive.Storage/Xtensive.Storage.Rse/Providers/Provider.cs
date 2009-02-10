@@ -35,6 +35,12 @@ namespace Xtensive.Storage.Rse.Providers
     private RecordSetHeader header;
     private bool isInitialized;
 
+
+    /// <summary>
+    /// Gets <see cref="ProviderType"/> of the current instance.
+    /// </summary>
+    public ProviderType Type { get; private set; }
+
     /// <summary>
     /// Gets or sets the source providers 
     /// "consumed" by this provider to produce results of current provider.
@@ -195,11 +201,13 @@ namespace Xtensive.Storage.Rse.Providers
     // Constructor
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
+    /// <param name="type">The type of the provider.</param>
     /// <param name="sources"><see cref="Sources"/> property value.</param>
-    protected Provider(params Provider[] sources)
+    protected Provider(ProviderType type, params Provider[] sources)
     {
+      Type = type;
       Sources = sources;
     }
   }

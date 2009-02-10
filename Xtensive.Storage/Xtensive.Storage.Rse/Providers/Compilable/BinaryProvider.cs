@@ -37,12 +37,13 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     // Constructor
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
+    /// <param name="type">The type of provider.</param>
     /// <param name="left">The <see cref="Left"/> provider.</param>
     /// <param name="right">The <see cref="Left"/> provider.</param>
-    protected BinaryProvider(CompilableProvider left, CompilableProvider right)
-      : base(left, right)
+    protected BinaryProvider(ProviderType type, CompilableProvider left, CompilableProvider right)
+      : base(type, left, right)
     {
       ArgumentValidator.EnsureArgumentNotNull(left, "left");
       ArgumentValidator.EnsureArgumentNotNull(right, "right");

@@ -79,7 +79,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <param name="columnDescriptors">The descriptors of <see cref="AggregateColumns"/>.</param>
     /// <param name="groupIndexes">The column indexes to group by.</param>
     public AggregateProvider(CompilableProvider source, int[] groupIndexes, params AggregateColumnDescriptor[] columnDescriptors)
-      : base(source)
+      : base(ProviderType.Aggregate, source)
     {
       groupIndexes = groupIndexes ?? ArrayUtils<int>.EmptyArray;
       var columns = new AggregateColumn[columnDescriptors.Length];
