@@ -4,6 +4,7 @@
 // Created by: Alexey Kochetov
 // Created:    2008.12.13
 
+using System;
 using NUnit.Framework;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
@@ -26,7 +27,6 @@ namespace Xtensive.Storage.Tests.Linq
         category1Key = Query<Category>.All.Single(c => c.Id == 1).Key;
       }
     }
-
 
     [Test]
     public void ColumnTest()
@@ -75,7 +75,7 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var suppliers = Query<Supplier>.All;
-          var supplier = suppliers.Where(s => s.Id == 20 ).First();
+          var supplier = suppliers.Where(s => s.Id == 20).First();
           Assert.IsNotNull(supplier);
           Assert.AreEqual("Leka Trading", supplier.CompanyName);
           t.Complete();
@@ -167,7 +167,11 @@ namespace Xtensive.Storage.Tests.Linq
           var product = products.Where(p => p.Supplier.CompanyName == "Leka Trading").First();
           Assert.IsNotNull(product);
           Assert.AreEqual("Leka Trading", product.Supplier.CompanyName);
-          product = products.Where(p => p.Supplier.CompanyName == "Leka Trading" && p.Category.Key == category1Key && p.Supplier.ContactTitle == "Owner").First();
+          product =
+            products.Where(
+              p =>
+                p.Supplier.CompanyName == "Leka Trading" && p.Category.Key == category1Key &&
+                  p.Supplier.ContactTitle == "Owner").First();
           Assert.IsNotNull(product);
           Assert.AreEqual("Leka Trading", product.Supplier.CompanyName);
           t.Complete();
@@ -198,527 +202,1313 @@ namespace Xtensive.Storage.Tests.Linq
           var orders = Query<Order>.All;
           var order = orders.Where(o => (o.Customer.Id == "ALFKI" ? 1000 : 0) == 1000).First();
           Assert.IsNotNull(order);
-          order = orders.Where(o => (o.Customer.Id == "ALFKI" ? 1000 : o.Customer.Id == "ABCDE" ? 2000 : 0) == 1000).First();
+          order =
+            orders.Where(o => (o.Customer.Id == "ALFKI" ? 1000 : o.Customer.Id == "ABCDE" ? 2000 : 0) == 1000).First();
           Assert.IsNotNull(order);
           t.Complete();
         }
       }
     }
-    
-//    public void TestStringLength()
-//    {
-//        TestQuery(db.Customers.Where(c => c.City.Length == 7));
-//    }
-//
-//    public void TestStringStartsWithLiteral()
-//    {
-//        TestQuery(db.Customers.Where(c => c.ContactName.StartsWith("M")));
-//    }
-//
-//    public void TestStringStartsWithColumn()
-//    {
-//        TestQuery(db.Customers.Where(c => c.ContactName.StartsWith(c.ContactName)));
-//    }
-//
-//    public void TestStringEndsWithLiteral()
-//    {
-//        TestQuery(db.Customers.Where(c => c.ContactName.EndsWith("s")));
-//    }
-//
-//    public void TestStringEndsWithColumn()
-//    {
-//        TestQuery(db.Customers.Where(c => c.ContactName.EndsWith(c.ContactName)));
-//    }
-//
-//    public void TestStringContainsLiteral()
-//    {
-//        TestQuery(db.Customers.Where(c => c.ContactName.Contains("and")));
-//    }
-//
-//    public void TestStringContainsColumn()
-//    {
-//        TestQuery(db.Customers.Where(c => c.ContactName.Contains(c.ContactName)));
-//    }
-//
-//    public void TestStringConcatImplicit2Args()
-//    {
-//        TestQuery(db.Customers.Where(c => c.ContactName + "X" == "X"));
-//    }
-//
-//    public void TestStringConcatExplicit2Args()
-//    {
-//        TestQuery(db.Customers.Where(c => string.Concat(c.ContactName, "X") == "X"));
-//    }
-//
-//    public void TestStringConcatExplicit3Args()
-//    {
-//        TestQuery(db.Customers.Where(c => string.Concat(c.ContactName, "X", c.Country) == "X"));
-//    }
-//
-//    public void TestStringConcatExplicitNArgs()
-//    {
-//        TestQuery(db.Customers.Where(c => string.Concat(new string[] { c.ContactName, "X", c.Country }) == "X"));
-//    }
-//
-//    public void TestStringIsNullOrEmpty()
-//    {
-//        TestQuery(db.Customers.Where(c => string.IsNullOrEmpty(c.City)));
-//    }
-//
-//    public void TestStringToUpper()
-//    {
-//        TestQuery(db.Customers.Where(c => c.City.ToUpper() == "SEATTLE"));
-//    }
-//
-//    public void TestStringToLower()
-//    {
-//        TestQuery(db.Customers.Where(c => c.City.ToLower() == "seattle"));
-//    }
-//
-//    public void TestStringReplace()
-//    {
-//        TestQuery(db.Customers.Where(c => c.City.Replace("ea", "ae") == "Saettle"));
-//    }
-//
-//    public void TestStringReplaceChars()
-//    {
-//        TestQuery(db.Customers.Where(c => c.City.Replace("e", "y") == "Syattly"));
-//    }
-//
-//    public void TestStringSubstring()
-//    {
-//        TestQuery(db.Customers.Where(c => c.City.Substring(0, 4) == "Seat"));
-//    }
-//
-//    public void TestStringSubstringNoLength()
-//    {
-//        TestQuery(db.Customers.Where(c => c.City.Substring(4) == "tle"));
-//    }
-//
-//    public void TestStringRemove()
-//    {
-//        TestQuery(db.Customers.Where(c => c.City.Remove(1, 2) == "Sttle"));
-//    }
-//
-//    public void TestStringRemoveNoCount()
-//    {
-//        TestQuery(db.Customers.Where(c => c.City.Remove(4) == "Seat"));
-//    }
-//
-//    public void TestStringIndexOf()
-//    {
-//        TestQuery(db.Customers.Where(c => c.City.IndexOf("tt") == 4));
-//    }
-//
-//    public void TestStringIndexOfChar()
-//    {
-//        TestQuery(db.Customers.Where(c => c.City.IndexOf('t') == 4));
-//    }
-//
-//    public void TestStringTrim()
-//    {
-//        TestQuery(db.Customers.Where(c => c.City.Trim() == "Seattle"));
-//    }
-//
-//    public void TestStringToString()
-//    {
-//        // just to prove this is a no op
-//        TestQuery(db.Customers.Where(c => c.City.ToString() == "Seattle"));
-//    }
-//
-//    public void TestDateTimeConstructYMD()
-//    {
-//        TestQuery(db.Orders.Where(o => o.OrderDate == new DateTime(o.OrderDate.Year, 1, 1)));
-//    }
-//
-//    public void TestDateTimeConstructYMDHMS()
-//    {
-//        TestQuery(db.Orders.Where(o => o.OrderDate == new DateTime(o.OrderDate.Year, 1, 1, 10, 25, 55)));
-//    }
-//
-//    public void TestDateTimeDay()
-//    {
-//        TestQuery(db.Orders.Where(o => o.OrderDate.Day == 5));
-//    }
-//
-//    public void TestDateTimeMonth()
-//    {
-//        TestQuery(db.Orders.Where(o => o.OrderDate.Month == 12));
-//    }
-//
-//    public void TestDateTimeYear()
-//    {
-//        TestQuery(db.Orders.Where(o => o.OrderDate.Year == 1997));
-//    }
-//
-//    public void TestDateTimeHour()
-//    {
-//        TestQuery(db.Orders.Where(o => o.OrderDate.Hour == 6));
-//    }
-//
-//    public void TestDateTimeMinute()
-//    {
-//        TestQuery(db.Orders.Where(o => o.OrderDate.Minute == 32));
-//    }
-//
-//    public void TestDateTimeSecond()
-//    {
-//        TestQuery(db.Orders.Where(o => o.OrderDate.Second == 47));
-//    }
-//
-//    public void TestDateTimeMillisecond()
-//    {
-//        TestQuery(db.Orders.Where(o => o.OrderDate.Millisecond == 200));
-//    }
-//
-//    public void TestDateTimeDayOfWeek()
-//    {
-//        TestQuery(db.Orders.Where(o => o.OrderDate.DayOfWeek == DayOfWeek.Friday));
-//    }
-//
-//    public void TestDateTimeDayOfYear()
-//    {
-//        TestQuery(db.Orders.Where(o => o.OrderDate.DayOfYear == 360));
-//    }
-//
-//    public void TestMathAbs()
-//    {
-//        TestQuery(db.Orders.Where(o => Math.Abs(o.OrderID) == 10));
-//    }
-//
-//    public void TestMathAcos()
-//    {
-//        TestQuery(db.Orders.Where(o => Math.Acos(o.OrderID) == 0));
-//    }
-//
-//    public void TestMathAsin()
-//    {
-//        TestQuery(db.Orders.Where(o => Math.Asin(o.OrderID) == 0));
-//    }
-//
-//    public void TestMathAtan()
-//    {
-//        TestQuery(db.Orders.Where(o => Math.Atan(o.OrderID) == 0));
-//    }
-//
-//    public void TestMathAtan2()
-//    {
-//        TestQuery(db.Orders.Where(o => Math.Atan2(o.OrderID, 3) == 0));
-//    }
-//
-//    public void TestMathCos()
-//    {
-//        TestQuery(db.Orders.Where(o => Math.Cos(o.OrderID) == 0));
-//    }
-//
-//    public void TestMathSin()
-//    {
-//        TestQuery(db.Orders.Where(o => Math.Sin(o.OrderID) == 0));
-//    }
-//
-//    public void TestMathTan()
-//    {
-//        TestQuery(db.Orders.Where(o => Math.Tan(o.OrderID) == 0));
-//    }
-//
-//    public void TestMathExp()
-//    {
-//        TestQuery(db.Orders.Where(o => Math.Exp(o.OrderID < 1000 ? 1 : 2) == 0));
-//    }
-//
-//    public void TestMathLog()
-//    {
-//        TestQuery(db.Orders.Where(o => Math.Log(o.OrderID) == 0));
-//    }
-//
-//    public void TestMathLog10()
-//    {
-//        TestQuery(db.Orders.Where(o => Math.Log10(o.OrderID) == 0));
-//    }
-//
-//    public void TestMathSqrt()
-//    {
-//        TestQuery(db.Orders.Where(o => Math.Sqrt(o.OrderID) == 0));
-//    }
-//
-//    public void TestMathCeiling()
-//    {
-//        TestQuery(db.Orders.Where(o => Math.Ceiling((double)o.OrderID) == 0));
-//    }
-//
-//    public void TestMathFloor()
-//    {
-//        TestQuery(db.Orders.Where(o => Math.Floor((double)o.OrderID) == 0));
-//    }
-//
-//    public void TestMathPow()
-//    {
-//        TestQuery(db.Orders.Where(o => Math.Pow(o.OrderID < 1000 ? 1 : 2, 3) == 0));
-//    }
-//
-//    public void TestMathRoundDefault()
-//    {
-//        TestQuery(db.Orders.Where(o => Math.Round((decimal)o.OrderID) == 0));
-//    }
-//
-//    public void TestMathRoundToPlace()
-//    {
-//        TestQuery(db.Orders.Where(o => Math.Round((decimal)o.OrderID, 2) == 0));
-//    }
-//
-//    public void TestMathTruncate()
-//    {
-//        TestQuery(db.Orders.Where(o => Math.Truncate((double)o.OrderID) == 0));
-//    }
-//
-//    public void TestStringCompareToLT()
-//    {
-//        TestQuery(db.Customers.Where(c => c.City.CompareTo("Seattle") < 0));
-//    }
-//
-//    public void TestStringCompareToLE()
-//    {
-//        TestQuery(db.Customers.Where(c => c.City.CompareTo("Seattle") <= 0));
-//    }
-//
-//    public void TestStringCompareToGT()
-//    {
-//        TestQuery(db.Customers.Where(c => c.City.CompareTo("Seattle") > 0));
-//    }
-//
-//    public void TestStringCompareToGE()
-//    {
-//        TestQuery(db.Customers.Where(c => c.City.CompareTo("Seattle") >= 0));
-//    }
-//
-//    public void TestStringCompareToEQ()
-//    {
-//        TestQuery(db.Customers.Where(c => c.City.CompareTo("Seattle") == 0));
-//    }
-//
-//    public void TestStringCompareToNE()
-//    {
-//        TestQuery(db.Customers.Where(c => c.City.CompareTo("Seattle") != 0));
-//    }
-//
-//    public void TestStringCompareLT()
-//    {
-//        TestQuery(db.Customers.Where(c => string.Compare(c.City, "Seattle") < 0));
-//    }
-//
-//    public void TestStringCompareLE()
-//    {
-//        TestQuery(db.Customers.Where(c => string.Compare(c.City, "Seattle") <= 0));
-//    }
-//
-//    public void TestStringCompareGT()
-//    {
-//        TestQuery(db.Customers.Where(c => string.Compare(c.City, "Seattle") > 0));
-//    }
-//
-//    public void TestStringCompareGE()
-//    {
-//        TestQuery(db.Customers.Where(c => string.Compare(c.City, "Seattle") >= 0));
-//    }
-//
-//    public void TestStringCompareEQ()
-//    {
-//        TestQuery(db.Customers.Where(c => string.Compare(c.City, "Seattle") == 0));
-//    }
-//
-//    public void TestStringCompareNE()
-//    {
-//        TestQuery(db.Customers.Where(c => string.Compare(c.City, "Seattle") != 0));
-//    }
-//
-//    public void TestIntCompareTo()
-//    {
-//        // prove that x.CompareTo(y) works for types other than string
-//        TestQuery(db.Orders.Where(o => o.OrderID.CompareTo(1000) == 0));
-//    }
-//
-//    public void TestDecimalCompare()
-//    {
-//        // prove that type.Compare(x,y) works with decimal
-//        TestQuery(db.Orders.Where(o => decimal.Compare((decimal)o.OrderID, 0.0m) == 0));
-//    }
-//
-//    public void TestDecimalAdd()
-//    {
-//        TestQuery(db.Orders.Where(o => decimal.Add(o.OrderID, 0.0m) == 0.0m));
-//    }
-//
-//    public void TestDecimalSubtract()
-//    {
-//        TestQuery(db.Orders.Where(o => decimal.Subtract(o.OrderID, 0.0m) == 0.0m));
-//    }
-//
-//    public void TestDecimalMultiply()
-//    {
-//        TestQuery(db.Orders.Where(o => decimal.Multiply(o.OrderID, 1.0m) == 1.0m));
-//    }
-//
-//    public void TestDecimalDivide()
-//    {
-//        TestQuery(db.Orders.Where(o => decimal.Divide(o.OrderID, 1.0m) == 1.0m));
-//    }
-//
-//    public void TestDecimalRemainder()
-//    {
-//        TestQuery(db.Orders.Where(o => decimal.Remainder(o.OrderID, 1.0m) == 0.0m));
-//    }
-//
-//    public void TestDecimalNegate()
-//    {
-//        TestQuery(db.Orders.Where(o => decimal.Negate(o.OrderID) == 1.0m));
-//    }
-//
-//    public void TestDecimalCeiling()
-//    {
-//        TestQuery(db.Orders.Where(o => decimal.Ceiling(o.OrderID) == 0.0m));
-//    }
-//
-//    public void TestDecimalFloor()
-//    {
-//        TestQuery(db.Orders.Where(o => decimal.Floor(o.OrderID) == 0.0m));
-//    }
-//
-//    public void TestDecimalRoundDefault()
-//    {
-//        TestQuery(db.Orders.Where(o => decimal.Round(o.OrderID) == 0m));
-//    }
-//
-//    public void TestDecimalRoundPlaces()
-//    {
-//        TestQuery(db.Orders.Where(o => decimal.Round(o.OrderID, 2) == 0.00m));
-//    }
-//
-//    public void TestDecimalTruncate()
-//    {
-//        TestQuery(db.Orders.Where(o => decimal.Truncate(o.OrderID) == 0m));
-//    }
-//
-//    public void TestDecimalLT()
-//    {
-//        // prove that decimals are treated normally with respect to normal comparison operators
-//        TestQuery(db.Orders.Where(o => ((decimal)o.OrderID) < 0.0m));
-//    }
-//
-//    public void TestIntLessThan()
-//    {
-//        TestQuery(db.Orders.Where(o => o.OrderID < 0));
-//    }
-//
-//    public void TestIntLessThanOrEqual()
-//    {
-//        TestQuery(db.Orders.Where(o => o.OrderID <= 0));
-//    }
-//
-//    public void TestIntGreaterThan()
-//    {
-//        TestQuery(db.Orders.Where(o => o.OrderID > 0));
-//    }
-//
-//    public void TestIntGreaterThanOrEqual()
-//    {
-//        TestQuery(db.Orders.Where(o => o.OrderID >= 0));
-//    }
-//
-//    public void TestIntEqual()
-//    {
-//        TestQuery(db.Orders.Where(o => o.OrderID == 0));
-//    }
-//
-//    public void TestIntNotEqual()
-//    {
-//        TestQuery(db.Orders.Where(o => o.OrderID != 0));
-//    }
-//
-//    public void TestIntAdd()
-//    {
-//        TestQuery(db.Orders.Where(o => o.OrderID + 0 == 0));
-//    }
-//
-//    public void TestIntSubtract()
-//    {
-//        TestQuery(db.Orders.Where(o => o.OrderID - 0 == 0));
-//    }
-//
-//    public void TestIntMultiply()
-//    {
-//        TestQuery(db.Orders.Where(o => o.OrderID * 1 == 1));
-//    }
-//
-//    public void TestIntDivide()
-//    {
-//        TestQuery(db.Orders.Where(o => o.OrderID / 1 == 1));
-//    }
-//
-//    public void TestIntModulo()
-//    {
-//        TestQuery(db.Orders.Where(o => o.OrderID % 1 == 0));
-//    }
-//
-//    public void TestIntLeftShift()
-//    {
-//        TestQuery(db.Orders.Where(o => o.OrderID << 1 == 0));
-//    }
-//
-//    public void TestIntRightShift()
-//    {
-//        TestQuery(db.Orders.Where(o => o.OrderID >> 1 == 0));
-//    }
-//
-//    public void TestIntBitwiseAnd()
-//    {
-//        TestQuery(db.Orders.Where(o => (o.OrderID & 1) == 0));
-//    }
-//
-//    public void TestIntBitwiseOr()
-//    {
-//        TestQuery(db.Orders.Where(o => (o.OrderID | 1) == 1));
-//    }
-//
-//    public void TestIntBitwiseExclusiveOr()
-//    {
-//        TestQuery(db.Orders.Where(o => (o.OrderID ^ 1) == 1));
-//    }
-//
-//    public void TestIntBitwiseNot()
-//    {
-//        TestQuery(db.Orders.Where(o => ~o.OrderID == 0));
-//    }
-//
-//    public void TestIntNegate()
-//    {
-//        TestQuery(db.Orders.Where(o => -o.OrderID == -1));
-//    }
-//
-//    public void TestAnd()
-//    {
-//        TestQuery(db.Orders.Where(o => o.OrderID > 0 && o.OrderID < 2000));
-//    }
-//
-//    public void TestOr()
-//    {
-//        TestQuery(db.Orders.Where(o => o.OrderID < 5 || o.OrderID > 10));
-//    }
-//
-//    public void TestNot()
-//    {
-//        TestQuery(db.Orders.Where(o => !(o.OrderID == 0)));
-//    }
-//
-//    public void TestEqualNull()
-//    {
-//        TODO: Check IsNull or Equals(null)
-//        TestQuery(db.Customers.Where(c => c.City == null));
-//    }
-//
-//    public void TestEqualNullReverse()
-//    {
-//        TestQuery(db.Customers.Where(c => null == c.City));
-//    }
-//
+
+    [Test]
+    public void StringLengthTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var customers = Query<Customer>.All;
+          var customer = customers.Where(c => c.Address.City.Length == 7).First();
+          Assert.IsNotNull(customer);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void StringStartsWithLiteralTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var customers = Query<Customer>.All;
+          var customer = customers.Where(c => c.ContactName.StartsWith("M")).First();
+          Assert.IsNotNull(customer);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void StringStartsWithColumnTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var customers = Query<Customer>.All;
+          var customer = customers.Where(c => c.ContactName.StartsWith(c.ContactName)).First();
+          Assert.IsNotNull(customer);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void StringEndsWithLiteralTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var customers = Query<Customer>.All;
+          var customer = customers.Where(c => c.ContactName.EndsWith("s")).First();
+          Assert.IsNotNull(customer);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void StringEndsWithColumnTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var customers = Query<Customer>.All;
+          var customer = customers.Where(c => c.ContactName.EndsWith(c.ContactName)).First();
+          Assert.IsNotNull(customer);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void StringContainsLiteralTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var customers = Query<Customer>.All;
+          var customer = customers.Where(c => c.ContactName.Contains("and")).First();
+          Assert.IsNotNull(customer);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void StringContainsColumnTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var customers = Query<Customer>.All;
+          var customer = customers.Where(c => c.ContactName.Contains(c.ContactName)).First();
+          Assert.IsNotNull(customer);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void StringConcatImplicitArgsTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var customers = Query<Customer>.All;
+          var customer = customers.Where(c => c.ContactName + "X" == "X").First();
+          Assert.IsNotNull(customer);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void StringConcatExplicitNArgTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var customers = Query<Customer>.All;
+          var customer =
+            customers.Where(c => string.Concat(new string[] {c.ContactName, "X", c.Address.Country}) == "X").First();
+          Assert.IsNotNull(customer);
+          customer = customers.Where(c => string.Concat(c.ContactName, "X") == "X").First();
+          Assert.IsNotNull(customer);
+          customer = customers.Where(c => string.Concat(c.ContactName, "X", c.Address.Country) == "X").First();
+          Assert.IsNotNull(customer);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void StringIsNullOrEmptyTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var customers = Query<Customer>.All;
+          var customer = customers.Where(c => string.IsNullOrEmpty(c.Address.City)).First();
+          Assert.IsNotNull(customer);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void StringToUpperTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var customers = Query<Customer>.All;
+          var customer = customers.Where(c => c.Address.City.ToUpper() == "SEATTLE").First();
+          Assert.IsNotNull(customer);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void StringToLowerTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var customers = Query<Customer>.All;
+          var customer = customers.Where(c => c.Address.City.ToLower() == "seattle").First();
+          Assert.IsNotNull(customer);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void StringReplaceTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var customers = Query<Customer>.All;
+          var customer = customers.Where(c => c.Address.City.Replace("ea", "ae") == "Saettle").First();
+          Assert.IsNotNull(customer);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void StringReplaceCharsTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var customers = Query<Customer>.All;
+          var customer = customers.Where(c => c.Address.City.Replace("e", "y") == "Syattly").First();
+          Assert.IsNotNull(customer);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void StringSubstringTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var customers = Query<Customer>.All;
+          var customer = customers.Where(c => c.Address.City.Substring(0, 4) == "Seat").First();
+          Assert.IsNotNull(customer);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void StringSubstringNoLengthTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var customers = Query<Customer>.All;
+          var customer = customers.Where(c => c.Address.City.Substring(4) == "tle").First();
+          Assert.IsNotNull(customer);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void StringRemoveTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var customers = Query<Customer>.All;
+          var customer = customers.Where(c => c.Address.City.Remove(1, 2) == "Sttle").First();
+          Assert.IsNotNull(customer);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void StringRemoveNoCountTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var customers = Query<Customer>.All;
+          var customer = customers.Where(c => c.Address.City.Remove(4) == "Seat").First();
+          Assert.IsNotNull(customer);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void StringIndexOfTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var customers = Query<Customer>.All;
+          var customer = customers.Where(c => c.Address.City.IndexOf("tt") == 4).First();
+          Assert.IsNotNull(customer);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void StringIndexOfCharTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var customers = Query<Customer>.All;
+          var customer = customers.Where(c => c.Address.City.IndexOf('t') == 4).First();
+          Assert.IsNotNull(customer);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void StringTrimTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var customers = Query<Customer>.All;
+          var customer = customers.Where(c => c.Address.City.Trim() == "Seattle").First();
+          Assert.IsNotNull(customer);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void StringToStringTest()
+    {
+      // just to prove this is a no op
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var customers = Query<Customer>.All;
+          var customer = customers.Where(c => c.Address.City.ToString() == "Seattle").First();
+          Assert.IsNotNull(customer);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void DateTimeConstructYMDTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => o.OrderDate == new DateTime(o.OrderDate.Value.Year, 1, 1)).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void DateTimeConstructYMDHMSTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => o.OrderDate == new DateTime(o.OrderDate.Value.Year, 1, 1, 10, 25, 55)).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void DateTimeDayTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => o.OrderDate.Value.Day == 5).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void DateTimeMonthTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => o.OrderDate.Value.Month == 12).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void DateTimeYearTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => o.OrderDate.Value.Year == 1997).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void DateTimeHourTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => o.OrderDate.Value.Hour == 6).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void DateTimeMinuteTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => o.OrderDate.Value.Minute == 32).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void DateTimeSecond()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => o.OrderDate.Value.Second == 47).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void DateTimeMillisecondTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => o.OrderDate.Value.Millisecond == 200).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void DateTimeDayOfWeekTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => o.OrderDate.Value.DayOfWeek == DayOfWeek.Friday).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void DateTimeDayOfYearTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => o.OrderDate.Value.DayOfYear == 360).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void MathAbsTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => Math.Abs(o.Id) == 10).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void MathAcosTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => Math.Acos(o.Id) == 0).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void MathAsinTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => Math.Asin(o.Id) == 0).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void MathAtanTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => Math.Atan(o.Id) == 0).First();
+          Assert.IsNotNull(order);
+          order = orders.Where(o => Math.Atan2(o.Id, 3) == 0).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void MathCosTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => Math.Cos(o.Id) == 0).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void MathSinTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => Math.Sin(o.Id) == 0).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void MathTanTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => Math.Tan(o.Id) == 0).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void MathExpTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => Math.Exp(o.Id < 1000 ? 1 : 2) == 0).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void MathLogTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => Math.Log(o.Id) == 0).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void MathLog10Test()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => Math.Log10(o.Id) == 0).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void MathSqrtTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => Math.Sqrt(o.Id) == 0).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void MathCeilingTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => Math.Ceiling((double) o.Id) == 0).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void MathFloorTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => Math.Floor((double) o.Id) == 0).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void MathPowTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => Math.Pow(o.Id < 1000 ? 1 : 2, 3) == 0).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void MathRoundDefaultTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => Math.Round((decimal) o.Id) == 0).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void MathRoundToPlaceTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => Math.Round((decimal) o.Id, 2) == 0).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void MathTruncateTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => Math.Truncate((double) o.Id) == 0).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void StringCompareToLTTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var customers = Query<Customer>.All;
+          var customer = customers.Where(c => c.Address.City.CompareTo("Seattle") < 0).First();
+          Assert.IsNotNull(customer);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void StringCompareToLETest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var customers = Query<Customer>.All;
+          var customer = customers.Where(c => c.Address.City.CompareTo("Seattle") <= 0).First();
+          Assert.IsNotNull(customer);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void StringCompareToGTTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var customers = Query<Customer>.All;
+          var customer = customers.Where(c => c.Address.City.CompareTo("Seattle") > 0).First();
+          Assert.IsNotNull(customer);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void StringCompareToGETest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var customers = Query<Customer>.All;
+          var customer = customers.Where(c => c.Address.City.CompareTo("Seattle") >= 0).First();
+          Assert.IsNotNull(customer);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void StringCompareToEQTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var customers = Query<Customer>.All;
+          var customer = customers.Where(c => c.Address.City.CompareTo("Seattle") == 0).First();
+          Assert.IsNotNull(customer);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void StringCompareToNETest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var customers = Query<Customer>.All;
+          var customer = customers.Where(c => c.Address.City.CompareTo("Seattle") != 0).First();
+          Assert.IsNotNull(customer);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void StringCompareLTTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var customers = Query<Customer>.All;
+          var customer = customers.Where(c => string.Compare(c.Address.City, "Seattle") < 0).First();
+          Assert.IsNotNull(customer);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void StringCompareLETest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var customers = Query<Customer>.All;
+          var customer = customers.Where(c => string.Compare(c.Address.City, "Seattle") <= 0).First();
+          Assert.IsNotNull(customer);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void StringCompareGTTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var customers = Query<Customer>.All;
+          var customer = customers.Where(c => string.Compare(c.Address.City, "Seattle") > 0).First();
+          Assert.IsNotNull(customer);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void StringCompareGETest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var customers = Query<Customer>.All;
+          var customer = customers.Where(c => string.Compare(c.Address.City, "Seattle") >= 0).First();
+          Assert.IsNotNull(customer);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void StringCompareEQTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var customers = Query<Customer>.All;
+          var customer = customers.Where(c => string.Compare(c.Address.City, "Seattle") == 0).First();
+          Assert.IsNotNull(customer);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void StringCompareNETest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var customers = Query<Customer>.All;
+          var customer = customers.Where(c => string.Compare(c.Address.City, "Seattle") != 0).First();
+          Assert.IsNotNull(customer);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void IntCompareToTest()
+    {
+      // prove that x.CompareTo(y) works for types other than string
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => o.Id.CompareTo(1000) == 0).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void DecimalCompareTest()
+    {
+      // prove that type.Compare(x,y) works with decimal
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => decimal.Compare((decimal) o.Id, 0.0m) == 0).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void DecimalAddTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => decimal.Add(o.Id, 0.0m) == 0.0m).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void DecimalSubtractTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => decimal.Subtract(o.Id, 0.0m) == 0.0m).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void DecimalMultiplyTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => decimal.Multiply(o.Id, 1.0m) == 1.0m).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void DecimalDivideTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => decimal.Divide(o.Id, 1.0m) == 1.0m).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void DecimalRemainderTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => decimal.Remainder(o.Id, 1.0m) == 0.0m).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void DecimalNegateTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => decimal.Negate(o.Id) == 1.0m).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void DecimalCeilingTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => decimal.Ceiling(o.Id) == 0.0m).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void DecimalFloorTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => decimal.Floor(o.Id) == 0.0m).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void DecimalRoundDefaultTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => decimal.Round(o.Id) == 0m).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void DecimalRoundPlacesTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => decimal.Round(o.Id, 2) == 0.00m).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void DecimalTruncateTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => decimal.Truncate(o.Id) == 0m).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void DecimalLTTest()
+    {
+      // prove that decimals are treated normally with respect to normal comparison operators
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => ((decimal) o.Id) < 0.0m).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void IntLessThanTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => o.Id < 0).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void IntLessThanOrEqualTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => o.Id <= 0).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void IntGreaterThanTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => o.Id > 0).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void IntGreaterThanOrEqualTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => o.Id >= 0).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void IntEqualTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => o.Id == 0).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void IntNotEqualTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => o.Id != 0).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void IntAddTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => o.Id + 0 == 0).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void IntSubtractTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => o.Id - 0 == 0).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void IntMultiplyTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => o.Id * 1 == 1).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void IntDivideTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => o.Id / 1 == 1).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void IntModuloTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => o.Id % 1 == 0).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void IntLeftShiftTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => o.Id << 1 == 0).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void IntRightShiftTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => o.Id >> 1 == 0).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void IntBitwiseAndTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => (o.Id & 1) == 0).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void IntBitwiseOrTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => (o.Id | 1) == 1).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void IntBitwiseExclusiveOrTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => (o.Id ^ 1) == 1).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void IntBitwiseNotTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => ~o.Id == 0).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void IntNegateTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => -o.Id == -1).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void AndTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => o.Id > 0 && o.Id < 2000).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void OrTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => o.Id < 5 || o.Id > 10).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void NotTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => !(o.Id == 0)).First();
+          Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void EqualNullTest()
+    {
+      //  TODO: Check IsNull or Equals(null)
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var customers = Query<Customer>.All;
+          var customer = customers.Where(c => c.Address.City == null).First();
+          Assert.IsNotNull(customer);
+          customer = customers.Where(c => c.Address.City.Equals(null)).First();
+          Assert.IsNotNull(customer);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void EqualNullReverseTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var customers = Query<Customer>.All;
+          var customer = customers.Where(c => null == c.Address.City).First();
+          Assert.IsNotNull(customer);
+          t.Complete();
+        }
+      }
+    }
   }
 }
