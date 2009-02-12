@@ -234,7 +234,7 @@ namespace Xtensive.Core.Collections
     /// <param name="projector">Delegate that takes two arguments
     /// (<see cref="TLeft"/> and <see cref="TRight"/>) and returns <see cref="TResult"/></param>
     /// <returns>result of applying <see cref="projector"/> for each pair of items.</returns>
-    public static IEnumerable<TResult> ZipWith<TLeft,TRight,TResult>(IEnumerable<TLeft> leftSequence, IEnumerable<TRight> rightSequence, Func<TLeft,TRight,TResult> projector)
+    public static IEnumerable<TResult> ZipWith<TLeft,TRight,TResult>(this IEnumerable<TLeft> leftSequence, IEnumerable<TRight> rightSequence, Func<TLeft,TRight,TResult> projector)
     {
       ArgumentValidator.EnsureArgumentNotNull(leftSequence, "leftSequence");
       ArgumentValidator.EnsureArgumentNotNull(rightSequence, "rightSequence");
