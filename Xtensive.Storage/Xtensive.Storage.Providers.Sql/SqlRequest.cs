@@ -70,7 +70,9 @@ namespace Xtensive.Storage.Providers.Sql
 
     protected static void BindParameter(SqlParameterBinding binding, object value)
     {
-      if (value != null && value != DBNull.Value && binding.TypeMapping != null && binding.TypeMapping.ToSqlValue != null)
+      if (value == null || value == DBNull.Value)
+        throw new ArgumentNullException(binding.SqlParameter.ParameterName);
+      if (binding.TypeMapping != null && binding.TypeMapping.ToSqlValue != null)
         value = binding.TypeMapping.ToSqlValue(value);
       binding.SqlParameter.Value = value;
     }
