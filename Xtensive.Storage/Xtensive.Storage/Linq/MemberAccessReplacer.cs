@@ -74,91 +74,172 @@ namespace Xtensive.Storage.Linq
 
     protected override Expression VisitBinary(BinaryExpression b)
     {
-//      var memberType = b.Left.GetMemberType();
-//      switch (memberType) {
-//        case MemberType.Primitive:
-//          break;
-//        case MemberType.Key:
-//        case MemberType.Structure:
-//        case MemberType.Entity: {
-//          bool isKey = memberType == MemberType.Key;
-//          bool isEntity = memberType == MemberType.Entity;
-//          bool leftIsParameter = context.ParameterExtractor.IsParameter(b.Left);
-//          bool rightIsParameter = context.ParameterExtractor.IsParameter(b.Right);
-//          if (b.NodeType!=ExpressionType.Equal && b.NodeType!=ExpressionType.NotEqual)
-//            throw new NotSupportedException();
-//          if (isKey) {
-//            if (!leftIsParameter && !rightIsParameter) {
-//              var leftPath = MemberPath.Parse(b.Left, context.Model);
-//              var leftSource = context.GetBound(leftPath.Parameter);
-//              var leftSegment = leftSource.GetMemberSegment(leftPath);
-//              var rightPath = MemberPath.Parse(b.Right, context.Model);
-//              var rightSource = context.GetBound(rightPath.Parameter);
-//              var rightSegment = rightSource.GetMemberSegment(rightPath);
-//            }
-////            var path = MemberPath.Parse(first, context.Model);
-////            var source = context.GetBound(path.Parameter);
-////            var segment = source.GetMemberSegment(path);
-//          }
-//          else if (isEntity) {
-//            
-//          }
-//          else {
-//            throw new NotImplementedException();
-//          }
-//          throw new NotImplementedException();
-//        }
-//        case MemberType.EntitySet:
-//          throw new NotSupportedException();
-//        default:
-//          throw new ArgumentOutOfRangeException();
-//      }
-
-      bool isKey = typeof(Key).IsAssignableFrom(b.Left.Type);
-      bool isEntity = typeof(IEntity).IsAssignableFrom(b.Left.Type);
-      bool isStructure = typeof(Structure).IsAssignableFrom(b.Left.Type);
-      bool leftIsParameter = context.ParameterExtractor.IsParameter(b.Left);
-      bool rightIsParameter = context.ParameterExtractor.IsParameter(b.Right);
-      var first = b.Left;
-      var second = b.Right;
-      if (isKey || isEntity || isStructure) {
-        if (b.NodeType!=ExpressionType.Equal && b.NodeType!=ExpressionType.NotEqual) 
-          throw new InvalidOperationException();
-        if (isStructure)
-          throw new NotImplementedException();
-        if (!leftIsParameter && !rightIsParameter) {
-          throw new NotImplementedException();
-        }
-        if (leftIsParameter) {
-          first = b.Right;
-          second = b.Left;
-        }
-        Expression result = null;
-        var key = isKey ? second : Expression.MakeMemberAccess(second, identifierAccessor);
-        first = isKey ? first : Expression.MakeMemberAccess(first, keyAccessor);
-        var path = MemberPath.Parse(first, context.Model);
-        var source = context.GetBound(path.Parameter);
-        var segment = source.GetMemberSegment(path);
-        if (segment.Length == 0)
-          throw new InvalidOperationException();
-        foreach (var pair in Enumerable.Range(segment.Offset, segment.Length).Select((ci, pi) => new {ColumnIndex = ci, ParameterIndex = pi})) {
-          var method = genericAccessor.MakeGenericMethod(source.RecordSet.Header.TupleDescriptor[segment.Offset]);
-          Expression left = Expression.Call(resultParameter, method, Expression.Constant(pair.ColumnIndex));
-          Expression right = Expression.Call(Expression.MakeMemberAccess(key, keyValueAccessor), method, Expression.Constant(pair.ParameterIndex));
-          if (result == null) {
-            result = b.NodeType == ExpressionType.Equal ?
-              Expression.Equal(left, right) :
-              Expression.NotEqual(left, right);
+      var memberType = b.Left.GetMemberType();
+      switch (memberType) {
+        case MemberType.Unknown:
+        case MemberType.Primitive:
+          break;
+        case MemberType.Key:
+        case MemberType.Entity:
+        case MemberType.Anonymous: 
+        case MemberType.Structure: {
+          bool isKey = memberType == MemberType.Key;
+          bool isEntity = memberType == MemberType.Entity;
+          bool isAnonymous = memberType == MemberType.Anonymous;
+          bool leftIsParameter = context.ParameterExtractor.IsParameter(b.Left);
+          bool rightIsParameter = context.ParameterExtractor.IsParameter(b.Right);
+          if (b.NodeType!=ExpressionType.Equal && b.NodeType!=ExpressionType.NotEqual)
+            throw new NotSupportedException();
+          if (isKey) {
+            Expression result = null;
+            if (!leftIsParameter && !rightIsParameter)
+              result = MakeComplexBinaryExpression(b.Left, b.Right, b.NodeType);
+            else {
+              var bLeft = b.Left;
+              var bRight = b.Right;
+              if (leftIsParameter) {
+                bLeft = b.Right;
+                bRight = b.Left;
+              }
+              var path = MemberPath.Parse(bLeft, context.Model);
+              var source = context.GetBound(path.Parameter);
+              var segment = source.GetMemberSegment(path);
+              foreach (var pair in Enumerable.Range(segment.Offset, segment.Length).Select((ci, pi) => new {ColumnIndex = ci, ParameterIndex = pi})) {
+                Expression left = Expression.Call(resultParameter, nonGenericAccessor, Expression.Constant(pair.ColumnIndex));
+                Expression right = Expression.Condition(
+                  Expression.Equal(bRight, Expression.Constant(null, bRight.Type)),
+                  Expression.Constant(null, typeof (object)),
+                  Expression.Call(Expression.MakeMemberAccess(bRight, keyValueAccessor), nonGenericAccessor, Expression.Constant(pair.ParameterIndex)));
+                result = MakeBinaryExpression(result, left, right, b.NodeType);
+              }
+            }
+            return result;
+          }
+          else if (isEntity) {
+            Expression result = null;
+            if (!leftIsParameter && !rightIsParameter) {
+              var bLeft = Expression.MakeMemberAccess(b.Left, keyAccessor);
+              var bRight = Expression.MakeMemberAccess(b.Right, keyAccessor);
+              result = MakeComplexBinaryExpression(bLeft, bRight, b.NodeType);
+            }
+            else {
+              var bLeft = Expression.MakeMemberAccess(b.Left, keyAccessor);
+              var bRight = b.Right;
+              if (leftIsParameter) {
+                bLeft = Expression.MakeMemberAccess(b.Right, keyAccessor);
+                bRight = b.Left;
+              }
+              var path = MemberPath.Parse(bLeft, context.Model);
+              var source = context.GetBound(path.Parameter);
+              var segment = source.GetMemberSegment(path);
+              foreach (var pair in Enumerable.Range(segment.Offset, segment.Length).Select((ci, pi) => new { ColumnIndex = ci, ParameterIndex = pi })) {
+                Expression left = Expression.Call(resultParameter, nonGenericAccessor, Expression.Constant(pair.ColumnIndex));
+                Expression right = Expression.Condition(
+                  Expression.Equal(bRight, Expression.Constant(null, bRight.Type)),
+                  Expression.Constant(null, typeof(object)),
+                  Expression.Call(
+                    Expression.MakeMemberAccess(Expression.MakeMemberAccess(bRight, keyAccessor), keyValueAccessor),
+                    nonGenericAccessor, Expression.Constant(pair.ParameterIndex)));
+                result = MakeBinaryExpression(result, left, right, b.NodeType);
+              }
+            }
+            return result;
+          }
+          else if (isAnonymous) {
+            
           }
           else {
-            result = b.NodeType == ExpressionType.Equal ?
-              Expression.AndAlso(result, Expression.Equal(left, right)) :
-              Expression.AndAlso(result, Expression.NotEqual(left, right));
+            throw new NotImplementedException();
           }
+          throw new NotImplementedException();
         }
-        return result;
+        case MemberType.EntitySet:
+          throw new NotSupportedException();
+        default:
+          throw new ArgumentOutOfRangeException();
       }
+
+//      bool isKey = typeof(Key).IsAssignableFrom(b.Left.Type);
+//      bool isEntity = typeof(IEntity).IsAssignableFrom(b.Left.Type);
+//      bool isStructure = typeof(Structure).IsAssignableFrom(b.Left.Type);
+//      bool leftIsParameter = context.ParameterExtractor.IsParameter(b.Left);
+//      bool rightIsParameter = context.ParameterExtractor.IsParameter(b.Right);
+//      var first = b.Left;
+//      var second = b.Right;
+//      if (isKey || isEntity || isStructure) {
+//        if (b.NodeType!=ExpressionType.Equal && b.NodeType!=ExpressionType.NotEqual) 
+//          throw new InvalidOperationException();
+//        if (isStructure)
+//          throw new NotImplementedException();
+//        if (!leftIsParameter && !rightIsParameter) {
+//          throw new NotImplementedException();
+//        }
+//        if (leftIsParameter) {
+//          first = b.Right;
+//          second = b.Left;
+//        }
+//        Expression result = null;
+//        var key = isKey ? second : Expression.MakeMemberAccess(second, identifierAccessor);
+//        first = isKey ? first : Expression.MakeMemberAccess(first, keyAccessor);
+//        var path = MemberPath.Parse(first, context.Model);
+//        var source = context.GetBound(path.Parameter);
+//        var segment = source.GetMemberSegment(path);
+//        if (segment.Length == 0)
+//          throw new InvalidOperationException();
+//        foreach (var pair in Enumerable.Range(segment.Offset, segment.Length).Select((ci, pi) => new {ColumnIndex = ci, ParameterIndex = pi})) {
+//          var method = genericAccessor.MakeGenericMethod(source.RecordSet.Header.TupleDescriptor[segment.Offset]);
+//          Expression left = Expression.Call(resultParameter, method, Expression.Constant(pair.ColumnIndex));
+//          Expression right = Expression.Call(Expression.MakeMemberAccess(key, keyValueAccessor), method, Expression.Constant(pair.ParameterIndex));
+//          if (result == null) {
+//            result = b.NodeType == ExpressionType.Equal ?
+//              Expression.Equal(left, right) :
+//              Expression.NotEqual(left, right);
+//          }
+//          else {
+//            result = b.NodeType == ExpressionType.Equal ?
+//              Expression.AndAlso(result, Expression.Equal(left, right)) :
+//              Expression.AndAlso(result, Expression.NotEqual(left, right));
+//          }
+//        }
+//        return result;
+//      }
       return base.VisitBinary(b);
+    }
+
+    private static Expression MakeBinaryExpression(Expression previous, Expression left, Expression right, ExpressionType operationType)
+    {
+      if (previous == null) {
+        previous = operationType == ExpressionType.Equal
+          ? Expression.Equal(left, right)
+          : Expression.NotEqual(left, right);
+      }
+      else {
+        previous = operationType == ExpressionType.Equal
+          ? Expression.AndAlso(previous, Expression.Equal(left, right))
+          : Expression.AndAlso(previous, Expression.NotEqual(left, right));
+      }
+      return previous;
+    }
+
+    private Expression MakeComplexBinaryExpression(Expression bLeft, Expression bRight, ExpressionType operationType)
+    {
+      Expression result = null;
+      var leftPath = MemberPath.Parse(bLeft, context.Model);
+      var leftSource = context.GetBound(leftPath.Parameter);
+      var leftSegment = leftSource.GetMemberSegment(leftPath);
+      var rightPath = MemberPath.Parse(bRight, context.Model);
+      var rightSource = context.GetBound(rightPath.Parameter);
+      var rightSegment = rightSource.GetMemberSegment(rightPath);
+      for (int i = leftSegment.Offset, j = rightSegment.Offset;
+        i < leftSegment.EndOffset && j < rightSegment.EndOffset;
+        i++, j++) 
+      {
+        var method = genericAccessor.MakeGenericMethod(leftSource.RecordSet.Header.TupleDescriptor[i]);
+        Expression left = Expression.Call(resultParameter, method, Expression.Constant(i));
+        Expression right = Expression.Call(resultParameter, method, Expression.Constant(j));
+        result = MakeBinaryExpression(result, left, right, operationType);
+      }
+      return result;
     }
 
 
