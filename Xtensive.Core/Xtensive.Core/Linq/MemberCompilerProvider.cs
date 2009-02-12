@@ -8,8 +8,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Reflection;
+using Xtensive.Core.Resources;
 
 namespace Xtensive.Core.Linq
 {
@@ -23,15 +25,25 @@ namespace Xtensive.Core.Linq
       = new Dictionary<MethodInfo, Delegate>();
     private readonly object syncRoot = new object();
 
-    private Type[] ExtractParamTypesAndValidate(MethodInfo methodInfo, bool requireMethodInfo)
+    private static Type[] ExtractParamTypesAndValidate(MethodInfo methodInfo, bool requireMethodInfo)
     {
       int length = methodInfo.GetParameters().Length;
 
-      if (length > 4 || length==0 && requireMethodInfo)
-        throw new InvalidOperationException();
+      if (length > 4)
+        throw new InvalidOperationException(string.Format(
+          Strings.ExCompilerXHasTooManyParameters,
+          methodInfo.GetFullName(true)));
+
+      if (length==0 && requireMethodInfo)
+        throw new InvalidOperationException(string.Format(
+          Strings.ExCompilerXShouldHaveMethodInfoParameter,
+          methodInfo.GetFullName(true)));
 
       if (methodInfo.ReturnType != typeof(T))
-        throw new InvalidOperationException();
+        throw new InvalidOperationException(string.Format(
+          Strings.ExCompilerXShouldReturnY,
+          methodInfo.GetFullName(true),
+          typeof(T).GetFullName(true)));
 
       var parameters = methodInfo.GetParameters();
       var result = new Type[length];
@@ -44,21 +56,21 @@ namespace Xtensive.Core.Linq
           requiredType = typeof (MethodInfo);
 
         if (param.ParameterType != requiredType)
-          throw new InvalidOperationException();
+          throw new InvalidOperationException(string.Format(
+            Strings.ExCompilerXShouldHaveParameterYOfTypeZ,
+            methodInfo.GetFullName(true), param.Name,
+            requiredType.GetFullName(true)));
 
         var attr = (ParamTypeAttribute)param
           .GetCustomAttributes(typeof(ParamTypeAttribute), false).FirstOrDefault();
 
         result[i] = attr==null ? null : attr.ParamType;
-
-        if (result[i]!=null && result[i].ContainsGenericParameters)
-          throw new InvalidOperationException();
       }
 
       return result;
     }
 
-    private Dictionary<MethodInfo, Delegate> MergeDicts(Dictionary<MethodInfo, Delegate> first,
+    private static Dictionary<MethodInfo, Delegate> MergeDicts(Dictionary<MethodInfo, Delegate> first,
       Dictionary<MethodInfo, Delegate> second)
     {
       var result = new Dictionary<MethodInfo, Delegate>(first);
@@ -93,7 +105,7 @@ namespace Xtensive.Core.Linq
       return null;
     }
 
-    private Func<MethodInfo, T[], T> CreateCompilerDelegateG(MethodInfo compiler)
+    private static Func<MethodInfo, T[], T> CreateCompilerDelegateG(MethodInfo compiler)
     {
       var t = compiler.ReflectedType;
       string s = compiler.Name;
@@ -116,6 +128,34 @@ namespace Xtensive.Core.Linq
       return null;
     }
 
+    private static MethodInfo FindBestMethod(Type type, MethodInfo mi)
+    {
+      var methods = type.GetMethods().Where(
+        m => m.Name == mi.Name
+          && m.GetParameters().Length == mi.GetParameters().Length
+          && m.IsStatic == mi.IsStatic);
+      
+      if (methods.Count() == 1)
+        return methods.First();
+
+      var paramTypes = mi.GetParameterTypes();
+
+      Func<Type, Type, bool> oneParamMatch =
+        (l, r) => l.IsGenericParameter ? r==l : (r.IsGenericParameter || r==l);
+
+      Func<MethodInfo, bool> allParamsMatch =
+        m => paramTypes
+          .ZipWith(m.GetParameterTypes(), (t1, t2) => new {t1, t2})
+          .All(a => oneParamMatch(a.t1, a.t2));
+
+      methods = methods.Where(allParamsMatch);
+
+      if (methods.Count() > 1)
+        return null;
+
+      return methods.FirstOrDefault();
+    }
+
     /// <inheritdoc/>
     public Func<T[], T> GetCompiler(MethodInfo methodInfo)
     {
@@ -124,7 +164,7 @@ namespace Xtensive.Core.Linq
       bool withMethodInfo = false;
 
       var mi = methodInfo;
-      
+
       if (mi.IsGenericMethod) {
         mi = mi.GetGenericMethodDefinition();
         withMethodInfo = true;
@@ -134,12 +174,9 @@ namespace Xtensive.Core.Linq
 
       if (type.IsGenericType) {
         type = type.GetGenericTypeDefinition();
-        var maybeMethod = type.GetMethods()
-          .Where(m => m.Name==mi.Name && m.GetParameters().Length==mi.GetParameters().Length)
-          .FirstOrDefault();
-        if (maybeMethod == null)
+        mi = FindBestMethod(type, mi);
+        if (mi == null)
           return null;
-        mi = maybeMethod;
         withMethodInfo = true;
       }
 
@@ -177,15 +214,25 @@ namespace Xtensive.Core.Linq
 
       foreach (var compiler in compilers) {
         var attr = compiler.GetAttribute<CompilerAttribute>(AttributeSearchOptions.InheritNone);
-        
-        if (attr.TargetType==null || (attr.TargetType.IsGenericType && !attr.TargetType.IsGenericTypeDefinition))
-          throw new InvalidOperationException();
+
+        bool isBadTargetType = attr.TargetType==null
+          || (attr.TargetType.IsGenericType && !attr.TargetType.IsGenericTypeDefinition);
+
+        if (isBadTargetType)
+          throw new InvalidOperationException(string.Format(
+            Strings.ExCompilerXHasBadTargetType,
+            compiler.GetFullName(true)));
 
         bool isStatic = (attr.TargetKind & TargetKind.Static) != 0;
         bool isGenericMethod = attr.GenericParamsCount > 0;
         bool isGenericType = attr.TargetType.IsGenericType;
         
-        string methodName = attr.TargetMethod.IsNullOrEmpty() ? compiler.Name : attr.TargetMethod;
+        if (attr.TargetMember.IsNullOrEmpty())
+          throw new InvalidOperationException(string.Format(
+            Strings.ExCompilerXHasBadTargetMember,
+            compiler.GetFullName(true)));
+
+        string memberName = attr.TargetMember;
 
         var paramTypes = ExtractParamTypesAndValidate(compiler, isGenericMethod || isGenericType);
         var bindFlags = BindingFlags.Public;
@@ -195,24 +242,36 @@ namespace Xtensive.Core.Linq
 
         if (!isStatic) {
           if (paramTypes.Length==0 || paramTypes[0]!=attr.TargetType)
-            throw new InvalidOperationException();
+            throw new InvalidOperationException(string.Format(
+              Strings.ExCompilerXShouldHaveThisParameterWithCorrectAttribute,
+              compiler.GetFullName(true)));
+
           paramTypes = paramTypes.Skip(1).ToArray();
           bindFlags |= BindingFlags.Instance;
         }
         else
           bindFlags |= BindingFlags.Static;
-        
-        if ((attr.TargetKind & TargetKind.PropertyGet)!=0)
-          bindFlags |= BindingFlags.GetProperty;
 
-        if ((attr.TargetKind & TargetKind.PropertySet)!=0)
+        if ((attr.TargetKind & TargetKind.PropertyGet) != 0) {
+          bindFlags |= BindingFlags.GetProperty;
+          memberName = WellKnown.GetterPrefix + memberName;
+        }
+
+        if ((attr.TargetKind & TargetKind.PropertySet) != 0) {
           bindFlags |= BindingFlags.SetProperty;
+          memberName = WellKnown.SetterPrefix + memberName;
+        }
 
         var genericArgNames = isGenericMethod ? new string[attr.GenericParamsCount] : null;
-        var methodInfo = attr.TargetType.GetMethod(methodName, bindFlags, genericArgNames, paramTypes);
+        var methodInfo = attr.TargetType.GetMethod(memberName, bindFlags, genericArgNames, paramTypes);
+
+        if (methodInfo==null)
+          throw new InvalidOperationException(compiler.Name);
 
         if (dict.ContainsKey(methodInfo))
-          throw new InvalidOperationException();
+          throw new InvalidOperationException(string.Format(
+            Strings.ExTargetMemberIsNotFoundForCompilerX,
+            compiler.GetFullName(true)));
 
         if (isGenericMethod || isGenericType)
           dict[methodInfo] = CreateCompilerDelegateG(compiler);
@@ -232,7 +291,9 @@ namespace Xtensive.Core.Linq
           var result = new Dictionary<MethodInfo, Delegate>(delegatesByMethodInfo);
             foreach (var pair in dict) {
               if (result.ContainsKey(pair.Key))
-                throw new InvalidOperationException();
+                throw new InvalidOperationException(string.Format(
+                  Strings.ExCompilerForXIsAlreadyRegistered,
+                  pair.Key.GetFullName(true)));
               result.Add(pair.Key, pair.Value);
             }
           delegatesByMethodInfo = result;

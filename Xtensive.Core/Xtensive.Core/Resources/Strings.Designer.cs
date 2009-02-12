@@ -304,6 +304,78 @@ namespace Xtensive.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Compiler for {0} is already registered..
+        /// </summary>
+        internal static string ExCompilerForXIsAlreadyRegistered {
+            get {
+                return ResourceManager.GetString("ExCompilerForXIsAlreadyRegistered", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Compiler {0} has &quot;bad&quot; target member..
+        /// </summary>
+        internal static string ExCompilerXHasBadTargetMember {
+            get {
+                return ResourceManager.GetString("ExCompilerXHasBadTargetMember", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Compiler {0} has &quot;bad&quot; target type..
+        /// </summary>
+        internal static string ExCompilerXHasBadTargetType {
+            get {
+                return ResourceManager.GetString("ExCompilerXHasBadTargetType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Compiler {0} has too many parameters..
+        /// </summary>
+        internal static string ExCompilerXHasTooManyParameters {
+            get {
+                return ResourceManager.GetString("ExCompilerXHasTooManyParameters", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Compiler {0} should have first parameter of type MethodInfo.
+        /// </summary>
+        internal static string ExCompilerXShouldHaveMethodInfoParameter {
+            get {
+                return ResourceManager.GetString("ExCompilerXShouldHaveMethodInfoParameter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Compiler {0} should have parameter {1} of type {2}.
+        /// </summary>
+        internal static string ExCompilerXShouldHaveParameterYOfTypeZ {
+            get {
+                return ResourceManager.GetString("ExCompilerXShouldHaveParameterYOfTypeZ", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Compiler {0} should have &quot;this&quot; parameter with correct type attribute..
+        /// </summary>
+        internal static string ExCompilerXShouldHaveThisParameterWithCorrectAttribute {
+            get {
+                return ResourceManager.GetString("ExCompilerXShouldHaveThisParameterWithCorrectAttribute", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Compiler {0} should return {1}..
+        /// </summary>
+        internal static string ExCompilerXShouldReturnY {
+            get {
+                return ResourceManager.GetString("ExCompilerXShouldReturnY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {0} is required. Use {1} to set it..
         /// </summary>
         internal static string ExContextRequired {
@@ -993,6 +1065,15 @@ namespace Xtensive.Core.Resources {
         internal static string ExSystemTimeChanged {
             get {
                 return ResourceManager.GetString("ExSystemTimeChanged", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Target member is not found for compiler {0}.
+        /// </summary>
+        internal static string ExTargetMemberIsNotFoundForCompilerX {
+            get {
+                return ResourceManager.GetString("ExTargetMemberIsNotFoundForCompilerX", resourceCulture);
             }
         }
         

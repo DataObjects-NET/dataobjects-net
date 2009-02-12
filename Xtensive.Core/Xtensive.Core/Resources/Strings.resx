@@ -570,4 +570,31 @@
   <data name="ExUnknownExpressionType" xml:space="preserve">
     <value>Unknown expression type: '{0} ({1})'</value>
   </data>
+  <data name="ExCompilerXHasTooManyParameters" xml:space="preserve">
+    <value>Compiler {0} has too many parameters.</value>
+  </data>
+  <data name="ExCompilerXShouldHaveMethodInfoParameter" xml:space="preserve">
+    <value>Compiler {0} should have first parameter of type MethodInfo</value>
+  </data>
+  <data name="ExCompilerXShouldReturnY" xml:space="preserve">
+    <value>Compiler {0} should return {1}.</value>
+  </data>
+  <data name="ExCompilerXShouldHaveParameterYOfTypeZ" xml:space="preserve">
+    <value>Compiler {0} should have parameter {1} of type {2}</value>
+  </data>
+  <data name="ExCompilerXHasBadTargetType" xml:space="preserve">
+    <value>Compiler {0} has "bad" target type.</value>
+  </data>
+  <data name="ExCompilerXHasBadTargetMember" xml:space="preserve">
+    <value>Compiler {0} has "bad" target member.</value>
+  </data>
+  <data name="ExCompilerXShouldHaveThisParameterWithCorrectAttribute" xml:space="preserve">
+    <value>Compiler {0} should have "this" parameter with correct type attribute.</value>
+  </data>
+  <data name="ExTargetMemberIsNotFoundForCompilerX" xml:space="preserve">
+    <value>Target member is not found for compiler {0}</value>
+  </data>
+  <data name="ExCompilerForXIsAlreadyRegistered" xml:space="preserve">
+    <value>Compiler for {0} is already registered.</value>
+  </data>
 </root>
