@@ -221,8 +221,9 @@ namespace Xtensive.Core.Collections
     }
 
     /// <summary>
-    /// Takes two <see cref="IEnumerable{T}"/>s and returns result of applying <see cref="projector"/>
-    /// for each pair of items.
+    /// Constructs <see cref="IEnumerable{T}"/> from
+    /// this <see cref="IEnumerable{T}"/> and specified <see cref="IEnumerable{T}"/>
+    /// by applying <paramref name="projector"/> for each pair of items.
     /// If one input <see cref="IEnumerable{T}"/> is short,
     /// excess elements of the longer <see cref="IEnumerable{T}"/> are discarded.
     /// </summary>
@@ -231,9 +232,8 @@ namespace Xtensive.Core.Collections
     /// <typeparam name="TResult">Type of result</typeparam>
     /// <param name="leftSequence">First <see cref="IEnumerable{T}"/></param>
     /// <param name="rightSequence">Second <see cref="IEnumerable{T}"/></param>
-    /// <param name="projector">Delegate that takes two arguments
-    /// (<see cref="TLeft"/> and <see cref="TRight"/>) and returns <see cref="TResult"/></param>
-    /// <returns>result of applying <see cref="projector"/> for each pair of items.</returns>
+    /// <param name="projector"></param>
+    /// <returns>result of applying <paramref name="projector"/> for each pair of items.</returns>
     public static IEnumerable<TResult> ZipWith<TLeft,TRight,TResult>(this IEnumerable<TLeft> leftSequence, IEnumerable<TRight> rightSequence, Func<TLeft,TRight,TResult> projector)
     {
       ArgumentValidator.EnsureArgumentNotNull(leftSequence, "leftSequence");
