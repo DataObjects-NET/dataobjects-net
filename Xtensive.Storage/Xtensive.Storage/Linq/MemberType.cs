@@ -17,6 +17,7 @@ namespace Xtensive.Storage.Linq
     Key,
     Structure,
     Entity,
-    EntitySet
+    EntitySet,
+    Anonymous
   }
 }

@@ -34,6 +34,24 @@ namespace Xtensive.Storage.Tests.Storage.Performance
     }
 
 //    [Test]
+//    public void NullTest()
+//    {
+//      using (var dataContext = new Entities())
+//      {
+//        dataContext.Connection.Open();
+//        var result = dataContext.Simplest.Where(s => s == null);
+//        var list = result.ToList();
+//        result = dataContext.Simplest.Where(s => s.Value==null);
+//        list = result.ToList();
+//        result = dataContext.Simplest.Where(s => null != s.Value);
+//        list = result.ToList();
+//        Simplest nullEntity = new Simplest(){Id = 10, TypeId = 0, Value = 10};
+//        result = dataContext.Simplest.Where(s => s == nullEntity);
+//        list = result.ToList();
+//      }
+//    }
+
+//    [Test]
 //    public void GroupJoinTest()
 //    {
 //      InsertTest(100);  
@@ -53,21 +71,21 @@ namespace Xtensive.Storage.Tests.Storage.Performance
 //        }
 //      }
 //    } 
-    [Test]
-    public void ConditionalTest()
-    {
-      InsertTest(5);
-      using (var dataContext = new Entities()) {
-        dataContext.Connection.Open();
-        using (var transaction = dataContext.Connection.BeginTransaction()) {
-          var query = from s in dataContext.Simplest
-                      where (s.Value == 1 ? 2 : 3) == 2
-                      select s;
-          var list = query.ToList();
-          transaction.Commit();
-        }
-      }
-    }
+//    [Test]
+//    public void ConditionalTest()
+//    {
+//      InsertTest(5);
+//      using (var dataContext = new Entities()) {
+//        dataContext.Connection.Open();
+//        using (var transaction = dataContext.Connection.BeginTransaction()) {
+//          var query = from s in dataContext.Simplest
+//                      where (s.Value == 1 ? 2 : 3) == 2
+//                      select s;
+//          var list = query.ToList();
+//          transaction.Commit();
+//        }
+//      }
+//    }
 
     [Test]
     public void RegularTest()

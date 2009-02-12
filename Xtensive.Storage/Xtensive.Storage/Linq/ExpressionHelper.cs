@@ -36,6 +36,8 @@ namespace Xtensive.Storage.Linq
         return MemberType.Structure;
       if (typeof(EntitySetBase).IsAssignableFrom(type))
         return MemberType.EntitySet;
+      if (type.IsGenericType && type.BaseType == typeof(object))
+        return MemberType.Anonymous;
       return MemberType.Unknown;
     }
   }

@@ -74,6 +74,46 @@ namespace Xtensive.Storage.Linq
 
     protected override Expression VisitBinary(BinaryExpression b)
     {
+//      var memberType = b.Left.GetMemberType();
+//      switch (memberType) {
+//        case MemberType.Primitive:
+//          break;
+//        case MemberType.Key:
+//        case MemberType.Structure:
+//        case MemberType.Entity: {
+//          bool isKey = memberType == MemberType.Key;
+//          bool isEntity = memberType == MemberType.Entity;
+//          bool leftIsParameter = context.ParameterExtractor.IsParameter(b.Left);
+//          bool rightIsParameter = context.ParameterExtractor.IsParameter(b.Right);
+//          if (b.NodeType!=ExpressionType.Equal && b.NodeType!=ExpressionType.NotEqual)
+//            throw new NotSupportedException();
+//          if (isKey) {
+//            if (!leftIsParameter && !rightIsParameter) {
+//              var leftPath = MemberPath.Parse(b.Left, context.Model);
+//              var leftSource = context.GetBound(leftPath.Parameter);
+//              var leftSegment = leftSource.GetMemberSegment(leftPath);
+//              var rightPath = MemberPath.Parse(b.Right, context.Model);
+//              var rightSource = context.GetBound(rightPath.Parameter);
+//              var rightSegment = rightSource.GetMemberSegment(rightPath);
+//            }
+////            var path = MemberPath.Parse(first, context.Model);
+////            var source = context.GetBound(path.Parameter);
+////            var segment = source.GetMemberSegment(path);
+//          }
+//          else if (isEntity) {
+//            
+//          }
+//          else {
+//            throw new NotImplementedException();
+//          }
+//          throw new NotImplementedException();
+//        }
+//        case MemberType.EntitySet:
+//          throw new NotSupportedException();
+//        default:
+//          throw new ArgumentOutOfRangeException();
+//      }
+
       bool isKey = typeof(Key).IsAssignableFrom(b.Left.Type);
       bool isEntity = typeof(IEntity).IsAssignableFrom(b.Left.Type);
       bool isStructure = typeof(Structure).IsAssignableFrom(b.Left.Type);

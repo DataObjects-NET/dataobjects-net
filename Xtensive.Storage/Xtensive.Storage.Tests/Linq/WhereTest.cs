@@ -1493,6 +1493,14 @@ namespace Xtensive.Storage.Tests.Linq
           Assert.IsNotNull(customer);
           customer = customers.Where(c => !c.Address.City.Equals(null)).First();
           Assert.IsNotNull(customer);
+          customer = customers.Where(c => c != null).First();
+          Assert.IsNotNull(customer);
+          customer = customers.Where(c => !c.Equals(null)).First();
+          Assert.IsNotNull(customer);
+          customer = customers.Where(c => c.Address != null).First();
+          Assert.IsNotNull(customer);
+          customer = customers.Where(c => !c.Address.Equals(null)).First();
+          Assert.IsNotNull(customer);
           t.Complete();
         }
       }

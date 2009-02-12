@@ -109,6 +109,15 @@ namespace Xtensive.Storage.Linq
         case MemberType.EntitySet:
           item = new MemberPathItem(member.Name, MemberType.EntitySet, memberAccess);
           break;
+        case MemberType.Anonymous:
+          if (lastItem == null)
+            item = new MemberPathItem(member.Name, MemberType.Anonymous, memberAccess);
+          else
+            item = new MemberPathItem(
+              member.Name + "." + lastItem.Name,
+              lastItem.Type,
+              lastItem.Expression);
+          break;
         default:
           if (lastItem != null)
             return new MemberPath();
