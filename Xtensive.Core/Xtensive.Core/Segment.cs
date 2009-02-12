@@ -5,7 +5,10 @@
 // Created:    2008.05.30
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using Xtensive.Core.Arithmetic;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Internals.DocTemplates;
@@ -80,6 +83,30 @@ namespace Xtensive.Core
     }
 
     #endregion
+
+    /// <summary>
+    /// Implements the operator +.
+    /// </summary>
+    /// <param name="segment">The segment.</param>
+    /// <param name="offsetShift">The offset shift.</param>
+    /// <returns>The result of the operator.</returns>
+    public static Segment<T> operator +(Segment<T> segment, T offsetShift)
+    {
+      var newOffset = arithmetic.Add(segment.Offset, offsetShift);
+      return new Segment<T>(newOffset, segment.Length);
+    }
+
+    /// <summary>
+    /// Implements the operator -.
+    /// </summary>
+    /// <param name="segment">The segment.</param>
+    /// <param name="offsetShift">The offset shift.</param>
+    /// <returns>The result of the operator.</returns>
+    public static Segment<T> operator -(Segment<T> segment, T offsetShift)
+    {
+      var newOffset = arithmetic.Subtract(segment.Offset, offsetShift);
+      return new Segment<T>(newOffset, segment.Length);
+    }
 
     /// <inheritdoc/>
     public override string ToString()
