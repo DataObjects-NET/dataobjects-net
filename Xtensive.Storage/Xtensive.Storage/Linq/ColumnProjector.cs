@@ -12,6 +12,7 @@ using Xtensive.Core.Linq;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
+using Xtensive.Core.Collections;
 
 namespace Xtensive.Storage.Linq
 {
@@ -42,7 +43,7 @@ namespace Xtensive.Storage.Linq
       if (path.IsValid) {
         var source = context.GetBound(path.Parameter);
         var segment = source.GetMemberSegment(path);
-        projectedColumns.AddRange(Enumerable.Range(segment.Offset, segment.Length));
+        projectedColumns.AddRange(segment.GetItems());
       }
       else {
         if (e.NodeType == ExpressionType.New)

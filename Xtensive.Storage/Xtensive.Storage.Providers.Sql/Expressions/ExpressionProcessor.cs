@@ -9,6 +9,7 @@ using System.Linq.Expressions;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Linq;
 using Xtensive.Core.Tuples;
+using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Linq;
 using Xtensive.Storage.Model;
@@ -109,8 +110,14 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
           return SqlFactory.Coalesce(left,right);
         case ExpressionType.Divide:
           return SqlFactory.Divide(left, right);
-        case ExpressionType.Equal:
+        case ExpressionType.Equal: {
+          if (left.NodeType == SqlNodeType.Null || right.NodeType == SqlNodeType.Null) {
+            if (left.NodeType == SqlNodeType.Null)
+              return SqlFactory.IsNull(right);
+            return SqlFactory.IsNull(left);
+          }
           return SqlFactory.Equals(left, right);
+        }
         case ExpressionType.ExclusiveOr:
           return SqlFactory.BitXor(left, right);
         case ExpressionType.GreaterThan:
@@ -127,6 +134,11 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
         case ExpressionType.MultiplyChecked:
           return SqlFactory.Multiply(left, right);
         case ExpressionType.NotEqual:
+          if (left.NodeType == SqlNodeType.Null || right.NodeType == SqlNodeType.Null) {
+            if (left.NodeType == SqlNodeType.Null)
+              return SqlFactory.IsNotNull(right);
+            return SqlFactory.IsNotNull(left);
+          }
           return SqlFactory.NotEquals(left, right);
         case ExpressionType.Or:
           if ((expression.Left.Type != typeof(bool)) && (expression.Left.Type != typeof(bool?)))

@@ -13,6 +13,7 @@ using Xtensive.Storage.Model;
 using System.Linq;
 using Xtensive.Storage.Rse.Providers.Compilable;
 using Xtensive.Storage.Rse;
+using Xtensive.Core.Collections;
 
 namespace Xtensive.Storage.Linq
 {
@@ -56,9 +57,9 @@ namespace Xtensive.Storage.Linq
             var joinedIndex = typeInfo.Indexes.PrimaryIndex;
             var joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(context.GetNextAlias());
             var keySegment = mapping.Fields[name];
-            var keyPairs =
-              Enumerable.Range(keySegment.Offset, keySegment.Length).Select(
-                (leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex)).ToArray();
+            var keyPairs = keySegment.GetItems()
+              .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
+              .ToArray();
             var rs = source.RecordSet.Join(joinedRs, JoinType.Default, keyPairs);
             var fieldMapping = Translator.BuildFieldMapping(typeInfo, source.RecordSet.Header.Columns.Count);
             var joinedMapping = new ResultMapping(fieldMapping, new Dictionary<string, ResultMapping>());

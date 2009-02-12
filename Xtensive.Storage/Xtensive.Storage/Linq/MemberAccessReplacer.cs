@@ -104,7 +104,7 @@ namespace Xtensive.Storage.Linq
               var path = MemberPath.Parse(bLeft, context.Model);
               var source = context.GetBound(path.Parameter);
               var segment = source.GetMemberSegment(path);
-              foreach (var pair in Enumerable.Range(segment.Offset, segment.Length).Select((ci, pi) => new {ColumnIndex = ci, ParameterIndex = pi})) {
+              foreach (var pair in segment.GetItems().Select((ci, pi) => new {ColumnIndex = ci, ParameterIndex = pi})) {
                 Expression left = Expression.Call(resultParameter, nonGenericAccessor, Expression.Constant(pair.ColumnIndex));
                 Expression right = Expression.Condition(
                   Expression.Equal(bRight, Expression.Constant(null, bRight.Type)),
@@ -132,7 +132,7 @@ namespace Xtensive.Storage.Linq
               var path = MemberPath.Parse(bLeft, context.Model);
               var source = context.GetBound(path.Parameter);
               var segment = source.GetMemberSegment(path);
-              foreach (var pair in Enumerable.Range(segment.Offset, segment.Length).Select((ci, pi) => new { ColumnIndex = ci, ParameterIndex = pi })) {
+              foreach (var pair in segment.GetItems().Select((ci, pi) => new { ColumnIndex = ci, ParameterIndex = pi })) {
                 Expression left = Expression.Call(resultParameter, nonGenericAccessor, Expression.Constant(pair.ColumnIndex));
                 Expression right = Expression.Condition(
                   Expression.Equal(bRight, Expression.Constant(null, bRight.Type)),
@@ -159,50 +159,6 @@ namespace Xtensive.Storage.Linq
           throw new ArgumentOutOfRangeException();
       }
 
-//      bool isKey = typeof(Key).IsAssignableFrom(b.Left.Type);
-//      bool isEntity = typeof(IEntity).IsAssignableFrom(b.Left.Type);
-//      bool isStructure = typeof(Structure).IsAssignableFrom(b.Left.Type);
-//      bool leftIsParameter = context.ParameterExtractor.IsParameter(b.Left);
-//      bool rightIsParameter = context.ParameterExtractor.IsParameter(b.Right);
-//      var first = b.Left;
-//      var second = b.Right;
-//      if (isKey || isEntity || isStructure) {
-//        if (b.NodeType!=ExpressionType.Equal && b.NodeType!=ExpressionType.NotEqual) 
-//          throw new InvalidOperationException();
-//        if (isStructure)
-//          throw new NotImplementedException();
-//        if (!leftIsParameter && !rightIsParameter) {
-//          throw new NotImplementedException();
-//        }
-//        if (leftIsParameter) {
-//          first = b.Right;
-//          second = b.Left;
-//        }
-//        Expression result = null;
-//        var key = isKey ? second : Expression.MakeMemberAccess(second, identifierAccessor);
-//        first = isKey ? first : Expression.MakeMemberAccess(first, keyAccessor);
-//        var path = MemberPath.Parse(first, context.Model);
-//        var source = context.GetBound(path.Parameter);
-//        var segment = source.GetMemberSegment(path);
-//        if (segment.Length == 0)
-//          throw new InvalidOperationException();
-//        foreach (var pair in Enumerable.Range(segment.Offset, segment.Length).Select((ci, pi) => new {ColumnIndex = ci, ParameterIndex = pi})) {
-//          var method = genericAccessor.MakeGenericMethod(source.RecordSet.Header.TupleDescriptor[segment.Offset]);
-//          Expression left = Expression.Call(resultParameter, method, Expression.Constant(pair.ColumnIndex));
-//          Expression right = Expression.Call(Expression.MakeMemberAccess(key, keyValueAccessor), method, Expression.Constant(pair.ParameterIndex));
-//          if (result == null) {
-//            result = b.NodeType == ExpressionType.Equal ?
-//              Expression.Equal(left, right) :
-//              Expression.NotEqual(left, right);
-//          }
-//          else {
-//            result = b.NodeType == ExpressionType.Equal ?
-//              Expression.AndAlso(result, Expression.Equal(left, right)) :
-//              Expression.AndAlso(result, Expression.NotEqual(left, right));
-//          }
-//        }
-//        return result;
-//      }
       return base.VisitBinary(b);
     }
 
@@ -230,13 +186,10 @@ namespace Xtensive.Storage.Linq
       var rightPath = MemberPath.Parse(bRight, context.Model);
       var rightSource = context.GetBound(rightPath.Parameter);
       var rightSegment = rightSource.GetMemberSegment(rightPath);
-      for (int i = leftSegment.Offset, j = rightSegment.Offset;
-        i < leftSegment.EndOffset && j < rightSegment.EndOffset;
-        i++, j++) 
-      {
-        var method = genericAccessor.MakeGenericMethod(leftSource.RecordSet.Header.TupleDescriptor[i]);
-        Expression left = Expression.Call(resultParameter, method, Expression.Constant(i));
-        Expression right = Expression.Call(resultParameter, method, Expression.Constant(j));
+      foreach (var pair in leftSegment.GetItems().ZipWith(rightSegment.GetItems(), (l,r) => new {l,r})) {
+        var method = genericAccessor.MakeGenericMethod(leftSource.RecordSet.Header.TupleDescriptor[pair.l]);
+        Expression left = Expression.Call(resultParameter, method, Expression.Constant(pair.l));
+        Expression right = Expression.Call(resultParameter, method, Expression.Constant(pair.r));
         result = MakeBinaryExpression(result, left, right, operationType);
       }
       return result;

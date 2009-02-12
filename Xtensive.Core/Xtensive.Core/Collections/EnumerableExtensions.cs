@@ -245,5 +245,36 @@ namespace Xtensive.Core.Collections
       while (leftEnum.MoveNext() && rightEnum.MoveNext())
         yield return projector(leftEnum.Current, rightEnum.Current);
     }
+
+    /// <summary>
+    /// Gets the items from the segment.
+    /// </summary>
+    /// <param name="segment">The segment.</param>
+    public static IEnumerable<int> GetItems(this Segment<int> segment)
+    {
+      return Enumerable.Range(segment.Offset, segment.Length);
+    }
+
+    /// <summary>
+    /// Gets the items from the segment.
+    /// </summary>
+    /// <param name="segment">The segment.</param>
+    /// <returns></returns>
+    public static IEnumerable<long> GetItems(this Segment<long> segment)
+    {
+      for (long i = segment.Offset; i < segment.EndOffset; i++)
+        yield return i;
+    }
+
+    /// <summary>
+    /// Gets the items from the segment.
+    /// </summary>
+    /// <param name="segment">The segment.</param>
+    /// <returns></returns>
+    public static IEnumerable<short> GetItems(this Segment<short> segment)
+    {
+      for (short i = segment.Offset; i < segment.EndOffset; i++)
+        yield return i;
+    }
   }
 }
