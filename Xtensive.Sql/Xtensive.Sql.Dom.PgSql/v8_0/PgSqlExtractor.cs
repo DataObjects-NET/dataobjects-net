@@ -420,6 +420,8 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
         q.Columns.Add(att["attnotnull"]);
         q.Columns.Add(att["atthasdef"]);
         q.Columns.Add(ad["adsrc"]);
+        q.OrderBy.Add(att["attrelid"]);
+        q.OrderBy.Add(att["attnum"]);
 
         using (SqlCommand cmd = new SqlCommand(context.Connection)) {
           cmd.Statement = q;
