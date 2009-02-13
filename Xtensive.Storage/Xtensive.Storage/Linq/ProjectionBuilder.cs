@@ -52,8 +52,6 @@ namespace Xtensive.Storage.Linq
       record = Expression.Parameter(typeof (Record), "r");
       parameterRewriter = new ProjectionParameterRewriter(tuple, record);
       recordIsUsed = false;
-//      fieldsMapping = new Dictionary<string, Segment<int>>();
-//      joinedRelations = new Dictionary<string, ResultMapping>();
       Expression<Func<RecordSet, object>> projector;
       LambdaExpression itemProjector;
 
