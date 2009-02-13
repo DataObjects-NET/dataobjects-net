@@ -27,6 +27,10 @@ namespace Xtensive.Storage.Linq
 
     // Constructors
 
+    public ResultMapping()
+      : this(new Dictionary<string, Segment<int>>(), new Dictionary<string, ResultMapping>())
+    {}
+
     public ResultMapping(Dictionary<string, Segment<int>> fieldMapping, Dictionary<string, ResultMapping> joinedRelations)
     {
       Fields = fieldMapping;
@@ -34,7 +38,7 @@ namespace Xtensive.Storage.Linq
       if (Fields.Count > 0)
         Segment = new Segment<int>(Fields.Min(pair => pair.Value.Offset), Fields.Max(pair => pair.Value.Offset) + 1);
       else
-        // TODO: refecator this code to support primitive type projections and empty projections
+        // TODO: refactor this code to support primitive type projections and empty projections
         Segment = new Segment<int>(0,1);
     }
   }

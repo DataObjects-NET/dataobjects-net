@@ -12,6 +12,7 @@ using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Linq;
+using Xtensive.Core.Parameters;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
@@ -26,9 +27,9 @@ namespace Xtensive.Storage.Linq
     private ParameterExpression tuple;
     private ParameterExpression record;
     private bool recordIsUsed;
-    private Dictionary<string, Segment<int>> fieldsMapping;
-    private Dictionary<string, ResultMapping> joinedRelations;
-    private Dictionary<Expression, string> prefixMap;
+    private ResultMapping resultMapping;
+    private static readonly Parameter<Dictionary<string, Segment<int>>> pFm = new Parameter<Dictionary<string, Segment<int>>>();
+    private static readonly Parameter<Dictionary<string, ResultMapping>> pJr = new Parameter<Dictionary<string, ResultMapping>>();
     private ProjectionParameterRewriter parameterRewriter;
     private ParameterExpression[] parameters;
     private List<CalculatedColumnDescriptor> calculatedColumns;
@@ -45,14 +46,13 @@ namespace Xtensive.Storage.Linq
       calculatedColumns = new List<CalculatedColumnDescriptor>();
       parameters = le.Parameters.ToArray();
       var body = le.Body;
-      prefixMap = new Dictionary<Expression, string>();
       context.MemberAccessBasedJoiner.Process(body, true);
       tuple = Expression.Parameter(typeof (Tuple), "t");
       record = Expression.Parameter(typeof (Record), "r");
       parameterRewriter = new ProjectionParameterRewriter(tuple, record);
       recordIsUsed = false;
-      fieldsMapping = new Dictionary<string, Segment<int>>();
-      joinedRelations = new Dictionary<string, ResultMapping>();
+//      fieldsMapping = new Dictionary<string, Segment<int>>();
+//      joinedRelations = new Dictionary<string, ResultMapping>();
       Expression<Func<RecordSet, object>> projector;
       LambdaExpression itemProjector;
 
@@ -78,13 +78,27 @@ namespace Xtensive.Storage.Linq
         itemProjector = Expression.Lambda(newBody, tuple);
         projector = Expression.Lambda<Func<RecordSet, object>>(Expression.Convert(Expression.Call(method, rs, itemProjector), typeof(object)), rs);
       }
-      var mapping = new ResultMapping(fieldsMapping, joinedRelations);
+      var mapping = resultMapping ?? new ResultMapping();
       // projection for any parameter could be used
       // because these projections contain same record set
       var recordSet = context.GetBound(le.Parameters[0]).RecordSet;
       if (calculatedColumns.Count > 0)
         recordSet = recordSet.Calculate(calculatedColumns.ToArray());
       return new ResultExpression(body.Type, recordSet, mapping, projector, itemProjector);
+    }
+
+    protected override Expression Visit(Expression e)
+    {
+      if (e.NodeType == ExpressionType.New) {
+        using (new ParameterScope()) {
+          pFm.Value = new Dictionary<string, Segment<int>>();
+          pJr.Value = new Dictionary<string, ResultMapping>();
+          var result = VisitNew((NewExpression)e);
+          resultMapping = new ResultMapping(pFm.Value, pJr.Value);
+          return result;
+        }
+      }
+      return base.Visit(e);
     }
 
     protected override Expression VisitMemberPath(MemberPathExpression mpe)
@@ -162,8 +176,6 @@ namespace Xtensive.Storage.Linq
     protected override Expression VisitNew(NewExpression n)
     {
       var arguments = new List<Expression>();
-      string prefix = null;
-      prefixMap.TryGetValue(n, out prefix);
       if (n.Members == null)
         throw new NotSupportedException(n.ToString(true));
       for (int i = 0; i < n.Arguments.Count; i++) {
@@ -171,34 +183,64 @@ namespace Xtensive.Storage.Linq
         var newArg = (Expression) null;
         var member = n.Members[i];
         var memberName = member.Name.Replace(WellKnown.GetterPrefix, string.Empty);
-        var newName = prefix != null ? prefix + "." + memberName : memberName;
         var path = MemberPath.Parse(arg, context.Model);
         if (path.IsValid) {
-          var source = context.GetBound(path.Parameter);
-          var segment = source.GetMemberSegment(path);
-          var resultMapping = source.GetMemberMapping(path);
-          var mapping = resultMapping.Fields.Where(p => p.Value.Offset >= segment.Offset && p.Value.EndOffset <= segment.EndOffset).ToList();
-          var oldName = mapping.Select(pair => pair.Key).OrderBy(s => s.Length).First();
-          var startsWithOldName = mapping.All(pair => pair.Key.StartsWith(oldName));
-          if (startsWithOldName) {
-            mapping = mapping.Select(pair => new KeyValuePair<string, Segment<int>>(pair.Key.Replace(oldName, newName), pair.Value)).ToList();
+          switch (path.PathType) {
+            case MemberType.Default:
+            case MemberType.Primitive:
+            case MemberType.Key:
+            case MemberType.Structure:
+            case MemberType.Entity:
+            case MemberType.EntitySet: {
+              var source = context.GetBound(path.Parameter);
+              var segment = source.GetMemberSegment(path);
+              var rm = source.GetMemberMapping(path);
+              var mapping = rm.Fields.Where(p => p.Value.Offset >= segment.Offset && p.Value.EndOffset <= segment.EndOffset).ToList();
+              var oldName = mapping.Select(pair => pair.Key).OrderBy(s => s.Length).First();
+              var startsWithOldName = mapping.All(pair => pair.Key.StartsWith(oldName));
+              if (startsWithOldName) {
+                mapping = mapping.Select(pair => new KeyValuePair<string, Segment<int>>(pair.Key.Replace(oldName, memberName), pair.Value)).ToList();
+              }
+              else {
+                mapping = mapping.Select(pair => new KeyValuePair<string, Segment<int>>(memberName + "." + pair.Key, pair.Value)).ToList();
+                mapping.Add(new KeyValuePair<string, Segment<int>>(memberName, segment));
+              }
+              
+              foreach (var pair in mapping) {
+                if(!pFm.Value.ContainsKey(pair.Key))
+                  pFm.Value.Add(pair.Key, pair.Value);
+              }
+              var memberType = arg.GetMemberType();
+              if (memberType==MemberType.Entity)
+                pJr.Value.Add(memberName, rm);
+              break;
+            }
+            case MemberType.Anonymous: {
+              var source = context.GetBound(path.Parameter);
+              var rm = source.GetMemberMapping(path);
+              pJr.Value.Add(memberName, rm);
+              break;
+            }
+            default:
+              throw new ArgumentOutOfRangeException();
           }
-          else {
-            mapping = mapping.Select(pair => new KeyValuePair<string, Segment<int>>(newName + "." + pair.Key, pair.Value)).ToList();
-            mapping.Add(new KeyValuePair<string, Segment<int>>(newName, segment));
-          }
-          
-          foreach (var pair in mapping) {
-            if(!fieldsMapping.ContainsKey(pair.Key))
-              fieldsMapping.Add(pair.Key, pair.Value);
-          }
-          var memberType = arg.GetMemberType();
-          if (memberType==MemberType.Entity)
-            joinedRelations.Add(newName, resultMapping);
         }
         else {
           if (arg.NodeType == ExpressionType.New) {
-            prefixMap.Add(arg, newName);
+            var fm = new Dictionary<string, Segment<int>>();
+            var jr = new Dictionary<string, ResultMapping>();
+            using (new ParameterScope()) {
+              pFm.Value = new Dictionary<string, Segment<int>>();
+              pJr.Value = new Dictionary<string, ResultMapping>();
+              newArg = VisitNew((NewExpression)arg);
+              fm = pFm.Value;
+              jr = pJr.Value;
+            }
+            foreach (var p in fm)
+              pFm.Value.Add(memberName + "." + p.Key, p.Value);
+            foreach (var p in jr)
+              pJr.Value.Add(memberName + "." + p.Key, p.Value);
+            pJr.Value.Add(memberName, new ResultMapping(fm, jr));
           }
           else {
             // TODO: Add check of queries
@@ -208,7 +250,7 @@ namespace Xtensive.Storage.Linq
             int position = context.GetBound(parameters[0]).RecordSet.Header.Columns.Count + calculatedColumns.Count - 1;
             var method = genericAccessor.MakeGenericMethod(arg.Type);
             newArg = Expression.Call(tuple, method, Expression.Constant(position));
-            fieldsMapping.Add(newName, new Segment<int>(position, 1));
+            pFm.Value.Add(memberName, new Segment<int>(position, 1));
           }
         }
         newArg = newArg ?? Visit(arg);
