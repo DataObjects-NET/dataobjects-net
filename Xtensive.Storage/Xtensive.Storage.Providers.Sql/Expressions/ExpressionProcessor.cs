@@ -6,7 +6,8 @@
 
 using System;
 using System.Linq.Expressions;
-using Xtensive.Core.Collections;
+using System.Reflection;
+using Xtensive.Core.Reflection;
 using Xtensive.Core.Linq;
 using Xtensive.Core.Tuples;
 using Xtensive.Sql.Dom;
@@ -207,18 +208,26 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
           return sqlSelect[columnIndex];
         }
       }
-      SqlExpression[] arguments;
+      var arguments = mc.Arguments.Select(a => Visit(a)).ToArray();
+
+      SqlExpression[] argArray;
       if (mc.Method.IsStatic) {
-        arguments = mc.Arguments.Select(a => Visit(a)).ToArray();
+        argArray = arguments;
       }
       else {
-        var target = Visit(mc.Object);
-        arguments = new[]{target}.Union(mc.Arguments.Select(a => Visit(a))).ToArray();
+        argArray = new SqlExpression[arguments.Length + 1];
+        argArray[0] = Visit(mc.Object);
+        arguments.CopyTo(argArray, 1);
       }
-      var map = mappingsProvider.GetCompiler(mc.Method);
+
+      var mi = mc.Method;
+      if (mi.ReflectedType!=mc.Object.Type)
+        mi = mc.Object.Type.GetMethod(mi.Name, mi.GetParameterTypes());
+
+      var map = mappingsProvider.GetCompiler(mi);
       if (map == null)
         throw new NotSupportedException();
-      return map(arguments);
+      return map(argArray);
     }
 
     protected override SqlExpression VisitLambda(LambdaExpression l)
@@ -250,8 +259,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     {
       throw new NotSupportedException();
     }
-
-
+    
     // Constructor
 
     public ExpressionProcessor(SqlFetchRequest request, DomainModel model)

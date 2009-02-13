@@ -104,18 +104,23 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       return TrimHelper(this_, trimChars, SqlTrimType.Trailing);
     }
 
-    [Compiler(typeof(string), "IsNullOrEmpty", TargetKind.Static | TargetKind.Method)]
-    public static SqlExpression StringIsNullOrEmpty(
-      [ParamType(typeof(string))] SqlExpression value)
-    {
-      return SqlFactory.IsNull(value)
-        || SqlFactory.Length(value) == SqlFactory.Literal(0);
-    }
-
     [Compiler(typeof(string), "Length", TargetKind.PropertyGet)]
     public static SqlExpression StringLength(SqlExpression this_)
     {
       return SqlFactory.Length(this_);
+    }
+
+    [Compiler(typeof(string), "ToString")]
+    public static SqlExpression StringToString(SqlExpression this_)
+    {
+      return this_;
+    }
+
+    [Compiler(typeof(string), "IsNullOrEmpty", TargetKind.Static | TargetKind.Method)]
+    public static SqlExpression StringIsNullOrEmpty(
+      [ParamType(typeof(string))] SqlExpression value)
+    {
+      return SqlFactory.IsNull(value) || SqlFactory.Length(value) == SqlFactory.Literal(0);
     }
   }
 }

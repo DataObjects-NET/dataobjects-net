@@ -338,7 +338,7 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var customers = Query<Customer>.All;
-          var customer = customers.Where(c => string.IsNullOrEmpty(c.Address.City)).First();
+          var customer = customers.Where(c => string.IsNullOrEmpty(c.Address.Region)).First();
           Assert.IsNotNull(customer);
           t.Complete();
         }
