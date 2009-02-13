@@ -30,6 +30,7 @@ namespace Xtensive.Storage.Linq
     private ResultMapping resultMapping;
     private static readonly Parameter<Dictionary<string, Segment<int>>> pFm = new Parameter<Dictionary<string, Segment<int>>>();
     private static readonly Parameter<Dictionary<string, ResultMapping>> pJr = new Parameter<Dictionary<string, ResultMapping>>();
+    private static readonly Parameter<Dictionary<string, Expression>> pAp = new Parameter<Dictionary<string, Expression>>();
     private ProjectionParameterRewriter parameterRewriter;
     private ParameterExpression[] parameters;
     private List<CalculatedColumnDescriptor> calculatedColumns;
@@ -93,8 +94,9 @@ namespace Xtensive.Storage.Linq
         using (new ParameterScope()) {
           pFm.Value = new Dictionary<string, Segment<int>>();
           pJr.Value = new Dictionary<string, ResultMapping>();
+          pAp.Value = new Dictionary<string, Expression>();
           var result = VisitNew((NewExpression)e);
-          resultMapping = new ResultMapping(pFm.Value, pJr.Value);
+          resultMapping = new ResultMapping(pFm.Value, pJr.Value, pAp.Value);
           return result;
         }
       }
@@ -219,6 +221,8 @@ namespace Xtensive.Storage.Linq
               var source = context.GetBound(path.Parameter);
               var rm = source.GetMemberMapping(path);
               pJr.Value.Add(memberName, rm);
+              var projector = source.Mapping.AnonymousProjections[path.First().Name];
+              newArg = parameterRewriter.Rewrite(projector, out recordIsUsed);
               break;
             }
             default:
@@ -229,18 +233,24 @@ namespace Xtensive.Storage.Linq
           if (arg.NodeType == ExpressionType.New) {
             var fm = new Dictionary<string, Segment<int>>();
             var jr = new Dictionary<string, ResultMapping>();
+            var ap = new Dictionary<string, Expression>();
             using (new ParameterScope()) {
               pFm.Value = new Dictionary<string, Segment<int>>();
               pJr.Value = new Dictionary<string, ResultMapping>();
+              pAp.Value = new Dictionary<string, Expression>();
               newArg = VisitNew((NewExpression)arg);
               fm = pFm.Value;
               jr = pJr.Value;
+              ap = pAp.Value;
             }
             foreach (var p in fm)
               pFm.Value.Add(memberName + "." + p.Key, p.Value);
             foreach (var p in jr)
               pJr.Value.Add(memberName + "." + p.Key, p.Value);
-            pJr.Value.Add(memberName, new ResultMapping(fm, jr));
+            foreach (var p in ap)
+              pAp.Value.Add(memberName + "." + p.Key, p.Value);
+            pJr.Value.Add(memberName, new ResultMapping(fm, jr, ap));
+            pAp.Value.Add(memberName, newArg);
           }
           else {
             // TODO: Add check of queries

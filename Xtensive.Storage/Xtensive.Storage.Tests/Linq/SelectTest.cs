@@ -379,9 +379,9 @@ namespace Xtensive.Storage.Tests.Linq
           var products = Query<Product>.All;
           var result = from pd in (
                          from p in products
-                         select new {ProductKey = p.Key, Product = new {Entity = p, Name = p.ProductName}}
+                         select new {ProductKey = p.Key, Product = new {Entity = new{p}, Name = p.ProductName}}
                        )
-                       select new {PKey = pd.ProductKey, pd.Product.Name, Anonymous = pd.Product, Product = pd.Product.Entity};
+                       select new {PKey = pd.ProductKey, pd.Product.Name, A = pd, AProduct = pd.Product, AEntity = pd.Product.Entity};
                        
           var list = result.ToList();
           t.Complete();

@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using Xtensive.Core;
 
 namespace Xtensive.Storage.Linq
@@ -15,6 +16,7 @@ namespace Xtensive.Storage.Linq
   {
     public Dictionary<string, Segment<int>> Fields { get; private set; }
     public Dictionary<string, ResultMapping> JoinedRelations { get; private set; }
+    public Dictionary<string, Expression> AnonymousProjections { get; private set; }
     public Segment<int> Segment { private set; get; }
 
     public ResultMapping ShiftOffset(int offset)
@@ -28,13 +30,23 @@ namespace Xtensive.Storage.Linq
     // Constructors
 
     public ResultMapping()
-      : this(new Dictionary<string, Segment<int>>(), new Dictionary<string, ResultMapping>())
+      : this(new Dictionary<string, Segment<int>>(), new Dictionary<string, ResultMapping>(), new Dictionary<string, Expression>())
     {}
 
-    public ResultMapping(Dictionary<string, Segment<int>> fieldMapping, Dictionary<string, ResultMapping> joinedRelations)
+    public ResultMapping(
+      Dictionary<string, Segment<int>> fieldMapping, 
+      Dictionary<string, ResultMapping> joinedRelations)
+      : this(fieldMapping, joinedRelations, new Dictionary<string, Expression>())
+    {}
+
+    public ResultMapping(
+      Dictionary<string, Segment<int>> fieldMapping, 
+      Dictionary<string, ResultMapping> joinedRelations,
+      Dictionary<string, Expression> anonymousProjections)
     {
       Fields = fieldMapping;
       JoinedRelations = joinedRelations;
+      AnonymousProjections = anonymousProjections;
       if (Fields.Count > 0)
         Segment = new Segment<int>(Fields.Min(pair => pair.Value.Offset), Fields.Max(pair => pair.Value.Offset) + 1);
       else
