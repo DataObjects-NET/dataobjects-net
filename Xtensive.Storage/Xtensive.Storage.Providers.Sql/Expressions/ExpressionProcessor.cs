@@ -13,6 +13,7 @@ using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Linq;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings;
 using SqlFactory = Xtensive.Sql.Dom.Sql;
 using System.Linq;
 
@@ -20,6 +21,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
 {
   internal class ExpressionProcessor : ExpressionVisitor<SqlExpression>
   {
+    private static readonly MemberCompilerProvider<SqlExpression> mappingsProvider;
     private readonly DomainModel model;
     private readonly SqlFetchRequest request;
     private readonly SqlSelect query;
@@ -205,10 +207,18 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
           return sqlSelect[columnIndex];
         }
       }
-      var map = MethodMapping.GetMapping(mc.Method);
-      var target = Visit(mc.Object);
-      var arguments = mc.Arguments.Select(a => Visit(a)).ToArray();
-      return map(target, arguments);
+      SqlExpression[] arguments;
+      if (mc.Method.IsStatic) {
+        arguments = mc.Arguments.Select(a => Visit(a)).ToArray();
+      }
+      else {
+        var target = Visit(mc.Object);
+        arguments = new[]{target}.Union(mc.Arguments.Select(a => Visit(a))).ToArray();
+      }
+      var map = mappingsProvider.GetCompiler(mc.Method);
+      if (map == null)
+        throw new NotSupportedException();
+      return map(arguments);
     }
 
     protected override SqlExpression VisitLambda(LambdaExpression l)
@@ -249,6 +259,12 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       this.request = request;
       this.model = model;
       query = (SqlSelect)request.Statement;
+    }
+
+    static ExpressionProcessor()
+    {
+      mappingsProvider = new MemberCompilerProvider<SqlExpression>();
+      mappingsProvider.RegisterCompilers(typeof(StringMappings));
     }
   }
 }
