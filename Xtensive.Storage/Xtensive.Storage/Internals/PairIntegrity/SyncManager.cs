@@ -47,6 +47,11 @@ namespace Xtensive.Storage.PairIntegrity
         switch (type) {
         case OperationType.Add:
         case OperationType.Set:
+          // Setting new association value for slave
+          if (slave2!=null && !(association.IsLoop && master1 == slave2)) {
+            context.RegisterAction(slaveActions.CreateAssociation, slave2, master1, notify);
+            context.RegisterParticipant(slave2, association.Reversed);
+          }
           // Breaking existing associations
           if (master2!=null) {
             context.RegisterAction(masterActions.BreakAssociation, master2, slave2, notify);
@@ -55,11 +60,6 @@ namespace Xtensive.Storage.PairIntegrity
           if (slave1!=null) {
             context.RegisterAction(slaveActions.BreakAssociation, slave1, master1, notify);
             context.RegisterParticipant(slave1, association.Reversed);
-          }
-          // Setting new association value for slave
-          if (slave2!=null && !(association.IsLoop && master1 == slave2)) {
-            context.RegisterAction(slaveActions.CreateAssociation, slave2, master1, notify);
-            context.RegisterParticipant(slave2, association.Reversed);
           }
           break;
         case OperationType.Remove:
