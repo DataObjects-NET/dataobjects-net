@@ -358,11 +358,11 @@ namespace Xtensive.Core.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Compiler {0} should have &quot;this&quot; parameter with correct type attribute..
+        ///   Looks up a localized string similar to Compiler {0} should have &quot;this&quot; parameter..
         /// </summary>
-        internal static string ExCompilerXShouldHaveThisParameterWithCorrectAttribute {
+        internal static string ExCompilerXShouldHaveThisParameter {
             get {
-                return ResourceManager.GetString("ExCompilerXShouldHaveThisParameterWithCorrectAttribute", resourceCulture);
+                return ResourceManager.GetString("ExCompilerXShouldHaveThisParameter", resourceCulture);
             }
         }
         
@@ -1110,6 +1110,15 @@ namespace Xtensive.Core.Resources {
         internal static string ExTypeXMustImplementY {
             get {
                 return ResourceManager.GetString("ExTypeXMustImplementY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Type {0} should not be generic..
+        /// </summary>
+        internal static string ExTypeXShouldNotBeGeneric {
+            get {
+                return ResourceManager.GetString("ExTypeXShouldNotBeGeneric", resourceCulture);
             }
         }
         

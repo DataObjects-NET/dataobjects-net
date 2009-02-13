@@ -15,6 +15,8 @@ namespace Xtensive.Core.Tests.Linq
   {
     private class NonGenericTarget
     {
+      private string dummy;
+
       static public long StaticNonGenericMethod(int a, long b)
       {
         return a + b;
@@ -38,10 +40,17 @@ namespace Xtensive.Core.Tests.Linq
       public static int StaticProperty { get; set; }
 
       public string InstanceProperty { get; set; }
+
+      public string this[int a, int b]{
+        get { return dummy; }
+        set { dummy = value; }
+      }
     }
 
     private class GenericTarget<T>
     {
+      private T dummy;
+
       static public string StaticNonGenericMethod(T obj, int n)
       {
         return obj.ToString() + n.ToString();
@@ -65,6 +74,12 @@ namespace Xtensive.Core.Tests.Linq
       public static int StaticProperty { get; set; }
 
       public string InstanceProperty { get; set; }
+
+      public T this[string s]
+      {
+        get { return dummy; }
+        set { dummy = value; }
+      }
     }
 
     private class MethodCompiler
@@ -84,14 +99,13 @@ namespace Xtensive.Core.Tests.Linq
       }
 
       [Compiler(typeof(NonGenericTarget), "InstanceNonGenericMethod")]
-      static public string C3([ParamType(typeof(NonGenericTarget))] string this_,
-        [ParamType(typeof(int))] string s)
+      static public string C3(string this_, [ParamType(typeof(int))] string s)
       {
         return "NonGenericTarget.InstanceNonGenericMethod";
       }
 
       [Compiler(typeof(NonGenericTarget), "InstanceGenericMethod", 1)]
-      static public string C4(MethodInfo methodInfo, [ParamType(typeof(NonGenericTarget))] string this_)
+      static public string C4(MethodInfo methodInfo, string this_)
       {
         return "NonGenericTarget.InstanceGenericMethod";
       }
@@ -113,14 +127,13 @@ namespace Xtensive.Core.Tests.Linq
       }
 
       [Compiler(typeof(GenericTarget<>), "InstanceNonGenericMethod")]
-      static public string C7(MethodInfo methodInfo, [ParamType(typeof(GenericTarget<>))] string this_)
+      static public string C7(MethodInfo methodInfo, string this_)
       {
         return "GenericTarget`1.InstanceNonGenericMethod";
       }
 
       [Compiler(typeof(GenericTarget<>), "InstanceGenericMethod", 1)]
-      static public string C8(MethodInfo methodInfo,[ParamType(typeof(GenericTarget<>))] string this_,
-        string s1, [ParamType(typeof(int))]string s2)
+      static public string C8(MethodInfo methodInfo, string this_, string s1, [ParamType(typeof(int))]string s2)
       {
         return "GenericTarget`1.InstanceGenericMethod";
       }
@@ -145,16 +158,32 @@ namespace Xtensive.Core.Tests.Linq
       }
       
       [Compiler(typeof(NonGenericTarget), "InstanceProperty", TargetKind.PropertyGet)]
-      public static string C3([ParamType(typeof(NonGenericTarget))] string this_)
+      public static string C3(string this_)
       {
         return "NonGenericTarget.get_InstanceProperty";
       }
 
       [Compiler(typeof(NonGenericTarget), "InstanceProperty", TargetKind.PropertySet)]
-      public static string C4([ParamType(typeof(NonGenericTarget))] string this_,
-        [ParamType(typeof(string))] string s)
+      public static string C4(string this_, [ParamType(typeof(string))] string s)
       {
         return "NonGenericTarget.set_InstanceProperty";
+      }
+
+      [Compiler(typeof(NonGenericTarget), null, TargetKind.PropertyGet)]
+      public static string C5(string this_,
+        [ParamType(typeof(int))] string s1,
+        [ParamType(typeof(int))] string s2)
+      {
+        return "NonGenericTarget.get_Item";
+      }
+
+      [Compiler(typeof(NonGenericTarget), null, TargetKind.PropertySet)]
+      public static string C6(string this_,
+        [ParamType(typeof(int))] string s1,
+        [ParamType(typeof(int))] string s2,
+        [ParamType(typeof(string))] string value)
+      {
+        return "NonGenericTarget.set_Item";
       }
 
       #endregion
@@ -162,28 +191,41 @@ namespace Xtensive.Core.Tests.Linq
       #region Compilers for GenericTarget properties
 
       [Compiler(typeof(GenericTarget<>), "StaticProperty", TargetKind.Static | TargetKind.PropertyGet)]
-      static public string C5(MethodInfo methodInfo)
+      static public string C7(MethodInfo methodInfo)
       {
         return "GenericTarget`1.get_StaticProperty";
       }
 
       [Compiler(typeof(GenericTarget<>), "StaticProperty", TargetKind.Static | TargetKind.PropertySet)]
-      static public string C6(MethodInfo methodInfo, [ParamType(typeof(int))] string s)
+      static public string C8(MethodInfo methodInfo, [ParamType(typeof(int))] string s)
       {
         return "GenericTarget`1.set_StaticProperty";
       }
 
       [Compiler(typeof(GenericTarget<>), "InstanceProperty", TargetKind.PropertyGet)]
-      static public string C7(MethodInfo methodInfo, [ParamType(typeof(GenericTarget<>))] string this_)
+      static public string C9(MethodInfo methodInfo, string this_)
       {
         return "GenericTarget`1.get_InstanceProperty";
       }
 
       [Compiler(typeof(GenericTarget<>), "InstanceProperty", TargetKind.PropertySet)]
-      static public string C8(MethodInfo methodInfo, [ParamType(typeof(GenericTarget<>))] string this_,
-        [ParamType(typeof(string))] string s)
+      static public string C10(MethodInfo methodInfo, string this_, [ParamType(typeof(string))] string s)
       {
         return "GenericTarget`1.set_InstanceProperty";
+      }
+
+      [Compiler(typeof(GenericTarget<>), null, TargetKind.PropertyGet)]
+      public static string C11(MethodInfo methodInfo, string this_,
+        [ParamType(typeof(string))] string s)
+      {
+        return "GenericTarget`1.get_Item";
+      }
+
+      [Compiler(typeof(GenericTarget<>), null, TargetKind.PropertySet)]
+      public static string C12(MethodInfo methodInfo, string this_,
+        [ParamType(typeof(string))] string s, string value)
+      {
+        return "GenericTarget`1.set_Item";
       }
 
       #endregion

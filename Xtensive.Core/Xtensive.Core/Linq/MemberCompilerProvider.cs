@@ -204,8 +204,10 @@ namespace Xtensive.Core.Linq
     public void RegisterCompilers(Type type, ConflictHandlingMethod conflictHandlingMethod)
     {
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
+
       if (type.IsGenericType)
-        throw new ArgumentException();
+        throw new InvalidOperationException(string.Format(
+          Strings.ExTypeXShouldNotBeGeneric, type.GetFullName(true)));
 
       var dict = new Dictionary<MethodInfo, Delegate>();
 
@@ -224,15 +226,20 @@ namespace Xtensive.Core.Linq
             compiler.GetFullName(true)));
 
         bool isStatic = (attr.TargetKind & TargetKind.Static) != 0;
+        bool isPropertySetter = (attr.TargetKind & TargetKind.PropertySet) != 0;
+        bool isPropertyGetter = (attr.TargetKind & TargetKind.PropertyGet) != 0;
         bool isGenericMethod = attr.GenericParamsCount > 0;
         bool isGenericType = attr.TargetType.IsGenericType;
         
-        if (attr.TargetMember.IsNullOrEmpty())
-          throw new InvalidOperationException(string.Format(
-            Strings.ExCompilerXHasBadTargetMember,
-            compiler.GetFullName(true)));
-
         string memberName = attr.TargetMember;
+
+        if (memberName.IsNullOrEmpty())
+          if (isPropertyGetter || isPropertySetter)
+            memberName = WellKnown.IndexerPropertyName;
+          else
+            throw new InvalidOperationException(string.Format(
+              Strings.ExCompilerXHasBadTargetMember,
+              compiler.GetFullName(true)));
 
         var paramTypes = ExtractParamTypesAndValidate(compiler, isGenericMethod || isGenericType);
         var bindFlags = BindingFlags.Public;
@@ -241,9 +248,9 @@ namespace Xtensive.Core.Linq
           paramTypes = paramTypes.Skip(1).ToArray();
 
         if (!isStatic) {
-          if (paramTypes.Length==0 || paramTypes[0]!=attr.TargetType)
+          if (paramTypes.Length==0)
             throw new InvalidOperationException(string.Format(
-              Strings.ExCompilerXShouldHaveThisParameterWithCorrectAttribute,
+              Strings.ExCompilerXShouldHaveThisParameter,
               compiler.GetFullName(true)));
 
           paramTypes = paramTypes.Skip(1).ToArray();
@@ -252,12 +259,12 @@ namespace Xtensive.Core.Linq
         else
           bindFlags |= BindingFlags.Static;
 
-        if ((attr.TargetKind & TargetKind.PropertyGet) != 0) {
+        if (isPropertyGetter) {
           bindFlags |= BindingFlags.GetProperty;
           memberName = WellKnown.GetterPrefix + memberName;
         }
 
-        if ((attr.TargetKind & TargetKind.PropertySet) != 0) {
+        if (isPropertySetter) {
           bindFlags |= BindingFlags.SetProperty;
           memberName = WellKnown.SetterPrefix + memberName;
         }
@@ -266,12 +273,14 @@ namespace Xtensive.Core.Linq
         var methodInfo = attr.TargetType.GetMethod(memberName, bindFlags, genericArgNames, paramTypes);
 
         if (methodInfo==null)
-          throw new InvalidOperationException(compiler.Name);
-
-        if (dict.ContainsKey(methodInfo))
           throw new InvalidOperationException(string.Format(
             Strings.ExTargetMemberIsNotFoundForCompilerX,
             compiler.GetFullName(true)));
+
+        if (dict.ContainsKey(methodInfo))
+          throw new InvalidOperationException(string.Format(
+            Strings.ExCompilerForXIsAlreadyRegistered,
+            methodInfo.GetFullName(true)));
 
         if (isGenericMethod || isGenericType)
           dict[methodInfo] = CreateCompilerDelegateG(compiler);

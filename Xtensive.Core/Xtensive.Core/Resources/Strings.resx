@@ -588,13 +588,16 @@
   <data name="ExCompilerXHasBadTargetMember" xml:space="preserve">
     <value>Compiler {0} has "bad" target member.</value>
   </data>
-  <data name="ExCompilerXShouldHaveThisParameterWithCorrectAttribute" xml:space="preserve">
-    <value>Compiler {0} should have "this" parameter with correct type attribute.</value>
+  <data name="ExCompilerXShouldHaveThisParameter" xml:space="preserve">
+    <value>Compiler {0} should have "this" parameter.</value>
   </data>
   <data name="ExTargetMemberIsNotFoundForCompilerX" xml:space="preserve">
     <value>Target member is not found for compiler {0}</value>
   </data>
   <data name="ExCompilerForXIsAlreadyRegistered" xml:space="preserve">
     <value>Compiler for {0} is already registered.</value>
+  </data>
+  <data name="ExTypeXShouldNotBeGeneric" xml:space="preserve">
+    <value>Type {0} should not be generic.</value>
   </data>
 </root>

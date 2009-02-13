@@ -28,6 +28,11 @@ namespace Xtensive.Core.Reflection
     public static readonly string SetterPrefix = "set_";
 
     /// <summary>
+    /// Returns "Item"
+    /// </summary>
+    public static readonly string IndexerPropertyName = "Item";
+
+    /// <summary>
     /// Returns "add_".
     /// </summary>
     public static readonly string AddEventHandlerPrefix = "add_";

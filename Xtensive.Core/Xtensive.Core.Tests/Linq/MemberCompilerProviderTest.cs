@@ -52,8 +52,8 @@ namespace Xtensive.Core.Tests.Linq
 
       foreach (var t in new[]{typeof(NonGenericTarget), typeof(GenericTarget<>)})
         foreach (string s1 in new[]{WellKnown.GetterPrefix, WellKnown.SetterPrefix})
-          foreach (string s2 in new[]{"Instance", "Static"}) {
-            string method = s1 + s2 + "Property";
+          foreach (string s2 in new[] { "InstanceProperty", "StaticProperty", "Item" }) {
+            string method = s1 + s2;
             var d = GetCompiler(provider, t, method);
             Assert.AreEqual(t.Name + "." + method, d(dummyStringArray));
           }
