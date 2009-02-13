@@ -15,9 +15,9 @@ namespace Xtensive.Storage.Providers.Index
   public class KeyGeneratorFactory : Providers.KeyGeneratorFactory
   {
     /// <inheritdoc/>
-    protected override KeyGenerator CreateGenerator<TFieldType>(HierarchyInfo hierarchy)
+    protected override KeyGenerator CreateGenerator<TFieldType>(GeneratorInfo generatorInfo)
     {
-      return new IncrementalKeyGenerator<TFieldType>(hierarchy);
+      return new IncrementalKeyGenerator<TFieldType>(generatorInfo);
     }
   }
 }

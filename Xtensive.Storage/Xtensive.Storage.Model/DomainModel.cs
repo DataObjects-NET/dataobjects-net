@@ -41,6 +41,11 @@ namespace Xtensive.Storage.Model
     public AssociationInfoCollection Associations { get; private set;}
 
     /// <summary>
+    /// Gets or sets the generators.
+    /// </summary>
+    public GeneratorInfoCollection Generators { get; private set;}
+
+    /// <summary>
     /// Gets the field from the current <see cref="DomainModel"/> by <paramref name="fieldExtractor"/> expression.
     /// </summary>
     /// <typeparam name="T">Type of the entity.</typeparam>
@@ -85,6 +90,7 @@ namespace Xtensive.Storage.Model
         return;
       Services.Lock(true);
       Hierarchies.Lock(true);
+      Generators.Lock(true);
       Types.Lock(true);
       RealIndexes.Lock(true);
       Associations.Lock(true);
@@ -103,6 +109,7 @@ namespace Xtensive.Storage.Model
       RealIndexes = new IndexInfoCollection();
       Hierarchies = new HierarchyInfoCollection();
       Associations = new AssociationInfoCollection();
+      Generators = new GeneratorInfoCollection();
     }
   }
 }

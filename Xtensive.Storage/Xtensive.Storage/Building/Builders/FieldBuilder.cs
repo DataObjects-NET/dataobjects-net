@@ -227,7 +227,7 @@ namespace Xtensive.Storage.Building.Builders
     {
       BuildingContext context = BuildingContext.Current;
       TypeInfo type = context.Model.Types[field.ValueType];
-      IEnumerable<FieldInfo> fields = type.Hierarchy.KeyFields.Keys.Join(type.Fields, key => key.Name,
+      IEnumerable<FieldInfo> fields = type.Hierarchy.KeyInfo.Fields.Keys.Join(type.Fields, key => key.Name,
         fld => fld.Name, (key, fld) => fld);
 
       BuildNestedFields(field, field, fields);

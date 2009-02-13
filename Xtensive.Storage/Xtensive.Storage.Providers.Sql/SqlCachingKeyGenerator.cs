@@ -79,23 +79,21 @@ namespace Xtensive.Storage.Providers.Sql
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="hierarchy">The hierarchy this instance will serve.</param>
-    /// <param name="cacheSize">Size of the cache.</param>
+    /// <param name="generatorInfo">The <see cref="generatorInfo"/> instance that describes generator.</param>
     /// <param name="sqlNext">The <see cref="ISqlCompileUnit"/> statement that will be used for fetching next portion of unique values from database.</param>
-    public SqlCachingKeyGenerator(HierarchyInfo hierarchy, int cacheSize, ISqlCompileUnit sqlNext)
-      : this(hierarchy, cacheSize, sqlNext, null)
+    public SqlCachingKeyGenerator(GeneratorInfo generatorInfo, ISqlCompileUnit sqlNext)
+      : this(generatorInfo, sqlNext, null)
     {
     }
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="hierarchy">The hierarchy this instance will serve.</param>
-    /// <param name="cacheSize">Size of the cache.</param>
+    /// <param name="generatorInfo">The <see cref="generatorInfo"/> instance that describes generator.</param>
     /// <param name="sqlNext">The <see cref="ISqlCompileUnit"/> statement that will be used for fetching next portion of unique values from database.</param>
     /// <param name="sqlInitialize">The <see cref="ISqlCompileUnit"/> statement that will be used for initializing sequence in database (if necessary).</param>
-    public SqlCachingKeyGenerator(HierarchyInfo hierarchy, int cacheSize, ISqlCompileUnit sqlNext, ISqlCompileUnit sqlInitialize)
-      : base(hierarchy, cacheSize)
+    public SqlCachingKeyGenerator(GeneratorInfo generatorInfo, ISqlCompileUnit sqlNext, ISqlCompileUnit sqlInitialize)
+      : base(generatorInfo)
     {
       this.sqlNext = sqlNext;
       this.sqlInitialize = sqlInitialize;

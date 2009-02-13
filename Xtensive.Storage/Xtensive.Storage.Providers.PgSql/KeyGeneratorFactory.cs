@@ -18,18 +18,18 @@ namespace Xtensive.Storage.Providers.PgSql
   public sealed class KeyGeneratorFactory : Providers.KeyGeneratorFactory
   {
     /// <inheritdoc/>
-    protected override KeyGenerator CreateGenerator<TFieldType>(HierarchyInfo hierarchy)
+    protected override KeyGenerator CreateGenerator<TFieldType>(GeneratorInfo generatorInfo)
     {
       var dh = (DomainHandler) Handlers.DomainHandler;
       Schema schema = dh.Schema;
-      var sequence = schema.CreateSequence(hierarchy.MappingName);
-      sequence.SequenceDescriptor = new SequenceDescriptor(sequence, hierarchy.KeyGeneratorCacheSize, hierarchy.KeyGeneratorCacheSize);
-      sequence.DataType = dh.ValueTypeMapper.BuildSqlValueType(hierarchy.KeyColumns[0]);
+      var sequence = schema.CreateSequence(generatorInfo.MappingName);
+      sequence.SequenceDescriptor = new SequenceDescriptor(sequence, generatorInfo.CacheSize, generatorInfo.CacheSize);
+      sequence.DataType = dh.ValueTypeMapper.BuildSqlValueType(generatorInfo.TupleDescriptor[0], 0);
 
       SqlSelect select = SqlFactory.Select();
       select.Columns.Add(SqlFactory.NextValue(sequence));
 
-      return new SqlCachingKeyGenerator<TFieldType>(hierarchy, hierarchy.KeyGeneratorCacheSize, select);
+      return new SqlCachingKeyGenerator<TFieldType>(generatorInfo, select);
     }
   }
 }

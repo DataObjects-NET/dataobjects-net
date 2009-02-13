@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Storage.Attributes;
@@ -63,7 +64,7 @@ namespace Xtensive.Storage.Building.Builders
 
     public static HierarchyInfo BuildHierarchy(TypeInfo root, HierarchyDef hierarchyDef)
     {
-      HierarchyInfo hierarchy = new HierarchyInfo(root, hierarchyDef.Schema, hierarchyDef.KeyGenerator);
+      KeyInfo ki = new KeyInfo();
 
       foreach (KeyValuePair<KeyField, Direction> pair in hierarchyDef.KeyFields) {
         FieldInfo field;
@@ -71,29 +72,48 @@ namespace Xtensive.Storage.Building.Builders
           throw new DomainBuilderException(
             string.Format(Resources.Strings.ExKeyFieldXWasNotFoundInTypeY, pair.Key.Name, root.Name));
 
-        hierarchy.KeyFields.Add(field, pair.Value);
+        ki.Fields.Add(field, pair.Value);
       }
 
-      hierarchy.Name = root.Name;
-      hierarchy.MappingName = BuildingContext.Current.NameBuilder.Build(hierarchy);
-      int generatorCacheSize = BuildingContext.Current.Configuration.KeyGeneratorCacheSize;
+      var context = BuildingContext.Current;
+      GeneratorInfo gi = context.Model.Generators[hierarchyDef.KeyGenerator, ki];
+      if (gi == null) {
+        gi = new GeneratorInfo(hierarchyDef.KeyGenerator, ki);
+        gi.Name = root.Name;
+        if (hierarchyDef.KeyGeneratorCacheSize.HasValue && hierarchyDef.KeyGeneratorCacheSize > 0)
+          gi.CacheSize = hierarchyDef.KeyGeneratorCacheSize.Value;
+        else
+          gi.CacheSize = context.Configuration.KeyGeneratorCacheSize;
+        context.Model.Generators.Add(gi);
+      }
+      else {
+        if (hierarchyDef.KeyGeneratorCacheSize.HasValue && hierarchyDef.KeyGeneratorCacheSize.Value < gi.CacheSize)
+          gi.CacheSize = hierarchyDef.KeyGeneratorCacheSize.Value;
+      }
 
-      if (hierarchyDef.KeyGeneratorCacheSize.HasValue && hierarchyDef.KeyGeneratorCacheSize > 0)
-        hierarchy.KeyGeneratorCacheSize = hierarchyDef.KeyGeneratorCacheSize.Value;
-      else
-        hierarchy.KeyGeneratorCacheSize = generatorCacheSize;
-      BuildingContext.Current.Model.Hierarchies.Add(hierarchy);
+      if (hierarchyDef.KeyGenerator == typeof(KeyGenerator)) {
+        if (ki.Fields.Count > 2)
+          throw new DomainBuilderException(Resources.Strings.ExDefaultGeneratorCanServeHierarchyWithExactlyOneKeyField);
+        if (ki.Fields.Count==2 && !ki.Fields[1].Key.IsSystem)
+          throw new DomainBuilderException(Resources.Strings.ExDefaultGeneratorCanServeHierarchyWithExactlyOneKeyField);
+      }
+
+      HierarchyInfo hierarchy = new HierarchyInfo(root, hierarchyDef.Schema, ki, gi);
+      hierarchy.Name = root.Name;
+      context.Model.Hierarchies.Add(hierarchy);
       return hierarchy;
     }
 
-    public static void BuildHierarchyColumns(HierarchyInfo hierarchyInfo)
+    public static void BuildHierarchyColumns(HierarchyInfo hierarchy)
     {
-      DirectionCollection<ColumnInfo> columnsCollection = hierarchyInfo.Root.Indexes.PrimaryIndex.KeyColumns;
+      DirectionCollection<ColumnInfo> columnsCollection = hierarchy.Root.Indexes.PrimaryIndex.KeyColumns;
 
       for (int i = 0; i < columnsCollection.Count; i++)
-        hierarchyInfo.KeyColumns.Add(columnsCollection[i].Key);
+        hierarchy.KeyInfo.Columns.Add(columnsCollection[i].Key);
 
-      hierarchyInfo.KeyColumns.Lock();
+      hierarchy.KeyInfo.Lock();
+      if (hierarchy.GeneratorInfo.Type == typeof(KeyGenerator))
+        hierarchy.GeneratorInfo.MappingName = BuildingContext.Current.NameBuilder.Build(hierarchy.GeneratorInfo);
     }
   }
 }

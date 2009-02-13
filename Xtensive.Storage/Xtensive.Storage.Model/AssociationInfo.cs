@@ -182,7 +182,7 @@ namespace Xtensive.Storage.Model
         break;
       }
       if (ForeignKeyExtractorTransform == null) {
-        var foreignKeySegment = new Segment<int>(ReferencingType.Hierarchy.MappingInfo.Length, ReferencedType.Hierarchy.MappingInfo.Length);
+        var foreignKeySegment = new Segment<int>(ReferencingType.Hierarchy.KeyInfo.Columns.Count, ReferencedType.Hierarchy.KeyInfo.Columns.Count);
         ForeignKeyExtractorTransform = new SegmentTransform(true, UnderlyingIndex.TupleDescriptor, foreignKeySegment);
       }
     }

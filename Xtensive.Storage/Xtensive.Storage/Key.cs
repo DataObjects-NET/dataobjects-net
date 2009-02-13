@@ -251,7 +251,7 @@ namespace Xtensive.Storage
 
       var domain = Domain.Current;
       var type = domain.Model.Types[Int32.Parse(typeIdString)];
-      var keyTupleDescriptor = type.Hierarchy.KeyTupleDescriptor;
+      var keyTupleDescriptor = type.Hierarchy.KeyInfo.TupleDescriptor;
       
       return Create(domain, type, keyTupleDescriptor.Parse(valueString), false, false);
     }
@@ -291,7 +291,7 @@ namespace Xtensive.Storage
     {
       var domain = Domain.Current;
       var typeInfo = domain.Model.Types[type];
-      var keyGenerator = domain.KeyGenerators[typeInfo.Hierarchy];
+      var keyGenerator = domain.KeyGenerators[typeInfo.Hierarchy.GeneratorInfo];
       return Create(domain, typeInfo, keyGenerator.Next(), true, false);
     }
 
@@ -304,7 +304,7 @@ namespace Xtensive.Storage
     public static Key Create(TypeInfo type)
     {
       var domain = Domain.Current;
-      var keyGenerator = domain.KeyGenerators[type.Hierarchy];
+      var keyGenerator = domain.KeyGenerators[type.Hierarchy.GeneratorInfo];
       return Create(domain, type, keyGenerator.Next(), true, false);
     }
 
@@ -399,7 +399,7 @@ namespace Xtensive.Storage
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
       ArgumentValidator.EnsureArgumentNotNull(value, "value");
       var hierarchy = type.Hierarchy;
-      if (value.Descriptor!=hierarchy.KeyTupleDescriptor)
+      if (value.Descriptor!=hierarchy.KeyInfo.TupleDescriptor)
         throw new ArgumentException(Strings.ExWrongKeyStructure);
       var key = new Key(type.Hierarchy, exactType ? type : null, value);
       if (!canCache || domain==null) {

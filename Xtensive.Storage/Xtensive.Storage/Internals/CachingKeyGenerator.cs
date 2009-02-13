@@ -34,7 +34,7 @@ namespace Xtensive.Storage.Internals
     /// <inheritdoc/>
     public override Tuple Next()
     {
-      Tuple result = Tuple.Create(Hierarchy.KeyTupleDescriptor);
+      Tuple result = Tuple.Create(GeneratorInfo.TupleDescriptor);
       LockType.Exclusive.Execute(_lock, () => {
         if (Cache.Count==0)
           CacheNext();
@@ -51,15 +51,11 @@ namespace Xtensive.Storage.Internals
 
     // Constructor
 
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="hierarchy">The hierarchy this instance will serve.</param>
-    /// <param name="cacheSize">Size of the cache.</param>
-    protected CachingKeyGenerator(HierarchyInfo hierarchy, int cacheSize)
-      : base(hierarchy)
+    /// <inheritdoc/>
+    protected CachingKeyGenerator(GeneratorInfo generatorInfo)
+      : base(generatorInfo)
     {
-      CacheSize = cacheSize;
+      CacheSize = GeneratorInfo.CacheSize;
       Cache = new Queue<TFieldType>(CacheSize);
     }
   }

@@ -17,9 +17,9 @@ namespace Xtensive.Storage
   public abstract class KeyGenerator
   {
     /// <summary>
-    /// Gets the hierarchy this instance serves.
+    /// Gets or sets the <see cref="GeneratorInfo"/> instance that describes <see cref="KeyGenerator"/> object.
     /// </summary>
-    public HierarchyInfo Hierarchy { get; private set; }
+    public GeneratorInfo GeneratorInfo { get; private set; }
 
     /// <summary>
     /// Gets the <see cref="HandlerAccessor"/> providing other available handlers.
@@ -44,10 +44,10 @@ namespace Xtensive.Storage
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="hierarchy">The hierarchy this instance will serve.</param>
-    protected KeyGenerator(HierarchyInfo hierarchy)
+    /// <param name="generatorInfo">The <see cref="generatorInfo"/> instance that describes generator.</param>
+    protected KeyGenerator(GeneratorInfo generatorInfo)
     {
-      Hierarchy = hierarchy;
+      GeneratorInfo = generatorInfo;
     }
   }
 }

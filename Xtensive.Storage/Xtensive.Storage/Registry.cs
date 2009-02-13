@@ -32,6 +32,11 @@ namespace Xtensive.Storage
       map.Add(key, value);
     }
 
+    public bool Contains(TKey key)
+    {
+      return map.ContainsKey(key);
+    }
+
     public void Dispose()
     {
       if (!isDisposed) lock (_lock) if (!isDisposed) {

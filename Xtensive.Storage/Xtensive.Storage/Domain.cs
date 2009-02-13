@@ -102,7 +102,7 @@ namespace Xtensive.Storage
 
     internal HandlerAccessor Handlers { get; private set; }
 
-    internal Registry<HierarchyInfo, KeyGenerator> KeyGenerators { get; private set; }
+    internal Registry<GeneratorInfo, KeyGenerator> KeyGenerators { get; private set; }
 
     internal ICache<Key, Key> KeyCache { get; private set; }
 
@@ -164,7 +164,7 @@ namespace Xtensive.Storage
       Configuration = configuration;
       Handlers = new HandlerAccessor(this);
       RecordSetParser = new RecordSetParser(this);
-      KeyGenerators = new Registry<HierarchyInfo, KeyGenerator>();
+      KeyGenerators = new Registry<GeneratorInfo, KeyGenerator>();
       KeyCache = new LruCache<Key, Key>(Configuration.KeyCacheSize, k => k);
       PairSyncActions = new Dictionary<AssociationInfo, ActionSet>(1024);
       TemporaryData = new GlobalTemporaryData();

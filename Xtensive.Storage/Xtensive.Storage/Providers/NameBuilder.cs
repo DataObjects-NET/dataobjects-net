@@ -12,6 +12,7 @@ using System.Text.RegularExpressions;
 using Xtensive.Core;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Reflection;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Internals;
@@ -328,12 +329,12 @@ namespace Xtensive.Storage.Providers
     }
 
     /// <summary>
-    /// Builds the name for the <see cref="HierarchyInfo"/>.
+    /// Builds the name for the <see cref="generatorInfo"/> instance.
     /// </summary>
-    /// <param name="hierarchy">The <see cref="HierarchyInfo"/> instance to build name for.</param>
-    public string Build(HierarchyInfo hierarchy)
+    /// <param name="generatorInfo">The <see cref="generatorInfo"/> instance to build name for.</param>
+    public string Build(GeneratorInfo generatorInfo)
     {
-      return NamingConvention.Apply(string.Format(GeneratorPattern, hierarchy.Name));
+      return NamingConvention.Apply(string.Format(GeneratorPattern, generatorInfo.TupleDescriptor[0].GetShortName()));
     }
 
     #region Protected methods

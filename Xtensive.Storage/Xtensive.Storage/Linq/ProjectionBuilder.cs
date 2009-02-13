@@ -146,7 +146,7 @@ namespace Xtensive.Storage.Linq
         var keySegment = source.GetMemberSegment(path);
         var keyColumn = (MappedColumn) source.RecordSet.Header.Columns[keySegment.Offset];
         var type = keyColumn.ColumnInfoRef.Resolve(context.Model).Field.ReflectedType;
-        var transform = new SegmentTransform(true, type.Hierarchy.KeyTupleDescriptor, source.GetMemberSegment(path));
+        var transform = new SegmentTransform(true, type.Hierarchy.KeyInfo.TupleDescriptor, source.GetMemberSegment(path));
         var keyExtractor = Expression.Call(keyCreateMethod, Expression.Constant(type),
                                            Expression.Call(Expression.Constant(transform), transformApplyMethod,
                                                            Expression.Constant(TupleTransformType.Auto), tuple),

@@ -39,7 +39,7 @@ namespace Xtensive.Storage.Linq
         if (field.IsEntity)
           fieldMapping.Add(field.Name + ".Key", new Segment<int>(offset + field.MappingInfo.Offset, field.MappingInfo.Length));
       }
-      var keySegment = new Segment<int>(offset, type.Hierarchy.KeyFields.Sum(pair => pair.Key.MappingInfo.Length));
+      var keySegment = new Segment<int>(offset, type.Hierarchy.KeyInfo.Fields.Sum(pair => pair.Key.MappingInfo.Length));
       fieldMapping.Add("Key", keySegment);
 
       return fieldMapping;

@@ -178,13 +178,13 @@ namespace Xtensive.Storage
       T oldValue = GetField<T>(field, false);
       AssociationInfo association = field.Association;
       if (association!=null && association.IsPaired) {
-        Key currentRef = GetKey(field);
-        Key newRef = null;
-        Entity newEntity = (Entity) (object) value;
-        if (newEntity!=null)
-          newRef = newEntity.Key;
-        if (currentRef!=newRef) {
-          Session.PairSyncManager.Enlist(OperationType.Set, (Entity) this, newEntity, association, notify);
+        Key currentKey = GetKey(field);
+        Key newKey = null;
+        Entity newReference = (Entity) (object) value;
+        if (newReference!=null)
+          newKey = newReference.Key;
+        if (currentKey!=newKey) {
+          Session.PairSyncManager.Enlist(OperationType.Set, (Entity) this, newReference, association, notify);
           field.GetAccessor<T>().SetValue(this, field, value, notify);
         }
       }

@@ -107,7 +107,7 @@ namespace Xtensive.Storage.Internals
           }
   
           // Building keyMap
-          var columns = type.Hierarchy.KeyColumns;
+          var columns = type.Hierarchy.KeyInfo.Columns;
           columnCount = columns.Count;
           var keyMap = new int[columnCount];
           bool hasKey = false;
@@ -123,7 +123,7 @@ namespace Xtensive.Storage.Internals
           }
           if (hasKey) {
             var typeMapping = new TypeMapping(type,
-              new MapTransform(true, type.Hierarchy.KeyTupleDescriptor, keyMap),
+              new MapTransform(true, type.Hierarchy.KeyInfo.TupleDescriptor, keyMap),
               new MapTransform(true, type.TupleDescriptor, typeMap));
             typeMappings.Add(type.TypeId, typeMapping);
           }

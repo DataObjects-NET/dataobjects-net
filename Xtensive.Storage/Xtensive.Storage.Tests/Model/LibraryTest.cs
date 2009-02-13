@@ -132,8 +132,8 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
       return result;
     }
 
-    public IsbnKeyGenerator(HierarchyInfo hierarchy)
-      : base(hierarchy)
+    public IsbnKeyGenerator(GeneratorInfo generatorInfo)
+      : base(generatorInfo)
     {
     }
   }

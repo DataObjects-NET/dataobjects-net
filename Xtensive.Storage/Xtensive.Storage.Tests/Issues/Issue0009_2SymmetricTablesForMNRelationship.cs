@@ -9,7 +9,6 @@ using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Tests.Issues.Issue0009_Model;
-using Xtensive.Storage.Tests.Issues.Issue0009_Model;
 
 namespace Xtensive.Storage.Tests.Issues.Issue0009_Model
 {

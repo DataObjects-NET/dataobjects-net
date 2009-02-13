@@ -30,7 +30,7 @@ namespace Xtensive.Storage.Internals
     /// <inheritdoc/>
     public override Tuple Next()
     {
-      Tuple result = Tuple.Create(Hierarchy.KeyTupleDescriptor);
+      Tuple result = Tuple.Create(GeneratorInfo.TupleDescriptor);
       LockType.Exclusive.Execute(_lock, () => {
         current = Arithmetic.Add(current, Arithmetic.One);
         result.SetValue(0, current);
@@ -41,12 +41,9 @@ namespace Xtensive.Storage.Internals
 
     // Constructor
 
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="hierarchy">The hierarchy this instance will serve.</param>
-    public IncrementalKeyGenerator(HierarchyInfo hierarchy)
-      : base(hierarchy)
+    /// <inheritdoc/>
+    public IncrementalKeyGenerator(GeneratorInfo generatorInfo)
+      : base(generatorInfo)
     {
       Arithmetic = Arithmetic<TFieldType>.Default;
     }

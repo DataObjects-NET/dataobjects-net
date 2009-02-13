@@ -17,50 +17,45 @@ namespace Xtensive.Storage.Providers
   public abstract class KeyGeneratorFactory : HandlerBase
   {
     /// <summary>
-    /// Creates the generator for the specified <paramref name="hierarchy"/>.
+    /// Creates the generator according to the specified <paramref name="generatorInfo"/>.
     /// </summary>
-    /// <param name="hierarchy">The hierarchy to create <see cref="KeyGenerator"/> for.</param>
+    /// <param name="generatorInfo">The <see cref="generatorInfo"/> instance that describes generator.</param>
     /// <returns><see cref="KeyGenerator"/> instance.</returns>
-    /// <exception cref="InvalidOperationException">when <paramref name="hierarchy"/> contains more then one key field.</exception>
+    /// <exception cref="InvalidOperationException">when <paramref name="generatorInfo"/> contains more then one key field.</exception>
     /// <exception cref="ArgumentOutOfRangeException">when <see cref="Type"/> of the key field is not supported.</exception>
-    public KeyGenerator CreateGenerator(HierarchyInfo hierarchy)
+    public KeyGenerator CreateGenerator(GeneratorInfo generatorInfo)
     {
-      if (hierarchy.KeyFields.Count > 2)
-        throw new InvalidOperationException(Resources.Strings.ExDefaultGeneratorCanServeHierarchyWithExactlyOneKeyField);
-      if (hierarchy.KeyFields.Count == 2 && !hierarchy.KeyFields[1].Key.IsSystem)
-        throw new InvalidOperationException(Resources.Strings.ExDefaultGeneratorCanServeHierarchyWithExactlyOneKeyField);
-
       KeyGenerator result = null;
-      Type fieldType = hierarchy.KeyFields[0].Key.ValueType;
+      Type fieldType = generatorInfo.TupleDescriptor[0];
       TypeCode code = Type.GetTypeCode(fieldType);
       switch (code) {
       case TypeCode.SByte:
-        result = CreateGenerator<SByte>(hierarchy);
+        result = CreateGenerator<SByte>(generatorInfo);
         break;
       case TypeCode.Byte:
-        result = CreateGenerator<Byte>(hierarchy);
+        result = CreateGenerator<Byte>(generatorInfo);
         break;
       case TypeCode.Int16:
-        result = CreateGenerator<Int16>(hierarchy);
+        result = CreateGenerator<Int16>(generatorInfo);
         break;
       case TypeCode.UInt16:
-        result = CreateGenerator<UInt16>(hierarchy);
+        result = CreateGenerator<UInt16>(generatorInfo);
         break;
       case TypeCode.Int32:
-        result = CreateGenerator<Int32>(hierarchy);
+        result = CreateGenerator<Int32>(generatorInfo);
         break;
       case TypeCode.UInt32:
-        result = CreateGenerator<UInt32>(hierarchy);
+        result = CreateGenerator<UInt32>(generatorInfo);
         break;
       case TypeCode.Int64:
-        result = CreateGenerator<Int64>(hierarchy);
+        result = CreateGenerator<Int64>(generatorInfo);
         break;
       case TypeCode.UInt64:
-        result = CreateGenerator<UInt64>(hierarchy);
+        result = CreateGenerator<UInt64>(generatorInfo);
         break;
       case TypeCode.Object:
           if (fieldType == typeof(Guid))
-            result = new GuidKeyGenerator(hierarchy);
+            result = new GuidKeyGenerator(generatorInfo);
         break;
       }
       if (result == null)
@@ -69,6 +64,6 @@ namespace Xtensive.Storage.Providers
       return result;
     }
 
-    protected abstract KeyGenerator CreateGenerator<TFieldType>(HierarchyInfo hierarchy);
+    protected abstract KeyGenerator CreateGenerator<TFieldType>(GeneratorInfo generatorInfo);
   }
 }

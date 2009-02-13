@@ -10,6 +10,7 @@ using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Reflection;
+using Xtensive.Core.Tuples;
 using Xtensive.PluginManager;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Linq;
@@ -240,16 +241,16 @@ namespace Xtensive.Storage.Building.Builders
         var handlerAccessor = BuildingContext.Current.Domain.Handlers;
         var keyGenerators = BuildingContext.Current.Domain.KeyGenerators;
         var generatorFactory = handlerAccessor.HandlerFactory.CreateHandler<KeyGeneratorFactory>();
-        foreach (HierarchyInfo hierarchy in BuildingContext.Current.Model.Hierarchies) {
+        foreach (var generatorInfo in BuildingContext.Current.Model.Generators) {
           KeyGenerator keyGenerator;
-          if (hierarchy.KeyGeneratorType==null)
+          if (generatorInfo.Type==null)
             continue;
-          if (hierarchy.KeyGeneratorType==typeof (KeyGenerator))
-            keyGenerator = generatorFactory.CreateGenerator(hierarchy);
+          if (generatorInfo.Type==typeof (KeyGenerator))
+            keyGenerator = generatorFactory.CreateGenerator(generatorInfo);
           else
-            keyGenerator = (KeyGenerator) Activator.CreateInstance(hierarchy.KeyGeneratorType, new object[] {hierarchy});
+            keyGenerator = (KeyGenerator) Activator.CreateInstance(generatorInfo.Type, new object[] {generatorInfo});
           keyGenerator.Initialize();
-          keyGenerators.Register(hierarchy, keyGenerator);
+          keyGenerators.Register(generatorInfo, keyGenerator);
         }
         keyGenerators.Lock();
       }

@@ -322,12 +322,13 @@ namespace Xtensive.Storage.Building.Builders
     {
       BuildingContext context = BuildingContext.Current;
 
-      // EnsureBelongsToHierarchy
       TypeInfo type;
-      if (context.Model.Types.TryGetValue(typeDef.UnderlyingType, out type))
-        if (type.Hierarchy!=implementor.Hierarchy) 
-          throw new DomainBuilderException(
-            string.Format(Strings.InterfaceXDoesNotBelongToXHierarchy, type.Name, implementor.Hierarchy.Root.Name));
+      context.Model.Types.TryGetValue(typeDef.UnderlyingType, out type);
+
+      // TODO: Check interface key structure
+//      if (type.Hierarchy!=implementor.Hierarchy) 
+//          throw new DomainBuilderException(
+//            string.Format(Strings.InterfaceXDoesNotBelongToXHierarchy, type.Name, implementor.Hierarchy.Root.Name));
 
       if (context.SkippedTypes.Contains(typeDef.UnderlyingType))
         return null;

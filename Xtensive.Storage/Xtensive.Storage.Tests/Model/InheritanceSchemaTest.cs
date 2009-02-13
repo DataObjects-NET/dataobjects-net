@@ -151,7 +151,7 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaTests
     protected override DomainConfiguration BuildConfiguration()
     {
       DomainConfiguration config = base.BuildConfiguration();
-      config.Types.Register(typeof (A).Assembly, "Xtensive.Storage.Tests.Model.InheritanceSchemaModel");
+      config.Types.Register(typeof (A).Assembly, typeof(A).Namespace);
       return config;
     }
 
@@ -163,7 +163,7 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaTests
 
       foreach (TypeInfo type in Domain.Model.Types) {
         foreach (IndexInfo indexInfo in type.Indexes) {
-          var keyComplexity = type.Hierarchy.KeyColumns.Count;
+          var keyComplexity = type.Hierarchy.KeyInfo.Columns.Count;
           if (indexInfo.IsPrimary)
             Assert.AreEqual(keyComplexity, indexInfo.KeyColumns.Count, "Type: {0}; index: {1}", indexInfo.ReflectedType.Name,
               indexInfo.Name, type.Name);
