@@ -208,21 +208,23 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
           return sqlSelect[columnIndex];
         }
       }
+
       var arguments = mc.Arguments.Select(a => Visit(a)).ToArray();
 
       SqlExpression[] argArray;
-      if (mc.Method.IsStatic) {
+      var mi = mc.Method;
+
+      if (mi.IsStatic) {
         argArray = arguments;
       }
       else {
+        if (mi.ReflectedType != mc.Object.Type)
+          mi = mc.Object.Type.GetMethod(mi.Name, mi.GetParameterTypes());
+
         argArray = new SqlExpression[arguments.Length + 1];
         argArray[0] = Visit(mc.Object);
         arguments.CopyTo(argArray, 1);
       }
-
-      var mi = mc.Method;
-      if (mi.ReflectedType!=mc.Object.Type)
-        mi = mc.Object.Type.GetMethod(mi.Name, mi.GetParameterTypes());
 
       var map = mappingsProvider.GetCompiler(mi);
       if (map == null)
