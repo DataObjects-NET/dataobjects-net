@@ -73,6 +73,13 @@ namespace Xtensive.Storage.Providers.Sql
         BindParameter(binding, binding.ValueAccessor());
     }
 
+    protected override void BindParameter(SqlParameterBinding binding, object value)
+    {
+      if (value == null || value == DBNull.Value)
+        throw new ArgumentNullException(binding.SqlParameter.ParameterName);
+      base.BindParameter(binding, value);
+    }
+
 
     // Constructor
 
