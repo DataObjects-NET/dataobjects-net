@@ -5,6 +5,7 @@
 // Created:    2009.02.10
 
 using System;
+using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Rse.Providers

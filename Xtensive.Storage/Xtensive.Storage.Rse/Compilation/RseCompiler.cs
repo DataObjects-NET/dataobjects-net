@@ -11,6 +11,7 @@ using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Rse.Compilation
 {
+  /// <inheritdoc/>
   [Serializable]
   public abstract class RseCompiler : ProviderVisitor
   {
