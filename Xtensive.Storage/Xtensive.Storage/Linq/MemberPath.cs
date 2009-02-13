@@ -18,6 +18,12 @@ namespace Xtensive.Storage.Linq
   internal class MemberPath : IEnumerable<MemberPathItem>
   {
     private readonly Deque<MemberPathItem> pathItems;
+    private readonly MemberType pathType;
+
+    public MemberType PathType
+    {
+      get { return pathType; }
+    }
 
     public int Count
     {
@@ -167,6 +173,7 @@ namespace Xtensive.Storage.Linq
     {
       Parameter = parameter;
       this.pathItems = pathItems;
+      pathType = pathItems.Count > 0 ? pathItems.Tail.Type : pathType = MemberType.Unknown;
     }
 
     private MemberPath()

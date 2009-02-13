@@ -240,6 +240,11 @@ namespace Xtensive.Core.Collections
       ArgumentValidator.EnsureArgumentNotNull(rightSequence, "rightSequence");
       ArgumentValidator.EnsureArgumentNotNull(projector, "projector");
 
+      return ZipInternal(leftSequence, rightSequence, projector);
+    }
+
+    private static IEnumerable<TResult> ZipInternal<TLeft,TRight,TResult>(this IEnumerable<TLeft> leftSequence, IEnumerable<TRight> rightSequence, Func<TLeft,TRight,TResult> projector)
+    {
       var leftEnum = leftSequence.GetEnumerator();
       var rightEnum = rightSequence.GetEnumerator();
       while (leftEnum.MoveNext() && rightEnum.MoveNext())

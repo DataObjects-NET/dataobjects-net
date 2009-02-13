@@ -67,7 +67,8 @@ namespace Xtensive.Storage.Linq
     {
       var path = mpe.Path;
       var method = mpe.Type == typeof(object) ? nonGenericAccessor : genericAccessor.MakeGenericMethod(mpe.Type);
-      // TODO: handle structures
+      if (path.PathType != MemberType.Primitive)
+        throw new NotSupportedException();
       var source = context.GetBound(path.Parameter);
       return Expression.Call(resultParameter, method, Expression.Constant(source.GetMemberSegment(path).Offset));
     }
@@ -83,6 +84,7 @@ namespace Xtensive.Storage.Linq
         case MemberType.Entity:
         case MemberType.Anonymous: 
         case MemberType.Structure: {
+          Expression result = null;
           bool isKey = memberType == MemberType.Key;
           bool isEntity = memberType == MemberType.Entity;
           bool isAnonymous = memberType == MemberType.Anonymous;
@@ -91,7 +93,6 @@ namespace Xtensive.Storage.Linq
           if (b.NodeType!=ExpressionType.Equal && b.NodeType!=ExpressionType.NotEqual)
             throw new NotSupportedException();
           if (isKey) {
-            Expression result = null;
             if (!leftIsParameter && !rightIsParameter)
               result = MakeComplexBinaryExpression(b.Left, b.Right, b.NodeType);
             else {
@@ -113,10 +114,8 @@ namespace Xtensive.Storage.Linq
                 result = MakeBinaryExpression(result, left, right, b.NodeType);
               }
             }
-            return result;
           }
           else if (isEntity) {
-            Expression result = null;
             if (!leftIsParameter && !rightIsParameter) {
               var bLeft = Expression.MakeMemberAccess(b.Left, keyAccessor);
               var bRight = Expression.MakeMemberAccess(b.Right, keyAccessor);
@@ -143,22 +142,24 @@ namespace Xtensive.Storage.Linq
                 result = MakeBinaryExpression(result, left, right, b.NodeType);
               }
             }
-            return result;
           }
           else if (isAnonymous) {
-            
+            if (!leftIsParameter && !rightIsParameter)
+              result = MakeComplexBinaryExpression(b.Left, b.Right, b.NodeType);
+            throw new NotSupportedException();
           }
           else {
-            throw new NotImplementedException();
+            if (!leftIsParameter && !rightIsParameter)
+              result = MakeComplexBinaryExpression(b.Left, b.Right, b.NodeType);
+            throw new NotSupportedException();
           }
-          throw new NotImplementedException();
+          return result;
         }
         case MemberType.EntitySet:
           throw new NotSupportedException();
         default:
           throw new ArgumentOutOfRangeException();
       }
-
       return base.VisitBinary(b);
     }
 
