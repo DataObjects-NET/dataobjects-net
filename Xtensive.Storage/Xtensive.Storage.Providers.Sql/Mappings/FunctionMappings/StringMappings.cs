@@ -4,6 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.02.13
 
+using System;
 using System.Linq;
 using Xtensive.Core.Linq;
 using Xtensive.Sql.Dom.Dml;
@@ -116,11 +117,100 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       return this_;
     }
 
+    [Compiler(typeof(string), "Replace")]
+    public static SqlExpression StringReplaceCh(SqlExpression this_,
+      [ParamType(typeof(char))] SqlExpression oldChar,
+      [ParamType(typeof(char))] SqlExpression newChar)
+    {
+      // find out how to write "replace" in SqlDom
+      throw new NotImplementedException();
+    }
+
+    [Compiler(typeof(string), "Replace")]
+    public static SqlExpression StringReplaceStr(SqlExpression this_,
+      [ParamType(typeof(string))] SqlExpression oldValue,
+      [ParamType(typeof(string))] SqlExpression newValue)
+    {
+      // find out how to write "replace" in SqlDom
+      throw new NotImplementedException();
+    }
+
+    [Compiler(typeof(string), "Remove")]
+    public static SqlExpression StringRemove(SqlExpression this_,
+      [ParamType(typeof(int))] SqlExpression startIndex)
+    {
+      return SqlFactory.Substring(this_, SqlFactory.Literal(0), startIndex);
+    }
+
+    [Compiler(typeof(string), "Remove")]
+    public static SqlExpression StringRemove(SqlExpression this_,
+      [ParamType(typeof(int))] SqlExpression startIndex,
+      [ParamType(typeof(int))] SqlExpression count)
+    {
+      return SqlFactory.Concat(
+        SqlFactory.Substring(this_, SqlFactory.Literal(0), startIndex),
+        SqlFactory.Substring(this_, startIndex + count));
+    }
+
     [Compiler(typeof(string), "IsNullOrEmpty", TargetKind.Static | TargetKind.Method)]
     public static SqlExpression StringIsNullOrEmpty(
       [ParamType(typeof(string))] SqlExpression value)
     {
       return SqlFactory.IsNull(value) || SqlFactory.Length(value) == SqlFactory.Literal(0);
+    }
+
+    [Compiler(typeof(string), "Concat", TargetKind.Static | TargetKind.Method)]
+    public static SqlExpression StringConcat(
+      [ParamType(typeof(string))] SqlExpression str0,
+      [ParamType(typeof(string))] SqlExpression str1)
+    {
+      return SqlFactory.Concat(str0, str1);
+    }
+
+    [Compiler(typeof(string), "Concat", TargetKind.Static | TargetKind.Method)]
+    public static SqlExpression StringConcat(
+      [ParamType(typeof(string))] SqlExpression str0,
+      [ParamType(typeof(string))] SqlExpression str1,
+      [ParamType(typeof(string))] SqlExpression str2)
+    {
+      return SqlFactory.Concat(SqlFactory.Concat(str0, str1), str2);
+    }
+
+    [Compiler(typeof(string), "Concat", TargetKind.Static | TargetKind.Method)]
+    public static SqlExpression StringConcat(
+      [ParamType(typeof(string))] SqlExpression str0,
+      [ParamType(typeof(string))] SqlExpression str1,
+      [ParamType(typeof(string))] SqlExpression str2,
+      [ParamType(typeof(string))] SqlExpression str3)
+    {
+      return SqlFactory.Concat(SqlFactory.Concat(SqlFactory.Concat(str0, str1), str2), str3);
+    }
+
+    [Compiler(typeof(string), "Concat", TargetKind.Static | TargetKind.Method)]
+    public static SqlExpression StringConcat(
+      [ParamType(typeof(string[]))] SqlExpression values)
+    {
+      // before implementing ExpressionProcessor.VisitNewArray this does not matter
+      throw new NotImplementedException();
+    }
+
+    [Compiler(typeof(string), "Compare", TargetKind.Static | TargetKind.Method)]
+    public static SqlExpression StringCompare(
+      [ParamType(typeof(string))] SqlExpression strA,
+      [ParamType(typeof(string))] SqlExpression strB)
+    {
+      var result = SqlFactory.Case();
+      result.Add(strA > strB, SqlFactory.Literal(1));
+      result.Add(strA < strB, SqlFactory.Literal(-1));
+      result.Else = SqlFactory.Literal(0);
+      return result;
+    }
+
+    [Compiler(typeof(string), "CompareTo")]
+    public static SqlExpression StringCompareTo(SqlExpression this_,
+      [ParamType(typeof(string))] SqlExpression strB)
+    {
+      return StringCompare(this_, strB);
     }
   }
 }

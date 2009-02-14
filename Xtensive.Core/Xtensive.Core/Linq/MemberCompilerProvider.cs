@@ -70,64 +70,6 @@ namespace Xtensive.Core.Linq
       return result;
     }
 
-    private static Dictionary<MethodInfo, Delegate> MergeDicts(Dictionary<MethodInfo, Delegate> first,
-      Dictionary<MethodInfo, Delegate> second)
-    {
-      var result = new Dictionary<MethodInfo, Delegate>(first);
-      foreach (var pair in second)
-        result[pair.Key] = pair.Value;
-      return result;
-    }
-
-    private Func<T[],T> CreateCompilerDelegate(MethodInfo compiler)
-    {
-      var t = compiler.ReflectedType;
-      string s = compiler.Name;
-
-      switch (compiler.GetParameters().Length) {
-      case 0:
-        var d0 = DelegateHelper.CreateDelegate<Func<T>>(null, t, s);
-        return arr => d0();
-      case 1:
-        var d1 = DelegateHelper.CreateDelegate<Func<T, T>>(null, t, s);
-        return arr => d1(arr[0]);
-      case 2:
-        var d2 = DelegateHelper.CreateDelegate<Func<T, T, T>>(null, t, s);
-        return arr => d2(arr[0], arr[1]);
-      case 3:
-        var d3 = DelegateHelper.CreateDelegate<Func<T, T, T, T>>(null, t, s);
-        return arr => d3(arr[0], arr[1], arr[2]);
-      case 4:
-        var d4 = DelegateHelper.CreateDelegate<Func<T, T, T, T, T>>(null, t, s);
-        return arr => d4(arr[0], arr[1], arr[2], arr[3]);
-      }
-
-      return null;
-    }
-
-    private static Func<MethodInfo, T[], T> CreateCompilerDelegateG(MethodInfo compiler)
-    {
-      var t = compiler.ReflectedType;
-      string s = compiler.Name;
-
-      switch (compiler.GetParameters().Length) {
-      case 1:
-        var d1 = DelegateHelper.CreateDelegate<Func<MethodInfo, T>>(null, t, s);
-        return (mi, arr) => d1(mi);
-      case 2:
-        var d2 = DelegateHelper.CreateDelegate<Func<MethodInfo, T, T>>(null, t, s);
-        return (mi, arr) => d2(mi, arr[0]);
-      case 3:
-        var d3 = DelegateHelper.CreateDelegate <Func<MethodInfo, T, T, T>>(null, t, s);
-        return (mi, arr) => d3(mi, arr[0], arr[1]);
-      case 4:
-        var d4 = DelegateHelper.CreateDelegate<Func<MethodInfo, T, T, T, T>>(null, t, s);
-        return (mi, arr) => d4(mi, arr[0], arr[1], arr[2]);
-      }
-
-      return null;
-    }
-
     private static MethodInfo FindBestMethod(Type type, MethodInfo mi)
     {
       var methods = type.GetMethods().Where(
@@ -157,7 +99,7 @@ namespace Xtensive.Core.Linq
     }
 
     /// <inheritdoc/>
-    public Func<T[], T> GetCompiler(MethodInfo methodInfo)
+    public Func<T, T[], T> GetCompiler(MethodInfo methodInfo)
     {
       ArgumentValidator.EnsureArgumentNotNull(methodInfo, "methodInfo");
 
@@ -185,13 +127,13 @@ namespace Xtensive.Core.Linq
         return null;
 
       if (withMethodInfo) {
-        var d1 = d as Func<MethodInfo, T[], T>;
+        var d1 = d as Func<MethodInfo, T, T[], T>;
         if (d1 == null)
           return null;
-        return arr => d1(methodInfo, arr);
+        return (this_, arr) => d1(methodInfo, this_, arr);
       }
 
-      return d as Func<T[], T>;
+      return d as Func<T, T[], T>;
     }
 
     /// <inheritdoc/>
@@ -214,80 +156,9 @@ namespace Xtensive.Core.Linq
       var compilers = type.GetMethods(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly)
         .Where(mi => mi.IsDefined(typeof (CompilerAttribute), false) && !mi.IsGenericMethod);
 
-      foreach (var compiler in compilers) {
-        var attr = compiler.GetAttribute<CompilerAttribute>(AttributeSearchOptions.InheritNone);
+      foreach (var compiler in compilers)
+        RegisterCompiler(dict, compiler);
 
-        bool isBadTargetType = attr.TargetType==null
-          || (attr.TargetType.IsGenericType && !attr.TargetType.IsGenericTypeDefinition);
-
-        if (isBadTargetType)
-          throw new InvalidOperationException(string.Format(
-            Strings.ExCompilerXHasBadTargetType,
-            compiler.GetFullName(true)));
-
-        bool isStatic = (attr.TargetKind & TargetKind.Static) != 0;
-        bool isPropertySetter = (attr.TargetKind & TargetKind.PropertySet) != 0;
-        bool isPropertyGetter = (attr.TargetKind & TargetKind.PropertyGet) != 0;
-        bool isGenericMethod = attr.GenericParamsCount > 0;
-        bool isGenericType = attr.TargetType.IsGenericType;
-        
-        string memberName = attr.TargetMember;
-
-        if (memberName.IsNullOrEmpty())
-          if (isPropertyGetter || isPropertySetter)
-            memberName = WellKnown.IndexerPropertyName;
-          else
-            throw new InvalidOperationException(string.Format(
-              Strings.ExCompilerXHasBadTargetMember,
-              compiler.GetFullName(true)));
-
-        var paramTypes = ExtractParamTypesAndValidate(compiler, isGenericMethod || isGenericType);
-        var bindFlags = BindingFlags.Public;
-
-        if (isGenericType || isGenericMethod)
-          paramTypes = paramTypes.Skip(1).ToArray();
-
-        if (!isStatic) {
-          if (paramTypes.Length==0)
-            throw new InvalidOperationException(string.Format(
-              Strings.ExCompilerXShouldHaveThisParameter,
-              compiler.GetFullName(true)));
-
-          paramTypes = paramTypes.Skip(1).ToArray();
-          bindFlags |= BindingFlags.Instance;
-        }
-        else
-          bindFlags |= BindingFlags.Static;
-
-        if (isPropertyGetter) {
-          bindFlags |= BindingFlags.GetProperty;
-          memberName = WellKnown.GetterPrefix + memberName;
-        }
-
-        if (isPropertySetter) {
-          bindFlags |= BindingFlags.SetProperty;
-          memberName = WellKnown.SetterPrefix + memberName;
-        }
-
-        var genericArgNames = isGenericMethod ? new string[attr.GenericParamsCount] : null;
-        var methodInfo = attr.TargetType.GetMethod(memberName, bindFlags, genericArgNames, paramTypes);
-
-        if (methodInfo==null)
-          throw new InvalidOperationException(string.Format(
-            Strings.ExTargetMemberIsNotFoundForCompilerX,
-            compiler.GetFullName(true)));
-
-        if (dict.ContainsKey(methodInfo))
-          throw new InvalidOperationException(string.Format(
-            Strings.ExCompilerForXIsAlreadyRegistered,
-            methodInfo.GetFullName(true)));
-
-        if (isGenericMethod || isGenericType)
-          dict[methodInfo] = CreateCompilerDelegateG(compiler);
-        else
-          dict[methodInfo] = CreateCompilerDelegate(compiler);
-       }
-      
       lock (syncRoot) {
         switch (conflictHandlingMethod) {
         case ConflictHandlingMethod.KeepOld:
@@ -309,6 +180,190 @@ namespace Xtensive.Core.Linq
           break;
         }
       }
+    }
+
+    private static Dictionary<MethodInfo, Delegate> MergeDicts(
+      Dictionary<MethodInfo, Delegate> first, Dictionary<MethodInfo, Delegate> second)
+    {
+      var result = new Dictionary<MethodInfo, Delegate>(first);
+      foreach (var pair in second)
+        result[pair.Key] = pair.Value;
+      return result;
+    }
+
+    private void RegisterCompiler(Dictionary<MethodInfo, Delegate> dict, MethodInfo compiler)
+    {
+      var attr = compiler.GetAttribute<CompilerAttribute>(AttributeSearchOptions.InheritNone);
+
+      bool isBadTargetType = attr.TargetType == null
+        || (attr.TargetType.IsGenericType && !attr.TargetType.IsGenericTypeDefinition);
+
+      if (isBadTargetType)
+        throw new InvalidOperationException(string.Format(
+          Strings.ExCompilerXHasBadTargetType,
+          compiler.GetFullName(true)));
+
+      bool isStatic = (attr.TargetKind & TargetKind.Static) != 0;
+      bool isPropertySetter = (attr.TargetKind & TargetKind.PropertySet) != 0;
+      bool isPropertyGetter = (attr.TargetKind & TargetKind.PropertyGet) != 0;
+      bool isGenericMethod = attr.GenericParamsCount > 0;
+      bool isGenericType = attr.TargetType.IsGenericType;
+      bool isGeneric = isGenericType || isGenericMethod;
+
+      string memberName = attr.TargetMember;
+
+      if (memberName.IsNullOrEmpty())
+        if (isPropertyGetter || isPropertySetter)
+          memberName = WellKnown.IndexerPropertyName;
+        else
+          throw new InvalidOperationException(string.Format(
+            Strings.ExCompilerXHasBadTargetMember,
+            compiler.GetFullName(true)));
+
+      var paramTypes = ExtractParamTypesAndValidate(compiler, isGeneric);
+      var bindFlags = BindingFlags.Public;
+
+      if (isGeneric)
+        paramTypes = paramTypes.Skip(1).ToArray();
+
+      if (!isStatic)
+      {
+        if (paramTypes.Length == 0)
+          throw new InvalidOperationException(string.Format(
+            Strings.ExCompilerXShouldHaveThisParameter,
+            compiler.GetFullName(true)));
+
+        paramTypes = paramTypes.Skip(1).ToArray();
+        bindFlags |= BindingFlags.Instance;
+      }
+      else
+        bindFlags |= BindingFlags.Static;
+
+      if (isPropertyGetter)
+      {
+        bindFlags |= BindingFlags.GetProperty;
+        memberName = WellKnown.GetterPrefix + memberName;
+      }
+
+      if (isPropertySetter)
+      {
+        bindFlags |= BindingFlags.SetProperty;
+        memberName = WellKnown.SetterPrefix + memberName;
+      }
+
+      var genericArgNames = isGenericMethod ? new string[attr.GenericParamsCount] : null;
+      var methodInfo = attr.TargetType.GetMethod(memberName, bindFlags, genericArgNames, paramTypes);
+
+      if (methodInfo == null)
+        throw new InvalidOperationException(string.Format(
+          Strings.ExTargetMemberIsNotFoundForCompilerX,
+          compiler.GetFullName(true)));
+
+      if (dict.ContainsKey(methodInfo))
+        throw new InvalidOperationException(string.Format(
+          Strings.ExCompilerForXIsAlreadyRegistered,
+          methodInfo.GetFullName(true)));
+
+      Delegate result;
+
+      if (isGeneric)
+        result = isStatic ? CreateStaticGenericInvoke(compiler) : CreateInstanceGenericInvoke(compiler);
+      else
+        result = isStatic ? CreateStaticNonGenericInvoke(compiler) : CreateInstanceNonGenericInvoke(compiler);
+
+      dict[methodInfo] = result;
+    }
+
+    private static Func<T, T[], T> CreateInstanceNonGenericInvoke(MethodInfo compiler)
+    {
+      var t = compiler.ReflectedType;
+      string s = compiler.Name;
+
+      switch (compiler.GetParameters().Length) {
+        case 1:
+          var d1 = DelegateHelper.CreateDelegate<Func<T, T>>(null, t, s);
+          return (this_, arr) => d1(this_);
+        case 2:
+          var d2 = DelegateHelper.CreateDelegate<Func<T, T, T>>(null, t, s);
+          return (this_, arr) => d2(this_, arr[0]);
+        case 3:
+          var d3 = DelegateHelper.CreateDelegate<Func<T, T, T, T>>(null, t, s);
+          return (this_, arr) => d3(this_, arr[0], arr[1]);
+        case 4:
+          var d4 = DelegateHelper.CreateDelegate<Func<T, T, T, T, T>>(null, t, s);
+          return (this_, arr) => d4(this_, arr[0], arr[1], arr[2]);
+      }
+
+      return null;
+    }
+
+    private static Func<MethodInfo, T, T[], T> CreateInstanceGenericInvoke(MethodInfo compiler)
+    {
+      var t = compiler.ReflectedType;
+      string s = compiler.Name;
+
+      switch (compiler.GetParameters().Length) {
+        case 2:
+          var d2 = DelegateHelper.CreateDelegate<Func<MethodInfo, T, T>>(null, t, s);
+          return (mi, this_, arr) => d2(mi, this_);
+        case 3:
+          var d3 = DelegateHelper.CreateDelegate<Func<MethodInfo, T, T, T>>(null, t, s);
+          return (mi, this_, arr) => d3(mi, this_, arr[0]);
+        case 4:
+          var d4 = DelegateHelper.CreateDelegate<Func<MethodInfo, T, T, T, T>>(null, t, s);
+          return (mi, this_, arr) => d4(mi, this_, arr[0], arr[1]);
+      }
+
+      return null;
+    }
+
+    private static Func<T, T[], T> CreateStaticNonGenericInvoke(MethodInfo compiler)
+    {
+      var t = compiler.ReflectedType;
+      string s = compiler.Name;
+
+      switch (compiler.GetParameters().Length) {
+        case 0:
+          var d0 = DelegateHelper.CreateDelegate<Func<T>>(null, t, s);
+          return (_, arr) => d0();
+        case 1:
+          var d1 = DelegateHelper.CreateDelegate<Func<T, T>>(null, t, s);
+          return (_, arr) => d1(arr[0]);
+        case 2:
+          var d2 = DelegateHelper.CreateDelegate<Func<T, T, T>>(null, t, s);
+          return (_, arr) => d2(arr[0], arr[1]);
+        case 3:
+          var d3 = DelegateHelper.CreateDelegate<Func<T, T, T, T>>(null, t, s);
+          return (_, arr) => d3(arr[0], arr[1], arr[2]);
+        case 4:
+          var d4 = DelegateHelper.CreateDelegate<Func<T, T, T, T, T>>(null, t, s);
+          return (_, arr) => d4(arr[0], arr[1], arr[2], arr[3]);
+      }
+
+      return null;
+    }
+
+    private static Func<MethodInfo, T, T[], T> CreateStaticGenericInvoke(MethodInfo compiler)
+    {
+      var t = compiler.ReflectedType;
+      string s = compiler.Name;
+
+      switch (compiler.GetParameters().Length) {
+        case 1:
+          var d1 = DelegateHelper.CreateDelegate<Func<MethodInfo, T>>(null, t, s);
+          return (mi, _, arr) => d1(mi);
+        case 2:
+          var d2 = DelegateHelper.CreateDelegate<Func<MethodInfo, T, T>>(null, t, s);
+          return (mi, _, arr) => d2(mi, arr[0]);
+        case 3:
+          var d3 = DelegateHelper.CreateDelegate<Func<MethodInfo, T, T, T>>(null, t, s);
+          return (mi, _,arr) => d3(mi, arr[0], arr[1]);
+        case 4:
+          var d4 = DelegateHelper.CreateDelegate<Func<MethodInfo, T, T, T, T>>(null, t, s);
+          return (mi, _, arr) => d4(mi, arr[0], arr[1], arr[2]);
+      }
+
+      return null;
     }
   }
 }

@@ -188,7 +188,15 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
 
     protected override SqlExpression VisitMemberAccess(MemberExpression m)
     {
-      throw new NotSupportedException();
+      var propInfo = m.Member as PropertyInfo;
+      if (propInfo == null)
+        throw new NotSupportedException();
+
+      var map = mappingsProvider.GetCompiler(propInfo.GetGetMethod());
+      if (map == null)
+        throw new NotSupportedException();
+
+      return map(Visit(m.Expression), null);
     }
 
     protected override SqlExpression VisitMethodCall(MethodCallExpression mc)
@@ -210,26 +218,16 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       }
 
       var arguments = mc.Arguments.Select(a => Visit(a)).ToArray();
-
-      SqlExpression[] argArray;
       var mi = mc.Method;
 
-      if (mi.IsStatic) {
-        argArray = arguments;
-      }
-      else {
-        if (mi.ReflectedType != mc.Object.Type)
-          mi = mc.Object.Type.GetMethod(mi.Name, mi.GetParameterTypes());
-
-        argArray = new SqlExpression[arguments.Length + 1];
-        argArray[0] = Visit(mc.Object);
-        arguments.CopyTo(argArray, 1);
-      }
+      if (mc.Object != null && mc.Object.Type != mi.ReflectedType)
+        mi = mc.Object.Type.GetMethod(mi.Name, mi.GetParameterTypes());
 
       var map = mappingsProvider.GetCompiler(mi);
       if (map == null)
         throw new NotSupportedException();
-      return map(argArray);
+
+      return map(Visit(mc.Object), arguments);
     }
 
     protected override SqlExpression VisitLambda(LambdaExpression l)
@@ -275,6 +273,8 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     {
       mappingsProvider = new MemberCompilerProvider<SqlExpression>();
       mappingsProvider.RegisterCompilers(typeof(StringMappings));
+      mappingsProvider.RegisterCompilers(typeof(DateTimeMappings));
+      mappingsProvider.RegisterCompilers(typeof(MathMappings));
     }
   }
 }

@@ -17,7 +17,7 @@ namespace Xtensive.Core.Tests.Linq
   {
     private string[] dummyStringArray = new string[10];
     
-    private Func<string[],string> GetCompiler(IMemberCompilerProvider<string> provider,
+    private Func<string, string[],string> GetCompiler(IMemberCompilerProvider<string> provider,
       Type type, string method)
     {
       var mi = type.GetMethod(method);
@@ -40,7 +40,7 @@ namespace Xtensive.Core.Tests.Linq
           foreach (string s2 in new[]{"Generic", "NonGeneric"}) {
             string method = s1 + s2 + "Method";
             var d = GetCompiler(provider, t, method);
-            Assert.AreEqual(t.Name + "." + method, d(dummyStringArray));
+            Assert.AreEqual(t.Name + "." + method, d(null, dummyStringArray));
           }
     }
 
@@ -55,7 +55,7 @@ namespace Xtensive.Core.Tests.Linq
           foreach (string s2 in new[] { "InstanceProperty", "StaticProperty", "Item" }) {
             string method = s1 + s2;
             var d = GetCompiler(provider, t, method);
-            Assert.AreEqual(t.Name + "." + method, d(dummyStringArray));
+            Assert.AreEqual(t.Name + "." + method, d(null, dummyStringArray));
           }
     }
 
@@ -74,7 +74,7 @@ namespace Xtensive.Core.Tests.Linq
 
       var d = provider.GetCompiler(mi);
       Assert.IsNotNull(d);
-      Assert.AreEqual("OK", d(dummyStringArray));
+      Assert.AreEqual("OK", d(null, dummyStringArray));
     }
 
     [Test]
@@ -84,7 +84,7 @@ namespace Xtensive.Core.Tests.Linq
       provider.RegisterCompilers(typeof(ConflictCompiler1));
       provider.RegisterCompilers(typeof(ConflictCompiler2), ConflictHandlingMethod.KeepOld);
       var d = GetCompiler(provider, typeof(ConflictTarget), "ConflictMethod");
-      Assert.AreEqual("Compiler1", d(dummyStringArray));
+      Assert.AreEqual("Compiler1", d(null, dummyStringArray));
     }
 
     [Test]
@@ -94,7 +94,7 @@ namespace Xtensive.Core.Tests.Linq
       provider.RegisterCompilers(typeof(ConflictCompiler1));
       provider.RegisterCompilers(typeof(ConflictCompiler2), ConflictHandlingMethod.Overwrite);
       var d = GetCompiler(provider, typeof(ConflictTarget), "ConflictMethod");
-      Assert.AreEqual("Compiler2", d(dummyStringArray));      
+      Assert.AreEqual("Compiler2", d(null, dummyStringArray));      
     }
 
     [Test]

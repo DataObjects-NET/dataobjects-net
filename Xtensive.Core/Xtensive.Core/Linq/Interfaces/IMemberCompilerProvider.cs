@@ -20,7 +20,7 @@ namespace Xtensive.Core.Linq
     /// </summary>
     /// <param name="methodInfo"><see cref="MethodInfo"/> to search compiler for.</param>
     /// <returns>compiler associated with <see cref="MethodInfo"/> or null if compiler is not found.</returns>
-    Func<T[], T> GetCompiler(MethodInfo methodInfo);
+    Func<T, T[], T> GetCompiler(MethodInfo methodInfo);
 
     /// <summary>
     /// Registers compilers found in specified type.
