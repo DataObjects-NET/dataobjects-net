@@ -12,6 +12,7 @@ using Xtensive.Core;
 using Xtensive.Core.Caching;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Storage.Rse.Compilation.New;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Executable;
 using Xtensive.Storage.Rse.Resources;

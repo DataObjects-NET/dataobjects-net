@@ -20,7 +20,6 @@ using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers.Sql.Mappings;
 using Xtensive.Storage.Providers.Sql.Resources;
 using Xtensive.Storage.Rse.Compilation;
-using Compiler=Xtensive.Storage.Providers.Sql.Compilers.Compiler;
 using SqlFactory = Xtensive.Sql.Dom.Sql;
 using SqlModel = Xtensive.Sql.Dom.Database.Model;
 

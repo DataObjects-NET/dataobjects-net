@@ -1,57 +1,32 @@
-// Copyright (C) 2008 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
-// Created by: Alexey Kochetov
-// Created:    2008.07.04
-
 using System;
-using System.Reflection;
-using Xtensive.Core;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Threading;
-using Xtensive.Storage.Rse.Providers;
 using System.Linq;
+using Xtensive.Core;
+using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Storage.Rse.Providers;
+using Xtensive.Storage.Rse.Providers.Compilable;
 
-namespace Xtensive.Storage.Rse.Compilation
+namespace Xtensive.Storage.Rse.Compilation.New
 {
   /// <summary>
   /// Abstract base class for RSE <see cref="Provider"/> compilers.
-  /// Provides <see cref="TypeCompiler"/>s for <see cref="CompilableProvider"/>s.
+  /// Compiles <see cref="CompilableProvider"/>s int <see cref="ExecutableProvider"/>.
   /// </summary>
-  public abstract class Compiler : AssociateProvider,
-    ICompiler
+  public abstract class Compiler : ICompiler
   {
-    private static readonly UrlInfo defaultLocation = new UrlInfo("rse://localhost/");
-    private readonly ThreadSafeDictionary<Type, TypeCompiler> typeCompliers = 
-      ThreadSafeDictionary<Type, TypeCompiler>.Create(new object());
-
-
     /// <summary>
-    /// Gets the default location.
+    /// Gets execution site location.
     /// </summary>
-    public static UrlInfo DefaultLocation
-    {
-      get { return defaultLocation; }
-    }
-
-    #region ICompiler methods
-
-    /// <inheritdoc/>
     public UrlInfo Location { get; private set; }
 
     /// <inheritdoc/>
     ExecutableProvider ICompiler.Compile(CompilableProvider provider, ExecutableProvider[] sources)
     {
-      if (provider==null)
+      if (provider == null)
         return null;
-      var c = GetCompiler(provider);
-      if (c==null)
-        return null;
-
+      
       if (sources.Any(s => s == null))
         return null;
-      var ep = c.Compile(provider, sources.ToArray());
+      var ep = Compile(provider, sources);
       ep.Location = Location;
       return IsCompatible(ep) ? ep : ToCompatible(ep);
     }
@@ -62,85 +37,189 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <inheritdoc/>
     public abstract ExecutableProvider ToCompatible(ExecutableProvider provider);
 
-    #endregion
-
-    #region GetCompiler(...) methods (protected)
 
     /// <summary>
-    /// Gets the compiler responsible for compilation of specified <paramref name="provider"/>.
+    /// Compiles the specified <see cref="CompilableProvider"/>.
     /// </summary>
-    /// <param name="provider">Compilable provider to get the compiler for.</param>
-    /// <returns>The compiler.</returns>
-    protected TypeCompiler GetCompiler(Provider provider)
+    /// <param name="cp">The provider to compile.</param>
+    /// <param name="sources">Compiled sources.</param>
+    public virtual ExecutableProvider Compile (CompilableProvider cp, ExecutableProvider[] sources)
     {
-      if (provider == null)
+      if (cp == null)
         return null;
-      Type type = provider.GetType();
-      return GetCompiler(type);
+      ExecutableProvider result;
+      ProviderType providerType = cp.Type;
+      switch (providerType) {
+        case ProviderType.Index:
+          result = VisitIndex((IndexProvider)cp, sources);
+          break;
+        case ProviderType.Reindex:
+          result = VisitReindex((ReindexProvider)cp, sources);
+          break;
+        case ProviderType.Store:
+          result = VisitStore((StoredProvider)cp, sources);
+          break;
+        case ProviderType.Aggregate:
+          result = VisitAggregate((AggregateProvider)cp, sources);
+          break;
+        case ProviderType.Alias:
+          result = VisitAlias((AliasProvider)cp, sources);
+          break;
+        case ProviderType.Calculate:
+          result = VisitCalculate((CalculationProvider)cp, sources);
+          break;
+        case ProviderType.Distinct:
+          result = VisitDistinct((DistinctProvider)cp, sources);
+          break;
+        case ProviderType.Filter:
+          result = VisitFilter((FilterProvider)cp, sources);
+          break;
+        case ProviderType.Join:
+          result = VisitJoin((JoinProvider)cp, sources);
+          break;
+        case ProviderType.Sort:
+          result = VisitSort((SortProvider)cp, sources);
+          break;
+        case ProviderType.Range:
+          result = VisitRange((RangeProvider)cp, sources);
+          break;
+        case ProviderType.Raw:
+          result = VisitRaw((RawProvider)cp, sources);
+          break;
+        case ProviderType.Seek:
+          result = VisitSeek((SeekProvider)cp, sources);
+          break;
+        case ProviderType.Select:
+          result = VisitSelect((SelectProvider)cp, sources);
+          break;
+        case ProviderType.Skip:
+          result = VisitSkip((SkipProvider)cp, sources);
+          break;
+        case ProviderType.Take:
+          result = VisitTake((TakeProvider)cp, sources);
+          break;
+        case ProviderType.ExecutionSite:
+          result = VisitExecutionSite((ExecutionSiteProvider)cp, sources);
+          break;
+        default:
+          throw new ArgumentOutOfRangeException();
+      }
+      return result;
     }
 
     /// <summary>
-    /// Gets the compiler responsible for compilation of provider of specified <paramref name="type"/>.
+    /// Compiles <see cref="ExecutionSiteProvider"/>.
     /// </summary>
-    /// <param name="type">The type of provider to get the compiler for.</param>
-    /// <returns>The compiler.</returns>
-    protected TypeCompiler GetCompiler(Type type)
-    {
-      return typeCompliers.GetValue(type,
-        (_type, _this) => _this
-          .GetType()
-          .GetMethod("GetCompiler",
-            BindingFlags.NonPublic | BindingFlags.Instance, null, ArrayUtils<Type>.EmptyArray, null)
-          .GetGenericMethodDefinition()
-          .MakeGenericMethod(new[] {_type})
-          .Invoke(_this, null)
-          as TypeCompiler,
-        this);
-    }
+    /// <param name="provider">Execution site provider.</param>
+    protected abstract ExecutableProvider VisitExecutionSite(ExecutionSiteProvider provider, ExecutableProvider[] sources);
 
     /// <summary>
-    /// Gets the compiler responsible for compilation of provider of specified <typeparamref name="TProvider"/>.
+    /// Compiles <see cref="TakeProvider"/>.
     /// </summary>
-    /// <typeparam name="TProvider">The type of provider to get the compiler for.</typeparam>
-    /// <returns>The compiler.</returns>
-    protected TypeCompiler<TProvider> GetCompiler<TProvider>() 
-      where TProvider : CompilableProvider
-    {
-      return GetAssociate<TProvider, TypeCompiler<TProvider>, TypeCompiler<TProvider>>();
-    }
+    /// <param name="provider">Take provider.</param>
+    protected abstract ExecutableProvider VisitTake(TakeProvider provider, ExecutableProvider[] sources);
 
+    /// <summary>
+    /// Compiles <see cref="SkipProvider"/>.
+    /// </summary>
+    /// <param name="provider">Skip provider.</param>
+    protected abstract ExecutableProvider VisitSkip(SkipProvider provider, ExecutableProvider[] sources);
 
-    #endregion
+    /// <summary>
+    /// Compiles <see cref="SelectProvider"/>.
+    /// </summary>
+    /// <param name="provider">Select provider.</param>
+    protected abstract ExecutableProvider VisitSelect(SelectProvider provider, ExecutableProvider[] sources);
 
-    #region Protected methods
+    /// <summary>
+    /// Compiles <see cref="SeekProvider"/>.
+    /// </summary>
+    /// <param name="provider">Seek provider.</param>
+    protected abstract ExecutableProvider VisitSeek(SeekProvider provider, ExecutableProvider[] sources);
 
-    /// <inheritdoc/>
-    protected sealed override TResult ConvertAssociate<TKey, TAssociate, TResult>(TAssociate associate)
-    {
-      if (ReferenceEquals(associate, null))
-        return default(TResult);
-      return (TResult)(object) associate;
-    }
+    /// <summary>
+    /// Compiles <see cref="RawProvider"/>.
+    /// </summary>
+    /// <param name="provider">Raw provider.</param>
+    protected abstract ExecutableProvider VisitRaw(RawProvider provider, ExecutableProvider[] sources);
 
-    #endregion
+    /// <summary>
+    /// Compiles <see cref="RangeProvider"/>.
+    /// </summary>
+    /// <param name="provider">Range provider.</param>
+    protected abstract ExecutableProvider VisitRange(RangeProvider provider, ExecutableProvider[] sources);
+
+    /// <summary>
+    /// Compiles <see cref="SortProvider"/>.
+    /// </summary>
+    /// <param name="provider">Sort provider.</param>
+    protected abstract ExecutableProvider VisitSort(SortProvider provider, ExecutableProvider[] sources);
+
+    /// <summary>
+    /// Compiles <see cref="JoinProvider"/>.
+    /// </summary>
+    /// <param name="provider">Join provider.</param>
+    protected abstract ExecutableProvider VisitJoin(JoinProvider provider, ExecutableProvider[] sources);
+
+    /// <summary>
+    /// Compiles <see cref="FilterProvider"/>.
+    /// </summary>
+    /// <param name="provider">Filter provider.</param>
+    protected abstract ExecutableProvider VisitFilter(FilterProvider provider, ExecutableProvider[] sources);
+
+    /// <summary>
+    /// Compiles <see cref="DistinctProvider"/>.
+    /// </summary>
+    /// <param name="provider">Distinct provider.</param>
+    protected abstract ExecutableProvider VisitDistinct(DistinctProvider provider, ExecutableProvider[] sources);
+
+    /// <summary>
+    /// Compiles <see cref="CalculationProvider"/>.
+    /// </summary>
+    /// <param name="provider">Calculation provider.</param>
+    protected abstract ExecutableProvider VisitCalculate(CalculationProvider provider, ExecutableProvider[] sources);
+
+    /// <summary>
+    /// Compiles <see cref="AliasProvider"/>.
+    /// </summary>
+    /// <param name="provider">Alias provider.</param>
+    protected abstract ExecutableProvider VisitAlias(AliasProvider provider, ExecutableProvider[] sources);
+
+    /// <summary>
+    /// Compiles <see cref="AggregateProvider"/>.
+    /// </summary>
+    /// <param name="provider">Aggregate provider.</param>
+    /// <returns></returns>
+    protected abstract ExecutableProvider VisitAggregate(AggregateProvider provider, ExecutableProvider[] sources);
+
+    /// <summary>
+    /// Compiles <see cref="StoredProvider"/>.
+    /// </summary>
+    /// <param name="provider">Store provider.</param>
+    protected abstract ExecutableProvider VisitStore(StoredProvider provider, ExecutableProvider[] sources);
+
+    /// <summary>
+    /// Compiles <see cref="IndexProvider"/>.
+    /// </summary>
+    /// <param name="provider">Index provider.</param>
+    protected abstract ExecutableProvider VisitIndex(IndexProvider provider, ExecutableProvider[] sources);
+
+    /// <summary>
+    /// Compiles <see cref="ReindexProvider"/>.
+    /// </summary>
+    /// <param name="provider">Reindex provider.</param>
+    /// <returns></returns>
+    protected abstract ExecutableProvider VisitReindex(ReindexProvider provider, ExecutableProvider[] sources);
 
 
     // Constructor
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     protected Compiler(UrlInfo location)
     {
       Location = location;
-      TypeSuffixes = new[] { "Compiler" };
-      Type t = GetType();
-      Type baseType = typeof (Compiler);
-      while(t != baseType && t != null) {
-        AddHighPriorityLocation(t.Assembly, t.Namespace);
-        t = t.BaseType;
-      }
-      AddHighPriorityLocation(baseType.Assembly, baseType.Namespace);
     }
   }
 }
