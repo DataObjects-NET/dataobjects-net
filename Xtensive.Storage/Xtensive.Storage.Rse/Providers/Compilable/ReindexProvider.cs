@@ -26,7 +26,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="order">The <see cref="OrderProviderBase.Order"/> property value.</param>
     public ReindexProvider(CompilableProvider source, DirectionCollection<int> order)
-      : base(source, order)
+      : base(ProviderType.Reindex, source, order)
     {
     }
   }

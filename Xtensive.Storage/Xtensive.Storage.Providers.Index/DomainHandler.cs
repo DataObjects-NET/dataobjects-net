@@ -27,7 +27,7 @@ namespace Xtensive.Storage.Providers.Index
 
     protected override ICompiler BuildCompiler()
     {
-      return new Compilers.Compiler(Handlers);
+      return new IndexCompiler(Handlers);
     }
 
     /// <inheritdoc/>

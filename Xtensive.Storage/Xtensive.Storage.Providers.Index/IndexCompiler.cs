@@ -10,6 +10,7 @@ using System.Linq;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse.Compilation;
+using Xtensive.Storage.Rse.Compilation.New;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.InheritanceSupport;
 
@@ -24,7 +25,20 @@ namespace Xtensive.Storage.Providers.Index
     /// </summary>
     protected HandlerAccessor Handlers { get; private set; }
 
-    protected override Provider VisitIndex(Rse.Providers.Compilable.IndexProvider provider)
+    /// <inheritdoc/>
+    public override bool IsCompatible(ExecutableProvider provider)
+    {
+      return true;
+    }
+
+    /// <inheritdoc/>
+    public override ExecutableProvider ToCompatible(ExecutableProvider provider)
+    {
+      return provider;
+    }
+
+    /// <inheritdoc/>
+    protected override ExecutableProvider VisitIndex(Rse.Providers.Compilable.IndexProvider provider, ExecutableProvider[] sources)
     {
       IndexInfo indexInfo = provider.Index.Resolve(Handlers.Domain.Model);
       ExecutableProvider result = CompileInternal(provider, indexInfo);
@@ -83,7 +97,8 @@ namespace Xtensive.Storage.Providers.Index
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    protected IndexCompiler(HandlerAccessor handlers)
+    public IndexCompiler(HandlerAccessor handlers)
+      : base(handlers.Domain.Configuration.ConnectionInfo)
     {
       Handlers = handlers;
     }

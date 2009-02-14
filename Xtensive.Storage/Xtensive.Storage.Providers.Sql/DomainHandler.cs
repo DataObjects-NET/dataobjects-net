@@ -46,7 +46,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     protected override ICompiler BuildCompiler()
     {
-      return new Compiler(Handlers);
+      return new SqlCompiler(Handlers);
     }
 
     /// <inheritdoc/>

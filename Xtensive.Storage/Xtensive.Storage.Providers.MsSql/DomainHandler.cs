@@ -15,7 +15,7 @@ namespace Xtensive.Storage.Providers.MsSql
   {
     protected override ICompiler BuildCompiler()
     {
-      return new Compilers.Compiler(Handlers);
+      return new MsSqlCompiler(Handlers);
     }
   }
 }

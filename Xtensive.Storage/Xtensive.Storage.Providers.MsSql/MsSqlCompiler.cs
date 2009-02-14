@@ -23,16 +23,16 @@ namespace Xtensive.Storage.Providers.MsSql
   [Serializable]
   public class MsSqlCompiler : SqlCompiler
   {
-    protected override Provider VisitSkip(SkipProvider provider)
+    protected override ExecutableProvider VisitSkip(SkipProvider provider, ExecutableProvider[] sources)
     {
       const string rowNumber = "RowNumber";
 
-      var source = Visit(provider.Source) as SqlProvider;
+      var source = sources[0] as SqlProvider;
       if (source == null)
         return null;
 
       var sourceQuery = (SqlSelect)source.Request.Statement.Clone();
-      var orderClause = EnumerableExtensions.ToCommaDelimitedString((IEnumerable) provider.Header.Order.Select(pair => sourceQuery[pair.Key].Name + (pair.Value == Direction.Positive ? " ASC" : " DESC")));
+      var orderClause = ((IEnumerable) provider.Header.Order.Select(pair => sourceQuery[pair.Key].Name + (pair.Value == Direction.Positive ? " ASC" : " DESC"))).ToCommaDelimitedString();
       sourceQuery.Columns.Add(SqlFactory.Native("ROW_NUMBER() OVER (ORDER BY " + orderClause + ")"), rowNumber);
       sourceQuery.OrderBy.Clear();
       var queryRef = SqlFactory.QueryRef(sourceQuery);
@@ -51,7 +51,7 @@ namespace Xtensive.Storage.Providers.MsSql
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    protected MsSqlCompiler(HandlerAccessor handlers)
+    public MsSqlCompiler(HandlerAccessor handlers)
       : base(handlers)
     {
     }
