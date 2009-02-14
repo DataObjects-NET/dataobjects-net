@@ -475,8 +475,13 @@ namespace Xtensive.Storage.Tests.ObjectModel.Northwind
         if (reader!=null) {
           while (reader.Read()) {
             var employee = Key.Create<Employee>(Tuple.Create(reader.GetInt32(0))).Resolve<Employee>();
-            employee.ReportsTo = !reader.IsDBNull(16) ? Key.Create<Employee>(
-              Tuple.Create(reader.GetInt32(16))).Resolve<Employee>() : null;
+            bool isNull = reader.IsDBNull(16);
+            if (!isNull) {
+              int employeeId = reader.GetInt32(16);
+              Key key = Key.Create<Employee>(Tuple.Create(employeeId));
+              var reportsTo = key.Resolve<Employee>();
+              employee.ReportsTo = reportsTo;
+            }
           }
           reader.Close();
         }
