@@ -12,8 +12,12 @@ using SqlFactory = Xtensive.Sql.Dom.Sql;
 
 namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
 {
-  internal class DateTimeMappings
+  internal static class DateTimeMappings
   {
-
+    [Compiler(typeof(DateTime), "Now", TargetKind.Static | TargetKind.PropertyGet)]
+    public static SqlExpression DateTimeNow()
+    {
+      return SqlFactory.CurrentTimeStamp();
+    }
   }
 }

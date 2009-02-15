@@ -188,6 +188,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
 
     protected override SqlExpression VisitMemberAccess(MemberExpression m)
     {
+      // todo: handle string.Empty, Math.PI and other similar public const fields
       var propInfo = m.Member as PropertyInfo;
       if (propInfo == null)
         throw new NotSupportedException();
@@ -275,6 +276,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       mappingsProvider.RegisterCompilers(typeof(StringMappings));
       mappingsProvider.RegisterCompilers(typeof(DateTimeMappings));
       mappingsProvider.RegisterCompilers(typeof(MathMappings));
+      mappingsProvider.RegisterCompilers(typeof(NumericMappings));
     }
   }
 }
