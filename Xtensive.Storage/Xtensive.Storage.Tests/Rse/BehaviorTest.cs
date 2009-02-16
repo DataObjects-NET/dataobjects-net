@@ -317,6 +317,8 @@ namespace Xtensive.Storage.Tests.Rse
       RecordSet authorRS = new RawProvider(authorHeader, authors).Result;
       RecordSet bookRS = new RawProvider(bookHeader, books).Result.Alias("Book");
 
+//      Assert.IsTrue(bookRS.All(t => t.GetValue(0) == t.GetValue(0)));
+
 //      using (new Measurement("Select many on Enumerable")) {
 //        var enumerable = authorRS.SelectMany((l) => bookRS.Where(r => r.GetValue<int>(1) == l.GetValue<int>(0)), (l, r) => new Pair<Tuple>(l, r));
 //        var list0 = enumerable.ToList();
