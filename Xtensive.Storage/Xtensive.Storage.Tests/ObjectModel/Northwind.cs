@@ -5,6 +5,7 @@
 // Created:    2008.12.01
 
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using Xtensive.Core.Tuples;
@@ -359,11 +360,13 @@ namespace Xtensive.Storage.Tests.ObjectModel.Northwind
       using (var tr = Transaction.Open()) {
         #region  Categories
 
+        var categories = new Dictionary<object, Category>();
         if (reader!=null) {
           while (reader.Read()) {
             var category = new Category();
             for (int i = 1; i < reader.FieldCount; i++)
               category[reader.GetName(i)] = !reader.IsDBNull(i) ? reader.GetValue(i) : null;
+            categories.Add(reader.GetValue(0), category);
           }
           reader.Close();
         }
@@ -372,6 +375,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Northwind
 
         #region Customers
 
+        var customers = new Dictionary<object, Customer>();
         cmd.CommandText = "Select * from [dbo].[Customers]";
         reader = cmd.ExecuteReader();
         if (reader!=null) {
@@ -379,6 +383,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Northwind
             var customer = new Customer(reader.GetString(0));
             for (int i = 1; i < reader.FieldCount; i++)
               customer[reader.GetName(i)] = !reader.IsDBNull(i) ? reader.GetValue(i) : null;
+            customers.Add(reader.GetValue(0), customer);
           }
           reader.Close();
         }
@@ -387,6 +392,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Northwind
 
         #region Regions
 
+        var regions = new Dictionary<object, Region>();
         cmd.CommandText = "Select * from [dbo].[Region]";
         reader = cmd.ExecuteReader();
         if (reader!=null) {
@@ -394,6 +400,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Northwind
             var region = new Region();
             for (int i = 1; i < reader.FieldCount; i++)
               region[reader.GetName(i)] = !reader.IsDBNull(i) ? reader.GetValue(i) : null;
+            regions.Add(reader.GetValue(0), region);
           }
           reader.Close();
         }
@@ -402,6 +409,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Northwind
 
         #region Suppliers
 
+        var suppliers = new Dictionary<object, Supplier>();
         cmd.CommandText = "Select * from [dbo].[Suppliers]";
         reader = cmd.ExecuteReader();
         if (reader!=null) {
@@ -409,6 +417,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Northwind
             var supplier = new Supplier();
             for (int i = 1; i < reader.FieldCount; i++)
               supplier[reader.GetName(i)] = !reader.IsDBNull(i) ? reader.GetValue(i) : null;
+            suppliers.Add(reader.GetValue(0), supplier);
           }
           reader.Close();
         }
@@ -417,6 +426,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Northwind
 
         #region Shippers
 
+        var shippers = new Dictionary<object, Shipper>();
         cmd.CommandText = "Select * from [dbo].[Shippers]";
         reader = cmd.ExecuteReader();
         if (reader!=null) {
@@ -424,6 +434,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Northwind
             var shipper = new Shipper();
             for (int i = 1; i < reader.FieldCount; i++)
               shipper[reader.GetName(i)] = !reader.IsDBNull(i) ? reader.GetValue(i) : null;
+            shippers.Add(reader.GetValue(0), shipper);
           }
           reader.Close();
         }
@@ -432,6 +443,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Northwind
 
         #region Products
 
+        var products = new Dictionary<object, Product>();
         cmd.CommandText = "Select * from [dbo].[Products]";
         reader = cmd.ExecuteReader(CommandBehavior.KeyInfo);
         if (reader!=null) {
@@ -440,17 +452,16 @@ namespace Xtensive.Storage.Tests.ObjectModel.Northwind
             for (int i = 1; i < reader.FieldCount; i++)
               switch (i) {
               case 2:
-                product.Supplier = !reader.IsDBNull(i) ? Key.Create<Supplier>(
-                  Tuple.Create(reader.GetInt32(i))).Resolve<Supplier>() : null;
+                product.Supplier = !reader.IsDBNull(i) ? suppliers[reader.GetInt32(i)] : null;
                 break;
               case 3:
-                product.Category = !reader.IsDBNull(i) ? Key.Create<Category>(
-                  Tuple.Create(reader.GetInt32(i))).Resolve<Category>() : null;
+                product.Category = !reader.IsDBNull(i) ? categories[reader.GetInt32(i)] : null;
                 break;
               default:
                 product[reader.GetName(i)] = !reader.IsDBNull(i) ? reader.GetValue(i) : null;
                 break;
               }
+            products.Add(reader.GetValue(0), product);
           }
           reader.Close();
         }
@@ -459,6 +470,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Northwind
 
         #region Employees
 
+        var employees = new Dictionary<object, Employee>();
         cmd.CommandText = "Select * from [dbo].[Employees]";
         reader = cmd.ExecuteReader();
         if (reader!=null) {
@@ -467,6 +479,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Northwind
             for (int i = 1; i < reader.FieldCount; i++)
               if (i!=16)
                 employee[reader.GetName(i)] = !reader.IsDBNull(i) ? reader.GetValue(i) : null;
+            employees.Add(reader.GetValue(0), employee);
           }
           reader.Close();
         }
@@ -474,12 +487,11 @@ namespace Xtensive.Storage.Tests.ObjectModel.Northwind
         reader = cmd.ExecuteReader();
         if (reader!=null) {
           while (reader.Read()) {
-            var employee = Key.Create<Employee>(Tuple.Create(reader.GetInt32(0))).Resolve<Employee>();
+            var employee = employees[reader.GetValue(0)];
             bool isNull = reader.IsDBNull(16);
             if (!isNull) {
               int employeeId = reader.GetInt32(16);
-              Key key = Key.Create<Employee>(Tuple.Create(employeeId));
-              var reportsTo = key.Resolve<Employee>();
+              var reportsTo = employees[employeeId];
               if (reportsTo == null)
                 throw new NullReferenceException("Employee is null.");
               employee.ReportsTo = reportsTo;
@@ -492,15 +504,15 @@ namespace Xtensive.Storage.Tests.ObjectModel.Northwind
 
         #region Territories
 
+        var territories = new Dictionary<object, Territory>();
         cmd.CommandText = "Select * from [dbo].[Territories]";
         reader = cmd.ExecuteReader();
         if (reader!=null) {
           while (reader.Read()) {
-            new Territory(reader.GetString(0))
-              {
-                TerritoryDescription = reader.GetString(1),
-                Region = Key.Create<Region>(Tuple.Create(reader.GetInt32(2))).Resolve<Region>()
-              };
+            var territory = new Territory(reader.GetString(0));
+            territory.TerritoryDescription = reader.GetString(1);
+            territory.Region = regions[reader.GetValue(2)];
+            territories.Add(reader.GetValue(0), territory);
           }
           reader.Close();
         }
@@ -513,8 +525,8 @@ namespace Xtensive.Storage.Tests.ObjectModel.Northwind
         reader = cmd.ExecuteReader();
         if (reader!=null) {
           while (reader.Read()) {
-            var territory = Key.Create<Territory>(Tuple.Create(reader.GetString(1))).Resolve<Territory>();
-            var employee = Key.Create<Employee>(Tuple.Create(reader.GetInt32(0))).Resolve<Employee>();
+            var territory = territories[reader.GetString(1)];
+            var employee = employees[reader.GetInt32(0)];
             if (employee == null)
               throw new NullReferenceException("Employee is null.");
             territory.Employees.Add(employee);
@@ -526,6 +538,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Northwind
 
         #region Orders
 
+        var orders = new Dictionary<object, Order>();
         cmd.CommandText = "Select * from [dbo].[Orders]";
         reader = cmd.ExecuteReader(CommandBehavior.KeyInfo);
         if (reader!=null) {
@@ -534,21 +547,19 @@ namespace Xtensive.Storage.Tests.ObjectModel.Northwind
             for (int i = 1; i < reader.FieldCount; i++)
               switch (i) {
               case 1:
-                order.Customer = !reader.IsDBNull(i) ? Key.Create<Customer>(
-                  Tuple.Create(reader.GetString(i))).Resolve<Customer>() : null;
+                order.Customer = !reader.IsDBNull(i) ? customers[reader.GetValue(i)]: null;
                 break;
               case 2:
-                order.Employee = !reader.IsDBNull(i) ? Key.Create<Employee>(
-                  Tuple.Create(reader.GetInt32(i))).Resolve<Employee>() : null;
+                order.Employee = !reader.IsDBNull(i) ? employees[reader.GetValue(i)] : null;
                 break;
               case 6:
-                order.ShipVia = !reader.IsDBNull(i) ? Key.Create<Shipper>(
-                  Tuple.Create(reader.GetInt32(i))).Resolve<Shipper>() : null;
+                order.ShipVia = !reader.IsDBNull(i) ? shippers[reader.GetValue(i)] : null;
                 break;
               default:
                 order[reader.GetName(i)] = !reader.IsDBNull(i) ? reader.GetValue(i) : null;
                 break;
               }
+            orders.Add(reader.GetValue(0), order);
           }
           reader.Close();
         }
@@ -557,21 +568,12 @@ namespace Xtensive.Storage.Tests.ObjectModel.Northwind
 
         #region OrderDetails
 
-        cmd.CommandText = "Select Min(OrderID) from [dbo].[Orders]";
-        reader = cmd.ExecuteReader();
-        int minValue = -1;
-        if (reader!=null) {
-          reader.Read();
-          minValue = reader.GetInt32(0) - 1;
-          reader.Close();
-        }
-
         cmd.CommandText = "Select * from [dbo].[Order Details]";
         reader = cmd.ExecuteReader();
         if (reader!=null) {
           while (reader.Read()) {
-            var order = Key.Create<Order>(Tuple.Create(reader.GetInt32(0) - minValue)).Resolve<Order>();
-            var product = Key.Create<Product>(Tuple.Create(reader.GetInt32(1))).Resolve<Product>();
+            var order = orders[reader.GetValue(0)];
+            var product = products[reader.GetValue(1)];
             var orderDetails = new OrderDetails(order, product);
 
             for (int i = 2; i < reader.FieldCount; i++)
