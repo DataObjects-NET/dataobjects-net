@@ -480,7 +480,9 @@ namespace Xtensive.Storage.Tests.ObjectModel.Northwind
               int employeeId = reader.GetInt32(16);
               Key key = Key.Create<Employee>(Tuple.Create(employeeId));
               var reportsTo = key.Resolve<Employee>();
-//              employee.ReportsTo = reportsTo;
+              if (reportsTo == null)
+                throw new NullReferenceException("Employee is null.");
+              employee.ReportsTo = reportsTo;
             }
           }
           reader.Close();
