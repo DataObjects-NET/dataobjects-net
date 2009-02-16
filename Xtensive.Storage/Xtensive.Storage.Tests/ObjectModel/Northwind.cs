@@ -480,7 +480,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Northwind
               int employeeId = reader.GetInt32(16);
               Key key = Key.Create<Employee>(Tuple.Create(employeeId));
               var reportsTo = key.Resolve<Employee>();
-              employee.ReportsTo = reportsTo;
+//              employee.ReportsTo = reportsTo;
             }
           }
           reader.Close();
@@ -512,7 +512,10 @@ namespace Xtensive.Storage.Tests.ObjectModel.Northwind
         if (reader!=null) {
           while (reader.Read()) {
             var territory = Key.Create<Territory>(Tuple.Create(reader.GetString(1))).Resolve<Territory>();
-            territory.Employees.Add(Key.Create<Employee>(Tuple.Create(reader.GetInt32(0))).Resolve<Employee>());
+            var employee = Key.Create<Employee>(Tuple.Create(reader.GetInt32(0))).Resolve<Employee>();
+            if (employee == null)
+              throw new NullReferenceException("Employee is null.");
+            territory.Employees.Add(employee);
           }
           reader.Close();
         }
