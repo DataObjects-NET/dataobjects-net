@@ -246,7 +246,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       return MaxHelper(left, right);
     }
 
-    [Compiler(typeof(Math), "Min", TargetKind.Static | TargetKind.Method)]
+    [Compiler(typeof(Math), "Max", TargetKind.Static | TargetKind.Method)]
     public static SqlExpression MathMaxUShort(
       [ParamType(typeof(ushort))] SqlExpression left,
       [ParamType(typeof(ushort))] SqlExpression right)
