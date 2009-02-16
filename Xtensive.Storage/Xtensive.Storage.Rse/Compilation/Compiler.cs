@@ -101,6 +101,9 @@ namespace Xtensive.Storage.Rse.Compilation.New
         case ProviderType.ExecutionSite:
           result = VisitExecutionSite((ExecutionSiteProvider)cp, sources);
           break;
+        case ProviderType.Subquery:
+          result = VisitSubquery((SubqueryProvider)cp, sources);
+          break;
         default:
           throw new ArgumentOutOfRangeException();
       }
@@ -210,6 +213,14 @@ namespace Xtensive.Storage.Rse.Compilation.New
     /// <param name="provider">Reindex provider.</param>
     /// <returns></returns>
     protected abstract ExecutableProvider VisitReindex(ReindexProvider provider, ExecutableProvider[] sources);
+
+    /// <summary>
+    /// Compiles <see cref="SubqueryProvider"/>.
+    /// </summary>
+    /// <param name="provider">The provider.</param>
+    /// <param name="sources">The sources.</param>
+    protected abstract ExecutableProvider VisitSubquery(SubqueryProvider provider, ExecutableProvider[] sources);
+
 
 
     // Constructor

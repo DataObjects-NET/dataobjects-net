@@ -11,6 +11,7 @@ using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Helpers;
+using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
 using Xtensive.Storage.Rse.Providers;
@@ -239,6 +240,11 @@ namespace Xtensive.Storage.Rse
     public static RecordSet Distinct(this RecordSet recordSet)
     {
       return new DistinctProvider(recordSet.Provider).Result;
+    }
+
+    public static RecordSet Subquery(this RecordSet recordSet, Parameter<Tuple> leftItemParameter, RecordSet right)
+    {
+      return new SubqueryProvider(leftItemParameter, recordSet.Provider, right.Provider).Result;
     }
   }
 }

@@ -198,6 +198,14 @@ namespace Xtensive.Storage.Rse.Compilation.New
         compiledSource);
     }
 
+    /// <inheritdoc/>
+    protected override ExecutableProvider VisitSubquery(SubqueryProvider provider, ExecutableProvider[] sources)
+    {
+      var left = sources[0];
+      var right = sources[1];
+      return new Providers.Executable.SubqueryProvider(provider, left, right);
+    }
+
     private static bool GroupIsOrdered(IEnumerable<bool> group)
     {
       foreach (var value in group)

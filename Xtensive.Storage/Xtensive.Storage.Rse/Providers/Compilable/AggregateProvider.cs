@@ -17,7 +17,8 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
   /// <summary>
   /// Compilable provider that applies aggregate functions to grouped columns from <see cref="UnaryProvider.Source"/>.
   /// </summary>
-  public class AggregateProvider : UnaryProvider
+  [Serializable]
+  public sealed class AggregateProvider : UnaryProvider
   {
     private const string ToStringFormat = "{0}, Group by ({1})";
 

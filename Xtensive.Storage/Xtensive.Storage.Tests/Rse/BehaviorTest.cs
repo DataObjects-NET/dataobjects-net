@@ -10,6 +10,7 @@ using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Diagnostics;
+using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
 using Xtensive.Storage.Model;
@@ -270,7 +271,63 @@ namespace Xtensive.Storage.Tests.Rse
 
         Assert.AreEqual(1, authorRS.Count());
       }
+    }
 
+    [Test]
+    public void SubqueryTest()
+    {
+      const int authorCount = 1000;
+      const int booksPerAuthor = 20;
+      Tuple authorTuple = Tuple.Create(new[] {typeof (int), typeof (string), typeof (string)});
+      Tuple bookTuple = Tuple.Create(new[] {typeof (int), typeof (int), typeof (string)});
+      var authorColumns = new[]
+        {
+          new MappedColumn("ID", 0, typeof (int)),
+          new MappedColumn("FirstName", 1, typeof (string)),
+          new MappedColumn("LastName", 2, typeof (string)),
+        };
+      var bookColumns = new[]
+        {
+          new MappedColumn("ID", 0, typeof (int)),
+          new MappedColumn("IDAuthor", 1, typeof (int)),
+          new MappedColumn("Title", 2, typeof (string)),
+        };
+
+      var authorHeader = new RecordSetHeader(authorTuple.Descriptor, authorColumns);
+      var bookHeader = new RecordSetHeader(bookTuple.Descriptor, bookColumns);
+
+
+      var authors = new Tuple[authorCount];
+      var books = new Tuple[authorCount * booksPerAuthor];
+      for (int i = 0; i < authorCount; i++) {
+        Tuple author = authorTuple.CreateNew();
+        author.SetValue(0, i);
+        author.SetValue(1, "FirstName" + i % 5);
+        author.SetValue(2, "LastName" + i / 5);
+        authors[i] = author;
+        for (int j = 0; j < booksPerAuthor; j++) {
+          Tuple book = bookTuple.CreateNew();
+          book.SetValue(0, i * booksPerAuthor + j);
+          book.SetValue(1, i);
+          book.SetValue(2, "Title" + i * booksPerAuthor + j);
+          books[i * booksPerAuthor + j] = book;
+        }
+      }
+
+      RecordSet authorRS = new RawProvider(authorHeader, authors).Result;
+      RecordSet bookRS = new RawProvider(bookHeader, books).Result.Alias("Book");
+
+//      using (new Measurement("Select many on Enumerable")) {
+//        var enumerable = authorRS.SelectMany((l) => bookRS.Where(r => r.GetValue<int>(1) == l.GetValue<int>(0)), (l, r) => new Pair<Tuple>(l, r));
+//        var list0 = enumerable.ToList();
+//      }
+
+      using (new Measurement("Subquery through Rse")) {
+        var p = new Parameter<Tuple>();
+        var result = authorRS.Subquery(p, bookRS.Filter(t => t.GetValue<int>(1) == p.Value.GetValue<int>(0)));
+        var list = result.ToList();
+        Assert.AreEqual(authorCount * booksPerAuthor, list.Count);
+      }
     }
   }
 }
