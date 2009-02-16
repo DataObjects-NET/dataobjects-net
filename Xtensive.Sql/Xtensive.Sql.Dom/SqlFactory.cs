@@ -1376,6 +1376,13 @@ namespace Xtensive.Sql.Dom
       return new SqlFunctionCall(SqlFunctionType.Sign, argument);
     }
 
+    public static SqlFunctionCall Sin(SqlExpression argument)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(argument, "argument");
+      SqlValidator.EnsureIsArithmeticExpression(argument);
+      return new SqlFunctionCall(SqlFunctionType.Sin, argument);
+    }
+
     public static SqlFunctionCall Sqrt(SqlExpression argument)
     {
       ArgumentValidator.EnsureArgumentNotNull(argument, "argument");
@@ -1827,6 +1834,21 @@ namespace Xtensive.Sql.Dom
       Collection<SqlExpression> arguments = new Collection<SqlExpression>();
       arguments.Add(pattern);
       arguments.Add(source);
+      return new SqlFunctionCall(SqlFunctionType.Position, arguments);
+    }
+
+    public static SqlFunctionCall Replace(SqlExpression text, SqlExpression from, SqlExpression to)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(text, "text");
+      ArgumentValidator.EnsureArgumentNotNull(from, "from");
+      ArgumentValidator.EnsureArgumentNotNull(to, "to");
+      SqlValidator.EnsureIsCharacterExpression(text);
+      SqlValidator.EnsureIsCharacterExpression(from);
+      SqlValidator.EnsureIsCharacterExpression(to);
+      Collection<SqlExpression> arguments = new Collection<SqlExpression>();
+      arguments.Add(text);
+      arguments.Add(from);
+      arguments.Add(to);
       return new SqlFunctionCall(SqlFunctionType.Position, arguments);
     }
 

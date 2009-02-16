@@ -1711,12 +1711,16 @@ namespace Xtensive.Sql.Dom.Compiler
           return "RADIANS";
         case SqlFunctionType.Rand:
           return "RAND";
+        case SqlFunctionType.Replace:
+          return "REPLACE";
         case SqlFunctionType.Round:
           return "ROUND";
         case SqlFunctionType.SessionUser:
           return "SESSION_USER";
         case SqlFunctionType.Sign:
           return "SIGN";
+        case SqlFunctionType.Sin:
+          return "SIN";
         case SqlFunctionType.Sqrt:
           return "SQRT";
         case SqlFunctionType.Square:

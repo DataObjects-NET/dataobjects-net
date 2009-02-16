@@ -21,6 +21,7 @@ namespace Xtensive.Sql.Dom.Dml
     Lower,
     OctetLength,
     Position,
+    Replace,
     Substring,
 //    Translate,
 //    Trim,
@@ -51,6 +52,7 @@ namespace Xtensive.Sql.Dom.Dml
     Rand,
     Round,
     Sign,
+    Sin,
     Sqrt,
     Square,
     Tan
