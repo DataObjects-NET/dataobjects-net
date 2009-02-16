@@ -15,16 +15,16 @@ namespace Xtensive.Storage.Tests.Linq
   [TestFixture]
   public class WhereTest : NorthwindDOModelTest
   {
-    private Key supplier20Key;
-    private Key category1Key;
+    private Key supplierLekaKey;
+    private Key categoryFirstKey;
 
     [TestFixtureSetUp]
     public override void TestFixtureSetUp()
     {
       base.TestFixtureSetUp();
       using (Domain.OpenSession()) {
-        supplier20Key = Query<Supplier>.All.Single(s => s.Id == 20).Key;
-        category1Key = Query<Category>.All.Single(c => c.Id == 1).Key;
+        supplierLekaKey = Query<Supplier>.All.Single(s => s.CompanyName == "Leka Trading").Key;
+        categoryFirstKey = Query<Category>.All.First().Key;
       }
     }
 
@@ -75,7 +75,7 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var suppliers = Query<Supplier>.All;
-          var supplier = suppliers.Where(s => s.Id == 20).First();
+          var supplier = suppliers.Where(s => s.Id == supplierLekaKey.Value.GetValue<int>(0)).First();
           Assert.IsNotNull(supplier);
           Assert.AreEqual("Leka Trading", supplier.CompanyName);
           t.Complete();
@@ -89,7 +89,7 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var suppliers = Query<Supplier>.All;
-          var key = Key.Create<Supplier>(Tuple.Create(20));
+          var key = Key.Create<Supplier>(supplierLekaKey.Value);
           var supplier = suppliers.Where(s => s.Key == key).First();
           Assert.IsNotNull(supplier);
           Assert.AreEqual("Leka Trading", supplier.CompanyName);
@@ -103,9 +103,9 @@ namespace Xtensive.Storage.Tests.Linq
     {
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
-          var supplier20 = supplier20Key.Resolve<Supplier>();
+          var supplierLeka = supplierLekaKey.Resolve<Supplier>();
           var suppliers = Query<Supplier>.All;
-          var supplier = suppliers.Where(s => s == supplier20).First();
+          var supplier = suppliers.Where(s => s == supplierLeka).First();
           Assert.IsNotNull(supplier);
           Assert.AreEqual("Leka Trading", supplier.CompanyName);
           t.Complete();
@@ -118,9 +118,9 @@ namespace Xtensive.Storage.Tests.Linq
     {
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
-          var supplier20 = supplier20Key.Resolve<Supplier>();
+          var supplierLeka = supplierLekaKey.Resolve<Supplier>();
           var products = Query<Product>.All;
-          var product = products.Where(p => p.Supplier.Key == supplier20.Key).First();
+          var product = products.Where(p => p.Supplier.Key == supplierLeka.Key).First();
           Assert.IsNotNull(product);
           Assert.AreEqual("Singaporean Hokkien Fried Mee", product.ProductName);
           t.Complete();
@@ -133,7 +133,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
-          var supplier20 = supplier20Key.Resolve<Supplier>();
+          var supplier20 = supplierLekaKey.Resolve<Supplier>();
           var products = Query<Product>.All;
           var product = products.Where(p => p.Supplier.Id == supplier20.Id).First();
           Assert.IsNotNull(product);
@@ -148,7 +148,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
-          var supplier20 = supplier20Key.Resolve<Supplier>();
+          var supplier20 = supplierLekaKey.Resolve<Supplier>();
           var products = Query<Product>.All;
           var product = products.Where(p => p.Supplier == supplier20).First();
           Assert.IsNotNull(product);
@@ -170,7 +170,7 @@ namespace Xtensive.Storage.Tests.Linq
           product =
             products.Where(
               p =>
-                p.Supplier.CompanyName == "Leka Trading" && p.Category.Key == category1Key &&
+                p.Supplier.CompanyName == "Leka Trading" && p.Category.Key == categoryFirstKey &&
                   p.Supplier.ContactTitle == "Owner").First();
           Assert.IsNotNull(product);
           Assert.AreEqual("Leka Trading", product.Supplier.CompanyName);
