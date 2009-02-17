@@ -58,7 +58,7 @@ namespace Xtensive.Sql.Dom.Dml
         return context.NodeMapping[this];
       
       SqlTrim clone = new SqlTrim((SqlExpression)expression.Clone(context),
-                                  (SqlExpression)pattern.Clone(context),
+                                  pattern != null ?  (SqlExpression)pattern.Clone(context) : null,
                                   trimType);
       context.NodeMapping[this] = clone;
       return clone;
