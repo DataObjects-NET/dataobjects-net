@@ -1849,7 +1849,7 @@ namespace Xtensive.Sql.Dom
       arguments.Add(text);
       arguments.Add(from);
       arguments.Add(to);
-      return new SqlFunctionCall(SqlFunctionType.Position, arguments);
+      return new SqlFunctionCall(SqlFunctionType.Replace, arguments);
     }
 
     //

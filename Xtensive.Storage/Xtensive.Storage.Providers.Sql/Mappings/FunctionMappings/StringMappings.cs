@@ -122,8 +122,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [ParamType(typeof(char))] SqlExpression oldChar,
       [ParamType(typeof(char))] SqlExpression newChar)
     {
-      // find out how to write "replace" in SqlDom
-      throw new NotImplementedException();
+      return SqlFactory.Replace(this_, oldChar, newChar);
     }
 
     [Compiler(typeof(string), "Replace")]
@@ -131,8 +130,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [ParamType(typeof(string))] SqlExpression oldValue,
       [ParamType(typeof(string))] SqlExpression newValue)
     {
-      // find out how to write "replace" in SqlDom
-      throw new NotImplementedException();
+      return SqlFactory.Replace(this_, oldValue, newValue);
     }
 
     [Compiler(typeof(string), "Remove")]

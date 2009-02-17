@@ -463,8 +463,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     public static SqlExpression MathSin(
       [ParamType(typeof(double))] SqlExpression d)
     {
-      // todo: return SqlFactory.Sin(d);
-      throw new NotImplementedException();
+      return SqlFactory.Sin(d);
     }
 
     [Compiler(typeof(Math), "Sinh", TargetKind.Static | TargetKind.Method)]
@@ -498,20 +497,26 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       return (exp2d - one) / (exp2d + one);
     }
 
+    private static SqlExpression TruncateHelper(SqlExpression d)
+    {
+      var result = SqlFactory.Case();
+      result.Add(d > 0, SqlFactory.Floor(d));
+      result.Else = SqlFactory.Ceiling(d);
+      return result;
+    }
+
     [Compiler(typeof(Math), "Truncate", TargetKind.Static | TargetKind.Method)]
     public static SqlExpression MathTruncateDouble(
       [ParamType(typeof(double))] SqlExpression d)
     {
-      // todo: return SqlFactory.Trunc(d);
-      throw new NotImplementedException();
+      return TruncateHelper(d);
     }
 
     [Compiler(typeof(Math), "Truncate", TargetKind.Static | TargetKind.Method)]
     public static SqlExpression MathTruncateDecimal(
       [ParamType(typeof(decimal))] SqlExpression d)
     {
-      // todo: return SqlFactory.Trunc(d);
-      throw new NotImplementedException();
+      return TruncateHelper(d);
     }
 
   }
