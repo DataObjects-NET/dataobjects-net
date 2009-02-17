@@ -73,15 +73,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     private static SqlExpression TrimHelper(SqlExpression this_,
       SqlExpression trimChars, SqlTrimType trimType)
     {
-      var chars = trimChars as SqlLiteral<char[]>;
-      if (chars == null)
-        return SqlFactory.Trim(this_, trimType, ' ');
-
-      var exp = this_;
-      foreach (var ch in chars.Value.Distinct())
-        exp = SqlFactory.Trim(exp, trimType, ch);
-
-      return exp;
+      throw new NotImplementedException();
     }
 
     [Compiler(typeof(string), "Trim")]
