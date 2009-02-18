@@ -277,6 +277,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       mappingsProvider.RegisterCompilers(typeof(DateTimeMappings));
       mappingsProvider.RegisterCompilers(typeof(MathMappings));
       mappingsProvider.RegisterCompilers(typeof(NumericMappings));
+      mappingsProvider.RegisterCompilers(typeof(DecimalMappings));
     }
   }
 }

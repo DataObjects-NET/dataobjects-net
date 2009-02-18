@@ -202,5 +202,31 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     {
       return StringCompare(this_, strB);
     }
+
+    private static SqlExpression IndexOfHelper(SqlExpression target, SqlExpression substr)
+    {
+      return SqlFactory.Position(SqlFactory.Concat(SqlFactory.Concat(Percent, substr), Percent), target);
+    }
+
+    [Compiler(typeof(string), "IndexOf")]
+    public static SqlExpression StringIndexOfStr(SqlExpression this_,
+      [ParamType(typeof(string))] SqlExpression str)
+    {
+      return IndexOfHelper(this_, str);
+    }
+
+    [Compiler(typeof(string), "IndexOf")]
+    public static SqlExpression StringIndexOfCh(SqlExpression this_,
+      [ParamType(typeof(char))] SqlExpression ch)
+    {
+      return IndexOfHelper(this_, ch);
+    }
+
+    [Compiler(typeof(string), "Equals")]
+    public static SqlExpression StringEquals(SqlExpression this_,
+      [ParamType(typeof(string))] SqlExpression value)
+    {
+      return value is SqlNull ? (SqlExpression) SqlFactory.IsNull(this_) : this_==value;
+    }
   }
 }

@@ -497,7 +497,8 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       return (exp2d - one) / (exp2d + one);
     }
 
-    private static SqlExpression TruncateHelper(SqlExpression d)
+    // made internal for using in DecimalMappings
+    internal static SqlExpression TruncateHelper(SqlExpression d)
     {
       var result = SqlFactory.Case();
       result.Add(d > 0, SqlFactory.Floor(d));

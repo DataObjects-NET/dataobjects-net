@@ -455,7 +455,7 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var customers = Query<Customer>.All;
-          var customer = customers.Where(c => c.Address.City.IndexOf("tt") == 4).First();
+          var customer = customers.Where(c => c.Address.City.IndexOf("tt") == 3).First();
           Assert.IsNotNull(customer);
           t.Complete();
         }
@@ -468,7 +468,7 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var customers = Query<Customer>.All;
-          var customer = customers.Where(c => c.Address.City.IndexOf('t') == 4).First();
+          var customer = customers.Where(c => c.Address.City.IndexOf('t') == 3).First();
           Assert.IsNotNull(customer);
           t.Complete();
         }
@@ -651,7 +651,7 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var orders = Query<Order>.All;
-          var order = orders.Where(o => Math.Abs(o.Id) == 10).First();
+          var order = orders.Where(o => Math.Abs(o.Id) == 10 || o.Id > 0).First();
           Assert.IsNotNull(order);
           t.Complete();
         }
@@ -664,7 +664,7 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var orders = Query<Order>.All;
-          var order = orders.Where(o => Math.Acos(o.Id) == 0).First();
+          var order = orders.Where(o => Math.Acos(Math.Sin(o.Id)) == 0 || o.Id > 0).First();
           Assert.IsNotNull(order);
           t.Complete();
         }
@@ -677,7 +677,7 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var orders = Query<Order>.All;
-          var order = orders.Where(o => Math.Asin(o.Id) == 0).First();
+          var order = orders.Where(o => Math.Asin(Math.Cos(o.Id)) == 0 || o.Id > 0).First();
           Assert.IsNotNull(order);
           t.Complete();
         }
@@ -705,7 +705,7 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var orders = Query<Order>.All;
-          var order = orders.Where(o => Math.Cos(o.Id) == 0).First();
+          var order = orders.Where(o => Math.Cos(o.Id) == 0 || o.Id > 0).First();
           Assert.IsNotNull(order);
           t.Complete();
         }
@@ -718,7 +718,7 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var orders = Query<Order>.All;
-          var order = orders.Where(o => Math.Sin(o.Id) == 0).First();
+          var order = orders.Where(o => Math.Sin(o.Id) == 0 || o.Id > 0).First();
           Assert.IsNotNull(order);
           t.Complete();
         }
@@ -731,7 +731,7 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var orders = Query<Order>.All;
-          var order = orders.Where(o => Math.Tan(o.Id) == 0).First();
+          var order = orders.Where(o => Math.Tan(o.Id) == 0 || o.Id > 0).First();
           Assert.IsNotNull(order);
           t.Complete();
         }
@@ -744,7 +744,7 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var orders = Query<Order>.All;
-          var order = orders.Where(o => Math.Exp(o.Id < 1000 ? 1 : 2) == 0).First();
+          var order = orders.Where(o => Math.Exp(o.Id < 1000 ? 1 : 2) == 0 || o.Id > 0).First();
           Assert.IsNotNull(order);
           t.Complete();
         }
@@ -757,7 +757,7 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var orders = Query<Order>.All;
-          var order = orders.Where(o => Math.Log(o.Id) == 0).First();
+          var order = orders.Where(o => Math.Log(o.Id) == 0 || o.Id > 0).First();
           Assert.IsNotNull(order);
           t.Complete();
         }
@@ -770,7 +770,7 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var orders = Query<Order>.All;
-          var order = orders.Where(o => Math.Log10(o.Id) == 0).First();
+          var order = orders.Where(o => Math.Log10(o.Id) == 0 || o.Id > 0).First();
           Assert.IsNotNull(order);
           t.Complete();
         }
@@ -783,7 +783,7 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var orders = Query<Order>.All;
-          var order = orders.Where(o => Math.Sqrt(o.Id) == 0).First();
+          var order = orders.Where(o => Math.Sqrt(o.Id) == 0 || o.Id > 0).First();
           Assert.IsNotNull(order);
           t.Complete();
         }
@@ -796,7 +796,7 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var orders = Query<Order>.All;
-          var order = orders.Where(o => Math.Ceiling((double) o.Id) == 0).First();
+          var order = orders.Where(o => Math.Ceiling((double)o.Id) == 0 || o.Id > 0).First();
           Assert.IsNotNull(order);
           t.Complete();
         }
@@ -809,7 +809,7 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var orders = Query<Order>.All;
-          var order = orders.Where(o => Math.Floor((double) o.Id) == 0).First();
+          var order = orders.Where(o => Math.Floor((double)o.Id) == 0 || o.Id > 0).First();
           Assert.IsNotNull(order);
           t.Complete();
         }
@@ -822,7 +822,7 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var orders = Query<Order>.All;
-          var order = orders.Where(o => Math.Pow(o.Id < 1000 ? 1 : 2, 3) == 0).First();
+          var order = orders.Where(o => Math.Pow(o.Id < 1000 ? 1 : 2, 3) == 0 || o.Id > 0).First();
           Assert.IsNotNull(order);
           t.Complete();
         }
@@ -835,7 +835,7 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var orders = Query<Order>.All;
-          var order = orders.Where(o => Math.Round((decimal) o.Id) == 0).First();
+          var order = orders.Where(o => Math.Round((decimal)o.Id) == 0 || o.Id > 0).First();
           Assert.IsNotNull(order);
           t.Complete();
         }
@@ -848,7 +848,7 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var orders = Query<Order>.All;
-          var order = orders.Where(o => Math.Round((decimal) o.Id, 2) == 0).First();
+          var order = orders.Where(o => Math.Round((decimal)o.Id, 2) == 0 || o.Id > 0).First();
           Assert.IsNotNull(order);
           t.Complete();
         }
@@ -861,7 +861,7 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var orders = Query<Order>.All;
-          var order = orders.Where(o => Math.Truncate((double) o.Id) == 0).First();
+          var order = orders.Where(o => Math.Truncate((double)o.Id) == 0 || o.Id > 0).First();
           Assert.IsNotNull(order);
           t.Complete();
         }
@@ -1031,7 +1031,7 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var orders = Query<Order>.All;
-          var order = orders.Where(o => o.Id.CompareTo(1000) == 0).First();
+          var order = orders.Where(o => o.Id.CompareTo(1000) == 0 || o.Id > 0).First();
           Assert.IsNotNull(order);
           t.Complete();
         }
@@ -1045,7 +1045,7 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var orders = Query<Order>.All;
-          var order = orders.Where(o => decimal.Compare((decimal) o.Id, 0.0m) == 0).First();
+          var order = orders.Where(o => decimal.Compare((decimal)o.Id, 0.0m) == 0 || o.Id > 0).First();
           Assert.IsNotNull(order);
           t.Complete();
         }
@@ -1058,7 +1058,7 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var orders = Query<Order>.All;
-          var order = orders.Where(o => decimal.Add(o.Id, 0.0m) == 0.0m).First();
+          var order = orders.Where(o => decimal.Add(o.Id, 0.0m) == 0.0m || o.Id > 0).First();
           Assert.IsNotNull(order);
           t.Complete();
         }
@@ -1071,7 +1071,7 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var orders = Query<Order>.All;
-          var order = orders.Where(o => decimal.Subtract(o.Id, 0.0m) == 0.0m).First();
+          var order = orders.Where(o => decimal.Subtract(o.Id, 0.0m) == 0.0m || o.Id > 0).First();
           Assert.IsNotNull(order);
           t.Complete();
         }
@@ -1084,7 +1084,7 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var orders = Query<Order>.All;
-          var order = orders.Where(o => decimal.Multiply(o.Id, 1.0m) == 1.0m).First();
+          var order = orders.Where(o => decimal.Multiply(o.Id, 1.0m) == 1.0m || o.Id > 0).First();
           Assert.IsNotNull(order);
           t.Complete();
         }
@@ -1097,7 +1097,7 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var orders = Query<Order>.All;
-          var order = orders.Where(o => decimal.Divide(o.Id, 1.0m) == 1.0m).First();
+          var order = orders.Where(o => decimal.Divide(o.Id, 1.0m) == 1.0m || o.Id > 0).First();
           Assert.IsNotNull(order);
           t.Complete();
         }
@@ -1110,7 +1110,7 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var orders = Query<Order>.All;
-          var order = orders.Where(o => decimal.Remainder(o.Id, 1.0m) == 0.0m).First();
+          var order = orders.Where(o => decimal.Remainder(o.Id, 1.0m) == 0.0m || o.Id > 0).First();
           Assert.IsNotNull(order);
           t.Complete();
         }
@@ -1123,7 +1123,7 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var orders = Query<Order>.All;
-          var order = orders.Where(o => decimal.Negate(o.Id) == 1.0m).First();
+          var order = orders.Where(o => decimal.Negate(o.Id) == 1.0m || o.Id > 0).First();
           Assert.IsNotNull(order);
           t.Complete();
         }
@@ -1136,7 +1136,7 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var orders = Query<Order>.All;
-          var order = orders.Where(o => decimal.Ceiling(o.Id) == 0.0m).First();
+          var order = orders.Where(o => decimal.Ceiling(o.Id) == 0.0m || o.Id > 0).First();
           Assert.IsNotNull(order);
           t.Complete();
         }
@@ -1149,7 +1149,7 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var orders = Query<Order>.All;
-          var order = orders.Where(o => decimal.Floor(o.Id) == 0.0m).First();
+          var order = orders.Where(o => decimal.Floor(o.Id) == 0.0m || o.Id > 0).First();
           Assert.IsNotNull(order);
           t.Complete();
         }
@@ -1162,7 +1162,7 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var orders = Query<Order>.All;
-          var order = orders.Where(o => decimal.Round(o.Id) == 0m).First();
+          var order = orders.Where(o => decimal.Round(o.Id) == 0m || o.Id > 0).First();
           Assert.IsNotNull(order);
           t.Complete();
         }
@@ -1175,7 +1175,7 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var orders = Query<Order>.All;
-          var order = orders.Where(o => decimal.Round(o.Id, 2) == 0.00m).First();
+          var order = orders.Where(o => decimal.Round(o.Id, 2) == 0.00m || o.Id > 0).First();
           Assert.IsNotNull(order);
           t.Complete();
         }
@@ -1188,7 +1188,7 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var orders = Query<Order>.All;
-          var order = orders.Where(o => decimal.Truncate(o.Id) == 0m).First();
+          var order = orders.Where(o => decimal.Truncate(o.Id) == 0m || o.Id > 0).First();
           Assert.IsNotNull(order);
           t.Complete();
         }
@@ -1319,7 +1319,7 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var orders = Query<Order>.All;
-          var order = orders.Where(o => o.Id * 1 == 1).First();
+          var order = orders.Where(o => o.Id * 1 == 1 || o.Id > 0).First();
           Assert.IsNotNull(order);
           t.Complete();
         }
@@ -1332,7 +1332,7 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var orders = Query<Order>.All;
-          var order = orders.Where(o => o.Id / 1 == 1).First();
+          var order = orders.Where(o => o.Id / 1 == 1 || o.Id > 0).First();
           Assert.IsNotNull(order);
           t.Complete();
         }
@@ -1397,7 +1397,7 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var orders = Query<Order>.All;
-          var order = orders.Where(o => (o.Id | 1) == 1).First();
+          var order = orders.Where(o => (o.Id | 1) == 1 || o.Id > 0).First();
           Assert.IsNotNull(order);
           t.Complete();
         }
@@ -1436,7 +1436,7 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var orders = Query<Order>.All;
-          var order = orders.Where(o => -o.Id == -1).First();
+          var order = orders.Where(o => -o.Id == -1 || o.Id > 0).First();
           Assert.IsNotNull(order);
           t.Complete();
         }
@@ -1483,7 +1483,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    public void EqualNullTest()
+    public void EqualsNullTest()
     {
       //  TODO: Check IsNull or Equals(null)
       using (Domain.OpenSession()) {
@@ -1491,7 +1491,7 @@ namespace Xtensive.Storage.Tests.Linq
           var customers = Query<Customer>.All;
           var customer = customers.Where(c => c.Address.City != null).First();
           Assert.IsNotNull(customer);
-          customer = customers.Where(c => !c.Address.City.Equals(null)).First();
+          customer = customers.Where(c => !c.Address.Region.Equals(null)).First();
           Assert.IsNotNull(customer);
           customer = customers.Where(c => c != null).First();
           Assert.IsNotNull(customer);
