@@ -18,34 +18,9 @@ using Xtensive.Storage.Model;
 namespace Xtensive.Storage
 {
   public class EntitySet<TItem> : EntitySetBase,
-    ICollection<TItem>,
-    IQueryable<TItem>
+    ICollection<TItem>
     where TItem : Entity
   {
-    #region IQueryable<TItem> implementation
-
-    Expression IQueryable.Expression
-    {
-      get
-      {
-//        var result = Query<TItem>.All.Where(p => p.);
-//        return Expression.Constant(result);
-        throw new NotImplementedException();
-      }
-    }
-
-    Type IQueryable.ElementType
-    {
-      get { return typeof (TItem); }
-    }
-
-    IQueryProvider IQueryable.Provider
-    {
-      get { throw new NotImplementedException(); }
-    }
-
-    #endregion
-
     /// <inheritdoc/>
     [Infrastructure]
     public bool Contains(TItem item)
