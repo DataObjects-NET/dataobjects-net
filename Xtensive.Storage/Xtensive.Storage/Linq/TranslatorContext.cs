@@ -129,9 +129,8 @@ namespace Xtensive.Storage.Linq
       if (domain == null)
         throw new InvalidOperationException(Strings.ExNoCurrentSession);
       model = domain.Model;
-      this.query = query;
       parameterBindings = new Dictionary<ParameterExpression, ResultExpression>();
-      evaluator = new ExpressionEvaluator(query);
+      evaluator = new ExpressionEvaluator(this.query);
       parameterExtractor = new ParameterExtractor(evaluator);
       memberAccessReplacer = new MemberAccessReplacer(this);
       memberAccessBasedJoiner = new MemberAccessBasedJoiner(this);

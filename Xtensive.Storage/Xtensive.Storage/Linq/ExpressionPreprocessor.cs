@@ -24,13 +24,12 @@ namespace Xtensive.Storage.Linq
     protected override Expression VisitMethodCall(MethodCallExpression mc)
     {
       if (mc.Method.DeclaringType == typeof(object) && mc.Method.Name == WellKnown.Object.Equals) {
-        if (mc.Object == null && mc.Method.IsStatic) {
+        if (mc.Object == null && mc.Method.IsStatic)
           return Expression.Equal(mc.Arguments[0], mc.Arguments[1]);
-        }
-        else {
-          return Expression.Equal(mc.Object, mc.Arguments[0]);
-        }
+        return Expression.Equal(mc.Object, mc.Arguments[0]);
       }
+      if (mc.Method.DeclaringType == typeof (Structure) && mc.Method.Name == WellKnown.Object.Equals)
+        return Expression.Equal(mc.Object, mc.Arguments[0]);
       return base.VisitMethodCall(mc);
     }
   }

@@ -117,8 +117,8 @@ namespace Xtensive.Storage.Linq
           }
           else if (isEntity) {
             if (!leftIsParameter && !rightIsParameter) {
-              var bLeft = Expression.MakeMemberAccess(b.Left, keyAccessor);
-              var bRight = Expression.MakeMemberAccess(b.Right, keyAccessor);
+              var bLeft = b.Left.NodeType == ExpressionType.Constant && ((ConstantExpression)b.Left).Value == null ? b.Left : Expression.MakeMemberAccess(b.Left, keyAccessor);
+              var bRight = b.Right.NodeType == ExpressionType.Constant && ((ConstantExpression)b.Right).Value == null ? b.Right : Expression.MakeMemberAccess(b.Right, keyAccessor);
               result = MakeComplexBinaryExpression(bLeft, bRight, b.NodeType);
             }
             else {
@@ -145,12 +145,12 @@ namespace Xtensive.Storage.Linq
           }
           else if (isAnonymous) {
             if (!leftIsParameter && !rightIsParameter)
-              result = MakeComplexBinaryExpression(b.Left, b.Right, b.NodeType);
+              return MakeComplexBinaryExpression(b.Left, b.Right, b.NodeType);
             throw new NotSupportedException();
           }
           else {
             if (!leftIsParameter && !rightIsParameter)
-              result = MakeComplexBinaryExpression(b.Left, b.Right, b.NodeType);
+              return MakeComplexBinaryExpression(b.Left, b.Right, b.NodeType);
             throw new NotSupportedException();
           }
           return result;
@@ -181,6 +181,25 @@ namespace Xtensive.Storage.Linq
     private Expression MakeComplexBinaryExpression(Expression bLeft, Expression bRight, ExpressionType operationType)
     {
       Expression result = null;
+      if (bLeft.NodeType == ExpressionType.Constant || bRight.NodeType == ExpressionType.Constant) {
+        var constant = bLeft.NodeType == ExpressionType.Constant
+          ? (ConstantExpression)bLeft
+          : (ConstantExpression)bRight;
+        var member = bLeft.NodeType != ExpressionType.Constant
+          ? bLeft
+          : bRight;
+        if (constant.Value == null) {
+          var path = MemberPath.Parse(member, context.Model);
+          var source = context.GetBound(path.Parameter);
+          var segment = source.GetMemberSegment(path);
+          foreach (var i in segment.GetItems()) {
+            Expression left = Expression.Call(resultParameter, nonGenericAccessor, Expression.Constant(i));
+            Expression right = Expression.Constant(null);
+            result = MakeBinaryExpression(result, left, right, operationType);
+          }
+          return result;
+        }
+      }
       var leftPath = MemberPath.Parse(bLeft, context.Model);
       var leftSource = context.GetBound(leftPath.Parameter);
       var leftSegment = leftSource.GetMemberSegment(leftPath);
