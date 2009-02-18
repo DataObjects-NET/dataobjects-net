@@ -5,6 +5,7 @@
 // Created:    2008.01.27
 
 using System;
+using System.Linq;
 using System.Reflection;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
@@ -66,6 +67,39 @@ namespace Xtensive.Core.Reflection
           lastMatch = m;
         }
       }
+      return lastMatch;
+    }
+
+    /// <summary>
+    /// Gets constructor by names \ types of its parameters.
+    /// </summary>
+    /// <param name="type">Type to search constructor in.</param>
+    /// <param name="bindingFlags">Binding attributes.</param>
+    /// <param name="parameterTypes">Either strings or <see cref="Type"/>s of parameters (mixing is allowed).</param>
+    /// <returns>Found constructor, if match was found;
+    /// otherwise, <see langword="null"/>.</returns>
+    public static ConstructorInfo GetConstructor(this Type type, BindingFlags bindingFlags, object[] parameterTypes)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(type, "type");
+
+      if (parameterTypes == null)
+        parameterTypes = ArrayUtils<object>.EmptyArray;
+
+      if (parameterTypes.All(o => o is Type))
+        return type.GetConstructor(bindingFlags, null,
+          parameterTypes.Select(o => (Type) o).ToArray(), null);
+
+      var genericArgumentNames = ArrayUtils<string>.EmptyArray;
+      ConstructorInfo lastMatch = null;
+
+      foreach (ConstructorInfo ci in type.GetConstructors(bindingFlags)) {
+        if (CheckMethod(ci, type, WellKnown.CtorName, genericArgumentNames, parameterTypes)) {
+          if (lastMatch!=null)
+            throw new AmbiguousMatchException();
+          lastMatch = ci;
+        }
+      }
+
       return lastMatch;
     }
 
@@ -241,7 +275,7 @@ namespace Xtensive.Core.Reflection
 
     #region Private \ internal methods
 
-    private static bool CheckMethod(this MethodInfo m, Type type, string name, string[] genericArgumentNames, object[] parameterTypes)
+    private static bool CheckMethod(MethodBase m, Type type, string name, string[] genericArgumentNames, object[] parameterTypes)
     {
       // Checking name
       if (m.Name!=name)
