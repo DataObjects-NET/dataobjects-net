@@ -259,33 +259,22 @@ namespace Xtensive.Storage.Tests.Linq
       }
     }
 
-    [Ignore("Not implemented.")]
     [Test]
-    public void CorrelatedQueryTest() 
+    public void AggregateTest() 
     {
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var products = Query<Product>.All;
           var suppliers = Query<Supplier>.All;
           var result = from p in products
-                       select (
-                         from s in suppliers
-                         where s.Id == p.Supplier.Id
-                         select s.CompanyName
-                       );
+                       select new { Product = p, MaxID = suppliers.Where(s => s == p.Supplier).Max(s => s.Id) };
           var list = result.ToList();
           Assert.Greater(list.Count , 0);
-          foreach (var strings in list) {
-            foreach (var s in strings) {
-              Assert.IsNotNull(s);
-            }
-          }
           t.Complete();
         }
       }
     }
 
-    [Ignore("Not implemented.")]
     [Test]
     public void CorrelatedQueryAnonymousTest() 
     {
@@ -294,11 +283,7 @@ namespace Xtensive.Storage.Tests.Linq
           var products = Query<Product>.All;
           var suppliers = Query<Supplier>.All;
           var result = from p in products
-                       select new {
-                         Suppliers = from s in suppliers
-                                     where s.Id == p.Supplier.Id
-                                     select s.CompanyName
-                       };
+                       select new { Suppliers = suppliers.Where(s => s.Id == p.Supplier.Id).Select(s => s.CompanyName) };
           var list = result.ToList();
           Assert.Greater(list.Count, 0);
           foreach (var p in list) {

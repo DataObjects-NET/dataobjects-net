@@ -4,9 +4,12 @@
 // Created by: Aleksey Gamzov
 // Created:    2008.09.10
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
+using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.Internals.DocTemplates;
@@ -15,9 +18,34 @@ using Xtensive.Storage.Model;
 namespace Xtensive.Storage
 {
   public class EntitySet<TItem> : EntitySetBase,
-    ICollection<TItem>
+    ICollection<TItem>,
+    IQueryable<TItem>
     where TItem : Entity
   {
+    #region IQueryable<TItem> implementation
+
+    Expression IQueryable.Expression
+    {
+      get
+      {
+//        var result = Query<TItem>.All.Where(p => p.);
+//        return Expression.Constant(result);
+        throw new NotImplementedException();
+      }
+    }
+
+    Type IQueryable.ElementType
+    {
+      get { return typeof (TItem); }
+    }
+
+    IQueryProvider IQueryable.Provider
+    {
+      get { throw new NotImplementedException(); }
+    }
+
+    #endregion
+
     /// <inheritdoc/>
     [Infrastructure]
     public bool Contains(TItem item)
