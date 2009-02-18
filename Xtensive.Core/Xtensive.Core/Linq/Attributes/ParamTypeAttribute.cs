@@ -20,8 +20,10 @@ namespace Xtensive.Core.Linq
     /// <summary>
     /// Gets or sets the type of the param.
     /// </summary>
-    /// <value>The type of the param.</value>
     public Type ParamType { get; private set; }
+
+
+    // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>

@@ -45,6 +45,9 @@ namespace Xtensive.Core.Linq
     /// <value>The generic params count.</value>
     public int GenericParamsCount { get; private set; }
 
+
+    // Constructors
+
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>

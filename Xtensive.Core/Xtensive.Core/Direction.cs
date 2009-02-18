@@ -9,7 +9,7 @@ using System;
 namespace Xtensive.Core
 {
   /// <summary>
-  /// Represents a direction of iteration through the enumerable.
+  /// Possible directions of iteration through the enumerable.
   /// </summary>
   [Serializable]
   public enum Direction : sbyte

@@ -9,7 +9,7 @@ using System;
 namespace Xtensive.Core
 {
   /// <summary>
-  /// Enumerates types of matching.
+  /// Possible types of match to look for.
   /// </summary>
   [Serializable]
   public enum MatchType
