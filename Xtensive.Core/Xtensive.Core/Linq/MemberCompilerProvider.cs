@@ -8,10 +8,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Resources;
+
+using CompilerDictionary = System.Collections.Generic.Dictionary<System.Reflection.MethodInfo,
+  Xtensive.Core.Pair<System.Delegate, System.Reflection.MethodInfo>>;
 
 namespace Xtensive.Core.Linq
 {
@@ -21,87 +25,22 @@ namespace Xtensive.Core.Linq
   /// <typeparam name="T"><inheritdoc/></typeparam>
   public class MemberCompilerProvider<T> : IMemberCompilerProvider<T>
   {
-    private volatile Dictionary<MethodInfo, Delegate> delegatesByMethodInfo
-      = new Dictionary<MethodInfo, Delegate>();
+    private volatile CompilerDictionary delegatesByMethodInfo = new CompilerDictionary();
     private readonly object syncRoot = new object();
-
-    private static Type[] ExtractParamTypesAndValidate(MethodInfo methodInfo, bool requireMethodInfo)
-    {
-      int length = methodInfo.GetParameters().Length;
-
-      if (length > 4)
-        throw new InvalidOperationException(string.Format(
-          Strings.ExCompilerXHasTooManyParameters,
-          methodInfo.GetFullName(true)));
-
-      if (length==0 && requireMethodInfo)
-        throw new InvalidOperationException(string.Format(
-          Strings.ExCompilerXShouldHaveMethodInfoParameter,
-          methodInfo.GetFullName(true)));
-
-      if (methodInfo.ReturnType != typeof(T))
-        throw new InvalidOperationException(string.Format(
-          Strings.ExCompilerXShouldReturnY,
-          methodInfo.GetFullName(true),
-          typeof(T).GetFullName(true)));
-
-      var parameters = methodInfo.GetParameters();
-      var result = new Type[length];
-
-      for (int i = 0; i < length; i++) {
-        var param = parameters[i];
-        var requiredType = typeof (T);
-
-        if (requireMethodInfo && i == 0)
-          requiredType = typeof (MethodInfo);
-
-        if (param.ParameterType != requiredType)
-          throw new InvalidOperationException(string.Format(
-            Strings.ExCompilerXShouldHaveParameterYOfTypeZ,
-            methodInfo.GetFullName(true), param.Name,
-            requiredType.GetFullName(true)));
-
-        var attr = (ParamTypeAttribute)param
-          .GetCustomAttributes(typeof(ParamTypeAttribute), false).FirstOrDefault();
-
-        result[i] = attr==null ? null : attr.ParamType;
-      }
-
-      return result;
-    }
-
-    private static MethodInfo FindBestMethod(Type type, MethodInfo mi)
-    {
-      var methods = type.GetMethods().Where(
-        m => m.Name == mi.Name
-          && m.GetParameters().Length == mi.GetParameters().Length
-          && m.IsStatic == mi.IsStatic);
-      
-      if (methods.Count() == 1)
-        return methods.First();
-
-      var paramTypes = mi.GetParameterTypes();
-
-      Func<Type, Type, bool> oneParamMatch =
-        (l, r) => l.IsGenericParameter ? r==l : (r.IsGenericParameter || r==l);
-
-      Func<MethodInfo, bool> allParamsMatch =
-        m => paramTypes
-          .ZipWith(m.GetParameterTypes(), (t1, t2) => new {t1, t2})
-          .All(a => oneParamMatch(a.t1, a.t2));
-
-      methods = methods.Where(allParamsMatch);
-
-      if (methods.Count() > 1)
-        return null;
-
-      return methods.FirstOrDefault();
-    }
 
     /// <inheritdoc/>
     public Func<T, T[], T> GetCompiler(MethodInfo methodInfo)
     {
+      MethodInfo dummy;
+      return GetCompiler(methodInfo, out dummy);
+    }
+
+    /// <inheritdoc/>
+    public Func<T, T[], T> GetCompiler(MethodInfo methodInfo, out MethodInfo compilerMethodInfo)
+    {
       ArgumentValidator.EnsureArgumentNotNull(methodInfo, "methodInfo");
+
+      compilerMethodInfo = null;
 
       bool withMethodInfo = false;
 
@@ -122,18 +61,21 @@ namespace Xtensive.Core.Linq
         withMethodInfo = true;
       }
 
-      Delegate d;
-      if (!delegatesByMethodInfo.TryGetValue(mi, out d))
+      Pair<Delegate, MethodInfo> pair;
+
+      if (!delegatesByMethodInfo.TryGetValue(mi, out pair))
         return null;
 
       if (withMethodInfo) {
-        var d1 = d as Func<MethodInfo, T, T[], T>;
-        if (d1 == null)
+        var d = pair.First as Func<MethodInfo, T, T[], T>;
+        if (d == null)
           return null;
-        return (this_, arr) => d1(methodInfo, this_, arr);
+        compilerMethodInfo = pair.Second;
+        return (this_, arr) => d(methodInfo, this_, arr);
       }
 
-      return d as Func<T, T[], T>;
+      compilerMethodInfo = pair.Second;
+      return pair.First as Func<T, T[], T>;
     }
 
     /// <inheritdoc/>
@@ -151,7 +93,7 @@ namespace Xtensive.Core.Linq
         throw new InvalidOperationException(string.Format(
           Strings.ExTypeXShouldNotBeGeneric, type.GetFullName(true)));
 
-      var dict = new Dictionary<MethodInfo, Delegate>();
+      var dict = new CompilerDictionary();
 
       var compilers = type.GetMethods(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly)
         .Where(mi => mi.IsDefined(typeof (CompilerAttribute), false) && !mi.IsGenericMethod);
@@ -168,7 +110,7 @@ namespace Xtensive.Core.Linq
           delegatesByMethodInfo = MergeDicts(delegatesByMethodInfo, dict);
           break;
         case ConflictHandlingMethod.ReportError:
-          var result = new Dictionary<MethodInfo, Delegate>(delegatesByMethodInfo);
+          var result = new Dictionary<MethodInfo, Pair<Delegate, MethodInfo>>(delegatesByMethodInfo);
             foreach (var pair in dict) {
               if (result.ContainsKey(pair.Key))
                 throw new InvalidOperationException(string.Format(
@@ -182,16 +124,89 @@ namespace Xtensive.Core.Linq
       }
     }
 
-    private static Dictionary<MethodInfo, Delegate> MergeDicts(
-      Dictionary<MethodInfo, Delegate> first, Dictionary<MethodInfo, Delegate> second)
+    private static CompilerDictionary MergeDicts(CompilerDictionary first, CompilerDictionary second)
     {
-      var result = new Dictionary<MethodInfo, Delegate>(first);
+      var result = new Dictionary<MethodInfo, Pair<Delegate, MethodInfo>>(first);
       foreach (var pair in second)
         result[pair.Key] = pair.Value;
       return result;
     }
 
-    private void RegisterCompiler(Dictionary<MethodInfo, Delegate> dict, MethodInfo compiler)
+    private static MethodInfo FindBestMethod(Type type, MethodInfo mi)
+    {
+      var methods = type.GetMethods().Where(
+        m => m.Name == mi.Name
+          && m.GetParameters().Length == mi.GetParameters().Length
+          && m.IsStatic == mi.IsStatic);
+
+      if (methods.Count() == 1)
+        return methods.First();
+
+      var paramTypes = mi.GetParameterTypes();
+
+      Func<Type, Type, bool> oneParamMatch =
+        (l, r) => l.IsGenericParameter ? r == l : (r.IsGenericParameter || r == l);
+
+      Func<MethodInfo, bool> allParamsMatch =
+        m => paramTypes
+          .ZipWith(m.GetParameterTypes(), (t1, t2) => new { t1, t2 })
+          .All(a => oneParamMatch(a.t1, a.t2));
+
+      methods = methods.Where(allParamsMatch);
+
+      if (methods.Count() > 1)
+        return null;
+
+      return methods.FirstOrDefault();
+    }
+
+    private static Type[] ExtractParamTypesAndValidate(MethodInfo methodInfo, bool requireMethodInfo)
+    {
+      int length = methodInfo.GetParameters().Length;
+
+      if (length > 4)
+        throw new InvalidOperationException(string.Format(
+          Strings.ExCompilerXHasTooManyParameters,
+          methodInfo.GetFullName(true)));
+
+      if (length == 0 && requireMethodInfo)
+        throw new InvalidOperationException(string.Format(
+          Strings.ExCompilerXShouldHaveMethodInfoParameter,
+          methodInfo.GetFullName(true)));
+
+      if (methodInfo.ReturnType != typeof(T))
+        throw new InvalidOperationException(string.Format(
+          Strings.ExCompilerXShouldReturnY,
+          methodInfo.GetFullName(true),
+          typeof(T).GetFullName(true)));
+
+      var parameters = methodInfo.GetParameters();
+      var result = new Type[length];
+
+      for (int i = 0; i < length; i++)
+      {
+        var param = parameters[i];
+        var requiredType = typeof(T);
+
+        if (requireMethodInfo && i == 0)
+          requiredType = typeof(MethodInfo);
+
+        if (param.ParameterType != requiredType)
+          throw new InvalidOperationException(string.Format(
+            Strings.ExCompilerXShouldHaveParameterYOfTypeZ,
+            methodInfo.GetFullName(true), param.Name,
+            requiredType.GetFullName(true)));
+
+        var attr = (TypeAttribute)param
+          .GetCustomAttributes(typeof(TypeAttribute), false).FirstOrDefault();
+
+        result[i] = attr == null ? null : attr.Value;
+      }
+
+      return result;
+    }
+
+    private void RegisterCompiler(CompilerDictionary dict, MethodInfo compiler)
     {
       var attr = compiler.GetAttribute<CompilerAttribute>(AttributeSearchOptions.InheritNone);
 
@@ -270,8 +285,8 @@ namespace Xtensive.Core.Linq
         result = isStatic ? CreateStaticGenericInvoke(compiler) : CreateInstanceGenericInvoke(compiler);
       else
         result = isStatic ? CreateStaticNonGenericInvoke(compiler) : CreateInstanceNonGenericInvoke(compiler);
-
-      dict[methodInfo] = result;
+      
+      dict[methodInfo] = new Pair<Delegate, MethodInfo>(result , compiler);
     }
 
     private static Func<T, T[], T> CreateInstanceNonGenericInvoke(MethodInfo compiler)

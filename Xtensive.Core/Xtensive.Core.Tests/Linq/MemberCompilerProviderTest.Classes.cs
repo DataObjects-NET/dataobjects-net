@@ -87,7 +87,7 @@ namespace Xtensive.Core.Tests.Linq
       #region Compilers for NonGenericTarget methods
 
       [Compiler(typeof(NonGenericTarget), "StaticNonGenericMethod", TargetKind.Method | TargetKind.Static)]
-      static public string C1([ParamType(typeof(int))]string a, [ParamType(typeof(long))]string b)
+      static public string C1([Type(typeof(int))]string a, [Type(typeof(long))]string b)
       {
         return "NonGenericTarget.StaticNonGenericMethod";
       }
@@ -99,7 +99,7 @@ namespace Xtensive.Core.Tests.Linq
       }
 
       [Compiler(typeof(NonGenericTarget), "InstanceNonGenericMethod")]
-      static public string C3(string this_, [ParamType(typeof(int))] string s)
+      static public string C3(string this_, [Type(typeof(int))] string s)
       {
         return "NonGenericTarget.InstanceNonGenericMethod";
       }
@@ -115,7 +115,7 @@ namespace Xtensive.Core.Tests.Linq
       #region Compilers for GenericTarget methods
 
       [Compiler(typeof(GenericTarget<>), "StaticNonGenericMethod", TargetKind.Method | TargetKind.Static)]
-      static public string C5(MethodInfo methodInfo, string s1, [ParamType(typeof(int))] string s2)
+      static public string C5(MethodInfo methodInfo, string s1, [Type(typeof(int))] string s2)
       {
         return "GenericTarget`1.StaticNonGenericMethod";
       }
@@ -133,7 +133,7 @@ namespace Xtensive.Core.Tests.Linq
       }
 
       [Compiler(typeof(GenericTarget<>), "InstanceGenericMethod", 1)]
-      static public string C8(MethodInfo methodInfo, string this_, string s1, [ParamType(typeof(int))]string s2)
+      static public string C8(MethodInfo methodInfo, string this_, string s1, [Type(typeof(int))]string s2)
       {
         return "GenericTarget`1.InstanceGenericMethod";
       }
@@ -152,7 +152,7 @@ namespace Xtensive.Core.Tests.Linq
       }
 
       [Compiler(typeof(NonGenericTarget), "StaticProperty", TargetKind.Static | TargetKind.PropertySet)]
-      public static string C2([ParamType(typeof(int))] string s)
+      public static string C2([Type(typeof(int))] string s)
       {
         return "NonGenericTarget.set_StaticProperty";
       }
@@ -164,24 +164,24 @@ namespace Xtensive.Core.Tests.Linq
       }
 
       [Compiler(typeof(NonGenericTarget), "InstanceProperty", TargetKind.PropertySet)]
-      public static string C4(string this_, [ParamType(typeof(string))] string s)
+      public static string C4(string this_, [Type(typeof(string))] string s)
       {
         return "NonGenericTarget.set_InstanceProperty";
       }
 
       [Compiler(typeof(NonGenericTarget), null, TargetKind.PropertyGet)]
       public static string C5(string this_,
-        [ParamType(typeof(int))] string s1,
-        [ParamType(typeof(int))] string s2)
+        [Type(typeof(int))] string s1,
+        [Type(typeof(int))] string s2)
       {
         return "NonGenericTarget.get_Item";
       }
 
       [Compiler(typeof(NonGenericTarget), null, TargetKind.PropertySet)]
       public static string C6(string this_,
-        [ParamType(typeof(int))] string s1,
-        [ParamType(typeof(int))] string s2,
-        [ParamType(typeof(string))] string value)
+        [Type(typeof(int))] string s1,
+        [Type(typeof(int))] string s2,
+        [Type(typeof(string))] string value)
       {
         return "NonGenericTarget.set_Item";
       }
@@ -197,7 +197,7 @@ namespace Xtensive.Core.Tests.Linq
       }
 
       [Compiler(typeof(GenericTarget<>), "StaticProperty", TargetKind.Static | TargetKind.PropertySet)]
-      static public string C8(MethodInfo methodInfo, [ParamType(typeof(int))] string s)
+      static public string C8(MethodInfo methodInfo, [Type(typeof(int))] string s)
       {
         return "GenericTarget`1.set_StaticProperty";
       }
@@ -209,21 +209,21 @@ namespace Xtensive.Core.Tests.Linq
       }
 
       [Compiler(typeof(GenericTarget<>), "InstanceProperty", TargetKind.PropertySet)]
-      static public string C10(MethodInfo methodInfo, string this_, [ParamType(typeof(string))] string s)
+      static public string C10(MethodInfo methodInfo, string this_, [Type(typeof(string))] string s)
       {
         return "GenericTarget`1.set_InstanceProperty";
       }
 
       [Compiler(typeof(GenericTarget<>), null, TargetKind.PropertyGet)]
       public static string C11(MethodInfo methodInfo, string this_,
-        [ParamType(typeof(string))] string s)
+        [Type(typeof(string))] string s)
       {
         return "GenericTarget`1.get_Item";
       }
 
       [Compiler(typeof(GenericTarget<>), null, TargetKind.PropertySet)]
       public static string C12(MethodInfo methodInfo, string this_,
-        [ParamType(typeof(string))] string s, string value)
+        [Type(typeof(string))] string s, string value)
       {
         return "GenericTarget`1.set_Item";
       }
@@ -244,7 +244,7 @@ namespace Xtensive.Core.Tests.Linq
     private class ConflictCompiler1
     {
       [Compiler(typeof(ConflictTarget), "ConflictMethod")]
-      static public string C([ParamType(typeof(ConflictTarget))] string s)
+      static public string C([Type(typeof(ConflictTarget))] string s)
       {
         return "Compiler1";
       }
@@ -253,7 +253,7 @@ namespace Xtensive.Core.Tests.Linq
     private class ConflictCompiler2
     {
       [Compiler(typeof(ConflictTarget), "ConflictMethod")]
-      static public string C([ParamType(typeof(ConflictTarget))] string s)
+      static public string C([Type(typeof(ConflictTarget))] string s)
       {
         return "Compiler2"; 
       }
@@ -290,8 +290,8 @@ namespace Xtensive.Core.Tests.Linq
     {
       [Compiler(typeof(SuperGenericTarget<>), "Method", TargetKind.Static | TargetKind.Method, 1)]
       public static string Compiler(MethodInfo methodInfo,
-        [ParamType(typeof(int))] string s1,
-        [ParamType(typeof(string))] string s2,
+        [Type(typeof(int))] string s1,
+        [Type(typeof(string))] string s2,
         string s3)
       {
         return "OK";

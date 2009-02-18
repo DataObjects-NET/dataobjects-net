@@ -23,6 +23,14 @@ namespace Xtensive.Core.Linq
     Func<T, T[], T> GetCompiler(MethodInfo methodInfo);
 
     /// <summary>
+    /// Finds compiler for specified <see cref="MethodInfo"/>
+    /// </summary>
+    /// <param name="methodInfo"><see cref="MethodInfo"/> to search compiler for.</param>
+    /// <param name="compilerMethodInfo"><see cref="MethodInfo"/> of method which is called by returned delegate</param>
+    /// <returns>compiler associated with <see cref="MethodInfo"/> or null if compiler is not found.</returns>
+    Func<T, T[], T> GetCompiler(MethodInfo methodInfo, out MethodInfo compilerMethodInfo);
+
+    /// <summary>
     /// Registers compilers found in specified type.
     /// Conflicts are resolved as <see cref="ConflictHandlingMethod.ReportError"/> were specified.
     /// </summary>

@@ -18,36 +18,36 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     
     [Compiler(typeof(string), "StartsWith")]
     public static SqlExpression StringStartsWith(SqlExpression this_,
-      [ParamType(typeof(string))] SqlExpression value)
+      [Type(typeof(string))] SqlExpression value)
     {
       return SqlFactory.Like(this_, SqlFactory.Concat(value, Percent));
     }
   
     [Compiler(typeof(string), "EndsWith")]
     public static SqlExpression StringEndsWith(SqlExpression this_,
-      [ParamType(typeof(string))] SqlExpression value)
+      [Type(typeof(string))] SqlExpression value)
     {
       return SqlFactory.Like(this_, SqlFactory.Concat(Percent, value));
     }
 
     [Compiler(typeof(string), "Contains")]
     public static SqlExpression StringContains(SqlExpression this_,
-      [ParamType(typeof(string))] SqlExpression value)
+      [Type(typeof(string))] SqlExpression value)
     {
       return SqlFactory.Like(this_, SqlFactory.Concat(Percent, SqlFactory.Concat(value, Percent)));
     }
 
     [Compiler(typeof(string), "Substring")]
     public static SqlExpression StringSubstring(SqlExpression this_,
-      [ParamType(typeof(int))] SqlExpression startIndex)
+      [Type(typeof(int))] SqlExpression startIndex)
     {
       return SqlFactory.Substring(this_, startIndex);
     }
 
     [Compiler(typeof(string), "Substring")]
     public static SqlExpression StringSubstring(SqlExpression this_,
-      [ParamType(typeof(int))] SqlExpression startIndex,
-      [ParamType(typeof(int))] SqlExpression length)
+      [Type(typeof(int))] SqlExpression startIndex,
+      [Type(typeof(int))] SqlExpression length)
     {
       return SqlFactory.Substring(this_, startIndex, length);
     }
@@ -78,21 +78,21 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
 
     [Compiler(typeof(string), "Trim")]
     public static SqlExpression StringTrim(SqlExpression this_,
-      [ParamType(typeof(char[]))] SqlExpression trimChars)
+      [Type(typeof(char[]))] SqlExpression trimChars)
     {
       return TrimHelper(this_, trimChars, SqlTrimType.Both);
     }
 
     [Compiler(typeof(string), "TrimStart")]
     public static SqlExpression StringTrimStart(SqlExpression this_,
-      [ParamType(typeof(char[]))] SqlExpression trimChars)
+      [Type(typeof(char[]))] SqlExpression trimChars)
     {
       return TrimHelper(this_, trimChars, SqlTrimType.Leading);
     }
 
     [Compiler(typeof(string), "TrimEnd")]
     public static SqlExpression StringTrimEnd(SqlExpression this_,
-      [ParamType(typeof(char[]))] SqlExpression trimChars)
+      [Type(typeof(char[]))] SqlExpression trimChars)
     {
       return TrimHelper(this_, trimChars, SqlTrimType.Trailing);
     }
@@ -111,31 +111,31 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
 
     [Compiler(typeof(string), "Replace")]
     public static SqlExpression StringReplaceCh(SqlExpression this_,
-      [ParamType(typeof(char))] SqlExpression oldChar,
-      [ParamType(typeof(char))] SqlExpression newChar)
+      [Type(typeof(char))] SqlExpression oldChar,
+      [Type(typeof(char))] SqlExpression newChar)
     {
       return SqlFactory.Replace(this_, oldChar, newChar);
     }
 
     [Compiler(typeof(string), "Replace")]
     public static SqlExpression StringReplaceStr(SqlExpression this_,
-      [ParamType(typeof(string))] SqlExpression oldValue,
-      [ParamType(typeof(string))] SqlExpression newValue)
+      [Type(typeof(string))] SqlExpression oldValue,
+      [Type(typeof(string))] SqlExpression newValue)
     {
       return SqlFactory.Replace(this_, oldValue, newValue);
     }
 
     [Compiler(typeof(string), "Remove")]
     public static SqlExpression StringRemove(SqlExpression this_,
-      [ParamType(typeof(int))] SqlExpression startIndex)
+      [Type(typeof(int))] SqlExpression startIndex)
     {
       return SqlFactory.Substring(this_, SqlFactory.Literal(0), startIndex);
     }
 
     [Compiler(typeof(string), "Remove")]
     public static SqlExpression StringRemove(SqlExpression this_,
-      [ParamType(typeof(int))] SqlExpression startIndex,
-      [ParamType(typeof(int))] SqlExpression count)
+      [Type(typeof(int))] SqlExpression startIndex,
+      [Type(typeof(int))] SqlExpression count)
     {
       return SqlFactory.Concat(
         SqlFactory.Substring(this_, SqlFactory.Literal(0), startIndex),
@@ -144,41 +144,41 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
 
     [Compiler(typeof(string), "IsNullOrEmpty", TargetKind.Static | TargetKind.Method)]
     public static SqlExpression StringIsNullOrEmpty(
-      [ParamType(typeof(string))] SqlExpression value)
+      [Type(typeof(string))] SqlExpression value)
     {
       return SqlFactory.IsNull(value) || SqlFactory.Length(value) == SqlFactory.Literal(0);
     }
 
     [Compiler(typeof(string), "Concat", TargetKind.Static | TargetKind.Method)]
     public static SqlExpression StringConcat(
-      [ParamType(typeof(string))] SqlExpression str0,
-      [ParamType(typeof(string))] SqlExpression str1)
+      [Type(typeof(string))] SqlExpression str0,
+      [Type(typeof(string))] SqlExpression str1)
     {
       return SqlFactory.Concat(str0, str1);
     }
 
     [Compiler(typeof(string), "Concat", TargetKind.Static | TargetKind.Method)]
     public static SqlExpression StringConcat(
-      [ParamType(typeof(string))] SqlExpression str0,
-      [ParamType(typeof(string))] SqlExpression str1,
-      [ParamType(typeof(string))] SqlExpression str2)
+      [Type(typeof(string))] SqlExpression str0,
+      [Type(typeof(string))] SqlExpression str1,
+      [Type(typeof(string))] SqlExpression str2)
     {
       return SqlFactory.Concat(SqlFactory.Concat(str0, str1), str2);
     }
 
     [Compiler(typeof(string), "Concat", TargetKind.Static | TargetKind.Method)]
     public static SqlExpression StringConcat(
-      [ParamType(typeof(string))] SqlExpression str0,
-      [ParamType(typeof(string))] SqlExpression str1,
-      [ParamType(typeof(string))] SqlExpression str2,
-      [ParamType(typeof(string))] SqlExpression str3)
+      [Type(typeof(string))] SqlExpression str0,
+      [Type(typeof(string))] SqlExpression str1,
+      [Type(typeof(string))] SqlExpression str2,
+      [Type(typeof(string))] SqlExpression str3)
     {
       return SqlFactory.Concat(SqlFactory.Concat(SqlFactory.Concat(str0, str1), str2), str3);
     }
 
     [Compiler(typeof(string), "Concat", TargetKind.Static | TargetKind.Method)]
     public static SqlExpression StringConcat(
-      [ParamType(typeof(string[]))] SqlExpression values)
+      [Type(typeof(string[]))] SqlExpression values)
     {
       // before implementing ExpressionProcessor.VisitNewArray this does not matter
       throw new NotImplementedException();
@@ -186,8 +186,8 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
 
     [Compiler(typeof(string), "Compare", TargetKind.Static | TargetKind.Method)]
     public static SqlExpression StringCompare(
-      [ParamType(typeof(string))] SqlExpression strA,
-      [ParamType(typeof(string))] SqlExpression strB)
+      [Type(typeof(string))] SqlExpression strA,
+      [Type(typeof(string))] SqlExpression strB)
     {
       var result = SqlFactory.Case();
       result.Add(strA > strB, SqlFactory.Literal(1));
@@ -198,7 +198,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
 
     [Compiler(typeof(string), "CompareTo")]
     public static SqlExpression StringCompareTo(SqlExpression this_,
-      [ParamType(typeof(string))] SqlExpression strB)
+      [Type(typeof(string))] SqlExpression strB)
     {
       return StringCompare(this_, strB);
     }
@@ -210,21 +210,21 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
 
     [Compiler(typeof(string), "IndexOf")]
     public static SqlExpression StringIndexOfStr(SqlExpression this_,
-      [ParamType(typeof(string))] SqlExpression str)
+      [Type(typeof(string))] SqlExpression str)
     {
       return IndexOfHelper(this_, str);
     }
 
     [Compiler(typeof(string), "IndexOf")]
     public static SqlExpression StringIndexOfCh(SqlExpression this_,
-      [ParamType(typeof(char))] SqlExpression ch)
+      [Type(typeof(char))] SqlExpression ch)
     {
       return IndexOfHelper(this_, ch);
     }
 
     [Compiler(typeof(string), "Equals")]
     public static SqlExpression StringEquals(SqlExpression this_,
-      [ParamType(typeof(string))] SqlExpression value)
+      [Type(typeof(string))] SqlExpression value)
     {
       return value is SqlNull ? (SqlExpression) SqlFactory.IsNull(this_) : this_==value;
     }

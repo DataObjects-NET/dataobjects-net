@@ -7,8 +7,8 @@
 namespace Xtensive.Core.Linq
 {
   /// <summary>
-  /// Enum for specifying how <see cref="IMemberCompilerProvider{T}"/> should handle conflicts
-  /// (i.e. multiple compilers for same method)
+  /// Possible ways of handling conflicts (i.e. multiple compilers for same method)
+  /// for <see cref="IMemberCompilerProvider{T}"/> 
   /// </summary>
   public enum ConflictHandlingMethod
   {

@@ -90,77 +90,77 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
 
     [Compiler(typeof(byte), "CompareTo")]
     public static SqlExpression ByteCompareTo(SqlExpression this_,
-      [ParamType(typeof(byte))] SqlExpression value)
+      [Type(typeof(byte))] SqlExpression value)
     {
       return SqlFactory.Sign(this_ - value);
     }
     
     [Compiler(typeof(sbyte), "CompareTo")]
     public static SqlExpression SByteCompareTo(SqlExpression this_,
-      [ParamType(typeof(sbyte))] SqlExpression value)
+      [Type(typeof(sbyte))] SqlExpression value)
     {
       return SqlFactory.Sign(this_ - value);
     }
 
     [Compiler(typeof(short), "CompareTo")]
     public static SqlExpression ShortCompareTo(SqlExpression this_,
-      [ParamType(typeof(short))] SqlExpression value)
+      [Type(typeof(short))] SqlExpression value)
     {
       return SqlFactory.Sign(this_ - value);
     }
 
     [Compiler(typeof(ushort), "CompareTo")]
     public static SqlExpression UShortCompareTo(SqlExpression this_,
-      [ParamType(typeof(ushort))] SqlExpression value)
+      [Type(typeof(ushort))] SqlExpression value)
     {
       return SqlFactory.Sign(this_ - value);
     }
 
     [Compiler(typeof(int), "CompareTo")]
     public static SqlExpression IntCompareTo(SqlExpression this_,
-      [ParamType(typeof(int))] SqlExpression value)
+      [Type(typeof(int))] SqlExpression value)
     {
       return SqlFactory.Sign(this_ - value);
     }
 
     [Compiler(typeof(uint), "CompareTo")]
     public static SqlExpression UIntCompareTo(SqlExpression this_,
-      [ParamType(typeof(uint))] SqlExpression value)
+      [Type(typeof(uint))] SqlExpression value)
     {
       return SqlFactory.Sign(this_ - value);
     }
 
     [Compiler(typeof(long), "CompareTo")]
     public static SqlExpression LongCompareTo(SqlExpression this_,
-      [ParamType(typeof(long))] SqlExpression value)
+      [Type(typeof(long))] SqlExpression value)
     {
       return SqlFactory.Sign(this_ - value);
     }
 
     [Compiler(typeof(ulong), "CompareTo")]
     public static SqlExpression ULongCompareTo(SqlExpression this_,
-      [ParamType(typeof(ulong))] SqlExpression value)
+      [Type(typeof(ulong))] SqlExpression value)
     {
       return SqlFactory.Sign(this_ - value);
     }
 
     [Compiler(typeof(float), "CompareTo")]
     public static SqlExpression FloatCompareTo(SqlExpression this_,
-      [ParamType(typeof(float))] SqlExpression value)
+      [Type(typeof(float))] SqlExpression value)
     {
       return SqlFactory.Sign(this_ - value);
     }
 
     [Compiler(typeof(double), "CompareTo")]
     public static SqlExpression DoubleCompareTo(SqlExpression this_,
-      [ParamType(typeof(double))] SqlExpression value)
+      [Type(typeof(double))] SqlExpression value)
     {
       return SqlFactory.Sign(this_ - value);
     }
 
     [Compiler(typeof(decimal), "CompareTo")]
     public static SqlExpression DecimalCompareTo(SqlExpression this_,
-      [ParamType(typeof(decimal))] SqlExpression value)
+      [Type(typeof(decimal))] SqlExpression value)
     {
       return SqlFactory.Sign(this_ - value);
     }

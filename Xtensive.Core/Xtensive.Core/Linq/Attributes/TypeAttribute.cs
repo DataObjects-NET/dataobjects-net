@@ -15,13 +15,12 @@ namespace Xtensive.Core.Linq
   /// </summary>
   [Serializable]
   [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false, Inherited = false)]
-  public class ParamTypeAttribute : Attribute
+  public class TypeAttribute : Attribute
   {
     /// <summary>
-    /// Gets or sets the type of the param.
+    /// Gets or sets the value.
     /// </summary>
-    public Type ParamType { get; private set; }
-
+    public Type Value { get; private set; }
 
     // Constructors
 
@@ -29,9 +28,9 @@ namespace Xtensive.Core.Linq
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="type">The type.</param>
-    public ParamTypeAttribute(Type type)
+    public TypeAttribute(Type type)
     {
-      ParamType = type;
+      Value = type;
     }
   }
 }

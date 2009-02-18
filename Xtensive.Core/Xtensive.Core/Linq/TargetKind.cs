@@ -6,26 +6,29 @@
 
 using System;
 
-/// <summary>
-/// Flags for specifying kind of compilable methods.
-/// </summary>
-[Flags]
-public enum TargetKind
-{
+namespace Xtensive.Core.Linq {
+
   /// <summary>
-  /// Compilable method is a property getter
+  /// Flags for specifying kind of compilable methods.
   /// </summary>
-  PropertyGet = 0x1,
-  /// <summary>
-  /// Compilable method is as property setter
-  /// </summary>
-  PropertySet = 0x2,
-  /// <summary>
-  /// Compilable method is a regular method
-  /// </summary>
-  Method = 0x4,
-  /// <summary>
-  /// Compilable method is static
-  /// </summary>
-  Static = 0x8
+  [Flags]
+  public enum TargetKind
+  {
+    /// <summary>
+    /// Compilable method is a property getter
+    /// </summary>
+    PropertyGet = 0x1,
+    /// <summary>
+    /// Compilable method is as property setter
+    /// </summary>
+    PropertySet = 0x2,
+    /// <summary>
+    /// Compilable method is a regular method
+    /// </summary>
+    Method = 0x4,
+    /// <summary>
+    /// Compilable method is static
+    /// </summary>
+    Static = 0x8
+  }
 }
