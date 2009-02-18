@@ -215,6 +215,24 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    public void StructureTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var products = Query<Product>.All;
+          var result = from a in (
+                         from p in products
+                         select p.Supplier.Address)
+                       where a.Region != null
+                       select a.StreetAddress;
+          var list = result.ToList();
+          Assert.Greater(list.Count, 0);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
     public void EntitySetTest() 
     {
       using (Domain.OpenSession()) {
@@ -259,6 +277,7 @@ namespace Xtensive.Storage.Tests.Linq
       }
     }
 
+    [Ignore("Not implemented.")]
     [Test]
     public void CorrelatedAggregateTest() 
     {
@@ -275,6 +294,7 @@ namespace Xtensive.Storage.Tests.Linq
       }
     }
 
+    [Ignore("Not implemented.")]
     [Test]
     public void CorrelatedQueryAnonymousTest() 
     {

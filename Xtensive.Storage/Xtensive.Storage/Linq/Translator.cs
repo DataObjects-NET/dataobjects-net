@@ -25,7 +25,6 @@ namespace Xtensive.Storage.Linq
   {
     private readonly TranslatorContext context;
 
-
     public ResultExpression Translate()
     {
       return (ResultExpression) Visit(context.Query);
@@ -297,9 +296,9 @@ namespace Xtensive.Storage.Linq
         result = (ResultExpression)Visit(source);
         var columnList = new List<int>();
         if (argument == null) {
-          if (result.Mapping.Segment.Length > 1 || result.ItemProjector.Body.Type != result.RecordSet.Header.Columns[0].Type)
+          if (result.Mapping.Segment.Length > 1 || result.ItemProjector.Body.Type != result.RecordSet.Header.Columns[result.Mapping.Segment.Offset].Type)
             throw new NotSupportedException();
-          columnList.Add(0);
+          columnList.Add(result.Mapping.Segment.Offset);
         }
         else {
           using (context.Bind(argument.Parameters[0], result)) {

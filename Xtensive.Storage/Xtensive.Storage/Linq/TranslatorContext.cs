@@ -123,7 +123,7 @@ namespace Xtensive.Storage.Linq
     {
       resultAliasGenerator = AliasGenerator.Create();
       columnAliasGenerator = AliasGenerator.Create(new[] {"column"});
-      this.query = query;
+      this.query = ExpressionPreprocessor.Preprocess(query);
       translator = new Translator(this);
       var domain = Domain.Current;
       if (domain == null)
