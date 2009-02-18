@@ -29,7 +29,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       using (Domain.OpenSession())
       using (var t = Transaction.Open()) {
-        var sum = Query<Order>.All.Select(o => o.Id).Sum();
+        var sum = Query<Order>.All.Select(o => o.Freight).Sum();
         Assert.Greater(sum, 0);
         t.Complete();
       }
