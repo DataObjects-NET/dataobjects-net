@@ -1353,32 +1353,6 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    public void IntLeftShiftTest()
-    {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
-          var orders = Query<Order>.All;
-          var order = orders.Where(o => o.Id << 1 == 0).First();
-          Assert.IsNotNull(order);
-          t.Complete();
-        }
-      }
-    }
-
-    [Test]
-    public void IntRightShiftTest()
-    {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
-          var orders = Query<Order>.All;
-          var order = orders.Where(o => o.Id >> 1 == 0).First();
-          Assert.IsNotNull(order);
-          t.Complete();
-        }
-      }
-    }
-
-    [Test]
     public void IntBitwiseAndTest()
     {
       using (Domain.OpenSession()) {
