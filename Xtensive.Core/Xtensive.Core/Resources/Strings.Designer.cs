@@ -340,11 +340,11 @@ namespace Xtensive.Core.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Compiler {0} should have first parameter of type MethodInfo.
+        ///   Looks up a localized string similar to Compiler {0} should have first parameter of type MemberInfo.
         /// </summary>
-        internal static string ExCompilerXShouldHaveMethodInfoParameter {
+        internal static string ExCompilerXShouldHaveMemberInfoParameter {
             get {
-                return ResourceManager.GetString("ExCompilerXShouldHaveMethodInfoParameter", resourceCulture);
+                return ResourceManager.GetString("ExCompilerXShouldHaveMemberInfoParameter", resourceCulture);
             }
         }
         

@@ -9,26 +9,36 @@ using System;
 namespace Xtensive.Core.Linq {
 
   /// <summary>
-  /// Flags for specifying kind of compilable methods.
+  /// Flags for specifying kind of compilable members.
+  /// You should provide only one flag possibly OR'ed with <see cref="Static"/> flag.
   /// </summary>
   [Flags]
   public enum TargetKind
   {
     /// <summary>
-    /// Compilable method is a property getter
+    /// Compilable member is a property getter.
     /// </summary>
     PropertyGet = 0x1,
     /// <summary>
-    /// Compilable method is as property setter
+    /// Compilable member is as property setter.
     /// </summary>
     PropertySet = 0x2,
     /// <summary>
-    /// Compilable method is a regular method
+    /// Compilable member is a field (compiler translates read access).
     /// </summary>
-    Method = 0x4,
+    Field = 0x4,
     /// <summary>
-    /// Compilable method is static
+    /// Compilable member is a regular method.
     /// </summary>
-    Static = 0x8
+    Method = 0x8,
+    /// <summary>
+    /// Compilable member is a constuctor.
+    /// You should NOT specify <see cref="Static"/> flag with this flag.
+    /// </summary>
+    Constructor = 0x10,
+    /// <summary>
+    /// Compilable member is static.
+    /// </summary>
+    Static = 0x20
   }
 }

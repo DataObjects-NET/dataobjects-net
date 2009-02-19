@@ -573,8 +573,8 @@
   <data name="ExCompilerXHasTooManyParameters" xml:space="preserve">
     <value>Compiler {0} has too many parameters.</value>
   </data>
-  <data name="ExCompilerXShouldHaveMethodInfoParameter" xml:space="preserve">
-    <value>Compiler {0} should have first parameter of type MethodInfo</value>
+  <data name="ExCompilerXShouldHaveMemberInfoParameter" xml:space="preserve">
+    <value>Compiler {0} should have first parameter of type MemberInfo</value>
   </data>
   <data name="ExCompilerXShouldReturnY" xml:space="preserve">
     <value>Compiler {0} should return {1}.</value>

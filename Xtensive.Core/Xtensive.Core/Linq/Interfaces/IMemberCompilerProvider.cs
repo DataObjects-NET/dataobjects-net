@@ -16,19 +16,21 @@ namespace Xtensive.Core.Linq
   public interface IMemberCompilerProvider<T>
   {
     /// <summary>
-    /// Finds compiler for specified <see cref="MethodInfo"/>
+    /// Finds compiler for specified <see cref="MemberInfo"/>.
     /// </summary>
-    /// <param name="methodInfo"><see cref="MethodInfo"/> to search compiler for.</param>
-    /// <returns>compiler associated with <see cref="MethodInfo"/> or null if compiler is not found.</returns>
-    Func<T, T[], T> GetCompiler(MethodInfo methodInfo);
+    /// <param name="memberInfo"><see cref="MemberInfo"/> to search compiler for.</param>
+    /// <returns>compiler associated with <see cref="MethodInfo"/>
+    /// or <see langword="null"/> if compiler is not found.</returns>
+    Func<T, T[], T> GetCompiler(MemberInfo memberInfo);
 
     /// <summary>
-    /// Finds compiler for specified <see cref="MethodInfo"/>
+    /// Finds compiler for specified <see cref="MemberInfo"/>
     /// </summary>
-    /// <param name="methodInfo"><see cref="MethodInfo"/> to search compiler for.</param>
+    /// <param name="memberInfo"><see cref="MemberInfo"/> to search compiler for.</param>
     /// <param name="compilerMethodInfo"><see cref="MethodInfo"/> of method which is called by returned delegate</param>
-    /// <returns>compiler associated with <see cref="MethodInfo"/> or null if compiler is not found.</returns>
-    Func<T, T[], T> GetCompiler(MethodInfo methodInfo, out MethodInfo compilerMethodInfo);
+    /// <returns>compiler associated with <see cref="MethodInfo"/>
+    /// or <see langword="null"/> if compiler is not found.</returns>
+    Func<T, T[], T> GetCompiler(MemberInfo memberInfo, out MethodInfo compilerMethodInfo);
 
     /// <summary>
     /// Registers compilers found in specified type.
