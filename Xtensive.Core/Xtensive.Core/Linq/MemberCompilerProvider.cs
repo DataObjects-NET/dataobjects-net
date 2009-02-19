@@ -302,11 +302,11 @@ namespace Xtensive.Core.Linq
       Delegate result;
 
       if (isGeneric)
-        result = isStatic ? CreateCompilerForStaticGenericMember(compiler)
-                          : CreateCompilerForInstanceGenericMember(compiler);
+        result = isStatic || isCtor ? CreateCompilerForStaticGenericMember(compiler)
+                                    : CreateCompilerForInstanceGenericMember(compiler);
       else
-        result = isStatic ? CreateCompilerForStaticMember(compiler)
-                          : CreateCompilerForInstanceMember(compiler);
+        result = isStatic || isCtor ? CreateCompilerForStaticMember(compiler)
+                                    : CreateCompilerForInstanceMember(compiler);
 
       dict[memberInfo] = new Pair<Delegate, MethodInfo>(result, compiler);
     }
