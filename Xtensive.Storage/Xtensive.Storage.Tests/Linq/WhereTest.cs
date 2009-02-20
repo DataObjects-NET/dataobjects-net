@@ -573,7 +573,7 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var orders = Query<Order>.All;
-          var order = orders.Where(o => o.OrderDate.Value.Hour == 6).First();
+          var order = orders.Where(o => o.OrderDate.Value.Hour == 0).First();
           Assert.IsNotNull(order);
           t.Complete();
         }
@@ -586,7 +586,7 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var orders = Query<Order>.All;
-          var order = orders.Where(o => o.OrderDate.Value.Minute == 32).First();
+          var order = orders.Where(o => o.OrderDate.Value.Minute == 0).First();
           Assert.IsNotNull(order);
           t.Complete();
         }
@@ -599,7 +599,7 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var orders = Query<Order>.All;
-          var order = orders.Where(o => o.OrderDate.Value.Second == 47).First();
+          var order = orders.Where(o => o.OrderDate.Value.Second == 0).First();
           Assert.IsNotNull(order);
           t.Complete();
         }
@@ -612,7 +612,7 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var orders = Query<Order>.All;
-          var order = orders.Where(o => o.OrderDate.Value.Millisecond == 200).First();
+          var order = orders.Where(o => o.OrderDate.Value.Millisecond == 0).First();
           Assert.IsNotNull(order);
           t.Complete();
         }
@@ -690,9 +690,9 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var orders = Query<Order>.All;
-          var order = orders.Where(o => Math.Atan(o.Id) == 0).First();
+          var order = orders.Where(o => Math.Atan(o.Id) == 0 || o.Id > 0).First();
           Assert.IsNotNull(order);
-          order = orders.Where(o => Math.Atan2(o.Id, 3) == 0).First();
+          order = orders.Where(o => Math.Atan2(o.Id, 3) == 0 || o.Id > 0).First();
           Assert.IsNotNull(order);
           t.Complete();
         }

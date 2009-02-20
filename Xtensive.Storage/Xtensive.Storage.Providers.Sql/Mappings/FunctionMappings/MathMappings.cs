@@ -338,8 +338,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(double))] SqlExpression y,
       [Type(typeof(double))] SqlExpression x)
     {
-      // todo: remember matan (-:
-      throw new NotImplementedException();
+      return SqlFactory.Atan2(y, x);
     }
 
     [Compiler(typeof(Math), "BigMul", TargetKind.Static | TargetKind.Method)]
@@ -419,6 +418,12 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(double))] SqlExpression d)
     {
       return SqlFactory.Log10(d);
+    }
+
+    [Compiler(typeof(Math), "PI", TargetKind.Static | TargetKind.Field)]
+    public static SqlExpression MathPI()
+    {
+      return SqlFactory.Pi();
     }
 
     [Compiler(typeof(Math), "Pow", TargetKind.Static | TargetKind.Method)]

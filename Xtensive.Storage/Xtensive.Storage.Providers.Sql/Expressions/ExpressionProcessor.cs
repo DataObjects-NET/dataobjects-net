@@ -23,6 +23,15 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
   internal class ExpressionProcessor : ExpressionVisitor<SqlExpression>
   {
     private static readonly MemberCompilerProvider<SqlExpression> mappingsProvider;
+    private static readonly Type[] builtinMappings = new[] {
+      typeof(NullableMappings),
+      typeof(StringMappings),
+      typeof(DateTimeMappings),
+      typeof(MathMappings),
+      typeof(NumericMappings),
+      typeof(DecimalMappings)
+    };
+
     private readonly DomainModel model;
     private readonly SqlFetchRequest request;
     private readonly SqlSelect query;
@@ -188,12 +197,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
 
     protected override SqlExpression VisitMemberAccess(MemberExpression m)
     {
-      // todo: handle string.Empty, Math.PI and other similar public const fields
-      var propInfo = m.Member as PropertyInfo;
-      if (propInfo == null)
-        throw new NotSupportedException();
-
-      var map = mappingsProvider.GetCompiler(propInfo.GetGetMethod());
+      var map = mappingsProvider.GetCompiler(m.Member);
       if (map == null)
         throw new NotSupportedException();
 
@@ -238,7 +242,10 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
 
     protected override SqlExpression VisitNew(NewExpression n)
     {
-      throw new NotSupportedException();
+      var mapping = mappingsProvider.GetCompiler(n.Constructor);
+      if (mapping == null)
+        throw new NotSupportedException();
+      return mapping(null, n.Arguments.Select(a => Visit(a)).ToArray());
     }
 
     protected override SqlExpression VisitNewArray(NewArrayExpression expression)
@@ -273,11 +280,8 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     static ExpressionProcessor()
     {
       mappingsProvider = new MemberCompilerProvider<SqlExpression>();
-      mappingsProvider.RegisterCompilers(typeof(StringMappings));
-      mappingsProvider.RegisterCompilers(typeof(DateTimeMappings));
-      mappingsProvider.RegisterCompilers(typeof(MathMappings));
-      mappingsProvider.RegisterCompilers(typeof(NumericMappings));
-      mappingsProvider.RegisterCompilers(typeof(DecimalMappings));
+      foreach (var t in builtinMappings)
+        mappingsProvider.RegisterCompilers(t);
     }
   }
 }
