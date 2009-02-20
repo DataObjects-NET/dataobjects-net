@@ -24,6 +24,7 @@ namespace Xtensive.Core.Linq
   /// <typeparam name="T"><inheritdoc/></typeparam>
   public class MemberCompilerProvider<T> : IMemberCompilerProvider<T>
   {
+    private const int MaxNumberOfCompilerParameters = 9;
     private volatile Compilers compilers = new Compilers();
     private readonly object syncRoot = new object();
 
@@ -45,8 +46,8 @@ namespace Xtensive.Core.Linq
 
       var sourceProperty = realSource as PropertyInfo;
       if (sourceProperty != null)
-        realSource = sourceProperty.GetGetMethod();
-      
+        source = realSource = sourceProperty.GetGetMethod();
+
       var sourceMethod = realSource as MethodInfo;
       if (sourceMethod != null && sourceMethod.IsGenericMethod) {
         realSource = sourceMethod.GetGenericMethodDefinition();
@@ -175,7 +176,7 @@ namespace Xtensive.Core.Linq
     {
       int length = compiler.GetParameters().Length;
 
-      if (length > 4)
+      if (length > MaxNumberOfCompilerParameters)
         throw new InvalidOperationException(string.Format(
           Strings.ExCompilerXHasTooManyParameters,
           compiler.GetFullName(true)));
@@ -332,6 +333,21 @@ namespace Xtensive.Core.Linq
         case 4:
           var d4 = DelegateHelper.CreateDelegate<Func<T, T, T, T, T>>(null, t, s);
           return (this_, arr) => d4(this_, arr[0], arr[1], arr[2]);
+        case 5:
+          var d5 = DelegateHelper.CreateDelegate<Func<T, T, T, T, T, T>>(null, t, s);
+          return (this_, arr) => d5(this_, arr[0], arr[1], arr[2], arr[3]);
+        case 6:
+          var d6 = DelegateHelper.CreateDelegate<Func<T, T, T, T, T, T, T>>(null, t, s);
+          return (this_, arr) => d6(this_, arr[0], arr[1], arr[2], arr[3], arr[4]);
+        case 7:
+          var d7 = DelegateHelper.CreateDelegate<Func<T, T, T, T, T, T, T, T>>(null, t, s);
+          return (this_, arr) => d7(this_, arr[0], arr[1], arr[2], arr[3], arr[4], arr[5]);
+        case 8:
+          var d8 = DelegateHelper.CreateDelegate<Func<T, T, T, T, T, T, T, T, T>>(null, t, s);
+          return (this_, arr) => d8(this_, arr[0], arr[1], arr[2], arr[3], arr[4], arr[5], arr[6]);
+        case 9:
+          var d9 = DelegateHelper.CreateDelegate<Func<T, T, T, T, T, T, T, T, T, T>>(null, t, s);
+          return (this_, arr) => d9(this_, arr[0], arr[1], arr[2], arr[3], arr[4], arr[5], arr[6], arr[7]);
       }
 
       return null;
@@ -352,6 +368,21 @@ namespace Xtensive.Core.Linq
         case 4:
           var d4 = DelegateHelper.CreateDelegate<Func<MemberInfo, T, T, T, T>>(null, t, s);
           return (mi, this_, arr) => d4(mi, this_, arr[0], arr[1]);
+        case 5:
+          var d5 = DelegateHelper.CreateDelegate<Func<MemberInfo, T, T, T, T, T>>(null, t, s);
+          return (mi, this_, arr) => d5(mi, this_, arr[0], arr[1], arr[2]);
+        case 6:
+          var d6 = DelegateHelper.CreateDelegate<Func<MemberInfo, T, T, T, T, T, T>>(null, t, s);
+          return (mi, this_, arr) => d6(mi, this_, arr[0], arr[1], arr[2], arr[3]);
+        case 7:
+          var d7 = DelegateHelper.CreateDelegate<Func<MemberInfo, T, T, T, T, T, T, T>>(null, t, s);
+          return (mi, this_, arr) => d7(mi, this_, arr[0], arr[1], arr[2], arr[3], arr[4]);
+        case 8:
+          var d8 = DelegateHelper.CreateDelegate<Func<MemberInfo, T, T, T, T, T, T, T, T>>(null, t, s);
+          return (mi, this_, arr) => d8(mi, this_, arr[0], arr[1], arr[2], arr[3], arr[4], arr[5]);
+        case 9:
+        var d9 = DelegateHelper.CreateDelegate <Func<MemberInfo, T, T, T, T, T, T, T, T, T>>(null, t, s);
+        return (mi, this_, arr) => d9(mi, this_, arr[0], arr[1], arr[2], arr[3], arr[4], arr[5], arr[6]);
       }
 
       return null;
@@ -378,6 +409,21 @@ namespace Xtensive.Core.Linq
         case 4:
           var d4 = DelegateHelper.CreateDelegate<Func<T, T, T, T, T>>(null, t, s);
           return (_, arr) => d4(arr[0], arr[1], arr[2], arr[3]);
+        case 5:
+          var d5 = DelegateHelper.CreateDelegate<Func<T, T, T, T, T, T>>(null, t, s);
+          return (_, arr) => d5(arr[0], arr[1], arr[2], arr[3], arr[4]);
+        case 6:
+          var d6 = DelegateHelper.CreateDelegate<Func<T, T, T, T, T, T, T>>(null, t, s);
+          return (_, arr) => d6(arr[0], arr[1], arr[2], arr[3], arr[4], arr[5]);
+        case 7:
+          var d7 = DelegateHelper.CreateDelegate<Func<T, T, T, T, T, T, T, T>>(null, t, s);
+          return (_, arr) => d7(arr[0], arr[1], arr[2], arr[3], arr[4], arr[5], arr[6]);
+        case 8:
+          var d8 = DelegateHelper.CreateDelegate<Func<T, T, T, T, T, T, T, T, T>>(null, t, s);
+          return (_, arr) => d8(arr[0], arr[1], arr[2], arr[3], arr[4], arr[5], arr[6], arr[7]);
+        case 9:
+          var d9 = DelegateHelper.CreateDelegate<Func<T, T, T, T, T, T, T, T, T, T>>(null, t, s);
+          return (_, arr) => d9(arr[0], arr[1], arr[2], arr[3], arr[4], arr[5], arr[6], arr[7], arr[8]);
       }
 
       return null;
@@ -401,6 +447,21 @@ namespace Xtensive.Core.Linq
         case 4:
           var d4 = DelegateHelper.CreateDelegate<Func<MemberInfo, T, T, T, T>>(null, t, s);
           return (mi, _, arr) => d4(mi, arr[0], arr[1], arr[2]);
+        case 5:
+          var d5 = DelegateHelper.CreateDelegate<Func<MemberInfo, T, T, T, T, T>>(null, t, s);
+          return (mi, _, arr) => d5(mi, arr[0], arr[1], arr[2], arr[3]);
+        case 6:
+          var d6 = DelegateHelper.CreateDelegate<Func<MemberInfo, T, T, T, T, T, T>>(null, t, s);
+          return (mi, _, arr) => d6(mi, arr[0], arr[1], arr[2], arr[3], arr[4]);
+        case 7:
+          var d7 = DelegateHelper.CreateDelegate<Func<MemberInfo, T, T, T, T, T, T, T>>(null, t, s);
+          return (mi, _, arr) => d7(mi, arr[0], arr[1], arr[2], arr[3], arr[4], arr[5]);
+        case 8:
+          var d8 = DelegateHelper.CreateDelegate<Func<MemberInfo, T, T, T, T, T, T, T, T>>(null, t, s);
+          return (mi, _, arr) => d8(mi, arr[0], arr[1], arr[2], arr[3], arr[4], arr[5], arr[6]);
+        case 9:
+          var d9 = DelegateHelper.CreateDelegate<Func<MemberInfo, T, T, T, T, T, T, T, T, T>>(null, t, s);
+          return (mi, _, arr) => d9(mi, arr[0], arr[1], arr[2], arr[3], arr[4], arr[5], arr[6], arr[7]);
       }
 
       return null;
