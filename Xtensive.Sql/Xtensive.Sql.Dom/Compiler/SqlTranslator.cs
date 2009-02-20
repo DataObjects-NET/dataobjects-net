@@ -1656,11 +1656,11 @@ namespace Xtensive.Sql.Dom.Compiler
           //        case SqlFunctionType.Convert:
           //          return "CONVERT";
         case SqlFunctionType.CurrentDate:
-          return "CURRENTDATE";
+          return "CURRENT_DATE";
         case SqlFunctionType.CurrentTime:
-          return "CURRENTTIME";
+          return "CURRENT_TIME";
         case SqlFunctionType.CurrentTimeStamp:
-          return "CURRENTTIMESTAMP";
+          return "CURRENT_TIMESTAMP";
         case SqlFunctionType.Extract:
           return "EXTRACT";
         case SqlFunctionType.Lower:
