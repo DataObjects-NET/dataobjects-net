@@ -5,7 +5,6 @@
 // Created:    2009.02.09
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Xtensive.Core;
@@ -13,7 +12,7 @@ using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Resources;
-using CompilerDictionary = System.Collections.Generic.Dictionary<System.Reflection.MemberInfo,
+using Compilers = System.Collections.Generic.Dictionary<System.Reflection.MemberInfo,
   Xtensive.Core.Pair<System.Delegate, System.Reflection.MethodInfo>>;
 
 namespace Xtensive.Core.Linq
@@ -25,106 +24,106 @@ namespace Xtensive.Core.Linq
   /// <typeparam name="T"><inheritdoc/></typeparam>
   public class MemberCompilerProvider<T> : IMemberCompilerProvider<T>
   {
-    private volatile CompilerDictionary compilersByMethodBase = new CompilerDictionary();
+    private volatile Compilers compilers = new Compilers();
     private readonly object syncRoot = new object();
 
     /// <inheritdoc/>
-    public Func<T, T[], T> GetCompiler(MemberInfo memberInfo)
+    public Func<T, T[], T> GetCompiler(MemberInfo source)
     {
       MethodInfo compiler;
-      return GetCompiler(memberInfo, out compiler);
+      return GetCompiler(source, out compiler);
     }
 
     /// <inheritdoc/>
-    public Func<T, T[], T> GetCompiler(MemberInfo memberInfo, out MethodInfo compilerMethodInfo)
+    public Func<T, T[], T> GetCompiler(MemberInfo source, out MethodInfo compiler)
     {
-      ArgumentValidator.EnsureArgumentNotNull(memberInfo, "memberInfo");
+      ArgumentValidator.EnsureArgumentNotNull(source, "source");
       
-      compilerMethodInfo = null;
+      compiler = null;
       bool withMemberInfo = false;
-      var realMemberInfo = memberInfo;
-      var methodInfo = realMemberInfo as MethodInfo;
+      var realSource = source;
+      var methodInfo = realSource as MethodInfo;
 
       if (methodInfo != null && methodInfo.IsGenericMethod) {
-        realMemberInfo = methodInfo.GetGenericMethodDefinition();
+        realSource = methodInfo.GetGenericMethodDefinition();
         withMemberInfo = true;
       }
 
-      var type = realMemberInfo.ReflectedType;
+      var sourceType = realSource.ReflectedType;
 
-      if (type.IsGenericType) {
-        type = type.GetGenericTypeDefinition();
+      if (sourceType.IsGenericType) {
+        sourceType = sourceType.GetGenericTypeDefinition();
 
-        if (memberInfo is FieldInfo)
-          realMemberInfo = type.GetField(realMemberInfo.Name);
-        else if (memberInfo is MethodInfo)
-          realMemberInfo = FindBestMethod(type.GetMethods(), (MethodInfo)realMemberInfo);
-        else if (memberInfo is ConstructorInfo)
-          realMemberInfo = FindBestMethod(type.GetConstructors(), (ConstructorInfo)realMemberInfo);
+        if (source is FieldInfo)
+          realSource = sourceType.GetField(realSource.Name);
+        else if (source is MethodInfo)
+          realSource = FindBestMethod(sourceType.GetMethods(), (MethodInfo)realSource);
+        else if (source is ConstructorInfo)
+          realSource = FindBestMethod(sourceType.GetConstructors(), (ConstructorInfo)realSource);
         else
-          realMemberInfo = null;
+          realSource = null;
         withMemberInfo = true;
       }
 
-      if (realMemberInfo==null)
+      if (realSource==null)
         return null;
 
-      Pair<Delegate, MethodInfo> resultPair;
+      Pair<Delegate, MethodInfo> result;
 
-      if (!compilersByMethodBase.TryGetValue(realMemberInfo, out resultPair))
+      if (!compilers.TryGetValue(realSource, out result))
         return null;
 
-      compilerMethodInfo = resultPair.Second;
+      compiler = result.Second;
 
       if (withMemberInfo) {
-        var d = (Func<MemberInfo, T, T[], T>) resultPair.First;
-        return (this_, arr) => d(memberInfo, this_, arr);
+        var d = (Func<MemberInfo, T, T[], T>) result.First;
+        return (this_, arr) => d(source, this_, arr);
       }
 
-      return (Func<T, T[], T>)resultPair.First;
+      return (Func<T, T[], T>)result.First;
     }
 
     /// <inheritdoc/>
-    public void RegisterCompilers(Type type)
+    public void RegisterCompilers(Type typeWithCompilers)
     {
-      RegisterCompilers(type, ConflictHandlingMethod.ReportError);
+      RegisterCompilers(typeWithCompilers, ConflictHandlingMethod.ReportError);
     }
 
     /// <inheritdoc/>
-    public void RegisterCompilers(Type type, ConflictHandlingMethod conflictHandlingMethod)
+    public void RegisterCompilers(Type typeWithCompilers, ConflictHandlingMethod conflictHandlingMethod)
     {
-      ArgumentValidator.EnsureArgumentNotNull(type, "type");
+      ArgumentValidator.EnsureArgumentNotNull(typeWithCompilers, "typeWithCompilers");
 
-      if (type.IsGenericType)
+      if (typeWithCompilers.IsGenericType)
         throw new InvalidOperationException(string.Format(
-          Strings.ExTypeXShouldNotBeGeneric, type.GetFullName(true)));
+          Strings.ExTypeXShouldNotBeGeneric, typeWithCompilers.GetFullName(true)));
 
-      var dict = new CompilerDictionary();
+      var newCompilers = new Compilers();
 
-      var compilers = type.GetMethods(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly)
+      var allCompilers = typeWithCompilers.GetMethods(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly)
         .Where(mi => mi.IsDefined(typeof (CompilerAttribute), false) && !mi.IsGenericMethod);
 
-      foreach (var compiler in compilers)
-        RegisterCompiler(dict, compiler);
+      foreach (var compiler in allCompilers)
+        RegisterCompiler(newCompilers, compiler);
 
       lock (syncRoot) {
         switch (conflictHandlingMethod) {
           case ConflictHandlingMethod.KeepOld:
-            compilersByMethodBase = MergeDicts(dict, compilersByMethodBase);
+            this.compilers = MergeCompilers(newCompilers, this.compilers);
             break;
           case ConflictHandlingMethod.Overwrite:
-            compilersByMethodBase = MergeDicts(compilersByMethodBase, dict);
+            this.compilers = MergeCompilers(this.compilers, newCompilers);
             break;
           case ConflictHandlingMethod.ReportError:
-            var result = new CompilerDictionary(compilersByMethodBase);
-              foreach (var pair in dict) {
+            var result = new Compilers(this.compilers);
+              foreach (var pair in newCompilers) {
                 if (result.ContainsKey(pair.Key))
                   throw new InvalidOperationException(string.Format(
                     Strings.ExCompilerForXIsAlreadyRegistered,
                     pair.Key.GetFullName(true)));
                 result.Add(pair.Key, pair.Value);
               }
-            compilersByMethodBase = result;
+            this.compilers = result;
           break;
         }
       }
@@ -132,9 +131,9 @@ namespace Xtensive.Core.Linq
 
     #region private methods
 
-    private static CompilerDictionary MergeDicts(CompilerDictionary first, CompilerDictionary second)
+    private static Compilers MergeCompilers(Compilers first, Compilers second)
     {
-      var result = new CompilerDictionary(first);
+      var result = new Compilers(first);
       foreach (var pair in second)
         result[pair.Key] = pair.Value;
       return result;
@@ -168,27 +167,27 @@ namespace Xtensive.Core.Linq
       return methods.FirstOrDefault();
     }
 
-    private static Type[] ExtractParamTypesAndValidate(MethodInfo methodInfo, bool requireMemberInfo)
+    private static Type[] ExtractTypesAndValidate(MethodInfo compiler, bool requireMemberInfo)
     {
-      int length = methodInfo.GetParameters().Length;
+      int length = compiler.GetParameters().Length;
 
       if (length > 4)
         throw new InvalidOperationException(string.Format(
           Strings.ExCompilerXHasTooManyParameters,
-          methodInfo.GetFullName(true)));
+          compiler.GetFullName(true)));
 
       if (length == 0 && requireMemberInfo)
         throw new InvalidOperationException(string.Format(
           Strings.ExCompilerXShouldHaveMemberInfoParameter,
-          methodInfo.GetFullName(true)));
+          compiler.GetFullName(true)));
 
-      if (methodInfo.ReturnType != typeof(T))
+      if (compiler.ReturnType != typeof(T))
         throw new InvalidOperationException(string.Format(
           Strings.ExCompilerXShouldReturnY,
-          methodInfo.GetFullName(true),
+          compiler.GetFullName(true),
           typeof(T).GetFullName(true)));
 
-      var parameters = methodInfo.GetParameters();
+      var parameters = compiler.GetParameters();
       var result = new Type[length];
 
       for (int i = 0; i < length; i++)
@@ -202,7 +201,7 @@ namespace Xtensive.Core.Linq
         if (param.ParameterType != requiredType)
           throw new InvalidOperationException(string.Format(
             Strings.ExCompilerXShouldHaveParameterYOfTypeZ,
-            methodInfo.GetFullName(true), param.Name,
+            compiler.GetFullName(true), param.Name,
             requiredType.GetFullName(true)));
 
         var attr = (TypeAttribute)param
@@ -214,7 +213,7 @@ namespace Xtensive.Core.Linq
       return result;
     }
 
-    private static void RegisterCompiler(CompilerDictionary dict, MethodInfo compiler)
+    private static void RegisterCompiler(Compilers newCompilers, MethodInfo compiler)
     {
       var attr = compiler.GetAttribute<CompilerAttribute>(AttributeSearchOptions.InheritNone);
 
@@ -247,7 +246,7 @@ namespace Xtensive.Core.Linq
             Strings.ExCompilerXHasBadTargetMember,
             compiler.GetFullName(true)));
 
-      var paramTypes = ExtractParamTypesAndValidate(compiler, isGeneric);
+      var paramTypes = ExtractTypesAndValidate(compiler, isGeneric);
       var bindFlags = BindingFlags.Public;
 
       if (isGeneric)
@@ -294,7 +293,7 @@ namespace Xtensive.Core.Linq
           Strings.ExTargetMemberIsNotFoundForCompilerX,
           compiler.GetFullName(true)));
 
-      if (dict.ContainsKey(memberInfo))
+      if (newCompilers.ContainsKey(memberInfo))
         throw new InvalidOperationException(string.Format(
           Strings.ExCompilerForXIsAlreadyRegistered,
           memberInfo.GetFullName(true)));
@@ -308,7 +307,7 @@ namespace Xtensive.Core.Linq
         result = isStatic || isCtor ? CreateCompilerForStaticMember(compiler)
                                     : CreateCompilerForInstanceMember(compiler);
 
-      dict[memberInfo] = new Pair<Delegate, MethodInfo>(result, compiler);
+      newCompilers[memberInfo] = new Pair<Delegate, MethodInfo>(result, compiler);
     }
 
     private static Func<T, T[], T> CreateCompilerForInstanceMember(MethodInfo compiler)
