@@ -58,11 +58,11 @@ namespace Xtensive.Core.Linq
       if (sourceType.IsGenericType) {
         sourceType = sourceType.GetGenericTypeDefinition();
 
-        if (source is FieldInfo)
+        if (realSource is FieldInfo)
           realSource = sourceType.GetField(realSource.Name);
-        else if (source is MethodInfo)
+        else if (realSource is MethodInfo)
           realSource = FindBestMethod(sourceType.GetMethods(), (MethodInfo)realSource);
-        else if (source is ConstructorInfo)
+        else if (realSource is ConstructorInfo)
           realSource = FindBestMethod(sourceType.GetConstructors(), (ConstructorInfo)realSource);
         else
           realSource = null;
