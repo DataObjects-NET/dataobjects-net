@@ -42,10 +42,14 @@ namespace Xtensive.Core.Linq
       compiler = null;
       bool withMemberInfo = false;
       var realSource = source;
-      var methodInfo = realSource as MethodInfo;
 
-      if (methodInfo != null && methodInfo.IsGenericMethod) {
-        realSource = methodInfo.GetGenericMethodDefinition();
+      var sourceProperty = realSource as PropertyInfo;
+      if (sourceProperty != null)
+        realSource = sourceProperty.GetGetMethod();
+      
+      var sourceMethod = realSource as MethodInfo;
+      if (sourceMethod != null && sourceMethod.IsGenericMethod) {
+        realSource = sourceMethod.GetGenericMethodDefinition();
         withMemberInfo = true;
       }
 
