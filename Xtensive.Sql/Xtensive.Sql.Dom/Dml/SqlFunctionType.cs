@@ -38,6 +38,7 @@ namespace Xtensive.Sql.Dom.Dml
     Acos,
     Asin,
     Atan,
+    Atan2,
     Ceiling,
     Cos,
     Cot,

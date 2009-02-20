@@ -66,6 +66,8 @@ namespace Xtensive.Sql.Dom.Mssql.v2000
           return "LEN";
         case SqlFunctionType.Position:
           return "PATINDEX";
+        case SqlFunctionType.Atan2:
+          return "ATN2";
       }
       return base.Translate(functionType);
     }

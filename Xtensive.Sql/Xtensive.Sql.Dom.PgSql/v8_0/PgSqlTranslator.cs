@@ -139,6 +139,9 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
       case SqlFunctionType.Atan:
         return "atan";
 
+      case SqlFunctionType.Atan2:
+        return "atan2";
+
       case SqlFunctionType.Ceiling:
         return "ceil";
 

@@ -1258,6 +1258,15 @@ namespace Xtensive.Sql.Dom
       return new SqlFunctionCall(SqlFunctionType.Atan, argument);
     }
 
+    public static SqlFunctionCall Atan2(SqlExpression argument1, SqlExpression argument2)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(argument1, "argument1");
+      ArgumentValidator.EnsureArgumentNotNull(argument2, "argument2");
+      SqlValidator.EnsureIsArithmeticExpression(argument1);
+      SqlValidator.EnsureIsArithmeticExpression(argument2);
+      return new SqlFunctionCall(SqlFunctionType.Atan2, argument1, argument2);
+    }
+
     public static SqlFunctionCall Ceiling(SqlExpression argument)
     {
       ArgumentValidator.EnsureArgumentNotNull(argument, "argument");

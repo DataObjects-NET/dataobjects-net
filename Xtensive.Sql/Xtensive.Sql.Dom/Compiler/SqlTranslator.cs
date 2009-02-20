@@ -1683,6 +1683,8 @@ namespace Xtensive.Sql.Dom.Compiler
           return "ASIN";
         case SqlFunctionType.Atan:
           return "ATAN";
+        case SqlFunctionType.Atan2:
+          return "ATAN2";
         case SqlFunctionType.Ceiling:
           return "CEILING";
         case SqlFunctionType.Coalesce:
