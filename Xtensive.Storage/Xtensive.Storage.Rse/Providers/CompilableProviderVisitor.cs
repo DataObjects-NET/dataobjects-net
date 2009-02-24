@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq.Expressions;
+using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
@@ -22,7 +23,7 @@ namespace Xtensive.Storage.Rse.Providers
   [Serializable]
   public abstract class CompilableProviderVisitor : ProviderVisitor
   {
-    protected readonly Func<Expression, Expression> translate;
+    protected Func<Provider, Expression, Expression> translate;
 
     /// <summary>
     /// Visits the compilable provider.
@@ -37,7 +38,9 @@ namespace Xtensive.Storage.Rse.Providers
     /// <inheritdoc/>
     protected override Provider VisitExecutionSite(ExecutionSiteProvider provider)
     {
+      OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
+      OnRecursionExit(provider);
       if (source == provider.Source)
         return provider;
       return new ExecutionSiteProvider(source, provider.Options, provider.Location);
@@ -46,8 +49,10 @@ namespace Xtensive.Storage.Rse.Providers
     /// <inheritdoc/>
     protected override Provider VisitTake(TakeProvider provider)
     {
+      OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
-      var count = translate(provider.Count);
+      OnRecursionExit(provider);
+      var count = translate(provider, provider.Count);
       if (source == provider.Source && count == provider.Count)
         return provider;
       return new TakeProvider(source, (Expression<Func<int>>) count);
@@ -56,8 +61,10 @@ namespace Xtensive.Storage.Rse.Providers
     /// <inheritdoc/>
     protected override Provider VisitSkip(SkipProvider provider)
     {
+      OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
-      var count = translate(provider.Count);
+      OnRecursionExit(provider);
+      var count = translate(provider, provider.Count);
       if (source == provider.Source && count == provider.Count)
         return provider;
       return new SkipProvider(source, (Expression<Func<int>>)count);
@@ -66,7 +73,9 @@ namespace Xtensive.Storage.Rse.Providers
     /// <inheritdoc/>
     protected override Provider VisitSelect(SelectProvider provider)
     {
+      OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
+      OnRecursionExit(provider);
       if (source == provider.Source)
         return provider;
       return new SelectProvider(source, provider.ColumnIndexes);
@@ -75,8 +84,10 @@ namespace Xtensive.Storage.Rse.Providers
     /// <inheritdoc/>
     protected override Provider VisitSeek(SeekProvider provider)
     {
+      OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
-      var key = translate(provider.Key);
+      OnRecursionExit(provider);
+      var key = translate(provider, provider.Key);
       if (source == provider.Source && key == provider.Key)
         return provider;
       return new SeekProvider(source, (Expression<Func<Tuple>>) key);
@@ -85,7 +96,7 @@ namespace Xtensive.Storage.Rse.Providers
     /// <inheritdoc/>
     protected override Provider VisitRaw(RawProvider provider)
     {
-      var source = translate(provider.Source);
+      var source = translate(provider, provider.Source);
       if (source == provider.Source)
         return provider;
       return new RawProvider(provider.Header, (Expression<Func<Tuple[]>>) source);
@@ -94,8 +105,10 @@ namespace Xtensive.Storage.Rse.Providers
     /// <inheritdoc/>
     protected override Provider VisitRange(RangeProvider provider)
     {
+      OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
-      var range = translate(provider.Range);
+      OnRecursionExit(provider);
+      var range = translate(provider, provider.Range);
       if (source == provider.Source && range == provider.Range)
         return provider;
       return new RangeProvider(source, (Expression<Func<Range<Entire<Tuple>>>>) range);
@@ -105,7 +118,9 @@ namespace Xtensive.Storage.Rse.Providers
     protected override Provider VisitSort(SortProvider provider)
     {
       // TODO: rewrite Order!!
+      OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
+      OnRecursionExit(provider);
       if (source == provider.Source)
         return provider;
       return new SortProvider(source, provider.Order);
@@ -115,18 +130,23 @@ namespace Xtensive.Storage.Rse.Providers
     protected override Provider VisitJoin(JoinProvider provider)
     {
       // TODO: we should not reference columns by its indexes
+      OnRecursionEntrance(provider);
       var left = VisitCompilable(provider.Left);
       var right = VisitCompilable(provider.Right);
+      var equalIndexes = OnRecursionExit(provider);
       if (left == provider.Left && right == provider.Right)
         return provider;
-      return new JoinProvider(left, right, provider.LeftJoin, provider.JoinType, provider.EqualIndexes);
+      return new JoinProvider(left, right, provider.LeftJoin, provider.JoinType,
+        equalIndexes != null ? (Pair<int>[])equalIndexes : provider.EqualIndexes);
     }
 
     /// <inheritdoc/>
     protected override Provider VisitFilter(FilterProvider provider)
     {
+      OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
-      var predicate = translate(provider.Predicate);
+      OnRecursionExit(provider);
+      var predicate = translate(provider, provider.Predicate);
       if (source == provider.Source && predicate == provider.Predicate)
         return provider;
       return new FilterProvider(source, (Expression<Func<Tuple, bool>>) predicate);
@@ -135,7 +155,9 @@ namespace Xtensive.Storage.Rse.Providers
     /// <inheritdoc/>
     protected override Provider VisitDistinct(DistinctProvider provider)
     {
+      OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
+      OnRecursionExit(provider);
       if (source == provider.Source)
         return provider;
       return new DistinctProvider(source);
@@ -144,11 +166,13 @@ namespace Xtensive.Storage.Rse.Providers
     /// <inheritdoc/>
     protected override Provider VisitCalculate(CalculationProvider provider)
     {
+      OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
+      OnRecursionExit(provider);
       var translated = false;
       var descriptors = new List<CalculatedColumnDescriptor>(provider.CalculatedColumns.Length);
       foreach (var column in provider.CalculatedColumns) {
-        var expression = translate(column.Expression);
+        var expression = translate(provider, column.Expression);
         if (expression != column.Expression)
           translated = true;
         var ccd = new CalculatedColumnDescriptor(column.Name, column.Type, (Expression<Func<Tuple, object>>) expression);
@@ -162,22 +186,29 @@ namespace Xtensive.Storage.Rse.Providers
     /// <inheritdoc/>
     protected override Provider VisitAlias(AliasProvider provider)
     {
+      OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
+      OnRecursionExit(provider);
       if (source == provider.Source)
         return provider;
-      return new AliasProvider(provider, provider.Alias);
+      return new AliasProvider(source, provider.Alias);
     }
 
     /// <inheritdoc/>
     protected override Provider VisitAggregate(AggregateProvider provider)
     {
+      OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
+      var resultParameters = OnRecursionExit(provider);
       if (source == provider.Source)
         return provider;
-      var acd = new List<AggregateColumnDescriptor>(provider.AggregateColumns.Length);
-      acd.AddRange(provider.AggregateColumns.Select(ac => new AggregateColumnDescriptor(ac.Name, ac.Index, ac.AggregateType)));
-      return new AggregateProvider(source, provider.GroupColumnIndexes, acd.ToArray());
-     
+      if (resultParameters == null) {
+        var acd = new List<AggregateColumnDescriptor>(provider.AggregateColumns.Length);
+        acd.AddRange(provider.AggregateColumns.Select(ac => new AggregateColumnDescriptor(ac.Name, ac.Index, ac.AggregateType)));
+        return new AggregateProvider(source, provider.GroupColumnIndexes, acd.ToArray());
+      }
+      var result = (Pair<int[], AggregateColumnDescriptor[]>) resultParameters;
+      return new AggregateProvider(source, result.First, result.Second);
     }
 
     /// <inheritdoc/>
@@ -186,7 +217,9 @@ namespace Xtensive.Storage.Rse.Providers
       var compilableSource = provider.Source as CompilableProvider;
       if (compilableSource == null)
         return provider;
+      OnRecursionEntrance(provider);
       var source = VisitCompilable(compilableSource);
+      OnRecursionExit(provider);
       if (source == compilableSource)
         return provider;
       return new StoredProvider(source, provider.Scope, provider.Name);
@@ -201,15 +234,32 @@ namespace Xtensive.Storage.Rse.Providers
     /// <inheritdoc/>
     protected override Provider VisitReindex(ReindexProvider provider)
     {
+      OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
+      OnRecursionExit(provider);
       if (source == provider.Source)
         return provider;
       return new ReindexProvider(source, provider.Order);
     }
 
-    private static Expression DefaultExpressionTranslator(Expression e)
+    private static Expression DefaultExpressionTranslator(Provider p, Expression e)
     {
       return e;
+    }
+
+    /// <summary>
+    /// Called after recursion exit.
+    /// </summary>
+    protected virtual object OnRecursionExit(Provider provider)
+    {
+      return null;
+    }
+
+    /// <summary>
+    /// Called before recursion entrance.
+    /// </summary>
+    protected virtual void OnRecursionEntrance(Provider provider)
+    {
     }
 
     // Constructors
@@ -222,9 +272,9 @@ namespace Xtensive.Storage.Rse.Providers
 
     /// <inheritdoc/>
     /// <param name="expressionTranslator">Expression translator.</param>
-    protected CompilableProviderVisitor(Func<Expression, Expression> expressionTranslator)
+    protected CompilableProviderVisitor(Func<Provider, Expression, Expression> expressionTranslator)
     {
-      this.translate = expressionTranslator;
+      translate = expressionTranslator;
     }
   }
 }

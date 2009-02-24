@@ -11,10 +11,13 @@ namespace Xtensive.Storage.Linq
 {
   internal sealed class QueryProvider : QueryProviderBase
   {
+
     /// <inheritdoc/>
     protected override object Execute(Expression expression)
-    {
+    { 
       var result = Compile(expression);
+      var rcr = new RedundantColumnRemover(result);
+      //result = rcr.RemoveRedundantColumn();
       var projector = result.Projector;
       var recordSet = result.RecordSet;
 
