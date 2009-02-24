@@ -37,8 +37,12 @@ namespace Xtensive.Core.Linq {
     /// </summary>
     Constructor = 0x10,
     /// <summary>
-    /// Compilable member is static.
+    /// Compilable member is <see langword="static"/>.
     /// </summary>
-    Static = 0x20
+    Static = 0x20,
+    /// <summary>
+    /// Compilable member is an overloaded operator.
+    /// </summary>
+    Operator = Static | Method
   }
 }

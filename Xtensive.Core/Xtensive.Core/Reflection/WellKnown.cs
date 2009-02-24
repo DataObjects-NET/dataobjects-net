@@ -36,10 +36,141 @@ namespace Xtensive.Core.Reflection
     /// Returns "add_".
     /// </summary>
     public static readonly string AddEventHandlerPrefix = "add_";
+
     /// <summary>
     /// Returns "remove_".
     /// </summary>
     public static readonly string RemoveEventHandlerPrefix = "remove_";
+
+    /// <summary>
+    /// Returns "op_Addition".
+    /// </summary>
+    public static readonly string OperatorAddition = "op_Addition";
+
+    /// <summary>
+    /// Returns "op_Subtraction".
+    /// </summary>
+    public static readonly string OperatorSubtraction = "op_Subtraction";
+
+    /// <summary>
+    /// Returns "op_Multiply".
+    /// </summary>
+    public static readonly string OperatorMultiply = "op_Multiply";
+
+    /// <summary>
+    /// Returns "op_Divide".
+    /// </summary>
+    public static readonly string OperatorDivide = "op_Divide";
+
+    /// <summary>
+    /// Returns "op_Modulus".
+    /// </summary>
+    public static readonly string OperatorModulus = "op_Modulus";
+
+    /// <summary>
+    /// Returns "op_Increment".
+    /// </summary>
+    public static readonly string OperatorIncrement = "op_Increment";
+
+    /// <summary>
+    /// Returns "op_Decrement".
+    /// </summary>
+    public static readonly string OperatorDecrement = "op_Decrement";
+
+    /// <summary>
+    /// Returns "op_UnaryNegation".
+    /// </summary>
+    public static readonly string OperatorUnaryNegation = "op_UnaryNegation";
+
+    /// <summary>
+    /// Returns "op_UnaryPlus".
+    /// </summary>
+    public static readonly string OperatorUnaryPlus = "op_UnaryPlus";
+
+    /// <summary>
+    /// Returns "op_BitwiseOr".
+    /// </summary>
+    public static readonly string OperatorBitwiseOr = "op_BitwiseOr";
+
+    /// <summary>
+    /// Returns "op_BitwiseAnd".
+    /// </summary>
+    public static readonly string OperatorBitwiseAnd = "op_BitwiseAnd";
+
+    /// <summary>
+    /// Returns "op_ExclusiveOr".
+    /// </summary>
+    public static readonly string OperatorExclusiveOr = "op_ExclusiveOr";
+
+    /// <summary>
+    /// Returns "op_OnesComplement".
+    /// </summary>
+    public static readonly string OperatorOnesComplement = "op_OnesComplement";
+
+    /// <summary>
+    /// Returns "op_LeftShift"
+    /// </summary>
+    public static readonly string OperatorLeftShift = "op_LeftShift";
+
+    /// <summary>
+    /// Returns "op_RightShift
+    /// </summary>
+    public static readonly string OperatorRightShift = "op_RightShift";
+
+    /// <summary>
+    /// Returns "op_LogicalNot".
+    /// </summary>
+    public static readonly string OperatorLogicalNot = "op_LogicalNot";
+
+    /// <summary>
+    /// Returns "op_True".
+    /// </summary>
+    public static readonly string OperatorTrue = "op_True";
+
+    /// <summary>
+    /// Returns "op_False".
+    /// </summary>
+    public static readonly string OperatorFalse = "op_False";
+
+    /// <summary>
+    /// Returns "op_Explicit"
+    /// </summary>
+    public static readonly string OperatorExplicit = "op_Explicit";
+
+    /// <summary>
+    /// Returns "op_Implicit".
+    /// </summary>
+    public static readonly string OperatorImplicit = "op_Implicit";
+
+    /// <summary>
+    /// Returns "op_Equality".
+    /// </summary>
+    public static readonly string OperatorEquality = "op_Equality";
+
+    /// <summary>
+    /// Returns "op_Inequality".
+    /// </summary>
+    public static readonly string OperatorInequality = "op_Inequality";
+
+    /// <summary>
+    /// Returns "op_GreatherThan".
+    /// </summary>
+    public static readonly string OperatorGreatherThan = "op_GreatherThan";
+
+    /// <summary>
+    /// Returns "op_GreatherThanOrEqual".
+    /// </summary>
+    public static readonly string OperatorGreatherThanOrEqual = "op_GreatherThanOrEqual";
+
+    /// <summary>
+    /// Returns "op_LessThan".
+    /// </summary>
+    public static readonly string OperatorLessThan = "op_LessThan";
+
+    /// <summary>
+    /// Returns "op_LessThanOrEqual".
+    /// </summary>
+    public static readonly string OperatorLessThanOrEqual = "op_LessThanOrEqual";
 
     /// <summary>
     /// Returns "System.Reflection.RuntimeMethodInfo".
