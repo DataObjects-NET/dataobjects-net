@@ -46,6 +46,19 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     public void AppendFilterToRequest(Expression<Func<Tuple,bool>> exp)
     {
       var result = Transform(exp);
+      if (result.NodeType == SqlNodeType.Literal) {
+        var value = result as SqlLiteral<bool>;
+        if (value != null) {
+          var b = value.Value;
+          if (!b)
+            query.Where &= (1 == 0);
+          return;
+        }
+      }
+      else if (result.NodeType == SqlNodeType.Parameter) {
+        query.Where &= result == SqlFactory.Literal(1);
+        return;
+      }
       query.Where &= result;
     }
 

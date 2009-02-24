@@ -386,34 +386,6 @@ namespace Xtensive.Storage.Tests.Storage
         }
       }
     }
-    [Test]
-    [Ignore]
-    public void StringComparisonTest()
-    {
-      //var stringList = new string[] {"k", "K", "kK","kk!", "Kk", "KKy", "kkx", "KKK"+'\u00FF', "KKKK", "kkjkllkj", string.Concat('\u0920','\u00FF'), string.Concat('\u0920','\u0920')};
-      var stringList = new string[] { "KAA10" + '\u00FF', "Kaa1000" };
-      var signList = new List<string>();
-      
-      for(int i = 0; i<stringList.Length-1; i++) {
-        if (stringList[i].CompareTo(stringList[i + 1]) < 0) {
-          signList.Add("<");
-          continue;
-        }
-        if (stringList[i].CompareTo(stringList[i + 1]) > 0) {
-          signList.Add(">");
-          continue;
-        }
-        signList.Add("=");
-      }
-
-      var result = new StringBuilder(stringList[0] + " ");
-      for (int i = 0; i < signList.Count; i++)
-        result.Append(signList[i]).Append(" ").Append(stringList[i + 1]).Append(" ");
-      
-      Log.Info(result.ToString());
-      Log.Info('K'.CompareTo(char.MinValue).ToString());
-
-    }
 
     [Test]
     public void RangeTest()

@@ -27,7 +27,7 @@ namespace Xtensive.Storage.Linq
     {
       var memberPath = MemberPath.Parse(m, model);
       if (memberPath.IsValid)
-        return VisitMemberPath(new MemberPathExpression(memberPath, m));
+        return Visit(new MemberPathExpression(memberPath, m));
       return base.VisitMemberAccess(m);
     }
 
@@ -35,7 +35,7 @@ namespace Xtensive.Storage.Linq
     {
       var memberPath = MemberPath.Parse(mc, model);
       if (memberPath.IsValid)
-        return VisitMemberPath(new MemberPathExpression(memberPath, mc));
+        return Visit(new MemberPathExpression(memberPath, mc));
       return base.VisitMethodCall(mc);
     }
 

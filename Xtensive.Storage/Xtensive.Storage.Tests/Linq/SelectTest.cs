@@ -19,8 +19,12 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var products = Query<Product>.All;
-          var result = from p in products
-                       select 0;
+          var result =
+            from r in
+              from p in products
+              select 0
+            where r == 0
+            select r;
           var list = result.ToList();
           foreach (var i in list)
             Assert.AreEqual(0, i);
@@ -50,14 +54,14 @@ namespace Xtensive.Storage.Tests.Linq
     {
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
-// ReSharper disable ConvertToConstant
           int x = 10;
-// ReSharper restore ConvertToConstant
           var products = Query<Product>.All;
-          var result = from p in products
-// ReSharper disable AccessToModifiedClosure
-                       select x;
-// ReSharper restore AccessToModifiedClosure
+          var result =
+            from r in
+              from p in products
+              select x
+            where r == x
+            select r;
           var list = result.ToList();
           foreach (var i in list)
             Assert.AreEqual(10, i);
@@ -77,8 +81,12 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var products = Query<Product>.All;
-          var result = from p in products
-                       select p.ProductName;
+          var result =
+            from r in
+              from p in products
+              select p.ProductName
+            where r != null
+            select r;
           var list = result.ToList();
           foreach (var s in list)
             Assert.IsNotNull(s);
@@ -93,8 +101,11 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var products = Query<Product>.All;
-          var result = from p in products
-                       select p.UnitsInStock * p.UnitPrice;
+          var result = from r in
+              from p in products
+              select p.UnitsInStock * p.UnitPrice
+            where r > 0
+            select r;
           var list = result.ToList();
           var checkList = products.AsEnumerable().Select(p => p.UnitsInStock * p.UnitPrice).ToList();
           list.SequenceEqual(checkList);
@@ -109,8 +120,12 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var products = Query<Product>.All;
-          var result = from p in products
-                       select p.Key;
+          var result =
+            from r in
+              from p in products
+              select p.Key
+            where r != null
+            select r;
           var list = result.ToList();
           Assert.Greater(list.Count, 0);
           foreach (var k in list) {
@@ -159,8 +174,12 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var products = Query<Product>.All;
-          var result = from p in products
-                       select new { p.ProductName, TotalPriceInStock = p.UnitPrice * p.UnitsInStock };
+          var result =
+            from r in
+              from p in products
+              select new {p.ProductName, TotalPriceInStock = p.UnitPrice * p.UnitsInStock}
+            where r.TotalPriceInStock > 0
+            select r;
           var list = result.ToList();
           Assert.Greater(list.Count, 0);
           t.Complete();
@@ -190,8 +209,12 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var products = Query<Product>.All;
-          var result = from p in products
-                       select p.Supplier;
+          var result =
+            from r in
+              from p in products
+              select p.Supplier
+            where r.CompanyName != null
+            select r;
           var list = result.ToList();
           Assert.Greater(list.Count, 0);
           t.Complete();
@@ -252,8 +275,12 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var products = Query<Product>.All;
-          var result = from p in products
-                       select new { p.ProductName, Product = p };
+          var result =
+            from r in
+              from p in products
+              select new {p.ProductName, Product = p}
+            where r.Product != null
+            select r;
           var list = result.ToList();
           Assert.Greater(list.Count, 0);
           t.Complete();
@@ -268,8 +295,12 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var products = Query<Product>.All;
-          var result = from p in products
-                       select new { p, Desc = new {p.ProductName, p.UnitPrice} };
+          var result =
+            from r in
+              from p in products
+              select new {p, Desc = new {p.ProductName, p.UnitPrice}}
+            where r.Desc.ProductName != null
+            select r;
           var list = result.ToList();
           Assert.Greater(list.Count, 0);
           t.Complete();
@@ -322,10 +353,9 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var products = Query<Product>.All;
-          var result = from pd in (
+          var result = from pd in 
                          from p in products
                          select new {ProductKey = p.Key, p.ProductName, TotalPrice = p.UnitPrice * p.UnitsInStock}
-                       )
                        where pd.TotalPrice > 100
                        select new {PKey = pd.ProductKey, pd.ProductName, Total = pd.TotalPrice};
                        
@@ -342,15 +372,12 @@ namespace Xtensive.Storage.Tests.Linq
         using (var t = Transaction.Open()) {
           var products = Query<Product>.All;
           var result = 
-            from a in (
-              from pd in (
+            from a in 
+              from pd in 
                 from p in products
                 select new {ProductKey = p.Key, SupplierAddress = p.Supplier.Address}
-              )
               select new {PKey = pd.ProductKey, pd.SupplierAddress, SupplierCity = pd.SupplierAddress.City}
-            )
             select new { a.PKey, a.SupplierAddress, a.SupplierCity };
-                       
           var list = result.ToList();
           t.Complete();
         }
@@ -364,10 +391,9 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var products = Query<Product>.All;
-          var result = from pd in (
+          var result = from pd in 
                          from p in products
                          select new {ProductKey = p.Key, Product = p}
-                       )
                        select new {PKey = pd.ProductKey, pd.Product};
                        
           var list = result.ToList();
@@ -382,10 +408,9 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var products = Query<Product>.All;
-          var result = from pd in (
+          var result = from pd in 
                          from p in products
                          select new {ProductKey = p.Key, Product = new {Entity = new{p}, Name = p.ProductName}}
-                       )
                        select new {PKey = pd.ProductKey, pd.Product.Name, A = pd, AProduct = pd.Product, AEntity = pd.Product.Entity};
                        
           var list = result.ToList();

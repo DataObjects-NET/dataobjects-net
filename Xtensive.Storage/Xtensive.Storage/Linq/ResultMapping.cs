@@ -29,6 +29,14 @@ namespace Xtensive.Storage.Linq
 
     // Constructors
 
+    public ResultMapping(Segment<int> segment)
+    {
+      Fields = new Dictionary<string, Segment<int>>();
+      JoinedRelations = new Dictionary<string, ResultMapping>();
+      AnonymousProjections = new Dictionary<string, Expression>();
+      Segment = segment;
+    }
+
     public ResultMapping()
       : this(new Dictionary<string, Segment<int>>(), new Dictionary<string, ResultMapping>(), new Dictionary<string, Expression>())
     {}

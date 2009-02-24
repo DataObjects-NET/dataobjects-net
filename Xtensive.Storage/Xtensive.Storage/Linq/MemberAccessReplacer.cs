@@ -63,6 +63,14 @@ namespace Xtensive.Storage.Linq
       return base.Visit(e);
     }
 
+    protected override Expression VisitParameter(ParameterExpression p)
+    {
+      var rewriter = new ProjectionParameterRewriter(resultParameter, null);
+      var source = context.GetBound(p);
+      bool recordIsUsed;
+      return rewriter.Rewrite(source.ItemProjector.Body, out recordIsUsed);
+    }
+
     protected override Expression VisitMemberPath(MemberPathExpression mpe)
     {
       var path = mpe.Path;

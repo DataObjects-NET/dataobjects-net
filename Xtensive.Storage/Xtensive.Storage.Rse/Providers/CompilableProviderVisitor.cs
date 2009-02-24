@@ -16,6 +16,9 @@ using System.Linq;
 
 namespace Xtensive.Storage.Rse.Providers
 {
+  /// <summary>
+  /// Abstract <see cref="CompilableProvider"/> visitor class. Result is <see cref="CompilableProvider"/>.
+  /// </summary>
   [Serializable]
   public abstract class CompilableProviderVisitor : ProviderVisitor
   {
