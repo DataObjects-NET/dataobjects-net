@@ -55,11 +55,16 @@ namespace Xtensive.Storage.Linq
       Fields = fieldMapping;
       JoinedRelations = joinedRelations;
       AnonymousProjections = anonymousProjections;
-      if (Fields.Count > 0)
-        Segment = new Segment<int>(Fields.Min(pair => pair.Value.Offset), Fields.Max(pair => pair.Value.Offset) + 1);
+      if (Fields.Count > 0) {
+        var offset = Fields.Min(pair => pair.Value.Offset);
+        var endOffset = Fields.Max(pair => pair.Value.Offset);
+        var length = endOffset - offset + 1;
+        Segment = new Segment<int>(offset, length);
+      }
       else
         // TODO: refactor this code to support primitive type projections and empty projections
-        Segment = new Segment<int>(0,1);
+        Segment = new Segment<int>(0, 1);
+//        throw new InvalidOperationException();
     }
   }
 }

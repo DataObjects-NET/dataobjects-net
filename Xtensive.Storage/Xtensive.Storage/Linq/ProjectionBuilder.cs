@@ -77,8 +77,11 @@ namespace Xtensive.Storage.Linq
           }
         }
         newBody = newBody ?? Visit(body);
+        var fieldMapping = pFm.Value.Where(p => !p.Key.IsNullOrEmpty()).ToDictionary(p => p.Key, p => p.Value);
+        var joinedRelations = pJr.Value.Where(p => !p.Key.IsNullOrEmpty()).ToDictionary(p => p.Key, p => p.Value);
+        var anonymousProjections = pAp.Value.Where(p => !p.Key.IsNullOrEmpty()).ToDictionary(p => p.Key, p => p.Value);
         mapping = pSegment.Value.Length == 0
-          ? new ResultMapping(pFm.Value, pJr.Value, pAp.Value)
+          ? new ResultMapping(fieldMapping, joinedRelations, anonymousProjections)
           : new ResultMapping(pSegment.Value);
       }
       if (recordIsUsed) {
@@ -156,9 +159,8 @@ namespace Xtensive.Storage.Linq
           var rm = source.GetMemberMapping(path);
           var mapping = rm.Fields.Where(p => p.Value.Offset >= segment.Offset && p.Value.EndOffset <= segment.EndOffset).ToList();
           var name = mapping.Select(pair => pair.Key).OrderBy(s => s.Length).First();
-          var prefix = name + ".";
-          foreach (var pair in mapping.Where(p => p.Key != name)) {
-            var key = pair.Key.Replace(prefix, string.Empty);
+          foreach (var pair in mapping) {
+            var key = pair.Key.TryCutPrefix(name).TrimStart('.');
             if (!pFm.Value.ContainsKey(key))
               pFm.Value.Add(key, pair.Value);
           }
@@ -174,14 +176,13 @@ namespace Xtensive.Storage.Linq
               keyResolveMethod), resultType);
           var rm = source.GetMemberMapping(path);
           var name = rm.Fields.Select(pair => pair.Key).OrderBy(s => s.Length).First();
-          var prefix = name + ".";
           foreach (var pair in rm.Fields) {
-            var key = pair.Key.Replace(prefix, string.Empty);
+            var key = pair.Key.TryCutPrefix(name).TrimStart('.');
             if (!pFm.Value.ContainsKey(key))
               pFm.Value.Add(key, pair.Value);
           }
           foreach (var pair in rm.JoinedRelations) {
-            var key = pair.Key.Replace(prefix, string.Empty);
+            var key = pair.Key.TryCutPrefix(name).TrimStart('.');
             if (!pJr.Value.ContainsKey(key))
               pJr.Value.Add(key, pair.Value);
           }
@@ -241,7 +242,10 @@ namespace Xtensive.Storage.Linq
         var arg = n.Arguments[i];
         var newArg = (Expression) null;
         var member = n.Members[i];
-        var memberName = member.Name.Replace(WellKnown.GetterPrefix, string.Empty);
+        var memberName = member.Name.TryCutPrefix(WellKnown.GetterPrefix);
+        Func<string, string> rename = key => key.IsNullOrEmpty()
+              ? memberName
+              : memberName + "." + key;
         var path = MemberPath.Parse(arg, context.Model);
         if (path.IsValid) {
           using (new ParameterScope()) {
@@ -260,16 +264,19 @@ namespace Xtensive.Storage.Linq
               ap = pAp.Value;
               segment = pSegment.Value;
             }
+            
             if (segment.Length != 0)
               pFm.Value.Add(memberName, segment);
             foreach (var p in fm)
-              pFm.Value.Add(memberName + "." + p.Key, p.Value);
+              pFm.Value.Add(rename(p.Key), p.Value);
             foreach (var p in jr)
-              pJr.Value.Add(memberName + "." + p.Key, p.Value);
+              pJr.Value.Add(rename(p.Key), p.Value);
             foreach (var p in ap)
-              pAp.Value.Add(memberName + "." + p.Key, p.Value);
-            pJr.Value.Add(memberName, new ResultMapping(fm, jr, ap));
-            pAp.Value.Add(memberName, newArg);
+              pAp.Value.Add(rename(p.Key), p.Value);
+            if (!pJr.Value.ContainsKey(memberName))
+              pJr.Value.Add(memberName, new ResultMapping(fm, jr, ap));
+            if (!pAp.Value.ContainsKey(memberName))
+              pAp.Value.Add(memberName, newArg);
           }
 
 //          switch (path.PathType) {
@@ -330,13 +337,15 @@ namespace Xtensive.Storage.Linq
               ap = pAp.Value;
             }
             foreach (var p in fm)
-              pFm.Value.Add(memberName + "." + p.Key, p.Value);
+              pFm.Value.Add(rename(p.Key), p.Value);
             foreach (var p in jr)
-              pJr.Value.Add(memberName + "." + p.Key, p.Value);
+              pJr.Value.Add(rename(p.Key), p.Value);
             foreach (var p in ap)
-              pAp.Value.Add(memberName + "." + p.Key, p.Value);
-            pJr.Value.Add(memberName, new ResultMapping(fm, jr, ap));
-            pAp.Value.Add(memberName, newArg);
+              pAp.Value.Add(rename(p.Key), p.Value);
+            if (!pJr.Value.ContainsKey(memberName))
+              pJr.Value.Add(memberName, new ResultMapping(fm, jr, ap));
+            if (!pAp.Value.ContainsKey(memberName))
+              pAp.Value.Add(memberName, newArg);
           }
           else {
             // TODO: Add check of queries
