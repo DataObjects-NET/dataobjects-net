@@ -27,6 +27,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       typeof(NullableMappings),
       typeof(StringMappings),
       typeof(DateTimeMappings),
+      typeof(TimeSpanMappings),
       typeof(MathMappings),
       typeof(NumericMappings),
       typeof(DecimalMappings)
@@ -119,8 +120,13 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
 
     protected override SqlExpression VisitBinary(BinaryExpression expression)
     {
+      SqlExpression result;
+      if (TryTranslateCompareExpression(expression, out result))
+        return result;
+
       var left = Visit(expression.Left);
       var right = Visit(expression.Right);
+
       switch(expression.NodeType) {
         case ExpressionType.Add:
         case ExpressionType.AddChecked:
@@ -281,6 +287,124 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       throw new NotSupportedException();
     }
     
+    private bool TryTranslateCompareExpression(BinaryExpression expression, out SqlExpression result)
+    {
+      result = null;
+
+      bool isGoodExpression =
+        expression.Left.NodeType==ExpressionType.Call
+          && expression.Right.NodeType==ExpressionType.Constant ||
+        expression.Right.NodeType==ExpressionType.Call
+          && expression.Left.NodeType==ExpressionType.Constant;
+
+      if (!isGoodExpression)
+        return false;
+
+      MethodCallExpression callExpression;
+      ConstantExpression constantExpression;
+
+      if (expression.Left.NodeType==ExpressionType.Call) {
+        callExpression = (MethodCallExpression) expression.Left;
+        constantExpression = (ConstantExpression) expression.Right;
+      }
+      else {
+        callExpression = (MethodCallExpression)expression.Right;
+        constantExpression = (ConstantExpression)expression.Left;
+      }
+      
+      var method = (MethodInfo)callExpression.Method.GetInterfaceMember() ?? callExpression.Method;
+      var methodType = method.DeclaringType;
+      
+      // There no methods in IComparable except CompareTo so checking only DeclatingType.
+      bool isCompareTo = methodType == typeof(IComparable)
+        || methodType.IsGenericType && methodType.GetGenericTypeDefinition() == typeof(IComparable<>);
+
+      bool isCompare = method.Name=="Compare" && method.GetParameters().Length==2 && method.IsStatic;
+
+      if (!isCompareTo && !isCompare)
+        return false;
+
+      if (constantExpression.Value == null)
+        return false;
+
+      if (!(constantExpression.Value is int))
+        return false;
+
+      int constant = (int) constantExpression.Value;
+
+      SqlExpression leftComparand = null;
+      SqlExpression rightComparand = null;
+
+      if (isCompareTo) {
+        leftComparand = Visit(callExpression.Object);
+        rightComparand = Visit(callExpression.Arguments[0]);
+      }
+
+      if (isCompare) {
+        leftComparand = Visit(callExpression.Arguments[0]);
+        rightComparand = Visit(callExpression.Arguments[1]);
+      }
+
+      if (constant==0)
+        switch (expression.NodeType) {
+          case ExpressionType.GreaterThan:
+            result = SqlFactory.GreaterThan(leftComparand, rightComparand);
+            return true;
+          case ExpressionType.GreaterThanOrEqual:
+            result = SqlFactory.GreaterThanOrEquals(leftComparand, rightComparand);
+            return true;
+          case ExpressionType.Equal:
+            result = SqlFactory.Equals(leftComparand, rightComparand);
+            return true;
+          case ExpressionType.NotEqual:
+            result = SqlFactory.NotEquals(leftComparand, rightComparand);
+            return true;
+          case ExpressionType.LessThanOrEqual:
+            result = SqlFactory.LessThanOrEquals(leftComparand, rightComparand);
+            return true;
+          case ExpressionType.LessThan:
+            result = SqlFactory.LessThan(leftComparand, rightComparand);
+            return true;
+          default:
+            return false;
+        }
+
+    if (constant > 0)
+      switch (expression.NodeType) {
+        case ExpressionType.Equal:
+        case ExpressionType.GreaterThan:
+        case ExpressionType.GreaterThanOrEqual:
+          result = SqlFactory.GreaterThan(leftComparand, rightComparand);
+          return true;
+        case ExpressionType.NotEqual:
+        case ExpressionType.LessThanOrEqual:
+        case ExpressionType.LessThan:
+          result = SqlFactory.LessThanOrEquals(leftComparand, rightComparand);
+          return true;
+        default:
+          return false;
+      }
+
+    if (constant < 0)
+      switch (expression.NodeType)
+      {
+        case ExpressionType.NotEqual:
+        case ExpressionType.GreaterThan:
+        case ExpressionType.GreaterThanOrEqual:
+          result = SqlFactory.GreaterThanOrEquals(leftComparand, rightComparand);
+          return true;
+        case ExpressionType.Equal:
+        case ExpressionType.LessThanOrEqual:
+        case ExpressionType.LessThan:
+          result = SqlFactory.LessThan(leftComparand, rightComparand);
+          return true;
+        default:
+          return false;
+      }
+
+      return false; // make compiler happy
+    }
+
     // Constructor
 
     public ExpressionProcessor(SqlFetchRequest request, DomainModel model)

@@ -6,8 +6,8 @@
 
 using System;
 using Xtensive.Core.Linq;
-using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Dml;
+using Operator = Xtensive.Core.Reflection.WellKnown.Operator;
 using SqlFactory = Xtensive.Sql.Dom.Sql;
 
 namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
@@ -116,6 +116,34 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(int))] SqlExpression minute,
       [Type(typeof(int))] SqlExpression second,
       [Type(typeof(int))] SqlExpression millisecond)
+    {
+      throw new NotImplementedException();
+    }
+
+    #endregion
+
+    #region Operators
+
+    [Compiler(typeof(DateTime), Operator.Addition, TargetKind.Operator)]
+    public static SqlExpression DateTimeOperatorAddition(
+      [Type(typeof(DateTime))] SqlExpression d,
+      [Type(typeof(TimeSpan))] SqlExpression s)
+    {
+      throw new NotImplementedException();
+    }
+
+    [Compiler(typeof(DateTime), Operator.Subtraction, TargetKind.Operator)]
+    public static SqlExpression DateTimeOperatorSubtractionTimeSpan(
+      [Type(typeof(DateTime))] SqlExpression d,
+      [Type(typeof(TimeSpan))] SqlExpression t)
+    {
+      throw new NotImplementedException();
+    }
+
+    [Compiler(typeof(DateTime), Operator.Subtraction, TargetKind.Operator)]
+    public static SqlExpression DateTimeOperatorSubtractionDateTime(
+      [Type(typeof(DateTime))] SqlExpression d1,
+      [Type(typeof(DateTime))] SqlExpression d2)
     {
       throw new NotImplementedException();
     }
