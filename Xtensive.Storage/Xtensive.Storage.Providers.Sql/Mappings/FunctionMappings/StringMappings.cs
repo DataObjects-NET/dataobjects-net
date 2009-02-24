@@ -6,6 +6,7 @@
 
 using System;
 using System.Linq;
+using Xtensive.Core.Helpers;
 using Xtensive.Core.Linq;
 using Xtensive.Sql.Dom.Dml;
 using SqlFactory = Xtensive.Sql.Dom.Sql;
@@ -227,6 +228,38 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(string))] SqlExpression value)
     {
       return value is SqlNull ? (SqlExpression) SqlFactory.IsNull(this_) : this_==value;
+    }
+
+    [Compiler(typeof(StringExtensions), "LessThan", TargetKind.Static | TargetKind.Method)]
+    public static SqlExpression StringLessThan(
+      [Type(typeof(string))] SqlExpression this_,
+      [Type(typeof(string))] SqlExpression value)
+    {
+      return SqlFactory.LessThan(this_, value);
+    }
+
+    [Compiler(typeof(StringExtensions), "LessThanOrEqual", TargetKind.Static | TargetKind.Method)]
+    public static SqlExpression StringLessThanOrEquals(
+      [Type(typeof(string))] SqlExpression this_,
+      [Type(typeof(string))] SqlExpression value)
+    {
+      return SqlFactory.LessThanOrEquals(this_, value);
+    }
+
+    [Compiler(typeof(StringExtensions), "GreaterThan", TargetKind.Static | TargetKind.Method)]
+    public static SqlExpression StringGreaterThan(
+      [Type(typeof(string))] SqlExpression this_,
+      [Type(typeof(string))] SqlExpression value)
+    {
+      return SqlFactory.GreaterThan(this_, value);
+    }
+
+    [Compiler(typeof(StringExtensions), "GreaterThanOrEqual", TargetKind.Static | TargetKind.Method)]
+    public static SqlExpression StringGreaterThanOrEquals(
+      [Type(typeof(string))] SqlExpression this_,
+      [Type(typeof(string))] SqlExpression value)
+    {
+      return SqlFactory.GreaterThanOrEquals(this_, value);
     }
   }
 }

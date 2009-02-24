@@ -9,6 +9,7 @@ using NUnit.Framework;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 using System.Linq;
+using Xtensive.Core.Helpers;
 
 namespace Xtensive.Storage.Tests.Linq
 {
@@ -863,6 +864,58 @@ namespace Xtensive.Storage.Tests.Linq
           var orders = Query<Order>.All;
           var order = orders.Where(o => Math.Truncate((double)o.Id) == 0 || o.Id > 0).First();
           Assert.IsNotNull(order);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void StringLessThanTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var customers = Query<Customer>.All;
+          var customer = customers.Where(c => c.Address.City.LessThan("Seattle")).First();
+          Assert.IsNotNull(customer);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void StringLessThanOrEqualsTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var customers = Query<Customer>.All;
+          var customer = customers.Where(c => c.Address.City.LessThanOrEqual("Seattle")).First();
+          Assert.IsNotNull(customer);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void StringGreaterThanTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var customers = Query<Customer>.All;
+          var customer = customers.Where(c => c.Address.City.GreaterThan("Seattle")).First();
+          Assert.IsNotNull(customer);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void StringGreaterThanOrEqualsTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var customers = Query<Customer>.All;
+          var customer = customers.Where(c => c.Address.City.GreaterThanOrEqual("Seattle")).First();
+          Assert.IsNotNull(customer);
           t.Complete();
         }
       }
