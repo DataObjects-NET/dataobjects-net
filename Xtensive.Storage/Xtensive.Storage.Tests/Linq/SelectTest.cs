@@ -308,7 +308,6 @@ namespace Xtensive.Storage.Tests.Linq
       }
     }
 
-    [Ignore("Not implemented.")]
     [Test]
     public void CorrelatedAggregateTest() 
     {
@@ -325,7 +324,6 @@ namespace Xtensive.Storage.Tests.Linq
       }
     }
 
-    [Ignore("Not implemented.")]
     [Test]
     public void CorrelatedQueryAnonymousTest() 
     {
