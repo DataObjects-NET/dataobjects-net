@@ -12,7 +12,7 @@ using SqlFactory = Xtensive.Sql.Dom.Sql;
 
 namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
 {
-  internal class DecimalMappings
+  internal static class DecimalMappings
   {
     [Compiler(typeof(decimal), "Add", TargetKind.Static | TargetKind.Method)]
     public static SqlExpression DecimalAdd(

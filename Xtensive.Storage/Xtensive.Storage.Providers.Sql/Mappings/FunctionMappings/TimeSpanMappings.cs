@@ -12,7 +12,7 @@ using SqlFactory = Xtensive.Sql.Dom.Sql;
 
 namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
 {
-  internal class TimeSpanMappings
+  internal static class TimeSpanMappings
   {
     #region Extractors
 

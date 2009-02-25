@@ -12,7 +12,7 @@ using SqlFactory = Xtensive.Sql.Dom.Sql;
 
 namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
 {
-  internal class NumericMappings
+  internal static class NumericMappings
   {
     private const SqlDataType StringType = SqlDataType.VarChar;
 
