@@ -12,6 +12,7 @@ namespace Xtensive.Storage.Linq
   internal enum ExtendedExpressionType
   {
     Result = 1000,
-    MemberPath
+    MemberPath, 
+    QueryableMethod
   }
 }
