@@ -517,9 +517,118 @@ namespace Xtensive.Sql.Dom
       SqlValidator.EnsureIsArithmeticExpression(source);
       return new SqlFunctionCall(SqlFunctionType.Extract, new SqlLiteral<SqlDateTimePart>(part), source);
     }
+    
+    public static SqlFunctionCall DateTimeConstruct(SqlExpression year, SqlExpression month, SqlExpression milliseconds)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(year, "year");
+      ArgumentValidator.EnsureArgumentNotNull(month, "month");
+      ArgumentValidator.EnsureArgumentNotNull(milliseconds, "milliseconds");
+      SqlValidator.EnsureIsArithmeticExpression(year);
+      SqlValidator.EnsureIsArithmeticExpression(month);
+      SqlValidator.EnsureIsArithmeticExpression(milliseconds);
+      return new SqlFunctionCall(SqlFunctionType.DateTimeConstruct, year, month, milliseconds);
+    }
 
-    # endregion
+    public static SqlFunctionCall DateTimeAddInterval(SqlExpression left, SqlExpression right)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(left, "left");
+      ArgumentValidator.EnsureArgumentNotNull(right, "right");
+      SqlValidator.EnsureIsArithmeticExpression(left);
+      SqlValidator.EnsureIsArithmeticExpression(right);
+      return new SqlFunctionCall(SqlFunctionType.DateTimeAddInterval, left, right);
+    }
 
+    public static SqlFunctionCall DateTimeSubtractInterval(SqlExpression left, SqlExpression right)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(left, "left");
+      ArgumentValidator.EnsureArgumentNotNull(right, "right");
+      SqlValidator.EnsureIsArithmeticExpression(left);
+      SqlValidator.EnsureIsArithmeticExpression(right);
+      return new SqlFunctionCall(SqlFunctionType.DateTimeSubtractInterval, left, right);
+    }
+
+    public static SqlFunctionCall DateTimeSubtractDateTime(SqlExpression left, SqlExpression right)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(left, "left");
+      ArgumentValidator.EnsureArgumentNotNull(right, "right");
+      SqlValidator.EnsureIsArithmeticExpression(left);
+      SqlValidator.EnsureIsArithmeticExpression(right);
+      return new SqlFunctionCall(SqlFunctionType.DateTimeSubtractDateTime, left, right);
+    }
+
+    public static SqlFunctionCall DateTimeAddYears(SqlExpression source, SqlExpression years)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      ArgumentValidator.EnsureArgumentNotNull(years, "years");
+      SqlValidator.EnsureIsArithmeticExpression(source);
+      SqlValidator.EnsureIsArithmeticExpression(years);
+      return new SqlFunctionCall(SqlFunctionType.DateTimeAddYears, source, years);
+    }
+
+    public static SqlFunctionCall DateTimeAddMonths(SqlExpression source, SqlExpression months)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      ArgumentValidator.EnsureArgumentNotNull(months, "months");
+      SqlValidator.EnsureIsArithmeticExpression(source);
+      SqlValidator.EnsureIsArithmeticExpression(months);
+      return new SqlFunctionCall(SqlFunctionType.DateTimeAddMonths, source, months);
+    }
+
+    public static SqlFunctionCall DateTimeTruncate(SqlExpression source)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      SqlValidator.EnsureIsArithmeticExpression(source);
+      return new SqlFunctionCall(SqlFunctionType.DateTimeTruncate, source);
+    }
+
+    public static SqlFunctionCall IntervalConstruct(SqlExpression milliseconds)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(milliseconds, "milliseconds");
+      SqlValidator.EnsureIsArithmeticExpression(milliseconds);
+      return new SqlFunctionCall(SqlFunctionType.IntervalConstruct, milliseconds);
+    }
+
+    public static SqlFunctionCall IntervalToMilliseconds(SqlExpression source)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      SqlValidator.EnsureIsArithmeticExpression(source);
+      return new SqlFunctionCall(SqlFunctionType.IntervalToMilliseconds, source); 
+    }
+
+    public static SqlFunctionCall IntervalAdd(SqlExpression left, SqlExpression right)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(left, "left");
+      ArgumentValidator.EnsureArgumentNotNull(right, "right");
+      SqlValidator.EnsureIsArithmeticExpression(left);
+      SqlValidator.EnsureIsArithmeticExpression(right);
+      return new SqlFunctionCall(SqlFunctionType.IntervalAdd, left, right);
+    }
+
+    public static SqlFunctionCall IntervalSubtract(SqlExpression left, SqlExpression right)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(left, "left");
+      ArgumentValidator.EnsureArgumentNotNull(right, "right");
+      SqlValidator.EnsureIsArithmeticExpression(left);
+      SqlValidator.EnsureIsArithmeticExpression(right);
+      return new SqlFunctionCall(SqlFunctionType.IntervalSubtract, left, right);
+    }
+
+    public static SqlFunctionCall IntervalNegate(SqlExpression source)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      SqlValidator.EnsureIsArithmeticExpression(source);
+      return new SqlFunctionCall(SqlFunctionType.IntervalNegate, source);
+    }
+
+    public static SqlFunctionCall IntervalExtract(SqlIntervalPart part, SqlExpression source)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      SqlValidator.EnsureIsArithmeticExpression(source);
+      return new SqlFunctionCall(SqlFunctionType.Extract, new SqlLiteral<SqlIntervalPart>(part), source);
+    }
+
+    #endregion
+    
     #region DDL
 
     public static SqlCreateAssertion Create(Assertion assertion)

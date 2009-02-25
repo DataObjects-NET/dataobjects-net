@@ -56,6 +56,23 @@ namespace Xtensive.Sql.Dom.Dml
     Sin,
     Sqrt,
     Square,
-    Tan
+    Tan,
+
+    // date time / interval functions
+    // not ansi sql but our cross-server solution
+
+    DateTimeConstruct,
+    DateTimeAddInterval,
+    DateTimeSubtractInterval,
+    DateTimeSubtractDateTime,
+    DateTimeAddYears,
+    DateTimeAddMonths,
+    DateTimeTruncate,
+    IntervalConstruct,
+    IntervalToMilliseconds,
+    IntervalAdd,
+    IntervalSubtract,
+    IntervalNegate,
+    IntervalExtract
   }
 }
