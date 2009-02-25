@@ -5,10 +5,11 @@
 // Created:    2008.09.05
 
 using System;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Xtensive.Core.Reflection;
 using Xtensive.Core.Linq;
+using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
 using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Dml;
@@ -16,7 +17,6 @@ using Xtensive.Storage.Linq;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings;
 using SqlFactory = Xtensive.Sql.Dom.Sql;
-using System.Linq;
 
 namespace Xtensive.Storage.Providers.Sql.Expressions
 {
@@ -302,14 +302,17 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
 
       MethodCallExpression callExpression;
       ConstantExpression constantExpression;
+      bool swapped;
 
       if (expression.Left.NodeType==ExpressionType.Call) {
         callExpression = (MethodCallExpression) expression.Left;
         constantExpression = (ConstantExpression) expression.Right;
+        swapped = false;
       }
       else {
         callExpression = (MethodCallExpression)expression.Right;
         constantExpression = (ConstantExpression)expression.Left;
+        swapped = true;
       }
       
       var method = (MethodInfo)callExpression.Method.GetInterfaceMember() ?? callExpression.Method;
@@ -343,6 +346,12 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       if (isCompare) {
         leftComparand = Visit(callExpression.Arguments[0]);
         rightComparand = Visit(callExpression.Arguments[1]);
+      }
+
+      if (swapped) {
+        var tmp = leftComparand;
+        leftComparand = rightComparand;
+        rightComparand = tmp;
       }
 
       if (constant==0)
