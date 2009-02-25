@@ -4,85 +4,134 @@
 // Created by: Alexis Kochetov
 // Created:    2009.02.04
 
+using System.Linq;
 using NUnit.Framework;
+using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 
 namespace Xtensive.Storage.Tests.Linq
 {
-  [Ignore("Not implemented")]
-  public class ContainsTest : NorthwindDOModelTest
+  [TestFixture]
+  public class ContainsAnyAllTest : NorthwindDOModelTest
   {
-    /*public void TestAnyWithSubquery()
-        {
-            TestQuery(
-                db.Customers.Where(c => db.Orders.Where(o => o.CustomerID == c.CustomerID).Any(o => o.OrderDate.Year == 1997))
-                );
+    [Test]
+    public void AnyWithSubqueryTest()
+    {
+      using (Domain.OpenSession())
+      using (var t = Transaction.Open()) {
+        var result = Query<Customer>.All.Where(c => Query<Order>.All.Where(o => o.Customer == c).Any(o => o.Freight > 0));
+        var list = result.ToList();
+        Assert.Greater(list.Count, 0);
+        t.Complete();
+      }
+    }
+
+    [Test]
+    public void AnyWithSubqueryNoPredicateTest()
+    {
+      using (Domain.OpenSession())
+      using (var t = Transaction.Open()) {
+        var result = Query<Customer>.All.Where(c => Query<Order>.All.Where(o => o.Customer == c).Any());
+        var list = result.ToList();
+        Assert.Greater(list.Count, 0);
+        t.Complete();
+      }
+    }
+
+    [Test]
+    public void AnyWithLocalCollectionTest()
+    {
+      var ids = new[] { "ABCDE", "ALFKI" };
+      using (Domain.OpenSession())
+      using (var t = Transaction.Open()) {
+        var result = Query<Customer>.All.Where(c => ids.Any(id => c.Id == id));
+        var list = result.ToList();
+        Assert.Greater(list.Count , 0);
+        t.Complete();
+      }
+    }
+
+    [Test]
+    public void AnyTest()
+    {
+      using (Domain.OpenSession())
+      using (var t = Transaction.Open()) {
+        var result = Query<Customer>.All.Any();
+        Assert.IsTrue(result);
+        t.Complete();
+      }
+    }
+
+    [Test]
+    public void AllWithSubqueryTest()
+    {
+      using (Domain.OpenSession())
+      using (var t = Transaction.Open()) {
+        var result = Query<Customer>.All.Where(c => Query<Order>.All.Where(o => o.Customer == c).All(o => o.Freight > 0));
+        var list = result.ToList();
+        Assert.Greater(list.Count, 0);
+        t.Complete();
+      }
+    }
+
+    [Test]
+    public void AllWithLocalCollectionTest()
+    {
+      var patterns = new[] { "a", "e" };
+      using (Domain.OpenSession())
+      using (var t = Transaction.Open()) {
+        var result = Query<Customer>.All.Where(c => patterns.All(p => c.ContactName.Contains(p)));
+        var list = result.ToList();
+        Assert.Greater(list.Count, 0);
+        t.Complete();
+      }
+    }
+
+    [Test]
+    public void AllTest()
+    {
+      using (Domain.OpenSession())
+      using (var t = Transaction.Open()) {
+        var result = Query<Customer>.All.All(c => c.ContactName.StartsWith("a"));
+        Assert.IsFalse(result);
+        t.Complete();
+      }
+    }
+
+    [Test]
+    public void ContainsWithSubqueryTest()
+    {
+      using (Domain.OpenSession())
+      using (var t = Transaction.Open()) {
+        var result = Query<Customer>.All.Where(c => Query<Order>.All.Select(o => o.Customer).Contains(c));
+        var list = result.ToList();
+        Assert.Greater(list.Count, 0);
+        t.Complete();
+      }
+    }
+
+    [Test]
+    public void ContainsWithLocalCollectionTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var customerIDs = new[] {"ALFKI", "ANATR", "AROUT", "BERGS"};
+          var orders = Query<Order>.All;
+          var order = orders.Where(o => customerIDs.Contains(o.Customer.Id)).First();
+          Assert.IsNotNull(order);
+          t.Complete();
         }
+      }
+    }
 
-        public void TestAnyWithSubqueryNoPredicate()
-        {
-            TestQuery(
-                db.Customers.Where(c => db.Orders.Where(o => o.CustomerID == c.CustomerID).Any())
-                );
-        }
-
-        public void TestAnyWithLocalCollection()
-        {
-            string[] ids = new[] { "ABCDE", "ALFKI" };
-            TestQuery(
-                db.Customers.Where(c => ids.Any(id => c.CustomerID == id))
-                );
-        }
-
-        public void TestAnyTopLevel()
-        {
-            TestQuery(
-                () => db.Customers.Any()
-                );
-        }
-
-        public void TestAllWithSubquery()
-        {
-            TestQuery(
-                db.Customers.Where(c => db.Orders.Where(o => o.CustomerID == c.CustomerID).All(o => o.OrderDate.Year == 1997))
-                );
-        }
-
-        public void TestAllWithLocalCollection()
-        {
-            string[] patterns = new[] { "a", "e" };
-
-            TestQuery(
-                db.Customers.Where(c => patterns.All(p => c.ContactName.Contains(p)))
-                );
-        }
-
-        public void TestAllTopLevel()
-        {
-            TestQuery(
-                () => db.Customers.All(c => c.ContactName.StartsWith("a"))
-                );
-        }
-
-        public void TestContainsWithSubquery()
-        {
-            TestQuery(
-                db.Customers.Where(c => db.Orders.Select(o => o.CustomerID).Contains(c.CustomerID))
-                );
-        }
-
-        public void TestContainsWithLocalCollection()
-        {
-            string[] ids = new[] { "ABCDE", "ALFKI" };
-            TestQuery(
-                db.Customers.Where(c => ids.Contains(c.CustomerID))
-                );
-        }
-
-        public void TestContainsTopLevel()
-        {
-            TestQuery(
-                () => db.Customers.Select(c => c.CustomerID).Contains("ALFKI")
-                );
-        }*/
+    [Test]
+    public void ContainsTest()
+    {
+      using (Domain.OpenSession())
+      using (var t = Transaction.Open()) {
+        var result = Query<Customer>.All.Select(c => c.Id).Contains("ALFKI");
+        Assert.IsTrue(result);
+        t.Complete();
+      }
+    }
   }
 }

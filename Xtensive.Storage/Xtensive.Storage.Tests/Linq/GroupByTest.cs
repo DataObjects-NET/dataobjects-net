@@ -4,121 +4,189 @@
 // Created by: Alexis Kochetov
 // Created:    2009.02.04
 
+using System.Linq;
 using NUnit.Framework;
+using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 
 namespace Xtensive.Storage.Tests.Linq
 {
   [TestFixture]
-  [Ignore("Not implemented")]
   public class GroupByTest : NorthwindDOModelTest
   {
-    /*public void TestGroupBy()
-        {
-            TestQuery(
-                db.Customers.GroupBy(c => c.City)
-                );
-        }
+    [Test]
+    public void DefaultTest()
+    {
+      using (Domain.OpenSession())
+      using (var t = Transaction.Open()) {
+        var result = Query<Customer>.All.GroupBy(c => c.Address.City);
+        var list = result.ToList();
+        Assert.Greater(list.Count, 0);
+        t.Complete();
+      }
+    }
 
-        public void TestGroupBySelectMany()
-        {
-            TestQuery(
-                db.Customers.GroupBy(c => c.City).SelectMany(g => g)
-                );
-        }
+    [Test]
+    public void GroupBySelectManyTest()
+    {
+      using (Domain.OpenSession())
+      using (var t = Transaction.Open()) {
+        var result = Query<Customer>.All.GroupBy(c => c.Address.City).SelectMany(g => g);
+        var list = result.ToList();
+        Assert.Greater(list.Count, 0);
+        t.Complete();
+      }
+    }
 
-        public void TestGroupBySum()
-        {
-            TestQuery(
-                db.Orders.GroupBy(o => o.CustomerID).Select(g => g.Sum(o => o.OrderID))
-                );
-        }
+    [Test]
+    public void GroupBySumTest()
+    {
+      using (Domain.OpenSession())
+      using (var t = Transaction.Open()) {
+        var result = Query<Order>.All.GroupBy(o => o.Customer.Id).Select(g => g.Sum(o => o.Freight));
+        var list = result.ToList();
+        Assert.Greater(list.Count, 0);
+        t.Complete();
+      }
+    }
 
-        public void TestGroupByCount()
-        {
-            TestQuery(
-                db.Orders.GroupBy(o => o.CustomerID).Select(g => g.Count())
-                );
-        }
+    [Test]
+    public void GroupByCountTest()
+    {
+      using (Domain.OpenSession())
+      using (var t = Transaction.Open()) {
+        var result = Query<Order>.All.GroupBy(o => o.Customer).Select(g => new {Customer = g.Key, OrdersCount = g.Count()});
+        var list = result.ToList();
+        Assert.Greater(list.Count, 0);
+        t.Complete();
+      }
+    }
 
-        public void TestGroupBySumMinMaxAvg()
-        {
-            TestQuery(
-                db.Orders.GroupBy(o => o.CustomerID).Select(g =>
-                    new
-                    {
-                        Sum = g.Sum(o => o.OrderID),
-                        Min = g.Min(o => o.OrderID),
-                        Max = g.Max(o => o.OrderID),
-                        Avg = g.Average(o => o.OrderID)
-                    })
-                );
-        }
+    [Test]
+    public void GroupBySumMinMaxAvgTest()
+    {
+      using (Domain.OpenSession())
+      using (var t = Transaction.Open()) {
+        var result = Query<Order>.All.GroupBy(o => o.Customer).Select(g =>
+          new
+          {
+            Sum = g.Sum(o => o.Freight),
+            Min = g.Min(o => o.Freight),
+            Max = g.Max(o => o.Freight),
+            Avg = g.Average(o => o.Freight)
+          });
 
-        public void TestGroupByWithResultSelector()
-        {
-            TestQuery(
-                db.Orders.GroupBy(o => o.CustomerID, (k, g) =>
-                    new
-                    {
-                        Sum = g.Sum(o => o.OrderID),
-                        Min = g.Min(o => o.OrderID),
-                        Max = g.Max(o => o.OrderID),
-                        Avg = g.Average(o => o.OrderID)
-                    })
-                );
-        }
+        var list = result.ToList();
+        Assert.Greater(list.Count, 0);
+        t.Complete();
+      }
+    }
 
-        public void TestGroupByWithElementSelectorSum()
-        {
-            TestQuery(
-                db.Orders.GroupBy(o => o.CustomerID, o => o.OrderID).Select(g => g.Sum())
-                );
-        }
+    [Test]
+    public void GroupByWithResultSelectorTest()
+    {
+      using (Domain.OpenSession())
+      using (var t = Transaction.Open()) {
+        var result = Query<Order>.All.GroupBy(o => o.Customer, (c,g) =>
+          new
+          {
+            Customer = c,
+            Sum = g.Sum(o => o.Freight),
+            Min = g.Min(o => o.Freight),
+            Max = g.Max(o => o.Freight),
+            Avg = g.Average(o => o.Freight)
+          });
 
-        public void TestGroupByWithElementSelector()
-        {
-            // note: groups are retrieved through a separately execute subquery per row
-            TestQuery(
-                db.Orders.GroupBy(o => o.CustomerID, o => o.OrderID)
-                );
-        }
+        var list = result.ToList();
+        Assert.Greater(list.Count, 0);
+        t.Complete();
+      }
+    }
 
-        public void TestGroupByWithElementSelectorSumMax()
-        {
-            TestQuery(
-                db.Orders.GroupBy(o => o.CustomerID, o => o.OrderID).Select(g => new { Sum = g.Sum(), Max = g.Max() })
-                );
-        }
+    [Test]
+    public void GroupByWithElementSelectorSumTest()
+    {
+      using (Domain.OpenSession())
+      using (var t = Transaction.Open()) {
+        var result = Query<Order>.All.GroupBy(o => o.Customer, o => o.Freight).Select(g => g.Sum());
+        var list = result.ToList();
+        Assert.Greater(list.Count, 0);
+        t.Complete();
+      }
+    }
 
-        public void TestGroupByWithAnonymousElement()
-        {
-            TestQuery(
-                db.Orders.GroupBy(o => o.CustomerID, o => new { o.OrderID }).Select(g => g.Sum(x => x.OrderID))
-                );
-        }
+    [Test]
+    public void GroupByWithElementSelectorTest()
+    {
+      using (Domain.OpenSession())
+      using (var t = Transaction.Open())
+      {
+        var result = Query<Order>.All.GroupBy(o => o.Customer, o => o.Freight);
+        var list = result.ToList();
+        Assert.Greater(list.Count, 0);
+        t.Complete();
+      }
+    }
 
-        public void TestGroupByWithTwoPartKey()
-        {
-            TestQuery(
-                db.Orders.GroupBy(o => new { o.CustomerID, o.OrderDate }).Select(g => g.Sum(o => o.OrderID))
-                );
-        }
+    [Test]
+    public void GroupByWithElementSelectorSumMaxTest()
+    {
+      using (Domain.OpenSession())
+      using (var t = Transaction.Open()) {
+        var result = Query<Order>.All.GroupBy(o => o.Customer.Id, o => o.Freight).Select(g => new {Sum = g.Sum(), Max = g.Max()});
+        var list = result.ToList();
+        Assert.Greater(list.Count, 0);
+        t.Complete();
+      }
+    }
 
-        public void TestOrderByGroupBy()
-        {
-            // note: order-by is lost when group-by is applied (the sequence of groups is not ordered)
-            TestQuery(
-                db.Orders.OrderBy(o => o.OrderID).GroupBy(o => o.CustomerID).Select(g => g.Sum(o => o.OrderID))
-                );
-        }
+    [Test]
+    public void GroupByWithAnonymousElementTest()
+    {
+      using (Domain.OpenSession())
+      using (var t = Transaction.Open()) {
+        var result = Query<Order>.All.GroupBy(o => o.Customer, o=> new {o.Freight}).Select(g => g.Sum(x => x.Freight));
+        var list = result.ToList();
+        Assert.Greater(list.Count, 0);
+        t.Complete();
+      }
+    }
 
-        public void TestOrderByGroupBySelectMany()
-        {
-            // note: order-by is preserved within grouped sub-collections
-            TestQuery(
-                db.Orders.OrderBy(o => o.OrderID).GroupBy(o => o.CustomerID).SelectMany(g => g)
-                );
-        }
-*/
+    [Test]
+    public void GroupByWithTwoPartKeyTest()
+    {
+      using (Domain.OpenSession())
+      using (var t = Transaction.Open()) {
+        var result = Query<Order>.All.GroupBy(o => new {o.Customer.Id, o.OrderDate}).Select(g => g.Sum(o => o.Freight));
+        var list = result.ToList();
+        Assert.Greater(list.Count, 0);
+        t.Complete();
+      }
+    }
+
+    [Test]
+    public void OrderByGroupByTest()
+    {
+      // NOTE: order-by is lost when group-by is applied (the sequence of groups is not ordered)
+      using (Domain.OpenSession())
+      using (var t = Transaction.Open()) {
+        var result = Query<Order>.All.OrderBy(o => o.OrderDate).GroupBy(o => o.Customer.Id).Select(g => g.Sum(o => o.Freight));
+        var list = result.ToList();
+        Assert.Greater(list.Count, 0);
+        t.Complete();
+      }
+    }
+
+    [Test]
+    public void OrderByGroupBySelectManyTest()
+    {
+      // NOTE: order-by is preserved within grouped sub-collections
+      using (Domain.OpenSession())
+      using (var t = Transaction.Open()) {
+        var result = Query<Order>.All.OrderBy(o => o.OrderDate).GroupBy(o => o.Customer.Id).SelectMany(g => g);
+        var list = result.ToList();
+        Assert.Greater(list.Count, 0);
+        t.Complete();
+      }
+    }
   }
 }

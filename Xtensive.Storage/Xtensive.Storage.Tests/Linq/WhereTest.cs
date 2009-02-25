@@ -196,20 +196,6 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    public void ContainsTest()
-    {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
-          var customerIDs = new[] {"ALFKI", "ANATR", "AROUT", "BERGS"};
-          var orders = Query<Order>.All;
-          var order = orders.Where(o => customerIDs.Contains(o.Customer.Id)).First();
-          Assert.IsNotNull(order);
-          t.Complete();
-        }
-      }
-    }
-
-    [Test]
     public void ConditionalTest()
     {
       using (Domain.OpenSession()) {

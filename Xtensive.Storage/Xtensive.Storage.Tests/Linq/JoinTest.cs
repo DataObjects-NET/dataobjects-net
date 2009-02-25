@@ -70,7 +70,6 @@ namespace Xtensive.Storage.Tests.Linq
       }
     }
 
-    [Ignore("Not implemented.")]
     [Test]
     public void GroupJoinTest()
     {
@@ -88,7 +87,6 @@ namespace Xtensive.Storage.Tests.Linq
       }
     }
 
-    [Ignore("Not implemented.")]
     [Test]
     public void GroupJoinNestedTest()
     {
@@ -113,7 +111,6 @@ namespace Xtensive.Storage.Tests.Linq
       }
     }
 
-    [Ignore("Not implemented.")]
     [Test]
     public void GroupJoinSelectManyTest()
     {
@@ -134,7 +131,6 @@ namespace Xtensive.Storage.Tests.Linq
       }
     }
 
-    [Ignore("Not implemented.")]
     [Test]
     public void LeftOuterTest()
     {
@@ -152,7 +148,6 @@ namespace Xtensive.Storage.Tests.Linq
       }
     }
 
-    [Ignore("Not implemented.")]
     [Test]
     public void LeftOuterNestedTest()
     {
@@ -171,7 +166,6 @@ namespace Xtensive.Storage.Tests.Linq
       }
     }
 
-    [Ignore("Not implemented.")]
     [Test]
     public void SelectManyTest()
     {
@@ -192,7 +186,6 @@ namespace Xtensive.Storage.Tests.Linq
       }
     }
 
-    [Ignore("Not implemented.")]
     [Test]
     public void SelectManyJoinedTest()
     {
@@ -206,7 +199,6 @@ namespace Xtensive.Storage.Tests.Linq
       }
     }
 
-    [Ignore("Not implemented.")]
     [Test]
     public void SelectManyJoinedDefaultIfEmptyTest()
     {

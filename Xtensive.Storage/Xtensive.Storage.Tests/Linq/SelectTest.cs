@@ -309,43 +309,6 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    public void CorrelatedAggregateTest() 
-    {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
-          var products = Query<Product>.All;
-          var suppliers = Query<Supplier>.All;
-          var result = from p in products
-                       select new { Product = p, MaxID = suppliers.Where(s => s == p.Supplier).Max(s => s.Id) };
-          var list = result.ToList();
-          Assert.Greater(list.Count , 0);
-          t.Complete();
-        }
-      }
-    }
-
-    [Test]
-    public void CorrelatedQueryAnonymousTest() 
-    {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
-          var products = Query<Product>.All;
-          var suppliers = Query<Supplier>.All;
-          var result = from p in products
-                       select new { Product = p,  Suppliers = suppliers.Where(s => s.Id == p.Supplier.Id).Select(s => s.CompanyName) };
-          var list = result.ToList();
-          Assert.Greater(list.Count, 0);
-          foreach (var p in list) {
-            foreach (var companyName in p.Suppliers) {
-              Assert.IsNotNull(companyName);
-            }
-          }
-          t.Complete();
-        }
-      }
-    }
-
-    [Test]
     public void NestedQueryTest() 
     {
       using (Domain.OpenSession()) {
