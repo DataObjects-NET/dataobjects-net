@@ -518,15 +518,15 @@ namespace Xtensive.Sql.Dom
       return new SqlFunctionCall(SqlFunctionType.Extract, new SqlLiteral<SqlDateTimePart>(part), source);
     }
     
-    public static SqlFunctionCall DateTimeConstruct(SqlExpression year, SqlExpression month, SqlExpression milliseconds)
+    public static SqlFunctionCall DateTimeConstruct(SqlExpression year, SqlExpression month, SqlExpression day)
     {
       ArgumentValidator.EnsureArgumentNotNull(year, "year");
       ArgumentValidator.EnsureArgumentNotNull(month, "month");
-      ArgumentValidator.EnsureArgumentNotNull(milliseconds, "milliseconds");
+      ArgumentValidator.EnsureArgumentNotNull(day, "day");
       SqlValidator.EnsureIsArithmeticExpression(year);
       SqlValidator.EnsureIsArithmeticExpression(month);
-      SqlValidator.EnsureIsArithmeticExpression(milliseconds);
-      return new SqlFunctionCall(SqlFunctionType.DateTimeConstruct, year, month, milliseconds);
+      SqlValidator.EnsureIsArithmeticExpression(day);
+      return new SqlFunctionCall(SqlFunctionType.DateTimeConstruct, year, month, day);
     }
 
     public static SqlFunctionCall DateTimeAddInterval(SqlExpression left, SqlExpression right)
