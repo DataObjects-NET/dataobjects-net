@@ -9,8 +9,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Tuples;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
@@ -31,20 +31,29 @@ namespace Xtensive.Storage.Linq
     {
       var map = new List<int>();
       if (origin.Mapping != null) {
-        foreach (var item in origin.Mapping.Fields)
-          map.Add(item.Value.Offset);
-        map.Sort();
-        map = map.Distinct().ToList();
+        if (origin.Mapping.Fields.Count == 0)
+          map.Add(origin.Mapping.Segment.Offset);
+        else {
+          foreach (var item in origin.Mapping.Fields)
+            map.Add(item.Value.Offset);
+          map.Sort();
+          map = map.Distinct().ToList();
+        }
       }
-      if ((map.Count < origin.RecordSet.Header.Columns.Count && map.Count != 0) ||
-        (origin.Mapping == null)) {
+      if (map.Count < origin.RecordSet.Header.Columns.Count) {
         var provider = origin.RecordSet.Provider;
         mapping.Add(provider, map);
         var resultProvider = Visit(provider);
         var rs = ((CompilableProvider)resultProvider).Result;
-        var projector = (Expression<Func<RecordSet, object>>) predicateVisitor.ReplaceMappings(origin.Projector, mapping[provider]); 
-        var itemProjector = (LambdaExpression) predicateVisitor.ReplaceMappings(origin.ItemProjector, mapping[provider]);
-        var result = new ResultExpression(origin.Type, rs, new ResultMapping(), projector, itemProjector);
+        var withAggregate = false;
+        foreach (var item in mapping)
+          if (item.Key.Type == ProviderType.Aggregate) {
+            withAggregate = true;
+            break;
+          }
+        var projector = withAggregate ? origin.Projector : (Expression<Func<RecordSet, object>>)predicateVisitor.ReplaceMappings(origin.Projector, mapping[provider]);
+        var itemProjector = origin.ItemProjector == null ? null : (LambdaExpression)predicateVisitor.ReplaceMappings(origin.ItemProjector, mapping[provider]);
+        var result = new ResultExpression(origin.Type, rs, (origin.Mapping == null)? null : new ResultMapping(), projector, itemProjector);
         return result;
       }
       return origin;
@@ -56,7 +65,17 @@ namespace Xtensive.Storage.Linq
       mapping.TryGetValue(provider, out value);
       value.Sort();
       value = value.Distinct().ToList();
-      if (provider.Header.Columns.Count > value.Count) 
+      var columnsCount = provider.Header.Columns.Count;
+      int i = value.Count - 1;
+      while (i >= 0) {
+        if (value[i] >= columnsCount) {
+          value.RemoveAt(i);
+          i--;
+        }
+        else
+          break;
+      }
+      if (columnsCount > value.Count) 
         return new SelectProvider(provider, value.ToArray());
       return provider;
     }
@@ -144,10 +163,25 @@ namespace Xtensive.Storage.Linq
       return base.VisitAggregate(provider);
     }
 
+    protected override Provider VisitCalculate(CalculationProvider provider)
+    {
+      List<int> value;
+      mapping.TryGetValue(provider, out value);
+      if (value != null) {
+        var map = new List<int>();
+        foreach(var column in provider.CalculatedColumns){
+          map.AddRange(predicateVisitor.ProcessPredicate(column.Expression));
+          map.Add(column.Index);}
+        mapping.Add(provider.Source, value.Union(map).ToList());
+      }
+      return base.VisitCalculate(provider);
+    }
+
     protected override object OnRecursionExit(Provider provider)
     {
       switch (provider.Type) {
         case ProviderType.Filter:
+        case ProviderType.Calculate:
         break;
         case ProviderType.Join:
           List<int> left, right;
@@ -164,6 +198,7 @@ namespace Xtensive.Storage.Linq
           foreach(var pair in equalIndexes)
             result.Add(new Pair<int>(left.IndexOf(pair.First), right.IndexOf(pair.Second)));
           return result.ToArray();
+
         case ProviderType.Aggregate:
           var value = ModifyMapping(provider);
           var aProvider = (AggregateProvider) provider;
@@ -174,6 +209,15 @@ namespace Xtensive.Storage.Linq
           foreach(var index in aProvider.GroupColumnIndexes)
             groupIndexes.Add(value.IndexOf(index));
           return new Pair<int[], AggregateColumnDescriptor[]> (groupIndexes.ToArray(), columns.ToArray());
+        
+        case ProviderType.Sort:
+          var map = ModifyMapping(provider);
+          var sProvider = (SortProvider) provider;
+          var orders = new DirectionCollection<int>();
+          foreach(KeyValuePair<int,Direction> order in sProvider.Order)
+            orders.Add(map.IndexOf(order.Key),order.Value);
+          return orders;
+
         default:
           ModifyMapping(provider);
         break;
@@ -190,6 +234,7 @@ namespace Xtensive.Storage.Linq
         case ProviderType.Reindex:
         case ProviderType.Join:
         case ProviderType.Aggregate:
+        case ProviderType.Calculate:
         break;
         default:
           AddValueToMapping(provider);
@@ -230,7 +275,7 @@ namespace Xtensive.Storage.Linq
       mapping = new Dictionary<Provider, List<int>>();
       origin = resultExpression;
       translate = (provider, e) => {
-        if (provider.Type == ProviderType.Filter)
+        if (provider.Type == ProviderType.Filter || provider.Type == ProviderType.Calculate)
           return predicateVisitor.ReplaceMappings(e, ModifyMapping(provider));
         return e;
       };

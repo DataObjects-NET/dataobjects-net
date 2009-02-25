@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq.Expressions;
 using Xtensive.Core;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
@@ -120,10 +121,10 @@ namespace Xtensive.Storage.Rse.Providers
       // TODO: rewrite Order!!
       OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
-      OnRecursionExit(provider);
+      var order = OnRecursionExit(provider);
       if (source == provider.Source)
         return provider;
-      return new SortProvider(source, provider.Order);
+      return new SortProvider(source, (order == null) ? provider.Order : (DirectionCollection<int>)order);
     }
 
     /// <inheritdoc/>

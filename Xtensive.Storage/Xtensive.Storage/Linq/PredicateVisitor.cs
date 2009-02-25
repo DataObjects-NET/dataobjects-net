@@ -29,6 +29,8 @@ namespace Xtensive.Storage.Linq
           var value = (int) ((ConstantExpression) mc.Arguments[0]).Value;
           result = Expression.Call(mc.Object, mc.Method, Expression.Constant(map.IndexOf(value)));
         }
+      //else if (mc.Method.Name == "get_Item" && isReplacing)
+      //  result = Expression.Call(mc.Object, mc.Method, Expression.Constant(0));
       return base.VisitMethodCall(result);
     }
 
