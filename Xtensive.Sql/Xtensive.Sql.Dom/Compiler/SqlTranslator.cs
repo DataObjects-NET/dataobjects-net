@@ -989,6 +989,7 @@ namespace Xtensive.Sql.Dom.Compiler
                 return "IN";
               return string.Empty;
             case SqlFunctionType.Extract:
+            case SqlFunctionType.IntervalExtract:
               if (position == 1)
                 return "FROM";
               return string.Empty;
@@ -1009,6 +1010,7 @@ namespace Xtensive.Sql.Dom.Compiler
           switch(node.FunctionType) {
             case SqlFunctionType.Position:
             case SqlFunctionType.Extract:
+            case SqlFunctionType.IntervalExtract:
             case SqlFunctionType.Substring:
               return String.Empty;
             default:
@@ -1662,6 +1664,7 @@ namespace Xtensive.Sql.Dom.Compiler
         case SqlFunctionType.CurrentTimeStamp:
           return "CURRENT_TIMESTAMP";
         case SqlFunctionType.Extract:
+        case SqlFunctionType.IntervalExtract:
           return "EXTRACT";
         case SqlFunctionType.Lower:
           return "LOWER";

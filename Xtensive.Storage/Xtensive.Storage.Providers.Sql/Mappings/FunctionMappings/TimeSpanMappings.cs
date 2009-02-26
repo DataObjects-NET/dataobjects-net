@@ -19,31 +19,31 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     [Compiler(typeof(TimeSpan), "Milliseconds", TargetKind.PropertyGet)]
     public static SqlExpression TimeSpanMilliseconds(SqlExpression this_)
     {
-      throw new NotImplementedException();
+      return SqlFactory.IntervalExtract(SqlIntervalPart.Millisecond, this_);
     }
 
     [Compiler(typeof(TimeSpan), "Seconds", TargetKind.PropertyGet)]
     public static SqlExpression TimeSpanSeconds(SqlExpression this_)
     {
-      throw new NotImplementedException();
+      return SqlFactory.IntervalExtract(SqlIntervalPart.Second, this_);
     }
 
     [Compiler(typeof(TimeSpan), "Minutes", TargetKind.PropertyGet)]
     public static SqlExpression TimeSpanMinutes(SqlExpression this_)
     {
-      throw new NotImplementedException();
+      return SqlFactory.IntervalExtract(SqlIntervalPart.Minute, this_);
     }
 
     [Compiler(typeof(TimeSpan), "Hours", TargetKind.PropertyGet)]
     public static SqlExpression TimeSpanHours(SqlExpression this_)
     {
-      throw new NotImplementedException();
+      return SqlFactory.IntervalExtract(SqlIntervalPart.Hour, this_);
     }
     
     [Compiler(typeof(TimeSpan), "Days", TargetKind.PropertyGet)]
     public static SqlExpression TimeSpanDays(SqlExpression this_)
     {
-      throw new NotImplementedException();
+      return SqlFactory.IntervalExtract(SqlIntervalPart.Day, this_);
     }
 
     #endregion
@@ -53,37 +53,37 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     [Compiler(typeof(TimeSpan), "Ticks", TargetKind.PropertyGet)]
     public static SqlExpression TimeSpanTicks(SqlExpression this_)
     {
-      throw new NotImplementedException();
+      return SqlFactory.IntervalToMilliseconds(this_) * 100L;
     }
 
     [Compiler(typeof(TimeSpan), "TotalMilliseconds", TargetKind.PropertyGet)]
     public static SqlExpression TimeSpanTotalMilliseconds(SqlExpression this_)
     {
-      throw new NotImplementedException();
+      return SqlFactory.IntervalToMilliseconds(this_);
     }
 
     [Compiler(typeof(TimeSpan), "TotalSeconds", TargetKind.PropertyGet)]
     public static SqlExpression TimeSpanTotalSeconds(SqlExpression this_)
     {
-      throw new NotImplementedException();
+      return SqlFactory.IntervalToMilliseconds(this_) / 1000.0;
     }
 
     [Compiler(typeof(TimeSpan), "TotalMinutes", TargetKind.PropertyGet)]
     public static SqlExpression TimeSpanTotalMinutes(SqlExpression this_)
     {
-      throw new NotImplementedException();
+      return SqlFactory.IntervalToMilliseconds(this_) / (1000.0 * 60.0);
     }
 
     [Compiler(typeof(TimeSpan), "TotalHours", TargetKind.PropertyGet)]
     public static SqlExpression TimeSpanTotalHours(SqlExpression this_)
     {
-      throw new NotImplementedException();
+      return SqlFactory.IntervalToMilliseconds(this_) / (1000.0 * 60.0 * 60.0);
     }
 
     [Compiler(typeof(TimeSpan), "TotalDays", TargetKind.PropertyGet)]
     public static SqlExpression TimeSpanTotalDays(SqlExpression this_)
     {
-      throw new NotImplementedException();
+      return SqlFactory.IntervalToMilliseconds(this_) / (1000.0 * 60.0 * 60.0 * 24.0);
     }
 
     #endregion
@@ -95,7 +95,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(TimeSpan))] SqlExpression t1,
       [Type(typeof(TimeSpan))] SqlExpression t2)
     {
-      throw new NotImplementedException();
+      return t1 + t2;
     }
 
     [Compiler(typeof(TimeSpan), Operator.Subtraction, TargetKind.Operator)]
@@ -103,7 +103,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(TimeSpan))] SqlExpression t1,
       [Type(typeof(TimeSpan))] SqlExpression t2)
     {
-      throw new NotImplementedException();
+      return t1 - t2;
     }
 
     [Compiler(typeof(TimeSpan), Operator.UnaryPlus, TargetKind.Operator)]
@@ -117,7 +117,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     public static SqlExpression TimeSpanOperatorUnaryNegation(
       [Type(typeof(TimeSpan))] SqlExpression t)
     {
-      throw new NotImplementedException();
+      return -t;
     }
 
     #endregion

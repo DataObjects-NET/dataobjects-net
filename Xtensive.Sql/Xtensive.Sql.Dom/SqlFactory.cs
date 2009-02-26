@@ -478,7 +478,8 @@ namespace Xtensive.Sql.Dom
     {
       return new SqlFunctionCall(SqlFunctionType.CurrentDate);
     }
-
+    
+    /*
     public static SqlFunctionCall CurrentTime()
     {
       return new SqlFunctionCall(SqlFunctionType.CurrentTime);
@@ -494,6 +495,7 @@ namespace Xtensive.Sql.Dom
       SqlValidator.EnsureIsArithmeticExpression(precision);
       return new SqlFunctionCall(SqlFunctionType.CurrentTime, precision);
     }
+    */
 
     public static SqlFunctionCall CurrentTimeStamp()
     {
@@ -593,31 +595,6 @@ namespace Xtensive.Sql.Dom
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
       SqlValidator.EnsureIsArithmeticExpression(source);
       return new SqlFunctionCall(SqlFunctionType.IntervalToMilliseconds, source); 
-    }
-
-    public static SqlFunctionCall IntervalAdd(SqlExpression left, SqlExpression right)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(left, "left");
-      ArgumentValidator.EnsureArgumentNotNull(right, "right");
-      SqlValidator.EnsureIsArithmeticExpression(left);
-      SqlValidator.EnsureIsArithmeticExpression(right);
-      return new SqlFunctionCall(SqlFunctionType.IntervalAdd, left, right);
-    }
-
-    public static SqlFunctionCall IntervalSubtract(SqlExpression left, SqlExpression right)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(left, "left");
-      ArgumentValidator.EnsureArgumentNotNull(right, "right");
-      SqlValidator.EnsureIsArithmeticExpression(left);
-      SqlValidator.EnsureIsArithmeticExpression(right);
-      return new SqlFunctionCall(SqlFunctionType.IntervalSubtract, left, right);
-    }
-
-    public static SqlFunctionCall IntervalNegate(SqlExpression source)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      SqlValidator.EnsureIsArithmeticExpression(source);
-      return new SqlFunctionCall(SqlFunctionType.IntervalNegate, source);
     }
 
     public static SqlFunctionCall IntervalExtract(SqlIntervalPart part, SqlExpression source)

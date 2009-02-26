@@ -70,9 +70,6 @@ namespace Xtensive.Sql.Dom.Dml
     DateTimeTruncate,
     IntervalConstruct,
     IntervalToMilliseconds,
-    IntervalAdd,
-    IntervalSubtract,
-    IntervalNegate,
     IntervalExtract
   }
 }

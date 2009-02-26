@@ -1294,8 +1294,8 @@ namespace Xtensive.Sql.Dom.Tests.PgSql.v8_0
         q.Columns.Add(Sql.Extract(SqlDateTimePart.Day, new DateTime(2004, 10, 24))==24, "extract_day");
         q.Columns.Add(Sql.Extract(SqlDateTimePart.Hour, new DateTime(2004, 10, 24))==0, "extract_hour");
         q.Columns.Add(Sql.Extract(SqlDateTimePart.Minute, new DateTime(2000, 9, 12, 23, 45, 11, 234))==45, "extract_minute");
-        q.Columns.Add(Sql.Extract(SqlDateTimePart.Second, new DateTime(2000, 9, 12, 23, 45, 11, 234))==11.234, "extract_second");
-        q.Columns.Add(Sql.Extract(SqlDateTimePart.Millisecond, new DateTime(2000, 9, 12, 23, 45, 11, 234))==11234, "extract_milliseconds");
+        q.Columns.Add(Sql.Extract(SqlDateTimePart.Second, new DateTime(2000, 9, 12, 23, 45, 11, 234))==11, "extract_second");
+        q.Columns.Add(Sql.Extract(SqlDateTimePart.Millisecond, new DateTime(2000, 9, 12, 23, 45, 11, 234))==234, "extract_milliseconds");
         q.Columns.Add(Sql.Extract(SqlDateTimePart.Day, new TimeSpan(1, -2, 200, -40, 432))==1, "interval_extract_day");
         q.Columns.Add(Sql.Extract(SqlDateTimePart.Hour, new TimeSpan(1, -2, 200, -40, 432))==1, "interval_extract_hour");
         q.Columns.Add(Sql.Extract(SqlDateTimePart.Minute, new TimeSpan(1, -2, 200, -40, 432))==19, "interval_extract_minute");

@@ -12,6 +12,13 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
 {
   public class PgSqlTranslator : SqlTranslator
   {
+    internal const string RealExtractDays = "real_extract_days";
+    internal const string RealExtractSeconds = "real_extract_seconds";
+    internal const string RealExtractMilliseconds = "real_extract_ms";
+    internal const string OneYearInterval = "one_year_interval";
+    internal const string OneMonthInterval = "one_month_interval";
+    internal const string OneMillisecondInterval = "one_ms_interval";
+
     public PgSqlTranslator(SqlDriver driver)
       : base(driver)
     {
@@ -65,11 +72,8 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
     public override string Translate(SqlFunctionType type)
     {
       switch (type) {
-      case SqlFunctionType.Square:
-        return "square"; //not supported, it is replaced with power
       case SqlFunctionType.SystemUser:
-        return "";
-
+        return String.Empty;
       case SqlFunctionType.UserDefined:
         return String.Empty;
 
@@ -83,21 +87,19 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
       case SqlFunctionType.Coalesce:
         return "coalesce";
 
-        //date
+      //date
 
       case SqlFunctionType.CurrentDate:
-        return "current_date::timestamp";
-
-      case SqlFunctionType.CurrentTime:
-        return "now";
+        return "date_trunc('day', current_timestamp)";
 
       case SqlFunctionType.CurrentTimeStamp:
         return "current_timestamp";
 
       case SqlFunctionType.Extract:
+      case SqlFunctionType.IntervalExtract:
         return "extract";
 
-        //string
+      //string
 
       case SqlFunctionType.Length:
         return "length";
@@ -872,29 +874,48 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
 
     public override string Translate(SqlCompilerContext context, SqlFunctionCall node, FunctionCallSection section, int position)
     {
-      //Function replacements
-      if (section==FunctionCallSection.Entry) {
-        if (node.FunctionType==SqlFunctionType.Square) {
-          node.ReplaceWith(Sql.Power(node.Arguments[0], 2));
+      switch (section) {
+        case FunctionCallSection.Entry:
+          // Call random() always without parameters
+
+          if (node.FunctionType==SqlFunctionType.Rand)
+            node.Arguments.Clear();
+
+          switch (node.FunctionType) {
+            case SqlFunctionType.CurrentUser:
+            case SqlFunctionType.SessionUser:
+            case SqlFunctionType.SystemUser:
+            case SqlFunctionType.User:
+            case SqlFunctionType.CurrentDate:
+            case SqlFunctionType.CurrentTimeStamp:
+              return Translate(node.FunctionType);
+          }
+
+          break;
+      }
+
+      return base.Translate(context, node, section, position);
+    }
+
+    public override string Translate(SqlCompilerContext context, SqlUserFunctionCall node, FunctionCallSection section, int position)
+    {
+      if (section == FunctionCallSection.Entry) {
+        switch (node.Name) {
+          case RealExtractDays:
+            return " extract (day from ";
+          case RealExtractMilliseconds:
+            return " extract (milliseconds from ";
+          case RealExtractSeconds:
+            return " extract (second from ";
+          case OneYearInterval:
+            return " interval '1 year' ";
+          case OneMonthInterval:
+            return " interval '1 month' ";
+          case OneMillisecondInterval:
+            return " interval '1 ms' ";
         }
       }
 
-      switch (section) {
-      case FunctionCallSection.Entry:
-        //Call random() always without parameters
-        if (node.FunctionType==SqlFunctionType.Rand)
-          node.Arguments.Clear();
-        switch (node.FunctionType) {
-        case SqlFunctionType.CurrentUser:
-        case SqlFunctionType.SessionUser:
-        case SqlFunctionType.SystemUser:
-        case SqlFunctionType.User:
-        case SqlFunctionType.CurrentDate:
-        case SqlFunctionType.CurrentTimeStamp:
-          return Translate(node.FunctionType);
-        }
-        break;
-      }
       return base.Translate(context, node, section, position);
     }
 
@@ -1104,6 +1125,8 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
       }
       else if (obj is SqlDateTimePart) {
         return TranslateDateTimePart((SqlDateTimePart) obj);
+      } if (obj is SqlIntervalPart) {
+        return ((SqlIntervalPart) obj).ToString().ToUpperInvariant(); //default names are acceptable
       }
       else if (obj is TimeSpan) {
         TimeSpan ts = (TimeSpan) obj;
@@ -1157,10 +1180,10 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
         return obj.ToString();
       }
     }
-
-    protected string TranslateDateTimePart(SqlDateTimePart dtp)
+    
+    protected string TranslateDateTimePart(SqlDateTimePart part)
     {
-      switch (dtp) {
+      switch (part) {
       case SqlDateTimePart.Year:
         return "YEAR";
       case SqlDateTimePart.Month:
@@ -1179,6 +1202,10 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
         return "TIMEZONE_HOUR";
       case SqlDateTimePart.TimeZoneMinute:
         return "TIMEZONE_MINUTE";
+      case SqlDateTimePart.DayOfWeek:
+        return "DOW";
+      case SqlDateTimePart.DayOfYear:
+        return "DOY";
       default:
         return "DAY";
       }

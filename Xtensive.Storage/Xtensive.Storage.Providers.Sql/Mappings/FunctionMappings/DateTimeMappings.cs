@@ -61,25 +61,25 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     [Compiler(typeof(DateTime), "TimeOfDay", TargetKind.PropertyGet)]
     public static SqlExpression DateTimeTimeOfDay(SqlExpression this_)
     {
-      throw new NotImplementedException();
+      return SqlFactory.DateTimeSubtractDateTime(this_, SqlFactory.DateTimeTruncate(this_));
     }
 
     [Compiler(typeof(DateTime), "Date", TargetKind.PropertyGet)]
     public static SqlExpression DateTimeDate(SqlExpression this_)
     {
-      throw new NotImplementedException();
+      return SqlFactory.DateTimeTruncate(this_);
     }
 
     [Compiler(typeof(DateTime), "DayOfWeek", TargetKind.PropertyGet)]
     public static SqlExpression DateTimeDayOfWeek(SqlExpression this_)
     {
-      throw new NotImplementedException();
+      return SqlFactory.Extract(SqlDateTimePart.DayOfWeek, this_);
     }
 
     [Compiler(typeof(DateTime), "DayOfYear", TargetKind.PropertyGet)]
     public static SqlExpression DateTimeDayOfYear(SqlExpression this_)
     {
-      throw new NotImplementedException();
+      return SqlFactory.Extract(SqlDateTimePart.DayOfYear, this_);
     }
 
     #endregion
@@ -92,7 +92,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(int))] SqlExpression month, 
       [Type(typeof(int))] SqlExpression day)
     {
-      throw new NotImplementedException();
+      return SqlFactory.DateTimeConstruct(year, month, day);
     }
 
     [Compiler(typeof(DateTime), null, TargetKind.Constructor)]
@@ -104,7 +104,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(int))] SqlExpression minute,
       [Type(typeof(int))] SqlExpression second)
     {
-      throw new NotImplementedException();
+      return DateTimeCtor(year, month, day, hour, minute, second, 0L);
     }
 
     [Compiler(typeof(DateTime), null, TargetKind.Constructor)]
@@ -117,7 +117,10 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(int))] SqlExpression second,
       [Type(typeof(int))] SqlExpression millisecond)
     {
-      throw new NotImplementedException();
+      return SqlFactory.DateTimeAddInterval(
+        SqlFactory.DateTimeConstruct(year, month, day),
+        SqlFactory.IntervalConstruct(millisecond + 1000L * (second  + 60L * (minute + 60L * hour)))
+        );
     }
 
     #endregion
@@ -127,9 +130,9 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     [Compiler(typeof(DateTime), Operator.Addition, TargetKind.Operator)]
     public static SqlExpression DateTimeOperatorAddition(
       [Type(typeof(DateTime))] SqlExpression d,
-      [Type(typeof(TimeSpan))] SqlExpression s)
+      [Type(typeof(TimeSpan))] SqlExpression t)
     {
-      throw new NotImplementedException();
+      return SqlFactory.DateTimeAddInterval(d, t);
     }
 
     [Compiler(typeof(DateTime), Operator.Subtraction, TargetKind.Operator)]
@@ -137,7 +140,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(DateTime))] SqlExpression d,
       [Type(typeof(TimeSpan))] SqlExpression t)
     {
-      throw new NotImplementedException();
+      return SqlFactory.DateTimeSubtractInterval(d, t);
     }
 
     [Compiler(typeof(DateTime), Operator.Subtraction, TargetKind.Operator)]
@@ -145,10 +148,31 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(DateTime))] SqlExpression d1,
       [Type(typeof(DateTime))] SqlExpression d2)
     {
-      throw new NotImplementedException();
+      return SqlFactory.DateTimeSubtractDateTime(d1, d2);
     }
 
     #endregion
+
+    [Compiler(typeof(DateTime), "Add")]
+    public static SqlExpression DateTimeAdd(SqlExpression this_,
+      [Type(typeof(TimeSpan))] SqlExpression value)
+    {
+      return SqlFactory.DateTimeAddInterval(this_, value);
+    }
+
+    [Compiler(typeof(DateTime), "Subtract")]
+    public static SqlExpression DateTimeSubtractTimeSpan(SqlExpression this_,
+      [Type(typeof(TimeSpan))] SqlExpression value)
+    {
+      return SqlFactory.DateTimeSubtractInterval(this_, value);
+    }
+
+    [Compiler(typeof(DateTime), "Subtract")]
+    public static SqlExpression DateTimeSubtractDateTime(SqlExpression this_,
+      [Type(typeof(DateTime))] SqlExpression value)
+    {
+      return SqlFactory.DateTimeSubtractDateTime(this_, value);
+    }
 
     [Compiler(typeof(DateTime), "Now", TargetKind.Static | TargetKind.PropertyGet)]
     public static SqlExpression DateTimeNow()
@@ -174,13 +198,13 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(int))] SqlExpression month)
     {
       var februaryCase = SqlFactory.Case();
-      februaryCase.Add(DateTimeIsLeapYear(year), SqlFactory.Literal(29));
-      februaryCase.Else = SqlFactory.Literal(28);
+      februaryCase.Add(DateTimeIsLeapYear(year), 29);
+      februaryCase.Else = 28;
 
       var result = SqlFactory.Case();
-      result.Add(SqlFactory.In(month, SqlFactory.Array(1, 3, 7, 8, 10, 12)), SqlFactory.Literal(31));
+      result.Add(SqlFactory.In(month, SqlFactory.Array(1, 3, 7, 8, 10, 12)), 31);
       result.Add(month==2, februaryCase);
-      result.Else = SqlFactory.Literal(30);
+      result.Else = 30;
 
       return result;
     }
