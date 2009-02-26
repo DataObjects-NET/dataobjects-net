@@ -16,8 +16,6 @@ namespace Xtensive.Storage.Linq
     protected override object Execute(Expression expression)
     { 
       var result = Compile(expression);
-      var rcr = new RedundantColumnRemover(result);
-      //result = rcr.RemoveRedundantColumn();
       var projector = result.Projector;
       var recordSet = result.RecordSet;
 
@@ -28,7 +26,10 @@ namespace Xtensive.Storage.Linq
     internal ResultExpression Compile(Expression expression)
     {
       var context = new TranslatorContext(expression);
-      return context.Translator.Translate();
+      var result = context.Translator.Translate();
+      var rcr = new RedundantColumnRemover(result);
+      result = rcr.RemoveRedundantColumn();
+      return result;
     }
 
 
