@@ -8,11 +8,8 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Xtensive.Core;
 using Xtensive.Core.Collections;
-using Xtensive.Core.Linq;
 using Xtensive.Core.Tuples;
-using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Linq
 {
@@ -24,7 +21,6 @@ namespace Xtensive.Storage.Linq
     private static readonly MethodInfo genericAccessor;
     private static readonly PropertyInfo keyValueAccessor;
     private static readonly PropertyInfo keyAccessor;
-    private static readonly MemberInfo identifierAccessor;
 
     public LambdaExpression ProcessPredicate(LambdaExpression le)
     {
@@ -238,7 +234,6 @@ namespace Xtensive.Storage.Linq
     {
       keyValueAccessor = typeof (Key).GetProperty("Value");
       keyAccessor = typeof (IEntity).GetProperty("Key");
-      identifierAccessor = typeof (IIdentified<Key>).GetMember("Identifier")[0];
       foreach (var method in typeof(Tuple).GetMethods()) {
         if (method.Name == "GetValueOrDefault") {
           if (method.IsGenericMethod)
