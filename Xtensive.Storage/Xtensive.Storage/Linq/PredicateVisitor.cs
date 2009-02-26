@@ -17,6 +17,7 @@ namespace Xtensive.Storage.Linq
   {
     private List<int> map = new List<int>();
     private bool isReplacing;
+    private List<int> group;
 
     
     protected override Expression VisitMethodCall(MethodCallExpression mc)
@@ -29,8 +30,10 @@ namespace Xtensive.Storage.Linq
           var value = (int) ((ConstantExpression) mc.Arguments[0]).Value;
           result = Expression.Call(mc.Object, mc.Method, Expression.Constant(map.IndexOf(value)));
         }
-      //else if (mc.Method.Name == "get_Item" && isReplacing)
-      //  result = Expression.Call(mc.Object, mc.Method, Expression.Constant(0));
+      else if (mc.Method.Name == "get_Item" && isReplacing && group != null) {
+        var value = (int)((ConstantExpression)mc.Arguments[0]).Value;
+        result = Expression.Call(mc.Object, mc.Method, Expression.Constant(group.IndexOf(value)));
+      }
       return base.VisitMethodCall(result);
     }
 
@@ -39,6 +42,7 @@ namespace Xtensive.Storage.Linq
       try {
         isReplacing = false;
         map = new List<int>();
+        group = null;
         Visit(predicate);
         return map;
       }
@@ -47,9 +51,10 @@ namespace Xtensive.Storage.Linq
       }
     }
 
-    public Expression ReplaceMappings(Expression predicate, List<int> mapping)
+    public Expression ReplaceMappings(Expression predicate, List<int> mapping, List<int> groupMap)
     {
       isReplacing = true;
+      group = groupMap;
       map = mapping;
       return Visit(predicate);
     }

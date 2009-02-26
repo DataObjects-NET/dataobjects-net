@@ -51,8 +51,18 @@ namespace Xtensive.Storage.Linq
             withAggregate = true;
             break;
           }
-        var projector = withAggregate ? origin.Projector : (Expression<Func<RecordSet, object>>)predicateVisitor.ReplaceMappings(origin.Projector, mapping[provider]);
-        var itemProjector = origin.ItemProjector == null ? null : (LambdaExpression)predicateVisitor.ReplaceMappings(origin.ItemProjector, mapping[provider]);
+
+        var originGroups = origin.RecordSet.Provider.Result.Header.ColumnGroups.ToList();
+        var rsGroups= rs.Header.ColumnGroups.ToList();
+        var groupMap = new List<int>();
+
+        foreach(var group in originGroups)
+          foreach(var rsGroup in rsGroups)
+            if (group.HierarchyInfoRef.TypeName == rsGroup.HierarchyInfoRef.TypeName)
+              groupMap.Add(originGroups.IndexOf(group));
+
+        var projector = withAggregate ? origin.Projector : (Expression<Func<RecordSet, object>>)predicateVisitor.ReplaceMappings(origin.Projector, mapping[provider], groupMap);
+        var itemProjector = origin.ItemProjector == null ? null : (LambdaExpression)predicateVisitor.ReplaceMappings(origin.ItemProjector, mapping[provider], groupMap);
         var result = new ResultExpression(origin.Type, rs, (origin.Mapping == null)? null : new ResultMapping(), projector, itemProjector);
         return result;
       }
@@ -276,7 +286,7 @@ namespace Xtensive.Storage.Linq
       origin = resultExpression;
       translate = (provider, e) => {
         if (provider.Type == ProviderType.Filter || provider.Type == ProviderType.Calculate)
-          return predicateVisitor.ReplaceMappings(e, ModifyMapping(provider));
+          return predicateVisitor.ReplaceMappings(e, ModifyMapping(provider), null);
         return e;
       };
     }
