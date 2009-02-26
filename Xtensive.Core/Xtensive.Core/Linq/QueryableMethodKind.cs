@@ -5,12 +5,17 @@
 // Created:    2009.02.25
 
 using System;
+using System.Linq;
 
-namespace Xtensive.Storage.Linq
+namespace Xtensive.Core.Linq
 {
+  /// <summary>
+  /// Enumerates supported <see cref="IQueryable{T}"/> methods.
+  /// </summary>
   [Serializable]
-  internal enum QueryableMethodKind
+  public enum QueryableMethodKind
   {
+#pragma warning disable 1591
     Default = Unknown,
     Unknown = 0,
     Aggregate,
@@ -59,5 +64,6 @@ namespace Xtensive.Storage.Linq
     ToList,
     Union,
     Where
+#pragma warning restore 1591
   }
 }
