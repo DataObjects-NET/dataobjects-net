@@ -32,7 +32,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     protected internal override void OnBeforeEnumerate(EnumerationContext context)
     {
       base.OnBeforeEnumerate(context);
-      CachedCount = Origin.CompiledCount.Invoke();
+      CachedCount = Origin.Count.Invoke();
     }
 
     /// <inheritdoc/>
@@ -46,7 +46,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     {
       long? count = null;
       try {
-        count = Origin.CompiledCount.Invoke();
+        count = Origin.Count.Invoke();
       }
       catch {}
       return string.Format(ToString_TakeParameters,

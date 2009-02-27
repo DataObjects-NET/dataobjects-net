@@ -350,7 +350,7 @@ namespace Xtensive.Storage.Providers.Sql
       var queryRef = SqlFactory.QueryRef(source.Request.Statement as SqlSelect);
       var query = SqlFactory.Select(queryRef);
       query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
-      query.Offset = provider.CompiledCount();
+      query.Offset = provider.Count();
       var request = new SqlFetchRequest(query, provider.Header, source.Request.ParameterBindings);
       return new SqlProvider(provider, request, Handlers, source);
     }
@@ -421,7 +421,7 @@ namespace Xtensive.Storage.Providers.Sql
         return null;
 
       var query = (SqlSelect) source.Request.Statement.Clone();
-      var count = provider.CompiledCount();
+      var count = provider.Count();
       if (query.Top == 0 || query.Top > count)
         query.Top = count;
       var request = new SqlFetchRequest(query, provider.Header, source.Request.ParameterBindings);

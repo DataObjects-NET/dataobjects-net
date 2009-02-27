@@ -279,7 +279,7 @@ namespace Xtensive.Storage.Linq
     {
       var projection = (ResultExpression)Visit(source);
       var parameter = context.ParameterExtractor.ExtractParameter<int>(take);
-      var rs = projection.RecordSet.Take(parameter, true);
+      var rs = projection.RecordSet.Take(parameter.Compile());
       return new ResultExpression(projection.Type, rs, projection.Mapping, projection.Projector, projection.ItemProjector);
     }
 
@@ -287,7 +287,7 @@ namespace Xtensive.Storage.Linq
     {
       var projection = (ResultExpression)Visit(source);
       var parameter = context.ParameterExtractor.ExtractParameter<int>(skip);
-      var rs = projection.RecordSet.Skip(parameter, true);
+      var rs = projection.RecordSet.Skip(parameter.Compile());
       return new ResultExpression(projection.Type, rs, projection.Mapping, projection.Projector, projection.ItemProjector);
     }
 

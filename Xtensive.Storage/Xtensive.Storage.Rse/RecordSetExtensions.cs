@@ -189,11 +189,6 @@ namespace Xtensive.Storage.Rse
 
     public static RecordSet Skip(this RecordSet recordSet, Func<int> count)
     {
-      return new SkipProvider(recordSet.Provider, ()=>count.Invoke()){CompiledCount = count}.Result;
-    }
-
-    public static RecordSet Skip(this RecordSet recordSet, Expression<Func<int>> count, bool isExpression)
-    {
       return new SkipProvider(recordSet.Provider, count).Result;
     }
 
@@ -203,11 +198,6 @@ namespace Xtensive.Storage.Rse
     }
 
     public static RecordSet Take(this RecordSet recordSet, Func<int> count)
-    {
-      return new TakeProvider(recordSet.Provider, ()=>count.Invoke()){CompiledCount = count}.Result;
-    }
-
-    public static RecordSet Take(this RecordSet recordSet, Expression<Func<int>> count, bool isExpression)
     {
       return new TakeProvider(recordSet.Provider, count).Result;
     }
