@@ -15,8 +15,10 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
     internal const string RealExtractDays = "real_extract_days";
     internal const string RealExtractSeconds = "real_extract_seconds";
     internal const string RealExtractMilliseconds = "real_extract_ms";
+    internal const string Timestamp20010101 = "timestamp_2001_01_01";
     internal const string OneYearInterval = "one_year_interval";
     internal const string OneMonthInterval = "one_month_interval";
+    internal const string OneDayInterval = "one_day_interval";
     internal const string OneMillisecondInterval = "one_ms_interval";
 
     public PgSqlTranslator(SqlDriver driver)
@@ -907,12 +909,16 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
             return " extract (milliseconds from ";
           case RealExtractSeconds:
             return " extract (second from ";
+          case Timestamp20010101:
+            return " (timestamp '2001-01-01'";
           case OneYearInterval:
-            return " interval '1 year' ";
+            return " (interval '1 year'";
           case OneMonthInterval:
-            return " interval '1 month' ";
+            return " (interval '1 month'";
+          case OneDayInterval:
+            return " (interval '1 day'";
           case OneMillisecondInterval:
-            return " interval '1 ms' ";
+            return " (interval '1 ms'";
         }
       }
 

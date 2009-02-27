@@ -6,6 +6,21 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
 {
   internal class PgSqlCompiler : SqlCompiler
   {
+    private static readonly SqlUserFunctionCall Timestamp20010101 =
+      Sql.FunctionCall(PgSqlTranslator.Timestamp20010101);
+
+    private static readonly SqlUserFunctionCall OneYearInterval =
+      Sql.FunctionCall(PgSqlTranslator.OneYearInterval);
+
+    private static readonly SqlUserFunctionCall OneMonthInterval =
+      Sql.FunctionCall(PgSqlTranslator.OneMonthInterval);
+
+    private static readonly SqlUserFunctionCall OneDayInterval =
+      Sql.FunctionCall(PgSqlTranslator.OneDayInterval);
+
+    private static readonly SqlUserFunctionCall OneMillisecondInterval =
+      Sql.FunctionCall(PgSqlTranslator.OneMillisecondInterval);
+
     protected internal PgSqlCompiler(PgSqlDriver driver)
       : base(driver)
     {
@@ -13,6 +28,7 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
 
     public override void Visit(SqlDeclareCursor node)
     {
+
     }
 
     public override void Visit(SqlOpenCursor node)
@@ -38,11 +54,18 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
           break;
 
         case SqlFunctionType.IntervalConstruct:
-          Visit(node.Arguments[0] * Sql.FunctionCall(PgSqlTranslator.OneMillisecondInterval));
+          Visit(node.Arguments[0] * OneMillisecondInterval);
           return;
 
         case SqlFunctionType.IntervalToMilliseconds:
           Visit(IntervalToMilliseconds(node.Arguments[0]));
+          return;
+
+        case SqlFunctionType.DateTimeConstruct:
+          Visit(Timestamp20010101
+            + OneYearInterval * (node.Arguments[0] - 2001)
+            + OneMonthInterval * (node.Arguments[1] - 1)
+            + OneDayInterval * (node.Arguments[2] - 1));
           return;
 
         case SqlFunctionType.DateTimeTruncate:
@@ -59,11 +82,11 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
           return;
 
         case SqlFunctionType.DateTimeAddMonths:
-          Visit(node.Arguments[0] + node.Arguments[1] * Sql.FunctionCall(PgSqlTranslator.OneMonthInterval));
+          Visit(node.Arguments[0] + node.Arguments[1] * OneMonthInterval);
           return;
 
         case SqlFunctionType.DateTimeAddYears:
-          Visit(node.Arguments[0] + node.Arguments[1] * Sql.FunctionCall(PgSqlTranslator.OneYearInterval));
+          Visit(node.Arguments[0] + node.Arguments[1] * OneYearInterval);
           return;
       }
 
@@ -133,37 +156,12 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
 
     private static SqlBinary IntervalToMilliseconds(SqlExpression interval)
     {
-      var days = Sql.FunctionCall(PgSqlTranslator.RealExtractDays, interval);
+      var days = RealExtractDays(interval);
       var hours = Sql.IntervalExtract(SqlIntervalPart.Hour, interval);
       var minutes = Sql.IntervalExtract(SqlIntervalPart.Minute, interval);
-      var milliseconds = Sql.Cast(
-        Sql.FunctionCall(PgSqlTranslator.RealExtractMilliseconds, interval),
-        SqlDataType.Int64
-        );
+      var milliseconds = Sql.Cast(RealExtractMilliseconds(interval), SqlDataType.Int64);
 
       return ((days * 24L + hours) * 60L + minutes) * 60L * 1000L + milliseconds;
     }
-
-    /*
-    public override void Visit(SqlQueryExpression node)
-    {
-      using(this.context.EnterNode(node))
-      {
-        this.context.AppendText(this.translator.Translate(this.context, node, NodeSection.Entry));
-
-        this.context.AppendText("(");
-        node.Left.AcceptVisitor(this);
-        this.context.AppendText(")");
-
-        this.context.AppendText(this.translator.Translate(node.NodeType));
-
-        this.context.AppendText("(");
-        node.Right.AcceptVisitor(this);
-        this.context.AppendText(")");
-
-        this.context.AppendText(this.translator.Translate(this.context, node, NodeSection.Exit));
-      }
-    }
-    /**/
   }
 }
