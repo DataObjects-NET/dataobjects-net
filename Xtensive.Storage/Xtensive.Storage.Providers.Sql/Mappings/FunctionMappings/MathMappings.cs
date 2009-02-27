@@ -114,7 +114,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
 
     #region Math.Min mappings
 
-    private static SqlExpression MinHelper(SqlExpression left, SqlExpression right)
+    private static SqlExpression Min(SqlExpression left, SqlExpression right)
     {
       var result = SqlFactory.Case();
       result.Add(left < right, left);
@@ -127,7 +127,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(byte))] SqlExpression left,
       [Type(typeof(byte))] SqlExpression right)
     {
-      return MinHelper(left, right);
+      return Min(left, right);
     }
 
     [Compiler(typeof(Math), "Min", TargetKind.Static | TargetKind.Method)]
@@ -135,7 +135,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(sbyte))] SqlExpression left,
       [Type(typeof(sbyte))] SqlExpression right)
     {
-      return MinHelper(left, right);
+      return Min(left, right);
     }
 
     [Compiler(typeof(Math), "Min", TargetKind.Static | TargetKind.Method)]
@@ -143,7 +143,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(short))] SqlExpression left,
       [Type(typeof(short))] SqlExpression right)
     {
-      return MinHelper(left, right);
+      return Min(left, right);
     }
 
     [Compiler(typeof(Math), "Min", TargetKind.Static | TargetKind.Method)]
@@ -151,7 +151,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(ushort))] SqlExpression left,
       [Type(typeof(ushort))] SqlExpression right)
     {
-      return MinHelper(left, right);
+      return Min(left, right);
     }
 
     [Compiler(typeof(Math), "Min", TargetKind.Static | TargetKind.Method)]
@@ -159,7 +159,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(int))] SqlExpression left,
       [Type(typeof(int))] SqlExpression right)
     {
-      return MinHelper(left, right);
+      return Min(left, right);
     }
 
     [Compiler(typeof(Math), "Min", TargetKind.Static | TargetKind.Method)]
@@ -167,7 +167,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(uint))] SqlExpression left,
       [Type(typeof(uint))] SqlExpression right)
     {
-      return MinHelper(left, right);
+      return Min(left, right);
     }
 
     [Compiler(typeof(Math), "Min", TargetKind.Static | TargetKind.Method)]
@@ -175,7 +175,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(long))] SqlExpression left,
       [Type(typeof(long))] SqlExpression right)
     {
-      return MinHelper(left, right);
+      return Min(left, right);
     }
 
     [Compiler(typeof(Math), "Min", TargetKind.Static | TargetKind.Method)]
@@ -183,7 +183,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(ulong))] SqlExpression left,
       [Type(typeof(ulong))] SqlExpression right)
     {
-      return MinHelper(left, right);
+      return Min(left, right);
     }
 
     [Compiler(typeof(Math), "Min", TargetKind.Static | TargetKind.Method)]
@@ -191,7 +191,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(float))] SqlExpression left,
       [Type(typeof(float))] SqlExpression right)
     {
-      return MinHelper(left, right);
+      return Min(left, right);
     }
 
     [Compiler(typeof(Math), "Min", TargetKind.Static | TargetKind.Method)]
@@ -199,7 +199,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(double))] SqlExpression left,
       [Type(typeof(double))] SqlExpression right)
     {
-      return MinHelper(left, right);
+      return Min(left, right);
     }
 
     [Compiler(typeof(Math), "Min", TargetKind.Static | TargetKind.Method)]
@@ -207,14 +207,14 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(decimal))] SqlExpression left,
       [Type(typeof(decimal))] SqlExpression right)
     {
-      return MinHelper(left, right);
+      return Min(left, right);
     }
 
     #endregion
 
     #region Math.Max mappings
 
-    private static SqlExpression MaxHelper(SqlExpression left, SqlExpression right)
+    private static SqlExpression Max(SqlExpression left, SqlExpression right)
     {
       var result = SqlFactory.Case();
       result.Add(left > right, left);
@@ -227,7 +227,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(byte))] SqlExpression left,
       [Type(typeof(byte))] SqlExpression right)
     {
-      return MaxHelper(left, right);
+      return Max(left, right);
     }
 
     [Compiler(typeof(Math), "Max", TargetKind.Static | TargetKind.Method)]
@@ -235,7 +235,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(sbyte))] SqlExpression left,
       [Type(typeof(sbyte))] SqlExpression right)
     {
-      return MaxHelper(left, right);
+      return Max(left, right);
     }
 
     [Compiler(typeof(Math), "Max", TargetKind.Static | TargetKind.Method)]
@@ -243,7 +243,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(short))] SqlExpression left,
       [Type(typeof(short))] SqlExpression right)
     {
-      return MaxHelper(left, right);
+      return Max(left, right);
     }
 
     [Compiler(typeof(Math), "Max", TargetKind.Static | TargetKind.Method)]
@@ -251,7 +251,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(ushort))] SqlExpression left,
       [Type(typeof(ushort))] SqlExpression right)
     {
-      return MaxHelper(left, right);
+      return Max(left, right);
     }
 
     [Compiler(typeof(Math), "Max", TargetKind.Static | TargetKind.Method)]
@@ -259,7 +259,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(int))] SqlExpression left,
       [Type(typeof(int))] SqlExpression right)
     {
-      return MaxHelper(left, right);
+      return Max(left, right);
     }
 
     [Compiler(typeof(Math), "Max", TargetKind.Static | TargetKind.Method)]
@@ -267,7 +267,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(uint))] SqlExpression left,
       [Type(typeof(uint))] SqlExpression right)
     {
-      return MaxHelper(left, right);
+      return Max(left, right);
     }
 
     [Compiler(typeof(Math), "Max", TargetKind.Static | TargetKind.Method)]
@@ -275,7 +275,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(long))] SqlExpression left,
       [Type(typeof(long))] SqlExpression right)
     {
-      return MaxHelper(left, right);
+      return Max(left, right);
     }
 
     [Compiler(typeof(Math), "Max", TargetKind.Static | TargetKind.Method)]
@@ -283,7 +283,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(ulong))] SqlExpression left,
       [Type(typeof(ulong))] SqlExpression right)
     {
-      return MaxHelper(left, right);
+      return Max(left, right);
     }
 
     [Compiler(typeof(Math), "Max", TargetKind.Static | TargetKind.Method)]
@@ -291,7 +291,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(float))] SqlExpression left,
       [Type(typeof(float))] SqlExpression right)
     {
-      return MaxHelper(left, right);
+      return Max(left, right);
     }
 
     [Compiler(typeof(Math), "Max", TargetKind.Static | TargetKind.Method)]
@@ -299,7 +299,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(double))] SqlExpression left,
       [Type(typeof(double))] SqlExpression right)
     {
-      return MaxHelper(left, right);
+      return Max(left, right);
     }
 
     [Compiler(typeof(Math), "Max", TargetKind.Static | TargetKind.Method)]
@@ -307,7 +307,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(decimal))] SqlExpression left,
       [Type(typeof(decimal))] SqlExpression right)
     {
-      return MaxHelper(left, right);
+      return Max(left, right);
     }
 
     #endregion
@@ -503,7 +503,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     }
 
     // made internal for using in DecimalMappings
-    internal static SqlExpression TruncateHelper(SqlExpression d)
+    internal static SqlExpression Truncate(SqlExpression d)
     {
       var result = SqlFactory.Case();
       result.Add(d > 0, SqlFactory.Floor(d));
@@ -515,14 +515,14 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     public static SqlExpression MathTruncateDouble(
       [Type(typeof(double))] SqlExpression d)
     {
-      return TruncateHelper(d);
+      return Truncate(d);
     }
 
     [Compiler(typeof(Math), "Truncate", TargetKind.Static | TargetKind.Method)]
     public static SqlExpression MathTruncateDecimal(
       [Type(typeof(decimal))] SqlExpression d)
     {
-      return TruncateHelper(d);
+      return Truncate(d);
     }
 
   }

@@ -14,6 +14,60 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
 {
   internal static class TimeSpanMappings
   {
+    internal static SqlExpression IntervalConstruct(
+      SqlExpression days,
+      SqlExpression hours,
+      SqlExpression minutes,
+      SqlExpression seconds,
+      SqlExpression milliseconds)
+    {
+      // to be optimized
+      return SqlFactory.IntervalConstruct(
+        milliseconds + 1000L * (seconds + 60L * (minutes + 60L * (hours + 24L * days)))
+        );
+    }
+
+    #region Constructors
+
+    [Compiler(typeof(TimeSpan), null, TargetKind.Constructor)]
+    public static SqlExpression TimeSpanCtor(
+      [Type(typeof(long))] SqlExpression ticks)
+    {
+      return SqlFactory.IntervalConstruct(ticks / 100L);
+    }
+
+    [Compiler(typeof(TimeSpan), null, TargetKind.Constructor)]
+    public static SqlExpression TimeSpanCtor(
+      [Type(typeof(int))] SqlExpression hours,
+      [Type(typeof(int))] SqlExpression minutes,
+      [Type(typeof(int))] SqlExpression seconds)
+    {
+      return IntervalConstruct(0, hours, minutes, seconds, 0);
+    }
+
+    [Compiler(typeof(TimeSpan), null, TargetKind.Constructor)]
+    public static SqlExpression TimeSpanCtor(
+      [Type(typeof(int))] SqlExpression days,
+      [Type(typeof(int))] SqlExpression hours,
+      [Type(typeof(int))] SqlExpression minutes,
+      [Type(typeof(int))] SqlExpression seconds)
+    {
+      return IntervalConstruct(days, hours, minutes, seconds, 0);
+    }
+
+    [Compiler(typeof(TimeSpan), null, TargetKind.Constructor)]
+    public static SqlExpression TimeSpanCtor(
+      [Type(typeof(int))] SqlExpression days,
+      [Type(typeof(int))] SqlExpression hours,
+      [Type(typeof(int))] SqlExpression minutes,
+      [Type(typeof(int))] SqlExpression seconds,
+      [Type(typeof(int))] SqlExpression millliseconds)
+    {
+      return IntervalConstruct(days, hours, minutes, seconds, millliseconds);
+    }
+
+    #endregion
+
     #region Extractors
 
     [Compiler(typeof(TimeSpan), "Milliseconds", TargetKind.PropertyGet)]
@@ -90,6 +144,48 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
 
     #region Operators
 
+    [Compiler(typeof(TimeSpan), Operator.Equality, TargetKind.Operator)]
+    public static SqlExpression TimeSpanOperatorEquality(SqlExpression this_,
+      [Type(typeof(TimeSpan))] SqlExpression t)
+    {
+      return this_==t;
+    }
+
+    [Compiler(typeof(TimeSpan), Operator.Inequality, TargetKind.Operator)]
+    public static SqlExpression TimeSpanOperatorInequality(SqlExpression this_,
+      [Type(typeof(TimeSpan))] SqlExpression t)
+    {
+      return this_ != t;
+    }
+
+    [Compiler(typeof(TimeSpan), Operator.GreaterThan, TargetKind.Operator)]
+    public static SqlExpression TimeSpanOperatorGreaterThan(SqlExpression this_,
+      [Type(typeof(TimeSpan))] SqlExpression t)
+    {
+      return this_ > t;
+    }
+
+    [Compiler(typeof(TimeSpan), Operator.GreaterThanOrEqual, TargetKind.Operator)]
+    public static SqlExpression TimeSpanOperatorGreaterThanOrEqual(SqlExpression this_,
+      [Type(typeof(TimeSpan))] SqlExpression t)
+    {
+      return this_ >= t;
+    }
+
+    [Compiler(typeof(TimeSpan), Operator.LessThan, TargetKind.Operator)]
+    public static SqlExpression TimeSpanOperatorLessThan(SqlExpression this_,
+      [Type(typeof(TimeSpan))] SqlExpression t)
+    {
+      return this_ < t;
+    }
+
+    [Compiler(typeof(TimeSpan), Operator.LessThanOrEqual, TargetKind.Operator)]
+    public static SqlExpression TimeSpanOperatorLessThanOrEqual(SqlExpression this_,
+      [Type(typeof(TimeSpan))] SqlExpression t)
+    {
+      return this_ <= t;
+    }
+
     [Compiler(typeof(TimeSpan), Operator.Addition, TargetKind.Operator)]
     public static SqlExpression TimeSpanOperatorAddition(
       [Type(typeof(TimeSpan))] SqlExpression t1,
@@ -118,6 +214,24 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(TimeSpan))] SqlExpression t)
     {
       return -t;
+    }
+
+    #endregion
+
+    #region Other mappings
+
+    [Compiler(typeof(TimeSpan), "Add")]
+    public static SqlExpression TimeSpanAdd(SqlExpression this_,
+      [Type(typeof(TimeSpan))] SqlExpression t)
+    {
+      return this_ + t;
+    }
+
+    [Compiler(typeof(TimeSpan), "Subtract")]
+    public static SqlExpression TimeSpanSubtract(SqlExpression this_,
+      [Type(typeof(TimeSpan))] SqlExpression t)
+    {
+      return this_ - t;
     }
 
     #endregion

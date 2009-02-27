@@ -124,14 +124,14 @@ namespace Xtensive.Core.Reflection
       public const string Inequality = "op_Inequality";
 
       /// <summary>
-      /// Returns "op_GreatherThan".
+      /// Returns "op_GreaterThan".
       /// </summary>
-      public const string GreatherThan = "op_GreatherThan";
+      public const string GreaterThan = "op_GreaterThan";
 
       /// <summary>
-      /// Returns "op_GreatherThanOrEqual".
+      /// Returns "op_GreaterThanOrEqual".
       /// </summary>
-      public const string GreatherThanOrEqual = "op_GreatherThanOrEqual";
+      public const string GreaterThanOrEqual = "op_GreaterThanOrEqual";
 
       /// <summary>
       /// Returns "op_LessThan".

@@ -84,6 +84,22 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
 
     #endregion
 
+    private static SqlExpression DateTimeConstruct(
+      SqlExpression year,
+      SqlExpression month,
+      SqlExpression day,
+      SqlExpression hour,
+      SqlExpression minute,
+      SqlExpression second,
+      SqlExpression millisecond)
+    {
+      return SqlFactory.DateTimeAddInterval(
+        SqlFactory.DateTimeConstruct(year, month, day),
+        TimeSpanMappings.IntervalConstruct(0, hour, minute, second, millisecond)
+        );
+    }
+    
+
     #region Constructors
 
     [Compiler(typeof(DateTime), null, TargetKind.Constructor)]
@@ -104,7 +120,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(int))] SqlExpression minute,
       [Type(typeof(int))] SqlExpression second)
     {
-      return DateTimeCtor(year, month, day, hour, minute, second, 0L);
+      return DateTimeConstruct(year, month, day, hour, minute, second, 0L);
     }
 
     [Compiler(typeof(DateTime), null, TargetKind.Constructor)]
@@ -117,10 +133,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(int))] SqlExpression second,
       [Type(typeof(int))] SqlExpression millisecond)
     {
-      return SqlFactory.DateTimeAddInterval(
-        SqlFactory.DateTimeConstruct(year, month, day),
-        SqlFactory.IntervalConstruct(millisecond + 1000L * (second  + 60L * (minute + 60L * hour)))
-        );
+      return DateTimeConstruct(year, month, day, hour, minute, second, millisecond);
     }
 
     #endregion

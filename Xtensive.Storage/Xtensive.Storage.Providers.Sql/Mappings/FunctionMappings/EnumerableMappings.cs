@@ -5,13 +5,10 @@
 // Created:    2009.02.24
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using Xtensive.Core.Linq;
 using Xtensive.Sql.Dom.Dml;
-using SqlFactory = Xtensive.Sql.Dom.Sql;
 
 namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
 {
