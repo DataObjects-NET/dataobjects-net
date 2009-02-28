@@ -40,9 +40,13 @@ namespace Xtensive.Storage.Linq
       return base.VisitMemberAccess(m);
     }
 
-    protected override Expression VisitMemberPath(MemberPathExpression mpe)
+    protected override Expression VisitQueryableMethod(MethodCallExpression mc, QueryableMethodKind methodKind)
     {
-      var path = mpe.Path;
+      throw new System.NotImplementedException();
+    }
+
+    protected override Expression VisitMemberPath(MemberPath path, Expression e)
+    {
       var pe = path.Parameter;
       var source = context.GetBound(pe);
       var mapping = source.Mapping;
@@ -71,7 +75,7 @@ namespace Xtensive.Storage.Linq
           mapping = innerMapping;
         }
       }
-      return mpe.Expression;
+      return e;
     }
 
 

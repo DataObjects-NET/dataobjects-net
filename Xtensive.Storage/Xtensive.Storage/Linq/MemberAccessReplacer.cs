@@ -9,6 +9,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Linq;
 using Xtensive.Core.Tuples;
 
 namespace Xtensive.Storage.Linq
@@ -67,10 +68,14 @@ namespace Xtensive.Storage.Linq
       return rewriter.Rewrite(source.ItemProjector.Body, out recordIsUsed);
     }
 
-    protected override Expression VisitMemberPath(MemberPathExpression mpe)
+    protected override Expression VisitQueryableMethod(MethodCallExpression mc, QueryableMethodKind methodKind)
     {
-      var path = mpe.Path;
-      var method = mpe.Type == typeof(object) ? nonGenericAccessor : genericAccessor.MakeGenericMethod(mpe.Type);
+      throw new System.NotImplementedException();
+    }
+
+    protected override Expression VisitMemberPath(MemberPath path, Expression e)
+    {
+      var method = e.Type == typeof(object) ? nonGenericAccessor : genericAccessor.MakeGenericMethod(e.Type);
       if (path.PathType != MemberType.Primitive)
         throw new NotSupportedException();
       var source = context.GetBound(path.Parameter);

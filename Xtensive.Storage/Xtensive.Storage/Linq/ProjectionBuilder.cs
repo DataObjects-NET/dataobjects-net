@@ -112,10 +112,9 @@ namespace Xtensive.Storage.Linq
       return new ResultExpression(body.Type, recordSet, mapping, projector, itemProjector);
     }
 
-    protected override Expression VisitMemberPath(MemberPathExpression mpe)
+    protected override Expression VisitMemberPath(MemberPath path, Expression e)
     {
-      var resultType = mpe.Expression.Type;
-      var path = mpe.Path;
+      var resultType = e.Type;
       var source = context.GetBound(path.Parameter);
       switch (path.PathType) {
         case MemberType.Primitive: {
@@ -191,7 +190,7 @@ namespace Xtensive.Storage.Linq
         }
         case MemberType.EntitySet: {
           recordIsUsed = true;
-          var m = (MemberExpression) mpe.Expression;
+          var m = (MemberExpression) e;
           var expression = Visit(m.Expression);
           var result = Expression.MakeMemberAccess(expression, m.Member);
           return result;
@@ -278,49 +277,6 @@ namespace Xtensive.Storage.Linq
             if (!pAp.Value.ContainsKey(memberName))
               pAp.Value.Add(memberName, newArg);
           }
-
-//          switch (path.PathType) {
-//            case MemberType.Default:
-//            case MemberType.Primitive:
-//            case MemberType.Key:
-//            case MemberType.Structure:
-//            case MemberType.Entity:
-//            case MemberType.EntitySet: {
-//              var source = context.GetBound(path.Parameter);
-//              var segment = source.GetMemberSegment(path);
-//              var rm = source.GetMemberMapping(path);
-//              var mapping = rm.Fields.Where(p => p.Value.Offset >= segment.Offset && p.Value.EndOffset <= segment.EndOffset).ToList();
-//              var oldName = mapping.Select(pair => pair.Key).OrderBy(s => s.Length).First();
-//              var startsWithOldName = mapping.All(pair => pair.Key.StartsWith(oldName));
-//              if (startsWithOldName) {
-//                mapping = mapping.Select(pair => new KeyValuePair<string, Segment<int>>(pair.Key.Replace(oldName, memberName), pair.Value)).ToList();
-//              }
-//              else {
-//                mapping = mapping.Select(pair => new KeyValuePair<string, Segment<int>>(memberName + "." + pair.Key, pair.Value)).ToList();
-//                mapping.Add(new KeyValuePair<string, Segment<int>>(memberName, segment));
-//              }
-//              
-//              foreach (var pair in mapping) {
-//                if(!pFm.Value.ContainsKey(pair.Key))
-//                  pFm.Value.Add(pair.Key, pair.Value);
-//              }
-//              var memberType = arg.GetMemberType();
-//              if (memberType==MemberType.Entity)
-//                pJr.Value.Add(memberName, rm);
-//              break;
-//            }
-//            case MemberType.Anonymous: {
-//              var source = context.GetBound(path.Parameter);
-//              var rm = source.GetMemberMapping(path);
-//              pJr.Value.Add(memberName, rm);
-//              var projector = source.Mapping.AnonymousProjections[path.First().Name];
-//              newArg = parameterRewriter.Rewrite(projector, out recordIsUsed);
-//              break;
-//            }
-//            default:
-//              throw new ArgumentOutOfRangeException();
-//          }
-//          newArg = newArg ?? VisitMemberPath(new MemberPathExpression(path, arg));
         }
         else {
           if (arg.NodeType == ExpressionType.New) {
@@ -362,6 +318,11 @@ namespace Xtensive.Storage.Linq
         arguments.Add(newArg);
       }
       return Expression.New(n.Constructor, arguments, n.Members);
+    }
+
+    protected override Expression VisitQueryableMethod(MethodCallExpression mc, QueryableMethodKind methodKind)
+    {
+      throw new System.NotImplementedException();
     }
 
     private static IEnumerable<TResult> MakeProjection<TResult>(RecordSet rs, Expression<Func<Tuple, Record, TResult>> le)

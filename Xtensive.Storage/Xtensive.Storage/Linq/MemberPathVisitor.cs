@@ -11,23 +11,15 @@ using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Linq
 {
-  internal abstract class MemberPathVisitor : ExpressionVisitor
+  internal abstract class MemberPathVisitor : QueryableVisitor
   {
     private readonly DomainModel model;
-
-    protected override Expression VisitUnknown(Expression e)
-    {
-      var nodeType = (ExtendedExpressionType)e.NodeType;
-      if (nodeType == ExtendedExpressionType.MemberPath)
-        return VisitMemberPath((MemberPathExpression)e);
-      return base.VisitUnknown(e);
-    }
 
     protected override Expression VisitMemberAccess(MemberExpression m)
     {
       var memberPath = MemberPath.Parse(m, model);
       if (memberPath.IsValid)
-        return Visit(new MemberPathExpression(memberPath, m));
+        return VisitMemberPath(memberPath, m);
       return base.VisitMemberAccess(m);
     }
 
@@ -35,11 +27,11 @@ namespace Xtensive.Storage.Linq
     {
       var memberPath = MemberPath.Parse(mc, model);
       if (memberPath.IsValid)
-        return Visit(new MemberPathExpression(memberPath, mc));
+        return VisitMemberPath(memberPath, mc);
       return base.VisitMethodCall(mc);
     }
 
-    protected abstract Expression VisitMemberPath(MemberPathExpression mpe);
+    protected abstract Expression VisitMemberPath(MemberPath path, Expression e);
 
 
     // Constructors

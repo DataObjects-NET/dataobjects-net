@@ -1,11 +1,12 @@
-// Copyright (C) 2008 Xtensive LLC.
+// Copyright (C) 2009 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
-// Created by: Alexey Kochetov
-// Created:    2008.12.11
+// Created by: Alexis Kochetov
+// Created:    2009.02.27
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -20,7 +21,8 @@ using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Linq
 {
-  internal sealed class Translator : QueryableVisitor
+  [Serializable]
+  internal sealed partial class Translator : MemberPathVisitor
   {
     private readonly TranslatorContext context;
 
@@ -249,18 +251,18 @@ namespace Xtensive.Storage.Linq
       if (!isRoot)
         throw new NotImplementedException();
       ResultExpression result = predicate!=null ? 
-        (ResultExpression) VisitWhere(source, predicate) : 
-        (ResultExpression) Visit(source);
+                                                  (ResultExpression) VisitWhere(source, predicate) : 
+                                                                                                     (ResultExpression) Visit(source);
       RecordSet recordSet = null;
       switch (method.Name) {
-      case WellKnown.Queryable.First:
-      case WellKnown.Queryable.FirstOrDefault:
-        recordSet = result.RecordSet.Take(1);
-        break;
-      case WellKnown.Queryable.Single:
-      case WellKnown.Queryable.SingleOrDefault:
-        recordSet = result.RecordSet.Take(2);
-        break;
+        case WellKnown.Queryable.First:
+        case WellKnown.Queryable.FirstOrDefault:
+          recordSet = result.RecordSet.Take(1);
+          break;
+        case WellKnown.Queryable.Single:
+        case WellKnown.Queryable.SingleOrDefault:
+          recordSet = result.RecordSet.Take(2);
+          break;
       }
       var enumerableType = typeof(Enumerable);
       MethodInfo enumerableMethod = enumerableType
@@ -326,7 +328,7 @@ namespace Xtensive.Storage.Linq
         }
         else {
           using (context.Bind(argument.Parameters[0], result)) {
-            columnList = context.ColumnProjector.GetColumns(argument).ToList();
+            columnList = Enumerable.ToList<int>(context.ColumnProjector.GetColumns(argument));
             result = context.GetBound(argument.Parameters[0]);
           }
         }
@@ -336,18 +338,18 @@ namespace Xtensive.Storage.Linq
         aggregateColumn = columnList[0];
         shaper = set => set.First().GetValueOrDefault(0);
         switch (method.Name) {
-        case WellKnown.Queryable.Min:
-          type = AggregateType.Min;
-          break;
-        case WellKnown.Queryable.Max:
-          type = AggregateType.Max;
-          break;
-        case WellKnown.Queryable.Sum:
-          type = AggregateType.Sum;
-          break;
-        case WellKnown.Queryable.Average:
-          type = AggregateType.Avg;
-          break;
+          case WellKnown.Queryable.Min:
+            type = AggregateType.Min;
+            break;
+          case WellKnown.Queryable.Max:
+            type = AggregateType.Max;
+            break;
+          case WellKnown.Queryable.Sum:
+            type = AggregateType.Sum;
+            break;
+          case WellKnown.Queryable.Average:
+            type = AggregateType.Avg;
+            break;
         }
       }
 
@@ -364,8 +366,7 @@ namespace Xtensive.Storage.Linq
     {
       using (context.Bind(le.Parameters[0], (ResultExpression)Visit(expression))) {
         context.MemberAccessBasedJoiner.Process(le.Body);
-        var orderItems = context.ColumnProjector.GetColumns(le)
-          .Distinct()
+        var orderItems = Enumerable.Distinct<int>(context.ColumnProjector.GetColumns(le))
           .Select(ci => new KeyValuePair<int, Direction>(ci, direction));
         var result = context.GetBound(le.Parameters[0]);
         var dc = ((SortProvider) result.RecordSet.Provider).Order;
@@ -381,12 +382,11 @@ namespace Xtensive.Storage.Linq
     {
       using (context.Bind(le.Parameters[0], (ResultExpression)Visit(expression))) {
         context.MemberAccessBasedJoiner.Process(le.Body);
-        var orderItems = context.ColumnProjector.GetColumns(le)
-          .Distinct()
+        var orderItems = Enumerable.Distinct<int>(context.ColumnProjector.GetColumns(le))
           .Select(ci => new KeyValuePair<int, Direction>(ci, direction));
         var dc = new DirectionCollection<int>(orderItems);
         var result = context.GetBound(le.Parameters[0]);
-        var rs = result.RecordSet.OrderBy(dc);
+        var rs = Rse.RecordSetExtensions.OrderBy(result.RecordSet, dc);
         return new ResultExpression(result.Type, rs, result.Mapping, result.Projector, result.ItemProjector);
       }
     }
@@ -404,13 +404,13 @@ namespace Xtensive.Storage.Linq
           from o in context.ColumnProjector.GetColumns(outerKey).Select((column, index) => new {column, index})
           join i in context.ColumnProjector.GetColumns(innerKey).Select((column, index) => new { column, index }) on o.index equals i.index
           select new Pair<int>(o.column, i.column);
-        var keyPairs = pairsQuery.ToArray();
+        var keyPairs = Enumerable.ToArray<Pair<int>>(pairsQuery);
 
         var outer = context.GetBound(outerParameter);
         var inner = context.GetBound(innerParameter);
 
-        var innerRecordSet = inner.RecordSet.Alias(context.GetNextAlias());
-        var recordSet = outer.RecordSet.Join(innerRecordSet, keyPairs.ToArray());
+        var innerRecordSet = Rse.RecordSetExtensions.Alias(inner.RecordSet, context.GetNextAlias());
+        var recordSet = Rse.RecordSetExtensions.Join(outer.RecordSet, innerRecordSet, keyPairs.ToArray());
         var outerLength = outer.RecordSet.Header.Columns.Count;
         outer = new ResultExpression(outer.Type, recordSet, outer.Mapping, outer.Projector, outer.ItemProjector);
         inner = new ResultExpression(inner.Type, recordSet, inner.Mapping.ShiftOffset(outerLength), inner.Projector, inner.ItemProjector);
@@ -448,7 +448,7 @@ namespace Xtensive.Storage.Linq
         context.MemberAccessBasedJoiner.Process(le);
         var predicate = context.MemberAccessReplacer.ProcessPredicate(le);
         var source = context.GetBound(parameter);
-        var recordSet = source.RecordSet.Filter((Expression<Func<Tuple, bool>>) predicate);
+        var recordSet = Rse.RecordSetExtensions.Filter(source.RecordSet, (Expression<Func<Tuple, bool>>) predicate);
         return new ResultExpression(expression.Type, recordSet, source.Mapping, source.Projector, source.ItemProjector);
       }
     }
@@ -458,6 +458,7 @@ namespace Xtensive.Storage.Linq
 
     /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
     internal Translator(TranslatorContext context)
+      : base (context.Model)
     {
       this.context = context;
     }
