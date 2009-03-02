@@ -13,6 +13,7 @@ using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Linq;
+using Xtensive.Core.Parameters;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Model;
@@ -28,7 +29,11 @@ namespace Xtensive.Storage.Linq
 
     public ResultExpression Translate()
     {
-      return (ResultExpression) Visit(context.Query);
+      using (new ParameterScope()) {
+        resultMapping.Value = new ResultMapping();
+        joinFinalEntity.Value = false;
+        return (ResultExpression)Visit(context.Query);
+      }
     }
 
     public static Dictionary<string, Segment<int>> BuildFieldMapping(TypeInfo type, int offset)
@@ -250,9 +255,9 @@ namespace Xtensive.Storage.Linq
     {
       if (!isRoot)
         throw new NotImplementedException();
-      ResultExpression result = predicate!=null ? 
-                                                  (ResultExpression) VisitWhere(source, predicate) : 
-                                                                                                     (ResultExpression) Visit(source);
+      ResultExpression result = predicate!=null 
+        ? (ResultExpression) VisitWhere(source, predicate) 
+        : (ResultExpression) Visit(source);
       RecordSet recordSet = null;
       switch (method.Name) {
         case WellKnown.Queryable.First:
@@ -328,7 +333,7 @@ namespace Xtensive.Storage.Linq
         }
         else {
           using (context.Bind(argument.Parameters[0], result)) {
-            columnList = Enumerable.ToList<int>(context.ColumnProjector.GetColumns(argument));
+            columnList = context.ColumnProjector.GetColumns(argument).ToList();
             result = context.GetBound(argument.Parameters[0]);
           }
         }
@@ -436,8 +441,29 @@ namespace Xtensive.Storage.Linq
     private Expression VisitSelect(Expression expression, LambdaExpression le)
     {
       using (context.Bind(le.Parameters[0], (ResultExpression)Visit(expression))) {
-        var result = context.ProjectionBuilder.Build(le);
-        return result;
+        using (new ParameterScope()) {
+          resultMapping.Value = new ResultMapping();
+          joinFinalEntity.Value = true;
+          var itemProjector = (LambdaExpression)Visit(le);
+          var rs = Expression.Parameter(typeof(RecordSet), "rs");
+          Expression<Func<RecordSet, object>> projector;
+          if (itemProjector.Parameters.Count > 1) {
+            var method = typeof(Translator)
+              .GetMethod("MakeProjection", BindingFlags.NonPublic | BindingFlags.Static)
+              .MakeGenericMethod(le.Body.Type);
+            projector = Expression.Lambda<Func<RecordSet, object>>(
+              Expression.Convert(
+                Expression.Call(method, rs, itemProjector),
+                typeof(object)),
+              rs);
+          }
+          else {
+            var method = selectMethod.MakeGenericMethod(typeof(Tuple), le.Body.Type);
+            projector = Expression.Lambda<Func<RecordSet, object>>(Expression.Convert(Expression.Call(method, rs, itemProjector), typeof(object)), rs);
+          }
+          var source = context.GetBound(le.Parameters[0]);
+          return new ResultExpression(le.Body.Type, source.RecordSet, resultMapping.Value, projector, itemProjector);
+        }
       }
     }
 
@@ -445,10 +471,9 @@ namespace Xtensive.Storage.Linq
     {
       var parameter = le.Parameters[0];
       using (context.Bind(parameter, (ResultExpression)Visit(expression))) {
-        context.MemberAccessBasedJoiner.Process(le);
-        var predicate = context.MemberAccessReplacer.ProcessPredicate(le);
+        var predicate = Visit(le);
         var source = context.GetBound(parameter);
-        var recordSet = Rse.RecordSetExtensions.Filter(source.RecordSet, (Expression<Func<Tuple, bool>>) predicate);
+        var recordSet = source.RecordSet.Filter((Expression<Func<Tuple, bool>>) predicate);
         return new ResultExpression(expression.Type, recordSet, source.Mapping, source.Projector, source.ItemProjector);
       }
     }

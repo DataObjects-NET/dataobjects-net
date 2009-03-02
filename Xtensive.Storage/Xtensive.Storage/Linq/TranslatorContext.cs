@@ -124,12 +124,12 @@ namespace Xtensive.Storage.Linq
       resultAliasGenerator = AliasGenerator.Create();
       columnAliasGenerator = AliasGenerator.Create(new[] {"column"});
       this.query = ExpressionPreprocessor.Preprocess(query);
-      translator = new Translator(this);
       var domain = Domain.Current;
       if (domain == null)
         throw new InvalidOperationException(Strings.ExNoCurrentSession);
       model = domain.Model;
       parameterBindings = new Dictionary<ParameterExpression, ResultExpression>();
+      translator = new Translator(this);
       evaluator = new ExpressionEvaluator(this.query);
       parameterExtractor = new ParameterExtractor(evaluator);
       memberAccessReplacer = new MemberAccessReplacer(this);

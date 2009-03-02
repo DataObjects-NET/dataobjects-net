@@ -37,10 +37,10 @@ namespace Xtensive.Storage.Linq
     private readonly Parameter<List<CalculatedColumnDescriptor>> calculatedColumns = new Parameter<List<CalculatedColumnDescriptor>>();
     private readonly Parameter<ParameterExpression[]> parameters = new Parameter<ParameterExpression[]>();
     private readonly Parameter<ResultMapping> resultMapping = new Parameter<ResultMapping>();
-    private readonly Parameter<bool> recordIsUsed = new Parameter<bool>();
     private readonly Parameter<ParameterExpression> tuple = new Parameter<ParameterExpression>();
     private readonly Parameter<ParameterExpression> record = new Parameter<ParameterExpression>();
     private readonly Parameter<bool> joinFinalEntity = new Parameter<bool>();
+    private bool recordIsUsed;
 
     protected override Expression Visit(Expression e)
     {
@@ -57,31 +57,29 @@ namespace Xtensive.Storage.Linq
     protected override Expression VisitLambda(LambdaExpression l)
     {
       using (new ParameterScope()) {
-        recordIsUsed.Value = false;
+        recordIsUsed = false;
         tuple.Value = Expression.Parameter(typeof(Tuple), "t");
         record.Value = Expression.Parameter(typeof(Record), "r");
         parameters.Value = l.Parameters.ToArray();
         calculatedColumns.Value = new List<CalculatedColumnDescriptor>();
         var body = Visit(l.Body);
-        if (body != l.Body) {
-          if (calculatedColumns.Value.Count > 0) {
-            var source = context.GetBound(l.Parameters[0]);
-            var recordSet = source.RecordSet;
-            recordSet = recordSet.Calculate(calculatedColumns.Value.ToArray());
-            var re = new ResultExpression(source.Type, recordSet, source.Mapping, source.Projector, source.ItemProjector);
-            context.ReplaceBound(l.Parameters[0], re);
-          }
-          var result = recordIsUsed.Value
-            ? Expression.Lambda(
-              typeof (Func<,,>).MakeGenericType(typeof (Tuple), typeof (Record), body.Type),
-              body,
-              tuple.Value,
-              record.Value)
-            : Expression.Lambda(body, tuple.Value);
-          return result;
+        
+        if (calculatedColumns.Value.Count > 0) {
+          var source = context.GetBound(l.Parameters[0]);
+          var recordSet = source.RecordSet;
+          recordSet = recordSet.Calculate(calculatedColumns.Value.ToArray());
+          var re = new ResultExpression(source.Type, recordSet, source.Mapping, source.Projector, source.ItemProjector);
+          context.ReplaceBound(l.Parameters[0], re);
         }
+        var result = recordIsUsed
+          ? Expression.Lambda(
+            typeof (Func<,,>).MakeGenericType(typeof (Tuple), typeof (Record), body.Type),
+            body,
+            tuple.Value,
+            record.Value)
+          : Expression.Lambda(body, tuple.Value);
+        return result;
       }
-      return l;
     }
 
     protected override Expression VisitMemberPath(MemberPath path, Expression e)
@@ -125,12 +123,12 @@ namespace Xtensive.Storage.Linq
               ? nonGenericAccessor
               : genericAccessor.MakeGenericMethod(resultType);
             var segment = source.GetMemberSegment(path);
-            resultMapping.Value.Segment = segment;
+            resultMapping.Value.RegisterPrimitive(segment);
             return Expression.Call(tuple.Value, method, Expression.Constant(segment.Offset));
           }
         case MemberType.Key:
           {
-            recordIsUsed.Value = true;
+            recordIsUsed = true;
             var segment = source.GetMemberSegment(path);
             var keyColumn = (MappedColumn)source.RecordSet.Header.Columns[segment.Offset];
             var type = keyColumn.ColumnInfoRef.Resolve(context.Model).Field.ReflectedType;
@@ -140,12 +138,12 @@ namespace Xtensive.Storage.Linq
                                                                Expression.Constant(TupleTransformType.Auto), tuple.Value),
                                                Expression.Constant(false));
             var rm = source.GetMemberMapping(path);
-            resultMapping.Value.Segment = segment;
+            resultMapping.Value.RegisterPrimitive(segment);
             return keyExtractor;
           }
         case MemberType.Structure:
           {
-            recordIsUsed.Value = true;
+            recordIsUsed = true;
             var segment = source.GetMemberSegment(path);
             var structureColumn = (MappedColumn)source.RecordSet.Header.Columns[segment.Offset];
             var field = structureColumn.ColumnInfoRef.Resolve(context.Model).Field;
@@ -171,7 +169,7 @@ namespace Xtensive.Storage.Linq
           }
         case MemberType.Entity:
           {
-            recordIsUsed.Value = true;
+            recordIsUsed = true;
             var segment = source.GetMemberSegment(path);
             int groupIndex = source.RecordSet.Header.ColumnGroups.GetGroupIndexBySegment(segment);
             var result = Expression.Convert(
@@ -193,7 +191,7 @@ namespace Xtensive.Storage.Linq
           }
         case MemberType.EntitySet:
           {
-            recordIsUsed.Value = true;
+            recordIsUsed = true;
             var m = (MemberExpression)e;
             var expression = Visit(m.Expression);
             var result = Expression.MakeMemberAccess(expression, m.Member);
@@ -208,7 +206,7 @@ namespace Xtensive.Storage.Linq
             var projector = source.Mapping.AnonymousProjections[path.First().Name];
             var parameterRewriter = new ParameterRewriter(tuple.Value, record.Value);
             var result = parameterRewriter.Rewrite(projector);
-            recordIsUsed.Value |= result.Second;
+            recordIsUsed |= result.Second;
             return result.First;
           }
         default:
@@ -328,7 +326,7 @@ namespace Xtensive.Storage.Linq
         resultMapping.Value.RegisterAnonymous(pair.Key, pair.Value);
       var parameterRewriter = new ParameterRewriter(tuple.Value, record.Value);
       var result = parameterRewriter.Rewrite(source.ItemProjector.Body);
-      recordIsUsed.Value |= result.Second;
+      recordIsUsed |= result.Second;
       return result.First;
     }
 
@@ -360,17 +358,20 @@ namespace Xtensive.Storage.Linq
             newArg = Visit(arg);
             rm = resultMapping.Value;
           }
-          if (arg.NodeType != ExpressionType.New)
-            if (rm.Segment.Length != 0)
-              resultMapping.Value.RegisterFieldMapping(memberName, rm.Segment);
+          if (rm.MapsToPrimitive)
+            resultMapping.Value.RegisterFieldMapping(memberName, rm.Segment);
           foreach (var p in rm.Fields)
             resultMapping.Value.RegisterFieldMapping(rename(p.Key), p.Value);
           foreach (var p in rm.JoinedRelations)
             resultMapping.Value.RegisterJoined(rename(p.Key), p.Value);
           foreach (var p in rm.AnonymousProjections)
             resultMapping.Value.RegisterAnonymous(rename(p.Key), p.Value);
-          resultMapping.Value.RegisterJoined(memberName, rm);
-          resultMapping.Value.RegisterAnonymous(memberName, newArg);
+          var memberType = arg.GetMemberType();
+          if (memberType == MemberType.Anonymous || memberType == MemberType.Entity) {
+            resultMapping.Value.RegisterJoined(memberName, rm);
+            if (memberType == MemberType.Anonymous)
+              resultMapping.Value.RegisterAnonymous(memberName, newArg);
+          }
         }
         else {
           // TODO: Add check of queries
@@ -385,6 +386,8 @@ namespace Xtensive.Storage.Linq
         newArg = newArg ?? Visit(arg);
         arguments.Add(newArg);
       }
+      var x = DateTime.Now;
+      var y = x.AddDays(1);
       return Expression.New(n.Constructor, arguments, n.Members);
     }
 
