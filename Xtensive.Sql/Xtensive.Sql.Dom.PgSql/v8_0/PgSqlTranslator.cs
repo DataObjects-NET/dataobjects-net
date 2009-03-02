@@ -901,7 +901,7 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
 
     public override string Translate(SqlCompilerContext context, SqlUserFunctionCall node, FunctionCallSection section, int position)
     {
-      if (section == FunctionCallSection.Entry) {
+      if (section == FunctionCallSection.Entry)
         switch (node.Name) {
           case RealExtractDays:
             return " extract (day from ";
@@ -920,7 +920,6 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
           case OneMillisecondInterval:
             return " (interval '1 ms'";
         }
-      }
 
       return base.Translate(context, node, section, position);
     }

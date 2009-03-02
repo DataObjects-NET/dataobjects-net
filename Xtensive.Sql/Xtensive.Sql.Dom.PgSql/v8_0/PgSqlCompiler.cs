@@ -21,11 +21,6 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
     private static readonly SqlUserFunctionCall OneMillisecondInterval =
       Sql.FunctionCall(PgSqlTranslator.OneMillisecondInterval);
 
-    protected internal PgSqlCompiler(PgSqlDriver driver)
-      : base(driver)
-    {
-    }
-
     public override void Visit(SqlDeclareCursor node)
     {
 
@@ -44,12 +39,12 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
           return;
 
         case SqlFunctionType.Extract:
-          if (VisitExtract(node))
+          if (Extract(node))
             return;
           break;
 
         case SqlFunctionType.IntervalExtract:
-          if (VisitIntervalExtract(node))
+          if (IntervalExtract(node))
             return;
           break;
 
@@ -93,7 +88,7 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
       base.Visit(node);
     }
 
-    private bool VisitExtract(SqlFunctionCall node)
+    private bool Extract(SqlFunctionCall node)
     {
       var part = ((SqlLiteral<SqlDateTimePart>)node.Arguments[0]).Value;
       var arg = node.Arguments[1];
@@ -111,7 +106,7 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
       return false;
     }
 
-    public bool VisitIntervalExtract(SqlFunctionCall node)
+    public bool IntervalExtract(SqlFunctionCall node)
     {
       var part = ((SqlLiteral<SqlIntervalPart>)node.Arguments[0]).Value;
       var arg = node.Arguments[1]; 
@@ -159,9 +154,17 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
       var days = RealExtractDays(interval);
       var hours = Sql.IntervalExtract(SqlIntervalPart.Hour, interval);
       var minutes = Sql.IntervalExtract(SqlIntervalPart.Minute, interval);
-      var milliseconds = Sql.Cast(RealExtractMilliseconds(interval), SqlDataType.Int64);
+      var milliseconds = CastToLong(RealExtractMilliseconds(interval));
 
       return ((days * 24L + hours) * 60L + minutes) * 60L * 1000L + milliseconds;
+    }
+
+    // Constructors
+
+    protected internal PgSqlCompiler(PgSqlDriver driver)
+      : base(driver)
+    {
+
     }
   }
 }

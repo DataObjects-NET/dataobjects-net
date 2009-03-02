@@ -37,144 +37,140 @@ namespace Xtensive.Sql.Dom.Tests
     [Test]
     public void ExtractDayOfWeekTest()
     {
-      PerformTest(
-        Sql.Extract(SqlDateTimePart.DayOfWeek, new DateTime(2009, 3, 2)) == (int)DayOfWeek.Monday
-        );
+      CheckEquality(
+        Sql.Extract(SqlDateTimePart.DayOfWeek, new DateTime(2009, 3, 2)),
+        (int)DayOfWeek.Monday);
     }
 
     [Test]
     public void ExtractDayOfYearTest()
     {
-      PerformTest(
-        Sql.Extract(SqlDateTimePart.DayOfYear, new DateTime(2005, 2, 2)) == 33
-        );
+      CheckEquality(
+        Sql.Extract(SqlDateTimePart.DayOfYear, new DateTime(2005, 2, 2)),
+        33);
     }
   
     [Test]
     public void DateTimeAddIntervalTest()
     {
-      PerformTest(
-        Sql.DateTimeAddInterval(new DateTime(2001, 1, 1, 1, 1, 1, 1), new TimeSpan(10, 10, 10, 10, 10))
-          ==Sql.Literal(new DateTime(2001, 1, 11, 11, 11, 11, 11))
-        );
+      CheckEquality(
+        Sql.DateTimeAddInterval(new DateTime(2001, 1, 1, 1, 1, 1, 1), new TimeSpan(10, 10, 10, 10, 10)),
+        new DateTime(2001, 1, 11, 11, 11, 11, 11));
     }
 
     [Test]
     public void DateTimeAddMonthsTest()
     {
-      PerformTest(
-        Sql.DateTimeAddMonths(new DateTime(2001, 1, 1), 15) == Sql.Literal(new DateTime(2002, 4, 1))
-        );
+      CheckEquality(
+        Sql.DateTimeAddMonths(new DateTime(2001, 1, 1), 15) ,
+        new DateTime(2002, 4, 1));
     }
 
     [Test]
     public void DateTimeAddYearsTest()
     {
-      PerformTest(
-        Sql.DateTimeAddYears(new DateTime(2001, 1, 1), 5) == Sql.Literal(new DateTime(2006, 1, 1))
-        );
+      CheckEquality(
+        Sql.DateTimeAddYears(new DateTime(2001, 1, 1), 5) ,
+        new DateTime(2006, 1, 1));
     }
 
     [Test]
     public void DateTimeConstructTest()
     {
-      PerformTest(
-        Sql.DateTimeConstruct(2005, 5, 5)==Sql.Literal(new DateTime(2005, 5, 5))
-        );
+      CheckEquality(
+        Sql.DateTimeConstruct(2005, 5, 5),
+        new DateTime(2005, 5, 5));
     }
 
     [Test]
     public void DateTimeSubtractDateTimeTest()
     {
-      PerformTest(
-        Sql.DateTimeSubtractDateTime(new DateTime(2005, 5, 5, 5, 5, 5), new DateTime(2005, 5, 6, 6, 6, 6))
-          ==Sql.Literal(new TimeSpan(1, 1, 1, 1).Negate())
-        );
+      CheckEquality(
+        Sql.DateTimeSubtractDateTime(new DateTime(2005, 5, 5, 5, 5, 5), new DateTime(2005, 5, 6, 6, 6, 6)),
+        new TimeSpan(1, 1, 1, 1).Negate());
     }
 
     [Test]
     public void DateTimeSubtractIntervalTest()
     {
-      PerformTest(
-        Sql.DateTimeSubtractInterval(new DateTime(2005, 5, 5, 5, 5, 5, 5), new TimeSpan(4, 4, 4, 4, 4))
-          == Sql.Literal(new DateTime(2005, 5, 1, 1, 1, 1, 1))
-        );
+      CheckEquality(
+        Sql.DateTimeSubtractInterval(new DateTime(2005, 5, 5, 5, 5, 5, 5), new TimeSpan(4, 4, 4, 4, 4)),
+        new DateTime(2005, 5, 1, 1, 1, 1, 1));
     }
 
     [Test]
     public void DateTimeTruncateTest()
     {
-      PerformTest(
-        Sql.DateTimeTruncate(new DateTime(2005, 1, 1, 1, 1, 1, 1)) == Sql.Literal(new DateTime(2005, 1, 1))
-        );
+      CheckEquality(
+        Sql.DateTimeTruncate(new DateTime(2005, 1, 1, 1, 1, 1, 1)),
+        new DateTime(2005, 1, 1));
     }
 
     [Test]
     public void IntervalConstructTest()
     {
-      PerformTest(
-        Sql.IntervalConstruct(500)==Sql.Literal(new TimeSpan(0, 0, 0, 0, 500))
-        );
+      CheckEquality(
+        Sql.IntervalConstruct(500),
+        new TimeSpan(0, 0, 0, 0, 500));
     }
 
     [Test]
     public void IntervalExtractDayTest()
     {
-      PerformTest(
-        Sql.IntervalExtract(SqlIntervalPart.Day, new TimeSpan(6, 5, 4, 3, 2)) == 6
-        );
+      CheckEquality(
+        Sql.IntervalExtract(SqlIntervalPart.Day, new TimeSpan(6, 5, 4, 3, 2)),
+        6);
     }
 
     [Test]
     public void IntervalExtractHourTest()
     {
-      PerformTest(
-        Sql.IntervalExtract(SqlIntervalPart.Hour, new TimeSpan(6, 5, 4, 3, 2)) == 5
-        );
+      CheckEquality(
+        Sql.IntervalExtract(SqlIntervalPart.Hour, new TimeSpan(6, 5, 4, 3, 2)),
+        5);
     }
 
     [Test]
     public void IntervalExtractMinuteTest()
     {
-      PerformTest(
-        Sql.IntervalExtract(SqlIntervalPart.Minute, new TimeSpan(6, 5, 4, 3, 2)) == 4
-        );
+      CheckEquality(
+        Sql.IntervalExtract(SqlIntervalPart.Minute, new TimeSpan(6, 5, 4, 3, 2)),
+        4);
     }
 
     [Test]
     public void IntervalExtractSecondTest()
     {
-      PerformTest(
-        Sql.IntervalExtract(SqlIntervalPart.Second, new TimeSpan(6, 5, 4, 3, 2)) == 3
-        );
+      CheckEquality(
+        Sql.IntervalExtract(SqlIntervalPart.Second, new TimeSpan(6, 5, 4, 3, 2)),
+        3);
     }
 
     [Test]
     public void IntervalExtractMillisecondTest()
     {
-      PerformTest(
-        Sql.IntervalExtract(SqlIntervalPart.Millisecond, new TimeSpan(6, 5, 4, 3, 2))==2
-        );
+      CheckEquality(
+        Sql.IntervalExtract(SqlIntervalPart.Millisecond, new TimeSpan(6, 5, 4, 3, 2)),
+        2);
     }
 
     [Test]
     public void IntervalToMillisecondsTest()
     {
-      PerformTest(
-        Sql.IntervalToMilliseconds(new TimeSpan(0, 0, 8, 5, 5))
-          == (int)new TimeSpan(0, 0, 8, 5, 5).TotalMilliseconds
-        );
+      CheckEquality(
+        Sql.IntervalToMilliseconds(new TimeSpan(0, 0, 8, 5, 5)),
+        (int)new TimeSpan(0, 0, 8, 5, 5).TotalMilliseconds);
     }
 
-    private void PerformTest(SqlExpression expression)
+    private void CheckEquality(SqlExpression left, SqlExpression right)
     {
       var select = Sql.Select();
-      select.Columns.Add(expression);
+      select.Columns.Add("ok");
+      select.Where = left == right;
 
       using (var command = connection.CreateCommand(select))
         using (var reader = command.ExecuteReader()) {
-          reader.Read();
-          if (!reader.GetBoolean(0))
+          if (!reader.Read())
             Assert.Fail(string.Format("expression \"{0}\" evaluated to false", command.CommandText));
       }
     }
