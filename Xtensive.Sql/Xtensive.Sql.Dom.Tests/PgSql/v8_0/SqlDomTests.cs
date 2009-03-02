@@ -18,10 +18,7 @@ namespace Xtensive.Sql.Dom.Tests.PgSql.v8_0
   [TestFixture]
   public class SqlDomTests
   {
-    protected virtual string Url
-    {
-      get { return "pgsql://do4test:do4testpwd@localhost:8032/do4test?Encoding=ASCII&Pooling=on&MinPoolSize=1&MaxPoolSize=5"; }
-    }
+    protected virtual string Url { get { return TestUrl.PgSql80; } }
 
     private SqlDriver mDriver;
 

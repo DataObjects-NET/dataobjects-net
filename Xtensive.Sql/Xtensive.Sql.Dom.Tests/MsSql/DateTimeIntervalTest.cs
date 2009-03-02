@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2009 Xtensive LLC.
+// Copyright (C) 2009 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -6,14 +6,11 @@
 
 using NUnit.Framework;
 
-namespace Xtensive.Sql.Dom.Tests.PgSql
+namespace Xtensive.Sql.Dom.Tests.MsSql
 {
   [TestFixture]
   public class DateTimeIntervalTest : Tests.DateTimeIntervalTest
   {
-    protected override string Url
-    {
-      get { return "pgsql://do4test:do4testpwd@localhost:8332/do4test?Encoding=ASCII&Pooling=on&MinPoolSize=1&MaxPoolSize=5"; }
-    }
+    protected override string Url { get { return TestUrl.MsSql2005; } }
   }
 }
