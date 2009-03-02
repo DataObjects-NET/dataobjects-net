@@ -31,7 +31,7 @@ namespace Xtensive.Storage.Linq
     private static readonly Parameter<Dictionary<string, ResultMapping>> pJr = new Parameter<Dictionary<string, ResultMapping>>();
     private static readonly Parameter<Dictionary<string, Expression>> pAp = new Parameter<Dictionary<string, Expression>>();
     private static readonly Parameter<Segment<int>> pSegment = new Parameter<Segment<int>>();
-    private ProjectionParameterRewriter parameterRewriter;
+    private ParameterRewriter parameterRewriter;
     private ParameterExpression[] parameters;
     private List<CalculatedColumnDescriptor> calculatedColumns;
     private static readonly MethodInfo transformApplyMethod;
@@ -50,7 +50,7 @@ namespace Xtensive.Storage.Linq
       context.MemberAccessBasedJoiner.Process(body, true);
       tuple = Expression.Parameter(typeof (Tuple), "t");
       record = Expression.Parameter(typeof (Record), "r");
-      parameterRewriter = new ProjectionParameterRewriter(tuple, record);
+      parameterRewriter = new ParameterRewriter(tuple, record);
       recordIsUsed = false;
       Expression<Func<RecordSet, object>> projector;
       LambdaExpression itemProjector;
@@ -201,8 +201,9 @@ namespace Xtensive.Storage.Linq
           if (path.Count == 0)
             return VisitParameter(path.Parameter);
           var projector = source.Mapping.AnonymousProjections[path.First().Name];
-          var result = parameterRewriter.Rewrite(projector, out recordIsUsed);
-          return result;
+          var result = parameterRewriter.Rewrite(projector);
+          recordIsUsed |= result.Second;
+          return result.First;
         }
         default:
           throw new ArgumentOutOfRangeException();
@@ -229,7 +230,9 @@ namespace Xtensive.Storage.Linq
       foreach (var pair in rm.AnonymousProjections)
         if (!pAp.Value.ContainsKey(pair.Key))
           pAp.Value.Add(pair.Key, pair.Value);
-      return parameterRewriter.Rewrite(source.ItemProjector.Body, out recordIsUsed);
+      var result = parameterRewriter.Rewrite(source.ItemProjector.Body);
+      recordIsUsed |= result.Second;
+      return result.First;
     }
 
     protected override Expression VisitNew(NewExpression n)

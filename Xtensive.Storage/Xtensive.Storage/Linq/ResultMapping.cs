@@ -17,13 +17,31 @@ namespace Xtensive.Storage.Linq
     public Dictionary<string, Segment<int>> Fields { get; private set; }
     public Dictionary<string, ResultMapping> JoinedRelations { get; private set; }
     public Dictionary<string, Expression> AnonymousProjections { get; private set; }
-    public Segment<int> Segment { private set; get; }
+    public Segment<int> Segment { get; internal set; }
 
     public ResultMapping ShiftOffset(int offset)
     {
       var shiftedFields = Fields.ToDictionary(fm => fm.Key, fm => new Segment<int>(offset + fm.Value.Offset, fm.Value.Length));
       var shiftedRelations = JoinedRelations.ToDictionary(jr => jr.Key, jr => jr.Value.ShiftOffset(offset));
       return new ResultMapping(shiftedFields, shiftedRelations);
+    }
+
+    public void RegisterFieldMapping(string key, Segment<int> segment)
+    {
+      if (!Fields.ContainsKey(key))
+        Fields.Add(key, segment);
+    }
+
+    public void RegisterJoined(string key, ResultMapping mapping)
+    {
+      if (!JoinedRelations.ContainsKey(key))
+        JoinedRelations.Add(key, mapping);
+    }
+
+    public void RegisterAnonymous(string key, Expression projection)
+    {
+      if (!AnonymousProjections.ContainsKey(key))
+        AnonymousProjections.Add(key, projection);
     }
 
 

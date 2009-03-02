@@ -6,23 +6,23 @@
 
 using System;
 using System.Linq.Expressions;
+using Xtensive.Core;
 using Xtensive.Core.Linq;
 using Xtensive.Core.Tuples;
 
 namespace Xtensive.Storage.Linq
 {
-  internal class ProjectionParameterRewriter : ExpressionVisitor
+  internal class ParameterRewriter : ExpressionVisitor
   {
-    private ParameterExpression tuple;
-    private ParameterExpression record;
+    private readonly ParameterExpression tuple;
+    private readonly ParameterExpression record;
     private bool recordIsUsed;
 
-    public Expression Rewrite(Expression e, out bool recordIsUsed)
+    public Pair<Expression,bool> Rewrite(Expression e)
     {
-      this.recordIsUsed = false;
+      recordIsUsed = false;
       var result = Visit(e);
-      recordIsUsed = this.recordIsUsed;
-      return result;
+      return new Pair<Expression, bool>(result, recordIsUsed);
     }
 
     protected override Expression VisitParameter(ParameterExpression p)
@@ -36,9 +36,10 @@ namespace Xtensive.Storage.Linq
       throw new NotSupportedException();
     }
 
+
     // Constructors
 
-    public ProjectionParameterRewriter(ParameterExpression tuple, ParameterExpression record)
+    public ParameterRewriter(ParameterExpression tuple, ParameterExpression record)
     {
       this.tuple = tuple;
       this.record = record;

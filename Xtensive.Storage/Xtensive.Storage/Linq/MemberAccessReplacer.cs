@@ -62,10 +62,9 @@ namespace Xtensive.Storage.Linq
 
     protected override Expression VisitParameter(ParameterExpression p)
     {
-      var rewriter = new ProjectionParameterRewriter(resultParameter, null);
+      var rewriter = new ParameterRewriter(resultParameter, null);
       var source = context.GetBound(p);
-      bool recordIsUsed;
-      return rewriter.Rewrite(source.ItemProjector.Body, out recordIsUsed);
+      return rewriter.Rewrite(source.ItemProjector.Body).First;
     }
 
     protected override Expression VisitQueryableMethod(MethodCallExpression mc, QueryableMethodKind methodKind)
