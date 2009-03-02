@@ -601,7 +601,7 @@ namespace Xtensive.Sql.Dom
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
       SqlValidator.EnsureIsArithmeticExpression(source);
-      return new SqlFunctionCall(SqlFunctionType.Extract, new SqlLiteral<SqlIntervalPart>(part), source);
+      return new SqlFunctionCall(SqlFunctionType.IntervalExtract, new SqlLiteral<SqlIntervalPart>(part), source);
     }
 
     #endregion
