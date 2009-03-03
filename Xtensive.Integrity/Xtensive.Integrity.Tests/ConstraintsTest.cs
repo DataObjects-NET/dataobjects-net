@@ -94,7 +94,7 @@ namespace Xtensive.Integrity.Tests
           var c = new NamedObject();
           c.Name = "E1.ru"; // Throws CVE, since Name is validated in immediate mode
           c.Name = "Xtensive";
-        } // Throws AE, since Name value is required
+        } // May throw AE, if [required] aspect was applied before [matches regex] aspect.
       });
       {
         var c = new NamedObject {Name = "Xtensive"};
