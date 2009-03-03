@@ -37,6 +37,9 @@ namespace Xtensive.Sql.Dom.Mssql.v2000
         case SqlFunctionType.IntervalExtract:
           IntervalExtract(node.Arguments[0], node.Arguments[1]);
           return;
+        case SqlFunctionType.IntervalDuration:
+          Visit(Sql.Abs(node.Arguments[0]));
+          return;
         case SqlFunctionType.DateTimeAddMonths:
           Visit(DateAddMonth(node.Arguments[0], node.Arguments[1]));
           return;

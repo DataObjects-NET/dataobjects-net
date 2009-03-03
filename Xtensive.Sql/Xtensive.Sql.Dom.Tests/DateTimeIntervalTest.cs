@@ -162,6 +162,14 @@ namespace Xtensive.Sql.Dom.Tests
         (int)new TimeSpan(0, 0, 8, 5, 5).TotalMilliseconds);
     }
 
+    [Test]
+    public void IntervalDurationTest()
+    {
+      CheckEquality(
+        Sql.IntervalDuration(new TimeSpan(10, 0, 0, 0).Negate()),
+        new TimeSpan(10, 0, 0, 0));
+    }
+
     private void CheckEquality(SqlExpression left, SqlExpression right)
     {
       var select = Sql.Select();

@@ -604,6 +604,13 @@ namespace Xtensive.Sql.Dom
       return new SqlFunctionCall(SqlFunctionType.IntervalExtract, new SqlLiteral<SqlIntervalPart>(part), source);
     }
 
+    public static SqlFunctionCall IntervalDuration(SqlExpression source)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      SqlValidator.EnsureIsArithmeticExpression(source);
+      return new SqlFunctionCall(SqlFunctionType.IntervalDuration, source);
+    }
+
     #endregion
     
     #region DDL

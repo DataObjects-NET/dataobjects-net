@@ -54,6 +54,10 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
           Visit(IntervalToMilliseconds(node.Arguments[0]));
           return;
 
+        case SqlFunctionType.IntervalDuration:
+          Visit(IntervalDuration(node.Arguments[0]));
+          return;
+
         case SqlFunctionType.DateTimeConstruct:
           Visit(Sql.Literal(new DateTime(2001, 1, 1))
             + OneYearInterval * (node.Arguments[0] - 2001)
@@ -84,6 +88,14 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
       }
 
       base.Visit(node);
+    }
+
+    private SqlCase IntervalDuration(SqlExpression source)
+    {
+      var result = Sql.Case();
+      result.Add(source > Sql.Literal(new TimeSpan(0)), source);
+      result.Else = -source;
+      return result;
     }
 
     private bool Extract(SqlFunctionCall node)
