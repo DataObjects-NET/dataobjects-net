@@ -38,6 +38,12 @@ namespace Xtensive.Core.Parameters
       values[parameter] = value;
     }
 
+    [DebuggerStepThrough]
+    internal bool HasValue(Parameter parameter)
+    {
+      return values.ContainsKey(parameter);
+    }
+
     /// <inheritdoc/>
     public override bool IsActive {
       [DebuggerStepThrough]

@@ -63,6 +63,22 @@ namespace Xtensive.Core.Parameters
       currentScope.SetValue(this, value);
     }
 
+    /// <summary>
+    /// Gets a value indicating whether this instance has value.
+    /// </summary>
+    /// <value><see langword="true" /> if this instance has value; otherwise, <see langword="false" />.</value>
+    public bool HasValue
+    {
+      get
+      {
+        var currentScope = ParameterScope.CurrentScope;
+        if (currentScope == null)
+          throw new InvalidOperationException(
+            string.Format(Strings.XIsNotActivated, typeof(ParameterContext).GetShortName()));
+        return currentScope.HasValue(this);
+      }
+    }
+
     /// <inheritdoc/>
     public override string ToString()
     {

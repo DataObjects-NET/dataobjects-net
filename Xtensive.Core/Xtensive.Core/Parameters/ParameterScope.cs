@@ -39,6 +39,12 @@ namespace Xtensive.Core.Parameters
       Context.SetValue(parameter, value);
     }
 
+    [DebuggerStepThrough]
+    internal bool HasValue(Parameter parameter)
+    {
+      return Context.HasValue(parameter);
+    }
+
 
     // Constructors
 
