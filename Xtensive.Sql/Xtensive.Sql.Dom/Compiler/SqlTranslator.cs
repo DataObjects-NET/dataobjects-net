@@ -267,19 +267,16 @@ namespace Xtensive.Sql.Dom.Compiler
       if (count == 0)
         return "(NULL)";
 
-      TypeCode type = Type.GetTypeCode(typeof (T));
-      bool quote = (type == TypeCode.Char || type == TypeCode.String || typeof(T) == typeof(Guid));
       string[] buffer = new string[count];
 
       for (int index = 0; index < count; index++)
-        buffer[index] = quote ? QuoteString(Convert.ToString(values[index], this)) : Convert.ToString(values[index], this);
+        buffer[index] = Translate(context, new SqlLiteral<T>(values[index]));
       if (count == 1)
         return "(" + buffer[0] + ")";
-      else {
-        buffer[0] = "(" + buffer[0];
-        buffer[count - 1] += ")";
-        return String.Join(RowItemDelimiter, buffer);
-      }
+
+      buffer[0] = "(" + buffer[0];
+      buffer[count - 1] += ")";
+      return String.Join(RowItemDelimiter, buffer);
     }
 
     public virtual string Translate(SqlCompilerContext context, SqlAssignment node, NodeSection section)

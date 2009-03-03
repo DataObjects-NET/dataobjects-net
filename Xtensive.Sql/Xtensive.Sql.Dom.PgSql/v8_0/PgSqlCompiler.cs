@@ -1,4 +1,5 @@
-﻿using Xtensive.Sql.Dom.Compiler;
+﻿using System;
+using Xtensive.Sql.Dom.Compiler;
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Sql.Common;
 
@@ -6,9 +7,6 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
 {
   internal class PgSqlCompiler : SqlCompiler
   {
-    private static readonly SqlUserFunctionCall Timestamp20010101 =
-      Sql.FunctionCall(PgSqlTranslator.Timestamp20010101);
-
     private static readonly SqlUserFunctionCall OneYearInterval =
       Sql.FunctionCall(PgSqlTranslator.OneYearInterval);
 
@@ -57,7 +55,7 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
           return;
 
         case SqlFunctionType.DateTimeConstruct:
-          Visit(Timestamp20010101
+          Visit(Sql.Literal(new DateTime(2001, 1, 1))
             + OneYearInterval * (node.Arguments[0] - 2001)
             + OneMonthInterval * (node.Arguments[1] - 1)
             + OneDayInterval * (node.Arguments[2] - 1));

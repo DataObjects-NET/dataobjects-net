@@ -14,6 +14,18 @@ namespace Xtensive.Sql.Dom.Mssql.v2000
 {
   public class MssqlTranslator: SqlTranslator
   {
+    internal const string DateDiffDay = "date_diff_day";
+    internal const string DateDiffMillisecond = "date_diff_ms";
+    internal const string DateAddYear = "date_add_year";
+    internal const string DateAddMonth = "date_add_month";
+    internal const string DateAddDay = "date_add_day";
+    internal const string DateAddHour = "date_add_hour";
+    internal const string DateAddMinute = "date_add_minute";
+    internal const string DateAddSecond = "date_add_second";
+    internal const string DateAddMillisecond = "date_add_ms";
+    internal const string DatePartWeekDay = "date_part_weekday";
+    internal const string DateFirst = "date_first";
+    
     public override void Initialize()
     {
       base.Initialize();
@@ -466,6 +478,44 @@ namespace Xtensive.Sql.Dom.Mssql.v2000
     public override string Translate(SqlTrimType type)
     {
       return string.Empty;
+    }
+
+    public override string Translate<T>(SqlCompilerContext context, SqlLiteral<T> node)
+    {
+      if (typeof(T) == typeof(TimeSpan))
+        return Convert.ToString(((TimeSpan)(object)node.Value).Ticks / 10000, this);
+      return base.Translate(context, node);
+    }
+
+    public override string Translate(SqlCompilerContext context, SqlUserFunctionCall node, FunctionCallSection section, int position)
+    {
+      if (section == FunctionCallSection.Entry)
+        switch (node.Name) {
+          case DateDiffDay:
+            return "DATEDIFF(DAY, ";
+          case DateDiffMillisecond:
+            return "DATEDIFF(MS, ";
+          case DateAddYear:
+            return "DATEADD(YEAR, ";
+          case DateAddMonth:
+            return "DATEADD(MONTH, ";
+          case DateAddDay:
+            return "DATEADD(DAY, ";
+          case DateAddHour:
+            return "DATEADD(HOUR, ";
+          case DateAddMinute:
+            return "DATEADD(MINUTE, ";
+          case DateAddSecond:
+            return "DATEADD(SECOND, ";
+          case DateAddMillisecond:
+            return "DATEADD(MS, ";
+          case DatePartWeekDay:
+            return "DATEPART(WEEKDAY, ";
+          case DateFirst:
+            return "(@@DATEFIRST";
+        }
+
+      return base.Translate(context, node, section, position);
     }
 
     /// <summary>
