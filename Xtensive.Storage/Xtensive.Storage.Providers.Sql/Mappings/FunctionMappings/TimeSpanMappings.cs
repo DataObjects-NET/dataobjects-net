@@ -14,6 +14,8 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
 {
   internal static class TimeSpanMappings
   {
+    #region Constructors
+
     internal static SqlExpression IntervalConstruct(
       SqlExpression days,
       SqlExpression hours,
@@ -27,13 +29,11 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
         );
     }
 
-    #region Constructors
-
     [Compiler(typeof(TimeSpan), null, TargetKind.Constructor)]
     public static SqlExpression TimeSpanCtor(
       [Type(typeof(long))] SqlExpression ticks)
     {
-      return SqlFactory.IntervalConstruct(ticks / 100L);
+      return SqlFactory.IntervalConstruct(ticks / 10000);
     }
 
     [Compiler(typeof(TimeSpan), null, TargetKind.Constructor)]
@@ -107,7 +107,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     [Compiler(typeof(TimeSpan), "Ticks", TargetKind.PropertyGet)]
     public static SqlExpression TimeSpanTicks(SqlExpression this_)
     {
-      return SqlFactory.IntervalToMilliseconds(this_) * 100L;
+      return SqlFactory.IntervalToMilliseconds(this_) * 10000;
     }
 
     [Compiler(typeof(TimeSpan), "TotalMilliseconds", TargetKind.PropertyGet)]
@@ -145,45 +145,51 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     #region Operators
 
     [Compiler(typeof(TimeSpan), Operator.Equality, TargetKind.Operator)]
-    public static SqlExpression TimeSpanOperatorEquality(SqlExpression this_,
-      [Type(typeof(TimeSpan))] SqlExpression t)
+    public static SqlExpression TimeSpanOperatorEquality(
+      [Type(typeof(TimeSpan))] SqlExpression t1,
+      [Type(typeof(TimeSpan))] SqlExpression t2)
     {
-      return this_==t;
+      return t1==t2;
     }
 
     [Compiler(typeof(TimeSpan), Operator.Inequality, TargetKind.Operator)]
-    public static SqlExpression TimeSpanOperatorInequality(SqlExpression this_,
-      [Type(typeof(TimeSpan))] SqlExpression t)
+    public static SqlExpression TimeSpanOperatorInequality(
+      [Type(typeof(TimeSpan))] SqlExpression t1,
+      [Type(typeof(TimeSpan))] SqlExpression t2)
     {
-      return this_ != t;
+      return t1 != t2;
     }
 
     [Compiler(typeof(TimeSpan), Operator.GreaterThan, TargetKind.Operator)]
-    public static SqlExpression TimeSpanOperatorGreaterThan(SqlExpression this_,
-      [Type(typeof(TimeSpan))] SqlExpression t)
+    public static SqlExpression TimeSpanOperatorGreaterThan(
+      [Type(typeof(TimeSpan))] SqlExpression t1,
+      [Type(typeof(TimeSpan))] SqlExpression t2)
     {
-      return this_ > t;
+      return t1 > t2;
     }
 
     [Compiler(typeof(TimeSpan), Operator.GreaterThanOrEqual, TargetKind.Operator)]
-    public static SqlExpression TimeSpanOperatorGreaterThanOrEqual(SqlExpression this_,
-      [Type(typeof(TimeSpan))] SqlExpression t)
+    public static SqlExpression TimeSpanOperatorGreaterThanOrEqual(
+      [Type(typeof(TimeSpan))] SqlExpression t1,
+      [Type(typeof(TimeSpan))] SqlExpression t2)
     {
-      return this_ >= t;
+      return t1 >= t2;
     }
 
     [Compiler(typeof(TimeSpan), Operator.LessThan, TargetKind.Operator)]
-    public static SqlExpression TimeSpanOperatorLessThan(SqlExpression this_,
-      [Type(typeof(TimeSpan))] SqlExpression t)
+    public static SqlExpression TimeSpanOperatorLessThan(
+      [Type(typeof(TimeSpan))] SqlExpression t1,
+      [Type(typeof(TimeSpan))] SqlExpression t2)
     {
-      return this_ < t;
+      return t1 < t2;
     }
 
     [Compiler(typeof(TimeSpan), Operator.LessThanOrEqual, TargetKind.Operator)]
-    public static SqlExpression TimeSpanOperatorLessThanOrEqual(SqlExpression this_,
-      [Type(typeof(TimeSpan))] SqlExpression t)
+    public static SqlExpression TimeSpanOperatorLessThanOrEqual(
+      [Type(typeof(TimeSpan))] SqlExpression t1,
+      [Type(typeof(TimeSpan))] SqlExpression t2)
     {
-      return this_ <= t;
+      return t1 <= t2;
     }
 
     [Compiler(typeof(TimeSpan), Operator.Addition, TargetKind.Operator)]
@@ -232,6 +238,12 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(TimeSpan))] SqlExpression t)
     {
       return this_ - t;
+    }
+
+    [Compiler(typeof(TimeSpan), "Negate")]
+    public static SqlExpression TimeSpanNegate(SqlExpression this_)
+    {
+      return -this_;
     }
 
     #endregion

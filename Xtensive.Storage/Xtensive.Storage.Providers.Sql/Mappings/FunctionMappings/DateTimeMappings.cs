@@ -84,6 +84,8 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
 
     #endregion
 
+    #region Constructors
+
     private static SqlExpression DateTimeConstruct(
       SqlExpression year,
       SqlExpression month,
@@ -98,9 +100,6 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
         TimeSpanMappings.IntervalConstruct(0, hour, minute, second, millisecond)
         );
     }
-    
-
-    #region Constructors
 
     [Compiler(typeof(DateTime), null, TargetKind.Constructor)]
     public static SqlExpression DateTimeCtor(
@@ -139,6 +138,55 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     #endregion
 
     #region Operators
+
+    [Compiler(typeof(DateTime), Operator.Equality, TargetKind.Operator)]
+    public static SqlExpression DateTimeOperatorEquality(
+      [Type(typeof(DateTime))] SqlExpression d1,
+      [Type(typeof(DateTime))] SqlExpression d2)
+    {
+      return d1 == d2;
+    }
+
+    [Compiler(typeof(DateTime), Operator.Inequality, TargetKind.Operator)]
+    public static SqlExpression DateTimeOperatorInequality(
+      [Type(typeof(DateTime))] SqlExpression d1,
+      [Type(typeof(DateTime))] SqlExpression d2)
+    {
+      return d1 != d2;
+    }
+
+    [Compiler(typeof(DateTime), Operator.GreaterThan, TargetKind.Operator)]
+    public static SqlExpression DateTimeOperatorGreaterThan(
+      [Type(typeof(DateTime))] SqlExpression d1,
+      [Type(typeof(DateTime))] SqlExpression d2)
+    {
+      return d1 > d2;
+    }
+
+    [Compiler(typeof(DateTime), Operator.GreaterThanOrEqual, TargetKind.Operator)]
+    public static SqlExpression DateTimeOperatorGreaterThanOrEqual(
+      [Type(typeof(DateTime))] SqlExpression d1,
+      [Type(typeof(DateTime))] SqlExpression d2)
+    {
+      return d1 >= d2;
+    }
+
+    [Compiler(typeof(DateTime), Operator.LessThan, TargetKind.Operator)]
+    public static SqlExpression DateTimeOperatorLessThan(
+      [Type(typeof(DateTime))] SqlExpression d1,
+      [Type(typeof(DateTime))] SqlExpression d2)
+    {
+      return d1 < d2;
+    }
+
+    [Compiler(typeof(DateTime), Operator.LessThanOrEqual, TargetKind.Operator)]
+    public static SqlExpression DateTimeOperatorLessThanOrEqual(
+      [Type(typeof(DateTime))] SqlExpression d1,
+      [Type(typeof(DateTime))] SqlExpression d2)
+    {
+      return d1 <= d2;
+    }
+
 
     [Compiler(typeof(DateTime), Operator.Addition, TargetKind.Operator)]
     public static SqlExpression DateTimeOperatorAddition(
