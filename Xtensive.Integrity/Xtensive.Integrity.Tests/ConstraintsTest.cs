@@ -4,6 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2008.07.23
 
+using System;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Core.Testing;
@@ -87,7 +88,8 @@ namespace Xtensive.Integrity.Tests
       AssertEx.Throws<ConstraintViolationException>(() => {
         var c = new NamedObject {Name = string.Empty};
       });
-      AssertEx.Throws<AggregateException>(() => {
+      AssertEx.Throws<Exception>(() => { // Exact type is either AE or CVE 
+                                         // dependently on order of applied aspects
         using (Context.OpenInconsistentRegion()) {
           var c = new NamedObject();
           c.Name = "E1.ru"; // Throws CVE, since Name is validated in immediate mode
