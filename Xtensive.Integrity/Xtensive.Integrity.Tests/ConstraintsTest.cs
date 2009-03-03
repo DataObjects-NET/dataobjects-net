@@ -90,9 +90,9 @@ namespace Xtensive.Integrity.Tests
       AssertEx.Throws<AggregateException>(() => {
         using (Context.OpenInconsistentRegion()) {
           var c = new NamedObject();
-          c.Name = "E1.ru";
+          c.Name = "E1.ru"; // Throws CVE, since Name is validated in immediate mode
           c.Name = "Xtensive";
-        }
+        } // Throws AE, since Name value is required
       });
       {
         var c = new NamedObject {Name = "Xtensive"};
