@@ -21,7 +21,6 @@ namespace Xtensive.Storage.Linq
     private readonly Translator translator;
     private readonly MemberAccessReplacer memberAccessReplacer;
     private readonly MemberAccessBasedJoiner memberAccessBasedJoiner;
-    private readonly ProjectionBuilder projectionBuilder;
     private readonly ExpressionEvaluator evaluator;
     private readonly ParameterExtractor parameterExtractor;
     private readonly ColumnProjector columnProjector;
@@ -52,11 +51,6 @@ namespace Xtensive.Storage.Linq
     public MemberAccessBasedJoiner MemberAccessBasedJoiner
     {
       get { return memberAccessBasedJoiner; }
-    }
-
-    public ProjectionBuilder ProjectionBuilder
-    {
-      get { return projectionBuilder; }
     }
 
     public ExpressionEvaluator Evaluator
@@ -134,7 +128,6 @@ namespace Xtensive.Storage.Linq
       parameterExtractor = new ParameterExtractor(evaluator);
       memberAccessReplacer = new MemberAccessReplacer(this);
       memberAccessBasedJoiner = new MemberAccessBasedJoiner(this);
-      projectionBuilder = new ProjectionBuilder(this);
       columnProjector = new ColumnProjector(this);
     }
   }

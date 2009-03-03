@@ -40,6 +40,7 @@ namespace Xtensive.Storage.Linq
     private readonly Parameter<ParameterExpression> tuple = new Parameter<ParameterExpression>();
     private readonly Parameter<ParameterExpression> record = new Parameter<ParameterExpression>();
     private readonly Parameter<bool> joinFinalEntity = new Parameter<bool>();
+    private readonly Parameter<bool> calculateExpressions = new Parameter<bool>();
     private bool recordIsUsed;
 
     protected override Expression Visit(Expression e)
@@ -54,22 +55,36 @@ namespace Xtensive.Storage.Linq
       return base.Visit(e);
     }
 
-    protected override Expression VisitLambda(LambdaExpression l)
+    protected override Expression VisitLambda(LambdaExpression le)
     {
       using (new ParameterScope()) {
         recordIsUsed = false;
         tuple.Value = Expression.Parameter(typeof(Tuple), "t");
         record.Value = Expression.Parameter(typeof(Record), "r");
-        parameters.Value = l.Parameters.ToArray();
+        parameters.Value = le.Parameters.ToArray();
         calculatedColumns.Value = new List<CalculatedColumnDescriptor>();
-        var body = Visit(l.Body);
-        
+        var body = Visit(le.Body);
+        if (calculateExpressions.Value && body.GetMemberType() == MemberType.Unknown) {
+          if (
+            body.NodeType != ExpressionType.Call || 
+            ((MethodCallExpression)body).Object == null || 
+            ((MethodCallExpression)body).Object.Type != typeof (Tuple)) {
+
+            var calculator = Expression.Lambda(Expression.Convert(body, typeof(object)), tuple.Value);
+            var ccd = new CalculatedColumnDescriptor(context.GetNextColumnAlias(), body.Type, (Expression<Func<Tuple, object>>)calculator);
+            calculatedColumns.Value.Add(ccd);
+            int position = context.GetBound(parameters.Value[0]).RecordSet.Header.Columns.Count + calculatedColumns.Value.Count - 1;
+            var method = genericAccessor.MakeGenericMethod(body.Type);
+            body = Expression.Call(tuple.Value, method, Expression.Constant(position));
+            resultMapping.Value.RegisterPrimitive(new Segment<int>(position, 1));
+          }
+        }
         if (calculatedColumns.Value.Count > 0) {
-          var source = context.GetBound(l.Parameters[0]);
+          var source = context.GetBound(le.Parameters[0]);
           var recordSet = source.RecordSet;
           recordSet = recordSet.Calculate(calculatedColumns.Value.ToArray());
           var re = new ResultExpression(source.Type, recordSet, source.Mapping, source.Projector, source.ItemProjector);
-          context.ReplaceBound(l.Parameters[0], re);
+          context.ReplaceBound(le.Parameters[0], re);
         }
         var result = recordIsUsed
           ? Expression.Lambda(

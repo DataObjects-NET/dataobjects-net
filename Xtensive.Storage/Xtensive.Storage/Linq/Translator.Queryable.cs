@@ -32,6 +32,7 @@ namespace Xtensive.Storage.Linq
       using (new ParameterScope()) {
         resultMapping.Value = new ResultMapping();
         joinFinalEntity.Value = false;
+        calculateExpressions.Value = false;
         return (ResultExpression)Visit(context.Query);
       }
     }
@@ -371,7 +372,7 @@ namespace Xtensive.Storage.Linq
     {
       using (context.Bind(le.Parameters[0], (ResultExpression)Visit(expression))) {
         context.MemberAccessBasedJoiner.Process(le.Body);
-        var orderItems = Enumerable.Distinct<int>(context.ColumnProjector.GetColumns(le))
+        var orderItems = context.ColumnProjector.GetColumns(le).Distinct()
           .Select(ci => new KeyValuePair<int, Direction>(ci, direction));
         var result = context.GetBound(le.Parameters[0]);
         var dc = ((SortProvider) result.RecordSet.Provider).Order;
@@ -387,11 +388,11 @@ namespace Xtensive.Storage.Linq
     {
       using (context.Bind(le.Parameters[0], (ResultExpression)Visit(expression))) {
         context.MemberAccessBasedJoiner.Process(le.Body);
-        var orderItems = Enumerable.Distinct<int>(context.ColumnProjector.GetColumns(le))
+        var orderItems = context.ColumnProjector.GetColumns(le).Distinct()
           .Select(ci => new KeyValuePair<int, Direction>(ci, direction));
         var dc = new DirectionCollection<int>(orderItems);
         var result = context.GetBound(le.Parameters[0]);
-        var rs = Rse.RecordSetExtensions.OrderBy(result.RecordSet, dc);
+        var rs = result.RecordSet.OrderBy(dc);
         return new ResultExpression(result.Type, rs, result.Mapping, result.Projector, result.ItemProjector);
       }
     }
@@ -407,22 +408,22 @@ namespace Xtensive.Storage.Linq
 
         var pairsQuery =
           from o in context.ColumnProjector.GetColumns(outerKey).Select((column, index) => new {column, index})
-          join i in context.ColumnProjector.GetColumns(innerKey).Select((column, index) => new { column, index }) on o.index equals i.index
+          join i in context.ColumnProjector.GetColumns(innerKey).Select((column, index) => new {column, index}) on o.index equals i.index
           select new Pair<int>(o.column, i.column);
-        var keyPairs = Enumerable.ToArray<Pair<int>>(pairsQuery);
+        var keyPairs = pairsQuery.ToArray();
 
         var outer = context.GetBound(outerParameter);
         var inner = context.GetBound(innerParameter);
 
-        var innerRecordSet = Rse.RecordSetExtensions.Alias(inner.RecordSet, context.GetNextAlias());
-        var recordSet = Rse.RecordSetExtensions.Join(outer.RecordSet, innerRecordSet, keyPairs.ToArray());
+        var innerRecordSet = inner.RecordSet.Alias(context.GetNextAlias());
+        var recordSet = outer.RecordSet.Join(innerRecordSet, keyPairs.ToArray());
         var outerLength = outer.RecordSet.Header.Columns.Count;
         outer = new ResultExpression(outer.Type, recordSet, outer.Mapping, outer.Projector, outer.ItemProjector);
         inner = new ResultExpression(inner.Type, recordSet, inner.Mapping.ShiftOffset(outerLength), inner.Projector, inner.ItemProjector);
 
         using (context.Bind(resultSelector.Parameters[0], outer))
         using (context.Bind(resultSelector.Parameters[1], inner)) {
-          var result = context.ProjectionBuilder.Build(resultSelector);
+          var result = BuildProjection(resultSelector);
           return result;
         }
       }
@@ -441,29 +442,35 @@ namespace Xtensive.Storage.Linq
     private Expression VisitSelect(Expression expression, LambdaExpression le)
     {
       using (context.Bind(le.Parameters[0], (ResultExpression)Visit(expression))) {
-        using (new ParameterScope()) {
-          resultMapping.Value = new ResultMapping();
-          joinFinalEntity.Value = true;
-          var itemProjector = (LambdaExpression)Visit(le);
-          var rs = Expression.Parameter(typeof(RecordSet), "rs");
-          Expression<Func<RecordSet, object>> projector;
-          if (itemProjector.Parameters.Count > 1) {
-            var method = typeof(Translator)
-              .GetMethod("MakeProjection", BindingFlags.NonPublic | BindingFlags.Static)
-              .MakeGenericMethod(le.Body.Type);
-            projector = Expression.Lambda<Func<RecordSet, object>>(
-              Expression.Convert(
-                Expression.Call(method, rs, itemProjector),
-                typeof(object)),
-              rs);
-          }
-          else {
-            var method = selectMethod.MakeGenericMethod(typeof(Tuple), le.Body.Type);
-            projector = Expression.Lambda<Func<RecordSet, object>>(Expression.Convert(Expression.Call(method, rs, itemProjector), typeof(object)), rs);
-          }
-          var source = context.GetBound(le.Parameters[0]);
-          return new ResultExpression(le.Body.Type, source.RecordSet, resultMapping.Value, projector, itemProjector);
+        return BuildProjection(le);
+      }
+    }
+
+    private Expression BuildProjection(LambdaExpression le)
+    {
+      using (new ParameterScope()) {
+        resultMapping.Value = new ResultMapping();
+        joinFinalEntity.Value = true;
+        calculateExpressions.Value = true;
+        var itemProjector = (LambdaExpression)Visit(le);
+        var rs = Expression.Parameter(typeof(RecordSet), "rs");
+        Expression<Func<RecordSet, object>> projector;
+        if (itemProjector.Parameters.Count > 1) {
+          var method = typeof(Translator)
+            .GetMethod("MakeProjection", BindingFlags.NonPublic | BindingFlags.Static)
+            .MakeGenericMethod(le.Body.Type);
+          projector = Expression.Lambda<Func<RecordSet, object>>(
+            Expression.Convert(
+              Expression.Call(method, rs, itemProjector),
+              typeof(object)),
+            rs);
         }
+        else {
+          var method = selectMethod.MakeGenericMethod(typeof(Tuple), le.Body.Type);
+          projector = Expression.Lambda<Func<RecordSet, object>>(Expression.Convert(Expression.Call(method, rs, itemProjector), typeof(object)), rs);
+        }
+        var source = context.GetBound(le.Parameters[0]);
+        return new ResultExpression(le.Body.Type, source.RecordSet, resultMapping.Value, projector, itemProjector);
       }
     }
 

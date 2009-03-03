@@ -4,8 +4,11 @@
 // Created by: Alexey Kochetov
 // Created:    2008.12.02
 
+using System;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 using Xtensive.Core.Linq;
 using Xtensive.Core.Reflection;
 
@@ -36,7 +39,11 @@ namespace Xtensive.Storage.Linq
         return MemberType.Structure;
       if (typeof(EntitySetBase).IsAssignableFrom(type))
         return MemberType.EntitySet;
-      if (type.IsGenericType && type.BaseType == typeof(object))
+      if (Attribute.IsDefined(type, typeof(CompilerGeneratedAttribute), false)
+          && type.BaseType == typeof(object)
+          && type.Name.Contains("AnonymousType")
+          && (type.Name.StartsWith("<>") || type.Name.StartsWith("VB$"))
+          && (type.Attributes & TypeAttributes.NotPublic) == TypeAttributes.NotPublic)
         return MemberType.Anonymous;
       return MemberType.Unknown;
     }
