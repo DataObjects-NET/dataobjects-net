@@ -245,6 +245,12 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     {
       return -this_;
     }
+    
+    [Compiler(typeof(TimeSpan), "Duration")]
+    public static SqlExpression TimeSpanDuration(SqlExpression this_)
+    {
+      return SqlFactory.IntervalDuration(this_);
+    }
 
     #endregion
   }
