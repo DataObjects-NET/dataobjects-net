@@ -332,8 +332,11 @@ namespace Xtensive.Storage.Linq
           columnList.Add(result.Mapping.Segment.Offset);
         }
         else {
-          using (context.Bind(argument.Parameters[0], result)) {
-            columnList = context.ColumnProjector.GetColumns(argument).ToList();
+          using (context.Bind(argument.Parameters[0], result)) 
+          using (new ParameterScope()) {
+            resultMapping.Value = new ResultMapping();
+            Visit(argument);
+            columnList = resultMapping.Value.GetColumns().ToList();
             result = context.GetBound(argument.Parameters[0]);
           }
         }
@@ -369,9 +372,13 @@ namespace Xtensive.Storage.Linq
 
     private Expression VisitOrderBy(Expression expression, LambdaExpression le, Direction direction)
     {
-      using (context.Bind(le.Parameters[0], (ResultExpression)Visit(expression))) {
-        context.MemberAccessBasedJoiner.Process(le.Body);
-        var orderItems = context.ColumnProjector.GetColumns(le).Distinct()
+      using (context.Bind(le.Parameters[0], (ResultExpression)Visit(expression)))
+      using (new ParameterScope()) {
+        resultMapping.Value = new ResultMapping();
+        calculateExpressions.Value = true;
+        Visit(le);
+        var orderItems = resultMapping.Value.GetColumns()
+          .Distinct()
           .Select(ci => new KeyValuePair<int, Direction>(ci, direction));
         var dc = new DirectionCollection<int>(orderItems);
         var result = context.GetBound(le.Parameters[0]);
@@ -382,9 +389,13 @@ namespace Xtensive.Storage.Linq
 
     private Expression VisitThenBy(Expression expression, LambdaExpression le, Direction direction)
     {
-      using (context.Bind(le.Parameters[0], (ResultExpression)Visit(expression))) {
-        context.MemberAccessBasedJoiner.Process(le.Body);
-        var orderItems = context.ColumnProjector.GetColumns(le).Distinct()
+      using (context.Bind(le.Parameters[0], (ResultExpression)Visit(expression))) 
+      using (new ParameterScope()) {
+        resultMapping.Value = new ResultMapping();
+        calculateExpressions.Value = true;
+        Visit(le);
+        var orderItems = resultMapping.Value.GetColumns()
+          .Distinct()
           .Select(ci => new KeyValuePair<int, Direction>(ci, direction));
         var result = context.GetBound(le.Parameters[0]);
         var dc = ((SortProvider) result.RecordSet.Provider).Order;
@@ -402,20 +413,21 @@ namespace Xtensive.Storage.Linq
       var innerParameter = innerKey.Parameters[0];
       using (context.Bind(outerParameter, (ResultExpression)Visit(outerSource)))
       using (context.Bind(innerParameter, (ResultExpression)Visit(innerSource))) {
-        context.MemberAccessBasedJoiner.Process(outerKey);
-        context.MemberAccessBasedJoiner.Process(innerKey);
-
-        var pairsQuery =
-          from o in context.ColumnProjector.GetColumns(outerKey).Select((column, index) => new {column, index})
-          join i in context.ColumnProjector.GetColumns(innerKey).Select((column, index) => new {column, index}) on o.index equals i.index
-          select new Pair<int>(o.column, i.column);
-        var keyPairs = pairsQuery.ToArray();
+        var outerMapping = new ResultMapping();
+        var innerMapping = new ResultMapping();
+        using (new ParameterScope()) {
+          resultMapping.Value = outerMapping;
+          Visit(outerKey);
+          resultMapping.Value = innerMapping;
+          Visit(innerKey);
+        }
+        var keyPairs = outerMapping.GetColumns().ZipWith(innerMapping.GetColumns(), (o,i) => new Pair<int>(o, i)).ToArray();
 
         var outer = context.GetBound(outerParameter);
         var inner = context.GetBound(innerParameter);
 
         var innerRecordSet = inner.RecordSet.Alias(context.GetNextAlias());
-        var recordSet = outer.RecordSet.Join(innerRecordSet, keyPairs.ToArray());
+        var recordSet = outer.RecordSet.Join(innerRecordSet, keyPairs);
         var outerLength = outer.RecordSet.Header.Columns.Count;
         outer = new ResultExpression(outer.Type, recordSet, outer.Mapping, outer.Projector, outer.ItemProjector);
         inner = new ResultExpression(inner.Type, recordSet, inner.Mapping.ShiftOffset(outerLength), inner.Projector, inner.ItemProjector);

@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
+using Xtensive.Core.Collections;
 
 namespace Xtensive.Storage.Linq
 {
@@ -81,6 +82,17 @@ namespace Xtensive.Storage.Linq
     {
       mapsToPrimitive = true;
       segment = primitiveTypeMapping;
+    }
+
+    public IList<int> GetColumns()
+    {
+      var result = new List<int>();
+      if (MapsToPrimitive)
+        result.AddRange(segment.GetItems());
+      else
+        foreach (var pair in fields)
+          result.AddRange(pair.Value.GetItems());
+      return result;
     }
 
     private void UpdateMappingSegment()

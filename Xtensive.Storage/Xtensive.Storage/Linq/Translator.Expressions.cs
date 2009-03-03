@@ -332,13 +332,13 @@ namespace Xtensive.Storage.Linq
     protected override Expression VisitParameter(ParameterExpression p)
     {
       var source = context.GetBound(p);
-      var rm = source.Mapping;
-      foreach (var pair in rm.Fields)
-        resultMapping.Value.RegisterFieldMapping(pair.Key, pair.Value);
-      foreach (var pair in rm.JoinedRelations)
-        resultMapping.Value.RegisterJoined(pair.Key, pair.Value);
-      foreach (var pair in rm.AnonymousProjections)
-        resultMapping.Value.RegisterAnonymous(pair.Key, pair.Value);
+      resultMapping.Value = source.Mapping;
+//      foreach (var pair in rm.Fields)
+//        resultMapping.Value.RegisterFieldMapping(pair.Key, pair.Value);
+//      foreach (var pair in rm.JoinedRelations)
+//        resultMapping.Value.RegisterJoined(pair.Key, pair.Value);
+//      foreach (var pair in rm.AnonymousProjections)
+//        resultMapping.Value.RegisterAnonymous(pair.Key, pair.Value);
       var parameterRewriter = new ParameterRewriter(tuple.Value, record.Value);
       var result = parameterRewriter.Rewrite(source.ItemProjector.Body);
       recordIsUsed |= result.Second;
@@ -390,13 +390,19 @@ namespace Xtensive.Storage.Linq
         }
         else {
           // TODO: Add check of queries
-          var le = context.MemberAccessReplacer.ProcessCalculated(Expression.Lambda(arg, parameters.Value));
-          var ccd = new CalculatedColumnDescriptor(context.GetNextColumnAlias(), arg.Type, (Expression<Func<Tuple, object>>) le);
+          var body = Visit(arg);
+          var calculator = Expression.Lambda(
+            body.Type == typeof(object) 
+              ? body
+              : Expression.Convert(body, typeof(object)), 
+            tuple.Value);
+          var ccd = new CalculatedColumnDescriptor(context.GetNextColumnAlias(), arg.Type, (Expression<Func<Tuple, object>>)calculator);
           calculatedColumns.Value.Add(ccd);
           int position = context.GetBound(parameters.Value[0]).RecordSet.Header.Columns.Count + calculatedColumns.Value.Count - 1;
           var method = genericAccessor.MakeGenericMethod(arg.Type);
           newArg = Expression.Call(tuple.Value, method, Expression.Constant(position));
           resultMapping.Value.RegisterFieldMapping(memberName, new Segment<int>(position, 1));
+          
         }
         newArg = newArg ?? Visit(arg);
         arguments.Add(newArg);
