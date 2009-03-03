@@ -30,7 +30,6 @@ namespace Xtensive.Storage.Linq
     public ResultExpression Translate()
     {
       using (new ParameterScope()) {
-        resultMapping.Value = new ResultMapping();
         joinFinalEntity.Value = false;
         calculateExpressions.Value = false;
         return (ResultExpression)Visit(context.Query);
@@ -368,6 +367,19 @@ namespace Xtensive.Storage.Linq
       throw new NotImplementedException();
     }
 
+    private Expression VisitOrderBy(Expression expression, LambdaExpression le, Direction direction)
+    {
+      using (context.Bind(le.Parameters[0], (ResultExpression)Visit(expression))) {
+        context.MemberAccessBasedJoiner.Process(le.Body);
+        var orderItems = context.ColumnProjector.GetColumns(le).Distinct()
+          .Select(ci => new KeyValuePair<int, Direction>(ci, direction));
+        var dc = new DirectionCollection<int>(orderItems);
+        var result = context.GetBound(le.Parameters[0]);
+        var rs = result.RecordSet.OrderBy(dc);
+        return new ResultExpression(result.Type, rs, result.Mapping, result.Projector, result.ItemProjector);
+      }
+    }
+
     private Expression VisitThenBy(Expression expression, LambdaExpression le, Direction direction)
     {
       using (context.Bind(le.Parameters[0], (ResultExpression)Visit(expression))) {
@@ -381,19 +393,6 @@ namespace Xtensive.Storage.Linq
             dc.Add(item);
         }
         return result;
-      }
-    }
-
-    private Expression VisitOrderBy(Expression expression, LambdaExpression le, Direction direction)
-    {
-      using (context.Bind(le.Parameters[0], (ResultExpression)Visit(expression))) {
-        context.MemberAccessBasedJoiner.Process(le.Body);
-        var orderItems = context.ColumnProjector.GetColumns(le).Distinct()
-          .Select(ci => new KeyValuePair<int, Direction>(ci, direction));
-        var dc = new DirectionCollection<int>(orderItems);
-        var result = context.GetBound(le.Parameters[0]);
-        var rs = result.RecordSet.OrderBy(dc);
-        return new ResultExpression(result.Type, rs, result.Mapping, result.Projector, result.ItemProjector);
       }
     }
 
@@ -477,10 +476,12 @@ namespace Xtensive.Storage.Linq
     private Expression VisitWhere(Expression expression, LambdaExpression le)
     {
       var parameter = le.Parameters[0];
-      using (context.Bind(parameter, (ResultExpression)Visit(expression))) {
+      using (context.Bind(parameter, (ResultExpression)Visit(expression)))
+      using (new ParameterScope()) {
+        resultMapping.Value = new ResultMapping();
         var predicate = Visit(le);
         var source = context.GetBound(parameter);
-        var recordSet = source.RecordSet.Filter((Expression<Func<Tuple, bool>>) predicate);
+        var recordSet = source.RecordSet.Filter((Expression<Func<Tuple, bool>>)predicate);
         return new ResultExpression(expression.Type, recordSet, source.Mapping, source.Projector, source.ItemProjector);
       }
     }
