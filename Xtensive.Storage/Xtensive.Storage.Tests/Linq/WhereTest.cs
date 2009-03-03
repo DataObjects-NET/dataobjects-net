@@ -321,13 +321,10 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var customers = Query<Customer>.All;
-          var customer =
-            customers.Where(c => string.Concat(new string[] {c.ContactName, "X", c.Address.Country}) == "X").First();
-          Assert.IsNotNull(customer);
-          customer = customers.Where(c => string.Concat(c.ContactName, "X") == "X").First();
-          Assert.IsNotNull(customer);
-          customer = customers.Where(c => string.Concat(c.ContactName, "X", c.Address.Country) == "X").First();
-          Assert.IsNotNull(customer);
+          var customer = customers.Where(c => string.Concat(c.ContactName, "X") == "X").FirstOrDefault();
+          Assert.IsNull(customer);
+          customer = customers.Where(c => string.Concat(c.ContactName, "X", c.Address.Country) == "X").FirstOrDefault();
+          Assert.IsNull(customer);
           t.Complete();
         }
       }
@@ -509,7 +506,7 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var orders = Query<Order>.All;
-          var order = orders.Where(o => o.OrderDate == new DateTime(o.OrderDate.Value.Year, 1, 1)).First();
+          var order = orders.Where(o => o.OrderDate >= new DateTime(o.OrderDate.Value.Year, 1, 1)).First();
           Assert.IsNotNull(order);
           t.Complete();
         }
@@ -522,7 +519,7 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var orders = Query<Order>.All;
-          var order = orders.Where(o => o.OrderDate == new DateTime(o.OrderDate.Value.Year, 1, 1, 10, 25, 55)).First();
+          var order = orders.Where(o => o.OrderDate >= new DateTime(o.OrderDate.Value.Year, 1, 1, 10, 25, 55)).First();
           Assert.IsNotNull(order);
           t.Complete();
         }
