@@ -356,7 +356,7 @@ namespace Xtensive.Storage.Linq
     {
       var arguments = new List<Expression>();
       if (n.Members == null)
-        throw new NotSupportedException(n.ToString(true));
+        return base.VisitNew(n);
       for (int i = 0; i < n.Arguments.Count; i++) {
         var arg = n.Arguments[i];
         var newArg = (Expression) null;
