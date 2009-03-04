@@ -103,10 +103,10 @@ namespace Xtensive.Storage.Linq
         var length = endOffset - offset + 1;
         this.segment = new Segment<int>(offset, length);
       }
-      else {
-        // TODO: refactor this code to support primitive type projections and empty projections
-        this.segment = new Segment<int>(0, 1);
-      }
+//      else {
+//        // TODO: refactor this code to support primitive type projections and empty projections
+//        this.segment = new Segment<int>(0, 1);
+//      }
     }
 
 

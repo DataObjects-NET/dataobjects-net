@@ -375,22 +375,28 @@ namespace Xtensive.Storage.Linq
           }
           if (rm.MapsToPrimitive)
             resultMapping.Value.RegisterFieldMapping(memberName, rm.Segment);
-          foreach (var p in rm.Fields)
-            resultMapping.Value.RegisterFieldMapping(rename(p.Key), p.Value);
-          foreach (var p in rm.JoinedRelations)
-            resultMapping.Value.RegisterJoined(rename(p.Key), p.Value);
-          foreach (var p in rm.AnonymousProjections)
-            resultMapping.Value.RegisterAnonymous(rename(p.Key), p.Value);
-          var memberType = arg.GetMemberType();
-          if (memberType == MemberType.Anonymous || memberType == MemberType.Entity) {
-            resultMapping.Value.RegisterJoined(memberName, rm);
-            if (memberType == MemberType.Anonymous)
-              resultMapping.Value.RegisterAnonymous(memberName, newArg);
+          else {
+            foreach (var p in rm.Fields)
+              resultMapping.Value.RegisterFieldMapping(rename(p.Key), p.Value);
+            foreach (var p in rm.JoinedRelations)
+              resultMapping.Value.RegisterJoined(rename(p.Key), p.Value);
+            foreach (var p in rm.AnonymousProjections)
+              resultMapping.Value.RegisterAnonymous(rename(p.Key), p.Value);
+            var memberType = arg.GetMemberType();
+            if (memberType == MemberType.Anonymous || memberType == MemberType.Entity) {
+              resultMapping.Value.RegisterJoined(memberName, rm);
+              if (memberType == MemberType.Anonymous)
+                resultMapping.Value.RegisterAnonymous(memberName, newArg);
+            }
           }
         }
         else {
           // TODO: Add check of queries
-          var body = Visit(arg);
+          Expression body;
+          using (new ParameterScope()) {
+            resultMapping.Value = new ResultMapping();
+            body = Visit(arg);
+          }
           var calculator = Expression.Lambda(
             body.Type == typeof(object) 
               ? body
@@ -402,7 +408,6 @@ namespace Xtensive.Storage.Linq
           var method = genericAccessor.MakeGenericMethod(arg.Type);
           newArg = Expression.Call(tuple.Value, method, Expression.Constant(position));
           resultMapping.Value.RegisterFieldMapping(memberName, new Segment<int>(position, 1));
-          
         }
         newArg = newArg ?? Visit(arg);
         arguments.Add(newArg);
