@@ -19,11 +19,8 @@ namespace Xtensive.Storage.Linq
     private readonly Expression query;
     private readonly DomainModel model;
     private readonly Translator translator;
-    private readonly MemberAccessReplacer memberAccessReplacer;
-    private readonly MemberAccessBasedJoiner memberAccessBasedJoiner;
     private readonly ExpressionEvaluator evaluator;
     private readonly ParameterExtractor parameterExtractor;
-    private readonly ColumnProjector columnProjector;
     private readonly Dictionary<ParameterExpression, ResultExpression> parameterBindings;
     private readonly AliasGenerator resultAliasGenerator;
     private readonly AliasGenerator columnAliasGenerator;
@@ -43,16 +40,6 @@ namespace Xtensive.Storage.Linq
       get { return translator; }
     }
 
-    public MemberAccessReplacer MemberAccessReplacer
-    {
-      get { return memberAccessReplacer; }
-    }
-
-    public MemberAccessBasedJoiner MemberAccessBasedJoiner
-    {
-      get { return memberAccessBasedJoiner; }
-    }
-
     public ExpressionEvaluator Evaluator
     {
       get { return evaluator; }
@@ -61,11 +48,6 @@ namespace Xtensive.Storage.Linq
     public ParameterExtractor ParameterExtractor
     {
       get { return parameterExtractor; }
-    }
-
-    public ColumnProjector ColumnProjector
-    {
-      get { return columnProjector; }
     }
 
     public bool IsRoot(Expression expression)
@@ -80,7 +62,7 @@ namespace Xtensive.Storage.Linq
 
     public string GetNextColumnAlias()
     {
-      return resultAliasGenerator.Next();
+      return columnAliasGenerator.Next();
     }
 
     public ParameterBinding Bind(ParameterExpression pe, ResultExpression re)
@@ -126,9 +108,6 @@ namespace Xtensive.Storage.Linq
       translator = new Translator(this);
       evaluator = new ExpressionEvaluator(this.query);
       parameterExtractor = new ParameterExtractor(evaluator);
-      memberAccessReplacer = new MemberAccessReplacer(this);
-      memberAccessBasedJoiner = new MemberAccessBasedJoiner(this);
-      columnProjector = new ColumnProjector(this);
     }
   }
 }
