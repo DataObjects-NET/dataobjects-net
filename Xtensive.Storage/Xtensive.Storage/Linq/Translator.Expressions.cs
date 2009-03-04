@@ -57,6 +57,8 @@ namespace Xtensive.Storage.Linq
 
     protected override Expression VisitLambda(LambdaExpression le)
     {
+      LambdaExpression result;
+      ResultMapping rm;
       using (new ParameterScope()) {
         recordIsUsed = false;
         tuple.Value = Expression.Parameter(typeof(Tuple), "t");
@@ -86,15 +88,17 @@ namespace Xtensive.Storage.Linq
           var re = new ResultExpression(source.Type, recordSet, source.Mapping, source.Projector, source.ItemProjector);
           context.ReplaceBound(le.Parameters[0], re);
         }
-        var result = recordIsUsed
+        result = recordIsUsed
           ? Expression.Lambda(
-            typeof (Func<,,>).MakeGenericType(typeof (Tuple), typeof (Record), body.Type),
+            typeof(Func<,,>).MakeGenericType(typeof(Tuple), typeof(Record), body.Type),
             body,
             tuple.Value,
             record.Value)
           : Expression.Lambda(body, tuple.Value);
-        return result;
+        rm = resultMapping.Value;
       }
+      resultMapping.Value = rm;
+      return result;
     }
 
     protected override Expression VisitMemberPath(MemberPath path, Expression e)
