@@ -58,7 +58,6 @@ namespace Xtensive.Storage.Linq
     protected override Expression VisitLambda(LambdaExpression le)
     {
       LambdaExpression result;
-      ResultMapping rm;
       using (new ParameterScope()) {
         recordIsUsed = false;
         tuple.Value = Expression.Parameter(typeof(Tuple), "t");
@@ -95,9 +94,7 @@ namespace Xtensive.Storage.Linq
             tuple.Value,
             record.Value)
           : Expression.Lambda(body, tuple.Value);
-        rm = resultMapping.Value;
       }
-      resultMapping.Value = rm;
       return result;
     }
 
@@ -336,13 +333,7 @@ namespace Xtensive.Storage.Linq
     protected override Expression VisitParameter(ParameterExpression p)
     {
       var source = context.GetBound(p);
-      resultMapping.Value = source.Mapping;
-//      foreach (var pair in rm.Fields)
-//        resultMapping.Value.RegisterFieldMapping(pair.Key, pair.Value);
-//      foreach (var pair in rm.JoinedRelations)
-//        resultMapping.Value.RegisterJoined(pair.Key, pair.Value);
-//      foreach (var pair in rm.AnonymousProjections)
-//        resultMapping.Value.RegisterAnonymous(pair.Key, pair.Value);
+      resultMapping.Value.Replace(source.Mapping);
       var parameterRewriter = new ParameterRewriter(tuple.Value, record.Value);
       var result = parameterRewriter.Rewrite(source.ItemProjector.Body);
       recordIsUsed |= result.Second;

@@ -16,8 +16,6 @@ namespace Xtensive.Storage.Linq
   internal class ResultMapping
   {
     private bool mapsToPrimitive;
-    private readonly Dictionary<string, Segment<int>> fields;
-    private readonly Dictionary<string, ResultMapping> joinedRelations;
     private Segment<int> segment;
 
     public bool MapsToPrimitive
@@ -25,15 +23,9 @@ namespace Xtensive.Storage.Linq
       get { return mapsToPrimitive; }
     }
 
-    public Dictionary<string, Segment<int>> Fields
-    {
-      get { return fields; }
-    }
+    public Dictionary<string, Segment<int>> Fields { get; private set; }
 
-    public Dictionary<string, ResultMapping> JoinedRelations
-    {
-      get { return joinedRelations; }
-    }
+    public Dictionary<string, ResultMapping> JoinedRelations { get; private set; }
 
     public Dictionary<string, Expression> AnonymousProjections { get; private set; }
 
@@ -90,9 +82,22 @@ namespace Xtensive.Storage.Linq
       if (MapsToPrimitive)
         result.AddRange(segment.GetItems());
       else
-        foreach (var pair in fields)
+        foreach (var pair in Fields)
           result.AddRange(pair.Value.GetItems());
       return result;
+    }
+
+    public void Replace(ResultMapping value)
+    {
+      if (MapsToPrimitive || Fields.Count > 0)
+        throw new InvalidOperationException();
+      if (value.MapsToPrimitive)
+        RegisterPrimitive(value.Segment);
+      else {
+        Fields = new Dictionary<string, Segment<int>>(value.Fields);
+        JoinedRelations = new Dictionary<string, ResultMapping>(value.JoinedRelations);
+        AnonymousProjections = new Dictionary<string, Expression>(value.AnonymousProjections);
+      }
     }
 
     private void UpdateMappingSegment()
@@ -103,10 +108,6 @@ namespace Xtensive.Storage.Linq
         var length = endOffset - offset + 1;
         this.segment = new Segment<int>(offset, length);
       }
-//      else {
-//        // TODO: refactor this code to support primitive type projections and empty projections
-//        this.segment = new Segment<int>(0, 1);
-//      }
     }
 
 
@@ -114,8 +115,8 @@ namespace Xtensive.Storage.Linq
 
     public ResultMapping(Segment<int> segment)
     {
-      fields = new Dictionary<string, Segment<int>>();
-      joinedRelations = new Dictionary<string, ResultMapping>();
+      Fields = new Dictionary<string, Segment<int>>();
+      JoinedRelations = new Dictionary<string, ResultMapping>();
       AnonymousProjections = new Dictionary<string, Expression>();
       mapsToPrimitive = true;
       this.segment = segment;
@@ -136,8 +137,8 @@ namespace Xtensive.Storage.Linq
       Dictionary<string, ResultMapping> joinedRelations,
       Dictionary<string, Expression> anonymousProjections)
     {
-      fields = fieldMapping;
-      this.joinedRelations = joinedRelations;
+      Fields = fieldMapping;
+      JoinedRelations = joinedRelations;
       AnonymousProjections = anonymousProjections;
       UpdateMappingSegment();
     }
