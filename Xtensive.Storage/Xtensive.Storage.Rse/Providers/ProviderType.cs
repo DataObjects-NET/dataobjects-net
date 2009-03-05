@@ -17,6 +17,7 @@ namespace Xtensive.Storage.Rse.Providers
     Distinct,
     Filter,
     Join,
+    PredicateJoin,
     Sort,
     Range,
     Raw,
