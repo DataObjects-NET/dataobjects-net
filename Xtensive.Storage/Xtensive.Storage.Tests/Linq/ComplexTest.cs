@@ -30,6 +30,23 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    public void CorrelatedFirstTest() 
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var products = Query<Product>.All;
+          var orderDetails = Query<OrderDetails>.All;
+          var result = from p in products
+                       select new { Product = p, MaxOrder = orderDetails.OrderByDescending(od => od.UnitPrice * od.Quantity).First(od => od.Product == p).Order };
+          var list = result.ToList();
+          Assert.Greater(list.Count , 0);
+          t.Complete();
+        }
+      }
+    }
+
+
+    [Test]
     public void CorrelatedQueryTest() 
     {
       using (Domain.OpenSession()) {
