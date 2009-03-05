@@ -26,6 +26,7 @@ namespace Xtensive.Storage.Rse.Providers
     Skip,
     Take,
     ExecutionSite,
-    Subquery
+    Subquery,
+    RowNumber
   }
 }

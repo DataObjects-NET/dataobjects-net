@@ -187,6 +187,11 @@ namespace Xtensive.Storage.Linq
       return base.VisitCalculate(provider);
     }
 
+    protected override Provider VisitRowNumber(RowNumberProvider provider)
+    {
+      throw new NotImplementedException();
+    }
+
     protected override object OnRecursionExit(Provider provider)
     {
       switch (provider.Type) {
@@ -245,7 +250,8 @@ namespace Xtensive.Storage.Linq
         case ProviderType.Join:
         case ProviderType.Aggregate:
         case ProviderType.Calculate:
-        break;
+        case ProviderType.RowNumber:
+          break;
         default:
           AddValueToMapping(provider);
         break;

@@ -107,6 +107,9 @@ namespace Xtensive.Storage.Rse.Compilation
         case ProviderType.Subquery:
           result = VisitSubquery((SubqueryProvider)cp, sources);
           break;
+        case ProviderType.RowNumber:
+          result = VisitRowNumber((RowNumberProvider)cp, sources);
+          break;
         default:
           throw new ArgumentOutOfRangeException();
       }
@@ -230,6 +233,13 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <param name="sources">The sources.</param>
     protected abstract ExecutableProvider VisitSubquery(SubqueryProvider provider, ExecutableProvider[] sources);
 
+
+    /// <summary>
+    /// Compiles <see cref="RowNumberProvider"/>.
+    /// </summary>
+    /// <param name="provider">Row number provider.</param>
+    /// <param name="sources">The sources.</param>
+    protected abstract ExecutableProvider VisitRowNumber(RowNumberProvider provider, ExecutableProvider[] sources);
 
 
     // Constructor

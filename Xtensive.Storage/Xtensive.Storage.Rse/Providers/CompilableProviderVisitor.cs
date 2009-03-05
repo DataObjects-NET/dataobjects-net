@@ -186,6 +186,12 @@ namespace Xtensive.Storage.Rse.Providers
       return new CalculationProvider(source, descriptors.ToArray());
     }
 
+    protected override Provider VisitRowNumber(RowNumberProvider provider)
+    {
+      throw new NotImplementedException();
+    }
+
+
     /// <inheritdoc/>
     protected override Provider VisitAlias(AliasProvider provider)
     {

@@ -89,6 +89,11 @@ namespace Xtensive.Storage.Rse
       return new CalculationProvider(recordSet.Provider, columns).Result;
     }
 
+    public static RecordSet RowNumber(this RecordSet recordSet, string columnName)
+    {
+      return new RowNumberProvider(recordSet.Provider, columnName).Result;
+    }
+
     public static RecordSet Join(this RecordSet left, RecordSet right, params Pair<int>[] joinedColumnIndexes)
     {
       return new JoinProvider(left.Provider, right.Provider, false, JoinType.Default, joinedColumnIndexes).Result;

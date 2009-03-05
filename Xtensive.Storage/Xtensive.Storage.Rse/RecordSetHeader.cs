@@ -79,7 +79,7 @@ namespace Xtensive.Storage.Rse
     /// </summary>
     /// <param name="values">The values.</param>
     /// <returns>The constructed header.</returns>
-    public RecordSetHeader Add(Column[] values)
+    public RecordSetHeader Add(IEnumerable<Column> values)
     {
       var resultColumns = new List<Column>(Columns);
       resultColumns.AddRange(values);

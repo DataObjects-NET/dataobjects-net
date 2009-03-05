@@ -10,8 +10,6 @@ using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
-using Xtensive.Core.Collections;
-using System.Linq;
 
 namespace Xtensive.Storage.Rse.Compilation
 {
@@ -215,6 +213,15 @@ namespace Xtensive.Storage.Rse.Compilation
       var left = sources[0];
       var right = sources[1];
       return new Providers.Executable.SubqueryProvider(provider, left, right);
+    }
+
+    /// <inheritdoc/>
+    protected override ExecutableProvider VisitRowNumber(RowNumberProvider provider, ExecutableProvider[] sources)
+    {
+      var compiledSource = sources[0];
+      return new Providers.Executable.RowNumberProvider(
+        provider,
+        compiledSource);
     }
 
     private static bool GroupIsOrdered(IEnumerable<bool> group)

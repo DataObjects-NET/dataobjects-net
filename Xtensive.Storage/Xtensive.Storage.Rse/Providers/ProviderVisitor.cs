@@ -79,6 +79,9 @@ namespace Xtensive.Storage.Rse.Providers
         case ProviderType.ExecutionSite:
           result = VisitExecutionSite((ExecutionSiteProvider) cp);
           break;
+        case ProviderType.RowNumber:
+          result = VisitRowNumber((RowNumberProvider)cp);
+          break;
         default:
           throw new ArgumentOutOfRangeException();
       }
@@ -90,6 +93,12 @@ namespace Xtensive.Storage.Rse.Providers
     /// </summary>
     /// <param name="provider">Execution site provider.</param>
     protected abstract Provider VisitExecutionSite(ExecutionSiteProvider provider);
+
+    /// <summary>
+    /// Visits <see cref="RowNumberProvider"/>.
+    /// </summary>
+    /// <param name="provider">Row number provider.</param>
+    protected abstract Provider VisitRowNumber(RowNumberProvider provider);
 
     /// <summary>
     /// Visits <see cref="TakeProvider"/>.
