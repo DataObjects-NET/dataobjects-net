@@ -19,10 +19,10 @@ namespace Xtensive.Core.Tests.Helpers
     [Test]
     public void CombinedTest()
     {
-      TestSort(new[] {4, 3, 2, 1}, (i1, i2) => !(i1==3 || i2==3),
-        null, new[] {4, 2, 1});
-      TestSort(new[] {3, 2, 1}, (i1, i2) => i1 >= i2,
-        new[] {1, 2, 3}, null);
+      TestSort(new[] {4, 3, 2, 1}, (i1, i2) => !(i1==3 || i2==3), null, new[] {4, 2, 1});
+      TestSort(new[] {3, 2, 1}, (i1, i2) => i1 >= i2, new[] {1, 2, 3}, null);
+      TestSort(new[] {3, 2, 1}, (i1, i2) => true, null, new[] {1, 2, 3});
+      TestSort(new[] {3, 2, 1}, (i1, i2) => false, new[] {3 ,2, 1}, null);
     }
 
     private void TestSort<T>(T[] data, Predicate<T, T> connector, T[] expected, T[] loops)

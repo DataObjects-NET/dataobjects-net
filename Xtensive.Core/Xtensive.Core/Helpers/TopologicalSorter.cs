@@ -127,12 +127,8 @@ namespace Xtensive.Core.Helpers
           if (connector.Invoke(nodeA.Item, nodeB.Item))
             nodeA.AddConnection(nodeB, true);
         }
-      var result = Sort(nodes);
-      if (result==null)
-        loops = nodes;
-      else
-        loops = null;
-      return result;
+
+      return Sort(nodes, out loops);
     }
 
     /// <summary>
@@ -140,10 +136,11 @@ namespace Xtensive.Core.Helpers
     /// (following the outgoing connections).
     /// </summary>
     /// <param name="nodes">The nodes.</param>
+    /// <param name="loops">The loops, if found.</param>
     /// <returns>Sorting result, if there were no loops;
     /// otherwise, <see langword="null" />. 
     /// In this case <paramref name="nodes"/> will contain only the loop edges.</returns>
-    public static List<TItem> Sort(List<Node> nodes)
+    public static List<TItem> Sort(List<Node> nodes, out List<Node> loops)
     {
       ArgumentValidator.EnsureArgumentNotNull(nodes, "nodes");
       var queue = new Queue<Node>();
@@ -165,10 +162,14 @@ namespace Xtensive.Core.Helpers
           }
         }
       }
+      loops = new List<Node>();
       foreach (var node in nodes) {
         if (node.GetConnectionCount(true)>0)
-          return null;
+          loops.Add(node);
       }
+      if (loops.Count > 0)
+        return null;
+      loops = null;
       return result;
     }
   }
