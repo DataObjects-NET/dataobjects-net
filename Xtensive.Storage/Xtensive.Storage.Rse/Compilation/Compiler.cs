@@ -5,7 +5,7 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
 
-namespace Xtensive.Storage.Rse.Compilation.New
+namespace Xtensive.Storage.Rse.Compilation
 {
   /// <summary>
   /// Abstract base class for RSE <see cref="Provider"/> compilers.
@@ -76,6 +76,9 @@ namespace Xtensive.Storage.Rse.Compilation.New
           break;
         case ProviderType.Join:
           result = VisitJoin((JoinProvider)cp, sources);
+          break;
+        case ProviderType.PredicateJoin:
+          result = VisitPredicateJoin((PredicateJoinProvider)cp, sources);
           break;
         case ProviderType.Sort:
           result = VisitSort((SortProvider)cp, sources);
@@ -164,6 +167,12 @@ namespace Xtensive.Storage.Rse.Compilation.New
     /// <param name="provider">Join provider.</param>
     protected abstract ExecutableProvider VisitJoin(JoinProvider provider, ExecutableProvider[] sources);
 
+    /// <summary>
+    /// Compiles <see cref="PredicateJoinProvider"/>.
+    /// </summary>
+    /// <param name="provider">Join provider.</param>
+    protected abstract ExecutableProvider VisitPredicateJoin(PredicateJoinProvider provider, ExecutableProvider[] sources);
+    
     /// <summary>
     /// Compiles <see cref="FilterProvider"/>.
     /// </summary>

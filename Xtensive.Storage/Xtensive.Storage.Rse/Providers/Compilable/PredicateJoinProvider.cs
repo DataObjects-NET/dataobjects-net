@@ -17,7 +17,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
   /// <see cref="BinaryProvider.Right"/> sources by <see cref="Predicate"/>.
   /// </summary>
   [Serializable]
-  public sealed class PredicateJoin : BinaryProvider
+  public sealed class PredicateJoinProvider : BinaryProvider
   {
     /// <summary>
     /// Indicates whether current join operation should be executed as left join.
@@ -35,7 +35,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>  
-    public PredicateJoin(CompilableProvider left, CompilableProvider right, Expression<Func<Tuple, Tuple, bool>> predicate, bool leftJoin)
+    public PredicateJoinProvider(CompilableProvider left, CompilableProvider right, Expression<Func<Tuple, Tuple, bool>> predicate, bool leftJoin)
       : base(ProviderType.PredicateJoin, left, right)
     {
       Predicate = predicate;

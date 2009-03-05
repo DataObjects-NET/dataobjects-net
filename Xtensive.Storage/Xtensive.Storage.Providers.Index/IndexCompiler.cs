@@ -10,7 +10,6 @@ using System.Linq;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse.Compilation;
-using Xtensive.Storage.Rse.Compilation.New;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.InheritanceSupport;
 

@@ -12,7 +12,7 @@ using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
 using StoredProvider=Xtensive.Storage.Rse.Providers.Executable.StoredProvider;
 
-namespace Xtensive.Storage.Rse.Compilation.New
+namespace Xtensive.Storage.Rse.Compilation
 {
   /// <summary>
   /// Default implementation of <see cref="Compiler"/>.

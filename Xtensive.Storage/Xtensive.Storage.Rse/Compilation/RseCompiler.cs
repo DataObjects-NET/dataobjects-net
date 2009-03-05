@@ -13,7 +13,7 @@ using Xtensive.Storage.Rse.Providers.Compilable;
 using Xtensive.Core.Collections;
 using System.Linq;
 
-namespace Xtensive.Storage.Rse.Compilation.New
+namespace Xtensive.Storage.Rse.Compilation
 {
   /// <inheritdoc/>
   [Serializable]
@@ -102,6 +102,17 @@ namespace Xtensive.Storage.Rse.Compilation.New
       var left = sources[0];
       var right = sources[1];
       return new Providers.Executable.JoinProvider(
+        provider,
+        left,
+        right);
+    }
+
+    /// <inheritdoc/>
+    protected override ExecutableProvider VisitPredicateJoin(PredicateJoinProvider provider, ExecutableProvider[] sources)
+    {
+      var left = sources[0];
+      var right = sources[1];
+      return new Providers.Executable.PredicateJoinProvider(
         provider,
         left,
         right);

@@ -23,6 +23,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     private MapTransform leftKeyTransform;
     private MapTransform rightKeyTransform;
     private Hashtable hashTable;
+    private Tuple rightBlank;
 
     protected internal override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
@@ -35,7 +36,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
         var hashValue = hashTable[KeyExtractorLeft(item)];
         if (leftJoin)
           yield return hashValue!=null ? transform.Apply(TupleTransformType.Auto, item, (Tuple) hashValue)
-            : transform.Apply(TupleTransformType.Auto, item, Tuple.Create(Right.Header.TupleDescriptor));
+            : transform.Apply(TupleTransformType.Auto, item, rightBlank);
         else if (hashValue!=null)
           yield return transform.Apply(TupleTransformType.Auto, item, (Tuple) hashValue);
       }
@@ -66,6 +67,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
       TupleDescriptor rightKeyDescriptor = TupleDescriptor.Create(rightColumns.Select(i => Right.Header.TupleDescriptor[i]));
       leftKeyTransform = new MapTransform(true, leftKeyDescriptor, leftColumns);
       rightKeyTransform = new MapTransform(true, rightKeyDescriptor, rightColumns);
+      rightBlank = Tuple.Create(Right.Header.TupleDescriptor);
     }
 
 
