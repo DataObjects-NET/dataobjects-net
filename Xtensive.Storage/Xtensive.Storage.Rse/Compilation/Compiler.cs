@@ -105,7 +105,7 @@ namespace Xtensive.Storage.Rse.Compilation
           result = VisitExecutionSite((ExecutionSiteProvider)cp, sources);
           break;
         case ProviderType.Apply:
-          result = VisitSubquery((ApplyProvider)cp, sources);
+          result = VisitApply((ApplyProvider)cp, sources);
           break;
         case ProviderType.RowNumber:
           result = VisitRowNumber((RowNumberProvider)cp, sources);
@@ -231,7 +231,7 @@ namespace Xtensive.Storage.Rse.Compilation
     /// </summary>
     /// <param name="provider">The provider.</param>
     /// <param name="sources">The sources.</param>
-    protected abstract ExecutableProvider VisitSubquery(ApplyProvider provider, ExecutableProvider[] sources);
+    protected abstract ExecutableProvider VisitApply(ApplyProvider provider, ExecutableProvider[] sources);
 
 
     /// <summary>

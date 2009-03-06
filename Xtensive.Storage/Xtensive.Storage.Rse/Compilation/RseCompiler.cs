@@ -208,7 +208,7 @@ namespace Xtensive.Storage.Rse.Compilation
     }
 
     /// <inheritdoc/>
-    protected override ExecutableProvider VisitSubquery(ApplyProvider provider, ExecutableProvider[] sources)
+    protected override ExecutableProvider VisitApply(ApplyProvider provider, ExecutableProvider[] sources)
     {
       var left = sources[0];
       var right = sources[1];
