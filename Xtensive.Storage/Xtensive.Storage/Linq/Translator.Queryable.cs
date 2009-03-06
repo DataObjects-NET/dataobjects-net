@@ -241,7 +241,7 @@ namespace Xtensive.Storage.Linq
 
     private Expression VisitContains(Expression source, Expression match, bool isRoot)
     {
-      if (!source.IsQuery() && !isRoot)
+      if (!source.IsQuery() || !isRoot)
         throw new NotImplementedException();
 
       var elementType = TypeHelper.GetElementType(source.Type);
@@ -258,7 +258,7 @@ namespace Xtensive.Storage.Linq
 
     private Expression VisitAll(Expression source, LambdaExpression predicate, bool isRoot)
     {
-      if (!source.IsQuery() && !isRoot)
+      if (!source.IsQuery() || !isRoot)
         throw new NotImplementedException();
 
       var elementType = TypeHelper.GetElementType(source.Type);
