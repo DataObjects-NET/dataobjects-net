@@ -239,28 +239,23 @@ namespace Xtensive.Storage.Providers.Sql
       if (left == null || right == null)
         return null;
 
+      var leftSelect = (SqlSelect)left.Request.Statement;
+      var leftQuery = SqlFactory.QueryRef(leftSelect);
+      var rightSelect = (SqlSelect)right.Request.Statement;
+      var rightQuery = SqlFactory.QueryRef(rightSelect);
+      var visitor = new ExpressionProcessor(Handlers.Domain.Model, provider.Predicate, leftSelect, rightSelect);
+      var predicate = visitor.Translate();
+      var bindings = visitor.Bindings;
+      var joinedTable = SqlFactory.Join(
+        provider.LeftJoin ? SqlJoinType.LeftOuterJoin : SqlJoinType.InnerJoin,
+        leftQuery,
+        rightQuery,
+        predicate);
 
-      throw new NotImplementedException();
-//      var visitor = new ExpressionProcessor(request, Handlers.Domain.Model);
-      //visitor.AppendFilterToRequest(provider.Predicate);
-
-//      var leftSelect = (SqlSelect)left.Request.Statement;
-//      var leftQuery = SqlFactory.QueryRef(leftSelect);
-//      var rightSelect = (SqlSelect)right.Request.Statement;
-//      var rightQuery = SqlFactory.QueryRef(rightSelect);
-//      var joinedTable = SqlFactory.Join(
-//        provider.LeftJoin ? SqlJoinType.LeftOuterJoin : SqlJoinType.InnerJoin,
-//        leftQuery,
-//        rightQuery,
-//        provider.EqualIndexes
-//          .Select(pair => leftQuery.Columns[pair.First] == rightQuery.Columns[pair.Second])
-//          .Aggregate(null as SqlExpression, (expression, binary) => expression & binary)
-//        );
-//
-//      SqlSelect query = SqlFactory.Select(joinedTable);
-//      query.Columns.AddRange(leftQuery.Columns.Union(rightQuery.Columns).Cast<SqlColumn>());
-//      var request = new SqlFetchRequest(query, provider.Header, left.Request.ParameterBindings.Union(right.Request.ParameterBindings));
-//      return new SqlProvider(provider, request, Handlers, left, right);
+      SqlSelect query = SqlFactory.Select(joinedTable);
+      query.Columns.AddRange(leftQuery.Columns.Union(rightQuery.Columns).Cast<SqlColumn>());
+      var request = new SqlFetchRequest(query, provider.Header, left.Request.ParameterBindings.Union(right.Request.ParameterBindings).Union(bindings));
+      return new SqlProvider(provider, request, Handlers, left, right);
     }
 
     /// <inheritdoc/>
