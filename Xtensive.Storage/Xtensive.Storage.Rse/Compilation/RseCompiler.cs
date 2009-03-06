@@ -208,11 +208,11 @@ namespace Xtensive.Storage.Rse.Compilation
     }
 
     /// <inheritdoc/>
-    protected override ExecutableProvider VisitSubquery(SubqueryProvider provider, ExecutableProvider[] sources)
+    protected override ExecutableProvider VisitSubquery(ApplyProvider provider, ExecutableProvider[] sources)
     {
       var left = sources[0];
       var right = sources[1];
-      return new Providers.Executable.SubqueryProvider(provider, left, right);
+      return new Providers.Executable.ApplyProvider(provider, left, right);
     }
 
     /// <inheritdoc/>

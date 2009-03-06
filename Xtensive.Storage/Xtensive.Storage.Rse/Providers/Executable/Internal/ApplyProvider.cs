@@ -14,7 +14,7 @@ using Xtensive.Core.Tuples.Transform;
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
   [Serializable]
-  internal sealed class SubqueryProvider : BinaryExecutableProvider<Compilable.SubqueryProvider>
+  internal sealed class ApplyProvider : BinaryExecutableProvider<Compilable.ApplyProvider>
   {
     private CombineTransform transform;
 
@@ -57,7 +57,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public SubqueryProvider(Compilable.SubqueryProvider origin, ExecutableProvider left, ExecutableProvider right)
+    public ApplyProvider(Compilable.ApplyProvider origin, ExecutableProvider left, ExecutableProvider right)
       : base(origin, left, right)
     {}
   }

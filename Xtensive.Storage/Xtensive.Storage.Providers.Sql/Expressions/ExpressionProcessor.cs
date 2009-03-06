@@ -5,9 +5,11 @@
 // Created:    2008.09.05
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Xtensive.Core;
 using Xtensive.Core.Linq;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
@@ -34,47 +36,56 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     };
 
     private readonly DomainModel model;
-    private readonly SqlFetchRequest request;
-    private readonly SqlSelect query;
-    private ExpressionEvaluator evaluator;
-    private ParameterExtractor parameterExtractor;
+    private readonly SqlSelect[] selects;
+    private readonly ExpressionEvaluator evaluator;
+    private readonly ParameterExtractor parameterExtractor;
+    private readonly LambdaExpression lambda;
+    private readonly HashSet<SqlFetchParameterBinding> bindings;
+    private readonly Dictionary<ParameterExpression, SqlSelect> parameterMapping;
+    private bool executed;
 
-    public SqlFetchRequest Request
+    public HashSet<SqlFetchParameterBinding> Bindings
     {
-      get { return request; }
+      get { return bindings; }
     }
 
-    public void AppendFilterToRequest(Expression<Func<Tuple,bool>> exp)
-    {
-      var result = Transform(exp);
-      if (result.NodeType == SqlNodeType.Literal) {
-        var value = result as SqlLiteral<bool>;
-        if (value != null) {
-          var b = value.Value;
-          if (!b)
-            query.Where &= (1 == 0);
-          return;
-        }
-      }
-      else if (result.NodeType == SqlNodeType.Parameter) {
-        query.Where &= result == SqlFactory.Literal(1);
-        return;
-      }
-      query.Where &= result;
-    }
+//    public void AppendFilterToRequest(Expression<Func<Tuple,bool>> exp)
+//    {
+//      var result = Transform(exp);
+//      if (result.NodeType == SqlNodeType.Literal) {
+//        var value = result as SqlLiteral<bool>;
+//        if (value != null) {
+//          var b = value.Value;
+//          if (!b)
+//            query.Where &= (1 == 0);
+//          return;
+//        }
+//      }
+//      else if (result.NodeType == SqlNodeType.Parameter) {
+//        query.Where &= result == SqlFactory.Literal(1);
+//        return;
+//      }
+//      query.Where &= result;
+//    }
+//
+//    public void AppendCalculatedColumnToRequest(Expression<Func<Tuple, object>> exp, string name)
+//    {
+//      var result = Transform(exp);
+//      query.Columns.Add(result, name);
+//    }
 
-    public void AppendCalculatedColumnToRequest(Expression<Func<Tuple, object>> exp, string name)
-    {
-      var result = Transform(exp);
-      query.Columns.Add(result, name);
-    }
+//    private SqlExpression Transform(Expression e)
+//    {
+//      var result = Visit(e);
+//      return result;
+//    }
 
-    private SqlExpression Transform(Expression e)
+    public SqlExpression Translate()
     {
-      evaluator = new ExpressionEvaluator(e);
-      parameterExtractor = new ParameterExtractor(evaluator);
-      var result = Visit(e);
-      return result;
+      if (executed)
+        throw new InvalidOperationException();
+      executed = true;
+      return Visit(lambda);
     }
 
     protected override SqlExpression Visit(Expression e)
@@ -92,7 +103,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     private SqlExpression VisitParameterAccess(Expression<Func<object>> expression)
     {
       var binding = new SqlFetchParameterBinding(expression.Compile());
-      request.ParameterBindings.Add(binding);
+      bindings.Add(binding);
       return binding.SqlParameter;
 
     }
@@ -236,7 +247,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
             var columnFunc = Expression.Lambda<Func<int>>(columnArgument).Compile();
             columnIndex = columnFunc();
           }
-          var sqlSelect = (SqlSelect)request.Statement;
+          var sqlSelect = parameterMapping[(ParameterExpression)mc.Object];
           return sqlSelect[columnIndex];
         }
       }
@@ -256,6 +267,11 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
 
     protected override SqlExpression VisitLambda(LambdaExpression l)
     {
+      for (int i = 0; i < l.Parameters.Count; i++) {
+        var p = l.Parameters[i];
+        var select = selects[i];
+        parameterMapping[p] = select;
+      }
       return Visit(l.Body);
     }
 
@@ -416,11 +432,20 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
 
     // Constructor
 
-    public ExpressionProcessor(SqlFetchRequest request, DomainModel model)
+    public ExpressionProcessor(DomainModel model, LambdaExpression le, params SqlSelect[] selects)
     {
-      this.request = request;
+      if (selects == null)
+        throw new ArgumentNullException("selects");
+
+      if (le.Parameters.Count != selects.Length)
+        throw new InvalidOperationException();
       this.model = model;
-      query = (SqlSelect)request.Statement;
+      this.selects = selects;
+      lambda = le;
+      bindings = new HashSet<SqlFetchParameterBinding>();
+      parameterMapping = new Dictionary<ParameterExpression, SqlSelect>();
+      evaluator = new ExpressionEvaluator(le);
+      parameterExtractor = new ParameterExtractor(evaluator);
     }
 
     static ExpressionProcessor()

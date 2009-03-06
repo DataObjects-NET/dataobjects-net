@@ -237,9 +237,9 @@ namespace Xtensive.Storage.Rse
       return new DistinctProvider(recordSet.Provider).Result;
     }
 
-    public static RecordSet Subquery(this RecordSet recordSet, Parameter<Tuple> leftItemParameter, RecordSet right)
+    public static RecordSet Apply(this RecordSet recordSet, Parameter<Tuple> leftItemParameter, RecordSet right)
     {
-      return new SubqueryProvider(leftItemParameter, recordSet.Provider, right.Provider).Result;
+      return new ApplyProvider(leftItemParameter, recordSet.Provider, right.Provider).Result;
     }
   }
 }

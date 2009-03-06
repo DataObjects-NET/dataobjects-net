@@ -122,10 +122,14 @@ namespace Xtensive.Storage.Providers.Sql
 
       var sqlSelect = (SqlSelect) source.Request.Statement.Clone();
       var request = new SqlFetchRequest(sqlSelect, provider.Header, source.Request.ParameterBindings);
-      var visitor = new ExpressionProcessor(request, Handlers.Domain.Model);
+      var query = (SqlSelect)request.Statement;
 
-      foreach (var column in provider.CalculatedColumns)
-        visitor.AppendCalculatedColumnToRequest(column.Expression, column.Name);
+      foreach (var column in provider.CalculatedColumns) {
+        var translator = new ExpressionProcessor(Handlers.Domain.Model, column.Expression, query);
+        var predicate = translator.Translate();
+        var bindings = translator.Bindings;
+        query.Columns.Add(predicate, column.Name);
+      }
 
       return new SqlProvider(provider, request, Handlers, source);
     }
@@ -166,8 +170,25 @@ namespace Xtensive.Storage.Providers.Sql
         query = (SqlSelect) source.Request.Statement.Clone();
 
       var request = new SqlFetchRequest(query, provider.Header, source.Request.ParameterBindings);
-      var visitor = new ExpressionProcessor(request, Handlers.Domain.Model);
-      visitor.AppendFilterToRequest(provider.Predicate);
+      
+      query = (SqlSelect)request.Statement;
+      var visitor = new ExpressionProcessor(Handlers.Domain.Model, provider.Predicate, query);
+      var predicate = visitor.Translate();
+      var bindings = visitor.Bindings;
+      if (predicate.NodeType == SqlNodeType.Literal) {
+        var value = predicate as SqlLiteral<bool>;
+        if (value != null) {
+          var b = value.Value;
+          if (!b)
+            query.Where &= (1 == 0);
+        }
+      }
+      else if (predicate.NodeType == SqlNodeType.Parameter) {
+        query.Where &= predicate == SqlFactory.Literal(1);
+      }
+      else
+        query.Where &= predicate;
+      request.ParameterBindings.UnionWith(bindings);
 
       return new SqlProvider(provider, request, Handlers, source);
     }
@@ -219,7 +240,7 @@ namespace Xtensive.Storage.Providers.Sql
 
 
       throw new NotImplementedException();
-      //var visitor = new ExpressionProcessor(request, Handlers.Domain.Model);
+//      var visitor = new ExpressionProcessor(request, Handlers.Domain.Model);
       //visitor.AppendFilterToRequest(provider.Predicate);
 
 //      var leftSelect = (SqlSelect)left.Request.Statement;

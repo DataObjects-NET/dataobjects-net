@@ -16,7 +16,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
   /// Compilable provider that iterates over <see cref="BinaryProvider.Right"/> provider result for each item from the <see cref="BinaryProvider.Left"/> provider.
   /// </summary>
   [Serializable]
-  public sealed class SubqueryProvider : BinaryProvider
+  public sealed class ApplyProvider : BinaryProvider
   {
     /// <summary>
     /// Gets or sets the left item parameter.
@@ -33,7 +33,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     {
       return string.Format(LeftJoin
         ? "Left subquery"
-        : "Subquery");
+        : "Apply");
     }
 
     // Constructors
@@ -41,15 +41,15 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public SubqueryProvider(Parameter<Tuple> leftItemParameter, CompilableProvider left, CompilableProvider right)
+    public ApplyProvider(Parameter<Tuple> leftItemParameter, CompilableProvider left, CompilableProvider right)
       : this(leftItemParameter, left, right, false)
     {}
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public SubqueryProvider(Parameter<Tuple> leftItemParameter, CompilableProvider left, CompilableProvider right, bool leftJoin)
-      : base(ProviderType.Subquery, left, right)
+    public ApplyProvider(Parameter<Tuple> leftItemParameter, CompilableProvider left, CompilableProvider right, bool leftJoin)
+      : base(ProviderType.Apply, left, right)
     {
       LeftItemParameter = leftItemParameter;
       LeftJoin = leftJoin;

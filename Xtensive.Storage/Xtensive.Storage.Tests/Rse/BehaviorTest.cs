@@ -325,9 +325,9 @@ namespace Xtensive.Storage.Tests.Rse
 //        var list0 = enumerable.ToList();
 //      }
 
-      using (new Measurement("Subquery through Rse")) {
+      using (new Measurement("Apply through Rse")) {
         var p = new Parameter<Tuple>();
-        var result = authorRS.Subquery(p, bookRS.Filter(t => t.GetValue<int>(1)==p.Value.GetValue<int>(0)));
+        var result = authorRS.Apply(p, bookRS.Filter(t => t.GetValue<int>(1)==p.Value.GetValue<int>(0)));
         var list = result.ToList();
         Assert.AreEqual(authorCount * booksPerAuthor, list.Count);
       }
