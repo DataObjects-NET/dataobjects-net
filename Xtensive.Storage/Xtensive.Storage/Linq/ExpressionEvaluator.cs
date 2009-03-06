@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Linq;
 
@@ -83,6 +84,14 @@ namespace Xtensive.Storage.Linq
       if (cex != null) {
         var query = cex.Value as IQueryable;
         return query==null;
+      }
+      if (expression.NodeType == ExpressionType.MemberAccess) {
+        var ma = (MemberExpression)expression;
+        if (ma.Expression.NodeType == ExpressionType.Constant) {
+          var rfi = ma.Member as FieldInfo;
+          if (rfi != null && (rfi.FieldType.IsGenericType && typeof (IQueryable).IsAssignableFrom(rfi.FieldType)))
+            return true;
+        }
       }
       var mc = expression as MethodCallExpression;
       if (mc != null && (mc.Method.DeclaringType == typeof(Enumerable) || mc.Method.DeclaringType == typeof(Queryable)))
