@@ -34,6 +34,9 @@ namespace Xtensive.Storage.Linq
     private static readonly MethodInfo nonGenericAccessor;
     private static readonly MethodInfo recordKeyAccessor;
     private static readonly MethodInfo keyResolveMethod;
+    private static readonly MethodInfo countWithPredicateMethod;
+    private static readonly MethodInfo countMethod;
+    private static readonly MethodInfo takeMethod;
     private readonly Parameter<List<CalculatedColumnDescriptor>> calculatedColumns = new Parameter<List<CalculatedColumnDescriptor>>();
     private readonly Parameter<ParameterExpression[]> parameters = new Parameter<ParameterExpression[]>();
     private readonly Parameter<ResultMapping> resultMapping = new Parameter<ResultMapping>();
@@ -475,10 +478,7 @@ namespace Xtensive.Storage.Linq
     }
 
     #endregion
-
-
-
-
+    
     // Type initializer
 
     static Translator()
@@ -489,7 +489,13 @@ namespace Xtensive.Storage.Linq
       keyCreateMethod = typeof (Key).GetMethod("Create", new[] {typeof (TypeInfo), typeof (Tuple), typeof (bool)});
       transformApplyMethod = typeof (SegmentTransform).GetMethod("Apply", new[] {typeof (TupleTransformType), typeof (Tuple)});
       recordKeyAccessor = typeof(Record).GetProperty("Item", typeof(Key), new[]{typeof(int)}).GetGetMethod();
-      keyResolveMethod =typeof (Key).GetMethods()
+      countMethod = typeof (Queryable).GetMethod(
+        WellKnown.Queryable.Count, BindingFlags.Public | BindingFlags.Static, new string[1], new object[1]);
+      countWithPredicateMethod = typeof (Queryable).GetMethod(
+        WellKnown.Queryable.Count, BindingFlags.Public | BindingFlags.Static, new string[1], new object[2]);
+      takeMethod = typeof (Queryable).GetMethod(
+        WellKnown.Queryable.Take, BindingFlags.Static | BindingFlags.Public, new string[1], new object[2]);
+      keyResolveMethod = typeof (Key).GetMethods()
         .Where(
           mi => mi.Name == "Resolve" && 
           mi.IsGenericMethodDefinition == false && 

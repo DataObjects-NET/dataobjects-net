@@ -120,16 +120,14 @@ namespace Xtensive.Storage.Linq
         case QueryableMethodKind.TakeWhile:
           break;
         case QueryableMethodKind.All:
-          if (mc.Arguments.Count == 2) {
-            var predicate = (LambdaExpression) (mc.Arguments[1]);
-            return VisitAnyAll(mc.Arguments[0], mc.Method, predicate, context.IsRoot(mc));
-          }
+          if (mc.Arguments.Count==2)
+            return VisitAll(mc.Arguments[0], mc.Arguments[1].StripQuotes(), context.IsRoot(mc));
           break;
         case QueryableMethodKind.Any:
           if (mc.Arguments.Count == 1)
-            return VisitAnyAll(mc.Arguments[0], mc.Method, null, context.IsRoot(mc));
+            return VisitAny(mc.Arguments[0], null, context.IsRoot(mc));
           if (mc.Arguments.Count == 2)
-            return VisitAnyAll(mc.Arguments[0], mc.Method, mc.Arguments[1].StripQuotes(), context.IsRoot(mc));
+            return VisitAny(mc.Arguments[0], mc.Arguments[1].StripQuotes(), context.IsRoot(mc));
           break;
         case QueryableMethodKind.Contains:
           if (mc.Arguments.Count == 2)
@@ -243,12 +241,59 @@ namespace Xtensive.Storage.Linq
 
     private Expression VisitContains(Expression source, Expression match, bool isRoot)
     {
-      throw new NotImplementedException();
+      if (!source.IsQuery() && !isRoot)
+        throw new NotImplementedException();
+
+      var elementType = TypeHelper.GetElementType(source.Type);
+      source = Expression.Call(takeMethod.MakeGenericMethod(elementType), source, Expression.Constant(1));
+
+      var p = Expression.Parameter(match.Type, "p");
+      var le = Expression.Lambda(Expression.Equal(p, match), p);
+      var method = countWithPredicateMethod.MakeGenericMethod(elementType);
+      var result = (ResultExpression) VisitAggregate(source, method, le, true);
+
+      Expression<Func<RecordSet, object>> shaper = rs => ((long)rs.First().GetValue(0)) > 0;
+      return new ResultExpression(typeof(bool), result.RecordSet, null, shaper, null);      
     }
 
-    private Expression VisitAnyAll(Expression source, MethodInfo method, LambdaExpression predicate, bool isRoot)
+    private Expression VisitAll(Expression source, LambdaExpression predicate, bool isRoot)
     {
-      throw new NotImplementedException();
+      if (!source.IsQuery() && !isRoot)
+        throw new NotImplementedException();
+
+      var elementType = TypeHelper.GetElementType(source.Type);
+      source = Expression.Call(takeMethod.MakeGenericMethod(elementType), source, Expression.Constant(1));
+
+      var le = Expression.Lambda(Expression.Not(predicate.Body), predicate.Parameters[0]);
+      var method = countWithPredicateMethod.MakeGenericMethod(elementType);
+      var result = (ResultExpression) VisitAggregate(source, method, le, true);
+
+      Expression<Func<RecordSet, object>> shaper = rs => ((long)rs.First().GetValue(0)) == 0;
+      return new ResultExpression(typeof(bool), result.RecordSet, null, shaper, null);
+    }
+
+    private Expression VisitAny(Expression source, LambdaExpression predicate, bool isRoot)
+    {
+      if (!source.IsQuery() || !isRoot)
+        throw new NotImplementedException();
+
+      var elementType = TypeHelper.GetElementType(source.Type);
+      source = Expression.Call(takeMethod.MakeGenericMethod(elementType), source, Expression.Constant(1));
+
+      MethodInfo realCountMethod;
+      ResultExpression result;
+
+      if (predicate!=null) {
+        realCountMethod = countWithPredicateMethod.MakeGenericMethod(elementType);
+        result = (ResultExpression)VisitAggregate(source, realCountMethod, null, true);
+      }
+      else {
+        realCountMethod = countMethod.MakeGenericMethod(elementType);
+        result = (ResultExpression)VisitAggregate(source, realCountMethod, null, true);
+      }
+
+      Expression<Func<RecordSet, object>> shaper = rs => ((long) rs.First().GetValue(0)) > 0;
+      return new ResultExpression(typeof (bool), result.RecordSet, null, shaper, null);
     }
 
     private Expression VisitFirst(Expression source, LambdaExpression predicate, MethodInfo method, bool isRoot)

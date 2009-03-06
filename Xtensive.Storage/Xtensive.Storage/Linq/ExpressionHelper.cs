@@ -25,7 +25,9 @@ namespace Xtensive.Storage.Linq
 
     public static bool IsQuery(this Expression expression)
     {
-      return expression.Type.IsOfGenericType(typeof(IQueryable<>));
+      return expression.Type.GetInterfaces()
+        .Where(t => t.IsGenericType && t.GetGenericTypeDefinition()==typeof (IQueryable<>))
+        .Any();
     }
 
     public static MemberType GetMemberType(this Expression e)
