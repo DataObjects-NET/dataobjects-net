@@ -129,6 +129,7 @@ namespace Xtensive.Storage.Providers.Sql
         var predicate = translator.Translate();
         var bindings = translator.Bindings;
         query.Columns.Add(predicate, column.Name);
+        request.ParameterBindings.UnionWith(bindings);
       }
 
       return new SqlProvider(provider, request, Handlers, source);
