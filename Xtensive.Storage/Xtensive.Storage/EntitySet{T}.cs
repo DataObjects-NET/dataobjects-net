@@ -13,14 +13,17 @@ using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Storage.Linq;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage
 {
   public class EntitySet<TItem> : EntitySetBase,
-    ICollection<TItem>
+    ICollection<TItem>, IOrderedQueryable<TItem>
     where TItem : Entity
   {
+    private static readonly QueryProvider provider = new QueryProvider();
+
     /// <inheritdoc/>
     [Infrastructure]
     public bool Contains(TItem item)
@@ -102,6 +105,28 @@ namespace Xtensive.Storage
     {
       foreach (TItem item in this)
         array[arrayIndex++] = item;
+    }
+
+    #endregion
+
+    #region IQueryable<T> members
+
+    /// <inheritdoc/>
+    public Expression Expression
+    {
+      get { return Expression.Constant(this);}
+    }
+
+    /// <inheritdoc/>
+    public Type ElementType
+    {
+      get { return typeof(TItem); }
+    }
+
+    /// <inheritdoc/>
+    public IQueryProvider Provider
+    {
+      get { return provider; }
     }
 
     #endregion
