@@ -55,24 +55,8 @@ namespace Xtensive.Storage.Linq
       if (c.Value == null)
         return c;
       var rootPoint = c.Value as IQueryable;
-      if (rootPoint != null) {
-        var type = context.Model.Types[rootPoint.ElementType];
-        var index = type.Indexes.PrimaryIndex;
-
-        var fieldMapping = BuildFieldMapping(type, 0);
-        var mapping = new ResultMapping(fieldMapping, new Dictionary<string, ResultMapping>());
-        var recordSet = IndexProvider.Get(index).Result;
-        Expression<Func<RecordSet, object>> projector = rs => rs.Parse().Select(r => r.DefaultKey.Resolve());
-        Expression<Func<Record, Entity>> ipt = r => r.DefaultKey.Resolve();
-        LambdaExpression itemProjector = Expression.Lambda(Expression.Convert(ipt.Body, rootPoint.ElementType), ipt.Parameters[0]);
-        
-        return new ResultExpression(
-          c.Type,
-          recordSet,
-          mapping,
-          projector, 
-          itemProjector);
-      }
+      if (rootPoint != null)
+        return ConstructQueryable(rootPoint);
       return base.VisitConstant(c);
     }
 

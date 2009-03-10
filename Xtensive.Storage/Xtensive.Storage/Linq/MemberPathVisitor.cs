@@ -15,12 +15,12 @@ namespace Xtensive.Storage.Linq
   {
     private readonly DomainModel model;
 
-    protected override Expression VisitMemberAccess(MemberExpression m)
+    protected override Expression VisitMemberAccess(MemberExpression ma)
     {
-      var memberPath = MemberPath.Parse(m, model);
+      var memberPath = MemberPath.Parse(ma, model);
       if (memberPath.IsValid)
-        return VisitMemberPath(memberPath, m);
-      return base.VisitMemberAccess(m);
+        return VisitMemberPath(memberPath, ma);
+      return base.VisitMemberAccess(ma);
     }
 
     protected override Expression VisitMethodCall(MethodCallExpression mc)

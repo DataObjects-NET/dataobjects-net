@@ -90,7 +90,7 @@ namespace Xtensive.Storage.Linq
         if (ma.Expression.NodeType == ExpressionType.Constant) {
           var rfi = ma.Member as FieldInfo;
           if (rfi != null && (rfi.FieldType.IsGenericType && typeof (IQueryable).IsAssignableFrom(rfi.FieldType)))
-            return true;
+            return false;
         }
       }
       var mc = expression as MethodCallExpression;

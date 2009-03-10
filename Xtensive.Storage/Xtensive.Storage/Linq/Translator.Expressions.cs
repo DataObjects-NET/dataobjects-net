@@ -20,6 +20,7 @@ using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers.Compilable;
+using FieldInfo=System.Reflection.FieldInfo;
 
 namespace Xtensive.Storage.Linq
 {
@@ -343,11 +344,21 @@ namespace Xtensive.Storage.Linq
       return result.First;
     }
 
-    protected override Expression VisitMemberAccess(MemberExpression m)
+    protected override Expression VisitMemberAccess(MemberExpression ma)
     {
-      if (context.Evaluator.CanBeEvaluated(m) && context.ParameterExtractor.IsParameter(m))
-        return m;
-      return base.VisitMemberAccess(m);
+      if (context.Evaluator.CanBeEvaluated(ma) && context.ParameterExtractor.IsParameter(ma))
+        return ma;
+      if (ma.Expression.NodeType == ExpressionType.Constant) {
+        var rfi = ma.Member as FieldInfo;
+        if (rfi != null && (rfi.FieldType.IsGenericType && typeof(IQueryable).IsAssignableFrom(rfi.FieldType))) {
+          var lambda = Expression.Lambda<Func<IQueryable>>(ma).Compile();
+          var rootPoint = lambda();
+          if (rootPoint != null) {
+            return ConstructQueryable(rootPoint);
+          }
+        }
+      }
+      return base.VisitMemberAccess(ma);
     }
 
     protected override Expression VisitNew(NewExpression n)
@@ -417,6 +428,27 @@ namespace Xtensive.Storage.Linq
 
 
     #region Private helper methods
+
+    private Expression ConstructQueryable(IQueryable rootPoint)
+    {
+      var elementType = rootPoint.ElementType;
+      var type = context.Model.Types[elementType];
+      var index = type.Indexes.PrimaryIndex;
+
+      var fieldMapping = BuildFieldMapping(type, 0);
+      var mapping = new ResultMapping(fieldMapping, new Dictionary<string, ResultMapping>());
+      var recordSet = IndexProvider.Get(index).Result;
+      Expression<Func<RecordSet, object>> projector = rs => rs.Parse().Select(r => r.DefaultKey.Resolve());
+      Expression<Func<Record, Entity>> ipt = r => r.DefaultKey.Resolve();
+      LambdaExpression itemProjector = Expression.Lambda(Expression.Convert(ipt.Body, elementType), ipt.Parameters[0]);
+
+      return new ResultExpression(
+        elementType,
+        recordSet,
+        mapping,
+        projector,
+        itemProjector);
+    }
 
     private static IEnumerable<TResult> MakeProjection<TResult>(RecordSet rs, Expression<Func<Tuple, Record, TResult>> le)
     {
