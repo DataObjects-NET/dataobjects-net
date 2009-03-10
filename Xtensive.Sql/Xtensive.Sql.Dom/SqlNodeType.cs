@@ -59,6 +59,12 @@ namespace Xtensive.Sql.Dom
     Drop,
 //    Element,
 //    ExprSet,
+
+    /// <summary>
+    /// Empty binary expression. Just concates both underlying expressions 
+    /// without any additional sign between.
+    /// </summary>
+    Empty,
     Equals,
     Except,
     Exists,

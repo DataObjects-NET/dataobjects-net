@@ -1713,6 +1713,22 @@ namespace Xtensive.Sql.Dom
       return new SqlBinary(SqlNodeType.Concat, left, right);
     }
 
+
+    /// <summary>
+    /// Concates underlying expression without any sign between.
+    /// </summary>
+    /// <param name="left">Left expression</param>
+    /// <param name="right">Right expression</param>
+    /// <returns>New <see cref="SqlBinary"/> expression.</returns>
+    public static SqlBinary Empty(SqlExpression left, SqlExpression right)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(left, "left");
+      ArgumentValidator.EnsureArgumentNotNull(right, "right");
+      SqlValidator.EnsureIsCharacterExpression(left);
+      SqlValidator.EnsureIsCharacterExpression(right);
+      return new SqlBinary(SqlNodeType.Empty, left, right);
+    }
+
     public static SqlFunctionCall Substring(SqlExpression operand, int start)
     {
       return Substring(operand, start, null);

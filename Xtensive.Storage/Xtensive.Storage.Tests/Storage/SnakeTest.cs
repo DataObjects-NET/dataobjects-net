@@ -43,10 +43,14 @@ namespace Xtensive.Storage.Tests.Storage.SnakesModel
   {
     [Field(Length = 255)]
     string Name { get; set; }
+
+    [Field(Length = 255)]
+    string AlsoKnownAs { get; set; }
   }
 
   [DebuggerDisplay("Name = '{Name}'")]
   [Index("Name")]
+  [Index("Name", "AlsoKnownAs")]
   [HierarchyRoot(typeof(KeyGenerator), "ID", KeyGeneratorCacheSize = 16)]
   public class Creature : Entity,
     ICreature
@@ -55,6 +59,8 @@ namespace Xtensive.Storage.Tests.Storage.SnakesModel
     public int ID { get; private set; }
         
     public string Name { get; set; }
+
+    public string AlsoKnownAs { get; set; }
 
     [Field]
     public Features? Features { get; set; }
@@ -648,7 +654,7 @@ namespace Xtensive.Storage.Tests.Storage
     }
 
     [Test]
-    public void QueryTest()
+    public void   QueryTest()
     {
       const int snakesCount = 1000;
       const int creaturesCount = 1000;
@@ -681,6 +687,15 @@ namespace Xtensive.Storage.Tests.Storage
           Tuple toName = Tuple.Create("Kaa900");
           TypeInfo snakeType = session.Domain.Model.Types[typeof (Snake)];
           RecordSet rsSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordSet();
+          
+          // Test for SQL generation
+          var rsSkipTest = rsSnakePrimary.Skip(2);
+          var skipCount = rsSkipTest.Count(); // Tests for specific case.
+          Assert.AreEqual(rsSnakePrimary.Count(), skipCount + 2);
+
+          var rsTwoFieldIndex = snakeType.Indexes.GetIndex("Name", "AlsoKnownAs").ToRecordSet();
+          var twoFieldIndexCount = rsTwoFieldIndex.Skip(3).Count(); // Tests for specific case.
+          Assert.AreEqual(rsSnakePrimary.Count(), twoFieldIndexCount + 3);
 
           using (new Measurement("Query performance")) {
             RecordSet rsSnakeName = snakeType.Indexes.GetIndex("Name").ToRecordSet();
@@ -695,12 +710,17 @@ namespace Xtensive.Storage.Tests.Storage
             RecordSet orderBy = where.OrderBy(OrderBy.Desc(rsSnakePrimary.Header.IndexOf(cName)));
             RecordSet skip = orderBy.Skip(5);
             RecordSet take = skip.Take(50);
+            RecordSet skip2 = take.Skip(7);
             var snakesRse = take.ToEntities<Snake>();
             t.Complete();
             foreach (Snake snake in snakesRse) {
               Console.WriteLine(snake.Key);
             }
             Assert.AreEqual(15, snakesRse.Count());
+            Assert.AreEqual(8, skip2.Count());
+            // Row Number
+            RecordSet rsRowNumber1 = skip2.RowNumber("RowNumber1");
+            Assert.AreEqual(skip2.Count(), rsRowNumber1.Count());
           }
           
           IEnumerable<Snake> snakes = Query<Snake>.All;
