@@ -721,6 +721,11 @@ namespace Xtensive.Storage.Tests.Storage
             // Row Number
             RecordSet rsRowNumber1 = skip2.RowNumber("RowNumber1");
             Assert.AreEqual(skip2.Count(), rsRowNumber1.Count());
+            int rowNumber = 1;
+            foreach (var tuple in rsRowNumber1)
+            {
+              Assert.AreEqual(rowNumber++, tuple[rsRowNumber1.Header.Columns["RowNumber1"].Index]);
+            }
           }
           
           IEnumerable<Snake> snakes = Query<Snake>.All;
