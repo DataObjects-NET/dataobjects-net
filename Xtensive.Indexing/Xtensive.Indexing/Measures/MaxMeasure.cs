@@ -35,12 +35,15 @@ namespace Xtensive.Indexing.Measures
     {
       if (!HasResult) {
         Result = extracted;
+        Count = 1;
         return true;
       }
       // TODO: This code is equal to MinMeasure.Add except comparisonResult conditions.
       int comparisonResult = comparer.Compare(Result, extracted);
-      if (comparisonResult < 0)
+      if (comparisonResult < 0) {
         Result = extracted;
+        Count = 1;
+      }
       else if (comparisonResult==0)
         Count++;
       return true;
