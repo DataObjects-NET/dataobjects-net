@@ -50,5 +50,10 @@ namespace Xtensive.Sql.Common
     /// Indicates that RDBMS supports query optimizer hints.
     /// </summary>
     Hints = 0x20,
+
+    /// <summary>
+    /// Indicates that RDBMS supports CROSS APPLY and OUTER APPLY operators.
+    /// </summary>
+    CrossApply = 0x40
   }
 }

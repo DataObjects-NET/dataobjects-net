@@ -98,6 +98,20 @@ namespace Xtensive.Sql.Common.Mssql.v2005
     }
 
     /// <summary>
+    /// Gets the query info.
+    /// </summary>
+    /// <returns></returns>
+    public override QueryInfo QueryInfo
+    {
+      get
+      {
+        var queryInfo = base.QueryInfo;
+        queryInfo.Features |= QueryFeatures.CrossApply;
+        return queryInfo;
+      }
+    }
+
+    /// <summary>
     /// Gets the supported isolation levels.
     /// </summary>
     /// <returns></returns>
