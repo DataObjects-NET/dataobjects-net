@@ -9,6 +9,7 @@ using Xtensive.Sql.Common;
 using Xtensive.Sql.Dom.Database;
 using Xtensive.Sql.Dom.Ddl;
 using Xtensive.Sql.Dom.Dml;
+using Xtensive.Sql.Dom.Resources;
 
 namespace Xtensive.Sql.Dom.Compiler
 {
@@ -1454,6 +1455,9 @@ namespace Xtensive.Sql.Dom.Compiler
           return "UNION";
         case SqlJoinType.RightOuterJoin:
           return "RIGHT OUTER";
+        case SqlJoinType.CrossApply:
+        case SqlJoinType.LeftOuterApply:
+          throw new NotSupportedException(Strings.ExCrossApplyAndLeftOuterApplyAreNotSupportedByDefault);
         default:
           return string.Empty;
       }

@@ -3899,6 +3899,35 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
       Assert.IsTrue(CompareExecuteDataReader(nativeSql, batch));
     }
 
+    [Test]
+    public void Test206()
+    {
+      string nativeSql =
+        "SELECT c.Name SubcategoryName, p.Name ProductName " +
+          "FROM Production.ProductSubcategory c " +
+            "CROSS APPLY (SELECT Name FROM Production.Product WHERE ProductSubcategoryID = c.ProductSubcategoryID) p " +
+              "ORDER BY c.Name, p.Name";
+
+      var subcategories = Sql.TableRef(Catalog.Schemas["Production"].Tables["ProductSubcategory"], "c");
+      var products = Sql.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
+      
+      var innerSelect = Sql.Select(products);
+      innerSelect.Columns.Add(products.Columns["Name"]);
+      innerSelect.Where = products.Columns["ProductSubcategoryID"] == subcategories.Columns["ProductSubcategoryID"];
+      var innerQuery = Sql.QueryRef(innerSelect, "p");
+
+      var categoryName = subcategories.Columns["Name"];
+      var productName = innerQuery.Columns["Name"];
+
+      var outerSelect = Sql.Select(subcategories.CrossApply(innerQuery));
+      outerSelect.Columns.Add(categoryName, "SubcategoryName");
+      outerSelect.Columns.Add(productName, "ProductName");
+      outerSelect.OrderBy.Add(categoryName);
+      outerSelect.OrderBy.Add(productName);
+
+      Assert.IsTrue(CompareExecuteDataReader(nativeSql, outerSelect));
+    }
+
     /*
 
 SELECT EmpSSN AS "Employee Social Security Number "

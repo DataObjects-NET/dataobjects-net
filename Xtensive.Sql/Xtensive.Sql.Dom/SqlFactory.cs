@@ -1146,6 +1146,8 @@ namespace Xtensive.Sql.Dom
     {
       ArgumentValidator.EnsureArgumentNotNull(left, "left");
       ArgumentValidator.EnsureArgumentNotNull(right, "right");
+      if (expression != null && (joinType == SqlJoinType.CrossApply || joinType == SqlJoinType.LeftOuterApply))
+        throw new ArgumentException(Strings.ExJoinExpressionShouldBeNullForCrossApplyAndLeftOuterApply, "expression");
       return new SqlJoinedTable(new SqlJoinExpression(joinType, left, right, expression));
     }
 

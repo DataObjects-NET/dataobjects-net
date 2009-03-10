@@ -195,4 +195,10 @@
   <data name="ExComparisonResultAlreadyRegistered" xml:space="preserve">
     <value>Another comparison result already registered in comparison registry.</value>
   </data>
+  <data name="ExCrossApplyAndLeftOuterApplyAreNotSupportedByDefault" xml:space="preserve">
+    <value>SqlJoinType.CrossApply &amp; SqlJoinType.LeftOuterApply are not supported by default SqlTranslator</value>
+  </data>
+  <data name="ExJoinExpressionShouldBeNullForCrossApplyAndLeftOuterApply" xml:space="preserve">
+    <value>Join expression should be null for SqlJoinType.CrossApply &amp; SqlJoinType.LeftOuterApply.</value>
+  </data>
 </root>

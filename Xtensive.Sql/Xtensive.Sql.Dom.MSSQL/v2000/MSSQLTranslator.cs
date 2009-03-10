@@ -222,15 +222,17 @@ namespace Xtensive.Sql.Dom.Mssql.v2000
     {
       switch (section) {
         case JoinSection.Specification:
-          bool natural = false;
-          if (SqlExpression.IsNull(node.Expression) && node.JoinType != SqlJoinType.CrossJoin &&
-              node.JoinType != SqlJoinType.UnionJoin)
-            natural = true;
+          if (node.Expression==null)
+            switch (node.JoinType) {
+              case SqlJoinType.InnerJoin:
+              case SqlJoinType.LeftOuterJoin:
+              case SqlJoinType.RightOuterJoin:
+              case SqlJoinType.FullOuterJoin:
+                throw new NotSupportedException();
+            }
           SqlJoinHint joinHint = TryFindJoinHint(context, node);
-          return
-            (natural ? "NATURAL " : string.Empty) +
-            Translate(node.JoinType) + (joinHint != null ? " " + Translate(joinHint.JoinMethod) : string.Empty) +
-            " JOIN";
+          return Translate(node.JoinType)
+            + (joinHint != null ? " " + Translate(joinHint.JoinMethod) : string.Empty) + " JOIN";
       }
       return base.Translate(context, node, section);
     }

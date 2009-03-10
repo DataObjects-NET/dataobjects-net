@@ -124,6 +124,16 @@ namespace Xtensive.Sql.Dom.Dml
       return Sql.Join(this, right, columns);
     }
 
+    public virtual SqlJoinedTable CrossApply(SqlTable right)
+    {
+      return Sql.Join(SqlJoinType.CrossApply, this, right);
+    }
+
+    public virtual SqlJoinedTable LeftOuterApply(SqlTable right)
+    {
+      return Sql.Join(SqlJoinType.LeftOuterApply, this, right);
+    }
+
     /// <inheritdoc/>
     IEnumerator IEnumerable.GetEnumerator()
     {

@@ -22,5 +22,9 @@ namespace Xtensive.Sql.Dom.Dml
     UnionJoin,
 
     UsingJoin,
+
+    CrossApply,
+
+    LeftOuterApply
   }
 }
