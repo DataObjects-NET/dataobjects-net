@@ -229,7 +229,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       using (Domain.OpenSession())
       using (var t = Transaction.Open()) {
-        var result = Query<Customer>.All.Distinct().OrderBy(c => c.ContactName).Skip(5).Take(10);
+        var result = Query<Customer>.All.Select(c => c.ContactName).Distinct().OrderBy(c => c).Skip(5).Take(10);
         var list = result.ToList();
         Assert.Greater(list.Count, 0);
         t.Complete();

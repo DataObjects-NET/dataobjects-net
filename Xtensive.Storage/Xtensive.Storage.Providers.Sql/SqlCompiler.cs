@@ -381,6 +381,11 @@ namespace Xtensive.Storage.Providers.Sql
       if (source == null)
         return null;
 
+//      var query = (SqlSelect)source.Request.Statement.Clone();
+//      var originalColumns = query.Columns.ToList();
+//      query.Columns.Clear();
+//      query.Columns.AddRange(provider.ColumnIndexes.Select(i => originalColumns[i]));
+
       var queryRef = SqlFactory.QueryRef(source.Request.Statement as SqlSelect);
       SqlSelect query = SqlFactory.Select(queryRef);
       query.Columns.AddRange(provider.ColumnIndexes.Select(i => (SqlColumn) queryRef.Columns[i]));
