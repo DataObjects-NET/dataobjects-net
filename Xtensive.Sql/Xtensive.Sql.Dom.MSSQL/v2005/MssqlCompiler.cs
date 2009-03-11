@@ -1,6 +1,8 @@
-// Copyright (C) 2007 Xtensive LLC.
+﻿// Copyright (C) 2009 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
+// Created by: Denis Krjuchkov
+// Created:    2009.03.11
 
 using System;
 using Xtensive.Core.Internals.DocTemplates;
@@ -8,7 +10,7 @@ using Xtensive.Sql.Common;
 using Xtensive.Sql.Dom.Compiler;
 using Xtensive.Sql.Dom.Dml;
 
-namespace Xtensive.Sql.Dom.Mssql.v2000
+namespace Xtensive.Sql.Dom.Mssql.v2005
 {
   public class MssqlCompiler : SqlCompiler
   {
@@ -18,9 +20,11 @@ namespace Xtensive.Sql.Dom.Mssql.v2000
     /// <inheritdoc/>
     public override void Visit(SqlFunctionCall node)
     {
-      switch (node.FunctionType) {
+      switch (node.FunctionType)
+      {
         case SqlFunctionType.Substring:
-          if (node.Arguments.Count==2) {
+          if (node.Arguments.Count == 2)
+          {
             SqlExpression len = Sql.Length(node.Arguments[0]);
             node.Arguments.Add(len);
             base.Visit(node);
@@ -66,7 +70,8 @@ namespace Xtensive.Sql.Dom.Mssql.v2000
           return;
 
         case SqlFunctionType.Extract:
-          if (((SqlLiteral<SqlDateTimePart>)node.Arguments[0]).Value == SqlDateTimePart.DayOfWeek) {
+          if (((SqlLiteral<SqlDateTimePart>)node.Arguments[0]).Value == SqlDateTimePart.DayOfWeek)
+          {
             Visit((DatePartWeekDay(node.Arguments[1]) + DateFirst + 6) % 7);
             return;
           }
@@ -102,9 +107,10 @@ namespace Xtensive.Sql.Dom.Mssql.v2000
 
     private void IntervalExtract(SqlExpression partExpression, SqlExpression source)
     {
-      var part = ((SqlLiteral<SqlIntervalPart>) partExpression).Value;
-      
-      switch (part) {
+      var part = ((SqlLiteral<SqlIntervalPart>)partExpression).Value;
+
+      switch (part)
+      {
         case SqlIntervalPart.Day:
           Visit(CastToLong(source / MillisecondsPerDay));
           return;
@@ -119,7 +125,7 @@ namespace Xtensive.Sql.Dom.Mssql.v2000
           return;
         case SqlIntervalPart.Millisecond:
           Visit(source % 1000);
-          return; 
+          return;
       }
     }
 

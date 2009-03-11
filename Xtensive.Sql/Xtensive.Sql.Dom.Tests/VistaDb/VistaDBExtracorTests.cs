@@ -7,8 +7,6 @@ using Xtensive.Sql.Common;
 using Xtensive.Sql.Dom.Database;
 using Xtensive.Sql.Dom.Database.Providers;
 using Xtensive.Sql.Dom.Dml;
-using SQL2000 = Xtensive.Sql.Dom.Mssql.v2000;
-using SQL2005 = Xtensive.Sql.Dom.Mssql.v2005;
 
 namespace Xtensive.Sql.Dom.Tests.VistaDb
 {

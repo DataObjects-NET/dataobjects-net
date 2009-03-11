@@ -121,17 +121,14 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
     [TestFixtureSetUp]
     public override void SetUp()
     {
-      //base.SetUp();
+      sqlDriver = new MssqlDriver(new MssqlVersionInfo(new Version(9, 0)));
+      sqlConnection = sqlDriver.CreateConnection(new ConnectionInfo(@"mssql2005://localhost/AdventureWorks")) as SqlConnection;
 
-      #region CreateConnection_MSSQL
-
+      /*
       SqlConnectionProvider provider = new SqlConnectionProvider();
       sqlConnection = provider.CreateConnection(@"mssql2005://localhost\sql2005/AdventureWorks") as SqlConnection;
       sqlDriver = sqlConnection.Driver as SqlDriver;
-
-      #endregion
-//      sqlDriver = new MssqlDriver(new MssqlVersionInfo(new Version(9, 0)));
-//      sqlConnection = sqlDriver.CreateConnection(new ConnectionInfo(@"mssql2005://localhost/AdventureWorks")) as SqlConnection;
+      */
 
       dbCommand = sqlConnection.RealConnection.CreateCommand();
       sqlCommand = new SqlCommand(sqlConnection);
@@ -157,7 +154,7 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
     [Test]
     public void Test000()
     {
-      SqlParameter p = sqlCommand.Parameters.Add("@p1", 40);
+      SqlParameter p = sqlCommand.Parameters.Add("p1", 40);
       SqlTableRef product = Sql.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
       SqlSelect select = Sql.Select(product);
       select.Columns.AddRange(product["ProductID"], product["Name"], product["ListPrice"]);

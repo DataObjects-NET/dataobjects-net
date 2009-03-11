@@ -1,3 +1,7 @@
+// =======================================================
+// WARNING! Looking below this line may explode your brain
+// =======================================================
+
 using System;
 using System.Collections;
 using System.Data.Common;
@@ -6,18 +10,9 @@ using Xtensive.Sql.Common;
 using Xtensive.Sql.Common.Mssql;
 using Xtensive.Sql.Dom.Database;
 using Xtensive.Sql.Dom.Database.Providers;
-using Xtensive.Sql.Dom.Mssql.v2000;
-using SQL2000 = Xtensive.Sql.Dom.Mssql.v2000;
-using SQL2005 = Xtensive.Sql.Dom.Mssql.v2005;
 
 namespace Xtensive.Sql.Dom.Tests.MsSql
 {
-  public class MSSQLExtractorTestOptions
-  {
-    public const string MSSQL2000ConnectionString = @"mssql://localhost/SqlDomTests";
-    public const string MSSQL2005ConnectionString = @"mssql2005://localhost/SqlDomTests"; 
-  }
-
   public class AssertUtility
   {
     public static void AssertArraysAreEqual(Array a1, Array a2)
@@ -54,12 +49,7 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
 
   public abstract class MSSQLExtractorTestBase
   {
-    protected bool setupFailure;
-
-    public virtual string ConnectionString
-    {
-      get { return MSSQLExtractorTestOptions.MSSQL2000ConnectionString; }
-    }
+    public static string ConnectionString = TestUrl.MsSql2005;
 
     public virtual string CleanUpScript
     {
@@ -68,16 +58,10 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
     
     protected SqlConnection CreateConnection(string ConnectString)
     {
-      MssqlDriver driver=null;
-      if (ConnectString == MSSQLExtractorTestOptions.MSSQL2000ConnectionString) {
-        driver = new MssqlDriver(new MssqlVersionInfo(new Version(8, 0)));
-      }
-      else if (ConnectString == MSSQLExtractorTestOptions.MSSQL2005ConnectionString) {
-        driver = new Mssql.v2005.MssqlDriver(new MssqlVersionInfo((new Version(9, 0))));
-      }
-      SqlConnection conn = driver.CreateConnection(new ConnectionInfo(ConnectionString)) as SqlConnection;
-      conn.Open();
-      return conn;
+      var driver = new Mssql.v2005.MssqlDriver(new MssqlVersionInfo((new Version(9, 0))));
+      var connection = (SqlConnection)driver.CreateConnection(new ConnectionInfo(ConnectionString));
+      connection.Open();
+      return connection;
     }
 
     protected void ExecuteQuery(string sqlQuery, SqlConnection connection)
@@ -91,51 +75,26 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
     {
       if (string.IsNullOrEmpty(sqlQuery))
         return;
-      using (SqlConnection connection = CreateConnection(ConnectString))
-      {
-        try { ExecuteQuery(sqlQuery, connection); }
-        catch { }
+      using (SqlConnection connection = CreateConnection(ConnectString)) {
+        ExecuteQuery(sqlQuery, connection);
       }
     }
 
     protected virtual Model ExtractModel(string ConnectString)
     {
-      SqlModelProvider smd = new SqlModelProvider(CreateConnection(ConnectString));
+      var smd = new SqlModelProvider(CreateConnection(ConnectString));
       return Model.Build(smd);
-    }
-
-    [TestFixtureSetUp]
-    public virtual void SetUp()
-    {
-      try {
-        SqlConnection connection = CreateConnection(ConnectionString);
-        ExecuteQuery(CleanUpScript,ConnectionString);
-      }
-      catch {
-        setupFailure = true;
-      }
     }
 
     [TestFixtureTearDown]
     public virtual void TearDown()
     {
-      if (!setupFailure)
-        try {
-          ExecuteQuery(CleanUpScript, ConnectionString);
-        }
-        catch (Exception e) {
-          Console.WriteLine(e);
-        }
+      ExecuteQuery(CleanUpScript, ConnectionString);
     }
   }
 
   public class MSSQLExtractor_TestSchemaExtraction : MSSQLExtractorTestBase
   {
-    [TestFixtureSetUp]
-    public override void SetUp()
-    {
-      base.SetUp();
-    }
 
     public override string CleanUpScript
     {
@@ -154,10 +113,6 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
     [Test]
     public virtual void Main()
     {
-      if (setupFailure) {
-        Assert.Ignore("Setup failure");
-        return;
-      }
       ExecuteQuery(
         " exec sp_addrole 'role1'" + 
           "\n exec sp_addrole 'role2'" +
@@ -195,12 +150,6 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
 
   public class MSSQLExtractor_TestColumnTypeExtraction : MSSQLExtractorTestBase
   {
-    [TestFixtureSetUp]
-    public override void SetUp()
-    {
-      base.SetUp();
-    }
-
     public override string CleanUpScript
     {
       get { return "drop table dataTypesTestTable"; }
@@ -209,10 +158,6 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
     [Test]
     public void Main()
     {
-      if (setupFailure) {
-        Assert.Ignore("Setup failure");
-        return;
-      }
       string createTableQuery = 
         "CREATE TABLE dataTypesTestTable (" + 
           "[int_l4] [int] NULL ," + 
@@ -290,12 +235,6 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
 
   public class MSSQLExtractor_TestExtractingViews : MSSQLExtractorTestBase
   {
-    [TestFixtureSetUp]
-    public override void SetUp()
-    {
-      base.SetUp();
-    }
-
     public override string CleanUpScript
     {
       get {
@@ -309,10 +248,6 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
     [Test]
     public virtual void Main()
     {
-      if (setupFailure) {
-        Assert.Ignore("Setup failure");
-        return;
-      }
       ExecuteQuery(
         " EXEC sp_addrole 'role1'" +
           "\n CREATE TABLE role1.table1(column1 int, column2 int)", ConnectionString);
@@ -341,12 +276,6 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
 
   public class MSSQLExtractor_TestExtractingForeignKeys : MSSQLExtractorTestBase
   {
-    [TestFixtureSetUp]
-    public override void SetUp()
-    {
-      base.SetUp();
-    }
-
     public override string CleanUpScript
     {
       get
@@ -364,10 +293,6 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
     [Test]
     public void Main()
     {
-      if (setupFailure) {
-        Assert.Ignore("Setup failure");
-        return;
-      }
       string query = "\n create table B1 (b_id int primary key)" +
         "\n create table A1 (b_id int references B1(b_id))" +
           "\n create table B2 (" +
@@ -435,12 +360,6 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
 
   public class MSSQLExtractor_TestExtractingUniqueConstraints : MSSQLExtractorTestBase
   {
-    [TestFixtureSetUp]
-    public override void SetUp()
-    {
-      base.SetUp();
-    }
-
     public override string CleanUpScript
     {
       get { return "drop table A"; }
@@ -449,10 +368,6 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
     [Test]
     public void Main()
     {
-      if (setupFailure) {
-        Assert.Ignore("Setup failure");
-        return;
-      }
       ExecuteQuery(
         "   Create table A (" +
           "\n col_11 int, col_12 int, col_13 int," +
@@ -482,12 +397,6 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
 
   public class MSSQLExtractor_TestIndexesExtracted : MSSQLExtractorTestBase
   {
-    [TestFixtureSetUp]
-    public override void SetUp()
-    {
-      base.SetUp();
-    }
-
     public override string CleanUpScript
     {
       get { return "drop table table1"; }
@@ -496,10 +405,6 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
     [Test]
     public virtual void Main()
     {
-      if (setupFailure) {
-        Assert.Ignore("Setup failure");
-        return;
-      }
       ExecuteQuery(
         " create table table1 (" + 
           "\n column1 int, " +
@@ -526,17 +431,6 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
   [TestFixture]
   public class MSSQLExtractor2005_TestSchemaExtraction : MSSQLExtractor_TestSchemaExtraction
   {
-    [TestFixtureSetUp]
-    public override void SetUp()
-    {
-      base.SetUp();
-    }
-
-    public override string ConnectionString
-    {
-      get { return MSSQLExtractorTestOptions.MSSQL2005ConnectionString; }
-    }
-
     public override string CleanUpScript
     {
       get {
@@ -554,10 +448,6 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
     [Test]
     public override void Main()
     {
-      if (setupFailure) {
-        Assert.Ignore("Setup failure");
-        return;
-      }
       ExecuteQuery(" create schema schema1", ConnectionString);
       ExecuteQuery(" create schema schema2", ConnectionString);
       ExecuteQuery(" create schema schema3", ConnectionString);
@@ -597,17 +487,7 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
   [TestFixture]
   public class MSSQLExtractor2005_TestColumnTypeExtraction : MSSQLExtractor_TestColumnTypeExtraction
   {
-    [TestFixtureSetUp]
-    public override void SetUp()
-    {
-      base.SetUp();
-    }
-
-    public override string ConnectionString
-    {
-      get { return MSSQLExtractorTestOptions.MSSQL2005ConnectionString; }
-    }
-
+    /*
     public override string CleanUpScript
     {
       get { return base.CleanUpScript + "\n drop table dataTypesTestTable2"; }
@@ -615,10 +495,6 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
 
     public void Main2()
     {
-      if (setupFailure) {
-        Assert.Ignore("Setup failure");
-        return;
-      }
       ExecuteQuery(
         "create table dataTypesTestTable2(" +
           "\n xml_column xml," +
@@ -634,51 +510,24 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
       Assert.IsTrue(schema.Tables["dataTypesTestTable2"].TableColumns["varchar_max"].DataType.DataType == SqlDataType.VarCharMax);
       Assert.IsTrue(schema.Tables["dataTypesTestTable2"].TableColumns["xml_column"].DataType.DataType == SqlDataType.Xml);
     }
+    */
   }
 
   [TestFixture]
   public class MSSQLExtractor2005_TestExtractingViews : MSSQLExtractor_TestExtractingViews
   {
-    [TestFixtureSetUp]
-    public override void SetUp()
-    {
-      base.SetUp();
-    }
 
-    public override string ConnectionString
-    {
-      get { return MSSQLExtractorTestOptions.MSSQL2005ConnectionString; }
-    }
   }
 
   [TestFixture]
   public class MSSQLExtractor2005_TestExtractingForeignKeys : MSSQLExtractor_TestExtractingForeignKeys
   {
-    [TestFixtureSetUp]
-    public override void SetUp()
-    {
-      base.SetUp();
-    }
 
-    public override string ConnectionString
-    {
-      get { return MSSQLExtractorTestOptions.MSSQL2005ConnectionString; }
-    }
   }
 
   [TestFixture]
   public class MSSQLExtractor2005_TestExtractingForeignKeys2 : MSSQLExtractorTestBase
   {
-    [TestFixtureSetUp]
-    public override void SetUp()
-    {
-      base.SetUp();
-    }
-
-    public override string ConnectionString
-    {
-      get { return MSSQLExtractorTestOptions.MSSQL2005ConnectionString; }
-    }
 
     public override string CleanUpScript
     {
@@ -692,10 +541,6 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
     [Test]
     public void Main()
     {
-      if (setupFailure) {
-        Assert.Ignore("Setup failure");
-        return;
-      }
       ExecuteQuery(
         "   Create Table B (b_id int primary key)" +
           "\n Create Table B2(b_id_1 int primary key)" +
@@ -715,45 +560,17 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
   [TestFixture]
   public class MSSQLExtractor2005_TestExtractingUniqueConstraints : MSSQLExtractor_TestExtractingUniqueConstraints
   {
-    [TestFixtureSetUp]
-    public override void SetUp()
-    {
-      base.SetUp();
-    }
 
-    public override string ConnectionString
-    {
-      get { return MSSQLExtractorTestOptions.MSSQL2005ConnectionString; }
-    }
   }
 
   [TestFixture]
   public class MSSQLExtractor2005_TestIndexesExtracted : MSSQLExtractor_TestIndexesExtracted
   {
-    [TestFixtureSetUp]
-    public override void SetUp()
-    {
-      base.SetUp();
-    }
 
-    public override string ConnectionString
-    {
-      get { return MSSQLExtractorTestOptions.MSSQL2005ConnectionString; }
-    }
   }
 
   public class MSSQLExtractor2005_TestPartitionsExtracted : MSSQLExtractorTestBase
   {
-    [TestFixtureSetUp]
-    public override void SetUp()
-    {
-      base.SetUp();
-    }
-
-    public override string ConnectionString
-    {
-      get { return MSSQLExtractorTestOptions.MSSQL2005ConnectionString; }
-    }
 
     public override string CleanUpScript
     {
@@ -765,10 +582,6 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
 
     public void Main()
     {
-      if (setupFailure) {
-        Assert.Ignore("Setup failure");
-        return;
-      }
       SqlConnection connection = CreateConnection( ConnectionString);
       ExecuteQuery("USE master;", connection);
       string createTestDatabaseSql = @"-- Get the SQL Server data path

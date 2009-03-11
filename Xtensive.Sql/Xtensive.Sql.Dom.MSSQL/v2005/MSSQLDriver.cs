@@ -10,42 +10,57 @@ using Xtensive.Sql.Dom.Database.Extractor;
 
 namespace Xtensive.Sql.Dom.Mssql.v2005
 {
+  [Protocol("mssql")]
   [Protocol("mssql2005")]
   [Protocol("yukon")]
-  public class MssqlDriver : v2000.MssqlDriver
+  public class MssqlDriver : SqlDriver
   {
-    /// <summary>
-    /// Creates the SQL translator.
-    /// </summary>
+    /// <inheritdoc/>
     protected override SqlTranslator CreateTranslator()
     {
       return new MssqlTranslator(this);
     }
 
+    /// <inheritdoc/>
+    protected override Connection CreateDbConnection(ConnectionInfo info)
+    {
+      return new MssqlSqlConnection(this, info);
+    }
+
+    /// <inheritdoc/>
     protected override SqlExtractor CreateExtractor()
     {
       return new MssqlExtractor(this);
     }
 
+    /// <inheritdoc/>
     protected override IServerInfoProvider CreateServerInfoProvider(ConnectionInfo connectionInfo)
     {
-      using (Connection connection = CreateConnection(connectionInfo)) {
+      using (Connection connection = CreateConnection(connectionInfo))
+      {
         return new MssqlServerInfoProvider(connection);
       }
     }
 
+    /// <inheritdoc/>
     protected override IServerInfoProvider CreateServerInfoProvider(VersionInfo versionInfo)
     {
       return new MssqlServerInfoProvider((MssqlVersionInfo)versionInfo);
     }
 
-    public MssqlDriver(MssqlVersionInfo versionInfo)
-      : base(versionInfo)
+    /// <inheritdoc/>
+    protected override SqlCompiler CreateCompiler()
     {
+      return new MssqlCompiler(this);
     }
 
     public MssqlDriver(ConnectionInfo connectionInfo)
       : base(connectionInfo)
+    {
+    }
+
+    public MssqlDriver(MssqlVersionInfo versionInfo)
+      : base(versionInfo)
     {
     }
   }

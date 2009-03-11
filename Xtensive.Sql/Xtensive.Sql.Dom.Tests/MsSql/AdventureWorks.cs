@@ -5,7 +5,6 @@ using Xtensive.Sql.Common;
 using Xtensive.Sql.Common.Mssql;
 using Xtensive.Sql.Dom.Database;
 using Xtensive.Sql.Dom.Dml;
-using Xtensive.Sql.Dom.Mssql.v2000;
 using Constraint = Xtensive.Sql.Dom.Database.Constraint;
 
 namespace Xtensive.Sql.Dom.Tests.MsSql
@@ -762,9 +761,9 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
       select.Columns.Add(cr["Name"], "CountryRegionName");
       select.Columns.Add(cRef["AdditionalContactInfo"]);
 
-      SqlDriver mssqlDriver = new MssqlDriver(new MssqlVersionInfo(new Version()));
-      v = Catalog.Schemas["HumanResources"].CreateView("vEmployee",
-        Sql.Native(mssqlDriver.Compile(select).CommandText));
+      //SqlDriver mssqlDriver = new MssqlDriver(new MssqlVersionInfo(new Version()));
+      //v = Catalog.Schemas["HumanResources"].CreateView("vEmployee",
+//        Sql.Native(mssqlDriver.Compile(select).CommandText));
 //      bmp.Save(model);
     }
   }

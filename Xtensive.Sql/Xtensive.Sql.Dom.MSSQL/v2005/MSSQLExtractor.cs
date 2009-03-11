@@ -9,7 +9,7 @@ using Xtensive.Sql.Dom.Dml;
 
 namespace Xtensive.Sql.Dom.Mssql.v2005
 {
-  public class MssqlExtractor: v2000.MssqlExtractor
+  public class MssqlExtractor: SqlExtractor
   {
     private static bool initialized = false;
     private static Model model;
@@ -342,7 +342,7 @@ namespace Xtensive.Sql.Dom.Mssql.v2005
     /// </summary>
     /// <param name="context">The context.</param>
     /// <param name="catalog">The catalog.</param>
-    public new string GenerateExtractForeignKeysSQL(SqlExtractorContext context, Catalog catalog, Schema schema)
+    public string GenerateExtractForeignKeysSQL(SqlExtractorContext context, Catalog catalog, Schema schema)
     {
       View tKeyCol = model.DefaultServer.Catalogs["master"].Schemas["INFORMATION_SCHEMA"].Views["KEY_COLUMN_USAGE"];
       View tConstr = model.DefaultServer.Catalogs["master"].Schemas["INFORMATION_SCHEMA"].Views["TABLE_CONSTRAINTS"];
@@ -449,13 +449,15 @@ namespace Xtensive.Sql.Dom.Mssql.v2005
       }
     }
 
-    protected override ReferentialAction GetReferentialAction(string actionName)
+    protected virtual ReferentialAction GetReferentialAction(string actionName)
     {
       if (actionName.ToUpper() == "SET NULL")
         return ReferentialAction.SetNull;
       if (actionName.ToUpper() == "SET DEFAULT")
         return ReferentialAction.SetDefault;
-      return base.GetReferentialAction(actionName);
+      if (actionName.StartsWith("CASCADE"))
+        return ReferentialAction.Cascade;
+      return ReferentialAction.NoAction;
     }
 
     /// <summary>

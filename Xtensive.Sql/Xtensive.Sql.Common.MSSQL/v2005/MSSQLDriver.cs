@@ -6,14 +6,29 @@ using Xtensive.Core;
 
 namespace Xtensive.Sql.Common.Mssql.v2005
 {
+  [Protocol("mssql")]
   [Protocol("mssql2005")]
   [Protocol("yukon")]
-  public class MssqlDriver : v2000.MssqlDriver
+  public class MssqlDriver : Driver
   {
+    /// <summary>
+    /// Creates the database connection.
+    /// </summary>
+    /// <param name="info">The connection info.</param>
+    /// <returns>
+    /// A <see cref="Connection"/> instance that wraps
+    /// real connection to a data source.
+    /// </returns>
+    protected override Connection CreateDbConnection(ConnectionInfo info)
+    {
+      return new MssqlConnection(info, this);
+    }
+
     /// <inheritdoc/>
     protected override IServerInfoProvider CreateServerInfoProvider(ConnectionInfo connectionInfo)
     {
-      using (Connection connection = CreateConnection(connectionInfo)) {
+      using (Connection connection = CreateConnection(connectionInfo))
+      {
         return new MssqlServerInfoProvider(connection);
       }
     }
@@ -25,14 +40,22 @@ namespace Xtensive.Sql.Common.Mssql.v2005
       return new MssqlServerInfoProvider(versionInfo as MssqlVersionInfo);
     }
 
-    public MssqlDriver(ConnectionInfo connectionInfo)
-      : base(connectionInfo)
-    {
-    }
-
+    /// <summary>
+    /// Initializes a new instance of the <see cref="MssqlDriver"/> class.
+    /// </summary>
     public MssqlDriver(MssqlVersionInfo versionInfo)
       : base(versionInfo)
     {
     }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="MssqlDriver"/> class.
+    /// </summary>
+    /// <param name="connectionInfo">The connection info.</param>
+    public MssqlDriver(ConnectionInfo connectionInfo)
+      : base(connectionInfo)
+    {
+    }
   }
 }
+
