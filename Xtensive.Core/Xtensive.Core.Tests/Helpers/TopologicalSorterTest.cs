@@ -38,6 +38,19 @@ namespace Xtensive.Core.Tests.Helpers
 
       AssertEx.AreEqual(expected, actual);
       AssertEx.AreEqual(loops, actualLoops);
+
+      List<Pair<TopologicalSorter<T>.Node, TopologicalSorter<T>.Node>> removedEdges;
+      var sortWithRemove = TopologicalSorter<T>.Sort(data, connector, out removedEdges);
+      Assert.AreEqual(sortWithRemove.Count, data.Length);
+      if (loops==null) {
+        Assert.AreEqual(sortWithRemove.Count, actual.Count);
+        for (int i = 0; i < actual.Count; i++) {
+          Assert.AreEqual(sortWithRemove[i], actual[i]);
+        }
+      }
+      else {
+        Log.Debug("Loops detected");
+      }
     }
   }
 }
