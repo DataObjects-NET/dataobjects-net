@@ -42,12 +42,6 @@ namespace Xtensive.Storage.Providers.MsSql
       return new SqlProvider(provider, request, Handlers, source);
     }
 
-
-    protected override ExecutableProvider VisitApply(ApplyProvider provider, ExecutableProvider[] sources)
-    {
-      return base.VisitApply(provider, sources);
-    }
-
     protected override ExecutableProvider VisitRowNumber(RowNumberProvider provider, ExecutableProvider[] sources)
     {
       var source = sources[0] as SqlProvider;
