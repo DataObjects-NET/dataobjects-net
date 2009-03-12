@@ -11,7 +11,6 @@ using Xtensive.Core;
 
 namespace Xtensive.Storage.Linq
 {
-  [Serializable]
   internal sealed class ParameterBinding : IDisposable
   {
     private readonly Action disposeAction;

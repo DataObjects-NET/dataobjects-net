@@ -14,7 +14,6 @@ using System.Linq;
 
 namespace Xtensive.Storage.Linq
 {
-  [Serializable]
   internal sealed class ResultExpression : Expression
   {
     public RecordSet RecordSet { get; private set; }

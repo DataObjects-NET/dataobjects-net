@@ -22,7 +22,6 @@ using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Linq
 {
-  [Serializable]
   internal sealed partial class Translator : MemberPathVisitor
   {
     private readonly TranslatorContext context;

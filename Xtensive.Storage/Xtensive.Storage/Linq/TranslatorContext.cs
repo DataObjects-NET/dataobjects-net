@@ -13,7 +13,6 @@ using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Linq
 {
-  [Serializable]
   internal sealed class TranslatorContext
   {
     private readonly Expression query;
@@ -65,6 +64,8 @@ namespace Xtensive.Storage.Linq
       return columnAliasGenerator.Next();
     }
 
+    // Extract base: Core.Linq.BindingContext<T>
+    
     public ParameterBinding Bind(ParameterExpression pe, ResultExpression re)
     {
       Action disposeAction;

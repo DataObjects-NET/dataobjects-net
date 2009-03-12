@@ -9,7 +9,6 @@ using System.Linq.Expressions;
 
 namespace Xtensive.Storage.Linq
 {
-  [Serializable]
   internal class MemberPathItem
   {
     public string Name { get; private set; }

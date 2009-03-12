@@ -12,7 +12,6 @@ using Xtensive.Core.Reflection;
 
 namespace Xtensive.Storage.Linq
 {
-  [Serializable]
   internal sealed class ExpressionPreprocessor : ExpressionVisitor
   {
     public static Expression Preprocess(Expression e)

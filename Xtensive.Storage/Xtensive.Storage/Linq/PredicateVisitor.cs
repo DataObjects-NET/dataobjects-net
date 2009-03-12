@@ -12,7 +12,6 @@ using Xtensive.Core.Tuples;
 
 namespace Xtensive.Storage.Linq
 {
-  [Serializable]
   internal class PredicateVisitor : ExpressionVisitor
   {
     private List<int> map = new List<int>();

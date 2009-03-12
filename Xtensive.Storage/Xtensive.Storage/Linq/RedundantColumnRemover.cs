@@ -20,7 +20,6 @@ namespace Xtensive.Storage.Linq
   ///<summary>
   /// Removes redundant columns from result <see cref="RecordSet"/>.
   ///</summary>
-  [Serializable]
   public class RedundantColumnRemover : CompilableProviderVisitor
   {
     private readonly Dictionary<Provider, List<int>> mapping;
