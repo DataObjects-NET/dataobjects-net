@@ -403,6 +403,7 @@ namespace Xtensive.Storage.Linq
           // TODO: Add check of queries
           Expression body;
           using (new ParameterScope()) {
+            calculateExpressions.Value = false;
             resultMapping.Value = new ResultMapping();
             body = Visit(arg);
           }
