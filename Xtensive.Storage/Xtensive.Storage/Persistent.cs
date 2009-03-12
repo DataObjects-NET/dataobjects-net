@@ -175,12 +175,12 @@ namespace Xtensive.Storage
     internal void SetField<T>(FieldInfo field, T value, bool notify)
     {
       OnSettingField(field, value, notify);
-      T oldValue = GetField<T>(field, false);
+      var oldValue = GetField<T>(field, false);
       AssociationInfo association = field.Association;
       if (association!=null && association.IsPaired) {
         Key currentKey = GetKey(field);
         Key newKey = null;
-        Entity newReference = (Entity) (object) value;
+        var newReference = (Entity) (object) value;
         if (newReference!=null)
           newKey = newReference.Key;
         if (currentKey!=newKey) {
@@ -197,7 +197,7 @@ namespace Xtensive.Storage
     internal Key GetKey(FieldInfo field)
     {
       if (!field.IsEntity)
-        throw new InvalidOperationException(string.Format("Field '{0}' is not an Entity field.", field.Name));
+        throw new InvalidOperationException(string.Format("Field '{0}' is not an Entity field in Type '{1}'.", field.Name, field.ReflectedType.Name));
 
       OnGettingField(field, false);
       var type = Session.Domain.Model.Types[field.ValueType];

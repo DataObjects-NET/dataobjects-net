@@ -19,7 +19,8 @@ namespace Xtensive.Storage
   /// <summary>
   /// The underlying state of the <see cref="Storage.Entity"/>.
   /// </summary>
-  public sealed class EntityState : TransactionalStateContainer<DifferentialTuple>
+  public sealed class EntityState : TransactionalStateContainer<DifferentialTuple>, 
+        IEquatable<EntityState>
   {
     private readonly Key key;
     private PersistenceState persistenceState;
@@ -169,6 +170,12 @@ namespace Xtensive.Storage
     public override int GetHashCode()
     {
       return Key.GetHashCode();
+    }
+
+    /// <inheritdoc/>
+    public bool Equals(EntityState other)
+    {
+      return ReferenceEquals(this, other);
     }
 
     #endregion

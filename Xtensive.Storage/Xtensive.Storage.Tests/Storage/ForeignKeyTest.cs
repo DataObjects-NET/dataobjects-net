@@ -29,6 +29,9 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
 
     [Field]
     public Company Company { get; set; }
+
+    [Field]
+    public EntitySet<Project> Projects { get; private set; }
   }
 
   [HierarchyRoot("Id3", "Id4", KeyGenerator = typeof(DualIntKeyGenerator))]
@@ -45,6 +48,22 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
 
     [Field]
     public User Director { get; set; }
+  }
+
+  [HierarchyRoot("Id5", "Id6", KeyGenerator = typeof(DualIntKeyGenerator))]
+  public class Project : Entity
+  {
+    [Field]
+    public int Id5 { get; private set; }
+
+    [Field]
+    public int Id6 { get; private set; }
+
+    [Field]
+    public string Name { get; set; }
+
+    [Field(PairTo = "Projects")]
+    public EntitySet<User> Users { get; private set; }
   }
 
   public class DualIntKeyGenerator : KeyGenerator
@@ -228,6 +247,21 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
         u1.Boss = u1;
         Session.Current.Persist();
         u1.Remove();
+        Session.Current.Persist();
+      }
+    }
+
+    // Intermediate Entity
+
+    [Test]
+    public void InsertIntermediateEntity()
+    {
+      using (Domain.OpenSession())
+      using (Transaction.Open())
+      {
+        var u1 = new User { Name = "U1" };
+        var p1 = new Project { Name = "P1" };
+        u1.Projects.Add(p1);
         Session.Current.Persist();
       }
     }

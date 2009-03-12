@@ -131,7 +131,7 @@ namespace Xtensive.Core.Helpers
     /// <returns>
     /// Sorting result
     /// </returns>
-    public static List<TItem> Sort(IEnumerable<TItem> items, Predicate<TItem, TItem> connector, out List<Pair<Node, Node>> removedEdges)
+    public static List<TItem> Sort(IEnumerable<TItem> items, Predicate<TItem, TItem> connector, out List<Pair<Node>> removedEdges)
     {
       ArgumentValidator.EnsureArgumentNotNull(items, "items");
       ArgumentValidator.EnsureArgumentNotNull(connector, "connector");
@@ -173,21 +173,22 @@ namespace Xtensive.Core.Helpers
     /// <param name="nodes">The nodes.</param>
     /// <param name="removedEdges">Edges removed to make graph non-cyclic.</param>
     /// <returns>Sorting result.</returns>
-    public static List<TItem> Sort(List<Node> nodes, out List<Pair<Node, Node>> removedEdges)
+    public static List<TItem> Sort(IEnumerable<Node> nodes, out List<Pair<Node>> removedEdges)
     {
       ArgumentValidator.EnsureArgumentNotNull(nodes, "nodes");
+      var nodeList = nodes.ToList();
       var queue = new Queue<Node>();
       var result = new List<TItem>();
-      removedEdges = new List<Pair<Node, Node>>();
+      removedEdges = new List<Pair<Node>>();
       do {
-        SortInternal(nodes, queue, result);
-        nodes = new List<Node>(nodes.Where(node => node.GetConnectionCount(true) > 0));
-        if (nodes.Count > 0) {
-          Node destinationNode = nodes[0].Out.First();
-          removedEdges.Add(new Pair<Node, Node>(nodes[0], destinationNode));
-          nodes[0].RemoveConnection(destinationNode, true);
+        SortInternal(nodeList, queue, result);
+        nodeList = new List<Node>(nodeList.Where(node => node.GetConnectionCount(true) > 0));
+        if (nodeList.Count > 0) {
+          Node destinationNode = nodeList[0].Out.First();
+          removedEdges.Add(new Pair<Node>(nodeList[0], destinationNode));
+          nodeList[0].RemoveConnection(destinationNode, true);
         }
-      } while (nodes.Count > 0);
+      } while (nodeList.Count > 0);
       return result;
     }
 
