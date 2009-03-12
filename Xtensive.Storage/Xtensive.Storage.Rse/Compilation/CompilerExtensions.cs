@@ -17,12 +17,9 @@ namespace Xtensive.Storage.Rse.Compilation
   {
     /// <summary>
     /// Tries to compile the specified <paramref name="provider"/> by the <see cref="CompilationContext.CurrentCompiler"/>;
-    /// if compilation by <see cref="CompilationContext.CurrentCompiler"/> fails, the compiler from the current <see cref="CompilationContext.FallbackCompiler"/>
-    /// will be used to compile the <paramref name="provider"/>; wrapping to a compatible provider
-    /// will be performed, if necessary.
+    /// wrapping to a compatible provider will be performed, if necessary.
     /// </summary>
-    /// <param name="provider">The provider to compile.
-    /// Current compiler from <see cref="CompilationContext.FallbackCompiler"/> will be used in case of failure.</param>
+    /// <param name="provider">The provider to compile.</param>
     /// <returns>
     /// A compiled provider, compatible with <see cref="CompilationContext.CurrentCompiler"/>;
     /// <see langword="null"/>, if it was impossible to produce such provider

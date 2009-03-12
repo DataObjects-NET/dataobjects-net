@@ -7,6 +7,7 @@
 using System;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Storage.Rse.Compilation;
 
 namespace Xtensive.Storage.Rse.Providers.Compilable
 {
@@ -15,7 +16,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
   /// or stores the specified <see cref="Source"/> with the specified <see cref="Name"/>.
   /// </summary>
   [Serializable]
-  public class StoredProvider : CompilableProvider
+  public sealed class StoredProvider : LocationAwareProvider
   {
     private const string ToStringFormat = "{0}, '{1}'";
 
@@ -58,7 +59,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <param name="scope">The <see cref="Scope"/> property value.</param>
     /// <param name="name">The <see cref="Name"/> property value.</param>
     public StoredProvider(RecordSetHeader header, TemporaryDataScope scope, string name)
-      : base (ProviderType.Store)
+      : base (ProviderType.Store, RseCompiler.DefaultServerLocation)
     {
       ArgumentValidator.EnsureArgumentNotNull(header, "header");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
@@ -74,7 +75,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <param name="scope">The <see cref="Scope"/> property value.</param>
     /// <param name="name">The <see cref="Name"/> property value.</param>
     public StoredProvider(Provider source, TemporaryDataScope scope, string name)
-      : base(ProviderType.Store, source)
+      : base(ProviderType.Store, RseCompiler.DefaultServerLocation, source)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
@@ -89,7 +90,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// </summary>
     /// <param name="source">The <see cref="Source"/> property value.</param>
     public StoredProvider(Provider source)
-      : base(ProviderType.Store, source)
+      : base(ProviderType.Store, RseCompiler.DefaultServerLocation, source)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
       Scope = TemporaryDataScope.Enumeration;

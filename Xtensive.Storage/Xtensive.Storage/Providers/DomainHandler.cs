@@ -107,7 +107,7 @@ namespace Xtensive.Storage.Providers
       Domain = BuildingContext.Current.Domain;
       ClientSideCompiler = new DefaultCompiler();
       ServerSideCompiler = BuildCompiler();
-      CompilationContext = new CompilationContext(new SitePreferenceCompiler(ServerSideCompiler, ClientSideCompiler));
+      CompilationContext = new CompilationContext(new ManagingCompiler(ServerSideCompiler, ClientSideCompiler));
     }
 
     public virtual void InitializeSystemSession()

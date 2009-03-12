@@ -9,6 +9,7 @@ using System.Linq.Expressions;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Helpers;
+using Xtensive.Storage.Rse.Compilation;
 
 namespace Xtensive.Storage.Rse.Providers.Compilable
 {
@@ -16,7 +17,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
   /// Enumerates specified array of <see cref="Tuple"/> instances.
   /// </summary>
   [Serializable]
-  public class RawProvider : CompilableProvider
+  public sealed class RawProvider : LocationAwareProvider
   {
     private readonly RecordSetHeader header;
     private Func<Tuple[]> compiledSource;
@@ -58,7 +59,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <param name="header">The <see cref="Provider.Header"/> property value.</param>
     /// <param name="source">The <see cref="Source"/> property value.</param>
     public RawProvider(RecordSetHeader header, Expression<Func<Tuple[]>> source)
-      : base(ProviderType.Raw)
+      : base(ProviderType.Raw, RseCompiler.DefaultClientLocation)
     {
       Source = source;
       this.header = header;

@@ -37,7 +37,7 @@ namespace Xtensive.Storage.Providers.Index
     }
 
     /// <inheritdoc/>
-    protected override ExecutableProvider VisitIndex(Rse.Providers.Compilable.IndexProvider provider, ExecutableProvider[] sources)
+    protected override ExecutableProvider VisitIndex(Rse.Providers.Compilable.IndexProvider provider)
     {
       IndexInfo indexInfo = provider.Index.Resolve(Handlers.Domain.Model);
       ExecutableProvider result = CompileInternal(provider, indexInfo);

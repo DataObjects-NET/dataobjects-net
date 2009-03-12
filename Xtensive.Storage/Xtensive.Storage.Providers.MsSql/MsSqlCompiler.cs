@@ -21,15 +21,15 @@ namespace Xtensive.Storage.Providers.MsSql
   [Serializable]
   public class MsSqlCompiler : SqlCompiler
   {
-    protected override ExecutableProvider VisitSkip(SkipProvider provider, ExecutableProvider[] sources)
+    protected override ExecutableProvider VisitSkip(SkipProvider provider)
     {
       const string rowNumber = "RowNumber";
 
-      var source = sources[0] as SqlProvider;
-      if (source == null)
+      var compiledSource = GetBound(provider.Source) as SqlProvider;
+      if (compiledSource == null)
         return null;
 
-      SqlSelect sourceQuery = AddRowNumberColumn(source, provider, rowNumber);
+      SqlSelect sourceQuery = AddRowNumberColumn(compiledSource, provider, rowNumber);
 
       var queryRef = SqlFactory.QueryRef(sourceQuery);
       var query = SqlFactory.Select(queryRef);
@@ -38,17 +38,17 @@ namespace Xtensive.Storage.Providers.MsSql
       
       AddOrderByForRowNumberColumn(provider, query);
       
-      var request = new SqlFetchRequest(query, provider.Header, source.Request.ParameterBindings);
-      return new SqlProvider(provider, request, Handlers, source);
+      var request = new SqlFetchRequest(query, provider.Header, compiledSource.Request.ParameterBindings);
+      return new SqlProvider(provider, request, Handlers, compiledSource);
     }
 
-    protected override ExecutableProvider VisitRowNumber(RowNumberProvider provider, ExecutableProvider[] sources)
+    protected override ExecutableProvider VisitRowNumber(RowNumberProvider provider)
     {
-      var source = sources[0] as SqlProvider;
-      if (source == null)
+      var compiledSource = GetBound(provider.Source) as SqlProvider;
+      if (compiledSource == null)
         return null;
 
-      SqlSelect sourceQuery = AddRowNumberColumn(source, provider, provider.Header.Columns.Last().Name);
+      SqlSelect sourceQuery = AddRowNumberColumn(compiledSource, provider, provider.Header.Columns.Last().Name);
 
       var queryRef = SqlFactory.QueryRef(sourceQuery);
       var query = SqlFactory.Select(queryRef);
@@ -56,8 +56,8 @@ namespace Xtensive.Storage.Providers.MsSql
 
       AddOrderByForRowNumberColumn(provider, query);
 
-      var request = new SqlFetchRequest(query, provider.Header, source.Request.ParameterBindings);
-      return new SqlProvider(provider, request, Handlers, source);
+      var request = new SqlFetchRequest(query, provider.Header, compiledSource.Request.ParameterBindings);
+      return new SqlProvider(provider, request, Handlers, compiledSource);
     }
 
     private void AddOrderByForRowNumberColumn(Provider provider, SqlSelect query)

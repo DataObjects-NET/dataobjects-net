@@ -27,8 +27,8 @@ namespace Xtensive.Storage.Rse.Compilation
     // Constructors
 
     /// <inheritdoc/>
-    public DefaultCompilationContext(ICompiler compiler)
-      : base(compiler)
+    public DefaultCompilationContext()
+      : base(new ManagingCompiler(new DefaultCompiler()))
     {
     }
   }

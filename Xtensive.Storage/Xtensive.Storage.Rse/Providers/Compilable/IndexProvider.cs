@@ -7,6 +7,7 @@
 using System;
 using Xtensive.Core.Threading;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Rse.Compilation;
 
 namespace Xtensive.Storage.Rse.Providers.Compilable
 {
@@ -14,7 +15,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
   /// Gives access to the specified <see cref="Index"/>.
   /// </summary>
   [Serializable]
-  public sealed class IndexProvider : CompilableProvider
+  public sealed class IndexProvider : LocationAwareProvider
   {
     private static ThreadSafeDictionary<IndexInfo, IndexProvider> cache = 
       ThreadSafeDictionary<IndexInfo, IndexProvider>.Create(new object());
@@ -54,7 +55,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     // Constructor
 
     private IndexProvider(IndexInfo index)
-      : base (ProviderType.Index)
+      : base (ProviderType.Index, RseCompiler.DefaultServerLocation)
     {
       indexHeader = index.GetRecordSetHeader();
       Index = new IndexInfoRef(index);

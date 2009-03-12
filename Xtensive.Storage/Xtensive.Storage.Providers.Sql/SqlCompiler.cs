@@ -49,9 +49,9 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <inheritdoc/>
-    protected override ExecutableProvider VisitAggregate(AggregateProvider provider, ExecutableProvider[] sources)
+    protected override ExecutableProvider VisitAggregate(AggregateProvider provider)
     {
-      var compiledSource = sources[0];
+      var compiledSource = GetBound(provider.Source);
       var source = compiledSource as SqlProvider;
       if (source == null)
         return null;
@@ -96,9 +96,9 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <inheritdoc/>
-    protected override ExecutableProvider VisitAlias(AliasProvider provider, ExecutableProvider[] sources)
+    protected override ExecutableProvider VisitAlias(AliasProvider provider)
     {
-      var compiledSource = sources[0];
+      var compiledSource = GetBound(provider.Source);
       var source = compiledSource as SqlProvider;
       if (source == null)
         return null;
@@ -113,9 +113,9 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <inheritdoc/>
-    protected override ExecutableProvider VisitCalculate(CalculationProvider provider, ExecutableProvider[] sources)
+    protected override ExecutableProvider VisitCalculate(CalculationProvider provider)
     {
-      var compiledSource = sources[0];
+      var compiledSource = GetBound(provider.Source);
       var source = compiledSource as SqlProvider;
       if (source == null)
         return null;
@@ -136,9 +136,9 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <inheritdoc/>
-    protected override ExecutableProvider VisitDistinct(DistinctProvider provider, ExecutableProvider[] sources)
+    protected override ExecutableProvider VisitDistinct(DistinctProvider provider)
     {
-      var compiledSource = sources[0];
+      var compiledSource = GetBound(provider.Source);
       var source = compiledSource as SqlProvider;
       if (source == null)
         return null;
@@ -154,9 +154,9 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <inheritdoc/>
-    protected override ExecutableProvider VisitFilter(FilterProvider provider, ExecutableProvider[] sources)
+    protected override ExecutableProvider VisitFilter(FilterProvider provider)
     {
-      var compiledSource = sources[0];
+      var compiledSource = GetBound(provider.Source);
       var source = compiledSource as SqlProvider;
       if (source == null)
         return null;
@@ -195,7 +195,7 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <inheritdoc/>
-    protected override ExecutableProvider VisitIndex(IndexProvider provider, ExecutableProvider[] sources)
+    protected override ExecutableProvider VisitIndex(IndexProvider provider)
     {
       var index = provider.Index.Resolve(Handlers.Domain.Model);
       SqlSelect query = BuildProviderQuery(index);
@@ -204,10 +204,10 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <inheritdoc/>
-    protected override ExecutableProvider VisitJoin(JoinProvider provider, ExecutableProvider[] sources)
+    protected override ExecutableProvider VisitJoin(JoinProvider provider)
     {
-      var left = sources[0] as SqlProvider;
-      var right = sources[1] as SqlProvider;
+      var left = GetBound(provider.Left) as SqlProvider;
+      var right = GetBound(provider.Right) as SqlProvider;
 
       if (left == null || right == null)
         return null;
@@ -231,10 +231,10 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <inheritdoc/>
-    protected override ExecutableProvider VisitPredicateJoin(PredicateJoinProvider provider, ExecutableProvider[] sources)
+    protected override ExecutableProvider VisitPredicateJoin(PredicateJoinProvider provider)
     {
-      var left = sources[0] as SqlProvider;
-      var right = sources[1] as SqlProvider;
+      var left = GetBound(provider.Left) as SqlProvider;
+      var right = GetBound(provider.Right) as SqlProvider;
 
       if (left == null || right == null)
         return null;
@@ -259,17 +259,17 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <inheritdoc/>
-    protected override ExecutableProvider VisitRange(RangeProvider provider, ExecutableProvider[] sources)
+    protected override ExecutableProvider VisitRange(RangeProvider provider)
     {
-      var source = sources[0] as SqlProvider;
-      if (source == null)
+      var compiledSource = GetBound(provider.Source) as SqlProvider;
+      if (compiledSource == null)
         return null;
 
-      var query = (SqlSelect) source.Request.Statement.Clone();
+      var query = (SqlSelect) compiledSource.Request.Statement.Clone();
       var keyColumns = provider.Header.Order.ToList();
       var originalRange = provider.CompiledRange.Invoke();
-      var request = new SqlFetchRequest(query, provider.Header, source.Request.ParameterBindings);
-      var rangeProvider = new SqlRangeProvider(provider, request, Handlers, originalRange, source);
+      var request = new SqlFetchRequest(query, provider.Header, compiledSource.Request.ParameterBindings);
+      var rangeProvider = new SqlRangeProvider(provider, request, Handlers, originalRange, compiledSource);
 
       if (originalRange.EndPoints.First.HasValue) {
         for (int i = 0; i < originalRange.EndPoints.First.Value.Count; i++) {
@@ -345,14 +345,14 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <inheritdoc/>
-    protected override ExecutableProvider VisitSeek(SeekProvider provider, ExecutableProvider[] sources)
+    protected override ExecutableProvider VisitSeek(SeekProvider provider)
     {
-      var source = sources[0] as SqlProvider;
-      if (source == null)
+      var compiledSource = GetBound(provider.Source) as SqlProvider;
+      if (compiledSource == null)
         return null;
 
-      var query = (SqlSelect) source.Request.Statement.Clone();
-      var request = new SqlFetchRequest(query, provider.Header, source.Request.ParameterBindings);
+      var query = (SqlSelect) compiledSource.Request.Statement.Clone();
+      var request = new SqlFetchRequest(query, provider.Header, compiledSource.Request.ParameterBindings);
       var typeIdColumnName = Handlers.NameBuilder.TypeIdColumnName;
       Func<KeyValuePair<int, Direction>, bool> filterNonTypeId =
         pair => ((MappedColumn) provider.Header.Columns[pair.Key]).ColumnInfoRef.ColumnName != typeIdColumnName;
@@ -371,14 +371,14 @@ namespace Xtensive.Storage.Providers.Sql
         query.Where &= sqlColumn == SqlFactory.ParameterRef(binding.SqlParameter);
       }
 
-      return new SqlProvider(provider, request, Handlers, source);
+      return new SqlProvider(provider, request, Handlers, compiledSource);
     }
 
     /// <inheritdoc/>
-    protected override ExecutableProvider VisitSelect(SelectProvider provider, ExecutableProvider[] sources)
+    protected override ExecutableProvider VisitSelect(SelectProvider provider)
     {
-      var source = sources[0] as SqlProvider;
-      if (source == null)
+      var compiledSource = GetBound(provider.Source) as SqlProvider;
+      if (compiledSource == null)
         return null;
 
 //      var query = (SqlSelect)source.Request.Statement.Clone();
@@ -386,47 +386,47 @@ namespace Xtensive.Storage.Providers.Sql
 //      query.Columns.Clear();
 //      query.Columns.AddRange(provider.ColumnIndexes.Select(i => originalColumns[i]));
 
-      var queryRef = SqlFactory.QueryRef(source.Request.Statement as SqlSelect);
+      var queryRef = SqlFactory.QueryRef(compiledSource.Request.Statement as SqlSelect);
       SqlSelect query = SqlFactory.Select(queryRef);
       query.Columns.AddRange(provider.ColumnIndexes.Select(i => (SqlColumn) queryRef.Columns[i]));
-      var request = new SqlFetchRequest(query, provider.Header, source.Request.ParameterBindings);
+      var request = new SqlFetchRequest(query, provider.Header, compiledSource.Request.ParameterBindings);
 
-      return new SqlProvider(provider, request, Handlers, source);
+      return new SqlProvider(provider, request, Handlers, compiledSource);
     }
 
     /// <inheritdoc/>
-    protected override ExecutableProvider VisitSkip(SkipProvider provider, ExecutableProvider[] sources)
+    protected override ExecutableProvider VisitSkip(SkipProvider provider)
     {
-      var source = sources[0] as SqlProvider;
-      if (source == null)
+      var compiledSource = GetBound(provider.Source) as SqlProvider;
+      if (compiledSource == null)
         return null;
 
-      var queryRef = SqlFactory.QueryRef(source.Request.Statement as SqlSelect);
+      var queryRef = SqlFactory.QueryRef(compiledSource.Request.Statement as SqlSelect);
       var query = SqlFactory.Select(queryRef);
       query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
       query.Offset = provider.Count();
-      var request = new SqlFetchRequest(query, provider.Header, source.Request.ParameterBindings);
-      return new SqlProvider(provider, request, Handlers, source);
+      var request = new SqlFetchRequest(query, provider.Header, compiledSource.Request.ParameterBindings);
+      return new SqlProvider(provider, request, Handlers, compiledSource);
     }
 
     /// <inheritdoc/>
-    protected override ExecutableProvider VisitSort(SortProvider provider, ExecutableProvider[] sources)
+    protected override ExecutableProvider VisitSort(SortProvider provider)
     {
-      var source = sources[0] as SqlProvider;
-      if (source == null)
+      var compiledSource = GetBound(provider.Source) as SqlProvider;
+      if (compiledSource == null)
         return null;
 
-      var query = (SqlSelect) source.Request.Statement.Clone();
+      var query = (SqlSelect) compiledSource.Request.Statement.Clone();
       query.OrderBy.Clear();
       foreach (KeyValuePair<int, Direction> sortOrder in provider.Order)
         query.OrderBy.Add(sortOrder.Key + 1, sortOrder.Value == Direction.Positive);
 
-      var request = new SqlFetchRequest(query, provider.Header, source.Request.ParameterBindings);
-      return new SqlProvider(provider, request, Handlers, source);
+      var request = new SqlFetchRequest(query, provider.Header, compiledSource.Request.ParameterBindings);
+      return new SqlProvider(provider, request, Handlers, compiledSource);
     }
 
     /// <inheritdoc/>
-    protected override ExecutableProvider VisitStore(StoredProvider provider, ExecutableProvider[] sources)
+    protected override ExecutableProvider VisitStore(StoredProvider provider)
     {
       const string TABLE_NAME_PATTERN = "Tmp_{0}";
 
@@ -436,7 +436,7 @@ namespace Xtensive.Storage.Providers.Sql
       Table table;
       string tableName = string.Format(TABLE_NAME_PATTERN, provider.Name);
       if (provider.Source != null) {
-        ex = sources[0] as ExecutableProvider;
+        ex = provider.Source.Compile();
         table = provider.Scope == TemporaryDataScope.Global ? schema.CreateTable(tableName)
           : schema.CreateTemporaryTable(tableName);
 
@@ -468,18 +468,18 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <inheritdoc/>
-    protected override ExecutableProvider VisitTake(TakeProvider provider, ExecutableProvider[] sources)
+    protected override ExecutableProvider VisitTake(TakeProvider provider)
     {
-      var source = sources[0] as SqlProvider;
-      if (source == null)
+      var compiledSource = GetBound(provider.Source) as SqlProvider;
+      if (compiledSource == null)
         return null;
 
-      var query = (SqlSelect) source.Request.Statement.Clone();
+      var query = (SqlSelect) compiledSource.Request.Statement.Clone();
       var count = provider.Count();
       if (query.Top == 0 || query.Top > count)
         query.Top = count;
-      var request = new SqlFetchRequest(query, provider.Header, source.Request.ParameterBindings);
-      return new SqlProvider(provider, request, Handlers, source);
+      var request = new SqlFetchRequest(query, provider.Header, compiledSource.Request.ParameterBindings);
+      return new SqlProvider(provider, request, Handlers, compiledSource);
     }
 
     #region Private methods.

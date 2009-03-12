@@ -33,7 +33,7 @@ namespace Xtensive.Storage.Rse.Compilation
     }
 
     /// <inheritdoc/>
-    protected override ExecutableProvider VisitIndex(IndexProvider provider, ExecutableProvider[] sources)
+    protected override ExecutableProvider VisitIndex(IndexProvider provider)
     {
       throw new NotSupportedException();
     }
@@ -45,7 +45,7 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     public DefaultCompiler()
-      : base(RseCompiler.DefaultLocation)
+      : base(RseCompiler.DefaultClientLocation)
     {}
   }
 }

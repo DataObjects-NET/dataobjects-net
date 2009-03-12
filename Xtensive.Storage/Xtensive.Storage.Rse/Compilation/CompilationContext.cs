@@ -12,6 +12,7 @@ using Xtensive.Core;
 using Xtensive.Core.Caching;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Parameters;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Executable;
@@ -58,17 +59,20 @@ namespace Xtensive.Storage.Rse.Compilation
     private readonly ICache<CompilableProvider, CacheEntry> cache;
     private readonly object _lock = new object();
 
+    /// <summary>
+    /// Gets the binding context.
+    /// </summary>
+    public BindingContext<ExecutableProvider> BindingContext { get; private set; }
+
     /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
-    public static DefaultCompilationContext Default = 
-      new DefaultCompilationContext(
-        new DefaultCompiler());
+    public readonly static DefaultCompilationContext Default = new DefaultCompilationContext();
 
     /// <summary>
     /// Gets the current compilation context.
     /// </summary>
     public static CompilationContext Current {
       [DebuggerStepThrough]
-      get { return CompilationScope.CurrentContext ?? Default;  }
+      get { return CompilationScope.CurrentContext ?? Default; }
     }
 
     /// <summary>
@@ -88,12 +92,6 @@ namespace Xtensive.Storage.Rse.Compilation
     /// </summary>
     public ICompiler Compiler { get; internal set; }
 
-    /// <summary>
-    /// Gets the fallback compiler used by <see cref="Compile"/> method of this context 
-    /// when provider could not be compiled using original <see cref="Compiler"/>.
-    /// </summary>
-    public ICompiler FallbackCompiler { get; internal set; }
-    
     /// <inheritdoc/>
     /// <remarks>
     /// Compilation context usually must provide compiler-specific extensions,
@@ -121,7 +119,7 @@ namespace Xtensive.Storage.Rse.Compilation
       if (compiler == null)
         throw new InvalidOperationException(
           Strings.ExCanNotCompileNoCompiler);
-      var result = compiler.Compile(provider, provider.Sources.Select(s => s.Compile()).ToArray());
+      var result = compiler.Compile(provider);
       
       if (result!=null && result.IsCacheable)
         lock (_lock) {
@@ -179,6 +177,7 @@ namespace Xtensive.Storage.Rse.Compilation
     {
       Compiler   = compiler;
       Extensions = extensions;
+      BindingContext = new BindingContext<ExecutableProvider>();
       extensions.LockSafely(true);
       cache = new LruCache<CompilableProvider, CacheEntry>(CacheSize, i => i.Key,
         new WeakestCache<CompilableProvider, CacheEntry>(false, false, i => i.Key));
