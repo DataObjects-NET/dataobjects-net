@@ -100,6 +100,7 @@ namespace Xtensive.Storage.Tests.Storage
     private string cID;
     private string cName;
     private string cLength;
+    private string cFeatures;
 
     protected override DomainConfiguration BuildConfiguration()
     {
@@ -119,7 +120,8 @@ namespace Xtensive.Storage.Tests.Storage
       cName = field.Column.Name;
       field = result.Model.Types[typeof (Snake)].Fields["Length"];
       cLength = field.Column.Name;
-
+      field = result.Model.Types[typeof (Snake)].Fields["Features"];
+      cFeatures = field.Column.Name;
       return result;
     }
 
@@ -170,7 +172,7 @@ namespace Xtensive.Storage.Tests.Storage
 
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
-      for (int i = 0; i < snakesCount; i++)
+          for (int i = 0; i < snakesCount; i++)
             new Snake { Name = ("Kaa" + i), Length = i };
           for (int j = 0; j < creaturesCount; j++)
             new Creature { Name = ("Creature" + j) };
@@ -654,7 +656,7 @@ namespace Xtensive.Storage.Tests.Storage
     }
 
     [Test]
-    public void   QueryTest()
+    public void QueryTest()
     {
       const int snakesCount = 1000;
       const int creaturesCount = 1000;
@@ -945,6 +947,47 @@ namespace Xtensive.Storage.Tests.Storage
               value = s.Name;
             }
           }
+        }
+      }
+    }
+
+    [Test]
+    public void ApplyTest()
+    {
+      var random = new Random();
+      using (Domain.OpenSession()) {
+        using (Transaction.Open()) {
+
+          var possibleFeatures = (Features[])Enum.GetValues(typeof (Features));
+
+          for (int i = 0; i < 100; i++)
+            new Creature {Name = "Creature_" + i, Features = possibleFeatures[random.Next(possibleFeatures.Length)]};
+
+          Session.Current.Persist();
+
+          var creatureType = Domain.Model.Types[typeof (Creature)];
+          var creaturesPrimary = creatureType.Indexes.PrimaryIndex.ToRecordSet();
+          var creatures = creaturesPrimary.ToEntities<Creature>().ToList();
+          int featuresIndex = creaturesPrimary.Header.IndexOf(cFeatures);
+          var featuresParameter = new Parameter<int>();
+          long total = 0;
+
+          foreach (var creature in creatures) {
+            var features = creature.Features;
+            if (features == null)
+              continue;
+            using (new ParameterScope()) {
+              featuresParameter.Value = (int)features.Value;
+              total += creaturesPrimary.Filter(t => t.GetValue<int>(featuresIndex) == featuresParameter.Value).Count();
+            }
+          }
+
+          var parameter = new Parameter<Tuple>();
+          var subquery = creaturesPrimary
+            .Filter(t => t.GetValue<int>(featuresIndex)==parameter.Value.GetValue<int>(featuresIndex))
+            .Alias("PairedCreatures");
+          long resultCount = creaturesPrimary.Apply(parameter, subquery).Count();
+          Assert.AreEqual(total, resultCount);
         }
       }
     }

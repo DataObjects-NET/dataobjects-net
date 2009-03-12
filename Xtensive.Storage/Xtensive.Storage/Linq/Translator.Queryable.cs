@@ -224,59 +224,53 @@ namespace Xtensive.Storage.Linq
 
     private Expression VisitContains(Expression source, Expression match, bool isRoot)
     {
-      if (!source.IsQuery() || !isRoot)
-        throw new NotImplementedException();
+      bool isQuery = source.IsQuery();
+      if (isQuery && isRoot) {
+        var p = Expression.Parameter(match.Type, "p");
+        var le = Expression.Lambda(Expression.Equal(p, match), p);
+        return VisitRootExists(source, le, false);
+      }
 
-      var elementType = TypeHelper.GetElementType(source.Type);
-      source = Expression.Call(takeMethod.MakeGenericMethod(elementType), source, Expression.Constant(1));
+      /*
+      if (!isQuery) {
+        var memberPath = MemberPath.Parse(match, context.Model);
+        if (!memberPath.IsValid)
+          throw new NotSupportedException();
+        var memberType = match.GetMemberType();
+        var oldResult = context.GetBound(memberPath.Parameter);
+        var newRecordSet = oldResult.RecordSet;
+        var newResult = new ResultExpression(oldResult.Type,
+          newRecordSet, oldResult.Mapping, oldResult.Projector, oldResult.ItemProjector);
+        context.ReplaceBound(memberPath.Parameter, newResult);
 
-      var p = Expression.Parameter(match.Type, "p");
-      var le = Expression.Lambda(Expression.Equal(p, match), p);
-      var method = countWithPredicateMethod.MakeGenericMethod(elementType);
-      var result = (ResultExpression) VisitAggregate(source, method, le, true);
+        return Expression.Equal(Expression.Constant(1), Expression.Constant(1));
+      }
+      */
 
-      Expression<Func<RecordSet, object>> shaper = rs => ((long)rs.First().GetValue(0)) > 0;
-      return new ResultExpression(typeof(bool), result.RecordSet, null, shaper, null);      
+      throw new NotImplementedException();
     }
 
     private Expression VisitAll(Expression source, LambdaExpression predicate, bool isRoot)
     {
-      if (!source.IsQuery() || !isRoot)
-        throw new NotImplementedException();
+      bool isQuery = source.IsQuery();
+      if (isQuery && isRoot) {
+        predicate = Expression.Lambda(Expression.Not(predicate.Body), predicate.Parameters[0]);
+        return VisitRootExists(source, predicate, true);
+      }
 
-      var elementType = TypeHelper.GetElementType(source.Type);
-      source = Expression.Call(takeMethod.MakeGenericMethod(elementType), source, Expression.Constant(1));
+      if (!isQuery) {
+      }
 
-      var le = Expression.Lambda(Expression.Not(predicate.Body), predicate.Parameters[0]);
-      var method = countWithPredicateMethod.MakeGenericMethod(elementType);
-      var result = (ResultExpression) VisitAggregate(source, method, le, true);
-
-      Expression<Func<RecordSet, object>> shaper = rs => ((long)rs.First().GetValue(0)) == 0;
-      return new ResultExpression(typeof(bool), result.RecordSet, null, shaper, null);
+      throw new NotImplementedException();
     }
 
     private Expression VisitAny(Expression source, LambdaExpression predicate, bool isRoot)
     {
-      if (!source.IsQuery() || !isRoot)
-        throw new NotImplementedException();
+      bool isQuery = source.IsQuery();
+      if (isQuery && isRoot)
+        return VisitRootExists(source, predicate, false);
 
-      var elementType = TypeHelper.GetElementType(source.Type);
-      source = Expression.Call(takeMethod.MakeGenericMethod(elementType), source, Expression.Constant(1));
-
-      MethodInfo realCountMethod;
-      ResultExpression result;
-
-      if (predicate!=null) {
-        realCountMethod = countWithPredicateMethod.MakeGenericMethod(elementType);
-        result = (ResultExpression)VisitAggregate(source, realCountMethod, null, true);
-      }
-      else {
-        realCountMethod = countMethod.MakeGenericMethod(elementType);
-        result = (ResultExpression)VisitAggregate(source, realCountMethod, null, true);
-      }
-
-      Expression<Func<RecordSet, object>> shaper = rs => ((long) rs.First().GetValue(0)) > 0;
-      return new ResultExpression(typeof (bool), result.RecordSet, null, shaper, null);
+      throw new NotImplementedException();
     }
 
     private Expression VisitFirst(Expression source, LambdaExpression predicate, MethodInfo method, bool isRoot)
@@ -526,6 +520,32 @@ namespace Xtensive.Storage.Linq
       }
     }
 
+    private Expression VisitRootExists(Expression source, LambdaExpression predicate, bool notExists)
+    {
+      var elementType = TypeHelper.GetElementType(source.Type);
+      source = Expression.Call(takeMethod.MakeGenericMethod(elementType), source, Expression.Constant(1));
+
+      MethodInfo realCountMethod;
+      ResultExpression result;
+
+      if (predicate != null) {
+        realCountMethod = countWithPredicateMethod.MakeGenericMethod(elementType);
+        result = (ResultExpression)VisitAggregate(source, realCountMethod, null, true);
+      }
+      else {
+        realCountMethod = countMethod.MakeGenericMethod(elementType);
+        result = (ResultExpression)VisitAggregate(source, realCountMethod, null, true);
+      }
+
+      Expression<Func<RecordSet, object>> shaper;
+
+      if (notExists)
+        shaper = rs => rs.First().GetValue<long>(0)==0;
+      else
+        shaper = rs => rs.First().GetValue<long>(0) > 0;
+
+      return new ResultExpression(typeof(bool), result.RecordSet, null, shaper, null);
+    }
 
     // Constructor
 

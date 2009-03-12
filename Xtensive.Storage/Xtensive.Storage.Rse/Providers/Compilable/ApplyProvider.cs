@@ -32,7 +32,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     public override string ParametersToString()
     {
       return string.Format(LeftJoin
-        ? "Left subquery"
+        ? "Left apply"
         : "Apply");
     }
 
