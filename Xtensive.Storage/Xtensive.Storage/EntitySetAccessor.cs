@@ -8,7 +8,6 @@ using System;
 using Xtensive.Core;
 using Xtensive.Core.Aspects;
 using Xtensive.Storage.Model;
-using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage
 {
@@ -22,19 +21,19 @@ namespace Xtensive.Storage
       return target.GetField<EntitySetBase>(field, false);
     }
 
-    [Infrastructure]
-    public RecordSet GetRecordSet(EntitySetBase target)
-    {
-      ValidateArguments(target);
-      return target.items;
-    }
-
-    [Infrastructure]
-    public RecordSet GetRecordSet(Entity target, FieldInfo field)
-    {
-      ValidateArguments(target, field);
-      return GetRecordSet(GetEntitySet(target, field));
-    }
+//    [Infrastructure]
+//    public RecordSet GetRecordSet(EntitySetBase target)
+//    {
+//      ValidateArguments(target);
+//      return target.items;
+//    }
+//
+//    [Infrastructure]
+//    public RecordSet GetRecordSet(Entity target, FieldInfo field)
+//    {
+//      ValidateArguments(target, field);
+//      return GetRecordSet(GetEntitySet(target, field));
+//    }
 
     [Infrastructure]
     public bool Add(EntitySetBase target, Entity item)
