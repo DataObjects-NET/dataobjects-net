@@ -28,6 +28,14 @@ namespace Xtensive.Storage.Rse.Compilation
       }
     }
 
+    private Func<object, ExecutableProvider> GetBound
+    {
+      get
+      {
+        return CompilationContext.Current.BindingContext.GetBound;
+      }
+    }
+
     /// <inheritdoc/>
     public UrlInfo Location
     {
@@ -108,6 +116,7 @@ namespace Xtensive.Storage.Rse.Compilation
       var left = Compile(provider.Left);
       using (Bind(provider.LeftItemParameter, left)) {
         var right = Compile(provider.Right);
+        left = GetBound(provider.LeftItemParameter);
         var compiler = compilersMap[right.Location];
         using (Bind(provider.Left, left) & Bind(provider.Right, right))
           return compiler.Compile(provider);

@@ -92,8 +92,8 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
                 : Expression.Lambda<Func<int>>(mc.Arguments[0]).Compile().Invoke();
               var provider = CompilationContext.Current.BindingContext.GetBound(parameter);
               if (!Compiler.IsCompatible(provider)) {
-//                provider = Compiler.ToCompatible(provider);
-                throw new NotSupportedException();
+                provider = Compiler.ToCompatible(provider);
+                CompilationContext.Current.BindingContext.ReplaceBound(parameter, provider);
               }
               var sqlProvider = (SqlProvider)provider;
               var sqlSelect = (SqlSelect)sqlProvider.Request.Statement;
