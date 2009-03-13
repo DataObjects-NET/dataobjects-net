@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using Xtensive.Core.Tuples;
+using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Rse.Providers;
 
 namespace Xtensive.Storage.Providers.Sql
@@ -27,6 +28,8 @@ namespace Xtensive.Storage.Providers.Sql
       [DebuggerStepThrough]
       set { request = value; }
     }
+
+    public SqlQueryRef PermanentReference { get; private set; }
 
     /// <inheritdoc/>
     protected override IEnumerable<Tuple> OnEnumerate(Rse.Providers.EnumerationContext context)
@@ -97,8 +100,11 @@ namespace Xtensive.Storage.Providers.Sql
     {
       this.request = request;
       this.handlers = handlers;
+      var select = request.Statement as SqlSelect;
+      if (select != null)
+        PermanentReference = Xtensive.Sql.Dom.Sql.QueryRef(select);
       foreach (ExecutableProvider source in sources) {
-        SqlProvider sqlProvider = source as SqlProvider;
+        var sqlProvider = source as SqlProvider;
         if (sqlProvider!=null && sqlProvider.Request != null)
           request.ParameterBindings.UnionWith(sqlProvider.Request.ParameterBindings);
       }
