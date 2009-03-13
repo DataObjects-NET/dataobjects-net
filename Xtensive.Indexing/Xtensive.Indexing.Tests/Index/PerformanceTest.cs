@@ -38,7 +38,7 @@ namespace Xtensive.Indexing.Tests.Index
       [Category("Profile")]
       public void DictionaryAddTest()
       {
-        var dictionary = new Dictionary<TKey, TItem>();
+        var dictionary = new SortedDictionary<TKey, TItem>();
         TestHelper.CollectGarbage();
         using (new Measurement("Dictionary.Add", MeasurementOptions.Log, ItemsCount))
           foreach (TItem item in list)
@@ -171,7 +171,7 @@ namespace Xtensive.Indexing.Tests.Index
       [TestFixtureSetUp]
       public override void SetUp()
       {
-        var dictionary = new Dictionary<int, int>();
+        var dictionary = new SortedDictionary<int, int>();
         list = new List<int>(ItemsCount);
 
         var random = RandomManager.CreateRandom(SeedVariatorType.CallingMethod);
@@ -204,7 +204,7 @@ namespace Xtensive.Indexing.Tests.Index
       [TestFixtureSetUp]
       public override void SetUp()
       {
-        var dictionary = new Dictionary<int, int>();
+        var dictionary = new SortedDictionary<int, int>();
         var descriptor = TupleDescriptor.Create(new[] {typeof (int), typeof (int)});
         list = new List<Tuple>(ItemsCount);
         AdvancedComparer<Tuple> comparer = AdvancedComparer<Tuple>.Default.ApplyRules(
@@ -241,7 +241,7 @@ namespace Xtensive.Indexing.Tests.Index
       [TestFixtureSetUp]
       public override void SetUp()
       {
-        var dictionary = new Dictionary<int, int>();
+        var dictionary = new SortedDictionary<int, int>();
         var descriptor = TupleDescriptor.Create(new[] {typeof (int), typeof (int)});
         list = new List<Tuple>(ItemsCount);
         AdvancedComparer<Tuple> comparer = AdvancedComparer<Tuple>.Default;
