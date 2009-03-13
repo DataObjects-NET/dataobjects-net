@@ -37,14 +37,14 @@ namespace Xtensive.Storage.Rse.Providers
     }
 
     /// <inheritdoc/>
-    protected override Provider VisitExecutionSite(ExecutionSiteProvider provider)
+    protected override Provider VisitTransfer(TransferProvider provider)
     {
       OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
       OnRecursionExit(provider);
       if (source == provider.Source)
         return provider;
-      return new ExecutionSiteProvider(source, provider.Options, provider.Location);
+      return new TransferProvider(source, provider.Options, provider.Location);
     }
 
     /// <inheritdoc/>
@@ -139,7 +139,7 @@ namespace Xtensive.Storage.Rse.Providers
       var equalIndexes = OnRecursionExit(provider);
       if (left == provider.Left && right == provider.Right)
         return provider;
-      return new JoinProvider(left, right, provider.LeftJoin, provider.JoinType,
+      return new JoinProvider(left, right, provider.Outer, provider.JoinType,
         equalIndexes != null ? (Pair<int>[])equalIndexes : provider.EqualIndexes);
     }
 
@@ -167,7 +167,7 @@ namespace Xtensive.Storage.Rse.Providers
     }
 
     /// <inheritdoc/>
-    protected override Provider VisitCalculate(CalculationProvider provider)
+    protected override Provider VisitCalculate(CalculateProvider provider)
     {
       OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
@@ -183,7 +183,7 @@ namespace Xtensive.Storage.Rse.Providers
       }
       if (!translated && source == provider.Source)
         return provider;
-      return new CalculationProvider(source, descriptors.ToArray());
+      return new CalculateProvider(source, descriptors.ToArray());
     }
 
     protected override Provider VisitRowNumber(RowNumberProvider provider)
@@ -221,7 +221,7 @@ namespace Xtensive.Storage.Rse.Providers
     }
 
     /// <inheritdoc/>
-    protected override Provider VisitStore(StoredProvider provider)
+    protected override Provider VisitStore(StoreProvider provider)
     {
       var compilableSource = provider.Source as CompilableProvider;
       if (compilableSource == null)
@@ -231,7 +231,7 @@ namespace Xtensive.Storage.Rse.Providers
       OnRecursionExit(provider);
       if (source == compilableSource)
         return provider;
-      return new StoredProvider(source, provider.Scope, provider.Name);
+      return new StoreProvider(source, provider.Scope, provider.Name);
     }
 
     /// <inheritdoc/>

@@ -172,7 +172,7 @@ namespace Xtensive.Storage.Linq
       return base.VisitAggregate(provider);
     }
 
-    protected override Provider VisitCalculate(CalculationProvider provider)
+    protected override Provider VisitCalculate(CalculateProvider provider)
     {
       List<int> value;
       mapping.TryGetValue(provider, out value);

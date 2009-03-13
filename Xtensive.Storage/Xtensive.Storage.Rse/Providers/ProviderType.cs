@@ -25,7 +25,7 @@ namespace Xtensive.Storage.Rse.Providers
     Select,
     Skip,
     Take,
-    ExecutionSite,
+    Transfer,
     Apply,
     RowNumber
   }

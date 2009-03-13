@@ -37,7 +37,7 @@ namespace Xtensive.Storage.Rse.Compilation
     }
 
     /// <inheritdoc/>
-    protected override ExecutableProvider VisitExecutionSite(ExecutionSiteProvider provider)
+    protected override ExecutableProvider VisitTransfer(TransferProvider provider)
     {
       throw new NotSupportedException();
     }
@@ -144,10 +144,10 @@ namespace Xtensive.Storage.Rse.Compilation
     }
 
     /// <inheritdoc/>
-    protected override ExecutableProvider VisitCalculate(CalculationProvider provider)
+    protected override ExecutableProvider VisitCalculate(CalculateProvider provider)
     {
       var compiledSource = GetBound(provider.Source);
-      return new Providers.Executable.CalculationProvider(
+      return new Providers.Executable.CalculateProvider(
         provider,
         compiledSource);
     }
@@ -198,13 +198,13 @@ namespace Xtensive.Storage.Rse.Compilation
     }
 
     /// <inheritdoc/>
-    protected override ExecutableProvider VisitStore(StoredProvider provider)
+    protected override ExecutableProvider VisitStore(StoreProvider provider)
     {
       var compiledSource = GetBound(provider.Source);
       ExecutableProvider ex = null;
       if (provider.Source != null)
         ex = compiledSource;
-      return new Providers.Executable.StoredProvider(provider, ex);
+      return new Providers.Executable.StoreProvider(provider, ex);
     }
 
     /// <inheritdoc/>

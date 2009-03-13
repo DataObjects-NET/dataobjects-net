@@ -39,7 +39,7 @@ namespace Xtensive.Storage.Rse
     public CompilableProvider Provider { get; private set; }
 
     /// <summary>
-    /// Creates <see cref="StoredProvider"/> with specified <see cref="RecordSetHeader"/>
+    /// Creates <see cref="StoreProvider"/> with specified <see cref="RecordSetHeader"/>
     /// and name for saved context data .
     /// </summary>
     /// <param name="header">The result header.</param>
@@ -47,7 +47,7 @@ namespace Xtensive.Storage.Rse
     /// <param name="name">The result name.</param>
     public static RecordSet Load(RecordSetHeader header, TemporaryDataScope scope, string name)
     {
-      return new StoredProvider(header, scope, name).Result;
+      return new StoreProvider(header, scope, name).Result;
     }
 
     #region IEnumerable<...> methods

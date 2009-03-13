@@ -18,10 +18,10 @@ using SqlFactory = Xtensive.Sql.Dom.Sql;
 
 namespace Xtensive.Storage.Providers.Sql
 {
-  internal sealed class SqlStoredProvider : SqlProvider,
+  internal sealed class SqlStoreProvider : SqlProvider,
     IHasNamedResult
   {
-    public new StoredProvider Origin { get; private set; }
+    public new StoreProvider Origin { get; private set; }
 
     public ExecutableProvider Source { get; private set; }
 
@@ -95,7 +95,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     // Constructor
 
-    public SqlStoredProvider(StoredProvider origin, SqlFetchRequest request, HandlerAccessor handlers, ExecutableProvider source, Table table)
+    public SqlStoreProvider(StoreProvider origin, SqlFetchRequest request, HandlerAccessor handlers, ExecutableProvider source, Table table)
       : base(origin, request, handlers, source)
     {
       AddService<IHasNamedResult>();

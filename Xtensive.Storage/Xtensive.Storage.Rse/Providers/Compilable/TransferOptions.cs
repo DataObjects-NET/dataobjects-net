@@ -9,10 +9,10 @@ using System;
 namespace Xtensive.Storage.Rse.Providers.Compilable
 {
   /// <summary>
-  /// Enumerates execution preference options.
+  /// Enumerates transfer preference options.
   /// </summary>
   [Serializable]
-  public enum ExecutionOptions
+  public enum TransferOptions
   {
     /// <summary>
     /// Default option is a <see cref="Server"/>.

@@ -18,7 +18,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
   [Serializable]
   internal sealed class NestedLoopJoinProvider : BinaryExecutableProvider<Compilable.JoinProvider>
   {
-    private readonly bool leftJoin;
+    private readonly bool outerJoin;
     private readonly Pair<int>[] joiningPairs;
     private CombineTransform transform;
     private MapTransform leftKeyTransform;
@@ -27,7 +27,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     protected internal override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
       AdvancedComparer<Tuple> comparer = AdvancedComparer<Tuple>.Default;
-      IEnumerable<Pair<Tuple, Tuple>> loopJoin = leftJoin ? Left.NestedLoopJoinLeft(Right, KeyExtractorLeft, KeyExtractorRight, comparer) : Left.NestedLoopJoin(Right, KeyExtractorLeft, KeyExtractorRight, comparer);
+      IEnumerable<Pair<Tuple, Tuple>> loopJoin = outerJoin ? Left.NestedLoopJoinLeft(Right, KeyExtractorLeft, KeyExtractorRight, comparer) : Left.NestedLoopJoin(Right, KeyExtractorLeft, KeyExtractorRight, comparer);
       foreach (Pair<Tuple, Tuple> pair in loopJoin)
         yield return transform.Apply(TupleTransformType.Auto, pair.First, pair.Second);
     }
@@ -66,7 +66,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     public NestedLoopJoinProvider(Compilable.JoinProvider origin, ExecutableProvider left, ExecutableProvider right)
       : base(origin, left, right)
     {
-      leftJoin = origin.LeftJoin;
+      outerJoin = origin.Outer;
       joiningPairs = origin.EqualIndexes;      
     }
   }

@@ -45,7 +45,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     public override ExecutableProvider ToCompatible(ExecutableProvider provider)
     {
-      return new StoredProvider(provider).Compile();
+      return new StoreProvider(provider).Compile();
     }
 
     /// <inheritdoc/>
@@ -113,7 +113,7 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <inheritdoc/>
-    protected override ExecutableProvider VisitCalculate(CalculationProvider provider)
+    protected override ExecutableProvider VisitCalculate(CalculateProvider provider)
     {
       var compiledSource = GetBound(provider.Source);
       var source = compiledSource as SqlProvider;
@@ -162,7 +162,7 @@ namespace Xtensive.Storage.Providers.Sql
         return null;
 
       SqlSelect query;
-      if (provider.Source is AggregateProvider || provider.Source is CalculationProvider) {
+      if (provider.Source is AggregateProvider || provider.Source is CalculateProvider) {
         var queryRef = SqlFactory.QueryRef(source.Request.Statement as SqlSelect);
         query = SqlFactory.Select(queryRef);
         query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
@@ -216,7 +216,7 @@ namespace Xtensive.Storage.Providers.Sql
       var rightSelect = (SqlSelect) right.Request.Statement;
       var rightQuery = SqlFactory.QueryRef(rightSelect);
       var joinedTable = SqlFactory.Join(
-        provider.LeftJoin ? SqlJoinType.LeftOuterJoin : SqlJoinType.InnerJoin,
+        provider.Outer ? SqlJoinType.LeftOuterJoin : SqlJoinType.InnerJoin,
         leftQuery,
         rightQuery,
         provider.EqualIndexes
@@ -426,7 +426,7 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <inheritdoc/>
-    protected override ExecutableProvider VisitStore(StoredProvider provider)
+    protected override ExecutableProvider VisitStore(StoreProvider provider)
     {
       const string TABLE_NAME_PATTERN = "Tmp_{0}";
 
@@ -464,7 +464,7 @@ namespace Xtensive.Storage.Providers.Sql
       var request = new SqlFetchRequest(query, provider.Header);
       schema.Tables.Remove(table);
 
-      return new SqlStoredProvider(provider, request, Handlers, ex, table);
+      return new SqlStoreProvider(provider, request, Handlers, ex, table);
     }
 
     /// <inheritdoc/>

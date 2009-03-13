@@ -752,7 +752,7 @@ namespace Xtensive.Storage.Tests.Storage
 
 
     [Test]
-    public void ExecutionSiteOptionsTest()
+    public void TransferTest()
     {
       const int snakesCount = 1000;
       const int creaturesCount = 1000;
@@ -796,7 +796,7 @@ namespace Xtensive.Storage.Tests.Storage
             var snakesRse = rsSnakePrimary
               .Range(from, to)
               .Join(rsSnakeName, new Pair<int>(rsSnakePrimary.Header.IndexOf(cID), rsSnakeName.Header.IndexOf("NameIndex."+cID)))
-              .ExecuteAt(ExecutionOptions.Client)
+              .ExecuteAt(TransferOptions.Client)
               .Filter(tuple => tuple.GetValue<int>(rsSnakePrimary.Header.IndexOf(cLength)) >= 100)
               .OrderBy(OrderBy.Desc(rsSnakePrimary.Header.IndexOf(cName)))
               .Skip(5)

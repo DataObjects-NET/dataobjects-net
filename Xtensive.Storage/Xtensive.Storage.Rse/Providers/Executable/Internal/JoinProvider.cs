@@ -19,7 +19,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
   {
     private readonly ExecutableProvider left;
     private readonly ExecutableProvider right;
-    private readonly bool leftJoin;
+    private readonly bool outerJoin;
     private readonly Pair<int>[] joiningPairs;
     private IOrderedEnumerable<Tuple, Tuple> leftEnumerable;
     private IOrderedEnumerable<Tuple, Tuple> rightEnumerable;
@@ -41,8 +41,8 @@ namespace Xtensive.Storage.Rse.Providers.Executable
       case JoinType.Merge:
         bool isAbleToMerge = CheckAbilityToMerge();
         if (isAbleToMerge) {
-          if (leftJoin)
-            return new LeftMergeJoinProvider(Origin, left, right);
+          if (outerJoin)
+            return new OuterMergeJoinProvider(Origin, left, right);
           return new MergeJoinProvider(Origin, left, right);
         }
         return DefaultProvider(CheckAbilityToRange(), isAbleToMerge);
@@ -61,8 +61,8 @@ namespace Xtensive.Storage.Rse.Providers.Executable
       if (rightEnumerable==null)
         return new NestedLoopJoinProvider(Origin, left, right);
       if (isAbleToMerge) {
-        if (leftJoin)
-          return new LeftMergeJoinProvider(Origin, left, right);
+        if (outerJoin)
+          return new OuterMergeJoinProvider(Origin, left, right);
         return new MergeJoinProvider(Origin, left, right);
       }
       if (isAbleToRange)
@@ -109,7 +109,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     {
       this.left = left;
       this.right = right;
-      leftJoin = origin.LeftJoin;
+      outerJoin = origin.Outer;
       joiningPairs = origin.EqualIndexes;
     }
   }

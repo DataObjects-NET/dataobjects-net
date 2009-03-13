@@ -20,7 +20,6 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 
     protected internal override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
-      var result = new List<Tuple>();
       using (new ParameterScope()) {
         var left = Left.Enumerate(context);
         foreach (var tuple in left) {
@@ -31,18 +30,15 @@ namespace Xtensive.Storage.Rse.Providers.Executable
           foreach (var rTuple in right) {
             empty = false;
             var item = transform.Apply(TupleTransformType.Auto, tuple, rTuple);
-            result.Add(item);
-//            yield return item;
+            yield return item;
           }
 
           if (empty && Origin.LeftJoin) {
             var item = transform.Apply(TupleTransformType.Auto, tuple, default(Tuple));
-            result.Add(item);
-//            yield return item;
+            yield return item;
           }
         }
       }
-      return result;
     }
 
     protected override void Initialize()

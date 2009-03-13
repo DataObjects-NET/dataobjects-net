@@ -16,7 +16,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
   /// or stores the specified <see cref="Source"/> with the specified <see cref="Name"/>.
   /// </summary>
   [Serializable]
-  public sealed class StoredProvider : LocationAwareProvider
+  public sealed class StoreProvider : LocationAwareProvider
   {
     private const string ToStringFormat = "{0}, '{1}'";
 
@@ -58,7 +58,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <param name="header">The <see cref="Provider.Header"/> property value.</param>
     /// <param name="scope">The <see cref="Scope"/> property value.</param>
     /// <param name="name">The <see cref="Name"/> property value.</param>
-    public StoredProvider(RecordSetHeader header, TemporaryDataScope scope, string name)
+    public StoreProvider(RecordSetHeader header, TemporaryDataScope scope, string name)
       : base (ProviderType.Store, RseCompiler.DefaultServerLocation)
     {
       ArgumentValidator.EnsureArgumentNotNull(header, "header");
@@ -74,7 +74,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <param name="source">The <see cref="Source"/> property value.</param>
     /// <param name="scope">The <see cref="Scope"/> property value.</param>
     /// <param name="name">The <see cref="Name"/> property value.</param>
-    public StoredProvider(Provider source, TemporaryDataScope scope, string name)
+    public StoreProvider(Provider source, TemporaryDataScope scope, string name)
       : base(ProviderType.Store, RseCompiler.DefaultServerLocation, source)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
@@ -89,7 +89,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="source">The <see cref="Source"/> property value.</param>
-    public StoredProvider(Provider source)
+    public StoreProvider(Provider source)
       : base(ProviderType.Store, RseCompiler.DefaultServerLocation, source)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");

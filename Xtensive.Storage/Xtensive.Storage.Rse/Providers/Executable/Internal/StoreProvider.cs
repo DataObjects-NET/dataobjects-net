@@ -14,7 +14,7 @@ using Xtensive.Storage.Rse.Providers.Compilable;
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
   [Serializable]
-  internal class StoredProvider : UnaryExecutableProvider<Compilable.StoredProvider>,
+  internal class StoreProvider : UnaryExecutableProvider<Compilable.StoreProvider>,
     IHasNamedResult
   {
     private readonly NamedValueCollection namedValues;
@@ -73,7 +73,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 
     // Constructors
 
-    public StoredProvider(Compilable.StoredProvider origin, ExecutableProvider source)
+    public StoreProvider(Compilable.StoreProvider origin, ExecutableProvider source)
       : base(origin, source)
     {
       AddService<IHasNamedResult>();
@@ -83,7 +83,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
         namedValues = TransactionTemporaryData.Current;
     }
 
-    public StoredProvider(Compilable.StoredProvider origin)
+    public StoreProvider(Compilable.StoreProvider origin)
       : this(origin, null)
     {
     }

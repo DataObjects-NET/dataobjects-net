@@ -26,7 +26,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <summary>
     /// Indicates whether current join operation should be executed as left join.
     /// </summary>
-    public bool LeftJoin { get; private set; }
+    public bool Outer { get; private set; }
 
     /// <summary>
     /// Join operation type.
@@ -47,7 +47,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     public override string ParametersToString()
     {
       return string.Format(ToStringFormat,
-        LeftJoin ? "Left join" : "Inner join",
+        Outer ? "Outer join" : "Inner join",
         EqualColumns.Select(p => p.First.Name + " == " + p.Second.Name).ToCommaDelimitedString());
     }
 
@@ -70,19 +70,19 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// </summary>
     /// <param name="left">The left provider to join.</param>
     /// <param name="right">The right provider to join.</param>
-    /// <param name="leftJoin">If set to <see langword="true"/>, left join will be performed;
+    /// <param name="outerJoin">If set to <see langword="true"/>, left join will be performed;
     /// otherwise, inner join will be performed.</param>
     /// <param name="joinType">The join operation type.</param>
     /// <param name="equalIndexes">The <see cref="EqualIndexes"/> property value.</param>
     /// <exception cref="ArgumentException">Wrong arguments.</exception>
-    public JoinProvider(CompilableProvider left, CompilableProvider right, bool leftJoin, JoinType joinType, 
+    public JoinProvider(CompilableProvider left, CompilableProvider right, bool outerJoin, JoinType joinType, 
       params Pair<int>[] equalIndexes)
       : base(ProviderType.Join, left, right)
     {
       if (equalIndexes==null || equalIndexes.Length==0)
         throw new ArgumentException(
           Strings.ExAtLeastOneColumnIndexPairMustBeSpecified, "equalIndexes");
-      LeftJoin = leftJoin;
+      Outer = outerJoin;
       JoinType = joinType;
       EqualIndexes = equalIndexes;
     }
@@ -108,7 +108,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
       var ei = new Pair<int>[equalIndexes.Length / 2];
       for (int i = 0, j = 0; i < ei.Length; i++)
         ei[i] = new Pair<int>(equalIndexes[j++], equalIndexes[j++]);
-      LeftJoin = leftJoin;
+      Outer = leftJoin;
       JoinType = joinType;
       EqualIndexes = ei;
     }

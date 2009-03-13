@@ -86,7 +86,7 @@ namespace Xtensive.Storage.Rse
 
     public static RecordSet Calculate(this RecordSet recordSet, params CalculatedColumnDescriptor[] columns)
     {
-      return new CalculationProvider(recordSet.Provider, columns).Result;
+      return new CalculateProvider(recordSet.Provider, columns).Result;
     }
 
     public static RecordSet RowNumber(this RecordSet recordSet, string columnName)
@@ -214,17 +214,17 @@ namespace Xtensive.Storage.Rse
 
     public static RecordSet Save(this RecordSet recordSet)
     {
-      return new StoredProvider(recordSet.Provider).Result;
+      return new StoreProvider(recordSet.Provider).Result;
     }
 
     public static RecordSet Save(this RecordSet recordSet, TemporaryDataScope scope, string name)
     {
-      return new StoredProvider(recordSet.Provider, scope, name).Result;
+      return new StoreProvider(recordSet.Provider, scope, name).Result;
     }
 
-    public static RecordSet ExecuteAt(this RecordSet recordSet, ExecutionOptions options)
+    public static RecordSet ExecuteAt(this RecordSet recordSet, TransferOptions options)
     {
-      return new ExecutionSiteProvider(recordSet.Provider, options).Result;
+      return new TransferProvider(recordSet.Provider, options).Result;
     }
 
     public static RecordSet ToRecordSet(this Tuple[] tuples, RecordSetHeader header)

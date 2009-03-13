@@ -51,8 +51,8 @@ namespace Xtensive.Storage.Rse.Compilation
       ExecutableProvider result;
       ProviderType providerType = cp.Type;
       switch (providerType) {
-        case ProviderType.ExecutionSite:
-          result = CompileExecutionSite((ExecutionSiteProvider)cp);
+        case ProviderType.Transfer:
+          result = CompileTransfer((TransferProvider)cp);
           break;
         case ProviderType.Apply:
           result = CompileApply((ApplyProvider)cp);
@@ -98,7 +98,7 @@ namespace Xtensive.Storage.Rse.Compilation
         return compiler.Compile(unaryProvider);
     }
 
-    private ExecutableProvider CompileExecutionSite(ExecutionSiteProvider provider)
+    private ExecutableProvider CompileTransfer(TransferProvider provider)
     {
       return Compile(provider.Source);
     }

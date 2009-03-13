@@ -11,12 +11,12 @@ using Xtensive.Core.Internals.DocTemplates;
 namespace Xtensive.Storage.Rse.Providers.Compilable
 {
   [Serializable]
-  public sealed class ExecutionSiteProvider : UnaryProvider
+  public sealed class TransferProvider : UnaryProvider
   {
     /// <summary>
-    /// Gets <see cref="ExecutionOptions"/>.
+    /// Gets <see cref="TransferOptions"/>.
     /// </summary>
-    public ExecutionOptions Options { get; private set; }
+    public TransferOptions Options { get; private set; }
 
     /// <summary>
     /// Gets the execution site location.
@@ -37,7 +37,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// </summary>
     /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="options">The <see cref="Options"/> property value.</param>
-    public ExecutionSiteProvider(CompilableProvider source, ExecutionOptions options)
+    public TransferProvider(CompilableProvider source, TransferOptions options)
       : this(source, options, null)
     {
       Options = options;
@@ -49,8 +49,8 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="options">The <see cref="Options"/> property value.</param>
     /// <param name="location">The <see cref="Location"/> property value.</param>
-    public ExecutionSiteProvider(CompilableProvider source, ExecutionOptions options, UrlInfo location)
-      : base(ProviderType.ExecutionSite, source)
+    public TransferProvider(CompilableProvider source, TransferOptions options, UrlInfo location)
+      : base(ProviderType.Transfer, source)
     {
       Options = options;
       if (!ReferenceEquals(location, null))

@@ -15,7 +15,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
   /// Compilable provider that calculates columns from <see cref="UnaryProvider.Source"/>.
   /// </summary>
   [Serializable]
-  public class CalculationProvider : UnaryProvider
+  public class CalculateProvider : UnaryProvider
   {
     /// <summary>
     /// Gets the calculated columns.
@@ -58,7 +58,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// </summary>
     /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="columnDescriptors">The descriptors of <see cref="CalculatedColumns"/>.</param>
-    public CalculationProvider(CompilableProvider source, params CalculatedColumnDescriptor[] columnDescriptors)
+    public CalculateProvider(CompilableProvider source, params CalculatedColumnDescriptor[] columnDescriptors)
       : base(ProviderType.Calculate, source)
     {
       var columns = new CalculatedColumn[columnDescriptors.Length];

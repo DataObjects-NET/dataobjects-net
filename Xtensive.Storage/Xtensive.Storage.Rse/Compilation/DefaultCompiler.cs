@@ -10,7 +10,7 @@ using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
-using StoredProvider=Xtensive.Storage.Rse.Providers.Executable.StoredProvider;
+using StoreProvider=Xtensive.Storage.Rse.Providers.Executable.StoreProvider;
 
 namespace Xtensive.Storage.Rse.Compilation
 {
@@ -29,7 +29,7 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <inheritdoc/>
     public override ExecutableProvider ToCompatible(ExecutableProvider provider)
     {
-      return new StoredProvider(new Providers.Compilable.StoredProvider(provider.Origin), provider);
+      return new StoreProvider(new Providers.Compilable.StoreProvider(provider.Origin), provider);
     }
 
     /// <inheritdoc/>

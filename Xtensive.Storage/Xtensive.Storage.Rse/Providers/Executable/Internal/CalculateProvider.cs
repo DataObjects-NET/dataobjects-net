@@ -10,7 +10,7 @@ using Xtensive.Core.Tuples.Transform;
 
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
-  internal class CalculationProvider : UnaryExecutableProvider<Compilable.CalculationProvider>
+  internal class CalculateProvider : UnaryExecutableProvider<Compilable.CalculateProvider>
   {
 
     /// <inheritdoc/>
@@ -27,7 +27,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 
     // Constructor
 
-    public CalculationProvider(Compilable.CalculationProvider origin, ExecutableProvider source)
+    public CalculateProvider(Compilable.CalculateProvider origin, ExecutableProvider source)
       : base(origin, source)
     {
     }

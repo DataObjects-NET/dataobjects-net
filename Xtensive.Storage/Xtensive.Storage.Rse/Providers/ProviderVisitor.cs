@@ -35,7 +35,7 @@ namespace Xtensive.Storage.Rse.Providers
           result = VisitReindex((ReindexProvider) cp);
           break;
         case ProviderType.Store:
-          result = VisitStore((StoredProvider) cp);
+          result = VisitStore((StoreProvider) cp);
           break;
         case ProviderType.Aggregate:
           result = VisitAggregate((AggregateProvider) cp);
@@ -44,7 +44,7 @@ namespace Xtensive.Storage.Rse.Providers
           result = VisitAlias((AliasProvider) cp);
           break;
         case ProviderType.Calculate:
-          result = VisitCalculate((CalculationProvider) cp);
+          result = VisitCalculate((CalculateProvider) cp);
           break;
         case ProviderType.Distinct:
           result = VisitDistinct((DistinctProvider) cp);
@@ -76,8 +76,8 @@ namespace Xtensive.Storage.Rse.Providers
         case ProviderType.Take:
           result = VisitTake((TakeProvider) cp);
           break;
-        case ProviderType.ExecutionSite:
-          result = VisitExecutionSite((ExecutionSiteProvider) cp);
+        case ProviderType.Transfer:
+          result = VisitTransfer((TransferProvider) cp);
           break;
         case ProviderType.RowNumber:
           result = VisitRowNumber((RowNumberProvider)cp);
@@ -89,10 +89,10 @@ namespace Xtensive.Storage.Rse.Providers
     }
 
     /// <summary>
-    /// Visits <see cref="ExecutionSiteProvider"/>.
+    /// Visits <see cref="TransferProvider"/>.
     /// </summary>
     /// <param name="provider">Execution site provider.</param>
-    protected abstract Provider VisitExecutionSite(ExecutionSiteProvider provider);
+    protected abstract Provider VisitTransfer(TransferProvider provider);
 
     /// <summary>
     /// Visits <see cref="RowNumberProvider"/>.
@@ -161,10 +161,10 @@ namespace Xtensive.Storage.Rse.Providers
     protected abstract Provider VisitDistinct(DistinctProvider provider);
 
     /// <summary>
-    /// Visits <see cref="CalculationProvider"/>.
+    /// Visits <see cref="CalculateProvider"/>.
     /// </summary>
-    /// <param name="provider">Calculation provider.</param>
-    protected abstract Provider VisitCalculate(CalculationProvider provider);
+    /// <param name="provider">Calculate provider.</param>
+    protected abstract Provider VisitCalculate(CalculateProvider provider);
 
     /// <summary>
     /// Visits <see cref="AliasProvider"/>.
@@ -180,10 +180,10 @@ namespace Xtensive.Storage.Rse.Providers
     protected abstract Provider VisitAggregate(AggregateProvider provider);
 
     /// <summary>
-    /// Visits <see cref="StoredProvider"/>.
+    /// Visits <see cref="StoreProvider"/>.
     /// </summary>
     /// <param name="provider">Store provider.</param>
-    protected abstract Provider VisitStore(StoredProvider provider);
+    protected abstract Provider VisitStore(StoreProvider provider);
 
     /// <summary>
     /// Visits <see cref="IndexProvider"/>.

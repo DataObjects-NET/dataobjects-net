@@ -14,7 +14,7 @@ using Xtensive.Indexing;
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
   [Serializable]
-  internal sealed class LeftMergeJoinProvider: BinaryExecutableProvider<Compilable.JoinProvider>
+  internal sealed class OuterMergeJoinProvider: BinaryExecutableProvider<Compilable.JoinProvider>
   {
     private CombineTransform transform;
 
@@ -38,7 +38,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 
     // Constructor
     
-    public LeftMergeJoinProvider(Compilable.JoinProvider origin, ExecutableProvider left, ExecutableProvider right)
+    public OuterMergeJoinProvider(Compilable.JoinProvider origin, ExecutableProvider left, ExecutableProvider right)
       : base (origin, left, right)
     {      
     }

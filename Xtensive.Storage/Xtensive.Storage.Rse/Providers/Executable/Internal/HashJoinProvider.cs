@@ -17,7 +17,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
   [Serializable]
   internal sealed class HashJoinProvider : BinaryExecutableProvider<Compilable.JoinProvider>
   {
-    private readonly bool leftJoin;
+    private readonly bool outerJoin;
     private readonly Pair<int>[] joiningPairs;
     private CombineTransform transform;
     private MapTransform leftKeyTransform;
@@ -34,7 +34,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
         hashTable.Add(KeyExtractorRight(item), item);
       foreach (var item in left) {
         var hashValue = hashTable[KeyExtractorLeft(item)];
-        if (leftJoin)
+        if (outerJoin)
           yield return hashValue!=null ? transform.Apply(TupleTransformType.Auto, item, (Tuple) hashValue)
             : transform.Apply(TupleTransformType.Auto, item, rightBlank);
         else if (hashValue!=null)
@@ -76,7 +76,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     public HashJoinProvider(Compilable.JoinProvider origin, ExecutableProvider left, ExecutableProvider right)
       : base(origin, left, right)
     {
-      leftJoin = origin.LeftJoin;
+      outerJoin = origin.Outer;
       joiningPairs = origin.EqualIndexes;
     }
   }
