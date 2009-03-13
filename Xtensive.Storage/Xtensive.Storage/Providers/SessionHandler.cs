@@ -10,6 +10,7 @@ using System.Transactions;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Helpers;
+using Xtensive.Core.Sorting;
 using Xtensive.Storage.Building;
 using Xtensive.Core.Collections;
 using Xtensive.Storage.Model;
@@ -53,85 +54,72 @@ namespace Xtensive.Storage.Providers
     public void Persist()
     {
       IEnumerable<EntityState> newEntities = Session.EntityStateRegistry.GetItems(PersistenceState.New);
-      if ((Session.Domain.Configuration.ForeignKeyMode&ForeignKeyMode.Reference)>0) {
+      if ((Session.Domain.Configuration.ForeignKeyMode & ForeignKeyMode.Reference) > 0) {
         var insertQueue = new List<EntityState>();
-        var sortEtitiyDatas = new Dictionary<Key, EntityState>();
+        var sortEtitiyDatas = new Dictionary<Key, Node<EntityState, AssociationInfo>>();
         foreach (EntityState data in newEntities) {
-          var associations = data.Type.GetAssociations();
-          if (associations.Count == 0)
-            insertQueue.Add(data);
-          else
-            sortEtitiyDatas.Add(data.Key, data);
+          sortEtitiyDatas.Add(data.Key, new Node<EntityState, AssociationInfo>(data));
         }
-        var nodes = new Dictionary<Key, TopologicalSorter<EntityState>.Node>();
-        var freeEntityStates = new SetSlim<EntityState>();
         foreach (var data in sortEtitiyDatas) {
-          var associations = data.Value.Type.GetAssociations().Where(association=>association.IsMaster);
-          TopologicalSorter<EntityState>.Node sourceNode = null;
-          foreach (var associationInfo in associations)
-          {
-            Key destinationKey = data.Value.Entity.GetKey(associationInfo.ReferencingField);
-            if (destinationKey!=null) {
-              EntityState referencedEntityData;
-              if (sortEtitiyDatas.TryGetValue(destinationKey, out referencedEntityData))
-              {
-                // Need to add nodes
-                if (sourceNode == null)
-                {
-                  if (!nodes.TryGetValue(data.Key, out sourceNode))
-                  {
-                    sourceNode = new TopologicalSorter<EntityState>.Node(data.Value);
-                    nodes.Add(data.Key, sourceNode);
-                  }
-                }
-                TopologicalSorter<EntityState>.Node destinationNode;
-                if (!nodes.TryGetValue(destinationKey, out destinationNode))
-                {
-                  freeEntityStates.Remove(data.Value);
-                  destinationNode = new TopologicalSorter<EntityState>.Node(referencedEntityData);
-                  nodes.Add(destinationKey, destinationNode);
-                }
-                sourceNode.AddConnection(destinationNode, true);
-              }
+          EntityState processingEntityState = data.Value.Item;
+          var associations = processingEntityState.Type.GetAssociations();
+          foreach (var association in associations) {
+            Node<EntityState, AssociationInfo> source = null;
+            Node<EntityState, AssociationInfo> destination = null;
+            switch (association.Multiplicity) {
+              case Multiplicity.ZeroToOne:
+              case Multiplicity.ManyToOne:
+//                index = association.ReferencingType.Indexes.GetIndex(association.ReferencingField.Name);
+//                var key = data.Value.Entity.Key;
+//                rs = index.ToRecordSet().Range(keyTuple, keyTuple);
+//                foreach (Entity item in rs.ToEntities(association.ReferencingField.DeclaringType.UnderlyingType))
+//                  yield return item;
+                break;
+              case Multiplicity.OneToOne:
+              case Multiplicity.OneToMany:
+                source = data.Value;
+                Key foreignKey = data.Value.Item.Entity.GetKey(association.Reversed.ReferencingField);
+                if (foreignKey!=null && !foreignKey.Equals(data.Value.Item.Key))
+                  sortEtitiyDatas.TryGetValue(foreignKey, out destination);
+                break;
+              case Multiplicity.ZeroToMany:
+              case Multiplicity.ManyToMany:
+                // Do nothing - session automatically persisits any time access to entityset
+                break;
+            }
+            if (source!=null && destination!=null) {
+              source.AddConnection(destination, true, association);
             }
           }
-          if (sourceNode==null)
-            freeEntityStates.Add(data.Value);
         }
         // Sort
-        List<Pair<TopologicalSorter<EntityState>.Node>> removedEdges;
-        var sortResult = TopologicalSorter<EntityState>.Sort(nodes.Values, out removedEdges);
+        List<NodeConnection<EntityState, AssociationInfo>> removedEdges;
+        var sortResult = TopologicalSorter.Sort(sortEtitiyDatas.Values, out removedEdges);
         // Remove links
         var keysToRestore = new List<Triplet<EntityState, FieldInfo, Key>>();
-        foreach (Pair<TopologicalSorter<EntityState>.Node> edge in removedEdges.Distinct()) {
-          EntityState item = edge.First.Item;
-          foreach (var associationInfo in item.Type.GetAssociations().Where(association=>association.IsMaster && association.ReferencingType==edge.Second.Item.Type)) {
-            Key foreignKey = item.Entity.GetKey(associationInfo.ReferencingField);
-            keysToRestore.Add(new Triplet<EntityState, FieldInfo, Key>(item, associationInfo.ReferencingField, foreignKey));
-            item.Entity.SetField<Key>(associationInfo.ReferencingField, null, false);
-          }
+        foreach (var edge in removedEdges) {
+          AssociationInfo associationInfo = edge.ConnectionItem;
+          Key foreignKey = edge.Source.Item.Entity.GetKey(associationInfo.ReferencingField);
+          keysToRestore.Add(new Triplet<EntityState, FieldInfo, Key>(edge.Source.Item, associationInfo.ReferencingField, foreignKey));
+          edge.Source.Item.Entity.SetField<object>(associationInfo.ReferencingField, null, false);
         }
         // Insert 
-        var data2 = insertQueue.Union(freeEntityStates).Union(sortResult);
-        foreach (EntityState data in data2)
-        {
+        var dataToInsert = insertQueue.Union(sortResult);
+        foreach (EntityState data in dataToInsert) {
           Insert(data);
         }
         // Update links
         foreach (var restoreData in keysToRestore) {
-          restoreData.First.Entity.SetField(restoreData.Second, restoreData.Third, false);
+          restoreData.First.Entity.SetField<object>(restoreData.Second, restoreData.Third, false);
           Update(restoreData.First);
         }
 
         // Merge
-        foreach (EntityState data in data2)
-        {
+        foreach (EntityState data in dataToInsert)
           data.Tuple.Merge();
-        }
       }
       else {
-        foreach (EntityState data in newEntities)
-        {
+        foreach (EntityState data in newEntities) {
           Insert(data);
           data.Tuple.Merge();
         }
@@ -166,7 +154,8 @@ namespace Xtensive.Storage.Providers
 
     /// <inheritdoc/>
     public override void Initialize()
-    {}
+    {
+    }
 
     /// <inheritdoc/>
     public abstract void Dispose();

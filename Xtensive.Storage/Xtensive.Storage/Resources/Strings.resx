@@ -519,4 +519,7 @@
   <data name="ExUnsupportedExpressionType" xml:space="preserve">
     <value>Unsupported expression type: {0}</value>
   </data>
+  <data name="ExFieldIsNotAnEntityField" xml:space="preserve">
+    <value>Field '{0}' is not an Entity field in Type '{1}'.</value>
+  </data>
 </root>

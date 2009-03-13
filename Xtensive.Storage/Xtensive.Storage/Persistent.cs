@@ -197,7 +197,7 @@ namespace Xtensive.Storage
     internal Key GetKey(FieldInfo field)
     {
       if (!field.IsEntity)
-        throw new InvalidOperationException(string.Format("Field '{0}' is not an Entity field in Type '{1}'.", field.Name, field.ReflectedType.Name));
+        throw new InvalidOperationException(string.Format(Resources.Strings.ExFieldIsNotAnEntityField, field.Name, field.ReflectedType.Name));
 
       OnGettingField(field, false);
       var type = Session.Domain.Model.Types[field.ValueType];
