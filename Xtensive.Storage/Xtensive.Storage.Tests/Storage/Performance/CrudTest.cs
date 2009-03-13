@@ -4,6 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2008.09.08
 
+using System.Collections.Generic;
 using NUnit.Framework;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Parameters;
@@ -12,6 +13,7 @@ using Xtensive.Core.Tuples;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Tests.Storage.Performance.CrudModel;
+using System.Linq;
 
 namespace Xtensive.Storage.Tests.Storage.Performance
 {
@@ -48,13 +50,15 @@ namespace Xtensive.Storage.Tests.Storage.Performance
     {
       int instanceCount = 100000;
       InsertTest(instanceCount);
-      BulkFetchTest(instanceCount);
+//      BulkFetchTest(instanceCount);
+      BulkFetchCachedTest(instanceCount);
     }
 
     private void CombinedTest(int baseCount, int insertCount)
     {
       InsertTest(insertCount);
       BulkFetchTest(baseCount);
+      BulkFetchCachedTest(baseCount);
       BulkFetchOnlyTest(baseCount);
       RawBulkFetchTest(baseCount);
       FetchTest(baseCount / 2);
@@ -153,6 +157,36 @@ namespace Xtensive.Storage.Tests.Storage.Performance
               }
             }
             ts.Complete();
+          }
+        }
+        Assert.AreEqual((long)count*(count-1)/2, sum);
+      }
+    }
+
+    private void BulkFetchCachedTest(int count)
+    {
+      var d = Domain;
+      using (var ss = d.OpenSession()) {
+        var s = ss.Session;
+        long sum = 0;
+        int i = 0;
+        var keys = new List<Key>(count/2);
+        var rs = d.Model.Types[typeof(Simplest)].Indexes.PrimaryIndex.ToRecordSet();
+        using (var ts = s.OpenTransaction()) {
+          while (i<count) {
+            foreach (var o in rs.ToEntities<Simplest>()) {
+              sum += o.Id;
+              if (i % 2 == 0)
+                keys.Add(o.Key);
+              if (++i >= count)
+                break;
+            }
+//          TestHelper.CollectGarbage();
+          using (warmup ? null : new Measurement("Bulk Fetch Cached", count / 2)) {
+            foreach (var key in keys)
+              key.Resolve();
+          }
+          ts.Complete();
           }
         }
         Assert.AreEqual((long)count*(count-1)/2, sum);
