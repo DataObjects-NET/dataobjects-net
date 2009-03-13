@@ -4,10 +4,9 @@
 // Created by: Alex Yakunin
 // Created:    2008.08.08
 
-using System;
 using System.Collections.Generic;
 using NUnit.Framework;
-using Xtensive.Core.Helpers;
+using Xtensive.Core.Sorting;
 using Xtensive.Core.Testing;
 using System.Linq;
 
@@ -27,8 +26,8 @@ namespace Xtensive.Core.Tests.Helpers
 
     private void TestSort<T>(T[] data, Predicate<T, T> connector, T[] expected, T[] loops)
     {
-      List<TopologicalSorter<T>.Node> actualLoopNodes;
-      var actual = TopologicalSorter<T>.Sort(data, connector, out actualLoopNodes);
+      List<Node<T, object>> actualLoopNodes;
+      var actual = TopologicalSorter.Sort(data, connector, out actualLoopNodes);
       T[] actualLoops = null;
       if (actualLoopNodes!=null)
         actualLoops = actualLoopNodes
@@ -39,8 +38,8 @@ namespace Xtensive.Core.Tests.Helpers
       AssertEx.AreEqual(expected, actual);
       AssertEx.AreEqual(loops, actualLoops);
 
-      List<Pair<TopologicalSorter<T>.Node>> removedEdges;
-      var sortWithRemove = TopologicalSorter<T>.Sort(data, connector, out removedEdges);
+      List<NodeConnection<T, object>> removedEdges;
+      var sortWithRemove = TopologicalSorter.Sort(data, connector, out removedEdges);
       Assert.AreEqual(sortWithRemove.Count, data.Length);
       if (loops==null) {
         Assert.AreEqual(sortWithRemove.Count, actual.Count);

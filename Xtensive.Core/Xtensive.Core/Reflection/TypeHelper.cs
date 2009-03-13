@@ -15,8 +15,8 @@ using System.Text;
 using System.Threading;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Comparison;
-using Xtensive.Core.Helpers;
 using Xtensive.Core.Resources;
+using Xtensive.Core.Sorting;
 using Xtensive.Core.Threading;
 using System.Linq;
 
@@ -527,7 +527,7 @@ namespace Xtensive.Core.Reflection
     /// <returns>The list of <paramref name="types"/> ordered by their inheritance.</returns>
     public static List<Type> OrderByInheritance(this IEnumerable<Type> types)
     {
-      return TopologicalSorter<Type>.Sort(types, (t1, t2) => t1.IsAssignableFrom(t2));
+      return TopologicalSorter.Sort(types, (t1, t2) => t1.IsAssignableFrom(t2));
     }
 
 
