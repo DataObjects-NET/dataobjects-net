@@ -91,7 +91,7 @@ namespace Xtensive.Storage.Providers.Sql
         sqlSelect.Columns.Add(expr, col.Name);
       }
 
-      var request = new SqlFetchRequest(sqlSelect, provider.Header, source.Request.ParameterBindings);
+      var request = new SqlFetchRequest(sqlSelect, provider.Header);
       return new SqlProvider(provider, request, Handlers, source);
     }
 
@@ -108,7 +108,7 @@ namespace Xtensive.Storage.Providers.Sql
       sqlSelect.Columns.Clear();
       for (int i = 0; i < columns.Count; i++)
         sqlSelect.Columns.Add(columns[i], provider.Header.Columns[i].Name);
-      var request = new SqlFetchRequest(sqlSelect, provider.Header, source.Request.ParameterBindings);
+      var request = new SqlFetchRequest(sqlSelect, provider.Header);
       return new SqlProvider(provider, request, Handlers, source);
     }
 
@@ -121,7 +121,7 @@ namespace Xtensive.Storage.Providers.Sql
         return null;
 
       var sqlSelect = (SqlSelect) source.Request.Statement.Clone();
-      var request = new SqlFetchRequest(sqlSelect, provider.Header, source.Request.ParameterBindings);
+      var request = new SqlFetchRequest(sqlSelect, provider.Header);
       var query = (SqlSelect)request.Statement;
 
       foreach (var column in provider.CalculatedColumns) {
@@ -149,7 +149,7 @@ namespace Xtensive.Storage.Providers.Sql
 
       var clone = (SqlSelect) query.Clone();
       clone.Distinct = true;
-      var request = new SqlFetchRequest(clone, provider.Header, source.Request.ParameterBindings);
+      var request = new SqlFetchRequest(clone, provider.Header);
       return new SqlProvider(provider, request, Handlers, source);
     }
 
@@ -170,7 +170,7 @@ namespace Xtensive.Storage.Providers.Sql
       else
         query = (SqlSelect) source.Request.Statement.Clone();
 
-      var request = new SqlFetchRequest(query, provider.Header, source.Request.ParameterBindings);
+      var request = new SqlFetchRequest(query, provider.Header);
       
       query = (SqlSelect)request.Statement;
       var visitor = new ExpressionProcessor(this, Handlers.Domain.Model, provider.Predicate, query);
@@ -254,7 +254,7 @@ namespace Xtensive.Storage.Providers.Sql
 
       SqlSelect query = SqlFactory.Select(joinedTable);
       query.Columns.AddRange(leftQuery.Columns.Union(rightQuery.Columns).Cast<SqlColumn>());
-      var request = new SqlFetchRequest(query, provider.Header, left.Request.ParameterBindings.Union(right.Request.ParameterBindings).Union(bindings));
+      var request = new SqlFetchRequest(query, provider.Header, bindings);
       return new SqlProvider(provider, request, Handlers, left, right);
     }
 
@@ -268,7 +268,7 @@ namespace Xtensive.Storage.Providers.Sql
       var query = (SqlSelect) compiledSource.Request.Statement.Clone();
       var keyColumns = provider.Header.Order.ToList();
       var originalRange = provider.CompiledRange.Invoke();
-      var request = new SqlFetchRequest(query, provider.Header, compiledSource.Request.ParameterBindings);
+      var request = new SqlFetchRequest(query, provider.Header);
       var rangeProvider = new SqlRangeProvider(provider, request, Handlers, originalRange, compiledSource);
 
       if (originalRange.EndPoints.First.HasValue) {
@@ -352,7 +352,7 @@ namespace Xtensive.Storage.Providers.Sql
         return null;
 
       var query = (SqlSelect) compiledSource.Request.Statement.Clone();
-      var request = new SqlFetchRequest(query, provider.Header, compiledSource.Request.ParameterBindings);
+      var request = new SqlFetchRequest(query, provider.Header);
       var typeIdColumnName = Handlers.NameBuilder.TypeIdColumnName;
       Func<KeyValuePair<int, Direction>, bool> filterNonTypeId =
         pair => ((MappedColumn) provider.Header.Columns[pair.Key]).ColumnInfoRef.ColumnName != typeIdColumnName;
@@ -389,7 +389,7 @@ namespace Xtensive.Storage.Providers.Sql
       var queryRef = SqlFactory.QueryRef(compiledSource.Request.Statement as SqlSelect);
       SqlSelect query = SqlFactory.Select(queryRef);
       query.Columns.AddRange(provider.ColumnIndexes.Select(i => (SqlColumn) queryRef.Columns[i]));
-      var request = new SqlFetchRequest(query, provider.Header, compiledSource.Request.ParameterBindings);
+      var request = new SqlFetchRequest(query, provider.Header);
 
       return new SqlProvider(provider, request, Handlers, compiledSource);
     }
@@ -405,7 +405,7 @@ namespace Xtensive.Storage.Providers.Sql
       var query = SqlFactory.Select(queryRef);
       query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
       query.Offset = provider.Count();
-      var request = new SqlFetchRequest(query, provider.Header, compiledSource.Request.ParameterBindings);
+      var request = new SqlFetchRequest(query, provider.Header);
       return new SqlProvider(provider, request, Handlers, compiledSource);
     }
 
@@ -421,7 +421,7 @@ namespace Xtensive.Storage.Providers.Sql
       foreach (KeyValuePair<int, Direction> sortOrder in provider.Order)
         query.OrderBy.Add(sortOrder.Key + 1, sortOrder.Value == Direction.Positive);
 
-      var request = new SqlFetchRequest(query, provider.Header, compiledSource.Request.ParameterBindings);
+      var request = new SqlFetchRequest(query, provider.Header);
       return new SqlProvider(provider, request, Handlers, compiledSource);
     }
 
@@ -478,7 +478,7 @@ namespace Xtensive.Storage.Providers.Sql
       var count = provider.Count();
       if (query.Top == 0 || query.Top > count)
         query.Top = count;
-      var request = new SqlFetchRequest(query, provider.Header, compiledSource.Request.ParameterBindings);
+      var request = new SqlFetchRequest(query, provider.Header);
       return new SqlProvider(provider, request, Handlers, compiledSource);
     }
 
@@ -506,8 +506,7 @@ namespace Xtensive.Storage.Providers.Sql
       if (notExisting)
         filter = SqlFactory.Not(filter);
       query.Where &= filter;
-      var request = new SqlFetchRequest(query, provider.Header,
-        left.Request.ParameterBindings.Union(right.Request.ParameterBindings));
+      var request = new SqlFetchRequest(query, provider.Header);
       return new SqlProvider(provider, request, Handlers, left, right);
     }
 

@@ -38,7 +38,7 @@ namespace Xtensive.Storage.Providers.MsSql
       
       AddOrderByForRowNumberColumn(provider, query);
       
-      var request = new SqlFetchRequest(query, provider.Header, compiledSource.Request.ParameterBindings);
+      var request = new SqlFetchRequest(query, provider.Header);
       return new SqlProvider(provider, request, Handlers, compiledSource);
     }
 
@@ -56,7 +56,7 @@ namespace Xtensive.Storage.Providers.MsSql
 
       AddOrderByForRowNumberColumn(provider, query);
 
-      var request = new SqlFetchRequest(query, provider.Header, compiledSource.Request.ParameterBindings);
+      var request = new SqlFetchRequest(query, provider.Header);
       return new SqlProvider(provider, request, Handlers, compiledSource);
     }
 
