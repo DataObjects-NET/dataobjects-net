@@ -482,6 +482,22 @@ namespace Xtensive.Storage.Providers.Sql
       return new SqlProvider(provider, request, Handlers, compiledSource);
     }
 
+    protected override ExecutableProvider VisitApply(ApplyProvider provider)
+    {
+      switch (provider.ApplyType) {
+        case ApplyType.Existing:
+        case ApplyType.NotExisting:
+          break;
+        default:
+          return base.VisitApply(provider);
+      }
+
+      var leftSource = GetBound(provider.Sources[0]) as SqlProvider;
+      if (leftSource == null)
+        return null;
+      throw new NotImplementedException();
+    }
+
     #region Private methods.
 
     private SqlSelect BuildProviderQuery(IndexInfo index)

@@ -106,14 +106,12 @@ namespace Xtensive.Storage.Rse.Compilation
     private ExecutableProvider CompileApply(ApplyProvider provider)
     {
       var left = Compile(provider.Left);
-      var right = Compile(provider.Right);
-
-      var compiler = left.Location == RseCompiler.DefaultClientLocation
-        ? compilersMap[right.Location]
-        : compilersMap[left.Location];
-
-      using (Bind(provider.Left, left) & Bind(provider.Right, right))
-        return compiler.Compile(provider);
+      using (Bind(provider.LeftItemParameter, left)) {
+        var right = Compile(provider.Right);
+        var compiler = compilersMap[right.Location];
+        using (Bind(provider.Left, left) & Bind(provider.Right, right))
+          return compiler.Compile(provider);
+      }
     }
 
     // Constructor
