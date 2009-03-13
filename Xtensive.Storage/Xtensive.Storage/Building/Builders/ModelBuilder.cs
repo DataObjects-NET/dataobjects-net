@@ -227,18 +227,13 @@ namespace Xtensive.Storage.Building.Builders
         TypeDef underlyingTypeDef = TypeBuilder.DefineType(underlyingType);
         underlyingTypeDef.Name = association.Name;
 
-        string masterFieldName;
-        string slaveFieldName;
-        if (masterFieldType == slaveFieldType) {
-          masterFieldName = context.NameBuilder.EntitySetItemMasterFieldName;
-          slaveFieldName = context.NameBuilder.EntitySetItemSlaveFieldName;
+        FieldDef masterFieldDef = underlyingTypeDef.DefineField(underlyingType.GetProperty(context.NameBuilder.EntitySetItemMasterFieldName));
+        FieldDef slaveFieldDef = underlyingTypeDef.DefineField(underlyingType.GetProperty(context.NameBuilder.EntitySetItemSlaveFieldName));
+
+        if (masterFieldType!=slaveFieldType) {
+          masterFieldDef.MappingName = context.NameBuilder.NamingConvention.Apply(masterFieldType.Name);
+          slaveFieldDef.MappingName = context.NameBuilder.NamingConvention.Apply(slaveFieldType.Name);
         }
-        else {
-          masterFieldName = context.NameBuilder.NamingConvention.Apply(masterFieldType.Name);
-          slaveFieldName = context.NameBuilder.NamingConvention.Apply(slaveFieldType.Name);
-        }
-        FieldDef masterFieldDef = underlyingTypeDef.DefineField(masterFieldName, masterFieldType.UnderlyingType);
-        FieldDef slaveFieldDef = underlyingTypeDef.DefineField(slaveFieldName, slaveFieldType.UnderlyingType);
         context.Definition.Types.Add(underlyingTypeDef);
         IndexBuilder.DefineIndexes(underlyingTypeDef);
 

@@ -10,11 +10,16 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Tuples;
+using Xtensive.Storage.Internals;
 using Xtensive.Storage.Linq;
 using Xtensive.Storage.Model;
+using Activator=System.Activator;
+using FieldInfo=Xtensive.Storage.Model.FieldInfo;
 
 namespace Xtensive.Storage
 {
@@ -111,16 +116,75 @@ namespace Xtensive.Storage
 
     #region IQueryable<T> members
 
+    /// <summary>
+    /// Gets the expression tree that is associated with the instance of <see cref="T:System.Linq.IQueryable"/>.
+    /// </summary>
+    /// <value></value>
     /// <inheritdoc/>
     public Expression Expression
     {
-      get { return Expression.Constant(this);}
+      get 
+      {
+        Expression whereCallExpression;
+        if (Field.Association.Multiplicity==Multiplicity.OneToMany) {
+          ParameterExpression pe = Expression.Parameter(ElementType, "p");
+          Expression l = Expression.Property(pe, Field.Association.Reversed.ReferencingField.Name);
+          Expression left = Expression.Property(l, "Key");
+
+          Expression right = Expression.PropertyOrField(Expression.Constant(Owner, typeof (Entity)), "Key");
+          Expression e1 = Expression.Equal(left, right);
+          whereCallExpression = Expression.Call(typeof (Queryable), "Where", new[] {ElementType},
+            Expression.Constant(this), Expression.Lambda(e1, new[] {pe}));
+        }
+        else {
+          var tmpType = Field.Association.Master.UnderlyingType.UnderlyingType;
+          string master = "Master";
+          string slave = "Slave";
+
+          if (Field.ReflectedType.UnderlyingType!=Field.Association.Master.ReferencedType.UnderlyingType) {
+            var s = master;
+            master = slave;
+            slave = s;
+          }
+
+          ParameterExpression pe = Expression.Parameter(tmpType, "t");
+          Expression l = Expression.Property(pe, master);
+          Expression left = Expression.Property(l, "Key");
+          Expression right = Expression.PropertyOrField(Expression.Constant(Owner, typeof (Entity)), "Key");
+          Expression e1 = Expression.Equal(left, right);
+
+          var type = typeof (Query<>);
+          var qType = type.MakeGenericType(new[] {tmpType})
+            .InvokeMember("All", BindingFlags.Default | BindingFlags.GetProperty, null, null, null);
+
+          Expression where = Expression.Call(typeof (Queryable), "Where", new[] {tmpType},
+            Expression.Constant(qType), Expression.Lambda(e1, new[] {pe}));
+
+          ParameterExpression param1 = Expression.Parameter(tmpType, "s");
+          var outerSelectorLambda = Expression.Lambda(Expression.Property(Expression.Property(param1, slave), "Key"), param1);
+          ParameterExpression param2 = Expression.Parameter(ElementType, "m");
+          var innerSelectorLambda = Expression.Lambda(Expression.Property(param2, "Key"), param2);
+          var resultsSelectorLambda = Expression.Lambda(param2, param1, param2);
+
+          whereCallExpression = Expression.Call(typeof (Queryable), "Join", new[]
+            {
+              tmpType,
+              ElementType,
+              outerSelectorLambda.Body.Type,
+              resultsSelectorLambda.Body.Type
+            },
+            where, Expression.Constant(this), outerSelectorLambda,
+            innerSelectorLambda, resultsSelectorLambda);
+        }
+
+        return whereCallExpression;
+      }
     }
 
     /// <inheritdoc/>
     public Type ElementType
     {
-      get { return typeof(TItem); }
+      get { return typeof (TItem); }
     }
 
     /// <inheritdoc/>

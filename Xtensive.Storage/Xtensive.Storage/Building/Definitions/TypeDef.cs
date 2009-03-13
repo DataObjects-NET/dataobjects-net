@@ -127,7 +127,7 @@ namespace Xtensive.Storage.Building.Definitions
     {
       ArgumentValidator.EnsureArgumentNotNull(property, "property");
 
-      if (property.DeclaringType != UnderlyingType)
+      if (property.ReflectedType != UnderlyingType)
         throw new DomainBuilderException(
           string.Format(Resources.Strings.ExPropertyXMustBeDeclaredInTypeY, property.Name, UnderlyingType.FullName));
             

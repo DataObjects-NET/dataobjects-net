@@ -29,9 +29,6 @@ namespace Xtensive.Storage.Tests.Issues.Issue0009_Model
     [Field]
     public Guid ID { get; private set; }
 
-    [Field]
-    public int Name { get; set; }
-
     [Field(PairTo = "Authors")]
     public EntitySet<Book> Books { get; private set; }
   }
@@ -55,21 +52,13 @@ namespace Xtensive.Storage.Tests.Issues
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var book = new Book();
-          var author = new Author(){Name = 1};
+          var author = new Author();
           book.Authors.Add(author);
 
           Assert.AreEqual(1, book.Authors.Count);
           Assert.AreEqual(1, author.Books.Count);
           Assert.IsTrue(book.Authors.Contains(author));
           Assert.IsTrue(author.Books.Contains(book));
-
-          var author2 = new Author {Name = 2};
-          var author3 = new Author { Name = 3 };
-          book.Authors.Add(author2);
-          book.Authors.Add(author3);
-          var c = book.Authors.Where(n => n.Name <= 2).Select(n => n.Name).ToList();
-          Assert.AreEqual(2, c.Count());
-
           t.Complete();
         }
       }

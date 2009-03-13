@@ -23,8 +23,8 @@ namespace Xtensive.Storage.Tests.Issues
     public void MainTest()
     {
       TypeInfo type = Domain.Model.Types["Book-Authors-Author"];
-      Assert.IsNotNull(type.Fields["Book"]);
-      Assert.IsNotNull(type.Fields["Author"]);
+      Assert.IsNotNull(type.Fields["Master"]);
+      Assert.IsNotNull(type.Fields["Slave"]);
     }
   }
 }
