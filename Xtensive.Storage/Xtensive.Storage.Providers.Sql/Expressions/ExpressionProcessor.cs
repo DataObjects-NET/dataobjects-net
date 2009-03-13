@@ -11,6 +11,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Linq;
+using Xtensive.Core.Parameters;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
 using Xtensive.Sql.Dom;
@@ -18,6 +19,7 @@ using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Linq;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings;
+using Xtensive.Storage.Rse.Compilation;
 using SqlFactory = Xtensive.Sql.Dom.Sql;
 
 namespace Xtensive.Storage.Providers.Sql.Expressions
@@ -49,6 +51,13 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       get { return bindings; }
     }
 
+    public ICompiler Compiler { get; private set; }
+
+    public DomainModel Model
+    {
+      get { return model; }
+    }
+
     public SqlExpression Translate()
     {
       if (executed)
@@ -63,14 +72,37 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
         return null;
       if (evaluator.CanBeEvaluated(e)) {
         if (parameterExtractor.IsParameter(e))
-          return VisitParameterAccess(parameterExtractor.ExtractParameter<object>(e));
+          return VisitParameterAccess(e);
         return VisitConstant(evaluator.Evaluate(e));
       }
       return base.Visit(e);
     }
 
-    private SqlExpression VisitParameterAccess(Expression<Func<object>> expression)
+    private SqlExpression VisitParameterAccess(Expression e)
     {
+      if (e.NodeType == ExpressionType.Call) {
+        var mc = (MethodCallExpression)e;
+        if (mc.Method.Name == "GetValue" || mc.Method.Name == "GetValueOrDefault") {
+          if (mc.Object.NodeType == ExpressionType.MemberAccess) {
+            var ma = (MemberExpression)mc.Object;
+            if (ma.Member.Name == "Value" && ma.Expression.Type == typeof(Parameter<Tuple>)) {
+              var parameter = Expression.Lambda<Func<Parameter<Tuple>>>(ma.Expression).Compile().Invoke();
+              int columnIndex = mc.Arguments[0].NodeType == ExpressionType.Constant
+                ? (int)((int)((ConstantExpression)mc.Arguments[0]).Value)
+                : Expression.Lambda<Func<int>>(mc.Arguments[0]).Compile().Invoke();
+              var provider = CompilationContext.Current.BindingContext.GetBound(parameter);
+              if (!Compiler.IsCompatible(provider)) {
+//                provider = Compiler.ToCompatible(provider);
+                throw new NotSupportedException();
+              }
+              var sqlProvider = (SqlProvider)provider;
+              var sqlSelect = (SqlSelect)sqlProvider.Request.Statement;
+              return sqlSelect[columnIndex];
+            }
+          }
+        }
+      }
+      var expression = parameterExtractor.ExtractParameter<object>(e);
       var binding = new SqlFetchParameterBinding(expression.Compile());
       bindings.Add(binding);
       return binding.SqlParameter;
@@ -401,8 +433,9 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
 
     // Constructor
 
-    public ExpressionProcessor(DomainModel model, LambdaExpression le, params SqlSelect[] selects)
+    public ExpressionProcessor(ICompiler compiler, DomainModel model, LambdaExpression le, params SqlSelect[] selects)
     {
+      Compiler = compiler;
       if (selects == null)
         throw new ArgumentNullException("selects");
 

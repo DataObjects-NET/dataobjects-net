@@ -125,7 +125,7 @@ namespace Xtensive.Storage.Providers.Sql
       var query = (SqlSelect)request.Statement;
 
       foreach (var column in provider.CalculatedColumns) {
-        var translator = new ExpressionProcessor(Handlers.Domain.Model, column.Expression, query);
+        var translator = new ExpressionProcessor(this, Handlers.Domain.Model, column.Expression, query);
         var predicate = translator.Translate();
         var bindings = translator.Bindings;
         query.Columns.Add(predicate, column.Name);
@@ -173,7 +173,7 @@ namespace Xtensive.Storage.Providers.Sql
       var request = new SqlFetchRequest(query, provider.Header, source.Request.ParameterBindings);
       
       query = (SqlSelect)request.Statement;
-      var visitor = new ExpressionProcessor(Handlers.Domain.Model, provider.Predicate, query);
+      var visitor = new ExpressionProcessor(this, Handlers.Domain.Model, provider.Predicate, query);
       var predicate = visitor.Translate();
       var bindings = visitor.Bindings;
       if (predicate.NodeType == SqlNodeType.Literal) {
@@ -243,7 +243,7 @@ namespace Xtensive.Storage.Providers.Sql
       var leftQuery = SqlFactory.QueryRef(leftSelect);
       var rightSelect = (SqlSelect)right.Request.Statement;
       var rightQuery = SqlFactory.QueryRef(rightSelect);
-      var visitor = new ExpressionProcessor(Handlers.Domain.Model, provider.Predicate, leftSelect, rightSelect);
+      var visitor = new ExpressionProcessor(this, Handlers.Domain.Model, provider.Predicate, leftSelect, rightSelect);
       var predicate = visitor.Translate();
       var bindings = visitor.Bindings;
       var joinedTable = SqlFactory.Join(
