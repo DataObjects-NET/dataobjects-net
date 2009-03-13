@@ -47,7 +47,6 @@ namespace Xtensive.Storage.Internals
       var activator = entitySetActivators.GetValue(field.ValueType,
         DelegateHelper.CreateConstructorDelegate<Func<Entity, FieldInfo, bool, EntitySetBase>>);
       EntitySetBase result = activator.Invoke(owner, field, notify);
-      result.Initialize(notify);
       return result;
     }
   }

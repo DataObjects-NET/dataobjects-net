@@ -129,6 +129,7 @@ namespace Xtensive.Storage.Aspects
     {
       ProvideConstructorAccessorAspect(type, collection);
       ProvideConstructorAspect(type, collection);
+//      new InitializableAttribute().ProvideAspects(type, collection);
     }
 
     private static void ProvideAutoPropertyAspects(Type type, LaosReflectionAspectCollection collection)

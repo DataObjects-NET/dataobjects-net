@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reflection;
 using PostSharp.Extensibility;
 using PostSharp.Laos;
@@ -73,7 +74,7 @@ namespace Xtensive.Core.Aspects
 
       // Applying the aspect to all the constructors
       foreach (var constructor in type.GetConstructors()) {
-        if (!constructor.IsPublic)
+        if (!constructor.IsPublic && !Attribute.IsDefined(constructor, typeof(DebuggerNonUserCodeAttribute)))
           continue;
         var icea = ConstructorEpilogueAspect.ApplyOnce(constructor, initializeMethodType, InitializeMethodName);
         if (icea!=null)

@@ -33,15 +33,18 @@ namespace Xtensive.Storage
     INotifyPropertyChanged,
     INotifyCollectionChanged
   {
-    private const int                                 CacheSize = 10240;
-    private static readonly Parameter<Tuple>          pKey = new Parameter<Tuple>("Key");
+    private const int CacheSize = 10240;
+    private static readonly Parameter<Tuple> pKey = new Parameter<Tuple>("Key");
 
-    internal RecordSet                                items;
-    private RecordSet                                 count;
-    private RecordSet                                 seek;
-    private Func<Tuple, Entity>                       itemCtor;
-    private AssociationInfo                           association;
-    private CombineTransform                          seekTransform;
+    internal RecordSet items;
+    private RecordSet count;
+    private RecordSet seek;
+    private Func<Tuple, Entity> itemCtor;
+    private AssociationInfo association;
+    private CombineTransform seekTransform;
+    private bool isInitialized;
+    protected readonly bool notifyInitialization;
+
 
     #region Public Count, Contains, GetKeys members
 
@@ -123,8 +126,27 @@ namespace Xtensive.Storage
 
     #region Initialization members
 
+    /// <summary>
+    /// Performs initialization (see <see cref="Initialize()"/>) of the <see cref="EntitySetBase"/> 
+    /// if type of <see langword="this" /> is the same as <paramref name="ctorType"/>.
+    /// Invoked by <see cref="InitializableAttribute"/> aspect in the epilogue of any 
+    /// constructor of this type and its ancestors.
+    /// </summary>
+    /// <param name="ctorType">The type, which constructor has invoked this method.</param>
     [Infrastructure]
-    internal void Initialize(bool notify)
+    protected void Initialize(Type ctorType)
+    {
+      if (ctorType == GetType() && !isInitialized) {
+        isInitialized = true;
+        Initialize();
+      }
+    }
+
+    /// <summary>
+    /// Performs initialization of the <see cref="EntitySetBase"/>.
+    /// </summary>
+    [Infrastructure]
+    protected virtual void Initialize()
     {
       association = Field.Association;
       if (association.UnderlyingType!=null)
@@ -134,7 +156,7 @@ namespace Xtensive.Storage
       count = items.Aggregate(null, new AggregateColumnDescriptor("$Count", 0, AggregateType.Count));
 
       seekTransform = new CombineTransform(true, association.ReferencingType.Hierarchy.KeyInfo.TupleDescriptor, association.ReferencedType.Hierarchy.KeyInfo.TupleDescriptor);
-      OnInitialize(notify);
+      OnInitialize(notifyInitialization);
     }
 
     #endregion
@@ -367,10 +389,12 @@ namespace Xtensive.Storage
     /// <param name="field">Field corresponds to this entity set.</param>
     /// <param name="notify">If set to <see langword="true"/>, 
     /// initialization related events will be raised.</param>
-    protected EntitySetBase(Entity owner, FieldInfo field, bool notify)
+    protected internal EntitySetBase(Entity owner, FieldInfo field, bool notify)
     {
       Field = field;
       Owner = owner;
+      notifyInitialization = notify;
+      Initialize(GetType());
     }
   }
 }
