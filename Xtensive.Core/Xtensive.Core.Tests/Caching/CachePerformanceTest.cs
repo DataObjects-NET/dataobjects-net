@@ -5,6 +5,7 @@
 // Created:    2008.09.27
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using NUnit.Framework;
 using Xtensive.Core.Caching;
@@ -89,7 +90,8 @@ namespace Xtensive.Core.Tests.Caching
     private static LruCache<Item, Item> lruWeakestCache = 
       new LruCache<Item, Item>(LruCapacity + MfuCapacity, i => i, 
         new WeakestCache<Item, Item>(false, false, i => i));
-    private static ICache<Item, Item>[] caches = new ICache<Item, Item>[] {lruCache, lruCache2, mfLruCache, weakCache, weakestCache, lruWeakestCache};
+    private static InfiniteCache<Item, Item> infiniteCache = new InfiniteCache<Item, Item>(i => i);
+    private static ICache<Item, Item>[] caches = new ICache<Item, Item>[] {lruCache, lruCache2, mfLruCache, weakCache, weakestCache, lruWeakestCache, infiniteCache};
 
     private bool warmup = false;
 
@@ -122,6 +124,7 @@ namespace Xtensive.Core.Tests.Caching
       int insertCount = InsertCount*10;
       InsertTest(insertCount);
       FetchTest(BaseCount);
+
     }
 
     private void CombinedTest(int baseCount, int insertCount)
@@ -133,13 +136,17 @@ namespace Xtensive.Core.Tests.Caching
     private void InsertTest(int count)
     {
       foreach (var cache in caches) {
+
+        Queue<Item> items = new Queue<Item>();
+        for (int i = 0; i < count; i++) {
+          items.Enqueue(new Item((i % InsertCount).ToString()));
+        }
+     
         TestHelper.CollectGarbage();
         string title = string.Format("Insert ({0})", cache.GetType().GetShortName());
-        using (warmup ? null : new Measurement(title, count)) {
-          for (int i = 0; i < count; i++) {
-            var key = i % InsertCount;
-            var item = new Item(key.ToString());
-            cache.Add(item);
+        using (warmup ? null : new Measurement(title, items.Count)) {
+          while (items.Count > 0) {
+            cache.Add(items.Dequeue());
           }
         }
       }
@@ -147,16 +154,21 @@ namespace Xtensive.Core.Tests.Caching
 
     private void FetchTest(int count)
     {
+      var r = RandomManager.CreateRandom(SeedVariatorType.CallingMethod);
+      var items = new List<Item>();
+      var itemsCount = 0;
+      foreach (var i in InstanceGenerationUtils<int>.GetInstances(r, 0.9)) {
+        items.Add(new Item((i % InsertCount).ToString()));
+        if (++itemsCount > count)
+          break;
+      }
+
       foreach (var cache in caches) {
         TestHelper.CollectGarbage();
-        var r = RandomManager.CreateRandom(SeedVariatorType.CallingMethod);
         string title = string.Format("Fetch ({0})", cache.GetType().GetShortName());
-        using (warmup ? null : new Measurement(title, count)) {
-          int j = 0;
-          foreach (var i in InstanceGenerationUtils<int>.GetInstances(r, 0.9)) {
-            var o = cache[new Item((i % InsertCount).ToString()), true];
-            if (++j > count)
-              break;
+        using (warmup ? null : new Measurement(title, items.Count)) {
+          foreach (var item in items) {
+            var o = cache[item, true];
           }
         }
       }
