@@ -26,7 +26,7 @@ namespace Xtensive.Storage.Providers.Sql
       [DebuggerStepThrough]
       get { return request; }
       [DebuggerStepThrough]
-      set { request = value; }
+      private set { request = value; }
     }
 
     public SqlQueryRef PermanentReference { get; private set; }

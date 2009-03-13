@@ -88,6 +88,38 @@ namespace Xtensive.Storage.Providers.MsSql
       return sourceQuery;
     }
 
+    protected override ExecutableProvider VisitApply(ApplyProvider provider)
+    {
+      bool isOuter;
+      switch (provider.ApplyType) {
+        case ApplyType.Cross:
+          isOuter = false;
+          break;
+        case ApplyType.Outer:
+          isOuter = true;
+          break;
+        default:
+          return base.VisitApply(provider);
+      }
+
+      var left = GetBound(provider.Left) as SqlProvider;
+      var right = GetBound(provider.Right) as SqlProvider;
+
+      if (left == null || right == null)
+        return null;
+      var leftQuery = left.PermanentReference;
+      var rightSelect = (SqlSelect)right.Request.Statement;
+      var rightQuery = SqlFactory.QueryRef(rightSelect);
+      var joinedTable = SqlFactory.Join(isOuter ? SqlJoinType.LeftOuterJoin : SqlJoinType.InnerJoin,
+        leftQuery, rightQuery);
+
+      SqlSelect query = SqlFactory.Select(joinedTable);
+      query.Columns.AddRange(leftQuery.Columns.Union(rightQuery.Columns).Cast<SqlColumn>());
+      var request = new SqlFetchRequest(query, provider.Header,
+        left.Request.ParameterBindings.Union(right.Request.ParameterBindings));
+      return new SqlProvider(provider, request, Handlers, left, right);
+    }
+
     // Constructor
 
     /// <summary>

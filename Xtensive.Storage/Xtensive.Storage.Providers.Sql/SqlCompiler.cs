@@ -226,7 +226,7 @@ namespace Xtensive.Storage.Providers.Sql
 
       SqlSelect query = SqlFactory.Select(joinedTable);
       query.Columns.AddRange(leftQuery.Columns.Union(rightQuery.Columns).Cast<SqlColumn>());
-      var request = new SqlFetchRequest(query, provider.Header, left.Request.ParameterBindings.Union(right.Request.ParameterBindings));
+      var request = new SqlFetchRequest(query, provider.Header);
       return new SqlProvider(provider, request, Handlers, left, right);
     }
 
@@ -484,18 +484,31 @@ namespace Xtensive.Storage.Providers.Sql
 
     protected override ExecutableProvider VisitApply(ApplyProvider provider)
     {
+      bool notExisting;
       switch (provider.ApplyType) {
         case ApplyType.Existing:
+          notExisting = false;
+          break;
         case ApplyType.NotExisting:
+          notExisting = true;
           break;
         default:
           return base.VisitApply(provider);
       }
 
-      var leftSource = GetBound(provider.Sources[0]) as SqlProvider;
-      if (leftSource == null)
+      var left = GetBound(provider.Left) as SqlProvider;
+      var right = GetBound(provider.Right) as SqlProvider;
+      if (left == null || right == null)
         return null;
-      throw new NotImplementedException();
+      var query = (SqlSelect) left.Request.Statement.Clone();
+      var subquery = (SqlSelect) left.Request.Statement;
+      var filter = SqlFactory.Exists(subquery);
+      if (notExisting)
+        filter = SqlFactory.Not(filter);
+      query.Where &= filter;
+      var request = new SqlFetchRequest(query, provider.Header,
+        left.Request.ParameterBindings.Union(right.Request.ParameterBindings));
+      return new SqlProvider(provider, request, Handlers, left, right);
     }
 
     #region Private methods.
