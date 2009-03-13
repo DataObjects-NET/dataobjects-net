@@ -498,15 +498,21 @@ namespace Xtensive.Storage.Providers.Sql
 
       var left = GetBound(provider.Left) as SqlProvider;
       var right = GetBound(provider.Right) as SqlProvider;
+
       if (left == null || right == null)
         return null;
-      var query = (SqlSelect) left.Request.Statement.Clone();
-      var subquery = (SqlSelect) left.Request.Statement;
-      var filter = SqlFactory.Exists(subquery);
+
+      var leftQuery = left.PermanentReference;
+      var rightQuery = (SqlSelect) left.Request.Statement;
+      var filter = SqlFactory.Exists(rightQuery);
       if (notExisting)
         filter = SqlFactory.Not(filter);
-      query.Where &= filter;
-      var request = new SqlFetchRequest(query, provider.Header);
+
+      var select = SqlFactory.Select(leftQuery);
+      select.Columns.AddRange(leftQuery.Columns.Cast<SqlColumn>());
+      select.Where = filter;
+      
+      var request = new SqlFetchRequest(select, provider.Header);
       return new SqlProvider(provider, request, Handlers, left, right);
     }
 

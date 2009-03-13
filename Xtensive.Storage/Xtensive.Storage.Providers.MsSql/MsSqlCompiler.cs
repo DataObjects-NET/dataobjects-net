@@ -108,15 +108,13 @@ namespace Xtensive.Storage.Providers.MsSql
       if (left == null || right == null)
         return null;
       var leftQuery = left.PermanentReference;
-      var rightSelect = (SqlSelect)right.Request.Statement;
-      var rightQuery = SqlFactory.QueryRef(rightSelect);
-      var joinedTable = SqlFactory.Join(isOuter ? SqlJoinType.LeftOuterJoin : SqlJoinType.InnerJoin,
+      var rightQuery = SqlFactory.QueryRef((SqlSelect)right.Request.Statement);
+      var joinedTable = SqlFactory.Join(isOuter ? SqlJoinType.LeftOuterApply : SqlJoinType.CrossApply,
         leftQuery, rightQuery);
 
       SqlSelect query = SqlFactory.Select(joinedTable);
       query.Columns.AddRange(leftQuery.Columns.Union(rightQuery.Columns).Cast<SqlColumn>());
-      var request = new SqlFetchRequest(query, provider.Header,
-        left.Request.ParameterBindings.Union(right.Request.ParameterBindings));
+      var request = new SqlFetchRequest(query, provider.Header);
       return new SqlProvider(provider, request, Handlers, left, right);
     }
 

@@ -241,5 +241,10 @@ namespace Xtensive.Storage.Rse
     {
       return new ApplyProvider(leftItemParameter, recordSet.Provider, right.Provider).Result;
     }
+
+    public static RecordSet Apply(this RecordSet recordSet, Parameter<Tuple> leftItemParameter, RecordSet right, ApplyType applyType)
+    {
+      return new ApplyProvider(leftItemParameter, recordSet.Provider, right.Provider, applyType).Result;
+    }
   }
 }

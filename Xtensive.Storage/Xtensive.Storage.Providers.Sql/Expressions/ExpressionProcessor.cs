@@ -96,8 +96,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
                 CompilationContext.Current.BindingContext.ReplaceBound(parameter, provider);
               }
               var sqlProvider = (SqlProvider)provider;
-              var sqlSelect = (SqlSelect)sqlProvider.Request.Statement;
-              return sqlSelect[columnIndex];
+              return sqlProvider.PermanentReference[columnIndex];
             }
           }
         }
