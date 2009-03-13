@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using NUnit.Framework;
@@ -959,37 +960,82 @@ namespace Xtensive.Storage.Tests.Storage
         using (Transaction.Open()) {
 
           var possibleFeatures = (Features[])Enum.GetValues(typeof (Features));
-
           for (int i = 0; i < 100; i++)
             new Creature {Name = "Creature_" + i, Features = possibleFeatures[random.Next(possibleFeatures.Length)]};
-
           Session.Current.Persist();
 
           var creatureType = Domain.Model.Types[typeof (Creature)];
           var creaturesPrimary = creatureType.Indexes.PrimaryIndex.ToRecordSet();
-          var creatures = creaturesPrimary.ToEntities<Creature>().ToList();
-          int featuresIndex = creaturesPrimary.Header.IndexOf(cFeatures);
-          var featuresParameter = new Parameter<int>();
-          long total = 0;
-
-          foreach (var creature in creatures) {
-            var features = creature.Features;
-            if (features == null)
-              continue;
-            using (new ParameterScope()) {
-              featuresParameter.Value = (int)features.Value;
-              total += creaturesPrimary.Filter(t => t.GetValue<int>(featuresIndex) == featuresParameter.Value).Count();
-            }
-          }
-
-          var parameter = new Parameter<Tuple>();
-          var subquery = creaturesPrimary
-            .Filter(t => t.GetValue<int>(featuresIndex)==parameter.Value.GetValue<int>(featuresIndex))
-            .Alias("PairedCreatures");
-          long resultCount = creaturesPrimary.Apply(parameter, subquery).Count();
-          Assert.AreEqual(total, resultCount);
+          var allCreatures = creaturesPrimary.ToEntities<Creature>().ToList();
+          CrossApplyTest(allCreatures, creaturesPrimary, false);
+          CrossApplyTest(allCreatures, creaturesPrimary, true);
+          ExistingApplyTest(allCreatures, creaturesPrimary, false);
+          ExistingApplyTest(allCreatures, creaturesPrimary, true);
         }
       }
+    }
+
+    private void CrossApplyTest(List<Creature> allCreatures, RecordSet creaturesPrimary, bool isOuter)
+    {
+      var featuresParameter = new Parameter<int>();
+      int featuresIndex = creaturesPrimary.Header.IndexOf(cFeatures);
+      long total = 0;
+
+      foreach (var creature in allCreatures) {
+        var features = creature.Features;
+        if (features == null)
+          continue;
+        using (new ParameterScope()) {
+          featuresParameter.Value = (int)features.Value;
+          long count = creaturesPrimary.Filter(t => t.GetValue<int>(featuresIndex)==featuresParameter.Value).Count();
+          total += isOuter ? Math.Max(count, 1) : count;
+        }
+      }
+
+      var parameter = new Parameter<Tuple>();
+      var subquery = creaturesPrimary
+        .Filter(t => t.GetValue<int>(featuresIndex) == parameter.Value.GetValue<int>(featuresIndex))
+        .Alias("PairedCreatures");
+      long resultCount = creaturesPrimary.Apply(parameter, subquery, isOuter ? ApplyType.Outer : ApplyType.Cross).Count();
+      Assert.AreEqual(total, resultCount);
+    }
+
+    private void ExistingApplyTest(List<Creature> allCreatures, RecordSet creaturesPrimary, bool notExisting)
+    {
+      var featuresParameter = new Parameter<int>();
+      var creatureIdParameter = new Parameter<int>();
+
+      int featuresIndex = creaturesPrimary.Header.IndexOf(cFeatures);
+      int idIndex = creaturesPrimary.Header.IndexOf(cID);
+      long total = 0;
+
+      Expression<Func<Tuple, bool>> criteria =
+        t => t.GetValue<int>(featuresIndex)==featuresParameter.Value
+          && t.GetValue<int>(idIndex)!=creatureIdParameter.Value;
+
+      foreach (var creature in allCreatures) {
+        var features = creature.Features;
+        if (features == null)
+          continue;
+        using (new ParameterScope()) {
+          featuresParameter.Value = (int)features.Value;
+          creatureIdParameter.Value = creature.ID;
+          long count = creaturesPrimary.Filter(criteria).Count();
+          if ((count > 0 && !notExisting) || (count == 0 && notExisting))
+            total++;
+        }
+      }
+
+      var parameter = new Parameter<Tuple>();
+      criteria =
+        t => t.GetValue<int>(featuresIndex)==parameter.Value.GetValue<int>(featuresIndex)
+          && t.GetValue<int>(idIndex)!=parameter.Value.GetValue<int>(idIndex);
+      long resultCount = creaturesPrimary
+        .Apply(parameter,
+          creaturesPrimary.Filter(criteria),
+          notExisting ? ApplyType.NotExisting : ApplyType.Existing)
+        .Count();
+      Assert.AreEqual(total, resultCount);      
     }
   }
 }
