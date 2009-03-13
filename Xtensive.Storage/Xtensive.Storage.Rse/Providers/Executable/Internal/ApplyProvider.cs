@@ -10,6 +10,8 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
+using Xtensive.Storage.Rse.Providers.Compilable;
+using System.Linq;
 
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
@@ -17,34 +19,93 @@ namespace Xtensive.Storage.Rse.Providers.Executable
   internal sealed class ApplyProvider : BinaryExecutableProvider<Compilable.ApplyProvider>
   {
     private CombineTransform transform;
+    private Tuple rightBlank;
 
     protected internal override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
-      using (new ParameterScope()) {
-        var left = Left.Enumerate(context);
-        foreach (var tuple in left) {
-          Origin.LeftItemParameter.Value = tuple;
-          // Do not cache right part
-          var right = Right.OnEnumerate(context);
-          bool empty = true;
-          foreach (var rTuple in right) {
-            empty = false;
-            var item = transform.Apply(TupleTransformType.Auto, tuple, rTuple);
-            yield return item;
-          }
+      var left = Left.Enumerate(context);
+      switch (Origin.ApplyType) {
+        case ApplyType.Cross:
+          return CrossApply(context, left);
+        case ApplyType.Outer:
+          return OuterApply(context, left); ;
+        case ApplyType.Existing:
+          return ApplyExisting(context, left);
+        case ApplyType.NotExisting:
+          return ApplyNotExisting(context, left);
+        default:
+          throw new ArgumentOutOfRangeException();
+      }
+    }
 
-          if (empty && Origin.LeftJoin) {
-            var item = transform.Apply(TupleTransformType.Auto, tuple, default(Tuple));
-            yield return item;
-          }
+    #region Private implementation.
+
+    private IEnumerable<Tuple> CrossApply(EnumerationContext context, IEnumerable<Tuple> left)
+    {
+      using (new ParameterScope())
+      foreach (var tuple in left) {
+        Origin.LeftItemParameter.Value = tuple;
+        // Do not cache right part
+        var right = Right.OnEnumerate(context);
+        foreach (var rTuple in right) {
+          var item = transform.Apply(TupleTransformType.Auto, tuple, rTuple);
+          yield return item;
         }
       }
     }
+
+    private IEnumerable<Tuple> OuterApply(EnumerationContext context, IEnumerable<Tuple> left)
+    {
+      using (new ParameterScope())
+      foreach (var tuple in left) {
+        Origin.LeftItemParameter.Value = tuple;
+        // Do not cache right part
+        var right = Right.OnEnumerate(context);
+        bool empty = true;
+        foreach (var rTuple in right) {
+          empty = false;
+          var item = transform.Apply(TupleTransformType.Auto, tuple, rTuple);
+          yield return item;
+        }
+        if (empty) {
+          var item = transform.Apply(TupleTransformType.Auto, tuple, rightBlank);
+          yield return item;
+        }
+      }
+    }
+
+    private IEnumerable<Tuple> ApplyExisting(EnumerationContext context, IEnumerable<Tuple> left)
+    {
+      using (new ParameterScope())
+      foreach (var tuple in left) {
+        Origin.LeftItemParameter.Value = tuple;
+        // Do not cache right part
+        var right = Right.OnEnumerate(context);
+        if (right.Any())
+          yield return tuple;
+      }
+    }
+
+    private IEnumerable<Tuple> ApplyNotExisting(EnumerationContext context, IEnumerable<Tuple> left)
+    {
+      using (new ParameterScope())
+      foreach (var tuple in left) {
+        Origin.LeftItemParameter.Value = tuple;
+        // Do not cache right part
+        var right = Right.OnEnumerate(context);
+        if (!right.Any())
+          yield return tuple;
+      }
+    }
+
+    #endregion
+
 
     protected override void Initialize()
     {
       base.Initialize();
       transform = new CombineTransform(true, Left.Header.TupleDescriptor, Right.Header.TupleDescriptor);
+      rightBlank = Tuple.Create(Right.Header.TupleDescriptor);
     }
 
 

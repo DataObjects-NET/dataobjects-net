@@ -14,9 +14,9 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
   public sealed class TransferProvider : UnaryProvider
   {
     /// <summary>
-    /// Gets <see cref="TransferOptions"/>.
+    /// Gets <see cref="TransferType"/>.
     /// </summary>
-    public TransferOptions Options { get; private set; }
+    public TransferType Options { get; private set; }
 
     /// <summary>
     /// Gets the execution site location.
@@ -37,7 +37,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// </summary>
     /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="options">The <see cref="Options"/> property value.</param>
-    public TransferProvider(CompilableProvider source, TransferOptions options)
+    public TransferProvider(CompilableProvider source, TransferType options)
       : this(source, options, null)
     {
       Options = options;
@@ -49,7 +49,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="options">The <see cref="Options"/> property value.</param>
     /// <param name="location">The <see cref="Location"/> property value.</param>
-    public TransferProvider(CompilableProvider source, TransferOptions options, UrlInfo location)
+    public TransferProvider(CompilableProvider source, TransferType options, UrlInfo location)
       : base(ProviderType.Transfer, source)
     {
       Options = options;

@@ -12,7 +12,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
   /// Enumerates transfer preference options.
   /// </summary>
   [Serializable]
-  public enum TransferOptions
+  public enum TransferType
   {
     /// <summary>
     /// Default option is a <see cref="Server"/>.

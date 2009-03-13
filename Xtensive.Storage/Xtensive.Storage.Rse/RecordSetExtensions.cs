@@ -222,7 +222,7 @@ namespace Xtensive.Storage.Rse
       return new StoreProvider(recordSet.Provider, scope, name).Result;
     }
 
-    public static RecordSet ExecuteAt(this RecordSet recordSet, TransferOptions options)
+    public static RecordSet ExecuteAt(this RecordSet recordSet, TransferType options)
     {
       return new TransferProvider(recordSet.Provider, options).Result;
     }

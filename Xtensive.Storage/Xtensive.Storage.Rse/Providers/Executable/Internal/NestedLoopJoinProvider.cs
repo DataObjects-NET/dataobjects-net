@@ -23,13 +23,14 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     private CombineTransform transform;
     private MapTransform leftKeyTransform;
     private MapTransform rightKeyTransform;
+    private Tuple rightBlank;
 
     protected internal override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
       AdvancedComparer<Tuple> comparer = AdvancedComparer<Tuple>.Default;
       IEnumerable<Pair<Tuple, Tuple>> loopJoin = outerJoin ? Left.NestedLoopJoinLeft(Right, KeyExtractorLeft, KeyExtractorRight, comparer) : Left.NestedLoopJoin(Right, KeyExtractorLeft, KeyExtractorRight, comparer);
       foreach (Pair<Tuple, Tuple> pair in loopJoin)
-        yield return transform.Apply(TupleTransformType.Auto, pair.First, pair.Second);
+        yield return transform.Apply(TupleTransformType.Auto, pair.First, pair.Second ?? rightBlank);
     }
 
     #region Helper methods
@@ -58,6 +59,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 
       leftKeyTransform = new MapTransform(true, leftKeyDescriptor, leftColumns);
       rightKeyTransform = new MapTransform(true, rightKeyDescriptor, rightColumns);
+      rightBlank = Tuple.Create(Right.Header.TupleDescriptor);
     }
 
 

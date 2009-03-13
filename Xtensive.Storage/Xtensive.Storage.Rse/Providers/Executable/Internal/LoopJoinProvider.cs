@@ -22,13 +22,14 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     private readonly Pair<int>[] joiningPairs;
     private CombineTransform transform;
     private MapTransform leftKeyTransform;
+    private Tuple rightBlank;
 
     protected internal override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
       var rightOrdered = Right.GetService<IOrderedEnumerable<Tuple, Tuple>>(true);
       var left = Left.Enumerate(context);
       foreach (Pair<Tuple, Tuple> pair in outerJoin ? left.LoopJoinLeft(rightOrdered, KeyExtractorLeft) : left.LoopJoin(rightOrdered, KeyExtractorLeft)) {
-        Tuple rightTuple = pair.Second ?? Tuple.Create(Right.Header.TupleDescriptor);
+        Tuple rightTuple = pair.Second ?? rightBlank;
         yield return transform.Apply(TupleTransformType.Auto, pair.First, rightTuple);
       }
     }
@@ -46,6 +47,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
       int[] map = joiningPairs.Select(pair => pair.First).ToArray();
       TupleDescriptor leftKeyDescriptor = TupleDescriptor.Create(map.Select(i => Left.Header.TupleDescriptor[i]));
       leftKeyTransform = new MapTransform(true, leftKeyDescriptor, map);
+      rightBlank = Tuple.Create(Right.Header.TupleDescriptor);
     }
 
 

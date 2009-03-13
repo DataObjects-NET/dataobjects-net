@@ -17,13 +17,14 @@ namespace Xtensive.Storage.Rse.Providers.Executable
   internal sealed class OuterMergeJoinProvider: BinaryExecutableProvider<Compilable.JoinProvider>
   {
     private CombineTransform transform;
+    private Tuple rightBlank;
 
     protected internal override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
       var leftOrdered = Left.GetService<IOrderedEnumerable<Tuple, Tuple>>();
       var rightOrdered = Right.GetService<IOrderedEnumerable<Tuple, Tuple>>();
       foreach (Pair<Tuple, Tuple> pair in leftOrdered.MergeJoinLeft(rightOrdered)) {
-        Tuple rightTuple = pair.Second ?? Tuple.Create(Right.Header.TupleDescriptor);
+        Tuple rightTuple = pair.Second ?? rightBlank;
         yield return transform.Apply(TupleTransformType.Auto, pair.First, rightTuple);
       }
     }
@@ -33,6 +34,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     {
       base.Initialize();
       transform = new CombineTransform(true, Left.Header.TupleDescriptor, Right.Header.TupleDescriptor);
+      rightBlank = Tuple.Create(Right.Header.TupleDescriptor);
     }
 
 

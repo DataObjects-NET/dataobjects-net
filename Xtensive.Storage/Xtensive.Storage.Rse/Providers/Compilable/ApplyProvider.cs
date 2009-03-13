@@ -24,16 +24,29 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     public Parameter<Tuple> LeftItemParameter { get; set; }
 
     /// <summary>
-    /// Indicates whether current join operation should be executed as left join.
+    /// Apply type.
     /// </summary>
-    public bool LeftJoin { get; private set; }
+    public ApplyType ApplyType { get; private set; }
+
+    /// <inheritdoc/>
+    protected override RecordSetHeader BuildHeader()
+    {
+      switch (ApplyType) {
+        case ApplyType.Cross:
+        case ApplyType.Outer:
+          return base.BuildHeader();
+        case ApplyType.Existing:
+        case ApplyType.NotExisting:
+          return Left.Header;
+        default:
+          throw new ArgumentOutOfRangeException();
+      }
+    }
 
     /// <inheritdoc/>
     public override string ParametersToString()
     {
-      return string.Format(LeftJoin
-        ? "Left apply"
-        : "Apply");
+      return string.Format("{0} apply", ApplyType);
     }
 
     // Constructors
@@ -42,17 +55,17 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     public ApplyProvider(Parameter<Tuple> leftItemParameter, CompilableProvider left, CompilableProvider right)
-      : this(leftItemParameter, left, right, false)
+      : this(leftItemParameter, left, right, ApplyType.Cross)
     {}
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public ApplyProvider(Parameter<Tuple> leftItemParameter, CompilableProvider left, CompilableProvider right, bool leftJoin)
+    public ApplyProvider(Parameter<Tuple> leftItemParameter, CompilableProvider left, CompilableProvider right, ApplyType applyType)
       : base(ProviderType.Apply, left, right)
     {
       LeftItemParameter = leftItemParameter;
-      LeftJoin = leftJoin;
+      ApplyType = applyType;
     }
   }
 }
