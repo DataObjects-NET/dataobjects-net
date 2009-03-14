@@ -39,8 +39,7 @@ namespace Xtensive.Storage.Internals
     {
       get
       {
-        return count.HasValue &&
-          count.GetValueOrDefault()==keys.Count;
+        return count.HasValue && count.Value == keys.Count;
       }
     }
 
@@ -50,7 +49,7 @@ namespace Xtensive.Storage.Internals
       {
         if (!count.HasValue)
           count = getCount();
-        return count.GetValueOrDefault();
+        return count.Value;
       }
     }
 

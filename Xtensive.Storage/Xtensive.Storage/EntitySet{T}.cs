@@ -29,6 +29,7 @@ namespace Xtensive.Storage
   {
     private static readonly QueryProvider provider = new QueryProvider();
     private Expression expression;
+    private Query<TItem> query;
 
     /// <inheritdoc/>
     [Infrastructure]
@@ -94,9 +95,28 @@ namespace Xtensive.Storage
     [Infrastructure]
     public IEnumerator<TItem> GetEnumerator()
     {
+//      bool isCached = State.IsFullyLoaded;
+//      if (!isCached) {
+//        return query.GetEnumerator();
+//      }
+//      else
+//        return GetKeys().Select(key => key.Resolve<TItem>(Session)).GetEnumerator();
+      /*long version = State.Version;
+            bool isCached = State.IsFullyLoaded;
+            IEnumerable<Key> keys = isCached ? State : FetchKeys();
+
+            foreach (Key key in keys) {
+              EnsureVersionIs(version);
+              if (!isCached)
+                State.Register(key);
+              yield return key;
+            }*/
+
       foreach (Key key in GetKeys())
         yield return key.Resolve<TItem>();
     }
+
+    
 
     /// <inheritdoc/>
     [Infrastructure]
@@ -196,6 +216,7 @@ namespace Xtensive.Storage
           where, Expression.Constant(this), outerSelectorLambda,
           innerSelectorLambda, resultsSelectorLambda);
       }
+      query = new Query<TItem>(expression);
     }
 
     // Constructors
