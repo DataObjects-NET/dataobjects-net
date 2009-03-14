@@ -170,21 +170,21 @@ namespace Xtensive.Storage.Tests.Storage.Performance
         var s = ss.Session;
         long sum = 0;
         int i = 0;
-        var keys = new List<Key>(count/2);
+        var entities = new List<Entity>(count/2);
         var rs = d.Model.Types[typeof(Simplest)].Indexes.PrimaryIndex.ToRecordSet();
         using (var ts = s.OpenTransaction()) {
           while (i<count) {
             foreach (var o in rs.ToEntities<Simplest>()) {
               sum += o.Id;
               if (i % 2 == 0)
-                keys.Add(o.Key);
+                entities.Add(o);
               if (++i >= count)
                 break;
             }
 //          TestHelper.CollectGarbage();
           using (warmup ? null : new Measurement("Bulk Fetch Cached", count / 2)) {
-            foreach (var key in keys)
-              key.Resolve();
+            foreach (var entity in entities)
+              entity.Key.Resolve();
           }
           ts.Complete();
           }
