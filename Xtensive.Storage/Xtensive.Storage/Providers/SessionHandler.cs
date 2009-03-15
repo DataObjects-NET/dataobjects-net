@@ -55,48 +55,7 @@ namespace Xtensive.Storage.Providers
     {
       IEnumerable<EntityState> newEntities = Session.EntityStateRegistry.GetItems(PersistenceState.New);
       if ((Session.Domain.Configuration.ForeignKeyMode & ForeignKeyMode.Reference) > 0) {
-        var insertQueue = new List<EntityState>();
-        var sortEtitiyDatas = new Dictionary<Key, Node<EntityState, AssociationInfo>>();
-        foreach (EntityState data in newEntities) {
-          sortEtitiyDatas.Add(data.Key, new Node<EntityState, AssociationInfo>(data));
-        }
-        foreach (var data in sortEtitiyDatas) {
-          EntityState processingEntityState = data.Value.Item;
-          foreach (var association in processingEntityState.Type.GetOutgoingAssociations().Where(associationInfo => associationInfo.ReferencingField.IsEntity))
-          {
-                Key foreignKey = processingEntityState.Entity.GetKey(association.ReferencingField);
-                Node<EntityState, AssociationInfo> destination;
-                if (foreignKey != null && !foreignKey.Equals(data.Value.Item.Key) && sortEtitiyDatas.TryGetValue(foreignKey, out destination))
-                {
-                  data.Value.AddConnection(destination, true, association);
-                }
-          }
-        }
-        // Sort
-        List<NodeConnection<EntityState, AssociationInfo>> removedEdges;
-        var sortResult = TopologicalSorter.Sort(sortEtitiyDatas.Values, out removedEdges);
-        // Remove links
-        var keysToRestore = new List<Triplet<EntityState, FieldInfo, Entity>>();
-        foreach (var edge in removedEdges) {
-          AssociationInfo associationInfo = edge.ConnectionItem;
-          keysToRestore.Add(new Triplet<EntityState, FieldInfo, Entity>(edge.Source.Item, associationInfo.ReferencingField, edge.Destination.Item.Entity));
-          edge.Source.Item.Entity.SetField<object>(associationInfo.ReferencingField, null, false);
-        }
-        sortResult.Reverse();
-        // Insert 
-        insertQueue.AddRange(sortResult);
-        foreach (EntityState data in insertQueue){
-          Insert(data);
-        }
-        // Update links
-        foreach (var restoreData in keysToRestore) {
-          restoreData.First.Entity.SetField<object>(restoreData.Second, restoreData.Third, false);
-          Update(restoreData.First);
-        }
-
-        // Merge
-        foreach (EntityState data in insertQueue)
-          data.Tuple.Merge();
+        InsertAccordingForeignKeys(newEntities);
       }
       else {
         foreach (EntityState data in newEntities) {
@@ -139,5 +98,54 @@ namespace Xtensive.Storage.Providers
 
     /// <inheritdoc/>
     public abstract void Dispose();
+
+    private void InsertAccordingForeignKeys(IEnumerable<EntityState> entityStates)
+    {
+      // Create nodes
+      var insertQueue = new List<EntityState>();
+      var sortData = new Dictionary<Key, Node<EntityState, AssociationInfo>>();
+      foreach (EntityState data in entityStates)
+        sortData.Add(data.Key, new Node<EntityState, AssociationInfo>(data));
+
+      // Add connections
+      foreach (var data in sortData) {
+        EntityState processingEntityState = data.Value.Item;
+        foreach (var association in processingEntityState.Type.GetOutgoingAssociations().Where(associationInfo => associationInfo.ReferencingField.IsEntity)) {
+          Key foreignKey = processingEntityState.Entity.GetKey(association.ReferencingField);
+          Node<EntityState, AssociationInfo> destination;
+          if (foreignKey!=null && !foreignKey.Equals(data.Value.Item.Key) && sortData.TryGetValue(foreignKey, out destination))
+            data.Value.AddConnection(destination, true, association);
+        }
+      }
+
+      // Sort
+      List<NodeConnection<EntityState, AssociationInfo>> removedEdges;
+      var sortResult = TopologicalSorter.Sort(sortData.Values, out removedEdges);
+
+      // Remove loop links
+      var keysToRestore = new List<Triplet<EntityState, FieldInfo, Entity>>();
+      foreach (var edge in removedEdges) {
+        AssociationInfo associationInfo = edge.ConnectionItem;
+        keysToRestore.Add(new Triplet<EntityState, FieldInfo, Entity>(edge.Source.Item, associationInfo.ReferencingField, edge.Destination.Item.Entity));
+        edge.Source.Item.Entity.SetField<object>(associationInfo.ReferencingField, null, false);
+      }
+      sortResult.Reverse();
+
+      // Insert 
+      insertQueue.AddRange(sortResult);
+      foreach (EntityState data in insertQueue) {
+        Insert(data);
+      }
+
+      // Restore loop links
+      foreach (var restoreData in keysToRestore) {
+        restoreData.First.Entity.SetField<object>(restoreData.Second, restoreData.Third, false);
+        Update(restoreData.First);
+      }
+
+      // Merge
+      foreach (EntityState data in insertQueue)
+        data.Tuple.Merge();
+    }
   }
 }
