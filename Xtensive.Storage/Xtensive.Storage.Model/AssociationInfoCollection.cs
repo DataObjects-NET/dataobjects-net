@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Xtensive.Storage.Model
 {
@@ -32,6 +33,16 @@ namespace Xtensive.Storage.Model
         foreach (AssociationInfo association in associations)
           yield return association;
       }
+    }
+
+    /// <summary>
+    /// Finds the outgoing associations for the specified <see cref="TypeInfo"/>.
+    /// </summary>
+    /// <param name="referencingType"><see cref="TypeInfo"/> to find outgoing associations for.</param>
+    /// <returns></returns>
+    public IEnumerable<AssociationInfo> FindOutgoingAssocitions(TypeInfo referencingType)
+    {
+      return this.Where(associationInfo => (associationInfo.ReferencingType==referencingType || referencingType.GetAncestors().Contains(associationInfo.ReferencingType)));
     }
 
     /// <inheritdoc/>

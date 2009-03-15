@@ -12,7 +12,6 @@ namespace Xtensive.Core.Sorting
 {
   public static class TopologicalSorter
   {
-
     /// <summary>
     /// Sorts the specified oriented graph of the items in their topological order
     /// (following the outgoing connections provided by <paramref name="connector"/>).
@@ -123,6 +122,7 @@ namespace Xtensive.Core.Sorting
       return result;
     }
 
+
     private static void SortInternal<TNodeItem, TConnectionItem>(IEnumerable<Node<TNodeItem, TConnectionItem>> nodes, Queue<Node<TNodeItem, TConnectionItem>> queue, ICollection<TNodeItem> result)
     {
       // Enqueuing sources
@@ -137,7 +137,7 @@ namespace Xtensive.Core.Sorting
           var outgoing = node.OutgoingConnections.ToArray();
           foreach (var outConnection in outgoing) {
             node.RemoveConnection(outConnection);
-            if (outConnection.Destination.GetConnectionCount(false) == 0)
+            if (outConnection.Destination.GetConnectionCount(false)==0)
               queue.Enqueue(outConnection.Destination);
           }
         }

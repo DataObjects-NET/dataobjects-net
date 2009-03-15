@@ -47,6 +47,7 @@ namespace Xtensive.Storage.Model
     private readonly TypeAttributes                         attributes;
     private ReadOnlyList<TypeInfo>                          ancestors;
     private ReadOnlyList<AssociationInfo>                   associations;
+    private ReadOnlyList<AssociationInfo>                   outgoingAssociations;
     private Type                                            underlyingType;
     private HierarchyInfo                                   hierarchy;
     private int                                             typeId = NoTypeId;
@@ -338,11 +339,23 @@ namespace Xtensive.Storage.Model
       return model.Associations.Find(this).ToList();
     }
 
+    /// <summary>
+    /// Gets the associations this instance is participating in.
+    /// </summary>
+    public IList<AssociationInfo> GetOutgoingAssociations()
+    {
+      if (IsLocked)
+        return outgoingAssociations;
+
+      return model.Associations.FindOutgoingAssocitions(this).ToList();
+    }
+
     /// <inheritdoc/>
     public override void Lock(bool recursive)
     {
       ancestors = new ReadOnlyList<TypeInfo>(GetAncestors());
       associations = new ReadOnlyList<AssociationInfo>(GetAssociations());
+      outgoingAssociations = new ReadOnlyList<AssociationInfo>(GetOutgoingAssociations());
       base.Lock(recursive);
       if (recursive) {
         affectedIndexes.Lock(true);

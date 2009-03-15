@@ -9,6 +9,7 @@ using Xtensive.Core.Tuples;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Model;
+using System.Linq;
 
 namespace Xtensive.Storage.Tests.Storage.ForeignKeys
 {
@@ -27,7 +28,7 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
     [Field]
     public User Boss { get; set; }
 
-    [Field]
+    [Field(OnRemove=ReferentialAction.Clear)]
     public Company Company { get; set; }
 
     [Field]
@@ -46,9 +47,10 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
     [Field]
     public string Name { get; set; }
 
-    [Field]
+    [Field(OnRemove = ReferentialAction.Clear)]
     public User Director { get; set; }
   }
+
 
   [HierarchyRoot("Id5", "Id6", KeyGenerator = typeof(DualIntKeyGenerator))]
   public class Project : Entity
@@ -64,6 +66,12 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
 
     [Field(PairTo = "Projects")]
     public EntitySet<User> Users { get; private set; }
+  }
+
+  public class ForeignUser : User
+  {
+    [Field]
+    public string Country { get; set; }
   }
 
   public class DualIntKeyGenerator : KeyGenerator
@@ -92,8 +100,18 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
       return configuration;
     }
 
-
     // Insert
+
+    [Test]
+    public void InsertDescendant()
+    {
+      using (Domain.OpenSession())
+      using (Transaction.Open())
+      {
+        var u1 = new User { Name = "U1" };
+        Session.Current.Persist();
+      }
+    }
 
     [Test]
     public void InsertSelfReference()
@@ -226,7 +244,6 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
       {
         var c1 = new Company { Name = "C1" };
         var u1 = new User { Name = "U1" };
-        Session.Current.Persist();
         c1.Director = u1;
         u1.Company = c1;
         Session.Current.Persist();

@@ -228,7 +228,7 @@ namespace Xtensive.Storage.Providers.Sql
         var referencedIndex = indexPair.Second;
         IEnumerable<ColumnInfo> referencedColumns = referencedIndex.KeyColumns.Keys;
         string foreignKeyName = Domain.NameBuilder.BuildForeignKeyName(referencingIndex.ReflectedType, referencedIndex.ReflectedType);
-        CreateForeignKey(foreignKeyName, tables[referencingIndex], referencingColumns, tables[referencedIndex], referencedColumns);
+        CreateForeignKey(foreignKeyName, tables[referencedIndex], referencedColumns, tables[referencingIndex], referencingColumns);
       }
     }
 
