@@ -673,6 +673,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Session is not open. You can perform this operation inside &apos;using (domain.OpenSession()) { ... }&apos; block..
+        /// </summary>
+        internal static string ExSessionIsNotOpen {
+            get {
+                return ResourceManager.GetString("ExSessionIsNotOpen", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Session with name &apos;{0}&apos; already exists..
         /// </summary>
         internal static string ExSessionWithNameXAlreadyExists {
@@ -1142,15 +1151,6 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Session is not activated..
-        /// </summary>
-        internal static string SessionIsNotActivated {
-            get {
-                return ResourceManager.GetString("SessionIsNotActivated", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to system types.
         /// </summary>
         internal static string SystemTypes {
@@ -1192,6 +1192,15 @@ namespace Xtensive.Storage.Resources {
         internal static string TypeXIsAlreadyDefined {
             get {
                 return ResourceManager.GetString("TypeXIsAlreadyDefined", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Type &apos;{0}&apos; is not an &apos;{1}&apos; descendant..
+        /// </summary>
+        internal static string TypeXIsNotAnYDescendant {
+            get {
+                return ResourceManager.GetString("TypeXIsNotAnYDescendant", resourceCulture);
             }
         }
         

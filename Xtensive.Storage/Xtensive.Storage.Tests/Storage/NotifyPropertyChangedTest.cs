@@ -13,7 +13,7 @@ using Xtensive.Storage.Tests.Storage.StructureModel;
 namespace Xtensive.Storage.Tests.Storage
 {
   [TestFixture]
-  public class NotifyPropertyChangedTest : AutoBuildTest
+  public class  NotifyPropertyChangedTest : AutoBuildTest
   {
     protected override Xtensive.Storage.Configuration.DomainConfiguration BuildConfiguration()
     {

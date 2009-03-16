@@ -136,23 +136,23 @@ namespace Xtensive.Storage.Building.Builders
 
     private static Func<IEntity, bool, IEntity> BuildGetPairedValueAction(AssociationInfo association)
     {
-      return (entity, notify) => ((Entity)entity).GetField<IEntity>(association.ReferencingField, notify);
+      return (entity, notify) => ((Entity)entity).GetFieldValue<IEntity>(association.ReferencingField, notify);
     }
 
     private static Action<IEntity, IEntity, bool> BuildBreakAssociationAction(AssociationInfo association, OperationType type)
     {
       if (type==OperationType.Set)
-        return (master, slave, notify) => ((Entity)master).SetField<IEntity>(association.ReferencingField, null, notify);
+        return (master, slave, notify) => ((Entity)master).SetFieldValue<IEntity>(association.ReferencingField, null, notify);
       else
-        return (master, slave, notify) => ((Entity)master).GetField<EntitySetBase>(association.ReferencingField, notify).Remove((Entity)slave, notify);
+        return (master, slave, notify) => ((Entity)master).GetFieldValue<EntitySetBase>(association.ReferencingField, notify).Remove((Entity)slave, notify);
     }
 
     private static Action<IEntity, IEntity, bool> BuildCreateAssociationAction(AssociationInfo association, OperationType type)
     {
       if (type==OperationType.Set)
-        return (master, slave, notify) => ((Entity)master).SetField(association.ReferencingField, slave, notify);
+        return (master, slave, notify) => ((Entity)master).SetFieldValue(association.ReferencingField, slave, notify);
       else
-        return (master, slave, notify) => ((Entity)master).GetField<EntitySetBase>(association.ReferencingField, notify).Add((Entity)slave, notify);
+        return (master, slave, notify) => ((Entity)master).GetFieldValue<EntitySetBase>(association.ReferencingField, notify).Add((Entity)slave, notify);
     }
   }
 }

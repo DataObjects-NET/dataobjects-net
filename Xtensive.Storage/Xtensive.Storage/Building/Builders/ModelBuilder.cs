@@ -128,7 +128,7 @@ namespace Xtensive.Storage.Building.Builders
         BuildingContext context = BuildingContext.Current;
 
         foreach (TypeDef typeDef in context.Definition.Types.Where(t => !t.IsInterface)) {
-          CheckPersistentAspect(typeDef.UnderlyingType);
+          CheckPersistentAspect(typeDef);
           try {
             TypeBuilder.BuildType(typeDef);
           }
@@ -146,12 +146,12 @@ namespace Xtensive.Storage.Building.Builders
       }
     }
 
-    private static void CheckPersistentAspect(Type type)
+    private static void CheckPersistentAspect(TypeDef typeDef)
     {
-      var constructor = type.GetConstructor(
+      var constructor = typeDef.UnderlyingType.GetConstructor(
         BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, new[] { typeof(EntityState), typeof(bool) });
-      if (constructor == null && type != typeof(Structure)) {
-        var assemblyName = type.Assembly.ManifestModule.Name;
+      if (constructor == null && !typeDef.IsStructure) {
+        var assemblyName = typeDef.UnderlyingType.Assembly.ManifestModule.Name;
         throw new DomainBuilderException(string.Format(
           Strings.ExPersistentAttributeIsNotSetOnTypeX, assemblyName.Remove(assemblyName.Length - 4)));
       }

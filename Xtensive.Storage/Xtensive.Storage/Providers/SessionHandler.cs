@@ -127,7 +127,7 @@ namespace Xtensive.Storage.Providers
       foreach (var edge in removedEdges) {
         AssociationInfo associationInfo = edge.ConnectionItem;
         keysToRestore.Add(new Triplet<EntityState, FieldInfo, Entity>(edge.Source.Item, associationInfo.ReferencingField, edge.Destination.Item.Entity));
-        edge.Source.Item.Entity.SetField<object>(associationInfo.ReferencingField, null, false);
+        edge.Source.Item.Entity.SetFieldValue<object>(associationInfo.ReferencingField, null, false);
       }
       sortResult.Reverse();
 
@@ -139,7 +139,7 @@ namespace Xtensive.Storage.Providers
 
       // Restore loop links
       foreach (var restoreData in keysToRestore) {
-        restoreData.First.Entity.SetField<object>(restoreData.Second, restoreData.Third, false);
+        restoreData.First.Entity.SetFieldValue<object>(restoreData.Second, restoreData.Third, false);
         Update(restoreData.First);
       }
 

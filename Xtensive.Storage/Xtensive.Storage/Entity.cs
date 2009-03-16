@@ -37,7 +37,7 @@ namespace Xtensive.Storage
     [Field]
     internal int TypeId {
       [DebuggerStepThrough]
-      get { return GetField<int>(Session.Domain.NameBuilder.TypeIdFieldName); }
+      get { return GetFieldValue<int>(Session.Domain.NameBuilder.TypeIdFieldName); }
     }
 
     #endregion
@@ -155,7 +155,7 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
-    /// Called when become removed.
+    /// Called when entity becomes removed.
     /// </summary>
     [Infrastructure]
     protected virtual void OnRemove()
@@ -215,9 +215,9 @@ namespace Xtensive.Storage
       base.OnInitialize(notify);
     }
 
-    internal sealed override void OnGettingField(FieldInfo field, bool notify)
+    internal sealed override void OnGettingFieldValue(FieldInfo field, bool notify)
     {
-      base.OnGettingField(field, notify);
+      base.OnGettingFieldValue(field, notify);
       if (Session.IsDebugEventLoggingEnabled)
         LogTemplate<Log>.Debug("Session '{0}'. Getting value: Key = '{1}', Field = '{2}'", Session, Key, field);
       State.EnsureNotRemoved();
@@ -225,14 +225,14 @@ namespace Xtensive.Storage
     }
 
     // This is done just to make it sealed
-    sealed internal override void OnGetField(FieldInfo field, object value, bool notify)
+    sealed internal override void OnGetFieldValue(FieldInfo field, object value, bool notify)
     {
-      base.OnGetField(field, value, notify);
+      base.OnGetFieldValue(field, value, notify);
     }
 
-    sealed internal override void OnSettingField(FieldInfo field, object value, bool notify)
+    sealed internal override void OnSettingFieldValue(FieldInfo field, object value, bool notify)
     {
-      base.OnSettingField(field, value, notify);
+      base.OnSettingFieldValue(field, value, notify);
       if (Session.IsDebugEventLoggingEnabled)
         LogTemplate<Log>.Debug("Session '{0}'. Setting value: Key = '{1}', Field = '{2}'", Session, Key, field);
       if (field.IsPrimaryKey)
@@ -240,11 +240,11 @@ namespace Xtensive.Storage
       State.EnsureNotRemoved();
     }
 
-    internal sealed override void OnSetField(FieldInfo field, object oldValue, object newValue, bool notify)
+    internal sealed override void OnSetFieldValue(FieldInfo field, object oldValue, object newValue, bool notify)
     {
       if (PersistenceState!=PersistenceState.New && PersistenceState!=PersistenceState.Modified)
         State.PersistenceState = PersistenceState.Modified;
-      base.OnSetField(field, oldValue, newValue, notify);
+      base.OnSetFieldValue(field, oldValue, newValue, notify);
     }
 
     #endregion

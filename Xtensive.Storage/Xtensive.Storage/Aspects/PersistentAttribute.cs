@@ -28,7 +28,7 @@ namespace Xtensive.Storage.Aspects
   [Serializable]
   public sealed class PersistentAttribute : CompoundAspect
   {
-    private const string HandlerMethodSuffix = "Field";
+    private const string HandlerMethodSuffix = "FieldValue";
     private static readonly Type persistentType   = typeof(Persistent);
     private static readonly Type entityType       = typeof(Entity);
     private static readonly Type entitySetType    = typeof(EntitySetBase);
@@ -134,7 +134,7 @@ namespace Xtensive.Storage.Aspects
 
     private static void ProvideAutoPropertyAspects(Type type, LaosReflectionAspectCollection collection)
     {
-      foreach (PropertyInfo pi in type.GetProperties(
+      foreach (PropertyInfo propertyInfo in type.GetProperties(
         BindingFlags.Public |
         BindingFlags.NonPublic |
         BindingFlags.Instance |
@@ -142,7 +142,7 @@ namespace Xtensive.Storage.Aspects
       {
         var hierarchyRootAttribute = type.GetAttribute<HierarchyRootAttribute>(AttributeSearchOptions.InheritNone);
         try {
-          var fieldAttribute = pi.GetAttribute<FieldAttribute>(
+          var fieldAttribute = propertyInfo.GetAttribute<FieldAttribute>(
             AttributeSearchOptions.InheritFromAllBase);
           if (fieldAttribute==null)
             continue;
@@ -150,10 +150,10 @@ namespace Xtensive.Storage.Aspects
         catch (InvalidOperationException) {
           ErrorLog.Write(SeverityType.Error, AspectMessageType.AspectMustBeSingle,
             AspectHelper.FormatType(typeof(FieldAttribute)),
-            AspectHelper.FormatMember(pi.DeclaringType, pi));
+            AspectHelper.FormatMember(propertyInfo.DeclaringType, propertyInfo));
         }
-        var getter = pi.GetGetMethod(true);
-        var setter = pi.GetSetMethod(true);
+        var getter = propertyInfo.GetGetMethod(true);
+        var setter = propertyInfo.GetSetMethod(true);
         if (getter!=null) {
           var getterAspect = AutoPropertyReplacementAspect.ApplyOnce(getter, persistentType, HandlerMethodSuffix);
           if (getterAspect!=null)
@@ -161,8 +161,9 @@ namespace Xtensive.Storage.Aspects
         }
         if (setter!=null) {
           if (hierarchyRootAttribute!=null) {
-            if (hierarchyRootAttribute.KeyFields.Contains(pi.Name)) {
-              collection.AddAspect(setter, new NotSupportedMethodAspect(string.Format(Strings.ExKeyFieldXInTypeYShouldNotHaveSetAccessor, pi.Name, type.Name)));
+            if (hierarchyRootAttribute.KeyFields.Contains(propertyInfo.Name)) {
+              collection.AddAspect(setter, new NotSupportedMethodAspect(
+                string.Format(Strings.ExKeyFieldXInTypeYShouldNotHaveSetAccessor, propertyInfo.Name, type.Name)));
               continue;
             }
           }

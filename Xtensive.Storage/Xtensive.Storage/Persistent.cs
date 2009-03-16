@@ -19,6 +19,11 @@ using Xtensive.Storage.PairIntegrity;
 
 namespace Xtensive.Storage
 {
+  /// <summary>
+  /// Base class for all persistent classes.
+  /// </summary>
+  /// <seealso cref="Entity"/>
+  /// <seealso cref="Structure"/>
   [Initializable]
   public abstract class Persistent : SessionBound,
     IAtomicityAware,
@@ -34,6 +39,9 @@ namespace Xtensive.Storage
     [Infrastructure]
     internal abstract TypeInfo Type { get; }
 
+    /// <summary>
+    /// Gets the underlying tuple.
+    /// </summary>
     [Infrastructure]
     protected internal abstract Tuple Tuple { get; }
 
@@ -51,6 +59,10 @@ namespace Xtensive.Storage
 
     #region this[...], GetProperty, SetProperty members
 
+    /// <summary>
+    /// Gets or sets the value of the field with specified name.
+    /// </summary>
+    /// <value>Field value.</value>
     [Infrastructure]
     public object this[string name]
     {
@@ -58,63 +70,109 @@ namespace Xtensive.Storage
       set { SetProperty(name, value); }
     }
 
+    /// <summary>
+    /// Gets the property value.
+    /// </summary>
+    /// <typeparam name="T">Value type.</typeparam>
+    /// <param name="fieldName">The field name.</param>
+    /// <returns>Property value.</returns>
+    /// <remarks>
+    /// Method calls property getter thought the reflection to perform its business logic
+    /// or calls <see cref="GetFieldValue{T}(string)"/> directly if there is no property declared for this field.
+    /// </remarks>
+    /// <seealso cref="SetProperty{T}"/>
     [Infrastructure]
-    public T GetProperty<T>(string name)
+    public T GetProperty<T>(string fieldName)
     {
-      FieldInfo field = Type.Fields[name];
+      FieldInfo field = Type.Fields[fieldName];
       // TODO: Improve (use DelegateHelper)
       if (field.UnderlyingProperty!=null)
         return (T) field.UnderlyingProperty.GetValue(this, null);
-      return GetField<T>(name);
+      return GetFieldValue<T>(fieldName);
     }
 
+    /// <summary>
+    /// Sets the property value.
+    /// </summary>
+    /// <typeparam name="T">Value type.</typeparam>
+    /// <param name="fieldName">The field name.</param>
+    /// <param name="value">The value to set.</param>
+    /// <remarks>
+    /// Method calls property setter thought the reflection to perform its business logic
+    /// or calls <see cref="SetFieldValue{T}(string,T)"/> directly if there is no property declared for this field.
+    /// </remarks>
+    /// <seealso cref="GetProperty{T}"/>
     [Infrastructure]
-    public void SetProperty<T>(string name, T value)
+    public void SetProperty<T>(string fieldName, T value)
     {
-      FieldInfo field = Type.Fields[name];
+      FieldInfo field = Type.Fields[fieldName];
       // TODO: Improve (use DelegateHelper)
       if (field.UnderlyingProperty!=null)
         field.UnderlyingProperty.SetValue(this, value, null);
       else
-        SetField(name, value);
+        SetFieldValue(fieldName, value);
     }
 
     #endregion
 
-    #region User-level GetField, SetField members
+    #region User-level GetFieldValue, SetFieldValue members
 
+    /// <summary>
+    /// Gets the field value.
+    /// </summary>
+    /// <typeparam name="T">Value type.</typeparam>
+    /// <param name="fieldName">The field name.</param>
+    /// <returns>Field value.</returns>
     [Infrastructure]
-    protected T GetField<T>(string name)
+    protected T GetFieldValue<T>(string fieldName)
     {
-      return GetField<T>(Type.Fields[name]);
+      return GetFieldValue<T>(Type.Fields[fieldName]);
+    }
+
+    /// <summary>
+    /// Gets the field value.
+    /// </summary>
+    /// <typeparam name="T">Value type</typeparam>
+    /// <param name="field">The field.</param>
+    /// <returns>Field value.</returns>
+    [Infrastructure]
+    protected T GetFieldValue<T>(FieldInfo field)
+    {
+      return GetFieldValue<T>(field, true);
+    }
+
+    /// <summary>
+    /// Sets the field value.
+    /// </summary>
+    /// <typeparam name="T">Value type</typeparam>
+    /// <param name="fieldName">The field name.</param>
+    /// <param name="value">The value to set.</param>
+    [Infrastructure]
+    protected void SetFieldValue<T>(string fieldName, T value)
+    {
+      SetFieldValue(Type.Fields[fieldName], value);
+    }
+
+    /// <summary>
+    /// Sets the field value.
+    /// </summary>
+    /// <typeparam name="T">Value type</typeparam>
+    /// <param name="field">The field.</param>
+    /// <param name="value">The value to set.</param>
+    [Infrastructure]
+    protected void SetFieldValue<T>(FieldInfo field, T value)
+    {
+      SetFieldValue(field, value, true);
     }
 
     [Infrastructure]
-    protected T GetField<T>(FieldInfo field)
-    {
-      return GetField<T>(field, true);
-    }
-
-    [Infrastructure]
-    protected void SetField<T>(string name, T value)
-    {
-      SetField(Type.Fields[name], value);
-    }
-
-    [Infrastructure]
-    protected void SetField<T>(FieldInfo field, T value)
-    {
-      SetField(field, value, true);
-    }
-
-    [Infrastructure]
-    protected bool IsFieldAvailable(string name)
+    internal protected bool IsFieldAvailable(string name)
     {
       return IsFieldAvailable(Type.Fields[name]);
     }
 
     [Infrastructure]
-    protected bool IsFieldAvailable(FieldInfo field)
+    internal protected bool IsFieldAvailable(FieldInfo field)
     {
       return Tuple.IsAvailable(field.MappingInfo.Offset);
     }
@@ -123,35 +181,94 @@ namespace Xtensive.Storage
 
     #region User-level event-like members
 
+    /// <summary>
+    /// Called when is initializing i.e. when it is created or fetched.
+    /// </summary>
+    /// <remarks>
+    /// Override it to initialize not persistent state of persistent objects,
+    /// that should be initialized both in creating and fetching cases.
+    /// E.g. you can create syncRoot object here or something like this.
+    /// </remarks>
+    /// <example>
+    /// <code>
+    /// public MyPersistentObject : Entity
+    /// {
+    ///   public object syncRoot;
+    ///
+    ///   protected override void OnInitialize()
+    ///   {
+    ///     base.OnInitialize();
+    ///     syncRoot = new object();
+    ///   }
+    ///   ...
+    /// }
+    /// </code>
+    /// </example>
     [Infrastructure]
     protected virtual void OnInitialize()
     {
     }
 
+    /// <summary>
+    /// Called before field value is about to be read.
+    /// </summary>
+    /// <remarks>
+    /// Override it to perform some actions before reading field value, e.g. to check access permissions.
+    /// </remarks>
     [Infrastructure]
-    protected virtual void OnGettingField(FieldInfo field)
+    protected virtual void OnGettingFieldValue(FieldInfo field)
     {
     }
 
+    /// <summary>
+    /// Called when field value has been read.
+    /// </summary>
+    /// <remarks>
+    /// Override it to perform some actions when field value has been read, e.g. for logging purposes.
+    /// </remarks>
     [Infrastructure]
-    protected virtual void OnGetField(FieldInfo field, object value)
+    protected virtual void OnGetFieldValue(FieldInfo field, object value)
     {
     }
 
+    /// <summary>
+    /// Called before field value is about to be changed.
+    /// </summary>
+    /// <remarks>
+    /// Override it to perform some actions before changing field value, e.g. to check access permissions.
+    /// </remarks>
     [Infrastructure]
-    protected virtual void OnSettingField(FieldInfo field, object value)
+    protected virtual void OnSettingFieldValue(FieldInfo field, object value)
     {
     }
 
+    /// <summary>
+    /// Called when field value has been changed.
+    /// </summary>
+    /// <remarks>
+    /// Override it to perform some actions when field value has been changed, e.g. for logging purposes.
+    /// </remarks>
     [Infrastructure]
-    protected virtual void OnSetField(FieldInfo field, object oldValue, object newValue)
+    protected virtual void OnSetFieldValue(FieldInfo field, object oldValue, object newValue)
     {
     }
 
     /// <summary>
     /// Called when entity should be validated.
-    /// Override this method to perform custom validation.
     /// </summary>    
+    /// <remarks>
+    /// Override this method to perform custom validation.
+    /// </remarks>
+    /// <example>
+    /// <code>
+    /// public override void OnValidate()
+    /// {
+    ///   base.OnValidate();
+    ///   if (Age &lt;= 0) 
+    ///     throw new Exception("Age should be positive.");
+    /// }
+    /// </code>
+    /// </example>
     [Infrastructure]
     public virtual void OnValidate()
     {
@@ -162,20 +279,20 @@ namespace Xtensive.Storage
     #region System-level GetField, SetField, GetKey, Remove members
 
     [Infrastructure]
-    internal T GetField<T>(FieldInfo field, bool notify)
+    internal T GetFieldValue<T>(FieldInfo field, bool notify)
     {
-      OnGettingField(field, notify);
+      OnGettingFieldValue(field, notify);
       T result = field.GetAccessor<T>().GetValue(this, field, notify);
-      OnGetField(field, result, notify);
+      OnGetFieldValue(field, result, notify);
 
       return result;
     }
 
     [Infrastructure]
-    internal void SetField<T>(FieldInfo field, T value, bool notify)
+    internal void SetFieldValue<T>(FieldInfo field, T value, bool notify)
     {
-      OnSettingField(field, value, notify);
-      var oldValue = GetField<T>(field, false);
+      OnSettingFieldValue(field, value, notify);
+      var oldValue = GetFieldValue<T>(field, false);
       AssociationInfo association = field.Association;
       if (association!=null && association.IsPaired) {
         Key currentKey = GetKey(field);
@@ -190,7 +307,7 @@ namespace Xtensive.Storage
       }
       else
         field.GetAccessor<T>().SetValue(this, field, value, notify);
-      OnSetField(field, oldValue, value, notify);
+      OnSetFieldValue(field, oldValue, value, notify);
     }
 
     [Infrastructure]
@@ -199,11 +316,11 @@ namespace Xtensive.Storage
       if (!field.IsEntity)
         throw new InvalidOperationException(string.Format(Resources.Strings.ExFieldIsNotAnEntityField, field.Name, field.ReflectedType.Name));
 
-      OnGettingField(field, false);
+      OnGettingFieldValue(field, false);
       var type = Session.Domain.Model.Types[field.ValueType];
       var tuple = field.ExtractValue(Tuple);
       Key result = tuple.ContainsEmptyValues() ? null : Key.Create(type, tuple);
-      OnGetField(field, result, false);
+      OnGetFieldValue(field, result, false);
 
       return result;
     }
@@ -227,35 +344,35 @@ namespace Xtensive.Storage
     }
 
     [Infrastructure]
-    internal virtual void OnGettingField(FieldInfo field, bool notify)
+    internal virtual void OnGettingFieldValue(FieldInfo field, bool notify)
     {
       if (!notify)
         return;
-      OnGettingField(field);
+      OnGettingFieldValue(field);
     }
 
     [Infrastructure]
-    internal virtual void OnGetField(FieldInfo field, object value, bool notify)
+    internal virtual void OnGetFieldValue(FieldInfo field, object value, bool notify)
     {
       if (!notify)
         return;
-      OnGetField(field, value);
+      OnGetFieldValue(field, value);
     }
 
     [Infrastructure]
-    internal virtual void OnSettingField(FieldInfo field, object value, bool notify)
+    internal virtual void OnSettingFieldValue(FieldInfo field, object value, bool notify)
     {
       if (!notify)
         return;
-      OnSettingField(field, value);
+      OnSettingFieldValue(field, value);
     }
 
     [Infrastructure]
-    internal virtual void OnSetField(FieldInfo field, object oldValue, object newValue, bool notify)
+    internal virtual void OnSetFieldValue(FieldInfo field, object oldValue, object newValue, bool notify)
     {
       if (!notify)
         return;
-      OnSetField(field, oldValue, newValue);
+      OnSetFieldValue(field, oldValue, newValue);
       if (Session.Domain.Configuration.AutoValidation)
         this.Validate();
       NotifyPropertyChanged(field);

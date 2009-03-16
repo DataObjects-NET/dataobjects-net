@@ -5,6 +5,7 @@
 // Created:    2008.08.31
 
 using System;
+using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core;
@@ -13,15 +14,18 @@ using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
 
 namespace Xtensive.Storage.Tests.Storage.Validation
-{
+{ 
   public class ValidationTest : AutoBuildTest
   {
+    [ThreadStatic]
+    private static int validationCallsCount;
+
     [HierarchyRoot(typeof (KeyGenerator), "ID")]
     public class Mouse : Entity
     {
       [Field]
       public int ID { get; private set; }
-
+        
       [Field]
       public int ButtonCount { get; set; }
 
@@ -43,6 +47,8 @@ namespace Xtensive.Storage.Tests.Storage.Validation
 
         if (Led!=null && Led.Brightness > 10)
           throw new InvalidOperationException("Led in the mouse is too bright.");
+
+        validationCallsCount++;
       }
     }
 
@@ -56,6 +62,8 @@ namespace Xtensive.Storage.Tests.Storage.Validation
 
       public override void OnValidate()
       {
+        base.OnValidate();
+
         if (Brightness <= 0)
           throw new InvalidOperationException("Led brightness should be greater then 0.");
 
@@ -72,6 +80,33 @@ namespace Xtensive.Storage.Tests.Storage.Validation
       DomainConfiguration config = base.BuildConfiguration();
       config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.Storage.Validation");
       return config;
+    }
+
+    [Test]
+    public void ValidationCallsCountTest()
+    {
+      validationCallsCount = 0;
+      int mouseId;
+
+      using (Domain.OpenSession()) {
+        using (var transactionScope = Transaction.Open()) {
+          using (Session.Current.OpenInconsistentRegion()) {
+            Mouse mouse = new Mouse();
+            mouse.ButtonCount = 2;
+            mouse.ScrollingCount = 1; 
+            mouseId = mouse.ID;
+          }          
+          transactionScope.Complete();
+        }
+      }
+      Assert.AreEqual(1, validationCallsCount);
+
+      using (Domain.OpenSession()) {
+        using (Transaction.Open()) {
+          Mouse mouse = Query<Mouse>.All.Where(m => m.ID==mouseId).First();
+        }
+      }
+      Assert.AreEqual(1, validationCallsCount); 
     }
     
     [Test]
@@ -126,7 +161,6 @@ namespace Xtensive.Storage.Tests.Storage.Validation
       }      
     }
     
-
     [Test]
     public void StructureValidation()
     {
@@ -184,5 +218,6 @@ namespace Xtensive.Storage.Tests.Storage.Validation
           });
       }
     }
+
   }
 }

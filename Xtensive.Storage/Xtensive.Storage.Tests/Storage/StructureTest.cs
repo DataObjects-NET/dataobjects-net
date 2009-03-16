@@ -11,7 +11,7 @@ using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Storage.StructureModel;
 
-namespace Xtensive.Storage.Tests.Storage.StructureModel
+namespace Xtensive.Storage. Tests.Storage.StructureModel
 {
   public class Point : Structure
   {

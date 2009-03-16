@@ -18,7 +18,7 @@ namespace Xtensive.Storage
     public EntitySetBase GetEntitySet(Entity target, FieldInfo field)
     {
       ValidateArguments(target, field);
-      return target.GetField<EntitySetBase>(field, false);
+      return target.GetFieldValue<EntitySetBase>(field, false);
     }
 
 //    [Infrastructure]

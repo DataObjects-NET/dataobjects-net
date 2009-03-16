@@ -417,9 +417,6 @@
   <data name="SessionIsAlreadyDisposed" xml:space="preserve">
     <value>Session is already disposed.</value>
   </data>
-  <data name="SessionIsNotActivated" xml:space="preserve">
-    <value>Session is not activated.</value>
-  </data>
   <data name="UnableToUseDefaultGeneratorForComplexKeys" xml:space="preserve">
     <value>UnableToUseDefaultGeneratorForComplexKeys</value>
   </data>
@@ -521,6 +518,12 @@
   </data>
   <data name="ExFieldIsNotAnEntityField" xml:space="preserve">
     <value>Field '{0}' is not an Entity field in Type '{1}'.</value>
+  </data>
+  <data name="TypeXIsNotAnYDescendant" xml:space="preserve">
+    <value>Type '{0}' is not an '{1}' descendant.</value>
+  </data>
+  <data name="ExSessionIsNotOpen" xml:space="preserve">
+    <value>Session is not open. You can perform this operation inside 'using (domain.OpenSession()) { ... }' block.</value>
   </data>
   <data name="ExPersistentAttributeIsNotSetOnTypeX" xml:space="preserve">
     <value>Persistent attribute isn't applied. Add to AssemblyInfo.cs (in "{0}" assembly) following line: [assembly: Persistent(AttributeTargetAssemblies = "{0}")]</value>

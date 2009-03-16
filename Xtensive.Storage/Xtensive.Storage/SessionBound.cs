@@ -71,13 +71,17 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/> 
     /// </summary>
     /// <param name="session"><see cref="Xtensive.Storage.Session"/>, to which current instance 
     /// is bound.</param>
     /// <exception cref="ArgumentNullException"><paramref name="session"/> is <see langword="null" />.</exception>
     protected SessionBound(Session session)
     {
+      if (session==null)
+        throw new InvalidOperationException(
+          Resources.Strings.ExSessionIsNotOpen);
+
       ArgumentValidator.EnsureArgumentNotNull(session, "session");
       this.session = session;
     }

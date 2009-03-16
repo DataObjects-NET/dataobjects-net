@@ -29,7 +29,7 @@ namespace Xtensive.Storage.Tests.Storage.ActivatorModel
   [HierarchyRoot(typeof(KeyGenerator), "ID")]
   public class InitializebleClass : Entity
   {
-    public object syncRoot;
+    public object syncRoot = new object();
 
     protected override void OnInitialize()
     {
@@ -37,13 +37,24 @@ namespace Xtensive.Storage.Tests.Storage.ActivatorModel
       syncRoot = new object();
     }
 
+    public InitializebleClass()
+    {
+      syncRoot = new object();
+      // Логика, которая юзает syncRoot.
+      Assert.IsNotNull(syncRoot);
+    }
+
     [Field]
     public int ID { get; private set; }
   }
+
+  
 }
 
 namespace Xtensive.Storage.Tests.Storage
 {
+  
+
   public class  ActivatorTest : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
@@ -60,7 +71,7 @@ namespace Xtensive.Storage.Tests.Storage
       {
         using (var t = Transaction.Open())
         {
-          var obj1 = new InitializebleClass();
+          var obj1 = new  InitializebleClass();
           Assert.IsNotNull(obj1.syncRoot);
           t.Complete();
         }

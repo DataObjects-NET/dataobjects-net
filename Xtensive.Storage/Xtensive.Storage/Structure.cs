@@ -84,31 +84,31 @@ namespace Xtensive.Storage
       base.OnInitialize();
     }
 
-    internal override sealed void OnGettingField(FieldInfo field, bool notify)
+    internal override sealed void OnGettingFieldValue(FieldInfo field, bool notify)
     {
-      base.OnGettingField(field, notify);
+      base.OnGettingFieldValue(field, notify);
       if (owner!=null)
-        owner.OnGettingField(this.field, notify);
+        owner.OnGettingFieldValue(this.field, notify);
     }
 
     // This is done just to make it sealed
-    internal override sealed void OnGetField(FieldInfo field, object value, bool notify)
+    internal override sealed void OnGetFieldValue(FieldInfo field, object value, bool notify)
     {
-      base.OnGetField(field, value, notify);
+      base.OnGetFieldValue(field, value, notify);
     }
 
-    internal override sealed void OnSettingField(FieldInfo field, object value, bool notify)
+    internal override sealed void OnSettingFieldValue(FieldInfo field, object value, bool notify)
     {
-      base.OnSettingField(field, value, notify);
+      base.OnSettingFieldValue(field, value, notify);
       if (owner!=null)
-        owner.OnSettingField(this.field, value, notify);
+        owner.OnSettingFieldValue(this.field, value, notify);
     }
 
-    internal override sealed void OnSetField(FieldInfo field, object oldValue, object newValue, bool notify)
+    internal override sealed void OnSetFieldValue(FieldInfo field, object oldValue, object newValue, bool notify)
     {
       if (owner!=null)
-        owner.OnSetField(this.field, oldValue, newValue, notify);
-      base.OnSetField(field, oldValue, newValue, notify);
+        owner.OnSetFieldValue(this.field, oldValue, newValue, notify);
+      base.OnSetFieldValue(field, oldValue, newValue, notify);
     }
 
     #endregion

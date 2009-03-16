@@ -22,11 +22,11 @@ namespace Xtensive.Storage.Tests.Storage.CoreServicesModel
     [Field]
     public string Value
     {
-      get { return GetField<string>("Value"); }
+      get { return GetFieldValue<string>("Value"); }
       set
       {
         throw new InvalidOperationException();
-        SetField("Value", value);
+        SetFieldValue("Value", value);
       }
     }
 
@@ -41,15 +41,15 @@ namespace Xtensive.Storage.Tests.Storage.CoreServicesModel
       throw new InvalidOperationException();
     }
 
-    protected override void OnSettingField(Xtensive.Storage.Model.FieldInfo field, object value)
+    protected override void OnSettingFieldValue(FieldInfo field, object value)
     {
-      base.OnSettingField(field, value);
+      base.OnSettingFieldValue(field, value);
       throw new InvalidOperationException();
     }
 
-    protected override void OnSetField(Xtensive.Storage.Model.FieldInfo field, object oldValue, object newValue)
+    protected override void OnSetFieldValue(FieldInfo field, object oldValue, object newValue)
     {
-      base.OnSetField(field, oldValue, newValue);
+      base.OnSetFieldValue(field, oldValue, newValue);
       throw new InvalidOperationException();
     }
 
@@ -84,11 +84,11 @@ namespace Xtensive.Storage.Tests.Storage.CoreServicesModel
     [Field]
     public string Value
     {
-      get { return GetField<string>("Value"); }
+      get { return GetFieldValue<string>("Value"); }
       set
       {
         throw new InvalidOperationException();
-        SetField("Value", value);
+        SetFieldValue("Value", value);
       }
     }
 
@@ -100,15 +100,15 @@ namespace Xtensive.Storage.Tests.Storage.CoreServicesModel
       throw new InvalidOperationException();
     }
 
-    protected override void OnSettingField(Xtensive.Storage.Model.FieldInfo field, object value)
+    protected override void OnSettingFieldValue(Xtensive.Storage.Model.FieldInfo field, object value)
     {
-      base.OnSettingField(field, value);
+      base.OnSettingFieldValue(field, value);
       throw new InvalidOperationException();
     }
 
-    protected override void OnSetField(Xtensive.Storage.Model.FieldInfo field, object oldValue, object newValue)
+    protected override void OnSetFieldValue(Xtensive.Storage.Model.FieldInfo field, object oldValue, object newValue)
     {
-      base.OnSetField(field, oldValue, newValue);
+      base.OnSetFieldValue(field, oldValue, newValue);
       throw new InvalidOperationException();
     }
 

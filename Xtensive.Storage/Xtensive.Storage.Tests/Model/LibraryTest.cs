@@ -49,16 +49,16 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
     [Field(MappingName = "PassportNumber")]
     public int Number
     {
-      get { return GetField<int>("Number"); }
+      get { return GetFieldValue<int>("Number"); }
     }
 
     [Field]
     public Passport Passport
     {
-      get { return GetField<Passport>("Passport"); }
+      get { return GetFieldValue<Passport>("Passport"); }
       set
       {
-        SetField("Passport", value);
+        SetFieldValue("Passport", value);
       }
     }
 

@@ -9,6 +9,7 @@ using Xtensive.Core;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Resources;
 using Activator=Xtensive.Storage.Internals.Activator;
 
 namespace Xtensive.Storage
@@ -22,7 +23,8 @@ namespace Xtensive.Storage
     {
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
       if (!typeof(Entity).IsAssignableFrom(type))
-        throw new InvalidOperationException(string.Format("Type '{0}' is not an Entity descendant.", type));
+        throw new InvalidOperationException(
+          string.Format(Strings.TypeXIsNotAnYDescendant, type, typeof(Entity)));
 
       var key = Key.Create(type);
       var state = Session.CreateEntityState(key);
@@ -35,7 +37,8 @@ namespace Xtensive.Storage
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
       ArgumentValidator.EnsureArgumentNotNull(tuple, "tuple");
       if (!typeof(Entity).IsAssignableFrom(type))
-        throw new InvalidOperationException(string.Format("Type '{0}' is not an Entity descendant.", type));
+        throw new InvalidOperationException(
+          string.Format(Strings.TypeXIsNotAnYDescendant, type, typeof(Entity)));
 
       var key = Key.Create(type, tuple, true);
       var state = Session.CreateEntityState(key);
@@ -47,7 +50,8 @@ namespace Xtensive.Storage
     {
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
       if (!typeof(Structure).IsAssignableFrom(type))
-        throw new InvalidOperationException(string.Format("Type '{0}' is not an Structure descendant.", type));
+        throw new InvalidOperationException(
+          string.Format(Strings.TypeXIsNotAnYDescendant, type, typeof(Structure)));
 
       return Activator.CreateStructure(type, null, null, false);
     }
@@ -56,14 +60,14 @@ namespace Xtensive.Storage
     public T GetField<T>(Persistent target, FieldInfo field)
     {
       ValidateArguments(target, field);
-      return target.GetField<T>(field, false);
+      return target.GetFieldValue<T>(field, false);
     }
 
     [Infrastructure]
     public void SetField<T>(Persistent target, FieldInfo field, T value)
     {
       ValidateArguments(target, field);
-      target.SetField(field, value, false);
+      target.SetFieldValue(field, value, false);
     }
 
     [Infrastructure]
