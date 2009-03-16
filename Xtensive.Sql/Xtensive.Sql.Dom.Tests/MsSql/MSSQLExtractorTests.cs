@@ -1,7 +1,3 @@
-// =======================================================
-// WARNING! Looking below this line may explode your brain
-// =======================================================
-
 using System;
 using System.Collections;
 using System.Data.Common;

@@ -109,7 +109,7 @@ namespace Xtensive.Sql.Dom.Database
       }
     }
 
-   #region ServerNode Members
+    #region ServerNode Members
 
     /// <summary>
     /// Changes the server.

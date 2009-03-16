@@ -143,6 +143,7 @@ namespace Xtensive.Sql.Dom.Mssql.v2005
                               tColumnsRef["NUMERIC_SCALE"], tColumnsRef["CHARACTER_SET_NAME"]);
       select.Columns.AddRange(tColumnsRef["COLLATION_NAME"], tColumnsRef["TABLE_NAME"], tTablesRef["TABLE_NAME"],
                               tTablesRef["TABLE_TYPE"], tColumnsRef["COLUMN_DEFAULT"]);
+      select.Columns.AddRange(tColumnsRef["DOMAIN_SCHEMA"], tColumnsRef["DOMAIN_NAME"]);
       select.Columns.Add(
         Sql.FunctionCall("columnproperty",
                          Sql.FunctionCall("object_id", tColumnsRef["TABLE_SCHEMA"] + '.' + tColumnsRef["TABLE_NAME"]),
@@ -157,42 +158,7 @@ namespace Xtensive.Sql.Dom.Mssql.v2005
           while (reader.Read()) {
             string tableOrViewName = (string)reader["TABLE_NAME"];
 
-            byte precision = 0;
-            if (!Convert.IsDBNull(reader["NUMERIC_PRECISION"]))
-              precision = Convert.ToByte(reader["NUMERIC_PRECISION"]);
-
-            byte scale = 0;
-            if (!Convert.IsDBNull(reader["NUMERIC_SCALE"]))
-              scale = Convert.ToByte(reader["NUMERIC_SCALE"]);
-
-            DataTypeInfo dataTypeInfo = context.Connection.Driver.ServerInfo.DataTypes[(string)reader["DATA_TYPE"]];
-            SqlDataType dataType = dataTypeInfo != null ? dataTypeInfo.SqlType : SqlDataType.Unknown;
-
-            // dataType and size
-            int size = 0;
-            if ((dataType == SqlDataType.Char) || (dataType == SqlDataType.AnsiChar) ||
-                (dataType == SqlDataType.VarChar) || (dataType == SqlDataType.AnsiVarChar) ||
-                (dataType == SqlDataType.Binary) || (dataType == SqlDataType.VarBinary)) {
-              size = Convert.ToInt32(reader["CHARACTER_MAXIMUM_LENGTH"]);
-              if (size == -1) {
-                size = 0;
-                switch (dataType) {
-                  case SqlDataType.VarChar:
-                    dataType = SqlDataType.VarCharMax;
-                    break;
-                  case SqlDataType.AnsiVarChar:
-                    dataType = SqlDataType.AnsiVarCharMax;
-                    break;
-                  case SqlDataType.VarBinary:
-                    dataType = SqlDataType.VarBinaryMax;
-                    break;
-                }
-              }
-            }
-
-            SqlValueType sqlDataType = size == 0
-                                         ? new SqlValueType(dataType, precision, scale)
-                                         : new SqlValueType(dataType, size);
+            SqlValueType sqlDataType = ReadDataType(context, reader);
 
             // Create new column
             switch ((string)reader["TABLE_TYPE"]) {
@@ -215,6 +181,14 @@ namespace Xtensive.Sql.Dom.Mssql.v2005
                 // Autoincrement
                 if (reader["IS_IDENTITY"] != DBNull.Value && Convert.ToBoolean(reader["IS_IDENTITY"]))
                   identityColumns[tableOrViewName] = column;
+
+                // Domain
+                if (!Convert.IsDBNull(reader["DOMAIN_SCHEMA"]) && !Convert.IsDBNull(reader["DOMAIN_NAME"])) {
+                  string domainSchema = (string) reader["DOMAIN_SCHEMA"];
+                  string domainName = (string) reader["DOMAIN_NAME"];
+                  column.Domain = context.Model.DefaultServer.DefaultCatalog.Schemas[domainSchema].Domains[domainName];
+                }
+
                 break;
 
               case "VIEW":
@@ -416,16 +390,12 @@ namespace Xtensive.Sql.Dom.Mssql.v2005
           while (reader.Read()) {
             // get table
             string tableName = (string)reader["CONSTRAINT_TABLE"];
-            Schema referencingSchema = schema == null
-                                         ? catalog.Schemas[(string)reader["CONSTRAINT_TABLE_SCHEMA"]]
-                                         : schema;
+            Schema referencingSchema = schema ?? catalog.Schemas[(string)reader["CONSTRAINT_TABLE_SCHEMA"]];
             Table referencingTable = referencingSchema.Tables[tableName];
             string constraintName = (string)reader["CONSTRAINT_NAME"];
 
             // referenced table
-            Schema referencedSchema = schema == null
-                                        ? catalog.Schemas[(string)reader["REFERENCE_TABLE_SCHEMA"]]
-                                        : schema;
+            Schema referencedSchema = schema ?? catalog.Schemas[(string)reader["REFERENCE_TABLE_SCHEMA"]];
             Table referencedTable = referencedSchema.Tables[(string)reader["REFERENCE_TABLE"]];
 
             // get foreign key
@@ -500,6 +470,35 @@ namespace Xtensive.Sql.Dom.Mssql.v2005
     }
 
     /// <inheritdoc/>
+    public override void ExtractDomains(SqlExtractorContext context, Schema schema)
+    {
+      var domains = Sql.TableRef(model.DefaultServer.Catalogs["master"].Schemas["INFORMATION_SCHEMA"].Views["DOMAINS"]);
+      var select = Sql.Select(domains);
+      select.Columns.AddRange(
+        domains["DOMAIN_NAME"],
+        domains["DOMAIN_DEFAULT"],
+        domains["DATA_TYPE"],
+        domains["CHARACTER_MAXIMUM_LENGTH"],
+        domains["NUMERIC_PRECISION"],
+        domains["NUMERIC_SCALE"]
+      );
+      select.Where = domains["DOMAIN_CATALOG"]==schema.Catalog.Name && domains["DOMAIN_SCHEMA"]==schema.Name;
+      using (var command = new SqlCommand(context.Connection)) {
+        command.Transaction = context.Transaction;
+        command.Statement = select;
+        using (var reader = command.ExecuteReader()) {
+          while (reader.Read()) {
+            string domainName = (string)reader[0];
+            object domainDefault = reader[1];
+            var dataType = ReadDataType(context, reader);
+            schema.CreateDomain(domainName, dataType,
+              Convert.IsDBNull(domainDefault) ? null : Sql.Native((string)domainDefault));
+          }
+        }
+      }
+    }
+
+    /// <inheritdoc/>
     public override void Initialize(SqlExtractorContext context)
     {
       if (initialized)
@@ -559,6 +558,49 @@ namespace Xtensive.Sql.Dom.Mssql.v2005
         }
       }
       initialized = true;
+    }
+
+    private SqlValueType ReadDataType(SqlExtractorContext context, IDataReader reader)
+    {
+      byte precision = 0;
+      if (!Convert.IsDBNull(reader["NUMERIC_PRECISION"]))
+        precision = Convert.ToByte(reader["NUMERIC_PRECISION"]);
+
+      byte scale = 0;
+      if (!Convert.IsDBNull(reader["NUMERIC_SCALE"]))
+        scale = Convert.ToByte(reader["NUMERIC_SCALE"]);
+
+      DataTypeInfo dataTypeInfo = context.Connection.Driver.ServerInfo.DataTypes[(string)reader["DATA_TYPE"]];
+      SqlDataType dataType = dataTypeInfo != null ? dataTypeInfo.SqlType : SqlDataType.Unknown;
+
+      // dataType and size
+      int size = 0;
+      if ((dataType == SqlDataType.Char) || (dataType == SqlDataType.AnsiChar) ||
+        (dataType == SqlDataType.VarChar) || (dataType == SqlDataType.AnsiVarChar) ||
+          (dataType == SqlDataType.Binary) || (dataType == SqlDataType.VarBinary))
+      {
+        size = Convert.ToInt32(reader["CHARACTER_MAXIMUM_LENGTH"]);
+        if (size == -1)
+        {
+          size = 0;
+          switch (dataType)
+          {
+            case SqlDataType.VarChar:
+              dataType = SqlDataType.VarCharMax;
+              break;
+            case SqlDataType.AnsiVarChar:
+              dataType = SqlDataType.AnsiVarCharMax;
+              break;
+            case SqlDataType.VarBinary:
+              dataType = SqlDataType.VarBinaryMax;
+              break;
+          }
+        }
+      }
+
+      return size == 0
+        ? new SqlValueType(dataType, precision, scale)
+        : new SqlValueType(dataType, size);
     }
 
     /// <summary>
