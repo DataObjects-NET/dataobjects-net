@@ -51,6 +51,8 @@ namespace Xtensive.Storage.Linq
     {
       if (e == null)
         return null;
+      if (((ExtendedExpressionType)e.NodeType) == ExtendedExpressionType.Result)
+        return e;
       if (context.Evaluator.CanBeEvaluated(e)) {
         if (context.ParameterExtractor.IsParameter(e))
           return e;
@@ -71,9 +73,10 @@ namespace Xtensive.Storage.Linq
         var body = Visit(le.Body);
         if (calculateExpressions.Value && body.GetMemberType() == MemberType.Unknown) {
           if (
-            body.NodeType != ExpressionType.Call || 
+            ((ExtendedExpressionType)body.NodeType) != ExtendedExpressionType.Result &&
+            (body.NodeType != ExpressionType.Call || 
             ((MethodCallExpression)body).Object == null || 
-            ((MethodCallExpression)body).Object.Type != typeof (Tuple)) {
+            ((MethodCallExpression)body).Object.Type != typeof (Tuple))) {
 
             var calculator = Expression.Lambda(Expression.Convert(body, typeof(object)), tuple.Value);
             var ccd = new CalculatedColumnDescriptor(context.GetNextColumnAlias(), body.Type, (Expression<Func<Tuple, object>>)calculator);
@@ -336,6 +339,8 @@ namespace Xtensive.Storage.Linq
 
     protected override Expression VisitParameter(ParameterExpression p)
     {
+      if (!parameters.Value.Contains(p))
+        throw new InvalidOperationException("LAmbda parameter is out of scope!");
       var source = context.GetBound(p);
       resultMapping.Value.Replace(source.Mapping);
       var parameterRewriter = new ParameterRewriter(tuple.Value, record.Value);
@@ -407,6 +412,8 @@ namespace Xtensive.Storage.Linq
             resultMapping.Value = new ResultMapping();
             body = Visit(arg);
           }
+          if (((ExtendedExpressionType)body.NodeType) == ExtendedExpressionType.Result)
+            throw new NotImplementedException();
           var calculator = Expression.Lambda(
             body.Type == typeof(object) 
               ? body
