@@ -21,6 +21,7 @@ namespace Xtensive.Storage.Model
   /// A base class for collection of nodes in model.
   /// </summary>
   /// <typeparam name="TNode">The type of the node.</typeparam>
+  /// <typeparam name="TParent">The type of the parent.</typeparam>
   [Serializable]
   public class NodeCollection<TNode, TParent>
     : CollectionBase<TNode>
