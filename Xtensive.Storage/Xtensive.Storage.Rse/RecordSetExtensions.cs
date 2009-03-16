@@ -29,7 +29,7 @@ namespace Xtensive.Storage.Rse
 
     public static RecordSet Range(this RecordSet recordSet, Func<Range<Entire<Tuple>>> range)
     {
-      return new RangeProvider(recordSet.Provider, ()=>range.Invoke()){CompiledRange = range}.Result;
+      return new RangeProvider(recordSet.Provider, () => range.Invoke()) { CompiledRange = range }.Result;
     }
 
     public static RecordSet Range(this RecordSet recordSet, Expression<Func<Range<Entire<Tuple>>>> range, bool isExpression)
@@ -167,7 +167,7 @@ namespace Xtensive.Storage.Rse
 
     public static RecordSet Seek(this RecordSet recordSet, Func<Tuple> key)
     {
-      return new SeekProvider(recordSet.Provider, () => key.Invoke()) {CompiledKey = key}.Result;
+      return new SeekProvider(recordSet.Provider, () => key.Invoke()) { CompiledKey = key }.Result;
     }
 
     public static RecordSet Seek(this RecordSet recordSet, Expression<Func<Tuple>> key, bool isExpression)
