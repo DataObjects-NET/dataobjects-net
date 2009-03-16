@@ -7,6 +7,7 @@
 using System;
 using NUnit.Framework;
 using Xtensive.Storage.Attributes;
+using Xtensive.Storage.Building;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Issues.Issue0021_Model;
 
@@ -22,7 +23,14 @@ namespace Xtensive.Storage.Tests.Issues.Issue0021_Model
     public string StringField { get; set; }
   }
 
-  public class DerivedClassTable : RootClassTable
+  public class DerivedClassTable1 : RootClassTable
+  {
+    [Field]
+    public Guid GuidField { get; set; }
+
+  }
+
+  public class DerivedClassTable2 : DerivedClassTable1
   {
     [Field]
     public DateTime DateTimeField { get; set; }
@@ -48,13 +56,13 @@ namespace Xtensive.Storage.Tests.Issues
     {
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
-          var d1 = new DerivedClassTable
+          var d1 = new DerivedClassTable2
             {
               StringField = "1",
               BoolField = true,
               DateTimeField = new DateTime(1967, 10, 23)
             };
-          var d2 = new DerivedClassTable
+          var d2 = new DerivedClassTable2
             {
               StringField = "2",
               BoolField = false,
@@ -64,7 +72,7 @@ namespace Xtensive.Storage.Tests.Issues
           t.Complete();
         }
         using (var t = Transaction.Open()) {
-          var allD = Query<DerivedClassTable>.All;
+          var allD = Query<DerivedClassTable2>.All;
           foreach (var d in allD) {
             d.Remove();
           }

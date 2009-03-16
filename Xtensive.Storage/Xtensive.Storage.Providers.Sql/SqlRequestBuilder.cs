@@ -110,7 +110,8 @@ namespace Xtensive.Storage.Providers.Sql
 
     protected virtual void BuildRemoveRequest(SqlRequestBuilderContext context)
     {
-      foreach (IndexInfo index in context.AffectedIndexes) {
+      for (int i = context.AffectedIndexes.Count - 1; i >= 0; i--) {
+        IndexInfo index = context.AffectedIndexes[i];
         SqlTableRef table = SqlFactory.TableRef(DomainHandler.MappingSchema[index].Table);
         SqlDelete query = SqlFactory.Delete(table);
         query.Where &= BuildWhereExpression(context, table);

@@ -5,7 +5,6 @@
 // Created:    2008.08.29
 
 using System.Collections.Generic;
-using System.Linq;
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Model;
 
@@ -33,9 +32,24 @@ namespace Xtensive.Storage.Providers.Sql
       Task = task;
       Batch = batch;
       Type = task.Type;
-      AffectedIndexes = Task.Type.AffectedIndexes.Where(i => i.IsPrimary).ToList();
+      AffectedIndexes = Type.Indexes.PrimaryIndex.IsVirtual 
+        ? GetRealPrimaryIndexes(Type.Indexes.PrimaryIndex) 
+        : new List<IndexInfo> {Type.Indexes.PrimaryIndex};
       PrimaryIndex = Task.Type.Indexes.PrimaryIndex;
       ParameterBindings = new Dictionary<ColumnInfo, SqlUpdateParameterBinding>();
+    }
+
+    private List<IndexInfo> GetRealPrimaryIndexes(IndexInfo index)
+    {
+      var result = new List<IndexInfo>();
+      foreach (IndexInfo underlyingIndex in index.UnderlyingIndexes)
+      {
+        if (underlyingIndex.IsPrimary && !underlyingIndex.IsVirtual)
+          result.Add(underlyingIndex);
+        else
+          result.AddRange(GetRealPrimaryIndexes(underlyingIndex));
+      }
+      return result;
     }
   }
 }

@@ -39,7 +39,7 @@ namespace Xtensive.Storage.Providers.Sql
         return false;
       if (ReferenceEquals(this, obj))
         return true;
-      SqlRequestBuilderTask other = obj as SqlRequestBuilderTask;
+      var other = obj as SqlRequestBuilderTask;
       if (other == null)
         return false;
       if (Type != other.Type)
