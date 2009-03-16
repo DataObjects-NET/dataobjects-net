@@ -15,7 +15,7 @@ using Xtensive.Core.Notifications;
 using Xtensive.Indexing.Storage.Model;
 using Xtensive.Indexing.Storage.Resources;
 
-namespace Xtensive.Storage.Model
+namespace Xtensive.Indexing.Storage.Model
 {
   /// <summary>
   /// A base class for collection of nodes in model.

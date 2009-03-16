@@ -7,7 +7,6 @@
 using System;
 using System.Diagnostics;
 using Xtensive.Indexing.Storage.Resources;
-using Xtensive.Storage.Model;
 
 namespace Xtensive.Indexing.Storage.Model
 {

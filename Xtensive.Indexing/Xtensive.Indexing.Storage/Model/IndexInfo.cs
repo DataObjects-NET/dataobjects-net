@@ -17,7 +17,7 @@ namespace Xtensive.Indexing.Storage.Model
   public class IndexInfo : Node<IndexInfo, StorageInfo>
   {
     /// <inheritdoc/>
-    protected override Xtensive.Storage.Model.NodeCollection<IndexInfo, StorageInfo> GetParentNodeCollection()
+    protected override NodeCollection<IndexInfo, StorageInfo> GetParentNodeCollection()
     {
       return Parent==null ? null : Parent.Indexes;
     }
