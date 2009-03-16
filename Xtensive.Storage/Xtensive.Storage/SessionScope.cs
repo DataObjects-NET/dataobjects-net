@@ -41,11 +41,10 @@ namespace Xtensive.Storage
     /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="session">The session to activate.</param>
-    /// <param name="toDispose"><see cref="IDisposable"/> that should be disposed when this scope is disposing.</param>
-    public SessionScope(Session session, IDisposable toDispose)
+    public SessionScope(Session session)
       : base(session)
     {
-      this.toDispose = toDispose;
+      toDispose = session.Handlers.DomainHandler.CompilationContext.Activate();
     }
 
     // Desctructor

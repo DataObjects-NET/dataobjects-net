@@ -15,12 +15,10 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Integrity.Atomicity;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Internals;
-using Xtensive.Storage.Linq;
 using Xtensive.Storage.PairIntegrity;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.ReferentialIntegrity;
 using Xtensive.Storage.Resources;
-using Xtensive.Storage.Rse.Compilation;
 
 namespace Xtensive.Storage
 {
@@ -35,7 +33,6 @@ namespace Xtensive.Storage
     private volatile bool isDisposed;
     private readonly Set<object> consumers = new Set<object>();
     private readonly object _lock = new object();
-    private readonly CompilationScope compilationScope;
     private ServiceProvider serviceProvider;
 
 
@@ -71,7 +68,7 @@ namespace Xtensive.Storage
     #endregion
 
     /// <summary>
-    /// Gets the session service provder.
+    /// Gets the session service provider.
     /// </summary>
     public ServiceProvider Services
     {
@@ -161,7 +158,7 @@ namespace Xtensive.Storage
     {
       if (IsActive)
         return null;      
-      return new SessionScope(this, null);      
+      return new SessionScope(this);      
     }
 
     /// <inheritdoc/>
@@ -214,7 +211,6 @@ namespace Xtensive.Storage
       Handler.Session = this;
       Handler.DefaultIsolationLevel = configuration.DefaultIsolationLevel;
       Handler.Initialize();
-      compilationScope = Handlers.DomainHandler.CompilationContext.Activate();
       // Caches, registry
       EntityStateCache = new LruCache<Key, EntityState>(configuration.CacheSize, i => i.Key,
         new WeakCache<Key, EntityState>(false, i => i.Key));
@@ -259,7 +255,6 @@ namespace Xtensive.Storage
           if (IsDebugEventLoggingEnabled)
             Log.Debug("Session '{0}'. Disposing.", this);          
           Handler.DisposeSafely();
-          compilationScope.DisposeSafely();
         }
         finally {
           isDisposed = true;
