@@ -4,9 +4,28 @@
 // Created by: Alex Yakunin
 // Created:    2009.03.16
 
+using System;
+using Xtensive.Integrity.Transactions;
+
 namespace Xtensive.Indexing.Storage.Interfaces
 {
+  /// <summary>
+  /// Indexing storage API.
+  /// </summary>
   public interface IStorage
   {
+    /// <summary>
+    /// Creates a new transactional view.
+    /// </summary>
+    /// <returns>New transactional view.</returns>
+    IStorageView CreateView();
+
+    /// <summary>
+    /// Gets the transactional view.
+    /// </summary>
+    /// <param name="transactionId">The transaction identifier to get the view for.</param>
+    /// <returns>The transactional view;
+    /// <see langword="null" />, if no view is available for the specified transaction.</returns>
+    IStorageView GetView(Guid transactionId);
   }
 }

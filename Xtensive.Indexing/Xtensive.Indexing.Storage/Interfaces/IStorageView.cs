@@ -4,12 +4,17 @@
 // Created by: Alex Yakunin
 // Created:    2009.03.16
 
+using System;
 using Xtensive.Core.Tuples;
+using Xtensive.Indexing.Storage.Model;
+using Xtensive.Integrity.Transactions;
 
 namespace Xtensive.Indexing.Storage.Interfaces
 {
-  public interface IIsolatedStorageView
+  public interface IStorageView : 
+    IIndexManager,
+    IIndexAccessor
   {
-    IIndex<Tuple, Tuple> GetIndex(string name);
+    ITransaction Transaction { get; }
   }
 }
