@@ -10,12 +10,12 @@ using System.Security.Permissions;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Xtensive.Indexing")]
+[assembly: AssemblyTitle("Xtensive.Indexing.Storage")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Xtensive LLC")]
-[assembly: AssemblyProduct("Xtensive.Indexing")]
-[assembly: AssemblyCopyright("Copyright © Xtensive LLC 2008")]
+[assembly: AssemblyProduct("Xtensive.Indexing.Storage")]
+[assembly: AssemblyCopyright("Copyright © Xtensive LLC 2009")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -25,7 +25,7 @@ using System.Security.Permissions;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("2063dd04-3a39-4dfe-831e-f4db6f2a6f7b")]
+[assembly: Guid("0ad7c01a-85f0-4647-947a-444ce30d4bcf")]
 
 // Version information for an assembly consists of the following four values:
 //

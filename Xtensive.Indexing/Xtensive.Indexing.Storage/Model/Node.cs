@@ -1,17 +1,18 @@
-// Copyright (C) 2007 Xtensive LLC.
+// Copyright (C) 2009 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
-// Created by: Dmitri Maximov
-// Created:    2007.07.25
+// Created by: Alex Yakunin
+// Created:    2009.03.16
 
 using System;
+using System.Collections;
 using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Notifications;
 
-namespace Xtensive.Storage.Model
+namespace Xtensive.Indexing.Storage.Model
 {
   /// <summary>
   ///An abstract base class for model node.
@@ -31,13 +32,24 @@ namespace Xtensive.Storage.Model
     /// </summary>
     public string Name
     {
+      [DebuggerStepThrough]
       get { return name; }
-      set
-      {
+      set {
         this.EnsureNotLocked();
         ValidateName(value);
         ChangeState("Name", delegate { name = value; });
       }
+    }
+
+    /// <summary>
+    /// Gets the parent node.
+    /// </summary>
+    public Node Parent
+    { 
+      [DebuggerStepThrough]
+      get; 
+      [DebuggerStepThrough]
+      private set;
     }
 
     /// <summary>
@@ -98,13 +110,28 @@ namespace Xtensive.Storage.Model
 
 
     // Constructors
-    
+
     /// <summary>
     /// Initializes a new instance of the <see cref="Node"/> class.
     /// </summary>
+    /// <param name="parent"><see cref="Parent"/> property value.</param>
+    /// <param name="name">Initial <see cref="Name"/> property value.</param>
+    protected Node(Node parent, string name)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(parent, "parent");
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
+      Parent = parent;
+      Name = name;
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Node"/> class.
+    /// </summary>
+    /// <param name="name">Initial <see cref="Name"/> property value.</param>
     protected Node(string name)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
+      Parent = null;
       Name = name;
     }
 

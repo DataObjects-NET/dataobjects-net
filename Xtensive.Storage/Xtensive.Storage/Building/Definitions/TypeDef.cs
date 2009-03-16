@@ -155,12 +155,12 @@ namespace Xtensive.Storage.Building.Definitions
     /// <summary>
     /// Performs additional custom processes before setting new name to this instance.
     /// </summary>
-    /// <param name="nameToValidate">The new name of this instance.</param>
-    protected override void Validate(string nameToValidate)
+    /// <param name="newName">The new name of this instance.</param>
+    protected override void ValidateName(string newName)
     {
-      base.Validate(nameToValidate);
-      if (!Validator.IsNameValid(nameToValidate, ValidationRule.Type))
-        throw new ArgumentOutOfRangeException(nameToValidate);
+      base.ValidateName(newName);
+      if (!Validator.IsNameValid(newName, ValidationRule.Type))
+        throw new ArgumentOutOfRangeException(newName);
     }
 
 

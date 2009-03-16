@@ -1,16 +1,19 @@
-// Copyright (C) 2007 Xtensive LLC.
+// Copyright (C) 2009 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
-// Created by: Dmitri Maximov
-// Created:    2007.07.30
+// Created by: Alex Yakunin
+// Created:    2009.03.16
 
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Notifications;
+using Xtensive.Indexing.Storage.Model;
+using Xtensive.Indexing.Storage.Resources;
 
 namespace Xtensive.Storage.Model
 {
@@ -19,16 +22,28 @@ namespace Xtensive.Storage.Model
   /// </summary>
   /// <typeparam name="TNode">The type of the node.</typeparam>
   [Serializable]
-  public class NodeCollection<TNode>
+  public class NodeCollection<TNode, TParent>
     : CollectionBase<TNode>
     where TNode: Node
+    where TParent: Node
   {
     private readonly Dictionary<string, TNode> nameIndex = new Dictionary<string, TNode>();
     
     /// <summary>
     /// Gets empty collection.
     /// </summary>
-    public readonly static NodeCollection<TNode> Empty;
+    public readonly static NodeCollection<TNode,TParent> Empty;
+
+    /// <summary>
+    /// Gets the parent node collection belongs to.
+    /// </summary>
+    public TParent Parent
+    {
+      [DebuggerStepThrough]
+      get; 
+      [DebuggerStepThrough]
+      private set;
+    }
 
     /// <summary>
     /// Adds new element to the collection.
@@ -43,11 +58,11 @@ namespace Xtensive.Storage.Model
       }
       catch (ArgumentException e){
         throw new InvalidOperationException(
-          string.Format(CultureInfo.InvariantCulture, "Item with name '{0}' already exists.", item.Name), e);
+          string.Format(CultureInfo.InvariantCulture, Strings.ExItemWithNameXAlreadyExists, item.Name), e);
       }
       catch (InvalidOperationException e) {
         throw new InvalidOperationException(
-          string.Format(CultureInfo.InvariantCulture, "Item with name '{0}' already exists.", item.Name), e);
+          string.Format(CultureInfo.InvariantCulture, Strings.ExItemWithNameXAlreadyExists, item.Name), e);
       }
     }
 
@@ -72,7 +87,6 @@ namespace Xtensive.Storage.Model
     {
       return nameIndex.ContainsKey(key);
     }
-
 
     /// <summary>
     /// Gets the value associated with the specified key.
@@ -103,35 +117,49 @@ namespace Xtensive.Storage.Model
       }
     }
 
+    /// <inheritdoc/>
     protected override void OnInserted(TNode value, int index)
     {
       base.OnInserted(value, index);
       nameIndex.Add(value.Name, value);
     }
 
+    /// <inheritdoc/>
     protected override void OnRemoved(TNode value, int index)
     {
       base.OnRemoved(value, index);
       nameIndex.Remove(value.Name);
     }
 
+    /// <inheritdoc/>
     protected override void OnCleared()
     {
       base.OnCleared();
       nameIndex.Clear();
     }
 
+    /// <inheritdoc/>
     protected override void OnItemChanging(object sender, ChangeNotifierEventArgs e)
     {
       base.OnItemChanging(sender, e);
       nameIndex.Remove(((TNode) sender).Name);
     }
 
+    /// <inheritdoc/>
     protected override void OnItemChanged(object sender, ChangeNotifierEventArgs e)
     {
       base.OnItemChanged(sender, e);
       var tNode = (TNode)sender;
       nameIndex.Add(tNode.Name, tNode);
+    }
+
+    /// <inheritdoc/>
+    /// <exception cref="ArgumentException">Invalid <paramref name="value"/>.Parent value.</exception>
+    protected override void OnValidate(TNode value)
+    {
+      base.OnValidate(value);
+      if (Parent!=null && value.Parent!=Parent)
+        throw new ArgumentException(Strings.ExInvalidParentValue, "value.Parent");
     }
 
 
@@ -140,16 +168,28 @@ namespace Xtensive.Storage.Model
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
+    /// <param name="parent"><see cref="Parent"/> property value.</param>
+    public NodeCollection(TParent parent)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(parent, "parent");
+      Parent = parent;
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
     public NodeCollection()
     {
+      Parent = null;
     }
 
     // Type initializer
     
     static NodeCollection()
     {
-      Empty = new NodeCollection<TNode>();
+      Empty = new NodeCollection<TNode, TParent>();
       Empty.Lock();
     }
   }
 }
+

@@ -27,7 +27,7 @@ namespace Xtensive.Storage.Model
       set
       {
         this.EnsureNotLocked();
-        Validate(value);
+        ValidateName(value);
         mappingName = value;
       }
     }

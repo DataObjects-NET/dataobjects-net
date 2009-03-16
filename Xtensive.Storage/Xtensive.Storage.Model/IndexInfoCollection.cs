@@ -36,12 +36,5 @@ namespace Xtensive.Storage.Model
           return new BufferedEnumerable<IndexInfo>(this.Where(f => (f.Attributes & criteria) == 0));
       }
     }
-
-    public override void Lock(bool recursive)
-    {
-      base.Lock(recursive);
-      foreach (IndexInfo indexInfo in this)
-        indexInfo.Lock();
-    }
   }
 }
