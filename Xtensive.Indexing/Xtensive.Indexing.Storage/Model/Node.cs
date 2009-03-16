@@ -24,6 +24,8 @@ namespace Xtensive.Indexing.Storage.Model
       IChangeNotifier,
       IHasExtensions
   {
+    [NonSerialized]
+    private Node parent;
     private string name;
     private ExtensionCollection extensions;
 
@@ -44,12 +46,11 @@ namespace Xtensive.Indexing.Storage.Model
     /// <summary>
     /// Gets the parent node.
     /// </summary>
-    public Node Parent
-    { 
+    public Node Parent {
       [DebuggerStepThrough]
-      get; 
+      get { return parent; }
       [DebuggerStepThrough]
-      private set;
+      internal set { parent = value; }
     }
 
     /// <summary>
@@ -77,9 +78,11 @@ namespace Xtensive.Indexing.Storage.Model
     #region IChangeNotifier Members
 
     /// <inheritdoc/>
+    [field: NonSerialized]
     public event EventHandler<ChangeNotifierEventArgs> Changing;
 
     /// <inheritdoc/>
+    [field: NonSerialized]
     public event EventHandler<ChangeNotifierEventArgs> Changed;
 
     #endregion

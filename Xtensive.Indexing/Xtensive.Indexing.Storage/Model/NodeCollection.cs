@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.Runtime.Serialization;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
@@ -23,8 +24,8 @@ namespace Xtensive.Indexing.Storage.Model
   /// <typeparam name="TNode">The type of the node.</typeparam>
   /// <typeparam name="TParent">The type of the parent.</typeparam>
   [Serializable]
-  public class NodeCollection<TNode, TParent>
-    : CollectionBase<TNode>
+  public class NodeCollection<TNode, TParent> : CollectionBase<TNode>,
+    IDeserializationCallback
     where TNode: Node
     where TParent: Node
   {
@@ -185,11 +186,27 @@ namespace Xtensive.Indexing.Storage.Model
     }
 
     // Type initializer
-    
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.TypeInitializer" copy="true"/>
+    /// </summary>
     static NodeCollection()
     {
       Empty = new NodeCollection<TNode, TParent>();
       Empty.Lock();
+    }
+
+    // Deserialization
+
+    /// <inheritdoc/>
+    void IDeserializationCallback.OnDeserialization(object sender)
+    {
+      bool bSetParent = Parent!=null;
+      foreach (var node in this) {
+        TrySubscribe(node);
+        if (bSetParent)
+          node.Parent = Parent;
+      }
     }
   }
 }

@@ -171,7 +171,12 @@ namespace Xtensive.Core.Collections
       }
     }
 
-    private void TrySubscribe(TItem item)
+    /// <summary>
+    /// Tries to subscribe the collection on 
+    /// change notifications from the specified item.
+    /// </summary>
+    /// <param name="item">The item to try.</param>
+    protected void TrySubscribe(TItem item)
     {
       IChangeNotifier notifier = item as IChangeNotifier;
       if (notifier != null) {
@@ -180,7 +185,12 @@ namespace Xtensive.Core.Collections
       }
     }
 
-    private void TryUnsubscribe(TItem item)
+    /// <summary>
+    /// Tries to unsubscribe the collection from
+    /// change notifications from the specified item.
+    /// </summary>
+    /// <param name="item">The item to try.</param>
+    protected void TryUnsubscribe(TItem item)
     {
       IChangeNotifier notifier = item as IChangeNotifier;
       if (notifier != null) {

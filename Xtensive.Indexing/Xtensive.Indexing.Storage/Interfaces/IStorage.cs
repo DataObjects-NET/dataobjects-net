@@ -5,6 +5,7 @@
 // Created:    2009.03.16
 
 using System;
+using System.Transactions;
 using Xtensive.Integrity.Transactions;
 
 namespace Xtensive.Indexing.Storage.Interfaces
@@ -17,8 +18,9 @@ namespace Xtensive.Indexing.Storage.Interfaces
     /// <summary>
     /// Creates a new transactional view.
     /// </summary>
+    /// <param name="isolationLevel">Required isolation level.</param>
     /// <returns>New transactional view.</returns>
-    IStorageView CreateView();
+    IStorageView CreateView(IsolationLevel isolationLevel);
 
     /// <summary>
     /// Gets the transactional view.
