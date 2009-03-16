@@ -9,8 +9,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Xtensive.Core;
+using Xtensive.Core.Aspects;
+using Xtensive.Core.Aspects.Helpers;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Reflection;
+using Xtensive.Storage.Aspects;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Internals;
@@ -124,13 +127,15 @@ namespace Xtensive.Storage.Building.Builders
       using (LogTemplate<Log>.InfoRegion(Strings.LogBuildingX, Strings.Types)) {
         BuildingContext context = BuildingContext.Current;
 
-        foreach (TypeDef typeDef in context.Definition.Types.Where(t => !t.IsInterface))
+        foreach (TypeDef typeDef in context.Definition.Types.Where(t => !t.IsInterface)) {
+          CheckPersistentAspect(typeDef.UnderlyingType);
           try {
             TypeBuilder.BuildType(typeDef);
           }
           catch (DomainBuilderException e) {
             context.RegisterError(e);
           }
+        }
 
         context.EnsureBuildSucceed();
         ValidateHierarchies();
@@ -138,6 +143,17 @@ namespace Xtensive.Storage.Building.Builders
         BuildColumns();
         IndexBuilder.BuildIndexes();
         BuildHierarchyColumns();
+      }
+    }
+
+    private static void CheckPersistentAspect(Type type)
+    {
+      var constructor = type.GetConstructor(
+        BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, new[] { typeof(EntityState), typeof(bool) });
+      if (constructor == null && type != typeof(Structure)) {
+        var assemblyName = type.Assembly.ManifestModule.Name;
+        throw new DomainBuilderException(string.Format(
+          Strings.ExPersistentAttributeIsNotSetOnTypeX, assemblyName.Remove(assemblyName.Length - 4)));
       }
     }
 

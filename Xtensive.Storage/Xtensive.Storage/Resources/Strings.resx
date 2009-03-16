@@ -522,4 +522,7 @@
   <data name="ExFieldIsNotAnEntityField" xml:space="preserve">
     <value>Field '{0}' is not an Entity field in Type '{1}'.</value>
   </data>
+  <data name="ExPersistentAttributeIsNotSetOnTypeX" xml:space="preserve">
+    <value>Persistent attribute isn't applied. Add to AssemblyInfo.cs (in "{0}" assembly) following line: [assembly: Persistent(AttributeTargetAssemblies = "{0}")]</value>
+  </data>
 </root>
