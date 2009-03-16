@@ -133,12 +133,12 @@ namespace Xtensive.Storage.Tests.Storage
       TestFixtureSetUp();
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
-          new Snake {Name = "Kaa1", Length = 1};
-          new Snake { Name = "Kaa2", Length = 2 };
-          new Snake { Name = "Kaa1", Length = 3 };
-          new Snake { Name = "Kaa2", Length = 2 };
-          new Snake { Name = "Kaa1", Length = 3 };
-          new Snake { Name = "Kaa3", Length = 3 };
+          new Snake {Name = "Kaa1", Length = 1, Features = Features.None};
+          new Snake { Name = "Kaa2", Length = 2, Features = Features.None };
+          new Snake { Name = "Kaa1", Length = 3, Features = Features.None };
+          new Snake { Name = "Kaa2", Length = 2, Features = Features.None };
+          new Snake { Name = "Kaa1", Length = 3, Features = Features.CanCrawl };
+          new Snake { Name = "Kaa3", Length = 3, Features = Features.None };
 
           Session.Current.Persist();
 
@@ -155,8 +155,8 @@ namespace Xtensive.Storage.Tests.Storage
             new AggregateColumnDescriptor("Sum1", 0, AggregateType.Sum),
             new AggregateColumnDescriptor("Avg1", 0, AggregateType.Avg));
 
-          Assert.AreEqual(rs.Count(),4);
           t.Complete();
+          Assert.AreEqual(rs.Count(), 4);
         }
       }
     }
@@ -174,7 +174,7 @@ namespace Xtensive.Storage.Tests.Storage
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           for (int i = 0; i < snakesCount; i++)
-            new Snake { Name = ("Kaa" + i), Length = i };
+            new Snake { Name = ("MyKaa" + i), Length = i };
           for (int j = 0; j < creaturesCount; j++)
             new Creature { Name = ("Creature" + j) };
           for (int i = 0; i < lizardsCount; i++)
@@ -193,8 +193,8 @@ namespace Xtensive.Storage.Tests.Storage
           Assert.AreEqual(10, rsCalculated.Count());
 
           foreach (var tuple in rsCalculated) {
-            Assert.AreEqual("Ka", tuple.GetValue(5)); 
-            Assert.AreEqual("Kaa", tuple.GetValue(6));
+                Assert.AreEqual("My", tuple.GetValue(6)); 
+            Assert.AreEqual("MyK", tuple.GetValue(7));
           }
           rsSnakePrimary.Count();
 

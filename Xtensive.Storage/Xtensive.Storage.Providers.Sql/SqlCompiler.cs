@@ -381,14 +381,18 @@ namespace Xtensive.Storage.Providers.Sql
       if (compiledSource == null)
         return null;
 
-//      var query = (SqlSelect)source.Request.Statement.Clone();
-//      var originalColumns = query.Columns.ToList();
-//      query.Columns.Clear();
-//      query.Columns.AddRange(provider.ColumnIndexes.Select(i => originalColumns[i]));
-
-      var queryRef = SqlFactory.QueryRef(compiledSource.Request.Statement as SqlSelect);
-      SqlSelect query = SqlFactory.Select(queryRef);
-      query.Columns.AddRange(provider.ColumnIndexes.Select(i => (SqlColumn) queryRef.Columns[i]));
+      SqlSelect query;
+      if (compiledSource.Origin.Type == ProviderType.Index) {
+        query = (SqlSelect)compiledSource.Request.Statement.Clone();
+        var originalColumns = query.Columns.ToList();
+        query.Columns.Clear();
+        query.Columns.AddRange(provider.ColumnIndexes.Select(i => originalColumns[i]));
+      }
+      else {
+        var queryRef = SqlFactory.QueryRef(compiledSource.Request.Statement as SqlSelect);
+        query = SqlFactory.Select(queryRef);
+        query.Columns.AddRange(provider.ColumnIndexes.Select(i => (SqlColumn)queryRef.Columns[i]));
+      } 
       var request = new SqlFetchRequest(query, provider.Header);
 
       return new SqlProvider(provider, request, Handlers, compiledSource);
