@@ -208,12 +208,12 @@ namespace Xtensive.Storage.Providers.Sql
       }
     }
 
-    private void BuildHierarchyReferences(ICountable<TypeInfo> entities, Dictionary<IndexInfo, Table> tables)
+    private void BuildHierarchyReferences(IEnumerable<TypeInfo> entities, IDictionary<IndexInfo, Table> tables)
     {
       var indexPairs = new Dictionary<Pair<IndexInfo>, object>();
       foreach (TypeInfo type in entities) {
         if (type.Indexes.PrimaryIndex.IsVirtual) {
-          List<IndexInfo> realPrimaryIndexes = GetRealPrimaryIndexes(type.Indexes.PrimaryIndex);
+          ReadOnlyList<IndexInfo> realPrimaryIndexes = type.Indexes.RealPrimaryIndexes;
           for (int i = 0; i < realPrimaryIndexes.Count - 1; i++) {
             if (realPrimaryIndexes[i]!=realPrimaryIndexes[i + 1]) {
               var pair = new Pair<IndexInfo>(realPrimaryIndexes[i], realPrimaryIndexes[i + 1]);
@@ -251,18 +251,6 @@ namespace Xtensive.Storage.Providers.Sql
     private TableColumn FindColumnByName(Table referencingTable, string columnName)
     {
       return referencingTable.TableColumns.First(dataTableColumn => dataTableColumn.Name==columnName);
-    }
-
-    private List<IndexInfo> GetRealPrimaryIndexes(IndexInfo index)
-    {
-      var result = new List<IndexInfo>();
-      foreach (IndexInfo underlyingIndex in index.UnderlyingIndexes) {
-        if (underlyingIndex.IsPrimary && !underlyingIndex.IsVirtual)
-          result.Add(underlyingIndex);
-        else
-          result.AddRange(GetRealPrimaryIndexes(underlyingIndex));
-      }
-      return result;
     }
 
     private IndexInfo FindRealIndex(IndexInfo index, FieldInfo field)

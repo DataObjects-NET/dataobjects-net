@@ -8,7 +8,6 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Collections.Generic;
-using Xtensive.Core;
 using Xtensive.Core.Collections;
 
 namespace Xtensive.Storage.Model
@@ -17,28 +16,30 @@ namespace Xtensive.Storage.Model
   public sealed class TypeIndexInfoCollection : IndexInfoCollection
   {
     private IndexInfo primaryIndex;
+    private ReadOnlyList<IndexInfo> realPrimaryIndexes;
 
     /// <summary>
     /// Gets the primary index in this instance.
     /// </summary>
-    public IndexInfo PrimaryIndex {
+    public IndexInfo PrimaryIndex
+    {
       [DebuggerStepThrough]
       get { return IsLocked ? primaryIndex : FindPrimaryIndex(); }
     }
 
-    private IndexInfo FindPrimaryIndex()
+    /// <summary>
+    /// Gets the list of real primary index in this instance.
+    /// </summary>
+    public ReadOnlyList<IndexInfo> RealPrimaryIndexes
     {
-      IndexInfo result = FindFirst(IndexAttributes.Virtual | IndexAttributes.Primary);
-      if (result != null) 
-        return result;
-      return FindFirst(IndexAttributes.Real | IndexAttributes.Primary);
+      [DebuggerStepThrough]
+      get { return IsLocked ? realPrimaryIndexes : new ReadOnlyList<IndexInfo>(FindRealPrimaryIndexes(PrimaryIndex)); }
     }
 
     public IndexInfo FindFirst(IndexAttributes indexAttributes)
     {
       ICountable<IndexInfo> result = Find(indexAttributes);
-      if (result.Count != 0)
-      {
+      if (result.Count!=0) {
         IEnumerator<IndexInfo> enumerator = result.GetEnumerator();
         enumerator.MoveNext();
         return enumerator.Current;
@@ -58,7 +59,7 @@ namespace Xtensive.Storage.Model
         if (primaryIndex.ReflectedType.Fields.TryGetValue(name, out field))
           fields.Add(field);
       }
-      if (fields.Count == 0)
+      if (fields.Count==0)
         return null;
 
       return GetIndex(fields);
@@ -69,6 +70,14 @@ namespace Xtensive.Storage.Model
       var fieldInfos = new List<FieldInfo> {field};
       fieldInfos.AddRange(fields);
       return GetIndex(fieldInfos);
+    }
+
+    /// <inheritdoc/>
+    public override void Lock(bool recursive)
+    {
+      primaryIndex = FindPrimaryIndex();
+      realPrimaryIndexes = new ReadOnlyList<IndexInfo>(FindRealPrimaryIndexes(primaryIndex));
+      base.Lock(recursive);
     }
 
     public IndexInfo GetIndex(IEnumerable<FieldInfo> fields)
@@ -101,11 +110,28 @@ namespace Xtensive.Storage.Model
       return result;
     }
 
-    /// <inheritdoc/>
-    public override void Lock(bool recursive)
+    private IndexInfo FindPrimaryIndex()
     {
-      primaryIndex = FindPrimaryIndex();
-      base.Lock(recursive);
+      IndexInfo result = FindFirst(IndexAttributes.Virtual | IndexAttributes.Primary);
+      if (result!=null)
+        return result;
+      return FindFirst(IndexAttributes.Real | IndexAttributes.Primary);
+    }
+
+    private List<IndexInfo> FindRealPrimaryIndexes(IndexInfo index)
+    {
+      if (index==null)
+        return new List<IndexInfo>();
+      if (index.IsPrimary && !index.IsVirtual)
+        return new List<IndexInfo>(new[] {index});
+      var result = new List<IndexInfo>();
+      foreach (IndexInfo underlyingIndex in index.UnderlyingIndexes) {
+        if (underlyingIndex.IsPrimary && !underlyingIndex.IsVirtual)
+          result.Add(underlyingIndex);
+        else
+          result.AddRange(FindRealPrimaryIndexes(underlyingIndex));
+      }
+      return result;
     }
   }
 }
