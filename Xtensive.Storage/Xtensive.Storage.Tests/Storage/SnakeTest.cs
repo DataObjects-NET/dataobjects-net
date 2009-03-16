@@ -955,7 +955,10 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void ApplyTest()
     {
-      var random = new Random();
+      int seed = Environment.TickCount;
+      Console.WriteLine("seed is {0}", seed);
+      var random = new Random(seed);
+
       using (Domain.OpenSession()) {
         using (Transaction.Open()) {
 
