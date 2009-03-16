@@ -65,6 +65,9 @@ namespace Xtensive.Storage.Tests.Storage.SnakesModel
 
     [Field]
     public Features? Features { get; set; }
+
+    [Field]
+    public TimeSpan LifeDuration { get; set; }
   }
 
   [DebuggerDisplay("Name = '{Name}'; Length = {Length}")]

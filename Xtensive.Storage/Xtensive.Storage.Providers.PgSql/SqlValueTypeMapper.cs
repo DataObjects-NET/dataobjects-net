@@ -7,6 +7,7 @@
 using System;
 using System.Data;
 using System.Data.Common;
+using Xtensive.Core;
 using Xtensive.Sql.Common;
 using Xtensive.Storage.Providers.Sql.Mappings;
 
@@ -14,6 +15,7 @@ namespace Xtensive.Storage.Providers.PgSql
 {
   public sealed class SqlValueTypeMapper : Sql.SqlValueTypeMapper
   {
+    /// <inheritdoc/>
     protected override void BuildTypeSubstitutes()
     {
       base.BuildTypeSubstitutes();
@@ -48,19 +50,19 @@ namespace Xtensive.Storage.Providers.PgSql
       @guid.Length = new ValueRange<int>(16, 16, 16);
       BuildDataTypeMapping(@guid);
 
-      var @timespan = new RangeDataTypeInfo<TimeSpan>(@int64.SqlType, null);
-      @timespan.Value = new ValueRange<TimeSpan>(TimeSpan.FromTicks(@int64.Value.MinValue), TimeSpan.FromTicks(@int64.Value.MaxValue));
+      var @timespan = DomainHandler.SqlDriver.ServerInfo.DataTypes.Interval;
       BuildDataTypeMapping(@timespan);
-
     }
 
     protected override DataTypeMapping CreateDataTypeMapping(DataTypeInfo dataTypeInfo)
     {
       if (dataTypeInfo.Type==typeof(Guid))
-        return new DataTypeMapping(dataTypeInfo, BuildDataReaderAccessor(dataTypeInfo), DbType.Binary, v => ((Guid)v).ToByteArray(), v => new Guid((byte[])v));
+        return new DataTypeMapping(dataTypeInfo, BuildDataReaderAccessor(dataTypeInfo), DbType.Binary,
+          v => ((Guid)v).ToByteArray(), v => new Guid((byte[])v));
 
       if (dataTypeInfo.Type==typeof (TimeSpan))
-        return new DataTypeMapping(dataTypeInfo, BuildDataReaderAccessor(dataTypeInfo), DbType.Int64, v => ((TimeSpan) v).Ticks, v => TimeSpan.FromTicks((long) v));
+        return new DataTypeMapping(dataTypeInfo, BuildDataReaderAccessor(dataTypeInfo), DbType.String,
+          v => TimeSpanToString((TimeSpan)v), v => ReadTimeSpan(v));
 
       return base.CreateDataTypeMapping(dataTypeInfo);
     }
@@ -99,7 +101,7 @@ namespace Xtensive.Storage.Providers.PgSql
             return result;
           };
         if (type == typeof(TimeSpan))
-          return (reader, fieldIndex) => reader.GetInt64(fieldIndex);
+          return (reader, fieldIndex) => ReadTimeSpan(reader[fieldIndex]);
         return base.BuildDataReaderAccessor(dataTypeInfo);
       case TypeCode.Boolean:
         return (reader, fieldIndex) => reader.GetBoolean(fieldIndex);
@@ -118,6 +120,119 @@ namespace Xtensive.Storage.Providers.PgSql
       default:
         return base.BuildDataReaderAccessor(dataTypeInfo);
       }
+    }
+
+    private static TimeSpan ReadTimeSpan(object value)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(value, "value");
+
+      switch (Type.GetTypeCode(value.GetType())) {
+        case TypeCode.String:
+          return StringToTimeSpan((string)value);
+        case TypeCode.Byte:
+        case TypeCode.SByte:
+        case TypeCode.Int16:
+        case TypeCode.Int32:
+        case TypeCode.Int64:
+        case TypeCode.UInt16:
+        case TypeCode.UInt32:
+        case TypeCode.UInt64:
+          return new TimeSpan(Convert.ToInt64(value));
+      }
+
+      if (value is TimeSpan)
+        return (TimeSpan) value;
+      throw new NotSupportedException();
+    }
+
+    private static TimeSpan StringToTimeSpan(string input)
+    {
+      int days = 0;
+      int hours = 0;
+      int minutes = 0;
+      int seconds = 0;
+      int milliseconds = 0;
+
+      //pattern: [[-]DD* day[s]] [[-]H[H]:M[M]:S[S][.ff*]]
+
+      string[] parts = input.Split(new[]{' '},StringSplitOptions.RemoveEmptyEntries);
+      switch (parts.Length) {
+        case 1:
+          // no day part
+          ParseMainIntervalPart(parts[0], out hours, out minutes, out seconds, out milliseconds);
+          break;
+        case 2:
+          // only day part: "x days"
+          days = int.Parse(parts[0]);
+          break;
+        case 3:
+          // both day and HMS parts: "x days y:z:v.ww"
+          days = int.Parse(parts[0]);
+          ParseMainIntervalPart(parts[2], out hours, out minutes, out seconds, out milliseconds);
+          break;
+      }
+
+      return new TimeSpan(days, hours, minutes, seconds, milliseconds);
+    }
+
+    private static void ParseMainIntervalPart(string value,
+      out int hours,
+      out int minutes,
+      out int seconds,
+      out int millisececonds)
+    {
+      string[] parts = value.Split(':', '.');
+      hours = minutes = seconds = millisececonds = 0;
+
+      if (parts.Length == 0)
+        return;
+
+      hours = int.Parse(parts[0]);
+
+      if (parts.Length > 1) {
+        minutes = int.Parse(parts[1]);
+        if (parts.Length > 2) {
+          seconds = int.Parse(parts[2]);
+          if (parts.Length > 3) {
+            millisececonds = int.Parse(parts[3].Length > 4 ? parts[3].Substring(0, 4) : parts[3]);
+            if (millisececonds % 10 > 4)
+              millisececonds += 10;
+            millisececonds /= 10;
+          }
+        }
+      }
+
+      if (hours < 0) {
+        minutes = -minutes;
+        seconds = -seconds;
+        millisececonds = -millisececonds;
+      }
+    }
+
+    private static string TimeSpanToString(TimeSpan value)
+    {
+      int days = value.Days;
+      int hours = value.Hours;
+      int minutes = value.Minutes;
+      int seconds = value.Seconds;
+      int milliseconds = value.Milliseconds;
+
+      bool negative = hours < 0 || minutes < 0 || seconds < 0 || milliseconds < 0;
+
+      if (hours < 0)
+        hours = -hours;
+
+      if (minutes < 0)
+        minutes = -minutes;
+
+      if (seconds < 0)
+        seconds = -seconds;
+
+      if (milliseconds < 0)
+        milliseconds = -milliseconds;
+
+      return String.Format("{0} {1}{2}:{3}:{4}.{5:000}",
+          days, negative ? "-" : "", hours, minutes, seconds, milliseconds);
     }
   }
 }

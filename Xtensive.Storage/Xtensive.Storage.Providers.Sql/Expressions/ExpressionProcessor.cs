@@ -29,6 +29,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     private static readonly MemberCompilerProvider<SqlExpression> mappingsProvider;
     private static readonly Type[] builtinMappings = new[] {
       typeof(NullableMappings),
+      typeof(ArrayMappings),
       typeof(StringMappings),
       typeof(DateTimeMappings),
       typeof(TimeSpanMappings),

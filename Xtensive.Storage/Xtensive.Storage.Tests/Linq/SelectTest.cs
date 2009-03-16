@@ -379,5 +379,18 @@ namespace Xtensive.Storage.Tests.Linq
         }
       }
     }
+
+    [Test]
+    public void SelectEnumTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var orders = Query<Order>.All;
+          var result = from o in orders select o.OrderDate.Value.DayOfWeek;
+          var list = result.ToList();
+          t.Complete();
+        }
+      }
+    }
   }
 }
