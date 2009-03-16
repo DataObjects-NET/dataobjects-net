@@ -15,10 +15,6 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
     internal const string RealExtractDays = "real_extract_days";
     internal const string RealExtractSeconds = "real_extract_seconds";
     internal const string RealExtractMilliseconds = "real_extract_ms";
-    internal const string OneYearInterval = "one_year_interval";
-    internal const string OneMonthInterval = "one_month_interval";
-    internal const string OneDayInterval = "one_day_interval";
-    internal const string OneMillisecondInterval = "one_ms_interval";
 
     public PgSqlTranslator(SqlDriver driver)
       : base(driver)
@@ -908,14 +904,6 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
             return "extract (milliseconds from ";
           case RealExtractSeconds:
             return "extract (second from ";
-          case OneYearInterval:
-            return "(interval '1 year'";
-          case OneMonthInterval:
-            return "(interval '1 month'";
-          case OneDayInterval:
-            return "(interval '1 day'";
-          case OneMillisecondInterval:
-            return "(interval '1 ms'";
         }
 
       return base.Translate(context, node, section, position);

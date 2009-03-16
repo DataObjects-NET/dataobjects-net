@@ -7,17 +7,10 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
 {
   internal class PgSqlCompiler : SqlCompiler
   {
-    private static readonly SqlUserFunctionCall OneYearInterval =
-      Sql.FunctionCall(PgSqlTranslator.OneYearInterval);
-
-    private static readonly SqlUserFunctionCall OneMonthInterval =
-      Sql.FunctionCall(PgSqlTranslator.OneMonthInterval);
-
-    private static readonly SqlUserFunctionCall OneDayInterval =
-      Sql.FunctionCall(PgSqlTranslator.OneDayInterval);
-
-    private static readonly SqlUserFunctionCall OneMillisecondInterval =
-      Sql.FunctionCall(PgSqlTranslator.OneMillisecondInterval);
+    private static readonly SqlNative OneYearInterval = Sql.Native("interval '1 year'");
+    private static readonly SqlNative OneMonthInterval = Sql.Native("interval '1 month'");
+    private static readonly SqlNative OneDayInterval = Sql.Native("interval '1 day'");
+    private static readonly SqlNative OneMillisecondInterval = Sql.Native("interval '1 ms'");
 
     public override void Visit(SqlDeclareCursor node)
     {
@@ -122,7 +115,7 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
       var arg = node.Arguments[1]; 
      
       if (part == SqlIntervalPart.Day) {
-        Visit(RealExtractDays(Sql.FunctionCall("justify_hours", arg)));
+        Visit(RealExtractDays(arg));
         return true;
       }
 
@@ -139,27 +132,27 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
       return false;
     }
 
-    private static SqlCast CastToLong(SqlExpression arg)
+    protected static SqlCast CastToLong(SqlExpression arg)
     {
       return Sql.Cast(arg, SqlDataType.Int64);
     }
 
-    private static SqlUserFunctionCall RealExtractDays(SqlExpression arg)
+    protected static SqlUserFunctionCall RealExtractDays(SqlExpression arg)
     {
       return Sql.FunctionCall(PgSqlTranslator.RealExtractDays, arg);
     }
 
-    private static SqlUserFunctionCall RealExtractSeconds(SqlExpression arg)
+    protected static SqlUserFunctionCall RealExtractSeconds(SqlExpression arg)
     {
       return Sql.FunctionCall(PgSqlTranslator.RealExtractSeconds, arg);
     }
 
-    private static SqlUserFunctionCall RealExtractMilliseconds(SqlExpression arg)
+    protected static SqlUserFunctionCall RealExtractMilliseconds(SqlExpression arg)
     {
       return Sql.FunctionCall(PgSqlTranslator.RealExtractMilliseconds, arg);
     }
 
-    private static SqlBinary IntervalToMilliseconds(SqlExpression interval)
+    protected static SqlBinary IntervalToMilliseconds(SqlExpression interval)
     {
       var days = RealExtractDays(interval);
       var hours = Sql.IntervalExtract(SqlIntervalPart.Hour, interval);
