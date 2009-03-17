@@ -18,6 +18,7 @@ namespace Xtensive.Storage.Configuration.Elements
     private const string UserNameElementName = "userName";
     private const string PasswordElementName = "password";
     private const string CacheSizeElementName = "cacheSize";
+    private const string CacheTypeElementName = "cacheType";
     private const string OptionsElementName = "options";
     private const string IsolationLevelElementName = "isolationLevel";
 
@@ -68,6 +69,16 @@ namespace Xtensive.Storage.Configuration.Elements
     }
 
     /// <summary>
+    /// <see cref="SessionConfiguration.CacheType" copy="true"/>
+    /// </summary>
+    [ConfigurationProperty(CacheTypeElementName, IsRequired = false, DefaultValue = SessionConfiguration.DefaultCacheType, IsKey = false)]
+    public SessionCacheType CacheType
+    {
+      get { return (SessionCacheType)this[CacheTypeElementName]; }
+      set { this[CacheTypeElementName] = value; }
+    }
+
+    /// <summary>
     /// <see cref="SessionConfiguration.Options" copy="true"/>
     /// </summary>
     [ConfigurationProperty(OptionsElementName, IsRequired = false, DefaultValue = SessionOptions.Default, IsKey = false)]
@@ -100,6 +111,7 @@ namespace Xtensive.Storage.Configuration.Elements
         UserName = UserName,
         Password = Password,
         CacheSize = CacheSize,
+        CacheType =  CacheType,
         Options = Options,
         DefaultIsolationLevel = DefaultIsolationLevel
       };

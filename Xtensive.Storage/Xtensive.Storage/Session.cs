@@ -212,8 +212,15 @@ namespace Xtensive.Storage
       Handler.DefaultIsolationLevel = configuration.DefaultIsolationLevel;
       Handler.Initialize();
       // Caches, registry
-      EntityStateCache = new LruCache<Key, EntityState>(configuration.CacheSize, i => i.Key,
-        new WeakCache<Key, EntityState>(false, i => i.Key));
+      switch (configuration.CacheType) {
+      case SessionCacheType.Infinite:
+        EntityStateCache = new InfiniteCache<Key, EntityState>(configuration.CacheSize, i => i.Key);
+        break;
+      default:
+        EntityStateCache = new LruCache<Key, EntityState>(configuration.CacheSize, i => i.Key,
+          new WeakCache<Key, EntityState>(false, i => i.Key));
+        break;
+      }
       EntityStateRegistry = new EntityStateRegistry(this);
       // Etc...
       AtomicityContext = new AtomicityContext(this, AtomicityContextOptions.Undoable);

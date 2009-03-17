@@ -52,13 +52,17 @@ namespace Xtensive.Indexing.Storage.Model
     /// </summary>
     /// <param name="item">Item to add.</param>
     /// <exception cref="InvalidOperationException">Item already exists.</exception>
+    /// <exception cref="InstanceIsLockedException">Collection is locked.</exception>
     [DebuggerStepThrough]
     public override void Add(TNode item)
     {
       try {
         base.Add(item);
       }
-      catch (ArgumentException e){
+      catch (InstanceIsLockedException) {
+        throw;
+      }
+      catch (ArgumentException e) {
         throw new InvalidOperationException(
           string.Format(CultureInfo.InvariantCulture, Strings.ExItemWithNameXAlreadyExists, item.Name), e);
       }

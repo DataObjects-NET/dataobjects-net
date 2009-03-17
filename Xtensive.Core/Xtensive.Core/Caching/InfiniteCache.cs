@@ -10,6 +10,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Resources;
 
 namespace Xtensive.Core.Caching
 {
@@ -149,17 +151,29 @@ namespace Xtensive.Core.Caching
     #endregion
 
     // Constructors
-    
+
     /// <summary>
-    /// Initializes a new instance of the <see cref="InfiniteCache&lt;TKey, TItem&gt;"/> class.
+    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="keyExtractor"><see cref="KeyExtractor"/> property value.</param>
     public InfiniteCache(Converter<TItem, TKey> keyExtractor)
+      : this(0, keyExtractor)
+    {
+    }
+
+    /// <summary>
+    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="capacity">The capacity of cache.</param>
+    /// <param name="keyExtractor"><see cref="KeyExtractor"/> property value.</param>
+    public InfiniteCache(int capacity, Converter<TItem, TKey> keyExtractor)
     {
       ArgumentValidator.EnsureArgumentNotNull(keyExtractor, "keyExtractor");
+      if (capacity < 0)
+        throw new ArgumentOutOfRangeException("capacity", capacity, Strings.ExArgumentValueMustBeGreaterThanOrEqualToZero);
 
       this.keyExtractor = keyExtractor;
-      items = new Dictionary<TKey, TItem>();
+      items = new Dictionary<TKey, TItem>(capacity);
     }
 
   }

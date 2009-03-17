@@ -8,6 +8,8 @@ using System;
 using System.Collections.Generic;
 using System.Transactions;
 using NUnit.Framework;
+using Xtensive.Core.Caching;
+using Xtensive.Core.Reflection;
 using Xtensive.Core.Testing;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Configuration;
@@ -37,14 +39,15 @@ namespace Xtensive.Storage.Tests.Configuration
       foreach (KeyValuePair<string, string> namespaceSynonym in c1.NamingConvention.NamespaceSynonyms) {
         Log.Debug("NamingConvention.NamespaceSynonym (key, value): {0} {1}", namespaceSynonym.Key, namespaceSynonym.Value);
       }
-      Log.Debug("Session settings. UserName: {0}, CacheSize: {1}", c1.Sessions.Default.UserName, c1.Sessions.Default.CacheSize);
-      
-      var c2 = new DomainConfiguration("memory://localhost/"){
+      Log.Debug("Session settings. UserName: {0}, CacheSize: {1}, CacheType: {2}", c1.Sessions.Default.UserName, c1.Sessions.Default.CacheSize, c1.Sessions.Default.CacheType);
+
+      var c2 = new DomainConfiguration("memory://localhost/")
+        {
           SessionPoolSize = 77,
           Name = "TestDomain1"
         };
-      c2.Builders.Add(typeof(string));
-      c2.Builders.Add(typeof(int));
+      c2.Builders.Add(typeof (string));
+      c2.Builders.Add(typeof (int));
       c2.Types.Register(Assembly.Load("Xtensive.Storage.Tests"), "Xtensive.Storage.Tests");
       c2.NamingConvention.LetterCasePolicy = LetterCasePolicy.Uppercase;
       c2.NamingConvention.NamespacePolicy = NamespacePolicy.Hash;
@@ -52,9 +55,10 @@ namespace Xtensive.Storage.Tests.Configuration
       c2.NamingConvention.NamespaceSynonyms.Add("Xtensive.Storage", "XS");
       c2.NamingConvention.NamespaceSynonyms.Add("Xtensive.Messaging", "XM");
       c2.NamingConvention.NamespaceSynonyms.Add("Xtensive.Indexing", "XI");
-      c2.Sessions.Add(new SessionConfiguration { CacheSize = 111, UserName = "User", DefaultIsolationLevel = IsolationLevel.Snapshot});
-      c2.Sessions.Add(new SessionConfiguration { Name = "UserSession", CacheSize = 324, Password = "222"});
-      c2.Sessions.Add(new SessionConfiguration { Name = "System", UserName = "dfdfdfd", Password = "333", Options = SessionOptions.AmbientTransactions});
+      c2.Sessions.Add(new SessionConfiguration {CacheSize = 111, UserName = "User", DefaultIsolationLevel = IsolationLevel.Snapshot});
+      c2.Sessions.Add(new SessionConfiguration {Name = "UserSession", CacheSize = 324, Password = "222"});
+      c2.Sessions.Add(new SessionConfiguration {Name = "System", UserName = "dfdfdfd", Password = "333", Options = SessionOptions.AmbientTransactions});
+      c2.Sessions.Add(new SessionConfiguration { Name = "UserSession2", CacheType = SessionCacheType.Infinite});
       Assert.AreEqual(c1, c2);
     }
 
@@ -69,6 +73,8 @@ namespace Xtensive.Storage.Tests.Configuration
       Assert.AreEqual(c.Sessions.System, new SessionConfiguration { Name = "System", UserName = "dfdfdfd", Password = "333", Options = SessionOptions.AmbientTransactions, CacheSize = 111, DefaultIsolationLevel = IsolationLevel.Snapshot });
       Assert.AreEqual(c.Sessions["UserSession"], new SessionConfiguration { UserName = "User", CacheSize = 324, Password = "222", DefaultIsolationLevel = IsolationLevel.Snapshot });
     }
+
+    
 
     [Test]
     public void TestDomain2()

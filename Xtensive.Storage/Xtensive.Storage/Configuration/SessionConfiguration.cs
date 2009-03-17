@@ -29,6 +29,11 @@ namespace Xtensive.Storage.Configuration
     /// </summary>
     public const int DefaultCacheSize = 16 * 1024;
 
+    /// <summary>
+    /// Default cache type.
+    /// </summary>
+    public const SessionCacheType DefaultCacheType = SessionCacheType.LruWeak;
+
     ///<summary>
     /// Default isolation level.
     ///</summary>
@@ -45,6 +50,7 @@ namespace Xtensive.Storage.Configuration
     private string userName;
     private string password;
     private int cacheSize;
+    private SessionCacheType cacheType;
     private IsolationLevel defaultIsolationLevel;
 
 
@@ -103,6 +109,21 @@ namespace Xtensive.Storage.Configuration
         this.EnsureNotLocked();
         ArgumentValidator.EnsureArgumentIsInRange(value, 0, Int32.MaxValue, "CacheSize");
         cacheSize = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the type of the session cache.
+    /// Default value is <see cref="DefaultCacheType"/>.
+    /// </summary>
+    /// <value>The type of the cache.</value>
+    public SessionCacheType CacheType
+    {
+      get { return cacheType; }
+      set
+      {
+        this.EnsureNotLocked();
+        cacheType = value;
       }
     }
 
@@ -184,6 +205,7 @@ namespace Xtensive.Storage.Configuration
       UserName = configuration.UserName;
       Password = configuration.Password;
       Options = configuration.Options;
+      CacheType = configuration.CacheType;
       CacheSize = configuration.CacheSize;
       DefaultIsolationLevel = configuration.DefaultIsolationLevel;
     }
@@ -201,8 +223,9 @@ namespace Xtensive.Storage.Configuration
         obj.UserName==UserName &&
           obj.Type==Type &&
             obj.Options==Options &&
-              obj.CacheSize==CacheSize &&
-                obj.DefaultIsolationLevel==DefaultIsolationLevel;
+              obj.CacheType==CacheType &&
+                obj.CacheSize==CacheSize &&
+                  obj.DefaultIsolationLevel==DefaultIsolationLevel;
     }
 
     /// <inheritdoc/>
@@ -236,8 +259,8 @@ namespace Xtensive.Storage.Configuration
     public override string ToString()
     {
       if (UserName.IsNullOrEmpty())
-        return string.Format("Name = {0}, Options = {1}, CacheSize = {2}, DefaultIsolationLevel = {3}", Name, Options, CacheSize, DefaultIsolationLevel);
-      return string.Format("Name = {0}, UserName = {1}, Options = {2}, CacheSize = {3}, DefaultIsolationLevel = {4}", Name, UserName, Options, CacheSize, DefaultIsolationLevel);
+        return string.Format("Name = {0}, Options = {1}, CacheType = {2}, CacheSize = {3}, DefaultIsolationLevel = {4}", Name, Options, CacheType, CacheSize, DefaultIsolationLevel);
+      return string.Format("Name = {0}, UserName = {1}, Options = {2}, CacheType = {3}, CacheSize = {4}, DefaultIsolationLevel = {5}", Name, UserName, Options, CacheType, CacheSize, DefaultIsolationLevel);
     }
 
 

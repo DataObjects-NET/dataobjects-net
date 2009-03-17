@@ -5,7 +5,11 @@
 // Created:    2009.03.16
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
+using Xtensive.Core.Collections;
+using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Indexing.Storage.Model
@@ -16,12 +20,96 @@ namespace Xtensive.Indexing.Storage.Model
   [Serializable]
   public class IndexInfo : Node<IndexInfo, StorageInfo>
   {
+    private ReadOnlyList<ColumnInfo> keyColumnsCache;
+    private ReadOnlyList<ColumnInfo> valueColumnsCache;
+    private int pageSize;
+
+    /// <summary>
+    /// Gets or sets the columns.
+    /// </summary>
+    /// <value>The columns.</value>
+    public ColumnInfoCollection Columns
+    {
+      [DebuggerStepThrough]
+      get;
+      [DebuggerStepThrough]
+      private set;
+    }
+
+    /// <summary>
+    /// Gets the key columns.
+    /// </summary>
+    /// <value>The key columns.</value>
+    public ReadOnlyList<ColumnInfo> KeyColumns
+    {
+      get
+      {
+        if (IsLocked)
+          return keyColumnsCache;
+
+        return GetKeyColumns();
+      }
+    }
+
+    /// <summary>
+    /// Gets the value columns.
+    /// </summary>
+    /// <value>The value columns.</value>
+    public ReadOnlyList<ColumnInfo> ValueColumns
+    {
+      get
+      {
+        if (IsLocked)
+          return valueColumnsCache;
+
+        return GetValueColumns();
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the size of the page.
+    /// </summary>
+    /// <value>The size of the page.</value>
+    public int PageSize
+    {
+      get { return pageSize; }
+      set
+      {
+        this.EnsureNotLocked();
+        pageSize = value;
+      }
+    }
+
     /// <inheritdoc/>
     protected override NodeCollection<IndexInfo, StorageInfo> GetParentNodeCollection()
     {
       return Parent==null ? null : Parent.Indexes;
     }
 
+    /// <inheritdoc/>
+    public override void Lock(bool recursive)
+    {
+      base.Lock(recursive);
+      Columns.Lock(recursive);
+      keyColumnsCache = GetKeyColumns();
+      valueColumnsCache = GetValueColumns();
+    }
+
+    #region Private methods
+    
+    private ReadOnlyList<ColumnInfo> GetKeyColumns()
+    {
+      return new ReadOnlyList<ColumnInfo>(
+          new List<ColumnInfo>(Columns.Where(ci => ci.Type != ColumnType.Value)));
+    }
+
+    private ReadOnlyList<ColumnInfo> GetValueColumns()
+    {
+      return new ReadOnlyList<ColumnInfo>(
+          new List<ColumnInfo>(Columns.Where(ci => ci.Type == ColumnType.Value)));
+    }
+    
+    #endregion
 
     // Consturctors
 
@@ -33,6 +121,7 @@ namespace Xtensive.Indexing.Storage.Model
     public IndexInfo(StorageInfo storage, string name)
       : base(storage, name)
     {
+      Columns = new ColumnInfoCollection(this);
     }
   }
 }

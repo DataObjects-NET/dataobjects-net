@@ -33,7 +33,6 @@ namespace Xtensive.Indexing.Storage.Model
     /// </summary>
     public ReadOnlyDictionary<string, string> ColumnMapping { get; private set; }
 
-    
     // Constructors
 
     /// <summary>

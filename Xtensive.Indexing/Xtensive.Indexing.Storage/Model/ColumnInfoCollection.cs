@@ -1,50 +1,39 @@
 // Copyright (C) 2009 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
-// Created by: Alex Yakunin
-// Created:    2009.03.16
+// Created by: Ivan Galkin
+// Created:    2009.03.17
 
 using System;
 using System.Diagnostics;
-using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Indexing.Storage.Model
 {
   /// <summary>
-  /// Describes index storage.
+  /// A collection of <see cref="ColumnInfo"/> objects.
   /// </summary>
   [Serializable]
-  public class StorageInfo : Node
+  public class ColumnInfoCollection: NodeCollection<ColumnInfo, IndexInfo>
   {
     /// <summary>
-    /// Gets the indexes.
+    /// Gets the index this collection belongs to.
     /// </summary>
-    public IndexInfoCollection Indexes
-    { 
+    public IndexInfo Index
+    {
       [DebuggerStepThrough]
       get; 
       [DebuggerStepThrough]
       private set;
     }
 
-    /// <inheritdoc/>
-    public override void Lock(bool recursive)
-    {
-      base.Lock(recursive);
-      Indexes.Lock(recursive);
-    }
-    
-    // Constructors
-
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="name"></param>
-    public StorageInfo(string name)
-      : base(name)
+    /// <param name="index"><see cref="Index"/> property value.</param>
+    public ColumnInfoCollection(IndexInfo index)
     {
-      Indexes = new IndexInfoCollection(this);
+      Index = index;
     }
   }
 }

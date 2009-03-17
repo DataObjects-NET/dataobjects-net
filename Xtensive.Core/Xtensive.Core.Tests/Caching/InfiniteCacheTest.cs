@@ -77,6 +77,13 @@ namespace Xtensive.Core.Tests.Caching
     }
 
     [Test]
+    [ExpectedException(typeof(ArgumentOutOfRangeException))]
+    public void ConstructorDenyTest2()
+    {
+      var cache = new InfiniteCache<string, TestClass>(-1, i=> i.Text);
+    }
+
+    [Test]
     public void AddRemoveTest()
     {
       var cache = new InfiniteCache<string, TestItem>(value => value.Key);
