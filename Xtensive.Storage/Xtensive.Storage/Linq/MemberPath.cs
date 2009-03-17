@@ -8,6 +8,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using Xtensive.Core.Linq;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 using Xtensive.Core.Collections;
@@ -35,6 +36,16 @@ namespace Xtensive.Storage.Linq
     }
 
     public ParameterExpression Parameter { get; private set; }
+
+    public Expression TranslateParameter(Expression parameterSubstitution)
+    {
+      if (!IsValid)
+        throw new InvalidOperationException();
+      var result = parameterSubstitution;
+      if (Count > 0)
+        result = ExpressionReplacer.Replace(pathItems.Tail.Expression, Parameter, parameterSubstitution);
+      return result;
+    }
 
     public static MemberPath Parse(Expression e, DomainModel model)
     {

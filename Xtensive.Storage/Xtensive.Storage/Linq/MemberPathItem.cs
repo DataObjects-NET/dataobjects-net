@@ -13,12 +13,12 @@ namespace Xtensive.Storage.Linq
   {
     public string Name { get; private set; }
     public MemberType Type { get; set; }
-    public Expression Expression { get; set; }
+    public MemberExpression Expression { get; set; }
 
 
     // Constructor
 
-    public MemberPathItem(string name, MemberType type, Expression expression)
+    public MemberPathItem(string name, MemberType type, MemberExpression expression)
     {
       Name = name;
       Type = type;

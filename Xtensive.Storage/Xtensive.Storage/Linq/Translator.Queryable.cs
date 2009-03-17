@@ -503,7 +503,12 @@ namespace Xtensive.Storage.Linq
           projector = Expression.Lambda<Func<RecordSet, object>>(Expression.Convert(Expression.Call(method, rs, itemProjector), typeof(object)), rs);
         }
         var source = context.GetBound(le.Parameters[0]);
-        return new ResultExpression(le.Body.Type, source.RecordSet, resultMapping.Value, projector, itemProjector);
+        return new ResultExpression(
+          typeof(IQueryable<>).MakeGenericType(le.Body.Type), 
+          source.RecordSet, 
+          resultMapping.Value, 
+          projector, 
+          itemProjector);
       }
     }
 
@@ -516,7 +521,12 @@ namespace Xtensive.Storage.Linq
         var predicate = Visit(le);
         var source = context.GetBound(parameter);
         var recordSet = source.RecordSet.Filter((Expression<Func<Tuple, bool>>)predicate);
-        return new ResultExpression(expression.Type, recordSet, source.Mapping, source.Projector, source.ItemProjector);
+        return new ResultExpression(
+          expression.Type, 
+          recordSet, 
+          source.Mapping, 
+          source.Projector, 
+          source.ItemProjector);
       }
     }
 

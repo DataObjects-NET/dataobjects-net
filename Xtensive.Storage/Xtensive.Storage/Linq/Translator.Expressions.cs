@@ -13,6 +13,7 @@ using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
+using Xtensive.Core.Linq;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
@@ -108,6 +109,10 @@ namespace Xtensive.Storage.Linq
     protected override Expression VisitMemberPath(MemberPath path, Expression e)
     {
       var pe = path.Parameter;
+      if (!parameters.Value.Contains(pe)) {
+        var referencedSource = context.GetBound(pe);
+        return path.TranslateParameter(referencedSource.ItemProjector.Body);
+      }
       var source = context.GetBound(pe);
       var mapping = source.Mapping;
       int number = 0;
@@ -277,6 +282,8 @@ namespace Xtensive.Storage.Linq
                 bRight = b.Left;
               }
               var path = MemberPath.Parse(bLeft, context.Model);
+              if (!parameters.Value.Contains(path.Parameter))
+                throw new NotSupportedException();
               var source = context.GetBound(path.Parameter);
               var segment = source.GetMemberSegment(path);
               foreach (var pair in segment.GetItems().Select((ci, pi) => new {ColumnIndex = ci, ParameterIndex = pi})) {
@@ -303,6 +310,8 @@ namespace Xtensive.Storage.Linq
                 bRight = b.Left;
               }
               var path = MemberPath.Parse(bLeft, context.Model);
+              if (!parameters.Value.Contains(path.Parameter))
+                throw new NotSupportedException();
               var source = context.GetBound(path.Parameter);
               var segment = source.GetMemberSegment(path);
               foreach (var pair in segment.GetItems().Select((ci, pi) => new { ColumnIndex = ci, ParameterIndex = pi })) {
@@ -412,19 +421,55 @@ namespace Xtensive.Storage.Linq
             resultMapping.Value = new ResultMapping();
             body = Visit(arg);
           }
-          if (((ExtendedExpressionType)body.NodeType) == ExtendedExpressionType.Result)
-            throw new NotImplementedException();
-          var calculator = Expression.Lambda(
-            body.Type == typeof(object) 
-              ? body
-              : Expression.Convert(body, typeof(object)), 
-            tuple.Value);
-          var ccd = new CalculatedColumnDescriptor(context.GetNextColumnAlias(), arg.Type, (Expression<Func<Tuple, object>>)calculator);
-          calculatedColumns.Value.Add(ccd);
-          int position = context.GetBound(parameters.Value[0]).RecordSet.Header.Columns.Count + calculatedColumns.Value.Count - 1;
-          var method = genericAccessor.MakeGenericMethod(arg.Type);
-          newArg = Expression.Call(tuple.Value, method, Expression.Constant(position));
-          resultMapping.Value.RegisterFieldMapping(memberName, new Segment<int>(position, 1));
+          if (((ExtendedExpressionType)body.NodeType) == ExtendedExpressionType.Result) {
+            var outerParameters = context.GetBindingKeys()
+              .OfType<ParameterExpression>()
+//              .Where(pe => !parameters.Value.Contains(pe))
+              .ToList();
+            if (outerParameters.Count == 0)
+              newArg = arg;
+            else {
+              var searchFor = outerParameters.ToArray();
+              var replaceWithList = new List<Expression>();
+              foreach (var projection in outerParameters.Select(pe => context.GetBound(pe).ItemProjector)) {
+                recordIsUsed |= projection.Parameters.Count(pe => pe.Type == typeof (Record)) > 0;
+                var replacedParameters = projection.Parameters.ToArray();
+                var replacingParameters = projection.Parameters.Select(pe => pe.Type == typeof(Tuple) ? tuple.Value : record.Value).ToArray();
+                replaceWithList.Add(ExpressionReplacer.ReplaceAll(projection.Body, replacedParameters, replacingParameters));
+              }
+              newArg = ExpressionReplacer.ReplaceAll(arg, searchFor, replaceWithList.ToArray());
+//              var parameterRewriter = new ParameterRewriter(tuple.Value, record.Value);
+//              var result = parameterRewriter.Rewrite(newArg);
+//              recordIsUsed |= result.Second;
+//              newArg = result.First;
+            }
+//            var result = (ResultExpression)body;
+//            newArg = result.
+//            var elementType = body.Type.GetGenericArguments()[0];
+//            var typedQuery = typeof (Query<>).MakeGenericType(elementType);
+//            var constructor = typedQuery.GetConstructor(
+//              BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public, 
+//              new[] {typeof (Expression)});
+//            newArg = Expression.TypeAs(Expression.New(constructor, Expression.Quote(body)), typeof(IQueryable<>).MakeGenericType(elementType));
+//            Activator.CreateInstance(
+//              typeof (Query<>).MakeGenericType(body.Type.GetGenericArguments()),
+//              body);
+//            newArg = body;
+//            throw new NotImplementedException();
+          }
+          else {
+            var calculator = Expression.Lambda(
+              body.Type == typeof (object)
+                ? body
+                : Expression.Convert(body, typeof (object)),
+              tuple.Value);
+            var ccd = new CalculatedColumnDescriptor(context.GetNextColumnAlias(), arg.Type, (Expression<Func<Tuple, object>>)calculator);
+            calculatedColumns.Value.Add(ccd);
+            int position = context.GetBound(parameters.Value[0]).RecordSet.Header.Columns.Count + calculatedColumns.Value.Count - 1;
+            var method = genericAccessor.MakeGenericMethod(arg.Type);
+            newArg = Expression.Call(tuple.Value, method, Expression.Constant(position));
+            resultMapping.Value.RegisterFieldMapping(memberName, new Segment<int>(position, 1));
+          }
         }
         newArg = newArg ?? Visit(arg);
         arguments.Add(newArg);
@@ -451,7 +496,7 @@ namespace Xtensive.Storage.Linq
       LambdaExpression itemProjector = Expression.Lambda(Expression.Convert(ipt.Body, elementType), ipt.Parameters[0]);
 
       return new ResultExpression(
-        elementType,
+        typeof(IQueryable<>).MakeGenericType(elementType),
         recordSet,
         mapping,
         projector,
