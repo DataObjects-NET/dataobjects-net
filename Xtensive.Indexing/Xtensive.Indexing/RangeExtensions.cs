@@ -31,8 +31,8 @@ namespace Xtensive.Indexing
 
       public PointComparisonResult(int first, int second)
       {
-        ToFirst = first;
-        ToSecond = second;
+        ToFirst = first > 0 ? 1 : first < 0 ? -1 : 0;
+        ToSecond = second > 0 ? 1 : second < 0 ? -1 : 0;
         HasInclusion = ToFirst * ToSecond <= 0;
       }
     }
