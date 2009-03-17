@@ -26,14 +26,17 @@ namespace Xtensive.Indexing
     private struct PointComparisonResult
     {
       public readonly int ToFirst;
-      public readonly bool HasInclusion;
       public readonly int ToSecond;
+      public readonly bool HasInclusion;
 
       public PointComparisonResult(int first, int second)
       {
         ToFirst = first > 0 ? 1 : first < 0 ? -1 : 0;
         ToSecond = second > 0 ? 1 : second < 0 ? -1 : 0;
-        HasInclusion = ToFirst * ToSecond <= 0;
+        int sum = ToFirst + ToSecond;
+        if (sum < 0)
+          sum = -sum;
+        HasInclusion = sum <= 1; // Either different signs or one is 0
       }
     }
 
