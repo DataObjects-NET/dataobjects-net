@@ -24,6 +24,7 @@ namespace Xtensive.Core.Security
       return getSecurityToken(userName, options);
     }
 
+
     // Constructors
 
     /// <summary>

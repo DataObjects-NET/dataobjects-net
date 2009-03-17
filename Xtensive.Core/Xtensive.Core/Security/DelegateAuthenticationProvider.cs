@@ -24,6 +24,7 @@ namespace Xtensive.Core.Security
       return authenticate.Invoke(userName, password);
     }
 
+
     // Constructors
 
     /// <summary>
