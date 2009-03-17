@@ -43,5 +43,11 @@ namespace Xtensive.Modelling
     /// otherwise, <see langword="false"/>.
     /// </returns>
     bool Contains(string name);
+
+    /// <summary>
+    /// Gets the temporary name (it isn't used in this collection).
+    /// </summary>
+    /// <returns>Temporary name.</returns>
+    string GetTemporaryName();
   }
 }

@@ -33,14 +33,8 @@ namespace Xtensive.Modelling
     // Constructors
 
     /// <inheritdoc/>
-    protected Node(TParent parent, string name)
-      : base(parent, name)
-    {
-    }
-
-    /// <inheritdoc/>
-    protected Node(string name)
-      : base(name)
+    protected Node(TParent parent, string name, int index)
+      : base(parent, name, index)
     {
     }
   }

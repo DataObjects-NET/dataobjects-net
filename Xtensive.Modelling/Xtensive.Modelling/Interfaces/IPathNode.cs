@@ -12,6 +12,11 @@ namespace Xtensive.Modelling
   public interface IPathNode
   {
     /// <summary>
+    /// Gets a value indicating whether this node is removed.
+    /// </summary>
+    bool IsRemoved { get; }
+    
+    /// <summary>
     /// Gets the name of this node.
     /// </summary>
     string Name { get; }

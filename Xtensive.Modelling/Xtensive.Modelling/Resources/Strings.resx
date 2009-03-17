@@ -126,4 +126,7 @@
   <data name="ExItemWithNameXIsNotFound" xml:space="preserve">
     <value>Item with Name '{0}' is not found.</value>
   </data>
+  <data name="ExModelObjectCannotBeRemoved" xml:space="preserve">
+    <value>Model object cannot be removed.</value>
+  </data>
 </root>

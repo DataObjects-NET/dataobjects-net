@@ -86,5 +86,14 @@ namespace Xtensive.Modelling.Resources {
                 return ResourceManager.GetString("ExItemWithNameXIsNotFound", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Model object cannot be removed..
+        /// </summary>
+        internal static string ExModelObjectCannotBeRemoved {
+            get {
+                return ResourceManager.GetString("ExModelObjectCannotBeRemoved", resourceCulture);
+            }
+        }
     }
 }

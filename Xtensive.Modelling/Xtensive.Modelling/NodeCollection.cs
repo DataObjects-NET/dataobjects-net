@@ -34,14 +34,15 @@ namespace Xtensive.Modelling
     [NonSerialized]
     private Dictionary<string, TNode> nameIndex = new Dictionary<string, TNode>();
 
-    /// <summary>
-    /// Gets the name of the node collection.
-    /// </summary>
+    /// <inheritdoc/>
+    public bool IsRemoved {
+      get { return Parent.IsRemoved; }
+    }
+
+    /// <inheritdoc/>
     public abstract string Name { get; }
 
-    /// <summary>
-    /// Gets the parent node this collection belongs to.
-    /// </summary>
+    /// <inheritdoc/>
     public TParent Parent {
       [DebuggerStepThrough]
       get; 
@@ -54,10 +55,12 @@ namespace Xtensive.Modelling
       get { return Parent; }
     }
 
+    /// <inheritdoc/>
     public Model Model {
       get { return Parent.Model; }
     }
 
+    /// <inheritdoc/>
     public string Path {
       get {
         // TODO: Escape "."
@@ -65,9 +68,16 @@ namespace Xtensive.Modelling
       }
     }
 
+    /// <inheritdoc/>
     public IPathNode GetChild(string path)
     {
       throw new System.NotImplementedException();
+    }
+
+    /// <inheritdoc/>
+    public string GetTemporaryName()
+    {
+      return Guid.NewGuid().ToString();
     }
 
     /// <inheritdoc/>
@@ -262,7 +272,7 @@ namespace Xtensive.Modelling
       nameIndex = new Dictionary<string, TNode>(Count);
       foreach (var node in this) {
         nameIndex.Add(node.Name, node);
-        node.Parent = Parent;
+        node.parent = Parent;
         TrySubscribe(node);
       }
     }

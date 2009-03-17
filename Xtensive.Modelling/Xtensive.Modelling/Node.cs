@@ -20,49 +20,59 @@ namespace Xtensive.Modelling
   [Serializable]
   [DebuggerDisplay("{Name}")]
   public abstract class Node : LockableBase,
-    IPathNode
+    INode
   {
     [NonSerialized]
-    private Node parent;
+    internal Node parent;
     [NonSerialized]
-    private Model model;
+    private Cached<Model> cachedModel;
     private string name;
+    private int index;
+
+    /// <inheritdoc/>
+    public bool IsRemoved {
+      get { return Parent!=null ? false : !(this is Model); }
+    }
 
     /// <inheritdoc/>
     public string Name
     {
       [DebuggerStepThrough]
       get { return name; }
-      set {
-        this.EnsureNotLocked();
-        ValidateName(value);
-        ChangeState("Name", delegate { name = value; });
-      }
+    }
+
+    /// <inheritdoc/>
+    public int Index
+    {
+      [DebuggerStepThrough]
+      get { return index; }
     }
 
     /// <inheritdoc/>
     public Node Parent {
       [DebuggerStepThrough]
       get { return parent; }
-      [DebuggerStepThrough]
-      internal set { parent = value; }
     }
 
     /// <inheritdoc/>
     public Model Model {
+      [DebuggerStepThrough]
       get {
-        Node node = this;
-        while (true) {
-          Node next = node.Parent;
-          if (next==null)
-            return node as Model;
-          node = next;
-        }
+        return cachedModel.GetValue((_this) => {
+          var node = _this;
+          while (true) {
+            var next = node.Parent;
+            if (next==null)
+              return node as Model;
+            node = next;
+          }
+        }, this);
       }
     }
 
     /// <inheritdoc/>
     public string Path {
+      [DebuggerStepThrough]
       get {
         // TODO: Escape "."
         if (Parent==null)
@@ -73,57 +83,115 @@ namespace Xtensive.Modelling
       }
     }
 
+    /// <inheritdoc/>
+    public INodeCollection NodeCollection {
+      [DebuggerStepThrough]
+      get {
+        return Parent==null ? null : GetNodeCollection(Parent);
+      }
+    }
+
+    /// <inheritdoc/>
+    public abstract INodeCollection GetNodeCollection(INode parent);
+
     public IPathNode GetChild(string path)
     {
       throw new System.NotImplementedException();
     }
 
     /// <inheritdoc/>
-    public abstract INodeCollection Collection { get; }
+    public virtual void Move(INode newParent, string newName, int newIndex)
+    {
+      this.EnsureNotLocked();
+      if (newParent==Parent && newName==Name && newIndex==Index)
+        return;
+      ValidateMove(newParent, newName, newIndex);
+      // TODO: Change NodeCollection
+      name = newName;
+      parent = (Node) newParent;
+      index = newIndex;
+    }
+
+    /// <inheritdoc/>
+    public void Move(INode newParent)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(newParent, "newParent");
+      if (newParent==Parent)
+        return;
+      Move(newParent, Name, GetNodeCollection(newParent).Count);
+    }
+
+    /// <inheritdoc/>
+    public void Move(int newIndex)
+    {
+      Move(Parent, Name, newIndex);
+    }
+
+    /// <inheritdoc/>
+    public void Rename(string newName)
+    {
+      Move(Parent, newName, Index);
+    }
+
+    /// <inheritdoc/>
+    public void Remove()
+    {
+      this.EnsureNotLocked();
+      ValidateRemove();
+      // TODO: Change NodeCollection
+      parent = null;
+      Lock(true);
+    }
+
+    #region ValidateXxx methods
 
     /// <summary>
-    /// Performs validation before setting new <see cref="Name"/> of this instance.
+    /// Validates the <see cref="Move"/> and <see cref="Rename"/> method arguments.
     /// </summary>
-    /// <param name="newName">The new <see cref="Name"/> value to validate.</param>
-    /// <exception cref="ArgumentException">Item with specified name already exists 
-    /// in parent node collection.</exception>
-    protected virtual void ValidateName(string newName)
+    /// <param name="newParent">The new parent.</param>
+    /// <param name="newName">The new name.</param>
+    /// <param name="newIndex">The new index.</param>
+    /// <exception cref="ArgumentException">Item already exists.</exception>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="newIndex"/> is out of range, 
+    /// or <paramref name="newParent"/> belongs to a different <see cref="Model"/>.</exception>
+    protected virtual void ValidateMove(INode newParent, string newName, int newIndex)
     {
-      var collection = Collection;
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(newName, "newName");
+      if (this is Model) {
+        ArgumentValidator.EnsureArgumentIsInRange(newIndex, 0, 0, "newIndex");
+        return;
+      }
+
+      ArgumentValidator.EnsureArgumentNotNull(newParent, "newParent");
+      ArgumentValidator.EnsureArgumentIs<Node>(newParent, "newParent");
+      var model = Model;
+      if (model!=null) {
+        var newModel = newParent.Model;
+        if (model!=newModel)
+          throw new ArgumentOutOfRangeException("newParent.Model");
+      }
+
+      var collection = GetNodeCollection(newParent);
       if (collection==null)
         return;
+      ArgumentValidator.EnsureArgumentIsInRange(newIndex, 0, collection.Count - (newParent==Parent ? 1 : 0), "newIndex");
       Node node;
       if (!collection.TryGetValue(newName, out node))
         return;
-      if (node==this)
-        return;
-      throw new ArgumentException(String.Format(
-        Strings.ExItemWithNameXAlreadyExists, newName), newName);
+      if (node!=this)
+        throw new ArgumentException(String.Format(
+          Strings.ExItemWithNameXAlreadyExists, newName), newName);
     }
-
-    #region IChangeNotifier & related members
 
     /// <summary>
-    /// Changes the state of this instance.
+    /// Validates the <see cref="Remove"/> method call.
     /// </summary>
-    /// <param name="property">The property to change.</param>
-    /// <param name="onChangeStateDelegate">Delegate that changes the state of this instance.</param>
-    protected void ChangeState(string property, Action onChangeStateDelegate)
+    /// <exception cref="InvalidOperationException">Model object cannot be removed.</exception>
+    protected virtual void ValidateRemove()
     {
-      if (Changing != null)
-        Changing(this, new ChangeNotifierEventArgs(property));
-      onChangeStateDelegate();
-      if (Changed != null)
-        Changed(this, new ChangeNotifierEventArgs(property));
+      if (this is Model)
+        throw new InvalidOperationException(Strings.ExModelObjectCannotBeRemoved);
     }
-
-    /// <inheritdoc/>
-    [field: NonSerialized]
-    public event EventHandler<ChangeNotifierEventArgs> Changing;
-
-    /// <inheritdoc/>
-    [field: NonSerialized]
-    public event EventHandler<ChangeNotifierEventArgs> Changed;
 
     #endregion
 
@@ -141,23 +209,22 @@ namespace Xtensive.Modelling
     /// </summary>
     /// <param name="parent"><see cref="Parent"/> property value.</param>
     /// <param name="name">Initial <see cref="Name"/> property value.</param>
-    protected Node(Node parent, string name)
+    /// <param name="index">Initial <see cref="Index"/> property value.</param>
+    protected Node(Node parent, string name, int index)
     {
       ArgumentValidator.EnsureArgumentNotNull(parent, "parent");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
-      Parent = parent;
-      Name = name;
+      Move(parent, name, index);
     }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Node"/> class.
     /// </summary>
     /// <param name="name">Initial <see cref="Name"/> property value.</param>
-    protected Node(string name)
+    internal Node(string name)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
-      Parent = null;
-      Name = name;
+      Rename(name);
     }
   }
 }
