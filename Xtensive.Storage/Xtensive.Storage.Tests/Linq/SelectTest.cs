@@ -405,5 +405,18 @@ namespace Xtensive.Storage.Tests.Linq
         }
       }
     }
+
+    [Test]
+    public void SelectEqualsTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var customers = Query<Customer>.All;
+          var result = from c in customers select c.CompanyName.Equals("lalala");
+          var list = result.ToList();
+          t.Complete();
+        }
+      }
+    }
   }
 }
