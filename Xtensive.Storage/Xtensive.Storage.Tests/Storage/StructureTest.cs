@@ -93,16 +93,17 @@ namespace Xtensive.Storage.Tests.Storage
     public void TransactionalTest()
     {
       using (Domain.OpenSession()) {
-
         Ray ray;
-          using (var transactionScope = Transaction.Open()) {
+        using (var transactionScope = Transaction.Open()) {
           ray = new Ray {Vertex = new Point {X = 1, Y = 2}};
           transactionScope.Complete();
         }
-
         using (var transactionScope = Transaction.Open()) {
           ray.Vertex.X = 3;
           transactionScope.Complete();
+        }
+        using (Transaction.Open()) {
+          Assert.AreEqual(3, ray.Vertex.X);
         }
       }
     }
