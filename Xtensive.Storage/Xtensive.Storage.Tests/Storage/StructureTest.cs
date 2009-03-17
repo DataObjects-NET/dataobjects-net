@@ -76,7 +76,7 @@ namespace Xtensive.Storage.Tests.Storage
     public void PointTest()
     {
       using (Domain.OpenSession()) {
-        Point p1 = new Point();
+          Point p1 = new Point();
         p1.X = 1;
         p1.Y = 2;
         Assert.AreEqual(1, p1.X);

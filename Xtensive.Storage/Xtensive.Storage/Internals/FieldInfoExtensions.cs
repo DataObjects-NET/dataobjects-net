@@ -6,7 +6,7 @@
 
 using System.Collections.Generic;
 using Xtensive.Storage.Model;
-
+  
 namespace Xtensive.Storage.Internals
 {
   internal static class FieldInfoExtensions

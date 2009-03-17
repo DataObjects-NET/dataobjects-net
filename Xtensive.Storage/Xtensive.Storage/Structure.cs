@@ -10,6 +10,7 @@ using Xtensive.Core.Aspects;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
+using Xtensive.Integrity.Validation;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage
@@ -24,7 +25,7 @@ namespace Xtensive.Storage
   /// and has <see cref="ValueType"/> behavior: it can exist only inside <see cref="Entity"/>, it is stored in
   /// its owners space and cannot be referenced directly.
   /// </remarks>
-  public abstract class Structure : Persistent,
+  public abstract class   Structure : Persistent,
     IEquatable<Structure>,
     IFieldValueAdapter
   {
@@ -61,7 +62,7 @@ namespace Xtensive.Storage
 
     /// <inheritdoc/> 
     protected internal override bool SkipValidation {
-      get { return false; }
+      get { return owner==null; }
     }
 
     internal override sealed void EnsureIsFetched(FieldInfo field)
@@ -82,6 +83,8 @@ namespace Xtensive.Storage
     internal sealed override void OnInitialize(bool notify)
     {
       base.OnInitialize();
+      if (owner!=null)
+        this.Validate();
     }
 
     internal override sealed void OnGettingFieldValue(FieldInfo field, bool notify)

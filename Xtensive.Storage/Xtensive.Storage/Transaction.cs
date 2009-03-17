@@ -32,7 +32,7 @@ namespace Xtensive.Storage
     public TransactionTemporaryData TemporaryData { get; private set; }
 
     /// <summary>
-    /// Gets the validation context of this <see cref="Session"/>.
+    /// Gets the validation context of this <see cref="Transaction"/>.
     /// </summary>    
     public ValidationContext ValidationContext { get; private set; }
 

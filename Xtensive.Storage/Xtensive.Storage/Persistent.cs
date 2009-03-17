@@ -180,30 +180,7 @@ namespace Xtensive.Storage
     #endregion
 
     #region User-level event-like members
-
-    /// <summary>
-    /// Called when is initializing i.e. when it is created or fetched.
-    /// </summary>
-    /// <remarks>
-    /// Override it to initialize not persistent state of persistent objects,
-    /// that should be initialized both in creating and fetching cases.
-    /// E.g. you can create syncRoot object here or something like this.
-    /// </remarks>
-    /// <example>
-    /// <code>
-    /// public MyPersistentObject : Entity
-    /// {
-    ///   public object syncRoot;
-    ///
-    ///   protected override void OnInitialize()
-    ///   {
-    ///     base.OnInitialize();
-    ///     syncRoot = new object();
-    ///   }
-    ///   ...
-    /// }
-    /// </code>
-    /// </example>
+    
     [Infrastructure]
     protected virtual void OnInitialize()
     {
@@ -340,7 +317,6 @@ namespace Xtensive.Storage
       if (!notify)
         return;
       OnInitialize();
-      this.Validate();
     }
 
     [Infrastructure]
@@ -447,6 +423,9 @@ namespace Xtensive.Storage
     /// <summary>
     /// Initializes this instance.
     /// </summary>
+    /// <remarks>
+    /// This method is called when custom constructor is finished.
+    /// </remarks>
     /// <param name="ctorType">Type of the instance that is being constructed.</param>
     protected void Initialize(Type ctorType)
     {

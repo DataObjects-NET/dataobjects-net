@@ -39,12 +39,13 @@ namespace Xtensive.Storage.Linq
 
     public Expression TranslateParameter(Expression parameterSubstitution)
     {
-      if (!IsValid)
-        throw new InvalidOperationException();
-      var result = parameterSubstitution;
-      if (Count > 0)
-        result = ExpressionReplacer.Replace(pathItems.Tail.Expression, Parameter, parameterSubstitution);
-      return result;
+      throw new NotImplementedException("Заебали комитить не работающий код!");
+//      if (!IsValid)
+//        throw new InvalidOperationException();
+//      var result = parameterSubstitution;
+//      if (Count > 0)
+//        result = ExpressionReplacer.Replace(pathItems.Tail.Expression, Parameter, parameterSubstitution);
+//      return result;
     }
 
     public static MemberPath Parse(Expression e, DomainModel model)

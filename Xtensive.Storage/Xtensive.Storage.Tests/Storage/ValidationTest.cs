@@ -45,7 +45,7 @@ namespace Xtensive.Storage.Tests.Storage.Validation
         if (ScrollingCount > ButtonCount)
           throw new InvalidOperationException("Scrolling count can't be greater then button count.");
 
-        if (Led!=null && Led.Brightness > 10)
+        if (Led.Brightness > 10)
           throw new InvalidOperationException("Led in the mouse is too bright.");
 
         validationCallsCount++;
@@ -84,7 +84,7 @@ namespace Xtensive.Storage.Tests.Storage.Validation
 
     [Test]
     public void ValidationCallsCountTest()
-    {
+    { 
       validationCallsCount = 0;
       int mouseId;
 
@@ -93,7 +93,10 @@ namespace Xtensive.Storage.Tests.Storage.Validation
           using (Session.Current.OpenInconsistentRegion()) {
             Mouse mouse = new Mouse();
             mouse.ButtonCount = 2;
-            mouse.ScrollingCount = 1; 
+            mouse.ScrollingCount = 1;
+            mouse.Led.Brightness = 1.5;
+            mouse.Led.Precision = 1.5;
+
             mouseId = mouse.ID;
           }          
           transactionScope.Complete();
@@ -115,11 +118,11 @@ namespace Xtensive.Storage.Tests.Storage.Validation
         using (Domain.OpenSession()) {
           using (Transaction.Open()) {
 
-          // Created and modified invalid object.
+          // Created and modified invalid object. (ScrollingCount > ButtonCount)
           AssertEx.Throws<AggregateException>(
             delegate {
               using (Session.Current.OpenInconsistentRegion()) {
-                new Mouse {ButtonCount = 2, ScrollingCount = 3};
+                new Mouse {ButtonCount = 2, ScrollingCount = 3, Led = new Led { Brightness = 1, Precision = 1 }};
               }
             });
 
@@ -134,7 +137,7 @@ namespace Xtensive.Storage.Tests.Storage.Validation
             delegate {
               Mouse m;
               using (Session.Current.OpenInconsistentRegion()) {
-                m = new Mouse {ButtonCount = 1, ScrollingCount = 1};
+                m = new Mouse {ButtonCount = 1, ScrollingCount = 1, Led = new Led { Brightness = 1, Precision = 1 }};
               }
               m.ScrollingCount = 2; 
             });
@@ -144,6 +147,8 @@ namespace Xtensive.Storage.Tests.Storage.Validation
           // Valid object - ok.
           using (Session.Current.OpenInconsistentRegion()) {
             mouse = new Mouse {ButtonCount = 5, ScrollingCount = 3};
+            mouse.Led.Precision = 1;
+            mouse.Led.Brightness = 2;
           }
 
           // Valid modification with invalid intermediate state - ok.
@@ -165,33 +170,36 @@ namespace Xtensive.Storage.Tests.Storage.Validation
     public void StructureValidation()
     {
       using (Domain.OpenSession()) {
-        using (Transaction.Open()) {
+        Mouse mouse;
+
+        using (var transactionScope = Transaction.Open()) {
 
           // Valid mouse is created.
           using (Session.Current.OpenInconsistentRegion()) {
-            Mouse mouse = new Mouse {ButtonCount = 2, ScrollingCount = 1};
+            mouse = new Mouse {ButtonCount = 2, ScrollingCount = 1};
             mouse.Led = new Led {Brightness = 7.3, Precision = 33};
           }
+          transactionScope.Complete();
+        }
 
-          // Structure become invalid.
+        // Structure become invalid.
+        using (var transactionScope = Transaction.Open()) {
           AssertEx.Throws<AggregateException>(
             delegate {
-              Mouse mouse = new Mouse {ButtonCount = 2, ScrollingCount = 1};
-              mouse.Led.Precision = 80;
-            });
+              // structurebug workaround
+              mouse.ButtonCount = mouse.ButtonCount;
 
-          // Invalid led is created.
+              mouse.Led.Brightness = 2.3;
+              transactionScope.Complete();
+              });
+        }
+          
+        // Changed structure made entity invalid.
+        using (var transactionScope = Transaction.Open()) {
           AssertEx.Throws<AggregateException>(
             delegate {
-              new Led {Brightness = -1, Precision = 0};
-            });
-
-          // Changed structure's property makes mouse invalid.
-          AssertEx.Throws<AggregateException>(
-            delegate {
-              Mouse mouse = new Mouse {ButtonCount = 2, ScrollingCount = 1};
-              mouse.Led = new Led {Brightness = 7.3, Precision = 33};
-              mouse.Led.Brightness = 11.2;
+              mouse.Led.Brightness = 11;
+              transactionScope.Complete();
             });
         }
       }

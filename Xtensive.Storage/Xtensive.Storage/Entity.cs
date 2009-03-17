@@ -13,6 +13,7 @@ using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
+using Xtensive.Integrity.Validation;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
@@ -205,7 +206,7 @@ namespace Xtensive.Storage
       base.OnInitializing(notify);
       State.Entity = this;
       if (Session.IsDebugEventLoggingEnabled)
-        Log.Debug("Session '{0}'. Materializing {1}: Key = '{2}'", 
+        Log.Debug("Session '{0}'. Materializing {1}: Key = '{2}'",
           Session, GetType().GetShortName(), State.Key);
     }
 
@@ -260,8 +261,9 @@ namespace Xtensive.Storage
       Key key = Key.Create(Session.Domain.Model.Types[GetType()]);
       State = Session.CreateEntityState(key);
       OnInitializing(true);
+      this.Validate();
     }
-
+      
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
@@ -273,6 +275,7 @@ namespace Xtensive.Storage
       Key key = Key.Create(Session.Domain.Model.Types[GetType()], tuple, true);
       State = Session.CreateEntityState(key);
       OnInitializing(true);
+      this.Validate();
     }
 
     /// <summary>
