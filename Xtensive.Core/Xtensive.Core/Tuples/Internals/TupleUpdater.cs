@@ -2,7 +2,7 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexander Nikolaev
-// Created:    2007.05.30
+// Created:    2009.03.17
 
 namespace Xtensive.Core.Tuples.Internals
 {
