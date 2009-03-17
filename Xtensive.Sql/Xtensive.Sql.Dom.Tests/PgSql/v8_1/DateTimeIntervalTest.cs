@@ -8,7 +8,7 @@ using NUnit.Framework;
 
 namespace Xtensive.Sql.Dom.Tests.PgSql.v8_1
 {
-  [TestFixture]
+  [TestFixture, Explicit]
   public class DateTimeIntervalTest : Tests.DateTimeIntervalTest
   {
     protected override string Url { get { return TestUrl.PgSql81; } }

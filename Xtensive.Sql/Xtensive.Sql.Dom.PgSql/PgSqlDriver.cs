@@ -2,12 +2,8 @@
 using Npgsql;
 using Xtensive.Sql.Common;
 using Xtensive.Sql.Common.PgSql;
-using Xtensive.Sql.Common.PgSql.v8_0;
 using Xtensive.Sql.Dom.Compiler;
 using Xtensive.Sql.Dom.Database.Extractor;
-using Xtensive.Sql.Dom.PgSql.v8_0;
-using CommonPg = Xtensive.Sql.Common.PgSql;
-using PgSqlExtractor=Xtensive.Sql.Dom.PgSql.v8_1.PgSqlExtractor;
 
 namespace Xtensive.Sql.Dom.PgSql
 {
@@ -35,7 +31,7 @@ namespace Xtensive.Sql.Dom.PgSql
     {
       using (Connection connection = base.CreateConnection(connectionInfo)) {
         connection.Open();
-        NpgsqlConnection nconn = connection.RealConnection as NpgsqlConnection;
+        var nconn = (NpgsqlConnection)connection.RealConnection;
         ServerVersion sv = nconn.PostgreSqlVersion;
         return GetServerInfoProvider(connection, sv.Major, sv.Minor);
       }
@@ -52,7 +48,9 @@ namespace Xtensive.Sql.Dom.PgSql
       int minor = base.ServerInfo.Version.ProductVersion.Minor;
       if (major < 8)
         throw new NotSupportedException("PostgreSQL below 8.0 is not supported!");
-      return new PgSqlCompiler(this);
+      if (minor == 0)
+        return new v8_0.PgSqlCompiler(this);
+      return new v8_1.PgSqlCompiler(this);
     }
 
     protected override SqlExtractor CreateExtractor()
@@ -61,18 +59,13 @@ namespace Xtensive.Sql.Dom.PgSql
       int minor = base.ServerInfo.Version.ProductVersion.Minor;
       if (major < 8)
         throw new NotSupportedException("PostgreSQL below 8.0 is not supported!");
-      else if (major==8 && minor==0) {
+      if (major==8 && minor==0)
         return new v8_0.PgSqlExtractor(this);
-      }
-      else if (major==8 && minor==1) {
-        return new PgSqlExtractor(this);
-      }
-      else if (major==8 && minor==2) {
+      if (major==8 && minor==1)
+        return new v8_1.PgSqlExtractor(this);
+      if (major==8 && minor==2)
         return new v8_2.PgSqlExtractor(this);
-      }
-      else {
-        return new v8_3.PgSqlExtractor(this);
-      }
+      return new v8_3.PgSqlExtractor(this);
     }
 
     protected override SqlTranslator CreateTranslator()
@@ -81,36 +74,26 @@ namespace Xtensive.Sql.Dom.PgSql
       int minor = base.ServerInfo.Version.ProductVersion.Minor;
       if (major < 8)
         throw new NotSupportedException("PostgreSQL below 8.0 is not supported!");
-      else if (major==8 && minor==0) {
-        return new PgSqlTranslator(this);
-      }
-      else if (major==8 && minor==1) {
+      if (major==8 && minor==0)
+        return new v8_0.PgSqlTranslator(this);
+      if (major==8 && minor==1)
         return new v8_1.PgSqlTranslator(this);
-      }
-      else if (major==8 && minor==2) {
+      if (major==8 && minor==2)
         return new v8_2.PgSqlTranslator(this);
-      }
-      else {
-        return new v8_3.PgSqlTranslator(this);
-      }
+      return new v8_3.PgSqlTranslator(this);
     }
 
     private IServerInfoProvider GetServerInfoProvider(Connection connection, int major, int minor)
     {
-      if (major < 8) {
+      if (major < 8)
         throw new NotSupportedException("PostgreSQL below 8.0 is not supported!");
-      }
-      else if (major==8 && minor==0) {
-        return new PgSqlServerInfoProvider(connection);
-      }
-      else if (major==8 && minor==1) {
+      if (major==8 && minor==0)
+        return new Common.PgSql.v8_0.PgSqlServerInfoProvider(connection);
+      if (major==8 && minor==1)
         return new Common.PgSql.v8_1.PgSqlServerInfoProvider(connection);
-      }
-      else if (major==8 && minor==2) {
+      if (major==8 && minor==2)
         return new Common.PgSql.v8_2.PgSqlServerInfoProvider(connection);
-      }
-      else
-        return new Common.PgSql.v8_3.PgSqlServerInfoProvider(connection);
+      return new Common.PgSql.v8_3.PgSqlServerInfoProvider(connection);
     }
 
     public new IPgSqlServerInfoProvider ServerInfoProvider

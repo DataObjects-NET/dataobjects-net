@@ -16,15 +16,19 @@ namespace Xtensive.Sql.Dom.PgSql.v8_1
   {
     public override void Visit(SqlFunctionCall node)
     {
-      if (node.FunctionType!=SqlFunctionType.IntervalExtract)
+      if (node.FunctionType!=SqlFunctionType.IntervalExtract) {
         base.Visit(node);
+        return;
+      }
 
       var intervalPart = ((SqlLiteral<SqlIntervalPart>) node.Arguments[0]).Value;
 
-      if (intervalPart!=SqlIntervalPart.Day)
+      if (intervalPart!=SqlIntervalPart.Day) {
         base.Visit(node);
+        return;
+      }
 
-      Visit(Sql.FunctionCall("justify_hours", RealExtractDays(node.Arguments[1])));
+      Visit(RealExtractDays(Sql.FunctionCall("justify_hours", node.Arguments[1])));
     }
 
     public PgSqlCompiler(PgSqlDriver driver)
