@@ -11,7 +11,7 @@ using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Storage.StructureModel;
 
-namespace Xtensive.Storage. Tests.Storage.StructureModel
+namespace Xtensive.Storage.Tests.Storage.StructureModel
 {
   public class Point : Structure
   {
@@ -86,6 +86,24 @@ namespace Xtensive.Storage.Tests.Storage
         Assert.AreEqual(p1.X, p2.X);
         Assert.AreEqual(p1.Y, p2.Y);
         Assert.IsTrue(p1.Equals(p2));
+      }
+    }
+
+    [Test ]
+    public void TransactionalTest()
+    {
+      using (Domain.OpenSession()) {
+
+        Ray ray;
+          using (var transactionScope = Transaction.Open()) {
+          ray = new Ray {Vertex = new Point {X = 1, Y = 2}};
+          transactionScope.Complete();
+        }
+
+        using (var transactionScope = Transaction.Open()) {
+          ray.Vertex.X = 3;
+          transactionScope.Complete();
+        }
       }
     }
 
