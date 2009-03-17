@@ -160,13 +160,13 @@ namespace Xtensive.Core.Collections
     {
       if (source==null)
         return string.Empty;
-      StringBuilder sb = new StringBuilder();
-      bool prefixWithComma = false;
+      var sb = new StringBuilder();
+      bool insertDelimiter = false;
       foreach (var item in source) {
-        if (prefixWithComma)
+        if (insertDelimiter)
           sb.Append(delimiter);
         sb.Append(item.ToString());
-        prefixWithComma = true;
+        insertDelimiter = true;
       }
       return sb.ToString();
     }
@@ -182,13 +182,13 @@ namespace Xtensive.Core.Collections
     {
       if (source==null)
         return string.Empty;
-      StringBuilder sb = new StringBuilder();
-      bool prefixWithComma = false;
+      var sb = new StringBuilder();
+      bool insertDelimiter = false;
       foreach (object item in source) {
-        if (prefixWithComma)
+        if (insertDelimiter)
           sb.Append(separator);
         sb.Append(item.ToString());
-        prefixWithComma = true;
+        insertDelimiter = true;
       }
       return sb.ToString();
     }

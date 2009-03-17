@@ -5,6 +5,8 @@
 // Created:    2008.07.18
 
 using System;
+using System.Collections.Generic;
+using System.Text;
 
 namespace Xtensive.Core.Helpers
 {
@@ -130,6 +132,72 @@ namespace Xtensive.Core.Helpers
       if (y == null)
         return true;
       return x.CompareTo(y) >= 0;
+    }
+
+    /// <summary>
+    /// Converts the <paramref name="source"/> to a separated string
+    /// using "escape separator" syntax to encode inner separators in
+    /// <paramref name="source"/> parts.
+    /// </summary>
+    /// <param name="source">The sequence of strings to join.</param>
+    /// <param name="escape">The escape character.</param>
+    /// <param name="delimiter">The delimiter character.</param>
+    /// <returns>
+    /// Comma-separated string of all the items
+    /// from <paramref name="source"/>.
+    /// </returns>
+    public static string RevertibleJoin(this IEnumerable<string> source, char escape, char delimiter)
+    {
+      var sb = new StringBuilder();
+      bool needDelimiter = false;
+      foreach (var part in source) {
+        if (needDelimiter)
+          sb.Append(delimiter);
+        else
+          needDelimiter = true;
+        if (part==null)
+          continue;
+        for (int i = 0; i<part.Length; i++) {
+          char c = part[i];
+          if (c==delimiter || c==escape)
+            sb.Append(escape);
+          sb.Append(c);
+        }
+      }
+      return sb.ToString();
+    }
+
+    /// <summary>
+    /// Reverts the result of <see cref="RevertibleJoin"/>.
+    /// </summary>
+    /// <param name="source">The source string to split.</param>
+    /// <param name="escape">The escape character.</param>
+    /// <param name="delimiter">The delimiter character.</param>
+    /// <returns>
+    /// The array of values that were previously joined
+    /// by <see cref="RevertibleJoin"/>.
+    /// </returns>
+    public static IEnumerable<string> RevertibleSplit(this string source, char escape, char delimiter)
+    {
+      var sb = new StringBuilder();
+      bool previousCharIsEscape = false;
+      for (int i = 0; i<source.Length; i++) {
+        char c = source[i];
+        if (previousCharIsEscape) {
+          sb.Append(c);
+          previousCharIsEscape = false;
+        }
+        else if (c==escape) {
+          previousCharIsEscape = true;
+        }
+        else if (c==delimiter) {
+          yield return sb.ToString();
+          sb.Length = 0;
+        }
+        else
+          sb.Append(c);
+      }
+      yield return sb.ToString();
     }
   }
 }

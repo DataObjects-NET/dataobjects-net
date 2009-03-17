@@ -51,13 +51,6 @@ namespace Xtensive.Core.Security
 
     }
 
-    /// <inheritdoc/>
-    public string CheckSecurityToken(string signedSecurityToken)
-    {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(signedSecurityToken, "signedSecurityToken");
-      return SignatureProvider.RemoveSignature(signedSecurityToken);
-    }
-
 
     // Constructors
 

@@ -21,15 +21,5 @@ namespace Xtensive.Core.Security
     /// <see langword="null"/>, if authentication has failed.
     /// </returns>
     string Authenticate(string userName, string password);
-
-    /// <summary>
-    /// Checks the security token.
-    /// </summary>
-    /// <param name="signedSecurityToken">The signed security token to check.</param>
-    /// <returns>
-    /// Unsigned (original) security token;
-    /// <see langword="null"/>, if authentication has failed.
-    /// </returns>
-    string CheckSecurityToken(string signedSecurityToken);
   }
 }
