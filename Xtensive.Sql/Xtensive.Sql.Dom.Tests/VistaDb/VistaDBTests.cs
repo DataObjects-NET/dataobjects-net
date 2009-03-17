@@ -112,7 +112,7 @@ namespace Xtensive.Sql.Dom.Tests.VistaDb
       SqlParameter p = (SqlParameter)sqlCommand.CreateParameter();
       p.DbType = DbType.Int32;
       p.Value = 40;
-      p.ParameterName = "@p1";
+      p.ParameterName = "p1";
       sqlCommand.Parameters.Add(p);
 
       SqlTableRef product = Sql.TableRef(Catalog.Schemas["dbo"].Tables["Production_Product"]);

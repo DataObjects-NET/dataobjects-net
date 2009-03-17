@@ -8,7 +8,7 @@ using NUnit.Framework;
 
 namespace Xtensive.Sql.Dom.Tests.VistaDb
 {
-  [TestFixture]
+  [TestFixture, Explicit("Not implemented yet")]
   public class DateTimeIntervalTest : Tests.DateTimeIntervalTest
   {
     protected override string Url { get { return TestUrl.VistaDb; } }
