@@ -14,7 +14,7 @@ namespace Xtensive.Core.Linq
   /// See <see cref="CompilerAttribute"/> for details.
   /// </summary>
   [Serializable]
-  [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false, Inherited = false)]
+  [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.ReturnValue, AllowMultiple = false, Inherited = false)]
   public class TypeAttribute : Attribute
   {
     /// <summary>

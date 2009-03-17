@@ -29,9 +29,9 @@ namespace Xtensive.Core.Reflection
       public const string Multiply = "op_Multiply";
 
       /// <summary>
-      /// Returns "op_Divide".
+      /// Returns "op_Division".
       /// </summary>
-      public const string Divide = "op_Divide";
+      public const string Division = "op_Division";
 
       /// <summary>
       /// Returns "op_Modulus".

@@ -124,6 +124,15 @@ namespace Xtensive.Storage.Providers.Sql.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Member &apos;{0}&apos; is not supported..
+        /// </summary>
+        internal static string ExMemberXIsNotSupported {
+            get {
+                return ResourceManager.GetString("ExMemberXIsNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Specified query returns multiple results..
         /// </summary>
         internal static string ExMultipleResults {

@@ -165,4 +165,7 @@
   <data name="TransactionIsNotOpen" xml:space="preserve">
     <value>Transaction is not open.</value>
   </data>
+  <data name="ExMemberXIsNotSupported" xml:space="preserve">
+    <value>Member '{0}' is not supported.</value>
+  </data>
 </root>

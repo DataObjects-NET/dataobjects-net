@@ -10,6 +10,7 @@ using Xtensive.Core.Helpers;
 using Xtensive.Core.Linq;
 using Xtensive.Sql.Dom.Dml;
 using SqlFactory = Xtensive.Sql.Dom.Sql;
+using Operator = Xtensive.Core.Reflection.WellKnown.Operator;
 
 namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
 {
@@ -255,6 +256,18 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(string))] SqlExpression value)
     {
       return SqlFactory.GreaterThanOrEquals(this_, value);
+    }
+
+    [Compiler(typeof(string), Operator.Equality, TargetKind.Operator)]
+    public static SqlExpression StringOperatorEquality(SqlExpression left, SqlExpression right)
+    {
+      return SqlFactory.Equals(left, right);
+    }
+
+    [Compiler(typeof(string), Operator.Inequality, TargetKind.Operator)]
+    public static SqlExpression StringOperatorInequality(SqlExpression left, SqlExpression right)
+    {
+      return SqlFactory.NotEquals(left, right);
     }
   }
 }

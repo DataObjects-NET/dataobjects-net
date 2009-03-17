@@ -220,26 +220,26 @@ namespace Xtensive.Core.Linq
 
     private static void RegisterCompiler(Compilers newCompilers, MethodInfo compiler)
     {
-      var attr = compiler.GetAttribute<CompilerAttribute>(AttributeSearchOptions.InheritNone);
+      var attribute = compiler.GetAttribute<CompilerAttribute>(AttributeSearchOptions.InheritNone);
 
-      bool isBadTargetType = attr.TargetType == null
-        || (attr.TargetType.IsGenericType && !attr.TargetType.IsGenericTypeDefinition);
+      bool isBadTargetType = attribute.TargetType == null
+        || (attribute.TargetType.IsGenericType && !attribute.TargetType.IsGenericTypeDefinition);
 
       if (isBadTargetType)
         throw new InvalidOperationException(string.Format(
           Strings.ExCompilerXHasBadTargetType,
           compiler.GetFullName(true)));
 
-      bool isStatic = (attr.TargetKind & TargetKind.Static) != 0;
-      bool isCtor = (attr.TargetKind & TargetKind.Constructor) != 0;
-      bool isPropertySetter = (attr.TargetKind & TargetKind.PropertySet) != 0;
-      bool isPropertyGetter = (attr.TargetKind & TargetKind.PropertyGet) != 0;
-      bool isField = (attr.TargetKind & TargetKind.Field) != 0;
-      bool isGenericMethod = attr.GenericParamsCount > 0;
-      bool isGenericType = attr.TargetType.IsGenericType;
+      bool isStatic = (attribute.TargetKind & TargetKind.Static) != 0;
+      bool isCtor = (attribute.TargetKind & TargetKind.Constructor) != 0;
+      bool isPropertySetter = (attribute.TargetKind & TargetKind.PropertySet) != 0;
+      bool isPropertyGetter = (attribute.TargetKind & TargetKind.PropertyGet) != 0;
+      bool isField = (attribute.TargetKind & TargetKind.Field) != 0;
+      bool isGenericMethod = attribute.GenericParamsCount > 0;
+      bool isGenericType = attribute.TargetType.IsGenericType;
       bool isGeneric = isGenericType || isGenericMethod;
-
-      string memberName = attr.TargetMember;
+      
+      string memberName = attribute.TargetMember;
 
       if (memberName.IsNullOrEmpty())
         if (isPropertyGetter || isPropertySetter)
@@ -282,15 +282,36 @@ namespace Xtensive.Core.Linq
         memberName = WellKnown.SetterPrefix + memberName;
       }
 
-      MemberInfo memberInfo;
-      if (isCtor)
-        memberInfo = attr.TargetType.GetConstructor(bindFlags, paramTypes);
-      else if (isField)
-        memberInfo = attr.TargetType.GetField(memberName, bindFlags);
-      else {
-        // method / property getter / property setter
-        var genericArgNames = isGenericMethod ? new string[attr.GenericParamsCount] : null;
-        memberInfo = attr.TargetType.GetMethod(memberName, bindFlags, genericArgNames, paramTypes);
+      MemberInfo memberInfo = null;
+      bool specialCase = false;
+
+      // handle stupid cast operator that may be overloaded by return type
+      if (memberName == WellKnown.Operator.Explicit || memberName == WellKnown.Operator.Implicit) {
+        var returnTypeAttribute = compiler.ReturnTypeCustomAttributes
+          .GetCustomAttributes(typeof (TypeAttribute), false)
+          .Cast<TypeAttribute>()
+          .FirstOrDefault();
+
+        if (returnTypeAttribute != null && returnTypeAttribute.Value != null) {
+          memberInfo = attribute.TargetType.GetMethods()
+          .Where(mi => mi.Name == memberName
+                    && mi.IsStatic
+                    && mi.ReturnType == returnTypeAttribute.Value)
+          .FirstOrDefault();
+          specialCase = true;
+        }
+      }
+      
+      if (!specialCase) {
+        if (isCtor)
+          memberInfo = attribute.TargetType.GetConstructor(bindFlags, paramTypes);
+        else if (isField)
+          memberInfo = attribute.TargetType.GetField(memberName, bindFlags);
+        else {
+          // method / property getter / property setter
+          var genericArgNames = isGenericMethod ? new string[attribute.GenericParamsCount] : null;
+          memberInfo = attribute.TargetType.GetMethod(memberName, bindFlags, genericArgNames, paramTypes);
+        }
       }
 
       if (memberInfo == null)

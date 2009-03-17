@@ -21,6 +21,7 @@ using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings;
 using Xtensive.Storage.Rse.Compilation;
 using SqlFactory = Xtensive.Sql.Dom.Sql;
+using Xtensive.Storage.Providers.Sql.Resources;
 
 namespace Xtensive.Storage.Providers.Sql.Expressions
 {
@@ -111,7 +112,11 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
 
     protected override SqlExpression VisitUnary(UnaryExpression expression)
     {
+      if (expression.Method != null)
+        return VisitUnaryOperator(expression);
+
       var operand = Visit(expression.Operand);
+
       switch (expression.NodeType) {
         case ExpressionType.Negate:
         case ExpressionType.NegateChecked:
@@ -135,6 +140,9 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       SqlExpression result;
       if (TryTranslateCompareExpression(expression, out result))
         return result;
+
+      if (expression.Method != null)
+        return VisitBinaryOperator(expression);
 
       var left = Visit(expression.Left);
       var right = Visit(expression.Right);
@@ -228,10 +236,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
 
     protected override SqlExpression VisitMemberAccess(MemberExpression m)
     {
-      var map = mappingsProvider.GetCompiler(m.Member);
-      if (map == null)
-        throw new NotSupportedException();
-
+      var map = FindCompiler(m.Member);
       return map(Visit(m.Expression), null);
     }
 
@@ -259,10 +264,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       if (mc.Object != null && mc.Object.Type != mi.ReflectedType)
         mi = mc.Object.Type.GetMethod(mi.Name, mi.GetParameterTypes());
 
-      var map = mappingsProvider.GetCompiler(mi);
-      if (map == null)
-        throw new NotSupportedException();
-
+      var map = FindCompiler(mi);
       return map(Visit(mc.Object), arguments);
     }
 
@@ -278,9 +280,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
 
     protected override SqlExpression VisitNew(NewExpression n)
     {
-      var mapping = mappingsProvider.GetCompiler(n.Constructor);
-      if (mapping == null)
-        throw new NotSupportedException();
+      var mapping = FindCompiler(n.Constructor);
       return mapping(null, n.Arguments.Select(a => Visit(a)).ToArray());
     }
 
@@ -412,8 +412,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       }
 
     if (constant < 0)
-      switch (expression.NodeType)
-      {
+      switch (expression.NodeType) {
         case ExpressionType.NotEqual:
         case ExpressionType.GreaterThan:
         case ExpressionType.GreaterThanOrEqual:
@@ -429,6 +428,21 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       }
 
       return false; // make compiler happy
+    }
+
+    private SqlExpression VisitBinaryOperator(BinaryExpression expression)
+    {
+      var left = Visit(expression.Left);
+      var right = Visit(expression.Right);
+      var map = FindCompiler(expression.Method);
+      return map(null, new[] {left, right});
+    }
+
+    private SqlExpression VisitUnaryOperator(UnaryExpression expression)
+    {
+      var source = Visit(expression.Operand);
+      var map = FindCompiler(expression.Method);
+      return map(null, new[] {source});
     }
 
     // Constructor
@@ -448,6 +462,14 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       parameterMapping = new Dictionary<ParameterExpression, SqlSelect>();
       evaluator = new ExpressionEvaluator(le);
       parameterExtractor = new ParameterExtractor(evaluator);
+    }
+
+    private static Func<SqlExpression, SqlExpression[], SqlExpression> FindCompiler(MemberInfo source)
+    {
+      var result = mappingsProvider.GetCompiler(source);
+      if (result == null)
+        throw new NotSupportedException(string.Format(Strings.ExMemberXIsNotSupported, source.GetFullName(true)));
+      return result;
     }
 
     static ExpressionProcessor()
