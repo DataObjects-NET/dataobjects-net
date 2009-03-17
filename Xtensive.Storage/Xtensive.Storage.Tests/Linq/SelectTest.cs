@@ -392,5 +392,18 @@ namespace Xtensive.Storage.Tests.Linq
         }
       }
     }
+
+    [Test]
+    public void SelectByteArrayLengthTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var categories = Query<Category>.All;
+          var result = from c in categories select c.Picture.Length;
+          var list = result.ToList();
+          t.Complete();
+        }
+      }
+    }
   }
 }
