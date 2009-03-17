@@ -204,23 +204,18 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       return StringCompare(this_, strB);
     }
 
-    private static SqlExpression IndexOfHelper(SqlExpression target, SqlExpression substr)
-    {
-      return SqlFactory.Position(SqlFactory.Concat(SqlFactory.Concat(Percent, substr), Percent), target);
-    }
-
     [Compiler(typeof(string), "IndexOf")]
     public static SqlExpression StringIndexOfStr(SqlExpression this_,
       [Type(typeof(string))] SqlExpression str)
     {
-      return IndexOfHelper(this_, str);
+      return SqlFactory.Position(str, this_);
     }
 
     [Compiler(typeof(string), "IndexOf")]
     public static SqlExpression StringIndexOfCh(SqlExpression this_,
       [Type(typeof(char))] SqlExpression ch)
     {
-      return IndexOfHelper(this_, ch);
+      return SqlFactory.Position(ch, this_);
     }
 
     [Compiler(typeof(string), "Equals")]

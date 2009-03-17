@@ -80,7 +80,7 @@ namespace Xtensive.Sql.Dom.Mssql.v2005
         case SqlFunctionType.Length:
           return "LEN";
         case SqlFunctionType.Position:
-          return "PATINDEX";
+          return "CHARINDEX";
         case SqlFunctionType.Atan2:
           return "ATN2";
       }
