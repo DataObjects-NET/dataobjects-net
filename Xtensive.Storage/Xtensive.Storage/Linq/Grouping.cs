@@ -7,9 +7,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Linq.Expressions;
 
 namespace Xtensive.Storage.Linq
 {
@@ -35,7 +33,7 @@ namespace Xtensive.Storage.Linq
       return GetEnumerator();
     }
 
-    internal Grouping(TKey key, IEnumerable<TElement> enumerable)
+    public Grouping(TKey key, IEnumerable<TElement> enumerable)
     {
       this.enumerable = enumerable;
       this.key = key;
