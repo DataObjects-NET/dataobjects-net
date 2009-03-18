@@ -22,13 +22,27 @@ namespace Xtensive.Storage.Linq
 
     protected override Expression VisitMethodCall(MethodCallExpression mc)
     {
-      if (mc.Method.DeclaringType == typeof(object) && mc.Method.Name == WellKnown.Object.Equals) {
-        if (mc.Object == null && mc.Method.IsStatic)
+      if (mc.Method.Name != WellKnown.Object.Equals)
+        return base.VisitMethodCall(mc);
+
+      var declaringType = mc.Method.DeclaringType;
+
+      if (mc.Method.IsStatic) {
+        if (mc.Arguments.Count == 2 && mc.Arguments[0].Type == declaringType && mc.Arguments[1].Type == declaringType)
           return Expression.Equal(mc.Arguments[0], mc.Arguments[1]);
-        return Expression.Equal(mc.Object, mc.Arguments[0]);
+        return base.VisitMethodCall(mc);
       }
-      if (mc.Method.DeclaringType == typeof (Structure) && mc.Method.Name == WellKnown.Object.Equals)
+
+      var interfaceMember = mc.Method.GetInterfaceMember();
+      if (interfaceMember != null) {
+        if (interfaceMember.ReflectedType.IsGenericType && interfaceMember.ReflectedType.GetGenericTypeDefinition() == typeof(IEquatable<>))
+          return Expression.Equal(mc.Object, mc.Arguments[0]);
+        return base.VisitMethodCall(mc);
+      }
+
+      if (declaringType == typeof(object))
         return Expression.Equal(mc.Object, mc.Arguments[0]);
+
       return base.VisitMethodCall(mc);
     }
   }

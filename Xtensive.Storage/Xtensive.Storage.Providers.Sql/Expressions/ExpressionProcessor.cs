@@ -434,6 +434,22 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     {
       var left = Visit(expression.Left);
       var right = Visit(expression.Right);
+
+      switch (expression.NodeType) {
+        case ExpressionType.Equal:
+          if (left.NodeType == SqlNodeType.Null)
+            return SqlFactory.IsNull(right);
+          if (right.NodeType == SqlNodeType.Null)
+            return SqlFactory.IsNull(left);
+          break;
+        case ExpressionType.NotEqual:
+          if (left.NodeType == SqlNodeType.Null)
+            return SqlFactory.IsNotNull(right);
+          if (right.NodeType == SqlNodeType.Null)
+            return SqlFactory.IsNotNull(left);
+          break;
+      }
+
       var map = FindCompiler(expression.Method);
       return map(null, new[] {left, right});
     }
