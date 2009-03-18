@@ -424,7 +424,6 @@ namespace Xtensive.Storage.Linq
           if (((ExtendedExpressionType)body.NodeType) == ExtendedExpressionType.Result) {
             var outerParameters = context.GetBindingKeys()
               .OfType<ParameterExpression>()
-//              .Where(pe => !parameters.Value.Contains(pe))
               .ToList();
             if (outerParameters.Count == 0)
               newArg = arg;
@@ -438,24 +437,7 @@ namespace Xtensive.Storage.Linq
                 replaceWithList.Add(ExpressionReplacer.ReplaceAll(projection.Body, replacedParameters, replacingParameters));
               }
               newArg = ExpressionReplacer.ReplaceAll(arg, searchFor, replaceWithList.ToArray());
-//              var parameterRewriter = new ParameterRewriter(tuple.Value, record.Value);
-//              var result = parameterRewriter.Rewrite(newArg);
-//              recordIsUsed |= result.Second;
-//              newArg = result.First;
             }
-//            var result = (ResultExpression)body;
-//            newArg = result.
-//            var elementType = body.Type.GetGenericArguments()[0];
-//            var typedQuery = typeof (Query<>).MakeGenericType(elementType);
-//            var constructor = typedQuery.GetConstructor(
-//              BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public, 
-//              new[] {typeof (Expression)});
-//            newArg = Expression.TypeAs(Expression.New(constructor, Expression.Quote(body)), typeof(IQueryable<>).MakeGenericType(elementType));
-//            Activator.CreateInstance(
-//              typeof (Query<>).MakeGenericType(body.Type.GetGenericArguments()),
-//              body);
-//            newArg = body;
-//            throw new NotImplementedException();
           }
           else {
             var calculator = Expression.Lambda(

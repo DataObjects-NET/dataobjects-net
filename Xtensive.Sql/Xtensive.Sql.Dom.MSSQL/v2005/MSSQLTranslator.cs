@@ -318,9 +318,17 @@ namespace Xtensive.Sql.Dom.Mssql.v2005
       {
         case SelectSection.Entry:
           if (node.Distinct)
-            return (node.Top > 0) ? "SELECT DISTINCT TOP " + node.Top : "SELECT DISTINCT TOP 100 PERCENT";
+            return (node.Top > 0) 
+              ? "SELECT DISTINCT TOP " + node.Top 
+              : ("SELECT DISTINCT " + ((node.OrderBy.Count != 0)
+                ? "TOP 100 PERCENT" 
+                : string.Empty));
           else
-            return (node.Top > 0) ? "SELECT TOP " + node.Top : "SELECT TOP 100 PERCENT";
+            return (node.Top > 0) 
+              ? "SELECT TOP " + node.Top
+              : ("SELECT " + ((node.OrderBy.Count != 0)
+                ? "TOP 100 PERCENT" 
+                : string.Empty));
         case SelectSection.Exit:
           if (node.Hints.Count == 0)
             return string.Empty;
