@@ -162,7 +162,10 @@ namespace Xtensive.Storage.Providers.Sql
         return null;
 
       SqlSelect query;
-      if (provider.Source is AggregateProvider || provider.Source is CalculateProvider) {
+      bool shouldUseQueryRef = provider.Source is AggregateProvider || provider.Source is CalculateProvider;
+      if (!shouldUseQueryRef && provider.Source is SelectProvider)
+        shouldUseQueryRef = provider.Source.Sources[0] is AggregateProvider || provider.Source.Sources[0] is CalculateProvider;
+      if (shouldUseQueryRef) {
         var queryRef = SqlFactory.QueryRef(source.Request.Statement as SqlSelect);
         query = SqlFactory.Select(queryRef);
         query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
@@ -382,17 +385,17 @@ namespace Xtensive.Storage.Providers.Sql
         return null;
 
       SqlSelect query;
-      if (compiledSource.Origin.Type == ProviderType.Index) {
+//      if (compiledSource.Origin.Type == ProviderType.Index) {
         query = (SqlSelect)compiledSource.Request.Statement.Clone();
         var originalColumns = query.Columns.ToList();
         query.Columns.Clear();
         query.Columns.AddRange(provider.ColumnIndexes.Select(i => originalColumns[i]));
-      }
-      else {
-        var queryRef = SqlFactory.QueryRef(compiledSource.Request.Statement as SqlSelect);
-        query = SqlFactory.Select(queryRef);
-        query.Columns.AddRange(provider.ColumnIndexes.Select(i => (SqlColumn)queryRef.Columns[i]));
-      } 
+//      }
+//      else {
+//        var queryRef = SqlFactory.QueryRef(compiledSource.Request.Statement as SqlSelect);
+//        query = SqlFactory.Select(queryRef);
+//        query.Columns.AddRange(provider.ColumnIndexes.Select(i => (SqlColumn)queryRef.Columns[i]));
+//      } 
       var request = new SqlFetchRequest(query, provider.Header);
 
       return new SqlProvider(provider, request, Handlers, compiledSource);
