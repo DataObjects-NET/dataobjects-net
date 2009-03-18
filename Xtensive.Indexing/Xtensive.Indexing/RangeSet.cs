@@ -43,18 +43,21 @@ namespace Xtensive.Indexing
     /// Unites the current RangeSet with the other one.
     ///</summary>
     ///<param name="otherSet">the other RangeSet</param>
-    public void Unite(RangeSet<T> otherSet)
+    /// <returns>reference to self</returns>
+    public RangeSet<T> Unite(RangeSet<T> otherSet)
     {
       foreach (var range in otherSet) {
         Unite(range);
       }
+      return this;
     }
 
     ///<summary>
     /// Unite the current RangeSet with the given <see cref="Range{T}"/>
     ///</summary>
     ///<param name="otherRange">the range to unite with</param>
-    public void Unite(Range<T> otherRange)
+    ///<returns>reference to self</returns>
+    public RangeSet<T> Unite(Range<T> otherRange)
     {
       rangeCash.Clear();
       var mergedRange = NormalizeRangeDirection(otherRange);
@@ -68,36 +71,42 @@ namespace Xtensive.Indexing
         ranges.Remove(range);
       }
       ranges.Add(mergedRange);
+      return this;
     }
 
     /// <summary>
     /// Intersects the current RangeSet with the other one.
     /// </summary>
     /// <param name="otherSet">other RangeSet</param>
-    public void Intersect(RangeSet<T> otherSet)
+    /// <returns>reference to self</returns>
+    public RangeSet<T> Intersect(RangeSet<T> otherSet)
     {
       rangeCash.Clear();
       foreach (var otherRange in otherSet) {
         CalculateIntersections(otherRange, rangeCash);
       }
       ReplaceAllRanges(rangeCash);
+      return this;
     }
 
     ///<summary>
     /// Intersects the current RangeSet with the given <see cref="Range{T}"/>
     ///</summary>
     ///<param name="otherRange">the range to intersect with</param>
-    public void Intersect(Range<T> otherRange)
+    ///<returns>reference to self</returns>
+    public RangeSet<T> Intersect(Range<T> otherRange)
     {
       rangeCash.Clear();
       CalculateIntersections(otherRange, rangeCash);
       ReplaceAllRanges(rangeCash);
+      return this;
     }
 
     /// <summary>
     /// Inverts current RangeSet.
     /// </summary>
-    public void Invert()
+    /// <returns>reference to self</returns>
+    public RangeSet<T> Invert()
     {
       LoadAllRangesTo(rangeCash);
       rangeCash.Sort(leftPointsComparison);
@@ -117,6 +126,7 @@ namespace Xtensive.Indexing
             ranges.Add(new Range<T>(left, pointTypeComparer.ValueRangeInfo.MaxValue));
         }
       }
+      return this;
     }
 
     private Range<T> NormalizeRangeDirection(Range<T> range)
