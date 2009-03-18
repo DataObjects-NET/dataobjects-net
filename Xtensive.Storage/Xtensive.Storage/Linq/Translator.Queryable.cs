@@ -422,7 +422,7 @@ namespace Xtensive.Storage.Linq
       var keyType = groupingArguments[0];
       var elementType = groupingArguments[1];
       var parameterGroupingType = typeof (Grouping<,>).MakeGenericType(keyType, elementType);
-      var constructor = parameterGroupingType.GetConstructor(new Type[] { keyType, typeof(IEnumerable<>).MakeGenericType(elementType) });
+      var constructor = parameterGroupingType.GetConstructor(new[] { keyType, typeof(IEnumerable<>).MakeGenericType(elementType) });
 
 
       // record => new Grouping<TKey, TElement>(record.Key, source.Where(groupingItem => groupingItem.Key == record.Key))
@@ -434,26 +434,19 @@ namespace Xtensive.Storage.Linq
       var predicateExpression = Expression.Lambda(Expression.Equal(keySelector.Body, recordKeyExpression), keySelector.Parameters.ToArray());
 
 
-      var whereMethod = typeof (Queryable).GetMethods().Where(methodInfo => {
-        ParameterInfo[] parameterInfos = methodInfo.GetParameters();
-        return methodInfo.Name==WellKnown.Queryable.Where
-          && methodInfo.IsGenericMethod
-          && parameterInfos.Length == 2
-          && parameterInfos[1].ParameterType.IsGenericType
-          && parameterInfos[1].ParameterType.GetGenericArguments()[0].GetGenericArguments().Length == 2;
-      }).First();
+      var callMehtod = whereMethod.MakeGenericMethod(elementType);
 
-      var queryExpression = Expression.Call(whereMethod, predicateExpression);
+      var queryExpression = Expression.Call(callMehtod, source, predicateExpression);
       var projectorBody = Expression.New(constructor, recordKeyExpression, queryExpression);
       var itemProjector = Expression.Lambda(projectorBody, pTuple, pRecord);
-//      Expression itemProjector = Expression.
+      //      Expression itemProjector = Expression.
       return new ResultExpression(method.ReturnType, recordSet, newResultMapping, result.Projector, itemProjector);//      Expression result = null;
-//      
-//      if (resultSelector==null)
-//        return result;
-//      
-//      using (context.Bind(resultSelector.Parameters[0], (ResultExpression) Visit(result)))
-//        return BuildProjection(resultSelector);
+      //      
+      //      if (resultSelector==null)
+      //        return result;
+      //      
+      //      using (context.Bind(resultSelector.Parameters[0], (ResultExpression) Visit(result)))
+      //        return BuildProjection(resultSelector);
     }
 
     private Expression VisitOrderBy(Expression expression, LambdaExpression le, Direction direction)
