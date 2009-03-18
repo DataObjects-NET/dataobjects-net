@@ -62,6 +62,21 @@ namespace Xtensive.Core.Parameters
     }
 
     /// <summary>
+    /// Gets the bound value by the key.
+    /// </summary>
+    /// <param name="key">The key of the value to get.</param>
+    /// <param name="value">When this method returns,
+    /// contains the value associated with the specified key, if the key is found;
+    /// otherwise, the default value for the type of the value parameter.
+    /// This parameter is passed uninitialized.</param>
+    /// <returns>true if the <see cref="BindingContext{T}"/> contains an element with the specified key;
+    /// otherwise, false.</returns>
+    public bool TryGetBound(object key, out T value)
+    {
+      return bindings.TryGetValue(key, out value);
+    }
+
+    /// <summary>
     /// Gets the binding keys.
     /// </summary>
     /// <returns></returns>
