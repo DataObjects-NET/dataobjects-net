@@ -23,13 +23,14 @@ namespace Xtensive.Modelling
   /// </summary>
   /// <typeparam name="TNode">The type of the node.</typeparam>
   /// <typeparam name="TParent">The type of the parent.</typeparam>
+  /// <typeparam name="TModel">The type of the model.</typeparam>
   [Serializable]
   public abstract class NodeCollection<TNode, TParent, TModel> : CollectionBase<TNode>,
     INodeCollection<TNode>,
     IDeserializationCallback
     where TNode: Node
     where TParent: Node
-    where TModel: Node
+    where TModel: Model
   {
     [NonSerialized]
     private Dictionary<string, TNode> nameIndex = new Dictionary<string, TNode>();
