@@ -12,7 +12,7 @@ namespace Xtensive.Modelling
   /// <summary>
   /// Node nesting information.
   /// </summary>
-  public interface INodeNesting
+  public interface INesting
   {
     /// <summary>
     /// Gets the node this object belongs to.
@@ -23,6 +23,11 @@ namespace Xtensive.Modelling
     /// Gets the name of the parent property, to which the node can be nested.
     /// </summary>
     string PropertyName { get; }
+
+    /// <summary>
+    /// Gets the escaped <see cref="PropertyName"/>.
+    /// </summary>
+    string EscapedPropertyName { get; }
 
     /// <summary>
     /// Gets the property info for <see cref="PropertyName"/> property.

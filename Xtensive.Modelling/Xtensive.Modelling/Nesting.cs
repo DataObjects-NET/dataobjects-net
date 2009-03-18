@@ -16,18 +16,20 @@ using Xtensive.Core.Helpers;
 namespace Xtensive.Modelling
 {
   /// <summary>
-  /// <see cref="INodeNesting{TParent,TProperty}"/> implementation.
+  /// <see cref="INesting"/> implementation.
   /// </summary>
   /// <typeparam name="TNode">The type of the node.</typeparam>
   /// <typeparam name="TParent">The type of the parent.</typeparam>
   /// <typeparam name="TProperty">The type of the property.</typeparam>
   [Serializable]
-  public sealed class NodeNesting<TNode, TParent, TProperty> : INodeNesting<TParent, TProperty>,
+  public sealed class Nesting<TNode, TParent, TProperty> : INesting<TParent, TProperty>,
     IDeserializationCallback
     where TNode: Node
     where TParent: Node
     where TProperty: IPathNode
   {
+    [NonSerialized]
+    private string escapedPropertyName;
     [NonSerialized]
     private PropertyInfo propertyInfo;
     [NonSerialized]
@@ -39,6 +41,11 @@ namespace Xtensive.Modelling
 
     /// <inheritdoc/>
     public string PropertyName { get; private set; }
+
+    /// <inheritdoc/>
+    public string EscapedPropertyName {
+      get { return escapedPropertyName; }
+    }
 
     /// <inheritdoc/>
     public TNode Node { get; private set; }
@@ -63,18 +70,18 @@ namespace Xtensive.Modelling
       get { return isCollectionProperty; }
     }
 
-    #region INodeNesting members
+    #region INesting members
 
-    Node INodeNesting.Node
+    Node INesting.Node
     {
       get { return Node; }
     }
 
-    Func<Node, IPathNode> INodeNesting.PropertyAccessor { 
+    Func<Node, IPathNode> INesting.PropertyAccessor { 
       get { return untypedPropertyAccessor; }
     }
 
-    IPathNode INodeNesting.PropertyValue {
+    IPathNode INesting.PropertyValue {
       get { return PropertyValue; }
     }
 
@@ -87,6 +94,7 @@ namespace Xtensive.Modelling
       var tProperty = typeof (TProperty);
       if (PropertyName.IsNullOrEmpty()) {
         PropertyName = null;
+        escapedPropertyName = null;
         propertyInfo = null;
         isCollectionProperty = false;
         propertyAccessor = null;
@@ -94,6 +102,8 @@ namespace Xtensive.Modelling
         return;
       }
 
+      escapedPropertyName = new[] {PropertyName}.RevertibleJoin(
+        Modelling.Node.PathEscape, Modelling.Node.PathDelimiter);
       propertyInfo = tNode.GetProperty(PropertyName);
       if (propertyInfo.PropertyType!=tProperty)
         throw new InvalidOperationException(String.Format(
@@ -118,7 +128,7 @@ namespace Xtensive.Modelling
     /// </summary>
     /// <param name="node"><see cref="Node"/> property value.</param>
     /// <param name="propertyName"><see cref="PropertyName"/> property value.</param>
-    public NodeNesting(TNode node, string propertyName)
+    public Nesting(TNode node, string propertyName)
     {
       ArgumentValidator.EnsureArgumentNotNull(node, "node");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(propertyName, "propertyName");
@@ -131,7 +141,7 @@ namespace Xtensive.Modelling
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="node"><see cref="Node"/> property value.</param>
-    internal NodeNesting(TNode node)
+    internal Nesting(TNode node)
     {
       ArgumentValidator.EnsureArgumentNotNull(node, "node");
       Node = node;
@@ -141,7 +151,7 @@ namespace Xtensive.Modelling
     // Deserialization
 
     /// <inheritdoc/>
-    public void OnDeserialization(object sender)
+    void IDeserializationCallback.OnDeserialization(object sender)
     {
       Initialize();
     }

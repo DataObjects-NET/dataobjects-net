@@ -19,6 +19,11 @@ namespace Xtensive.Modelling
     string Name { get; }
 
     /// <summary>
+    /// Gets escaped <see cref="Name"/> of this node.
+    /// </summary>
+    string EscapedName { get; }
+
+    /// <summary>
     /// Gets the parent node.
     /// </summary>
     Node Parent { get; }

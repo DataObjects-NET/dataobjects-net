@@ -4,6 +4,8 @@
 // Created by: Alex Yakunin
 // Created:    2009.03.17
 
+using System;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Notifications;
 
 namespace Xtensive.Modelling
@@ -27,7 +29,26 @@ namespace Xtensive.Modelling
     /// <summary>
     /// Gets the node nesting information.
     /// </summary>
-    INodeNesting Nesting { get; }
+    INesting Nesting { get; }
+
+    /// <summary>
+    /// Gets the property accessors for this node.
+    /// </summary>
+    ReadOnlyDictionary<string, PropertyAccessor> PropertyAccessors { get; }
+
+    /// <summary>
+    /// Gets the value of the property with specified name.
+    /// </summary>
+    /// <param name="propertyName">Name of the property.</param>
+    /// <returns>Property value.</returns>
+    object GetProperty(string propertyName);
+
+    /// <summary>
+    /// Sets the value of the property with specified name.
+    /// </summary>
+    /// <param name="propertyName">Name of the property.</param>
+    /// <param name="value">The value to set.</param>
+    void SetProperty(string propertyName, object value);
 
     /// <summary>
     /// Renames the node.

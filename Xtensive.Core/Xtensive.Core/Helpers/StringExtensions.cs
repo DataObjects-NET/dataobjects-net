@@ -212,5 +212,42 @@ namespace Xtensive.Core.Helpers
       }
       yield return sb.ToString();
     }
+
+    /// <summary>
+    /// Reverts the result of <see cref="RevertibleJoin"/>.
+    /// </summary>
+    /// <param name="source">The source string to split.</param>
+    /// <param name="escape">The escape character.</param>
+    /// <param name="delimiter">The delimiter character.</param>
+    /// <returns>
+    /// The array of values that were previously joined
+    /// by <see cref="RevertibleJoin"/>.
+    /// </returns>
+    /// <exception cref="ArgumentException"><paramref name="escape"/>==<paramref name="delimiter"/>.</exception>
+    public static Pair<string> RevertibleSplitFirstAndTail(this string source, char escape, char delimiter)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      if (escape==delimiter)
+        throw new ArgumentException(
+          Strings.ExEscapeCharacterMustDifferFromDelimiterCharacter);
+
+      var sb = new StringBuilder();
+      bool previousCharIsEscape = false;
+      for (int i = 0; i<source.Length; i++) {
+        char c = source[i];
+        if (previousCharIsEscape) {
+          sb.Append(c);
+          previousCharIsEscape = false;
+        }
+        else if (c==escape) {
+          previousCharIsEscape = true;
+        }
+        else if (c==delimiter)
+          return new Pair<string>(sb.ToString(), source.Substring(i + 1));
+        else
+          sb.Append(c);
+      }
+      return new Pair<string>(sb.ToString(), null);
+    }
   }
 }

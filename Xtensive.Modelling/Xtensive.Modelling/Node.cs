@@ -5,11 +5,17 @@
 // Created:    2009.03.16
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Reflection;
+using System.Runtime.Serialization;
 using Xtensive.Core;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Threading;
+using Xtensive.Modelling.Attributes;
 using Xtensive.Modelling.Resources;
+using Xtensive.Core.Reflection;
 
 namespace Xtensive.Modelling
 {
@@ -19,49 +25,39 @@ namespace Xtensive.Modelling
   [Serializable]
   [DebuggerDisplay("{Name}")]
   public abstract class Node : LockableBase,
-    INode
+    INode,
+    IDeserializationCallback
   {
-    public static readonly char PathSeparator = '/';
+    /// <summary>
+    /// Path delimiter character.
+    /// </summary>
+    public static readonly char PathDelimiter = '/';
+    /// <summary>
+    /// Path escape character.
+    /// </summary>
     public static readonly char PathEscape = '\\';
 
     [NonSerialized]
-    private ThreadSafeCached<Model> cachedModel;
+    private static ThreadSafeDictionary<Type, ReadOnlyDictionary<string, PropertyAccessor>> cachedPropertyAccessors = 
+      new ThreadSafeDictionary<Type, ReadOnlyDictionary<string, PropertyAccessor>>();
+    [NonSerialized]
+    private ThreadSafeCached<Model> cachedModel = new ThreadSafeCached<Model>();
+    [NonSerialized]
+    private string cachedPath;
+    [NonSerialized]
+    private INesting nesting;
+    [NonSerialized]
+    private ReadOnlyDictionary<string, PropertyAccessor> propertyAccessors;
     [NonSerialized]
     internal Node parent;
     private string name;
     private NodeState state;
     private int index;
-    private INodeNesting nesting;
 
     /// <inheritdoc/>
     public Node Parent {
       [DebuggerStepThrough]
       get { return parent; }
-    }
-
-    /// <inheritdoc/>
-    public string Name
-    {
-      [DebuggerStepThrough]
-      get { return name; }
-    }
-
-    /// <inheritdoc/>
-    public NodeState State {
-      get { return state; }
-    }
-
-    /// <inheritdoc/>
-    public int Index
-    {
-      [DebuggerStepThrough]
-      get { return index; }
-    }
-
-    /// <inheritdoc/>
-    public INodeNesting Nesting {
-      [DebuggerStepThrough]
-      get { return nesting; }
     }
 
     /// <inheritdoc/>
@@ -81,21 +77,85 @@ namespace Xtensive.Modelling
     }
 
     /// <inheritdoc/>
+    public string Name
+    {
+      [DebuggerStepThrough]
+      get { return name; }
+    }
+
+    /// <inheritdoc/>
+    public string EscapedName
+    {
+      [DebuggerStepThrough]
+      get { return new[] {Name}.RevertibleJoin(PathEscape, PathDelimiter); }
+    }
+
+    /// <inheritdoc/>
+    public NodeState State {
+      get { return state; }
+    }
+
+    /// <inheritdoc/>
+    public int Index
+    {
+      [DebuggerStepThrough]
+      get { return index; }
+    }
+
+    /// <inheritdoc/>
+    public INesting Nesting {
+      [DebuggerStepThrough]
+      get { return nesting; }
+    }
+
+    /// <inheritdoc/>
+    public ReadOnlyDictionary<string, PropertyAccessor> PropertyAccessors {
+      [DebuggerStepThrough]
+      get { return propertyAccessors; }
+    }
+
+    /// <inheritdoc/>
+    public object GetProperty(string propertyName)
+    {
+      return PropertyAccessors[propertyName].Getter.Invoke(this);
+    }
+
+    /// <inheritdoc/>
+    public void SetProperty(string propertyName, object value)
+    {
+      PropertyAccessors[propertyName].Setter.Invoke(this, value);
+    }
+
+    /// <inheritdoc/>
     public string Path {
       [DebuggerStepThrough]
       get {
-        // TODO: Escape "."
+        if (cachedPath!=null)
+          return cachedPath;
         if (Parent==null)
-          return Name;
+          return string.Empty;
         else {
-          return Parent.Path + "." + Name;
+          string parentPath = Parent.Path;
+          if (parentPath.Length!=0)
+            parentPath += PathDelimiter;
+          return string.Concat(
+            parentPath, 
+            Nesting.EscapedPropertyName, PathDelimiter, 
+            Nesting.IsCollectionProperty ? EscapedName : string.Empty);
         }
       }
     }
 
+    /// <inheritdoc/>
     public IPathNode GetChild(string path)
     {
-      throw new NotImplementedException();
+      if (path.IsNullOrEmpty())
+        return this;
+      var parts = path.RevertibleSplitFirstAndTail(Node.PathEscape, Node.PathDelimiter);
+      var next = (IPathNode) GetProperty(parts.First);
+      if (parts.Second==null)
+        return next;
+      return next.GetChild(parts.Second);
     }
 
     #region Operations
@@ -227,13 +287,47 @@ namespace Xtensive.Modelling
 
     #endregion
 
-    protected abstract INodeNesting CreateNesting();
+    /// <inheritdoc/>
+    public override void Lock(bool recursive)
+    {
+      base.Lock(recursive);
+      // TODO: Process all collection properties
+      cachedPath = Path;
+    }
+
+    protected abstract INesting CreateNesting();
 
     /// <inheritdoc/>
     public override string ToString()
     {
       return name;
     }
+
+    #region Private \ internal methods
+
+    private void Initialize()
+    {
+      propertyAccessors = GetPropertyAccessors(GetType());
+    }
+
+    private static ReadOnlyDictionary<string, PropertyAccessor> GetPropertyAccessors(Type type)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(type, "type");
+      return cachedPropertyAccessors.GetValue(type,
+        (_type) => {
+          var d = new Dictionary<string, PropertyAccessor>();
+          if (_type!=typeof(object))
+            foreach (var pair in GetPropertyAccessors(_type.BaseType))
+              d.Add(pair.Key, pair.Value);
+          foreach (var p in _type.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)) {
+            if (p.GetAttribute<NodePropertyAttribute>(AttributeSearchOptions.InheritNone)!=null)
+              d.Add(p.Name, new PropertyAccessor(p));
+          }
+          return new ReadOnlyDictionary<string, PropertyAccessor>(d, false);
+        });
+    }
+
+    #endregion
 
 
     // Constructors
@@ -252,6 +346,7 @@ namespace Xtensive.Modelling
       nesting = CreateNesting();
       if (nesting==null)
         throw new InvalidOperationException(Strings.ExNoNesting);
+      Initialize();
       Move(parent, name, index);
     }
 
@@ -266,7 +361,20 @@ namespace Xtensive.Modelling
       nesting = CreateNesting();
       if (nesting==null)
         throw new InvalidOperationException(Strings.ExNoNesting);
+      Initialize();
       Rename(name);
+    }
+
+    // Deserialization
+
+    /// <inheritdoc/>
+    /// <exception cref="InvalidOperationException"><see cref="CreateNesting"/> has returned <see langword="null" />.</exception>
+    void IDeserializationCallback.OnDeserialization(object sender)
+    {
+      nesting = CreateNesting();
+      if (nesting==null)
+        throw new InvalidOperationException(Strings.ExNoNesting);
+      Initialize();
     }
   }
 }

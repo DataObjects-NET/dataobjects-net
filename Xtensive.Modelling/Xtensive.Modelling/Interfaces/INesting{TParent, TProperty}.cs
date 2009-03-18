@@ -11,17 +11,17 @@ namespace Xtensive.Modelling
   /// <summary>
   /// Typed node nesting information.
   /// </summary>
-  public interface INodeNesting<TParent, TProperty> : INodeNesting
+  public interface INesting<TParent, TProperty> : INesting
     where TParent: Node
     where TProperty: IPathNode
   {
     /// <summary>
-    /// Gets the property accessor for <see cref="INodeNesting.PropertyName"/> property.
+    /// Gets the property accessor for <see cref="INesting.PropertyName"/> property.
     /// </summary>
     new Func<Node, TProperty> PropertyAccessor { get; }
 
     /// <summary>
-    /// Gets the property value for <see cref="INodeNesting.PropertyName"/> property.
+    /// Gets the property value for <see cref="INesting.PropertyName"/> property.
     /// </summary>
     new TProperty PropertyValue { get; }
   }

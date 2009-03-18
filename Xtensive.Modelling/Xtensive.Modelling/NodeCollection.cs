@@ -11,10 +11,12 @@ using System.Globalization;
 using System.Runtime.Serialization;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Notifications;
 using Xtensive.Modelling;
 using Xtensive.Modelling.Resources;
+using System.Linq;
 
 namespace Xtensive.Modelling
 {
@@ -33,10 +35,21 @@ namespace Xtensive.Modelling
     where TModel: Model
   {
     [NonSerialized]
+    private string escapedName;
+    [NonSerialized]
+    private string cachedPath;
+    [NonSerialized]
     private Dictionary<string, TNode> nameIndex = new Dictionary<string, TNode>();
 
     /// <inheritdoc/>
     public abstract string Name { get; }
+
+    /// <inheritdoc/>
+    public string EscapedName
+    {
+      [DebuggerStepThrough]
+      get { return escapedName; }
+    }
 
     /// <inheritdoc/>
     public TParent Parent {
@@ -59,15 +72,27 @@ namespace Xtensive.Modelling
     /// <inheritdoc/>
     public string Path {
       get {
-        // TODO: Escape "."
-        return Parent.Path + "." + Name;
+        if (cachedPath!=null)
+          return cachedPath;
+        var parentPath = Parent.Path;
+        if (parentPath.Length==0)
+          return EscapedName;
+        return string.Concat(
+          parentPath, Node.PathDelimiter, 
+          EscapedName);
       }
     }
 
     /// <inheritdoc/>
     public IPathNode GetChild(string path)
     {
-      throw new System.NotImplementedException();
+      if (path.IsNullOrEmpty())
+        return this;
+      var parts = path.RevertibleSplitFirstAndTail(Node.PathEscape, Node.PathDelimiter);
+      var next = this[parts.First];
+      if (parts.Second==null)
+        return next;
+      return next.GetChild(parts.Second);
     }
 
     /// <inheritdoc/>
@@ -194,6 +219,7 @@ namespace Xtensive.Modelling
       if (recursive)
         foreach (TNode node in this)
           node.Lock(recursive);
+      cachedPath = Path;
     }
 
     #endregion
@@ -247,6 +273,17 @@ namespace Xtensive.Modelling
 
     #endregion
 
+    /// <summary>
+    /// Initializes this instance.
+    /// </summary>
+    /// <exception cref="InvalidOperationException"><see cref="Name"/> is not initialized yet.</exception>
+    protected virtual void Initialize()
+    {
+      if (Name.IsNullOrEmpty())
+        throw Exceptions.NotInitialized("Name");
+      escapedName = new[] {Name}.RevertibleJoin(Node.PathEscape, Node.PathDelimiter);
+    }
+
 
     // Constructors
 
@@ -258,6 +295,7 @@ namespace Xtensive.Modelling
     {
       ArgumentValidator.EnsureArgumentNotNull(parent, "parent");
       Parent = parent;
+      Initialize();
     }
 
     // Deserialization
@@ -265,6 +303,7 @@ namespace Xtensive.Modelling
     /// <inheritdoc/>
     void IDeserializationCallback.OnDeserialization(object sender)
     {
+      Initialize();
       nameIndex = new Dictionary<string, TNode>(Count);
       foreach (var node in this) {
         nameIndex.Add(node.Name, node);
