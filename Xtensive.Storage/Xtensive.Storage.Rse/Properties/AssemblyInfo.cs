@@ -4,6 +4,7 @@
 
 using System;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Security.Permissions;
 using PostSharp.Extensibility;
@@ -46,3 +47,5 @@ using Xtensive.Core.Aspects;
 
 // This ensures the RecordSetProvider & its ancestors will be "initializable"
 [assembly:Initializable(AttributeTargetTypes = "*")]
+
+[assembly:InternalsVisibleTo("Xtensive.Storage.Tests")]
