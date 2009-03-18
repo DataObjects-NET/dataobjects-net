@@ -18,7 +18,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       using (Domain.OpenSession())
       using (var t = Transaction.Open()) {
-        var result = Query<Customer>.All.GroupBy(c => c.Address.City);
+        var result = Query<Customer>.All.GroupBy(c => new {c.Address.City, c.Address.Country});
         var list = result.ToList();
         Assert.Greater(list.Count, 0);
         t.Complete();

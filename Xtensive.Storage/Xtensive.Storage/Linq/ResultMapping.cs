@@ -106,7 +106,7 @@ namespace Xtensive.Storage.Linq
         var offset = Fields.Min(pair => pair.Value.Offset);
         var endOffset = Fields.Max(pair => pair.Value.Offset);
         var length = endOffset - offset + 1;
-        this.segment = new Segment<int>(offset, length);
+        segment = new Segment<int>(offset, length);
       }
     }
 

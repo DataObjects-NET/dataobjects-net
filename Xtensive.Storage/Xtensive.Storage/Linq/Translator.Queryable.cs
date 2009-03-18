@@ -136,6 +136,7 @@ namespace Xtensive.Storage.Linq
         case QueryableMethodKind.GroupBy:
           if (mc.Arguments.Count==2) {
             return VisitGroupBy(
+              mc.Method,
               mc.Arguments[0],
               mc.Arguments[1].StripQuotes(),
               null,
@@ -147,15 +148,26 @@ namespace Xtensive.Storage.Linq
             LambdaExpression lambda2 = mc.Arguments[2].StripQuotes();
             if (lambda2.Parameters.Count==1) {
               // second lambda is element selector
-              return VisitGroupBy(mc.Arguments[0], lambda1, lambda2, null);
+              return VisitGroupBy(
+                mc.Method,
+                mc.Arguments[0], 
+                lambda1, 
+                lambda2, 
+                null);
             }
             if (lambda2.Parameters.Count==2) {
               // second lambda is result selector
-              return VisitGroupBy(mc.Arguments[0], lambda1, null, lambda2);
+              return VisitGroupBy(
+                mc.Method,
+                mc.Arguments[0], 
+                lambda1, 
+                null, 
+                lambda2);
             }
           }
           else if (mc.Arguments.Count==4) {
             return VisitGroupBy(
+              mc.Method,
               mc.Arguments[0],
               mc.Arguments[1].StripQuotes(),
               mc.Arguments[2].StripQuotes(),
@@ -379,9 +391,69 @@ namespace Xtensive.Storage.Linq
       return new ResultExpression(result.Type, recordSet, null, shaper, null);
     }
 
-    private Expression VisitGroupBy(Expression source, LambdaExpression keySelector, LambdaExpression elementSelector, LambdaExpression resultSelector)
+    private Expression VisitGroupBy(MethodInfo method, Expression source, LambdaExpression keySelector, LambdaExpression elementSelector, LambdaExpression resultSelector)
     {
-      throw new NotImplementedException();
+      var result = (ResultExpression)Visit(source);
+
+      List<int> columnList;
+      LambdaExpression originalCompiledKeyExpression;
+      var newResultMapping = new ResultMapping();
+      using (context.Bind(keySelector.Parameters[0], result))
+      using (new ParameterScope())
+      {
+        resultMapping.Value = new ResultMapping();
+        originalCompiledKeyExpression = (LambdaExpression) Visit(keySelector);
+        columnList = resultMapping.Value.GetColumns().ToList();
+        result = context.GetBound(keySelector.Parameters[0]);
+
+        if (!resultMapping.Value.MapsToPrimitive) {
+          newResultMapping.JoinedRelations.Add("Key", resultMapping.Value);
+          foreach (var field in resultMapping.Value.Fields)
+            newResultMapping.RegisterFieldMapping("Key." + field.Key, field.Value);
+        }
+        else
+          newResultMapping.RegisterFieldMapping("Key", resultMapping.Value.Segment);
+      }
+
+      var recordSet = result.RecordSet.Aggregate(columnList.ToArray());
+
+      var resultGroupingType = method.ReturnType.GetGenericArguments()[0];
+      Type[] groupingArguments = resultGroupingType.GetGenericArguments();
+      var keyType = groupingArguments[0];
+      var elementType = groupingArguments[1];
+      var parameterGroupingType = typeof (Grouping<,>).MakeGenericType(keyType, elementType);
+      var constructor = parameterGroupingType.GetConstructor(new Type[] { keyType, typeof(IEnumerable<>).MakeGenericType(elementType) });
+
+
+      // record => new Grouping<TKey, TElement>(record.Key, source.Where(groupingItem => groupingItem.Key == record.Key))
+      var pRecord = Expression.Parameter(typeof (Record), "r");
+      var pTuple = Expression.Parameter(typeof (Tuple), "t");
+      var searchFor = originalCompiledKeyExpression.Parameters.ToArray();
+      var replaceWith = originalCompiledKeyExpression.Parameters.Select(p => p.Type == typeof(Tuple) ? pTuple : pRecord).ToArray();
+      var recordKeyExpression = ExpressionReplacer.ReplaceAll(originalCompiledKeyExpression.Body, searchFor, replaceWith);
+      var predicateExpression = Expression.Lambda(Expression.Equal(keySelector.Body, recordKeyExpression), keySelector.Parameters.ToArray());
+
+
+      var whereMethod = typeof (Queryable).GetMethods().Where(methodInfo => {
+        ParameterInfo[] parameterInfos = methodInfo.GetParameters();
+        return methodInfo.Name==WellKnown.Queryable.Where
+          && methodInfo.IsGenericMethod
+          && parameterInfos.Length == 2
+          && parameterInfos[1].ParameterType.IsGenericType
+          && parameterInfos[1].ParameterType.GetGenericArguments()[0].GetGenericArguments().Length == 2;
+      }).First();
+
+      var queryExpression = Expression.Call(whereMethod, predicateExpression);
+      var projectorBody = Expression.New(constructor, recordKeyExpression, queryExpression);
+      var itemProjector = Expression.Lambda(projectorBody, pTuple, pRecord);
+//      Expression itemProjector = Expression.
+      return new ResultExpression(method.ReturnType, recordSet, newResultMapping, result.Projector, itemProjector);//      Expression result = null;
+//      
+//      if (resultSelector==null)
+//        return result;
+//      
+//      using (context.Bind(resultSelector.Parameters[0], (ResultExpression) Visit(result)))
+//        return BuildProjection(resultSelector);
     }
 
     private Expression VisitOrderBy(Expression expression, LambdaExpression le, Direction direction)

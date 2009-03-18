@@ -464,8 +464,6 @@ namespace Xtensive.Storage.Linq
         newArg = newArg ?? Visit(arg);
         arguments.Add(newArg);
       }
-      var x = DateTime.Now;
-      var y = x.AddDays(1);
       return Expression.New(n.Constructor, arguments, n.Members);
     }
 

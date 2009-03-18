@@ -20,7 +20,7 @@ namespace Xtensive.Storage
   /// An implementation of <see cref="IQueryable{T}"/>.
   /// </summary>
   /// <typeparam name="T">The type of the content item of the data source.</typeparam>
-  public sealed class Query<T> : IOrderedQueryable<T>
+  public class Query<T> : IOrderedQueryable<T>
   {
     private static readonly QueryProvider provider = new QueryProvider();
     private readonly Expression expression;
@@ -57,7 +57,7 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     public IEnumerator<T> GetEnumerator()
     {
-      var result = (IEnumerable) this.Provider.Execute(expression);
+      var result = (IEnumerable) Provider.Execute(expression);
       foreach (var item in result)
         yield return (T)item;
     }
@@ -106,7 +106,6 @@ namespace Xtensive.Storage
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="expression"/>  is out of range.</exception>
     internal Query(Expression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(provider, "provider");
       ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
       if (!typeof (IQueryable<T>).IsAssignableFrom(expression.Type))
         throw new ArgumentOutOfRangeException("expression");
