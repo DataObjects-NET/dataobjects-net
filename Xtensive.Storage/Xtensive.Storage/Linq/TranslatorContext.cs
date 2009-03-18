@@ -22,6 +22,7 @@ namespace Xtensive.Storage.Linq
     private readonly ParameterExtractor parameterExtractor;
     private readonly AliasGenerator resultAliasGenerator;
     private readonly AliasGenerator columnAliasGenerator;
+    private readonly SubqueryParameterBindings subqueryParameterBindings;
 
     public Expression Query
     {
@@ -63,6 +64,10 @@ namespace Xtensive.Storage.Linq
       return columnAliasGenerator.Next();
     }
 
+    public SubqueryParameterBindings SubqueryParameterBindings
+    {
+      get { return subqueryParameterBindings; }
+    }
 
     // Constructor
 
@@ -78,6 +83,7 @@ namespace Xtensive.Storage.Linq
       translator = new Translator(this);
       evaluator = new ExpressionEvaluator(this.query);
       parameterExtractor = new ParameterExtractor(evaluator);
+      subqueryParameterBindings = new SubqueryParameterBindings();
     }
   }
 }

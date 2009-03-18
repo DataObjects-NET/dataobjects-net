@@ -30,7 +30,8 @@ namespace Xtensive.Storage.Tests.Linq
     {
       using (Domain.OpenSession())
       using (var t = Transaction.Open()) {
-        var result = Query<Customer>.All.Where(c => Query<Order>.All.Where(o => o.Customer == c).Any());
+        var orders = Query<Order>.All;
+        var result = Query<Customer>.All.Where(c => orders.Where(o => o.Customer == c).Any());
         var list = result.ToList();
         Assert.Greater(list.Count, 0);
         t.Complete();

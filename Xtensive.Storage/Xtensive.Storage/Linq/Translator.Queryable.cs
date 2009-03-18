@@ -18,6 +18,7 @@ using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
+using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Linq
@@ -230,23 +231,6 @@ namespace Xtensive.Storage.Linq
         var le = Expression.Lambda(Expression.Equal(p, match), p);
         return VisitRootExists(source, le, false);
       }
-
-      /*
-      if (!isQuery) {
-        var memberPath = MemberPath.Parse(match, context.Model);
-        if (!memberPath.IsValid)
-          throw new NotSupportedException();
-        var memberType = match.GetMemberType();
-        var oldResult = context.GetBound(memberPath.Parameter);
-        var newRecordSet = oldResult.RecordSet;
-        var newResult = new ResultExpression(oldResult.Type,
-          newRecordSet, oldResult.Mapping, oldResult.Projector, oldResult.ItemProjector);
-        context.ReplaceBound(memberPath.Parameter, newResult);
-
-        return Expression.Equal(Expression.Constant(1), Expression.Constant(1));
-      }
-      */
-
       throw new NotImplementedException();
     }
 
@@ -258,9 +242,6 @@ namespace Xtensive.Storage.Linq
         return VisitRootExists(source, predicate, true);
       }
 
-      if (!isQuery) {
-      }
-
       throw new NotImplementedException();
     }
 
@@ -269,6 +250,17 @@ namespace Xtensive.Storage.Linq
       bool isQuery = source.IsQuery();
       if (isQuery && isRoot)
         return VisitRootExists(source, predicate, false);
+
+      if (predicate==null && isQuery) {
+        var subquery = (ResultExpression) Visit(source);
+        var lambdaParameter = (ParameterExpression) context.SubqueryParameterBindings.CurrentKey;
+        var applyParameter = context.SubqueryParameterBindings.GetBound(lambdaParameter);
+        var oldResult = context.GetBound(lambdaParameter);
+        var newRecordSet = oldResult.RecordSet.Apply(applyParameter, subquery.RecordSet, ApplyType.Existing);
+        var newResult = new ResultExpression(oldResult.Type, newRecordSet, oldResult.Mapping, oldResult.Projector, oldResult.ItemProjector);
+        context.ReplaceBound(lambdaParameter, newResult);
+        return Expression.Constant(true);
+      }
 
       throw new NotImplementedException();
     }

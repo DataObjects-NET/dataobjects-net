@@ -29,6 +29,7 @@ namespace Xtensive.Storage.Linq
   {
     private static readonly PropertyInfo keyValueAccessor;
     private static readonly PropertyInfo keyAccessor;
+    private static readonly PropertyInfo parameterOfTupleAccessor;
     private static readonly MethodInfo transformApplyMethod;
     private static readonly MethodInfo keyCreateMethod;
     private static readonly MethodInfo selectMethod;
@@ -39,6 +40,7 @@ namespace Xtensive.Storage.Linq
     private static readonly MethodInfo countWithPredicateMethod;
     private static readonly MethodInfo countMethod;
     private static readonly MethodInfo takeMethod;
+
     private readonly Parameter<List<CalculatedColumnDescriptor>> calculatedColumns = new Parameter<List<CalculatedColumnDescriptor>>();
     private readonly Parameter<ParameterExpression[]> parameters = new Parameter<ParameterExpression[]>();
     private readonly Parameter<ResultMapping> resultMapping = new Parameter<ResultMapping>();
@@ -71,7 +73,14 @@ namespace Xtensive.Storage.Linq
         record.Value = Expression.Parameter(typeof(Record), "r");
         parameters.Value = le.Parameters.ToArray();
         calculatedColumns.Value = new List<CalculatedColumnDescriptor>();
-        var body = Visit(le.Body);
+        Expression body;
+        context.SubqueryParameterBindings.Bind(parameters.Value);
+        try {
+          body = Visit(le.Body);
+        }
+        finally {
+          context.SubqueryParameterBindings.Unbind(parameters.Value);
+        }
         if (calculateExpressions.Value && body.GetMemberType() == MemberType.Unknown) {
           if (
             ((ExtendedExpressionType)body.NodeType) != ExtendedExpressionType.Result &&
@@ -82,9 +91,11 @@ namespace Xtensive.Storage.Linq
             var calculator = Expression.Lambda(Expression.Convert(body, typeof(object)), tuple.Value);
             var ccd = new CalculatedColumnDescriptor(context.GetNextColumnAlias(), body.Type, (Expression<Func<Tuple, object>>)calculator);
             calculatedColumns.Value.Add(ccd);
-            int position = context.GetBound(parameters.Value[0]).RecordSet.Header.Columns.Count + calculatedColumns.Value.Count - 1;
-            var method = genericAccessor.MakeGenericMethod(body.Type);
-            body = Expression.Call(tuple.Value, method, Expression.Constant(position));
+            var parameter = parameters.Value[0];
+            int position = context.GetBound(parameter).RecordSet.Header.Columns.Count + calculatedColumns.Value.Count - 1;
+            // var method = genericAccessor.MakeGenericMethod(body.Type);
+            body = MakeTupleAccess(parameter, body.Type, Expression.Constant(position));
+            // Expression.Call(tuple.Value, method, Expression.Constant(position));
             resultMapping.Value.RegisterPrimitive(new Segment<int>(position, 1));
           }
         }
@@ -147,12 +158,9 @@ namespace Xtensive.Storage.Linq
       {
         case MemberType.Primitive:
           {
-            var method = resultType == typeof(object)
-              ? nonGenericAccessor
-              : genericAccessor.MakeGenericMethod(resultType);
             var segment = source.GetMemberSegment(path);
             resultMapping.Value.RegisterPrimitive(segment);
-            return Expression.Call(tuple.Value, method, Expression.Constant(segment.Offset));
+            return MakeTupleAccess(path.Parameter, resultType, Expression.Constant(segment.Offset));
           }
         case MemberType.Key:
           {
@@ -287,7 +295,7 @@ namespace Xtensive.Storage.Linq
               var source = context.GetBound(path.Parameter);
               var segment = source.GetMemberSegment(path);
               foreach (var pair in segment.GetItems().Select((ci, pi) => new {ColumnIndex = ci, ParameterIndex = pi})) {
-                Expression left = Expression.Call(tuple.Value, nonGenericAccessor, Expression.Constant(pair.ColumnIndex));
+                Expression left = MakeTupleAccess(path.Parameter, null, Expression.Constant(pair.ColumnIndex));
                 Expression right = Expression.Condition(
                   Expression.Equal(bRight, Expression.Constant(null, bRight.Type)),
                   Expression.Constant(null, typeof (object)),
@@ -315,7 +323,7 @@ namespace Xtensive.Storage.Linq
               var source = context.GetBound(path.Parameter);
               var segment = source.GetMemberSegment(path);
               foreach (var pair in segment.GetItems().Select((ci, pi) => new { ColumnIndex = ci, ParameterIndex = pi })) {
-                Expression left = Expression.Call(tuple.Value, nonGenericAccessor, Expression.Constant(pair.ColumnIndex));
+                Expression left = MakeTupleAccess(path.Parameter, null, Expression.Constant(pair.ColumnIndex));
                 Expression right = Expression.Condition(
                   Expression.Equal(bRight, Expression.Constant(null, bRight.Type)),
                   Expression.Constant(null, typeof(object)),
@@ -349,7 +357,7 @@ namespace Xtensive.Storage.Linq
     protected override Expression VisitParameter(ParameterExpression p)
     {
       if (!parameters.Value.Contains(p))
-        throw new InvalidOperationException("LAmbda parameter is out of scope!");
+        throw new InvalidOperationException("Lambda parameter is out of scope!");
       var source = context.GetBound(p);
       resultMapping.Value.Replace(source.Mapping);
       var parameterRewriter = new ParameterRewriter(tuple.Value, record.Value);
@@ -447,9 +455,9 @@ namespace Xtensive.Storage.Linq
               tuple.Value);
             var ccd = new CalculatedColumnDescriptor(context.GetNextColumnAlias(), arg.Type, (Expression<Func<Tuple, object>>)calculator);
             calculatedColumns.Value.Add(ccd);
-            int position = context.GetBound(parameters.Value[0]).RecordSet.Header.Columns.Count + calculatedColumns.Value.Count - 1;
-            var method = genericAccessor.MakeGenericMethod(arg.Type);
-            newArg = Expression.Call(tuple.Value, method, Expression.Constant(position));
+            var parameter = parameters.Value[0];
+            int position = context.GetBound(parameter).RecordSet.Header.Columns.Count + calculatedColumns.Value.Count - 1;
+            newArg = MakeTupleAccess(parameter, arg.Type, Expression.Constant(position));
             resultMapping.Value.RegisterFieldMapping(memberName, new Segment<int>(position, 1));
           }
         }
@@ -522,7 +530,7 @@ namespace Xtensive.Storage.Linq
           var source = context.GetBound(path.Parameter);
           var segment = source.GetMemberSegment(path);
           foreach (var i in segment.GetItems()) {
-            Expression left = Expression.Call(tuple.Value, nonGenericAccessor, Expression.Constant(i));
+            Expression left = MakeTupleAccess(path.Parameter, null, Expression.Constant(i));
             Expression right = Expression.Constant(null);
             result = MakeBinaryExpression(result, left, right, operationType);
           }
@@ -536,12 +544,31 @@ namespace Xtensive.Storage.Linq
       var rightSource = context.GetBound(rightPath.Parameter);
       var rightSegment = rightSource.GetMemberSegment(rightPath);
       foreach (var pair in leftSegment.GetItems().ZipWith(rightSegment.GetItems(), (l,r) => new {l,r})) {
-        var method = genericAccessor.MakeGenericMethod(leftSource.RecordSet.Header.TupleDescriptor[pair.l]);
-        Expression left = Expression.Call(tuple.Value, method, Expression.Constant(pair.l));
-        Expression right = Expression.Call(tuple.Value, method, Expression.Constant(pair.r));
+        var type = leftSource.RecordSet.Header.TupleDescriptor[pair.l];
+        Expression left = MakeTupleAccess(leftPath.Parameter, type, Expression.Constant(pair.l));
+        Expression right = MakeTupleAccess(rightPath.Parameter, type, Expression.Constant(pair.r));
         result = MakeBinaryExpression(result, left, right, operationType);
       }
       return result;
+    }
+
+    private MethodCallExpression MakeTupleAccess(ParameterExpression parameter, Type accessorType, Expression index)
+    {
+      Parameter<Tuple> outerParameter;
+      Expression target;
+
+      if (parameters.Value.Contains(parameter))
+        target = tuple.Value;
+      else if (context.SubqueryParameterBindings.TryGetBound(parameter, out outerParameter))
+        target = Expression.Property(Expression.Constant(outerParameter), parameterOfTupleAccessor);
+      else
+        throw new InvalidOperationException();
+
+      var method = accessorType==null || accessorType==typeof (object)
+        ? nonGenericAccessor
+        : genericAccessor.MakeGenericMethod(accessorType);
+
+      return Expression.Call(target, method, index);
     }
 
     #endregion
@@ -552,6 +579,8 @@ namespace Xtensive.Storage.Linq
     {
       keyValueAccessor = typeof(Key).GetProperty("Value");
       keyAccessor = typeof(IEntity).GetProperty("Key");
+      parameterOfTupleAccessor = typeof (Parameter<Tuple>).GetProperty("Value", typeof(Tuple));
+
       selectMethod = typeof (Enumerable).GetMethods().Where(m => m.Name==WellKnown.Queryable.Select).First();
       keyCreateMethod = typeof (Key).GetMethod("Create", new[] {typeof (TypeInfo), typeof (Tuple), typeof (bool)});
       transformApplyMethod = typeof (SegmentTransform).GetMethod("Apply", new[] {typeof (TupleTransformType), typeof (Tuple)});
@@ -568,14 +597,11 @@ namespace Xtensive.Storage.Linq
           mi.IsGenericMethodDefinition == false && 
           mi.GetParameters().Length == 0)
         .Single();
-      foreach (var method in typeof(Tuple).GetMethods()) {
-        if (method.Name == "GetValueOrDefault") {
-          if (method.IsGenericMethod)
-            genericAccessor = method;
-          else
-            nonGenericAccessor = method;
-        }
-      }
+      foreach (var method in typeof(Tuple).GetMethods().Where(mi => mi.Name == WellKnown.Tuple.GetValueOrDefault))
+        if (method.IsGenericMethod)
+          genericAccessor = method;
+        else
+          nonGenericAccessor = method;
     }
   }
 }
