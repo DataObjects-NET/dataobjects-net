@@ -958,6 +958,9 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void ApplyTest()
     {
+      TestFixtureTearDown();
+      TestFixtureSetUp();
+
       int seed = Environment.TickCount;
       Console.WriteLine("seed is {0}", seed);
       var random = new Random(seed);
