@@ -67,6 +67,10 @@ namespace Xtensive.Storage
         lock (keyCache)
           keyCache.TryGetItem(this, true, out cachedKey);
         if (cachedKey==null) {
+          if (Hierarchy.Types.Count == 1) {
+            type = Hierarchy.Types[0];
+            return type;
+          }
           if (session.IsDebugEventLoggingEnabled)
             Log.Debug("Session '{0}'. Resolving key '{1}'. Exact type is unknown. Fetch is required.", session, this);
 
