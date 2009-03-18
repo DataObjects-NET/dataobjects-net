@@ -18,8 +18,7 @@ namespace Xtensive.Storage.Internals
     IEnumerable<Key>,
     IHasVersion<long>
   {
-    private readonly Func<long> getCount;
-    private long? count;
+    internal long count;
     internal ICache<Key, Key> keys;
 
     #region IHasVersion<...> methods
@@ -39,18 +38,13 @@ namespace Xtensive.Storage.Internals
     {
       get
       {
-        return count.HasValue && count.Value == keys.Count;
+        return count == keys.Count;
       }
     }
 
     public long Count
     {
-      get
-      {
-        if (!count.HasValue)
-          count = getCount();
-        return count.Value;
-      }
+      get { return count;}
     }
 
     public bool Contains(Key key)
@@ -66,16 +60,14 @@ namespace Xtensive.Storage.Internals
     public void Add(Key key)
     {
       Register(key);
-      if (count.HasValue)
-        count++;
+      count++;
       Version++;
     }
 
     public void Remove(Key key)
     {
       keys.RemoveKey(key);
-      if (count.HasValue)
-        count--;
+      count--;
       Version++;
     }
 
@@ -106,11 +98,9 @@ namespace Xtensive.Storage.Internals
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="cacheSize">Size of the cache.</param>
-    /// <param name="getCount">The load count.</param>
     /// <inheritdoc/>
-    public EntitySetState(long cacheSize, Func<long> getCount)
+    public EntitySetState(long cacheSize)
     {
-      this.getCount = getCount;
       keys = new LruCache<Key, Key>(cacheSize, cachedKey => cachedKey);
     }
   }

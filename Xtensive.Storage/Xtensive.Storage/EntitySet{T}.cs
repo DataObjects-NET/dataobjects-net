@@ -27,6 +27,10 @@ namespace Xtensive.Storage
     ICollection<TItem>, IOrderedQueryable<TItem>
     where TItem : Entity
   {
+
+    private const int CacheSize = 10240;
+    private const int LoadStateCount = 32;
+
     private static readonly QueryProvider provider = new QueryProvider();
     private Expression expression;
     private Query<TItem> query;
@@ -95,28 +99,9 @@ namespace Xtensive.Storage
     [Infrastructure]
     public IEnumerator<TItem> GetEnumerator()
     {
-//      bool isCached = State.IsFullyLoaded;
-//      if (!isCached) {
-//        return query.GetEnumerator();
-//      }
-//      else
-//        return GetKeys().Select(key => key.Resolve<TItem>(Session)).GetEnumerator();
-      /*long version = State.Version;
-            bool isCached = State.IsFullyLoaded;
-            IEnumerable<Key> keys = isCached ? State : FetchKeys();
-
-            foreach (Key key in keys) {
-              EnsureVersionIs(version);
-              if (!isCached)
-                State.Register(key);
-              yield return key;
-            }*/
-
-      foreach (Key key in GetKeys())
-        yield return key.Resolve<TItem>();
+      foreach (var item in GetEntities())
+        yield return (TItem)item;
     }
-
-    
 
     /// <inheritdoc/>
     [Infrastructure]
@@ -157,6 +142,48 @@ namespace Xtensive.Storage
     public IQueryProvider Provider
     {
       get { return provider; }
+    }
+
+    #endregion
+
+    /// <inheritdoc/>
+    protected sealed override EntitySetState LoadState()
+    {
+      var state = new EntitySetState(CacheSize);
+      long stateCount = 0;
+      if (((Entity)Owner).State.PersistenceState != PersistenceState.New) {
+        stateCount = count.First().GetValue<long>(0);
+        if (stateCount <= LoadStateCount)
+          foreach (var item in query)
+            state.Register(item.Key);
+      }
+      state.count = stateCount;
+      return state;
+    }
+
+    protected sealed override IEnumerable<Entity> GetEntities()
+    {
+      return State.IsFullyLoaded 
+        ? GetCachedEntities() 
+        : RetrieveEntities();
+    }
+
+    #region Private methods
+
+    private IEnumerable<Entity> GetCachedEntities()
+    {
+      foreach (Key key in State) {
+        EnsureVersionIs(State.Version);
+        yield return key.Resolve(); ;
+      }
+    }
+
+    private IEnumerable<Entity> RetrieveEntities()
+    {
+      foreach (var item in query) {
+        State.Register(item.Key);
+        yield return item;
+      }
     }
 
     #endregion
@@ -213,7 +240,7 @@ namespace Xtensive.Storage
             outerSelectorLambda.Body.Type,
             resultsSelectorLambda.Body.Type
           },
-          where, Expression.Constant(this), outerSelectorLambda,
+          where, Expression.Constant(Query<TItem>.All), outerSelectorLambda,
           innerSelectorLambda, resultsSelectorLambda);
       }
       query = new Query<TItem>(expression);

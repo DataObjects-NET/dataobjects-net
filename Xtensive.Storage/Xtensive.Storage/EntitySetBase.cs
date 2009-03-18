@@ -33,11 +33,9 @@ namespace Xtensive.Storage
     INotifyPropertyChanged,
     INotifyCollectionChanged
   {
-    private const int CacheSize = 10240;
     private static readonly Parameter<Tuple> pKey = new Parameter<Tuple>("Key");
-
     internal RecordSet items;
-    private RecordSet count;
+    internal RecordSet count;
     private RecordSet seek;
     private Func<Tuple, Entity> itemCtor;
     private AssociationInfo association;
@@ -90,9 +88,12 @@ namespace Xtensive.Storage
       if (!Field.ItemType.IsAssignableFrom(key.Type.UnderlyingType))
         throw new InvalidOperationException(string.Format("Entity type {0} is not supported by this instance.", key.Type.Name));
 
+      if (State.IsFullyLoaded)
+        return State.Contains(key);
+
       if (State.Contains(key))
         return true;
-
+      
       bool result;
       using (new ParameterScope()) {
         pKey.Value = seekTransform.Apply(TupleTransformType.TransformedTuple, ConcreteOwner.Key.Value, key.Value);
@@ -102,26 +103,6 @@ namespace Xtensive.Storage
         State.Register(key);
       return result;
     }
-
-    /// <summary>
-    /// Gets the keys.
-    /// </summary>
-    /// <returns>The <see cref="IEnumerable{Key}"/> collection of <see cref="Key"/> instances.</returns>
-    [Infrastructure]
-    public IEnumerable<Key> GetKeys()
-    {
-      long version = State.Version;
-      bool isCached = State.IsFullyLoaded;
-      IEnumerable<Key> keys = isCached ? State : FetchKeys();
-
-      foreach (Key key in keys) {
-        EnsureVersionIs(version);
-        if (!isCached)
-          State.Register(key);
-        yield return key;
-      }
-    }
-
     #endregion
 
     #region Initialization members
@@ -207,18 +188,12 @@ namespace Xtensive.Storage
     internal void Clear(bool notify)
     {
       OnClearing(notify);
-      foreach (Key key in GetKeys().ToList())
-        Remove(key.Resolve(), notify);
+      foreach (var entity in GetEntities())
+        Remove(entity, notify);
       OnClear(notify);
     }
 
     #endregion
-
-    /// <inheritdoc/>
-    protected sealed override EntitySetState LoadState()
-    {
-      return new EntitySetState(CacheSize, () => count.First().GetValue<long>(0));
-    }
 
     #region Private members
 
@@ -227,17 +202,38 @@ namespace Xtensive.Storage
       get { return (Entity) Owner; }
     }
 
-    private void EnsureVersionIs(long expectedVersion)
+    internal void EnsureVersionIs(long expectedVersion)
     {
       if (expectedVersion!=State.Version)
         Exceptions.CollectionHasBeenChanged(null);
     }
 
-    private IEnumerable<Key> FetchKeys()
-    {
-      foreach (Tuple tuple in items)
-        yield return Key.Create(Field.ItemType, association.ExtractForeignKey(tuple));
-    }
+    protected abstract IEnumerable<Entity> GetEntities();
+
+//    private IEnumerable<Key> FetchKeys()
+//    {
+//      foreach (Tuple tuple in items)
+//        yield return Key.Create(Field.ItemType, association.ExtractForeignKey(tuple));
+//    }
+
+//    /// <summary>
+//    /// Gets the keys.
+//    /// </summary>
+//    /// <returns>The <see cref="IEnumerable{Key}"/> collection of <see cref="Key"/> instances.</returns>
+//    internal IEnumerable<Key> GetKeys()
+//    {
+//      long version = State.Version;
+//      bool isCached = State.IsFullyLoaded;
+//      IEnumerable<Key> keys = isCached ? State : FetchKeys();
+//
+//      foreach (Key key in keys)
+//      {
+//        EnsureVersionIs(version);
+//        if (!isCached)
+//          State.Register(key);
+//        yield return key;
+//      }
+//    }
 
     #endregion
 
