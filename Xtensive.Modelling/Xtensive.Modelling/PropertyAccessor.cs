@@ -61,7 +61,7 @@ namespace Xtensive.Modelling
       var tType = propertyInfo.DeclaringType;
       var tProperty = propertyInfo.PropertyType;
       this.GetType()
-        .GetMethod("Initialize", 
+        .GetMethod("InnerInitialize", 
             BindingFlags.Instance | 
             BindingFlags.NonPublic, 
             null, ArrayUtils<Type>.EmptyArray, null)
@@ -70,15 +70,15 @@ namespace Xtensive.Modelling
         .Invoke(this, null);
     }
 
-    private void Initialize<TType, TProperty>()
+    private void InnerInitialize<TType, TProperty>()
     {
       var propertyInfo = PropertyInfo;
-      if (propertyInfo.CanRead) {
+      if (propertyInfo.GetGetMethod()!=null) {
         var d = DelegateHelper.CreateGetMemberDelegate<TType, TProperty>(PropertyInfo.Name);
         if (d!=null)
           getter = o => d((TType) o);
       }
-      if (propertyInfo.CanRead) {
+      if (propertyInfo.GetSetMethod()!=null) {
         var d = DelegateHelper.CreateSetMemberDelegate<TType, TProperty>(PropertyInfo.Name);
         if (d!=null)
           setter = (o,v) => d((TType) o, (TProperty) v);

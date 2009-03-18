@@ -16,9 +16,9 @@ namespace Xtensive.Modelling
     where TProperty: IPathNode
   {
     /// <summary>
-    /// Gets the property accessor for <see cref="INesting.PropertyName"/> property.
+    /// Gets the property getter for <see cref="INesting.PropertyName"/> property.
     /// </summary>
-    new Func<Node, TProperty> PropertyAccessor { get; }
+    new Func<Node, TProperty> PropertyGetter { get; }
 
     /// <summary>
     /// Gets the property value for <see cref="INesting.PropertyName"/> property.

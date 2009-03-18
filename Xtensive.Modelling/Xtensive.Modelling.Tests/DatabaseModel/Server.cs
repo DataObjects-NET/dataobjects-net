@@ -11,25 +11,20 @@ using Xtensive.Modelling.Attributes;
 namespace Xtensive.Modelling.Tests.DatabaseModel
 {
   [Serializable]
-  public class Database : Node<Server, Server>
+  public class Server : Model
   {
     [NodeProperty]
-    public SchemaCollection Schemas { get; private set; }
-
-    protected override INesting CreateNesting()
-    {
-      return new Nesting<Database, Server, DatabaseCollection>(this, "Databases");
-    }
+    public DatabaseCollection Databases { get; private set; }
 
     protected override void Initialize()
     {
       base.Initialize();
-      if (Schemas==null)
-        Schemas = new SchemaCollection(this);
+      if (Databases==null)
+        Databases = new DatabaseCollection(this);
     }
 
-    public Database(Server parent, string name, int index)
-      : base(parent, name, index)
+    public Server(string name)
+      : base(name)
     {
     }
   }

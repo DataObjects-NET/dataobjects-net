@@ -35,7 +35,7 @@ namespace Xtensive.Modelling
     [NonSerialized]
     private bool isCollectionProperty;
     [NonSerialized]
-    private Func<Node, TProperty> propertyAccessor;
+    private Func<Node, TProperty> propertyGetter;
     [NonSerialized]
     private Func<Node, IPathNode> untypedPropertyAccessor;
 
@@ -56,13 +56,13 @@ namespace Xtensive.Modelling
     }
 
     /// <inheritdoc/>
-    public Func<Node, TProperty> PropertyAccessor {
-      get { return propertyAccessor; }
+    public Func<Node, TProperty> PropertyGetter {
+      get { return propertyGetter; }
     }
 
     /// <inheritdoc/>
     public TProperty PropertyValue {
-      get { return PropertyAccessor(Node); }
+      get { return PropertyGetter(Node); }
     }
 
     /// <inheritdoc/>
@@ -77,7 +77,7 @@ namespace Xtensive.Modelling
       get { return Node; }
     }
 
-    Func<Node, IPathNode> INesting.PropertyAccessor { 
+    Func<Node, IPathNode> INesting.PropertyGetter { 
       get { return untypedPropertyAccessor; }
     }
 
@@ -97,7 +97,7 @@ namespace Xtensive.Modelling
         escapedPropertyName = null;
         propertyInfo = null;
         isCollectionProperty = false;
-        propertyAccessor = null;
+        propertyGetter = null;
         untypedPropertyAccessor = null;
         return;
       }
@@ -114,7 +114,7 @@ namespace Xtensive.Modelling
       if (typedAccessor==null)
         throw new InvalidOperationException(string.Format(
           Strings.ExBindingFailedForX, propertyInfo.GetShortName(true)));
-      propertyAccessor = 
+      propertyGetter = 
         n => typedAccessor.Invoke((TNode) n);
       untypedPropertyAccessor = 
         n => typedAccessor.Invoke((TNode) n);

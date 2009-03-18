@@ -39,9 +39,9 @@ namespace Xtensive.Modelling
 
     [NonSerialized]
     private static ThreadSafeDictionary<Type, ReadOnlyDictionary<string, PropertyAccessor>> cachedPropertyAccessors = 
-      new ThreadSafeDictionary<Type, ReadOnlyDictionary<string, PropertyAccessor>>();
+      ThreadSafeDictionary<Type, ReadOnlyDictionary<string, PropertyAccessor>>.Create(new object());
     [NonSerialized]
-    private ThreadSafeCached<Model> cachedModel = new ThreadSafeCached<Model>();
+    private ThreadSafeCached<Model> cachedModel = ThreadSafeCached<Model>.Create(new object());
     [NonSerialized]
     private string cachedPath;
     [NonSerialized]
@@ -185,7 +185,7 @@ namespace Xtensive.Modelling
         return;
       INodeCollection collection = null;
       if (Nesting.IsCollectionProperty)
-        collection = (INodeCollection) Nesting.PropertyAccessor(newParent);
+        collection = (INodeCollection) Nesting.PropertyGetter(newParent);
       Move(newParent, Name, collection==null ? 0 : collection.Count);
     }
 
@@ -246,7 +246,7 @@ namespace Xtensive.Modelling
       // Validation parent collection nesting
       INodeCollection collection = null;
       if (Nesting.IsCollectionProperty)
-        collection = (INodeCollection) Nesting.PropertyAccessor(newParent);
+        collection = (INodeCollection) Nesting.PropertyGetter(newParent);
       if (collection==null)
         return;
       ArgumentValidator.EnsureArgumentIsInRange(newIndex, 0, collection.Count - (newParent==Parent ? 1 : 0), "newIndex");
@@ -297,6 +297,18 @@ namespace Xtensive.Modelling
 
     protected abstract INesting CreateNesting();
 
+    /// <summary>
+    /// Initializes this instance.
+    /// </summary>
+    /// <exception cref="InvalidOperationException"><see cref="CreateNesting"/> has returned <see langword="null" />.</exception>
+    protected virtual void Initialize()
+    {
+      nesting = CreateNesting();
+      if (nesting==null)
+        throw new InvalidOperationException(Strings.ExNoNesting);
+      propertyAccessors = GetPropertyAccessors(GetType());
+    }
+
     /// <inheritdoc/>
     public override string ToString()
     {
@@ -304,11 +316,6 @@ namespace Xtensive.Modelling
     }
 
     #region Private \ internal methods
-
-    private void Initialize()
-    {
-      propertyAccessors = GetPropertyAccessors(GetType());
-    }
 
     private static ReadOnlyDictionary<string, PropertyAccessor> GetPropertyAccessors(Type type)
     {
@@ -338,14 +345,10 @@ namespace Xtensive.Modelling
     /// <param name="parent"><see cref="Parent"/> property value.</param>
     /// <param name="name">Initial <see cref="Name"/> property value.</param>
     /// <param name="index">Initial <see cref="Index"/> property value.</param>
-    /// <exception cref="InvalidOperationException"><see cref="CreateNesting"/> has returned <see langword="null" />.</exception>
     protected Node(Node parent, string name, int index)
     {
       ArgumentValidator.EnsureArgumentNotNull(parent, "parent");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
-      nesting = CreateNesting();
-      if (nesting==null)
-        throw new InvalidOperationException(Strings.ExNoNesting);
       Initialize();
       Move(parent, name, index);
     }
@@ -354,13 +357,9 @@ namespace Xtensive.Modelling
     /// Initializes a new instance of the <see cref="Node"/> class.
     /// </summary>
     /// <param name="name">Initial <see cref="Name"/> property value.</param>
-    /// <exception cref="InvalidOperationException"><see cref="CreateNesting"/> has returned <see langword="null" />.</exception>
     internal Node(string name)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
-      nesting = CreateNesting();
-      if (nesting==null)
-        throw new InvalidOperationException(Strings.ExNoNesting);
       Initialize();
       Rename(name);
     }
@@ -368,12 +367,8 @@ namespace Xtensive.Modelling
     // Deserialization
 
     /// <inheritdoc/>
-    /// <exception cref="InvalidOperationException"><see cref="CreateNesting"/> has returned <see langword="null" />.</exception>
     void IDeserializationCallback.OnDeserialization(object sender)
     {
-      nesting = CreateNesting();
-      if (nesting==null)
-        throw new InvalidOperationException(Strings.ExNoNesting);
       Initialize();
     }
   }

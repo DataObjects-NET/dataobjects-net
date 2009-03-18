@@ -35,9 +35,9 @@ namespace Xtensive.Modelling
     PropertyInfo PropertyInfo { get; }
 
     /// <summary>
-    /// Gets the property accessor for <see cref="PropertyName"/> property.
+    /// Gets the property getter for <see cref="PropertyName"/> property.
     /// </summary>
-    Func<Node, IPathNode> PropertyAccessor { get; }
+    Func<Node, IPathNode> PropertyGetter { get; }
 
     /// <summary>
     /// Gets the property value for <see cref="PropertyName"/> property.
