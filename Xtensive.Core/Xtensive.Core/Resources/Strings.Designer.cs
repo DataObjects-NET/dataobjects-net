@@ -484,6 +484,15 @@ namespace Xtensive.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Escape character must differ from delimiter character..
+        /// </summary>
+        internal static string ExEscapeCharacterMustDifferFromDelimiterCharacter {
+            get {
+                return ResourceManager.GetString("ExEscapeCharacterMustDifferFromDelimiterCharacter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Field with index &apos;{0}&apos; is infinitу..
         /// </summary>
         internal static string ExFieldIsInfinite {

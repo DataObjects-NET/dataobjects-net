@@ -600,4 +600,7 @@
   <data name="ExTypeXShouldNotBeGeneric" xml:space="preserve">
     <value>Type {0} should not be generic.</value>
   </data>
+  <data name="ExEscapeCharacterMustDifferFromDelimiterCharacter" xml:space="preserve">
+    <value>Escape character must differ from delimiter character.</value>
+  </data>
 </root>

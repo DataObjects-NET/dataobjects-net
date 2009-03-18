@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Xtensive.Core.Resources;
 
 namespace Xtensive.Core.Helpers
 {
@@ -146,8 +147,14 @@ namespace Xtensive.Core.Helpers
     /// Comma-separated string of all the items
     /// from <paramref name="source"/>.
     /// </returns>
+    /// <exception cref="ArgumentException"><paramref name="escape"/>==<paramref name="delimiter"/>.</exception>
     public static string RevertibleJoin(this IEnumerable<string> source, char escape, char delimiter)
     {
+      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      if (escape==delimiter)
+        throw new ArgumentException(
+          Strings.ExEscapeCharacterMustDifferFromDelimiterCharacter);
+
       var sb = new StringBuilder();
       bool needDelimiter = false;
       foreach (var part in source) {
@@ -177,8 +184,14 @@ namespace Xtensive.Core.Helpers
     /// The array of values that were previously joined
     /// by <see cref="RevertibleJoin"/>.
     /// </returns>
+    /// <exception cref="ArgumentException"><paramref name="escape"/>==<paramref name="delimiter"/>.</exception>
     public static IEnumerable<string> RevertibleSplit(this string source, char escape, char delimiter)
     {
+      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      if (escape==delimiter)
+        throw new ArgumentException(
+          Strings.ExEscapeCharacterMustDifferFromDelimiterCharacter);
+
       var sb = new StringBuilder();
       bool previousCharIsEscape = false;
       for (int i = 0; i<source.Length; i++) {

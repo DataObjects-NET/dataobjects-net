@@ -21,6 +21,9 @@ namespace Xtensive.Modelling
   public abstract class Node : LockableBase,
     INode
   {
+    public static readonly char PathSeparator = '/';
+    public static readonly char PathEscape = '\\';
+
     [NonSerialized]
     private ThreadSafeCached<Model> cachedModel;
     [NonSerialized]
