@@ -377,107 +377,106 @@ namespace Xtensive.Storage.Linq
 
     protected override Expression VisitNew(NewExpression n)
     {
-      throw new NotImplementedException("Заебали комитить не работающий код!");
-//      var arguments = new List<Expression>();
-//      if (n.Members == null)
-//        return base.VisitNew(n);
-//      for (int i = 0; i < n.Arguments.Count; i++) {
-//        var arg = n.Arguments[i];
-//        var newArg = (Expression) null;
-//        var member = n.Members[i];
-//        var memberName = member.Name.TryCutPrefix(WellKnown.GetterPrefix);
-//        Func<string, string> rename = key => key.IsNullOrEmpty()
-//              ? memberName
-//              : memberName + "." + key;
-//        var path = MemberPath.Parse(arg, context.Model);
-//        if (path.IsValid || arg.NodeType == ExpressionType.New) {
-//          ResultMapping rm;
-//          using (new ParameterScope()) {
-//            resultMapping.Value = new ResultMapping();
-//            newArg = Visit(arg);
-//            rm = resultMapping.Value;
-//          }
-//          if (rm.MapsToPrimitive)
-//            resultMapping.Value.RegisterFieldMapping(memberName, rm.Segment);
-//          else {
-//            foreach (var p in rm.Fields)
-//              resultMapping.Value.RegisterFieldMapping(rename(p.Key), p.Value);
-//            foreach (var p in rm.JoinedRelations)
-//              resultMapping.Value.RegisterJoined(rename(p.Key), p.Value);
-//            foreach (var p in rm.AnonymousProjections)
-//              resultMapping.Value.RegisterAnonymous(rename(p.Key), p.Value);
-//            var memberType = arg.GetMemberType();
-//            if (memberType == MemberType.Anonymous || memberType == MemberType.Entity) {
-//              resultMapping.Value.RegisterJoined(memberName, rm);
-//              if (memberType == MemberType.Anonymous)
-//                resultMapping.Value.RegisterAnonymous(memberName, newArg);
-//            }
-//          }
-//        }
-//        else {
-//          // TODO: Add check of queries
-//          Expression body;
-//          using (new ParameterScope()) {
-//            calculateExpressions.Value = false;
-//            resultMapping.Value = new ResultMapping();
-//            body = Visit(arg);
-//          }
-//          if (((ExtendedExpressionType)body.NodeType) == ExtendedExpressionType.Result) {
-//            var outerParameters = context.GetBindingKeys()
-//              .OfType<ParameterExpression>()
-////              .Where(pe => !parameters.Value.Contains(pe))
-//              .ToList();
-//            if (outerParameters.Count == 0)
-//              newArg = arg;
-//            else {
-//              var searchFor = outerParameters.ToArray();
-//              var replaceWithList = new List<Expression>();
-//              foreach (var projection in outerParameters.Select(pe => context.GetBound(pe).ItemProjector)) {
-//                recordIsUsed |= projection.Parameters.Count(pe => pe.Type == typeof (Record)) > 0;
-//                var replacedParameters = projection.Parameters.ToArray();
-//                var replacingParameters = projection.Parameters.Select(pe => pe.Type == typeof(Tuple) ? tuple.Value : record.Value).ToArray();
-//                replaceWithList.Add(ExpressionReplacer.ReplaceAll(projection.Body, replacedParameters, replacingParameters));
-//              }
-//              newArg = ExpressionReplacer.ReplaceAll(arg, searchFor, replaceWithList.ToArray());
-////              var parameterRewriter = new ParameterRewriter(tuple.Value, record.Value);
-////              var result = parameterRewriter.Rewrite(newArg);
-////              recordIsUsed |= result.Second;
-////              newArg = result.First;
-//            }
-////            var result = (ResultExpression)body;
-////            newArg = result.
-////            var elementType = body.Type.GetGenericArguments()[0];
-////            var typedQuery = typeof (Query<>).MakeGenericType(elementType);
-////            var constructor = typedQuery.GetConstructor(
-////              BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public, 
-////              new[] {typeof (Expression)});
-////            newArg = Expression.TypeAs(Expression.New(constructor, Expression.Quote(body)), typeof(IQueryable<>).MakeGenericType(elementType));
-////            Activator.CreateInstance(
-////              typeof (Query<>).MakeGenericType(body.Type.GetGenericArguments()),
-////              body);
-////            newArg = body;
-////            throw new NotImplementedException();
-//          }
-//          else {
-//            var calculator = Expression.Lambda(
-//              body.Type == typeof (object)
-//                ? body
-//                : Expression.Convert(body, typeof (object)),
-//              tuple.Value);
-//            var ccd = new CalculatedColumnDescriptor(context.GetNextColumnAlias(), arg.Type, (Expression<Func<Tuple, object>>)calculator);
-//            calculatedColumns.Value.Add(ccd);
-//            int position = context.GetBound(parameters.Value[0]).RecordSet.Header.Columns.Count + calculatedColumns.Value.Count - 1;
-//            var method = genericAccessor.MakeGenericMethod(arg.Type);
-//            newArg = Expression.Call(tuple.Value, method, Expression.Constant(position));
-//            resultMapping.Value.RegisterFieldMapping(memberName, new Segment<int>(position, 1));
-//          }
-//        }
-//        newArg = newArg ?? Visit(arg);
-//        arguments.Add(newArg);
-//      }
-//      var x = DateTime.Now;
-//      var y = x.AddDays(1);
-//      return Expression.New(n.Constructor, arguments, n.Members);
+      var arguments = new List<Expression>();
+      if (n.Members == null)
+        return base.VisitNew(n);
+      for (int i = 0; i < n.Arguments.Count; i++) {
+        var arg = n.Arguments[i];
+        var newArg = (Expression) null;
+        var member = n.Members[i];
+        var memberName = member.Name.TryCutPrefix(WellKnown.GetterPrefix);
+        Func<string, string> rename = key => key.IsNullOrEmpty()
+              ? memberName
+              : memberName + "." + key;
+        var path = MemberPath.Parse(arg, context.Model);
+        if (path.IsValid || arg.NodeType == ExpressionType.New) {
+          ResultMapping rm;
+          using (new ParameterScope()) {
+            resultMapping.Value = new ResultMapping();
+            newArg = Visit(arg);
+            rm = resultMapping.Value;
+          }
+          if (rm.MapsToPrimitive)
+            resultMapping.Value.RegisterFieldMapping(memberName, rm.Segment);
+          else {
+            foreach (var p in rm.Fields)
+              resultMapping.Value.RegisterFieldMapping(rename(p.Key), p.Value);
+            foreach (var p in rm.JoinedRelations)
+              resultMapping.Value.RegisterJoined(rename(p.Key), p.Value);
+            foreach (var p in rm.AnonymousProjections)
+              resultMapping.Value.RegisterAnonymous(rename(p.Key), p.Value);
+            var memberType = arg.GetMemberType();
+            if (memberType == MemberType.Anonymous || memberType == MemberType.Entity) {
+              resultMapping.Value.RegisterJoined(memberName, rm);
+              if (memberType == MemberType.Anonymous)
+                resultMapping.Value.RegisterAnonymous(memberName, newArg);
+            }
+          }
+        }
+        else {
+          // TODO: Add check of queries
+          Expression body;
+          using (new ParameterScope()) {
+            calculateExpressions.Value = false;
+            resultMapping.Value = new ResultMapping();
+            body = Visit(arg);
+          }
+          if (((ExtendedExpressionType)body.NodeType) == ExtendedExpressionType.Result) {
+            var outerParameters = context.GetBindingKeys()
+              .OfType<ParameterExpression>()
+//              .Where(pe => !parameters.Value.Contains(pe))
+              .ToList();
+            if (outerParameters.Count == 0)
+              newArg = arg;
+            else {
+              var searchFor = outerParameters.ToArray();
+              var replaceWithList = new List<Expression>();
+              foreach (var projection in outerParameters.Select(pe => context.GetBound(pe).ItemProjector)) {
+                recordIsUsed |= projection.Parameters.Count(pe => pe.Type == typeof (Record)) > 0;
+                var replacedParameters = projection.Parameters.ToArray();
+                var replacingParameters = projection.Parameters.Select(pe => pe.Type == typeof(Tuple) ? tuple.Value : record.Value).ToArray();
+                replaceWithList.Add(ExpressionReplacer.ReplaceAll(projection.Body, replacedParameters, replacingParameters));
+              }
+              newArg = ExpressionReplacer.ReplaceAll(arg, searchFor, replaceWithList.ToArray());
+//              var parameterRewriter = new ParameterRewriter(tuple.Value, record.Value);
+//              var result = parameterRewriter.Rewrite(newArg);
+//              recordIsUsed |= result.Second;
+//              newArg = result.First;
+            }
+//            var result = (ResultExpression)body;
+//            newArg = result.
+//            var elementType = body.Type.GetGenericArguments()[0];
+//            var typedQuery = typeof (Query<>).MakeGenericType(elementType);
+//            var constructor = typedQuery.GetConstructor(
+//              BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public, 
+//              new[] {typeof (Expression)});
+//            newArg = Expression.TypeAs(Expression.New(constructor, Expression.Quote(body)), typeof(IQueryable<>).MakeGenericType(elementType));
+//            Activator.CreateInstance(
+//              typeof (Query<>).MakeGenericType(body.Type.GetGenericArguments()),
+//              body);
+//            newArg = body;
+//            throw new NotImplementedException();
+          }
+          else {
+            var calculator = Expression.Lambda(
+              body.Type == typeof (object)
+                ? body
+                : Expression.Convert(body, typeof (object)),
+              tuple.Value);
+            var ccd = new CalculatedColumnDescriptor(context.GetNextColumnAlias(), arg.Type, (Expression<Func<Tuple, object>>)calculator);
+            calculatedColumns.Value.Add(ccd);
+            int position = context.GetBound(parameters.Value[0]).RecordSet.Header.Columns.Count + calculatedColumns.Value.Count - 1;
+            var method = genericAccessor.MakeGenericMethod(arg.Type);
+            newArg = Expression.Call(tuple.Value, method, Expression.Constant(position));
+            resultMapping.Value.RegisterFieldMapping(memberName, new Segment<int>(position, 1));
+          }
+        }
+        newArg = newArg ?? Visit(arg);
+        arguments.Add(newArg);
+      }
+      var x = DateTime.Now;
+      var y = x.AddDays(1);
+      return Expression.New(n.Constructor, arguments, n.Members);
     }
 
 

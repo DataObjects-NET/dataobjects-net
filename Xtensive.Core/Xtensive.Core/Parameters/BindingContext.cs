@@ -5,6 +5,7 @@
 // Created:    2009.03.12
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using Xtensive.Core.Internals.DocTemplates;
 
@@ -58,6 +59,16 @@ namespace Xtensive.Core.Parameters
     public T GetBound(object key)
     {
       return bindings[key];
+    }
+
+    /// <summary>
+    /// Gets the binding keys.
+    /// </summary>
+    /// <returns></returns>
+    public IEnumerable GetBindingKeys()
+    {
+      foreach (var key in bindings.Keys)
+        yield return key;
     }
 
 
