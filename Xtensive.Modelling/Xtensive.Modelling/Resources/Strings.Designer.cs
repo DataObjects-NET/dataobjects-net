@@ -61,6 +61,24 @@ namespace Xtensive.Modelling.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Binding has failed for {0}..
+        /// </summary>
+        internal static string ExBindingFailedForX {
+            get {
+                return ResourceManager.GetString("ExBindingFailedForX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid node state..
+        /// </summary>
+        internal static string ExInvalidNodeState {
+            get {
+                return ResourceManager.GetString("ExInvalidNodeState", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Invalid Parent value..
         /// </summary>
         internal static string ExInvalidParentValue {
@@ -93,6 +111,24 @@ namespace Xtensive.Modelling.Resources {
         internal static string ExModelObjectCannotBeRemoved {
             get {
                 return ResourceManager.GetString("ExModelObjectCannotBeRemoved", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nesting must be created for any node..
+        /// </summary>
+        internal static string ExNoNesting {
+            get {
+                return ResourceManager.GetString("ExNoNesting", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Type of {0} property must be {1}..
+        /// </summary>
+        internal static string ExTypeOfXPropertyMustBeY {
+            get {
+                return ResourceManager.GetString("ExTypeOfXPropertyMustBeY", resourceCulture);
             }
         }
     }

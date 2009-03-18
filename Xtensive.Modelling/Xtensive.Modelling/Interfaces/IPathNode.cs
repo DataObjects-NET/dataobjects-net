@@ -4,18 +4,15 @@
 // Created by: Alex Yakunin
 // Created:    2009.03.17
 
+using Xtensive.Core;
+
 namespace Xtensive.Modelling
 {
   /// <summary>
   /// Base class for any model node or node collection.
   /// </summary>
-  public interface IPathNode
+  public interface IPathNode : ILockable
   {
-    /// <summary>
-    /// Gets a value indicating whether this node is removed.
-    /// </summary>
-    bool IsRemoved { get; }
-    
     /// <summary>
     /// Gets the name of this node.
     /// </summary>

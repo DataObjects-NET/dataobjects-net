@@ -36,11 +36,6 @@ namespace Xtensive.Modelling
     private Dictionary<string, TNode> nameIndex = new Dictionary<string, TNode>();
 
     /// <inheritdoc/>
-    public bool IsRemoved {
-      get { return Parent.IsRemoved; }
-    }
-
-    /// <inheritdoc/>
     public abstract string Name { get; }
 
     /// <inheritdoc/>

@@ -16,6 +16,15 @@ namespace Xtensive.Modelling
   public abstract class Model : Node
   {
     /// <inheritdoc/>
+    protected sealed override INodeNesting CreateNesting()
+    {
+      return new NodeNesting<Model, Model, Model>(this);
+    }
+
+
+    // Constructors
+
+    /// <inheritdoc/>
     protected Model(string name)
       : base(name)
     {

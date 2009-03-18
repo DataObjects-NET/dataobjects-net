@@ -15,7 +15,8 @@ namespace Xtensive.Modelling
   /// </summary>
   /// <typeparam name="TParent">The type of the parent.</typeparam>
   [Serializable]
-  public abstract class Node<TParent> : Node
+  public abstract class Node<TParent> : Node,
+    INode<TParent>
     where TParent : Node
   {
     /// <summary>

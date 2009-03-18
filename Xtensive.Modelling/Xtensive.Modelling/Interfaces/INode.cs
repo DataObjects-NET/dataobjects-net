@@ -14,28 +14,20 @@ namespace Xtensive.Modelling
   public interface INode : IPathNode
   {
     /// <summary>
-    /// Gets the index of the node in the <see cref="NodeCollection"/>.
+    /// Gets the state of the node.
     /// </summary>
-    int Index { get; }
+    NodeState State { get; }
     
     /// <summary>
-    /// Gets the parent node collection this node belongs to.
+    /// Gets the index of the node in the parent collection, if applicable;
+    /// otherwise, <see langword="0" />.
     /// </summary>
-    /// <returns>
-    /// Parent node collection;
-    /// <see langword="null"/>, if none.
-    /// </returns>
-    INodeCollection NodeCollection { get; }
+    int Index { get; }
 
     /// <summary>
-    /// Gets the parent node collection this node should belong to.
+    /// Gets the node nesting information.
     /// </summary>
-    /// <param name="parent">Parent node to get the node collection of.</param>
-    /// <returns>
-    /// Parent node collection;
-    /// <see langword="null"/>, if none.
-    /// </returns>
-    INodeCollection GetNodeCollection(INode parent);
+    INodeNesting Nesting { get; }
 
     /// <summary>
     /// Renames the node.
@@ -49,13 +41,13 @@ namespace Xtensive.Modelling
     /// <param name="newParent">The new parent.</param>
     /// <param name="newName">The new name.</param>
     /// <param name="newIndex">The new index.</param>
-    void Move(INode newParent, string newName, int newIndex);
+    void Move(Node newParent, string newName, int newIndex);
 
     /// <summary>
     /// Moves the node.
     /// </summary>
     /// <param name="newParent">The new parent.</param>
-    void Move(INode newParent);
+    void Move(Node newParent);
 
     /// <summary>
     /// Moves the node.

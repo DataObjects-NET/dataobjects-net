@@ -7,9 +7,8 @@
 using System;
 using System.Diagnostics;
 using Xtensive.Core;
-using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
-using Xtensive.Core.Notifications;
+using Xtensive.Core.Threading;
 using Xtensive.Modelling.Resources;
 
 namespace Xtensive.Modelling
@@ -23,15 +22,18 @@ namespace Xtensive.Modelling
     INode
   {
     [NonSerialized]
-    internal Node parent;
+    private ThreadSafeCached<Model> cachedModel;
     [NonSerialized]
-    private Cached<Model> cachedModel;
+    internal Node parent;
     private string name;
+    private NodeState state;
     private int index;
+    private INodeNesting nesting;
 
     /// <inheritdoc/>
-    public bool IsRemoved {
-      get { return Parent!=null ? false : !(this is Model); }
+    public Node Parent {
+      [DebuggerStepThrough]
+      get { return parent; }
     }
 
     /// <inheritdoc/>
@@ -42,6 +44,11 @@ namespace Xtensive.Modelling
     }
 
     /// <inheritdoc/>
+    public NodeState State {
+      get { return state; }
+    }
+
+    /// <inheritdoc/>
     public int Index
     {
       [DebuggerStepThrough]
@@ -49,9 +56,9 @@ namespace Xtensive.Modelling
     }
 
     /// <inheritdoc/>
-    public Node Parent {
+    public INodeNesting Nesting {
       [DebuggerStepThrough]
-      get { return parent; }
+      get { return nesting; }
     }
 
     /// <inheritdoc/>
@@ -83,42 +90,40 @@ namespace Xtensive.Modelling
       }
     }
 
-    /// <inheritdoc/>
-    public INodeCollection NodeCollection {
-      [DebuggerStepThrough]
-      get {
-        return Parent==null ? null : GetNodeCollection(Parent);
-      }
-    }
-
-    /// <inheritdoc/>
-    public abstract INodeCollection GetNodeCollection(INode parent);
-
     public IPathNode GetChild(string path)
     {
-      throw new System.NotImplementedException();
+      throw new NotImplementedException();
     }
 
+    #region Operations
+
     /// <inheritdoc/>
-    public virtual void Move(INode newParent, string newName, int newIndex)
+    /// <exception cref="InvalidOperationException">Invalid node state.</exception>
+    public virtual void Move(Node newParent, string newName, int newIndex)
     {
+      if (State==NodeState.Removed)
+        throw new InvalidOperationException(Strings.ExInvalidNodeState);
       this.EnsureNotLocked();
       if (newParent==Parent && newName==Name && newIndex==Index)
         return;
       ValidateMove(newParent, newName, newIndex);
       // TODO: Change NodeCollection
+      state = NodeState.Live;
       name = newName;
       parent = (Node) newParent;
       index = newIndex;
     }
 
     /// <inheritdoc/>
-    public void Move(INode newParent)
+    public void Move(Node newParent)
     {
       ArgumentValidator.EnsureArgumentNotNull(newParent, "newParent");
       if (newParent==Parent)
         return;
-      Move(newParent, Name, GetNodeCollection(newParent).Count);
+      INodeCollection collection = null;
+      if (Nesting.IsCollectionProperty)
+        collection = (INodeCollection) Nesting.PropertyAccessor(newParent);
+      Move(newParent, Name, collection==null ? 0 : collection.Count);
     }
 
     /// <inheritdoc/>
@@ -134,14 +139,17 @@ namespace Xtensive.Modelling
     }
 
     /// <inheritdoc/>
+    /// <exception cref="InvalidOperationException">Invalid node state.</exception>
     public void Remove()
     {
-      this.EnsureNotLocked();
+      EnsureIsEditable();
       ValidateRemove();
       // TODO: Change NodeCollection
       parent = null;
       Lock(true);
     }
+
+    #endregion
 
     #region ValidateXxx methods
 
@@ -154,7 +162,7 @@ namespace Xtensive.Modelling
     /// <exception cref="ArgumentException">Item already exists.</exception>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="newIndex"/> is out of range, 
     /// or <paramref name="newParent"/> belongs to a different <see cref="Model"/>.</exception>
-    protected virtual void ValidateMove(INode newParent, string newName, int newIndex)
+    protected virtual void ValidateMove(Node newParent, string newName, int newIndex)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(newName, "newName");
       if (this is Model) {
@@ -162,6 +170,7 @@ namespace Xtensive.Modelling
         return;
       }
 
+      // Validating parent model
       ArgumentValidator.EnsureArgumentNotNull(newParent, "newParent");
       ArgumentValidator.EnsureArgumentIs<Node>(newParent, "newParent");
       var model = Model;
@@ -171,7 +180,10 @@ namespace Xtensive.Modelling
           throw new ArgumentOutOfRangeException("newParent.Model");
       }
 
-      var collection = GetNodeCollection(newParent);
+      // Validation parent collection nesting
+      INodeCollection collection = null;
+      if (Nesting.IsCollectionProperty)
+        collection = (INodeCollection) Nesting.PropertyAccessor(newParent);
       if (collection==null)
         return;
       ArgumentValidator.EnsureArgumentIsInRange(newIndex, 0, collection.Count - (newParent==Parent ? 1 : 0), "newIndex");
@@ -195,6 +207,25 @@ namespace Xtensive.Modelling
 
     #endregion
 
+    #region EnsureXxxx methods
+
+    protected void EnsureIsLive()
+    {
+      if (State!=NodeState.Live)
+        throw new InvalidOperationException(Strings.ExInvalidNodeState);
+    }
+
+    protected void EnsureIsEditable()
+    {
+      if (State!=NodeState.Live)
+        throw new InvalidOperationException(Strings.ExInvalidNodeState);
+      this.EnsureNotLocked();
+    }
+
+    #endregion
+
+    protected abstract INodeNesting CreateNesting();
+
     /// <inheritdoc/>
     public override string ToString()
     {
@@ -210,10 +241,14 @@ namespace Xtensive.Modelling
     /// <param name="parent"><see cref="Parent"/> property value.</param>
     /// <param name="name">Initial <see cref="Name"/> property value.</param>
     /// <param name="index">Initial <see cref="Index"/> property value.</param>
+    /// <exception cref="InvalidOperationException"><see cref="CreateNesting"/> has returned <see langword="null" />.</exception>
     protected Node(Node parent, string name, int index)
     {
       ArgumentValidator.EnsureArgumentNotNull(parent, "parent");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
+      nesting = CreateNesting();
+      if (nesting==null)
+        throw new InvalidOperationException(Strings.ExNoNesting);
       Move(parent, name, index);
     }
 
@@ -221,9 +256,13 @@ namespace Xtensive.Modelling
     /// Initializes a new instance of the <see cref="Node"/> class.
     /// </summary>
     /// <param name="name">Initial <see cref="Name"/> property value.</param>
+    /// <exception cref="InvalidOperationException"><see cref="CreateNesting"/> has returned <see langword="null" />.</exception>
     internal Node(string name)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
+      nesting = CreateNesting();
+      if (nesting==null)
+        throw new InvalidOperationException(Strings.ExNoNesting);
       Rename(name);
     }
   }

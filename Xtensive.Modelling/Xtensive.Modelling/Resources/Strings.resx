@@ -129,4 +129,16 @@
   <data name="ExModelObjectCannotBeRemoved" xml:space="preserve">
     <value>Model object cannot be removed.</value>
   </data>
+  <data name="ExTypeOfXPropertyMustBeY" xml:space="preserve">
+    <value>Type of {0} property must be {1}.</value>
+  </data>
+  <data name="ExInvalidNodeState" xml:space="preserve">
+    <value>Invalid node state.</value>
+  </data>
+  <data name="ExBindingFailedForX" xml:space="preserve">
+    <value>Binding has failed for {0}.</value>
+  </data>
+  <data name="ExNoNesting" xml:space="preserve">
+    <value>Nesting must be created for any node.</value>
+  </data>
 </root>
