@@ -510,7 +510,7 @@ namespace Xtensive.Storage.Providers.Sql
         return null;
 
       var leftQuery = left.PermanentReference;
-      var rightQuery = (SqlSelect) left.Request.Statement;
+      var rightQuery = (SqlSelect) right.Request.Statement;
       var filter = SqlFactory.Exists(rightQuery);
       if (notExisting)
         filter = SqlFactory.Not(filter);

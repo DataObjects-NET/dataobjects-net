@@ -237,42 +237,38 @@ namespace Xtensive.Storage.Linq
 
     private Expression VisitContains(Expression source, Expression match, bool isRoot)
     {
-      bool isQuery = source.IsQuery();
-      if (isQuery && isRoot) {
-        var p = Expression.Parameter(match.Type, "p");
-        var le = Expression.Lambda(Expression.Equal(p, match), p);
+      var p = Expression.Parameter(match.Type, "p");
+      var le = Expression.Lambda(Expression.Equal(p, match), p);
+
+      if (isRoot)
         return VisitRootExists(source, le, false);
-      }
+
+      if (source.IsQuery())
+        return VisitExists(source, le, false);
+
       throw new NotImplementedException();
     }
 
     private Expression VisitAll(Expression source, LambdaExpression predicate, bool isRoot)
     {
-      bool isQuery = source.IsQuery();
-      if (isQuery && isRoot) {
-        predicate = Expression.Lambda(Expression.Not(predicate.Body), predicate.Parameters[0]);
+      predicate = Expression.Lambda(Expression.Not(predicate.Body), predicate.Parameters[0]);
+
+      if (isRoot)
         return VisitRootExists(source, predicate, true);
-      }
+
+      if (source.IsQuery())
+        return VisitExists(source, predicate, true);
 
       throw new NotImplementedException();
     }
 
     private Expression VisitAny(Expression source, LambdaExpression predicate, bool isRoot)
     {
-      bool isQuery = source.IsQuery();
-      if (isQuery && isRoot)
+      if (isRoot)
         return VisitRootExists(source, predicate, false);
 
-      if (predicate==null && isQuery) {
-        var subquery = (ResultExpression) Visit(source);
-        var lambdaParameter = (ParameterExpression) context.SubqueryParameterBindings.CurrentKey;
-        var applyParameter = context.SubqueryParameterBindings.GetBound(lambdaParameter);
-        var oldResult = context.GetBound(lambdaParameter);
-        var newRecordSet = oldResult.RecordSet.Apply(applyParameter, subquery.RecordSet, ApplyType.Existing);
-        var newResult = new ResultExpression(oldResult.Type, newRecordSet, oldResult.Mapping, oldResult.Projector, oldResult.ItemProjector);
-        context.ReplaceBound(lambdaParameter, newResult);
-        return Expression.Constant(true);
-      }
+      if (source.IsQuery())
+        return VisitExists(source, predicate, false);
 
       throw new NotImplementedException();
     }
@@ -620,6 +616,22 @@ namespace Xtensive.Storage.Linq
         shaper = rs => rs.First().GetValue<long>(0) > 0;
 
       return new ResultExpression(typeof(bool), result.RecordSet, null, shaper, null);
+    }
+    
+    private Expression VisitExists(Expression source, LambdaExpression predicate, bool notExists)
+    {
+      var subquery = predicate == null
+        ? (ResultExpression)Visit(source)
+        : (ResultExpression)VisitWhere(source, predicate);
+      var lambdaParameter = context.SubqueryParameterBindings.CurrentParameter;
+      var applyParameter = context.SubqueryParameterBindings.GetBound(lambdaParameter);
+      var oldResult = context.GetBound(lambdaParameter);
+      var newRecordSet = oldResult.RecordSet
+        .Apply(applyParameter, subquery.RecordSet, notExists ? ApplyType.NotExisting : ApplyType.Existing);
+      var newResult = new ResultExpression(
+        oldResult.Type, newRecordSet, oldResult.Mapping, oldResult.Projector, oldResult.ItemProjector);
+      context.ReplaceBound(lambdaParameter, newResult);
+      return Expression.Equal(Expression.Constant(1), Expression.Constant(1));
     }
 
     // Constructor
