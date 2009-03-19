@@ -23,7 +23,7 @@ namespace Xtensive.Storage.Linq
   public class RedundantColumnRemover : CompilableProviderVisitor
   {
     private readonly Dictionary<Provider, List<int>> mapping;
-    private readonly PredicateVisitor predicateVisitor;
+    private readonly TupleAccessProcessor tupleAccessProcessor;
     private readonly ResultExpression origin;
 
     internal ResultExpression RemoveRedundantColumn()
@@ -60,8 +60,8 @@ namespace Xtensive.Storage.Linq
             if (group.HierarchyInfoRef.TypeName == rsGroup.HierarchyInfoRef.TypeName)
               groupMap.Add(originGroups.IndexOf(group));
 
-        var projector = withAggregate ? origin.Projector : (Expression<Func<RecordSet, object>>)predicateVisitor.ReplaceMappings(origin.Projector, mapping[provider], groupMap);
-        var itemProjector = origin.ItemProjector == null ? null : (LambdaExpression)predicateVisitor.ReplaceMappings(origin.ItemProjector, mapping[provider], groupMap);
+        var projector = withAggregate ? origin.Projector : (Expression<Func<RecordSet, object>>)tupleAccessProcessor.ReplaceMappings(origin.Projector, mapping[provider], groupMap);
+        var itemProjector = origin.ItemProjector == null ? null : (LambdaExpression)tupleAccessProcessor.ReplaceMappings(origin.ItemProjector, mapping[provider], groupMap);
         var result = new ResultExpression(origin.Type, rs, (origin.Mapping == null)? null : new ResultMapping(), projector, itemProjector);
         return result;
       }
@@ -94,7 +94,7 @@ namespace Xtensive.Storage.Linq
         List<int> value;
         mapping.TryGetValue(provider, out value);
         if (value != null)
-          mapping.Add(provider.Source, value.Union(predicateVisitor.ProcessPredicate(provider.Predicate)).ToList());
+          mapping.Add(provider.Source, value.Union(tupleAccessProcessor.Process(provider.Predicate)).ToList());
       return base.VisitFilter(provider);
     }
 
@@ -179,7 +179,7 @@ namespace Xtensive.Storage.Linq
       if (value != null) {
         var map = new List<int>();
         foreach(var column in provider.CalculatedColumns){
-          map.AddRange(predicateVisitor.ProcessPredicate(column.Expression));
+          map.AddRange(tupleAccessProcessor.Process(column.Expression));
           map.Add(column.Index);}
         mapping.Add(provider.Source, value.Union(map).ToList());
       }
@@ -286,12 +286,12 @@ namespace Xtensive.Storage.Linq
     /// </summary>
     internal RedundantColumnRemover(ResultExpression resultExpression)
     {
-      predicateVisitor = new PredicateVisitor();
+      tupleAccessProcessor = new TupleAccessProcessor();
       mapping = new Dictionary<Provider, List<int>>();
       origin = resultExpression;
       translate = (provider, e) => {
         if (provider.Type == ProviderType.Filter || provider.Type == ProviderType.Calculate)
-          return predicateVisitor.ReplaceMappings(e, ModifyMapping(provider), null);
+          return tupleAccessProcessor.ReplaceMappings(e, ModifyMapping(provider), null);
         return e;
       };
     }

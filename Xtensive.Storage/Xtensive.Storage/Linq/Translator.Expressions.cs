@@ -471,8 +471,8 @@ namespace Xtensive.Storage.Linq
       var fieldMapping = BuildFieldMapping(type, 0);
       var mapping = new ResultMapping(fieldMapping, new Dictionary<string, ResultMapping>());
       var recordSet = IndexProvider.Get(index).Result;
-      Expression<Func<RecordSet, object>> projector = rs => rs.Parse().Select(r => r.DefaultKey.Resolve());
-      Expression<Func<Record, Entity>> ipt = r => r.DefaultKey.Resolve();
+      Expression<Func<RecordSet, object>> projector = rs => rs.Parse().Select(r => r[0].Resolve());
+      Expression<Func<Record, Entity>> ipt = r => r[0].Resolve();
       LambdaExpression itemProjector = Expression.Lambda(Expression.Convert(ipt.Body, elementType), ipt.Parameters[0]);
 
       return new ResultExpression(

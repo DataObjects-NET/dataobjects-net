@@ -12,7 +12,7 @@ using Xtensive.Core.Tuples;
 
 namespace Xtensive.Storage.Linq
 {
-  internal class PredicateVisitor : ExpressionVisitor
+  internal class TupleAccessProcessor : ExpressionVisitor
   {
     private List<int> map = new List<int>();
     private bool isReplacing;
@@ -22,21 +22,23 @@ namespace Xtensive.Storage.Linq
     protected override Expression VisitMethodCall(MethodCallExpression mc)
     {
       var result = mc;
-      if (mc.Method.Name == "GetValueOrDefault")
+      var tupleAccess = mc.AsTupleAccess();
+      if (tupleAccess != null) {
         if (!isReplacing)
           map.Add((int)((ConstantExpression)mc.Arguments[0]).Value);
         else {
           var value = (int) ((ConstantExpression) mc.Arguments[0]).Value;
           result = Expression.Call(mc.Object, mc.Method, Expression.Constant(map.IndexOf(value)));
         }
-      else if (mc.Method.Name == "get_Item" && isReplacing && group != null) {
+      }
+      else if (mc.Object != null && mc.Object.Type == typeof(Record) &&  mc.Method.Name == "get_Item" && isReplacing && group != null) {
         var value = (int)((ConstantExpression)mc.Arguments[0]).Value;
         result = Expression.Call(mc.Object, mc.Method, Expression.Constant(group.IndexOf(value)));
       }
       return base.VisitMethodCall(result);
     }
 
-    public List<int> ProcessPredicate(Expression predicate)
+    public List<int> Process(Expression predicate)
     {
       try {
         isReplacing = false;

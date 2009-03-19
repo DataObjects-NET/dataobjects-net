@@ -82,24 +82,22 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
 
     private SqlExpression VisitParameterAccess(Expression e)
     {
-      if (e.NodeType == ExpressionType.Call) {
-        var mc = (MethodCallExpression)e;
-        if (mc.Method.Name == "GetValue" || mc.Method.Name == "GetValueOrDefault") {
-          if (mc.Object.NodeType == ExpressionType.MemberAccess) {
-            var ma = (MemberExpression)mc.Object;
-            if (ma.Member.Name == "Value" && ma.Expression.Type == typeof(Parameter<Tuple>)) {
-              var parameter = Expression.Lambda<Func<Parameter<Tuple>>>(ma.Expression).Compile().Invoke();
-              int columnIndex = mc.Arguments[0].NodeType == ExpressionType.Constant
-                ? (int)((int)((ConstantExpression)mc.Arguments[0]).Value)
-                : Expression.Lambda<Func<int>>(mc.Arguments[0]).Compile().Invoke();
-              var provider = CompilationContext.Current.BindingContext.GetBound(parameter);
-              if (!Compiler.IsCompatible(provider)) {
-                provider = Compiler.ToCompatible(provider);
-                CompilationContext.Current.BindingContext.ReplaceBound(parameter, provider);
-              }
-              var sqlProvider = (SqlProvider)provider;
-              return sqlProvider.PermanentReference[columnIndex];
+      var tupleAccess = e.AsTupleAccess();
+      if (tupleAccess != null) {
+        if (tupleAccess.Object.NodeType == ExpressionType.MemberAccess) {
+          var ma = (MemberExpression)tupleAccess.Object;
+          if (ma.Member.Name == "Value" && ma.Expression.Type == typeof(Parameter<Tuple>)) {
+            var parameter = Expression.Lambda<Func<Parameter<Tuple>>>(ma.Expression).Compile().Invoke();
+            int columnIndex = tupleAccess.Arguments[0].NodeType == ExpressionType.Constant
+              ? (int)((int)((ConstantExpression)tupleAccess.Arguments[0]).Value)
+              : Expression.Lambda<Func<int>>(tupleAccess.Arguments[0]).Compile().Invoke();
+            var provider = CompilationContext.Current.BindingContext.GetBound(parameter);
+            if (!Compiler.IsCompatible(provider)) {
+              provider = Compiler.ToCompatible(provider);
+              CompilationContext.Current.BindingContext.ReplaceBound(parameter, provider);
             }
+            var sqlProvider = (SqlProvider)provider;
+            return sqlProvider.PermanentReference[columnIndex];
           }
         }
       }
@@ -242,10 +240,10 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
 
     protected override SqlExpression VisitMethodCall(MethodCallExpression mc)
     {
-      if (mc.Object != null && mc.Object.Type == typeof(Tuple)) {
-        if (mc.Method.Name == "GetValue" || mc.Method.Name == "GetValueOrDefault") {
-          var type = mc.Method.ReturnType;
-          var columnArgument = mc.Arguments[0];
+      var tupleAccess = mc.AsTupleAccess();
+      if (tupleAccess != null) {
+          var type = tupleAccess.Method.ReturnType;
+          var columnArgument = tupleAccess.Arguments[0];
           int columnIndex;
           if (columnArgument.NodeType == ExpressionType.Constant)
             columnIndex = (int)((ConstantExpression)columnArgument).Value;
@@ -253,9 +251,8 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
             var columnFunc = Expression.Lambda<Func<int>>(columnArgument).Compile();
             columnIndex = columnFunc();
           }
-          var sqlSelect = parameterMapping[(ParameterExpression)mc.Object];
+          var sqlSelect = parameterMapping[(ParameterExpression)tupleAccess.Object];
           return sqlSelect[columnIndex];
-        }
       }
 
       var arguments = mc.Arguments.Select(a => Visit(a)).ToArray();

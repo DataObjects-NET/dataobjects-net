@@ -9,7 +9,7 @@ using System;
 namespace Xtensive.Storage.Linq
 {
   [Serializable]
-  internal enum MemberType
+  public enum MemberType
   {
     Default = Unknown,
     Unknown = 0,
