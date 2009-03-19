@@ -30,6 +30,9 @@ namespace Xtensive.Storage.Tests.ReferentialIntegrityModel
 
     [Field(OnRemove = ReferentialAction.Restrict)]
     public C C { get; set; }
+
+    [Field]
+    public string Name { get; set; }
   }
 
   public class B : Root
@@ -78,6 +81,46 @@ namespace Xtensive.Storage.Tests.Storage
     }
 
     [Test]
+    public void RemoveWithException()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          A a = new A();
+          a.C = new C();
+          a.Remove();
+          Session.Current.Persist();
+        }
+      }
+    }
+
+    [Test]
+    public void DeletedEntityAddToReference()
+    {
+      using (Domain.OpenSession())
+      {
+        using (var t = Transaction.Open())
+        {
+          A a = new A();
+          B b = new B();
+          b.Remove();
+          AssertEx.ThrowsInvalidOperationException(() => a.B = b);
+        }
+      }
+    }
+
+    [Test]
+    public void DeletedEntityChangeFields()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          A a = new A();
+          a.Remove();
+          AssertEx.ThrowsInvalidOperationException(()=>a.Name = "newName");
+        }
+      }
+    }
+
+    [Test]
     public void MainTest()
     {
       using (Domain.OpenSession()) {
@@ -94,6 +137,7 @@ namespace Xtensive.Storage.Tests.Storage
           Assert.AreEqual(null, a.B);
           AssertEx.Throws<ReferentialIntegrityException>(a.C.Remove);
           a.Remove();
+          // Session.Current.Persist();
           Assert.AreEqual(0, Query<A>.All.Count());
           Assert.AreEqual(0, Query<B>.All.Count());
           Assert.AreEqual(0, Query<C>.All.Count());
