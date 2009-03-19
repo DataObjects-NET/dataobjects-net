@@ -44,8 +44,10 @@ namespace Xtensive.Storage.Tests.Linq
               select new
                {
                  Value = new byte[] {1, 2, 3},
-                 Method = method
+                 Method = method,
+                 p.ProductName
                }
+            orderby r.ProductName
             where r.Method == method
             select r;
           var list = result.ToList();
