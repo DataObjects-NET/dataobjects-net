@@ -84,9 +84,14 @@ namespace Xtensive.Storage.Tests.Storage
     public void RemoveWithException()
     {
       using (Domain.OpenSession()) {
+        A a;
+        C c;
         using (var t = Transaction.Open()) {
-          A a = new A();
-          a.C = new C();
+          a = new A();
+          c = new C();
+          a.C = c;
+          Log.Debug(a.Key.ToString());
+          Log.Debug(c.Key.ToString());
           a.Remove();
           Session.Current.Persist();
         }
@@ -96,10 +101,8 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void DeletedEntityAddToReference()
     {
-      using (Domain.OpenSession())
-      {
-        using (var t = Transaction.Open())
-        {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
           A a = new A();
           B b = new B();
           b.Remove();
@@ -115,7 +118,7 @@ namespace Xtensive.Storage.Tests.Storage
         using (var t = Transaction.Open()) {
           A a = new A();
           a.Remove();
-          AssertEx.ThrowsInvalidOperationException(()=>a.Name = "newName");
+          AssertEx.ThrowsInvalidOperationException(() => a.Name = "newName");
         }
       }
     }

@@ -36,7 +36,8 @@ namespace Xtensive.Storage
 
     /// <exception cref="Exception">Property is already initialized.</exception>
     [Field]
-    internal int TypeId {
+    internal int TypeId
+    {
       [DebuggerStepThrough]
       get { return GetFieldValue<int>(Session.Domain.NameBuilder.TypeIdFieldName); }
     }
@@ -47,7 +48,8 @@ namespace Xtensive.Storage
 
     /// <exception cref="Exception">Property is already initialized.</exception>
     [Infrastructure]
-    public Key Key {
+    public Key Key
+    {
       [DebuggerStepThrough]
       get { return State.Key; }
     }
@@ -56,18 +58,21 @@ namespace Xtensive.Storage
     /// Gets a value indicating whether this entity is removed.
     /// </summary>
     [Infrastructure]
-    public bool IsRemoved {
+    public bool IsRemoved
+    {
       get { return State.IsRemoved; }
     }
 
     /// <inheritdoc/>
-    internal override sealed TypeInfo Type {
+    internal override sealed TypeInfo Type
+    {
       [DebuggerStepThrough]
       get { return State.Type; }
     }
 
     /// <inheritdoc/>
-    protected internal override sealed Tuple Tuple {
+    protected internal override sealed Tuple Tuple
+    {
       [DebuggerStepThrough]
       get { return State.Tuple; }
     }
@@ -76,7 +81,8 @@ namespace Xtensive.Storage
     /// Gets persistence state of the entity.
     /// </summary>
     [Infrastructure]
-    public PersistenceState PersistenceState {
+    public PersistenceState PersistenceState
+    {
       [DebuggerStepThrough]
       get { return State.PersistenceState; }
     }
@@ -170,8 +176,8 @@ namespace Xtensive.Storage
     internal override sealed void EnsureIsFetched(FieldInfo field)
     {
       var state = State;
-      if (!(state.PersistenceState==PersistenceState.New || 
-            state.Tuple.IsAvailable(field.MappingInfo.Offset)))
+      if (!(state.PersistenceState==PersistenceState.New ||
+        state.Tuple.IsAvailable(field.MappingInfo.Offset)))
         Fetcher.Fetch(Key, field);
     }
 
@@ -189,9 +195,9 @@ namespace Xtensive.Storage
 
       State.EnsureNotRemoved();
 
-      if (Type.GetAssociations().Count>0) 
-        Session.Persist();
+      Session.Persist();
       Session.ReferenceManager.ClearReferencesTo(this, notify);
+      Session.Persist();
       State.PersistenceState = PersistenceState.Removed;
 
       if (notify)
@@ -202,7 +208,7 @@ namespace Xtensive.Storage
 
     #region System-level event-like members
 
-    internal sealed override void OnInitializing(bool notify)
+    internal override sealed void OnInitializing(bool notify)
     {
       base.OnInitializing(notify);
       State.Entity = this;
@@ -212,12 +218,12 @@ namespace Xtensive.Storage
     }
 
     // This is done just to make it sealed
-    internal sealed override void OnInitialize(bool notify)
+    internal override sealed void OnInitialize(bool notify)
     {
       base.OnInitialize(notify);
     }
 
-    internal sealed override void OnGettingFieldValue(FieldInfo field, bool notify)
+    internal override sealed void OnGettingFieldValue(FieldInfo field, bool notify)
     {
       base.OnGettingFieldValue(field, notify);
       if (Session.IsDebugEventLoggingEnabled)
@@ -227,12 +233,12 @@ namespace Xtensive.Storage
     }
 
     // This is done just to make it sealed
-    sealed internal override void OnGetFieldValue(FieldInfo field, object value, bool notify)
+    internal override sealed void OnGetFieldValue(FieldInfo field, object value, bool notify)
     {
       base.OnGetFieldValue(field, value, notify);
     }
 
-    sealed internal override void OnSettingFieldValue(FieldInfo field, object value, bool notify)
+    internal override sealed void OnSettingFieldValue(FieldInfo field, object value, bool notify)
     {
       base.OnSettingFieldValue(field, value, notify);
       if (Session.IsDebugEventLoggingEnabled)
@@ -242,7 +248,7 @@ namespace Xtensive.Storage
       State.EnsureNotRemoved();
     }
 
-    internal sealed override void OnSetFieldValue(FieldInfo field, object oldValue, object newValue, bool notify)
+    internal override sealed void OnSetFieldValue(FieldInfo field, object oldValue, object newValue, bool notify)
     {
       if (PersistenceState!=PersistenceState.New && PersistenceState!=PersistenceState.Modified)
         State.PersistenceState = PersistenceState.Modified;
@@ -250,7 +256,6 @@ namespace Xtensive.Storage
     }
 
     #endregion
-
 
     // Constructors
 
@@ -264,7 +269,7 @@ namespace Xtensive.Storage
       OnInitializing(true);
       this.Validate();
     }
-      
+
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>

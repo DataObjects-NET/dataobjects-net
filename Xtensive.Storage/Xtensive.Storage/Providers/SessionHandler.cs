@@ -11,8 +11,10 @@ using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Sorting;
+using Xtensive.Core.Tuples;
 using Xtensive.Storage.Building;
 using Xtensive.Core.Collections;
+using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Providers
@@ -53,24 +55,29 @@ namespace Xtensive.Storage.Providers
     /// </summary>    
     public void Persist()
     {
-      IEnumerable<EntityState> newEntities = Session.EntityStateRegistry.GetItems(PersistenceState.New);
-      if ((Session.Domain.Configuration.ForeignKeyMode & ForeignKeyMode.Reference) > 0) {
-        InsertAccordingForeignKeys(newEntities);
-      }
-      else {
-        foreach (EntityState data in newEntities) {
+      bool foreignKeysEnabled = (Session.Domain.Configuration.ForeignKeyMode & ForeignKeyMode.Reference) > 0;
+
+      // Insert
+      IEnumerable<EntityState> insertEntities = Session.EntityStateRegistry.GetItems(PersistenceState.New).Where(entityState=>!entityState.IsRemoved);
+      if (foreignKeysEnabled)
+        InsertAccordingForeignKeys(insertEntities);
+      else
+        foreach (EntityState data in insertEntities) {
           Insert(data);
           data.Tuple.Merge();
         }
-      }
+
+      // Update
       foreach (EntityState data in Session.EntityStateRegistry.GetItems(PersistenceState.Modified)) {
         if (data.IsRemoved)
           continue;
         Update(data);
         data.Tuple.Merge();
       }
+
+      // Delete
       foreach (EntityState data in Session.EntityStateRegistry.GetItems(PersistenceState.Removed))
-        Remove(data);
+          Remove(data);
     }
 
     /// <summary>
@@ -101,10 +108,34 @@ namespace Xtensive.Storage.Providers
 
     private void InsertAccordingForeignKeys(IEnumerable<EntityState> entityStates)
     {
-      // Create nodes
-      var insertQueue = new List<EntityState>();
+      // Topological sorting
+      List<Triplet<EntityState, FieldInfo, Entity>> loopReferences;
+      List<EntityState> sortedEntities;
+      List<EntityState> unreferencedEntities;
+      SortAndRemoveLoopEdges(entityStates, out sortedEntities, out unreferencedEntities, out loopReferences);
+
+      // Insert 
+      sortedEntities.Reverse();
+      sortedEntities.AddRange(unreferencedEntities);
+
+      foreach (EntityState data in sortedEntities)
+        Insert(data);
+
+      // Restore loop links
+      foreach (var restoreData in loopReferences) {
+        restoreData.Second.GetAccessor<object>().SetValue(restoreData.First.Entity, restoreData.Second, restoreData.Third, false);
+        Update(restoreData.First);
+      }
+
+      // Merge
+      foreach (EntityState data in sortedEntities)
+        data.Tuple.Merge();
+    }
+
+    private void SortAndRemoveLoopEdges(IEnumerable<EntityState> entityStates, out List<EntityState> sortResult, out List<EntityState> unreferencedData, out List<Triplet<EntityState, FieldInfo, Entity>> keysToRestore)
+    {
       var sortData = new Dictionary<Key, Node<EntityState, AssociationInfo>>();
-      var unreferencedData = new List<EntityState>();
+      unreferencedData = new List<EntityState>();
       foreach (EntityState data in entityStates) {
         if (data.Type.GetAssociations().Count==0 && data.Type.GetOutgoingAssociations().Count==0)
           unreferencedData.Add(data);
@@ -125,33 +156,15 @@ namespace Xtensive.Storage.Providers
 
       // Sort
       List<NodeConnection<EntityState, AssociationInfo>> removedEdges;
-      var sortResult = TopologicalSorter.Sort(sortData.Values, out removedEdges);
+      sortResult = TopologicalSorter.Sort(sortData.Values, out removedEdges);
 
       // Remove loop links
-      var keysToRestore = new List<Triplet<EntityState, FieldInfo, Entity>>();
+      keysToRestore = new List<Triplet<EntityState, FieldInfo, Entity>>();
       foreach (var edge in removedEdges) {
         AssociationInfo associationInfo = edge.ConnectionItem;
         keysToRestore.Add(new Triplet<EntityState, FieldInfo, Entity>(edge.Source.Item, associationInfo.ReferencingField, edge.Destination.Item.Entity));
-        edge.Source.Item.Entity.SetFieldValue<object>(associationInfo.ReferencingField, null, false);
+        associationInfo.ReferencingField.GetAccessor<object>().SetValue(edge.Source.Item.Entity, associationInfo.ReferencingField, null, false);
       }
-      sortResult.Reverse();
-
-      // Insert 
-      insertQueue.AddRange(sortResult);
-      insertQueue.AddRange(unreferencedData);
-
-      foreach (EntityState data in insertQueue)
-        Insert(data);
-
-      // Restore loop links
-      foreach (var restoreData in keysToRestore) {
-        restoreData.First.Entity.SetFieldValue<object>(restoreData.Second, restoreData.Third, false);
-        Update(restoreData.First);
-      }
-
-      // Merge
-      foreach (EntityState data in insertQueue)
-        data.Tuple.Merge();
     }
   }
 }

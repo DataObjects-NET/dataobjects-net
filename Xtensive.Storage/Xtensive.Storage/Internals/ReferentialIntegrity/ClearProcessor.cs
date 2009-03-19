@@ -12,18 +12,19 @@ namespace Xtensive.Storage.ReferentialIntegrity
   {
     public override void Process(RemovalContext context, AssociationInfo association, Entity referencingObject, Entity referencedObject)
     {
-      switch (association.Multiplicity) {
-        case Multiplicity.ZeroToOne:
-        case Multiplicity.OneToOne:
-        case Multiplicity.ManyToOne:
-          referencingObject.SetFieldValue<Entity>(association.ReferencingField, null, context.Notify);
-          break;
-        case Multiplicity.ZeroToMany:
-        case Multiplicity.OneToMany:
-        case Multiplicity.ManyToMany:
-          referencingObject.GetProperty<EntitySetBase>(association.ReferencingField.Name).Remove(referencedObject, context.Notify);
-          break;
-      }
+      if (!context.RemovalQueue.Contains(referencingObject.State))
+        switch (association.Multiplicity) {
+          case Multiplicity.ZeroToOne:
+          case Multiplicity.OneToOne:
+          case Multiplicity.ManyToOne:
+            referencingObject.SetFieldValue<Entity>(association.ReferencingField, null, context.Notify);
+            break;
+          case Multiplicity.ZeroToMany:
+          case Multiplicity.OneToMany:
+          case Multiplicity.ManyToMany:
+            referencingObject.GetProperty<EntitySetBase>(association.ReferencingField.Name).Remove(referencedObject, context.Notify);
+            break;
+        }
     }
   }
 }

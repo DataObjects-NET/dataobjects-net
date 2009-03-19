@@ -12,7 +12,8 @@ namespace Xtensive.Storage.ReferentialIntegrity
   {
     public override void Process(RemovalContext context, AssociationInfo association, Entity referencingObject, Entity referencedObject)
     {
-      referencingObject.Remove(context.Notify);
+      if (!context.RemovalQueue.Contains(referencingObject.State))
+        referencingObject.Remove(context.Notify);
     }
   }
 }

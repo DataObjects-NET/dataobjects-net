@@ -32,7 +32,7 @@ namespace Xtensive.Storage.ReferentialIntegrity
         ClearReferencesTo(Context, referencedObject);
     }
 
-    private static void ClearReferencesTo(RemovalContext context, Entity referencedObject)
+    private void ClearReferencesTo(RemovalContext context, Entity referencedObject)
     {
       context.RemovalQueue.Add(referencedObject.State);
       ApplyAction(context, referencedObject, ReferentialAction.Restrict);
@@ -40,30 +40,29 @@ namespace Xtensive.Storage.ReferentialIntegrity
       ApplyAction(context, referencedObject, ReferentialAction.Cascade);
     }
 
-    private static void ApplyAction(RemovalContext context, Entity referencedObject, ReferentialAction action)
+    public void ApplyAction(RemovalContext context, Entity referencedObject, ReferentialAction action)
     {
       List<AssociationInfo> associations = referencedObject.Type.GetAssociations().Where(a => a.OnRemove==action).ToList();
-      if (associations.Count == 0)
+      if (associations.Count==0)
         return;
 
       ActionProcessor processor = GetProcessor(action);
       foreach (AssociationInfo association in associations)
         foreach (Entity referencingObject in association.FindReferencingObjects(referencedObject))
-          if (!context.RemovalQueue.Contains(referencingObject.State))
-            processor.Process(context, association, referencingObject, referencedObject);
+          processor.Process(context, association, referencingObject, referencedObject);
     }
 
-    private static ActionProcessor GetProcessor(ReferentialAction action)
+    public ActionProcessor GetProcessor(ReferentialAction action)
     {
       switch (action) {
-      case ReferentialAction.Clear:
-        return clearProcessor;
-      case ReferentialAction.Default:
-        return restrictProcessor;
-      case ReferentialAction.Cascade:
-        return cascadeProcessor;
-      default:
-        throw new ArgumentOutOfRangeException("action");
+        case ReferentialAction.Clear:
+          return clearProcessor;
+        case ReferentialAction.Default:
+          return restrictProcessor;
+        case ReferentialAction.Cascade:
+          return cascadeProcessor;
+        default:
+          throw new ArgumentOutOfRangeException("action");
       }
     }
 
