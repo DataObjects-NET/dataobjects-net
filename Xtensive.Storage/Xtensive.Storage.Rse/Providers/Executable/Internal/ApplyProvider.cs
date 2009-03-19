@@ -18,7 +18,8 @@ namespace Xtensive.Storage.Rse.Providers.Executable
   [Serializable]
   internal sealed class ApplyProvider : BinaryExecutableProvider<Compilable.ApplyProvider>
   {
-    private CombineTransform transform;
+    private CombineTransform combineTransform;
+    private CutInTransform<bool> existenceColumnTransform;
     private Tuple rightBlank;
 
     protected internal override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
@@ -50,7 +51,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
         // Do not cache right part
         var right = Right.OnEnumerate(context);
         foreach (var rTuple in right) {
-          var item = transform.Apply(TupleTransformType.Auto, tuple, rTuple);
+          var item = combineTransform.Apply(TupleTransformType.Auto, tuple, rTuple);
           yield return item;
         }
       }
@@ -66,11 +67,11 @@ namespace Xtensive.Storage.Rse.Providers.Executable
         bool empty = true;
         foreach (var rTuple in right) {
           empty = false;
-          var item = transform.Apply(TupleTransformType.Auto, tuple, rTuple);
+          var item = combineTransform.Apply(TupleTransformType.Auto, tuple, rTuple);
           yield return item;
         }
         if (empty) {
-          var item = transform.Apply(TupleTransformType.Auto, tuple, rightBlank);
+          var item = combineTransform.Apply(TupleTransformType.Auto, tuple, rightBlank);
           yield return item;
         }
       }
@@ -102,7 +103,13 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 
     private IEnumerable<Tuple> ApplyExistenceColumn(EnumerationContext context, IEnumerable<Tuple> left)
     {
-      throw new NotImplementedException();
+      using (new ParameterScope())
+      foreach (var tuple in left) {
+        Origin.LeftItemParameter.Value = tuple;
+        // Do not cache right part
+        var right = Right.OnEnumerate(context);
+        yield return existenceColumnTransform.Apply(TupleTransformType.Auto, tuple, right.Any());
+      }
     }
 
     #endregion
@@ -111,8 +118,8 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     protected override void Initialize()
     {
       base.Initialize();
-      transform = new CombineTransform(true, Left.Header.TupleDescriptor, Right.Header.TupleDescriptor);
-//      existenceColumnTransform = new CutInTransform<bool>(true, )
+      combineTransform = new CombineTransform(true, Left.Header.TupleDescriptor, Right.Header.TupleDescriptor);
+      existenceColumnTransform = new CutInTransform<bool>(true, Left.Header.Columns.Count, Left.Header.TupleDescriptor);
       rightBlank = Tuple.Create(Right.Header.TupleDescriptor);
     }
 
