@@ -23,7 +23,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
       foreach (var tuple in Source.Enumerate(context))
       {
         var resTuple = Origin.ResizeTransform.Apply(TupleTransformType.Tuple, tuple);
-        resTuple.SetValue(Origin.RowNumberColumn.Index, rowNumber++);
+        resTuple.SetValue(Origin.SystemColumn.Index, rowNumber++);
         yield return resTuple;
       }
     }

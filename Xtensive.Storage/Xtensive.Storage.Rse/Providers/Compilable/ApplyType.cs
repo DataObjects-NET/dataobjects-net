@@ -33,6 +33,10 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <summary>
     /// Enumerates left items for which right source is empty.
     /// </summary>
-    NotExisting
+    NotExisting,
+    /// <summary>
+    /// Applies <see cref="bool"/> column. Value is <see langword="true" /> if right source is not empty; otherwise <see langword="false" />.
+    /// </summary>
+    ExistenceColumn
   }
 }

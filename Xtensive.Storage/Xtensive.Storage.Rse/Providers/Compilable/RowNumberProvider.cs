@@ -20,7 +20,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <summary>
     /// Gets the row number column.
     /// </summary>
-    public RowNumberColumn RowNumberColumn { get; private set; }
+    public SystemColumn SystemColumn { get; private set; }
 
     /// <summary>
     /// Gets header resize transform.
@@ -39,7 +39,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
 
     protected override RecordSetHeader BuildHeader()
     {
-      return Source.Header.Add(EnumerableUtils.One<Column>(RowNumberColumn));
+      return Source.Header.Add(EnumerableUtils.One<Column>(SystemColumn));
     }
 
     // Constructor
@@ -48,11 +48,11 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
-    /// <param name="columnName">The name of <see cref="RowNumberColumn"/>.</param>
+    /// <param name="columnName">The name of <see cref="SystemColumn"/>.</param>
     public RowNumberProvider(CompilableProvider source, string columnName)
       : base(ProviderType.RowNumber, source)
     {
-      RowNumberColumn = new RowNumberColumn(columnName, Source.Header.Columns.Count);
+      SystemColumn = new SystemColumn(columnName, Source.Header.Columns.Count, typeof(long));
     }
   }
 }

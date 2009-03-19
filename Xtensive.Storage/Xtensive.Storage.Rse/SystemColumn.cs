@@ -13,12 +13,12 @@ namespace Xtensive.Storage.Rse
   /// Row number column of the <see cref="RecordSetHeader"/>.
   /// </summary>
   [Serializable]
-  public class RowNumberColumn : Column
+  public class SystemColumn : Column
   {
     /// <inheritdoc/>
     public override Column Clone(int newIndex)
     {
-      return new RowNumberColumn(this, newIndex);
+      return new SystemColumn(this, newIndex);
     }
 
     /// <summary>
@@ -26,12 +26,13 @@ namespace Xtensive.Storage.Rse
     /// </summary>
     /// <param name="name"><see cref="Column.Name"/> property value.</param>
     /// <param name="index"><see cref="Column.Index"/> property value.</param>
-    public RowNumberColumn(string name, int index)
-      : base(name, index, typeof (long))
+    /// <param name="type"><see cref="Column.Type"/> property value.</param>
+    public SystemColumn(string name, int index, Type type)
+      : base(name, index, type)
     {
     }
 
-    private RowNumberColumn(Column column, int newIndex)
+    private SystemColumn(Column column, int newIndex)
       : base(column.Name, newIndex, column.Type)
     {
     }
