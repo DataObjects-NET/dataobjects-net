@@ -263,7 +263,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       februaryCase.Else = 28;
 
       var result = SqlFactory.Case();
-      result.Add(SqlFactory.In(month, SqlFactory.Array(1, 3, 7, 8, 10, 12)), 31);
+      result.Add(SqlFactory.In(month, SqlFactory.Array(1, 3, 5, 7, 8, 10, 12)), 31);
       result.Add(month==2, februaryCase);
       result.Else = 30;
 
