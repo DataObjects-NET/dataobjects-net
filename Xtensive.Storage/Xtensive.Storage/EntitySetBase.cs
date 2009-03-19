@@ -188,7 +188,7 @@ namespace Xtensive.Storage
     internal void Clear(bool notify)
     {
       OnClearing(notify);
-      foreach (var entity in GetEntities())
+      foreach (var entity in GetEntities().ToList())
         Remove(entity, notify);
       OnClear(notify);
     }
@@ -209,31 +209,6 @@ namespace Xtensive.Storage
     }
 
     protected abstract IEnumerable<Entity> GetEntities();
-
-//    private IEnumerable<Key> FetchKeys()
-//    {
-//      foreach (Tuple tuple in items)
-//        yield return Key.Create(Field.ItemType, association.ExtractForeignKey(tuple));
-//    }
-
-//    /// <summary>
-//    /// Gets the keys.
-//    /// </summary>
-//    /// <returns>The <see cref="IEnumerable{Key}"/> collection of <see cref="Key"/> instances.</returns>
-//    internal IEnumerable<Key> GetKeys()
-//    {
-//      long version = State.Version;
-//      bool isCached = State.IsFullyLoaded;
-//      IEnumerable<Key> keys = isCached ? State : FetchKeys();
-//
-//      foreach (Key key in keys)
-//      {
-//        EnsureVersionIs(version);
-//        if (!isCached)
-//          State.Register(key);
-//        yield return key;
-//      }
-//    }
 
     #endregion
 
