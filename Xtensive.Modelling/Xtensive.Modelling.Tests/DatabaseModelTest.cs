@@ -12,13 +12,31 @@ namespace Xtensive.Modelling.Tests
   [TestFixture]
   public class DatabaseModelTest
   {
-    [Test]
-    public void CombinedTest()
+    private Server srv;
+    private Database db;
+    private Schema s;
+
+    [TestFixtureSetUp]
+    public void Setup()
     {
-      var srv = new Server("srv");
-      var db = new Database(srv, "db", srv.Databases.Count);
-      var s = new Schema(db, "s", db.Schemas.Count);
+      srv = new Server("srv");
+      db = new Database(srv, "db", srv.Databases.Count);
+      s = new Schema(db, "s", db.Schemas.Count);
+    }
+
+    [Test]
+    public void PathTest()
+    {
+      Log.Info("srv.Path={0}", srv.Path);
+      Assert.AreEqual(srv.Path, string.Empty);
+      Assert.AreEqual(srv.Databases.Path, "Databases");
+
+      Log.Info("db.Path={0}", db.Path);
+      Assert.AreEqual(db.Path, "Databases/db");
+      Assert.AreEqual(db.Schemas.Path, "Databases/db/Schemas");
+
       Log.Info("s.Path={0}", s.Path);
+      Assert.AreEqual(s.Path, "Databases/db/Schemas/s");
     }
   }
 }

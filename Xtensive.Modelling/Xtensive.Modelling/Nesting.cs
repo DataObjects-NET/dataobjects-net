@@ -91,6 +91,7 @@ namespace Xtensive.Modelling
     private void Initialize()
     {
       var tNode = typeof (TNode);
+      var tParent = typeof (TParent);
       var tProperty = typeof (TProperty);
       if (PropertyName.IsNullOrEmpty()) {
         PropertyName = null;
@@ -104,20 +105,20 @@ namespace Xtensive.Modelling
 
       escapedPropertyName = new[] {PropertyName}.RevertibleJoin(
         Modelling.Node.PathEscape, Modelling.Node.PathDelimiter);
-      propertyInfo = tNode.GetProperty(PropertyName);
+      propertyInfo = tParent.GetProperty(PropertyName);
       if (propertyInfo.PropertyType!=tProperty)
         throw new InvalidOperationException(String.Format(
           Strings.ExTypeOfXPropertyMustBeY, 
           propertyInfo.GetShortName(true), tProperty.GetShortName()));
       isCollectionProperty = typeof (INodeCollection).IsAssignableFrom(tProperty);
-      var typedAccessor = DelegateHelper.CreateGetMemberDelegate<TNode, TProperty>(PropertyName);
+      var typedAccessor = DelegateHelper.CreateGetMemberDelegate<TParent, TProperty>(PropertyName);
       if (typedAccessor==null)
         throw new InvalidOperationException(string.Format(
           Strings.ExBindingFailedForX, propertyInfo.GetShortName(true)));
       propertyGetter = 
-        n => typedAccessor.Invoke((TNode) n);
+        n => typedAccessor.Invoke((TParent) n);
       untypedPropertyAccessor = 
-        n => typedAccessor.Invoke((TNode) n);
+        n => typedAccessor.Invoke((TParent) n);
     }
 
 
