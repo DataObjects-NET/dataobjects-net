@@ -33,6 +33,8 @@ namespace Xtensive.Storage.Rse.Providers.Executable
           return ApplyExisting(context, left);
         case ApplyType.NotExisting:
           return ApplyNotExisting(context, left);
+        case ApplyType.ExistenceColumn:
+          return ApplyExistenceColumn(context, left);
         default:
           throw new ArgumentOutOfRangeException();
       }
@@ -98,6 +100,11 @@ namespace Xtensive.Storage.Rse.Providers.Executable
       }
     }
 
+    private IEnumerable<Tuple> ApplyExistenceColumn(EnumerationContext context, IEnumerable<Tuple> left)
+    {
+      throw new NotImplementedException();
+    }
+
     #endregion
 
 
@@ -105,6 +112,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     {
       base.Initialize();
       transform = new CombineTransform(true, Left.Header.TupleDescriptor, Right.Header.TupleDescriptor);
+//      existenceColumnTransform = new CutInTransform<bool>(true, )
       rightBlank = Tuple.Create(Right.Header.TupleDescriptor);
     }
 

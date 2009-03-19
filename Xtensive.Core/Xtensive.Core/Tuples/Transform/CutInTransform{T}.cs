@@ -48,9 +48,8 @@ namespace Xtensive.Core.Tuples.Transform
     /// <param name="isReadOnly"><see cref="MapTransform.IsReadOnly"/> property value.</param>
     /// <param name="index">Start index.</param>
     /// <param name="source1">Source tuple descriptor.</param>
-    /// <param name="source2">Value to cut in source tuple.</param>
-    public CutInTransform(bool isReadOnly, int index, TupleDescriptor source1, T source2)
-      : base(isReadOnly, index, source1, Tuple.Create(source2).Descriptor)
+    public CutInTransform(bool isReadOnly, int index, TupleDescriptor source1)
+      : base(isReadOnly, index, source1, TupleDescriptor.Create(new Type[]{typeof(T)}))
     {
     }
   }

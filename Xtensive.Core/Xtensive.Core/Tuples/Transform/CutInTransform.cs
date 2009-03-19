@@ -87,6 +87,8 @@ namespace Xtensive.Core.Tuples.Transform
         sourceCount++;
         isEndOfTuple = true;
       }
+      else if (index < 0 || index > sourceCount)
+        throw new ArgumentOutOfRangeException("index");
       for (int i = 0; i < sourceCount; i++)
       {
         if ((i == index) && !isIndex) {

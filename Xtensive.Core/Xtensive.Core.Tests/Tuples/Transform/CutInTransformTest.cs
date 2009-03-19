@@ -43,8 +43,8 @@ namespace Xtensive.Core.Tests.Tuples.Transform
 
       Log.InfoRegion("CutInTransform<T> test");
       Log.Info("Originals: {0}, {1}, index {2}", t1, value, CutInIndex);
-      CutInTransform<string> ctt = new CutInTransform<string>(false, CutInIndex, t1.Descriptor, value);
-      CutInTransform<string> cttro = new CutInTransform<string>(true, CutInIndex, t1.Descriptor, value);
+      CutInTransform<string> ctt = new CutInTransform<string>(false, CutInIndex, t1.Descriptor);
+      CutInTransform<string> cttro = new CutInTransform<string>(true, CutInIndex, t1.Descriptor);
       Tuple wtt1 = ctt.Apply(TupleTransformType.TransformedTuple, t1, value);
       Log.Info("Wrapper:   {0}", wtt1);
       Tuple ctt1 = ctt.Apply(TupleTransformType.Tuple, t1, value);
@@ -71,7 +71,7 @@ namespace Xtensive.Core.Tests.Tuples.Transform
       PerformanceTransformTesting(ct1, ct2, wt1, wt2);
 
       Log.InfoRegion("CutInTransform<T> test");
-      CutInTransform<string> mtt = new CutInTransform<string>(false, CutInIndex, t1.Descriptor, value);
+      CutInTransform<string> mtt = new CutInTransform<string>(false, CutInIndex, t1.Descriptor);
       Tuple wtt1 = mtt.Apply(TupleTransformType.TransformedTuple, t1, value);
       Tuple wtt2 = mtt.Apply(TupleTransformType.TransformedTuple, t1, value);
       Tuple ctt1 = mtt.Apply(TupleTransformType.Tuple, t1, value);
