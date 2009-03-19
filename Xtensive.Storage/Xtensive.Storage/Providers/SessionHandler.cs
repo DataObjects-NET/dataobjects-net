@@ -104,8 +104,13 @@ namespace Xtensive.Storage.Providers
       // Create nodes
       var insertQueue = new List<EntityState>();
       var sortData = new Dictionary<Key, Node<EntityState, AssociationInfo>>();
-      foreach (EntityState data in entityStates)
-        sortData.Add(data.Key, new Node<EntityState, AssociationInfo>(data));
+      var unreferencedData = new List<EntityState>();
+      foreach (EntityState data in entityStates) {
+        if (data.Type.GetAssociations().Count==0 && data.Type.GetOutgoingAssociations().Count==0)
+          unreferencedData.Add(data);
+        else
+          sortData.Add(data.Key, new Node<EntityState, AssociationInfo>(data));
+      }
 
       // Add connections
       foreach (var data in sortData) {
@@ -133,9 +138,10 @@ namespace Xtensive.Storage.Providers
 
       // Insert 
       insertQueue.AddRange(sortResult);
-      foreach (EntityState data in insertQueue) {
+      insertQueue.AddRange(unreferencedData);
+
+      foreach (EntityState data in insertQueue)
         Insert(data);
-      }
 
       // Restore loop links
       foreach (var restoreData in keysToRestore) {
