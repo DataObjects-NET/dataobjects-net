@@ -5,6 +5,7 @@
 // Created:    2009.01.12
 
 using System.Linq;
+using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 
@@ -13,6 +14,48 @@ namespace Xtensive.Storage.Tests.Linq
   [TestFixture]
   public class SelectTest : NorthwindDOModelTest
   {
+    [Test]
+    public void SimpleConstantTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var products = Query<Product>.All;
+          var result =
+            from p in products
+            select 0;
+          var list = result.ToList();
+          foreach (var i in list)
+            Assert.AreEqual(0, i);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void NewArrayConstantTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var method = MethodInfo.GetCurrentMethod().Name;
+          var products = Query<Product>.All;
+          var result =
+            from r in
+              from p in products
+              select new
+               {
+                 Value = new byte[] {1, 2, 3},
+                 Method = method
+               }
+            where r.Method == method
+            select r;
+          var list = result.ToList();
+          foreach (var i in list)
+            Assert.AreEqual(method, i.Method);
+          t.Complete();
+        }
+      }
+    }
+
     [Test]
     public void ConstantTest()
     {
