@@ -2,23 +2,24 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alex Yakunin
-// Created:    2009.03.16
+// Created:    2009.03.20
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
-using Xtensive.Modelling.Resources;
 
 namespace Xtensive.Modelling
 {
   /// <summary>
-  /// Abstract base class for node with specified <see cref="Node.Model"/> 
-  /// and <see cref="Node.Parent"/> types.
+  /// Typed node collection implementation.
   /// </summary>
+  /// <typeparam name="TNode">The type of the node.</typeparam>
   /// <typeparam name="TParent">The type of the parent.</typeparam>
   /// <typeparam name="TModel">The type of the model.</typeparam>
   [Serializable]
-  public abstract class Node<TParent, TModel> : Node,
-    INode<TParent>
+  public abstract class NodeCollection<TNode, TParent, TModel> : NodeCollection,
+    INodeCollection<TNode>
+    where TNode : Node
     where TParent : Node
     where TModel : Model
   {
@@ -39,22 +40,29 @@ namespace Xtensive.Modelling
     }
 
     /// <inheritdoc/>
-    public void Move(TParent newParent, string newName, int newIndex)
+    public new TNode this[int index] {
+      [DebuggerStepThrough]
+      get { return (TNode) base[index]; }
+    }
+
+    /// <inheritdoc/>
+    public new TNode this[string name] {
+      [DebuggerStepThrough]
+      get { return (TNode) base[name]; }
+    }
+
+    /// <inheritdoc/>
+    IEnumerator<TNode> IEnumerable<TNode>.GetEnumerator() 
     {
-      Move((Node) newParent, newName, newIndex);
+      foreach (var node in this)
+        yield return (TNode) node;
     }
 
 
     // Constructors
 
     /// <inheritdoc/>
-    protected Node(TParent parent, string name, int index)
-      : base(parent, name, index)
-    {
-    }
-
-    /// <inheritdoc/>
-    protected Node(Node parent, string name)
+    protected NodeCollection(Node parent, string name)
       : base(parent, name)
     {
     }

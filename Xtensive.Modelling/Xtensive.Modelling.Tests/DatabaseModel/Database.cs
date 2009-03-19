@@ -16,7 +16,7 @@ namespace Xtensive.Modelling.Tests.DatabaseModel
     [NodeProperty]
     public SchemaCollection Schemas { get; private set; }
 
-    protected override INesting CreateNesting()
+    protected override Nesting CreateNesting()
     {
       return new Nesting<Database, Server, DatabaseCollection>(this, "Databases");
     }

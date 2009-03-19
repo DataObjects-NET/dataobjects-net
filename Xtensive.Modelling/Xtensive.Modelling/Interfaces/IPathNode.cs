@@ -14,9 +14,9 @@ namespace Xtensive.Modelling
   public interface IPathNode : ILockable
   {
     /// <summary>
-    /// Gets the name of this node.
+    /// Gets or sets the name of this node.
     /// </summary>
-    string Name { get; }
+    string Name { get; set; }
 
     /// <summary>
     /// Gets escaped <see cref="Name"/> of this node.
@@ -24,9 +24,9 @@ namespace Xtensive.Modelling
     string EscapedName { get; }
 
     /// <summary>
-    /// Gets the parent node.
+    /// Gets or sets the parent node.
     /// </summary>
-    Node Parent { get; }
+    Node Parent { get; set; }
 
     /// <summary>
     /// Gets the model this node belongs to.

@@ -5,6 +5,7 @@
 // Created:    2009.03.16
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -16,7 +17,6 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Notifications;
 using Xtensive.Modelling;
 using Xtensive.Modelling.Resources;
-using System.Linq;
 
 namespace Xtensive.Modelling
 {
@@ -28,16 +28,31 @@ namespace Xtensive.Modelling
     INodeCollection,
     IDeserializationCallback
   {
+    private Node parent;
+    [NonSerialized]
+    private string name;
     [NonSerialized]
     private string escapedName;
     [NonSerialized]
     private string cachedPath;
     [NonSerialized]
     private Dictionary<string, Node> nameIndex = new Dictionary<string, Node>();
-    private List<Node> list;
+    private readonly List<Node> list = new List<Node>();
+
+
+    #region Properties
 
     /// <inheritdoc/>
-    public abstract string Name { get; }
+    /// <exception cref="NotSupportedException">Property is already initialized.</exception>
+    public string Name
+    {
+      [DebuggerStepThrough]
+      get { return name; }
+      [DebuggerStepThrough]
+      set {
+        throw Exceptions.AlreadyInitialized("Name");
+      }
+    }
 
     /// <inheritdoc/>
     public string EscapedName
@@ -47,20 +62,26 @@ namespace Xtensive.Modelling
     }
 
     /// <inheritdoc/>
-    public Node Parent {
+    /// <exception cref="NotSupportedException">Property is already initialized.</exception>
+    public Node Parent
+    {
       [DebuggerStepThrough]
-      get; 
+      get { return parent; }
       [DebuggerStepThrough]
-      private set;
+      set {
+        throw Exceptions.AlreadyInitialized("Parent");
+      }
     }
 
     /// <inheritdoc/>
     public Model Model {
+      [DebuggerStepThrough]
       get { return Parent.Model; }
     }
 
     /// <inheritdoc/>
     public string Path {
+      [DebuggerStepThrough]
       get {
         if (cachedPath!=null)
           return cachedPath;
@@ -74,21 +95,25 @@ namespace Xtensive.Modelling
     }
 
     /// <inheritdoc/>
-    public IPathNode GetChild(string path)
-    {
-      if (path.IsNullOrEmpty())
-        return this;
-      var parts = path.RevertibleSplitFirstAndTail(Node.PathEscape, Node.PathDelimiter);
-      var next = this[parts.First];
-      if (parts.Second==null)
-        return next;
-      return next.GetChild(parts.Second);
+    long ICountable.Count {
+      [DebuggerStepThrough]
+      get { return Count; }
     }
 
     /// <inheritdoc/>
-    public string GetTemporaryName()
-    {
-      return Guid.NewGuid().ToString();
+    public int Count {
+      [DebuggerStepThrough]
+      get { return list.Count; }
+    }
+
+    #endregion
+
+    /// <inheritdoc/>
+    public Node this[int index] {
+      [DebuggerStepThrough]
+      get {
+        return list[index];
+      }
     }
 
     /// <inheritdoc/>
@@ -106,96 +131,43 @@ namespace Xtensive.Modelling
 
     /// <inheritdoc/>
     [DebuggerStepThrough]
-    public bool TryGetValue(string name, out TNode value)
+    public bool TryGetValue(string name, out Node value)
     {
       return nameIndex.TryGetValue(name, out value);
     }
 
     /// <inheritdoc/>
-    /// <exception cref="InvalidOperationException">Item already exists.</exception>
-    /// <exception cref="InstanceIsLockedException">Collection is locked.</exception>
     [DebuggerStepThrough]
-    public override void Add(TNode item)
-    {
-      try {
-        base.Add(item);
-      }
-      catch (InstanceIsLockedException) {
-        throw;
-      }
-      catch (ArgumentException e) {
-        throw new InvalidOperationException(
-          string.Format(CultureInfo.InvariantCulture, Strings.ExItemWithNameXAlreadyExists, item.Name), e);
-      }
-      catch (InvalidOperationException e) {
-        throw new InvalidOperationException(
-          string.Format(CultureInfo.InvariantCulture, Strings.ExItemWithNameXAlreadyExists, item.Name), e);
-      }
-    }
-
-    #region INodeCollection members
-
-    /// <inheritdoc/>
-    Node INodeCollection.this[string name]
-    {
-      [DebuggerStepThrough]
-      get { return this[name]; }
-    }
-
-    /// <inheritdoc/>
-    [DebuggerStepThrough]
-    bool INodeCollection.TryGetValue(string name, out Node value)
-    {
-      TNode node;
-      bool result = TryGetValue(name, out node);
-      value = node;
-      return result;
-    }
-
-    /// <inheritdoc/>
-    [DebuggerStepThrough]
-    bool INodeCollection.Contains(string name)
+    public bool Contains(string name)
     {
       return nameIndex.ContainsKey(name);
     }
 
-    #endregion
-
-    #region ICollection<Node> members
-
     /// <inheritdoc/>
-    void ICollection<Node>.Add(Node item)
+    [DebuggerStepThrough]
+    public string GetTemporaryName()
     {
-      Add((TNode) item);
+      return Guid.NewGuid().ToString();
     }
 
     /// <inheritdoc/>
-    bool ICollection<Node>.Contains(Node item)
+    public IPathNode GetChild(string path)
     {
-      return Contains((TNode) item);
+      if (path.IsNullOrEmpty())
+        return this;
+      var parts = path.RevertibleSplitFirstAndTail(Node.PathEscape, Node.PathDelimiter);
+      var next = this[parts.First];
+      if (parts.Second==null)
+        return next;
+      return next.GetChild(parts.Second);
     }
-
-    /// <inheritdoc/>
-    void ICollection<Node>.CopyTo(Node[] array, int arrayIndex)
-    {
-      base.CopyTo(array, arrayIndex);
-    }
-
-    /// <inheritdoc/>
-    bool ICollection<Node>.Remove(Node item)
-    {
-      return Remove((TNode) item);
-    }
-
-    #endregion
 
     #region IEnumerable<...> members
 
-    /// <inheritdoc/>
-    IEnumerator<Node> IEnumerable<Node>.GetEnumerator()
+    [DebuggerStepThrough]
+    public IEnumerator GetEnumerator()
     {
-      foreach (TNode node in this)
-        yield return node;
+      return list.GetEnumerator();
     }
 
     #endregion
@@ -207,58 +179,76 @@ namespace Xtensive.Modelling
     {
       base.Lock(recursive);
       if (recursive)
-        foreach (TNode node in this)
+        foreach (Node node in this)
           node.Lock(recursive);
       cachedPath = Path;
     }
 
     #endregion
 
-    #region OnXxx handlers
+    #region Private \ internal methods
 
-    /// <inheritdoc/>
-    protected override void OnInserted(TNode value, int index)
+    /// <exception cref="InvalidOperationException">Wrong DoneCollection.Add arguments: node.Index!=list.Count!</exception>
+    internal void Add(Node node)
     {
-      base.OnInserted(value, index);
-      nameIndex.Add(value.Name, value);
+      if (node.Index!=list.Count)
+        throw Exceptions.InternalError("Wrong DoneCollection.Add arguments: node.Index!=list.Count!", Log.Instance);
+      int count = list.Count;
+      try {
+        list.Add(node);
+        nameIndex.Add(node.Name, node);
+      }
+      catch {
+        if (list.Count>count)
+          list.RemoveAt(count);
+        if (nameIndex.Count>count)
+          nameIndex.Remove(node.Name);
+        throw;
+      }
     }
 
-    /// <inheritdoc/>
-    protected override void OnRemoved(TNode value, int index)
+    /// <exception cref="InvalidOperationException">Wrong DoneCollection.Add arguments: node.Index!=list.Count!</exception>
+    internal void Remove(Node node)
     {
-      base.OnRemoved(value, index);
-      nameIndex.Remove(value.Name);
+      int count = list.Count;
+      int index = node.Index;
+      try {
+        list.RemoveAt(index);
+        nameIndex.Remove(node.Name);
+      }
+      catch {
+        if (list.Count<count)
+          list.Insert(index, node);
+        if (nameIndex.Count<count)
+          nameIndex.Add(node.Name, node);
+        throw;
+      }
     }
 
-    /// <inheritdoc/>
-    protected override void OnCleared()
+    internal void Move(Node node, int newIndex)
     {
-      base.OnCleared();
-      nameIndex.Clear();
-    }
-
-    /// <inheritdoc/>
-    protected override void OnItemChanging(object sender, ChangeNotifierEventArgs e)
-    {
-      base.OnItemChanging(sender, e);
-      nameIndex.Remove(((TNode) sender).Name);
-    }
-
-    /// <inheritdoc/>
-    protected override void OnItemChanged(object sender, ChangeNotifierEventArgs e)
-    {
-      base.OnItemChanged(sender, e);
-      var tNode = (TNode)sender;
-      nameIndex.Add(tNode.Name, tNode);
-    }
-
-    /// <inheritdoc/>
-    /// <exception cref="ArgumentException">Invalid <paramref name="value"/>.Parent value.</exception>
-    protected override void OnValidate(TNode value)
-    {
-      base.OnValidate(value);
-      if (Parent!=null && value.Parent!=Parent)
-        throw new ArgumentException(Strings.ExInvalidParentValue, "value.Parent");
+      int count = list.Count;
+      int oldIndex = node.Index;
+      try {
+        list.RemoveAt(oldIndex);
+      }
+      catch {
+        if (list.Count<count)
+          list.Insert(oldIndex, node);
+        throw;
+      }
+      try {
+        list.Insert(newIndex, node);
+      }
+      catch {
+        if (list.Count==count) {
+          list.RemoveAt(newIndex);
+          list.Insert(oldIndex, node);
+        }
+        if (list.Count<count)
+          list.Insert(oldIndex, node);
+        throw;
+      }
     }
 
     #endregion
@@ -281,10 +271,13 @@ namespace Xtensive.Modelling
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="parent"><see cref="Parent"/> property value.</param>
-    protected NodeCollection(TParent parent)
+    /// <param name="name"><see cref="Name"/> property value.</param>
+    protected NodeCollection(Node parent, string name)
     {
       ArgumentValidator.EnsureArgumentNotNull(parent, "parent");
-      Parent = parent;
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
+      this.name = name;
+      this.parent = parent;
       Initialize();
     }
 
@@ -294,11 +287,11 @@ namespace Xtensive.Modelling
     void IDeserializationCallback.OnDeserialization(object sender)
     {
       Initialize();
-      nameIndex = new Dictionary<string, TNode>(Count);
-      foreach (var node in this) {
+      nameIndex = new Dictionary<string, Node>(Count);
+      foreach (var node in list)
         nameIndex.Add(node.Name, node);
-        node.parent = Parent;
-        TrySubscribe(node);
+      if (IsLocked) {
+        cachedPath = Path;
       }
     }
   }

@@ -45,19 +45,30 @@ namespace Xtensive.Modelling
     [NonSerialized]
     private string cachedPath;
     [NonSerialized]
-    private INesting nesting;
+    private Nesting nesting;
     [NonSerialized]
     private ReadOnlyDictionary<string, PropertyAccessor> propertyAccessors;
-    [NonSerialized]
     internal Node parent;
     private string name;
     private NodeState state;
     private int index;
 
+    #region Properties
+
     /// <inheritdoc/>
     public Node Parent {
       [DebuggerStepThrough]
       get { return parent; }
+      [DebuggerStepThrough]
+      set {
+        ArgumentValidator.EnsureArgumentNotNull(value, "newParent");
+        if (value==Parent)
+          return;
+        NodeCollection collection = null;
+        if (Nesting.IsCollectionProperty)
+          collection = (NodeCollection) Nesting.PropertyValue;
+        Move(value, Name, collection==null ? 0 : collection.Count);
+      }
     }
 
     /// <inheritdoc/>
@@ -81,6 +92,10 @@ namespace Xtensive.Modelling
     {
       [DebuggerStepThrough]
       get { return name; }
+      [DebuggerStepThrough]
+      set {
+        Move(Parent, value, Index);
+      }
     }
 
     /// <inheritdoc/>
@@ -100,10 +115,14 @@ namespace Xtensive.Modelling
     {
       [DebuggerStepThrough]
       get { return index; }
+      [DebuggerStepThrough]
+      set {
+        Move(Parent, Name, value);
+      }
     }
 
     /// <inheritdoc/>
-    public INesting Nesting {
+    public Nesting Nesting {
       [DebuggerStepThrough]
       get { return nesting; }
     }
@@ -146,6 +165,37 @@ namespace Xtensive.Modelling
       }
     }
 
+    #endregion
+
+    /// <inheritdoc/>
+    /// <exception cref="InvalidOperationException">Invalid node state.</exception>
+    public void Move(Node newParent, string newName, int newIndex)
+    {
+      if (State==NodeState.Removed)
+        throw new InvalidOperationException(Strings.ExInvalidNodeState);
+      this.EnsureNotLocked();
+      if (newParent==Parent && newName==Name && newIndex==Index)
+        return;
+      ValidateMove(newParent, newName, newIndex);
+      if (State==NodeState.Initializing) {
+        parent = newParent;
+        name = newName;
+        index = newIndex;
+        PerformCreate();
+      }
+      else
+        PerformMove(newParent, newName, newIndex);
+    }
+
+    /// <inheritdoc/>
+    /// <exception cref="InvalidOperationException">Invalid node state.</exception>
+    public void Remove()
+    {
+      EnsureIsEditable();
+      ValidateRemove();
+      PerformRemove();
+    }
+
     /// <inheritdoc/>
     public IPathNode GetChild(string path)
     {
@@ -157,62 +207,6 @@ namespace Xtensive.Modelling
         return next;
       return next.GetChild(parts.Second);
     }
-
-    #region Operations
-
-    /// <inheritdoc/>
-    /// <exception cref="InvalidOperationException">Invalid node state.</exception>
-    public virtual void Move(Node newParent, string newName, int newIndex)
-    {
-      if (State==NodeState.Removed)
-        throw new InvalidOperationException(Strings.ExInvalidNodeState);
-      this.EnsureNotLocked();
-      if (newParent==Parent && newName==Name && newIndex==Index)
-        return;
-      ValidateMove(newParent, newName, newIndex);
-      // TODO: Change NodeCollection
-      state = NodeState.Live;
-      name = newName;
-      parent = (Node) newParent;
-      index = newIndex;
-    }
-
-    /// <inheritdoc/>
-    public void Move(Node newParent)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(newParent, "newParent");
-      if (newParent==Parent)
-        return;
-      INodeCollection collection = null;
-      if (Nesting.IsCollectionProperty)
-        collection = (INodeCollection) Nesting.PropertyGetter(newParent);
-      Move(newParent, Name, collection==null ? 0 : collection.Count);
-    }
-
-    /// <inheritdoc/>
-    public void Move(int newIndex)
-    {
-      Move(Parent, Name, newIndex);
-    }
-
-    /// <inheritdoc/>
-    public void Rename(string newName)
-    {
-      Move(Parent, newName, Index);
-    }
-
-    /// <inheritdoc/>
-    /// <exception cref="InvalidOperationException">Invalid node state.</exception>
-    public void Remove()
-    {
-      EnsureIsEditable();
-      ValidateRemove();
-      // TODO: Change NodeCollection
-      parent = null;
-      Lock(true);
-    }
-
-    #endregion
 
     #region ValidateXxx methods
 
@@ -243,19 +237,20 @@ namespace Xtensive.Modelling
           throw new ArgumentOutOfRangeException("newParent.Model");
       }
 
-      // Validation parent collection nesting
-      INodeCollection collection = null;
-      if (Nesting.IsCollectionProperty)
-        collection = (INodeCollection) Nesting.PropertyGetter(newParent);
-      if (collection==null)
-        return;
-      ArgumentValidator.EnsureArgumentIsInRange(newIndex, 0, collection.Count - (newParent==Parent ? 1 : 0), "newIndex");
-      Node node;
-      if (!collection.TryGetValue(newName, out node))
-        return;
-      if (node!=this)
-        throw new ArgumentException(String.Format(
-          Strings.ExItemWithNameXAlreadyExists, newName), newName);
+      if (!Nesting.IsCollectionProperty)
+        // Validation parent property nesting
+        ArgumentValidator.EnsureArgumentIsInRange(newIndex, 0, 0, "newIndex");
+      else {
+        // Validation parent collection nesting
+        var collection = (NodeCollection) Nesting.PropertyGetter(newParent);
+        ArgumentValidator.EnsureArgumentIsInRange(newIndex, 0, collection.Count - (newParent==Parent ? 1 : 0), "newIndex");
+        Node node;
+        if (!collection.TryGetValue(newName, out node))
+          return;
+        if (node!=this)
+          throw new ArgumentException(String.Format(
+            Strings.ExItemWithNameXAlreadyExists, newName), newName);
+      }
     }
 
     /// <summary>
@@ -270,14 +265,112 @@ namespace Xtensive.Modelling
 
     #endregion
 
+    #region PerformXxx methods
+
+    /// <summary>
+    /// Actually performs construction operation.
+    /// </summary>
+    protected virtual void PerformCreate()
+    {
+      if (Parent!=null) {
+        if (!Nesting.IsCollectionProperty)
+          Nesting.PropertyValue = this;
+        else
+          ((NodeCollection) Nesting.PropertyValue).Add(this);
+      }
+      state = NodeState.Live;
+    }
+
+    /// <summary>
+    /// Actually performs <see cref="Move"/> operation.
+    /// </summary>
+    /// <param name="newParent">The new parent.</param>
+    /// <param name="newName">The new name.</param>
+    /// <param name="newIndex">The new index.</param>
+    protected virtual void PerformMove(Node newParent, string newName, int newIndex)
+    {
+      if (newParent!=parent) {
+        // Parent is changed
+        if (!Nesting.IsCollectionProperty) {
+          Nesting.PropertySetter(parent, null);
+          Nesting.PropertySetter(newParent, this);
+        }
+        else {
+          var oldCollection = (NodeCollection) Nesting.PropertyGetter(parent);
+          var newCollection = (NodeCollection) Nesting.PropertyGetter(newParent);
+          for (int i = index+1; i<oldCollection.Count; i++)
+            oldCollection[i].EnsureIsEditable();
+          for (int i = index; i<newCollection.Count; i++)
+            newCollection[i].EnsureIsEditable();
+          for (int i = index+1; i<oldCollection.Count; i++)
+            oldCollection[i].PerformShift(-1);
+          for (int i = index; i<newCollection.Count; i++)
+            newCollection[i].PerformShift(1);
+          oldCollection.Remove(this);
+          newCollection.Add(this);
+        }
+      }
+      else {
+        // Parent isn't changed
+        if (newIndex!=index) {
+          var collection = (NodeCollection) Nesting.PropertyGetter(newParent);
+          int minIndex, maxIndex, shift;
+          if (newIndex < index) {
+            minIndex = newIndex;
+            maxIndex = index - 1;
+            shift = 1;
+          }
+          else {
+            minIndex = index + 1;
+            maxIndex = newIndex;
+            shift = -1;
+          }
+          for (int i = minIndex; i <= maxIndex; i++)
+            collection[i].EnsureIsEditable();
+          for (int i = minIndex; i <= maxIndex; i++)
+            collection[i].PerformShift(shift);
+          collection.Move(this, newIndex);
+        }
+      }
+      name = newName;
+      parent = (Node) newParent;
+      index = newIndex;
+    }
+
+    /// <summary>
+    /// Performs "shift" operation 
+    /// (induced by <see cref="Move"/> operation of another node).
+    /// </summary>
+    /// <param name="offset">Shift offset.</param>
+    protected virtual void PerformShift(int offset)
+    {
+      index += offset;
+    }
+
+    /// <summary>
+    /// Actually performs <see cref="Remove"/> operation.
+    /// </summary>
+    protected void PerformRemove()
+    {
+      state = NodeState.Removed;
+      if (!Nesting.IsCollectionProperty)
+        Nesting.PropertyValue = null;
+      else
+        ((NodeCollection) Nesting.PropertyValue).Remove(this);
+    }
+
+    #endregion
+
     #region EnsureXxxx methods
 
+    /// <exception cref="InvalidOperationException"><see cref="State"/> is invalid.</exception>
     protected void EnsureIsLive()
     {
       if (State!=NodeState.Live)
         throw new InvalidOperationException(Strings.ExInvalidNodeState);
     }
 
+    /// <exception cref="InvalidOperationException"><see cref="State"/> is invalid.</exception>
     protected void EnsureIsEditable()
     {
       if (State!=NodeState.Live)
@@ -287,33 +380,25 @@ namespace Xtensive.Modelling
 
     #endregion
 
+    #region ILockable methods
+
     /// <inheritdoc/>
     public override void Lock(bool recursive)
     {
       base.Lock(recursive);
-      // TODO: Process all collection properties
+      foreach (var pair in PropertyAccessors) {
+        string propertyName = pair.Key;
+        var accessor = pair.Value;
+        if (accessor.HasGetter) {
+          var lockable = GetProperty(pair.Key) as ILockable;
+          if (lockable!=null)
+            lockable.Lock();
+        }
+      }
       cachedPath = Path;
     }
 
-    protected abstract INesting CreateNesting();
-
-    /// <summary>
-    /// Initializes this instance.
-    /// </summary>
-    /// <exception cref="InvalidOperationException"><see cref="CreateNesting"/> has returned <see langword="null" />.</exception>
-    protected virtual void Initialize()
-    {
-      nesting = CreateNesting();
-      if (nesting==null)
-        throw new InvalidOperationException(Strings.ExNoNesting);
-      propertyAccessors = GetPropertyAccessors(GetType());
-    }
-
-    /// <inheritdoc/>
-    public override string ToString()
-    {
-      return name;
-    }
+    #endregion
 
     #region Private \ internal methods
 
@@ -336,6 +421,30 @@ namespace Xtensive.Modelling
 
     #endregion
 
+    #region To override
+
+    protected abstract Nesting CreateNesting();
+
+    /// <summary>
+    /// Initializes this instance.
+    /// </summary>
+    /// <exception cref="InvalidOperationException"><see cref="CreateNesting"/> has returned <see langword="null" />.</exception>
+    protected virtual void Initialize()
+    {
+      nesting = CreateNesting();
+      if (nesting==null)
+        throw new InvalidOperationException(Strings.ExNoNesting);
+      propertyAccessors = GetPropertyAccessors(GetType());
+    }
+
+    #endregion
+
+    /// <inheritdoc/>
+    public override string ToString()
+    {
+      return name;
+    }
+
 
     // Constructors
 
@@ -356,12 +465,28 @@ namespace Xtensive.Modelling
     /// <summary>
     /// Initializes a new instance of the <see cref="Node"/> class.
     /// </summary>
+    /// <param name="parent"><see cref="Parent"/> property value.</param>
+    /// <param name="name">Initial <see cref="Name"/> property value.</param>
+    protected Node(Node parent, string name)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(parent, "parent");
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
+      Initialize();
+      if (!Nesting.IsCollectionProperty)
+        Move(parent, name, 0);
+      else
+        Move(parent, name, ((NodeCollection) Nesting.PropertyGetter(parent)).Count);
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Node"/> class.
+    /// </summary>
     /// <param name="name">Initial <see cref="Name"/> property value.</param>
     internal Node(string name)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
       Initialize();
-      Rename(name);
+      Name = name;
     }
 
     // Deserialization
@@ -370,6 +495,9 @@ namespace Xtensive.Modelling
     void IDeserializationCallback.OnDeserialization(object sender)
     {
       Initialize();
+      if (IsLocked) {
+        cachedPath = Path;
+      }
     }
   }
 }

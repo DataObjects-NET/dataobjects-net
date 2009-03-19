@@ -4,15 +4,24 @@
 // Created by: Alex Yakunin
 // Created:    2009.03.18
 
+using System.Collections.Generic;
+using Xtensive.Core.Collections;
+
 namespace Xtensive.Modelling
 {
   /// <summary>
   /// Typed <see cref="Node"/> collection.
   /// </summary>
   /// <typeparam name="TNode">The type of the collection item.</typeparam>
-  public interface INodeCollection<TNode> : INodeCollection
+  public interface INodeCollection<TNode> : INodeCollection,
+    ICountable<TNode>
     where TNode : Node
   {
+    /// <summary>
+    /// An indexer that provides access to collection items by their index.
+    /// </summary>
+    new TNode this[int index] { get; }
+
     /// <summary>
     /// An indexer that provides access to collection items by their names.
     /// Returns <see langword="null"/> if there is no such item.

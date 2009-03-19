@@ -12,12 +12,8 @@ namespace Xtensive.Modelling.Tests.DatabaseModel
   [Serializable]
   public class DatabaseCollection : NodeCollection<Database, Server, Server>
   {
-    public override string Name {
-      get { return "Databases"; }
-    }
-
     internal DatabaseCollection(Server parent)
-      : base(parent)
+      : base(parent, "Databases")
     {
     }
   }

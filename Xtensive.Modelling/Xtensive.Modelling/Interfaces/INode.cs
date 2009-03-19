@@ -21,15 +21,15 @@ namespace Xtensive.Modelling
     NodeState State { get; }
     
     /// <summary>
-    /// Gets the index of the node in the parent collection, if applicable;
+    /// Gets or sets the index of the node in the parent collection, if applicable;
     /// otherwise, <see langword="0" />.
     /// </summary>
-    int Index { get; }
+    int Index { get; set; }
 
     /// <summary>
     /// Gets the node nesting information.
     /// </summary>
-    INesting Nesting { get; }
+    Nesting Nesting { get; }
 
     /// <summary>
     /// Gets the property accessors for this node.
@@ -51,30 +51,12 @@ namespace Xtensive.Modelling
     void SetProperty(string propertyName, object value);
 
     /// <summary>
-    /// Renames the node.
-    /// </summary>
-    /// <param name="newName">The new name.</param>
-    void Rename(string newName);
-
-    /// <summary>
     /// Moves the node.
     /// </summary>
     /// <param name="newParent">The new parent.</param>
     /// <param name="newName">The new name.</param>
     /// <param name="newIndex">The new index.</param>
     void Move(Node newParent, string newName, int newIndex);
-
-    /// <summary>
-    /// Moves the node.
-    /// </summary>
-    /// <param name="newParent">The new parent.</param>
-    void Move(Node newParent);
-
-    /// <summary>
-    /// Moves the node.
-    /// </summary>
-    /// <param name="newIndex">The new index.</param>
-    void Move(int newIndex);
 
     /// <summary>
     /// Removes the node.

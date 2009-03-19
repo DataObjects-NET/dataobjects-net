@@ -12,7 +12,7 @@ namespace Xtensive.Modelling.Tests.DatabaseModel
   [Serializable]
   public class Schema : Node<Database, Server>
   {
-    protected override INesting CreateNesting()
+    protected override Nesting CreateNesting()
     {
       return new Nesting<Schema, Database, SchemaCollection>(this, "Schemas");
     }

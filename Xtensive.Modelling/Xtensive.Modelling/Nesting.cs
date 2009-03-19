@@ -5,6 +5,7 @@
 // Created:    2009.03.18
 
 using System;
+using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.Serialization;
 using Xtensive.Core;
@@ -16,120 +17,60 @@ using Xtensive.Core.Helpers;
 namespace Xtensive.Modelling
 {
   /// <summary>
-  /// <see cref="INesting"/> implementation.
+  /// Abstract base <see cref="INesting"/> implementation.
   /// </summary>
-  /// <typeparam name="TNode">The type of the node.</typeparam>
-  /// <typeparam name="TParent">The type of the parent.</typeparam>
-  /// <typeparam name="TProperty">The type of the property.</typeparam>
   [Serializable]
-  public sealed class Nesting<TNode, TParent, TProperty> : INesting<TParent, TProperty>,
+  public abstract class Nesting : INesting,
     IDeserializationCallback
-    where TNode: Node
-    where TParent: Node
-    where TProperty: IPathNode
   {
     [NonSerialized]
     private string escapedPropertyName;
-    [NonSerialized]
-    private PropertyInfo propertyInfo;
-    [NonSerialized]
-    private bool isCollectionProperty;
-    [NonSerialized]
-    private Func<Node, TProperty> propertyGetter;
-    [NonSerialized]
-    private Func<Node, IPathNode> untypedPropertyAccessor;
 
     /// <inheritdoc/>
     public string PropertyName { get; private set; }
 
     /// <inheritdoc/>
     public string EscapedPropertyName {
+      [DebuggerStepThrough]
       get { return escapedPropertyName; }
     }
 
     /// <inheritdoc/>
-    public TNode Node { get; private set; }
+    public Node Node { get; private set; }
 
     /// <inheritdoc/>
-    public PropertyInfo PropertyInfo {
-      get { return propertyInfo; }
-    }
+    public abstract PropertyInfo PropertyInfo { get; }
 
     /// <inheritdoc/>
-    public Func<Node, TProperty> PropertyGetter {
-      get { return propertyGetter; }
-    }
+    public abstract bool IsCollectionProperty { get; }
 
     /// <inheritdoc/>
-    public TProperty PropertyValue {
-      get { return PropertyGetter(Node); }
-    }
+    public abstract Func<Node, IPathNode> PropertyGetter { get; }
 
     /// <inheritdoc/>
-    public bool IsCollectionProperty {
-      get { return isCollectionProperty; }
+    internal abstract Action<Node, IPathNode> PropertySetter { get; }
+
+    /// <inheritdoc/>
+    public IPathNode PropertyValue {
+      [DebuggerStepThrough]
+      get { return PropertyGetter(Node.Parent); }
+      [DebuggerStepThrough]
+      internal set { PropertySetter(Node.Parent, value); }
     }
-
-    #region INesting members
-
-    Node INesting.Node
-    {
-      get { return Node; }
-    }
-
-    Func<Node, IPathNode> INesting.PropertyGetter { 
-      get { return untypedPropertyAccessor; }
-    }
-
-    IPathNode INesting.PropertyValue {
-      get { return PropertyValue; }
-    }
-
-    #endregion
 
     /// <exception cref="InvalidOperationException">Invalid property type.</exception>
-    private void Initialize()
+    internal virtual void Initialize()
     {
-      var tNode = typeof (TNode);
-      var tParent = typeof (TParent);
-      var tProperty = typeof (TProperty);
-      if (PropertyName.IsNullOrEmpty()) {
-        PropertyName = null;
-        escapedPropertyName = null;
-        propertyInfo = null;
-        isCollectionProperty = false;
-        propertyGetter = null;
-        untypedPropertyAccessor = null;
+      if (PropertyName.IsNullOrEmpty())
         return;
-      }
-
       escapedPropertyName = new[] {PropertyName}.RevertibleJoin(
         Modelling.Node.PathEscape, Modelling.Node.PathDelimiter);
-      propertyInfo = tParent.GetProperty(PropertyName);
-      if (propertyInfo.PropertyType!=tProperty)
-        throw new InvalidOperationException(String.Format(
-          Strings.ExTypeOfXPropertyMustBeY, 
-          propertyInfo.GetShortName(true), tProperty.GetShortName()));
-      isCollectionProperty = typeof (INodeCollection).IsAssignableFrom(tProperty);
-      var typedAccessor = DelegateHelper.CreateGetMemberDelegate<TParent, TProperty>(PropertyName);
-      if (typedAccessor==null)
-        throw new InvalidOperationException(string.Format(
-          Strings.ExBindingFailedForX, propertyInfo.GetShortName(true)));
-      propertyGetter = 
-        n => typedAccessor.Invoke((TParent) n);
-      untypedPropertyAccessor = 
-        n => typedAccessor.Invoke((TParent) n);
     }
 
 
     // Constructors
 
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="node"><see cref="Node"/> property value.</param>
-    /// <param name="propertyName"><see cref="PropertyName"/> property value.</param>
-    public Nesting(TNode node, string propertyName)
+    internal Nesting(Node node, string propertyName)
     {
       ArgumentValidator.EnsureArgumentNotNull(node, "node");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(propertyName, "propertyName");
@@ -138,11 +79,7 @@ namespace Xtensive.Modelling
       Initialize();
     }
 
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="node"><see cref="Node"/> property value.</param>
-    internal Nesting(TNode node)
+    internal Nesting(Node node)
     {
       ArgumentValidator.EnsureArgumentNotNull(node, "node");
       Node = node;

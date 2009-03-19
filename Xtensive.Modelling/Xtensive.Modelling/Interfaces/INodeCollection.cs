@@ -5,16 +5,26 @@
 // Created:    2009.03.17
 
 using System.Collections;
-using System.Collections.Generic;
+using Xtensive.Core.Collections;
 
 namespace Xtensive.Modelling
 {
   /// <summary>
   /// <see cref="Node"/> collection.
   /// </summary>
-  public interface INodeCollection : IList<Node>,
-    IPathNode
+  public interface INodeCollection : IPathNode, 
+    ICountable
   {
+    /// <summary>
+    /// Gets the count of items.
+    /// </summary>
+    new int Count { get; }
+
+    /// <summary>
+    /// An indexer that provides access to collection items by their index.
+    /// </summary>
+    new Node this[int index] { get; }
+
     /// <summary>
     /// An indexer that provides access to collection items by their names.
     /// Returns <see langword="null"/> if there is no such item.
