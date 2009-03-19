@@ -24,10 +24,9 @@ namespace Xtensive.Core.Security
   {
     [NonSerialized]
     private ThreadSafeCached<HashAlgorithm> cachedHasher;
-    //[NonSerialized]
-    private Encoding encoding;
     [NonSerialized]
     private object _lock = new object();
+    private Encoding encoding;
 
     #region Properties
 
@@ -76,11 +75,10 @@ namespace Xtensive.Core.Security
         byteSignature = Hasher.ComputeHash(byteToken);
       }
       return
-        new[]
-          {
-            encoding.GetString(byteToken),
-            encoding.GetString(byteSignature)
-          }.RevertibleJoin(Escape, Delimiter);
+        new[] {
+          encoding.GetString(byteToken),
+          encoding.GetString(byteSignature)
+        }.RevertibleJoin(Escape, Delimiter);
     }
 
     /// <inheritdoc/>
