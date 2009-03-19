@@ -7,10 +7,10 @@
 namespace Xtensive.Modelling
 {
   /// <summary>
-  /// Node with specified <see cref="Node.Parent"/> type.
+  /// Path node with specified <see cref="IPathNode.Parent"/> type.
   /// </summary>
   /// <typeparam name="TParent">The type of the parent.</typeparam>
-  public interface INode<TParent> : INode
+  public interface IPathNode<TParent> : IPathNode
     where TParent : Node
   {
     /// <summary>

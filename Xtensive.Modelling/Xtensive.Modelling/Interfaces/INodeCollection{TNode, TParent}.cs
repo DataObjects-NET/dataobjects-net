@@ -2,18 +2,16 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alex Yakunin
-// Created:    2009.03.17
-
-using System.Collections.Generic;
+// Created:    2009.03.18
 
 namespace Xtensive.Modelling
 {
   /// <summary>
   /// Typed <see cref="Node"/> collection.
   /// </summary>
-  /// <typeparam name="TNode">The type of the node.</typeparam>
+  /// <typeparam name="TNode">The type of the collection item.</typeparam>
   public interface INodeCollection<TNode> : INodeCollection
-    where TNode: Node
+    where TNode : Node
   {
     /// <summary>
     /// An indexer that provides access to collection items by their names.
@@ -30,6 +28,6 @@ namespace Xtensive.Modelling
     /// <see langword="true"/> if item is found by specified <paramref name="name"/>;
     /// otherwise <see langword="false"/>.
     /// </returns>
-    bool TryGetValue(string name, out TNode value);
+    new bool TryGetValue(string name, out Node value);
   }
 }

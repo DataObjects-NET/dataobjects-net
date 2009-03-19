@@ -12,7 +12,7 @@ namespace Xtensive.Modelling
   /// <summary>
   /// <see cref="Node"/> collection.
   /// </summary>
-  public interface INodeCollection : ICollection<Node>,
+  public interface INodeCollection : IList<Node>,
     IPathNode
   {
     /// <summary>

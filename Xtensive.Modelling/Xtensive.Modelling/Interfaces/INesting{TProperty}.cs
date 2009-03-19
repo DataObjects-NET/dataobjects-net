@@ -11,8 +11,7 @@ namespace Xtensive.Modelling
   /// <summary>
   /// Typed node nesting information.
   /// </summary>
-  public interface INesting<TParent, TProperty> : INesting
-    where TParent: Node
+  public interface INesting<TProperty> : INesting
     where TProperty: IPathNode
   {
     /// <summary>

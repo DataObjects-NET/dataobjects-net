@@ -21,25 +21,20 @@ using System.Linq;
 namespace Xtensive.Modelling
 {
   /// <summary>
-  /// A base class for collection of nodes in model.
+  /// An abstract base class for collection of nodes in model.
   /// </summary>
-  /// <typeparam name="TNode">The type of the node.</typeparam>
-  /// <typeparam name="TParent">The type of the parent.</typeparam>
-  /// <typeparam name="TModel">The type of the model.</typeparam>
   [Serializable]
-  public abstract class NodeCollection<TNode, TParent, TModel> : CollectionBase<TNode>,
-    INodeCollection<TNode>,
+  public abstract class NodeCollection : LockableBase,
+    INodeCollection,
     IDeserializationCallback
-    where TNode: Node
-    where TParent: Node
-    where TModel: Model
   {
     [NonSerialized]
     private string escapedName;
     [NonSerialized]
     private string cachedPath;
     [NonSerialized]
-    private Dictionary<string, TNode> nameIndex = new Dictionary<string, TNode>();
+    private Dictionary<string, Node> nameIndex = new Dictionary<string, Node>();
+    private List<Node> list;
 
     /// <inheritdoc/>
     public abstract string Name { get; }
@@ -52,16 +47,11 @@ namespace Xtensive.Modelling
     }
 
     /// <inheritdoc/>
-    public TParent Parent {
+    public Node Parent {
       [DebuggerStepThrough]
       get; 
       [DebuggerStepThrough]
       private set;
-    }
-
-    /// <inheritdoc/>
-    Node IPathNode.Parent {
-      get { return Parent; }
     }
 
     /// <inheritdoc/>
@@ -103,10 +93,10 @@ namespace Xtensive.Modelling
 
     /// <inheritdoc/>
     /// <exception cref="ArgumentException">Item is not found.</exception>
-    public TNode this[string name] {
+    public Node this[string name] {
       [DebuggerStepThrough]
       get {
-        TNode result;
+        Node result;
         if (!TryGetValue(name, out result))
           throw new ArgumentException(String.Format(String.Format(
             Strings.ExItemWithNameXIsNotFound, name)));

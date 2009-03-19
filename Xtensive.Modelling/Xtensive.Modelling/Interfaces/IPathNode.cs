@@ -9,7 +9,7 @@ using Xtensive.Core;
 namespace Xtensive.Modelling
 {
   /// <summary>
-  /// Base class for any model node or node collection.
+  /// Base class for any model node or node collection (path node).
   /// </summary>
   public interface IPathNode : ILockable
   {
