@@ -96,6 +96,7 @@ namespace Xtensive.Core.Security
     {
       this.cacheSize = cacheSize;
       this.signatureProvider = signatureProvider;
+      Cache = new LruCache<string, Pair<string, string>>(CacheSize, p => p.First);
     }
 
     // Deserialization

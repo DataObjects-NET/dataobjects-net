@@ -24,7 +24,7 @@ namespace Xtensive.Core.Security
   {
     [NonSerialized]
     private ThreadSafeCached<HashAlgorithm> cachedHasher;
-    [NonSerialized]
+    //[NonSerialized]
     private Encoding encoding;
     [NonSerialized]
     private object _lock = new object();
@@ -48,7 +48,8 @@ namespace Xtensive.Core.Security
     /// <summary>
     /// Gets or sets the encoding.
     /// </summary>
-    protected Encoding Encoding {
+    protected Encoding Encoding
+    {
       get { return encoding; }
       set { encoding = value; }
     }
@@ -101,18 +102,18 @@ namespace Xtensive.Core.Security
       return token;
     }
 
-
-    // Constructors
-
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="hasherConstructor">The <see cref="Hasher"/> constructor delegate.</param>
-    public HashingSignatureProvider(Func<HashAlgorithm> hasherConstructor)
+    /// <param name="encoding">The encoding.</param>
+    public HashingSignatureProvider(Func<HashAlgorithm> hasherConstructor, Encoding encoding)
     {
       HasherConstructor = hasherConstructor;
+      Encoding = encoding;
       Escape = '\\';
       Delimiter = ',';
+      cachedHasher = ThreadSafeCached<HashAlgorithm>.Create(_lock);
     }
 
     // Deserialization
@@ -121,6 +122,7 @@ namespace Xtensive.Core.Security
     public void OnDeserialization(object sender)
     {
       _lock = new object();
+      cachedHasher = ThreadSafeCached<HashAlgorithm>.Create(_lock);
     }
   }
 }
