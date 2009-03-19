@@ -90,6 +90,7 @@ namespace Xtensive.Core.Collections
       extensions = null;
     }
 
+    /// <inheritdoc/>
     public override void Lock(bool recursive)
     {
       base.Lock(recursive);
@@ -134,14 +135,14 @@ namespace Xtensive.Core.Collections
     // Constructors
 
     /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     public ExtensionCollection()
     {
     }
 
     /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="source">The source to copy into this collection.</param>
     public ExtensionCollection(IExtensionCollection source)

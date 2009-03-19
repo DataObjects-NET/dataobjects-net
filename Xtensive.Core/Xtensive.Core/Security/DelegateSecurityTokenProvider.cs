@@ -33,6 +33,8 @@ namespace Xtensive.Core.Security
     /// <param name="getSecurityToken">The <see cref="GetSecurityToken"/> handler.</param>
     public DelegateSecurityTokenProvider(Func<string, string, string> getSecurityToken)
     {
+      ArgumentValidator.EnsureArgumentNotNull(getSecurityToken, "getSecurityToken");
+
       this.getSecurityToken = getSecurityToken;
     }
   }

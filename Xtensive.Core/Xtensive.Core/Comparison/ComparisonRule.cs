@@ -73,6 +73,7 @@ namespace Xtensive.Core.Comparison
 
     #region Equals, GetHashCode
 
+    /// <inheritdoc/>
     public bool Equals(ComparisonRule other)
     {
       if (Direction != other.Direction)
@@ -80,6 +81,7 @@ namespace Xtensive.Core.Comparison
       return Equals(Culture, other.Culture);
     }
 
+    /// <inheritdoc/>
     public override bool Equals(object obj)
     {
       if (obj is ComparisonRule)
@@ -87,6 +89,7 @@ namespace Xtensive.Core.Comparison
       return false;
     }
 
+    /// <inheritdoc/>
     public override int GetHashCode()
     {
       int result = (int)Direction;

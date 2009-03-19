@@ -5,6 +5,7 @@
 // Created:    2008.01.22
 
 using System;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.Arithmetic
 {
@@ -15,6 +16,7 @@ namespace Xtensive.Core.Arithmetic
     private const float zero = 0f;
     private const float one = 1f;
 
+    /// <inheritdoc/>
     public override float Add(float value1, float value2)
     {
       if (OverflowAllowed) {
@@ -29,6 +31,7 @@ namespace Xtensive.Core.Arithmetic
       }
     }
 
+    /// <inheritdoc/>
     public override float Subtract(float value1, float value2)
     {
       if (OverflowAllowed) {
@@ -43,6 +46,7 @@ namespace Xtensive.Core.Arithmetic
       }
     }
 
+    /// <inheritdoc/>
     public override float Negation(float value)
     {
       if (OverflowAllowed) {
@@ -57,16 +61,19 @@ namespace Xtensive.Core.Arithmetic
       }
     }
 
+    /// <inheritdoc/>
     public override float Zero
     {
       get { return zero; }
     }
 
+    /// <inheritdoc/>
     public override float One
     {
       get { return one; }
     }
 
+    /// <inheritdoc/>
     public override float Multiply(float value, double factor)
     {
       if (OverflowAllowed) {
@@ -81,6 +88,7 @@ namespace Xtensive.Core.Arithmetic
       }
     }
 
+    /// <inheritdoc/>
     public override float Divide(float value, double factor)
     {
       if (OverflowAllowed) {
@@ -104,6 +112,9 @@ namespace Xtensive.Core.Arithmetic
 
     // Constructors
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// </summary>
     public SingleArithmetic(IArithmeticProvider provider, ArithmeticRules rule)
       : base(provider, rule)
     {

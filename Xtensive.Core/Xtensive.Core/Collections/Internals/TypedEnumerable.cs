@@ -13,6 +13,7 @@ namespace Xtensive.Core.Collections
   {
     IEnumerable innerEnumerable;
 
+    /// <inheritdoc/>
     public IEnumerator<T> GetEnumerator()
     {
       return new TypedEnumerator<T>(innerEnumerable.GetEnumerator());

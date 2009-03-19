@@ -19,6 +19,29 @@ using Xtensive.Core.Serialization.Binary;
 
 namespace Xtensive.Core.Tests.Security
 {
+  [Serializable]
+  public static class CryptoTranformGenerator
+  {
+    private static SymmetricAlgorithm algorithm;
+
+    public static ICryptoTransform CreateEncryptor()
+    {
+      return algorithm.CreateEncryptor();
+    }
+
+    public static ICryptoTransform CreateDecryptor()
+    {
+      return algorithm.CreateDecryptor();
+    }
+
+    static CryptoTranformGenerator()
+    {
+      algorithm = DES.Create();
+      algorithm.GenerateKey();
+      algorithm.GenerateIV();
+    }
+  }
+
   [TestFixture]
   public class SignatureProvidersTest
   {
@@ -29,15 +52,24 @@ namespace Xtensive.Core.Tests.Security
     {
       var providers = new ISignatureProvider[]
         {
-          new HashingSignatureProvider(MD5.Create, Encoding.Unicode),
-          new CachingSignatureProvider(100, new HashingSignatureProvider(SHA256.Create, Encoding.Default)),
+          new HashingSignatureProvider(MD5.Create),
+          new CryptoSignatureProvider(
+            CryptoTranformGenerator.CreateEncryptor,
+            CryptoTranformGenerator.CreateDecryptor,
+            new HashingSignatureProvider(SHA1.Create)),
+          new CachingSignatureProvider(100, new HashingSignatureProvider(SHA256.Create)),
+          new CachingSignatureProvider(100,
+            new CryptoSignatureProvider(
+              CryptoTranformGenerator.CreateEncryptor,
+              CryptoTranformGenerator.CreateDecryptor,
+              new HashingSignatureProvider(SHA256.Create)))
         };
 
       foreach (var provider in providers) {
         CombinedTest(provider);
       }
     }
-
+    
     public void CombinedTest(ISignatureProvider provider)
     {
       Log.Debug("AddRemoveSign for: {0}", provider.GetType().Name);
@@ -50,8 +82,8 @@ namespace Xtensive.Core.Tests.Security
 
     public void AddRemoveSignTest(ISignatureProvider provider)
     {
-      var token = "123aaaÿÿÿ";
-
+      var token = "123";// "123aaaÿÿÿ";
+      
       var signed = provider.AddSignature(token);
       Assert.AreEqual(token, provider.RemoveSignature(signed));
     }

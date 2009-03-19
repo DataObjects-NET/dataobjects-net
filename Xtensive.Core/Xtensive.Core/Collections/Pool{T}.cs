@@ -24,19 +24,21 @@ namespace Xtensive.Core.Collections
     private SetSlim<T> items = new SetSlim<T>();
     private SetSlim<T> availableItems = new SetSlim<T>();
 
-
+    /// <inheritdoc/>
     public int Capacity
     {
       [DebuggerStepThrough]
       get { return capacity; }
     }
 
+    /// <inheritdoc/>
     public int AvailableCount
     {
       [DebuggerStepThrough]
       get { return availableItems.Count; }
     }
 
+    /// <inheritdoc/>
     public int Count
     {
       [DebuggerStepThrough]
@@ -45,6 +47,7 @@ namespace Xtensive.Core.Collections
 
     #region Add, Remove, Consume, Release, etc...
 
+    /// <inheritdoc/>
     public bool Add(T item)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
@@ -55,6 +58,7 @@ namespace Xtensive.Core.Collections
       return true;
     }
 
+    /// <inheritdoc/>
     public bool Remove(T item)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
@@ -68,6 +72,7 @@ namespace Xtensive.Core.Collections
       return true;
     }
 
+    /// <inheritdoc/>
     public T Consume()
     {
       if (AvailableCount==0)
@@ -81,6 +86,7 @@ namespace Xtensive.Core.Collections
       return item;
     }
 
+    /// <inheritdoc/>
     public void Consume(T item)
     {
       Add(item);
@@ -89,6 +95,7 @@ namespace Xtensive.Core.Collections
       availableItems.Remove(item);
     }
 
+    /// <inheritdoc/>
     public T Consume(Func<T> itemGenerator)
     {
       T item;
@@ -101,6 +108,7 @@ namespace Xtensive.Core.Collections
       return item;
     }
 
+    /// <inheritdoc/>
     public void Release(T item)
     {
       if (!IsPooled(item))
@@ -112,6 +120,7 @@ namespace Xtensive.Core.Collections
         Remove(item);
     }
 
+    /// <inheritdoc/>
     public void ExecuteConsumer(Func<T> itemGenerator, Action<T> consumer)
     {
       T item = Consume(itemGenerator);
@@ -127,12 +136,14 @@ namespace Xtensive.Core.Collections
 
     #region IsXxx methods
 
+    /// <inheritdoc/>
     public bool IsPooled(T item)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
       return items.Contains(item);
     }
 
+    /// <inheritdoc/>
     public bool IsAvailable(T item)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
@@ -141,6 +152,7 @@ namespace Xtensive.Core.Collections
       return availableItems.Contains(item);
     }
 
+    /// <inheritdoc/>
     public bool IsConsumed(T item)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");

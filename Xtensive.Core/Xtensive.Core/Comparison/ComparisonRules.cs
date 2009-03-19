@@ -169,6 +169,7 @@ namespace Xtensive.Core.Comparison
 
     #region IEquatable methods
 
+    /// <inheritdoc/>
     public bool Equals(ComparisonRules other)
     {
       if (this == other)
@@ -192,6 +193,7 @@ namespace Xtensive.Core.Comparison
 
     #region Equals, GetHashCode
 
+    /// <inheritdoc/>
     public override bool Equals(object obj)
     {
       if (obj is ComparisonRules)
@@ -199,6 +201,7 @@ namespace Xtensive.Core.Comparison
       return false;
     }
 
+    /// <inheritdoc/>
     public override int GetHashCode()
     {
       if (cachedHashCode==0) lock (composite) if (cachedHashCode==0) {

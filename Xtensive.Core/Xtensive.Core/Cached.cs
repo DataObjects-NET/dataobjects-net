@@ -111,6 +111,7 @@ namespace Xtensive.Core
       return Equals((Cached<T>) obj);
     }
 
+    /// <inheritdoc/>
     public override int GetHashCode()
     {
       unchecked {

@@ -5,6 +5,7 @@
 // Created:    2008.01.22
 
 using System;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.Arithmetic
 {
@@ -15,16 +16,19 @@ namespace Xtensive.Core.Arithmetic
     private const int zero = 0;
     private const int one = 1;
 
+    /// <inheritdoc/>
     public override int Zero
     {
       get { return zero; }
     }
 
+    /// <inheritdoc/>
     public override int One
     {
       get { return one; }
     }
 
+    /// <inheritdoc/>
     public override int Add(int value1, int value2)
     {
       if (OverflowAllowed) {
@@ -39,6 +43,7 @@ namespace Xtensive.Core.Arithmetic
       }
     }
 
+    /// <inheritdoc/>
     public override int Negation(int value)
     {
       if (OverflowAllowed) {
@@ -53,6 +58,7 @@ namespace Xtensive.Core.Arithmetic
       }
     }
 
+    /// <inheritdoc/>
     public override int Subtract(int value1, int value2)
     {
       if (OverflowAllowed) {
@@ -67,6 +73,7 @@ namespace Xtensive.Core.Arithmetic
       }
     }
 
+    /// <inheritdoc/>
     public override int Multiply(int value, double factor)
     {
       if (OverflowAllowed) {
@@ -81,6 +88,7 @@ namespace Xtensive.Core.Arithmetic
       }
     }
 
+    /// <inheritdoc/>
     public override int Divide(int value, double factor)
     {
       if (OverflowAllowed) {
@@ -104,6 +112,9 @@ namespace Xtensive.Core.Arithmetic
 
     // Constructors
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// </summary>
     public Int32Arithmetic(IArithmeticProvider provider, ArithmeticRules rule)
       : base(provider, rule)
     {

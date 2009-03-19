@@ -107,7 +107,8 @@ namespace Xtensive.Core.Diagnostics
     {
       FullName = string.Format("{0} ({1})", name, operationCount);
     }
-    
+
+    /// <inheritdoc/>
     public override string ToString()
     {
       double kmbBase = operationCount/TimeSpent.TotalSeconds;

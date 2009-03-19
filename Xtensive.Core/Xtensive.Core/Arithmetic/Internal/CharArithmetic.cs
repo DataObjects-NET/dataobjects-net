@@ -5,6 +5,7 @@
 // Created:    2008.01.22
 
 using System;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.Arithmetic
 {
@@ -15,16 +16,19 @@ namespace Xtensive.Core.Arithmetic
     private const char zero = '\x0000';
     private const char one = '\x0001';
 
+    /// <inheritdoc/>
     public override char Zero
     {
       get { return zero; }
     }
 
+    /// <inheritdoc/>
     public override char One
     {
       get { return one; }
     }
 
+    /// <inheritdoc/>
     public override char Add(char value1, char value2)
     {
       if (OverflowAllowed) {
@@ -39,6 +43,7 @@ namespace Xtensive.Core.Arithmetic
       }
     }
 
+    /// <inheritdoc/>
     public override char Negation(char value)
     {
       if (OverflowAllowed) {
@@ -53,6 +58,7 @@ namespace Xtensive.Core.Arithmetic
       }
     }
 
+    /// <inheritdoc/>
     public override char Subtract(char value1, char value2)
     {
       if (OverflowAllowed) {
@@ -67,6 +73,7 @@ namespace Xtensive.Core.Arithmetic
       }
     }
 
+    /// <inheritdoc/>
     public override char Multiply(char value, double factor)
     {
       if (OverflowAllowed) {
@@ -81,6 +88,7 @@ namespace Xtensive.Core.Arithmetic
       }
     }
 
+    /// <inheritdoc/>
     public override char Divide(char value, double factor)
     {
       if (OverflowAllowed) {
@@ -103,7 +111,10 @@ namespace Xtensive.Core.Arithmetic
 
 
     // Constructors
-
+    
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// </summary>
     public CharArithmetic(IArithmeticProvider provider, ArithmeticRules rule)
       : base(provider, rule)
     {

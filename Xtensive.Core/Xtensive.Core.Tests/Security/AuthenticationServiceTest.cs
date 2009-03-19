@@ -26,7 +26,7 @@ namespace Xtensive.Core.Tests.Security
       var password2 = "aab";
 
       var service = new AuthenticationService((un, pas) => un==pas, (un, pas) => un + ";" + pas, 
-        new HashingSignatureProvider(SHA1.Create, Encoding.UTF32));
+        new HashingSignatureProvider(SHA1.Create));
       Assert.IsNotNull(service.Authenticate(userName, password1));
       Assert.IsNull(service.Authenticate(userName, password2));
     }
@@ -36,7 +36,7 @@ namespace Xtensive.Core.Tests.Security
     {
       IAuthenticationProvider authenticationProvider = new DelegateAuthenticationProvider((un, pas) => un==pas);
       ISecurityTokenProvider securityTokenProvider = new DelegateSecurityTokenProvider((un, pas) => un + ";" + pas);
-      ISignatureProvider signatureProvider = new HashingSignatureProvider(SHA1.Create, Encoding.UTF32);
+      ISignatureProvider signatureProvider = new HashingSignatureProvider(SHA1.Create);
       var service = new AuthenticationService(authenticationProvider, securityTokenProvider, signatureProvider);
 
       var userName = "aaa";
@@ -52,7 +52,7 @@ namespace Xtensive.Core.Tests.Security
     public void SynchronizationTest()
     {
       var service = new AuthenticationService((un, pas) => un == pas, (un, pas) => un + ";" + pas,
-        new HashingSignatureProvider(SHA1.Create, Encoding.UTF32));
+        new HashingSignatureProvider(SHA1.Create));
 
       var threads = new Thread[10];
       for (int i = 0; i < 10; i++)

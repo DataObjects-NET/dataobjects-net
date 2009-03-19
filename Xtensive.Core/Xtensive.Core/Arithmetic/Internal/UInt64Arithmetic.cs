@@ -5,6 +5,7 @@
 // Created:    2008.01.22
 
 using System;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.Arithmetic
 {
@@ -15,16 +16,19 @@ namespace Xtensive.Core.Arithmetic
     private const ulong zero = 0;
     private const ulong one = 1;
 
+    /// <inheritdoc/>
     public override ulong Zero
     {
       get { return zero; }
     }
 
+    /// <inheritdoc/>
     public override ulong One
     {
       get { return one; }
     }
 
+    /// <inheritdoc/>
     public override ulong Add(ulong value1, ulong value2)
     {
       if (OverflowAllowed) {
@@ -39,11 +43,13 @@ namespace Xtensive.Core.Arithmetic
       }
     }
 
+    /// <inheritdoc/>
     public override ulong Negation(ulong value)
     {
       throw new NotSupportedException();
     }
 
+    /// <inheritdoc/>
     public override ulong Subtract(ulong value1, ulong value2)
     {
       if (OverflowAllowed) {
@@ -58,6 +64,7 @@ namespace Xtensive.Core.Arithmetic
       }
     }
 
+    /// <inheritdoc/>
     public override ulong Multiply(ulong value, double factor)
     {
       if (OverflowAllowed) {
@@ -72,6 +79,7 @@ namespace Xtensive.Core.Arithmetic
       }
     }
 
+    /// <inheritdoc/>
     public override ulong Divide(ulong value, double factor)
     {
       if (OverflowAllowed) {
@@ -95,6 +103,9 @@ namespace Xtensive.Core.Arithmetic
 
     // Constructors
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// </summary>
     public UInt64Arithmetic(IArithmeticProvider provider, ArithmeticRules rule)
       : base(provider, rule)
     {

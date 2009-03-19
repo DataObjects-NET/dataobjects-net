@@ -5,6 +5,7 @@
 // Created:    2008.01.22
 
 using System;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.Arithmetic
 {
@@ -15,6 +16,7 @@ namespace Xtensive.Core.Arithmetic
     private const double zero = 0d;
     private const double one = 1d;
 
+    /// <inheritdoc/>
     public override double Add(double value1, double value2)
     {
       if (OverflowAllowed) {
@@ -29,6 +31,7 @@ namespace Xtensive.Core.Arithmetic
       }
     }
 
+    /// <inheritdoc/>
     public override double Negation(double value)
     {
       if (OverflowAllowed) {
@@ -43,16 +46,19 @@ namespace Xtensive.Core.Arithmetic
       }
     }
 
+    /// <inheritdoc/>
     public override double Zero
     {
       get { return zero; }
     }
 
+    /// <inheritdoc/>
     public override double One
     {
       get { return one; }
     }
 
+    /// <inheritdoc/>
     public override double Multiply(double value, double factor)
     {
       if (OverflowAllowed) {
@@ -67,6 +73,7 @@ namespace Xtensive.Core.Arithmetic
       }
     }
 
+    /// <inheritdoc/>
     public override double Divide(double value, double factor)
     {
       if (OverflowAllowed) {
@@ -81,6 +88,7 @@ namespace Xtensive.Core.Arithmetic
       }
     }
 
+    /// <inheritdoc/>
     public override double Subtract(double value1, double value2)
     {
       if (OverflowAllowed) {
@@ -104,6 +112,9 @@ namespace Xtensive.Core.Arithmetic
 
     // Constructors
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// </summary>
     public DoubleArithmetic(IArithmeticProvider provider, ArithmeticRules rule)
       : base(provider, rule)
     {

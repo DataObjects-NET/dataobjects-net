@@ -86,6 +86,11 @@ namespace Xtensive.Core.Arithmetic
 
     // Constructors
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="info">The info.</param>
+    /// <param name="context">The context.</param>
     public Arithmetic(SerializationInfo info, StreamingContext context)
       : base(info, context)
     {
@@ -100,6 +105,10 @@ namespace Xtensive.Core.Arithmetic
       ApplyRules = Implementation.ApplyRules;
     }
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="implementation"><see cref="Implementation"/> property value.</param>
     public Arithmetic(IArithmetic<T> implementation)
       : base(implementation)
     {

@@ -24,7 +24,6 @@ namespace Xtensive.Core.Security
       return authenticate.Invoke(userName, password);
     }
 
-
     // Constructors
 
     /// <summary>
@@ -33,6 +32,8 @@ namespace Xtensive.Core.Security
     /// <param name="authenticate">The <see cref="Authenticate"/> handler.</param>
     public DelegateAuthenticationProvider(Func<string, string, bool> authenticate)
     {
+      ArgumentValidator.EnsureArgumentNotNull(authenticate, "authenticate");
+
       this.authenticate = authenticate;
     }
   }

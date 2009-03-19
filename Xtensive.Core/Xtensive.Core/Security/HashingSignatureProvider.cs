@@ -69,15 +69,15 @@ namespace Xtensive.Core.Security
     public string AddSignature(string token)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(token, "token");
-      byte[] byteToken = encoding.GetBytes(token);
+      byte[] byteToken = Encoding.GetBytes(token);
       byte[] byteSignature;
       lock (_lock) {
         byteSignature = Hasher.ComputeHash(byteToken);
       }
       return
         new[] {
-          encoding.GetString(byteToken),
-          encoding.GetString(byteSignature)
+          Encoding.GetString(byteToken),
+          Convert.ToBase64String(byteSignature)
         }.RevertibleJoin(Escape, Delimiter);
     }
 
@@ -90,28 +90,37 @@ namespace Xtensive.Core.Security
         return null;
       string token = parts[0];
       string signature = parts[1];
-      byte[] byteToken = encoding.GetBytes(token);
+      byte[] byteToken = Encoding.GetBytes(token);
       byte[] byteSignature;
       lock (_lock) {
         byteSignature = Hasher.ComputeHash(byteToken);
       }
-      if (encoding.GetString(byteSignature)!=signature)
+      if (Convert.ToBase64String(byteSignature)!=signature)
         return null;
       return token;
     }
+
+
+    // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="hasherConstructor">The <see cref="Hasher"/> constructor delegate.</param>
-    /// <param name="encoding">The encoding.</param>
-    public HashingSignatureProvider(Func<HashAlgorithm> hasherConstructor, Encoding encoding)
+    public HashingSignatureProvider(Func<HashAlgorithm> hasherConstructor)
+      :this()
     {
+      ArgumentValidator.EnsureArgumentNotNull(hasherConstructor, "hasherConstructor");
+      
       HasherConstructor = hasherConstructor;
-      Encoding = encoding;
+      cachedHasher = ThreadSafeCached<HashAlgorithm>.Create(_lock);
+      Encoding = Encoding.UTF8;
+    }
+
+    protected HashingSignatureProvider()
+    {
       Escape = '\\';
       Delimiter = ',';
-      cachedHasher = ThreadSafeCached<HashAlgorithm>.Create(_lock);
     }
 
     // Deserialization

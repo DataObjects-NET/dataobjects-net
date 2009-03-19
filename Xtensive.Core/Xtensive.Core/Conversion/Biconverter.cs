@@ -48,11 +48,13 @@ namespace Xtensive.Core.Conversion
 
     #region Equality members
 
+    /// <inheritdoc/>
     public bool Equals(Biconverter<TFrom, TTo> obj)
     {
       return Equals(obj.ConvertForward, ConvertForward) && Equals(obj.ConvertBackward, ConvertBackward);
     }
 
+    /// <inheritdoc/>
     public override bool Equals(object obj)
     {
       if (obj.GetType()!=typeof (Biconverter<TFrom, TTo>))
@@ -60,6 +62,7 @@ namespace Xtensive.Core.Conversion
       return Equals((Biconverter<TFrom, TTo>) obj);
     }
 
+    /// <inheritdoc/>
     public override int GetHashCode()
     {
       unchecked {

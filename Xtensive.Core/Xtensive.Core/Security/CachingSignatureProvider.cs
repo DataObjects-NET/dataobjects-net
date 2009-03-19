@@ -94,6 +94,8 @@ namespace Xtensive.Core.Security
     /// <param name="signatureProvider">The underlying signature provider.</param>
     public CachingSignatureProvider(int cacheSize, ISignatureProvider signatureProvider)
     {
+      ArgumentValidator.EnsureArgumentNotNull(signatureProvider, "signatureProvider");
+
       this.cacheSize = cacheSize;
       this.signatureProvider = signatureProvider;
       Cache = new LruCache<string, Pair<string, string>>(CacheSize, p => p.First);

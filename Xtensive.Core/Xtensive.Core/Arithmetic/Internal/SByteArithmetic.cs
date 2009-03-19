@@ -5,6 +5,7 @@
 // Created:    2008.01.22
 
 using System;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.Arithmetic
 {
@@ -15,16 +16,19 @@ namespace Xtensive.Core.Arithmetic
     private const sbyte zero = 0;
     private const sbyte one = 1;
 
+    /// <inheritdoc/>
     public override sbyte Zero
     {
       get { return zero; }
     }
 
+    /// <inheritdoc/>
     public override sbyte One
     {
       get { return one; }
     }
 
+    /// <inheritdoc/>
     public override sbyte Add(sbyte value1, sbyte value2)
     {
       if (OverflowAllowed) {
@@ -39,6 +43,7 @@ namespace Xtensive.Core.Arithmetic
       }
     }
 
+    /// <inheritdoc/>
     public override sbyte Negation(sbyte value)
     {
       if (OverflowAllowed) {
@@ -53,6 +58,7 @@ namespace Xtensive.Core.Arithmetic
       }
     }
 
+    /// <inheritdoc/>
     public override sbyte Subtract(sbyte value1, sbyte value2)
     {
       if (OverflowAllowed) {
@@ -67,6 +73,7 @@ namespace Xtensive.Core.Arithmetic
       }
     }
 
+    /// <inheritdoc/>
     public override sbyte Multiply(sbyte value, double factor)
     {
       if (OverflowAllowed) {
@@ -81,6 +88,7 @@ namespace Xtensive.Core.Arithmetic
       }
     }
 
+    /// <inheritdoc/>
     public override sbyte Divide(sbyte value, double factor)
     {
       if (OverflowAllowed) {
@@ -104,6 +112,9 @@ namespace Xtensive.Core.Arithmetic
 
     // Constructors
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// </summary>
     public SByteArithmetic(IArithmeticProvider provider, ArithmeticRules rule)
       : base(provider, rule)
     {
