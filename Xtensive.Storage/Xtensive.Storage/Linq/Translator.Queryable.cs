@@ -508,8 +508,16 @@ namespace Xtensive.Storage.Linq
         var innerRecordSet = inner.RecordSet.Alias(context.GetNextAlias());
         var recordSet = outer.RecordSet.Join(innerRecordSet, keyPairs);
         var outerLength = outer.RecordSet.Header.Columns.Count;
+        var innerLength = inner.RecordSet.Header.Columns.Count;
+
+        var tupleAccessProcessor = new TupleAccessProcessor();
+        var tupleMapping = new List<int>(Enumerable.Repeat(-1, outerLength).Concat(Enumerable.Range(0, innerLength)));
+        var groupMapping = new List<int>(Enumerable.Repeat(-1, outer.RecordSet.Header.ColumnGroups.Count).Concat(Enumerable.Range(0, inner.RecordSet.Header.ColumnGroups.Count)));
+
         outer = new ResultExpression(outer.Type, recordSet, outer.Mapping, outer.Projector, outer.ItemProjector);
-        inner = new ResultExpression(inner.Type, recordSet, inner.Mapping.ShiftOffset(outerLength), inner.Projector, inner.ItemProjector);
+        var innerProjector = (Expression<Func<RecordSet, object>>)tupleAccessProcessor.ReplaceMappings(inner.Projector, tupleMapping, groupMapping);
+        var innerItemProjector = (LambdaExpression)tupleAccessProcessor.ReplaceMappings(inner.ItemProjector, tupleMapping, groupMapping);
+        inner = new ResultExpression(inner.Type, recordSet, inner.Mapping.ShiftOffset(outerLength), innerProjector, innerItemProjector);
 
         using (context.Bind(resultSelector.Parameters[0], outer))
         using (context.Bind(resultSelector.Parameters[1], inner)) {

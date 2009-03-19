@@ -228,7 +228,7 @@ namespace Xtensive.Storage.Providers.Sql
         );
 
       SqlSelect query = SqlFactory.Select(joinedTable);
-      query.Columns.AddRange(leftQuery.Columns.Union(rightQuery.Columns).Cast<SqlColumn>());
+      query.Columns.AddRange(leftQuery.Columns.Concat(rightQuery.Columns).Cast<SqlColumn>());
       var request = new SqlFetchRequest(query, provider.Header);
       return new SqlProvider(provider, request, Handlers, left, right);
     }
@@ -256,7 +256,7 @@ namespace Xtensive.Storage.Providers.Sql
         predicate);
 
       SqlSelect query = SqlFactory.Select(joinedTable);
-      query.Columns.AddRange(leftQuery.Columns.Union(rightQuery.Columns).Cast<SqlColumn>());
+      query.Columns.AddRange(leftQuery.Columns.Concat(rightQuery.Columns).Cast<SqlColumn>());
       var request = new SqlFetchRequest(query, provider.Header, bindings);
       return new SqlProvider(provider, request, Handlers, left, right);
     }
