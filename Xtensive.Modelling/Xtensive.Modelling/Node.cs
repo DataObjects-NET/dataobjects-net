@@ -213,7 +213,7 @@ namespace Xtensive.Modelling
     }
 
     /// <inheritdoc/>
-    public IPathNode GetChild(string path)
+    public IPathNode Resolve(string path)
     {
       if (path.IsNullOrEmpty())
         return this;
@@ -221,7 +221,7 @@ namespace Xtensive.Modelling
       var next = (IPathNode) GetProperty(parts.First);
       if (parts.Second==null)
         return next;
-      return next.GetChild(parts.Second);
+      return next.Resolve(parts.Second);
     }
 
     /// <inheritdoc/>
@@ -492,17 +492,7 @@ namespace Xtensive.Modelling
 
     #endregion
 
-    /// <inheritdoc/>
-    public override string ToString()
-    {
-      var m = Model;
-      string fullName = Path;
-      if (m!=null)
-        fullName = string.Concat(m.EscapedName, PathDelimiter, fullName);
-      if (!Nesting.IsCollectionProperty && !(this is IModel))
-        fullName = string.Format(Strings.NodeInfoFormat, fullName, Name);
-      return fullName;
-    }
+    #region Dump, ToString
 
     /// <inheritdoc/>
     public virtual void Dump()
@@ -534,8 +524,8 @@ namespace Xtensive.Modelling
             continue;
           var propertyValue = accessor.HasGetter ? GetProperty(propertyName) : null;
           var propertyType = (propertyValue==null ? 
-            accessor.PropertyInfo.PropertyType : 
-            propertyValue.GetType())
+                                                    accessor.PropertyInfo.PropertyType : 
+                                                                                         propertyValue.GetType())
             .GetShortName();
           var nested = GetNestedProperty(propertyName);
           if (nested!=null) {
@@ -552,6 +542,20 @@ namespace Xtensive.Modelling
         }
       }
     }
+
+    /// <inheritdoc/>
+    public override string ToString()
+    {
+      var m = Model;
+      string fullName = Path;
+      if (m!=null)
+        fullName = string.Concat(m.EscapedName, PathDelimiter, fullName);
+      if (!Nesting.IsCollectionProperty && !(this is IModel))
+        fullName = string.Format(Strings.NodeInfoFormat, fullName, Name);
+      return fullName;
+    }
+
+    #endregion
 
 
     // Constructors
@@ -593,7 +597,12 @@ namespace Xtensive.Modelling
     /// <inheritdoc/>
     void IDeserializationCallback.OnDeserialization(object sender)
     {
+      if (nesting!=null)
+        return; // Protects from multiple calls
       Initialize();
+      var p = Parent as IDeserializationCallback;
+      if (p!=null)
+        p.OnDeserialization(sender);
       if (IsLocked) {
         UpdateModel();
         cachedPath = Path;

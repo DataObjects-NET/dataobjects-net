@@ -6,6 +6,7 @@
 
 using System;
 using NUnit.Framework;
+using Xtensive.Core.Serialization.Binary;
 using Xtensive.Core.Testing;
 using Xtensive.Modelling.Tests.DatabaseModel;
 
@@ -117,11 +118,35 @@ namespace Xtensive.Modelling.Tests
     public void PathTest()
     {
       Assert.AreEqual(srv.Path, string.Empty);
+      Assert.AreEqual(srv, srv.Resolve(string.Empty));
+
       Assert.AreEqual(srv.Databases.Path, "Databases");
+      Assert.AreEqual(srv.Databases, srv.Resolve("Databases"));
+
+      Assert.AreEqual(srv.Security.Path, "Security");
+      Assert.AreEqual(srv.Security, srv.Resolve("Security"));
+
+      Assert.AreEqual(srv.Security.Users.Path, "Security/Users");
+      Assert.AreEqual(srv.Security.Users, srv.Resolve("Security/Users"));
+
       Assert.AreEqual(db2.Path, "Databases/db2");
+      Assert.AreEqual(db2, srv.Resolve("Databases/db2"));
+
       Assert.AreEqual(db2.Schemas.Path, "Databases/db2/Schemas");
+      Assert.AreEqual(db2.Schemas, srv.Resolve("Databases/db2/Schemas"));
+      
       Assert.AreEqual(s1.Path, "Databases/db1/Schemas/s1");
+      Assert.AreEqual(s1, srv.Resolve("Databases/db1/Schemas/s1"));
+
       Assert.AreEqual(s2.Path, "Databases/db1/Schemas/s2");
+      Assert.AreEqual(s2, srv.Resolve("Databases/db1/Schemas/s2"));
+    }
+
+    [Test]
+    public void SerializationTest()
+    {
+      var clone = (Server) LegacyBinarySerializer.Instance.Clone(srv);
+      clone.Dump();
     }
 
     [Test]

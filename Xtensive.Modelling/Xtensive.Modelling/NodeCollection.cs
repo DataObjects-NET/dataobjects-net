@@ -28,14 +28,13 @@ namespace Xtensive.Modelling
     INodeCollection,
     IDeserializationCallback
   {
-    private Node parent;
-    [NonSerialized]
-    private string name;
     [NonSerialized]
     private string escapedName;
     [NonSerialized]
     private string cachedPath;
     [NonSerialized]
+    private Node parent;
+    private string name;
     private Dictionary<string, Node> nameIndex = new Dictionary<string, Node>();
     private readonly List<Node> list = new List<Node>();
 
@@ -151,7 +150,7 @@ namespace Xtensive.Modelling
     }
 
     /// <inheritdoc/>
-    public IPathNode GetChild(string path)
+    public IPathNode Resolve(string path)
     {
       if (path.IsNullOrEmpty())
         return this;
@@ -159,7 +158,7 @@ namespace Xtensive.Modelling
       var next = this[parts.First];
       if (parts.Second==null)
         return next;
-      return next.GetChild(parts.Second);
+      return next.Resolve(parts.Second);
     }
 
     /// <inheritdoc/>
@@ -260,15 +259,17 @@ namespace Xtensive.Modelling
 
     #endregion
 
-    /// <summary>
-    /// Initializes this instance.
-    /// </summary>
-    /// <exception cref="InvalidOperationException"><see cref="Name"/> is not initialized yet.</exception>
-    protected virtual void Initialize()
+    #region Dump, ToString
+
+    /// <inheritdoc/>
+    public virtual void Dump()
     {
-      if (Name.IsNullOrEmpty())
-        throw Exceptions.NotInitialized("Name");
-      escapedName = new[] {Name}.RevertibleJoin(Node.PathEscape, Node.PathDelimiter);
+      if (Count==0) {
+        Log.Info("None");
+        return;
+      }
+      foreach (var node in list)
+        node.Dump();
     }
 
     /// <inheritdoc/>
@@ -281,15 +282,17 @@ namespace Xtensive.Modelling
       return string.Format(Strings.NodeInfoFormat, fullName, Count);
     }
 
-    /// <inheritdoc/>
-    public virtual void Dump()
+    #endregion
+
+    /// <summary>
+    /// Initializes this instance.
+    /// </summary>
+    /// <exception cref="InvalidOperationException"><see cref="Name"/> is not initialized yet.</exception>
+    protected virtual void Initialize()
     {
-      if (Count==0) {
-        Log.Info("None");
-        return;
-      }
-      foreach (var node in list)
-        node.Dump();
+      if (Name.IsNullOrEmpty())
+        throw Exceptions.NotInitialized("Name");
+      escapedName = new[] {Name}.RevertibleJoin(Node.PathEscape, Node.PathDelimiter);
     }
 
 
@@ -314,6 +317,8 @@ namespace Xtensive.Modelling
     /// <inheritdoc/>
     void IDeserializationCallback.OnDeserialization(object sender)
     {
+      if (nameIndex!=null)
+        return; // Protects from multiple calls
       Initialize();
       nameIndex = new Dictionary<string, Node>(Count);
       foreach (var node in list)

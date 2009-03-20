@@ -44,7 +44,7 @@ namespace Xtensive.Modelling
     /// <param name="path">Path to the node to get.</param>
     /// <returns>Path node, if found;
     /// otherwise, <see langword="null" />.</returns>
-    IPathNode GetChild(string path);
+    IPathNode Resolve(string path);
 
     /// <summary>
     /// Validates this and nested nodes.

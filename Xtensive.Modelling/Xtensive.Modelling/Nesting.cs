@@ -19,11 +19,8 @@ namespace Xtensive.Modelling
   /// <summary>
   /// Abstract base <see cref="INesting"/> implementation.
   /// </summary>
-  [Serializable]
-  public abstract class Nesting : INesting,
-    IDeserializationCallback
+  public abstract class Nesting : INesting
   {
-    [NonSerialized]
     private string escapedPropertyName;
 
     /// <inheritdoc/>
@@ -87,14 +84,6 @@ namespace Xtensive.Modelling
     {
       ArgumentValidator.EnsureArgumentIs<IModel>(node, "node");
       Node = node;
-      Initialize();
-    }
-
-    // Deserialization
-
-    /// <inheritdoc/>
-    void IDeserializationCallback.OnDeserialization(object sender)
-    {
       Initialize();
     }
   }

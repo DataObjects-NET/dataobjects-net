@@ -5,9 +5,7 @@
 // Created:    2009.03.18
 
 using System;
-using System.Diagnostics;
 using System.Reflection;
-using System.Runtime.Serialization;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
@@ -17,8 +15,7 @@ namespace Xtensive.Modelling
   /// <summary>
   /// Property accessor.
   /// </summary>
-  [Serializable]
-  public sealed class PropertyAccessor : IDeserializationCallback
+  public sealed class PropertyAccessor
   {
     private Func<object, object> getter;
     private Action<object, object> setter;
@@ -95,14 +92,6 @@ namespace Xtensive.Modelling
     public PropertyAccessor(PropertyInfo propertyInfo)
     {
       PropertyInfo = propertyInfo;
-      Initialize();
-    }
-
-    // Deserialization
-
-    /// <inheritdoc/>
-    void IDeserializationCallback.OnDeserialization(object sender)
-    {
       Initialize();
     }
   }
