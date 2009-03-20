@@ -84,7 +84,7 @@ namespace Xtensive.Storage.Linq
       else
         foreach (var pair in Fields)
           result.AddRange(pair.Value.GetItems());
-      return result;
+      return result.Distinct().ToList();
     }
 
     public void Replace(ResultMapping value)

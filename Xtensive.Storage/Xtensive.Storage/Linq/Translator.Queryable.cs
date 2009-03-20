@@ -394,21 +394,34 @@ namespace Xtensive.Storage.Linq
       List<int> columnList;
       LambdaExpression originalCompiledKeyExpression;
       var newResultMapping = new ResultMapping();
+      LambdaExpression remappedExpression;
       using (context.Bind(keySelector.Parameters[0], result))
       using (new ParameterScope())
       {
+        joinFinalEntity.Value = true;
+        calculateExpressions.Value = true; 
         resultMapping.Value = new ResultMapping();
         originalCompiledKeyExpression = (LambdaExpression) Visit(keySelector);
         columnList = resultMapping.Value.GetColumns().ToList();
+        // Remap 
+
+        var tupleAccessProcessor = new TupleAccessProcessor();
+        // var groupMapping = new List<int>(Enumerable.Repeat(-1, outer.RecordSet.Header.ColumnGroups.Count).Concat(Enumerable.Range(0, inner.RecordSet.Header.ColumnGroups.Count)));
+        remappedExpression = (LambdaExpression) tupleAccessProcessor.ReplaceMappings(originalCompiledKeyExpression, columnList, null);
+
         result = context.GetBound(keySelector.Parameters[0]);
 
         if (!resultMapping.Value.MapsToPrimitive) {
-          newResultMapping.JoinedRelations.Add("Key", resultMapping.Value);
-          foreach (var field in resultMapping.Value.Fields)
-            newResultMapping.RegisterFieldMapping("Key." + field.Key, field.Value);
+          var keyMapping = new ResultMapping();
+          newResultMapping.JoinedRelations.Add("Key", keyMapping);
+          foreach (var field in resultMapping.Value.Fields) {
+            var segment = new Segment<int>(columnList.IndexOf(field.Value.Offset), field.Value.Length);
+            newResultMapping.RegisterFieldMapping("Key." + field.Key, segment);
+            keyMapping.RegisterFieldMapping(field.Key, segment);
+          }
         }
         else
-          newResultMapping.RegisterFieldMapping("Key", resultMapping.Value.Segment);
+          newResultMapping.RegisterFieldMapping("Key", new Segment<int>(columnList.IndexOf(resultMapping.Value.Segment.Offset), resultMapping.Value.Segment.Length));
       }
 
       var recordSet = result.RecordSet.Aggregate(columnList.ToArray());
@@ -422,21 +435,45 @@ namespace Xtensive.Storage.Linq
 
 
       // record => new Grouping<TKey, TElement>(record.Key, source.Where(groupingItem => groupingItem.Key == record.Key))
-      var pRecord = Expression.Parameter(typeof (Record), "r");
-      var pTuple = Expression.Parameter(typeof (Tuple), "t");
-      var searchFor = originalCompiledKeyExpression.Parameters.ToArray();
-      var replaceWith = originalCompiledKeyExpression.Parameters.Select(p => p.Type == typeof(Tuple) ? pTuple : pRecord).ToArray();
-      var recordKeyExpression = ExpressionReplacer.ReplaceAll(originalCompiledKeyExpression.Body, searchFor, replaceWith);
-      var predicateExpression = Expression.Lambda(Expression.Equal(keySelector.Body, recordKeyExpression), keySelector.Parameters.ToArray());
+      var pRecord = Expression.Parameter(typeof (Record), "record");
+      var pTuple = Expression.Parameter(typeof (Tuple), "tuple");
+      //var searchFor = originalCompiledKeyExpression.Parameters.ToArray();
+      //var replaceWith = originalCompiledKeyExpression.Parameters.Select(p => p.Type == typeof(Tuple) ? pTuple : pRecord).ToArray();
+      var parameterRewriter = new ParameterRewriter(pTuple, pRecord);
+      var recordKeyExpression = parameterRewriter.Rewrite(remappedExpression.Body);
+      //var recordKeyExpression = ExpressionReplacer.ReplaceAll(originalCompiledKeyExpression.Body, searchFor, replaceWith);
+      var predicateExpression = Expression.Lambda(Expression.Equal(keySelector.Body, recordKeyExpression.First), keySelector.Parameters.ToArray());
 
 
       var callMehtod = whereMethod.MakeGenericMethod(elementType);
 
       var queryExpression = Expression.Call(callMehtod, source, predicateExpression);
-      var projectorBody = Expression.New(constructor, recordKeyExpression, queryExpression);
-      var itemProjector = Expression.Lambda(projectorBody, pTuple, pRecord);
+      var projectorBody = Expression.New(constructor, recordKeyExpression.First, queryExpression);
+      var itemProjector = Expression.Lambda(projectorBody, recordKeyExpression.Second 
+        ? new[]{pTuple, pRecord}
+        : new[]{pTuple});
+
+      var rs = Expression.Parameter(typeof(RecordSet), "rs");
+      Expression<Func<RecordSet, object>> projector;
+      if (itemProjector.Parameters.Count > 1)
+      {
+        var makeProjectionMethod = typeof(Translator)
+          .GetMethod("MakeProjection", BindingFlags.NonPublic | BindingFlags.Static)
+          .MakeGenericMethod(itemProjector.Body.Type);
+        projector = Expression.Lambda<Func<RecordSet, object>>(
+          Expression.Convert(
+            Expression.Call(makeProjectionMethod, rs, itemProjector),
+            typeof(object)),
+          rs);
+      }
+      else
+      {
+        var makeProjectionMethod = selectMethod.MakeGenericMethod(typeof(Tuple), itemProjector.Body.Type);
+        projector = Expression.Lambda<Func<RecordSet, object>>(Expression.Convert(Expression.Call(makeProjectionMethod, rs, itemProjector), typeof(object)), rs);
+      }
+
       //      Expression itemProjector = Expression.
-      return new ResultExpression(method.ReturnType, recordSet, newResultMapping, result.Projector, itemProjector);//      Expression result = null;
+      return new ResultExpression(method.ReturnType, recordSet, newResultMapping, projector, itemProjector);//      Expression result = null;
       //      
       //      if (resultSelector==null)
       //        return result;

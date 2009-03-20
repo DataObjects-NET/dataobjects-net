@@ -15,6 +15,19 @@ namespace Xtensive.Storage.Tests.Linq
   public class GroupByTest : NorthwindDOModelTest
   {
     [Test]
+    public void EntityGroupTest()
+    {
+      using (Domain.OpenSession())
+      using (var t = Transaction.Open())
+      {
+        var result = Query<Product>.All.GroupBy(p => p.Category);
+        var list = result.ToList();
+        Assert.Greater(list.Count, 0);
+        t.Complete();
+      }
+    }
+
+    [Test]
     public void DefaultTest()
     {
       using (Domain.OpenSession())
