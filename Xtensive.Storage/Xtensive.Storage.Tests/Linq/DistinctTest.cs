@@ -4,9 +4,10 @@
 // Created by: Alexis Kochetov
 // Created:    2009.02.04
 
-using NUnit.Framework;
-using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 using System.Linq;
+using NUnit.Framework;
+using Xtensive.Storage.Tests.ObjectModel;
+using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 
 namespace Xtensive.Storage.Tests.Linq
 {

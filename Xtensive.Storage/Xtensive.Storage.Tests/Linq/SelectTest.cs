@@ -7,6 +7,7 @@
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
+using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 
 namespace Xtensive.Storage.Tests.Linq

@@ -8,7 +8,7 @@ using NUnit.Framework;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 
-namespace Xtensive.Storage.Tests.Linq
+namespace Xtensive.Storage.Tests.ObjectModel
 {
   [TestFixture]
   public abstract class NorthwindDOModelTest : AutoBuildTest

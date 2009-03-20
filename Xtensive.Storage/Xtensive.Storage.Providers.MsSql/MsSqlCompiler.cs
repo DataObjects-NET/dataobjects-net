@@ -90,17 +90,10 @@ namespace Xtensive.Storage.Providers.MsSql
 
     protected override ExecutableProvider VisitApply(ApplyProvider provider)
     {
-      bool isOuter;
-      switch (provider.ApplyType) {
-        case ApplyType.Cross:
-          isOuter = false;
-          break;
-        case ApplyType.Outer:
-          isOuter = true;
-          break;
-        default:
-          return base.VisitApply(provider);
-      }
+      var result = base.VisitApply(provider);
+      if (result != null)
+        return result;
+      bool isOuter = provider.ApplyType==ApplyType.Outer;
 
       var left = GetBound(provider.Left) as SqlProvider;
       var right = GetBound(provider.Right) as SqlProvider;

@@ -489,38 +489,54 @@ namespace Xtensive.Storage.Providers.Sql
       return new SqlProvider(provider, request, Handlers, compiledSource);
     }
 
+    /// <inheritdoc/>
     protected override ExecutableProvider VisitApply(ApplyProvider provider)
     {
-      bool notExisting;
-      switch (provider.ApplyType) {
-        case ApplyType.Existing:
-          notExisting = false;
-          break;
-        case ApplyType.NotExisting:
-          notExisting = true;
-          break;
-        default:
-          return base.VisitApply(provider);
-      }
-
       var left = GetBound(provider.Left) as SqlProvider;
       var right = GetBound(provider.Right) as SqlProvider;
 
       if (left == null || right == null)
         return null;
 
+      bool isExisting = provider.ApplyType == ApplyType.Existing;
+      bool isNotExisting = provider.ApplyType == ApplyType.NotExisting;
+
       var leftQuery = left.PermanentReference;
       var rightQuery = (SqlSelect) right.Request.Statement;
-      var filter = SqlFactory.Exists(rightQuery);
-      if (notExisting)
-        filter = SqlFactory.Not(filter);
 
       var select = SqlFactory.Select(leftQuery);
       select.Columns.AddRange(leftQuery.Columns.Cast<SqlColumn>());
-      select.Where = filter;
-      
+
+      if (isExisting || isNotExisting) {
+        var filter = SqlFactory.Exists(rightQuery);
+        if (isNotExisting)
+          filter = SqlFactory.Not(filter);
+        select.Where = filter;
+      }
+      else {
+        if (provider.Right is ExistenceProvider)
+          select.Columns.Add(rightQuery.Columns[0]);
+        else // TODO: handle other cases when apply can be compiled easily (i.e. aggregates without groupping)
+          return null;
+      }
+
       var request = new SqlFetchRequest(select, provider.Header);
       return new SqlProvider(provider, request, Handlers, left, right);
+    }
+
+    /// <inheritdoc/>
+    protected override ExecutableProvider VisitExistence(ExistenceProvider provider)
+    {
+      var source = GetBound(provider.Source) as SqlProvider;
+
+      if (source == null)
+        return null;
+
+      var select = SqlFactory.Select();
+      select.Columns.Add(SqlFactory.Exists((SqlSelect)source.Request.Statement), provider.ExistenceColumnName);
+
+      var request = new SqlFetchRequest(select, provider.Header);
+      return new SqlProvider(provider, request, Handlers, source);
     }
 
     #region Private methods.

@@ -5,11 +5,11 @@
 // Created:    2008.12.13
 
 using System;
-using NUnit.Framework;
-using Xtensive.Core.Tuples;
-using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 using System.Linq;
+using NUnit.Framework;
 using Xtensive.Core.Helpers;
+using Xtensive.Storage.Tests.ObjectModel;
+using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 
 namespace Xtensive.Storage.Tests.Linq
 {

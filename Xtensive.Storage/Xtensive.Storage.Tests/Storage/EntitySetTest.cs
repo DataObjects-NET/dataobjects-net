@@ -10,6 +10,7 @@ using NUnit.Framework;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Tests.Linq;
+using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 using System.Linq;
 using Xtensive.Storage.Tests.Storage.EntitySetModel;

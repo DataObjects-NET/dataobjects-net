@@ -5,9 +5,8 @@
 // Created:    2008.12.17
 
 using System.Linq;
-using System.Reflection;
 using NUnit.Framework;
-using Xtensive.Storage.Configuration;
+using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 
 namespace Xtensive.Storage.Tests.Linq
