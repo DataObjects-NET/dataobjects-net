@@ -41,7 +41,7 @@ namespace Xtensive.Storage
     public TypeInfo Type
     {
       [DebuggerStepThrough]
-      get { return key.Type; }
+      get { return key.EntityType; }
     }
 
     /// <summary>

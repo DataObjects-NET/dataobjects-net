@@ -190,10 +190,10 @@ namespace Xtensive.Storage.Tests.Storage.Keys
           using (Domain.OpenSession()) {
             using (Transaction.Open()) {
               Key bananaKey = new Banana("My fruit").Key;
-              Assert.AreEqual(typeof (Banana), bananaKey.Type.UnderlyingType);
+              Assert.AreEqual(typeof (Banana), bananaKey.EntityType.UnderlyingType);
             }
           }
-          Assert.AreEqual(typeof (Apple), appleKey.Type.UnderlyingType);
+          Assert.AreEqual(typeof (Apple), appleKey.EntityType.UnderlyingType);
         }
       }
     }

@@ -85,8 +85,8 @@ namespace Xtensive.Storage
     public bool Contains(Key key)
     {
       ArgumentValidator.EnsureArgumentNotNull(key, "key");
-      if (!Field.ItemType.IsAssignableFrom(key.Type.UnderlyingType))
-        throw new InvalidOperationException(string.Format("Entity type {0} is not supported by this instance.", key.Type.Name));
+      if (!Field.ItemType.IsAssignableFrom(key.EntityType.UnderlyingType))
+        throw new InvalidOperationException(string.Format("Entity type {0} is not supported by this instance.", key.EntityType.Name));
 
       if (State.IsFullyLoaded)
         return State.Contains(key);

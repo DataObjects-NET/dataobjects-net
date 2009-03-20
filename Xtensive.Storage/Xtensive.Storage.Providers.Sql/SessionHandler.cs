@@ -176,9 +176,9 @@ namespace Xtensive.Storage.Providers.Sql
       int rowsAffected = ExecuteNonQuery(request);
       if (rowsAffected!=request.ExpectedResult)
         if (rowsAffected==0)
-          throw new InvalidOperationException(String.Format(Strings.ExInstanceNotFound, state.Key.Type.Name));
+          throw new InvalidOperationException(String.Format(Strings.ExInstanceNotFound, state.Key.EntityType.Name));
         else
-          throw new InvalidOperationException(String.Format(Strings.ExInstanceMultipleResults, state.Key.Type.Name));
+          throw new InvalidOperationException(String.Format(Strings.ExInstanceMultipleResults, state.Key.EntityType.Name));
     }
 
     public void EnsureConnectionIsOpen()

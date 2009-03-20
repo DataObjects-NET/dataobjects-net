@@ -90,8 +90,6 @@ namespace Xtensive.Storage.Tests
         using (var transactionScope = Transaction.Open()) {
           stream.Position = 0;
           Company company = (Company) formatter.Deserialize(stream);
-//
-//          Company company = (Company) Key.Create(typeof (Company), Tuple.Create(1)).Resolve();
 
           Assert.AreEqual(companyName, company.Name);
           Assert.AreEqual(companyId, company.Id);

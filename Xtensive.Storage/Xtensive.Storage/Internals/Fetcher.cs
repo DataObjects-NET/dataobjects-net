@@ -70,7 +70,7 @@ namespace Xtensive.Storage.Internals
     
     public static Key Fetch(Key key)
     {
-      IndexInfo index = (key.IsTypeCached ? key.Type : key.Hierarchy.Root).Indexes.PrimaryIndex;
+      IndexInfo index = (key.IsTypeCached ? key.EntityType : key.Hierarchy.Root).Indexes.PrimaryIndex;
       return Fetch(index, key, index.Columns.Where(c => !c.IsLazyLoad));
     }
 
@@ -82,7 +82,7 @@ namespace Xtensive.Storage.Internals
       }
 
       // TODO: Cache
-      IndexInfo index = (key.IsTypeCached ? key.Type : key.Hierarchy.Root).Indexes.PrimaryIndex;
+      IndexInfo index = (key.IsTypeCached ? key.EntityType : key.Hierarchy.Root).Indexes.PrimaryIndex;
       IEnumerable<ColumnInfo> columns = index.Columns
         .Where(c => c.IsPrimaryKey || c.IsSystem || !c.IsLazyLoad)
         .Union(index.Columns

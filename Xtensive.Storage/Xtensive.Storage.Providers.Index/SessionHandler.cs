@@ -58,7 +58,7 @@ namespace Xtensive.Storage.Providers.Index
           .Seek(new Ray<Entire<Tuple>>(new Entire<Tuple>(state.Key.Value)));
         if (pkSeekResult.ResultType != SeekResultType.Exact)
           throw new InvalidOperationException(string.Format(Strings.ExInstanceXIsNotFound, 
-            state.Key.Type.Name));
+            state.Key.EntityType.Name));
       }
 
       var pkItem = Tuple.Create(pkSeekResult.Result.Descriptor);
@@ -87,7 +87,7 @@ namespace Xtensive.Storage.Providers.Index
           .Seek(new Ray<Entire<Tuple>>(new Entire<Tuple>(state.Key.Value)));
         if (pkSeekResult.ResultType!=SeekResultType.Exact)
           throw new InvalidOperationException(string.Format(Strings.ExInstanceXIsNotFound, 
-            state.Key.Type.Name));
+            state.Key.EntityType.Name));
       }
 
       foreach (IndexInfo indexInfo in state.Type.AffectedIndexes) {

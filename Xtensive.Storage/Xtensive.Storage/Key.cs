@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
@@ -25,11 +26,17 @@ namespace Xtensive.Storage
   /// </summary>
   [Serializable]
   public sealed class Key : IEquatable<Key>
-  {
+  {    
     private readonly HierarchyInfo hierarchy;
     private Tuple value;
-    private readonly int hashCode;
-    private TypeInfo type;
+
+    [NonSerialized]
+    private int hashCode;
+
+    [NonSerialized]
+    private TypeInfo entityType;
+
+    [NonSerialized]
     private string cachedFormatResult;
 
     /// <summary>
@@ -52,10 +59,10 @@ namespace Xtensive.Storage
     /// </summary>
     /// <exception cref="NotSupportedException">Type is already initialized.</exception>
     /// <exception cref="InvalidOperationException">Unable to resolve type for Key.</exception>
-    public TypeInfo Type {
+    public TypeInfo EntityType {
       get {
-        if (type!=null)
-          return type;
+        if (entityType!=null)
+          return entityType;
 
         var session = Session.Current;
         if (session==null)
@@ -68,8 +75,8 @@ namespace Xtensive.Storage
           keyCache.TryGetItem(this, true, out cachedKey);
         if (cachedKey==null) {
           if (Hierarchy.Types.Count == 1) {
-            type = Hierarchy.Types[0];
-            return type;
+            entityType = Hierarchy.Types[0];
+            return entityType;
           }
           if (session.IsDebugEventLoggingEnabled)
             Log.Debug("Session '{0}'. Resolving key '{1}'. Exact type is unknown. Fetch is required.", session, this);
@@ -79,16 +86,16 @@ namespace Xtensive.Storage
           if (cachedKey==null)
             throw new InvalidOperationException(string.Format("Unable to resolve type for Key '{0}'.", this));
         }
-        type = cachedKey.type;
-        return type;
+        entityType = cachedKey.entityType;
+        return entityType;
       }
     }
 
     /// <summary>
-    /// Determines whether <see cref="Type"/> property has cached type value or not.
+    /// Determines whether <see cref="EntityType"/> property has cached type value or not.
     /// </summary>
     public bool IsTypeCached {
-      get { return type!=null ? true : false; }
+      get { return entityType!=null ? true : false; }
     }
 
     /// <summary>
@@ -266,8 +273,19 @@ namespace Xtensive.Storage
     public override string ToString()
     {
       return string.Format("{0}, {1}",
-        IsTypeCached ? Type.Name : Hierarchy.Name,
+        IsTypeCached ? EntityType.Name : Hierarchy.Name,
         value.ToRegular());
+    }
+
+    private void CalculateHachCode()
+    {
+      hashCode = value.GetHashCode() ^ hierarchy.GetHashCode();
+    }
+
+    [OnDeserialized]
+    private void OnDeserialized(StreamingContext context)
+    {
+      CalculateHachCode();
     }
 
     #region Create methods
@@ -432,9 +450,9 @@ namespace Xtensive.Storage
     private Key(HierarchyInfo hierarchy, TypeInfo type, Tuple value)
     {
       this.hierarchy = hierarchy;
-      this.type = type;
+      this.entityType = type;
       this.value = value;
-      hashCode = value.GetHashCode() ^ hierarchy.GetHashCode();
+      CalculateHachCode();
     }
   }
 }
