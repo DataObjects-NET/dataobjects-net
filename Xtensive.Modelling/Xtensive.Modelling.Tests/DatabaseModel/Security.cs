@@ -17,7 +17,7 @@ namespace Xtensive.Modelling.Tests.DatabaseModel
     public UserCollection Users { get; private set; }
 
     [Property]
-    public UserCollection Roles { get; private set; }
+    public RoleCollection Roles { get; private set; }
 
     protected override Nesting CreateNesting()
     {
@@ -29,6 +29,8 @@ namespace Xtensive.Modelling.Tests.DatabaseModel
       base.Initialize();
       if (Users==null)
         Users = new UserCollection(this);
+      if (Roles==null)
+        Roles = new RoleCollection(this);
     }
 
 

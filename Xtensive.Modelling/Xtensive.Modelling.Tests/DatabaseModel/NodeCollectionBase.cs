@@ -2,7 +2,7 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alex Yakunin
-// Created:    2009.03.18
+// Created:    2009.03.20
 
 using System;
 using System.Diagnostics;
@@ -10,10 +10,12 @@ using System.Diagnostics;
 namespace Xtensive.Modelling.Tests.DatabaseModel
 {
   [Serializable]
-  public class SchemaCollection : NodeCollectionBase<Schema, Database>
+  public class NodeCollectionBase<TNode, TParent> : NodeCollection<TNode, TParent, Server>
+    where TNode : Node
+    where TParent : Node
   {
-    internal SchemaCollection(Database parent)
-      : base(parent, "Schemas")
+    public NodeCollectionBase(Node parent, string name)
+      : base(parent, name)
     {
     }
   }

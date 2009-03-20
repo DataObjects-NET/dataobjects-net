@@ -15,7 +15,7 @@ namespace Xtensive.Modelling.Tests.DatabaseModel
   {
     protected override Nesting CreateNesting()
     {
-      return new Nesting<Role, Security, UserCollection>(this, "Roles");
+      return new Nesting<Role, Security, RoleCollection>(this, "Roles");
     }
 
 

@@ -10,7 +10,7 @@ using System.Diagnostics;
 namespace Xtensive.Modelling.Tests.DatabaseModel
 {
   [Serializable]
-  public class RoleCollection : NodeCollection<Role, Security, Server>
+  public class RoleCollection : NodeCollectionBase<Role, Security>
   {
     internal RoleCollection(Security parent)
       : base(parent, "Roles")

@@ -12,11 +12,10 @@ using Xtensive.Modelling.Attributes;
 namespace Xtensive.Modelling.Tests.DatabaseModel
 {
   [Serializable]
-  public class Ref<TTarget, TParent> : NodeBase<TParent>
+  public abstract class Ref<TTarget, TParent> : NodeBase<TParent>
     where TTarget : Node
     where TParent : Node
   {
-    private string nestingProperty;
     private TTarget value;
 
     [Property]

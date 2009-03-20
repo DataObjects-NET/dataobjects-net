@@ -20,6 +20,8 @@ namespace Xtensive.Modelling.Tests
     private Security sec2;
     private User u1;
     private User u2;
+    private Role r1;
+    private Role r2;
     private Database db1;
     private Database db2;
     private Schema s1;
@@ -32,6 +34,11 @@ namespace Xtensive.Modelling.Tests
       sec1 = new Security(srv, "sec1");
       u1 = new User(sec1, "u1") { Password = "1"};
       u2 = new User(sec1, "u2") { Password = "2"};
+      r1 = new Role(sec1, "r1");
+      r2 = new Role(sec1, "r2");
+      new RoleRef(u1, r1);
+      new RoleRef(u1, r2);
+      new RoleRef(u2, r2);
       // sec2 = new Security(srv, "sec2");
       db1 = new Database(srv, "db1") { Owner = u1 };
       db2 = new Database(srv, "db2") { Owner = u1 };
@@ -146,6 +153,7 @@ namespace Xtensive.Modelling.Tests
     public void SerializationTest()
     {
       var clone = (Server) LegacyBinarySerializer.Instance.Clone(srv);
+      clone.Validate();
       clone.Dump();
     }
 

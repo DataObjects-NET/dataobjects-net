@@ -296,19 +296,19 @@ namespace Xtensive.Modelling
     protected virtual void ValidateState()
     {
       EnsureIsLive();
-      foreach (var pair in PropertyAccessors) {
-        if (!pair.Value.HasGetter)
-          continue;
-        var nested = GetNestedProperty(pair.Key);
-        if (nested!=null)
-          continue;
-        var value = GetProperty(pair.Key);
-        if (value==null)
-          continue;
-        var pathNode = value as IPathNode;
-        if (pathNode!=null)
-          pathNode.Validate();
-      }
+//      foreach (var pair in PropertyAccessors) {
+//        if (!pair.Value.HasGetter)
+//          continue;
+//        var nested = GetNestedProperty(pair.Key);
+//        if (nested!=null)
+//          continue;
+//        var value = GetProperty(pair.Key);
+//        if (value==null)
+//          continue;
+//        var pathNode = value as Node;
+//        if (pathNode!=null)
+//          pathNode.ValidateState();
+//      }
     }
 
     #endregion
@@ -536,9 +536,10 @@ namespace Xtensive.Modelling
             AttributeSearchOptions.InheritNone)!=null)
             continue;
           var propertyValue = accessor.HasGetter ? GetProperty(propertyName) : null;
-          var propertyType = (propertyValue==null ? 
-                                                    accessor.PropertyInfo.PropertyType : 
-                                                                                         propertyValue.GetType())
+          if (Equals(propertyValue, accessor.Default))
+            continue;
+          var propertyType = 
+            (propertyValue==null ? accessor.PropertyInfo.PropertyType : propertyValue.GetType())
             .GetShortName();
           var nested = GetNestedProperty(propertyName);
           if (nested!=null) {
@@ -616,8 +617,8 @@ namespace Xtensive.Modelling
       var p = Parent as IDeserializationCallback;
       if (p!=null)
         p.OnDeserialization(sender);
+      UpdateModel();
       if (IsLocked) {
-        UpdateModel();
         cachedPath = Path;
       }
     }

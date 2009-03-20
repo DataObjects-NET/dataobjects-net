@@ -10,7 +10,7 @@ using System.Diagnostics;
 namespace Xtensive.Modelling.Tests.DatabaseModel
 {
   [Serializable]
-  public class UserCollection : NodeCollection<User, Security, Server>
+  public class UserCollection : NodeCollectionBase<User, Security>
   {
     internal UserCollection(Security parent)
       : base(parent, "Users")

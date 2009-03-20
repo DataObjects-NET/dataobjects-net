@@ -25,9 +25,19 @@ namespace Xtensive.Modelling.Tests.DatabaseModel
       }
     }
 
+    [Property]
+    public RoleRefCollection Roles { get; private set; }
+
     protected override Nesting CreateNesting()
     {
       return new Nesting<User, Security, UserCollection>(this, "Users");
+    }
+
+    protected override void Initialize()
+    {
+      base.Initialize();
+      if (Roles==null)
+        Roles = new RoleRefCollection(this, "Roles");
     }
 
 

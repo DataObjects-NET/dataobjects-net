@@ -22,8 +22,6 @@ namespace Xtensive.Modelling.Tests.DatabaseModel
       get { return owner; }
       set {
         EnsureIsEditable();
-        if (value!=null && value.Model!=this.Model)
-          throw new ArgumentOutOfRangeException("value.Model");
         owner = value;
       }
     }
