@@ -19,6 +19,7 @@ using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Linq;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings;
+using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Compilation;
 using SqlFactory = Xtensive.Sql.Dom.Sql;
 using Xtensive.Storage.Providers.Sql.Resources;

@@ -9,9 +9,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using Xtensive.Core.Linq;
-using Xtensive.Core.Reflection;
-using Xtensive.Core.Tuples;
 
 namespace Xtensive.Storage.Linq
 {
@@ -54,17 +51,6 @@ namespace Xtensive.Storage.Linq
           && (type.Attributes & TypeAttributes.NotPublic) == TypeAttributes.NotPublic)
         return MemberType.Anonymous;
       return MemberType.Unknown;
-    }
-
-    public static MethodCallExpression AsTupleAccess(this Expression e)
-    {
-      if (e.NodeType == ExpressionType.Call) {
-        var mc = (MethodCallExpression)e;
-        if (mc.Object != null && mc.Object.Type == typeof(Tuple))
-          if (mc.Method.Name == WellKnown.Tuple.GetValue || mc.Method.Name == WellKnown.Tuple.GetValueOrDefault)
-            return mc;
-      }
-      return null;
     }
   }
 }

@@ -292,8 +292,11 @@ namespace Xtensive.Storage.Linq
     private CompilableProvider AddSelectProvider(CompilableProvider resultProvider)
     {
       var map = mapping[origin.RecordSet.Provider];
-      var projectorMap = tupleAccessProcessor.Process(origin.Projector);
-      //var projectorMap = origin.Mapping.GetColumns().Distinct().ToList();
+      //var projectorMap = tupleAccessProcessor.Process(origin.Projector);
+      var projectorMap = origin.Mapping!=null 
+        ? origin.Mapping.GetColumns().ToList()
+        : tupleAccessProcessor.Process(origin.Projector);
+
       if (projectorMap.Count > 0 && projectorMap.Count < map.Count) {
         var columnIndexes = new int[projectorMap.Count];
         for (int i = 0; i < projectorMap.Count; i++)

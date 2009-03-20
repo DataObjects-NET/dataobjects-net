@@ -4,11 +4,10 @@
 // Created by: Elena Vakhtina
 // Created:    2009.02.18
 
-using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using Xtensive.Core.Linq;
-using Xtensive.Core.Tuples;
+using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Linq
 {
