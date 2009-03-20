@@ -27,6 +27,8 @@ namespace Xtensive.Storage.Linq
 {
   internal partial class Translator
   {
+    private const string SurrogateKeyNameFormatString = "#_Key_{0}";
+
     private static readonly PropertyInfo keyValueAccessor;
     private static readonly PropertyInfo keyAccessor;
     private static readonly PropertyInfo parameterOfTupleAccessor;
@@ -190,13 +192,17 @@ namespace Xtensive.Storage.Linq
                   keyResolveMethod),
                 field.ReflectedType.UnderlyingType),
               field.UnderlyingProperty);
+          var columnGroup = source.RecordSet.Header.ColumnGroups[groupIndex];
+          var keyOffset = columnGroup.Keys.Min();
+          var keyLength = columnGroup.Keys.Max() - keyOffset + 1;
           var rm = source.GetMemberMapping(path);
-          var mappedFields = rm.Fields.Where(p => p.Value.Offset >= segment.Offset && p.Value.EndOffset <= segment.EndOffset).ToList();
+          var mappedFields = rm.Fields.Where(p => (p.Value.Offset >= segment.Offset && p.Value.EndOffset <= segment.EndOffset)).ToList();
           var name = mappedFields.Select(pair => pair.Key).OrderBy(s => s.Length).First();
           foreach (var pair in mappedFields) {
             var key = pair.Key.TryCutPrefix(name).TrimStart('.');
             resultMapping.Value.RegisterFieldMapping(key, pair.Value);
           }
+          resultMapping.Value.RegisterFieldMapping(string.Format(SurrogateKeyNameFormatString,groupIndex), new Segment<int>(keyOffset, keyLength));
           return result;
         }
         case MemberType.Entity: {

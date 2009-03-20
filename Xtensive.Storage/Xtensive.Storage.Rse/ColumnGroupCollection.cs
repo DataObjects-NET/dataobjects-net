@@ -26,6 +26,17 @@ namespace Xtensive.Storage.Rse
       ThreadSafeCached<ColumnGroupCollection>.Create(new object());
 
     /// <summary>
+    /// Gets the <see cref="Xtensive.Storage.Model.ColumnGroup"/> by specified group index.
+    /// </summary>
+    public ColumnGroup this[int groupIndex]
+    {
+      get
+      {
+        return this.ElementAt(groupIndex);
+      }
+    }
+
+    /// <summary>
     /// Gets the empty <see cref="ColumnGroupCollection"/>.
     /// </summary>    
     public static ColumnGroupCollection Empty {

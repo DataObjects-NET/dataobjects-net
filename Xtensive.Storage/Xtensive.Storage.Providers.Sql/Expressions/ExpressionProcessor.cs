@@ -242,7 +242,6 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     {
       var tupleAccess = mc.AsTupleAccess();
       if (tupleAccess != null) {
-          var type = tupleAccess.Method.ReturnType;
           var columnArgument = tupleAccess.Arguments[0];
           int columnIndex;
           if (columnArgument.NodeType == ExpressionType.Constant)
