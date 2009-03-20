@@ -11,10 +11,33 @@ using Xtensive.Modelling.Attributes;
 namespace Xtensive.Modelling.Tests.DatabaseModel
 {
   [Serializable]
-  public class Database : Node<Server, Server>
+  public class Database : NodeBase<Server, Server>
   {
-    [NodeProperty]
+    private User owner;
+
+    /// <exception cref="ArgumentOutOfRangeException"><c>value.Model</c> is out of range.</exception>
+    [Property]
+    public User Owner
+    {
+      get { return owner; }
+      set {
+        if (value!=null && value.Model!=this.Model)
+          throw new ArgumentOutOfRangeException("value.Model");
+        if (owner!=null)
+          owner.UsageCount--;
+        owner = value;
+        if (owner!=null)
+          owner.UsageCount++;
+      }
+    }
+
+    [Property]
     public SchemaCollection Schemas { get; private set; }
+
+    protected override void ValidateState()
+    {
+      base.ValidateState();
+    }
 
     protected override Nesting CreateNesting()
     {
@@ -26,6 +49,12 @@ namespace Xtensive.Modelling.Tests.DatabaseModel
       base.Initialize();
       if (Schemas==null)
         Schemas = new SchemaCollection(this);
+    }
+
+
+    public Database(Server parent, string name)
+      : base(parent, name)
+    {
     }
 
     public Database(Server parent, string name, int index)

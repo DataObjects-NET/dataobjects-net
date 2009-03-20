@@ -136,9 +136,15 @@
     <value>Invalid node state.</value>
   </data>
   <data name="ExBindingFailedForX" xml:space="preserve">
-    <value>Binding has failed for {0}.</value>
+    <value>Binding has failed for {0}. Check property declaration.</value>
   </data>
   <data name="ExNoNesting" xml:space="preserve">
     <value>Nesting must be created for any node.</value>
+  </data>
+  <data name="NodeInfoFormat" xml:space="preserve">
+    <value>{0} ({1})</value>
+  </data>
+  <data name="ExTargetObjectExistsX" xml:space="preserve">
+    <value>Target object already exists: "{0}". To assign a new one, you must remove the old one first.</value>
   </data>
 </root>

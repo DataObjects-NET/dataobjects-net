@@ -11,6 +11,7 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Threading;
 using Xtensive.Modelling.Attributes;
@@ -41,7 +42,7 @@ namespace Xtensive.Modelling
     private static ThreadSafeDictionary<Type, ReadOnlyDictionary<string, PropertyAccessor>> cachedPropertyAccessors = 
       ThreadSafeDictionary<Type, ReadOnlyDictionary<string, PropertyAccessor>>.Create(new object());
     [NonSerialized]
-    private ThreadSafeCached<Model> cachedModel = ThreadSafeCached<Model>.Create(new object());
+    private Node model;
     [NonSerialized]
     private string cachedPath;
     [NonSerialized]
@@ -56,38 +57,32 @@ namespace Xtensive.Modelling
     #region Properties
 
     /// <inheritdoc/>
+    [Property]
+    [SystemProperty]
     public Node Parent {
       [DebuggerStepThrough]
       get { return parent; }
       [DebuggerStepThrough]
       set {
-        ArgumentValidator.EnsureArgumentNotNull(value, "newParent");
+        ArgumentValidator.EnsureArgumentNotNull(value, "value");
         if (value==Parent)
           return;
         NodeCollection collection = null;
         if (Nesting.IsCollectionProperty)
-          collection = (NodeCollection) Nesting.PropertyValue;
+          collection = (NodeCollection) Nesting.PropertyGetter(value);
         Move(value, Name, collection==null ? 0 : collection.Count);
       }
     }
 
     /// <inheritdoc/>
-    public Model Model {
+    public Node Model {
       [DebuggerStepThrough]
-      get {
-        return cachedModel.GetValue((_this) => {
-          var node = _this;
-          while (true) {
-            var next = node.Parent;
-            if (next==null)
-              return node as Model;
-            node = next;
-          }
-        }, this);
-      }
+      get { return model; }
     }
 
     /// <inheritdoc/>
+    [Property]
+    [SystemProperty]
     public string Name
     {
       [DebuggerStepThrough]
@@ -111,6 +106,8 @@ namespace Xtensive.Modelling
     }
 
     /// <inheritdoc/>
+    [Property]
+    [SystemProperty]
     public int Index
     {
       [DebuggerStepThrough]
@@ -146,6 +143,23 @@ namespace Xtensive.Modelling
     }
 
     /// <inheritdoc/>
+    public IPathNode GetNestedProperty(string propertyName)
+    {
+      var getter = PropertyAccessors[propertyName].Getter;
+      if (getter==null)
+        return null;
+      var value = getter.Invoke(this) as IPathNode;
+      if (value==null)
+        return null;
+      if (value is NodeCollection)
+        return value;
+      var node = value as Node;
+      if (node!=null && node.Parent==this)
+        return value;
+      return null;
+    }
+
+    /// <inheritdoc/>
     public string Path {
       [DebuggerStepThrough]
       get {
@@ -159,7 +173,8 @@ namespace Xtensive.Modelling
             parentPath += PathDelimiter;
           return string.Concat(
             parentPath, 
-            Nesting.EscapedPropertyName, PathDelimiter, 
+            Nesting.EscapedPropertyName,
+            Nesting.IsCollectionProperty ? PathDelimiter.ToString() : string.Empty,
             Nesting.IsCollectionProperty ? EscapedName : string.Empty);
         }
       }
@@ -181,6 +196,7 @@ namespace Xtensive.Modelling
         parent = newParent;
         name = newName;
         index = newIndex;
+        UpdateModel();
         PerformCreate();
       }
       else
@@ -208,10 +224,21 @@ namespace Xtensive.Modelling
       return next.GetChild(parts.Second);
     }
 
+    /// <inheritdoc/>
+    public void Validate()
+    {
+      ValidateState();
+      foreach (var pair in PropertyAccessors) {
+        var nested = GetNestedProperty(pair.Key);
+        if (nested!=null)
+          nested.Validate();
+      }
+    }
+
     #region ValidateXxx methods
 
     /// <summary>
-    /// Validates the <see cref="Move"/> and <see cref="Rename"/> method arguments.
+    /// Validates the <see cref="Move"/> method arguments.
     /// </summary>
     /// <param name="newParent">The new parent.</param>
     /// <param name="newName">The new name.</param>
@@ -222,7 +249,7 @@ namespace Xtensive.Modelling
     protected virtual void ValidateMove(Node newParent, string newName, int newIndex)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(newName, "newName");
-      if (this is Model) {
+      if (this is IModel) {
         ArgumentValidator.EnsureArgumentIsInRange(newIndex, 0, 0, "newIndex");
         return;
       }
@@ -259,8 +286,16 @@ namespace Xtensive.Modelling
     /// <exception cref="InvalidOperationException">Model object cannot be removed.</exception>
     protected virtual void ValidateRemove()
     {
-      if (this is Model)
+      if (this is IModel)
         throw new InvalidOperationException(Strings.ExModelObjectCannotBeRemoved);
+    }
+
+    /// <summary>
+    /// Validates the state (i.e. checks everything except nested properties).
+    /// </summary>
+    protected virtual void ValidateState()
+    {
+      return;
     }
 
     #endregion
@@ -270,11 +305,16 @@ namespace Xtensive.Modelling
     /// <summary>
     /// Actually performs construction operation.
     /// </summary>
+    /// <exception cref="InvalidOperationException">Target object already exists.</exception>
     protected virtual void PerformCreate()
     {
       if (Parent!=null) {
-        if (!Nesting.IsCollectionProperty)
+        if (!Nesting.IsCollectionProperty) {
+          if (Nesting.PropertyValue!=null)
+            throw new InvalidOperationException(string.Format(
+              Strings.ExTargetObjectExistsX, Nesting.PropertyValue));
           Nesting.PropertyValue = this;
+        }
         else
           ((NodeCollection) Nesting.PropertyValue).Add(this);
       }
@@ -287,26 +327,32 @@ namespace Xtensive.Modelling
     /// <param name="newParent">The new parent.</param>
     /// <param name="newName">The new name.</param>
     /// <param name="newIndex">The new index.</param>
+    /// <exception cref="InvalidOperationException">Target object already exists.</exception>
     protected virtual void PerformMove(Node newParent, string newName, int newIndex)
     {
       if (newParent!=parent) {
         // Parent is changed
         if (!Nesting.IsCollectionProperty) {
           Nesting.PropertySetter(parent, null);
+          var existingNode = Nesting.PropertyGetter(newParent);
+          if (existingNode!=null)
+            throw new InvalidOperationException(string.Format(
+              Strings.ExTargetObjectExistsX, existingNode));
           Nesting.PropertySetter(newParent, this);
         }
         else {
           var oldCollection = (NodeCollection) Nesting.PropertyGetter(parent);
           var newCollection = (NodeCollection) Nesting.PropertyGetter(newParent);
-          for (int i = index+1; i<oldCollection.Count; i++)
+          for (int i = index + 1; i < oldCollection.Count; i++)
             oldCollection[i].EnsureIsEditable();
-          for (int i = index; i<newCollection.Count; i++)
+          for (int i = newIndex; i < newCollection.Count; i++)
             newCollection[i].EnsureIsEditable();
-          for (int i = index+1; i<oldCollection.Count; i++)
+          for (int i = index + 1; i < oldCollection.Count; i++)
             oldCollection[i].PerformShift(-1);
-          for (int i = index; i<newCollection.Count; i++)
+          for (int i = newIndex; i < newCollection.Count; i++)
             newCollection[i].PerformShift(1);
           oldCollection.Remove(this);
+          index = newIndex;
           newCollection.Add(this);
         }
       }
@@ -332,9 +378,10 @@ namespace Xtensive.Modelling
           collection.Move(this, newIndex);
         }
       }
-      name = newName;
       parent = (Node) newParent;
+      name = newName;
       index = newIndex;
+      UpdateModel();
     }
 
     /// <summary>
@@ -357,6 +404,7 @@ namespace Xtensive.Modelling
         Nesting.PropertyValue = null;
       else
         ((NodeCollection) Nesting.PropertyValue).Remove(this);
+      Lock(true);
     }
 
     #endregion
@@ -387,13 +435,9 @@ namespace Xtensive.Modelling
     {
       base.Lock(recursive);
       foreach (var pair in PropertyAccessors) {
-        string propertyName = pair.Key;
-        var accessor = pair.Value;
-        if (accessor.HasGetter) {
-          var lockable = GetProperty(pair.Key) as ILockable;
-          if (lockable!=null)
-            lockable.Lock();
-        }
+        var nested = GetNestedProperty(pair.Key);
+        if (nested!=null)
+          nested.Lock();
       }
       cachedPath = Path;
     }
@@ -401,6 +445,15 @@ namespace Xtensive.Modelling
     #endregion
 
     #region Private \ internal methods
+
+    private void UpdateModel()
+    {
+      var p = Parent;
+      if (p==null)
+        model = (Node) (this as IModel);
+      else
+        model = p.Model;
+    }
 
     private static ReadOnlyDictionary<string, PropertyAccessor> GetPropertyAccessors(Type type)
     {
@@ -412,7 +465,7 @@ namespace Xtensive.Modelling
             foreach (var pair in GetPropertyAccessors(_type.BaseType))
               d.Add(pair.Key, pair.Value);
           foreach (var p in _type.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)) {
-            if (p.GetAttribute<NodePropertyAttribute>(AttributeSearchOptions.InheritNone)!=null)
+            if (p.GetAttribute<PropertyAttribute>(AttributeSearchOptions.InheritNone)!=null)
               d.Add(p.Name, new PropertyAccessor(p));
           }
           return new ReadOnlyDictionary<string, PropertyAccessor>(d, false);
@@ -442,7 +495,62 @@ namespace Xtensive.Modelling
     /// <inheritdoc/>
     public override string ToString()
     {
-      return name;
+      var m = Model;
+      string fullName = Path;
+      if (m!=null)
+        fullName = string.Concat(m.EscapedName, PathDelimiter, fullName);
+      if (!Nesting.IsCollectionProperty && !(this is IModel))
+        fullName = string.Format(Strings.NodeInfoFormat, fullName, Name);
+      return fullName;
+    }
+
+    /// <inheritdoc/>
+    public virtual void Dump()
+    {
+      string prefix = string.Empty;
+      if (Nesting.IsCollectionProperty && !(Nesting.PropertyValue is IUnorederedNodeCollection))
+        prefix = string.Format("{0}: ", Index);
+      Log.Info("{0}{1} \"{2}\"", prefix, GetType().GetShortName(), this);
+      using (new LogIndentScope()) {
+        // Validation errors
+        Exception error = null;
+        try { 
+          ValidateState();
+        }
+        catch (Exception e) {
+          error = e;
+        }
+        // Basic properties
+        if (error!=null)
+          Log.Info("+Error = {0}", error);
+        if (State!=NodeState.Live)
+          Log.Info("+State = {0}", State);
+        // Everything else
+        foreach (var pair in propertyAccessors) {
+          string propertyName = pair.Key;
+          var accessor = pair.Value;
+          if (accessor.PropertyInfo.GetAttribute<SystemPropertyAttribute>(
+            AttributeSearchOptions.InheritNone)!=null)
+            continue;
+          var propertyValue = accessor.HasGetter ? GetProperty(propertyName) : null;
+          var propertyType = (propertyValue==null ? 
+            accessor.PropertyInfo.PropertyType : 
+            propertyValue.GetType())
+            .GetShortName();
+          var nested = GetNestedProperty(propertyName);
+          if (nested!=null) {
+            var collection = nested as NodeCollection;
+            if (collection!=null && collection.Count!=0)
+              Log.Info("+{0} ({1}):", propertyName, collection.Count);
+            else
+              Log.Info("+{0}:", propertyName);
+            using (new LogIndentScope())
+              nested.Dump();
+          }
+          else
+            Log.Info("+{0} = {1} ({2})", propertyName, propertyValue, propertyType);
+        }
+      }
     }
 
 
@@ -456,7 +564,8 @@ namespace Xtensive.Modelling
     /// <param name="index">Initial <see cref="Index"/> property value.</param>
     protected Node(Node parent, string name, int index)
     {
-      ArgumentValidator.EnsureArgumentNotNull(parent, "parent");
+      if (!(this is IModel))
+        ArgumentValidator.EnsureArgumentNotNull(parent, "parent");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
       Initialize();
       Move(parent, name, index);
@@ -469,24 +578,14 @@ namespace Xtensive.Modelling
     /// <param name="name">Initial <see cref="Name"/> property value.</param>
     protected Node(Node parent, string name)
     {
-      ArgumentValidator.EnsureArgumentNotNull(parent, "parent");
+      if (!(this is IModel))
+        ArgumentValidator.EnsureArgumentNotNull(parent, "parent");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
       Initialize();
       if (!Nesting.IsCollectionProperty)
         Move(parent, name, 0);
       else
         Move(parent, name, ((NodeCollection) Nesting.PropertyGetter(parent)).Count);
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Node"/> class.
-    /// </summary>
-    /// <param name="name">Initial <see cref="Name"/> property value.</param>
-    internal Node(string name)
-    {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
-      Initialize();
-      Name = name;
     }
 
     // Deserialization
@@ -496,6 +595,7 @@ namespace Xtensive.Modelling
     {
       Initialize();
       if (IsLocked) {
+        UpdateModel();
         cachedPath = Path;
       }
     }

@@ -4,9 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2009.03.17
 
-using System;
 using Xtensive.Core.Collections;
-using Xtensive.Core.Notifications;
 
 namespace Xtensive.Modelling
 {
@@ -49,6 +47,14 @@ namespace Xtensive.Modelling
     /// <param name="propertyName">Name of the property.</param>
     /// <param name="value">The value to set.</param>
     void SetProperty(string propertyName, object value);
+
+    /// <summary>
+    /// Tries the get nested property value.
+    /// </summary>
+    /// <param name="propertyName">Name of the property.</param>
+    /// <returns>Nested property value;
+    /// otherwise, <see langword="null" />.</returns>
+    IPathNode GetNestedProperty(string propertyName);
 
     /// <summary>
     /// Moves the node.

@@ -8,13 +8,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Globalization;
 using System.Runtime.Serialization;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Notifications;
+using Xtensive.Core.Reflection;
 using Xtensive.Modelling;
 using Xtensive.Modelling.Resources;
 
@@ -74,7 +74,7 @@ namespace Xtensive.Modelling
     }
 
     /// <inheritdoc/>
-    public Model Model {
+    public Node Model {
       [DebuggerStepThrough]
       get { return Parent.Model; }
     }
@@ -145,7 +145,7 @@ namespace Xtensive.Modelling
 
     /// <inheritdoc/>
     [DebuggerStepThrough]
-    public string GetTemporaryName()
+    public virtual string GetTemporaryName()
     {
       return Guid.NewGuid().ToString();
     }
@@ -160,6 +160,13 @@ namespace Xtensive.Modelling
       if (parts.Second==null)
         return next;
       return next.GetChild(parts.Second);
+    }
+
+    /// <inheritdoc/>
+    public void Validate()
+    {
+      foreach (var node in list)
+        node.Validate();
     }
 
     #region IEnumerable<...> members
@@ -192,7 +199,7 @@ namespace Xtensive.Modelling
     internal void Add(Node node)
     {
       if (node.Index!=list.Count)
-        throw Exceptions.InternalError("Wrong DoneCollection.Add arguments: node.Index!=list.Count!", Log.Instance);
+        throw Exceptions.InternalError("Wrong NodeCollection.Add arguments: node.Index!=list.Count!", Log.Instance);
       int count = list.Count;
       try {
         list.Add(node);
@@ -262,6 +269,27 @@ namespace Xtensive.Modelling
       if (Name.IsNullOrEmpty())
         throw Exceptions.NotInitialized("Name");
       escapedName = new[] {Name}.RevertibleJoin(Node.PathEscape, Node.PathDelimiter);
+    }
+
+    /// <inheritdoc/>
+    public override string ToString()
+    {
+      var m = Model;
+      string fullName = Path;
+      if (m!=null)
+        fullName = string.Concat(m.EscapedName, Node.PathDelimiter, fullName);
+      return string.Format(Strings.NodeInfoFormat, fullName, Count);
+    }
+
+    /// <inheritdoc/>
+    public virtual void Dump()
+    {
+      if (Count==0) {
+        Log.Info("None");
+        return;
+      }
+      foreach (var node in list)
+        node.Dump();
     }
 
 

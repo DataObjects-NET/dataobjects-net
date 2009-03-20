@@ -10,11 +10,17 @@ using System.Diagnostics;
 namespace Xtensive.Modelling.Tests.DatabaseModel
 {
   [Serializable]
-  public class Schema : Node<Database, Server>
+  public class Schema : NodeBase<Database, Server>
   {
     protected override Nesting CreateNesting()
     {
       return new Nesting<Schema, Database, SchemaCollection>(this, "Schemas");
+    }
+
+
+    public Schema(Database parent, string name)
+      : base(parent, name)
+    {
     }
 
     public Schema(Database parent, string name, int index)

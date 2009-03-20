@@ -13,14 +13,19 @@ namespace Xtensive.Modelling.Attributes
   /// <summary>
   /// Node property marker.
   /// </summary>
-  [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
+  [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
   [Serializable]
-  public class NodePropertyAttribute : Attribute
+  public class PropertyAttribute : Attribute
   {
+    /// <summary>
+    /// Gets or sets a value indicating whether underlying property must be ignored in comparison.
+    /// </summary>
+    public bool IgnoreInComparison { get; set; }
+
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public NodePropertyAttribute()
+    public PropertyAttribute()
     {
     }
   }

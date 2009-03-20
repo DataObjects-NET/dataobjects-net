@@ -61,7 +61,7 @@ namespace Xtensive.Modelling.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Binding has failed for {0}..
+        ///   Looks up a localized string similar to Binding has failed for {0}. Check property declaration..
         /// </summary>
         internal static string ExBindingFailedForX {
             get {
@@ -124,11 +124,29 @@ namespace Xtensive.Modelling.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Target object already exists: &quot;{0}&quot;. To assign a new one, you must remove the old one first..
+        /// </summary>
+        internal static string ExTargetObjectExistsX {
+            get {
+                return ResourceManager.GetString("ExTargetObjectExistsX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Type of {0} property must be {1}..
         /// </summary>
         internal static string ExTypeOfXPropertyMustBeY {
             get {
                 return ResourceManager.GetString("ExTypeOfXPropertyMustBeY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} ({1}).
+        /// </summary>
+        internal static string NodeInfoFormat {
+            get {
+                return ResourceManager.GetString("NodeInfoFormat", resourceCulture);
             }
         }
     }

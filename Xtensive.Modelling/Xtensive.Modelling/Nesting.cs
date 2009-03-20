@@ -53,7 +53,11 @@ namespace Xtensive.Modelling
     /// <inheritdoc/>
     public IPathNode PropertyValue {
       [DebuggerStepThrough]
-      get { return PropertyGetter(Node.Parent); }
+      get {
+        if (PropertyGetter==null)
+          return null;
+        return PropertyGetter(Node.Parent);
+      }
       [DebuggerStepThrough]
       internal set { PropertySetter(Node.Parent, value); }
     }
@@ -81,7 +85,7 @@ namespace Xtensive.Modelling
 
     internal Nesting(Node node)
     {
-      ArgumentValidator.EnsureArgumentNotNull(node, "node");
+      ArgumentValidator.EnsureArgumentIs<IModel>(node, "node");
       Node = node;
       Initialize();
     }

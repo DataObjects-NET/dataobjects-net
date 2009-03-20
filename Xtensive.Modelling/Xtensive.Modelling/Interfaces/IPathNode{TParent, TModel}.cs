@@ -14,7 +14,7 @@ namespace Xtensive.Modelling
   /// <typeparam name="TModel">The type of the model.</typeparam>
   public interface IPathNode<TParent, TModel> : IPathNode<TParent>
     where TParent : Node
-    where TModel : Model
+    where TModel : IModel
   {
     /// <summary>
     /// Gets the model this node belongs to.

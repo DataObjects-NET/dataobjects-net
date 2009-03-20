@@ -31,7 +31,7 @@ namespace Xtensive.Modelling
     /// <summary>
     /// Gets the model this node belongs to.
     /// </summary>
-    Model Model { get; }
+    Node Model { get; }
 
     /// <summary>
     /// Gets the path to this node.
@@ -45,5 +45,15 @@ namespace Xtensive.Modelling
     /// <returns>Path node, if found;
     /// otherwise, <see langword="null" />.</returns>
     IPathNode GetChild(string path);
+
+    /// <summary>
+    /// Validates this and nested nodes.
+    /// </summary>
+    void Validate();
+
+    /// <summary>
+    /// Dumps this instance.
+    /// </summary>
+    void Dump();
   }
 }

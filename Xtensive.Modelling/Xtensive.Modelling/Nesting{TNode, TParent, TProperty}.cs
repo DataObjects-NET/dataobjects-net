@@ -71,6 +71,9 @@ namespace Xtensive.Modelling
       var tProperty = typeof (TProperty);
       
       propertyInfo = tParent.GetProperty(PropertyName);
+      if (propertyInfo==null)
+        throw new InvalidOperationException(string.Format(
+          Strings.ExBindingFailedForX, tParent.GetShortName()+"."+PropertyName));
       if (propertyInfo.PropertyType!=tProperty)
         throw new InvalidOperationException(String.Format(
           Strings.ExTypeOfXPropertyMustBeY, 
@@ -111,7 +114,7 @@ namespace Xtensive.Modelling
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="node"><see cref="Node"/> property value.</param>
-    internal Nesting(TNode node)
+    public Nesting(TNode node)
       : base(node)
     {
     }

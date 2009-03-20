@@ -20,7 +20,7 @@ namespace Xtensive.Modelling
   public abstract class Node<TParent, TModel> : Node,
     INode<TParent>
     where TParent : Node
-    where TModel : Model
+    where TModel : class, IModel
   {
     /// <summary>
     /// Gets the parent node.
@@ -28,6 +28,8 @@ namespace Xtensive.Modelling
     public new TParent Parent { 
       [DebuggerStepThrough]
       get { return base.Parent as TParent; }
+      [DebuggerStepThrough]
+      set { base.Parent = value; }
     }
 
     /// <summary>
@@ -54,7 +56,7 @@ namespace Xtensive.Modelling
     }
 
     /// <inheritdoc/>
-    protected Node(Node parent, string name)
+    protected Node(TParent parent, string name)
       : base(parent, name)
     {
     }

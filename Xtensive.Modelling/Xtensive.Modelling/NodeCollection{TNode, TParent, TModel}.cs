@@ -21,7 +21,7 @@ namespace Xtensive.Modelling
     INodeCollection<TNode>
     where TNode : Node
     where TParent : Node
-    where TModel : Model
+    where TModel : class, IModel
   {
     /// <summary>
     /// Gets the parent node.

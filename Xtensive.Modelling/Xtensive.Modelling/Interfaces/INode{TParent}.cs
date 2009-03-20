@@ -15,6 +15,11 @@ namespace Xtensive.Modelling
     where TParent : Node
   {
     /// <summary>
+    /// Gets or sets the parent node.
+    /// </summary>
+    new TParent Parent { get; set; }
+
+    /// <summary>
     /// Moves the node.
     /// </summary>
     /// <param name="newParent">The new parent.</param>
