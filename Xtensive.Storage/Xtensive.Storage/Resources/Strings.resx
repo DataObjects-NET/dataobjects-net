@@ -528,4 +528,10 @@
   <data name="ExPersistentAttributeIsNotSetOnTypeX" xml:space="preserve">
     <value>Persistent attribute isn't applied. Add to AssemblyInfo.cs (in "{0}" assembly) following line: [assembly: Persistent(AttributeTargetAssemblies = "{0}")]</value>
   </data>
+  <data name="ExActiveSerializationContextIsNotFound" xml:space="preserve">
+    <value>Active serialization context is not found.</value>
+  </data>
+  <data name="ExCanNotToResolveEntityWithKeyX" xml:space="preserve">
+    <value>Can not to resolve entity with key '{0}'</value>
+  </data>
 </root>

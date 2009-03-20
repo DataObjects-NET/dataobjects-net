@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.Serialization;
 using Xtensive.Core;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.Diagnostics;
@@ -18,6 +19,7 @@ using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
+using Xtensive.Storage.Serialization;
 
 namespace Xtensive.Storage
 {
@@ -27,7 +29,7 @@ namespace Xtensive.Storage
   /// Instance of <see cref="Entity"/> type can be referenced via <see cref="Key"/>.
   /// </summary>
   public abstract class Entity : Persistent,
-    IEntity
+    IEntity, ISerializable
   {
     #region Internal properties
 
@@ -253,6 +255,25 @@ namespace Xtensive.Storage
       if (PersistenceState!=PersistenceState.New && PersistenceState!=PersistenceState.Modified)
         State.PersistenceState = PersistenceState.Modified;
       base.OnSetFieldValue(field, oldValue, newValue, notify);
+    }
+
+    #endregion
+
+    #region ISerializable members
+
+    /// <inheritdoc/>
+    void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
+    {
+      SerializationContext serializationContext = SerializationContext.Current;
+
+      if (serializationContext==null)
+        throw new InvalidOperationException(Strings.ExActiveSerializationContextIsNotFound);
+      
+      if (serializationContext.GetSerializationKind(this)==SerializationKind.ByReference) {
+        info.SetType(typeof(EntityReference));
+        EntityReference reference = new EntityReference(this);
+        reference.GetObjectData(info, context);
+      }
     }
 
     #endregion

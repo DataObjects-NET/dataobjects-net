@@ -124,6 +124,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Active serialization context is not found..
+        /// </summary>
+        internal static string ExActiveSerializationContextIsNotFound {
+            get {
+                return ResourceManager.GetString("ExActiveSerializationContextIsNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Association multiplicity &apos;{0}&apos; is not valid for field &apos;{1}&apos;.
         /// </summary>
         internal static string ExAssociationMultiplicityIsNotValidForField {
@@ -165,6 +174,15 @@ namespace Xtensive.Storage.Resources {
         internal static string ExCanNotOpenTransactionNoCurrentSession {
             get {
                 return ResourceManager.GetString("ExCanNotOpenTransactionNoCurrentSession", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Can not to resolve entity with key &apos;{0}&apos;.
+        /// </summary>
+        internal static string ExCanNotToResolveEntityWithKeyX {
+            get {
+                return ResourceManager.GetString("ExCanNotToResolveEntityWithKeyX", resourceCulture);
             }
         }
         
