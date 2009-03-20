@@ -14,33 +14,33 @@ namespace Xtensive.Indexing.Storage.Interfaces
   /// </summary>
   public interface IIndexManager
   {
-    /// <summary>
-    /// Gets the current storage model.
-    /// </summary>
-    StorageInfo Model { get; }
+    ///// <summary>
+    ///// Gets the current storage model.
+    ///// </summary>
+    //StorageInfo Model { get; }
 
-    /// <summary>
-    /// Creates a new index in the storage.
-    /// </summary>
-    /// <param name="index">The index to create.</param>
-    void CreateIndex(IndexInfo index);
+    ///// <summary>
+    ///// Creates a new index in the storage.
+    ///// </summary>
+    ///// <param name="index">The index to create.</param>
+    //void CreateIndex(IndexInfo index);
 
-    /// <summary>
-    /// Removes the index from the storage.
-    /// </summary>
-    /// <param name="indexName">Name of the index to remove.</param>
-    void RemoveIndex(string indexName);
+    ///// <summary>
+    ///// Removes the index from the storage.
+    ///// </summary>
+    ///// <param name="indexName">Name of the index to remove.</param>
+    //void RemoveIndex(string indexName);
 
-    /// <summary>
-    /// Changes the index.
-    /// </summary>
-    /// <param name="changeInfo">The index change specification.</param>
-    void ChangeIndex(IndexChangeInfo changeInfo);
+    ///// <summary>
+    ///// Changes the index.
+    ///// </summary>
+    ///// <param name="changeInfo">The index change specification.</param>
+    //void ChangeIndex(IndexChangeInfo changeInfo);
 
-    /// <summary>
-    /// Copies the index.
-    /// </summary>
-    /// <param name="changeInfo">The index copy specification.</param>
-    void CopyIndex(IndexChangeInfo changeInfo);
+    ///// <summary>
+    ///// Copies the index.
+    ///// </summary>
+    ///// <param name="changeInfo">The index copy specification.</param>
+    //void CopyIndex(IndexChangeInfo changeInfo);
   }
 }
