@@ -140,12 +140,9 @@ namespace Xtensive.Storage.Tests.Storage
             if (allOrders.Any(o => o.Customer == customer))
               total++;
           var parameter = new Parameter<Tuple>();
-          var subquery = new ExistenceProvider(
-            orderPrimary
-              .Filter(t => t.GetValue(orderCustomerIndex)==parameter.Value.GetValue(customerIdIndex))
-              .Provider,
-            "LALALA").Result;
-
+          var subquery = orderPrimary
+            .Filter(t => t.GetValue(orderCustomerIndex)==parameter.Value.GetValue(customerIdIndex))
+            .Existence("LALALA");
           var result = customerPrimary
             .Apply(parameter, subquery, ApplyType.Cross)
             .Count(t => (bool) t.GetValue(t.Count-1));

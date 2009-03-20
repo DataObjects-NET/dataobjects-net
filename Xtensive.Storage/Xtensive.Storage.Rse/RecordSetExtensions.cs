@@ -246,5 +246,10 @@ namespace Xtensive.Storage.Rse
     {
       return new ApplyProvider(leftItemParameter, recordSet.Provider, right.Provider, applyType).Result;
     }
+
+    public static RecordSet Existence(this RecordSet recordSet, string existenceColumnName)
+    {
+      return new ExistenceProvider(recordSet.Provider, existenceColumnName).Result;
+    }
   }
 }
