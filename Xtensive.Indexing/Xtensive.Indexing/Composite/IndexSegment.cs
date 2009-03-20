@@ -297,7 +297,7 @@ namespace Xtensive.Indexing.Composite
       if (CutInTransformDictionary.TryGetValue(descriptor, out result))
         return result;
 
-      result = new CutInTransform<int>(true, count, descriptor, segmentNumber);
+      result = new CutInTransform<int>(true, count, descriptor);
       CutInTransformDictionary.Add(descriptor, result);
       return result;
     }
