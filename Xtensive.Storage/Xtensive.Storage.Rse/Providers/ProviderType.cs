@@ -27,6 +27,7 @@ namespace Xtensive.Storage.Rse.Providers
     Take,
     Transfer,
     Apply,
-    RowNumber
+    RowNumber,
+    Existence
   }
 }

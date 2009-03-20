@@ -108,6 +108,9 @@ namespace Xtensive.Storage.Rse.Compilation
         case ProviderType.RowNumber:
           result = VisitRowNumber((RowNumberProvider)cp);
           break;
+        case ProviderType.Existence:
+          result = VisitExistence((ExistenceProvider)cp);
+          break;
         default:
           throw new ArgumentOutOfRangeException();
       }
@@ -237,6 +240,12 @@ namespace Xtensive.Storage.Rse.Compilation
     /// </summary>
     /// <param name="provider">Row number provider.</param>
     protected abstract ExecutableProvider VisitRowNumber(RowNumberProvider provider);
+
+    /// <summary>
+    /// Compiles <see cref="ExistenceProvider"/>.
+    /// </summary>
+    /// <param name="provider">Existence provider.</param>
+    protected abstract ExecutableProvider VisitExistence(ExistenceProvider provider);
 
 
     // Constructor

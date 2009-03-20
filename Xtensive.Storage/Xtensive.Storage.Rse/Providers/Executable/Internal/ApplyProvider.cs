@@ -19,7 +19,6 @@ namespace Xtensive.Storage.Rse.Providers.Executable
   internal sealed class ApplyProvider : BinaryExecutableProvider<Compilable.ApplyProvider>
   {
     private CombineTransform combineTransform;
-    private CutInTransform<bool> existenceColumnTransform;
     private Tuple rightBlank;
 
     protected internal override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
@@ -34,8 +33,6 @@ namespace Xtensive.Storage.Rse.Providers.Executable
           return ApplyExisting(context, left);
         case ApplyType.NotExisting:
           return ApplyNotExisting(context, left);
-        case ApplyType.ExistenceColumn:
-          return ApplyExistenceColumn(context, left);
         default:
           throw new ArgumentOutOfRangeException();
       }
@@ -100,17 +97,17 @@ namespace Xtensive.Storage.Rse.Providers.Executable
           yield return tuple;
       }
     }
-
-    private IEnumerable<Tuple> ApplyExistenceColumn(EnumerationContext context, IEnumerable<Tuple> left)
-    {
-      using (new ParameterScope())
-      foreach (var tuple in left) {
-        Origin.LeftItemParameter.Value = tuple;
-        // Do not cache right part
-        var right = Right.OnEnumerate(context);
-        yield return existenceColumnTransform.Apply(TupleTransformType.Auto, tuple, right.Any());
-      }
-    }
+//
+//    private IEnumerable<Tuple> ApplyExistenceColumn(EnumerationContext context, IEnumerable<Tuple> left)
+//    {
+//      using (new ParameterScope())
+//      foreach (var tuple in left) {
+//        Origin.LeftItemParameter.Value = tuple;
+//        // Do not cache right part
+//        var right = Right.OnEnumerate(context);
+//        yield return existenceColumnTransform.Apply(TupleTransformType.Auto, tuple, right.Any());
+//      }
+//    }
 
     #endregion
 
@@ -119,7 +116,6 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     {
       base.Initialize();
       combineTransform = new CombineTransform(true, Left.Header.TupleDescriptor, Right.Header.TupleDescriptor);
-      existenceColumnTransform = new CutInTransform<bool>(true, Left.Header.Columns.Count, Left.Header.TupleDescriptor);
       rightBlank = Tuple.Create(Right.Header.TupleDescriptor);
     }
 

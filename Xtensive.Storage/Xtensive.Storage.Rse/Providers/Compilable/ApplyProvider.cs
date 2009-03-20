@@ -18,8 +18,6 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
   [Serializable]
   public sealed class ApplyProvider : BinaryProvider
   {
-    private readonly string existenceColumnName;
-
     /// <summary>
     /// Gets or sets the left item parameter.
     /// </summary>
@@ -40,8 +38,6 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
         case ApplyType.Existing:
         case ApplyType.NotExisting:
           return Left.Header;
-        case ApplyType.ExistenceColumn:
-          return Left.Header.Add(new[] {new SystemColumn(existenceColumnName, Left.Header.Columns.Count, typeof (bool))});
         default:
           throw new ArgumentOutOfRangeException();
       }
@@ -54,15 +50,6 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     }
 
     // Constructors
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    public ApplyProvider(Parameter<Tuple> leftItemParameter, CompilableProvider left, CompilableProvider right, string existenceColumnName)
-      : this(leftItemParameter, left, right, ApplyType.ExistenceColumn)
-    {
-      this.existenceColumnName = existenceColumnName;
-    }
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
