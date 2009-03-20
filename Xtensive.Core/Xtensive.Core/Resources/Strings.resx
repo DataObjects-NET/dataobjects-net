@@ -603,4 +603,7 @@
   <data name="ExEscapeCharacterMustDifferFromDelimiterCharacter" xml:space="preserve">
     <value>Escape character must differ from delimiter character.</value>
   </data>
+  <data name="ExExpressionMustReturnValueOfTypeX" xml:space="preserve">
+    <value>The expression must return a value of type '{0}'.</value>
+  </data>
 </root>

@@ -493,6 +493,15 @@ namespace Xtensive.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The expression must return a value of type &apos;{0}&apos;..
+        /// </summary>
+        internal static string ExExpressionMustReturnValueOfTypeX {
+            get {
+                return ResourceManager.GetString("ExExpressionMustReturnValueOfTypeX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Field with index &apos;{0}&apos; is infinitу..
         /// </summary>
         internal static string ExFieldIsInfinite {
