@@ -296,7 +296,7 @@ namespace Xtensive.Sql.Dom.Tests
       Assert.AreNotEqual(qr.Columns, qrClone.Columns);
       Assert.AreEqual(qr.NodeType, qrClone.NodeType);
       Assert.AreEqual(qr.Name, qrClone.Name);
-      Assert.AreEqual(qr.Query, qrClone.Query);
+      Assert.AreNotEqual(qr.Query, qrClone.Query);
       Assert.AreEqual(qr.Columns.Count, qrClone.Columns.Count);
 
       for (int i = 0, l = qr.Columns.Count; i < l; i++) {
