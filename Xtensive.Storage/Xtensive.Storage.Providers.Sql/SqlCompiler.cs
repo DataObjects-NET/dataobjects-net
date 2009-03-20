@@ -76,7 +76,7 @@ namespace Xtensive.Storage.Providers.Sql
           expr = SqlFactory.Avg(columns[col.SourceIndex]);
           break;
         case AggregateType.Count:
-          expr = SqlFactory.Count(columns[col.SourceIndex]);
+          expr = SqlFactory.Count(SqlFactory.Asterisk);
           break;
         case AggregateType.Max:
           expr = SqlFactory.Max(columns[col.SourceIndex]);
