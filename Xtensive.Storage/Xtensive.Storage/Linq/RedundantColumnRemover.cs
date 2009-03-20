@@ -25,6 +25,7 @@ namespace Xtensive.Storage.Linq
     private readonly Dictionary<Provider, List<int>> mapping;
     private readonly TupleAccessProcessor tupleAccessProcessor;
     private readonly ResultExpression origin;
+    private List<int> resultMap;
 
     internal ResultExpression RemoveRedundantColumn()
     {
@@ -43,7 +44,10 @@ namespace Xtensive.Storage.Linq
         var provider = origin.RecordSet.Provider;
         mapping.Add(provider, map);
         var resultProvider = Visit(provider);
-        var rs = ((CompilableProvider)resultProvider).Result;
+
+        resultMap = mapping[provider];
+        var rs = AddSelectProvider((CompilableProvider)resultProvider).Result;
+        
         var withAggregate = false;
         foreach (var item in mapping)
           if (item.Key.Type == ProviderType.Aggregate) {
@@ -60,13 +64,16 @@ namespace Xtensive.Storage.Linq
             if (group.HierarchyInfoRef.TypeName == rsGroup.HierarchyInfoRef.TypeName)
               groupMap.Add(originGroups.IndexOf(group));
 
-        var projector = withAggregate ? origin.Projector : (Expression<Func<RecordSet, object>>)tupleAccessProcessor.ReplaceMappings(origin.Projector, mapping[provider], groupMap);
-        var itemProjector = origin.ItemProjector == null ? null : (LambdaExpression)tupleAccessProcessor.ReplaceMappings(origin.ItemProjector, mapping[provider], groupMap);
+
+        var projector = withAggregate ? origin.Projector : (Expression<Func<RecordSet, object>>)tupleAccessProcessor.ReplaceMappings(origin.Projector, resultMap, groupMap);
+        var itemProjector = origin.ItemProjector == null ? null : (LambdaExpression)tupleAccessProcessor.ReplaceMappings(origin.ItemProjector, resultMap, groupMap);
         var result = new ResultExpression(origin.Type, rs, (origin.Mapping == null)? null : new ResultMapping(), projector, itemProjector);
         return result;
       }
       return origin;
     }
+
+    #region Visit methods
 
     protected override Provider VisitIndex(IndexProvider provider)
     {
@@ -91,10 +98,10 @@ namespace Xtensive.Storage.Linq
 
     protected override Provider VisitFilter(FilterProvider provider)
     {
-        List<int> value;
-        mapping.TryGetValue(provider, out value);
-        if (value != null)
-          mapping.Add(provider.Source, value.Union(tupleAccessProcessor.Process(provider.Predicate)).ToList());
+      List<int> value;
+      mapping.TryGetValue(provider, out value);
+      if (value != null)
+        mapping.Add(provider.Source, value.Union(tupleAccessProcessor.Process(provider.Predicate)).ToList());
       return base.VisitFilter(provider);
     }
 
@@ -117,9 +124,9 @@ namespace Xtensive.Storage.Linq
           }
           else
             break;
-       foreach(var item in provider.EqualIndexes)
-         joinMapLeft.Add(item.First);
-       mapping.Add(provider.Sources[0], joinMapLeft);
+        foreach(var item in provider.EqualIndexes)
+          joinMapLeft.Add(item.First);
+        mapping.Add(provider.Sources[0], joinMapLeft);
 
         for (int i = index; i < value.Count; i++ )
           joinMapRight.Add(value[i] - leftCount);
@@ -133,26 +140,26 @@ namespace Xtensive.Storage.Linq
 
     protected override Provider VisitSort(SortProvider provider)
     {
-        List<int> value;
-        mapping.TryGetValue(provider, out value);
-        if (value != null) {
-          var map = new List<int>();
-          foreach (var key in provider.Order.Keys)
-            map.Add(key);
-          mapping.Add(provider.Source, value.Union(map).ToList());
-        }
+      List<int> value;
+      mapping.TryGetValue(provider, out value);
+      if (value != null) {
+        var map = new List<int>();
+        foreach (var key in provider.Order.Keys)
+          map.Add(key);
+        mapping.Add(provider.Source, value.Union(map).ToList());
+      }
       return base.VisitSort(provider);
     }
 
     protected override Provider VisitReindex(ReindexProvider provider)
     {
-        List<int> value;
-        mapping.TryGetValue(provider, out value);
-        if (value != null) {
-          var map = new List<int>();
-          foreach (var key in provider.Order.Keys)
-            map.Add(key);
-          mapping.Add(provider.Source, value.Union(map).ToList());
+      List<int> value;
+      mapping.TryGetValue(provider, out value);
+      if (value != null) {
+        var map = new List<int>();
+        foreach (var key in provider.Order.Keys)
+          map.Add(key);
+        mapping.Add(provider.Source, value.Union(map).ToList());
       }
       return base.VisitReindex(provider);
     }
@@ -191,49 +198,53 @@ namespace Xtensive.Storage.Linq
       throw new NotImplementedException();
     }
 
+    #endregion
+
+    #region OnRecursionExit, OnRecursionEntrance methods
+
     protected override object OnRecursionExit(Provider provider)
     {
       switch (provider.Type) {
-        case ProviderType.Filter:
-        case ProviderType.Calculate:
+      case ProviderType.Filter:
+      case ProviderType.Calculate:
         break;
-        case ProviderType.Join:
-          List<int> left, right;
-          mapping.TryGetValue(provider.Sources[0], out left);
-          mapping.TryGetValue(provider.Sources[1], out right);
-          var count = ((JoinProvider) provider).Left.Header.Columns.Count;
-          foreach (var item in right)
-            left.Add(item + count);
-          left.Sort();
-          left = left.Distinct().ToList();
-          mapping[provider] = left;
-          var equalIndexes = ((JoinProvider) provider).EqualIndexes;
-          var result = new List<Pair<int>>();
-          foreach(var pair in equalIndexes)
-            result.Add(new Pair<int>(left.IndexOf(pair.First), right.IndexOf(pair.Second)));
-          return result.ToArray();
+      case ProviderType.Join:
+        List<int> left, right;
+        mapping.TryGetValue(provider.Sources[0], out left);
+        mapping.TryGetValue(provider.Sources[1], out right);
+        var count = ((JoinProvider) provider).Left.Header.Columns.Count;
+        foreach (var item in right)
+          left.Add(item + count);
+        left.Sort();
+        left = left.Distinct().ToList();
+        mapping[provider] = left;
+        var equalIndexes = ((JoinProvider) provider).EqualIndexes;
+        var result = new List<Pair<int>>();
+        foreach(var pair in equalIndexes)
+          result.Add(new Pair<int>(left.IndexOf(pair.First), right.IndexOf(pair.Second)));
+        return result.ToArray();
 
-        case ProviderType.Aggregate:
-          var value = ModifyMapping(provider);
-          var aProvider = (AggregateProvider) provider;
-          var columns = new List<AggregateColumnDescriptor>();
-          var groupIndexes = new List<int>();
-          foreach (var column in aProvider.AggregateColumns)
-            columns.Add(new AggregateColumnDescriptor(column.Name, value.IndexOf(column.SourceIndex), column.AggregateType));
-          foreach(var index in aProvider.GroupColumnIndexes)
-            groupIndexes.Add(value.IndexOf(index));
-          return new Pair<int[], AggregateColumnDescriptor[]> (groupIndexes.ToArray(), columns.ToArray());
+      case ProviderType.Aggregate:
+        var value = ModifyMapping(provider);
+        var aProvider = (AggregateProvider) provider;
+        var columns = new List<AggregateColumnDescriptor>();
+        var groupIndexes = new List<int>();
+        foreach (var column in aProvider.AggregateColumns)
+          columns.Add(new AggregateColumnDescriptor(column.Name, value.IndexOf(column.SourceIndex), column.AggregateType));
+        foreach(var index in aProvider.GroupColumnIndexes)
+          groupIndexes.Add(value.IndexOf(index));
+        return new Pair<int[], AggregateColumnDescriptor[]> (groupIndexes.ToArray(), columns.ToArray());
         
-        case ProviderType.Sort:
-          var map = ModifyMapping(provider);
-          var sProvider = (SortProvider) provider;
-          var orders = new DirectionCollection<int>();
-          foreach(KeyValuePair<int,Direction> order in sProvider.Order)
-            orders.Add(map.IndexOf(order.Key),order.Value);
-          return orders;
+      case ProviderType.Sort:
+        var map = ModifyMapping(provider);
+        var sProvider = (SortProvider) provider;
+        var orders = new DirectionCollection<int>();
+        foreach(KeyValuePair<int,Direction> order in sProvider.Order)
+          orders.Add(map.IndexOf(order.Key),order.Value);
+        return orders;
 
-        default:
-          ModifyMapping(provider);
+      default:
+        ModifyMapping(provider);
         break;
       }
       return null;
@@ -242,20 +253,22 @@ namespace Xtensive.Storage.Linq
     protected override void OnRecursionEntrance(Provider provider)
     {
       switch (provider.Type) {
-        case ProviderType.Index:
-        case ProviderType.Filter:
-        case ProviderType.Sort:
-        case ProviderType.Reindex:
-        case ProviderType.Join:
-        case ProviderType.Aggregate:
-        case ProviderType.Calculate:
-        case ProviderType.RowNumber:
-          break;
-        default:
-          AddValueToMapping(provider);
+      case ProviderType.Index:
+      case ProviderType.Filter:
+      case ProviderType.Sort:
+      case ProviderType.Reindex:
+      case ProviderType.Join:
+      case ProviderType.Aggregate:
+      case ProviderType.Calculate:
+      case ProviderType.RowNumber:
+        break;
+      default:
+        AddValueToMapping(provider);
         break;
       }
     }
+
+    #endregion
 
     #region Private methods
 
@@ -274,6 +287,21 @@ namespace Xtensive.Storage.Linq
       List<int> value;
       mapping.TryGetValue(provider, out value);
       mapping.Add(provider.Sources[0], value);
+    }
+
+    private CompilableProvider AddSelectProvider(CompilableProvider resultProvider)
+    {
+      var map = mapping[origin.RecordSet.Provider];
+      var projectorMap = tupleAccessProcessor.Process(origin.Projector);
+      //var projectorMap = origin.Mapping.GetColumns().Distinct().ToList();
+      if (projectorMap.Count > 0 && projectorMap.Count < map.Count) {
+        var columnIndexes = new int[projectorMap.Count];
+        for (int i = 0; i < projectorMap.Count; i++)
+          columnIndexes[i] = map.IndexOf(projectorMap[i]);
+        resultMap = projectorMap;
+        return new SelectProvider(resultProvider, columnIndexes);
+      }
+      return resultProvider;
     }
 
     #endregion
