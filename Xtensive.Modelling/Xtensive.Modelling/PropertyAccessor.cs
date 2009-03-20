@@ -48,6 +48,11 @@ namespace Xtensive.Modelling
     }
 
     /// <summary>
+    /// Gets or sets the default property value.
+    /// </summary>
+    public object Default { get; private set; }
+
+    /// <summary>
     /// Gets a value indicating whether this instance has setter.
     /// </summary>
     public bool HasSetter { get { return setter!=null; } }
@@ -69,6 +74,7 @@ namespace Xtensive.Modelling
 
     private void InnerInitialize<TType, TProperty>()
     {
+      Default = default(TProperty);
       var propertyInfo = PropertyInfo;
       if (propertyInfo.GetGetMethod()!=null) {
         var d = DelegateHelper.CreateGetMemberDelegate<TType, TProperty>(PropertyInfo.Name);

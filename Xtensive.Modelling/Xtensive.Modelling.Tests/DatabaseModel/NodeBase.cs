@@ -10,9 +10,8 @@ using System.Diagnostics;
 namespace Xtensive.Modelling.Tests.DatabaseModel
 {
   [Serializable]
-  public abstract class NodeBase<TParent, TModel> : Node<TParent, TModel>
+  public abstract class NodeBase<TParent> : Node<TParent, Server>
     where TParent : Node
-    where TModel : class, IModel
   {
     protected override void PerformCreate()
     {

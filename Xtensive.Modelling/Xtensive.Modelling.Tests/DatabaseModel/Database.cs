@@ -11,7 +11,7 @@ using Xtensive.Modelling.Attributes;
 namespace Xtensive.Modelling.Tests.DatabaseModel
 {
   [Serializable]
-  public class Database : NodeBase<Server, Server>
+  public class Database : NodeBase<Server>
   {
     private User owner;
 
@@ -21,13 +21,10 @@ namespace Xtensive.Modelling.Tests.DatabaseModel
     {
       get { return owner; }
       set {
+        EnsureIsEditable();
         if (value!=null && value.Model!=this.Model)
           throw new ArgumentOutOfRangeException("value.Model");
-        if (owner!=null)
-          owner.UsageCount--;
         owner = value;
-        if (owner!=null)
-          owner.UsageCount++;
       }
     }
 

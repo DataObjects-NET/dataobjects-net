@@ -11,10 +11,13 @@ using Xtensive.Modelling.Attributes;
 namespace Xtensive.Modelling.Tests.DatabaseModel
 {
   [Serializable]
-  public class Security : NodeBase<Server, Server>
+  public class Security : NodeBase<Server>
   {
     [Property]
     public UserCollection Users { get; private set; }
+
+    [Property]
+    public UserCollection Roles { get; private set; }
 
     protected override Nesting CreateNesting()
     {

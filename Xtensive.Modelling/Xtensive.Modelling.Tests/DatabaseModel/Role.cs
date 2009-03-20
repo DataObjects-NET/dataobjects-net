@@ -6,24 +6,25 @@
 
 using System;
 using System.Diagnostics;
+using Xtensive.Modelling.Attributes;
 
 namespace Xtensive.Modelling.Tests.DatabaseModel
 {
   [Serializable]
-  public class Schema : NodeBase<Database>
+  public class Role : NodeBase<Security>
   {
     protected override Nesting CreateNesting()
     {
-      return new Nesting<Schema, Database, SchemaCollection>(this, "Schemas");
+      return new Nesting<Role, Security, UserCollection>(this, "Roles");
     }
 
 
-    public Schema(Database parent, string name)
+    public Role(Security parent, string name)
       : base(parent, name)
     {
     }
 
-    public Schema(Database parent, string name, int index)
+    public Role(Security parent, string name, int index)
       : base(parent, name, index)
     {
     }

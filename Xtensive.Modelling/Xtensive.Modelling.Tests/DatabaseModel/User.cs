@@ -11,28 +11,18 @@ using Xtensive.Modelling.Attributes;
 namespace Xtensive.Modelling.Tests.DatabaseModel
 {
   [Serializable]
-  public class User : NodeBase<Security, Server>
+  public class User : NodeBase<Security>
   {
+    private string password;
+
     [Property]
-    public string Password { get; set; }
-
-    [Property(IgnoreInComparison = true)]
-    public int UsageCount { get; set; }
-
-    /// <exception cref="InvalidOperationException">UsageCount &gt; 0</exception>
-    protected override void ValidateRemove()
+    public string Password
     {
-      base.ValidateRemove();
-      if (UsageCount>0)
-        throw new InvalidOperationException("UsageCount > 0");
-    }
-
-    /// <exception cref="InvalidOperationException">UsageCount &lt; 0</exception>
-    protected override void ValidateState()
-    {
-      base.ValidateState();
-      if (UsageCount<0)
-        throw new InvalidOperationException("UsageCount < 0");
+      get { return password; }
+      set {
+        EnsureIsEditable();
+        password = value;
+      }
     }
 
     protected override Nesting CreateNesting()

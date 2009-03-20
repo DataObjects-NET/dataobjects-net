@@ -295,7 +295,20 @@ namespace Xtensive.Modelling
     /// </summary>
     protected virtual void ValidateState()
     {
-      return;
+      EnsureIsLive();
+      foreach (var pair in PropertyAccessors) {
+        if (!pair.Value.HasGetter)
+          continue;
+        var nested = GetNestedProperty(pair.Key);
+        if (nested!=null)
+          continue;
+        var value = GetProperty(pair.Key);
+        if (value==null)
+          continue;
+        var pathNode = value as IPathNode;
+        if (pathNode!=null)
+          pathNode.Validate();
+      }
     }
 
     #endregion
