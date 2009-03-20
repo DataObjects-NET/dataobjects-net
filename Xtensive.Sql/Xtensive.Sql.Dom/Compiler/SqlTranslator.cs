@@ -1085,15 +1085,17 @@ namespace Xtensive.Sql.Dom.Compiler
     public virtual string Translate(SqlCompilerContext context, SqlLike node, LikeSection section)
     {
       switch (section) {
+        case LikeSection.Entry:
+          return "(";
+        case LikeSection.Exit:
+          return ")";
         case LikeSection.Like:
-          if (node.Not)
-            return "NOT LIKE";
-          else
-            return "LIKE";
+          return node.Not ? "NOT LIKE" : "LIKE";
         case LikeSection.Escape:
           return "ESCAPE";
+        default:
+          return string.Empty;
       }
-      return string.Empty;
     }
 
     public virtual string Translate<T>(SqlCompilerContext context, SqlLiteral<T> node)
