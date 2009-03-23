@@ -163,9 +163,15 @@ namespace Xtensive.Storage.Providers.Sql
         return null;
 
       SqlSelect query;
-      bool shouldUseQueryRef = provider.Source is AggregateProvider || provider.Source is CalculateProvider;
+      bool shouldUseQueryRef =
+        provider.Source is AggregateProvider ||
+        provider.Source is CalculateProvider ||
+        provider.Source is ExistenceProvider;
       if (!shouldUseQueryRef && provider.Source is SelectProvider)
-        shouldUseQueryRef = provider.Source.Sources[0] is AggregateProvider || provider.Source.Sources[0] is CalculateProvider;
+        shouldUseQueryRef =
+          provider.Source.Sources[0] is AggregateProvider ||
+          provider.Source.Sources[0] is CalculateProvider ||
+          provider.Source.Sources[0] is ExistenceProvider;
       if (shouldUseQueryRef) {
         var queryRef = SqlFactory.QueryRef(source.Request.Statement as SqlSelect);
         query = SqlFactory.Select(queryRef);
@@ -183,14 +189,10 @@ namespace Xtensive.Storage.Providers.Sql
       if (predicate.NodeType == SqlNodeType.Literal) {
         var value = predicate as SqlLiteral<bool>;
         if (value != null) {
-          var b = value.Value;
-          if (!b)
+          if (!value.Value)
             query.Where &= (1 == 0);
         }
       }
-//      else if (predicate.NodeType == SqlNodeType.Parameter) {
-//        query.Where &= predicate == SqlFactory.Literal(1);
-//      }
       else
         query.Where &= predicate;
       request.ParameterBindings.UnionWith(bindings);
