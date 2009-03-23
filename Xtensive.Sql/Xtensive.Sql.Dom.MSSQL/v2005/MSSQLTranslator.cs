@@ -320,15 +320,11 @@ namespace Xtensive.Sql.Dom.Mssql.v2005
           if (node.Distinct)
             return (node.Top > 0) 
               ? "SELECT DISTINCT TOP " + node.Top 
-              : ("SELECT DISTINCT " + ((node.OrderBy.Count != 0)
-                ? "TOP 100 PERCENT" 
-                : string.Empty));
+              : "SELECT DISTINCT ";
           else
             return (node.Top > 0) 
               ? "SELECT TOP " + node.Top
-              : ("SELECT " + ((node.OrderBy.Count != 0)
-                ? "TOP 100 PERCENT" 
-                : string.Empty));
+              : "SELECT ";
         case SelectSection.Exit:
           if (node.Hints.Count == 0)
             return string.Empty;

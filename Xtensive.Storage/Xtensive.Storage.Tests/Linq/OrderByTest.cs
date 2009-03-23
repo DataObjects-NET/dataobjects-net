@@ -39,13 +39,13 @@ namespace Xtensive.Storage.Tests.Linq
     {
       using (Domain.OpenSession()) {
         using (Transaction.Open()) {
-          var contacts = Query<Customer>.All;
-          var original = contacts.Select(c => c.ContactName).AsEnumerable().Select(s =>s.ToUpper()).ToList();
+          var customers = Query<Customer>.All;
+          var original = customers.Select(c => c.ContactName).AsEnumerable().Select(s =>s.ToUpper()).ToList();
           Assert.Greater(original.Count, 0);
           original.Sort();
 
           var test = new List<string>(original.Count);
-          foreach (var item in contacts.OrderBy(c => c.ContactName.ToUpper()))
+          foreach (var item in customers.OrderBy(c => c.ContactName.ToUpper()))
             test.Add(item.ContactName.ToUpper());
 
           Assert.IsTrue(original.SequenceEqual(test));
@@ -53,74 +53,78 @@ namespace Xtensive.Storage.Tests.Linq
       }
     }
 
-    /*public void TestOrderBy()
-            {
-                TestQuery(
-                    db.Customers.OrderBy(c => c.CustomerID)
-                    );
-            }
+    [Test]
+    public void SelectTest()
+    {
+      using (Domain.OpenSession())
+      using (var t = Transaction.Open()) {
+        var result = Query<Customer>.All.OrderBy(c => c.CompanyName).Select(c => c.ContactName);
+        var list = result.ToList();
+        t.Complete();
+      }
+    }
 
-            public void TestOrderBySelect()
-            {
-                TestQuery(
-                    db.Customers.OrderBy(c => c.CustomerID).Select(c => c.ContactName)
-                    );
-            }
+    [Test]
+    public void OrderBySelectTest()
+    {
+      using (Domain.OpenSession())
+      using (var t = Transaction.Open()) {
+        var result = Query<Customer>.All.OrderBy(c => c.CompanyName).OrderBy(c => c.Address.Country).Select(c => c.Address.City);
+        var list = result.ToList();
+        t.Complete();
+      }
+    }
 
-            public void TestOrderByOrderBy()
-            {
-                TestQuery(
-                    db.Customers.OrderBy(c => c.CustomerID).OrderBy(c => c.Country).Select(c => c.City)
-                    );
-            }
+    [Test]
+    public void ThenByTest()
+    {
+      using (Domain.OpenSession())
+      using (var t = Transaction.Open()) {
+        var result = Query<Customer>.All.OrderBy(c => c.CompanyName).ThenBy(c => c.Address.Country).Select(c => c.Address.City);
+        var list = result.ToList();
+        t.Complete();
+      }
+    }
 
-            public void TestOrderByThenBy()
-            {
-                TestQuery(
-                    db.Customers.OrderBy(c => c.CustomerID).ThenBy(c => c.Country).Select(c => c.City)
-                    );
-            }
+    [Test]
+    public void OrderByDescendingTest()
+    {
+      using (Domain.OpenSession())
+      using (var t = Transaction.Open()) {
+        var result = Query<Customer>.All.OrderByDescending(c => c.CompanyName).ThenByDescending(c => c.Address.Country).Select(c => c.Address.City);
+        var list = result.ToList();
+        t.Complete();
+      }
+    }
 
-            public void TestOrderByDescending()
-            {
-                TestQuery(
-                    db.Customers.OrderByDescending(c => c.CustomerID).Select(c => c.City)
-                    );
-            }
+    [Test]
+    public void OrderByJoinTest()
+    {
+      using (Domain.OpenSession())
+      using (var t = Transaction.Open()) {
+        var result =
+          from c in Query<Customer>.All.OrderBy(c => c.ContactName)
+          join o in Query<Order>.All.OrderBy(o => o.OrderDate) on c equals o.Customer
+          select new {c.ContactName, o.OrderDate};
+        var list = result.ToList();
 
-            public void TestOrderByDescendingThenBy()
-            {
-                TestQuery(
-                    db.Customers.OrderByDescending(c => c.CustomerID).ThenBy(c => c.Country).Select(c => c.City)
-                    );
-            }
+        t.Complete();
+      }
+    }
 
-            public void TestOrderByDescendingThenByDescending()
-            {
-                TestQuery(
-                    db.Customers.OrderByDescending(c => c.CustomerID).ThenByDescending(c => c.Country).Select(c => c.City)
-                    );
-            }
-
-            public void TestOrderByJoin()
-            {
-                TestQuery(
-                    from c in db.Customers.OrderBy(c => c.CustomerID)
-                    join o in db.Orders.OrderBy(o => o.OrderID) on c.CustomerID equals o.CustomerID
-                    select new { c.CustomerID, o.OrderID }
-                    );
-            }
-
-            public void TestOrderBySelectMany()
-            {
-                TestQuery(
-                    from c in db.Customers.OrderBy(c => c.CustomerID)
-                    from o in db.Orders.OrderBy(o => o.OrderID)
-                    where c.CustomerID == o.CustomerID
-                    select new { c.ContactName, o.OrderID }
-                    );
-
-            }*/
-
+    [Test]
+    public void OrderBySelectManyTest()
+    {
+      using (Domain.OpenSession())
+      using (var t = Transaction.Open()) {
+        var result =
+          from c in Query<Customer>.All.OrderBy(c => c.ContactName)
+          from o in Query<Order>.All.OrderBy(o => o.OrderDate)
+          where c == o.Customer
+          select new { c.ContactName, o.OrderDate };
+        var list = result.ToList();
+        t.Complete();
+      }
+    }
   }
 }
