@@ -151,6 +151,15 @@ namespace Xtensive.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The argument must not be of type &apos;{0}&apos;..
+        /// </summary>
+        internal static string ExArgumentMustnotBeOfTypeX {
+            get {
+                return ResourceManager.GetString("ExArgumentMustnotBeOfTypeX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Argument should be in range [{0}...{1}]..
         /// </summary>
         internal static string ExArgumentShouldBeInRange {
@@ -489,6 +498,24 @@ namespace Xtensive.Core.Resources {
         internal static string ExEscapeCharacterMustDifferFromDelimiterCharacter {
             get {
                 return ResourceManager.GetString("ExEscapeCharacterMustDifferFromDelimiterCharacter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The expression having the different normal form must not be a root expression..
+        /// </summary>
+        internal static string ExExpressionHavingDifferentNormalFormMustNotBeRoot {
+            get {
+                return ResourceManager.GetString("ExExpressionHavingDifferentNormalFormMustNotBeRoot", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The expression having the equal normal form must be a root expression..
+        /// </summary>
+        internal static string ExExpressionHavingEqualNormalFormMustBeRoot {
+            get {
+                return ResourceManager.GetString("ExExpressionHavingEqualNormalFormMustBeRoot", resourceCulture);
             }
         }
         

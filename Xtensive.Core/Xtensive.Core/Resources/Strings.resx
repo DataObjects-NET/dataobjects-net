@@ -606,4 +606,13 @@
   <data name="ExExpressionMustReturnValueOfTypeX" xml:space="preserve">
     <value>The expression must return a value of type '{0}'.</value>
   </data>
+  <data name="ExArgumentMustnotBeOfTypeX" xml:space="preserve">
+    <value>The argument must not be of type '{0}'.</value>
+  </data>
+  <data name="ExExpressionHavingEqualNormalFormMustBeRoot" xml:space="preserve">
+    <value>The expression having the equal normal form must be a root expression.</value>
+  </data>
+  <data name="ExExpressionHavingDifferentNormalFormMustNotBeRoot" xml:space="preserve">
+    <value>The expression having the different normal form must not be a root expression.</value>
+  </data>
 </root>

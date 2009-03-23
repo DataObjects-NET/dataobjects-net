@@ -18,7 +18,6 @@ namespace Xtensive.Storage.Rse.Optimisation
 {
   internal static class RangeSetExpressionsBuilder
   {
-    private static readonly MethodInfo tupleDescriptorCreator;
     private static readonly MethodInfo tupleCreateMethod;
     private static readonly ConstructorInfo tupleUpdaterConstructor;
     private static readonly MethodInfo tupleUpdateMethod;
@@ -31,17 +30,20 @@ namespace Xtensive.Storage.Rse.Optimisation
     private static readonly MethodInfo uniteMethod;
     private static readonly MethodInfo invertMethod;
 
-    public static NewExpression BuildConstructor(Expression indexKeyValue, int keyFieldIndex,
+    public static Expression BuildConstructor(Expression indexKeyValue, int keyFieldIndex,
       ExpressionType comparisonType, Type[] indexedFieldTypes, IndexInfo indexInfo)
     {
       Expression firstEndpoint;
       Expression secondEndpoint;
       CreateRangeEndpoints(out firstEndpoint, out secondEndpoint, indexKeyValue, keyFieldIndex, comparisonType,
-                           indexedFieldTypes, indexInfo);
+                           indexInfo);
       NewExpression rangeConstruction = Expression.New(rangeContructor, firstEndpoint, secondEndpoint);
       //TODO:A comparer from index must be passed here.
-      return Expression.New(rangeSetConstructor, rangeConstruction,
-                            Expression.Constant(AdvancedComparer<Entire<Tuple>>.Default));
+      NewExpression result = Expression.New(rangeSetConstructor, rangeConstruction,
+                                         Expression.Constant(AdvancedComparer<Entire<Tuple>>.Default));
+      if (comparisonType != ExpressionType.NotEqual)
+        return result;
+      return BuildInvert(result);
     }
 
     public static NewExpression BuildFullRangeSetConstructor()
@@ -65,31 +67,30 @@ namespace Xtensive.Storage.Rse.Optimisation
     }
 
     private static void CreateRangeEndpoints(out Expression first, out Expression second,
-      Expression indexKeyValue, int fieldIndex, ExpressionType comparsionType, Type[] indexedFieldTypes,
-      IndexInfo indexInfo)
+      Expression indexKeyValue, int fieldIndex, ExpressionType comparsionType, IndexInfo indexInfo)
     {
-      if(comparsionType == ExpressionType.Equal) {
-        first = BuildShiftedEntireConstructor(indexKeyValue, fieldIndex, indexedFieldTypes, indexInfo, false);
-        second = BuildShiftedEntireConstructor(indexKeyValue, fieldIndex, indexedFieldTypes, indexInfo, true);
+      if (comparsionType == ExpressionType.Equal || comparsionType == ExpressionType.NotEqual) {
+        first = BuildShiftedEntireConstructor(indexKeyValue, fieldIndex, indexInfo, false);
+        second = BuildShiftedEntireConstructor(indexKeyValue, fieldIndex, indexInfo, true);
         return;
       }
       if(comparsionType == ExpressionType.LessThan) {
         first = BuildInfiniteEntire(false);
-        second = BuildShiftedEntireConstructor(indexKeyValue, fieldIndex, indexedFieldTypes, indexInfo, false);
+        second = BuildShiftedEntireConstructor(indexKeyValue, fieldIndex, indexInfo, false);
         return;
       }
       if (comparsionType == ExpressionType.LessThanOrEqual) {
         first = BuildInfiniteEntire(false);
-        second = BuildEntireConstructor(indexKeyValue, fieldIndex, indexedFieldTypes, indexInfo);
+        second = BuildEntireConstructor(indexKeyValue, fieldIndex, indexInfo);
         return;
       }
       if (comparsionType == ExpressionType.GreaterThan) {
-        first = BuildShiftedEntireConstructor(indexKeyValue, fieldIndex, indexedFieldTypes, indexInfo, true);
+        first = BuildShiftedEntireConstructor(indexKeyValue, fieldIndex, indexInfo, true);
         second = BuildInfiniteEntire(true);
         return;
       }
       if (comparsionType == ExpressionType.GreaterThanOrEqual) {
-        first = BuildEntireConstructor(indexKeyValue, fieldIndex, indexedFieldTypes, indexInfo);
+        first = BuildEntireConstructor(indexKeyValue, fieldIndex, indexInfo);
         second = BuildInfiniteEntire(true);
         return;
       }
@@ -97,18 +98,16 @@ namespace Xtensive.Storage.Rse.Optimisation
     }
 
     private static NewExpression BuildEntireConstructor(Expression tupleFieldValue, int fieldIndex,
-      Type[] indexedFieldTypes, IndexInfo indexInfo)
+      IndexInfo indexInfo)
     {
-      MethodCallExpression tupleCreation = BuildTupleCreation(tupleFieldValue, fieldIndex, indexedFieldTypes,
-        indexInfo);
+      MethodCallExpression tupleCreation = BuildTupleCreation(tupleFieldValue, fieldIndex, indexInfo);
       return Expression.New(entireConstructor, tupleCreation);
     }
 
     private static NewExpression BuildShiftedEntireConstructor(Expression tupleFieldValue,
-      int fieldIndex, Type[] indexedFieldTypes, IndexInfo indexInfo, bool positiveShift)
+      int fieldIndex, IndexInfo indexInfo, bool positiveShift)
     {
-      MethodCallExpression tupleCreation = BuildTupleCreation(tupleFieldValue, fieldIndex, indexedFieldTypes,
-        indexInfo);
+      MethodCallExpression tupleCreation = BuildTupleCreation(tupleFieldValue, fieldIndex, indexInfo);
       var shiftDirection = positiveShift ? Direction.Positive : Direction.Negative;
       return Expression.New(shiftedEntireConstutor, tupleCreation, Expression.Constant(shiftDirection));
     }
@@ -120,7 +119,7 @@ namespace Xtensive.Storage.Rse.Optimisation
     }
 
     private static MethodCallExpression BuildTupleCreation(Expression tupleFieldValue, int fieldIndex,
-      Type[] indexedFieldTypes, IndexInfo indexInfo)
+      IndexInfo indexInfo)
     {
       MethodCallExpression tupleCreation = Expression.Call(tupleCreateMethod,
         Expression.Constant(indexInfo.KeyTupleDescriptor));
@@ -133,7 +132,6 @@ namespace Xtensive.Storage.Rse.Optimisation
 
     static RangeSetExpressionsBuilder()
     {
-      tupleDescriptorCreator = typeof(TupleDescriptor).GetMethod("Create", new[] { typeof(Type[]) });
       tupleCreateMethod = typeof (Tuple).GetMethod("Create", new[] {typeof (TupleDescriptor)});
       tupleUpdaterConstructor = typeof(TupleUpdater).GetConstructor(new[] { typeof(Tuple) });
       tupleUpdateMethod = typeof(TupleUpdater).GetMethod("UpdateField");

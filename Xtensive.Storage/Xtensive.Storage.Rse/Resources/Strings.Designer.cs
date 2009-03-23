@@ -106,11 +106,47 @@ namespace Xtensive.Storage.Rse.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The expression must return a value of type &apos;{0}&apos;..
+        /// </summary>
+        internal static string ExExpressionMustReturnValueOfTypeX {
+            get {
+                return ResourceManager.GetString("ExExpressionMustReturnValueOfTypeX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Invalid field name &apos;{0}&apos;..
         /// </summary>
         internal static string ExInvalidFieldNameX {
             get {
                 return ResourceManager.GetString("ExInvalidFieldNameX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The normalized boolean expression must be the root expression..
+        /// </summary>
+        internal static string ExNormalizedExpressionMustBeRoot {
+            get {
+                return ResourceManager.GetString("ExNormalizedExpressionMustBeRoot", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The normalized boolean expression must have the &apos;{0}&apos; form..
+        /// </summary>
+        internal static string ExNormalizedExpressionMustHaveXForm {
+            get {
+                return ResourceManager.GetString("ExNormalizedExpressionMustHaveXForm", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The normalized boolean expression must not be the root expression..
+        /// </summary>
+        internal static string ExNormalizedExpressionMustNotBeRoot {
+            get {
+                return ResourceManager.GetString("ExNormalizedExpressionMustNotBeRoot", resourceCulture);
             }
         }
         

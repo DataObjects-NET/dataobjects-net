@@ -147,4 +147,16 @@
   <data name="NotAvailable" xml:space="preserve">
     <value>n/a</value>
   </data>
+  <data name="ExExpressionMustReturnValueOfTypeX" xml:space="preserve">
+    <value>The expression must return a value of type '{0}'.</value>
+  </data>
+  <data name="ExNormalizedExpressionMustHaveXForm" xml:space="preserve">
+    <value>The normalized boolean expression must have the '{0}' form.</value>
+  </data>
+  <data name="ExNormalizedExpressionMustBeRoot" xml:space="preserve">
+    <value>The normalized boolean expression must be the root expression.</value>
+  </data>
+  <data name="ExNormalizedExpressionMustNotBeRoot" xml:space="preserve">
+    <value>The normalized boolean expression must not be the root expression.</value>
+  </data>
 </root>

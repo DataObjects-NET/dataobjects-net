@@ -13,6 +13,7 @@ using System.Reflection;
 using System.Text;
 using NUnit.Framework;
 using Xtensive.Core;
+using Xtensive.Core.Linq;
 using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
 using Xtensive.Storage.Attributes;
@@ -72,13 +73,21 @@ namespace Xtensive.Storage.Tests.Rse
       cNameIdx = GetFieldIndex(rsHeader, cName);
       cLengthIdx = GetFieldIndex(rsHeader, cLength);
       cFeaturesIdx = GetFieldIndex(rsHeader, cFeatures);
-      Expression<Func<Tuple, bool>> exp =
+      NormalizedBooleanExpression exp = new NormalizedBooleanExpression(NormalFormType.Disjunctive, true);
+      Expression<Func<Tuple, bool>> tupleExp = (t) => t.GetValue<int?>(cLengthIdx) >= 3;
+      NormalizedBooleanExpression cnf = new NormalizedBooleanExpression(NormalFormType.Conjunctive, tupleExp.Body);
+      tupleExp = (t) => t.GetValue<int?>(cLengthIdx) < 6;
+      cnf.AddBooleanExpression(tupleExp.Body);
+      exp.AddNormalizedExpression(cnf);
+      tupleExp = (t) => t.GetValue<int?>(cLengthIdx) >= 10;
+      exp.AddNormalizedExpression(new NormalizedBooleanExpression(NormalFormType.Conjunctive, tupleExp.Body));
+      /*Expression<Func<Tuple, bool>> exp =
         (t) => t.GetValue<int?>(cLengthIdx) >= 3 &&
                t.GetValue<int?>(cLengthIdx) < 6 ||
-               t.GetValue<int?>(cLengthIdx) >= 10;
+               t.GetValue<int?>(cLengthIdx) >= 10;*/
       RangeSetExtractor extractor = new RangeSetExtractor(Domain.Model);
       var rangeSetExp = extractor.Extract(exp, indexInfo, rsHeader);
-      RangeSet<Entire<Tuple>> result = (RangeSet<Entire<Tuple>>)rangeSetExp.Compile().DynamicInvoke();
+      RangeSet<Entire<Tuple>> result = (RangeSet<Entire<Tuple>>)rangeSetExp.GetResult().Compile().DynamicInvoke();
       Assert.AreEqual(2, result.Count());
       Entire<Tuple> expectedFirst = new Entire<Tuple>(CreateTuple(indexInfo.KeyTupleDescriptor, cLengthIdx, 3));
       Entire<Tuple> expectedSecond = new Entire<Tuple>(CreateTuple(indexInfo.KeyTupleDescriptor, cLengthIdx, 6),

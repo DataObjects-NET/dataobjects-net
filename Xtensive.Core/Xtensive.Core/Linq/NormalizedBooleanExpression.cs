@@ -30,37 +30,54 @@ namespace Xtensive.Core.Linq
 
     public readonly NormalFormType NormalForm;
 
-    ///<summary>
-    /// Adds the term <paramref name="other"/> to the inner collection.
-    /// If <paramref name="other"/> is NormalizedBooleanExpression having <c>NormalForm</c> 
-    /// equal to <c>NormalForm</c> of this instance, then the method adds all terms containing 
-    /// in <paramref name="other"/> to the inner collection.
-    ///</summary>
-    ///<param name="other"></param>
-    public void AddTerm(Expression other)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(other, "other");
-      var otherNormalized = other as NormalizedBooleanExpression;
-      if (otherNormalized != null)
-        AddNormalizedExpression(otherNormalized);
-      else
-        AddBooleanExpression(other);
-    }
+    public readonly bool IsRoot;
 
-    private void AddBooleanExpression(Expression otherBoolean)
+    /// <summary>
+    /// Adds a child expression.
+    /// </summary>
+    /// <param name="otherBoolean">The expression to be added.</param>
+    public void AddBooleanExpression(Expression otherBoolean)
     {
+      ArgumentValidator.EnsureArgumentNotNull(otherBoolean, "otherBoolean");
       if (otherBoolean.Type != typeof(bool))
         throw new ArgumentException(String.
-          Format(Resources.Strings.ExExpressionMustReturnValueOfTypeX, typeof(bool)));
+          Format(Resources.Strings.ExExpressionMustReturnValueOfTypeX, typeof(bool)), "otherBoolean");
       terms.Add(otherBoolean);
     }
 
-    private void AddNormalizedExpression(NormalizedBooleanExpression otherNormalized)
+    ///<summary>
+    /// Adds a child expression.
+    ///</summary>
+    ///<param name="otherNormalized">The expression to be added.</param>
+    public void AddNormalizedExpression(NormalizedBooleanExpression otherNormalized)
     {
+      ArgumentValidator.EnsureArgumentNotNull(otherNormalized, "otherNormalized");
       if (otherNormalized.NormalForm == NormalForm)
+        AddExpWithEqualNormalForm(otherNormalized);
+      else
+        AddExpWithDifferentNormalForm(otherNormalized);
+    }
+
+    private void AddExpWithEqualNormalForm(NormalizedBooleanExpression otherNormalized)
+    {
+      if (otherNormalized.IsRoot) {
         foreach (var term in otherNormalized) {
           terms.Add(term);
         }
+      }
+      else {
+        throw new ArgumentException(Resources.Strings.ExExpressionHavingEqualNormalFormMustBeRoot,
+          "otherNormalized");
+      }
+    }
+
+    private void AddExpWithDifferentNormalForm(NormalizedBooleanExpression otherNormalized)
+    {
+      if (otherNormalized.IsRoot) {
+        throw new ArgumentException(Resources.Strings.ExExpressionHavingDifferentNormalFormMustNotBeRoot,
+          "otherNormalized");
+      }
+      terms.Add(otherNormalized);
     }
 
     #region Implementation of IEnumerable
@@ -81,12 +98,28 @@ namespace Xtensive.Core.Linq
     /// Constructor.
     ///</summary>
     ///<param name="normalForm">The type of normal form.</param>
-    public NormalizedBooleanExpression(NormalFormType normalForm)
+    ///<param name="isRoot">Specifies whether object being created will represent root expression or child expression.</param>
+    public NormalizedBooleanExpression(NormalFormType normalForm, bool isRoot)
       //The real value of nodeType doesn't matter.
       : base(normalForm == NormalFormType.Conjunctive ? ExpressionType.And : ExpressionType.Or,
              typeof(bool))
     {
+      IsRoot = isRoot;
       NormalForm = normalForm;
+    }
+
+    /// <summary>
+    /// Creates a object representing a child normalized expression (i.e. NCF is a child for NDF).
+    /// </summary>
+    /// <param name="normalForm">The type of normal form.</param>
+    /// <param name="firstChild">The first child (it must be a boolean expression).</param>
+    public NormalizedBooleanExpression(NormalFormType normalForm, Expression firstChild)
+      :this(normalForm, false)
+    {
+      if (firstChild is NormalizedBooleanExpression)
+        throw new ArgumentException(String.Format(Resources.Strings.ExArgumentMustnotBeOfTypeX, "firstChild",
+          typeof(NormalizedBooleanExpression)));
+      AddBooleanExpression(firstChild);
     }
   }
 }
