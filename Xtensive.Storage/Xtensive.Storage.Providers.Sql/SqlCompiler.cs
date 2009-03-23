@@ -5,6 +5,7 @@
 // Created:    2009.02.13
 
 using System;
+using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Indexing;
 using Xtensive.Storage.Providers.Sql.Mappings;
@@ -125,9 +126,9 @@ namespace Xtensive.Storage.Providers.Sql
       var query = (SqlSelect)request.Statement;
 
       foreach (var column in provider.CalculatedColumns) {
-        var translator = new ExpressionProcessor(this, Handlers.Domain.Model, column.Expression, query);
-        var predicate = translator.Translate();
-        var bindings = translator.Bindings;
+        var result = TranslateExpression(column.Expression, query);
+        var predicate = result.First;
+        var bindings = result.Second.Bindings;
         query.Columns.Add(predicate, column.Name);
         request.ParameterBindings.UnionWith(bindings);
       }
@@ -176,9 +177,9 @@ namespace Xtensive.Storage.Providers.Sql
       var request = new SqlFetchRequest(query, provider.Header);
       
       query = (SqlSelect)request.Statement;
-      var visitor = new ExpressionProcessor(this, Handlers.Domain.Model, provider.Predicate, query);
-      var predicate = visitor.Translate();
-      var bindings = visitor.Bindings;
+      var result = TranslateExpression(provider.Predicate, query);
+      var predicate = result.First;
+      var bindings = result.Second.Bindings;
       if (predicate.NodeType == SqlNodeType.Literal) {
         var value = predicate as SqlLiteral<bool>;
         if (value != null) {
@@ -187,9 +188,9 @@ namespace Xtensive.Storage.Providers.Sql
             query.Where &= (1 == 0);
         }
       }
-      else if (predicate.NodeType == SqlNodeType.Parameter) {
-        query.Where &= predicate == SqlFactory.Literal(1);
-      }
+//      else if (predicate.NodeType == SqlNodeType.Parameter) {
+//        query.Where &= predicate == SqlFactory.Literal(1);
+//      }
       else
         query.Where &= predicate;
       request.ParameterBindings.UnionWith(bindings);
@@ -246,9 +247,9 @@ namespace Xtensive.Storage.Providers.Sql
       var leftQuery = SqlFactory.QueryRef(leftSelect);
       var rightSelect = (SqlSelect)right.Request.Statement;
       var rightQuery = SqlFactory.QueryRef(rightSelect);
-      var visitor = new ExpressionProcessor(this, Handlers.Domain.Model, provider.Predicate, leftSelect, rightSelect);
-      var predicate = visitor.Translate();
-      var bindings = visitor.Bindings;
+      var result = TranslateExpression(provider.Predicate, leftSelect, rightSelect);
+      var predicate = result.First;
+      var bindings = result.Second.Bindings;
       var joinedTable = SqlFactory.Join(
         provider.LeftJoin ? SqlJoinType.LeftOuterJoin : SqlJoinType.InnerJoin,
         leftQuery,
@@ -539,7 +540,34 @@ namespace Xtensive.Storage.Providers.Sql
       return new SqlProvider(provider, request, Handlers, source);
     }
 
+    /// <summary>
+    /// Preprocesses (transforms before actual compilation to SQL) specified <see cref="LambdaExpression"/>.
+    /// Can be overrided in derived classes for making custom preprocess logic.
+    /// </summary>
+    /// <param name="lambda">Expression to preprocess.</param>
+    /// <returns>Preprocessed expression.</returns>
+    protected virtual LambdaExpression PreprocessExpression(LambdaExpression lambda)
+    {
+      return lambda;
+    }
+
+    /// <summary>
+    /// Postprocesses (transforms SqlDom trees) specified <see cref="SqlExpression"/>
+    /// </summary>
+    /// <param name="expression">Expression to postprocess.</param>
+    /// <returns>Postprocessed expression.</returns>
+    protected virtual SqlExpression PostprocessExpression(SqlExpression expression)
+    {
+      return expression;
+    }
+
     #region Private methods.
+
+    private Pair<SqlExpression, ExpressionProcessor> TranslateExpression(LambdaExpression le, params SqlSelect[] selects)
+    {
+      var result = new ExpressionProcessor(this, Handlers.Domain.Model, PreprocessExpression(le), selects);
+      return new Pair<SqlExpression, ExpressionProcessor>(PostprocessExpression(result.Translate()), result);
+    }
 
     private SqlSelect BuildProviderQuery(IndexInfo index)
     {

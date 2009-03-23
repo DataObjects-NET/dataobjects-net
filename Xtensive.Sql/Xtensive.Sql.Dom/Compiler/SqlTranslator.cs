@@ -325,11 +325,11 @@ namespace Xtensive.Sql.Dom.Compiler
     {
       switch (section) {
         case CaseSection.Entry:
-          return "CASE";
+          return "(CASE";
         case CaseSection.Else:
           return "ELSE";
         case CaseSection.Exit:
-          return "END";
+          return "END)";
       }
       return string.Empty;
     }

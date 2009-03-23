@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Xtensive.Core;
 using Xtensive.Core.Linq;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Reflection;
@@ -19,10 +18,10 @@ using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Linq;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings;
+using Xtensive.Storage.Providers.Sql.Resources;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Compilation;
 using SqlFactory = Xtensive.Sql.Dom.Sql;
-using Xtensive.Storage.Providers.Sql.Resources;
 
 namespace Xtensive.Storage.Providers.Sql.Expressions
 {
@@ -49,17 +48,10 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     private readonly Dictionary<ParameterExpression, SqlSelect> parameterMapping;
     private bool executed;
 
-    public HashSet<SqlFetchParameterBinding> Bindings
-    {
-      get { return bindings; }
-    }
+    public HashSet<SqlFetchParameterBinding> Bindings { get { return bindings; } }
+    public DomainModel Model { get { return model; } }
 
     public ICompiler Compiler { get; private set; }
-
-    public DomainModel Model
-    {
-      get { return model; }
-    }
 
     public SqlExpression Translate()
     {

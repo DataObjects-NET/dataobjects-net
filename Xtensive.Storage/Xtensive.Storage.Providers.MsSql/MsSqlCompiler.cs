@@ -7,8 +7,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Sql.Common;
+using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Providers.Sql;
 using SqlFactory = Xtensive.Sql.Dom.Sql;
@@ -21,6 +24,31 @@ namespace Xtensive.Storage.Providers.MsSql
   [Serializable]
   public class MsSqlCompiler : SqlCompiler
   {
+    protected override ExecutableProvider VisitExistence(ExistenceProvider provider)
+    {
+      var result = (SqlProvider) base.VisitExistence(provider);
+      if (result == null)
+        return null;
+      var select = (SqlSelect) result.Request.Statement;
+      ReplaceBooleanColumn(select, provider.Header.Columns.Count - 1);
+      return result;
+    }
+
+    protected override ExecutableProvider VisitCalculate(CalculateProvider provider)
+    {
+      var result = (SqlProvider)base.VisitCalculate(provider);
+      if (result == null)
+        return null;
+      var select = (SqlSelect) result.Request.Statement;
+      int columnsCount = provider.Header.Columns.Count;
+
+      for (int i = provider.Source.Header.Columns.Count; i < columnsCount; i++)
+        if (provider.Header.Columns[i].Type == typeof(bool))
+          ReplaceBooleanColumn(select, i);
+
+      return result;
+    }
+
     protected override ExecutableProvider VisitSkip(SkipProvider provider)
     {
       const string rowNumber = "RowNumber";
@@ -111,6 +139,76 @@ namespace Xtensive.Storage.Providers.MsSql
       return new SqlProvider(provider, request, Handlers, left, right);
     }
 
+    /// <inheritdoc/>
+    protected override LambdaExpression PreprocessExpression(LambdaExpression lambda)
+    {
+      return ExpressionPreprocessor.Preprocess(lambda);
+    }
+
+    protected override SqlExpression PostprocessExpression(SqlExpression expression)
+    {
+      if (expression.NodeType == SqlNodeType.Parameter)
+        return SqlFactory.NotEquals(expression, 0);
+
+      if (expression.NodeType == SqlNodeType.Not) {
+        var operand = ((SqlUnary)expression).Operand;
+        if (operand.NodeType == SqlNodeType.Parameter)
+          return SqlFactory.Equals(operand, 0);
+        return expression;
+      }
+      // expression = (SqlExpression) expression.Clone();
+      ReplaceBooleanParameters(expression);
+      return expression;
+    }
+
+    private static void ReplaceBooleanParameters(SqlExpression expression)
+    {
+      var binary = expression as SqlBinary;
+      if (binary == null)
+        return;
+
+      var left = binary.Left;
+      var right = binary.Right;
+
+      switch (expression.NodeType) {
+        case SqlNodeType.Or:
+        case SqlNodeType.And:
+          break;
+        default:
+          return;
+      }
+
+      if (left.NodeType == SqlNodeType.Parameter)
+        left = SqlFactory.NotEquals(left, 0);
+      else
+        ReplaceBooleanParameters(left);
+
+      if (right.NodeType == SqlNodeType.Parameter)
+        right = SqlFactory.NotEquals(right, 0);
+      else
+        ReplaceBooleanParameters(right);
+
+      switch (binary.NodeType) {
+        case SqlNodeType.Or:
+          binary.ReplaceWith(SqlFactory.Or(left, right));
+          break;
+        case SqlNodeType.And:
+          binary.ReplaceWith(SqlFactory.And(left, right));
+          break;
+      }
+    }
+
+    private static void ReplaceBooleanColumn(SqlSelect select, int index)
+    {
+      var columnRef = (SqlColumnRef) select.Columns[index];
+      var oldExpression = ((SqlUserColumn)columnRef.SqlColumn).Expression;
+      var caseExpression = SqlFactory.Case();
+      caseExpression.Add(oldExpression, 1);
+      caseExpression.Else = 0;
+      var newExpression = SqlFactory.Cast(caseExpression, SqlDataType.Boolean);
+      select[index].ReplaceWith(SqlFactory.ColumnRef(SqlFactory.Column(newExpression), columnRef.Name));
+    }
+    
     // Constructor
 
     /// <summary>
