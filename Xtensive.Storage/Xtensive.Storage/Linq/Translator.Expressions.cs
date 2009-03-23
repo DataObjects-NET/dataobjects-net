@@ -202,7 +202,7 @@ namespace Xtensive.Storage.Linq
             var key = pair.Key.TryCutPrefix(name).TrimStart('.');
             resultMapping.Value.RegisterFieldMapping(key, pair.Value);
           }
-          resultMapping.Value.RegisterFieldMapping(string.Format(SurrogateKeyNameFormatString,groupIndex), new Segment<int>(keyOffset, keyLength));
+          resultMapping.Value.RegisterFieldMapping(string.Format(SurrogateKeyNameFormatString, groupIndex), new Segment<int>(keyOffset, keyLength));
           return result;
         }
         case MemberType.Entity: {
@@ -259,98 +259,26 @@ namespace Xtensive.Storage.Linq
       return base.VisitUnary(u);
     }
 
-    protected override Expression VisitBinary(BinaryExpression b)
+    protected override Expression VisitBinary(BinaryExpression binaryExpression)
     {
-      var memberType = b.Left.GetMemberType();
-      switch (memberType) {
+      switch (binaryExpression.Left.GetMemberType()) {
         case MemberType.Unknown:
         case MemberType.Primitive:
           break;
         case MemberType.Key:
+          return VisitBinaryKey(binaryExpression);
         case MemberType.Entity:
+          return VisitBinaryEntity(binaryExpression);
         case MemberType.Anonymous:
-        case MemberType.Structure: {
-          Expression result = null;
-          bool isKey = memberType==MemberType.Key;
-          bool isEntity = memberType==MemberType.Entity;
-          bool isAnonymous = memberType==MemberType.Anonymous;
-          bool leftIsParameter = context.ParameterExtractor.IsParameter(b.Left);
-          bool rightIsParameter = context.ParameterExtractor.IsParameter(b.Right);
-          if (b.NodeType!=ExpressionType.Equal && b.NodeType!=ExpressionType.NotEqual)
-            throw new NotSupportedException();
-          if (isKey) {
-            if (!leftIsParameter && !rightIsParameter)
-              result = MakeComplexBinaryExpression(b.Left, b.Right, b.NodeType);
-            else {
-              var bLeft = b.Left;
-              var bRight = b.Right;
-              if (leftIsParameter) {
-                bLeft = b.Right;
-                bRight = b.Left;
-              }
-              var path = MemberPath.Parse(bLeft, context.Model);
-              if (!parameters.Value.Contains(path.Parameter))
-                throw new NotSupportedException();
-              var source = context.GetBound(path.Parameter);
-              var segment = source.GetMemberSegment(path);
-              foreach (var pair in segment.GetItems().Select((ci, pi) => new {ColumnIndex = ci, ParameterIndex = pi})) {
-                Expression left = MakeTupleAccess(path.Parameter, null, Expression.Constant(pair.ColumnIndex));
-                Expression right = Expression.Condition(
-                  Expression.Equal(bRight, Expression.Constant(null, bRight.Type)),
-                  Expression.Constant(null, typeof (object)),
-                  Expression.Call(Expression.MakeMemberAccess(bRight, keyValueAccessor), nonGenericAccessor, Expression.Constant(pair.ParameterIndex)));
-                result = MakeBinaryExpression(result, left, right, b.NodeType);
-              }
-            }
-          }
-          else if (isEntity) {
-            if (!leftIsParameter && !rightIsParameter) {
-              var bLeft = b.Left.NodeType==ExpressionType.Constant && ((ConstantExpression) b.Left).Value==null ? b.Left : Expression.MakeMemberAccess(b.Left, keyAccessor);
-              var bRight = b.Right.NodeType==ExpressionType.Constant && ((ConstantExpression) b.Right).Value==null ? b.Right : Expression.MakeMemberAccess(b.Right, keyAccessor);
-              result = MakeComplexBinaryExpression(bLeft, bRight, b.NodeType);
-            }
-            else {
-              var bLeft = Expression.MakeMemberAccess(b.Left, keyAccessor);
-              var bRight = b.Right;
-              if (leftIsParameter) {
-                bLeft = Expression.MakeMemberAccess(b.Right, keyAccessor);
-                bRight = b.Left;
-              }
-              var path = MemberPath.Parse(bLeft, context.Model);
-              if (!parameters.Value.Contains(path.Parameter))
-                throw new NotSupportedException();
-              var source = context.GetBound(path.Parameter);
-              var segment = source.GetMemberSegment(path);
-              foreach (var pair in segment.GetItems().Select((ci, pi) => new {ColumnIndex = ci, ParameterIndex = pi})) {
-                Expression left = MakeTupleAccess(path.Parameter, null, Expression.Constant(pair.ColumnIndex));
-                Expression right = Expression.Condition(
-                  Expression.Equal(bRight, Expression.Constant(null, bRight.Type)),
-                  Expression.Constant(null, typeof (object)),
-                  Expression.Call(
-                    Expression.MakeMemberAccess(Expression.MakeMemberAccess(bRight, keyAccessor), keyValueAccessor),
-                    nonGenericAccessor, Expression.Constant(pair.ParameterIndex)));
-                result = MakeBinaryExpression(result, left, right, b.NodeType);
-              }
-            }
-          }
-          else if (isAnonymous) {
-            if (!leftIsParameter && !rightIsParameter)
-              return MakeComplexBinaryExpression(b.Left, b.Right, b.NodeType);
-            throw new NotSupportedException();
-          }
-          else {
-            if (!leftIsParameter && !rightIsParameter)
-              return MakeComplexBinaryExpression(b.Left, b.Right, b.NodeType);
-            throw new NotSupportedException();
-          }
-          return result;
-        }
+          return VisitBinaryAnonimouse(binaryExpression);
+        case MemberType.Structure:
+          return VisitBinaryStructure(binaryExpression);
         case MemberType.EntitySet:
           throw new NotSupportedException();
         default:
           throw new ArgumentOutOfRangeException();
       }
-      return base.VisitBinary(b);
+      return base.VisitBinary(binaryExpression);
     }
 
     protected override Expression VisitParameter(ParameterExpression p)
@@ -369,11 +297,11 @@ namespace Xtensive.Storage.Linq
     {
       if (context.Evaluator.CanBeEvaluated(ma) && context.ParameterExtractor.IsParameter(ma))
         return ma;
-      if (ma.Expression == null) {
+      if (ma.Expression==null) {
         if (typeof (IQueryable).IsAssignableFrom(ma.Type)) {
           var lambda = Expression.Lambda<Func<IQueryable>>(ma).Compile();
           var rootPoint = lambda();
-          if (rootPoint != null)
+          if (rootPoint!=null)
             return ConstructQueryable(rootPoint);
         }
       }
@@ -382,7 +310,7 @@ namespace Xtensive.Storage.Linq
         if (rfi!=null && (rfi.FieldType.IsGenericType && typeof (IQueryable).IsAssignableFrom(rfi.FieldType))) {
           var lambda = Expression.Lambda<Func<IQueryable>>(ma).Compile();
           var rootPoint = lambda();
-          if (rootPoint != null)
+          if (rootPoint!=null)
             return ConstructQueryable(rootPoint);
         }
       }
@@ -396,7 +324,7 @@ namespace Xtensive.Storage.Linq
         return base.VisitNew(n);
       for (int i = 0; i < n.Arguments.Count; i++) {
         var arg = n.Arguments[i];
-        var newArg = (Expression) null;
+        Expression newArg;
         var member = n.Members[i];
         var memberName = member.Name.TryCutPrefix(WellKnown.GetterPrefix);
         Func<string, string> rename = key => key.IsNullOrEmpty()
@@ -572,6 +500,121 @@ namespace Xtensive.Storage.Linq
         : genericAccessor.MakeGenericMethod(accessorType);
 
       return Expression.Call(target, method, index);
+    }
+
+    #endregion
+
+    #region VisitBinary implementations
+
+    private Expression VisitBinaryKey(BinaryExpression binaryExpression)
+    {
+      if (binaryExpression.NodeType!=ExpressionType.Equal && binaryExpression.NodeType!=ExpressionType.NotEqual)
+        throw new NotSupportedException();
+
+      bool leftIsParameter = context.ParameterExtractor.IsParameter(binaryExpression.Left);
+      bool rightIsParameter = context.ParameterExtractor.IsParameter(binaryExpression.Right);
+
+      if (!leftIsParameter && !rightIsParameter)
+        return MakeComplexBinaryExpression(binaryExpression.Left, binaryExpression.Right, binaryExpression.NodeType);
+
+      var bLeft = binaryExpression.Left;
+      var bRight = binaryExpression.Right;
+      if (leftIsParameter) {
+        bLeft = binaryExpression.Right;
+        bRight = binaryExpression.Left;
+      }
+
+      var path = MemberPath.Parse(bLeft, context.Model);
+      if (!parameters.Value.Contains(path.Parameter))
+        throw new NotSupportedException();
+
+      var source = context.GetBound(path.Parameter);
+      var segment = source.GetMemberSegment(path);
+      Expression result = null;
+      foreach (var pair in segment.GetItems().Select((ci, pi) => new {ColumnIndex = ci, ParameterIndex = pi})) {
+        Expression left = MakeTupleAccess(path.Parameter, null, Expression.Constant(pair.ColumnIndex));
+        Expression right = Expression.Condition(
+          Expression.Equal(bRight, Expression.Constant(null, bRight.Type)),
+          Expression.Constant(null, typeof (object)),
+          Expression.Call(Expression.MakeMemberAccess(bRight, keyValueAccessor), nonGenericAccessor, Expression.Constant(pair.ParameterIndex)));
+        result = MakeBinaryExpression(result, left, right, binaryExpression.NodeType);
+      }
+      return result;
+    }
+
+    private Expression VisitBinaryEntity(BinaryExpression binaryExpression)
+    {
+      if (binaryExpression.NodeType!=ExpressionType.Equal && binaryExpression.NodeType!=ExpressionType.NotEqual)
+        throw new NotSupportedException();
+
+      bool leftIsParameter = context.ParameterExtractor.IsParameter(binaryExpression.Left);
+      bool rightIsParameter = context.ParameterExtractor.IsParameter(binaryExpression.Right);
+
+      if (!leftIsParameter && !rightIsParameter) {
+        var bLeft = binaryExpression.Left.NodeType==ExpressionType.Constant && ((ConstantExpression) binaryExpression.Left).Value==null 
+          ? binaryExpression.Left 
+          : Expression.MakeMemberAccess(binaryExpression.Left, keyAccessor);
+        var bRight = binaryExpression.Right.NodeType==ExpressionType.Constant && ((ConstantExpression) binaryExpression.Right).Value==null 
+          ? binaryExpression.Right 
+          : Expression.MakeMemberAccess(binaryExpression.Right, keyAccessor);
+        return MakeComplexBinaryExpression(bLeft, bRight, binaryExpression.NodeType);
+      }
+      else {
+        var bLeft = Expression.MakeMemberAccess(binaryExpression.Left, keyAccessor);
+        var bRight = binaryExpression.Right;
+        if (leftIsParameter) {
+          bLeft = Expression.MakeMemberAccess(binaryExpression.Right, keyAccessor);
+          bRight = binaryExpression.Left;
+        }
+
+        var path = MemberPath.Parse(bLeft, context.Model);
+        if (!parameters.Value.Contains(path.Parameter))
+          throw new NotSupportedException();
+
+        var source = context.GetBound(path.Parameter);
+        var segment = source.GetMemberSegment(path);
+
+        Expression result = null;
+        foreach (var pair in segment.GetItems().Select((ci, pi) => new {ColumnIndex = ci, ParameterIndex = pi})) {
+          Expression left = MakeTupleAccess(path.Parameter, null, Expression.Constant(pair.ColumnIndex));
+          Expression right = Expression.Condition(
+            Expression.Equal(bRight, Expression.Constant(null, bRight.Type)),
+            Expression.Constant(null, typeof (object)),
+            Expression.Call(
+              Expression.MakeMemberAccess(Expression.MakeMemberAccess(bRight, keyAccessor), keyValueAccessor),
+              nonGenericAccessor, Expression.Constant(pair.ParameterIndex)));
+          result = MakeBinaryExpression(result, left, right, binaryExpression.NodeType);
+        }
+        return result;
+      }
+    }
+
+    private Expression VisitBinaryAnonimouse(BinaryExpression binaryExpression)
+    {
+      if (binaryExpression.NodeType!=ExpressionType.Equal && binaryExpression.NodeType!=ExpressionType.NotEqual)
+        throw new NotSupportedException();
+
+      bool leftIsParameter = context.ParameterExtractor.IsParameter(binaryExpression.Left);
+      bool rightIsParameter = context.ParameterExtractor.IsParameter(binaryExpression.Right);
+
+      if (!leftIsParameter && !rightIsParameter)
+        return MakeComplexBinaryExpression(binaryExpression.Left, binaryExpression.Right, binaryExpression.NodeType);
+
+      throw new NotSupportedException();
+    }
+
+    private Expression VisitBinaryStructure(BinaryExpression binaryExpression)
+    {
+      if (binaryExpression.NodeType!=ExpressionType.Equal && binaryExpression.NodeType!=ExpressionType.NotEqual)
+        throw new NotSupportedException();
+
+      bool leftIsParameter = context.ParameterExtractor.IsParameter(binaryExpression.Left);
+      bool rightIsParameter = context.ParameterExtractor.IsParameter(binaryExpression.Right);
+
+      if (!leftIsParameter && !rightIsParameter)
+        return MakeComplexBinaryExpression(binaryExpression.Left, binaryExpression.Right, binaryExpression.NodeType);
+
+      throw new NotSupportedException();
     }
 
     #endregion
