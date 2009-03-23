@@ -222,6 +222,7 @@ namespace Xtensive.Modelling
               Index = newIndex==index ? (int?)null : newIndex
             };
           PerformMove(newParent, newName, newIndex);
+          scope.Commit();
         }
       }
     }
