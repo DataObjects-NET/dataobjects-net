@@ -55,6 +55,7 @@ namespace Xtensive.Storage.Tests.Linq
       }
     }
 
+
     [Test]
     public void Anonymous3Test()
     {
@@ -62,6 +63,22 @@ namespace Xtensive.Storage.Tests.Linq
       using (var t = Transaction.Open()) {
         Customer first = Query<Customer>.All.First();
         var result = Query<Customer>.All.Where(c => new { c.CompanyName, c.ContactName } == new { c.CompanyName, c.ContactName });
+        var list = result.ToList();
+        t.Complete();
+      }
+    }
+
+    [Test]
+    public void Anonymous4Test()
+    {
+      using (Domain.OpenSession())
+      using (var t = Transaction.Open())
+      {
+        Customer first = Query<Customer>.All.First();
+        Customer second = Query<Customer>.All.Skip(1).First();
+        var p = new { first.CompanyName, first.ContactName };
+        var l = new { second.CompanyName, second.ContactName };
+        var result = Query<Customer>.All.Where(c => l == p);
         var list = result.ToList();
         t.Complete();
       }

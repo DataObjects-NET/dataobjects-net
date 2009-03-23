@@ -270,7 +270,7 @@ namespace Xtensive.Storage.Linq
         case MemberType.Entity:
           return VisitBinaryEntity(binaryExpression);
         case MemberType.Anonymous:
-          return VisitBinaryAnonimouse(binaryExpression);
+          return VisitBinaryAnonymous(binaryExpression);
         case MemberType.Structure:
           return VisitBinaryStructure(binaryExpression);
         case MemberType.EntitySet:
@@ -589,7 +589,7 @@ namespace Xtensive.Storage.Linq
       }
     }
 
-    private Expression VisitBinaryAnonimouse(BinaryExpression binaryExpression)
+    private Expression VisitBinaryAnonymous(BinaryExpression binaryExpression)
     {
       if (binaryExpression.NodeType!=ExpressionType.Equal && binaryExpression.NodeType!=ExpressionType.NotEqual)
         throw new NotSupportedException();
@@ -597,31 +597,33 @@ namespace Xtensive.Storage.Linq
       bool leftIsParameter = context.ParameterExtractor.IsParameter(binaryExpression.Left);
       bool rightIsParameter = context.ParameterExtractor.IsParameter(binaryExpression.Right);
 
-      if (!leftIsParameter && !rightIsParameter)
-        return MakeComplexBinaryExpression(binaryExpression.Left, binaryExpression.Right, binaryExpression.NodeType);
+//      if (!leftIsParameter && !rightIsParameter)
+//        return MakeComplexBinaryExpression(binaryExpression.Left, binaryExpression.Right, binaryExpression.NodeType);
 
+      // Type mistmatch - return true/flase for NotEqual/Equal
+      if (binaryExpression.Left.Type != binaryExpression.Right.Type)
+        return Expression.Constant(binaryExpression.NodeType != ExpressionType.Equal);
+
+
+      var leftExpression = binaryExpression.Left;
+      var rightExpression = binaryExpression.Right;
+
+      if (!rightIsParameter)
+        rightExpression = Visit(rightExpression);
+
+      if (!leftIsParameter)
+        leftExpression = Visit(leftExpression);
 
       if (binaryExpression.Left.NodeType == ExpressionType.New && binaryExpression.Right.NodeType == ExpressionType.New)
       {
-        var leftExpression = (NewExpression)binaryExpression.Left;
-        var rightExpression = (NewExpression)binaryExpression.Right;
-        // Type mistmatch - return true/flase for NotEqual/Equal
-        if (leftExpression.Type!=rightExpression.Type)
-          return Expression.Constant(binaryExpression.NodeType!=ExpressionType.Equal);
-
-        if (!rightIsParameter)
-          rightExpression = (NewExpression) VisitNew(rightExpression);
-
-        if (!leftIsParameter)
-          leftExpression = (NewExpression)VisitNew(leftExpression);
-
         Expression result = null;
-        for (int i = 0; i < leftExpression.Arguments.Count; i++)
-          result = MakeBinaryExpression(result, leftExpression.Arguments[i], rightExpression.Arguments[i], binaryExpression.NodeType);
+        for (int i = 0; i < ((NewExpression)leftExpression).Arguments.Count; i++)
+          result = MakeBinaryExpression(result, ((NewExpression)leftExpression).Arguments[i], ((NewExpression)rightExpression).Arguments[i], binaryExpression.NodeType);
         return result;
       }
 
-      throw new NotSupportedException();
+     throw new NotSupportedException();
+      // return binaryExpression;
     }
 
     private Expression VisitBinaryStructure(BinaryExpression binaryExpression)
