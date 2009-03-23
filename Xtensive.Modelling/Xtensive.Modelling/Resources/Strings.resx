@@ -147,4 +147,7 @@
   <data name="ExTargetObjectExistsX" xml:space="preserve">
     <value>Target object already exists: "{0}". To assign a new one, you must remove the old one first.</value>
   </data>
+  <data name="ExCannotFindConstructorToExecuteX" xml:space="preserve">
+    <value>Can't find a constructor to execute {0}.</value>
+  </data>
 </root>

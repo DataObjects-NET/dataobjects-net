@@ -11,7 +11,7 @@ namespace Xtensive.Modelling.Tests.DatabaseModel
 {
   [Serializable]
   public class RoleRefCollection : NodeCollectionBase<RoleRef, User>,
-    IUnorederedNodeCollection
+    IUnorderedNodeCollection
   {
     public RoleRefCollection(Node parent, string name)
       : base(parent, name)

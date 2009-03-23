@@ -6,6 +6,7 @@
 
 using System;
 using System.Diagnostics;
+using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Attributes;
 
 namespace Xtensive.Modelling.Tests.DatabaseModel
@@ -14,6 +15,16 @@ namespace Xtensive.Modelling.Tests.DatabaseModel
   public class Server : NodeBase<Server>, 
     IModel
   {
+    private ActionSequence actions;
+
+    public ActionSequence Actions {
+      get { return actions; }
+      set {
+        this.EnsureIsEditable();
+        actions = value;
+      }
+    }
+
     [Property]
     public DatabaseCollection Databases { get; private set; }
 

@@ -14,6 +14,7 @@ using Xtensive.Core.Collections;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Threading;
+using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Attributes;
 using Xtensive.Modelling.Resources;
 using Xtensive.Core.Reflection;
@@ -200,10 +201,28 @@ namespace Xtensive.Modelling
         name = newName;
         index = newIndex;
         UpdateModel();
-        PerformCreate();
+        using (var scope = LogAction()) {
+          scope.Action = new CreateNodeAction()
+            {
+              Path = newParent==null ? string.Empty : newParent.Path,
+              Name = newName,
+              Index = newIndex
+            };
+          PerformCreate();
+          scope.Commit();
+        }
       }
-      else
-        PerformMove(newParent, newName, newIndex);
+      else {
+        using (var scope = LogAction()) {
+          scope.Action = new MoveNodeAction()
+            {
+              Path = newParent==parent ? null : newParent.Path,
+              Name = newName==name ? null : newName,
+              Index = newIndex==index ? (int?)null : newIndex
+            };
+          PerformMove(newParent, newName, newIndex);
+        }
+      }
     }
 
     /// <inheritdoc/>
@@ -212,7 +231,10 @@ namespace Xtensive.Modelling
     {
       EnsureIsEditable();
       ValidateRemove();
-      PerformRemove();
+      using (var scope = LogAction(new RemoveNodeAction() { Path = this.Path })) {
+        PerformRemove();
+        scope.Commit();
+      }
     }
 
     /// <inheritdoc/>
@@ -374,7 +396,7 @@ namespace Xtensive.Modelling
           if (bUnnamed)
             oldCollection.RemoveName(this);
           for (int i = index + 1; i < oldCollection.Count; i++)
-            newCollection[i].PerformShift(-1);
+            oldCollection[i].PerformShift(-1);
           for (int i = newCollection.Count-1; i>=newIndex; i--)
             newCollection[i].PerformShift(1);
           oldCollection.Remove(this);
@@ -456,9 +478,50 @@ namespace Xtensive.Modelling
       state = NodeState.Removed;
       if (!Nesting.IsNestedToCollection)
         Nesting.PropertyValue = null;
-      else
-        ((NodeCollection) Nesting.PropertyValue).Remove(this);
+      else {
+        var collection = (NodeCollection) Nesting.PropertyValue;
+        collection.Remove(this);
+        for (int i = 1; i < collection.Count; i++)
+          collection[i].EnsureIsEditable();
+        for (int i = 1; i < collection.Count; i++)
+          collection[i].PerformShift(-1);
+      }
       Lock(true);
+    }
+
+    #endregion
+
+    #region LogAction methods
+
+    /// <summary>
+    /// Begins registration of a new action.
+    /// </summary>
+    /// <param name="action">The action to register.</param>
+    /// <returns>
+    /// <see cref="ActionScope"/> object allowing to describe it.
+    /// </returns>
+    protected ActionScope LogAction(NodeAction action)
+    {
+      var scope = LogAction();
+      scope.Action = action;
+      return scope;
+    }
+
+    /// <summary>
+    /// Begins registration of a new action.
+    /// </summary>
+    /// <returns>
+    /// <see cref="ActionScope"/> object allowing to describe it.
+    /// </returns>
+    protected ActionScope LogAction()
+    {
+      var model = (IModel) Model;
+      if (model==null)
+        return new ActionScope();
+      var actions = model.Actions;
+      if (actions==null)
+        return new ActionScope();
+      return actions.LogAction();
     }
 
     #endregion
@@ -552,7 +615,7 @@ namespace Xtensive.Modelling
     public virtual void Dump()
     {
       string prefix = string.Empty;
-      if (Nesting.IsNestedToCollection && !(Nesting.PropertyValue is IUnorederedNodeCollection))
+      if (Nesting.IsNestedToCollection && !(Nesting.PropertyValue is IUnorderedNodeCollection))
         prefix = string.Format("{0}: ", Index);
       Log.Info("{0}{1} \"{2}\"", prefix, GetType().GetShortName(), this);
       using (new LogIndentScope()) {

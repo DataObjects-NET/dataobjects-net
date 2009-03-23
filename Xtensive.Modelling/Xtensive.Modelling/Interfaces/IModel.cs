@@ -5,6 +5,7 @@
 // Created:    2009.03.20
 
 using System;
+using Xtensive.Modelling.Actions;
 
 namespace Xtensive.Modelling
 {
@@ -13,5 +14,6 @@ namespace Xtensive.Modelling
   /// </summary>
   public interface IModel : INode
   {
+    ActionSequence Actions { get; set; }
   }
 }

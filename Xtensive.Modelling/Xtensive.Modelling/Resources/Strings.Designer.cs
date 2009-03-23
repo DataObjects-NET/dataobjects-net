@@ -70,6 +70,15 @@ namespace Xtensive.Modelling.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t find a constructor to execute {0}..
+        /// </summary>
+        internal static string ExCannotFindConstructorToExecuteX {
+            get {
+                return ResourceManager.GetString("ExCannotFindConstructorToExecuteX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Invalid node state..
         /// </summary>
         internal static string ExInvalidNodeState {

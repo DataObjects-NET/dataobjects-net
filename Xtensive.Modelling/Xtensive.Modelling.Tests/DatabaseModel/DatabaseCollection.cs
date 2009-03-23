@@ -11,7 +11,7 @@ namespace Xtensive.Modelling.Tests.DatabaseModel
 {
   [Serializable]
   public class DatabaseCollection : NodeCollectionBase<Database, Server>,
-    IUnorederedNodeCollection
+    IUnorderedNodeCollection
   {
     internal DatabaseCollection(Server parent)
       : base(parent, "Databases")

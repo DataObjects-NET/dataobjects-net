@@ -12,7 +12,7 @@ namespace Xtensive.Modelling
   /// <summary>
   /// A tagging interface for any unordered node collection.
   /// </summary>
-  public interface IUnorederedNodeCollection : INodeCollection
+  public interface IUnorderedNodeCollection : INodeCollection
   {
   }
 }
