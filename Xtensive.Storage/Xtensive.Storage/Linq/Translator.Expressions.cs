@@ -619,7 +619,7 @@ namespace Xtensive.Storage.Linq
         Expression result = null;
         for (int i = 0; i < ((NewExpression) leftExpression).Arguments.Count; i++) {
           var left = ((NewExpression) leftExpression).Arguments[i];
-          Expression right = null;
+          Expression right;
           switch (rightExpression.NodeType)
           {
             case ExpressionType.New:
@@ -631,8 +631,13 @@ namespace Xtensive.Storage.Linq
                 throw new NotSupportedException();
               var constantExpression = (ConstantExpression) memberAccessExpression.Expression;
               var value = constantExpression.Value;
+              var type = value.GetType();
+              var fields = type.GetFields();
+              if (fields.Length!=1) 
+                throw new NotSupportedException();
+              var parameterValue = fields[0].GetValue(value);
               var memberInfo = ((NewExpression) leftExpression).Members[i];
-              right = Expression.Call(constantExpression, (MethodInfo)memberInfo);
+              right = Expression.Call(Expression.Constant(parameterValue), (MethodInfo)memberInfo);
               break;
             default:
               throw new NotSupportedException();
