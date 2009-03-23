@@ -438,7 +438,7 @@ namespace Xtensive.Modelling
           index = newIndex;
           if (bUnnamed)
             collection.AddName(this);
-          collection.CheckIntegrity();
+          // collection.CheckIntegrity();
         }
       }
       parent = (Node) newParent;
