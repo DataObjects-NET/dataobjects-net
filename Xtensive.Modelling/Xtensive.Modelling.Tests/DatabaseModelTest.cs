@@ -47,6 +47,21 @@ namespace Xtensive.Modelling.Tests
     }
 
     [Test]
+    public void UnnamedNodeTest()
+    {
+      var rr0 = u1.Roles[0];
+      var rr1 = u1.Roles[1];
+      Assert.AreEqual(rr0.Name, "0");
+      Assert.AreEqual(rr1.Name, "1");
+
+      rr0.Index = 1;
+      Assert.AreEqual(rr0.Name, "1");
+      Assert.AreEqual(rr1.Name, "0");
+      Assert.AreEqual(rr0, u1.Roles[1]);
+      Assert.AreEqual(rr1, u1.Roles[0]);
+    }
+
+    [Test]
     public void IndexAndParentTest()
     {
       // srv

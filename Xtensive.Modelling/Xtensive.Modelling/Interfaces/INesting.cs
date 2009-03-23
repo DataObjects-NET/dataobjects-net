@@ -30,6 +30,11 @@ namespace Xtensive.Modelling
     string EscapedPropertyName { get; }
 
     /// <summary>
+    /// Gets a value indicating whether <see cref="PropertyName"/> property is a collection property.
+    /// </summary>
+    bool IsNestedToCollection { get; }
+
+    /// <summary>
     /// Gets the property info for <see cref="PropertyName"/> property.
     /// </summary>
     PropertyInfo PropertyInfo { get; }
@@ -43,10 +48,5 @@ namespace Xtensive.Modelling
     /// Gets the property value for <see cref="PropertyName"/> property.
     /// </summary>
     IPathNode PropertyValue { get; }
-
-    /// <summary>
-    /// Gets a value indicating whether <see cref="PropertyName"/> property is a collection property.
-    /// </summary>
-    bool IsCollectionProperty { get; }
   }
 }

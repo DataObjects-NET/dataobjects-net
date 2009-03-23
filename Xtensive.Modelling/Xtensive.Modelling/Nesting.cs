@@ -36,10 +36,10 @@ namespace Xtensive.Modelling
     public Node Node { get; private set; }
 
     /// <inheritdoc/>
-    public abstract PropertyInfo PropertyInfo { get; }
+    public abstract bool IsNestedToCollection { get; }
 
     /// <inheritdoc/>
-    public abstract bool IsCollectionProperty { get; }
+    public abstract PropertyInfo PropertyInfo { get; }
 
     /// <inheritdoc/>
     public abstract Func<Node, IPathNode> PropertyGetter { get; }

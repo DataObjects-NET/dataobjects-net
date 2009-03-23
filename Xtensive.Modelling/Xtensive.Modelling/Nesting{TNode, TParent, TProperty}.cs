@@ -29,7 +29,7 @@ namespace Xtensive.Modelling
     [NonSerialized]
     private PropertyInfo propertyInfo;
     [NonSerialized]
-    private bool isCollectionProperty;
+    private bool isNestedToCollection;
     [NonSerialized]
     private Func<Node, IPathNode> propertyGetter;
     [NonSerialized]
@@ -42,9 +42,9 @@ namespace Xtensive.Modelling
     }
 
     /// <inheritdoc/>
-    public override bool IsCollectionProperty {
+    public override bool IsNestedToCollection {
       [DebuggerStepThrough]
-      get { return isCollectionProperty; }
+      get { return isNestedToCollection; }
     }
 
     /// <inheritdoc/>
@@ -78,7 +78,7 @@ namespace Xtensive.Modelling
         throw new InvalidOperationException(String.Format(
           Strings.ExTypeOfXPropertyMustBeY, 
           propertyInfo.GetShortName(true), tProperty.GetShortName()));
-      isCollectionProperty = typeof (NodeCollection).IsAssignableFrom(tProperty);
+      isNestedToCollection = typeof (NodeCollection).IsAssignableFrom(tProperty);
 
       // Getter
       var typedGetter = DelegateHelper.CreateGetMemberDelegate<TParent, TProperty>(PropertyName);

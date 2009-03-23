@@ -10,7 +10,8 @@ using System.Diagnostics;
 namespace Xtensive.Modelling.Tests.DatabaseModel
 {
   [Serializable]
-  public class RoleRef : Ref<Role, User>
+  public class RoleRef : Ref<Role, User>,
+    IUnnamedNode
   {
     protected override Nesting CreateNesting()
     {
@@ -18,7 +19,7 @@ namespace Xtensive.Modelling.Tests.DatabaseModel
     }
 
     public RoleRef(User parent, Role role)
-      : base(parent, role.Name)
+      : base(parent, null)
     {
       Value = role;
     }

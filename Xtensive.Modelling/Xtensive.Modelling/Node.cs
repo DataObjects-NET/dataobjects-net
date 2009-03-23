@@ -69,7 +69,7 @@ namespace Xtensive.Modelling
         if (value==Parent)
           return;
         NodeCollection collection = null;
-        if (Nesting.IsCollectionProperty)
+        if (Nesting.IsNestedToCollection)
           collection = (NodeCollection) Nesting.PropertyGetter(value);
         Move(value, Name, collection==null ? 0 : collection.Count);
       }
@@ -175,8 +175,8 @@ namespace Xtensive.Modelling
           return string.Concat(
             parentPath, 
             Nesting.EscapedPropertyName,
-            Nesting.IsCollectionProperty ? PathDelimiter.ToString() : string.Empty,
-            Nesting.IsCollectionProperty ? EscapedName : string.Empty);
+            Nesting.IsNestedToCollection ? PathDelimiter.ToString() : string.Empty,
+            Nesting.IsNestedToCollection ? EscapedName : string.Empty);
         }
       }
     }
@@ -192,6 +192,8 @@ namespace Xtensive.Modelling
       this.EnsureNotLocked();
       if (newParent==Parent && newName==Name && newIndex==Index)
         return;
+      if (this is IUnnamedNode)
+        newName = newIndex.ToString();
       ValidateMove(newParent, newName, newIndex);
       if (State==NodeState.Initializing) {
         parent = newParent;
@@ -261,6 +263,7 @@ namespace Xtensive.Modelling
     /// <exception cref="ArgumentException">Item already exists.</exception>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="newIndex"/> is out of range, 
     /// or <paramref name="newParent"/> belongs to a different <see cref="Model"/>.</exception>
+    /// <exception cref="InvalidOperationException">newName!=newIndex for <see cref="IUnnamedNode"/>.</exception>
     protected virtual void ValidateMove(Node newParent, string newName, int newIndex)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(newName, "newName");
@@ -279,7 +282,12 @@ namespace Xtensive.Modelling
           throw new ArgumentOutOfRangeException("newParent.Model");
       }
 
-      if (!Nesting.IsCollectionProperty)
+      if (this is IUnnamedNode) {
+        // Validation for unnamed nodes
+        if (newName!=newIndex.ToString())
+          throw Exceptions.InternalError("newName!=newIndex for IUnnamedNode!", Log.Instance);
+      }
+      else if (!Nesting.IsNestedToCollection)
         // Validation parent property nesting
         ArgumentValidator.EnsureArgumentIsInRange(newIndex, 0, 0, "newIndex");
       else {
@@ -324,7 +332,7 @@ namespace Xtensive.Modelling
     protected virtual void PerformCreate()
     {
       if (Parent!=null) {
-        if (!Nesting.IsCollectionProperty) {
+        if (!Nesting.IsNestedToCollection) {
           if (Nesting.PropertyValue!=null)
             throw new InvalidOperationException(string.Format(
               Strings.ExTargetObjectExistsX, Nesting.PropertyValue));
@@ -345,9 +353,10 @@ namespace Xtensive.Modelling
     /// <exception cref="InvalidOperationException">Target object already exists.</exception>
     protected virtual void PerformMove(Node newParent, string newName, int newIndex)
     {
+      bool bUnnamed = this is IUnnamedNode;
       if (newParent!=parent) {
         // Parent is changed
-        if (!Nesting.IsCollectionProperty) {
+        if (!Nesting.IsNestedToCollection) {
           Nesting.PropertySetter(parent, null);
           var existingNode = Nesting.PropertyGetter(newParent);
           if (existingNode!=null)
@@ -362,12 +371,16 @@ namespace Xtensive.Modelling
             oldCollection[i].EnsureIsEditable();
           for (int i = newIndex; i < newCollection.Count; i++)
             newCollection[i].EnsureIsEditable();
+          if (bUnnamed)
+            oldCollection.RemoveName(this);
           for (int i = index + 1; i < oldCollection.Count; i++)
-            oldCollection[i].PerformShift(-1);
-          for (int i = newIndex; i < newCollection.Count; i++)
+            newCollection[i].PerformShift(-1);
+          for (int i = newCollection.Count-1; i>=newIndex; i--)
             newCollection[i].PerformShift(1);
           oldCollection.Remove(this);
           index = newIndex;
+          if (bUnnamed)
+            name = newName;
           newCollection.Add(this);
         }
       }
@@ -386,11 +399,20 @@ namespace Xtensive.Modelling
             maxIndex = newIndex;
             shift = -1;
           }
+          collection.RemoveName(this);
           for (int i = minIndex; i <= maxIndex; i++)
             collection[i].EnsureIsEditable();
-          for (int i = minIndex; i <= maxIndex; i++)
-            collection[i].PerformShift(shift);
+          if (shift<0)
+            for (int i = minIndex; i <= maxIndex; i++)
+              collection[i].PerformShift(shift);
+          else
+            for (int i = maxIndex; i >= maxIndex; i--)
+              collection[i].PerformShift(shift);
           collection.Move(this, newIndex);
+          name = newName;
+          index = newIndex;
+          if (bUnnamed)
+            collection.AddName(this);
         }
       }
       parent = (Node) newParent;
@@ -406,7 +428,24 @@ namespace Xtensive.Modelling
     /// <param name="offset">Shift offset.</param>
     protected virtual void PerformShift(int offset)
     {
-      index += offset;
+      bool bUnnamed = this is IUnnamedNode;
+      string newName = name;
+      var newIndex = index + offset;
+      if (bUnnamed) {
+        newName = newIndex.ToString();
+        if (Nesting.IsNestedToCollection) {
+          var collection = ((NodeCollection) Nesting.PropertyValue);
+          if (collection!=null) {
+            collection.RemoveName(this);
+            name = newName;
+            index = newIndex;
+            collection.AddName(this);
+          }
+        }
+      }
+      else {
+        index = newIndex;
+      }
     }
 
     /// <summary>
@@ -415,7 +454,7 @@ namespace Xtensive.Modelling
     protected void PerformRemove()
     {
       state = NodeState.Removed;
-      if (!Nesting.IsCollectionProperty)
+      if (!Nesting.IsNestedToCollection)
         Nesting.PropertyValue = null;
       else
         ((NodeCollection) Nesting.PropertyValue).Remove(this);
@@ -513,7 +552,7 @@ namespace Xtensive.Modelling
     public virtual void Dump()
     {
       string prefix = string.Empty;
-      if (Nesting.IsCollectionProperty && !(Nesting.PropertyValue is IUnorederedNodeCollection))
+      if (Nesting.IsNestedToCollection && !(Nesting.PropertyValue is IUnorederedNodeCollection))
         prefix = string.Format("{0}: ", Index);
       Log.Info("{0}{1} \"{2}\"", prefix, GetType().GetShortName(), this);
       using (new LogIndentScope()) {
@@ -566,7 +605,7 @@ namespace Xtensive.Modelling
       string fullName = Path;
       if (m!=null)
         fullName = string.Concat(m.EscapedName, PathDelimiter, fullName);
-      if (!Nesting.IsCollectionProperty && !(this is IModel))
+      if (!Nesting.IsNestedToCollection && !(this is IModel))
         fullName = string.Format(Strings.NodeInfoFormat, fullName, Name);
       return fullName;
     }
@@ -586,7 +625,8 @@ namespace Xtensive.Modelling
     {
       if (!(this is IModel))
         ArgumentValidator.EnsureArgumentNotNull(parent, "parent");
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
+      if (!(this is IUnnamedNode))
+        ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
       Initialize();
       Move(parent, name, index);
     }
@@ -600,9 +640,10 @@ namespace Xtensive.Modelling
     {
       if (!(this is IModel))
         ArgumentValidator.EnsureArgumentNotNull(parent, "parent");
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
+      if (!(this is IUnnamedNode))
+        ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
       Initialize();
-      if (!Nesting.IsCollectionProperty)
+      if (!Nesting.IsNestedToCollection)
         Move(parent, name, 0);
       else
         Move(parent, name, ((NodeCollection) Nesting.PropertyGetter(parent)).Count);

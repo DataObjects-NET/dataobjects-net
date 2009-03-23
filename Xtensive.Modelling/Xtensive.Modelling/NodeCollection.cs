@@ -194,39 +194,45 @@ namespace Xtensive.Modelling
 
     #region Private \ internal methods
 
-    /// <exception cref="InvalidOperationException">Wrong DoneCollection.Add arguments: node.Index!=list.Count!</exception>
+    /// <exception cref="InvalidOperationException">Internal error.</exception>
     internal void Add(Node node)
     {
       if (node.Index!=list.Count)
         throw Exceptions.InternalError("Wrong NodeCollection.Add arguments: node.Index!=list.Count!", Log.Instance);
+      string name = node.Name;
+      if (nameIndex.ContainsKey(name))
+        throw Exceptions.InternalError("Wrong NodeCollection.Add arguments: nameIndex[node.Name]!=null!", Log.Instance);
       int count = list.Count;
       try {
         list.Add(node);
-        nameIndex.Add(node.Name, node);
+        nameIndex.Add(name, node);
       }
       catch {
         if (list.Count>count)
           list.RemoveAt(count);
         if (nameIndex.Count>count)
-          nameIndex.Remove(node.Name);
+          nameIndex.Remove(name);
         throw;
       }
     }
 
-    /// <exception cref="InvalidOperationException">Wrong DoneCollection.Add arguments: node.Index!=list.Count!</exception>
+    /// <exception cref="InvalidOperationException">Internal error.</exception>
     internal void Remove(Node node)
     {
-      int count = list.Count;
+      int count1 = list.Count;
+      int count2 = nameIndex.Count;
       int index = node.Index;
+      string name = node.Name;
       try {
         list.RemoveAt(index);
-        nameIndex.Remove(node.Name);
+        if (nameIndex.ContainsKey(name))
+          nameIndex.Remove(name);
       }
       catch {
-        if (list.Count<count)
+        if (list.Count<count1)
           list.Insert(index, node);
-        if (nameIndex.Count<count)
-          nameIndex.Add(node.Name, node);
+        if (nameIndex.Count<count2)
+          nameIndex.Add(name, node);
         throw;
       }
     }
@@ -255,6 +261,24 @@ namespace Xtensive.Modelling
           list.Insert(oldIndex, node);
         throw;
       }
+    }
+
+    /// <exception cref="InvalidOperationException">Internal error.</exception>
+    internal void RemoveName(Node node)
+    {
+      string name = node.Name;
+      if (nameIndex[name]!=node)
+        throw Exceptions.InternalError("Wrong NodeCollection.RemoveName arguments: nameIndex[node.Name]!=node!", Log.Instance);
+      nameIndex.Remove(name);
+    }
+
+    /// <exception cref="InvalidOperationException">Internal error.</exception>
+    internal void AddName(Node node)
+    {
+      string name = node.Name;
+      if (nameIndex.ContainsKey(name))
+        throw Exceptions.InternalError("Wrong NodeCollection.AddName arguments: nameIndex[node.Name]!=null!", Log.Instance);
+      nameIndex.Add(name, node);
     }
 
     #endregion
