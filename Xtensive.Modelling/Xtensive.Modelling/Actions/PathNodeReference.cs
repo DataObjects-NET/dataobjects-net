@@ -32,7 +32,7 @@ namespace Xtensive.Modelling.Actions
     {
       var pathNode = source as IPathNode;
       if (pathNode==null)
-        return null;
+        return source;
       return new PathNodeReference(pathNode.Path);
     }
 

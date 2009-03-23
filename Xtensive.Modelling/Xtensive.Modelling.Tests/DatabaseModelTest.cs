@@ -35,7 +35,9 @@ namespace Xtensive.Modelling.Tests
       srv.Actions = new ActionSequence();
       sec1 = new Security(srv, "sec1");
       u1 = new User(sec1, "u1") { Password = "1"};
+      u1.Password = "u1";
       u2 = new User(sec1, "u2") { Password = "2"};
+      u2.Password = "u2";
       r1 = new Role(sec1, "r1");
       r2 = new Role(sec1, "r2");
       new RoleRef(u1, r1);
@@ -57,12 +59,11 @@ namespace Xtensive.Modelling.Tests
       Log.Info("{0}", srv.Actions);
 
       Log.Info("Creating new model...");
-      var srvx = new Server("srvx");
+      var srvx = new Server("srv");
       Log.Info("Applying actions...");
       srv.Actions.Apply(srvx);
       Log.Info("Updated model:");
       srvx.Dump();
-
     }
 
     [Test]
@@ -195,6 +196,22 @@ namespace Xtensive.Modelling.Tests
     public void DumpTest()
     {
       srv.Dump();
+    }
+
+    [Test]
+    public void ApplyTest()
+    {
+      Log.Info("Model:");
+      srv.Dump();
+      Log.Info("Actions:");
+      Log.Info("{0}", srv.Actions);
+
+      Log.Info("Creating new model...");
+      var srvx = new Server("srv");
+      Log.Info("Applying actions...");
+      srv.Actions.Apply(srvx);
+      Log.Info("Updated model:");
+      srvx.Dump();
     }
   }
 }

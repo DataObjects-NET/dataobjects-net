@@ -21,7 +21,7 @@ namespace Xtensive.Modelling.Tests.DatabaseModel
       get { return password; }
       set {
         EnsureIsEditable();
-        using (var scope = LogPropertyChange("password", value)) {
+        using (var scope = LogChange("Password", value)) {
           password = value;
           scope.Commit();
         }

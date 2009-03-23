@@ -39,7 +39,7 @@ namespace Xtensive.Modelling.Actions
     {
       base.GetParameters(parameters);
       foreach (var pair in properties)
-        parameters.Add(new Pair<string>(pair.Key, pair.Value.ToString()));
+        parameters.Add(new Pair<string>(pair.Key, pair.Value==null ? null : pair.Value.ToString()));
     }
 
     /// <inheritdoc/>

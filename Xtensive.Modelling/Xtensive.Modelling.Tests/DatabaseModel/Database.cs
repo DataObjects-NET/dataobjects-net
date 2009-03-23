@@ -22,7 +22,7 @@ namespace Xtensive.Modelling.Tests.DatabaseModel
       get { return owner; }
       set {
         EnsureIsEditable();
-        using (var scope = LogPropertyChange("owner", value)) {
+        using (var scope = LogChange("Owner", value)) {
           owner = value;
           scope.Commit();
         }

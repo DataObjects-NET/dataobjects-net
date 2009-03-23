@@ -204,8 +204,8 @@ namespace Xtensive.Modelling
         using (var scope = LogAction()) {
           scope.Action = new CreateNodeAction()
             {
-              Type = GetType(),
               Path = newParent==null ? string.Empty : newParent.Path,
+              Type = GetType(),
               Name = newName,
               Index = newIndex
             };
@@ -217,7 +217,8 @@ namespace Xtensive.Modelling
         using (var scope = LogAction()) {
           scope.Action = new MoveNodeAction()
             {
-              Path = newParent==parent ? null : newParent.Path,
+              Path = Path,
+              Parent = newParent==parent ? null : newParent.Path,
               Name = newName==name ? null : newName,
               Index = newIndex==index ? (int?)null : newIndex
             };
@@ -233,7 +234,7 @@ namespace Xtensive.Modelling
     {
       EnsureIsEditable();
       ValidateRemove();
-      using (var scope = LogAction(new RemoveNodeAction() { Path = this.Path })) {
+      using (var scope = LogAction(new RemoveNodeAction() { Path = Path })) {
         PerformRemove();
         scope.Commit();
       }
@@ -503,10 +504,10 @@ namespace Xtensive.Modelling
     /// <param name="propertyName">Name of the property.</param>
     /// <param name="propertyValue">The property value.</param>
     /// <returns></returns>
-    protected ActionScope LogPropertyChange(string propertyName, object propertyValue)
+    protected ActionScope LogChange(string propertyName, object propertyValue)
     {
       var scope = LogAction();
-      var action = new ChangeAction();
+      var action = new ChangeAction {Path = Path};
       action.Properties.Add(propertyName, PathNodeReference.Get(propertyValue));
       scope.Action = action;
       return scope;
