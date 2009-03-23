@@ -5,13 +5,15 @@
 // Created:    2009.03.17
 
 using Xtensive.Core;
+using Xtensive.Modelling.Validation;
 
 namespace Xtensive.Modelling
 {
   /// <summary>
   /// Base class for any model node or node collection (path node).
   /// </summary>
-  public interface IPathNode : ILockable
+  public interface IPathNode : ILockable,
+    IValidatable
   {
     /// <summary>
     /// Gets or sets the name of this node.
@@ -45,11 +47,6 @@ namespace Xtensive.Modelling
     /// <returns>Path node, if found;
     /// otherwise, <see langword="null" />.</returns>
     IPathNode Resolve(string path);
-
-    /// <summary>
-    /// Validates this and nested nodes.
-    /// </summary>
-    void Validate();
 
     /// <summary>
     /// Dumps this instance.

@@ -17,6 +17,7 @@ using Xtensive.Core.Threading;
 using Xtensive.Modelling.Attributes;
 using Xtensive.Modelling.Resources;
 using Xtensive.Core.Reflection;
+using Xtensive.Modelling.Validation;
 
 namespace Xtensive.Modelling
 {
@@ -227,11 +228,25 @@ namespace Xtensive.Modelling
     /// <inheritdoc/>
     public void Validate()
     {
-      ValidateState();
-      foreach (var pair in PropertyAccessors) {
-        var nested = GetNestedProperty(pair.Key);
-        if (nested!=null)
-          nested.Validate();
+      using (ValidationScope.Open()) {
+        if (ValidationContext.Current.IsValidated(this))
+          return;
+        ValidateState();
+        foreach (var pair in PropertyAccessors) {
+          if (!pair.Value.HasGetter)
+            continue;
+          var nested = GetNestedProperty(pair.Key);
+          if (nested!=null) {
+            nested.Validate();
+            continue;
+          }
+          var value = GetProperty(pair.Key);
+          if (value!=null) {
+            var pathNode = value as Node;
+            if (pathNode!=null)
+              pathNode.ValidateState();
+          }
+        }
       }
     }
 
@@ -296,19 +311,6 @@ namespace Xtensive.Modelling
     protected virtual void ValidateState()
     {
       EnsureIsLive();
-//      foreach (var pair in PropertyAccessors) {
-//        if (!pair.Value.HasGetter)
-//          continue;
-//        var nested = GetNestedProperty(pair.Key);
-//        if (nested!=null)
-//          continue;
-//        var value = GetProperty(pair.Key);
-//        if (value==null)
-//          continue;
-//        var pathNode = value as Node;
-//        if (pathNode!=null)
-//          pathNode.ValidateState();
-//      }
     }
 
     #endregion
