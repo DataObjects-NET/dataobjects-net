@@ -11,7 +11,7 @@ using NUnit.Framework;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
 
-namespace Xtensive.Storage.Tests.MsSql
+namespace Xtensive.Storage.Tests.Storage.Providers.MsSql
 {
   [HierarchyRoot(typeof(KeyGenerator), "Id")]
   public class MyEntity : Entity
