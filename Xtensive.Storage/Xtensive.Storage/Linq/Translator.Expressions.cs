@@ -600,6 +600,27 @@ namespace Xtensive.Storage.Linq
       if (!leftIsParameter && !rightIsParameter)
         return MakeComplexBinaryExpression(binaryExpression.Left, binaryExpression.Right, binaryExpression.NodeType);
 
+
+      if (binaryExpression.Left.NodeType == ExpressionType.New && binaryExpression.Right.NodeType == ExpressionType.New)
+      {
+        var leftExpression = (NewExpression)binaryExpression.Left;
+        var rightExpression = (NewExpression)binaryExpression.Right;
+        // Type mistmatch - return true/flase for NotEqual/Equal
+        if (leftExpression.Type!=rightExpression.Type)
+          return Expression.Constant(binaryExpression.NodeType!=ExpressionType.Equal);
+
+        if (!rightIsParameter)
+          rightExpression = (NewExpression) VisitNew(rightExpression);
+
+        if (!leftIsParameter)
+          leftExpression = (NewExpression)VisitNew(leftExpression);
+
+        Expression result = null;
+        for (int i = 0; i < leftExpression.Arguments.Count; i++)
+          result = MakeBinaryExpression(result, leftExpression.Arguments[i], rightExpression.Arguments[i], binaryExpression.NodeType);
+        return result;
+      }
+
       throw new NotSupportedException();
     }
 

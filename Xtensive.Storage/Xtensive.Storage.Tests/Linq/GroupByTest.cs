@@ -28,13 +28,35 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    public void AnonimousTypeGroup()
+    {
+      using (Domain.OpenSession())
+      using (var t = Transaction.Open())
+      {
+        var result = Query<Customer>.All.GroupBy(c => new { c.Address.City, c.Address.Country });
+        var list = result.ToList();
+        Assert.Greater(list.Count, 0);
+        foreach (var grouping in list)
+        {
+          Assert.IsNotNull(grouping.Key);
+          Assert.Greater(grouping.Count(), 0);
+        }
+        t.Complete();
+      }
+    }
+
+    [Test]
     public void DefaultTest()
     {
       using (Domain.OpenSession())
       using (var t = Transaction.Open()) {
-        var result = Query<Customer>.All.GroupBy(c => new {c.Address.City, c.Address.Country});
+        var result = Query<Customer>.All.GroupBy(c => c.Address.City);
         var list = result.ToList();
         Assert.Greater(list.Count, 0);
+        foreach (var grouping in list) {
+          Assert.IsNotNull(grouping.Key);
+          Assert.Greater(grouping.Count(), 0);
+        }
         t.Complete();
       }
     }
