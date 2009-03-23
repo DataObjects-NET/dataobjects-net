@@ -398,8 +398,6 @@ namespace Xtensive.Storage.Linq
       using (context.Bind(keySelector.Parameters[0], result))
       using (new ParameterScope())
       {
-        joinFinalEntity.Value = true;
-        calculateExpressions.Value = true; 
         resultMapping.Value = new ResultMapping();
         originalCompiledKeyExpression = (LambdaExpression) Visit(keySelector);
         columnList = resultMapping.Value.GetColumns().ToList();
