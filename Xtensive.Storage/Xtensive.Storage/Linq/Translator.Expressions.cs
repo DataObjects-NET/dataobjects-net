@@ -614,12 +614,29 @@ namespace Xtensive.Storage.Linq
       if (!leftIsParameter)
         leftExpression = Visit(leftExpression);
 
-      if (leftExpression.NodeType == ExpressionType.New && rightExpression.NodeType==ExpressionType.New)
+      if (leftExpression.NodeType == ExpressionType.New)
       {
         Expression result = null;
         for (int i = 0; i < ((NewExpression) leftExpression).Arguments.Count; i++) {
           var left = ((NewExpression) leftExpression).Arguments[i];
-          Expression right = ((NewExpression)rightExpression).Arguments[i];
+          Expression right = null;
+          switch (rightExpression.NodeType)
+          {
+            case ExpressionType.New:
+              right = ((NewExpression)rightExpression).Arguments[i];
+              break;
+            case ExpressionType.MemberAccess:
+              var memberAccessExpression = (MemberExpression) rightExpression;
+              if (memberAccessExpression.Expression.NodeType!=ExpressionType.Constant) 
+                throw new NotSupportedException();
+              var constantExpression = (ConstantExpression) memberAccessExpression.Expression;
+              var value = constantExpression.Value;
+              var memberInfo = ((NewExpression) leftExpression).Members[i];
+              right = Expression.Call(constantExpression, (MethodInfo)memberInfo);
+              break;
+            default:
+              throw new NotSupportedException();
+          }
           result = MakeBinaryExpression(result, left, right, binaryExpression.NodeType);
         }
         return result;
