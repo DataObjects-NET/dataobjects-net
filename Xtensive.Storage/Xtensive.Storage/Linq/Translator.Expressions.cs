@@ -551,11 +551,11 @@ namespace Xtensive.Storage.Linq
       bool rightIsParameter = context.ParameterExtractor.IsParameter(binaryExpression.Right);
 
       if (!leftIsParameter && !rightIsParameter) {
-        var bLeft = binaryExpression.Left.NodeType==ExpressionType.Constant && ((ConstantExpression) binaryExpression.Left).Value==null 
-          ? binaryExpression.Left 
+        var bLeft = binaryExpression.Left.NodeType==ExpressionType.Constant && ((ConstantExpression) binaryExpression.Left).Value==null
+          ? binaryExpression.Left
           : Expression.MakeMemberAccess(binaryExpression.Left, keyAccessor);
-        var bRight = binaryExpression.Right.NodeType==ExpressionType.Constant && ((ConstantExpression) binaryExpression.Right).Value==null 
-          ? binaryExpression.Right 
+        var bRight = binaryExpression.Right.NodeType==ExpressionType.Constant && ((ConstantExpression) binaryExpression.Right).Value==null
+          ? binaryExpression.Right
           : Expression.MakeMemberAccess(binaryExpression.Right, keyAccessor);
         return MakeComplexBinaryExpression(bLeft, bRight, binaryExpression.NodeType);
       }
@@ -601,8 +601,8 @@ namespace Xtensive.Storage.Linq
 //        return MakeComplexBinaryExpression(binaryExpression.Left, binaryExpression.Right, binaryExpression.NodeType);
 
       // Type mistmatch - return true/flase for NotEqual/Equal
-      if (binaryExpression.Left.Type != binaryExpression.Right.Type)
-        return Expression.Constant(binaryExpression.NodeType != ExpressionType.Equal);
+      if (binaryExpression.Left.Type!=binaryExpression.Right.Type)
+        return Expression.Constant(binaryExpression.NodeType!=ExpressionType.Equal);
 
 
       var leftExpression = binaryExpression.Left;
@@ -614,15 +614,18 @@ namespace Xtensive.Storage.Linq
       if (!leftIsParameter)
         leftExpression = Visit(leftExpression);
 
-      if (binaryExpression.Left.NodeType == ExpressionType.New && binaryExpression.Right.NodeType == ExpressionType.New)
+      if (leftExpression.NodeType == ExpressionType.New && rightExpression.NodeType==ExpressionType.New)
       {
         Expression result = null;
-        for (int i = 0; i < ((NewExpression)leftExpression).Arguments.Count; i++)
-          result = MakeBinaryExpression(result, ((NewExpression)leftExpression).Arguments[i], ((NewExpression)rightExpression).Arguments[i], binaryExpression.NodeType);
+        for (int i = 0; i < ((NewExpression) leftExpression).Arguments.Count; i++) {
+          var left = ((NewExpression) leftExpression).Arguments[i];
+          Expression right = ((NewExpression)rightExpression).Arguments[i];
+          result = MakeBinaryExpression(result, left, right, binaryExpression.NodeType);
+        }
         return result;
       }
 
-     throw new NotSupportedException();
+      throw new NotSupportedException();
       // return binaryExpression;
     }
 

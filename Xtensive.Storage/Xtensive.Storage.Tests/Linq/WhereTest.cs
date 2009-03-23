@@ -36,7 +36,7 @@ namespace Xtensive.Storage.Tests.Linq
       using (var t = Transaction.Open()) {
         Customer first = Query<Customer>.All.First();
         var p = new {first.CompanyName, first.ContactName};
-        var result = Query<Customer>.All.Select(c => new {c.CompanyName, c.ContactName}).Where(x => x == p);
+        var result = Query<Customer>.All.Select(c => new {c.CompanyName, c.ContactName}).Take(10).Where(x => x == p);
         var list = result.ToList();
         t.Complete();
       }
