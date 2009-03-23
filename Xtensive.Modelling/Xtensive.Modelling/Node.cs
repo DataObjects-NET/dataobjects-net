@@ -495,8 +495,23 @@ namespace Xtensive.Modelling
 
     #endregion
 
-    #region LogAction methods
+    #region LogXxx methods
 
+    /// <summary>
+    /// Logs the property change.
+    /// </summary>
+    /// <param name="propertyName">Name of the property.</param>
+    /// <param name="propertyValue">The property value.</param>
+    /// <returns></returns>
+    protected ActionScope LogPropertyChange(string propertyName, object propertyValue)
+    {
+      var scope = LogAction();
+      var action = new ChangeAction();
+      action.Properties.Add(propertyName, PathNodeReference.Get(propertyValue));
+      scope.Action = action;
+      return scope;
+    }
+    
     /// <summary>
     /// Begins registration of a new action.
     /// </summary>

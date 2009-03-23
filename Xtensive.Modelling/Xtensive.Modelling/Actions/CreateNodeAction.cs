@@ -69,20 +69,20 @@ namespace Xtensive.Modelling.Actions
     protected override void PerformApply(IModel model, IPathNode item)
     {
       var node = (Node) item;
-      if (TryConstructor(node, name, index))
+      if (TryConstructor(model, node, name, index))
         return;
-      if (TryConstructor(node, name))
+      if (TryConstructor(model, node, name))
         return;
-      if (TryConstructor(node, index))
+      if (TryConstructor(model, node, index))
         return;
       throw new InvalidOperationException(string.Format(
         Strings.ExCannotFindConstructorToExecuteX, this));
     }
 
-    protected bool TryConstructor(params object[] args)
+    protected bool TryConstructor(IModel model, params object[] args)
     {
       if (parameters!=null)
-        args = args.Concat(parameters).ToArray();
+        args = args.Concat(parameters.Select(p => PathNodeReference.Resolve(model, p))).ToArray();
       var argTypes = args.Select(a => a.GetType()).ToArray();
       var ci = type.GetConstructor(argTypes);
       if (ci==null)

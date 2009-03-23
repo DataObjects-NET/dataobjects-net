@@ -51,9 +51,20 @@ namespace Xtensive.Modelling.Actions
         this.EnsureNotLocked();
         var action = scope.Action;
         // Only locked actions can be added
-        action.Lock(true); 
-        if (scope.IsCommittable && scope.IsCommitted)
+        if (scope.IsCommittable && scope.IsCommitted) {
+          var ca = action as ChangeAction;
+          if (ca!=null && actions.Count!=0) {
+            // Let's try to join two change actions
+            var last = actions[actions.Count - 1] as ChangeAction;
+            if (last!=null)
+              foreach (var pair in last.Properties) {
+                if (!ca.Properties.ContainsKey(pair.Key))
+                  ca.Properties.Add(pair.Key, pair.Value);
+              }
+          }
+          action.Lock(true); 
           actions.Add(action);
+        }
       }
       finally {
         if (scope.IsCommittable)
