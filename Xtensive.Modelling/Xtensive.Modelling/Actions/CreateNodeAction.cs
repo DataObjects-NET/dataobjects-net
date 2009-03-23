@@ -92,15 +92,14 @@ namespace Xtensive.Modelling.Actions
     }
 
     /// <inheritdoc/>
-    protected override IEnumerable<Pair<string>> GetParameters()
+    protected override void GetParameters(List<Pair<string>> parameters)
     {
-      foreach (var kvp in base.GetParameters())
-        yield return kvp;
-      yield return new Pair<string>("Type", type.GetShortName());
-      yield return new Pair<string>("Name", name);
-      yield return new Pair<string>("Index", index.ToString());
-      if (parameters!=null)
-        yield return new Pair<string>("Parameters", parameters.ToCommaDelimitedString());
+      base.GetParameters(parameters);
+      parameters.Add(new Pair<string>("Type", type.GetShortName()));
+      parameters.Add(new Pair<string>("Name", name));
+      parameters.Add(new Pair<string>("Index", index.ToString()));
+      if (this.parameters!=null)
+        parameters.Add(new Pair<string>("Parameters", this.parameters.ToCommaDelimitedString()));
     }
   }
 }

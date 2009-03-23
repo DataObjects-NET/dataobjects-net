@@ -7,6 +7,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using Xtensive.Core.Helpers;
 
 namespace Xtensive.Modelling.Actions
@@ -75,6 +76,15 @@ namespace Xtensive.Modelling.Actions
     }
 
     #endregion
+
+    /// <inheritdoc/>
+    public override string ToString()
+    {
+      var sb = new StringBuilder();
+      foreach (var action in actions)
+        sb.AppendLine(action.ToString());
+      return sb.ToString();
+    }
 
 
     // Constructors

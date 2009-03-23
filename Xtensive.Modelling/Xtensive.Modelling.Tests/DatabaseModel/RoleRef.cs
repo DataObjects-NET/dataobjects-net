@@ -23,5 +23,10 @@ namespace Xtensive.Modelling.Tests.DatabaseModel
     {
       Value = role;
     }
+
+    public RoleRef(User parent, string name, int index)
+      : base(parent, name, index)
+    {
+    }
   }
 }

@@ -204,6 +204,7 @@ namespace Xtensive.Modelling
         using (var scope = LogAction()) {
           scope.Action = new CreateNodeAction()
             {
+              Type = GetType(),
               Path = newParent==null ? string.Empty : newParent.Path,
               Name = newName,
               Index = newIndex

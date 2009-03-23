@@ -8,6 +8,7 @@ using System;
 using NUnit.Framework;
 using Xtensive.Core.Serialization.Binary;
 using Xtensive.Core.Testing;
+using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Tests.DatabaseModel;
 
 namespace Xtensive.Modelling.Tests
@@ -31,6 +32,7 @@ namespace Xtensive.Modelling.Tests
     public void Setup()
     {
       srv = new Server("srv");
+      srv.Actions = new ActionSequence();
       sec1 = new Security(srv, "sec1");
       u1 = new User(sec1, "u1") { Password = "1"};
       u2 = new User(sec1, "u2") { Password = "2"};
@@ -44,6 +46,23 @@ namespace Xtensive.Modelling.Tests
       db2 = new Database(srv, "db2") { Owner = u1 };
       s1 = new Schema(db1, "s1");
       s2 = new Schema(db1, "s2");
+    }
+
+    [Test]
+    public void CreateActionsTest()
+    {
+      Log.Info("Model:");
+      srv.Dump();
+      Log.Info("Actions:");
+      Log.Info("{0}", srv.Actions);
+
+      Log.Info("Creating new model...");
+      var srvx = new Server("srvx");
+      Log.Info("Applying actions...");
+      srv.Actions.Apply(srvx);
+      Log.Info("Updated model:");
+      srvx.Dump();
+
     }
 
     [Test]

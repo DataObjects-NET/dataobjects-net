@@ -59,7 +59,9 @@ namespace Xtensive.Modelling.Actions
     {
       var sb = new StringBuilder();
       sb.Append(GetActionName());
-      foreach (var kvp in GetParameters())
+      var parameters = new List<Pair<string>>();
+      GetParameters(parameters);
+      foreach (var kvp in parameters)
         sb.AppendFormat(", {0}={1}", kvp.First, kvp.Second);
       return sb.ToString();
     }
@@ -68,9 +70,9 @@ namespace Xtensive.Modelling.Actions
     /// Gets the parameters for <see cref="ToString"/> formatting.
     /// </summary>
     /// <returns>The sequence of parameters.</returns>
-    protected virtual IEnumerable<Pair<string>> GetParameters()
+    protected virtual void GetParameters(List<Pair<string>> parameters)
     {
-      yield return new Pair<string>("Path", path);
+      parameters.Add(new Pair<string>("Path", path));
     }
 
     /// <summary>
