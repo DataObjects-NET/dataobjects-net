@@ -55,12 +55,15 @@ namespace Xtensive.Modelling.Actions
           var ca = action as ChangeAction;
           if (ca!=null && actions.Count!=0) {
             // Let's try to join two change actions
-            var last = actions[actions.Count - 1] as ChangeAction;
-            if (last!=null)
+            var lastIndex = actions.Count - 1;
+            var last = actions[lastIndex] as ChangeAction;
+            if (last!=null) {
               foreach (var pair in last.Properties) {
                 if (!ca.Properties.ContainsKey(pair.Key))
                   ca.Properties.Add(pair.Key, pair.Value);
               }
+              actions.RemoveAt(lastIndex);
+            }
           }
           action.Lock(true); 
           actions.Add(action);
