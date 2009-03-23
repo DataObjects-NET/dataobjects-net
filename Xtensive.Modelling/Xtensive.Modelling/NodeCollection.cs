@@ -281,6 +281,18 @@ namespace Xtensive.Modelling
       nameIndex.Add(name, node);
     }
 
+    /// <exception cref="InvalidOperationException">Internal error.</exception>
+    internal void CheckIntegrity()
+    {
+      foreach (var node in list) {
+        var name = node.Name;
+        if (!nameIndex.ContainsKey(name))
+          throw Exceptions.InternalError("Integrity check failed.", Log.Instance);
+        if (node!=nameIndex[name])
+          throw Exceptions.InternalError("Integrity check failed.", Log.Instance);
+      }
+    }
+
     #endregion
 
     #region Dump, ToString

@@ -423,7 +423,8 @@ namespace Xtensive.Modelling
             maxIndex = newIndex;
             shift = -1;
           }
-          collection.RemoveName(this);
+          if (bUnnamed)
+            collection.RemoveName(this);
           for (int i = minIndex; i <= maxIndex; i++)
             collection[i].EnsureIsEditable();
           if (shift<0)
@@ -437,6 +438,7 @@ namespace Xtensive.Modelling
           index = newIndex;
           if (bUnnamed)
             collection.AddName(this);
+          collection.CheckIntegrity();
         }
       }
       parent = (Node) newParent;
