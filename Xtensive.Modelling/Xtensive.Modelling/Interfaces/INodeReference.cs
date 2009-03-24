@@ -12,8 +12,8 @@ namespace Xtensive.Modelling
   public interface INodeReference : INode
   {
     /// <summary>
-    /// Gets the target node the reference refers to.
+    /// Gets or sets the target node this reference points to.
     /// </summary>
-    Node Value { get; }
+    Node Value { get; set; }
   }
 }

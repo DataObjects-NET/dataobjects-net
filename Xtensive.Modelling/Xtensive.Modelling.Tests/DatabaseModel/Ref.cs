@@ -29,6 +29,7 @@ namespace Xtensive.Modelling.Tests.DatabaseModel
 
     Node INodeReference.Value {
       get { return Value; }
+      set { Value = (TTarget) value; }
     }
 
 
