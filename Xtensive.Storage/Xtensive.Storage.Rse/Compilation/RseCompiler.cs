@@ -95,6 +95,15 @@ namespace Xtensive.Storage.Rse.Compilation
     }
 
     /// <inheritdoc/>
+    protected override ExecutableProvider VisitRangeSet(RangeSetProvider provider)
+    {
+      var compiledSource = GetBound(provider.Source);
+      return new Providers.Executable.RangeSetProvider(
+        provider,
+        compiledSource);
+    }
+
+    /// <inheritdoc/>
     protected override ExecutableProvider VisitSort(SortProvider provider)
     {
       var compiledSource = GetBound(provider.Source);

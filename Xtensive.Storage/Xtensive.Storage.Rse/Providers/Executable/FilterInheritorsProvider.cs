@@ -76,6 +76,13 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
     }
 
     /// <inheritdoc/>
+    public IEnumerable<Tuple> GetItems(RangeSet<Entire<Tuple>> range)
+    {
+      IEnumerable<Tuple> items = source.GetItems(range);
+      return items.Where(predicate);
+    }
+
+    /// <inheritdoc/>
     public IEnumerable<Tuple> GetKeys(Range<Entire<Tuple>> range)
     {
       IEnumerable<Tuple> items = source.GetItems(range);

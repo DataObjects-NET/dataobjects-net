@@ -36,6 +36,13 @@ namespace Xtensive.Indexing
     IEnumerable<TItem> GetItems(Range<Entire<TKey>> range);
 
     /// <summary>
+    /// Gets the <see cref="IEnumerable{T}"/> enumerating all the <typeparamref name="TItem"/>s in the given range set.
+    /// </summary>
+    /// <param name="range">A <see cref="Range{T}"/> to enumerate through.</param>
+    /// <returns>The <see cref="IEnumerable{T}"/> for the range set.</returns>
+    IEnumerable<TItem> GetItems(RangeSet<Entire<TKey>> range);
+
+    /// <summary>
     /// Seeks for the specified item in the ordered enumerable.
     /// </summary>
     /// <param name="ray">Item to locate.</param>

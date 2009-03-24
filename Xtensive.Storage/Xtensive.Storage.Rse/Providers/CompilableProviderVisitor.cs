@@ -118,6 +118,18 @@ namespace Xtensive.Storage.Rse.Providers
     }
 
     /// <inheritdoc/>
+    protected override Provider VisitRangeSet(RangeSetProvider provider)
+    {
+      OnRecursionEntrance(provider);
+      var source = VisitCompilable(provider.Source);
+      OnRecursionExit(provider);
+      var range = translate(provider, provider.Range);
+      if (source == provider.Source && range == provider.Range)
+        return provider;
+      return new RangeSetProvider(source, (Expression<Func<RangeSet<Entire<Tuple>>>>)range);
+    }
+
+    /// <inheritdoc/>
     protected override Provider VisitSort(SortProvider provider)
     {
       // TODO: rewrite Order!!

@@ -162,6 +162,16 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
         );
     }
 
+    /// <inheritdoc/>
+    public IEnumerable<Tuple> GetItems(RangeSet<Entire<Tuple>> range)
+    {
+      return InheritanceMerger.Merge(
+        sourceProviders[0].GetService<IOrderedEnumerable<Tuple, Tuple>>(true).KeyComparer,
+        sourceProviders.Select((provider, i) => new Triplet<IEnumerable<Tuple>, Converter<Tuple, Tuple>, MapTransform>(
+          provider.GetService<IOrderedEnumerable<Tuple, Tuple>>(true).GetItems(range), provider.GetService<IOrderedEnumerable<Tuple, Tuple>>(true).KeyExtractor, transforms[i])).ToList()
+        );
+    }
+
     protected internal override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
       return InheritanceMerger.Merge(

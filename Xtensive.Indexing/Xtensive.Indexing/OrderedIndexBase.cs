@@ -29,7 +29,17 @@ namespace Xtensive.Indexing
     {
       return CreateReader(range);
     }
-    
+
+    /// <inheritdoc/>
+    public IEnumerable<TItem> GetItems(RangeSet<Entire<TKey>> range)
+    {
+      foreach (var r in range) {
+        var reader = CreateReader(r);
+        foreach (var item in reader)
+          yield return item;
+      }
+    }
+
     /// <inheritdoc/>
     public abstract SeekResult<TItem> Seek(Ray<Entire<TKey>> ray);
 

@@ -130,6 +130,20 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
           );
     }
 
+    IEnumerable<Tuple> IOrderedEnumerable<Tuple, Tuple>.GetItems(RangeSet<Entire<Tuple>> range)
+    {
+      return InheritanceJoiner.Join(
+        rootEnumerable.GetItems(range),
+        rootEnumerable.KeyExtractor,
+        rootEnumerable.KeyComparer,
+        mapTransform,
+        inheritors
+          .Select(provider => new Pair<Provider, IOrderedEnumerable<Tuple, Tuple>>(provider, provider.GetService<IOrderedEnumerable<Tuple, Tuple>>(true)))
+          .Select(pair => new Triplet<IEnumerable<Tuple>, Converter<Tuple, Tuple>, TupleDescriptor>(
+            pair.Second.GetItems(range), pair.Second.KeyExtractor, pair.First.Header.TupleDescriptor)).ToList()
+          );
+    }
+
     #endregion
 
     /// <inheritdoc/>

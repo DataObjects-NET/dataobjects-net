@@ -14,6 +14,7 @@ using System.Text;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Comparison;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Testing;
@@ -438,9 +439,9 @@ namespace Xtensive.Storage.Tests.Storage
           RecordSet result = rsSnakePrimary
             .Range(() => pID.Value)
             .Join(rsSnakeName
-              .Range(() => pName.Value)
-              .OrderBy(OrderBy.Asc(rsSnakeName.Header.IndexOf(cID)))
-              .Alias("NameIndex"), rsSnakePrimary.Header.IndexOf(cID), rsSnakeName.Header.IndexOf(cID));
+            .Range(() => pName.Value)
+            .OrderBy(OrderBy.Asc(rsSnakeName.Header.IndexOf(cID)))
+            .Alias("NameIndex"), rsSnakePrimary.Header.IndexOf(cID), rsSnakeName.Header.IndexOf(cID));
           
           using(new ParameterScope()) {
             pID.Value = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(21)), new Entire<Tuple>(Tuple.Create(120)));
@@ -459,6 +460,67 @@ namespace Xtensive.Storage.Tests.Storage
           t.Complete();
         }
       }
+    }
+
+    [Test]
+    public void RangeSetTest()
+    {
+      const int snakesCount = 1000;
+      const int creaturesCount = 1000;
+      const int lizardsCount = 1000;
+
+      TestFixtureTearDown();
+      TestFixtureSetUp();
+
+      if (Domain.Configuration.Name == "memory")
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          for (int i = 0; i < snakesCount; i++) {
+            Snake s = new Snake();
+            s.Name = "Kaa" + i;
+            s.Length = i;
+          }
+          for (int j = 0; j < creaturesCount; j++) {
+            Creature c = new Creature();
+            c.Name = "Creature" + j;
+          }
+          for (int i = 0; i < lizardsCount; i++) {
+            Lizard l = new Lizard();
+            l.Name = "Lizard" + i;
+            l.Color = "Color" + i;
+          }
+
+          Session.Current.Persist();
+
+          var pID = new Parameter<RangeSet<Entire<Tuple>>>();
+          var pName = new Parameter<RangeSet<Entire<Tuple>>>();
+
+          TypeInfo snakeType = Domain.Model.Types[typeof(Snake)];
+          RecordSet rsSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordSet();
+          RecordSet rsSnakeName = snakeType.Indexes.GetIndex("Name").ToRecordSet();
+
+          RecordSet result = rsSnakePrimary
+          .RangeSet(() => pID.Value)
+          .Join(rsSnakeName
+          .RangeSet(() => pName.Value)
+          .OrderBy(OrderBy.Asc(rsSnakeName.Header.IndexOf(cID)))
+          .Alias("NameIndex"), rsSnakePrimary.Header.IndexOf(cID), rsSnakeName.Header.IndexOf(cID));
+
+          var idRange = new RangeSet<Entire<Tuple>>(new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(21)), new Entire<Tuple>(Tuple.Create(120))), AdvancedComparer<Entire<Tuple>>.Default);
+          idRange = idRange.Unite(new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(221)), new Entire<Tuple>(Tuple.Create(320))));
+          var nameRange = new RangeSet<Entire<Tuple>>(new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create("Kaa")), new Entire<Tuple>(Tuple.Create("Kaa900"))), AdvancedComparer<Entire<Tuple>>.Default);
+          
+          using (new ParameterScope()) {
+            pID.Value = idRange;
+            pName.Value = nameRange;
+            var count = result.Count();
+            Assert.AreEqual(191, count);
+          }
+          t.Complete();
+        }
+      }
+      else
+        Assert.Ignore();
     }
 
     [Test]

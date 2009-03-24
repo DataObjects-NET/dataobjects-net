@@ -61,6 +61,9 @@ namespace Xtensive.Storage.Rse.Providers
         case ProviderType.Range:
           result = VisitRange((RangeProvider) cp);
           break;
+        case ProviderType.RangeSet:
+          result = VisitRangeSet((RangeSetProvider)cp);
+          break;
         case ProviderType.Raw:
           result = VisitRaw((RawProvider) cp);
           break;
@@ -162,6 +165,12 @@ namespace Xtensive.Storage.Rse.Providers
     /// </summary>
     /// <param name="provider">Range provider.</param>
     protected abstract Provider VisitRange(RangeProvider provider);
+
+    /// <summary>
+    /// Visits <see cref="RangeSetProvider"/>.
+    /// </summary>
+    /// <param name="provider">RangeSet provider.</param>
+    protected abstract Provider VisitRangeSet(RangeSetProvider provider);
 
     /// <summary>
     /// Visits <see cref="SortProvider"/>.

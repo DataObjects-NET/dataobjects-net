@@ -105,6 +105,16 @@ namespace Xtensive.Indexing
       return CreateReader(range);
     }
 
+    /// <inheritdoc/>
+    public IEnumerable<TItem> GetItems(RangeSet<Entire<TKey>> range)
+    {
+      foreach (var r in range) {
+        var reader = CreateReader(r);
+        foreach (var item in reader)
+          yield return item;
+      }
+    }
+
     #endregion
 
     #region Seek, CreateReader methods

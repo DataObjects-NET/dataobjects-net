@@ -261,6 +261,14 @@ namespace Xtensive.Indexing
       return orderedIndex.GetItems(range);
     }
 
+    /// <inheritdoc/>
+    IEnumerable<TItem> IOrderedEnumerable<TKey, TItem>.GetItems(RangeSet<Entire<TKey>> range)
+    {
+      if (orderedIndex == null)
+        throw new NotSupportedException();
+      return orderedIndex.GetItems(range);
+    }
+
     #endregion
 
     #region IEnumerable<TItem> Members

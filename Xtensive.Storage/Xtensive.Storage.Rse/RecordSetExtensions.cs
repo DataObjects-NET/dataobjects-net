@@ -71,6 +71,21 @@ namespace Xtensive.Storage.Rse
       return Range(recordSet, new Range<Entire<Tuple>>(xPoint, yPoint));
     }
 
+    public static RecordSet RangeSet(this RecordSet recordSet, Func<RangeSet<Entire<Tuple>>> range)
+    {
+      return new RangeSetProvider(recordSet.Provider, () => range.Invoke()) { CompiledRange = range }.Result;
+    }
+
+    public static RecordSet RangeSet(this RecordSet recordSet, Expression<Func<RangeSet<Entire<Tuple>>>> range, bool isExpression)
+    {
+      return new RangeSetProvider(recordSet.Provider, range).Result;
+    }
+
+    public static RecordSet RangeSet(this RecordSet recordSet, RangeSet<Entire<Tuple>> range)
+    {
+      return new RangeSetProvider(recordSet.Provider, range).Result;
+    }
+
     public static RecordSet Like(this RecordSet recordSet, Tuple beginning)
     {
       var from = beginning.Clone();
