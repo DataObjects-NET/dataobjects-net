@@ -22,7 +22,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <summary>
     /// Indicates whether current join operation should be executed as left join.
     /// </summary>
-    public bool LeftJoin { get; private set; }
+    public bool Outer { get; private set; }
 
     /// <summary>
     /// Gets the predicate.
@@ -35,11 +35,11 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>  
-    public PredicateJoinProvider(CompilableProvider left, CompilableProvider right, Expression<Func<Tuple, Tuple, bool>> predicate, bool leftJoin)
+    public PredicateJoinProvider(CompilableProvider left, CompilableProvider right, Expression<Func<Tuple, Tuple, bool>> predicate, bool outer)
       : base(ProviderType.PredicateJoin, left, right)
     {
       Predicate = predicate;
-      LeftJoin = leftJoin;
+      Outer = outer;
     }
   }
 }

@@ -132,7 +132,6 @@ namespace Xtensive.Storage.Rse.Providers
     /// <inheritdoc/>
     protected override Provider VisitJoin(JoinProvider provider)
     {
-      // TODO: we should not reference columns by its indexes
       OnRecursionEntrance(provider);
       var left = VisitCompilable(provider.Left);
       var right = VisitCompilable(provider.Right);
@@ -249,6 +248,41 @@ namespace Xtensive.Storage.Rse.Providers
       if (source == provider.Source)
         return provider;
       return new ReindexProvider(source, provider.Order);
+    }
+
+    /// <inheritdoc/>
+    protected override Provider VisitPredicateJoin(PredicateJoinProvider provider)
+    {
+      OnRecursionEntrance(provider);
+      var left = VisitCompilable(provider.Left);
+      var right = VisitCompilable(provider.Right);
+      var predicate = (Expression<Func<Tuple, Tuple, bool>>)OnRecursionExit(provider);
+      if (left == provider.Left && right == provider.Right)
+        return provider;
+      return new PredicateJoinProvider(left, right, predicate ?? provider.Predicate, provider.Outer);
+    }
+
+    /// <inheritdoc/>
+    protected override Provider VisitExistence(ExistenceProvider provider)
+    {
+      OnRecursionEntrance(provider);
+      var source = VisitCompilable(provider.Source);
+      OnRecursionExit(provider);
+      if (source == provider.Source)
+        return provider;
+      return new ExistenceProvider(source, provider.ExistenceColumnName);
+    }
+
+    /// <inheritdoc/>
+    protected override Provider VisitApply(ApplyProvider provider)
+    {
+      OnRecursionEntrance(provider);
+      var left = VisitCompilable(provider.Left);
+      var right = VisitCompilable(provider.Right);
+      OnRecursionExit(provider);
+      if (left == provider.Left && right == provider.Right)
+        return provider;
+      return new ApplyProvider(provider.LeftItemParameter, left, right, provider.ApplyType);
     }
 
     private static Expression DefaultExpressionTranslator(Provider p, Expression e)

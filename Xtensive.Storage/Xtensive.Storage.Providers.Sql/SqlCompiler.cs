@@ -253,7 +253,7 @@ namespace Xtensive.Storage.Providers.Sql
       var predicate = result.First;
       var bindings = result.Second.Bindings;
       var joinedTable = SqlFactory.Join(
-        provider.LeftJoin ? SqlJoinType.LeftOuterJoin : SqlJoinType.InnerJoin,
+        provider.Outer ? SqlJoinType.LeftOuterJoin : SqlJoinType.InnerJoin,
         leftQuery,
         rightQuery,
         predicate);

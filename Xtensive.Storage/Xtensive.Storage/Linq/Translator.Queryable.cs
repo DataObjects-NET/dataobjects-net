@@ -488,7 +488,6 @@ namespace Xtensive.Storage.Linq
         calculateExpressions.Value = true;
         Visit(le);
         var orderItems = resultMapping.Value.GetColumns()
-          .Distinct()
           .Select(ci => new KeyValuePair<int, Direction>(ci, direction));
         var dc = new DirectionCollection<int>(orderItems);
         var result = context.GetBound(le.Parameters[0]);
@@ -505,7 +504,6 @@ namespace Xtensive.Storage.Linq
         calculateExpressions.Value = true;
         Visit(le);
         var orderItems = resultMapping.Value.GetColumns()
-          .Distinct()
           .Select(ci => new KeyValuePair<int, Direction>(ci, direction));
         var result = context.GetBound(le.Parameters[0]);
         var dc = ((SortProvider) result.RecordSet.Provider).Order;

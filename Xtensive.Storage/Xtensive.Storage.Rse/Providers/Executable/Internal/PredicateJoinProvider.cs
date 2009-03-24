@@ -50,7 +50,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     public PredicateJoinProvider(Compilable.PredicateJoinProvider origin, ExecutableProvider left, ExecutableProvider right)
       : base(origin, left, right)
     {
-      leftJoin = Origin.LeftJoin;
+      leftJoin = Origin.Outer;
     }
   }
 }

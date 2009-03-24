@@ -82,11 +82,38 @@ namespace Xtensive.Storage.Rse.Providers
         case ProviderType.RowNumber:
           result = VisitRowNumber((RowNumberProvider)cp);
           break;
+        case ProviderType.Apply:
+          result = VisitApply((ApplyProvider)cp);
+          break;
+        case ProviderType.Existence:
+          result = VisitExistence((ExistenceProvider)cp);
+          break;
+        case ProviderType.PredicateJoin:
+          result = VisitPredicateJoin((PredicateJoinProvider)cp);
+          break;
         default:
           throw new ArgumentOutOfRangeException();
       }
       return result;
     }
+
+    /// <summary>
+    /// Visits <see cref="PredicateJoinProvider"/>.
+    /// </summary>
+    /// <param name="provider">Predicate join provider.</param>
+    protected abstract Provider VisitPredicateJoin(PredicateJoinProvider provider);
+
+    /// <summary>
+    /// Visits <see cref="ExistenceProvider"/>.
+    /// </summary>
+    /// <param name="provider">Existence provider.</param>
+    protected abstract Provider VisitExistence(ExistenceProvider provider);
+
+    /// <summary>
+    /// Visits <see cref="ApplyProvider"/>.
+    /// </summary>
+    /// <param name="provider">Apply provider.</param>
+    protected abstract Provider VisitApply(ApplyProvider provider);
 
     /// <summary>
     /// Visits <see cref="TransferProvider"/>.
