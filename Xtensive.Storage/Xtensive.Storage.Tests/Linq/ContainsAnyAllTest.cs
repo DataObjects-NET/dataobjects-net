@@ -134,5 +134,95 @@ namespace Xtensive.Storage.Tests.Linq
         t.Complete();
       }
     }
+
+    [Test]
+    public void AllAndNotAllTest()
+    {
+      using (Domain.OpenSession())
+      using (Transaction.Open()) {
+        var result =
+          from o in Query<Order>.All
+          where Query<Customer>.All.Where(c => c==o.Customer).All(c => c.CompanyName.StartsWith("A"))
+             && !Query<Employee>.All.Where(e => e==o.Employee).All(e => e.FirstName.EndsWith("t"))
+          select o;
+        var list = result.ToList();
+        Assert.AreEqual(list.Count, 11);
+      }
+    }
+
+    [Test]
+    public void AllOrAllTest()
+    {
+      using (Domain.OpenSession())
+      using (Transaction.Open()) {
+        var result =
+          from o in Query<Order>.All
+          where Query<Customer>.All.Where(c => c == o.Customer).All(c => c.CompanyName.StartsWith("A"))
+             || Query<Employee>.All.Where(e => e == o.Employee).All(e => e.FirstName.EndsWith("t"))
+          select o;
+        var list = result.ToList();
+        Assert.AreEqual(list.Count, 366);
+      }      
+    }
+
+    [Test]
+    public void NotAnyAndAnyTest()
+    {
+      using (Domain.OpenSession())
+      using (Transaction.Open()) {
+        var result =
+          from o in Query<Order>.All
+          where !Query<Customer>.All.Where(c => c == o.Customer).Any(c => c.CompanyName.StartsWith("A"))
+             && Query<Employee>.All.Where(e => e == o.Employee).Any(e => e.FirstName.EndsWith("t"))
+          select o;
+        var list = result.ToList();
+        Assert.AreEqual(list.Count, 336);
+      }      
+    }
+
+    [Test]
+    public void AnyOrAnyTest()
+    {
+      using (Domain.OpenSession())
+      using (Transaction.Open()) {
+        var result =
+          from o in Query<Order>.All
+          where Query<Customer>.All.Where(c => c == o.Customer).Any(c => c.CompanyName.StartsWith("A"))
+             || Query<Employee>.All.Where(e => e == o.Employee).Any(e => e.FirstName.EndsWith("t"))
+          select o;
+        var list = result.ToList();
+        Assert.AreEqual(list.Count, 366);
+      }
+    }
+
+    [Test]
+    public void AnyAndNotAllTest()
+    {
+      using (Domain.OpenSession())
+      using (Transaction.Open()) {
+        var result =
+          from o in Query<Order>.All
+          where Query<Customer>.All.Where(c => c == o.Customer).Any(c => c.CompanyName.StartsWith("A"))
+             && !Query<Employee>.All.Where(e => e == o.Employee).All(e => e.FirstName.EndsWith("t"))
+          select o;
+        var list = result.ToList();
+        Assert.AreEqual(list.Count, 11);
+      }      
+    }
+
+    [Test]
+    public void NotAnyOrAllTest()
+    {
+      using (Domain.OpenSession())
+      using (Transaction.Open()) {
+        var result =
+          from o in Query<Order>.All
+          where !Query<Customer>.All.Where(c => c == o.Customer).Any(c => c.CompanyName.StartsWith("A"))
+             || Query<Employee>.All.Where(e => e == o.Employee).All(e => e.FirstName.EndsWith("t"))
+          select o;
+        var list = result.ToList();
+        Assert.AreEqual(list.Count, 819);
+      }
+    }
   }
 }

@@ -164,11 +164,13 @@ namespace Xtensive.Storage.Providers.Sql
 
       SqlSelect query;
       bool shouldUseQueryRef =
+        provider.Source is ApplyProvider ||
         provider.Source is AggregateProvider ||
         provider.Source is CalculateProvider ||
         provider.Source is ExistenceProvider;
       if (!shouldUseQueryRef && provider.Source is SelectProvider)
         shouldUseQueryRef =
+          provider.Source.Sources[0] is ApplyProvider ||
           provider.Source.Sources[0] is AggregateProvider ||
           provider.Source.Sources[0] is CalculateProvider ||
           provider.Source.Sources[0] is ExistenceProvider;

@@ -659,13 +659,17 @@ namespace Xtensive.Storage.Linq
       var lambdaParameter = context.SubqueryParameterBindings.CurrentParameter;
       var applyParameter = context.SubqueryParameterBindings.GetBound(lambdaParameter);
       var oldResult = context.GetBound(lambdaParameter);
+      var columnName = context.GetNextColumnAlias();
+      int columnIndex = oldResult.RecordSet.Header.Columns.Count;
+      var newMapping = new ResultMapping();
+      newMapping.Replace(oldResult.Mapping);
+      newMapping.RegisterFieldMapping(columnName, new Segment<int>(columnIndex, 1));
       var newRecordSet = oldResult.RecordSet
-        .Apply(applyParameter, subquery.RecordSet.Existence(context.GetNextColumnAlias()), ApplyType.Cross);
+        .Apply(applyParameter, subquery.RecordSet.Existence(columnName), ApplyType.Cross);
       var newResult = new ResultExpression(
-        oldResult.Type, newRecordSet, oldResult.Mapping, oldResult.Projector, oldResult.ItemProjector);
+        oldResult.Type, newRecordSet, newMapping, oldResult.Projector, oldResult.ItemProjector);
       context.ReplaceBound(lambdaParameter, newResult);
-      Expression filter = MakeTupleAccess(lambdaParameter, typeof (bool),
-        Expression.Constant(newRecordSet.Header.Columns.Count - 1));
+      Expression filter = MakeTupleAccess(lambdaParameter, typeof (bool), Expression.Constant(columnIndex));
       if (notExists)
         filter = Expression.Not(filter);
       return filter;
