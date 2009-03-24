@@ -12,8 +12,19 @@ namespace Xtensive.Modelling.Tests.DatabaseModel
   [Serializable]
   public class Table : NodeBase<Schema>
   {
+    private PrimaryIndex primaryIndex;
+
     [Property]
-    public PrimaryIndex PrimaryIndex { get; set; }
+    public PrimaryIndex PrimaryIndex {
+      get { return primaryIndex; }
+      set {
+        EnsureIsEditable();
+        using (var scope = LogChange("PrimaryIndex", value)) {
+          primaryIndex = value;
+          scope.Commit();
+        }
+      }
+    }
 
     [Property]
     public SecondaryIndexCollection SecondaryIndexes { get; private set; }
