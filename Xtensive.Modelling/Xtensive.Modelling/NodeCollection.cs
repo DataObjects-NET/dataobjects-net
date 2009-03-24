@@ -11,10 +11,8 @@ using System.Diagnostics;
 using System.Runtime.Serialization;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
-using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Reflection;
 using Xtensive.Modelling;
 using Xtensive.Modelling.Resources;
 
@@ -164,8 +162,9 @@ namespace Xtensive.Modelling
     /// <inheritdoc/>
     public void Validate()
     {
-      foreach (var node in list)
-        node.Validate();
+      using (var ea = new ExceptionAggregator())
+        foreach (var node in list)
+          ea.Execute(x => x.Validate(), node);
     }
 
     #region IEnumerable<...> members

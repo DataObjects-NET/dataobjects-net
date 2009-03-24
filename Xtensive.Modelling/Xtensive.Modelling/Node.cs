@@ -256,22 +256,24 @@ namespace Xtensive.Modelling
     public void Validate()
     {
       using (ValidationScope.Open()) {
-        if (ValidationContext.Current.IsValidated(this))
-          return;
-        ValidateState();
-        foreach (var pair in PropertyAccessors) {
-          if (!pair.Value.HasGetter)
-            continue;
-          var nested = GetNestedProperty(pair.Key);
-          if (nested!=null) {
-            nested.Validate();
-            continue;
-          }
-          var value = GetProperty(pair.Key);
-          if (value!=null) {
-            var pathNode = value as Node;
-            if (pathNode!=null)
-              pathNode.ValidateState();
+        using (var ea = new ExceptionAggregator()) {
+          if (ValidationContext.Current.IsValidated(this))
+            return;
+          ValidateState();
+          foreach (var pair in PropertyAccessors) {
+            if (!pair.Value.HasGetter)
+              continue;
+            var nested = GetNestedProperty(pair.Key);
+            if (nested!=null) {
+              ea.Execute(x => x.Validate(), nested);
+              continue;
+            }
+            var value = GetProperty(pair.Key);
+            if (value!=null) {
+              var pathNode = value as Node;
+              if (pathNode!=null)
+                ea.Execute(x => x.ValidateState(), pathNode);
+            }
           }
         }
       }

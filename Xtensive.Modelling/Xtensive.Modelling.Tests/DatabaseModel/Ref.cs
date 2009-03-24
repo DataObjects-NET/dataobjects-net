@@ -12,15 +12,15 @@ using Xtensive.Modelling.Attributes;
 namespace Xtensive.Modelling.Tests.DatabaseModel
 {
   [Serializable]
-  public abstract class Ref<TTarget, TParent> : NodeBase<TParent>
+  public abstract class Ref<TTarget, TParent> : NodeBase<TParent>,
+    INodeReference
     where TTarget : Node
     where TParent : Node
   {
     private TTarget value;
 
     [Property]
-    public TTarget Value
-    {
+    public TTarget Value {
       get { return value; }
       set {
         if (this.value!=null)
@@ -29,6 +29,11 @@ namespace Xtensive.Modelling.Tests.DatabaseModel
         this.value = value;
       }
     }
+
+    Node INodeReference.Value {
+      get { return Value; }
+    }
+
 
     public Ref(TParent parent, string name)
       : base(parent, name)
