@@ -17,6 +17,7 @@ namespace Xtensive.Modelling.Tests.DatabaseModel
     private bool isPrimary;
     private bool isUnique;
 
+    [Property (IgnoreInComparison = true)]
     public bool IsPrimary {
       get { return isPrimary; }
     }
@@ -25,13 +26,9 @@ namespace Xtensive.Modelling.Tests.DatabaseModel
     public bool IsUnique {
       get { return isUnique; }
       set {
-        EnsureIsEditable();
         if (IsPrimary && !value)
           throw Exceptions.AlreadyInitialized("IsUnique");
-        using (var scope = LogChange("IsUnique", value)) {
-          isUnique = value;
-          scope.Commit();
-        }
+        ChangeProperty("IsUnique", value, (x,v) => ((Index)x).isUnique = v);
       }
     }
 

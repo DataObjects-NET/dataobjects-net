@@ -7,6 +7,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 using Xtensive.Core;
@@ -167,6 +170,33 @@ namespace Xtensive.Modelling
           ea.Execute(x => x.Validate(), node);
     }
 
+    /// <inheritdoc/>
+    public void Clear()
+    {
+      var copy = list.ToArray();
+      for (int i = copy.Length - 1; i >= 0; i--)
+        copy[i].Remove();
+    }
+
+    #region INotifyCollectionChanged, INotifyPropertyChanged members
+
+    /// <inheritdoc/>
+    [field : NonSerialized]
+    public event NotifyCollectionChangedEventHandler CollectionChanged;
+
+    /// <summary>
+    /// Raises <see cref="CollectionChanged"/> event.
+    /// </summary>
+    /// <param name="args">The <see cref="NotifyCollectionChangedEventArgs"/> 
+    /// instance containing the event data.</param>
+    protected void OnCollectionChanged(NotifyCollectionChangedEventArgs args)
+    {
+      if (CollectionChanged!=null)
+        CollectionChanged.Invoke(this, args);
+    }
+
+    #endregion
+
     #region IEnumerable<...> members
 
     [DebuggerStepThrough]
@@ -205,6 +235,8 @@ namespace Xtensive.Modelling
       try {
         list.Add(node);
         nameIndex.Add(name, node);
+        OnCollectionChanged(new NotifyCollectionChangedEventArgs(
+          NotifyCollectionChangedAction.Add, node.Index));
       }
       catch {
         if (list.Count>count)
@@ -226,6 +258,8 @@ namespace Xtensive.Modelling
         list.RemoveAt(index);
         if (nameIndex.ContainsKey(name))
           nameIndex.Remove(name);
+        OnCollectionChanged(new NotifyCollectionChangedEventArgs(
+          NotifyCollectionChangedAction.Remove, index));
       }
       catch {
         if (list.Count<count1)
@@ -260,6 +294,8 @@ namespace Xtensive.Modelling
           list.Insert(oldIndex, node);
         throw;
       }
+      OnCollectionChanged(new NotifyCollectionChangedEventArgs(
+        NotifyCollectionChangedAction.Reset));
     }
 
     /// <exception cref="InvalidOperationException">Internal error.</exception>

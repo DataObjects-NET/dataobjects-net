@@ -4,6 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2009.03.17
 
+using System.ComponentModel;
 using Xtensive.Core.Collections;
 
 namespace Xtensive.Modelling
@@ -11,7 +12,8 @@ namespace Xtensive.Modelling
   /// <summary>
   /// Node interface.
   /// </summary>
-  public interface INode : IPathNode
+  public interface INode : IPathNode,
+    INotifyPropertyChanged
   {
     /// <summary>
     /// Gets the state of the node.

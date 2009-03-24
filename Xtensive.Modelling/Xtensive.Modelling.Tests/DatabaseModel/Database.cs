@@ -14,17 +14,12 @@ namespace Xtensive.Modelling.Tests.DatabaseModel
   {
     private User owner;
 
-    /// <exception cref="ArgumentOutOfRangeException"><c>value.Model</c> is out of range.</exception>
     [Property]
     public User Owner
     {
       get { return owner; }
       set {
-        EnsureIsEditable();
-        using (var scope = LogChange("Owner", value)) {
-          owner = value;
-          scope.Commit();
-        }
+        ChangeProperty("Owner", value, (x,v) => ((Database)x).owner = v);
       }
     }
 

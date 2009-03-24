@@ -4,7 +4,8 @@
 // Created by: Alex Yakunin
 // Created:    2009.03.17
 
-using System.Collections;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using Xtensive.Core.Collections;
 
 namespace Xtensive.Modelling
@@ -13,7 +14,8 @@ namespace Xtensive.Modelling
   /// <see cref="Node"/> collection.
   /// </summary>
   public interface INodeCollection : IPathNode, 
-    ICountable
+    ICountable,
+    INotifyCollectionChanged
   {
     /// <summary>
     /// Gets the count of items.
@@ -59,5 +61,10 @@ namespace Xtensive.Modelling
     /// </summary>
     /// <returns>Temporary name.</returns>
     string GetTemporaryName();
+
+    /// <summary>
+    /// Clears the collection.
+    /// </summary>
+    void Clear();
   }
 }

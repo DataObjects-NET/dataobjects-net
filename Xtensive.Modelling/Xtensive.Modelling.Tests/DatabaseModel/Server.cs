@@ -16,6 +16,7 @@ namespace Xtensive.Modelling.Tests.DatabaseModel
     IModel
   {
     private ActionSequence actions;
+    private Security security;
 
     public ActionSequence Actions {
       get { return actions; }
@@ -29,7 +30,12 @@ namespace Xtensive.Modelling.Tests.DatabaseModel
     public DatabaseCollection Databases { get; private set; }
 
     [Property]
-    public Security Security { get; private set; }
+    public Security Security {
+      get { return security; }
+      set {
+        ChangeProperty("Security", value, (x,v) => ((Server)x).security = v);
+      }
+    }
 
     protected override Nesting CreateNesting()
     {

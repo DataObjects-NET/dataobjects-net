@@ -23,10 +23,7 @@ namespace Xtensive.Modelling.Tests.DatabaseModel
     public TTarget Value {
       get { return value; }
       set {
-        if (this.value!=null)
-          throw Exceptions.AlreadyInitialized("Value");
-        EnsureIsEditable();
-        this.value = value;
+        ChangeProperty("Value", value, (x,v) => ((Ref<TTarget, TParent>)x).value = v);
       }
     }
 

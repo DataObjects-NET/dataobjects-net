@@ -6,6 +6,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.Serialization;
@@ -201,6 +203,11 @@ namespace Xtensive.Modelling
         name = newName;
         index = newIndex;
         UpdateModel();
+        OnPropertyChanged("Parent");
+        OnPropertyChanged("Model");
+        OnPropertyChanged("Name");
+        OnPropertyChanged("EscapedName");
+        OnPropertyChanged("Index");
         using (var scope = LogAction()) {
           scope.Action = new CreateNodeAction()
             {
@@ -226,6 +233,7 @@ namespace Xtensive.Modelling
           scope.Commit();
         }
       }
+      OnPropertyChanged("State");
     }
 
     /// <inheritdoc/>
@@ -238,6 +246,7 @@ namespace Xtensive.Modelling
         PerformRemove();
         scope.Commit();
       }
+      OnPropertyChanged("State");
     }
 
     /// <inheritdoc/>
@@ -365,8 +374,10 @@ namespace Xtensive.Modelling
               Strings.ExTargetObjectExistsX, Nesting.PropertyValue));
           Nesting.PropertyValue = this;
         }
-        else
-          ((NodeCollection) Nesting.PropertyValue).Add(this);
+        else {
+          var collection = (NodeCollection) Nesting.PropertyValue;
+          collection.Add(this);
+        }
       }
       state = NodeState.Live;
     }
@@ -480,7 +491,7 @@ namespace Xtensive.Modelling
     /// <summary>
     /// Actually performs <see cref="Remove"/> operation.
     /// </summary>
-    protected void PerformRemove()
+    protected virtual void PerformRemove()
     {
       state = NodeState.Removed;
       if (!Nesting.IsNestedToCollection)
@@ -506,10 +517,10 @@ namespace Xtensive.Modelling
     /// <param name="propertyName">Name of the property.</param>
     /// <param name="propertyValue">The property value.</param>
     /// <returns></returns>
-    protected ActionScope LogChange(string propertyName, object propertyValue)
+    protected ActionScope LogPropertyChange(string propertyName, object propertyValue)
     {
       var scope = LogAction();
-      var action = new ChangeAction {Path = Path};
+      var action = new PropertyChangeAction {Path = Path};
       action.Properties.Add(propertyName, PathNodeReference.Get(propertyValue));
       scope.Action = action;
       return scope;
@@ -563,6 +574,42 @@ namespace Xtensive.Modelling
       if (State!=NodeState.Live)
         throw new InvalidOperationException(Strings.ExInvalidNodeState);
       this.EnsureNotLocked();
+    }
+
+    #endregion
+
+    #region INotifyPropertyChanged methods
+
+    /// <inheritdoc/>
+    [field : NonSerialized]
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    /// <summary>
+    /// Raises <see cref="PropertyChanged"/> event.
+    /// </summary>
+    /// <param name="name">Name of the property.</param>
+    protected void OnPropertyChanged(string name)
+    {
+      if (PropertyChanged!=null)
+        PropertyChanged.Invoke(this, new PropertyChangedEventArgs(name));
+    }
+
+    /// <summary>
+    /// Does all the dirty job to change the property of this node.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="name">Name of the property.</param>
+    /// <param name="value">New value of the property.</param>
+    /// <param name="setter">Property setter delegate.</param>
+    protected void ChangeProperty<T>(string name, T value, Action<Node,T> setter)
+    {
+      EnsureIsEditable();
+      using (var scope = !PropertyAccessors.ContainsKey(name) ? null : LogPropertyChange(name, value)) {
+        setter.Invoke(this, value);
+        OnPropertyChanged(name);
+        if (scope!=null)
+          scope.Commit();
+      }
     }
 
     #endregion

@@ -15,7 +15,7 @@ namespace Xtensive.Modelling.Actions
   /// Property change action.
   /// </summary>
   [Serializable]
-  public class ChangeAction : NodeAction
+  public class PropertyChangeAction : NodeAction
   {
     private IDictionary<string, object> properties = new Dictionary<string, object>();
 

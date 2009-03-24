@@ -38,7 +38,7 @@ namespace Xtensive.Modelling.Tests.DatabaseModel
       base.PerformShift(offset);
     }
 
-    protected override void ValidateRemove()
+    protected override void PerformRemove()
     {
       base.PerformRemove();
       Log.Info("Removed: {0}", this);

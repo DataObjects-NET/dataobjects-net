@@ -52,11 +52,11 @@ namespace Xtensive.Modelling.Actions
         var action = scope.Action;
         // Only locked actions can be added
         if (scope.IsCommittable && scope.IsCommitted) {
-          var ca = action as ChangeAction;
+          var ca = action as PropertyChangeAction;
           if (ca!=null && actions.Count!=0) {
             // Let's try to join two change actions
             var lastIndex = actions.Count - 1;
-            var last = actions[lastIndex] as ChangeAction;
+            var last = actions[lastIndex] as PropertyChangeAction;
             if (last!=null) {
               foreach (var pair in last.Properties) {
                 if (!ca.Properties.ContainsKey(pair.Key))

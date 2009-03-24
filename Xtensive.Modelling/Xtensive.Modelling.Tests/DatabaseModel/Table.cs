@@ -18,11 +18,7 @@ namespace Xtensive.Modelling.Tests.DatabaseModel
     public PrimaryIndex PrimaryIndex {
       get { return primaryIndex; }
       set {
-        EnsureIsEditable();
-        using (var scope = LogChange("PrimaryIndex", value)) {
-          primaryIndex = value;
-          scope.Commit();
-        }
+        ChangeProperty("PrimaryIndex", value, (x,v) => ((Table)x).primaryIndex = v);
       }
     }
 

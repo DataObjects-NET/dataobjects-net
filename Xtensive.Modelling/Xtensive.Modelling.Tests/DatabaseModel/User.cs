@@ -20,11 +20,7 @@ namespace Xtensive.Modelling.Tests.DatabaseModel
     {
       get { return password; }
       set {
-        EnsureIsEditable();
-        using (var scope = LogChange("Password", value)) {
-          password = value;
-          scope.Commit();
-        }
+        ChangeProperty("Password", value, (x,v) => ((User)x).password = v);
       }
     }
 
