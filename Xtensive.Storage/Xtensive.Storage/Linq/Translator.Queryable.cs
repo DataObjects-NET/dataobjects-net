@@ -533,26 +533,34 @@ namespace Xtensive.Storage.Linq
 
         var outer = context.GetBound(outerParameter);
         var inner = context.GetBound(innerParameter);
+        var recordSet = outer.RecordSet.Join(inner.RecordSet.Alias(context.GetNextAlias()), keyPairs);
+        return CombineResultExpressions(outer, inner, recordSet, resultSelector);
+      }
+    }
 
-        var innerRecordSet = inner.RecordSet.Alias(context.GetNextAlias());
-        var recordSet = outer.RecordSet.Join(innerRecordSet, keyPairs);
-        var outerLength = outer.RecordSet.Header.Columns.Count;
-        var innerLength = inner.RecordSet.Header.Columns.Count;
+    private Expression CombineResultExpressions(ResultExpression outer, ResultExpression inner,
+      RecordSet recordSet, LambdaExpression resultSelector)
+    {
+      var outerLength = outer.RecordSet.Header.Columns.Count;
+      var innerLength = inner.RecordSet.Header.Columns.Count;
 
-        var tupleAccessProcessor = new TupleAccessProcessor();
-        var tupleMapping = new List<int>(Enumerable.Repeat(-1, outerLength).Concat(Enumerable.Range(0, innerLength)));
-        var groupMapping = new List<int>(Enumerable.Repeat(-1, outer.RecordSet.Header.ColumnGroups.Count).Concat(Enumerable.Range(0, inner.RecordSet.Header.ColumnGroups.Count)));
+      var tupleAccessProcessor = new TupleAccessProcessor();
+      var tupleMapping = new List<int>(
+        Enumerable.Repeat(-1, outerLength).Concat(Enumerable.Range(0, innerLength))
+        );
+      var groupMapping = new List<int>(
+        Enumerable.Repeat(-1, outer.RecordSet.Header.ColumnGroups.Count)
+          .Concat(Enumerable.Range(0, inner.RecordSet.Header.ColumnGroups.Count))
+        );
 
-        outer = new ResultExpression(outer.Type, recordSet, outer.Mapping, outer.Projector, outer.ItemProjector);
-        var innerProjector = (Expression<Func<RecordSet, object>>)tupleAccessProcessor.ReplaceMappings(inner.Projector, tupleMapping, groupMapping);
-        var innerItemProjector = (LambdaExpression)tupleAccessProcessor.ReplaceMappings(inner.ItemProjector, tupleMapping, groupMapping);
-        inner = new ResultExpression(inner.Type, recordSet, inner.Mapping.ShiftOffset(outerLength), innerProjector, innerItemProjector);
+      outer = new ResultExpression(outer.Type, recordSet, outer.Mapping, outer.Projector, outer.ItemProjector);
+      var innerProjector = (Expression<Func<RecordSet, object>>)tupleAccessProcessor.ReplaceMappings(inner.Projector, tupleMapping, groupMapping);
+      var innerItemProjector = (LambdaExpression)tupleAccessProcessor.ReplaceMappings(inner.ItemProjector, tupleMapping, groupMapping);
+      inner = new ResultExpression(inner.Type, recordSet, inner.Mapping.ShiftOffset(outerLength), innerProjector, innerItemProjector);
 
-        using (context.Bind(resultSelector.Parameters[0], outer))
-        using (context.Bind(resultSelector.Parameters[1], inner)) {
-          var result = BuildProjection(resultSelector);
-          return result;
-        }
+      using (context.Bind(resultSelector.Parameters[0], outer))
+      using (context.Bind(resultSelector.Parameters[1], inner)) {
+        return BuildProjection(resultSelector);
       }
     }
 
@@ -563,7 +571,32 @@ namespace Xtensive.Storage.Linq
 
     private Expression VisitSelectMany(Type resultType, Expression source, LambdaExpression collectionSelector, LambdaExpression resultSelector)
     {
-      throw new NotImplementedException();
+      using (context.Bind(collectionSelector.Parameters[0], (ResultExpression) Visit(source))) {
+        var parameter = collectionSelector.Parameters[0];
+        var outerResult = context.GetBound(parameter);
+        bool isOuter = false;
+        if (collectionSelector.Body.NodeType==ExpressionType.Call) {
+          var call = (MethodCallExpression) collectionSelector.Body;
+          isOuter = call.Method.IsGenericMethod
+            && call.Method.GetGenericMethodDefinition()==WellKnownMethods.QueryableDefaultIfEmpty;
+          if (isOuter)
+            collectionSelector = Expression.Lambda(call.Arguments[0], parameter);
+        }
+        ResultExpression innerResult;
+        Parameter<Tuple> applyParameter;
+        context.SubqueryParameterBindings.Bind(collectionSelector.Parameters);
+        try {
+          innerResult = (ResultExpression) Visit(collectionSelector.Body);
+          applyParameter = context.SubqueryParameterBindings.GetBound(parameter);
+        }
+        finally {
+          context.SubqueryParameterBindings.Unbind(collectionSelector.Parameters);
+        }
+        var recordSet = outerResult.RecordSet.Apply(applyParameter,
+          innerResult.RecordSet.Alias(context.GetNextAlias()),
+          isOuter ? ApplyType.Outer : ApplyType.Cross);
+        return CombineResultExpressions(outerResult, innerResult, recordSet, resultSelector);
+      }
     }
 
     private Expression VisitSelect(Expression expression, LambdaExpression le)
