@@ -557,8 +557,9 @@ namespace Xtensive.Storage.Providers.Sql
     /// Postprocesses (transforms SqlDom trees) specified <see cref="SqlExpression"/>
     /// </summary>
     /// <param name="expression">Expression to postprocess.</param>
+    /// <param name="resultType">Result type of original lambda.</param>
     /// <returns>Postprocessed expression.</returns>
-    protected virtual SqlExpression PostprocessExpression(SqlExpression expression)
+    protected virtual SqlExpression PostprocessExpression(SqlExpression expression, Type resultType)
     {
       return expression;
     }
@@ -568,7 +569,7 @@ namespace Xtensive.Storage.Providers.Sql
     private Pair<SqlExpression, ExpressionProcessor> TranslateExpression(LambdaExpression le, params SqlSelect[] selects)
     {
       var result = new ExpressionProcessor(this, Handlers.Domain.Model, PreprocessExpression(le), selects);
-      return new Pair<SqlExpression, ExpressionProcessor>(PostprocessExpression(result.Translate()), result);
+      return new Pair<SqlExpression, ExpressionProcessor>(PostprocessExpression(result.Translate(), le.Body.Type), result);
     }
 
     private SqlSelect BuildProviderQuery(IndexInfo index)

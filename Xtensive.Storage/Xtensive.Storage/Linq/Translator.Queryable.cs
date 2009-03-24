@@ -660,11 +660,15 @@ namespace Xtensive.Storage.Linq
       var applyParameter = context.SubqueryParameterBindings.GetBound(lambdaParameter);
       var oldResult = context.GetBound(lambdaParameter);
       var newRecordSet = oldResult.RecordSet
-        .Apply(applyParameter, subquery.RecordSet, notExists ? ApplyType.NotExisting : ApplyType.Existing);
+        .Apply(applyParameter, subquery.RecordSet.Existence(context.GetNextColumnAlias()), ApplyType.Cross);
       var newResult = new ResultExpression(
         oldResult.Type, newRecordSet, oldResult.Mapping, oldResult.Projector, oldResult.ItemProjector);
       context.ReplaceBound(lambdaParameter, newResult);
-      return Expression.Equal(Expression.Constant(1), Expression.Constant(1));
+      Expression filter = MakeTupleAccess(lambdaParameter, typeof (bool),
+        Expression.Constant(newRecordSet.Header.Columns.Count - 1));
+      if (notExists)
+        filter = Expression.Not(filter);
+      return filter;
     }
 
     // Constructor

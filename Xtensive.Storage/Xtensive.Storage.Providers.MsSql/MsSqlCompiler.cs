@@ -30,7 +30,7 @@ namespace Xtensive.Storage.Providers.MsSql
       if (result == null)
         return null;
       var select = (SqlSelect) result.Request.Statement;
-      ReplaceBooleanColumn(select, provider.Header.Columns.Count - 1);
+      ReplaceBooleanColumn(select, 0);
       return result;
     }
 
@@ -145,16 +145,18 @@ namespace Xtensive.Storage.Providers.MsSql
       return ExpressionPreprocessor.Preprocess(lambda);
     }
 
-    protected override SqlExpression PostprocessExpression(SqlExpression expression)
+    protected override SqlExpression PostprocessExpression(SqlExpression expression, Type resultType)
     {
-      if (expression.NodeType == SqlNodeType.Parameter)
-        return SqlFactory.NotEquals(expression, 0);
+      if (resultType == typeof(bool)) {
+        if (expression.NodeType == SqlNodeType.Parameter)
+          return SqlFactory.NotEquals(expression, 0);
 
-      if (expression.NodeType == SqlNodeType.Not) {
-        var operand = ((SqlUnary)expression).Operand;
-        if (operand.NodeType == SqlNodeType.Parameter)
-          return SqlFactory.Equals(operand, 0);
-        return expression;
+        if (expression.NodeType == SqlNodeType.Not) {
+          var operand = ((SqlUnary)expression).Operand;
+          if (operand.NodeType == SqlNodeType.Parameter)
+            return SqlFactory.Equals(operand, 0);
+          return expression;
+        }
       }
       // expression = (SqlExpression) expression.Clone();
       ReplaceBooleanParameters(expression);
@@ -175,6 +177,8 @@ namespace Xtensive.Storage.Providers.MsSql
         case SqlNodeType.And:
           break;
         default:
+          ReplaceBooleanParameters(left);
+          ReplaceBooleanParameters(right);
           return;
       }
 
