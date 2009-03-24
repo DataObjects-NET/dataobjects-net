@@ -25,9 +25,9 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 
     #region Cached properties
 
-    private const string CachedRangeName = "CachedRange";
+    private const string CachedRangeName = "CachedRangeSet";
 
-    private RangeSet<Entire<Tuple>> CachedRange
+    private RangeSet<Entire<Tuple>> CachedRangeSet
     {
       get { return (RangeSet<Entire<Tuple>>)GetCachedValue<object>(EnumerationContext.Current, CachedRangeName); }
       set { SetCachedValue(EnumerationContext.Current, CachedRangeName, (object)value); }
@@ -73,7 +73,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     public IEnumerable<Tuple> GetKeys(Range<Entire<Tuple>> range)
     {
       var sourceEnumerable = Source.GetService<IOrderedEnumerable<Tuple, Tuple>>(true);
-      RangeSet<Entire<Tuple>> intersected = CachedRange.Intersect(range);
+      RangeSet<Entire<Tuple>> intersected = CachedRangeSet.Intersect(range);
       foreach (var r in intersected) {
         var keys = sourceEnumerable.GetKeys(r);
         foreach(var item in keys)
@@ -85,15 +85,15 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     public IEnumerable<Tuple> GetItems(Range<Entire<Tuple>> range)
     {
       var sourceEnumerable = Source.GetService<IOrderedEnumerable<Tuple, Tuple>>(true);
-      RangeSet<Entire<Tuple>> intersected = CachedRange.Intersect(range);
+      RangeSet<Entire<Tuple>> intersected = CachedRangeSet.Intersect(range);
       return sourceEnumerable.GetItems(intersected);
     }
 
     /// <inheritdoc/>
-    public IEnumerable<Tuple> GetItems(RangeSet<Entire<Tuple>> range)
+    public IEnumerable<Tuple> GetItems(RangeSet<Entire<Tuple>> rangeSet)
     {
       var sourceEnumerable = Source.GetService<IOrderedEnumerable<Tuple, Tuple>>(true);
-      RangeSet<Entire<Tuple>> intersected = CachedRange.Intersect(range);
+      RangeSet<Entire<Tuple>> intersected = CachedRangeSet.Intersect(rangeSet);
       return sourceEnumerable.GetItems(intersected);
     }
 
@@ -101,7 +101,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     public SeekResult<Tuple> Seek(Ray<Entire<Tuple>> ray)
     {
       var sourceEnumerable = Source.GetService<IOrderedEnumerable<Tuple, Tuple>>(true);
-      foreach (var range in CachedRange)
+      foreach (var range in CachedRangeSet)
         if (range.Contains(ray.Point, EntireKeyComparer))
           return sourceEnumerable.Seek(ray);
       return new SeekResult<Tuple>(SeekResultType.None, null);
@@ -111,7 +111,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     public SeekResult<Tuple> Seek(Tuple key)
     {
       var sourceEnumerable = Source.GetService<IOrderedEnumerable<Tuple, Tuple>>(true);
-      foreach (var range in CachedRange)
+      foreach (var range in CachedRangeSet)
         if (range.Contains(new Entire<Tuple>(key), EntireKeyComparer))
           return sourceEnumerable.Seek(key);
       return new SeekResult<Tuple>(SeekResultType.None, null);
@@ -121,7 +121,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     public IIndexReader<Tuple, Tuple> CreateReader(Range<Entire<Tuple>> range)
     {
       var sourceEnumerable = Source.GetService<IOrderedEnumerable<Tuple, Tuple>>(true);
-      //var intersect = CachedRange.Intersect(range, EntireKeyComparer);
+      //var intersect = CachedRangeSet.Intersect(range, EntireKeyComparer);
       IIndexReader<Tuple, Tuple> indexReader = sourceEnumerable.CreateReader(range);
       return indexReader;
     }
@@ -132,14 +132,14 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     protected internal override void OnBeforeEnumerate(EnumerationContext context)
     {
       base.OnBeforeEnumerate(context);
-      CachedRange = Origin.CompiledRange.Invoke();
+      CachedRangeSet = Origin.CompiledRange.Invoke();
     }
 
     /// <inheritdoc/>
     protected internal override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
       var sourceEnumerable = Source.GetService<IOrderedEnumerable<Tuple, Tuple>>(true);
-      return sourceEnumerable.GetItems(CachedRange);
+      return sourceEnumerable.GetItems(CachedRangeSet);
     }
 
     /// <inheritdoc/>

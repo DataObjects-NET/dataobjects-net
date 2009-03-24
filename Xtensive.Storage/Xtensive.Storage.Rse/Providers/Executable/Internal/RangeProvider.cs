@@ -83,11 +83,11 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     }
 
     /// <inheritdoc/>
-    public IEnumerable<Tuple> GetItems(RangeSet<Entire<Tuple>> range)
+    public IEnumerable<Tuple> GetItems(RangeSet<Entire<Tuple>> rangeSet)
     {
       var sourceEnumerable = Source.GetService<IOrderedEnumerable<Tuple, Tuple>>(true);
-      //RangeSet<Entire<Tuple>> intersected = CachedRange.Intersect(range, EntireKeyComparer);
-      return sourceEnumerable.GetItems(range);
+      var intersected = rangeSet.Intersect(CachedRange);
+      return sourceEnumerable.GetItems(intersected);
     }
 
     /// <inheritdoc/>
