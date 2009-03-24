@@ -317,7 +317,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.MsSql
       var parameter2 = false;
       TestQuery(() =>
         from o in Query<MyEntity>.All
-        where !o.Flag && o.Name.StartsWith("No") || o.HasStupidName && parameter1 || !parameter2
+        where (!o.Flag && o.Name.StartsWith("No") || parameter1) && (o.HasStupidName || !parameter2)
         select new {value = o.Id % 10 < 5, flag = o.Flag, notflag = !o.Flag}
         );
     }
