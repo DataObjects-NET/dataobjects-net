@@ -23,6 +23,19 @@ namespace Xtensive.Storage.Linq
       return base.VisitSort(provider);
     }
 
+    protected override Provider VisitJoin(JoinProvider provider)
+    {
+      return base.VisitJoin(provider);
+    }
 
+    protected override Provider VisitPredicateJoin(PredicateJoinProvider provider)
+    {
+      return base.VisitPredicateJoin(provider);
+    }
+
+    protected override Provider VisitApply(ApplyProvider provider)
+    {
+      return base.VisitApply(provider);
+    }
   }
 }
