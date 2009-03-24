@@ -5,6 +5,7 @@
 // Created:    2009.03.20
 
 using System;
+using Xtensive.Core;
 using Xtensive.Modelling;
 using System.Diagnostics;
 
@@ -30,7 +31,7 @@ namespace Xtensive.Indexing.Storage.Model
     {
     }
 
-    public SecondaryKeyColumnRef(SecondaryIndexInfo secondaryIndex, ColumnInfo column, int index, ColumnDirection direction)
+    public SecondaryKeyColumnRef(SecondaryIndexInfo secondaryIndex, ColumnInfo column, int index, Direction direction)
       : base(secondaryIndex, column, index, direction)
     {
     }

@@ -7,7 +7,6 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
-using Xtensive.Indexing.Storage.Exceptions;
 using Xtensive.Modelling;
 using Xtensive.Modelling.Attributes;
 using System.Collections.Generic;
@@ -93,20 +92,20 @@ namespace Xtensive.Indexing.Storage.Model
       base.ValidateState();
       
       if (KeyColumns.Count==0)
-        throw new ModelIntegrityException("Empty key columns collection.", Path);
+        throw new IntegrityException("Empty key columns collection.", Path);
 
       if (ReferencedIndex==null)
-        throw new ModelIntegrityException("Referenced index not defined.", Path);
+        throw new IntegrityException("Referenced index not defined.", Path);
 
       var keyColumns = new List<ColumnInfo>(KeyColumns.Select(columnRef => columnRef.Value));
       var referencedColumns = new List<ColumnInfo>(ReferencedIndex.KeyColumns.Select(keyColumn => keyColumn.Value));
 
       if (keyColumns.Except(referencedColumns).Union(referencedColumns.Except(keyColumns)).Count() > 0) {
-        throw new ModelIntegrityException("Foreign key columns definition does not match referenced index key columns.", Path);
+        throw new IntegrityException("Foreign key columns definition does not match referenced index key columns.", Path);
       }
 
       foreach (var column in keyColumns.Except(Parent.Columns)) {
-        throw new ModelIntegrityException(
+        throw new IntegrityException(
           string.Format("Referenced column '{0}' does not belong to parent index '{1}'.", column.Name, Parent.Name),
           Path);
       }

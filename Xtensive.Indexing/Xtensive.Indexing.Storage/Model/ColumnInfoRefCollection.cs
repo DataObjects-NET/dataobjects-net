@@ -11,15 +11,14 @@ using System.Diagnostics;
 namespace Xtensive.Indexing.Storage.Model
 {
   /// <summary>
-  /// A collection of <see cref="ColumnInfoRef"/>.
+  /// A collection of <see cref="ColumnInfoRef{TParent}"/>.
   /// </summary>
   /// <typeparam name="TParent">The type of the parent node.</typeparam>
   [Serializable]
   public class ColumnInfoRefCollection<TParent> : NodeCollectionBase<ColumnInfoRef<TParent>, TParent>
     where TParent : Node
   {
-
-    //Constructors
+    // Constructors
 
     public ColumnInfoRefCollection(Node parent, string name)
       : base(parent, name)

@@ -11,7 +11,7 @@ namespace Xtensive.Indexing.Storage.Model
   [Serializable]
   public enum ReferentialAction
   {
-    NoAction = 0,
+    None = 0,
 
     Default = Restrict,
 

@@ -6,12 +6,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using Xtensive.Core.Helpers;
 using Xtensive.Modelling;
 using Xtensive.Modelling.Attributes;
-using Xtensive.Indexing.Storage.Exceptions;
 
 namespace Xtensive.Indexing.Storage.Model
 {
@@ -60,7 +57,7 @@ namespace Xtensive.Indexing.Storage.Model
     }
 
     /// <inheritdoc/>
-    /// <exception cref="StorageIntegrityException">Validation failure.</exception>
+    /// <exception cref="IntegrityException">Empty secondary key columns collection.</exception>
     protected override void ValidateState()
     {
       base.ValidateState();
@@ -70,30 +67,30 @@ namespace Xtensive.Indexing.Storage.Model
 
       // Empty keys.
       if (secondaryKeyColumns.Count==0)
-        throw new ModelIntegrityException("Empty secondary key columns collection.", Path);
+        throw new IntegrityException("Empty secondary key columns collection.", Path);
 
       // Double keys.
       foreach (var column in secondaryKeyColumns.GroupBy(keyColumn => keyColumn).Where(group => group.Count() > 1).Select(group => group.Key)) {
-        throw new ModelIntegrityException(
+        throw new IntegrityException(
           string.Format("Secondary key columns collection contains more then one reference to column '{0}'.", column.Name),
           Path);
       }
 
       // Secondary key column does not primary value column.
       foreach (var column in secondaryKeyColumns.Except(primaryValueColumns)) {
-        throw new ModelIntegrityException(
+        throw new IntegrityException(
           string.Format("Secondary key column '{0}' must be primary value column.", column.Name),
           Path);
       }
     }
 
 
-    //Constructors
+    // Constructors
 
+    /// <inheritdoc/>
     public SecondaryIndexInfo(PrimaryIndexInfo primaryIndex, string name)
       : base(primaryIndex, name)
     {
     }
-
   }
 }

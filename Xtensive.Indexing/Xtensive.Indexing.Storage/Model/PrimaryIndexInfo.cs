@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Xtensive.Core.Helpers;
-using Xtensive.Indexing.Storage.Exceptions;
 using Xtensive.Modelling;
 using Xtensive.Modelling.Attributes;
 
@@ -22,31 +21,31 @@ namespace Xtensive.Indexing.Storage.Model
   public class PrimaryIndexInfo : NodeBase<StorageInfo>
   {
     /// <summary>
-    /// Gets or sets all columns belongs to the index.
+    /// Gets all columns belongs to the index.
     /// </summary>
     [Property]
     public ColumnInfoCollection Columns { get; private set; }
 
     /// <summary>
-    /// Gets the key columns belongs to the index.
+    /// Gets key columns belongs to the index.
     /// </summary>
     [Property]
     public ColumnInfoRefCollection<PrimaryIndexInfo> KeyColumns { get; private set; }
 
     /// <summary>
-    /// Gets the value columns belongs to the index.
+    /// Gets value columns belongs to the index.
     /// </summary>
     [Property]
     public ColumnInfoRefCollection<PrimaryIndexInfo> ValueColumns { get; private set; }
 
     /// <summary>
-    /// Gets the secondary indexes.
+    /// Gets secondary indexes.
     /// </summary>
     [Property]
     public SecondaryIndexInfoCollection SecondaryIndexes { get; private set; }
 
     /// <summary>
-    /// Gets the foreign keys collection.
+    /// Gets foreign keys.
     /// </summary>
     [Property]
     public ForeignKeyCollection ForeignKeys { get; private set; }
@@ -69,6 +68,7 @@ namespace Xtensive.Indexing.Storage.Model
     }
 
     /// <inheritdoc/>
+    /// <exception cref="IntegrityException">Validation error.</exception>
     protected override void ValidateState()
     {
       base.ValidateState();
@@ -78,54 +78,55 @@ namespace Xtensive.Indexing.Storage.Model
 
       // Empty keys.
       if (keys.Count==0)
-        throw new ModelIntegrityException("Empty key columns collection.", Path);
+        throw new IntegrityException("Empty key columns collection.", Path);
 
       // Double column reference.
       foreach (var column in keys.Intersect(values)) {
-        throw new ModelIntegrityException(
+        throw new IntegrityException(
           string.Format("Column '{0}' contains in both key and value collections.", column.Name),
           Path);
       }
 
       // Not referenced columns.
       foreach (var column in Columns.Except(keys.Union(values))) {
-        throw new ModelIntegrityException(
+        throw new IntegrityException(
           string.Format("Can not find reference to column '{0}'.", column.Name),
           Path);
       }
 
       // Double keys.
       foreach (var column in keys.GroupBy(key => key).Where(group => group.Count() > 1).Select(group => group.Key)) {
-        throw new ModelIntegrityException(
+        throw new IntegrityException(
           string.Format("Key columns collection contains more then one reference to column '{0}'.", column.Name),
           Path);
       }
 
       // Key columns contains refernce to column from another index.
       foreach (var column in keys.Except(Columns)) {
-        throw new ModelIntegrityException(
+        throw new IntegrityException(
           string.Format("Referenced column '{0}' does not belong to index '{1}'.", column.Name, Name),
           Path);
       }
 
       // Double values.
       foreach (var column in values.GroupBy(value => value).Where(group => group.Count() > 1).Select(group => group.Key)) {
-        throw new ModelIntegrityException(
+        throw new IntegrityException(
           string.Format("Value columns collection contains more then one reference to column '{0}'.", column.Name),
           Path);
       }
 
       // Value columns contains refernce to column from another index.
       foreach (var column in values.Except(Columns)) {
-        throw new ModelIntegrityException(
+        throw new IntegrityException(
           string.Format("Referenced column '{0}' does not belong to index '{1}'.", column.Name, Name),
           Path);
       }
     }
 
 
-    //Constructors
+    // Constructors
 
+    /// <inheritdoc/>
     public PrimaryIndexInfo(StorageInfo parent, string name)
       : base(parent, name)
     {

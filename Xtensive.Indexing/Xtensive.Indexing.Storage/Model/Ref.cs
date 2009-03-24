@@ -7,7 +7,6 @@
 using System;
 using Xtensive.Core;
 using Xtensive.Modelling;
-using System.Diagnostics;
 using Xtensive.Modelling.Attributes;
 
 namespace Xtensive.Indexing.Storage.Model
@@ -28,6 +27,7 @@ namespace Xtensive.Indexing.Storage.Model
     /// <summary>
     /// Gets or sets referenced node.
     /// </summary>
+    /// <exception cref="NotSupportedException">Value is already initialized.</exception>
     [Property]
     public TTarget Value
     {
@@ -35,7 +35,7 @@ namespace Xtensive.Indexing.Storage.Model
       set
       {
         if (this.value!=null)
-          throw Core.Exceptions.AlreadyInitialized("Value");
+          throw Exceptions.AlreadyInitialized("Value");
         EnsureIsEditable();
         using (var scope = LogChange("Value", value)) {
           this.value = value;
@@ -45,7 +45,7 @@ namespace Xtensive.Indexing.Storage.Model
     }
 
 
-    //Constructors
+    // Constructors
 
     protected Ref(TParent parent, int index)
       : base(parent, null, index)

@@ -8,24 +8,24 @@ using System;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 
-namespace Xtensive.Indexing.Storage.Exceptions
+namespace Xtensive.Indexing.Storage
 {
   [Serializable]
-  public class ModelIntegrityException: Exception
+  public class IntegrityException: Exception
   {
     public string NodePath { get; private set; }
 
-    protected ModelIntegrityException()
+    protected IntegrityException()
     {
     }
 
-    public ModelIntegrityException(string message, string nodePath)
+    public IntegrityException(string message, string nodePath)
       : base(message)
     {
       NodePath = nodePath;
     }
 
-    public ModelIntegrityException(SerializationInfo info, StreamingContext context)
+    public IntegrityException(SerializationInfo info, StreamingContext context)
       : base(info, context)
     {
     }

@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics;
 using NUnit.Framework;
+using Xtensive.Core;
 using Xtensive.Core.Testing;
 using Xtensive.Indexing.Storage.Model;
 
@@ -31,7 +32,7 @@ namespace Xtensive.Indexing.Tests.Storage
       primaryKey = new ColumnInfo(primary, "key");
       primaryValue1 = new ColumnInfo(primary, "value1");
       primaryValue2 = new ColumnInfo(primary, "value2");
-      new PrimaryKeyColumnRef(primary, primaryKey, 0, ColumnDirection.Positive);
+      new PrimaryKeyColumnRef(primary, primaryKey, 0, Direction.Positive);
       new PrimaryValueColumnRef(primary, primaryValue1, 0);
       new PrimaryValueColumnRef(primary, primaryValue2, 1);
     }
@@ -56,8 +57,8 @@ namespace Xtensive.Indexing.Tests.Storage
     [Test]
     public void AddRemoveKeyColumnsTest()
     {
-      new SecondaryKeyColumnRef(secondary, primaryValue1, 0, ColumnDirection.Negative);
-      new SecondaryKeyColumnRef(secondary, primaryValue2, 1, ColumnDirection.Negative);
+      new SecondaryKeyColumnRef(secondary, primaryValue1, 0, Direction.Negative);
+      new SecondaryKeyColumnRef(secondary, primaryValue2, 1, Direction.Negative);
       Assert.AreEqual(2, secondary.SecondaryKeyColumns.Count);
       Dump();
       secondary.SecondaryKeyColumns[0].Remove();
@@ -73,8 +74,8 @@ namespace Xtensive.Indexing.Tests.Storage
     [Test]
     public void ValidateDoubleKeys()
     {
-      new SecondaryKeyColumnRef(secondary, primaryValue1, 0, ColumnDirection.Negative);
-      new SecondaryKeyColumnRef(secondary, primaryValue1, 1, ColumnDirection.Positive);
+      new SecondaryKeyColumnRef(secondary, primaryValue1, 0, Direction.Negative);
+      new SecondaryKeyColumnRef(secondary, primaryValue1, 1, Direction.Positive);
 
       AssertEx.Throws<Exception>(secondary.Validate);
     }
@@ -82,7 +83,7 @@ namespace Xtensive.Indexing.Tests.Storage
     [Test]
     public void ValidateKeyIsNotPrimaryValue()
     {
-      new SecondaryKeyColumnRef(secondary, primaryKey, 0, ColumnDirection.Positive);
+      new SecondaryKeyColumnRef(secondary, primaryKey, 0, Direction.Positive);
     }
 
     [TearDown]

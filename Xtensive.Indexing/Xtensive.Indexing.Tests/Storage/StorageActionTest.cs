@@ -6,6 +6,7 @@
 
 using System;
 using System.Diagnostics;
+using Xtensive.Core;
 using Xtensive.Indexing.Storage.Model;
 using NUnit.Framework;
 using Xtensive.Modelling.Actions;
@@ -31,10 +32,10 @@ namespace Xtensive.Indexing.Tests.Storage
       primaryKey = new ColumnInfo(primary, "ID", typeof(int));
       primaryValue1 = new ColumnInfo(primary, "AGE", typeof(string));
       primaryValue2 = new ColumnInfo(primary, "NAME", typeof(string));
-      new PrimaryKeyColumnRef(primary, primaryKey, 0, ColumnDirection.Positive);
+      new PrimaryKeyColumnRef(primary, primaryKey, 0, Direction.Positive);
       new PrimaryValueColumnRef(primary, primaryValue1, 0);
       new PrimaryValueColumnRef(primary, primaryValue2, 1);
-      new SecondaryKeyColumnRef(secondary, primaryValue1, 0, ColumnDirection.Positive);
+      new SecondaryKeyColumnRef(secondary, primaryValue1, 0, Direction.Positive);
 
       storage.Dump();
     }

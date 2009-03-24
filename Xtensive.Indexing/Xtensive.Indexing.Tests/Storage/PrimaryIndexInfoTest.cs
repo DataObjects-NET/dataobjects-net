@@ -65,7 +65,7 @@ namespace Xtensive.Indexing.Tests.Storage
     public void AddRemoveKeyColumnRefs()
     {
       var column = new ColumnInfo(index, "col1");
-      var colRef = new PrimaryKeyColumnRef(index, column, 0, ColumnDirection.Positive);
+      var colRef = new PrimaryKeyColumnRef(index, column, 0, Direction.Positive);
       Assert.AreEqual(1, index.KeyColumns.Count);
       colRef.Remove();
       Assert.AreEqual(0, index.KeyColumns.Count);
@@ -94,7 +94,7 @@ namespace Xtensive.Indexing.Tests.Storage
     public void ValidateDoubleColumnRefs()
     {
       var column = new ColumnInfo(index, "c");
-      new PrimaryKeyColumnRef(index, column, 0, ColumnDirection.Positive);
+      new PrimaryKeyColumnRef(index, column, 0, Direction.Positive);
       new PrimaryValueColumnRef(index, column, 0);
 
       AssertEx.Throws<Exception>(index.Validate);
@@ -103,7 +103,7 @@ namespace Xtensive.Indexing.Tests.Storage
     [Test]
     public void ValidateNotReferencedColumns()
     {
-      new PrimaryKeyColumnRef(index, new ColumnInfo(index, "key"), 0, ColumnDirection.Positive);
+      new PrimaryKeyColumnRef(index, new ColumnInfo(index, "key"), 0, Direction.Positive);
       new ColumnInfo(index, "col");
 
       AssertEx.Throws<Exception>(index.Validate);
@@ -114,8 +114,8 @@ namespace Xtensive.Indexing.Tests.Storage
     {
       var key = new ColumnInfo(index, "key");
       var value = new ColumnInfo(index, "value");
-      new PrimaryKeyColumnRef(index, key, 0, ColumnDirection.Positive);
-      new PrimaryKeyColumnRef(index, key, 1, ColumnDirection.Negative);
+      new PrimaryKeyColumnRef(index, key, 0, Direction.Positive);
+      new PrimaryKeyColumnRef(index, key, 1, Direction.Negative);
       new PrimaryValueColumnRef(index, value, 0);
       new PrimaryValueColumnRef(index, value, 1);
 
@@ -128,7 +128,7 @@ namespace Xtensive.Indexing.Tests.Storage
       var anotherIndex = new PrimaryIndexInfo(storage, "i2");
       var key = new ColumnInfo(anotherIndex, "key");
       var value = new ColumnInfo(anotherIndex, "value");
-      new PrimaryKeyColumnRef(index, key, 0, ColumnDirection.Positive);
+      new PrimaryKeyColumnRef(index, key, 0, Direction.Positive);
       new PrimaryValueColumnRef(index, value, 0);
 
       AssertEx.Throws<Exception>(index.Validate);

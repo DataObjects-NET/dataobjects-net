@@ -5,7 +5,6 @@
 // Created:    2009.03.20
 
 using System;
-using Xtensive.Indexing.Storage.Exceptions;
 using Xtensive.Modelling;
 using System.Diagnostics;
 using Xtensive.Modelling.Attributes;
@@ -50,7 +49,7 @@ namespace Xtensive.Indexing.Storage.Model
       base.ValidateState();
 
       if (ColumnType==null)
-        throw new ModelIntegrityException(
+        throw new IntegrityException(
           string.Format("Type of column {0} does not defined.", Name),
           Path);
     }

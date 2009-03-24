@@ -21,6 +21,7 @@ namespace Xtensive.Indexing.Storage.Model
   {
     private ActionSequence actions;
 
+    /// <inheritdoc/>
     public ActionSequence Actions
     {
       get { return actions; }
@@ -32,7 +33,7 @@ namespace Xtensive.Indexing.Storage.Model
     }
 
     /// <summary>
-    /// Gets the primary indexes.
+    /// Gets primary indexes.
     /// </summary>
     [Property]
     public PrimaryIndexInfoCollection PrimaryIndexes { get; private set; }

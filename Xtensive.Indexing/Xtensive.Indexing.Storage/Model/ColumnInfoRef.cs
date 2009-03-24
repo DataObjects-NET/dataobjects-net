@@ -19,9 +19,7 @@ namespace Xtensive.Indexing.Storage.Model
   public abstract class ColumnInfoRef<TParent>: Ref<ColumnInfo, TParent>
     where TParent : Node
   {
-
-
-    //Constructors
+    // Constructors
 
     protected ColumnInfoRef(TParent parent, int index)
       : base(parent, index)

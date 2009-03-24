@@ -40,21 +40,21 @@ namespace Xtensive.Indexing.Tests.Storage
       column1 = new ColumnInfo(pi1, "col1", typeof(string));  
       column2 = new ColumnInfo(pi1, "col2", typeof(string));
       column3 = new ColumnInfo(pi1, "col3", typeof(string));
-      new PrimaryKeyColumnRef(pi1, column1, 0, ColumnDirection.Positive);
+      new PrimaryKeyColumnRef(pi1, column1, 0, Direction.Positive);
       new PrimaryValueColumnRef(pi1, column2, 0);
       new PrimaryValueColumnRef(pi1, column3, 1);
       si1 = new SecondaryIndexInfo(pi1, "si1");
-      new SecondaryKeyColumnRef(si1, column2, 0, ColumnDirection.Positive);
+      new SecondaryKeyColumnRef(si1, column2, 0, Direction.Positive);
       
 
       //Primary 2
       pi2 = new PrimaryIndexInfo(storage, "pi2");
       column4 = new ColumnInfo(pi2, "col4", typeof(string));
       column5 = new ColumnInfo(pi2, "col5", typeof(int));
-      new PrimaryKeyColumnRef(pi2, column4, 0, ColumnDirection.Negative);
+      new PrimaryKeyColumnRef(pi2, column4, 0, Direction.Negative);
       new PrimaryValueColumnRef(pi2, column5, 0);
       si2 = new SecondaryIndexInfo(pi2, "si2");
-      new SecondaryKeyColumnRef(si2, column5, 0, ColumnDirection.Positive);
+      new SecondaryKeyColumnRef(si2, column5, 0, Direction.Positive);
 
       fk1 = new ForeignKeyInfo(pi1, "fk1");
       fk1.ReferencedIndex = pi2;

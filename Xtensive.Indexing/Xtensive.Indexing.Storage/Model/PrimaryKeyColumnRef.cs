@@ -5,6 +5,7 @@
 // Created:    2009.03.20
 
 using System;
+using Xtensive.Core;
 using Xtensive.Modelling;
 
 namespace Xtensive.Indexing.Storage.Model
@@ -22,14 +23,14 @@ namespace Xtensive.Indexing.Storage.Model
     }
 
 
-    //Constructors
+    // Constructors
 
     public PrimaryKeyColumnRef(PrimaryIndexInfo primaryIndex, int index)
       : base(primaryIndex, index)
     {
     }
 
-    public PrimaryKeyColumnRef(PrimaryIndexInfo primaryIndex, ColumnInfo column, int index, ColumnDirection direction)
+    public PrimaryKeyColumnRef(PrimaryIndexInfo primaryIndex, ColumnInfo column, int index, Direction direction)
       : base(primaryIndex, column, index, direction)
     {
     }

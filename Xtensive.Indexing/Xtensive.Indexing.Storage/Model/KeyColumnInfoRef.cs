@@ -5,6 +5,7 @@
 // Created:    2009.03.20
 
 using System;
+using Xtensive.Core;
 using Xtensive.Modelling;
 using System.Diagnostics;
 using Xtensive.Modelling.Attributes;
@@ -19,13 +20,13 @@ namespace Xtensive.Indexing.Storage.Model
   public abstract class KeyColumnInfoRef<TParent>: ColumnInfoRef<TParent>
     where TParent : Node
   {
-    private ColumnDirection direction;
+    private Direction direction;
 
     /// <summary>
     /// Gets or sets the column direction.
     /// </summary>
     [Property]
-    public ColumnDirection Direction
+    public Direction Direction
     {
       get { return direction; }
       set
@@ -46,7 +47,7 @@ namespace Xtensive.Indexing.Storage.Model
     {
     }
 
-    protected KeyColumnInfoRef(TParent parent, ColumnInfo column, int index, ColumnDirection direction)
+    protected KeyColumnInfoRef(TParent parent, ColumnInfo column, int index, Direction direction)
       : base(parent, column, index)
     {
       Direction = direction;
