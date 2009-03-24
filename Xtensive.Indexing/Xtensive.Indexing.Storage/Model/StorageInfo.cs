@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics;
 using Xtensive.Modelling;
+using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Attributes;
 
 namespace Xtensive.Indexing.Storage.Model
@@ -18,6 +19,18 @@ namespace Xtensive.Indexing.Storage.Model
   public class StorageInfo : NodeBase<StorageInfo>,
     IModel
   {
+    private ActionSequence actions;
+
+    public ActionSequence Actions
+    {
+      get { return actions; }
+      set
+      {
+        EnsureIsEditable();
+        actions = value;
+      }
+    }
+
     /// <summary>
     /// Gets the primary indexes.
     /// </summary>
@@ -44,6 +57,5 @@ namespace Xtensive.Indexing.Storage.Model
       : base(null, name)
     {
     }
-
   }
 }

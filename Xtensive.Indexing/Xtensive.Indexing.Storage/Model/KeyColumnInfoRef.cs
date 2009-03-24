@@ -19,14 +19,32 @@ namespace Xtensive.Indexing.Storage.Model
   public abstract class KeyColumnInfoRef<TParent>: ColumnInfoRef<TParent>
     where TParent : Node
   {
+    private ColumnDirection direction;
+
     /// <summary>
     /// Gets or sets the column direction.
     /// </summary>
     [Property]
-    public ColumnDirection Direction { get; set; }
+    public ColumnDirection Direction
+    {
+      get { return direction; }
+      set
+      {
+        EnsureIsEditable();
+        using (var scope = LogChange("Direction", value)) {
+          direction = value;
+          scope.Commit();
+        }
+      }
+    }
 
 
     //Constructors
+
+    protected KeyColumnInfoRef(TParent parent, int index)
+      : base(parent, index)
+    {
+    }
 
     protected KeyColumnInfoRef(TParent parent, ColumnInfo column, int index, ColumnDirection direction)
       : base(parent, column, index)

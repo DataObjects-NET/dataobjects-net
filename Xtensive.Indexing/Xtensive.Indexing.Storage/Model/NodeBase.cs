@@ -6,6 +6,7 @@
 
 using System;
 using Xtensive.Modelling;
+using Xtensive.Core.Helpers;
 
 namespace Xtensive.Indexing.Storage.Model
 {
@@ -53,7 +54,7 @@ namespace Xtensive.Indexing.Storage.Model
       Log.Info("Removed: {0}", this);
     }
 
-
+    
     //Constructors
 
     protected NodeBase(TParent parent, string name, int index)

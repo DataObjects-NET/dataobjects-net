@@ -18,7 +18,8 @@ namespace Xtensive.Indexing.Storage.Model
   /// <typeparam name="TTarget">The type of the target node.</typeparam>
   /// <typeparam name="TParent">The type of the parent node.</typeparam>
   [Serializable]
-  public abstract class Ref<TTarget, TParent> : NodeBase<TParent>
+  public abstract class Ref<TTarget, TParent> : NodeBase<TParent>, 
+    IUnnamedNode
     where TTarget : Node
     where TParent : Node
   {
@@ -31,24 +32,23 @@ namespace Xtensive.Indexing.Storage.Model
     public TTarget Value
     {
       get { return value; }
-      set {
+      set
+      {
         if (this.value!=null)
-          throw Exceptions.AlreadyInitialized("Value");
+          throw Core.Exceptions.AlreadyInitialized("Value");
         EnsureIsEditable();
-        this.value = value;
+        using (var scope = LogChange("Value", value)) {
+          this.value = value;
+          scope.Commit();
+        }
       }
     }
 
 
     //Constructors
 
-    protected Ref(TParent parent, string name)
-      : base(parent, name)
-    {
-    }
-
-    protected Ref(TParent parent, string name, int index)
-      : base(parent, name, index)
+    protected Ref(TParent parent, int index)
+      : base(parent, null, index)
     {
     }
   }

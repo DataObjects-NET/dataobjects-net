@@ -24,6 +24,11 @@ namespace Xtensive.Indexing.Storage.Model
 
     //Constructors
 
+    public PrimaryKeyColumnRef(PrimaryIndexInfo primaryIndex, int index)
+      : base(primaryIndex, index)
+    {
+    }
+
     public PrimaryKeyColumnRef(PrimaryIndexInfo primaryIndex, ColumnInfo column, int index, ColumnDirection direction)
       : base(primaryIndex, column, index, direction)
     {

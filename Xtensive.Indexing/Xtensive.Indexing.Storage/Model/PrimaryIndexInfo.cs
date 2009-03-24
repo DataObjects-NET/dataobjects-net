@@ -5,8 +5,11 @@
 // Created:    2009.03.20
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using Xtensive.Core.Helpers;
+using Xtensive.Indexing.Storage.Exceptions;
 using Xtensive.Modelling;
 using Xtensive.Modelling.Attributes;
 
@@ -16,7 +19,7 @@ namespace Xtensive.Indexing.Storage.Model
   /// Describes a single primary index.
   /// </summary>
   [Serializable]
-  public class PrimaryIndexInfo:NodeBase<StorageInfo>
+  public class PrimaryIndexInfo : NodeBase<StorageInfo>
   {
     /// <summary>
     /// Gets or sets all columns belongs to the index.
@@ -25,22 +28,28 @@ namespace Xtensive.Indexing.Storage.Model
     public ColumnInfoCollection Columns { get; private set; }
 
     /// <summary>
-    /// Gets or sets the key columns belongs to the index.
+    /// Gets the key columns belongs to the index.
     /// </summary>
     [Property]
     public ColumnInfoRefCollection<PrimaryIndexInfo> KeyColumns { get; private set; }
 
     /// <summary>
-    /// Gets or sets the value columns belongs to the index.
+    /// Gets the value columns belongs to the index.
     /// </summary>
     [Property]
     public ColumnInfoRefCollection<PrimaryIndexInfo> ValueColumns { get; private set; }
 
     /// <summary>
-    /// Gets or sets the secondary indexes.
+    /// Gets the secondary indexes.
     /// </summary>
     [Property]
     public SecondaryIndexInfoCollection SecondaryIndexes { get; private set; }
+
+    /// <summary>
+    /// Gets the foreign keys collection.
+    /// </summary>
+    [Property]
+    public ForeignKeyCollection ForeignKeys { get; private set; }
 
     /// <inheritdoc/>
     protected override Nesting CreateNesting()
@@ -56,20 +65,62 @@ namespace Xtensive.Indexing.Storage.Model
       ValueColumns = new ColumnInfoRefCollection<PrimaryIndexInfo>(this, "ValueColumns");
       Columns = new ColumnInfoCollection(this);
       SecondaryIndexes = new SecondaryIndexInfoCollection(this);
+      ForeignKeys = new ForeignKeyCollection(this, "ForeignKeys");
     }
 
     /// <inheritdoc/>
     protected override void ValidateState()
     {
       base.ValidateState();
-      if(KeyColumns.Count == 0)
-        throw new Exception("Empty key columns collection.");
-      if (KeyColumns
-        .Where(keyRef => null!=ValueColumns.SingleOrDefault(valueRef => keyRef.Value==valueRef.Value))
-        .Count() != 0) {
-        throw new Exception("");
+
+      var keys = new List<ColumnInfo>(KeyColumns.Select(keyRef => keyRef.Value));
+      var values = new List<ColumnInfo>(ValueColumns.Select(valueRef => valueRef.Value));
+
+      // Empty keys.
+      if (keys.Count==0)
+        throw new ModelIntegrityException("Empty key columns collection.", Path);
+
+      // Double column reference.
+      foreach (var column in keys.Intersect(values)) {
+        throw new ModelIntegrityException(
+          string.Format("Column '{0}' contains in both key and value collections.", column.Name),
+          Path);
       }
 
+      // Not referenced columns.
+      foreach (var column in Columns.Except(keys.Union(values))) {
+        throw new ModelIntegrityException(
+          string.Format("Can not find reference to column '{0}'.", column.Name),
+          Path);
+      }
+
+      // Double keys.
+      foreach (var column in keys.GroupBy(key => key).Where(group => group.Count() > 1).Select(group => group.Key)) {
+        throw new ModelIntegrityException(
+          string.Format("Key columns collection contains more then one reference to column '{0}'.", column.Name),
+          Path);
+      }
+
+      // Key columns contains refernce to column from another index.
+      foreach (var column in keys.Except(Columns)) {
+        throw new ModelIntegrityException(
+          string.Format("Referenced column '{0}' does not belong to index '{1}'.", column.Name, Name),
+          Path);
+      }
+
+      // Double values.
+      foreach (var column in values.GroupBy(value => value).Where(group => group.Count() > 1).Select(group => group.Key)) {
+        throw new ModelIntegrityException(
+          string.Format("Value columns collection contains more then one reference to column '{0}'.", column.Name),
+          Path);
+      }
+
+      // Value columns contains refernce to column from another index.
+      foreach (var column in values.Except(Columns)) {
+        throw new ModelIntegrityException(
+          string.Format("Referenced column '{0}' does not belong to index '{1}'.", column.Name, Name),
+          Path);
+      }
     }
 
 

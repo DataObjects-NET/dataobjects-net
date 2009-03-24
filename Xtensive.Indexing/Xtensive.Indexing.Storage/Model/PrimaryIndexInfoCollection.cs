@@ -15,7 +15,7 @@ namespace Xtensive.Indexing.Storage.Model
   /// </summary>
   [Serializable]
   public class PrimaryIndexInfoCollection : NodeCollectionBase<PrimaryIndexInfo, StorageInfo>,
-    IUnorederedNodeCollection
+    IUnorderedNodeCollection
   {
 
     //Constructors

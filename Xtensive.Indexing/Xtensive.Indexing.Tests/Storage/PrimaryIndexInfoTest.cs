@@ -10,6 +10,7 @@ using NUnit.Framework;
 using Xtensive.Core.Testing;
 using Xtensive.Indexing.Storage.Model;
 using Xtensive.Core;
+using Xtensive.Core.Helpers;
 
 namespace Xtensive.Indexing.Tests.Storage
 {
@@ -81,41 +82,58 @@ namespace Xtensive.Indexing.Tests.Storage
     }
 
     [Test]
-    public void DenyAddDoubleColumnRefs()
+    public void ValidateEmptyKeys()
+    {
+      new ColumnInfo(index, "c1");
+      new ColumnInfo(index, "c2");
+
+      AssertEx.Throws<Exception>(index.Validate);
+    }
+
+    [Test]
+    public void ValidateDoubleColumnRefs()
+    {
+      var column = new ColumnInfo(index, "c");
+      new PrimaryKeyColumnRef(index, column, 0, ColumnDirection.Positive);
+      new PrimaryValueColumnRef(index, column, 0);
+
+      AssertEx.Throws<Exception>(index.Validate);
+    }
+
+    [Test]
+    public void ValidateNotReferencedColumns()
+    {
+      new PrimaryKeyColumnRef(index, new ColumnInfo(index, "key"), 0, ColumnDirection.Positive);
+      new ColumnInfo(index, "col");
+
+      AssertEx.Throws<Exception>(index.Validate);
+    }
+
+    [Test]
+    public void ValidateDoubleKeysAndValuesColumnRefs()
     {
       var key = new ColumnInfo(index, "key");
       var value = new ColumnInfo(index, "value");
       new PrimaryKeyColumnRef(index, key, 0, ColumnDirection.Positive);
+      new PrimaryKeyColumnRef(index, key, 1, ColumnDirection.Negative);
       new PrimaryValueColumnRef(index, value, 0);
+      new PrimaryValueColumnRef(index, value, 1);
 
-      AssertEx.Throws<ArgumentException>(() => new PrimaryKeyColumnRef(index, key, 1, ColumnDirection.Positive));
-      Assert.AreEqual(1, index.KeyColumns.Count);
-      AssertEx.Throws<ArgumentException>(() => new PrimaryValueColumnRef(index, value, 1));
-      Assert.AreEqual(1, index.ValueColumns.Count);
+      AssertEx.Throws<Exception>(index.Validate);
     }
 
     [Test]
-    public void DenyAddRefToColumnFromAnotherIndex()
+    public void ValidateRefToColumnFromAnotherIndex()
     {
       var anotherIndex = new PrimaryIndexInfo(storage, "i2");
       var key = new ColumnInfo(anotherIndex, "key");
       var value = new ColumnInfo(anotherIndex, "value");
+      new PrimaryKeyColumnRef(index, key, 0, ColumnDirection.Positive);
+      new PrimaryValueColumnRef(index, value, 0);
 
-      AssertEx.Throws<ArgumentException>(() =>
-        new PrimaryKeyColumnRef(index, key, 0, ColumnDirection.Positive));
-      Assert.AreEqual(0, index.KeyColumns.Count);
-      AssertEx.Throws<ArgumentException>(() =>
-        new PrimaryValueColumnRef(index, value, 1));
-      Assert.AreEqual(0, index.ValueColumns.Count);
+      AssertEx.Throws<Exception>(index.Validate);
     }
 
-    [Test]
-    public void DenyAddKeyAndValueColumnRef()
-    {
-      var column = new ColumnInfo(index, "c");
-      new PrimaryKeyColumnRef(index, column, 0, ColumnDirection.Positive);
-      AssertEx.Throws<ArgumentException>(()=>new PrimaryValueColumnRef(index, column, 0));
-    }
 
     [TearDown]
     public void Dump()
