@@ -20,16 +20,15 @@ namespace Xtensive.Storage.Tests.Linq
     {
       using (Domain.OpenSession()) {
         using (Transaction.Open()) {
-          var contacts = Query<Customer>.All;
-          var original = contacts.Select(c => c.ContactName).ToList();
-          Assert.Greater(original.Count, 0);
+          var customers = Query<Customer>.All;
+          var original = customers.Select(c => c.ContactName).ToList();
           original.Sort();
 
-          var test = new List<string>(original.Count);
-          foreach (var item in contacts.OrderBy(c => c.ContactName))
-            test.Add(item.ContactName);
-
-          Assert.IsTrue(original.SequenceEqual(test));
+          Assert.IsTrue(original.SequenceEqual(
+            customers
+            .OrderBy(c => c.ContactName)
+            .AsEnumerable()
+            .Select(c => c.ContactName)));
         }
       }
     }
@@ -41,14 +40,12 @@ namespace Xtensive.Storage.Tests.Linq
         using (Transaction.Open()) {
           var customers = Query<Customer>.All;
           var original = customers.Select(c => c.ContactName).AsEnumerable().Select(s =>s.ToUpper()).ToList();
-          Assert.Greater(original.Count, 0);
           original.Sort();
-
-          var test = new List<string>(original.Count);
-          foreach (var item in customers.OrderBy(c => c.ContactName.ToUpper()))
-            test.Add(item.ContactName.ToUpper());
-
-          Assert.IsTrue(original.SequenceEqual(test));
+          Assert.IsTrue(original.SequenceEqual(
+            customers
+            .OrderBy(c => c.ContactName.ToUpper())
+            .AsEnumerable()
+            .Select(c => c.ContactName.ToUpper())));
         }
       }
     }
@@ -58,6 +55,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       using (Domain.OpenSession())
       using (var t = Transaction.Open()) {
+        var customers = Query<Customer>.All;
         var result = Query<Customer>.All.OrderBy(c => c.CompanyName).Select(c => c.ContactName);
         var list = result.ToList();
         t.Complete();

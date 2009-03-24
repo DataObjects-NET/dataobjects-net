@@ -20,14 +20,14 @@ namespace Xtensive.Storage.Linq
   ///<summary>
   /// Removes redundant columns from result <see cref="RecordSet"/>.
   ///</summary>
-  public class RedundantColumnRemover : CompilableProviderVisitor
+  internal class RedundantColumnRemover : CompilableProviderVisitor
   {
     private readonly Dictionary<Provider, List<int>> mapping;
     private readonly TupleAccessProcessor tupleAccessProcessor;
     private readonly ResultExpression origin;
     private List<int> resultMap;
 
-    internal ResultExpression RemoveRedundantColumn()
+    public ResultExpression RemoveRedundantColumn()
     {
       var map = new List<int>();
       if (origin.Mapping != null) {
@@ -315,7 +315,7 @@ namespace Xtensive.Storage.Linq
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    internal RedundantColumnRemover(ResultExpression resultExpression)
+    public RedundantColumnRemover(ResultExpression resultExpression)
     {
       tupleAccessProcessor = new TupleAccessProcessor();
       mapping = new Dictionary<Provider, List<int>>();

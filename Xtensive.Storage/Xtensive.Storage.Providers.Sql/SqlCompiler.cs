@@ -397,9 +397,14 @@ namespace Xtensive.Storage.Providers.Sql
         query.Columns.AddRange(provider.ColumnIndexes.Select(i => originalColumns[i]));
       }
       else {
-        var queryRef = SqlFactory.QueryRef(compiledSource.Request.Statement as SqlSelect);
+        var sortProvider = (SortProvider)compiledSource.Origin;
+        var sourceQuery = (SqlSelect)compiledSource.Request.Statement.Clone();
+        sourceQuery.OrderBy.Clear();
+        var queryRef = SqlFactory.QueryRef(sourceQuery);
         query = SqlFactory.Select(queryRef);
         query.Columns.AddRange(provider.ColumnIndexes.Select(i => (SqlColumn)queryRef.Columns[i]));
+        foreach (KeyValuePair<int,Direction> orderItem in sortProvider.Order)
+          query.OrderBy.Add(queryRef.Columns[orderItem.Key], orderItem.Value == Direction.Positive);
       } 
       var request = new SqlFetchRequest(query, provider.Header);
 
@@ -430,8 +435,10 @@ namespace Xtensive.Storage.Providers.Sql
 
       var query = (SqlSelect) compiledSource.Request.Statement.Clone();
       query.OrderBy.Clear();
-      foreach (KeyValuePair<int, Direction> sortOrder in provider.Order)
-        query.OrderBy.Add(sortOrder.Key + 1, sortOrder.Value == Direction.Positive);
+      foreach (KeyValuePair<int, Direction> sortOrder in provider.Order) {
+        var sqlColumn = query.Columns[sortOrder.Key];
+        query.OrderBy.Add(sqlColumn, sortOrder.Value == Direction.Positive);
+      }
 
       var request = new SqlFetchRequest(query, provider.Header);
       return new SqlProvider(provider, request, Handlers, compiledSource);
