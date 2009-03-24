@@ -70,5 +70,53 @@ namespace Xtensive.Indexing.Tests
 
       Assert.AreEqual(5, rangeSet.Count());
     }
+
+    [Test]
+    public void RangeSetReaderTest()
+    {
+      Assert.Ignore();
+
+      var sortedListConfiguration = new IndexConfigurationBase<int, int>(item => item, AdvancedComparer<int>.Default);
+      var sortedListIndex = new SortedListIndex<int, int>(sortedListConfiguration);
+      for (int i = 0; i < 40; i++)
+        sortedListIndex.Add(i);
+
+      var reader1 = sortedListIndex.CreateReader(new Range<Entire<int>>(5, 10));
+      var reader2 = sortedListIndex.CreateReader(new Range<Entire<int>>(15, 20));
+      var reader3 = sortedListIndex.CreateReader(new Range<Entire<int>>(25, 30));
+
+      var rangeSetReader = new RangeSetReader<int, int>(new[] { sortedListIndex.CreateReader(new Range<Entire<int>>(5, 10)) ,
+                                                                sortedListIndex.CreateReader(new Range<Entire<int>>(15, 20)),
+                                                                sortedListIndex.CreateReader(new Range<Entire<int>>(25, 30))});
+
+      rangeSetReader.MoveTo(5); 
+      reader1.MoveTo(5);
+
+      for (int i = 0; i <= 5; i++) {
+        rangeSetReader.MoveNext();
+        reader1.MoveNext();
+        Assert.AreEqual(rangeSetReader.Current, reader1.Current);
+      }
+
+      reader2.MoveTo(15);
+      for (int i = 0; i <= 5; i++) {
+        rangeSetReader.MoveNext();
+        reader2.MoveNext();
+        Assert.AreEqual(rangeSetReader.Current, reader2.Current);
+      }
+
+      reader3.MoveTo(25);
+      for (int i = 0; i <= 5; i++) {
+        rangeSetReader.MoveNext();
+        reader3.MoveNext();
+        Assert.AreEqual(rangeSetReader.Current, reader3.Current);
+      }
+
+      reader2.MoveTo(17);
+      rangeSetReader.MoveTo(17);
+      reader2.MoveNext();
+      rangeSetReader.MoveNext();
+      Assert.AreEqual(reader2.Current, rangeSetReader.Current);
+    }
   }
 }

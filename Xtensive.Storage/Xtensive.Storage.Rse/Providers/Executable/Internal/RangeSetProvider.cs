@@ -121,9 +121,11 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     public IIndexReader<Tuple, Tuple> CreateReader(Range<Entire<Tuple>> range)
     {
       var sourceEnumerable = Source.GetService<IOrderedEnumerable<Tuple, Tuple>>(true);
-      //var intersect = CachedRangeSet.Intersect(range, EntireKeyComparer);
-      IIndexReader<Tuple, Tuple> indexReader = sourceEnumerable.CreateReader(range);
-      return indexReader;
+      var intersect = CachedRangeSet.Intersect(range);
+      var readers = new List<IIndexReader<Tuple, Tuple>>();
+      foreach (var r in intersect)
+        readers.Add(sourceEnumerable.CreateReader(r));
+      return new RangeSetReader<Tuple, Tuple>(readers);
     }
 
     #endregion
