@@ -58,6 +58,7 @@ namespace Xtensive.Storage.Linq
 
     protected override Provider VisitJoin(JoinProvider provider)
     {
+
       return base.VisitJoin(provider);
     }
 
