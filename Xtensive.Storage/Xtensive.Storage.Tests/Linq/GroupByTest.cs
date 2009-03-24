@@ -28,7 +28,20 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    public void AnonimousTypeGroup()
+    public void StructureGroupTest()
+    {
+      using (Domain.OpenSession())
+      using (var t = Transaction.Open())
+      {
+        var result = Query<Customer>.All.GroupBy(p => p.Address);
+        var list = result.ToList();
+        Assert.Greater(list.Count, 0);
+        t.Complete();
+      }
+    }
+
+    [Test]
+    public void AnonimousTypeGroupTest()
     {
       using (Domain.OpenSession())
       using (var t = Transaction.Open())
@@ -44,6 +57,35 @@ namespace Xtensive.Storage.Tests.Linq
         t.Complete();
       }
     }
+
+
+    [Test]
+    public void AnonimousTypeEntityAndStructureGroupTest()
+    {
+      using (Domain.OpenSession())
+      using (var t = Transaction.Open())
+      {
+        var result = Query<Employee>.All.GroupBy(e => new
+                                                      {
+                                                        e.Address.City, 
+                                                        e.Address.Country, 
+                                                        e.Address, 
+                                                        e.ReportsTo, 
+                                                        e.Phone, 
+                                                        ReporterAddress = e.ReportsTo.Address,
+                                                        ReporterAddressCountry = e.ReportsTo.Address.Country
+                                                      });
+        var list = result.ToList();
+        Assert.Greater(list.Count, 0);
+        foreach (var grouping in list)
+        {
+          Assert.IsNotNull(grouping.Key);
+          Assert.Greater(grouping.Count(), 0);
+        }
+        t.Complete();
+      }
+    }
+
 
     [Test]
     public void DefaultTest()
