@@ -161,8 +161,7 @@ namespace Xtensive.Core.Collections
     /// <inheritdoc/>
     public void Add(KeyValuePair<TKey, TFlag> item)
     {
-      // TODO: implement \ to immutable?
-      throw new NotImplementedException();
+      Add(item.Key, item.Value);
     }
 
     /// <inheritdoc/>
@@ -176,8 +175,7 @@ namespace Xtensive.Core.Collections
     /// <inheritdoc/>
     public bool Contains(KeyValuePair<TKey, TFlag> item)
     {
-      // TODO: implement?
-      throw new NotImplementedException();
+      return ContainsKey(item.Key);
     }
 
     /// <inheritdoc/>
@@ -189,8 +187,7 @@ namespace Xtensive.Core.Collections
     /// <inheritdoc/>
     public bool Remove(KeyValuePair<TKey, TFlag> item)
     {
-      // TODO: implement \ to immutable?
-      throw new NotImplementedException();
+      return Remove(item.Key);
     }
 
     /// <inheritdoc/>
@@ -208,24 +205,21 @@ namespace Xtensive.Core.Collections
     }
 
     /// <inheritdoc/>
-    public int IndexOf(KeyValuePair<TKey, TFlag> item)
+    int IList<KeyValuePair<TKey, TFlag>>.IndexOf(KeyValuePair<TKey, TFlag> item)
     {
-      // TODO: implement?
-      throw new NotImplementedException();
+      throw new NotSupportedException();
     }
 
     /// <inheritdoc/>
-    public void Insert(int index, KeyValuePair<TKey, TFlag> item)
+    void IList<KeyValuePair<TKey, TFlag>>.Insert(int index, KeyValuePair<TKey, TFlag> item)
     {
-      // TODO: implement \ to immutable?
-      throw new NotImplementedException();
+      throw new NotSupportedException();
     }
 
     /// <inheritdoc/>
-    public void RemoveAt(int index)
+    void IList<KeyValuePair<TKey, TFlag>>.RemoveAt(int index)
     {
-      // TODO: implement \ to immutable?
-      throw new NotImplementedException();
+      throw new NotSupportedException();
     }
 
     /// <inheritdoc/>
