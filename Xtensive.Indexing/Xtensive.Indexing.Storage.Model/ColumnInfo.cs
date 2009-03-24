@@ -5,6 +5,7 @@
 // Created:    2009.03.20
 
 using System;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Modelling;
 using System.Diagnostics;
 using Xtensive.Modelling.Attributes;
@@ -44,6 +45,7 @@ namespace Xtensive.Indexing.Storage.Model
     }
 
     /// <inheritdoc/>
+    /// <exception cref="IntegrityException">Validation error.</exception>
     protected override void ValidateState()
     {
       base.ValidateState();
@@ -54,14 +56,22 @@ namespace Xtensive.Indexing.Storage.Model
           Path);
     }
 
+
     //Constructors
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="index">The parent primary index.</param>
+    /// <param name="name">The column name.</param>
+    /// <param name="columnType">Type of the column.</param>
     public ColumnInfo(PrimaryIndexInfo index, string name, Type columnType)
       : this(index, name)
     {
       ColumnType = columnType;
     }
 
+    /// <inheritdoc/>
     public ColumnInfo(PrimaryIndexInfo index, string name)
       : base(index, name)
     {

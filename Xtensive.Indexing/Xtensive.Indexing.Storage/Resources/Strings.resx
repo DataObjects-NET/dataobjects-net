@@ -123,4 +123,7 @@
   <data name="ExItemWithNameXAlreadyExists" xml:space="preserve">
     <value>Item with name '{0}' already exists.</value>
   </data>
+  <data name="ExEmptyKeyColumnsCollection" xml:space="preserve">
+    <value>Empty key columns collection.</value>
+  </data>
 </root>

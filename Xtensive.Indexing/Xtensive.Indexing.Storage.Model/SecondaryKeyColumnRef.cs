@@ -6,6 +6,7 @@
 
 using System;
 using Xtensive.Core;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Modelling;
 using System.Diagnostics;
 
@@ -26,11 +27,19 @@ namespace Xtensive.Indexing.Storage.Model
 
     //Constructors
 
+    /// <inheritdoc/>
     public SecondaryKeyColumnRef(SecondaryIndexInfo secondaryIndex, int index)
       : base(secondaryIndex, index)
     {
     }
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="secondaryIndex">The parent secondary index.</param>
+    /// <param name="column">The referenced column.</param>
+    /// <param name="index">The index in columns collection.</param>
+    /// <param name="direction">The direction.</param>
     public SecondaryKeyColumnRef(SecondaryIndexInfo secondaryIndex, ColumnInfo column, int index, Direction direction)
       : base(secondaryIndex, column, index, direction)
     {

@@ -79,7 +79,6 @@ namespace Xtensive.Indexing.Storage.Model
       // Empty keys.
       if (keys.Count==0)
         throw new IntegrityException("Empty key columns collection.", Path);
-
       // Double column reference.
       foreach (var column in keys.Intersect(values)) {
         throw new IntegrityException(

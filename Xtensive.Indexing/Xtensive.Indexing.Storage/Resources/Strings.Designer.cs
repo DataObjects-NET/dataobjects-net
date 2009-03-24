@@ -61,6 +61,15 @@ namespace Xtensive.Indexing.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Empty key columns collection..
+        /// </summary>
+        internal static string ExEmptyKeyColumnsCollection {
+            get {
+                return ResourceManager.GetString("ExEmptyKeyColumnsCollection", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Invalid Parent value..
         /// </summary>
         internal static string ExInvalidParentValue {

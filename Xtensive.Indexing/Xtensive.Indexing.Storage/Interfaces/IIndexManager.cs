@@ -4,7 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2009.03.16
 
-using Xtensive.Indexing.Storage.Model;
+using Xtensive.Indexing.Storage;
 
 namespace Xtensive.Indexing.Storage.Interfaces
 {

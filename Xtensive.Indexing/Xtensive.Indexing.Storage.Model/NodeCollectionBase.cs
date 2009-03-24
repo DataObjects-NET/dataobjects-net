@@ -23,6 +23,7 @@ namespace Xtensive.Indexing.Storage.Model
 
     //Constructors
 
+    /// <inheritdoc/>
     protected NodeCollectionBase(Node parent, string name)
       : base(parent, name)
     {

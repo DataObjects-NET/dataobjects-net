@@ -6,7 +6,6 @@
 
 using System;
 using Xtensive.Core.Tuples;
-using Xtensive.Indexing.Storage.Model;
 using Xtensive.Integrity.Transactions;
 
 namespace Xtensive.Indexing.Storage.Interfaces

@@ -5,6 +5,7 @@
 // Created:    2009.03.20
 
 using System;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Modelling;
 using System.Diagnostics;
 
@@ -20,6 +21,10 @@ namespace Xtensive.Indexing.Storage.Model
 
     //Constructors
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="parent">The parent.</param>
     public PrimaryIndexInfoCollection(Node parent)
       : base(parent, "PrimaryIndexes")
     {
