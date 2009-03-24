@@ -37,7 +37,7 @@ namespace Xtensive.Indexing.Tests.Storage
       storage = new StorageInfo("storage") {Actions = new ActionSequence()};
       //Primary 1
       pi1 = new PrimaryIndexInfo(storage, "pi1");
-      column1 = new ColumnInfo(pi1, "col1", typeof(string));
+      column1 = new ColumnInfo(pi1, "col1", typeof(string));  
       column2 = new ColumnInfo(pi1, "col2", typeof(string));
       column3 = new ColumnInfo(pi1, "col3", typeof(string));
       new PrimaryKeyColumnRef(pi1, column1, 0, ColumnDirection.Positive);
@@ -49,14 +49,17 @@ namespace Xtensive.Indexing.Tests.Storage
 
       //Primary 2
       pi2 = new PrimaryIndexInfo(storage, "pi2");
-      column4 = new ColumnInfo(pi2, "col4", typeof(int));
+      column4 = new ColumnInfo(pi2, "col4", typeof(string));
       column5 = new ColumnInfo(pi2, "col5", typeof(int));
       new PrimaryKeyColumnRef(pi2, column4, 0, ColumnDirection.Negative);
       new PrimaryValueColumnRef(pi2, column5, 0);
       si2 = new SecondaryIndexInfo(pi2, "si2");
       new SecondaryKeyColumnRef(si2, column5, 0, ColumnDirection.Positive);
 
-      //fk1 = new ForeignKeyInfo(pi1, si2, "fk1");
+      fk1 = new ForeignKeyInfo(pi1, "fk1");
+      fk1.ReferencedIndex = pi2;
+      new ForeignKeyColumnRef(fk1, column2, 0);
+
     }
 
     [Test]
@@ -86,7 +89,13 @@ namespace Xtensive.Indexing.Tests.Storage
       AssertEx.Throws<Exception>(storage.Validate);
     }
 
-    
+    [Test]
+    public void Test()
+    {
+      
+    }
+
+
     [TearDown]
     public void Dump()
     {
