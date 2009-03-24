@@ -29,21 +29,6 @@ namespace Xtensive.Storage.Linq
   {
     private const string SurrogateKeyNameFormatString = "#_Key_{0}";
 
-    private static readonly PropertyInfo keyValueAccessor;
-    private static readonly PropertyInfo keyAccessor;
-    private static readonly PropertyInfo parameterOfTupleAccessor;
-    private static readonly MethodInfo transformApplyMethod;
-    private static readonly MethodInfo keyCreateMethod;
-    private static readonly MethodInfo selectMethod;
-    private static readonly MethodInfo genericAccessor;
-    private static readonly MethodInfo nonGenericAccessor;
-    private static readonly MethodInfo recordKeyAccessor;
-    private static readonly MethodInfo keyResolveMethod;
-    private static readonly MethodInfo countWithPredicateMethod;
-    private static readonly MethodInfo countMethod;
-    private static readonly MethodInfo takeMethod;
-    private static readonly MethodInfo whereMethod; // Enumerable.Where<Func<TSource, bool>>
-
     private readonly Parameter<List<CalculatedColumnDescriptor>> calculatedColumns = new Parameter<List<CalculatedColumnDescriptor>>();
     private readonly Parameter<ParameterExpression[]> parameters = new Parameter<ParameterExpression[]>();
     private readonly Parameter<ResultMapping> resultMapping = new Parameter<ResultMapping>();
@@ -168,8 +153,8 @@ namespace Xtensive.Storage.Linq
           var keyColumn = (MappedColumn) source.RecordSet.Header.Columns[segment.Offset];
           var type = keyColumn.ColumnInfoRef.Resolve(context.Model).Field.ReflectedType;
           var transform = new SegmentTransform(true, type.Hierarchy.KeyInfo.TupleDescriptor, source.GetMemberSegment(path));
-          var keyExtractor = Expression.Call(keyCreateMethod, Expression.Constant(type),
-            Expression.Call(Expression.Constant(transform), transformApplyMethod,
+          var keyExtractor = Expression.Call(WellKnownMethods.KeyCreate, Expression.Constant(type),
+            Expression.Call(Expression.Constant(transform), WellKnownMethods.SegmentTransformApply,
               Expression.Constant(TupleTransformType.Auto), tuple.Value),
             Expression.Constant(false));
           var rm = source.GetMemberMapping(path);
@@ -188,8 +173,8 @@ namespace Xtensive.Storage.Linq
             Expression.MakeMemberAccess(
               Expression.Convert(
                 Expression.Call(
-                  Expression.Call(record.Value, recordKeyAccessor, Expression.Constant(groupIndex)),
-                  keyResolveMethod),
+                  Expression.Call(record.Value, WellKnownMethods.RecordKey, Expression.Constant(groupIndex)),
+                  WellKnownMethods.KeyResolve),
                 field.ReflectedType.UnderlyingType),
               field.UnderlyingProperty);
           var columnGroup = source.RecordSet.Header.ColumnGroups[groupIndex];
@@ -211,8 +196,8 @@ namespace Xtensive.Storage.Linq
           int groupIndex = source.RecordSet.Header.ColumnGroups.GetGroupIndexBySegment(segment);
           var result = Expression.Convert(
             Expression.Call(
-              Expression.Call(record.Value, recordKeyAccessor, Expression.Constant(groupIndex)),
-              keyResolveMethod), resultType);
+              Expression.Call(record.Value, WellKnownMethods.RecordKey, Expression.Constant(groupIndex)),
+              WellKnownMethods.KeyResolve), resultType);
           var rm = source.GetMemberMapping(path);
           var name = rm.Fields.Select(pair => pair.Key).OrderBy(s => s.Length).First();
           foreach (var pair in rm.Fields) {
@@ -491,13 +476,13 @@ namespace Xtensive.Storage.Linq
       if (parameters.Value.Contains(parameter))
         target = tuple.Value;
       else if (context.SubqueryParameterBindings.TryGetBound(parameter, out outerParameter))
-        target = Expression.Property(Expression.Constant(outerParameter), parameterOfTupleAccessor);
+        target = Expression.Property(Expression.Constant(outerParameter), WellKnownMethods.ParameterOfTupleValue);
       else
         throw new InvalidOperationException();
 
       var method = accessorType==null || accessorType==typeof (object)
-        ? nonGenericAccessor
-        : genericAccessor.MakeGenericMethod(accessorType);
+        ? WellKnownMethods.TupleNonGenericAccessor
+        : WellKnownMethods.TupleGenericAccessor.MakeGenericMethod(accessorType);
 
       return Expression.Call(target, method, index);
     }
@@ -536,7 +521,7 @@ namespace Xtensive.Storage.Linq
         Expression right = Expression.Condition(
           Expression.Equal(bRight, Expression.Constant(null, bRight.Type)),
           Expression.Constant(null, typeof (object)),
-          Expression.Call(Expression.MakeMemberAccess(bRight, keyValueAccessor), nonGenericAccessor, Expression.Constant(pair.ParameterIndex)));
+          Expression.Call(Expression.MakeMemberAccess(bRight, WellKnownMethods.KeyValue), WellKnownMethods.TupleNonGenericAccessor, Expression.Constant(pair.ParameterIndex)));
         result = MakeBinaryExpression(result, left, right, binaryExpression.NodeType);
       }
       return result;
@@ -553,17 +538,17 @@ namespace Xtensive.Storage.Linq
       if (!leftIsParameter && !rightIsParameter) {
         var bLeft = binaryExpression.Left.NodeType==ExpressionType.Constant && ((ConstantExpression) binaryExpression.Left).Value==null
           ? binaryExpression.Left
-          : Expression.MakeMemberAccess(binaryExpression.Left, keyAccessor);
+          : Expression.MakeMemberAccess(binaryExpression.Left, WellKnownMethods.IEntityKey);
         var bRight = binaryExpression.Right.NodeType==ExpressionType.Constant && ((ConstantExpression) binaryExpression.Right).Value==null
           ? binaryExpression.Right
-          : Expression.MakeMemberAccess(binaryExpression.Right, keyAccessor);
+          : Expression.MakeMemberAccess(binaryExpression.Right, WellKnownMethods.IEntityKey);
         return MakeComplexBinaryExpression(bLeft, bRight, binaryExpression.NodeType);
       }
       else {
-        var bLeft = Expression.MakeMemberAccess(binaryExpression.Left, keyAccessor);
+        var bLeft = Expression.MakeMemberAccess(binaryExpression.Left, WellKnownMethods.IEntityKey);
         var bRight = binaryExpression.Right;
         if (leftIsParameter) {
-          bLeft = Expression.MakeMemberAccess(binaryExpression.Right, keyAccessor);
+          bLeft = Expression.MakeMemberAccess(binaryExpression.Right, WellKnownMethods.IEntityKey);
           bRight = binaryExpression.Left;
         }
 
@@ -581,8 +566,8 @@ namespace Xtensive.Storage.Linq
             Expression.Equal(bRight, Expression.Constant(null, bRight.Type)),
             Expression.Constant(null, typeof (object)),
             Expression.Call(
-              Expression.MakeMemberAccess(Expression.MakeMemberAccess(bRight, keyAccessor), keyValueAccessor),
-              nonGenericAccessor, Expression.Constant(pair.ParameterIndex)));
+              Expression.MakeMemberAccess(Expression.MakeMemberAccess(bRight, WellKnownMethods.IEntityKey), WellKnownMethods.KeyValue),
+              WellKnownMethods.TupleNonGenericAccessor, Expression.Constant(pair.ParameterIndex)));
           result = MakeBinaryExpression(result, left, right, binaryExpression.NodeType);
         }
         return result;
@@ -666,46 +651,5 @@ namespace Xtensive.Storage.Linq
     }
 
     #endregion
-
-    // Type initializer
-
-    static Translator()
-    {
-      keyValueAccessor = typeof (Key).GetProperty("Value");
-      keyAccessor = typeof (IEntity).GetProperty("Key");
-      parameterOfTupleAccessor = typeof (Parameter<Tuple>).GetProperty("Value", typeof (Tuple));
-
-
-      whereMethod = typeof (Queryable).GetMethods().Where(methodInfo => {
-        ParameterInfo[] parameterInfos = methodInfo.GetParameters();
-        return methodInfo.Name==WellKnown.Queryable.Where
-          && methodInfo.IsGenericMethod
-            && parameterInfos.Length==2
-              && parameterInfos[1].ParameterType.IsGenericType
-                && parameterInfos[1].ParameterType.GetGenericArguments()[0].GetGenericArguments().Length==2;
-      }).First();
-
-      selectMethod = typeof (Enumerable).GetMethods().Where(m => m.Name==WellKnown.Queryable.Select).First();
-      keyCreateMethod = typeof (Key).GetMethod("Create", new[] {typeof (TypeInfo), typeof (Tuple), typeof (bool)});
-      transformApplyMethod = typeof (SegmentTransform).GetMethod("Apply", new[] {typeof (TupleTransformType), typeof (Tuple)});
-      recordKeyAccessor = typeof (Record).GetProperty("Item", typeof (Key), new[] {typeof (int)}).GetGetMethod();
-      countMethod = typeof (Queryable).GetMethod(
-        WellKnown.Queryable.Count, BindingFlags.Public | BindingFlags.Static, new string[1], new object[1]);
-      countWithPredicateMethod = typeof (Queryable).GetMethod(
-        WellKnown.Queryable.Count, BindingFlags.Public | BindingFlags.Static, new string[1], new object[2]);
-      takeMethod = typeof (Queryable).GetMethod(
-        WellKnown.Queryable.Take, BindingFlags.Static | BindingFlags.Public, new string[1], new object[2]);
-      keyResolveMethod = typeof (Key).GetMethods()
-        .Where(
-        mi => mi.Name=="Resolve" &&
-          mi.IsGenericMethodDefinition==false &&
-            mi.GetParameters().Length==0)
-        .Single();
-      foreach (var method in typeof (Tuple).GetMethods().Where(mi => mi.Name==WellKnown.Tuple.GetValueOrDefault))
-        if (method.IsGenericMethod)
-          genericAccessor = method;
-        else
-          nonGenericAccessor = method;
-    }
   }
 }

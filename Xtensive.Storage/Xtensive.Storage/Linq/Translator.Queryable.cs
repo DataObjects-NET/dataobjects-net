@@ -443,7 +443,7 @@ namespace Xtensive.Storage.Linq
       var predicateExpression = Expression.Lambda(Expression.Equal(keySelector.Body, recordKeyExpression.First), keySelector.Parameters.ToArray());
 
 
-      var callMehtod = whereMethod.MakeGenericMethod(elementType);
+      var callMehtod = WellKnownMethods.QueryableWhere.MakeGenericMethod(elementType);
 
       var queryExpression = Expression.Call(callMehtod, source, predicateExpression);
       var projectorBody = Expression.New(constructor, recordKeyExpression.First, queryExpression);
@@ -466,7 +466,7 @@ namespace Xtensive.Storage.Linq
       }
       else
       {
-        var makeProjectionMethod = selectMethod.MakeGenericMethod(typeof(Tuple), itemProjector.Body.Type);
+        var makeProjectionMethod = WellKnownMethods.EnumerableSelect.MakeGenericMethod(typeof(Tuple), itemProjector.Body.Type);
         projector = Expression.Lambda<Func<RecordSet, object>>(Expression.Convert(Expression.Call(makeProjectionMethod, rs, itemProjector), typeof(object)), rs);
       }
 
@@ -593,7 +593,7 @@ namespace Xtensive.Storage.Linq
             rs);
         }
         else {
-          var method = selectMethod.MakeGenericMethod(typeof(Tuple), le.Body.Type);
+          var method = WellKnownMethods.EnumerableSelect.MakeGenericMethod(typeof(Tuple), le.Body.Type);
           projector = Expression.Lambda<Func<RecordSet, object>>(Expression.Convert(Expression.Call(method, rs, itemProjector), typeof(object)), rs);
         }
         var source = context.GetBound(le.Parameters[0]);
@@ -627,17 +627,17 @@ namespace Xtensive.Storage.Linq
     private Expression VisitRootExists(Expression source, LambdaExpression predicate, bool notExists)
     {
       var elementType = TypeHelper.GetElementType(source.Type);
-      source = Expression.Call(takeMethod.MakeGenericMethod(elementType), source, Expression.Constant(1));
+      source = Expression.Call(WellKnownMethods.QueryableTake.MakeGenericMethod(elementType), source, Expression.Constant(1));
 
       MethodInfo realCountMethod;
       ResultExpression result;
 
       if (predicate != null) {
-        realCountMethod = countWithPredicateMethod.MakeGenericMethod(elementType);
+        realCountMethod = WellKnownMethods.QueryableCountWithPredicate.MakeGenericMethod(elementType);
         result = (ResultExpression)VisitAggregate(source, realCountMethod, null, true);
       }
       else {
-        realCountMethod = countMethod.MakeGenericMethod(elementType);
+        realCountMethod = WellKnownMethods.QueryableCount.MakeGenericMethod(elementType);
         result = (ResultExpression)VisitAggregate(source, realCountMethod, null, true);
       }
 
