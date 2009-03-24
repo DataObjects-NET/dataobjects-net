@@ -52,7 +52,7 @@ namespace Xtensive.Indexing.Storage.Model
 
       if (ColumnType==null)
         throw new IntegrityException(
-          string.Format("Type of column {0} does not defined.", Name),
+          string.Format(Resources.Strings.ExTypeOfColumnXDoesNotDefined, Name),
           Path);
     }
 

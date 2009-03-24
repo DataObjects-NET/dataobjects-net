@@ -67,12 +67,12 @@ namespace Xtensive.Indexing.Storage.Model
 
       // Empty keys.
       if (secondaryKeyColumns.Count==0)
-        throw new IntegrityException("Empty secondary key columns collection.", Path);
+        throw new IntegrityException(Resources.Strings.ExEmptyKeyColumnsCollection, Path);
 
       // Double keys.
       foreach (var column in secondaryKeyColumns.GroupBy(keyColumn => keyColumn).Where(group => group.Count() > 1).Select(group => group.Key)) {
         throw new IntegrityException(
-          string.Format("Secondary key columns collection contains more then one reference to column '{0}'.", column.Name),
+          string.Format(Resources.Strings.ExMoreThenOneKeyReferenceToColumnX, column.Name),
           Path);
       }
 

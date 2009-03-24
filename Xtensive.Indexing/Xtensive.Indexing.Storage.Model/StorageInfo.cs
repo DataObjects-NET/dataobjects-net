@@ -6,6 +6,7 @@
 
 using System;
 using System.Diagnostics;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Modelling;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Attributes;
@@ -53,7 +54,11 @@ namespace Xtensive.Indexing.Storage.Model
 
 
     //Constructors
-
+    
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="name">The storage name.</param>
     public StorageInfo(string name)
       : base(null, name)
     {

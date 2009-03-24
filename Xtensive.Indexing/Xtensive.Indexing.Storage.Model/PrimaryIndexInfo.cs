@@ -78,46 +78,47 @@ namespace Xtensive.Indexing.Storage.Model
 
       // Empty keys.
       if (keys.Count==0)
-        throw new IntegrityException("Empty key columns collection.", Path);
+        throw new IntegrityException(Resources.Strings.ExEmptyKeyColumnsCollection, Path);
+
       // Double column reference.
       foreach (var column in keys.Intersect(values)) {
         throw new IntegrityException(
-          string.Format("Column '{0}' contains in both key and value collections.", column.Name),
+          string.Format(Resources.Strings.ExColumnXContainsInBothKeyAndValueCollections, column.Name),
           Path);
       }
 
       // Not referenced columns.
       foreach (var column in Columns.Except(keys.Union(values))) {
         throw new IntegrityException(
-          string.Format("Can not find reference to column '{0}'.", column.Name),
+          string.Format(Resources.Strings.ExCanNotFindReferenceToColumnX, column.Name),
           Path);
       }
 
       // Double keys.
       foreach (var column in keys.GroupBy(key => key).Where(group => group.Count() > 1).Select(group => group.Key)) {
         throw new IntegrityException(
-          string.Format("Key columns collection contains more then one reference to column '{0}'.", column.Name),
+          string.Format(Resources.Strings.ExMoreThenOneKeyReferenceToColumnX, column.Name),
           Path);
       }
 
       // Key columns contains refernce to column from another index.
       foreach (var column in keys.Except(Columns)) {
         throw new IntegrityException(
-          string.Format("Referenced column '{0}' does not belong to index '{1}'.", column.Name, Name),
+          string.Format(Resources.Strings.ExReferencedColumnXDoesNotBelongToIndexY, column.Name, Name),
           Path);
       }
 
       // Double values.
       foreach (var column in values.GroupBy(value => value).Where(group => group.Count() > 1).Select(group => group.Key)) {
         throw new IntegrityException(
-          string.Format("Value columns collection contains more then one reference to column '{0}'.", column.Name),
+          string.Format(Resources.Strings.ExMoreThenOneValueReferenceToColumnX, column.Name),
           Path);
       }
 
       // Value columns contains refernce to column from another index.
       foreach (var column in values.Except(Columns)) {
         throw new IntegrityException(
-          string.Format("Referenced column '{0}' does not belong to index '{1}'.", column.Name, Name),
+          string.Format(Resources.Strings.ExReferencedColumnXDoesNotBelongToIndexY, column.Name, Name),
           Path);
       }
     }
