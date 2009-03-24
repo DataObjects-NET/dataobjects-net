@@ -27,6 +27,8 @@ namespace Xtensive.Modelling.Tests
     private Database db2;
     private Schema s1;
     private Schema s2;
+    private Table t1;
+    private Table t2;
 
     [TestFixtureSetUp]
     public void Setup()
@@ -47,7 +49,16 @@ namespace Xtensive.Modelling.Tests
       db1 = new Database(srv, "db1") { Owner = u1 };
       db2 = new Database(srv, "db2") { Owner = u1 };
       s1 = new Schema(db1, "s1");
+      t1 = new Table(s1, "t1");
+      new PrimaryIndex(t1, "PK_t1");
+      new SecondaryIndex(t1, "SI_t1a");
+      new SecondaryIndex(t1, "SI_t1b");
+      new SecondaryIndex(t1, "SI_t1ab");
       s2 = new Schema(db1, "s2");
+      t2 = new Table(s2, "t2");
+      new PrimaryIndex(t2, "PK_t2");
+      new SecondaryIndex(t2, "SI_t2a");
+      new SecondaryIndex(t2, "SI_t2ab");
     }
 
     [Test]

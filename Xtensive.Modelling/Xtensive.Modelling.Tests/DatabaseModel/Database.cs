@@ -5,7 +5,6 @@
 // Created:    2009.03.18
 
 using System;
-using System.Diagnostics;
 using Xtensive.Modelling.Attributes;
 
 namespace Xtensive.Modelling.Tests.DatabaseModel
@@ -31,11 +30,6 @@ namespace Xtensive.Modelling.Tests.DatabaseModel
 
     [Property]
     public SchemaCollection Schemas { get; private set; }
-
-    protected override void ValidateState()
-    {
-      base.ValidateState();
-    }
 
     protected override Nesting CreateNesting()
     {

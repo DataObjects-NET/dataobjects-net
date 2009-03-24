@@ -5,36 +5,38 @@
 // Created:    2009.03.18
 
 using System;
-using System.Diagnostics;
 using Xtensive.Modelling.Attributes;
 
 namespace Xtensive.Modelling.Tests.DatabaseModel
 {
   [Serializable]
-  public class Schema : NodeBase<Database>
+  public class Table : NodeBase<Schema>
   {
     [Property]
-    public TableCollection Tables { get; private set; }
+    public PrimaryIndex PrimaryIndex { get; set; }
+
+    [Property]
+    public SecondaryIndexCollection SecondaryIndexes { get; private set; }
 
     protected override Nesting CreateNesting()
     {
-      return new Nesting<Schema, Database, SchemaCollection>(this, "Schemas");
+      return new Nesting<Table, Schema, TableCollection>(this, "Tables");
     }
 
     protected override void Initialize()
     {
       base.Initialize();
-      if (Tables==null)
-        Tables = new TableCollection(this);
+      if (SecondaryIndexes==null)
+        SecondaryIndexes = new SecondaryIndexCollection(this);
     }
 
 
-    public Schema(Database parent, string name)
+    public Table(Schema parent, string name)
       : base(parent, name)
     {
     }
 
-    public Schema(Database parent, string name, int index)
+    public Table(Schema parent, string name, int index)
       : base(parent, name, index)
     {
     }
