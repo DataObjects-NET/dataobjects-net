@@ -151,5 +151,21 @@ namespace Xtensive.Core.Collections
           return true;
       return false;
     }
+
+    /// <summary>
+    /// Unions the specified <see cref="IDictionary{TKey,TValue}"/> with <paramref name="right"/> enumerable int new <see cref="IDictionary{TKey,TValue}"/>.
+    /// </summary>
+    /// <typeparam name="TKey">The type of the key.</typeparam>
+    /// <typeparam name="TValue">The type of the value.</typeparam>
+    /// <param name="left">The left dictionary.</param>
+    /// <param name="right">The right enumerable.</param>
+    public static IDictionary<TKey,TValue> Union<TKey,TValue>(this IDictionary<TKey,TValue> left, IEnumerable<KeyValuePair<TKey, TValue>> right)
+    {
+      var result = new Dictionary<TKey, TValue>(left);
+      foreach (var pair in right)
+        if (!result.ContainsKey(pair.Key))
+          result.Add(pair.Key, pair.Value);
+      return result;
+    }
   }
 }

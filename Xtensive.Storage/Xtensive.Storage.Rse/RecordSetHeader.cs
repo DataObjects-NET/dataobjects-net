@@ -28,6 +28,17 @@ namespace Xtensive.Storage.Rse
     private TupleDescriptor orderTupleDescriptor;
 
     /// <summary>
+    /// Gets the length of this instance.
+    /// </summary>
+    public int Length
+    {
+      get
+      {
+        return Columns.Count;
+      }
+    }
+
+    /// <summary>
     /// Gets the <see cref="RecordSet"/> keys.
     /// </summary>
     /// <value>The keys.</value>

@@ -46,8 +46,8 @@ namespace Xtensive.Storage.Providers.Sql
 
     private void CompileDbReaderAccessor(DomainHandler domainHandler)
     {
-      var readers = new List<Func<DbDataReader, int, object>>(RecordSetHeader.Columns.Count);
-      var converters = new List<Func<object, object>>(RecordSetHeader.Columns.Count);
+      var readers = new List<Func<DbDataReader, int, object>>(RecordSetHeader.Length);
+      var converters = new List<Func<object, object>>(RecordSetHeader.Length);
 
       foreach (Column column in RecordSetHeader.Columns) {
         DataTypeMapping typeMapping = domainHandler.ValueTypeMapper.GetTypeMapping(column.Type);

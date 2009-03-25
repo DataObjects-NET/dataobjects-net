@@ -365,7 +365,7 @@ namespace Xtensive.Storage.Tests.Rse
         .ToRecordSet(authorHeader)
         .RowNumber(rowNumberColumnName);
 
-      Assert.AreEqual(5, authorRS.Header.Columns.Count);
+      Assert.AreEqual(5, authorRS.Header.Length);
       int rowNumber = 1;
       foreach (var tuple in authorRS) {
         Assert.AreEqual(rowNumber++, tuple[authorRS.Header.Columns[rowNumberColumnName].Index]);
@@ -376,7 +376,7 @@ namespace Xtensive.Storage.Tests.Rse
       var rowNumberColumnName2 = "AuthorRowNumberColumn2";
       RecordSet authorRS2 = authorRS.RowNumber(rowNumberColumnName2);
 
-      Assert.AreEqual(6, authorRS2.Header.Columns.Count);
+      Assert.AreEqual(6, authorRS2.Header.Length);
       int rowNumber2 = 1;
       foreach (var tuple in authorRS2)
       {
@@ -404,7 +404,7 @@ namespace Xtensive.Storage.Tests.Rse
       RecordSet categoryRS = categories
         .ToRecordSet(categoryHeader)
         .RowNumber(categoryRowNumberColumnName);
-      Assert.AreEqual(6, authorRS2.Header.Columns.Count);
+      Assert.AreEqual(6, authorRS2.Header.Length);
       int categoryRowNumber = 1;
       foreach (var tuple in categoryRS)
       {

@@ -526,8 +526,8 @@ namespace Xtensive.Storage.Linq
     private Expression CombineResultExpressions(ResultExpression outer, ResultExpression inner,
       RecordSet recordSet, LambdaExpression resultSelector)
     {
-      var outerLength = outer.RecordSet.Header.Columns.Count;
-      var innerLength = inner.RecordSet.Header.Columns.Count;
+      var outerLength = outer.RecordSet.Header.Length;
+      var innerLength = inner.RecordSet.Header.Length;
 
       var tupleAccessProcessor = new TupleAccessProcessor();
       var tupleMapping = new List<int>(
@@ -678,7 +678,7 @@ namespace Xtensive.Storage.Linq
       var applyParameter = context.SubqueryParameterBindings.GetBound(lambdaParameter);
       var oldResult = context.GetBound(lambdaParameter);
       var columnName = context.GetNextColumnAlias();
-      int columnIndex = oldResult.RecordSet.Header.Columns.Count;
+      int columnIndex = oldResult.RecordSet.Header.Length;
       var newMapping = new ResultMapping();
       newMapping.Replace(oldResult.Mapping);
       newMapping.RegisterFieldMapping(columnName, new Segment<int>(columnIndex, 1));

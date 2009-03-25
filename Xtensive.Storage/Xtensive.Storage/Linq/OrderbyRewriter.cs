@@ -5,8 +5,11 @@
 // Created:    2009.03.24
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using Xtensive.Core;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Parameters;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
 using System.Linq;
@@ -16,32 +19,34 @@ namespace Xtensive.Storage.Linq
   internal sealed class OrderbyRewriter : CompilableProviderVisitor
   {
     private readonly ResultExpression origin;
-    private DirectionCollection<int> sortOrder;
+    private readonly Parameter<DirectionCollection<int>> pSortOrder = new Parameter<DirectionCollection<int>>();
 
     public ResultExpression Rewrite()
     {
-      var provider = (CompilableProvider)Visit(origin.RecordSet.Provider);
-      if (sortOrder != null) {
-        if (provider.Type == ProviderType.Select) {
-          var selectProvider = (SelectProvider)provider;
-          provider = new SelectProvider(new SortProvider(selectProvider.Source, sortOrder), selectProvider.ColumnIndexes);
+      using (new ParameterScope()) {
+        var provider = VisitCompilable(origin.RecordSet.Provider);
+        if (pSortOrder.HasValue) {
+          if (provider.Type == ProviderType.Select) {
+            var selectProvider = (SelectProvider)provider;
+            provider = new SelectProvider(new SortProvider(selectProvider.Source, pSortOrder.Value), selectProvider.ColumnIndexes);
+          }
+          else
+            provider = new SortProvider(provider, pSortOrder.Value);
         }
-        else
-          provider = new SortProvider(provider, sortOrder);
+        var result = new ResultExpression(
+          origin.Type,
+          provider.Result,
+          origin.Mapping,
+          origin.Projector,
+          origin.ItemProjector);
+        return result;
       }
-      var result = new ResultExpression(
-        origin.Type,
-        provider.Result,
-        origin.Mapping,
-        origin.Projector,
-        origin.ItemProjector);
-      return result;
     }
 
     protected override Provider VisitSelect(SelectProvider provider)
     {
-      var source = (CompilableProvider)Visit(provider.Source);
-      if (sortOrder != null) {
+      var source = VisitCompilable(provider.Source);
+      if (pSortOrder.HasValue) {
         return new SelectProvider(source, provider.ColumnIndexes);
       }
       return provider;
@@ -49,17 +54,35 @@ namespace Xtensive.Storage.Linq
 
     protected override Provider VisitSort(SortProvider provider)
     {
-      var source = Visit(provider.Source);
-      sortOrder = sortOrder != null
-        ? new DirectionCollection<int>(sortOrder.Union(provider.Order))
+      var source = VisitCompilable(provider.Source);
+      pSortOrder.Value = pSortOrder.HasValue
+        ? new DirectionCollection<int>(pSortOrder.Value.Union(provider.Order))
         : new DirectionCollection<int>(provider.Order);
       return source;
     }
 
     protected override Provider VisitJoin(JoinProvider provider)
     {
-
-      return base.VisitJoin(provider);
+      var sortOrder = new DirectionCollection<int>();
+      CompilableProvider left;
+      CompilableProvider right;
+      using (new ParameterScope()) {
+        left = VisitCompilable(provider.Left);
+        if (pSortOrder.HasValue)
+          sortOrder = pSortOrder.Value;
+      }
+      using (new ParameterScope()) {
+        right = VisitCompilable(provider.Right);
+        if (pSortOrder.HasValue) {
+          sortOrder = new DirectionCollection<int>(
+            sortOrder.Union(pSortOrder.Value.Select(p => new KeyValuePair<int,Direction>(p.Key + left.Header.Length, p.Value)))
+            );
+        }
+      }
+      if (sortOrder.Count == 0)
+        return provider;
+      pSortOrder.Value = sortOrder;
+      return new JoinProvider(left, right, provider.Outer, provider.JoinType, provider.EqualIndexes);
     }
 
     protected override Provider VisitPredicateJoin(PredicateJoinProvider provider)

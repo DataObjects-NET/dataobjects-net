@@ -79,7 +79,7 @@ namespace Xtensive.Storage.Linq
             var ccd = new CalculatedColumnDescriptor(context.GetNextColumnAlias(), body.Type, (Expression<Func<Tuple, object>>) calculator);
             calculatedColumns.Value.Add(ccd);
             var parameter = parameters.Value[0];
-            int position = context.GetBound(parameter).RecordSet.Header.Columns.Count + calculatedColumns.Value.Count - 1;
+            int position = context.GetBound(parameter).RecordSet.Header.Length + calculatedColumns.Value.Count - 1;
             // var method = genericAccessor.MakeGenericMethod(body.Type);
             body = MakeTupleAccess(parameter, body.Type, Expression.Constant(position));
             // Expression.Call(tuple.Value, method, Expression.Constant(position));
@@ -376,7 +376,7 @@ namespace Xtensive.Storage.Linq
             var ccd = new CalculatedColumnDescriptor(context.GetNextColumnAlias(), arg.Type, (Expression<Func<Tuple, object>>) calculator);
             calculatedColumns.Value.Add(ccd);
             var parameter = parameters.Value[0];
-            int position = context.GetBound(parameter).RecordSet.Header.Columns.Count + calculatedColumns.Value.Count - 1;
+            int position = context.GetBound(parameter).RecordSet.Header.Length + calculatedColumns.Value.Count - 1;
             newArg = MakeTupleAccess(parameter, arg.Type, Expression.Constant(position));
             resultMapping.Value.RegisterFieldMapping(memberName, new Segment<int>(position, 1));
           }

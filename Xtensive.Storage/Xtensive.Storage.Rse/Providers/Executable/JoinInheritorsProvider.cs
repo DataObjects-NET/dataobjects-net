@@ -164,10 +164,10 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
     {
       base.Initialize();
       var map = new List<Pair<int, int>>();
-      for (int i = 0; i < root.Header.Columns.Count; i++)
+      for (int i = 0; i < root.Header.Length; i++)
         map.Add(new Pair<int, int>(0, i));
       for (int i = 0; i < inheritors.Length; i++)
-        for (int j = inheritors[i].Header.Order.Count + includedColumnsCount; j < inheritors[i].Header.Columns.Count; j++)
+        for (int j = inheritors[i].Header.Order.Count + includedColumnsCount; j < inheritors[i].Header.Length; j++)
           map.Add(new Pair<int, int>(i + 1, j));
       mapTransform = new MapTransform(true, Header.TupleDescriptor, map.ToArray());
     }

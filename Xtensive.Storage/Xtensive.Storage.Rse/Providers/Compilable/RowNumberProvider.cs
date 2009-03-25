@@ -31,9 +31,9 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     protected override void Initialize()
     {
       base.Initialize();
-      var columnIndexes = new int[Header.Columns.Count];
+      var columnIndexes = new int[Header.Length];
       for (int i = 0; i < columnIndexes.Length; i++)
-        columnIndexes[i] = (i < Source.Header.Columns.Count) ? i : MapTransform.NoMapping;
+        columnIndexes[i] = (i < Source.Header.Length) ? i : MapTransform.NoMapping;
       ResizeTransform = new MapTransform(false, Header.TupleDescriptor, columnIndexes);
     }
 
@@ -52,7 +52,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     public RowNumberProvider(CompilableProvider source, string columnName)
       : base(ProviderType.RowNumber, source)
     {
-      SystemColumn = new SystemColumn(columnName, Source.Header.Columns.Count, typeof(long));
+      SystemColumn = new SystemColumn(columnName, Source.Header.Length, typeof(long));
     }
   }
 }

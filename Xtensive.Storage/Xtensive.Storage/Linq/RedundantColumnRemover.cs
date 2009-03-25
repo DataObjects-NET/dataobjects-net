@@ -40,7 +40,7 @@ namespace Xtensive.Storage.Linq
           map = map.Distinct().ToList();
         }
       }
-      if (map.Count < origin.RecordSet.Header.Columns.Count) {
+      if (map.Count < origin.RecordSet.Header.Length) {
         var provider = origin.RecordSet.Provider;
         mapping.Add(provider, map);
         var resultProvider = Visit(provider);
@@ -84,7 +84,7 @@ namespace Xtensive.Storage.Linq
       mapping.TryGetValue(provider, out value);
       value.Sort();
       value = value.Distinct().ToList();
-      var columnsCount = provider.Header.Columns.Count;
+      var columnsCount = provider.Header.Length;
       int i = value.Count - 1;
       while (i >= 0) {
         if (value[i] >= columnsCount) {
