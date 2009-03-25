@@ -151,10 +151,8 @@ namespace Xtensive.Storage.Linq
         case MemberType.Entity:
           if (joinFinalEntity.Value)
             return VisitMemberPathEntity(path, source, resultType);
-          else {
-            recordIsUsed = true;
-            return VisitMemberPathKey(path, source);
-          }
+          path = MemberPath.Parse(Expression.MakeMemberAccess(e, WellKnownMethods.IEntityKey), context.Model);
+          return VisitMemberPathKey(path, source);
         case MemberType.EntitySet:
           return VisitMemberPathEntitySet(e);
         case MemberType.Anonymous:
@@ -672,7 +670,7 @@ namespace Xtensive.Storage.Linq
 
     private Expression VisitMemberPathKey(MemberPath path, ResultExpression source)
     {
-      var segment = source.GetMemberSegment(path);
+      Segment<int> segment = source.GetMemberSegment(path);
       var keyColumn = (MappedColumn)source.RecordSet.Header.Columns[segment.Offset];
       var field = keyColumn.ColumnInfoRef.Resolve(context.Model).Field;
       var type = field.Parent == null ? field.ReflectedType : context.Model.Types[field.Parent.ValueType];
