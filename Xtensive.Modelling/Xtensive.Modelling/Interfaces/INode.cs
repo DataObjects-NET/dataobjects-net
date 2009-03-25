@@ -6,6 +6,7 @@
 
 using System.ComponentModel;
 using Xtensive.Core.Collections;
+using Xtensive.Modelling.Comparison;
 
 namespace Xtensive.Modelling
 {
@@ -13,6 +14,7 @@ namespace Xtensive.Modelling
   /// Node interface.
   /// </summary>
   public interface INode : IPathNode,
+    IDifferentiable<Node, NodeDifference>,
     INotifyPropertyChanged
   {
     /// <summary>

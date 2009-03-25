@@ -18,6 +18,7 @@ using Xtensive.Core.Helpers;
 using Xtensive.Core.Threading;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Attributes;
+using Xtensive.Modelling.Comparison;
 using Xtensive.Modelling.Resources;
 using Xtensive.Core.Reflection;
 using Xtensive.Modelling.Validation;
@@ -574,6 +575,46 @@ namespace Xtensive.Modelling
       if (State!=NodeState.Live)
         throw new InvalidOperationException(Strings.ExInvalidNodeState);
       this.EnsureNotLocked();
+    }
+
+    #endregion
+
+    #region IDifferentiable<...> methods
+
+    /// <inheritdoc/>
+    public NodeDifference GetDifferenceWith(Node target)
+    {
+      var difference = CreateDifference(target);
+      using (difference.Activate()) {
+        BuildDifference(difference);
+      }
+      return difference;
+    }
+
+    /// <summary>
+    /// Creates the difference object for the current node.
+    /// </summary>
+    /// <param name="target">The target object.</param>
+    /// <returns>Newly created <see cref="NodeDifference"/>
+    /// object or its ancestor.</returns>
+    protected virtual NodeDifference CreateDifference(Node target)
+    {
+      return new NodeDifference(this, target);
+    }
+
+    /// <summary>
+    /// Builds the difference.
+    /// </summary>
+    /// <param name="difference">The difference to update.</param>
+    protected virtual void BuildDifference(NodeDifference difference)
+    {
+      throw new NotImplementedException();
+    }
+
+    /// <inheritdoc/>
+    Difference IDifferentiable.GetDifferenceWith(object target)
+    {
+      return GetDifferenceWith((Node) target);
     }
 
     #endregion

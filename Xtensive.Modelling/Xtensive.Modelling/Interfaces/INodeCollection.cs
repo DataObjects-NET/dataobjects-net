@@ -7,6 +7,7 @@
 using System.Collections.Specialized;
 using System.ComponentModel;
 using Xtensive.Core.Collections;
+using Xtensive.Modelling.Comparison;
 
 namespace Xtensive.Modelling
 {
@@ -15,6 +16,7 @@ namespace Xtensive.Modelling
   /// </summary>
   public interface INodeCollection : IPathNode, 
     ICountable,
+    IDifferentiable<NodeCollection, NodeCollectionDifference>,
     INotifyCollectionChanged
   {
     /// <summary>

@@ -17,6 +17,7 @@ using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Modelling;
+using Xtensive.Modelling.Comparison;
 using Xtensive.Modelling.Resources;
 
 namespace Xtensive.Modelling
@@ -178,6 +179,45 @@ namespace Xtensive.Modelling
         copy[i].Remove();
     }
 
+    #region IDifferentiable<...> methods
+
+    /// <inheritdoc/>
+    public NodeCollectionDifference GetDifferenceWith(NodeCollection target)
+    {
+      var difference = CreateDifference(target);
+      using (difference.Activate()) {
+        BuildDifference(difference);
+      }
+      return difference;
+    }
+
+    /// <summary>
+    /// Creates the difference object for the current node.
+    /// </summary>
+    /// <param name="target">The target object.</param>
+    /// <returns>Newly created <see cref="NodeCollectionDifference"/>
+    /// object or its ancestor.</returns>
+    protected virtual NodeCollectionDifference CreateDifference(NodeCollection target)
+    {
+      return new NodeCollectionDifference(this, target);
+    }
+
+    /// <summary>
+    /// Builds the difference.
+    /// </summary>
+    /// <param name="difference">The difference to update.</param>
+    protected virtual void BuildDifference(NodeCollectionDifference difference)
+    {
+      throw new NotImplementedException();
+    }
+
+    /// <inheritdoc/>
+    Difference IDifferentiable.GetDifferenceWith(object target)
+    {
+      return GetDifferenceWith((NodeCollection) target);
+    }
+
+    #endregion
     #region INotifyCollectionChanged, INotifyPropertyChanged members
 
     /// <inheritdoc/>

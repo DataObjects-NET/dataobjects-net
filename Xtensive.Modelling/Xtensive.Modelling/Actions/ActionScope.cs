@@ -14,7 +14,6 @@ namespace Xtensive.Modelling.Actions
   /// <summary>
   /// Defines the scope for the single action.
   /// </summary>
-  [Serializable]
   public class ActionScope : IDisposable
   {
     private ActionSequence sequence;

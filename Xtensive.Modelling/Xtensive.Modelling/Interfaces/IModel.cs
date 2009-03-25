@@ -5,6 +5,7 @@
 // Created:    2009.03.20
 
 using System;
+using System.Collections.Generic;
 using Xtensive.Modelling.Actions;
 
 namespace Xtensive.Modelling
@@ -15,5 +16,7 @@ namespace Xtensive.Modelling
   public interface IModel : INode
   {
     ActionSequence Actions { get; set; }
+
+    // ComparisonHintCollection { get; set; }
   }
 }

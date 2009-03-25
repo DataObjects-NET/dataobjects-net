@@ -68,7 +68,7 @@ namespace Xtensive.Modelling.Validation
 
     public bool IsActive
     {
-      get { throw new NotImplementedException(); }
+      get { return Current==this; }
     }
 
     IDisposable IContext.Activate()
