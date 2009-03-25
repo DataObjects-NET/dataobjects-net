@@ -142,94 +142,23 @@ namespace Xtensive.Storage.Linq
       var resultType = e.Type;
       source = context.GetBound(path.Parameter);
       switch (path.PathType) {
-        case MemberType.Primitive: {
-          var segment = source.GetMemberSegment(path);
-          resultMapping.Value.RegisterPrimitive(segment);
-          return MakeTupleAccess(path.Parameter, resultType, Expression.Constant(segment.Offset));
-        }
-        case MemberType.Key: {
-          // recordIsUsed = true;
-          var segment = source.GetMemberSegment(path);
-          var keyColumn = (MappedColumn) source.RecordSet.Header.Columns[segment.Offset];
-          var field = keyColumn.ColumnInfoRef.Resolve(context.Model).Field;
-          var type = field.Parent==null ? field.ReflectedType : context.Model.Types[field.Parent.ValueType];
-          var transform = new SegmentTransform(true, field.ReflectedType.TupleDescriptor, source.GetMemberSegment(path));
-          var keyExtractor = Expression.Call(WellKnownMethods.KeyCreate, Expression.Constant(type),
-            Expression.Call(Expression.Constant(transform), WellKnownMethods.SegmentTransformApply,
-              Expression.Constant(TupleTransformType.Auto), tuple.Value),
-            Expression.Constant(false));
-          // var rm = source.GetMemberMapping(path);
-          resultMapping.Value.RegisterPrimitive(segment);
-          return keyExtractor;
-        }
-        case MemberType.Structure: {
-          recordIsUsed = true;
-          var segment = source.GetMemberSegment(path);
-          var structureColumn = (MappedColumn) source.RecordSet.Header.Columns[segment.Offset];
-          var field = structureColumn.ColumnInfoRef.Resolve(context.Model).Field;
-          while (field.Parent!=null)
-            field = field.Parent;
-          int groupIndex = source.RecordSet.Header.ColumnGroups.GetGroupIndexBySegment(segment);
-          var result =
-            Expression.MakeMemberAccess(
-              Expression.Convert(
-                Expression.Call(
-                  Expression.Call(record.Value, WellKnownMethods.RecordKey, Expression.Constant(groupIndex)),
-                  WellKnownMethods.KeyResolve),
-                field.ReflectedType.UnderlyingType),
-              field.UnderlyingProperty);
-          var columnGroup = source.RecordSet.Header.ColumnGroups[groupIndex];
-          var keyOffset = columnGroup.Keys.Min();
-          var keyLength = columnGroup.Keys.Max() - keyOffset + 1;
-          var rm = source.GetMemberMapping(path);
-          var mappedFields = rm.Fields.Where(p => (p.Value.Offset >= segment.Offset && p.Value.EndOffset <= segment.EndOffset)).ToList();
-          var name = mappedFields.Select(pair => pair.Key).OrderBy(s => s.Length).First();
-          foreach (var pair in mappedFields) {
-            var key = pair.Key.TryCutPrefix(name).TrimStart('.');
-            resultMapping.Value.RegisterFieldMapping(key, pair.Value);
+        case MemberType.Primitive:
+          return VisitMemberPathPrimitive(path, source, resultType);
+        case MemberType.Key:
+          return VisitMemberPathKey(path, source);
+        case MemberType.Structure:
+          return VisitMemberPathStructure(path, source);
+        case MemberType.Entity:
+          if (joinFinalEntity.Value)
+            return VisitMemberPathEntity(path, source, resultType);
+          else {
+            recordIsUsed = true;
+            return VisitMemberPathKey(path, source);
           }
-          resultMapping.Value.RegisterFieldMapping(string.Format(SurrogateKeyNameFormatString, groupIndex), new Segment<int>(keyOffset, keyLength));
-          return result;
-        }
-        case MemberType.Entity: {
-          recordIsUsed = true;
-          var segment = source.GetMemberSegment(path);
-          int groupIndex = source.RecordSet.Header.ColumnGroups.GetGroupIndexBySegment(segment);
-          var result = Expression.Convert(
-            Expression.Call(
-              Expression.Call(record.Value, WellKnownMethods.RecordKey, Expression.Constant(groupIndex)),
-              WellKnownMethods.KeyResolve), resultType);
-          var rm = source.GetMemberMapping(path);
-          var name = rm.Fields.Select(pair => pair.Key).OrderBy(s => s.Length).First();
-          foreach (var pair in rm.Fields) {
-            var key = pair.Key.TryCutPrefix(name).TrimStart('.');
-            resultMapping.Value.RegisterFieldMapping(key, pair.Value);
-          }
-          foreach (var pair in rm.JoinedRelations) {
-            var key = pair.Key.TryCutPrefix(name).TrimStart('.');
-            resultMapping.Value.RegisterJoined(key, pair.Value);
-          }
-          resultMapping.Value.RegisterJoined(string.Empty, rm);
-          return result;
-        }
-        case MemberType.EntitySet: {
-          recordIsUsed = true;
-          var m = (MemberExpression) e;
-          var expression = Visit(m.Expression);
-          var result = Expression.MakeMemberAccess(expression, m.Member);
-          return result;
-        }
-        case MemberType.Anonymous: {
-          var rm = source.GetMemberMapping(path);
-          resultMapping.Value.RegisterJoined(string.Empty, rm);
-          if (path.Count==0)
-            return VisitParameter(path.Parameter);
-          var projector = source.Mapping.AnonymousProjections[path.First().Name];
-          var parameterRewriter = new ParameterRewriter(tuple.Value, record.Value);
-          var result = parameterRewriter.Rewrite(projector);
-          recordIsUsed |= result.Second;
-          return result.First;
-        }
+        case MemberType.EntitySet:
+          return VisitMemberPathEntitySet(e);
+        case MemberType.Anonymous:
+          return VisitMemberPathAnonymous(path, source);
         default:
           throw new ArgumentOutOfRangeException();
       }
@@ -651,6 +580,110 @@ namespace Xtensive.Storage.Linq
       throw new NotSupportedException();
     }
 
+    #endregion
+
+    #region VisitMemberPathImplementation
+
+    private Expression VisitMemberPathEntitySet(Expression e)
+    {
+      recordIsUsed = true;
+      var m = (MemberExpression)e;
+      var expression = Visit(m.Expression);
+      var result = Expression.MakeMemberAccess(expression, m.Member);
+      return result;
+    }
+
+    private Expression VisitMemberPathEntity(MemberPath path, ResultExpression source, Type resultType)
+    {
+      recordIsUsed = true;
+      var segment = source.GetMemberSegment(path);
+      int groupIndex = source.RecordSet.Header.ColumnGroups.GetGroupIndexBySegment(segment);
+      var result = Expression.Convert(
+        Expression.Call(
+          Expression.Call(record.Value, WellKnownMethods.RecordKey, Expression.Constant(groupIndex)),
+          WellKnownMethods.KeyResolve), resultType);
+      var rm = source.GetMemberMapping(path);
+      var name = rm.Fields.Select(pair => pair.Key).OrderBy(s => s.Length).First();
+      foreach (var pair in rm.Fields)
+      {
+        var key = pair.Key.TryCutPrefix(name).TrimStart('.');
+        resultMapping.Value.RegisterFieldMapping(key, pair.Value);
+      }
+      foreach (var pair in rm.JoinedRelations)
+      {
+        var key = pair.Key.TryCutPrefix(name).TrimStart('.');
+        resultMapping.Value.RegisterJoined(key, pair.Value);
+      }
+      resultMapping.Value.RegisterJoined(string.Empty, rm);
+      return result;
+    }
+
+    private Expression VisitMemberPathStructure(MemberPath path, ResultExpression source)
+    {
+      recordIsUsed = true;
+      var segment = source.GetMemberSegment(path);
+      var structureColumn = (MappedColumn)source.RecordSet.Header.Columns[segment.Offset];
+      var field = structureColumn.ColumnInfoRef.Resolve(context.Model).Field;
+      while (field.Parent != null)
+        field = field.Parent;
+      int groupIndex = source.RecordSet.Header.ColumnGroups.GetGroupIndexBySegment(segment);
+      var result =
+        Expression.MakeMemberAccess(
+          Expression.Convert(
+            Expression.Call(
+              Expression.Call(record.Value, WellKnownMethods.RecordKey, Expression.Constant(groupIndex)),
+              WellKnownMethods.KeyResolve),
+            field.ReflectedType.UnderlyingType),
+          field.UnderlyingProperty);
+      var columnGroup = source.RecordSet.Header.ColumnGroups[groupIndex];
+      var keyOffset = columnGroup.Keys.Min();
+      var keyLength = columnGroup.Keys.Max() - keyOffset + 1;
+      var rm = source.GetMemberMapping(path);
+      var mappedFields = rm.Fields.Where(p => (p.Value.Offset >= segment.Offset && p.Value.EndOffset <= segment.EndOffset)).ToList();
+      var name = mappedFields.Select(pair => pair.Key).OrderBy(s => s.Length).First();
+      foreach (var pair in mappedFields)
+      {
+        var key = pair.Key.TryCutPrefix(name).TrimStart('.');
+        resultMapping.Value.RegisterFieldMapping(key, pair.Value);
+      }
+      resultMapping.Value.RegisterFieldMapping(string.Format(SurrogateKeyNameFormatString, groupIndex), new Segment<int>(keyOffset, keyLength));
+      return result;
+    }
+
+    private Expression VisitMemberPathAnonymous(MemberPath path, ResultExpression source)
+    {
+      var rm = source.GetMemberMapping(path);
+      resultMapping.Value.RegisterJoined(string.Empty, rm);
+      if (path.Count==0)
+        return VisitParameter(path.Parameter);
+      var projector = source.Mapping.AnonymousProjections[path.First().Name];
+      var parameterRewriter = new ParameterRewriter(tuple.Value, record.Value);
+      var result = parameterRewriter.Rewrite(projector);
+      recordIsUsed |= result.Second;
+      return result.First;
+    }
+
+    private Expression VisitMemberPathPrimitive(MemberPath path, ResultExpression source, Type resultType)
+    {
+      var segment = source.GetMemberSegment(path);
+      resultMapping.Value.RegisterPrimitive(segment);
+      return MakeTupleAccess(path.Parameter, resultType, Expression.Constant(segment.Offset));
+    }
+
+    private Expression VisitMemberPathKey(MemberPath path, ResultExpression source)
+    {
+      var segment = source.GetMemberSegment(path);
+      var keyColumn = (MappedColumn)source.RecordSet.Header.Columns[segment.Offset];
+      var field = keyColumn.ColumnInfoRef.Resolve(context.Model).Field;
+      var type = field.Parent == null ? field.ReflectedType : context.Model.Types[field.Parent.ValueType];
+      var transform = new SegmentTransform(true, field.ReflectedType.TupleDescriptor, segment);
+      var keyExtractor = Expression.Call(WellKnownMethods.KeyCreate, Expression.Constant(type),
+        Expression.Call(Expression.Constant(transform), WellKnownMethods.SegmentTransformApply,
+          Expression.Constant(TupleTransformType.Auto), tuple.Value),
+        Expression.Constant(false));
+      resultMapping.Value.RegisterPrimitive(segment);
+      return keyExtractor;
+    }
     #endregion
   }
 }

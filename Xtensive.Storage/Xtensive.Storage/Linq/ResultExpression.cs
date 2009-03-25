@@ -34,8 +34,11 @@ namespace Xtensive.Storage.Linq
           return result;
       }
       else {
-        mapping = mapping.JoinedRelations[first.Name];
-        result = mapping.Segment;
+        ResultMapping resultMapping;
+        if (mapping.JoinedRelations.TryGetValue(first.Name, out resultMapping))
+          return resultMapping.Segment;
+        if (mapping.Fields.TryGetValue(first.Name, out result))
+          return result;
       }
 
       for (int i = 1; i < pathList.Count; i++) {
