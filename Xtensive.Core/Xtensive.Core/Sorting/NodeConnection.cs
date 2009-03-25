@@ -61,6 +61,9 @@ namespace Xtensive.Core.Sorting
         return result;
       }
     }
+
+
+    // Constructors
 			
     public NodeConnection(Node<TNodeItem, TConnectionItem> source, Node<TNodeItem, TConnectionItem> destination, TConnectionItem connectionItem)
     {

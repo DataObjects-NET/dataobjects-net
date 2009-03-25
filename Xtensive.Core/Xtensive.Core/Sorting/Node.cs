@@ -93,7 +93,7 @@ namespace Xtensive.Core.Sorting
     }
 
 
-    // Constrcutors
+    // Constructors
 
     public Node(TNodeItem item)
     {
