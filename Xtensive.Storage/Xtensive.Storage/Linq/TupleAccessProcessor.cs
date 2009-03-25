@@ -4,10 +4,13 @@
 // Created by: Elena Vakhtina
 // Created:    2009.02.18
 
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Core.Linq;
+using Xtensive.Core.Parameters;
+using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Rse;
 
@@ -15,20 +18,29 @@ namespace Xtensive.Storage.Linq
 {
   internal class TupleAccessProcessor : ExpressionVisitor
   {
-    private List<int> map = new List<int>();
     private bool isReplacing;
     private List<int> group;
-
+    private List<int> map;
+    private readonly Action<Parameter<Tuple>, int> registerOuterColumn;
+    private readonly Func<Parameter<Tuple>, int, int> resolveOuterColumn;
 
     protected override Expression VisitMethodCall(MethodCallExpression mc)
     {
-      if (mc.AsTupleAccess()!=null) {
-        if (isReplacing) {
-          var value = (int) ((ConstantExpression) mc.Arguments[0]).Value;
-          return Expression.Call(mc.Object, mc.Method, Expression.Constant(map.IndexOf(value)));
+      if (mc.AsTupleAccess() != null) {
+        int index = (int)((ConstantExpression)mc.Arguments[0]).Value;
+        var outerParameter = TryExtractOuterParameter(mc);
+        if (!isReplacing) {
+          if (outerParameter != null)
+            registerOuterColumn(outerParameter, index);
+          else
+            map.Add(index);
         }
-        else
-          map.Add((int) ((ConstantExpression) mc.Arguments[0]).Value);
+        else {
+          int newIndex = outerParameter!=null
+            ? resolveOuterColumn(outerParameter, index)
+            : map.IndexOf(index);
+          return Expression.Call(mc.Object, mc.Method, Expression.Constant(newIndex));
+        }
       }
       else if (mc.Object!=null && mc.Object.Type==typeof (Record) && mc.Method.Name=="get_Item" && isReplacing && group!=null) {
         var value = (int) ((ConstantExpression) mc.Arguments[0]).Value;
@@ -63,6 +75,33 @@ namespace Xtensive.Storage.Linq
       group = groupMap;
       map = mapping;
       return Visit(predicate);
+    }
+
+    private Parameter<Tuple> TryExtractOuterParameter(MethodCallExpression tupleAccess)
+    {
+      if (tupleAccess.Object.NodeType != ExpressionType.MemberAccess)
+        return null;
+      var memberAccess = (MemberExpression) tupleAccess.Object;
+      if (memberAccess.Member != Translator.WellKnownMethods.ParameterOfTupleValue)
+        return null;
+      if (memberAccess.Expression.NodeType != ExpressionType.Constant)
+        return null;
+      var constant = (ConstantExpression) memberAccess.Expression;
+      return (Parameter<Tuple>) constant.Value;
+    }
+
+    public TupleAccessProcessor()
+    {
+      registerOuterColumn = (p, i) => { throw new NotSupportedException(); };
+      resolveOuterColumn = (p, i) => { throw new NotSupportedException(); };
+    }
+
+    public TupleAccessProcessor(
+      Action<Parameter<Tuple>, int> registerOuterColumn,
+      Func<Parameter<Tuple>, int, int> resolveOuterColumn)
+    {
+      this.registerOuterColumn = registerOuterColumn;
+      this.resolveOuterColumn = resolveOuterColumn;
     }
   }
 }
