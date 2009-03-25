@@ -74,8 +74,6 @@ namespace Xtensive.Indexing.Tests
     [Test]
     public void RangeSetReaderTest()
     {
-      Assert.Ignore();
-
       var sortedListConfiguration = new IndexConfigurationBase<int, int>(item => item, AdvancedComparer<int>.Default);
       var sortedListIndex = new SortedListIndex<int, int>(sortedListConfiguration);
       for (int i = 0; i < 40; i++)
@@ -117,6 +115,17 @@ namespace Xtensive.Indexing.Tests
       reader2.MoveNext();
       rangeSetReader.MoveNext();
       Assert.AreEqual(reader2.Current, rangeSetReader.Current);
+
+      reader3.MoveTo(23);
+      rangeSetReader.MoveTo(23);
+      reader3.MoveNext();
+      rangeSetReader.MoveNext();
+      Assert.AreEqual(reader3.Current, rangeSetReader.Current);
+
+      reader3.MoveTo(31);
+      rangeSetReader.MoveTo(31);
+      Assert.IsFalse(reader3.MoveNext());
+      Assert.IsFalse(rangeSetReader.MoveNext());
     }
 
     [Test]

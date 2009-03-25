@@ -72,7 +72,14 @@ namespace Xtensive.Indexing
         state = EnumerationState.Finished;
         return false;
       }
-      
+
+      var indexKey = new Entire<TKey>(Index.KeyExtractor(nextPtr.Value.Pointer.Current));
+      if (!Range.Contains(indexKey) && MoveNextIsPossible(indexKey))
+        while (Index.AsymmetricKeyCompare(indexKey, Range.EndPoints.First.Value) != 0) {
+          nextPtr.Value.Pointer.MoveNext(Direction);
+          indexKey = new Entire<TKey>(Index.KeyExtractor(nextPtr.Value.Pointer.Current));
+        }
+
       // nextPtr is in Range; let's update current
       current = nextPtr.Value.Pointer.Current;
       lastKey = Index.KeyExtractor(current);
@@ -135,6 +142,12 @@ namespace Xtensive.Indexing
       if (!pointer.Version.HasValue)
         return false;
       return pointer.Version==pointer.Value.Pointer.Page.Version;
+    }
+
+    private bool MoveNextIsPossible(Entire<TKey> key)
+    {
+      return (Direction == Direction.Positive && Index.AsymmetricKeyCompare(key, Range.EndPoints.First.Value) < 0) ||
+             (Direction == Direction.Negative && Index.AsymmetricKeyCompare(key, Range.EndPoints.First.Value) > 0);
     }
 
     #endregion

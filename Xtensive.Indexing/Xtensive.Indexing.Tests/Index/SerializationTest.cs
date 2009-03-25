@@ -49,6 +49,7 @@ namespace Xtensive.Indexing.Tests.Index
     }
 
     [Test]
+    [Explicit]
     public void SerializeTest()
     {
       //StreamPageProvider
@@ -142,6 +143,7 @@ namespace Xtensive.Indexing.Tests.Index
 
 
     [Test]
+    [Explicit]
     public void DeserializeTest()
     {
       DeserializeInternal<short>(GetCount());
@@ -220,6 +222,7 @@ namespace Xtensive.Indexing.Tests.Index
     }
 
     [Test]
+    [Explicit]
     public void DebugTest()
     {
       DebugInternal<short>(GetCount());

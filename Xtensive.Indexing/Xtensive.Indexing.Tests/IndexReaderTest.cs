@@ -1,11 +1,12 @@
 // Copyright (C) 2009 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
-// Created by: 
+// Created by: Elena Vakhtina
 // Created:    2009.03.24
 
 using System;
 using NUnit.Framework;
+using Xtensive.Core;
 using Xtensive.Core.Comparison;
 
 namespace Xtensive.Indexing.Tests
@@ -17,10 +18,8 @@ namespace Xtensive.Indexing.Tests
     private const int count = 100;
     private Index<int, int> index;
     private SortedListIndex<int, int> sortedListIndex;
-    //private NonUniqueIndex<int, int, int> nonUniqueIndex;
     private IndexReader<int, int> indexReader;
     private SortedListIndexReader<int, int> sortedListIndexReader;
-    //private NonUniqueIndexReader<int, int, int> nonUniqueIndexReader;
 
 
     [Test]
@@ -28,25 +27,47 @@ namespace Xtensive.Indexing.Tests
     {
       CreateIndexes();
       PopulateIndexes();
-      CreateReaders(new Range<Entire<int>>(0, count - 1));
+
+      TestIndexReader(0, count - 1, 0, count - 1);
+      TestIndexReader(count - 1, 0, count - 1, 0);
+      TestIndexReader(10, count - 10, 5, count - 5);
+      TestIndexReader(count - 10, 10, count - 5, 5);
+    }
+
+    #region Private methods
+
+    private void TestIndexReader(int rLeft, int rRight, int left, int right)
+    {
+      CreateReaders(new Range<Entire<int>>(rLeft, rRight));
       TestCommonBehavior(indexReader, sortedListIndexReader);
-      TestEndPointsOfRange(0, count - 1, indexReader, sortedListIndexReader);
-      CreateReaders(new Range<Entire<int>>(10, count - 10));
-      TestCommonBehavior(indexReader, sortedListIndexReader);
-      TestEndPointsOfRange(0, count - 1, indexReader, sortedListIndexReader);
+      TestEndPointsOfRange(left, right, indexReader, sortedListIndexReader);
     }
 
     private void TestCommonBehavior(IIndexReader<int, int> first, IIndexReader<int, int> second)
     {
-      for (int i = first.Range.EndPoints.First.Value; i <= first.Range.EndPoints.Second.Value; i++) {
-        first.MoveTo(new Entire<int>(i));
-        first.MoveNext();
-        second.MoveTo(new Entire<int>(i));
-        second.MoveNext();
-        Assert.AreEqual(i, first.Current);
-        Assert.AreEqual(i, second.Current);
+      var left = first.Range.EndPoints.First.Value;
+      var right = first.Range.EndPoints.Second.Value;
+      var isNegativeDirection = false;
 
-        if (i == first.Range.EndPoints.Second.Value) {
+      if (left > right) {
+        var p = right;
+        right = left;
+        left = p;
+        isNegativeDirection = true;
+      }
+
+      for (int i = left; i <= right; i++) {
+        var ind = i;
+        if (isNegativeDirection)
+          ind = right - i + left;
+        first.MoveTo(new Entire<int>(ind));
+        first.MoveNext();
+        second.MoveTo(new Entire<int>(ind));
+        second.MoveNext();
+        Assert.AreEqual(ind, first.Current);
+        Assert.AreEqual(ind, second.Current);
+
+        if ((ind == right && !isNegativeDirection) || (ind == left && isNegativeDirection)) {
           Assert.IsFalse(first.MoveNext());
           Assert.IsFalse(second.MoveNext());
         }
@@ -59,20 +80,29 @@ namespace Xtensive.Indexing.Tests
 
     private void TestEndPointsOfRange(int leftKey, int rightKey, IIndexReader<int, int> first, IIndexReader<int, int> second)
     {
+      var isNegativeDirection = first.Range.GetDirection(AdvancedComparer<Entire<int>>.Default)==Direction.Negative;
+
       first.MoveTo(leftKey);
       second.MoveTo(leftKey);
       Assert.IsTrue(first.MoveNext());
       Assert.IsTrue(second.MoveNext());
       Assert.AreEqual(first.Current, second.Current);
+      if ((leftKey < first.Range.EndPoints.First.Value && !isNegativeDirection) ||
+          (rightKey > first.Range.EndPoints.Second.Value && isNegativeDirection)) {
+        Assert.AreEqual(first.Current, first.Range.EndPoints.First.Value);
+        Assert.AreEqual(second.Current, second.Range.EndPoints.First.Value);
+      }
       first.MoveTo(rightKey);
       second.MoveTo(rightKey);
-      if (rightKey == first.Range.EndPoints.Second.Value) {
+      if ((rightKey == first.Range.EndPoints.Second.Value && !isNegativeDirection) ||
+          (leftKey == first.Range.EndPoints.First.Value && isNegativeDirection)) {
         Assert.IsTrue(first.MoveNext());
         Assert.IsTrue(second.MoveNext());
         Assert.IsFalse(first.MoveNext());
         Assert.IsFalse(second.MoveNext());
       }
-      if (rightKey > first.Range.EndPoints.Second.Value) {
+      if ((rightKey > first.Range.EndPoints.Second.Value && !isNegativeDirection) ||
+          (leftKey < first.Range.EndPoints.First.Value && isNegativeDirection)) {
         Assert.IsFalse(first.MoveNext());
         Assert.IsFalse(second.MoveNext());
       }
@@ -83,7 +113,6 @@ namespace Xtensive.Indexing.Tests
       var config = new IndexConfiguration<int, int>(item => item, AdvancedComparer<int>.Default);
       index = new Index<int, int>(config);
       sortedListIndex = new SortedListIndex<int, int>(config);
-      //nonUniqueIndex = new NonUniqueIndex<int, int, int>(config);
     }
 
     private void PopulateIndexes()
@@ -91,7 +120,6 @@ namespace Xtensive.Indexing.Tests
       for (int i = 0; i < count; i++) {
         index.Add(i);
         sortedListIndex.Add(i);
-        //nonUniqueIndex.Add(i);
       }
     }
 
@@ -99,7 +127,9 @@ namespace Xtensive.Indexing.Tests
     {
       indexReader = new IndexReader<int, int>(index, range);
       sortedListIndexReader = new SortedListIndexReader<int, int>(sortedListIndex, range);
-      //nonUniqueIndexReader = new NonUniqueIndexReader<int, int, int>(nonUniqueIndex, range);
     }
+
+    #endregion
+
   }
 }

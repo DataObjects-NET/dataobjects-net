@@ -52,7 +52,7 @@ namespace Xtensive.Indexing
           Seek(ref nextPtr, new Ray<Entire<TKey>>(key, Direction));
         if (lastPtrIsNotActual)
           Seek(ref lastPtr, new Ray<Entire<TKey>>(Range.EndPoints.Second, Direction.Invert()));
-        if (Range.Contains(key, Index.EntireKeyComparer))
+        if (Range.Contains(key, Index.EntireKeyComparer) || MoveNextIsPossible(key))
           state = EnumerationState.NotStarted;
         else
           state = EnumerationState.Finishing;
@@ -68,12 +68,19 @@ namespace Xtensive.Indexing
       case SeekResultType.Nearest:
         // nextPtr is in the Index, but probably out of Range
         var foundKey = new Entire<TKey>(Index.KeyExtractor(nextPtr.Value.Pointer.Current));
-        if (!Range.Contains(foundKey, Index.EntireKeyComparer)) {
+        if (!Range.Contains(foundKey, Index.EntireKeyComparer) && !MoveNextIsPossible(foundKey)) {
           state = EnumerationState.Finished;
           return false;
         }
         break;
       }
+
+      var indexKey = new Entire<TKey>(Index.KeyExtractor(nextPtr.Value.Pointer.Current));
+      if (!Range.Contains(indexKey) && MoveNextIsPossible(indexKey))
+        while (Index.AsymmetricKeyCompare(indexKey, Range.EndPoints.First.Value) != 0) {
+          nextPtr.Value.Pointer.MoveNext(Direction);
+          indexKey = new Entire<TKey>(Index.KeyExtractor(nextPtr.Value.Pointer.Current));
+        }
 
       // nextPtr is in Range; let's update current
       current = nextPtr.Value.Pointer.Current;
@@ -137,6 +144,12 @@ namespace Xtensive.Indexing
       if (!pointer.Version.HasValue)
         return false;
       return pointer.Version==pointer.Value.Pointer.Owner.Version;
+    }
+
+    private bool MoveNextIsPossible(Entire<TKey> key)
+    {
+      return (Direction==Direction.Positive && Index.AsymmetricKeyCompare(key, Range.EndPoints.First.Value) < 0) ||
+             (Direction==Direction.Negative && Index.AsymmetricKeyCompare(key, Range.EndPoints.First.Value) > 0);
     }
 
     #endregion

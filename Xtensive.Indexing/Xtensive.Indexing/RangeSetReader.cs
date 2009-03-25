@@ -45,13 +45,6 @@ namespace Xtensive.Indexing
           current = readers[currentReaderIndex].Current;
           return true;
         }
-        //if (currentReaderIndex!=readers.Count() - 1) {
-        //  currentReaderIndex++;
-        //  //readers[currentReaderIndex].Reset();
-        //  readers[currentReaderIndex].MoveNext();
-        //  current = readers[currentReaderIndex].Current;
-        //  return true;
-        //}
         currentReaderIndex++;
       }
       return false;
@@ -96,6 +89,7 @@ namespace Xtensive.Indexing
     {
       foreach (var reader in readers) 
         reader.MoveTo(key);
+      currentReaderIndex = 0;
       current = default(TItem);  
     }
 
