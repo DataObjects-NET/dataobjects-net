@@ -138,4 +138,7 @@
   <data name="ExTypeOfColumnXDoesNotDefined" xml:space="preserve">
     <value>Type of column {0} does not defined.</value>
   </data>
+  <data name="ReferencedIndexNotDefined" xml:space="preserve">
+    <value>Referenced index not defined.</value>
+  </data>
 </root>

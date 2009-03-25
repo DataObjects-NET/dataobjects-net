@@ -11,15 +11,15 @@ using Xtensive.Modelling;
 namespace Xtensive.Indexing.Storage.Model
 {
   [Serializable]
-  public class ForeignKeyCollection : NodeCollectionBase<ForeignKeyInfo, PrimaryIndexInfo>, 
+  public class ForeignKeyCollection : NodeCollectionBase<ForeignKeyInfo, TableInfo>, 
     IUnorderedNodeCollection
   {
 
 
     //Constructors
 
-    public ForeignKeyCollection(Node parent, string name)
-      : base(parent, name)
+    public ForeignKeyCollection(TableInfo table)
+      : base(table, "ForeignKeys")
     {
     }
   }

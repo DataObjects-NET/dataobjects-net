@@ -2,27 +2,24 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Ivan Galkin
-// Created:    2009.03.20
+// Created:    2009.03.24
 
 using System;
 using System.Diagnostics;
-using Xtensive.Modelling;
 
 namespace Xtensive.Indexing.Storage.Model
 {
   /// <summary>
-  /// Describe a collection of columns.
+  /// A collection of <see cref="ValueColumnRef"/>.
   /// </summary>
   [Serializable]
-  public class ColumnInfoCollection : NodeCollectionBase<ColumnInfo, TableInfo>, 
-    IUnorderedNodeCollection
+  public class ValueColumnRefCollection: NodeCollectionBase<ValueColumnRef, IndexInfo>
   {
+    // Constructors
 
-
-    //Constructors
-
-    public ColumnInfoCollection(Node parent)
-      : base(parent, "Columns")
+    /// <inheritdoc/>
+    public ValueColumnRefCollection(IndexInfo parent)
+      : base(parent, "ValueColumns")
     {
     }
   }

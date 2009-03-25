@@ -16,45 +16,15 @@ namespace Xtensive.Indexing.Storage.Model
   /// Describes a single secondary index.
   /// </summary>
   [Serializable]
-  public class SecondaryIndexInfo : NodeBase<PrimaryIndexInfo>
+  public class SecondaryIndexInfo : IndexInfo
   {
-    private bool isUnique;
-
-    /// <summary>
-    /// Gets or sets a value indicating whether this <see cref="SecondaryIndexInfo"/> is unique.
-    /// </summary>
-    /// <value>
-    /// 	<see langword="true"/> if unique; otherwise, <see langword="false"/>.
-    /// </value>
-    [Property]
-    public bool IsUnique
-    {
-      get { return isUnique; }
-      set
-      {
-        EnsureIsEditable();
-        isUnique = value;
-      }
-    }
-
-    /// <summary>
-    /// Gets or sets the secondary key columns.
-    /// </summary>
-    [Property]
-    public ColumnInfoRefCollection<SecondaryIndexInfo> SecondaryKeyColumns { get; private set; }
 
     /// <inheritdoc/>
     protected override Nesting CreateNesting()
     {
-      return new Nesting<SecondaryIndexInfo, PrimaryIndexInfo, SecondaryIndexInfoCollection>(this, "SecondaryIndexes");
+      return new Nesting<SecondaryIndexInfo, TableInfo, SecondaryIndexInfoCollection>(this, "SecondaryIndexes");
     }
 
-    /// <inheritdoc/>
-    protected override void Initialize()
-    {
-      base.Initialize();
-      SecondaryKeyColumns = new ColumnInfoRefCollection<SecondaryIndexInfo>(this, "SecondaryKeyColumns");
-    }
 
     /// <inheritdoc/>
     /// <exception cref="IntegrityException">Empty secondary key columns collection.</exception>
@@ -62,34 +32,36 @@ namespace Xtensive.Indexing.Storage.Model
     {
       base.ValidateState();
 
-      var primaryValueColumns = new List<ColumnInfo>(Parent.ValueColumns.Select(valueRef => valueRef.Value));
-      var secondaryKeyColumns = new List<ColumnInfo>(SecondaryKeyColumns.Select(valueRef => valueRef.Value));
+      //var primaryValueColumns = new List<ColumnInfo>(Parent.PrimaryIndex.ValueColumns.Select(valueRef => valueRef.Value));
+      //var secondaryKeyColumns = new List<ColumnInfo>( SecondaryKeyColumns.Select(valueRef => valueRef.Value));
 
-      // Empty keys.
-      if (secondaryKeyColumns.Count==0)
-        throw new IntegrityException(Resources.Strings.ExEmptyKeyColumnsCollection, Path);
+      //// Empty keys.
+      //if (secondaryKeyColumns.Count == 0)
+      //  throw new IntegrityException(Resources.Strings.ExEmptyKeyColumnsCollection, Path);
 
-      // Double keys.
-      foreach (var column in secondaryKeyColumns.GroupBy(keyColumn => keyColumn).Where(group => group.Count() > 1).Select(group => group.Key)) {
-        throw new IntegrityException(
-          string.Format(Resources.Strings.ExMoreThenOneKeyReferenceToColumnX, column.Name),
-          Path);
-      }
+      //// Double keys.
+      //foreach (var column in secondaryKeyColumns.GroupBy(keyColumn => keyColumn).Where(group => group.Count() > 1).Select(group => group.Key))
+      //{
+      //  throw new IntegrityException(
+      //    string.Format(Resources.Strings.ExMoreThenOneKeyReferenceToColumnX, column.Name),
+      //    Path);
+      //}
 
-      // Secondary key column does not primary value column.
-      foreach (var column in secondaryKeyColumns.Except(primaryValueColumns)) {
-        throw new IntegrityException(
-          string.Format("Secondary key column '{0}' must be primary value column.", column.Name),
-          Path);
-      }
+      //// Secondary key column does not primary value column.
+      //foreach (var column in secondaryKeyColumns.Except(primaryValueColumns))
+      //{
+      //  throw new IntegrityException(
+      //    string.Format("Secondary key column '{0}' must be primary value column.", column.Name),
+      //    Path);
+      //}
     }
 
 
     // Constructors
 
     /// <inheritdoc/>
-    public SecondaryIndexInfo(PrimaryIndexInfo primaryIndex, string name)
-      : base(primaryIndex, name)
+    public SecondaryIndexInfo(TableInfo table, string name)
+      : base(table, name)
     {
     }
   }

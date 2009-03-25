@@ -18,53 +18,12 @@ namespace Xtensive.Indexing.Storage.Model
   /// Describes a single primary index.
   /// </summary>
   [Serializable]
-  public class PrimaryIndexInfo : NodeBase<StorageInfo>
+  public class PrimaryIndexInfo : IndexInfo
   {
-    /// <summary>
-    /// Gets all columns belongs to the index.
-    /// </summary>
-    [Property]
-    public ColumnInfoCollection Columns { get; private set; }
-
-    /// <summary>
-    /// Gets key columns belongs to the index.
-    /// </summary>
-    [Property]
-    public ColumnInfoRefCollection<PrimaryIndexInfo> KeyColumns { get; private set; }
-
-    /// <summary>
-    /// Gets value columns belongs to the index.
-    /// </summary>
-    [Property]
-    public ColumnInfoRefCollection<PrimaryIndexInfo> ValueColumns { get; private set; }
-
-    /// <summary>
-    /// Gets secondary indexes.
-    /// </summary>
-    [Property]
-    public SecondaryIndexInfoCollection SecondaryIndexes { get; private set; }
-
-    /// <summary>
-    /// Gets foreign keys.
-    /// </summary>
-    [Property]
-    public ForeignKeyCollection ForeignKeys { get; private set; }
-
     /// <inheritdoc/>
     protected override Nesting CreateNesting()
     {
-      return new Nesting<PrimaryIndexInfo, StorageInfo, PrimaryIndexInfoCollection>(this, "PrimaryIndexes");
-    }
-
-    /// <inheritdoc/>
-    protected override void Initialize()
-    {
-      base.Initialize();
-      KeyColumns = new ColumnInfoRefCollection<PrimaryIndexInfo>(this, "KeyColumns");
-      ValueColumns = new ColumnInfoRefCollection<PrimaryIndexInfo>(this, "ValueColumns");
-      Columns = new ColumnInfoCollection(this);
-      SecondaryIndexes = new SecondaryIndexInfoCollection(this);
-      ForeignKeys = new ForeignKeyCollection(this, "ForeignKeys");
+      return new Nesting<PrimaryIndexInfo, TableInfo, PrimaryIndexInfo>(this, "PrimaryIndex");
     }
 
     /// <inheritdoc/>
@@ -73,6 +32,7 @@ namespace Xtensive.Indexing.Storage.Model
     {
       base.ValidateState();
 
+      var columns = Parent.Columns;
       var keys = new List<ColumnInfo>(KeyColumns.Select(keyRef => keyRef.Value));
       var values = new List<ColumnInfo>(ValueColumns.Select(valueRef => valueRef.Value));
 
@@ -88,7 +48,7 @@ namespace Xtensive.Indexing.Storage.Model
       }
 
       // Not referenced columns.
-      foreach (var column in Columns.Except(keys.Union(values))) {
+      foreach (var column in columns.Except(keys.Union(values))) {
         throw new IntegrityException(
           string.Format(Resources.Strings.ExCanNotFindReferenceToColumnX, column.Name),
           Path);
@@ -101,8 +61,8 @@ namespace Xtensive.Indexing.Storage.Model
           Path);
       }
 
-      // Key columns contains refernce to column from another index.
-      foreach (var column in keys.Except(Columns)) {
+      // Key columns contains refernce to column from another table.
+      foreach (var column in keys.Except(columns)) {
         throw new IntegrityException(
           string.Format(Resources.Strings.ExReferencedColumnXDoesNotBelongToIndexY, column.Name, Name),
           Path);
@@ -115,8 +75,8 @@ namespace Xtensive.Indexing.Storage.Model
           Path);
       }
 
-      // Value columns contains refernce to column from another index.
-      foreach (var column in values.Except(Columns)) {
+      // Value columns contains refernce to column from another table.
+      foreach (var column in values.Except(columns)) {
         throw new IntegrityException(
           string.Format(Resources.Strings.ExReferencedColumnXDoesNotBelongToIndexY, column.Name, Name),
           Path);
@@ -126,9 +86,13 @@ namespace Xtensive.Indexing.Storage.Model
 
     // Constructors
 
-    /// <inheritdoc/>
-    public PrimaryIndexInfo(StorageInfo parent, string name)
-      : base(parent, name)
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="table">The table.</param>
+    /// <param name="name">The index name.</param>
+    public PrimaryIndexInfo(TableInfo table, string name)
+      : base(table, name)
     {
     }
   }

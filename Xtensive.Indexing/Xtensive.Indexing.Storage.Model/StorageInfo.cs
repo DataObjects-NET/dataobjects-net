@@ -39,11 +39,21 @@ namespace Xtensive.Indexing.Storage.Model
     [Property]
     public PrimaryIndexInfoCollection PrimaryIndexes { get; private set; }
 
+    /// <summary>
+    /// Gets tables.
+    /// </summary>
+    [Property]
+    public TableInfoCollection Tables { get; private set; }
+
     /// <inheritdoc/>
     protected override void Initialize()
     {
       base.Initialize();
-      PrimaryIndexes = new PrimaryIndexInfoCollection(this);
+      if (Tables == null)
+        Tables = new TableInfoCollection(this);
+
+      if (PrimaryIndexes == null)
+        PrimaryIndexes = new PrimaryIndexInfoCollection(this);
     }
 
     /// <inheritdoc/>

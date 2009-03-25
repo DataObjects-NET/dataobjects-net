@@ -17,11 +17,11 @@ namespace Xtensive.Indexing.Storage.Model
   /// Describes a single foreign key.
   /// </summary>
   [Serializable]
-  public class ForeignKeyInfo: NodeBase<PrimaryIndexInfo>
+  public class ForeignKeyInfo: NodeBase<TableInfo>
   {
     private ReferentialAction onUpdateAction;
     private ReferentialAction onRemoveAction;
-    private PrimaryIndexInfo referencedIndex;
+    private IndexInfo referencedIndex;
 
     /// <summary>
     /// Gets or sets the on update action.
@@ -57,64 +57,47 @@ namespace Xtensive.Indexing.Storage.Model
     /// </summary>
     /// <value>The index of the referenced.</value>
     [Property]
-    public PrimaryIndexInfo ReferencedIndex
+    public IndexInfo ReferencedIndex
     {
-      get
+      get { return referencedIndex; }
+      set
       {
         EnsureIsEditable();
-        return referencedIndex;
+        using (var scope = LogPropertyChange("ReferencedIndex", value)) {
+          referencedIndex = value;
+          scope.Commit();
+        }
       }
-      set { referencedIndex = value; }
-    }
-
-    /// <summary>
-    /// Gets the key columns.
-    /// </summary>
-    [Property]
-    public ColumnInfoRefCollection<ForeignKeyInfo> KeyColumns { get; private set; }
-
-    /// <inheritdoc/>
-    protected override void Initialize()
-    {
-      base.Initialize();
-      KeyColumns = new ColumnInfoRefCollection<ForeignKeyInfo>(this, "KeyColumns");
     }
 
     /// <inheritdoc/>
     protected override Nesting CreateNesting()
     {
-      return new Nesting<ForeignKeyInfo, PrimaryIndexInfo, ForeignKeyCollection>(this, "ForeignKeys");
+      return new Nesting<ForeignKeyInfo, TableInfo, ForeignKeyCollection>(this, "ForeignKeys");
     }
 
     /// <inheritdoc/>
+    /// <exception cref="IntegrityException">Validations errors.</exception>
     protected override void ValidateState()
     {
       base.ValidateState();
-      
-      if (KeyColumns.Count==0)
-        throw new IntegrityException("Empty key columns collection.", Path);
 
-      if (ReferencedIndex==null)
-        throw new IntegrityException("Referenced index not defined.", Path);
+      if (ReferencedIndex == null)
+        throw new IntegrityException(Resources.Strings.ReferencedIndexNotDefined, Path);
 
-      var keyColumns = new List<ColumnInfo>(KeyColumns.Select(columnRef => columnRef.Value));
-      var referencedColumns = new List<ColumnInfo>(ReferencedIndex.KeyColumns.Select(keyColumn => keyColumn.Value));
+      var primaryKeyColumns = Parent.PrimaryIndex.KeyColumns.Select(columnRef => new { columnRef.Index, columnRef.Direction, columnRef.Value.ColumnType });
+      var referencedKeyColumns = ReferencedIndex.KeyColumns.Select(columnRef => new { columnRef.Index, columnRef.Direction, columnRef.Value.ColumnType });
 
-      if (keyColumns.Except(referencedColumns).Union(referencedColumns.Except(keyColumns)).Count() > 0) {
+      if (primaryKeyColumns.Except(referencedKeyColumns).Union(referencedKeyColumns.Except(primaryKeyColumns)).Count() > 0)
+      {
         throw new IntegrityException("Foreign key columns definition does not match referenced index key columns.", Path);
-      }
-
-      foreach (var column in keyColumns.Except(Parent.Columns)) {
-        throw new IntegrityException(
-          string.Format("Referenced column '{0}' does not belong to parent index '{1}'.", column.Name, Parent.Name),
-          Path);
       }
     }
 
 
     //Constructors
 
-    public ForeignKeyInfo(PrimaryIndexInfo parent, string name)
+    public ForeignKeyInfo(TableInfo parent, string name)
       : base(parent, name)
     {
     }

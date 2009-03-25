@@ -37,7 +37,7 @@ namespace Xtensive.Indexing.Storage.Model
         if (this.value!=null)
           throw Exceptions.AlreadyInitialized("Value");
         EnsureIsEditable();
-        using (var scope = LogChange("Value", value)) {
+        using (var scope = LogPropertyChange("Value", value)) {
           this.value = value;
           scope.Commit();
         }

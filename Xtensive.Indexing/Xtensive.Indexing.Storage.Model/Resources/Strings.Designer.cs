@@ -122,5 +122,14 @@ namespace Xtensive.Indexing.Storage.Model.Resources {
                 return ResourceManager.GetString("ExTypeOfColumnXDoesNotDefined", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Referenced index not defined..
+        /// </summary>
+        internal static string ReferencedIndexNotDefined {
+            get {
+                return ResourceManager.GetString("ReferencedIndexNotDefined", resourceCulture);
+            }
+        }
     }
 }

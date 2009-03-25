@@ -2,7 +2,7 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Ivan Galkin
-// Created:    2009.03.20
+// Created:    2009.03.24
 
 using System;
 using System.Diagnostics;
@@ -11,18 +11,17 @@ using Xtensive.Modelling;
 namespace Xtensive.Indexing.Storage.Model
 {
   /// <summary>
-  /// Describe a collection of columns.
+  /// A collection of <see cref="TableInfo"/>.
   /// </summary>
   [Serializable]
-  public class ColumnInfoCollection : NodeCollectionBase<ColumnInfo, TableInfo>, 
-    IUnorderedNodeCollection
+  public class TableInfoCollection: NodeCollectionBase<TableInfo, StorageInfo>
   {
 
+    // Constructors
 
-    //Constructors
-
-    public ColumnInfoCollection(Node parent)
-      : base(parent, "Columns")
+    /// <inheritdoc/>
+    public TableInfoCollection(StorageInfo parent)
+      : base(parent, "Tables")
     {
     }
   }

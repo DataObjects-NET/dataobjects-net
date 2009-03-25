@@ -16,17 +16,16 @@ namespace Xtensive.Indexing.Storage.Model
   /// </summary>
   /// <typeparam name="TParent">The type of the parent node.</typeparam>
   [Serializable]
-  public abstract class ColumnInfoRef<TParent>: Ref<ColumnInfo, TParent>
-    where TParent : Node
+  public abstract class ColumnInfoRef: Ref<ColumnInfo, IndexInfo>
   {
     // Constructors
 
-    protected ColumnInfoRef(TParent parent, int index)
+    protected ColumnInfoRef(IndexInfo parent, int index)
       : base(parent, index)
     {
     }
 
-    protected ColumnInfoRef(TParent parent, ColumnInfo column, int index)
+    protected ColumnInfoRef(IndexInfo parent, ColumnInfo column, int index)
       : base(parent, index)
     {
       Value = column;

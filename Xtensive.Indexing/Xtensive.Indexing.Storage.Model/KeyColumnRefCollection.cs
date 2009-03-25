@@ -11,17 +11,16 @@ using System.Diagnostics;
 namespace Xtensive.Indexing.Storage.Model
 {
   /// <summary>
-  /// A collection of secondary indexes.
+  /// A collection of <see cref="KeyColumnRef"/>.
   /// </summary>
   [Serializable]
-  public class SecondaryIndexInfoCollection : NodeCollectionBase<SecondaryIndexInfo, TableInfo>,
-    IUnorderedNodeCollection
+  public class KeyColumnRefCollection : NodeCollectionBase<KeyColumnRef, IndexInfo>
   {
+    // Constructors
 
-    //Constructors
-
-    public SecondaryIndexInfoCollection(TableInfo table)
-      : base(table, "SecondaryIndexes")
+    /// <inheritdoc/>
+    public KeyColumnRefCollection(IndexInfo parent)
+      : base(parent, "KeyColumns")
     {
     }
   }

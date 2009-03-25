@@ -17,21 +17,21 @@ namespace Xtensive.Indexing.Storage.Model
   /// Describes a single column.
   /// </summary>
   [Serializable]
-  public class ColumnInfo: NodeBase<PrimaryIndexInfo>
+  public class ColumnInfo: NodeBase<TableInfo>
   {
-    private Type columnType;
+    private TypeInfo columnType;
 
     /// <summary>
     /// Gets or sets the type of the column.
     /// </summary>
     [Property]
-    public Type ColumnType
+    public TypeInfo ColumnType
     {
       get { return columnType; }
       set
       {
         EnsureIsEditable();
-        using (var scope = LogChange("ColumnType", value)) {
+        using (var scope = LogPropertyChange("ColumnType", value)) {
           columnType = value;
           scope.Commit();
         }
@@ -41,7 +41,7 @@ namespace Xtensive.Indexing.Storage.Model
     /// <inheritdoc/>
     protected override Nesting CreateNesting()
     {
-      return new Nesting<ColumnInfo, PrimaryIndexInfo, ColumnInfoCollection>(this, "Columns");
+      return new Nesting<ColumnInfo, TableInfo, ColumnInfoCollection>(this, "Columns");
     }
 
     /// <inheritdoc/>
@@ -65,14 +65,14 @@ namespace Xtensive.Indexing.Storage.Model
     /// <param name="index">The parent primary index.</param>
     /// <param name="name">The column name.</param>
     /// <param name="columnType">Type of the column.</param>
-    public ColumnInfo(PrimaryIndexInfo index, string name, Type columnType)
+    public ColumnInfo(TableInfo index, string name, TypeInfo columnType)
       : this(index, name)
     {
       ColumnType = columnType;
     }
 
     /// <inheritdoc/>
-    public ColumnInfo(PrimaryIndexInfo index, string name)
+    public ColumnInfo(TableInfo index, string name)
       : base(index, name)
     {
     }
