@@ -27,29 +27,27 @@ namespace Xtensive.Storage.Linq
       var pathList = fieldPath.ToList();
       if (pathList.Count == 0)
         return Mapping.Segment;
-      var first = pathList[0];
       var mapping = Mapping;
-      if (first.Type != MemberType.Entity) {
-        if (mapping.Fields.TryGetValue(first.Name, out result))
-          return result;
-      }
-      else {
-        ResultMapping resultMapping;
-        if (mapping.JoinedRelations.TryGetValue(first.Name, out resultMapping))
-          return resultMapping.Segment;
-        if (mapping.Fields.TryGetValue(first.Name, out result))
-          return result;
-      }
-
-      for (int i = 1; i < pathList.Count; i++) {
+      for (int i = 0; i < pathList.Count - 1; i++) {
         var item = pathList[i];
-        if (item.Type != MemberType.Entity) {
-          if (mapping.Fields.TryGetValue(item.Name, out result))
-            return result;
-        }
-        mapping = mapping.JoinedRelations[item.Name];
-        result = mapping.Segment;
+        if (item.Type == MemberType.Entity || item.Type == MemberType.Anonymous)
+          if (!mapping.JoinedRelations.TryGetValue(item.Name, out mapping))
+            throw new InvalidOperationException();
       }
+      var lastItem = pathList.Last();
+      if (lastItem.Type == MemberType.Anonymous)
+        throw new InvalidOperationException();
+      if (lastItem.Type == MemberType.Entity) {
+        ResultMapping resultMapping;
+        if (mapping.JoinedRelations.TryGetValue(lastItem.Name, out resultMapping))
+          return resultMapping.Segment;
+        // If there is no joined entity; but there is key segment
+        if (mapping.Fields.TryGetValue(lastItem.Name+".Key", out result))
+          return result;
+        throw new InvalidOperationException();
+      }
+      if (!mapping.Fields.TryGetValue(lastItem.Name, out result))
+        throw new InvalidOperationException();
       return result;
     }
 
