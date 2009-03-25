@@ -5,10 +5,7 @@
 // Created:    2009.03.23
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
 using Xtensive.Core;
 using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
@@ -24,19 +21,18 @@ namespace Xtensive.Storage.Rse.Optimisation
   internal class ExtractingVisitor : ExpressionVisitor
   {
     private IndexInfo indexInfo;
-    private Type[] indexedFiledTypes;
     private RecordSetHeader recordSetHeader;
     private readonly DomainModel domainModel;
 
-    public Expression Extract(NormalizedBooleanExpression normalized, IndexInfo info, RecordSetHeader header)
+    public RangeSetExpression Extract(NormalizedBooleanExpression normalized, IndexInfo info,
+      RecordSetHeader primaryIdxRecordSetHeader)
     {
       ValidateNormalized(normalized);
       ArgumentValidator.EnsureArgumentNotNull(info, "info");
-      ArgumentValidator.EnsureArgumentNotNull(header, "header");
+      ArgumentValidator.EnsureArgumentNotNull(primaryIdxRecordSetHeader, "primaryIdxRecordSetHeader");
       indexInfo = info;
-      indexedFiledTypes = indexInfo.KeyColumns.Select(pair => pair.Key.Field.ValueType).ToArray();
-      recordSetHeader = header;
-      return ProcessCnfExpression(normalized);
+      recordSetHeader = primaryIdxRecordSetHeader;
+      return ParseCnfExpression(normalized);
     }
 
     protected override Expression VisitBinary(BinaryExpression exp)
@@ -48,41 +44,29 @@ namespace Xtensive.Storage.Rse.Optimisation
       bool leftIsTuple = leftAsTuple != null;
       bool rightIsTuple = rightAsTuple != null;
       if (leftIsTuple || rightIsTuple) {
-        if (exp.NodeType == ExpressionType.GreaterThan || exp.NodeType == ExpressionType.GreaterThanOrEqual ||
-            exp.NodeType == ExpressionType.LessThan || exp.NodeType == ExpressionType.LessThanOrEqual ||
-            exp.NodeType == ExpressionType.Equal || exp.NodeType == ExpressionType.NotEqual)
+        if (IsComparison(exp.NodeType))
           return VisitComparisonOperation(exp.NodeType, left, right, leftIsTuple, rightIsTuple);
         if (leftIsTuple)
           return VisitBinaryWithTuple(leftAsTuple, true, exp);
         return VisitBinaryWithTuple(rightAsTuple, false, exp);
       }
+      if (left.Type == typeof(RangeSet<Entire<Tuple>>) || right.Type == typeof(RangeSet<Entire<Tuple>>))
+        throw new Exception(String.
+            Format("Can't parse the expression performing operation {0} on RangeSet", exp.NodeType));
       return base.VisitBinary(exp);
+    }
+
+    private static bool IsComparison(ExpressionType nodeType)
+    {
+      return nodeType == ExpressionType.GreaterThan || nodeType == ExpressionType.GreaterThanOrEqual ||
+             nodeType == ExpressionType.LessThan || nodeType == ExpressionType.LessThanOrEqual ||
+             nodeType == ExpressionType.Equal || nodeType == ExpressionType.NotEqual;
     }
 
     private static ExpressionOnTupleField VisitBinaryWithTuple(ExpressionOnTupleField tupleExp, bool isLeft,
       BinaryExpression binaryExp)
     {
-      string operationName;
-      switch (binaryExp.NodeType) {
-        case ExpressionType.Add:
-        case ExpressionType.AddChecked:
-          operationName = OperationInfo.WellKnownNames.Add;
-          break;
-        case ExpressionType.Subtract:
-        case ExpressionType.SubtractChecked:
-          operationName = OperationInfo.WellKnownNames.Substract;
-          break;
-        case ExpressionType.Divide:
-          operationName = OperationInfo.WellKnownNames.Divide;
-          break;
-        case ExpressionType.Multiply:
-        case ExpressionType.MultiplyChecked:
-          operationName = OperationInfo.WellKnownNames.Multiply;
-          break;
-        default:
-          operationName = OperationInfo.WellKnownNames.Unknown;
-          break;
-      }
+      string operationName = GetOperationName(binaryExp.NodeType);
       tupleExp.EnqueueOperation(operationName, new[] {isLeft ? binaryExp.Left : binaryExp.Right}, binaryExp);
       return tupleExp;
     }
@@ -111,13 +95,19 @@ namespace Xtensive.Storage.Rse.Optimisation
     {
       if (exp.Type != typeof(bool))
         return base.VisitUnary(exp);
-      Expression visited = base.VisitUnary(exp);
-      if (visited.Type == typeof(RangeSet<Entire<Tuple>>))
-        if (visited.NodeType == ExpressionType.Not)
-          return RangeSetExpressionsBuilder.BuildInvert(visited);
+      Expression visited = base.Visit(exp.Operand);
+      var rsExp = visited as RangeSetExpression;
+      if (rsExp != null)
+        if (exp.NodeType == ExpressionType.Not)
+          return RangeSetExpressionsBuilder.BuildInvert(rsExp);
         else
           throw new Exception(String.
-            Format("Can't parse the expression performing operation {0} on RangeSet", visited.NodeType));
+            Format("Can't parse the expression performing operation {0} on RangeSet", rsExp.NodeType));
+      var tupleExp = visited as ExpressionOnTupleField;
+      if (tupleExp != null) {
+        var operationName = GetOperationName(exp.NodeType);
+        tupleExp.EnqueueOperation(operationName, null, exp);
+      }
       return visited;
     }
 
@@ -147,7 +137,7 @@ namespace Xtensive.Storage.Rse.Optimisation
         return ProcessTupleExpressionWithOperations(tupleFiledAccessingExp, keyValueExp, keyFieldIndex,
                                                     comparisonType);
       return RangeSetExpressionsBuilder.BuildConstructor(keyValueExp, keyFieldIndex, comparisonType,
-                                                         indexedFiledTypes, indexInfo);
+                                                         indexInfo);
     }
 
     private Expression ProcessTupleExpressionWithOperations(ExpressionOnTupleField tupleExp,
@@ -159,8 +149,6 @@ namespace Xtensive.Storage.Rse.Optimisation
       OperationInfo operation = tupleExp.DequeueOperation();
       if (String.CompareOrdinal(operation.Name, OperationInfo.WellKnownNames.CompareTo) == 0)
         return ParseCompareToOperation(operation, keyValueExp, keyFieldIndex, comparisonType);
-      if (String.CompareOrdinal(operation.Name, OperationInfo.WellKnownNames.Invert) == 0)
-        return ParseUnaryNotExpression(keyValueExp, keyFieldIndex, comparisonType);
       return RangeSetExpressionsBuilder.BuildFullRangeSetConstructor();
     }
 
@@ -187,22 +175,7 @@ namespace Xtensive.Storage.Rse.Optimisation
         else
           realComparison = ExpressionType.GreaterThan;
       }
-      return RangeSetExpressionsBuilder.BuildConstructor(realKey, keyFieldIndex, realComparison,
-                                                         indexedFiledTypes, indexInfo);
-    }
-
-    private Expression ParseUnaryNotExpression(Expression keyValueExp, int keyFieldIndex,
-      ExpressionType comparisonType)
-    {
-      ExpressionType realComparison = comparisonType;
-      if(comparisonType == ExpressionType.Equal)
-        realComparison = ExpressionType.NotEqual;
-      else if (comparisonType == ExpressionType.NotEqual)
-        realComparison = ExpressionType.Equal;
-      else
-        ReverseOperation(ref realComparison);
-      return RangeSetExpressionsBuilder.BuildConstructor(keyValueExp, keyFieldIndex, realComparison,
-                                                         indexedFiledTypes, indexInfo);
+      return RangeSetExpressionsBuilder.BuildConstructor(realKey, keyFieldIndex, realComparison, indexInfo);
     }
 
     private static void ReverseOperation(ref ExpressionType comparisonType)
@@ -252,40 +225,6 @@ namespace Xtensive.Storage.Rse.Optimisation
       return false;
     }
 
-    private Expression VisitLogicalOperation(BinaryExpression exp)
-    {
-      Expression left = Visit(exp.Left);
-      Expression right = Visit(exp.Right);
-      var leftIsRangeSet = left.Type == typeof(RangeSet<Entire<Tuple>>);
-      var rightIsRangeSet = right.Type == typeof(RangeSet<Entire<Tuple>>);
-      if (leftIsRangeSet ^ rightIsRangeSet)
-        //TODO: Create the specific Exception type.
-        throw new Exception("Can't parse binary expression where only one operand is RecordSet.");
-
-      //Both of arguments of this operation are not RangeSets.
-      if (!leftIsRangeSet)
-        return exp;
-
-      switch (exp.NodeType) {
-        case ExpressionType.OrElse:
-          return RangeSetExpressionsBuilder.BuildUnite(left, right);
-
-        case ExpressionType.AndAlso:
-          return RangeSetExpressionsBuilder.BuildIntersect(left, right);
-
-        default:
-          //TODO: Create the specific Exception type.
-          throw new Exception(String.
-            Format("Can't parse the expression perfoming operation {0} on RangeSets.", exp.NodeType));
-      }
-    }
-
-    private static Expression VisitBooleanExpression(Expression exp)
-    {
-      //TODO: Impelement the recursive search for expressions containing tuples.
-      return RangeSetExpressionsBuilder.BuildFullRangeSetConstructor();
-    }
-
     private static void ValidateNormalized(NormalizedBooleanExpression normalized)
     {
       ArgumentValidator.EnsureArgumentNotNull(normalized, "normalized");
@@ -296,16 +235,61 @@ namespace Xtensive.Storage.Rse.Optimisation
         throw new ArgumentException(Resources.Strings.ExNormalizedExpressionMustNotBeRoot, "normalized");
     }
 
-    private Expression ProcessCnfExpression(NormalizedBooleanExpression normalized)
+    private RangeSetExpression ParseCnfExpression(NormalizedBooleanExpression normalized)
     {
-      Expression result = null;
+      RangeSetExpression result = null;
       foreach (var exp in normalized) {
+        var intermediate = Visit(exp);
+        var tupleExp = intermediate as ExpressionOnTupleField;
+        if (tupleExp != null)
+          intermediate = VisitStandAloneTupleExpression(tupleExp);
+        if (intermediate.Type == typeof(bool))
+          intermediate = RangeSetExpressionsBuilder.BuildFullOrEmpty(intermediate);
         if (result == null)
-          result = Visit(exp);
+          result = (RangeSetExpression)intermediate;
         else
-          result = RangeSetExpressionsBuilder.BuildIntersect(result, Visit(exp));
+          result = RangeSetExpressionsBuilder.BuildIntersect((RangeSetExpression)intermediate, result);
       }
       return result;
+    }
+
+    private Expression VisitStandAloneTupleExpression(ExpressionOnTupleField tupleExp)
+    {
+      //We analyse only one operation.
+      if (tupleExp.OperationsCount > 1)
+        return RangeSetExpressionsBuilder.BuildFullRangeSetConstructor();
+      int keyFieldindex;
+      if(GetIndexOfKeyFieldFromIndex(tupleExp.FieldIndex, out keyFieldindex)) {
+        if (tupleExp.OperationsCount > 0) {
+          var operation = tupleExp.DequeueOperation();
+          if (String.CompareOrdinal(operation.Name, OperationInfo.WellKnownNames.Invert) == 0)
+            return RangeSetExpressionsBuilder.BuildConstructor(Expression.Constant(true), keyFieldindex,
+                                                               ExpressionType.NotEqual, indexInfo);
+          return RangeSetExpressionsBuilder.BuildFullRangeSetConstructor();
+        }
+        return RangeSetExpressionsBuilder.BuildConstructor(Expression.Constant(true), keyFieldindex,
+                                                               ExpressionType.Equal, indexInfo);
+      }
+      return RangeSetExpressionsBuilder.BuildFullRangeSetConstructor();
+    }
+
+    private static string GetOperationName(ExpressionType nodeType)
+    {
+      switch (nodeType) {
+        case ExpressionType.Add:
+        case ExpressionType.AddChecked:
+          return OperationInfo.WellKnownNames.Add;
+        case ExpressionType.Subtract:
+        case ExpressionType.SubtractChecked:
+          return OperationInfo.WellKnownNames.Substract;
+        case ExpressionType.Divide:
+          return OperationInfo.WellKnownNames.Divide;
+        case ExpressionType.Multiply:
+        case ExpressionType.MultiplyChecked:
+          return OperationInfo.WellKnownNames.Multiply;
+        default:
+          return OperationInfo.WellKnownNames.Unknown;
+      }
     }
 
     public ExtractingVisitor(DomainModel domainModel)

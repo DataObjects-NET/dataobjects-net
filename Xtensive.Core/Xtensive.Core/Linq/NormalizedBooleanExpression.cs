@@ -38,6 +38,9 @@ namespace Xtensive.Core.Linq
     /// <param name="otherBoolean">The expression to be added.</param>
     public void AddBooleanExpression(Expression otherBoolean)
     {
+      if (IsRoot)
+        throw new InvalidOperationException(
+          Resources.Strings.ExOnlyNormalizedExpressionCanBeAddedAsChildToRoot);
       ArgumentValidator.EnsureArgumentNotNull(otherBoolean, "otherBoolean");
       if (otherBoolean.Type != typeof(bool))
         throw new ArgumentException(String.

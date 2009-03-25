@@ -5,12 +5,8 @@
 // Created:    2009.03.17
 
 using System;
-using System.Linq;
-using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Core.Linq;
-using Xtensive.Core.Tuples;
-using Xtensive.Indexing;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Rse.Optimisation
@@ -20,12 +16,12 @@ namespace Xtensive.Storage.Rse.Optimisation
     private readonly ExtractingVisitor cnfVisitor;
 
     public RsExtractionResult Extract(NormalizedBooleanExpression predicate, IndexInfo info,
-      RecordSetHeader header)
+      RecordSetHeader primaryIdxRecordSetHeader)
     {
       ValidatePredicate(predicate);
       var result = new RsExtractionResult(info);
       foreach (var cnf in predicate) {
-        result.AddPart(cnfVisitor.Extract((NormalizedBooleanExpression)cnf, info, header));
+        result.AddPart(cnfVisitor.Extract((NormalizedBooleanExpression)cnf, info, primaryIdxRecordSetHeader));
       }
       return result;
     }

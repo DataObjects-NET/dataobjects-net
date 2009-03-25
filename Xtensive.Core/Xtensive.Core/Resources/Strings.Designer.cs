@@ -925,6 +925,15 @@ namespace Xtensive.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Only the normalized expression having the different normal form can be added as the immediate descendant to the root expression..
+        /// </summary>
+        internal static string ExOnlyNormalizedExpressionCanBeAddedAsChildToRoot {
+            get {
+                return ResourceManager.GetString("ExOnlyNormalizedExpressionCanBeAddedAsChildToRoot", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Operation LinkType should be defined before it can be registered in OperationDictionary..
         /// </summary>
         internal static string ExOperationLinkTypeUndefined {

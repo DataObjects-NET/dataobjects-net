@@ -13,6 +13,7 @@ using System.Reflection;
 using System.Text;
 using NUnit.Framework;
 using Xtensive.Core;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Linq;
 using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
@@ -33,7 +34,6 @@ namespace Xtensive.Storage.Tests.Rse
     private string cName;
     private string cLength;
     private string cFeatures;
-    
 
     protected override DomainConfiguration BuildConfiguration()
     {
@@ -61,54 +61,93 @@ namespace Xtensive.Storage.Tests.Rse
     [Test]
     public void SimpleExpressionTest()
     {
-      int cIDIdx;
-      int cNameIdx;
-      int cLengthIdx;
-      int cFeaturesIdx;
-      //using (Domain.OpenSession()) {
-      TypeInfo snakeType = Domain.Model.Types[typeof (ClearSnake)];
-      IndexInfo indexInfo = snakeType.Indexes.GetIndex("Length");
-      RecordSetHeader rsHeader = indexInfo.GetRecordSetHeader();
-      cIDIdx = GetFieldIndex(rsHeader, cID);
-      cNameIdx = GetFieldIndex(rsHeader, cName);
-      cLengthIdx = GetFieldIndex(rsHeader, cLength);
-      cFeaturesIdx = GetFieldIndex(rsHeader, cFeatures);
-      NormalizedBooleanExpression exp = new NormalizedBooleanExpression(NormalFormType.Disjunctive, true);
-      Expression<Func<Tuple, bool>> tupleExp = (t) => t.GetValue<int?>(cLengthIdx) >= 3;
-      NormalizedBooleanExpression cnf = new NormalizedBooleanExpression(NormalFormType.Conjunctive, tupleExp.Body);
-      tupleExp = (t) => t.GetValue<int?>(cLengthIdx) < 6;
-      cnf.AddBooleanExpression(tupleExp.Body);
-      exp.AddNormalizedExpression(cnf);
-      tupleExp = (t) => t.GetValue<int?>(cLengthIdx) >= 10;
-      exp.AddNormalizedExpression(new NormalizedBooleanExpression(NormalFormType.Conjunctive, tupleExp.Body));
+      TypeInfo snakeType = Domain.Model.Types[typeof(ClearSnake)];
+      IndexInfo indexInfo = snakeType.Indexes.GetIndex(cLength);
+      RecordSetHeader rsHeader = snakeType.Indexes.PrimaryIndex.GetRecordSetHeader();
+      int cLengthIdx = GetFieldIndex(rsHeader, cLength);
+
       /*Expression<Func<Tuple, bool>> exp =
         (t) => t.GetValue<int?>(cLengthIdx) >= 3 &&
                t.GetValue<int?>(cLengthIdx) < 6 ||
                t.GetValue<int?>(cLengthIdx) >= 10;*/
-      RangeSetExtractor extractor = new RangeSetExtractor(Domain.Model);
-      var rangeSetExp = extractor.Extract(exp, indexInfo, rsHeader);
-      RangeSet<Entire<Tuple>> result = (RangeSet<Entire<Tuple>>)rangeSetExp.GetResult().Compile().DynamicInvoke();
-      Assert.AreEqual(2, result.Count());
-      Entire<Tuple> expectedFirst = new Entire<Tuple>(CreateTuple(indexInfo.KeyTupleDescriptor, cLengthIdx, 3));
-      Entire<Tuple> expectedSecond = new Entire<Tuple>(CreateTuple(indexInfo.KeyTupleDescriptor, cLengthIdx, 6),
-                                                       Direction.Negative);
-      var expectedRange0 = new Range<Entire<Tuple>>(expectedFirst, expectedSecond);
-      result.Single(r => expectedRange0.CompareTo(r) == 0);
-      expectedFirst = new Entire<Tuple>(CreateTuple(indexInfo.KeyTupleDescriptor, cLengthIdx, 10));
-      expectedSecond = new Entire<Tuple>(InfinityType.Positive);
-      var expectedRange1 = new Range<Entire<Tuple>>(expectedFirst, expectedSecond);
-      result.Single(r => expectedRange1.CompareTo(r) == 0);
-      //}
+
+      var predicate = GetRootDnf();
+      AddCnf(predicate, AddBoolean(AsCnf(t => t.GetValue<int?>(cLengthIdx) >= 3),
+                                   t => t.GetValue<int?>(cLengthIdx) < 6));
+      AddCnf(predicate, AsCnf(t => t.GetValue<int?>(cLengthIdx) >= 10));
+      
+      var expectedRanges = CreateExpectedRangesForSimpleTest(indexInfo, cLength);
+      TestExpression(predicate, indexInfo, rsHeader, expectedRanges);
     }
 
-    private Tuple CreateTuple(TupleDescriptor descriptor, int fieldIndex, object fieldValue)
+    private IEnumerable<Range<Entire<Tuple>>> CreateExpectedRangesForSimpleTest(IndexInfo indexInfo,
+      string keyFieldName)
+    {
+      var keyFieldIndex = indexInfo.GetRecordSetHeader().IndexOf(keyFieldName);
+      var result = new SetSlim<Range<Entire<Tuple>>>();
+      Entire<Tuple> expectedFirst = new Entire<Tuple>(CreateTuple(indexInfo.KeyTupleDescriptor, keyFieldIndex, 3));
+      Entire<Tuple> expectedSecond = new Entire<Tuple>(CreateTuple(indexInfo.KeyTupleDescriptor, keyFieldIndex, 6),
+                                                       Direction.Negative);
+      var expectedRange0 = new Range<Entire<Tuple>>(expectedFirst, expectedSecond);
+      result.Add(expectedRange0);
+      expectedFirst = new Entire<Tuple>(CreateTuple(indexInfo.KeyTupleDescriptor, keyFieldIndex, 10));
+      expectedSecond = new Entire<Tuple>(InfinityType.Positive);
+      var expectedRange1 = new Range<Entire<Tuple>>(expectedFirst, expectedSecond);
+      result.Add(expectedRange1);
+      return result;
+    }
+
+    private NormalizedBooleanExpression GetRootDnf()
+    {
+      return new NormalizedBooleanExpression(NormalFormType.Disjunctive, true);
+    }
+
+    private void AddCnf(NormalizedBooleanExpression root,
+     NormalizedBooleanExpression exp)
+    {
+      root.AddNormalizedExpression(exp);
+    }
+
+    private NormalizedBooleanExpression AsCnf(Expression<Func<Tuple, bool>> exp)
+    {
+      return new NormalizedBooleanExpression(NormalFormType.Conjunctive, exp.Body);
+    }
+
+    private NormalizedBooleanExpression AddBoolean(NormalizedBooleanExpression parent,
+      Expression<Func<Tuple, bool>> exp)
+    {
+      parent.AddBooleanExpression(exp.Body);
+      return parent;
+    }
+
+    private void TestExpression(NormalizedBooleanExpression predicate, IndexInfo indexInfo,
+      RecordSetHeader primaryIndexRsHeader, IEnumerable<Range<Entire<Tuple>>> expectedRanges)
+    {
+      RangeSetExtractor extractor = new RangeSetExtractor(Domain.Model);
+      var rangeSetExp = extractor.Extract(predicate, indexInfo, primaryIndexRsHeader);
+      var result = (RangeSet<Entire<Tuple>>)rangeSetExp.GetResult().Compile().DynamicInvoke();
+      CheckRanges(expectedRanges, result);
+    }
+
+    private static void CheckRanges(IEnumerable<Range<Entire<Tuple>>> expected,
+      IEnumerable<Range<Entire<Tuple>>> actual)
+    {
+      Assert.AreEqual(expected.Count(), actual.Count());
+      foreach (var range in expected) {
+// ReSharper disable AccessToModifiedClosure
+        actual.Single(r => range.CompareTo(r) == 0);
+// ReSharper restore AccessToModifiedClosure
+      }
+    }
+
+    private static Tuple CreateTuple(TupleDescriptor descriptor, int fieldIndex, object fieldValue)
     {
       Tuple result = Tuple.Create(descriptor);
       result.SetValue(fieldIndex, fieldValue);
       return result;
     }
 
-    private int GetFieldIndex(RecordSetHeader rsHeader, string fieldName)
+    private static int GetFieldIndex(RecordSetHeader rsHeader, string fieldName)
     {
       return rsHeader.IndexOf(fieldName);
     }

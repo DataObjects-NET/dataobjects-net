@@ -7,6 +7,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Comparison;
@@ -22,8 +23,42 @@ namespace Xtensive.Indexing
     private readonly AdvancedComparer<T> pointTypeComparer;
     private const Int32 defaultRangeCashSize = 20;
     private readonly List<Range<T>> rangeCash = new List<Range<T>>(defaultRangeCashSize);
-    private readonly SetSlim<Range<T>> ranges =
-        new SetSlim<Range<T>>();
+    private readonly SetSlim<Range<T>> ranges = new SetSlim<Range<T>>();
+
+    ///<summary>
+    ///</summary>
+    ///<param name="full"></param>
+    ///<param name="pointTypeComparer"></param>
+    ///<returns>The RangeSet containing the full <see cref="Range{T}"/> or 
+    ///the empty <see cref="Range{T}"/>.</returns>
+    public static RangeSet<T> CreateFullOrEmpty(bool full, AdvancedComparer<T> pointTypeComparer)
+    {
+      var range = full ? Range<T>.Full : Range<T>.Empty;
+      return new RangeSet<T>(range, pointTypeComparer);
+    }
+
+    ///<summary>
+    ///</summary>
+    ///<returns><c>True</c> if RangeSet contains the full <see cref="Range{T}"/>.</returns>
+    public bool IsFull()
+    {
+      if (ranges.Count > 1)
+        return false;
+      var range = ranges.First();
+      if (range.IsEmpty)
+        return false;
+      return range.CompareTo(Range<T>.Full) == 0;
+    }
+
+    ///<summary>
+    ///</summary>
+    ///<returns><c>True</c> if RangeSet contains the empty <see cref="Range{T}"/>.</returns>
+    public bool IsEmpty()
+    {
+      if (ranges.Count > 1)
+        return false;
+      return ranges.First().IsEmpty;
+    }
 
     #region Implementation of IEnumerable
 
@@ -131,6 +166,8 @@ namespace Xtensive.Indexing
 
     private Range<T> NormalizeRangeDirection(Range<T> range)
     {
+      if (range.IsEmpty)
+        return range;
       if (range.GetDirection(pointTypeComparer) == Direction.Negative)
         return range.Redirect(Direction.Positive, pointTypeComparer);
       return range;

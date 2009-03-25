@@ -615,4 +615,7 @@
   <data name="ExExpressionHavingDifferentNormalFormMustNotBeRoot" xml:space="preserve">
     <value>The expression having the different normal form must not be a root expression.</value>
   </data>
+  <data name="ExOnlyNormalizedExpressionCanBeAddedAsChildToRoot" xml:space="preserve">
+    <value>Only the normalized expression having the different normal form can be added as the immediate descendant to the root expression.</value>
+  </data>
 </root>

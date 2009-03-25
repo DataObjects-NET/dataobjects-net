@@ -5,7 +5,6 @@
 // Created:    2009.03.16
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core;
@@ -62,7 +61,8 @@ namespace Xtensive.Indexing.Tests
     [Test]
     public void InvertTest()
     {
-      var rangeSet = new RangeSet<Entire<Int32>>(new Range<Entire<Int32>>(20, 30), AdvancedComparer<Entire<Int32>>.Default);
+      var rangeSet = new RangeSet<Entire<Int32>>(new Range<Entire<Int32>>(20, 30),
+                                                 AdvancedComparer<Entire<Int32>>.Default);
       rangeSet.Unite(new Range<Entire<Int32>>(100, 140));
       rangeSet.Unite(new Range<Entire<Int32>>(500, 600));
       rangeSet.Unite(new Range<Entire<Int32>>(50, 90));
@@ -117,6 +117,18 @@ namespace Xtensive.Indexing.Tests
       reader2.MoveNext();
       rangeSetReader.MoveNext();
       Assert.AreEqual(reader2.Current, rangeSetReader.Current);
+    }
+
+    [Test]
+    public void CreateFullOrEmptyTest()
+    {
+      var rangeSet = RangeSet<Entire<Int32>>.CreateFullOrEmpty(true, AdvancedComparer<Entire<Int32>>.Default);
+      Assert.IsTrue(rangeSet.IsFull());
+      Assert.IsFalse(rangeSet.IsEmpty());
+
+      rangeSet = RangeSet<Entire<Int32>>.CreateFullOrEmpty(false, AdvancedComparer<Entire<Int32>>.Default);
+      Assert.IsFalse(rangeSet.IsFull());
+      Assert.IsTrue(rangeSet.IsEmpty());
     }
   }
 }

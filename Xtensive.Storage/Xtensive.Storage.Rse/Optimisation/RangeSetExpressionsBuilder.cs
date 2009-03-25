@@ -4,7 +4,6 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.03.17
 
-using System;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
@@ -29,9 +28,10 @@ namespace Xtensive.Storage.Rse.Optimisation
     private static readonly MethodInfo intersectMethod;
     private static readonly MethodInfo uniteMethod;
     private static readonly MethodInfo invertMethod;
+    private static readonly MethodInfo fullOrEmptyMethod;
 
-    public static Expression BuildConstructor(Expression indexKeyValue, int keyFieldIndex,
-      ExpressionType comparisonType, Type[] indexedFieldTypes, IndexInfo indexInfo)
+    public static RangeSetExpression BuildConstructor(Expression indexKeyValue, int keyFieldIndex,
+      ExpressionType comparisonType, IndexInfo indexInfo)
     {
       Expression firstEndpoint;
       Expression secondEndpoint;
@@ -39,31 +39,47 @@ namespace Xtensive.Storage.Rse.Optimisation
                            indexInfo);
       NewExpression rangeConstruction = Expression.New(rangeContructor, firstEndpoint, secondEndpoint);
       //TODO:A comparer from index must be passed here.
-      NewExpression result = Expression.New(rangeSetConstructor, rangeConstruction,
-                                         Expression.Constant(AdvancedComparer<Entire<Tuple>>.Default));
-      if (comparisonType != ExpressionType.NotEqual)
-        return result;
-      return BuildInvert(result);
+      RangeSetExpression result = CreateNotFullExpression(
+                                    Expression.New(rangeSetConstructor, rangeConstruction,
+                                    Expression.Constant(AdvancedComparer<Entire<Tuple>>.Default)));
+      if (comparisonType == ExpressionType.NotEqual)
+        return BuildInvert(result);
+      return result;
     }
 
-    public static NewExpression BuildFullRangeSetConstructor()
+    public static RangeSetExpression BuildFullRangeSetConstructor()
     {
-      return Expression.New(rangeSetConstructor, Expression.Constant(Range<Entire<Tuple>>.Full));
+      return new RangeSetExpression(
+        Expression.New(rangeSetConstructor, Expression.Constant(Range<Entire<Tuple>>.Full)), true);
     }
 
-    public static MethodCallExpression BuildIntersect(Expression targetRangeSet, Expression otherRangeSet)
+    public static RangeSetExpression BuildIntersect(RangeSetExpression target, RangeSetExpression other)
     {
-      return Expression.Call(targetRangeSet, intersectMethod, otherRangeSet);
+      var intersectionResult = Expression.Call(target.Source, intersectMethod, other.Source);
+      target.Intersect(intersectionResult, other);
+      return target;
     }
 
-    public static MethodCallExpression BuildUnite(Expression targetRangeSet, Expression otherRangeSet)
+    public static RangeSetExpression BuildUnite(RangeSetExpression target, RangeSetExpression other)
     {
-      return Expression.Call(targetRangeSet, uniteMethod, otherRangeSet);
+      var unionResult = Expression.Call(target.Source, uniteMethod, other.Source);
+      target.Unite(unionResult, other);
+      return target;
     }
 
-    public static MethodCallExpression BuildInvert(Expression targetRangeSet)
+    public static RangeSetExpression BuildInvert(RangeSetExpression target)
     {
-      return Expression.Call(targetRangeSet, invertMethod);
+      var invertionResult = Expression.Call(target.Source, invertMethod);
+      target.Invert(invertionResult);
+      return target;
+    }
+
+    public static RangeSetExpression BuildFullOrEmpty(Expression booleanExp)
+    {
+      //TODO:A comparer from index must be passed here.
+      return CreateNotFullExpression(Expression.Call(
+                                       fullOrEmptyMethod, booleanExp,
+                                       Expression.Constant(AdvancedComparer<Entire<Tuple>>.Default)));
     }
 
     private static void CreateRangeEndpoints(out Expression first, out Expression second,
@@ -130,6 +146,11 @@ namespace Xtensive.Storage.Rse.Optimisation
                                                                                    typeof(object)));
     }
 
+    private static RangeSetExpression CreateNotFullExpression(Expression source)
+    {
+      return new RangeSetExpression(source, false);
+    }
+
     static RangeSetExpressionsBuilder()
     {
       tupleCreateMethod = typeof (Tuple).GetMethod("Create", new[] {typeof (TupleDescriptor)});
@@ -151,6 +172,7 @@ namespace Xtensive.Storage.Rse.Optimisation
                   new[] { typeof(RangeSet<Entire<Tuple>>) });
       invertMethod = typeof(RangeSet<Entire<Tuple>>).
         GetMethod("Invert");
+      fullOrEmptyMethod = typeof (RangeSet<Entire<Tuple>>).GetMethod("CreateFullOrEmpty");
     }
   }
 }

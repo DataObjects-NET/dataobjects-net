@@ -19,15 +19,15 @@ namespace Xtensive.Storage.Rse.Optimisation
   /// <summary>
   /// Represents a result of extraction a RangeSet from a predicate.
   /// </summary>
-  internal class RsExtractionResult : IEnumerable<Expression>
+  internal class RsExtractionResult : IEnumerable<RangeSetExpression>
   {
-    private readonly SetSlim<Expression> partsOfResult = new SetSlim<Expression>();
+    private readonly SetSlim<RangeSetExpression> partsOfResult = new SetSlim<RangeSetExpression>();
     private LambdaExpression result;
     private bool resultIsStale = true;
 
     public readonly IndexInfo IndexInfo;
 
-    public void AddPart(Expression rsExpression)
+    public void AddPart(RangeSetExpression rsExpression)
     {
       if (rsExpression.Type != typeof(RangeSet<Entire<Tuple>>))
         throw new ArgumentException(String.Format(Resources.Strings.ExExpressionMustReturnValueOfTypeX,
@@ -59,7 +59,7 @@ namespace Xtensive.Storage.Rse.Optimisation
     /// <summary>
     /// </summary>
     /// <returns>Enumerator for the collection of result parts.</returns>
-    public IEnumerator<Expression> GetEnumerator()
+    public IEnumerator<RangeSetExpression> GetEnumerator()
     {
       return partsOfResult.GetEnumerator();
     }
@@ -81,7 +81,7 @@ namespace Xtensive.Storage.Rse.Optimisation
       resultIsStale = false;
       if(partsOfResult.Count == 0)
         return;
-      Expression tempResult = null;
+      RangeSetExpression tempResult = null;
       foreach (var part in partsOfResult) {
         if (tempResult == null)
           tempResult = part;
@@ -89,7 +89,7 @@ namespace Xtensive.Storage.Rse.Optimisation
           tempResult = RangeSetExpressionsBuilder.BuildUnite(tempResult, part);
       }
       if (tempResult != null)
-        result = Expression.Lambda(tempResult);
+        result = Expression.Lambda(tempResult.Source);
     }
 
     public RsExtractionResult(IndexInfo indexInfo)
