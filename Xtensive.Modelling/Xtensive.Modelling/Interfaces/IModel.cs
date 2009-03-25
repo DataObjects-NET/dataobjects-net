@@ -15,6 +15,9 @@ namespace Xtensive.Modelling
   /// </summary>
   public interface IModel : INode
   {
+    /// <summary>
+    /// Gets or sets the sequence of actions to log.
+    /// </summary>
     ActionSequence Actions { get; set; }
 
     // ComparisonHintCollection { get; set; }
