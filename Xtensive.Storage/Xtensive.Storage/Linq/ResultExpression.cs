@@ -39,12 +39,9 @@ namespace Xtensive.Storage.Linq
         throw new InvalidOperationException();
       if (lastItem.Type == MemberType.Entity) {
         ResultMapping resultMapping;
-        if (mapping.JoinedRelations.TryGetValue(lastItem.Name, out resultMapping))
-          return resultMapping.Segment;
-        // If there is no joined entity; but there is key segment
-        if (mapping.Fields.TryGetValue(lastItem.Name+".Key", out result))
-          return result;
-        throw new InvalidOperationException();
+        if (!mapping.JoinedRelations.TryGetValue(lastItem.Name, out resultMapping))
+          throw new InvalidOperationException();
+        return resultMapping.Segment;
       }
       if (!mapping.Fields.TryGetValue(lastItem.Name, out result))
         throw new InvalidOperationException();
