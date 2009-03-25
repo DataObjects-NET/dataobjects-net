@@ -70,6 +70,36 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    public void EntityJoinTest()
+    {
+      using (Domain.OpenSession())
+      using (var t = Transaction.Open()) {
+        var result =
+          from c in Query<Customer>.All
+          join o in Query<Order>.All on c equals o.Customer
+          select new {c.ContactName, o.OrderDate};
+        var list = result.ToList();
+
+        t.Complete();
+      }
+    }
+
+    [Test]
+    public void AnonymousEntityJoinTest()
+    {
+      using (Domain.OpenSession())
+      using (var t = Transaction.Open()) {
+        var result =
+          from c in Query<Customer>.All
+          join o in Query<Order>.All on new {Customer = c, Name = c.ContactName} equals new {Customer = o.Customer, Name = o.Customer.ContactName}
+          select new {c.ContactName, o.OrderDate};
+        var list = result.ToList();
+
+        t.Complete();
+      }
+    }
+
+    [Test]
     public void GroupJoinTest()
     {
       using (Domain.OpenSession())
