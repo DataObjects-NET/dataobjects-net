@@ -238,6 +238,7 @@ namespace Xtensive.Storage.Linq
       for (int i = 0; i < n.Arguments.Count; i++) {
         var arg = n.Arguments[i];
         Expression newArg;
+        Expression argumentResolver = null;
         var member = n.Members[i];
         var memberName = member.Name.TryCutPrefix(WellKnown.GetterPrefix);
         Func<string, string> rename = key => key.IsNullOrEmpty()
@@ -250,6 +251,10 @@ namespace Xtensive.Storage.Linq
             resultMapping.Value = new ResultMapping();
             newArg = Visit(arg);
             rm = resultMapping.Value;
+            if (newArg.Type==typeof(Key) && arg.Type.IsSubclassOf(typeof(Entity))) {
+              var argumentResolveMethod = WellKnownMethods.KeyResolveOfT.MakeGenericMethod(arg.Type);
+              argumentResolver = Expression.Call(newArg, argumentResolveMethod);
+            }
           }
           if (rm.MapsToPrimitive)
             resultMapping.Value.RegisterFieldMapping(memberName, rm.Segment);
@@ -309,7 +314,7 @@ namespace Xtensive.Storage.Linq
           }
         }
         newArg = newArg ?? Visit(arg);
-        arguments.Add(newArg);
+        arguments.Add(argumentResolver ?? newArg);
       }
       return Expression.New(n.Constructor, arguments, n.Members);
     }

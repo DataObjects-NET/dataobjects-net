@@ -442,7 +442,7 @@ namespace Xtensive.Storage.Linq
       Expression groupingKeyResolver = rightKeySelector;
       if (rightKeySelector.Type == typeof(Key) && keySelector.Body.Type.IsSubclassOf(typeof(Entity))) {
         leftKeySelector = Expression.MakeMemberAccess(keySelector.Body, WellKnownMethods.IEntityKey);
-        var keyResolveMethod = typeof(Key).GetMethod("Resolve", BindingFlags.Public | BindingFlags.Instance, new[] { "T" }, new object[0]).MakeGenericMethod(keySelector.Body.Type);
+        var keyResolveMethod = WellKnownMethods.KeyResolveOfT.MakeGenericMethod(keySelector.Body.Type);
         groupingKeyResolver = Expression.Call(rightKeySelector, keyResolveMethod);
       }
 

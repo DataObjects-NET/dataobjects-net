@@ -91,15 +91,9 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession())
       using (var t = Transaction.Open())
       {
-        var result = Query<Employee>.All.GroupBy(e => new
+        var result = Query<Employee>.All.Where(e=>e.ReportsTo!=null).GroupBy(e => new
                                                       {
-                                                        e.Address.City, 
-                                                        e.Address.Country, 
-                                                        e.Address, 
                                                         e.ReportsTo, 
-                                                        e.Phone, 
-                                                        ReporterAddress = e.ReportsTo.Address,
-                                                        ReporterAddressCountry = e.ReportsTo.Address.Country
                                                       });
         var list = result.ToList();
         Assert.Greater(list.Count, 0);
