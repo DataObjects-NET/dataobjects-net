@@ -5,9 +5,15 @@
 // Created:    2009.03.13
 
 using System;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.Sorting
 {
+  /// <summary>
+  /// Connection between two <see cref="Node{TNodeItem,TConnectionItem}"/>s.
+  /// </summary>
+  /// <typeparam name="TNodeItem">Type of node item.</typeparam>
+  /// <typeparam name="TConnectionItem">Type of connection item.</typeparam>
   [Serializable]
   public class NodeConnection<TNodeItem, TConnectionItem> : IEquatable<NodeConnection<TNodeItem, TConnectionItem>>
   {
@@ -15,21 +21,31 @@ namespace Xtensive.Core.Sorting
     private readonly Node<TNodeItem, TConnectionItem> source;
     private readonly Node<TNodeItem, TConnectionItem> destination;
 
+    /// <summary>
+    /// Gets connection item.
+    /// </summary>
     public TConnectionItem ConnectionItem
     {
       get { return connectionItem; }
     }
 
+    /// <summary>
+    /// Gets connection source.
+    /// </summary>
     public Node<TNodeItem, TConnectionItem> Source
     {
       get { return source; }
     }
 
+    /// <summary>
+    /// Gets connection destination.
+    /// </summary>
     public Node<TNodeItem, TConnectionItem> Destination
     {
       get { return destination; }
     }
 
+    /// <inheritdoc/>
     public bool Equals(NodeConnection<TNodeItem, TConnectionItem> obj)
     {
       if (ReferenceEquals(null, obj))
@@ -65,6 +81,10 @@ namespace Xtensive.Core.Sorting
 
     // Constructors
 			
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
     public NodeConnection(Node<TNodeItem, TConnectionItem> source, Node<TNodeItem, TConnectionItem> destination, TConnectionItem connectionItem)
     {
       this.connectionItem = connectionItem;

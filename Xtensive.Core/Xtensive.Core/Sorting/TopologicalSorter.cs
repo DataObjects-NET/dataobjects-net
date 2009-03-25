@@ -10,6 +10,9 @@ using System.Linq;
 
 namespace Xtensive.Core.Sorting
 {
+  /// <summary>
+  /// Topological sorter for oriented graph of the items.
+  /// </summary>
   public static class TopologicalSorter
   {
     /// <summary>
