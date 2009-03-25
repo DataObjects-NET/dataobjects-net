@@ -113,6 +113,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       FetchTest(baseCount / 2);
       QueryTest(baseCount / 5);
       CachedQueryTest(baseCount / 5);
+      CompiledQueryTest(baseCount / 5);
       RemoveTest();
     }
 
@@ -184,15 +185,11 @@ namespace Xtensive.Storage.Tests.Storage.Performance
         dataContext.Connection.Open();
         using (var transaction = dataContext.Connection.BeginTransaction()) {
           TestHelper.CollectGarbage();
-          var simplest = dataContext.Simplest;
           using (warmup ? null : new Measurement("Query", count)) {
             for (int i = 0; i < count; i++) {
-//              var query = from s in dataContext.Simplest
-//                          where s.Id == i 
-//                          select s;
-              var pId = new ObjectParameter("pId", i % instanceCount);
-              var query = simplest.Where("it.Id == @pId -- "+i+"\r\n", pId);
-              foreach (var o in query) {
+              var id = i % instanceCount;
+              var result = dataContext.Simplest.Where(o => o.Id == id);
+              foreach (var o in result) {
                 // Doing nothing, just enumerate
               }
             }
@@ -208,13 +205,32 @@ namespace Xtensive.Storage.Tests.Storage.Performance
         dataContext.Connection.Open();
         using (var transaction = dataContext.Connection.BeginTransaction()) {
           TestHelper.CollectGarbage();
-          var simplest = dataContext.Simplest;
-          var pId = new ObjectParameter("pId", 0);
-          var query = simplest.Where("it.Id == @pId", pId);
+          var id = 0;
+          var result = dataContext.Simplest.Where(o => o.Id == id);
           using (warmup ? null : new Measurement("Cached Query", count)) {
             for (int i = 0; i < count; i++) {
-              pId.Value = i % instanceCount;
-              foreach (var o in query) {
+              id = i % instanceCount;
+              foreach (var o in result) {
+                // Doing nothing, just enumerate
+              }
+            }
+            transaction.Commit();
+          }
+        }
+      }
+    }
+
+    private void CompiledQueryTest(int count)
+    {
+      using (var dataContext = new Entities()) {
+        dataContext.Connection.Open();
+        using (var transaction = dataContext.Connection.BeginTransaction()) {
+          TestHelper.CollectGarbage();
+          var resultQuery = CompiledQuery.Compile((Entities context, long id) => context.Simplest.Where(o => o.Id == id));
+          using (warmup ? null : new Measurement("Compiled Query", count)) {
+            for (int i = 0; i < count; i++) {
+              var id = i % instanceCount;
+              foreach (var o in resultQuery(dataContext, id)) {
                 // Doing nothing, just enumerate
               }
             }

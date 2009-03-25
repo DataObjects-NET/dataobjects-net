@@ -63,7 +63,8 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       RawBulkFetchTest(baseCount);
       FetchTest(baseCount / 2);
       QueryTest(baseCount / 5);
-      CachedQueryTest(baseCount / 5);
+      RseQueryTest(baseCount / 5);
+      CachedRseQueryTest(baseCount / 5);
       RemoveTest();
     }
 
@@ -225,6 +226,27 @@ namespace Xtensive.Storage.Tests.Storage.Performance
           TestHelper.CollectGarbage();
           using (warmup ? null : new Measurement("Query", count)) {
             for (int i = 0; i < count; i++) {
+              var id = i % instanceCount;
+              var result = Query<Simplest>.All.Where(o => o.Id == id);
+              foreach (var simplest in result) {
+                // Doing nothing, just enumerate
+              }
+            }
+            ts.Complete();
+          }
+        }
+      }
+    }
+
+    private void RseQueryTest(int count)
+    {
+      var d = Domain;
+      using (var ss = d.OpenSession()) {
+        var s = ss.Session;
+        using (var ts = s.OpenTransaction()) {
+          TestHelper.CollectGarbage();
+          using (warmup ? null : new Measurement("Rse Query", count)) {
+            for (int i = 0; i < count; i++) {
               var pKey = new Parameter<Tuple>();
               var rs = d.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordSet();
               rs = rs.Seek(() => pKey.Value);
@@ -242,7 +264,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       }
     }
 
-    private void CachedQueryTest(int count)
+    private void CachedRseQueryTest(int count)
     {
       var d = Domain;
       using (var ss = d.OpenSession()) {
@@ -253,7 +275,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
           var rs = d.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordSet();
           rs = rs.Seek(() => pKey.Value);
           using (new ParameterScope()) {
-            using (warmup ? null : new Measurement("Cached Query", count)) {
+            using (warmup ? null : new Measurement("Cached Rse Query", count)) {
               for (int i = 0; i < count; i++) {
                 pKey.Value = Tuple.Create(i % instanceCount);
                 var es = rs.ToEntities<Simplest>();
