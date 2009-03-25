@@ -128,7 +128,7 @@ namespace Xtensive.Storage.Linq
               .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
               .ToArray();
             var rs = source.RecordSet.Join(joinedRs, JoinType.Default, keyPairs);
-            var fieldMapping = Translator.BuildFieldMapping(typeInfo, source.RecordSet.Header.Columns.Count);
+            var fieldMapping = BuildFieldMapping(typeInfo, source.RecordSet.Header.Columns.Count);
             var joinedMapping = new ResultMapping(fieldMapping, new Dictionary<string, ResultMapping>());
             mapping.JoinedRelations.Add(name, joinedMapping);
 
@@ -148,16 +148,17 @@ namespace Xtensive.Storage.Linq
           return MakeTupleAccess(path.Parameter, resultType, Expression.Constant(segment.Offset));
         }
         case MemberType.Key: {
-          recordIsUsed = true;
+          // recordIsUsed = true;
           var segment = source.GetMemberSegment(path);
           var keyColumn = (MappedColumn) source.RecordSet.Header.Columns[segment.Offset];
-          var type = keyColumn.ColumnInfoRef.Resolve(context.Model).Field.ReflectedType;
-          var transform = new SegmentTransform(true, type.Hierarchy.KeyInfo.TupleDescriptor, source.GetMemberSegment(path));
+          var field = keyColumn.ColumnInfoRef.Resolve(context.Model).Field;
+          var type = field.Parent==null ? field.ReflectedType : context.Model.Types[field.Parent.ValueType];
+          var transform = new SegmentTransform(true, field.ReflectedType.TupleDescriptor, source.GetMemberSegment(path));
           var keyExtractor = Expression.Call(WellKnownMethods.KeyCreate, Expression.Constant(type),
             Expression.Call(Expression.Constant(transform), WellKnownMethods.SegmentTransformApply,
               Expression.Constant(TupleTransformType.Auto), tuple.Value),
             Expression.Constant(false));
-          var rm = source.GetMemberMapping(path);
+          // var rm = source.GetMemberMapping(path);
           resultMapping.Value.RegisterPrimitive(segment);
           return keyExtractor;
         }

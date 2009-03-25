@@ -28,6 +28,32 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    public void EntityKeyGroupTest()
+    {
+      using (Domain.OpenSession())
+      using (var t = Transaction.Open())
+      {
+        var result = Query<Product>.All.GroupBy(p => p.Category.Key);
+        var list = result.ToList();
+        Assert.Greater(list.Count, 0);
+        t.Complete();
+      }
+    }
+
+    [Test]
+    public void EntityFieldGroupTest()
+    {
+      using (Domain.OpenSession())
+      using (var t = Transaction.Open())
+      {
+        var result = Query<Product>.All.GroupBy(p => p.Category.CategoryName);
+        var list = result.ToList();
+        Assert.Greater(list.Count, 0);
+        t.Complete();
+      }
+    }
+
+    [Test]
     public void StructureGroupTest()
     {
       using (Domain.OpenSession())

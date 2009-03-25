@@ -6,7 +6,9 @@
 
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using Xtensive.Core;
 using Xtensive.Core.Linq;
+using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Linq
@@ -17,24 +19,28 @@ namespace Xtensive.Storage.Linq
     private bool isReplacing;
     private List<int> group;
 
-    
+
     protected override Expression VisitMethodCall(MethodCallExpression mc)
     {
-      var result = mc;
-      var tupleAccess = mc.AsTupleAccess();
-      if (tupleAccess != null) {
-        if (!isReplacing)
-          map.Add((int)((ConstantExpression)mc.Arguments[0]).Value);
-        else {
+      if (mc.AsTupleAccess()!=null) {
+        if (isReplacing) {
           var value = (int) ((ConstantExpression) mc.Arguments[0]).Value;
-          result = Expression.Call(mc.Object, mc.Method, Expression.Constant(map.IndexOf(value)));
+          return Expression.Call(mc.Object, mc.Method, Expression.Constant(map.IndexOf(value)));
         }
+        else
+          map.Add((int) ((ConstantExpression) mc.Arguments[0]).Value);
       }
-      else if (mc.Object != null && mc.Object.Type == typeof(Record) &&  mc.Method.Name == "get_Item" && isReplacing && group != null) {
-        var value = (int)((ConstantExpression)mc.Arguments[0]).Value;
-        result = Expression.Call(mc.Object, mc.Method, Expression.Constant(group.IndexOf(value)));
+      else if (mc.Object!=null && mc.Object.Type==typeof (Record) && mc.Method.Name=="get_Item" && isReplacing && group!=null) {
+        var value = (int) ((ConstantExpression) mc.Arguments[0]).Value;
+        return Expression.Call(mc.Object, mc.Method, Expression.Constant(group.IndexOf(value)));
       }
-      return base.VisitMethodCall(result);
+      else if (mc.Object!=null && mc.Object.NodeType==ExpressionType.Constant && mc.Object.Type==typeof (SegmentTransform) && mc.Method.Name=="Apply" && isReplacing) {
+        var segmentTransform = (SegmentTransform) ((ConstantExpression) mc.Object).Value;
+        var offset = map.IndexOf(segmentTransform.Segment.Offset);
+        var newTransformExpression = Expression.Constant(new SegmentTransform(segmentTransform.IsReadOnly, segmentTransform.Descriptor, new Segment<int>(offset, segmentTransform.Segment.Length)));
+        return Expression.Call(newTransformExpression, mc.Method, mc.Arguments);
+      }
+      return base.VisitMethodCall(mc);
     }
 
     public List<int> Process(Expression predicate)

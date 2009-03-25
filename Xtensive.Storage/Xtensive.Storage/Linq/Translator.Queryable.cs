@@ -32,7 +32,7 @@ namespace Xtensive.Storage.Linq
       using (new ParameterScope()) {
         joinFinalEntity.Value = false;
         calculateExpressions.Value = false;
-        return (ResultExpression)Visit(context.Query);
+        return (ResultExpression) Visit(context.Query);
       }
     }
 
@@ -40,7 +40,7 @@ namespace Xtensive.Storage.Linq
     {
       var fieldMapping = new Dictionary<string, Segment<int>>();
       foreach (var field in type.Fields) {
-        fieldMapping.Add(field.Name, new Segment<int>(offset + field.MappingInfo.Offset, field.MappingInfo.Length)); 
+        fieldMapping.Add(field.Name, new Segment<int>(offset + field.MappingInfo.Offset, field.MappingInfo.Length));
         if (field.IsEntity)
           fieldMapping.Add(field.Name + ".Key", new Segment<int>(offset + field.MappingInfo.Offset, field.MappingInfo.Length));
       }
@@ -52,10 +52,10 @@ namespace Xtensive.Storage.Linq
 
     protected override Expression VisitConstant(ConstantExpression c)
     {
-      if (c.Value == null)
+      if (c.Value==null)
         return c;
       var rootPoint = c.Value as IQueryable;
-      if (rootPoint != null)
+      if (rootPoint!=null)
         return ConstructQueryable(rootPoint);
       return base.VisitConstant(c);
     }
@@ -108,17 +108,17 @@ namespace Xtensive.Storage.Linq
             return VisitAll(mc.Arguments[0], mc.Arguments[1].StripQuotes(), context.IsRoot(mc));
           break;
         case QueryableMethodKind.Any:
-          if (mc.Arguments.Count == 1)
+          if (mc.Arguments.Count==1)
             return VisitAny(mc.Arguments[0], null, context.IsRoot(mc));
-          if (mc.Arguments.Count == 2)
+          if (mc.Arguments.Count==2)
             return VisitAny(mc.Arguments[0], mc.Arguments[1].StripQuotes(), context.IsRoot(mc));
           break;
         case QueryableMethodKind.Contains:
-          if (mc.Arguments.Count == 2)
+          if (mc.Arguments.Count==2)
             return VisitContains(mc.Arguments[0], mc.Arguments[1], context.IsRoot(mc));
           break;
         case QueryableMethodKind.Distinct:
-          if (mc.Arguments.Count == 1)
+          if (mc.Arguments.Count==1)
             return VisitDistinct(mc.Arguments[0]);
           break;
         case QueryableMethodKind.First:
@@ -150,18 +150,18 @@ namespace Xtensive.Storage.Linq
               // second lambda is element selector
               return VisitGroupBy(
                 mc.Method,
-                mc.Arguments[0], 
-                lambda1, 
-                lambda2, 
+                mc.Arguments[0],
+                lambda1,
+                lambda2,
                 null);
             }
             if (lambda2.Parameters.Count==2) {
               // second lambda is result selector
               return VisitGroupBy(
                 mc.Method,
-                mc.Arguments[0], 
-                lambda1, 
-                null, 
+                mc.Arguments[0],
+                lambda1,
+                null,
                 lambda2);
             }
           }
@@ -193,12 +193,12 @@ namespace Xtensive.Storage.Linq
         case QueryableMethodKind.Select:
           return VisitSelect(mc.Arguments[0], mc.Arguments[1].StripQuotes());
         case QueryableMethodKind.SelectMany:
-          if (mc.Arguments.Count == 2)
+          if (mc.Arguments.Count==2)
             return VisitSelectMany(
               mc.Type, mc.Arguments[0],
               mc.Arguments[1].StripQuotes(),
               null);
-          if (mc.Arguments.Count == 3)
+          if (mc.Arguments.Count==3)
             return VisitSelectMany(
               mc.Type, mc.Arguments[0],
               mc.Arguments[1].StripQuotes(),
@@ -210,17 +210,17 @@ namespace Xtensive.Storage.Linq
         case QueryableMethodKind.Min:
         case QueryableMethodKind.Sum:
         case QueryableMethodKind.Average:
-          if (mc.Arguments.Count == 1)
+          if (mc.Arguments.Count==1)
             return VisitAggregate(mc.Arguments[0], mc.Method, null, context.IsRoot(mc));
-          if (mc.Arguments.Count == 2)
+          if (mc.Arguments.Count==2)
             return VisitAggregate(mc.Arguments[0], mc.Method, mc.Arguments[1].StripQuotes(), context.IsRoot(mc));
           break;
         case QueryableMethodKind.Skip:
-          if (mc.Arguments.Count == 2)
+          if (mc.Arguments.Count==2)
             return VisitSkip(mc.Arguments[0], mc.Arguments[1]);
           break;
         case QueryableMethodKind.Take:
-          if (mc.Arguments.Count == 2)
+          if (mc.Arguments.Count==2)
             return VisitTake(mc.Arguments[0], mc.Arguments[1]);
           break;
         case QueryableMethodKind.ThenBy:
@@ -277,8 +277,8 @@ namespace Xtensive.Storage.Linq
     {
       if (!isRoot)
         throw new NotImplementedException();
-      ResultExpression result = predicate!=null 
-        ? (ResultExpression) VisitWhere(source, predicate) 
+      ResultExpression result = predicate!=null
+        ? (ResultExpression) VisitWhere(source, predicate)
         : (ResultExpression) Visit(source);
       RecordSet recordSet = null;
       switch (method.Name) {
@@ -291,22 +291,22 @@ namespace Xtensive.Storage.Linq
           recordSet = result.RecordSet.Take(2);
           break;
       }
-      var enumerableType = typeof(Enumerable);
+      var enumerableType = typeof (Enumerable);
       MethodInfo enumerableMethod = enumerableType
         .GetMethods(BindingFlags.Static | BindingFlags.Public)
-        .First(m => m.Name == method.Name && m.GetParameters().Length == 1)
+        .First(m => m.Name==method.Name && m.GetParameters().Length==1)
         .MakeGenericMethod(method.ReturnType);
       MethodInfo castMethod = enumerableType.GetMethod("Cast").MakeGenericMethod(method.ReturnType);
-      Expression<Func<RecordSet,object>> materializer = set => set.ToEntities(method.ReturnType);
+      Expression<Func<RecordSet, object>> materializer = set => set.ToEntities(method.ReturnType);
       var rs = materializer.Parameters[0];
-      var body = Expression.Convert(Expression.Call(null, enumerableMethod, Expression.Call(null, castMethod, materializer.Body)), typeof(object));
+      var body = Expression.Convert(Expression.Call(null, enumerableMethod, Expression.Call(null, castMethod, materializer.Body)), typeof (object));
       var le = Expression.Lambda(body, rs);
       return new ResultExpression(method.ReturnType, recordSet, result.Mapping, (Expression<Func<RecordSet, object>>) le, null);
     }
 
     private Expression VisitTake(Expression source, Expression take)
     {
-      var projection = (ResultExpression)Visit(source);
+      var projection = (ResultExpression) Visit(source);
       var parameter = context.ParameterExtractor.ExtractParameter<int>(take);
       var rs = projection.RecordSet.Take(parameter.Compile());
       return new ResultExpression(projection.Type, rs, projection.Mapping, projection.Projector, projection.ItemProjector);
@@ -314,7 +314,7 @@ namespace Xtensive.Storage.Linq
 
     private Expression VisitSkip(Expression source, Expression skip)
     {
-      var projection = (ResultExpression)Visit(source);
+      var projection = (ResultExpression) Visit(source);
       var parameter = context.ParameterExtractor.ExtractParameter<int>(skip);
       var rs = projection.RecordSet.Skip(parameter.Compile());
       return new ResultExpression(projection.Type, rs, projection.Mapping, projection.Projector, projection.ItemProjector);
@@ -322,7 +322,7 @@ namespace Xtensive.Storage.Linq
 
     private Expression VisitDistinct(Expression expression)
     {
-      var result = (ResultExpression)Visit(expression);
+      var result = (ResultExpression) Visit(expression);
       var rs = result.RecordSet.Distinct();
       return new ResultExpression(result.Type, rs, result.Mapping, result.Projector, result.ItemProjector);
     }
@@ -335,26 +335,26 @@ namespace Xtensive.Storage.Linq
       Expression<Func<RecordSet, object>> shaper;
       ResultExpression result;
       int aggregateColumn = 0;
-      if (method.Name == WellKnown.Queryable.Count || method.Name == WellKnown.Queryable.LongCount) {
-        if (method.ReturnType == typeof (int))
-          shaper = set => (int)(set.First().GetValue<long>(0));
+      if (method.Name==WellKnown.Queryable.Count || method.Name==WellKnown.Queryable.LongCount) {
+        if (method.ReturnType==typeof (int))
+          shaper = set => (int) (set.First().GetValue<long>(0));
         else
           shaper = set => (set.First().GetValue<long>(0));
-        if (argument != null)
+        if (argument!=null)
           result = (ResultExpression) VisitWhere(source, argument);
         else
           result = (ResultExpression) Visit(source);
       }
       else {
-        result = (ResultExpression)Visit(source);
+        result = (ResultExpression) Visit(source);
         var columnList = new List<int>();
-        if (argument == null) {
-          if (result.Mapping.Segment.Length > 1 || result.ItemProjector.Body.Type != result.RecordSet.Header.Columns[result.Mapping.Segment.Offset].Type)
+        if (argument==null) {
+          if (result.Mapping.Segment.Length > 1 || result.ItemProjector.Body.Type!=result.RecordSet.Header.Columns[result.Mapping.Segment.Offset].Type)
             throw new NotSupportedException();
           columnList.Add(result.Mapping.Segment.Offset);
         }
         else {
-          using (context.Bind(argument.Parameters[0], result)) 
+          using (context.Bind(argument.Parameters[0], result))
           using (new ParameterScope()) {
             resultMapping.Value = new ResultMapping();
             Visit(argument);
@@ -362,8 +362,8 @@ namespace Xtensive.Storage.Linq
             result = context.GetBound(argument.Parameters[0]);
           }
         }
-        
-        if (columnList.Count != 1)
+
+        if (columnList.Count!=1)
           throw new NotSupportedException();
         aggregateColumn = columnList[0];
         shaper = set => set.First().GetValueOrDefault(0);
@@ -389,17 +389,15 @@ namespace Xtensive.Storage.Linq
 
     private Expression VisitGroupBy(MethodInfo method, Expression source, LambdaExpression keySelector, LambdaExpression elementSelector, LambdaExpression resultSelector)
     {
-      var result = (ResultExpression)Visit(source);
+      var result = (ResultExpression) Visit(source);
 
       List<int> columnList;
-      LambdaExpression originalCompiledKeyExpression;
       var newResultMapping = new ResultMapping();
       LambdaExpression remappedExpression;
       using (context.Bind(keySelector.Parameters[0], result))
-      using (new ParameterScope())
-      {
+      using (new ParameterScope()) {
         resultMapping.Value = new ResultMapping();
-        originalCompiledKeyExpression = (LambdaExpression) Visit(keySelector);
+        var originalCompiledKeyExpression = (LambdaExpression) Visit(keySelector);
         columnList = resultMapping.Value.GetColumns().ToList();
         // Remap 
 
@@ -429,60 +427,47 @@ namespace Xtensive.Storage.Linq
       var keyType = groupingArguments[0];
       var elementType = groupingArguments[1];
       var parameterGroupingType = typeof (Grouping<,>).MakeGenericType(keyType, elementType);
-      var constructor = parameterGroupingType.GetConstructor(new[] { keyType, typeof(IEnumerable<>).MakeGenericType(elementType) });
+      var constructor = parameterGroupingType.GetConstructor(new[] {keyType, typeof (IEnumerable<>).MakeGenericType(elementType)});
 
 
       // record => new Grouping<TKey, TElement>(record.Key, source.Where(groupingItem => groupingItem.Key == record.Key))
       var pRecord = Expression.Parameter(typeof (Record), "record");
       var pTuple = Expression.Parameter(typeof (Tuple), "tuple");
-      //var searchFor = originalCompiledKeyExpression.Parameters.ToArray();
-      //var replaceWith = originalCompiledKeyExpression.Parameters.Select(p => p.Type == typeof(Tuple) ? pTuple : pRecord).ToArray();
       var parameterRewriter = new ParameterRewriter(pTuple, pRecord);
       var recordKeyExpression = parameterRewriter.Rewrite(remappedExpression.Body);
-      //var recordKeyExpression = ExpressionReplacer.ReplaceAll(originalCompiledKeyExpression.Body, searchFor, replaceWith);
       var predicateExpression = Expression.Lambda(Expression.Equal(keySelector.Body, recordKeyExpression.First), keySelector.Parameters.ToArray());
-
 
       var callMehtod = WellKnownMethods.QueryableWhere.MakeGenericMethod(elementType);
 
       var queryExpression = Expression.Call(callMehtod, source, predicateExpression);
       var projectorBody = Expression.New(constructor, recordKeyExpression.First, queryExpression);
-      var itemProjector = Expression.Lambda(projectorBody, recordKeyExpression.Second 
-        ? new[]{pTuple, pRecord}
-        : new[]{pTuple});
+      var itemProjector = Expression.Lambda(projectorBody, recordKeyExpression.Second
+        ? new[] {pTuple, pRecord}
+        : new[] {pTuple});
 
-      var rs = Expression.Parameter(typeof(RecordSet), "rs");
+      var rs = Expression.Parameter(typeof (RecordSet), "rs");
       Expression<Func<RecordSet, object>> projector;
-      if (itemProjector.Parameters.Count > 1)
-      {
-        var makeProjectionMethod = typeof(Translator)
+      if (itemProjector.Parameters.Count > 1) {
+        var makeProjectionMethod = typeof (Translator)
           .GetMethod("MakeProjection", BindingFlags.NonPublic | BindingFlags.Static)
           .MakeGenericMethod(itemProjector.Body.Type);
         projector = Expression.Lambda<Func<RecordSet, object>>(
           Expression.Convert(
             Expression.Call(makeProjectionMethod, rs, itemProjector),
-            typeof(object)),
+            typeof (object)),
           rs);
       }
-      else
-      {
-        var makeProjectionMethod = WellKnownMethods.EnumerableSelect.MakeGenericMethod(typeof(Tuple), itemProjector.Body.Type);
-        projector = Expression.Lambda<Func<RecordSet, object>>(Expression.Convert(Expression.Call(makeProjectionMethod, rs, itemProjector), typeof(object)), rs);
+      else {
+        var makeProjectionMethod = WellKnownMethods.EnumerableSelect.MakeGenericMethod(typeof (Tuple), itemProjector.Body.Type);
+        projector = Expression.Lambda<Func<RecordSet, object>>(Expression.Convert(Expression.Call(makeProjectionMethod, rs, itemProjector), typeof (object)), rs);
       }
 
-      //      Expression itemProjector = Expression.
-      return new ResultExpression(method.ReturnType, recordSet, newResultMapping, projector, itemProjector);//      Expression result = null;
-      //      
-      //      if (resultSelector==null)
-      //        return result;
-      //      
-      //      using (context.Bind(resultSelector.Parameters[0], (ResultExpression) Visit(result)))
-      //        return BuildProjection(resultSelector);
+      return new ResultExpression(method.ReturnType, recordSet, newResultMapping, projector, itemProjector); //      Expression result = null;
     }
 
     private Expression VisitOrderBy(Expression expression, LambdaExpression le, Direction direction)
     {
-      using (context.Bind(le.Parameters[0], (ResultExpression)Visit(expression)))
+      using (context.Bind(le.Parameters[0], (ResultExpression) Visit(expression)))
       using (new ParameterScope()) {
         resultMapping.Value = new ResultMapping();
         calculateExpressions.Value = true;
@@ -498,7 +483,7 @@ namespace Xtensive.Storage.Linq
 
     private Expression VisitThenBy(Expression expression, LambdaExpression le, Direction direction)
     {
-      using (context.Bind(le.Parameters[0], (ResultExpression)Visit(expression))) 
+      using (context.Bind(le.Parameters[0], (ResultExpression) Visit(expression)))
       using (new ParameterScope()) {
         resultMapping.Value = new ResultMapping();
         calculateExpressions.Value = true;
@@ -519,8 +504,8 @@ namespace Xtensive.Storage.Linq
     {
       var outerParameter = outerKey.Parameters[0];
       var innerParameter = innerKey.Parameters[0];
-      using (context.Bind(outerParameter, (ResultExpression)Visit(outerSource)))
-      using (context.Bind(innerParameter, (ResultExpression)Visit(innerSource))) {
+      using (context.Bind(outerParameter, (ResultExpression) Visit(outerSource)))
+      using (context.Bind(innerParameter, (ResultExpression) Visit(innerSource))) {
         var outerMapping = new ResultMapping();
         var innerMapping = new ResultMapping();
         using (new ParameterScope()) {
@@ -529,7 +514,7 @@ namespace Xtensive.Storage.Linq
           resultMapping.Value = innerMapping;
           Visit(innerKey);
         }
-        var keyPairs = outerMapping.GetColumns().ZipWith(innerMapping.GetColumns(), (o,i) => new Pair<int>(o, i)).ToArray();
+        var keyPairs = outerMapping.GetColumns().ZipWith(innerMapping.GetColumns(), (o, i) => new Pair<int>(o, i)).ToArray();
 
         var outer = context.GetBound(outerParameter);
         var inner = context.GetBound(innerParameter);
@@ -554,8 +539,8 @@ namespace Xtensive.Storage.Linq
         );
 
       outer = new ResultExpression(outer.Type, recordSet, outer.Mapping, outer.Projector, outer.ItemProjector);
-      var innerProjector = (Expression<Func<RecordSet, object>>)tupleAccessProcessor.ReplaceMappings(inner.Projector, tupleMapping, groupMapping);
-      var innerItemProjector = (LambdaExpression)tupleAccessProcessor.ReplaceMappings(inner.ItemProjector, tupleMapping, groupMapping);
+      var innerProjector = (Expression<Func<RecordSet, object>>) tupleAccessProcessor.ReplaceMappings(inner.Projector, tupleMapping, groupMapping);
+      var innerItemProjector = (LambdaExpression) tupleAccessProcessor.ReplaceMappings(inner.ItemProjector, tupleMapping, groupMapping);
       inner = new ResultExpression(inner.Type, recordSet, inner.Mapping.ShiftOffset(outerLength), innerProjector, innerItemProjector);
 
       using (context.Bind(resultSelector.Parameters[0], outer))
@@ -601,7 +586,7 @@ namespace Xtensive.Storage.Linq
 
     private Expression VisitSelect(Expression expression, LambdaExpression le)
     {
-      using (context.Bind(le.Parameters[0], (ResultExpression)Visit(expression))) {
+      using (context.Bind(le.Parameters[0], (ResultExpression) Visit(expression))) {
         return BuildProjection(le);
       }
     }
@@ -612,29 +597,29 @@ namespace Xtensive.Storage.Linq
         resultMapping.Value = new ResultMapping();
         joinFinalEntity.Value = true;
         calculateExpressions.Value = true;
-        var itemProjector = (LambdaExpression)Visit(le);
-        var rs = Expression.Parameter(typeof(RecordSet), "rs");
+        var itemProjector = (LambdaExpression) Visit(le);
+        var rs = Expression.Parameter(typeof (RecordSet), "rs");
         Expression<Func<RecordSet, object>> projector;
         if (itemProjector.Parameters.Count > 1) {
-          var method = typeof(Translator)
+          var method = typeof (Translator)
             .GetMethod("MakeProjection", BindingFlags.NonPublic | BindingFlags.Static)
             .MakeGenericMethod(le.Body.Type);
           projector = Expression.Lambda<Func<RecordSet, object>>(
             Expression.Convert(
               Expression.Call(method, rs, itemProjector),
-              typeof(object)),
+              typeof (object)),
             rs);
         }
         else {
-          var method = WellKnownMethods.EnumerableSelect.MakeGenericMethod(typeof(Tuple), le.Body.Type);
-          projector = Expression.Lambda<Func<RecordSet, object>>(Expression.Convert(Expression.Call(method, rs, itemProjector), typeof(object)), rs);
+          var method = WellKnownMethods.EnumerableSelect.MakeGenericMethod(typeof (Tuple), le.Body.Type);
+          projector = Expression.Lambda<Func<RecordSet, object>>(Expression.Convert(Expression.Call(method, rs, itemProjector), typeof (object)), rs);
         }
         var source = context.GetBound(le.Parameters[0]);
         return new ResultExpression(
-          typeof(IQueryable<>).MakeGenericType(le.Body.Type), 
-          source.RecordSet, 
-          resultMapping.Value, 
-          projector, 
+          typeof (IQueryable<>).MakeGenericType(le.Body.Type),
+          source.RecordSet,
+          resultMapping.Value,
+          projector,
           itemProjector);
       }
     }
@@ -642,17 +627,17 @@ namespace Xtensive.Storage.Linq
     private Expression VisitWhere(Expression expression, LambdaExpression le)
     {
       var parameter = le.Parameters[0];
-      using (context.Bind(parameter, (ResultExpression)Visit(expression)))
+      using (context.Bind(parameter, (ResultExpression) Visit(expression)))
       using (new ParameterScope()) {
         resultMapping.Value = new ResultMapping();
         var predicate = Visit(le);
         var source = context.GetBound(parameter);
-        var recordSet = source.RecordSet.Filter((Expression<Func<Tuple, bool>>)predicate);
+        var recordSet = source.RecordSet.Filter((Expression<Func<Tuple, bool>>) predicate);
         return new ResultExpression(
-          expression.Type, 
-          recordSet, 
-          source.Mapping, 
-          source.Projector, 
+          expression.Type,
+          recordSet,
+          source.Mapping,
+          source.Projector,
           source.ItemProjector);
       }
     }
@@ -665,13 +650,13 @@ namespace Xtensive.Storage.Linq
       MethodInfo realCountMethod;
       ResultExpression result;
 
-      if (predicate != null) {
+      if (predicate!=null) {
         realCountMethod = WellKnownMethods.QueryableCountWithPredicate.MakeGenericMethod(elementType);
-        result = (ResultExpression)VisitAggregate(source, realCountMethod, null, true);
+        result = (ResultExpression) VisitAggregate(source, realCountMethod, null, true);
       }
       else {
         realCountMethod = WellKnownMethods.QueryableCount.MakeGenericMethod(elementType);
-        result = (ResultExpression)VisitAggregate(source, realCountMethod, null, true);
+        result = (ResultExpression) VisitAggregate(source, realCountMethod, null, true);
       }
 
       Expression<Func<RecordSet, object>> shaper;
@@ -681,14 +666,14 @@ namespace Xtensive.Storage.Linq
       else
         shaper = rs => rs.First().GetValue<long>(0) > 0;
 
-      return new ResultExpression(typeof(bool), result.RecordSet, null, shaper, null);
+      return new ResultExpression(typeof (bool), result.RecordSet, null, shaper, null);
     }
-    
+
     private Expression VisitExists(Expression source, LambdaExpression predicate, bool notExists)
     {
-      var subquery = predicate == null
-        ? (ResultExpression)Visit(source)
-        : (ResultExpression)VisitWhere(source, predicate);
+      var subquery = predicate==null
+        ? (ResultExpression) Visit(source)
+        : (ResultExpression) VisitWhere(source, predicate);
       var lambdaParameter = context.SubqueryParameterBindings.CurrentParameter;
       var applyParameter = context.SubqueryParameterBindings.GetBound(lambdaParameter);
       var oldResult = context.GetBound(lambdaParameter);
@@ -712,7 +697,7 @@ namespace Xtensive.Storage.Linq
 
     /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
     internal Translator(TranslatorContext context)
-      : base (context.Model)
+      : base(context.Model)
     {
       this.context = context;
     }
