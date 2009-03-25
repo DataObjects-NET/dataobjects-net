@@ -20,6 +20,7 @@ namespace Xtensive.Modelling.Actions
     IActionSequence
   {
     private readonly List<NodeAction> actions = new List<NodeAction>();
+    [NonSerialized]
     private ActionScope currentScope;
 
     /// <inheritdoc/>
