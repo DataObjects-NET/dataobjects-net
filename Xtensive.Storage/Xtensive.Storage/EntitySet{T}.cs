@@ -14,11 +14,9 @@ using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Tuples;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Linq;
 using Xtensive.Storage.Model;
-using Activator=System.Activator;
 using FieldInfo=Xtensive.Storage.Model.FieldInfo;
 
 namespace Xtensive.Storage

@@ -12,7 +12,7 @@ using Xtensive.Core.Collections;
 namespace Xtensive.Storage.Configuration.TypeRegistry
 {
   /// <summary>
-  /// Represents a context for <see cref="Registry"/>.
+  /// A context for <see cref="Registry"/>.
   /// </summary>
   [Serializable]
   internal class Context

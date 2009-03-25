@@ -10,7 +10,7 @@ using Xtensive.Core.Collections;
 namespace Xtensive.Storage.Configuration
 {
   ///<summary>
-  /// The collection of <see cref="SessionConfiguration"./>
+  /// The collection of <see cref="SessionConfiguration"/>.
   ///</summary>
   [Serializable]
   public class SessionConfigurationCollection : CollectionBaseSlim<SessionConfiguration>

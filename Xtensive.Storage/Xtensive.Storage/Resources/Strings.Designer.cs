@@ -9,7 +9,7 @@
 //------------------------------------------------------------------------------
 
 namespace Xtensive.Storage.Resources {
-    using System;
+    using Metadata;
     
     
     /// <summary>

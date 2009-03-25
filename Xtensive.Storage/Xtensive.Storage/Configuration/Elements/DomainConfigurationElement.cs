@@ -198,7 +198,7 @@ namespace Xtensive.Storage.Configuration.Elements
 
 
     /// <summary>
-    /// A <see cref="System.Configuration.ConfigurationElement" /> that stores the configuration information
+    /// A <see cref="Xtensive.Storage.Metadata.Configuration.ConfigurationElement" /> that stores the configuration information
     /// for a services provided by <see cref="Microsoft.Practices.Unity.IUnityContainer" />.
     /// </summary>
     [ConfigurationProperty(ServicesElementName)]

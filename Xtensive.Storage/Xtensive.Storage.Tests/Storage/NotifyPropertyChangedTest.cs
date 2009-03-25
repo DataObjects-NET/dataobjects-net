@@ -5,6 +5,7 @@
 // Created:    2008.10.02
 
 using System;
+using System.ComponentModel;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core;
@@ -37,7 +38,7 @@ namespace Xtensive.Storage.Tests.Storage
       }
     }
 
-    void ray_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+    void ray_PropertyChanged(object sender, PropertyChangedEventArgs e)
     {
       Console.WriteLine(sender + " " + e.PropertyName);
     }

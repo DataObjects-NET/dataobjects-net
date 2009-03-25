@@ -9,18 +9,15 @@ using System.Collections.Generic;
 using System.Transactions;
 using System.Linq;
 using Xtensive.Core;
-using Xtensive.Core.Helpers;
 using Xtensive.Core.Sorting;
-using Xtensive.Core.Tuples;
 using Xtensive.Storage.Building;
-using Xtensive.Core.Collections;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Providers
 {
   /// <summary>
-  /// Base session handler class.
+  /// Base <see cref="Session"/> handler class.
   /// </summary>
   public abstract class SessionHandler : InitializableHandlerBase,
     IDisposable
@@ -31,7 +28,7 @@ namespace Xtensive.Storage.Providers
     public Session Session { get; internal set; }
 
     ///<summary>
-    /// Gets the specified <see cref="System.Transactions.IsolationLevel"/>.
+    /// Gets the specified <see cref="IsolationLevel"/>.
     ///</summary>
     public IsolationLevel DefaultIsolationLevel { get; internal set; }
 

@@ -6,6 +6,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Reflection;
 using PostSharp.Extensibility;
 using PostSharp.Laos;
 using Xtensive.Core.Aspects.Helpers;
@@ -14,7 +15,7 @@ using Xtensive.Core.Disposable;
 namespace Xtensive.Storage.Aspects
 {
   /// <summary>
-  /// Wraps method into transaction, if it is necessary.
+  /// Wraps method body into transaction, if necessary.
   /// </summary>
   [MulticastAttributeUsage(MulticastTargets.Method)]
   [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)] 
@@ -29,7 +30,7 @@ namespace Xtensive.Storage.Aspects
     }
 
     /// <inheritdoc/>
-    public override bool CompileTimeValidate(System.Reflection.MethodBase method)
+    public override bool CompileTimeValidate(MethodBase method)
     {
       if (!AspectHelper.ValidateContextBoundMethod<Session>(this, method))
         return false;

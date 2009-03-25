@@ -12,7 +12,7 @@ using Xtensive.Core.Helpers;
 namespace Xtensive.Storage.Configuration.TypeRegistry
 {
   /// <summary>
-  /// Represents a single registration call to <see cref="Registry"/>.
+  /// Describes a single type registration call to <see cref="Registry"/>.
   /// </summary>
   [Serializable]
   internal sealed class Action: IEquatable<Action>

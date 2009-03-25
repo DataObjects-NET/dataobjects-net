@@ -15,9 +15,8 @@ using Xtensive.Core.Helpers;
 namespace Xtensive.Storage.Configuration.TypeRegistry
 {
   /// <summary>
-  /// Represents class for <see cref="Type"/> registration.
+  /// <see cref="Type"/> registration endpoint.
   /// </summary>
-  /// <remarks>This type is not thread-safe.</remarks>
   [Serializable]
   public sealed class Registry : LockableBase,
     ICountable<Type>,

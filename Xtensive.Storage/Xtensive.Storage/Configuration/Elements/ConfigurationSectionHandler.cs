@@ -11,7 +11,7 @@ namespace Xtensive.Storage.Configuration.Elements
   /// <summary>
   /// A root element of storage configuration section within a configuration file.
   /// </summary>
-  public class ConfigurationSection : System.Configuration.ConfigurationSection
+  public class ConfigurationSection : global::System.Configuration.ConfigurationSection
   {
     private const string DomainCollectionElementName = "domains";
 

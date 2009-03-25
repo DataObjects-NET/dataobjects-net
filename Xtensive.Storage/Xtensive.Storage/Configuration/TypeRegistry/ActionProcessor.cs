@@ -12,7 +12,7 @@ using Xtensive.Core.Reflection;
 namespace Xtensive.Storage.Configuration.TypeRegistry
 {
   /// <summary>
-  /// <see cref="Xtensive.Storage.Configuration.TypeRegistry"/> action processor.
+  /// <see cref="Xtensive.Storage.Configuration.TypeRegistry"/> <see cref="Action"/> processor.
   /// </summary>
   [Serializable]
   internal abstract class ActionProcessor

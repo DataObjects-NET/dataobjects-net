@@ -7,10 +7,10 @@
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
 
-namespace Xtensive.Storage.SystemTypes
+namespace Xtensive.Storage.Metadata
 {
   /// <summary>
-  /// Persistent type description.
+  /// Persistent descriptor of registered type.
   /// </summary>
   [SystemType(TypeId = 1)]
   [HierarchyRoot("Id", InheritanceSchema = InheritanceSchema.ClassTable)]

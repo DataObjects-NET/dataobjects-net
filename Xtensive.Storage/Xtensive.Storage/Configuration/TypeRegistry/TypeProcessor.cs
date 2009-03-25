@@ -9,10 +9,12 @@ using System;
 namespace Xtensive.Storage.Configuration.TypeRegistry
 {
   /// <summary>
-  /// Represents <see cref="TypeRegistry.Action"/> processor for processing <see cref="Persistent"/> 
-  /// and <see cref="IEntity"/> descendants registration in <see cref="DomainConfiguration.Types"/> registry.
+  /// <see cref="TypeRegistry.Action"/> processor for processing <see cref="Persistent"/> 
+  /// and <see cref="IEntity"/> descendants registration in 
+  /// <see cref="DomainConfiguration.Types"/> registry.
   /// </summary>
-  /// <remarks>This implementation provides topologically sorted list of <see cref="Type"/>s.</remarks>
+  /// <remarks>This implementation provides topologically sorted list 
+  /// of <see cref="Type"/>s.</remarks>
   [Serializable]
   internal sealed class TypeProcessor: ActionProcessor
   {

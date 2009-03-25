@@ -5,36 +5,37 @@
 // Created:    2008.12.22
 
 using System.Transactions;
+using SD=System.Data;
 
 namespace Xtensive.Storage.Providers
 {
   ///<summary>
-  /// Converts <see cref="IsolationLevel"/> to <see cref="System.Data.IsolationLevel"/>.
+  /// Converts <see cref="IsolationLevel"/> to <see cref="SD.IsolationLevel"/>.
   ///</summary>
   public static class IsolationLevelConverter
   {
     ///<summary>
-    /// Converts <see cref="IsolationLevel"/> to <see cref="System.Transactions.IsolationLevel"/>.
+    /// Converts <see cref="IsolationLevel"/> to <see cref="SD.IsolationLevel"/>.
     ///</summary>
     ///<param name="level">The specified <see cref="IsolationLevel"/>.</param>
     ///<returns></returns>
-    public static System.Data.IsolationLevel Convert(IsolationLevel level)
+    public static SD.IsolationLevel Convert(IsolationLevel level)
     {
       switch (level) {
         case IsolationLevel.Chaos:
-          return System.Data.IsolationLevel.Chaos;
+          return SD.IsolationLevel.Chaos;
         case IsolationLevel.ReadCommitted:
-          return System.Data.IsolationLevel.ReadCommitted;
+          return SD.IsolationLevel.ReadCommitted;
         case IsolationLevel.ReadUncommitted:
-          return System.Data.IsolationLevel.ReadUncommitted;
+          return SD.IsolationLevel.ReadUncommitted;
         case IsolationLevel.RepeatableRead:
-          return System.Data.IsolationLevel.RepeatableRead;
+          return SD.IsolationLevel.RepeatableRead;
         case IsolationLevel.Serializable:
-          return System.Data.IsolationLevel.Serializable;
+          return SD.IsolationLevel.Serializable;
         case IsolationLevel.Snapshot:
-          return System.Data.IsolationLevel.Snapshot;
+          return SD.IsolationLevel.Snapshot;
         default:
-          return System.Data.IsolationLevel.Unspecified;
+          return SD.IsolationLevel.Unspecified;
       }
     }
   }

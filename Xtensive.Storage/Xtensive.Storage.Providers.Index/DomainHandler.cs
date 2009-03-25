@@ -4,6 +4,7 @@
 // Created by: Alexey Kochetov
 // Created:    2008.07.01
 
+using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Globalization;
@@ -42,19 +43,19 @@ namespace Xtensive.Storage.Providers.Index
 
     public override void BuildRecycling()
     {
-      throw new System.NotImplementedException();
+      throw new NotImplementedException();
     }
 
     public override StorageConformity CheckStorageConformity()
     {
       // TODO: Implement
       return StorageConformity.Match;
-      throw new System.NotImplementedException();
+      throw new NotImplementedException();
     }
 
     public override void DeleteRecycledData()
     {
-      throw new System.NotImplementedException();
+      throw new NotImplementedException();
     }
 
     public override void BuildPerform()

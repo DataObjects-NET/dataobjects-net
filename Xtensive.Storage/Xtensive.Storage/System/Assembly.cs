@@ -7,10 +7,11 @@
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
 
-namespace Xtensive.Storage.SystemTypes
+namespace Xtensive.Storage.Metadata
 {
   /// <summary>
-  /// Persistent description of an assembly for schema upgrade purposes.
+  /// Persistent descriptor of an assembly with registered persistent types.
+  /// Used for schema upgrade purposes.
   /// </summary>
   [SystemType(TypeId = 2)]
   [HierarchyRoot("Id", InheritanceSchema = InheritanceSchema.ClassTable)]

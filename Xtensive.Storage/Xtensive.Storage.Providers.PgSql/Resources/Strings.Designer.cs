@@ -9,7 +9,7 @@
 //------------------------------------------------------------------------------
 
 namespace Xtensive.Storage.Providers.PgSql.Resources {
-    using System;
+    using Metadata;
     
     
     /// <summary>

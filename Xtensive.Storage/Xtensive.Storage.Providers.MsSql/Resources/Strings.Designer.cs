@@ -9,7 +9,7 @@
 //------------------------------------------------------------------------------
 
 namespace Xtensive.Storage.Providers.MsSql.Resources {
-    using System;
+    using Metadata;
 
 
     /// <summary>

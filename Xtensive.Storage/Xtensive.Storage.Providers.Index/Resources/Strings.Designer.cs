@@ -9,7 +9,7 @@
 //------------------------------------------------------------------------------
 
 namespace Xtensive.Storage.Providers.Index.Resources {
-    using System;
+    using Metadata;
     
     
     /// <summary>
