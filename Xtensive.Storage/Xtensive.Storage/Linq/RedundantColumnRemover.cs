@@ -107,8 +107,8 @@ namespace Xtensive.Storage.Linq
         rightMap.Add(item.Second);
       }
 
-      mapping.Add(provider.Left, leftMap);
-      mapping.Add(provider.Right, rightMap);
+      mapping.Add(provider.Left, leftMap.OrderBy(i=>i).Distinct().ToList());
+      mapping.Add(provider.Right, rightMap.OrderBy(i => i).Distinct().ToList());
 
       return base.VisitJoin(provider);
     }
