@@ -34,7 +34,6 @@ namespace Xtensive.Storage.Linq
           if (!mapping.JoinedRelations.TryGetValue(item.Name, out mapping))
             throw new InvalidOperationException();
       }
-      
       var lastItem = pathList.Last();
       if (lastItem.Type == MemberType.Anonymous)
         throw new InvalidOperationException();
