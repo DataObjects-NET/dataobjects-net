@@ -18,7 +18,8 @@ namespace Xtensive.Indexing.Storage.Model
   /// <typeparam name="TParent">The type of the parent node.</typeparam>
   [Serializable]
   public abstract class Ref<TTarget, TParent> : NodeBase<TParent>, 
-    IUnnamedNode
+    IUnnamedNode, 
+    INodeReference
     where TTarget : Node
     where TParent : Node
   {
@@ -44,6 +45,11 @@ namespace Xtensive.Indexing.Storage.Model
       }
     }
 
+    Node INodeReference.Value
+    {
+      get { return Value; }
+      set { Value = (TTarget)value; }
+    }
 
     // Constructors
 

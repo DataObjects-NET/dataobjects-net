@@ -20,6 +20,7 @@ namespace Xtensive.Indexing.Storage.Model
   public class ColumnInfo: NodeBase<TableInfo>
   {
     private TypeInfo columnType;
+    private bool allowNulls;
 
     /// <summary>
     /// Gets or sets the type of the column.
@@ -33,6 +34,23 @@ namespace Xtensive.Indexing.Storage.Model
         EnsureIsEditable();
         using (var scope = LogPropertyChange("ColumnType", value)) {
           columnType = value;
+          scope.Commit();
+        }
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether a column allow <see langword="null"/> values.
+    /// </summary>
+    [Property]
+    public bool AllowNulls
+    {
+      get{ return allowNulls;}
+      set
+      {
+        EnsureIsEditable();
+        using (var scope = LogPropertyChange("AllowNulls", value)) {
+          allowNulls = value;
           scope.Commit();
         }
       }

@@ -6,13 +6,18 @@
 
 using System;
 using System.Diagnostics;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Modelling;
 
 namespace Xtensive.Indexing.Storage.Model
 {
+  /// <summary>
+  /// Describes a single references to value column.
+  /// </summary>
   [Serializable]
   public class ValueColumnRef : ColumnInfoRef
   {
+    /// <inheritdoc/>
     protected override Nesting CreateNesting()
     {
       return new Nesting<ValueColumnRef, IndexInfo, ValueColumnRefCollection>(this, "ValueColumns");
@@ -22,11 +27,17 @@ namespace Xtensive.Indexing.Storage.Model
     // Constructors
 
     /// <inheritdoc/>
-    protected ValueColumnRef(IndexInfo parent, int index)
+    public ValueColumnRef(IndexInfo parent, int index)
       : base(parent, index)
     {
     }
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="parent">The parent index.</param>
+    /// <param name="column">The referenced column.</param>
+    /// <param name="index">The index in collection.</param>
     public ValueColumnRef(IndexInfo parent, ColumnInfo column, int index)
       : base(parent, column, index)
     {

@@ -6,6 +6,7 @@
 
 using System;
 using Xtensive.Core;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Modelling;
 using System.Diagnostics;
 using Xtensive.Modelling.Attributes;
@@ -13,9 +14,8 @@ using Xtensive.Modelling.Attributes;
 namespace Xtensive.Indexing.Storage.Model
 {
   /// <summary>
-  /// A base abstract class for all references to key column.
+  /// Describes a single references to key column.
   /// </summary>
-  /// <typeparam name="TParent">The type of the parent node.</typeparam>
   [Serializable]
   public class KeyColumnRef: ColumnInfoRef
   {
@@ -39,6 +39,7 @@ namespace Xtensive.Indexing.Storage.Model
       }
     }
 
+    /// <inheritdoc/>
     protected override Nesting CreateNesting()
     {
       return new Nesting<KeyColumnRef, IndexInfo, KeyColumnRefCollection>(this, "KeyColumns");
@@ -47,11 +48,19 @@ namespace Xtensive.Indexing.Storage.Model
 
     //Constructors
 
-    protected KeyColumnRef(IndexInfo parent, int index)
+    /// <inheritdoc/>
+    public KeyColumnRef(IndexInfo parent, int index)
       : base(parent, index)
     {
     }
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="parent">The parent index.</param>
+    /// <param name="column">The referenced column.</param>
+    /// <param name="index">The index in collection.</param>
+    /// <param name="direction">The direction.</param>
     public KeyColumnRef(IndexInfo parent, ColumnInfo column, int index, Direction direction)
       : base(parent, column, index)
     {

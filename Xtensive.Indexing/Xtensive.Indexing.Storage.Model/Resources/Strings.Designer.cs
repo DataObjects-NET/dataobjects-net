@@ -106,6 +106,15 @@ namespace Xtensive.Indexing.Storage.Model.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Primary key column can not allow nulls..
+        /// </summary>
+        internal static string ExPrimaryKeyColumnCanNotAllowNulls {
+            get {
+                return ResourceManager.GetString("ExPrimaryKeyColumnCanNotAllowNulls", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Referenced column &apos;{0}&apos; does not belong to index &apos;{1}&apos;..
         /// </summary>
         internal static string ExReferencedColumnXDoesNotBelongToIndexY {
@@ -115,7 +124,7 @@ namespace Xtensive.Indexing.Storage.Model.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Type of column {0} does not defined..
+        ///   Looks up a localized string similar to Type of column &apos;{0}&apos; does not defined..
         /// </summary>
         internal static string ExTypeOfColumnXDoesNotDefined {
             get {

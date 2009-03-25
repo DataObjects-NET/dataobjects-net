@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core;
 
 namespace Xtensive.Indexing.Storage.Model
 {
@@ -17,24 +18,37 @@ namespace Xtensive.Indexing.Storage.Model
   public class TypeInfo
   {
     /// <summary>
-    /// Gets or sets the type of the data.
+    /// Gets the type of the data.
     /// </summary>
-    public Type DataType { get; private set; }
+    public Type DataType
+    {
+      [DebuggerStepThrough]
+      get; 
+      [DebuggerStepThrough]
+      private set;
+    }
 
     /// <summary>
-    /// Gets or sets a value indicating whether a column allow <see langword="null"/> values.
+    /// Gets the collation.
     /// </summary>
-    public bool AllowNulls { get; private set; }
+    public string Collation
+    {
+      [DebuggerStepThrough]
+      get;
+      [DebuggerStepThrough]
+      private set;
+    }
     
     /// <summary>
-    /// Gets or sets the collation.
+    /// Gets the length.
     /// </summary>
-    public string Collation { get; private set; }
-    
-    /// <summary>
-    /// Gets or sets the length.
-    /// </summary>
-    public int Length { get; private set; }
+    public int Length
+    {
+      [DebuggerStepThrough]
+      get;
+      [DebuggerStepThrough]
+      private set;
+    }
 
     #region Equals, GetHashCode methods
 
@@ -49,24 +63,17 @@ namespace Xtensive.Indexing.Storage.Model
 
       return
         DataType.Equals(typeInfo.DataType) &&
-          AllowNulls==typeInfo.AllowNulls &&
-            Collation==typeInfo.Collation &&
-              Length==typeInfo.Length;
+          Collation==typeInfo.Collation &&
+            Length==typeInfo.Length;
     }
 
     /// <inheritdoc/>
     public override int GetHashCode()
     {
-      return DataType != null ? DataType.GetHashCode() : base.GetHashCode();
+      return DataType.GetHashCode();
     }
 
     #endregion
-
-    /// <inheritdoc/>
-    public override string ToString()
-    {
-      return string.Format("DataType = {0}, AllowNulls = {1}", DataType, AllowNulls);
-    }
 
 
     // Constructors
@@ -77,6 +84,8 @@ namespace Xtensive.Indexing.Storage.Model
     /// <param name="dataType">Type of the data.</param>
     public TypeInfo(Type dataType)
     {
+      ArgumentValidator.EnsureArgumentNotNull(dataType, "dataType");
+
       DataType = dataType;
     }
 
@@ -84,26 +93,20 @@ namespace Xtensive.Indexing.Storage.Model
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="dataType">Type of the data.</param>
-    /// <param name="allowNulls">Does column allow null values.</param>
-    public TypeInfo(Type dataType, bool allowNulls)
-    {
-      DataType = dataType;
-      AllowNulls = allowNulls;
-    }
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="dataType">Type of the data.</param>
-    /// <param name="allowNulls">Does column allow null values.</param>
     /// <param name="collation">The collation.</param>
     /// <param name="length">The length.</param>
-    public TypeInfo(Type dataType, bool allowNulls, string collation, int length)
+    public TypeInfo(Type dataType, string collation, int length)
+      :this(dataType)
     {
-      DataType = dataType;
-      AllowNulls = allowNulls;
       Collation = collation;
       Length = length;
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    protected TypeInfo()
+    {
     }
   }
 }

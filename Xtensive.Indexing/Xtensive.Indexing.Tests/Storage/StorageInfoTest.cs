@@ -53,8 +53,8 @@ namespace Xtensive.Indexing.Tests.Storage
       // Table 2
       table2 = new TableInfo(storage, "table2");
       pi2 = new PrimaryIndexInfo(table2, "pk2");
-      column4 = new ColumnInfo(table2, "col4", new TypeInfo(typeof(string)));
-      column5 = new ColumnInfo(table2, "col5", new TypeInfo(typeof(int)));
+      column4 = new ColumnInfo(table2, "col4", new TypeInfo(typeof(int)));
+      column5 = new ColumnInfo(table2, "col5", new TypeInfo(typeof(string)));
       new KeyColumnRef(pi2, column4, 0, Direction.Negative);
       new ValueColumnRef(pi2, column5, 0);
       si2 = new SecondaryIndexInfo(table2, "ix2");
@@ -94,44 +94,13 @@ namespace Xtensive.Indexing.Tests.Storage
     [Test]
     public void Test()
     {
-      var outer = new[] {new StringHolder("1"), new StringHolder("2"), new StringHolder("4")};
-      var inner = new[] { new StringHolder("1"), new StringHolder("2"), new StringHolder("5")};
-      var outerA = outer.Select(sh => new {sh.Value1, sh.Value2});
-      var innerA = inner.Select(sh => new {sh.Value1, sh.Value2});
       
-      foreach (var s in outerA.Except(innerA))
-      {
-        Core.Log.Info("val : {0}", s); //s.Value1 + " : " + s.Value2);
-      }
     }
-
 
     [TearDown]
     public void Dump()
     {
       storage.Dump();
-    }
-
-    private class StringHolder
-    {
-      public string Value1 { get; set; }
-      public string Value2 { get; set; }
-      public string Value3 { get; set; }
-      public string Value4 { get; set; }
-
-
-      public StringHolder(string value)
-      {
-        Value1 = value;
-        Value2 = value;
-        Value3 = value;
-        Value4 = value;
-      }
-
-      public override string ToString()
-      {
-        return Value1;
-      }
     }
 
   }

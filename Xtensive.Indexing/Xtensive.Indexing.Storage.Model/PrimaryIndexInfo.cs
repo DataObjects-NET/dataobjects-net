@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Xtensive.Core.Helpers;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Modelling;
 using Xtensive.Modelling.Attributes;
 
@@ -40,6 +41,11 @@ namespace Xtensive.Indexing.Storage.Model
       if (keys.Count==0)
         throw new IntegrityException(Resources.Strings.ExEmptyKeyColumnsCollection, Path);
 
+      // Nullable key columns.
+      if (keys.Where(ci=>ci.AllowNulls).Count() > 0) {
+        throw new IntegrityException(Resources.Strings.ExPrimaryKeyColumnCanNotAllowNulls, Path);
+      }
+      
       // Double column reference.
       foreach (var column in keys.Intersect(values)) {
         throw new IntegrityException(
@@ -55,7 +61,7 @@ namespace Xtensive.Indexing.Storage.Model
       }
 
       // Double keys.
-      foreach (var column in keys.GroupBy(key => key).Where(group => group.Count() > 1).Select(group => group.Key)) {
+      foreach (var column in keys.GroupBy(keyColumn => keyColumn).Where(group => group.Count() > 1).Select(group => group.Key)) {
         throw new IntegrityException(
           string.Format(Resources.Strings.ExMoreThenOneKeyReferenceToColumnX, column.Name),
           Path);
@@ -69,7 +75,7 @@ namespace Xtensive.Indexing.Storage.Model
       }
 
       // Double values.
-      foreach (var column in values.GroupBy(value => value).Where(group => group.Count() > 1).Select(group => group.Key)) {
+      foreach (var column in values.GroupBy(valueColumn => valueColumn).Where(group => group.Count() > 1).Select(group => group.Key)) {
         throw new IntegrityException(
           string.Format(Resources.Strings.ExMoreThenOneValueReferenceToColumnX, column.Name),
           Path);
@@ -87,7 +93,7 @@ namespace Xtensive.Indexing.Storage.Model
     // Constructors
 
     /// <summary>
-    /// 
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="table">The table.</param>
     /// <param name="name">The index name.</param>

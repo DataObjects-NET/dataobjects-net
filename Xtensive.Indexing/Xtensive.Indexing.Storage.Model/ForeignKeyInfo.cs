@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Modelling;
 using Xtensive.Modelling.Attributes;
 using System.Collections.Generic;
@@ -97,6 +98,12 @@ namespace Xtensive.Indexing.Storage.Model
 
     //Constructors
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="parent">The parent table.</param>
+    /// <param name="name">The name of foreign key.</param>
+    /// <inheritdoc/>
     public ForeignKeyInfo(TableInfo parent, string name)
       : base(parent, name)
     {

@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Modelling;
 using Xtensive.Modelling.Attributes;
 
@@ -32,34 +33,38 @@ namespace Xtensive.Indexing.Storage.Model
     {
       base.ValidateState();
 
-      //var primaryValueColumns = new List<ColumnInfo>(Parent.PrimaryIndex.ValueColumns.Select(valueRef => valueRef.Value));
-      //var secondaryKeyColumns = new List<ColumnInfo>( SecondaryKeyColumns.Select(valueRef => valueRef.Value));
+      var primaryValueColumns = new List<ColumnInfo>(Parent.PrimaryIndex.ValueColumns.Select(valueRef => valueRef.Value));
+      var secondaryKeyColumns = new List<ColumnInfo>(KeyColumns.Select(valueRef => valueRef.Value));
 
-      //// Empty keys.
-      //if (secondaryKeyColumns.Count == 0)
-      //  throw new IntegrityException(Resources.Strings.ExEmptyKeyColumnsCollection, Path);
+      // Empty keys.
+      if (secondaryKeyColumns.Count == 0)
+        throw new IntegrityException(Resources.Strings.ExEmptyKeyColumnsCollection, Path);
 
-      //// Double keys.
-      //foreach (var column in secondaryKeyColumns.GroupBy(keyColumn => keyColumn).Where(group => group.Count() > 1).Select(group => group.Key))
-      //{
-      //  throw new IntegrityException(
-      //    string.Format(Resources.Strings.ExMoreThenOneKeyReferenceToColumnX, column.Name),
-      //    Path);
-      //}
+      // Double keys.
+      foreach (var column in secondaryKeyColumns.GroupBy(keyColumn => keyColumn).Where(group => group.Count() > 1).Select(group => group.Key))
+      {
+        throw new IntegrityException(
+          string.Format(Resources.Strings.ExMoreThenOneKeyReferenceToColumnX, column.Name),
+          Path);
+      }
 
-      //// Secondary key column does not primary value column.
-      //foreach (var column in secondaryKeyColumns.Except(primaryValueColumns))
-      //{
-      //  throw new IntegrityException(
-      //    string.Format("Secondary key column '{0}' must be primary value column.", column.Name),
-      //    Path);
-      //}
+      // Secondary key column does not primary value column.
+      foreach (var column in secondaryKeyColumns.Except(primaryValueColumns))
+      {
+        throw new IntegrityException(
+          string.Format("Secondary key column '{0}' must be primary value column.", column.Name),
+          Path);
+      }
     }
 
 
     // Constructors
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="table">The parent table.</param>
+    /// <param name="name">The index name.</param>
     public SecondaryIndexInfo(TableInfo table, string name)
       : base(table, name)
     {

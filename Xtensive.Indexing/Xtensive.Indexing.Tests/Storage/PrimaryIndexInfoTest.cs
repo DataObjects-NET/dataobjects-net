@@ -11,6 +11,7 @@ using Xtensive.Core.Testing;
 using Xtensive.Indexing.Storage.Model;
 using Xtensive.Core;
 using Xtensive.Core.Helpers;
+using Xtensive.Indexing.Storage;
 
 namespace Xtensive.Indexing.Tests.Storage
 {
@@ -19,127 +20,131 @@ namespace Xtensive.Indexing.Tests.Storage
   {
 
     private StorageInfo storage;
+    private TableInfo table;
     private PrimaryIndexInfo index;
 
-    //[SetUp]
-    //public void CreateStorage()
-    //{
-    //  storage = new StorageInfo("s1");
-    //  index= new PrimaryIndexInfo(storage, "i");
-    //}
+    [SetUp]
+    public void CreateStorage()
+    {
+      storage = new StorageInfo("s1");
+      table = new TableInfo(storage, "table");
+      index = new PrimaryIndexInfo(table, "i");
+    }
 
-    //[Test]
-    //public void ConstructorTest()
-    //{
-    //  var countBefore = storage.PrimaryIndexes.Count;
-    //  new PrimaryIndexInfo(storage, "i2");
-    //  Assert.AreEqual(countBefore + 1, storage.PrimaryIndexes.Count);
-    //}
+    [Test]
+    public void DenyIndexInfoConstructor()
+    {
+      var indexBefore = table.PrimaryIndex;
+      AssertEx.Throws<ArgumentException>(() => new PrimaryIndexInfo(null, "i2"));
+      AssertEx.Throws<ArgumentException>(() => new PrimaryIndexInfo(table, ""));
+      Assert.AreEqual(indexBefore, table.PrimaryIndex);
+    }
 
-    //[Test]
-    //public void DenyIndexInfoConstructor()
-    //{
-    //  int countBefore = storage.PrimaryIndexes.Count;
-    //  AssertEx.Throws<ArgumentException>(() => new PrimaryIndexInfo(null, "i2"));
-    //  AssertEx.Throws<ArgumentException>(() => new PrimaryIndexInfo(storage, ""));
-    //  Assert.AreEqual(countBefore, storage.PrimaryIndexes.Count);
-    //}
+    [Test]
+    public void AddRemoveColumnsTest()
+    {
+      var column = new ColumnInfo(table, "c");
+      Assert.AreEqual(1, table.Columns.Count);
+      column.Remove();
+      Assert.AreEqual(0, table.Columns.Count);
+    }
 
-    //[Test]
-    //public void AddRemoveColumnsTest()
-    //{
-    //  var column = new ColumnInfo(index, "c");
-    //  Assert.AreEqual(1, index.Columns.Count);
-    //  column.Remove();
-    //  Assert.AreEqual(0, index.Columns.Count);
-    //}
+    [Test]
+    public void DenyAddColumnTest()
+    {
+      var column = new ColumnInfo(table, "c");
+      AssertEx.Throws<ArgumentException>(() => new ColumnInfo(table, "c"));
+    }
 
-    //[Test]
-    //public void DenyAddColumnTest()
-    //{
-    //  var column = new ColumnInfo(index, "c");
-    //  AssertEx.Throws<ArgumentException>(() => new ColumnInfo(index, "c"));
-    //}
+    [Test]
+    public void AddRemoveKeyColumnRefs()
+    {
+      var column = new ColumnInfo(table, "col1");
+      var colRef = new KeyColumnRef(index, column, 0, Direction.Positive);
+      Assert.AreEqual(1, index.KeyColumns.Count);
+      colRef.Remove();
+      Assert.AreEqual(0, index.KeyColumns.Count);
+    }
 
-    //[Test]
-    //public void AddRemoveKeyColumnRefs()
-    //{
-    //  var column = new ColumnInfo(index, "col1");
-    //  var colRef = new PrimaryKeyColumnRef(index, column, 0, Direction.Positive);
-    //  Assert.AreEqual(1, index.KeyColumns.Count);
-    //  colRef.Remove();
-    //  Assert.AreEqual(0, index.KeyColumns.Count);
-    //}
+    [Test]
+    public void AddRemoveValueColumnRefs()
+    {
+      var column = new ColumnInfo(table, "col1");
+      var colRef = new ValueColumnRef(index, column, 0);
+      Assert.AreEqual(1, index.ValueColumns.Count);
+      colRef.Remove();
+      Assert.AreEqual(0, index.ValueColumns.Count);
+    }
 
-    //[Test]
-    //public void AddRemoveValueColumnRefs()
-    //{
-    //  var column = new ColumnInfo(index, "col1");
-    //  var colRef = new PrimaryValueColumnRef(index, column, 0);
-    //  Assert.AreEqual(1, index.ValueColumns.Count);
-    //  colRef.Remove();
-    //  Assert.AreEqual(0, index.ValueColumns.Count);
-    //}
+    [Test]
+    public void ValidateEmptyKeys()
+    {
+      new ColumnInfo(table, "c1");
+      new ColumnInfo(table, "c2");
 
-    //[Test]
-    //public void ValidateEmptyKeys()
-    //{
-    //  new ColumnInfo(index, "c1");
-    //  new ColumnInfo(index, "c2");
+      AssertEx.Throws<IntegrityException>(index.Validate);
+    }
 
-    //  AssertEx.Throws<Exception>(index.Validate);
-    //}
+    [Test]
+    public void ValidateNullableKeyColumns()
+    {
+      var col = new ColumnInfo(table, "c2", new TypeInfo(typeof(string))) {AllowNulls = true};
+      new KeyColumnRef(index, col, 0, Direction.Positive);
 
-    //[Test]
-    //public void ValidateDoubleColumnRefs()
-    //{
-    //  var column = new ColumnInfo(index, "c");
-    //  new PrimaryKeyColumnRef(index, column, 0, Direction.Positive);
-    //  new PrimaryValueColumnRef(index, column, 0);
+      AssertEx.Throws<IntegrityException>(index.Validate);
+    }
 
-    //  AssertEx.Throws<Exception>(index.Validate);
-    //}
+    [Test]
+    public void ValidateDoubleColumnRefs()
+    {
+      var column = new ColumnInfo(table, "c");
+      new KeyColumnRef(index, column, 0, Direction.Positive);
+      new ValueColumnRef(index, column, 0);
 
-    //[Test]
-    //public void ValidateNotReferencedColumns()
-    //{
-    //  new PrimaryKeyColumnRef(index, new ColumnInfo(index, "key"), 0, Direction.Positive);
-    //  new ColumnInfo(index, "col");
+      AssertEx.Throws<IntegrityException>(index.Validate);
+    }
 
-    //  AssertEx.Throws<Exception>(index.Validate);
-    //}
+    [Test]
+    public void ValidateNotReferencedColumns()
+    {
+      new KeyColumnRef(index, new ColumnInfo(table, "key"), 0, Direction.Positive);
+      new ColumnInfo(table, "col");
 
-    //[Test]
-    //public void ValidateDoubleKeysAndValuesColumnRefs()
-    //{
-    //  var key = new ColumnInfo(index, "key");
-    //  var value = new ColumnInfo(index, "value");
-    //  new PrimaryKeyColumnRef(index, key, 0, Direction.Positive);
-    //  new PrimaryKeyColumnRef(index, key, 1, Direction.Negative);
-    //  new PrimaryValueColumnRef(index, value, 0);
-    //  new PrimaryValueColumnRef(index, value, 1);
+      AssertEx.Throws<IntegrityException>(index.Validate);
+    }
 
-    //  AssertEx.Throws<Exception>(index.Validate);
-    //}
+    [Test]
+    public void ValidateDoubleKeysAndValuesColumnRefs()
+    {
+      var key = new ColumnInfo(table, "key");
+      var value = new ColumnInfo(table, "value");
+      new KeyColumnRef(index, key, 0, Direction.Positive);
+      new KeyColumnRef(index, key, 1, Direction.Negative);
+      new ValueColumnRef(index, value, 0);
+      new ValueColumnRef(index, value, 1);
 
-    //[Test]
-    //public void ValidateRefToColumnFromAnotherIndex()
-    //{
-    //  var anotherIndex = new PrimaryIndexInfo(storage, "i2");
-    //  var key = new ColumnInfo(anotherIndex, "key");
-    //  var value = new ColumnInfo(anotherIndex, "value");
-    //  new PrimaryKeyColumnRef(index, key, 0, Direction.Positive);
-    //  new PrimaryValueColumnRef(index, value, 0);
+      AssertEx.Throws<IntegrityException>(index.Validate);
+    }
 
-    //  AssertEx.Throws<Exception>(index.Validate);
-    //}
+    [Test]
+    public void ValidateRefToColumnFromAnotherIndex()
+    {
+      var anoterTable = new TableInfo(storage, "t2");
+      var key = new ColumnInfo(anoterTable, "key");
+      var value = new ColumnInfo(anoterTable, "value");
+      
+      new KeyColumnRef(index, key, 0, Direction.Positive);
+      new ValueColumnRef(index, value, 0);
+
+      AssertEx.Throws<IntegrityException>(index.Validate);
+    }
 
 
-    //[TearDown]
-    //public void Dump()
-    //{
-    //  storage.Dump();
-    //}
+    [TearDown]
+    public void Dump()
+    {
+      storage.Dump();
+    }
 
   }
 }
