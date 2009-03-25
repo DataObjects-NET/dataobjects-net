@@ -394,10 +394,11 @@ namespace Xtensive.Storage.Linq
       List<int> columnList;
       var newResultMapping = new ResultMapping();
       LambdaExpression remappedExpression;
+      LambdaExpression originalCompiledKeyExpression;
       using (context.Bind(keySelector.Parameters[0], result))
       using (new ParameterScope()) {
         resultMapping.Value = new ResultMapping();
-        var originalCompiledKeyExpression = (LambdaExpression) Visit(keySelector);
+        originalCompiledKeyExpression = (LambdaExpression)Visit(keySelector);
         columnList = resultMapping.Value.GetColumns().ToList();
         // Remap 
 
@@ -435,12 +436,22 @@ namespace Xtensive.Storage.Linq
       var pTuple = Expression.Parameter(typeof (Tuple), "tuple");
       var parameterRewriter = new ParameterRewriter(pTuple, pRecord);
       var recordKeyExpression = parameterRewriter.Rewrite(remappedExpression.Body);
-      var predicateExpression = Expression.Lambda(Expression.Equal(keySelector.Body, recordKeyExpression.First), keySelector.Parameters.ToArray());
+
+      Expression leftKeySelector = keySelector.Body;
+      Expression rightKeySelector = recordKeyExpression.First;
+      Expression groupingKeyResolver = rightKeySelector;
+      if (rightKeySelector.Type == typeof(Key) && keySelector.Body.Type.IsSubclassOf(typeof(Entity))) {
+        leftKeySelector = Expression.MakeMemberAccess(keySelector.Body, WellKnownMethods.IEntityKey);
+        var keyResolveMethod = typeof(Key).GetMethod("Resolve", BindingFlags.Public | BindingFlags.Instance, new[] { "T" }, new object[0]).MakeGenericMethod(keySelector.Body.Type);
+        groupingKeyResolver = Expression.Call(rightKeySelector, keyResolveMethod);
+      }
+
+      var predicateExpression = Expression.Lambda(Expression.Equal(leftKeySelector, rightKeySelector), keySelector.Parameters.ToArray());
 
       var callMehtod = WellKnownMethods.QueryableWhere.MakeGenericMethod(elementType);
 
       var queryExpression = Expression.Call(callMehtod, source, predicateExpression);
-      var projectorBody = Expression.New(constructor, recordKeyExpression.First, queryExpression);
+      var projectorBody = Expression.New(constructor, groupingKeyResolver, queryExpression);
       var itemProjector = Expression.Lambda(projectorBody, recordKeyExpression.Second
         ? new[] {pTuple, pRecord}
         : new[] {pTuple});
