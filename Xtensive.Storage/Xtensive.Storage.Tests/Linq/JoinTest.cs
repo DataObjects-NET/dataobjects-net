@@ -220,10 +220,12 @@ namespace Xtensive.Storage.Tests.Linq
     {
       using (Domain.OpenSession())
       using (var t = Transaction.Open()) {
+        var ordersCount = Query<Order>.All.Count();
         var result = from c in Query<Customer>.All
                      from o in Query<Order>.All.Where(o => o.Customer == c)
                      select new { c.ContactName, o.OrderDate };
         var list = result.ToList();
+        Assert.AreEqual(ordersCount, list.Count);
         t.Complete();
       }
     }
