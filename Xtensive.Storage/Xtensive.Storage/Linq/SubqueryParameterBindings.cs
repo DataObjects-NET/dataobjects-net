@@ -41,8 +41,10 @@ namespace Xtensive.Storage.Linq
     {
       foreach (ParameterExpression key in keys) {
         var binding = bindings[key];
-        if (binding.Cardinality == 1)
+        if (binding.Cardinality == 1) {
           bindings.Remove(key);
+          stack.Pop();
+        }
         else
           binding.Cardinality--;
       }
