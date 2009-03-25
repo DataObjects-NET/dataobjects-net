@@ -8,7 +8,7 @@ using System;
 using Xtensive.Core.Tuples;
 using Xtensive.Integrity.Transactions;
 
-namespace Xtensive.Indexing.Storage.Interfaces
+namespace Xtensive.Indexing.Storage
 {
   public interface IStorageView : 
     IIndexManager,

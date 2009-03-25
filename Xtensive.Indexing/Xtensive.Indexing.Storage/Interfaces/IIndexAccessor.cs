@@ -7,7 +7,7 @@
 using System.Collections.Generic;
 using Xtensive.Core.Tuples;
 
-namespace Xtensive.Indexing.Storage.Interfaces
+namespace Xtensive.Indexing.Storage
 {
   /// <summary>
   /// Index accessor API (DML API).

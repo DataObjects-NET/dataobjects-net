@@ -8,7 +8,7 @@ using System;
 using System.Transactions;
 using Xtensive.Integrity.Transactions;
 
-namespace Xtensive.Indexing.Storage.Interfaces
+namespace Xtensive.Indexing.Storage
 {
   /// <summary>
   /// Indexing storage API.

@@ -6,7 +6,7 @@
 
 using Xtensive.Indexing.Storage;
 
-namespace Xtensive.Indexing.Storage.Interfaces
+namespace Xtensive.Indexing.Storage
 {
   /// <summary>
   /// Index manager API (DDL API).
