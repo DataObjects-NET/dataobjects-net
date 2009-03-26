@@ -31,7 +31,7 @@ namespace Xtensive.Storage.Linq
     public ResultExpression RemoveRedundantColumn()
     {
       var originProvider = origin.RecordSet.Provider;
-      var projectorMap = tupleAccessReplacer.Process(origin.Projector)
+      var projectorMap = tupleAccessReplacer.GatherMappings(origin.Projector, origin.RecordSet.Header)
           .OrderBy(i => i)
           .Distinct()
           .ToList();
@@ -81,7 +81,7 @@ namespace Xtensive.Storage.Linq
     protected override Provider VisitFilter(FilterProvider provider)
     {
       List<int> map = mappings[provider];
-      mappings.Add(provider.Source, Merge(map, tupleAccessReplacer.Process(provider.Predicate)));
+      mappings.Add(provider.Source, Merge(map, tupleAccessReplacer.GatherMappings(provider.Predicate)));
       return base.VisitFilter(provider);
     }
 
@@ -188,7 +188,7 @@ namespace Xtensive.Storage.Linq
       var sourceLength = provider.Source.Header.Length;
       var value = mappings[provider]
         .Where(i => i < sourceLength)
-        .Union(provider.CalculatedColumns.SelectMany(c => tupleAccessReplacer.Process(c.Expression)))
+        .Union(provider.CalculatedColumns.SelectMany(c => tupleAccessReplacer.GatherMappings(c.Expression)))
         .OrderBy(i => i)
         .Distinct()
         .ToList();
@@ -327,7 +327,7 @@ namespace Xtensive.Storage.Linq
       tupleAccessReplacer = new TupleAccessProcessor(null, ResolveOuterMapping);
       tupleAccessProcessor = new TupleAccessProcessor(RegisterOuterMapping, null);
       outerColumnUsageVisitor = new CompilableProviderVisitor((_,e) => {
-        tupleAccessProcessor.Process(e);
+        tupleAccessProcessor.GatherMappings(e);
         return e;
         });
       origin = resultExpression;

@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using Xtensive.Core;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Linq;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
@@ -21,43 +22,86 @@ namespace Xtensive.Storage.Linq
     private bool isReplacing;
     private List<int> group;
     private List<int> map;
+    private RecordSetHeader header;
     private readonly Action<Parameter<Tuple>, int> registerOuterColumn;
     private readonly Func<Parameter<Tuple>, int, int> resolveOuterColumn;
 
     protected override Expression VisitMethodCall(MethodCallExpression mc)
     {
+      if (isReplacing)
+        return ReplaceMappings(mc);
+      return GatherMappings(mc);
+    }
+
+    private Expression GatherMappings(MethodCallExpression mc)
+    {
       if (mc.AsTupleAccess() != null) {
-        int index = (int)((ConstantExpression)mc.Arguments[0]).Value;
+        var columnIndex = mc.GetTupleAccessArgument();
         var outerParameter = TryExtractOuterParameter(mc);
-        if (!isReplacing) {
-          if (outerParameter != null)
-            registerOuterColumn(outerParameter, index);
-          else
-            map.Add(index);
+        if (outerParameter != null)
+          registerOuterColumn(outerParameter, columnIndex);
+        else
+          map.Add(columnIndex);
+        return mc;
+      }
+      if (header != null && mc.Object != null) {
+        if (mc.Object.Type == typeof (Record) && mc.Method.Name == "get_Item") {
+          var groupIndex = (int)((ConstantExpression)mc.Arguments[0]).Value;
+          map.AddRange(header.ColumnGroups[groupIndex].Keys);
+          return mc;
         }
-        else {
-          int newIndex = outerParameter!=null
-            ? resolveOuterColumn(outerParameter, index)
-            : map.IndexOf(index);
-          return Expression.Call(mc.Object, mc.Method, Expression.Constant(newIndex));
+        if (mc.Object.Type == typeof(Key) && mc.Object.NodeType == ExpressionType.Call && mc.Method.Name == "Resolve") {
+          var key = (MethodCallExpression)mc.Object;
+          if (key.Method.Name == "get_Item") {
+            var groupIndex = (int)((ConstantExpression)key.Arguments[0]).Value;
+            map.AddRange(header.ColumnGroups[groupIndex].Columns);
+            return mc;
+          }
         }
       }
-      else if (mc.Object!=null && mc.Object.Type==typeof (Record) && mc.Method.Name=="get_Item" && isReplacing && group!=null) {
-        var value = (int) ((ConstantExpression) mc.Arguments[0]).Value;
-        return Expression.Call(mc.Object, mc.Method, Expression.Constant(group.IndexOf(value)));
+//      if (mc.Object != null && mc.Object.NodeType == ExpressionType.Constant && mc.Object.Type == typeof(SegmentTransform) && mc.Method.Name == "Apply") {
+//        var segmentTransform = (SegmentTransform)((ConstantExpression)mc.Object).Value;
+//        map.AddRange(segmentTransform.Segment.GetItems());
+//        return mc;
+//      }
+      return base.VisitMethodCall(mc);
+    }
+
+    private Expression ReplaceMappings(MethodCallExpression mc)
+    {
+      if (mc.AsTupleAccess() != null) {
+        var columnIndex = mc.GetTupleAccessArgument();
+        var outerParameter = TryExtractOuterParameter(mc);
+        int newIndex = outerParameter != null
+          ? resolveOuterColumn(outerParameter, columnIndex)
+          : map.IndexOf(columnIndex);
+        return Expression.Call(mc.Object, mc.Method, Expression.Constant(newIndex));
       }
-      else if (mc.Object!=null && mc.Object.NodeType==ExpressionType.Constant && mc.Object.Type==typeof (SegmentTransform) && mc.Method.Name=="Apply" && isReplacing) {
-        var segmentTransform = (SegmentTransform) ((ConstantExpression) mc.Object).Value;
-        var offset = map.IndexOf(segmentTransform.Segment.Offset);
-        var newTransformExpression = Expression.Constant(new SegmentTransform(segmentTransform.IsReadOnly, segmentTransform.Descriptor, new Segment<int>(offset, segmentTransform.Segment.Length)));
-        return Expression.Call(newTransformExpression, mc.Method, mc.Arguments);
+      if (mc.Object != null) {
+        if (mc.Object.Type == typeof (Record) && mc.Method.Name == "get_Item") {
+          var groupIndex = (int)((ConstantExpression)mc.Arguments[0]).Value;
+          return Expression.Call(mc.Object, mc.Method, Expression.Constant(group.IndexOf(groupIndex)));
+        }
+        if (mc.Object != null && mc.Object.NodeType == ExpressionType.Constant && mc.Object.Type == typeof(SegmentTransform) && mc.Method.Name == "Apply") {
+          var segmentTransform = (SegmentTransform)((ConstantExpression)mc.Object).Value;
+          var offset = map.IndexOf(segmentTransform.Segment.Offset);
+          var newTransformExpression = Expression.Constant(new SegmentTransform(segmentTransform.IsReadOnly, segmentTransform.Descriptor, new Segment<int>(offset, segmentTransform.Segment.Length)));
+          return Expression.Call(newTransformExpression, mc.Method, mc.Arguments);
+        }
       }
       return base.VisitMethodCall(mc);
     }
 
-    public List<int> Process(Expression predicate)
+
+    public List<int> GatherMappings(Expression predicate)
+    {
+      return GatherMappings(predicate, null);
+    }
+
+    public List<int> GatherMappings(Expression predicate, RecordSetHeader header)
     {
       try {
+        this.header = header;
         isReplacing = false;
         map = new List<int>();
         group = null;
@@ -77,7 +121,7 @@ namespace Xtensive.Storage.Linq
       return Visit(predicate);
     }
 
-    private Parameter<Tuple> TryExtractOuterParameter(MethodCallExpression tupleAccess)
+    private static Parameter<Tuple> TryExtractOuterParameter(MethodCallExpression tupleAccess)
     {
       if (tupleAccess.Object.NodeType != ExpressionType.MemberAccess)
         return null;
@@ -89,6 +133,9 @@ namespace Xtensive.Storage.Linq
       var constant = (ConstantExpression) memberAccess.Expression;
       return (Parameter<Tuple>) constant.Value;
     }
+
+
+    // Constructor
 
     public TupleAccessProcessor()
       : this(null, null)

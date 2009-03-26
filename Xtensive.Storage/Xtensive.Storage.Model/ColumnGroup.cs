@@ -31,7 +31,7 @@ namespace Xtensive.Storage.Model
     public ReadOnlyList<int> Keys { get; private set; }
 
     /// <summary>
-    /// Gets the indexes of other columns.
+    /// Gets the indexes of all columns.
     /// </summary>
     public ReadOnlyList<int> Columns { get; private set; }
 
