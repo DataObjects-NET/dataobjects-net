@@ -65,5 +65,10 @@ namespace Xtensive.Storage.Linq
       value = null;
       return false;
     }
+
+    public void InvalidateParameter(ParameterExpression key)
+    {
+      bindings[key].Parameter = new Parameter<Tuple>();
+    }
   }
 }

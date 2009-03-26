@@ -693,6 +693,7 @@ namespace Xtensive.Storage.Linq
         : (ResultExpression) VisitWhere(source, predicate);
       var lambdaParameter = context.SubqueryParameterBindings.CurrentParameter;
       var applyParameter = context.SubqueryParameterBindings.GetBound(lambdaParameter);
+      context.SubqueryParameterBindings.InvalidateParameter(lambdaParameter);
       var oldResult = context.GetBound(lambdaParameter);
       var columnName = context.GetNextColumnAlias();
       int columnIndex = oldResult.RecordSet.Header.Length;
