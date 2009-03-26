@@ -6,18 +6,15 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
-using Xtensive.Core.Linq;
+using Xtensive.Core.Linq.Normalization;
 using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
-using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
@@ -26,7 +23,6 @@ using Xtensive.Storage.Tests.Storage.SnakesModel;
 
 namespace Xtensive.Storage.Tests.Rse
 {
-
   [TestFixture]
   public class RangeSetExtractorTest : AutoBuildTest
   {
@@ -74,16 +70,18 @@ namespace Xtensive.Storage.Tests.Rse
                t.GetValue<int?>(cLengthIdx) < 6 ||
                10 <= t.GetValue<int?>(cLengthIdx);*/
 
-      var predicate = GetRootDnf();
-      AddCnf(predicate, AddBoolean(AsCnf(t => t.GetValue<int?>(cLengthIdx) >= 3),
-                                   t => t.GetValue<int?>(cLengthIdx) < 6));
-      AddCnf(predicate, AsCnf(t => 10 <= t.GetValue<int?>(cLengthIdx)));
+      var predicate = new DisjunctiveNormalized().
+        AddCnf(
+          AsCnf(t => t.GetValue<int?>(cLengthIdx) >= 3).
+            AddBoolean(t => t.GetValue<int?>(cLengthIdx) < 6)).
+        AddCnf(
+          AsCnf(t => 10 <= t.GetValue<int?>(cLengthIdx)));
       
       var expectedRanges = CreateExpectedRangesForSimpleTest(indexInfo, cLength);
       TestExpression(predicate, indexInfo, rsHeader, expectedRanges);
     }
 
-    private IEnumerable<Range<Entire<Tuple>>> CreateExpectedRangesForSimpleTest(IndexInfo indexInfo,
+    private static IEnumerable<Range<Entire<Tuple>>> CreateExpectedRangesForSimpleTest(IndexInfo indexInfo,
       string keyFieldName)
     {
       var keyFieldIndex = indexInfo.GetRecordSetHeader().IndexOf(keyFieldName);
@@ -93,6 +91,7 @@ namespace Xtensive.Storage.Tests.Rse
                                                        Direction.Negative);
       var expectedRange0 = new Range<Entire<Tuple>>(expectedFirst, expectedSecond);
       result.Add(expectedRange0);
+
       expectedFirst = new Entire<Tuple>(CreateTuple(indexInfo.KeyTupleDescriptor, keyFieldIndex, 10));
       expectedSecond = new Entire<Tuple>(InfinityType.Positive);
       var expectedRange1 = new Range<Entire<Tuple>>(expectedFirst, expectedSecond);
@@ -109,16 +108,18 @@ namespace Xtensive.Storage.Tests.Rse
       int cLengthIdx = GetFieldIndex(rsHeader, cLength);
       int cNameIdx = GetFieldIndex(rsHeader, cName);
 
-      var predicate = GetRootDnf();
-      AddCnf(predicate, AddBoolean(AsCnf(t => t.GetValue<int?>(cLengthIdx) <= 3),
-                                   t => t.GetValue<string>(cNameIdx) == "abc"));
-      AddCnf(predicate, AsCnf(t => t.GetValue<int?>(cLengthIdx) > 15));
+      var predicate = new DisjunctiveNormalized().
+                      AddCnf(
+                        AsCnf(t => t.GetValue<int?>(cLengthIdx) <= 3).
+                          AddBoolean(t => t.GetValue<string>(cNameIdx) == "abc")).
+                      AddCnf(
+                        AsCnf(t => t.GetValue<int?>(cLengthIdx) > 15));
 
       var expectedRanges = CreateExpectedRangesForDifferentFieldsTest(indexInfo, cLength);
       TestExpression(predicate, indexInfo, rsHeader, expectedRanges);
     }
 
-    private IEnumerable<Range<Entire<Tuple>>> CreateExpectedRangesForDifferentFieldsTest(IndexInfo indexInfo,
+    private static IEnumerable<Range<Entire<Tuple>>> CreateExpectedRangesForDifferentFieldsTest(IndexInfo indexInfo,
       string keyFieldName)
     {
       var keyFieldIndex = indexInfo.GetRecordSetHeader().IndexOf(keyFieldName);
@@ -136,7 +137,6 @@ namespace Xtensive.Storage.Tests.Rse
     }
 
     [Test]
-    [Ignore]
     public void StandAloneBooleanExpressionsTest()
     {
       TypeInfo snakeType = Domain.Model.Types[typeof(ClearSnake)];
@@ -146,18 +146,18 @@ namespace Xtensive.Storage.Tests.Rse
 
       int x = 1;
       int y = 2;
-      var predicate = GetRootDnf();
-      
-      AddCnf(predicate, AddBoolean(AsCnf(t => t.GetValue<int?>(cLengthIdx) <= 3),
-                                   (t) => x + 3 > y));
-      AddCnf(predicate, AsCnf(t => t.GetValue<int?>(cLengthIdx) > 15));
-      AddCnf(predicate, AsCnf((t) => false));
+      var predicate = new DisjunctiveNormalized().
+                        AddCnf(
+                          AsCnf(t => t.GetValue<int?>(cLengthIdx) <= 3).
+                            AddBoolean(t => x + 3 > y)).
+                        AddCnf(AsCnf(t => t.GetValue<int?>(cLengthIdx) > 15)).
+                        AddCnf(AsCnf(t => false));
 
       var expectedRanges = CreateExpectedRangesForStandAloneBooleanExpressionsTest(indexInfo, cLength);
       TestExpression(predicate, indexInfo, rsHeader, expectedRanges);
     }
 
-    private IEnumerable<Range<Entire<Tuple>>> CreateExpectedRangesForStandAloneBooleanExpressionsTest(
+    private static IEnumerable<Range<Entire<Tuple>>> CreateExpectedRangesForStandAloneBooleanExpressionsTest(
       IndexInfo indexInfo, string keyFieldName)
     {
       return CreateExpectedRangesForDifferentFieldsTest(indexInfo, keyFieldName);
@@ -172,17 +172,19 @@ namespace Xtensive.Storage.Tests.Rse
       int cLengthIdx = GetFieldIndex(rsHeader, cLength);
       int cDescriptionIdx = GetFieldIndex(rsHeader, cDescription);
 
-      var predicate = GetRootDnf();
-      AddCnf(predicate, AddBoolean(AsCnf(t => t.GetValue<string>(cDescriptionIdx).CompareTo("abc") < 0),
-                                   t => t.GetValue<int?>(cLengthIdx) == 6));
-      AddCnf(predicate, AsCnf(t => 10 <= t.GetValue<int?>(cLengthIdx)));
+      var predicate = new DisjunctiveNormalized().
+                        AddCnf(
+                          AsCnf(t => t.GetValue<string>(cDescriptionIdx).CompareTo("abc") < 0).
+                            AddBoolean(t => t.GetValue<int?>(cLengthIdx) == 6)).
+                        AddCnf(
+                          AsCnf(t => 10 <= t.GetValue<int?>(cLengthIdx)));
 
       var expectedRanges = CreateExpectedRangesForMultiColumnIndexTest(indexInfo, cLength, cDescription);
       TestExpression(predicate, indexInfo, rsHeader, expectedRanges);
     }
 
-    private IEnumerable<Range<Entire<Tuple>>> CreateExpectedRangesForMultiColumnIndexTest(IndexInfo indexInfo,
-      params string[] keyFieldName)
+    private static IEnumerable<Range<Entire<Tuple>>> CreateExpectedRangesForMultiColumnIndexTest(
+      IndexInfo indexInfo, params string[] keyFieldName)
     {
       var keyFieldIndex0 = indexInfo.GetRecordSetHeader().IndexOf(keyFieldName[0]);
       var keyFieldIndex1 = indexInfo.GetRecordSetHeader().IndexOf(keyFieldName[1]);
@@ -194,6 +196,7 @@ namespace Xtensive.Storage.Tests.Rse
                                                        Direction.Negative);
       var expectedRange0 = new Range<Entire<Tuple>>(expectedFirst, expectedSecond);
       result.Add(expectedRange0);
+
       expectedFirst = new Entire<Tuple>(CreateTuple(indexInfo.KeyTupleDescriptor, keyFieldIndex0, 10));
       expectedSecond = new Entire<Tuple>(InfinityType.Positive);
       var expectedRange1 = new Range<Entire<Tuple>>(expectedFirst, expectedSecond);
@@ -201,30 +204,14 @@ namespace Xtensive.Storage.Tests.Rse
       return result;
     }
 
-    private NormalizedBooleanExpression GetRootDnf()
+    private static Conjunction<Expression> AsCnf(Expression<Func<Tuple, bool>> exp)
     {
-      return new NormalizedBooleanExpression(NormalFormType.Disjunctive, true);
+      var result = new Conjunction<Expression>();
+      result.Operands.Add(exp.Body);
+      return result;
     }
 
-    private void AddCnf(NormalizedBooleanExpression root,
-     NormalizedBooleanExpression exp)
-    {
-      root.AddNormalizedExpression(exp);
-    }
-
-    private NormalizedBooleanExpression AsCnf(Expression<Func<Tuple, bool>> exp)
-    {
-      return new NormalizedBooleanExpression(NormalFormType.Conjunctive, exp.Body);
-    }
-
-    private NormalizedBooleanExpression AddBoolean(NormalizedBooleanExpression parent,
-      Expression<Func<Tuple, bool>> exp)
-    {
-      parent.AddBooleanExpression(exp.Body);
-      return parent;
-    }
-
-    private void TestExpression(NormalizedBooleanExpression predicate, IndexInfo indexInfo,
+    private void TestExpression(DisjunctiveNormalized predicate, IndexInfo indexInfo,
       RecordSetHeader primaryIndexRsHeader, IEnumerable<Range<Entire<Tuple>>> expectedRanges)
     {
       RangeSetExtractor extractor = new RangeSetExtractor(Domain.Model);

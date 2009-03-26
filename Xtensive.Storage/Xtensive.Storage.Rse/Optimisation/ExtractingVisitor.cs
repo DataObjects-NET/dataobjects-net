@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using Xtensive.Core;
+using Xtensive.Core.Linq.Normalization;
 using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
 using Xtensive.Core.Linq;
@@ -18,7 +19,7 @@ namespace Xtensive.Storage.Rse.Optimisation
   /// <summary>
   /// Extracter of <see cref="RangeSet{T}"/> from a boolean expression in a conjunctive normal form.
   /// </summary>
-  internal class ExtractingVisitor : ExpressionVisitor
+  internal sealed class ExtractingVisitor : ExpressionVisitor
   {
     private IndexInfo indexInfo;
     private RecordSetHeader recordSetHeader;
@@ -65,10 +66,10 @@ namespace Xtensive.Storage.Rse.Optimisation
       }
     }
 
-    public RangeSetExpression Extract(NormalizedBooleanExpression normalized, IndexInfo info,
+    public RangeSetExpression Extract(Conjunction<Expression> normalized, IndexInfo info,
       RecordSetHeader primaryIdxRecordSetHeader)
     {
-      ValidateNormalized(normalized);
+      ArgumentValidator.EnsureArgumentNotNull(normalized, "normalized");
       ArgumentValidator.EnsureArgumentNotNull(info, "info");
       ArgumentValidator.EnsureArgumentNotNull(primaryIdxRecordSetHeader, "primaryIdxRecordSetHeader");
       indexInfo = info;
@@ -256,26 +257,16 @@ namespace Xtensive.Storage.Rse.Optimisation
              mappedColumnInfo.Equals(indexInfo.KeyColumns[indexFieldPosition].Key);
     }
 
-    private static void ValidateNormalized(NormalizedBooleanExpression normalized)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(normalized, "normalized");
-      if (normalized.NormalForm != NormalFormType.Conjunctive)
-        throw new ArgumentException(String.Format(Resources.Strings.ExNormalizedExpressionMustHaveXForm,
-                                    NormalFormType.Conjunctive), "normalized");
-      if (normalized.IsRoot)
-        throw new ArgumentException(Resources.Strings.ExNormalizedExpressionMustNotBeRoot, "normalized");
-    }
-
-    private RangeSetExpression ParseCnfExpression(NormalizedBooleanExpression normalized)
+    private RangeSetExpression ParseCnfExpression(Conjunction<Expression> normalized)
     {
       ParseTerms(normalized);
       return MakeResultExpression();
     }
 
-    private void ParseTerms(NormalizedBooleanExpression normalized)
+    private void ParseTerms(Conjunction<Expression> normalized)
     {
       extractedExpressions.Clear();
-      foreach (var exp in normalized) {
+      foreach (var exp in normalized.Operands) {
         var intermediate = Visit(exp);
         var tupleExp = intermediate as ExpressionOnTupleField;
         if (tupleExp != null)
@@ -314,7 +305,6 @@ namespace Xtensive.Storage.Rse.Optimisation
       if (result != null)
         return result;
       foreach (var rangeSet in extractedExpressions) {
-        string test = ExpressionWriter.Write(rangeSet.Source);
         if (result == null)
           result = rangeSet;
         else
