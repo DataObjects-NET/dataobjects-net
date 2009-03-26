@@ -7,7 +7,7 @@
 namespace Xtensive.Core.Tuples.Internals
 {
   ///<summary>
-  /// Helps update tuple using the functional style syntax.
+  /// Helper for tuple updating with the functional style syntax.
   ///</summary>
   public struct TupleUpdater
   {

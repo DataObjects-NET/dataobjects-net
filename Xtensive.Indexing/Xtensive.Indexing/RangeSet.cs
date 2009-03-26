@@ -87,12 +87,7 @@ namespace Xtensive.Indexing
       return this;
     }
 
-    ///<summary>
-    /// Unite the current RangeSet with the given <see cref="Range{T}"/>
-    ///</summary>
-    ///<param name="otherRange">the range to unite with</param>
-    ///<returns>reference to self</returns>
-    public RangeSet<T> Unite(Range<T> otherRange)
+    private void Unite(Range<T> otherRange)
     {
       rangeCash.Clear();
       var mergedRange = NormalizeRangeDirection(otherRange);
@@ -106,7 +101,6 @@ namespace Xtensive.Indexing
         ranges.Remove(range);
       }
       ranges.Add(mergedRange);
-      return this;
     }
 
     /// <summary>
@@ -120,19 +114,6 @@ namespace Xtensive.Indexing
       foreach (var otherRange in otherSet) {
         CalculateIntersections(otherRange, rangeCash);
       }
-      ReplaceAllRanges(rangeCash);
-      return this;
-    }
-
-    ///<summary>
-    /// Intersects the current RangeSet with the given <see cref="Range{T}"/>
-    ///</summary>
-    ///<param name="otherRange">the range to intersect with</param>
-    ///<returns>reference to self</returns>
-    public RangeSet<T> Intersect(Range<T> otherRange)
-    {
-      rangeCash.Clear();
-      CalculateIntersections(otherRange, rangeCash);
       ReplaceAllRanges(rangeCash);
       return this;
     }
@@ -166,8 +147,6 @@ namespace Xtensive.Indexing
 
     private Range<T> NormalizeRangeDirection(Range<T> range)
     {
-      if (range.IsEmpty)
-        return range;
       if (range.GetDirection(pointTypeComparer) == Direction.Negative)
         return range.Redirect(Direction.Positive, pointTypeComparer);
       return range;
@@ -183,8 +162,11 @@ namespace Xtensive.Indexing
     {
       var normilized = NormalizeRangeDirection(otherRange);
       foreach (var range in ranges) {
-        if (normilized.Intersects(range, pointTypeComparer))
-          intersections.Add(normilized.Intersect(range, pointTypeComparer));
+        if (normilized.Intersects(range, pointTypeComparer)) {
+          var intersection = normilized.Intersect(range, pointTypeComparer);
+          if(!intersection.IsEmpty)
+            intersections.Add(intersection);
+        }
       }
     }
 
@@ -207,7 +189,8 @@ namespace Xtensive.Indexing
       this.pointTypeComparer = pointTypeComparer;
       leftPointsComparison =
       (x, y) => pointTypeComparer.Compare(x.EndPoints.First, y.EndPoints.First);
-      ranges.Add(NormalizeRangeDirection(firstRange));
+      if(!firstRange.IsEmpty)
+        ranges.Add(NormalizeRangeDirection(firstRange));
     }
   }
 }

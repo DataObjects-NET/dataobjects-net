@@ -13,7 +13,7 @@ using Xtensive.Core.Collections;
 namespace Xtensive.Core.Linq
 {
   ///<summary>
-  /// The type of a normal form.
+  /// Type of a normal form.
   ///</summary>
   public enum NormalFormType
   {
@@ -22,7 +22,7 @@ namespace Xtensive.Core.Linq
   }
 
   ///<summary>
-  /// Represents the normal form of a boolean expression.
+  /// Normal form of a boolean expression.
   ///</summary>
   public class NormalizedBooleanExpression : Expression, IEnumerable<Expression>
   {
