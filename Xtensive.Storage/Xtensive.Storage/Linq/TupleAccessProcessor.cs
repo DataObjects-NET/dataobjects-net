@@ -85,7 +85,7 @@ namespace Xtensive.Storage.Linq
         if (mc.Object != null && mc.Object.NodeType == ExpressionType.Constant && mc.Object.Type == typeof(SegmentTransform) && mc.Method.Name == "Apply") {
           var segmentTransform = (SegmentTransform)((ConstantExpression)mc.Object).Value;
           var offset = map.IndexOf(segmentTransform.Segment.Offset);
-          var newTransformExpression = Expression.Constant(new SegmentTransform(segmentTransform.IsReadOnly, segmentTransform.Descriptor, new Segment<int>(offset, segmentTransform.Segment.Length)));
+          var newTransformExpression = Expression.Constant(new SegmentTransform(segmentTransform.IsReadOnly, header.TupleDescriptor, new Segment<int>(offset, segmentTransform.Segment.Length)));
           return Expression.Call(newTransformExpression, mc.Method, mc.Arguments);
         }
       }
@@ -113,11 +113,12 @@ namespace Xtensive.Storage.Linq
       }
     }
 
-    public Expression ReplaceMappings(Expression predicate, List<int> mapping, List<int> groupMap)
+    public Expression ReplaceMappings(Expression predicate, List<int> mapping, List<int> groupMap, RecordSetHeader header)
     {
       isReplacing = true;
       group = groupMap;
       map = mapping;
+      this.header = header;
       return Visit(predicate);
     }
 

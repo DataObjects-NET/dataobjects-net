@@ -59,10 +59,10 @@ namespace Xtensive.Storage.Linq
           .Select(gi => gi.Index)
           .ToList();
 
-        var projector = (Expression<Func<RecordSet, object>>)mappingsReplacer.ReplaceMappings(origin.Projector, projectorMap, groupMap);
+        var projector = (Expression<Func<RecordSet, object>>)mappingsReplacer.ReplaceMappings(origin.Projector, projectorMap, groupMap, origin.RecordSet.Header);
         var itemProjector = origin.ItemProjector == null
           ? null
-          : (LambdaExpression)mappingsReplacer.ReplaceMappings(origin.ItemProjector, projectorMap, groupMap);
+          : (LambdaExpression)mappingsReplacer.ReplaceMappings(origin.ItemProjector, projectorMap, groupMap, origin.RecordSet.Header);
         var result = new ResultExpression(origin.Type, rs, (origin.Mapping == null) ? null : new ResultMapping(), projector, itemProjector);
         return result;
       }
@@ -313,7 +313,7 @@ namespace Xtensive.Storage.Linq
       origin = resultExpression;
       translate = (provider, e) => {
         if (provider.Type == ProviderType.Filter || provider.Type == ProviderType.Calculate)
-          return mappingsReplacer.ReplaceMappings(e, mappings[provider], null);
+          return mappingsReplacer.ReplaceMappings(e, mappings[provider], null, resultExpression.RecordSet.Header);
         return e;
       };
     }

@@ -431,7 +431,7 @@ namespace Xtensive.Storage.Linq
         .Where(gi => gi.Group.Keys.All(columnList.Contains))
         .Select(gi => gi.Index)
         .ToList();
-      remappedExpression = (LambdaExpression)tupleAccessProcessor.ReplaceMappings(originalCompiledKeyExpression, columnList, groupMapping);
+      remappedExpression = (LambdaExpression)tupleAccessProcessor.ReplaceMappings(originalCompiledKeyExpression, columnList, groupMapping, recordSet.Header);
 
       // record => new Grouping<TKey, TElement>(record.Key, source.Where(groupingItem => groupingItem.Key == record.Key))
       var pRecord = Expression.Parameter(typeof (Record), "record");
@@ -548,8 +548,8 @@ namespace Xtensive.Storage.Linq
         );
 
       outer = new ResultExpression(outer.Type, recordSet, outer.Mapping, outer.Projector, outer.ItemProjector);
-      var innerProjector = (Expression<Func<RecordSet, object>>) tupleAccessProcessor.ReplaceMappings(inner.Projector, tupleMapping, groupMapping);
-      var innerItemProjector = (LambdaExpression) tupleAccessProcessor.ReplaceMappings(inner.ItemProjector, tupleMapping, groupMapping);
+      var innerProjector = (Expression<Func<RecordSet, object>>) tupleAccessProcessor.ReplaceMappings(inner.Projector, tupleMapping, groupMapping, recordSet.Header);
+      var innerItemProjector = (LambdaExpression)tupleAccessProcessor.ReplaceMappings(inner.ItemProjector, tupleMapping, groupMapping, recordSet.Header);
       inner = new ResultExpression(inner.Type, recordSet, inner.Mapping.ShiftOffset(outerLength), innerProjector, innerItemProjector);
 
       using (context.Bind(resultSelector.Parameters[0], outer))
