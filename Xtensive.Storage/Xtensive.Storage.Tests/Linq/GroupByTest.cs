@@ -39,6 +39,11 @@ namespace Xtensive.Storage.Tests.Linq
         var result = Query<Product>.All.GroupBy(p => p.Category.Key);
         var list = result.ToList();
         Assert.Greater(list.Count, 0);
+        foreach (var grouping in list)
+        {
+          Assert.IsNotNull(grouping.Key);
+          Assert.Greater(grouping.Count(), 0);
+        }
         t.Complete();
       }
     }
@@ -52,6 +57,11 @@ namespace Xtensive.Storage.Tests.Linq
         var result = Query<Product>.All.GroupBy(p => p.Category.CategoryName);
         var list = result.ToList();
         Assert.Greater(list.Count, 0);
+        foreach (var grouping in list)
+        {
+          Assert.IsNotNull(grouping.Key);
+          Assert.Greater(grouping.Count(), 0);
+        }
         t.Complete();
       }
     }
@@ -65,19 +75,11 @@ namespace Xtensive.Storage.Tests.Linq
         var result = Query<Customer>.All.GroupBy(p => p.Address);
         var list = result.ToList();
         Assert.Greater(list.Count, 0);
-        t.Complete();
-      }
-    }
-
-    [Test]
-    public void AnonymousStructureGroupTest()
-    {
-      using (Domain.OpenSession())
-      using (var t = Transaction.Open())
-      {
-        var result = Query<Customer>.All.GroupBy(p => new { p.Address });
-        var list = result.ToList();
-        Assert.Greater(list.Count, 0);
+        foreach (var grouping in list)
+        {
+          Assert.IsNotNull(grouping.Key);
+          Assert.Greater(grouping.Count(), 0);
+        }
         t.Complete();
       }
     }
@@ -108,14 +110,27 @@ namespace Xtensive.Storage.Tests.Linq
       {
         var result = Query<Employee>.All.GroupBy(e => new
         {
-          e.Address.City,
-          e.Address.Country,
+//          e.Address.City,
           e.Address,
-          e.ReportsTo,
-          e.Phone,
-          ReporterAddress = e.ReportsTo.Address,
-          ReporterAddressCountry = e.ReportsTo.Address.Country
         });
+        var list = result.ToList();
+        Assert.Greater(list.Count, 0);
+        foreach (var grouping in list)
+        {
+          Assert.IsNotNull(grouping.Key);
+          Assert.Greater(grouping.Count(), 0);
+        }
+        t.Complete();
+      }
+    }
+
+    [Test]
+    public void AnonymousStructureGroupTest()
+    {
+      using (Domain.OpenSession())
+      using (var t = Transaction.Open())
+      {
+        var result = Query<Customer>.All.GroupBy(p => new { p.Address });
         var list = result.ToList();
         Assert.Greater(list.Count, 0);
         foreach (var grouping in list)

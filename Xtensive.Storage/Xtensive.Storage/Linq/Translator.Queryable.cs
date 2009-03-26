@@ -392,7 +392,6 @@ namespace Xtensive.Storage.Linq
 
       List<int> columnList;
       var newResultMapping = new ResultMapping();
-      LambdaExpression remappedExpression;
       LambdaExpression originalCompiledKeyExpression;
       using (context.Bind(keySelector.Parameters[0], result))
       using (new ParameterScope()) {
@@ -431,7 +430,7 @@ namespace Xtensive.Storage.Linq
         .Where(gi => gi.Group.Keys.All(columnList.Contains))
         .Select(gi => gi.Index)
         .ToList();
-      remappedExpression = (LambdaExpression)tupleAccessProcessor.ReplaceMappings(originalCompiledKeyExpression, columnList, groupMapping, recordSet.Header);
+      var remappedExpression = (LambdaExpression)tupleAccessProcessor.ReplaceMappings(originalCompiledKeyExpression, columnList, groupMapping, recordSet.Header);
 
       // record => new Grouping<TKey, TElement>(record.Key, source.Where(groupingItem => groupingItem.Key == record.Key))
       var pRecord = Expression.Parameter(typeof (Record), "record");
