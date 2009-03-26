@@ -150,4 +150,13 @@
   <data name="ExCannotFindConstructorToExecuteX" xml:space="preserve">
     <value>Can't find a constructor to execute {0}.</value>
   </data>
+  <data name="ExPathXNotFound" xml:space="preserve">
+    <value>Node with path "{0}" is not found.</value>
+  </data>
+  <data name="ExItemAlreadyExists" xml:space="preserve">
+    <value>Item already exists.</value>
+  </data>
+  <data name="ExMultipleHintsFound" xml:space="preserve">
+    <value>Multiple hints found.</value>
+  </data>
 </root>

@@ -10,14 +10,14 @@ using Xtensive.Core.Internals.DocTemplates;
 namespace Xtensive.Modelling.Comparison
 {
   /// <summary>
-  /// <see cref="Difference"/> scope.
+  /// Comparison scope.
   /// </summary>
-  public class DifferenceScope : Scope<Difference>
+  public class ComparisonScope : Scope<Difference>
   {
     /// <summary>
     /// Gets the current context.
     /// </summary>
-    public new static Difference CurrentDifference {
+    public static Difference CurrentDifference {
       get {
         return CurrentContext;
       }
@@ -26,7 +26,7 @@ namespace Xtensive.Modelling.Comparison
     /// <summary>
     /// Gets the associated comparison context.
     /// </summary>
-    public new Difference Difference {
+    public Difference Difference {
       get {
         return Context;
       }
@@ -38,8 +38,8 @@ namespace Xtensive.Modelling.Comparison
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="context">The context.</param>
-    public DifferenceScope(Difference context)
+    /// <param name="context">The context (<see cref="Difference"/>).</param>
+    public ComparisonScope(Difference context)
       : base(context)
     {
     }

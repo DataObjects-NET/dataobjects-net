@@ -19,7 +19,5 @@ namespace Xtensive.Modelling
     /// Gets or sets the sequence of actions to log.
     /// </summary>
     ActionSequence Actions { get; set; }
-
-    // ComparisonHintCollection { get; set; }
   }
 }

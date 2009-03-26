@@ -562,6 +562,9 @@ namespace Xtensive.Modelling
 
     #region EnsureXxxx methods
 
+    /// <summary>
+    /// Ensures the node <see cref="State"/> is <see cref="NodeState.Live"/>.
+    /// </summary>
     /// <exception cref="InvalidOperationException"><see cref="State"/> is invalid.</exception>
     protected void EnsureIsLive()
     {
@@ -569,6 +572,10 @@ namespace Xtensive.Modelling
         throw new InvalidOperationException(Strings.ExInvalidNodeState);
     }
 
+    /// <summary>
+    /// Ensures the node <see cref="State"/> is <see cref="NodeState.Live"/> and
+    /// node isn't <see cref="Lock"/>ed.
+    /// </summary>
     /// <exception cref="InvalidOperationException"><see cref="State"/> is invalid.</exception>
     protected void EnsureIsEditable()
     {
@@ -591,6 +598,12 @@ namespace Xtensive.Modelling
       return difference;
     }
 
+    /// <inheritdoc/>
+    Difference IDifferentiable.GetDifferenceWith(object target)
+    {
+      return GetDifferenceWith((Node) target);
+    }
+
     /// <summary>
     /// Creates the difference object for the current node.
     /// </summary>
@@ -609,12 +622,6 @@ namespace Xtensive.Modelling
     protected virtual void BuildDifference(NodeDifference difference)
     {
       throw new NotImplementedException();
-    }
-
-    /// <inheritdoc/>
-    Difference IDifferentiable.GetDifferenceWith(object target)
-    {
-      return GetDifferenceWith((Node) target);
     }
 
     #endregion
@@ -703,6 +710,10 @@ namespace Xtensive.Modelling
 
     #region To override
 
+    /// <summary>
+    /// Creates <see cref="Nesting"/> object describing how this node is nested.
+    /// </summary>
+    /// <returns>New <see cref="Nesting"/> object.</returns>
     protected abstract Nesting CreateNesting();
 
     /// <summary>

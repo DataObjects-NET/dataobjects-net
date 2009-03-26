@@ -15,7 +15,7 @@ namespace Xtensive.Modelling.Comparison
   /// Base comparison result.
   /// </summary>
   [Serializable]
-  public class Difference : IDifference, IContext<DifferenceScope>
+  public class Difference : IDifference, IContext<ComparisonScope>
   {
     /// <inheritdoc/>
     public object Source { get; private set; }
@@ -31,7 +31,7 @@ namespace Xtensive.Modelling.Comparison
     /// </summary>
     public static Difference Current {
       get {
-        return DifferenceScope.CurrentDifference;
+        return ComparisonScope.CurrentDifference;
       }
     }
 
@@ -43,9 +43,9 @@ namespace Xtensive.Modelling.Comparison
     }
 
     /// <inheritdoc/>
-    public DifferenceScope Activate()
+    public ComparisonScope Activate()
     {
-      return new DifferenceScope(this);
+      return new ComparisonScope(this);
     }
 
     /// <inheritdoc/>

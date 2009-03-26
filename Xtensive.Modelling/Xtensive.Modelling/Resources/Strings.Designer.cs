@@ -97,6 +97,15 @@ namespace Xtensive.Modelling.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Item already exists..
+        /// </summary>
+        internal static string ExItemAlreadyExists {
+            get {
+                return ResourceManager.GetString("ExItemAlreadyExists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Item with name &apos;{0}&apos; already exists..
         /// </summary>
         internal static string ExItemWithNameXAlreadyExists {
@@ -124,11 +133,29 @@ namespace Xtensive.Modelling.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Multiple hints found..
+        /// </summary>
+        internal static string ExMultipleHintsFound {
+            get {
+                return ResourceManager.GetString("ExMultipleHintsFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Nesting must be created for any node..
         /// </summary>
         internal static string ExNoNesting {
             get {
                 return ResourceManager.GetString("ExNoNesting", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Node with path &quot;{0}&quot; is not found..
+        /// </summary>
+        internal static string ExPathXNotFound {
+            get {
+                return ResourceManager.GetString("ExPathXNotFound", resourceCulture);
             }
         }
         
