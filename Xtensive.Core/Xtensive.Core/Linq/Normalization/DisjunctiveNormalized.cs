@@ -18,7 +18,5 @@ namespace Xtensive.Core.Linq.Normalization
   [Serializable]
   public class DisjunctiveNormalized : Disjunction<Conjunction<Expression>>
   {
-
-   
   }
 }

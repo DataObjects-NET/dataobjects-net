@@ -16,15 +16,17 @@ namespace Xtensive.Core.Linq.Normalization
   /// </summary>
   /// <typeparam name="T">The type of operands.</typeparam>
   [Serializable]
-  public class MultioperandOperation<T>
+  public abstract class MultioperandOperation<T>
   {
     /// <summary>
     /// Gets the operands.
     /// </summary>
     public HashSet<T> Operands { get; private set; }
 
+    
+
     /// <inheritdoc/>
-    public MultioperandOperation()
+    protected MultioperandOperation()
     {
       Operands = new HashSet<T>();
     }

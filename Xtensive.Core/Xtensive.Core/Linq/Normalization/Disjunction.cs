@@ -29,6 +29,7 @@ namespace Xtensive.Core.Linq.Normalization
     {
       var operands = new Stack<Expression>();
       foreach (var operand in Operands) {
+        //var operation = operand as MultioperandOperation<T>;
         var expression = operand as Expression;
         if (expression == null || expression.Type != typeof(bool))
           throw new InvalidOperationException("All operands must be Expressions with type Boolean.");
