@@ -132,7 +132,6 @@ namespace Xtensive.Storage.Rse.Providers
     /// <inheritdoc/>
     protected override Provider VisitSort(SortProvider provider)
     {
-      // TODO: rewrite Order!!
       OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
       var order = OnRecursionExit(provider);

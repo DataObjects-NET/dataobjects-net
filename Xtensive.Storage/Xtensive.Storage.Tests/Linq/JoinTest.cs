@@ -235,12 +235,14 @@ namespace Xtensive.Storage.Tests.Linq
     {
       using (Domain.OpenSession())
       using (var t = Transaction.Open()) {
-        var customersCount = Query<Customer>.All.Count();
+        var assertCount = 
+          Query<Order>.All.Count() + 
+          Query<Customer>.All.Count(c => !Query<Order>.All.Any(o => o.Customer == c));
         var result = from c in Query<Customer>.All
                      from o in Query<Order>.All.Where(o => o.Customer == c).DefaultIfEmpty()
                      select new { c.ContactName, o.OrderDate };
         var list = result.ToList();
-        Assert.AreEqual(customersCount, list.Count);
+        Assert.AreEqual(assertCount, list.Count);
         t.Complete();
       }
     }
