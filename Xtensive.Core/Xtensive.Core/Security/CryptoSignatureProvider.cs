@@ -13,29 +13,39 @@ using Xtensive.Core.Internals.DocTemplates;
 namespace Xtensive.Core.Security
 {
   /// <summary>
-  /// An abstract base class for crypto signature providers.
+  /// Implementation of encrypting signature provider.
   /// </summary>
   [Serializable]
   public class CryptoSignatureProvider : ISignatureProvider
   {
-    private readonly ISignatureProvider signatureProvider;
-    private readonly Func<ICryptoTransform> encryptorGenerator;
-    private readonly Func<ICryptoTransform> decryptorGenerator;
-    private Encoding encoding;
+    #region Properties
 
     /// <summary>
     /// Gets or sets the encoding.
     /// </summary>
-    protected Encoding Encoding
-    {
-      get { return encoding; }
-      set { encoding = value; }
-    }
+    public Encoding Encoding { get; protected set; }
+
+    /// <summary>
+    /// Gets or sets the signature provider to use.
+    /// </summary>
+    public ISignatureProvider SignatureProvider { get; protected set; }
+
+    /// <summary>
+    /// Gets or sets the encryptor constructor delegate.
+    /// </summary>
+    protected Func<ICryptoTransform> EncryptorConstructor { get; set; }
+
+    /// <summary>
+    /// Gets or sets the decryptor constructor.
+    /// </summary>
+    protected Func<ICryptoTransform> DecryptorConstructor { get; set; }
+
+    #endregion
 
     /// <inheritdoc/>
     public string AddSignature(string token)
     {
-      var signedToken = signatureProvider.AddSignature(token);
+      var signedToken = SignatureProvider.AddSignature(token);
       return Encrypt(signedToken);
     }
 
@@ -43,15 +53,18 @@ namespace Xtensive.Core.Security
     public string RemoveSignature(string signedToken)
     {
       var decrypted = Decrypt(signedToken);
-      return signatureProvider.RemoveSignature(decrypted);
+      return SignatureProvider.RemoveSignature(decrypted);
     }
 
-    #region Private methods
-
-    private string Encrypt(string value)
+    /// <summary>
+    /// Encrypts the specified value.
+    /// </summary>
+    /// <param name="value">The value to encrypt.</param>
+    /// <returns>Encrypted value.</returns>
+    protected virtual string Encrypt(string value)
     {
       using (var stream = new MemoryStream())
-      using (var cryptoStream = new CryptoStream(stream, encryptorGenerator(), CryptoStreamMode.Write))
+      using (var cryptoStream = new CryptoStream(stream, EncryptorConstructor(), CryptoStreamMode.Write))
       using (var writer = new StreamWriter(cryptoStream, Encoding)) {
         writer.Write(value);
         writer.Flush();
@@ -60,38 +73,49 @@ namespace Xtensive.Core.Security
       }
     }
 
-    private string Decrypt(string value)
+    /// <summary>
+    /// Decrypts the specified value.
+    /// </summary>
+    /// <param name="value">The value to decrypt.</param>
+    /// <returns>Decrypted value.</returns>
+    protected virtual string Decrypt(string value)
     {
       using (var stream = new MemoryStream(Convert.FromBase64String(value)))
-      using (var cryptoStream = new CryptoStream(stream, decryptorGenerator(), CryptoStreamMode.Read))
+      using (var cryptoStream = new CryptoStream(stream, DecryptorConstructor(), CryptoStreamMode.Read))
       using (var reader = new StreamReader(cryptoStream, Encoding)) {
         return reader.ReadToEnd();
       }
     }
 
-    #endregion
 
     // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="encryptorGenerator">The encryptor generator.</param>
-    /// <param name="decryptorGenerator">The decryptor generator.</param>
-    /// <param name="signatureProvider">The hashing signature provider.</param>
-    public CryptoSignatureProvider(Func<ICryptoTransform> encryptorGenerator,
-      Func<ICryptoTransform> decryptorGenerator, ISignatureProvider signatureProvider)
+    /// <param name="encryptorConstructor">The encryptor constructor delegate.</param>
+    /// <param name="decryptorConstructor">The decryptor constructor delegate.</param>
+    /// <param name="signatureProvider">The signature provider to use.</param>
+    public CryptoSignatureProvider(Func<ICryptoTransform> encryptorConstructor,
+      Func<ICryptoTransform> decryptorConstructor, ISignatureProvider signatureProvider)
+      : this()
     {
-      ArgumentValidator.EnsureArgumentNotNull(encryptorGenerator, "encryptorGenerator");
-      ArgumentValidator.EnsureArgumentNotNull(decryptorGenerator, "decryptorGenerator");
+      ArgumentValidator.EnsureArgumentNotNull(encryptorConstructor, "encryptorConstructor");
+      ArgumentValidator.EnsureArgumentNotNull(decryptorConstructor, "decryptorConstructor");
       ArgumentValidator.EnsureArgumentNotNull(signatureProvider, "hashingSignatureProvider");
 
-      this.encryptorGenerator = encryptorGenerator;
-      this.decryptorGenerator = decryptorGenerator;
-      this.signatureProvider = signatureProvider;
-      Encoding = Encoding.UTF8;
+      EncryptorConstructor = encryptorConstructor;
+      DecryptorConstructor = decryptorConstructor;
+      SignatureProvider = signatureProvider;
     }
 
-    
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    protected CryptoSignatureProvider()
+    {
+      Encoding = Encoding.UTF8;
+    }
   }
 }

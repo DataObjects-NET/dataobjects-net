@@ -16,7 +16,7 @@ using Xtensive.Core.Threading;
 namespace Xtensive.Core.Security
 {
   /// <summary>
-  /// An abstract base class for hashing signature providers.
+  /// Implementation of hashing signature provider.
   /// </summary>
   [Serializable]
   public class HashingSignatureProvider : ISignatureProvider,
@@ -26,7 +26,6 @@ namespace Xtensive.Core.Security
     private ThreadSafeCached<HashAlgorithm> cachedHasher;
     [NonSerialized]
     private object _lock = new object();
-    private Encoding encoding;
 
     #region Properties
 
@@ -47,11 +46,7 @@ namespace Xtensive.Core.Security
     /// <summary>
     /// Gets or sets the encoding.
     /// </summary>
-    protected Encoding Encoding
-    {
-      get { return encoding; }
-      set { encoding = value; }
-    }
+    public Encoding Encoding { get; protected set; }
 
     /// <summary>
     /// Gets or sets the escape character.
@@ -108,17 +103,20 @@ namespace Xtensive.Core.Security
     /// </summary>
     /// <param name="hasherConstructor">The <see cref="Hasher"/> constructor delegate.</param>
     public HashingSignatureProvider(Func<HashAlgorithm> hasherConstructor)
-      :this()
+      : this()
     {
       ArgumentValidator.EnsureArgumentNotNull(hasherConstructor, "hasherConstructor");
       
       HasherConstructor = hasherConstructor;
       cachedHasher = ThreadSafeCached<HashAlgorithm>.Create(_lock);
-      Encoding = Encoding.UTF8;
     }
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
     protected HashingSignatureProvider()
     {
+      Encoding = Encoding.UTF8;
       Escape = '\\';
       Delimiter = ',';
     }
