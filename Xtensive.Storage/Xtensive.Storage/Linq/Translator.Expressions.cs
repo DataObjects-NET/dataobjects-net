@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -18,7 +17,6 @@ using Xtensive.Core.Parameters;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
-using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers.Compilable;
 using FieldInfo=System.Reflection.FieldInfo;
@@ -152,7 +150,12 @@ namespace Xtensive.Storage.Linq
           if (joinFinalEntity.Value)
             return VisitMemberPathEntity(path, source, resultType);
           path = MemberPath.Parse(Expression.MakeMemberAccess(e, WellKnownMethods.IEntityKey), context.Model);
-          return VisitMemberPathKey(path, source);
+          var keyExpression =  VisitMemberPathKey(path, source);
+          var result = Expression.Convert(
+            Expression.Call(
+              keyExpression,
+              WellKnownMethods.KeyResolve), resultType);
+          return result;
         case MemberType.EntitySet:
           return VisitMemberPathEntitySet(e);
         case MemberType.Anonymous:
@@ -238,7 +241,7 @@ namespace Xtensive.Storage.Linq
       for (int i = 0; i < n.Arguments.Count; i++) {
         var arg = n.Arguments[i];
         Expression newArg;
-        Expression argumentResolver = null;
+//        Expression argumentResolver = null;
         var member = n.Members[i];
         var memberName = member.Name.TryCutPrefix(WellKnown.GetterPrefix);
         Func<string, string> rename = key => key.IsNullOrEmpty()
@@ -251,10 +254,10 @@ namespace Xtensive.Storage.Linq
             resultMapping.Value = new ResultMapping();
             newArg = Visit(arg);
             rm = resultMapping.Value;
-            if (newArg.Type==typeof(Key) && arg.Type.IsSubclassOf(typeof(Entity))) {
-              var argumentResolveMethod = WellKnownMethods.KeyResolveOfT.MakeGenericMethod(arg.Type);
-              argumentResolver = Expression.Call(newArg, argumentResolveMethod);
-            }
+//            if (newArg.Type==typeof(Key) && arg.Type.IsSubclassOf(typeof(Entity))) {
+//              var argumentResolveMethod = WellKnownMethods.KeyResolveOfT.MakeGenericMethod(arg.Type);
+//              argumentResolver = Expression.Call(newArg, argumentResolveMethod);
+//            }
           }
           if (rm.MapsToPrimitive)
             resultMapping.Value.RegisterFieldMapping(memberName, rm.Segment);
@@ -314,7 +317,7 @@ namespace Xtensive.Storage.Linq
           }
         }
         newArg = newArg ?? Visit(arg);
-        arguments.Add(argumentResolver ?? newArg);
+        arguments.Add(/*argumentResolver ?? */newArg);
       }
       return Expression.New(n.Constructor, arguments, n.Members);
     }
@@ -526,11 +529,11 @@ namespace Xtensive.Storage.Linq
       var leftExpression = binaryExpression.Left;
       var rightExpression = binaryExpression.Right;
 
-      if (!rightIsParameter)
-        rightExpression = Visit(rightExpression);
-
-      if (!leftIsParameter)
-        leftExpression = Visit(leftExpression);
+//      if (!rightIsParameter)
+//        rightExpression = Visit(rightExpression);
+//
+//      if (!leftIsParameter)
+//        leftExpression = Visit(leftExpression);
 
       if (leftExpression.NodeType == ExpressionType.New)
       {
@@ -560,7 +563,8 @@ namespace Xtensive.Storage.Linq
             default:
               throw new NotSupportedException();
           }
-          result = MakeBinaryExpression(result, left, right, binaryExpression.NodeType);
+          var expression = VisitBinary((BinaryExpression) MakeBinaryExpression(null, left, right, binaryExpression.NodeType));
+          result = result == null ? expression : Expression.AndAlso(result, expression);
         }
         return result;
       }

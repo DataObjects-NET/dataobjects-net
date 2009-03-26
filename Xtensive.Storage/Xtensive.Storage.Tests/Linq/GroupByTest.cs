@@ -23,6 +23,9 @@ namespace Xtensive.Storage.Tests.Linq
         var result = Query<Product>.All.GroupBy(p => p.Category);
         var list = result.ToList();
         Assert.Greater(list.Count, 0);
+        foreach (IGrouping<Category, Product> products in list) {
+          Assert.Greater(products.ToList().Count, 0);
+        }
         t.Complete();
       }
     }
@@ -91,16 +94,47 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession())
       using (var t = Transaction.Open())
       {
-        var result = Query<Employee>.All.Where(e=>e.ReportsTo!=null).GroupBy(e => new
+        var result = Query<Product>.All.GroupBy(product => new
                                                       {
-                                                        e.ReportsTo, 
+                                                        product.Category,
+                                                        product.Category.CategoryName,
                                                       });
         var list = result.ToList();
         Assert.Greater(list.Count, 0);
         foreach (var grouping in list)
         {
           Assert.IsNotNull(grouping.Key);
-          Assert.Greater(grouping.Count(), 0);
+          int count = 0;
+          foreach (Product product in grouping) {
+            count++;
+          }
+          Assert.Greater(count, 0);
+        }
+        t.Complete();
+      }
+    }
+
+    [Test]
+    public void AnonimousTypeEntityGroupTest()
+    {
+      using (Domain.OpenSession())
+      using (var t = Transaction.Open())
+      {
+        var result = Query<Product>.All.GroupBy(product => new
+                                                  {
+                                                    product.Category,
+                                                  });
+        var list = result.ToList();
+        Assert.Greater(list.Count, 0);
+        foreach (var grouping in list)
+        {
+          Assert.IsNotNull(grouping.Key);
+          int count = 0;
+          foreach (Product product in grouping)
+          {
+            count++;
+          }
+          Assert.Greater(count, 0);
         }
         t.Complete();
       }

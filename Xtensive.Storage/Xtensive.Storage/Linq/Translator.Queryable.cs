@@ -399,12 +399,7 @@ namespace Xtensive.Storage.Linq
         resultMapping.Value = new ResultMapping();
         originalCompiledKeyExpression = (LambdaExpression)Visit(keySelector);
         columnList = resultMapping.Value.GetColumns().ToList();
-        // Remap 
-
-        var tupleAccessProcessor = new TupleAccessProcessor();
-        // var groupMapping = new List<int>(Enumerable.Repeat(-1, outer.RecordSet.Header.ColumnGroups.Count).Concat(Enumerable.Range(0, inner.RecordSet.Header.ColumnGroups.Count)));
-        remappedExpression = (LambdaExpression) tupleAccessProcessor.ReplaceMappings(originalCompiledKeyExpression, columnList, null);
-
+        
         result = context.GetBound(keySelector.Parameters[0]);
 
         if (!resultMapping.Value.MapsToPrimitive) {
@@ -429,6 +424,14 @@ namespace Xtensive.Storage.Linq
       var parameterGroupingType = typeof (Grouping<,>).MakeGenericType(keyType, elementType);
       var constructor = parameterGroupingType.GetConstructor(new[] {keyType, typeof (IEnumerable<>).MakeGenericType(elementType)});
 
+      // Remap 
+      var tupleAccessProcessor = new TupleAccessProcessor();
+      var groupMapping = result.RecordSet.Header.ColumnGroups
+        .Select((cg,i) => new {Group = cg, Index = i})
+        .Where(gi => gi.Group.Keys.All(columnList.Contains))
+        .Select(gi => gi.Index)
+        .ToList();
+      remappedExpression = (LambdaExpression)tupleAccessProcessor.ReplaceMappings(originalCompiledKeyExpression, columnList, groupMapping);
 
       // record => new Grouping<TKey, TElement>(record.Key, source.Where(groupingItem => groupingItem.Key == record.Key))
       var pRecord = Expression.Parameter(typeof (Record), "record");
@@ -439,13 +442,9 @@ namespace Xtensive.Storage.Linq
       Expression leftKeySelector = keySelector.Body;
       Expression rightKeySelector = recordKeyExpression.First;
       Expression groupingKeyResolver = rightKeySelector;
-      if (rightKeySelector.Type == typeof(Key) && keySelector.Body.Type.IsSubclassOf(typeof(Entity))) {
-        leftKeySelector = Expression.MakeMemberAccess(keySelector.Body, WellKnownMethods.IEntityKey);
-        var keyResolveMethod = WellKnownMethods.KeyResolveOfT.MakeGenericMethod(keySelector.Body.Type);
-        groupingKeyResolver = Expression.Call(rightKeySelector, keyResolveMethod);
-      }
 
       var predicateExpression = Expression.Lambda(Expression.Equal(leftKeySelector, rightKeySelector), keySelector.Parameters.ToArray());
+
 
       var callMehtod = WellKnownMethods.QueryableWhere.MakeGenericMethod(elementType);
 
