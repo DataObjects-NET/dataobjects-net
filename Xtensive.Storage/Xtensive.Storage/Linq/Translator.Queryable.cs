@@ -296,12 +296,11 @@ namespace Xtensive.Storage.Linq
         .GetMethods(BindingFlags.Static | BindingFlags.Public)
         .First(m => m.Name==method.Name && m.GetParameters().Length==1)
         .MakeGenericMethod(method.ReturnType);
-      MethodInfo castMethod = enumerableType.GetMethod("Cast").MakeGenericMethod(method.ReturnType);
-      Expression<Func<RecordSet, object>> materializer = set => set.ToEntities(method.ReturnType);
-      var rs = materializer.Parameters[0];
-      var body = Expression.Convert(Expression.Call(null, enumerableMethod, Expression.Call(null, castMethod, materializer.Body)), typeof (object));
-      var le = Expression.Lambda(body, rs);
-      return new ResultExpression(method.ReturnType, recordSet, result.Mapping, (Expression<Func<RecordSet, object>>) le, null);
+      var lambda = BuildProjector(result.ItemProjector, false);
+      var projector = Expression.Lambda(
+        Expression.Convert(Expression.Call(null, enumerableMethod, lambda.Body), typeof (object)),
+        lambda.Parameters.ToArray());
+      return new ResultExpression(method.ReturnType, recordSet, result.Mapping, (Expression<Func<RecordSet,object>>)projector, null);
     }
 
     private Expression VisitTake(Expression source, Expression take)
@@ -609,22 +608,7 @@ namespace Xtensive.Storage.Linq
         joinFinalEntity.Value = true;
         calculateExpressions.Value = true;
         var itemProjector = (LambdaExpression) Visit(le);
-        var rs = Expression.Parameter(typeof (RecordSet), "rs");
-        Expression<Func<RecordSet, object>> projector;
-        if (itemProjector.Parameters.Count > 1) {
-          var method = typeof (Translator)
-            .GetMethod("MakeProjection", BindingFlags.NonPublic | BindingFlags.Static)
-            .MakeGenericMethod(le.Body.Type);
-          projector = Expression.Lambda<Func<RecordSet, object>>(
-            Expression.Convert(
-              Expression.Call(method, rs, itemProjector),
-              typeof (object)),
-            rs);
-        }
-        else {
-          var method = WellKnownMethods.EnumerableSelect.MakeGenericMethod(typeof (Tuple), le.Body.Type);
-          projector = Expression.Lambda<Func<RecordSet, object>>(Expression.Convert(Expression.Call(method, rs, itemProjector), typeof (object)), rs);
-        }
+        var projector = (Expression<Func<RecordSet, object>>)BuildProjector(itemProjector, true);
         var source = context.GetBound(le.Parameters[0]);
         return new ResultExpression(
           typeof (IQueryable<>).MakeGenericType(le.Body.Type),
@@ -633,6 +617,28 @@ namespace Xtensive.Storage.Linq
           projector,
           itemProjector);
       }
+    }
+
+    private LambdaExpression BuildProjector(LambdaExpression itemProjector, bool castToObject)
+    {
+      var rs = Expression.Parameter(typeof (RecordSet), "rs");
+      LambdaExpression projector;
+      MethodInfo method;
+      if (itemProjector.Parameters.Count > 1) {
+        method = typeof (Translator)
+          .GetMethod("MakeProjection", BindingFlags.NonPublic | BindingFlags.Static)
+          .MakeGenericMethod(itemProjector.Body.Type);
+      }
+      else
+        method = WellKnownMethods.EnumerableSelect.MakeGenericMethod(typeof (Tuple), itemProjector.Body.Type);
+      projector = Expression.Lambda(
+          castToObject
+            ? (Expression)Expression.Convert(
+              Expression.Call(method, rs, itemProjector),
+              typeof(object))
+            : (Expression)Expression.Call(method, rs, itemProjector),
+          rs);
+      return projector;
     }
 
     private Expression VisitWhere(Expression expression, LambdaExpression le)

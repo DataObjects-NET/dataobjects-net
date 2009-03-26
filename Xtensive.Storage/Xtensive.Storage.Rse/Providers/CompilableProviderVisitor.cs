@@ -19,10 +19,10 @@ using System.Linq;
 namespace Xtensive.Storage.Rse.Providers
 {
   /// <summary>
-  /// Abstract <see cref="CompilableProvider"/> visitor class. Result is <see cref="CompilableProvider"/>.
+  /// <see cref="CompilableProvider"/> visitor class. Result is <see cref="CompilableProvider"/>.
   /// </summary>
   [Serializable]
-  public abstract class CompilableProviderVisitor : ProviderVisitor
+  public class CompilableProviderVisitor : ProviderVisitor
   {
     protected Func<Provider, Expression, Expression> translate;
 
@@ -30,7 +30,7 @@ namespace Xtensive.Storage.Rse.Providers
     /// Visits the compilable provider.
     /// </summary>
     /// <param name="cp">The compilable provider.</param>
-    protected CompilableProvider VisitCompilable(CompilableProvider cp)
+    public CompilableProvider VisitCompilable(CompilableProvider cp)
     {
       var result = (CompilableProvider)Visit(cp);
       return result;
@@ -319,14 +319,14 @@ namespace Xtensive.Storage.Rse.Providers
     // Constructors
 
     /// <inheritdoc/>
-    protected CompilableProviderVisitor()
+    public CompilableProviderVisitor()
       : this(DefaultExpressionTranslator)
     {
     }
 
     /// <inheritdoc/>
     /// <param name="expressionTranslator">Expression translator.</param>
-    protected CompilableProviderVisitor(Func<Provider, Expression, Expression> expressionTranslator)
+    public CompilableProviderVisitor(Func<Provider, Expression, Expression> expressionTranslator)
     {
       translate = expressionTranslator;
     }

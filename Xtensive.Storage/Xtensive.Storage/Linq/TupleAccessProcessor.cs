@@ -91,17 +91,16 @@ namespace Xtensive.Storage.Linq
     }
 
     public TupleAccessProcessor()
+      : this(null, null)
     {
-      registerOuterColumn = (p, i) => { throw new NotSupportedException(); };
-      resolveOuterColumn = (p, i) => { throw new NotSupportedException(); };
     }
 
     public TupleAccessProcessor(
       Action<Parameter<Tuple>, int> registerOuterColumn,
       Func<Parameter<Tuple>, int, int> resolveOuterColumn)
     {
-      this.registerOuterColumn = registerOuterColumn;
-      this.resolveOuterColumn = resolveOuterColumn;
+      this.registerOuterColumn = registerOuterColumn ?? ((p, i) => { throw new NotSupportedException(); });
+      this.resolveOuterColumn = resolveOuterColumn ?? ((p, i) => { throw new NotSupportedException(); });
     }
   }
 }
