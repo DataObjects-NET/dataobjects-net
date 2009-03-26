@@ -6,8 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
-using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.Linq.Normalization
 {
@@ -22,8 +20,6 @@ namespace Xtensive.Core.Linq.Normalization
     /// Gets the operands.
     /// </summary>
     public HashSet<T> Operands { get; private set; }
-
-    
 
     /// <inheritdoc/>
     protected MultioperandOperation()

@@ -5,9 +5,6 @@
 // Created:    2009.03.26
 
 using System;
-using System.Collections;
-using System.Diagnostics;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Collections.Generic;
 
