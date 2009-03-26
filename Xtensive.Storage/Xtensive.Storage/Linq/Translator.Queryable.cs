@@ -687,9 +687,15 @@ namespace Xtensive.Storage.Linq
 
     private Expression VisitExists(Expression source, LambdaExpression predicate, bool notExists)
     {
-      var subquery = predicate==null
-        ? (ResultExpression) Visit(source)
-        : (ResultExpression) VisitWhere(source, predicate);
+      ResultExpression subquery;
+      using (new ParameterScope()) {
+        calculateExpressions.Value = false;
+        joinFinalEntity.Value = false;
+        if (predicate == null)
+          subquery = (ResultExpression)Visit(source);
+        else
+          subquery = (ResultExpression)VisitWhere(source, predicate);
+      }
       var lambdaParameter = context.SubqueryParameterBindings.CurrentParameter;
       var applyParameter = context.SubqueryParameterBindings.GetBound(lambdaParameter);
       context.SubqueryParameterBindings.InvalidateParameter(lambdaParameter);

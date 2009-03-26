@@ -264,7 +264,7 @@ namespace Xtensive.Storage.Linq
     {
       var leftMap = mappings[originalLeft];
       var rightMap = mappings[originalRight];
-      var leftCount = newLeft.Header.Length;
+      var leftCount = originalLeft.Header.Length;
       var result = leftMap
         .Concat(rightMap.Select(i => i + leftCount))
         .ToList();
