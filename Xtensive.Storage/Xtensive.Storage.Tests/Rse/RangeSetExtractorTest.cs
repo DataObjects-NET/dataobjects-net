@@ -34,6 +34,7 @@ namespace Xtensive.Storage.Tests.Rse
     private string cName;
     private string cLength;
     private string cFeatures;
+    private string cDescription;
 
     protected override DomainConfiguration BuildConfiguration()
     {
@@ -55,6 +56,8 @@ namespace Xtensive.Storage.Tests.Rse
       cLength = field.Column.Name;
       field = result.Model.Types[typeof(Snake)].Fields["Features"];
       cFeatures = field.Column.Name;
+      field = result.Model.Types[typeof (ClearSnake)].Fields["Description"];
+      cDescription = field.Column.Name;
       return result;
     }
 
@@ -69,12 +72,12 @@ namespace Xtensive.Storage.Tests.Rse
       /*Expression<Func<Tuple, bool>> exp =
         (t) => t.GetValue<int?>(cLengthIdx) >= 3 &&
                t.GetValue<int?>(cLengthIdx) < 6 ||
-               t.GetValue<int?>(cLengthIdx) >= 10;*/
+               10 <= t.GetValue<int?>(cLengthIdx);*/
 
       var predicate = GetRootDnf();
       AddCnf(predicate, AddBoolean(AsCnf(t => t.GetValue<int?>(cLengthIdx) >= 3),
                                    t => t.GetValue<int?>(cLengthIdx) < 6));
-      AddCnf(predicate, AsCnf(t => t.GetValue<int?>(cLengthIdx) >= 10));
+      AddCnf(predicate, AsCnf(t => 10 <= t.GetValue<int?>(cLengthIdx)));
       
       var expectedRanges = CreateExpectedRangesForSimpleTest(indexInfo, cLength);
       TestExpression(predicate, indexInfo, rsHeader, expectedRanges);
@@ -91,6 +94,107 @@ namespace Xtensive.Storage.Tests.Rse
       var expectedRange0 = new Range<Entire<Tuple>>(expectedFirst, expectedSecond);
       result.Add(expectedRange0);
       expectedFirst = new Entire<Tuple>(CreateTuple(indexInfo.KeyTupleDescriptor, keyFieldIndex, 10));
+      expectedSecond = new Entire<Tuple>(InfinityType.Positive);
+      var expectedRange1 = new Range<Entire<Tuple>>(expectedFirst, expectedSecond);
+      result.Add(expectedRange1);
+      return result;
+    }
+
+    [Test]
+    public void DifferentFieldsTest()
+    {
+      TypeInfo snakeType = Domain.Model.Types[typeof(ClearSnake)];
+      IndexInfo indexInfo = snakeType.Indexes.GetIndex(cLength);
+      RecordSetHeader rsHeader = snakeType.Indexes.PrimaryIndex.GetRecordSetHeader();
+      int cLengthIdx = GetFieldIndex(rsHeader, cLength);
+      int cNameIdx = GetFieldIndex(rsHeader, cName);
+
+      var predicate = GetRootDnf();
+      AddCnf(predicate, AddBoolean(AsCnf(t => t.GetValue<int?>(cLengthIdx) <= 3),
+                                   t => t.GetValue<string>(cNameIdx) == "abc"));
+      AddCnf(predicate, AsCnf(t => t.GetValue<int?>(cLengthIdx) > 15));
+
+      var expectedRanges = CreateExpectedRangesForDifferentFieldsTest(indexInfo, cLength);
+      TestExpression(predicate, indexInfo, rsHeader, expectedRanges);
+    }
+
+    private IEnumerable<Range<Entire<Tuple>>> CreateExpectedRangesForDifferentFieldsTest(IndexInfo indexInfo,
+      string keyFieldName)
+    {
+      var keyFieldIndex = indexInfo.GetRecordSetHeader().IndexOf(keyFieldName);
+      var result = new SetSlim<Range<Entire<Tuple>>>();
+      Entire<Tuple> expectedFirst = new Entire<Tuple>(InfinityType.Negative);
+      Entire<Tuple> expectedSecond = new Entire<Tuple>(CreateTuple(indexInfo.KeyTupleDescriptor, keyFieldIndex, 3));
+      var expectedRange0 = new Range<Entire<Tuple>>(expectedFirst, expectedSecond);
+      result.Add(expectedRange0);
+      expectedFirst = new Entire<Tuple>(CreateTuple(indexInfo.KeyTupleDescriptor, keyFieldIndex, 15),
+                                                       Direction.Positive);
+      expectedSecond = new Entire<Tuple>(InfinityType.Positive);
+      var expectedRange1 = new Range<Entire<Tuple>>(expectedFirst, expectedSecond);
+      result.Add(expectedRange1);
+      return result;
+    }
+
+    [Test]
+    [Ignore]
+    public void StandAloneBooleanExpressionsTest()
+    {
+      TypeInfo snakeType = Domain.Model.Types[typeof(ClearSnake)];
+      IndexInfo indexInfo = snakeType.Indexes.GetIndex(cLength);
+      RecordSetHeader rsHeader = snakeType.Indexes.PrimaryIndex.GetRecordSetHeader();
+      int cLengthIdx = GetFieldIndex(rsHeader, cLength);
+
+      int x = 1;
+      int y = 2;
+      var predicate = GetRootDnf();
+      
+      AddCnf(predicate, AddBoolean(AsCnf(t => t.GetValue<int?>(cLengthIdx) <= 3),
+                                   (t) => x + 3 > y));
+      AddCnf(predicate, AsCnf(t => t.GetValue<int?>(cLengthIdx) > 15));
+      AddCnf(predicate, AsCnf((t) => false));
+
+      var expectedRanges = CreateExpectedRangesForStandAloneBooleanExpressionsTest(indexInfo, cLength);
+      TestExpression(predicate, indexInfo, rsHeader, expectedRanges);
+    }
+
+    private IEnumerable<Range<Entire<Tuple>>> CreateExpectedRangesForStandAloneBooleanExpressionsTest(
+      IndexInfo indexInfo, string keyFieldName)
+    {
+      return CreateExpectedRangesForDifferentFieldsTest(indexInfo, keyFieldName);
+    }
+
+    [Test]
+    public void MultiColumnIndexTest()
+    {
+      TypeInfo snakeType = Domain.Model.Types[typeof(ClearSnake)];
+      IndexInfo indexInfo = snakeType.Indexes.GetIndex(cLength);
+      RecordSetHeader rsHeader = snakeType.Indexes.PrimaryIndex.GetRecordSetHeader();
+      int cLengthIdx = GetFieldIndex(rsHeader, cLength);
+      int cDescriptionIdx = GetFieldIndex(rsHeader, cDescription);
+
+      var predicate = GetRootDnf();
+      AddCnf(predicate, AddBoolean(AsCnf(t => t.GetValue<string>(cDescriptionIdx).CompareTo("abc") < 0),
+                                   t => t.GetValue<int?>(cLengthIdx) == 6));
+      AddCnf(predicate, AsCnf(t => 10 <= t.GetValue<int?>(cLengthIdx)));
+
+      var expectedRanges = CreateExpectedRangesForMultiColumnIndexTest(indexInfo, cLength, cDescription);
+      TestExpression(predicate, indexInfo, rsHeader, expectedRanges);
+    }
+
+    private IEnumerable<Range<Entire<Tuple>>> CreateExpectedRangesForMultiColumnIndexTest(IndexInfo indexInfo,
+      params string[] keyFieldName)
+    {
+      var keyFieldIndex0 = indexInfo.GetRecordSetHeader().IndexOf(keyFieldName[0]);
+      var keyFieldIndex1 = indexInfo.GetRecordSetHeader().IndexOf(keyFieldName[1]);
+      var result = new SetSlim<Range<Entire<Tuple>>>();
+      var secondTuple = CreateTuple(indexInfo.KeyTupleDescriptor, keyFieldIndex0, 6);
+      secondTuple.SetValue(keyFieldIndex1, "abc");
+      Entire<Tuple> expectedFirst = new Entire<Tuple>(InfinityType.Negative);
+      Entire<Tuple> expectedSecond = new Entire<Tuple>(secondTuple,
+                                                       Direction.Negative);
+      var expectedRange0 = new Range<Entire<Tuple>>(expectedFirst, expectedSecond);
+      result.Add(expectedRange0);
+      expectedFirst = new Entire<Tuple>(CreateTuple(indexInfo.KeyTupleDescriptor, keyFieldIndex0, 10));
       expectedSecond = new Entire<Tuple>(InfinityType.Positive);
       var expectedRange1 = new Range<Entire<Tuple>>(expectedFirst, expectedSecond);
       result.Add(expectedRange1);

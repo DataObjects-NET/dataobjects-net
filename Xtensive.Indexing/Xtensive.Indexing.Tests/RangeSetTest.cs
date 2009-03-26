@@ -72,6 +72,22 @@ namespace Xtensive.Indexing.Tests
     }
 
     [Test]
+    [Ignore]
+    public void EmptyTest()
+    {
+      var rangeSetX = new RangeSet<Entire<Int32>>(new Range<Entire<Int32>>(20, 30),
+                                                  AdvancedComparer<Entire<Int32>>.Default);
+      var emptyRange = new RangeSet<Entire<Int32>>(Range<Entire<Int32>>.Empty,
+                                                   AdvancedComparer<Entire<Int32>>.Default);
+      rangeSetX.Intersect(emptyRange);
+
+      rangeSetX = new RangeSet<Entire<Int32>>(new Range<Entire<Int32>>(20, 30),
+                                                  AdvancedComparer<Entire<Int32>>.Default);
+      rangeSetX.Unite(emptyRange);
+      emptyRange.Invert();
+    }
+
+    [Test]
     public void RangeSetReaderTest()
     {
       var sortedListConfiguration = new IndexConfigurationBase<int, int>(item => item, AdvancedComparer<int>.Default);
@@ -139,5 +155,7 @@ namespace Xtensive.Indexing.Tests
       Assert.IsFalse(rangeSet.IsFull());
       Assert.IsTrue(rangeSet.IsEmpty());
     }
+
+    
   }
 }

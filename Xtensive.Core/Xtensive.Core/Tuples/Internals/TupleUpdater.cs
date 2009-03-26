@@ -23,11 +23,11 @@ namespace Xtensive.Core.Tuples.Internals
     /// </summary>
     /// <param name="fieldIndex"></param>
     /// <param name="value"></param>
-    /// <returns>Wrapped tuple.</returns>
-    public Tuple UpdateField(int fieldIndex, object value)
+    /// <returns><c>this</c></returns>
+    public TupleUpdater UpdateField(int fieldIndex, object value)
     {
       tuple.SetValue(fieldIndex, value);
-      return tuple;
+      return this;
     }
 
     ///<summary>

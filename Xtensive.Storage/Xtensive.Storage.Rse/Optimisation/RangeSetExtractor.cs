@@ -7,14 +7,24 @@
 using System;
 using Xtensive.Core;
 using Xtensive.Core.Linq;
+using Xtensive.Indexing;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Rse.Optimisation
 {
+  /// <summary>
+  /// Extracter of <see cref="RangeSet{T}"/> from a boolean expression in disjunctive normal form.
+  /// </summary>
   internal class RangeSetExtractor
   {
     private readonly ExtractingVisitor cnfVisitor;
 
+    /// <summary>
+    /// Extracts collection of <see cref="RangeSet{T}"/>.
+    /// </summary>
+    /// <param name="predicate">A boolean expression in disjunctive normal form.</param>
+    /// <param name="info">A description of index to use for extracting of a <see cref="RangeSet{T}"/>.</param>
+    /// <param name="primaryIdxRecordSetHeader">A header from a primary index</param>
     public RsExtractionResult Extract(NormalizedBooleanExpression predicate, IndexInfo info,
       RecordSetHeader primaryIdxRecordSetHeader)
     {

@@ -11,6 +11,9 @@ using Xtensive.Core.Collections;
 
 namespace Xtensive.Storage.Rse.Optimisation
 {
+  /// <summary>
+  /// Information regarding to an operation was performed on a field of tuple.
+  /// </summary>
   internal sealed class OperationInfo
   {
     public static class WellKnownNames
@@ -20,7 +23,7 @@ namespace Xtensive.Storage.Rse.Optimisation
       public static readonly string Substract = "-";
       public static readonly string Divide = "/";
       public static readonly string CompareTo = "CompareTo";
-      public static readonly string Invert = "!";
+      public static readonly string Not = "!";
       public static readonly string Unknown = "<unknown>";
     }
 

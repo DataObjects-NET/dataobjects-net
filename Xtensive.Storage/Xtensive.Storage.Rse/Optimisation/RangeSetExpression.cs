@@ -11,12 +11,14 @@ using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
 
 namespace Xtensive.Storage.Rse.Optimisation
-{
+{ 
   internal class RangeSetExpression : Expression
   {
     public Expression Source { get; private set; }
 
     public bool AlwaysFull { get; private set; }
+
+    public RangeSetOriginInfo Origin { get; private set; }
 
     private static Expression ValidateExpression(Expression source)
     {
@@ -32,6 +34,7 @@ namespace Xtensive.Storage.Rse.Optimisation
       ValidateExpression(unionResult);
       Source = unionResult;
       AlwaysFull = AlwaysFull || other.AlwaysFull;
+      Origin = null;
     }
 
     public void Intersect(Expression intersectionResult, RangeSetExpression other)
@@ -39,6 +42,7 @@ namespace Xtensive.Storage.Rse.Optimisation
       ValidateExpression(intersectionResult);
       Source = intersectionResult;
       AlwaysFull = AlwaysFull && other.AlwaysFull;
+      Origin = null;
     }
 
     public void Invert(Expression invertionResult)
@@ -46,12 +50,15 @@ namespace Xtensive.Storage.Rse.Optimisation
       ValidateExpression(invertionResult);
       Source = invertionResult;
       AlwaysFull = false;
+      if (Origin != null)
+        Origin.ReverseComparison();
     }
 
-    public RangeSetExpression(Expression source, bool alwaysFull)
+    public RangeSetExpression(Expression source, RangeSetOriginInfo origin, bool alwaysFull)
       : base(ValidateExpression(source).NodeType, typeof(RangeSet<Entire<Tuple>>))
     {
       Source = source;
+      Origin = origin;
       AlwaysFull = alwaysFull;
     }
   }

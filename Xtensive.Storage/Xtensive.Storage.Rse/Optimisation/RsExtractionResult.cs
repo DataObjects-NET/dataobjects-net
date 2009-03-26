@@ -17,7 +17,7 @@ using Xtensive.Storage.Model;
 namespace Xtensive.Storage.Rse.Optimisation
 {
   /// <summary>
-  /// Represents a result of extraction a RangeSet from a predicate.
+  /// Result of extraction a RangeSet from a predicate.
   /// </summary>
   internal class RsExtractionResult : IEnumerable<RangeSetExpression>
   {

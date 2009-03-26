@@ -5,6 +5,7 @@
 // Created:    2009.03.23
 
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Core.Tuples;
@@ -15,14 +16,54 @@ using Xtensive.Storage.Model;
 namespace Xtensive.Storage.Rse.Optimisation
 {
   /// <summary>
-  /// Extracts a <see cref="Expression"/> returning a <see cref="RangeSet{T}"/>
-  /// from a boolean expression in a conjunctive normal form./>
+  /// Extracter of <see cref="RangeSet{T}"/> from a boolean expression in a conjunctive normal form.
   /// </summary>
   internal class ExtractingVisitor : ExpressionVisitor
   {
     private IndexInfo indexInfo;
     private RecordSetHeader recordSetHeader;
     private readonly DomainModel domainModel;
+    private const int defaultExpressionsListSize = 10;
+    private readonly List<RangeSetExpression> extractedExpressions =
+      new List<RangeSetExpression>(defaultExpressionsListSize);
+    private readonly Dictionary<int, Expression> indexKeyValues =
+      new Dictionary<int, Expression>(defaultExpressionsListSize);
+
+    private readonly Comparison<RangeSetExpression> cashedComparison =
+      (r1, r2) =>
+      {
+        if (r1.Origin != null && r2.Origin != null) {
+          return r1.Origin.TupleField.CompareTo(r2.Origin.TupleField);
+        }
+        else {
+          if (r1.Origin == null && r2.Origin == null)
+            return 0;
+          if (r2.Origin == null)
+            return -1;
+          return 1;
+        }
+      };
+
+    public static void ReverseOperation(ref ExpressionType comparisonType)
+    {
+      switch (comparisonType) {
+        case ExpressionType.Equal:
+        case ExpressionType.NotEqual:
+          return;
+        case ExpressionType.GreaterThan:
+          comparisonType = ExpressionType.LessThan;
+          return;
+        case ExpressionType.GreaterThanOrEqual:
+          comparisonType = ExpressionType.LessThanOrEqual;
+          return;
+        case ExpressionType.LessThan:
+          comparisonType = ExpressionType.GreaterThan;
+          return;
+        case ExpressionType.LessThanOrEqual:
+          comparisonType = ExpressionType.GreaterThanOrEqual;
+          return;
+      }
+    }
 
     public RangeSetExpression Extract(NormalizedBooleanExpression normalized, IndexInfo info,
       RecordSetHeader primaryIdxRecordSetHeader)
@@ -73,12 +114,7 @@ namespace Xtensive.Storage.Rse.Optimisation
 
     protected override Expression VisitMethodCall(MethodCallExpression exp)
     {
-      var tupleExp = exp.Object as ExpressionOnTupleField;
-      if (tupleExp != null) {
-        tupleExp.EnqueueOperation(exp.Method.Name, exp.Arguments, exp);
-        return tupleExp;
-      }
-      if(IsTuppleFieldValueGetterCall(exp)) {
+      if (IsTuppleFieldValueGetterCall(exp)) {
         var constantExp = exp.Arguments[0] as ConstantExpression;
         var memberAccessExp = exp.Arguments[0] as MemberExpression;
         if (constantExp == null && memberAccessExp == null)
@@ -87,6 +123,14 @@ namespace Xtensive.Storage.Rse.Optimisation
             "The argument passed to call of method \"GetValue\" must be ConstantExpression or MemberExpression");
         int fieldIndex = constantExp != null ? (int)constantExp.Value : (int)Expression.Lambda(memberAccessExp).Compile().DynamicInvoke();
         return new ExpressionOnTupleField(fieldIndex, exp);
+      }
+
+      var visitedExp = Visit(exp.Object);
+      var visitedArguments = VisitExpressionList(exp.Arguments);
+      var tupleExp = visitedExp as ExpressionOnTupleField;
+      if (tupleExp != null) {
+        tupleExp.EnqueueOperation(exp.Method.Name, visitedArguments, exp);
+        return tupleExp;
       }
       return base.VisitMethodCall(exp);
     }
@@ -117,43 +161,49 @@ namespace Xtensive.Storage.Rse.Optimisation
       ExpressionOnTupleField leftAsTuple = leftIsTuple ? (ExpressionOnTupleField) left : null;
       ExpressionOnTupleField rightAsTuple = rightIsTuple ? (ExpressionOnTupleField) right : null;
       if (!(leftIsTuple ^ rightIsTuple))
-        return RangeSetExpressionsBuilder.BuildFullRangeSetConstructor();
-      int keyFieldIndex;
-      if (leftIsTuple) {
-        if (!GetIndexOfKeyFieldFromIndex(leftAsTuple.FieldIndex, out keyFieldIndex))
-          return RangeSetExpressionsBuilder.BuildFullRangeSetConstructor();
-      }
-      else {
-        if (!GetIndexOfKeyFieldFromIndex(rightAsTuple.FieldIndex, out keyFieldIndex))
-          return RangeSetExpressionsBuilder.BuildFullRangeSetConstructor();
-      }
+        return RangeSetExpressionsBuilder.BuildFullRangeSetConstructor(null);
+
       ExpressionOnTupleField tupleFiledAccessingExp = leftIsTuple ? leftAsTuple : rightAsTuple;
       Expression keyValueExp = !rightIsTuple ? right : left;
       ExpressionType comparisonType = nodeType;
+
       if (rightIsTuple) {
         ReverseOperation(ref comparisonType);
       }
       if (tupleFiledAccessingExp.HasOperations)
-        return ProcessTupleExpressionWithOperations(tupleFiledAccessingExp, keyValueExp, keyFieldIndex,
+        return ProcessTupleExpressionWithOperations(tupleFiledAccessingExp,
+                                                    keyValueExp,
+                                                    tupleFiledAccessingExp.FieldIndex,
                                                     comparisonType);
-      return RangeSetExpressionsBuilder.BuildConstructor(keyValueExp, keyFieldIndex, comparisonType,
+
+      if (!IndexHasKeyAtZeroPoisition(tupleFiledAccessingExp.FieldIndex))
+        return RangeSetExpressionsBuilder.BuildFullRangeSetConstructor(
+                                                    new RangeSetOriginInfo(comparisonType,
+                                                                           tupleFiledAccessingExp.FieldIndex,
+                                                                           keyValueExp));
+
+
+      return RangeSetExpressionsBuilder.BuildConstructor(keyValueExp,
+                                                         tupleFiledAccessingExp.FieldIndex,
+                                                         comparisonType,
                                                          indexInfo);
     }
 
     private Expression ProcessTupleExpressionWithOperations(ExpressionOnTupleField tupleExp,
-      Expression keyValueExp, int keyFieldIndex, ExpressionType comparisonType)
+      Expression keyValueExp, int tupleField, ExpressionType comparisonType)
     {
       //We analyse only one operation.
       if (tupleExp.OperationsCount > 1)
-        return RangeSetExpressionsBuilder.BuildFullRangeSetConstructor();
+        return RangeSetExpressionsBuilder.BuildFullRangeSetConstructor(null);
+      bool isFieldOfIndex = IndexHasKeyAtZeroPoisition(tupleExp.FieldIndex);
       OperationInfo operation = tupleExp.DequeueOperation();
       if (String.CompareOrdinal(operation.Name, OperationInfo.WellKnownNames.CompareTo) == 0)
-        return ParseCompareToOperation(operation, keyValueExp, keyFieldIndex, comparisonType);
-      return RangeSetExpressionsBuilder.BuildFullRangeSetConstructor();
+        return ParseCompareToOperation(operation, keyValueExp, tupleField, isFieldOfIndex, comparisonType);
+      return RangeSetExpressionsBuilder.BuildFullRangeSetConstructor(null);
     }
 
     private Expression ParseCompareToOperation(OperationInfo operation, Expression keyValueExp,
-      int keyFieldIndex, ExpressionType comparisonType)
+      int tupleField, bool isFieldOfIndex, ExpressionType comparisonType)
     {
       var comparisonResult = (int)Expression.Lambda(keyValueExp).Compile().DynamicInvoke();
       ExpressionType realComparison;
@@ -175,28 +225,11 @@ namespace Xtensive.Storage.Rse.Optimisation
         else
           realComparison = ExpressionType.GreaterThan;
       }
-      return RangeSetExpressionsBuilder.BuildConstructor(realKey, keyFieldIndex, realComparison, indexInfo);
-    }
-
-    private static void ReverseOperation(ref ExpressionType comparisonType)
-    {
-      switch (comparisonType) {
-        case ExpressionType.Equal:
-        case ExpressionType.NotEqual:
-          return;
-        case ExpressionType.GreaterThan:
-          comparisonType = ExpressionType.LessThan;
-          return;
-        case ExpressionType.GreaterThanOrEqual:
-          comparisonType = ExpressionType.LessThanOrEqual;
-          return;
-        case ExpressionType.LessThan:
-          comparisonType = ExpressionType.GreaterThan;
-          return;
-        case ExpressionType.LessThanOrEqual:
-          comparisonType = ExpressionType.GreaterThanOrEqual;
-          return;
-      }
+      if (!isFieldOfIndex)
+        return RangeSetExpressionsBuilder.BuildFullRangeSetConstructor(
+                                              new RangeSetOriginInfo(realComparison,
+                                                                     tupleField, realKey));
+      return RangeSetExpressionsBuilder.BuildConstructor(realKey, tupleField, realComparison, indexInfo);
     }
 
     private static bool IsTuppleFieldValueGetterCall(Expression exp)
@@ -207,22 +240,20 @@ namespace Xtensive.Storage.Rse.Optimisation
       return methodCall.Object.Type == typeof(Tuple) && methodCall.Method.Name.StartsWith("GetValue");
     }
 
-    private bool GetIndexOfKeyFieldFromIndex(int tupleFieldIndex, out int index)
+    private bool IndexHasKeyAtZeroPoisition(int tupleFieldIndex)
     {
-      index = -1;
-      var mappedColumn = recordSetHeader.Columns[tupleFieldIndex] as MappedColumn;
+      return IndexHasKeyAtSpecifiedPoisition(tupleFieldIndex, 0);
+    }
+
+    private bool IndexHasKeyAtSpecifiedPoisition(int tupleFieldPosition, int indexFieldPosition)
+    {
+      var mappedColumn = recordSetHeader.Columns[tupleFieldPosition] as MappedColumn;
       if (mappedColumn == null)
         return false;
 
       var mappedColumnInfo = mappedColumn.ColumnInfoRef.Resolve(domainModel);
-      var columnsCount = indexInfo.KeyColumns.Count;
-      for (int i = 0; i < columnsCount; i++) {
-        if (mappedColumnInfo.Equals(indexInfo.KeyColumns[i].Key)) {
-          index = i;
-          return true;
-        }
-      }
-      return false;
+      return indexInfo.KeyColumns.Count > indexFieldPosition &&
+             mappedColumnInfo.Equals(indexInfo.KeyColumns[indexFieldPosition].Key);
     }
 
     private static void ValidateNormalized(NormalizedBooleanExpression normalized)
@@ -237,7 +268,13 @@ namespace Xtensive.Storage.Rse.Optimisation
 
     private RangeSetExpression ParseCnfExpression(NormalizedBooleanExpression normalized)
     {
-      RangeSetExpression result = null;
+      ParseTerms(normalized);
+      return MakeResultExpression();
+    }
+
+    private void ParseTerms(NormalizedBooleanExpression normalized)
+    {
+      extractedExpressions.Clear();
       foreach (var exp in normalized) {
         var intermediate = Visit(exp);
         var tupleExp = intermediate as ExpressionOnTupleField;
@@ -245,32 +282,78 @@ namespace Xtensive.Storage.Rse.Optimisation
           intermediate = VisitStandAloneTupleExpression(tupleExp);
         if (intermediate.Type == typeof(bool))
           intermediate = RangeSetExpressionsBuilder.BuildFullOrEmpty(intermediate);
-        if (result == null)
-          result = (RangeSetExpression)intermediate;
-        else
-          result = RangeSetExpressionsBuilder.BuildIntersect((RangeSetExpression)intermediate, result);
+        extractedExpressions.Add((RangeSetExpression)intermediate);
       }
-      return result;
     }
 
     private Expression VisitStandAloneTupleExpression(ExpressionOnTupleField tupleExp)
     {
       //We analyse only one operation.
       if (tupleExp.OperationsCount > 1)
-        return RangeSetExpressionsBuilder.BuildFullRangeSetConstructor();
-      int keyFieldindex;
-      if(GetIndexOfKeyFieldFromIndex(tupleExp.FieldIndex, out keyFieldindex)) {
+        return RangeSetExpressionsBuilder.BuildFullRangeSetConstructor(null);
+      if(IndexHasKeyAtZeroPoisition(tupleExp.FieldIndex)) {
         if (tupleExp.OperationsCount > 0) {
           var operation = tupleExp.DequeueOperation();
-          if (String.CompareOrdinal(operation.Name, OperationInfo.WellKnownNames.Invert) == 0)
-            return RangeSetExpressionsBuilder.BuildConstructor(Expression.Constant(true), keyFieldindex,
+          if (String.CompareOrdinal(operation.Name, OperationInfo.WellKnownNames.Not) == 0)
+            return RangeSetExpressionsBuilder.BuildConstructor(Expression.Constant(true), tupleExp.FieldIndex,
                                                                ExpressionType.NotEqual, indexInfo);
-          return RangeSetExpressionsBuilder.BuildFullRangeSetConstructor();
+          return RangeSetExpressionsBuilder.BuildFullRangeSetConstructor(null);
         }
-        return RangeSetExpressionsBuilder.BuildConstructor(Expression.Constant(true), keyFieldindex,
+        return RangeSetExpressionsBuilder.BuildConstructor(Expression.Constant(true), tupleExp.FieldIndex,
                                                                ExpressionType.Equal, indexInfo);
       }
-      return RangeSetExpressionsBuilder.BuildFullRangeSetConstructor();
+      return RangeSetExpressionsBuilder.BuildFullRangeSetConstructor(
+        new RangeSetOriginInfo(ExpressionType.Equal,
+                               tupleExp.FieldIndex,
+                               Expression.Constant(true)));
+    }
+
+    private RangeSetExpression MakeResultExpression()
+    {
+      RangeSetExpression result = TryUseMultiFieldIndex();
+      if (result != null)
+        return result;
+      foreach (var rangeSet in extractedExpressions) {
+        string test = ExpressionWriter.Write(rangeSet.Source);
+        if (result == null)
+          result = rangeSet;
+        else
+          result = RangeSetExpressionsBuilder.BuildIntersect(rangeSet, result);
+      }
+      return result;
+    }
+
+    private RangeSetExpression TryUseMultiFieldIndex()
+    {
+      extractedExpressions.Sort(cashedComparison);
+      int lastFieldPosition = -1;
+      foreach (var rangeSet in extractedExpressions) {
+        if(rangeSet.Origin == null)
+          break;
+        bool presentInIndex = IndexHasKeyAtSpecifiedPoisition(rangeSet.Origin.TupleField,
+                                                              lastFieldPosition + 1);
+        if(!presentInIndex)
+          break;
+
+        if (rangeSet.Origin.Comparison == ExpressionType.Equal) {
+          lastFieldPosition++;
+        }
+        else {
+          lastFieldPosition++;
+          break;
+        }
+      }
+
+      if (lastFieldPosition <= 0)
+        return null;
+
+      indexKeyValues.Clear();
+      for (int i = 0; i <= lastFieldPosition; i++) {
+        indexKeyValues.Add(i, extractedExpressions[i].Origin.KeyValue);
+      }
+      return RangeSetExpressionsBuilder.BuildConstructor(indexKeyValues,
+                                             extractedExpressions[lastFieldPosition].Origin.Comparison,
+                                             indexInfo);
     }
 
     private static string GetOperationName(ExpressionType nodeType)
@@ -287,6 +370,8 @@ namespace Xtensive.Storage.Rse.Optimisation
         case ExpressionType.Multiply:
         case ExpressionType.MultiplyChecked:
           return OperationInfo.WellKnownNames.Multiply;
+        case ExpressionType.Not:
+          return OperationInfo.WellKnownNames.Not;
         default:
           return OperationInfo.WellKnownNames.Unknown;
       }

@@ -159,4 +159,7 @@
   <data name="ExNormalizedExpressionMustNotBeRoot" xml:space="preserve">
     <value>The normalized boolean expression must not be the root expression.</value>
   </data>
+  <data name="ExCollectionMustNotBeEmpty" xml:space="preserve">
+    <value>The collection must not be empty.</value>
+  </data>
 </root>

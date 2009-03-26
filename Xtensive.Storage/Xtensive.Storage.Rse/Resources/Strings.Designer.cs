@@ -106,6 +106,15 @@ namespace Xtensive.Storage.Rse.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The collection must not be empty..
+        /// </summary>
+        internal static string ExCollectionMustNotBeEmpty {
+            get {
+                return ResourceManager.GetString("ExCollectionMustNotBeEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The expression must return a value of type &apos;{0}&apos;..
         /// </summary>
         internal static string ExExpressionMustReturnValueOfTypeX {

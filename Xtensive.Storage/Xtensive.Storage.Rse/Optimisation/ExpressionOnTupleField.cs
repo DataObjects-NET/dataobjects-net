@@ -10,6 +10,9 @@ using Xtensive.Core;
 
 namespace Xtensive.Storage.Rse.Optimisation
 {
+  /// <summary>
+  /// Information about expressions containing an access to a field of tuple.
+  /// </summary>
   internal sealed class ExpressionOnTupleField : Expression
   {
     private readonly Queue<OperationInfo> operations = new Queue<OperationInfo>();
