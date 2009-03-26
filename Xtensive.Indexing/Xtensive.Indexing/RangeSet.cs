@@ -42,7 +42,7 @@ namespace Xtensive.Indexing
     ///<returns><c>True</c> if RangeSet contains the full <see cref="Range{T}"/>.</returns>
     public bool IsFull()
     {
-      if (ranges.Count > 1)
+      if (ranges.Count != 1)
         return false;
       var range = ranges.First();
       if (range.IsEmpty)
@@ -55,9 +55,7 @@ namespace Xtensive.Indexing
     ///<returns><c>True</c> if RangeSet contains the empty <see cref="Range{T}"/>.</returns>
     public bool IsEmpty()
     {
-      if (ranges.Count > 1)
-        return false;
-      return ranges.First().IsEmpty;
+      return ranges.Count == 0;
     }
 
     #region Implementation of IEnumerable
@@ -124,6 +122,11 @@ namespace Xtensive.Indexing
     /// <returns>reference to self</returns>
     public RangeSet<T> Invert()
     {
+      if (ranges.Count == 0) {
+        ranges.Add(Range<T>.Full);
+        return this;
+      }
+
       LoadAllRangesTo(rangeCash);
       rangeCash.Sort(leftPointsComparison);
       ranges.Clear();
