@@ -73,7 +73,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     public IEnumerable<Tuple> GetKeys(Range<Entire<Tuple>> range)
     {
       var sourceEnumerable = Source.GetService<IOrderedEnumerable<Tuple, Tuple>>(true);
-      RangeSet<Entire<Tuple>> intersected = CachedRangeSet.Intersect(range);
+      RangeSet<Entire<Tuple>> intersected = CachedRangeSet.Intersect(new RangeSet<Entire<Tuple>>(range, EntireKeyComparer));
       foreach (var r in intersected) {
         var keys = sourceEnumerable.GetKeys(r);
         foreach(var item in keys)
@@ -85,7 +85,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     public IEnumerable<Tuple> GetItems(Range<Entire<Tuple>> range)
     {
       var sourceEnumerable = Source.GetService<IOrderedEnumerable<Tuple, Tuple>>(true);
-      RangeSet<Entire<Tuple>> intersected = CachedRangeSet.Intersect(range);
+      RangeSet<Entire<Tuple>> intersected = CachedRangeSet.Intersect(new RangeSet<Entire<Tuple>>(range, EntireKeyComparer));
       return sourceEnumerable.GetItems(intersected);
     }
 
@@ -121,7 +121,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     public IIndexReader<Tuple, Tuple> CreateReader(Range<Entire<Tuple>> range)
     {
       var sourceEnumerable = Source.GetService<IOrderedEnumerable<Tuple, Tuple>>(true);
-      var intersect = CachedRangeSet.Intersect(range);
+      var intersect = CachedRangeSet.Intersect(new RangeSet<Entire<Tuple>>(range, EntireKeyComparer));
       var readers = new List<IIndexReader<Tuple, Tuple>>();
       foreach (var r in intersect)
         readers.Add(sourceEnumerable.CreateReader(r));

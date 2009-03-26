@@ -86,7 +86,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     public IEnumerable<Tuple> GetItems(RangeSet<Entire<Tuple>> rangeSet)
     {
       var sourceEnumerable = Source.GetService<IOrderedEnumerable<Tuple, Tuple>>(true);
-      var intersected = rangeSet.Intersect(CachedRange);
+      var intersected = rangeSet.Intersect(new RangeSet<Entire<Tuple>>(CachedRange, EntireKeyComparer));
       return sourceEnumerable.GetItems(intersected);
     }
 

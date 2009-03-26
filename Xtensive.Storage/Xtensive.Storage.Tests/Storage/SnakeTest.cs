@@ -507,7 +507,7 @@ namespace Xtensive.Storage.Tests.Storage
           .Alias("NameIndex"), rsSnakePrimary.Header.IndexOf(cID), rsSnakeName.Header.IndexOf(cID));
 
           var idRange = new RangeSet<Entire<Tuple>>(new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(21)), new Entire<Tuple>(Tuple.Create(120))), AdvancedComparer<Entire<Tuple>>.Default);
-          idRange = idRange.Unite(new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(221)), new Entire<Tuple>(Tuple.Create(320))));
+          idRange = idRange.Unite(new RangeSet<Entire<Tuple>>(new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(221)), new Entire<Tuple>(Tuple.Create(320))), AdvancedComparer<Entire<Tuple>>.Default));
           var nameRange = new RangeSet<Entire<Tuple>>(new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create("Kaa")), new Entire<Tuple>(Tuple.Create("Kaa900"))), AdvancedComparer<Entire<Tuple>>.Default);
           
           using (new ParameterScope()) {
