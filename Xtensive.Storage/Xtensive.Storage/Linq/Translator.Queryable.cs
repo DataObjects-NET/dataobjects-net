@@ -619,25 +619,25 @@ namespace Xtensive.Storage.Linq
       }
     }
 
-    private LambdaExpression BuildProjector(LambdaExpression itemProjector, bool castToObject)
+    private static LambdaExpression BuildProjector(LambdaExpression itemProjector, bool castToObject)
     {
       var rs = Expression.Parameter(typeof (RecordSet), "rs");
-      LambdaExpression projector;
-      MethodInfo method;
-      if (itemProjector.Parameters.Count > 1) {
-        method = typeof (Translator)
+      var severalArguments = itemProjector.Parameters.Count > 1;
+      var method = severalArguments
+        ? typeof (Translator)
           .GetMethod("MakeProjection", BindingFlags.NonPublic | BindingFlags.Static)
-          .MakeGenericMethod(itemProjector.Body.Type);
-      }
-      else
-        method = WellKnownMethods.EnumerableSelect.MakeGenericMethod(typeof (Tuple), itemProjector.Body.Type);
-      projector = Expression.Lambda(
-          castToObject
-            ? (Expression)Expression.Convert(
-              Expression.Call(method, rs, itemProjector),
+          .MakeGenericMethod(itemProjector.Body.Type)
+        : WellKnownMethods.EnumerableSelect.MakeGenericMethod(itemProjector.Parameters[0].Type, itemProjector.Body.Type);
+      Expression body = (!severalArguments && itemProjector.Parameters[0].Type == typeof(Record)) 
+        ? Expression.Call(method, Expression.Call(WellKnownMethods.RecordSetParse, rs), itemProjector)
+        : Expression.Call(method, rs, itemProjector);
+      var projector = Expression.Lambda(
+        castToObject
+          ? Expression.Convert(
+              body,
               typeof(object))
-            : (Expression)Expression.Call(method, rs, itemProjector),
-          rs);
+          : body,
+        rs);
       return projector;
     }
 

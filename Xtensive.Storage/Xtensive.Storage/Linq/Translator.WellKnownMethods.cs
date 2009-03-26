@@ -50,6 +50,9 @@ namespace Xtensive.Storage.Linq
       // Record
       public static readonly MethodInfo RecordKey;
 
+      // RecordSet
+      public static readonly MethodInfo RecordSetParse;
+
       private static MethodInfo GetQueryableMethod(string name, int numberOfGenericArgument, int numberOfArguments)
       {
         return typeof(Queryable).GetMethod(name,
@@ -105,6 +108,9 @@ namespace Xtensive.Storage.Linq
 
         // Record
         RecordKey = typeof(Record).GetProperty("Item", typeof(Key), new[] { typeof(int) }).GetGetMethod();
+
+        // RecordSet
+        RecordSetParse = typeof(RecordSetExtensions).GetMethod("Parse");
       }
     }
   }
