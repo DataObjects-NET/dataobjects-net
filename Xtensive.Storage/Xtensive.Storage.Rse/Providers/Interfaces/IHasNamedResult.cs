@@ -9,8 +9,8 @@ using Xtensive.Storage.Rse.Providers.Compilable;
 namespace Xtensive.Storage.Rse.Providers
 {
   /// <summary>
-  /// Returned as service (see <see cref="Provider.GetService{T}"/>) 
-  /// by <see cref="LoadProvider"/> and <see cref="SaveProvider"/>.
+  /// Returned as service (see <see cref="ExecutableProvider.GetService{T}"/>) 
+  /// by <see cref="StoreProvider"/>.
   /// </summary>
   public interface IHasNamedResult
   {

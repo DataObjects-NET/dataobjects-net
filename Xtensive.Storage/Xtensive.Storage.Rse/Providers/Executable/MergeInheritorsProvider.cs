@@ -29,7 +29,7 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
     IOrderedEnumerable<Tuple,Tuple>,
     ICountable
   {
-    private readonly Provider[] sourceProviders;
+    private readonly ExecutableProvider[] sourceProviders;
     private MapTransform keyTransform;
     private Converter<Tuple, Tuple> keyExtractor;
     private MapTransform[] transforms;

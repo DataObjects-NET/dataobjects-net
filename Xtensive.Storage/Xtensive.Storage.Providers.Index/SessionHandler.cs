@@ -5,18 +5,24 @@
 // Created:    2008.07.01
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Core.Threading;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Indexing;
 using Xtensive.Storage.Linq;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers.Index.Resources;
+using Xtensive.Storage.Rse.Providers;
 
 namespace Xtensive.Storage.Providers.Index
 {
   public class SessionHandler : Providers.SessionHandler
   {
+    private readonly Dictionary<CompilableProvider, ExecutableProvider> compiledIndexProvidersCache 
+      = new Dictionary<CompilableProvider, ExecutableProvider>();
+
     /// <inheritdoc/>
     public override void BeginTransaction()
     {
@@ -53,7 +59,8 @@ namespace Xtensive.Storage.Providers.Index
       var indexProvider = Rse.Providers.Compilable.IndexProvider.Get(primaryIndex);
       SeekResult<Tuple> pkSeekResult;
       using (EnumerationScope.Open()) {
-        pkSeekResult = indexProvider
+        var executableProvider = GetCompiledIndexProvider(indexProvider);
+        pkSeekResult = executableProvider
           .GetService<IOrderedEnumerable<Tuple, Tuple>>()
           .Seek(new Ray<Entire<Tuple>>(new Entire<Tuple>(state.Key.Value)));
         if (pkSeekResult.ResultType != SeekResultType.Exact)
@@ -82,7 +89,8 @@ namespace Xtensive.Storage.Providers.Index
       var indexProvider = Rse.Providers.Compilable.IndexProvider.Get(primaryIndex);
       SeekResult<Tuple> pkSeekResult;
       using (EnumerationScope.Open()) {
-        pkSeekResult = indexProvider
+        var executableProvider = GetCompiledIndexProvider(indexProvider);
+        pkSeekResult = executableProvider
           .GetService<IOrderedEnumerable<Tuple, Tuple>>()
           .Seek(new Ray<Entire<Tuple>>(new Entire<Tuple>(state.Key.Value)));
         if (pkSeekResult.ResultType!=SeekResultType.Exact)
@@ -106,6 +114,20 @@ namespace Xtensive.Storage.Providers.Index
     /// <inheritdoc/>
     public override void Dispose()
     {
+    }
+
+    private ExecutableProvider GetCompiledIndexProvider(CompilableProvider provider)
+    {
+      ExecutableProvider result;
+      if (compiledIndexProvidersCache.TryGetValue(provider, out result))
+        return result;
+
+      var compilationContext = Handlers.DomainHandler.CompilationContext;
+      if (compilationContext == null)
+        throw new InvalidOperationException();
+      result = compilationContext.Compile(provider);
+      compiledIndexProvidersCache.Add(provider, result);
+      return result;
     }
   }
 }

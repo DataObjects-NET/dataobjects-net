@@ -223,14 +223,8 @@ namespace Xtensive.Storage.Tests.Storage
               Take(5).
               Save(scope, name);
 
-            saved.Count();
-
-          using (EnumerationScope.Open()) {
-            Assert.AreEqual(name, saved.Provider.GetService<IHasNamedResult>().Name);
-            Assert.AreEqual(scope, saved.Provider.GetService<IHasNamedResult>().Scope);
-          }
-
-            var loaded = RecordSet.Load(saved.Header, scope, name);
+          saved.Count();
+          var loaded = RecordSet.Load(saved.Header, scope, name);
 
           AssertEx.AreEqual(saved, loaded);
           t.Complete();

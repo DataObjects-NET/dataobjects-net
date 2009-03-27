@@ -22,8 +22,8 @@ namespace Xtensive.Storage.Rse.Providers.Internals
 {
   internal sealed class JoinInheritorsReader : ProviderReader
   {
-    private readonly Provider root;
-    private readonly Provider[] inheritors;
+    private readonly ExecutableProvider root;
+    private readonly ExecutableProvider[] inheritors;
     private readonly MapTransform transform;
     private readonly IIndexReader<Tuple, Tuple> reader;
     private readonly IIndexReader<Tuple, Tuple>[] rightReaders;
@@ -81,7 +81,7 @@ namespace Xtensive.Storage.Rse.Providers.Internals
 
     // Constructor
 
-    public JoinInheritorsReader(Provider provider, Range<Entire<Tuple>> range, Provider root, Provider[] inheritors, MapTransform transform)
+    public JoinInheritorsReader(ExecutableProvider provider, Range<Entire<Tuple>> range, ExecutableProvider root, ExecutableProvider[] inheritors, MapTransform transform)
       : base(provider, range)
     {
       this.root = root;

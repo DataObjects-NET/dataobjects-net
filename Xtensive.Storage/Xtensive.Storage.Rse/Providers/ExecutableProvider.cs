@@ -5,6 +5,7 @@
 // Created:    2008.07.07
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
@@ -14,6 +15,7 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Helpers;
 using Xtensive.Storage.Rse.Compilation;
+using IEnumerable=System.Collections.IEnumerable;
 
 namespace Xtensive.Storage.Rse.Providers
 {
@@ -23,6 +25,8 @@ namespace Xtensive.Storage.Rse.Providers
   /// </summary>
   [Serializable]
   public abstract class ExecutableProvider : Provider,
+    IEnumerable<Tuple>,
+    IHasServices,
     ICachingProvider
   {
     protected const string ToString_Origin = "[Origin: {0}]";
@@ -108,7 +112,7 @@ namespace Xtensive.Storage.Rse.Providers
     /// was registered by <see cref="AddService{T}"/>, and returns <c>this as T</c>, if this is <see langword="true" />;
     /// otherwise, <see langword="null" />.
     /// </remarks>
-    public override T GetService<T>()
+    public virtual T GetService<T>() where T :class
     {
       if (!supportedServices.Contains(typeof(T)))
         return null;
@@ -198,7 +202,13 @@ namespace Xtensive.Storage.Rse.Providers
     #region IEnumerable<...> methods
 
     /// <inheritdoc/>
-    public sealed override IEnumerator<Tuple> GetEnumerator()
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+      return GetEnumerator();
+    }
+
+    /// <inheritdoc/>
+    public IEnumerator<Tuple> GetEnumerator()
     {
       var context = EnumerationScope.CurrentContext;
       OnBeforeEnumerate(context);

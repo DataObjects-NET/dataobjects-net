@@ -17,7 +17,7 @@ namespace Xtensive.Storage.Rse.Providers.Internals
 {
   internal sealed class FilteringReader : ProviderReader
   {
-    private readonly Provider toFilter;
+    private readonly ExecutableProvider toFilter;
     private readonly Func<Tuple, bool> predicate;
     private readonly IIndexReader<Tuple, Tuple> reader;
 
@@ -51,7 +51,7 @@ namespace Xtensive.Storage.Rse.Providers.Internals
 
     // Constructor
 
-    public FilteringReader(Provider provider, Range<Entire<Tuple>> range, Provider toFilter, Func<Tuple,bool> predicate)
+    public FilteringReader(ExecutableProvider provider, Range<Entire<Tuple>> range, ExecutableProvider toFilter, Func<Tuple,bool> predicate)
       : base(provider, range)
     {
       this.toFilter = toFilter;

@@ -21,7 +21,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     IListProvider
   {
     private const string SortKey = "SortKey";
-    private readonly Provider source;
+    private readonly ExecutableProvider source;
     private MapTransform transform;
     private AdvancedComparer<Tuple> keyComparer;
 

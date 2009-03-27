@@ -18,14 +18,14 @@ namespace Xtensive.Storage.Rse.Providers.Internals
   /// </summary>
   internal abstract class ProviderReader: IIndexReader<Tuple, Tuple>
   {
-    private readonly Provider provider;
+    private readonly ExecutableProvider provider;
     private Range<Entire<Tuple>> range; // Non-readonly - to avoid stack growth
     private readonly Direction direction;
 
     /// <summary>
     /// Gets the provider this reader is created for.
     /// </summary>
-    public Provider Provider
+    public ExecutableProvider Provider
     {
       get { return provider; }
     }
@@ -79,7 +79,7 @@ namespace Xtensive.Storage.Rse.Providers.Internals
     /// </summary>
     /// <param name="provider"><see cref="Provider"/> property value.</param>
     /// <param name="range">The <see cref="Range"/> property value.</param>
-    protected ProviderReader(Provider provider, Range<Entire<Tuple>> range)
+    protected ProviderReader(ExecutableProvider provider, Range<Entire<Tuple>> range)
     {
       this.provider = provider;
       this.range = range;

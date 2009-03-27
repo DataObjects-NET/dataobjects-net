@@ -19,7 +19,7 @@ namespace Xtensive.Storage.Rse.Providers.Internals
 {
   internal sealed class MergeInheritorsReader : ProviderReader
   {
-    private readonly Provider[] inheritors;
+    private readonly ExecutableProvider[] inheritors;
     private readonly IIndexReader<Tuple, Tuple>[] readers;
     private readonly MapTransform[] transforms;
     private readonly IDisposable disposables;
@@ -72,7 +72,7 @@ namespace Xtensive.Storage.Rse.Providers.Internals
 
     // Constructor
 
-    public MergeInheritorsReader(Provider provider, Range<Entire<Tuple>> range, Provider[] inheritors, MapTransform[] transforms)
+    public MergeInheritorsReader(ExecutableProvider provider, Range<Entire<Tuple>> range, ExecutableProvider[] inheritors, MapTransform[] transforms)
       : base(provider, range)
     {
       this.inheritors = inheritors;

@@ -46,7 +46,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     public override ExecutableProvider ToCompatible(ExecutableProvider provider)
     {
-      return new StoreProvider(provider).Compile();
+      return Compile(new StoreProvider(provider));
     }
 
     /// <inheritdoc/>
@@ -455,7 +455,7 @@ namespace Xtensive.Storage.Providers.Sql
       Table table;
       string tableName = string.Format(TABLE_NAME_PATTERN, provider.Name);
       if (provider.Source != null) {
-        ex = provider.Source.Compile();
+        ex = provider.Source as ExecutableProvider ?? GetBound(provider.Source);
         table = provider.Scope == TemporaryDataScope.Global ? schema.CreateTable(tableName)
           : schema.CreateTemporaryTable(tableName);
 

@@ -186,53 +186,6 @@ namespace Xtensive.Storage.Tests.Rse
       authorRS.Save(TemporaryDataScope.Transaction, "authors");
     }
 
-    [Test]
-    public void RemovalTest()
-    {
-      const int authorCount = 1000;
-      Tuple authorTuple = Tuple.Create(new[] {typeof (int), typeof (string), typeof (string)});
-      var authorColumns = new[]
-                          {
-                            new MappedColumn("ID", 0, typeof (int)),
-                            new MappedColumn("FirstName", 1, typeof (string)),
-                            new MappedColumn("LastName", 2, typeof (string)),
-                          };
-      var authorHeader = new RecordSetHeader(authorTuple.Descriptor, authorColumns);
-
-      var authors = new Tuple[authorCount];
-      for (int i = 0; i < authorCount; i++) {
-        Tuple author = authorTuple.CreateNew();
-        author.SetValue(0, i);
-        author.SetValue(1, "FirstName" + i % 5);
-        author.SetValue(2, "LastName" + i / 5);
-        authors[i] = author;
-      }
-
-      RecordSet authorRS = authors
-        .ToRecordSet(authorHeader)
-        .OrderBy(new DirectionCollection<int>(0), true);
-
-      Assert.AreEqual(authorCount, authorRS.Count());
-      int counter = 0;
-
-      Tuple previous = null;
-      Index<Tuple, Tuple> actualIndex = null;
-      foreach (var author in authorRS) {
-        counter++;
-        if (actualIndex==null)
-          actualIndex = authorRS.Provider.GetService<Index<Tuple, Tuple>>();
-        if (previous!=null)
-          actualIndex.Remove(previous);
-        previous = author;
-      }
-
-      Assert.IsNotNull(actualIndex);
-      Assert.AreEqual(authorCount, counter);
-      Assert.AreEqual(1, actualIndex.Count);
-// NOTE: Cached!!!!
-//      Assert.AreEqual(0, authorRS.Count());
-    }
-
     private void TestJoinCount(RecordSet item1, RecordSet item2, int resultCount)
     {
       using (EnumerationScope.Open()) {

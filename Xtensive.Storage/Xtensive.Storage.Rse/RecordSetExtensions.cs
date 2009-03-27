@@ -22,11 +22,6 @@ namespace Xtensive.Storage.Rse
 {
   public static class RecordSetExtensions
   {
-    public static Tuple GetRecord(this RecordSet recordSet, int index)
-    {
-      return recordSet.Provider.GetService<IListProvider>(true).GetItem(index);
-    }
-
     public static RecordSet Range(this RecordSet recordSet, Func<Range<Entire<Tuple>>> range)
     {
       return new RangeProvider(recordSet.Provider, () => range.Invoke()) { CompiledRange = range }.Result;

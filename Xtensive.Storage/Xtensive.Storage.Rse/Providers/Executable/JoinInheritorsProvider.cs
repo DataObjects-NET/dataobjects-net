@@ -30,9 +30,9 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
     ICountable
   {
     private readonly int includedColumnsCount;
-    private readonly Provider root;
+    private readonly ExecutableProvider root;
     private readonly IOrderedEnumerable<Tuple, Tuple> rootEnumerable;
-    private readonly Provider[] inheritors;
+    private readonly ExecutableProvider[] inheritors;
     private MapTransform mapTransform;
 
     #region Interface implementation

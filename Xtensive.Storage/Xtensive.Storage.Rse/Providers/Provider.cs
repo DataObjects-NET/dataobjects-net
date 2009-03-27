@@ -5,15 +5,12 @@
 // Created:    2008.07.03
 
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using Xtensive.Core;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Tuples;
 using Xtensive.Core.Reflection;
 
 namespace Xtensive.Storage.Rse.Providers
@@ -23,10 +20,7 @@ namespace Xtensive.Storage.Rse.Providers
   /// </summary>
   [Serializable]
   [DebuggerDisplay("{DebuggerDisplayName}, Source count = {Sources.Length}")]
-  public abstract class Provider : 
-    IEnumerable<Tuple>,
-    IHasServices,
-    IInitializable
+  public abstract class Provider : IInitializable
   {
     protected const string ToString_ProviderTypeSuffix = "Provider";
     protected const string ToString_Parameters = " ({0})";
@@ -71,29 +65,12 @@ namespace Xtensive.Storage.Rse.Providers
       }
     }
 
-    /// <inheritdoc/>
-    public abstract T GetService<T>()
-      where T : class;
-
     /// <summary>
     /// Builds the <see cref="Header"/>.
     /// This method is invoked just once on each provider.
     /// </summary>
     /// <returns>Newly created <see cref="RecordSetHeader"/> to assign to <see cref="Header"/> property.</returns>
     protected abstract RecordSetHeader BuildHeader();
-
-    #region IEnumerable<...> methods
-
-    /// <inheritdoc/>
-    public abstract IEnumerator<Tuple> GetEnumerator();
-
-    /// <inheritdoc/>
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-      return GetEnumerator();
-    }
-
-    #endregion
 
     private string DebuggerDisplayName {
       get { return GetType().GetShortName(); }

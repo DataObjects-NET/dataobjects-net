@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Rse;
+using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
 using Xtensive.Core.Disposing;
@@ -55,9 +56,14 @@ namespace Xtensive.Storage.Rse
     /// <inheritdoc/>
     public IEnumerator<Tuple> GetEnumerator()
     {
-      using (EnumerationScope.Open())
-        foreach (var tuple in Provider)
+      using (EnumerationScope.Open()) {
+        var compilationContext = CompilationContext.Current;
+        if (compilationContext == null)
+          throw new InvalidOperationException();
+        var compiled = compilationContext.Compile(Provider);
+        foreach (var tuple in compiled)
           yield return tuple;
+      }
     }
 
     /// <inheritdoc/>
