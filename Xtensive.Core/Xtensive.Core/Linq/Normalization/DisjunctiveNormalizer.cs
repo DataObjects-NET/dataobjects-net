@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics;
 using System.Linq.Expressions;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.Linq.Normalization
 {
@@ -16,6 +17,11 @@ namespace Xtensive.Core.Linq.Normalization
   [Serializable]
   public sealed class DisjunctiveNormalizer
   {
+    private bool finish;
+    private DisjunctiveNormalized normalizedResult;
+
+    public int MaxTermsCount { get; private set; }
+
     /// <summary>
     /// Transform the specified <see cref="Expression"/> to it disjunctive normal form.
     /// </summary>
@@ -23,14 +29,18 @@ namespace Xtensive.Core.Linq.Normalization
     /// <returns></returns>
     public DisjunctiveNormalized Normalize(Expression expression)
     {
+      if (finish)
+        return normalizedResult;
+
       var binary = expression as BinaryExpression;
-      if (binary != null)
+      if (binary != null) {
         return NormalizeBinary(binary);
+      }
 
       var unary = expression as UnaryExpression;
       if (unary != null)
         return NormalizeUnary(unary);
-
+      
       return new DisjunctiveNormalized(new Conjunction<Expression>(expression));
     }
 
@@ -43,7 +53,7 @@ namespace Xtensive.Core.Linq.Normalization
         
         BinaryExpression binary;
         if (TryConvertInversionToBinary(u, out binary))
-          return NormalizeBinary(binary);
+          return Normalize(binary);
       }
 
       return new DisjunctiveNormalized(new Conjunction<Expression>(u));
@@ -70,19 +80,48 @@ namespace Xtensive.Core.Linq.Normalization
 
     private DisjunctiveNormalized NormalizeDisjunction(BinaryExpression b)
     {
-      return new DisjunctiveNormalized(Normalize(b.Left).Operands, Normalize(b.Right).Operands);
+      var normalizedLeft = Normalize(b.Left);
+      if (finish)
+        return normalizedResult;
+      var normalizedRight = Normalize(b.Right);
+      if (finish)
+        return normalizedResult;
+      
+      var normalized = new DisjunctiveNormalized(normalizedLeft.Operands, normalizedRight.Operands);
+      
+      if (MaxTermsCount > 0 && normalized.TermsCount > MaxTermsCount) {
+        normalizedResult = normalizedLeft.TermsCount > normalizedRight.TermsCount ? normalizedLeft : normalizedRight;
+        finish = true;
+        return normalizedResult;
+      }
+
+      return normalized;
     }
 
     private DisjunctiveNormalized NormalizeCojunction(BinaryExpression b)
     {
-      var result = new DisjunctiveNormalized();
-
+      var normalizedLeft = Normalize(b.Left);
+      if (finish)
+        return normalizedResult;
+      var normalizedRight = Normalize(b.Right);
+      if (finish)
+        return normalizedResult;
+      
+      var normalized = new DisjunctiveNormalized();
       foreach (var leftConjunction in Normalize(b.Left).Operands) {
         foreach (var rightConjunction in Normalize(b.Right).Operands) {
-          result.Operands.Add(new Conjunction<Expression>(leftConjunction.Operands, rightConjunction.Operands));
+          normalized.Operands.Add(new Conjunction<Expression>(leftConjunction.Operands, rightConjunction.Operands));
         }
       }
-      return result;
+
+      if (MaxTermsCount > 0 && normalized.TermsCount > MaxTermsCount)
+      {
+        normalizedResult = normalizedLeft.TermsCount > normalizedRight.TermsCount ? normalizedLeft : normalizedRight;
+        finish = true;
+        return normalizedResult;
+      }
+
+      return normalized;
     }
     
     private static BinaryExpression ConvertEqualsToDisjunction(BinaryExpression b)
@@ -126,6 +165,26 @@ namespace Xtensive.Core.Linq.Normalization
         result = null;
         return false;
       }
+    }
+
+
+    // Constructors
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="maxTermsCount">The maximum count of result terms.</param>
+    public DisjunctiveNormalizer(int maxTermsCount)
+    {
+      MaxTermsCount = maxTermsCount;
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    public DisjunctiveNormalizer()
+    {
+      MaxTermsCount = -1;
     }
 
   }

@@ -25,16 +25,15 @@ namespace Xtensive.Core.Tests.Linq
     public void Test()
     {
       var qs = source.AsQueryable();
-      var n = new DisjunctiveNormalizer();
 
       IQueryable q = from i in qs where (i == 1) & !((i > 2) & ((i == 3) & (i == 4))) select i;
-      string expected = "((i = 1) And Not(i > 2)) Or (((i = 1) And Not(i = 3)) Or ((i = 1) And Not(i = 4)))";
       Expression b = new BooleanSearcher().GetFirstBooleanExpression(q);
-      Expression nb = n.Normalize(b).ToExpression();
+      Expression nb = new DisjunctiveNormalizer().Normalize(b).ToExpression();
+      Expression nb1 = new DisjunctiveNormalizer(3).Normalize(b).ToExpression();
 
       DumpExpression(b);
       DumpExpression(nb);
-      Log.Info(expected);
+      DumpExpression(nb1);
     }
 
     [Test]

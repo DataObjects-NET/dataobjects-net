@@ -18,6 +18,14 @@ namespace Xtensive.Core.Linq.Normalization
   [Serializable]
   public class DisjunctiveNormalized : Disjunction<Conjunction<Expression>>
   {
+    /// <summary>
+    /// Gets the total terms count.
+    /// </summary>
+    public int TermsCount
+    {
+      get{ return Operands.Aggregate(0, (count, c) => count + c.Operands.Count);}
+    }
+
     /// <inheritdoc/>
     public override Expression ToExpression()
     {
