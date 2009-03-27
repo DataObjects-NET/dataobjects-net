@@ -23,15 +23,15 @@ namespace Xtensive.Storage.Providers
 
     // Constructors
     
+//    /// <inheritdoc/>
+//    public CompilationContext(ICompiler compiler)
+//      : base(compiler)
+//    {
+//    }
+
     /// <inheritdoc/>
     public CompilationContext(ICompiler compiler)
       : base(compiler)
-    {
-    }
-
-    /// <inheritdoc/>
-    public CompilationContext(ICompiler compiler, ExtensionCollection extensions)
-      : base(compiler, extensions)
     {
     }
   }

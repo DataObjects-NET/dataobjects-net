@@ -6,16 +6,12 @@
 
 using System;
 using System.Diagnostics;
-using System.Linq;
 using System.Threading;
 using Xtensive.Core;
 using Xtensive.Core.Caching;
-using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Parameters;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
-using Xtensive.Storage.Rse.Providers.Executable;
 using Xtensive.Storage.Rse.Resources;
 using Xtensive.Core.Helpers;
 
@@ -27,8 +23,7 @@ namespace Xtensive.Storage.Rse.Compilation
   /// <remarks>
   /// <para id="About"><see cref="HasStaticDefaultDocTemplate" copy="true" /></para>
   /// </remarks>
-  public abstract class CompilationContext : Context<CompilationScope>,
-    IHasExtensions
+  public abstract class CompilationContext : Context<CompilationScope>
   {
     #region Nested type: CacheEntry
 
@@ -91,13 +86,6 @@ namespace Xtensive.Storage.Rse.Compilation
     /// </summary>
     public ICompiler Compiler { get; internal set; }
 
-    /// <inheritdoc/>
-    /// <remarks>
-    /// Compilation context usually must provide compiler-specific extensions,
-    /// i.e. the extensions providing some information about compilation environment.
-    /// </remarks>
-    public IExtensionCollection Extensions { get; private set; }
-
     /// <summary>
     /// Compiles the specified provider by passing it to <see cref="Compiler"/>.<see cref="ICompiler.Compile"/> method.
     /// </summary>
@@ -158,26 +146,23 @@ namespace Xtensive.Storage.Rse.Compilation
 
     // Constructors
 
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="compiler"><see cref="Compiler"/> property value.</param>
-    public CompilationContext(ICompiler compiler)
-      : this(compiler, new ExtensionCollection())
-    {
-    }
+//    /// <summary>
+//    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+//    /// </summary>
+//    /// <param name="compiler"><see cref="Compiler"/> property value.</param>
+//    public CompilationContext(ICompiler compiler)
+//      : this(compiler, new ExtensionCollection())
+//    {
+//    }
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="compiler"><see cref="Compiler"/> property value.</param>
-    /// <param name="extensions"><see cref="Extensions"/> property value.</param>
-    public CompilationContext(ICompiler compiler, ExtensionCollection extensions)
+    public CompilationContext(ICompiler compiler)
     {
       Compiler   = compiler;
-      Extensions = extensions;
       BindingContext = new BindingContext<ExecutableProvider>();
-      extensions.LockSafely(true);
       cache = new LruCache<CompilableProvider, CacheEntry>(CacheSize, i => i.Key,
         new WeakestCache<CompilableProvider, CacheEntry>(false, false, i => i.Key));
     }
