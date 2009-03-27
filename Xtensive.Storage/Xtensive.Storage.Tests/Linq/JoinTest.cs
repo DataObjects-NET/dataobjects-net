@@ -170,7 +170,7 @@ namespace Xtensive.Storage.Tests.Linq
         var categoryCount = categories.Count();
         var result = from c in categories
                      join p in products on c equals p.Category into pGroup
-                     select pGroup.DefaultIfEmpty(new Product(){ProductName = "Nothing!", Category = c});
+                     select pGroup.DefaultIfEmpty(new ActiveProduct(){ProductName = "Nothing!", Category = c});
         var list = result.ToList();
         Assert.AreEqual(categoryCount, list.Count);
         t.Complete();

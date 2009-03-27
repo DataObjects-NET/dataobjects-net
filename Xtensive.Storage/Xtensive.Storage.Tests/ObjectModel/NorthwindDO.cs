@@ -10,6 +10,7 @@ using System.Data;
 using System.Data.SqlClient;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Attributes;
+using Xtensive.Storage.Configuration;
 
 
 namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
@@ -30,7 +31,6 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
 
     [Field(Length = 15)]
     public string Country { get; set; }
-
   }
 
   public abstract class Person : Entity
@@ -48,11 +48,13 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     // Constructors
 
     protected Person()
-    {}
+    {
+    }
 
     protected Person(Tuple tuple)
       : base(tuple)
-    {}
+    {
+    }
   }
 
   public abstract class BusinessContact : Person
@@ -70,7 +72,8 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     // Constructors
 
     protected BusinessContact()
-    {}
+    {
+    }
 
     protected BusinessContact(Tuple tuple)
       : base(tuple)
@@ -79,7 +82,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
   }
 
   [Entity(MappingName = "Categories")]
-  [HierarchyRoot(typeof(KeyGenerator), "Id")]
+  [HierarchyRoot(typeof (KeyGenerator), "Id")]
   public class Category : Entity
   {
     [Field(MappingName = "CategoryId")]
@@ -93,7 +96,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
 
     [Field(LazyLoad = true, Length = 1073741823)]
     public byte[] Picture { get; set; }
-    
+
     [Field(PairTo = "Category")]
     public EntitySet<Product> Products { get; private set; }
   }
@@ -105,6 +108,9 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     [Field(Length = 5, MappingName = "CustomerId")]
     public string Id { get; private set; }
 
+    [Field(PairTo = "Customer")]
+    public EntitySet<Order> Orders { get; private set; }
+
 
     // Constructors
 
@@ -114,7 +120,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     }
   }
 
-  [HierarchyRoot(typeof(KeyGenerator), "Id")]
+  [HierarchyRoot(typeof (KeyGenerator), "Id")]
   public class Region : Entity
   {
     [Field(MappingName = "RegionId")]
@@ -125,7 +131,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
   }
 
   [Entity(MappingName = "Suppliers")]
-  [HierarchyRoot(typeof(KeyGenerator), "Id")]
+  [HierarchyRoot(typeof (KeyGenerator), "Id")]
   public class Supplier : BusinessContact
   {
     [Field(MappingName = "SupplierId")]
@@ -133,13 +139,13 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
 
     [Field]
     public string HomePage { get; set; }
-    
+
     [Field(PairTo = "Supplier")]
     public EntitySet<Product> Products { get; private set; }
   }
 
   [Entity(MappingName = "Shippers")]
-  [HierarchyRoot(typeof(KeyGenerator), "Id")]
+  [HierarchyRoot(typeof (KeyGenerator), "Id")]
   public class Shipper : Entity
   {
     [Field(MappingName = "ShipperId")]
@@ -153,8 +159,8 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
   }
 
   [Entity(MappingName = "Products")]
-  [HierarchyRoot(typeof(KeyGenerator), "Id")]
-  public class Product : Entity
+  [HierarchyRoot(typeof (KeyGenerator), "Id", InheritanceSchema = InheritanceSchema.SingleTable)]
+  public abstract class Product : Entity
   {
     [Field(MappingName = "ProductId")]
     public int Id { get; private set; }
@@ -182,13 +188,20 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
 
     [Field]
     public short ReorderLevel { get; set; }
+  }
 
-    [Field]
-    public bool Discontinued { get; set; }
+  [Entity]
+  public class ActiveProduct : Product
+  {
+  }
+
+  [Entity]
+  public class DiscontinuedProduct : Product
+  {
   }
 
   [Entity(MappingName = "Employees")]
-  [HierarchyRoot(typeof(KeyGenerator), "Id")]
+  [HierarchyRoot(typeof (KeyGenerator), "Id")]
   public class Employee : Person
   {
     [Field]
@@ -227,8 +240,14 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     [Field]
     public Employee ReportsTo { get; set; }
 
+    [Field(PairTo = "ReportsTo")]
+    public EntitySet<Employee> ReportingEmployees { get; set; }
+
     [Field(Length = 255)]
     public string PhotoPath { get; set; }
+
+    [Field(PairTo = "Employee")]
+    public EntitySet<Order> Orders { get; private set; }
 
     [Field]
     public EntitySet<Territory> Territories { get; private set; }
@@ -259,7 +278,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
   }
 
   [Entity(MappingName = "Orders")]
-  [HierarchyRoot(typeof(KeyGenerator), "Id")]
+  [HierarchyRoot(typeof (KeyGenerator), "Id")]
   public class Order : Entity
   {
     [Field(MappingName = "OrderId")]
@@ -291,6 +310,9 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
 
     [Field]
     public Address ShippingAddress { get; set; }
+
+    [Field(PairTo = "Order")]
+    public EntitySet<OrderDetails> OrderDetails { get; private set; }
   }
 
   [Entity(MappingName = "OrderDetails")]
@@ -338,7 +360,6 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
 
       using (domain.OpenSession())
       using (var tr = Transaction.Open()) {
-
         #region  Categories
 
         var categories = new Dictionary<object, Category>();
@@ -383,7 +404,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
                   break;
               }
             }
-            customers.Add(reader.GetValue(0) ,customer);
+            customers.Add(reader.GetValue(0), customer);
           }
           reader.Close();
         }
@@ -420,20 +441,20 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
               string fieldName;
               Address address = supplier.Address;
               switch (dbName) {
-              case "Address":
-                address.StreetAddress = (string) (!reader.IsDBNull(i) ? reader.GetValue(i) : null);
-                break;
-              case "City":
-              case "Region":
-              case "PostalCode":
-              case "Country":
-                fieldName = dbName;
-                address[fieldName] = !reader.IsDBNull(i) ? reader.GetValue(i) : null;
-                break;
-              default:
-                fieldName = dbName;
-                supplier[fieldName] = !reader.IsDBNull(i) ? reader.GetValue(i) : null;
-                break;
+                case "Address":
+                  address.StreetAddress = (string) (!reader.IsDBNull(i) ? reader.GetValue(i) : null);
+                  break;
+                case "City":
+                case "Region":
+                case "PostalCode":
+                case "Country":
+                  fieldName = dbName;
+                  address[fieldName] = !reader.IsDBNull(i) ? reader.GetValue(i) : null;
+                  break;
+                default:
+                  fieldName = dbName;
+                  supplier[fieldName] = !reader.IsDBNull(i) ? reader.GetValue(i) : null;
+                  break;
               }
             }
             suppliers.Add(reader.GetValue(0), supplier);
@@ -467,18 +488,22 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
         reader = cmd.ExecuteReader(CommandBehavior.KeyInfo);
         if (reader!=null) {
           while (reader.Read()) {
-            var product = new Product();
+            var discontinuedColumnIndex = reader.GetOrdinal("Discontinued");
+            Product product = reader.GetBoolean(discontinuedColumnIndex)
+              ? (Product) new DiscontinuedProduct()
+              : new ActiveProduct();
             for (int i = 1; i < reader.FieldCount; i++)
               switch (i) {
-              case 2:
-                product.Supplier = !reader.IsDBNull(i) ? suppliers[reader.GetValue(i)] : null;
-                break;
-              case 3:
-                product.Category = !reader.IsDBNull(i) ? categories[reader.GetValue(i)] : null;
-                break;
-              default:
-                product[reader.GetName(i)] = !reader.IsDBNull(i) ? reader.GetValue(i) : null;
-                break;
+                case 2:
+                  product.Supplier = !reader.IsDBNull(i) ? suppliers[reader.GetValue(i)] : null;
+                  break;
+                case 3:
+                  product.Category = !reader.IsDBNull(i) ? categories[reader.GetValue(i)] : null;
+                  break;
+                default:
+                  if (i!=discontinuedColumnIndex)
+                    product[reader.GetName(i)] = !reader.IsDBNull(i) ? reader.GetValue(i) : null;
+                  break;
               }
             products.Add(reader.GetValue(0), product);
           }
@@ -496,26 +521,26 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
           while (reader.Read()) {
             var employee = new Employee();
             for (int i = 1; i < reader.FieldCount; i++) {
-              if (i == 16)
+              if (i==16)
                 continue;
               string dbName = reader.GetName(i);
               string fieldName;
               Address address = employee.Address;
               switch (dbName) {
-              case "Address":
-                address.StreetAddress = (string) (!reader.IsDBNull(i) ? reader.GetValue(i) : null);
-                break;
-              case "City":
-              case "Region":
-              case "PostalCode":
-              case "Country":
-                fieldName = dbName;
-                address[fieldName] = !reader.IsDBNull(i) ? reader.GetValue(i) : null;
-                break;
-              default:
-                fieldName = dbName;
-                employee[fieldName] = !reader.IsDBNull(i) ? reader.GetValue(i) : null;
-                break;
+                case "Address":
+                  address.StreetAddress = (string) (!reader.IsDBNull(i) ? reader.GetValue(i) : null);
+                  break;
+                case "City":
+                case "Region":
+                case "PostalCode":
+                case "Country":
+                  fieldName = dbName;
+                  address[fieldName] = !reader.IsDBNull(i) ? reader.GetValue(i) : null;
+                  break;
+                default:
+                  fieldName = dbName;
+                  employee[fieldName] = !reader.IsDBNull(i) ? reader.GetValue(i) : null;
+                  break;
               }
             }
             employees.Add(reader.GetValue(0), employee);
@@ -576,36 +601,36 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
             var order = new Order();
             for (int i = 1; i < reader.FieldCount; i++)
               switch (i) {
-              case 1:
-                order.Customer = !reader.IsDBNull(i) ? customers[reader.GetValue(i)] : null;
-                break;
-              case 2:
-                order.Employee = !reader.IsDBNull(i) ? employees[reader.GetValue(i)] : null;
-                break;
-              case 6:
-                order.ShipVia = !reader.IsDBNull(i) ? shippers[reader.GetValue(i)] : null;
-                break;
-              default:
-                string dbName = reader.GetName(i);
-                string fieldName;
-                Address address = order.ShippingAddress;
-                switch (dbName) {
-                case "ShipAddress":
-                  address.StreetAddress = (string) (!reader.IsDBNull(i) ? reader.GetValue(i) : null);
+                case 1:
+                  order.Customer = !reader.IsDBNull(i) ? customers[reader.GetValue(i)] : null;
                   break;
-                case "ShipCity":
-                case "ShipRegion":
-                case "ShipPostalCode":
-                case "ShipCountry":
-                  fieldName = dbName.Substring(4);
-                  address[fieldName] = !reader.IsDBNull(i) ? reader.GetValue(i) : null;
+                case 2:
+                  order.Employee = !reader.IsDBNull(i) ? employees[reader.GetValue(i)] : null;
+                  break;
+                case 6:
+                  order.ShipVia = !reader.IsDBNull(i) ? shippers[reader.GetValue(i)] : null;
                   break;
                 default:
-                  fieldName = dbName;
-                  order[fieldName] = !reader.IsDBNull(i) ? reader.GetValue(i) : null;
+                  string dbName = reader.GetName(i);
+                  string fieldName;
+                  Address address = order.ShippingAddress;
+                  switch (dbName) {
+                    case "ShipAddress":
+                      address.StreetAddress = (string) (!reader.IsDBNull(i) ? reader.GetValue(i) : null);
+                      break;
+                    case "ShipCity":
+                    case "ShipRegion":
+                    case "ShipPostalCode":
+                    case "ShipCountry":
+                      fieldName = dbName.Substring(4);
+                      address[fieldName] = !reader.IsDBNull(i) ? reader.GetValue(i) : null;
+                      break;
+                    default:
+                      fieldName = dbName;
+                      order[fieldName] = !reader.IsDBNull(i) ? reader.GetValue(i) : null;
+                      break;
+                  }
                   break;
-                }
-                break;
               }
             orders.Add(reader.GetValue(0), order);
           }

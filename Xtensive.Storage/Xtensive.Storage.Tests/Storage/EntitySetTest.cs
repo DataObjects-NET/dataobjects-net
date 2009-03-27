@@ -120,7 +120,7 @@ namespace Xtensive.Storage.Tests.Storage
         using (var t = Transaction.Open()) {
           var category = Query<Category>.All.First();
           var prodsuctCount = category.Products.Count;
-          var product = new Product();
+          var product = new ActiveProduct();
           category.Products.Add(product);
           Assert.AreEqual(category.Products.Count, prodsuctCount + 1);
           category.Products.Contains(product);
@@ -140,7 +140,7 @@ namespace Xtensive.Storage.Tests.Storage
         using (var t = Transaction.Open()) {
           var category = Query<Category>.All.First();
           Assert.AreEqual(category.Products.Count, 0);
-          var product = new Product();
+          var product = new ActiveProduct();
           category.Products.Add(product);
           Session.Current.Persist();
           t.Complete();
