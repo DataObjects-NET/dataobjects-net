@@ -32,8 +32,8 @@ namespace Xtensive.Storage.Linq
     {
       var originProvider = origin.RecordSet.Provider;
       var projectorMap = mappingsGatherer.GatherMappings(origin.Projector, originProvider.Header)
-          .OrderBy(i => i)
           .Distinct()
+          .OrderBy()
           .ToList();
       if (projectorMap.Count == 0)
         projectorMap.Add(0);
@@ -102,8 +102,8 @@ namespace Xtensive.Storage.Linq
         rightMapping.Add(item.Second);
       }
 
-      leftMapping = leftMapping.OrderBy(i => i).Distinct().ToList();
-      rightMapping = rightMapping.OrderBy(i => i).Distinct().ToList();
+      leftMapping = leftMapping.Distinct().OrderBy().ToList();
+      rightMapping = rightMapping.Distinct().OrderBy().ToList();
 
       // visit
 
@@ -319,8 +319,8 @@ namespace Xtensive.Storage.Linq
     {
       return left
         .Union(right)
-        .OrderBy(i => i)
         .Distinct()
+        .OrderBy()
         .ToList();
     }
 
