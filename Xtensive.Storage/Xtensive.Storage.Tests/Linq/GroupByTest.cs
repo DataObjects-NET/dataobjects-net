@@ -4,6 +4,7 @@
 // Created by: Alexis Kochetov
 // Created:    2009.02.04
 
+using System;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Storage.Tests.ObjectModel;
@@ -241,6 +242,21 @@ namespace Xtensive.Storage.Tests.Linq
       using (Domain.OpenSession())
       using (var t = Transaction.Open()) {
         var result = Query<Order>.All.GroupBy(o => o.Customer).Select(g => new {Customer = g.Key, OrdersCount = g.Count()});
+        var list = result.ToList();
+        Assert.Greater(list.Count, 0);
+        t.Complete();
+      }
+    }
+
+    [Test]
+    public void GroupByWithFilterTest()
+    {
+      using (Domain.OpenSession())
+      using (var t = Transaction.Open())
+      {
+        var result = Query<Order>.All
+          .GroupBy(o => o.Customer)
+          .Select(g => new { Customer = g.Key, Orders = g.Where(order=>order.OrderDate<DateTime.Now) });
         var list = result.ToList();
         Assert.Greater(list.Count, 0);
         t.Complete();
