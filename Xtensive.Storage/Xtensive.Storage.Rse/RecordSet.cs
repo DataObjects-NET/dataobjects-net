@@ -12,7 +12,7 @@ using Xtensive.Core.Tuples;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
-using Xtensive.Core.Disposable;
+using Xtensive.Core.Disposing;
 
 namespace Xtensive.Storage.Rse
 {

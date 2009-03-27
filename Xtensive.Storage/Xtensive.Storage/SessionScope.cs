@@ -6,7 +6,7 @@
 
 using System;
 using Xtensive.Core;
-using Xtensive.Core.Disposable;
+using Xtensive.Core.Disposing;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Storage

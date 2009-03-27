@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Core;
+using Xtensive.Core.Disposing;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Parameters;
 using Xtensive.Storage.Rse.Providers;
@@ -20,7 +21,7 @@ namespace Xtensive.Storage.Rse.Compilation
   public sealed class ManagingCompiler : ICompiler
   {
     private readonly Dictionary<UrlInfo, ICompiler> compilersMap;
-    private Func<object, ExecutableProvider, Binding> Bind { 
+    private Func<object, ExecutableProvider, Disposable> Bind { 
       get {
         return CompilationContext.Current.BindingContext.Bind;
       }

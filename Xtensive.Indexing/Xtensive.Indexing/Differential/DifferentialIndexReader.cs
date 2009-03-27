@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Comparison;
-using Xtensive.Core.Disposable;
+using Xtensive.Core.Disposing;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Indexing.Differential

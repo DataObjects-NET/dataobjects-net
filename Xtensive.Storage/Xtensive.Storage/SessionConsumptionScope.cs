@@ -8,7 +8,7 @@ using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Configuration;
-using Xtensive.Core.Disposable;
+using Xtensive.Core.Disposing;
 
 namespace Xtensive.Storage
 {

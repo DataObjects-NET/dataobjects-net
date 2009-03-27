@@ -7,12 +7,10 @@
 using System;
 using System.Collections.Generic;
 using NUnit.Framework;
-using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Conversion;
 using Xtensive.Core.Testing;
-using Xtensive.Indexing;
 using Xtensive.Indexing.Measures;
 
 namespace Xtensive.Indexing.Tests.Index

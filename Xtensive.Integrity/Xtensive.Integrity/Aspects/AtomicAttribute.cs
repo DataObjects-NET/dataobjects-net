@@ -11,7 +11,7 @@ using PostSharp.Extensibility;
 using PostSharp.Laos;
 using Xtensive.Core.Aspects.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Disposable;
+using Xtensive.Core.Disposing;
 using Xtensive.Core.Reflection;
 using Xtensive.Integrity.Aspects.Internals;
 using Xtensive.Integrity.Atomicity;

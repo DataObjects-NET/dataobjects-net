@@ -5,7 +5,7 @@
 // Created:    2008.11.07
 
 using System.Transactions;
-using Xtensive.Core.Disposable;
+using Xtensive.Core.Disposing;
 
 namespace Xtensive.Storage
 {

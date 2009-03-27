@@ -10,7 +10,7 @@ using System.Linq;
 using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
-using Xtensive.Core.Disposable;
+using Xtensive.Core.Disposing;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Tuples;

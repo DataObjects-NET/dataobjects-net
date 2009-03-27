@@ -6,7 +6,7 @@
 
 using System;
 using System.Transactions;
-using Xtensive.Core.Disposable;
+using Xtensive.Core.Disposing;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Integrity.Transactions;
 using Xtensive.Storage.Resources;

@@ -5,11 +5,10 @@
 // Created:    2008.07.04
 
 using System;
-using System.Runtime.CompilerServices;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Rse.Providers;
-using Xtensive.Core.Disposable;
+using Xtensive.Core.Disposing;
 
 namespace Xtensive.Storage.Rse.Compilation
 {

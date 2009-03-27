@@ -5,15 +5,11 @@
 // Created:    2007.08.28
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using Xtensive.Core;
-using Xtensive.Core.Disposable;
+using Xtensive.Core.Disposing;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Indexing.Implementation;
 using Xtensive.Indexing.Providers;
-using Xtensive.Indexing.Resources;
-using Xtensive.Core.Helpers;
 
 namespace Xtensive.Indexing
 {

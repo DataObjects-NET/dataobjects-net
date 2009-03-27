@@ -5,7 +5,7 @@
 // Created:    2008.08.30
 
 using System;
-using Xtensive.Core.Disposable;
+using Xtensive.Core.Disposing;
 
 namespace Xtensive.Storage.Providers
 {

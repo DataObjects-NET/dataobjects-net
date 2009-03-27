@@ -9,12 +9,10 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
-using Xtensive.Core.Disposable;
+using Xtensive.Core.Disposing;
 using Xtensive.Core.Tuples;
 using Xtensive.Sql.Dom;
-using Xtensive.Storage.Linq;
 using Xtensive.Storage.Providers.Sql.Resources;
-using IsolationLevel=System.Transactions.IsolationLevel;
 
 namespace Xtensive.Storage.Providers.Sql
 {

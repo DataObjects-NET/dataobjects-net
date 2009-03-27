@@ -10,7 +10,7 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Providers;
 using Xtensive.Core.Helpers;
-using Xtensive.Core.Disposable;
+using Xtensive.Core.Disposing;
 
 namespace Xtensive.Storage.Providers
 {

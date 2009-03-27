@@ -14,8 +14,6 @@ using Xtensive.Core.Comparison;
 using Xtensive.Core.Conversion;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Testing;
-using Xtensive.Indexing;
-using Xtensive.Indexing.Tests;
 
 namespace Xtensive.Indexing.Tests.Index
 {

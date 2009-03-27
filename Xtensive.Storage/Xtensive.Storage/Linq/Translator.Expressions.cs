@@ -285,7 +285,7 @@ namespace Xtensive.Storage.Linq
             body = Visit(arg);
           }
           if (((ExtendedExpressionType) body.NodeType)==ExtendedExpressionType.Result) {
-            var outerParameters = context.GetBindingKeys()
+            var outerParameters = context.GetKeys()
               .OfType<ParameterExpression>()
               .ToList();
             if (outerParameters.Count==0)

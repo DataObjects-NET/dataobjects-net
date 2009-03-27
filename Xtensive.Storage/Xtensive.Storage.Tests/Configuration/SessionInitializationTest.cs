@@ -8,7 +8,7 @@ using System;
 using System.Diagnostics;
 using NUnit.Framework;
 using Xtensive.Core.Caching;
-using Xtensive.Core.Disposable;
+using Xtensive.Core.Disposing;
 using Xtensive.Core.Reflection;
 using Xtensive.Storage.Configuration;
 

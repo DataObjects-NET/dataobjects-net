@@ -7,7 +7,7 @@
 using NUnit.Framework;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Storage.Configuration;
-using Xtensive.Core.Disposable;
+using Xtensive.Core.Disposing;
 using Xtensive.Storage.Tests.Storage.Services;
 
 namespace Xtensive.Storage.Tests.Storage

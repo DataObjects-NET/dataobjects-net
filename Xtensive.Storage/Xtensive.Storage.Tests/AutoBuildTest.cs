@@ -8,7 +8,7 @@ using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Storage.Configuration;
 using Xtensive.Core.Helpers;
-using Xtensive.Core.Disposable;
+using Xtensive.Core.Disposing;
 
 namespace Xtensive.Storage.Tests
 {

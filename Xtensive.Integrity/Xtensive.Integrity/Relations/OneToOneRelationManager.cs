@@ -6,12 +6,10 @@
 
 using System;
 using System.Reflection;
-using Xtensive.Core;
-using Xtensive.Core.Disposable;
+using Xtensive.Core.Disposing;
 using Xtensive.Core.Reflection;
 using Xtensive.Integrity.Atomicity;
 using Xtensive.Integrity.Resources;
-using Xtensive.Core.Helpers;
 
 namespace Xtensive.Integrity.Relations
 {
