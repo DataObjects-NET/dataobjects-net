@@ -150,7 +150,7 @@ namespace Xtensive.Storage.Linq
           if (joinFinalEntity.Value)
             return VisitMemberPathEntity(path, source, resultType);
           path = MemberPath.Parse(Expression.MakeMemberAccess(e, WellKnownMethods.IEntityKey), context.Model);
-          var keyExpression =  VisitMemberPathKey(path, source);
+          var keyExpression = VisitMemberPathKey(path, source);
           var result = Expression.Convert(
             Expression.Call(
               keyExpression,
@@ -317,7 +317,7 @@ namespace Xtensive.Storage.Linq
           }
         }
         newArg = newArg ?? Visit(arg);
-        arguments.Add(/*argumentResolver ?? */newArg);
+        arguments.Add( /*argumentResolver ?? */newArg);
       }
       return Expression.New(n.Constructor, arguments, n.Members);
     }
@@ -515,62 +515,36 @@ namespace Xtensive.Storage.Linq
       if (binaryExpression.NodeType!=ExpressionType.Equal && binaryExpression.NodeType!=ExpressionType.NotEqual)
         throw new NotSupportedException();
 
-      bool leftIsParameter = context.ParameterExtractor.IsParameter(binaryExpression.Left);
-      bool rightIsParameter = context.ParameterExtractor.IsParameter(binaryExpression.Right);
+      Expression leftExpression = binaryExpression.Left;
+      Expression rightExpression = binaryExpression.Right;
 
-//      if (!leftIsParameter && !rightIsParameter)
-//        return MakeComplexBinaryExpression(binaryExpression.Left, binaryExpression.Right, binaryExpression.NodeType);
-
-      // Type mistmatch - return true/flase for NotEqual/Equal
-      if (binaryExpression.Left.Type!=binaryExpression.Right.Type)
-        return Expression.Constant(binaryExpression.NodeType!=ExpressionType.Equal);
-
-
-      var leftExpression = binaryExpression.Left;
-      var rightExpression = binaryExpression.Right;
-
-//      if (!rightIsParameter)
-//        rightExpression = Visit(rightExpression);
-//
-//      if (!leftIsParameter)
-//        leftExpression = Visit(leftExpression);
-
-      if (leftExpression.NodeType == ExpressionType.New)
-      {
-        Expression result = null;
-        for (int i = 0; i < ((NewExpression) leftExpression).Arguments.Count; i++) {
-          var left = ((NewExpression) leftExpression).Arguments[i];
-          Expression right;
-          switch (rightExpression.NodeType)
-          {
-            case ExpressionType.New:
-              right = ((NewExpression)rightExpression).Arguments[i];
-              break;
-            case ExpressionType.MemberAccess:
-              var memberAccessExpression = (MemberExpression) rightExpression;
-              if (memberAccessExpression.Expression.NodeType!=ExpressionType.Constant) 
-                throw new NotSupportedException();
-              var constantExpression = (ConstantExpression) memberAccessExpression.Expression;
-              var value = constantExpression.Value;
-              var type = value.GetType();
-              var fields = type.GetFields();
-              if (fields.Length!=1) 
-                throw new NotSupportedException();
-              var parameterValue = fields[0].GetValue(value);
-              var memberInfo = ((NewExpression) leftExpression).Members[i];
-              right = Expression.Call(Expression.Constant(parameterValue), (MethodInfo)memberInfo);
-              break;
-            default:
-              throw new NotSupportedException();
-          }
-          var expression = VisitBinary((BinaryExpression) MakeBinaryExpression(null, left, right, binaryExpression.NodeType));
-          result = result == null ? expression : Expression.AndAlso(result, expression);
+      var properties = leftExpression.Type.GetProperties();
+      Expression result = null;
+      foreach (PropertyInfo propertyInfo in properties) {
+        Expression left;
+        string propertyName = propertyInfo.GetGetMethod().Name;
+        if (leftExpression.NodeType == ExpressionType.New) {
+          var newExpression = ((NewExpression) leftExpression);
+          var member = newExpression.Members.First(memberInfo => memberInfo.Name==propertyName);
+          int index = newExpression.Members.IndexOf(member);
+          left = newExpression.Arguments[index];
         }
-        return result;
+        else
+          left = Expression.Property(leftExpression, propertyInfo);
+        Expression right;
+        if (rightExpression.NodeType == ExpressionType.New)
+        {
+          var newExpression = ((NewExpression)rightExpression);
+          var member = newExpression.Members.First(memberInfo => memberInfo.Name == propertyName);
+          int index = newExpression.Members.IndexOf(member);
+          right = newExpression.Arguments[index];
+        }
+        else
+          right = Expression.Property(leftExpression, propertyInfo);
+        var expression = VisitBinary((BinaryExpression) MakeBinaryExpression(null, left, right, binaryExpression.NodeType));
+        result = result==null ? expression : Expression.AndAlso(result, expression);
       }
-
-      throw new NotSupportedException();
-      // return binaryExpression;
+      return result;
     }
 
     private Expression VisitBinaryStructure(BinaryExpression binaryExpression)
@@ -594,7 +568,7 @@ namespace Xtensive.Storage.Linq
     private Expression VisitMemberPathEntitySet(Expression e)
     {
       recordIsUsed = true;
-      var m = (MemberExpression)e;
+      var m = (MemberExpression) e;
       var expression = Visit(m.Expression);
       var result = Expression.MakeMemberAccess(expression, m.Member);
       return result;
@@ -611,13 +585,11 @@ namespace Xtensive.Storage.Linq
           WellKnownMethods.KeyResolve), resultType);
       var rm = source.GetMemberMapping(path);
       var name = rm.Fields.Select(pair => pair.Key).OrderBy(s => s.Length).First();
-      foreach (var pair in rm.Fields)
-      {
+      foreach (var pair in rm.Fields) {
         var key = pair.Key.TryCutPrefix(name).TrimStart('.');
         resultMapping.Value.RegisterFieldMapping(key, pair.Value);
       }
-      foreach (var pair in rm.JoinedRelations)
-      {
+      foreach (var pair in rm.JoinedRelations) {
         var key = pair.Key.TryCutPrefix(name).TrimStart('.');
         resultMapping.Value.RegisterJoined(key, pair.Value);
       }
@@ -629,9 +601,9 @@ namespace Xtensive.Storage.Linq
     {
       recordIsUsed = true;
       var segment = source.GetMemberSegment(path);
-      var structureColumn = (MappedColumn)source.RecordSet.Header.Columns[segment.Offset];
+      var structureColumn = (MappedColumn) source.RecordSet.Header.Columns[segment.Offset];
       var field = structureColumn.ColumnInfoRef.Resolve(context.Model).Field;
-      while (field.Parent != null)
+      while (field.Parent!=null)
         field = field.Parent;
       int groupIndex = source.RecordSet.Header.ColumnGroups.GetGroupIndexBySegment(segment);
       var result =
@@ -648,8 +620,7 @@ namespace Xtensive.Storage.Linq
       var rm = source.GetMemberMapping(path);
       var mappedFields = rm.Fields.Where(p => (p.Value.Offset >= segment.Offset && p.Value.EndOffset <= segment.EndOffset)).ToList();
       var name = mappedFields.Select(pair => pair.Key).OrderBy(s => s.Length).First();
-      foreach (var pair in mappedFields)
-      {
+      foreach (var pair in mappedFields) {
         var key = pair.Key.TryCutPrefix(name).TrimStart('.');
         resultMapping.Value.RegisterFieldMapping(key, pair.Value);
       }
@@ -680,9 +651,9 @@ namespace Xtensive.Storage.Linq
     private Expression VisitMemberPathKey(MemberPath path, ResultExpression source)
     {
       Segment<int> segment = source.GetMemberSegment(path);
-      var keyColumn = (MappedColumn)source.RecordSet.Header.Columns[segment.Offset];
+      var keyColumn = (MappedColumn) source.RecordSet.Header.Columns[segment.Offset];
       var field = keyColumn.ColumnInfoRef.Resolve(context.Model).Field;
-      var type = field.Parent == null ? field.ReflectedType : context.Model.Types[field.Parent.ValueType];
+      var type = field.Parent==null ? field.ReflectedType : context.Model.Types[field.Parent.ValueType];
       var transform = new SegmentTransform(true, field.ReflectedType.TupleDescriptor, segment);
       var keyExtractor = Expression.Call(WellKnownMethods.KeyCreate, Expression.Constant(type),
         Expression.Call(Expression.Constant(transform), WellKnownMethods.SegmentTransformApply,
@@ -691,6 +662,7 @@ namespace Xtensive.Storage.Linq
       resultMapping.Value.RegisterPrimitive(segment);
       return keyExtractor;
     }
+
     #endregion
   }
 }
