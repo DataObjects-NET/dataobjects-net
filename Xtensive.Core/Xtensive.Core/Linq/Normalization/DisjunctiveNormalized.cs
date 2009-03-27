@@ -52,8 +52,8 @@ namespace Xtensive.Core.Linq.Normalization
     }
 
     /// <inheritdoc/>
-    public DisjunctiveNormalized(IEnumerable<Conjunction<Expression>> operands)
-      : base(operands)
+    public DisjunctiveNormalized(IEnumerable<Conjunction<Expression>> operands, params IEnumerable<Conjunction<Expression>>[] operandSets)
+      : base(operands, operandSets)
     {
     }
 

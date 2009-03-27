@@ -27,22 +27,31 @@ namespace Xtensive.Core.Tests.Linq
       var qs = source.AsQueryable();
       var n = new DisjunctiveNormalizer();
 
-      IQueryable q = from i in qs where (i == 1) & !((i == 2) & ((i == 3) & (i == 4))) select i;
-      string expected = "((i = 1) And Not(i = 2)) Or (((i = 1) And Not(i = 3)) Or ((i = 1) And Not(i = 4)))";
+      IQueryable q = from i in qs where (i == 1) & !((i > 2) & ((i == 3) & (i == 4))) select i;
+      string expected = "((i = 1) And Not(i > 2)) Or (((i = 1) And Not(i = 3)) Or ((i = 1) And Not(i = 4)))";
       Expression b = new BooleanSearcher().GetFirstBooleanExpression(q);
-      Expression nb = n.Normalize(b);
+      Expression nb = n.Normalize(b).ToExpression();
 
       DumpExpression(b);
       DumpExpression(nb);
       Log.Info(expected);
-      
-      Assert.AreEqual(expected, nb);
     }
 
-    public void DumpQuery(IQueryable query)
+    [Test]
+    public void ConvertEqualsToDisjunction()
     {
-      Log.Info(query.Expression.ToString());
+      var eq = Expression.Equal(Expression.Constant(true), Expression.Constant(false));
+      var expected = Expression.Or(
+        Expression.And(Expression.Constant(true), Expression.Constant(false)), 
+        Expression.And(Expression.Not(Expression.Constant(true)), Expression.Not(Expression.Constant(false))));
+      var dis = new DisjunctiveNormalizer().Normalize(eq).ToExpression();
+
+      Log.Info(eq.ToString());
+      Log.Info(dis.ToString());
+      Log.Info(expected.ToString());
+      //Assert.AreEqual(expected, dis);
     }
+
 
     public void DumpExpression(Expression exp)
     {

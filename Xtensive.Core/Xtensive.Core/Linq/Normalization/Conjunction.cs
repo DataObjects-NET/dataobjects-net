@@ -62,18 +62,16 @@ namespace Xtensive.Core.Linq.Normalization
     {
     }
 
-    public Conjunction(IEnumerable<T> operands1, IEnumerable<T> operands2) :
-      base(operands1)
+    /// <inheritdoc/>
+    public Conjunction(IEnumerable<T> operands, params IEnumerable<T>[] operandSets)
+      : base(operands, operandSets)
     {
-      foreach(var operand in operands2) {
-        Operands.Add(operand);
-      }
     }
 
+    /// <inheritdoc/>
     public Conjunction(T operand, params T[] operands)
-      :base(operands)
+      :base(operand, operands)
     {
-      Operands.Add(operand);
     }
     
   }

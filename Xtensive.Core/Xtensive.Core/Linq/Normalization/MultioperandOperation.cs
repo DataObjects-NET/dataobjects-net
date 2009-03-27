@@ -40,12 +40,24 @@ namespace Xtensive.Core.Linq.Normalization
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="operands">Operands.</param>
-    protected MultioperandOperation(IEnumerable<T> operands)
+    /// <param name="operandSets">The other operand sets.</param>
+    protected MultioperandOperation(IEnumerable<T> operands, params IEnumerable<T>[] operandSets)
     {
       Operands = new HashSet<T>(operands);
+
+      foreach (var set in operandSets) {
+        foreach (var operand in set) {
+          Operands.Add(operand);   
+        }
+      }
+    }
+
+    protected MultioperandOperation(T operand, params T[] operands)
+    {
+      Operands = new HashSet<T>(operands) {operand};
     }
   }
 }

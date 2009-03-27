@@ -14,121 +14,118 @@ namespace Xtensive.Core.Linq.Normalization
   /// Provides methods for transform <see cref="Expression"/> to disjunctive normal form.
   /// </summary>
   [Serializable]
-  public class DisjunctiveNormalizer : ExpressionVisitor
+  public sealed class DisjunctiveNormalizer
   {
-    /// <inheritdoc/>
-    protected override Expression VisitUnary(UnaryExpression u)
-    {
-      if (u.NodeType==ExpressionType.Not) {
-        if (u.Operand.NodeType==ExpressionType.Not) {
-          return Visit(((UnaryExpression) u.Operand).Operand);
-        }
-        else if (IsConjunctionOrDisjunction(u.Operand))
-          return VisitBinary(MoveInversionDown(u));
-      }
-
-      return base.VisitUnary(u);
-    }
-
-    /// <inheritdoc/>
-    protected override Expression VisitBinary(BinaryExpression b)
-    {
-      if (IsConjunction(b))
-        return VisitConjunction(b);
-
-      var left = Visit(b.Left);
-      var right = Visit(b.Right);
-
-      if (b.NodeType == ExpressionType.Equal && (!IsTerm(left) || !IsTerm(right))) {
-        var binary = Expression.Or(Expression.And(left, right), Expression.And(Expression.Not(left), Expression.Not(right)));
-        return VisitBinary(binary);
-      }
-
-      if (b.NodeType == ExpressionType.NotEqual && (!IsTerm(left) || !IsTerm(right))) {
-        var binary = Expression.Or(Expression.And(Expression.Not(left), right), Expression.And(left, Expression.Not(right)));
-        return VisitBinary(binary);
-      }
-
-      return base.VisitBinary(b);
-    }
-
-    protected virtual Expression VisitConjunction(BinaryExpression c)
-    {
-      var left = Visit(c.Left);
-      var right = Visit(c.Right);
-      
-      var binaryLeft = left as BinaryExpression;
-      if (binaryLeft != null && IsDisjunction(binaryLeft)) {
-        return Expression.Or(Expression.And(binaryLeft.Left, right), Expression.And(binaryLeft.Right, right));
-      }
-
-      var binaryRight = right as BinaryExpression;
-      if(binaryRight != null && IsDisjunction(binaryRight)) {
-        return Expression.Or(Expression.And(left, binaryRight.Left), Expression.And(left, binaryRight.Right));
-      }
-
-      return Expression.MakeBinary(c.NodeType, left, right, c.IsLiftedToNull, c.Method);
-    }
-
-    protected virtual BinaryExpression MoveInversionDown(UnaryExpression exp)
-    {
-      var binaryChild = exp.Operand as BinaryExpression;
-      BinaryExpression newExp;
-
-      if (IsDisjunction(binaryChild))
-        newExp = Expression.And(Expression.Not(binaryChild.Left), Expression.Not(binaryChild.Right));
-      else
-        newExp = Expression.Or(Expression.Not(binaryChild.Left), Expression.Not(binaryChild.Right));
-
-      return newExp;
-    }
-
     /// <summary>
     /// Transform the specified <see cref="Expression"/> to it disjunctive normal form.
     /// </summary>
     /// <param name="expression">The expression.</param>
     /// <returns></returns>
-    public Expression Normalize(Expression expression)
+    public DisjunctiveNormalized Normalize(Expression expression)
     {
-      return Visit(expression);
-    }
-
-    protected static bool IsTerm(Expression e)
-    {
-      var binary = e as BinaryExpression;
+      var binary = expression as BinaryExpression;
       if (binary != null)
-        return !IsConjunctionOrDisjunction(binary);
+        return NormalizeBinary(binary);
 
-      //var unary = e as UnaryExpression;
-      //if (unary != null)
-      //  return unary.NodeType==ExpressionType.Not && IsTerm(unary.Operand);
+      var unary = expression as UnaryExpression;
+      if (unary != null)
+        return NormalizeUnary(unary);
 
-      return true;
+      return new DisjunctiveNormalized(new Conjunction<Expression>(expression));
     }
 
-    protected static bool IsConjunctionOrDisjunction(Expression exp)
+    private DisjunctiveNormalized NormalizeUnary(UnaryExpression u)
     {
-      var binary = exp as BinaryExpression;
-      return IsConjunctionOrDisjunction(binary);
+      if (u.NodeType==ExpressionType.Not) {
+        if (u.Operand.NodeType==ExpressionType.Not) {
+          return Normalize(((UnaryExpression) u.Operand).Operand);
+        }
+        
+        BinaryExpression binary;
+        if (TryConvertInversionToBinary(u, out binary))
+          return NormalizeBinary(binary);
+      }
+
+      return new DisjunctiveNormalized(new Conjunction<Expression>(u));
     }
 
-    protected static bool IsConjunctionOrDisjunction(BinaryExpression exp)
+    private DisjunctiveNormalized NormalizeBinary(BinaryExpression b)
     {
-      return IsConjunction(exp) || IsDisjunction(exp);
+      if (b.NodeType==ExpressionType.Equal && b.Left.Type==typeof (bool) && b.Right.Type==typeof (bool))
+        b = ConvertEqualsToDisjunction(b);
+      else if (b.NodeType==ExpressionType.NotEqual && b.Left.Type==typeof (bool) && b.Right.Type==typeof (bool))
+        b = ConvertNotEqualsToDisjunction(b);
+
+      switch (b.NodeType) {
+      case ExpressionType.And:
+      case ExpressionType.AndAlso:
+        return NormalizeCojunction(b);
+      case ExpressionType.Or:
+      case ExpressionType.OrElse:
+        return NormalizeDisjunction(b);
+      default:
+        return new DisjunctiveNormalized(new Conjunction<Expression>(b));
+      }
     }
 
-    protected static bool IsConjunction(BinaryExpression exp)
+    private DisjunctiveNormalized NormalizeDisjunction(BinaryExpression b)
     {
-      return exp.Type == typeof(bool)
-          && (exp.NodeType == ExpressionType.And
-          || exp.NodeType == ExpressionType.AndAlso);
+      return new DisjunctiveNormalized(Normalize(b.Left).Operands, Normalize(b.Right).Operands);
     }
 
-    protected static bool IsDisjunction(BinaryExpression exp)
+    private DisjunctiveNormalized NormalizeCojunction(BinaryExpression b)
     {
-      return exp.Type == typeof(bool)
-          && (exp.NodeType == ExpressionType.Or
-          || exp.NodeType == ExpressionType.OrElse);
+      var result = new DisjunctiveNormalized();
+
+      foreach (var leftConjunction in Normalize(b.Left).Operands) {
+        foreach (var rightConjunction in Normalize(b.Right).Operands) {
+          result.Operands.Add(new Conjunction<Expression>(leftConjunction.Operands, rightConjunction.Operands));
+        }
+      }
+      return result;
+    }
+    
+    private static BinaryExpression ConvertEqualsToDisjunction(BinaryExpression b)
+    {
+      var left = b.Left;
+      var right = b.Right;
+      return Expression.Or(Expression.And(left, right), Expression.And(Expression.Not(left), Expression.Not(right)));
+    }
+
+    private static BinaryExpression ConvertNotEqualsToDisjunction(BinaryExpression b)
+    {
+      var left = b.Left;
+      var right = b.Right;
+      return Expression.Or(Expression.And(Expression.Not(left), right), Expression.And(left, Expression.Not(right)));
+    }
+
+    private static bool TryConvertInversionToBinary(UnaryExpression exp, out BinaryExpression result)
+    {
+      var binaryOperand = exp.Operand as BinaryExpression;
+      if (binaryOperand==null) {
+        result = null;
+        return false;
+      }
+
+      switch (binaryOperand.NodeType) {
+      case ExpressionType.OrElse:
+      case ExpressionType.Or:
+        result = Expression.And(Expression.Not(binaryOperand.Left), Expression.Not(binaryOperand.Right));
+        return true;
+      case ExpressionType.And:
+      case ExpressionType.AndAlso:
+        result = Expression.Or(Expression.Not(binaryOperand.Left), Expression.Not(binaryOperand.Right));
+        return true;
+      case ExpressionType.Equal:
+        result = Expression.NotEqual(binaryOperand.Left, binaryOperand.Right);
+        return true;
+      case ExpressionType.NotEqual:
+        result = Expression.Equal(binaryOperand.Left, binaryOperand.Right);
+        return true;
+      default:
+        result = null;
+        return false;
+      }
     }
 
   }

@@ -55,15 +55,15 @@ namespace Xtensive.Core.Linq.Normalization
     }
 
     /// <inheritdoc/>
-    public Disjunction(IEnumerable<T> operands)
-      : base(operands)
+    public Disjunction(IEnumerable<T> operands, params IEnumerable<T>[] operandSets)
+      : base(operands, operandSets)
     {
     }
 
+    /// <inheritdoc/>
     public Disjunction(T operand, params T[] operands)
-      :base(operands)
+      :base(operand, operands)
     {
-      Operands.Add(operand);
     }
   }
 }
