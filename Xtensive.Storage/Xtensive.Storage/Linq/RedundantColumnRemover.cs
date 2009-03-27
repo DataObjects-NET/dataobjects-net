@@ -51,14 +51,7 @@ namespace Xtensive.Storage.Linq
           }
 
           var rs = resultProvider.Result;
-          var originGroups = originProvider.Header.ColumnGroups.ToList();
-          var resultGroups = resultProvider.Header.ColumnGroups.ToList();
-
-          var groupMap = originGroups
-            .Select((og, i) => new {Group = og, Index = i})
-            .Where(gi => resultGroups.Any(rg => rg.Keys.Select(rki => projectorMap[rki]).SequenceEqual(gi.Group.Keys)))
-            .Select(gi => gi.Index)
-            .ToList();
+          var groupMap = BuildGroupMapping(projectorMap, originProvider, resultProvider);
 
           var projector = (Expression<Func<RecordSet, object>>)mappingsReplacer.ReplaceMappings(origin.Projector, projectorMap, groupMap, origin.RecordSet.Header);
           var itemProjector = origin.ItemProjector == null
@@ -69,7 +62,7 @@ namespace Xtensive.Storage.Linq
         }
       return origin;
     }
-
+    
     #region Visit methods
 
     protected override Provider VisitIndex(IndexProvider provider)
@@ -85,7 +78,15 @@ namespace Xtensive.Storage.Linq
     {
       List<int> map = mappings.Value[provider];
       mappings.Value.Add(provider.Source, Merge(map, mappingsGatherer.GatherMappings(provider.Predicate)));
-      return base.VisitFilter(provider);
+
+      OnRecursionEntrance(provider);
+      var newSourceProvider = VisitCompilable(provider.Source);
+      OnRecursionExit(provider);
+
+      var predicate = TranslateExpression(provider, newSourceProvider, provider.Predicate);
+      if (newSourceProvider == provider.Source && predicate == provider.Predicate)
+        return provider;
+      return new FilterProvider(newSourceProvider, (Expression<Func<Tuple, bool>>)predicate);
     }
 
     protected override Provider VisitJoin(JoinProvider provider)
@@ -212,7 +213,23 @@ namespace Xtensive.Storage.Linq
         provider.CalculatedColumns.SelectMany(c => mappingsGatherer.GatherMappings(c.Expression))
         );
       mappings.Value.Add(provider.Source, sourceMapping);
-      return base.VisitCalculate(provider);
+
+      OnRecursionEntrance(provider);
+      var newSourceProvider = VisitCompilable(provider.Source);
+      OnRecursionExit(provider);
+
+      var translated = false;
+      var descriptors = new List<CalculatedColumnDescriptor>(provider.CalculatedColumns.Length);
+      foreach (var column in provider.CalculatedColumns) {
+        var expression = TranslateExpression(provider, newSourceProvider, column.Expression);
+        if (expression != column.Expression)
+          translated = true;
+        var ccd = new CalculatedColumnDescriptor(column.Name, column.Type, (Expression<Func<Tuple, object>>)expression);
+        descriptors.Add(ccd);
+      }
+      if (!translated && newSourceProvider == provider.Source)
+        return provider;
+      return new CalculateProvider(newSourceProvider, descriptors.ToArray());
     }
 
     protected override Provider VisitRowNumber(RowNumberProvider provider)
@@ -315,6 +332,30 @@ namespace Xtensive.Storage.Linq
       return result;
     }
 
+    private Expression TranslateExpression(Provider originalProvider, Provider newSource, Expression expression)
+    {
+      if (originalProvider.Type == ProviderType.Filter || originalProvider.Type == ProviderType.Calculate)
+        return mappingsReplacer.ReplaceMappings(
+          expression,
+          mappings.Value[originalProvider],
+          BuildGroupMapping(mappings.Value[originalProvider], originalProvider.Sources[0], newSource),
+          origin.RecordSet.Header
+          );
+      return expression;
+    }
+
+    private static List<int> BuildGroupMapping(List<int> mapping, Provider originProvider, Provider resultProvider)
+    {
+      var originGroups = originProvider.Header.ColumnGroups.ToList();
+      var resultGroups = resultProvider.Header.ColumnGroups.ToList();
+
+      return originGroups
+        .Select((og, i) => new { Group = og, Index = i })
+        .Where(gi => resultGroups.Any(rg => rg.Keys.Select(rki => mapping[rki]).SequenceEqual(gi.Group.Keys)))
+        .Select(gi => gi.Index)
+        .ToList();
+    }
+
     private static List<int> Merge(IEnumerable<int> left, IEnumerable<int> right)
     {
       return left
@@ -339,21 +380,19 @@ namespace Xtensive.Storage.Linq
 
     public RedundantColumnRemover(ResultExpression resultExpression)
     {
+      origin = resultExpression;
+
       mappings = new Parameter<Dictionary<Provider, List<int>>>();
       outerColumnUsages = new Dictionary<Parameter<Tuple>, List<int>>();
+
       mappingsGatherer = new TupleAccessProcessor((a,b)=> { }, null);
       mappingsReplacer = new TupleAccessProcessor(null, ResolveOuterMapping);
+
       var outerMappingsGatherer = new TupleAccessProcessor(RegisterOuterMapping, null);
       outerColumnUsageVisitor = new CompilableProviderVisitor((_,e) => {
         outerMappingsGatherer.GatherMappings(e);
         return e;
         });
-      origin = resultExpression;
-      translate = (provider, e) => {
-        if (provider.Type == ProviderType.Filter || provider.Type == ProviderType.Calculate)
-          return mappingsReplacer.ReplaceMappings(e, mappings.Value[provider], null, resultExpression.RecordSet.Header);
-        return e;
-      };
     }
   }
 }
