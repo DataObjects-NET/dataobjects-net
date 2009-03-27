@@ -17,7 +17,7 @@ namespace Xtensive.Core.Linq.Normalization
   /// </summary>
   /// <typeparam name="T">The type of operands.</typeparam>
   [Serializable]
-  public class Conjunction<T> : MultioperandOperation<T>
+  public class Conjunction<T> : MultiOperandOperation<T>
   {
     /// <inheritdoc/>
     /// <exception cref="InvalidOperationException">All operands must be Expressions with type Boolean.</exception>

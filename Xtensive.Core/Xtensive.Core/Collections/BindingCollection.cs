@@ -7,21 +7,45 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Xtensive.Core.Disposing;
 using Xtensive.Core.Internals.DocTemplates;
 
-namespace Xtensive.Core.Helpers
+namespace Xtensive.Core.Collections
 {
   /// <summary>
-  /// Binds values of type <typeparamref name="T"/> to keys. 
-  /// Any binding is active while its binding result (<see cref="Disposable"/>)
+  /// Temporarily binds values of type <typeparamref name="TValue"/> to their keys
+  /// and provides access to currently bound values.
+  /// Any binding is active while its binding result (<see cref="IDisposable"/> object)
   /// isn't disposed.
   /// </summary>
-  /// <typeparam name="T">Type of values.</typeparam>
   [Serializable]
-  public class BindingContext<T>
+  public sealed class BindingCollection<TKey, TValue> : ICountable<KeyValuePair<TKey, TValue>>
   {
-    private readonly Dictionary<object, T> bindings = new Dictionary<object, T>();
+    private readonly Dictionary<TKey, TValue> bindings = new Dictionary<TKey, TValue>();
+
+    /// <summary>
+    /// Gets the number of currently bound items.
+    /// </summary>
+    public int Count {
+      [DebuggerStepThrough]
+      get { return bindings.Count; }
+    }
+
+    /// <inheritdoc/>
+    long ICountable.Count {
+      [DebuggerStepThrough]
+      get { return Count; }
+    }
+
+    /// <summary>
+    /// Gets the bound value by its key.
+    /// </summary>
+    /// <value></value>
+    public TValue this[TKey key] {
+      [DebuggerStepThrough]
+      get { return bindings[key]; }
+    }
 
     /// <summary>
     /// Binds the specified <paramref name="value"/> to <paramref name="key"/>.
@@ -30,9 +54,9 @@ namespace Xtensive.Core.Helpers
     /// <param name="value">The value to bind.</param>
     /// <returns>Disposable object that will 
     /// destroy the binding on its disposal.</returns>
-    public Disposable Bind(object key, T value)
+    public Disposable Add(TKey key, TValue value)
     {
-      T previous;
+      TValue previous;
       if (bindings.TryGetValue(key, out previous)) {
         bindings[key] = value;
         return new Disposable((isDisposing) => bindings[key] = previous);
@@ -44,12 +68,12 @@ namespace Xtensive.Core.Helpers
     }
 
     /// <summary>
-    /// Replaces the bound value.
+    /// Replaces previously bound value.
     /// </summary>
-    /// <param name="key">The binding key.</param>
+    /// <param name="key">The binding key of the value to replace.</param>
     /// <param name="value">The new value.</param>
     /// <exception cref="KeyNotFoundException">Key isn't found.</exception>
-    public void ReplaceBound(object key, T value)
+    public void ReplaceBound(TKey key, TValue value)
     {
       if (!bindings.ContainsKey(key))
         throw new KeyNotFoundException();
@@ -59,24 +83,15 @@ namespace Xtensive.Core.Helpers
     /// <summary>
     /// Gets the bound value by its key.
     /// </summary>
-    /// <param name="key">The key of the bound value to get.</param>
-    /// <returns>Bound value.</returns>
-    public T GetBound(object key)
-    {
-      return bindings[key];
-    }
-
-    /// <summary>
-    /// Gets the bound value by its key.
-    /// </summary>
     /// <param name="key">The key of the value to get.</param>
     /// <param name="value">When this method returns,
     /// contains the value bound to the specified key, if the key is found;
     /// otherwise, default value for the type of the value parameter.</param>
-    /// <returns><see langword="True" /> if the <see cref="BindingContext{T}"/> 
+    /// <returns><see langword="True" /> if the <see cref="BindingCollection{TKey,TValue}"/> 
     /// contains an element with the specified key;
     /// otherwise, <see langword="false" />.</returns>
-    public bool TryGetBound(object key, out T value)
+    [DebuggerStepThrough]
+    public bool TryGetValue(TKey key, out TValue value)
     {
       return bindings.TryGetValue(key, out value);
     }
@@ -91,13 +106,29 @@ namespace Xtensive.Core.Helpers
         yield return key;
     }
 
+    #region IEnumerable<...> methods
+
+    /// <inheritdoc/>
+    public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
+    {
+      return bindings.GetEnumerator();
+    }
+
+    /// <inheritdoc/>
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+      return GetEnumerator();
+    }
+
+    #endregion
+
 
     // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public BindingContext()
+    public BindingCollection()
     {
     }
   }

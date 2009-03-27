@@ -12,11 +12,11 @@ using Xtensive.Core.Internals.DocTemplates;
 namespace Xtensive.Core.Linq.Normalization
 {
   /// <summary>
-  /// An operation with many operands.
+  /// An abstract base class for any operation with multiple operands.
   /// </summary>
   /// <typeparam name="T">The type of operands.</typeparam>
   [Serializable]
-  public abstract class MultioperandOperation<T>
+  public abstract class MultiOperandOperation<T>
   {
     /// <summary>
     /// Gets the operands.
@@ -34,7 +34,7 @@ namespace Xtensive.Core.Linq.Normalization
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    protected MultioperandOperation()
+    protected MultiOperandOperation()
     {
       Operands = new HashSet<T>();
     }
@@ -44,7 +44,7 @@ namespace Xtensive.Core.Linq.Normalization
     /// </summary>
     /// <param name="operands">Operands.</param>
     /// <param name="operandSets">The other operand sets.</param>
-    protected MultioperandOperation(IEnumerable<T> operands, params IEnumerable<T>[] operandSets)
+    protected MultiOperandOperation(IEnumerable<T> operands, params IEnumerable<T>[] operandSets)
     {
       Operands = new HashSet<T>(operands);
 
@@ -55,7 +55,7 @@ namespace Xtensive.Core.Linq.Normalization
       }
     }
 
-    protected MultioperandOperation(T operand, params T[] operands)
+    protected MultiOperandOperation(T operand, params T[] operands)
     {
       Operands = new HashSet<T>(operands) {operand};
     }
