@@ -7,80 +7,85 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Xtensive.Core.Disposing;
 using Xtensive.Core.Internals.DocTemplates;
 
-namespace Xtensive.Core.Parameters
+namespace Xtensive.Core.Helpers
 {
   /// <summary>
-  /// Binds values of type <typeparamref name="T"/> to keys. This binding is active within the <see cref="Binding"/> scope.
+  /// Binds values of type <typeparamref name="T"/> to keys. 
+  /// Any binding is active while its binding result (<see cref="Disposable"/>)
+  /// isn't disposed.
   /// </summary>
   /// <typeparam name="T">Type of values.</typeparam>
+  [Serializable]
   public class BindingContext<T>
   {
-    private readonly Dictionary<object, T> bindings;
+    private readonly Dictionary<object, T> bindings = new Dictionary<object, T>();
 
     /// <summary>
     /// Binds the specified <paramref name="value"/> to <paramref name="key"/>.
     /// </summary>
-    /// <param name="key">The key.</param>
-    /// <param name="value">The value.</param>
-    /// <returns><see cref="Binding"/>.</returns>
-    public Binding Bind(object key, T value)
+    /// <param name="key">The key to bind to.</param>
+    /// <param name="value">The value to bind.</param>
+    /// <returns>Disposable object that will 
+    /// destroy the binding on its disposal.</returns>
+    public Disposable Bind(object key, T value)
     {
-      Action disposeAction;
       T previous;
       if (bindings.TryGetValue(key, out previous)) {
         bindings[key] = value;
-        disposeAction = () => bindings[key] = previous;
+        return new Disposable((isDisposing) => bindings[key] = previous);
       }
       else {
         bindings.Add(key, value);
-        disposeAction = () => bindings.Remove(key);
+        return new Disposable((isDisposing) => bindings.Remove(key));
       }
-      return new Binding(disposeAction);
     }
 
     /// <summary>
     /// Replaces the bound value.
     /// </summary>
-    /// <param name="key">The key.</param>
-    /// <param name="value">The value.</param>
+    /// <param name="key">The binding key.</param>
+    /// <param name="value">The new value.</param>
+    /// <exception cref="KeyNotFoundException">Key isn't found.</exception>
     public void ReplaceBound(object key, T value)
     {
       if (!bindings.ContainsKey(key))
-        throw new InvalidOperationException();
+        throw new KeyNotFoundException();
       bindings[key] = value;
     }
 
     /// <summary>
-    /// Gets the bound value by the key.
+    /// Gets the bound value by its key.
     /// </summary>
-    /// <param name="key">The key.</param>
+    /// <param name="key">The key of the bound value to get.</param>
+    /// <returns>Bound value.</returns>
     public T GetBound(object key)
     {
       return bindings[key];
     }
 
     /// <summary>
-    /// Gets the bound value by the key.
+    /// Gets the bound value by its key.
     /// </summary>
     /// <param name="key">The key of the value to get.</param>
     /// <param name="value">When this method returns,
-    /// contains the value associated with the specified key, if the key is found;
-    /// otherwise, the default value for the type of the value parameter.
-    /// This parameter is passed uninitialized.</param>
-    /// <returns>true if the <see cref="BindingContext{T}"/> contains an element with the specified key;
-    /// otherwise, false.</returns>
+    /// contains the value bound to the specified key, if the key is found;
+    /// otherwise, default value for the type of the value parameter.</param>
+    /// <returns><see langword="True" /> if the <see cref="BindingContext{T}"/> 
+    /// contains an element with the specified key;
+    /// otherwise, <see langword="false" />.</returns>
     public bool TryGetBound(object key, out T value)
     {
       return bindings.TryGetValue(key, out value);
     }
 
     /// <summary>
-    /// Gets the binding keys.
+    /// Gets the sequence of bound keys.
     /// </summary>
-    /// <returns></returns>
-    public IEnumerable GetBindingKeys()
+    /// <returns>The sequence of bound keys.</returns>
+    public IEnumerable GetKeys()
     {
       foreach (var key in bindings.Keys)
         yield return key;
@@ -94,7 +99,6 @@ namespace Xtensive.Core.Parameters
     /// </summary>
     public BindingContext()
     {
-      bindings = new Dictionary<object, T>();
     }
   }
 }

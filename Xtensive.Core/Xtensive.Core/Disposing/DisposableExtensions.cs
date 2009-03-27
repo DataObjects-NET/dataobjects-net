@@ -9,13 +9,27 @@ using System.Collections.Generic;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Resources;
 
-namespace Xtensive.Core.Disposable
+namespace Xtensive.Core.Disposing
 {
   /// <summary>
   /// <see cref="IDisposable"/> related extension methods.
   /// </summary>
   public static class DisposableExtensions
   {
+    /// <summary>
+    /// Joins the specified disposable objects by returning
+    /// a single <see cref="JoiningDisposable"/> that will
+    /// dispose both of them on its disposal.
+    /// </summary>
+    /// <param name="disposable">The first disposable.</param>
+    /// <param name="joinWith">The second disposable.</param>
+    /// <returns>New <see cref="JoiningDisposable"/> that will
+    /// dispose both of them on its disposal</returns>
+    public static JoiningDisposable Join(this IDisposable disposable, IDisposable joinWith)
+    {
+      return new JoiningDisposable(disposable, joinWith);
+    }
+
     /// <summary>
     /// Safely disposes an <see cref="IDisposable"/> object.
     /// </summary>

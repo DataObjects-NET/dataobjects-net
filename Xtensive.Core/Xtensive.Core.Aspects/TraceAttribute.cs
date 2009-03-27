@@ -12,7 +12,7 @@ using log4net.Util;
 using PostSharp.Extensibility;
 using PostSharp.Laos;
 using Xtensive.Core.Diagnostics;
-using Xtensive.Core.Disposable;
+using Xtensive.Core.Disposing;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Aspects.Resources;
 using Xtensive.Core.Reflection;

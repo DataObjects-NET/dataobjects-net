@@ -13,7 +13,7 @@ namespace Xtensive.Core.Helpers
   /// <inheritdoc />
   /// Has finalizer (i.e. this type is safer then its base).
   /// </summary>
-  public sealed class SafeDisposable: Disposable.Disposable
+  public sealed class SafeDisposable: Disposing.Disposable
   {
     // Constructors
 

@@ -10,7 +10,7 @@ using System.Collections.Generic;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Helpers;
 
-namespace Xtensive.Core.Collections
+namespace Xtensive.Core.Disposing
 {
   /// <summary>
   /// Ensures all the <see cref="IDisposable"/> objects added to it are disposed
@@ -23,7 +23,7 @@ namespace Xtensive.Core.Collections
   /// </remarks>
   public sealed class DisposableSet: IDisposable
   {
-    private SetSlim<IDisposable> set;
+    private HashSet<IDisposable> set;
     private List<IDisposable> list;
 
     /// <summary>
@@ -45,10 +45,22 @@ namespace Xtensive.Core.Collections
         return false;
     }
 
+    /// <summary>
+    /// Joins the <see cref="DisposableSet"/> and <see cref="IDisposable"/>.
+    /// </summary>
+    /// <param name="first">The first disposable to join.</param>
+    /// <param name="second">The second disposable to join.</param>
+    /// <returns>New <see cref="JoiningDisposable"/> that will
+    /// dispose both of them on its disposal</returns>
+    public static JoiningDisposable operator &(DisposableSet first, IDisposable second)
+    {
+      return new JoiningDisposable(first, second);
+    }
+
     private void EnsureInitialized()
     {
       if (set==null) {
-        set = new SetSlim<IDisposable>();
+        set = new HashSet<IDisposable>();
         list = new List<IDisposable>();
       }
     }

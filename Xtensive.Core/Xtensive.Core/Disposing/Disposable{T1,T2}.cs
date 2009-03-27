@@ -7,7 +7,7 @@
 using System;
 using Xtensive.Core.Internals.DocTemplates;
 
-namespace Xtensive.Core.Disposable
+namespace Xtensive.Core.Disposing
 {
   /// <summary>
   /// A disposable type allowing to execute custom
@@ -21,6 +21,18 @@ namespace Xtensive.Core.Disposable
     private readonly Action<bool, T1, T2> onDispose;
     private readonly T1 parameter1;
     private readonly T2 parameter2;
+
+    /// <summary>
+    /// Joins the <see cref="Disposable{T1,T2}"/> and <see cref="IDisposable"/>.
+    /// </summary>
+    /// <param name="first">The first disposable to join.</param>
+    /// <param name="second">The second disposable to join.</param>
+    /// <returns>New <see cref="JoiningDisposable"/> that will
+    /// dispose both of them on its disposal</returns>
+    public static JoiningDisposable operator &(Disposable<T1, T2> first, IDisposable second)
+    {
+      return new JoiningDisposable(first, second);
+    }
 
 
     // Constructor

@@ -7,15 +7,28 @@
 using System;
 using Xtensive.Core.Internals.DocTemplates;
 
-namespace Xtensive.Core.Disposable
+namespace Xtensive.Core.Disposing
 {
   /// <summary>
   /// A disposable type allowing to execute custom
   /// <see cref="Action"/> on its disposal.
   /// </summary>
-  public class Disposable: IDisposable
+  public class Disposable: 
+    IDisposable
   {
     private readonly Action<bool> onDispose;
+
+    /// <summary>
+    /// Joins the <see cref="Disposable"/> and <see cref="IDisposable"/>.
+    /// </summary>
+    /// <param name="first">The first disposable to join.</param>
+    /// <param name="second">The second disposable to join.</param>
+    /// <returns>New <see cref="JoiningDisposable"/> that will
+    /// dispose both of them on its disposal</returns>
+    public static JoiningDisposable operator &(Disposable first, IDisposable second)
+    {
+      return new JoiningDisposable(first, second);
+    }
 
 
     // Constructor
