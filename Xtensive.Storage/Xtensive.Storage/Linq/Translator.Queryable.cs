@@ -659,29 +659,22 @@ namespace Xtensive.Storage.Linq
 
     private Expression VisitRootExists(Expression source, LambdaExpression predicate, bool notExists)
     {
-      var elementType = TypeHelper.GetElementType(source.Type);
-      source = Expression.Call(WellKnownMethods.QueryableTake.MakeGenericMethod(elementType), source, Expression.Constant(1));
-
-      MethodInfo realCountMethod;
       ResultExpression result;
 
-      if (predicate!=null) {
-        realCountMethod = WellKnownMethods.QueryableCountWithPredicate.MakeGenericMethod(elementType);
-        result = (ResultExpression) VisitAggregate(source, realCountMethod, null, true);
-      }
-      else {
-        realCountMethod = WellKnownMethods.QueryableCount.MakeGenericMethod(elementType);
-        result = (ResultExpression) VisitAggregate(source, realCountMethod, null, true);
-      }
+      if (predicate == null)
+        result = (ResultExpression)Visit(source);
+      else
+        result = (ResultExpression)VisitWhere(source, predicate);
 
       Expression<Func<RecordSet, object>> shaper;
 
       if (notExists)
-        shaper = rs => rs.First().GetValue<long>(0)==0;
+        shaper = rs => !rs.First().GetValue<bool>(0);
       else
-        shaper = rs => rs.First().GetValue<long>(0) > 0;
+        shaper = rs => rs.First().GetValue<bool>(0);
 
-      return new ResultExpression(typeof (bool), result.RecordSet, null, shaper, null);
+      var newRecordSet = result.RecordSet.Existence(context.GetNextColumnAlias());
+      return new ResultExpression(typeof (bool), newRecordSet, null, shaper, null);
     }
 
     private Expression VisitExists(Expression source, LambdaExpression predicate, bool notExists)
