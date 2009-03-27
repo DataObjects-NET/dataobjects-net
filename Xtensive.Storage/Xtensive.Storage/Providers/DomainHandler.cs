@@ -7,7 +7,6 @@
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Rse.Compilation;
-using DefaultCompiler=Xtensive.Storage.Rse.Compilation.DefaultCompiler;
 
 namespace Xtensive.Storage.Providers
 {
@@ -105,7 +104,7 @@ namespace Xtensive.Storage.Providers
     public override void Initialize()
     {
       Domain = BuildingContext.Current.Domain;
-      ClientSideCompiler = new DefaultCompiler();
+      ClientSideCompiler = new ClientCompiler();
       ServerSideCompiler = BuildCompiler();
       CompilationContext = new CompilationContext(new ManagingCompiler(ServerSideCompiler, ClientSideCompiler));
     }

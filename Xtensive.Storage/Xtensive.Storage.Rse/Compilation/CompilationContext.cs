@@ -55,7 +55,6 @@ namespace Xtensive.Storage.Rse.Compilation
     /// </summary>
     public readonly static int CacheSize = 1024;
 
-    private static readonly GlobalTemporaryData globalTemporaryData = new GlobalTemporaryData();
     private readonly ICache<CompilableProvider, CacheEntry> cache;
     private readonly object _lock = new object();
 

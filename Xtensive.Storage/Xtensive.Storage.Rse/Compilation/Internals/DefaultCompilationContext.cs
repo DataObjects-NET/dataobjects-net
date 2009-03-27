@@ -28,7 +28,7 @@ namespace Xtensive.Storage.Rse.Compilation
 
     /// <inheritdoc/>
     public DefaultCompilationContext()
-      : base(new ManagingCompiler(new DefaultCompiler()))
+      : base(new ManagingCompiler(new ClientCompiler()))
     {
     }
   }

@@ -59,11 +59,11 @@ namespace Xtensive.Storage.Linq
           }
         }
       }
-//      if (mc.Object != null && mc.Object.NodeType == ExpressionType.Constant && mc.Object.Type == typeof(SegmentTransform) && mc.Method.Name == "Apply") {
-//        var segmentTransform = (SegmentTransform)((ConstantExpression)mc.Object).Value;
-//        map.AddRange(segmentTransform.Segment.GetItems());
-//        return mc;
-//      }
+      if (mc.Object != null && mc.Object.NodeType == ExpressionType.Constant && mc.Object.Type == typeof(SegmentTransform) && mc.Method.Name == "Apply") {
+        var segmentTransform = (SegmentTransform)((ConstantExpression)mc.Object).Value;
+        map.AddRange(segmentTransform.Segment.GetItems());
+        return mc;
+      }
       return base.VisitMethodCall(mc);
     }
 
