@@ -210,11 +210,20 @@ namespace Xtensive.Storage.Linq
         case QueryableMethodKind.Min:
         case QueryableMethodKind.Sum:
         case QueryableMethodKind.Average:
-          if (mc.Arguments.Count==1)
-            return VisitAggregate(mc.Arguments[0], mc.Method, null, context.IsRoot(mc));
-          if (mc.Arguments.Count==2)
-            return VisitAggregate(mc.Arguments[0], mc.Method, mc.Arguments[1].StripQuotes(), context.IsRoot(mc));
-          break;
+          if (context.IsRoot(mc)) {
+            if (mc.Arguments.Count==1)
+              return VisitRootAggregate(mc.Arguments[0], mc.Method, null);
+            if (mc.Arguments.Count==2)
+              return VisitRootAggregate(mc.Arguments[0], mc.Method, mc.Arguments[1].StripQuotes());
+            break;
+          }
+          else {
+            if (mc.Arguments.Count == 1)
+              return VisitAggregate(mc.Arguments[0], mc.Method, null);
+            if (mc.Arguments.Count == 2)
+              return VisitAggregate(mc.Arguments[0], mc.Method, mc.Arguments[1].StripQuotes());
+            break;
+          }
         case QueryableMethodKind.Skip:
           if (mc.Arguments.Count==2)
             return VisitSkip(mc.Arguments[0], mc.Arguments[1]);
@@ -326,10 +335,13 @@ namespace Xtensive.Storage.Linq
       return new ResultExpression(result.Type, rs, result.Mapping, result.Projector, result.ItemProjector);
     }
 
-    private Expression VisitAggregate(Expression source, MethodInfo method, LambdaExpression argument, bool isRoot)
+    private Expression VisitAggregate(Expression source, MethodInfo method, LambdaExpression argument)
     {
-      if (!isRoot)
-        throw new NotImplementedException();
+      throw new NotImplementedException();
+    }
+
+    private Expression VisitRootAggregate(Expression source, MethodInfo method, LambdaExpression argument)
+    {
       AggregateType type = AggregateType.Count;
       Expression<Func<RecordSet, object>> shaper;
       ResultExpression result;
