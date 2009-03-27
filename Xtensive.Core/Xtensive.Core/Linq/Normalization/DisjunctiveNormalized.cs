@@ -18,5 +18,49 @@ namespace Xtensive.Core.Linq.Normalization
   [Serializable]
   public class DisjunctiveNormalized : Disjunction<Conjunction<Expression>>
   {
+    /// <inheritdoc/>
+    public override Expression ToExpression()
+    {
+      var operands = new Stack<Expression>();
+      foreach (var conjuction in Operands) {
+        operands.Push(conjuction.ToExpression());
+      }
+
+      if (operands.Count==0) {
+        return null;
+      }
+
+      if (operands.Count==1) {
+        return operands.Pop();
+      }
+
+      var result = Expression.Or(operands.Pop(), operands.Pop());
+
+      while (operands.Count > 0) {
+        result = Expression.Or(operands.Pop(), result);
+      }
+
+      return result;
+    }
+
+
+    // Construcors
+
+    /// <inheritdoc/>
+    public DisjunctiveNormalized()
+    {
+    }
+
+    /// <inheritdoc/>
+    public DisjunctiveNormalized(IEnumerable<Conjunction<Expression>> operands)
+      : base(operands)
+    {
+    }
+
+    /// <inheritdoc/>
+    public DisjunctiveNormalized(Conjunction<Expression> operand, params Conjunction<Expression>[] operands)
+      : base(operand, operands)
+    {
+    }
   }
 }

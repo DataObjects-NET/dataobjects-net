@@ -17,18 +17,14 @@ namespace Xtensive.Core.Linq.Normalization
   [Serializable]
   public class Disjunction<T> : MultioperandOperation<T>
   {
-    
-    /// <summary>
-    /// Returns equivalent <see cref="Expression"/>.
-    /// </summary>
+    /// <inheritdoc/>
     /// <exception cref="InvalidOperationException">All operands must be Expressions with type Boolean.</exception>
-    public Expression ToExpression()
+    public override Expression ToExpression()
     {
       var operands = new Stack<Expression>();
       foreach (var operand in Operands) {
-        //var operation = operand as MultioperandOperation<T>;
         var expression = operand as Expression;
-        if (expression == null || expression.Type != typeof(bool))
+        if (expression==null || expression.Type!=typeof (bool))
           throw new InvalidOperationException("All operands must be Expressions with type Boolean.");
         operands.Push(expression);
       }
@@ -48,6 +44,26 @@ namespace Xtensive.Core.Linq.Normalization
       }
 
       return result;
+    }
+
+
+    // Constructors
+
+    /// <inheritdoc/>
+    public Disjunction()
+    {
+    }
+
+    /// <inheritdoc/>
+    public Disjunction(IEnumerable<T> operands)
+      : base(operands)
+    {
+    }
+
+    public Disjunction(T operand, params T[] operands)
+      :base(operands)
+    {
+      Operands.Add(operand);
     }
   }
 }

@@ -19,11 +19,9 @@ namespace Xtensive.Core.Linq.Normalization
   [Serializable]
   public class Conjunction<T> : MultioperandOperation<T>
   {
-    /// <summary>
-    /// Returns equivalent <see cref="Expression"/>.
-    /// </summary>
+    /// <inheritdoc/>
     /// <exception cref="InvalidOperationException">All operands must be Expressions with type Boolean.</exception>
-    public Expression ToExpression()
+    public override Expression ToExpression()
     {
       var operands = new Stack<Expression>();
       foreach (var operand in Operands) {
@@ -49,5 +47,34 @@ namespace Xtensive.Core.Linq.Normalization
 
       return result;
     }
+
+
+    // Constructors
+
+    /// <inheritdoc/>
+    public Conjunction()
+    {
+    }
+
+    /// <inheritdoc/>
+    public Conjunction(IEnumerable<T> operands)
+      : base(operands)
+    {
+    }
+
+    public Conjunction(IEnumerable<T> operands1, IEnumerable<T> operands2) :
+      base(operands1)
+    {
+      foreach(var operand in operands2) {
+        Operands.Add(operand);
+      }
+    }
+
+    public Conjunction(T operand, params T[] operands)
+      :base(operands)
+    {
+      Operands.Add(operand);
+    }
+    
   }
 }

@@ -6,6 +6,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.Linq.Normalization
 {
@@ -21,10 +23,29 @@ namespace Xtensive.Core.Linq.Normalization
     /// </summary>
     public HashSet<T> Operands { get; private set; }
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// Returns equivalent <see cref="Expression"/>.
+    /// </summary>
+    public abstract Expression ToExpression();
+
+
+    // Constructors
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
     protected MultioperandOperation()
     {
       Operands = new HashSet<T>();
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="operands">Operands.</param>
+    protected MultioperandOperation(IEnumerable<T> operands)
+    {
+      Operands = new HashSet<T>(operands);
     }
   }
 }
