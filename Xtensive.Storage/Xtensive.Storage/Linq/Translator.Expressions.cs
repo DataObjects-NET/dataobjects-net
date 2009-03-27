@@ -230,6 +230,15 @@ namespace Xtensive.Storage.Linq
             return ConstructQueryable(rootPoint);
         }
       }
+      else if (ma.Expression.NodeType==ExpressionType.New && ma.Expression.GetMemberType()==MemberType.Anonymous) {
+        var name = ma.Member.Name;
+        var newExpression = (NewExpression) ma.Expression;
+        var propertyInfo = newExpression.Type.GetProperty(name);
+        var memberName = propertyInfo.GetGetMethod().Name;
+        var member = newExpression.Members.First(m => m.Name==memberName);
+        var argument = newExpression.Arguments[newExpression.Members.IndexOf(member)];
+        return Visit(argument);
+      }
       return base.VisitMemberAccess(ma);
     }
 
