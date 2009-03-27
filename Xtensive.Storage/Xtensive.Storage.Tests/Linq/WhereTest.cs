@@ -70,6 +70,20 @@ namespace Xtensive.Storage.Tests.Linq
       }
     }
 
+    [Test]
+    public void Anonymous2Test2()
+    {
+      using (Domain.OpenSession())
+      using (var t = Transaction.Open())
+      {
+        Customer first = Query<Customer>.All.First();
+        var p = new { first.CompanyName, first.ContactName };
+        var result = Query<Customer>.All.Where(c => new { c.CompanyName }.CompanyName == "CompanyName");
+        var list = result.ToList();
+        t.Complete();
+      }
+    }
+
 
     [Test]
     public void Anonymous3Test()
