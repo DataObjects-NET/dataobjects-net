@@ -309,7 +309,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       using (Domain.OpenSession())
       using (var t = Transaction.Open()) {
-        var result = Query<Order>.All.GroupBy(o => o.Customer, o => o.Freight).Select(g => g.Sum());
+        var result = Query<Order>.All.GroupBy(o => o.Customer, o => o.Freight);//.Select(g => g.Sum());
         var list = result.ToList();
         Assert.Greater(list.Count, 0);
         t.Complete();
