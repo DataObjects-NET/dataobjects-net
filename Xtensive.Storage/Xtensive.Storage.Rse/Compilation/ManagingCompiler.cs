@@ -20,18 +20,14 @@ namespace Xtensive.Storage.Rse.Compilation
   public sealed class ManagingCompiler : ICompiler
   {
     private readonly Dictionary<UrlInfo, ICompiler> compilersMap;
-    private Func<object, ExecutableProvider, Binding> Bind 
-    { 
-      get
-      {
+    private Func<object, ExecutableProvider, Binding> Bind { 
+      get {
         return CompilationContext.Current.BindingContext.Bind;
       }
     }
 
-    private Func<object, ExecutableProvider> GetBound
-    {
-      get
-      {
+    private Func<object, ExecutableProvider> GetBound {
+      get {
         return CompilationContext.Current.BindingContext.GetBound;
       }
     }
