@@ -252,6 +252,17 @@ namespace Xtensive.Core.Collections
     }
 
     /// <summary>
+    /// Sorts the elements of a sequence according to natural order.
+    /// </summary>
+    /// <typeparam name="TItem">The type of the elements of source.</typeparam>
+    /// <param name="source">A sequence of values to order.</param>
+    /// <returns><see cref="IEnumerable{TItem}"/> whose elements are sorted according to natural order.</returns>
+    public static IEnumerable<TItem> OrderBy<TItem>(this IEnumerable<TItem> source) where TItem : IComparable
+    {
+      return source.OrderBy(item => item);
+    }
+
+    /// <summary>
     /// Gets the items from the segment.
     /// </summary>
     /// <param name="segment">The segment.</param>
