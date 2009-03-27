@@ -33,6 +33,36 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    public void AnonymousColumn()
+    {
+      using (Domain.OpenSession())
+      {
+        using (var t = Transaction.Open())
+        {
+          var products = Query<Product>.All.Select(p=>new {p.ProductName}.ProductName);
+          var list = products.ToList();
+          t.Complete();
+        }
+      }
+    }
+
+
+    [Test]
+    public void AnonymousParameterColumn()
+    {
+      using (Domain.OpenSession())
+      {
+        using (var t = Transaction.Open())
+        {
+          var param = new {ProductName = "name"};
+          var products = Query<Product>.All.Select(p => param.ProductName);
+          var list = products.ToList();
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
     public void NewArrayConstantTest()
     {
       using (Domain.OpenSession()) {
