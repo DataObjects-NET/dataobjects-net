@@ -5,37 +5,40 @@
 // Created:    2009.03.26
 
 using System;
-using System.Diagnostics;
 using System.Linq.Expressions;
 using Xtensive.Core.Internals.DocTemplates;
+using System.Linq;
 
 namespace Xtensive.Core.Linq.Normalization
 {
   /// <summary>
-  /// Provides methods for transform <see cref="Expression"/> to disjunctive normal form.
+  /// Transforms <see cref="Expression"/> to disjunctive normal form.
   /// </summary>
   [Serializable]
   public sealed class DisjunctiveNormalizer
   {
-    private bool finish;
-    private DisjunctiveNormalized normalizedResult;
-
-    public int MaxTermsCount { get; private set; }
+    private bool isFinished;
+    private DisjunctiveNormalized result;
 
     /// <summary>
-    /// Transform the specified <see cref="Expression"/> to it disjunctive normal form.
+    /// Gets or sets the maximal allowed conjunction operand count.
+    /// Default is <see cref="int.MaxValue"/>.
     /// </summary>
-    /// <param name="expression">The expression.</param>
-    /// <returns></returns>
+    public int MaxConjunctionOperandCount { get; private set; }
+
+    /// <summary>
+    /// Transform the specified <paramref name="expression"/> to it disjunctive normal form.
+    /// </summary>
+    /// <param name="expression">The expression to transform.</param>
+    /// <returns>Disjunctive normal representation of <paramref name="expression"/>.</returns>
     public DisjunctiveNormalized Normalize(Expression expression)
     {
-      if (finish)
-        return normalizedResult;
+      if (isFinished)
+        return result;
 
       var binary = expression as BinaryExpression;
-      if (binary != null) {
+      if (binary!=null)
         return NormalizeBinary(binary);
-      }
 
       var unary = expression as UnaryExpression;
       if (unary != null)
@@ -43,6 +46,8 @@ namespace Xtensive.Core.Linq.Normalization
       
       return new DisjunctiveNormalized(new Conjunction<Expression>(expression));
     }
+
+    #region Private methods
 
     private DisjunctiveNormalized NormalizeUnary(UnaryExpression u)
     {
@@ -61,10 +66,14 @@ namespace Xtensive.Core.Linq.Normalization
 
     private DisjunctiveNormalized NormalizeBinary(BinaryExpression b)
     {
-      if (b.NodeType==ExpressionType.Equal && b.Left.Type==typeof (bool) && b.Right.Type==typeof (bool))
-        b = ConvertEqualsToDisjunction(b);
-      else if (b.NodeType==ExpressionType.NotEqual && b.Left.Type==typeof (bool) && b.Right.Type==typeof (bool))
-        b = ConvertNotEqualsToDisjunction(b);
+      if (b.NodeType==ExpressionType.Equal && 
+        b.Left.Type==typeof (bool) && 
+          b.Right.Type==typeof (bool))
+        b = NormalizeEquals(b);
+      else if (b.NodeType==ExpressionType.NotEqual && 
+        b.Left.Type==typeof (bool) && 
+          b.Right.Type==typeof (bool))
+        b = NormalizeNotEquals(b);
 
       switch (b.NodeType) {
       case ExpressionType.And:
@@ -80,62 +89,73 @@ namespace Xtensive.Core.Linq.Normalization
 
     private DisjunctiveNormalized NormalizeDisjunction(BinaryExpression b)
     {
-      var normalizedLeft = Normalize(b.Left);
-      if (finish)
-        return normalizedResult;
-      var normalizedRight = Normalize(b.Right);
-      if (finish)
-        return normalizedResult;
+      var left = Normalize(b.Left);
+      if (isFinished)
+        return result;
+      var right = Normalize(b.Right);
+      if (isFinished)
+        return result;
       
-      var normalized = new DisjunctiveNormalized(normalizedLeft.Operands, normalizedRight.Operands);
+      var newResult = new DisjunctiveNormalized(
+        left.Operands.Concat(right.Operands));
       
-      if (MaxTermsCount > 0 && normalized.TermsCount > MaxTermsCount) {
-        normalizedResult = normalizedLeft.TermsCount > normalizedRight.TermsCount ? normalizedLeft : normalizedRight;
-        finish = true;
-        return normalizedResult;
+      if (newResult.ConjunctionOperandCount > MaxConjunctionOperandCount) {
+        result = 
+          left.ConjunctionOperandCount > right.ConjunctionOperandCount ? 
+                                                                         left : right;
+        isFinished = true;
+        return result;
       }
 
-      return normalized;
+      return newResult;
     }
 
     private DisjunctiveNormalized NormalizeCojunction(BinaryExpression b)
     {
-      var normalizedLeft = Normalize(b.Left);
-      if (finish)
-        return normalizedResult;
-      var normalizedRight = Normalize(b.Right);
-      if (finish)
-        return normalizedResult;
+      var left = Normalize(b.Left);
+      if (isFinished)
+        return result;
+      var right = Normalize(b.Right);
+      if (isFinished)
+        return result;
       
-      var normalized = new DisjunctiveNormalized();
+      var newResult = new DisjunctiveNormalized();
       foreach (var leftConjunction in Normalize(b.Left).Operands) {
         foreach (var rightConjunction in Normalize(b.Right).Operands) {
-          normalized.Operands.Add(new Conjunction<Expression>(leftConjunction.Operands, rightConjunction.Operands));
+          newResult.Operands.Add(new Conjunction<Expression>(
+            leftConjunction.Operands.Concat(rightConjunction.Operands)));
         }
       }
 
-      if (MaxTermsCount > 0 && normalized.TermsCount > MaxTermsCount)
-      {
-        normalizedResult = normalizedLeft.TermsCount > normalizedRight.TermsCount ? normalizedLeft : normalizedRight;
-        finish = true;
-        return normalizedResult;
+      if (newResult.ConjunctionOperandCount > MaxConjunctionOperandCount) {
+        result = 
+          left.ConjunctionOperandCount > right.ConjunctionOperandCount ? 
+                                                                         left : right;
+        isFinished = true;
+        return result;
       }
 
-      return normalized;
+      return newResult;
     }
     
-    private static BinaryExpression ConvertEqualsToDisjunction(BinaryExpression b)
+    private static BinaryExpression NormalizeEquals(BinaryExpression b)
     {
       var left = b.Left;
       var right = b.Right;
-      return Expression.Or(Expression.And(left, right), Expression.And(Expression.Not(left), Expression.Not(right)));
+      return Expression.Or(
+        Expression.And(left, right), 
+        Expression.And(
+          Expression.Not(left), 
+          Expression.Not(right)));
     }
 
-    private static BinaryExpression ConvertNotEqualsToDisjunction(BinaryExpression b)
+    private static BinaryExpression NormalizeNotEquals(BinaryExpression b)
     {
       var left = b.Left;
       var right = b.Right;
-      return Expression.Or(Expression.And(Expression.Not(left), right), Expression.And(left, Expression.Not(right)));
+      return Expression.Or(
+        Expression.And(Expression.Not(left), right), 
+        Expression.And(left, Expression.Not(right)));
     }
 
     private static bool TryConvertInversionToBinary(UnaryExpression exp, out BinaryExpression result)
@@ -149,11 +169,15 @@ namespace Xtensive.Core.Linq.Normalization
       switch (binaryOperand.NodeType) {
       case ExpressionType.OrElse:
       case ExpressionType.Or:
-        result = Expression.And(Expression.Not(binaryOperand.Left), Expression.Not(binaryOperand.Right));
+        result = Expression.And(
+          Expression.Not(binaryOperand.Left), 
+          Expression.Not(binaryOperand.Right));
         return true;
       case ExpressionType.And:
       case ExpressionType.AndAlso:
-        result = Expression.Or(Expression.Not(binaryOperand.Left), Expression.Not(binaryOperand.Right));
+        result = Expression.Or(
+          Expression.Not(binaryOperand.Left), 
+          Expression.Not(binaryOperand.Right));
         return true;
       case ExpressionType.Equal:
         result = Expression.NotEqual(binaryOperand.Left, binaryOperand.Right);
@@ -167,16 +191,18 @@ namespace Xtensive.Core.Linq.Normalization
       }
     }
 
+    #endregion
+
 
     // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="maxTermsCount">The maximum count of result terms.</param>
-    public DisjunctiveNormalizer(int maxTermsCount)
+    /// <param name="maxConjunctionOperandCount">The maximal allowed conjunction operand count.</param>
+    public DisjunctiveNormalizer(int maxConjunctionOperandCount)
     {
-      MaxTermsCount = maxTermsCount;
+      MaxConjunctionOperandCount = maxConjunctionOperandCount;
     }
 
     /// <summary>
@@ -184,8 +210,7 @@ namespace Xtensive.Core.Linq.Normalization
     /// </summary>
     public DisjunctiveNormalizer()
     {
-      MaxTermsCount = -1;
+      MaxConjunctionOperandCount = int.MaxValue;
     }
-
   }
 }

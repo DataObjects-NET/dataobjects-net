@@ -4,8 +4,6 @@
 // Created by: Ivan Galkin
 // Created:    2009.03.25
 
-using System;
-using System.Diagnostics;
 using System.Linq;
 using NUnit.Framework;
 using System.Linq.Expressions;
@@ -17,19 +15,19 @@ using Xtensive.Core.Linq.Normalization;
 namespace Xtensive.Core.Tests.Linq
 {
   [TestFixture]
-  public class ExpressionNormalizationTest
+  public class DisjunctiveNormalizerTest
   {
     private int[] source = new[] { 1, 2, 3 };
 
     [Test]
-    public void Test()
+    public void BaseTest()
     {
       var qs = source.AsQueryable();
 
-      IQueryable q = from i in qs where (i == 1) & !((i > 2) & ((i == 3) & (i == 4))) select i;
-      Expression b = new BooleanSearcher().GetFirstBooleanExpression(q);
-      Expression nb = new DisjunctiveNormalizer().Normalize(b).ToExpression();
-      Expression nb1 = new DisjunctiveNormalizer(3).Normalize(b).ToExpression();
+      var q = from i in qs where (i == 1) & !((i > 2) & ((i == 3) & (i == 4))) select i;
+      var b = new BooleanSearcher().GetFirstBooleanExpression(q);
+      var nb = new DisjunctiveNormalizer().Normalize(b).ToExpression();
+      var nb1 = new DisjunctiveNormalizer(3).Normalize(b).ToExpression();
 
       DumpExpression(b);
       DumpExpression(nb);
@@ -37,7 +35,7 @@ namespace Xtensive.Core.Tests.Linq
     }
 
     [Test]
-    public void ConvertEqualsToDisjunction()
+    public void NormalizeEqualsTest()
     {
       var eq = Expression.Equal(Expression.Constant(true), Expression.Constant(false));
       var expected = Expression.Or(
@@ -48,17 +46,17 @@ namespace Xtensive.Core.Tests.Linq
       Log.Info(eq.ToString());
       Log.Info(dis.ToString());
       Log.Info(expected.ToString());
-      //Assert.AreEqual(expected, dis);
+      // Assert.AreEqual(expected, dis);
     }
 
 
-    public void DumpExpression(Expression exp)
+    public void DumpExpression(Expression e)
     {
-      Log.Info(exp.ToString());
+      Log.Info(e.ToString(true));
     }
   }
 
-  public class BooleanSearcher : ExpressionVisitor
+  internal class BooleanSearcher : ExpressionVisitor
   {
     private Expression rootBoolean;
 

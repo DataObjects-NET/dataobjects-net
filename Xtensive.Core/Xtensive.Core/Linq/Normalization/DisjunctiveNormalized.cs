@@ -13,46 +13,21 @@ using System.Linq.Expressions;
 namespace Xtensive.Core.Linq.Normalization
 {
   /// <summary>
-  /// A disjunctive normalized expression.
+  /// A disjunctive normalized expression 
+  /// ("([not] Arg1 [and [not] Arg2 [and...]]) [or (...)]").
   /// </summary>
   [Serializable]
   public class DisjunctiveNormalized : Disjunction<Conjunction<Expression>>
   {
     /// <summary>
-    /// Gets the total terms count.
+    /// Gets the total conjunction operand count.
     /// </summary>
-    public int TermsCount
-    {
-      get{ return Operands.Aggregate(0, (count, c) => count + c.Operands.Count);}
-    }
-
-    /// <inheritdoc/>
-    public override Expression ToExpression()
-    {
-      var operands = new Stack<Expression>();
-      foreach (var conjuction in Operands) {
-        operands.Push(conjuction.ToExpression());
-      }
-
-      if (operands.Count==0) {
-        return null;
-      }
-
-      if (operands.Count==1) {
-        return operands.Pop();
-      }
-
-      var result = Expression.Or(operands.Pop(), operands.Pop());
-
-      while (operands.Count > 0) {
-        result = Expression.Or(operands.Pop(), result);
-      }
-
-      return result;
+    public int ConjunctionOperandCount {
+      get { return Operands.Sum(c => c.Operands.Count); }
     }
 
 
-    // Construcors
+    // Constructors
 
     /// <inheritdoc/>
     public DisjunctiveNormalized()
@@ -60,14 +35,14 @@ namespace Xtensive.Core.Linq.Normalization
     }
 
     /// <inheritdoc/>
-    public DisjunctiveNormalized(IEnumerable<Conjunction<Expression>> operands, params IEnumerable<Conjunction<Expression>>[] operandSets)
-      : base(operands, operandSets)
+    public DisjunctiveNormalized(Conjunction<Expression> single)
+      : base(single)
     {
     }
 
     /// <inheritdoc/>
-    public DisjunctiveNormalized(Conjunction<Expression> operand, params Conjunction<Expression>[] operands)
-      : base(operand, operands)
+    public DisjunctiveNormalized(IEnumerable<Conjunction<Expression>> operands)
+      : base(operands)
     {
     }
   }

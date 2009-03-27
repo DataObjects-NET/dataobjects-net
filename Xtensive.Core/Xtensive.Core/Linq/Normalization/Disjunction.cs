@@ -11,9 +11,9 @@ using System.Collections.Generic;
 namespace Xtensive.Core.Linq.Normalization
 {
   /// <summary>
-  /// A disjunction of many operands.
+  /// A disjunction ("or") of multiple operands.
   /// </summary>
-  /// <typeparam name="T">The type of operands.</typeparam>
+  /// <typeparam name="T">The type of operand.</typeparam>
   [Serializable]
   public class Disjunction<T> : MultiOperandOperation<T>
   {
@@ -21,28 +21,17 @@ namespace Xtensive.Core.Linq.Normalization
     /// <exception cref="InvalidOperationException">All operands must be Expressions with type Boolean.</exception>
     public override Expression ToExpression()
     {
-      var operands = new Stack<Expression>();
+      Expression result = null;
       foreach (var operand in Operands) {
         var expression = operand as Expression;
-        if (expression==null || expression.Type!=typeof (bool))
-          throw new InvalidOperationException("All operands must be Expressions with type Boolean.");
-        operands.Push(expression);
+        if (expression==null)
+          expression = ((IExpressionSource) operand).ToExpression();
+        if (result==null)
+          result = expression;
+        else {
+          result = Expression.Or(result, expression);
+        }
       }
-
-      if (operands.Count==0) {
-        return null;
-      }
-
-      if (operands.Count==1) {
-        return operands.Pop();
-      }
-
-      var result = Expression.Or(operands.Pop(), operands.Pop());
-
-      while (operands.Count > 0) {
-        result = Expression.Or(operands.Pop(), result);
-      }
-
       return result;
     }
 
@@ -55,14 +44,14 @@ namespace Xtensive.Core.Linq.Normalization
     }
 
     /// <inheritdoc/>
-    public Disjunction(IEnumerable<T> operands, params IEnumerable<T>[] operandSets)
-      : base(operands, operandSets)
+    public Disjunction(T single)
+      : base(single)
     {
     }
 
     /// <inheritdoc/>
-    public Disjunction(T operand, params T[] operands)
-      :base(operand, operands)
+    public Disjunction(IEnumerable<T> operands)
+      : base(operands)
     {
     }
   }

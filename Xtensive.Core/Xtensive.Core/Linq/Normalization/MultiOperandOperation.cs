@@ -14,9 +14,9 @@ namespace Xtensive.Core.Linq.Normalization
   /// <summary>
   /// An abstract base class for any operation with multiple operands.
   /// </summary>
-  /// <typeparam name="T">The type of operands.</typeparam>
+  /// <typeparam name="T">The type of operand.</typeparam>
   [Serializable]
-  public abstract class MultiOperandOperation<T>
+  public abstract class MultiOperandOperation<T> : IExpressionSource
   {
     /// <summary>
     /// Gets the operands.
@@ -24,7 +24,7 @@ namespace Xtensive.Core.Linq.Normalization
     public HashSet<T> Operands { get; private set; }
 
     /// <summary>
-    /// Returns equivalent <see cref="Expression"/>.
+    /// Creates equivalent <see cref="Expression"/> object.
     /// </summary>
     public abstract Expression ToExpression();
 
@@ -40,24 +40,21 @@ namespace Xtensive.Core.Linq.Normalization
     }
 
     /// <summary>
-    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="operands">Operands.</param>
-    /// <param name="operandSets">The other operand sets.</param>
-    protected MultiOperandOperation(IEnumerable<T> operands, params IEnumerable<T>[] operandSets)
+    /// <param name="single">The single operand.</param>
+    protected MultiOperandOperation(T single)
     {
-      Operands = new HashSet<T>(operands);
-
-      foreach (var set in operandSets) {
-        foreach (var operand in set) {
-          Operands.Add(operand);   
-        }
-      }
+      Operands = new HashSet<T>() { single };
     }
 
-    protected MultiOperandOperation(T operand, params T[] operands)
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="operands">The initial <see cref="Operands"/> content.</param>
+    protected MultiOperandOperation(IEnumerable<T> operands)
     {
-      Operands = new HashSet<T>(operands) {operand};
+      Operands = new HashSet<T>(operands);
     }
   }
 }

@@ -218,11 +218,13 @@ namespace Xtensive.Core.Linq
         Write(")");
         break;
       default:
+        Write("(");
         Visit(b.Left);
         Write(" ");
         Write(GetOperator(b.NodeType));
         Write(" ");
         Visit(b.Right);
+        Write(")");
         break;
       }
       return b;
@@ -257,7 +259,9 @@ namespace Xtensive.Core.Linq
         break;
       default:
         Write(GetOperator(u.NodeType));
+        Write("(");
         Visit(u.Operand);
+        Write(")");
         break;
       }
       return u;

@@ -5,6 +5,7 @@
 // Created:    2009.03.26
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -13,38 +14,28 @@ using System.Linq.Expressions;
 namespace Xtensive.Core.Linq.Normalization
 {
   /// <summary>
-  /// A conjunction of many operands.
+  /// A conjunction ("and") of multiple operands.
   /// </summary>
-  /// <typeparam name="T">The type of operands.</typeparam>
+  /// <typeparam name="T">The type of operand.</typeparam>
   [Serializable]
   public class Conjunction<T> : MultiOperandOperation<T>
   {
     /// <inheritdoc/>
-    /// <exception cref="InvalidOperationException">All operands must be Expressions with type Boolean.</exception>
+    /// <exception cref="InvalidOperationException">All operands must be <see cref="Expression"/>s 
+    /// with <see cref="bool"/> type.</exception>
     public override Expression ToExpression()
     {
-      var operands = new Stack<Expression>();
+      Expression result = null;
       foreach (var operand in Operands) {
         var expression = operand as Expression;
-        if (expression==null || expression.Type!=typeof (bool))
-          throw new InvalidOperationException("All operands must be Expressions with type Boolean.");
-        operands.Push(expression);
+        if (expression==null)
+          expression = ((IExpressionSource) operand).ToExpression();
+        if (result==null)
+          result = expression;
+        else {
+          result = Expression.And(result, expression);
+        }
       }
-
-      if (operands.Count==0) {
-        return null;
-      }
-
-      if (operands.Count==1) {
-        return operands.Pop();
-      }
-
-      var result = Expression.And(operands.Pop(), operands.Pop());
-
-      while (operands.Count > 0) {
-        result = Expression.And(operands.Pop(), result);
-      }
-
       return result;
     }
 
@@ -57,22 +48,15 @@ namespace Xtensive.Core.Linq.Normalization
     }
 
     /// <inheritdoc/>
+    public Conjunction(T single)
+      : base(single)
+    {
+    }
+
+    /// <inheritdoc/>
     public Conjunction(IEnumerable<T> operands)
       : base(operands)
     {
     }
-
-    /// <inheritdoc/>
-    public Conjunction(IEnumerable<T> operands, params IEnumerable<T>[] operandSets)
-      : base(operands, operandSets)
-    {
-    }
-
-    /// <inheritdoc/>
-    public Conjunction(T operand, params T[] operands)
-      :base(operand, operands)
-    {
-    }
-    
   }
 }
