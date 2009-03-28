@@ -36,5 +36,17 @@ namespace Xtensive.Core.Tests.Helpers
       Assert.AreEqual("\\,,", new[] {",",""}.RevertibleJoin('\\', ','));
       AssertEx.AreEqual(new[] {",", ""}, "\\,,".RevertibleSplit('\\', ','));
     }
+
+    [Test]
+    public void IndentTest()
+    {
+      Assert.AreEqual("A".Indent(0), "A");
+      Assert.AreEqual("A".Indent(1), " A");
+      Assert.AreEqual("A".Indent(2), "  A");
+
+      Assert.AreEqual("A".Indent(1, false), "A");
+      Assert.AreEqual("A\r\nB".Indent(1, false), "A\r\n B");
+      Assert.AreEqual("A\r\nB".Indent(1, true), " A\r\n B");
+    }
   }
 }

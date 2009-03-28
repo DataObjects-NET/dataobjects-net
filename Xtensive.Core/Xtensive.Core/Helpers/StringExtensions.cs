@@ -38,7 +38,7 @@ namespace Xtensive.Core.Helpers
     /// <param name="suffix">The suffix to cut.</param>
     /// <returns>String without <paramref name="suffix"/> if it was found; 
     /// otherwise, original <paramref name="value"/>.</returns>
-    public static string TryCutSuffix(this string  value, string suffix)
+    public static string TryCutSuffix(this string value, string suffix)
     {
       if (!value.EndsWith(suffix))
         return value;
@@ -52,11 +52,49 @@ namespace Xtensive.Core.Helpers
     /// <param name="prefix">The prefix to cut.</param>
     /// <returns>String without <paramref name="prefix"/> if it was found; 
     /// otherwise, original <paramref name="value"/>.</returns>
-    public static string TryCutPrefix(this string  value, string prefix)
+    public static string TryCutPrefix(this string value, string prefix)
     {
       if (!value.StartsWith(prefix))
         return value;
       return value.Substring(prefix.Length);        
+    }
+
+    /// <summary>
+    /// Indents the specified string value.
+    /// </summary>
+    /// <param name="value">The value to indent.</param>
+    /// <param name="indentSize">Size of the indent (in space characters).</param>
+    /// <returns>Indented <paramref name="value"/>.</returns>
+    public static string Indent(this string value, int indentSize)
+    {
+      return value.Indent(indentSize, true);
+    }
+
+    /// <summary>
+    /// Indents the specified string value.
+    /// </summary>
+    /// <param name="value">The value to indent.</param>
+    /// <param name="indentSize">Size of the indent (in space characters).</param>
+    /// <param name="indentFirstLine">If set to <see langword="true"/>, first line must be indented;
+    /// otherwise, <see langword="false"/>.</param>
+    /// <returns>Indented <paramref name="value"/>.</returns>
+    public static string Indent(this string value, int indentSize, bool indentFirstLine)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(value, "value");
+      var indent = new string(' ', indentSize);
+      var sb = new StringBuilder();
+      if (indentFirstLine)
+        sb.Append(indent);
+      int start = 0;
+      int next;
+      while ((next = value.IndexOf('\n', start)) >= 0) {
+        next++;
+        sb.Append(value.Substring(start, next - start));
+        sb.Append(indent);
+        start = next;
+      }
+      sb.Append(value.Substring(start, value.Length - start));
+      return sb.ToString();
     }
 
     /// <summary>
