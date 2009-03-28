@@ -9,6 +9,7 @@ using NUnit.Framework;
 using Xtensive.Core.Serialization.Binary;
 using Xtensive.Core.Testing;
 using Xtensive.Modelling.Actions;
+using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Modelling.Tests.DatabaseModel;
 using Xtensive.Modelling.Comparison;
 
@@ -229,9 +230,15 @@ namespace Xtensive.Modelling.Tests
     [Test]
     public void ComparisonTest()
     {
-      var srvx = new Server("newSrv");
-      var diff = srv.GetDifferenceWith(srvx);
-      Log.Info("Difference: \r\n{0}", diff);
+      var srvx = new Server("srvx");
+      
+      var hintSet = new HintSet(srv, srvx);
+      hintSet.Add(new RenameHint("", ""));
+
+      using (hintSet.Activate()) {
+        var diff = srv.GetDifferenceWith(srvx);
+        Log.Info("Difference: \r\n{0}", diff);
+      }
     }
   }
 }

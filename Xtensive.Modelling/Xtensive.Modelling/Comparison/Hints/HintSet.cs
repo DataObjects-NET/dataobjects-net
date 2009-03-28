@@ -17,6 +17,9 @@ using Xtensive.Modelling.Resources;
 
 namespace Xtensive.Modelling.Comparison.Hints
 {
+  /// <summary>
+  /// <see cref="Hint"/> set.
+  /// </summary>
   [Serializable]
   public class HintSet : LockableBase,
     IHintSet, 
@@ -87,19 +90,19 @@ namespace Xtensive.Modelling.Comparison.Hints
           if (!hintMap.ContainsKey(node))
             hintMap.Add(node, new Dictionary<Type, object>());
           var nodeHintMap = hintMap[node];
-          var nodeType = node.GetType();
+          var hintType = hint.GetType();
           
-          if (!nodeHintMap.ContainsKey(nodeType))
-            nodeHintMap.Add(nodeType, null);
+          if (!nodeHintMap.ContainsKey(hintType))
+            nodeHintMap.Add(hintType, null);
           
-          var hintOrList = nodeHintMap[nodeType];
+          var hintOrList = nodeHintMap[hintType];
           if (hintOrList==null)
-            nodeHintMap[nodeType] = node;
+            nodeHintMap[hintType] = hint;
           else {
             var list = hintOrList as List<Hint>;
             if (list==null) {
               var oldHint = (Hint) hintOrList;
-              nodeHintMap[nodeType] = new List<Hint>(new[] {oldHint, hint});
+              nodeHintMap[hintType] = new List<Hint>(new[] {oldHint, hint});
             }
             else
               list.Add(hint);
@@ -135,9 +138,9 @@ namespace Xtensive.Modelling.Comparison.Hints
       Dictionary<Type, object> nodeHintMap;
       if (!hintMap.TryGetValue(node, out nodeHintMap))
         return null;
-      var nodeType = node.GetType();
+      var hintType = typeof(THint);
       object hintOrList;
-      if (!nodeHintMap.TryGetValue(nodeType, out hintOrList))
+      if (!nodeHintMap.TryGetValue(hintType, out hintOrList))
         return null;
       var hint = hintOrList as THint;
       if (hint!=null)
@@ -156,9 +159,9 @@ namespace Xtensive.Modelling.Comparison.Hints
       Dictionary<Type, object> nodeHintMap;
       if (!hintMap.TryGetValue(node, out nodeHintMap))
         return null;
-      var nodeType = node.GetType();
+      var hintType = typeof(THint);
       object hintOrList;
-      if (!nodeHintMap.TryGetValue(nodeType, out hintOrList))
+      if (!nodeHintMap.TryGetValue(hintType, out hintOrList))
         return null;
       var hint = hintOrList as THint;
       if (hint!=null)

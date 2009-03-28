@@ -19,6 +19,7 @@ using Xtensive.Core.Threading;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Attributes;
 using Xtensive.Modelling.Comparison;
+using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Modelling.Resources;
 using Xtensive.Core.Reflection;
 using Xtensive.Modelling.Validation;
@@ -641,8 +642,11 @@ namespace Xtensive.Modelling
       else if (target==null)
         mi.IsRemoved = true;
       else {
-        if (!(this is IUnnamedNode) && Name!=target.Name)
-          mi.IsNameChanged = true;
+        if (!(source is IUnnamedNode) && Name!=target.Name) {
+          var renameHint = HintSet.Current.GetHint<RenameHint>(source);
+          if (renameHint==null || renameHint.TargetPath!=target.Path)
+            mi.IsNameChanged = true;
+        }
         mi.IsIndexChanged = source.index != target.Index;
         var collection = target.Nesting.PropertyValue as NodeCollection;
         if (collection!=null && (collection is IUnorderedNodeCollection))
