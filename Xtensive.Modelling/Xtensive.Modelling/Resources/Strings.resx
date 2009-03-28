@@ -160,10 +160,10 @@
     <value>Multiple hints found.</value>
   </data>
   <data name="DifferenceFormat" xml:space="preserve">
-    <value>{0}: {1} != {2}; {3}</value>
+    <value>"{1}" != "{2}" ({0}) {3}</value>
   </data>
   <data name="PropertyChangeFormat" xml:space="preserve">
-    <value>{0}: {1}</value>
+    <value>+{0}: {1}</value>
   </data>
   <data name="ItemChangeFormat" xml:space="preserve">
     <value>{0}: {1}</value>
