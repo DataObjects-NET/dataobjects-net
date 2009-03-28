@@ -31,6 +31,8 @@ namespace Xtensive.Modelling
     INodeCollection,
     IDeserializationCallback
   {
+    private static readonly ReadOnlyList<Node> emptyCountable =
+      new ReadOnlyList<Node>(new List<Node>(), false);
     [NonSerialized]
     private string escapedName;
     [NonSerialized]
@@ -215,13 +217,13 @@ namespace Xtensive.Modelling
     protected virtual bool BuildDifference()
     {
       var difference = (NodeCollectionDifference) Difference.Current;
-      var source = difference.Source;
-      var target = difference.Target;
+      var source = ((ICountable) difference.Source) ?? emptyCountable;
+      var target = ((ICountable) difference.Target) ?? emptyCountable;
 
       if (source.Count==0 && target.Count==0)
         return false;
       var someItems = source.Count!=0 ? source : target;
-      var someItem = someItems[0];
+      var someItem = someItems.Cast<Node>().First();
 
       Func<Node, Pair<Node,object>> keyExtractor = n => new Pair<Node, object>(n,n.Name);
       if (someItem is IUnnamedNode) {

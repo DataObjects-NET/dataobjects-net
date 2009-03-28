@@ -232,11 +232,11 @@ namespace Xtensive.Modelling.Tests
     {
       var srvx = new Server("srvx");
       
-      var hintSet = new HintSet(srv, srvx);
+      var hintSet = new HintSet(srvx, srv);
       hintSet.Add(new RenameHint("", ""));
 
       using (hintSet.Activate()) {
-        var diff = srv.GetDifferenceWith(srvx);
+        var diff = srvx.GetDifferenceWith(srv);
         Log.Info("Difference: \r\n{0}", diff);
       }
     }

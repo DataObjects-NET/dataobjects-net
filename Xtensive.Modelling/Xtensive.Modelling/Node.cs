@@ -692,6 +692,7 @@ namespace Xtensive.Modelling
             else
               difference.PropertyChanges.Add(propertyName,
                 new ValueDifference(sv, tv));
+            continue;
           }
           var dsv = sv as IDifferentiable;
           if (dsv!=null) {
