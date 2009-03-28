@@ -182,39 +182,44 @@ namespace Xtensive.Modelling
     #region IDifferentiable<...> methods
 
     /// <inheritdoc/>
-    public NodeCollectionDifference GetDifferenceWith(NodeCollection target)
+    public NodeCollectionDifference GetDifferenceWith(NodeCollection target, bool swap)
     {
-      var difference = CreateDifference(target);
+      var difference = CreateDifference(target, swap);
       using (difference.Activate()) {
-        BuildDifference(difference);
+        if (BuildDifference())
+          return difference;
       }
-      return difference;
+      return null;
     }
 
     /// <summary>
     /// Creates the difference object for the current node.
     /// </summary>
     /// <param name="target">The target object.</param>
+    /// <param name="swap">Indicates whether source (this instance)
+    /// and target are swapped.</param>
     /// <returns>Newly created <see cref="NodeCollectionDifference"/>
     /// object or its ancestor.</returns>
-    protected virtual NodeCollectionDifference CreateDifference(NodeCollection target)
+    protected virtual NodeCollectionDifference CreateDifference(NodeCollection target, bool swap)
     {
-      return new NodeCollectionDifference(this, target);
+      if (swap)
+        return new NodeCollectionDifference(target, this);
+      else
+        return new NodeCollectionDifference(this, target);
     }
 
     /// <summary>
     /// Builds the difference.
     /// </summary>
-    /// <param name="difference">The difference to update.</param>
-    protected virtual void BuildDifference(NodeCollectionDifference difference)
+    protected virtual bool BuildDifference()
     {
-      throw new NotImplementedException();
+      return false;
     }
 
     /// <inheritdoc/>
-    Difference IDifferentiable.GetDifferenceWith(object target)
+    Difference IDifferentiable.GetDifferenceWith(object target, bool swap)
     {
-      return GetDifferenceWith((NodeCollection) target);
+      return GetDifferenceWith((NodeCollection) target, swap);
     }
 
     #endregion

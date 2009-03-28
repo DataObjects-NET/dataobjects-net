@@ -15,10 +15,8 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <summary>
     /// Gets the method that returns compiled <see cref="ExecutableProvider"/> by its <see cref="CompilableProvider"/>.
     /// </summary>
-    protected static Func<object, ExecutableProvider> GetBound
-    {
-      get
-      {
+    protected static Func<object, ExecutableProvider> GetBound {
+      get {
         return CompilationContext.Current.BindingContext.GetBound;
       }
     }

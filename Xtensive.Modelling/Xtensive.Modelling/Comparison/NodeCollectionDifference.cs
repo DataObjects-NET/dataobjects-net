@@ -5,8 +5,12 @@
 // Created:    2009.03.25
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Text;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Modelling.Resources;
+using Xtensive.Core.Helpers;
 
 namespace Xtensive.Modelling.Comparison
 {
@@ -27,6 +31,21 @@ namespace Xtensive.Modelling.Comparison
       get { return (NodeCollection) base.Target; }
     }
 
+    /// <summary>
+    /// Gets the item changes.
+    /// </summary>
+    public Dictionary<string, NodeDifference> ItemChanges { get; private set; }
+
+
+    /// <inheritdoc/>
+    protected override string ParametersToString()
+    {
+      var sb = new StringBuilder();
+      sb.AppendFormat(Strings.ItemChangeCountFormat, ItemChanges.Count);
+      foreach (var pair in ItemChanges)
+        sb.AppendLine().AppendFormat(Strings.ItemChangeFormat, pair.Key, pair.Value);
+      return sb.ToString().Indent(ToString_IndentSize, false);
+    }
 
     // Constructors
     
@@ -38,6 +57,7 @@ namespace Xtensive.Modelling.Comparison
     public NodeCollectionDifference(NodeCollection source, NodeCollection target)
       : base(source, target)
     {
+      ItemChanges = new Dictionary<string, NodeDifference>();
     }
   }
 }

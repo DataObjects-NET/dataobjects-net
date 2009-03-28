@@ -159,4 +159,19 @@
   <data name="ExMultipleHintsFound" xml:space="preserve">
     <value>Multiple hints found.</value>
   </data>
+  <data name="DifferenceFormat" xml:space="preserve">
+    <value>{0}: {1} != {2}; {3}</value>
+  </data>
+  <data name="PropertyChangeFormat" xml:space="preserve">
+    <value>{0}: {1}</value>
+  </data>
+  <data name="ItemChangeFormat" xml:space="preserve">
+    <value>{0}: {1}</value>
+  </data>
+  <data name="ItemChangeCountFormat" xml:space="preserve">
+    <value>{0} change(s)</value>
+  </data>
+  <data name="ExBothSourceAndTargetAreNull" xml:space="preserve">
+    <value>Both Source and Target are null.</value>
+  </data>
 </root>

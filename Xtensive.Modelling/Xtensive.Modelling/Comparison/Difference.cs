@@ -8,6 +8,8 @@ using System;
 using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Modelling.Resources;
+using Xtensive.Core.Reflection;
 
 namespace Xtensive.Modelling.Comparison
 {
@@ -15,8 +17,13 @@ namespace Xtensive.Modelling.Comparison
   /// Base comparison result.
   /// </summary>
   [Serializable]
-  public class Difference : IDifference, IContext<ComparisonScope>
+  public abstract class Difference : IDifference, IContext<ComparisonScope>
   {
+    /// <summary>
+    /// Indent size in <see cref="ToString"/> method.
+    /// </summary>
+    protected static readonly int ToString_IndentSize = 2;
+
     /// <inheritdoc/>
     public object Source { get; private set; }
 
@@ -25,6 +32,24 @@ namespace Xtensive.Modelling.Comparison
 
     /// <inheritdoc/>
     public Difference Parent { get; private set; }
+
+    /// <summary>
+    /// Gets the nearest <see cref="Parent"/> of type <typeparamref name="T"/>.
+    /// </summary>
+    /// <typeparam name="T">Type of the <see cref="Parent"/> to find.</typeparam>
+    /// <returns>The nearest <see cref="Parent"/> of type <typeparamref name="T"/>, if found;
+    /// otherwise, <see langword="null" />.</returns>
+    public T GetNearestParent<T>()
+      where T : Difference
+    {
+      var current = this;
+      while ((current = current.Parent)!=null) {
+        var typedCurrent = current as T;
+        if (typedCurrent!=null)
+          return typedCurrent;
+      }
+      return null;
+    }
 
     /// <summary>
     /// Gets the current <see cref="Difference"/> object.
@@ -55,6 +80,19 @@ namespace Xtensive.Modelling.Comparison
     }
 
     #endregion
+
+    /// <inheritdoc/>
+    public override string ToString()
+    {
+      return string.Format(Strings.DifferenceFormat,
+        GetType().GetShortName(), Source, Target, ParametersToString());
+    }
+
+    /// <summary>
+    /// Converts parameters to string.
+    /// </summary>
+    /// <returns>String representation of difference parameters.</returns>
+    protected abstract string ParametersToString();
 
 
     // Constructors

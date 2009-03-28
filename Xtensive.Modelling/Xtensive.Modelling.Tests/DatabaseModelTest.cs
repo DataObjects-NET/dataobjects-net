@@ -10,6 +10,7 @@ using Xtensive.Core.Serialization.Binary;
 using Xtensive.Core.Testing;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Tests.DatabaseModel;
+using Xtensive.Modelling.Comparison;
 
 namespace Xtensive.Modelling.Tests
 {
@@ -223,6 +224,14 @@ namespace Xtensive.Modelling.Tests
       srv.Actions.Apply(srvx);
       Log.Info("Updated model:");
       srvx.Dump();
+    }
+
+    [Test]
+    public void ComparisonTest()
+    {
+      var srvx = new Server("newSrv");
+      var diff = srv.GetDifferenceWith(srvx);
+      Log.Info("Difference: \r\n{0}", diff);
     }
   }
 }

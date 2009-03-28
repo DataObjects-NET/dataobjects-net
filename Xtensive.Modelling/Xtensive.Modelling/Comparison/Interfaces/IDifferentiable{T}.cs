@@ -18,10 +18,12 @@ namespace Xtensive.Modelling.Comparison
     /// Compares this instance to the <paramref name="target"/> object.
     /// </summary>
     /// <param name="target">The target.</param>
+    /// <param name="swap">Indicates whether source (this instance)
+    /// and target are swapped.</param>
     /// <returns>
     /// Differences, if any;
     /// otherwise, <see langword="null"/>.
     /// </returns>
-    TResult GetDifferenceWith(T target);
+    TResult GetDifferenceWith(T target, bool swap);
   }
 }

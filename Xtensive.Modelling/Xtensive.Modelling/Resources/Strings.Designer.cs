@@ -61,11 +61,29 @@ namespace Xtensive.Modelling.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0}: {1} != {2}; {3}.
+        /// </summary>
+        internal static string DifferenceFormat {
+            get {
+                return ResourceManager.GetString("DifferenceFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Binding has failed for {0}. Check property declaration..
         /// </summary>
         internal static string ExBindingFailedForX {
             get {
                 return ResourceManager.GetString("ExBindingFailedForX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Both Source and Target are null..
+        /// </summary>
+        internal static string ExBothSourceAndTargetAreNull {
+            get {
+                return ResourceManager.GetString("ExBothSourceAndTargetAreNull", resourceCulture);
             }
         }
         
@@ -178,11 +196,38 @@ namespace Xtensive.Modelling.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0} change(s).
+        /// </summary>
+        internal static string ItemChangeCountFormat {
+            get {
+                return ResourceManager.GetString("ItemChangeCountFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: {1}.
+        /// </summary>
+        internal static string ItemChangeFormat {
+            get {
+                return ResourceManager.GetString("ItemChangeFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {0} ({1}).
         /// </summary>
         internal static string NodeInfoFormat {
             get {
                 return ResourceManager.GetString("NodeInfoFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: {1}.
+        /// </summary>
+        internal static string PropertyChangeFormat {
+            get {
+                return ResourceManager.GetString("PropertyChangeFormat", resourceCulture);
             }
         }
     }

@@ -5,7 +5,11 @@
 // Created:    2009.03.25
 
 using System.Collections.Generic;
+using System.Text;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Reflection;
+using Xtensive.Modelling.Resources;
+using Xtensive.Core.Helpers;
 
 namespace Xtensive.Modelling.Comparison
 {
@@ -34,6 +38,17 @@ namespace Xtensive.Modelling.Comparison
     /// Gets list of property changes.
     /// </summary>
     public Dictionary<string, Difference> PropertyChanges { get; private set; }
+
+    /// <inheritdoc/>
+    protected override string ParametersToString()
+    {
+      var sb = new StringBuilder();
+      if (MovementInfo!=null)
+        sb.Append(MovementInfo);
+      foreach (var pair in PropertyChanges)
+        sb.AppendLine().AppendFormat(Strings.PropertyChangeFormat, pair.Key, pair.Value);
+      return sb.ToString().Indent(ToString_IndentSize, false);
+    }
 
     
     // Constructors
