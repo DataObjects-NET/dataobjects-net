@@ -235,10 +235,26 @@ namespace Xtensive.Modelling.Tests
       var hintSet = new HintSet(srvx, srv);
       hintSet.Add(new RenameHint("", ""));
 
+      Log.Info("Model 1:");
+      srvx.Dump();
+      Log.Info("Model 2:");
+      srv.Dump();
+
+      Difference diff;
       using (hintSet.Activate()) {
-        var diff = srvx.GetDifferenceWith(srv);
-        Log.Info("Difference: \r\n{0}", diff);
+        diff = srvx.GetDifferenceWith(srv);
       }
+      Log.Info("Difference: \r\n{0}", diff);
+
+      var actions = new ActionSequence();
+      diff.Build(actions);
+      Log.Info("Actions: \r\n{0}", actions);
+
+      Log.Info("Applying actions...");
+      actions.Apply(srvx);
+
+      Log.Info("Updated Model 1:");
+      srvx.Dump();
     }
   }
 }

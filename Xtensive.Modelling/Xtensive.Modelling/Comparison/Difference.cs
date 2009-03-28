@@ -8,6 +8,7 @@ using System;
 using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Resources;
 using Xtensive.Core.Reflection;
 
@@ -17,7 +18,9 @@ namespace Xtensive.Modelling.Comparison
   /// Base comparison result.
   /// </summary>
   [Serializable]
-  public abstract class Difference : IDifference, IContext<ComparisonScope>
+  public abstract class Difference : IDifference, 
+    INodeActionSequenceBuilder,
+    IContext<ComparisonScope>
   {
     /// <summary>
     /// Indent size in <see cref="ToString"/> method.
@@ -55,10 +58,11 @@ namespace Xtensive.Modelling.Comparison
     /// Gets the current <see cref="Difference"/> object.
     /// </summary>
     public static Difference Current {
-      get {
-        return ComparisonScope.CurrentDifference;
-      }
+      get { return ComparisonScope.CurrentDifference; }
     }
+
+    /// <inheritdoc/>
+    public abstract void Build(ActionSequence sequence);
 
     #region IContext<...> members
 
@@ -81,6 +85,8 @@ namespace Xtensive.Modelling.Comparison
 
     #endregion
 
+    #region ToString implementation
+
     /// <inheritdoc/>
     public override string ToString()
     {
@@ -93,6 +99,8 @@ namespace Xtensive.Modelling.Comparison
     /// </summary>
     /// <returns>String representation of difference parameters.</returns>
     protected abstract string ParametersToString();
+
+    #endregion
 
 
     // Constructors

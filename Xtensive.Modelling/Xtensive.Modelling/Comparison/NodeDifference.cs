@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Text;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
+using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Resources;
 using Xtensive.Core.Helpers;
 
@@ -38,6 +39,47 @@ namespace Xtensive.Modelling.Comparison
     /// Gets list of property changes.
     /// </summary>
     public Dictionary<string, Difference> PropertyChanges { get; private set; }
+
+    /// <inheritdoc/>
+    public override void Build(ActionSequence sequence)
+    {
+      // Processing movement
+      using (var scope = sequence.LogAction()) {
+        if (MovementInfo.IsRemoved) {
+          var ra = new RemoveNodeAction() {Path = Source.Path};
+          scope.Action = ra;
+          scope.Commit();
+          return;
+        }
+
+        if (MovementInfo.IsCreated) {
+          var ca = new CreateNodeAction()
+            {
+              Path = Target.Parent==null ? string.Empty : Target.Parent.Path,
+              Type = Target.GetType(),
+              Name = Target.Name,
+              Index = Target.Index
+            };
+          scope.Action = ca;
+          scope.Commit();
+        }
+        else if (!MovementInfo.IsUnchanged) {
+          var ca = new MoveNodeAction()
+            {
+              Path = Source.Path,
+              Parent = Target.Parent==null ? string.Empty : Target.Parent.Path,
+              Name = Target.Name,
+              Index = Target.Index
+            };
+          scope.Action = ca;
+          scope.Commit();
+        }
+      }
+
+      // And property changes
+      foreach (var pair in PropertyChanges)
+        pair.Value.Build(sequence);
+    }
 
     /// <inheritdoc/>
     protected override string ParametersToString()

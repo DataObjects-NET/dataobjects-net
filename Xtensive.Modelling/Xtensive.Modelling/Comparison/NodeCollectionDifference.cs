@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Resources;
 using Xtensive.Core.Helpers;
 
@@ -36,6 +37,13 @@ namespace Xtensive.Modelling.Comparison
     /// </summary>
     public Dictionary<string, NodeDifference> ItemChanges { get; private set; }
 
+    /// <inheritdoc/>
+    public override void Build(ActionSequence sequence)
+    {
+      // Processing item changes
+      foreach (var pair in ItemChanges)
+        pair.Value.Build(sequence);
+    }
 
     /// <inheritdoc/>
     protected override string ParametersToString()
