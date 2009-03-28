@@ -5,6 +5,7 @@
 // Created:    2009.03.16
 
 using System;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -213,7 +214,63 @@ namespace Xtensive.Modelling
     /// </summary>
     protected virtual bool BuildDifference()
     {
-      return false;
+      var difference = (NodeCollectionDifference) Difference.Current;
+      var source = difference.Source;
+      var target = difference.Target;
+
+      if (source.Count==0 && target.Count==0)
+        return false;
+      var someItems = source.Count!=0 ? source : target;
+      var someItem = someItems[0];
+
+      Func<Node, Pair<Node,object>> keyExtractor = n => new Pair<Node, object>(n,n.Name);
+      if (someItem is IUnnamedNode) {
+        if (someItem is INodeReference)
+          keyExtractor = n => {
+            var referredNode = ((INodeReference) n).Value;
+            return new Pair<Node, object>(n, referredNode==null ? null : referredNode.Path);
+          };
+        else
+          keyExtractor = n => new Pair<Node, object>(n, n.Index);
+      }
+
+      var sourceKeyMap = new Dictionary<object, Node>();
+      foreach (var pair in source.Cast<Node>().Select(keyExtractor))
+        sourceKeyMap.Add(pair.Second, pair.First);
+
+      var targetKeyMap = new Dictionary<object, Node>();
+      foreach (var pair in target.Cast<Node>().Select(keyExtractor))
+        targetKeyMap.Add(pair.Second, pair.First);
+
+      var sourceKeys = source.Cast<Node>().Select(n => keyExtractor(n).Second);
+      var targetKeys = target.Cast<Node>().Select(n => keyExtractor(n).Second);
+      var commonKeys = sourceKeys.Intersect(targetKeys);
+
+      // Comparing source only items
+      foreach (var key in sourceKeys.Except(commonKeys)) {
+        var item = sourceKeyMap[key];
+        var d = item.GetDifferenceWith(null, false);
+        if (d!=null)
+          difference.ItemChanges.Add(item.Name, d);
+      }
+
+      // Comparing common items
+      foreach (var key in commonKeys) {
+        var item = sourceKeyMap[key];
+        var d = item.GetDifferenceWith(null, false);
+        if (d!=null)
+          difference.ItemChanges.Add(item.Name, d);
+      }
+
+      // Comparing target only items
+      foreach (var key in targetKeys.Except(commonKeys)) {
+        var item = targetKeyMap[key];
+        var d = item.GetDifferenceWith(null, true);
+        if (d!=null)
+          difference.ItemChanges.Add(item.Name, d);
+      }
+
+      return difference.ItemChanges.Count != 0;
     }
 
     /// <inheritdoc/>
