@@ -4,9 +4,7 @@
 // Created by: Alexis Kochetov
 // Created:    2009.03.24
 
-using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Parameters;
@@ -14,17 +12,17 @@ using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
 using System.Linq;
 
-namespace Xtensive.Storage.Linq
+namespace Xtensive.Storage.Rse.Compilation.Optimizers
 {
   internal sealed class OrderbyRewriter : CompilableProviderVisitor
   {
-    private readonly ResultExpression origin;
+    private readonly CompilableProvider origin;
     private readonly Parameter<DirectionCollection<int>> pSortOrder = new Parameter<DirectionCollection<int>>();
 
-    public ResultExpression Rewrite()
+    public CompilableProvider Rewrite()
     {
       using (new ParameterScope()) {
-        var provider = VisitCompilable(origin.RecordSet.Provider);
+        var provider = VisitCompilable(origin);
         if (pSortOrder.HasValue) {
           if (provider.Type == ProviderType.Select) {
             var selectProvider = (SelectProvider)provider;
@@ -33,13 +31,7 @@ namespace Xtensive.Storage.Linq
           else
             provider = new SortProvider(provider, pSortOrder.Value);
         }
-        var result = new ResultExpression(
-          origin.Type,
-          provider.Result,
-          origin.Mapping,
-          origin.Projector,
-          origin.ItemProjector);
-        return result;
+        return provider;
       }
     }
 
@@ -98,9 +90,9 @@ namespace Xtensive.Storage.Linq
 
     // Constructors
 
-    public OrderbyRewriter(ResultExpression expression)
+    public OrderbyRewriter(CompilableProvider origin)
     {
-      origin = expression;
+      this.origin = origin;
     }
   }
 }

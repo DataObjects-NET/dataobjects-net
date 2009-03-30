@@ -16,8 +16,8 @@ using Xtensive.Core.Tuples.Transform;
 using Xtensive.Indexing;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Model;
-using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Compilation;
+using Xtensive.Storage.Rse.Compilation.Optimizers;
 using Xtensive.Storage.Rse.Providers;
 
 namespace Xtensive.Storage.Providers.Index
@@ -34,7 +34,7 @@ namespace Xtensive.Storage.Providers.Index
 
     protected override IOptimizer BuildOptimizer()
     {
-      return new EmptyOptimizer();
+      return new OrderbyOptimizer();
     }
 
     /// <inheritdoc/>

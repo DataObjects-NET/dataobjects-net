@@ -29,8 +29,6 @@ namespace Xtensive.Storage.Linq
       var result = context.Translator.Translate();
       var rcr = new RedundantColumnRemover(result);
       result = rcr.RemoveRedundantColumn();
-      var or = new OrderbyRewriter(result);
-      result = or.Rewrite();
       return result;
     }
 
