@@ -124,6 +124,15 @@ namespace Xtensive.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Actual conjunction operand count greater than MaxConjunctionOperandCount..
+        /// </summary>
+        internal static string ExActualConjunctionOperandCountGreaterThanExpected {
+            get {
+                return ResourceManager.GetString("ExActualConjunctionOperandCountGreaterThanExpected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Object is already disposed..
         /// </summary>
         internal static string ExAlreadyDisposed {

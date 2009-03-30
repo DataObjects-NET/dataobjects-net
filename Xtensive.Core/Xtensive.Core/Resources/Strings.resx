@@ -618,4 +618,7 @@
   <data name="ExOnlyNormalizedExpressionCanBeAddedAsChildToRoot" xml:space="preserve">
     <value>Only the normalized expression having the different normal form can be added as the immediate descendant to the root expression.</value>
   </data>
+  <data name="ExActualConjunctionOperandCountGreaterThanExpected" xml:space="preserve">
+    <value>Actual conjunction operand count greater than MaxConjunctionOperandCount.</value>
+  </data>
 </root>

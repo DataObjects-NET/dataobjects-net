@@ -19,7 +19,6 @@ namespace Xtensive.Core.Linq.Normalization
   {
     /// <summary>
     /// Gets or sets the maximal allowed conjunction operand count.
-    /// Default is <see cref="int.MaxValue"/>.
     /// </summary>
     public int? MaxConjunctionOperandCount { get; private set; }
 
@@ -28,7 +27,8 @@ namespace Xtensive.Core.Linq.Normalization
     /// </summary>
     /// <param name="expression">The expression to transform.</param>
     /// <returns>Disjunctive normal representation of <paramref name="expression"/>.</returns>
-    /// <exception cref="InvalidOperationException">Conjunction operand count greater than <see cref="MaxConjunctionOperandCount"/>.</exception>
+    /// <exception cref="InvalidOperationException">Actual conjunction operand count 
+    /// greater than <see cref="MaxConjunctionOperandCount"/>.</exception>
     public DisjunctiveNormalized Normalize(Expression expression)
     {
       var unary = expression as UnaryExpression;
@@ -45,10 +45,17 @@ namespace Xtensive.Core.Linq.Normalization
       }
 
       var binary = expression as BinaryExpression;
-      if (binary!=null)
-        return NormalizeBinary(binary);
+      var result = binary!=null
+        ? NormalizeBinary(binary)
+        : new DisjunctiveNormalized(new Conjunction<Expression>(expression));
 
-      return new DisjunctiveNormalized(new Conjunction<Expression>(expression));
+      if (MaxConjunctionOperandCount.HasValue &&
+        result.ConjunctionOperandCount > MaxConjunctionOperandCount) {
+        throw new InvalidOperationException(
+          Resources.Strings.ExActualConjunctionOperandCountGreaterThanExpected);
+      }
+
+      return result;
     }
 
     #region Private methods
@@ -82,16 +89,8 @@ namespace Xtensive.Core.Linq.Normalization
 
     private DisjunctiveNormalized NormalizeDisjunction(BinaryExpression b)
     {
-      var result = new DisjunctiveNormalized(
+      return new DisjunctiveNormalized(
         Normalize(b.Left).Operands.Concat(Normalize(b.Right).Operands));
-
-      if (MaxConjunctionOperandCount.HasValue &&
-        result.ConjunctionOperandCount > MaxConjunctionOperandCount) {
-        throw new InvalidOperationException(
-          "Conjunction operand count greater than MaxConjunctionOperandCount.");
-      }
-
-      return result;
     }
 
     private DisjunctiveNormalized NormalizeCojunction(BinaryExpression b)
@@ -103,13 +102,6 @@ namespace Xtensive.Core.Linq.Normalization
             leftConjunction.Operands.Concat(rightConjunction.Operands)));
         }
       }
-
-      if (MaxConjunctionOperandCount.HasValue &&
-        result.ConjunctionOperandCount > MaxConjunctionOperandCount) {
-        throw new InvalidOperationException(
-          "Conjunction operand count greater than MaxConjunctionOperandCount.");
-      }
-
       return result;
     }
 
@@ -184,6 +176,9 @@ namespace Xtensive.Core.Linq.Normalization
     /// <param name="maxConjunctionOperandCount">The maximal allowed conjunction operand count.</param>
     public DisjunctiveNormalizer(int maxConjunctionOperandCount)
     {
+      ArgumentValidator.EnsureArgumentIsInRange(
+        maxConjunctionOperandCount, 1, int.MaxValue, "maxConjunctionOperandCount");
+
       MaxConjunctionOperandCount = maxConjunctionOperandCount;
     }
 
