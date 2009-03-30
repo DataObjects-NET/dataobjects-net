@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
+using System.Linq;
 
 namespace Xtensive.Modelling.Actions
 {
@@ -47,6 +48,15 @@ namespace Xtensive.Modelling.Actions
     {
       properties = new ReadOnlyDictionary<string, object>(properties, true);
       base.Lock(recursive);
+    }
+
+    /// <inheritdoc/>
+    public override string[] GetDependencies()
+    {
+      var dependencies = new Dictionary<string,bool>();
+      foreach (var pair in Properties)
+        dependencies.Add(string.Format("{0}.{1}=*", Path, EscapeName(pair.Key)), true);
+      return dependencies.Select(p => p.Key).ToArray();
     }
   }
 }

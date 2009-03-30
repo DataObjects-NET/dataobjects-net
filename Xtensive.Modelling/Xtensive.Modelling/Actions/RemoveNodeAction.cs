@@ -21,5 +21,11 @@ namespace Xtensive.Modelling.Actions
       var node = (Node) item;
       node.Remove();
     }
+
+    /// <inheritdoc/>
+    public override string[] GetDependencies()
+    {
+      return new[] {Path + ".Remove()"};
+    }
   }
 }

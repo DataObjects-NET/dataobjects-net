@@ -42,7 +42,23 @@ namespace Xtensive.Modelling.Actions
     public void Add(NodeAction action)
     {
       ArgumentValidator.EnsureArgumentNotNull(action, "action");
-      actions.Add(action);
+      this.EnsureNotLocked();
+      // Only locked actions can be added
+      var ca = action as PropertyChangeAction;
+      if (ca!=null && actions.Count!=0) {
+        // Let's try to join two change actions
+        var lastIndex = actions.Count - 1;
+        var last = actions[lastIndex] as PropertyChangeAction;
+        if (last!=null) {
+          foreach (var pair in last.Properties) {
+            if (!ca.Properties.ContainsKey(pair.Key))
+              ca.Properties.Add(pair.Key, pair.Value);
+          }
+          actions.RemoveAt(lastIndex);
+        }
+        action.Lock(true); 
+        actions.Add(action);
+      }
     }
 
     /// <inheritdoc/>
@@ -65,26 +81,9 @@ namespace Xtensive.Modelling.Actions
     internal void OnCommit(ActionScope scope)
     {
       try {
-        this.EnsureNotLocked();
         var action = scope.Action;
-        // Only locked actions can be added
-        if (scope.IsCommittable && scope.IsCommitted) {
-          var ca = action as PropertyChangeAction;
-          if (ca!=null && actions.Count!=0) {
-            // Let's try to join two change actions
-            var lastIndex = actions.Count - 1;
-            var last = actions[lastIndex] as PropertyChangeAction;
-            if (last!=null) {
-              foreach (var pair in last.Properties) {
-                if (!ca.Properties.ContainsKey(pair.Key))
-                  ca.Properties.Add(pair.Key, pair.Value);
-              }
-              actions.RemoveAt(lastIndex);
-            }
-          }
-          action.Lock(true); 
-          actions.Add(action);
-        }
+        if (scope.IsCommittable && scope.IsCommitted)
+          Add(action);
       }
       finally {
         if (scope.IsCommittable)

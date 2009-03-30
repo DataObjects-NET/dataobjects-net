@@ -101,5 +101,11 @@ namespace Xtensive.Modelling.Actions
       if (this.parameters!=null)
         parameters.Add(new Pair<string>("Parameters", this.parameters.ToCommaDelimitedString()));
     }
+
+    /// <inheritdoc/>
+    public override string[] GetDependencies()
+    {
+      return new[] { string.Concat(Path, ".", EscapeName(Name)) };
+    }
   }
 }

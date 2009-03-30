@@ -71,5 +71,11 @@ namespace Xtensive.Modelling.Actions
       if (index.HasValue)
         parameters.Add(new Pair<string>("Index", index.ToString()));
     }
+
+    /// <inheritdoc/>
+    public override string[] GetDependencies()
+    {
+      throw new NotImplementedException();
+    }
   }
 }

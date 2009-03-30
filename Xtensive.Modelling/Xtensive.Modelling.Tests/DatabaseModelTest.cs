@@ -250,6 +250,7 @@ namespace Xtensive.Modelling.Tests
       var actions = new ActionSequence();
       var actionList = new List<NodeAction>();
       diff.Build(actionList);
+      actionList = ActionSorter.SortByDependency(actionList);
       actions.Add(actionList);
       Log.Info("Actions: \r\n{0}", actions);
 
