@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using Xtensive.Core;
 
-namespace Xtensive.Storage.Rse.Optimisation
+namespace Xtensive.Storage.Rse.Optimization
 {
   /// <summary>
   /// Information about expressions containing an access to a field of tuple.
@@ -32,6 +32,9 @@ namespace Xtensive.Storage.Rse.Optimisation
     {
       return operations.Dequeue();
     }
+
+
+    // Constructors
 
     public ExpressionOnTupleField(int fieldIndex, Expression source)
       :base(source.NodeType, source.Type)

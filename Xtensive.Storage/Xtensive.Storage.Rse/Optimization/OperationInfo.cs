@@ -9,7 +9,7 @@ using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 
-namespace Xtensive.Storage.Rse.Optimisation
+namespace Xtensive.Storage.Rse.Optimization
 {
   /// <summary>
   /// Information regarding to an operation was performed on a field of tuple.

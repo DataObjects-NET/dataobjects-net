@@ -9,7 +9,7 @@ using Xtensive.Core.Linq.Normalization;
 using Xtensive.Indexing;
 using Xtensive.Storage.Model;
 
-namespace Xtensive.Storage.Rse.Optimisation
+namespace Xtensive.Storage.Rse.Optimization
 {
   /// <summary>
   /// Extracter of <see cref="RangeSet{T}"/> from a boolean expression in disjunctive normal form.

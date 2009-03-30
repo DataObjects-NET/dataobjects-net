@@ -7,7 +7,7 @@
 using System.Linq.Expressions;
 using Xtensive.Core;
 
-namespace Xtensive.Storage.Rse.Optimisation
+namespace Xtensive.Storage.Rse.Optimization
 {
   /// <summary>
   /// Original data was used to create a <see cref="RangeSetExpression"/>.

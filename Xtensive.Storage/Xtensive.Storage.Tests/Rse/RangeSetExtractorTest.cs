@@ -18,7 +18,7 @@ using Xtensive.Indexing;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
-using Xtensive.Storage.Rse.Optimisation;
+using Xtensive.Storage.Rse.Optimization;
 using Xtensive.Storage.Tests.Storage.SnakesModel;
 
 namespace Xtensive.Storage.Tests.Rse

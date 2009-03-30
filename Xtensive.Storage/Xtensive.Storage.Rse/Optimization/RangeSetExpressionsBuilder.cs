@@ -15,7 +15,7 @@ using Xtensive.Core.Tuples.Internals;
 using Xtensive.Indexing;
 using Xtensive.Storage.Model;
 
-namespace Xtensive.Storage.Rse.Optimisation
+namespace Xtensive.Storage.Rse.Optimization
 {
   internal static class RangeSetExpressionsBuilder
   {

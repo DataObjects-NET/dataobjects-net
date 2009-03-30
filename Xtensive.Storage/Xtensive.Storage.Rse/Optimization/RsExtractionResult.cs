@@ -14,7 +14,7 @@ using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
 using Xtensive.Storage.Model;
 
-namespace Xtensive.Storage.Rse.Optimisation
+namespace Xtensive.Storage.Rse.Optimization
 {
   /// <summary>
   /// Result of extraction a RangeSet from a predicate.

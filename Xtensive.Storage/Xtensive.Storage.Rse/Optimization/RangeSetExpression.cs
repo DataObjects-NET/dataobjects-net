@@ -10,7 +10,7 @@ using Xtensive.Core;
 using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
 
-namespace Xtensive.Storage.Rse.Optimisation
+namespace Xtensive.Storage.Rse.Optimization
 { 
   internal class RangeSetExpression : Expression
   {
