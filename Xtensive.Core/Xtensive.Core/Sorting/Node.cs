@@ -29,10 +29,8 @@ namespace Xtensive.Core.Sorting
     /// <summary>
     /// Gets <see cref="HashSet{T}"/> of incoming connections.
     /// </summary>
-    public HashSet<NodeConnection<TNodeItem, TConnectionItem>> IncomingConnections
-    {
-      get
-      {
+    public HashSet<NodeConnection<TNodeItem, TConnectionItem>> IncomingConnections {
+      get {
         if (incomingConnections==null)
           incomingConnections = new HashSet<NodeConnection<TNodeItem, TConnectionItem>>();
         return incomingConnections;
@@ -42,10 +40,8 @@ namespace Xtensive.Core.Sorting
     /// <summary>
     /// Gets <see cref="HashSet{T}"/> of outgoing connections.
     /// </summary>
-    public HashSet<NodeConnection<TNodeItem, TConnectionItem>> OutgoingConnections
-    {
-      get
-      {
+    public HashSet<NodeConnection<TNodeItem, TConnectionItem>> OutgoingConnections {
+      get {
         if (outgoingConnections==null)
           outgoingConnections = new HashSet<NodeConnection<TNodeItem, TConnectionItem>>();
         return outgoingConnections;
@@ -132,6 +128,7 @@ namespace Xtensive.Core.Sorting
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
+    /// <param name="item">The item.</param>
     public Node(TNodeItem item)
     {
       Item = item;

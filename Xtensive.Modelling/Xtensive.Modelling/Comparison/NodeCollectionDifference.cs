@@ -38,11 +38,11 @@ namespace Xtensive.Modelling.Comparison
     public Dictionary<string, NodeDifference> ItemChanges { get; private set; }
 
     /// <inheritdoc/>
-    public override void Build(IList<NodeAction> sequence)
+    public override void AppendActions(IList<NodeAction> sequence)
     {
       // Processing item changes
       foreach (var pair in ItemChanges)
-        pair.Value.Build(sequence);
+        pair.Value.AppendActions(sequence);
     }
 
     /// <inheritdoc/>

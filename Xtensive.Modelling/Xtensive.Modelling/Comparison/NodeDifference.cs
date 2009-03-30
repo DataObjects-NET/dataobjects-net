@@ -41,7 +41,7 @@ namespace Xtensive.Modelling.Comparison
     public Dictionary<string, Difference> PropertyChanges { get; private set; }
 
     /// <inheritdoc/>
-    public override void Build(IList<NodeAction> sequence)
+    public override void AppendActions(IList<NodeAction> sequence)
     {
       // Processing movement
       if (MovementInfo.IsRemoved) {
@@ -57,7 +57,7 @@ namespace Xtensive.Modelling.Comparison
             Type = Target.GetType(),
             Name = Target.Name,
             Index = Target.Index,
-            DependencyPath = Target.Path
+            NewPath = Target.Path
           });
       }
       else if (!MovementInfo.IsUnchanged) {
@@ -66,13 +66,14 @@ namespace Xtensive.Modelling.Comparison
             Path = Source.Path,
             Parent = Target.Parent==null ? string.Empty : Target.Parent.Path,
             Name = Target.Name,
-            Index = Target.Index
+            Index = Target.Index,
+            NewPath = Target.Path
           });
       }
 
       // And property changes
       foreach (var pair in PropertyChanges)
-        pair.Value.Build(sequence);
+        pair.Value.AppendActions(sequence);
     }
 
     /// <inheritdoc/>
@@ -82,7 +83,7 @@ namespace Xtensive.Modelling.Comparison
       if (MovementInfo!=null)
         sb.Append(MovementInfo);
       foreach (var pair in PropertyChanges)
-        sb.AppendLine().AppendFormat(Strings.PropertyChangeFormat, pair.Key, pair.Value);
+        sb.AppendLine().Append(pair.Value.ToString());
       return sb.ToString().Indent(ToString_IndentSize, false);
     }
 

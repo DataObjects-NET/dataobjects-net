@@ -65,6 +65,45 @@ namespace Xtensive.Modelling.Tests
     }
 
     [Test]
+    public void SerializationTest()
+    {
+      var clone = (Server) LegacyBinarySerializer.Instance.Clone(srv);
+      clone.Validate();
+      clone.Dump();
+    }
+
+    [Test]
+    public void ComparisonTest()
+    {
+      srv.Validate();
+      var srvx = new Server("srvx");
+      
+      var hintSet = new HintSet(srvx, srv);
+      hintSet.Add(new RenameHint("", ""));
+
+      Log.Info("Model 1:");
+      srvx.Dump();
+      Log.Info("Model 2:");
+      srv.Dump();
+
+      Difference diff;
+      using (hintSet.Activate()) {
+        diff = srvx.GetDifferenceWith(srv, null);
+      }
+      Log.Info("Difference: \r\n{0}", diff);
+
+      var actions = new ActionSequence();
+      actions.Add(diff.ToActions());
+      Log.Info("Actions: \r\n{0}", actions);
+
+      Log.Info("Applying actions...");
+      actions.Apply(srvx);
+
+      Log.Info("Updated Model 1:");
+      srvx.Dump();
+    }
+
+    [Test]
     public void CreateActionsTest()
     {
       Log.Info("Model:");
@@ -199,14 +238,6 @@ namespace Xtensive.Modelling.Tests
     }
 
     [Test]
-    public void SerializationTest()
-    {
-      var clone = (Server) LegacyBinarySerializer.Instance.Clone(srv);
-      clone.Validate();
-      clone.Dump();
-    }
-
-    [Test]
     public void DumpTest()
     {
       srv.Dump();
@@ -225,39 +256,6 @@ namespace Xtensive.Modelling.Tests
       Log.Info("Applying actions...");
       srv.Actions.Apply(srvx);
       Log.Info("Updated model:");
-      srvx.Dump();
-    }
-
-    [Test]
-    public void ComparisonTest()
-    {
-      var srvx = new Server("srvx");
-      
-      var hintSet = new HintSet(srvx, srv);
-      hintSet.Add(new RenameHint("", ""));
-
-      Log.Info("Model 1:");
-      srvx.Dump();
-      Log.Info("Model 2:");
-      srv.Dump();
-
-      Difference diff;
-      using (hintSet.Activate()) {
-        diff = srvx.GetDifferenceWith(srv, null);
-      }
-      Log.Info("Difference: \r\n{0}", diff);
-
-      var actions = new ActionSequence();
-      var actionList = new List<NodeAction>();
-      diff.Build(actionList);
-      actionList = ActionSorter.SortByDependency(actionList);
-      actions.Add(actionList);
-      Log.Info("Actions: \r\n{0}", actions);
-
-      Log.Info("Applying actions...");
-      actions.Apply(srvx);
-
-      Log.Info("Updated Model 1:");
       srvx.Dump();
     }
   }

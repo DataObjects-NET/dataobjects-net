@@ -40,10 +40,11 @@ namespace Xtensive.Modelling.Tests.DatabaseModel
       base.PerformShift(offset);
     }
 
-    protected override void PerformRemove()
+    protected override void PerformRemove(Node source)
     {
-      base.PerformRemove();
-      Log.Info("Removed: {0}", this);
+      base.PerformRemove(source);
+      if (source==this)
+        Log.Info("Removed: {0}", this);
     }
 
     protected override void OnPropertyChanged(string name)

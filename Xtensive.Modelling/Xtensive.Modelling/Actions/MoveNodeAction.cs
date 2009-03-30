@@ -24,6 +24,7 @@ namespace Xtensive.Modelling.Actions
     private string parent;
     private string name;
     private int? index;
+    private string newPath;
 
     public string Parent {
       get { return parent; }
@@ -46,6 +47,14 @@ namespace Xtensive.Modelling.Actions
       set {
         this.EnsureNotLocked();
         index = value;
+      }
+    }
+
+    public string NewPath {
+      get { return newPath; }
+      set {
+        this.EnsureNotLocked();
+        newPath = value;
       }
     }
 
@@ -75,7 +84,7 @@ namespace Xtensive.Modelling.Actions
     /// <inheritdoc/>
     public override string[] GetDependencies()
     {
-      return new[] { string.Concat(Path, ".", EscapeName(Name)) };
+      return new[] {NewPath};
     }
   }
 }

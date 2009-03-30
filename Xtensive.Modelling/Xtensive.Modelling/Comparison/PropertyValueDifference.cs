@@ -18,7 +18,7 @@ namespace Xtensive.Modelling.Comparison
   public class PropertyValueDifference : Difference
   {
     /// <inheritdoc/>
-    public override void Build(IList<NodeAction> sequence)
+    public override void AppendActions(IList<NodeAction> sequence)
     {
       var targetNode = ((NodeDifference) Parent).Target;
       var pca = new PropertyChangeAction() {Path = targetNode.Path};

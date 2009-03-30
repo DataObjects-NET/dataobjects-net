@@ -11,6 +11,8 @@ using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Sorting;
+using Xtensive.Modelling.Resources;
+using SNode=Xtensive.Core.Sorting.Node<Xtensive.Modelling.Actions.NodeAction, object>;
 
 
 namespace Xtensive.Modelling.Actions
@@ -21,57 +23,46 @@ namespace Xtensive.Modelling.Actions
   public static class ActionSorter
   {
     /// <summary>
-  /// Sorts <see cref="NodeAction"/>s accordingly with their dependencies.
+    /// Sorts <see cref="NodeAction"/>s accordingly with their dependencies.
     /// </summary>
     /// <param name="actions">The actions to sort.</param>
     /// <returns>The list of sorted actions.</returns>
+    /// <exception cref="InvalidOperationException">Loop in action dependency chain is detected.</exception>
     public static List<NodeAction> SortByDependency(IEnumerable<NodeAction> actions)
     {
-      var connections =
-        new Dictionary<
-          string,
-          Pair<
-            List<NodeAction>,
-            List<NodeAction>>>();
-      var sortNodes = new Dictionary<NodeAction, Core.Sorting.Node<NodeAction, string>>(actions.Count());
+      var invertedRequiredDependencies = new Dictionary<string, HashSet<SNode>>();
+      var nodes = new List<SNode>();
 
       foreach (var action in actions) {
-        sortNodes.Add(action, new Core.Sorting.Node<NodeAction, string>(action));
-        foreach (var dependency in action.GetDependencies()) {
-          Pair<List<NodeAction>, List<NodeAction>> connection;
-          if (!connections.TryGetValue(dependency, out connection)) {
-            connection = new Pair<List<NodeAction>, List<NodeAction>>(
-              new List<NodeAction>(), new List<NodeAction>());
-            connections.Add(dependency, connection);
+        var node = new SNode(action);
+        nodes.Add(node);
+        HashSet<SNode> hashSet;
+        foreach (var requiredDependency in action.GetRequiredDependencies()) {
+          if (!invertedRequiredDependencies.TryGetValue(requiredDependency, out hashSet)) {
+            hashSet = new HashSet<SNode>();
+            invertedRequiredDependencies.Add(requiredDependency, hashSet);
           }
-          connection.First.Add(action);
+          hashSet.Add(node);
         }
-        foreach (var dependency in action.GetRequiredDependencies()) {
-          Pair<List<NodeAction>, List<NodeAction>> connection;
-          if (!connections.TryGetValue(dependency, out connection)) {
-            connection = new Pair<List<NodeAction>, List<NodeAction>>(
-              new List<NodeAction>(), new List<NodeAction>());
-            connections.Add(dependency, connection);
+      }
+      // using (Log.InfoRegion("Dependencies"))
+      foreach (var source in nodes) {
+        // Log.Info("{0}:", source.Item);
+        foreach (var dependency in source.Item.GetDependencies()) {
+          HashSet<SNode> destinations;
+          if (!invertedRequiredDependencies.TryGetValue(dependency, out destinations))
+            continue;
+          foreach (var destination in destinations) {
+            // Log.Info("->{0}", destination.Item);
+            source.AddConnection(destination, true, null);
           }
-          connection.Second.Add(action);
         }
       }
 
-      foreach (var pair in connections.Values) {
-        foreach (var source in pair.First) {
-          foreach (var target in pair.Second)
-          {
-            new NodeConnection<NodeAction, string>(
-              sortNodes[source],
-              sortNodes[target],
-              null);
-          } 
-        }
-      }
-
-      List<Core.Sorting.Node<NodeAction, string>> loops;
-      var result = TopologicalSorter.Sort(sortNodes.Values.ToList(), out loops);
-
+      List<SNode> loops;
+      var result = TopologicalSorter.Sort(nodes, out loops);
+      if (loops!=null && loops.Count!=0)
+        throw new InvalidOperationException(Strings.ExLoopInActionDependencyChain);
       return result;
     }
   }

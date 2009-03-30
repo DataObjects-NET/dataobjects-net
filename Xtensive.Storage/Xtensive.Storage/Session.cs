@@ -70,10 +70,8 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets the session service provider.
     /// </summary>
-    public ServiceProvider Services
-    {
-      get
-      {
+    public ServiceProvider Services {
+      get {
         if (serviceProvider==null)
           serviceProvider = new ServiceProvider(this);
         return serviceProvider;

@@ -15,7 +15,8 @@ namespace Xtensive.Core.Sorting
   /// <typeparam name="TNodeItem">Type of node item.</typeparam>
   /// <typeparam name="TConnectionItem">Type of connection item.</typeparam>
   [Serializable]
-  public class NodeConnection<TNodeItem, TConnectionItem> : IEquatable<NodeConnection<TNodeItem, TConnectionItem>>
+  public class NodeConnection<TNodeItem, TConnectionItem> : 
+    IEquatable<NodeConnection<TNodeItem, TConnectionItem>>
   {
     private readonly TConnectionItem connectionItem;
     private readonly Node<TNodeItem, TConnectionItem> source;
@@ -24,26 +25,25 @@ namespace Xtensive.Core.Sorting
     /// <summary>
     /// Gets connection item.
     /// </summary>
-    public TConnectionItem ConnectionItem
-    {
+    public TConnectionItem ConnectionItem {
       get { return connectionItem; }
     }
 
     /// <summary>
     /// Gets connection source.
     /// </summary>
-    public Node<TNodeItem, TConnectionItem> Source
-    {
+    public Node<TNodeItem, TConnectionItem> Source {
       get { return source; }
     }
 
     /// <summary>
     /// Gets connection destination.
     /// </summary>
-    public Node<TNodeItem, TConnectionItem> Destination
-    {
+    public Node<TNodeItem, TConnectionItem> Destination {
       get { return destination; }
     }
+
+    #region Equality members
 
     /// <inheritdoc/>
     public bool Equals(NodeConnection<TNodeItem, TConnectionItem> obj)
@@ -52,7 +52,9 @@ namespace Xtensive.Core.Sorting
         return false;
       if (ReferenceEquals(this, obj))
         return true;
-      return Equals(obj.connectionItem, connectionItem) && Equals(obj.source, source) && Equals(obj.destination, destination);
+      return Equals(obj.connectionItem, connectionItem) && 
+        Equals(obj.source, source) && 
+          Equals(obj.destination, destination);
     }
 
     /// <inheritdoc/>
@@ -78,13 +80,17 @@ namespace Xtensive.Core.Sorting
       }
     }
 
+    #endregion
+
 
     // Constructors
-			
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
+    /// <param name="source">The source.</param>
+    /// <param name="destination">The destination.</param>
+    /// <param name="connectionItem">The connection item.</param>
     public NodeConnection(Node<TNodeItem, TConnectionItem> source, Node<TNodeItem, TConnectionItem> destination, TConnectionItem connectionItem)
     {
       this.connectionItem = connectionItem;

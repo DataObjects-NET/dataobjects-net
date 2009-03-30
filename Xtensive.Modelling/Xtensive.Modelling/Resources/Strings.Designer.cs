@@ -151,6 +151,15 @@ namespace Xtensive.Modelling.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Loop in action dependency chain is detected..
+        /// </summary>
+        internal static string ExLoopInActionDependencyChain {
+            get {
+                return ResourceManager.GetString("ExLoopInActionDependencyChain", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Model object cannot be removed..
         /// </summary>
         internal static string ExModelObjectCannotBeRemoved {

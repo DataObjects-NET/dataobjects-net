@@ -4,7 +4,9 @@
 // Created by: Alex Yakunin
 // Created:    2009.03.17
 
+using System.Collections.Generic;
 using System.ComponentModel;
+using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Modelling.Comparison;
 
@@ -61,6 +63,14 @@ namespace Xtensive.Modelling
     IPathNode GetNestedProperty(string propertyName);
 
     /// <summary>
+    /// Gets all non-<see langword="null" /> property values of <see cref="IPathNode"/> type.
+    /// </summary>
+    /// <param name="nestedOnly">If set to <see langword="true"/>, only nested nodes will be returned;
+    /// otherwise, <see langword="false" />.</param>
+    /// <returns>Non-<see langword="null" /> property values of <see cref="IPathNode"/> type.</returns>
+    IEnumerable<Pair<string, IPathNode>> GetPathNodes(bool nestedOnly);
+
+      /// <summary>
     /// Moves the node.
     /// </summary>
     /// <param name="newParent">The new parent.</param>

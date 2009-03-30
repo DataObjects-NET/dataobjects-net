@@ -48,40 +48,25 @@ namespace Xtensive.Modelling.Tests
       var hintSet = new HintSet(srvx, srv);
       hintSet.Add(new RenameHint("", ""));
       Difference diff;
-      using (hintSet.Activate())
-      {
+      using (hintSet.Activate()) {
         diff = srvx.GetDifferenceWith(srv, null);
       }
       var actions = new ActionSequence();
-      var actionList = new List<NodeAction>();
-      diff.Build(actionList);
-      actions.Add(actionList);
-
-      DumpDependecies(actionList);
-      Log.Info("Actions: \r\n{0}", actions);
-
-      actions = new ActionSequence {ActionSorter.SortByDependency(actionList)};
-      Log.Info("Sorted actions: \r\n{0}", actions);
+      actions.Add(diff.ToActions());
+      DumpDependecies(actions);
     }
 
-    public void DumpDependecies(IList<NodeAction> actions)
+    public void DumpDependecies(IEnumerable<NodeAction> actions)
     {
-      foreach (var action in actions)
-      {
-        Log.Info(string.Format("+ {0}:", action));
-        Log.Info("Dependecies:");
+      foreach (var action in actions) {
+        Log.Info(string.Format("{0}:", action));
+        Log.Info("  Created dependencies:");
         foreach (var dependency in action.GetDependencies())
-        {
-          Log.Info(dependency);
-        }
-        Log.Info("Required:");
+          Log.Info("    {0}", dependency);
+        Log.Info("  Required dependencies:");
         foreach (var dependency in action.GetRequiredDependencies())
-        {
-          Log.Info(dependency);
-        }
-
+          Log.Info("    {0}", dependency);
       }
     }
-
   }
 }

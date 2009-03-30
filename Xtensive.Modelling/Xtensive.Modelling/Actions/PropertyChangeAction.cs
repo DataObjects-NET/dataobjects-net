@@ -63,7 +63,10 @@ namespace Xtensive.Modelling.Actions
     public override string[] GetRequiredDependencies()
     {
       return base.GetRequiredDependencies().Concat(
-        properties.Values.OfType<PathNodeReference>().Select(pnr => pnr.Path)).ToArray();
+        properties.Values
+          .OfType<PathNodeReference>()
+          .Select(pnr => pnr.Path))
+          .ToArray();
     }
   }
 }

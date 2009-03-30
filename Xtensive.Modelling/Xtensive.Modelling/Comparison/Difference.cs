@@ -21,7 +21,6 @@ namespace Xtensive.Modelling.Comparison
   /// </summary>
   [Serializable]
   public abstract class Difference : IDifference, 
-    INodeActionSequenceBuilder,
     IContext<ComparisonScope>
   {
     /// <summary>
@@ -67,7 +66,15 @@ namespace Xtensive.Modelling.Comparison
     }
 
     /// <inheritdoc/>
-    public abstract void Build(IList<NodeAction> sequence);
+    public IEnumerable<NodeAction> ToActions()
+    {
+      var actions = new List<NodeAction>();
+      AppendActions(actions);
+      return ActionSorter.SortByDependency(actions);
+    }
+
+    /// <inheritdoc/>
+    public abstract void AppendActions(IList<NodeAction> actions);
 
     #region IContext<...> members
 

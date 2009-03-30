@@ -25,7 +25,7 @@ namespace Xtensive.Modelling.Actions
     private string name;
     private int index;
     private object[] parameters;
-    private string dependencyPath;
+    private string newPath;
 
     public Type Type {
       get { return type; }
@@ -65,13 +65,11 @@ namespace Xtensive.Modelling.Actions
       }
     }
 
-    public string DependencyPath
-    {
-      get { return dependencyPath; }
-      set
-      {
+    public string NewPath {
+      get { return newPath; }
+      set {
         this.EnsureNotLocked();
-        dependencyPath = value;
+        newPath = value;
       }
     }
 
@@ -116,7 +114,7 @@ namespace Xtensive.Modelling.Actions
     /// <inheritdoc/>
     public override string[] GetDependencies()
     {
-      return new[] {dependencyPath};
+      return new[] {NewPath};
     }
   }
 }

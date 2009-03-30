@@ -180,4 +180,7 @@
   <data name="ExPropertyValueMustBelongToTheSameModel" xml:space="preserve">
     <value>Property value must belong to the same Model.</value>
   </data>
+  <data name="ExLoopInActionDependencyChain" xml:space="preserve">
+    <value>Loop in action dependency chain is detected.</value>
+  </data>
 </root>

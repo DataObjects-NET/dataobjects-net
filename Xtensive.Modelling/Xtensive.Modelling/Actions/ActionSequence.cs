@@ -49,7 +49,7 @@ namespace Xtensive.Modelling.Actions
         // Let's try to join two change actions
         var lastIndex = actions.Count - 1;
         var last = actions[lastIndex] as PropertyChangeAction;
-        if (last!=null) {
+        if (last!=null && ca.Path==last.Path) {
           foreach (var pair in last.Properties) {
             if (!ca.Properties.ContainsKey(pair.Key))
               ca.Properties.Add(pair.Key, pair.Value);

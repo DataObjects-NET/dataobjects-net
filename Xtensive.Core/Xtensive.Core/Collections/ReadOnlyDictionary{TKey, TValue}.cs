@@ -31,15 +31,13 @@ namespace Xtensive.Core.Collections
     private ReadOnlyCollection<TValue> innerValueDictionary;
 
     /// <inheritdoc/>
-    public int Count
-    {
+    public int Count {
       [DebuggerStepThrough]
       get { return innerDictionary.Count; }
     }
 
     /// <inheritdoc/>
-    long ICountable.Count
-    {
+    long ICountable.Count {
       [DebuggerStepThrough]
       get { return Count; }
     }
@@ -52,8 +50,7 @@ namespace Xtensive.Core.Collections
 
     /// <inheritdoc/>
     /// <exception cref="NotSupportedException">Always thrown by "set" accessor (setter).</exception>
-    public TValue this[TKey key]
-    {
+    public TValue this[TKey key]     {
       get { return innerDictionary[key]; }
       set { throw Exceptions.CollectionIsReadOnly(null); }
     }

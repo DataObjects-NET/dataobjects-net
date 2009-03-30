@@ -5,6 +5,7 @@
 // Created:    2009.03.16
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
@@ -166,8 +167,27 @@ namespace Xtensive.Modelling
     }
 
     /// <inheritdoc/>
+    public IEnumerable<Pair<string, IPathNode>> GetPathNodes(bool nestedOnly)
+    {
+      foreach (var pair in propertyAccessors) {
+        string propertyName = pair.Key;
+        var accessor = pair.Value;
+        if (accessor.PropertyInfo.GetAttribute<SystemPropertyAttribute>(
+          AttributeSearchOptions.InheritNone)!=null)
+          continue;
+        IPathNode propertyValue;
+        if (nestedOnly)
+          propertyValue = GetNestedProperty(propertyName);
+        else
+          propertyValue = accessor.HasGetter ? GetProperty(propertyName) as IPathNode : null;
+        if (propertyValue!=null)
+          yield return new Pair<string, IPathNode>(propertyName, propertyValue);
+      }
+    }
+
+    /// <inheritdoc/>
     public string Path {
-      //[DebuggerStepThrough]
+      [DebuggerStepThrough]
       get {
         if (cachedPath!=null)
           return cachedPath;
@@ -211,27 +231,31 @@ namespace Xtensive.Modelling
         OnPropertyChanged("EscapedName");
         OnPropertyChanged("Index");
         using (var scope = LogAction()) {
-          scope.Action = new CreateNodeAction()
+          var a = new CreateNodeAction()
             {
               Path = newParent==null ? string.Empty : newParent.Path,
               Type = GetType(),
               Name = newName,
-              Index = newIndex
+              Index = newIndex,
             };
+          scope.Action = a;
           PerformCreate();
+          a.NewPath = Path;
           scope.Commit();
         }
       }
       else {
         using (var scope = LogAction()) {
-          scope.Action = new MoveNodeAction()
+          var a = new MoveNodeAction()
             {
               Path = Path,
               Parent = newParent==parent ? null : newParent.Path,
               Name = newName==name ? null : newName,
               Index = newIndex==index ? (int?)null : newIndex
             };
+          scope.Action = a;
           PerformMove(newParent, newName, newIndex);
+          a.NewPath = Path;
           scope.Commit();
         }
       }
@@ -245,7 +269,7 @@ namespace Xtensive.Modelling
       EnsureIsEditable();
       ValidateRemove();
       using (var scope = LogAction(new RemoveNodeAction() { Path = Path })) {
-        PerformRemove();
+        PerformRemove(this);
         scope.Commit();
       }
       OnPropertyChanged("State");
@@ -493,20 +517,36 @@ namespace Xtensive.Modelling
     /// <summary>
     /// Actually performs <see cref="Remove"/> operation.
     /// </summary>
-    protected virtual void PerformRemove()
+    protected virtual void PerformRemove(Node source)
     {
       state = NodeState.Removed;
-      if (!Nesting.IsNestedToCollection)
-        Nesting.PropertyValue = null;
-      else {
-        var collection = (NodeCollection) Nesting.PropertyValue;
-        collection.Remove(this);
-        for (int i = 1; i < collection.Count; i++)
-          collection[i].EnsureIsEditable();
-        for (int i = 1; i < collection.Count; i++)
-          collection[i].PerformShift(-1);
+      if (source==this) {
+        // Updating parents
+        if (!Nesting.IsNestedToCollection)
+          Nesting.PropertyValue = null;
+        else {
+          var collection = (NodeCollection) Nesting.PropertyValue;
+          collection.Remove(this);
+          for (int i = 1; i < collection.Count; i++)
+            collection[i].EnsureIsEditable();
+          for (int i = 1; i < collection.Count; i++)
+            collection[i].PerformShift(-1);
+        }
+        Lock(true);
       }
-      Lock(true);
+      // Notifying children
+      foreach (var pair in GetPathNodes(true)) {
+        var pathNode = pair.Second;
+        var nodeCollection = pathNode as NodeCollection;
+        if (nodeCollection!=null)
+          foreach (Node nestedNode in nodeCollection)
+            nestedNode.PerformRemove(source);
+        var node = pathNode as Node;
+        if (node!=null)
+          node.PerformRemove(source);
+      }
+      if (source==this)
+        Lock(true);
     }
 
     #endregion
@@ -684,9 +724,9 @@ namespace Xtensive.Modelling
             continue;
 
           object sv = (source==null || !accessor.HasGetter) ?
-            GetDefaultPropertyValue(newPropertyName) : accessor.Getter(source);
+                                                              GetDefaultPropertyValue(newPropertyName) : accessor.Getter(source);
           object tv = (target==null || !accessor.HasGetter) ?
-            GetDefaultPropertyValue(newPropertyName) : accessor.Getter(target);
+                                                              GetDefaultPropertyValue(newPropertyName) : accessor.Getter(target);
           if (sv==null) {
             if (tv==null)
               continue; // Both are null
@@ -885,7 +925,7 @@ namespace Xtensive.Modelling
             continue;
           var propertyType = 
             (propertyValue==null ? accessor.PropertyInfo.PropertyType : propertyValue.GetType())
-            .GetShortName();
+              .GetShortName();
           var nested = GetNestedProperty(propertyName);
           if (nested!=null) {
             var collection = nested as NodeCollection;
