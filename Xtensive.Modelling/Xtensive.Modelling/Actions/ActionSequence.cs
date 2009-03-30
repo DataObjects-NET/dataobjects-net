@@ -56,9 +56,9 @@ namespace Xtensive.Modelling.Actions
           }
           actions.RemoveAt(lastIndex);
         }
-        action.Lock(true); 
-        actions.Add(action);
       }
+      action.Lock(true); 
+      actions.Add(action);
     }
 
     /// <inheritdoc/>

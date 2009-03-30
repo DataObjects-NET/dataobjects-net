@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace Xtensive.Modelling.Actions
 {
@@ -22,7 +23,7 @@ namespace Xtensive.Modelling.Actions
     /// <returns>The list of sorted actions.</returns>
     public static List<NodeAction> SortByDependency(IEnumerable<NodeAction> actions)
     {
-      throw new NotImplementedException();
+      return actions.ToList();
     }
   }
 }
